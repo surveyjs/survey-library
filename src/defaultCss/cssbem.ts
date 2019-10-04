@@ -159,7 +159,8 @@ export var bemCss = {
     clearButton: "sv-btn"
   },
   matrix: {
-    root: "sv-table sv-matrix",
+    tableWrapper: "sv-matrix",
+    root: "sv-table",
     cell: "sv-table__cell sv-matrix__cell",
     headerCell: "sv-table__cell sv-table__cell--header",
     label: "sv-item sv-radio sv-matrix__label",

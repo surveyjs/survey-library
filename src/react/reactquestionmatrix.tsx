@@ -70,13 +70,15 @@ export class SurveyQuestionMatrix extends SurveyQuestionElementBase {
       </thead>
     );
     return (
-      <fieldset>
-        <legend aria-label={this.question.locTitle.renderedHtml} />
-        <table className={cssClasses.root}>
-          {header}
-          <tbody>{rows}</tbody>
-        </table>
-      </fieldset>
+      <div className={cssClasses.tableWrapper}>
+        <fieldset>
+          <legend aria-label={this.question.locTitle.renderedHtml} />
+          <table className={cssClasses.root}>
+            {header}
+            <tbody>{rows}</tbody>
+          </table>
+        </fieldset>
+      </div>
     );
   }
 }

@@ -1,5 +1,6 @@
 <script type="text/html" id="survey-question-matrix">
-  <fieldset>
+ <div data-bind="css: question.koCss().tableWrapper"> 
+ <fieldset>
       <legend data-bind="attr: { 'aria-label': question.locTitle.renderedHtml }"></legend>
       <table data-bind="css: question.koCss().root">
             <!-- ko if: question.showHeader -->
@@ -51,6 +52,7 @@
           </tbody>
       </table>
   </fieldset>
+</div>
 </script>
 <script type="text/html" id="survey-text">
   <span data-bind="text:$data.renderedHtml"></span>

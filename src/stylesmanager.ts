@@ -147,15 +147,15 @@ export class StylesManager {
       "  float: none; margin-top: 1em;",
     ".sv_main .sv-paneldynamic__remove-btn ": "margin-top: 1.25em;",
     ".sv_main .sv-paneldynamic__prev-btn, .sv_main .sv-paneldynamic__next-btn":
-      "box-sizing: border-box; display: inline-block; fill: $text-color; cursor: pointer; width: 0.7em; top: -0.28em; position: absolute;",
+      "box-sizing: border-box; display: inline-block; cursor: pointer; width: 0.7em; top: -0.28em; position: absolute;",
     ".sv_main .sv-paneldynamic__prev-btn":
       "left: -1.3em; transform: rotate(90deg);",
     ".sv_main .sv-paneldynamic__next-btn ":
       "right: -1.3em; transform: rotate(270deg);",
-    ".sv_main .sv-paneldynamic__prev-btn.sv-paneldynamic__prev-btn--disabled, .sv_main .sv-paneldynamic__next-btn.sv-paneldynamic__next-btn--disabled ":
-      "fill: $disable-color; cursor: auto;",
+    ".sv_main .sv-paneldynamic__prev-btn.sv-paneldynamic__prev-btn--disabled, .sv_main .sv-paneldynamic__next-btn.sv-paneldynamic__next-btn--disabled":
+      "cursor: auto;",
     ".sv_main .sv-paneldynamic__progress-text":
-      "color: $progress-text-color; font-weight: bold; font-size: 0.87em; margin-top: 0.69em; margin-left: 4em",
+      "font-weight: bold; font-size: 0.87em; margin-top: 0.69em; margin-left: 4em",
     // EO paneldynamic
     //boolean
     ".sv_main .sv-boolean__switch":
@@ -266,7 +266,9 @@ export class StylesManager {
 
       "$error-color": "#ed5565",
       "$error-background-color": "#fd6575",
-      
+
+      "$progress-text-color": "#9d9d9d",
+      "$disable-color": "#dbdbdb",
       "$disabled-label-color": "rgba(64, 64, 64, 0.5)",
       "$slider-color": "white",
       "$disabled-switch-color": "#9f9f9f",
@@ -287,6 +289,8 @@ export class StylesManager {
       "$error-color": "#ed5565",
       "$error-background-color": "#fd6575",
 
+      "$progress-text-color": "#9d9d9d",
+      "$disable-color": "#dbdbdb",
       "$disabled-label-color": "rgba(64, 64, 64, 0.5)",
       "$slider-color": "white",
       "$disabled-switch-color": "#9f9f9f",
@@ -307,6 +311,8 @@ export class StylesManager {
       "$error-color": "#ed5565",
       "$error-background-color": "#fd6575",
 
+      "$progress-text-color": "#9d9d9d",
+      "$disable-color": "#dbdbdb",
       "$disabled-label-color": "rgba(64, 64, 64, 0.5)",
       "$slider-color": "white",
       "$disabled-switch-color": "#9f9f9f",
@@ -326,7 +332,9 @@ export class StylesManager {
 
       "$error-color": "#ed5565",
       "$error-background-color": "#fd6575",
-    
+
+      "$progress-text-color": "#9d9d9d",
+      "$disable-color": "#dbdbdb",
       "$disabled-label-color": "rgba(64, 64, 64, 0.5)",
       "$slider-color": "white",
       "$disabled-switch-color": "#9f9f9f",
@@ -346,7 +354,9 @@ export class StylesManager {
 
       "$error-color": "#ed5565",
       "$error-background-color": "#fd6575",
-    
+
+      "$progress-text-color": "#9d9d9d",
+      "$disable-color": "#dbdbdb",
       "$disabled-label-color": "rgba(64, 64, 64, 0.5)",
       "$slider-color": "white",
       "$disabled-switch-color": "#9f9f9f",
@@ -366,12 +376,13 @@ export class StylesManager {
 
       "$error-color": "#ed5565",
       "$error-background-color": "#fd6575",
-    
+
+      "$disable-color": "#dbdbdb",
+      "$progress-text-color": "#9d9d9d",
       "$disabled-label-color": "rgba(64, 64, 64, 0.5)",
       "$slider-color": "white",
       "$disabled-switch-color": "#9f9f9f",
       "$disabled-slider-color": "#cfcfcf"
-    
     },
     winterstone: {
       "$header-background-color": "#323232",
@@ -387,7 +398,9 @@ export class StylesManager {
 
       "$error-color": "#ed5565",
       "$error-background-color": "#fd6575",
-    
+
+      "$disable-color": "#dbdbdb",
+      "$progress-text-color": "#9d9d9d",
       "$disabled-label-color": "rgba(64, 64, 64, 0.5)",
       "$slider-color": "white",
       "$disabled-switch-color": "#9f9f9f",
@@ -397,6 +410,8 @@ export class StylesManager {
       "$main-color": "#1ab394",
       "$add-button-color": "#1948b3",
       "$remove-button-color": "#ff1800",
+      "$disable-color": "#dbdbdb",
+      "$progress-text-color": "#9d9d9d",
       "$disabled-label-color": "rgba(64, 64, 64, 0.5)",
       "$slider-color": "white",
       "$disabled-switch-color": "#9f9f9f",
@@ -406,7 +421,7 @@ export class StylesManager {
       "$main-color": "#18a689",
       "$text-color": "#404040;",
       "$progress-text-color": "#9d9d9d",
-      "$disable-color": "#dbdbdb;",
+      "$disable-color": "#dbdbdb",
       "$header-background-color": "#e7e7e7",
       "$disabled-label-color": "rgba(64, 64, 64, 0.5)",
       "$slider-color": "white",
@@ -417,9 +432,9 @@ export class StylesManager {
       "$main-color": "#18a689",
       "$text-color": "#404040;",
       "$progress-text-color": "#9d9d9d",
-      "$disable-color": "#dbdbdb;",
+      "$disable-color": "#dbdbdb",
       "$header-background-color": "#e7e7e7",
-      
+
       "$disabled-label-color": "rgba(64, 64, 64, 0.5)",
       "$slider-color": "white",
       "$disabled-switch-color": "#9f9f9f",
@@ -505,6 +520,17 @@ export class StylesManager {
     ".sv_main .sv_q_imgsel.checked label>div": "background-color: $main-color",
 
     ".sv_default_css .sv_p_description": "padding-left: 1.29em;",
+    //progress bar
+    ".sv_main .sv-progress": "background-color: $header-background-color;",
+    ".sv_main .sv-progress__bar": "background-color: $main-color;",
+
+    //paneldynamic
+    ".sv_main .sv-paneldynamic__prev-btn.sv-paneldynamic__prev-btn--disabled, .sv_main .sv-paneldynamic__next-btn.sv-paneldynamic__next-btn--disabled":
+      "fill: $disable-color;",
+    ".sv_main .sv-paneldynamic__progress-text": "color: $progress-text-color;",
+    ".sv_main .sv-paneldynamic__prev-btn, .sv_main .sv-paneldynamic__next-btn":
+      "fill: $text-color",
+
     //boolean
     ".sv_main .sv-boolean__switch": "background-color: $main-color;",
     ".sv_main .sv-boolean__slider": "background-color: $slider-color;",
@@ -536,31 +562,17 @@ export class StylesManager {
     ".sv_main .table>tbody>tr>td": "min-width: 90px;",
     ".sv_main f-panel .sv_qstn": "padding: 0; vertical-align: middle;",
 
-    // paneldynamic progress
-    ".sv_main .sv-progress":
-      "height: 0.19em; background-color: $header-background-color;",
-    ".sv_main .sv-progress__bar":
-      "background-color: $main-color; height: 100%; position: relative;",
-    // EO paneldynamic progress
+    //progress bar
+    ".sv_main .sv-progress": "background-color: $header-background-color;",
+    ".sv_main .sv-progress__bar": "background-color: $main-color;",
 
-    // paneldynamic
-    ".sv_main .sv-paneldynamic__progress-container":
-      "position: relative; margin-right: 250px; margin-top: 20px;",
-    ".sv_main .sv-paneldynamic__add-btn": "float: right; margin-top: -18px;",
-    ".sv_main .sv-paneldynamic__add-btn--list-mode":
-      "  float: none; margin-top: 1em;",
-    ".sv_main .sv-paneldynamic__remove-btn ": "margin-top: 1.25em;",
+    //paneldynamic
+    ".sv_main .sv-paneldynamic__prev-btn.sv-paneldynamic__prev-btn--disabled, .sv_main .sv-paneldynamic__next-btn.sv-paneldynamic__next-btn--disabled":
+      "fill: $disable-color;",
+    ".sv_main .sv-paneldynamic__progress-text": "color: $progress-text-color;",
     ".sv_main .sv-paneldynamic__prev-btn, .sv_main .sv-paneldynamic__next-btn":
-      "box-sizing: border-box; display: inline-block; fill: $text-color; cursor: pointer; width: 0.7em; top: -0.28em; position: absolute;",
-    ".sv_main .sv-paneldynamic__prev-btn":
-      "left: -1.3em; transform: rotate(90deg);",
-    ".sv_main .sv-paneldynamic__next-btn ":
-      "right: -1.3em; transform: rotate(270deg);",
-    ".sv_main .sv-paneldynamic__prev-btn.sv-paneldynamic__prev-btn--disabled, .sv_main .sv-paneldynamic__next-btn.sv-paneldynamic__next-btn--disabled ":
-      "fill: $disable-color; cursor: auto;",
-    ".sv_main .sv-paneldynamic__progress-text":
-      "color: $progress-text-color; font-weight: bold; font-size: 0.87em; margin-top: 0.69em; margin-left: 4em",
-    // EO paneldynamic
+      "fill: $text-color",
+
     //boolean
     ".sv_main .sv-boolean__switch": "background-color: $main-color;",
     ".sv_main .sv-boolean__slider": "background-color: $slider-color;",
@@ -623,31 +635,17 @@ export class StylesManager {
     ".sv_main.sv_bootstrapmaterial_css .progress-bar":
       "width: auto; margin-left: 2px; margin-right: 2px;",
 
-    // paneldynamic progress
-    ".sv_main .sv-progress":
-      "height: 0.19em; background-color: $header-background-color;",
-    ".sv_main .sv-progress__bar":
-      "background-color: $main-color; height: 100%; position: relative;",
-    // EO paneldynamic progress
+    //progress bar
+    ".sv_main .sv-progress": "background-color: $header-background-color;",
+    ".sv_main .sv-progress__bar": "background-color: $main-color;",
 
-    // paneldynamic
-    ".sv_main .sv-paneldynamic__progress-container":
-      "position: relative; margin-right: 250px; margin-top: 20px;",
-    ".sv_main .sv-paneldynamic__add-btn": "float: right; margin-top: -18px;",
-    ".sv_main .sv-paneldynamic__add-btn--list-mode":
-      "  float: none; margin-top: 1em;",
-    ".sv_main .sv-paneldynamic__remove-btn ": "margin-top: 1.25em;",
+    //paneldynamic
+    ".sv_main .sv-paneldynamic__prev-btn.sv-paneldynamic__prev-btn--disabled, .sv_main .sv-paneldynamic__next-btn.sv-paneldynamic__next-btn--disabled":
+      "fill: $disable-color;",
+    ".sv_main .sv-paneldynamic__progress-text": "color: $progress-text-color;",
     ".sv_main .sv-paneldynamic__prev-btn, .sv_main .sv-paneldynamic__next-btn":
-      "box-sizing: border-box; display: inline-block; fill: $text-color; cursor: pointer; width: 0.7em; top: -0.28em; position: absolute;",
-    ".sv_main .sv-paneldynamic__prev-btn":
-      "left: -1.3em; transform: rotate(90deg);",
-    ".sv_main .sv-paneldynamic__next-btn ":
-      "right: -1.3em; transform: rotate(270deg);",
-    ".sv_main .sv-paneldynamic__prev-btn.sv-paneldynamic__prev-btn--disabled, .sv_main .sv-paneldynamic__next-btn.sv-paneldynamic__next-btn--disabled ":
-      "fill: $disable-color; cursor: auto;",
-    ".sv_main .sv-paneldynamic__progress-text":
-      "color: $progress-text-color; font-weight: bold; font-size: 0.87em; margin-top: 0.69em; margin-left: 4em",
-    // EO paneldynamic
+      "fill: $text-color",
+    
     //boolean
     ".sv_main .sv-boolean__switch": "background-color: $main-color;",
     ".sv_main .sv-boolean__slider": "background-color: $slider-color;",

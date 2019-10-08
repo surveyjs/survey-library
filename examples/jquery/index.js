@@ -950,7 +950,7 @@ function init() {
     ]
   };
 
-  Survey.StylesManager.applyTheme("bem");
+  Survey.StylesManager.applyTheme("default");
 
   window.survey = new Survey.Model(json);
   survey.onComplete.add(function(result) {

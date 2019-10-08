@@ -46,8 +46,6 @@
         <template v-if="survey.state === 'running'">
           <div :class="css.body">
             <survey-progress v-if="survey.isShowProgressBarOnTop" :survey="survey" :css="css" />
-            <div style="content: ' '; display: table;"></div>
-            <!-- https://stackoverflow.com/questions/19718634/how-to-disable-margin-collapsing -->
             <survey-timerpanel v-if="survey.isTimerPanelShowingOnTop" :survey="survey" :css="css" />
             <div
               v-if="survey.isNavigationButtonsShowing === 'top' || survey.isNavigationButtonsShowing === 'both'"
@@ -88,8 +86,6 @@
               :css="css"
             />
             <survey-progress v-if="survey.isShowProgressBarOnBottom" :survey="survey" :css="css" />
-            <div style="content: ' '; display: table;"></div>
-            <!-- https://stackoverflow.com/questions/19718634/how-to-disable-margin-collapsing -->
             <div
               v-if="survey.isNavigationButtonsShowing === 'bottom' || survey.isNavigationButtonsShowing === 'both'"
               :class="css.footer"

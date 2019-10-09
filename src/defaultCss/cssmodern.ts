@@ -1,8 +1,8 @@
 import { surveyCss } from "./cssstandard";
-export var bemCss = {
-  root: "sv-root-bem",
-  container: "sv-container-bem",
-  header: "sv-title sv-container-bem__title",
+export var modernCss = {
+  root: "sv-root-modern",
+  container: "sv-container-modern",
+  header: "sv-title sv-container-modern__title",
   body: "sv-body",
   bodyEmpty: "sv-body sv-body--empty",
   footer: "sv-footer sv-body__footer sv-clearfix",
@@ -239,4 +239,4 @@ export var bemCss = {
   }
 };
 
-surveyCss["bem"] = bemCss;
+surveyCss["modern"] = modernCss;

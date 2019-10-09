@@ -172,6 +172,8 @@ module.exports = function(options) {
     files: [
       "survey.css",
       "survey.min.css",
+      "bem.css",
+      "bem.min.css",
       "survey." + options.platformPrefix + ".d.ts",
       "survey." + options.platformPrefix + ".js",
       "survey." + options.platformPrefix + ".min.js"

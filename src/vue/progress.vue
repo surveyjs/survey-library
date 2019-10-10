@@ -6,9 +6,8 @@
       role="progressbar"
       aria-valuemin="0"
       aria-valuemax="100"
-    >
-      <span :class="css.progressText">{{survey.progressText}}</span>
-    </div>
+    ></div>
+    <span :class="css.progressText">{{survey.progressText}}</span>
   </div>
 </template>
 

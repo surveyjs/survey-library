@@ -406,7 +406,7 @@ export class StylesManager {
       "$disabled-switch-color": "#9f9f9f",
       "$disabled-slider-color": "#cfcfcf"
     },
-    bem: {
+    modern: {
       "$main-color": "#1ab394",
       "$add-button-color": "#1948b3",
       "$remove-button-color": "#ff1800",
@@ -541,7 +541,7 @@ export class StylesManager {
       "background-color: $disabled-slider-color;"
     //eo boolean
   };
-  public static bemThemeCss: { [key: string]: string } = {
+  public static modernThemeCss: { [key: string]: string } = {
     ".sv-paneldynamic__add-btn": "background-color: $add-button-color;",
     ".sv-paneldynamic__remove-btn": "background-color: $remove-button-color;",
     ".sv-boolean__switch": "background-color: $main-color;",
@@ -645,7 +645,7 @@ export class StylesManager {
     ".sv_main .sv-paneldynamic__progress-text": "color: $progress-text-color;",
     ".sv_main .sv-paneldynamic__prev-btn, .sv_main .sv-paneldynamic__next-btn":
       "fill: $text-color",
-    
+
     //boolean
     ".sv_main .sv-boolean__switch": "background-color: $main-color;",
     ".sv_main .sv-boolean__slider": "background-color: $slider-color;",
@@ -688,9 +688,11 @@ export class StylesManager {
   ) {
     let ThemeCss: any;
 
-    if (themeName === "bem") themeSelector = ".sv-root-bem ";
+    if (themeName === "modern") themeSelector = ".sv-root-modern ";
 
-    if (["bootstrap", "bootstrapmaterial", "bem"].indexOf(themeName) !== -1) {
+    if (
+      ["bootstrap", "bootstrapmaterial", "modern"].indexOf(themeName) !== -1
+    ) {
       ThemeCss = (<any>StylesManager)[themeName + "ThemeCss"];
       surveyCss.currentType = themeName;
     } else {

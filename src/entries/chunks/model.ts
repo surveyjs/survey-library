@@ -1,6 +1,6 @@
 // styles
 import "../../main.scss";
-import "../../bem.scss";
+import "../../modern.scss";
 
 export let Version: string;
 Version = `${process.env.VERSION}`;

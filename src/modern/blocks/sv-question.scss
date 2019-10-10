@@ -40,6 +40,12 @@
   font-size: 0.74em;
   font-weight: bold;
 }
+.sv-question__erbox--location--top {
+  margin-bottom: 0.4375em;
+}
+.sv-question__erbox--location--bottom {
+  margin-top: 0.4375em;
+}
 .sv-question__footer {
   padding: 0.87em 0;
 }
@@ -54,7 +60,7 @@
 }
 .sv-question__header--location--left {
   float: left;
-  max-width: 27%;
+  width: 27%;
   margin-right: 0.875em;
 }
 .sv-question__header--location--bottom {

@@ -69,8 +69,6 @@ export var bemCss = {
     comment: "sv-comment",
     required: "sv-question--required",
     titleRequired: "sv-question__title--required",
-    hasError: "sv-question--has-error",
-    hasAnswer: "sv-question--has-answer",
     indent: 20,
     footer: "sv-question__footer",
     formGroup: "sv-question__form-group"
@@ -79,7 +77,7 @@ export var bemCss = {
     root: "",
     icon: "",
     item: "",
-    locationTop: "sv-question__erbox sv-erbox--location--top",
+    locationTop: "sv-question__erbox sv-question__erbox--location--top",
     locationBottom: "sv-question__erbox sv-question__erbox--location--bottom"
   },
   checkbox: {

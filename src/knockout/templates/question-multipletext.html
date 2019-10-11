@@ -12,10 +12,8 @@
             <!-- ko template: { name: item.editor.koTemplateName(), data: item.editor, as: 'question' } -->
             <!-- /ko -->
             <!-- ko if: item.editor.errorLocation == 'bottom' -->
-            <div data-bind="css: question.koCss().error.locationBottom">
-                <!-- ko template: { name: 'survey-question-errors', data: item.editor } -->
-                <!-- /ko -->
-            </div>
+              <!-- ko template: { name: 'survey-question-errors', data: item.editor } -->
+              <!-- /ko -->
             <!-- /ko -->
         </td>
       </tr>

@@ -6,10 +6,8 @@
         <!-- /ko -->
         <div data-bind="css: question.koContentClass">
             <!-- ko if: question.errorLocation == 'top' -->
-                <div data-bind="css: question.koCss().error.locationTop">
-                    <!-- ko template: { name: 'survey-question-errors', data: question } -->
-                    <!-- /ko -->
-                </div>
+                <!-- ko template: { name: 'survey-question-errors', data: question } -->
+                <!-- /ko -->
             <!-- /ko -->
             <!-- ko template: { name: question.koTemplateName(), data: question, afterRender: question.koQuestionAfterRender } -->
             <!-- /ko -->
@@ -21,10 +19,8 @@
             </div>
             <!-- /ko -->
             <!-- ko if: question.errorLocation == 'bottom' -->
-                <div data-bind="css: question.koCss().error.locationBottom">
-                    <!-- ko template: { name: 'survey-question-errors', data: question } -->
-                    <!-- /ko -->
-                </div>
+                <!-- ko template: { name: 'survey-question-errors', data: question } -->
+                <!-- /ko -->
             <!-- /ko -->
             <div data-bind="visible: question.hasDescriptionUnderInput, css: koCss().descriptionUnderInput">
                 <!-- ko template: { name: 'survey-string', data: locDescription } --><!-- /ko -->

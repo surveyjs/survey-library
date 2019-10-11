@@ -12,7 +12,7 @@
           @click="removePanelClick(panel)"
         />
       </div>
-      <hr />
+      <hr :class="question.cssClasses.separator" />
     </div>
     <survey-paneldynamicprogress v-if="question.isProgressBottomShowing" :question="question" />
     <input

@@ -36,7 +36,8 @@ export var modernCss = {
     progressContainer: "sv-paneldynamic__progress-container",
     progress: "sv-progress",
     progressBar: "sv-progress__bar",
-    progressText: "sv-paneldynamic__progress-text"
+    progressText: "sv-paneldynamic__progress-text",
+    separator: "sv-paneldynamic__separator"
   },
   progress: "sv-progress sv-body__progress",
   progressBar: "sv-progress__bar",

@@ -485,7 +485,7 @@ export class Question extends SurveyElement
     return this.survey.getUpdatedQuestionTitle(this, res);
     */
   }
-  protected getQuestionTitleTemplate() {
+  public getQuestionTitleTemplate() {
     if (this.questionTitleTemplateCallback)
       return this.questionTitleTemplateCallback();
     return !!this.survey ? this.survey.getQuestionTitleTemplate() : null;

@@ -139,6 +139,13 @@ export class SurveyQuestion extends SurveyElementBase {
       );
       delimiter = <span className={cssClasses.number}>.{"\u00A0"}</span>;
     }
+
+    var requredSpan = this.question.getQuestionTitleTemplate() ? null : (
+      <span className={cssClasses.requiredText}>
+        {this.question.requiredText}
+      </span>
+    );
+
     return (
       <h5
         className={this.getTitleClass(this.question)}
@@ -147,9 +154,7 @@ export class SurveyQuestion extends SurveyElementBase {
         {number}
         {delimiter}
         {titleText}
-        <span className={cssClasses.requiredText}>
-          {this.question.requiredText}
-        </span>
+        {requredSpan}
       </h5>
     );
   }

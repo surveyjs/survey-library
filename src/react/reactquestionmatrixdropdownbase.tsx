@@ -117,7 +117,7 @@ export class SurveyQuestionMatrixDropdownBase extends SurveyQuestionElementBase 
     var rows = [];
     var renderedRows = this.question.renderedTable.rows;
     for (var i = 0; i < renderedRows.length; i++) {
-      rows.push(this.renderRow(i, renderedRows[i], cssClasses));
+      rows.push(this.renderRow(renderedRows[i].id, renderedRows[i], cssClasses));
     }
     return <tbody>{rows}</tbody>;
   }

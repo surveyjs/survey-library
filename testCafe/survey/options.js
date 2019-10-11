@@ -221,7 +221,7 @@ frameworks.forEach(framework => {
     const isFirstSpanProgress = ClientFunction(
       () =>
         document
-          .querySelector("[role=progressbar] span")
+          .querySelector("[role=progressbar] + span")
           .innerHTML.indexOf("Page 1 of 3") !== -1
     );
 

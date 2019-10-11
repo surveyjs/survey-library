@@ -18,7 +18,7 @@ export { defaultBootstrapCss } from "../defaultCss/cssbootstrap";
 export {
   defaultBootstrapMaterialCss
 } from "../defaultCss/cssbootstrapmaterial";
-export { bemCss } from "../defaultCss/cssbem";
+export { modernCss } from "../defaultCss/cssmodern";
 
 import { Survey, SurveyWindow } from "./knockout";
 export { Survey as Model };

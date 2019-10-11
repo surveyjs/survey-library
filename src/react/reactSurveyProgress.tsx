@@ -28,9 +28,8 @@ export class SurveyProgress extends SurveyNavigationBase {
           role="progressbar"
           aria-valuemin={0}
           aria-valuemax={100}
-        >
-          <span className={this.css.progressText}>{this.progressText}</span>
-        </div>
+        />
+        <span className={this.css.progressText}>{this.progressText}</span>
       </div>
     );
   }

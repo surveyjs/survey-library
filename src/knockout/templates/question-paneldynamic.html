@@ -6,7 +6,7 @@
         <!-- /ko -->
         <input type="button" data-bind="visible: question.koCanRemovePanel() && !$data.koIsCollapsed(), click:question.koRemovePanelClick, css: question.koCss().button + ' ' + question.koCss().buttonRemove, value: question.panelRemoveText"
         />
-        <hr/>
+        <hr data-bind="css: question.koCss().separator"/>
         <!-- /ko -->
         <input type="button" data-bind="visible:question.koCanAddPanel, click:question.koAddPanelClick, css: question.koButtonAddCss, value: question.panelAddText"
         />

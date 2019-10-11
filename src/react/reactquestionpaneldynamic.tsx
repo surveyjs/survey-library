@@ -248,7 +248,7 @@ export class SurveyQuestionPanelDynamicItem extends SurveyPanel {
     var hr =
       this.question.isRenderModeList &&
       this.index < this.question.panelCount - 1 ? (
-        <hr />
+        <hr className={this.question.cssClasses.separator} />
       ) : null;
     var removeButton = this.renderButton();
     return (

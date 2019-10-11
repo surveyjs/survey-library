@@ -1,8 +1,8 @@
 import { surveyCss } from "./cssstandard";
-export var bemCss = {
-  root: "sv-root-bem",
-  container: "sv-container-bem",
-  header: "sv-title sv-container-bem__title",
+export var modernCss = {
+  root: "sv-root-modern",
+  container: "sv-container-modern",
+  header: "sv-title sv-container-modern__title",
   body: "sv-body",
   bodyEmpty: "sv-body sv-body--empty",
   footer: "sv-footer sv-body__footer sv-clearfix",
@@ -36,7 +36,8 @@ export var bemCss = {
     progressContainer: "sv-paneldynamic__progress-container",
     progress: "sv-progress",
     progressBar: "sv-progress__bar",
-    progressText: "sv-paneldynamic__progress-text"
+    progressText: "sv-paneldynamic__progress-text",
+    separator: "sv-paneldynamic__separator"
   },
   progress: "sv-progress sv-body__progress",
   progressBar: "sv-progress__bar",
@@ -69,8 +70,6 @@ export var bemCss = {
     comment: "sv-comment",
     required: "sv-question--required",
     titleRequired: "sv-question__title--required",
-    hasError: "sv-question--has-error",
-    hasAnswer: "sv-question--has-answer",
     indent: 20,
     footer: "sv-question__footer",
     formGroup: "sv-question__form-group"
@@ -79,7 +78,7 @@ export var bemCss = {
     root: "",
     icon: "",
     item: "",
-    locationTop: "sv-question__erbox sv-erbox--location--top",
+    locationTop: "sv-question__erbox sv-question__erbox--location--top",
     locationBottom: "sv-question__erbox sv-question__erbox--location--bottom"
   },
   checkbox: {
@@ -239,4 +238,4 @@ export var bemCss = {
   }
 };
 
-surveyCss["bem"] = bemCss;
+surveyCss["modern"] = modernCss;

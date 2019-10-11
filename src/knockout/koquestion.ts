@@ -89,6 +89,16 @@ export class QuestionImplementor extends ImplementorBase {
       }
       return result;
     });
+    (<any>this.question)["koErrorClass"] = ko.computed(function() {
+      var question = self.question;
+      var classes = question.cssClasses.error.root;
+      if (question.errorLocation == "top") {
+        classes += question.cssClasses.error.locationTop;
+      } else if (question.errorLocation === "bottom") {
+        classes += question.cssClasses.error.locationBottom;
+      }
+      return classes;
+    });
     question.registerFunctionOnPropertyValueChanged("visibleIndex", function() {
       self.onVisibleIndexChanged();
     });

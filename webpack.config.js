@@ -107,9 +107,9 @@ module.exports = function(options) {
       (options.buildType === "prod" ? "survey.min.css" : "survey.css")
   });
 
-  var bemThemeExtractCss = new ExtractTextPlugin({
+  var modernThemeExtractCss = new ExtractTextPlugin({
     filename:
-      packagePath + (options.buildType === "prod" ? "bem.min.css" : "bem.css")
+      packagePath + (options.buildType === "prod" ? "modern.min.css" : "modern.css")
   });
 
   var percentage_handler = function handler(percentage, msg) {
@@ -172,6 +172,8 @@ module.exports = function(options) {
     files: [
       "survey.css",
       "survey.min.css",
+      "modern.css",
+      "modern.min.css",
       "survey." + options.platformPrefix + ".d.ts",
       "survey." + options.platformPrefix + ".js",
       "survey." + options.platformPrefix + ".min.js"
@@ -250,8 +252,8 @@ module.exports = function(options) {
         },
         {
           test: /\.scss$/,
-          include: [path.resolve(__dirname, "src/bem.scss")],
-          use: bemThemeExtractCss.extract({
+          include: [path.resolve(__dirname, "src/modern.scss")],
+          use: modernThemeExtractCss.extract({
             fallback: "style-loader",
             use: [
               {
@@ -302,7 +304,7 @@ module.exports = function(options) {
         banner: banner
       }),
       mainThemeExtractCss,
-      bemThemeExtractCss
+      modernThemeExtractCss
     ],
     devtool: "inline-source-map"
   };

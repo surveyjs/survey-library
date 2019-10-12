@@ -320,7 +320,6 @@ export function getCurrecyCodes(): Array<string> {
     "XXX",
     "YER",
     "ZAR",
-    "ZAR",
     "ZMW",
     "ZWL"
   ];

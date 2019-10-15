@@ -24,11 +24,10 @@
   cursor: pointer;
   margin-right: 0.26em;
   box-sizing: content-box;
-
-  span {
-    //margin-top: 0.44em;
+  
+  &> span {
+    margin-top: 0.44em;
     display: inline-block;
-    line-height: 28px;
   }
 
   &:hover {

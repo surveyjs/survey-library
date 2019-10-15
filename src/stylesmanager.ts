@@ -85,26 +85,26 @@ export class StylesManager {
     ".sv_q_dd_other": "margin-top: 1em;",
     ".sv_q_dd_other input": "width: 100%;",
 
-    ".sv_qstn .sv-q-col-1":
+    ".sv_qstn .sv-q-col-1, .sv-question .sv-q-col-1":
       "width: 100%; display: inline-block; padding-right: 1em; box-sizing: border-box; word-break: break-word;",
-    ".sv_qstn .sv-q-col-2":
+    ".sv_qstn .sv-q-col-2, .sv-question .sv-q-col-2":
       "width: 50%; display: inline-block; padding-right: 1em; box-sizing: border-box; word-break: break-word;",
-    ".sv_qstn .sv-q-col-3":
+    ".sv_qstn .sv-q-col-3, .sv-question .sv-q-col-3":
       "width: 33.33333%; display: inline-block; padding-right: 1em; box-sizing: border-box; word-break: break-word;",
-    ".sv_qstn .sv-q-col-4":
+    ".sv_qstn .sv-q-col-4, .sv-question .sv-q-col-4":
       "width: 25%; display: inline-block; padding-right: 1em; box-sizing: border-box; word-break: break-word;",
-    ".sv_qstn .sv-q-col-5":
+    ".sv_qstn .sv-q-col-5, .sv-question .sv-q-col-5":
       "width: 20%; display: inline-block; padding-right: 1em; box-sizing: border-box; word-break: break-word;",
 
-    ".sv_qstn .sv-q-column-1":
+    ".sv_qstn .sv-q-column-1, .sv-question .sv-q-column-1":
       "width: 100%; max-width: 100%; display: inline-block; padding-right: 1em; box-sizing: border-box; word-break: break-word;",
-    ".sv_qstn .sv-q-column-2":
+    ".sv_qstn .sv-q-column-2, .sv-question .sv-q-column-2":
       "max-width: 50%; display: inline-block; padding-right: 1em; box-sizing: border-box; word-break: break-word;",
-    ".sv_qstn .sv-q-column-3":
+    ".sv_qstn .sv-q-column-3, .sv-question .sv-q-column-3":
       "max-width: 33.33333%; display: inline-block; padding-right: 1em; box-sizing: border-box; word-break: break-word;",
-    ".sv_qstn .sv-q-column-4":
+    ".sv_qstn .sv-q-column-4, .sv-question .sv-q-column-4":
       "max-width: 25%; display: inline-block; padding-right: 1em; box-sizing: border-box; word-break: break-word;",
-    ".sv_qstn .sv-q-column-5":
+    ".sv_qstn .sv-q-column-5, .sv-question .sv-q-column-5":
       "max-width: 20%; display: inline-block; padding-right: 1em; box-sizing: border-box; word-break: break-word;",
 
     ".sv_qstn .sv_q_file_input": "color: transparent;",

@@ -482,6 +482,9 @@ export class MatrixDropdownColumn extends Base implements ILocalizableOwner {
   }
   protected createNewQuestion(cellType: string): Question {
     var question = <Question>Serializer.createClass(cellType);
+    if (!question) {
+      question = <Question>Serializer.createClass("text");
+    }
     this.setQuestionProperties(question);
     return question;
   }

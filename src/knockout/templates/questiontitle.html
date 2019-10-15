@@ -6,7 +6,11 @@
         <span style="position: static;">.&nbsp</span>
         <!-- /ko -->
         <!-- ko template: { name: 'survey-string', data: locTitle } --><!-- /ko -->
+
+        <!-- ko ifnot: question.getQuestionTitleTemplate() -->     
         <span data-bind="css: koCss().requiredText, text: question.requiredText"></span>
+        <!-- /ko -->
+
     </h5>
     <div data-bind="visible: question.hasDescriptionUnderTitle, css: koCss().description">
         <!-- ko template: { name: 'survey-string', data: locDescription } --><!-- /ko -->

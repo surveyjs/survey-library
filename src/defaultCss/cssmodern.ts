@@ -155,7 +155,8 @@ export var modernCss = {
     itemControl: "sv-imagepicker__control",
     image: "sv-imagepicker__image",
     itemText: "sv-imagepicker__text",
-    clearButton: "sv-btn"
+    clearButton: "sv-btn",
+    other: "sv-comment sv-question__other",
   },
   matrix: {
     tableWrapper: "sv-matrix",

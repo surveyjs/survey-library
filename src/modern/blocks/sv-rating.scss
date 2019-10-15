@@ -12,7 +12,7 @@
 }
 
 .sv-rating__item-text {
-  width: 34px;
+  min-width: 34px;
   height: 34px;
   display: inline-block;
   color: $main-hover-color;
@@ -26,8 +26,9 @@
   box-sizing: content-box;
 
   span {
-    margin-top: 0.44em;
-    display: block;
+    //margin-top: 0.44em;
+    display: inline-block;
+    line-height: 28px;
   }
 
   &:hover {

@@ -17,7 +17,6 @@ class QuestionCheckboxImplementor extends QuestionCheckboxBaseImplementor {
 export class QuestionCheckbox extends QuestionCheckboxModel {
   koAllSelected: any;
   private isAllSelectedUpdating = false;
-  private isHovered = ko.observable<boolean>(false);
   constructor(public name: string) {
     super(name);
     new QuestionCheckboxImplementor(this);

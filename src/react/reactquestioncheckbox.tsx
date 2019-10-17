@@ -7,6 +7,7 @@ import { SurveyQuestionCommentItem } from "./reactquestioncomment";
 import { QuestionCheckboxModel } from "../question_checkbox";
 import { ItemValue } from "../itemvalue";
 import { ReactQuestionFactory } from "./reactquestionfactory";
+import { Base } from "../base";
 
 export class SurveyQuestionCheckbox extends SurveyQuestionElementBase {
   constructor(props: any) {
@@ -78,6 +79,9 @@ export class SurveyQuestionCheckboxItem extends ReactSurveyElement {
     this.handleOnChange = this.handleOnChange.bind(this);
     this.selectAllChanged = this.selectAllChanged.bind(this);
   }
+  protected getStateElement(): Base {
+    return this.item;
+  }
   protected get question(): QuestionCheckboxModel {
     return this.props.question;
   }
@@ -100,12 +104,6 @@ export class SurveyQuestionCheckboxItem extends ReactSurveyElement {
       !!this.question.customWidget.widgetJson.isDefaultRender ||
       !!this.question.customWidget.widgetJson.render
     );
-  }
-  componentDidMount() {
-    this.makeBaseElementReact(this.item);
-  }
-  componentWillUnmount() {
-    this.unMakeBaseElementReact(this.item);
   }
   handleOnChange(event: any) {
     var newValue = [].concat(this.question.renderedValue || []);

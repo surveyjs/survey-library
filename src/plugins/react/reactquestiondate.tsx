@@ -20,6 +20,7 @@ export default class SurveyQuestionDate extends React.Component<any, any> {
     this.setState({ value: this.question.value });
   }
   componentDidMount() {
+    super.componentDidMount();
     var funcText = this.question.getjQueryScript(this.getDateId());
     var scriptText = "$(function () { " + funcText + " });";
     var rootId = this.getDivId();

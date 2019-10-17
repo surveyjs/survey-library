@@ -61,7 +61,7 @@
     "karma-webpack": "2.0.2",
     "knockout": "3.5.0",
     "live-server": "1.2.0",
-    "node-sass": "4.9.2",
+    "node-sass": "^4.12.0",
     "node-uuid": "1.4.7",
     "pegjs": "^0.10.0",
     "prettier": "~1.12.0",

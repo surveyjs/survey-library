@@ -302,7 +302,7 @@ export class SurveyQuestionAndErrorsCell extends ReactSurveyElement {
     return this.props.question;
   }
   componentDidMount() {
-    this.componentDidMount();
+    super.componentDidMount();
     this.doAfterRender();
   }
   componentWillUnmount() {

@@ -20,9 +20,11 @@ export class SurveyQuestionBoolean extends SurveyQuestionElementBase {
     this.setState({ value: this.question.checkedValue });
   }
   componentDidMount() {
+    super.componentDidMount();
     this.updateIndeterminate();
   }
-  componentDidUpdate() {
+  componentDidUpdate(prevProps: any, prevState: any) {
+    super.componentDidUpdate(prevProps, prevState);
     this.updateIndeterminate();
   }
   private updateIndeterminate() {

@@ -1,6 +1,6 @@
 import * as React from "react";
 import { Question } from "../question";
-import { SurveyElement, SurveyError } from "../base";
+import { SurveyElement, SurveyError, Base } from "../base";
 import { SurveyQuestionCommentItem } from "./reactquestioncomment";
 import { SurveyElementBase, ReactSurveyElement } from "./reactquestionelement";
 import { SurveyCustomWidget } from "./custom-widget";
@@ -28,6 +28,9 @@ export class SurveyQuestion extends SurveyElementBase {
   constructor(props: any) {
     super(props);
   }
+  protected getStateElement(): Base {
+    return this.question;
+  }
   protected get question(): Question {
     return this.props.element;
   }
@@ -35,23 +38,24 @@ export class SurveyQuestion extends SurveyElementBase {
     return this.props.creator;
   }
   componentDidMount() {
-    this.makeBaseElementReact(this.question);
+    super.componentDidMount();
     if (!!this.question) {
       this.question["react"] = this;
     }
     this.doAfterRender();
   }
   componentWillUnmount() {
+    super.componentWillUnmount();
     if (!!this.question) {
       this.question["react"] = null;
     }
-    this.unMakeBaseElementReact(this.question);
     var el: any = this.refs["root"];
     if (!!el) {
       el.removeAttribute("data-rendered");
     }
   }
   componentDidUpdate(prevProps: any, prevState: any) {
+    super.componentDidUpdate(prevProps, prevState);
     this.doAfterRender();
   }
   private doAfterRender() {
@@ -285,6 +289,9 @@ export class SurveyQuestionAndErrorsCell extends ReactSurveyElement {
   constructor(props: any) {
     super(props);
   }
+  protected getStateElement(): Base {
+    return this.question;
+  }
   protected get question(): Question {
     return this.getQuestion();
   }
@@ -295,12 +302,12 @@ export class SurveyQuestionAndErrorsCell extends ReactSurveyElement {
     return this.props.question;
   }
   componentDidMount() {
-    this.makeBaseElementReact(this.question);
+    this.componentDidMount();
     this.doAfterRender();
   }
   componentWillUnmount() {
+    super.componentWillUnmount();
     if (this.question) {
-      this.unMakeBaseElementReact(this.question);
       var el: any = this.refs["cell"];
       if (!!el) {
         el.removeAttribute("data-rendered");
@@ -308,6 +315,7 @@ export class SurveyQuestionAndErrorsCell extends ReactSurveyElement {
     }
   }
   componentDidUpdate(prevProps: any, prevState: any) {
+    super.componentDidUpdate(prevProps, prevState);
     this.doAfterRender();
   }
   protected doAfterRender() {}

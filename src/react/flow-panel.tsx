@@ -14,6 +14,7 @@ export class SurveyFlowPanel extends SurveyPanel {
     return this.panel as FlowPanelModel;
   }
   componentDidMount() {
+    super.componentDidMount();
     if (!!this.flowPanel) {
       var self = this;
       this.flowPanel.onCustomHtmlProducing = function() {

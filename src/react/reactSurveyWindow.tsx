@@ -2,12 +2,16 @@ import * as React from "react";
 import { Survey } from "./reactSurvey";
 import { ReactWindowModel } from "./reactsurveymodel";
 import { SurveyElementBase } from "./reactquestionelement";
+import { Base } from "../base";
 
 export class SurveyWindow extends Survey {
   protected window: ReactWindowModel;
   constructor(props: any) {
     super(props);
     this.handleOnExpanded = this.handleOnExpanded.bind(this);
+  }
+  protected getStateElement(): Base {
+    return this.window;
   }
   handleOnExpanded(event: any) {
     this.window.isExpanded = !this.window.isExpanded;
@@ -75,12 +79,5 @@ export class SurveyWindow extends Survey {
     this.window.closeWindowOnCompleteCallback = function() {
       self.window.hide();
     };
-  }
-  componentDidMount() {
-    this.makeBaseElementReact(this.window);
-  }
-  componentWillUnmount() {
-    super.componentWillUnmount();
-    this.unMakeBaseElementReact(this.window);
   }
 }

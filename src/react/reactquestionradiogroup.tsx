@@ -7,6 +7,7 @@ import { QuestionRadiogroupModel } from "../question_radiogroup";
 import { ItemValue } from "../itemvalue";
 import { SurveyQuestionCommentItem } from "./reactquestioncomment";
 import { ReactQuestionFactory } from "./reactquestionfactory";
+import { Base } from "../base";
 
 export class SurveyQuestionRadiogroup extends SurveyQuestionElementBase {
   constructor(props: any) {
@@ -97,6 +98,9 @@ export class SurveyQuestionRadioItem extends ReactSurveyElement {
     super(props);
     this.handleOnChange = this.handleOnChange.bind(this);
   }
+  protected getStateElement(): Base {
+    return this.item;
+  }
   protected get question(): QuestionRadiogroupModel {
     return this.props.question;
   }
@@ -122,12 +126,6 @@ export class SurveyQuestionRadioItem extends ReactSurveyElement {
       !!this.question.customWidget.widgetJson.isDefaultRender ||
       !!this.question.customWidget.widgetJson.render
     );
-  }
-  componentDidMount() {
-    this.makeBaseElementReact(this.item);
-  }
-  componentWillUnmount() {
-    this.unMakeBaseElementReact(this.item);
   }
   handleOnChange(event: any) {
     this.question.renderedValue = this.item.value;

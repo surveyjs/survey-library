@@ -17,6 +17,7 @@ export class SurveyQuestionMatrix extends SurveyQuestionElementBase {
     return this.questionBase as QuestionMatrixModel;
   }
   componentDidMount() {
+    super.componentDidMount();
     if (this.question) {
       var self = this;
       this.question.visibleRowsChangedCallback = function() {
@@ -25,6 +26,7 @@ export class SurveyQuestionMatrix extends SurveyQuestionElementBase {
     }
   }
   componentWillUnmount() {
+    super.componentWillUnmount();
     if (this.question) {
       this.question.visibleRowsChangedCallback = null;
     }

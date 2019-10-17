@@ -26,6 +26,10 @@ export class ReactSurveyModel extends SurveyModel {
     this.afterRenderSurvey(el);
   }
   protected onLoadSurveyFromService() {
+    if(!!this.currentPage) {
+      this.currentPage.setWasShown(false);
+      this.currentPage.onFirstRendering();
+    }
     this.render();
   }
   protected onLoadingSurveyFromService() {

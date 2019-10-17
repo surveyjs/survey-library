@@ -74,8 +74,8 @@ export class Survey extends SurveyElementBase implements ISurveyCreator {
       renderResult = this.renderSurvey();
     }
     var title = this.renderTitle();
-    var onSubmit = function() {
-      return false;
+    var onSubmit = function(event: React.FormEvent<HTMLFormElement>) {
+      event.preventDefault();
     };
     return (
       <div ref="root" className={this.css.root}>

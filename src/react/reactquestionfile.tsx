@@ -112,8 +112,10 @@ export class SurveyQuestionFile extends SurveyQuestionElementBase {
         onDrop={this.handleOnDrop}
         onDragOver={this.handleOnDragOver}
       >
-        {chooseFile}
-        {noFileChosen}
+        <div className={this.question.cssClasses.wrapper}>
+          {chooseFile}
+          {noFileChosen}
+        </div>
       </div>
     );
   }

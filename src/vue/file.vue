@@ -3,8 +3,10 @@
         <input :class="question.cssClasses.fileInput" v-if="!question.isReadOnly" type="file" :id="question.inputId" @change="doChange" v-bind:aria-required="question.isRequired" :aria-label="question.locTitle.renderedHtml" :multiple="question.allowMultiple ? 'multiple' : undefined" v-bind:title="question.inputTitle" v-bind:accept="question.acceptedTypes" />
         <input v-if="question.isReadOnly" type="file" disabled :class="getPlaceholderClass()" :placeholder="question.title" style="color: transparent;"/>
         <div :class="question.cssClasses.fileDecorator" @drop="onDrop" @dragover="onDragOver">
-          <label :class="question.cssClasses.chooseFile + (question.isReadOnly ? ' ' + question.cssClasses.disabled : '')" :for="question.inputId">{{question.chooseButtonCaption}}</label>
-          <span :class="question.cssClasses.noFileChosen" v-if="question.isEmpty()">{{question.noFileChosenCaption}}</span>             
+          <div :class="question.cssClasses.wrapper">
+            <label :class="question.cssClasses.chooseFile + (question.isReadOnly ? ' ' + question.cssClasses.disabled : '')" :for="question.inputId">{{question.chooseButtonCaption}}</label>
+            <span :class="question.cssClasses.noFileChosen" v-if="question.isEmpty()">{{question.noFileChosenCaption}}</span>             
+          </div>
         </div>
         <button type="button" v-if="!question.isReadOnly && !question.isEmpty()" :class="question.cssClasses.removeButton" @click="doClean">{{question.cleanButtonCaption}}</button>
         <div v-if="!question.isEmpty()">
@@ -19,7 +21,7 @@
                     <path d="M8,2C4.7,2,2,4.7,2,8s2.7,6,6,6s6-2.7,6-6S11.3,2,8,2z M11,10l-1,1L8,9l-2,2l-1-1l2-2L5,6l1-1l2,2l2-2l1,1L9,8 L11,10z"/>
                   </svg>   
                 </div>
-                  <div v-if="val.name" :class="question.cssClasses.fileSignBottom">
+                <div v-if="val.name" :class="question.cssClasses.fileSignBottom">
                   <a :href="val.content" :title="val.name" :download="val.name" :width="question.imageWidth">{{val.name}}</a>
                 </div>
             </span>

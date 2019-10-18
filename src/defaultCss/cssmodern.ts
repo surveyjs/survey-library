@@ -217,7 +217,8 @@ export var modernCss = {
     removeButton: "sv-hidden",
     removeButtonBottom: "sv-btn sv-file__clean-btn",
     removeFile: "sv-hidden",
-    removeFileSvg: "sv-file__remove-svg"
+    removeFileSvg: "sv-file__remove-svg",
+    wrapper: "sv-file__wrapper"
   },
   saveData: {
     root: "",

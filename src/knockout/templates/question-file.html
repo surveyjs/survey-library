@@ -7,8 +7,10 @@
       <input type="file" disabled data-bind="css: 'form-control ' + question.cssClasses.placeholderInput, attr: { placeholder: question.title }" style="color: transparent;"/>
       <!-- /ko -->
       <div data-bind="css:question.koCss().fileDecorator, event:{ dragover: question.ondragover, drop: question.ondrop}">
+        <div data-bind="css: question.koCss().wrapper">
           <label data-bind="css: question.koChooseFileClass, attr: {for: question.inputId}, text: question.chooseButtonCaption"></label>
           <span data-bind="css: question.koCss().noFileChosen, visible: !question.koHasValue(), text: question.noFileChosenCaption"></span>             
+        </div>
       </div>
       <!-- ko if: question.koHasValue -->
       <button type="button" data-bind="css: question.cssClasses.removeButton, click: question.doclean, text: question.cleanButtonCaption"></button>

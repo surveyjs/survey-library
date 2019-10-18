@@ -1,6 +1,6 @@
 .sv-file__decorator {
   background-color: #f5f5f5;
-  padding: 1.68em 33%;
+  padding: 1.68em 0;
 }
 .sv-file__clean-btn {
   background-color: $remove-button-color;
@@ -43,4 +43,12 @@
   color: $text-color;
   text-align: left;
   text-decoration: none;
+}
+.sv-file__wrapper {
+  position: relative;
+  display: inline-block;
+  margin: 0;
+  margin-left: 50%;
+  transform: translate(-50%, 0);
+  padding: 0;
 }

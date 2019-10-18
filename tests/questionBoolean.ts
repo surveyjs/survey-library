@@ -2,6 +2,8 @@ import { SurveyModel } from "../src/survey";
 
 import { QuestionBooleanModel } from "../src/question_boolean";
 
+export default QUnit.module("boolean");
+
 
 QUnit.test("Test boolean labelTrue and labelFalse property", function(
   assert
@@ -19,29 +21,29 @@ QUnit.test("Test boolean labelTrue and labelFalse property", function(
 
   var question = <QuestionBooleanModel>survey.getAllQuestions()[0];
 
-  assert.equal(question.labelFalse, "Yes", "default labelTrue is ok");
-  assert.equal(question.labelTrue, "No", "default labelFalse is ok");
+  assert.equal(question.labelTrue, "Yes", "default labelTrue is ok");
+  assert.equal(question.labelFalse, "No", "default labelFalse is ok");
   assert.equal(
-    question.locLabelFalse.renderedHtml,
+    question.locLabelTrue.renderedHtml,
     "Yes",
     "default locLabelTrue is ok"
   );
   assert.equal(
-    question.locLabelTrue.renderedHtml,
+    question.locLabelFalse.renderedHtml,
     "No",
     "default locLabelFalse is ok"
   );
-  question.labelFalse = "Uncheck"
   question.labelTrue = "Check"
-  assert.equal(question.labelFalse, "Check", "labelTrue is ok");
-  assert.equal(question.labelTrue, "Uncheck", "labelFalse is ok");
+  question.labelFalse = "Uncheck"
+  assert.equal(question.labelTrue, "Check", "labelTrue is ok");
+  assert.equal(question.labelFalse, "Uncheck", "labelFalse is ok");
   assert.equal(
-    question.locLabelFalse.renderedHtml,
+    question.locLabelTrue.renderedHtml,
     "Check",
     "locLabelTrue is ok"
   );
   assert.equal(
-    question.locLabelTrue.renderedHtml,
+    question.locLabelFalse.renderedHtml,
     "Uncheck",
     "locLabelFalse is ok"
   );

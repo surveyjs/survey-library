@@ -78,7 +78,7 @@ export class QuestionPanelDynamicItem
     return this.data.getPanelItemData(this);
   }
   getFilteredValues(): any {
-    var values: { [key: string]: any } = { panel: this.getAllValues() };
+    var values: { [key: string]: any } = {};
     var surveyValues =
       !!this.data && !!this.data.getRootData()
         ? this.data.getRootData().getFilteredValues()
@@ -86,6 +86,7 @@ export class QuestionPanelDynamicItem
     for (var key in surveyValues) {
       values[key] = surveyValues[key];
     }
+    values[QuestionPanelDynamicItem.ItemVariableName] = this.getAllValues();
     return values;
   }
   getFilteredProperties(): any {

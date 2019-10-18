@@ -2745,3 +2745,52 @@ QUnit.test(
     FunctionFactory.Instance.unregister("asyncFunc");
   }
 );
+
+QUnit.test(
+  "Nested panel, setting survey.data when survey.clearInvisibleValues='onHidden', Bug# 1866",
+  function(assert) {
+    var json = {
+      clearInvisibleValues: "onHidden",
+      elements: [
+        {
+          name: "samples",
+          type: "paneldynamic",
+          templateElements: [
+            {
+              name: "surgicalProcedures",
+              type: "paneldynamic",
+              templateElements: [
+                {
+                  name: "histologicalDianosis",
+                  type: "text"
+                },
+                {
+                  name: "histologicalCategory",
+                  type: "text",
+                  visibleIf: "{panel.histologicalDianosis}='yes'"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    };
+    var survey = new SurveyModel(json);
+    survey.data = {
+      samples: [
+        {
+          surgicalProcedures: [
+            {
+              histologicalDianosis: "yes",
+              histologicalCategory: "foo"
+            }
+          ]
+        }
+      ]
+    };
+    var nestedPanel = <QuestionPanelDynamicModel>(<QuestionPanelDynamicModel>survey.getAllQuestions()[0])
+      .panels[0].questions[0];
+    var histologicalCategory = nestedPanel.panels[0].questions[1];
+    assert.equal(histologicalCategory.value, "foo", "value set correctly");
+  }
+);

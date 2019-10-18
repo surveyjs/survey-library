@@ -74,7 +74,7 @@ export class SurveyQuestionBoolean extends SurveyQuestionElementBase {
             id={this.question.inputId}
             className={cssClasses.control}
             disabled={this.isDisplayMode}
-            checked={this.question.checkedValue}
+            checked={this.question.checkedValue || false}
             onChange={this.handleOnChange}
             aria-label={this.question.locTitle.renderedHtml}
           />

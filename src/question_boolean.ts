@@ -11,6 +11,10 @@ export class QuestionBooleanModel extends Question {
   constructor(public name: string) {
     super(name);
     this.createLocalizableString("label", this, true);
+    this.createLocalizableString("labelFalse", this, true);
+    this.createLocalizableString("labelTrue", this, true);
+    this.labelTrue = surveyLocalization.getString("booleanCheckedLabel");
+    this.labelFalse = surveyLocalization.getString("booleanUncheckedLabel");
   }
   public getType(): string {
     return "boolean";
@@ -87,6 +91,33 @@ export class QuestionBooleanModel extends Question {
     if (this.locLabel.text) return this.locLabel;
     return this.showTitle ? this.locLabel : this.locTitle;
   }
+ 
+  /**
+   * Set this property, if you want to have a different label for state when check is set.
+   */
+  public get labelTrue(): any {
+    return this.getLocalizableStringText("labelTrue");
+  }
+  public set labelTrue(val: any) {
+    this.setLocalizableStringText("labelTrue", val);
+  }
+  get locLabelTrue(): LocalizableString {
+    return this.getLocalizableString("labelTrue");
+  }
+ 
+  /**
+   * Set this property, if you want to have a different label for state when check is unset.
+   */
+  public get labelFalse(): any {
+    return this.getLocalizableStringText("labelFalse");
+  }
+  public set labelFalse(val: any) {
+    this.setLocalizableStringText("labelFalse", val);
+  }
+  get locLabelFalse(): LocalizableString {
+    return this.getLocalizableString("labelFalse");
+  }
+  
   /**
    * Set this property to true to show the question title. It is hidden by default.
    */
@@ -96,12 +127,7 @@ export class QuestionBooleanModel extends Question {
   public set showTitle(val: boolean) {
     this.setPropertyValue("showTitle", val);
   }
-  public get checkedLabel(): string {
-    return surveyLocalization.getString("booleanCheckedLabel");
-  }
-  public get uncheckedLabel(): string {
-    return surveyLocalization.getString("booleanUncheckedLabel");
-  }
+  
   /**
    * Set this property, if you want to have a different value from true when check is set.
    */
@@ -143,6 +169,14 @@ Serializer.addClass(
       choices: ["indeterminate", "false", "true"]
     },
     { name: "label:text", serializationProperty: "locLabel" },
+    {
+      name: "labelTrue:text",
+      serializationProperty: "locLabelTrue"
+    },
+    {
+      name: "labelFalse:text",
+      serializationProperty: "locLabelFalse"
+    },
     "showTitle:boolean",
     "valueTrue",
     "valueFalse"
@@ -152,7 +186,6 @@ Serializer.addClass(
   },
   "question"
 );
-
 QuestionFactory.Instance.registerQuestion("boolean", name => {
   return new QuestionBooleanModel(name);
 });

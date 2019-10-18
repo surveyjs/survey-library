@@ -27,6 +27,7 @@ export class SurveyQuestionPanelDynamic extends SurveyQuestionElementBase {
     return this.questionBase as QuestionPanelDynamicModel;
   }
   componentDidMount() {
+    super.componentDidMount();
     this.setState({ panelCounter: 0 });
     var self = this;
     this.question.panelCountChangedCallback = function() {
@@ -40,6 +41,7 @@ export class SurveyQuestionPanelDynamic extends SurveyQuestionElementBase {
     };
   }
   componentWillUnmount() {
+    super.componentWillUnmount();
     this.question.panelCountChangedCallback = null;
     this.question.currentIndexChangedCallback = null;
     this.question.renderModeChangedCallback = null;

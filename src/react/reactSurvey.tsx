@@ -2,7 +2,7 @@ import * as React from "react";
 import { ReactSurveyModel } from "./reactsurveymodel";
 import { SurveyPage } from "./page";
 import { SurveyNavigation } from "./reactSurveyNavigation";
-import { SurveyError } from "../base";
+import { SurveyError, Base } from "../base";
 import { Question } from "../question";
 import { ISurveyCreator } from "./reactquestion";
 import { ReactQuestionFactory } from "./reactquestionfactory";
@@ -34,7 +34,11 @@ export class Survey extends SurveyElementBase implements ISurveyCreator {
     //set the first page
     var dummy = this.survey.currentPage;
   }
+  protected getStateElement(): Base {
+    return this.survey;
+  }
   componentDidUpdate(prevProps: any, prevState: any) {
+    super.componentDidUpdate(prevProps, prevState);
     if (this.isCurrentPageChanged) {
       this.isCurrentPageChanged = false;
       this.survey.scrollToTopOnPageChange();
@@ -42,7 +46,7 @@ export class Survey extends SurveyElementBase implements ISurveyCreator {
     this.updateSurvey(this.props, prevProps);
   }
   componentDidMount() {
-    this.makeBaseElementReact(this.survey);
+    super.componentDidMount();
     var el = this.refs["root"];
     if (el && this.survey) this.survey.doAfterRenderSurvey(el);
     if (this.survey) {
@@ -50,7 +54,7 @@ export class Survey extends SurveyElementBase implements ISurveyCreator {
     }
   }
   componentWillUnmount() {
-    this.unMakeBaseElementReact(this.survey);
+    super.componentWillUnmount();
     if (this.survey) {
       this.survey.stopTimer();
       this.survey.onCurrentPageChanged.remove(this.onCurrentPageChangedHandler);
@@ -70,8 +74,8 @@ export class Survey extends SurveyElementBase implements ISurveyCreator {
       renderResult = this.renderSurvey();
     }
     var title = this.renderTitle();
-    var onSubmit = function() {
-      return false;
+    var onSubmit = function(event: React.FormEvent<HTMLFormElement>) {
+      event.preventDefault();
     };
     return (
       <div ref="root" className={this.css.root}>

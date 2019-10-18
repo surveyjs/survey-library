@@ -4,12 +4,15 @@ import { SurveyModel } from "../survey";
 import { QuestionRowModel, PanelModel } from "../panel";
 import { Question } from "../question";
 import { SurveyElementBase } from "./reactquestionelement";
-import { IElement } from "../base";
+import { IElement, Base } from "../base";
 import { ReactElementFactory } from "./element-factory";
 
 export class SurveyRow extends SurveyElementBase {
   constructor(props: any) {
     super(props);
+  }
+  protected getStateElement(): Base {
+    return this.row;
   }
   private get row(): QuestionRowModel {
     return this.props.row;
@@ -22,12 +25,6 @@ export class SurveyRow extends SurveyElementBase {
   }
   protected get css(): any {
     return this.props.css;
-  }
-  componentDidMount() {
-    this.makeBaseElementReact(this.row);
-  }
-  componentWillUnmount() {
-    this.unMakeBaseElementReact(this.row);
   }
   render(): JSX.Element {
     if (this.row == null || this.survey == null || this.creator == null)

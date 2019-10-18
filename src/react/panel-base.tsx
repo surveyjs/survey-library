@@ -3,11 +3,15 @@ import { ISurveyCreator } from "./reactquestion";
 import { SurveyModel } from "../survey";
 import { QuestionRowModel, PanelModel, PanelModelBase } from "../panel";
 import { SurveyElementBase } from "./reactquestionelement";
+import { Base } from "../base";
 import { SurveyRow } from "./row";
 
 export class SurveyPanelBase extends SurveyElementBase {
   constructor(props: any) {
     super(props);
+  }
+  protected getStateElement(): Base {
+    return this.panelBase;
   }
   protected get survey(): SurveyModel {
     return this.getSurvey();
@@ -31,17 +35,18 @@ export class SurveyPanelBase extends SurveyElementBase {
     return this.props.css;
   }
   componentDidMount() {
-    this.makeBaseElementReact(this.panelBase);
+    super.componentDidMount();
     this.doAfterRender();
   }
   componentWillUnmount() {
-    this.unMakeBaseElementReact(this.panelBase);
+    super.componentWillUnmount();
     var el: any = this.refs["root"];
     if (!!el) {
       el.removeAttribute("data-rendered");
     }
   }
   componentDidUpdate(prevProps: any, prevState: any) {
+    super.componentDidUpdate(prevProps, prevState);
     if (
       !!prevProps.page &&
       !!this.survey &&
@@ -68,7 +73,11 @@ export class SurveyPanelBase extends SurveyElementBase {
     }
     return rows;
   }
-  protected createRow(row: QuestionRowModel, index: number, css: any): JSX.Element {
+  protected createRow(
+    row: QuestionRowModel,
+    index: number,
+    css: any
+  ): JSX.Element {
     var rowName = "row" + (index + 1);
     return (
       <SurveyRow

@@ -12,7 +12,7 @@
           <span data-bind="css: question.koCss().noFileChosen, visible: !question.koHasValue(), text: question.noFileChosenCaption"></span>             
         </div>
       </div>
-      <!-- ko if: question.koHasValue -->
+      <!-- ko if: question.koHasValue() && !question.isReadOnly -->
       <button type="button" data-bind="css: question.cssClasses.removeButton, click: question.doclean, text: question.cleanButtonCaption"></button>
       <!-- /ko -->
       <div data-bind="foreach: question.koData, visible: question.koHasValue">
@@ -42,7 +42,7 @@
               <!-- /ko -->
           </span>
       </div>
-      <!-- ko if: question.koHasValue -->
+      <!-- ko if: question.koHasValue() && !question.isReadOnly -->
       <button type="button" data-bind="css: question.cssClasses.removeButtonBottom, click: question.doclean, text: question.cleanButtonCaption"></button>
       <!-- /ko -->
   </div>

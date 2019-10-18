@@ -7,6 +7,7 @@ import { QuestionDropdownModel } from "../question_dropdown";
 import { SurveyQuestionCommentItem } from "./reactquestioncomment";
 import { ReactQuestionFactory } from "./reactquestionfactory";
 import { ItemValue } from "../itemvalue";
+import { Base } from "../base";
 
 export class SurveyQuestionDropdown extends SurveyQuestionElementBase {
   constructor(props: any) {
@@ -99,14 +100,11 @@ export class SurveyQuestionOptionItem extends ReactSurveyElement {
   constructor(props: any) {
     super(props);
   }
+  protected getStateElement(): Base {
+    return this.item;
+  }
   private get item(): ItemValue {
     return this.props.item;
-  }
-  componentDidMount() {
-    this.makeBaseElementReact(this.item);
-  }
-  componentWillUnmount() {
-    this.unMakeBaseElementReact(this.item);
   }
   render(): JSX.Element {
     if (!this.item) return;

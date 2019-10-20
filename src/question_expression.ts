@@ -95,7 +95,7 @@ export class QuestionExpressionModel extends Question {
     return (<any>this.format)["format"](str);
   }
   /**
-   * You may set this property to "decimal", "currency" or "percent". If you set it to "currency", you may use the currency property to display the value in currency different from USD.
+   * You may set this property to "decimal", "currency", "percent" or "date". If you set it to "currency", you may use the currency property to display the value in currency different from USD.
    * @see currency
    */
   public get displayStyle(): string {
@@ -122,6 +122,10 @@ export class QuestionExpressionModel extends Question {
     this.setPropertyValue("useGrouping", val);
   }
   protected getValueAsStr(val: any): string {
+    if (this.displayStyle == "date") {
+      var d = new Date(val);
+      if (!!d && !!d.toLocaleDateString) return d.toLocaleDateString();
+    }
     if (this.displayStyle != "none" && Helpers.isNumber(val)) {
       var locale = this.getLocale();
       if (!locale) locale = "en";
@@ -334,7 +338,7 @@ Serializer.addClass(
     {
       name: "displayStyle",
       default: "none",
-      choices: ["none", "decimal", "currency", "percent"]
+      choices: ["none", "decimal", "currency", "percent", "date"]
     },
     {
       name: "currency",

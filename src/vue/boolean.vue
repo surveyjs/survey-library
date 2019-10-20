@@ -13,11 +13,11 @@
         v-bind:aria-required="question.isRequired"
         :aria-label="question.locTitle.renderedHtml"
       />
-      <span :class="getLabelClass(false)">{{question.uncheckedLabel}}</span>
+      <span :class="getLabelClass(false)">{{question.locLabelFalse.renderedHtml}}</span>
       <div :class="question.cssClasses.switch">
         <span :class="question.cssClasses.slider" />
       </div>
-      <span :class="getLabelClass(true)">{{question.checkedLabel}}</span>
+      <span :class="getLabelClass(true)">{{question.locLabelTrue.renderedHtml}}</span>
     </label>
   </div>
 </template>

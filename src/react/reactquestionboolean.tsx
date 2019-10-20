@@ -74,18 +74,18 @@ export class SurveyQuestionBoolean extends SurveyQuestionElementBase {
             id={this.question.inputId}
             className={cssClasses.control}
             disabled={this.isDisplayMode}
-            checked={this.question.checkedValue}
+            checked={this.question.checkedValue || false}
             onChange={this.handleOnChange}
             aria-label={this.question.locTitle.renderedHtml}
           />
           <span className={this.getLabelClass(false)}>
-            {this.question.uncheckedLabel}
+            {this.question.locLabelFalse.renderedHtml}
           </span>
           <div className={cssClasses.switch}>
             <span className={cssClasses.slider} />
           </div>
           <span className={this.getLabelClass(true)}>
-            {this.question.checkedLabel}
+            {this.question.locLabelTrue.renderedHtml}
           </span>
         </label>
       </div>

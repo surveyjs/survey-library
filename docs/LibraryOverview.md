@@ -557,6 +557,9 @@ Here is the list of built-in functions:
 | sum(par1, par2, ...) | Returns the summary of passed parameters. |
 | avg(par1, par2, ...) | Returns the average value for passed parameters. |
 | sumInArray({questionName}, 'propertyName') | Returns the summary for array of objects {questionName} by property 'propertyName'. `sumInArray('matrixdynamic', 'total') > 1000</` |
+| avgInArray({questionName}, 'propertyName') | Returns the average value for array of objects {questionName} by property 'propertyName'. `avgInArray('matrixdynamic', 'quantity') > 4</` |
+| minInArray({questionName}, 'propertyName') | Returns the minimum value for array of objects {questionName} by property 'propertyName'. `minInArray('matrixdynamic', 'quantity') > 1</` |
+| maxInArray({questionName}, 'propertyName') | Returns the maximum value for array of objects {questionName} by property 'propertyName'. `maxInArray('matrixdynamic', 'quantity') > 10</` |
 
 If you feel there is a need in a particular function, then [write us](https://github.com/surveyjs/surveyjs/issues) about it.
 

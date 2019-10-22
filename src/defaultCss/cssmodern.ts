@@ -19,6 +19,7 @@ export var modernCss = {
     titleExpandable: "sv-panel__title--expandable",
     description: "sv-description sv-panel__description",
     container: "sv-panel sv-row__panel",
+    content: "sv-panel__content",
     icon: "sv-panel__icon",
     iconExpanded: "sv-panel__icon--expanded"
   },

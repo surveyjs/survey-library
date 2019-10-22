@@ -24,6 +24,7 @@ export var modernCss = {
     iconExpanded: "sv-panel__icon--expanded"
   },
   paneldynamic: {
+    root: "sv-paneldynamic",
     navigation: "sv-paneldynamic__navigation",
     title: "sv-title sv-question__title",
     button: "sv-btn",

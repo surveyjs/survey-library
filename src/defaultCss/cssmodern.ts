@@ -68,6 +68,7 @@ export var modernCss = {
     requiredText: "sv-question__required-text",
     number: "sv-question__num",
     description: "sv-description sv-question__description",
+    descriptionUnderInput: "sv-description sv-question__description",
     comment: "sv-comment",
     required: "sv-question--required",
     titleRequired: "sv-question__title--required",

@@ -466,8 +466,8 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     }
   }
   public hasErrors(fireCallback: boolean = true, rec: any = null): boolean {
-    var isDuplicated = this.isValueDuplicated();
     var prevValue = super.hasErrors(fireCallback);
+    var isDuplicated = this.isValueDuplicated();
     return isDuplicated || prevValue;
   }
   private hasErrorInRows(): boolean {

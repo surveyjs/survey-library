@@ -319,6 +319,16 @@ QUnit.test("Matrixdynamic duplicationError", function(assert) {
     true,
     "There is the error, row[0].column1=val1 and row[1].column2=val1"
   );
+  assert.equal(
+    question.visibleRows[0].getQuestionByColumnName("column1").errors.length,
+    0,
+    "There is no errors in the first row"
+  );
+  assert.equal(
+    question.visibleRows[1].getQuestionByColumnName("column1").errors.length,
+    1,
+    "There is one error in the second row"
+  );
   question.value = [{ column1: "val1" }, { column1: "val2" }];
   assert.equal(
     question.hasErrors(),

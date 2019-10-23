@@ -368,7 +368,7 @@ Serializer.addClass(
       default: "default",
       choices: ["default", "initial", "random"]
     },
-    { name: "maxTimeToFinish:number", default: 0 }
+    { name: "maxTimeToFinish:number", default: 0, minValue: 0 }
   ],
   function() {
     return new PageModel();

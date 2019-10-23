@@ -62,9 +62,17 @@ export class QuestionDropdownModel extends QuestionSelectBase {
     for (var i = 0; i < items.length; i++) {
       res.push(items[i]);
     }
-    if(this.minMaxChoices.length === 0 || this.minMaxChoices.length !== (this.choicesMax - this.choicesMin) / this.choicesStep + 1) {
+    if (
+      this.minMaxChoices.length === 0 ||
+      this.minMaxChoices.length !==
+        (this.choicesMax - this.choicesMin) / this.choicesStep + 1
+    ) {
       this.minMaxChoices = [];
-      for (var i = this.choicesMin; i <= this.choicesMax; i += this.choicesStep) {
+      for (
+        var i = this.choicesMin;
+        i <= this.choicesMax;
+        i += this.choicesStep
+      ) {
         this.minMaxChoices.push(new ItemValue(i));
       }
     }
@@ -114,7 +122,7 @@ Serializer.addClass(
     { name: "showOptionsCaption:boolean", default: true },
     { name: "choicesMin:number", default: 0 },
     { name: "choicesMax:number", default: 0 },
-    { name: "choicesStep:number", default: 1 }
+    { name: "choicesStep:number", default: 1, minValue: 1 }
   ],
   function() {
     return new QuestionDropdownModel("");

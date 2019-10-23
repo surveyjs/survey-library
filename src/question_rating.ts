@@ -178,7 +178,7 @@ Serializer.addClass(
     },
     { name: "rateMin:number", default: 1 },
     { name: "rateMax:number", default: 5 },
-    { name: "rateStep:number", default: 1 },
+    { name: "rateStep:number", default: 1, minValue: 1 },
     {
       name: "minRateDescription",
       alternativeName: "mininumRateDescription",

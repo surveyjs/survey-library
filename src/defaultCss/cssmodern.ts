@@ -19,10 +19,12 @@ export var modernCss = {
     titleExpandable: "sv-panel__title--expandable",
     description: "sv-description sv-panel__description",
     container: "sv-panel sv-row__panel",
+    content: "sv-panel__content",
     icon: "sv-panel__icon",
     iconExpanded: "sv-panel__icon--expanded"
   },
   paneldynamic: {
+    root: "sv-paneldynamic",
     navigation: "sv-paneldynamic__navigation",
     title: "sv-title sv-question__title",
     button: "sv-btn",
@@ -67,6 +69,7 @@ export var modernCss = {
     requiredText: "sv-question__required-text",
     number: "sv-question__num",
     description: "sv-description sv-question__description",
+    descriptionUnderInput: "sv-description sv-question__description",
     comment: "sv-comment",
     required: "sv-question--required",
     titleRequired: "sv-question__title--required",

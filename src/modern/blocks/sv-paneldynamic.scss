@@ -59,3 +59,6 @@
   border: none;
   border-bottom: 0.06em solid #d4d4d4;
 }
+.sv-paneldynamic .sv-panel:not(:last-child) {
+  padding-bottom: 3.5em
+}

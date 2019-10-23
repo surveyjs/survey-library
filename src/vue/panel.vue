@@ -8,7 +8,11 @@
       <survey-string :locString="question.locDescription" />
     </div>
     <survey-errors :question="question" />
-    <div :style="{ paddingLeft: question.innerPaddingLeft }" v-show="!isCollapsed">
+    <div
+      :style="{ paddingLeft: question.innerPaddingLeft }"
+      v-show="!isCollapsed"
+      :class="question.cssClasses.panel.content"
+    >
       <div
         v-for="(row, index) in rows"
         :key="question.id + '_' + index"

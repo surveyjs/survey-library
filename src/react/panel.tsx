@@ -35,13 +35,18 @@ export class SurveyPanel extends SurveyPanelBase {
     if (!this.panel.isCollapsed || this.hasBeenExpanded) {
       this.hasBeenExpanded = true;
       var rows = this.renderRows(this.panelBase.cssClasses);
-      content = this.renderContent(style, rows);
+      var className = this.panelBase.cssClasses.panel.content;
+      content = this.renderContent(style, rows, className);
     }
     var rootStyle: { [index: string]: any } = {};
     if (this.panel.renderWidth) rootStyle["width"] = this.panel.renderWidth;
     var bottom = this.renderBottom();
     return (
-      <div ref="root" className={this.panelBase.cssClasses.panel.container} style={rootStyle}>
+      <div
+        ref="root"
+        className={this.panelBase.cssClasses.panel.container}
+        style={rootStyle}
+      >
         {title}
         {description}
         {errors}
@@ -50,8 +55,16 @@ export class SurveyPanel extends SurveyPanelBase {
       </div>
     );
   }
-  protected renderContent(style: any, rows: JSX.Element[]): JSX.Element {
-    return <div style={style}>{rows}</div>;
+  protected renderContent(
+    style: any,
+    rows: JSX.Element[],
+    className: string
+  ): JSX.Element {
+    return (
+      <div style={style} className={className}>
+        {rows}
+      </div>
+    );
   }
   protected renderTitle(): JSX.Element {
     if (!this.panelBase.title) return null;

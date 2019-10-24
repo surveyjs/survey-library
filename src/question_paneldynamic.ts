@@ -1533,7 +1533,7 @@ Serializer.addClass(
       default: 0,
       choices: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
     },
-    { name: "minPanelCount:number", default: 0 },
+    { name: "minPanelCount:number", default: 0, minValue: 0 },
     {
       name: "maxPanelCount:number",
       default: settings.panelMaximumPanelCount

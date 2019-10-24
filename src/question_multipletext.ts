@@ -575,7 +575,7 @@ Serializer.addClass(
   "multipletext",
   [
     { name: "!items:textitems", className: "multipletextitem" },
-    { name: "itemSize:number", default: 25 },
+    { name: "itemSize:number", default: 25, minValue: 0 },
     { name: "colCount:number", default: 1, choices: [1, 2, 3, 4, 5] }
   ],
   function() {

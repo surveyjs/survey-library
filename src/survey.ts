@@ -4068,8 +4068,8 @@ Serializer.addClass("survey", [
   },
   { name: "mode", default: "edit", choices: ["edit", "display"] },
   { name: "storeOthersAsComment:boolean", default: true },
-  { name: "maxTextLength:number", default: 0 },
-  { name: "maxOthersLength:number", default: 0 },
+  { name: "maxTextLength:number", default: 0, minValue: 0 },
+  { name: "maxOthersLength:number", default: 0, minValue: 0 },
   "goNextPageAutomatic:boolean",
   {
     name: "clearInvisibleValues",
@@ -4093,8 +4093,8 @@ Serializer.addClass("survey", [
   },
   { name: "firstPageIsStarted:boolean", default: false },
   { name: "isSinglePage:boolean", default: false },
-  { name: "maxTimeToFinish:number", default: 0 },
-  { name: "maxTimeToFinishPage:number", default: 0 },
+  { name: "maxTimeToFinish:number", default: 0, minValue: 0 },
+  { name: "maxTimeToFinishPage:number", default: 0, minValue: 0 },
   {
     name: "showTimerPanel",
     default: "none",

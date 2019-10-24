@@ -593,8 +593,8 @@ Serializer.addClass(
   "matrixdynamic",
   [
     { name: "rowsVisibleIf:condition", visible: false },
-    { name: "rowCount:number", default: 2 },
-    { name: "minRowCount:number", default: 0 },
+    { name: "rowCount:number", default: 2, minValue: 0 },
+    { name: "minRowCount:number", default: 0, minValue: 0 },
     {
       name: "maxRowCount:number",
       default: settings.matrixMaximumRowCount

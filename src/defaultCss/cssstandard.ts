@@ -24,6 +24,7 @@ export var defaultStandardCss = {
   },
   progress: "sv_progress",
   progressBar: "sv_progress_bar",
+  progressTextInBar: "sv-hidden",
   page: {
     root: "sv_p_root",
     title: "",

@@ -17,6 +17,7 @@ export var defaultBootstrapMaterialCss = {
   },
   progress: "progress center-block mx-auto mb-4",
   progressBar: "progress-bar",
+  progressTextUnderBar: "sv-hidden",
   page: {
     root: "",
     title: "",
@@ -37,6 +38,7 @@ export var defaultBootstrapMaterialCss = {
     title: "",
     number: "sv_q_num",
     description: "small",
+    descriptionUnderInput: "small",
     comment: "form-control",
     required: "",
     titleRequired: "",

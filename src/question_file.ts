@@ -111,14 +111,20 @@ export class QuestionFileModel extends Question {
     this.setPropertyValue("maxSize", val);
   }
   /**
-   * The clean files value button caption.
-   */
+   * The no file chosen caption for modern theme
+   */  
   get noFileChosenCaption(): string {
     return surveyLocalization.getString("noFileChosen");
   }
+  /**
+   * The choose files value button caption for modern theme
+   */
   get chooseButtonCaption(): string {
     return surveyLocalization.getString("chooseFileCaption");
   }
+  /**
+   * The clean files value button caption.
+   */
   get cleanButtonCaption(): string {
     return surveyLocalization.getString("cleanCaption");
   }

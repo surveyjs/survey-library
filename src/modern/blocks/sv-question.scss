@@ -63,6 +63,11 @@
   width: 27%;
   margin-right: 0.875em;
 }
+[dir="rtl"], [style*="direction:rtl"] {
+  .sv-question__header--location--left {
+    float: right;
+  }
+}
 .sv-question__header--location--bottom {
   margin-top: 0.8em;
 }

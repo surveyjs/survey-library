@@ -9,6 +9,11 @@
     float: none;
   }
 }
+[dir="rtl"], [style*="direction:rtl"] {
+  .sv-row__question:not(:last-child) {
+    float: right;
+  }
+}
 .sv-row:not(:last-child) {
   padding-bottom: 3.5em;
 }

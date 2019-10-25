@@ -4,7 +4,9 @@
 .sv-panel__title {
   font-size: 1.25em;
   margin: 0;
-  padding: 0.5em 1em 0.5em 0.44em;
+  padding: 0;
+  padding-bottom: 0.1em;
+  padding-left: 0.44em;
 }
 .sv-panel__description {
   padding-left: 0.55em;
@@ -31,5 +33,5 @@
   padding-left: 0.55em;
 }
 .sv-panel__content:not(:first-child) {
-  margin-top: 1.5em;
+  margin-top: 0.75em;
 }

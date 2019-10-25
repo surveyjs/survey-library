@@ -9,10 +9,9 @@
     margin-left: 0.63em;
   }
 }
-.sv-body__page {
-  padding-top: 3.875em;
-  padding-bottom: 0.63em;
-}
 .sv-body__progress {
   margin-bottom: 2em;
+}
+.sv-body__progress + .sv-body__page {
+  padding-top: 3.875em;
 }

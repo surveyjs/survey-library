@@ -267,7 +267,6 @@ $base-line-height: 2em;
       h3 {
         font-size: 2em;
         font-weight: 300;
-        text-align: left;
         margin: 0;
       }
     }
@@ -650,6 +649,27 @@ $base-line-height: 2em;
         }
         .sv_prev_btn {
           float: left;
+        }
+      }
+    }
+  }
+}
+
+[dir="rtl"] .sv_main, [style*="direction:rtl"] .sv_main {
+
+  .sv_container {
+
+    .sv_body {
+
+      .sv_nav {
+
+        .sv_start_btn,
+        .sv_next_btn,
+        .sv_complete_btn {
+          float: left;
+        }
+        .sv_prev_btn {
+          float: right;
         }
       }
     }

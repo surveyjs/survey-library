@@ -12,6 +12,11 @@
   padding: 0.125em 0.1875em;
   border-radius: 0.75em;
 }
+[dir="rtl"], [style*="direction:rtl"] {
+  .sv-boolean__switch {
+    float: right;
+  }
+}
 .sv-boolean__slider {
   display: block;
   width: 1.25em;
@@ -35,3 +40,8 @@
 .sv-boolean__label {
   float: left;
 }
+[dir="rtl"], [style*="direction:rtl"] {
+  .sv-boolean__label {
+    float: right;
+  }
+}  

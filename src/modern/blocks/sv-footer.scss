@@ -18,3 +18,15 @@
 .sv-footer__start-btn {
   background-color: $main-color;
 }
+
+[dir="rtl"], [style*="direction:rtl"] {
+  .sv-footer__complete-btn {
+    float: left;
+  }
+  .sv-footer__next-btn {
+    float: left;
+  }
+  .sv-footer__prev-btn {
+    float: right;
+  }
+}

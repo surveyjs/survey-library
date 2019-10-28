@@ -355,7 +355,10 @@ Serializer.addClass(
     { name: "isRequired", visible: false },
     { name: "readOnly", visible: false },
     { name: "requiredErrorText", visible: false },
-    { name: "validators", visible: false }
+    { name: "validators", visible: false },
+    { name: "defaultValue", visible: false },
+    { name: "correctAnswer", visible: false },
+    { name: "requiredIf", visible: false }
   ],
   function() {
     return new QuestionExpressionModel("");

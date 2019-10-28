@@ -48,8 +48,10 @@ export class StylesManager {
       "position: absolute; margin: 0; display: block; width: 100%;",
     ".sv_qstn td": "position: relative;",
     ".sv_q_mt_item_value": "float: left;",
+    "[dir=\"rtl\"] .sv_q_mt_item_value": "float: right;",
     ".sv_qstn.sv_qstn_left": "margin-top: 0.75em;",
     ".sv_qstn .title-left": "float: left; margin-right: 1em;",
+    "[dir=\"rtl\"] .sv_qstn .title-left": "float: right; margin-left: 1em;",
     ".sv_qstn .content-left": "overflow: hidden",
     ".sv_q_radiogroup_inline .sv_q_radiogroup_other": "display: inline-block;",
     ".sv_q_checkbox_inline .sv_q_checkbox_other": "display: inline-block;",
@@ -128,7 +130,7 @@ export class StylesManager {
 
     ".sv_main .sv_container .sv_body .sv_p_root .sv_qstn .sv_q_select_column textarea":
       "margin-left: 0; padding-left: 0; line-height: initial;",
-    ".sv_main .sv-hidden": "display:none;",
+    ".sv_main .sv-hidden": "display: none !important;",
     ".sv_main .sv-visuallyhidden":
       "position: absolute; height: 1px; width: 1px; overflow: hidden; clip: rect(1px 1px 1px 1px); clip: rect(1px, 1px, 1px, 1px);",
 

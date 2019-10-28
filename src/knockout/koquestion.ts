@@ -78,7 +78,7 @@ export class QuestionImplementor extends ImplementorBase {
         (question.hasTitleOnLeft ? " " + question.koCss().contentLeft : "")
       );
     });
-    (<any>this.question)["koTitleClass"] = ko.computed(function() {
+    (<any>this.question)["koTitleClass"] = ko.pureComputed(function() {
       var question = self.question;
       var cssClasses = question.cssClasses;
       var result = cssClasses.title;
@@ -89,7 +89,7 @@ export class QuestionImplementor extends ImplementorBase {
       }
       return result;
     });
-    (<any>this.question)["koErrorClass"] = ko.computed(function() {
+    (<any>this.question)["koErrorClass"] = ko.pureComputed(function() {
       var question = self.question;
       var classes = question.cssClasses.error.root;
       if (question.errorLocation == "top") {

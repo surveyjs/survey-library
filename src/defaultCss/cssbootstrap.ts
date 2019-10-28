@@ -17,6 +17,7 @@ export var defaultBootstrapCss = {
   },
   progress: "progress center-block mx-auto mb-4",
   progressBar: "progress-bar",
+  progressTextUnderBar: "sv-hidden",
   page: {
     root: "",
     title: "",

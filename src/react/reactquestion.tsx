@@ -177,7 +177,6 @@ export class SurveyQuestion extends SurveyElementBase {
     cssClasses: any,
     isUnderInput: boolean = false
   ): JSX.Element {
-    if (this.question.locDescription.isEmpty) return null;
     var descriptionText = SurveyElementBase.renderLocString(
       this.question.locDescription
     );

@@ -44,6 +44,7 @@ export var modernCss = {
   progress: "sv-progress sv-body__progress",
   progressBar: "sv-progress__bar",
   progressText: "sv-progress__text",
+  progressTextInBar: "sv-hidden",
   page: {
     root: "sv-page sv-body__page",
     title: "sv-page__title",
@@ -159,7 +160,7 @@ export var modernCss = {
     image: "sv-imagepicker__image",
     itemText: "sv-imagepicker__text",
     clearButton: "sv-btn",
-    other: "sv-comment sv-question__other",
+    other: "sv-comment sv-question__other"
   },
   matrix: {
     tableWrapper: "sv-matrix",

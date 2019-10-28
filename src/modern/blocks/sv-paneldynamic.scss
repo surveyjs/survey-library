@@ -10,6 +10,12 @@
   margin-top: -18px;
 }
 
+[dir="rtl"], [style*="direction:rtl"] {
+  .sv-paneldynamic__add-btn {
+    float: left;
+  }
+}
+
 .sv-paneldynamic__add-btn--list-mode {
   float: none;
   margin-top: 1em;

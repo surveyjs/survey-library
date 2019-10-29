@@ -1564,7 +1564,7 @@ Serializer.addClass(
       default: "off",
       choices: ["off", "onPanel", "onSurvey"]
     },
-    { name: "showRangeInProgress", default: true },
+    { name: "showRangeInProgress:boolean", default: true },
     {
       name: "renderMode",
       default: "list",

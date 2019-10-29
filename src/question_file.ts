@@ -368,7 +368,10 @@ Serializer.addClass(
     "acceptedTypes",
     { name: "storeDataAsText:boolean", default: true },
     { name: "waitForUpload:boolean", default: false },
-    "maxSize:number"
+    "maxSize:number",
+    { name: "defaultValue", visible: false },
+    { name: "correctAnswer", visible: false },
+    { name: "validators", visible: false }
   ],
   function() {
     return new QuestionFileModel("");

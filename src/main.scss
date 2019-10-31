@@ -75,6 +75,8 @@ $font-size: 14px;
 
 $base-line-height: 2em;
 
+$slider_color: $body-background-color;
+
 .sv_main.sv_frame {
   .sv_container {
     max-width: 80%;
@@ -216,6 +218,12 @@ $base-line-height: 2em;
 
   .sv_q_file_remove:hover {
     color: $main-color;
+  }
+  .sv-boolean__switch {
+    background-color: $main-color;
+}
+  .sv-boolean__slider {
+    background-color: $slider_color;
   }
 }
 
@@ -658,7 +666,6 @@ $base-line-height: 2em;
 [dir="rtl"] .sv_main, [style*="direction:rtl"] .sv_main {
 
   .sv_container {
-
     .sv_body {
 
       .sv_nav {

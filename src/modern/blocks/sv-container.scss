@@ -5,11 +5,19 @@
 }
 
 .sv-container-modern__title {
-  padding-left: 5.625em;
+  padding-left: 0.55em;
+  @media only screen and (min-width: 1000px) {
+    margin-right: 5%;
+    margin-left: 5%;
+  }
+  @media only screen and (max-width: 1000px) {
+    margin-right: 10px;
+    margin-left: 10px;
+  }
+  color: $main-color;
   padding-top: 5em;
   padding-bottom: 0.9375em;
 }
-
 .sv-container-modern__title h3 {
   margin: 0;
   font-size: 1.875em;

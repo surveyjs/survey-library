@@ -910,16 +910,19 @@ export class Question extends SurveyElement
   /**
    * Return the question value as a display text. For example, for dropdown, it would return the item text instead of item value.
    * @param keysAsText Set this value to true, to return key (in matrices questions) as display text as well.
+   * @param value use this parameter, if you want to get display value for this value and not question.value. It is undefined by default.
    */
-  public getDisplayValue(keysAsText: boolean): any {
+  public getDisplayValue(keysAsText: boolean, value: any = undefined): any {
     if (this.customWidget) {
-      var res = this.customWidget.getDisplayValue(this);
+      var res = this.customWidget.getDisplayValue(this, value);
       if (res) return res;
     }
-    return this.getDisplayValueCore(keysAsText);
+    value = value == undefined ? this.createValueCopy() : value;
+    if (Helpers.isValueEmpty(value)) return "";
+    return this.getDisplayValueCore(keysAsText, value);
   }
-  protected getDisplayValueCore(keyAsText: boolean): any {
-    return this.value;
+  protected getDisplayValueCore(keyAsText: boolean, value: any): any {
+    return value;
   }
   /**
    * Set the default value to the question. It will be assign to the question on loading the survey from JSON or adding a question to the survey or on setting this property of the value is empty.

@@ -497,9 +497,8 @@ export class QuestionSelectBase extends Question {
   /**
    * Returns the text for the current value. If the value is null then returns empty string. If 'other' is selected then returns the text for other value.
    */
-  protected getDisplayValueCore(keysAsText: boolean): any {
-    if (this.isEmpty()) return "";
-    return this.getChoicesDisplayValue(this.visibleChoices, this.value);
+  protected getDisplayValueCore(keysAsText: boolean, value: any): any {
+    return this.getChoicesDisplayValue(this.visibleChoices, value);
   }
   protected getChoicesDisplayValue(items: ItemValue[], val: any): any {
     if (val == this.otherItemValue.value)

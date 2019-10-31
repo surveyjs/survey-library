@@ -3063,6 +3063,51 @@ QUnit.test(
   }
 );
 
+QUnit.test("test question.getDisplayValue(key, value)", function(assert) {
+  var survey = new SurveyModel({
+    elements: [
+      {
+        type: "radiogroup",
+        name: "q1",
+        choices: [{ value: 1, text: "one" }, { value: 2, text: "two" }]
+      },
+      {
+        type: "checkbox",
+        name: "q2",
+        choices: [
+          { value: 1, text: "one" },
+          { value: 2, text: "two" },
+          { value: 3, text: "three" }
+        ]
+      }
+    ]
+  });
+  survey.data = { q1: 1, q2: [1, 2] };
+  var q1 = survey.getQuestionByName("q1");
+  var q2 = survey.getQuestionByName("q2");
+  assert.equal(q1.getDisplayValue(true), "one", "radigroup displayvalue works");
+  assert.equal(
+    q1.getDisplayValue(true, 2),
+    "two",
+    "radigroup displayvalue for value as a param works"
+  );
+  assert.equal(
+    q2.getDisplayValue(true),
+    "one, two",
+    "checkbox displayvalue works"
+  );
+  assert.equal(
+    q2.getDisplayValue(true, [2, 3]),
+    "two, three",
+    "checkbox displayvalue for value as a param works"
+  );
+  assert.equal(
+    q2.getDisplayValue(true, 2),
+    "two",
+    "checkbox displayvalue for non array value as a param works"
+  );
+});
+
 QUnit.test(
   "Multiple text question validation and async functions in expression",
   function(assert) {

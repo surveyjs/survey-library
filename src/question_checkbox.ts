@@ -213,13 +213,13 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
       items.push(this.noneItem);
     }
   }
-  protected getDisplayValueCore(keysAsText: boolean): any {
-    if (this.isEmpty()) return "";
+  protected getDisplayValueCore(keysAsText: boolean, value: any): any {
+    if (!Array.isArray(value))
+      return super.getDisplayValueCore(keysAsText, value);
     var items = this.visibleChoices;
-    var values = this.createValueCopy();
     var str = "";
-    for (var i = 0; i < values.length; i++) {
-      var valStr = this.getChoicesDisplayValue(items, values[i]);
+    for (var i = 0; i < value.length; i++) {
+      var valStr = this.getChoicesDisplayValue(items, value[i]);
       if (valStr) {
         if (str) str += ", ";
         str += valStr;

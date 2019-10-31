@@ -44,6 +44,8 @@ import { QuestionImagePickerModel } from "../src/question_imagepicker";
 import { HtmlConditionItem } from "../src/htmlConditionItem";
 import { AnswerRequiredError } from "../src/error";
 import { Survey } from "../src/react/reactSurvey";
+import { ConditionsParser } from "../src/conditionsParser";
+import { Operand, Variable, BinaryOperand, Const } from "../src/expressions/expressions";
 
 export default QUnit.module("Survey");
 
@@ -8108,4 +8110,86 @@ QUnit.test("Two matrix with same valueName, clear values for invisible rows only
   assert.deepEqual(survey.data, {a : {item1: "1", item2: "2", item3: "1", item4: "3"}});
   survey.doComplete();
   assert.deepEqual(survey.data, {a : {item1: "1", item2: "2", item3: "1", item4: "3"}});
+});
+
+class ExpressionToDisplayText {
+  private currentQuestion: Question;
+  constructor(public survey: SurveyModel) {}
+  public toDisplayText(expression: string): string {
+    var parser = new ConditionsParser();
+    var node = parser.parseExpression(expression);
+    if (!node) return expression;
+    this.currentQuestion = null;
+    var self = this;
+    var strFunc = function(op: Operand): string {
+      if(op.getType() == "variable") {
+        return self.getQuestionText(<Variable>op);
+      }
+      if(op.getType() == "const") {
+        return self.getDisplayText(<Const>op);
+      }
+      if(op.getType() == "binary") {
+        self.proceedBinary(<BinaryOperand>op);
+      }
+      return undefined;
+    };
+    return node.toString(strFunc)
+  }
+  private getQuestionText(op: Variable): string {
+    var question = this.survey.getQuestionByName(op.variable);
+    if (!question || !question.title) return undefined;
+    return "{" + question.title + "}";
+  }
+  private getDisplayText(op: Const): string {
+    if(!this.currentQuestion) return undefined;
+    var res = this.currentQuestion.getDisplayValue(true, op.correctValue);
+    return !!res ? new Const(res).toString() : undefined;
+  }
+  private proceedBinary(op: BinaryOperand) {
+    if(op.isArithmetic || op.isConjunction) {
+      this.currentQuestion = null; 
+      return;
+    }
+    this.currentQuestion = this.getQuestionFromOperands(op.leftOperand, op.rightOperand);
+    if(!this.currentQuestion) {
+      this.currentQuestion = this.getQuestionFromOperands(op.rightOperand, op.leftOperand);
+    }
+  }
+  private getQuestionFromOperands(op1: Operand, op2: Operand) {
+    if(!op1 || !op2) return null;
+    if(op1.getType() != "variable") return null;
+    if(op2.getType() != "const" && op2.getType() != "function" && op2.getType() != "array") return null;
+    return this.survey.getQuestionByName((<Variable>op1).variable); 
+  }
+}
+
+
+QUnit.test("Expression operator get display text using question.title and question.displayValue", function(assert) {
+  var survey = new SurveyModel({
+    elements: [
+      {
+        type: "radiogroup",
+        name: "q1", title: "Question 1", 
+        choices: [{ value: 1, text: "one" }, { value: 2, text: "two" }]
+      },
+      {
+        type: "checkbox",
+        name: "q2", title: "Question 2",
+        choices: [
+          { value: 1, text: "one" },
+          { value: 2, text: "two" },
+          { value: 3, text: "three" }
+        ]
+      }
+    ]
+  });
+  var expressionToDisplay = new ExpressionToDisplayText(survey);
+  var str = expressionToDisplay.toDisplayText("{q1} + 1");
+  assert.equal(str, "({Question 1} + 1)");
+  str = expressionToDisplay.toDisplayText("{q1} = 1");
+  assert.equal(str, "({Question 1} == one)");
+  str = expressionToDisplay.toDisplayText("{q1} = [1, 2]");
+  assert.equal(str, "({Question 1} == [one, two])");
+  str = expressionToDisplay.toDisplayText("{q1} = 2 or (1 != {q1} and {q2} contains [1, 2]) or {q3} = 1");
+  assert.equal(str, '((({Question 1} == two) or ((one != {Question 1}) and ({Question 2} contains [one, two]))) or ({q3} == 1))', "Use question title and display text");
 });

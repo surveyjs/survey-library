@@ -384,17 +384,15 @@ export class QuestionMatrixModel
     }
     this.isRowChanging = false;
   }
-  public getDisplayValueCore(keysAsText: boolean): any {
-    var values = this.createValueCopy();
-    if (!values) return values;
+  protected getDisplayValueCore(keysAsText: boolean, value: any): any {
     var res: { [index: string]: any } = {};
-    for (var key in values) {
+    for (var key in value) {
       var newKey = keysAsText
         ? ItemValue.getTextOrHtmlByValue(this.rows, key)
         : key;
       if (!newKey) newKey = key;
-      var newValue = ItemValue.getTextOrHtmlByValue(this.columns, values[key]);
-      if (!newValue) newValue = values[key];
+      var newValue = ItemValue.getTextOrHtmlByValue(this.columns, value[key]);
+      if (!newValue) newValue = value[key];
       res[newKey] = newValue;
     }
     return res;

@@ -107,13 +107,6 @@ $slider_color: $body-background-color;
     }
   }
 
-  [dir="rtl"] input {
-    text-align: right;
-  }
-  [dir="rtl"] th {
-    text-align: right;
-  }
-
   .sv_q_other input,
   .sv_q_text_root,
   .sv_q_dropdown_control,
@@ -670,6 +663,13 @@ $slider_color: $body-background-color;
 }
 
 [dir="rtl"] .sv_main, [style*="direction:rtl"] .sv_main {
+
+  input {
+    text-align: right;
+  }
+  th {
+    text-align: right;
+  }
 
   .sv_container {
 

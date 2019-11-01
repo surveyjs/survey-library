@@ -182,7 +182,7 @@ export interface IQuestion extends IElement, ISurveyErrorOwner {
   updateCommentFromSurvey(newValue: any): any;
   supportGoNextPageAutomatic(): boolean;
   clearUnusedValues(): any;
-  getDisplayValue(keysAsText: boolean): any;
+  getDisplayValue(keysAsText: boolean, value: any): any;
   getValueName(): string;
   clearValue(): any;
   clearValueIfInvisible(): any;

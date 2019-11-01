@@ -3,7 +3,10 @@ import { FunctionFactory } from "../functionsfactory";
 import { ProcessValue } from "../conditionProcessValue";
 
 export abstract class Operand {
-  public abstract toString(): string;
+  public toString(func: (op: Operand) => string = undefined): string {
+    return "";
+  }
+  public abstract getType(): string;
   public abstract evaluate(processValue?: ProcessValue): any;
   public abstract setVariables(variables: Array<string>): any;
   public hasFunction(): boolean {
@@ -17,6 +20,7 @@ export abstract class Operand {
 
 export class BinaryOperand extends Operand {
   private consumer: Function;
+  private isArithmeticValue: boolean;
   constructor(
     private operatorName: string,
     private left: any = null,
@@ -24,6 +28,7 @@ export class BinaryOperand extends Operand {
     isArithmeticOp: boolean = false
   ) {
     super();
+    this.isArithmeticValue = isArithmeticOp;
     if (isArithmeticOp) {
       this.consumer = OperandMaker.binaryFunctions["arithmeticOp"](
         operatorName
@@ -35,6 +40,21 @@ export class BinaryOperand extends Operand {
     if (this.consumer == null) {
       OperandMaker.throwInvalidOperatorError(operatorName);
     }
+  }
+  public getType(): string {
+    return "binary";
+  }
+  public get isArithmetic() {
+    return this.isArithmeticValue;
+  }
+  public get isConjunction() {
+    return this.operatorName == "or" || this.operatorName == "and";
+  }
+  public get leftOperand() {
+    return this.left;
+  }
+  public get rightOperand() {
+    return this.right;
   }
 
   private evaluateParam(x: any, processValue?: ProcessValue): any {
@@ -49,14 +69,18 @@ export class BinaryOperand extends Operand {
     );
   }
 
-  public toString(): string {
+  public toString(func: (op: Operand) => string = undefined): string {
+    if (!!func) {
+      var res = func(this);
+      if (!!res) return res;
+    }
     return (
       "(" +
-      OperandMaker.safeToString(this.left) +
+      OperandMaker.safeToString(this.left, func) +
       " " +
       OperandMaker.operatorToString(this.operatorName) +
       " " +
-      OperandMaker.safeToString(this.right) +
+      OperandMaker.safeToString(this.right, func) +
       ")"
     );
   }
@@ -93,11 +117,17 @@ export class UnaryOperand extends Operand {
       OperandMaker.throwInvalidOperatorError(operatorName);
     }
   }
-
-  public toString(): string {
+  public getType(): string {
+    return "unary";
+  }
+  public toString(func: (op: Operand) => string = undefined): string {
+    if (!!func) {
+      var res = func(this);
+      if (!!res) return res;
+    }
     return (
       OperandMaker.operatorToString(this.operatorName) +
-      this.expression.toString()
+      this.expression.toString(func)
     );
   }
 
@@ -115,13 +145,19 @@ export class ArrayOperand extends Operand {
   constructor(private values: Array<Operand>) {
     super();
   }
-
-  public toString(): string {
+  public getType(): string {
+    return "array";
+  }
+  public toString(func: (op: Operand) => string = undefined): string {
+    if (!!func) {
+      var res = func(this);
+      if (!!res) return res;
+    }
     return (
       "[" +
       this.values
         .map(function(el: Operand) {
-          return el.toString();
+          return el.toString(func);
         })
         .join(", ") +
       "]"
@@ -155,9 +191,18 @@ export class Const extends Operand {
   constructor(private value: any) {
     super();
   }
-
-  public toString(): string {
+  public getType(): string {
+    return "const";
+  }
+  public toString(func: (op: Operand) => string = undefined): string {
+    if (!!func) {
+      var res = func(this);
+      if (!!res) return res;
+    }
     return this.value.toString();
+  }
+  public get correctValue(): any {
+    return this.getCorrectValue(this.value);
   }
 
   public evaluate(): any {
@@ -186,9 +231,18 @@ export class Variable extends Const {
   constructor(private variableName: string) {
     super(variableName);
   }
-
-  public toString(): string {
+  public getType(): string {
+    return "variable";
+  }
+  public toString(func: (op: Operand) => string = undefined): string {
+    if (!!func) {
+      var res = func(this);
+      if (!!res) return res;
+    }
     return "{" + this.variableName + "}";
+  }
+  public get variable() {
+    return this.variableName;
   }
 
   public evaluate(processValue?: ProcessValue): any {
@@ -215,6 +269,9 @@ export class FunctionOperand extends Operand {
       this.parameters = new ArrayOperand([]);
     }
   }
+  public getType(): string {
+    return "function";
+  }
   public evaluateAsync(processValue: ProcessValue) {
     this.isReadyValue = false;
     if (!processValue.properties) processValue.properties = {};
@@ -237,8 +294,12 @@ export class FunctionOperand extends Operand {
     );
   }
 
-  public toString() {
-    return this.origionalValue + "(" + this.parameters.toString() + ")";
+  public toString(func: (op: Operand) => string = undefined) {
+    if (!!func) {
+      var res = func(this);
+      if (!!res) return res;
+    }
+    return this.origionalValue + "(" + this.parameters.toString(func) + ")";
   }
 
   public setVariables(variables: Array<string>) {
@@ -265,8 +326,8 @@ export class OperandMaker {
     throw new Error("Invalid operator: '" + op + "'");
   }
 
-  static safeToString(operand: Operand): string {
-    return operand == null ? "" : operand.toString();
+  static safeToString(operand: Operand, func: (op: Operand) => string): string {
+    return operand == null ? "" : operand.toString(func);
   }
 
   static toOperandString(value: string): string {
@@ -442,8 +503,8 @@ export class OperandMaker {
     minus: "-",
     mul: "*",
     div: "/",
-    and: "&&",
-    or: "||",
+    and: "and",
+    or: "or",
     power: "^",
     mod: "%",
     negate: "!"

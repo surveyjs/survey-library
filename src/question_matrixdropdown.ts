@@ -63,7 +63,7 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
   public getFooterText(): LocalizableString {
     return this.locTotalText;
   }
-  protected getDisplayValueCore(keysAsText: boolean): any {
+  protected getDisplayValueCore(keysAsText: boolean, value: any): any {
     var values = this.createValueCopy();
     if (!values) return values;
     var rows = this.visibleRows;

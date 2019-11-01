@@ -1248,7 +1248,7 @@ export class QuestionPanelDynamicModel extends Question
     }
     return result;
   }
-  protected getDisplayValueCore(keysAsText: boolean): any {
+  protected getDisplayValueCore(keysAsText: boolean, value: any): any {
     var values = this.createValueCopy();
     if (!values || !Array.isArray(values)) return values;
     for (var i = 0; i < this.panels.length && i < values.length; i++) {

@@ -34,7 +34,7 @@ QUnit.test("Logic Operand", function(assert) {
   expression = parse("false || true || false || false || true || true");
   assert.equal(
     expression.toString(),
-    "(((((false || true) || false) || false) || true) || true)"
+    "(((((false or true) or false) or false) or true) or true)"
   );
   assert.equal(expression.evaluate(), true);
 });
@@ -47,11 +47,11 @@ QUnit.test("Comparable Operand", function(assert) {
   assert.equal(expression.evaluate(), false);
 
   expression = parse("false || 1 > -101");
-  assert.equal(expression.toString(), "(false || (1 > -101))");
+  assert.equal(expression.toString(), "(false or (1 > -101))");
   assert.equal(expression.evaluate(), true);
 
   expression = parse("true && 5 <= 12 || !(5 > 2)");
-  assert.equal(expression.toString(), "((true && (5 <= 12)) || !(5 > 2))");
+  assert.equal(expression.toString(), "((true and (5 <= 12)) or !(5 > 2))");
   assert.equal(expression.evaluate(), true);
 });
 
@@ -63,7 +63,7 @@ QUnit.test("Arithmetic Operand", function(assert) {
   assert.equal(expression.evaluate(), true);
 
   expression = parse("2 + 2 < 3 + 3 && 5 < 10");
-  assert.equal(expression.toString(), "(((2 + 2) < (3 + 3)) && (5 < 10))");
+  assert.equal(expression.toString(), "(((2 + 2) < (3 + 3)) and (5 < 10))");
   assert.equal(expression.evaluate(), true);
 });
 

@@ -416,7 +416,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   get locRemoveRowText() {
     return this.getLocalizableString("removeRowText");
   }
-  protected getDisplayValueCore(keysAsText: boolean): any {
+  protected getDisplayValueCore(keysAsText: boolean, value: any): any {
     var values = this.createValueCopy();
     if (!values || !Array.isArray(values)) return values;
     var rows = this.visibleRows;

@@ -87,8 +87,8 @@ export class QuestionExpressionModel extends Question {
     if (val < -1 || val > 20) return;
     this.setPropertyValue("minimumFractionDigits", val);
   }
-  protected getDisplayValueCore(keysAsText: boolean): any {
-    var val = this.isValueEmpty(this.value) ? this.defaultValue : this.value;
+  protected getDisplayValueCore(keysAsText: boolean, value: any): any {
+    var val = this.isValueEmpty(value) ? this.defaultValue : value;
     if (this.isValueEmpty(val)) return "";
     var str = this.getValueAsStr(val);
     if (!this.format) return str;

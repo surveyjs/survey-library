@@ -1,12 +1,10 @@
 ﻿<script type="text/html" id="survey-question-errors">
-    <div data-bind="visible: errors.length > 0, css: !isPanel ? koErrorClass() : 'panel-error-root'">
-        <div role="alert" data-bind="visible: errors.length > 0, foreach: { data: errors, as: 'error'}, css: question.koCss().error.root">
-            <div>
+        <div role="alert" data-bind="visible: errors.length > 0, css: !isPanel ? koErrorClass() : 'panel-error-root'">
+            <div data-bind="foreach: { data: errors, as: 'error'}">   
                 <span aria-hidden="true" data-bind="css: question.koCss().error.icon"></span>
                 <span data-bind="css: question.koCss().error.item">
                     <!-- ko template: { name: 'survey-string', data: error.locText } --><!-- /ko -->
                 </span>
             </div>
         </div>
-    </div>
 </script>

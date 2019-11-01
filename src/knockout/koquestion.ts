@@ -93,9 +93,9 @@ export class QuestionImplementor extends ImplementorBase {
       var question = self.question;
       var classes = question.cssClasses.error.root;
       if (question.errorLocation == "top") {
-        classes += question.cssClasses.error.locationTop;
+        classes += " " + question.cssClasses.error.locationTop;
       } else if (question.errorLocation === "bottom") {
-        classes += question.cssClasses.error.locationBottom;
+        classes += " " + question.cssClasses.error.locationBottom;
       }
       return classes;
     });

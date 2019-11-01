@@ -730,6 +730,60 @@ QUnit.test(
     assert.equal(question.errors.length, 0, "No errors - choosen right value");
   }
 );
+QUnit.test(
+  "survey.checkErrorsMode = 'onComplete'",
+  function(assert) {
+    var json = {
+      checkErrorsMode: "onComplete",
+      pages: [
+        {
+          elements: [
+            {
+              type: "text",
+              name: "q1",
+              isRequired: true,
+              defaultValue: "it is not e-mail",
+              validators: [
+                {
+                  type: "email"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          elements : [
+            {
+              type: "text",
+              name: "q2",
+              isRequired: true
+            }
+          ]
+        }
+      ]
+    };
+    var survey = new SurveyModel(json);
+    survey.nextPage();
+    assert.equal(survey.currentPageNo, 1, "Ignore error on the first page");
+    survey.completeLastPage();
+    assert.equal(survey.currentPageNo, 0, "Move to first page with the error");
+ 
+    survey.nextPage();
+    assert.equal(survey.currentPageNo, 1, "Ignore error on the first page, #2");
+    survey.completeLastPage();
+    assert.equal(survey.currentPageNo, 0, "Move to first page with the error, #2");
+     
+    survey.setValue("q1", "john.snow@nightwatch.org");
+    survey.nextPage();
+    survey.completeLastPage();
+    assert.equal(survey.currentPageNo, 1, "Stay on second page");
+    assert.equal(survey.state, "running", "There is an error on the second page");
+    survey.setValue("q2", "a");
+    survey.completeLastPage();
+    assert.equal(survey.state, "completed", "No errors, completed");
+  }
+);
+
 QUnit.test("Should not be errors after prevPage bug#151", function(assert) {
   var survey = new SurveyModel();
   survey.goNextPageAutomatic = true;

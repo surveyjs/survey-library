@@ -35,7 +35,7 @@ import Vue from "vue";
 import { Component, Prop, Watch } from "vue-property-decorator";
 import { default as QuestionVue } from "./question";
 import { QuestionFileModel } from "../question_file";
-
+import { confirmAction } from "../utils/utils";
 @Component
 export class File extends QuestionVue<QuestionFileModel> {
   onDragOver = (event: any) => {
@@ -51,12 +51,22 @@ export class File extends QuestionVue<QuestionFileModel> {
     this.onChange(src);
   }
   doClean(event: any) {
+    var question = this.question;
     var src = event.target || event.srcElement;
-    this.question.clear();
+    if (question.needConfirmRemoveFile) {
+      var isConfirmed = confirmAction(question.confirmRemoveAllMessage);
+      if (!isConfirmed) return;
+    }
+    question.clear();
     src.parentElement.querySelectorAll("input")[0].value = "";
   }
   doRemoveFile(data: any) {
-    this.question.removeFile(data);
+    var question = this.question;
+    if (question.needConfirmRemoveFile) {
+        var isConfirmed = confirmAction(question.getConfirmRemoveMessage(data.name));
+        if (!isConfirmed) return;
+      }
+    question.removeFile(data);
   }
   getPlaceholderClass() {
     return "form-control " + this.question.cssClasses.placeholderInput;

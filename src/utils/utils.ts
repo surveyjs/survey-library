@@ -13,9 +13,11 @@ function compareVersions(a: any, b: any) {
   }
   return segmentsA.length - segmentsB.length;
 }
-
+function confirmAction(message: string): boolean {
+  return confirm(message);
+}
 function isMobile() {
   return typeof window.orientation !== "undefined";
 }
 
-export { compareVersions, isMobile };
+export { compareVersions, confirmAction, isMobile };

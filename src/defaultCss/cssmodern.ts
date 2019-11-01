@@ -76,7 +76,8 @@ export var modernCss = {
     titleRequired: "sv-question__title--required",
     indent: 20,
     footer: "sv-question__footer",
-    formGroup: "sv-question__form-group"
+    formGroup: "sv-question__form-group",
+    hasError: ""
   },
   error: {
     root: "",

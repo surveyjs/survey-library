@@ -120,11 +120,7 @@ export class QuestionFileModel extends Question {
     this.setPropertyValue("needConfirmRemoveFile", val);
   }
   /**
-   * The no file chosen caption for modern theme.
-   */
-
-  /**
-   * The message to confirm remove file.
+   * The remove file confirmation message.
    */
   public getConfirmRemoveMessage(fileName: string): string {
     return surveyLocalization
@@ -132,7 +128,7 @@ export class QuestionFileModel extends Question {
       ["format"](fileName);
   }
   /**
-   * The message to confirm remove all files.
+   * The remove all files confirmation message.
    */
   get confirmRemoveAllMessage(): string {
     return surveyLocalization.getString("confirmRemoveAllFiles");
@@ -144,13 +140,13 @@ export class QuestionFileModel extends Question {
     return surveyLocalization.getString("noFileChosen");
   }
   /**
-   * The choose files value button caption for modern theme.
+   * The choose files button caption for modern theme.
    */
   get chooseButtonCaption(): string {
     return surveyLocalization.getString("chooseFileCaption");
   }
   /**
-   * The clean files value button caption.
+   * The clean files button caption.
    */
   get cleanButtonCaption(): string {
     return surveyLocalization.getString("cleanCaption");

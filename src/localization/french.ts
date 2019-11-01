@@ -61,7 +61,9 @@ export var frenchSurveyStrings = {
   timerLimitSurvey: "Vous avez passé {0} sur {1} au total.",
   cleanCaption: "Nettoyer",
   clearCaption: "Vider",
-  removeFileCaption: "Enlever ce fichier"
+  removeFileCaption: "Enlever ce fichier",
+  booleanCheckedLabel: "Oui",
+  booleanUncheckedLabel: "Non"
 };
 
 surveyLocalization.locales["fr"] = frenchSurveyStrings;

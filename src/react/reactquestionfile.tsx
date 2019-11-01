@@ -2,7 +2,7 @@ import * as React from "react";
 import { SurveyQuestionElementBase } from "./reactquestionelement";
 import { QuestionFileModel } from "../question_file";
 import { ReactQuestionFactory } from "./reactquestionfactory";
-
+import { confirmAction } from "../utils/utils";
 export class SurveyQuestionFile extends SurveyQuestionElementBase {
   constructor(props: any) {
     super(props);
@@ -32,13 +32,25 @@ export class SurveyQuestionFile extends SurveyQuestionElementBase {
     this.onChange(src);
   };
   handleOnClean = (event: any) => {
+    var question = this.question;
     var src = event.target || event.srcElement;
-    this.question.clear();
+    if (question.needConfirmRemoveFile) {
+      var isConfirmed = confirmAction(question.confirmRemoveAllMessage);
+      if (!isConfirmed) return;
+    }
+    question.clear();
     src.parentElement.querySelectorAll("input")[0].value = "";
     this.setState({ fileLoaded: this.state.fileLoaded + 1 });
   };
   handleOnRemoveFile = (event: any) => {
-    this.question.removeFile(event);
+    var question = this.question;
+    if (question.needConfirmRemoveFile) {
+      var isConfirmed = confirmAction(
+        question.getConfirmRemoveMessage(event.name)
+      );
+      if (!isConfirmed) return;
+    }
+    question.removeFile(event);
     this.setState({ fileLoaded: this.state.fileLoaded + 1 });
   };
   private onChange = (src: any) => {

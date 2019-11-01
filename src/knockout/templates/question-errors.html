@@ -1,6 +1,6 @@
 ﻿<script type="text/html" id="survey-question-errors">
-        <div role="alert" data-bind="visible: errors.length > 0, css: !isPanel ? koErrorClass() : 'panel-error-root'">
-            <div data-bind="foreach: { data: errors, as: 'error'}">   
+        <div role="alert" data-bind="visible: errors.length > 0, foreach: { data: errors, as: 'error'}, css: !isPanel ? koErrorClass() : 'panel-error-root'">
+            <div>   
                 <span aria-hidden="true" data-bind="css: question.koCss().error.icon"></span>
                 <span data-bind="css: question.koCss().error.item">
                     <!-- ko template: { name: 'survey-string', data: error.locText } --><!-- /ko -->

@@ -80,11 +80,11 @@ export var modernCss = {
     hasError: ""
   },
   error: {
-    root: "",
+    root: "sv-question__erbox",
     icon: "",
     item: "",
-    locationTop: "sv-question__erbox sv-question__erbox--location--top",
-    locationBottom: "sv-question__erbox sv-question__erbox--location--bottom"
+    locationTop: "sv-question__erbox--location--top",
+    locationBottom: "sv-question__erbox--location--bottom"
   },
   checkbox: {
     root: "sv-selectbase",

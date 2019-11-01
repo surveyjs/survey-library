@@ -4,6 +4,7 @@ import { QuestionFactory } from "../questionfactory";
 import { QuestionFileModel } from "../question_file";
 import { QuestionImplementor } from "./koquestion";
 import { Question } from "../question";
+import { confirmAction } from "../utils/utils";
 
 export class QuestionFileImplementor extends QuestionImplementor {
   koState: any = ko.observable<string>("empty");
@@ -51,11 +52,19 @@ export class QuestionFileImplementor extends QuestionImplementor {
     };
     (<any>this.question)["doclean"] = (data: any, event: any) => {
       var src = event.target || event.srcElement;
+      if (question.needConfirmRemoveFile) {
+        var isConfirmed = confirmAction(question.confirmRemoveAllMessage);
+        if (!isConfirmed) return;
+      }
       var input = src.parentElement.querySelectorAll("input")[0];
       (<QuestionFileModel>this.question).clear();
       input.value = "";
     };
     (<any>this.question)["doremovefile"] = (data: any, event: any) => {
+      if (question.needConfirmRemoveFile) {
+        var isConfirmed = confirmAction(question.getConfirmRemoveMessage(data.name));
+        if (!isConfirmed) return;
+      }
       (<QuestionFileModel>this.question).removeFile(data);
     };
   }

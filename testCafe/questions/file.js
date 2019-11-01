@@ -18,6 +18,7 @@ const json = {
       storeDataAsText: true,
       allowMultiple: true,
       showPreview: true,
+      needConfirmRemoveFile: true,
       imageWidth: 150,
       maxSize: 102400
     }
@@ -112,7 +113,6 @@ frameworks.forEach(framework => {
     surveyResult = await getSurveyResult();
     assert.deepEqual(surveyResult, {});
   });
-
   test(`change preview height width`, async t => {
     const getWidth = ClientFunction(() => document.querySelector("img").width);
     const getHeight = ClientFunction(
@@ -132,7 +132,32 @@ frameworks.forEach(framework => {
     assert.equal(await getWidth(), 50);
     assert.equal(await getHeight(), 50);
   });
-
+  test(`confirm remove file`, async t => {
+    await t.setFilesToUpload(
+      `input[type=file]`,
+      `../resources/small_Dashka.jpg`
+    );
+    await t
+      .setNativeDialogHandler(() => {
+        return false;
+      })
+      .click(".sv_q_file_remove");
+    await t
+      .setNativeDialogHandler(() => {
+        return false;
+      })
+      .click(".sv_q_file_remove_button");
+    const history = await t.getNativeDialogHistory();
+    await t
+      .expect(history[1].type)
+      .eql("confirm")
+      .expect(history[1].text)
+      .eql("Are you sure that you want to remove this file: small_Dashka.jpg?")
+      .expect(history[0].type)
+      .eql("confirm")
+      .expect(history[0].text)
+      .eql("Are you sure that you want to remove all files?");
+  });
   // TODO testcafe waiting forever...
   // test(`change file max size`, async t => {
   //     const getPosition = ClientFunction(() =>

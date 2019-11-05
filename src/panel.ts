@@ -410,18 +410,18 @@ export class PanelModelBase extends SurveyElement
   /**
    * Returns true, if there is an error on this Page or inside the current Panel
    * @param fireCallback set it to true, to show errors in UI
-   * @param focuseOnFirstError set it to true to focuse on the first question that doesn't pass the validation
+   * @param focusOnFirstError set it to true to focus on the first question that doesn't pass the validation
    */
   public hasErrors(
     fireCallback: boolean = true,
-    focuseOnFirstError: boolean = false,
+    focusOnFirstError: boolean = false,
     rec: any = null
   ): boolean {
     rec = !!rec
       ? rec
       : {
           fireCallback: fireCallback,
-          focuseOnFirstError: focuseOnFirstError,
+          focuseOnFirstError: focusOnFirstError,
           firstErrorQuestion: <any>null,
           result: false
         };

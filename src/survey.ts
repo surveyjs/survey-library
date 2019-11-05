@@ -1088,7 +1088,9 @@ export class SurveyModel extends Base
     this.setPropertyValue("goNextPageAutomatic", val);
   }
   /**
-   * Change this property from 'onNextPage' to 'onValueChanged' to check erorrs on every question value changing.
+   * Change this property from 'onNextPage' to 'onValueChanged' to check erorrs on every question value changing,
+   * or change it to 'onComplete' to validate all visible questions on complete button. If there is the error on some pages,
+   * then the page with the first error becomes the current.
    * By default, library checks errors on changing current page to the next or on completing the survey.
    */
   public get checkErrorsMode(): string {
@@ -2036,7 +2038,12 @@ export class SurveyModel extends Base
   }
   private hasErrorsOnNavigate(doComplete: boolean): boolean {
     if (this.ignoreValidation || !this.isEditMode) return false;
-    if (this.isCurrentPageHasErrors) return true;
+    if (this.checkErrorsMode == "onComplete") {
+      if (!this.isLastPage) return false;
+      if (this.hasErrors(true, true)) return true;
+    } else {
+      if (this.isCurrentPageHasErrors) return true;
+    }
     return this.checkForAsyncQuestionValidation(doComplete);
   }
   private asyncValidationQuesitons: Array<Question>;
@@ -2082,6 +2089,29 @@ export class SurveyModel extends Base
    */
   public get isCurrentPageHasErrors(): boolean {
     return this.checkIsCurrentPageHasErrors();
+  }
+  /**
+   * Returns true, if there is an error on any visible page
+   * @param fireCallback set it to true, to show errors in UI
+   * @param focusOnFirstError set it to true to focus on the first question that doesn't pass the validation and make the page, where question located, the current.
+   */
+  public hasErrors(
+    fireCallback: boolean = true,
+    focusOnFirstError: boolean = false
+  ): boolean {
+    var visPages = this.visiblePages;
+    var firstErrorPage = null;
+    var res = false;
+    for (var i = 0; i < visPages.length; i++) {
+      if (visPages[i].hasErrors(fireCallback, focusOnFirstError)) {
+        if (!firstErrorPage) firstErrorPage = visPages[i];
+        res = true;
+      }
+    }
+    if (focusOnFirstError && !!firstErrorPage) {
+      this.currentPage = firstErrorPage;
+    }
+    return res;
   }
   private checkIsCurrentPageHasErrors(
     isFocuseOnFirstError: boolean = undefined
@@ -4079,7 +4109,7 @@ Serializer.addClass("survey", [
   {
     name: "checkErrorsMode",
     default: "onNextPage",
-    choices: ["onNextPage", "onValueChanged"]
+    choices: ["onNextPage", "onValueChanged", "onComplete"]
   },
   { name: "startSurveyText", serializationProperty: "locStartSurveyText" },
   { name: "pagePrevText", serializationProperty: "locPagePrevText" },

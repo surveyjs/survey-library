@@ -154,13 +154,13 @@ export class SurveyQuestionRadioItem extends ReactSurveyElement {
     var id = this.question.inputId + "_" + this.index;
     var itemText = this.renderLocString(this.item.locText, this.textStyle);
 
-    let itemClass = this.getItemClass(this.isChecked, this.isDisabled);
-
+    var itemClass = this.getItemClass(this.isChecked, this.isDisabled);
+    var labelClass = this.question.getLabelClass(this.isChecked);
     var locText: any = this.item.locText;
 
     return (
       <div className={itemClass}>
-        <label className={this.cssClasses.label}>
+        <label className={labelClass}>
           <input
             className={this.cssClasses.itemControl}
             id={id}

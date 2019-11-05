@@ -1,6 +1,6 @@
 <template>
     <div>
-      <label :class="question.cssClasses.label">
+      <label :class="getLabelClass(item)">
         <input
           type="radio"
           :name="question.name + '_' + question.id"
@@ -39,6 +39,9 @@ export class RadiogroupItem extends Vue {
   @Prop question: any;
   @Prop item: any;
   @Prop index: any;
+  getLabelClass(item: any) {
+    return this.question.getLabelClass(item.value === this.question.value);
+  }
 }
 Vue.component("survey-radiogroup-item", RadiogroupItem);
 export default RadiogroupItem;

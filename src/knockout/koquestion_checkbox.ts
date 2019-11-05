@@ -58,6 +58,9 @@ export class QuestionCheckbox extends QuestionCheckboxModel {
     if (allowHover) itemClass += " " + this.cssClasses.itemHover;
     return itemClass;
   }
+  getLabelClass(item: any) {
+    return super.getLabelClass(this.isItemSelected(item));
+  }
 }
 
 Serializer.overrideClassCreator("checkbox", function() {

@@ -1,6 +1,6 @@
 <template>
   <div>
-    <label :class="question.cssClasses.label">
+    <label :class="getLabelClass(item)">
       <input
         v-if="item == question.selectAllItem"
         type="checkbox"
@@ -57,6 +57,9 @@ export class CheckboxItem extends Vue {
   }
   set isAllSelected(val: boolean) {
     this.question.isAllSelected = val;
+  }
+  getLabelClass(item: any) {
+    return this.question.getLabelClass(this.question.isItemSelected(item));
   }
 }
 Vue.component("survey-checkbox-item", CheckboxItem);

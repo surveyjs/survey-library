@@ -25,6 +25,9 @@ export class QuestionRadiogroup extends QuestionRadiogroupModel {
     if (allowHover) itemClass += " " + this.cssClasses.itemHover;
     return itemClass;
   }
+  getLabelClass(item: any) {
+    return super.getLabelClass(item.value === this.value);
+  }
 }
 
 Serializer.overrideClassCreator("radiogroup", function() {

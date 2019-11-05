@@ -742,6 +742,13 @@ export class QuestionSelectBase extends Question {
     }
     return columnClass;
   }
+  getLabelClass(isChecked: boolean) {
+    var labelClass = this.cssClasses.label;
+    if (isChecked) {
+      labelClass += " " + this.cssClasses.labelChecked;
+    }
+    return labelClass;
+  }
   get columns() {
     var columns = [];
     var colCount = this.colCount;

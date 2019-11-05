@@ -164,7 +164,7 @@ export class SurveyQuestionCheckboxItem extends ReactSurveyElement {
     var id = this.question.inputId + "_" + this.index;
     var text = this.renderLocString(this.item.locText);
     let itemClass = this.getItemClass(isChecked, isDisabled);
-
+    let labelClass = this.question.getLabelClass(isChecked);
     var onItemChanged =
       this.item == this.question.selectAllItem
         ? this.selectAllChanged
@@ -174,7 +174,7 @@ export class SurveyQuestionCheckboxItem extends ReactSurveyElement {
 
     return (
       <div className={itemClass}>
-        <label className={this.cssClasses.label}>
+        <label className={labelClass}>
           <input
             className={this.cssClasses.itemControl}
             type="checkbox"

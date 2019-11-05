@@ -46,7 +46,7 @@ export class SurveyQuestionRadiogroup extends SurveyQuestionElementBase {
     var value = this.getStateValue();
     return this.question.columns.map((column: any, ci: number) => {
       var items = column.map((item: any, ii: number) =>
-        this.renderItem(item, value, cssClasses, ii)
+        this.renderItem(item, value, cssClasses, '' + ci + ii)
       );
       return (
         <div key={"column" + ci} className={this.question.getColumnClass()}>
@@ -60,7 +60,7 @@ export class SurveyQuestionRadiogroup extends SurveyQuestionElementBase {
     var value = this.getStateValue();
     for (var i = 0; i < this.question.visibleChoices.length; i++) {
       var item = this.question.visibleChoices[i];
-      items.push(this.renderItem(item, value, cssClasses, i));
+      items.push(this.renderItem(item, value, cssClasses, '' + i));
     }
     return items;
   }
@@ -71,7 +71,7 @@ export class SurveyQuestionRadiogroup extends SurveyQuestionElementBase {
     item: ItemValue,
     value: any,
     cssClasses: any,
-    index: number
+    index: string
   ): JSX.Element {
     var key = "item" + index;
     return (

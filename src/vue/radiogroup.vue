@@ -1,13 +1,29 @@
 <template>
   <fieldset :class="question.cssClasses.root">
     <legend v-bind:aria-label="question.locTitle.renderedHtml"></legend>
-    <survey-radiogroup-item v-if="!question.hasColumns" v-for="(item, index) in question.visibleChoices"
-      :key="item.value" :class="getItemClass(item)"
-      :question="question" :item="item" :index="index"></survey-radiogroup-item>
-    <div v-if="question.hasColumns" v-for="column in question.columns" :class="question.getColumnClass()">
-      <survey-radiogroup-item v-for="(item, index) in column"
-        :key="item.value" :class="getItemClass(item)"
-        :question="question" :item="item" :index="index"></survey-radiogroup-item>
+    <survey-radiogroup-item
+      v-if="!question.hasColumns"
+      v-for="(item, index) in question.visibleChoices"
+      :key="item.value"
+      :class="getItemClass(item)"
+      :question="question"
+      :item="item"
+      :index="index"
+    ></survey-radiogroup-item>
+
+    <div
+      v-if="question.hasColumns"
+      v-for="(column, colIndex) in question.columns"
+      :class="question.getColumnClass()"
+    >
+      <survey-radiogroup-item
+        v-for="(item, index) in column"
+        :key="item.value"
+        :class="getItemClass(item)"
+        :question="question"
+        :item="item"
+        :index="'' + colIndex + index"
+      ></survey-radiogroup-item>
     </div>
 
     <div v-if="question.canShowClearButton">
@@ -16,7 +32,7 @@
         :class="question.cssClasses.clearButton"
         v-on:click="function() { question.clearValue(); }"
         :value="question.clearButtonCaption"
-      >
+      />
     </div>
   </fieldset>
 </template>

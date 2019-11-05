@@ -188,6 +188,9 @@ export class ChoicesRestfull extends Base {
     var xhr = new XMLHttpRequest();
     xhr.open("GET", this.processedUrl);
     xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+    if (this.authorization) {
+      xhr.setRequestHeader("Authorization", this.authorization);
+    }
     var self = this;
     xhr.onload = function() {
       self.isRunningValue = false;
@@ -239,6 +242,7 @@ export class ChoicesRestfull extends Base {
   public setData(json: any) {
     this.clear();
     if (json.url) this.url = json.url;
+    if (json.authorization) this.authorization = json.authorization;
     if (json.path) this.path = json.path;
     if (json.valueName) this.valueName = json.valueName;
     if (json.titleName) this.titleName = json.titleName;
@@ -251,6 +255,7 @@ export class ChoicesRestfull extends Base {
     if (this.isEmpty) return null;
     var res: any = {};
     if (this.url) res["url"] = this.url;
+    if (this.authorization) res["authorization"] = this.authorization;
     if (this.path) res["path"] = this.path;
     if (this.valueName) res["valueName"] = this.valueName;
     if (this.titleName) res["titleName"] = this.titleName;
@@ -266,6 +271,12 @@ export class ChoicesRestfull extends Base {
   }
   public set url(val: string) {
     this.setPropertyValue("url", val);
+  }
+  public get authorization(): string {
+    return this.getPropertyValue("authorization", "");
+  }
+  public set authorization(val: string) {
+    this.setPropertyValue("authorization", val);
   }
   public get path(): string {
     return this.getPropertyValue("path", "");
@@ -300,6 +311,7 @@ export class ChoicesRestfull extends Base {
   }
   public clear() {
     this.url = "";
+    this.authorization = "";
     this.path = "";
     this.valueName = "";
     this.titleName = "";
@@ -422,6 +434,7 @@ Serializer.addClass(
   "choicesByUrl",
   [
     "url",
+    "authorization",
     "path",
     "valueName",
     "titleName",

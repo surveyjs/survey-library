@@ -10,6 +10,7 @@
   box-sizing: border-box;
   width: 30px;
   height: 30px;
+  border: solid 1px transparent;
   vertical-align: middle;
 }
 .sv-item__svg {
@@ -24,7 +25,7 @@
   transform: translate(-50%, -50%);
 }
 .sv-item__control:focus + .sv-item__decorator {
-  border: 1px solid $main-color;
+  border-color: $main-color;
   outline: none;
 }
 .sv-item__control-label {

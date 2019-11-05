@@ -3,7 +3,7 @@
       <legend data-bind="attr: { 'aria-label': question.locTitle.renderedHtml }"></legend>
       <!-- ko ifnot: question.hasColumns  -->
         <!-- ko foreach: { data: question.visibleChoices, as: 'item', afterRender: question.koAfterRender }  -->
-            <!-- ko template: 'survey-checkbox-item' -->
+            <!-- ko template: { name: 'survey-checkbox-item', data: {inputIndex: $index()}} -->
             <!-- /ko -->
         <!-- /ko -->
       <!-- /ko -->
@@ -11,7 +11,7 @@
         <!-- ko foreach: question.columns -->
             <div data-bind="css: question.getColumnClass()">
             <!-- ko foreach: { data: $data, as: 'item', afterRender: question.koAfterRender }  -->
-                <!-- ko template: 'survey-checkbox-item' -->
+                <!-- ko template: { name: 'survey-checkbox-item', data: {inputIndex: '' + $parentContext.$index() + $index()}} -->
                 <!-- /ko -->
             <!-- /ko -->
             </div>
@@ -23,10 +23,10 @@
   <div data-bind="css: question.getItemClass(item) ">
       <label data-bind="css: question.koCss().label">
           <!-- ko if: item == question.selectAllItem -->
-          <input type="checkbox" data-bind="attr: {name: question.name, id: question.inputId + '_' + $index(), 'aria-required': question.isRequired, 'aria-label': item.locText.renderedHtml }, checked: question.koAllSelected, enable: !question.isReadOnly, css: question.koCss().itemControl"/>
+          <input type="checkbox" data-bind="attr: {name: question.name, id: question.inputId + '_' + inputIndex, 'aria-required': question.isRequired, 'aria-label': item.locText.renderedHtml }, checked: question.koAllSelected, enable: !question.isReadOnly, css: question.koCss().itemControl"/>
           <!-- /ko -->
           <!-- ko if: item != question.selectAllItem -->
-          <input type="checkbox" data-bind="attr: {name: question.name, id: question.inputId + '_' + $index(), 'aria-required': question.isRequired, 'aria-label': item.locText.renderedHtml }, checkedValue: item.value, checked: question.koValue, enable: !question.isReadOnly && item.isEnabled, css: question.koCss().itemControl"/>
+          <input type="checkbox" data-bind="attr: {name: question.name, id: question.inputId + '_' + inputIndex, 'aria-required': question.isRequired, 'aria-label': item.locText.renderedHtml }, checkedValue: item.value, checked: question.koValue, enable: !question.isReadOnly && item.isEnabled, css: question.koCss().itemControl"/>
           <!-- /ko -->
           <span data-bind="css: question.koCss().materialDecorator">
             <svg viewBox="0 0 24 24" data-bind="css: question.koCss().itemDecorator">

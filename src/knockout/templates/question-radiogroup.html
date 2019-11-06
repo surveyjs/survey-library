@@ -35,7 +35,7 @@
             </svg>    
           </span>
           <span class="check"></span>
-          <span data-bind="css: question.koCss().controlLabel, attr: { title: item.locText.koRenderedHtml }">
+          <span data-bind="css: question.getControlLabelClass(item), attr: { title: item.locText.koRenderedHtml }">
               <!-- ko template: { name: 'survey-string', data: item.locText } -->
               <!-- /ko -->
           </span>

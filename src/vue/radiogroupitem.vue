@@ -18,7 +18,7 @@
           </svg>
         </span>
         <span class="check"></span>
-        <span :class="question.cssClasses.controlLabel" :title="item.locText.koRenderedHtml">
+        <span :class="getControlLabelClass(item)" :title="item.locText.koRenderedHtml">
           <survey-string :locString="item.locText"/>
         </span>
       </label>
@@ -41,6 +41,9 @@ export class RadiogroupItem extends Vue {
   @Prop index: any;
   getLabelClass(item: any) {
     return this.question.getLabelClass(item.value === this.question.value);
+  }
+  getControlLabelClass(item: any) {
+    return this.question.getControlLabelClass(item.value === this.question.value);
   }
 }
 Vue.component("survey-radiogroup-item", RadiogroupItem);

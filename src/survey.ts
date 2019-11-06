@@ -1088,6 +1088,16 @@ export class SurveyModel extends Base
     this.setPropertyValue("goNextPageAutomatic", val);
   }
   /**
+   * Set it to false if you do not want to submit survey automatically if goNextPageAutomatic=true.
+   * @see goNextPageAutomatic
+   */
+  public get allowCompleteSurveyAutomatic(): boolean {
+    return this.getPropertyValue("allowCompleteSurveyAutomatic", true);
+  }
+  public set allowCompleteSurveyAutomatic(val: boolean) {
+    this.setPropertyValue("allowCompleteSurveyAutomatic", val);
+  }
+  /**
    * Change this property from 'onNextPage' to 'onValueChanged' to check erorrs on every question value changing,
    * or change it to 'onComplete' to validate all visible questions on complete button. If there is the error on some pages,
    * then the page with the first error becomes the current.
@@ -3403,7 +3413,7 @@ export class SurveyModel extends Base
       if (!this.isLastPage) {
         this.nextPage();
       } else {
-        if (this.goNextPageAutomatic === true) {
+        if (this.goNextPageAutomatic === true && this.allowCompleteSurveyAutomatic) {
           this.completeLastPage();
         }
       }

@@ -51,7 +51,7 @@ QUnit.test("Comparable Operand", function(assert) {
   assert.equal(expression.evaluate(), true);
 
   expression = parse("true && 5 <= 12 || !(5 > 2)");
-  assert.equal(expression.toString(), "((true and (5 <= 12)) or !(5 > 2))");
+  assert.equal(expression.toString(), "((true and (5 <= 12)) or ! (5 > 2))");
   assert.equal(expression.evaluate(), true);
 });
 

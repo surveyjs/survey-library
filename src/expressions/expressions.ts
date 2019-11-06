@@ -126,7 +126,7 @@ export class UnaryOperand extends Operand {
       if (!!res) return res;
     }
     return (
-      OperandMaker.operatorToString(this.operatorName) +
+      OperandMaker.operatorToString(this.operatorName) + " " +
       this.expression.toString(func)
     );
   }

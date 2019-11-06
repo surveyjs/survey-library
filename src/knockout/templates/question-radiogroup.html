@@ -3,7 +3,7 @@
       <legend data-bind="attr: { 'aria-label': question.locTitle.renderedHtml }"></legend>
       <!-- ko ifnot: question.hasColumns  -->
         <!-- ko foreach: { data: question.visibleChoices, as: 'item', afterRender: question.koAfterRender }  -->
-            <!-- ko template: { name: 'survey-radiogroup-item', data: {inputIndex: $index()}} -->
+            <!-- ko template: 'survey-radiogroup-item' -->
             <!-- /ko -->
         <!-- /ko -->
       <!-- /ko -->
@@ -11,7 +11,7 @@
         <!-- ko foreach: question.columns -->
         <div data-bind="css: question.getColumnClass()">
             <!-- ko foreach: { data: $data, as: 'item', afterRender: question.koAfterRender }  -->
-                <!-- ko template: { name: 'survey-radiogroup-item', data: {inputIndex: '' + $parentContext.$index() + $index()}} -->
+                <!-- ko template: 'survey-radiogroup-item' -->
                 <!-- /ko -->
             <!-- /ko -->
             </div>
@@ -27,7 +27,7 @@
 <script type="text/html" id="survey-radiogroup-item">
   <div data-bind="css: question.getItemClass(item)">
       <label data-bind="css: question.getLabelClass(item)">
-          <input type="radio" data-bind="attr: {name: question.name + '_' + question.id, id: question.inputId + '_' + inputIndex, 'aria-required': question.isRequired, 'aria-label': item.locText.renderedHtml}, checkedValue: item.value, checked: question.renderedValue, enable: !question.isReadOnly && item.isEnabled, css: question.koCss().itemControl"
+          <input type="radio" data-bind="attr: {name: question.name + '_' + question.id, id: question.inputId + '_' + $index(), 'aria-required': question.isRequired, 'aria-label': item.locText.renderedHtml}, checkedValue: item.value, checked: question.renderedValue, enable: !question.isReadOnly && item.isEnabled, css: question.koCss().itemControl"
           />
           <span data-bind="css: question.koCss().materialDecorator">
             <svg data-bind="css:question.koCss().itemDecorator" viewBox="-12 -12 24 24">

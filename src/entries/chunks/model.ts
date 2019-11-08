@@ -123,6 +123,7 @@ export { TextPreProcessor } from "../../textPreProcessor";
 export { dxSurveyService } from "../../dxSurveyService";
 export { englishStrings } from "../../localization/english";
 export { surveyLocalization, surveyStrings } from "../../surveyStrings";
+export { cultureInfo } from "../../cultureInfo";
 export {
   QuestionCustomWidget,
   CustomWidgetCollection

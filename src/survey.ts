@@ -427,7 +427,8 @@ export class SurveyModel extends Base
    * <br/> name the file name
    * <br/> file the Javascript File object
    * <br/> accept a boolean value, true by default. Set it to false to deny this file to upload
-   * @see uploadFile
+   * @see uploadFiles
+   * @see QuestionFileModel.storeDataAsText
    */
   public onUploadFiles: Event<
     (sender: SurveyModel, options: any) => any,

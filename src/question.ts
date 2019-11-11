@@ -902,13 +902,15 @@ export class Question extends SurveyElement
       this.clearValue();
     }
   }
+  private _displayValue = "";
+
   public get displayValue(): any {
     this.updateDisplayValue();
-    return this.getPropertyValue("displayValue", "");
+    return this._displayValue;
   }
   protected updateDisplayValue(): any {
     if (this.isLoadingFromJson) return;
-    this.setPropertyValue("displayValue", this.getDisplayValue(true));
+    this._displayValue = this.getDisplayValue(true);
   }
   /**
    * Return the question value as a display text. For example, for dropdown, it would return the item text instead of item value.

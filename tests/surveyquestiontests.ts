@@ -237,7 +237,7 @@ QUnit.test(
     );
   }
 );
-QUnit.test("displayValue observable/reactive property", function(assert) {
+QUnit.test("displayValue changed simultaniously with value", function(assert) {
   var survey = new SurveyModel();
   var page = survey.addNewPage("p");
   var question = new QuestionSelectBase("dropdownQuestion");
@@ -246,19 +246,11 @@ QUnit.test("displayValue observable/reactive property", function(assert) {
     { value: 2, text: "Value 2" }
   ];
   page.addElement(question);
-  assert.equal(question.getPropertyValue("displayValue"), "", "Empty value");
+  assert.equal(question.displayValue, "", "Empty value");
   question.value = 1;
-  assert.equal(
-    question.getPropertyValue("displayValue"),
-    "Value 1",
-    "value is 1"
-  );
+  assert.equal(question.displayValue, "Value 1", "value is 1");
   survey.setValue("dropdownQuestion", 2);
-  assert.equal(
-    question.getPropertyValue("displayValue"),
-    "Value 2",
-    "value is 2"
-  );
+  assert.equal(question.displayValue, "Value 2", "value is 2");
 });
 QUnit.test("displayValue function for rating question, issue #1094", function(
   assert

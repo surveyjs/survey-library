@@ -76,6 +76,7 @@ export class SurveyQuestionCommentItem extends ReactSurveyElement {
       <textarea
         className={className}
         value={comment}
+        readOnly={question.isReadOnly}
         maxLength={question.getOthersMaxLength()}
         placeholder={question.otherPlaceHolder}
         onChange={handleOnChange}

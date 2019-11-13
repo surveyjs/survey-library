@@ -75,7 +75,8 @@ $font-size: 14px;
 
 $base-line-height: 2em;
 
-$slider_color: $body-background-color;
+$slider-color: $body-background-color;
+$label-disabled-color: rgba(64, 64, 64, 0.5);
 
 .sv_main.sv_frame {
   .sv_container {
@@ -221,9 +222,12 @@ $slider_color: $body-background-color;
   }
   .sv-boolean__switch {
     background-color: $main-color;
-}
+  }
   .sv-boolean__slider {
-    background-color: $slider_color;
+    background-color: $slider-color;
+  }
+  .sv-boolean__label--disabled {
+    color: $label-disabled-color;
   }
 }
 

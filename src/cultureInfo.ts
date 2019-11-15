@@ -41,6 +41,6 @@ export var cultureInfo = {
   }
 };
 
-export var surveyStrings = englishCulture;
+export var surveyCulture = englishCulture;
 (<any>cultureInfo).cultures["en"] = englishCulture;
 (<any>cultureInfo).cultureNames["en"] = "english";

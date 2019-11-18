@@ -1,5 +1,5 @@
 import * as ko from "knockout";
-import { JsonObject } from "../jsonobject";
+import { Serializer } from "../jsonobject";
 import { QuestionFactory } from "../questionfactory";
 import { QuestionCommentModel } from "../question_comment";
 import { QuestionImplementor } from "./koquestion";
@@ -11,7 +11,7 @@ export class QuestionComment extends QuestionCommentModel {
   }
 }
 
-JsonObject.metaData.overrideClassCreatore("comment", function() {
+Serializer.overrideClassCreator("comment", function() {
   return new QuestionComment("");
 });
 QuestionFactory.Instance.registerQuestion("comment", name => {

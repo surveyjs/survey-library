@@ -3,13 +3,27 @@ import { HashTable } from "./helpers";
 export class FunctionFactory {
   public static Instance: FunctionFactory = new FunctionFactory();
   private functionHash: HashTable<(params: any[]) => any> = {};
+  private isAsyncHash: HashTable<boolean> = {};
 
-  public register(name: string, func: (params: any[]) => any) {
+  public register(
+    name: string,
+    func: (params: any[]) => any,
+    isAsync: boolean = false
+  ) {
     this.functionHash[name] = func;
+    if (isAsync) this.isAsyncHash[name] = true;
   }
   public unregister(name: string) {
     delete this.functionHash[name];
+    delete this.isAsyncHash[name];
   }
+  public hasFunction(name: string): boolean {
+    return !!this.functionHash[name];
+  }
+  public isAsyncFunction(name: string): boolean {
+    return !!this.isAsyncHash[name];
+  }
+
   public clear() {
     this.functionHash = {};
   }
@@ -40,46 +54,134 @@ export class FunctionFactory {
   }
 }
 
+function getParamsAsArray(value: any, arr: any[]) {
+  if (!value) return;
+  if (Array.isArray(value)) {
+    for (var i = 0; i < value.length; i++) {
+      getParamsAsArray(value[i], arr);
+    }
+  } else {
+    arr.push(value);
+  }
+}
+
 function sum(params: any[]): any {
+  var arr: any[] = [];
+  getParamsAsArray(params, arr);
   var res = 0;
-  for (var i = 0; i < params.length; i++) {
-    res += params[i];
+  for (var i = 0; i < arr.length; i++) {
+    res += arr[i];
   }
   return res;
 }
 FunctionFactory.Instance.register("sum", sum);
 
+function count(params: any[]): any {
+  var arr: any[] = [];
+  getParamsAsArray(params, arr);
+  return arr.length;
+}
+FunctionFactory.Instance.register("count", count);
+
 function avg(params: any[]): any {
+  var arr: any[] = [];
+  getParamsAsArray(params, arr);
   var res = 0;
-  for (var i = 0; i < params.length; i++) {
-    res += params[i];
+  for (var i = 0; i < arr.length; i++) {
+    res += arr[i];
   }
-  return params.length > 0 ? res / params.length : 0;
+  return arr.length > 0 ? res / arr.length : 0;
 }
 FunctionFactory.Instance.register("avg", avg);
 
-function sumInArray(params: any[]): any {
-  if (params.length != 2) return 0;
+function getInArrayParams(params: any[]): any {
+  if (params.length != 2) return null;
   var arr = params[0];
-  if (!Array.isArray(arr)) return;
+  if (!arr) return null;
+  if (!Array.isArray(arr) && !Array.isArray(Object.keys(arr))) return null;
   var name = params[1];
-  if (typeof name !== "string" && !(name instanceof String)) return 0;
-  var res = 0;
-  for (var i = 0; i < arr.length; i++) {
-    var item = arr[i];
-    if (item && item[<string>name]) {
-      res += item[<string>name];
+  if (typeof name !== "string" && !(name instanceof String)) return null;
+  return { data: arr, name: name };
+}
+
+function calcInArray(
+  params: any[],
+  func: (res: number, val: number) => number
+): any {
+  var v = getInArrayParams(params);
+  if (!v) return undefined;
+  var res = undefined;
+  if (Array.isArray(v.data)) {
+    for (var i = 0; i < v.data.length; i++) {
+      var item = v.data[i];
+      if (!!item && item[<string>v.name]) {
+        res = func(res, item[<string>v.name]);
+      }
+    }
+  } else {
+    for (var key in v.data) {
+      var item = v.data[key];
+      if (!!item && item[<string>v.name]) {
+        res = func(res, item[<string>v.name]);
+      }
     }
   }
   return res;
 }
+
+function sumInArray(params: any[]): any {
+  var res = calcInArray(params, function(res: number, val: number): number {
+    if (res == undefined) res = 0;
+    return +res + +val;
+  });
+  return res !== undefined ? res : 0;
+}
 FunctionFactory.Instance.register("sumInArray", sumInArray);
+
+function minInArray(params: any[]): any {
+  return calcInArray(params, function(res: number, val: number): number {
+    if (res == undefined) return val;
+    return res < val ? res : val;
+  });
+}
+FunctionFactory.Instance.register("minInArray", minInArray);
+
+function maxInArray(params: any[]): any {
+  return calcInArray(params, function(res: number, val: number): number {
+    if (res == undefined) return val;
+    return res > val ? res : val;
+  });
+}
+FunctionFactory.Instance.register("maxInArray", maxInArray);
+
+function countInArray(params: any[]): any {
+  var res = calcInArray(params, function(res: number, val: number): number {
+    if (res == undefined) res = 0;
+    return res + 1;
+  });
+  return res !== undefined ? res : 0;
+}
+FunctionFactory.Instance.register("countInArray", countInArray);
+
+function avgInArray(params: any[]): any {
+  var count = countInArray(params);
+  if (count == 0) return 0;
+  return sumInArray(params) / count;
+}
+FunctionFactory.Instance.register("avgInArray", avgInArray);
 
 function iif(params: any[]): any {
   if (!params && params.length !== 3) return "";
   return params[0] ? params[1] : params[2];
 }
 FunctionFactory.Instance.register("iif", iif);
+
+function getDate(params: any[]): any {
+  if (!params && params.length < 1) return null;
+  if (!params[0]) return null;
+  return new Date(params[0]);
+}
+FunctionFactory.Instance.register("getDate", getDate);
 
 function age(params: any[]): any {
   if (!params && params.length < 1) return null;

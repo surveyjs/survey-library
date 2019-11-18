@@ -1,39 +1,39 @@
 import * as ko from "knockout";
 import { QuestionImagePickerModel } from "../question_imagepicker";
-import { JsonObject } from "../jsonobject";
+import { Serializer } from "../jsonobject";
 import { QuestionFactory } from "../questionfactory";
 import { QuestionCheckboxBaseImplementor } from "./koquestion_baseselect";
-import { Question } from "../question";
-import { Helpers } from "../helpers";
 
 export class QuestionImagePicker extends QuestionImagePickerModel {
   constructor(public name: string) {
     super(name);
-  }
-  endLoadingFromJson() {
-    super.endLoadingFromJson();
     new QuestionCheckboxBaseImplementor(this);
   }
   getItemClass(item: any) {
     var itemClass =
       this.cssClasses.item +
       (this.colCount === 0
-        ? " sv_q_imagepicker_inline"
+        ? " " + this.cssClasses.itemInline
         : " sv-q-col-" + this.colCount);
-    if (this.multiSelect) {
-      if (!!this.value && this["koValue"]().indexOf(item.value) !== -1) {
-        itemClass += " checked";
-      }
-    } else {
-      if (!!item.value && item.value == this["koValue"]()) {
-        itemClass += " checked";
-      }
+    var isChecked = this.multiSelect
+      ? !!this.value && this["koValue"]().indexOf(item.value) !== -1
+      : !!item.value && item.value == this["koValue"]();
+    var isDisabled = this.isReadOnly || !item.isEnabled; 
+    var allowHover = !isChecked && !isDisabled;
+    if (isChecked) {
+      itemClass += " " + this.cssClasses.itemChecked;
+    }
+    if (isDisabled) {
+      itemClass += " " + this.cssClasses.itemDisabled;
+    }
+    if (allowHover) {
+      itemClass += " " + this.cssClasses.itemHover;
     }
     return itemClass;
   }
 }
 
-JsonObject.metaData.overrideClassCreatore("imagepicker", function() {
+Serializer.overrideClassCreator("imagepicker", function() {
   return new QuestionImagePicker("");
 });
 

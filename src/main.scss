@@ -75,6 +75,9 @@ $font-size: 14px;
 
 $base-line-height: 2em;
 
+$slider-color: $body-background-color;
+$label-disabled-color: rgba(64, 64, 64, 0.5);
+
 .sv_main.sv_frame {
   .sv_container {
     max-width: 80%;
@@ -146,6 +149,7 @@ $base-line-height: 2em;
 
   .sv_progress {
     background-color: $border-color;
+    margin-bottom: 2em;
   }
 
   .sv_progress_bar {
@@ -216,6 +220,15 @@ $base-line-height: 2em;
   .sv_q_file_remove:hover {
     color: $main-color;
   }
+  .sv-boolean__switch {
+    background-color: $main-color;
+  }
+  .sv-boolean__slider {
+    background-color: $slider-color;
+  }
+  .sv-boolean__label--disabled {
+    color: $label-disabled-color;
+  }
 }
 
 .sv_main {
@@ -266,7 +279,6 @@ $base-line-height: 2em;
       h3 {
         font-size: 2em;
         font-weight: 300;
-        text-align: left;
         margin: 0;
       }
     }
@@ -284,7 +296,7 @@ $base-line-height: 2em;
       }
 
       //background-color: $body-background-color;
-      padding: 1em 1em 5em 1em;
+      padding: 1em 1em 1.6428em 1em;
       //border-top: 2px solid $main-color;
 
       .sv_progress {
@@ -301,6 +313,7 @@ $base-line-height: 2em;
             position: absolute;
             top: -1.5em;
             display: inline-block;
+            white-space: nowrap;
           }
         }
       }
@@ -338,6 +351,7 @@ $base-line-height: 2em;
 
         .sv_q_description {
           margin-top: -0.6em;
+          min-height: 0.6em;
         }
         .sv_q_flow {
           .sv_q_checkbox_inline,
@@ -355,6 +369,13 @@ $base-line-height: 2em;
           .sv_panel_dynamic {
             .sv_q_title {
               font-weight: normal;
+            }
+
+            .sv-paneldynamic__progress-container {
+              position: relative;
+              margin-right: 250px;
+              margin-left: 40px;
+              margin-top: 10px;
             }
           }
 
@@ -458,7 +479,7 @@ $base-line-height: 2em;
             margin-top: -0.1em;
 
             &:focus {
-              outline: none;
+              outline: 1px dotted $main-color;
             }
           }
 
@@ -477,6 +498,8 @@ $base-line-height: 2em;
             border-radius: 4px;
             > img {
               display: block;
+              pointer-events: none;
+              position: relative;
             }
           }
 
@@ -531,6 +554,8 @@ $base-line-height: 2em;
               }
               .sv_q_m_label {
                 position: static;
+                display: block;
+                width: 100%;
               }
             }
           }
@@ -544,7 +569,6 @@ $base-line-height: 2em;
 
           td,
           th {
-            text-align: left;
             padding: 0 1em;
           }
 
@@ -569,6 +593,12 @@ $base-line-height: 2em;
           margin-left: 1em;
         }
 
+        .sv_q_select_column {
+          display: inline-block;
+          vertical-align: top;
+          min-width: 10%;
+        }
+
         .sv_q_rating {
           line-height: $base-line-height;
 
@@ -580,6 +610,10 @@ $base-line-height: 2em;
 
             > * {
               word-spacing: initial;
+              @media all and (-ms-high-contrast: none),
+                (-ms-high-contrast: active) {
+                word-spacing: normal;
+              }
             }
 
             &.active {
@@ -632,56 +666,5 @@ $base-line-height: 2em;
   }
 }
 
-@media (max-width: 600px) {
-  .sv_main {
-    .sv_container {
-      .sv_body {
-        .sv_p_root {
-          .sv_row {
-            .sv_q,
-            .sv_qstn {
-              display: block;
-              width: 100% !important;
-              .title-left {
-                float: none;
-              }
-              .sv_q_radiogroup_inline,
-              .sv_q_checkbox_inline,
-              .sv_q_imagepicker_inline {
-                display: block;
-              }
-              table.sv_q_matrix,
-              table.sv_q_matrix_dropdown,
-              table.sv_q_matrix_dynamic {
-                display: block;
-                thead {
-                  display: none;
-                }
-                tbody,
-                tr,
-                td {
-                  display: block;
-                }
-              }
-              table.sv_q_matrix_dropdown,
-              table.sv_q_matrix_dynamic {
-                td {
-                  &:before {
-                    content: attr(headers);
-                  }
-                }
-              }
-              table.sv_q_matrix {
-                td {
-                  &:after {
-                    content: attr(headers);
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-  }
-}
+@import "./main.rtl.scss";
+@import "./main.m600.scss";

@@ -1,9 +1,14 @@
+import { settings } from "./settings";
 /**
  * The class contains methods to work with www.dxsurvey.com service.
  */
 export class dxSurveyService {
-  public static serviceUrl: string = "https://dxsurveyapi.azurewebsites.net/api/Survey";
-  //public static serviceUrl: string = "http://localhost:50488/api/Survey";
+  public static get serviceUrl(): string {
+    return settings.surveyServiceUrl;
+  }
+  public static set serviceUrl(val: string) {
+    settings.surveyServiceUrl = val;
+  }
   constructor() {}
   public loadSurvey(
     surveyId: string,
@@ -52,7 +57,7 @@ export class dxSurveyService {
   public sendResult(
     postId: string,
     result: JSON,
-    onSendResult: (success: boolean, response: any) => void,
+    onSendResult: (success: boolean, response: any, request?: any) => void,
     clientId: string = null,
     isPartialCompleted: boolean = false
   ) {
@@ -66,7 +71,7 @@ export class dxSurveyService {
     var self = this;
     xhr.onload = xhr.onerror = function() {
       if (!onSendResult) return;
-      onSendResult(xhr.status == 200, xhr.response);
+      onSendResult(xhr.status === 200, xhr.response, xhr);
     };
     xhr.send(dataStringify);
   }

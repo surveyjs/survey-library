@@ -3,8 +3,8 @@
         <legend v-bind:aria-label="question.locTitle.renderedHtml"></legend>
         <div v-for="(item, index) in question.visibleChoices" :key="item.value" :class="getItemClass(item)" >
             <label :class="question.cssClasses.label">
-                <input v-if="question.multiSelect" style="display: none;" type="checkbox" :name="question.name + '_' + question.id" :value="item.value" :id="question.inputId + '_' + item.value" v-model="question.value" :disabled="question.isReadOnly" v-bind:aria-label="question.locTitle.renderedHtml" :class="question.cssClasses.itemControl"/>
-                <input v-else style="display: none;" type="radio" :name="question.name + '_' + question.id" :value="item.value" :id="question.inputId + '_' + item.value" v-model="question.value" :disabled="question.isReadOnly" v-bind:aria-label="question.locTitle.renderedHtml" :class="question.cssClasses.itemControl"/>
+                <input v-if="question.multiSelect" style="display: none;" type="checkbox" :name="question.name + '_' + question.id" :value="item.value" :id="question.inputId + '_' + item.value" v-model="question.value" :disabled="question.isReadOnly || !item.isEnabled" v-bind:aria-required="question.isRequired" :aria-label="question.locTitle.renderedHtml" :class="question.cssClasses.itemControl"/>
+                <input v-else style="display: none;" type="radio" :name="question.name + '_' + question.id" :value="item.value" :id="question.inputId + '_' + item.value" v-model="question.value" :disabled="question.isReadOnly || !item.isEnabled" v-bind:aria-required="question.isRequired" :aria-label="question.locTitle.renderedHtml" :class="question.cssClasses.itemControl"/>
                 <div>
                     <img v-if="question.contentMode === 'image'" :class="question.cssClasses.image" :src="item.imageLink" :width="question.imageWidth ? question.imageWidth + 'px' : undefined" :height="question.imageHeight ? question.imageHeight + 'px' : undefined" v-bind:style="{ objectFit: question.imageFit }"/>
                     <embed v-if="question.contentMode === 'video'" :class="question.cssClasses.image" :src="item.imageLink" :width="question.imageWidth ? question.imageWidth + 'px' : undefined" :height="question.imageHeight ? question.imageHeight + 'px' : undefined" v-bind:style="{ objectFit: question.imageFit }"/>
@@ -24,19 +24,27 @@ import { QuestionImagePickerModel } from "../question_imagepicker";
 @Component
 export class ImagePicker extends QuestionVue<QuestionImagePickerModel> {
   getItemClass(item:any) {
-    var itemClass =
-      this.question.cssClasses.item +
-      (this.question.colCount === 0
-        ? " sv_q_imagepicker_inline"
-        : " sv-q-col-" + this.question.colCount);
-    if (this.question.multiSelect) {
-      if (this.question.value.indexOf(item.value) !== -1) {
-        itemClass += " checked";
-      }
-    } else {
-        if (item.value === this.question.value) { 
-            itemClass += " checked";
-        }
+  var question = this.question;
+  var cssClasses = question.cssClasses;
+  var colCount = question.colCount;
+  var itemClass =
+      cssClasses.item +
+      (colCount === 0
+        ? " " + cssClasses.itemInline
+        : " sv-q-col-" + colCount);
+    var isChecked = question.multiSelect
+      ? (question.value.indexOf(item.value) !== -1)
+      : (item.value === this.question.value);
+    var isDisabled = question.isReadOnly || !item.isEnabled; 
+    var allowHover = !isChecked && !isDisabled;
+    if (isChecked) {
+      itemClass += " " + cssClasses.itemChecked;
+    }
+    if (isDisabled) {
+      itemClass += " " + cssClasses.itemDisabled;
+    }
+    if (allowHover) {
+      itemClass += " " + cssClasses.itemHover;
     }
     return itemClass;
   }

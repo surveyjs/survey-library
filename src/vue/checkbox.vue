@@ -1,46 +1,28 @@
 <template>
   <fieldset :class="question.cssClasses.root">
     <legend v-bind:aria-label="question.locTitle.renderedHtml"></legend>
-    <div
+    <survey-checkbox-item
+      v-if="!question.hasColumns"
       v-for="(item, index) in question.visibleChoices"
       :key="item.value"
       :class="getItemClass(item)"
+      :question="question"
+      :item="item"
+      :index="index"
+    ></survey-checkbox-item>
+    <div
+      v-if="question.hasColumns"
+      v-for="(column, colIndex) in question.columns"
+      :class="question.getColumnClass()"
     >
-      <label :class="question.cssClasses.label">
-        <input
-          v-if="item == question.selectAllItem"
-          type="checkbox"
-          :name="question.name"
-          :value="isAllSelected"
-          v-model="isAllSelected"
-          :id="question.inputId + '_' + index"
-          :disabled="question.isReadOnly"
-          v-bind:aria-label="item.locText.renderedHtml"
-          :class="question.cssClasses.itemControl"
-        >
-        <input
-          v-if="item != question.selectAllItem"
-          type="checkbox"
-          :name="question.name"
-          :value="item.value"
-          v-model="question.renderedValue"
-          :id="question.inputId + '_' + index"
-          :disabled="question.isReadOnly || !item.isEnabled"
-          v-bind:aria-label="item.locText.renderedHtml"
-          :class="question.cssClasses.itemControl"
-        >
-        <span :class="question.cssClasses.materialDecorator">
-          <span class="check"></span>
-        </span>
-        <span :class="question.cssClasses.controlLabel">
-          <survey-string :locString="item.locText"/>
-        </span>
-      </label>
-      <survey-other-choice
-          v-show="question.hasOther && question.renderedValue && question.isOtherSelected"
-          v-if="item.value == question.otherItem.value"
-          :question="question"
-        />
+      <survey-checkbox-item
+        v-for="(item, index) in column"
+        :key="item.value"
+        :class="getItemClass(item)"
+        :question="question"
+        :item="item"
+        :index="'' + colIndex + index"
+      ></survey-checkbox-item>
     </div>
   </fieldset>
 </template>
@@ -54,21 +36,22 @@ import { QuestionCheckboxModel } from "../question_checkbox";
 @Component
 export class Checkbox extends QuestionVue<QuestionCheckboxModel> {
   getItemClass(item: any) {
-    var itemClass =
-      this.question.cssClasses.item +
-      (this.question.colCount === 0
-        ? " sv_q_checkbox_inline"
-        : " sv-q-col-" + this.question.colCount);
-    if (this.question.isItemSelected(item)) {
-      itemClass += " checked";
+    var question = this.question;
+    var cssClasses = question.cssClasses;
+    var isChecked = question.isItemSelected(item);
+    var isDisabled = question.isReadOnly || !item.isEnabled;
+    var allowHover = !isChecked && !isDisabled;
+    var itemClass = cssClasses.item;
+    if (!question.hasColumns) {
+      itemClass +=
+        question.colCount === 0
+          ? " " + cssClasses.itemInline
+          : " sv-q-col-" + question.colCount;
     }
+    if (isDisabled) itemClass += " " + cssClasses.itemDisabled;
+    if (isChecked) itemClass += " " + cssClasses.itemChecked;
+    if (allowHover) itemClass += " " + cssClasses.itemHover;
     return itemClass;
-  }
-  get isAllSelected() {
-    return this.question.isAllSelected;
-  }
-  set isAllSelected(val: boolean) {
-    this.question.isAllSelected = val;
   }
 }
 Vue.component("survey-checkbox", Checkbox);

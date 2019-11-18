@@ -9,7 +9,13 @@ export class Helpers {
    */
   public static isValueEmpty(value: any) {
     if (Array.isArray(value) && value.length === 0) return true;
-    if (value && (typeof value === "string" || value instanceof String)) {
+    if (!!value && typeof value === "object" && value.constructor === Object) {
+      for (var key in value) {
+        if (!Helpers.isValueEmpty(value[key])) return false;
+      }
+      return true;
+    }
+    if (!!value && (typeof value === "string" || value instanceof String)) {
       value = value.trim();
     }
     return !value && value !== 0 && value !== false;
@@ -56,12 +62,24 @@ export class Helpers {
     ignoreOrder: boolean = false
   ): boolean {
     if (x === y) return true;
+
+    if (Array.isArray(x) && x.length === 0 && typeof y === "undefined")
+      return true;
+    if (Array.isArray(y) && y.length === 0 && typeof x === "undefined")
+      return true;
+    if ((x === undefined || x === null) && y === "undefined") return true;
+    if ((y === undefined || y === null) && x === "undefined") return true;
+
     if ((x && !y) || (!x && y)) return false;
     if (!(x instanceof Object) && !(y instanceof Object)) return x == y;
     if (!(x instanceof Object) || !(y instanceof Object)) return false;
     if (x["equals"]) return x.equals(y);
+    if (!!x.toJSON && !!y.toJSON) {
+      return this.isTwoValueEquals(x.toJSON(), y.toJSON());
+    }
     if (Array.isArray(x) && Array.isArray(y))
       return Helpers.isArraysEqual(x, y, ignoreOrder);
+
     for (var p in x) {
       if (!x.hasOwnProperty(p)) continue;
       if (!y.hasOwnProperty(p)) return false;
@@ -88,29 +106,18 @@ export class Helpers {
     if (!!value && value instanceof Object) {
       //do not return the same object instance!!!
       return JSON.parse(JSON.stringify(value));
-      /*
-      if (value instanceof Date) {
-        let res = new Date();
-        res.setTime(value.getTime());
-        return res;
-      }
-      if (value instanceof Array) {
-        let res = [];
-        for (let i = 0, len = value.length; i < len; i++) {
-          res[i] = Helpers.getUnbindValue(value[i]);
-        }
-        return res;
-      }
-      let res = {};
-      for (var attr in value) {
-        if (value.hasOwnProperty(attr)) {
-          (<any>res)[attr] = Helpers.getUnbindValue(value[attr]);
-        }
-      }
-      return res;
-      */
     }
     return value;
+  }
+  public static isNumber(value: any): boolean {
+    if (
+      typeof value == "string" &&
+      !!value &&
+      value.indexOf("0x") == 0 &&
+      value.length > 32
+    )
+      return false;
+    return !isNaN(parseFloat(value)) && isFinite(value);
   }
   public static getMaxLength(maxLength: number, surveyLength: number): any {
     if (maxLength < 0) {

@@ -1,0 +1,77 @@
+.sv-paneldynamic__progress-container {
+  position: relative;
+  margin-left: 0.75em;
+  margin-right: 250px;
+  margin-top: 20px;
+}
+
+.sv-paneldynamic__add-btn {
+  background-color: $add-button-color;
+  float: right;
+  margin-top: -18px;
+}
+
+[dir="rtl"], [style*="direction:rtl"] {
+  .sv-paneldynamic__add-btn {
+    float: left;
+  }
+}
+
+.sv-paneldynamic__add-btn--list-mode {
+  float: none;
+  margin-top: 1em;
+}
+
+.sv-paneldynamic__remove-btn {
+  background-color: $remove-button-color;
+  margin-top: 1.25em;
+}
+
+.sv-paneldynamic__prev-btn,
+.sv-paneldynamic__next-btn {
+  box-sizing: border-box;
+  display: inline-block;
+  fill: $text-color;
+  cursor: pointer;
+  width: 0.7em;
+  top: -0.28em;
+  position: absolute;
+}
+
+.sv-paneldynamic__prev-btn {
+  left: -1.3em;
+  transform: rotate(90deg);
+}
+
+.sv-paneldynamic__next-btn {
+  right: -1.3em;
+  transform: rotate(270deg);
+}
+
+.sv-paneldynamic__prev-btn--disabled,
+.sv-paneldynamic__next-btn--disabled {
+  fill: $disable-color;
+  cursor: auto;
+}
+
+.sv-paneldynamic__progress-text {
+  color: $progress-text-color;
+  font-weight: bold;
+  font-size: 0.87em;
+  margin-top: 0.69em;
+  margin-left: 1em;
+}
+
+.sv-paneldynamic__separator {
+  border: none;
+  margin: 0;
+}
+.sv-paneldynamic .sv-panel ~ .sv-panel {
+  padding-top: 2.5em
+}
+.sv-paneldynamic__progress--top {
+  margin-bottom: 1em;
+}
+.sv-paneldynamic__progress--bottom {
+  margin-top: 1em;
+}

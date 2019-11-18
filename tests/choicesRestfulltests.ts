@@ -7,25 +7,47 @@ import { QuestionCheckboxModel } from "../src/question_checkbox";
 import { QuestionMatrixDynamicModel } from "../src/question_matrixdynamic";
 import { QuestionPanelDynamicModel } from "../src/question_paneldynamic";
 import {
-  QuestionMatrixDropdownModelBase,
   MatrixDropdownRowModelBase,
   MatrixDropdownColumn
 } from "../src/question_matrixdropdownbase";
 import { ItemValue } from "../src/itemvalue";
-import { JsonObject } from "../src/jsonobject";
+import { JsonObject, Serializer } from "../src/jsonobject";
+import { QuestionRadiogroupModel } from "../src/question_radiogroup";
+import { settings } from "../src/settings";
 
 export default QUnit.module("choicesRestfull");
 
 class ChoicesRestfullTester extends ChoicesRestfull {
+  private delaySentRequestValue: boolean = false;
   public noCaching: boolean = false;
   public lastProcesedUrl: string;
+  public items: any = null;
+  public sentRequestCounter: number = 0;
   public get testProcessedUrl() {
     return this.processedUrl;
   }
+  public get delaySentRequest(): boolean {
+    return this.delaySentRequestValue;
+  }
+  public set delaySentRequest(val: boolean) {
+    if (this.delaySentRequest == val) return;
+    this.delaySentRequestValue = val;
+    if (!val) {
+      this.sendRequest();
+    }
+  }
   protected sendRequest() {
+    if (this.delaySentRequest) return;
+    this.beforeSendRequest();
+    this.sentRequestCounter++;
     this.lastProcesedUrl = this.processedUrl;
+    if (this.processedUrl.indexOf("empty") > -1) this.onLoad([]);
     if (this.processedUrl.indexOf("countries") > -1)
       this.onLoad(getCountries());
+    if (!!this.items) {
+      this.onLoad(this.items);
+      return;
+    }
     if (this.processedUrl.indexOf("ca_cities") > -1) this.onLoad(getCACities());
     if (this.processedUrl.indexOf("tx_cities") > -1) this.onLoad(getTXCities());
     if (this.processedUrl.indexOf("xml") > -1)
@@ -65,6 +87,9 @@ class QuestionDropdownModelTester extends QuestionDropdownModel {
   public getType(): string {
     return "dropdownrestfulltester";
   }
+  public get restFullTest(): ChoicesRestfullTester {
+    return <ChoicesRestfullTester>this.choicesByUrl;
+  }
   protected createRestfull(): ChoicesRestfull {
     var res = new ChoicesRestfullTester();
     res.noCaching = true;
@@ -91,21 +116,40 @@ class QuestionDropdownModelTester extends QuestionDropdownModel {
   }
 }
 
-JsonObject.metaData.addClass(
-  "dropdownrestfulltester",
-  [],
-  function() {
-    return new QuestionDropdownModelTester("");
-  },
-  "dropdown"
-);
-
 class QuestionCheckboxModelTester extends QuestionCheckboxModel {
+  oldGetResultCallback: any;
   constructor(name: string) {
     super(name);
+    this.oldGetResultCallback = this.choicesByUrl.getResultCallback;
+    var self = this;
+    this.choicesByUrl.getResultCallback = function(items: Array<ItemValue>) {
+      self.newGetResultCallback(items);
+    };
+  }
+  public getType(): string {
+    return "dropdownrestfulltester";
+  }
+  public get restFullTest(): ChoicesRestfullTester {
+    return <ChoicesRestfullTester>this.choicesByUrl;
   }
   protected createRestfull(): ChoicesRestfull {
-    return new ChoicesRestfullTester();
+    var res = new ChoicesRestfullTester();
+    res.noCaching = true;
+    return res;
+  }
+  public hasItemsCallbackDelay: boolean = false;
+  private loadedItems: Array<ItemValue>;
+  public doResultsCallback() {
+    if (this.loadedItems) {
+      this.oldGetResultCallback(this.loadedItems);
+    }
+    this.loadedItems = null;
+  }
+  protected newGetResultCallback(items: Array<ItemValue>) {
+    this.loadedItems = items;
+    if (!this.hasItemsCallbackDelay) {
+      this.doResultsCallback();
+    }
   }
   processor: ITextProcessor;
   protected get textProcessor(): ITextProcessor {
@@ -113,6 +157,15 @@ class QuestionCheckboxModelTester extends QuestionCheckboxModel {
     return this.processor;
   }
 }
+
+Serializer.addClass(
+  "dropdownrestfulltester",
+  [],
+  function() {
+    return new QuestionDropdownModelTester("");
+  },
+  "dropdown"
+);
 
 class QuestionMatrixDynamicModelTester extends QuestionMatrixDynamicModel {
   constructor(name: string) {
@@ -159,7 +212,7 @@ class QuestionDropdownImageTester extends QuestionDropdownModel {
   }
 }
 
-JsonObject.metaData.addClass(
+Serializer.addClass(
   "dropdown_image",
   [],
   function() {
@@ -167,13 +220,13 @@ JsonObject.metaData.addClass(
   },
   "dropdown"
 );
-JsonObject.metaData.addClass(
+Serializer.addClass(
   "imageitemvalues_choicesrest",
   ["alpha3_code", "customProperty"],
   null,
   "itemvalue"
 );
-JsonObject.metaData.addClass(
+Serializer.addClass(
   "imagepicker_choicesrest",
   [
     {
@@ -212,6 +265,36 @@ QUnit.test("Load countries", function(assert) {
   );
 });
 
+QUnit.test(
+  "Do not run same request several times at the same time. Wait for the first one",
+  function(assert) {
+    ChoicesRestfull.clearCache();
+    var test1 = new ChoicesRestfullTester();
+    var test2 = new ChoicesRestfullTester();
+    var items1 = [],
+      items2 = [];
+    test1.getResultCallback = function(res: Array<ItemValue>) {
+      items1 = res;
+    };
+    test2.getResultCallback = function(res: Array<ItemValue>) {
+      items2 = res;
+    };
+    test1.url = "allcountries";
+    test1.path = "RestResponse;result";
+    test2.url = "allcountries";
+    test2.path = "RestResponse;result";
+    test1.delaySentRequest = true;
+    test1.run();
+    test2.run();
+    test1.delaySentRequest = false;
+
+    assert.equal(items1.length, 5, "there are 5 countries in items1");
+    assert.equal(items2.length, 5, "there are 5 countries in items2");
+    assert.equal(test1.sentRequestCounter, 1, "test1 send request one time");
+    assert.equal(test2.sentRequestCounter, 0, "test2 use requests");
+  }
+);
+
 QUnit.test("encode parameters", function(assert) {
   var survey = new SurveyModel();
   survey.setValue("q1", "R&D");
@@ -219,7 +302,11 @@ QUnit.test("encode parameters", function(assert) {
   test.url = "TestUrl/{q1}";
   test.getResultCallback = function(res: Array<ItemValue>) {};
   test.run(survey);
-  assert.equal(test.testProcessedUrl, "TestUrl/R%26D");
+  assert.equal(test.testProcessedUrl, "TestUrl/R%26D", "Encode the string");
+  settings.webserviceEncodeParameters = false;
+  test.run(survey);
+  assert.equal(test.testProcessedUrl, "TestUrl/R&D", "stop encoding");
+  settings.webserviceEncodeParameters = true;
 });
 
 QUnit.test("Process text in event", function(assert) {
@@ -248,13 +335,13 @@ QUnit.test("Load from plain text", function(assert) {
   assert.equal(items.length, 5, "there are 5 items");
   assert.equal(items[0].value, "1", "the item is empty");
   assert.equal(
-    items[4].text,
+    items[4].calculatedText,
     "Optimizes Work Processes",
     "the 5th item text is 'Optimizes Work Processes'"
   );
 });
 
-QUnit.test("Load countries, complext valueName property, Issue#459", function(
+QUnit.test("Load countries, complex valueName property, Issue#459", function(
   assert
 ) {
   var test = new ChoicesRestfullTester();
@@ -294,6 +381,27 @@ QUnit.test("Test dropdown", function(assert) {
   assert.equal(question.visibleChoices.length, 5, "There are 5 countries now");
 });
 
+QUnit.test(
+  "Do not show error or change the question value if quesiton is readOnly, Bug #1819",
+  function(assert) {
+    var question = new QuestionDropdownModelTester("q1");
+    question.value = "test";
+    question.readOnly = true;
+
+    assert.equal(
+      question.visibleChoices.length,
+      0,
+      "There is no visible choices by default"
+    );
+    question.choicesByUrl.url = "empty";
+    question.choicesByUrl.path = "RestResponse;result";
+    question.onSurveyLoad();
+    assert.equal(question.visibleChoices.length, 0, "Get no items");
+    assert.equal(question.value, "test", "Value do not changed");
+    assert.equal(question.errors.length, 0, "We do not have any errors");
+  }
+);
+
 QUnit.test("Use variables", function(assert) {
   var survey = new SurveyModel();
   survey.addNewPage("1");
@@ -313,6 +421,12 @@ QUnit.test("Use variables", function(assert) {
   );
   stateQuestion.value = "";
   assert.equal(question.visibleChoices.length, 0, "It is empty again");
+  stateQuestion.value = "tx_cities";
+  assert.equal(
+    question.visibleChoices.length,
+    3,
+    "We have three cities again, TX"
+  );
 });
 
 QUnit.test("onLoadItemsFromServer event", function(assert) {
@@ -351,6 +465,31 @@ QUnit.test("onLoadItemsFromServer event", function(assert) {
   assert.equal(question.visible, false, "And it is again invisible");
 });
 
+QUnit.test(
+  "disable/enable on loading items, settings.disableOnGettingChoicesFromWeb",
+  function(assert) {
+    settings.disableOnGettingChoicesFromWeb = true;
+    var survey = new SurveyModel();
+    survey.addNewPage("page1");
+    var question = new QuestionDropdownModelTester("q1");
+    var isReadOnly = question.isReadOnly;
+    assert.equal(isReadOnly, false, "It is not readOnly by default");
+    survey.onLoadChoicesFromServer.add(function(survey, options) {
+      isReadOnly = question.isReadOnly;
+    });
+    question.choicesByUrl.url = "allcountries";
+    question.choicesByUrl.path = "RestResponse;result";
+    survey.pages[0].addQuestion(question);
+    assert.equal(isReadOnly, true, "It was readOnly");
+    assert.equal(
+      question.isReadOnly,
+      false,
+      "It is not readOnly after getting choices"
+    );
+    settings.disableOnGettingChoicesFromWeb = false;
+  }
+);
+
 QUnit.test("Set value before loading data, bug #1089", function(assert) {
   var survey = new SurveyModel();
   survey.addNewPage("1");
@@ -382,6 +521,150 @@ QUnit.test(
     assert.equal(question.value, "CA", "'CA' value is still here");
   }
 );
+
+QUnit.test(
+  "defaultValue for radiogroup where value is object for choices by url, bug: https://surveyjs.answerdesk.io/ticket/details/T2055",
+  function(assert) {
+    var json = {
+      pages: [
+        {
+          name: "page1",
+          elements: [
+            {
+              type: "radiogroup",
+              name: "test",
+              defaultValue: {
+                id: 1023
+              },
+              choicesByUrl: {
+                url: "",
+                valueName: "identity",
+                titleName: "localizedData.id"
+              }
+            }
+          ]
+        }
+      ]
+    };
+    var survey = new SurveyModel(json);
+    var question = <QuestionRadiogroupModel>survey.getQuestionByName("test");
+    var loadedItems = [
+      { identity: { id: 1021 }, localizedData: { id: "A1" } },
+      { identity: { id: 1022 }, localizedData: { id: "A2" } },
+      { identity: { id: 1023 }, localizedData: { id: "A3" } },
+      { identity: { id: 1024 }, localizedData: { id: "A4" } }
+    ].map(i => new ItemValue(i.identity, i.localizedData.id));
+    question["onLoadChoicesFromUrl"](loadedItems);
+    assert.ok(
+      question.value === question["activeChoices"][2].value,
+      "Choosen exactly choice item value"
+    );
+    survey.doComplete();
+    assert.deepEqual(
+      question.value,
+      {
+        id: 1023
+      },
+      "Initial value is set correctly"
+    );
+    assert.deepEqual(
+      survey.data,
+      {
+        test: {
+          id: 1023
+        }
+      },
+      "Initial value is set correctly"
+    );
+  }
+);
+
+QUnit.test(
+  "Set value before loading data where value is a complex value, bug https://surveyjs.answerdesk.io/ticket/details/T2055",
+  function(assert) {
+    var survey = new SurveyModel();
+    survey.addNewPage("1");
+    var question = new QuestionDropdownModelTester("q1");
+    question.hasItemsCallbackDelay = true;
+    question.choicesByUrl.url = "something";
+    question.choicesByUrl.valueName = "identity";
+    question.restFullTest.items = [
+      { identity: { id: 1021 }, localizedData: { id: "A1" } },
+      { identity: { id: 1022 }, localizedData: { id: "A2" } },
+      { identity: { id: 1023 }, localizedData: { id: "A3" } },
+      { identity: { id: 1024 }, localizedData: { id: "A4" } }
+    ];
+    survey.pages[0].addQuestion(question);
+    question.onSurveyLoad();
+    survey.setValue("q1", {
+      id: 1023
+    });
+    question.doResultsCallback();
+    assert.equal(question.visibleChoices.length, 4, "Loaded Correctly");
+    assert.deepEqual(
+      question.value,
+      {
+        id: 1023
+      },
+      "Complex value set correctly"
+    );
+  }
+);
+
+QUnit.test(
+  "Set value before loading data where value is a complex value, bug https://surveyjs.answerdesk.io/ticket/details/T2350",
+  function(assert) {
+    var survey = new SurveyModel();
+    survey.addNewPage("1");
+    var question = new QuestionCheckboxModelTester("q1");
+    question.hasItemsCallbackDelay = true;
+    question.choicesByUrl.url = "something";
+    question.choicesByUrl.valueName = "identity";
+    question.restFullTest.items = [
+      { identity: { id: 1021 }, localizedData: { id: "A1" } },
+      { identity: { id: 1022 }, localizedData: { id: "A2" } },
+      { identity: { id: 1023 }, localizedData: { id: "A3" } },
+      { identity: { id: 1024 }, localizedData: { id: "A4" } }
+    ];
+    survey.pages[0].addQuestion(question);
+    question.onSurveyLoad();
+    question.doResultsCallback();
+    assert.equal(question.choices.length, 0, "choices are empty");
+    assert.equal(question.visibleChoices.length, 4, "Loaded Correctly");
+    survey.setValue("q1", [{ id: 1023 }]);
+    assert.ok(
+      question.value[0] === question["activeChoices"][2].value,
+      "Choosen exactly choice item value"
+    );
+    survey.doComplete();
+    assert.deepEqual(
+      question.value,
+      [{ id: 1023 }],
+      "Complex value set correctly"
+    );
+  }
+);
+
+QUnit.test("Do not run conditions on resetting the value", function(assert) {
+  var survey = new SurveyModel();
+  survey.addNewPage("1");
+  var question = new QuestionCheckboxModelTester("q1");
+  question.hasItemsCallbackDelay = true;
+  question.choicesByUrl.url = "something";
+  question.choicesByUrl.valueName = "identity";
+  question.restFullTest.items = [{ identity: 1 }, { identity: 2 }];
+  survey.pages[0].addQuestion(question);
+  survey.addNewPage("2");
+  survey.pages[1].addNewQuestion("text", "q2");
+  survey.pages[1].questions[0].visibleIf = "{q1} notempty";
+  question.onSurveyLoad();
+  question.value = [1];
+  survey.currentPageNo = 1;
+  assert.equal(survey.currentPageNo, 1, "The current page is second now");
+  question.doResultsCallback();
+  assert.deepEqual(question.value, [1], "Value is still here");
+  assert.equal(survey.currentPageNo, 1, "The current page doesn't chagned");
+});
 
 QUnit.test("Use values and not text, Bug #627", function(assert) {
   var survey = new SurveyModel();
@@ -552,6 +835,26 @@ QUnit.test(
   }
 );
 
+QUnit.test("Use complex variable, bug#T2705", function(assert) {
+  var survey = new SurveyModel();
+  var page = survey.addNewPage("1");
+  var dropDown = new QuestionDropdownModelTester("q1");
+  dropDown.choicesByUrl.url = "{obj.state}";
+  page.addQuestion(dropDown);
+
+  assert.equal(dropDown.visibleChoices.length, 0, "It is empty");
+  survey.setVariable("obj", { state: "ca_cities" });
+  assert.equal(dropDown.visibleChoices.length, 2, "We have two cities now, CA");
+  survey.setVariable("obj", { state: "tx_cities" });
+  assert.equal(
+    dropDown.visibleChoices.length,
+    3,
+    "We have three cities now, TX"
+  );
+  survey.setVariable("obj", null);
+  assert.equal(dropDown.visibleChoices.length, 0, "It is empty again");
+});
+
 QUnit.test(
   "Question in panel dynamic where url is depend on value outside panel, bug#1089",
   function(assert) {
@@ -574,7 +877,7 @@ QUnit.test("Load countries, custom properties, #615", function(assert) {
   var test = new ChoicesRestfullTester();
   test.noCaching = true;
   var items = [];
-  JsonObject.metaData.addProperty("itemvalue", "alpha2_code");
+  Serializer.addProperty("itemvalue", "alpha2_code");
   test.getResultCallback = function(res: Array<ItemValue>) {
     items = res;
   };
@@ -584,13 +887,13 @@ QUnit.test("Load countries, custom properties, #615", function(assert) {
   assert.equal(items.length, 5, "there are 5 countries");
   assert.equal(items[0]["alpha2_code"], "AF", "the first alpha2_code is AF");
   assert.equal(items[4]["alpha2_code"], "AS", "the fifth alpha2_code is AS");
-  JsonObject.metaData.removeProperty("itemvalue", "alpha2_code");
+  Serializer.removeProperty("itemvalue", "alpha2_code");
 });
 
 QUnit.test("Load countries, custom itemvalue class", function(assert) {
-  JsonObject.metaData.addProperty("itemvalue", "alpha3_code");
-  JsonObject.metaData.addProperty("itemvalue", "customProperty");
-  var question = <QuestionDropdownImageTester>JsonObject.metaData.createClass(
+  Serializer.addProperty("itemvalue", "alpha3_code");
+  Serializer.addProperty("itemvalue", "customProperty");
+  var question = <QuestionDropdownImageTester>Serializer.createClass(
     "imagepicker_choicesrest"
   );
   question.choicesByUrl.url = "allcountries";
@@ -609,14 +912,14 @@ QUnit.test("Load countries, custom itemvalue class", function(assert) {
     "AF",
     "Custom property is set via propertyName is set"
   );
-  JsonObject.metaData.removeProperty("itemvalue", "customProperty");
-  JsonObject.metaData.removeProperty("itemvalue", "alpha3_code");
+  Serializer.removeProperty("itemvalue", "customProperty");
+  Serializer.removeProperty("itemvalue", "alpha3_code");
 });
 
 QUnit.test(
   "choicesByUrl + custom itemvalue class, save/load to/from json",
   function(assert) {
-    var question = <QuestionDropdownImageTester>JsonObject.metaData.createClass(
+    var question = <QuestionDropdownImageTester>Serializer.createClass(
       "imagepicker_choicesrest"
     );
     question.choicesByUrl.url = "allcountries";
@@ -638,7 +941,7 @@ QUnit.test(
       "choicesByUrl + custom itemvalue class restore correctly"
     );
 
-    var loadedQuestion = <QuestionDropdownImageTester>JsonObject.metaData.createClass(
+    var loadedQuestion = <QuestionDropdownImageTester>Serializer.createClass(
       "imagepicker_choicesrest"
     );
     new JsonObject().toObject(json, loadedQuestion);
@@ -705,6 +1008,19 @@ QUnit.test(
     );
   }
 );
+
+QUnit.test("choicesByUrl + isReady", function(assert) {
+  var question = new QuestionDropdownModelTester("q1");
+  question.value = "Algeria";
+  question.choicesByUrl.url = "allcountries";
+  question.choicesByUrl.path = "RestResponse;result";
+  question.onSurveyLoad();
+  assert.equal(
+    question.isReady,
+    true,
+    "IsReady should be true after load survey"
+  );
+});
 
 function getCACities() {
   return ["Los Angeles", "San Francisco"];

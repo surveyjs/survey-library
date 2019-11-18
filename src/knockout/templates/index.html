@@ -3,13 +3,11 @@
   <div data-bind="css: css.root, afterRender: koEventAfterRender">
       <form onsubmit="return false;">
           <div class="sv_custom_header"></div>
-          <div class="sv_container">
-              <!-- ko if: (title.length > 0) && showTitle && koState() == 'running' -->
+          <div data-bind="css: css.container">
+              <!-- ko if: (locTitle.koRenderedHtml().length > 0) && showTitle -->
               <div data-bind="css: css.header">
-                  <h3>
-                      <!-- ko template: { name: 'survey-string', data: locTitle } -->
-                      <!-- /ko -->
-                  </h3>
+                  <h3><!-- ko template: { name: 'survey-string', data: locTitle } --><!-- /ko --></h3>
+                  <h5><!-- ko template: { name: 'survey-string', data: locDescription } --><!-- /ko --></h5>
               </div>
               <!-- /ko -->
               <!-- ko if: koState() == "starting" -->
@@ -31,13 +29,24 @@
                   <!-- ko template: { name: 'survey-timerpanel'} -->
                   <!-- /ko -->
                   <!-- /ko -->
-                  <div data-bind="visible: isShowProgressBarOnTop, template: 'survey-progress'"></div>
+                  
+                  <!-- ko if: isShowProgressBarOnTop -->
+                  <!-- ko template: { name: 'survey-progress'} -->
+                  <!-- /ko -->
+                  <!-- /ko -->
                   <!-- ko if: isNavigationButtonsShowing === 'top' || isNavigationButtonsShowing === 'both' -->
                   <!-- ko template: { name: 'survey-navigation'} -->
                   <!-- /ko -->
                   <!-- /ko -->
+                  <!-- ko if: koCurrentPage -->
                   <div data-bind="attr: { id: koCurrentPage().id }, template: { name: 'survey-page', data: koCurrentPage, afterRender: koAfterRenderPage }"></div>
-                  <div style="margin-top:1em" data-bind="visible: isShowProgressBarOnBottom, template: 'survey-progress'"></div>
+                  <!-- /ko -->
+
+                  <!-- ko if: isShowProgressBarOnBottom -->
+                  <!-- ko template: { name: 'survey-progress'} -->
+                  <!-- /ko -->
+                  <!-- /ko -->
+                
                   <!-- ko if: isTimerPanelShowingOnBottom -->
                   <!-- ko template: { name: 'survey-timerpanel'} -->
                   <!-- /ko -->
@@ -65,7 +74,7 @@
               <div data-bind="html: processedLoadingHtml, css: css.body"></div>
               <!-- /ko -->
               <!-- ko if: koState() == "empty" -->
-              <div data-bind="text:emptySurveyText, css: css.body"></div>
+              <div data-bind="text:emptySurveyText, css: css.bodyEmpty"></div>
               <!-- /ko -->
           </div>
       </form>

@@ -5,7 +5,7 @@ import {
   IMatrixData
 } from "../question_matrix";
 import { QuestionImplementor } from "./koquestion";
-import { JsonObject } from "../jsonobject";
+import { Serializer } from "../jsonobject";
 import { QuestionFactory } from "../questionfactory";
 import { ItemValue } from "../itemvalue";
 import { Helpers } from "../helpers";
@@ -23,11 +23,11 @@ export class MatrixRow extends MatrixRowModel {
     super(item, fullName, data, value);
     this.koValue = ko.observable(this.value);
     var self = this;
-    this.koValue.subscribe(function(newValue:any) {
+    this.koValue.subscribe(function(newValue: any) {
       if (self.isValueUpdating) true;
       self.value = newValue;
     });
-    this.koCellClick = function(column:any) {
+    this.koCellClick = function(column: any) {
       self.koValue(column.value);
     };
   }
@@ -48,6 +48,11 @@ export class QuestionMatrix extends QuestionMatrixModel {
     this.koVisibleRows = ko.observable(this.visibleRows);
     this.koVisibleColumns = ko.observable(this.visibleColumns);
   }
+  protected onColumnsChanged() {
+    super.onColumnsChanged();
+    this.koVisibleRows(this.visibleRows);
+    this.koVisibleColumns(this.visibleColumns);
+  }
   protected onRowsChanged() {
     super.onRowsChanged();
     this.koVisibleRows(this.visibleRows);
@@ -64,20 +69,34 @@ export class QuestionMatrix extends QuestionMatrixModel {
   ): MatrixRowModel {
     return new MatrixRow(item, fullName, this, value);
   }
-  public getItemCss(row:any, column:any) {
+  public getItemCss(row: any, column: any) {
     var isChecked = row.koValue() == column.value;
+    var isDisabled = this.isReadOnly;
+    var allowHover = !isChecked && !isDisabled;
+    var cellDisabledClass = this.hasCellText
+      ? this.cssClasses.cellTextDisabled
+      : this.cssClasses.itemDisabled;
+
     var cellSelectedClass = this.hasCellText
       ? this.cssClasses.cellTextSelected
-      : "checked";
+      : this.cssClasses.itemChecked;
+
+    var itemHoverClass = !this.hasCellText ? this.cssClasses.itemHover : "";
+
     var cellClass = this.hasCellText
       ? (<any>this)["koCss"]().cellText
       : (<any>this)["koCss"]().label;
-    let itemClass = cellClass + (isChecked ? " " + cellSelectedClass : "");
+
+    let itemClass =
+      cellClass +
+      (isChecked ? " " + cellSelectedClass : "") +
+      (isDisabled ? " " + cellDisabledClass : "") +
+      (allowHover ? " " + itemHoverClass : "");
     return itemClass;
   }
 }
 
-JsonObject.metaData.overrideClassCreatore("matrix", function() {
+Serializer.overrideClassCreator("matrix", function() {
   return new QuestionMatrix("");
 });
 QuestionFactory.Instance.registerQuestion("matrix", name => {

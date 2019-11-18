@@ -1,0 +1,48 @@
+.sv-boolean {
+  display: block;
+  position: relative;
+  line-height: 1.5em;
+}
+.sv-boolean__switch {
+  float: left;
+  box-sizing: border-box;
+  width: 4em;
+  height: 1.5em;
+  margin-right: 1.0625em;
+  margin-left: 1.3125em;
+  padding: 0.125em 0.1875em;
+  border-radius: 0.75em;
+}
+[dir="rtl"], [style*="direction:rtl"] {
+  .sv-boolean__switch {
+    float: right;
+  }
+}
+.sv-boolean__slider {
+  display: block;
+  width: 1.25em;
+  height: 1.25em;
+  transition-duration: 0.1s;
+  transition-property: margin-left;
+  transition-timing-function: linear;
+  border: none;
+  border-radius: 100%;
+}
+.sv-boolean--indeterminate {
+  .sv-boolean__slider {
+    margin-left: calc(50% - 0.625em);
+  }
+}
+.sv-boolean--checked {
+  .sv-boolean__slider {
+    margin-left: calc(100% - 1.25em);
+  }
+}
+.sv-boolean__label {
+  float: left;
+}
+[dir="rtl"], [style*="direction:rtl"] {
+  .sv-boolean__label {
+    float: right;
+  }
+}  

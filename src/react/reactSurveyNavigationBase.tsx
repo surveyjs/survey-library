@@ -2,17 +2,15 @@ import * as React from "react";
 import { SurveyModel } from "../survey";
 
 export class SurveyNavigationBase extends React.Component<any, any> {
-  protected survey: SurveyModel;
-  protected css: any;
   constructor(props: any) {
     super(props);
-    this.survey = props.survey;
-    this.css = props.css;
     this.state = { update: 0 };
   }
-  componentWillReceiveProps(nextProps: any) {
-    this.survey = nextProps.survey;
-    this.css = nextProps.css;
+  protected get survey(): SurveyModel {
+    return this.props.survey;
+  }
+  protected get css(): any {
+    return this.props.css;
   }
   private updateStateFunction: any = null;
   componentDidMount() {

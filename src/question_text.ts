@@ -1,9 +1,9 @@
 import { QuestionFactory } from "./questionfactory";
-import { JsonObject } from "./jsonobject";
+import { Serializer } from "./jsonobject";
 import { Question } from "./question";
 import { LocalizableString } from "./localizablestring";
 import { Helpers } from "./helpers";
-import { EmailValidator } from "./validator";
+import { EmailValidator, SurveyValidator } from "./validator";
 
 /**
  * A Model for an input text question.
@@ -20,19 +20,22 @@ export class QuestionTextModel extends Question {
    * Use this property to change the default input type.
    */
   public get inputType(): string {
-    return this.getPropertyValue("inputType", "text");
+    return this.getPropertyValue("inputType");
   }
   public set inputType(val: string) {
     val = val.toLowerCase();
     if (val == "datetime_local") val = "datetime-local";
     this.setPropertyValue("inputType", val.toLowerCase());
+  }
+  public getValidators(): Array<SurveyValidator> {
+    var validators = super.getValidators();
     if (
-      !this.isLoadingFromJson &&
-      val === "email" &&
+      this.inputType === "email" &&
       !this.validators.some(v => v.getType() === "emailvalidator")
     ) {
-      this.validators.push(new EmailValidator());
+      validators.push(new EmailValidator());
     }
+    return validators;
   }
   isLayoutTypeSupported(layoutType: string): boolean {
     return true;
@@ -43,7 +46,7 @@ export class QuestionTextModel extends Question {
    * @see SurveyModel.maxTextLength
    */
   public get maxLength(): number {
-    return this.getPropertyValue("maxLength", -1);
+    return this.getPropertyValue("maxLength");
   }
   public set maxLength(val: number) {
     this.setPropertyValue("maxLength", val);
@@ -58,7 +61,7 @@ export class QuestionTextModel extends Question {
    * The text input size
    */
   public get size(): number {
-    return this.getPropertyValue("size", 25);
+    return this.getPropertyValue("size");
   }
   public set size(val: number) {
     this.setPropertyValue("size", val);
@@ -88,16 +91,13 @@ export class QuestionTextModel extends Question {
   protected correctValueType(newValue: any): any {
     if (!newValue) return newValue;
     if (this.inputType == "number" || this.inputType == "range") {
-      return this.isNumber(newValue) ? parseFloat(newValue) : "";
+      return Helpers.isNumber(newValue) ? parseFloat(newValue) : "";
     }
     return newValue;
   }
-  private isNumber(value:any): boolean {
-    return !isNaN(parseFloat(value)) && isFinite(value);
-  }
 }
 
-JsonObject.metaData.addClass(
+Serializer.addClass(
   "text",
   [
     {

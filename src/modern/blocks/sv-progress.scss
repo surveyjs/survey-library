@@ -1,0 +1,23 @@
+.sv-progress {
+  height: 0.19em;
+  background-color: $header-background-color;
+}
+.sv-progress__bar {
+  position: relative;
+  height: 100%;
+  background-color: $main-color;
+}
+.sv-progress__text {
+  position: absolute;
+  margin-top: 0.69em;
+  color: $progress-text-color;
+  font-size: 0.87em;
+  font-weight: bold;
+  padding-left: 0.6321em;
+  @media only screen and (min-width: 1000px) {
+    margin-left: 5%;
+  }
+  @media only screen and (max-width: 1000px) {
+    margin-left: 10px;
+  }
+}

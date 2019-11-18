@@ -1,19 +1,15 @@
 import * as React from "react";
 import { PageModel } from "../page";
 import { SurveyElementBase } from "./reactquestionelement";
-
+import { PanelModelBase } from "../panel";
 import { SurveyPanelBase } from "./panel-base";
 
 export class SurveyPage extends SurveyPanelBase {
   constructor(props: any) {
     super(props);
-    this.panelBase = props.page;
   }
-  componentWillReceiveProps(nextProps: any) {
-    this.unMakeBaseElementReact(this.panelBase);
-    super.componentWillReceiveProps(nextProps);
-    this.panelBase = nextProps.page;
-    this.makeBaseElementReact(this.panelBase);
+  protected getPanelBase(): PanelModelBase {
+    return this.props.page;
   }
   public get page(): PageModel {
     return this.panelBase as PageModel;
@@ -23,9 +19,9 @@ export class SurveyPage extends SurveyPanelBase {
       return null;
     var title = this.renderTitle();
     var description = this.renderDescription();
-    var rows = this.renderRows();
+    var rows = this.renderRows(this.panelBase.cssClasses);
     return (
-      <div ref="root" className={this.css.page.root}>
+      <div ref="root" className={this.panelBase.cssClasses.page.root}>
         {title}
         {description}
         {rows}
@@ -33,13 +29,13 @@ export class SurveyPage extends SurveyPanelBase {
     );
   }
   protected renderTitle(): JSX.Element {
-    if (!this.page.title || !this.survey.showPageTitles) return null;
+    if (!this.survey.showPageTitles) return null;
     var text = SurveyElementBase.renderLocString(this.page.locTitle);
-    return <h4 className={this.css.pageTitle}>{text}</h4>;
+    return <h4 className={this.panelBase.cssClasses.pageTitle}>{text}</h4>;
   }
   protected renderDescription(): JSX.Element {
-    if (!this.page.description || !this.survey.showPageTitles) return null;
+    if (!this.survey.showPageTitles) return null;
     var text = SurveyElementBase.renderLocString(this.page.locDescription);
-    return <div className={this.css.pageDescription}>{text}</div>;
+    return <div className={this.panelBase.cssClasses.pageDescription}>{text}</div>;
   }
 }

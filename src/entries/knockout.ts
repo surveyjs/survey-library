@@ -15,8 +15,7 @@ export { defaultBootstrapCss } from "../defaultCss/cssbootstrap";
 export {
   defaultBootstrapMaterialCss
 } from "../defaultCss/cssbootstrapmaterial";
-// styles
-import "../main.scss";
+export { modernCss } from "../defaultCss/cssmodern";
 
 // knockout
 export { Survey } from "../knockout/kosurvey";
@@ -60,3 +59,8 @@ export { SurveyTemplateText } from "../knockout/templateText";
 
 //Uncomment to include the "date" question type.
 //export {QuestionDate} from "../plugins/knockout/koquestion_date";
+
+import * as ko from "knockout";
+import { SurveyModel } from "../survey";
+import { registerTemplateEngine } from "../knockout/kosurvey";
+registerTemplateEngine(ko, SurveyModel.platform);

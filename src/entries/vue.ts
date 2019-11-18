@@ -16,6 +16,7 @@ export { defaultBootstrapCss } from "../defaultCss/cssbootstrap";
 export {
   defaultBootstrapMaterialCss
 } from "../defaultCss/cssbootstrapmaterial";
+export { modernCss } from "../defaultCss/cssmodern";
 
 import { VueSurveyModel } from "../vue/surveyModel";
 export { VueSurveyModel as Model };
@@ -28,10 +29,12 @@ export { SurveyElementVue } from "../vue/element.vue";
 export { Window } from "../vue/window.vue";
 export { Page } from "../vue/page.vue";
 export { Radiogroup } from "../vue/radiogroup.vue";
+export { RadiogroupItem } from "../vue/radiogroupitem.vue";
 export { OtherChoice } from "../vue/otherChoice.vue";
 export { Rating } from "../vue/rating.vue";
 export { Comment } from "../vue/comment.vue";
 export { Checkbox } from "../vue/checkbox.vue";
+export { CheckboxItem } from "../vue/checkboxitem.vue";
 export { Text } from "../vue/text.vue";
 export { Boolean } from "../vue/boolean.vue";
 export { Empty } from "../vue/empty.vue";
@@ -55,3 +58,4 @@ export { Panel } from "../vue/panel.vue";
 export { FlowPanel } from "../vue/flowpanel.vue";
 export { FlowPanelElement } from "../vue/flowpanelelement.vue";
 export { Row } from "../vue/row.vue";
+export { ElementHeader } from "../vue/elementheader.vue";

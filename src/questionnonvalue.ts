@@ -1,5 +1,5 @@
 import { Question, IConditionObject } from "./question";
-import { JsonObject } from "./jsonobject";
+import { Serializer } from "./jsonobject";
 import { SurveyError } from "./base";
 
 /**
@@ -39,7 +39,7 @@ export class QuestionNonValue extends Question {
     return null;
   }
 }
-JsonObject.metaData.addClass(
+Serializer.addClass(
   "nonvalue",
   [
     { name: "title", visible: false },
@@ -51,7 +51,10 @@ JsonObject.metaData.addClass(
     { name: "isRequired", visible: false },
     { name: "requiredErrorText", visible: false },
     { name: "readOnly", visible: false },
-    { name: "validators", visible: false }
+    { name: "requiredIf", visible: false },
+    { name: "validators", visible: false },
+    { name: "titleLocation", visible: false },
+    { name: "useDisplayValuesInTitle", visible: false }
   ],
   function() {
     return new QuestionNonValue("");

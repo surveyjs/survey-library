@@ -15,6 +15,7 @@ export { defaultBootstrapCss } from "../defaultCss/cssbootstrap";
 export {
   defaultBootstrapMaterialCss
 } from "../defaultCss/cssbootstrapmaterial";
+export { modernCss } from "../defaultCss/cssmodern";
 
 // react
 export { Survey } from "../react/reactSurvey";
@@ -63,12 +64,10 @@ export {
   SurveyQuestionMatrixDropdownCell
 } from "../react/reactquestionmatrixdropdownbase";
 export {
-  SurveyQuestionMatrixDropdown,
-  SurveyQuestionMatrixDropdownRow
+  SurveyQuestionMatrixDropdown
 } from "../react/reactquestionmatrixdropdown";
 export {
-  SurveyQuestionMatrixDynamic,
-  SurveyQuestionMatrixDynamicRow
+  SurveyQuestionMatrixDynamic
 } from "../react/reactquestionmatrixdynamic";
 export { SurveyQuestionPanelDynamic } from "../react/reactquestionpaneldynamic";
 export { SurveyProgress } from "../react/reactSurveyProgress";

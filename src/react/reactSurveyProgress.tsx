@@ -3,14 +3,11 @@ import { SurveyModel } from "../survey";
 import { SurveyNavigationBase } from "./reactSurveyNavigationBase";
 
 export class SurveyProgress extends SurveyNavigationBase {
-  protected isTop: boolean;
   constructor(props: any) {
     super(props);
-    this.isTop = props.isTop;
   }
-  componentWillReceiveProps(nextProps: any) {
-    super.componentWillReceiveProps(nextProps);
-    this.isTop = nextProps.isTop;
+  protected get isTop(): boolean {
+    return this.props.isTop;
   }
   protected get progress(): number {
     return this.survey.getProgress();
@@ -25,9 +22,28 @@ export class SurveyProgress extends SurveyNavigationBase {
     };
     return (
       <div className={this.css.progress} style={style}>
-        <div style={progressStyle} className={this.css.progressBar} role="progressbar" aria-valuemin={0} aria-valuemax={100} >
-          <span>{this.progressText}</span>
+        <div
+          style={progressStyle}
+          className={this.css.progressBar}
+          role="progressbar"
+          aria-valuemin={0}
+          aria-valuemax={100}
+        >
+          <span
+            className={
+              this.css.progressText + " " + this.css.progressTextInBar
+            }
+          >
+            {this.progressText}
+          </span>
         </div>
+        <span
+          className={
+            this.css.progressText + " " + this.css.progressTextUnderBar
+          }
+        >
+          {this.progressText}
+        </span>
       </div>
     );
   }

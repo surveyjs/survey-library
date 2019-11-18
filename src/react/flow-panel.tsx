@@ -13,8 +13,8 @@ export class SurveyFlowPanel extends SurveyPanel {
   public get flowPanel(): FlowPanelModel {
     return this.panel as FlowPanelModel;
   }
-  componentWillMount() {
-    super.componentWillMount();
+  componentDidMount() {
+    super.componentDidMount();
     if (!!this.flowPanel) {
       var self = this;
       this.flowPanel.onCustomHtmlProducing = function() {

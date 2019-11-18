@@ -1,7 +1,7 @@
 import { HashTable } from "./helpers";
 import { ItemValue } from "./itemvalue";
 import { Question } from "./question";
-import { JsonObject } from "./jsonobject";
+import { Serializer } from "./jsonobject";
 import { ConditionRunner } from "./conditions";
 import { Helpers } from "./helpers";
 
@@ -9,21 +9,21 @@ import { Helpers } from "./helpers";
  * A Model for a matrix base question.
  */
 export class QuestionMatrixBaseModel<TRow, TColumn> extends Question {
-  protected columnsValue: Array<TColumn>;
   protected filteredColumns: Array<TColumn>;
   protected filteredRows: Array<ItemValue>;
   protected generatedVisibleRows: Array<TRow> = null;
+  protected generatedTotalRow: TRow = null;
   public visibleRowsChangedCallback: () => void;
 
   protected createColumnValues(): any {
-    return [];
+    return this.createItemValues("columns");
   }
 
   constructor(public name: string) {
     super(name);
     this.filteredRows = null;
     this.filteredColumns = null;
-    this.columnsValue = this.createColumnValues();
+    this.columns = this.createColumnValues();
     this.rows = this.createItemValues("rows");
   }
   public getType(): string {
@@ -36,7 +36,7 @@ export class QuestionMatrixBaseModel<TRow, TColumn> extends Question {
    * Set this property to false, to hide table header. The default value is true.
    */
   public get showHeader(): boolean {
-    return this.getPropertyValue("showHeader", true);
+    return this.getPropertyValue("showHeader");
   }
   public set showHeader(val: boolean) {
     this.setPropertyValue("showHeader", val);
@@ -45,7 +45,7 @@ export class QuestionMatrixBaseModel<TRow, TColumn> extends Question {
    * The list of columns. A column has a value and an optional text
    */
   get columns(): Array<any> {
-    return this.columnsValue;
+    return this.getPropertyValue("columns");
   }
   set columns(newValue: Array<any>) {
     this.setPropertyValue("columns", newValue);
@@ -60,8 +60,12 @@ export class QuestionMatrixBaseModel<TRow, TColumn> extends Question {
     return this.getPropertyValue("rows");
   }
   set rows(newValue: Array<any>) {
-    this.setPropertyValue("rows", newValue);
+    var newRows = this.processRowsOnSet(newValue);
+    this.setPropertyValue("rows", newRows);
     this.filterItems();
+  }
+  protected processRowsOnSet(newRows: Array<any>) {
+    return newRows;
   }
   protected getVisibleRows(): Array<TRow> {
     return [];
@@ -111,14 +115,22 @@ export class QuestionMatrixBaseModel<TRow, TColumn> extends Question {
       this.getDataFilteredProperties()
     );
   }
+  protected onColumnsChanged() {}
   protected onRowsChanged() {
     this.fireCallback(this.visibleRowsChangedCallback);
+  }
+  protected shouldRunColumnExpression(): boolean {
+    return true;
+  }
+  protected hasRowsAsItems(): boolean {
+    return true;
   }
   protected runItemsCondition(
     values: HashTable<any>,
     properties: HashTable<any>
   ): boolean {
-    var hasChanges = this.runConditionsForRows(values, properties);
+    var hasChanges =
+      this.hasRowsAsItems() && this.runConditionsForRows(values, properties);
     hasChanges = this.runConditionsForColumns(values, properties) || hasChanges;
     if (hasChanges) {
       if (!!this.filteredColumns || !!this.filteredRows) {
@@ -162,7 +174,8 @@ export class QuestionMatrixBaseModel<TRow, TColumn> extends Question {
       <any>this.filteredColumns,
       runner,
       values,
-      properties
+      properties,
+      this.shouldRunColumnExpression()
     );
     if (this.filteredColumns.length === this.columns.length) {
       this.filteredColumns = null;
@@ -194,24 +207,20 @@ export class QuestionMatrixBaseModel<TRow, TColumn> extends Question {
   }
   protected clearInvisibleValuesInRows() {
     if (this.isEmpty()) return;
-    var oldData = Helpers.getUnbindValue(this.value);
-    var newData = {};
-    var rows = this.visibleRows;
+    var newData = Helpers.getUnbindValue(this.value);
+    var rows = this.rows;
     for (var i = 0; i < rows.length; i++) {
-      var key = this.getRowName(rows[i]);
-      if (!!oldData[key]) {
-        (<any>newData)[key] = oldData[key];
+      var key = rows[i].value;
+      if (!!newData[key] && !rows[i].isVisible) {
+        delete newData[key];
       }
     }
     if (Helpers.isTwoValueEquals(newData, this.value)) return;
     this.value = newData;
   }
-  protected getRowName(row: any) {
-    return row.name;
-  }
 }
 
-JsonObject.metaData.addClass(
+Serializer.addClass(
   "matrixbase",
   [
     "columnsVisibleIf:condition",

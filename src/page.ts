@@ -1,4 +1,4 @@
-import { JsonObject } from "./jsonobject";
+import { Serializer } from "./jsonobject";
 import { HashTable, Helpers } from "./helpers";
 import {
   IPage,
@@ -19,7 +19,7 @@ export class PageModel extends PanelModelBase implements IPage {
   constructor(public name: string = "") {
     super(name);
     var self = this;
-    this.locTitle.onRenderedHtmlCallback = function(text) {
+    this.locTitle.onGetTextCallback = function(text) {
       if (self.num > 0) return self.num + ". " + text;
       return text;
     };
@@ -32,6 +32,11 @@ export class PageModel extends PanelModelBase implements IPage {
   }
   public get isPage() {
     return true;
+  }
+  public delete() {
+    if (!!this.survey) {
+      this.removeSelfFromList(this.survey.pages);
+    }
   }
   public onFirstRendering() {
     if (this.wasShown) return;
@@ -71,7 +76,7 @@ export class PageModel extends PanelModelBase implements IPage {
    * @see SurveyMode.showNavigationButtons
    */
   public get navigationButtonsVisibility(): string {
-    return this.getPropertyValue("navigationButtonsVisibility", "inherit");
+    return this.getPropertyValue("navigationButtonsVisibility");
   }
   public set navigationButtonsVisibility(val: string) {
     this.setPropertyValue("navigationButtonsVisibility", val.toLowerCase());
@@ -128,28 +133,10 @@ export class PageModel extends PanelModelBase implements IPage {
    * @see areQuestionsRandomized
    */
   public get questionsOrder() {
-    return this.getPropertyValue("questionsOrder", "default");
+    return this.getPropertyValue("questionsOrder");
   }
   public set questionsOrder(val: string) {
     this.setPropertyValue("questionsOrder", val);
-  }
-  /**
-   * Call it to focus the input on the first question
-   */
-  public focusFirstQuestion() {
-    var q = this.getFirstQuestionToFocus();
-    if (!!q) {
-      q.focus();
-    }
-  }
-  /**
-   * Call it to focus the input of the first question that has an error.
-   */
-  public focusFirstErrorQuestion() {
-    var q = this.getFirstQuestionToFocus(true);
-    if (!!q) {
-      q.focus();
-    }
   }
   /**
    * Call it to scroll to the page top.
@@ -368,7 +355,7 @@ export class PageModel extends PanelModelBase implements IPage {
   }
 }
 
-JsonObject.metaData.addClass(
+Serializer.addClass(
   "page",
   [
     {
@@ -381,7 +368,7 @@ JsonObject.metaData.addClass(
       default: "default",
       choices: ["default", "initial", "random"]
     },
-    { name: "maxTimeToFinish:number", default: 0 }
+    { name: "maxTimeToFinish:number", default: 0, minValue: 0 }
   ],
   function() {
     return new PageModel();

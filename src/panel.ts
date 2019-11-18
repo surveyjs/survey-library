@@ -1,4 +1,4 @@
-import { JsonObject } from "./jsonobject";
+import { Serializer } from "./jsonobject";
 import { HashTable } from "./helpers";
 import {
   Base,
@@ -22,8 +22,8 @@ import { ILocalizableOwner, LocalizableString } from "./localizablestring";
 import { surveyCss } from "./defaultCss/cssstandard";
 import { OneAnswerRequiredError } from "./error";
 import { QuestionPanelDynamic } from "./knockout/koquestion_paneldynamic";
-import { timingSafeEqual } from "crypto";
 import { PageModel } from "./page";
+import { settings } from "./settings";
 
 export class DragDropInfo {
   constructor(
@@ -51,6 +51,9 @@ export class QuestionRowModel extends Base {
   public set visible(val: boolean) {
     this.setPropertyValue("visible", val);
   }
+  public get visibleElements(): Array<IElement> {
+    return this.elements.filter(e => e.isVisible);
+  }
   public updateVisible() {
     this.visible = this.calcVisible();
     this.setWidth();
@@ -63,13 +66,16 @@ export class QuestionRowModel extends Base {
     return this.panel.rows.indexOf(this);
   }
   private setWidth() {
-    var visCount = this.getVisibleCount();
+    var visCount = this.visibleElements.length;
     if (visCount == 0) return;
     var counter = 0;
     for (var i = 0; i < this.elements.length; i++) {
       if (this.elements[i].isVisible) {
         var q = this.elements[i];
-        q.renderWidth = q.width ? q.width : (100 / visCount).toFixed(6) + "%";
+        q.renderWidth =
+          !!q.width && typeof q.width === "string"
+            ? q.width
+            : (100 / visCount).toFixed(6) + "%";
         q.rightIndent = counter < visCount - 1 ? 1 : 0;
         counter++;
       } else {
@@ -77,15 +83,8 @@ export class QuestionRowModel extends Base {
       }
     }
   }
-  private getVisibleCount(): number {
-    var res = 0;
-    for (var i = 0; i < this.elements.length; i++) {
-      if (this.elements[i].isVisible) res++;
-    }
-    return res;
-  }
   private calcVisible(): boolean {
-    return this.getVisibleCount() > 0;
+    return this.visibleElements.length > 0;
   }
 }
 
@@ -122,6 +121,9 @@ export class PanelModelBase extends SurveyElement
     this.createLocalizableString("title", this, true);
     this.createLocalizableString("description", this, true);
     this.createLocalizableString("requiredErrorText", this);
+  }
+  public getType(): string {
+    return "panelbase";
   }
   public setSurveyImpl(value: ISurveyImpl) {
     super.setSurveyImpl(value);
@@ -325,7 +327,7 @@ export class PanelModelBase extends SurveyElement
       if (!!this.data) {
         var comment = this.data.getComment(valueName);
         if (!!comment) {
-          (<any>data)[valueName + Base.commentPrefix] = comment;
+          (<any>data)[valueName + settings.commentPrefix] = comment;
         }
       }
     }
@@ -408,18 +410,21 @@ export class PanelModelBase extends SurveyElement
   /**
    * Returns true, if there is an error on this Page or inside the current Panel
    * @param fireCallback set it to true, to show errors in UI
-   * @param focuseOnFirstError set it to true to focuse on the first question that doesn't pass the validation
+   * @param focusOnFirstError set it to true to focus on the first question that doesn't pass the validation
    */
   public hasErrors(
     fireCallback: boolean = true,
-    focuseOnFirstError: boolean = false
+    focusOnFirstError: boolean = false,
+    rec: any = null
   ): boolean {
-    var rec = {
-      fireCallback: fireCallback,
-      focuseOnFirstError: focuseOnFirstError,
-      firstErrorQuestion: <any>null,
-      result: false
-    };
+    rec = !!rec
+      ? rec
+      : {
+          fireCallback: fireCallback,
+          focuseOnFirstError: focusOnFirstError,
+          firstErrorQuestion: <any>null,
+          result: false
+        };
     this.hasErrorsCore(rec);
     if (rec.firstErrorQuestion) {
       rec.firstErrorQuestion.focus(true);
@@ -471,16 +476,10 @@ export class PanelModelBase extends SurveyElement
 
       if (element.isPanel) {
         (<PanelModelBase>(<any>element)).hasErrorsCore(rec);
-      } else if (element.getType() === "paneldynamic") {
-        (<QuestionPanelDynamic>element).panels.forEach(
-          (panel: PanelModelBase) => {
-            panel.hasErrorsCore(rec);
-          }
-        );
       } else {
         var question = <Question>element;
         if (question.isReadOnly) continue;
-        if (question.hasErrors(rec.fireCallback)) {
+        if (question.hasErrors(rec.fireCallback, rec)) {
           if (rec.focuseOnFirstError && rec.firstErrorQuestion == null) {
             rec.firstErrorQuestion = question;
           }
@@ -489,6 +488,16 @@ export class PanelModelBase extends SurveyElement
       }
     }
     this.hasErrorsInPanels(rec);
+    this.updateContainsErrors();
+  }
+  protected getContainsErrors(): boolean {
+    var res = super.getContainsErrors();
+    if (res) return res;
+    var elements = this.elements;
+    for (var i = 0; i < elements.length; i++) {
+      if (elements[i].containsErrors) return true;
+    }
+    return false;
   }
   updateElementVisibility() {
     for (var i = 0; i < this.elements.length; i++) {
@@ -515,6 +524,24 @@ export class PanelModelBase extends SurveyElement
       }
     }
     return null;
+  }
+  /**
+   * Call it to focus the input on the first question
+   */
+  public focusFirstQuestion() {
+    var q = this.getFirstQuestionToFocus();
+    if (!!q) {
+      q.focus();
+    }
+  }
+  /**
+   * Call it to focus the input of the first question that has an error.
+   */
+  public focusFirstErrorQuestion() {
+    var q = this.getFirstQuestionToFocus(true);
+    if (!!q) {
+      q.focus();
+    }
   }
   /**
    * Fill list array with the questions.
@@ -609,7 +636,7 @@ export class PanelModelBase extends SurveyElement
    * @see SurveyModel.questionTitleLocation
    */
   public get questionTitleLocation(): string {
-    return this.getPropertyValue("questionTitleLocation", "default");
+    return this.getPropertyValue("questionTitleLocation");
   }
   public set questionTitleLocation(value: string) {
     this.setPropertyValue("questionTitleLocation", value.toLowerCase());
@@ -922,13 +949,18 @@ export class PanelModelBase extends SurveyElement
     return this.addElement(panel, index);
   }
   /**
-   * Creates a new question and adds it into the end of the elements list. Returns null, if the question could not be created or could not be added into page or panel.
+   * Creates a new question and adds it at location of index, by default the end of the elements list. Returns null, if the question could not be created or could not be added into page or panel.
    * @param questionType the possible values are: "text", "checkbox", "dropdown", "matrix", "html", "matrixdynamic", "matrixdropdown" and so on.
    * @param name a question name
+   * @param index element index in the elements array
    */
-  public addNewQuestion(questionType: string, name: string = null): Question {
+  public addNewQuestion(
+    questionType: string,
+    name: string = null,
+    index: number = -1
+  ): Question {
     var question = QuestionFactory.Instance.createQuestion(questionType, name);
-    if (!this.addQuestion(question)) return null;
+    if (!this.addQuestion(question, index)) return null;
     return question;
   }
   /**
@@ -939,6 +971,13 @@ export class PanelModelBase extends SurveyElement
     var panel = this.createNewPanel(name);
     if (!this.addPanel(panel)) return null;
     return panel;
+  }
+  /**
+   * Returns the index of element parameter in the elements list.
+   * @param element question or panel
+   */
+  public indexOf(element: IElement): number {
+    return this.elements.indexOf(element);
   }
   protected createNewPanel(name: string): PanelModel {
     return new PanelModel(name);
@@ -990,7 +1029,10 @@ export class PanelModelBase extends SurveyElement
   ) {
     if (!this.visibleIf) return;
     var conditionRunner = new ConditionRunner(this.visibleIf);
-    this.visible = conditionRunner.run(values, properties);
+    conditionRunner.onRunComplete = (res: boolean) => {
+      this.visible = res;
+    };
+    conditionRunner.run(values, properties);
   }
   private runEnableCondition(
     values: HashTable<any>,
@@ -998,7 +1040,10 @@ export class PanelModelBase extends SurveyElement
   ) {
     if (!this.enableIf) return;
     var conditionRunner = new ConditionRunner(this.enableIf);
-    this.readOnly = !conditionRunner.run(values, properties);
+    conditionRunner.onRunComplete = (res: boolean) => {
+      this.readOnly = !res;
+    };
+    conditionRunner.run(values, properties);
   }
   onAnyValueChanged(name: string) {
     for (var i = 0; i < this.elements.length; i++) {
@@ -1055,6 +1100,9 @@ export class PanelModelBase extends SurveyElement
     var dest = <IElement>dragDropInfo.destination;
     if (dest.isPanel && !dragDropInfo.isEdge) {
       var panel = <PanelModelBase>(<any>dest);
+      if ((<any>dragDropInfo.target)["template"] === dest) {
+        return false;
+      }
       if (
         dragDropInfo.nestedPanelDepth < 0 ||
         dragDropInfo.nestedPanelDepth >= panel.depth
@@ -1205,11 +1253,16 @@ export class PanelModel extends PanelModelBase implements IElement {
   public set page(val: IPage) {
     this.setPage(this.parent, val);
   }
+  public delete() {
+    if (!!this.parent) {
+      this.removeSelfFromList(this.parent.elements);
+    }
+  }
   /**
    * Set this property to "collapsed" to render only Panel title and expanded button and to "expanded" to render the collapsed button in the Panel caption
    */
   public get state(): string {
-    return this.getPropertyValue("state", "default");
+    return this.getPropertyValue("state");
   }
   public set state(val: string) {
     this.setPropertyValue("state", val);
@@ -1247,6 +1300,15 @@ export class PanelModel extends PanelModelBase implements IElement {
    */
   public expand() {
     this.state = "expanded";
+  }
+  /**
+   * Move panel to a new container Page/Panel. Add as a last element if insertBefore parameter is not used or inserted into the given index,
+   * if insert parameter is number, or before the given element, if the insertBefore parameter is a question or panel
+   * @param container Page or Panel to where a question is relocated.
+   * @param insertBefore Use it if you want to set the panel to a specific position. You may use a number (use 0 to insert int the beginning) or element, if you want to insert before this element.
+   */
+  public moveTo(container: IPanel, insertBefore: any = null): boolean {
+    return this.moveToBase(this.parent, container, insertBefore);
   }
   protected hasErrorsCore(rec: any) {
     super.hasErrorsCore(rec);
@@ -1351,7 +1413,7 @@ export class PanelModel extends PanelModelBase implements IElement {
   }
 }
 
-JsonObject.metaData.addClass(
+Serializer.addClass(
   "panelbase",
   [
     "name",
@@ -1359,7 +1421,8 @@ JsonObject.metaData.addClass(
       name: "elements",
       alternativeName: "questions",
       baseClassName: "question",
-      visible: false
+      visible: false,
+      isLightSerializable: false
     },
     { name: "visible:boolean", default: true },
     "visibleIf:condition",
@@ -1370,7 +1433,7 @@ JsonObject.metaData.addClass(
       default: "default",
       choices: ["default", "top", "bottom", "left", "hidden"]
     },
-    { name: "title:text", serializationProperty: "locTitle" },
+    { name: "title", serializationProperty: "locTitle" },
     { name: "description:text", serializationProperty: "locDescription" }
   ],
   function() {
@@ -1378,7 +1441,7 @@ JsonObject.metaData.addClass(
   }
 );
 
-JsonObject.metaData.addClass(
+Serializer.addClass(
   "panel",
   [
     {

@@ -1,7 +1,6 @@
 import { HashTable, Helpers } from "./helpers";
-import { JsonObject } from "./jsonobject";
+import { JsonObject, Serializer } from "./jsonobject";
 import {
-  Base,
   SurveyError,
   SurveyElement,
   IElement,
@@ -9,7 +8,8 @@ import {
   IPanel,
   IConditionRunner,
   ISurveyImpl,
-  IPage
+  IPage,
+  Event
 } from "./base";
 import { surveyLocalization } from "./surveyStrings";
 import { AnswerRequiredError } from "./error";
@@ -55,6 +55,19 @@ export class Question extends SurveyElement
   commentChangedCallback: () => void;
   validateValueCallback: () => SurveyError;
   questionTitleTemplateCallback: () => string;
+  private locProcessedTitle: LocalizableString;
+  protected isReadyValue: boolean = true;
+
+  /**
+   * The event is fired when isReady property of question is changed.
+   * <br/> options.question - the question
+   * <br/> options.isReady - current value of isReady
+   * <br/> options.oldIsReady - old value of isReady
+   */
+  public onReadyChanged: Event<
+    (sender: Question, options: any) => any,
+    any
+  > = new Event<(sender: Question, options: any) => any, any>();
 
   constructor(public name: string) {
     super(name);
@@ -65,9 +78,13 @@ export class Question extends SurveyElement
       validator.errorOwner = self;
     });
     var locTitleValue = this.createLocalizableString("title", this, true);
-    locTitleValue.onRenderedHtmlCallback = function(text) {
-      return self.fullTitle;
+    locTitleValue.onGetTextCallback = function(text) {
+      var res = self.calcFullTitle(text);
+      if (!self.survey) return res;
+      return self.survey.getUpdatedQuestionTitle(this, res);
     };
+    this.locProcessedTitle = new LocalizableString(this, true);
+    this.locProcessedTitle.sharedData = locTitleValue;
     this.createLocalizableString("description", this, true);
     var locCommentText = this.createLocalizableString(
       "commentText",
@@ -90,6 +107,13 @@ export class Question extends SurveyElement
         self.onIndentChanged();
       }
     );
+
+    this.registerFunctionOnPropertiesValueChanged(
+      ["hasComment", "hasOther"],
+      function() {
+        self.initCommentFromSurvey();
+      }
+    );
   }
   public getValueName(): string {
     if (!!this.valueName) return this.valueName.toString();
@@ -106,7 +130,7 @@ export class Question extends SurveyElement
   }
   public set valueName(val: string) {
     var oldValueName = this.getValueName();
-    this.setPropertyValue("valueName", this.getCorrectedName(val));
+    this.setPropertyValue("valueName", val);
     this.onValueNameChanged(oldValueName);
   }
   protected onValueNameChanged(oldValue: string) {
@@ -126,6 +150,13 @@ export class Question extends SurveyElement
       this.valueName ? this.valueName : oldValue
     );
   }
+  public get isReady(): boolean {
+    return this.isReadyValue;
+  }
+  /**
+   * Get is question ready to use
+   */
+  public choicesLoaded(): void {}
   /**
    * Get/set the page where the question is located.
    */
@@ -143,6 +174,11 @@ export class Question extends SurveyElement
   }
   public getPanel(): IPanel {
     return null;
+  }
+  public delete() {
+    if (!!this.parent) {
+      this.removeSelfFromList(this.parent.elements);
+    }
   }
   public get isFlowLayout(): boolean {
     return this.getLayoutType() === "flow";
@@ -207,33 +243,6 @@ export class Question extends SurveyElement
   public get visibleIndex(): number {
     return this.getPropertyValue("visibleIndex", -1);
   }
-
-  protected propertyValueChanged(name: string, oldValue: any, newValue: any) {
-    if (name === "name") {
-      this.onNameValueChanged(oldValue, newValue);
-    }
-    super.propertyValueChanged(name, oldValue, newValue);
-  }
-  protected onNameValueChanged(oldValue: string, newValue: string) {
-    if (!newValue) return;
-    if (newValue.indexOf(".") > -1) {
-      if (!this.valueName || this.isCorrectedNameEqualsValueName(oldValue))
-        this.valueName = newValue;
-    } else {
-      if (!!this.valueName && this.isCorrectedNameEqualsValueName(oldValue)) {
-        this.valueName = "";
-      }
-    }
-  }
-  private getCorrectedName(name: string): string {
-    if (!name || typeof name !== "string") return name;
-    while (name.indexOf(".") > -1) name = name.replace(".", " ");
-    return name.trim();
-  }
-  private isCorrectedNameEqualsValueName(name: string): boolean {
-    if (!name || name.indexOf(".") < 0 || !this.valueName) return false;
-    return this.getCorrectedName(name) == this.valueName;
-  }
   /**
    * Returns true if the question may have a title located on the left
    */
@@ -246,6 +255,16 @@ export class Question extends SurveyElement
   public getType(): string {
     return "question";
   }
+  /**
+   * Move question to a new container Page/Panel. Add as a last element if insertBefore parameter is not used or inserted into the given index,
+   * if insert parameter is number, or before the given element, if the insertBefore parameter is a question or panel
+   * @param container Page or Panel to where a question is relocated.
+   * @param insertBefore Use it if you want to set the question to a specific position. You may use a number (use 0 to insert int the beginning) or element, if you want to insert before this element.
+   */
+  public moveTo(container: IPanel, insertBefore: any = null): boolean {
+    return this.moveToBase(this.parent, container, insertBefore);
+  }
+
   private runConditions() {
     if (this.data && !this.isLoadingFromJson && !this.isDesignMode) {
       this.runCondition(
@@ -291,12 +310,12 @@ export class Question extends SurveyElement
    * @see SurveyModel.questionTitleLocation
    */
   public get titleLocation(): string {
-    return this.getPropertyValue("questionTitleLocation", "default");
+    return this.getPropertyValue("titleLocation");
   }
   public set titleLocation(value: string) {
     var isVisibilityChanged =
       this.titleLocation == "hidden" || value == "hidden";
-    this.setPropertyValue("questionTitleLocation", value.toLowerCase());
+    this.setPropertyValue("titleLocation", value.toLowerCase());
     if (isVisibilityChanged && this.survey) {
       this.survey.questionVisibilityChanged(this, this.visible);
     }
@@ -372,6 +391,30 @@ export class Question extends SurveyElement
     return this.getLocalizableString("description");
   }
   /**
+   * Question description location. By default, value is "default" and it depends on survey questionDescriptionLocation property
+   * You may change it to "underInput" to render it under question input or "underTitle" to rendered it under title.
+   * @see description
+   * @see Survey.questionDescriptionLocation
+   */
+  public get descriptionLocation(): string {
+    return this.getPropertyValue("descriptionLocation");
+  }
+  public set descriptionLocation(val: string) {
+    this.setPropertyValue("descriptionLocation", val);
+  }
+  get hasDescriptionUnderTitle(): boolean {
+    return this.getDescriptionLocation() == "underTitle";
+  }
+  get hasDescriptionUnderInput(): boolean {
+    return this.getDescriptionLocation() == "underInput";
+  }
+  private getDescriptionLocation() {
+    if (this.descriptionLocation !== "default") return this.descriptionLocation;
+    return !!this.survey
+      ? this.survey.questionDescriptionLocation
+      : "underTitle";
+  }
+  /**
    * The custom text that will be shown on required error. Use this property, if you do not want to show the default text.
    */
   public get requiredErrorText(): string {
@@ -427,25 +470,27 @@ export class Question extends SurveyElement
    * Returns the rendred question title.
    */
   public get processedTitle() {
-    var res = this.locTitle.textOrHtml;
+    var res = this.locProcessedTitle.textOrHtml;
     return res ? res : this.name;
-    //return this.getProcessedHtml(this.locTitleHtml);
   }
   /**
    * Returns the title after processing the question template.
    * @see SurveyModel.questionTitleTemplate
    */
   public get fullTitle(): string {
+    return this.locTitle.renderedHtml;
+    /*
     var res = this.calcFullTitle();
     if (!this.survey) return res;
     return this.survey.getUpdatedQuestionTitle(this, res);
+    */
   }
-  protected getQuestionTitleTemplate() {
+  public getQuestionTitleTemplate() {
     if (this.questionTitleTemplateCallback)
       return this.questionTitleTemplateCallback();
     return !!this.survey ? this.survey.getQuestionTitleTemplate() : null;
   }
-  private calcFullTitle(): string {
+  private calcFullTitle(text: string): string {
     var titleTemplate = this.getQuestionTitleTemplate();
     if (titleTemplate) {
       if (!this.textPreProcessor) {
@@ -462,9 +507,10 @@ export class Question extends SurveyElement
         this.useDisplayValuesInTitle
       );
     }
-    var requireText = this.requiredText;
-    if (requireText) requireText = " " + requireText;
-    return this.processedTitle + requireText;
+    if (!text) {
+      text = this.name;
+    }
+    return text;
   }
   /**
    * The Question renders on the new line if the property is true. If the property is false, the question tries to render on the same line/row with a previous question/panel.
@@ -503,7 +549,6 @@ export class Question extends SurveyElement
     if (this.errors.length > 0) {
       res += " " + classes.hasError;
     }
-
     return res;
   }
   protected getRootCss(classes: any) {
@@ -511,8 +556,8 @@ export class Question extends SurveyElement
   }
   protected updateCssClasses(res: any, surveyCss: any) {
     if (this.isRequired) {
-      if (surveyCss.question.required) {
-        res.root += " " + surveyCss.question.required;
+      if (!!surveyCss.question.required) {
+        res.root = (res.root ? res.root + " " : "") + objCss;
       }
       if (surveyCss.question.titleRequired) {
         res.title += " " + surveyCss.question.titleRequired;
@@ -521,7 +566,7 @@ export class Question extends SurveyElement
     var objCss = surveyCss[this.getType()];
     if (objCss === undefined || objCss === null) return;
     if (typeof objCss === "string" || objCss instanceof String) {
-      res.root = objCss;
+      res.root = (res.root ? res.root + " " : "") + objCss;
     } else {
       for (var key in objCss) {
         res[key] = objCss[key];
@@ -685,6 +730,9 @@ export class Question extends SurveyElement
     this.hasOtherChanged();
   }
   protected hasOtherChanged() {}
+  public get requireUpdateCommentValue() {
+    return this.hasComment || this.hasOther;
+  }
   /**
    * Retuns true if readOnly property is true or survey is in display mode or parent panel/page is readOnly.
    * @see SurveyModel.model
@@ -731,7 +779,10 @@ export class Question extends SurveyElement
     if (!this.conditionRunner)
       this.conditionRunner = new ConditionRunner(this.visibleIf);
     this.conditionRunner.expression = this.visibleIf;
-    this.visible = this.conditionRunner.run(values, properties);
+    this.conditionRunner.onRunComplete = (res: boolean) => {
+      this.visible = res;
+    };
+    this.conditionRunner.run(values, properties);
   }
   private runEnableIfCondition(
     values: HashTable<any>,
@@ -741,7 +792,10 @@ export class Question extends SurveyElement
     if (!this.conditionEnabelRunner)
       this.conditionEnabelRunner = new ConditionRunner(this.enableIf);
     this.conditionEnabelRunner.expression = this.enableIf;
-    this.readOnly = !this.conditionEnabelRunner.run(values, properties);
+    this.conditionEnabelRunner.onRunComplete = (res: boolean) => {
+      this.readOnly = !res;
+    };
+    this.conditionEnabelRunner.run(values, properties);
   }
   private runRequiredIfCondition(
     values: HashTable<any>,
@@ -751,7 +805,10 @@ export class Question extends SurveyElement
     if (!this.conditionRequiredRunner)
       this.conditionRequiredRunner = new ConditionRunner(this.requiredIf);
     this.conditionRequiredRunner.expression = this.requiredIf;
-    this.isRequired = this.conditionRequiredRunner.run(values, properties);
+    this.conditionRequiredRunner.onRunComplete = (res: boolean) => {
+      this.isRequired = res;
+    };
+    this.conditionRequiredRunner.run(values, properties);
   }
   /**
    * The property returns the question number. If question is invisible then it returns empty string.
@@ -785,7 +842,14 @@ export class Question extends SurveyElement
   protected initDataFromSurvey() {
     if (!!this.data) {
       this.updateValueFromSurvey(this.data.getValue(this.getValueName()));
+      this.initCommentFromSurvey();
+    }
+  }
+  protected initCommentFromSurvey() {
+    if (!!this.data && this.requireUpdateCommentValue) {
       this.updateCommentFromSurvey(this.data.getComment(this.getValueName()));
+    } else {
+      this.updateCommentFromSurvey("");
     }
   }
   private get questionValue(): any {
@@ -838,27 +902,32 @@ export class Question extends SurveyElement
       this.clearValue();
     }
   }
+  private _displayValue = "";
+
   public get displayValue(): any {
     this.updateDisplayValue();
-    return this.getPropertyValue("displayValue", "");
+    return this._displayValue;
   }
   protected updateDisplayValue(): any {
     if (this.isLoadingFromJson) return;
-    this.setPropertyValue("displayValue", this.getDisplayValue(true));
+    this._displayValue = this.getDisplayValue(true);
   }
   /**
    * Return the question value as a display text. For example, for dropdown, it would return the item text instead of item value.
    * @param keysAsText Set this value to true, to return key (in matrices questions) as display text as well.
+   * @param value use this parameter, if you want to get display value for this value and not question.value. It is undefined by default.
    */
-  public getDisplayValue(keysAsText: boolean): any {
+  public getDisplayValue(keysAsText: boolean, value: any = undefined): any {
     if (this.customWidget) {
-      var res = this.customWidget.getDisplayValue(this);
+      var res = this.customWidget.getDisplayValue(this, value);
       if (res) return res;
     }
-    return this.getDisplayValueCore(keysAsText);
+    value = value == undefined ? this.createValueCopy() : value;
+    if (Helpers.isValueEmpty(value)) return "";
+    return this.getDisplayValueCore(keysAsText, value);
   }
-  protected getDisplayValueCore(keyAsText: boolean): any {
-    return this.value;
+  protected getDisplayValueCore(keyAsText: boolean, value: any): any {
+    return value;
   }
   /**
    * Set the default value to the question. It will be assign to the question on loading the survey from JSON or adding a question to the survey or on setting this property of the value is empty.
@@ -915,10 +984,28 @@ export class Question extends SurveyElement
   public set correctAnswer(val: any) {
     this.setPropertyValue("correctAnswer", val);
   }
+  public get quizQuestionCount(): number {
+    if (
+      this.isVisible &&
+      this.hasInput &&
+      !Helpers.isValueEmpty(this.correctAnswer)
+    )
+      return this.getQuizQuestionCount();
+    return 0;
+  }
+  public get correctAnswerCount(): number {
+    if (!this.isEmpty() && !this.isValueEmpty(this.correctAnswer))
+      return this.getCorrectAnswerCount();
+    return 0;
+  }
+  protected getQuizQuestionCount() {
+    return 1;
+  }
+  protected getCorrectAnswerCount(): number {
+    return this.isTwoValueEquals(this.value, this.correctAnswer, true) ? 1 : 0;
+  }
   public isAnswerCorrect(): boolean {
-    if (this.isValueEmpty(this.value) || this.isValueEmpty(this.correctAnswer))
-      return false;
-    return this.isTwoValueEquals(this.value, this.correctAnswer);
+    return this.correctAnswerCount == this.quizQuestionCount;
   }
   public updateValueWithDefaults() {
     if (
@@ -929,6 +1016,9 @@ export class Question extends SurveyElement
     if (!this.isDesignMode && !this.isEmpty()) return;
     if (this.isEmpty() && this.isDefaultValueEmpty()) return;
     this.setDefaultValue();
+  }
+  getQuestionFromArray(name: string, index: number): IQuestion {
+    return null;
   }
   public getDefaultValue(): any {
     return this.defaultValue;
@@ -965,6 +1055,18 @@ export class Question extends SurveyElement
   public isEmpty(): boolean {
     return this.isValueEmpty(this.value);
   }
+  public get isAnswered(): boolean {
+    return this.getPropertyValue("isAnswered");
+  }
+  public set isAnswered(val: boolean) {
+    this.setPropertyValue("isAnswered", val);
+  }
+  protected updateIsAnswered() {
+    this.setPropertyValue("isAnswered", this.getIsAnswered());
+  }
+  protected getIsAnswered(): boolean {
+    return !this.isEmpty();
+  }
   /**
    * The list of question validators.
    */
@@ -973,6 +1075,9 @@ export class Question extends SurveyElement
   }
   public set validators(val: Array<SurveyValidator>) {
     this.setPropertyValue("validators", val);
+  }
+  public getValidators(): Array<SurveyValidator> {
+    return this.validators;
   }
   public addConditionNames(names: Array<string>) {
     names.push(this.name);
@@ -996,11 +1101,15 @@ export class Question extends SurveyElement
    * Returns true if there is a validation error(s) in the question.
    * @param fireCallback set it to true to show an error in UI.
    */
-  public hasErrors(fireCallback: boolean = true): boolean {
+  public hasErrors(fireCallback: boolean = true, rec: any = null): boolean {
     var errors = this.checkForErrors();
     if (fireCallback) {
+      if (!!this.survey) {
+        this.survey.beforeSettingQuestionErrors(this, errors);
+      }
       this.errors = errors;
     }
+    this.updateContainsErrors();
     return errors.length > 0;
   }
   /**
@@ -1072,14 +1181,45 @@ export class Question extends SurveyElement
   protected hasRequiredError(): boolean {
     return this.isRequired && this.isEmpty();
   }
+  private validatorRunner: ValidatorRunner;
+  private isRunningValidatorsValue = false;
+  public onCompletedAsyncValidators: (hasErrors: boolean) => void;
+  public get isRunningValidators(): boolean {
+    return this.getIsRunningValidators();
+  }
+  protected getIsRunningValidators(): boolean {
+    return this.isRunningValidatorsValue;
+  }
   protected runValidators(): Array<SurveyError> {
-    return new ValidatorRunner().run(this);
+    if (!!this.validatorRunner) {
+      this.validatorRunner.onAsyncCompleted = null;
+    }
+    this.validatorRunner = new ValidatorRunner();
+    this.isRunningValidatorsValue = true;
+    this.validatorRunner.onAsyncCompleted = (errors: Array<SurveyError>) => {
+      this.doOnAsyncCompleted(errors);
+    };
+    return this.validatorRunner.run(this);
+  }
+  private doOnAsyncCompleted(errors: Array<SurveyError>) {
+    for (var i = 0; i < errors.length; i++) {
+      this.errors.push(errors[i]);
+    }
+    this.isRunningValidatorsValue = false;
+    this.raiseOnCompletedAsyncValidators();
+  }
+  protected raiseOnCompletedAsyncValidators() {
+    if (!!this.onCompletedAsyncValidators && !this.isRunningValidators) {
+      this.onCompletedAsyncValidators(this.getAllErrors().length > 0);
+      this.onCompletedAsyncValidators = null;
+    }
   }
   private isValueChangedInSurvey = false;
   protected setNewValue(newValue: any) {
     this.setNewValueInData(newValue);
     this.onValueChanged();
   }
+  protected locNotificationInData = false;
   protected setNewValueInData(newValue: any) {
     newValue = this.valueToData(newValue);
     if (!this.isValueChangedInSurvey) {
@@ -1092,7 +1232,11 @@ export class Question extends SurveyElement
   protected setValueCore(newValue: any) {
     this.setQuestionValue(newValue);
     if (this.data != null) {
-      this.data.setValue(this.getValueName(), newValue);
+      this.data.setValue(
+        this.getValueName(),
+        newValue,
+        this.locNotificationInData
+      );
     }
   }
   protected valueFromData(val: any): any {
@@ -1116,9 +1260,10 @@ export class Question extends SurveyElement
   updateCommentFromSurvey(newValue: any): any {
     this.questionComment = newValue;
   }
-  protected setQuestionValue(newValue: any) {
+  protected setQuestionValue(newValue: any, updateIsAnswered: boolean = true) {
     this.questionValue = newValue;
     this.fireCallback(this.valueChangedCallback);
+    if (updateIsAnswered) this.updateIsAnswered();
   }
   onSurveyValueChanged(newValue: any) {
     if (this.isLoadingFromJson) return;
@@ -1195,7 +1340,7 @@ export class Question extends SurveyElement
     return !!this.data ? this.data.getAllValues() : null;
   }
 }
-JsonObject.metaData.addClass("question", [
+Serializer.addClass("question", [
   "!name",
   { name: "visible:boolean", default: true },
   { name: "useDisplayValuesInTitle:boolean", default: true, layout: "row" },
@@ -1221,6 +1366,11 @@ JsonObject.metaData.addClass("question", [
     serializationProperty: "locDescription",
     layout: "row"
   },
+  {
+    name: "descriptionLocation",
+    default: "default",
+    choices: ["default", "underInput", "underTitle"]
+  },
   "valueName",
   "enableIf:condition",
   "defaultValue:value",
@@ -1244,4 +1394,4 @@ JsonObject.metaData.addClass("question", [
     layout: "row"
   }
 ]);
-JsonObject.metaData.addAlterNativeClassName("question", "questionbase");
+Serializer.addAlterNativeClassName("question", "questionbase");

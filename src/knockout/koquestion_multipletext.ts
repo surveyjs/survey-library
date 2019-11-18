@@ -7,7 +7,7 @@ import { QuestionTextModel } from "../question_text";
 import { QuestionImplementor } from "./koquestion";
 import { QuestionText } from "./koquestion_text";
 import { Question } from "../question";
-import { JsonObject } from "../jsonobject";
+import { Serializer } from "../jsonobject";
 import { QuestionFactory } from "../questionfactory";
 
 export class MultipleTextItem extends MultipleTextItemModel {
@@ -49,11 +49,11 @@ export class QuestionMultipleText extends QuestionMultipleTextModel {
   }
 }
 
-JsonObject.metaData.overrideClassCreatore("multipletextitem", function() {
+Serializer.overrideClassCreator("multipletextitem", function() {
   return new MultipleTextItem("");
 });
 
-JsonObject.metaData.overrideClassCreatore("multipletext", function() {
+Serializer.overrideClassCreator("multipletext", function() {
   return new QuestionMultipleText("");
 });
 

@@ -1,0 +1,28 @@
+.sv-question .sv-selectbase {
+  margin-bottom: 1px;
+}
+.sv-selectbase__item {
+  margin-bottom: 0.425em;
+  vertical-align: top;
+}
+.sv-selectbase__item--inline {
+  display: inline-block;
+  padding-right: 5%;
+}
+.sv-selectbase__column {
+  min-width: 19%;
+  vertical-align: top;
+}
+.sv-selectbase__label {
+  display: block;
+  overflow: hidden;
+  box-sizing: border-box;
+  width: 100%;
+  cursor: inherit;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.sv-selectbase__clear-btn {
+  margin-top: 0.9em;
+  background-color: $clean-button-color;
+}

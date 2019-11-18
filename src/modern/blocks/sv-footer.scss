@@ -1,0 +1,32 @@
+.sv-footer {
+  min-height: $base-line-height;
+  padding: 2.5em 0 0.87em 0;
+}
+.sv-footer__complete-btn {
+  background-color: $main-color;
+  float: right;
+}
+.sv-footer__next-btn {
+  background-color: $main-color;
+  float: right;
+}
+.sv-footer__prev-btn {
+  background-color: $main-color;
+  float: left;
+}
+
+.sv-footer__start-btn {
+  background-color: $main-color;
+}
+
+[dir="rtl"], [style*="direction:rtl"] {
+  .sv-footer__complete-btn {
+    float: left;
+  }
+  .sv-footer__next-btn {
+    float: left;
+  }
+  .sv-footer__prev-btn {
+    float: right;
+  }
+}

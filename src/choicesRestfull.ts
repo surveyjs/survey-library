@@ -1,8 +1,8 @@
 import { Base, SurveyError, ITextProcessor, IQuestion } from "./base";
 import { ItemValue } from "./itemvalue";
-import { JsonObject, JsonObjectProperty } from "./jsonobject";
-import { surveyLocalization } from "./surveyStrings";
+import { Serializer, JsonObjectProperty } from "./jsonobject";
 import { WebRequestError, WebRequestEmptyError } from "./error";
+import { settings } from "./settings";
 
 class XmlParser {
   private parser = new DOMParser();
@@ -46,7 +46,38 @@ class XmlParser {
  * The run method call a restfull service and results can be get on getResultCallback.
  */
 export class ChoicesRestfull extends Base {
+  public static get EncodeParameters(): boolean {
+    return settings.webserviceEncodeParameters;
+  }
+  public static set EncodeParameters(val: boolean) {
+    settings.webserviceEncodeParameters = val;
+  }
+  public static clearCache() {
+    ChoicesRestfull.itemsResult = {};
+  }
   private static itemsResult: { [index: string]: any } = {};
+  private static sendingSameRequests: {
+    [index: string]: Array<ChoicesRestfull>;
+  } = {};
+  private static addSameRequest(obj: ChoicesRestfull): boolean {
+    var hash = obj.objHash;
+    var res = ChoicesRestfull.sendingSameRequests[hash];
+    if (!res) {
+      ChoicesRestfull.sendingSameRequests[obj.objHash] = [];
+      return false;
+    }
+    res.push(obj);
+    return true;
+  }
+  private static unregisterSameRequests(obj: ChoicesRestfull, items: any) {
+    var res = ChoicesRestfull.sendingSameRequests[obj.objHash];
+    delete ChoicesRestfull.sendingSameRequests[obj.objHash];
+    for (var i = 0; i < res.length; i++) {
+      if (!!res[i].getResultCallback) {
+        res[i].getResultCallback(items);
+      }
+    }
+  }
   public static onBeforeSendRequest: (
     sender: ChoicesRestfull,
     options: { request: XMLHttpRequest }
@@ -65,10 +96,12 @@ export class ChoicesRestfull extends Base {
   protected processedUrl: string = "";
   protected processedPath: string = "";
   public getResultCallback: (items: Array<ItemValue>) => void;
+  public beforeSendRequestCallback: () => void;
   public updateResultCallback: (
     items: Array<ItemValue>,
     serverResult: any
   ) => Array<ItemValue>;
+  public getItemValueCallback: (item: any) => any;
   public error: SurveyError = null;
   public owner: IQuestion;
   constructor() {
@@ -79,12 +112,14 @@ export class ChoicesRestfull extends Base {
     this.processedText(textProcessor);
     if (!this.processedUrl) {
       this.doEmptyResultCallback({});
+      this.lastObjHash = this.objHash;
       return;
     }
-    if (this.lastObjHash == this.objHash) return;
+    if (this.lastObjHash === this.objHash) return;
     this.lastObjHash = this.objHash;
     this.error = null;
     if (this.useChangedItemsResults()) return;
+    if (ChoicesRestfull.addSameRequest(this)) return;
     this.sendRequest();
   }
   public get isRunning() {
@@ -105,8 +140,16 @@ export class ChoicesRestfull extends Base {
   }
   private processedText(textProcessor: ITextProcessor) {
     if (textProcessor) {
-      var pUrl = textProcessor.processTextEx(this.url, false, true);
-      var pPath = textProcessor.processTextEx(this.path, false, true);
+      var pUrl = textProcessor.processTextEx(
+        this.url,
+        false,
+        settings.webserviceEncodeParameters
+      );
+      var pPath = textProcessor.processTextEx(
+        this.path,
+        false,
+        settings.webserviceEncodeParameters
+      );
       if (!pUrl.hasAllValuesOnLastRun || !pPath.hasAllValuesOnLastRun) {
         this.processedUrl = "";
         this.processedPath = "";
@@ -158,6 +201,7 @@ export class ChoicesRestfull extends Base {
     if (!!ChoicesRestfull.onBeforeSendRequest) {
       ChoicesRestfull.onBeforeSendRequest(this, options);
     }
+    this.beforeSendRequest();
     options.request.send();
   }
   public getType(): string {
@@ -178,7 +222,7 @@ export class ChoicesRestfull extends Base {
     return propertyName + "Name";
   }
   private getCustomProperties(): Array<JsonObjectProperty> {
-    var properties = JsonObject.metaData.getProperties(this.itemValueType);
+    var properties = Serializer.getProperties(this.itemValueType);
     var res = [];
     for (var i = 0; i < properties.length; i++) {
       if (
@@ -241,12 +285,15 @@ export class ChoicesRestfull extends Base {
   public set titleName(val: string) {
     this.setPropertyValue("titleName", val);
   }
+  public get allowEmptyResponse(): boolean {
+    return this.getPropertyValue("allowEmptyResponse", false);
+  }
+  public set allowEmptyResponse(val: boolean) {
+    this.setPropertyValue("allowEmptyResponse", val);
+  }
   public get itemValueType(): string {
     if (!this.owner) return "itemvalue";
-    var prop = JsonObject.metaData.findProperty(
-      this.owner.getType(),
-      "choices"
-    );
+    var prop = Serializer.findProperty(this.owner.getType(), "choices");
     if (!prop) return "itemvalue";
     if (prop.type == "itemvalue[]") return "itemvalue";
     return prop.type;
@@ -261,6 +308,11 @@ export class ChoicesRestfull extends Base {
       if ((<any>this)[properties[i]]) (<any>this)[properties[i]] = "";
     }
   }
+  protected beforeSendRequest() {
+    if (!!this.beforeSendRequestCallback) {
+      this.beforeSendRequestCallback();
+    }
+  }
   protected onLoad(result: any) {
     var items = [];
     var updatedResult = this.getResultAfterPath(result);
@@ -268,20 +320,25 @@ export class ChoicesRestfull extends Base {
       for (var i = 0; i < updatedResult.length; i++) {
         var itemValue = updatedResult[i];
         if (!itemValue) continue;
-        var value = this.getValue(itemValue);
+        var value = !!this.getItemValueCallback
+          ? this.getItemValueCallback(itemValue)
+          : this.getValue(itemValue);
         var title = this.getTitle(itemValue);
         var item = new ItemValue(value, title);
         this.setCustomProperties(item, itemValue);
         items.push(item);
       }
     } else {
-      this.error = new WebRequestEmptyError(null, this.owner);
+      if (!this.allowEmptyResponse) {
+        this.error = new WebRequestEmptyError(null, this.owner);
+      }
     }
     if (this.updateResultCallback) {
       items = this.updateResultCallback(items, result);
     }
     ChoicesRestfull.itemsResult[this.objHash] = items;
     this.getResultCallback(items);
+    ChoicesRestfull.unregisterSameRequests(this, items);
   }
   private setCustomProperties(item: ItemValue, itemValue: any) {
     var properties = this.getCustomProperties();
@@ -305,6 +362,7 @@ export class ChoicesRestfull extends Base {
   private onError(status: string, response: string) {
     this.error = new WebRequestError(status, response, this.owner);
     this.doEmptyResultCallback(response);
+    ChoicesRestfull.unregisterSameRequests(this, []);
   }
   private getResultAfterPath(result: any) {
     if (!result) return result;
@@ -360,9 +418,15 @@ export class ChoicesRestfull extends Base {
     );
   }
 }
-JsonObject.metaData.addClass(
+Serializer.addClass(
   "choicesByUrl",
-  ["url", "path", "valueName", "titleName"],
+  [
+    "url",
+    "path",
+    "valueName",
+    "titleName",
+    { name: "allowEmptyResponse:boolean", default: false }
+  ],
   function() {
     return new ChoicesRestfull();
   }

@@ -1,10 +1,33 @@
 <template>
-    <div>
-        <input type="range" v-if="question.isRangeShowing" min="0" :max="rangeMax" :value="question.currentIndex" style="width:25%;float:left;margin:5px" @change="changeRange" />
-        <input type="button" v-if="question.isPrevButtonShowing" :value="question.panelPrevText" style="float:left;margin:5px"  :class="question.cssClasses.button  + ' ' + question.cssClasses.buttonPrev"  @click="prevPanelClick" />
-        <input type="button" v-if="question.isNextButtonShowing" :value="question.panelNextText"  style="float:left;margin:5px"  :class="question.cssClasses.button  + ' ' + question.cssClasses.buttonNext"  @click="nextPanelClick" />
-        <input type="button" v-if="question.canAddPanel" :value="question.panelAddText" style="float:left;margin:5px"  :class="question.cssClasses.button  + ' ' + question.cssClasses.buttonAdd"  @click="addPanelClick"/>
+  <div style="clear:both;">
+    <div :class="question.cssClasses.progressContainer">
+      <div :title="question.panelPrevText">
+        <svg viewBox="0 0 10 10" :class="getButtonPrevCss(question)" @click="prevPanelClick">
+          <polygon points="2,2 0,4 5,9 10,4 8,2 5,5 " />
+        </svg>
+      </div>
+
+      <div :class="question.cssClasses.progress" v-if="question.isRangeShowing">
+        <div :class="question.cssClasses.progressBar" :style="{width: progress}" role="progressbar"></div>
+      </div>
+
+      <div :title="question.panelNextText">
+        <svg viewBox="0 0 10 10" @click="nextPanelClick" :class="getButtonNextCss(question)">
+          <polygon points="2,2 0,4 5,9 10,4 8,2 5,5 " />
+        </svg>
+      </div>
     </div>
+
+    <input
+      type="button"
+      v-if="question.canAddPanel"
+      :value="question.panelAddText"
+      :class="question.cssClasses.button  + ' ' + question.cssClasses.buttonAdd"
+      @click="addPanelClick"
+    />
+
+    <div :class="question.cssClasses.progressText">{{question.progressText}}</div>
+  </div>
 </template>
 
 <script lang="ts">
@@ -12,6 +35,8 @@ import Vue from "vue";
 import { Component, Prop } from "vue-property-decorator";
 import { PanelModel } from "../panel";
 import { QuestionPanelDynamicModel } from "../question_paneldynamic";
+import { Question } from "../question";
+import { QuestionRow } from "../knockout/kopage";
 
 @Component
 export class PanelDynamicProgress extends Vue {
@@ -32,6 +57,28 @@ export class PanelDynamicProgress extends Vue {
 
   changeRange(event: any) {
     this.question.currentIndex = event.target.value;
+  }
+
+  getButtonAddCss(question: Question) {}
+
+  getButtonPrevCss(question: Question) {
+    var btnClasses = question.cssClasses.buttonPrev;
+    if (!question.isPrevButtonShowing) {
+      btnClasses += " " + question.cssClasses.buttonPrev + "--disabled";
+    }
+    return btnClasses;
+  }
+
+  getButtonNextCss(question: Question) {
+    var btnClasses = question.cssClasses.buttonNext;
+    if (!question.isNextButtonShowing) {
+      btnClasses += " " + question.cssClasses.buttonNext + "--disabled";
+    }
+    return btnClasses;
+  }
+
+  get progress() {
+    return this.question.currentIndex / this.rangeMax * 100 + "%";
   }
 }
 

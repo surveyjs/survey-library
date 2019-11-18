@@ -1,5 +1,5 @@
 import { SurveyModel } from "../src/survey";
-import { JsonObject } from "../src/jsonobject";
+import { JsonObject, Serializer } from "../src/jsonobject";
 import { PageModel } from "../src/page";
 import { QuestionTextModel } from "../src/question_text";
 import { QuestionCheckboxModel } from "../src/question_checkbox";
@@ -16,6 +16,7 @@ import {
 import { ItemValue } from "../src/itemvalue";
 import { NumericValidator } from "../src/validator";
 import { QuestionRadiogroupModel } from "../src/question_radiogroup";
+import { Helpers } from "../src/helpers";
 
 export default QUnit.module("SurveySerialization");
 
@@ -91,7 +92,7 @@ QUnit.test("Deserialize two questions", function(assert) {
     "property choices is set correctly: value"
   );
   assert.equal(
-    checkbox.choices[0].text,
+    checkbox.choices[0].locText.renderedHtml,
     "red",
     "property choices is set correctly: text"
   );
@@ -101,7 +102,7 @@ QUnit.test("Deserialize two questions", function(assert) {
     "property choices is set correctly: value"
   );
   assert.equal(
-    checkbox.choices[1].text,
+    checkbox.choices[1].locText.renderedHtml,
     "white",
     "property choices is set correctly: text"
   );
@@ -240,6 +241,31 @@ QUnit.test("Serialize mutltiple text question", function(assert) {
     "serialize multiple text question"
   );
 });
+QUnit.test(
+  "Deserialize/serialize mutltiple text question default value",
+  function(assert) {
+    var json = {
+      name: "q",
+      defaultValue: { item1: "11", item2: "22" },
+      items: [
+        { name: "item1", title: "Item 1" },
+        { name: "item2", title: "Item 2" }
+      ]
+    };
+    var q = new QuestionMultipleTextModel("q");
+    new JsonObject().toObject(Helpers.getUnbindValue(json), q);
+    var survey = new SurveyModel();
+    survey.setDesignMode(true);
+    survey.addNewPage("p");
+    survey.pages[0].addElement(q);
+    assert.deepEqual(
+      q.defaultValue,
+      json.defaultValue,
+      "Default value is in object"
+    );
+    assert.deepEqual(q.toJSON(), json, "Default value serialized correctly");
+  }
+);
 QUnit.test("Serialize restfull choices", function(assert) {
   var question = new QuestionDropdownModel("q1");
   question.choicesByUrl.path = "name";
@@ -359,7 +385,7 @@ QUnit.test("Survey deserialize checkbox.choices localization", function(
     question
   );
   assert.equal(
-    (<ItemValue>question.choices[0]).text,
+    (<ItemValue>question.choices[0]).locText.renderedHtml,
     "2",
     "The default locale is 2"
   );
@@ -428,7 +454,7 @@ QUnit.test(
 QUnit.test(
   "Survey checkbox.choices serialize/deserialize custom properties",
   function(assert) {
-    JsonObject.metaData.addProperty("itemvalue", "imageLink");
+    Serializer.addProperty("itemvalue", "imageLink");
     var question = new QuestionCheckboxModel("q1");
     var jsonObj = new JsonObject();
     var originalJson = {
@@ -437,7 +463,7 @@ QUnit.test(
     };
     jsonObj.toObject(originalJson, question);
     assert.equal(
-      (<ItemValue>question.choices[0]).text,
+      (<ItemValue>question.choices[0]).locText.renderedHtml,
       "2",
       "The default locale is 2"
     );
@@ -452,7 +478,7 @@ QUnit.test(
       originalJson,
       "Custom property has serialized correctly"
     );
-    JsonObject.metaData.removeProperty("itemvalue", "imageLink");
+    Serializer.removeProperty("itemvalue", "imageLink");
   }
 );
 QUnit.test("Serialize numeric validation, minValue=0, Editor#239", function(

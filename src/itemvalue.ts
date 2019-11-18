@@ -1,8 +1,9 @@
 import { ILocalizableOwner, LocalizableString } from "./localizablestring";
-import { JsonObject, JsonObjectProperty } from "./jsonobject";
+import { JsonObject, JsonObjectProperty, Serializer } from "./jsonobject";
 import { Helpers } from "./helpers";
 import { ConditionRunner } from "./conditions";
 import { Base } from "./base";
+import { settings } from "./settings";
 
 /**
  * Array of ItemValue is used in checkox, dropdown and radiogroup choices, matrix columns and rows.
@@ -11,7 +12,12 @@ import { Base } from "./base";
  */
 export class ItemValue extends Base {
   [index: string]: any;
-  public static Separator = "|";
+  public static get Separator() {
+    return settings.itemValueSeparator;
+  }
+  public static set Separator(val: string) {
+    settings.itemValueSeparator = val;
+  }
   public static createArray(locOwner: ILocalizableOwner): Array<ItemValue> {
     var items: Array<ItemValue> = [];
     ItemValue.setupArray(items, locOwner);
@@ -55,7 +61,7 @@ export class ItemValue extends Base {
       var value = values[i];
       var item;
       if (typeof value.getType === "function") {
-        item = JsonObject.metaData.createClass(value.getType());
+        item = Serializer.createClass(value.getType());
       } else {
         item = new ItemValue(null);
       }
@@ -93,7 +99,8 @@ export class ItemValue extends Base {
     filteredItems: Array<ItemValue>,
     runner: ConditionRunner,
     values: any,
-    properties: any
+    properties: any,
+    useItemExpression: boolean = true
   ): boolean {
     return ItemValue.runConditionsForItemsCore(
       items,
@@ -101,7 +108,8 @@ export class ItemValue extends Base {
       runner,
       values,
       properties,
-      true
+      true,
+      useItemExpression
     );
   }
   public static runEnabledConditionsForItems(
@@ -125,7 +133,8 @@ export class ItemValue extends Base {
     runner: ConditionRunner,
     values: any,
     properties: any,
-    isVisible: boolean
+    isVisible: boolean,
+    useItemExpression: boolean = true
   ): boolean {
     if (!values) {
       values = {};
@@ -137,9 +146,10 @@ export class ItemValue extends Base {
       var item = items[i];
       values["item"] = item.value;
       values["choice"] = item.value;
-      var itemRunner = !!item.getConditionRunner
-        ? item.getConditionRunner(isVisible)
-        : false;
+      var itemRunner =
+        useItemExpression && !!item.getConditionRunner
+          ? item.getConditionRunner(isVisible)
+          : false;
       if (!itemRunner) {
         itemRunner = runner;
       }
@@ -216,7 +226,7 @@ export class ItemValue extends Base {
     this.itemValue = newValue;
     if (!this.itemValue) return;
     var str: string = this.itemValue.toString();
-    var index = str.indexOf(ItemValue.Separator);
+    var index = str.indexOf(settings.itemValueSeparator);
     if (index > -1) {
       this.itemValue = str.slice(0, index);
       this.text = str.slice(index + 1);
@@ -228,10 +238,13 @@ export class ItemValue extends Base {
     return this.locText.pureText ? true : false;
   }
   public get text(): string {
-    return this.locText.text;
+    return this.locText.calculatedText; //TODO: it will be correct to use this.locText.text, however it would require a lot of rewritting in Creator
   }
   public set text(newText: string) {
     this.locText.text = newText;
+  }
+  public get calculatedText() {
+    return this.locText.calculatedText;
   }
   public getData(): any {
     var json = this.toJSON();
@@ -244,9 +257,9 @@ export class ItemValue extends Base {
   }
   public toJSON(): any {
     var res = {};
-    var properties = JsonObject.metaData.getProperties(this.getType());
+    var properties = Serializer.getProperties(this.getType());
     if (!properties || properties.length == 0) {
-      properties = JsonObject.metaData.getProperties("itemvalue");
+      properties = Serializer.getProperties("itemvalue");
     }
     var jsoObj = new JsonObject();
     for (var i = 0; i < properties.length; i++) {
@@ -284,6 +297,9 @@ export class ItemValue extends Base {
   public setIsEnabled(val: boolean) {
     this.setPropertyValue("isEnabled", val);
   }
+  public addUsedLocales(locales: Array<string>) {
+    this.AddLocStringToUsedLocales(this.locTextValue, locales);
+  }
   protected getConditionRunner(isVisible: boolean) {
     if (isVisible) return this.getVisibleConditionRunner();
     return this.getEnableConditionRunner();
@@ -307,14 +323,16 @@ export class ItemValue extends Base {
   }
 }
 
-Base.createItemValue = function(dest: any): any {
+Base.createItemValue = function(source: any, type?: string): any {
   var item = null;
-  if (typeof dest.getType === "function") {
-    item = new ItemValue(null, undefined, dest.getType());
+  if (!!type) {
+    item = JsonObject.metaData.createClass(type, {});
+  } else if (typeof source.getType === "function") {
+    item = new ItemValue(null, undefined, source.getType());
   } else {
     item = new ItemValue(null);
   }
-  item.setData(dest);
+  item.setData(source);
   return item;
 };
 Base.itemValueLocStrChanged = function(arr: Array<any>): void {
@@ -326,7 +344,7 @@ JsonObjectProperty.getItemValuesDefaultValue = function(val: any): any {
   return res;
 };
 
-JsonObject.metaData.addClass(
+Serializer.addClass(
   "itemvalue",
   [
     "value",

@@ -59,6 +59,8 @@ export class SurveyQuestionRating extends SurveyQuestionElementBase {
     var isChecked = this.question.value == item.value;
     var className = cssClasses.item;
     if (isChecked) className += " " + cssClasses.selected;
+    if (this.isDisplayMode) className += " " + cssClasses.disabled;
+
     var itemText = this.renderLocString(item.locText);
     var minTextBlock = !!minText ? (
       <span className={cssClasses.minText}>{minText}</span>
@@ -70,12 +72,13 @@ export class SurveyQuestionRating extends SurveyQuestionElementBase {
       <label key={key} className={className}>
         <input
           type="radio"
-          style={{ display: "none" }}
+          className="sv-visuallyhidden"
           name={this.question.name}
           value={item.value}
           disabled={this.isDisplayMode}
           checked={this.question.value == item.value}
           onChange={this.handleOnChange}
+          aria-required={this.question.isRequired}
           aria-label={item.locText.text}
         />
         {minTextBlock}

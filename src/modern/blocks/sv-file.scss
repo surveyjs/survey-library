@@ -1,0 +1,57 @@
+.sv-file {
+  position: relative;
+}
+.sv-file__decorator {
+  background-color: #f5f5f5;
+  padding: 1.68em 0;
+}
+.sv-file__clean-btn {
+  background-color: $remove-button-color;
+  margin-top: 1.25em;
+}
+.sv-file__choose-btn {
+  background-color: $add-button-color;
+  display: inline-block;
+}
+.sv-file__choose-btn--disabled {
+  cursor: default;
+  background-color: $disable-color;
+  display: inline-block;
+}
+.sv-file__no-file-chosen {
+  display: inline-block;
+  font-size: 0.87em;
+  margin-left: 1em;
+}
+.sv-file__preview {
+  display: inline-block;
+  padding-right: 23px;
+  position: relative;
+  margin-top: 1.25em;
+  vertical-align: top;
+}
+.sv-file__preview:not(:last-child) {
+  margin-right: 31px;
+}
+.sv-file__remove-svg {
+  position: absolute;
+  fill: #ff1800;
+  cursor: pointer;
+  height: 16px;
+  top: 0;
+  right: 0;
+  width: 16px;
+}
+.sv-file__sign a {
+  color: $text-color;
+  text-align: left;
+  text-decoration: none;
+}
+.sv-file__wrapper {
+  position: relative;
+  display: inline-block;
+  margin: 0;
+  margin-left: 50%;
+  transform: translate(-50%, 0);
+  padding: 0;
+}

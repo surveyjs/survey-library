@@ -7,10 +7,10 @@ import {
   IElement,
   ITextProcessor
 } from "./base";
-import { SurveyValidator, IValidatorOwner, ValidatorRunner } from "./validator";
+import { SurveyValidator, IValidatorOwner } from "./validator";
 import { Question, IConditionObject } from "./question";
 import { QuestionTextModel } from "./question_text";
-import { JsonObject } from "./jsonobject";
+import { JsonObject, Serializer } from "./jsonobject";
 import { QuestionFactory } from "./questionfactory";
 import { SurveyError } from "./base";
 import { AnswerRequiredError } from "./error";
@@ -23,6 +23,7 @@ export interface IMultipleTextData extends ILocalizableOwner, IPanel {
   getAllValues(): any;
   getMultipleTextValue(name: string): any;
   setMultipleTextValue(name: string, value: any): any;
+  getItemDefaultValue(name: string): any;
   getIsRequiredText(): string;
 }
 
@@ -32,7 +33,6 @@ export class MultipleTextItemModel extends Base
   private data: IMultipleTextData;
 
   valueChangedCallback: (newValue: any) => void;
-  validators: Array<SurveyValidator> = new Array<SurveyValidator>();
 
   constructor(name: any = null, title: string = null) {
     super();
@@ -66,13 +66,18 @@ export class MultipleTextItemModel extends Base
   protected createEditor(name: string): QuestionTextModel {
     return new QuestionTextModel(name);
   }
+  public addUsedLocales(locales: Array<string>) {
+    super.addUsedLocales(locales);
+    this.editor.addUsedLocales(locales);
+  }
   public locStrsChanged() {
     super.locStrsChanged();
     this.editor.locStrsChanged();
   }
   setData(data: IMultipleTextData) {
     this.data = data;
-    if (data) {
+    if (!!data) {
+      this.editor.defaultValue = data.getItemDefaultValue(this.name);
       this.editor.setSurveyImpl(this);
       this.editor.parent = data;
     }
@@ -145,6 +150,30 @@ export class MultipleTextItemModel extends Base
     return this.editor.locPlaceHolder;
   }
   /**
+   * The custom text that will be shown on required error. Use this property, if you do not want to show the default text.
+   */
+  public get requiredErrorText(): string {
+    return this.editor.requiredErrorText;
+  }
+  public set requiredErrorText(val: string) {
+    this.editor.requiredErrorText = val;
+  }
+  get locRequiredErrorText(): LocalizableString {
+    return this.editor.locRequiredErrorText;
+  }
+  /**
+   * The list of question validators.
+   */
+  public get validators(): Array<SurveyValidator> {
+    return this.editor.validators;
+  }
+  public set validators(val: Array<SurveyValidator>) {
+    this.editor.validators = val;
+  }
+  public getValidators(): Array<SurveyValidator> {
+    return this.validators;
+  }
+  /**
    * The item value.
    */
   public get value() {
@@ -181,6 +210,10 @@ export class MultipleTextItemModel extends Base
       this.data.setMultipleTextValue(name, value);
     }
   }
+  getVariable(name: string): any {
+    return undefined;
+  }
+  setVariable(name: string, newValue: any) {}
   getComment(name: string): string {
     return null;
   }
@@ -250,11 +283,12 @@ export class QuestionMultipleTextModel extends Question
     this.fireCallback(this.colCountChangedCallback);
   }
   setQuestionValue(newValue: any) {
-    super.setQuestionValue(newValue);
+    super.setQuestionValue(newValue, false);
     for (var i = 0; i < this.items.length; i++) {
       var item = this.items[i];
       if (item.editor) item.editor.updateValueFromSurvey(item.value);
     }
+    this.updateIsAnswered();
   }
   onSurveyValueChanged(newValue: any) {
     super.onSurveyValueChanged(newValue);
@@ -338,7 +372,7 @@ export class QuestionMultipleTextModel extends Question
    * The number of columns. Items are rendred in one line if the value is 0.
    */
   public get colCount(): number {
-    return this.getPropertyValue("colCount", 1);
+    return this.getPropertyValue("colCount");
   }
   public set colCount(val: number) {
     if (val < 1 || val > 5) return;
@@ -348,7 +382,7 @@ export class QuestionMultipleTextModel extends Question
    * The default text input size.
    */
   public get itemSize(): number {
-    return this.getPropertyValue("itemSize", 25);
+    return this.getPropertyValue("itemSize");
   }
   public set itemSize(val: number) {
     this.setPropertyValue("itemSize", val);
@@ -391,32 +425,57 @@ export class QuestionMultipleTextModel extends Question
       this.items[i].onValueChanged(itemValue);
     }
   }
-  protected runValidators(): Array<SurveyError> {
-    var errors = super.runValidators();
+  protected getIsRunningValidators(): boolean {
+    if (super.getIsRunningValidators()) return true;
     for (var i = 0; i < this.items.length; i++) {
-      if (this.items[i].isEmpty()) continue;
-
-      var itemErrors = new ValidatorRunner().run(this.items[i]);
-      for (var j = 0; j < itemErrors.length; j++) {
-        errors.push(itemErrors[j]);
-      }
+      if (this.items[i].editor.isRunningValidators) return true;
     }
-    return errors;
+    return false;
   }
-  protected onCheckForErrors(errors: Array<SurveyError>) {
-    super.onCheckForErrors(errors);
+  public hasErrors(fireCallback: boolean = true, rec: any = null): boolean {
+    var res = false;
     for (var i = 0; i < this.items.length; i++) {
-      var item = this.items[i];
-      if (item.isRequired && Helpers.isValueEmpty(item.value)) {
-        errors.push(new AnswerRequiredError(null, this));
+      this.items[i].editor.onCompletedAsyncValidators = (
+        hasErrors: boolean
+      ) => {
+        this.raiseOnCompletedAsyncValidators();
+      };
+      res = this.items[i].editor.hasErrors(fireCallback) || res;
+    }
+    return super.hasErrors(fireCallback) || res;
+  }
+  public getAllErrors(): Array<SurveyError> {
+    var result = super.getAllErrors();
+    for (var i = 0; i < this.items.length; i++) {
+      var errors = this.items[i].editor.getAllErrors();
+      if (errors && errors.length > 0) {
+        result = result.concat(errors);
       }
     }
+    return result;
   }
   public clearErrors() {
     super.clearErrors();
     for (var i = 0; i < this.items.length; i++) {
       this.items[i].editor.clearErrors();
     }
+  }
+  protected getContainsErrors(): boolean {
+    var res = super.getContainsErrors();
+    if (res) return res;
+    var items = this.items;
+    for (var i = 0; i < items.length; i++) {
+      if (items[i].editor.containsErrors) return true;
+    }
+    return false;
+  }
+  protected getIsAnswered(): boolean {
+    if (!super.getIsAnswered()) return false;
+    for (var i = 0; i < this.items.length; i++) {
+      var editor = this.items[i].editor;
+      if (editor.isVisible && !editor.isAnswered) return false;
+    }
+    return true;
   }
 
   //IMultipleTextData
@@ -433,6 +492,9 @@ export class QuestionMultipleTextModel extends Question
     newValue[name] = value;
     this.setNewValue(newValue);
     this.isMultipleItemValueChanging = false;
+  }
+  getItemDefaultValue(name: string): any {
+    return !!this.defaultValue ? this.defaultValue[name] : null;
   }
   getSurvey(): ISurvey {
     return this.survey;
@@ -458,9 +520,15 @@ export class QuestionMultipleTextModel extends Question
     return "row";
   }
   elementWidthChanged(el: IElement) {}
+  get elements(): Array<IElement> {
+    return [];
+  }
+  indexOf(el: IElement): number {
+    return -1;
+  }
 }
 
-JsonObject.metaData.addClass(
+Serializer.addClass(
   "multipletextitem",
   [
     "name",
@@ -489,6 +557,10 @@ JsonObject.metaData.addClass(
     { name: "title", serializationProperty: "locTitle" },
     { name: "maxLength:number", default: -1 },
     {
+      name: "requiredErrorText:text",
+      serializationProperty: "locRequiredErrorText"
+    },
+    {
       name: "validators:validators",
       baseClassName: "surveyvalidator",
       classNamePart: "validator"
@@ -499,11 +571,11 @@ JsonObject.metaData.addClass(
   }
 );
 
-JsonObject.metaData.addClass(
+Serializer.addClass(
   "multipletext",
   [
     { name: "!items:textitems", className: "multipletextitem" },
-    { name: "itemSize:number", default: 25 },
+    { name: "itemSize:number", default: 25, minValue: 0 },
     { name: "colCount:number", default: 1, choices: [1, 2, 3, 4, 5] }
   ],
   function() {

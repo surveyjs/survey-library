@@ -1,7 +1,8 @@
-import { JsonObject } from "./jsonobject";
+import { Serializer } from "./jsonobject";
 import { QuestionFactory } from "./questionfactory";
 import { QuestionCheckboxBase } from "./question_baseselect";
 import { ItemValue } from "./itemvalue";
+import { Helpers } from "./helpers";
 
 /**
  * A Model for a select image question.
@@ -17,6 +18,10 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
   supportGoNextPageAutomatic() {
     return true;
   }
+
+  protected getItemValueType() {
+    return "imageitemvalue";
+  }
   /**
    * Multi select option. If set to true, then allows to select multiple images.
    */
@@ -26,6 +31,45 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
   public set multiSelect(newValue: boolean) {
     this.setPropertyValue("multiSelect", newValue);
   }
+  /**
+   * Returns true if item is checked
+   * @param item image picker item value
+   */
+  public isItemSelected(item: ItemValue): boolean {
+    var val = this.renderedValue;
+    if (Helpers.isValueEmpty(val)) return false;
+    if (!this.multiSelect) return Helpers.isTwoValueEquals(val, item.value);
+    if (!Array.isArray(val)) return false;
+    for (var i = 0; i < val.length; i++) {
+      if (Helpers.isTwoValueEquals(val[i], item.value)) return true;
+    }
+    return false;
+  }
+  public clearIncorrectValues() {
+    if (this.multiSelect) {
+      var val = this.value;
+      if (!val) return;
+      if (!Array.isArray(val) || val.length == 0) {
+        this.clearValue();
+        return;
+      }
+      var newValue = [];
+      for (var i = 0; i < val.length; i++) {
+        if (!this.hasUnknownValue(val[i], true)) {
+          newValue.push(val[i]);
+        }
+      }
+      if (newValue.length == val.length) return;
+      if (newValue.length == 0) {
+        this.clearValue();
+      } else {
+        this.value = newValue;
+      }
+    } else {
+      super.clearIncorrectValues();
+    }
+  }
+
   /**
    * Show label under the image.
    */
@@ -42,7 +86,7 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
    * The image height.
    */
   public get imageHeight(): string {
-    return this.getPropertyValue("imageHeight", 150);
+    return this.getPropertyValue("imageHeight");
   }
   public set imageHeight(val: string) {
     this.setPropertyValue("imageHeight", val);
@@ -51,7 +95,7 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
    * The image width.
    */
   public get imageWidth(): string {
-    return this.getPropertyValue("imageWidth", 200);
+    return this.getPropertyValue("imageWidth");
   }
   public set imageWidth(val: string) {
     this.setPropertyValue("imageWidth", val);
@@ -60,7 +104,7 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
    * The image fit mode.
    */
   public get imageFit(): string {
-    return this.getPropertyValue("imageFit", "contain");
+    return this.getPropertyValue("imageFit");
   }
   public set imageFit(val: string) {
     this.setPropertyValue("imageFit", val);
@@ -69,7 +113,7 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
    * The content mode.
    */
   public get contentMode(): string {
-    return this.getPropertyValue("contentMode", "image");
+    return this.getPropertyValue("contentMode");
   }
   public set contentMode(val: string) {
     this.setPropertyValue("contentMode", val);
@@ -79,14 +123,12 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
   }
 }
 
-JsonObject.metaData.addClass(
-  "imageitemvalue",
-  ["imageLink"],
-  null,
-  "itemvalue"
-);
+Serializer.addClass("imageitemvalue", [], undefined, "itemvalue");
+Serializer.addProperty("imageitemvalue", {
+  name: "imageLink"
+});
 
-JsonObject.metaData.addClass(
+Serializer.addClass(
   "imagepicker",
   [
     { name: "hasOther", visible: false },
@@ -104,28 +146,28 @@ JsonObject.metaData.addClass(
       default: "contain",
       choices: ["none", "contain", "cover", "fill"]
     },
-    { name: "imageHeight:number", default: 150 },
-    { name: "imageWidth:number", default: 200 }
+    { name: "imageHeight:number", default: 150, minValue: 0 },
+    { name: "imageWidth:number", default: 200, minValue: 0 }
   ],
   function() {
     return new QuestionImagePickerModel("");
   },
   "checkboxbase"
 );
-JsonObject.metaData.addProperty("imagepicker", {
+Serializer.addProperty("imagepicker", {
   name: "showLabel:boolean",
   default: false
 });
-JsonObject.metaData.addProperty("imagepicker", {
+Serializer.addProperty("imagepicker", {
   name: "colCount:number",
   default: 0,
   choices: [0, 1, 2, 3, 4, 5]
 });
-JsonObject.metaData.addProperty("imagepicker", {
+Serializer.addProperty("imagepicker", {
   name: "multiSelect:boolean",
   default: false
 });
-JsonObject.metaData.addProperty("imagepicker", {
+Serializer.addProperty("imagepicker", {
   name: "choices:imageitemvalue[]"
 });
 

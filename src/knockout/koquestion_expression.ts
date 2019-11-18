@@ -1,6 +1,6 @@
 import * as ko from "knockout";
 import { QuestionExpressionModel } from "../question_expression";
-import { JsonObject } from "../jsonobject";
+import { Serializer } from "../jsonobject";
 import { QuestionFactory } from "../questionfactory";
 import { QuestionImplementor } from "./koquestion";
 import { Question } from "../question";
@@ -24,7 +24,7 @@ export class QuestionExpression extends QuestionExpressionModel {
   }
 }
 
-JsonObject.metaData.overrideClassCreatore("expression", function() {
+Serializer.overrideClassCreator("expression", function() {
   return new QuestionExpression("");
 });
 QuestionFactory.Instance.registerQuestion("expression", name => {

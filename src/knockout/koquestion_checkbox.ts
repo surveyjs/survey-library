@@ -1,10 +1,9 @@
 import * as ko from "knockout";
 import { QuestionCheckboxBaseImplementor } from "./koquestion_baseselect";
-import { JsonObject } from "../jsonobject";
+import { Serializer } from "../jsonobject";
 import { QuestionFactory } from "../questionfactory";
 import { QuestionCheckboxModel } from "../question_checkbox";
 import { Question } from "../question";
-import { Helpers } from "../helpers";
 
 class QuestionCheckboxImplementor extends QuestionCheckboxBaseImplementor {
   constructor(question: Question) {
@@ -45,19 +44,26 @@ export class QuestionCheckbox extends QuestionCheckboxModel {
   getItemClass(item: any) {
     var val = this.value; //trigger dependencies from koValue for knockout
     var isChecked = this.isItemSelected(item);
-    var itemClass =
-      this.cssClasses.item +
-      (this.colCount === 0
-        ? " sv_q_checkbox_inline"
-        : " sv-q-col-" + this.colCount);
-
-    if (isChecked) itemClass += " checked";
-
+    var isDisabled = this.isReadOnly || !item.isEnabled;
+    var allowHover = !isChecked && !isDisabled;
+    var itemClass = this.cssClasses.item;
+    if (!this.hasColumns) {
+      itemClass +=
+        this.colCount === 0
+          ? " " + this.cssClasses.itemInline
+          : " sv-q-col-" + this.colCount;
+    }
+    if (isDisabled) itemClass += " " + this.cssClasses.itemDisabled;
+    if (isChecked) itemClass += " " + this.cssClasses.itemChecked;
+    if (allowHover) itemClass += " " + this.cssClasses.itemHover;
     return itemClass;
+  }
+  getLabelClass(item: any) {
+    return super.getLabelClass(this.isItemSelected(item));
   }
 }
 
-JsonObject.metaData.overrideClassCreatore("checkbox", function() {
+Serializer.overrideClassCreator("checkbox", function() {
   return new QuestionCheckbox("");
 });
 QuestionFactory.Instance.registerQuestion("checkbox", name => {

@@ -5,16 +5,12 @@ import {
 } from "./reactquestionelement";
 import { QuestionBooleanModel } from "../question_boolean";
 import { ReactQuestionFactory } from "./reactquestionfactory";
+import { OtherEmptyError } from "../error";
 
 export class SurveyQuestionBoolean extends SurveyQuestionElementBase {
   constructor(props: any) {
     super(props);
-    this.state = { value: this.question.checkedValue };
     this.handleOnChange = this.handleOnChange.bind(this);
-  }
-  componentWillReceiveProps(nextProps: any) {
-    super.componentWillReceiveProps(nextProps);
-    this.setState({ value: this.question.checkedValue });
   }
   protected get question(): QuestionBooleanModel {
     return this.questionBase as QuestionBooleanModel;
@@ -24,9 +20,11 @@ export class SurveyQuestionBoolean extends SurveyQuestionElementBase {
     this.setState({ value: this.question.checkedValue });
   }
   componentDidMount() {
+    super.componentDidMount();
     this.updateIndeterminate();
   }
-  componentDidUpdate() {
+  componentDidUpdate(prevProps: any, prevState: any) {
+    super.componentDidUpdate(prevProps, prevState);
     this.updateIndeterminate();
   }
   private updateIndeterminate() {
@@ -36,32 +34,59 @@ export class SurveyQuestionBoolean extends SurveyQuestionElementBase {
       el["indeterminate"] = this.question.isIndeterminate;
     }
   }
-
+  private getItemClass(): string {
+    var cssClasses = this.question.cssClasses;
+    var isChecked = this.question.checkedValue;
+    var isDisabled = this.question.isReadOnly;
+    var itemClass = cssClasses.item;
+    if (isDisabled) itemClass += " " + cssClasses.itemDisabled;
+    if (isChecked) itemClass += " " + cssClasses.itemChecked;
+    else if (isChecked === null)
+      itemClass += " " + cssClasses.itemIndeterminate;
+    return itemClass;
+  }
+  private getLabelClass(checked: boolean): string {
+    var question = this.question;
+    var cssClasses = this.question.cssClasses;
+    return (
+      cssClasses.label +
+      " " +
+      (question.checkedValue === !checked || question.isReadOnly
+        ? question.cssClasses.disabledLabel
+        : "")
+    );
+  }
   render(): JSX.Element {
     if (!this.question) return null;
     var cssClasses = this.question.cssClasses;
-    var text = this.renderLocString(this.question.locDisplayLabel);
-
-    let isChecked = this.question.checkedValue;
-    let itemClass = cssClasses.item + (isChecked ? " checked" : "");
-
+    var itemClass = this.getItemClass();
     return (
       <div className={cssClasses.root}>
         <label className={itemClass}>
           <input
             ref="check"
             type="checkbox"
-            value={this.question.checkedValue}
+            value={
+              this.question.checkedValue === null
+                ? ""
+                : this.question.checkedValue
+            }
             id={this.question.inputId}
+            className={cssClasses.control}
             disabled={this.isDisplayMode}
-            checked={this.question.checkedValue}
+            checked={this.question.checkedValue || false}
             onChange={this.handleOnChange}
             aria-label={this.question.locTitle.renderedHtml}
           />
-          <span className={cssClasses.materialDecorator}>
-            <span className="check" />
+          <span className={this.getLabelClass(false)}>
+            {this.question.locLabelFalse.renderedHtml}
           </span>
-          <span className={cssClasses.label}>{text}</span>
+          <div className={cssClasses.switch}>
+            <span className={cssClasses.slider} />
+          </div>
+          <span className={this.getLabelClass(true)}>
+            {this.question.locLabelTrue.renderedHtml}
+          </span>
         </label>
       </div>
     );

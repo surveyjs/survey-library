@@ -32,3 +32,4 @@ Gemfile.lock
 /doc_generator/*.json
 *.env
 package-lock.json 
+.prettierrc

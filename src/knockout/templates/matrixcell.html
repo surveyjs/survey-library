@@ -1,21 +1,17 @@
 <script type="text/html" id="survey-matrixcell">
-  <td data-bind="css: $context.question.koCss().itemValue + (cell.question.errors.length > 0 ? ' ' + cell.question.koCss().hasError : ''), attr: { headers: cell.question.isVisible ? cell.column.locTitle.renderedHtml : '' }">
-      <div data-bind="visible: cell.question.isVisible">
-          <!-- ko if: cell.question.survey.questionErrorLocation == 'top' -->
-            <div data-bind="css: cell.question.koCss().error.locationTop">
-              <!-- ko template: { name: 'survey-question-errors', data: cell.question } -->
-              <!-- /ko -->
-            </div>
+  <td data-bind="css: question.koCss().asCell + ' ' + question.koCss().itemValue + (question.errors.length > 0 ? ' ' + question.koCss().hasError : ''), attr: { headers: question.isVisible ? question.locTitle.renderedHtml : '' }">
+      <div data-bind="visible: question.isVisible">
+          <!-- ko if: question.survey.questionErrorLocation == 'top' -->
+            <!-- ko template: { name: 'survey-question-errors', data: question } -->
+            <!-- /ko -->
           <!-- /ko -->
 
-          <!-- ko template: { name: question.koTemplateName(), data: cell.question, as: 'question' } -->
+          <!-- ko template: { name: question.koTemplateName(), data: question, as: 'question' } -->
           <!-- /ko -->
 
-          <!-- ko if: cell.question.survey.questionErrorLocation == 'bottom' -->
-            <div data-bind="css: cell.question.koCss().error.locationBottom">
-              <!-- ko template: { name: 'survey-question-errors', data: cell.question } -->
-              <!-- /ko -->
-            </div>
+          <!-- ko if: question.survey.questionErrorLocation == 'bottom' -->
+            <!-- ko template: { name: 'survey-question-errors', data: question } -->
+            <!-- /ko -->
           <!-- /ko -->
       </div>
   </td>

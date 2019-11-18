@@ -1,0 +1,23 @@
+.sv-matrix {
+  overflow-x: auto;
+}
+.sv-matrix__label {
+  display: inline-block;
+  margin: 0;
+}
+.sv-matrix__cell {
+  min-width: 10em;
+}
+.sv-matrix__text {
+  cursor: pointer;
+}
+.sv-matrix__text--сhecked {
+  color: #ffffff;
+  background-color: $main-color;
+}
+.sv-matrix__text--disabled {
+  cursor: default;
+  &.sv-matrix__text--сhecked {
+    background-color: $disable-color;
+  }
+}

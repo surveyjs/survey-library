@@ -1,3 +1,5 @@
+import { Helpers } from "./helpers";
+
 export class TextPreProcessorItem {
   public start: number;
   public end: number;
@@ -38,10 +40,12 @@ export class TextPreProcessor {
         }
         continue;
       }
-      if (!textValue.value) {
+      if (Helpers.isValueEmpty(textValue.value)) {
         this.hasAllValuesOnLastRunValue = false;
       }
-      var replacedValue = !!textValue.value ? textValue.value : "";
+      var replacedValue = !Helpers.isValueEmpty(textValue.value)
+        ? textValue.value
+        : "";
       if (doEncoding) {
         replacedValue = encodeURIComponent(replacedValue);
       }

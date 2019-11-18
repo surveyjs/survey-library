@@ -1,6 +1,6 @@
-import { HashTable } from "./helpers";
+import { HashTable, Helpers } from "./helpers";
 import { Question } from "./question";
-import { JsonObject } from "./jsonobject";
+import { Serializer } from "./jsonobject";
 import { QuestionFactory } from "./questionfactory";
 import { LocalizableString } from "./localizablestring";
 import { ExpressionRunner } from "./conditions";
@@ -46,17 +46,29 @@ export class QuestionExpressionModel extends Question {
   public set expression(val: string) {
     this.setPropertyValue("expression", val);
   }
+  public locCalculation() {
+    this.expressionIsRunning = true;
+  }
+  public unlocCalculation() {
+    this.expressionIsRunning = false;
+  }
   public runCondition(values: HashTable<any>, properties: HashTable<any>) {
     super.runCondition(values, properties);
     if (!this.expression || this.expressionIsRunning) return;
-    this.expressionIsRunning = true;
-    if (!this.expressionRunner)
+    this.locCalculation();
+    if (!this.expressionRunner) {
       this.expressionRunner = new ExpressionRunner(this.expression);
-    this.value = this.expressionRunner.run(values, properties);
-    this.expressionIsRunning = false;
+    }
+    this.expressionRunner.onRunComplete = newValue => {
+      if (!Helpers.isTwoValueEquals(newValue, this.value)) {
+        this.value = newValue;
+      }
+      this.unlocCalculation();
+    };
+    this.expressionRunner.run(values, properties);
   }
   /**
-   * The maximum number of fraction digits to use. Possible values are from 0 to 20. The default value is -1 and it means that this property is not used.
+   * The maximum number of fraction digits to use if displayStyle is not "none". Possible values are from 0 to 20. The default value is -1 and it means that this property is not used.
    */
   public get maximumFractionDigits(): number {
     return this.getPropertyValue("maximumFractionDigits", -1);
@@ -66,7 +78,7 @@ export class QuestionExpressionModel extends Question {
     this.setPropertyValue("maximumFractionDigits", val);
   }
   /**
-   * The minimum number of fraction digits to use. Possible values are from 0 to 20. The default value is -1 and it means that this property is not used.
+   * The minimum number of fraction digits to use if displayStyle is not "none". Possible values are from 0 to 20. The default value is -1 and it means that this property is not used.
    */
   public get minimumFractionDigits(): number {
     return this.getPropertyValue("minimumFractionDigits", -1);
@@ -75,19 +87,19 @@ export class QuestionExpressionModel extends Question {
     if (val < -1 || val > 20) return;
     this.setPropertyValue("minimumFractionDigits", val);
   }
-  protected getDisplayValueCore(keysAsText: boolean): any {
-    var val = this.isValueEmpty(this.value) ? this.defaultValue : this.value;
+  protected getDisplayValueCore(keysAsText: boolean, value: any): any {
+    var val = this.isValueEmpty(value) ? this.defaultValue : value;
     if (this.isValueEmpty(val)) return "";
     var str = this.getValueAsStr(val);
     if (!this.format) return str;
     return (<any>this.format)["format"](str);
   }
   /**
-   * You may set this property to "decimal", "currency" or "percent". If you set it to "currency", you may use the currency property to display the value in currency different from USD.
+   * You may set this property to "decimal", "currency", "percent" or "date". If you set it to "currency", you may use the currency property to display the value in currency different from USD.
    * @see currency
    */
   public get displayStyle(): string {
-    return this.getPropertyValue("displayStyle", "none");
+    return this.getPropertyValue("displayStyle");
   }
   public set displayStyle(val: string) {
     this.setPropertyValue("displayStyle", val);
@@ -97,7 +109,7 @@ export class QuestionExpressionModel extends Question {
    * @see displayStyle
    */
   public get currency(): string {
-    return this.getPropertyValue("currency", "USD");
+    return this.getPropertyValue("currency");
   }
   public set currency(val: string) {
     if (getCurrecyCodes().indexOf(val) < 0) return;
@@ -110,11 +122,11 @@ export class QuestionExpressionModel extends Question {
     this.setPropertyValue("useGrouping", val);
   }
   protected getValueAsStr(val: any): string {
-    if (
-      this.displayStyle != "none" &&
-      !isNaN(parseFloat(val)) &&
-      isFinite(val)
-    ) {
+    if (this.displayStyle == "date") {
+      var d = new Date(val);
+      if (!!d && !!d.toLocaleDateString) return d.toLocaleDateString();
+    }
+    if (this.displayStyle != "none" && Helpers.isNumber(val)) {
       var locale = this.getLocale();
       if (!locale) locale = "en";
       var options = {
@@ -134,7 +146,7 @@ export class QuestionExpressionModel extends Question {
   }
 }
 
-function getCurrecyCodes(): Array<string> {
+export function getCurrecyCodes(): Array<string> {
   return [
     "AED",
     "AFN",
@@ -312,13 +324,12 @@ function getCurrecyCodes(): Array<string> {
     "XXX",
     "YER",
     "ZAR",
-    "ZAR",
     "ZMW",
     "ZWL"
   ];
 }
 
-JsonObject.metaData.addClass(
+Serializer.addClass(
   "expression",
   [
     "expression:expression",
@@ -326,7 +337,7 @@ JsonObject.metaData.addClass(
     {
       name: "displayStyle",
       default: "none",
-      choices: ["none", "decimal", "currency", "percent"]
+      choices: ["none", "decimal", "currency", "percent", "date"]
     },
     {
       name: "currency",
@@ -343,7 +354,10 @@ JsonObject.metaData.addClass(
     { name: "isRequired", visible: false },
     { name: "readOnly", visible: false },
     { name: "requiredErrorText", visible: false },
-    { name: "validators", visible: false }
+    { name: "validators", visible: false },
+    { name: "defaultValue", visible: false },
+    { name: "correctAnswer", visible: false },
+    { name: "requiredIf", visible: false }
   ],
   function() {
     return new QuestionExpressionModel("");

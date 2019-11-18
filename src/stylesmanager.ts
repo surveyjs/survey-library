@@ -23,6 +23,9 @@ export class StylesManager {
     ".sv_bootstrap_css .sv_qstn  .sv_q_checkbox_inline, .sv_bootstrap_css .sv_qstn .sv_q_radiogroup_inline":
       "display: inline-block;",
 
+    ".sv_bootstrap_css .sv-paneldynamic__progress-container ":
+      "position: relative; margin-right: 250px; margin-left: 40px; margin-top: 10px;",
+
     ".sv_main.sv_bootstrapmaterial_css .sv_q_radiogroup_control_label":
       "display: inline; position: static;",
     ".sv_main.sv_bootstrapmaterial_css .checkbox":
@@ -41,11 +44,14 @@ export class StylesManager {
     ".sv_qstn .radio label": "justify-content: left; display: inline-block;",
     ".sv_qstn .sv_q_imgsel > label img": "pointer-events: none;",
     ".sv_qstn .sv_q_imgsel.sv_q_imagepicker_inline": "display: inline-block;",
-    ".sv_qstn label.sv_q_m_label": "position: absolute; margin: 0;",
+    ".sv_qstn label.sv_q_m_label":
+      "position: absolute; margin: 0; display: block; width: 100%;",
     ".sv_qstn td": "position: relative;",
     ".sv_q_mt_item_value": "float: left;",
+    "[dir=\"rtl\"] .sv_q_mt_item_value": "float: right;",
     ".sv_qstn.sv_qstn_left": "margin-top: 0.75em;",
     ".sv_qstn .title-left": "float: left; margin-right: 1em;",
+    "[dir=\"rtl\"] .sv_qstn .title-left": "float: right; margin-left: 1em;",
     ".sv_qstn .content-left": "overflow: hidden",
     ".sv_q_radiogroup_inline .sv_q_radiogroup_other": "display: inline-block;",
     ".sv_q_checkbox_inline .sv_q_checkbox_other": "display: inline-block;",
@@ -81,16 +87,27 @@ export class StylesManager {
     ".sv_q_dd_other": "margin-top: 1em;",
     ".sv_q_dd_other input": "width: 100%;",
 
-    ".sv_qstn .sv-q-col-1":
+    ".sv_qstn .sv-q-col-1, .sv-question .sv-q-col-1":
       "width: 100%; display: inline-block; padding-right: 1em; box-sizing: border-box; word-break: break-word;",
-    ".sv_qstn .sv-q-col-2":
+    ".sv_qstn .sv-q-col-2, .sv-question .sv-q-col-2":
       "width: 50%; display: inline-block; padding-right: 1em; box-sizing: border-box; word-break: break-word;",
-    ".sv_qstn .sv-q-col-3":
+    ".sv_qstn .sv-q-col-3, .sv-question .sv-q-col-3":
       "width: 33.33333%; display: inline-block; padding-right: 1em; box-sizing: border-box; word-break: break-word;",
-    ".sv_qstn .sv-q-col-4":
+    ".sv_qstn .sv-q-col-4, .sv-question .sv-q-col-4":
       "width: 25%; display: inline-block; padding-right: 1em; box-sizing: border-box; word-break: break-word;",
-    ".sv_qstn .sv-q-col-5":
+    ".sv_qstn .sv-q-col-5, .sv-question .sv-q-col-5":
       "width: 20%; display: inline-block; padding-right: 1em; box-sizing: border-box; word-break: break-word;",
+
+    ".sv_qstn .sv-q-column-1, .sv-question .sv-q-column-1":
+      "width: 100%; max-width: 100%; display: inline-block; padding-right: 1em; box-sizing: border-box; word-break: break-word;",
+    ".sv_qstn .sv-q-column-2, .sv-question .sv-q-column-2":
+      "max-width: 50%; display: inline-block; padding-right: 1em; box-sizing: border-box; word-break: break-word;",
+    ".sv_qstn .sv-q-column-3, .sv-question .sv-q-column-3":
+      "max-width: 33.33333%; display: inline-block; padding-right: 1em; box-sizing: border-box; word-break: break-word;",
+    ".sv_qstn .sv-q-column-4, .sv-question .sv-q-column-4":
+      "max-width: 25%; display: inline-block; padding-right: 1em; box-sizing: border-box; word-break: break-word;",
+    ".sv_qstn .sv-q-column-5, .sv-question .sv-q-column-5":
+      "max-width: 20%; display: inline-block; padding-right: 1em; box-sizing: border-box; word-break: break-word;",
 
     ".sv_qstn .sv_q_file_input": "color: transparent;",
 
@@ -102,7 +119,57 @@ export class StylesManager {
     ".sv_qstn table tr td .sv_q_m_cell_label":
       "position: absolute; left: 0; right: 0; top: 0; bottom: 0;",
 
-    "f-panel": "padding: 0.5em 1em; display: inline-block; line-height: 2em;"
+    "f-panel": "padding: 0.5em 1em; display: inline-block; line-height: 2em;",
+
+    ".sv_progress_bar > span": "white-space: nowrap;",
+
+    ".sv_qstn .sv_q_select_column":
+      "display: inline-block; vertical-align: top; min-width: 10%;",
+
+    ".sv_qstn .sv_q_select_column > *:not(.sv_technical)": "display: block;",
+
+    ".sv_main .sv_container .sv_body .sv_p_root .sv_qstn .sv_q_select_column textarea":
+      "margin-left: 0; padding-left: 0; line-height: initial;",
+    ".sv_main .sv-hidden": "display: none !important;",
+    ".sv_main .sv-visuallyhidden":
+      "position: absolute; height: 1px; width: 1px; overflow: hidden; clip: rect(1px 1px 1px 1px); clip: rect(1px, 1px, 1px, 1px);",
+
+    // paneldynamic progress
+    ".sv_main .sv-progress":
+      "height: 0.19em; background-color: $header-background-color;",
+    ".sv_main .sv-progress__bar":
+      "background-color: $main-color; height: 100%; position: relative;",
+    // EO paneldynamic progress
+
+    // paneldynamic
+    ".sv_main .sv-paneldynamic__progress-container":
+      "position: relative; margin-right: 250px; margin-top: 20px;",
+    ".sv_main .sv-paneldynamic__add-btn": "float: right; margin-top: -18px;",
+    ".sv_main .sv-paneldynamic__add-btn--list-mode":
+      "  float: none; margin-top: 1em;",
+    ".sv_main .sv-paneldynamic__remove-btn ": "margin-top: 1.25em;",
+    ".sv_main .sv-paneldynamic__prev-btn, .sv_main .sv-paneldynamic__next-btn":
+      "box-sizing: border-box; display: inline-block; cursor: pointer; width: 0.7em; top: -0.28em; position: absolute;",
+    ".sv_main .sv-paneldynamic__prev-btn":
+      "left: -1.3em; transform: rotate(90deg);",
+    ".sv_main .sv-paneldynamic__next-btn ":
+      "right: -1.3em; transform: rotate(270deg);",
+    ".sv_main .sv-paneldynamic__prev-btn.sv-paneldynamic__prev-btn--disabled, .sv_main .sv-paneldynamic__next-btn.sv-paneldynamic__next-btn--disabled":
+      "cursor: auto;",
+    ".sv_main .sv-paneldynamic__progress-text":
+      "font-weight: bold; font-size: 0.87em; margin-top: 0.69em; margin-left: 4em",
+    // EO paneldynamic
+    //boolean
+    ".sv_main .sv-boolean__switch":
+      "display: inline-block; box-sizing: border-box; width: 63px; height: 24px; margin-right: 17px; margin-left: 21px; padding: 2px 3px; vertical-align: middle; border-radius: 12px; cursor: pointer;",
+    ".sv_main .sv-boolean__slider":
+      "display: inline-block; width: 20px; height: 20px; transition-duration: .4s; transition-property: margin-left; border: none; border-radius: 100%;",
+    ".sv_main sv-boolean__label": "vertical-align: middle",
+    ".sv_main .sv-boolean--indeterminate  .sv-boolean__slider":
+      "margin-left: calc(50% - 10px);",
+    ".sv_main .sv-boolean--checked  .sv-boolean__slider":
+      "margin-left: calc(100% - 20px);"
+    // EO boolean
   };
 
   public static Media: { [key: string]: { media: string; style: string } } = {
@@ -163,6 +230,10 @@ export class StylesManager {
       style: "line-height: 12px; vertical-align: top;",
       media: "@media (max-width: 600px)"
     },
+    ".sv_qstn label.sv_q_m_label": {
+      style: "display: inline;",
+      media: "@media (max-width: 600px)"
+    },
     ".sv_main .sv_custom_header": {
       style: "display: none;",
       media: "@media (max-width: 1300px)"
@@ -174,6 +245,11 @@ export class StylesManager {
     ".sv_main .sv_container .sv_header h3 span": {
       style: "font-size: 0.75em;",
       media: "@media (max-width: 700px)"
+    },
+
+    ".sv_main.sv_bootstrap_css .sv-progress__text": {
+      style: "margin-left: 8em;",
+      media: "@media (min-width: 768px)"
     }
   };
 
@@ -191,7 +267,14 @@ export class StylesManager {
       "$border-color": "#e7e7e7",
 
       "$error-color": "#ed5565",
-      "$error-background-color": "#fd6575"
+      "$error-background-color": "#fd6575",
+
+      "$progress-text-color": "#9d9d9d",
+      "$disable-color": "#dbdbdb",
+      "$disabled-label-color": "rgba(64, 64, 64, 0.5)",
+      "$slider-color": "white",
+      "$disabled-switch-color": "#9f9f9f",
+      "$disabled-slider-color": "#cfcfcf"
     },
     orange: {
       "$header-background-color": "#4a4a4a",
@@ -206,7 +289,14 @@ export class StylesManager {
       "$border-color": "#e7e7e7",
 
       "$error-color": "#ed5565",
-      "$error-background-color": "#fd6575"
+      "$error-background-color": "#fd6575",
+
+      "$progress-text-color": "#9d9d9d",
+      "$disable-color": "#dbdbdb",
+      "$disabled-label-color": "rgba(64, 64, 64, 0.5)",
+      "$slider-color": "white",
+      "$disabled-switch-color": "#9f9f9f",
+      "$disabled-slider-color": "#cfcfcf"
     },
     darkblue: {
       "$header-background-color": "#d9d8dd",
@@ -221,7 +311,14 @@ export class StylesManager {
       "$border-color": "#e7e7e7",
 
       "$error-color": "#ed5565",
-      "$error-background-color": "#fd6575"
+      "$error-background-color": "#fd6575",
+
+      "$progress-text-color": "#9d9d9d",
+      "$disable-color": "#dbdbdb",
+      "$disabled-label-color": "rgba(64, 64, 64, 0.5)",
+      "$slider-color": "white",
+      "$disabled-switch-color": "#9f9f9f",
+      "$disabled-slider-color": "#cfcfcf"
     },
     darkrose: {
       "$header-background-color": "#ddd2ce",
@@ -236,7 +333,14 @@ export class StylesManager {
       "$border-color": "#e7e7e7",
 
       "$error-color": "#ed5565",
-      "$error-background-color": "#fd6575"
+      "$error-background-color": "#fd6575",
+
+      "$progress-text-color": "#9d9d9d",
+      "$disable-color": "#dbdbdb",
+      "$disabled-label-color": "rgba(64, 64, 64, 0.5)",
+      "$slider-color": "white",
+      "$disabled-switch-color": "#9f9f9f",
+      "$disabled-slider-color": "#cfcfcf"
     },
     stone: {
       "$header-background-color": "#cdccd2",
@@ -251,7 +355,14 @@ export class StylesManager {
       "$border-color": "#e7e7e7",
 
       "$error-color": "#ed5565",
-      "$error-background-color": "#fd6575"
+      "$error-background-color": "#fd6575",
+
+      "$progress-text-color": "#9d9d9d",
+      "$disable-color": "#dbdbdb",
+      "$disabled-label-color": "rgba(64, 64, 64, 0.5)",
+      "$slider-color": "white",
+      "$disabled-switch-color": "#9f9f9f",
+      "$disabled-slider-color": "#cfcfcf"
     },
     winter: {
       "$header-background-color": "#82b8da",
@@ -266,7 +377,14 @@ export class StylesManager {
       "$border-color": "#e7e7e7",
 
       "$error-color": "#ed5565",
-      "$error-background-color": "#fd6575"
+      "$error-background-color": "#fd6575",
+
+      "$disable-color": "#dbdbdb",
+      "$progress-text-color": "#9d9d9d",
+      "$disabled-label-color": "rgba(64, 64, 64, 0.5)",
+      "$slider-color": "white",
+      "$disabled-switch-color": "#9f9f9f",
+      "$disabled-slider-color": "#cfcfcf"
     },
     winterstone: {
       "$header-background-color": "#323232",
@@ -281,7 +399,48 @@ export class StylesManager {
       "$border-color": "#e7e7e7",
 
       "$error-color": "#ed5565",
-      "$error-background-color": "#fd6575"
+      "$error-background-color": "#fd6575",
+
+      "$disable-color": "#dbdbdb",
+      "$progress-text-color": "#9d9d9d",
+      "$disabled-label-color": "rgba(64, 64, 64, 0.5)",
+      "$slider-color": "white",
+      "$disabled-switch-color": "#9f9f9f",
+      "$disabled-slider-color": "#cfcfcf"
+    },
+    modern: {
+      "$main-color": "#1ab394",
+      "$add-button-color": "#1948b3",
+      "$remove-button-color": "#ff1800",
+      "$disable-color": "#dbdbdb",
+      "$progress-text-color": "#9d9d9d",
+      "$disabled-label-color": "rgba(64, 64, 64, 0.5)",
+      "$slider-color": "white",
+      "$disabled-switch-color": "#9f9f9f",
+      "$disabled-slider-color": "#cfcfcf"
+    },
+    bootstrap: {
+      "$main-color": "#18a689",
+      "$text-color": "#404040;",
+      "$progress-text-color": "#9d9d9d",
+      "$disable-color": "#dbdbdb",
+      "$header-background-color": "#e7e7e7",
+      "$disabled-label-color": "rgba(64, 64, 64, 0.5)",
+      "$slider-color": "white",
+      "$disabled-switch-color": "#9f9f9f",
+      "$disabled-slider-color": "#cfcfcf"
+    },
+    bootstrapmaterial: {
+      "$main-color": "#18a689",
+      "$text-color": "#404040;",
+      "$progress-text-color": "#9d9d9d",
+      "$disable-color": "#dbdbdb",
+      "$header-background-color": "#e7e7e7",
+
+      "$disabled-label-color": "rgba(64, 64, 64, 0.5)",
+      "$slider-color": "white",
+      "$disabled-switch-color": "#9f9f9f",
+      "$disabled-slider-color": "#cfcfcf"
     }
   };
   public static ThemeCss: { [key: string]: string } = {
@@ -332,6 +491,8 @@ export class StylesManager {
     ".sv_default_css .sv_q_dropdown_control:focus":
       "border-color: $main-color;",
     ".sv_default_css input[type='text']:focus": "border-color: $main-color;",
+    '.sv_default_css .sv_container .sv_body .sv_p_root .sv_q input[type="radio"]:focus, .sv_default_css .sv_container .sv_body .sv_p_root .sv_q input[type="checkbox"]:focus':
+      "outline: 1px dotted $main-color;",
     ".sv_default_css select:focus": "border-color: $main-color;",
     ".sv_default_css textarea:focus": "border-color: $main-color;",
 
@@ -360,9 +521,39 @@ export class StylesManager {
 
     ".sv_main .sv_q_imgsel.checked label>div": "background-color: $main-color",
 
-    ".sv_default_css .sv_p_description": "padding-left: 1.29em;"
-  };
+    ".sv_default_css .sv_p_description": "padding-left: 1.29em;",
+    //progress bar
+    ".sv_main .sv-progress": "background-color: $header-background-color;",
+    ".sv_main .sv-progress__bar": "background-color: $main-color;",
 
+    //paneldynamic
+    ".sv_main .sv-paneldynamic__prev-btn.sv-paneldynamic__prev-btn--disabled, .sv_main .sv-paneldynamic__next-btn.sv-paneldynamic__next-btn--disabled":
+      "fill: $disable-color;",
+    ".sv_main .sv-paneldynamic__progress-text": "color: $progress-text-color;",
+    ".sv_main .sv-paneldynamic__prev-btn, .sv_main .sv-paneldynamic__next-btn":
+      "fill: $text-color",
+
+    //boolean
+    ".sv_main .sv-boolean__switch": "background-color: $main-color;",
+    ".sv_main .sv-boolean__slider": "background-color: $slider-color;",
+    ".sv_main .sv-boolean__label--disabled": "color: $disabled-label-color;",
+    ".sv_main .sv-boolean--disabled .sv-boolean__switch":
+      "background-color: $disabled-switch-color;",
+    ".sv_main .sv-boolean--disabled .sv-boolean__slider":
+      "background-color: $disabled-slider-color;"
+    //eo boolean
+  };
+  public static modernThemeCss: { [key: string]: string } = {
+    ".sv-paneldynamic__add-btn": "background-color: $add-button-color;",
+    ".sv-paneldynamic__remove-btn": "background-color: $remove-button-color;",
+    ".sv-boolean__switch": "background-color: $main-color;",
+    ".sv-boolean__slider": "background-color: $slider-color;",
+    ".sv-boolean__label--disabled": "color: $disabled-label-color;",
+    ".sv-boolean--disabled .sv-boolean__switch":
+      "background-color: $disabled-switch-color;",
+    ".sv-boolean--disabled .sv-boolean__slider":
+      "background-color: $disabled-slider-color;"
+  };
   public static bootstrapThemeCss: { [key: string]: string } = {
     ".sv_main .sv_q_imgsel.checked label>div": "background-color: $main-color",
     ".sv_main .sv_p_description": "padding-left: 1.66em;",
@@ -371,7 +562,28 @@ export class StylesManager {
     ".sv_main .progress-bar":
       "width: auto; margin-left: 2px; margin-right: 2px;",
     ".sv_main .table>tbody>tr>td": "min-width: 90px;",
-    ".sv_main f-panel .sv_qstn": "padding: 0; vertical-align: middle;"
+    ".sv_main f-panel .sv_qstn": "padding: 0; vertical-align: middle;",
+
+    //progress bar
+    ".sv_main .sv-progress": "background-color: $header-background-color;",
+    ".sv_main .sv-progress__bar": "background-color: $main-color;",
+
+    //paneldynamic
+    ".sv_main .sv-paneldynamic__prev-btn.sv-paneldynamic__prev-btn--disabled, .sv_main .sv-paneldynamic__next-btn.sv-paneldynamic__next-btn--disabled":
+      "fill: $disable-color;",
+    ".sv_main .sv-paneldynamic__progress-text": "color: $progress-text-color;",
+    ".sv_main .sv-paneldynamic__prev-btn, .sv_main .sv-paneldynamic__next-btn":
+      "fill: $text-color",
+
+    //boolean
+    ".sv_main .sv-boolean__switch": "background-color: $main-color;",
+    ".sv_main .sv-boolean__slider": "background-color: $slider-color;",
+    ".sv_main .sv-boolean__label--disabled": "color: $disabled-label-color;",
+    ".sv_main .sv-boolean--disabled .sv-boolean__switch":
+      "background-color: $disabled-switch-color;",
+    ".sv_main .sv-boolean--disabled  .sv-boolean__slider":
+      "background-color: $disabled-slider-color;"
+    //eo boolean
   };
 
   public static bootstrapmaterialThemeCss: { [key: string]: string } = {
@@ -379,6 +591,9 @@ export class StylesManager {
       "background-image: linear-gradient($main-color, $main-color), linear-gradient(#D2D2D2, #D2D2D2);",
     ".sv_main.sv_bootstrapmaterial_css .form-group.is-focused label":
       "color:$main-color;",
+
+    ".sv_main.sv_bootstrapmaterial_css .sv_qstn label.sv_q_m_label":
+      "height: 100%;",
 
     ".sv_main.sv_bootstrapmaterial_css .checkbox input[type=checkbox]:checked + .checkbox-material .check":
       "border-color: $main-color;",
@@ -420,7 +635,28 @@ export class StylesManager {
       "position: relative; opacity: 1;",
     ".sv_main.sv_bootstrapmaterial_css .progress": "width: 60%;",
     ".sv_main.sv_bootstrapmaterial_css .progress-bar":
-      "width: auto; margin-left: 2px; margin-right: 2px;"
+      "width: auto; margin-left: 2px; margin-right: 2px;",
+
+    //progress bar
+    ".sv_main .sv-progress": "background-color: $header-background-color;",
+    ".sv_main .sv-progress__bar": "background-color: $main-color;",
+
+    //paneldynamic
+    ".sv_main .sv-paneldynamic__prev-btn.sv-paneldynamic__prev-btn--disabled, .sv_main .sv-paneldynamic__next-btn.sv-paneldynamic__next-btn--disabled":
+      "fill: $disable-color;",
+    ".sv_main .sv-paneldynamic__progress-text": "color: $progress-text-color;",
+    ".sv_main .sv-paneldynamic__prev-btn, .sv_main .sv-paneldynamic__next-btn":
+      "fill: $text-color",
+
+    //boolean
+    ".sv_main .sv-boolean__switch": "background-color: $main-color;",
+    ".sv_main .sv-boolean__slider": "background-color: $slider-color;",
+    ".sv_main .sv-boolean__label--disabled": "color: $disabled-label-color;",
+    ".sv_main .sv-boolean--disabled .sv-boolean__switch":
+      "background-color: $disabled-switch-color;",
+    ".sv_main .sv-boolean--disabled  .sv-boolean__slider":
+      "background-color: $disabled-slider-color;"
+    //eo boolean
   };
 
   private sheet: CSSStyleSheet = null;
@@ -453,7 +689,12 @@ export class StylesManager {
     themeSelector: string = ".sv_main"
   ) {
     let ThemeCss: any;
-    if (["bootstrap", "bootstrapmaterial"].indexOf(themeName) !== -1) {
+
+    if (themeName === "modern") themeSelector = ".sv-root-modern ";
+
+    if (
+      ["bootstrap", "bootstrapmaterial", "modern"].indexOf(themeName) !== -1
+    ) {
       ThemeCss = (<any>StylesManager)[themeName + "ThemeCss"];
       surveyCss.currentType = themeName;
     } else {
@@ -461,57 +702,65 @@ export class StylesManager {
       surveyCss.currentType = "standard";
     }
 
-    let sheet = StylesManager.findSheet(themeName + themeSelector);
-    if (!sheet) {
-      sheet = StylesManager.createSheet(themeName + themeSelector);
-      let theme =
-        StylesManager.ThemeColors[themeName] ||
-        StylesManager.ThemeColors["default"];
+    if (StylesManager.Enabled) {
+      let sheet = StylesManager.findSheet(themeName + themeSelector);
+      if (!sheet) {
+        sheet = StylesManager.createSheet(themeName + themeSelector);
+        let theme =
+          StylesManager.ThemeColors[themeName] ||
+          StylesManager.ThemeColors["default"];
 
-      Object.keys(ThemeCss).forEach(selector => {
-        let cssRuleText = ThemeCss[selector];
-        Object.keys(theme).forEach(
-          colorVariableName =>
-            (cssRuleText = cssRuleText.replace(
-              new RegExp("\\" + colorVariableName, "g"),
-              theme[colorVariableName]
-            ))
-        );
-        sheet.insertRule(
-          themeSelector + selector + " { " + cssRuleText + " }",
-          0
-        );
-      });
+        Object.keys(ThemeCss).forEach(selector => {
+          let cssRuleText = ThemeCss[selector];
+          Object.keys(theme).forEach(
+            colorVariableName =>
+              (cssRuleText = cssRuleText.replace(
+                new RegExp("\\" + colorVariableName, "g"),
+                theme[colorVariableName]
+              ))
+          );
+          sheet.insertRule(
+            themeSelector + selector + " { " + cssRuleText + " }",
+            0
+          );
+        });
+      }
     }
   }
 
+  public static Enabled = true;
+
   constructor() {
-    this.sheet = StylesManager.findSheet(StylesManager.SurveyJSStylesSheetId);
-    if (!this.sheet) {
-      this.sheet = StylesManager.createSheet(
-        StylesManager.SurveyJSStylesSheetId
-      );
-      this.initializeStyles(this.sheet);
+    if (StylesManager.Enabled) {
+      this.sheet = StylesManager.findSheet(StylesManager.SurveyJSStylesSheetId);
+      if (!this.sheet) {
+        this.sheet = StylesManager.createSheet(
+          StylesManager.SurveyJSStylesSheetId
+        );
+        this.initializeStyles(this.sheet);
+      }
     }
   }
 
   public initializeStyles(sheet: CSSStyleSheet) {
-    Object.keys(StylesManager.Styles).forEach(selector =>
-      sheet.insertRule(
-        selector + " { " + StylesManager.Styles[selector] + " }",
-        0
-      )
-    );
-    Object.keys(StylesManager.Media).forEach(selector => {
-      sheet.insertRule(
-        StylesManager.Media[selector].media +
-          " { " +
-          selector +
-          " { " +
-          StylesManager.Media[selector].style +
-          " } }",
-        0
+    if (StylesManager.Enabled) {
+      Object.keys(StylesManager.Styles).forEach(selector =>
+        sheet.insertRule(
+          selector + " { " + StylesManager.Styles[selector] + " }",
+          0
+        )
       );
-    });
+      Object.keys(StylesManager.Media).forEach(selector => {
+        sheet.insertRule(
+          StylesManager.Media[selector].media +
+            " { " +
+            selector +
+            " { " +
+            StylesManager.Media[selector].style +
+            " } }",
+          0
+        );
+      });
+    }
   }
 }

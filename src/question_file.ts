@@ -1,5 +1,5 @@
 import { Question } from "./question";
-import { JsonObject } from "./jsonobject";
+import { Serializer } from "./jsonobject";
 import { QuestionFactory } from "./questionfactory";
 import { SurveyError, Event } from "./base";
 import { UploadingFileError, ExceedSizeError } from "./error";
@@ -31,7 +31,7 @@ export class QuestionFileModel extends Question {
    * Set it to true, to show the preview for the image files.
    */
   public get showPreview() {
-    return this.getPropertyValue("showPreview", true);
+    return this.getPropertyValue("showPreview");
   }
   public set showPreview(val: boolean) {
     this.setPropertyValue("showPreview", val);
@@ -78,7 +78,7 @@ export class QuestionFileModel extends Question {
    * @see SurveyModel.onUploadFiles
    */
   public get storeDataAsText(): boolean {
-    return this.getPropertyValue("storeDataAsText", true);
+    return this.getPropertyValue("storeDataAsText");
   }
   public set storeDataAsText(val: boolean) {
     this.setPropertyValue("storeDataAsText", val);
@@ -96,7 +96,7 @@ export class QuestionFileModel extends Question {
    * Set it to false if you want to disable images preview.
    */
   public get allowImagesPreview(): boolean {
-    return this.getPropertyValue("allowImagesPreview", true);
+    return this.getPropertyValue("allowImagesPreview");
   }
   public set allowImagesPreview(val: boolean) {
     this.setPropertyValue("allowImagesPreview", val);
@@ -111,7 +111,42 @@ export class QuestionFileModel extends Question {
     this.setPropertyValue("maxSize", val);
   }
   /**
-   * The clean files value button caption.
+   * Use this property to setup confirmation to remove file.
+   */
+  public get needConfirmRemoveFile(): boolean {
+    return this.getPropertyValue("needConfirmRemoveFile");
+  }
+  public set needConfirmRemoveFile(val: boolean) {
+    this.setPropertyValue("needConfirmRemoveFile", val);
+  }
+  /**
+   * The remove file confirmation message.
+   */
+  public getConfirmRemoveMessage(fileName: string): string {
+    return surveyLocalization
+      .getString("confirmRemoveFile")
+      ["format"](fileName);
+  }
+  /**
+   * The remove all files confirmation message.
+   */
+  get confirmRemoveAllMessage(): string {
+    return surveyLocalization.getString("confirmRemoveAllFiles");
+  }
+  /**
+   * The no file chosen caption for modern theme.
+   */
+  get noFileChosenCaption(): string {
+    return surveyLocalization.getString("noFileChosen");
+  }
+  /**
+   * The choose files button caption for modern theme.
+   */
+  get chooseButtonCaption(): string {
+    return surveyLocalization.getString("chooseFileCaption");
+  }
+  /**
+   * The clean files button caption.
    */
   get cleanButtonCaption(): string {
     return surveyLocalization.getString("cleanCaption");
@@ -225,7 +260,7 @@ export class QuestionFileModel extends Question {
     this.previewValue = [];
     var state =
       (!Array.isArray(newValue) && !!newValue) ||
-        (Array.isArray(newValue) && newValue.length > 0)
+      (Array.isArray(newValue) && newValue.length > 0)
         ? this.showPreview
           ? "loading"
           : "loaded"
@@ -323,8 +358,8 @@ export class QuestionFileModel extends Question {
         propertyName: string;
       }>;
     } = {
-        includeEmpty: true
-      }
+      includeEmpty: true
+    }
   ) {
     var questionPlainData = super.getPlainData(options);
     if (!!questionPlainData && !this.isEmpty()) {
@@ -345,20 +380,24 @@ export class QuestionFileModel extends Question {
     return questionPlainData;
   }
 }
-JsonObject.metaData.addClass(
+Serializer.addClass(
   "file",
   [
     { name: "showPreview:boolean", default: true },
     "allowMultiple:boolean",
-    "allowImagesPreview:boolean",
+    { name: "allowImagesPreview:boolean", default: true },
     "imageHeight",
     "imageWidth",
     "acceptedTypes",
     { name: "storeDataAsText:boolean", default: true },
     { name: "waitForUpload:boolean", default: false },
-    "maxSize:number"
+    "maxSize:number",
+    { name: "defaultValue", visible: false },
+    { name: "correctAnswer", visible: false },
+    { name: "validators", visible: false },
+    { name: "needConfirmRemoveFile:boolean", visible: true, default: false }
   ],
-  function () {
+  function() {
     return new QuestionFileModel("");
   },
   "question"

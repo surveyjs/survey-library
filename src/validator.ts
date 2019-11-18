@@ -2,7 +2,7 @@ import { Base, SurveyError, ISurveyErrorOwner } from "./base";
 import { CustomError, RequreNumericError } from "./error";
 import { surveyLocalization } from "./surveyStrings";
 import { ILocalizableOwner, LocalizableString } from "./localizablestring";
-import { JsonObject } from "./jsonobject";
+import { Serializer } from "./jsonobject";
 import { ConditionRunner } from "./conditions";
 import { Helpers } from "./helpers";
 
@@ -14,6 +14,7 @@ export class ValidatorResult {
  */
 export class SurveyValidator extends Base {
   public errorOwner: ISurveyErrorOwner;
+  public onAsyncCompleted: (result: ValidatorResult) => void;
   constructor() {
     super();
     this.createLocalizableString("text", this, true);
@@ -37,16 +38,19 @@ export class SurveyValidator extends Base {
   protected getDefaultErrorText(name: string): string {
     return "";
   }
-  public validate(value: any, name: string = null): ValidatorResult {
-    return null;
-  }
-  public validateAllValues(
+  public validate(
     value: any,
-    values: any,
-    properties: any,
-    name: string = null
+    name: string = null,
+    values: any = null,
+    properties: any = null
   ): ValidatorResult {
     return null;
+  }
+  public get isRunning(): boolean {
+    return false;
+  }
+  public get isAsync(): boolean {
+    return false;
   }
   getLocale(): string {
     return !!this.errorOwner ? this.errorOwner.getLocale() : "";
@@ -60,38 +64,74 @@ export class SurveyValidator extends Base {
   protected createCustomError(name: string): SurveyError {
     return new CustomError(this.getErrorText(name), this.errorOwner);
   }
+  public toString(): string {
+    var res = this.getType().replace("validator", "");
+    if (!!this.text) {
+      res += ", " + this.text;
+    }
+    return res;
+  }
 }
 export interface IValidatorOwner {
-  validators: Array<SurveyValidator>;
+  getValidators(): Array<SurveyValidator>;
   validatedValue: any;
   getValidatorTitle(): string;
   getDataFilteredValues(): any;
   getDataFilteredProperties(): any;
 }
 export class ValidatorRunner {
+  private asyncValidators: Array<SurveyValidator>;
+  public onAsyncCompleted: (errors: Array<SurveyError>) => void;
   public run(owner: IValidatorOwner): Array<SurveyError> {
     var res = [];
-    for (var i = 0; i < owner.validators.length; i++) {
-      var validatorResult = null;
-      var validator = owner.validators[i];
-      if (!validator.isValidateAllValues) {
-        validatorResult = validator.validate(
-          owner.validatedValue,
-          owner.getValidatorTitle()
-        );
-      } else {
-        validatorResult = validator.validateAllValues(
-          owner.validatedValue,
-          owner.getDataFilteredValues(),
-          owner.getDataFilteredProperties(),
-          owner.getValidatorTitle()
-        );
+    var values = null;
+    var properties = null;
+    this.prepareAsyncValidators();
+    var asyncResults: Array<SurveyError> = [];
+    var validators = owner.getValidators();
+    for (var i = 0; i < validators.length; i++) {
+      var validator = validators[i];
+      if (!values && validator.isValidateAllValues) {
+        values = owner.getDataFilteredValues();
+        properties = owner.getDataFilteredProperties();
       }
+      if (validator.isAsync) {
+        this.asyncValidators.push(validator);
+        validator.onAsyncCompleted = (result: ValidatorResult) => {
+          if (!!result && !!result.error) asyncResults.push(result.error);
+          if (!this.onAsyncCompleted) return;
+          for (var i = 0; i < this.asyncValidators.length; i++) {
+            if (this.asyncValidators[i].isRunning) return;
+          }
+          this.onAsyncCompleted(asyncResults);
+        };
+      }
+    }
+    validators = owner.getValidators();
+    for (var i = 0; i < validators.length; i++) {
+      var validator = validators[i];
+
+      var validatorResult = validator.validate(
+        owner.validatedValue,
+        owner.getValidatorTitle(),
+        values,
+        properties
+      );
       if (!!validatorResult && !!validatorResult.error) {
         res.push(validatorResult.error);
       }
     }
+    if (this.asyncValidators.length == 0 && !!this.onAsyncCompleted)
+      this.onAsyncCompleted([]);
     return res;
+  }
+  private prepareAsyncValidators() {
+    if (!!this.asyncValidators) {
+      for (var i = 0; i < this.asyncValidators.length; i++) {
+        this.asyncValidators[i].onAsyncCompleted = null;
+      }
+    }
+    this.asyncValidators = [];
   }
 }
 /**
@@ -104,9 +144,14 @@ export class NumericValidator extends SurveyValidator {
   public getType(): string {
     return "numericvalidator";
   }
-  public validate(value: any, name: string = null): ValidatorResult {
+  public validate(
+    value: any,
+    name: string = null,
+    values: any = null,
+    properties: any = null
+  ): ValidatorResult {
     if (Helpers.isValueEmpty(value)) return null;
-    if (!this.isNumber(value)) {
+    if (!Helpers.isNumber(value)) {
       return new ValidatorResult(
         null,
         new RequreNumericError(null, this.errorOwner)
@@ -140,9 +185,6 @@ export class NumericValidator extends SurveyValidator {
         ["format"](vName, this.maxValue);
     }
   }
-  private isNumber(value: any): boolean {
-    return !isNaN(parseFloat(value)) && isFinite(value);
-  }
 }
 /**
  * Validate text values.
@@ -158,7 +200,12 @@ export class TextValidator extends SurveyValidator {
   public getType(): string {
     return "textvalidator";
   }
-  public validate(value: any, name: string = null): ValidatorResult {
+  public validate(
+    value: any,
+    name: string = null,
+    values: any = null,
+    properties: any = null
+  ): ValidatorResult {
     if (value !== "" && Helpers.isValueEmpty(value)) return null;
     if (!this.allowDigits) {
       var reg = /^[A-Za-z\s]*$/;
@@ -196,7 +243,12 @@ export class AnswerCountValidator extends SurveyValidator {
   public getType(): string {
     return "answercountvalidator";
   }
-  public validate(value: any, name: string = null): ValidatorResult {
+  public validate(
+    value: any,
+    name: string = null,
+    values: any = null,
+    properties: any = null
+  ): ValidatorResult {
     if (value == null || value.constructor != Array) return null;
     var count = value.length;
     if (this.minCount && count < this.minCount) {
@@ -235,8 +287,13 @@ export class RegexValidator extends SurveyValidator {
   public getType(): string {
     return "regexvalidator";
   }
-  public validate(value: any, name: string = null): ValidatorResult {
-    if (!this.regex || !value) return null;
+  public validate(
+    value: any,
+    name: string = null,
+    values: any = null,
+    properties: any = null
+  ): ValidatorResult {
+    if (!this.regex || Helpers.isValueEmpty(value)) return null;
     var re = new RegExp(this.regex);
     if (Array.isArray(value)) {
       for (var i = 0; i < value.length; i++) {
@@ -255,14 +312,19 @@ export class RegexValidator extends SurveyValidator {
  * Validate e-mail address in the text input
  */
 export class EmailValidator extends SurveyValidator {
-  private re = /^(([^<>()\[\]\.,;:\s@\"]+(\.[^<>()\[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i;
+  private re = /^(([^<>()\[\]\.,;:\s@\"]+(\.[^<>()\[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()=[\]\.,;:\s@\"]+\.)+[^<>()=[\]\.,;:\s@\"]{2,})$/i;
   constructor() {
     super();
   }
   public getType(): string {
     return "emailvalidator";
   }
-  public validate(value: any, name: string = null): ValidatorResult {
+  public validate(
+    value: any,
+    name: string = null,
+    values: any = null,
+    properties: any = null
+  ): ValidatorResult {
     if (!value) return null;
     if (this.re.test(value)) return null;
     return new ValidatorResult(value, this.createCustomError(name));
@@ -277,8 +339,8 @@ export class EmailValidator extends SurveyValidator {
  */
 export class ExpressionValidator extends SurveyValidator {
   private conditionRunner: ConditionRunner = null;
-  public expression: string;
-  constructor() {
+  private isRunningValue: boolean = false;
+  constructor(public expression: string = null) {
     super();
   }
   public getType(): string {
@@ -287,18 +349,33 @@ export class ExpressionValidator extends SurveyValidator {
   public get isValidateAllValues() {
     return true;
   }
-  public validateAllValues(
+  public get isAsync(): boolean {
+    if (!this.ensureConditionRunner()) return false;
+    return this.conditionRunner.isAsync;
+  }
+  public get isRunning(): boolean {
+    return this.isRunningValue;
+  }
+  public validate(
     value: any,
-    values: any,
-    properties: any,
-    name: string = null
+    name: string = null,
+    values: any = null,
+    properties: any = null
   ): ValidatorResult {
-    if (!this.expression) return null;
-    if (!this.conditionRunner) {
-      this.conditionRunner = new ConditionRunner(this.expression);
-    }
-    this.conditionRunner.expression = this.expression;
+    if (!this.ensureConditionRunner()) return null;
+    this.conditionRunner.onRunComplete = res => {
+      this.isRunningValue = false;
+      if (!!this.onAsyncCompleted) {
+        this.onAsyncCompleted(this.generateError(res, value));
+      }
+    };
+    this.isRunningValue = true;
     var res = this.conditionRunner.run(values, properties);
+    if (this.conditionRunner.isAsync) return null;
+    this.isRunningValue = false;
+    return this.generateError(res, value);
+  }
+  protected generateError(res: boolean, value: any) {
     if (!res) {
       return new ValidatorResult(value, this.createCustomError(name));
     }
@@ -309,12 +386,21 @@ export class ExpressionValidator extends SurveyValidator {
       .getString("invalidExpression")
       ["format"](this.expression);
   }
+  protected ensureConditionRunner(): boolean {
+    if (!!this.conditionRunner) {
+      this.conditionRunner.expression = this.expression;
+      return true;
+    }
+    if (!this.expression) return false;
+    this.conditionRunner = new ConditionRunner(this.expression);
+    return true;
+  }
 }
 
-JsonObject.metaData.addClass("surveyvalidator", [
+Serializer.addClass("surveyvalidator", [
   { name: "text", serializationProperty: "locText" }
 ]);
-JsonObject.metaData.addClass(
+Serializer.addClass(
   "numericvalidator",
   ["minValue:number", "maxValue:number"],
   function() {
@@ -322,7 +408,7 @@ JsonObject.metaData.addClass(
   },
   "surveyvalidator"
 );
-JsonObject.metaData.addClass(
+Serializer.addClass(
   "textvalidator",
   ["minLength:number", "maxLength:number", "allowDigits:boolean"],
   function() {
@@ -330,7 +416,7 @@ JsonObject.metaData.addClass(
   },
   "surveyvalidator"
 );
-JsonObject.metaData.addClass(
+Serializer.addClass(
   "answercountvalidator",
   ["minCount:number", "maxCount:number"],
   function() {
@@ -338,7 +424,7 @@ JsonObject.metaData.addClass(
   },
   "surveyvalidator"
 );
-JsonObject.metaData.addClass(
+Serializer.addClass(
   "regexvalidator",
   ["regex"],
   function() {
@@ -346,7 +432,7 @@ JsonObject.metaData.addClass(
   },
   "surveyvalidator"
 );
-JsonObject.metaData.addClass(
+Serializer.addClass(
   "emailvalidator",
   [],
   function() {
@@ -355,7 +441,7 @@ JsonObject.metaData.addClass(
   "surveyvalidator"
 );
 
-JsonObject.metaData.addClass(
+Serializer.addClass(
   "expressionvalidator",
   ["expression:condition"],
   function() {

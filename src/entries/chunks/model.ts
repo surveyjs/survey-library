@@ -1,9 +1,11 @@
 // styles
 import "../../main.scss";
+import "../../modern.scss";
 
 export let Version: string;
 Version = `${process.env.VERSION}`;
 
+export { settings } from "../../settings";
 export { Helpers } from "../../helpers";
 export {
   AnswerCountValidator,
@@ -13,10 +15,12 @@ export {
   SurveyValidator,
   TextValidator,
   ValidatorResult,
+  ExpressionValidator,
   ValidatorRunner
 } from "../../validator";
 export { ItemValue } from "../../itemvalue";
 export { Base, Event, SurveyError, ISurvey, SurveyElement } from "../../base";
+export { CalculatedValue } from "../../calculatedValue";
 export {
   CustomError,
   AnswerRequiredError,
@@ -28,12 +32,15 @@ export { ILocalizableOwner, LocalizableString } from "../../localizablestring";
 export { HtmlConditionItem } from "../../htmlConditionItem";
 export { ChoicesRestfull } from "../../choicesRestfull";
 export { FunctionFactory } from "../../functionsfactory";
+export { ConditionRunner, ExpressionRunner } from "../../conditions";
 export {
-  Condition,
-  ConditionNode,
-  ConditionRunner,
-  ExpressionRunner
-} from "../../conditions";
+  Operand,
+  Const,
+  BinaryOperand,
+  Variable,
+  FunctionOperand,
+  ArrayOperand
+} from "../../expressions/expressions";
 export { ConditionsParser } from "../../conditionsParser";
 export { ProcessValue } from "../../conditionProcessValue";
 export {
@@ -46,7 +53,8 @@ export {
   JsonObject,
   JsonObjectProperty,
   JsonRequiredPropertyError,
-  JsonUnknownPropertyError
+  JsonUnknownPropertyError,
+  Serializer
 } from "../../jsonobject";
 export {
   MatrixDropdownCell,
@@ -105,6 +113,8 @@ export {
   SurveyTriggerComplete,
   SurveyTriggerSetValue,
   SurveyTriggerVisible,
+  SurveyTriggerCopyValue,
+  SurveyTriggerRunExpression,
   Trigger
 } from "../../trigger";
 export { SurveyWindowModel } from "../../surveyWindow";
@@ -113,6 +123,7 @@ export { TextPreProcessor } from "../../textPreProcessor";
 export { dxSurveyService } from "../../dxSurveyService";
 export { englishStrings } from "../../localization/english";
 export { surveyLocalization, surveyStrings } from "../../surveyStrings";
+export { cultureInfo } from "../../cultureInfo";
 export {
   QuestionCustomWidget,
   CustomWidgetCollection

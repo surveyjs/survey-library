@@ -56,7 +56,7 @@ var platformOptions = {
       }
     },
     keywords: ["knockout"],
-    dependencies: { knockout: "^3.4.0" }
+    dependencies: { knockout: "^3.5.0" }
   },
   jquery: {
     externals: {
@@ -69,14 +69,13 @@ var platformOptions = {
     },
     keywords: ["jquery", "jquery-plugin"],
     dependencies: {
-      jquery: ">=1.12.4",
-      "@types/knockout": "3.4.46"
+      jquery: ">=1.12.4"
     }
   },
   angular: {
     externals: {},
     keywords: ["angular", "angular-component"],
-    dependencies: { "@types/knockout": "3.4.46" }
+    dependencies: {}
   },
   vue: {
     externals: {
@@ -102,10 +101,15 @@ module.exports = function(options) {
   options.platformPrefix =
     options.platform == "knockout" ? "ko" : options.platform;
   var packagePath = "./packages/survey-" + options.platform + "/";
-  var extractCSS = new ExtractTextPlugin({
+  var mainThemeExtractCss = new ExtractTextPlugin({
     filename:
       packagePath +
       (options.buildType === "prod" ? "survey.min.css" : "survey.css")
+  });
+
+  var modernThemeExtractCss = new ExtractTextPlugin({
+    filename:
+      packagePath + (options.buildType === "prod" ? "modern.min.css" : "modern.css")
   });
 
   var percentage_handler = function handler(percentage, msg) {
@@ -168,6 +172,8 @@ module.exports = function(options) {
     files: [
       "survey.css",
       "survey.min.css",
+      "modern.css",
+      "modern.min.css",
       "survey." + options.platformPrefix + ".d.ts",
       "survey." + options.platformPrefix + ".js",
       "survey." + options.platformPrefix + ".min.js"
@@ -223,21 +229,45 @@ module.exports = function(options) {
         },
         {
           test: /\.scss$/,
-          use: extractCSS.extract({
+          include: [path.resolve(__dirname, "src/main.scss")],
+          use: mainThemeExtractCss.extract({
             fallback: "style-loader",
             use: [
               {
                 loader: "css-loader",
                 options: {
-                  sourceMap: true,
-                  minimize: options.buildType === "prod",
+                  sourceMap: options.buildType === "dev",
+                  // minimize: options.buildType === "prod",
                   importLoaders: true
                 }
               },
               {
                 loader: "sass-loader",
                 options: {
-                  sourceMap: true
+                  sourceMap: options.buildType === "dev"
+                }
+              }
+            ]
+          })
+        },
+        {
+          test: /\.scss$/,
+          include: [path.resolve(__dirname, "src/modern.scss")],
+          use: modernThemeExtractCss.extract({
+            fallback: "style-loader",
+            use: [
+              {
+                loader: "css-loader",
+                options: {
+                  sourceMap: options.buildType === "dev",
+                  // minimize: options.buildType === "prod",
+                  importLoaders: true
+                }
+              },
+              {
+                loader: "sass-loader",
+                options: {
+                  sourceMap: options.buildType === "dev"
                 }
               }
             ]
@@ -273,7 +303,8 @@ module.exports = function(options) {
       new webpack.BannerPlugin({
         banner: banner
       }),
-      extractCSS
+      mainThemeExtractCss,
+      modernThemeExtractCss
     ],
     devtool: "inline-source-map"
   };

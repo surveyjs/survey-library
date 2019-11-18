@@ -1,0 +1,9 @@
+.sv-multipletext__row:not(:last-child){
+  margin-bottom: 1em;
+}
+.sv-multipletext__cell:not(:first-child) {
+  padding-left: 0.5em;
+}
+.sv-multipletext__cell:not(:last-child){
+  padding-right: 0.5em;
+}

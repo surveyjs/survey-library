@@ -1,31 +1,31 @@
 <script type="text/html" id="survey-question-paneldynamic">
   <div data-bind="css: question.koCss().root">
       <!-- ko if: question.koIsList() -->
-      <!-- ko foreach: { data: question.panels } -->
-      <!-- ko template: { name: 'survey-panel', data: $data, as: 'question', afterRender: question.koPanelAfterRender } -->
-      <!-- /ko -->
-      <input type="button" style="margin-top:5px" data-bind="visible: question.koCanRemovePanel() && !$data.koIsCollapsed(), click:question.koRemovePanelClick, css: question.koCss().button + ' ' + question.koCss().buttonRemove, value: question.panelRemoveText"
-      />
-      <hr/>
-      <!-- /ko -->
-      <input type="button" data-bind="visible:question.koCanAddPanel, click:question.koAddPanelClick, css: question.koCss().button + ' ' + question.koCss().buttonAdd, value: question.panelAddText"
-      />
-      <!-- /ko -->
+        <!-- ko foreach: { data: question.panels } -->
+        <!-- ko template: { name: 'survey-panel', data: $data, as: 'question', afterRender: question.koPanelAfterRender } -->
+        <!-- /ko -->
+        <input type="button" data-bind="visible: question.koCanRemovePanel() && !$data.koIsCollapsed(), click:question.koRemovePanelClick, css: question.koCss().button + ' ' + question.koCss().buttonRemove, value: question.panelRemoveText"
+        />
+        <hr data-bind="css: question.koCss().separator"/>
+        <!-- /ko -->
+        <input type="button" data-bind="visible:question.koCanAddPanel, click:question.koAddPanelClick, css: question.koButtonAddCss, value: question.panelAddText"
+        />
+        <!-- /ko -->
       <!-- ko ifnot: question.koIsList()  -->
-      <div data-bind="visible:question.koIsProgressTop">
-          <!-- ko template: { name: 'survey-question-paneldynamic-navigator', data: question, as: 'question'} -->
-          <!-- /ko -->
-      </div>
-      <!-- ko if: question.koPanel() -->
-          <!-- ko template: { name: 'survey-panel', data: question.koPanel(), as: 'question', afterRender: question.koPanelAfterRender } -->
-          <!-- /ko -->
-      <!-- /ko -->
-      <input type="button" style="margin-top:5px" data-bind="visible: question.koCanRemovePanel, click:question.koRemovePanelClick, css: question.koCss().button + ' ' + question.koCss().buttonRemove, value: question.panelRemoveText"
-      />
-      <div data-bind="visible:question.koIsProgressBottom">
-          <!-- ko template: { name: 'survey-question-paneldynamic-navigator', data: question, as: 'question'} -->
-          <!-- /ko -->
-      </div>
+        <div data-bind="visible:question.koIsProgressTop, css: question.koCss().progressTop">
+            <!-- ko template: { name: 'survey-question-paneldynamic-navigator', data: question, as: 'question'} -->
+            <!-- /ko -->
+        </div>
+        <!-- ko if: question.koPanel() -->
+            <!-- ko template: { name: 'survey-panel', data: question.koPanel(), as: 'question', afterRender: question.koPanelAfterRender } -->
+            <!-- /ko -->
+        <!-- /ko -->
+        <input type="button" data-bind="visible: question.koCanRemovePanel, click:question.koRemovePanelClick, css: question.koCss().button + ' ' + question.koCss().buttonRemove, value: question.panelRemoveText"
+        />
+        <div data-bind="visible:question.koIsProgressBottom,  css: question.koCss().progressBottom">
+            <!-- ko template: { name: 'survey-question-paneldynamic-navigator', data: question, as: 'question'} -->
+            <!-- /ko -->
+        </div>
       <!-- /ko -->
   </div>
 </script>

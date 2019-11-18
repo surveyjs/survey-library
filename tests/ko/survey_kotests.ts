@@ -23,7 +23,7 @@ import { QuestionMatrixDynamic } from "../../src/knockout/koquestion_matrixdynam
 import { surveyLocalization } from "../../src/surveyStrings";
 import { QuestionRating } from "../../src/knockout/koquestion_rating";
 import { QuestionImagePicker } from "../../src/knockout/koquestion_imagepicker";
-import { JsonObject } from "../../src/jsonobject";
+import { JsonObject, Serializer } from "../../src/jsonobject";
 import { SurveyTimer } from "../../src/surveytimer";
 import * as ko from "knockout";
 
@@ -34,30 +34,26 @@ QUnit.test("Survey.koCurrentPage", function(assert) {
   survey.addPage(createPageWithQuestion("Page 1"));
   survey.addPage(createPageWithQuestion("Page 2"));
   survey.addPage(createPageWithQuestion("Page 3"));
+  assert.equal(survey.currentPageNo, 0, "the first page is current");
   assert.equal(
-    survey.currentPage,
-    survey.pages[0],
-    "the first page is current"
-  );
-  assert.equal(
-    survey.koCurrentPage(),
-    survey.currentPage,
+    survey.koCurrentPage().name,
+    survey.currentPage.name,
     "ko current page is equal"
   );
   assert.equal(survey.koIsFirstPage(), true, "is first page");
   assert.equal(survey.koIsLastPage(), false, "is first page");
   survey.nextPage();
   assert.equal(
-    survey.koCurrentPage(),
-    survey.pages[1],
+    survey.koCurrentPage().name,
+    survey.pages[1].name,
     "ko current page is equal"
   );
   assert.equal(survey.koIsFirstPage(), false, "is second page");
   assert.equal(survey.koIsLastPage(), false, "is second page");
   survey.nextPage();
   assert.equal(
-    survey.koCurrentPage(),
-    survey.pages[2],
+    survey.koCurrentPage().name,
+    survey.pages[2].name,
     "ko current page is equal"
   );
   assert.equal(survey.koIsFirstPage(), false, "is last page");
@@ -172,6 +168,21 @@ QUnit.test("Question Matrix: koValue in MatrixValue", function(assert) {
     "the matrix value changed correctly"
   );
 });
+QUnit.test("Question Matrix: update koVisibleColumns on assign", function(
+  assert
+) {
+  var matrix = new QuestionMatrix("q1");
+  matrix.rows = ["row1", "row2"];
+  matrix.columns = ["col1", "col2"];
+  assert.equal(matrix.koVisibleColumns().length, 2, "initial columns");
+  matrix.columns = ["col1", "col2", "col3"];
+  assert.equal(matrix.koVisibleColumns().length, 3, "new columns");
+  assert.equal(
+    matrix.koVisibleColumns()[2].value,
+    "col3",
+    "new column value ok"
+  );
+});
 QUnit.test(
   "Question Matrix: change matrix value after visibleRows generation",
   function(assert) {
@@ -197,59 +208,6 @@ QUnit.test(
     assert.equal(visibleRows[1].cells[0].question.value, 2, "value was set");
   }
 );
-
-QUnit.test("Matrixdynamic lost last cell under certain circumstances", function(
-  assert
-) {
-  var survey = new Survey({
-    questions: [
-      {
-        type: "matrixdynamic",
-        name: "frameworksRate",
-        title: "Please enter two comments",
-        columns: [
-          {
-            name: "likeTheBest",
-            cellType: "comment",
-            title: "Comment 1"
-          },
-          {
-            name: "improvements",
-            cellType: "comment",
-            title: "Comment 2"
-          }
-        ],
-        rowCount: 2
-      }
-    ]
-  });
-  var question: QuestionMatrixDynamic = <any>survey.getQuestionByName(
-    "frameworksRate"
-  );
-  assert.equal(question.rowCount, 2, "It should be 2 rowCount");
-  assert.equal(question.columns.length, 2, "It should be 2 columns");
-  assert.equal(question["koRows"]().length, 2, "It should be 2 rows");
-  assert.equal(
-    question["koRows"]()[0].cells.length,
-    2,
-    "It should be 2 cells in 1st row"
-  );
-  assert.equal(
-    question["koRows"]()[1].cells.length,
-    2,
-    "It should be 2 cells in 2nd row"
-  );
-  assert.equal(
-    question["koRows"]()[0].cells[0].question.getType(),
-    "comment",
-    "Cell 1 should be comment"
-  );
-  assert.equal(
-    question["koRows"]()[0].cells[1].question.getType(),
-    "comment",
-    "Cell 2 should be comment"
-  );
-});
 
 QUnit.test("Matrixdynamic checkbox column does not work, Bug#1031", function(
   assert
@@ -381,6 +339,7 @@ QUnit.test("comment property", function(assert) {
   var question = new QuestionDropdown("q");
   page.addQuestion(question);
   question.choices = ["A", "B", "C", "D"];
+  question.hasOther = true;
   assert.equal(question.comment, "aaaa", "Set ko Comment");
 });
 QUnit.test("Load title correctly from JSON", function(assert) {
@@ -954,7 +913,7 @@ QUnit.test(
       ],
       name: "panel1"
     };
-    var newElement = JsonObject.metaData.createClass("panel");
+    var newElement = Serializer.createClass("panel");
     new JsonObject().toObject(json, newElement);
     page.addElement(newElement);
 
@@ -1376,17 +1335,11 @@ QUnit.test(
   function(assert) {
     var q = new QuestionImagePicker("question1");
     q.endLoadingFromJson();
-    assert.equal(
-      q.getItemClass({}),
-      "sv_q_imgsel sv_q_imagepicker_inline",
-      "No exception"
-    );
+    var containsStyles = (str: string) =>
+      str.indexOf("sv_q_imgsel sv_q_imagepicker_inline") > -1;
+    assert.equal(containsStyles(q.getItemClass({})), true, "No exception");
     q.multiSelect = true;
-    assert.equal(
-      q.getItemClass({}),
-      "sv_q_imgsel sv_q_imagepicker_inline",
-      "No exception"
-    );
+    assert.equal(containsStyles(q.getItemClass({})), true, "No exception");
   }
 );
 
@@ -1455,9 +1408,10 @@ QUnit.test(
     tmpQuestion.isRequired = true;
     assert.equal(
       pnlQuestion.locTitle["koRenderedHtml"](),
-      "q22 *",
+      "q22",
       "The default value"
     );
+    assert.equal(pnlQuestion.requiredText, "*", "The requiredText value");
   }
 );
 

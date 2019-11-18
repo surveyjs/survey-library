@@ -1,14 +1,14 @@
 import { ItemValue } from "./itemvalue";
 import { Question } from "./question";
-import { JsonObject } from "./jsonobject";
+import { Serializer } from "./jsonobject";
 import { QuestionFactory } from "./questionfactory";
 import { LocalizableString } from "./localizablestring";
+import { settings } from "./settings";
 
 /**
  * A Model for a rating question.
  */
 export class QuestionRatingModel extends Question {
-  public static MaximumRateValueCount: number = 20;
   private rates: Array<ItemValue>;
 
   rateValuesChangedCallback: () => void;
@@ -70,10 +70,11 @@ export class QuestionRatingModel extends Question {
    * @see rateStep
    */
   public get rateMin(): number {
-    return this.getPropertyValue("rateMin", 1);
+    return this.getPropertyValue("rateMin");
   }
   public set rateMin(val: number) {
-    if (val > this.rateMax - this.rateStep) val = this.rateMax - this.rateStep;
+    if (!this.isLoadingFromJson && val > this.rateMax - this.rateStep)
+      val = this.rateMax - this.rateStep;
     this.setPropertyValue("rateMin", val);
   }
   /**
@@ -83,10 +84,11 @@ export class QuestionRatingModel extends Question {
    * @see rateStep
    */
   public get rateMax(): number {
-    return this.getPropertyValue("rateMax", 5);
+    return this.getPropertyValue("rateMax");
   }
   public set rateMax(val: number) {
-    if (val < this.rateMin + this.rateStep) val = this.rateMin + this.rateStep;
+    if (!this.isLoadingFromJson && val < this.rateMin + this.rateStep)
+      val = this.rateMin + this.rateStep;
     this.setPropertyValue("rateMax", val);
   }
   /**
@@ -96,20 +98,20 @@ export class QuestionRatingModel extends Question {
    * @see rateMax
    */
   public get rateStep(): number {
-    return this.getPropertyValue("rateStep", 1);
+    return this.getPropertyValue("rateStep");
   }
   public set rateStep(val: number) {
     if (val <= 0) val = 1;
-    if (val > this.rateMax - this.rateMin) val = this.rateMax - this.rateMin;
+    if (!this.isLoadingFromJson && val > this.rateMax - this.rateMin)
+      val = this.rateMax - this.rateMin;
     this.setPropertyValue("rateStep", val);
   }
-  protected getDisplayValueCore(keysAsText: boolean): any {
-    if (this.isEmpty()) return "";
+  protected getDisplayValueCore(keysAsText: boolean, value: any): any {
     var res = ItemValue.getTextOrHtmlByValue(
       this.visibleRateValues,
-      this.value
+      value
     );
-    return !!res ? res : this.createValueCopy();
+    return !!res ? res : value;
   }
   get visibleRateValues(): ItemValue[] {
     if (this.rateValues.length > 0) return this.rateValues;
@@ -117,7 +119,7 @@ export class QuestionRatingModel extends Question {
     var value = this.rateMin;
     while (
       value <= this.rateMax &&
-      res.length < QuestionRatingModel.MaximumRateValueCount
+      res.length < settings.ratingMaximumRateValueCount
     ) {
       res.push(new ItemValue(value));
       value += this.rateStep;
@@ -161,7 +163,7 @@ export class QuestionRatingModel extends Question {
     return this.getLocalizableString("maxRateDescription");
   }
 }
-JsonObject.metaData.addClass(
+Serializer.addClass(
   "rating",
   [
     { name: "hasComment:boolean", layout: "row" },
@@ -175,7 +177,7 @@ JsonObject.metaData.addClass(
     },
     { name: "rateMin:number", default: 1 },
     { name: "rateMax:number", default: 5 },
-    { name: "rateStep:number", default: 1 },
+    { name: "rateStep:number", default: 1, minValue: 1 },
     {
       name: "minRateDescription",
       alternativeName: "mininumRateDescription",

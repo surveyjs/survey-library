@@ -7,15 +7,9 @@ import { SurveyPanelBase } from "./panel-base";
 import { PanelModel } from "../panel";
 
 export class SurveyPanel extends SurveyPanelBase {
+  private hasBeenExpanded: boolean = false;
   constructor(props: any) {
     super(props);
-    this.panelBase = props.element;
-  }
-  componentWillReceiveProps(nextProps: any) {
-    this.unMakeBaseElementReact(this.panelBase);
-    super.componentWillReceiveProps(nextProps);
-    this.panelBase = nextProps.element;
-    this.makeBaseElementReact(this.panelBase);
   }
   public get panel(): PanelModel {
     return this.panelBase as PanelModel;
@@ -33,27 +27,44 @@ export class SurveyPanel extends SurveyPanelBase {
         creator={this.creator}
       />
     );
-
-    var rows = this.renderRows();
     var style = {
       paddingLeft: this.panel.innerPaddingLeft,
       display: !this.panel.isCollapsed ? "block" : "none"
     };
+    var content = null;
+    if (!this.panel.isCollapsed || this.hasBeenExpanded) {
+      this.hasBeenExpanded = true;
+      var rows = this.renderRows(this.panelBase.cssClasses);
+      var className = this.panelBase.cssClasses.panel.content;
+      content = this.renderContent(style, rows, className);
+    }
     var rootStyle: { [index: string]: any } = {};
     if (this.panel.renderWidth) rootStyle["width"] = this.panel.renderWidth;
     var bottom = this.renderBottom();
     return (
-      <div ref="root" className={this.css.panel.container} style={rootStyle}>
+      <div
+        ref="root"
+        className={this.panelBase.cssClasses.panel.container}
+        style={rootStyle}
+      >
         {title}
         {description}
         {errors}
-        {this.renderContent(style, rows)}
+        {content}
         {bottom}
       </div>
     );
   }
-  protected renderContent(style: any, rows: JSX.Element[]): JSX.Element {
-    return <div style={style}>{rows}</div>;
+  protected renderContent(
+    style: any,
+    rows: JSX.Element[],
+    className: string
+  ): JSX.Element {
+    return (
+      <div style={style} className={className}>
+        {rows}
+      </div>
+    );
   }
   protected renderTitle(): JSX.Element {
     if (!this.panelBase.title) return null;
@@ -61,9 +72,9 @@ export class SurveyPanel extends SurveyPanelBase {
     var expandCollapse = null;
     var titleStyle = this.css.panel.title;
     if (this.panel.isCollapsed || this.panel.isExpanded) {
-      titleStyle += " sv_p_title_expandable";
-      var iconCss = "sv_panel_icon";
-      if (!this.panel.isCollapsed) iconCss += " sv_expanded";
+      titleStyle += " " + this.css.panel.titleExpandable;
+      var iconCss = this.css.panel.icon;
+      if (!this.panel.isCollapsed) iconCss += " " + this.css.panel.iconExpanded;
       var changeExpanded = () => {
         if (this.panel.isCollapsed) {
           this.panel.expand();

@@ -10,6 +10,8 @@ export var englishStrings = {
   noneItemText: "None",
   selectAllItemText: "Select All",
   progressText: "Page {0} of {1}",
+  panelDynamicProgressText: "Record {0} of {1}",
+  questionsProgressText: "Answered {0}/{1} questions",
   emptySurvey: "There is no visible page or question in the survey.",
   completingSurvey: "Thank you for completing the survey!",
   completingSurveyBefore:
@@ -42,6 +44,7 @@ export var englishStrings = {
     "Your file is uploading. Please wait several seconds and try again.",
   loadingFile: "Loading...",
   chooseFile: "Choose file(s)...",
+  noFileChosen: "No file chosen",
   confirmDelete: "Do you want to delete the record?",
   keyDuplicationError: "This value should be unique.",
   addColumn: "Add column",
@@ -67,7 +70,12 @@ export var englishStrings = {
   timerLimitSurvey: "You have spent {0} of {1} in total.",
   cleanCaption: "Clean",
   clearCaption: "Clear",
-  removeFileCaption: "Remove this file"
+  chooseFileCaption: "Choose file",
+  removeFileCaption: "Remove this file",
+  booleanCheckedLabel: "Yes",
+  booleanUncheckedLabel: "No",
+  confirmRemoveFile: "Are you sure that you want to remove this file: {0}?",
+  confirmRemoveAllFiles: "Are you sure that you want to remove all files?"
 };
 
 //Uncomment these two lines on creating a translation file. You should replace "en" and enStrings with your locale ("fr", "de" and so on) and your variable.

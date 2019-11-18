@@ -1,6 +1,6 @@
 import * as ko from "knockout";
 import { QuestionBooleanModel } from "../question_boolean";
-import { JsonObject } from "../jsonobject";
+import { Serializer } from "../jsonobject";
 import { QuestionFactory } from "../questionfactory";
 import { QuestionImplementor } from "./koquestion";
 import { Question } from "../question";
@@ -18,12 +18,30 @@ export class QuestionBoolean extends QuestionBooleanModel {
   }
   public getItemCss(row: any, column: any) {
     let isChecked = this.checkedValue;
-    let itemClass = (<any>this)["koCss"]().item + (isChecked ? " checked" : "");
+    let isDisabled = this.isReadOnly;
+    let itemClass = this.cssClasses.item;
+    if (isDisabled) itemClass += " " + this.cssClasses.itemDisabled;
+    if (isChecked) itemClass += " " + this.cssClasses.itemChecked;
+    else if (isChecked === null)
+      itemClass += " " + this.cssClasses.itemIndeterminate;
     return itemClass;
   }
+  public getCheckedLabelCss(): string {
+    return this.getLabelClass(true);
+  }
+  public getUncheckedLabelCss(): string {
+    return this.getLabelClass(false);
+  }
+  private getLabelClass(checked: boolean): string {
+    return (
+      this.cssClasses.label +
+      (this.checkedValue === !checked || this.isReadOnly
+        ? " " + this.cssClasses.disabledLabel
+        : "")
+    );
+  }
 }
-
-JsonObject.metaData.overrideClassCreatore("boolean", function() {
+Serializer.overrideClassCreator("boolean", function() {
   return new QuestionBoolean("");
 });
 

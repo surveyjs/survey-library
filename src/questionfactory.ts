@@ -2,6 +2,7 @@ import { HashTable } from "./helpers";
 import { Question } from "./question";
 import { IElement } from "./base";
 import { surveyLocalization } from "./surveyStrings";
+import { Serializer } from "./jsonobject";
 
 //TODO replace completely with ElementFactory
 export class QuestionFactory {
@@ -28,6 +29,9 @@ export class QuestionFactory {
     questionCreator: (name: string) => Question
   ) {
     this.creatorHash[questionType] = questionCreator;
+  }
+  public unregisterElement(elementType: string) {
+    delete this.creatorHash[elementType];
   }
   public clear() {
     this.creatorHash = {};
@@ -58,6 +62,16 @@ export class ElementFactory {
   }
   public clear() {
     this.creatorHash = {};
+  }
+  public unregisterElement(
+    elementType: string,
+    removeFromSerializer: boolean = false
+  ) {
+    delete this.creatorHash[elementType];
+    QuestionFactory.Instance.unregisterElement(elementType);
+    if (removeFromSerializer) {
+      Serializer.removeClass(elementType);
+    }
   }
   public getAllTypes(): Array<string> {
     var result = QuestionFactory.Instance.getAllTypes();

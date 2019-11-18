@@ -11,9 +11,9 @@ export class QuestionCustomWidget {
   public willUnmount(question: IQuestion, el: any) {
     if (this.widgetJson.willUnmount) this.widgetJson.willUnmount(question, el);
   }
-  public getDisplayValue(question: IQuestion): string {
+  public getDisplayValue(question: IQuestion, value: any = undefined): string {
     if (this.widgetJson.getDisplayValue)
-      return this.widgetJson.getDisplayValue(question);
+      return this.widgetJson.getDisplayValue(question, value);
     return null;
   }
   public isFit(question: IQuestion): boolean {
@@ -33,6 +33,12 @@ export class QuestionCustomWidget {
   }
   public get isDefaultRender(): boolean {
     return this.widgetJson.isDefaultRender;
+  }
+  public get pdfQuestionType(): string {
+    return this.widgetJson.pdfQuestionType;
+  }
+  public get pdfRender() {
+    return this.widgetJson.pdfRender;
   }
 }
 

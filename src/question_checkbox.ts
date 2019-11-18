@@ -1,4 +1,4 @@
-import { JsonObject } from "./jsonobject";
+import { Serializer } from "./jsonobject";
 import { QuestionFactory } from "./questionfactory";
 import { QuestionCheckboxBase } from "./question_baseselect";
 import { Helpers } from "./helpers";
@@ -166,7 +166,10 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     if (item === this.selectAllItem) return this.isAllSelected;
     var val = this.renderedValue;
     if (!val || !Array.isArray(val)) return false;
-    return val.indexOf(item.value) > -1;
+    for (var i = 0; i < val.length; i++) {
+      if (Helpers.isTwoValueEquals(val[i], item.value)) return true;
+    }
+    return false;
   }
   protected setNewValue(newValue: any) {
     newValue = this.valueFromData(newValue);
@@ -210,13 +213,13 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
       items.push(this.noneItem);
     }
   }
-  protected getDisplayValueCore(keysAsText: boolean): any {
-    if (this.isEmpty()) return "";
+  protected getDisplayValueCore(keysAsText: boolean, value: any): any {
+    if (!Array.isArray(value))
+      return super.getDisplayValueCore(keysAsText, value);
     var items = this.visibleChoices;
-    var values = this.createValueCopy();
     var str = "";
-    for (var i = 0; i < values.length; i++) {
-      var valStr = this.getChoicesDisplayValue(items, values[i]);
+    for (var i = 0; i < value.length; i++) {
+      var valStr = this.getChoicesDisplayValue(items, value[i]);
       if (valStr) {
         if (str) str += ", ";
         str += valStr;
@@ -278,8 +281,17 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
   }
   protected valueFromData(val: any): any {
     if (!val) return val;
-    if (!Array.isArray(val)) return [val];
-    return super.valueFromData(val);
+    if (!Array.isArray(val)) return [super.valueFromData(val)];
+    let value = [];
+    for (let i = 0; i < val.length; i++) {
+      let choiceitem = ItemValue.getItemByValue(this.activeChoices, val[i]);
+      if (!!choiceitem) {
+        value.push(choiceitem.value);
+      } else {
+        value.push(val[i]);
+      }
+    }
+    return value;
   }
   protected renderedValueFromDataCore(val: any): any {
     if (!val || !Array.isArray(val)) val = [];
@@ -316,7 +328,7 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     return "checkbox";
   }
 }
-JsonObject.metaData.addClass(
+Serializer.addClass(
   "checkbox",
   [
     "hasSelectAll:boolean",

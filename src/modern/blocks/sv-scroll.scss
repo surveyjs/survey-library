@@ -1,0 +1,9 @@
+.sv-root-modern ::-webkit-scrollbar {
+  height: 6px;
+  width: 6px;
+  background-color: $main-hover-color;
+}
+
+.sv-root-modern ::-webkit-scrollbar-thumb {
+  background: $main-color;
+}

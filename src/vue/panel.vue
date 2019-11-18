@@ -1,17 +1,28 @@
 <template>
-    <div v-if="question.isVisible" :class="question.cssClasses.panel.container" :style="rootStyle">
-        <h4 v-show="hasTitle" :class="getTitleStyle()" v-on:click="changeExpanded">
-          <survey-string :locString="question.locTitle"/>
-          <span v-show="showIcon" :class="iconCss"></span>
-        </h4>
-        <div :class="question.cssClasses.panel.description"><survey-string :locString="question.locDescription"/></div>
-        <survey-errors :question="question"/>
-        <div :style="{ paddingLeft: question.innerPaddingLeft }" v-show="!isCollapsed">
-            <div v-for="(row, index) in rows" :key="question.id + '_' + index" v-if="row.visible" :class="css.row">
-                <survey-row :row="row" :survey="survey" :css="css"></survey-row>
-            </div>
-        </div>
+  <div v-if="question.isVisible" :class="question.cssClasses.panel.container" :style="rootStyle">
+    <h4 v-show="hasTitle" :class="getTitleStyle()" v-on:click="changeExpanded">
+      <survey-string :locString="question.locTitle" />
+      <span v-show="showIcon" :class="iconCss"></span>
+    </h4>
+    <div :class="question.cssClasses.panel.description">
+      <survey-string :locString="question.locDescription" />
     </div>
+    <survey-errors :question="question" />
+    <div
+      :style="{ paddingLeft: question.innerPaddingLeft }"
+      v-show="!isCollapsed"
+      :class="question.cssClasses.panel.content"
+    >
+      <div
+        v-for="(row, index) in rows"
+        :key="question.id + '_' + index"
+        v-if="row.visible"
+        :class="css.row"
+      >
+        <survey-row :row="row" :survey="survey" :css="css"></survey-row>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script lang="ts">
@@ -61,8 +72,8 @@ export class Panel extends Vue {
     return this.question.survey;
   }
   get iconCss() {
-    var result = "sv_panel_icon";
-    if (!this.isCollapsed) result += " sv_expanded";
+    var result = this.css.panel.icon;
+    if (!this.isCollapsed) result += " " + this.css.panel.iconExpanded;
     return result;
   }
   get isCollapsed() {
@@ -83,7 +94,7 @@ export class Panel extends Vue {
   getTitleStyle() {
     var result = this.css.panel.title;
     if (this.question.isCollapsed || this.question.isExpanded) {
-      result += " sv_p_title_expandable";
+      result += " " + this.css.panel.titleExpandable;
     }
     return result;
   }

@@ -1,6 +1,6 @@
-import { JsonObject } from "./jsonobject";
+import { Serializer } from "./jsonobject";
 import { Question } from "./question";
-import { SurveyError, ISurveyImpl } from "./base";
+import { Base, SurveyError, ISurveyImpl } from "./base";
 import { ItemValue } from "./itemvalue";
 import { Helpers, HashTable } from "./helpers";
 import { surveyLocalization } from "./surveyStrings";
@@ -8,8 +8,7 @@ import { OtherEmptyError } from "./error";
 import { ChoicesRestfull } from "./choicesRestfull";
 import { LocalizableString } from "./localizablestring";
 import { ConditionRunner } from "./conditions";
-import { turkishSurveyStrings } from "./localization/turkish";
-import { basename } from "path";
+import { settings } from "./settings";
 
 /**
  * It is a base class for checkbox, dropdown and radiogroup questions.
@@ -19,9 +18,12 @@ export class QuestionSelectBase extends Question {
   private conditionChoicesVisibleIfRunner: ConditionRunner;
   private conditionChoicesEnableIfRunner: ConditionRunner;
   private commentValue: string;
+  private prevCommentValue: string;
   private otherItemValue: ItemValue = new ItemValue("other");
   private choicesFromUrl: Array<ItemValue> = null;
   private cachedValueForUrlRequests: any = null;
+  private isChoicesLoaded: boolean = false;
+  private enableOnLoadingChoices: boolean = false;
   /**
    * Use this property to fill the choices from a restful service.
    * @see choices
@@ -52,6 +54,9 @@ export class QuestionSelectBase extends Question {
     locOtherText.onGetTextCallback = function(text) {
       return !!text ? text : surveyLocalization.getString("otherItemText");
     };
+    this.choicesByUrl.beforeSendRequestCallback = function() {
+      self.onBeforeSendRequest();
+    };
     this.choicesByUrl.getResultCallback = function(items: Array<ItemValue>) {
       self.onLoadChoicesFromUrl(items);
     };
@@ -64,6 +69,10 @@ export class QuestionSelectBase extends Question {
       }
       return items;
     };
+    this.createLocalizableString("otherPlaceHolder", this);
+  }
+  public getType(): string {
+    return "selectbase";
   }
   isLayoutTypeSupported(layoutType: string): boolean {
     return true;
@@ -217,7 +226,8 @@ export class QuestionSelectBase extends Question {
   }
   private isSettingComment: boolean = false;
   protected setComment(newValue: string) {
-    if (this.getStoreOthersAsComment()) super.setComment(newValue);
+    if (this.hasComment || this.getStoreOthersAsComment())
+      super.setComment(newValue);
     else {
       if (!this.isSettingComment && newValue != this.commentValue) {
         this.isSettingComment = true;
@@ -237,13 +247,25 @@ export class QuestionSelectBase extends Question {
     this.value = this.rendredValueToData(val);
   }
   protected setQuestionValue(newValue: any) {
+    if (Helpers.isTwoValueEquals(this.value, newValue)) return;
     super.setQuestionValue(newValue);
     this.setPropertyValue("renderedValue", this.rendredValueFromData(newValue));
-    if (!this.isOtherSelected && !!this.comment) {
+    if (this.hasComment) return;
+    var isOtherSel = this.isOtherSelected;
+    if (isOtherSel && !!this.prevCommentValue) {
+      var oldComment = this.prevCommentValue;
+      this.prevCommentValue = "";
+      this.comment = oldComment;
+    }
+    if (!isOtherSel && !!this.comment) {
+      if (this.getStoreOthersAsComment()) {
+        this.prevCommentValue = this.comment;
+      }
       this.comment = "";
     }
   }
   protected setNewValue(newValue: any) {
+    newValue = this.valueFromData(newValue);
     if (
       (!this.choicesByUrl.isRunning &&
         !this.choicesByUrl.isWaitingForParameters) ||
@@ -252,6 +274,13 @@ export class QuestionSelectBase extends Question {
       this.cachedValueForUrlRequests = newValue;
     }
     super.setNewValue(newValue);
+  }
+  protected valueFromData(val: any): any {
+    let choiceitem = ItemValue.getItemByValue(this.activeChoices, val);
+    if (!!choiceitem) {
+      return choiceitem.value;
+    }
+    return super.valueFromData(val);
   }
   protected rendredValueFromData(val: any): any {
     if (this.getStoreOthersAsComment()) return val;
@@ -262,7 +291,7 @@ export class QuestionSelectBase extends Question {
     return this.rendredValueToDataCore(val);
   }
   protected renderedValueFromDataCore(val: any): any {
-    if (!this.hasUnknownValue(val, true)) return val;
+    if (!this.hasUnknownValue(val, true)) return this.valueFromData(val);
     this.comment = val;
     return this.otherItem.value;
   }
@@ -282,6 +311,10 @@ export class QuestionSelectBase extends Question {
     return !!itemValue && !itemValue.isEnabled;
   }
   /**
+   * If the clearIncorrectValuesCallback is set, it is used to clear incorrrect values instead of default behaviour.
+   */
+  public clearIncorrectValuesCallback: () => void;
+  /**
    * The list of items. Every item has value and text. If text is empty, the value is rendered. The item text supports markdown.
    * @see choicesByUrl
    */
@@ -297,6 +330,13 @@ export class QuestionSelectBase extends Question {
   public set hideIfChoicesEmpty(val: boolean) {
     this.setPropertyValue("hideIfChoicesEmpty", val);
   }
+  public get keepIncorrectValues(): boolean {
+    return this.getPropertyValue("keepIncorrectValues", false);
+  }
+  public set keepIncorrectValues(val: boolean) {
+    this.setPropertyValue("keepIncorrectValues", val);
+  }
+
   /**
    * Please use survey.storeOthersAsComment to change the behavior on the survey level. This property is depricated and invisible in Survey Creator.
    * By default the entered text in the others input in the checkbox/radiogroup/dropdown are stored as "question name " + "-Comment". The value itself is "question name": "others". Set this property to false, to store the entered text directly in the "question name" key.
@@ -316,7 +356,7 @@ export class QuestionSelectBase extends Question {
    * Use this property to render items in a specific order: "asc", "desc", "random". Default value is "none".
    */
   public get choicesOrder(): string {
-    return this.getPropertyValue("choicesOrder", "none");
+    return this.getPropertyValue("choicesOrder");
   }
   public set choicesOrder(val: string) {
     val = val.toLowerCase();
@@ -339,6 +379,18 @@ export class QuestionSelectBase extends Question {
   }
   get locOtherText(): LocalizableString {
     return this.getLocalizableString("otherText");
+  }
+  /**
+   *  Use this property to set the place holder text for other or comment field  .
+   */
+  public get otherPlaceHolder(): string {
+    return this.getLocalizableStringText("otherPlaceHolder");
+  }
+  public set otherPlaceHolder(val: string) {
+    this.setLocalizableStringText("otherPlaceHolder", val);
+  }
+  get locOtherPlaceHolder(): LocalizableString {
+    return this.getLocalizableString("otherPlaceHolder");
   }
   /**
    * The text that shows when the other item is choosed by the other input is empty.
@@ -445,9 +497,8 @@ export class QuestionSelectBase extends Question {
   /**
    * Returns the text for the current value. If the value is null then returns empty string. If 'other' is selected then returns the text for other value.
    */
-  protected getDisplayValueCore(keysAsText: boolean): any {
-    if (this.isEmpty()) return "";
-    return this.getChoicesDisplayValue(this.visibleChoices, this.value);
+  protected getDisplayValueCore(keysAsText: boolean, value: any): any {
+    return this.getChoicesDisplayValue(this.visibleChoices, value);
   }
   protected getChoicesDisplayValue(items: ItemValue[], val: any): any {
     if (val == this.otherItemValue.value)
@@ -460,8 +511,11 @@ export class QuestionSelectBase extends Question {
       ? this.filteredChoicesValue
       : this.activeChoices;
   }
-  private get activeChoices(): Array<ItemValue> {
-    return this.choicesFromUrl ? this.choicesFromUrl : this.choices;
+  protected get activeChoices(): Array<ItemValue> {
+    return this.choicesFromUrl ? this.choicesFromUrl : this.getChoices();
+  }
+  protected getChoices(): Array<ItemValue> {
+    return this.choices;
   }
   public supportComment(): boolean {
     return true;
@@ -505,15 +559,27 @@ export class QuestionSelectBase extends Question {
       : this.textProcessor;
     if (!processor) processor = this.survey;
     if (!processor) return;
+    this.isReadyValue = this.isChoicesLoaded || this.choicesByUrl.isEmpty;
     this.choicesByUrl.run(processor);
   }
   private isFirstLoadChoicesFromUrl = true;
-  private onLoadChoicesFromUrl(array: Array<ItemValue>) {
-    var errors = [];
-    if (this.choicesByUrl && this.choicesByUrl.error) {
-      errors.push(this.choicesByUrl.error);
+  protected onBeforeSendRequest() {
+    if (settings.disableOnGettingChoicesFromWeb === true && !this.isReadOnly) {
+      this.enableOnLoadingChoices = true;
+      this.readOnly = true;
     }
-    this.errors = errors;
+  }
+  protected onLoadChoicesFromUrl(array: Array<ItemValue>) {
+    if (this.enableOnLoadingChoices) {
+      this.readOnly = false;
+    }
+    if (!this.isReadOnly) {
+      var errors = [];
+      if (this.choicesByUrl && this.choicesByUrl.error) {
+        errors.push(this.choicesByUrl.error);
+      }
+      this.errors = errors;
+    }
     var newChoices = null;
     var checkCachedValuesOnExisting = true;
     if (
@@ -523,6 +589,9 @@ export class QuestionSelectBase extends Question {
     ) {
       this.cachedValueForUrlRequests = this.defaultValue;
       checkCachedValuesOnExisting = false;
+    }
+    if (this.isValueEmpty(this.cachedValueForUrlRequests)) {
+      this.cachedValueForUrlRequests = this.value;
     }
     this.isFirstLoadChoicesFromUrl = false;
     var cachedValues = this.createCachedValueForUrlRequests(
@@ -534,13 +603,21 @@ export class QuestionSelectBase extends Question {
       ItemValue.setData(newChoices, array);
     }
     this.choicesFromUrl = newChoices;
+    this.filterItems();
     this.onVisibleChoicesChanged();
     if (newChoices) {
-      var newValue = this.updateCachedValueForUrlRequests(cachedValues);
-      if (newValue) {
+      var newValue = this.updateCachedValueForUrlRequests(
+        cachedValues,
+        newChoices
+      );
+      if (!!newValue && !this.isReadOnly) {
+        this.locNotificationInData = true;
+        this.value = undefined;
+        this.locNotificationInData = false;
         this.value = newValue.value;
       }
     }
+    this.choicesLoaded();
   }
   private createCachedValueForUrlRequests(
     val: any,
@@ -557,20 +634,35 @@ export class QuestionSelectBase extends Question {
     var isExists = checkOnExisting ? !this.hasUnknownValue(val) : true;
     return { value: val, isExists: isExists };
   }
-  private updateCachedValueForUrlRequests(val: any): any {
+  private updateCachedValueForUrlRequests(
+    val: any,
+    newChoices: Array<ItemValue>
+  ): any {
     if (this.isValueEmpty(val)) return null;
     if (Array.isArray(val)) {
       var res = [];
       for (var i = 0; i < val.length; i++) {
-        var updatedValue = this.updateCachedValueForUrlRequests(val[i]);
+        var updatedValue = this.updateCachedValueForUrlRequests(
+          val[i],
+          newChoices
+        );
         if (updatedValue && !this.isValueEmpty(updatedValue.value)) {
-          res.push(updatedValue.value);
+          var newValue = updatedValue.value;
+          var item = ItemValue.getItemByValue(newChoices, updatedValue.value);
+          if (!!item) {
+            newValue = item.value;
+          }
+          res.push(newValue);
         }
       }
       return { value: res };
     }
     var value =
       val.isExists && this.hasUnknownValue(val.value) ? null : val.value;
+    var item = ItemValue.getItemByValue(newChoices, value);
+    if (!!item) {
+      value = item.value;
+    }
     return { value: value };
   }
   protected onVisibleChoicesChanged() {
@@ -592,8 +684,8 @@ export class QuestionSelectBase extends Question {
   }
   private sortArray(array: Array<ItemValue>, mult: number): Array<ItemValue> {
     return array.sort(function(a, b) {
-      if (a.text < b.text) return -1 * mult;
-      if (a.text > b.text) return 1 * mult;
+      if (a.calculatedText < b.calculatedText) return -1 * mult;
+      if (a.calculatedText > b.calculatedText) return 1 * mult;
       return 0;
     });
   }
@@ -601,12 +693,17 @@ export class QuestionSelectBase extends Question {
     return Helpers.randomizeArray<ItemValue>(array);
   }
   public clearIncorrectValues() {
+    if (this.keepIncorrectValues) return;
     if (
       !!this.survey &&
       this.survey.questionCountByValueName(this.getValueName()) > 1
     )
       return;
-    this.clearIncorrectValuesCore();
+    if (this.clearIncorrectValuesCallback) {
+      this.clearIncorrectValuesCallback();
+    } else {
+      this.clearIncorrectValuesCore();
+    }
   }
   public clearValueIfInvisible() {
     super.clearValueIfInvisible();
@@ -638,6 +735,55 @@ export class QuestionSelectBase extends Question {
       this.comment = "";
     }
   }
+  getColumnClass() {
+    var columnClass = this.cssClasses.column;
+    if (this.hasColumns) {
+      columnClass += " sv-q-column-" + this.colCount;
+    }
+    return columnClass;
+  }
+  getLabelClass(isChecked: boolean) {
+    var labelClass = this.cssClasses.label;
+    if (isChecked) {
+      labelClass += " " + this.cssClasses.labelChecked;
+    }
+    return labelClass;
+  }
+  getControlLabelClass(isChecked: boolean) {
+    var controlLabelClass = this.cssClasses.controlLabel;
+    if (isChecked) {
+      controlLabelClass += " " + this.cssClasses.controlLabelChecked;
+    }
+    return controlLabelClass;
+  }
+  get columns() {
+    var columns = [];
+    var colCount = this.colCount;
+    if (this.hasColumns && this.visibleChoices.length > 0) {
+      for (var i = 0; i < colCount; i++) {
+        var column = [];
+        for (var j = i; j < this.visibleChoices.length; j += colCount) {
+          column.push(this.visibleChoices[j]);
+        }
+        columns.push(column);
+      }
+    }
+    return columns;
+  }
+  get hasColumns() {
+    return this.colCount > 1;
+  }
+  public choicesLoaded(): void {
+    this.isChoicesLoaded = true;
+    let oldIsReady: boolean = this.isReadyValue;
+    this.isReadyValue = true;
+    this.onReadyChanged &&
+      this.onReadyChanged.fire(this, {
+        question: this,
+        isReady: true,
+        olsIsReady: oldIsReady
+      });
+  }
 }
 /**
  * A base class for checkbox and radiogroup questions. It introduced a colCount property.
@@ -665,7 +811,7 @@ export class QuestionCheckboxBase extends QuestionSelectBase {
     }
   }
 }
-JsonObject.metaData.addClass(
+Serializer.addClass(
   "selectbase",
   [
     { name: "hasComment:boolean", layout: "row" },
@@ -675,6 +821,7 @@ JsonObject.metaData.addClass(
       layout: "row"
     },
     "hasOther:boolean",
+    { name: "otherPlaceHolder", serializationProperty: "locOtherPlaceHolder" },
     {
       name: "choices:itemvalue[]",
       baseValue: function() {
@@ -712,7 +859,7 @@ JsonObject.metaData.addClass(
   "question"
 );
 
-JsonObject.metaData.addClass(
+Serializer.addClass(
   "checkboxbase",
   [
     {

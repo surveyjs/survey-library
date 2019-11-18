@@ -1,7 +1,7 @@
 import * as ko from "knockout";
 import { QuestionImplementor } from "./koquestion";
 import { QuestionRatingModel } from "../question_rating";
-import { JsonObject } from "../jsonobject";
+import { Serializer } from "../jsonobject";
 import { QuestionFactory } from "../questionfactory";
 import { Question } from "../question";
 
@@ -22,9 +22,20 @@ class QuestionRatingImplementor extends QuestionImplementor {
       self.onRateValuesChanged();
     };
     (<any>this.question)["koGetCss"] = (val: any) => {
-      var css = self.question.cssClasses.item;
+      var itemCss = self.question.cssClasses.item;
       var selected = self.question.cssClasses.selected;
-      return this.question.value === val.value ? css + " " + selected : css;
+      var disabled = self.question.cssClasses.disabled;
+      var result = itemCss;
+
+      if (this.question.value == val.value) {
+        result = result + " " + selected;
+      }
+
+      if (this.question.isReadOnly) {
+        result = result + " " + disabled;
+      }
+
+      return result;
     };
   }
   protected onRateValuesChanged() {
@@ -42,7 +53,7 @@ export class QuestionRating extends QuestionRatingModel {
   }
 }
 
-JsonObject.metaData.overrideClassCreatore("rating", function() {
+Serializer.overrideClassCreator("rating", function() {
   return new QuestionRating("");
 });
 

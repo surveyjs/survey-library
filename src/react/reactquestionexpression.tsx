@@ -8,14 +8,9 @@ import { ReactQuestionFactory } from "./reactquestionfactory";
 export class SurveyQuestionExpression extends SurveyQuestionElementBase {
   constructor(props: any) {
     super(props);
-    this.state = { value: this.question.value };
   }
   protected get question(): QuestionExpressionModel {
     return this.questionBase as QuestionExpressionModel;
-  }
-  componentWillReceiveProps(nextProps: any) {
-    super.componentWillReceiveProps(nextProps);
-    this.setState({ value: this.question.value });
   }
   render(): JSX.Element {
     if (!this.question) return null;

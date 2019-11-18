@@ -17,6 +17,7 @@ export class SurveyQuestionMatrix extends SurveyQuestionElementBase {
     return this.questionBase as QuestionMatrixModel;
   }
   componentDidMount() {
+    super.componentDidMount();
     if (this.question) {
       var self = this;
       this.question.visibleRowsChangedCallback = function() {
@@ -25,6 +26,7 @@ export class SurveyQuestionMatrix extends SurveyQuestionElementBase {
     }
   }
   componentWillUnmount() {
+    super.componentWillUnmount();
     if (this.question) {
       this.question.visibleRowsChangedCallback = null;
     }
@@ -39,7 +41,11 @@ export class SurveyQuestionMatrix extends SurveyQuestionElementBase {
       var column = this.question.visibleColumns[i];
       var key = "column" + i;
       var columText = this.renderLocString(column.locText);
-      headers.push(<th key={key}>{columText}</th>);
+      headers.push(
+        <th className={this.question.cssClasses.headerCell} key={key}>
+          {columText}
+        </th>
+      );
     }
     var rows = [];
     var visibleRows = this.question.visibleRows;
@@ -57,52 +63,49 @@ export class SurveyQuestionMatrix extends SurveyQuestionElementBase {
         />
       );
     }
-    var header = !this.question.showHeader ? null :
-                  <thead>
-                    <tr>
-                      {firstTH}
-                      {headers}
-                    </tr>
-                  </thead>;
+    var header = !this.question.showHeader ? null : (
+      <thead>
+        <tr>
+          {firstTH}
+          {headers}
+        </tr>
+      </thead>
+    );
     return (
-      <fieldset>
-        <legend aria-label={this.question.locTitle.renderedHtml} />
-        <table className={cssClasses.root}>
-          {header}
-          <tbody>{rows}</tbody>
-        </table>
-      </fieldset>
+      <div className={cssClasses.tableWrapper}>
+        <fieldset>
+          <legend aria-label={this.question.locTitle.renderedHtml} />
+          <table className={cssClasses.root}>
+            {header}
+            <tbody>{rows}</tbody>
+          </table>
+        </fieldset>
+      </div>
     );
   }
 }
 
 export class SurveyQuestionMatrixRow extends ReactSurveyElement {
-  private question: QuestionMatrixModel;
-  private row: MatrixRowModel;
-  private isFirst: boolean;
   constructor(props: any) {
     super(props);
-    this.question = props.question;
-    this.row = props.row;
-    this.isFirst = props.isFirst;
     this.handleOnChange = this.handleOnChange.bind(this);
+  }
+  private get question(): QuestionMatrixModel {
+    return this.props.question;
+  }
+  private get row(): MatrixRowModel {
+    return this.props.row;
   }
   handleOnChange(event: any) {
     this.row.value = event.target.value;
     this.setState({ value: this.row.value });
-  }
-  componentWillReceiveProps(nextProps: any) {
-    super.componentWillReceiveProps(nextProps);
-    this.question = nextProps.question;
-    this.row = nextProps.row;
-    this.isFirst = nextProps.isFirst;
   }
   render(): JSX.Element {
     if (!this.row) return null;
     var firstTD = null;
     if (this.question.hasRows) {
       var rowText = this.renderLocString(this.row.locText);
-      firstTD = <td>{rowText}</td>;
+      firstTD = <td className={this.question.cssClasses.cell}>{rowText}</td>;
     }
     var tds = this.generateTds();
     return (
@@ -112,7 +115,6 @@ export class SurveyQuestionMatrixRow extends ReactSurveyElement {
       </tr>
     );
   }
-
   generateTds() {
     var tds = [];
     var row = this.row;
@@ -125,13 +127,16 @@ export class SurveyQuestionMatrixRow extends ReactSurveyElement {
       var isChecked = row.value == column.value;
       let itemClass = this.getItemClass(row, column);
       var inputId = this.question.inputId + "_" + row.name + "_" + i;
-
       if (this.question.hasCellText) {
         var getHandler = !this.question.isReadOnly
           ? (column: any) => () => this.cellClick(row, column)
           : null;
         td = (
-          <td key={key} className={itemClass} onClick={getHandler(column)}>
+          <td
+            key={key}
+            className={itemClass + " " + this.question.cssClasses.cell}
+            onClick={getHandler ? getHandler(column) : null}
+          >
             {this.renderLocString(
               this.question.getCellDisplayLocText(row.name, column)
             )}
@@ -139,7 +144,11 @@ export class SurveyQuestionMatrixRow extends ReactSurveyElement {
         );
       } else {
         td = (
-          <td key={key} headers={column.locText.renderedHtml}>
+          <td
+            key={key}
+            headers={column.locText.renderedHtml}
+            className={this.question.cssClasses.cell}
+          >
             <label className={itemClass}>
               <input
                 id={inputId}
@@ -150,18 +159,23 @@ export class SurveyQuestionMatrixRow extends ReactSurveyElement {
                 disabled={this.isDisplayMode}
                 checked={isChecked}
                 onChange={this.handleOnChange}
+                aria-required={this.question.isRequired}
                 aria-label={this.question.locTitle.renderedHtml}
               />
+              <span className={this.question.cssClasses.materialDecorator}>
+                <svg
+                  className={this.question.cssClasses.itemDecorator}
+                  viewBox="-12 -12 24 24"
+                >
+                  <circle r="6" cx="0" cy="0" />s
+                </svg>
+              </span>
               <span className="circle" />
               <span className="check" />
               <span style={{ display: "none" }}>
                 {this.question.locTitle.renderedHtml}
               </span>
             </label>
-            <label
-              className={this.question.cssClasses.cellLabel}
-              htmlFor={inputId}
-            />
           </td>
         );
       }
@@ -171,15 +185,31 @@ export class SurveyQuestionMatrixRow extends ReactSurveyElement {
     return tds;
   }
 
-  getItemClass(row: any, column: any) {
+  public getItemClass(row: any, column: any): string {
+    var question = this.question;
+    var cssClasses = this.question.cssClasses;
     var isChecked = row.value == column.value;
-    var cellSelectedClass = this.question.hasCellText
-      ? this.cssClasses.cellTextSelected
-      : "checked";
-    var cellClass = this.question.hasCellText
-      ? this.cssClasses.cellText
-      : this.cssClasses.label;
-    let itemClass = cellClass + (isChecked ? " " + cellSelectedClass : "");
+    var isDisabled = question.isReadOnly;
+    var allowHover = !isChecked && !isDisabled;
+    var cellDisabledClass = question.hasCellText
+      ? cssClasses.cellTextDisabled
+      : cssClasses.itemDisabled;
+
+    var cellSelectedClass = question.hasCellText
+      ? cssClasses.cellTextSelected
+      : cssClasses.itemChecked;
+
+    var itemHoverClass = !question.hasCellText ? cssClasses.itemHover : "";
+
+    var cellClass = question.hasCellText
+      ? cssClasses.cellText
+      : cssClasses.label;
+
+    let itemClass =
+      cellClass +
+      (isChecked ? " " + cellSelectedClass : "") +
+      (isDisabled ? " " + cellDisabledClass : "") +
+      (allowHover ? " " + itemHoverClass : "");
     return itemClass;
   }
 

@@ -7,19 +7,15 @@ import { QuestionDropdownModel } from "../question_dropdown";
 import { SurveyQuestionCommentItem } from "./reactquestioncomment";
 import { ReactQuestionFactory } from "./reactquestionfactory";
 import { ItemValue } from "../itemvalue";
+import { Base } from "../base";
 
 export class SurveyQuestionDropdown extends SurveyQuestionElementBase {
   constructor(props: any) {
     super(props);
-    this.state = { value: this.getStateValue() };
     this.handleOnChange = this.handleOnChange.bind(this);
   }
   protected get question(): QuestionDropdownModel {
     return this.questionBase as QuestionDropdownModel;
-  }
-  componentWillReceiveProps(nextProps: any) {
-    super.componentWillReceiveProps(nextProps);
-    this.setState({ value: this.getStateValue() });
   }
   handleOnChange(event: any) {
     this.question.renderedValue = event.target.value;
@@ -28,11 +24,9 @@ export class SurveyQuestionDropdown extends SurveyQuestionElementBase {
   render(): JSX.Element {
     if (!this.question) return null;
     var cssClasses = this.question.cssClasses;
-    var comment =
-      this.question.hasOther &&
-      this.question.renderedValue === this.question.otherItem.value
-        ? this.renderOther(cssClasses)
-        : null;
+    var comment = this.question.isOtherSelected
+      ? this.renderOther(cssClasses)
+      : null;
     var select = this.renderSelect(cssClasses);
     return (
       <div className={cssClasses.root}>
@@ -43,10 +37,10 @@ export class SurveyQuestionDropdown extends SurveyQuestionElementBase {
   }
   protected renderSelect(cssClasses: any): JSX.Element {
     if (this.isDisplayMode) {
-      var isOtherSelected =
-        this.question.renderedValue === this.question.otherItem.value;
+      var isOtherSelected = this.question.isOtherSelected;
       return (
-        <div id={this.question.inputId} className={cssClasses.control}>
+        // @ts-ignore
+        <div id={this.question.inputId} className={cssClasses.control} disabled>
           {isOtherSelected
             ? this.question.otherText
             : this.question.displayValue}
@@ -64,12 +58,17 @@ export class SurveyQuestionDropdown extends SurveyQuestionElementBase {
       <option value="">{this.question.optionsCaption}</option>
     ) : null;
 
+    var value =
+      !!this.state && this.state.value !== undefined
+        ? this.state.value
+        : this.getStateValue();
+
     return (
       <div className={cssClasses.selectWrapper}>
         <select
           id={this.question.inputId}
           className={cssClasses.control}
-          value={this.state.value}
+          value={value}
           onChange={this.handleOnChange}
           onInput={this.handleOnChange}
           aria-label={this.question.locTitle.renderedHtml}
@@ -98,20 +97,14 @@ export class SurveyQuestionDropdown extends SurveyQuestionElementBase {
 }
 
 export class SurveyQuestionOptionItem extends ReactSurveyElement {
-  private item: ItemValue;
   constructor(props: any) {
     super(props);
-    this.item = props.item;
   }
-  componentWillMount() {
-    this.makeBaseElementReact(this.item);
+  protected getStateElement(): Base {
+    return this.item;
   }
-  componentWillUnmount() {
-    this.unMakeBaseElementReact(this.item);
-  }
-  componentWillReceiveProps(nextProps: any) {
-    super.componentWillReceiveProps(nextProps);
-    this.item = nextProps.item;
+  private get item(): ItemValue {
+    return this.props.item;
   }
   render(): JSX.Element {
     if (!this.item) return;

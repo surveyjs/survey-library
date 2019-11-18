@@ -1,7 +1,7 @@
 import * as ko from "knockout";
 import { PageModel } from "../page";
 import { PanelModelBase, PanelModel, QuestionRowModel } from "../panel";
-import { JsonObject } from "../jsonobject";
+import { Serializer } from "../jsonobject";
 import { SurveyElement, IElement } from "../base";
 import { ElementFactory } from "../questionfactory";
 import { ImplementorBase } from "./kobase";
@@ -54,6 +54,7 @@ export class Panel extends PanelModel {
   koCss: any;
   koIsExpanded: any;
   koIsCollapsed: any;
+  koErrorClass: any;
   doExpand: any;
   constructor(name: string = "") {
     super(name);
@@ -72,6 +73,10 @@ export class Panel extends PanelModel {
     this.doExpand = function() {
       self.changeExpanded();
     };
+    this.koErrorClass = ko.pureComputed(function() {
+      var rootClass = self.cssClasses.error.root;
+      return rootClass ? rootClass : "panel-error-root";
+    });
   }
   protected createRow(): QuestionRowModel {
     return new QuestionRow(this);
@@ -95,7 +100,7 @@ export class Panel extends PanelModel {
   getTitleStyle() {
     var result = this.cssClasses.panel.title;
     if (this.koIsCollapsed() || this.koIsExpanded()) {
-      result += " sv_p_title_expandable";
+      result += " " + this.cssClasses.panel.titleExpandable;
     }
     return result;
   }
@@ -124,10 +129,10 @@ export class Page extends PageModel {
   }
 }
 
-JsonObject.metaData.overrideClassCreatore("panel", function() {
+Serializer.overrideClassCreator("panel", function() {
   return new Panel();
 });
-JsonObject.metaData.overrideClassCreatore("page", function() {
+Serializer.overrideClassCreator("page", function() {
   return new Page();
 });
 

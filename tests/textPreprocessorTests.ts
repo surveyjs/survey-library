@@ -47,23 +47,37 @@ QUnit.test("onHasValue event", function(assert) {
   assert.equal(result, "test1 Andrew test2", "process successfull");
 });
 
-QUnit.test("ProcessValue getFirst Name", function(assert) {
+QUnit.test("ProcessValue getFirstName", function(assert) {
   var process = new ProcessValue();
   assert.equal(process.getFirstName("name1"), "name1", "name is the same");
   assert.equal(process.getFirstName("name-1"), "name-1", "name is the same 2");
   assert.equal(process.getFirstName("name-1.name2"), "name-1", "till .");
   assert.equal(process.getFirstName("name-1[0].value"), "name-1", "till [");
 });
-QUnit.test("ProcessValue getFirst Name", function(assert) {
+QUnit.test("ProcessValue getFirstName witht object", function(assert) {
+  var obj = { "a.b.c": { d: 1 } };
   var process = new ProcessValue();
-  assert.equal(process.getFirstName("name1"), "name1", "name is the same");
-  assert.equal(process.getFirstName("name-1"), "name-1", "name is the same 2");
-  assert.equal(process.getFirstName("name-1.name2"), "name-1", "till .");
-  assert.equal(process.getFirstName("name-1[0].value"), "name-1", "till [");
+  assert.equal(process.getFirstName("name1", obj), "name1", "name is the same");
+  assert.equal(
+    process.getFirstName("name-1", obj),
+    "name-1",
+    "name is the same 2"
+  );
+  assert.equal(process.getFirstName("name-1.name2", obj), "name-1", "till .");
+  assert.equal(
+    process.getFirstName("name-1[0].value", obj),
+    "name-1",
+    "till ["
+  );
+  assert.equal(
+    process.getFirstName("a.b.c.d", obj),
+    "a.b.c",
+    "object with dot"
+  );
 });
 QUnit.test("ProcessValue getValue/hasValue, nested values", function(assert) {
   var process = new ProcessValue();
-  var value = { a: 1, b: { d: 2 }, c: { e: { f: 3 } } };
+  var value = { a: 1, b: { d: 2 }, c: { e: { f: 3 } }, g: 0 };
   assert.equal(process.getValue("a", value), 1, "a=1");
   assert.equal(process.getValue("b.d", value), 2, "b.d=2");
   assert.equal(process.getValue("c.e.f", value), 3, "c.e.f=3");
@@ -74,6 +88,8 @@ QUnit.test("ProcessValue getValue/hasValue, nested values", function(assert) {
   assert.equal(process.hasValue("c", value), true);
   assert.equal(process.hasValue("c.e", value), true);
   assert.equal(process.hasValue("c.e.f", value), true);
+  assert.equal(process.hasValue("g", value), true);
+  assert.equal(process.getValue("g", value), 0);
 });
 
 QUnit.test("ProcessValue getValue/hasValue, arrays and nested values", function(
@@ -120,5 +136,35 @@ QUnit.test("ProcessValue setValue function", function(assert) {
     data,
     { a: [{ name: 1 }], b: { c: 5 }, name: 1 },
     "set the nested object value correctly"
+  );
+});
+
+QUnit.test("ProcessValue setValue function for arrays", function(assert) {
+  var processor = new ProcessValue();
+  var data = { panel1: [{ question1: 1 }], panel2: [{}] };
+  processor.setValue(data, "panel2[0].question2", 2);
+  assert.deepEqual(
+    data,
+    { panel1: [{ question1: 1 }], panel2: [{ question2: 2 }] },
+    "set the value into array correctly"
+  );
+});
+
+QUnit.test("ProcessValue value name has dot inside", function(assert) {
+  var process = new ProcessValue();
+  var value = { "a.b": 1, "a.b.c": 2, "a.bc": { d: 3 } };
+  assert.equal(process.getValue("a.b", value), 1, "'a.b'=1");
+  assert.equal(process.getValue("a.b.c", value), 2, "'a.b.d'=2");
+  assert.equal(process.getValue("a.bc.d", value), 3, "'a.bc'.d=3");
+});
+
+QUnit.test("ProcessValue insenstive names", function(assert) {
+  var process = new ProcessValue();
+  var value = { Q11: { R11: { C11: 1 } }, q1: { r1: { c1: 2 } } };
+  assert.equal(process.getValue("Q1.R1.C1", value), 2, "q1.r1.c1 == Q1.R1.C1");
+  assert.equal(
+    process.getValue("Q11.R11.C11", value),
+    1,
+    "Q11.R11.C11 == Q11.R11.C11"
   );
 });

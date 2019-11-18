@@ -1,22 +1,21 @@
-﻿<script type="text/html" id="survey-question-radiogroup">
+<script type="text/html" id="survey-question-radiogroup">
   <fieldset data-bind="css: question.koCss().root">
       <legend data-bind="attr: { 'aria-label': question.locTitle.renderedHtml }"></legend>
-      <!-- ko foreach: { data: question.visibleChoices, as: 'item', afterRender: question.koAfterRender}  -->
-      <div data-bind="css: question.getItemClass(item)">
-          <label data-bind="css: question.koCss().label">
-              <input type="radio" data-bind="attr: {name: question.name + '_' + question.id, id: question.inputId + '_' + $index(), 'aria-label': item.locText.renderedHtml}, checkedValue: item.value, checked: question.renderedValue, enable: !question.isReadOnly && item.isEnabled, css: question.koCss().itemControl"
-              />
-              <span data-bind="css: question.koCss().materialDecorator"></span>
-              <span class="check"></span>
-              <span data-bind="css: question.koCss().controlLabel">
-                  <!-- ko template: { name: 'survey-string', data: item.locText } -->
-                  <!-- /ko -->
-              </span>
-          </label>
-          <!-- ko if: question.hasOther && ($index() == question.visibleChoices.length-1) -->
-          <div class="form-group" data-bind="template: { name: 'survey-comment', data: {'question': question, 'visible': question.isOtherSelected}}"></div>
-          <!-- /ko -->
-      </div>
+      <!-- ko ifnot: question.hasColumns  -->
+        <!-- ko foreach: { data: question.visibleChoices, as: 'item', afterRender: question.koAfterRender }  -->
+            <!-- ko template: 'survey-radiogroup-item' -->
+            <!-- /ko -->
+        <!-- /ko -->
+      <!-- /ko -->
+      <!-- ko if: question.hasColumns  -->
+        <!-- ko foreach: question.columns -->
+        <div data-bind="css: question.getColumnClass()">
+            <!-- ko foreach: { data: $data, as: 'item', afterRender: question.koAfterRender }  -->
+                <!-- ko template: 'survey-radiogroup-item' -->
+                <!-- /ko -->
+            <!-- /ko -->
+            </div>
+        <!-- /ko -->
       <!-- /ko -->
       <!-- ko if: question.canShowClearButton -->
       <div>
@@ -24,4 +23,25 @@
       </div>
       <!-- /ko -->
   </fieldset>
+</script>
+<script type="text/html" id="survey-radiogroup-item">
+  <div data-bind="css: question.getItemClass(item)">
+      <label data-bind="css: question.getLabelClass(item)">
+          <input type="radio" data-bind="attr: {name: question.name + '_' + question.id, id: question.inputId + '_' + $index(), 'aria-required': question.isRequired, 'aria-label': item.locText.renderedHtml}, checkedValue: item.value, checked: question.renderedValue, enable: !question.isReadOnly && item.isEnabled, css: question.koCss().itemControl"
+          />
+          <span data-bind="css: question.koCss().materialDecorator">
+            <svg data-bind="css:question.koCss().itemDecorator" viewBox="-12 -12 24 24">
+                <circle r="6" cx="0" cy="0">
+            </svg>    
+          </span>
+          <span class="check"></span>
+          <span data-bind="css: question.getControlLabelClass(item), attr: { title: item.locText.koRenderedHtml }">
+              <!-- ko template: { name: 'survey-string', data: item.locText } -->
+              <!-- /ko -->
+          </span>
+      </label>
+      <!-- ko if: question.hasOther && (item.value == question.otherItem.value) -->
+      <div class="form-group" data-bind="template: { name: 'survey-comment', data: {'question': question, 'visible': question.isOtherSelected}}"></div>
+      <!-- /ko -->
+  </div>
 </script>

@@ -15,16 +15,22 @@ export class SurveyCustomWidget extends SurveyQuestionElementBase {
     }
   }
   componentDidMount() {
+    super.componentDidMount();
     if (this.questionBase) {
       this._afterRender();
     }
   }
-  componentDidUpdate() {
-    if (this.questionBase) {
+  componentDidUpdate(prevProps: any, prevState: any) {
+    super.componentDidUpdate(prevProps, prevState);
+    var isDefaultRender =
+      !!this.questionBase.customWidget &&
+      this.questionBase.customWidget.isDefaultRender;
+    if (this.questionBase && !isDefaultRender) {
       this._afterRender();
     }
   }
   componentWillUnmount() {
+    super.componentWillUnmount();
     if (this.questionBase.customWidget) {
       let el = this.refs["widget"];
       if (!!el) {

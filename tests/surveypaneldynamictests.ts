@@ -1,22 +1,15 @@
 import { Question } from "../src/question";
 import { PanelModel } from "../src/panel";
-import {
-  QuestionPanelDynamicModel,
-  QuestionPanelDynamicItem
-} from "../src/question_paneldynamic";
-import { JsonObject } from "../src/jsonobject";
+import { QuestionPanelDynamicModel } from "../src/question_paneldynamic";
 import { SurveyModel } from "../src/survey";
-import {
-  CustomWidgetCollection,
-  QuestionCustomWidget
-} from "../src/questionCustomWidgets";
+import { CustomWidgetCollection } from "../src/questionCustomWidgets";
 import { QuestionMultipleTextModel } from "../src/question_multipletext";
 import { QuestionCheckboxModel } from "../src/question_checkbox";
 import { QuestionRadiogroupModel } from "../src/question_radiogroup";
 import { QuestionTextModel } from "../src/question_text";
 import { QuestionMatrixDynamicModel } from "../src/question_matrixdynamic";
-import { matrixDropdownColumnTypes } from "../src/question_matrixdropdownbase";
-import { surveyLocalization } from "../src/surveyStrings";
+import { FunctionFactory } from "../src/functionsfactory";
+import { ExpressionValidator } from "../src/validator";
 
 export default QUnit.module("Survey_QuestionPanelDynamic");
 
@@ -303,7 +296,6 @@ QUnit.test("Has errors", function(assert) {
   question.value = [{ q1: "item1_1" }, { q1: "item2_1" }];
   assert.equal(question.hasErrors(), false, "There is no errors now");
 });
-
 QUnit.test("Update panels elements on changing template panel", function(
   assert
 ) {
@@ -794,6 +786,36 @@ QUnit.test("PanelDynamic, keyName + hasError + getAllErrors", function(assert) {
     "There is no errors in question inside the panel"
   );
 });
+QUnit.test("PanelDynamic, keyName + hasError, Bug #1820", function(assert) {
+  var survey = new SurveyModel({
+    elements: [
+      {
+        type: "paneldynamic",
+        name: "relatives",
+        templateTitle: "Information about: {panel.relativeType}",
+        keyName: "relativeType",
+        templateElements: [
+          {
+            name: "relativeType",
+            type: "dropdown",
+            choices: ["father", "mother", "brother", "sister", "son", "dauhter"]
+          }
+        ],
+        panelCount: 2
+      }
+    ]
+  });
+  survey.setValue("relatives", [
+    { relativeType: "father" },
+    { relativeType: "father" }
+  ]);
+  assert.equal(
+    survey.currentPage.hasErrors(true),
+    true,
+    "There are two 'father' in keyName property"
+  );
+});
+
 QUnit.test("assign customWidgets to questions in dynamic panel", function(
   assert
 ) {
@@ -1165,6 +1187,106 @@ QUnit.test(
     assert.equal(panel.panelCount, 1, "panel: One panel was removed");
   }
 );
+
+QUnit.test(
+  "PanelDynamic vs MatrixDynamic add/remove items, bug#T2130",
+  function(assert) {
+    var json = {
+      elements: [
+        {
+          type: "matrixdynamic",
+          rowCount: 1,
+          name: "employer_names",
+          valueName: "employers",
+          columns: [
+            {
+              name: "RowId",
+              cellType: "expression",
+              expression: "{rowIndex}"
+            },
+            {
+              name: "name",
+              isRequired: true,
+              cellType: "text"
+            }
+          ]
+        },
+        {
+          type: "paneldynamic",
+          renderMode: "list",
+          allowAddPanel: false,
+          allowRemovePanel: false,
+          name: "arrray_employer_info",
+          valueName: "employers",
+          templateTitle: "{panel.name}",
+          templateElements: [
+            {
+              type: "text",
+              name: "address"
+            },
+            {
+              type: "text",
+              name: "abn"
+            }
+          ]
+        }
+      ]
+    };
+    var survey = new SurveyModel(json);
+    var matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName(
+      "employer_names"
+    );
+    var panel = <QuestionPanelDynamicModel>survey.getQuestionByName(
+      "arrray_employer_info"
+    );
+    matrix.visibleRows[0].cells[1].question.value = 1;
+    matrix.addRow();
+    matrix.visibleRows[1].cells[1].question.value = 2;
+    matrix.addRow();
+    matrix.visibleRows[2].cells[1].question.value = 3;
+    assert.equal(panel.panels.length, 3, "There are 3 panels");
+    assert.equal(
+      panel.panels[0].locTitle.renderedHtml,
+      "1",
+      "The first panel title is correct"
+    );
+    assert.equal(
+      panel.panels[1].locTitle.renderedHtml,
+      "2",
+      "The second panel title is correct"
+    );
+    assert.equal(
+      panel.panels[2].locTitle.renderedHtml,
+      "3",
+      "The third panel title is correct"
+    );
+    panel.panels[0].getQuestionByName("address").value = "address: row1";
+    panel.panels[2].getQuestionByName("address").value = "address: row3";
+    matrix.removeRow(1);
+    assert.equal(panel.panels.length, 2, "There are two panels now");
+    assert.equal(
+      panel.panels[0].locTitle.renderedHtml,
+      "1",
+      "The first panel title is still correct"
+    );
+    assert.equal(
+      panel.panels[1].locTitle.renderedHtml,
+      "3",
+      "The second panel title is 3 now"
+    );
+    assert.deepEqual(
+      survey.data,
+      {
+        employers: [
+          { RowId: 1, name: 1, address: "address: row1" },
+          { RowId: 2, name: 3, address: "address: row3" }
+        ]
+      },
+      "The value is correct"
+    );
+  }
+);
+
 QUnit.test("panelDynamic.addConditionNames", function(assert) {
   var names = [];
   var panel = new QuestionPanelDynamicModel("panel");
@@ -1386,8 +1508,8 @@ QUnit.test(
     page.addElement(panel);
     survey.onValidateQuestion.add(function(survey, options) {
       if (options.name != "q1") return;
-      var v1 = options.value["item1"];
-      var v2 = options.value["item2"];
+      var v1 = !!options.value ? options.value["item1"] : null;
+      var v2 = !!options.value ? options.value["item2"] : null;
       if (!v1 || !v2) {
         options.error = "all items should be set";
         return;
@@ -2508,5 +2630,167 @@ QUnit.test(
       data,
       "Data is not changed after setting single page"
     );
+  }
+);
+QUnit.test(
+  "Dynamic Panel validators, validators expression do not recognize 'panel.' prefix. Bug#1710",
+  function(assert) {
+    var json = {
+      questions: [
+        {
+          type: "text",
+          name: "q1"
+        },
+        {
+          type: "paneldynamic",
+          name: "panel1",
+          panelCount: 1,
+          templateElements: [
+            {
+              type: "text",
+              name: "pq1",
+              validators: [
+                { type: "expression", expression: "{panel.pq1} = {q1}" }
+              ]
+            }
+          ]
+        }
+      ]
+    };
+    var survey = new SurveyModel(json);
+    var panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
+    panel.panels[0].getQuestionByName("pq1").value = "val1";
+    survey.getQuestionByName("q1").value = "val";
+    assert.equal(panel.hasErrors(), true, "There is an error");
+    panel.panels[0].getQuestionByName("pq1").value = "val";
+    assert.equal(panel.hasErrors(), false, "There is no errors");
+  }
+);
+
+QUnit.test(
+  "Dropdown inside Dynamic Panel. ChoicesMax choicesMin properties",
+  function(assert) {
+    var json = {
+      elements: [
+        {
+          type: "paneldynamic",
+          name: "relatives",
+          title: "Please enter all blood relatives you know",
+          renderMode: "progressTop",
+          templateTitle: "Information about: {panel.relativeType}",
+          templateElements: [
+            {
+              name: "liveage",
+              type: "dropdown",
+              choicesMin: 1,
+              choicesMax: 115
+            }
+          ],
+          panelCount: 2,
+          panelAddText: "Add a blood relative",
+          panelRemoveText: "Remove the relative"
+        }
+      ]
+    };
+    var survey = new SurveyModel(json);
+
+    var dropDownQuestion = survey.getAllQuestions()[0]["panels"][0].elements[0];
+
+    assert.equal(dropDownQuestion.choicesMin, 1, "choicesMin is ok");
+    assert.equal(dropDownQuestion.choicesMax, 115, "choicesMax is ok");
+    assert.equal(
+      dropDownQuestion.visibleChoices.length,
+      115,
+      "visibleChoices is ok"
+    );
+  }
+);
+QUnit.test(
+  "Matrix validation in cells and async functions in expression",
+  function(assert) {
+    var returnResult: (res: any) => void;
+    function asyncFunc(params: any): any {
+      returnResult = this.returnResult;
+      return false;
+    }
+    FunctionFactory.Instance.register("asyncFunc", asyncFunc, true);
+
+    var question = new QuestionPanelDynamicModel("q1");
+    question.panelCount = 1;
+    var textQuestion = question.template.addNewQuestion("text", "q1");
+    textQuestion.validators.push(new ExpressionValidator("asyncFunc() = 1"));
+    question.hasErrors();
+    var onCompletedAsyncValidatorsCounter = 0;
+    question.onCompletedAsyncValidators = (hasErrors: boolean) => {
+      onCompletedAsyncValidatorsCounter++;
+    };
+    assert.equal(
+      question.isRunningValidators,
+      true,
+      "We have one running validator"
+    );
+    assert.equal(
+      onCompletedAsyncValidatorsCounter,
+      0,
+      "onCompletedAsyncValidators is not called yet"
+    );
+    returnResult(1);
+    assert.equal(question.isRunningValidators, false, "We are fine now");
+    assert.equal(
+      onCompletedAsyncValidatorsCounter,
+      1,
+      "onCompletedAsyncValidators is called"
+    );
+
+    FunctionFactory.Instance.unregister("asyncFunc");
+  }
+);
+
+QUnit.test(
+  "Nested panel, setting survey.data when survey.clearInvisibleValues='onHidden', Bug# 1866",
+  function(assert) {
+    var json = {
+      clearInvisibleValues: "onHidden",
+      elements: [
+        {
+          name: "samples",
+          type: "paneldynamic",
+          templateElements: [
+            {
+              name: "surgicalProcedures",
+              type: "paneldynamic",
+              templateElements: [
+                {
+                  name: "histologicalDianosis",
+                  type: "text"
+                },
+                {
+                  name: "histologicalCategory",
+                  type: "text",
+                  visibleIf: "{panel.histologicalDianosis}='yes'"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    };
+    var survey = new SurveyModel(json);
+    survey.data = {
+      samples: [
+        {
+          surgicalProcedures: [
+            {
+              histologicalDianosis: "yes",
+              histologicalCategory: "foo"
+            }
+          ]
+        }
+      ]
+    };
+    var nestedPanel = <QuestionPanelDynamicModel>(<QuestionPanelDynamicModel>survey.getAllQuestions()[0])
+      .panels[0].questions[0];
+    var histologicalCategory = nestedPanel.panels[0].questions[1];
+    assert.equal(histologicalCategory.value, "foo", "value set correctly");
   }
 );

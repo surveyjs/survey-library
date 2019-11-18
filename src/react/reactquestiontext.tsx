@@ -6,26 +6,22 @@ import { QuestionTextModel } from "../question_text";
 import { ReactQuestionFactory } from "./reactquestionfactory";
 
 export class SurveyQuestionText extends SurveyQuestionElementBase {
+  input: any;
   constructor(props: any) {
     super(props);
-    this.state = { value: this.getValue(this.question.value) };
-    this.handleOnChange = this.handleOnChange.bind(this);
-    this.handleOnBlur = this.handleOnBlur.bind(this);
   }
   protected get question(): QuestionTextModel {
     return this.questionBase as QuestionTextModel;
   }
-  componentWillReceiveProps(nextProps: any) {
-    super.componentWillReceiveProps(nextProps);
-    this.setState({ value: this.getValue(this.question.value) });
+  componentWillUpdate() {
+    this.input.value = this.getValue(this.question.value);
   }
-  handleOnChange(event: any) {
-    this.setState({ value: this.getValue(event.target.value) });
+  componentDidMount() {
+    this.input.value = this.getValue(this.question.value);
   }
-  handleOnBlur(event: any) {
+  handleOnBlur = (event: any) => {
     this.question.value = event.target.value;
-    this.setState({ value: this.getValue(this.question.value) });
-  }
+  };
   render(): JSX.Element {
     if (!this.question) return null;
     var cssClasses = this.question.cssClasses;
@@ -35,12 +31,12 @@ export class SurveyQuestionText extends SurveyQuestionElementBase {
         disabled={this.isDisplayMode}
         className={cssClasses.root}
         type={this.question.inputType}
-        value={this.state.value}
+        ref={input => (this.input = input)}
         maxLength={this.question.getMaxLength()}
         size={this.question.size}
         placeholder={this.question.placeHolder}
         onBlur={this.handleOnBlur}
-        onChange={this.handleOnChange}
+        aria-required={this.question.isRequired}
         aria-label={this.question.locTitle.renderedHtml}
       />
     );

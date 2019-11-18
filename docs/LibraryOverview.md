@@ -2,29 +2,39 @@
 
 This paper is for developers, who want to get a deep understanding how SurveyJS Library works, understand its concepts and main functionality.
 
-If you want to use SurveyJS library on your website just couple times, then we recommend you go to the SurveyJS [Builder page](https://surveyjs.io/Survey/Builder/),
-create a survey using our visual builder and then go to "Embed Survey" to insert the code into your web page.
+If you want to use SurveyJS library on your website just couple times, then we recommend you go to the [SurveyJS Creator page](https://surveyjs.io/Survey/Creator/),
+create a survey using our visual Survey Creator and then go to "Embed Survey" to insert the code into your web page.
 More information about integrating survey into your web page, you may find in the [Add Survey into your Web Page article](https://surveyjs.io/Documentation/Library/?id=Add-Survey-into-your-Web-Page).
 
 If you want to get the most from our library, then we hope that the following article helps you.
 
 You may read this document from the beginning to the end or just navigate to the topic you are interested in.
 
-* [Supported Platforms](#platforms)
-* [Survey Objects](#objects)
-* [Store Survey Results](#storeresults)
-* [Survey States, from running to completed](#states)
-* [Survey Data, modify or view Survey results](#data)
-* [Pages, visibility and navigation](#pages)
-* [Questions and Containers visibility. VisibleIf expressions](#visibility)
-* [Dynamically filter choices, columns and rows](#itemvaluesfiltering)
-* [Fill the choices from a restful service](#choicesByUrl)
-* [Readonly and EnableIf Expression](#readonly)
-* [Text Processing, dynamic titles and html properties](#textprocessing)
-* [Validation, on client and on server](#validation)
-* [Localization and Multilanguage support](#localization)
-* [Extend SurveyJS Elements by adding properties](#addproperties)
-* [Triggers: control the survey logic](#triggers)
+- [Supported Platforms](#platforms)
+- [Survey Objects](#objects)
+  - [Create Simple Survey Model (using JSON or in Code)](#objects-createmodel)
+  - [Load Survey From SurveyJS Service](#objects-loadfromservice)
+- [Store Survey Results](#storeresults)
+  - [Use SurveyJS Service backend](#storeresults-service)
+  - [Store survey results in your own database](#storeresults-owndatabase)
+  - [Modify Survey results](#modifysurveyresults)
+- [Survey States, from running to completed](#states)
+- [Survey Data, modify or view Survey results](#data)
+- [Pages, visibility and navigation](#pages)
+- [Questions and Containers conditional visibility, read-only and required questions](#conditions)
+  - [Boolean Expressions](#conditions-expressions)
+  - [Using functions in expressions](#conditions-functions)
+  - [Using asynchron functions in expressions](#conditions-asynfunctions)
+  - [Cascading conditions](#conditions-cascading)
+- [Dynamically filter choices, columns and rows](#itemvaluesfiltering)
+- [Fill the choices from a restful service](#choicesByUrl)
+- [Readonly and EnableIf Expression](#readonly)
+- [Text Processing, dynamic titles and html properties](#textprocessing)
+- [Calculated Values](#calculatedvalues)
+- [Validation, on client and on server](#validation)
+- [Localization and Multilanguage support](#localization)
+- [Extend SurveyJS Elements by adding properties](#addproperties)
+- [Triggers: control the survey logic](#triggers)
 
 <div id="platforms"></div>
 
@@ -130,6 +140,8 @@ After you have built your survey and integrate it into your web site, the next q
 
 Again, there are two ways of doing it. You may store results in our backend or in your own database.
 
+<div id="storeresults-service"></div>
+
 ### Use SurveyJS Service backend
 
 The simplest one is to use our backend [SurveyJS Service](https://surveyjs.io/Service/). We want you to recommend use it while you are learning and playing with our library, since it doesn’t require to write any code and it is currently totally free.
@@ -198,6 +210,43 @@ Again, you may show the progress and errors. That makes a code a little more com
 ```
 
 As you see, there are not a lot of code on the client for storing the survey results in your own data storage. However, the main part, the server code that stores the data into database, is not here. We can’t provide it to you since it is highly depending on your server platforms and database. Likely it is a typical task for every platform.
+
+<div id="modifysurveyresults"></div>
+
+### Modify Survey results
+
+When you are storing the data in your own database, you may do not want to store the data in the given format: _{questionName: questionValue, ... }_. For example, you may decide to additionally store the question title and it's display value. It means that you can’t just use survey.data as it is but write some code. Here is the code that change the standard format to { questionName: {value: questionValue, title: questionTitle, displayValue: questionDisplayValue, tag: question.tag}, tag is a custom property added into question class. 
+```javascript
+//Example of adding custom numeric property into question
+//Survey.Serializer.addProperty("question", "tag:number")
+function modifySurveyResults(survey) {
+  var resultData = [];
+  for(var key in survey.data) {
+    var question = survey.getQuestionByValueName(key);
+    if(!!question) {
+      var item = {value: question.value};
+      //If question name (question.valueName) doesn't equal to question.title
+      if(key !== question.title) {
+        item.title = question.title;
+      }
+      //If question value different from displayValue
+      if(item.value != question.displayValue) {
+        item.displayValue = question.displayValue
+      }
+      //If the custom property tag is defined set
+      if(question.tag !== undefined) {
+        item.tag = question.tag;
+      }
+      resultData.push(item);
+    }
+  }
+  return resultData;
+}
+```
+
+Another option is to use the _survey.getPlainData()_ function. It returns survey result data as an array of plain objects: with question title, name, value and displayValue. 
+
+You may use _modifySurveyResults_ function as _modifySurveyResults(survey)_ instead of _survey.data_ in _survey.onComplete_ event.
 
 <div id="states"></div>
 
@@ -272,7 +321,7 @@ To be more precise, the **question.name** is used, unless **question.valueName**
 
 ### Predefined answers
 
-You may need to have predefined answers. For example, you should have predefined rows in the dynamic matrix (table) or want to have a default value for Boolean question as True, and so on. The easiest solution for it, is to use **question.defaultValue** property. This property could be set in JSON, in our [Survey Builder](https://surveyjs.io/Survey/Builder/). After loading the JSON, on starting the survey, the defaultValue property is copied into **question.value**
+You may need to have predefined answers. For example, you should have predefined rows in the dynamic matrix (table) or want to have a default value for Boolean question as True, and so on. The easiest solution for it, is to use **question.defaultValue** property. This property could be set in JSON, in our [Survey Creator](https://surveyjs.io/Survey/Creator/). After loading the JSON, on starting the survey, the defaultValue property is copied into **question.value**
 
 Of course, you may always use **question.value** property or **survey.setValue(name, newValue)** function to set the needed value in the code in any moment.
 
@@ -323,13 +372,13 @@ You may see this functionality in action by playing with [this example (the real
 
 ### Clear data for invisible Questions
 
-We started to clear the values for invisible questions on completing survey after many requests from developers. However, if for some reason, you want to keep them then set the **clearInvisibleValues** property from "onComplete" into "none". There is another valid value for this property "onHidden", it is useful if you have a cascade condition in **visibleIf** expressions. Please read more about it in [Questions and Containers Visibility Sections](#visibility).
+We started to clear the values for invisible questions on completing survey after many requests from developers. However, if for some reason, you want to keep them then set the **clearInvisibleValues** property from "onComplete" into "none". There is another valid value for this property "onHidden", it is useful if you have a cascade condition in **visibleIf** expressions. Please read more about it in [Questions and Containers Visibility Sections](#conditions).
 
 <div id="data-variables"></div>
 
 ### Using variables
 
-SurveyJS has variable concepts. You may use variables in [expressions](#visibility) and [text processing](#textprocessing). The main difference from values, they are not used by questions and they are not stored in survey data, so they are not in the survey results.
+SurveyJS has variable concepts. You may use variables in [expressions](#conditions) and [text processing](#textprocessing). The main difference from values, they are not used by questions and they are not stored in survey data, so they are not in the survey results.
 
 To create a new value or change its value, call **survey.setVariable("variablename", value)** to get the variable value call **survey.getVariable("variablename")**.
 
@@ -381,7 +430,7 @@ If you are not going to ask your users couple questions, then very likely you wo
 
 Questions and Panels (container) are located on pages. Every survey should have at least one visible page.
 
-The page is visible if: its **visible** property equals to true (the default value), **visibleIf** property (to learn more about visibileIf expression please go to [this section](#visibility)) is empty or its expression returns true and there is at least one visible question on this page. SurveyJS doesn’t show pages where there are no visible questions, it skips them automatically.
+The page is visible if: its **visible** property equals to true (the default value), **visibleIf** property (to learn more about visibileIf expression please go to [this section](#conditions)) is empty or its expression returns true and there is at least one visible question on this page. SurveyJS doesn’t show pages where there are no visible questions, it skips them automatically.
 
 You may use two properties to get the survey pages: **survey.pages** and **survey.visiblePages**. As you can see from their names, the first returns the list of all pages and the second on is the list of visible pages only. Users are navigating through visible pages and this array may be changed while user runs the survey.
 
@@ -424,22 +473,23 @@ Another popular functionality, you may show all questions on one page. It is a p
 One of the most popular request is to skip Page X in the survey. The reason of this request, because some survey engines, including the most popular ones, provides the skip pages functionality. Again, the reason they do it, because they are using the old client-server web technologies and SurveyJS on opposite is open JavaScript Library. You may set the visibility expression on page or panel or question level and if this page expression returns false then the page becomes invisible and user skips it. As well as, all questions on the page are invisible then the page becomes invisible too. Please read the next section to find out more about visibility expressions.
 
 <div id="visibility"></div>
+<div id="conditions"></div>
 
-## Questions and Containers visibility. VisibleIf expressions
+## Questions and Containers conditional visibility, read-only and required questions.
 
-If you have a relative complex survey or form, then you will have to implement some visibility logic. For example, you may want to ask different questions based on age or gender, for loyal or unhappy customers, and so on.
+If you have a relative complex survey or form, then you will have to implement some logic. For example, you may want to ask different questions based on age or gender, for loyal or unhappy customers, and so on. You may make some questions read-only or required based on answers in other questions.
 
-We have created a powerful and flexible expression engine. We do not remember a case that can’t be solved by using it. Let’s talk about it in this section.
+We have created a powerful and flexible expression engine. We are using [PEG.js](https://pegjs.org/) parser generator. We do not remember a case that can’t be solved by using it. Let’s talk about it in this section.
 
-<div id="visibility-expressions"></div>
+<div id="conditions-expressions"></div>
 
-### Basic Expressions
+### Boolean Expressions
 
-Questions, panels and pages has visibleIf property. It is empty by default and it means the element visibility is defined by visible property (true/false). In case of container (panel and page), it becomes invisible if there is no any visible question in it.
+Questions, panels and pages have visibleIf, enableIf and requriedIf properties. They are empty by default and it means the element visibility, read-only and requried are defined by visible/read-only and isRequired properties (true/false). In case of container (panel and page), it becomes invisible if there is no any visible question in it.
 
-Before rendering the first page, SurveyJS parses all visibleIf expressions, creates the expression trees and run all expressions. Later, SurveyJS runs all expressions after any value change. If the expression returns false, the element becomes invisible, if it returns true – visible. The question values should be in braces: _{yourQuestionValueName}_.
+Before rendering the first page, SurveyJS parses all boolean expressions (visibleIf, enableIf and requriedIf), creates the expression trees and run all expressions. Later, SurveyJS runs all expressions after any value change. If the expression returns false, the element becomes invisible (or read-only or non requried), if it returns true – visible (or enabled or required). The question values should be in braces: _{yourQuestionValueName}_.
 
-Here are some examples.
+Here are some examples of boolean expressions.
 
 | Expression | Description |
 | --- | --- |
@@ -466,7 +516,7 @@ Regarding visibility of cells inside matrix dynamic and matrix dropdown. There m
 
 The similar story about panel dynamic. To access questions value on the same panel in the expression, you must use prefix "panel": _{panel.questionName}_
 
-<div id="visibility-functions"></div>
+<div id="conditions-functions"></div>
 
 ### Using functions in expressions
 
@@ -507,10 +557,86 @@ Here is the list of built-in functions:
 | sum(par1, par2, ...) | Returns the summary of passed parameters. |
 | avg(par1, par2, ...) | Returns the average value for passed parameters. |
 | sumInArray({questionName}, 'propertyName') | Returns the summary for array of objects {questionName} by property 'propertyName'. `sumInArray('matrixdynamic', 'total') > 1000</` |
+| avgInArray({questionName}, 'propertyName') | Returns the average value for array of objects {questionName} by property 'propertyName'. `avgInArray('matrixdynamic', 'quantity') > 4</` |
+| minInArray({questionName}, 'propertyName') | Returns the minimum value for array of objects {questionName} by property 'propertyName'. `minInArray('matrixdynamic', 'quantity') > 1</` |
+| maxInArray({questionName}, 'propertyName') | Returns the maximum value for array of objects {questionName} by property 'propertyName'. `maxInArray('matrixdynamic', 'quantity') > 10</` |
 
 If you feel there is a need in a particular function, then [write us](https://github.com/surveyjs/surveyjs/issues) about it.
 
-<div id="visibility-cascading"></div>
+<div id="conditions-asynfunctions"></div>
+
+### Using asynchron functions in expressions
+You may need to make some calculation or return a result from a server. SurveyJS has to make a request to a web service, wait until it gets the result and continue evaluate the expression. Unfortunately, it can’t be done as it is, since calling and getting the result from a web service is an async operation. If there is one async operation in your flow, then all operations that use it should be async too.
+
+The current version of SurveyJS allows to register an async custom functions. We decided to use callback approach to support es5 (IE). 
+
+Here is the simplest example of async function:
+```javascript
+ function asyncFunc(params: any): any {
+   var self = this; //store the context for this.returnResult callback
+   setTimeout(function() {
+       //return the value via callback
+       self.returnResult(yourValue)
+    }, 100);
+    return false; //The value on this return is ignored.
+  }
+  //the third parameters tells that function is async
+  FunctionFactory.Instance.register("asyncFunc", asyncFunc, true);
+```
+
+Here is the real example, that checks if the entered country name is exists or not. We can use this function in an expression validator.
+```javascript
+async function isCountryExist(params) {
+  if (params.length < 1) {
+    this.returnResult(false);
+      return false;
+  }
+  var countryName = params[0];
+  var self = this;
+  var res = await $.ajax({
+    url: "https://restcountries.eu/rest/v2/all"
+  }).then(function(data) {
+    var found = false;
+    var countries = data;
+    for (var i = 0; i < countries.length; i++) {
+      if (countries[i].name == countryName) {
+        found = true;
+        break;
+      }
+    }
+    self.returnResult(found);
+  });
+  return false;
+}
+Survey.FunctionFactory.Instance.register(
+  "isCountryExist",
+  isCountryExist,
+  true
+);
+
+//Example of using
+var json = {
+  questions: [
+    {
+      type: "text",
+      name: "country",
+      title: "Type a country:",
+      validators: [
+        {
+          type: "expression",
+          expression: "isCountryExist({country}) = true",
+          text: "Please type the country correctly!"
+        }
+      ]
+    }
+  ]
+};
+var survey = new Survey.Survey(json); 
+```
+
+Here is [a live example](https://surveyjs.io/Examples/Library/?id=questiontype-expression-async) on our site of using async expressions.
+
+<div id="conditions-cascading"></div>
 
 ### Cascading conditions
 
@@ -623,7 +749,7 @@ Since v1.0.31, we have introduced readOnly and enableIf property into Panel and 
 
 Pages, panels and question titles, question description, survey completedHtml and loadingHtml properties, html property in html question are all support text processing.
 
-It means you may set a question title as: _"{name}, could you please provide us your e-mail?"_, where the name is the question name.
+It means you may set a question title as: _"{name}, could you please provide us your e-mail?"_, where the name is the question name or [calculated value name](#calculatedvalues).
 
 Please note, SurveyJS will set a question display name. Display name may have different for questions like dropdown, for example, where the value can be "UK" and the display name is "United Kingdom".
 
@@ -637,6 +763,14 @@ Finally, the default template for the question title is: "{title} {required}", y
 
 Please review [the following demo](https://surveyjs.io/Examples/Library/?id=survey-processtext) to play with these and other properties.
 
+<div id="calculatedvalues"></div>
+
+## Calculated Values
+
+Since v1.1.10 you may use calculated values in your text processing. Calculated Value item has three writable properties: **name** (it should be unique), **expression** (value read-only property is calculated based on this expression) and **includeIntoResult** (a Boolean property, false by default. Set it to true, to include it into survey.data). It has one read-only property: **value** (calculated automatically based on expression).
+
+Please, review [the following example](https://surveyjs.io/Examples/Library/?id=survey-calculatedvalues) to see how it works.
+
 <div id="validation"></div>
 
 ## Validation, on client and on server
@@ -647,11 +781,13 @@ If you want to validate the value and display an error immediately after a user 
 
 `survey.checkErrorsMode = "onValueChanged";`
 
+Since v1.1.10, SurveyJS supports [async expressions](#conditions-asynfunctions). You may add your own async custom functions into the library that your users can use to create surveys.
+
 <div id="validation-standard"></div>
 
 ### Standard Validators
 
-The simplest and most used validation is a required value. You must set **question.isRequired** to true and SurveyJS will require the user answer the question. In [SurveyJS Builder](https://surveyjs.io/Survey/Builder) you may simply toggle exclamation mark (!) to make a question a required. To override the error text on required error, please change the survey **requiredText** property.
+The simplest and most used validation is a required value. You must set **question.isRequired** to true and SurveyJS will require the user answer the question. In [SurveyJS Creator](https://surveyjs.io/Survey/Creator) you may simply toggle exclamation mark (!) to make a question a required. To override the error text on required error, please change the survey **requiredText** property.
 
 Except required validation, there is a list of built-in validation classes, that you may use by adding them into question.validators array property. For example, the following code will add validation for e-mail input:
 
@@ -698,7 +834,7 @@ Please review [the example of validating data using a client event](https://surv
 
 ### Custom Validators
 
-You may introduce your own validator, if you want your power users use them in [SurveyJS Builder](https://surveyjs.io/Survey/Builder), for example, or going to use it in many your own surveys.
+You may introduce your own validator, if you want your power users use them in [SurveyJS Creator](https://surveyjs.io/Survey/Creator), for example, or going to use it in many your own surveys.
 
 Please go to this link to see the [example of writing a custom validator](https://surveyjs.io/Examples/Library/?id=validators-custom#content-js).
 
@@ -730,7 +866,7 @@ survey.onServerValidateQuestions.add(function(sender, options) {
 
 At the current moment, SurveyJS strings have been translated into 26 languages.
 
-Use survey **locale** property in runtime to set to your locale. For example, _survey.locale="es";_ will tell survey to use the Spanish localization. The list of all available localization you may see in our [SurveyJS Builder](https://surveyjs.io/Survey/Builder). Click on Survey Settings button and set the Default Language.
+Use survey **locale** property in runtime to set to your locale. For example, _survey.locale="es";_ will tell survey to use the Spanish localization. The list of all available localization you may see in our [SurveyJS Creator](https://surveyjs.io/Survey/Creator). Click on Survey Settings button and set the Default Language.
 
 The localization is supported by the community. If you see that there is a non-localized string on your language or do not like the current translation, you may change it locally as:
 
@@ -752,7 +888,7 @@ However, the most strings in SurveyJS are localizable and you may write in JSON.
 _text: { "default": "Dog", "de": "Der Hund" }_
 Please note, that _text: {"default: "Dog"}_ is the same as: _text: "Dog"_.
 
-In the code, or in SurveyJS Builder, you should not worry about the locale a lot. If you want to get/set strings into default locale, then set survey.locale to empty string. If you want to get/set strings into Spanish locale, then set survey **locale** into "es" (Spanish).
+In the code, or in SurveyJS Creator, you should not worry about the locale a lot. If you want to get/set strings into default locale, then set survey.locale to empty string. If you want to get/set strings into Spanish locale, then set survey **locale** into "es" (Spanish).
 
 Please go to [this demo](https://surveyjs.io/Examples/Library/?id=survey-multilanguages) to find out more.
 
@@ -760,7 +896,7 @@ Please go to [this demo](https://surveyjs.io/Examples/Library/?id=survey-multila
 
 ## Extend SurveyJS Elements by adding properties
 
-Since this topic is mostly for our Survey Builder users, it is described in [Builder Documentation](https://surveyjs.io/Documentation/Builder/?id=Survey-Builder-Overview#addproperties). However, for some scenarios, the described functionality maybe useful for SurveyJS Library without using the Builder.
+Since this topic is mostly for our Survey Creator users, it is described in [Survey Creator Documentation](https://surveyjs.io/Documentation/Creator/?id=Survey-Creator-Overview#addproperties). However, for some scenarios, the described functionality maybe useful for SurveyJS Library without using the Creator.
 
 <div id="triggers"></div>
 
@@ -768,7 +904,7 @@ Since this topic is mostly for our Survey Builder users, it is described in [Bui
 
 Initially the triggers concept has been created to control the questions and pages visibility. On changing a value of a question, the trigger that depends on this value executed and make an element visible or invisible depending on options.
 
-Later, after the [visibleIf](#visibility) property has been added, bringing more flexibility into controlling the visibility, the visible trigger becomes obsolete. It is still available and working, but we highly recommend do not use it and use the [visibleIf](#visibility) property instead.
+Later, after the [visibleIf](#conditions) property has been added, bringing more flexibility into controlling the visibility, the visible trigger becomes obsolete. It is still available and working, but we highly recommend do not use it and use the [visibleIf](#conditions) property instead.
 
 However, at that time we have already other triggers available and even continue to introduce new since it helps people to achieve the needed results without need to write JavaScript code.
 
@@ -816,4 +952,4 @@ If the expression is successful, then it runs the expression in the **runExpress
 ---
 **visible**
 
-Obsolete, use the [visibleIf](#visibility) property instead.
+Obsolete, use the [visibleIf](#conditions) property instead.

@@ -25,6 +25,34 @@ QUnit.test("Event hasEvents property", function(assert) {
     "Ignore Order = false: We believe it is not the same arrays"
   );
 });
+QUnit.test("Helpers.isValueEmpty function", function(assert) {
+  assert.equal(Helpers.isValueEmpty(false), false, "false is not empty value");
+  assert.equal(Helpers.isValueEmpty(0), false, "0 is not empty value");
+  assert.equal(Helpers.isValueEmpty(null), true, "null is empty value");
+  assert.equal(Helpers.isValueEmpty(""), true, "empty string is empty value");
+  assert.equal(Helpers.isValueEmpty([]), true, "empty array is empty value");
+  assert.equal(Helpers.isValueEmpty({}), true, "empty object is empty value");
+  assert.equal(
+    Helpers.isValueEmpty(new Date()),
+    false,
+    "date is not empty value"
+  );
+  assert.equal(
+    Helpers.isValueEmpty({ val: "something" }),
+    false,
+    "the object is not empty"
+  );
+  assert.equal(
+    Helpers.isValueEmpty({ val: false }),
+    false,
+    "the object is not empty, false"
+  );
+  assert.equal(
+    Helpers.isValueEmpty({ val: "" }),
+    true,
+    "the object is empty, empty string"
+  );
+});
 QUnit.test("isTwoValueEquals with validators", function(assert) {
   var survey = new SurveyModel();
   var validators1 = [];
@@ -46,6 +74,35 @@ QUnit.test("isTwoValueEquals with validators", function(assert) {
     "These two arrays are not equal"
   );
   survey.locale = "";
+});
+
+QUnit.test("isTwoValueEquals, undefined", function(assert) {
+  assert.equal(
+    Helpers.isTwoValueEquals([], undefined),
+    true,
+    "Empty array equals undefined"
+  );
+
+  assert.equal(
+    Helpers.isTwoValueEquals(undefined, []),
+    true,
+    "Undefined equals empty array"
+  );
+  assert.equal(
+    Helpers.isTwoValueEquals(undefined, "undefined"),
+    true,
+    "undefined vs 'undefined'"
+  );
+  assert.equal(
+    Helpers.isTwoValueEquals("undefined", null),
+    true,
+    "null vs 'undefined'"
+  );
+  assert.equal(
+    Helpers.isTwoValueEquals(undefined, null),
+    true,
+    "null vs undefined"
+  );
 });
 
 QUnit.test("Return correct value for array.length", function(assert) {
@@ -72,4 +129,22 @@ QUnit.test("Return correct value for array.length", function(assert) {
   );
   //Test for bug: #1243
   assert.equal(process.getValue("region", {}), null, "Return null string");
+  //Test for bug: https://surveyjs.answerdesk.io/ticket/details/t2558
+  assert.equal(
+    process.getValue("a.b.c.D", { "a.b": 1, "a.b.c.D": 2 }),
+    2,
+    "Ignore a.b"
+  );
+});
+
+QUnit.test("Helpers.isNumber", function(assert) {
+  assert.equal(Helpers.isNumber("1"), true, "1 is a number");
+  assert.equal(Helpers.isNumber("0xabcd"), true, "0xabcd is a number");
+  assert.equal(Helpers.isNumber("23.3"), true, "23.3 is a number");
+  assert.equal(Helpers.isNumber("abcd"), false, "abcd is not a number");
+  assert.equal(
+    Helpers.isNumber("0xbe0eb53f46cd790cd13851d5eff43d12404d33e8"),
+    false,
+    "0xbe0eb53f46cd790cd13851d5eff43d12404d33e8 is not a number"
+  );
 });

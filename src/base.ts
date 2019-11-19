@@ -9,7 +9,7 @@ import { settings } from "./settings";
 
 export interface ISurveyData {
   getValue(name: string): any;
-  setValue(name: string, newValue: any, locNotification: boolean): any;
+  setValue(name: string, newValue: any, locNotification: any): any;
   getVariable(name: string): any;
   setVariable(name: string, newValue: any): void;
   getComment(name: string): string;
@@ -66,6 +66,7 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner {
   isDesignMode: boolean;
   areInvisibleElementsShowing: boolean;
   isLoadingFromJson: boolean;
+  isUpdateValueTextOnTyping: boolean;
 
   requiredText: string;
   beforeSettingQuestionErrors(

@@ -1111,6 +1111,17 @@ export class SurveyModel extends Base
     this.setPropertyValue("checkErrorsMode", val);
   }
   /**
+   * Change this property from 'onBlur' to 'onTyping' to update the value of text questions, "text" and "comment",
+   * on every key press. By default, the value is updated an input losts the focus.
+   * Please note, setting to "onTyping" may lead to a performance degradation, in case you have many expressions in the survey
+   */
+  public get textUpdateMode(): string {
+    return this.getPropertyValue("textUpdateMode");
+  }
+  public set textUpdateMode(val: string) {
+    this.setPropertyValue("textUpdateMode", val);
+  }
+  /**
    * Set it to 'none' to include the invisible values into the survey data.
    * </br> Set it to 'onHidden' to clear the question value when it becomes invisible.
    * </br> Leave it equals to 'onComplete', to remove from data property values of invisible questions on survey complete. In this case, the invisible questions will not be stored on the server.
@@ -1917,15 +1928,15 @@ export class SurveyModel extends Base
         (a: number, b: Question) => a + (b.isEmpty() ? 0 : 1),
         0
       );
-      return Math.ceil(answeredQuestionsCount * 100 / questions.length);
+      return Math.ceil((answeredQuestionsCount * 100) / questions.length);
     }
     if (this.progressBarType === "correctQuestions") {
       var questions = this.getAllQuestions();
       var correctAnswersCount = this.getCorrectedAnswerCount();
-      return Math.ceil(correctAnswersCount * 100 / questions.length);
+      return Math.ceil((correctAnswersCount * 100) / questions.length);
     }
     var index = this.visiblePages.indexOf(this.currentPage) + 1;
-    return Math.ceil(index * 100 / this.visiblePageCount);
+    return Math.ceil((index * 100) / this.visiblePageCount);
   }
   /**
    * Returns true if navigation buttons: 'Prev', 'Next' or 'Complete' are shown.
@@ -1955,6 +1966,9 @@ export class SurveyModel extends Base
    */
   public get isDisplayMode(): boolean {
     return this.mode == "display";
+  }
+  public get isUpdateValueTextOnTyping(): boolean {
+    return this.textUpdateMode == "onTyping";
   }
   /**
    * Returns true if the survey in the design mode. It is used by SurveyJS Editor
@@ -3347,7 +3361,7 @@ export class SurveyModel extends Base
   public setValue(
     name: string,
     newQuestionValue: any,
-    locNotification: boolean = false
+    locNotification: any = false
   ) {
     var newValue = this.questionOnValueChanging(name, newQuestionValue);
     if (
@@ -3368,7 +3382,9 @@ export class SurveyModel extends Base
     this.checkTriggers(triggerKeys, false);
     this.runConditions();
     this.notifyQuestionOnValueChanged(name, newValue);
-    this.tryGoNextPageAutomatic(name);
+    if (locNotification !== "text") {
+      this.tryGoNextPageAutomatic(name);
+    }
   }
   private isValueEqual(name: string, newValue: any): boolean {
     if (newValue === "" || newValue === undefined) newValue = null;
@@ -3414,7 +3430,10 @@ export class SurveyModel extends Base
       if (!this.isLastPage) {
         this.nextPage();
       } else {
-        if (this.goNextPageAutomatic === true && this.allowCompleteSurveyAutomatic) {
+        if (
+          this.goNextPageAutomatic === true &&
+          this.allowCompleteSurveyAutomatic
+        ) {
           this.completeLastPage();
         }
       }
@@ -4121,6 +4140,11 @@ Serializer.addClass("survey", [
     name: "checkErrorsMode",
     default: "onNextPage",
     choices: ["onNextPage", "onValueChanged", "onComplete"]
+  },
+  {
+    name: "textUpdateMode",
+    default: "onBlue",
+    choices: ["onBlue", "onTyping"]
   },
   { name: "startSurveyText", serializationProperty: "locStartSurveyText" },
   { name: "pagePrevText", serializationProperty: "locPagePrevText" },

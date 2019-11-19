@@ -1220,6 +1220,16 @@ export class Question extends SurveyElement
     this.onValueChanged();
   }
   protected locNotificationInData = false;
+  protected isTextValue(): boolean {
+    return false;
+  }
+  private isUpdateValueTextOnTyping(): boolean {
+    return !!this.survey ? this.survey.isUpdateValueTextOnTyping : false;
+  }
+  private getDataLocNotification(): any {
+    if (this.locNotificationInData) return this.locNotificationInData;
+    return this.isUpdateValueTextOnTyping() && this.isTextValue();
+  }
   protected setNewValueInData(newValue: any) {
     newValue = this.valueToData(newValue);
     if (!this.isValueChangedInSurvey) {
@@ -1235,7 +1245,7 @@ export class Question extends SurveyElement
       this.data.setValue(
         this.getValueName(),
         newValue,
-        this.locNotificationInData
+        this.getDataLocNotification()
       );
     }
   }
@@ -1305,15 +1315,15 @@ export class Question extends SurveyElement
     return this.survey
       ? (<ILocalizableOwner>(<any>this.survey)).getLocale()
       : this.locOwner
-        ? this.locOwner.getLocale()
-        : "";
+      ? this.locOwner.getLocale()
+      : "";
   }
   public getMarkdownHtml(text: string): string {
     return this.survey
       ? this.survey.getSurveyMarkdownHtml(this, text)
       : this.locOwner
-        ? this.locOwner.getMarkdownHtml(text)
-        : null;
+      ? this.locOwner.getMarkdownHtml(text)
+      : null;
   }
   public getProcessedText(text: string): string {
     if (this.textProcessor)

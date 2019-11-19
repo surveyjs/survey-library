@@ -13,6 +13,9 @@ export class QuestionTextModel extends Question {
     super(name);
     this.createLocalizableString("placeHolder", this);
   }
+  protected isTextValue(): boolean {
+    return this.inputType == "text";
+  }
   public getType(): string {
     return "text";
   }

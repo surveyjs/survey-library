@@ -12,7 +12,7 @@ export class SurveyQuestionComment extends SurveyQuestionElementBase {
   constructor(props: any) {
     super(props);
     this.handleOnChange = this.handleOnChange.bind(this);
-    this.handleOnBlur = this.handleOnBlur.bind(this);
+    this.updateValueOnEvent = this.updateValueOnEvent.bind(this);
   }
   protected get question(): QuestionCommentModel {
     return this.questionBase as QuestionCommentModel;
@@ -20,7 +20,7 @@ export class SurveyQuestionComment extends SurveyQuestionElementBase {
   handleOnChange(event: any) {
     this.setState({ value: event.target.value });
   }
-  handleOnBlur(event: any) {
+  updateValueOnEvent(event: any) {
     this.question.value = event.target.value;
     this.setState({ value: this.getStateValue() });
   }
@@ -31,6 +31,12 @@ export class SurveyQuestionComment extends SurveyQuestionElementBase {
       !!this.state && this.state.value !== undefined
         ? this.state.value
         : this.getStateValue();
+    var onBlue = !this.question.isInputTextUpdate
+      ? this.updateValueOnEvent
+      : null;
+    var onInput = this.question.isInputTextUpdate
+      ? this.updateValueOnEvent
+      : null;
 
     return (
       <textarea
@@ -40,7 +46,8 @@ export class SurveyQuestionComment extends SurveyQuestionElementBase {
         value={commentValue}
         maxLength={this.question.getMaxLength()}
         placeholder={this.question.placeHolder}
-        onBlur={this.handleOnBlur}
+        onBlur={onBlue}
+        onInput={onInput}
         onChange={this.handleOnChange}
         cols={this.question.cols}
         rows={this.question.rows}
@@ -65,9 +72,12 @@ export class SurveyQuestionCommentItem extends ReactSurveyElement {
     let handleOnChange = (event: any) => {
       this.setState({ comment: event.target.value });
     };
-    let handleOnBlur = (event: any) => {
+    let updateValueOnEvent = (event: any) => {
       question.comment = event.target.value;
     };
+    var onBlue = !question.isSurveyInputTextUpdate ? updateValueOnEvent : null;
+    var onInput = question.isSurveyInputTextUpdate ? updateValueOnEvent : null;
+
     let comment =
       !!this.state && this.state.comment !== undefined
         ? this.state.comment
@@ -81,7 +91,8 @@ export class SurveyQuestionCommentItem extends ReactSurveyElement {
         maxLength={question.getOthersMaxLength()}
         placeholder={question.otherPlaceHolder}
         onChange={handleOnChange}
-        onBlur={handleOnBlur}
+        onBlur={onBlue}
+        onInput={onInput}
         aria-label={question.locTitle.renderedHtml}
       />
     );

@@ -763,7 +763,7 @@ export class MatrixDropdownRowModelBase
     var result = this.getValue(name + settings.commentPrefix);
     return result ? result : "";
   }
-  public setComment(name: string, newValue: string) {
+  public setComment(name: string, newValue: string, locNotification: any) {
     this.setValue(name + settings.commentPrefix, newValue);
   }
   public get isEmpty() {

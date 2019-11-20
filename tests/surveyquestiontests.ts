@@ -43,9 +43,8 @@ class QuestionMatrixRandomModel extends QuestionMatrixModel {
 }
 
 QUnit.test("Only some questions support comment", function(assert) {
-  var questionText = <Question>QuestionFactory.Instance.createQuestion(
-    "text",
-    "textQuestion"
+  var questionText = <Question>(
+    QuestionFactory.Instance.createQuestion("text", "textQuestion")
   );
 
   assert.equal(
@@ -65,9 +64,8 @@ QUnit.test("Only some questions support comment", function(assert) {
     "You can't set has comment to the text question."
   );
 
-  var questionDropDown = <Question>QuestionFactory.Instance.createQuestion(
-    "dropdown",
-    "dropdownQuestion"
+  var questionDropDown = <Question>(
+    QuestionFactory.Instance.createQuestion("dropdown", "dropdownQuestion")
   );
   assert.equal(
     questionDropDown.supportComment(),
@@ -87,9 +85,8 @@ QUnit.test("Only some questions support comment", function(assert) {
   );
 });
 QUnit.test("Only some questions support other", function(assert) {
-  var questionText = <Question>QuestionFactory.Instance.createQuestion(
-    "text",
-    "textQuestion"
+  var questionText = <Question>(
+    QuestionFactory.Instance.createQuestion("text", "textQuestion")
   );
 
   assert.equal(
@@ -109,9 +106,8 @@ QUnit.test("Only some questions support other", function(assert) {
     "You can't set has other to the text question."
   );
 
-  var questionDropDown = <Question>QuestionFactory.Instance.createQuestion(
-    "dropdown",
-    "dropdownQuestion"
+  var questionDropDown = <Question>(
+    QuestionFactory.Instance.createQuestion("dropdown", "dropdownQuestion")
   );
   assert.equal(
     questionDropDown.supportOther(),
@@ -131,9 +127,8 @@ QUnit.test("Only some questions support other", function(assert) {
   );
 });
 QUnit.test("Comment and other could not be set together", function(assert) {
-  var questionDropDown = <Question>QuestionFactory.Instance.createQuestion(
-    "dropdown",
-    "dropdownQuestion"
+  var questionDropDown = <Question>(
+    QuestionFactory.Instance.createQuestion("dropdown", "dropdownQuestion")
   );
   assert.equal(
     questionDropDown.hasComment,
@@ -282,7 +277,10 @@ QUnit.test("displayValue function for rating question, issue #1094", function(
 });
 QUnit.test("matrix.displayValue, bug #1087", function(assert) {
   var question = new QuestionMatrixModel("q1");
-  question.rows = [{ value: 1, text: "Row 1" }, { value: 2, text: "Row 2" }];
+  question.rows = [
+    { value: 1, text: "Row 1" },
+    { value: 2, text: "Row 2" }
+  ];
   question.columns = [
     { value: 1, text: "Column 1" },
     { value: 2, text: "Column 2" }
@@ -746,6 +744,77 @@ QUnit.test("Multiple Text Question: support goNextPageAutomatic", function(
     "Both text inputs are set"
   );
 });
+
+QUnit.test(
+  "Radiogroup Question: support goNextPageAutomatic + hasOther",
+  function(assert) {
+    var json = {
+      pages: [
+        {
+          elements: [
+            {
+              type: "radiogroup",
+              name: "q1",
+              hasOther: true,
+              items: [1, 2, 3]
+            }
+          ]
+        },
+        {
+          elements: [
+            {
+              type: "text",
+              name: "q2"
+            }
+          ]
+        }
+      ],
+      goNextPageAutomatic: true
+    };
+    var survey = new SurveyModel(json);
+    var question = survey.getQuestionByName("q1");
+    question.value = "other";
+    assert.equal(survey.currentPageNo, 0, "Stay on the first page");
+    question.comment = "123";
+    assert.equal(survey.currentPageNo, 1, "Go to the second page");
+  }
+);
+
+QUnit.test(
+  "Radiogroup Question: support goNextPageAutomatic + hasOther + textUpdateMode = onTyping",
+  function(assert) {
+    var json = {
+      pages: [
+        {
+          elements: [
+            {
+              type: "radiogroup",
+              name: "q1",
+              hasOther: true,
+              items: [1, 2, 3]
+            }
+          ]
+        },
+        {
+          elements: [
+            {
+              type: "text",
+              name: "q2"
+            }
+          ]
+        }
+      ],
+      textUpdateMode: "onTyping",
+      goNextPageAutomatic: true
+    };
+    var survey = new SurveyModel(json);
+    var question = survey.getQuestionByName("q1");
+    question.value = "other";
+    assert.equal(survey.currentPageNo, 0, "Stay on the first page");
+    question.comment = "123";
+    assert.equal(survey.currentPageNo, 0, "Still stay on the first page");
+  }
+);
 
 QUnit.test("Validators for text question + getAllErrors", function(assert) {
   var mText = new QuestionTextModel("");
@@ -2792,8 +2861,8 @@ QUnit.test(
     var survey = new SurveyModel();
     survey.setDesignMode(true);
     survey.setJsonObject(json);
-    var question = <QuestionMultipleTextModel>survey.getQuestionByName(
-      "_metaData"
+    var question = <QuestionMultipleTextModel>(
+      survey.getQuestionByName("_metaData")
     );
     assert.equal(
       question.items[0].editor.isDesignMode,
@@ -3061,7 +3130,10 @@ QUnit.test("test question.getDisplayValue(key, value)", function(assert) {
       {
         type: "radiogroup",
         name: "q1",
-        choices: [{ value: 1, text: "one" }, { value: 2, text: "two" }]
+        choices: [
+          { value: 1, text: "one" },
+          { value: 2, text: "two" }
+        ]
       },
       {
         type: "checkbox",

@@ -5528,6 +5528,36 @@ QUnit.test("textUpdateMode=onTyping and goNextPageAutomatic option", function(as
   question.value = "a@a.com";
   assert.equal(survey.currentPageNo, 1, "Move to the second page");
 });
+QUnit.test("textUpdateMode=onTyping and visibleIf", function(assert) {
+  var json = {
+    pages: [
+      {
+        elements: [
+          {
+            type: "text",
+            name: "q1"
+          },
+          {
+            type: "text",
+            name: "q2",
+            visibleIf: "{q1} = 'a'"
+          }
+        ]
+      },
+      {
+        elements: [
+        ]
+      }
+    ],
+    textUpdateMode: "onTyping"
+  };
+  var survey = new SurveyModel(json);
+  var q1 = survey.getQuestionByName("q1");
+  var q2 = survey.getQuestionByName("q2");
+  assert.equal(q2.isVisible, false, "It is invisible by default")
+  q1.value = "a";
+  assert.equal(q2.isVisible, true, "It is visible now")
+});
 
 QUnit.test("Page with numeric name, bug #1293", function(assert) {
   var json = {

@@ -13,7 +13,7 @@ export interface ISurveyData {
   getVariable(name: string): any;
   setVariable(name: string, newValue: any): void;
   getComment(name: string): string;
-  setComment(name: string, newValue: string): any;
+  setComment(name: string, newValue: string, locNotification: any): any;
   getAllValues(): any;
   getFilteredValues(): any;
   getFilteredProperties(): any;

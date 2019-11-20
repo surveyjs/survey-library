@@ -3455,7 +3455,11 @@ export class SurveyModel extends Base
    * @param newValue
    * @see getComment
    */
-  public setComment(name: string, newValue: string) {
+  public setComment(
+    name: string,
+    newValue: string,
+    locNotification: any = false
+  ) {
     if (!newValue) newValue = "";
     if (Helpers.isTwoValueEquals(newValue, this.getComment(name))) return;
     var commentName = name + this.commentPrefix;
@@ -3470,7 +3474,9 @@ export class SurveyModel extends Base
         questions[i].updateCommentFromSurvey(newValue);
       }
     }
-    this.tryGoNextPageAutomatic(name);
+    if (locNotification !== "text") {
+      this.tryGoNextPageAutomatic(name);
+    }
     var question = this.getQuestionByName(name);
     if (question) {
       this.onValueChanged.fire(this, {

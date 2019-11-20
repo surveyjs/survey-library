@@ -1223,12 +1223,15 @@ export class Question extends SurveyElement
   protected isTextValue(): boolean {
     return false;
   }
-  private isUpdateValueTextOnTyping(): boolean {
+  public get isSurveyInputTextUpdate(): boolean {
     return !!this.survey ? this.survey.isUpdateValueTextOnTyping : false;
   }
   private getDataLocNotification(): any {
     if (this.locNotificationInData) return this.locNotificationInData;
-    return this.isUpdateValueTextOnTyping() && this.isTextValue();
+    return this.isInputTextUpdate ? "text" : false;
+  }
+  public get isInputTextUpdate() {
+    return this.isSurveyInputTextUpdate && this.isTextValue();
   }
   protected setNewValueInData(newValue: any) {
     newValue = this.valueToData(newValue);
@@ -1259,7 +1262,7 @@ export class Question extends SurveyElement
   protected setNewComment(newValue: string) {
     this.questionComment = newValue;
     if (this.data != null) {
-      this.data.setComment(this.getValueName(), newValue);
+      this.data.setComment(this.getValueName(), newValue, this.isSurveyInputTextUpdate ? "text": false);
     }
   }
   //IQuestion

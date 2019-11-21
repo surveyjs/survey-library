@@ -4,7 +4,9 @@
   height: 2.18em;
   padding: 0.25em 0 0.25em 0.87em;
   border: none;
+  border-radius: 0;
   border-bottom: 0.07em solid $text-border-color;
+  box-shadow: none;
   background-color: transparent;
   font-family: inherit;
   font-size: 1em;
@@ -12,6 +14,7 @@
 .sv-text:focus {
   border-color: $main-color;
   outline: none;
+  box-shadow: none;
 }
 .sv-text:invalid {
   box-shadow: none;

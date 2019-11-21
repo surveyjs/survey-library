@@ -961,7 +961,7 @@ export class QuestionMatrixDropdownRenderedRow {
 export class QuestionMatrixDropdownRenderedTable extends Base {
   private headerRowValue: QuestionMatrixDropdownRenderedRow;
   private footerRowValue: QuestionMatrixDropdownRenderedRow;
-  private hasRemoveRowValue: boolean;
+  private hasRemoveRowsValue: boolean;
   public constructor(public matrix: QuestionMatrixDropdownModelBase) {
     super();
     this.createNewArray("rows");
@@ -976,12 +976,12 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
   public get hasFooter(): boolean {
     return !!this.footerRow;
   }
-  public get hasRemoveRow(): boolean {
-    return this.hasRemoveRowValue;
+  protected get hasRemoveRows(): boolean {
+    return this.hasRemoveRowsValue;
   }
   public isRequireReset(): boolean {
     return (
-      this.hasRemoveRow != this.matrix.canRemoveRow ||
+      this.hasRemoveRows != this.matrix.canRemoveRows ||
       !this.matrix.isColumnLayoutHorizontal
     );
   }
@@ -995,7 +995,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     return this.getPropertyValue("rows");
   }
   protected build() {
-    this.hasRemoveRowValue = this.matrix.canRemoveRow;
+    this.hasRemoveRowsValue = this.matrix.canRemoveRows;
     //build rows now
     var rows = this.matrix.visibleRows;
     this.buildHeader();
@@ -1043,7 +1043,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
         );
       }
     }
-    if (this.hasRemoveRow) {
+    if (this.hasRemoveRows) {
       this.headerRow.cells.push(this.createHeaderCell(null));
     }
   }
@@ -1060,7 +1060,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
       if (!cells[i].column.hasVisibleCell) continue;
       this.footerRow.cells.push(this.createEditCell(cells[i]));
     }
-    if (this.hasRemoveRow) {
+    if (this.hasRemoveRows) {
       this.footerRow.cells.push(this.createHeaderCell(null));
     }
   }
@@ -1069,6 +1069,9 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
       ? this.buildHorizontalRows()
       : this.buildVerticalRows();
     this.setPropertyValue("rows", rows);
+  }
+  private canRemoveRow(row: MatrixDropdownRowModelBase): boolean {
+    return this.matrix.canRemoveRow(row);
   }
   private buildHorizontalRows(): Array<QuestionMatrixDropdownRenderedRow> {
     var rows = this.matrix.visibleRows;
@@ -1090,7 +1093,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
       if (!cell.column.hasVisibleCell) continue;
       res.cells.push(this.createEditCell(cell));
     }
-    if (this.hasRemoveRow) {
+    if (this.hasRemoveRows) {
       res.cells.push(this.createRemoveRowCell(row));
     }
     return res;
@@ -1103,7 +1106,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
         renderedRows.push(this.createVerticalRow(columns[i], i));
       }
     }
-    if (this.hasRemoveRow) {
+    if (this.hasRemoveRows) {
       renderedRows.push(this.createVerticalRemoveRow());
     }
     return renderedRows;
@@ -1164,7 +1167,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
   ): QuestionMatrixDropdownRenderedCell {
     var res = new QuestionMatrixDropdownRenderedCell();
     res.row = row;
-    res.isRemoveRow = true;
+    res.isRemoveRow = this.canRemoveRow(row);
     return res;
   }
   private createTextCell(
@@ -1292,8 +1295,11 @@ export class QuestionMatrixDropdownModelBase
   public getFooterText(): LocalizableString {
     return null;
   }
-  public get canRemoveRow(): boolean {
+  public get canRemoveRows(): boolean {
     return false;
+  }
+  public canRemoveRow(row: MatrixDropdownRowModelBase): boolean {
+    return true;
   }
   protected onRowsChanged() {
     this.resetRenderedTable();
@@ -2109,10 +2115,12 @@ export class QuestionMatrixDropdownModelBase
     if (!this.survey || !this.valueName) return null;
     var index = this.getRowIndex(row);
     if (index < 0) return null;
-    return <Question>this.survey.getQuestionByValueNameFromArray(
-      this.valueName,
-      columnName,
-      index
+    return <Question>(
+      this.survey.getQuestionByValueNameFromArray(
+        this.valueName,
+        columnName,
+        index
+      )
     );
   }
   onTotalValueChanged(): any {

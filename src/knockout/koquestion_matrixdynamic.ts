@@ -18,10 +18,10 @@ export class QuestionMatrixDynamicImplementor extends QuestionMatrixBaseImplemen
   protected isAddRowBottom(): boolean {
     return (<QuestionMatrixDynamic>this.question).isAddRowOnBottom;
   }
-  protected canRemoveRow(): boolean {
+  protected canRemoveRows(): boolean {
     return (
       !this.question.isReadOnly &&
-      (<QuestionMatrixDynamic>this.question).canRemoveRow
+      (<QuestionMatrixDynamic>this.question).canRemoveRows
     );
   }
   protected addRow() {

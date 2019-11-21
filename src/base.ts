@@ -124,6 +124,7 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner {
     canAddRow: boolean;
   }): any;
   matrixRowRemoved(question: IQuestion, rowIndex: number, row: any): any;
+  matrixAllowRemoveRow(question: IQuestion, rowIndex: number, row: any): boolean;
   matrixCellCreated(question: IQuestion, options: any): any;
   matrixAfterCellRender(question: IQuestion, options: any): any;
   matrixCellValueChanged(question: IQuestion, options: any): any;

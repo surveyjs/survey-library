@@ -737,13 +737,19 @@ QUnit.test("matrixdynamic.defaultValue - check the complex property", function(
         type: "matrixdynamic",
         name: "matrix",
         columns: [{ name: "col1" }, { name: "col2" }],
-        defaultValue: [{ col1: 1, col2: 2 }, { col1: 3, col2: 4 }]
+        defaultValue: [
+          { col1: 1, col2: 2 },
+          { col1: 3, col2: 4 }
+        ]
       }
     ]
   });
   assert.deepEqual(
     survey.getValue("matrix"),
-    [{ col1: 1, col2: 2 }, { col1: 3, col2: 4 }],
+    [
+      { col1: 1, col2: 2 },
+      { col1: 3, col2: 4 }
+    ],
     "set complex defaultValue correctly"
   );
 });
@@ -1409,7 +1415,10 @@ QUnit.test("matrixDynamic.clearInvisibleValues", function(assert) {
   question.columns[0]["choices"] = [1, 2];
   question.columns[1]["choices"] = [1, 2, 3];
   question.rowCount = 2;
-  question.value = [{ col1: 1, col2: 4 }, { col4: 1, col2: 2 }];
+  question.value = [
+    { col1: 1, col2: 4 },
+    { col4: 1, col2: 2 }
+  ];
   question.clearIncorrectValues();
   assert.deepEqual(
     question.value,
@@ -1966,9 +1975,8 @@ QUnit.test(
 QUnit.test("Test defaultValueFromLastRow property", function(assert) {
   var survey = new SurveyModel();
   var page = survey.addNewPage("page");
-  var question = <QuestionMatrixDynamicModel>page.addNewQuestion(
-    "matrixdynamic",
-    "question"
+  var question = <QuestionMatrixDynamicModel>(
+    page.addNewQuestion("matrixdynamic", "question")
   );
   question.rowCount = 0;
   question.cellType = "text";
@@ -1983,14 +1991,21 @@ QUnit.test("Test defaultValueFromLastRow property", function(assert) {
   question.addRow();
   assert.deepEqual(
     question.value,
-    [{ col1: 1, col2: 2 }, { col1: 1, col2: 2 }],
+    [
+      { col1: 1, col2: 2 },
+      { col1: 1, col2: 2 }
+    ],
     "defaultValueFromLastRow is working"
   );
   question.defaultRowValue = { col1: 11, col3: 3 };
   question.addRow();
   assert.deepEqual(
     question.value,
-    [{ col1: 1, col2: 2 }, { col1: 1, col2: 2 }, { col1: 1, col2: 2, col3: 3 }],
+    [
+      { col1: 1, col2: 2 },
+      { col1: 1, col2: 2 },
+      { col1: 1, col2: 2, col3: 3 }
+    ],
     "defaultValueFromLastRow is merging with defaultRowValue"
   );
 });
@@ -3156,3 +3171,36 @@ QUnit.test(
     assert.equal(counter, 1, "onValueChanged has been called");
   }
 );
+QUnit.test("survey.onMatrixAllowRemoveRow", function(assert) {
+  var survey = new SurveyModel({
+    questions: [
+      {
+        type: "matrixdynamic",
+        name: "q1",
+        rowCount: 3,
+        columns: ["1", "2"]
+      }
+    ]
+  });
+  survey.onMatrixAllowRemoveRow.add(function(sender, options) {
+    options.allow = options.rowIndex % 2 == 0;
+  });
+  var matrix = <QuestionMatrixDynamicModel>survey.getAllQuestions()[0];
+  assert.equal(matrix.canRemoveRows, true, "The row can be removed");
+  var table = matrix.renderedTable;
+  assert.equal(
+    table.rows[0].cells[2].isRemoveRow,
+    true,
+    "The first row can be removed"
+  );
+  assert.equal(
+    table.rows[1].cells[2].isRemoveRow,
+    false,
+    "The second row can't be removed"
+  );
+  assert.equal(
+    table.rows[2].cells[2].isRemoveRow,
+    true,
+    "The third row can be removed"
+  );
+});

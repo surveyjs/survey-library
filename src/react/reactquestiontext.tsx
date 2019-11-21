@@ -19,12 +19,18 @@ export class SurveyQuestionText extends SurveyQuestionElementBase {
   componentDidMount() {
     this.input.value = this.getValue(this.question.value);
   }
-  handleOnBlur = (event: any) => {
+  updateValueOnEvent = (event: any) => {
     this.question.value = event.target.value;
   };
   render(): JSX.Element {
     if (!this.question) return null;
     var cssClasses = this.question.cssClasses;
+    var onBlue = !this.question.isInputTextUpdate
+      ? this.updateValueOnEvent
+      : null;
+    var onInput = this.question.isInputTextUpdate
+      ? this.updateValueOnEvent
+      : null;
     return (
       <input
         id={this.question.inputId}
@@ -35,7 +41,8 @@ export class SurveyQuestionText extends SurveyQuestionElementBase {
         maxLength={this.question.getMaxLength()}
         size={this.question.size}
         placeholder={this.question.placeHolder}
-        onBlur={this.handleOnBlur}
+        onBlur={onBlue}
+        onInput={onInput}
         aria-required={this.question.isRequired}
         aria-label={this.question.locTitle.renderedHtml}
       />

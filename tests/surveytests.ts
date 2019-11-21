@@ -4828,6 +4828,21 @@ QUnit.test(
   }
 );
 
+QUnit.test("isSinglePage = true and survey.showPageTitles = false, Bug#1914", function(
+  assert
+) {
+  var survey = twoPageSimplestSurvey();
+  survey.pages[0].title = "Page 1";
+  survey.pages[1].title = "Page 2";
+  survey.showPageTitles = false;
+  survey.isSinglePage = true;
+  var page = survey.visiblePages[0];
+  var panels = survey.getAllPanels();
+  assert.equal(panels.length, 2, "There are two panels");
+  assert.notOk((<PanelModel>panels[0]).title, "Panel1 title is empty");
+  assert.notOk((<PanelModel>panels[1]).title, "Panel2 title is empty");
+});
+
 QUnit.test("Survey page hasShown", function(assert) {
   var survey = twoPageSimplestSurvey();
   assert.equal(survey.pages[0].hasShown, false, "The first page was not shown");

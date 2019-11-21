@@ -2263,6 +2263,9 @@ export class SurveyModel extends Base
       single.addPanel(panel);
       var json = new JsonObject().toJsonObject(page);
       new JsonObject().toObject(json, panel);
+      if(!this.showPageTitles) {
+        panel.title = "";
+      }
     }
     return single;
   }

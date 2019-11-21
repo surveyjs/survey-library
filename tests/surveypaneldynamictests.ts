@@ -2807,23 +2807,27 @@ QUnit.test(
           "name": "id",
           "type": "text"
         }],
-        panelCount: 2
+        panelCount: 3
       }]
     });
 
     var panelDynamic = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
     var question1 = panelDynamic.panels[0].questions[0];
     var question2 = panelDynamic.panels[1].questions[0];
-    question1.value = 1;
-    question2.value = 2;
+    var question3 = panelDynamic.panels[2].questions[0];
+    question1.value = "1";
+    question2.value = "0";
     assert.equal(question2.errors.length, 0, "There is no unique errors by default");
-    question2.value = 1;
-    assert.equal(question2.errors.length, 1, "There is unique value error");
-    question2.value = 0;
+    question2.value = "1";
+    assert.equal(question2.errors.length, 1, "There is unique value error, when two key values are equal");
+    question2.value = "0";
     assert.equal(question2.errors.length, 0, "There is no unique errors after question with error is changed");
-    question2.value = 1;
-    question1.value = 0;
+    question2.value = "1";
+    question1.value = "0";
     assert.equal(question2.errors.length, 0, "There is no unique errors after question with no error is changed");
-    
+    question1.value = "1";
+    question3.value = "1";
+    assert.equal(question2.errors.length, 1, "There is unique value error on second question, when three key values are equal");
+    assert.equal(question3.errors.length, 1, "There is unique value error on third question, when three key values are equal"); 
   }
 );

@@ -583,6 +583,19 @@ export class SurveyModel extends Base
     any
   > = new Event<(sender: SurveyModel, options: any) => any, any>();
   /**
+   * The event is fired before rendering "Remove" button for removing a row from Matrix Dynamic question.
+   * <br/> sender the survey object that fires the event
+   * <br/> options.question a matrix question.
+   * <br/> options.rowIndex a row index.
+   * <br/> options.row a row object.
+   * <br/> options.allow a boolean property. Set it to false to disable the row removing.
+   * @see QuestionMatrixDynamicModel
+   */
+  public onMatrixAllowRemoveRow: Event<
+    (sender: SurveyModel, options: any) => any,
+    any
+  > = new Event<(sender: SurveyModel, options: any) => any, any>();
+  /**
    * The event is fired for every cell created in Matrix Dymic and Matrix Dropdown questions.
    * <br/> options.question - the matrix question
    * <br/> options.cell - the matrix cell
@@ -2536,6 +2549,14 @@ export class SurveyModel extends Base
       rowIndex: rowIndex,
       row: row
     });
+  }
+  matrixAllowRemoveRow(question: IQuestion, rowIndex: number, row: any): boolean {
+    var options = {
+      question: question,
+      rowIndex: rowIndex,
+      row: row, allow: true};
+    this.onMatrixAllowRemoveRow.fire(this, options);
+    return options.allow;
   }
   matrixCellCreated(question: IQuestion, options: any) {
     options.question = question;

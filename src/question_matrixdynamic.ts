@@ -171,21 +171,30 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   /**
    * Returns true, if a new row can be added.
    * @see maxRowCount
-   * @see canRemoveRow
+   * @see canRemoveRows
    * @see rowCount
    */
   public get canAddRow(): boolean {
     return !this.isReadOnly && this.rowCount < this.maxRowCount;
   }
   /**
-   * Returns true, if a row can be removed.
+   * Returns true, if row can be removed.
    * @see minRowCount
    * @see canAddRow
    * @see rowCount
    */
-  public get canRemoveRow(): boolean {
+  public get canRemoveRows(): boolean {
     return !this.isReadOnly && this.rowCount > this.minRowCount;
   }
+  public canRemoveRow(row: MatrixDropdownRowModelBase): boolean {
+    if (!this.survey) return true;
+    return this.survey.matrixAllowRemoveRow(
+      this,
+      (<MatrixDynamicRowModel>row).index,
+      row
+    );
+  }
+
   /**
    * Creates and add a new row.
    */
@@ -298,7 +307,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
    * @param index a row index, from 0 to rowCount - 1
    */
   public removeRow(index: number) {
-    if (!this.canRemoveRow) return;
+    if (!this.canRemoveRows) return;
     if (index < 0 || index >= this.rowCount) return;
     this.onStartRowAddingRemoving();
     this.removeRowCore(index);

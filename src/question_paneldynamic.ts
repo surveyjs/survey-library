@@ -1178,17 +1178,32 @@ export class QuestionPanelDynamicModel extends Question
       );
     }
   }
-  public hasErrors(fireCallback: boolean = true, rec: any = null): boolean {
-    if (this.isValueChangingInternally) return false;
-    if (!!this.changingValueQuestion) {
+  private hasKeysDuplicated(fireCallback: boolean, rec: any = null) {
+    var keyValues: Array<any> = [];
+    var res;
+    for (var i = 0; i < this.panels.length; i++) {
+      res = 
+        res ||
+        this.isValueDuplicated(this.panels[i], keyValues, rec, fireCallback);
+    }
+    return res;
+  }
+  private updatePanelsContainsErrors() {
       var question = this.changingValueQuestion;
-      var res = this.changingValueQuestion.hasErrors(fireCallback, rec);
       var parent = <Panel>question.parent;
       while (!!parent) {
         parent.updateContainsErrors();
         parent = <Panel>parent.parent;
       }
       this.updateContainsErrors();
+  }
+  public hasErrors(fireCallback: boolean = true, rec: any = null): boolean {
+    if (this.isValueChangingInternally) return false;
+    var res = false;
+    if (!!this.changingValueQuestion) {
+      var res = this.changingValueQuestion.hasErrors(fireCallback, rec);
+      res = res || this.hasKeysDuplicated(fireCallback, rec);
+      this.updatePanelsContainsErrors();
       return res;
     } else {
       var errosInPanels = this.hasErrorInPanels(fireCallback, rec);
@@ -1309,12 +1324,16 @@ export class QuestionPanelDynamicModel extends Question
   private isValueDuplicated(
     panel: PanelModel,
     keyValues: Array<any>,
-    rec: any
+    rec: any,
+    fireCallback?: boolean
   ): boolean {
     if (!this.keyName) return false;
     var question = <Question>panel.getQuestionByValueName(this.keyName);
     if (!question || question.isEmpty()) return false;
     var value = question.value;
+    if (!!this.changingValueQuestion && question != this.changingValueQuestion) {
+      question.hasErrors(fireCallback, rec);
+    }
     for (var i = 0; i < keyValues.length; i++) {
       if (value == keyValues[i]) {
         question.addError(

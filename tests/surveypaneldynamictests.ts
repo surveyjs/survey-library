@@ -2794,3 +2794,36 @@ QUnit.test(
     assert.equal(histologicalCategory.value, "foo", "value set correctly");
   }
 );
+QUnit.test(
+  "Paneldynamic duplicate key value error with checkErrorsMode: onValueChanged",
+  function(assert) {
+    var survey = new SurveyModel({
+      "checkErrorsMode": "onValueChanged",
+      "elements": [{
+        "name": "panel1",
+        "type": "paneldynamic",
+        "keyName": "id",
+        "templateElements": [{
+          "name": "id",
+          "type": "text"
+        }],
+        panelCount: 2
+      }]
+    });
+
+    var panelDynamic = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
+    var question1 = panelDynamic.panels[0].questions[0];
+    var question2 = panelDynamic.panels[1].questions[0];
+    question1.value = 1;
+    question2.value = 2;
+    assert.equal(question2.errors.length, 0, "There is no unique errors by default");
+    question2.value = 1;
+    assert.equal(question2.errors.length, 1, "There is unique value error");
+    question2.value = 0;
+    assert.equal(question2.errors.length, 0, "There is no unique errors after question with error is changed");
+    question2.value = 1;
+    question1.value = 0;
+    assert.equal(question2.errors.length, 0, "There is no unique errors after question with no error is changed");
+    
+  }
+);

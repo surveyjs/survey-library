@@ -1,17 +1,17 @@
 <template>
   <div class="form-group">
     <textarea
-      v-if="!question.isReadOnly"
+      :readonly="question.isReadOnly"
+      :disabled="question.isReadOnly"  
       :class="question.cssClasses.other || commentClass"
-      value="question.comment"
+      :value="question.comment"
       :maxlength="question.getOthersMaxLength()"
       :placeholder="question.otherPlaceHolder"
       v-bind:aria-label="question.locTitle.renderedHtml"
       @change="change"
       @keyup="keyup"
     />
-    <div v-else :class="question.cssClasses.other">{{question.comment}}</div>
-  </div>
+   </div>
 </template>
 
 <script lang="ts">

@@ -64,10 +64,6 @@ export class SurveyQuestionCommentItem extends ReactSurveyElement {
   render(): JSX.Element {
     let question = this.props.question;
     if (!question) return null;
-    if (this.isDisplayMode) {
-      let comment = question.comment || "";
-      return <div className={this.cssClasses.comment}>{comment}</div>;
-    }
     let className = this.props.otherCss || this.cssClasses.comment;
     let handleOnChange = (event: any) => {
       this.setState({ comment: event.target.value });
@@ -86,8 +82,8 @@ export class SurveyQuestionCommentItem extends ReactSurveyElement {
       <textarea
         className={className}
         value={comment}
-        readOnly={question.isReadOnly}
-        disabled={question.isReadOnly}
+        readOnly={this.isDisplayMode}
+        disabled={this.isDisplayMode}
         maxLength={question.getOthersMaxLength()}
         placeholder={question.otherPlaceHolder}
         onChange={handleOnChange}

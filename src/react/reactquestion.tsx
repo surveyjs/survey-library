@@ -23,7 +23,7 @@ export class SurveyQuestion extends SurveyElementBase {
     if (!customWidget) {
       return creator.createQuestionElement(question);
     }
-    return <SurveyCustomWidget creator={creator} question={question} />;
+    return <SurveyCustomWidget creator={creator} question={question}/>;
   }
   constructor(props: any) {
     super(props);
@@ -197,6 +197,7 @@ export class SurveyQuestion extends SurveyElementBase {
           question={this.question}
           cssClasses={cssClasses}
           otherCss={cssClasses.other}
+          isDisplayMode={this.question.isReadOnly}
         />
       </div>
     );

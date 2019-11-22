@@ -1183,8 +1183,7 @@ export class QuestionPanelDynamicModel extends Question
     var res;
     for (var i = 0; i < this.panels.length; i++) {
       res = 
-        res ||
-        this.isValueDuplicated(this.panels[i], keyValues, rec, fireCallback);
+       this.isValueDuplicated(this.panels[i], keyValues, rec, fireCallback) || res;
     }
     return res;
   }
@@ -1202,7 +1201,7 @@ export class QuestionPanelDynamicModel extends Question
     var res = false;
     if (!!this.changingValueQuestion) {
       var res = this.changingValueQuestion.hasErrors(fireCallback, rec);
-      res = res || this.hasKeysDuplicated(fireCallback, rec);
+      res = this.hasKeysDuplicated(fireCallback, rec) || res;
       this.updatePanelsContainsErrors();
       return res;
     } else {

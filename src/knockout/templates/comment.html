@@ -3,6 +3,6 @@
     <textarea type="text" data-bind="disable: question.isReadOnly, value: $data.question.comment, visible: $data.visible, css: question.koCss().other, attr: {maxLength: question.getOthersMaxLength(), 'aria-label': !!question.locTitle && question.locTitle.renderedHtml, placeholder: question.otherPlaceHolder}"></textarea>
     <!--/ko-->
     <!--ko if: question.isSurveyInputTextUpdate -->
-    <textarea type="text" data-bind="disable: question.isReadOnly, extInput: $data.question.comment, visible: $data.visible, css: question.koCss().other, attr: {maxLength: question.getOthersMaxLength(), 'aria-label': !!question.locTitle && question.locTitle.renderedHtml, placeholder: question.otherPlaceHolder}"></textarea>
+    <textarea type="text" data-bind="disable: question.isReadOnly, textInput: $data.question.comment, visible: $data.visible, css: question.koCss().other, attr: {maxLength: question.getOthersMaxLength(), 'aria-label': !!question.locTitle && question.locTitle.renderedHtml, placeholder: question.otherPlaceHolder}"></textarea>
     <!--/ko-->
 </script>

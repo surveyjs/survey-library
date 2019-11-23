@@ -336,6 +336,7 @@ export class QuestionPanelDynamicModel extends Question
    */
   public get currentIndex(): number {
     if (this.isRenderModeList) return -1;
+    if (this.isDesignMode) return 0;
     if (this.currentIndexValue < 0 && this.panelCount > 0) {
       this.currentIndexValue = 0;
     }
@@ -519,8 +520,7 @@ export class QuestionPanelDynamicModel extends Question
    */
   public get isRangeShowing(): boolean {
     return (
-      this.showRangeInProgress &&
-      (this.currentIndex >= 0 && this.panelCount > 1)
+      this.showRangeInProgress && this.currentIndex >= 0 && this.panelCount > 1
     );
   }
   public getElementsInDesign(includeHidden: boolean = false): Array<IElement> {
@@ -1050,10 +1050,12 @@ export class QuestionPanelDynamicModel extends Question
     panelIndex: number
   ): Question {
     return !!this.survey && !!this.valueName
-      ? <Question>this.survey.getQuestionByValueNameFromArray(
-          this.valueName,
-          name,
-          panelIndex
+      ? <Question>(
+          this.survey.getQuestionByValueNameFromArray(
+            this.valueName,
+            name,
+            panelIndex
+          )
         )
       : null;
   }
@@ -1182,19 +1184,20 @@ export class QuestionPanelDynamicModel extends Question
     var keyValues: Array<any> = [];
     var res;
     for (var i = 0; i < this.panels.length; i++) {
-      res = 
-       this.isValueDuplicated(this.panels[i], keyValues, rec, fireCallback) || res;
+      res =
+        this.isValueDuplicated(this.panels[i], keyValues, rec, fireCallback) ||
+        res;
     }
     return res;
   }
   private updatePanelsContainsErrors() {
-      var question = this.changingValueQuestion;
-      var parent = <Panel>question.parent;
-      while (!!parent) {
-        parent.updateContainsErrors();
-        parent = <Panel>parent.parent;
-      }
-      this.updateContainsErrors();
+    var question = this.changingValueQuestion;
+    var parent = <Panel>question.parent;
+    while (!!parent) {
+      parent.updateContainsErrors();
+      parent = <Panel>parent.parent;
+    }
+    this.updateContainsErrors();
   }
   public hasErrors(fireCallback: boolean = true, rec: any = null): boolean {
     if (this.isValueChangingInternally) return false;
@@ -1330,7 +1333,10 @@ export class QuestionPanelDynamicModel extends Question
     var question = <Question>panel.getQuestionByValueName(this.keyName);
     if (!question || question.isEmpty()) return false;
     var value = question.value;
-    if (!!this.changingValueQuestion && question != this.changingValueQuestion) {
+    if (
+      !!this.changingValueQuestion &&
+      question != this.changingValueQuestion
+    ) {
       question.hasErrors(fireCallback, rec);
     }
     for (var i = 0; i < keyValues.length; i++) {

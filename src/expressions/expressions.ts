@@ -126,7 +126,8 @@ export class UnaryOperand extends Operand {
       if (!!res) return res;
     }
     return (
-      OperandMaker.operatorToString(this.operatorName) + " " +
+      OperandMaker.operatorToString(this.operatorName) +
+      " " +
       this.expression.toString(func)
     );
   }
@@ -333,7 +334,8 @@ export class OperandMaker {
   static toOperandString(value: string): string {
     if (
       !!value &&
-      (!OperandMaker.isNumeric(value) && !OperandMaker.isBooleanValue(value))
+      !OperandMaker.isNumeric(value) &&
+      !OperandMaker.isBooleanValue(value)
     )
       value = "'" + value + "'";
     return value;
@@ -444,8 +446,10 @@ export class OperandMaker {
     },
     anyof: function(left: any, right: any): boolean {
       if (!left && Helpers.isValueEmpty(right)) return true;
-      if (!left || !Array.isArray(left) || left.length === 0) return false;
+      if (!left || (!Array.isArray(left) && left.length === 0)) return false;
       if (Helpers.isValueEmpty(right)) return true;
+      if (!Array.isArray(left))
+        return OperandMaker.binaryFunctions.contains(right, left);
       if (!Array.isArray(right))
         return OperandMaker.binaryFunctions.contains(left, right);
       for (var i = 0; i < right.length; i++) {

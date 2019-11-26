@@ -976,7 +976,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
   public get hasFooter(): boolean {
     return !!this.footerRow;
   }
-  protected get hasRemoveRows(): boolean {
+  public get hasRemoveRows(): boolean {
     return this.hasRemoveRowsValue;
   }
   public isRequireReset(): boolean {

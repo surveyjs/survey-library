@@ -50,6 +50,7 @@ export class SurveyPanelBase extends SurveyElementBase {
     if (
       !!prevProps.page &&
       !!this.survey &&
+      !!this.survey.currentPage &&
       prevProps.page.name === this.survey.currentPage.name
     )
       return;

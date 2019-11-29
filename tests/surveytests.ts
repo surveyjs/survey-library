@@ -1681,6 +1681,18 @@ QUnit.test("Value trigger test", function(assert) {
   survey.setValue("question1", "Hello");
   assert.equal(survey.getValue("name1"), "val1", "value is set");
 });
+QUnit.test("Triggers shouldn't fire on data assignment", function(assert) {
+  var survey = twoPageSimplestSurvey();
+  var trigger = new SurveyTriggerSetValue();
+  survey.triggers.push(trigger);
+  trigger.name = "question1";
+  trigger.value = "Hello";
+  trigger.setToName = "name1";
+  trigger.setValue = "val1";
+  assert.equal(survey.getValue("name1"), null, "value is not set");
+  survey.data = { "question1": "Hello" };
+  assert.equal(survey.getValue("name1"), null, "value still is not set");
+});
 QUnit.test("RunExpression trigger test", function(assert) {
   var survey = twoPageSimplestSurvey();
   survey.setValue("val1", 3);

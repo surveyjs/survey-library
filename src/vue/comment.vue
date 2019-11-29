@@ -4,7 +4,7 @@
       type="text"
       :readonly="question.isReadOnly"
       :disabled="question.isReadOnly"
-      value="question.value"
+      :value="question.value"
       :id="question.inputId"
       :maxlength="question.getMaxLength()"
       :cols="question.cols"

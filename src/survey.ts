@@ -1618,12 +1618,6 @@ export class SurveyModel extends Base
     return { survey: this };
   }
 
-  /**
-   * Set this option to true if you want to run triggers during survey data assignment.
-   * @see data
-   */
-  public runTriggersOnDataAssignment = false;
-
   public set data(data: any) {
     this.valuesHash = {};
     if (data) {
@@ -1632,9 +1626,6 @@ export class SurveyModel extends Base
       }
     }
     this.updateAllQuestionsValue();
-    if(this.runTriggersOnDataAssignment) {
-      this.checkTriggers(this.valuesHash, false);
-    }
     this.notifyAllQuestionsOnValueChanged();
     this.notifyElementsOnAnyValueOrVariableChanged("");
     this.runConditions();

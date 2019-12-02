@@ -61,9 +61,6 @@ export class SurveyModel extends Base
   }
 
   private pagesValue: Array<PageModel>;
-  private triggersValue: Array<SurveyTrigger>;
-  private calculatedValuesValue: Array<CalculatedValue>;
-  private completedHtmlOnConditionValue: Array<HtmlConditionItem>;
   private get currentPageValue(): PageModel {
     return this.getPropertyValue("currentPageValue", null);
   }
@@ -797,18 +794,14 @@ export class SurveyModel extends Base
     this.pagesValue = this.createNewArray("pages", function(value: any) {
       self.doOnPageAdded(value);
     });
-    this.triggersValue = this.createNewArray("triggers", function(value: any) {
+    this.createNewArray("triggers", function(value: any) {
       value.setOwner(self);
     });
-    this.calculatedValuesValue = this.createNewArray(
-      "calculatedValues",
-      function(value: any) {
+    this.createNewArray("calculatedValues", function(value: any) {
         value.setOwner(self);
       }
     );
-    this.completedHtmlOnConditionValue = this.createNewArray(
-      "completedHtmlOnCondition",
-      function(value: any) {
+    this.createNewArray("completedHtmlOnCondition", function(value: any) {
         value.locOwner = self;
       }
     );
@@ -861,7 +854,7 @@ export class SurveyModel extends Base
    * @see SurveyTrigger
    */
   public get triggers(): Array<SurveyTrigger> {
-    return this.triggersValue;
+    return this.getPropertyValue("triggers");
   }
   public set triggers(val: Array<SurveyTrigger>) {
     this.setPropertyValue("triggers", val);
@@ -871,7 +864,7 @@ export class SurveyModel extends Base
    * @see CalculatedValue
    */
   public get calculatedValues(): Array<CalculatedValue> {
-    return this.calculatedValuesValue;
+    return this.getPropertyValue("calculatedValues");
   }
   public set calculatedValues(val: Array<CalculatedValue>) {
     this.setPropertyValue("calculatedValues", val);
@@ -1278,7 +1271,7 @@ export class SurveyModel extends Base
    * @see completeHtml
    */
   public get completedHtmlOnCondition(): Array<HtmlConditionItem> {
-    return this.completedHtmlOnConditionValue;
+    return this.getPropertyValue("completedHtmlOnCondition");
   }
   public set completedHtmlOnCondition(val: Array<HtmlConditionItem>) {
     this.setPropertyValue("completedHtmlOnCondition", val);

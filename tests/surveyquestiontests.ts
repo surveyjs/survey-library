@@ -2769,6 +2769,46 @@ QUnit.test(
     );
   }
 );
+QUnit.test(
+  "matrix single choice. Restore new visible values from defaultValue if they are exists, Issue# T3038, https://surveyjs.answerdesk.io/ticket/details/T3038",
+  function(assert) {
+    var survey = new SurveyModel({
+      elements: [
+        {
+          type: "matrix",
+          name: "q1",
+          columns: ["1", "2", "3", "4"],
+          rows: [
+            {
+              value: "v1"
+            },
+            {
+              value: "v2"
+            },
+            {
+              value: "v3",
+              visibleIf: "{val1} = 'a'"
+            },
+            {
+              value: "v4",
+              visibleIf: "{val1} = 'a'"
+            }
+          ],
+          defaultValue: { v1: "1", v2: "2", v3: "3", v4: "4" }
+        }
+      ]
+    });
+    var question = <QuestionMatrixModel>survey.getQuestionByName("q1");
+    assert.deepEqual(question.value, { v1: "1", v2: "2" }, "Remove two rows");
+    survey.setValue("val1", "a");
+    assert.deepEqual(
+      question.value,
+      { v1: "1", v2: "2", v3: "3", v4: "4" },
+      "Restore rows values from default"
+    );
+  }
+);
+
 QUnit.test("Load survey with requiredIf expression", function(assert) {
   var survey = new SurveyModel({
     elements: [

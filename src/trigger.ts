@@ -351,11 +351,16 @@ export class SurveyTriggerCopyValue extends SurveyTrigger {
 }
 
 Serializer.addClass("trigger", [
-  { name: "operator", default: "equal" },
-  "value",
+  { name: "operator", default: "equal", visible: false },
+  { name: "value", visible: false },
   "expression:condition"
 ]);
-Serializer.addClass("surveytrigger", ["name"], null, "trigger");
+Serializer.addClass(
+  "surveytrigger",
+  [{ name: "name", visible: false }],
+  null,
+  "trigger"
+);
 Serializer.addClass(
   "visibletrigger",
   ["pages", "questions"],

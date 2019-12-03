@@ -105,8 +105,12 @@ export var matrixDropdownColumnTypes = {
       data: any
     ) => {
       onUpdateSelectBaseCellQuestion(cellQuestion, column, question, data);
-      if (cellQuestion.locOptionsCaption.isEmpty)
+      if (
+        cellQuestion.locOptionsCaption.isEmpty &&
+        !question.locOptionsCaption.isEmpty
+      ) {
         cellQuestion.optionsCaption = question.optionsCaption;
+      }
     }
   },
   checkbox: {

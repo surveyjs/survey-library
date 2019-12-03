@@ -7,7 +7,7 @@
         :class="question.cssClasses.control"
         v-bind:aria-label="question.locTitle.renderedHtml"
       >
-        <option v-if="question.showOptionsCaption" value>{{question.optionsCaption}}</option>
+        <option v-if="question.showOptionsCaption" :value="undefined">{{question.optionsCaption}}</option>
         <option
           v-for="item in question.visibleChoices"
           :value="item.value"
@@ -15,11 +15,12 @@
         >{{item.text}}</option>
       </select>
     </div>
-    <div disabled
+    <div
+      disabled
       v-else
       :class="question.cssClasses.control"
     >{{isOtherSelected ? question.otherText : question.displayValue}}</div>
-    <survey-other-choice v-show="isOtherSelected" :question="question"/>
+    <survey-other-choice v-show="isOtherSelected" :question="question" />
   </div>
 </template>
 

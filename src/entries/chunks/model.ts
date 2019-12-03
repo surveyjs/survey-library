@@ -31,7 +31,7 @@ export {
 export { ILocalizableOwner, LocalizableString } from "../../localizablestring";
 export { HtmlConditionItem } from "../../htmlConditionItem";
 export { ChoicesRestfull } from "../../choicesRestfull";
-export { FunctionFactory } from "../../functionsfactory";
+export { FunctionFactory, registerFunction } from "../../functionsfactory";
 export { ConditionRunner, ExpressionRunner } from "../../conditions";
 export {
   Operand,

@@ -54,6 +54,8 @@ export class FunctionFactory {
   }
 }
 
+export var registerFunction = FunctionFactory.Instance.register;
+
 function getParamsAsArray(value: any, arr: any[]) {
   if (!value) return;
   if (Array.isArray(value)) {

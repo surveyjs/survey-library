@@ -192,6 +192,7 @@ QUnit.test(
     var visibleRows = matrix.visibleRows;
     matrix.value = { row1: "col2" };
     assert.equal(visibleRows[0]["koValue"](), "col2", "set the correct value");
+    assert.equal(matrix.koVisibleRows()[0]["koValue"](), "col2", "set the correct value in ko");
   }
 );
 QUnit.test(

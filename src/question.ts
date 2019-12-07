@@ -441,10 +441,6 @@ export class Question extends SurveyElement
   get locCommentText(): LocalizableString {
     return this.getLocalizableString("commentText");
   }
-  private get locTitleHtml(): string {
-    var res = this.locTitle.textOrHtml;
-    return res ? res : this.name;
-  }
   /**
    * Returns a copy of question errors survey. For some questions like matrix and panel dynamic it includes the errors of nested questions.
    */

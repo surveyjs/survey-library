@@ -381,7 +381,13 @@ Serializer.addClass(
   "setvaluetrigger",
   [
     { name: "!setToName:question" },
-    "setValue",
+    {
+      name: "!setValue:triggervalue",
+      dependsOn: "setToName",
+      visibleIf: function(obj: any) {
+        return !!obj && !!obj["setToName"];
+      }
+    },
     { name: "isVariable:boolean", visible: false }
   ],
   function() {

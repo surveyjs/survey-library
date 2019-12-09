@@ -54,10 +54,7 @@ export class SurveyQuestionImagePicker extends SurveyQuestionElementBase {
     isFirst: boolean,
     cssClasses: any
   ): JSX.Element {
-    var isChecked = this.question.value === item.value;
-    if (this.question.multiSelect) {
-      isChecked = this.question.value.indexOf(item.value) !== -1;
-    }
+    var isChecked = this.question.isItemSelected(item);
     var isDisabled = this.question.isReadOnly || !item.isEnabled;
     return this.renderElement(
       key,

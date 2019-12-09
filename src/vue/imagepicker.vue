@@ -32,9 +32,7 @@ export class ImagePicker extends QuestionVue<QuestionImagePickerModel> {
       (colCount === 0
         ? " " + cssClasses.itemInline
         : " sv-q-col-" + colCount);
-    var isChecked = question.multiSelect
-      ? (question.value.indexOf(item.value) !== -1)
-      : (item.value === this.question.value);
+    var isChecked = this.question.isItemSelected(item);
     var isDisabled = question.isReadOnly || !item.isEnabled; 
     var allowHover = !isChecked && !isDisabled;
     if (isChecked) {

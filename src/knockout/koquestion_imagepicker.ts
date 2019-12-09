@@ -15,9 +15,7 @@ export class QuestionImagePicker extends QuestionImagePickerModel {
       (this.colCount === 0
         ? " " + this.cssClasses.itemInline
         : " sv-q-col-" + this.colCount);
-    var isChecked = this.multiSelect
-      ? !!this.value && this["koValue"]().indexOf(item.value) !== -1
-      : !!item.value && item.value == this["koValue"]();
+    var isChecked = this.isItemSelected(item);
     var isDisabled = this.isReadOnly || !item.isEnabled; 
     var allowHover = !isChecked && !isDisabled;
     if (isChecked) {

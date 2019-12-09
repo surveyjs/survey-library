@@ -70,6 +70,12 @@ export class Helpers {
     if ((x === undefined || x === null) && y === "undefined") return true;
     if ((y === undefined || y === null) && x === "undefined") return true;
 
+    if(Helpers.isConvertibleToNumber(x) && Helpers.isConvertibleToNumber(y)) {
+      if(parseInt(x) === parseInt(y) && parseFloat(x) === parseFloat(y)) {
+        return true;
+      }
+    }
+
     if ((x && !y) || (!x && y)) return false;
     if (!(x instanceof Object) && !(y instanceof Object)) return x == y;
     if (!(x instanceof Object) || !(y instanceof Object)) return false;
@@ -108,6 +114,9 @@ export class Helpers {
       return JSON.parse(JSON.stringify(value));
     }
     return value;
+  }
+  public static isConvertibleToNumber(value: any): boolean {
+    return value !== undefined && value !== null && !Array.isArray(value) && !isNaN(value);
   }
   public static isNumber(value: any): boolean {
     if (

@@ -363,7 +363,7 @@ Serializer.addClass(
 );
 Serializer.addClass(
   "visibletrigger",
-  ["pages", "questions"],
+  ["pages:pages", "questions:questions"],
   function() {
     return new SurveyTriggerVisible();
   },

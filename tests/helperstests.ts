@@ -137,6 +137,92 @@ QUnit.test("Return correct value for array.length", function(assert) {
   );
 });
 
+QUnit.test("isConvertibleToNumber", function(assert) {
+  assert.equal(
+    Helpers.isConvertibleToNumber("0"),
+    true,
+    "Zero is convertible to number"
+  );
+  assert.equal(
+    Helpers.isConvertibleToNumber(0),
+    true,
+    "Number is convertible to number"
+  );
+  assert.equal(
+    Helpers.isConvertibleToNumber(null),
+    false,
+    "null is not convertible to number"
+  );
+  assert.equal(
+    Helpers.isConvertibleToNumber(undefined),
+    false,
+    "undefined is not convertible to number"
+  );
+  assert.equal(
+    Helpers.isConvertibleToNumber('undefined'),
+    false,
+    "'undefined' is not convertible to number"
+  );
+  assert.equal(
+    Helpers.isConvertibleToNumber([1]),
+    false,
+    "array is not convertible to number"
+  );
+  assert.equal(
+    Helpers.isConvertibleToNumber(['1']),
+    false,
+    "array of string is not convertible to number"
+  );
+});
+
+QUnit.test("isTwoValueEquals, 0 and '0'", function(assert) {
+  assert.equal(
+    Helpers.isTwoValueEquals(0, "0"),
+    true,
+    "Zeroes equal as number and text"
+  );
+  assert.equal(
+    Helpers.isTwoValueEquals(0, "0a"),
+    false,
+    "Zero dosnt' equal '0a'"
+  );
+  assert.equal(
+    Helpers.isTwoValueEquals(undefined, 0),
+    false,
+    "undefined vs 0"
+  );
+  assert.equal(
+    Helpers.isTwoValueEquals(undefined, "0"),
+    false,
+    "undefined vs '0'"
+  );
+  assert.equal(
+    Helpers.isTwoValueEquals("undefined", "0"),
+    false,
+    "'0' vs 'undefined'"
+  );
+  assert.equal(
+    Helpers.isTwoValueEquals(1, '1'),
+    true,
+    "1 is '1'"
+  );
+  assert.equal(
+    Helpers.isTwoValueEquals(1.5, '1.5'),
+    true,
+    "1.5 is '1.5'"
+  );
+  assert.equal(
+    Helpers.isTwoValueEquals(1, '1.5'),
+    false,
+    "1 is not '1.5'"
+  );
+  assert.equal(
+    Helpers.isTwoValueEquals(2, '1.5'),
+    false,
+    "2 is not '1.5'"
+  );
+});
+
 QUnit.test("Helpers.isNumber", function(assert) {
   assert.equal(Helpers.isNumber("1"), true, "1 is a number");
   assert.equal(Helpers.isNumber("0xabcd"), true, "0xabcd is a number");

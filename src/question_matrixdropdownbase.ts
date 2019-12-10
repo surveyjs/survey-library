@@ -188,6 +188,9 @@ export var matrixDropdownColumnTypes = {
       question: any,
       data: any
     ) => {}
+  },
+  rating: {
+    properties: [ "rateValues" ]
   }
 };
 

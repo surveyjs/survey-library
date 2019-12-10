@@ -123,6 +123,7 @@ export class SurveyQuestionImagePicker extends SurveyQuestionElementBase {
               ? this.question.imageHeight + "px"
               : undefined
           }
+          alt={item.text || item.value}
           style={style}
         />
       );

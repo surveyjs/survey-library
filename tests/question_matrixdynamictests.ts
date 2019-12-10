@@ -1161,7 +1161,7 @@ QUnit.test("MatrixDropdownColumn add/remove serialization properties", function(
 QUnit.test("MatrixDropdownColumn cellType property, choices", function(assert) {
   var prop = Serializer.findProperty("matrixdropdowncolumn", "cellType");
   assert.ok(prop, "Property is here");
-  assert.equal(prop.choices.length, 8, "There are 8 cell types by default");
+  assert.equal(prop.choices.length, 9, "There are 9 cell types by default");
   assert.equal(prop.choices[0], "default", "The first value is default");
   assert.equal(prop.choices[1], "dropdown", "The second value is default");
 });

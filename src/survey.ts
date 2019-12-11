@@ -4165,8 +4165,8 @@ Serializer.addClass("survey", [
   },
   {
     name: "textUpdateMode",
-    default: "onBlue",
-    choices: ["onBlue", "onTyping"]
+    default: "onBlur",
+    choices: ["onBlur", "onTyping"]
   },
   { name: "startSurveyText", serializationProperty: "locStartSurveyText" },
   { name: "pagePrevText", serializationProperty: "locPagePrevText" },

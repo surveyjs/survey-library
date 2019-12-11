@@ -25,7 +25,7 @@ export class SurveyQuestionText extends SurveyQuestionElementBase {
   render(): JSX.Element {
     if (!this.question) return null;
     var cssClasses = this.question.cssClasses;
-    var onBlue = !this.question.isInputTextUpdate
+    var onBlur = !this.question.isInputTextUpdate
       ? this.updateValueOnEvent
       : null;
     var onInput = this.question.isInputTextUpdate
@@ -41,7 +41,7 @@ export class SurveyQuestionText extends SurveyQuestionElementBase {
         maxLength={this.question.getMaxLength()}
         size={this.question.size}
         placeholder={this.question.placeHolder}
-        onBlur={onBlue}
+        onBlur={onBlur}
         onInput={onInput}
         aria-required={this.question.isRequired}
         aria-label={this.question.locTitle.renderedHtml}

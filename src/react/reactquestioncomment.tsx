@@ -31,7 +31,7 @@ export class SurveyQuestionComment extends SurveyQuestionElementBase {
       !!this.state && this.state.value !== undefined
         ? this.state.value
         : this.getStateValue();
-    var onBlue = !this.question.isInputTextUpdate
+    var onBlur = !this.question.isInputTextUpdate
       ? this.updateValueOnEvent
       : null;
     var onInput = this.question.isInputTextUpdate
@@ -46,7 +46,7 @@ export class SurveyQuestionComment extends SurveyQuestionElementBase {
         value={commentValue}
         maxLength={this.question.getMaxLength()}
         placeholder={this.question.placeHolder}
-        onBlur={onBlue}
+        onBlur={onBlur}
         onInput={onInput}
         onChange={this.handleOnChange}
         cols={this.question.cols}
@@ -71,7 +71,7 @@ export class SurveyQuestionCommentItem extends ReactSurveyElement {
     let updateValueOnEvent = (event: any) => {
       question.comment = event.target.value;
     };
-    var onBlue = !question.isSurveyInputTextUpdate ? updateValueOnEvent : null;
+    var onBlur = !question.isSurveyInputTextUpdate ? updateValueOnEvent : null;
     var onInput = question.isSurveyInputTextUpdate ? updateValueOnEvent : null;
 
     let comment =
@@ -87,7 +87,7 @@ export class SurveyQuestionCommentItem extends ReactSurveyElement {
         maxLength={question.getOthersMaxLength()}
         placeholder={question.otherPlaceHolder}
         onChange={handleOnChange}
-        onBlur={onBlue}
+        onBlur={onBlur}
         onInput={onInput}
         aria-label={question.locTitle.renderedHtml}
       />

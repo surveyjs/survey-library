@@ -1129,7 +1129,7 @@ export class SurveyModel extends Base
   }
   /**
    * Set it to 'none' to include the invisible values into the survey data.
-   * </br> Set it to 'onHidden' to clear the question value when it becomes invisible.
+   * </br> Set it to 'onHidden' to clear the question value when it becomes invisible. If a question has value and it was invisible initially then survey clears the value on completing.
    * </br> Leave it equals to 'onComplete', to remove from data property values of invisible questions on survey complete. In this case, the invisible questions will not be stored on the server.
    * </br> The default value is 'onComplete'.
    * @see Question.visible

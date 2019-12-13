@@ -761,6 +761,8 @@ export class Question extends SurveyElement
    */
   public runCondition(values: HashTable<any>, properties: HashTable<any>) {
     if (this.isDesignMode) return;
+    if (!properties) properties = {};
+    properties["question"] = this;
     if (!this.areInvisibleElementsShowing) {
       this.runVisibleIfCondition(values, properties);
     }
@@ -1258,7 +1260,11 @@ export class Question extends SurveyElement
   protected setNewComment(newValue: string) {
     this.questionComment = newValue;
     if (this.data != null) {
-      this.data.setComment(this.getValueName(), newValue, this.isSurveyInputTextUpdate ? "text": false);
+      this.data.setComment(
+        this.getValueName(),
+        newValue,
+        this.isSurveyInputTextUpdate ? "text" : false
+      );
     }
   }
   //IQuestion

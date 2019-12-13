@@ -5181,6 +5181,27 @@ QUnit.test("condition function isContainerReady", function(assert) {
   assert.equal(qTest.isVisible, true, "isContainerReady returns true");
 });
 
+QUnit.test("Use 'question' in function context", function(assert) {
+  function isFirstLastChoiceSelected(params): boolean {
+    if(!this.question || question.isEmpty()) return false;
+    var first = question.choices[0].value;
+    var last = question.choices[question.choices.length - 1].value;
+    return question.value.indexOf(first) > -1 && question.value.indexOf(last) > -1;
+  }
+  FunctionFactory.Instance.register("isFirstLastChoiceSelected", isFirstLastChoiceSelected);
+  var survey = new SurveyModel();
+  var page = survey.addNewPage("page1");
+  var question = <QuestionCheckboxModel>page.addNewQuestion("checkbox", "q1");
+  question.choices = [1, 2, 3, 4, 5];
+  question.visibleIf = "isFirstLastChoiceSelected() == true";
+  assert.equal(question.isVisible, false, "first and last is not selected");
+  question.value = [1, 2];
+  assert.equal(question.isVisible, false, "first and last is not selected yet");
+  question.value = [1, 3, 5];
+  assert.equal(question.isVisible, true, "first and last is selected");
+  FunctionFactory.Instance.unregister("isFirstLastChoiceSelected");
+});
+
 QUnit.test(
   "Infinitive loop on setting value to checkbox, if there is a text question with the same name, Bug #1015",
   function(assert) {

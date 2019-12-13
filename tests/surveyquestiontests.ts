@@ -3095,6 +3095,29 @@ QUnit.test("QuestionImagePicker.isItemSelected function", function(assert) {
   );
 });
 
+QUnit.test("QuestionImagePicker 0 item value test", function(assert) {
+  var question = new QuestionImagePickerModel("q1");
+  new JsonObject().toObject(
+    {
+      type: "imagepicker",
+      name: "question3",
+      choices: [1, 2, 3, 4, 0]
+    },
+    question
+  );
+  question.value = 0;
+  assert.equal(
+    question.value,
+    0,
+    "Value should be 0 and not undefined"
+  );
+  assert.equal(
+    question.isEmpty(),
+    false,
+    "Question is not empty"
+  );
+});
+
 QUnit.test(
   "question visibleIf, enableIf and requiredIf with async functions in expression",
   function(assert) {

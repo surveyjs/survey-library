@@ -461,7 +461,7 @@ export class PanelModelBase extends SurveyElement
     }
     rec.result = true;
     errors.push(new OneAnswerRequiredError(this.requiredErrorText, this));
-    if (!rec.firstErrorQuestion) {
+    if (rec.focuseOnFirstError && !rec.firstErrorQuestion) {
       rec.firstErrorQuestion = visQuestions[0];
     }
   }

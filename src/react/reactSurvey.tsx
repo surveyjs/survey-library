@@ -205,8 +205,8 @@ export class Survey extends SurveyElementBase implements ISurveyCreator {
     }
     return title ? (
       <div className={this.css.header}>
-        <h3>{title}</h3>
-        <h5>{description}</h5>
+        <h3 className={this.css.title}>{title}</h3>
+        <h5 className={this.css.description}>{description}</h5>
       </div>
     ) : null;
   }

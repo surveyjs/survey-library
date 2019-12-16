@@ -4,10 +4,10 @@
       <div class="sv_custom_header"></div>
       <div :class="css.container">
         <div v-if="hasTitle" :class="css.header">
-          <h3>
+          <h3 :class="css.title">
             <survey-string :locString="survey.locTitle" />
           </h3>
-          <h5>
+          <h5 :class="css.description">
             <survey-string :locString="survey.locDescription" />
           </h5>
         </div>

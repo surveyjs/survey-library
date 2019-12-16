@@ -6,6 +6,8 @@ export var modernCss = {
   body: "sv-body",
   bodyEmpty: "sv-body sv-body--empty",
   footer: "sv-footer sv-body__footer sv-clearfix",
+  title: "",
+  description: "",
   navigationButton: "",
   completedPage: "sv-completedpage",
   navigation: {

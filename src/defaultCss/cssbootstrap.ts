@@ -7,6 +7,8 @@ export var defaultBootstrapCss = {
   body: "panel-body card-block mt-4",
   bodyEmpty: "panel-body card-block mt-4 sv_body_empty",
   footer: "panel-footer card-footer",
+  title: "",
+  description: "",
   navigationButton: "",
   completedPage: "",
   navigation: {

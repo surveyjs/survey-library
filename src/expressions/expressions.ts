@@ -275,13 +275,15 @@ export class FunctionOperand extends Operand {
   }
   public evaluateAsync(processValue: ProcessValue) {
     this.isReadyValue = false;
-    if (!processValue.properties) processValue.properties = {};
-    processValue.properties.returnResult = (result: any) => {
+    var asyncProcessValue = new ProcessValue();
+    asyncProcessValue.values = Helpers.createCopy(processValue.values);
+    asyncProcessValue.properties = Helpers.createCopy(processValue.properties);
+    asyncProcessValue.properties.returnResult = (result: any) => {
       this.asynResult = result;
       this.isReadyValue = true;
       this.onAsyncReady();
     };
-    this.evaluateCore(processValue);
+    this.evaluateCore(asyncProcessValue);
   }
   public evaluate(processValue?: ProcessValue): any {
     if (this.isReady) return this.asynResult;

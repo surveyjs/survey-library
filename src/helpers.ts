@@ -125,6 +125,14 @@ export class Helpers {
     }
     return value;
   }
+  public static createCopy(obj: any) {
+    var res: any = {};
+    if (!obj) return res;
+    for (var key in obj) {
+      res[key] = obj[key];
+    }
+    return res;
+  }
   public static isConvertibleToNumber(value: any): boolean {
     return (
       value !== undefined &&

@@ -1158,12 +1158,14 @@ export class QuestionPanelDynamicModel extends Question
     values: HashTable<any>,
     properties: HashTable<any>
   ) {
-    var newValues: { [index: string]: any } = {};
+    var cachedValues: { [index: string]: any } = {};
     if (values && values instanceof Object) {
-      newValues = JSON.parse(JSON.stringify(values));
+      cachedValues = JSON.parse(JSON.stringify(values));
     }
     for (var i = 0; i < this.panels.length; i++) {
       var panelValues = this.getPanelItemData(this.panels[i].data);
+      //Should be unique for every panel due async expression support
+      var newValues = Helpers.createCopy(cachedValues);
       newValues[
         QuestionPanelDynamicItem.ItemVariableName.toLowerCase()
       ] = panelValues;

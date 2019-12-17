@@ -159,7 +159,7 @@ QUnit.test("isConvertibleToNumber", function(assert) {
     "undefined is not convertible to number"
   );
   assert.equal(
-    Helpers.isConvertibleToNumber('undefined'),
+    Helpers.isConvertibleToNumber("undefined"),
     false,
     "'undefined' is not convertible to number"
   );
@@ -169,7 +169,7 @@ QUnit.test("isConvertibleToNumber", function(assert) {
     "array is not convertible to number"
   );
   assert.equal(
-    Helpers.isConvertibleToNumber(['1']),
+    Helpers.isConvertibleToNumber(["1"]),
     false,
     "array of string is not convertible to number"
   );
@@ -186,11 +186,7 @@ QUnit.test("isTwoValueEquals, 0 and '0'", function(assert) {
     false,
     "Zero dosnt' equal '0a'"
   );
-  assert.equal(
-    Helpers.isTwoValueEquals(undefined, 0),
-    false,
-    "undefined vs 0"
-  );
+  assert.equal(Helpers.isTwoValueEquals(undefined, 0), false, "undefined vs 0");
   assert.equal(
     Helpers.isTwoValueEquals(undefined, "0"),
     false,
@@ -201,25 +197,29 @@ QUnit.test("isTwoValueEquals, 0 and '0'", function(assert) {
     false,
     "'0' vs 'undefined'"
   );
+  assert.equal(Helpers.isTwoValueEquals(1, "1"), true, "1 is '1'");
+  assert.equal(Helpers.isTwoValueEquals(1.5, "1.5"), true, "1.5 is '1.5'");
+  assert.equal(Helpers.isTwoValueEquals(1, "1.5"), false, "1 is not '1.5'");
+  assert.equal(Helpers.isTwoValueEquals(2, "1.5"), false, "2 is not '1.5'");
   assert.equal(
-    Helpers.isTwoValueEquals(1, '1'),
+    Helpers.isTwoValueEquals(true, "true"),
     true,
-    "1 is '1'"
+    "'true' equals true"
   );
   assert.equal(
-    Helpers.isTwoValueEquals(1.5, '1.5'),
+    Helpers.isTwoValueEquals(false, "false"),
     true,
-    "1.5 is '1.5'"
+    "'false' equals false"
   );
   assert.equal(
-    Helpers.isTwoValueEquals(1, '1.5'),
-    false,
-    "1 is not '1.5'"
+    Helpers.isTwoValueEquals("True", true),
+    true,
+    "'True' equals true"
   );
   assert.equal(
-    Helpers.isTwoValueEquals(2, '1.5'),
-    false,
-    "2 is not '1.5'"
+    Helpers.isTwoValueEquals("False", false),
+    true,
+    "'False' equals false"
   );
 });
 

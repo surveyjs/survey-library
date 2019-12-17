@@ -962,6 +962,30 @@ QUnit.test(
     );
   }
 );
+QUnit.test(
+  "Boolean value set as string in item.value, Bug #T3118 (private)",
+  function(assert) {
+    var json = {
+      elements: [{ type: "radiogroup", name: "q1", choices: ["true", "false"] }]
+    };
+    var survey = new SurveyModel(json);
+    var question = <QuestionRadiogroupModel>survey.getQuestionByName("q1");
+    survey.setValue("q1", true);
+    assert.ok(question.selectedItem, "Item is selected");
+    assert.equal(
+      question.selectedItem.value,
+      "true",
+      "the first item is selected"
+    );
+    survey.setValue("q1", false);
+    assert.ok(question.selectedItem, "Item is selected");
+    assert.equal(
+      question.selectedItem.value,
+      "false",
+      "the second item is selected"
+    );
+  }
+);
 QUnit.test("Show errors if others value is selected, but not entered", function(
   assert
 ) {
@@ -3106,16 +3130,8 @@ QUnit.test("QuestionImagePicker 0 item value test", function(assert) {
     question
   );
   question.value = 0;
-  assert.equal(
-    question.value,
-    0,
-    "Value should be 0 and not undefined"
-  );
-  assert.equal(
-    question.isEmpty(),
-    false,
-    "Question is not empty"
-  );
+  assert.equal(question.value, 0, "Value should be 0 and not undefined");
+  assert.equal(question.isEmpty(), false, "Question is not empty");
 });
 
 QUnit.test(

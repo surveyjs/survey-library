@@ -28,9 +28,48 @@ steps:
     npm run doc_gen
   displayName: 'generate docs'
 
-- script: |
-    chmod +x ./deploy_npm.sh && ./deploy_npm.sh
-  displayName: 'npm publish'
+- task: Npm@1
+  inputs:
+    command: 'publish'
+    workingDir: 'packages/survey-angular'
+    publishEndpoint: 'NPM Registry'
+    verbose: true
+
+- task: Npm@2
+  inputs:
+    command: 'publish'
+    workingDir: 'packages/survey-react'
+    publishEndpoint: 'NPM Registry'
+    verbose: true
+
+- task: Npm@3
+  inputs:
+    command: 'publish'
+    workingDir: 'packages/survey-vue'
+    publishEndpoint: 'NPM Registry'
+    verbose: true
+
+- task: Npm@4
+  inputs:
+    command: 'publish'
+    workingDir: 'packages/survey-knockout'
+    publishEndpoint: 'NPM Registry'
+    verbose: true
+
+- task: Npm@5
+  inputs:
+    command: 'publish'
+    workingDir: 'packages/survey-jquery'
+    publishEndpoint: 'NPM Registry'
+    verbose: true
+
+- task: Npm@6
+  inputs:
+    command: 'publish'
+    workingDir: 'packages/survey-core'
+    publishEndpoint: 'NPM Registry'
+    verbose: true
+
 
 - script: |
     npm run doc_update

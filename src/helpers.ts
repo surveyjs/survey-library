@@ -70,13 +70,23 @@ export class Helpers {
     if ((x === undefined || x === null) && y === "undefined") return true;
     if ((y === undefined || y === null) && x === "undefined") return true;
 
-    if(Helpers.isConvertibleToNumber(x) && Helpers.isConvertibleToNumber(y)) {
-      if(parseInt(x) === parseInt(y) && parseFloat(x) === parseFloat(y)) {
+    if (Helpers.isConvertibleToNumber(x) && Helpers.isConvertibleToNumber(y)) {
+      if (parseInt(x) === parseInt(y) && parseFloat(x) === parseFloat(y)) {
         return true;
       }
     }
 
-    if ((x && !y) || (!x && y)) return false;
+    if (
+      (!Helpers.isValueEmpty(x) && Helpers.isValueEmpty(y)) ||
+      (Helpers.isValueEmpty(x) && !Helpers.isValueEmpty(y))
+    )
+      return false;
+    if ((x === true || x === false) && typeof y == "string") {
+      return x.toString() === y.toLocaleLowerCase();
+    }
+    if ((y === true || y === false) && typeof x == "string") {
+      return y.toString() === x.toLocaleLowerCase();
+    }
     if (!(x instanceof Object) && !(y instanceof Object)) return x == y;
     if (!(x instanceof Object) || !(y instanceof Object)) return false;
     if (x["equals"]) return x.equals(y);
@@ -116,7 +126,12 @@ export class Helpers {
     return value;
   }
   public static isConvertibleToNumber(value: any): boolean {
-    return value !== undefined && value !== null && !Array.isArray(value) && !isNaN(value);
+    return (
+      value !== undefined &&
+      value !== null &&
+      !Array.isArray(value) &&
+      !isNaN(value)
+    );
   }
   public static isNumber(value: any): boolean {
     if (

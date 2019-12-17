@@ -5,6 +5,7 @@
     "test": "karma start",
     "testsingle": "karma start --single-run",
     "testcafe": "concurrently \"http-server\" \"testcafe chrome testCafe/\"",
+    "testcafe_ci": "http-server -p 7777 --silent & testcafe chrome:headless --reporter minimal testCafe/",
     "testcafe_sauce": "testcafe \"saucelabs:Chrome@56.0:Windows 10\" testCafe/",
     "release": "standard-version --message \"Release: %s\" ",
     "build_knockout_dev": "webpack --env.buildType dev --env.platform knockout",

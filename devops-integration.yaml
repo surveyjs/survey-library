@@ -25,7 +25,8 @@ steps:
 
 - script: |
     npm run testsingle
-  displayName: 'run unit tests'
+    npm run testcafe_ci
+  displayName: 'run tests'
 
 - task: CopyFiles@2
   inputs:

@@ -3204,3 +3204,85 @@ QUnit.test("survey.onMatrixAllowRemoveRow", function(assert) {
     "The third row can be removed"
   );
 });
+
+QUnit.test(
+  "two shared matrixdynamic - should be no errors, Bug #T3121 (https://surveyjs.answerdesk.io/ticket/details/T3121)",
+  function(assert) {
+    var survey = new SurveyModel({
+      questions: [
+        {
+          type: "matrixdynamic",
+          name: "employer_names",
+          valueName: "qualita",
+          isRequired: true,
+          columns: [
+            {
+              name: "name",
+              cellType: "text",
+              isRequired: true
+            }
+          ],
+          rowCount: 4,
+          minRowCount: 4,
+          maxRowCount: 4
+        },
+        {
+          type: "radiogroup",
+          name: "qualitypriority",
+          choices: [
+            {
+              value: "0",
+              text: "{qualita[0].name}"
+            },
+            {
+              value: "1",
+              text: "{qualita[1].name}"
+            },
+            {
+              value: "2",
+              text: "{qualita[2].name}"
+            },
+            {
+              value: "3",
+              text: "{qualita[3].name}"
+            }
+          ]
+        },
+        {
+          type: "paneldynamic",
+          name: "arrray_qualita",
+          valueName: "qualita",
+          templateElements: [
+            {
+              type: "radiogroup",
+              name: "competenza",
+              choices: [
+                {
+                  value: "0"
+                },
+                {
+                  value: "1"
+                },
+                {
+                  value: "2"
+                },
+                {
+                  value: "3"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    });
+    var test_qualita = [
+      { name: "Leadership", competenza: "3" },
+      { name: "Team working", competenza: "2" },
+      { name: "Iniziativa", competenza: "1" },
+      { name: "Autonomia", competenza: "2" }
+    ];
+    survey.setValue("qualita", test_qualita);
+    var matrixDynamic = survey.getQuestionByName("employer_names");
+    assert.deepEqual(matrixDynamic.value, test_qualita, "Value set correctly");
+  }
+);

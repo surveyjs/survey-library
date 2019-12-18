@@ -106,9 +106,10 @@ export class QuestionPanelDynamicItem
   //ITextProcessor
   private getProcessedTextValue(textValue: TextPreProcessorValue) {
     if (!textValue) return;
+    var panelIndex = !!this.data ? this.data.getItemIndex(this) : -1;
     if (textValue.name == QuestionPanelDynamicItem.IndexVariableName) {
       textValue.isExists = true;
-      textValue.value = this.data.getItemIndex(this) + 1;
+      textValue.value = panelIndex + 1;
       return;
     }
     var firstName = new ProcessValue().getFirstName(textValue.name);
@@ -122,11 +123,8 @@ export class QuestionPanelDynamicItem
     );
     var firstName = new ProcessValue().getFirstName(textValue.name);
     var question = <Question>this.panel.getQuestionByValueName(firstName);
-    if (!question && !!this.data) {
-      question = this.data.getSharedQuestionFromArray(
-        firstName,
-        this.data.getItemIndex(this)
-      );
+    if (!question && panelIndex > -1) {
+      question = this.data.getSharedQuestionFromArray(firstName, panelIndex);
     }
     var values = {};
     if (question) {

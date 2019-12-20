@@ -35,35 +35,35 @@ steps:
     publishEndpoint: 'NPM Registry'
     verbose: true
 
-- task: Npm@2
+- task: Npm@1
   inputs:
     command: 'publish'
     workingDir: 'packages/survey-react'
     publishEndpoint: 'NPM Registry'
     verbose: true
 
-- task: Npm@3
+- task: Npm@1
   inputs:
     command: 'publish'
     workingDir: 'packages/survey-vue'
     publishEndpoint: 'NPM Registry'
     verbose: true
 
-- task: Npm@4
+- task: Npm@1
   inputs:
     command: 'publish'
     workingDir: 'packages/survey-knockout'
     publishEndpoint: 'NPM Registry'
     verbose: true
 
-- task: Npm@5
+- task: Npm@1
   inputs:
     command: 'publish'
     workingDir: 'packages/survey-jquery'
     publishEndpoint: 'NPM Registry'
     verbose: true
 
-- task: Npm@6
+- task: Npm@1
   inputs:
     command: 'publish'
     workingDir: 'packages/survey-core'

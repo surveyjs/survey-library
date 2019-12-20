@@ -28,7 +28,9 @@ export class ConditionsParser {
       var result = ConditionsParser.parserCache[text];
       if (result === undefined) {
         result = parse(this.patchExpression(text));
-        ConditionsParser.parserCache[text] = result;
+        if (!result.hasAsyncFunction()) {
+          ConditionsParser.parserCache[text] = result;
+        }
       }
       return result;
     } catch (e) {

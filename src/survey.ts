@@ -798,13 +798,11 @@ export class SurveyModel extends Base
       value.setOwner(self);
     });
     this.createNewArray("calculatedValues", function(value: any) {
-        value.setOwner(self);
-      }
-    );
+      value.setOwner(self);
+    });
     this.createNewArray("completedHtmlOnCondition", function(value: any) {
-        value.locOwner = self;
-      }
-    );
+      value.locOwner = self;
+    });
     this.registerFunctionOnPropertyValueChanged(
       "questionTitleTemplate",
       function() {
@@ -1980,14 +1978,15 @@ export class SurveyModel extends Base
    * @see setDesignMode
    */
   public get isDesignMode(): boolean {
-    return this.getPropertyValue("isDesignMode", false);
+    return this._isDesignMode;
   }
+  private _isDesignMode: boolean = false;
   /**
    * Call it to set the survey into the design mode.
    * @param value use true to set the survey into the design mode.
    */
   public setDesignMode(value: boolean) {
-    this.setPropertyValue("isDesignMode", value);
+    this._isDesignMode = value;
     this.onIsSinglePageChanged();
   }
   /**
@@ -2268,7 +2267,7 @@ export class SurveyModel extends Base
       single.addPanel(panel);
       var json = new JsonObject().toJsonObject(page);
       new JsonObject().toObject(json, panel);
-      if(!this.showPageTitles) {
+      if (!this.showPageTitles) {
         panel.title = "";
       }
     }
@@ -2542,11 +2541,17 @@ export class SurveyModel extends Base
       row: row
     });
   }
-  matrixAllowRemoveRow(question: IQuestion, rowIndex: number, row: any): boolean {
+  matrixAllowRemoveRow(
+    question: IQuestion,
+    rowIndex: number,
+    row: any
+  ): boolean {
     var options = {
       question: question,
       rowIndex: rowIndex,
-      row: row, allow: true};
+      row: row,
+      allow: true
+    };
     this.onMatrixAllowRemoveRow.fire(this, options);
     return options.allow;
   }

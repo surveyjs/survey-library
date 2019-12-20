@@ -124,7 +124,11 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner {
     canAddRow: boolean;
   }): any;
   matrixRowRemoved(question: IQuestion, rowIndex: number, row: any): any;
-  matrixAllowRemoveRow(question: IQuestion, rowIndex: number, row: any): boolean;
+  matrixAllowRemoveRow(
+    question: IQuestion,
+    rowIndex: number,
+    row: any
+  ): boolean;
   matrixCellCreated(question: IQuestion, options: any): any;
   matrixAfterCellRender(question: IQuestion, options: any): any;
   matrixCellValueChanged(question: IQuestion, options: any): any;
@@ -365,6 +369,20 @@ export class Base {
       }
     }
   }
+  public onPropertyValueChangedCallback(
+    name: string,
+    oldValue: any,
+    newValue: any
+  ) {
+    if (!!(<any>this)["survey"]) {
+      (<any>this)["survey"].onPropertyValueChangedCallback(
+        name,
+        oldValue,
+        newValue
+      );
+    }
+  }
+
   protected propertyValueChanged(name: string, oldValue: any, newValue: any) {
     if (this.isLoadingFromJson) return;
     this.onPropertyChanged.fire(this, {
@@ -377,6 +395,7 @@ export class Base {
       if (this.onPropChangeFunctions[i].name == name)
         this.onPropChangeFunctions[i].func(newValue);
     }
+    this.onPropertyValueChangedCallback(name, oldValue, newValue);
   }
   /**
    * Register a function that will be called on a property value changed.

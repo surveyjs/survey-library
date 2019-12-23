@@ -1,6 +1,6 @@
 import * as React from "react";
 import {
-  SurveyQuestionElementBase,
+  SurveyQuestionUncontrolledElement,
   ReactSurveyElement
 } from "./reactquestionelement";
 import { Helpers } from "../helpers";
@@ -10,23 +10,9 @@ import { ReactQuestionFactory } from "./reactquestionfactory";
 import { ItemValue } from "../itemvalue";
 import { Base } from "../base";
 
-export class SurveyQuestionDropdown extends SurveyQuestionElementBase {
-  select: any;
+export class SurveyQuestionDropdown extends SurveyQuestionUncontrolledElement<QuestionDropdownModel> {
   constructor(props: any) {
     super(props);
-    this.handleOnChange = this.handleOnChange.bind(this);
-  }
-  protected get question(): QuestionDropdownModel {
-    return this.questionBase as QuestionDropdownModel;
-  }
-  componentWillUpdate() {
-    this.select.value = this.getValue(this.question.value);
-  }
-  componentDidMount() {
-    this.select.value = this.getValue(this.question.value);
-  }
-  handleOnChange(event: any) {
-    this.question.value = event.target.value;
   }
   render(): JSX.Element {
     if (!this.question) return null;
@@ -70,9 +56,9 @@ export class SurveyQuestionDropdown extends SurveyQuestionElementBase {
         <select
           id={this.question.inputId}
           className={cssClasses.control}
-          ref={select => (this.select = select)}
-          onChange={this.handleOnChange}
-          onInput={this.handleOnChange}
+          ref={select => (this.control = select)}
+          onChange={this.updateValueOnEvent}
+          onInput={this.updateValueOnEvent}
           aria-label={this.question.locTitle.renderedHtml}
         >
           {captionOption}
@@ -92,10 +78,6 @@ export class SurveyQuestionDropdown extends SurveyQuestionElementBase {
         />
       </div>
     );
-  }
-  private getValue(val: any): any {
-    if (Helpers.isValueEmpty(val)) return "";
-    return val;
   }
 }
 

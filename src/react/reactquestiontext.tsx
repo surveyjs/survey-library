@@ -1,6 +1,5 @@
 import * as React from "react";
 import { Helpers } from "../helpers";
-import { Base } from "../base";
 import { SurveyQuestionElementBase } from "./reactquestionelement";
 import { QuestionTextModel } from "../question_text";
 import { ReactQuestionFactory } from "./reactquestionfactory";

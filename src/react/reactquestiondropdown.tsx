@@ -3,6 +3,7 @@ import {
   SurveyQuestionElementBase,
   ReactSurveyElement
 } from "./reactquestionelement";
+import { Helpers } from "../helpers";
 import { QuestionDropdownModel } from "../question_dropdown";
 import { SurveyQuestionCommentItem } from "./reactquestioncomment";
 import { ReactQuestionFactory } from "./reactquestionfactory";
@@ -10,6 +11,7 @@ import { ItemValue } from "../itemvalue";
 import { Base } from "../base";
 
 export class SurveyQuestionDropdown extends SurveyQuestionElementBase {
+  select: any;
   constructor(props: any) {
     super(props);
     this.handleOnChange = this.handleOnChange.bind(this);
@@ -17,9 +19,14 @@ export class SurveyQuestionDropdown extends SurveyQuestionElementBase {
   protected get question(): QuestionDropdownModel {
     return this.questionBase as QuestionDropdownModel;
   }
+  componentWillUpdate() {
+    this.select.value = this.getValue(this.question.value);
+  }
+  componentDidMount() {
+    this.select.value = this.getValue(this.question.value);
+  }
   handleOnChange(event: any) {
-    this.question.renderedValue = event.target.value;
-    this.setState({ value: this.getStateValue() });
+    this.question.value = event.target.value;
   }
   render(): JSX.Element {
     if (!this.question) return null;
@@ -58,17 +65,12 @@ export class SurveyQuestionDropdown extends SurveyQuestionElementBase {
       <option value="">{this.question.optionsCaption}</option>
     ) : null;
 
-    var value =
-      !!this.state && this.state.value !== undefined
-        ? this.state.value
-        : this.getStateValue();
-
     return (
       <div className={cssClasses.selectWrapper}>
         <select
           id={this.question.inputId}
           className={cssClasses.control}
-          value={value}
+          ref={select => (this.select = select)}
           onChange={this.handleOnChange}
           onInput={this.handleOnChange}
           aria-label={this.question.locTitle.renderedHtml}
@@ -91,8 +93,9 @@ export class SurveyQuestionDropdown extends SurveyQuestionElementBase {
       </div>
     );
   }
-  private getStateValue(): any {
-    return !this.question.isEmpty() ? this.question.renderedValue : "";
+  private getValue(val: any): any {
+    if (Helpers.isValueEmpty(val)) return "";
+    return val;
   }
 }
 

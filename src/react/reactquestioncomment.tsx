@@ -1,14 +1,14 @@
 import * as React from "react";
 import {
-  SurveyElementBase,
   ReactSurveyElement,
   SurveyQuestionElementBase
 } from "./reactquestionelement";
+import { Helpers } from "../helpers";
 import { QuestionCommentModel } from "../question_comment";
-import { Question } from "../question";
 import { ReactQuestionFactory } from "./reactquestionfactory";
 
 export class SurveyQuestionComment extends SurveyQuestionElementBase {
+  tetxarea: any;
   constructor(props: any) {
     super(props);
     this.handleOnChange = this.handleOnChange.bind(this);
@@ -17,20 +17,21 @@ export class SurveyQuestionComment extends SurveyQuestionElementBase {
   protected get question(): QuestionCommentModel {
     return this.questionBase as QuestionCommentModel;
   }
+  componentWillUpdate() {
+    this.tetxarea.value = this.getValue(this.question.value);
+  }
+  componentDidMount() {
+    this.tetxarea.value = this.getValue(this.question.value);
+  }
   handleOnChange(event: any) {
-    this.setState({ value: event.target.value });
+    this.question.value = event.target.value;
   }
   updateValueOnEvent(event: any) {
     this.question.value = event.target.value;
-    this.setState({ value: this.getStateValue() });
   }
   render(): JSX.Element {
     if (!this.question) return null;
     var cssClasses = this.question.cssClasses;
-    var commentValue =
-      !!this.state && this.state.value !== undefined
-        ? this.state.value
-        : this.getStateValue();
     var onBlur = !this.question.isInputTextUpdate
       ? this.updateValueOnEvent
       : null;
@@ -43,7 +44,7 @@ export class SurveyQuestionComment extends SurveyQuestionElementBase {
         id={this.question.inputId}
         className={cssClasses.root}
         readOnly={this.isDisplayMode}
-        value={commentValue}
+        ref={tetxarea => (this.tetxarea = tetxarea)}
         maxLength={this.question.getMaxLength()}
         placeholder={this.question.placeHolder}
         onBlur={onBlur}
@@ -55,8 +56,9 @@ export class SurveyQuestionComment extends SurveyQuestionElementBase {
       />
     );
   }
-  private getStateValue(): any {
-    return !this.question.isEmpty() ? this.question.value : "";
+  private getValue(val: any): any {
+    if (Helpers.isValueEmpty(val)) return "";
+    return val;
   }
 }
 

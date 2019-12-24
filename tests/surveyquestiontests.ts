@@ -3,6 +3,7 @@ import { QuestionHtmlModel } from "../src/question_html";
 import { QuestionFactory } from "../src/questionfactory";
 import { QuestionSelectBase } from "../src/question_baseselect";
 import { QuestionTextModel } from "../src/question_text";
+import { QuestionCommentModel } from "../src/question_comment";
 import { SurveyModel } from "../src/survey";
 import { QuestionCheckboxModel } from "../src/question_checkbox";
 import { QuestionMatrixModel, MatrixRowModel } from "../src/question_matrix";
@@ -3310,3 +3311,9 @@ QUnit.test(
     FunctionFactory.Instance.unregister("asyncFunc2");
   }
 );
+QUnit.test("question.getSupportedValidators", function(assert) {
+  assert.deepEqual(new QuestionMatrixModel("q").getSupportedValidators(), ["expression"]);
+  assert.deepEqual(new QuestionTextModel("q").getSupportedValidators(), ["expression", "numeric", "text", "regex", "email"]);
+  assert.deepEqual(new QuestionCommentModel("q").getSupportedValidators(), ["expression", "text", "regex"]);
+  assert.deepEqual(new QuestionCheckboxModel("q").getSupportedValidators(), ["expression", "answercount"]);
+});

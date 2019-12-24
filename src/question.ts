@@ -1077,6 +1077,14 @@ export class Question extends SurveyElement
   public getValidators(): Array<SurveyValidator> {
     return this.validators;
   }
+  public getSupportedValidators(): Array<string> {
+    var res: Array<string> = [];
+    this.addSupportedValidators(res);
+    return res;
+  }
+  protected addSupportedValidators(supportedValidators: Array<string>) {
+    supportedValidators.push("expression");
+  }
   public addConditionNames(names: Array<string>) {
     names.push(this.name);
   }

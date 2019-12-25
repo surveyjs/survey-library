@@ -384,8 +384,12 @@ export class OperandMaker {
   static binaryFunctions: HashTable<Function> = {
     arithmeticOp(operatorName: string) {
       return function(a: any, b: any): any {
-        if (Helpers.isValueEmpty(a) && !OperandMaker.isSpaceString(a)) a = 0;
-        if (Helpers.isValueEmpty(b) && !OperandMaker.isSpaceString(b)) b = 0;
+        if (Helpers.isValueEmpty(a) && !OperandMaker.isSpaceString(a)) {
+          a = typeof b === "string" ? "" : 0;
+        }
+        if (Helpers.isValueEmpty(b) && !OperandMaker.isSpaceString(b)) {
+          b = typeof a === "string" ? "" : 0;
+        }
 
         let consumer = OperandMaker.binaryFunctions[operatorName];
         return consumer == null ? null : consumer.call(this, a, b);
@@ -397,7 +401,7 @@ export class OperandMaker {
     or: function(a: boolean, b: boolean): boolean {
       return a || b;
     },
-    plus: function(a: number, b: number): number {
+    plus: function(a: any, b: any): any {
       return a + b;
     },
     minus: function(a: number, b: number): number {

@@ -8358,3 +8358,46 @@ QUnit.test("Expression operator get display text using question.title and questi
   str = expressionToDisplay.toDisplayText("{q1} = 2 or (1 != {q1} and {q2} contains [1, 2]) or {q3} = 1");
   assert.equal(str, '((({Question 1} == two) or ((one != {Question 1}) and ({Question 2} contains [one, two]))) or ({q3} == 1))', "Use question title and display text");
 });
+
+QUnit.test("Expression doesn't work correctly with iif function, Bug#1942", function(assert) {
+  // prettier-ignore
+  var json = {
+    "pages": [
+     {
+      "name": "page1",
+      "elements": [
+       {
+        "type": "text",
+        "name": "question3"
+       },
+       {
+        "type": "radiogroup",
+        "name": "question1",
+        "choices": [
+         {
+          "value": "item1",
+          "text": "item1"
+         },
+         "item2",
+         "item3"
+        ]
+       },
+       {
+        "type": "expression",
+        "name": "question2",
+        "expression": "{question3} + iif( {question1} = \"item2\", \"[\" + {question3} + \"]\", \"x\")",
+        "commentText": "Other (describe)"
+       }
+      ]
+     }
+    ]
+   };
+  var survey = new SurveyModel(json);
+  survey.setValue("question3", "a");
+  survey.setValue("question1", "item2");
+  assert.equal(survey.getValue("question2"), "a[a]", "iif true");
+  survey.setValue("question1", "item1");
+  assert.equal(survey.getValue("question2"), "ax", "iif false");
+  survey.clearValue("question3");
+  assert.equal(survey.getValue("question2"), "x", "iif false where question3 is empty");
+});

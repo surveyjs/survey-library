@@ -40,6 +40,9 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
       }
     );
   }
+  public getType(): string {
+    return "checkbox";
+  }
   protected onCreating() {
     super.onCreating();
     this.createNewArray("renderedValue");
@@ -323,9 +326,9 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     if (this.hasNone && val == this.noneItemValue.value) return false;
     return super.hasUnknownValue(val, includeOther);
   }
-
-  public getType(): string {
-    return "checkbox";
+  protected addSupportedValidators(supportedValidators: Array<string>) {
+    super.addSupportedValidators(supportedValidators);
+    supportedValidators.push("answercount");
   }
 }
 Serializer.addClass(

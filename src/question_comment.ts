@@ -68,6 +68,10 @@ export class QuestionCommentModel extends Question {
   isEmpty(): boolean {
     return super.isEmpty() || this.value === "";
   }
+  protected addSupportedValidators(supportedValidators: Array<string>) {
+    super.addSupportedValidators(supportedValidators);
+    supportedValidators.push("text", "regex");
+  }
 }
 Serializer.addClass(
   "comment",

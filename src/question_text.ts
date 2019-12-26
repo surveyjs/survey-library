@@ -98,6 +98,10 @@ export class QuestionTextModel extends Question {
     }
     return newValue;
   }
+  protected addSupportedValidators(supportedValidators: Array<string>) {
+    super.addSupportedValidators(supportedValidators);
+    supportedValidators.push("numeric", "text", "regex", "email");
+  }
 }
 
 Serializer.addClass(

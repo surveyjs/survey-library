@@ -1,5 +1,5 @@
 import * as React from "react";
-import { ItemValue } from "../itemvalue";
+import { Helpers } from "../helpers";
 import { LocalizableString } from "../localizablestring";
 import { Question } from "../question";
 import { ISurveyCreator } from "./reactquestion";
@@ -134,5 +134,29 @@ export class SurveyQuestionElementBase extends SurveyElementBase {
       !!this.questionBase.customWidget.widgetJson.isDefaultRender ||
       !!this.questionBase.customWidget.widgetJson.render
     );
+  }
+}
+
+export class SurveyQuestionUncontrolledElement<T extends Question> extends SurveyQuestionElementBase {
+  control: any;
+  constructor(props: any) {
+    super(props);
+    this.updateValueOnEvent = this.updateValueOnEvent.bind(this);
+  }
+  protected get question(): T {
+    return this.questionBase as T;
+  }
+  componentWillUpdate() {
+    this.control.value = this.getValue(this.questionBase.value);
+  }
+  componentDidMount() {
+    this.control.value = this.getValue(this.questionBase.value);
+  }
+  updateValueOnEvent = (event: any) => {
+    this.questionBase.value = event.target.value;
+  };
+  private getValue(val: any): any {
+    if (Helpers.isValueEmpty(val)) return "";
+    return val;
   }
 }

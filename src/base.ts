@@ -579,7 +579,12 @@ export class Base {
     newArray.push = function(value): number {
       var result = Object.getPrototypeOf(newArray).push.call(newArray, value);
       if (onPush) onPush(value, newArray.length - 1);
-      const arrayChanges = new ArrayChanges(newArray.length - 1, 0, [value]);
+      const arrayChanges = new ArrayChanges(
+        newArray.length - 1,
+        0,
+        [value],
+        []
+      );
       self.propertyValueChanged(name, newArray, newArray, arrayChanges);
       self.notifyArrayChanged(newArray);
       return result;
@@ -590,7 +595,7 @@ export class Base {
         value
       );
       if (onPush) onPush(value, newArray.length - 1);
-      const arrayChanges = new ArrayChanges(0, 0, [value]);
+      const arrayChanges = new ArrayChanges(0, 0, [value], []);
       self.propertyValueChanged(name, newArray, newArray, arrayChanges);
       self.notifyArrayChanged(newArray);
       return result;
@@ -598,7 +603,7 @@ export class Base {
     newArray.pop = function(): number {
       var result = Object.getPrototypeOf(newArray).pop.call(newArray);
       if (onRemove) onRemove(result);
-      const arrayChanges = new ArrayChanges(newArray.length - 1, 1, []);
+      const arrayChanges = new ArrayChanges(newArray.length - 1, 1, [], []);
       self.propertyValueChanged(name, newArray, newArray, arrayChanges);
       self.notifyArrayChanged(newArray);
       return result;
@@ -628,7 +633,7 @@ export class Base {
         }
       }
 
-      const arrayChanges = new ArrayChanges(start, deleteCount, items);
+      const arrayChanges = new ArrayChanges(start, deleteCount, items, result);
       self.propertyValueChanged(name, newArray, newArray, arrayChanges);
       self.notifyArrayChanged(newArray);
       return result;
@@ -686,7 +691,8 @@ export class ArrayChanges {
   constructor(
     public index: number,
     public deleteCount: number,
-    public itemsToAdd: any[]
+    public itemsToAdd: any[],
+    public deletedItems: any[]
   ) {}
 }
 

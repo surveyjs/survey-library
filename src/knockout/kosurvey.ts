@@ -34,11 +34,6 @@ export class Survey extends SurveyModel {
     StylesManager.applyTheme(value);
   }
   private renderedElement: HTMLElement;
-  //TODO remove it, since there is onAfterRenderSurvey
-  public onRendered: Event<(sender: SurveyModel) => any, any> = new Event<
-    (sender: SurveyModel) => any,
-    any
-  >();
   private isFirstRender: boolean = true;
   private mouseDownPage: any = null;
 
@@ -180,7 +175,6 @@ export class Survey extends SurveyModel {
     this.render();
   }
   public koEventAfterRender(element: any, survey: any) {
-    survey.onRendered.fire(this, {});
     survey.afterRenderSurvey(element);
   }
   public loadSurveyFromService(

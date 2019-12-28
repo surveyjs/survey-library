@@ -14,6 +14,7 @@ import {
   Event,
   ISurveyErrorOwner
 } from "./base";
+import { surveyCss } from "./defaultCss/cssstandard";
 import { ISurveyTriggerOwner, SurveyTrigger } from "./trigger";
 import { CalculatedValue } from "./calculatedValue";
 import { PageModel } from "./page";
@@ -846,6 +847,20 @@ export class SurveyModel extends Base
    */
   public get pages(): Array<PageModel> {
     return this.pagesValue;
+  }
+  public getCss(): any {
+    return this.css;
+  }
+  private cssValue: any = null;
+  public get css(): any {
+    if(!this.cssValue) {
+      this.cssValue = {}
+      this.copyCssClasses(this.cssValue, surveyCss.getCss())
+    }
+    return this.cssValue;
+  }
+  public set css(value: any) {
+    this.mergeValues(value, this.css);
   }
   /**
    * The list of triggers in the survey.

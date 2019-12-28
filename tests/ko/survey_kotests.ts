@@ -138,9 +138,8 @@ QUnit.test(
     var survey = new Survey();
     survey.setValue("checkboxQuestion", "initialValue");
     var page = survey.addNewPage("my page");
-    var question = <Question>page.addNewQuestion(
-      "checkbox",
-      "checkboxQuestion"
+    var question = <Question>(
+      page.addNewQuestion("checkbox", "checkboxQuestion")
     );
     assert.deepEqual(question.value, ["initialValue"], "get initial value");
     question.value = "setFromValue";
@@ -192,7 +191,11 @@ QUnit.test(
     var visibleRows = matrix.visibleRows;
     matrix.value = { row1: "col2" };
     assert.equal(visibleRows[0]["koValue"](), "col2", "set the correct value");
-    assert.equal(matrix.koVisibleRows()[0]["koValue"](), "col2", "set the correct value in ko");
+    assert.equal(
+      matrix.koVisibleRows()[0]["koValue"](),
+      "col2",
+      "set the correct value in ko"
+    );
   }
 );
 QUnit.test(
@@ -874,8 +877,8 @@ QUnit.test(
         }
       ]
     });
-    var dynamicPanel = <QuestionPanelDynamic>survey.getQuestionByName(
-      "question1"
+    var dynamicPanel = <QuestionPanelDynamic>(
+      survey.getQuestionByName("question1")
     );
     assert.ok(dynamicPanel, "Dynamic panel is here");
     assert.equal(
@@ -1334,7 +1337,10 @@ QUnit.test("Dynamic Panel bug with localization, bug #1184", function(assert) {
 QUnit.test(
   "exception during changing multiSelect for imagepicker, bug https://github.com/surveyjs/editor/issues/374",
   function(assert) {
+    var survey = new Survey();
+    var page = survey.addNewPage("p");
     var q = new QuestionImagePicker("question1");
+    page.addQuestion(q);
     q.endLoadingFromJson();
     var containsStyles = (str: string) =>
       str.indexOf("sv_q_imgsel sv_q_imagepicker_inline") > -1;
@@ -1625,7 +1631,10 @@ QUnit.test(
         },
         {
           name: "page1",
-          elements: [{ type: "text", name: "q1" }, { type: "text", name: "q2" }]
+          elements: [
+            { type: "text", name: "q1" },
+            { type: "text", name: "q2" }
+          ]
         },
         {
           name: "page2",

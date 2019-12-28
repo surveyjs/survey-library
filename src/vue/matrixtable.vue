@@ -38,7 +38,6 @@
 <script lang="ts">
 import Vue from "vue";
 import { Component, Prop } from "vue-property-decorator";
-import { surveyCss } from "../defaultCss/cssstandard";
 import { Question } from "../question";
 import {
   QuestionMatrixDropdownModelBase,

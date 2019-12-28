@@ -33,6 +33,7 @@ export interface ISurveyErrorOwner extends ILocalizableOwner {
 export interface ISurvey extends ITextProcessor, ISurveyErrorOwner {
   currentPage: IPage;
   pages: Array<IPage>;
+  getCss(): any;
   isPageStarted(page: IPage): boolean;
   pageVisibilityChanged(page: IPage, newValue: boolean): any;
   panelVisibilityChanged(panel: IPanel, newValue: boolean): any;
@@ -681,6 +682,24 @@ export class Base {
     }
     return Helpers.isTwoValueEquals(x, y);
   }
+  private static copyObject(dst: any, src: any) {
+    for (var key in src) {
+      var source = src[key];
+      if (typeof source === "object") {
+        source = {};
+        this.copyObject(source, src[key]);
+      }
+      dst[key] = source;
+    }
+  }
+  protected copyCssClasses(dest: any, source: any) {
+    if (!source) return;
+    if (typeof source === "string" || source instanceof String) {
+      dest["root"] = source;
+    } else {
+      SurveyElement.copyObject(dest, source);
+    }
+  }
   private getValueInLowCase(val: any): any {
     if (!!val && typeof val == "string") return val.toLowerCase();
     return val;
@@ -935,24 +954,6 @@ export class SurveyElement extends Base implements ISurveyElement {
     if (parent) parent.removeElement(<IElement>(<any>this));
     if (val) {
       val.addElement(<IElement>(<any>this), -1);
-    }
-  }
-  private static copyObject(dst: any, src: any) {
-    for (var key in src) {
-      var source = src[key];
-      if (typeof source === "object") {
-        source = {};
-        this.copyObject(source, src[key]);
-      }
-      dst[key] = source;
-    }
-  }
-  protected copyCssClasses(dest: any, source: any) {
-    if (!source) return;
-    if (typeof source === "string" || source instanceof String) {
-      dest["root"] = source;
-    } else {
-      SurveyElement.copyObject(dest, source);
     }
   }
 }

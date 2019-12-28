@@ -8401,3 +8401,18 @@ QUnit.test("Expression doesn't work correctly with iif function, Bug#1942", func
   survey.clearValue("question3");
   assert.equal(survey.getValue("question2"), "x", "iif false where question3 is empty");
 });
+
+QUnit.test("Different css for different surveys", function(assert) {
+  var json = {questions: [{type: "text", name: "q"}]};
+  var survey1 = new SurveyModel(json);
+  var survey2 = new SurveyModel(json);
+  var defaultQuestionRoot = survey1.css.question.mainRoot;
+  survey1.css.question.mainRoot += " class1";
+  survey2.css.question.mainRoot += " class2";
+  assert.equal(survey1.css.question.mainRoot, defaultQuestionRoot + " class1", "Correct css name for survey1");
+  assert.equal(survey2.css.question.mainRoot, defaultQuestionRoot + " class2", "Correct css name for survey2");
+  var question1 = survey1.getQuestionByName("q");
+  var question2 = survey2.getQuestionByName("q");
+  assert.equal(question1.cssMainRoot, defaultQuestionRoot + " class1", "Correct css name for question1");
+  assert.equal(question2.cssMainRoot, defaultQuestionRoot + " class2", "Correct css name for question2");
+});

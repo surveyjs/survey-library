@@ -137,7 +137,7 @@ export class Survey extends SurveyModel {
     );
   }
   public get completedCss() {
-    var css = surveyCss.getCss();
+    var css = this.css;
     return css.body + " " + css.completedPage;
   }
   private getNavigationCss(main: string, btn: string) {
@@ -145,12 +145,6 @@ export class Survey extends SurveyModel {
     if (main) res = main;
     if (btn) res += " " + btn;
     return res;
-  }
-  public get css(): any {
-    return surveyCss.getCss();
-  }
-  public set css(value: any) {
-    this.mergeValues(value, this.css);
   }
   public render(element: any = null) {
     this.updateKoCurrentPage();

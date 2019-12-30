@@ -3286,3 +3286,50 @@ QUnit.test(
     assert.deepEqual(matrixDynamic.value, test_qualita, "Value set correctly");
   }
 );
+
+QUnit.test(
+  "Totals in row using total in matrix, Bug #T3162 (https://surveyjs.answerdesk.io/ticket/details/T3162)",
+  function(assert) {
+    var survey = new SurveyModel({
+      elements: [
+        {
+          type: "matrixdropdown",
+          name: "matrix",
+          columns: [
+            {
+              name: "paid"
+            },
+            {
+              name: "free"
+            },
+            {
+              name: "total",
+              totalType: "sum",
+              cellType: "expression",
+              expression: "{row.free} + {row.paid}"
+            },
+            {
+              name: "percentage",
+              cellType: "expression",
+              expression: "({row.free} + {row.paid}) / {totalRow.total}"
+            }
+          ],
+          cellType: "text",
+          rows: [
+            {
+              value: "international"
+            }
+          ]
+        }
+      ]
+    });
+    var matrix = <QuestionMatrixDropdownModel>(
+      survey.getQuestionByName("matrix")
+    );
+    var rows = matrix.visibleRows;
+    rows[0].cells[0].value = 100;
+    rows[0].cells[1].value = 100;
+    assert.equal(rows[0].cells[2].value, 200, "cell1 + cell2");
+    assert.equal(rows[0].cells[3].value, 1, "(cell1 + cell2)/total");
+  }
+);

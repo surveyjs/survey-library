@@ -190,7 +190,7 @@ export var matrixDropdownColumnTypes = {
     ) => {}
   },
   rating: {
-    properties: [ "rateValues" ]
+    properties: ["rateValues"]
   }
 };
 
@@ -356,7 +356,12 @@ export class MatrixDropdownColumn extends Base implements ILocalizableOwner {
     this.templateQuestion.requiredIf = val;
   }
   public get hasCondition(): boolean {
-    return !!this.visibleIf || !this.enableIf || !this.requiredIf;
+    return (
+      !!this.visibleIf ||
+      !!this.enableIf ||
+      !!this.requiredIf ||
+      this.cellType === "expression"
+    );
   }
   public get validators(): Array<SurveyValidator> {
     return this.templateQuestion.validators;
@@ -601,6 +606,14 @@ export class MatrixDropdownCell {
   public runCondition(values: HashTable<any>, properties: HashTable<any>) {
     this.question.runCondition(values, properties);
   }
+  public get hasCondition(): boolean {
+    return (
+      !!this.question.visibleIf ||
+      !!this.question.enableIf ||
+      !!this.question.requiredIf ||
+      this.question.getType() === "expression"
+    );
+  }
 }
 
 export class MatrixDropdownTotalCell extends MatrixDropdownCell {
@@ -814,6 +827,12 @@ export class MatrixDropdownRowModelBase
         }
       }
     }
+  }
+  public get hasCondition(): boolean {
+    for (var i = 0; i < this.cells.length; i++) {
+      if (this.cells[i].hasCondition) return true;
+    }
+    return false;
   }
   public getLocale(): string {
     return this.data ? this.data.getLocale() : "";
@@ -1485,8 +1504,17 @@ export class QuestionMatrixDropdownModelBase
 
   public runCondition(values: HashTable<any>, properties: HashTable<any>) {
     super.runCondition(values, properties);
-    this.runCellsCondition(values, properties);
-    this.runTotalsCondition(values, properties);
+    var counter = 0;
+    var prevTotalValue;
+    do {
+      prevTotalValue = Helpers.getUnbindValue(this.totalValue);
+      this.runCellsCondition(values, properties);
+      this.runTotalsCondition(values, properties);
+      counter++;
+    } while (
+      !Helpers.isTwoValueEquals(prevTotalValue, this.totalValue) &&
+      counter < 3
+    );
   }
   protected shouldRunColumnExpression(): boolean {
     return false;
@@ -1545,12 +1573,18 @@ export class QuestionMatrixDropdownModelBase
     if (values && values instanceof Object) {
       newValues = JSON.parse(JSON.stringify(values));
     }
+    var totalRow = {};
+    if (!Helpers.isValueEmpty(this.totalValue)) {
+      totalRow = JSON.parse(JSON.stringify(this.totalValue));
+    }
     newValues["row"] = {};
+    newValues["totalRow"] = totalRow;
     return newValues;
   }
   private get hasCellsCondition(): boolean {
-    for (var i = 0; i < this.columns.length; i++) {
-      if (this.columns[i].hasCondition) return true;
+    var rows = this.generatedVisibleRows;
+    for (var i = 0; i < rows.length; i++) {
+      if (rows[i].hasCondition) return true;
     }
     return false;
   }

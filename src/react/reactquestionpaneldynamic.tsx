@@ -127,8 +127,11 @@ export class SurveyQuestionPanelDynamic extends SurveyQuestionElementBase {
     var btnPrev = this.rendrerPrevButton();
     var btnNext = this.rendrerNextButton();
     var btnAdd = this.renderAddRowButton();
+    var progressClass = this.question.isProgressTopShowing
+      ? this.question.cssClasses.progressTop
+      : this.question.cssClasses.progressBottom;
     return (
-      <div style={{ clear: "both" }}>
+      <div style={{ clear: "both" }} className={progressClass}>
         <div className={this.question.cssClasses.progressContainer}>
           {btnPrev}
           {range}

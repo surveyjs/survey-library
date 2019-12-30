@@ -93,10 +93,10 @@ export class Survey extends SurveyElementBase implements ISurveyCreator {
     return this.doRender();
   }
   public get css(): any {
-    return surveyCss.getCss();
+    return this.survey.css;
   }
   public set css(value: any) {
-    this.survey.mergeCss(value, this.css);
+    this.survey.css = value;
   }
   handleTryAgainClick(event: any) {
     this.survey.doComplete();

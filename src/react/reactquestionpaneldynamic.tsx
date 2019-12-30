@@ -10,7 +10,6 @@ import {
 import { PanelModel } from "../panel";
 import { SurveyPanel } from "./panel";
 import { ISurveyCreator } from "./reactquestion";
-import { surveyCss } from "../defaultCss/cssstandard";
 import { ReactQuestionFactory } from "./reactquestionfactory";
 import { SurveyModel } from "../survey";
 import { Question } from "../question";
@@ -189,7 +188,7 @@ export class SurveyQuestionPanelDynamic extends SurveyQuestionElementBase {
   protected renderRange(): JSX.Element {
     var getProgress = () => {
       var rangeMax = this.question.panelCount - 1;
-      return this.question.currentIndex / rangeMax * 100 + "%";
+      return (this.question.currentIndex / rangeMax) * 100 + "%";
     };
 
     return (
@@ -240,7 +239,8 @@ export class SurveyQuestionPanelDynamicItem extends SurveyPanel {
     return !!this.question ? (this.question.survey as SurveyModel) : null;
   }
   protected getCss(): any {
-    return surveyCss.getCss();
+    var survey = this.getSurvey();
+    return !!survey ? survey.getCss() : {};
   }
   handleOnPanelRemoveClick(event: any) {
     this.question.removePanelUI(this.index);

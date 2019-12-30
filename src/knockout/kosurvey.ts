@@ -34,11 +34,6 @@ export class Survey extends SurveyModel {
     StylesManager.applyTheme(value);
   }
   private renderedElement: HTMLElement;
-  //TODO remove it, since there is onAfterRenderSurvey
-  public onRendered: Event<(sender: SurveyModel) => any, any> = new Event<
-    (sender: SurveyModel) => any,
-    any
-  >();
   private isFirstRender: boolean = true;
   private mouseDownPage: any = null;
 
@@ -142,7 +137,7 @@ export class Survey extends SurveyModel {
     );
   }
   public get completedCss() {
-    var css = surveyCss.getCss();
+    var css = this.css;
     return css.body + " " + css.completedPage;
   }
   private getNavigationCss(main: string, btn: string) {
@@ -150,12 +145,6 @@ export class Survey extends SurveyModel {
     if (main) res = main;
     if (btn) res += " " + btn;
     return res;
-  }
-  public get css(): any {
-    return surveyCss.getCss();
-  }
-  public set css(value: any) {
-    this.mergeValues(value, this.css);
   }
   public render(element: any = null) {
     this.updateKoCurrentPage();
@@ -180,7 +169,6 @@ export class Survey extends SurveyModel {
     this.render();
   }
   public koEventAfterRender(element: any, survey: any) {
-    survey.onRendered.fire(this, {});
     survey.afterRenderSurvey(element);
   }
   public loadSurveyFromService(

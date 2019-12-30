@@ -18,7 +18,6 @@ import { TextPreProcessor, TextPreProcessorValue } from "./textPreProcessor";
 import { ILocalizableOwner, LocalizableString } from "./localizablestring";
 import { ConditionRunner } from "./conditions";
 import { QuestionCustomWidget } from "./questionCustomWidgets";
-import { surveyCss } from "./defaultCss/cssstandard";
 import { CustomWidgetCollection } from "./questionCustomWidgets";
 
 export interface IConditionObject {
@@ -524,11 +523,11 @@ export class Question extends SurveyElement
    * @see SurveyModel.updateQuestionCssClasses
    */
   public get cssClasses(): any {
-    var surveyCss = this.css;
+    var css = this.css;
     var classes = { error: {} };
-    this.copyCssClasses(classes, surveyCss.question);
-    this.copyCssClasses(classes.error, surveyCss.error);
-    this.updateCssClasses(classes, surveyCss);
+    this.copyCssClasses(classes, css.question);
+    this.copyCssClasses(classes.error, css.error);
+    this.updateCssClasses(classes, css);
     if (this.survey) {
       this.survey.updateQuestionCssClasses(this, classes);
     }
@@ -536,6 +535,7 @@ export class Question extends SurveyElement
   }
   public get cssMainRoot(): any {
     var classes = this.cssClasses;
+    if (!classes.mainRoot) return {};
     var res =
       this.isFlowLayout && !this.isDesignMode
         ? classes.flowRoot
@@ -549,18 +549,19 @@ export class Question extends SurveyElement
     return res;
   }
   protected getRootCss(classes: any) {
-    return classes.question.root;
+    return !!classes.question ? classes.question.root : "";
   }
-  protected updateCssClasses(res: any, surveyCss: any) {
+  protected updateCssClasses(res: any, css: any) {
+    if (!css.question) return;
     if (this.isRequired) {
-      if (!!surveyCss.question.required) {
+      if (!!css.question.required) {
         res.root = (res.root ? res.root + " " : "") + objCss;
       }
-      if (surveyCss.question.titleRequired) {
-        res.title += " " + surveyCss.question.titleRequired;
+      if (css.question.titleRequired) {
+        res.title += " " + css.question.titleRequired;
       }
     }
-    var objCss = surveyCss[this.getType()];
+    var objCss = css[this.getType()];
     if (objCss === undefined || objCss === null) return;
     if (typeof objCss === "string" || objCss instanceof String) {
       res.root = (res.root ? res.root + " " : "") + objCss;
@@ -571,7 +572,7 @@ export class Question extends SurveyElement
     }
   }
   private get css(): any {
-    return surveyCss.getCss();
+    return !!this.survey ? this.survey.getCss() : {};
   }
   /**
    * Use it to set the specific width to the question like css style (%, px, em etc).

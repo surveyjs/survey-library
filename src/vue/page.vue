@@ -1,18 +1,25 @@
 <template>
-    <div :class="css.page.root">
-        <h4 v-if
-        ="showHeader" :class="css.pageTitle"><survey-string :locString="page.locTitle"/></h4>
-        <div v-if="showHeader" :class="css.pageDescription"><survey-string :locString="page.locDescription"/></div>
-        <div v-for="(row, index) in rows" v-if="row.visible" :key="page.id + '_' + index" :class="css.row">
-            <survey-row :row="row" :survey="survey" :css="css"></survey-row>
-        </div>
+  <div :class="css.page.root">
+    <h4 v-if="showHeader" :class="css.pageTitle">
+      <survey-string :locString="page.locTitle" />
+    </h4>
+    <div v-if="showHeader" :class="css.pageDescription">
+      <survey-string :locString="page.locDescription" />
     </div>
+    <div
+      v-for="(row, index) in rows"
+      v-if="row.visible"
+      :key="page.id + '_' + index"
+      :class="css.row"
+    >
+      <survey-row :row="row" :survey="survey" :css="css"></survey-row>
+    </div>
+  </div>
 </template>
 
 <script lang="ts">
 import Vue from "vue";
 import { Component, Prop } from "vue-property-decorator";
-import { surveyCss } from "../defaultCss/cssstandard";
 import { SurveyModel } from "../survey";
 import { PageModel } from "../page";
 import { PanelModelBase, PanelModel, QuestionRowModel } from "../panel";

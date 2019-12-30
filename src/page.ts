@@ -59,6 +59,18 @@ export class PageModel extends PanelModelBase implements IPage {
   public get isStarted(): boolean {
     return this.survey && this.survey.isPageStarted(this);
   }
+  public get cssClasses(): any {
+    var css = this.css;
+    var classes = { page: {}, pageTitle: "", pageDescription: "" };
+    this.copyCssClasses(classes.page, css.page);
+    if(!!css.pageTitle) {
+      classes.pageTitle = css.pageTitle;
+    }
+    if(!!css.pageDescription) {
+      classes.pageDescription = css.pageDescription;
+    }
+    return classes;
+  }
   getIsPageVisible(exceptionQuestion: IQuestion): boolean {
     if (this.isStarted) return false;
     return super.getIsPageVisible(exceptionQuestion);

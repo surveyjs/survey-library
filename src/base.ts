@@ -850,6 +850,10 @@ export class SurveyElement extends Base implements ISurveyElement {
     if (this.isLoadingFromJsonValue) return true;
     return this.survey ? this.survey.isLoadingFromJson : false;
   }
+  /**
+   * This is the identifier of a survey element - question or panel.
+   * @see valueName
+   */
   public get name(): string {
     return this.getPropertyValue("name", "");
   }

@@ -123,6 +123,7 @@ export class Question extends SurveyElement
    * Question name should be unique in the survey and valueName could be not unique. It allows to share data between several questions with the same valueName.
    * The library set the value automatically if the question.name property is not valid. For example, if it contains the period '.' symbol.
    * In this case if you set the question.name property to 'x.y' then the valueName becomes 'x y'.
+   * @see name
    */
   public get valueName(): string {
     return this.getPropertyValue("valueName", "");

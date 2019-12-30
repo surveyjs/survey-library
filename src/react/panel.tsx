@@ -70,11 +70,11 @@ export class SurveyPanel extends SurveyPanelBase {
     if (!this.panelBase.title) return null;
     var text = SurveyElementBase.renderLocString(this.panelBase.locTitle);
     var expandCollapse = null;
-    var titleStyle = this.css.panel.title;
+    var titleStyle = this.panel.cssClasses.panel.title;
     if (this.panel.isCollapsed || this.panel.isExpanded) {
-      titleStyle += " " + this.css.panel.titleExpandable;
-      var iconCss = this.css.panel.icon;
-      if (!this.panel.isCollapsed) iconCss += " " + this.css.panel.iconExpanded;
+      titleStyle += " " + this.panel.cssClasses.panel.titleExpandable;
+      var iconCss = this.panel.cssClasses.panel.icon;
+      if (!this.panel.isCollapsed) iconCss += " " + this.panel.cssClasses.panel.iconExpanded;
       var changeExpanded = () => {
         if (this.panel.isCollapsed) {
           this.panel.expand();
@@ -95,7 +95,7 @@ export class SurveyPanel extends SurveyPanelBase {
   protected renderDescription(): JSX.Element {
     if (!this.panelBase.description) return null;
     var text = SurveyElementBase.renderLocString(this.panelBase.locDescription);
-    return <div className={this.css.panel.description}>{text}</div>;
+    return <div className={this.panel.cssClasses.panel.description}>{text}</div>;
   }
   protected renderBottom(): JSX.Element {
     return null;

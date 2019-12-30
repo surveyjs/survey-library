@@ -217,9 +217,12 @@ export class PanelModelBase extends SurveyElement
     this.setPropertyValue("visibleIf", val);
   }
   public get cssClasses(): any {
-    var classes = { panel: {}, error: {} };
+    var classes = { panel: {}, error: {}, row: ""};
     this.copyCssClasses(classes.panel, this.css.panel);
     this.copyCssClasses(classes.error, this.css.error);
+    if(!!this.css.row) {
+      classes.row = this.css.row;
+    }
     if (this.survey) {
       this.survey.updatePanelCssClasses(this, classes);
     }

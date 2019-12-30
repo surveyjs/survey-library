@@ -61,13 +61,16 @@ export class PageModel extends PanelModelBase implements IPage {
   }
   public get cssClasses(): any {
     var css = this.css;
-    var classes = { page: {}, pageTitle: "", pageDescription: "" };
+    var classes = { page: {}, pageTitle: "", pageDescription: "", row: "" };
     this.copyCssClasses(classes.page, css.page);
     if(!!css.pageTitle) {
       classes.pageTitle = css.pageTitle;
     }
     if(!!css.pageDescription) {
       classes.pageDescription = css.pageDescription;
+    }
+    if(!!css.row) {
+      classes.row = css.row;
     }
     return classes;
   }

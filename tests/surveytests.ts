@@ -7694,6 +7694,29 @@ QUnit.test("survey.navigateToUrlOnCondition", function(assert) {
   );
 });
 
+QUnit.test("survey.navigateToUrlOnCondition + processValue", function(assert) {
+  var survey = new SurveyModel({elements: [{type: "text", name: "q1"}, {type: "text", name: "q2"}]});
+  survey.navigateToUrl = "url-{q1}-url";
+  survey.navigateToUrlOnCondition.push(new UrlConditionItem("{q1} = 2", "url-{q2}-url"));
+  assert.equal(
+    survey.getNavigateToUrl(),
+    "url--url",
+    "data is empty"
+  );
+  survey.data = {q1: "value1", q2: "value2"};
+  assert.equal(
+    survey.getNavigateToUrl(),
+    "url-value1-url",
+    "use value in navigateToUrl prop"
+  );
+  survey.setValue("q1", 2);
+  assert.equal(
+    survey.getNavigateToUrl(),
+    "url-value2-url",
+    "use value in condition url prop"
+  );
+});
+
 QUnit.test("survey.navigateToUrlOnCondition + localization", function(assert) {
   var json = {
     navigateToUrl: "1",

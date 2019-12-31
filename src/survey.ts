@@ -1066,7 +1066,11 @@ export class SurveyModel extends Base
     var item = this.getExpressionItemOnRunCondition(
       this.navigateToUrlOnCondition
     );
-    return !!item ? (<UrlConditionItem>item).url : this.navigateToUrl;
+    var url = !!item ? (<UrlConditionItem>item).url : this.navigateToUrl;
+    if(!!url) {
+      url = this.processText(url, true);
+    }
+    return url;
   }
   private navigateTo() {
     var url = this.getNavigateToUrl();

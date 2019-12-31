@@ -673,7 +673,7 @@ Questions, panels and pages have [visibleIf](https://surveyjs.io/Documentation/L
 
 These properties are empty by default. Each element's behavior depends on the **isVisible**, **isReadOnly** and **isRequired** properties. The question containers (panel and page) become invisible if they have no visible questions.
 
-Before rendering the first page, SurveyJS parses all boolean expressions (**visibleIf**, **enableIf**, and **requriedIf**), creates the expression trees, and run all expressions. Later, SurveyJS runs all expressions after any value change. If the expression returns `false`, the element becomes invisible (or read-only or non requried), if it returns `true` – visible (or enabled or required). The question values should be in braces: `{yourQuestionValueName}`.
+Before rendering the first page, SurveyJS parses all boolean expressions (**visibleIf**, **enableIf**, and **requriedIf**), creates the expression trees, and run all expressions. Later, SurveyJS runs all expressions after any value change. If the expression returns `false`, the element becomes invisible (or read-only or non requried), if it returns `true` – visible (enabled, required). The question values should be in braces: `{yourQuestionValueName}`.
 
 Here are some examples of boolean expressions.
 
@@ -688,36 +688,38 @@ Here are some examples of boolean expressions.
 | _"{speakinglanguages} contains ‘Spanish’"_ | Returns `true`, if a user select 'Spanish' in checkbox. They may or may not select other values. |
 | _age({birthdate}) >= 21_ | Returns `true`, if function _age_ returns 21 and greater. The function _age_ calculates the age based on the birth date and the current date. |
 
-If your question has the complex values, then you may use dot "." to access the child value.
+If your question has complex values, then you may use dot "." to access the child value.
 
 * multiple text - _{questionname.itemname}_
 * matrix - _{questionname.rowname}_
 * matrix dropdown - _{questionname.rowname.columnname}_
 
-To access the question value inside the panel dynamic, you will have to use the following syntax: _{dynamicpanelname[index].questionname}_, where index is zero-based.
+To access the question value inside the panel dynamic, use the following syntax: `{dynamicpanelname[index].questionname}`, where _index_ is zero-based.
 
-To access the cell value of the matrix dynamic, write the following code: _{matrix[index].columnname}_, where index is zero-based.
+To access the cell value of the matrix dynamic, write the following code: `{matrix[index].columnname}`, where _index_ is zero-based.
 
-Regarding visibility of cells inside matrix dynamic and matrix dropdown. There many scenarios where you must make cell invisible or disabled based on other cells value on the same row. In this case you may use the prefix "row" to access a cell value on the same row: _{row.columnname}_
+#### Cell Visibility in Matrix and Dynamic Panel Questions
 
-The similar story about panel dynamic. To access questions value on the same panel in the expression, you must use prefix "panel": _{panel.questionName}_
+You can make a cell in a matrix question invisible or disabled based on other cells value on the same row. In this case, use the prefix `row` to access a cell value on the same row: `{row.columnname}`.
+
+You can use the same approach in dynamic panels. To access questions value on the same panel in the expression, use the `panel` prefix: `{panel.questionName}`.
 
 <div id="conditions-functions"></div>
 
 ### Using functions in expressions
 
-Additionally, SurveyJS expressions supports functions with unlimited parameters number. There are some built-in functions, like age or iif: "age({birthdate}) >= 21"
+SurveyJS expressions support functions with unlimited parameter number. SurveyJS library implements a set of built-in functions, like `age` or `iif`: `age({birthdate}) >= 21`
 
-Here is the code for the age function:
+The code sample below illustrates how to use the `age` function:
 
 ```javascript
 // The age() function accepts a birth date
-// and returns the number of full years
+// and returns a number of full years
 function age(params) {
   if (!params && params.length < 1) return -1;
   var birthDay = new Date(params[0]);
   var ageDifMs = Date.now() - birthDay.getTime();
-  var ageDate = new Date(ageDifMs); // miliseconds from epoch
+  var ageDate = new Date(ageDifMs); // milliseconds from epoch
   return Math.abs(ageDate.getUTCFullYear() - 1970);
 }
 // Register the function for use in SurveyJS expressions
@@ -726,26 +728,27 @@ Survey.FunctionFactory.Instance.register("age", age);
 
 You may write, register, and use your own functions.
 
-Please note, since v1.0.21, you are able to get access to your survey object as _this.survey_ inside the custom function.
-As result you may, for example, pass a question name to your function: _myFunc('myQuestionName')_ and then get it as: 
+Starting with v1.0.21, you can access to your survey object as `this.survey` inside a custom function.
+
+As result you may, for example, pass a question name to your function: `myFunc('myQuestionName')` and then get it as: 
 ```javascript
 questionInstance = this.survey.getQuestionByName(params[0]);
 ```
 
-Here is the list of built-in functions:
+The table below demonstrates a list of built-in functions:
 
 | Function name | Description |
 | --- | --- |
-| age({birthdate}) | Returns the age by birth date. |
-| iif("expression", trueValue, falseValue) | Returns trueValue if expression returns true and falseValue if expression returns false. <br />`iif({question1} + {question2} > 20, 'high', 'low')` |
-| isContainerReady("panelname/pagename") | Returns true, if all questions in container (panel or page) are answered correctly. It validates (silently) all questions recursively in the container. If there is an error it returns false, otherwise true. If a question value is empty, but it doesn’t have validators and it is not required then validation would pass successful. |
-| isDisplayMode() | Returns true if the survey is in display mode. Here is the example of usage: `isDisplayMode() <> true` |
-| sum(par1, par2, ...) | Returns the summary of passed parameters. |
-| avg(par1, par2, ...) | Returns the average value for passed parameters. |
-| sumInArray({questionName}, 'propertyName') | Returns the summary for array of objects {questionName} by property 'propertyName'. `sumInArray('matrixdynamic', 'total') > 1000</` |
-| avgInArray({questionName}, 'propertyName') | Returns the average value for array of objects {questionName} by property 'propertyName'. `avgInArray('matrixdynamic', 'quantity') > 4</` |
-| minInArray({questionName}, 'propertyName') | Returns the minimum value for array of objects {questionName} by property 'propertyName'. `minInArray('matrixdynamic', 'quantity') > 1</` |
-| maxInArray({questionName}, 'propertyName') | Returns the maximum value for array of objects {questionName} by property 'propertyName'. `maxInArray('matrixdynamic', 'quantity') > 10</` |
+| `age({birthdate})` | Returns the age by birth date. |
+| `iif("expression", trueValue, falseValue)` | Returns trueValue if expression returns true and falseValue if expression returns false. <br /> `iif({question1} + {question2} > 20, 'high', 'low')` |
+| `isContainerReady("panelname/pagename")` | Returns true, if all questions in container (panel or page) are answered correctly. It validates (silently) all questions recursively in the container. If there is an error it returns false, otherwise true. If a question value is empty, but it doesn’t have validators and it is not required then validation would pass successful. |
+| `isDisplayMode()` | Returns true if the survey is in display mode. Here is the example of usage: `isDisplayMode() <> true` |
+| `sum(par1, par2, ...)` | Returns the summary of passed parameters. |
+| `avg(par1, par2, ...)` | Returns the average value for passed parameters. |
+| `sumInArray({questionName}, 'propertyName')` | Returns the summary for array of objects {questionName} by property 'propertyName'. `sumInArray('matrixdynamic', 'total') > 1000` |
+| `avgInArray({questionName}, 'propertyName')` | Returns the average value for array of objects {questionName} by property 'propertyName'. `avgInArray('matrixdynamic', 'quantity') > 4` |
+| `minInArray({questionName}, 'propertyName')` | Returns the minimum value for array of objects {questionName} by property 'propertyName'. `minInArray('matrixdynamic', 'quantity') > 1` |
+| `maxInArray({questionName}, 'propertyName')` | Returns the maximum value for array of objects {questionName} by property 'propertyName'. `maxInArray('matrixdynamic', 'quantity') > 10` |
 
 If you feel there is a need in a particular function, then [write us](https://github.com/surveyjs/surveyjs/issues) about it.
 

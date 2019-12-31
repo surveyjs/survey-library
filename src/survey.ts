@@ -29,7 +29,11 @@ import { SurveyTimer } from "./surveytimer";
 import { Question } from "./question";
 import { ItemValue } from "./itemvalue";
 import { PanelModelBase } from "./panel";
-import { HtmlConditionItem } from "./htmlConditionItem";
+import {
+  HtmlConditionItem,
+  UrlConditionItem,
+  ExpressionItem
+} from "./expressionItems";
 import { ExpressionRunner, ConditionRunner } from "./conditions";
 import { settings } from "./settings";
 
@@ -102,6 +106,18 @@ export class SurveyModel extends Base
    * @see surveyPostId
    */
   public onComplete: Event<
+    (sender: SurveyModel, options: any) => any,
+    any
+  > = new Event<(sender: SurveyModel, options: any) => any, any>();
+  /**
+   * The event is fired after a user click on 'Complete' button. It allows you to change the url where survey will navigate to.
+   * You have to setup up navigateToUrl properties to let survey to navigate to another url.
+   * <br/> sender the survey object that fires the event
+   * <br/> options.url change it to navigate to another url. Set it to empty string to cancel the navigation and show the completed survey page.
+   * @see navigateToUrl
+   * @see navigateToUrlOnCondition
+   */
+  public onNavigateToUrl: Event<
     (sender: SurveyModel, options: any) => any,
     any
   > = new Event<(sender: SurveyModel, options: any) => any, any>();
@@ -804,6 +820,9 @@ export class SurveyModel extends Base
     this.createNewArray("completedHtmlOnCondition", function(value: any) {
       value.locOwner = self;
     });
+    this.createNewArray("navigateToUrlOnCondition", function(value: any) {
+      value.locOwner = self;
+    });
     this.registerFunctionOnPropertyValueChanged(
       "questionTitleTemplate",
       function() {
@@ -1014,12 +1033,47 @@ export class SurveyModel extends Base
    * On finishing the survey the 'Thank you', page on complete, is shown. Set the property to false, to hide the 'Thank you' page.
    * @see data
    * @see onComplete
+   * @see navigateToUrl
    */
   public get showCompletedPage(): boolean {
     return this.getPropertyValue("showCompletedPage", true);
   }
   public set showCompletedPage(val: boolean) {
     this.setPropertyValue("showCompletedPage", val);
+  }
+  /**
+   * Set this property to a url you want to navigate after a user completing the survey
+   */
+  public get navigateToUrl(): string {
+    return this.getPropertyValue("navigateToUrl");
+  }
+  public set navigateToUrl(val: string) {
+    this.setPropertyValue("navigateToUrl", val);
+  }
+  /**
+   * The list of url condition items. If the expression of this item returns true, then survey will navigate to item url
+   * @see UrlConditionItem
+   * @see navigateToUrl
+   */
+  public get navigateToUrlOnCondition(): Array<UrlConditionItem> {
+    return this.getPropertyValue("navigateToUrlOnCondition");
+  }
+  public set navigateToUrlOnCondition(val: Array<UrlConditionItem>) {
+    this.setPropertyValue("navigateToUrlOnCondition", val);
+  }
+
+  public getNavigateToUrl(): string {
+    var item = this.getExpressionItemOnRunCondition(
+      this.navigateToUrlOnCondition
+    );
+    return !!item ? (<UrlConditionItem>item).url : this.navigateToUrl;
+  }
+  private navigateTo() {
+    var url = this.getNavigateToUrl();
+    var options = { url: url };
+    this.onNavigateToUrl.fire(this, options);
+    if (!options.url || !window || !window.location) return;
+    window.location.href = options.url;
   }
   /**
    * A char/string that will be rendered in the title required questions.
@@ -1313,16 +1367,23 @@ export class SurveyModel extends Base
     return new ConditionRunner(expression).run(values, properties);
   }
   public get renderedCompletedHtml(): string {
-    if (this.completedHtmlOnCondition.length == 0) return this.completedHtml;
+    var item = this.getExpressionItemOnRunCondition(
+      this.completedHtmlOnCondition
+    );
+    return !!item ? (<HtmlConditionItem>item).html : this.completedHtml;
+  }
+  private getExpressionItemOnRunCondition(
+    items: Array<ExpressionItem>
+  ): ExpressionItem {
+    if (items.length == 0) return null;
     var values = this.getFilteredValues();
     var properties = this.getFilteredProperties();
-    for (var i = 0; i < this.completedHtmlOnCondition.length; i++) {
-      var item = this.completedHtmlOnCondition[i];
-      if (item.runCondition(values, properties)) {
-        return item.html;
+    for (var i = 0; i < items.length; i++) {
+      if (items[i].runCondition(values, properties)) {
+        return items[i];
       }
     }
-    return this.completedHtml;
+    return null;
   }
 
   /**
@@ -2284,11 +2345,11 @@ export class SurveyModel extends Base
       var newPages = this.createPagesForQuestionOnPageMode(startIndex);
       var deletedLen = this.pages.length - startIndex;
       this.pages.splice(startIndex, deletedLen);
-      for(var i = 0; i < newPages.length; i ++) {
+      for (var i = 0; i < newPages.length; i++) {
         this.pages.push(newPages[i]);
       }
       super.endLoadingFromJson();
-      for(var i = 0; i < newPages.length; i ++) {
+      for (var i = 0; i < newPages.length; i++) {
         newPages[i].endLoadingFromJson();
         newPages[i].setSurveyImpl(this);
       }
@@ -2296,8 +2357,10 @@ export class SurveyModel extends Base
     }
     this.updateVisibleIndexes();
   }
-  private createPagesForQuestionOnPageMode(startIndex: number): Array<PageModel> {
-    if(this.isSinglePage) {
+  private createPagesForQuestionOnPageMode(
+    startIndex: number
+  ): Array<PageModel> {
+    if (this.isSinglePage) {
       return [this.createSinglePage(startIndex)];
     }
     return this.createPagesForEveryQuestion(startIndex);
@@ -2321,10 +2384,10 @@ export class SurveyModel extends Base
     var res: Array<PageModel> = [];
     for (var i = startIndex; i < this.pages.length; i++) {
       var origionalPage = this.pages[i];
-      for(var j = 0; j < origionalPage.elements.length; j ++) {
+      for (var j = 0; j < origionalPage.elements.length; j++) {
         var origionalElement = origionalPage.elements[j];
         var element = Serializer.createClass(origionalElement.getType());
-        if(!element) continue;
+        if (!element) continue;
         var page = this.createNewPage("page" + (res.length + 1));
         page.setSurveyImpl(this);
         res.push(page);
@@ -2391,6 +2454,7 @@ export class SurveyModel extends Base
     if (!previousCookie && this.surveyPostId) {
       this.sendResult();
     }
+    this.navigateTo();
   }
   /**
    * Start the survey. Change the mode from "starting" to "running". You need to call it, if there is a started page in your survey, otherwise it does nothing.
@@ -4183,6 +4247,12 @@ Serializer.addClass("survey", [
   { name: "showTitle:boolean", default: true },
   { name: "showPageTitles:boolean", default: true },
   { name: "showCompletedPage:boolean", default: true },
+  "navigateToUrl",
+  {
+    name: "navigateToUrlOnCondition:urlconditions",
+    className: "urlconditionitem",
+    visible: false
+  },
   {
     name: "questionsOrder",
     default: "initial",

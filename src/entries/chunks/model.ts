@@ -29,7 +29,7 @@ export {
   ExceedSizeError
 } from "../../error";
 export { ILocalizableOwner, LocalizableString } from "../../localizablestring";
-export { HtmlConditionItem } from "../../htmlConditionItem";
+export { HtmlConditionItem, UrlConditionItem } from "../../expressionItems";
 export { ChoicesRestfull } from "../../choicesRestfull";
 export { FunctionFactory, registerFunction } from "../../functionsfactory";
 export { ConditionRunner, ExpressionRunner } from "../../conditions";

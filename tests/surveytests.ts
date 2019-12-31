@@ -41,9 +41,8 @@ import { FunctionFactory } from "../src/functionsfactory";
 import { QuestionExpressionModel } from "../src/question_expression";
 import { QuestionPanelDynamicModel } from "../src/question_paneldynamic";
 import { QuestionImagePickerModel } from "../src/question_imagepicker";
-import { HtmlConditionItem } from "../src/htmlConditionItem";
+import { HtmlConditionItem, UrlConditionItem } from "../src/expressionItems";
 import { AnswerRequiredError } from "../src/error";
-import { Survey } from "../src/react/reactSurvey";
 import { ConditionsParser } from "../src/conditionsParser";
 import { Operand, Variable, BinaryOperand, Const } from "../src/expressions/expressions";
 
@@ -7658,6 +7657,72 @@ QUnit.test("survey.completedHtmlOnCondition + localization", function(assert) {
   survey.locale = "fr";
   assert.equal(
     survey.renderedCompletedHtml,
+    "fr-condition",
+    "get on condition fr"
+  );
+  survey.locale = prevLocale;
+});
+
+QUnit.test("survey.navigateToUrlOnCondition", function(assert) {
+  var survey = new SurveyModel();
+  survey.navigateToUrl = "1";
+  assert.equal(survey.getNavigateToUrl(), "1", "get from navigateToUrl");
+  survey.navigateToUrlOnCondition.push(new UrlConditionItem("{q1} = 2", "2"));
+  survey.navigateToUrlOnCondition.push(new UrlConditionItem("{q1} = 3", "3"));
+  assert.equal(
+    survey.getNavigateToUrl(),
+    "1",
+    "still get from navigateToUrl"
+  );
+  survey.setValue("q1", 2);
+  assert.equal(
+    survey.getNavigateToUrl(),
+    "2",
+    "get from first on Condition"
+  );
+  survey.setValue("q1", 3);
+  assert.equal(
+    survey.getNavigateToUrl(),
+    "3",
+    "get from second on Condition"
+  );
+  survey.setValue("q1", 5);
+  assert.equal(
+    survey.getNavigateToUrl(),
+    "1",
+    "get from navigateToUrl again"
+  );
+});
+
+QUnit.test("survey.navigateToUrlOnCondition + localization", function(assert) {
+  var json = {
+    navigateToUrl: "1",
+    navigateToUrlOnCondition: [
+      {
+        expression: "{q1} = 2",
+        url: {
+          default: "en-condition",
+          fr: "fr-condition"
+        }
+      }
+    ]
+  };
+  var survey = new SurveyModel(json);
+  assert.equal(
+    survey.navigateToUrlOnCondition.length,
+    1,
+    "OnCondition restored correctly"
+  );
+  survey.setValue("q1", 2);
+  assert.equal(
+    survey.getNavigateToUrl(),
+    "en-condition",
+    "get on condition en"
+  );
+  var prevLocale = survey.locale;
+  survey.locale = "fr";
+  assert.equal(
+    survey.getNavigateToUrl(),
     "fr-condition",
     "get on condition fr"
   );

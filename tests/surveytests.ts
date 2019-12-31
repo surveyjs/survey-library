@@ -4848,11 +4848,51 @@ QUnit.test("isSinglePage = true and survey.showPageTitles = false, Bug#1914", fu
   survey.pages[1].title = "Page 2";
   survey.showPageTitles = false;
   survey.isSinglePage = true;
-  var page = survey.visiblePages[0];
   var panels = survey.getAllPanels();
   assert.equal(panels.length, 2, "There are two panels");
   assert.notOk((<PanelModel>panels[0]).title, "Panel1 title is empty");
   assert.notOk((<PanelModel>panels[1]).title, "Panel2 title is empty");
+});
+
+QUnit.test("check synhronization properties isSinglePage and questionsOnPageMode", function(
+  assert
+) {
+  var survey = twoPageSimplestSurvey();
+  assert.equal(survey.isSinglePage, false, "isSinglePage is false by default");
+  assert.equal(survey.questionsOnPageMode, "standard", "questionsOnPageMode is 'standard' by default");
+  survey.isSinglePage = true;
+  assert.equal(survey.isSinglePage, true, "set isSinglePage to true");
+  assert.equal(survey.questionsOnPageMode, "singlePage", "questionsOnPageMode is 'singlePage' on setting isSinglePage to true");
+  survey.isSinglePage = false;
+  assert.equal(survey.isSinglePage, false, "set isSinglePage to false");
+  assert.equal(survey.questionsOnPageMode, "standard", "questionsOnPageMode is 'standard' on setting isSinglePage to false");
+  survey.questionsOnPageMode = "singlePage";
+  assert.equal(survey.questionsOnPageMode, "singlePage", "set questionsOnPageMode to 'singlePage'");
+  assert.equal(survey.isSinglePage, true, "isSinglePage is true on setting questionsOnPageMode to 'singlePage'");
+  survey.questionsOnPageMode = "questionPerPage";
+  assert.equal(survey.questionsOnPageMode, "questionPerPage", "set questionsOnPageMode to 'questionPerPage'");
+  assert.equal(survey.isSinglePage, false, "isSinglePage is false on setting questionsOnPageMode to 'questionPerPage'");
+  survey.questionsOnPageMode = "standard";
+  assert.equal(survey.questionsOnPageMode, "standard", "set questionsOnPageMode to 'standard'");
+  assert.equal(survey.isSinglePage, false, "isSinglePage is false on setting questionsOnPageMode to 'standard'");
+});
+
+QUnit.test("survey.questionsOnPageMode", function(
+  assert
+) {
+  var survey = twoPageSimplestSurvey();
+  var questions = survey.getAllQuestions();
+  survey.questionsOnPageMode = "questionOnPage";
+  assert.equal(survey.pages.length, questions.length, "The number of pages equals to questions");
+  for(var i = 0; i < questions.length; i ++) {
+    assert.equal(survey.pages[i].questions[0].name, questions[i].name, "questions set correctly per page");
+  }
+  survey.questionsOnPageMode = "singlePage";
+  assert.equal(survey.pages.length, 1, "We have one page");
+  assert.equal(survey.pages[0].questions.length, questions.length, "All questions on single page");
+  survey.questionsOnPageMode = "standard";
+  assert.equal(survey.pages.length, 2, "Origional pages");
+  assert.equal(survey.pages[0].questions.length, 2, "There are two questions on the origional first page");
 });
 
 QUnit.test("Survey page hasShown", function(assert) {

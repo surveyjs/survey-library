@@ -816,9 +816,6 @@ export class SurveyModel extends Base
         self.onFirstPageIsStartedChanged();
       }
     );
-    this.registerFunctionOnPropertyValueChanged("isSinglePage", function() {
-      self.onIsSinglePageChanged();
-    });
     this.registerFunctionOnPropertyValueChanged("mode", function() {
       self.onModeChanged();
     });
@@ -840,6 +837,12 @@ export class SurveyModel extends Base
   public getType(): string {
     return "survey";
   }
+  protected onPropertyValueChanged(name: string, oldValue: any, newValue: any) {
+    if (name === "questionsOnPageMode") {
+      this.onQuestionsOnPageModeChanged(oldValue);
+    }
+  }
+
   /**
    * The list of all pages in the survey, including invisible.
    * @see PageModel
@@ -853,9 +856,9 @@ export class SurveyModel extends Base
   }
   private cssValue: any = null;
   public get css(): any {
-    if(!this.cssValue) {
-      this.cssValue = {}
-      this.copyCssClasses(this.cssValue, surveyCss.getCss())
+    if (!this.cssValue) {
+      this.cssValue = {};
+      this.copyCssClasses(this.cssValue, surveyCss.getCss());
     }
     return this.cssValue;
   }
@@ -2002,7 +2005,7 @@ export class SurveyModel extends Base
    */
   public setDesignMode(value: boolean) {
     this._isDesignMode = value;
-    this.onIsSinglePageChanged();
+    this.onQuestionsOnPageModeChanged("standard");
   }
   /**
    * Set this property to true, to show all elements in the survey, regardless their visibility. It is false by default.
@@ -2221,12 +2224,25 @@ export class SurveyModel extends Base
   }
   /**
    * Set this property to true, if you want to combine all your pages in one page. Pages will be converted into panels.
+   * Please use questionsOnPageMode property. This property becomes obsolete
+   * @see questionsOnPageMode
    */
   public get isSinglePage(): boolean {
-    return this.getPropertyValue("isSinglePage", false);
+    return this.questionsOnPageMode == "singlePage";
   }
   public set isSinglePage(val: boolean) {
-    this.setPropertyValue("isSinglePage", val);
+    this.questionsOnPageMode = val ? "singlePage" : "standard";
+  }
+  /**
+   * Set this property to 'singlePage', if you want to combine all your pages in one page. Pages will be converted into panels.
+   * Set it to 'questionPerPage', if you want to have one question per page. Survey will create a separate page for every question.
+   * This property made isSinglePage property obsolete
+   */
+  public get questionsOnPageMode(): string {
+    return this.getPropertyValue("questionsOnPageMode", "standard");
+  }
+  public set questionsOnPageMode(val: string) {
+    this.setPropertyValue("questionsOnPageMode", val);
   }
   /**
    * Set this property to true, to make the first page your starting page. The end-user could not comeback to the start page and it is not count in the progress.
@@ -2248,8 +2264,8 @@ export class SurveyModel extends Base
     this.pageVisibilityChanged(this.pages[0], !this.firstPageIsStarted);
   }
   origionalPages: any = null;
-  protected onIsSinglePageChanged() {
-    if (!this.isSinglePage || this.isDesignMode) {
+  protected onQuestionsOnPageModeChanged(oldValue: string) {
+    if (this.questionsOnPageMode == "standard" || this.isDesignMode) {
       if (this.origionalPages) {
         this.questionHashesClear();
         this.pages.splice(0, this.pages.length);
@@ -2260,18 +2276,31 @@ export class SurveyModel extends Base
       this.origionalPages = null;
     } else {
       this.questionHashesClear();
-      this.origionalPages = this.pages.slice(0, this.pages.length);
+      if (!oldValue || oldValue == "standard") {
+        this.origionalPages = this.pages.slice(0, this.pages.length);
+      }
       var startIndex = this.firstPageIsStarted ? 1 : 0;
       super.startLoadingFromJson();
-      var singlePage = this.createSinglePage(startIndex);
+      var newPages = this.createPagesForQuestionOnPageMode(startIndex);
       var deletedLen = this.pages.length - startIndex;
-      this.pages.splice(startIndex, deletedLen, singlePage);
+      this.pages.splice(startIndex, deletedLen);
+      for(var i = 0; i < newPages.length; i ++) {
+        this.pages.push(newPages[i]);
+      }
       super.endLoadingFromJson();
-      singlePage.endLoadingFromJson();
-      singlePage.setSurveyImpl(this);
+      for(var i = 0; i < newPages.length; i ++) {
+        newPages[i].endLoadingFromJson();
+        newPages[i].setSurveyImpl(this);
+      }
       this.doElementsOnLoad();
     }
     this.updateVisibleIndexes();
+  }
+  private createPagesForQuestionOnPageMode(startIndex: number): Array<PageModel> {
+    if(this.isSinglePage) {
+      return [this.createSinglePage(startIndex)];
+    }
+    return this.createPagesForEveryQuestion(startIndex);
   }
   private createSinglePage(startIndex: number): PageModel {
     var single = this.createNewPage("all");
@@ -2287,6 +2316,24 @@ export class SurveyModel extends Base
       }
     }
     return single;
+  }
+  private createPagesForEveryQuestion(startIndex: number): Array<PageModel> {
+    var res: Array<PageModel> = [];
+    for (var i = startIndex; i < this.pages.length; i++) {
+      var origionalPage = this.pages[i];
+      for(var j = 0; j < origionalPage.elements.length; j ++) {
+        var origionalElement = origionalPage.elements[j];
+        var element = Serializer.createClass(origionalElement.getType());
+        if(!element) continue;
+        var page = this.createNewPage("page" + (res.length + 1));
+        page.setSurveyImpl(this);
+        res.push(page);
+        var json = new JsonObject().toJsonObject(origionalElement);
+        new JsonObject().toObject(json, element);
+        page.addElement(element);
+      }
+    }
+    return res;
   }
   /**
    * Returns true if the current page is the first one.
@@ -3226,7 +3273,7 @@ export class SurveyModel extends Base
   endLoadingFromJson() {
     this.isEndLoadingFromJson = "processing";
     this.isStartedState = this.firstPageIsStarted;
-    this.onIsSinglePageChanged();
+    this.onQuestionsOnPageModeChanged("standard");
     super.endLoadingFromJson();
     if (this.hasCookie) {
       this.doComplete();
@@ -4199,7 +4246,17 @@ Serializer.addClass("survey", [
     serializationProperty: "locQuestionTitleTemplate"
   },
   { name: "firstPageIsStarted:boolean", default: false },
-  { name: "isSinglePage:boolean", default: false },
+  {
+    name: "isSinglePage:boolean",
+    default: false,
+    visible: false,
+    isSerializable: false
+  },
+  {
+    name: "questionsOnPageMode",
+    default: "standard",
+    choices: ["singlePage", "standard", "questionPerPage"]
+  },
   { name: "maxTimeToFinish:number", default: 0, minValue: 0 },
   { name: "maxTimeToFinishPage:number", default: 0, minValue: 0 },
   {

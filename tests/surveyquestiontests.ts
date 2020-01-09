@@ -29,6 +29,7 @@ import { surveyLocalization } from "../src/surveyStrings";
 import { settings } from "../src/settings";
 import { QuestionImagePickerModel } from "../src/question_imagepicker";
 import { FunctionFactory } from "../src/functionsfactory";
+import { ArrayChanges } from "../src/base";
 
 export default QUnit.module("Survey_Questions");
 
@@ -3312,8 +3313,46 @@ QUnit.test(
   }
 );
 QUnit.test("question.getSupportedValidators", function(assert) {
-  assert.deepEqual(new QuestionMatrixModel("q").getSupportedValidators(), ["expression"]);
-  assert.deepEqual(new QuestionTextModel("q").getSupportedValidators(), ["expression", "numeric", "text", "regex", "email"]);
-  assert.deepEqual(new QuestionCommentModel("q").getSupportedValidators(), ["expression", "text", "regex"]);
-  assert.deepEqual(new QuestionCheckboxModel("q").getSupportedValidators(), ["expression", "answercount"]);
+  assert.deepEqual(new QuestionMatrixModel("q").getSupportedValidators(), [
+    "expression"
+  ]);
+  assert.deepEqual(new QuestionTextModel("q").getSupportedValidators(), [
+    "expression",
+    "numeric",
+    "text",
+    "regex",
+    "email"
+  ]);
+  assert.deepEqual(new QuestionCommentModel("q").getSupportedValidators(), [
+    "expression",
+    "text",
+    "regex"
+  ]);
+  assert.deepEqual(new QuestionCheckboxModel("q").getSupportedValidators(), [
+    "expression",
+    "answercount"
+  ]);
+});
+
+QUnit.test("Question<=Base propertyValueChanged", function(assert) {
+  var json = { title: "title", questions: [{ type: "text", name: "q" }] };
+  var survey = new SurveyModel(json);
+  var question = survey.getQuestionByName("q");
+  var counter = 0;
+
+  survey.onPropertyValueChangedCallback = (
+    name: string,
+    oldValue: any,
+    newValue: any,
+    sender: SurveyModel,
+    arrayChanges: ArrayChanges
+  ) => {
+    counter++;
+  };
+
+  assert.equal(counter, 0, "initial");
+
+  question.title = "new";
+
+  assert.equal(counter, 1, "callback called");
 });

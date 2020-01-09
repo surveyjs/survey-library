@@ -1,4 +1,4 @@
-import { Base, Event } from "../src/base";
+import { Base, Event, ArrayChanges } from "../src/base";
 import { ItemValue } from "../src/itemvalue";
 import { ILocalizableOwner, LocalizableString } from "../src/localizablestring";
 import { Serializer } from "../src/jsonobject";
@@ -381,4 +381,46 @@ QUnit.test("Base array propety value, set value", function(assert) {
     "The third  item, isNew property is set"
   );
   assert.equal(counter, 2, "event called two time");
+});
+
+QUnit.test("Base onPropertyValueChangedCallback", function(assert) {
+  var base = new BaseTester();
+  var counter = 0;
+
+  base.onPropertyValueChangedCallback = (
+    name: string,
+    oldValue: any,
+    newValue: any,
+    sender: Base,
+    arrayChanges: ArrayChanges
+  ) => {
+    counter++;
+  };
+
+  assert.equal(counter, 0, "initial");
+
+  base.setPropertyValue("some", "some");
+
+  assert.equal(counter, 1, "callback called");
+});
+
+QUnit.test("Base propertyValueChanged itemValue", function(assert) {
+  var itemValue = new ItemValue("Item");
+  var counter = 0;
+
+  itemValue.onPropertyValueChangedCallback = (
+    name: string,
+    oldValue: any,
+    newValue: any,
+    sender: Base,
+    arrayChanges: ArrayChanges
+  ) => {
+    counter++;
+  };
+
+  assert.equal(counter, 0, "initial");
+
+  itemValue.text = "new";
+
+  assert.equal(counter, 1, "callback called");
 });

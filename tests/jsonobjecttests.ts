@@ -775,7 +775,10 @@ QUnit.test(
       jsObj,
       {
         name: "q1",
-        defaultValue: [{ column1: 1, column2: 2 }, { column1: 3, column2: 4 }],
+        defaultValue: [
+          { column1: 1, column2: 2 },
+          { column1: 3, column2: 4 }
+        ],
         defaultRowValue: { column1: 1, column2: 2 }
       },
       "serialize ItemValueListOwner"
@@ -800,7 +803,12 @@ QUnit.test("LongNamesOwner serialization", function(assert) {
 QUnit.test("ItemValueListOwner deserialization", function(assert) {
   var owner = new LongNamesOwner();
   new JsonObject().toObject(
-    { items: [{ type: "itemA", A: 5 }, { type: "itemB_thelongpart", B: 15 }] },
+    {
+      items: [
+        { type: "itemA", A: 5 },
+        { type: "itemB_thelongpart", B: 15 }
+      ]
+    },
     owner
   );
   assert.equal(owner.items.length, 2, "there are 2 items");
@@ -817,7 +825,10 @@ QUnit.test("ItemValueListOwner deserialization", function(assert) {
 });
 QUnit.test("Do not change Json", function(assert) {
   var json = {
-    items: [{ type: "itemA", A: 5 }, { type: "itemB_thelongpart", B: 15 }]
+    items: [
+      { type: "itemA", A: 5 },
+      { type: "itemB_thelongpart", B: 15 }
+    ]
   };
   var jsonText = JSON.stringify(json);
   var owner = new LongNamesOwner();
@@ -1701,7 +1712,10 @@ QUnit.test("itemvalues (array) save localized text", function(assert) {
   );
 
   question["customArray"][0].text = "text 1";
-  question.locOwner = <any>{ getLocale: () => "de" };
+  question.locOwner = <any>{
+    getLocale: () => "de",
+    doPropertyValueChangedCallback: () => {}
+  };
   question["customArray"][0].text = "text de";
 
   var json = new JsonObject().toJsonObject(question);

@@ -379,42 +379,80 @@ export class Base {
     arrayChanges: ArrayChanges
   ) {}
 
+  protected onPropertyValueChanged(
+    name: string,
+    oldValue: any,
+    newValue: any
+  ) {}
   protected propertyValueChanged(
     name: string,
     oldValue: any,
     newValue: any,
-    arrayChanges?: ArrayChanges
+    arrayChanges?: ArrayChanges,
+    target?: Base
   ) {
     if (this.isLoadingFromJson) return;
+    this.onPropertyValueChanged(name, oldValue, newValue);
     this.onPropertyChanged.fire(this, {
       name: name,
       oldValue: oldValue,
       newValue: newValue
     });
+
+    this.doPropertyValueChangedCallback(
+      name,
+      oldValue,
+      newValue,
+      arrayChanges,
+      this
+    );
+
     if (!this.onPropChangeFunctions) return;
     for (var i = 0; i < this.onPropChangeFunctions.length; i++) {
       if (this.onPropChangeFunctions[i].name == name)
         this.onPropChangeFunctions[i].func(newValue);
     }
+  }
 
-    if (!!(<any>this)["survey"]) {
-      (<any>this)["survey"].onPropertyValueChangedCallback(
+  private doPropertyValueChangedCallback(
+    name: string,
+    oldValue: any,
+    newValue: any,
+    arrayChanges?: ArrayChanges,
+    target?: Base
+  ) {
+    if (!target) target = this;
+    let parentBase: Base = this;
+
+    if ((<any>this)["locOwner"] ) {
+      parentBase = (<any>this)["locOwner"];
+      parentBase.doPropertyValueChangedCallback(
         name,
         oldValue,
         newValue,
-        this,
-        arrayChanges
+        arrayChanges,
+        target
+      );
+    } else if ((<any>this)["survey"]) {
+      parentBase = (<any>this)["survey"];
+      parentBase.doPropertyValueChangedCallback(
+        name,
+        oldValue,
+        newValue,
+        arrayChanges,
+        target
       );
     } else {
       this.onPropertyValueChangedCallback(
         name,
         oldValue,
         newValue,
-        this,
+        target,
         arrayChanges
       );
     }
   }
+
   /**
    * Register a function that will be called on a property value changed.
    * @param name the property name

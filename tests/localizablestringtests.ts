@@ -23,6 +23,7 @@ class LocalizableOwnerTester implements ILocalizableOwner {
     }
     return text;
   }
+  public doPropertyValueChangedCallback() {}
 }
 
 class LocalizableStringTester extends LocalizableString {

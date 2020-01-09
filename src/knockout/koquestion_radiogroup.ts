@@ -28,6 +28,9 @@ export class QuestionRadiogroup extends QuestionRadiogroupModel {
   getLabelClass(item: any) {
     return super.getLabelClass(item.value === this.value);
   }
+  getItemIndex(item: any) {
+    return this.visibleChoices.indexOf(item);
+  }
   getControlLabelClass(item: any) {
     return super.getControlLabelClass(item.value === this.value);
   }

@@ -241,7 +241,9 @@ export class ItemValue extends Base {
     return this.locText.calculatedText; //TODO: it will be correct to use this.locText.text, however it would require a lot of rewritting in Creator
   }
   public set text(newText: string) {
+    const oldText = this.locText.text;
     this.locText.text = newText;
+    this.propertyValueChanged("text", oldText, newText);
   }
   public get calculatedText() {
     return this.locText.calculatedText;

@@ -46,6 +46,7 @@ import { AnswerRequiredError } from "../src/error";
 import { Survey } from "../src/react/reactSurvey";
 import { ConditionsParser } from "../src/conditionsParser";
 import { Operand, Variable, BinaryOperand, Const } from "../src/expressions/expressions";
+import { ArrayChanges } from "../src/base";
 
 export default QUnit.module("Survey");
 
@@ -8415,4 +8416,26 @@ QUnit.test("Different css for different surveys", function(assert) {
   var question2 = survey2.getQuestionByName("q");
   assert.equal(question1.cssMainRoot, defaultQuestionRoot + " class1", "Correct css name for question1");
   assert.equal(question2.cssMainRoot, defaultQuestionRoot + " class2", "Correct css name for question2");
+});
+
+QUnit.test("Survey<=Base propertyValueChanged", function(assert) {
+  var json = {title: "title", questions: [{type: "text", name: "q"}]};
+  var survey = new SurveyModel(json);
+  var counter = 0;
+
+  survey.onPropertyValueChangedCallback = (
+    name: string,
+    oldValue: any,
+    newValue: any,
+    sender: SurveyModel,
+    arrayChanges: ArrayChanges
+  ) => {
+    counter++;
+  };
+
+  assert.equal(counter, 0, "initial");
+
+  survey.title = "new";
+
+  assert.equal(counter, 1, "callback called");
 });

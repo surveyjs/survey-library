@@ -399,7 +399,7 @@ export class Base {
       newValue: newValue
     });
 
-    this.doPropertyValueChangedCallback(
+    this.doPropertyValueChangedCallback && this.doPropertyValueChangedCallback(
       name,
       oldValue,
       newValue,
@@ -426,7 +426,7 @@ export class Base {
 
     if ((<any>this)["locOwner"] ) {
       parentBase = (<any>this)["locOwner"];
-      parentBase.doPropertyValueChangedCallback(
+      parentBase.doPropertyValueChangedCallback && parentBase.doPropertyValueChangedCallback(
         name,
         oldValue,
         newValue,
@@ -435,7 +435,7 @@ export class Base {
       );
     } else if ((<any>this)["survey"]) {
       parentBase = (<any>this)["survey"];
-      parentBase.doPropertyValueChangedCallback(
+      parentBase.doPropertyValueChangedCallback && parentBase.doPropertyValueChangedCallback(
         name,
         oldValue,
         newValue,

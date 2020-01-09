@@ -7,7 +7,9 @@ import { Helpers } from "../helpers";
 import { QuestionCommentModel } from "../question_comment";
 import { ReactQuestionFactory } from "./reactquestionfactory";
 
-export class SurveyQuestionComment extends SurveyQuestionUncontrolledElement<QuestionCommentModel> {
+export class SurveyQuestionComment extends SurveyQuestionUncontrolledElement<
+  QuestionCommentModel
+> {
   constructor(props: any) {
     super(props);
   }
@@ -25,7 +27,7 @@ export class SurveyQuestionComment extends SurveyQuestionUncontrolledElement<Que
       <textarea
         id={this.question.inputId}
         className={cssClasses.root}
-        readOnly={this.isDisplayMode}
+        disabled={this.isDisplayMode}
         ref={tetxarea => (this.control = tetxarea)}
         maxLength={this.question.getMaxLength()}
         placeholder={this.question.placeHolder}
@@ -62,7 +64,6 @@ export class SurveyQuestionCommentItem extends ReactSurveyElement {
       <textarea
         className={className}
         value={comment}
-        readOnly={this.isDisplayMode}
         disabled={this.isDisplayMode}
         maxLength={question.getOthersMaxLength()}
         placeholder={question.otherPlaceHolder}

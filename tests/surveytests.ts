@@ -41,9 +41,8 @@ import { FunctionFactory } from "../src/functionsfactory";
 import { QuestionExpressionModel } from "../src/question_expression";
 import { QuestionPanelDynamicModel } from "../src/question_paneldynamic";
 import { QuestionImagePickerModel } from "../src/question_imagepicker";
-import { HtmlConditionItem } from "../src/htmlConditionItem";
+import { HtmlConditionItem, UrlConditionItem } from "../src/expressionItems";
 import { AnswerRequiredError } from "../src/error";
-import { Survey } from "../src/react/reactSurvey";
 import { ConditionsParser } from "../src/conditionsParser";
 import { Operand, Variable, BinaryOperand, Const } from "../src/expressions/expressions";
 import { ArrayChanges } from "../src/base";
@@ -4849,11 +4848,51 @@ QUnit.test("isSinglePage = true and survey.showPageTitles = false, Bug#1914", fu
   survey.pages[1].title = "Page 2";
   survey.showPageTitles = false;
   survey.isSinglePage = true;
-  var page = survey.visiblePages[0];
   var panels = survey.getAllPanels();
   assert.equal(panels.length, 2, "There are two panels");
   assert.notOk((<PanelModel>panels[0]).title, "Panel1 title is empty");
   assert.notOk((<PanelModel>panels[1]).title, "Panel2 title is empty");
+});
+
+QUnit.test("check synhronization properties isSinglePage and questionsOnPageMode", function(
+  assert
+) {
+  var survey = twoPageSimplestSurvey();
+  assert.equal(survey.isSinglePage, false, "isSinglePage is false by default");
+  assert.equal(survey.questionsOnPageMode, "standard", "questionsOnPageMode is 'standard' by default");
+  survey.isSinglePage = true;
+  assert.equal(survey.isSinglePage, true, "set isSinglePage to true");
+  assert.equal(survey.questionsOnPageMode, "singlePage", "questionsOnPageMode is 'singlePage' on setting isSinglePage to true");
+  survey.isSinglePage = false;
+  assert.equal(survey.isSinglePage, false, "set isSinglePage to false");
+  assert.equal(survey.questionsOnPageMode, "standard", "questionsOnPageMode is 'standard' on setting isSinglePage to false");
+  survey.questionsOnPageMode = "singlePage";
+  assert.equal(survey.questionsOnPageMode, "singlePage", "set questionsOnPageMode to 'singlePage'");
+  assert.equal(survey.isSinglePage, true, "isSinglePage is true on setting questionsOnPageMode to 'singlePage'");
+  survey.questionsOnPageMode = "questionPerPage";
+  assert.equal(survey.questionsOnPageMode, "questionPerPage", "set questionsOnPageMode to 'questionPerPage'");
+  assert.equal(survey.isSinglePage, false, "isSinglePage is false on setting questionsOnPageMode to 'questionPerPage'");
+  survey.questionsOnPageMode = "standard";
+  assert.equal(survey.questionsOnPageMode, "standard", "set questionsOnPageMode to 'standard'");
+  assert.equal(survey.isSinglePage, false, "isSinglePage is false on setting questionsOnPageMode to 'standard'");
+});
+
+QUnit.test("survey.questionsOnPageMode", function(
+  assert
+) {
+  var survey = twoPageSimplestSurvey();
+  var questions = survey.getAllQuestions();
+  survey.questionsOnPageMode = "questionOnPage";
+  assert.equal(survey.pages.length, questions.length, "The number of pages equals to questions");
+  for(var i = 0; i < questions.length; i ++) {
+    assert.equal(survey.pages[i].questions[0].name, questions[i].name, "questions set correctly per page");
+  }
+  survey.questionsOnPageMode = "singlePage";
+  assert.equal(survey.pages.length, 1, "We have one page");
+  assert.equal(survey.pages[0].questions.length, questions.length, "All questions on single page");
+  survey.questionsOnPageMode = "standard";
+  assert.equal(survey.pages.length, 2, "Origional pages");
+  assert.equal(survey.pages[0].questions.length, 2, "There are two questions on the origional first page");
 });
 
 QUnit.test("Survey page hasShown", function(assert) {
@@ -7619,6 +7658,95 @@ QUnit.test("survey.completedHtmlOnCondition + localization", function(assert) {
   survey.locale = "fr";
   assert.equal(
     survey.renderedCompletedHtml,
+    "fr-condition",
+    "get on condition fr"
+  );
+  survey.locale = prevLocale;
+});
+
+QUnit.test("survey.navigateToUrlOnCondition", function(assert) {
+  var survey = new SurveyModel();
+  survey.navigateToUrl = "1";
+  assert.equal(survey.getNavigateToUrl(), "1", "get from navigateToUrl");
+  survey.navigateToUrlOnCondition.push(new UrlConditionItem("{q1} = 2", "2"));
+  survey.navigateToUrlOnCondition.push(new UrlConditionItem("{q1} = 3", "3"));
+  assert.equal(
+    survey.getNavigateToUrl(),
+    "1",
+    "still get from navigateToUrl"
+  );
+  survey.setValue("q1", 2);
+  assert.equal(
+    survey.getNavigateToUrl(),
+    "2",
+    "get from first on Condition"
+  );
+  survey.setValue("q1", 3);
+  assert.equal(
+    survey.getNavigateToUrl(),
+    "3",
+    "get from second on Condition"
+  );
+  survey.setValue("q1", 5);
+  assert.equal(
+    survey.getNavigateToUrl(),
+    "1",
+    "get from navigateToUrl again"
+  );
+});
+
+QUnit.test("survey.navigateToUrlOnCondition + processValue", function(assert) {
+  var survey = new SurveyModel({elements: [{type: "text", name: "q1"}, {type: "text", name: "q2"}]});
+  survey.navigateToUrl = "url-{q1}-url";
+  survey.navigateToUrlOnCondition.push(new UrlConditionItem("{q1} = 2", "url-{q2}-url"));
+  assert.equal(
+    survey.getNavigateToUrl(),
+    "url--url",
+    "data is empty"
+  );
+  survey.data = {q1: "value1", q2: "value2"};
+  assert.equal(
+    survey.getNavigateToUrl(),
+    "url-value1-url",
+    "use value in navigateToUrl prop"
+  );
+  survey.setValue("q1", 2);
+  assert.equal(
+    survey.getNavigateToUrl(),
+    "url-value2-url",
+    "use value in condition url prop"
+  );
+});
+
+QUnit.test("survey.navigateToUrlOnCondition + localization", function(assert) {
+  var json = {
+    navigateToUrl: "1",
+    navigateToUrlOnCondition: [
+      {
+        expression: "{q1} = 2",
+        url: {
+          default: "en-condition",
+          fr: "fr-condition"
+        }
+      }
+    ]
+  };
+  var survey = new SurveyModel(json);
+  assert.equal(
+    survey.navigateToUrlOnCondition.length,
+    1,
+    "OnCondition restored correctly"
+  );
+  survey.setValue("q1", 2);
+  assert.equal(
+    survey.getNavigateToUrl(),
+    "en-condition",
+    "get on condition en"
+  );
+  var prevLocale = survey.locale;
+  survey.locale = "fr";
+  assert.equal(
+    survey.getNavigateToUrl(),
     "fr-condition",
     "get on condition fr"
   );

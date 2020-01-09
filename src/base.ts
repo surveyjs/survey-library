@@ -379,6 +379,11 @@ export class Base {
     arrayChanges: ArrayChanges
   ) {}
 
+  protected onPropertyValueChanged(
+    name: string,
+    oldValue: any,
+    newValue: any
+  ) {}
   protected propertyValueChanged(
     name: string,
     oldValue: any,
@@ -387,6 +392,7 @@ export class Base {
     target?: Base
   ) {
     if (this.isLoadingFromJson) return;
+    this.onPropertyValueChanged(name, oldValue, newValue);
     this.onPropertyChanged.fire(this, {
       name: name,
       oldValue: oldValue,

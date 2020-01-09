@@ -116,7 +116,7 @@
           </div>
         </template>
         <div v-if="hasCompletedPage">
-          <div v-html="survey.processedCompletedHtml" :class="getCompletedPageClasses()"></div>
+          <div v-html="getProcessedCompletedHtml()" :class="getCompletedPageClasses()"></div>
           <div v-if="survey.completedState != ''" :class="css.saveData.root">
             <div :class="getCompletedStateClasses()">
               <span>{{survey.completedStateText}}</span>
@@ -156,6 +156,7 @@ import { StylesManager } from "../stylesmanager";
 @Component
 export class Survey extends Vue {
   @Prop survey: SurveyModel;
+  processedCompletedHtmlValue: string;
 
   forceUpdate() {
     this.$forceUpdate();
@@ -192,6 +193,13 @@ export class Survey extends Vue {
   getCompletedPageClasses() {
     var css = this.css;
     return css.body + " " + css.completedPage;
+  }
+  getProcessedCompletedHtml() {
+    if (!this.hasCompletedPage) return "";
+    if (!this.processedCompletedHtmlValue) {
+      this.processedCompletedHtmlValue = this.survey.processedCompletedHtml;
+    }
+    return this.processedCompletedHtmlValue;
   }
   getCompletedStateClasses() {
     return this.css.saveData[this.survey.completedState];

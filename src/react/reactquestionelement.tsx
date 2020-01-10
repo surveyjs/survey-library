@@ -137,7 +137,9 @@ export class SurveyQuestionElementBase extends SurveyElementBase {
   }
 }
 
-export class SurveyQuestionUncontrolledElement<T extends Question> extends SurveyQuestionElementBase {
+export class SurveyQuestionUncontrolledElement<
+  T extends Question
+> extends SurveyQuestionElementBase {
   control: any;
   constructor(props: any) {
     super(props);
@@ -147,10 +149,14 @@ export class SurveyQuestionUncontrolledElement<T extends Question> extends Surve
     return this.questionBase as T;
   }
   componentWillUpdate() {
-    this.control.value = this.getValue(this.questionBase.value);
+    if (!!this.control) {
+      this.control.value = this.getValue(this.questionBase.value);
+    }
   }
   componentDidMount() {
-    this.control.value = this.getValue(this.questionBase.value);
+    if (!!this.control) {
+      this.control.value = this.getValue(this.questionBase.value);
+    }
   }
   updateValueOnEvent = (event: any) => {
     this.questionBase.value = event.target.value;

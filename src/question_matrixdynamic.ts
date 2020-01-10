@@ -32,6 +32,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   implements IMatrixDropdownData {
   private rowCounter = 0;
   private rowCountValue: number = 2;
+  private setRowCountValueFromData: boolean = false;
 
   constructor(public name: string) {
     super(name);
@@ -119,6 +120,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   }
   public set rowCount(val: number) {
     if (val < 0 || val > settings.matrixMaximumRowCount) return;
+    this.setRowCountValueFromData = false;
     var prevValue = this.rowCountValue;
     this.rowCountValue = val;
     if (this.value && this.value.length > val) {
@@ -543,9 +545,18 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   protected createMatrixRow(value: any): MatrixDynamicRowModel {
     return new MatrixDynamicRowModel(this.rowCounter++, this, value);
   }
+  private get isSharedData() {
+    return (
+      !!this.survey &&
+      this.survey.questionCountByValueName(this.getValueName()) > 1
+    );
+  }
   protected onBeforeValueChanged(val: any) {
-    var newRowCount = val && Array.isArray(val) ? val.length : 0;
-    if (newRowCount <= this.rowCount) return;
+    if (!val || !Array.isArray(val)) return;
+    var newRowCount = val.length;
+    if (newRowCount == this.rowCount) return;
+    if (!this.setRowCountValueFromData && newRowCount < this.rowCount) return;
+    this.setRowCountValueFromData = true;
     this.rowCountValue = newRowCount;
     if (this.generatedVisibleRows) {
       this.generatedVisibleRows = null;

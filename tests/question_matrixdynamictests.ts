@@ -356,11 +356,10 @@ QUnit.test("Matrixdynamic adjust rowCount on setting the value", function(
   question.columns.push(new MatrixDropdownColumn("column2"));
   question.value = [{}, { column1: 2 }, {}];
   assert.equal(question.rowCount, 3, "It should be 3 rowCount");
-  var rows = question.visibleRows;
   question.value = [{}, { column1: 2 }, {}, {}];
   assert.equal(question.rowCount, 4, "It should be 4 rowCount");
   question.value = [{ column1: 2 }];
-  assert.equal(question.rowCount, 4, "Keep row count equals 4");
+  assert.equal(question.rowCount, 1, "RowCount is 1");
 });
 QUnit.test("Matrixdynamic minRowCount/maxRowCount", function(assert) {
   var question = new QuestionMatrixDynamicModel("matrixDymanic");
@@ -3331,5 +3330,55 @@ QUnit.test(
     rows[0].cells[1].value = 100;
     assert.equal(rows[0].cells[2].value, 200, "cell1 + cell2");
     assert.equal(rows[0].cells[3].value, 1, "(cell1 + cell2)/total");
+  }
+);
+
+QUnit.test(
+  "The row numbers is incorrect after setting the value: survey.data, Bug #1958",
+  function(assert) {
+    var survey = new SurveyModel({
+      questions: [
+        {
+          type: "matrixdynamic",
+          name: "teachersRate",
+          cellType: "radiogroup",
+          rowCount: 0,
+          choices: [
+            {
+              value: 1
+            },
+            {
+              value: 0
+            },
+            {
+              value: -1
+            }
+          ],
+          columns: [
+            {
+              name: "subject",
+              cellType: "dropdown",
+              choices: [1, 2, 3]
+            },
+            {
+              name: "explains"
+            }
+          ]
+        }
+      ]
+    });
+    var matrix = <QuestionMatrixDropdownModel>(
+      survey.getQuestionByName("teachersRate")
+    );
+    survey.data = {
+      teachersRate: [
+        { subject: 1, explains: 0 },
+        { subject: 2, explains: 1 }
+      ]
+    };
+
+    survey.data = { teachersRate: [{ subject: 1, explains: 0 }] };
+    var rows = matrix.visibleRows;
+    assert.equal(rows.length, 1, "we reset the number of rows to 1.");
   }
 );

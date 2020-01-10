@@ -545,12 +545,6 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   protected createMatrixRow(value: any): MatrixDynamicRowModel {
     return new MatrixDynamicRowModel(this.rowCounter++, this, value);
   }
-  private get isSharedData() {
-    return (
-      !!this.survey &&
-      this.survey.questionCountByValueName(this.getValueName()) > 1
-    );
-  }
   protected onBeforeValueChanged(val: any) {
     if (!val || !Array.isArray(val)) return;
     var newRowCount = val.length;

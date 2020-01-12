@@ -12,7 +12,8 @@ import {
   IPage,
   SurveyError,
   Event,
-  ISurveyErrorOwner
+  ISurveyErrorOwner,
+  ISurveyElement
 } from "./base";
 import { surveyCss } from "./defaultCss/cssstandard";
 import { ISurveyTriggerOwner, SurveyTrigger } from "./trigger";
@@ -846,7 +847,7 @@ export class SurveyModel extends Base
       if (jsonObj && jsonObj.clientId) {
         this.clientId = jsonObj.clientId;
       }
-      this.setJsonObject(jsonObj);
+      this.fromJSON(jsonObj);
       if (this.surveyId) {
         this.loadSurveyFromService(this.surveyId, this.clientId);
       }
@@ -1067,7 +1068,7 @@ export class SurveyModel extends Base
       this.navigateToUrlOnCondition
     );
     var url = !!item ? (<UrlConditionItem>item).url : this.navigateToUrl;
-    if(!!url) {
+    if (!!url) {
       url = this.processText(url, true);
     }
     return url;
@@ -2225,6 +2226,86 @@ export class SurveyModel extends Base
     }
     return res;
   }
+  /**
+   * Ensure that pages, panels and questions have unique question names.
+   * You may ensure unique names for individual page and panel (and all their elements) or question
+   * If the parameter is underfined then survey ensure that all its elements are unique.
+   * @param element page, panel or question, it is null by default, that means all survey elements will be checked
+   */
+  public ensureUniqueNames(element: ISurveyElement = null) {
+    if (element == null) {
+      for (var i = 0; i < this.pages.length; i++) {
+        this.ensureUniqueName(this.pages[i]);
+      }
+    } else {
+      this.ensureUniqueName(element);
+    }
+  }
+  private ensureUniqueName(element: ISurveyElement) {
+    if (element.isPage) {
+      this.ensureUniquePageName(element);
+    }
+    if (element.isPanel) {
+      this.ensureUniquePanelName(element);
+    }
+    if (element.isPage || element.isPanel) {
+      var elements = (<IPanel>element).elements;
+      for (var i = 0; i < elements.length; i++) {
+        this.ensureUniqueNames(elements[i]);
+      }
+    } else {
+      this.ensureUniqueQuestionName(element);
+    }
+  }
+  private ensureUniquePageName(element: ISurveyElement) {
+    return this.ensureUniqueElementName(
+      element,
+      (name: string): ISurveyElement => {
+        return this.getPageByName(name);
+      }
+    );
+  }
+  private ensureUniquePanelName(element: ISurveyElement) {
+    return this.ensureUniqueElementName(
+      element,
+      (name: string): ISurveyElement => {
+        return this.getPanelByName(name);
+      }
+    );
+  }
+  private ensureUniqueQuestionName(element: ISurveyElement) {
+    return this.ensureUniqueElementName(
+      element,
+      (name: string): ISurveyElement => {
+        return this.getQuestionByName(name);
+      }
+    );
+  }
+  private ensureUniqueElementName(
+    element: ISurveyElement,
+    getElementByName: (name: string) => ISurveyElement
+  ) {
+    var existingElement = getElementByName(element.name);
+    if (!existingElement || existingElement == element) return;
+    var newName = this.getNewName(element.name);
+    while (!!getElementByName(newName)) {
+      var newName = this.getNewName(element.name);
+    }
+    element.name = newName;
+  }
+  private getNewName(name: string): string {
+    var pos = name.length;
+    while (pos > 0 && name[pos - 1] >= "0" && name[pos - 1] <= "9") {
+      pos--;
+    }
+    var base = name.substr(0, pos);
+    var num = 0;
+    if (pos < name.length) {
+      num = parseInt(name.substr(pos));
+    }
+    num++;
+    return base + num;
+  }
   private checkIsCurrentPageHasErrors(
     isFocuseOnFirstError: boolean = undefined
   ): boolean {
@@ -3296,7 +3377,7 @@ export class SurveyModel extends Base
   }
   private loadSurveyFromServiceJson(json: any) {
     if (!json) return;
-    this.setJsonObject(json);
+    this.fromJSON(json);
     this.notifyAllQuestionsOnValueChanged();
     this.onLoadSurveyFromService();
   }
@@ -3327,15 +3408,18 @@ export class SurveyModel extends Base
           : -1;
     }
   }
-  public setJsonObject(jsonObj: any) {
-    if (!jsonObj) return;
+  public fromJSON(json: any) {
+    if (!json) return;
     this.questionHashesClear();
     this.jsonErrors = null;
     var jsonConverter = new JsonObject();
-    jsonConverter.toObject(jsonObj, this);
+    jsonConverter.toObject(json, this);
     if (jsonConverter.errors.length > 0) {
       this.jsonErrors = jsonConverter.errors;
     }
+  }
+  public setJsonObject(jsonObj: any) {
+    this.fromJSON(jsonObj);
   }
   private isEndLoadingFromJson: string = null;
   endLoadingFromJson() {

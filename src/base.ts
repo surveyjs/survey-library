@@ -155,6 +155,7 @@ export interface ISurveyElement {
   isVisible: boolean;
   isReadOnly: boolean;
   isPage: boolean;
+  isPanel: boolean;
   containsErrors: boolean;
   setSurveyImpl(value: ISurveyImpl): any;
   onSurveyLoad(): any;
@@ -171,7 +172,6 @@ export interface IElement extends IConditionRunner, ISurveyElement {
   width: string;
   rightIndent: number;
   startWithNewLine: boolean;
-  isPanel: boolean;
   getPanel(): IPanel;
   getLayoutType(): string;
   isLayoutTypeSupported(layoutType: string): boolean;
@@ -291,9 +291,26 @@ export class Base {
   }
   /**
    * Deserialized the current object into JSON
+   * @see fromJSON
    */
   public toJSON(): any {
     return new JsonObject().toJsonObject(this);
+  }
+  /**
+   * Load object properties and elements. It doesn't reset properties that was changed before and they are not defined in the json parameter.
+   * @param json the object JSON definition
+   * @see toJSON
+   */
+  public fromJSON(json: any) {
+    return new JsonObject().toObject(json, this);
+  }
+  /**
+   * Make a clone of the existing object. Create a new object of the same type and load all properties into it.
+   */
+  public clone(): Base {
+    var clonedObj = <Base>Serializer.createClass(this.getType());
+    clonedObj.fromJSON(this.toJSON());
+    return clonedObj;
   }
   public locStrsChanged() {
     if (!!this.arraysInfo) {
@@ -399,13 +416,14 @@ export class Base {
       newValue: newValue
     });
 
-    this.doPropertyValueChangedCallback && this.doPropertyValueChangedCallback(
-      name,
-      oldValue,
-      newValue,
-      arrayChanges,
-      this
-    );
+    this.doPropertyValueChangedCallback &&
+      this.doPropertyValueChangedCallback(
+        name,
+        oldValue,
+        newValue,
+        arrayChanges,
+        this
+      );
 
     if (!this.onPropChangeFunctions) return;
     for (var i = 0; i < this.onPropChangeFunctions.length; i++) {
@@ -424,24 +442,26 @@ export class Base {
     if (!target) target = this;
     let parentBase: Base = this;
 
-    if ((<any>this)["locOwner"] ) {
+    if ((<any>this)["locOwner"]) {
       parentBase = (<any>this)["locOwner"];
-      parentBase.doPropertyValueChangedCallback && parentBase.doPropertyValueChangedCallback(
-        name,
-        oldValue,
-        newValue,
-        arrayChanges,
-        target
-      );
+      parentBase.doPropertyValueChangedCallback &&
+        parentBase.doPropertyValueChangedCallback(
+          name,
+          oldValue,
+          newValue,
+          arrayChanges,
+          target
+        );
     } else if ((<any>this)["survey"]) {
       parentBase = (<any>this)["survey"];
-      parentBase.doPropertyValueChangedCallback && parentBase.doPropertyValueChangedCallback(
-        name,
-        oldValue,
-        newValue,
-        arrayChanges,
-        target
-      );
+      parentBase.doPropertyValueChangedCallback &&
+        parentBase.doPropertyValueChangedCallback(
+          name,
+          oldValue,
+          newValue,
+          arrayChanges,
+          target
+        );
     } else {
       this.onPropertyValueChangedCallback(
         name,
@@ -949,6 +969,12 @@ export class SurveyElement extends Base implements ISurveyElement {
     return 0;
   }
   public get isPage() {
+    return false;
+  }
+  /**
+   * Return false if it is not panel.
+   */
+  public get isPanel() {
     return false;
   }
   public delete() {}

@@ -166,12 +166,6 @@ export class Question extends SurveyElement
   public set page(val: IPage) {
     this.setPage(this.parent, val);
   }
-  /**
-   * Always returns false.
-   */
-  public get isPanel(): boolean {
-    return false;
-  }
   public getPanel(): IPanel {
     return null;
   }

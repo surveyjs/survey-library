@@ -757,6 +757,13 @@ QUnit.test("Test binary operator anyof", function(assert) {
   values = { value: null };
   assert.equal(runner.run(values), false, "null anyof ['a', 'b']");
 });
+QUnit.test("Test operator anyof for non-array var", function(assert) {
+  var runner = new ConditionRunner("{value} anyof ['a', 'b', 'c']");
+  var values = { value: "a" };
+  assert.equal(runner.run(values), true, "'a' anyof ['a', 'b', 'c']");
+  values.value = "e";
+  assert.equal(runner.run(values), false, "'e' anyof ['a', 'b', 'c']");
+});
 QUnit.test("Test binary operator allof", function(assert) {
   var runner = new ConditionRunner("{value} allof ['a', 'b']");
   var values = { value: ["a", "c"] };
@@ -944,4 +951,26 @@ QUnit.test("isString function", function(assert) {
     "'0xbe0eb53f46cd790cd13851d5eff43d12404d33e8' is string"
   );
   FunctionFactory.Instance.unregister("isString");
+});
+QUnit.test('express with iif and "[" inside, Bug#1942', function(assert) {
+  // prettier-ignore
+  var expression = "{val1} + iif({val2} = \"item2\", \"[\" + {val1} + \"]\", \"x\")";
+  var runner = new ExpressionRunner(expression);
+  var values: any = { val1: "1", val2: "item2" };
+  assert.equal(runner.run(values), "1[1]", "val1 + [val1]");
+  values.val2 = "item1";
+  assert.equal(runner.run(values), "1x", "1 + 'x'");
+  values.val1 = undefined;
+  assert.equal(runner.run(values), "x", "undefined + 'x'");
+  // prettier-ignore
+  expression = "{val1} + \"x\"";
+  var runner = new ExpressionRunner(expression);
+  assert.equal(runner.run(values), "x", "undefined + 'x' without iif");
+  expression = '{val1} + "[" + {val1} + "]"';
+  var runner = new ExpressionRunner(expression);
+  assert.equal(
+    runner.run(values),
+    "[]",
+    "undefined + '[' + undefined + ']' without iif"
+  );
 });

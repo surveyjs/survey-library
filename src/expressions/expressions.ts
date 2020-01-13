@@ -126,7 +126,8 @@ export class UnaryOperand extends Operand {
       if (!!res) return res;
     }
     return (
-      OperandMaker.operatorToString(this.operatorName) + " " +
+      OperandMaker.operatorToString(this.operatorName) +
+      " " +
       this.expression.toString(func)
     );
   }
@@ -274,13 +275,15 @@ export class FunctionOperand extends Operand {
   }
   public evaluateAsync(processValue: ProcessValue) {
     this.isReadyValue = false;
-    if (!processValue.properties) processValue.properties = {};
-    processValue.properties.returnResult = (result: any) => {
+    var asyncProcessValue = new ProcessValue();
+    asyncProcessValue.values = Helpers.createCopy(processValue.values);
+    asyncProcessValue.properties = Helpers.createCopy(processValue.properties);
+    asyncProcessValue.properties.returnResult = (result: any) => {
       this.asynResult = result;
       this.isReadyValue = true;
       this.onAsyncReady();
     };
-    this.evaluateCore(processValue);
+    this.evaluateCore(asyncProcessValue);
   }
   public evaluate(processValue?: ProcessValue): any {
     if (this.isReady) return this.asynResult;
@@ -333,7 +336,8 @@ export class OperandMaker {
   static toOperandString(value: string): string {
     if (
       !!value &&
-      (!OperandMaker.isNumeric(value) && !OperandMaker.isBooleanValue(value))
+      !OperandMaker.isNumeric(value) &&
+      !OperandMaker.isBooleanValue(value)
     )
       value = "'" + value + "'";
     return value;
@@ -380,8 +384,12 @@ export class OperandMaker {
   static binaryFunctions: HashTable<Function> = {
     arithmeticOp(operatorName: string) {
       return function(a: any, b: any): any {
-        if (Helpers.isValueEmpty(a) && !OperandMaker.isSpaceString(a)) a = 0;
-        if (Helpers.isValueEmpty(b) && !OperandMaker.isSpaceString(b)) b = 0;
+        if (Helpers.isValueEmpty(a) && !OperandMaker.isSpaceString(a)) {
+          a = typeof b === "string" ? "" : 0;
+        }
+        if (Helpers.isValueEmpty(b) && !OperandMaker.isSpaceString(b)) {
+          b = typeof a === "string" ? "" : 0;
+        }
 
         let consumer = OperandMaker.binaryFunctions[operatorName];
         return consumer == null ? null : consumer.call(this, a, b);
@@ -393,7 +401,7 @@ export class OperandMaker {
     or: function(a: boolean, b: boolean): boolean {
       return a || b;
     },
-    plus: function(a: number, b: number): number {
+    plus: function(a: any, b: any): any {
       return a + b;
     },
     minus: function(a: number, b: number): number {
@@ -444,8 +452,10 @@ export class OperandMaker {
     },
     anyof: function(left: any, right: any): boolean {
       if (!left && Helpers.isValueEmpty(right)) return true;
-      if (!left || !Array.isArray(left) || left.length === 0) return false;
+      if (!left || (!Array.isArray(left) && left.length === 0)) return false;
       if (Helpers.isValueEmpty(right)) return true;
+      if (!Array.isArray(left))
+        return OperandMaker.binaryFunctions.contains(right, left);
       if (!Array.isArray(right))
         return OperandMaker.binaryFunctions.contains(left, right);
       for (var i = 0; i < right.length; i++) {

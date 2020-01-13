@@ -1,0 +1,76 @@
+# Node.js
+# Build a general Node.js project with npm.
+# Add steps that analyze code, save build artifacts, deploy, and more:
+# https://docs.microsoft.com/azure/devops/pipelines/languages/javascript
+
+trigger:
+  tags:
+    include:
+    - v*.*.*
+
+pool:
+  vmImage: 'Ubuntu-16.04'
+
+steps:
+- task: NodeTool@0
+  inputs:
+    versionSpec: '10.x'
+  displayName: 'install Node.js'
+
+- script: |
+    npm install
+    npm run build_prod
+    npm run testsingle
+    npm run testcafe_ci
+  displayName: 'npm install and build'
+
+- script: |
+    npm run doc_gen
+  displayName: 'generate docs'
+
+- task: Npm@1
+  inputs:
+    command: 'publish'
+    workingDir: 'packages/survey-angular'
+    publishEndpoint: 'NPM Registry'
+    verbose: true
+
+- task: Npm@1
+  inputs:
+    command: 'publish'
+    workingDir: 'packages/survey-react'
+    publishEndpoint: 'NPM Registry'
+    verbose: true
+
+- task: Npm@1
+  inputs:
+    command: 'publish'
+    workingDir: 'packages/survey-vue'
+    publishEndpoint: 'NPM Registry'
+    verbose: true
+
+- task: Npm@1
+  inputs:
+    command: 'publish'
+    workingDir: 'packages/survey-knockout'
+    publishEndpoint: 'NPM Registry'
+    verbose: true
+
+- task: Npm@1
+  inputs:
+    command: 'publish'
+    workingDir: 'packages/survey-jquery'
+    publishEndpoint: 'NPM Registry'
+    verbose: true
+
+- task: Npm@1
+  inputs:
+    command: 'publish'
+    workingDir: 'packages/survey-core'
+    publishEndpoint: 'NPM Registry'
+    verbose: true
+
+
+- script: |
+    npm run doc_update
+  displayName: 'update docs'

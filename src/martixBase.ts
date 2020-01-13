@@ -129,12 +129,22 @@ export class QuestionMatrixBaseModel<TRow, TColumn> extends Question {
     values: HashTable<any>,
     properties: HashTable<any>
   ): boolean {
+    var oldVisibleRows = null;
+    if (!!this.filteredRows && !Helpers.isValueEmpty(this.defaultValue)) {
+      oldVisibleRows = [];
+      for (var i = 0; i < this.filteredRows.length; i++) {
+        oldVisibleRows.push(this.filteredRows[i]);
+      }
+    }
     var hasChanges =
       this.hasRowsAsItems() && this.runConditionsForRows(values, properties);
     hasChanges = this.runConditionsForColumns(values, properties) || hasChanges;
     if (hasChanges) {
       if (!!this.filteredColumns || !!this.filteredRows) {
         this.clearIncorrectValues();
+      }
+      if (!!oldVisibleRows) {
+        this.restoreNewVisibleRowsValues(oldVisibleRows);
       }
       this.generatedVisibleRows = null;
       this.onRowsChanged();
@@ -217,6 +227,25 @@ export class QuestionMatrixBaseModel<TRow, TColumn> extends Question {
     }
     if (Helpers.isTwoValueEquals(newData, this.value)) return;
     this.value = newData;
+  }
+  private restoreNewVisibleRowsValues(oldVisibleRows: any) {
+    var rows = !!this.filteredRows ? this.filteredRows : this.rows;
+    var val = this.defaultValue;
+    var newValue = Helpers.getUnbindValue(this.value);
+    var isChanged = false;
+    for (var key in val) {
+      if (
+        ItemValue.getItemByValue(rows, key) &&
+        !ItemValue.getItemByValue(oldVisibleRows, key)
+      ) {
+        if (newValue == null) newValue = {};
+        (<any>newValue)[key] = val[key];
+        isChanged = true;
+      }
+    }
+    if (isChanged) {
+      this.value = newValue;
+    }
   }
 }
 

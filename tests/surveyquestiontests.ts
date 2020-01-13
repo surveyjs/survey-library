@@ -3,6 +3,7 @@ import { QuestionHtmlModel } from "../src/question_html";
 import { QuestionFactory } from "../src/questionfactory";
 import { QuestionSelectBase } from "../src/question_baseselect";
 import { QuestionTextModel } from "../src/question_text";
+import { QuestionCommentModel } from "../src/question_comment";
 import { SurveyModel } from "../src/survey";
 import { QuestionCheckboxModel } from "../src/question_checkbox";
 import { QuestionMatrixModel, MatrixRowModel } from "../src/question_matrix";
@@ -28,6 +29,7 @@ import { surveyLocalization } from "../src/surveyStrings";
 import { settings } from "../src/settings";
 import { QuestionImagePickerModel } from "../src/question_imagepicker";
 import { FunctionFactory } from "../src/functionsfactory";
+import { ArrayChanges } from "../src/base";
 
 export default QUnit.module("Survey_Questions");
 
@@ -43,9 +45,8 @@ class QuestionMatrixRandomModel extends QuestionMatrixModel {
 }
 
 QUnit.test("Only some questions support comment", function(assert) {
-  var questionText = <Question>QuestionFactory.Instance.createQuestion(
-    "text",
-    "textQuestion"
+  var questionText = <Question>(
+    QuestionFactory.Instance.createQuestion("text", "textQuestion")
   );
 
   assert.equal(
@@ -65,9 +66,8 @@ QUnit.test("Only some questions support comment", function(assert) {
     "You can't set has comment to the text question."
   );
 
-  var questionDropDown = <Question>QuestionFactory.Instance.createQuestion(
-    "dropdown",
-    "dropdownQuestion"
+  var questionDropDown = <Question>(
+    QuestionFactory.Instance.createQuestion("dropdown", "dropdownQuestion")
   );
   assert.equal(
     questionDropDown.supportComment(),
@@ -87,9 +87,8 @@ QUnit.test("Only some questions support comment", function(assert) {
   );
 });
 QUnit.test("Only some questions support other", function(assert) {
-  var questionText = <Question>QuestionFactory.Instance.createQuestion(
-    "text",
-    "textQuestion"
+  var questionText = <Question>(
+    QuestionFactory.Instance.createQuestion("text", "textQuestion")
   );
 
   assert.equal(
@@ -109,9 +108,8 @@ QUnit.test("Only some questions support other", function(assert) {
     "You can't set has other to the text question."
   );
 
-  var questionDropDown = <Question>QuestionFactory.Instance.createQuestion(
-    "dropdown",
-    "dropdownQuestion"
+  var questionDropDown = <Question>(
+    QuestionFactory.Instance.createQuestion("dropdown", "dropdownQuestion")
   );
   assert.equal(
     questionDropDown.supportOther(),
@@ -131,9 +129,8 @@ QUnit.test("Only some questions support other", function(assert) {
   );
 });
 QUnit.test("Comment and other could not be set together", function(assert) {
-  var questionDropDown = <Question>QuestionFactory.Instance.createQuestion(
-    "dropdown",
-    "dropdownQuestion"
+  var questionDropDown = <Question>(
+    QuestionFactory.Instance.createQuestion("dropdown", "dropdownQuestion")
   );
   assert.equal(
     questionDropDown.hasComment,
@@ -282,7 +279,10 @@ QUnit.test("displayValue function for rating question, issue #1094", function(
 });
 QUnit.test("matrix.displayValue, bug #1087", function(assert) {
   var question = new QuestionMatrixModel("q1");
-  question.rows = [{ value: 1, text: "Row 1" }, { value: 2, text: "Row 2" }];
+  question.rows = [
+    { value: 1, text: "Row 1" },
+    { value: 2, text: "Row 2" }
+  ];
   question.columns = [
     { value: 1, text: "Column 1" },
     { value: 2, text: "Column 2" }
@@ -747,6 +747,77 @@ QUnit.test("Multiple Text Question: support goNextPageAutomatic", function(
   );
 });
 
+QUnit.test(
+  "Radiogroup Question: support goNextPageAutomatic + hasOther",
+  function(assert) {
+    var json = {
+      pages: [
+        {
+          elements: [
+            {
+              type: "radiogroup",
+              name: "q1",
+              hasOther: true,
+              items: [1, 2, 3]
+            }
+          ]
+        },
+        {
+          elements: [
+            {
+              type: "text",
+              name: "q2"
+            }
+          ]
+        }
+      ],
+      goNextPageAutomatic: true
+    };
+    var survey = new SurveyModel(json);
+    var question = survey.getQuestionByName("q1");
+    question.value = "other";
+    assert.equal(survey.currentPageNo, 0, "Stay on the first page");
+    question.comment = "123";
+    assert.equal(survey.currentPageNo, 1, "Go to the second page");
+  }
+);
+
+QUnit.test(
+  "Radiogroup Question: support goNextPageAutomatic + hasOther + textUpdateMode = onTyping",
+  function(assert) {
+    var json = {
+      pages: [
+        {
+          elements: [
+            {
+              type: "radiogroup",
+              name: "q1",
+              hasOther: true,
+              items: [1, 2, 3]
+            }
+          ]
+        },
+        {
+          elements: [
+            {
+              type: "text",
+              name: "q2"
+            }
+          ]
+        }
+      ],
+      textUpdateMode: "onTyping",
+      goNextPageAutomatic: true
+    };
+    var survey = new SurveyModel(json);
+    var question = survey.getQuestionByName("q1");
+    question.value = "other";
+    assert.equal(survey.currentPageNo, 0, "Stay on the first page");
+    question.comment = "123";
+    assert.equal(survey.currentPageNo, 0, "Still stay on the first page");
+  }
+);
+
 QUnit.test("Validators for text question + getAllErrors", function(assert) {
   var mText = new QuestionTextModel("");
   assert.equal(mText.hasErrors(), false, "There is no error by default");
@@ -890,6 +961,30 @@ QUnit.test(
       question.hasErrors(),
       false,
       "Everything is still fine, hasOther = false"
+    );
+  }
+);
+QUnit.test(
+  "Boolean value set as string in item.value, Bug #T3118 (private)",
+  function(assert) {
+    var json = {
+      elements: [{ type: "radiogroup", name: "q1", choices: ["true", "false"] }]
+    };
+    var survey = new SurveyModel(json);
+    var question = <QuestionRadiogroupModel>survey.getQuestionByName("q1");
+    survey.setValue("q1", true);
+    assert.ok(question.selectedItem, "Item is selected");
+    assert.equal(
+      question.selectedItem.value,
+      "true",
+      "the first item is selected"
+    );
+    survey.setValue("q1", false);
+    assert.ok(question.selectedItem, "Item is selected");
+    assert.equal(
+      question.selectedItem.value,
+      "false",
+      "the second item is selected"
     );
   }
 );
@@ -2700,6 +2795,46 @@ QUnit.test(
     );
   }
 );
+QUnit.test(
+  "matrix single choice. Restore new visible values from defaultValue if they are exists, Issue# T3038, https://surveyjs.answerdesk.io/ticket/details/T3038",
+  function(assert) {
+    var survey = new SurveyModel({
+      elements: [
+        {
+          type: "matrix",
+          name: "q1",
+          columns: ["1", "2", "3", "4"],
+          rows: [
+            {
+              value: "v1"
+            },
+            {
+              value: "v2"
+            },
+            {
+              value: "v3",
+              visibleIf: "{val1} = 'a'"
+            },
+            {
+              value: "v4",
+              visibleIf: "{val1} = 'a'"
+            }
+          ],
+          defaultValue: { v1: "1", v2: "2", v3: "3", v4: "4" }
+        }
+      ]
+    });
+    var question = <QuestionMatrixModel>survey.getQuestionByName("q1");
+    assert.deepEqual(question.value, { v1: "1", v2: "2" }, "Remove two rows");
+    survey.setValue("val1", "a");
+    assert.deepEqual(
+      question.value,
+      { v1: "1", v2: "2", v3: "3", v4: "4" },
+      "Restore rows values from default"
+    );
+  }
+);
+
 QUnit.test("Load survey with requiredIf expression", function(assert) {
   var survey = new SurveyModel({
     elements: [
@@ -2792,8 +2927,8 @@ QUnit.test(
     var survey = new SurveyModel();
     survey.setDesignMode(true);
     survey.setJsonObject(json);
-    var question = <QuestionMultipleTextModel>survey.getQuestionByName(
-      "_metaData"
+    var question = <QuestionMultipleTextModel>(
+      survey.getQuestionByName("_metaData")
     );
     assert.equal(
       question.items[0].editor.isDesignMode,
@@ -2986,6 +3121,21 @@ QUnit.test("QuestionImagePicker.isItemSelected function", function(assert) {
   );
 });
 
+QUnit.test("QuestionImagePicker 0 item value test", function(assert) {
+  var question = new QuestionImagePickerModel("q1");
+  new JsonObject().toObject(
+    {
+      type: "imagepicker",
+      name: "question3",
+      choices: [1, 2, 3, 4, 0]
+    },
+    question
+  );
+  question.value = 0;
+  assert.equal(question.value, 0, "Value should be 0 and not undefined");
+  assert.equal(question.isEmpty(), false, "Question is not empty");
+});
+
 QUnit.test(
   "question visibleIf, enableIf and requiredIf with async functions in expression",
   function(assert) {
@@ -3061,7 +3211,10 @@ QUnit.test("test question.getDisplayValue(key, value)", function(assert) {
       {
         type: "radiogroup",
         name: "q1",
-        choices: [{ value: 1, text: "one" }, { value: 2, text: "two" }]
+        choices: [
+          { value: 1, text: "one" },
+          { value: 2, text: "two" }
+        ]
       },
       {
         type: "checkbox",
@@ -3159,3 +3312,47 @@ QUnit.test(
     FunctionFactory.Instance.unregister("asyncFunc2");
   }
 );
+QUnit.test("question.getSupportedValidators", function(assert) {
+  assert.deepEqual(new QuestionMatrixModel("q").getSupportedValidators(), [
+    "expression"
+  ]);
+  assert.deepEqual(new QuestionTextModel("q").getSupportedValidators(), [
+    "expression",
+    "numeric",
+    "text",
+    "regex",
+    "email"
+  ]);
+  assert.deepEqual(new QuestionCommentModel("q").getSupportedValidators(), [
+    "expression",
+    "text",
+    "regex"
+  ]);
+  assert.deepEqual(new QuestionCheckboxModel("q").getSupportedValidators(), [
+    "expression",
+    "answercount"
+  ]);
+});
+
+QUnit.test("Question<=Base propertyValueChanged", function(assert) {
+  var json = { title: "title", questions: [{ type: "text", name: "q" }] };
+  var survey = new SurveyModel(json);
+  var question = survey.getQuestionByName("q");
+  var counter = 0;
+
+  survey.onPropertyValueChangedCallback = (
+    name: string,
+    oldValue: any,
+    newValue: any,
+    sender: SurveyModel,
+    arrayChanges: ArrayChanges
+  ) => {
+    counter++;
+  };
+
+  assert.equal(counter, 0, "initial");
+
+  question.title = "new";
+
+  assert.equal(counter, 1, "callback called");
+});

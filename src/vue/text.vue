@@ -9,8 +9,9 @@
     :placeholder="question.placeHolder"
     :value="question.value"
     @change="change"
+    @keyup="keyup"
     v-bind:aria-label="question.locTitle.renderedHtml"
-  >
+  />
 </template>
 
 <script lang="ts">
@@ -22,6 +23,10 @@ import { QuestionTextModel } from "../question_text";
 @Component
 export class Text extends QuestionVue<QuestionTextModel> {
   change(event: any) {
+    this.question.value = event.target.value;
+  }
+  keyup(event: any) {
+    if (!this.question.isInputTextUpdate) return;
     this.question.value = event.target.value;
   }
 }

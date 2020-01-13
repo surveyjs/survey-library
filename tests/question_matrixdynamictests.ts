@@ -356,11 +356,10 @@ QUnit.test("Matrixdynamic adjust rowCount on setting the value", function(
   question.columns.push(new MatrixDropdownColumn("column2"));
   question.value = [{}, { column1: 2 }, {}];
   assert.equal(question.rowCount, 3, "It should be 3 rowCount");
-  var rows = question.visibleRows;
   question.value = [{}, { column1: 2 }, {}, {}];
   assert.equal(question.rowCount, 4, "It should be 4 rowCount");
   question.value = [{ column1: 2 }];
-  assert.equal(question.rowCount, 4, "Keep row count equals 4");
+  assert.equal(question.rowCount, 1, "RowCount is 1");
 });
 QUnit.test("Matrixdynamic minRowCount/maxRowCount", function(assert) {
   var question = new QuestionMatrixDynamicModel("matrixDymanic");
@@ -737,13 +736,19 @@ QUnit.test("matrixdynamic.defaultValue - check the complex property", function(
         type: "matrixdynamic",
         name: "matrix",
         columns: [{ name: "col1" }, { name: "col2" }],
-        defaultValue: [{ col1: 1, col2: 2 }, { col1: 3, col2: 4 }]
+        defaultValue: [
+          { col1: 1, col2: 2 },
+          { col1: 3, col2: 4 }
+        ]
       }
     ]
   });
   assert.deepEqual(
     survey.getValue("matrix"),
-    [{ col1: 1, col2: 2 }, { col1: 3, col2: 4 }],
+    [
+      { col1: 1, col2: 2 },
+      { col1: 3, col2: 4 }
+    ],
     "set complex defaultValue correctly"
   );
 });
@@ -1155,7 +1160,7 @@ QUnit.test("MatrixDropdownColumn add/remove serialization properties", function(
 QUnit.test("MatrixDropdownColumn cellType property, choices", function(assert) {
   var prop = Serializer.findProperty("matrixdropdowncolumn", "cellType");
   assert.ok(prop, "Property is here");
-  assert.equal(prop.choices.length, 8, "There are 8 cell types by default");
+  assert.equal(prop.choices.length, 9, "There are 9 cell types by default");
   assert.equal(prop.choices[0], "default", "The first value is default");
   assert.equal(prop.choices[1], "dropdown", "The second value is default");
 });
@@ -1409,7 +1414,10 @@ QUnit.test("matrixDynamic.clearInvisibleValues", function(assert) {
   question.columns[0]["choices"] = [1, 2];
   question.columns[1]["choices"] = [1, 2, 3];
   question.rowCount = 2;
-  question.value = [{ col1: 1, col2: 4 }, { col4: 1, col2: 2 }];
+  question.value = [
+    { col1: 1, col2: 4 },
+    { col4: 1, col2: 2 }
+  ];
   question.clearIncorrectValues();
   assert.deepEqual(
     question.value,
@@ -1966,9 +1974,8 @@ QUnit.test(
 QUnit.test("Test defaultValueFromLastRow property", function(assert) {
   var survey = new SurveyModel();
   var page = survey.addNewPage("page");
-  var question = <QuestionMatrixDynamicModel>page.addNewQuestion(
-    "matrixdynamic",
-    "question"
+  var question = <QuestionMatrixDynamicModel>(
+    page.addNewQuestion("matrixdynamic", "question")
   );
   question.rowCount = 0;
   question.cellType = "text";
@@ -1983,14 +1990,21 @@ QUnit.test("Test defaultValueFromLastRow property", function(assert) {
   question.addRow();
   assert.deepEqual(
     question.value,
-    [{ col1: 1, col2: 2 }, { col1: 1, col2: 2 }],
+    [
+      { col1: 1, col2: 2 },
+      { col1: 1, col2: 2 }
+    ],
     "defaultValueFromLastRow is working"
   );
   question.defaultRowValue = { col1: 11, col3: 3 };
   question.addRow();
   assert.deepEqual(
     question.value,
-    [{ col1: 1, col2: 2 }, { col1: 1, col2: 2 }, { col1: 1, col2: 2, col3: 3 }],
+    [
+      { col1: 1, col2: 2 },
+      { col1: 1, col2: 2 },
+      { col1: 1, col2: 2, col3: 3 }
+    ],
     "defaultValueFromLastRow is merging with defaultRowValue"
   );
 });
@@ -3154,5 +3168,217 @@ QUnit.test(
     });
     question.addRow();
     assert.equal(counter, 1, "onValueChanged has been called");
+  }
+);
+QUnit.test("survey.onMatrixAllowRemoveRow", function(assert) {
+  var survey = new SurveyModel({
+    questions: [
+      {
+        type: "matrixdynamic",
+        name: "q1",
+        rowCount: 3,
+        columns: ["1", "2"]
+      }
+    ]
+  });
+  survey.onMatrixAllowRemoveRow.add(function(sender, options) {
+    options.allow = options.rowIndex % 2 == 0;
+  });
+  var matrix = <QuestionMatrixDynamicModel>survey.getAllQuestions()[0];
+  assert.equal(matrix.canRemoveRows, true, "The row can be removed");
+  var table = matrix.renderedTable;
+  assert.equal(
+    table.rows[0].cells[2].isRemoveRow,
+    true,
+    "The first row can be removed"
+  );
+  assert.equal(
+    table.rows[1].cells[2].isRemoveRow,
+    false,
+    "The second row can't be removed"
+  );
+  assert.equal(
+    table.rows[2].cells[2].isRemoveRow,
+    true,
+    "The third row can be removed"
+  );
+});
+
+QUnit.test(
+  "two shared matrixdynamic - should be no errors, Bug #T3121 (https://surveyjs.answerdesk.io/ticket/details/T3121)",
+  function(assert) {
+    var survey = new SurveyModel({
+      questions: [
+        {
+          type: "matrixdynamic",
+          name: "employer_names",
+          valueName: "qualita",
+          isRequired: true,
+          columns: [
+            {
+              name: "name",
+              cellType: "text",
+              isRequired: true
+            }
+          ],
+          rowCount: 4,
+          minRowCount: 4,
+          maxRowCount: 4
+        },
+        {
+          type: "radiogroup",
+          name: "qualitypriority",
+          choices: [
+            {
+              value: "0",
+              text: "{qualita[0].name}"
+            },
+            {
+              value: "1",
+              text: "{qualita[1].name}"
+            },
+            {
+              value: "2",
+              text: "{qualita[2].name}"
+            },
+            {
+              value: "3",
+              text: "{qualita[3].name}"
+            }
+          ]
+        },
+        {
+          type: "paneldynamic",
+          name: "arrray_qualita",
+          valueName: "qualita",
+          templateElements: [
+            {
+              type: "radiogroup",
+              name: "competenza",
+              choices: [
+                {
+                  value: "0"
+                },
+                {
+                  value: "1"
+                },
+                {
+                  value: "2"
+                },
+                {
+                  value: "3"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    });
+    var test_qualita = [
+      { name: "Leadership", competenza: "3" },
+      { name: "Team working", competenza: "2" },
+      { name: "Iniziativa", competenza: "1" },
+      { name: "Autonomia", competenza: "2" }
+    ];
+    survey.setValue("qualita", test_qualita);
+    var matrixDynamic = survey.getQuestionByName("employer_names");
+    assert.deepEqual(matrixDynamic.value, test_qualita, "Value set correctly");
+  }
+);
+
+QUnit.test(
+  "Totals in row using total in matrix, Bug #T3162 (https://surveyjs.answerdesk.io/ticket/details/T3162)",
+  function(assert) {
+    var survey = new SurveyModel({
+      elements: [
+        {
+          type: "matrixdropdown",
+          name: "matrix",
+          columns: [
+            {
+              name: "paid"
+            },
+            {
+              name: "free"
+            },
+            {
+              name: "total",
+              totalType: "sum",
+              cellType: "expression",
+              expression: "{row.free} + {row.paid}"
+            },
+            {
+              name: "percentage",
+              cellType: "expression",
+              expression: "({row.free} + {row.paid}) / {totalRow.total}"
+            }
+          ],
+          cellType: "text",
+          rows: [
+            {
+              value: "international"
+            }
+          ]
+        }
+      ]
+    });
+    var matrix = <QuestionMatrixDropdownModel>(
+      survey.getQuestionByName("matrix")
+    );
+    var rows = matrix.visibleRows;
+    rows[0].cells[0].value = 100;
+    rows[0].cells[1].value = 100;
+    assert.equal(rows[0].cells[2].value, 200, "cell1 + cell2");
+    assert.equal(rows[0].cells[3].value, 1, "(cell1 + cell2)/total");
+  }
+);
+
+QUnit.test(
+  "The row numbers is incorrect after setting the value: survey.data, Bug #1958",
+  function(assert) {
+    var survey = new SurveyModel({
+      questions: [
+        {
+          type: "matrixdynamic",
+          name: "teachersRate",
+          cellType: "radiogroup",
+          rowCount: 0,
+          choices: [
+            {
+              value: 1
+            },
+            {
+              value: 0
+            },
+            {
+              value: -1
+            }
+          ],
+          columns: [
+            {
+              name: "subject",
+              cellType: "dropdown",
+              choices: [1, 2, 3]
+            },
+            {
+              name: "explains"
+            }
+          ]
+        }
+      ]
+    });
+    var matrix = <QuestionMatrixDropdownModel>(
+      survey.getQuestionByName("teachersRate")
+    );
+    survey.data = {
+      teachersRate: [
+        { subject: 1, explains: 0 },
+        { subject: 2, explains: 1 }
+      ]
+    };
+
+    survey.data = { teachersRate: [{ subject: 1, explains: 0 }] };
+    var rows = matrix.visibleRows;
+    assert.equal(rows.length, 1, "we reset the number of rows to 1.");
   }
 );

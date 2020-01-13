@@ -71,7 +71,7 @@ export class QuestionPanelDynamicItem
     var result = this.getValue(name + settings.commentPrefix);
     return result ? result : "";
   }
-  public setComment(name: string, newValue: string) {
+  public setComment(name: string, newValue: string, locNotification: any) {
     this.setValue(name + settings.commentPrefix, newValue);
   }
   getAllValues(): any {
@@ -106,9 +106,10 @@ export class QuestionPanelDynamicItem
   //ITextProcessor
   private getProcessedTextValue(textValue: TextPreProcessorValue) {
     if (!textValue) return;
+    var panelIndex = !!this.data ? this.data.getItemIndex(this) : -1;
     if (textValue.name == QuestionPanelDynamicItem.IndexVariableName) {
       textValue.isExists = true;
-      textValue.value = this.data.getItemIndex(this) + 1;
+      textValue.value = panelIndex + 1;
       return;
     }
     var firstName = new ProcessValue().getFirstName(textValue.name);
@@ -122,11 +123,8 @@ export class QuestionPanelDynamicItem
     );
     var firstName = new ProcessValue().getFirstName(textValue.name);
     var question = <Question>this.panel.getQuestionByValueName(firstName);
-    if (!question && !!this.data) {
-      question = this.data.getSharedQuestionFromArray(
-        firstName,
-        this.data.getItemIndex(this)
-      );
+    if (!question && panelIndex > -1) {
+      question = this.data.getSharedQuestionFromArray(firstName, panelIndex);
     }
     var values = {};
     if (question) {
@@ -336,6 +334,7 @@ export class QuestionPanelDynamicModel extends Question
    */
   public get currentIndex(): number {
     if (this.isRenderModeList) return -1;
+    if (this.isDesignMode) return 0;
     if (this.currentIndexValue < 0 && this.panelCount > 0) {
       this.currentIndexValue = 0;
     }
@@ -519,8 +518,7 @@ export class QuestionPanelDynamicModel extends Question
    */
   public get isRangeShowing(): boolean {
     return (
-      this.showRangeInProgress &&
-      (this.currentIndex >= 0 && this.panelCount > 1)
+      this.showRangeInProgress && this.currentIndex >= 0 && this.panelCount > 1
     );
   }
   public getElementsInDesign(includeHidden: boolean = false): Array<IElement> {
@@ -1050,10 +1048,12 @@ export class QuestionPanelDynamicModel extends Question
     panelIndex: number
   ): Question {
     return !!this.survey && !!this.valueName
-      ? <Question>this.survey.getQuestionByValueNameFromArray(
-          this.valueName,
-          name,
-          panelIndex
+      ? <Question>(
+          this.survey.getQuestionByValueNameFromArray(
+            this.valueName,
+            name,
+            panelIndex
+          )
         )
       : null;
   }
@@ -1156,12 +1156,14 @@ export class QuestionPanelDynamicModel extends Question
     values: HashTable<any>,
     properties: HashTable<any>
   ) {
-    var newValues: { [index: string]: any } = {};
+    var cachedValues: { [index: string]: any } = {};
     if (values && values instanceof Object) {
-      newValues = JSON.parse(JSON.stringify(values));
+      cachedValues = JSON.parse(JSON.stringify(values));
     }
     for (var i = 0; i < this.panels.length; i++) {
       var panelValues = this.getPanelItemData(this.panels[i].data);
+      //Should be unique for every panel due async expression support
+      var newValues = Helpers.createCopy(cachedValues);
       newValues[
         QuestionPanelDynamicItem.ItemVariableName.toLowerCase()
       ] = panelValues;
@@ -1178,17 +1180,32 @@ export class QuestionPanelDynamicModel extends Question
       );
     }
   }
+  private hasKeysDuplicated(fireCallback: boolean, rec: any = null) {
+    var keyValues: Array<any> = [];
+    var res;
+    for (var i = 0; i < this.panels.length; i++) {
+      res =
+        this.isValueDuplicated(this.panels[i], keyValues, rec, fireCallback) ||
+        res;
+    }
+    return res;
+  }
+  private updatePanelsContainsErrors() {
+    var question = this.changingValueQuestion;
+    var parent = <Panel>question.parent;
+    while (!!parent) {
+      parent.updateContainsErrors();
+      parent = <Panel>parent.parent;
+    }
+    this.updateContainsErrors();
+  }
   public hasErrors(fireCallback: boolean = true, rec: any = null): boolean {
     if (this.isValueChangingInternally) return false;
+    var res = false;
     if (!!this.changingValueQuestion) {
-      var question = this.changingValueQuestion;
       var res = this.changingValueQuestion.hasErrors(fireCallback, rec);
-      var parent = <Panel>question.parent;
-      while (!!parent) {
-        parent.updateContainsErrors();
-        parent = <Panel>parent.parent;
-      }
-      this.updateContainsErrors();
+      res = this.hasKeysDuplicated(fireCallback, rec) || res;
+      this.updatePanelsContainsErrors();
       return res;
     } else {
       var errosInPanels = this.hasErrorInPanels(fireCallback, rec);
@@ -1309,12 +1326,19 @@ export class QuestionPanelDynamicModel extends Question
   private isValueDuplicated(
     panel: PanelModel,
     keyValues: Array<any>,
-    rec: any
+    rec: any,
+    fireCallback?: boolean
   ): boolean {
     if (!this.keyName) return false;
     var question = <Question>panel.getQuestionByValueName(this.keyName);
     if (!question || question.isEmpty()) return false;
     var value = question.value;
+    if (
+      !!this.changingValueQuestion &&
+      question != this.changingValueQuestion
+    ) {
+      question.hasErrors(fireCallback, rec);
+    }
     for (var i = 0; i < keyValues.length; i++) {
       if (value == keyValues[i]) {
         question.addError(

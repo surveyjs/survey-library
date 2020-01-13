@@ -2,6 +2,61 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="1.1.31"></a>
+## [1.1.31](https://github.com/surveyjs/surveyjs/compare/v1.1.30...v1.1.31) (2020-01-09)
+
+
+
+<a name="1.1.30"></a>
+## [1.1.30](https://github.com/surveyjs/surveyjs/compare/v1.1.29...v1.1.30) (2020-01-09)
+
+
+
+<a name="1.1.29"></a>
+## [1.1.29](https://github.com/surveyjs/survey-library/compare/v1.1.28...v1.1.29) (2019-12-30)
+
+
+
+<a name="1.1.28"></a>
+## [1.1.28](https://github.com/surveyjs/survey-library/compare/v1.1.27...v1.1.28) (2019-12-30)
+
+
+
+<a name="1.1.27"></a>
+## [1.1.27](https://github.com/surveyjs/survey-library/compare/v1.1.26...v1.1.27) (2019-12-30)
+
+
+
+<a name="1.1.26"></a>
+## [1.1.26](https://github.com/surveyjs/survey-library/compare/v1.1.25...v1.1.26) (2019-12-24)
+
+
+
+<a name="1.1.25"></a>
+## [1.1.25](https://github.com/surveyjs/survey-library/compare/v1.1.24...v1.1.25) (2019-12-17)
+
+
+
+<a name="1.1.24"></a>
+## [1.1.24](https://github.com/surveyjs/survey-library/compare/v1.1.23...v1.1.24) (2019-12-10)
+
+
+
+<a name="1.1.23"></a>
+## [1.1.23](https://github.com/surveyjs/survey-library/compare/v1.1.22...v1.1.23) (2019-12-03)
+
+
+
+<a name="1.1.22"></a>
+## [1.1.22](https://github.com/surveyjs/survey-library/compare/v1.1.21...v1.1.22) (2019-11-26)
+
+
+
+<a name="1.1.21"></a>
+## [1.1.21](https://github.com/surveyjs/survey-library/compare/v1.1.20...v1.1.21) (2019-11-19)
+
+
+
 <a name="1.1.20"></a>
 ## [1.1.20](https://github.com/surveyjs/surveyjs/compare/v1.1.19...v1.1.20) (2019-11-12)
 

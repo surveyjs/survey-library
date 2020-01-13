@@ -32,6 +32,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   implements IMatrixDropdownData {
   private rowCounter = 0;
   private rowCountValue: number = 2;
+  private setRowCountValueFromData: boolean = false;
 
   constructor(public name: string) {
     super(name);
@@ -119,6 +120,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   }
   public set rowCount(val: number) {
     if (val < 0 || val > settings.matrixMaximumRowCount) return;
+    this.setRowCountValueFromData = false;
     var prevValue = this.rowCountValue;
     this.rowCountValue = val;
     if (this.value && this.value.length > val) {
@@ -171,21 +173,30 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   /**
    * Returns true, if a new row can be added.
    * @see maxRowCount
-   * @see canRemoveRow
+   * @see canRemoveRows
    * @see rowCount
    */
   public get canAddRow(): boolean {
     return !this.isReadOnly && this.rowCount < this.maxRowCount;
   }
   /**
-   * Returns true, if a row can be removed.
+   * Returns true, if row can be removed.
    * @see minRowCount
    * @see canAddRow
    * @see rowCount
    */
-  public get canRemoveRow(): boolean {
+  public get canRemoveRows(): boolean {
     return !this.isReadOnly && this.rowCount > this.minRowCount;
   }
+  public canRemoveRow(row: MatrixDropdownRowModelBase): boolean {
+    if (!this.survey) return true;
+    return this.survey.matrixAllowRemoveRow(
+      this,
+      (<MatrixDynamicRowModel>row).index,
+      row
+    );
+  }
+
   /**
    * Creates and add a new row.
    */
@@ -298,7 +309,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
    * @param index a row index, from 0 to rowCount - 1
    */
   public removeRow(index: number) {
-    if (!this.canRemoveRow) return;
+    if (!this.canRemoveRows) return;
     if (index < 0 || index >= this.rowCount) return;
     this.onStartRowAddingRemoving();
     this.removeRowCore(index);
@@ -535,8 +546,11 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     return new MatrixDynamicRowModel(this.rowCounter++, this, value);
   }
   protected onBeforeValueChanged(val: any) {
-    var newRowCount = val && Array.isArray(val) ? val.length : 0;
-    if (newRowCount <= this.rowCount) return;
+    if (!val || !Array.isArray(val)) return;
+    var newRowCount = val.length;
+    if (newRowCount == this.rowCount) return;
+    if (!this.setRowCountValueFromData && newRowCount < this.rowCount) return;
+    this.setRowCountValueFromData = true;
     this.rowCountValue = newRowCount;
     if (this.generatedVisibleRows) {
       this.generatedVisibleRows = null;

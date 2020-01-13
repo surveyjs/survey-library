@@ -5,28 +5,23 @@
 }
 .sv-question__title {
   position: relative;
-  overflow: hidden;
   box-sizing: border-box;
-  height: 1.75em;
   margin: 0;
   padding: 0.25em 0.44em;
   cursor: default;
-  white-space: nowrap;
-  text-overflow: ellipsis;
   font-size: 1.25em;
+  word-break: break-word;
 }
 .sv-question__required-text {
   position: absolute;
-  top: 0;
+  line-height: 0.8em;
   font-size: 1.4em;
 }
 .sv-question__description {
-  overflow: hidden;
   margin: 0;
   padding-left: 0.55em;
-  white-space: nowrap;
-  text-overflow: ellipsis;
   font-size: 1em;
+  word-break: break-word;
 }
 .sv-question__input {
   width: 100%;

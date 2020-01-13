@@ -351,14 +351,19 @@ export class SurveyTriggerCopyValue extends SurveyTrigger {
 }
 
 Serializer.addClass("trigger", [
-  { name: "operator", default: "equal" },
-  "value",
+  { name: "operator", default: "equal", visible: false },
+  { name: "value", visible: false },
   "expression:condition"
 ]);
-Serializer.addClass("surveytrigger", ["name"], null, "trigger");
+Serializer.addClass(
+  "surveytrigger",
+  [{ name: "name", visible: false }],
+  null,
+  "trigger"
+);
 Serializer.addClass(
   "visibletrigger",
-  ["pages", "questions"],
+  ["pages:pages", "questions:questions"],
   function() {
     return new SurveyTriggerVisible();
   },
@@ -374,7 +379,17 @@ Serializer.addClass(
 );
 Serializer.addClass(
   "setvaluetrigger",
-  ["!setToName", "setValue", "isVariable:boolean"],
+  [
+    { name: "!setToName:question" },
+    {
+      name: "!setValue:triggervalue",
+      dependsOn: "setToName",
+      visibleIf: function(obj: any) {
+        return !!obj && !!obj["setToName"];
+      }
+    },
+    { name: "isVariable:boolean", visible: false }
+  ],
   function() {
     return new SurveyTriggerSetValue();
   },
@@ -382,7 +397,7 @@ Serializer.addClass(
 );
 Serializer.addClass(
   "copyvaluetrigger",
-  ["!setToName", "!fromName"],
+  [{ name: "!setToName:question" }, { name: "!fromName:question" }],
   function() {
     return new SurveyTriggerCopyValue();
   },
@@ -390,7 +405,7 @@ Serializer.addClass(
 );
 Serializer.addClass(
   "skiptrigger",
-  ["!gotoName"],
+  [{ name: "!gotoName:question" }],
   function() {
     return new SurveyTriggerSkip();
   },
@@ -398,7 +413,7 @@ Serializer.addClass(
 );
 Serializer.addClass(
   "runexpressiontrigger",
-  ["setToName", "runExpression:expression"],
+  [{ name: "setToName:question" }, "runExpression:expression"],
   function() {
     return new SurveyTriggerRunExpression();
   },

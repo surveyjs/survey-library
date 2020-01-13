@@ -14,6 +14,7 @@ import { settings } from "./settings";
  * It is a base class for checkbox, dropdown and radiogroup questions.
  */
 export class QuestionSelectBase extends Question {
+  public visibleChoicesChangedCallback: () => void;
   private filteredChoicesValue: Array<ItemValue> = null;
   private conditionChoicesVisibleIfRunner: ConditionRunner;
   private conditionChoicesEnableIfRunner: ConditionRunner;
@@ -669,6 +670,8 @@ export class QuestionSelectBase extends Question {
     if (this.isLoadingFromJson) return;
     this.updateVisibleChoices();
     this.updateVisibilityBasedOnChoices();
+    if (!!this.visibleChoicesChangedCallback)
+      this.visibleChoicesChangedCallback();
   }
   private updateVisibilityBasedOnChoices() {
     if (this.hideIfChoicesEmpty) {

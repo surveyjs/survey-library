@@ -14,6 +14,8 @@ export var defaultStandardCss = {
   body: "sv_body",
   bodyEmpty: "sv_body sv_body_empty",
   footer: "sv_nav",
+  title: "",
+  description: "",
   navigationButton: "",
   completedPage: "sv_completed_page",
   navigation: {

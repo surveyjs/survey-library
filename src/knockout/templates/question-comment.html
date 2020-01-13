@@ -1,3 +1,8 @@
 ﻿<script type="text/html" id="survey-question-comment">
-    <textarea type="text" data-bind="attr: {'readonly': question.isReadOnly, 'disabled': question.isReadOnly, maxLength: question.getMaxLength(), cols: question.cols, rows: question.rows, id: question.inputId, placeholder: question.placeHolder, 'aria-label': question.locTitle.renderedHtml}, value:question.value, css: question.koCss().root"></textarea>
+  <!--ko if: !question.isInputTextUpdate -->
+  <textarea type="text" data-bind="attr: {'readonly': question.isReadOnly, 'disabled': question.isReadOnly, maxLength: question.getMaxLength(), cols: question.cols, rows: question.rows, id: question.inputId, placeholder: question.placeHolder, 'aria-label': question.locTitle.renderedHtml}, value:question.value, css: question.koCss().root"></textarea>
+  <!--/ko-->
+  <!--ko if: question.isInputTextUpdate -->
+  <textarea type="text" data-bind="attr: {'readonly': question.isReadOnly, 'disabled': question.isReadOnly, maxLength: question.getMaxLength(), cols: question.cols, rows: question.rows, id: question.inputId, placeholder: question.placeHolder, 'aria-label': question.locTitle.renderedHtml}, textInput:question.value, css: question.koCss().root"></textarea>
+  <!--/ko-->
 </script>

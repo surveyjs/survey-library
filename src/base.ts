@@ -9,11 +9,11 @@ import { settings } from "./settings";
 
 export interface ISurveyData {
   getValue(name: string): any;
-  setValue(name: string, newValue: any, locNotification: boolean): any;
+  setValue(name: string, newValue: any, locNotification: any): any;
   getVariable(name: string): any;
   setVariable(name: string, newValue: any): void;
   getComment(name: string): string;
-  setComment(name: string, newValue: string): any;
+  setComment(name: string, newValue: string, locNotification: any): any;
   getAllValues(): any;
   getFilteredValues(): any;
   getFilteredProperties(): any;
@@ -29,9 +29,11 @@ export interface ITextProcessor {
 export interface ISurveyErrorOwner extends ILocalizableOwner {
   getErrorCustomText(text: string, error: SurveyError): string;
 }
+
 export interface ISurvey extends ITextProcessor, ISurveyErrorOwner {
   currentPage: IPage;
   pages: Array<IPage>;
+  getCss(): any;
   isPageStarted(page: IPage): boolean;
   pageVisibilityChanged(page: IPage, newValue: boolean): any;
   panelVisibilityChanged(panel: IPanel, newValue: boolean): any;
@@ -66,6 +68,7 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner {
   isDesignMode: boolean;
   areInvisibleElementsShowing: boolean;
   isLoadingFromJson: boolean;
+  isUpdateValueTextOnTyping: boolean;
 
   requiredText: string;
   beforeSettingQuestionErrors(
@@ -123,6 +126,11 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner {
     canAddRow: boolean;
   }): any;
   matrixRowRemoved(question: IQuestion, rowIndex: number, row: any): any;
+  matrixAllowRemoveRow(
+    question: IQuestion,
+    rowIndex: number,
+    row: any
+  ): boolean;
   matrixCellCreated(question: IQuestion, options: any): any;
   matrixAfterCellRender(question: IQuestion, options: any): any;
   matrixCellValueChanged(question: IQuestion, options: any): any;
@@ -147,6 +155,7 @@ export interface ISurveyElement {
   isVisible: boolean;
   isReadOnly: boolean;
   isPage: boolean;
+  isPanel: boolean;
   containsErrors: boolean;
   setSurveyImpl(value: ISurveyImpl): any;
   onSurveyLoad(): any;
@@ -163,7 +172,6 @@ export interface IElement extends IConditionRunner, ISurveyElement {
   width: string;
   rightIndent: number;
   startWithNewLine: boolean;
-  isPanel: boolean;
   getPanel(): IPanel;
   getLayoutType(): string;
   isLayoutTypeSupported(layoutType: string): boolean;
@@ -283,9 +291,26 @@ export class Base {
   }
   /**
    * Deserialized the current object into JSON
+   * @see fromJSON
    */
   public toJSON(): any {
     return new JsonObject().toJsonObject(this);
+  }
+  /**
+   * Load object properties and elements. It doesn't reset properties that was changed before and they are not defined in the json parameter.
+   * @param json the object JSON definition
+   * @see toJSON
+   */
+  public fromJSON(json: any) {
+    return new JsonObject().toObject(json, this);
+  }
+  /**
+   * Make a clone of the existing object. Create a new object of the same type and load all properties into it.
+   */
+  public clone(): Base {
+    var clonedObj = <Base>Serializer.createClass(this.getType());
+    clonedObj.fromJSON(this.toJSON());
+    return clonedObj;
   }
   public locStrsChanged() {
     if (!!this.arraysInfo) {
@@ -363,19 +388,91 @@ export class Base {
       }
     }
   }
-  protected propertyValueChanged(name: string, oldValue: any, newValue: any) {
+  public onPropertyValueChangedCallback(
+    name: string,
+    oldValue: any,
+    newValue: any,
+    sender: Base,
+    arrayChanges: ArrayChanges
+  ) {}
+
+  protected onPropertyValueChanged(
+    name: string,
+    oldValue: any,
+    newValue: any
+  ) {}
+  protected propertyValueChanged(
+    name: string,
+    oldValue: any,
+    newValue: any,
+    arrayChanges?: ArrayChanges,
+    target?: Base
+  ) {
     if (this.isLoadingFromJson) return;
+    this.onPropertyValueChanged(name, oldValue, newValue);
     this.onPropertyChanged.fire(this, {
       name: name,
       oldValue: oldValue,
       newValue: newValue
     });
+
+    this.doPropertyValueChangedCallback &&
+      this.doPropertyValueChangedCallback(
+        name,
+        oldValue,
+        newValue,
+        arrayChanges,
+        this
+      );
+
     if (!this.onPropChangeFunctions) return;
     for (var i = 0; i < this.onPropChangeFunctions.length; i++) {
       if (this.onPropChangeFunctions[i].name == name)
         this.onPropChangeFunctions[i].func(newValue);
     }
   }
+
+  private doPropertyValueChangedCallback(
+    name: string,
+    oldValue: any,
+    newValue: any,
+    arrayChanges?: ArrayChanges,
+    target?: Base
+  ) {
+    if (!target) target = this;
+    let parentBase: Base = this;
+
+    if ((<any>this)["locOwner"]) {
+      parentBase = (<any>this)["locOwner"];
+      parentBase.doPropertyValueChangedCallback &&
+        parentBase.doPropertyValueChangedCallback(
+          name,
+          oldValue,
+          newValue,
+          arrayChanges,
+          target
+        );
+    } else if ((<any>this)["survey"]) {
+      parentBase = (<any>this)["survey"];
+      parentBase.doPropertyValueChangedCallback &&
+        parentBase.doPropertyValueChangedCallback(
+          name,
+          oldValue,
+          newValue,
+          arrayChanges,
+          target
+        );
+    } else {
+      this.onPropertyValueChangedCallback(
+        name,
+        oldValue,
+        newValue,
+        target,
+        arrayChanges
+      );
+    }
+  }
+
   /**
    * Register a function that will be called on a property value changed.
    * @param name the property name
@@ -541,7 +638,13 @@ export class Base {
     newArray.push = function(value): number {
       var result = Object.getPrototypeOf(newArray).push.call(newArray, value);
       if (onPush) onPush(value, newArray.length - 1);
-      self.propertyValueChanged(name, newArray, newArray);
+      const arrayChanges = new ArrayChanges(
+        newArray.length - 1,
+        0,
+        [value],
+        []
+      );
+      self.propertyValueChanged(name, newArray, newArray, arrayChanges);
       self.notifyArrayChanged(newArray);
       return result;
     };
@@ -551,14 +654,16 @@ export class Base {
         value
       );
       if (onPush) onPush(value, newArray.length - 1);
-      self.propertyValueChanged(name, newArray, newArray);
+      const arrayChanges = new ArrayChanges(0, 0, [value], []);
+      self.propertyValueChanged(name, newArray, newArray, arrayChanges);
       self.notifyArrayChanged(newArray);
       return result;
     };
     newArray.pop = function(): number {
       var result = Object.getPrototypeOf(newArray).pop.call(newArray);
       if (onRemove) onRemove(result);
-      self.propertyValueChanged(name, newArray, newArray);
+      const arrayChanges = new ArrayChanges(newArray.length - 1, 1, [], []);
+      self.propertyValueChanged(name, newArray, newArray, arrayChanges);
       self.notifyArrayChanged(newArray);
       return result;
     };
@@ -586,7 +691,9 @@ export class Base {
           onPush(items[i], start + i);
         }
       }
-      self.propertyValueChanged(name, newArray, newArray);
+
+      const arrayChanges = new ArrayChanges(start, deleteCount, items, result);
+      self.propertyValueChanged(name, newArray, newArray, arrayChanges);
       self.notifyArrayChanged(newArray);
       return result;
     };
@@ -633,11 +740,39 @@ export class Base {
     }
     return Helpers.isTwoValueEquals(x, y);
   }
+  private static copyObject(dst: any, src: any) {
+    for (var key in src) {
+      var source = src[key];
+      if (typeof source === "object") {
+        source = {};
+        this.copyObject(source, src[key]);
+      }
+      dst[key] = source;
+    }
+  }
+  protected copyCssClasses(dest: any, source: any) {
+    if (!source) return;
+    if (typeof source === "string" || source instanceof String) {
+      dest["root"] = source;
+    } else {
+      SurveyElement.copyObject(dest, source);
+    }
+  }
   private getValueInLowCase(val: any): any {
     if (!!val && typeof val == "string") return val.toLowerCase();
     return val;
   }
 }
+
+export class ArrayChanges {
+  constructor(
+    public index: number,
+    public deleteCount: number,
+    public itemsToAdd: any[],
+    public deletedItems: any[]
+  ) {}
+}
+
 export class SurveyError {
   private locTextValue: LocalizableString;
   public visible: boolean = true;
@@ -773,6 +908,10 @@ export class SurveyElement extends Base implements ISurveyElement {
     if (this.isLoadingFromJsonValue) return true;
     return this.survey ? this.survey.isLoadingFromJson : false;
   }
+  /**
+   * This is the identifier of a survey element - question or panel.
+   * @see valueName
+   */
   public get name(): string {
     return this.getPropertyValue("name", "");
   }
@@ -832,6 +971,12 @@ export class SurveyElement extends Base implements ISurveyElement {
   public get isPage() {
     return false;
   }
+  /**
+   * Return false if it is not panel.
+   */
+  public get isPanel() {
+    return false;
+  }
   public delete() {}
   protected removeSelfFromList(list: Array<any>) {
     if (!list || !Array.isArray(list)) return;
@@ -877,24 +1022,6 @@ export class SurveyElement extends Base implements ISurveyElement {
     if (parent) parent.removeElement(<IElement>(<any>this));
     if (val) {
       val.addElement(<IElement>(<any>this), -1);
-    }
-  }
-  private static copyObject(dst: any, src: any) {
-    for (var key in src) {
-      var source = src[key];
-      if (typeof source === "object") {
-        source = {};
-        this.copyObject(source, src[key]);
-      }
-      dst[key] = source;
-    }
-  }
-  protected copyCssClasses(dest: any, source: any) {
-    if (!source) return;
-    if (typeof source === "string" || source instanceof String) {
-      dest["root"] = source;
-    } else {
-      SurveyElement.copyObject(dest, source);
     }
   }
 }

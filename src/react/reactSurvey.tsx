@@ -93,10 +93,10 @@ export class Survey extends SurveyElementBase implements ISurveyCreator {
     return this.doRender();
   }
   public get css(): any {
-    return surveyCss.getCss();
+    return this.survey.css;
   }
   public set css(value: any) {
-    this.survey.mergeCss(value, this.css);
+    this.survey.css = value;
   }
   handleTryAgainClick(event: any) {
     this.survey.doComplete();
@@ -205,8 +205,8 @@ export class Survey extends SurveyElementBase implements ISurveyCreator {
     }
     return title ? (
       <div className={this.css.header}>
-        <h3>{title}</h3>
-        <h5>{description}</h5>
+        <h3 className={this.css.title}>{title}</h3>
+        <h5 className={this.css.description}>{description}</h5>
       </div>
     ) : null;
   }

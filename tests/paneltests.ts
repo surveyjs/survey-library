@@ -250,6 +250,53 @@ QUnit.test("Panel with paneldynamic error focus", function(assert) {
   );
 });
 
+QUnit.test("Required panel error focus/not focus - T3101 - Stop focus when page has error", function(assert) {
+  var json = {
+    elements: [
+      { type: "checkbox", name: "chk0" },
+      {
+        name: "p1",
+        type: "panel",
+        isRequired: true,
+        elements: [
+          { type: "checkbox", name: "chk1", isRequired: true },
+          {
+            type: "panel",
+            name: "panel",
+            elements: [
+              { type: "checkbox", name: "textinpd", isRequired: true }
+            ]
+          }
+        ]
+      }
+    ]
+  };
+  var survey = new SurveyModel(json);
+  var page = survey.currentPage;
+
+  var rec = {
+    focuseOnFirstError: true,
+    firstErrorQuestion: <any>null
+  };
+  page.hasErrors(true, true, rec);
+  assert.equal(
+    rec.firstErrorQuestion.name,
+    "chk1",
+    "scroll to first question in the dynamicpanel instead of dynamicpanel itself"
+  );
+
+  var rec = {
+    focuseOnFirstError: false,
+    firstErrorQuestion: <any>null
+  };
+  page.hasErrors(true, false, rec);
+  assert.equal(
+    !rec.firstErrorQuestion,
+    true,
+    "don't scroll to question - T3101 - Stop focus when page has error"
+  );
+});
+
 QUnit.test("Panel.getValue()", function(assert) {
   var survey = new SurveyModel();
   var page = survey.addNewPage("page1");

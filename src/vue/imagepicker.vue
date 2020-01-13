@@ -6,7 +6,7 @@
                 <input v-if="question.multiSelect" style="display: none;" type="checkbox" :name="question.name + '_' + question.id" :value="item.value" :id="question.inputId + '_' + item.value" v-model="question.value" :disabled="question.isReadOnly || !item.isEnabled" v-bind:aria-required="question.isRequired" :aria-label="question.locTitle.renderedHtml" :class="question.cssClasses.itemControl"/>
                 <input v-else style="display: none;" type="radio" :name="question.name + '_' + question.id" :value="item.value" :id="question.inputId + '_' + item.value" v-model="question.value" :disabled="question.isReadOnly || !item.isEnabled" v-bind:aria-required="question.isRequired" :aria-label="question.locTitle.renderedHtml" :class="question.cssClasses.itemControl"/>
                 <div>
-                    <img v-if="question.contentMode === 'image'" :class="question.cssClasses.image" :src="item.imageLink" :width="question.imageWidth ? question.imageWidth + 'px' : undefined" :height="question.imageHeight ? question.imageHeight + 'px' : undefined" v-bind:style="{ objectFit: question.imageFit }"/>
+                    <img v-if="question.contentMode === 'image'" :class="question.cssClasses.image" :src="item.imageLink" :width="question.imageWidth ? question.imageWidth + 'px' : undefined" :height="question.imageHeight ? question.imageHeight + 'px' : undefined" v-bind:style="{ objectFit: question.imageFit }" :alt="item.text || item.value"/>
                     <embed v-if="question.contentMode === 'video'" :class="question.cssClasses.image" :src="item.imageLink" :width="question.imageWidth ? question.imageWidth + 'px' : undefined" :height="question.imageHeight ? question.imageHeight + 'px' : undefined" v-bind:style="{ objectFit: question.imageFit }"/>
                     <span v-if="question.showLabel" :title="item.text || item.value" :class="question.cssClasses.itemText">{{item.text || item.value}}</span>
                 </div>
@@ -32,9 +32,7 @@ export class ImagePicker extends QuestionVue<QuestionImagePickerModel> {
       (colCount === 0
         ? " " + cssClasses.itemInline
         : " sv-q-col-" + colCount);
-    var isChecked = question.multiSelect
-      ? (question.value.indexOf(item.value) !== -1)
-      : (item.value === this.question.value);
+    var isChecked = this.question.isItemSelected(item);
     var isDisabled = question.isReadOnly || !item.isEnabled; 
     var allowHover = !isChecked && !isDisabled;
     if (isChecked) {

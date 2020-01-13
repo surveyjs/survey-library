@@ -18,7 +18,6 @@ import { TextPreProcessor, TextPreProcessorValue } from "./textPreProcessor";
 import { ILocalizableOwner, LocalizableString } from "./localizablestring";
 import { ConditionRunner } from "./conditions";
 import { QuestionCustomWidget } from "./questionCustomWidgets";
-import { surveyCss } from "./defaultCss/cssstandard";
 import { CustomWidgetCollection } from "./questionCustomWidgets";
 
 export interface IConditionObject {
@@ -124,6 +123,7 @@ export class Question extends SurveyElement
    * Question name should be unique in the survey and valueName could be not unique. It allows to share data between several questions with the same valueName.
    * The library set the value automatically if the question.name property is not valid. For example, if it contains the period '.' symbol.
    * In this case if you set the question.name property to 'x.y' then the valueName becomes 'x y'.
+   * @see name
    */
   public get valueName(): string {
     return this.getPropertyValue("valueName", "");
@@ -165,12 +165,6 @@ export class Question extends SurveyElement
   }
   public set page(val: IPage) {
     this.setPage(this.parent, val);
-  }
-  /**
-   * Always returns false.
-   */
-  public get isPanel(): boolean {
-    return false;
   }
   public getPanel(): IPanel {
     return null;
@@ -441,10 +435,6 @@ export class Question extends SurveyElement
   get locCommentText(): LocalizableString {
     return this.getLocalizableString("commentText");
   }
-  private get locTitleHtml(): string {
-    var res = this.locTitle.textOrHtml;
-    return res ? res : this.name;
-  }
   /**
    * Returns a copy of question errors survey. For some questions like matrix and panel dynamic it includes the errors of nested questions.
    */
@@ -527,11 +517,11 @@ export class Question extends SurveyElement
    * @see SurveyModel.updateQuestionCssClasses
    */
   public get cssClasses(): any {
-    var surveyCss = this.css;
+    var css = this.css;
     var classes = { error: {} };
-    this.copyCssClasses(classes, surveyCss.question);
-    this.copyCssClasses(classes.error, surveyCss.error);
-    this.updateCssClasses(classes, surveyCss);
+    this.copyCssClasses(classes, css.question);
+    this.copyCssClasses(classes.error, css.error);
+    this.updateCssClasses(classes, css);
     if (this.survey) {
       this.survey.updateQuestionCssClasses(this, classes);
     }
@@ -539,6 +529,7 @@ export class Question extends SurveyElement
   }
   public get cssMainRoot(): any {
     var classes = this.cssClasses;
+    if (!classes.mainRoot) return {};
     var res =
       this.isFlowLayout && !this.isDesignMode
         ? classes.flowRoot
@@ -552,18 +543,19 @@ export class Question extends SurveyElement
     return res;
   }
   protected getRootCss(classes: any) {
-    return classes.question.root;
+    return !!classes.question ? classes.question.root : "";
   }
-  protected updateCssClasses(res: any, surveyCss: any) {
+  protected updateCssClasses(res: any, css: any) {
+    if (!css.question) return;
     if (this.isRequired) {
-      if (!!surveyCss.question.required) {
+      if (!!css.question.required) {
         res.root = (res.root ? res.root + " " : "") + objCss;
       }
-      if (surveyCss.question.titleRequired) {
-        res.title += " " + surveyCss.question.titleRequired;
+      if (css.question.titleRequired) {
+        res.title += " " + css.question.titleRequired;
       }
     }
-    var objCss = surveyCss[this.getType()];
+    var objCss = css[this.getType()];
     if (objCss === undefined || objCss === null) return;
     if (typeof objCss === "string" || objCss instanceof String) {
       res.root = (res.root ? res.root + " " : "") + objCss;
@@ -574,7 +566,7 @@ export class Question extends SurveyElement
     }
   }
   private get css(): any {
-    return surveyCss.getCss();
+    return !!this.survey ? this.survey.getCss() : {};
   }
   /**
    * Use it to set the specific width to the question like css style (%, px, em etc).
@@ -765,6 +757,8 @@ export class Question extends SurveyElement
    */
   public runCondition(values: HashTable<any>, properties: HashTable<any>) {
     if (this.isDesignMode) return;
+    if (!properties) properties = {};
+    properties["question"] = this;
     if (!this.areInvisibleElementsShowing) {
       this.runVisibleIfCondition(values, properties);
     }
@@ -1079,6 +1073,14 @@ export class Question extends SurveyElement
   public getValidators(): Array<SurveyValidator> {
     return this.validators;
   }
+  public getSupportedValidators(): Array<string> {
+    var res: Array<string> = [];
+    this.addSupportedValidators(res);
+    return res;
+  }
+  protected addSupportedValidators(supportedValidators: Array<string>) {
+    supportedValidators.push("expression");
+  }
   public addConditionNames(names: Array<string>) {
     names.push(this.name);
   }
@@ -1220,6 +1222,19 @@ export class Question extends SurveyElement
     this.onValueChanged();
   }
   protected locNotificationInData = false;
+  protected isTextValue(): boolean {
+    return false;
+  }
+  public get isSurveyInputTextUpdate(): boolean {
+    return !!this.survey ? this.survey.isUpdateValueTextOnTyping : false;
+  }
+  private getDataLocNotification(): any {
+    if (this.locNotificationInData) return this.locNotificationInData;
+    return this.isInputTextUpdate ? "text" : false;
+  }
+  public get isInputTextUpdate() {
+    return this.isSurveyInputTextUpdate && this.isTextValue();
+  }
   protected setNewValueInData(newValue: any) {
     newValue = this.valueToData(newValue);
     if (!this.isValueChangedInSurvey) {
@@ -1235,7 +1250,7 @@ export class Question extends SurveyElement
       this.data.setValue(
         this.getValueName(),
         newValue,
-        this.locNotificationInData
+        this.getDataLocNotification()
       );
     }
   }
@@ -1249,7 +1264,11 @@ export class Question extends SurveyElement
   protected setNewComment(newValue: string) {
     this.questionComment = newValue;
     if (this.data != null) {
-      this.data.setComment(this.getValueName(), newValue);
+      this.data.setComment(
+        this.getValueName(),
+        newValue,
+        this.isSurveyInputTextUpdate ? "text" : false
+      );
     }
   }
   //IQuestion
@@ -1305,15 +1324,15 @@ export class Question extends SurveyElement
     return this.survey
       ? (<ILocalizableOwner>(<any>this.survey)).getLocale()
       : this.locOwner
-        ? this.locOwner.getLocale()
-        : "";
+      ? this.locOwner.getLocale()
+      : "";
   }
   public getMarkdownHtml(text: string): string {
     return this.survey
       ? this.survey.getSurveyMarkdownHtml(this, text)
       : this.locOwner
-        ? this.locOwner.getMarkdownHtml(text)
-        : null;
+      ? this.locOwner.getMarkdownHtml(text)
+      : null;
   }
   public getProcessedText(text: string): string {
     if (this.textProcessor)

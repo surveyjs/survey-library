@@ -1,11 +1,10 @@
 import { SurveyModel } from "../survey";
-import { surveyCss } from "../defaultCss/cssstandard";
 
 export const updateSurveyProps = (survey: SurveyModel, newProps: any) => {
   for (var key in newProps) {
     if (key == "model" || key == "children") continue;
     if (key == "css") {
-      survey.mergeValues(newProps.css, surveyCss.getCss());
+      survey.mergeValues(newProps.css, survey.getCss());
       continue;
     }
     if (key.indexOf("on") == 0 && survey[key] && survey[key].add) {

@@ -80,7 +80,14 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
     this.setPropertyValue("showLabel", newValue);
   }
   protected getValueCore() {
-    return super.getValueCore() || (this.multiSelect && []) || undefined;
+    var value = super.getValueCore();
+    if(value !== undefined) {
+      return value;
+    }
+    if(this.multiSelect) {
+      return [];
+    }
+    return  value;
   }
   /**
    * The image height.

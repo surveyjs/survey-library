@@ -12,8 +12,10 @@ import {
   IPage,
   SurveyError,
   Event,
-  ISurveyErrorOwner
+  ISurveyErrorOwner,
+  ISurveyElement
 } from "./base";
+import { surveyCss } from "./defaultCss/cssstandard";
 import { ISurveyTriggerOwner, SurveyTrigger } from "./trigger";
 import { CalculatedValue } from "./calculatedValue";
 import { PageModel } from "./page";
@@ -28,7 +30,11 @@ import { SurveyTimer } from "./surveytimer";
 import { Question } from "./question";
 import { ItemValue } from "./itemvalue";
 import { PanelModelBase } from "./panel";
-import { HtmlConditionItem } from "./htmlConditionItem";
+import {
+  HtmlConditionItem,
+  UrlConditionItem,
+  ExpressionItem
+} from "./expressionItems";
 import { ExpressionRunner, ConditionRunner } from "./conditions";
 import { settings } from "./settings";
 
@@ -61,9 +67,6 @@ export class SurveyModel extends Base
   }
 
   private pagesValue: Array<PageModel>;
-  private triggersValue: Array<SurveyTrigger>;
-  private calculatedValuesValue: Array<CalculatedValue>;
-  private completedHtmlOnConditionValue: Array<HtmlConditionItem>;
   private get currentPageValue(): PageModel {
     return this.getPropertyValue("currentPageValue", null);
   }
@@ -104,6 +107,18 @@ export class SurveyModel extends Base
    * @see surveyPostId
    */
   public onComplete: Event<
+    (sender: SurveyModel, options: any) => any,
+    any
+  > = new Event<(sender: SurveyModel, options: any) => any, any>();
+  /**
+   * The event is fired after a user click on 'Complete' button. It allows you to change the url where survey will navigate to.
+   * You have to setup up navigateToUrl properties to let survey to navigate to another url.
+   * <br/> sender the survey object that fires the event
+   * <br/> options.url change it to navigate to another url. Set it to empty string to cancel the navigation and show the completed survey page.
+   * @see navigateToUrl
+   * @see navigateToUrlOnCondition
+   */
+  public onNavigateToUrl: Event<
     (sender: SurveyModel, options: any) => any,
     any
   > = new Event<(sender: SurveyModel, options: any) => any, any>();
@@ -421,7 +436,7 @@ export class SurveyModel extends Base
     any
   > = new Event<(sender: SurveyModel, options: any) => any, any>();
   /**
-   * The event is fired on uploading the file in QuestionFile. You may use it to change the file name or tells the library do not accept the file. There are three properties in options: options.name, options.file and options.accept.
+   * The event is fired on uploading the file in QuestionFile when storeDataAsText is set to false. You may use it to change the file name or tells the library do not accept the file. There are three properties in options: options.name, options.file and options.accept.
    * <br/> sender the survey object that fires the event
    * name: name, file: file, accept: accept
    * <br/> name the file name
@@ -579,6 +594,19 @@ export class SurveyModel extends Base
    * @see QuestionMatrixDynamicModel.visibleRows
    */
   public onMatrixRowRemoved: Event<
+    (sender: SurveyModel, options: any) => any,
+    any
+  > = new Event<(sender: SurveyModel, options: any) => any, any>();
+  /**
+   * The event is fired before rendering "Remove" button for removing a row from Matrix Dynamic question.
+   * <br/> sender the survey object that fires the event
+   * <br/> options.question a matrix question.
+   * <br/> options.rowIndex a row index.
+   * <br/> options.row a row object.
+   * <br/> options.allow a boolean property. Set it to false to disable the row removing.
+   * @see QuestionMatrixDynamicModel
+   */
+  public onMatrixAllowRemoveRow: Event<
     (sender: SurveyModel, options: any) => any,
     any
   > = new Event<(sender: SurveyModel, options: any) => any, any>();
@@ -784,21 +812,18 @@ export class SurveyModel extends Base
     this.pagesValue = this.createNewArray("pages", function(value: any) {
       self.doOnPageAdded(value);
     });
-    this.triggersValue = this.createNewArray("triggers", function(value: any) {
+    this.createNewArray("triggers", function(value: any) {
       value.setOwner(self);
     });
-    this.calculatedValuesValue = this.createNewArray(
-      "calculatedValues",
-      function(value: any) {
-        value.setOwner(self);
-      }
-    );
-    this.completedHtmlOnConditionValue = this.createNewArray(
-      "completedHtmlOnCondition",
-      function(value: any) {
-        value.locOwner = self;
-      }
-    );
+    this.createNewArray("calculatedValues", function(value: any) {
+      value.setOwner(self);
+    });
+    this.createNewArray("completedHtmlOnCondition", function(value: any) {
+      value.locOwner = self;
+    });
+    this.createNewArray("navigateToUrlOnCondition", function(value: any) {
+      value.locOwner = self;
+    });
     this.registerFunctionOnPropertyValueChanged(
       "questionTitleTemplate",
       function() {
@@ -811,9 +836,6 @@ export class SurveyModel extends Base
         self.onFirstPageIsStartedChanged();
       }
     );
-    this.registerFunctionOnPropertyValueChanged("isSinglePage", function() {
-      self.onIsSinglePageChanged();
-    });
     this.registerFunctionOnPropertyValueChanged("mode", function() {
       self.onModeChanged();
     });
@@ -825,7 +847,7 @@ export class SurveyModel extends Base
       if (jsonObj && jsonObj.clientId) {
         this.clientId = jsonObj.clientId;
       }
-      this.setJsonObject(jsonObj);
+      this.fromJSON(jsonObj);
       if (this.surveyId) {
         this.loadSurveyFromService(this.surveyId, this.clientId);
       }
@@ -835,6 +857,12 @@ export class SurveyModel extends Base
   public getType(): string {
     return "survey";
   }
+  protected onPropertyValueChanged(name: string, oldValue: any, newValue: any) {
+    if (name === "questionsOnPageMode") {
+      this.onQuestionsOnPageModeChanged(oldValue);
+    }
+  }
+
   /**
    * The list of all pages in the survey, including invisible.
    * @see PageModel
@@ -843,12 +871,26 @@ export class SurveyModel extends Base
   public get pages(): Array<PageModel> {
     return this.pagesValue;
   }
+  public getCss(): any {
+    return this.css;
+  }
+  private cssValue: any = null;
+  public get css(): any {
+    if (!this.cssValue) {
+      this.cssValue = {};
+      this.copyCssClasses(this.cssValue, surveyCss.getCss());
+    }
+    return this.cssValue;
+  }
+  public set css(value: any) {
+    this.mergeValues(value, this.css);
+  }
   /**
    * The list of triggers in the survey.
    * @see SurveyTrigger
    */
   public get triggers(): Array<SurveyTrigger> {
-    return this.triggersValue;
+    return this.getPropertyValue("triggers");
   }
   public set triggers(val: Array<SurveyTrigger>) {
     this.setPropertyValue("triggers", val);
@@ -858,7 +900,7 @@ export class SurveyModel extends Base
    * @see CalculatedValue
    */
   public get calculatedValues(): Array<CalculatedValue> {
-    return this.calculatedValuesValue;
+    return this.getPropertyValue("calculatedValues");
   }
   public set calculatedValues(val: Array<CalculatedValue>) {
     this.setPropertyValue("calculatedValues", val);
@@ -992,12 +1034,51 @@ export class SurveyModel extends Base
    * On finishing the survey the 'Thank you', page on complete, is shown. Set the property to false, to hide the 'Thank you' page.
    * @see data
    * @see onComplete
+   * @see navigateToUrl
    */
   public get showCompletedPage(): boolean {
     return this.getPropertyValue("showCompletedPage", true);
   }
   public set showCompletedPage(val: boolean) {
     this.setPropertyValue("showCompletedPage", val);
+  }
+  /**
+   * Set this property to a url you want to navigate after a user completing the survey
+   */
+  public get navigateToUrl(): string {
+    return this.getPropertyValue("navigateToUrl");
+  }
+  public set navigateToUrl(val: string) {
+    this.setPropertyValue("navigateToUrl", val);
+  }
+  /**
+   * The list of url condition items. If the expression of this item returns true, then survey will navigate to item url
+   * @see UrlConditionItem
+   * @see navigateToUrl
+   */
+  public get navigateToUrlOnCondition(): Array<UrlConditionItem> {
+    return this.getPropertyValue("navigateToUrlOnCondition");
+  }
+  public set navigateToUrlOnCondition(val: Array<UrlConditionItem>) {
+    this.setPropertyValue("navigateToUrlOnCondition", val);
+  }
+
+  public getNavigateToUrl(): string {
+    var item = this.getExpressionItemOnRunCondition(
+      this.navigateToUrlOnCondition
+    );
+    var url = !!item ? (<UrlConditionItem>item).url : this.navigateToUrl;
+    if (!!url) {
+      url = this.processText(url, true);
+    }
+    return url;
+  }
+  private navigateTo() {
+    var url = this.getNavigateToUrl();
+    var options = { url: url };
+    this.onNavigateToUrl.fire(this, options);
+    if (!options.url || !window || !window.location) return;
+    window.location.href = options.url;
   }
   /**
    * A char/string that will be rendered in the title required questions.
@@ -1111,8 +1192,19 @@ export class SurveyModel extends Base
     this.setPropertyValue("checkErrorsMode", val);
   }
   /**
+   * Change this property from 'onBlur' to 'onTyping' to update the value of text questions, "text" and "comment",
+   * on every key press. By default, the value is updated an input losts the focus.
+   * Please note, setting to "onTyping" may lead to a performance degradation, in case you have many expressions in the survey
+   */
+  public get textUpdateMode(): string {
+    return this.getPropertyValue("textUpdateMode");
+  }
+  public set textUpdateMode(val: string) {
+    this.setPropertyValue("textUpdateMode", val);
+  }
+  /**
    * Set it to 'none' to include the invisible values into the survey data.
-   * </br> Set it to 'onHidden' to clear the question value when it becomes invisible.
+   * </br> Set it to 'onHidden' to clear the question value when it becomes invisible. If a question has value and it was invisible initially then survey clears the value on completing.
    * </br> Leave it equals to 'onComplete', to remove from data property values of invisible questions on survey complete. In this case, the invisible questions will not be stored on the server.
    * </br> The default value is 'onComplete'.
    * @see Question.visible
@@ -1254,7 +1346,7 @@ export class SurveyModel extends Base
    * @see completeHtml
    */
   public get completedHtmlOnCondition(): Array<HtmlConditionItem> {
-    return this.completedHtmlOnConditionValue;
+    return this.getPropertyValue("completedHtmlOnCondition");
   }
   public set completedHtmlOnCondition(val: Array<HtmlConditionItem>) {
     this.setPropertyValue("completedHtmlOnCondition", val);
@@ -1280,16 +1372,23 @@ export class SurveyModel extends Base
     return new ConditionRunner(expression).run(values, properties);
   }
   public get renderedCompletedHtml(): string {
-    if (this.completedHtmlOnCondition.length == 0) return this.completedHtml;
+    var item = this.getExpressionItemOnRunCondition(
+      this.completedHtmlOnCondition
+    );
+    return !!item ? (<HtmlConditionItem>item).html : this.completedHtml;
+  }
+  private getExpressionItemOnRunCondition(
+    items: Array<ExpressionItem>
+  ): ExpressionItem {
+    if (items.length == 0) return null;
     var values = this.getFilteredValues();
     var properties = this.getFilteredProperties();
-    for (var i = 0; i < this.completedHtmlOnCondition.length; i++) {
-      var item = this.completedHtmlOnCondition[i];
-      if (item.runCondition(values, properties)) {
-        return item.html;
+    for (var i = 0; i < items.length; i++) {
+      if (items[i].runCondition(values, properties)) {
+        return items[i];
       }
     }
-    return this.completedHtml;
+    return null;
   }
 
   /**
@@ -1602,7 +1701,6 @@ export class SurveyModel extends Base
       }
     }
     this.updateAllQuestionsValue();
-    this.checkTriggers(this.valuesHash, false);
     this.notifyAllQuestionsOnValueChanged();
     this.notifyElementsOnAnyValueOrVariableChanged("");
     this.runConditions();
@@ -1917,15 +2015,15 @@ export class SurveyModel extends Base
         (a: number, b: Question) => a + (b.isEmpty() ? 0 : 1),
         0
       );
-      return Math.ceil(answeredQuestionsCount * 100 / questions.length);
+      return Math.ceil((answeredQuestionsCount * 100) / questions.length);
     }
     if (this.progressBarType === "correctQuestions") {
       var questions = this.getAllQuestions();
       var correctAnswersCount = this.getCorrectedAnswerCount();
-      return Math.ceil(correctAnswersCount * 100 / questions.length);
+      return Math.ceil((correctAnswersCount * 100) / questions.length);
     }
     var index = this.visiblePages.indexOf(this.currentPage) + 1;
-    return Math.ceil(index * 100 / this.visiblePageCount);
+    return Math.ceil((index * 100) / this.visiblePageCount);
   }
   /**
    * Returns true if navigation buttons: 'Prev', 'Next' or 'Complete' are shown.
@@ -1956,20 +2054,24 @@ export class SurveyModel extends Base
   public get isDisplayMode(): boolean {
     return this.mode == "display";
   }
+  public get isUpdateValueTextOnTyping(): boolean {
+    return this.textUpdateMode == "onTyping";
+  }
   /**
    * Returns true if the survey in the design mode. It is used by SurveyJS Editor
    * @see setDesignMode
    */
   public get isDesignMode(): boolean {
-    return this.getPropertyValue("isDesignMode", false);
+    return this._isDesignMode;
   }
+  private _isDesignMode: boolean = false;
   /**
    * Call it to set the survey into the design mode.
    * @param value use true to set the survey into the design mode.
    */
   public setDesignMode(value: boolean) {
-    this.setPropertyValue("isDesignMode", value);
-    this.onIsSinglePageChanged();
+    this._isDesignMode = value;
+    this.onQuestionsOnPageModeChanged("standard");
   }
   /**
    * Set this property to true, to show all elements in the survey, regardless their visibility. It is false by default.
@@ -2124,6 +2226,86 @@ export class SurveyModel extends Base
     }
     return res;
   }
+  /**
+   * Ensure that pages, panels and questions have unique question names.
+   * You may ensure unique names for individual page and panel (and all their elements) or question
+   * If the parameter is underfined then survey ensure that all its elements are unique.
+   * @param element page, panel or question, it is null by default, that means all survey elements will be checked
+   */
+  public ensureUniqueNames(element: ISurveyElement = null) {
+    if (element == null) {
+      for (var i = 0; i < this.pages.length; i++) {
+        this.ensureUniqueName(this.pages[i]);
+      }
+    } else {
+      this.ensureUniqueName(element);
+    }
+  }
+  private ensureUniqueName(element: ISurveyElement) {
+    if (element.isPage) {
+      this.ensureUniquePageName(element);
+    }
+    if (element.isPanel) {
+      this.ensureUniquePanelName(element);
+    }
+    if (element.isPage || element.isPanel) {
+      var elements = (<IPanel>element).elements;
+      for (var i = 0; i < elements.length; i++) {
+        this.ensureUniqueNames(elements[i]);
+      }
+    } else {
+      this.ensureUniqueQuestionName(element);
+    }
+  }
+  private ensureUniquePageName(element: ISurveyElement) {
+    return this.ensureUniqueElementName(
+      element,
+      (name: string): ISurveyElement => {
+        return this.getPageByName(name);
+      }
+    );
+  }
+  private ensureUniquePanelName(element: ISurveyElement) {
+    return this.ensureUniqueElementName(
+      element,
+      (name: string): ISurveyElement => {
+        return this.getPanelByName(name);
+      }
+    );
+  }
+  private ensureUniqueQuestionName(element: ISurveyElement) {
+    return this.ensureUniqueElementName(
+      element,
+      (name: string): ISurveyElement => {
+        return this.getQuestionByName(name);
+      }
+    );
+  }
+  private ensureUniqueElementName(
+    element: ISurveyElement,
+    getElementByName: (name: string) => ISurveyElement
+  ) {
+    var existingElement = getElementByName(element.name);
+    if (!existingElement || existingElement == element) return;
+    var newName = this.getNewName(element.name);
+    while (!!getElementByName(newName)) {
+      var newName = this.getNewName(element.name);
+    }
+    element.name = newName;
+  }
+  private getNewName(name: string): string {
+    var pos = name.length;
+    while (pos > 0 && name[pos - 1] >= "0" && name[pos - 1] <= "9") {
+      pos--;
+    }
+    var base = name.substr(0, pos);
+    var num = 0;
+    if (pos < name.length) {
+      num = parseInt(name.substr(pos));
+    }
+    num++;
+    return base + num;
+  }
   private checkIsCurrentPageHasErrors(
     isFocuseOnFirstError: boolean = undefined
   ): boolean {
@@ -2188,12 +2370,25 @@ export class SurveyModel extends Base
   }
   /**
    * Set this property to true, if you want to combine all your pages in one page. Pages will be converted into panels.
+   * Please use questionsOnPageMode property. This property becomes obsolete
+   * @see questionsOnPageMode
    */
   public get isSinglePage(): boolean {
-    return this.getPropertyValue("isSinglePage", false);
+    return this.questionsOnPageMode == "singlePage";
   }
   public set isSinglePage(val: boolean) {
-    this.setPropertyValue("isSinglePage", val);
+    this.questionsOnPageMode = val ? "singlePage" : "standard";
+  }
+  /**
+   * Set this property to 'singlePage', if you want to combine all your pages in one page. Pages will be converted into panels.
+   * Set it to 'questionPerPage', if you want to have one question per page. Survey will create a separate page for every question.
+   * This property made isSinglePage property obsolete
+   */
+  public get questionsOnPageMode(): string {
+    return this.getPropertyValue("questionsOnPageMode", "standard");
+  }
+  public set questionsOnPageMode(val: string) {
+    this.setPropertyValue("questionsOnPageMode", val);
   }
   /**
    * Set this property to true, to make the first page your starting page. The end-user could not comeback to the start page and it is not count in the progress.
@@ -2215,8 +2410,8 @@ export class SurveyModel extends Base
     this.pageVisibilityChanged(this.pages[0], !this.firstPageIsStarted);
   }
   origionalPages: any = null;
-  protected onIsSinglePageChanged() {
-    if (!this.isSinglePage || this.isDesignMode) {
+  protected onQuestionsOnPageModeChanged(oldValue: string) {
+    if (this.questionsOnPageMode == "standard" || this.isDesignMode) {
       if (this.origionalPages) {
         this.questionHashesClear();
         this.pages.splice(0, this.pages.length);
@@ -2227,18 +2422,33 @@ export class SurveyModel extends Base
       this.origionalPages = null;
     } else {
       this.questionHashesClear();
-      this.origionalPages = this.pages.slice(0, this.pages.length);
+      if (!oldValue || oldValue == "standard") {
+        this.origionalPages = this.pages.slice(0, this.pages.length);
+      }
       var startIndex = this.firstPageIsStarted ? 1 : 0;
       super.startLoadingFromJson();
-      var singlePage = this.createSinglePage(startIndex);
+      var newPages = this.createPagesForQuestionOnPageMode(startIndex);
       var deletedLen = this.pages.length - startIndex;
-      this.pages.splice(startIndex, deletedLen, singlePage);
+      this.pages.splice(startIndex, deletedLen);
+      for (var i = 0; i < newPages.length; i++) {
+        this.pages.push(newPages[i]);
+      }
       super.endLoadingFromJson();
-      singlePage.endLoadingFromJson();
-      singlePage.setSurveyImpl(this);
+      for (var i = 0; i < newPages.length; i++) {
+        newPages[i].endLoadingFromJson();
+        newPages[i].setSurveyImpl(this);
+      }
       this.doElementsOnLoad();
     }
     this.updateVisibleIndexes();
+  }
+  private createPagesForQuestionOnPageMode(
+    startIndex: number
+  ): Array<PageModel> {
+    if (this.isSinglePage) {
+      return [this.createSinglePage(startIndex)];
+    }
+    return this.createPagesForEveryQuestion(startIndex);
   }
   private createSinglePage(startIndex: number): PageModel {
     var single = this.createNewPage("all");
@@ -2249,8 +2459,29 @@ export class SurveyModel extends Base
       single.addPanel(panel);
       var json = new JsonObject().toJsonObject(page);
       new JsonObject().toObject(json, panel);
+      if (!this.showPageTitles) {
+        panel.title = "";
+      }
     }
     return single;
+  }
+  private createPagesForEveryQuestion(startIndex: number): Array<PageModel> {
+    var res: Array<PageModel> = [];
+    for (var i = startIndex; i < this.pages.length; i++) {
+      var origionalPage = this.pages[i];
+      for (var j = 0; j < origionalPage.elements.length; j++) {
+        var origionalElement = origionalPage.elements[j];
+        var element = Serializer.createClass(origionalElement.getType());
+        if (!element) continue;
+        var page = this.createNewPage("page" + (res.length + 1));
+        page.setSurveyImpl(this);
+        res.push(page);
+        var json = new JsonObject().toJsonObject(origionalElement);
+        new JsonObject().toObject(json, element);
+        page.addElement(element);
+      }
+    }
+    return res;
   }
   /**
    * Returns true if the current page is the first one.
@@ -2308,6 +2539,7 @@ export class SurveyModel extends Base
     if (!previousCookie && this.surveyPostId) {
       this.sendResult();
     }
+    this.navigateTo();
   }
   /**
    * Start the survey. Change the mode from "starting" to "running". You need to call it, if there is a started page in your survey, otherwise it does nothing.
@@ -2519,6 +2751,20 @@ export class SurveyModel extends Base
       rowIndex: rowIndex,
       row: row
     });
+  }
+  matrixAllowRemoveRow(
+    question: IQuestion,
+    rowIndex: number,
+    row: any
+  ): boolean {
+    var options = {
+      question: question,
+      rowIndex: rowIndex,
+      row: row,
+      allow: true
+    };
+    this.onMatrixAllowRemoveRow.fire(this, options);
+    return options.allow;
   }
   matrixCellCreated(question: IQuestion, options: any) {
     options.question = question;
@@ -3131,7 +3377,7 @@ export class SurveyModel extends Base
   }
   private loadSurveyFromServiceJson(json: any) {
     if (!json) return;
-    this.setJsonObject(json);
+    this.fromJSON(json);
     this.notifyAllQuestionsOnValueChanged();
     this.onLoadSurveyFromService();
   }
@@ -3162,21 +3408,24 @@ export class SurveyModel extends Base
           : -1;
     }
   }
-  public setJsonObject(jsonObj: any) {
-    if (!jsonObj) return;
+  public fromJSON(json: any) {
+    if (!json) return;
     this.questionHashesClear();
     this.jsonErrors = null;
     var jsonConverter = new JsonObject();
-    jsonConverter.toObject(jsonObj, this);
+    jsonConverter.toObject(json, this);
     if (jsonConverter.errors.length > 0) {
       this.jsonErrors = jsonConverter.errors;
     }
+  }
+  public setJsonObject(jsonObj: any) {
+    this.fromJSON(jsonObj);
   }
   private isEndLoadingFromJson: string = null;
   endLoadingFromJson() {
     this.isEndLoadingFromJson = "processing";
     this.isStartedState = this.firstPageIsStarted;
-    this.onIsSinglePageChanged();
+    this.onQuestionsOnPageModeChanged("standard");
     super.endLoadingFromJson();
     if (this.hasCookie) {
       this.doComplete();
@@ -3347,7 +3596,7 @@ export class SurveyModel extends Base
   public setValue(
     name: string,
     newQuestionValue: any,
-    locNotification: boolean = false
+    locNotification: any = false
   ) {
     var newValue = this.questionOnValueChanging(name, newQuestionValue);
     if (
@@ -3368,7 +3617,9 @@ export class SurveyModel extends Base
     this.checkTriggers(triggerKeys, false);
     this.runConditions();
     this.notifyQuestionOnValueChanged(name, newValue);
-    this.tryGoNextPageAutomatic(name);
+    if (locNotification !== "text") {
+      this.tryGoNextPageAutomatic(name);
+    }
   }
   private isValueEqual(name: string, newValue: any): boolean {
     if (newValue === "" || newValue === undefined) newValue = null;
@@ -3414,7 +3665,10 @@ export class SurveyModel extends Base
       if (!this.isLastPage) {
         this.nextPage();
       } else {
-        if (this.goNextPageAutomatic === true && this.allowCompleteSurveyAutomatic) {
+        if (
+          this.goNextPageAutomatic === true &&
+          this.allowCompleteSurveyAutomatic
+        ) {
           this.completeLastPage();
         }
       }
@@ -3436,7 +3690,11 @@ export class SurveyModel extends Base
    * @param newValue
    * @see getComment
    */
-  public setComment(name: string, newValue: string) {
+  public setComment(
+    name: string,
+    newValue: string,
+    locNotification: any = false
+  ) {
     if (!newValue) newValue = "";
     if (Helpers.isTwoValueEquals(newValue, this.getComment(name))) return;
     var commentName = name + this.commentPrefix;
@@ -3451,7 +3709,9 @@ export class SurveyModel extends Base
         questions[i].updateCommentFromSurvey(newValue);
       }
     }
-    this.tryGoNextPageAutomatic(name);
+    if (locNotification !== "text") {
+      this.tryGoNextPageAutomatic(name);
+    }
     var question = this.getQuestionByName(name);
     if (question) {
       this.onValueChanged.fire(this, {
@@ -4075,6 +4335,12 @@ Serializer.addClass("survey", [
   { name: "showTitle:boolean", default: true },
   { name: "showPageTitles:boolean", default: true },
   { name: "showCompletedPage:boolean", default: true },
+  "navigateToUrl",
+  {
+    name: "navigateToUrlOnCondition:urlconditions",
+    className: "urlconditionitem",
+    visible: false
+  },
   {
     name: "questionsOrder",
     default: "initial",
@@ -4122,6 +4388,11 @@ Serializer.addClass("survey", [
     default: "onNextPage",
     choices: ["onNextPage", "onValueChanged", "onComplete"]
   },
+  {
+    name: "textUpdateMode",
+    default: "onBlur",
+    choices: ["onBlur", "onTyping"]
+  },
   { name: "startSurveyText", serializationProperty: "locStartSurveyText" },
   { name: "pagePrevText", serializationProperty: "locPagePrevText" },
   { name: "pageNextText", serializationProperty: "locPageNextText" },
@@ -4133,7 +4404,17 @@ Serializer.addClass("survey", [
     serializationProperty: "locQuestionTitleTemplate"
   },
   { name: "firstPageIsStarted:boolean", default: false },
-  { name: "isSinglePage:boolean", default: false },
+  {
+    name: "isSinglePage:boolean",
+    default: false,
+    visible: false,
+    isSerializable: false
+  },
+  {
+    name: "questionsOnPageMode",
+    default: "standard",
+    choices: ["singlePage", "standard", "questionPerPage"]
+  },
   { name: "maxTimeToFinish:number", default: 0, minValue: 0 },
   { name: "maxTimeToFinishPage:number", default: 0, minValue: 0 },
   {

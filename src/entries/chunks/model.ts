@@ -29,9 +29,9 @@ export {
   ExceedSizeError
 } from "../../error";
 export { ILocalizableOwner, LocalizableString } from "../../localizablestring";
-export { HtmlConditionItem } from "../../htmlConditionItem";
+export { HtmlConditionItem, UrlConditionItem } from "../../expressionItems";
 export { ChoicesRestfull } from "../../choicesRestfull";
-export { FunctionFactory } from "../../functionsfactory";
+export { FunctionFactory, registerFunction } from "../../functionsfactory";
 export { ConditionRunner, ExpressionRunner } from "../../conditions";
 export {
   Operand,
@@ -123,7 +123,7 @@ export { TextPreProcessor } from "../../textPreProcessor";
 export { dxSurveyService } from "../../dxSurveyService";
 export { englishStrings } from "../../localization/english";
 export { surveyLocalization, surveyStrings } from "../../surveyStrings";
-export { cultureInfo } from "../../cultureInfo";
+// export { cultureInfo } from "../../cultureInfo";
 export {
   QuestionCustomWidget,
   CustomWidgetCollection

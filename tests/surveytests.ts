@@ -41,11 +41,11 @@ import { FunctionFactory } from "../src/functionsfactory";
 import { QuestionExpressionModel } from "../src/question_expression";
 import { QuestionPanelDynamicModel } from "../src/question_paneldynamic";
 import { QuestionImagePickerModel } from "../src/question_imagepicker";
-import { HtmlConditionItem } from "../src/htmlConditionItem";
+import { HtmlConditionItem, UrlConditionItem } from "../src/expressionItems";
 import { AnswerRequiredError } from "../src/error";
-import { Survey } from "../src/react/reactSurvey";
 import { ConditionsParser } from "../src/conditionsParser";
 import { Operand, Variable, BinaryOperand, Const } from "../src/expressions/expressions";
+import { ArrayChanges } from "../src/base";
 
 export default QUnit.module("Survey");
 
@@ -1680,6 +1680,18 @@ QUnit.test("Value trigger test", function(assert) {
   assert.equal(survey.getValue("name1"), null, "value is not set");
   survey.setValue("question1", "Hello");
   assert.equal(survey.getValue("name1"), "val1", "value is set");
+});
+QUnit.test("Triggers shouldn't fire on data assignment", function(assert) {
+  var survey = twoPageSimplestSurvey();
+  var trigger = new SurveyTriggerSetValue();
+  survey.triggers.push(trigger);
+  trigger.name = "question1";
+  trigger.value = "Hello";
+  trigger.setToName = "name1";
+  trigger.setValue = "val1";
+  assert.equal(survey.getValue("name1"), null, "value is not set");
+  survey.data = { "question1": "Hello" };
+  assert.equal(survey.getValue("name1"), null, "value still is not set");
 });
 QUnit.test("RunExpression trigger test", function(assert) {
   var survey = twoPageSimplestSurvey();
@@ -4828,6 +4840,61 @@ QUnit.test(
   }
 );
 
+QUnit.test("isSinglePage = true and survey.showPageTitles = false, Bug#1914", function(
+  assert
+) {
+  var survey = twoPageSimplestSurvey();
+  survey.pages[0].title = "Page 1";
+  survey.pages[1].title = "Page 2";
+  survey.showPageTitles = false;
+  survey.isSinglePage = true;
+  var panels = survey.getAllPanels();
+  assert.equal(panels.length, 2, "There are two panels");
+  assert.notOk((<PanelModel>panels[0]).title, "Panel1 title is empty");
+  assert.notOk((<PanelModel>panels[1]).title, "Panel2 title is empty");
+});
+
+QUnit.test("check synhronization properties isSinglePage and questionsOnPageMode", function(
+  assert
+) {
+  var survey = twoPageSimplestSurvey();
+  assert.equal(survey.isSinglePage, false, "isSinglePage is false by default");
+  assert.equal(survey.questionsOnPageMode, "standard", "questionsOnPageMode is 'standard' by default");
+  survey.isSinglePage = true;
+  assert.equal(survey.isSinglePage, true, "set isSinglePage to true");
+  assert.equal(survey.questionsOnPageMode, "singlePage", "questionsOnPageMode is 'singlePage' on setting isSinglePage to true");
+  survey.isSinglePage = false;
+  assert.equal(survey.isSinglePage, false, "set isSinglePage to false");
+  assert.equal(survey.questionsOnPageMode, "standard", "questionsOnPageMode is 'standard' on setting isSinglePage to false");
+  survey.questionsOnPageMode = "singlePage";
+  assert.equal(survey.questionsOnPageMode, "singlePage", "set questionsOnPageMode to 'singlePage'");
+  assert.equal(survey.isSinglePage, true, "isSinglePage is true on setting questionsOnPageMode to 'singlePage'");
+  survey.questionsOnPageMode = "questionPerPage";
+  assert.equal(survey.questionsOnPageMode, "questionPerPage", "set questionsOnPageMode to 'questionPerPage'");
+  assert.equal(survey.isSinglePage, false, "isSinglePage is false on setting questionsOnPageMode to 'questionPerPage'");
+  survey.questionsOnPageMode = "standard";
+  assert.equal(survey.questionsOnPageMode, "standard", "set questionsOnPageMode to 'standard'");
+  assert.equal(survey.isSinglePage, false, "isSinglePage is false on setting questionsOnPageMode to 'standard'");
+});
+
+QUnit.test("survey.questionsOnPageMode", function(
+  assert
+) {
+  var survey = twoPageSimplestSurvey();
+  var questions = survey.getAllQuestions();
+  survey.questionsOnPageMode = "questionOnPage";
+  assert.equal(survey.pages.length, questions.length, "The number of pages equals to questions");
+  for(var i = 0; i < questions.length; i ++) {
+    assert.equal(survey.pages[i].questions[0].name, questions[i].name, "questions set correctly per page");
+  }
+  survey.questionsOnPageMode = "singlePage";
+  assert.equal(survey.pages.length, 1, "We have one page");
+  assert.equal(survey.pages[0].questions.length, questions.length, "All questions on single page");
+  survey.questionsOnPageMode = "standard";
+  assert.equal(survey.pages.length, 2, "Origional pages");
+  assert.equal(survey.pages[0].questions.length, 2, "There are two questions on the origional first page");
+});
+
 QUnit.test("Survey page hasShown", function(assert) {
   var survey = twoPageSimplestSurvey();
   assert.equal(survey.pages[0].hasShown, false, "The first page was not shown");
@@ -5152,6 +5219,27 @@ QUnit.test("condition function isContainerReady", function(assert) {
   assert.equal(qTest.isVisible, false, "q2 is not e-mail");
   q2.value = "email@mail.com";
   assert.equal(qTest.isVisible, true, "isContainerReady returns true");
+});
+
+QUnit.test("Use 'question' in function context", function(assert) {
+  function isFirstLastChoiceSelected(params): boolean {
+    if(!this.question || question.isEmpty()) return false;
+    var first = question.choices[0].value;
+    var last = question.choices[question.choices.length - 1].value;
+    return question.value.indexOf(first) > -1 && question.value.indexOf(last) > -1;
+  }
+  FunctionFactory.Instance.register("isFirstLastChoiceSelected", isFirstLastChoiceSelected);
+  var survey = new SurveyModel();
+  var page = survey.addNewPage("page1");
+  var question = <QuestionCheckboxModel>page.addNewQuestion("checkbox", "q1");
+  question.choices = [1, 2, 3, 4, 5];
+  question.visibleIf = "isFirstLastChoiceSelected() == true";
+  assert.equal(question.isVisible, false, "first and last is not selected");
+  question.value = [1, 2];
+  assert.equal(question.isVisible, false, "first and last is not selected yet");
+  question.value = [1, 3, 5];
+  assert.equal(question.isVisible, true, "first and last is selected");
+  FunctionFactory.Instance.unregister("isFirstLastChoiceSelected");
 });
 
 QUnit.test(
@@ -5494,6 +5582,69 @@ QUnit.test("Compete trigger and goNextPageAutomatic option", function(assert) {
   survey.setValue("q2", "b");
   survey.setValue("q1", "a");
   assert.equal(completedCounter, 1, "The survey is completed one time");
+});
+
+QUnit.test("textUpdateMode=onTyping and goNextPageAutomatic option", function(assert) {
+  var json = {
+    pages: [
+      {
+        elements: [
+          {
+            type: "text",
+            name: "q1"
+          }
+        ]
+      },
+      {
+        elements: [
+          {
+            type: "text",
+            name: "q2"
+          }
+        ]
+      }
+    ],
+    textUpdateMode: "onTyping",
+    goNextPageAutomatic: true
+  };
+  var survey = new SurveyModel(json);
+  var question = survey.getQuestionByName("q1");
+  question.value = "a";
+  assert.equal(survey.currentPageNo, 0, "Stay on the first page");
+  question.clearValue();
+  question.inputType = "email";
+  question.value = "a@a.com";
+  assert.equal(survey.currentPageNo, 1, "Move to the second page");
+});
+QUnit.test("textUpdateMode=onTyping and visibleIf", function(assert) {
+  var json = {
+    pages: [
+      {
+        elements: [
+          {
+            type: "text",
+            name: "q1"
+          },
+          {
+            type: "text",
+            name: "q2",
+            visibleIf: "{q1} = 'a'"
+          }
+        ]
+      },
+      {
+        elements: [
+        ]
+      }
+    ],
+    textUpdateMode: "onTyping"
+  };
+  var survey = new SurveyModel(json);
+  var q1 = survey.getQuestionByName("q1");
+  var q2 = survey.getQuestionByName("q2");
+  assert.equal(q2.isVisible, false, "It is invisible by default")
+  q1.value = "a";
+  assert.equal(q2.isVisible, true, "It is visible now")
 });
 
 QUnit.test("Page with numeric name, bug #1293", function(assert) {
@@ -7513,6 +7664,95 @@ QUnit.test("survey.completedHtmlOnCondition + localization", function(assert) {
   survey.locale = prevLocale;
 });
 
+QUnit.test("survey.navigateToUrlOnCondition", function(assert) {
+  var survey = new SurveyModel();
+  survey.navigateToUrl = "1";
+  assert.equal(survey.getNavigateToUrl(), "1", "get from navigateToUrl");
+  survey.navigateToUrlOnCondition.push(new UrlConditionItem("{q1} = 2", "2"));
+  survey.navigateToUrlOnCondition.push(new UrlConditionItem("{q1} = 3", "3"));
+  assert.equal(
+    survey.getNavigateToUrl(),
+    "1",
+    "still get from navigateToUrl"
+  );
+  survey.setValue("q1", 2);
+  assert.equal(
+    survey.getNavigateToUrl(),
+    "2",
+    "get from first on Condition"
+  );
+  survey.setValue("q1", 3);
+  assert.equal(
+    survey.getNavigateToUrl(),
+    "3",
+    "get from second on Condition"
+  );
+  survey.setValue("q1", 5);
+  assert.equal(
+    survey.getNavigateToUrl(),
+    "1",
+    "get from navigateToUrl again"
+  );
+});
+
+QUnit.test("survey.navigateToUrlOnCondition + processValue", function(assert) {
+  var survey = new SurveyModel({elements: [{type: "text", name: "q1"}, {type: "text", name: "q2"}]});
+  survey.navigateToUrl = "url-{q1}-url";
+  survey.navigateToUrlOnCondition.push(new UrlConditionItem("{q1} = 2", "url-{q2}-url"));
+  assert.equal(
+    survey.getNavigateToUrl(),
+    "url--url",
+    "data is empty"
+  );
+  survey.data = {q1: "value1", q2: "value2"};
+  assert.equal(
+    survey.getNavigateToUrl(),
+    "url-value1-url",
+    "use value in navigateToUrl prop"
+  );
+  survey.setValue("q1", 2);
+  assert.equal(
+    survey.getNavigateToUrl(),
+    "url-value2-url",
+    "use value in condition url prop"
+  );
+});
+
+QUnit.test("survey.navigateToUrlOnCondition + localization", function(assert) {
+  var json = {
+    navigateToUrl: "1",
+    navigateToUrlOnCondition: [
+      {
+        expression: "{q1} = 2",
+        url: {
+          default: "en-condition",
+          fr: "fr-condition"
+        }
+      }
+    ]
+  };
+  var survey = new SurveyModel(json);
+  assert.equal(
+    survey.navigateToUrlOnCondition.length,
+    1,
+    "OnCondition restored correctly"
+  );
+  survey.setValue("q1", 2);
+  assert.equal(
+    survey.getNavigateToUrl(),
+    "en-condition",
+    "get on condition en"
+  );
+  var prevLocale = survey.locale;
+  survey.locale = "fr";
+  assert.equal(
+    survey.getNavigateToUrl(),
+    "fr-condition",
+    "get on condition fr"
+  );
+  survey.locale = prevLocale;
+});
+
 QUnit.test("page.clearErrors function", function(assert) {
   var survey = new SurveyModel();
   var page = survey.addNewPage("p");
@@ -8246,4 +8486,84 @@ QUnit.test("Expression operator get display text using question.title and questi
   assert.equal(str, "({Question 1} == [one, two])");
   str = expressionToDisplay.toDisplayText("{q1} = 2 or (1 != {q1} and {q2} contains [1, 2]) or {q3} = 1");
   assert.equal(str, '((({Question 1} == two) or ((one != {Question 1}) and ({Question 2} contains [one, two]))) or ({q3} == 1))', "Use question title and display text");
+});
+
+QUnit.test("Expression doesn't work correctly with iif function, Bug#1942", function(assert) {
+  // prettier-ignore
+  var json = {
+    "pages": [
+     {
+      "name": "page1",
+      "elements": [
+       {
+        "type": "text",
+        "name": "question3"
+       },
+       {
+        "type": "radiogroup",
+        "name": "question1",
+        "choices": [
+         {
+          "value": "item1",
+          "text": "item1"
+         },
+         "item2",
+         "item3"
+        ]
+       },
+       {
+        "type": "expression",
+        "name": "question2",
+        "expression": "{question3} + iif( {question1} = \"item2\", \"[\" + {question3} + \"]\", \"x\")",
+        "commentText": "Other (describe)"
+       }
+      ]
+     }
+    ]
+   };
+  var survey = new SurveyModel(json);
+  survey.setValue("question3", "a");
+  survey.setValue("question1", "item2");
+  assert.equal(survey.getValue("question2"), "a[a]", "iif true");
+  survey.setValue("question1", "item1");
+  assert.equal(survey.getValue("question2"), "ax", "iif false");
+  survey.clearValue("question3");
+  assert.equal(survey.getValue("question2"), "x", "iif false where question3 is empty");
+});
+
+QUnit.test("Different css for different surveys", function(assert) {
+  var json = {questions: [{type: "text", name: "q"}]};
+  var survey1 = new SurveyModel(json);
+  var survey2 = new SurveyModel(json);
+  var defaultQuestionRoot = survey1.css.question.mainRoot;
+  survey1.css.question.mainRoot += " class1";
+  survey2.css.question.mainRoot += " class2";
+  assert.equal(survey1.css.question.mainRoot, defaultQuestionRoot + " class1", "Correct css name for survey1");
+  assert.equal(survey2.css.question.mainRoot, defaultQuestionRoot + " class2", "Correct css name for survey2");
+  var question1 = survey1.getQuestionByName("q");
+  var question2 = survey2.getQuestionByName("q");
+  assert.equal(question1.cssMainRoot, defaultQuestionRoot + " class1", "Correct css name for question1");
+  assert.equal(question2.cssMainRoot, defaultQuestionRoot + " class2", "Correct css name for question2");
+});
+
+QUnit.test("Survey<=Base propertyValueChanged", function(assert) {
+  var json = {title: "title", questions: [{type: "text", name: "q"}]};
+  var survey = new SurveyModel(json);
+  var counter = 0;
+
+  survey.onPropertyValueChangedCallback = (
+    name: string,
+    oldValue: any,
+    newValue: any,
+    sender: SurveyModel,
+    arrayChanges: ArrayChanges
+  ) => {
+    counter++;
+  };
+
+  assert.equal(counter, 0, "initial");
+
+  survey.title = "new";
+
+  assert.equal(counter, 1, "callback called");
 });

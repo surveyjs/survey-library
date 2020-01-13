@@ -19,7 +19,6 @@ import { Question } from "./question";
 import { ConditionRunner } from "./conditions";
 import { QuestionFactory } from "./questionfactory";
 import { ILocalizableOwner, LocalizableString } from "./localizablestring";
-import { surveyCss } from "./defaultCss/cssstandard";
 import { OneAnswerRequiredError } from "./error";
 import { QuestionPanelDynamic } from "./knockout/koquestion_paneldynamic";
 import { PageModel } from "./page";
@@ -218,16 +217,19 @@ export class PanelModelBase extends SurveyElement
     this.setPropertyValue("visibleIf", val);
   }
   public get cssClasses(): any {
-    var classes = { error: {} };
-    this.copyCssClasses(classes, this.css);
+    var classes = { panel: {}, error: {}, row: ""};
+    this.copyCssClasses(classes.panel, this.css.panel);
     this.copyCssClasses(classes.error, this.css.error);
+    if(!!this.css.row) {
+      classes.row = this.css.row;
+    }
     if (this.survey) {
       this.survey.updatePanelCssClasses(this, classes);
     }
     return classes;
   }
-  private get css(): any {
-    return surveyCss.getCss();
+  protected get css(): any {
+    return !!this.survey ? this.survey.getCss() : {};
   }
   /**
    * A unique element identificator. It is generated automatically.
@@ -461,7 +463,7 @@ export class PanelModelBase extends SurveyElement
     }
     rec.result = true;
     errors.push(new OneAnswerRequiredError(this.requiredErrorText, this));
-    if (!rec.firstErrorQuestion) {
+    if (rec.focuseOnFirstError && !rec.firstErrorQuestion) {
       rec.firstErrorQuestion = visQuestions[0];
     }
   }

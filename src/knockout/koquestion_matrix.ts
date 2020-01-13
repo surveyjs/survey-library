@@ -24,7 +24,9 @@ export class MatrixRow extends MatrixRowModel {
     this.koValue = ko.observable(this.value);
     var self = this;
     this.koValue.subscribe(function(newValue: any) {
-      if (self.isValueUpdating) true;
+      if (self.isValueUpdating) {
+        return;
+      }
       self.value = newValue;
     });
     this.koCellClick = function(column: any) {
@@ -40,13 +42,13 @@ export class MatrixRow extends MatrixRowModel {
   }
 }
 export class QuestionMatrix extends QuestionMatrixModel {
-  koVisibleRows: any;
-  koVisibleColumns: any;
+  koVisibleRows = ko.observableArray<MatrixRowModel>();
+  koVisibleColumns = ko.observableArray<any>();
   constructor(public name: string) {
     super(name);
     new QuestionImplementor(this);
-    this.koVisibleRows = ko.observable(this.visibleRows);
-    this.koVisibleColumns = ko.observable(this.visibleColumns);
+    this.koVisibleRows(this.visibleRows);
+    this.koVisibleColumns(this.visibleColumns);
   }
   protected onColumnsChanged() {
     super.onColumnsChanged();
@@ -68,6 +70,11 @@ export class QuestionMatrix extends QuestionMatrixModel {
     value: any
   ): MatrixRowModel {
     return new MatrixRow(item, fullName, this, value);
+  }
+  protected getVisibleRows(): Array<MatrixRowModel> {
+    var rows = super.getVisibleRows();
+    this.koVisibleRows(rows);
+    return rows;
   }
   public getItemCss(row: any, column: any) {
     var isChecked = row.koValue() == column.value;

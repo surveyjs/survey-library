@@ -13,6 +13,9 @@ export class QuestionTextModel extends Question {
     super(name);
     this.createLocalizableString("placeHolder", this);
   }
+  protected isTextValue(): boolean {
+    return this.inputType == "text";
+  }
   public getType(): string {
     return "text";
   }
@@ -94,6 +97,10 @@ export class QuestionTextModel extends Question {
       return Helpers.isNumber(newValue) ? parseFloat(newValue) : "";
     }
     return newValue;
+  }
+  protected addSupportedValidators(supportedValidators: Array<string>) {
+    super.addSupportedValidators(supportedValidators);
+    supportedValidators.push("numeric", "text", "regex", "email");
   }
 }
 

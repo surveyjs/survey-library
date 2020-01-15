@@ -375,12 +375,13 @@ export class Base {
       if (this.isTwoValueEquals(oldValue, val)) return;
       var arrayInfo = this.arraysInfo[name];
       this.setArray(
+        name,
         oldValue,
         val,
         arrayInfo ? arrayInfo.isItemValues : false,
         arrayInfo ? arrayInfo.onPush : null
       );
-      this.propertyValueChanged(name, oldValue, oldValue);
+      //this.propertyValueChanged(name, oldValue, oldValue);
     } else {
       this.setPropertyValueCore(this.propertyHash, name, val);
       if (!this.isTwoValueEquals(oldValue, val)) {
@@ -704,29 +705,33 @@ export class Base {
     return undefined;
   }
   protected setArray(
+    name: string,
     src: any[],
     dest: any[],
     isItemValues: boolean,
     onPush: any
   ) {
+    var deletedItems = [].concat(src);
     Object.getPrototypeOf(src).splice.call(src, 0, src.length);
-    //src.splice(0, src.length);
-    //    src.length = 0;
-    if (!dest) {
-      this.notifyArrayChanged(src);
-      return;
-    }
-    for (var i = 0; i < dest.length; i++) {
-      var item = dest[i];
-      if (isItemValues) {
-        if (!!Base.createItemValue) {
-          item = Base.createItemValue(item, this.getItemValueType());
+    if (!!dest) {
+      for (var i = 0; i < dest.length; i++) {
+        var item = dest[i];
+        if (isItemValues) {
+          if (!!Base.createItemValue) {
+            item = Base.createItemValue(item, this.getItemValueType());
+          }
         }
+        Object.getPrototypeOf(src).push.call(src, item);
+        if (onPush) onPush(src[i]);
       }
-      Object.getPrototypeOf(src).push.call(src, item);
-      //src["origionalPush"].apply(src, [item]);
-      if (onPush) onPush(src[i]);
     }
+    const arrayChanges = new ArrayChanges(
+      0,
+      deletedItems.length,
+      src,
+      deletedItems
+    );
+    this.propertyValueChanged(name, deletedItems, src, arrayChanges);
     this.notifyArrayChanged(src);
   }
   protected isTwoValueEquals(

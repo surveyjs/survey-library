@@ -33,7 +33,7 @@ export class QuestionSelectBase extends Question {
   constructor(name: string) {
     super(name);
     var self = this;
-    this.choices = this.createItemValues("choices");
+    this.createItemValues("choices");
     this.registerFunctionOnPropertyValueChanged("choices", function() {
       if (!self.filterItems()) {
         self.onVisibleChoicesChanged();

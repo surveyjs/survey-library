@@ -9,13 +9,11 @@ import { settings } from "./settings";
  * A Model for a rating question.
  */
 export class QuestionRatingModel extends Question {
-  private rates: Array<ItemValue>;
-
   rateValuesChangedCallback: () => void;
 
   constructor(public name: string) {
     super(name);
-    this.rates = this.createItemValues("rates");
+    this.createItemValues("rates");
     var self = this;
     this.registerFunctionOnPropertyValueChanged("rates", function() {
       self.fireCallback(self.rateValuesChangedCallback);
@@ -58,7 +56,7 @@ export class QuestionRatingModel extends Question {
    * @see rateStep
    */
   public get rateValues(): Array<any> {
-    return this.rates;
+    return this.getPropertyValue("rates");
   }
   public set rateValues(val: Array<any>) {
     this.setPropertyValue("rates", val);
@@ -107,10 +105,7 @@ export class QuestionRatingModel extends Question {
     this.setPropertyValue("rateStep", val);
   }
   protected getDisplayValueCore(keysAsText: boolean, value: any): any {
-    var res = ItemValue.getTextOrHtmlByValue(
-      this.visibleRateValues,
-      value
-    );
+    var res = ItemValue.getTextOrHtmlByValue(this.visibleRateValues, value);
     return !!res ? res : value;
   }
   get visibleRateValues(): ItemValue[] {

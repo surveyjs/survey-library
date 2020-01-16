@@ -4049,8 +4049,8 @@ QUnit.test("onMatrixRowAdded", function(assert) {
   q1.rowCount = 3;
   q1.value = [{ col1: 1, col2: "1" }, { col1: 2, col2: "2" }];
   q1.addRow();
-  assert.equal(q1.rowCount, 4, "there are two rows");
-  assert.equal(q1.value[3]["col1"], 2, "get value from previous");
+  assert.equal(q1.rowCount, 3, "there are 3 rows");
+  assert.equal(q1.value[2]["col1"], 2, "get value from previous");
 });
 QUnit.test("onMatrixBeforeRowAdded", function(assert) {
   var survey = new SurveyModel();

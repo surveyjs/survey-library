@@ -32,6 +32,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   implements IMatrixDropdownData {
   private rowCounter = 0;
   private rowCountValue: number = 2;
+  private initialRowCount: number = 2;
   private setRowCountValueFromData: boolean = false;
 
   constructor(public name: string) {
@@ -128,7 +129,10 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
       qVal.splice(val);
       this.value = qVal;
     }
-    if (this.isLoadingFromJson) return;
+    if (this.isLoadingFromJson) {
+      this.initialRowCount = val;
+      return;
+    }
     if (this.generatedVisibleRows) {
       this.generatedVisibleRows.splice(val);
       for (var i = prevValue; i < val; i++) {
@@ -549,7 +553,8 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     if (!val || !Array.isArray(val)) return;
     var newRowCount = val.length;
     if (newRowCount == this.rowCount) return;
-    if (!this.setRowCountValueFromData && newRowCount < this.rowCount) return;
+    if (!this.setRowCountValueFromData && newRowCount < this.initialRowCount)
+      return;
     this.setRowCountValueFromData = true;
     this.rowCountValue = newRowCount;
     if (this.generatedVisibleRows) {

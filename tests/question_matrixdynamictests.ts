@@ -3367,7 +3367,7 @@ QUnit.test(
         }
       ]
     });
-    var matrix = <QuestionMatrixDropdownModel>(
+    var matrix = <QuestionMatrixDynamicModel>(
       survey.getQuestionByName("teachersRate")
     );
     survey.data = {
@@ -3380,5 +3380,11 @@ QUnit.test(
     survey.data = { teachersRate: [{ subject: 1, explains: 0 }] };
     var rows = matrix.visibleRows;
     assert.equal(rows.length, 1, "we reset the number of rows to 1.");
+    
+    matrix.addRow();
+    matrix.addRow();
+    survey.data = { teachersRate: [{ subject: 1, explains: 0 }] };
+    rows = matrix.visibleRows;
+    assert.equal(rows.length, 1, "we reset the number of rows to 1 again.");
   }
 );

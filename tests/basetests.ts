@@ -380,7 +380,7 @@ QUnit.test("Base array propety value, set value", function(assert) {
     true,
     "The third  item, isNew property is set"
   );
-  assert.equal(counter, 2, "event called two time");
+  assert.equal(counter, 2, "event called two times");
 });
 
 QUnit.test("Base onPropertyValueChangedCallback", function(assert) {

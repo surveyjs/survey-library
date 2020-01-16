@@ -4338,8 +4338,7 @@ Serializer.addClass("survey", [
   "navigateToUrl",
   {
     name: "navigateToUrlOnCondition:urlconditions",
-    className: "urlconditionitem",
-    visible: false
+    className: "urlconditionitem"
   },
   {
     name: "questionsOrder",

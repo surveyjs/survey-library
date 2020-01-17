@@ -23,7 +23,7 @@ export class SurveyQuestion extends SurveyElementBase {
     if (!customWidget) {
       return creator.createQuestionElement(question);
     }
-    return <SurveyCustomWidget creator={creator} question={question}/>;
+    return <SurveyCustomWidget creator={creator} question={question} />;
   }
   constructor(props: any) {
     super(props);
@@ -151,10 +151,7 @@ export class SurveyQuestion extends SurveyElementBase {
     );
 
     return (
-      <h5
-        className={this.getTitleClass(this.question)}
-        title={this.question.locTitle.renderedHtml}
-      >
+      <h5 className={this.getTitleClass(this.question)}>
         {number}
         {delimiter}
         {titleText}

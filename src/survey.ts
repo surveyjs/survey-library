@@ -66,6 +66,7 @@ export class SurveyModel extends Base
     settings.commentPrefix = val;
   }
 
+  private pagesValue: Array<PageModel>;
   private get currentPageValue(): PageModel {
     return this.getPropertyValue("currentPageValue", null);
   }
@@ -808,7 +809,7 @@ export class SurveyModel extends Base
     ) {
       self.getProcessedTextValue(textValue);
     };
-    this.createNewArray("pages", function(value: any) {
+    this.pagesValue = this.createNewArray("pages", function(value: any) {
       self.doOnPageAdded(value);
     });
     this.createNewArray("triggers", function(value: any) {
@@ -868,7 +869,7 @@ export class SurveyModel extends Base
    * @see visiblePages
    */
   public get pages(): Array<PageModel> {
-    return this.getPropertyValue("pages");
+    return this.pagesValue;
   }
   public getCss(): any {
     return this.css;

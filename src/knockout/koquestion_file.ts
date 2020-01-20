@@ -6,87 +6,80 @@ import { QuestionImplementor } from "./koquestion";
 import { Question } from "../question";
 import { confirmAction } from "../utils/utils";
 
-export class QuestionFileImplementor extends QuestionImplementor {
+export class QuestionFile extends QuestionFileModel {
   koState: any = ko.observable<string>("empty");
   koHasValue: any = ko.computed(() => this.koState() === "loaded");
   koData: any = ko.computed(() => {
     if (this.koHasValue()) {
-      return (<QuestionFileModel>this.question).previewValue;
+      return this.previewValue;
     }
     return [];
   });
   koInputTitle: any = ko.observable<string>();
   koChooseFileClass: any = ko.pureComputed(() => {
     return (
-      this.question.koCss().chooseFile +
-      (this.question.isReadOnly ? " " + this.question.koCss().disabled : "")
+      this.koCss().chooseFile +
+      (this.isReadOnly ? " " + this.koCss().disabled : "")
     );
   });
-  constructor(question: Question) {
-    super(question);
+  constructor(public name: string) {
+    super(name);
     var self = this;
-    (<any>this.question)["koData"] = this.koData;
-    (<any>this.question)["koHasValue"] = this.koHasValue;
-    (<any>this.question)["koInputTitle"] = this.koInputTitle;
-    (<any>this.question)["koChooseFileClass"] = this.koChooseFileClass;
     var updateState = (state: any) => {
       this.koState(state);
-      this.koInputTitle((<QuestionFileModel>this.question).inputTitle);
+      this.koInputTitle(this.inputTitle);
     };
-    (<QuestionFileModel>this.question).onStateChanged.add((sender, options) => {
+    this.onStateChanged.add((sender, options) => {
       updateState(options.state);
     });
-    (<any>this.question)["ondrop"] = (data: any, event: any) => {
+    (<any>this)["ondrop"] = (data: any, event: any) => {
       event.preventDefault();
       let src = event.originalEvent
         ? event.originalEvent.dataTransfer
         : event.dataTransfer;
       this.onChange(src);
     };
-    (<any>this.question)["ondragover"] = (data: any, event: any) => {
+    (<any>this)["ondragover"] = (data: any, event: any) => {
       event.preventDefault();
     };
-    (<any>this.question)["dochange"] = (data: any, event: any) => {
+    (<any>this)["dochange"] = (data: any, event: any) => {
       var src = event.target || event.srcElement;
       self.onChange(src);
     };
-    (<any>this.question)["doclean"] = (data: any, event: any) => {
+    (<any>this)["doclean"] = (data: any, event: any) => {
       var src = event.target || event.srcElement;
-      if (question.needConfirmRemoveFile) {
-        var isConfirmed = confirmAction(question.confirmRemoveAllMessage);
+      if (this.needConfirmRemoveFile) {
+        var isConfirmed = confirmAction(this.confirmRemoveAllMessage);
         if (!isConfirmed) return;
       }
       var input = src.parentElement.querySelectorAll("input")[0];
-      (<QuestionFileModel>this.question).clear();
+      this.clear();
       input.value = "";
     };
-    (<any>this.question)["doremovefile"] = (data: any, event: any) => {
-      if (question.needConfirmRemoveFile) {
-        var isConfirmed = confirmAction(question.getConfirmRemoveMessage(data.name));
+    (<any>this)["doremovefile"] = (data: any, event: any) => {
+      if (this.needConfirmRemoveFile) {
+        var isConfirmed = confirmAction(
+          this.getConfirmRemoveMessage(data.name)
+        );
         if (!isConfirmed) return;
       }
-      (<QuestionFileModel>this.question).removeFile(data);
+      this.removeFile(data);
     };
+  }
+  protected onBaseCreating() {
+    super.onBaseCreating();
+    new QuestionImplementor(this);
   }
   private onChange(src: any) {
     if (!(<any>window)["FileReader"]) return;
     if (!src || !src.files || src.files.length < 1) return;
     let files = [];
-    let allowCount = (<QuestionFileModel>this.question).allowMultiple
-      ? src.files.length
-      : 1;
+    let allowCount = this.allowMultiple ? src.files.length : 1;
     for (let i = 0; i < allowCount; i++) {
       files.push(src.files[i]);
     }
     src.value = "";
-    (<QuestionFileModel>this.question).loadFiles(files);
-  }
-}
-
-export class QuestionFile extends QuestionFileModel {
-  constructor(public name: string) {
-    super(name);
-    new QuestionFileImplementor(this);
+    this.loadFiles(files);
   }
 }
 

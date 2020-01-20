@@ -46,9 +46,12 @@ export class QuestionMatrix extends QuestionMatrixModel {
   koVisibleColumns = ko.observableArray<any>();
   constructor(public name: string) {
     super(name);
-    new QuestionImplementor(this);
     this.koVisibleRows(this.visibleRows);
     this.koVisibleColumns(this.visibleColumns);
+  }
+  protected onBaseCreating() {
+    super.onBaseCreating();
+    new QuestionImplementor(this);
   }
   protected onColumnsChanged() {
     super.onColumnsChanged();

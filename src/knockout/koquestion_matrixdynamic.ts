@@ -35,6 +35,9 @@ export class QuestionMatrixDynamicImplementor extends QuestionMatrixBaseImplemen
 export class QuestionMatrixDynamic extends QuestionMatrixDynamicModel {
   constructor(public name: string) {
     super(name);
+  }
+  protected onBaseCreating() {
+    super.onBaseCreating();
     new QuestionMatrixDynamicImplementor(this);
   }
 }

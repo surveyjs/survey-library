@@ -7,6 +7,9 @@ import { QuestionHtmlModel } from "../question_html";
 export class QuestionHtml extends QuestionHtmlModel {
   constructor(public name: string) {
     super(name);
+  }
+  protected onBaseCreating() {
+    super.onBaseCreating();
     new QuestionImplementor(this);
   }
 }

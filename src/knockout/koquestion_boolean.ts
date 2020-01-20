@@ -3,18 +3,14 @@ import { QuestionBooleanModel } from "../question_boolean";
 import { Serializer } from "../jsonobject";
 import { QuestionFactory } from "../questionfactory";
 import { QuestionImplementor } from "./koquestion";
-import { Question } from "../question";
-
-export class QuestionBooleanImplementor extends QuestionImplementor {
-  constructor(public question: Question) {
-    super(question);
-  }
-}
 
 export class QuestionBoolean extends QuestionBooleanModel {
   constructor(public name: string) {
     super(name);
-    new QuestionBooleanImplementor(this);
+  }
+  protected onBaseCreating() {
+    super.onBaseCreating();
+    new QuestionImplementor(this);
   }
   public getItemCss(row: any, column: any) {
     let isChecked = this.checkedValue;

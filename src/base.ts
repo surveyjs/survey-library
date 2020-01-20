@@ -260,10 +260,13 @@ export class Base {
     name: string,
     val: any
   ) => void;
+  createArrayCoreHandler: (propertiesHash: any, name: string) => Array<any>;
 
   public constructor() {
     CustomPropertiesCollection.createProperties(this);
+    this.onBaseCreating();
   }
+  protected onBaseCreating() {}
   /**
    * Returns the type of the object as a string as it represents in the json. It should be in lowcase.
    */
@@ -624,13 +627,23 @@ export class Base {
   private notifyArrayChanged(ar: any) {
     !!ar.onArrayChanged && ar.onArrayChanged();
   }
+  protected createNewArrayCore(name: string): Array<any> {
+    var res = null;
+    if (!!this.createArrayCoreHandler) {
+      res = this.createArrayCoreHandler(this.propertyHash, name);
+    }
+    if (!res) {
+      res = new Array<any>();
+      this.setPropertyValueCore(this.propertyHash, name, res);
+    }
+    return res;
+  }
   protected createNewArray(
     name: string,
     onPush: any = null,
     onRemove: any = null
   ): Array<any> {
-    var newArray = new Array<any>();
-    this.setPropertyValueCore(this.propertyHash, name, newArray);
+    var newArray = this.createNewArrayCore(name);
     if (!this.arraysInfo) {
       this.arraysInfo = {};
     }

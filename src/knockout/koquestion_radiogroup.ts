@@ -7,6 +7,9 @@ import { QuestionCheckboxBaseImplementor } from "./koquestion_baseselect";
 export class QuestionRadiogroup extends QuestionRadiogroupModel {
   constructor(public name: string) {
     super(name);
+  }
+  protected onBaseCreating() {
+    super.onBaseCreating();
     new QuestionCheckboxBaseImplementor(this);
   }
   getItemClass(item: any) {

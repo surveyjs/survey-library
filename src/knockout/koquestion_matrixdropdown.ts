@@ -33,14 +33,16 @@ export class QuestionMatrixBaseImplementor extends QuestionImplementor {
       self.koRecalc();
       return (<QuestionMatrixDropdownModel>self.question).renderedTable;
     });
-    (<QuestionMatrixDropdownModel>this
-      .question).onRenderedTableCreatedCallback = function(
+    (<QuestionMatrixDropdownModel>(
+      this.question
+    )).onRenderedTableCreatedCallback = function(
       table: QuestionMatrixDropdownRenderedTable
     ) {
       new ImplementorBase(table);
     };
-    (<QuestionMatrixDropdownModel>this
-      .question).onRenderedTableResetCallback = function() {
+    (<QuestionMatrixDropdownModel>(
+      this.question
+    )).onRenderedTableResetCallback = function() {
       self.koRecalc(self.koRecalc() + 1);
     };
     this.koAddRowClick = function() {
@@ -103,6 +105,9 @@ export class QuestionMatrixBaseImplementor extends QuestionImplementor {
 export class QuestionMatrixDropdown extends QuestionMatrixDropdownModel {
   constructor(public name: string) {
     super(name);
+  }
+  protected onBaseCreating() {
+    super.onBaseCreating();
     new QuestionMatrixBaseImplementor(this);
   }
 }

@@ -22,6 +22,9 @@ class QuestionTextImplementor extends QuestionImplementor {
 export class QuestionText extends QuestionTextModel {
   constructor(public name: string) {
     super(name);
+  }
+  protected onBaseCreating() {
+    super.onBaseCreating();
     new QuestionTextImplementor(this);
   }
 }

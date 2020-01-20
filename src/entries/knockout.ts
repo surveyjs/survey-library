@@ -12,9 +12,7 @@ export { defaultStandardCss } from "../defaultCss/cssstandard";
 // css bootstrap
 export { defaultBootstrapCss } from "../defaultCss/cssbootstrap";
 // css bootstrap + material
-export {
-  defaultBootstrapMaterialCss
-} from "../defaultCss/cssbootstrapmaterial";
+export { defaultBootstrapMaterialCss } from "../defaultCss/cssbootstrapmaterial";
 export { modernCss } from "../defaultCss/cssmodern";
 
 // knockout
@@ -24,12 +22,8 @@ export { ImplementorBase } from "../knockout/kobase";
 export { QuestionRow, Page, Panel } from "../knockout/kopage";
 export { FlowPanel } from "../knockout/koflowpanel";
 export { QuestionImplementor } from "../knockout/koquestion";
-export {
-  QuestionSelectBaseImplementor
-} from "../knockout/koquestion_baseselect";
-export {
-  QuestionCheckboxBaseImplementor
-} from "../knockout/koquestion_baseselect";
+export { QuestionSelectBaseImplementor } from "../knockout/koquestion_baseselect";
+export { QuestionCheckboxBaseImplementor } from "../knockout/koquestion_baseselect";
 export { QuestionCheckbox } from "../knockout/koquestion_checkbox";
 export { QuestionComment } from "../knockout/koquestion_comment";
 export { QuestionDropdown } from "../knockout/koquestion_dropdown";
@@ -44,7 +38,6 @@ export {
 export { QuestionPanelDynamic } from "../knockout/koquestion_paneldynamic";
 export {
   MultipleTextItem,
-  QuestionMultipleTextImplementor,
   QuestionMultipleText
 } from "../knockout/koquestion_multipletext";
 export { QuestionRadiogroup } from "../knockout/koquestion_radiogroup";

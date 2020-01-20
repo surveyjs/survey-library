@@ -7,6 +7,9 @@ import { QuestionCheckboxBaseImplementor } from "./koquestion_baseselect";
 export class QuestionImagePicker extends QuestionImagePickerModel {
   constructor(public name: string) {
     super(name);
+  }
+  protected onBaseCreating() {
+    super.onBaseCreating();
     new QuestionCheckboxBaseImplementor(this);
   }
   getItemClass(item: any) {
@@ -15,11 +18,11 @@ export class QuestionImagePicker extends QuestionImagePickerModel {
       (this.colCount === 0
         ? " " + this.cssClasses.itemInline
         : " sv-q-col-" + this.colCount);
-    if(this.multiSelect) {
+    if (this.multiSelect) {
       this.renderedValue = this.value;
     }
     var isChecked = this.isItemSelected(item);
-    var isDisabled = this.isReadOnly || !item.isEnabled; 
+    var isDisabled = this.isReadOnly || !item.isEnabled;
     var allowHover = !isChecked && !isDisabled;
     if (isChecked) {
       itemClass += " " + this.cssClasses.itemChecked;

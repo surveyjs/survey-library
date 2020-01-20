@@ -58,7 +58,6 @@ export class Panel extends PanelModel {
   doExpand: any;
   constructor(name: string = "") {
     super(name);
-    new PanelImplementorBase(this);
     this.onCreating();
     var self = this;
     this.koElementType = ko.observable("survey-panel");
@@ -77,6 +76,10 @@ export class Panel extends PanelModel {
       var rootClass = self.cssClasses.error.root;
       return rootClass ? rootClass : "panel-error-root";
     });
+  }
+  protected onBaseCreating() {
+    super.onBaseCreating();
+    new PanelImplementorBase(this);
   }
   protected createRow(): QuestionRowModel {
     return new QuestionRow(this);
@@ -113,8 +116,11 @@ export class Panel extends PanelModel {
 export class Page extends PageModel {
   constructor(name: string = "") {
     super(name);
-    new ImplementorBase(this);
     this.onCreating();
+  }
+  protected onBaseCreating() {
+    super.onBaseCreating();
+    new ImplementorBase(this);
   }
   protected createRow(): QuestionRowModel {
     return new QuestionRow(this);

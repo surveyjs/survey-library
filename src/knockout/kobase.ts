@@ -4,6 +4,7 @@ import { Base } from "../base";
 export class ImplementorBase {
   private static doIterateProperties(hash: any, key: any): any {
     var val = hash[key];
+    if (val === "function") return;
     if (Array.isArray(val)) {
       hash[key] = ko.observableArray(val);
       (<any>val)["onArrayChanged"] = () => hash[key].notifySubscribers();
@@ -15,6 +16,16 @@ export class ImplementorBase {
     element.iteratePropertiesHash((hash, key) => {
       ImplementorBase.doIterateProperties(hash, key);
     });
+    element.createArrayCoreHandler = (hash, key: string): Array<any> => {
+      var res = ko.observableArray();
+      (<any>res())["onArrayChanged"] = () => {
+        if (element.isLoadingFromJson) return;
+        res.notifySubscribers();
+      };
+      hash[key] = res;
+
+      return res();
+    };
     element.getPropertyValueCoreHandler = (hash, key) => {
       if (hash[key] === undefined) {
         hash[key] = ko.observable();

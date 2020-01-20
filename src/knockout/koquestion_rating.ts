@@ -11,7 +11,7 @@ class QuestionRatingImplementor extends QuestionImplementor {
   koCss: any;
   constructor(question: Question) {
     super(question);
-    this.koVisibleRateValues = ko.observableArray(this.getValues());
+    this.koVisibleRateValues = ko.observableArray();
     (<any>this.question)["koVisibleRateValues"] = this.koVisibleRateValues;
     var self = this;
     this.koChange = function(val: any) {
@@ -49,6 +49,9 @@ class QuestionRatingImplementor extends QuestionImplementor {
 export class QuestionRating extends QuestionRatingModel {
   constructor(public name: string) {
     super(name);
+  }
+  protected onBaseCreating() {
+    super.onBaseCreating();
     new QuestionRatingImplementor(this);
   }
 }

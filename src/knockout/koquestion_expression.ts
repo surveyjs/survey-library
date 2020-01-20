@@ -20,6 +20,9 @@ export class QuestionExpressionImplementor extends QuestionImplementor {
 export class QuestionExpression extends QuestionExpressionModel {
   constructor(public name: string) {
     super(name);
+  }
+  protected onBaseCreating() {
+    super.onBaseCreating();
     new QuestionExpressionImplementor(this);
   }
 }

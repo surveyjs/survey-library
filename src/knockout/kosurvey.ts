@@ -84,16 +84,9 @@ export class Survey extends SurveyModel {
     css: any = null
   ) {
     super(jsonObj);
-    new ImplementorBase(this);
     if (typeof ko === "undefined")
       throw new Error("knockoutjs library is not loaded.");
-    var self = this;
-    // this.iterateDataValuesHash((hash: any, key: string) => {
-    //   var val = hash[key];
-    //   if (!ko.isWriteableObservable(val)) {
-    //     hash[key] = ko.observable(val);
-    //   }
-    // });
+
     if (css) {
       this.css = css;
     }
@@ -101,6 +94,10 @@ export class Survey extends SurveyModel {
       this.renderedElement = renderedElement;
     }
     this.render(renderedElement);
+  }
+  protected onBaseCreating() {
+    super.onBaseCreating();
+    new ImplementorBase(this);
   }
   public nextPageUIClick() {
     if (!!this.mouseDownPage && this.mouseDownPage !== this.currentPage) return;

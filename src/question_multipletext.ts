@@ -60,6 +60,9 @@ export class MultipleTextItemModel extends Base
   public set name(val: string) {
     this.editor.name = val;
   }
+  public get question(): Question {
+    return <Question>(<any>this.data);
+  }
   public get editor(): QuestionTextModel {
     return this.editorValue;
   }

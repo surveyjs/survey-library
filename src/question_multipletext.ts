@@ -258,7 +258,7 @@ export class QuestionMultipleTextModel extends Question
   constructor(public name: string) {
     super(name);
     var self = this;
-    this.items = this.createNewArray("items", function(item: any) {
+    this.createNewArray("items", function(item: any) {
       item.setData(self);
     });
     this.registerFunctionOnPropertyValueChanged("items", function() {

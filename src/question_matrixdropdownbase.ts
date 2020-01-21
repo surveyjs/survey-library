@@ -1226,7 +1226,6 @@ export class QuestionMatrixDropdownModelBase
     var colNames = QuestionFactory.DefaultColums;
     for (var i = 0; i < colNames.length; i++) matrix.addColumn(colNames[i]);
   }
-  private choicesValue: Array<ItemValue>;
   private renderedTableValue: QuestionMatrixDropdownRenderedTable;
   protected isRowChanging = false;
   columnsChangedCallback: () => void;
@@ -1246,7 +1245,7 @@ export class QuestionMatrixDropdownModelBase
   constructor(public name: string) {
     super(name);
     var self = this;
-    this.choicesValue = this.createItemValues("choices");
+    this.createItemValues("choices");
     this.createLocalizableString("optionsCaption", this);
     this.registerFunctionOnPropertyValueChanged("columns", function(
       newColumns: any
@@ -1627,7 +1626,7 @@ export class QuestionMatrixDropdownModelBase
    * The default choices for dropdown, checkbox and radiogroup cell types.
    */
   public get choices(): Array<any> {
-    return this.choicesValue;
+    return this.getPropertyValue("choices");
   }
   public set choices(val: Array<any>) {
     this.setPropertyValue("choices", val);

@@ -2,7 +2,11 @@ import * as React from "react";
 import { SurveyQuestionElementBase } from "./reactquestionelement";
 import { QuestionFileModel } from "../question_file";
 import { ReactQuestionFactory } from "./reactquestionfactory";
-import { confirmAction } from "../utils/utils";
+import {
+  confirmAction,
+  detectIEOrEdge,
+  loadFileFromBase64
+} from "../utils/utils";
 export class SurveyQuestionFile extends SurveyQuestionElementBase {
   constructor(props: any) {
     super(props);
@@ -52,6 +56,12 @@ export class SurveyQuestionFile extends SurveyQuestionElementBase {
     }
     question.removeFile(event);
     this.setState({ fileLoaded: this.state.fileLoaded + 1 });
+  };
+  handleOnDownloadFile = (event: any, data: any) => {
+    if (detectIEOrEdge()) {
+      event.preventDefault();
+      loadFileFromBase64(data.content, data.name);
+    }
   };
   private onChange = (src: any) => {
     if (!(window as any)["FileReader"]) return;
@@ -145,6 +155,9 @@ export class SurveyQuestionFile extends SurveyQuestionElementBase {
       var fileSign = (
         <a
           href={val.content}
+          onClick={event => {
+            this.handleOnDownloadFile(event, val);
+          }}
           title={val.name}
           download={val.name}
           style={{ width: this.question.imageWidth + "px" }}

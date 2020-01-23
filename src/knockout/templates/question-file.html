@@ -19,7 +19,8 @@
           <span data-bind="visible: question.showPreview, css: question.cssClasses.preview">
               <!-- ko if: $data.name -->
               <div data-bind="css: question.koCss().fileSign">
-              <a data-bind="style: { width: question.imageWidth + 'px' }, text: $data.name, attr: { href: $data.content, title: $data.name, download: $data.name }"></a>
+              <a data-bind="style: { width: question.imageWidth + 'px' }, click: question.dodownload, text: $data.name, 
+              attr: { href: $data.content, title: $data.name, download: $data.name }"></a>
               </div>
               <!-- /ko -->
               <!-- ko if: question.canPreviewImage($data) -->
@@ -36,7 +37,7 @@
               <!-- /ko -->
               <!-- ko if: $data.name -->
               <div data-bind="css: question.koCss().fileSignBottom">
-                <a data-bind="style: { width: question.imageWidth + 'px' }, text: $data.name, attr: { href: $data.content, title: $data.name, download: $data.name }"></a>
+                <a data-bind="style: { width: question.imageWidth + 'px' }, click: question.dodownload, text: $data.name, attr: { href: $data.content, title: $data.name, download: $data.name }"></a>
               </div>
               <!-- /ko -->
               <!-- /ko -->

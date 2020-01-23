@@ -12,7 +12,7 @@
         <div v-if="!question.isEmpty()">
             <span v-for="(val, index) in question.previewValue" :key="question.inputId + '_' + index" v-show="val" :class="question.cssClasses.preview">
                 <div v-if="val.name" :class="question.cssClasses.fileSign">
-                  <a :href="val.content" :title="val.name" :download="val.name" :width="question.imageWidth">{{val.name}}</a>
+                  <a @click="doDownloadFile($event, val)" :href="val.content" :title="val.name" :download="val.name" :width="question.imageWidth">{{val.name}}</a>
                 </div>
                 <img v-if="question.canPreviewImage(val)" :src="val.content" :height="question.imageHeight" :width="question.imageWidth" alt="File preview">
                 <div v-if="val.name && !question.isReadOnly">
@@ -22,7 +22,7 @@
                   </svg>   
                 </div>
                 <div v-if="val.name" :class="question.cssClasses.fileSignBottom">
-                  <a :href="val.content" :title="val.name" :download="val.name" :width="question.imageWidth">{{val.name}}</a>
+                  <a @click="doDownloadFile($event, val)" :href="val.content" :title="val.name" :download="val.name" :width="question.imageWidth">{{val.name}}</a>
                 </div>
             </span>
         </div>
@@ -35,7 +35,7 @@ import Vue from "vue";
 import { Component, Prop, Watch } from "vue-property-decorator";
 import { default as QuestionVue } from "./question";
 import { QuestionFileModel } from "../question_file";
-import { confirmAction } from "../utils/utils";
+import { confirmAction, detectIEOrEdge, loadFileFromBase64 } from "../utils/utils";
 @Component
 export class File extends QuestionVue<QuestionFileModel> {
   onDragOver = (event: any) => {
@@ -67,6 +67,12 @@ export class File extends QuestionVue<QuestionFileModel> {
         if (!isConfirmed) return;
       }
     question.removeFile(data);
+  }
+  doDownloadFile(event: any, data: any) {
+      if (detectIEOrEdge()) {
+        event.preventDefault();
+        loadFileFromBase64(data.content, data.name);
+      }
   }
   getPlaceholderClass() {
     return "form-control " + this.question.cssClasses.placeholderInput;

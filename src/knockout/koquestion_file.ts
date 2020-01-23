@@ -4,7 +4,11 @@ import { QuestionFactory } from "../questionfactory";
 import { QuestionFileModel } from "../question_file";
 import { QuestionImplementor } from "./koquestion";
 import { Question } from "../question";
-import { confirmAction } from "../utils/utils";
+import {
+  confirmAction,
+  detectIEOrEdge,
+  loadFileFromBase64
+} from "../utils/utils";
 
 export class QuestionFile extends QuestionFileModel {
   koState: any = ko.observable<string>("empty");
@@ -64,6 +68,13 @@ export class QuestionFile extends QuestionFileModel {
         if (!isConfirmed) return;
       }
       this.removeFile(data);
+    };
+    (<any>this)["dodownload"] = (data: any, event: any) => {
+      if (detectIEOrEdge()) {
+        loadFileFromBase64(data.content, data.name);
+      } else {
+        return true;
+      }
     };
   }
   protected onBaseCreating() {

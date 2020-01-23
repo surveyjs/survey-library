@@ -16,8 +16,45 @@ function compareVersions(a: any, b: any) {
 function confirmAction(message: string): boolean {
   return confirm(message);
 }
+function detectIEOrEdge() {
+  if (typeof (<any>detectIEOrEdge).isIEOrEdge == "undefined") {
+    var ua = window.navigator.userAgent;
+    var msie = ua.indexOf("MSIE ");
+    var trident = ua.indexOf("Trident/");
+    var edge = ua.indexOf("Edge/");
+    (<any>detectIEOrEdge).isIEOrEdge = edge > 0 || trident > 0 || msie > 0;
+  }
+  return (<any>detectIEOrEdge).isIEOrEdge;
+}
+function loadFileFromBase64(b64Data: string, fileName: string) {
+  var byteString = atob(b64Data.split(",")[1]);
+
+  // separate out the mime component
+  var mimeString = b64Data
+    .split(",")[0]
+    .split(":")[1]
+    .split(";")[0];
+
+  // write the bytes of the string to an ArrayBuffer
+  var ab = new ArrayBuffer(byteString.length);
+  var ia = new Uint8Array(ab);
+  for (var i = 0; i < byteString.length; i++) {
+    ia[i] = byteString.charCodeAt(i);
+  }
+  // write the ArrayBuffer to a blob, and you're done
+  var bb = new Blob([ab], { type: mimeString });
+  if (window.navigator && window.navigator.msSaveBlob) {
+    window.navigator.msSaveOrOpenBlob(bb, fileName);
+  } 
+}
 function isMobile() {
   return typeof window.orientation !== "undefined";
 }
 
-export { compareVersions, confirmAction, isMobile };
+export {
+  compareVersions,
+  confirmAction,
+  detectIEOrEdge,
+  loadFileFromBase64,
+  isMobile
+};

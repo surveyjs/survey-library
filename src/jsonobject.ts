@@ -29,6 +29,8 @@ export class JsonObjectProperty implements IObject {
     "onSetValue",
     "category",
     "categoryIndex",
+    "visibleIndex",
+    "showMode",
     "dependedProperties",
     "visibleIf",
     "maxLength",
@@ -55,7 +57,9 @@ export class JsonObjectProperty implements IObject {
   public defaultValueValue: any = null;
   public serializationProperty: string = null;
   public category: string = "";
-  public cagetoryIndex: number = -1;
+  public categoryIndex: number = -1;
+  public visibleIndex: number = -1;
+  public showMode: string = null;
   public maxLength: number = -1;
   public maxValue: any;
   public minValue: any;
@@ -412,6 +416,12 @@ export class JsonMetadataClass {
       }
       if (!Helpers.isValueEmpty(propInfo.categoryIndex)) {
         prop.categoryIndex = propInfo.categoryIndex;
+      }
+      if (!Helpers.isValueEmpty(propInfo.visibleIndex)) {
+        prop.visibleIndex = propInfo.visibleIndex;
+      }
+      if (!Helpers.isValueEmpty(propInfo.showMode)) {
+        prop.showMode = propInfo.showMode;
       }
       if (!Helpers.isValueEmpty(propInfo.maxValue)) {
         prop.maxValue = propInfo.maxValue;

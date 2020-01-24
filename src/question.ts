@@ -978,6 +978,10 @@ export class Question extends SurveyElement
   public set correctAnswer(val: any) {
     this.setPropertyValue("correctAnswer", val);
   }
+  /**
+   * Returns questions count: 1 for the non-matrix questions and all inner visible questions that has input(s) widgets for question of matrix types.
+   * @see getQuizQuestions
+   */
   public get quizQuestionCount(): number {
     if (
       this.isVisible &&

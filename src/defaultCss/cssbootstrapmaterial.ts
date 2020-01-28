@@ -23,7 +23,7 @@ export var defaultBootstrapMaterialCss = {
   page: {
     root: "",
     title: "",
-    description: ""
+    description: "small"
   },
   pageTitle: "",
   pageDescription: "small",

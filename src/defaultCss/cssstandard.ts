@@ -29,7 +29,7 @@ export var defaultStandardCss = {
   progressTextInBar: "sv-hidden",
   page: {
     root: "sv_p_root",
-    title: "",
+    title: "sv_page_title",
     description: ""
   },
   // TODO: move to the page object

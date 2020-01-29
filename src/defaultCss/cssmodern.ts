@@ -49,7 +49,7 @@ export var modernCss = {
   progressTextInBar: "sv-hidden",
   page: {
     root: "sv-page sv-body__page",
-    title: "sv-page__title",
+    title: "sv-title sv-page__title",
     description: "sv-description sv-page__description"
   },
   pageTitle: "sv-title sv-page__title",

@@ -31,11 +31,11 @@ export class SurveyPage extends SurveyPanelBase {
   protected renderTitle(): JSX.Element {
     if (!this.survey.showPageTitles) return null;
     var text = SurveyElementBase.renderLocString(this.page.locTitle);
-    return <h4 className={this.panelBase.cssClasses.pageTitle}>{text}</h4>;
+    return <h4 className={this.panelBase.cssClasses.page.title}>{text}</h4>;
   }
   protected renderDescription(): JSX.Element {
     if (!this.survey.showPageTitles) return null;
     var text = SurveyElementBase.renderLocString(this.page.locDescription);
-    return <div className={this.panelBase.cssClasses.pageDescription}>{text}</div>;
+    return <div className={this.panelBase.cssClasses.page.description}>{text}</div>;
   }
 }

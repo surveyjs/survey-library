@@ -1,9 +1,9 @@
 <template>
-  <div :class="css.page.root">
-    <h4 v-if="showHeader" :class="css.pageTitle">
+  <div :class="page.cssClasses.page.root">
+    <h4 v-if="showHeader" :class="page.cssClasses.page.title">
       <survey-string :locString="page.locTitle" />
     </h4>
-    <div v-if="showHeader" :class="css.pageDescription">
+    <div v-if="showHeader" :class="page.cssClasses.page.description">
       <survey-string :locString="page.locDescription" />
     </div>
     <div

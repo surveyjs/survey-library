@@ -4127,6 +4127,23 @@ QUnit.test(
   }
 );
 
+QUnit.test(
+  "onUpdatePageCssClasses is raised",
+  function(assert) {
+    var survey = new SurveyModel();
+    var flag = false;
+    survey.onUpdatePageCssClasses.add(function(survey, options) {
+      flag = true;
+    });
+    var page = survey.addNewPage("page1");
+    page.cssClasses;
+    assert.ok(
+      flag,
+      "event is raised"
+    );
+  }
+);
+
 QUnit.test("Survey Elements css", function(assert) {
   var css = surveyCss.getCss();
   css.question.titleRequired = "required";

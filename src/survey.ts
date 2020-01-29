@@ -511,13 +511,24 @@ export class SurveyModel extends Base
     any
   > = new Event<(sender: SurveyModel, options: any) => any, any>();
   /**
-   * The event is fired before rendering a panel or page. Use it to override the default panel/page css classes.
+   * The event is fired before rendering a panel. Use it to override the default panel css classes.
    * There are two parameters in options: options.panel and options.cssClasses
    * <br/> sender the survey object that fires the event
    * <br/> options.panel a panel for which you may change the css classes
    * <br/> options.cssClasses an object with css classes. For example {title: "sv_p_title", description: "small"}. You may change them to your own css classes.
    */
   public onUpdatePanelCssClasses: Event<
+    (sender: SurveyModel, options: any) => any,
+    any
+  > = new Event<(sender: SurveyModel, options: any) => any, any>();
+  /**
+   * The event is fired before rendering a page. Use it to override the default page css classes.
+   * There are two parameters in options: options.page and options.cssClasses
+   * <br/> sender the survey object that fires the event
+   * <br/> options.page a page for which you may change the css classes
+   * <br/> options.cssClasses an object with css classes. For example {title: "sv_p_title", description: "small"}. You may change them to your own css classes.
+   */
+  public onUpdatePageCssClasses: Event<
     (sender: SurveyModel, options: any) => any,
     any
   > = new Event<(sender: SurveyModel, options: any) => any, any>();
@@ -2706,6 +2717,12 @@ export class SurveyModel extends Base
   updatePanelCssClasses(panel: IPanel, cssClasses: any) {
     this.onUpdatePanelCssClasses.fire(this, {
       panel: panel,
+      cssClasses: cssClasses
+    });
+  }
+  updatePageCssClasses(page: IPage, cssClasses: any) {
+    this.onUpdatePageCssClasses.fire(this, {
+      page: page,
       cssClasses: cssClasses
     });
   }

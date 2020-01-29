@@ -987,8 +987,10 @@ export class QuestionPanelDynamicModel extends Question
     this.panels.splice(index, 1);
     var value = this.value;
     if (!value || !Array.isArray(value) || index >= value.length) return;
+    this.isValueChangingInternally = true;
     value.splice(index, 1);
     this.value = value;
+    this.isValueChangingInternally = false;
     this.fireCallback(this.panelCountChangedCallback);
     if (this.survey) this.survey.dynamicPanelRemoved(this, index);
   }

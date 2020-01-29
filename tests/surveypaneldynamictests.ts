@@ -2877,3 +2877,34 @@ QUnit.test(
     );
   }
 );
+
+QUnit.test(
+  "Do not reset panelCount after deleting the last panel, Bug #1972",
+  function(assert) {
+    var json = {
+      questions: [
+        {
+          type: "paneldynamic",
+          name: "panel1",
+          templateElements: [
+            {
+              type: "text",
+              name: "q1"
+            }
+          ],
+          panelsState: "collapsed",
+          panelCount: 3
+        }
+      ]
+    };
+    var survey = new SurveyModel(json);
+    var panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
+    assert.equal(panel.panelCount, 3, "There are 3 panels by default");
+    panel.removePanelUI(2);
+    assert.equal(panel.panelCount, 2, "Remove the third panel");
+    panel.removePanelUI(1);
+    assert.equal(panel.panelCount, 1, "Remove the second panel");
+    panel.removePanelUI(0);
+    assert.equal(panel.panelCount, 0, "Remove the first panel");
+  }
+);

@@ -80,3 +80,63 @@ QUnit.test("Use complex values in variables, Bug#T2705", function(assert) {
   );
   assert.equal(survey.getVariable("arr.length"), 2, "get array length");
 });
+
+QUnit.test(
+  "Error with calculated values on setting survey.data, Bug #1973",
+  function(assert) {
+    var json = {
+      pages: [
+        {
+          name: "page1",
+          elements: [
+            { type: "text", name: "question1", inputType: "number" },
+            {
+              type: "expression",
+              name: "question2",
+              expression: "{var1}"
+            },
+            {
+              type: "expression",
+              name: "question5",
+              expression: "{totale}"
+            }
+          ]
+        },
+        {
+          name: "page2",
+          elements: [
+            { type: "text", name: "question3", inputType: "number" },
+            {
+              type: "expression",
+              name: "question4",
+              expression: "{var2}"
+            }
+          ]
+        }
+      ],
+      calculatedValues: [
+        {
+          name: "totale",
+          expression: "{var1}+{var2}",
+          includeIntoResult: true
+        },
+        { name: "var1", expression: "{question1}", includeIntoResult: true },
+        { name: "var2", expression: "{question3}", includeIntoResult: true }
+      ]
+    };
+
+    var survey = new SurveyModel(json);
+    survey.data = {
+      question1: 7,
+      question2: 7,
+      question5: 12,
+      question3: 5,
+      question4: 5
+    };
+    assert.equal(
+      survey.getValue("question5"),
+      12,
+      "expression with calculated values returns correct value: {totale} = {var1} + {var2} = {question1} + {question3} = 7 + 5"
+    );
+  }
+);

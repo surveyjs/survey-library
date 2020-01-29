@@ -1634,6 +1634,28 @@ export class SurveyModel extends Base
    */
   public get data(): any {
     var result: { [index: string]: any } = {};
+    this.setCalcuatedValuesIntoResult(result);
+    for (var key in this.valuesHash) {
+      var dataValue = this.getDataValueCore(this.valuesHash, key);
+      if (dataValue !== undefined) {
+        result[key] = dataValue;
+      }
+    }
+    return result;
+  }
+  public set data(data: any) {
+    this.valuesHash = {};
+    if (data) {
+      for (var key in data) {
+        this.setDataValueCore(this.valuesHash, key, data[key]);
+      }
+    }
+    this.updateAllQuestionsValue();
+    this.notifyAllQuestionsOnValueChanged();
+    this.notifyElementsOnAnyValueOrVariableChanged("");
+    this.runConditions();
+  }
+  private setCalcuatedValuesIntoResult(result: any) {
     for (var i = 0; i < this.calculatedValues.length; i++) {
       var calValue = this.calculatedValues[i];
       if (
@@ -1644,13 +1666,6 @@ export class SurveyModel extends Base
         result[calValue.name] = this.getVariable(calValue.name);
       }
     }
-    for (var key in this.valuesHash) {
-      var dataValue = this.getDataValueCore(this.valuesHash, key);
-      if (dataValue !== undefined) {
-        result[key] = dataValue;
-      }
-    }
-    return result;
   }
   getAllValues(): any {
     return this.data;
@@ -1692,18 +1707,6 @@ export class SurveyModel extends Base
     return { survey: this };
   }
 
-  public set data(data: any) {
-    this.valuesHash = {};
-    if (data) {
-      for (var key in data) {
-        this.setDataValueCore(this.valuesHash, key, data[key]);
-      }
-    }
-    this.updateAllQuestionsValue();
-    this.notifyAllQuestionsOnValueChanged();
-    this.notifyElementsOnAnyValueOrVariableChanged("");
-    this.runConditions();
-  }
   public getDataValueCore(valuesHash: any, key: string) {
     return valuesHash[key];
   }
@@ -3246,7 +3249,10 @@ export class SurveyModel extends Base
     var values = this.getFilteredValues();
     var properties = this.getFilteredProperties();
     for (var i = 0; i < this.calculatedValues.length; i++) {
-      this.calculatedValues[i].runExpression(values, properties);
+      this.calculatedValues[i].resetCalculation();
+    }
+    for (var i = 0; i < this.calculatedValues.length; i++) {
+      this.calculatedValues[i].doCalculation(this.calculatedValues, values, properties);
     }
     for (var i = 0; i < pages.length; i++) {
       pages[i].runCondition(values, properties);

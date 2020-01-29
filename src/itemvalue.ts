@@ -354,8 +354,8 @@ Serializer.addClass(
       name: "text",
       serializationProperty: "locText"
     },
-    { name: "visibleIf:condition", visible: false },
-    { name: "enableIf:condition", visible: false }
+    { name: "visibleIf:condition", showMode: "form" },
+    { name: "enableIf:condition", showMode: "form" }
   ],
   (value: any) => new ItemValue(value)
 );

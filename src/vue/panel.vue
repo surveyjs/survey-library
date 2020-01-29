@@ -44,11 +44,16 @@ export class Panel extends Vue {
     }
     this.isCollapsed = this.question.isCollapsed;
     var self = this;
-    this.question.registerFunctionOnPropertyValueChanged("state", function(
-      val: any
-    ) {
-      self.isCollapsed = self.question.isCollapsed;
-    });
+    this.question.registerFunctionOnPropertyValueChanged(
+      "state",
+      function(val: any) {
+        self.isCollapsed = self.question.isCollapsed;
+      },
+      "panel"
+    );
+  }
+  beforeDestroy() {
+    this.question.unRegisterFunctionOnPropertyValueChanged("state", "panel");
   }
   get rootStyle() {
     var result = {};

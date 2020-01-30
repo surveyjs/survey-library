@@ -721,6 +721,7 @@ export class SurveyModel extends Base
    * <br/> sender the survey object that fires the event
    * <br/> options.question a panel question.
    * <br/> options.panelIndex a removed panel index.
+   * <br/> options.panel a removed panel.
    * @see QuestionPanelDynamicModel
    * @see QuestionPanelDynamicModel.panels
    */
@@ -2809,10 +2810,15 @@ export class SurveyModel extends Base
   dynamicPanelAdded(question: IQuestion) {
     this.onDynamicPanelAdded.fire(this, { question: question });
   }
-  dynamicPanelRemoved(question: IQuestion, panelIndex: number) {
+  dynamicPanelRemoved(question: IQuestion, panelIndex: number, panel: IPanel) {
+    var questions = !!panel ? (<PanelModelBase>panel).questions : [];
+    for(var i = 0; i < questions.length; i ++) {
+      questions[i].clearOnDeletingContainer();
+    }
     this.onDynamicPanelRemoved.fire(this, {
       question: question,
-      panelIndex: panelIndex
+      panelIndex: panelIndex,
+      panel: panel
     });
   }
   dynamicPanelItemValueChanged(question: IQuestion, options: any) {

@@ -984,6 +984,7 @@ export class QuestionPanelDynamicModel extends Question
   public removePanel(value: any) {
     var index = this.getPanelIndex(value);
     if (index < 0 || index >= this.panelCount) return;
+    var panel = this.panels[index];
     this.panels.splice(index, 1);
     var value = this.value;
     if (!value || !Array.isArray(value) || index >= value.length) return;
@@ -992,7 +993,7 @@ export class QuestionPanelDynamicModel extends Question
     this.value = value;
     this.isValueChangingInternally = false;
     this.fireCallback(this.panelCountChangedCallback);
-    if (this.survey) this.survey.dynamicPanelRemoved(this, index);
+    if (this.survey) this.survey.dynamicPanelRemoved(this, index, panel);
   }
   private getPanelIndex(val: any): number {
     if (Helpers.isNumber(val)) return val;

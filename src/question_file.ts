@@ -27,6 +27,9 @@ export class QuestionFileModel extends Question {
   public getType(): string {
     return "file";
   }
+  public clearOnDeletingContainer() {
+    this.clear();
+  }
   /**
    * Set it to true, to show the preview for the image files.
    */
@@ -270,8 +273,8 @@ export class QuestionFileModel extends Question {
     var newValues = Array.isArray(newValue)
       ? newValue
       : !!newValue
-        ? [newValue]
-        : [];
+      ? [newValue]
+      : [];
 
     if (this.storeDataAsText) {
       newValues.forEach(value => {

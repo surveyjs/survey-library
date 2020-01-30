@@ -10,6 +10,7 @@ import { QuestionTextModel } from "../src/question_text";
 import { QuestionMatrixDynamicModel } from "../src/question_matrixdynamic";
 import { FunctionFactory } from "../src/functionsfactory";
 import { ExpressionValidator } from "../src/validator";
+import { QuestionFileModel } from "../src/question_file";
 
 export default QUnit.module("Survey_QuestionPanelDynamic");
 
@@ -2906,5 +2907,40 @@ QUnit.test(
     assert.equal(panel.panelCount, 1, "Remove the second panel");
     panel.removePanelUI(0);
     assert.equal(panel.panelCount, 0, "Remove the first panel");
+  }
+);
+
+QUnit.test(
+  "call clearFiles for QuestionFile on removing the panel, Bug #1970",
+  function(assert) {
+    var json = {
+      questions: [
+        {
+          type: "paneldynamic",
+          name: "panel1",
+          templateElements: [
+            {
+              type: "text",
+              name: "q1"
+            },
+            {
+              type: "file",
+              name: "q2"
+            }
+          ],
+          panelCount: 3
+        }
+      ]
+    };
+    var survey = new SurveyModel(json);
+    var counter = 0;
+    survey.onClearFiles.add(function(sender, options) {
+      counter++;
+    });
+    var panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
+    (<QuestionFileModel>panel.panels[0].getQuestionByName("q2")).value =
+      "data:image/jpeg;base64,FILECONTENT";
+    panel.removePanelUI(0);
+    assert.equal(counter, 1, "clear files was called");
   }
 );

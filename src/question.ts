@@ -1310,6 +1310,7 @@ export class Question extends SurveyElement
    * For example the value that doesn't exists in a radigroup/dropdown/checkbox choices or matrix rows/columns.
    */
   public clearIncorrectValues() {}
+  public clearOnDeletingContainer() {}
   /**
    * Call this function to clear all errors in the question
    */

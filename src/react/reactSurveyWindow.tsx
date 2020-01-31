@@ -10,8 +10,8 @@ export class SurveyWindow extends Survey {
     super(props);
     this.handleOnExpanded = this.handleOnExpanded.bind(this);
   }
-  protected getStateElement(): Base {
-    return this.window;
+  protected getStateElements(): Array<Base> {
+    return [this.window, this.window.survey];
   }
   handleOnExpanded(event: any) {
     this.window.isExpanded = !this.window.isExpanded;

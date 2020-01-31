@@ -44,13 +44,29 @@ export class SurveyElementBase extends React.Component<any, any> {
     super(props);
   }
   componentDidMount() {
-    this.makeBaseElementReact();
+    this.makeBaseElementsReact();
   }
   componentWillUnmount() {
-    this.unMakeBaseElementReact();
+    this.unMakeBaseElementsReact();
   }
   componentDidUpdate(prevProps: any, prevState: any) {
-    this.makeBaseElementReact();
+    this.makeBaseElementsReact();
+  }
+  private makeBaseElementsReact() {
+    var els = this.getStateElements();
+    for (var i = 0; i < els.length; i++) {
+      this.makeBaseElementReact(els[i]);
+    }
+  }
+  private unMakeBaseElementsReact() {
+    var els = this.getStateElements();
+    for (var i = 0; i < els.length; i++) {
+      this.makeBaseElementReact(els[i]);
+    }
+  }
+  protected getStateElements(): Array<Base> {
+    var el = this.getStateElement();
+    return !!el ? [el] : [];
   }
   protected getStateElement(): Base {
     return null;
@@ -64,8 +80,7 @@ export class SurveyElementBase extends React.Component<any, any> {
   ): JSX.Element {
     return SurveyElementBase.renderLocString(locStr, style);
   }
-  protected makeBaseElementReact() {
-    var stateElement = this.getStateElement();
+  private makeBaseElementReact(stateElement: Base) {
     if (!stateElement) return;
     stateElement.iteratePropertiesHash((hash, key) => {
       var val: any = hash[key];
@@ -94,8 +109,7 @@ export class SurveyElementBase extends React.Component<any, any> {
       }
     };
   }
-  protected unMakeBaseElementReact() {
-    var stateElement = this.getStateElement();
+  private unMakeBaseElementReact(stateElement: Base) {
     if (!stateElement) return;
     stateElement.setPropertyValueCoreHandler = undefined;
     stateElement.iteratePropertiesHash((hash, key) => {

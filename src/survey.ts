@@ -2331,12 +2331,12 @@ export class SurveyModel extends Base
     }
     if (!page) return true;
     var res = page.hasErrors(true, isFocuseOnFirstError);
-    this.fireValidatedErrorsOnCurrentPage();
+    this.fireValidatedErrorsOnPage(page);
     return res;
   }
-  private fireValidatedErrorsOnCurrentPage() {
-    if (this.onValidatedErrorsOnCurrentPage.isEmpty) return;
-    var questionsOnPage = this.currentPage.questions;
+  private fireValidatedErrorsOnPage(page: PageModel) {
+    if (this.onValidatedErrorsOnCurrentPage.isEmpty || !page) return;
+    var questionsOnPage = page.questions;
     var questions = new Array<Question>();
     var errors = new Array<SurveyError>();
     for (var i = 0; i < questionsOnPage.length; i++) {
@@ -2351,6 +2351,7 @@ export class SurveyModel extends Base
     this.onValidatedErrorsOnCurrentPage.fire(this, {
       questions: questions,
       errors: errors
+      page: page
     });
   }
   /**
@@ -3187,7 +3188,7 @@ export class SurveyModel extends Base
           var oldErrorCount = question.errors.length;
           question.hasErrors(true);
           if (oldErrorCount > 0 || question.errors.length > 0) {
-            this.fireValidatedErrorsOnCurrentPage();
+            this.fireValidatedErrorsOnPage(<PageModel>question.page);
           }
         }
         question.onSurveyValueChanged(newValue);

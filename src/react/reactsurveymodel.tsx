@@ -32,9 +32,10 @@ export class ReactSurveyModel extends SurveyModel {
     super.setCompletedState(value, text);
     this.render();
   }
-  public start() {
-    super.start();
+  public start(): boolean {
+    var res = super.start();
     this.render();
+    return res;
   }
 }
 

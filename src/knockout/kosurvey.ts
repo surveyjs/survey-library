@@ -182,9 +182,10 @@ export class Survey extends SurveyModel {
     super.setCompleted();
     this.updateKoCurrentPage();
   }
-  public start() {
-    super.start();
+  public start(): boolean {
+    var res = super.start();
     this.updateKoCurrentPage();
+    return res;
   }
   protected createNewPage(name: string) {
     return new Page(name);

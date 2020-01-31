@@ -5070,7 +5070,7 @@ QUnit.test("Quiz, correct, incorrect answers - caseinsensitive", function(assert
   assert.equal(survey.getCorrectedAnswers(), 1, "the answer is correct");
 });
 QUnit.test(
-  "Store data on the first page, firstPageIsStarted = true, Bug # 1580",
+  "Store data on the first page, firstPageIsStarted = true, Bug #1580",
   function(assert) {
     var survey = twoPageSimplestSurvey();
     var questionCount = survey.getAllQuestions().length;
@@ -5108,6 +5108,48 @@ QUnit.test(
       { name: "John", email: "john@gmail.com" },
       "Data on the first page is still here after complete."
     );
+  }
+);
+
+QUnit.test(
+  "Validate questions on the first page, firstPageIsStarted = true, Bug #1976",
+  function(assert) {
+    var survey = new SurveyModel( {
+      firstPageIsStarted: true,
+      pages: [
+          {
+            name: "Start Page",
+              questions: [
+                  {
+                      type: "html",
+                      html: "1"
+                  },
+                  {
+                    type: "text",
+                    name: "name",
+                    isRequired: true
+                  }
+              ]
+          }, {
+            name: "First Page",
+              questions: [
+                  {
+                      type: "text",
+                      name: "q1"
+                  }
+              ]
+          }]
+  });
+  assert.equal(survey.state, "starting", "We are starting");
+  var res = survey.start();
+  assert.equal(res, false, "We could not start");
+  assert.equal(survey.state, "starting", "We are still starting");
+  assert.notEqual(survey.state, "running", "We are not starting yet");
+  survey.setValue("name", "some name");
+  res = survey.start();
+  assert.equal(res, true, "We could start");
+  assert.equal(survey.state, "running", "We are running");
+  assert.equal(survey.currentPage.name, "First Page");
   }
 );
 

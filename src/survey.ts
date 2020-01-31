@@ -2323,11 +2323,14 @@ export class SurveyModel extends Base
   private checkIsCurrentPageHasErrors(
     isFocuseOnFirstError: boolean = undefined
   ): boolean {
+    return this.checkIsPageHasErrors(this.currentPage, isFocuseOnFirstError);
+  }
+  private checkIsPageHasErrors(page: PageModel, isFocuseOnFirstError: boolean = undefined): boolean {
     if (isFocuseOnFirstError === undefined) {
       isFocuseOnFirstError = this.focusOnFirstError;
     }
-    if (this.currentPage == null) return true;
-    var res = this.currentPage.hasErrors(true, isFocuseOnFirstError);
+    if (!page) return true;
+    var res = page.hasErrors(true, isFocuseOnFirstError);
     this.fireValidatedErrorsOnCurrentPage();
     return res;
   }
@@ -2559,11 +2562,13 @@ export class SurveyModel extends Base
    * Start the survey. Change the mode from "starting" to "running". You need to call it, if there is a started page in your survey, otherwise it does nothing.
    * @see firstPageIsStarted
    */
-  public start() {
-    if (!this.firstPageIsStarted) return;
+  public start(): boolean {
+    if (!this.firstPageIsStarted) return false;
+    if(this.checkIsPageHasErrors(this.startedPage, true)) return false;
     this.isStartedState = false;
     this.startTimerFromUI();
     this.onStarted.fire(this, {});
+    return true;
   }
   /**
    * Returns true, if at the current moment the question values on the current page are validating on the server.

@@ -42,8 +42,8 @@ var platformOptions = {
     },
     keywords: ["react", "react-component"],
     peerDependencies: {
-      react: ">=15.0.1 || ^16.2.0",
-      "react-dom": ">=15.0.1 || ^16.2.0"
+      react: "^16.5.0",
+      "react-dom": "^16.5.0"
     }
   },
   knockout: {

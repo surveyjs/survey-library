@@ -374,6 +374,7 @@ export class SurveyModel extends Base
    * Use the this event to be notified when the survey finished validate questions on the current page. It commonly happens when a user try to go to the next page or complete the survey
    * options.questions - the list of questions that have errors
    * options.errors - the list of errors
+   * options.page - the page where question(s) are located
    */
   public onValidatedErrorsOnCurrentPage: Event<
     (sender: SurveyModel, options: any) => any,
@@ -2350,7 +2351,7 @@ export class SurveyModel extends Base
     }
     this.onValidatedErrorsOnCurrentPage.fire(this, {
       questions: questions,
-      errors: errors
+      errors: errors,
       page: page
     });
   }

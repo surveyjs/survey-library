@@ -12,14 +12,14 @@ var replace = require("replace-in-file");
 
 var banner = [
   "surveyjs - Survey JavaScript library v" + packageJson.version,
-  "Copyright (c) 2015-2019 Devsoft Baltic OÜ  - http://surveyjs.io/",
+  "Copyright (c) 2015-2020 Devsoft Baltic OÜ  - http://surveyjs.io/",
   "License: MIT (http://www.opensource.org/licenses/mit-license.php)"
 ].join("\n");
 
 // TODO add to dts_bundler
 var dts_banner = [
   "Type definitions for Survey JavaScript library v" + packageJson.version,
-  "Copyright (c) 2015-2019 Devsoft Baltic OÜ  - http://surveyjs.io/",
+  "Copyright (c) 2015-2020 Devsoft Baltic OÜ  - http://surveyjs.io/",
   "Definitions by: Devsoft Baltic OÜ <https://github.com/surveyjs/>",
   ""
 ].join("\n");

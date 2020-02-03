@@ -1363,6 +1363,7 @@ export class QuestionPanelDynamicModel extends Question
     panel.renderWidth = "100%";
     panel.updateCustomWidgets();
     new QuestionPanelDynamicItem(this, panel);
+    panel.onFirstRendering();
     return panel;
   }
   protected createAndSetupNewPanelObject(): PanelModel {

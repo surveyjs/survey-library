@@ -2936,6 +2936,7 @@ QUnit.test(
     var counter = 0;
     survey.onClearFiles.add(function(sender, options) {
       counter++;
+      options.callback("success");
     });
     var panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
     (<QuestionFileModel>panel.panels[0].getQuestionByName("q2")).value =

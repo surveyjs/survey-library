@@ -237,10 +237,10 @@ export var modernCss = {
     saveAgainButton: ""
   },
   window: {
-    root: "",
-    body: "",
+    root: "sv_window",
+    body: "sv_window_content",
     header: {
-      root: "",
+      root: "sv_window_title",
       title: "",
       button: "",
       buttonExpanded: "",

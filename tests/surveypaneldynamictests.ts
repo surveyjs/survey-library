@@ -2945,3 +2945,64 @@ QUnit.test(
     assert.equal(counter, 1, "clear files was called");
   }
 );
+
+QUnit.test(
+  "Question padding right inside panel - https://github.com/surveyjs/survey-library/issues/1977",
+  function(assert) {
+    var json = {
+      pages: [
+        {
+          name: "Fancy page",
+          elements: [
+            {
+              type: "panel",
+              title: "Large panel",
+              name: "large_panel",
+              state: "expanded",
+              elements: [
+                {
+                  type: "paneldynamic",
+                  title: " ",
+                  name: "dynamic_panel",
+                  templateElements: [
+                    {
+                      type: "text",
+                      name: "field_one",
+                      width: "60%",
+                      startWithNewLine: false,
+                      title: "Field One"
+                    },
+                    {
+                      type: "text",
+                      name: "field_two",
+                      width: "40%",
+                      startWithNewLine: false,
+                      title: "Field Two"
+                    }
+                  ],
+                  templateTitle: "Fancy Title",
+                  panelCount: 2,
+                  minPanelCount: 1,
+                  panelsState: "expanded",
+                  confirmDelete: true,
+                  confirmDeleteText: "Are you sure you want to delete this?",
+                  panelAddText: "  Add panel",
+                  panelRemoveText: "   Delete"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    };
+    var survey = new SurveyModel(json);
+
+    var panel = <QuestionPanelDynamicModel>(
+      survey.getQuestionByName("dynamic_panel")
+    );
+    assert.equal((<any>panel.panels[0].elements[0]).paddingRight, "20px");
+    assert.equal((<any>panel.panels[1].elements[0]).paddingRight, "20px");
+    panel.panelCount++;
+    assert.equal((<any>panel.panels[2].elements[0]).paddingRight, "20px");
+  }
+);

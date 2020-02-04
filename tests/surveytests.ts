@@ -7812,6 +7812,26 @@ QUnit.test("survey.navigateToUrlOnCondition + localization", function(assert) {
   survey.locale = prevLocale;
 });
 
+QUnit.test("survey.navigateTo - calling logic", function(assert) {
+  var survey = new SurveyModel({elements: [{type: "text", name: "q1"}, {type: "text", name: "q2"}]});
+  var counter = 0;
+  survey.onNavigateToUrl.add(function(sender, options){
+    counter ++;
+  });
+  survey.doComplete();
+  assert.equal(counter, 1, "onNavigate has been called one time");
+  survey.clear();
+  var completeOptions = null;
+  survey.onComplete.add(function(sender, options){
+    options.showDataSaving();
+    completeOptions = options;
+  });
+  survey.doComplete();
+  assert.equal(counter, 1, "onNavigate has been called one time only - wait for showDataSavingSuccess");
+  completeOptions.showDataSavingSuccess();
+  assert.equal(counter, 2, "onNavigate has been called two times");
+});
+
 QUnit.test("page.clearErrors function", function(assert) {
   var survey = new SurveyModel();
   var page = survey.addNewPage("p");

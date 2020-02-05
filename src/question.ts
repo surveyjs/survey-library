@@ -1025,7 +1025,7 @@ export class Question extends SurveyElement
     return this.isValueEmpty(this.defaultValue);
   }
   protected setDefaultValue() {
-    this.value = this.defaultValue;
+    this.value = Helpers.getUnbindValue(this.defaultValue);
   }
 
   /**

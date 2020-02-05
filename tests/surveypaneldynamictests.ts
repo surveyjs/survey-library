@@ -3006,3 +3006,78 @@ QUnit.test(
     assert.equal((<any>panel.panels[2].elements[0]).paddingRight, "20px");
   }
 );
+
+QUnit.test(
+  "Panel dynamic with matrix dynamic inside, where matrix has defaultValue - Bug #1984, initial T3351(private)",
+  function(assert) {
+    var json = {
+      elements: [
+        {
+          type: "paneldynamic",
+          name: "question1",
+          templateElements: [
+            {
+              type: "matrixdynamic",
+              name: "question2",
+              defaultValue: [
+                {
+                  "Column 1": 1,
+                  "Column 2": 2,
+                  "Column 3": 3
+                },
+                {
+                  "Column 2": 4
+                }
+              ],
+              columns: [
+                {
+                  name: "Column 1"
+                },
+                {
+                  name: "Column 2"
+                },
+                {
+                  name: "Column 3"
+                }
+              ],
+              choices: [1, 2, 3, 4, 5]
+            }
+          ],
+          panelCount: 1
+        }
+      ]
+    };
+    var survey = new SurveyModel(json);
+    var defaultValue = [
+      {
+        "Column 1": 1,
+        "Column 2": 2,
+        "Column 3": 3
+      },
+      {
+        "Column 2": 4
+      }
+    ];
+    var panel = <QuestionPanelDynamicModel>(
+      survey.getQuestionByName("question1")
+    );
+    assert.deepEqual(
+      panel.template.questions[0].defaultValue,
+      defaultValue,
+      "Default value in template is correct"
+    );
+    var matrix = <QuestionMatrixDynamicModel>(
+      panel.panels[0].getQuestionByName("question2")
+    );
+    assert.deepEqual(
+      matrix.defaultValue,
+      defaultValue,
+      "Default value is copied"
+    );
+    assert.deepEqual(
+      matrix.value,
+      defaultValue,
+      "value is copied from default value"
+    );
+  }
+);

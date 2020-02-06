@@ -4912,6 +4912,22 @@ QUnit.test("survey.questionsOnPageMode", function(
   assert.equal(survey.pages[0].questions.length, 2, "There are two questions on the origional first page");
 });
 
+QUnit.test("survey.questionsOnPageMode=questionOnPage, make sure to copy properties from origional page", function(
+  assert
+) {
+  var survey = twoPageSimplestSurvey();
+  survey.pages[0].title = "Title 1";
+  survey.pages[1].title = "Title 2";
+  var questions = survey.getAllQuestions();
+  survey.questionsOnPageMode = "questionOnPage";
+  assert.equal(survey.pages.length, questions.length, "The number of pages equals to questions");
+  assert.equal(survey.pages[0].title, "Title 1", "Copy title from the first page");
+  assert.equal(survey.pages[questions.length - 1].title, "Title 2", "Copy title from the second page");
+  for(var i = 0; i < survey.pages.length; i ++) {
+    assert.equal(survey.pages[i].elements.length, 1, "One question per page");
+  }
+});
+
 QUnit.test("Survey page hasShown", function(assert) {
   var survey = twoPageSimplestSurvey();
   assert.equal(survey.pages[0].hasShown, false, "The first page was not shown");

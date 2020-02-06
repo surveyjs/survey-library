@@ -2495,8 +2495,10 @@ export class SurveyModel extends Base
         var originalElement = originalPage.elements[j];
         var element = Serializer.createClass(originalElement.getType());
         if (!element) continue;
-        var pageJson = originalPage.toJSON();
-        pageJson.elements = [];
+        var jsonObj = new JsonObject();
+        //Deserealize page properties only, excluding elements
+        jsonObj.lightSerializing = true;
+        var pageJson = jsonObj.toJsonObject(originalPage);
 
         var page = <PageModel>Serializer.createClass(originalPage.getType());
         page.fromJSON(pageJson);

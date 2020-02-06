@@ -2488,15 +2488,22 @@ export class SurveyModel extends Base
   private createPagesForEveryQuestion(startIndex: number): Array<PageModel> {
     var res: Array<PageModel> = [];
     for (var i = startIndex; i < this.pages.length; i++) {
-      var origionalPage = this.pages[i];
-      for (var j = 0; j < origionalPage.elements.length; j++) {
-        var origionalElement = origionalPage.elements[j];
-        var element = Serializer.createClass(origionalElement.getType());
+      var originalPage = this.pages[i];
+      // Initialize randomization
+      originalPage.setWasShown(true);
+      for (var j = 0; j < originalPage.elements.length; j++) {
+        var originalElement = originalPage.elements[j];
+        var element = Serializer.createClass(originalElement.getType());
         if (!element) continue;
-        var page = this.createNewPage("page" + (res.length + 1));
+        var pageJson = originalPage.toJSON();
+        pageJson.elements = [];
+
+        var page = <PageModel>Serializer.createClass(originalPage.getType());
+        page.fromJSON(pageJson);
+        page.name = "page" + (res.length + 1);
         page.setSurveyImpl(this);
         res.push(page);
-        var json = new JsonObject().toJsonObject(origionalElement);
+        var json = new JsonObject().toJsonObject(originalElement);
         new JsonObject().toObject(json, element);
         page.addElement(element);
       }

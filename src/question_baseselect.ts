@@ -611,7 +611,7 @@ export class QuestionSelectBase extends Question {
         cachedValues,
         newChoices
       );
-      if (!!newValue && !this.isReadOnly) {
+      if (!!newValue && !this.isReadOnly && this.value !== newValue.value) {
         this.locNotificationInData = true;
         this.value = undefined;
         this.locNotificationInData = false;

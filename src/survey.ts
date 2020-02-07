@@ -1055,7 +1055,8 @@ export class SurveyModel extends Base
     this.setPropertyValue("showCompletedPage", val);
   }
   /**
-   * Set this property to a url you want to navigate after a user completing the survey
+   * Set this property to a url you want to navigate after a user completing the survey.
+   * By default it uses after calling onComplete event. In case calling options.showDataSaving callback in onComplete event, navigateToUrl will be used on calling options.showDataSavingSuccess callback.
    */
   public get navigateToUrl(): string {
     return this.getPropertyValue("navigateToUrl");
@@ -2487,15 +2488,24 @@ export class SurveyModel extends Base
   private createPagesForEveryQuestion(startIndex: number): Array<PageModel> {
     var res: Array<PageModel> = [];
     for (var i = startIndex; i < this.pages.length; i++) {
-      var origionalPage = this.pages[i];
-      for (var j = 0; j < origionalPage.elements.length; j++) {
-        var origionalElement = origionalPage.elements[j];
-        var element = Serializer.createClass(origionalElement.getType());
+      var originalPage = this.pages[i];
+      // Initialize randomization
+      originalPage.setWasShown(true);
+      for (var j = 0; j < originalPage.elements.length; j++) {
+        var originalElement = originalPage.elements[j];
+        var element = Serializer.createClass(originalElement.getType());
         if (!element) continue;
-        var page = this.createNewPage("page" + (res.length + 1));
+        var jsonObj = new JsonObject();
+        //Deserealize page properties only, excluding elements
+        jsonObj.lightSerializing = true;
+        var pageJson = jsonObj.toJsonObject(originalPage);
+
+        var page = <PageModel>Serializer.createClass(originalPage.getType());
+        page.fromJSON(pageJson);
+        page.name = "page" + (res.length + 1);
         page.setSurveyImpl(this);
         res.push(page);
-        var json = new JsonObject().toJsonObject(origionalElement);
+        var json = new JsonObject().toJsonObject(originalElement);
         new JsonObject().toObject(json, element);
         page.addElement(element);
       }
@@ -2524,11 +2534,14 @@ export class SurveyModel extends Base
   }
   /**
    * Call it to complete the survey. It writes cookie if cookieName property is not empty, set the survey into 'completed' state, fire onComplete event and sendResult into [dxsurvey.com](http://www.dxsurvey.com) service if surveyPostId property is not empty. It doesn't perform any validation, unlike completeLastPage function.
+   * It calls navigateToUrl after calling onComplete event. In case calling options.showDataSaving callback in onComplete event, navigateToUrl will be used on calling options.showDataSavingSuccess callback.
    * @see cookieName
    * @see state
    * @see onComplete
    * @see surveyPostId
    * @see completeLastPage
+   * @see navigateToUrl
+   * @see navigateToUrlOnCondition 
    */
   public doComplete() {
     var onCompletingOptions = { allowComplete: true };
@@ -2540,8 +2553,10 @@ export class SurveyModel extends Base
     this.clearUnusedValues();
     this.setCookie();
     var self = this;
+    var savingDataStarted = false;
     var onCompleteOptions = {
       showDataSaving: function(text: string) {
+        savingDataStarted = true;
         self.setCompletedState("saving", text);
       },
       showDataSavingError: function(text: string) {
@@ -2549,6 +2564,7 @@ export class SurveyModel extends Base
       },
       showDataSavingSuccess: function(text: string) {
         self.setCompletedState("success", text);
+        self.navigateTo();
       },
       showDataSavingClear: function(text: string) {
         self.setCompletedState("", "");
@@ -2558,7 +2574,9 @@ export class SurveyModel extends Base
     if (!previousCookie && this.surveyPostId) {
       this.sendResult();
     }
-    this.navigateTo();
+    if(!savingDataStarted) {
+      this.navigateTo();
+    }
   }
   /**
    * Start the survey. Change the mode from "starting" to "running". You need to call it, if there is a started page in your survey, otherwise it does nothing.

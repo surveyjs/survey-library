@@ -4912,6 +4912,22 @@ QUnit.test("survey.questionsOnPageMode", function(
   assert.equal(survey.pages[0].questions.length, 2, "There are two questions on the origional first page");
 });
 
+QUnit.test("survey.questionsOnPageMode=questionOnPage, make sure to copy properties from origional page", function(
+  assert
+) {
+  var survey = twoPageSimplestSurvey();
+  survey.pages[0].title = "Title 1";
+  survey.pages[1].title = "Title 2";
+  var questions = survey.getAllQuestions();
+  survey.questionsOnPageMode = "questionOnPage";
+  assert.equal(survey.pages.length, questions.length, "The number of pages equals to questions");
+  assert.equal(survey.pages[0].title, "Title 1", "Copy title from the first page");
+  assert.equal(survey.pages[questions.length - 1].title, "Title 2", "Copy title from the second page");
+  for(var i = 0; i < survey.pages.length; i ++) {
+    assert.equal(survey.pages[i].elements.length, 1, "One question per page");
+  }
+});
+
 QUnit.test("Survey page hasShown", function(assert) {
   var survey = twoPageSimplestSurvey();
   assert.equal(survey.pages[0].hasShown, false, "The first page was not shown");
@@ -7810,6 +7826,26 @@ QUnit.test("survey.navigateToUrlOnCondition + localization", function(assert) {
     "get on condition fr"
   );
   survey.locale = prevLocale;
+});
+
+QUnit.test("survey.navigateTo - calling logic", function(assert) {
+  var survey = new SurveyModel({elements: [{type: "text", name: "q1"}, {type: "text", name: "q2"}]});
+  var counter = 0;
+  survey.onNavigateToUrl.add(function(sender, options){
+    counter ++;
+  });
+  survey.doComplete();
+  assert.equal(counter, 1, "onNavigate has been called one time");
+  survey.clear();
+  var completeOptions = null;
+  survey.onComplete.add(function(sender, options){
+    options.showDataSaving();
+    completeOptions = options;
+  });
+  survey.doComplete();
+  assert.equal(counter, 1, "onNavigate has been called one time only - wait for showDataSavingSuccess");
+  completeOptions.showDataSavingSuccess();
+  assert.equal(counter, 2, "onNavigate has been called two times");
 });
 
 QUnit.test("page.clearErrors function", function(assert) {

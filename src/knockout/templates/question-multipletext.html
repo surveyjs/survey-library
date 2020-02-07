@@ -1,7 +1,12 @@
 ﻿<script type="text/html" id="survey-question-multipletext">
   <table data-bind="css: question.koCss().root, foreach: { data:  question.koRows, as: 'row' }">
       <tr data-bind="foreach: { data: row, as: 'item' }, css: question.koCss().row">
-          <td data-bind="css: question.koCss().itemTitle + ' ' + question.koCss().cell"><!-- ko template: { name: 'survey-string', data: item.locTitle } --><!-- /ko --></td>
+          <td data-bind="css: question.koCss().itemTitle + ' ' + question.koCss().cell">
+            <!-- ko template: { name: 'survey-string', data: item.locTitle } --><!-- /ko -->
+            <!-- ko ifnot: question.getQuestionTitleTemplate() -->
+            <span data-bind="css: question.koCss().requiredText, text: item.editor.requiredText"></span>
+            <!-- /ko -->
+          </td>
           <td data-bind="css: question.koCss().item + ' ' + question.koCss().cell">
             <!-- ko if: item.editor.errorLocation == 'top' -->
             <div data-bind="css: question.koCss().error.locationTop">

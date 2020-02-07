@@ -2668,6 +2668,38 @@ QUnit.test(
   }
 );
 
+QUnit.test(
+  "Multipletext, item isRequired, make item question isRequired, bug #1983",
+  function(assert) {
+    var survey = new SurveyModel({
+      questions: [
+        {
+          type: "multipletext",
+          name: "q1",
+          items: [
+            {
+              name: "item1",
+              isRequired: true
+            }
+          ]
+        }
+      ]
+    });
+    var question = <QuestionMultipleTextModel>survey.getQuestionByName("q1");
+    assert.equal(
+      question.items[0].editor.isRequired,
+      true,
+      "Editor is requried"
+    );
+    assert.equal(
+      question.items[0].editor.hasErrors(),
+      true,
+      "item editor is required"
+    );
+    assert.equal(question.hasErrors(), true, "question is required");
+  }
+);
+
 QUnit.test("Test property hideIfChoicesEmpty", function(assert) {
   var survey = new SurveyModel();
   var page = survey.addNewPage("p1");

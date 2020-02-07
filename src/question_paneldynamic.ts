@@ -996,9 +996,9 @@ export class QuestionPanelDynamicModel extends Question
     this.isValueChangingInternally = true;
     value.splice(index, 1);
     this.value = value;
-    this.isValueChangingInternally = false;
     this.fireCallback(this.panelCountChangedCallback);
     if (this.survey) this.survey.dynamicPanelRemoved(this, index, panel);
+    this.isValueChangingInternally = false;
   }
   private getPanelIndex(val: any): number {
     if (Helpers.isNumber(val)) return val;
@@ -1368,6 +1368,7 @@ export class QuestionPanelDynamicModel extends Question
     panel.renderWidth = "100%";
     panel.updateCustomWidgets();
     new QuestionPanelDynamicItem(this, panel);
+    panel.onFirstRendering();
     return panel;
   }
   protected createAndSetupNewPanelObject(): PanelModel {

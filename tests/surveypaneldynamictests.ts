@@ -2936,11 +2936,148 @@ QUnit.test(
     var counter = 0;
     survey.onClearFiles.add(function(sender, options) {
       counter++;
+      options.callback("success");
     });
     var panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
     (<QuestionFileModel>panel.panels[0].getQuestionByName("q2")).value =
       "data:image/jpeg;base64,FILECONTENT";
     panel.removePanelUI(0);
     assert.equal(counter, 1, "clear files was called");
+  }
+);
+
+QUnit.test(
+  "Question padding right inside panel - https://github.com/surveyjs/survey-library/issues/1977",
+  function(assert) {
+    var json = {
+      pages: [
+        {
+          name: "Fancy page",
+          elements: [
+            {
+              type: "panel",
+              title: "Large panel",
+              name: "large_panel",
+              state: "expanded",
+              elements: [
+                {
+                  type: "paneldynamic",
+                  title: " ",
+                  name: "dynamic_panel",
+                  templateElements: [
+                    {
+                      type: "text",
+                      name: "field_one",
+                      width: "60%",
+                      startWithNewLine: false,
+                      title: "Field One"
+                    },
+                    {
+                      type: "text",
+                      name: "field_two",
+                      width: "40%",
+                      startWithNewLine: false,
+                      title: "Field Two"
+                    }
+                  ],
+                  templateTitle: "Fancy Title",
+                  panelCount: 2,
+                  minPanelCount: 1,
+                  panelsState: "expanded",
+                  confirmDelete: true,
+                  confirmDeleteText: "Are you sure you want to delete this?",
+                  panelAddText: "  Add panel",
+                  panelRemoveText: "   Delete"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    };
+    var survey = new SurveyModel(json);
+
+    var panel = <QuestionPanelDynamicModel>(
+      survey.getQuestionByName("dynamic_panel")
+    );
+    assert.equal((<any>panel.panels[0].elements[0]).paddingRight, "20px");
+    assert.equal((<any>panel.panels[1].elements[0]).paddingRight, "20px");
+    panel.panelCount++;
+    assert.equal((<any>panel.panels[2].elements[0]).paddingRight, "20px");
+  }
+);
+
+QUnit.test(
+  "Panel dynamic with matrix dynamic inside, where matrix has defaultValue - Bug #1984, initial T3351(private)",
+  function(assert) {
+    var json = {
+      elements: [
+        {
+          type: "paneldynamic",
+          name: "question1",
+          templateElements: [
+            {
+              type: "matrixdynamic",
+              name: "question2",
+              defaultValue: [
+                {
+                  "Column 1": 1,
+                  "Column 2": 2,
+                  "Column 3": 3
+                },
+                {
+                  "Column 2": 4
+                }
+              ],
+              columns: [
+                {
+                  name: "Column 1"
+                },
+                {
+                  name: "Column 2"
+                },
+                {
+                  name: "Column 3"
+                }
+              ],
+              choices: [1, 2, 3, 4, 5]
+            }
+          ],
+          panelCount: 1
+        }
+      ]
+    };
+    var survey = new SurveyModel(json);
+    var defaultValue = [
+      {
+        "Column 1": 1,
+        "Column 2": 2,
+        "Column 3": 3
+      },
+      {
+        "Column 2": 4
+      }
+    ];
+    var panel = <QuestionPanelDynamicModel>(
+      survey.getQuestionByName("question1")
+    );
+    assert.deepEqual(
+      panel.template.questions[0].defaultValue,
+      defaultValue,
+      "Default value in template is correct"
+    );
+    var matrix = <QuestionMatrixDynamicModel>(
+      panel.panels[0].getQuestionByName("question2")
+    );
+    assert.deepEqual(
+      matrix.defaultValue,
+      defaultValue,
+      "Default value is copied"
+    );
+    assert.deepEqual(
+      matrix.value,
+      defaultValue,
+      "value is copied from default value"
+    );
   }
 );

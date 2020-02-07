@@ -28,7 +28,7 @@ export class QuestionFileModel extends Question {
     return "file";
   }
   public clearOnDeletingContainer() {
-    this.clear();
+    this.survey.clearFiles(this.name, this.value, null, () => { });
   }
   /**
    * Set it to true, to show the preview for the image files.

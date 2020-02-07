@@ -1135,7 +1135,7 @@ export class SurveyModel extends Base
     });
   }
   /**
-   * Gets or sets the first question index. By default the first question index is '1'. You may start it from '100' or from 'A', by setting '100' or 'A' to this property.
+   * Gets or sets the first question index. The first question index is '1' by default. You may start it from '100' or from 'A', by setting '100' or 'A' to this property.
    * @see Question.title
    * @see requiredText
    */
@@ -1146,7 +1146,9 @@ export class SurveyModel extends Base
     this.setPropertyValue("questionStartIndex", val);
   }
   /**
-   * By default the entered text in the others input in the checkbox/radiogroup/dropdown are stored as `"question name " + "-Comment"`. The value itself is `"question name": "others"`.
+   * Gets or sets whether the "Others" option text is stored as question comment.
+   * 
+   * By default the entered text in the "Others" input in the checkbox/radiogroup/dropdown is stored as `"question name " + "-Comment"`. The value itself is `"question name": "others"`.
    * Set this property to `false`, to store the entered text directly in the `"question name"` key.
    * @see commentPrefix
    */
@@ -1158,7 +1160,8 @@ export class SurveyModel extends Base
   }
   /**
    * Specifies the default maximum length for questions like text and comment, including matrix cell questions.
-   * The default value is 0, it is unlimited maxLength - 524288 characters: https://www.w3schools.com/tags/att_input_maxlength.asp
+   * 
+   * The default value is `0`, that means that the text and comment have the same max length as the standard HTML input - 524288 characters: https://www.w3schools.com/tags/att_input_maxlength.asp.
    * @see maxOthersLength
    */
   public get maxTextLength(): number {
@@ -1168,8 +1171,9 @@ export class SurveyModel extends Base
     this.setPropertyValue("maxTextLength", val);
   }
   /**
-   * The default maximum length for question comments and others
-   * The default value is 0, it is unlimited maxLength - 524288 characters: https://www.w3schools.com/tags/att_input_maxlength.asp
+   * Gets or sets the default maximum length for question comments and others
+   * 
+   * The default value is `0`, that means that the question comments have the same max length as the standard HTML input - 524288 characters: https://www.w3schools.com/tags/att_input_maxlength.asp.
    * @see Question.hasComment
    * @see Question.hasOther
    * @see maxTextLength
@@ -1182,10 +1186,12 @@ export class SurveyModel extends Base
   }
 
   /**
-   * Set it to the one of the following constants if you want to go to the next page without pressing 'Next' button when all questions are answered.
-   * `true` - go next page and submit automatically
-   * `autogonext` - go next page automatically but do not submit
-   * `false` - do not go next page and not submit automatically
+   * Gets or ses whether a user can navigate the next page automatically after answering all the questions on a page without pressing the "Next" button.
+   * The available options:
+   * 
+   * - `true` - navigate the next page and submit survey data automatically.
+   * - `autogonext` - navigate the next page automatically but do not submit survey data.
+   * - `false` - do not navigate the next page and do not submit survey data automatically.
    * @see showNavigationButtons
    */
   public get goNextPageAutomatic(): boolean | "autogonext" {
@@ -1195,7 +1201,7 @@ export class SurveyModel extends Base
     this.setPropertyValue("goNextPageAutomatic", val);
   }
   /**
-   * Set it to false if you do not want to submit survey automatically if `goNextPageAutomatic = true`.
+   * Gets or sets whether a survey is automatically completed when `goNextPageAutomatic = true`. Set it to `false` if you do not want to submit survey automatically on completing the last survey page.
    * @see goNextPageAutomatic
    */
   public get allowCompleteSurveyAutomatic(): boolean {
@@ -1205,10 +1211,13 @@ export class SurveyModel extends Base
     this.setPropertyValue("allowCompleteSurveyAutomatic", val);
   }
   /**
-   * Change this property from 'onNextPage' to 'onValueChanged' to check errors on every question value changing,
-   * or change it to 'onComplete' to validate all visible questions on complete button. If there is the error on some pages,
-   * then the page with the first error becomes the current.
-   * By default, library checks errors on changing current page to the next or on completing the survey.
+   * Gets or sets a value that specifies how the survey validates the question answers.
+   * 
+   * The following options are available:
+   * 
+   * - `onNextPage` (default) - check errors on navigating to the next page or on completing the survey.
+   * - `onValueChanged` - check errors on every question value (i.e., answer) changing.
+   * - `onComplete` - to validate all visible questions on complete button click. If there are errors on previous pages, then the page with the first error becomes the current.
    */
   public get checkErrorsMode(): string {
     return this.getPropertyValue("checkErrorsMode");
@@ -1217,8 +1226,13 @@ export class SurveyModel extends Base
     this.setPropertyValue("checkErrorsMode", val);
   }
   /**
-   * Change this property from 'onBlur' to 'onTyping' to update the value of text questions, "text" and "comment",
-   * on every key press. By default, the value is updated after an input loses the focus.
+   * Gets or sets a value that specifies how the survey updates its questions' text values.
+   * 
+   * The following options are available:
+   * 
+   * - `onBlur` (default) - the value is updated after an input loses the focus.
+   * - `onTyping` - update the value of text questions, "text" and "comment", on every key press.
+   * 
    * Note, that setting to "onTyping" may lead to a performance degradation, in case you have many expressions in the survey.
    */
   public get textUpdateMode(): string {
@@ -1228,10 +1242,13 @@ export class SurveyModel extends Base
     this.setPropertyValue("textUpdateMode", val);
   }
   /**
-   * Set it to 'none' to include the invisible values into the survey data.
-   * </br> Set it to 'onHidden' to clear the question value when it becomes invisible. If a question has value and it was invisible initially then survey clears the value on completing.
-   * </br> Leave it equals to 'onComplete', to remove from data property values of invisible questions on survey complete. In this case, the invisible questions will not be stored on the server.
-   * </br> The default value is 'onComplete'.
+   * Gets or sets a value that specifies how the invisible data is included in survey data.
+   * 
+   * The following options are available:
+   * 
+   * - `none` - include the invisible values into the survey data.
+   * - `onHidden` - clear the question value when it becomes invisible. If a question has value and it was invisible initially then survey clears the value on completing.
+   * - `onComplete` (default) - clear invisible question values on survey complete. In this case, the invisible questions will not be stored on the server.
    * @see Question.visible
    * @see onComplete
    */
@@ -1259,7 +1276,8 @@ export class SurveyModel extends Base
   }
 
   /**
-   * Use it to change the survey locale. By default it is empty, 'en'. You may set it to 'de' - German, 'fr' - French and so on. The library has built-in localization for several languages. The library has a multi-language support as well.
+   * Gets or sets the survey locale. The default value it is empty, this means the 'en' locale is used.
+   * You can set it to 'de' - German, 'fr' - French and so on. The library has built-in localization for several languages. The library has a multi-language support as well.
    */
   public get locale(): string {
     return this.localeValue;
@@ -1273,7 +1291,7 @@ export class SurveyModel extends Base
     this.onLocaleChanged();
   }
   /**
-   * Returns a array of locales that used in the current survey
+   * Returns an array of locales that are used in the current survey.
    */
   public getUsedLocales(): Array<string> {
     var locs = new Array<string>();
@@ -1319,13 +1337,13 @@ export class SurveyModel extends Base
     return options.text;
   }
   /**
-   * Returns the text that is displayed when there is no any visible page and question.
+   * Returns the text that is displayed when there are no any visible pages and questiona.
    */
   public get emptySurveyText(): string {
     return this.getLocString("emptySurvey");
   }
   /**
-   * Survey title.
+   * Gets or sets a survey title.
    * @see description
    */
   public get title(): string {
@@ -1338,7 +1356,7 @@ export class SurveyModel extends Base
     return this.getLocalizableString("title");
   }
   /**
-   * Survey description. It shows under survey title
+   * Gets or sets a survey description. The survey description is displayed under a survey title.
    * @see title
    */
   public get description(): string {
@@ -1351,7 +1369,7 @@ export class SurveyModel extends Base
     return this.getLocalizableString("description");
   }
   /**
-   * The html that shows on the complete page. Set it to change the default text.
+   * Gets or sets the HTML content displayed on the complete page. Use this property to change the default complete page text.
    * @see showCompletedPage
    * @see completedHtmlOnCondition
    * @see locale
@@ -1366,7 +1384,7 @@ export class SurveyModel extends Base
     return this.getLocalizableString("completedHtml");
   }
   /**
-   * The list of html condition items. If the expression of this item returns true, then survey will use this item html instead of completedHtml
+   * The list of HTML condition items. If the expression of this item returns `true`, then a survey will use this item HTML instead of `completedHtml`.
    * @see HtmlConditionItem
    * @see completeHtml
    */
@@ -1377,7 +1395,7 @@ export class SurveyModel extends Base
     this.setPropertyValue("completedHtmlOnCondition", val);
   }
   /**
-   * Perform the calculation of the given expression and returns the result value
+   * Calculates a given expression and returns a result value.
    * @param expression
    */
   public runExpression(expression: string): any {
@@ -1387,7 +1405,7 @@ export class SurveyModel extends Base
     return new ExpressionRunner(expression).run(values, properties);
   }
   /**
-   * Perform the calculation of the given expression and true or false
+   * Calculates a given expression and returns `true` or `false`.
    * @param expression
    */
   public runCondition(expression: string): boolean {
@@ -1417,7 +1435,7 @@ export class SurveyModel extends Base
   }
 
   /**
-   * The html that shows if the end user has already completed the survey.
+   * The HTML content displayed to an end user that has already completed the survey.
    * @see clientId
    * @see locale
    */
@@ -1431,7 +1449,7 @@ export class SurveyModel extends Base
     return this.getLocalizableString("completedBeforeHtml");
   }
   /**
-   * The html that shows on loading survey Json from the dxsurvey.com service.
+   * The HTML that shows on loading survey Json from the [dxsurvey.com](http://www.dxsurvey.com) service.
    * @see surveyId
    * @see locale
    */
@@ -1445,8 +1463,8 @@ export class SurveyModel extends Base
     return this.getLocalizableString("loadingHtml");
   }
   /**
-   * A text that renders on the 'Start' button. Set it to change the default text.
-   * The start button is shown on the started page. You have to set firstPageIsStarted property to true, to have the started page.
+   * Gets or sets the 'Start' button caption.
+   * The 'Start' button is shown on the started page. Set the `firstPageIsStarted` property to `true`, to display the started page.
    * @see firstPageIsStarted
    * @see locale
    */
@@ -1463,7 +1481,7 @@ export class SurveyModel extends Base
     return this.getLocalizableString("startSurvey");
   }
   /**
-   * A text that renders on the 'Prev' button. Set it to change the default text.
+   * Gets or sets the 'Prev' button caption.
    * @see locale
    */
   public get pagePrevText(): string {
@@ -1479,7 +1497,7 @@ export class SurveyModel extends Base
     return this.getLocalizableString("pagePrev");
   }
   /**
-   * A text that renders on the 'Next' button. Set it to change the default text.
+   * Gets or sets the 'Next' button caption.
    * @see locale
    */
   public get pageNextText(): string {
@@ -1495,7 +1513,7 @@ export class SurveyModel extends Base
     return this.getLocalizableString("pageNext");
   }
   /**
-   * A text that renders on the 'Complete' button. Set it to change the default text.
+   *  Gets or sets the 'Complete' button caption.
    * @see locale
    */
   public get completeText(): string {
@@ -1511,7 +1529,7 @@ export class SurveyModel extends Base
     return this.getLocalizableString("complete");
   }
   /**
-   * A template for a question title.
+   * Gets or sets a question title template.
    * @see QuestionModel.title
    */
   public get questionTitleTemplate(): string {
@@ -1532,7 +1550,7 @@ export class SurveyModel extends Base
   }
   private questionTitleTemplateCache: string = undefined;
   /**
-   * Returns the question title template
+   * Returns a question title template.
    * @see questionTitleTemplate
    * @see QuestionModel.title
    */
@@ -1552,7 +1570,7 @@ export class SurveyModel extends Base
     return options.title;
   }
   /**
-   * Set this property to false to turn off the numbering on pages titles.
+   * Gets or sets whether the survey displays page numbers on pages titles.
    */
   public get showPageNumbers(): boolean {
     return this.getPropertyValue("showPageNumbers", false);
@@ -1563,7 +1581,13 @@ export class SurveyModel extends Base
     this.updateVisibleIndexes();
   }
   /**
-   * Set this property to "off" to turn off the numbering on questions titles or "onpage" to start numbering on every page. The default value is "on".
+   * Gets or sets a value that specifies how the question numbers are displayed.
+   * 
+   * The following options are available:
+   * 
+   * - `on` - display question numbers
+   * - `onpage` - display question numbers, start numbering on every page
+   * - `off` - turn off the numbering for questions titles
    */
   public get showQuestionNumbers(): string {
     return this.getPropertyValue("showQuestionNumbers");
@@ -1576,7 +1600,13 @@ export class SurveyModel extends Base
     this.updateVisibleIndexes();
   }
   /**
-   * Set this property to "top" to show the progress bar on the bottom or to "bottom" to show it on the bottom.
+   * Gets or sets the survey progress bar position.
+   * 
+   * The following options are available:
+   * 
+   * - `top` - show progress bar in the top
+   * - `bottom` - show progress bar in the bottom
+   * - `both` - show progress bar in both sides: top and bottom.
    */
   public get showProgressBar(): string {
     return this.getPropertyValue("showProgressBar");
@@ -1585,7 +1615,13 @@ export class SurveyModel extends Base
     this.setPropertyValue("showProgressBar", newValue.toLowerCase());
   }
   /**
-   * Type of info in the progress bar: "pages" (default), "questions" or "correctQuestions".
+   * Gets or sets the type of info in the progress bar.
+   * 
+   * The following options are available:
+   * 
+   * - `pages` (default),
+   * - `questions`,
+   * - `correctQuestions`.
    */
   public get progressBarType(): string {
     return this.getPropertyValue("progressBarType");
@@ -1600,14 +1636,21 @@ export class SurveyModel extends Base
     return this.showProgressBar === "bottom" || this.showProgressBar === "both";
   }
   /**
-   * Returns the text/html that renders as survey title.
+   * Returns the text/HTML that is rendered as a survey title.
    */
   public get processedTitle() {
     return this.locTitle.renderedHtml;
   }
   /**
-   * Set this property to 'bottom' or 'left' to show question title under the question or on the left.
-   * <br/><b>Note:</b> Some questions, for example matrixes, do not support 'left' value. The title for them will be displayed on the top.
+   * Gets or sets the question title location.
+   * 
+   * The following options are available:
+   * 
+   * - `bottom` - show a question title to bottom
+   * - `left` - show a question title to left
+   * - `top` - show a question title to top.
+   * 
+   * > Some questions, for example matrixes, do not support 'left' value. The title for them will be displayed to the top.
    */
   public get questionTitleLocation(): string {
     return this.getPropertyValue("questionTitleLocation");
@@ -1616,7 +1659,12 @@ export class SurveyModel extends Base
     this.setPropertyValue("questionTitleLocation", value.toLowerCase());
   }
   /**
-   * Set this property to 'bottom' to show question error(s) under the question.
+   * Gets or sets the error message position.
+   * 
+   * The following options are available:
+   * 
+   * - `top` - to show question error(s) over the question,
+   * - `bottom` - to show question error(s) under the question.
    */
   public get questionErrorLocation(): string {
     return this.getPropertyValue("questionErrorLocation");
@@ -1625,7 +1673,12 @@ export class SurveyModel extends Base
     this.setPropertyValue("questionErrorLocation", value.toLowerCase());
   }
   /**
-   * Set this property to 'underInput' to show question description under the question input instead of question title.
+   * Gets or sets the question description position.
+   * 
+   * The following options are available:
+   * 
+   * - `underTitle` - show question description under the question title,
+   * - `underInput` - show question description under the question input instead of question title.
    */
   public get questionDescriptionLocation(): string {
     return this.getPropertyValue("questionDescriptionLocation");
@@ -1634,7 +1687,12 @@ export class SurveyModel extends Base
     this.setPropertyValue("questionDescriptionLocation", value);
   }
   /**
-   * Set this mode to 'display' to make the survey read-only. The default value is 'edit'.
+   * Gets or sets the survey edit mode.
+   * 
+   * The following options are available:
+   * 
+   * - `edit` (default) - make a survey editable,
+   * - `display` - make a survey read-only.
    */
   public get mode(): string {
     return this.getPropertyValue("mode");
@@ -1652,8 +1710,9 @@ export class SurveyModel extends Base
     }
   }
   /**
-   * An object that stores the survey results/data. You may set it directly as { 'question name': questionValue, ... }
-   * Note: If you are setting the data after creatig the survey, you may need to set the currentPageNo to 0, if you are using visibleIf properties for questions/pages/panels to ensure that you are starting from the first page.
+   * Gets or sets an object that stores the survey results/data. You can set it directly as `{ 'question name': questionValue, ... }`
+   * 
+   * > If you set the `data` property after creating the survey, you may need to set the `currentPageNo` to `0`, if you are using `visibleIf` properties for questions/pages/panels to ensure that you are starting from the first page.
    * @see setValue
    * @see getValue
    * @see currentPageNo
@@ -1697,9 +1756,11 @@ export class SurveyModel extends Base
     return this.data;
   }
   /**
-   * Returns survey result data as an array of plain objects: with question title, name, value and displayValue.
-   * For complex questions (like matrix, etc.) isNode flag is set to true and data contains array of nested objects (rows)
-   * set options.includeEmpty to false if you want to skip empty answers
+   * Returns survey result data as an array of plain objects: with question `title`, `name`, `value`, and `displayValue`.
+   * 
+   * For complex questions (like matrix, etc.) `isNode` flag is set to `true` and data contains array of nested objects (rows).
+   * 
+   * Set `options.includeEmpty` to `false` if you want to skip empty answers.
    */
   public getPlainData(
     options: {
@@ -1764,7 +1825,7 @@ export class SurveyModel extends Base
     return result;
   }
   /**
-   * Returns the list of visible pages. If all pages are visible then it is the same as pages property.
+   * Returns a list of visible pages. If all pages are visible, then this property returns the same list as the `pages` property.
    * @see pages
    * @see PageModel.visible
    * @see PageModel.visibleIf
@@ -1780,19 +1841,19 @@ export class SurveyModel extends Base
     return result;
   }
   /**
-   * Returns true if there is no any page in the survey. The survey is empty.
+   * Returns `true` if the survey contains no pages. The survey is empty.
    */
   public get isEmpty(): boolean {
     return this.pages.length == 0;
   }
   /**
-   * depricated, misspelling, use pageCount property
+   * Deprecated. Use the `pageCount` property instead.
    */
   get PageCount(): number {
     return this.pageCount;
   }
   /**
-   * Returns the survey pages count.
+   * Returns the survey page count.
    * @see visiblePageCount
    * @see pages
    */
@@ -1800,7 +1861,7 @@ export class SurveyModel extends Base
     return this.pages.length;
   }
   /**
-   * Returns the survey visible pages count
+   * Returns a number of visible pages within the survey.
    * @see pageCount
    * @see visiblePages
    */
@@ -1808,7 +1869,7 @@ export class SurveyModel extends Base
     return this.visiblePages.length;
   }
   /**
-   * Returns the started Page. firstPageIsStarted property should be equals to true
+   * Returns the started page. This property works if the `firstPageIsStarted` property is set to `true`.
    * @see firstPageIsStarted
    */
   public get startedPage(): PageModel {
@@ -1820,7 +1881,7 @@ export class SurveyModel extends Base
     return page;
   }
   /**
-   * Returns the current survey page. If survey is rendred then it is a page that a user can see/edit.
+   * Gets or sets the current survey page. If a survey is rendered, then this property returns a page that a user can see/edit.
    */
   public get currentPage(): any {
     var vPages = this.visiblePages;
@@ -1867,7 +1928,7 @@ export class SurveyModel extends Base
     return value;
   }
   /**
-   * The index of the current page in the visible pages array. It starts from 0.
+   * The zero-based index of the current page in the visible pages array.
    */
   public get currentPageNo(): number {
     return this.visiblePages.indexOf(this.currentPage);
@@ -1878,7 +1939,12 @@ export class SurveyModel extends Base
     this.currentPage = vPages[value];
   }
   /**
-   * Use this property to randomize questions. Set it to 'random' to randomize questions, 'initial' to keep them in the same order. You can randomize questions on a specific page.
+   * Gets or sets the question display order. Use this property to randomize questions. You can randomize questions on a specific page.
+   * 
+   * The following options are available:
+   * 
+   * - `random` - randomize questions
+   * - `initial` - keep questions in the same order, as in a survey model. 
    * @see SurveyPage.questionsOrder
    */
   public get questionsOrder() {
@@ -1889,7 +1955,7 @@ export class SurveyModel extends Base
   }
 
   /**
-   * Set the input focus to the first question with the input.
+   * Sets the input focus to the first question with the input field.
    */
   public focusFirstQuestion() {
     var page = this.currentPage;
@@ -1907,8 +1973,13 @@ export class SurveyModel extends Base
     }
   }
   /**
-   * Returns the current survey state: 'loading' - loading from the json, 'completed' - a user has completed the survey,
-   * 'starting' - the started page is showing, running' - a user answers a questions right now, 'empty' - there is nothing to show in the current survey.
+   * Returns the current survey state: 
+   * 
+   * - `loading` - loading from the JSON, 
+   * - `completed` - a user has completed the survey,
+   * - `starting` - the started page is showing, 
+   * - `running` - a user answers questions right now, 
+   * - `empty` - there is nothing to show in the current survey.
    */
   public get state(): string {
     if (this.isLoading) return "loading";
@@ -1964,7 +2035,7 @@ export class SurveyModel extends Base
     this.completedStateTextValue = text;
   }
   /**
-   * Clear the survey data and state. If the survey has a 'completed' state, it will have a 'running' state.
+   * Clears the survey data and state. If the survey has a `completed` state, it will get a `running` state.
    * @param clearData clear the data
    * @param gotoFirstPage make the first page as a current page.
    * @see data
@@ -2033,7 +2104,7 @@ export class SurveyModel extends Base
     });
   }
   /**
-   * Returns the progress that a user made by answering on the survey.
+   * Returns the progress that a user made while going through the survey.
    */
   public getProgress(): number {
     if (this.currentPage == null) return 0;
@@ -2054,7 +2125,7 @@ export class SurveyModel extends Base
     return Math.ceil((index * 100) / this.visiblePageCount);
   }
   /**
-   * Returns true if navigation buttons: 'Prev', 'Next' or 'Complete' are shown.
+   * Returns the navigation buttons (i.e., 'Prev', 'Next', or 'Complete') position.
    */
   public get isNavigationButtonsShowing(): string {
     if (this.isDesignMode) return "none";
@@ -2069,14 +2140,14 @@ export class SurveyModel extends Base
     return this.showNavigationButtons;
   }
   /**
-   * Returns true if the survey in the edit mode.
+   * Returns `true` if the survey is in edit mode.
    * @see mode
    */
   public get isEditMode(): boolean {
     return this.mode == "edit";
   }
   /**
-   * Returns true if the survey in the display mode.
+   * Returns `true` if the survey is in display mode.
    * @see mode
    */
   public get isDisplayMode(): boolean {
@@ -2086,7 +2157,7 @@ export class SurveyModel extends Base
     return this.textUpdateMode == "onTyping";
   }
   /**
-   * Returns true if the survey in the design mode. It is used by SurveyJS Editor
+   * Returns `true` if the survey is in design mode. It is used by SurveyJS Editor.
    * @see setDesignMode
    */
   public get isDesignMode(): boolean {
@@ -2094,7 +2165,7 @@ export class SurveyModel extends Base
   }
   private _isDesignMode: boolean = false;
   /**
-   * Call it to set the survey into the design mode.
+   * Sets the survey into design mode.
    * @param value use true to set the survey into the design mode.
    */
   public setDesignMode(value: boolean) {
@@ -2102,7 +2173,7 @@ export class SurveyModel extends Base
     this.onQuestionsOnPageModeChanged("standard");
   }
   /**
-   * Set this property to true, to show all elements in the survey, regardless their visibility. It is false by default.
+   * Gets or sets whether to show all elements in the survey, regardless their visibility. The default value is `false`.
    */
   public get showInvisibleElements(): boolean {
     return this.getPropertyValue("showInvisibleElements", false);
@@ -2128,7 +2199,7 @@ export class SurveyModel extends Base
     return this.isDesignMode || this.showInvisibleElements;
   }
   /**
-   * Returns true, if a user has already completed the survey on this browser and there is a cookie about it. Survey goes to 'completed' state if the function returns true.
+   * Returns `true`, if a user has already completed the survey in this browser and there is a cookie about it. Survey goes to `completed` state if the function returns `true`.
    * @see cookieName
    * @see setCookie
    * @see deleteCookie
@@ -2140,7 +2211,7 @@ export class SurveyModel extends Base
     return cookies && cookies.indexOf(this.cookieName + "=true") > -1;
   }
   /**
-   * Set the cookie with cookieName in the browser. It is done automatically on survey complete if cookieName is not empty.
+   * Set the cookie with `cookieName` in user's browser. It is done automatically on survey complete if the `cookieName` property value is not empty.
    * @see cookieName
    * @see hasCookie
    * @see deleteCookie
@@ -2151,7 +2222,7 @@ export class SurveyModel extends Base
       this.cookieName + "=true; expires=Fri, 31 Dec 9999 0:0:0 GMT";
   }
   /**
-   * Delete the cookie with cookieName in the browser.
+   * Deletes the cookie with `cookieName` from the browser.
    * @see cookieName
    * @see hasCookie
    * @see setCookie
@@ -2161,14 +2232,19 @@ export class SurveyModel extends Base
     document.cookie = this.cookieName + "=;";
   }
   /**
-   * Set it to true, to ignore validation, like requried questions and others, on nextPage and completeLastPage functions.
+   * Gets or sets whether the survey must ignore validation like required questions and others, on `nextPage` and `completeLastPage` function calls. The default is `false`. 
    * @see nextPage
    * @see completeLastPage
    * @see mode
    */
   public ignoreValidation: boolean = false;
   /**
-   * Call it to go to the next page. It returns false, if it is the last page. If there is an error, for example required question is empty, the function returns false as well.
+   * Navigates user to the next page. 
+   * 
+   * Returns `false` in the following cases:
+   * 
+   * - if the current page is the last page. 
+   * - if the current page contains errors (for example, a required question is empty).
    * @see isCurrentPageHasErrors
    * @see prevPage
    * @see completeLastPage
@@ -2225,16 +2301,16 @@ export class SurveyModel extends Base
     this.doCurrentPageCompleteCore(doComplete);
   }
   /**
-   * Returns true, if there is any error on the current page. For example, the required question is empty or a question validation is failed.
+   * Returns `true`, if the current page contains errors, for example, the required question is empty or a question validation is failed.
    * @see nextPage
    */
   public get isCurrentPageHasErrors(): boolean {
     return this.checkIsCurrentPageHasErrors();
   }
   /**
-   * Returns true, if there is an error on any visible page
-   * @param fireCallback set it to true, to show errors in UI
-   * @param focusOnFirstError set it to true to focus on the first question that doesn't pass the validation and make the page, where question located, the current.
+   * Returns `true`, if any of the survey pages contains errors.
+   * @param fireCallback set it to `true`, to show errors in UI.
+   * @param focusOnFirstError set it to `true` to focus on the first question that doesn't pass the validation and make the page, where the question is located, the current.
    */
   public hasErrors(
     fireCallback: boolean = true,
@@ -2255,10 +2331,10 @@ export class SurveyModel extends Base
     return res;
   }
   /**
-   * Ensure that pages, panels and questions have unique question names.
-   * You may ensure unique names for individual page and panel (and all their elements) or question
-   * If the parameter is underfined then survey ensure that all its elements are unique.
-   * @param element page, panel or question, it is null by default, that means all survey elements will be checked
+   * Checks whether survey elements (pages, panels, and questions) have unique question names.
+   * You can check for unique names for individual page and panel (and all their elements) or a question.
+   * If the parameter is not specified, then a survey checks that all its elements have unique names.
+   * @param element page, panel or question, it is `null` by default, that means all survey elements will be checked
    */
   public ensureUniqueNames(element: ISurveyElement = null) {
     if (element == null) {
@@ -2369,7 +2445,7 @@ export class SurveyModel extends Base
     });
   }
   /**
-   * Call it to go to the previous page. It returns false if the current page is the first page already. It doesn't perform any checks, required questions can be empty.
+   * Navigates user to a previous page. If the current page is the first page, `prevPage` returns `false`. `prevPage` does not perform any checks, required questions can be empty.
    * @see isFirstPage
    */
   public prevPage(): boolean {
@@ -2379,7 +2455,8 @@ export class SurveyModel extends Base
     this.currentPage = vPages[index - 1];
   }
   /**
-   * Call it to complete the survey, if the current page is the last one. It returns false if there is an error on the page. If there is no errors on the page, it calls doComplete and returns true.
+   * Completes the survey, if the current page is the last one. It returns `false` if the last page has no errors.
+   * If the last page has no errors, `completeLastPage` calls `doComplete` and returns `true`.
    * @see isCurrentPageHasErrors
    * @see nextPage
    * @see doComplete
@@ -2401,8 +2478,7 @@ export class SurveyModel extends Base
     return true;
   }
   /**
-   * Set this property to true, if you want to combine all your pages in one page. Pages will be converted into panels.
-   * Please use questionsOnPageMode property. This property becomes obsolete
+   * Obsolete use the `questionsOnPageMode` property instead.
    * @see questionsOnPageMode
    */
   public get isSinglePage(): boolean {
@@ -2412,9 +2488,12 @@ export class SurveyModel extends Base
     this.questionsOnPageMode = val ? "singlePage" : "standard";
   }
   /**
-   * Set this property to 'singlePage', if you want to combine all your pages in one page. Pages will be converted into panels.
-   * Set it to 'questionPerPage', if you want to have one question per page. Survey will create a separate page for every question.
-   * This property made isSinglePage property obsolete
+   * Gets or sets a value that specifies how the survey combines questions, panels, and pages. 
+   * 
+   * The following options are available:
+   * 
+   * - `singlePage` - combine all survey pages in a single page. Pages will be converted to panels.
+   * - `questionPerPage` - show one question per page. Survey will create a separate page for every question.
    */
   public get questionsOnPageMode(): string {
     return this.getPropertyValue("questionsOnPageMode", "standard");
@@ -2423,7 +2502,8 @@ export class SurveyModel extends Base
     this.setPropertyValue("questionsOnPageMode", val);
   }
   /**
-   * Set this property to true, to make the first page your starting page. The end-user could not comeback to the start page and it is not count in the progress.
+   * Gets or sets whether the first survey page is a start page. Set this property to `true`, to make the first page a starting page.
+   * An end user cannot navigate to the start page and the start page does not affect a survey progress.
    */
   public get firstPageIsStarted(): boolean {
     return this.getPropertyValue("firstPageIsStarted", false);
@@ -2508,7 +2588,7 @@ export class SurveyModel extends Base
         var element = Serializer.createClass(originalElement.getType());
         if (!element) continue;
         var jsonObj = new JsonObject();
-        //Deserealize page properties only, excluding elements
+        //Deserialize page properties only, excluding elements
         jsonObj.lightSerializing = true;
         var pageJson = jsonObj.toJsonObject(originalPage);
 
@@ -2525,7 +2605,7 @@ export class SurveyModel extends Base
     return res;
   }
   /**
-   * Returns true if the current page is the first one.
+   * Gets whether the current page is the first one.
    */
   public get isFirstPage(): boolean {
     if (this.currentPage == null) return true;
@@ -2537,7 +2617,7 @@ export class SurveyModel extends Base
     return this.getPageMaxTimeToFinish(page) <= 0;
   }
   /**
-   * Returns true if the current page is the last one.
+   * Gets whether the current page is the last one.
    */
   public get isLastPage(): boolean {
     if (this.currentPage == null) return true;
@@ -2545,8 +2625,18 @@ export class SurveyModel extends Base
     return vPages.indexOf(this.currentPage) == vPages.length - 1;
   }
   /**
-   * Call it to complete the survey. It writes cookie if cookieName property is not empty, set the survey into 'completed' state, fire onComplete event and sendResult into [dxsurvey.com](http://www.dxsurvey.com) service if surveyPostId property is not empty. It doesn't perform any validation, unlike completeLastPage function.
-   * It calls navigateToUrl after calling onComplete event. In case calling options.showDataSaving callback in onComplete event, navigateToUrl will be used on calling options.showDataSavingSuccess callback.
+   * Completes the survey. 
+   * 
+   * Calling this function performs the following tasks:
+   * 
+   * - writes cookie if the `cookieName` property is not empty
+   * - sets the survey into `completed` state
+   * - fires the `onComplete` event
+   * - calls `sendResult` function. 
+   * 
+   * Calling the `doComplete` function does not perform any validation, unlike the `completeLastPage` function.
+   * It calls `navigateToUrl` after calling `onComplete` event.
+   * In case calling `options.showDataSaving` callback in the `onComplete` event, `navigateToUrl` is used on calling `options.showDataSavingSuccess` callback.
    * @see cookieName
    * @see state
    * @see onComplete
@@ -2591,7 +2681,7 @@ export class SurveyModel extends Base
     }
   }
   /**
-   * Start the survey. Change the mode from "starting" to "running". You need to call it, if there is a started page in your survey, otherwise it does nothing.
+   * Starts the survey. Changes the survey mode from "starting" to "running". Call this function if your survey has a start page, otherwise this function does nothing.
    * @see firstPageIsStarted
    */
   public start(): boolean {
@@ -2603,7 +2693,7 @@ export class SurveyModel extends Base
     return true;
   }
   /**
-   * Returns true, if at the current moment the question values on the current page are validating on the server.
+   * Gets whether the question values on the current page are validating on the server at the current moment.
    * @see onServerValidateQuestions
    */
   public get isValidatingOnServer(): boolean {
@@ -2683,7 +2773,7 @@ export class SurveyModel extends Base
     this.isCompleted = true;
   }
   /**
-   * Returns the html for completed 'Thank you' page.
+   * Returns the HTML content for the complete page.
    * @see completedHtml
    */
   public get processedCompletedHtml(): string {
@@ -2694,8 +2784,9 @@ export class SurveyModel extends Base
     return "<h3>" + this.getLocString("completingSurvey") + "</h3>";
   }
   /**
-   * Returns the html showing that the user has already completed the survey
+   * Returns the HTML content, that is shown to a user that had completed the survey before.
    * @see completedHtml
+   * @see cookieName
    */
   public get processedCompletedBeforeHtml(): string {
     if (this.completedBeforeHtml) {
@@ -2704,7 +2795,7 @@ export class SurveyModel extends Base
     return "<h3>" + this.getLocString("completingSurveyBefore") + "</h3>";
   }
   /**
-   * Returns the html that shows on loading the json.
+   * Returns the HTML content, that is shows when a survey loads the survey JSON.
    */
   public get processedLoadingHtml(): string {
     if (this.loadingHtml) {
@@ -2869,10 +2960,10 @@ export class SurveyModel extends Base
   }
 
   /**
-   * Upload the file into server
-   * @param name question name
-   * @param file uploading file
-   * @param storeDataAsText set it to true to encode file content into the survey results
+   * Uploads a file to server.
+   * @param name a question name
+   * @param file an uploaded file
+   * @param storeDataAsText set it to `true` to encode file content into the survey results
    * @param uploadingCallback a call back function to get the status on uploading the file
    */
   public uploadFiles(
@@ -2894,9 +2985,9 @@ export class SurveyModel extends Base
     }
   }
   /**
-   * Download the file from server
-   * @param name question name
-   * @param fileValue single file question value
+   * Downloads a file from server
+   * @param name a question name
+   * @param fileValue a single file question value
    * @param callback a call back function to get the status on downloading the file and the downloaded file content
    */
   public downloadFile(
@@ -2915,9 +3006,9 @@ export class SurveyModel extends Base
     });
   }
   /**
-   * Clear files from server
-   * @param name question name
-   * @param value file question value
+   * Clears files from server.
+   * @param name a question name
+   * @param value a file question value
    * @param callback a call back function to get the status of the clearing operation
    */
   public clearFiles(
@@ -2982,8 +3073,8 @@ export class SurveyModel extends Base
     return this.pages[index];
   }
   /**
-   * Add a page into the survey
-   * @param page
+   * Adds an existing page to the survey.
+   * @param page a newly added page
    * @see addNewPage
    */
   public addPage(page: PageModel) {
@@ -2992,7 +3083,7 @@ export class SurveyModel extends Base
     this.updateVisibleIndexes();
   }
   /**
-   * Creates a new page and adds it into the survey. Genarates a new name if the name parameter is not set.
+   * Creates a new page and adds it to a survey. Generates a new name if the `name` parameter is not specified.
    * @param name a page name
    * @see addPage
    */
@@ -3002,7 +3093,7 @@ export class SurveyModel extends Base
     return page;
   }
   /**
-   * Remove the page from the survey
+   * Removes a page from a survey.
    * @param page
    */
   public removePage(page: PageModel) {
@@ -3015,9 +3106,9 @@ export class SurveyModel extends Base
     this.updateVisibleIndexes();
   }
   /**
-   * Returns a question by its name
+   * Returns a question by its name.
    * @param name a question name
-   * @param caseInsensitive
+   * @param caseInsensitive 
    * @see getQuestionByValueName
    */
   public getQuestionByName(
@@ -3057,8 +3148,8 @@ export class SurveyModel extends Base
     return res;
   }
   /**
-   * Get a list of questions by their names
-   * @param names the array of names
+   * Gets a list of questions by their names.
+   * @param names an array of question names
    * @param caseInsensitive
    */
   public getQuestionsByNames(
@@ -3086,7 +3177,7 @@ export class SurveyModel extends Base
     return null;
   }
   /**
-   * Returns a page on which a question is located
+   * Returns a page on which a question is located.
    * @param question
    */
   public getPageByQuestion(question: IQuestion): PageModel {
@@ -3103,8 +3194,8 @@ export class SurveyModel extends Base
     return null;
   }
   /**
-   * Rertuns a list of pages by their names
-   * @param names a list of pages names
+   * Returns a list of pages by their names.
+   * @param names a list of page names
    */
   public getPagesByNames(names: string[]): PageModel[] {
     var result: PageModel[] = [];
@@ -3117,8 +3208,8 @@ export class SurveyModel extends Base
     return result;
   }
   /**
-   * Returns the list of all questions in the survey
-   * @param visibleOnly set it true, if you want to get only visible questions
+   * Returns a list of all questions in a survey.
+   * @param visibleOnly set it `true`, if you want to get only visible questions
    */
   public getAllQuestions(
     visibleOnly: boolean = false,
@@ -3154,7 +3245,7 @@ export class SurveyModel extends Base
     return result;
   }
   /**
-   * Returns a panel by its name
+   * Returns a panel by its name.
    * @param name a panel name
    * @param caseInsensitive
    * @see getQuestionByName
@@ -3173,7 +3264,7 @@ export class SurveyModel extends Base
     return null;
   }
   /**
-   * Returns the list of all panels in the survey
+   * Returns a list of all survey's panels.
    */
   public getAllPanels(
     visibleOnly: boolean = false,
@@ -3319,10 +3410,10 @@ export class SurveyModel extends Base
     }
   }
   /**
-   * Send the survey result into [dxsurvey.com](http://www.dxsurvey.com) service.
+   * Sends a survey result to the [dxsurvey.com](http://www.dxsurvey.com) service.
    * @param postId [dxsurvey.com](http://www.dxsurvey.com) service postId
-   * @param clientId Typically a customer e-mail or an identificator
-   * @param isPartialCompleted Set it to true if the survey is not completed yet and it is an intermediate results
+   * @param clientId Typically a customer e-mail or an identifier
+   * @param isPartialCompleted Set it to `true` if the survey is not completed yet and the results are intermediate
    * @see surveyPostId
    * @see clientId
    */
@@ -3370,7 +3461,7 @@ export class SurveyModel extends Base
     );
   }
   /**
-   * It calls the [dxsurvey.com](http://www.dxsurvey.com) service and on callback fires onGetResult event with all answers that your users made for a question.
+   * Calls the [dxsurvey.com](http://www.dxsurvey.com) service and, on callback, fires the `onGetResult` event with all answers that your users made for a question.
    * @param resultId [dxsurvey.com](http://www.dxsurvey.com) service resultId
    * @param name The question name
    * @see onGetResult
@@ -3392,9 +3483,10 @@ export class SurveyModel extends Base
     });
   }
   /**
-   * Loads the survey Json from the [dxsurvey.com](http://www.dxsurvey.com) service. If clientId is not null and user has already completed the survey, the survey will go into "completedbefore" state.
+   * Loads the survey JSON from the [dxsurvey.com](http://www.dxsurvey.com) service.
+   * If `clientId` is not `null` and a user had completed a survey before, the survey switches to `completedbefore` state.
    * @param surveyId [dxsurvey.com](http://www.dxsurvey.com) service surveyId
-   * @param clientId indentificator for a user, for example e-mail or unique customer id in your web application.
+   * @param clientId users' indentifier, for example an e-mail or a unique customer id in your web application.
    * @see state
    */
   public loadSurveyFromService(
@@ -3623,7 +3715,7 @@ export class SurveyModel extends Base
   /**
    * Sets a variable value. Variable, unlike values, are not stored in the survey results.
    * @param name A variable name
-   * @param newValue
+   * @param newValue A variable new value
    * @see GetVariable
    */
   public setVariable(name: string, newValue: any) {
@@ -3638,7 +3730,7 @@ export class SurveyModel extends Base
     return Helpers.getUnbindValue(value);
   }
   /**
-   * Returns a question value
+   * Returns a question value (answer) by a question's name.
    * @param name A question name
    * @see data
    * @see setValue
@@ -3649,9 +3741,11 @@ export class SurveyModel extends Base
     return this.getUnbindValue(value);
   }
   /**
-   * Sets a question value. It runs all triggers and conditions (visibleIf properties). Goes to the next page if goNextPageAutomatic is true and all questions on the current page are answered correctly.
+   * Sets a question value (answer). It runs all triggers and conditions (`visibleIf` properties). 
+   * 
+   * Goes to the next page if `goNextPageAutomatic` is `true` and all questions on the current page are answered correctly.
    * @param name A question name
-   * @param newValue
+   * @param newValue A new question value
    * @see data
    * @see getValue
    * @see PageModel.visibleIf
@@ -3740,8 +3834,8 @@ export class SurveyModel extends Base
     }
   }
   /**
-   * Returns the comment value
-   * @param name
+   * Returns the comment value.
+   * @param name A comment's name.
    * @see setComment
    */
   public getComment(name: string): string {
@@ -3750,9 +3844,9 @@ export class SurveyModel extends Base
     return result;
   }
   /**
-   * Set the comment value
-   * @param name
-   * @param newValue
+   * Sets a comment value.
+   * @param name A comment name.
+   * @param newValue A new comment value.
    * @see getComment
    */
   public setComment(
@@ -3787,16 +3881,16 @@ export class SurveyModel extends Base
     }
   }
   /**
-   * Remove the value from the survey result.
-   * @param {string} name The name of the value. Typically it is a question name
+   * Removes a value from the survey results.
+   * @param {string} name The name of the value. Typically it is a question name.
    */
   public clearValue(name: string) {
     this.setValue(name, null);
     this.setComment(name, null);
   }
   /**
-   * Set this value to true, to clear value on disable items in checkbox, dropdown and radiogroup questions.
-   * By default values are not cleared on disabled the corresponded items. This property is not persisted in survey json and you have to set it in code.
+   * Gets or sets whether to clear value on disable items in checkbox, dropdown and radiogroup questions.
+   * By default, values are not cleared on disabled the corresponded items. This property is not persisted in survey JSON and you have to set it in code.
    */
   public get clearValueOnDisableItems(): boolean {
     return this.getPropertyValue("clearValueOnDisableItems", false);
@@ -4038,13 +4132,13 @@ export class SurveyModel extends Base
     return options.html;
   }
   /**
-   * Returns the number of corrected answers on quiz
+   * Returns an amount of corrected quiz answers.
    */
   public getCorrectedAnswerCount(): number {
     return this.getCorrectedAnswerCountCore(true);
   }
   /**
-   * Returns quiz question number. It may be different from getQuizQuestions.length because some widgets like matrix may have several questions. For example by number of rows
+   * Returns quiz question number. It may be different from `getQuizQuestions.length` because some widgets like matrix may have several questions.
    * @see getQuizQuestions
    */
   public getQuizQuestionCount(): number {
@@ -4056,7 +4150,7 @@ export class SurveyModel extends Base
     return res;
   }
   /**
-   * Returns the number of incorrected answers on quiz
+   * Returns an amount of incorrect quiz answers.
    */
   public getInCorrectedAnswerCount(): number {
     return this.getCorrectedAnswerCountCore(false);
@@ -4099,8 +4193,14 @@ export class SurveyModel extends Base
     return this.getInCorrectedAnswerCount();
   }
   /**
-   * Set it to 'top' or 'bottom' if you want to show the Panel with information about how much time the end-user spent of the survey/page.
-   * If the value doesn't equal 'none' then survey calls startTimer() method on survey rendering.
+   * Gets or sets a timer panel position. The timer panel displays information about how much time an end user spends on a survey/page.
+   * 
+   * The available options:
+   * - `top` - display timer panel in the top.
+   * - `bottom` - display timer panel in the bottom.
+   * - `none` - do not display a timer panel.
+   * 
+   * If the value is not equal to 'none', the survey calls the `startTimer()` method on survey rendering.
    * @see showTimerPanelMode
    * @see startTimer
    * @see stopTimer
@@ -4118,8 +4218,14 @@ export class SurveyModel extends Base
     return this.isTimerStarted && this.showTimerPanel == "bottom";
   }
   /**
-   * Set this property to 'page' or 'survey' to show the timer information for page or survey only.
-   * Use onTimerPanelInfoText event to change the default text.
+   * Gets or set a value that specifies whether the timer displays information for the page or for the entire survey. 
+   * 
+   * The available options:
+   * 
+   * - `page` - show timer information for page
+   * - `survey` - show timer information for survey
+   * 
+   * Use the `onTimerPanelInfoText` event to change the default text.
    * @see showTimerPanel
    * @see onTimerPanelInfoText
    */
@@ -4205,7 +4311,7 @@ export class SurveyModel extends Base
   }
   private timerFunc: any = null;
   /**
-   * Call this method to start timer that will calculate how much time end-user spends on the survey or on pages
+   * Starts a timer that will calculate how much time end-user spends on the survey or on pages.
    * @see stopTimer
    * @see timeSpent
    */
@@ -4224,7 +4330,7 @@ export class SurveyModel extends Base
     }
   }
   /**
-   * Stop the timer.
+   * Stops the timer.
    * @see startTimer
    * @see timeSpent
    */
@@ -4234,13 +4340,13 @@ export class SurveyModel extends Base
     SurveyTimer.instance.stop(this.timerFunc);
   }
   /**
-   * Returns the time in seconds end-user spends on the survey
+   * Returns the time in seconds an end user spends on the survey
    * @see startTimer
    * @see PageModel.timeSpent
    */
   public timeSpent = 0;
   /**
-   * The maximum time in seconds that end-user has to complete the survey. If the value is 0 or less, the end-user has unlimited number of time to finish the survey.
+   * Gets or sets the maximum time in seconds that end user has to complete a survey. If the value is 0 or less, an end user has no time limit to finish a survey.
    * @see startTimer
    * @see maxTimeToFinishPage
    */
@@ -4251,7 +4357,9 @@ export class SurveyModel extends Base
     this.setPropertyValue("maxTimeToFinish", val);
   }
   /**
-   * The maximum time in seconds that end-user has to complete a page in the survey. If the value is 0 or less, the end-user has unlimited time. You may override this value for every page.
+   * Gets or sets the maximum time in seconds that end user has to complete a page in the survey. If the value is 0 or less, an end user has no time limit. 
+   * 
+   * You may override this value for every page.
    * @see startTimer
    * @see maxTimeToFinish
    * @see PageModel.maxTimeToFinish

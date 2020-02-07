@@ -6,8 +6,6 @@ import {
   IPage,
   IPanel,
   IConditionRunner,
-  ISurvey,
-  ISurveyData,
   IElement,
   ISurveyElement,
   IQuestion,
@@ -20,7 +18,6 @@ import { ConditionRunner } from "./conditions";
 import { QuestionFactory } from "./questionfactory";
 import { ILocalizableOwner, LocalizableString } from "./localizablestring";
 import { OneAnswerRequiredError } from "./error";
-import { QuestionPanelDynamic } from "./knockout/koquestion_paneldynamic";
 import { PageModel } from "./page";
 import { settings } from "./settings";
 
@@ -1405,6 +1402,14 @@ export class PanelModel extends PanelModelBase implements IElement {
     var css = (<any>this).survey["css"];
     if (!css) return "";
     return indent * css.question.indent + "px";
+  }
+  public clearOnDeletingContainer() {
+    this.elements.forEach((element) => {
+      if (element instanceof Question ||
+          element instanceof PanelModel) {
+        element.clearOnDeletingContainer();
+      }
+    });
   }
   protected onVisibleChanged() {
     super.onVisibleChanged();

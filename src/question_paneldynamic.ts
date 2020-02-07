@@ -250,6 +250,11 @@ export class QuestionPanelDynamicModel extends Question
   public getType(): string {
     return "paneldynamic";
   }
+  public clearOnDeletingContainer() {
+    this.panels.forEach((panel) => {
+      panel.clearOnDeletingContainer();
+    });
+  }
   public get isAllowTitleLeft(): boolean {
     return false;
   }

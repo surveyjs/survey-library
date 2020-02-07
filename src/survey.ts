@@ -39,7 +39,7 @@ import { ExpressionRunner, ConditionRunner } from "./conditions";
 import { settings } from "./settings";
 
 /**
- * Survey object contains information about the survey. Pages, Questions, flow logic and etc.
+ * The `Survey` object contains information about the survey, Pages, Questions, flow logic and etc.
  */
 export class SurveyModel extends Base
   implements
@@ -56,8 +56,10 @@ export class SurveyModel extends Base
     return SurveyModel.platform;
   }
   /**
-   * You may show comments input for the most of questions. The entered text in the comment input will be saved as 'question name' + 'commentPrefix'.
+   * You can display an additional field (comment field) for the most of questions; users can enter additional comments to their response. 
+   * The comment field input is saved as `'question name' + 'commentPrefix'`.
    * @see data
+   * @see Question.hasComment
    */
   public get commentPrefix(): string {
     return settings.commentPrefix;
@@ -84,9 +86,9 @@ export class SurveyModel extends Base
 
   private isTimerStarted: boolean = false;
   /**
-   * The event is fired before the survey is completed and onComplete event is fired. You may prevent the survey from completing by setting options.allowComplete to false
-   * <br/> sender the survey object that fires the event
-   * <br/> options.allowComplete set it false to prevent the survey from completing. The default value is true.
+   * The event is fired before the survey is completed and the `onComplete` event is fired. You can prevent the survey from completing by setting `options.allowComplete` to `false`
+   * <br/> `sender` - the survey object that fires the event.
+   * <br/> `options.allowComplete` - Specifies whether a user can complete a survey. Set this property to `false` to prevent the survey from completing. The default value is `true`.
    * @see onComplete
    */
   public onCompleting: Event<
@@ -94,12 +96,12 @@ export class SurveyModel extends Base
     any
   > = new Event<(sender: SurveyModel, options: any) => any, any>();
   /**
-   * The event is fired after a user click on 'Complete' button and finished the survey. You may use it to send the data to your web server.
-   * <br/> sender the survey object that fires the event
-   * <br/> options.showDataSaving(text) call this method to show that the survey is saving the data on your server. The text is an optional parameter to show your message instead of default.
-   * <br/> options.showDataSavingError(text) call this method to show that there is an error on saving the data on your server. If you want to show a custom error, use an optional text parameter.
-   * <br/> options.showDataSavingSuccess(text) call this method to show that the data were successful saved on the server.
-   * <br/> options.showDataSavingClear call this method to hide the text about the saving progress.
+   * The event is fired after a user clicks the 'Complete' button and finishes a survey. Use this event to send the survey data to your web server.
+   * <br/> `sender` - the survey object that fires the event.
+   * <br/> `options.showDataSaving(text)` - call this method to show that the survey is saving survey data on your server. The `text` is an optional parameter to show a custom message instead of default.
+   * <br/> `options.showDataSavingError(text)` - call this method to show that an error occurred while saving the data on your server. If you want to show a custom error, use an optional `text` parameter.
+   * <br/> `options.showDataSavingSuccess(text)` - call this method to show that the data was successfully saved on the server.
+   * <br/> `options.showDataSavingClear` - call this method to hide the text about the saving progress.
    * @see data
    * @see clearInvisibleValues
    * @see completeLastPage
@@ -110,10 +112,10 @@ export class SurveyModel extends Base
     any
   > = new Event<(sender: SurveyModel, options: any) => any, any>();
   /**
-   * The event is fired after a user click on 'Complete' button. It allows you to change the url where survey will navigate to.
-   * You have to setup up navigateToUrl properties to let survey to navigate to another url.
-   * <br/> sender the survey object that fires the event
-   * <br/> options.url change it to navigate to another url. Set it to empty string to cancel the navigation and show the completed survey page.
+   * The event is fired after a user clicks the 'Complete' button. The event allows you to specify the URL opened after completing a survey.
+   * Specify the `navigateToUrl` property to make survey navigate to another url.
+   * <br/> `sender` - the survey object that fires the event.
+   * <br/> `options.url` - Specifies a URL opened after completing a survey. Set this property to an empty string to cancel the navigation and show the completed survey page.
    * @see navigateToUrl
    * @see navigateToUrlOnCondition
    */
@@ -123,7 +125,7 @@ export class SurveyModel extends Base
   > = new Event<(sender: SurveyModel, options: any) => any, any>();
   /**
    * The event is fired after the survey changed it's state from "starting" to "running". The "starting" state means that survey shows the started page.
-   * The firstPageIsStarted property should be set to the true, if you want to have the started page in your survey. The end-user should click on the "Start" button to start the survey.
+   * The `firstPageIsStarted` property should be set to `true`, if you want to display a start page in your survey. In this case, an end user should click the "Start" button to start the survey.
    * @see firstPageIsStarted
    */
   public onStarted: Event<(sender: SurveyModel) => any, any> = new Event<
@@ -131,8 +133,8 @@ export class SurveyModel extends Base
     any
   >();
   /**
-   * The event is fired on clicking 'Next' page if sendResultOnPageNext is set to true. You may use it to save the intermediate results, for example, if your survey is large enough.
-   * <br/> sender the survey object that fires the event
+   * The event is fired on clicking the 'Next' button if the `sendResultOnPageNext` is set to `true`. You can use it to save the intermediate results, for example, if your survey is large enough.
+   * <br/> `sender` - the survey object that fires the event.
    * @see sendResultOnPageNext
    */
   public onPartialSend: Event<(sender: SurveyModel) => any, any> = new Event<
@@ -140,11 +142,11 @@ export class SurveyModel extends Base
     any
   >();
   /**
-   * The event is fired before another page becomes the current. Typically it happens when a user click on 'Next' or 'Prev' buttons.
-   * <br/> sender the survey object that fires the event
-   * <br/> option.oldCurrentPage the previous current/active page
-   * <br/> option.newCurrentPage a new current/active page
-   * <br/> option.allowChanging set it to false to disable the current page changing. It is true by default.
+   * The event is fired before the current page changes to another page. Typically it happens when a user click the 'Next' or 'Prev' buttons.
+   * <br/> `sender` - the survey object that fires the event.
+   * <br/> `option.oldCurrentPage` - the previous current/active page.
+   * <br/> `option.newCurrentPage` - a new current/active page.
+   * <br/> `option.allowChanging` - set it to `false` to disable the current page changing. It is `true` by default.
    * @see currentPage
    * @see currentPageNo
    * @see nextPage
@@ -157,10 +159,10 @@ export class SurveyModel extends Base
     any
   > = new Event<(sender: SurveyModel, options: any) => any, any>();
   /**
-   * The event is fired when another page becomes the current. Typically it happens when a user click on 'Next' or 'Prev' buttons.
-   * <br/> sender the survey object that fires the event
-   * <br/> option.oldCurrentPage the previous current/active page
-   * <br/> option.newCurrentPage a new current/active page
+   * The event is fired when the current page has been changed to another page. Typically it happens when a user click on 'Next' or 'Prev' buttons.
+   * <br/> `sender` - the survey object that fires the event.
+   * <br/> `option.oldCurrentPage` - a previous current/active page.
+   * <br/> `option.newCurrentPage` - a new current/active page.
    * @see currentPage
    * @see currentPageNo
    * @see nextPage
@@ -173,12 +175,12 @@ export class SurveyModel extends Base
     any
   > = new Event<(sender: SurveyModel, options: any) => any, any>();
   /**
-   * The event is fired before the question value is changed. It can be done via UI by a user or programmatically on calling setValue method.
-   * <br/> sender the survey object that fires the event
-   * <br/> options.name the value name that has being changed
-   * <br/> options.question a question which question.name equals to the value name. If there are several questions with the same name, the first question is taken. If there is no such questions, the options.question is null.
-   * <br/> options.oldValue old, previous value.
-   * <br/> options.value a new value. You may change it
+   * The event is fired before the question value (answer) is changed. It can be done via UI by a user or programmatically on calling the `setValue` method.
+   * <br/> `sender` - the survey object that fires the event.
+   * <br/> `options.name` - the value name that has being changed.
+   * <br/> `options.question` - a question which `question.name` equals to the value name. If there are several questions with the same name, the first question is used. If there is no such questions, the `options.question` is null.
+   * <br/> `options.oldValue` - an old, previous value.
+   * <br/> `options.value` - a new value. You can change it.
    * @see setValue
    * @see onValueChanged
    */
@@ -187,12 +189,12 @@ export class SurveyModel extends Base
     any
   > = new Event<(sender: SurveyModel, options: any) => any, any>();
   /**
-   * The event is fired when the question value is changed. It can be done via UI by a user or programmatically on calling setValue method.
-   * Please use onDynamicPanelItemValueChanged and onMatrixCellValueChanged events to handle changes a question in the Panel Dynamic and a cell question in matrices.
-   * <br/> sender the survey object that fires the event
-   * <br/> options.name the value name that has been changed
-   * <br/> options.question a question which question.name equals to the value name. If there are several questions with the same name, the first question is taken. If there is no such questions, the options.question is null.
-   * <br/> options.value a new value
+   * The event is fired when the question value (i.e., answer) has been changed. The question value can be changed in UI (by a user) or programmatically (on calling `setValue` method).
+   * Use the `onDynamicPanelItemValueChanged` and `onMatrixCellValueChanged` events to handle changes in a question in the Panel Dynamic and a cell question in matrices.
+   * <br/> `sender` - the survey object that fires the event.
+   * <br/> `options.name` - the value name that has been changed.
+   * <br/> `options.question` - a question which `question.name` equals to the value name. If there are several questions with the same name, the first question is used. If there is no such questions, the `options.question` is `null`.
+   * <br/> `options.value` - a new value.
    * @see setValue
    * @see onValueChanging
    * @see onDynamicPanelItemValueChanged
@@ -203,11 +205,11 @@ export class SurveyModel extends Base
     any
   > = new Event<(sender: SurveyModel, options: any) => any, any>();
   /**
-   * The event is fired on changing a question visibility.
-   * <br/> sender the survey object that fires the event
-   * <br/> options.question a question which visibility has been changed
-   * <br/> options.name a question name
-   * <br/> options.visible a question visible boolean value
+   * The event is fired when a question visibility has been changed.
+   * <br/> `sender` - the survey object that fires the event.
+   * <br/> `options.question` - a question which visibility has been changed.
+   * <br/> `options.name` - a question name.
+   * <br/> `options.visible` - a question `visible` boolean value.
    * @see Question.visibile
    * @see Question.visibileIf
    */
@@ -217,9 +219,9 @@ export class SurveyModel extends Base
   > = new Event<(sender: SurveyModel, options: any) => any, any>();
   /**
    * The event is fired on changing a page visibility.
-   * <br/> sender the survey object that fires the event
-   * <br/> options.page a page  which visibility has been changed
-   * <br/> options.visible a page visible boolean value
+   * <br/> `sender` - the survey object that fires the event.
+   * <br/> `options.page` - a page which visibility has been changed.
+   * <br/> `options.visible` - a page `visible` boolean value.
    * @see PageModel.visibile
    * @see PageModel.visibileIf
    */
@@ -229,9 +231,9 @@ export class SurveyModel extends Base
   > = new Event<(sender: SurveyModel, options: any) => any, any>();
   /**
    * The event is fired on changing a panel visibility.
-   * <br/> sender the survey object that fires the event
-   * <br/> options.panel a panel which visibility has been changed
-   * <br/> options.visible a panel visible boolean value
+   * <br/> `sender` - the survey object that fires the event.
+   * <br/> `options.panel` - a panel which visibility has been changed.
+   * <br/> `options.visible` - a panel `visible` boolean value.
    * @see PanelModel.visibile
    * @see PanelModel.visibileIf
    */
@@ -241,13 +243,12 @@ export class SurveyModel extends Base
   > = new Event<(sender: SurveyModel, options: any) => any, any>();
   /**
    * The event is fired on adding a new question into survey.
-   * 'question': question, 'name': question.name, 'index': index, 'parentPanel': parentPanel, 'rootPanel': rootPanel
-   * <br/> sender the survey object that fires the event
-   * <br/> options.question a newly added question object.
-   * <br/> options.name a question name
-   * <br/> options.index a index of the question in the container (page or panel)
-   * <br/> options.parentPanel a container where question is located. It can be page or panel.
-   * <br/> options.rootPanel typically it is a page.
+   * <br/> `sender` - the survey object that fires the event.
+   * <br/> `options.question` - a newly added question object.
+   * <br/> `options.name` - a question name.
+   * <br/> `options.index` - an index of the question in the container (page or panel).
+   * <br/> `options.parentPanel` - a container where a new question is located. It can be a page or panel.
+   * <br/> `options.rootPanel` - typically, it is a page.
    * @see Question
    */
   public onQuestionAdded: Event<
@@ -255,10 +256,10 @@ export class SurveyModel extends Base
     any
   > = new Event<(sender: SurveyModel, options: any) => any, any>();
   /**
-   * The event is fired on removing a question from survey
-   * <br/> sender the survey object that fires the event
-   * <br/> options.question a removed question object.
-   * <br/> options.name a question name
+   * The event is fired on removing a question from survey.
+   * <br/> `sender` - the survey object that fires the event.
+   * <br/> `options.question` - a removed question object.
+   * <br/> `options.name` - a question name.
    * @see Question
    */
   public onQuestionRemoved: Event<
@@ -266,13 +267,13 @@ export class SurveyModel extends Base
     any
   > = new Event<(sender: SurveyModel, options: any) => any, any>();
   /**
-   * The event is fired on adding a panel into survey
-   * <br/> sender the survey object that fires the event
-   * <br/> options.panel a newly added panel object.
-   * <br/> options.name a panel name
-   * <br/> options.index a index of the panel in the container (page or panel)
-   * <br/> options.parentPanel a container where question is located. It can be page or panel.
-   * <br/> options.rootPanel typically it is a page.
+   * The event is fired on adding a panel into survey.
+   * <br/> `sender` - the survey object that fires the event.
+   * <br/> `options.panel` - a newly added panel object.
+   * <br/> `options.name` - a panel name.
+   * <br/> `options.index` - an index of the panel in the container (a page or panel).
+   * <br/> `options.parentPanel` - a container (a page or panel) where a new panel is located.
+   * <br/> `options.rootPanel` - a root container, typically it is a page.
    * @see PanelModel
    */
   public onPanelAdded: Event<
@@ -280,10 +281,10 @@ export class SurveyModel extends Base
     any
   > = new Event<(sender: SurveyModel, options: any) => any, any>();
   /**
-   * The event is fired on removing a panel from survey
-   * <br/> sender the survey object that fires the event
-   * <br/> options.panel a removed panel object.
-   * <br/> options.name a panel name
+   * The event is fired on removing a panel from survey.
+   * <br/> `sender` - the survey object that fires the event.
+   * <br/> `options.panel` - a removed panel object.
+   * <br/> `options.name` - a panel name.
    * @see PanelModel
    */
   public onPanelRemoved: Event<
@@ -291,9 +292,9 @@ export class SurveyModel extends Base
     any
   > = new Event<(sender: SurveyModel, options: any) => any, any>();
   /**
-   * The event is fired on adding a page into survey
-   * <br/> sender the survey object that fires the event
-   * <br/> options.page a newly added panel object.
+   * The event is fired on adding a page into survey.
+   * <br/> `sender` - the survey object that fires the event.
+   * <br/> `options.page` - a newly added `panel` object.
    * @see PanelModel
    */
   public onPageAdded: Event<
@@ -301,12 +302,12 @@ export class SurveyModel extends Base
     any
   > = new Event<(sender: SurveyModel, options: any) => any, any>();
   /**
-   * The event is fired on validating value in a question. Set your error to options.error and survey will show the error for the question and block completing the survey or going to the next page.
-   * <br/> sender the survey object that fires the event
-   * <br/> options.question a question
-   * <br/> options.name a question name
-   * <br/> options.value the current question value
-   * <br/> options.error an error string. It is empty by default.
+   * The event is fired on validating value in a question. You can specify a custom error message using `options.error`. The survey blocks completing the survey or going to the next page when the error messages are displayed.
+   * <br/> `sender` - the survey object that fires the event.
+   * <br/> `options.question` - a validated question.
+   * <br/> `options.name` - a question name.
+   * <br/> `options.value` - the current question value (answer).
+   * <br/> `options.error` - an error string. It is empty by default.
    * @see onServerValidateQuestions
    * @see onSettingQuestionErrors
    */
@@ -315,10 +316,10 @@ export class SurveyModel extends Base
     any
   > = new Event<(sender: SurveyModel, options: any) => any, any>();
   /**
-   * The event is fired before errors are setting into question. You may add/remove/modify errors for a question.
-   * <br/> sender the survey object that fires the event
-   * <br/> options.question a question
-   * <br/> options.errors the list of errors. The list can be empty if by default there is no errors
+   * The event is fired before errors are assigned to a question. You may add/remove/modify errors for a question.
+   * <br/> `sender` - the survey object that fires the event.
+   * <br/> `options.question` - a validated question.
+   * <br/> `options.errors` - the list of errors. The list is empty by default and remains empty if a validated question has no errors.
    * @see onValidateQuestion
    */
   public onSettingQuestionErrors: Event<
@@ -327,10 +328,10 @@ export class SurveyModel extends Base
   > = new Event<(sender: SurveyModel, options: any) => any, any>();
   /**
    * Use this event to validate data on your server.
-   * <br/> sender the survey object that fires the event
-   * <br/> options.data the values of all non-empty questions on the current page. You can get a question value as options.data["myQuestionName"].
-   * <br/> options.errors set your errors to this object as: options.errors["myQuestionName"] = "Error text";. It will be shown as a question error.
-   * <br/> options.complete() call this function to tell survey that your server callback has been processed.
+   * <br/> `sender` - the survey object that fires the event.
+   * <br/> `options.data` - the values of all non-empty questions on the current page. You can get a question value as `options.data["myQuestionName"]`.
+   * <br/> `options.errors` - set your errors to this object as: `options.errors["myQuestionName"] = "Error text";`. It will be shown as a question error.
+   * <br/> `options.complete()` - call this function to tell survey that your server callback has been processed.
    * @see onValidateQuestion
    * @see onValidatePanel
    */
@@ -339,18 +340,18 @@ export class SurveyModel extends Base
     any
   >();
   /**
-   * Use this event to modify the html before rendering, for example html on 'Thank you' page. Options has one parameter: options.html.
-   * <br/> sender the survey object that fires the event
-   * <br/> options.html an html that you may change before text processing and then rendering.
+   * Use this event to modify the HTML before rendering, for example HTML on a completed page. 
+   * <br/> `sender` - the survey object that fires the event.
+   * <br/> `options.html` - an HTML that you may change before text processing and then rendering.
    * @see completedHtml
    * @see loadingHtml
    * @see QuestionHtmlModel.html
    */
   /**
-   * The event is fired on validating a panel. Set your error to options.error and survey will show the error for the panel and block completing the survey or going to the next page.
-   * <br/> sender the survey object that fires the event
-   * <br/> options.name a panel name
-   * <br/> options.error an error string. It is empty by default.
+   * The event is fired on validating a panel. Set your error to `options.error` and survey will show the error for the panel and block completing the survey or going to the next page.
+   * <br/> `sender` - the survey object that fires the event.
+   * <br/> `options.name` - a panel name.
+   * <br/> `options.error` - an error string. It is empty by default.
    * @see onValidateQuestion
    */
   public onValidatePanel: Event<
@@ -359,10 +360,10 @@ export class SurveyModel extends Base
   > = new Event<(sender: SurveyModel, options: any) => any, any>();
   /**
    * Use the event to change the default error text.
-   * <br/> sender the survey object that fires the event
-   * <br/> options.text an error text
-   * <br/> options.error an instance of SurveyError object
-   * <br/> options.name the error name. The following error name are available:
+   * <br/> `sender` - the survey object that fires the event.
+   * <br/> `options.text` - an error text.
+   * <br/> `options.error` - an instance of the `SurveyError` object.
+   * <br/> `options.name` - the error name. The following error names are available:
    * required, requireoneanswer, requirenumeric, exceedsize, webrequest, webrequestempty, otherempty,
    * uploadingfile, requiredinallrowserror, minrowcounterror, keyduplicationerror, custom
    */
@@ -382,8 +383,8 @@ export class SurveyModel extends Base
   > = new Event<(sender: SurveyModel, options: any) => any, any>();
 
   /**
-   * Use this event to modify the html before rendering, for example completeHtml or loadingHtml.
-   * options.html - change this html property before the library rendered it
+   * Use this event to modify the HTML content before rendering, for example `completeHtml` or `loadingHtml`.
+   * `options.html` - specifies the modified HTML content.
    * @see completedHtml
    * @see loadingHtml
    */
@@ -392,10 +393,10 @@ export class SurveyModel extends Base
     any
   > = new Event<(sender: SurveyModel, options: any) => any, any>();
   /**
-   * Use this event to change the question title in the code.
-   * <br/> sender the survey object that fires the event
-   * <br/> options.title a calcualted question title, based on question title, name, isRequired, visibleIndex (no)
-   * <br/> options.question a question object.
+   * Use this event to change the question title in code.
+   * <br/> `sender` - the survey object that fires the event.
+   * <br/> `options.title` - a calculated question title, based on question `title`, `name`, `isRequired`, and `visibleIndex` properties.
+   * <br/> `options.question` - a question object.
    */
   public onGetQuestionTitle: Event<
     (sender: SurveyModel, options: any) => any,
@@ -403,32 +404,32 @@ export class SurveyModel extends Base
   > = new Event<(sender: SurveyModel, options: any) => any, any>();
   /**
    * Use this event to process the markdown text.
-   * <br/> sender the survey object that fires the event
-   * <br/> options.element SurveyJS element where the string is going to be rendered. It is a question, panel, page or survey
-   * <br/> options.text a text that is going to be rendered
-   * <br/> options.html a html. It is null by default. Set it and survey will use it instead of options.text
+   * <br/> `sender` - the survey object that fires the event.
+   * <br/> `options.element` - SurveyJS element (a question, panel, page, or survey) where the string is going to be rendered.
+   * <br/> `options.text` - a text that is going to be rendered.
+   * <br/> `options.html` - an HTML content. It is `null` by default. Use this property to specify the HTML content rendered instead of `options.text`.
    */
   public onTextMarkdown: Event<
     (sender: SurveyModel, options: any) => any,
     any
   > = new Event<(sender: SurveyModel, options: any) => any, any>();
   /**
-   * The event fires when it get response from the [dxsurvey.com](http://www.dxsurvey.com) service on saving survey results. Use it to find out if the results have been saved successful.
-   * <br/> sender the survey object that fires the event
-   * <br/> options.success it is true if the results were sent to the service successful
-   * <br/> options.response a response from the service
+   * The event fires when it gets response from the [dxsurvey.com](http://www.dxsurvey.com) service on saving survey results. Use it to find out if the results have been saved successfully.
+   * <br/> `sender` - the survey object that fires the event.
+   * <br/> `options.success` - it is `true` if the results has been sent to the service successfully.
+   * <br/> `options.response` - a response from the service.
    */
   public onSendResult: Event<
     (sender: SurveyModel, options: any) => any,
     any
   > = new Event<(sender: SurveyModel, options: any) => any, any>();
   /**
-   * Use it to get results after calling the getResult method. It returns a simple analytic from [dxsurvey.com](http://www.dxsurvey.com) service.
-   * <br/> sender the survey object that fires the event
-   * <br/> options.success it is true if the results were got from the service successful
-   * <br/> options.data the object {AnswersCount, QuestionResult : {} }. AnswersCount is the number of posted survey results. QuestionResult is an object with all possible unique answers to the question and number of these answers.
-   * <br/> options.dataList an array of objects {name, value}, where 'name' is an unique value/answer to the question and value is a number/count of such answers.
-   * <br/> options.response the server response
+   * Use it to get results after calling the `getResult` method. It returns a simple analytics from [dxsurvey.com](http://www.dxsurvey.com) service.
+   * <br/> `sender` - the survey object that fires the event.
+   * <br/> `options.success` - it is `true` if the results were got from the service successfully.
+   * <br/> `options.data` - the object `{AnswersCount, QuestionResult : {} }`. `AnswersCount` is the number of posted survey results. `QuestionResult` is an object with all possible unique answers to the question and number of these answers.
+   * <br/> `options.dataList` - an array of objects `{name, value}`, where `name` is an unique value/answer to the question and `value` is a number/count of such answers.
+   * <br/> `options.response` - the server response.
    * @see getResult
    */
   public onGetResult: Event<
@@ -436,12 +437,11 @@ export class SurveyModel extends Base
     any
   > = new Event<(sender: SurveyModel, options: any) => any, any>();
   /**
-   * The event is fired on uploading the file in QuestionFile when storeDataAsText is set to false. You may use it to change the file name or tells the library do not accept the file. There are three properties in options: options.name, options.file and options.accept.
-   * <br/> sender the survey object that fires the event
-   * name: name, file: file, accept: accept
-   * <br/> name the file name
-   * <br/> file the Javascript File object
-   * <br/> accept a boolean value, true by default. Set it to false to deny this file to upload
+   * The event is fired on uploading the file in QuestionFile when `storeDataAsText` is set to `false`. Use this event to change the uploaded file name or to prevent a particular file from being uploaded.
+   * <br/> `sender` - the survey object that fires the event.
+   * <br/> `options.name` - the file name.
+   * <br/> `options.file` - the Javascript File object.
+   * <br/> `options.accept` - a boolean value, `true` by default. Set it to `false` to deny this file uploading.
    * @see uploadFiles
    * @see QuestionFileModel.storeDataAsText
    */
@@ -450,13 +450,12 @@ export class SurveyModel extends Base
     any
   > = new Event<(sender: SurveyModel, options: any) => any, any>();
   /**
-   * The event is fired on downloading the file in QuestionFile. You may use it to pass the file for the preview. There are four properties in options: options.name, options.content, optins.fileValue and options.callback.
-   * <br/> sender the survey object that fires the event
-   * name: name, content: content, fileValue: fileValue
-   * <br/> name the question name
-   * <br/> content the file content
-   * <br/> fileValue single file question value
-   * <br/> callback a call back function to get the status on downloading the file and the downloaded file content
+   * The event is fired on downloading a file in QuestionFile. Use this event to pass the file to a preview. 
+   * <br/> `sender` - the survey object that fires the event.
+   * <br/> `options.name` - the question name.
+   * <br/> `options.content` - the file content.
+   * <br/> `options.fileValue` - single file question value.
+   * <br/> `options.callback` - a call back function to get the status on downloading the file and the downloaded file content.
    * @see downloadFile
    */
   public onDownloadFile: Event<
@@ -464,13 +463,12 @@ export class SurveyModel extends Base
     any
   > = new Event<(sender: SurveyModel, options: any) => any, any>();
   /**
-   * The event is fired on clearing the value in QuestionFile. You may use it to remove files stored on your server. There are three properties in options: options.name, options.value and options.callback.
-   * <br/> sender the survey object that fires the event
-   * name: name, value: value
-   * <br/> name the question name
-   * <br/> value the question value
-   * <br/> fileName of the removed file, pass null to clear all files
-   * <br/> callback a call back function to get the status on clearing the files operation
+   * This event is fired on clearing the value in a QuestionFile. Use this event to remove files stored on your server.
+   * <br/> `sender` - the survey object that fires the event.
+   * <br/> `options.name` - the question name.
+   * <br/> `options.value` - the question value.
+   * <br/> `options.fileName` - a removed file's name, set it to `null` to clear all files.
+   * <br/> `options.callback` - a call back function to get the status on clearing the files operation.
    * @see clearFiles
    */
   public onClearFiles: Event<
@@ -478,95 +476,94 @@ export class SurveyModel extends Base
     any
   > = new Event<(sender: SurveyModel, options: any) => any, any>();
   /**
-   * The event is fired after choices for radiogroup, checkbox and dropdown has been loaded from the RESTful service and before they are assign to the question.
-   * You may change the choices, before it was assign or disable/enabled make visible/invisible question, based on loaded results
-   * <br/> question - the question where loaded choices are going to be assigned
-   * <br/> choices - the loaded choices. You may change them to assign the correct one
-   * <br> serverResult - a result that comes from the server as it is.
+   * The event is fired after choices for radiogroup, checkbox, and dropdown has been loaded from a RESTful service and before they are assigned to a question.
+   * You may change the choices, before they are assigned or disable/enabled make visible/invisible question, based on loaded results.
+   * <br/> `sender` - the survey object that fires the event.
+   * <br/> `question` - the question where loaded choices are going to be assigned.
+   * <br/> `choices` - the loaded choices. You can change the loaded choices to before they are assigned to question.
+   * <br/> `serverResult` - a result that comes from the server as it is.
    */
   public onLoadChoicesFromServer: Event<
     (sender: SurveyModel, options: any) => any,
     any
   > = new Event<(sender: SurveyModel, options: any) => any, any>();
   /**
-   * The event is fired on processing the text when it finds a text in brackets: {somevalue}. By default it uses the value of survey question values and variables.
-   * For example, you may use the text processing in loading choices from the web. If your choicesByUrl.url equals to "UrlToServiceToGetAllCities/{country}/{state}",
-   * you may set on this event options.value to "all" or empty string when the "state" value/question is non selected by a user.
-   * <br/> name - the name of the processing value, for example, "state" in our example
-   * <br/> value - the value of the processing text
-   * <br/> isExists - a boolean value. Set it to true if you want to use the value and set it to false if you don't.
+   * The event is fired on processing the text when it finds a text in brackets: `{somevalue}`. By default, it uses the value of survey question values and variables.
+   * For example, you may use the text processing in loading choices from the web. If your `choicesByUrl.url` equals to "UrlToServiceToGetAllCities/{country}/{state}",
+   * you may set on this event `options.value` to "all" or empty string when the "state" value/question is non selected by a user.
+   * <br/> `sender` - the survey object that fires the event.
+   * <br/> `options.name` - the name of the processing value, for example, "state" in our example.
+   * <br/> `options.value` - the value of the processing text.
+   * <br/> `options.isExists` - a boolean value. Set it to `true` if you want to use the value and set it to `false` if you don't.
    */
   public onProcessTextValue: Event<
     (sender: SurveyModel, options: any) => any,
     any
   > = new Event<(sender: SurveyModel, options: any) => any, any>();
   /**
-   * The event is fired before rendering a question. Use it to override the default question css classes.
-   * There are two parameters in options: options.question and options.cssClasses
-   * <br/> sender the survey object that fires the event
-   * <br/> options.question a question for which you may change the css classes
-   * <br/> options.cssClasses an object with css classes. For example {root: "table", button: "button"}. You may change them to your own css classes.
+   * The event is fired before rendering a question. Use it to override the default question CSS classes.
+   * <br/> `sender` - the survey object that fires the event.
+   * <br/> `options.question` - a question for which you can change the CSS classes.
+   * <br/> `options.cssClasses` - an object with CSS classes. For example `{root: "table", button: "button"}`. You can change them to your own CSS classes.
    */
   public onUpdateQuestionCssClasses: Event<
     (sender: SurveyModel, options: any) => any,
     any
   > = new Event<(sender: SurveyModel, options: any) => any, any>();
   /**
-   * The event is fired before rendering a panel. Use it to override the default panel css classes.
-   * There are two parameters in options: options.panel and options.cssClasses
-   * <br/> sender the survey object that fires the event
-   * <br/> options.panel a panel for which you may change the css classes
-   * <br/> options.cssClasses an object with css classes. For example {title: "sv_p_title", description: "small"}. You may change them to your own css classes.
+   * The event is fired before rendering a panel. Use it to override the default panel CSS classes.
+   * <br/> `sender` - the survey object that fires the event.
+   * <br/> `options.panel` - a panel for which you can change the CSS classes.
+   * <br/> `options.cssClasses` - an object with CSS classes. For example `{title: "sv_p_title", description: "small"}`. You can change them to your own CSS classes.
    */
   public onUpdatePanelCssClasses: Event<
     (sender: SurveyModel, options: any) => any,
     any
   > = new Event<(sender: SurveyModel, options: any) => any, any>();
   /**
-   * The event is fired before rendering a page. Use it to override the default page css classes.
-   * There are two parameters in options: options.page and options.cssClasses
-   * <br/> sender the survey object that fires the event
-   * <br/> options.page a page for which you may change the css classes
-   * <br/> options.cssClasses an object with css classes. For example {title: "sv_p_title", description: "small"}. You may change them to your own css classes.
+   * The event is fired before rendering a page. Use it to override the default page CSS classes.
+   * <br/> `sender` - the survey object that fires the event.
+   * <br/> `options.page` - a page for which you can change the CSS classes.
+   * <br/> `options.cssClasses` - an object with CSS classes. For example `{title: "sv_p_title", description: "small"}`. You can change them to your own CSS classes.
    */
   public onUpdatePageCssClasses: Event<
     (sender: SurveyModel, options: any) => any,
     any
   > = new Event<(sender: SurveyModel, options: any) => any, any>();
   /**
-   * The event is fired right after survey is rendered in DOM. options.htmlElement is the root element.
-   * <br/> sender the survey object that fires the event
-   * <br/> options.htmlElement a root html element binded with the survey object
+   * The event is fired right after survey is rendered in DOM.
+   * <br/> `sender` - the survey object that fires the event.
+   * <br/> `options.htmlElement` - a root HTML element bound to the survey object.
    */
   public onAfterRenderSurvey: Event<
     (sender: SurveyModel, options: any) => any,
     any
   > = new Event<(sender: SurveyModel, options: any) => any, any>();
   /**
-   * The event is fired right after a page is rendred in DOM. Use it to modify html elements. There are two parameters in options: options.currentPage, options.htmlElement
-   * <br/> sender the survey object that fires the event
-   * <br/> options.page a page object for which the event is fired. Typically the current/active page.
-   * <br/> options.htmlElement an html element binded with the page object
+   * The event is fired right after a page is rendered in DOM. Use it to modify HTML elements.
+   * <br/> `sender` - the survey object that fires the event.
+   * <br/> `options.page` - a page object for which the event is fired. Typically the current/active page.
+   * <br/> `options.htmlElement` - an HTML element bound to the page object.
    */
   public onAfterRenderPage: Event<
     (sender: SurveyModel, options: any) => any,
     any
   > = new Event<(sender: SurveyModel, options: any) => any, any>();
   /**
-   * The event is fired right after a question is rendred in DOM. Use it to modify html elements. There are two parameters in options: options.question, options.htmlElement
-   * <br/> sender the survey object that fires the event
-   * <br/> options.question a question object for which the event is fired
-   * <br/> options.htmlElement an html element binded with the question object
+   * The event is fired right after a question is rendered in DOM. Use it to modify HTML elements. 
+   * <br/> `sender` - the survey object that fires the event.
+   * <br/> `options.question` - a question object for which the event is fired.
+   * <br/> `options.htmlElement` - an HTML element bound to the question object.
    */
   public onAfterRenderQuestion: Event<
     (sender: SurveyModel, options: any) => any,
     any
   > = new Event<(sender: SurveyModel, options: any) => any, any>();
   /**
-   * The event is fired right after a panel is rendred in DOM. Use it to modify html elements. There are two parameters in options: options.panel, options.htmlElement
-   * <br/> sender the survey object that fires the event
-   * <br/> options.panel a panel object for which the event is fired
-   * <br/> options.htmlElement an html element binded with the panel object
+   * The event is fired right after a panel is rendered in DOM. Use it to modify HTML elements.
+   * <br/> `sender` - the survey object that fires the event
+   * <br/> `options.panel` - a panel object for which the event is fired
+   * <br/> `options.htmlElement` - an HTML element bound to the panel object
    */
   public onAfterRenderPanel: Event<
     (sender: SurveyModel, options: any) => any,
@@ -574,8 +571,8 @@ export class SurveyModel extends Base
   > = new Event<(sender: SurveyModel, options: any) => any, any>();
   /**
    * The event is fired on adding a new row in Matrix Dynamic question.
-   * <br/> sender the survey object that fires the event
-   * <br/> options.question a matrix question.
+   * <br/> `sender` - the survey object that fires the event
+   * <br/> `options.question` - a matrix question.
    * @see QuestionMatrixDynamicModel
    * @see QuestionMatrixDynamicModel.visibleRows
    */
@@ -585,9 +582,9 @@ export class SurveyModel extends Base
   > = new Event<(sender: SurveyModel, options: any) => any, any>();
   /**
    * The event is fired before adding a new row in Matrix Dynamic question.
-   * <br/> sender the survey object that fires the event
-   * <br/> options.question a matrix question.
-   * <br/> options.canAddRow an allowing flag.
+   * <br/> `sender` - the survey object that fires the event
+   * <br/> `options.question` - a matrix question.
+   * <br/> `options.canAddRow` - specifies whether a new row can be added
    * @see QuestionMatrixDynamicModel
    * @see QuestionMatrixDynamicModel.visibleRows
    */
@@ -597,10 +594,10 @@ export class SurveyModel extends Base
   > = new Event<(sender: SurveyModel, options: any) => any, any>();
   /**
    * The event is fired on removing a row from Matrix Dynamic question.
-   * <br/> sender the survey object that fires the event
-   * <br/> options.question a matrix question.
-   * <br/> options.rowIndex a removed row index.
-   * <br/> options.row a removed row object.
+   * <br/> `sender` - the survey object that fires the event
+   * <br/> `options.question` - a matrix question
+   * <br/> `options.rowIndex` - a removed row index
+   * <br/> `options.row` - a removed row object
    * @see QuestionMatrixDynamicModel
    * @see QuestionMatrixDynamicModel.visibleRows
    */
@@ -610,11 +607,11 @@ export class SurveyModel extends Base
   > = new Event<(sender: SurveyModel, options: any) => any, any>();
   /**
    * The event is fired before rendering "Remove" button for removing a row from Matrix Dynamic question.
-   * <br/> sender the survey object that fires the event
-   * <br/> options.question a matrix question.
-   * <br/> options.rowIndex a row index.
-   * <br/> options.row a row object.
-   * <br/> options.allow a boolean property. Set it to false to disable the row removing.
+   * <br/> `sender` - the survey object that fires the event
+   * <br/> `options.question` - a matrix question.
+   * <br/> `options.rowIndex` - a row index.
+   * <br/> `options.row` - a row object.
+   * <br/> `options.allow` - a boolean property. Set it to `false` to disable the row removing.
    * @see QuestionMatrixDynamicModel
    */
   public onMatrixAllowRemoveRow: Event<
@@ -622,14 +619,15 @@ export class SurveyModel extends Base
     any
   > = new Event<(sender: SurveyModel, options: any) => any, any>();
   /**
-   * The event is fired for every cell created in Matrix Dymic and Matrix Dropdown questions.
-   * <br/> options.question - the matrix question
-   * <br/> options.cell - the matrix cell
-   * <br/> options.cellQuestion - the question/editor in the cell. You may customize it, change it's properties, like choices or visible.
-   * <br/> options.rowValue - the value of the current row. To access the value of paticular column use: options.rowValue["columnValue"]
-   * <br/> options.column - the matrix column object
-   * <br/> options.columName - the matrix column name
-   * <br/> options.row - the matrix row object
+   * The event is fired for every cell created in Matrix Dynamic and Matrix Dropdown questions.
+   * <br/> `sender` - the survey object that fires the event.
+   * <br/> `options.question` - the matrix question.
+   * <br/> `options.cell` - the matrix cell.
+   * <br/> `options.cellQuestion` - the question/editor in the cell. You may customize it, change it's properties, like choices or visible.
+   * <br/> `options.rowValue` - the value of the current row. To access a particular column's value within the current row, use: `options.rowValue["columnValue"]`.
+   * <br/> `options.column` - the matrix column object.
+   * <br/> `options.columName` - the matrix column name.
+   * <br/> `options.row` - the matrix row object.
    * @see onMatrixBeforeRowAdded
    * @see onMatrixRowAdded
    * @see QuestionMatrixDynamicModel
@@ -641,12 +639,13 @@ export class SurveyModel extends Base
   > = new Event<(sender: SurveyModel, options: any) => any, any>();
   /**
    * The event is fired for every cell after is has been rendered in DOM.
-   * <br/> options.question - the matrix question
-   * <br/> options.cell - the matrix cell
-   * <br/> options.cellQuestion - the question/editor in the cell.
-   * <br/> options.htmlElement a html element binded with the cellQuestion object
-   * <br/> options.column - the matrix column object
-   * <br/> options.row - the matrix row object
+   * <br/> `sender` - the survey object that fires the event.
+   * <br/> `options.question` - the matrix question.
+   * <br/> `options.cell` - the matrix cell.
+   * <br/> `options.cellQuestion` - the question/editor in the cell.
+   * <br/> `options.htmlElement` - an HTML element bound to the `cellQuestion` object.
+   * <br/> `options.column` - the matrix column object.
+   * <br/> `options.row` - the matrix row object.
    * @see onMatrixCellCreated
    * @see QuestionMatrixDynamicModel
    * @see QuestionMatrixDropdownModel
@@ -656,12 +655,13 @@ export class SurveyModel extends Base
     any
   > = new Event<(sender: SurveyModel, options: any) => any, any>();
   /**
-   * The event is fired when cell value is changed in Matrix Dymic and Matrix Dropdown questions.
-   * <br/> options.question - the matrix question
-   * <br/> options.columName - the matrix column name
-   * <br/> options.value - a new value
-   * <br/> options.row - the matrix row object
-   * <br/> options.getCellQuestion(columnName) - the function that returns the cell question by column name.
+   * The event is fired when cell value is changed in Matrix Dynamic and Matrix Dropdown questions.
+   * <br/> `sender` - the survey object that fires the event.
+   * <br/> `options.question` - the matrix question.
+   * <br/> `options.columName` - the matrix column name.
+   * <br/> `options.value` - a new value.
+   * <br/> `options.row` - the matrix row object.
+   * <br/> `options.getCellQuestion(columnName)` - the function that returns the cell question by column name.
    * @see onMatrixCellValueChanging
    * @see onMatrixBeforeRowAdded
    * @see onMatrixRowAdded
@@ -673,13 +673,14 @@ export class SurveyModel extends Base
     any
   > = new Event<(sender: SurveyModel, options: any) => any, any>();
   /**
-   * The event is fired on changing cell value in Matrix Dymic and Matrix Dropdown questions. You may change the options.value property to change the value in the cell.
-   * <br/> options.question - the matrix question
-   * <br/> options.columName - the matrix column name
-   * <br/> options.value - a new value
-   * <br/> options.oldValue - the old value
-   * <br/> options.row - the matrix row object
-   * <br/> options.getCellQuestion(columnName) - the function that returns the cell question by column name.
+   * The event is fired on changing cell value in Matrix Dynamic and Matrix Dropdown questions. You may change the `options.value` property to change a cell value.
+   * <br/> `sender` - the survey object that fires the event.
+   * <br/> `options.question` - the matrix question.
+   * <br/> `options.columName` - the matrix column name.
+   * <br/> `options.value` - a new value.
+   * <br/> `options.oldValue` - the old value.
+   * <br/> `options.row` - the matrix row object.
+   * <br/> `options.getCellQuestion(columnName)` - the function that returns a cell question by column name.
    * @see onMatrixCellValueChanged
    * @see onMatrixBeforeRowAdded
    * @see onMatrixRowAdded
@@ -691,12 +692,13 @@ export class SurveyModel extends Base
     any
   > = new Event<(sender: SurveyModel, options: any) => any, any>();
   /**
-   * The event is fired when Matrix Dymic and Matrix Dropdown questions validate the cell value.
-   * <br/> options.question - the matrix question
-   * <br/> options.columName - the matrix column name
-   * <br/> options.value - a cell value
-   * <br/> options.row - the matrix row object
-   * <br/> options.getCellQuestion(columnName) - the function that returns the cell question by column name.
+   * The event is fired when Matrix Dynamic and Matrix Dropdown questions validate the cell value.
+   * <br/> `sender` - the survey object that fires the event.
+   * <br/> `options.question` - the matrix question.
+   * <br/> `options.columName` - the matrix column name.
+   * <br/> `options.value` - a cell value.
+   * <br/> `options.row` - the matrix row object.
+   * <br/> `options.getCellQuestion(columnName)` - the function that returns the cell question by column name.
    * @see onMatrixBeforeRowAdded
    * @see onMatrixRowAdded
    * @see QuestionMatrixDynamicModel
@@ -708,8 +710,8 @@ export class SurveyModel extends Base
   > = new Event<(sender: SurveyModel, options: any) => any, any>();
   /**
    * The event is fired on adding a new panel in Panel Dynamic question.
-   * <br/> sender the survey object that fires the event
-   * <br/> options.question a panel question.
+   * <br/> `sender` - the survey object that fires the event.
+   * <br/> `options.question` - a panel question.
    * @see QuestionPanelDynamicModel
    * @see QuestionPanelDynamicModel.panels
    */
@@ -719,10 +721,10 @@ export class SurveyModel extends Base
   > = new Event<(sender: SurveyModel, options: any) => any, any>();
   /**
    * The event is fired on removing a panel from Panel Dynamic question.
-   * <br/> sender the survey object that fires the event
-   * <br/> options.question a panel question.
-   * <br/> options.panelIndex a removed panel index.
-   * <br/> options.panel a removed panel.
+   * <br/> `sender` - the survey object that fires the event.
+   * <br/> `options.question` - a panel question.
+   * <br/> `options.panelIndex` - a removed panel index.
+   * <br/> `options.panel` - a removed panel.
    * @see QuestionPanelDynamicModel
    * @see QuestionPanelDynamicModel.panels
    */
@@ -731,7 +733,7 @@ export class SurveyModel extends Base
     any
   > = new Event<(sender: SurveyModel, options: any) => any, any>();
   /**
-   * The event is fired every second if the method startTimer has been called.
+   * The event is fired every second if the method `startTimer` has been called.
    * @see startTimer
    * @see timeSpent
    * @see Page.timeSpent
@@ -742,7 +744,8 @@ export class SurveyModel extends Base
   >();
   /**
    * The event is fired before displaying a new information in the Timer Panel. Use it to change the default text.
-   * <br/> options.text - the timer panel info text.
+   * <br/> `sender` - the survey object that fires the event.
+   * <br/> `options.text` - the timer panel info text.
    */
   public onTimerPanelInfoText: Event<
     (sender: SurveyModel, options: any) => any,
@@ -750,12 +753,13 @@ export class SurveyModel extends Base
   > = new Event<(sender: SurveyModel, options: any) => any, any>();
   /**
    * The event is fired when item value is changed in Panel Dynamic question.
-   * <br/> options.question - the panel question
-   * <br/> options.panel - the dynamic panel item
-   * <br/> options.name - the item name
-   * <br/> options.value - a new value
-   * <br/> options.itemIndex - the panel item index
-   * <br/> options.itemValue - the panel item object
+   * <br/> `sender` - the survey object that fires the event.
+   * <br/> `options.question` - the panel question.
+   * <br/> `options.panel` - the dynamic panel item.
+   * <br/> `options.name` - the item name.
+   * <br/> `options.value` - a new value.
+   * <br/> `options.itemIndex` - the panel item index.
+   * <br/> `options.itemValue` - the panel item object.
    * @see onDynamicPanelAdded
    * @see QuestionPanelDynamicModel
    */
@@ -764,11 +768,11 @@ export class SurveyModel extends Base
     any
   > = new Event<(sender: SurveyModel, options: any) => any, any>();
   /**
-   * Use this event to define, if the answer on the question is correct or not.
-   * <br/> sender the survey object that fires the event
-   * <br/> options.question a question on which you have to decide if the answer is correct or not.
-   * <br/> options.result return true, if the answer is correct or false if the answer is not correct. Use questions value and correctAnswer properties to return the correct value.
-   * <br/> options.correctAnswers - you may change the default number of correct or incorrect answers in the question, for example for matrix, where each row is a quiz question.
+   * Use this event to define, whether an answer to a question is correct or not.
+   * <br/> `sender` - the survey object that fires the event.
+   * <br/> `options.question` - a question on which you have to decide if the answer is correct or not.
+   * <br/> `options.result` - returns `true`, if an answer is correct, or `false`, if the answer is not correct. Use questions' `value` and `correctAnswer` properties to return the correct value.
+   * <br/> `options.correctAnswers` - you may change the default number of correct or incorrect answers in the question, for example for matrix, where each row is a quiz question.
    * @see Question.value
    * @see Question.correctAnswer
    */
@@ -778,13 +782,13 @@ export class SurveyModel extends Base
   > = new Event<(sender: SurveyModel, options: any) => any, any>();
   /**
    * Use this event to control drag&drop operations during design mode.
-   * <br/> sender the survey object that fires the event.
-   * <br/> options.allow set it to false to disable dragging.
-   * <br/> options.target a target element that is dragging.
-   * <br/> options.source a source element. It can be null, if it is a new element, dragging from toolbox.
-   * <br/> options.parent a page or panel where target element is dragging.
-   * <br/> options.insertBefore an element before the target element is dragging. It can be null if parent container (page or panel) is empty or dragging an element under the last element of the container.
-   * <br/> options.insertAfter an element after the target element is dragging. It can be null if parent container (page or panel) is empty or dragging element to the top of the parent container.
+   * <br/> `sender` - the survey object that fires the event.
+   * <br/> `options.allow` - set it to `false` to disable dragging.
+   * <br/> `options.target` - a target element that is dragged.
+   * <br/> `options.source` - a source element. It can be `null`, if it is a new element, dragging from toolbox.
+   * <br/> `options.parent` - a page or panel where target element is dragging.
+   * <br/> `options.insertBefore` - an element before the target element is dragging. It can be `null` if parent container (page or panel) is empty or dragging an element after the last element in a container.
+   * <br/> `options.insertAfter` - an element after the target element is dragging. It can be `null` if parent container (page or panel) is empty or dragging element to the first position within the parent container.
    * @see setDesignMode
    * @see isDesignMode
    */
@@ -793,7 +797,7 @@ export class SurveyModel extends Base
     any
   > = new Event<(sender: SurveyModel, options: any) => any, any>();
   /**
-   * The list of errors on loading survey json. If the list is empty after loading a json then the json is correct and there is no errors in it.
+   * The list of errors on loading survey JSON. If the list is empty after loading a JSON, then the JSON is correct and has no errors.
    * @see JsonError
    */
   public jsonErrors: Array<JsonError> = null;
@@ -876,7 +880,7 @@ export class SurveyModel extends Base
   }
 
   /**
-   * The list of all pages in the survey, including invisible.
+   * Returns a list of all pages in the survey, including invisible pages.
    * @see PageModel
    * @see visiblePages
    */
@@ -898,7 +902,7 @@ export class SurveyModel extends Base
     this.mergeValues(value, this.css);
   }
   /**
-   * The list of triggers in the survey.
+   * Gets or sets a list of triggers in the survey.
    * @see SurveyTrigger
    */
   public get triggers(): Array<SurveyTrigger> {
@@ -908,7 +912,7 @@ export class SurveyModel extends Base
     this.setPropertyValue("triggers", val);
   }
   /**
-   * The list of calculated values in the survey.
+   * Gets or sets a list of calculated values in the survey.
    * @see CalculatedValue
    */
   public get calculatedValues(): Array<CalculatedValue> {
@@ -918,7 +922,7 @@ export class SurveyModel extends Base
     this.setPropertyValue("calculatedValues", val);
   }
   /**
-   * Set this property to automatically load survey Json from [dxsurvey.com](http://www.dxsurvey.com) service.
+   * Gets or sets an identifier of a survey model loaded from the [dxsurvey.com](http://www.dxsurvey.com) service. When specified, the survey JSON is automatically loaded from [dxsurvey.com](http://www.dxsurvey.com) service.
    * @see loadSurveyFromService
    */
   public get surveyId(): string {
@@ -928,7 +932,7 @@ export class SurveyModel extends Base
     this.setPropertyValue("surveyId", val);
   }
   /**
-   * Set this property to automatically save the data into the [dxsurvey.com](http://www.dxsurvey.com) service.
+   * Gets or sets an identifier of a survey model saved to the [dxsurvey.com](http://www.dxsurvey.com) service. When specified, the survey data is automatically saved to the [dxsurvey.com](http://www.dxsurvey.com) service.
    * @see onComplete
    * @see surveyShowDataSaving
    */
@@ -939,7 +943,9 @@ export class SurveyModel extends Base
     this.setPropertyValue("surveyPostId", val);
   }
   /**
-   * Use this property as indentificator for a user, for example e-mail or unique customer id in your web application. If you are loading survey or posting survey results  from/to [dxsurvey.com](http://www.dxsurvey.com) service, then the library do not allow to run the same survey the second time. On the second run, the user will see the 'Thank you' page.
+   * Gets or sets user's identifier (e.g., e-mail or unique customer id) in your web application.
+   * If you load survey or post survey results from/to [dxsurvey.com](http://www.dxsurvey.com) service, then the library do not allow users to run the same survey the second time.
+   * On the second run, the user will see the survey complete page.
    */
   public get clientId(): string {
     return this.getPropertyValue("clientId", "");
@@ -948,7 +954,9 @@ export class SurveyModel extends Base
     this.setPropertyValue("clientId", val);
   }
   /**
-   * If the property is not empty, before starting to run the survey, the library checkes if the cookie with this name exists. If it is true, the survey goes to complete mode and an user sees the 'Thank you' page. On completing the survey the cookie with this name is created.
+   * Gets or sets a cookie name used to save information about completing the survey.
+   * If the property is not empty, before starting the survey, the Survey library checks if the cookie with this name exists.
+   * If it is `true`, the survey goes to complete mode and a user sees the survey complete page. On completing the survey the cookie with this name is created.
    */
   public get cookieName(): string {
     return this.getPropertyValue("cookieName", "");
@@ -957,7 +965,7 @@ export class SurveyModel extends Base
     this.setPropertyValue("cookieName", val);
   }
   /**
-   * Set it to true, to save results on completing every page. onPartialSend event is fired.
+   * Gets or sets whether to save survey results on completing every page. If the property value is set to `true`, the `onPartialSend` event is fired.
    * @see onPartialSend
    * @see clientId
    */
@@ -968,7 +976,7 @@ export class SurveyModel extends Base
     this.setPropertyValue("sendResultOnPageNext", val);
   }
   /**
-   * Set this property to true, to show the progress on saving/sending data into the [dxsurvey.com](http://www.dxsurvey.com) service.
+   * Gets or sets whether to show the progress on saving/sending data into the [dxsurvey.com](http://www.dxsurvey.com) service.
    * @see surveyPostId
    */
   public get surveyShowDataSaving(): boolean {
@@ -978,7 +986,7 @@ export class SurveyModel extends Base
     this.setPropertyValue("surveyShowDataSaving", val);
   }
   /**
-   * On showing the next or previous page, a first input is focused, if the property set to true.
+   * Gets or sets whether the first input is focused on showing a next or a previous page.
    */
   public get focusFirstQuestionAutomatic(): boolean {
     return this.getPropertyValue("focusFirstQuestionAutomatic", true);
@@ -987,7 +995,8 @@ export class SurveyModel extends Base
     this.setPropertyValue("focusFirstQuestionAutomatic", val);
   }
   /**
-   * Set this property to false (default value is true) if you do not want to bring the focus to the first question that has error on the page.
+   * Gets or sets whether the first input is focused if the current page has errors.
+   * Set this property to `false` (the default value is `true`) if you do not want to bring the focus to the first question that has error on the page.
    */
   public get focusOnFirstError(): boolean {
     return this.getPropertyValue("focusOnFirstError", true);
@@ -996,7 +1005,9 @@ export class SurveyModel extends Base
     this.setPropertyValue("focusOnFirstError", val);
   }
   /**
-   * Possible values: 'bottom' (default), 'top', 'both' and 'none'. Set it to 'none' to hide 'Prev', 'Next' and 'Complete' buttons. It makes sense if you are going to create a custom navigation or have just one page or on setting goNextPageAutomatic property.
+   * Gets or sets the navigation buttons position.
+   * Possible values: 'bottom' (default), 'top', 'both' and 'none'. Set it to 'none' to hide 'Prev', 'Next' and 'Complete' buttons.
+   * It makes sense if you are going to create a custom navigation, have only a single page, or the `goNextPageAutomatic` property is set to `true`.
    * @see goNextPageAutomatic
    * @see showPrevButton
    */
@@ -1013,7 +1024,7 @@ export class SurveyModel extends Base
     this.setPropertyValue("showNavigationButtons", val);
   }
   /**
-   * Set it to false to hide the 'Prev' to disable for end-users go back to their answers.
+   * Gets or sets whether the Survey displays "Prev" button in its pages. Set it to `false` to prevent end-users from going back to their answers.
    * @see showNavigationButtons
    */
   public get showPrevButton(): boolean {
@@ -1023,7 +1034,7 @@ export class SurveyModel extends Base
     this.setPropertyValue("showPrevButton", val);
   }
   /**
-   * Set it to false hide survey title.
+   * Gets or sets whether the Survey displays survey title in its pages. Set it to `false` to hide a survey title.
    * @see title
    */
   public get showTitle(): boolean {
@@ -1033,7 +1044,7 @@ export class SurveyModel extends Base
     this.setPropertyValue("showTitle", val);
   }
   /**
-   * Set it to false to hide page titles.
+   * Gets or sets whether the Survey displays page titles. Set it to `false` to hide page titles.
    * @see PageModel.title
    */
   public get showPageTitles(): boolean {
@@ -1043,7 +1054,7 @@ export class SurveyModel extends Base
     this.setPropertyValue("showPageTitles", val);
   }
   /**
-   * On finishing the survey the 'Thank you', page on complete, is shown. Set the property to false, to hide the 'Thank you' page.
+   * On finishing the survey the complete page is shown. Set the property to `false`, to hide the complete page.
    * @see data
    * @see onComplete
    * @see navigateToUrl
@@ -1065,7 +1076,7 @@ export class SurveyModel extends Base
     this.setPropertyValue("navigateToUrl", val);
   }
   /**
-   * The list of url condition items. If the expression of this item returns true, then survey will navigate to item url
+   * Gets or sets a list of URL condition items. If the expression of this item returns `true`, then survey will navigate to the item URL.
    * @see UrlConditionItem
    * @see navigateToUrl
    */
@@ -1094,7 +1105,7 @@ export class SurveyModel extends Base
     window.location.href = options.url;
   }
   /**
-   * A char/string that will be rendered in the title required questions.
+   * Gets or sets the required question mark. The required question mark is a char or string that is rendered in the required questions' titles.
    * @see Question.title
    */
   public get requiredText(): string {
@@ -1104,7 +1115,7 @@ export class SurveyModel extends Base
     this.setPropertyValue("requiredText", val);
   }
   /**
-   * Set this property to true to make all requried errors invisible
+   * Gets or sets whether to hide all required errors.
    */
   public hideRequiredErrors: boolean = false;
   beforeSettingQuestionErrors(
@@ -1124,7 +1135,7 @@ export class SurveyModel extends Base
     });
   }
   /**
-   * By default the first question index is 1. You may start it from 100 or from 'A', by setting 100 or 'A' to this property.
+   * Gets or sets the first question index. The first question index is '1' by default. You may start it from '100' or from 'A', by setting '100' or 'A' to this property.
    * @see Question.title
    * @see requiredText
    */
@@ -1135,7 +1146,10 @@ export class SurveyModel extends Base
     this.setPropertyValue("questionStartIndex", val);
   }
   /**
-   * By default the entered text in the others input in the checkbox/radiogroup/dropdown are stored as "question name " + "-Comment". The value itself is "question name": "others". Set this property to false, to store the entered text directly in the "question name" key.
+   * Gets or sets whether the "Others" option text is stored as question comment.
+   * 
+   * By default the entered text in the "Others" input in the checkbox/radiogroup/dropdown is stored as `"question name " + "-Comment"`. The value itself is `"question name": "others"`.
+   * Set this property to `false`, to store the entered text directly in the `"question name"` key.
    * @see commentPrefix
    */
   public get storeOthersAsComment(): boolean {
@@ -1145,8 +1159,9 @@ export class SurveyModel extends Base
     this.setPropertyValue("storeOthersAsComment", val);
   }
   /**
-   * The default maximum length for questions like text and comment, including matrix cell questions.
-   * The default value is 0, it is unlimited maxLength - 524288 characters: https://www.w3schools.com/tags/att_input_maxlength.asp
+   * Specifies the default maximum length for questions like text and comment, including matrix cell questions.
+   * 
+   * The default value is `0`, that means that the text and comment have the same max length as the standard HTML input - 524288 characters: https://www.w3schools.com/tags/att_input_maxlength.asp.
    * @see maxOthersLength
    */
   public get maxTextLength(): number {
@@ -1156,8 +1171,9 @@ export class SurveyModel extends Base
     this.setPropertyValue("maxTextLength", val);
   }
   /**
-   * The default maximum length for question comments and others
-   * The default value is 0, it is unlimited maxLength - 524288 characters: https://www.w3schools.com/tags/att_input_maxlength.asp
+   * Gets or sets the default maximum length for question comments and others
+   * 
+   * The default value is `0`, that means that the question comments have the same max length as the standard HTML input - 524288 characters: https://www.w3schools.com/tags/att_input_maxlength.asp.
    * @see Question.hasComment
    * @see Question.hasOther
    * @see maxTextLength
@@ -1170,10 +1186,12 @@ export class SurveyModel extends Base
   }
 
   /**
-   * Set it to the one of the following constants if you want to go to the next page without pressing 'Next' button when all questions are anwered.
-   * true - go next page and submit automatically
-   * "autogonext" - go next page automatically but do not submit
-   * false - do not go next page and not submit automatically
+   * Gets or ses whether a user can navigate the next page automatically after answering all the questions on a page without pressing the "Next" button.
+   * The available options:
+   * 
+   * - `true` - navigate the next page and submit survey data automatically.
+   * - `autogonext` - navigate the next page automatically but do not submit survey data.
+   * - `false` - do not navigate the next page and do not submit survey data automatically.
    * @see showNavigationButtons
    */
   public get goNextPageAutomatic(): boolean | "autogonext" {
@@ -1183,7 +1201,7 @@ export class SurveyModel extends Base
     this.setPropertyValue("goNextPageAutomatic", val);
   }
   /**
-   * Set it to false if you do not want to submit survey automatically if goNextPageAutomatic=true.
+   * Gets or sets whether a survey is automatically completed when `goNextPageAutomatic = true`. Set it to `false` if you do not want to submit survey automatically on completing the last survey page.
    * @see goNextPageAutomatic
    */
   public get allowCompleteSurveyAutomatic(): boolean {
@@ -1193,10 +1211,13 @@ export class SurveyModel extends Base
     this.setPropertyValue("allowCompleteSurveyAutomatic", val);
   }
   /**
-   * Change this property from 'onNextPage' to 'onValueChanged' to check erorrs on every question value changing,
-   * or change it to 'onComplete' to validate all visible questions on complete button. If there is the error on some pages,
-   * then the page with the first error becomes the current.
-   * By default, library checks errors on changing current page to the next or on completing the survey.
+   * Gets or sets a value that specifies how the survey validates the question answers.
+   * 
+   * The following options are available:
+   * 
+   * - `onNextPage` (default) - check errors on navigating to the next page or on completing the survey.
+   * - `onValueChanged` - check errors on every question value (i.e., answer) changing.
+   * - `onComplete` - to validate all visible questions on complete button click. If there are errors on previous pages, then the page with the first error becomes the current.
    */
   public get checkErrorsMode(): string {
     return this.getPropertyValue("checkErrorsMode");
@@ -1205,9 +1226,14 @@ export class SurveyModel extends Base
     this.setPropertyValue("checkErrorsMode", val);
   }
   /**
-   * Change this property from 'onBlur' to 'onTyping' to update the value of text questions, "text" and "comment",
-   * on every key press. By default, the value is updated an input losts the focus.
-   * Please note, setting to "onTyping" may lead to a performance degradation, in case you have many expressions in the survey
+   * Gets or sets a value that specifies how the survey updates its questions' text values.
+   * 
+   * The following options are available:
+   * 
+   * - `onBlur` (default) - the value is updated after an input loses the focus.
+   * - `onTyping` - update the value of text questions, "text" and "comment", on every key press.
+   * 
+   * Note, that setting to "onTyping" may lead to a performance degradation, in case you have many expressions in the survey.
    */
   public get textUpdateMode(): string {
     return this.getPropertyValue("textUpdateMode");
@@ -1216,10 +1242,13 @@ export class SurveyModel extends Base
     this.setPropertyValue("textUpdateMode", val);
   }
   /**
-   * Set it to 'none' to include the invisible values into the survey data.
-   * </br> Set it to 'onHidden' to clear the question value when it becomes invisible. If a question has value and it was invisible initially then survey clears the value on completing.
-   * </br> Leave it equals to 'onComplete', to remove from data property values of invisible questions on survey complete. In this case, the invisible questions will not be stored on the server.
-   * </br> The default value is 'onComplete'.
+   * Gets or sets a value that specifies how the invisible data is included in survey data.
+   * 
+   * The following options are available:
+   * 
+   * - `none` - include the invisible values into the survey data.
+   * - `onHidden` - clear the question value when it becomes invisible. If a question has value and it was invisible initially then survey clears the value on completing.
+   * - `onComplete` (default) - clear invisible question values on survey complete. In this case, the invisible questions will not be stored on the server.
    * @see Question.visible
    * @see onComplete
    */
@@ -1233,9 +1262,9 @@ export class SurveyModel extends Base
   }
   /**
    * Call this function to remove all question values from the survey, that end-user will not be able to enter.
-   * For example the value that doesn't exists in a radigroup/dropdown/checkbox choices or matrix rows/columns.
+   * For example the value that doesn't exists in a radiogroup/dropdown/checkbox choices or matrix rows/columns.
    * Please note, this function doesn't clear values for invisible questions or values that doesn't associated with questions.
-   * In fact this function just call clearIncorrectValues function of all questions in the survery
+   * In fact this function just call clearIncorrectValues function of all questions in the survey
    * @see Question.clearIncorrectValues
    * @see Page.clearIncorrectValues
    * @see Panel.clearIncorrectValues
@@ -1247,7 +1276,8 @@ export class SurveyModel extends Base
   }
 
   /**
-   * Use it to change the survey locale. By default it is empty, 'en'. You may set it to 'de' - german, 'fr' - french and so on. The library has built-in localization for several languages. The library has a multi-language support as well.
+   * Gets or sets the survey locale. The default value it is empty, this means the 'en' locale is used.
+   * You can set it to 'de' - German, 'fr' - French and so on. The library has built-in localization for several languages. The library has a multi-language support as well.
    */
   public get locale(): string {
     return this.localeValue;
@@ -1261,7 +1291,7 @@ export class SurveyModel extends Base
     this.onLocaleChanged();
   }
   /**
-   * Return the array of locales that used in the current survey
+   * Returns an array of locales that are used in the current survey.
    */
   public getUsedLocales(): Array<string> {
     var locs = new Array<string>();
@@ -1307,13 +1337,13 @@ export class SurveyModel extends Base
     return options.text;
   }
   /**
-   * Returns the text that renders when there is no any visible page and question.
+   * Returns the text that is displayed when there are no any visible pages and questiona.
    */
   public get emptySurveyText(): string {
     return this.getLocString("emptySurvey");
   }
   /**
-   * Survey title.
+   * Gets or sets a survey title.
    * @see description
    */
   public get title(): string {
@@ -1326,7 +1356,7 @@ export class SurveyModel extends Base
     return this.getLocalizableString("title");
   }
   /**
-   * Survey description. It shows under survey title
+   * Gets or sets a survey description. The survey description is displayed under a survey title.
    * @see title
    */
   public get description(): string {
@@ -1339,7 +1369,7 @@ export class SurveyModel extends Base
     return this.getLocalizableString("description");
   }
   /**
-   * The html that shows on completed ('Thank you') page. Set it to change the default text.
+   * Gets or sets the HTML content displayed on the complete page. Use this property to change the default complete page text.
    * @see showCompletedPage
    * @see completedHtmlOnCondition
    * @see locale
@@ -1354,7 +1384,7 @@ export class SurveyModel extends Base
     return this.getLocalizableString("completedHtml");
   }
   /**
-   * The list of html condition items. If the expression of this item returns true, then survey will use this item html instead of completedHtml
+   * The list of HTML condition items. If the expression of this item returns `true`, then a survey will use this item HTML instead of `completedHtml`.
    * @see HtmlConditionItem
    * @see completeHtml
    */
@@ -1365,7 +1395,7 @@ export class SurveyModel extends Base
     this.setPropertyValue("completedHtmlOnCondition", val);
   }
   /**
-   * Perform the calculation of the given expression and returns the result value
+   * Calculates a given expression and returns a result value.
    * @param expression
    */
   public runExpression(expression: string): any {
@@ -1375,7 +1405,7 @@ export class SurveyModel extends Base
     return new ExpressionRunner(expression).run(values, properties);
   }
   /**
-   * Perform the calculation of the given expression and true or false
+   * Calculates a given expression and returns `true` or `false`.
    * @param expression
    */
   public runCondition(expression: string): boolean {
@@ -1405,7 +1435,7 @@ export class SurveyModel extends Base
   }
 
   /**
-   * The html that shows if the end user has already completed the survey.
+   * The HTML content displayed to an end user that has already completed the survey.
    * @see clientId
    * @see locale
    */
@@ -1419,7 +1449,7 @@ export class SurveyModel extends Base
     return this.getLocalizableString("completedBeforeHtml");
   }
   /**
-   * The html that shows on loading survey Json from the dxsurvey.com service.
+   * The HTML that shows on loading survey Json from the [dxsurvey.com](http://www.dxsurvey.com) service.
    * @see surveyId
    * @see locale
    */
@@ -1433,8 +1463,8 @@ export class SurveyModel extends Base
     return this.getLocalizableString("loadingHtml");
   }
   /**
-   * A text that renders on the 'Start' button. Set it to change the default text.
-   * The start button is shown on the started page. You have to set firstPageIsStarted property to true, to have the started page.
+   * Gets or sets the 'Start' button caption.
+   * The 'Start' button is shown on the started page. Set the `firstPageIsStarted` property to `true`, to display the started page.
    * @see firstPageIsStarted
    * @see locale
    */
@@ -1451,7 +1481,7 @@ export class SurveyModel extends Base
     return this.getLocalizableString("startSurvey");
   }
   /**
-   * A text that renders on the 'Prev' button. Set it to change the default text.
+   * Gets or sets the 'Prev' button caption.
    * @see locale
    */
   public get pagePrevText(): string {
@@ -1467,7 +1497,7 @@ export class SurveyModel extends Base
     return this.getLocalizableString("pagePrev");
   }
   /**
-   * A text that renders on the 'Next' button. Set it to change the default text.
+   * Gets or sets the 'Next' button caption.
    * @see locale
    */
   public get pageNextText(): string {
@@ -1483,7 +1513,7 @@ export class SurveyModel extends Base
     return this.getLocalizableString("pageNext");
   }
   /**
-   * A text that renders on the 'Complete' button. Set it to change the default text.
+   *  Gets or sets the 'Complete' button caption.
    * @see locale
    */
   public get completeText(): string {
@@ -1499,7 +1529,7 @@ export class SurveyModel extends Base
     return this.getLocalizableString("complete");
   }
   /**
-   * A template for a question title.
+   * Gets or sets a question title template.
    * @see QuestionModel.title
    */
   public get questionTitleTemplate(): string {
@@ -1520,7 +1550,7 @@ export class SurveyModel extends Base
   }
   private questionTitleTemplateCache: string = undefined;
   /**
-   * Returns the question title template
+   * Returns a question title template.
    * @see questionTitleTemplate
    * @see QuestionModel.title
    */
@@ -1540,7 +1570,7 @@ export class SurveyModel extends Base
     return options.title;
   }
   /**
-   * Set this property to false to turn off the numbering on pages titles.
+   * Gets or sets whether the survey displays page numbers on pages titles.
    */
   public get showPageNumbers(): boolean {
     return this.getPropertyValue("showPageNumbers", false);
@@ -1551,7 +1581,13 @@ export class SurveyModel extends Base
     this.updateVisibleIndexes();
   }
   /**
-   * Set this property to "off" to turn off the numbering on questions titles or "onpage" to start numbering on every page. The default value is "on".
+   * Gets or sets a value that specifies how the question numbers are displayed.
+   * 
+   * The following options are available:
+   * 
+   * - `on` - display question numbers
+   * - `onpage` - display question numbers, start numbering on every page
+   * - `off` - turn off the numbering for questions titles
    */
   public get showQuestionNumbers(): string {
     return this.getPropertyValue("showQuestionNumbers");
@@ -1564,7 +1600,13 @@ export class SurveyModel extends Base
     this.updateVisibleIndexes();
   }
   /**
-   * Set this property to "top" to show the progress bar on the bottom or to "bottom" to show it on the bottom.
+   * Gets or sets the survey progress bar position.
+   * 
+   * The following options are available:
+   * 
+   * - `top` - show progress bar in the top
+   * - `bottom` - show progress bar in the bottom
+   * - `both` - show progress bar in both sides: top and bottom.
    */
   public get showProgressBar(): string {
     return this.getPropertyValue("showProgressBar");
@@ -1573,7 +1615,13 @@ export class SurveyModel extends Base
     this.setPropertyValue("showProgressBar", newValue.toLowerCase());
   }
   /**
-   * Type of info in the progress bar: "pages" (default), "questions" or "correctQuestions".
+   * Gets or sets the type of info in the progress bar.
+   * 
+   * The following options are available:
+   * 
+   * - `pages` (default),
+   * - `questions`,
+   * - `correctQuestions`.
    */
   public get progressBarType(): string {
     return this.getPropertyValue("progressBarType");
@@ -1588,14 +1636,21 @@ export class SurveyModel extends Base
     return this.showProgressBar === "bottom" || this.showProgressBar === "both";
   }
   /**
-   * Returns the text/html that renders as survey title.
+   * Returns the text/HTML that is rendered as a survey title.
    */
   public get processedTitle() {
     return this.locTitle.renderedHtml;
   }
   /**
-   * Set this property to 'bottom' or 'left' to show question title under the question or on the left.
-   * <br/><b>Note:</b> Some questions, for example matrixes, do not support 'left' value. The title for them will be displayed on the top.
+   * Gets or sets the question title location.
+   * 
+   * The following options are available:
+   * 
+   * - `bottom` - show a question title to bottom
+   * - `left` - show a question title to left
+   * - `top` - show a question title to top.
+   * 
+   * > Some questions, for example matrixes, do not support 'left' value. The title for them will be displayed to the top.
    */
   public get questionTitleLocation(): string {
     return this.getPropertyValue("questionTitleLocation");
@@ -1604,7 +1659,12 @@ export class SurveyModel extends Base
     this.setPropertyValue("questionTitleLocation", value.toLowerCase());
   }
   /**
-   * Set this property to 'bottom' to show question error(s) under the question.
+   * Gets or sets the error message position.
+   * 
+   * The following options are available:
+   * 
+   * - `top` - to show question error(s) over the question,
+   * - `bottom` - to show question error(s) under the question.
    */
   public get questionErrorLocation(): string {
     return this.getPropertyValue("questionErrorLocation");
@@ -1613,7 +1673,12 @@ export class SurveyModel extends Base
     this.setPropertyValue("questionErrorLocation", value.toLowerCase());
   }
   /**
-   * Set this property to 'underInput' to show question description under the question input instead of question title.
+   * Gets or sets the question description position.
+   * 
+   * The following options are available:
+   * 
+   * - `underTitle` - show question description under the question title,
+   * - `underInput` - show question description under the question input instead of question title.
    */
   public get questionDescriptionLocation(): string {
     return this.getPropertyValue("questionDescriptionLocation");
@@ -1622,7 +1687,12 @@ export class SurveyModel extends Base
     this.setPropertyValue("questionDescriptionLocation", value);
   }
   /**
-   * Set this mode to 'display' to make the survey read-only. The default value is 'edit'.
+   * Gets or sets the survey edit mode.
+   * 
+   * The following options are available:
+   * 
+   * - `edit` (default) - make a survey editable,
+   * - `display` - make a survey read-only.
    */
   public get mode(): string {
     return this.getPropertyValue("mode");
@@ -1640,8 +1710,9 @@ export class SurveyModel extends Base
     }
   }
   /**
-   * An object that stores the survey results/data. You may set it directly as { 'question name': questionValue, ... }
-   * Note: If you are setting the data after creatig the survey, you may need to set the currentPageNo to 0, if you are using visibleIf properties for questions/pages/panels to ensure that you are starting from the first page.
+   * Gets or sets an object that stores the survey results/data. You can set it directly as `{ 'question name': questionValue, ... }`
+   * 
+   * > If you set the `data` property after creating the survey, you may need to set the `currentPageNo` to `0`, if you are using `visibleIf` properties for questions/pages/panels to ensure that you are starting from the first page.
    * @see setValue
    * @see getValue
    * @see currentPageNo
@@ -1685,9 +1756,11 @@ export class SurveyModel extends Base
     return this.data;
   }
   /**
-   * Returns survey result data as an array of plain objects: with question title, name, value and displayValue.
-   * For complex questions (like matrix, etc.) isNode flag is set to true and data contains array of nested objects (rows)
-   * set options.includeEmpty to false if you want to skip empty answers
+   * Returns survey result data as an array of plain objects: with question `title`, `name`, `value`, and `displayValue`.
+   * 
+   * For complex questions (like matrix, etc.) `isNode` flag is set to `true` and data contains array of nested objects (rows).
+   * 
+   * Set `options.includeEmpty` to `false` if you want to skip empty answers.
    */
   public getPlainData(
     options: {
@@ -1752,7 +1825,7 @@ export class SurveyModel extends Base
     return result;
   }
   /**
-   * Returns the list of visible pages. If all pages are visible then it is the same as pages property.
+   * Returns a list of visible pages. If all pages are visible, then this property returns the same list as the `pages` property.
    * @see pages
    * @see PageModel.visible
    * @see PageModel.visibleIf
@@ -1768,19 +1841,19 @@ export class SurveyModel extends Base
     return result;
   }
   /**
-   * Returns true if there is no any page in the survey. The survey is empty.
+   * Returns `true` if the survey contains no pages. The survey is empty.
    */
   public get isEmpty(): boolean {
     return this.pages.length == 0;
   }
   /**
-   * depricated, misspelling, use pageCount property
+   * Deprecated. Use the `pageCount` property instead.
    */
   get PageCount(): number {
     return this.pageCount;
   }
   /**
-   * Returns the survey pages count.
+   * Returns the survey page count.
    * @see visiblePageCount
    * @see pages
    */
@@ -1788,7 +1861,7 @@ export class SurveyModel extends Base
     return this.pages.length;
   }
   /**
-   * Returns the survey visible pages count
+   * Returns a number of visible pages within the survey.
    * @see pageCount
    * @see visiblePages
    */
@@ -1796,7 +1869,7 @@ export class SurveyModel extends Base
     return this.visiblePages.length;
   }
   /**
-   * Returns the started Page. firstPageIsStarted property should be equals to true
+   * Returns the started page. This property works if the `firstPageIsStarted` property is set to `true`.
    * @see firstPageIsStarted
    */
   public get startedPage(): PageModel {
@@ -1808,7 +1881,7 @@ export class SurveyModel extends Base
     return page;
   }
   /**
-   * Returns the current survey page. If survey is rendred then it is a page that a user can see/edit.
+   * Gets or sets the current survey page. If a survey is rendered, then this property returns a page that a user can see/edit.
    */
   public get currentPage(): any {
     var vPages = this.visiblePages;
@@ -1855,7 +1928,7 @@ export class SurveyModel extends Base
     return value;
   }
   /**
-   * The index of the current page in the visible pages array. It starts from 0.
+   * The zero-based index of the current page in the visible pages array.
    */
   public get currentPageNo(): number {
     return this.visiblePages.indexOf(this.currentPage);
@@ -1866,7 +1939,12 @@ export class SurveyModel extends Base
     this.currentPage = vPages[value];
   }
   /**
-   * Use this property to randomize questions. Set it to 'random' to randomize questions, 'initial' to keep them in the same order. You can randomize questions on a specific page.
+   * Gets or sets the question display order. Use this property to randomize questions. You can randomize questions on a specific page.
+   * 
+   * The following options are available:
+   * 
+   * - `random` - randomize questions
+   * - `initial` - keep questions in the same order, as in a survey model. 
    * @see SurveyPage.questionsOrder
    */
   public get questionsOrder() {
@@ -1877,7 +1955,7 @@ export class SurveyModel extends Base
   }
 
   /**
-   * Set the input focus to the first question with the input.
+   * Sets the input focus to the first question with the input field.
    */
   public focusFirstQuestion() {
     var page = this.currentPage;
@@ -1895,8 +1973,13 @@ export class SurveyModel extends Base
     }
   }
   /**
-   * Returns the current survey state: 'loading' - loading from the json, 'completed' - a user has completed the survey,
-   * 'starting' - the started page is showing, running' - a user answers a questions right now, 'empty' - there is nothing to show in the current survey.
+   * Returns the current survey state: 
+   * 
+   * - `loading` - loading from the JSON, 
+   * - `completed` - a user has completed the survey,
+   * - `starting` - the started page is showing, 
+   * - `running` - a user answers questions right now, 
+   * - `empty` - there is nothing to show in the current survey.
    */
   public get state(): string {
     if (this.isLoading) return "loading";
@@ -1952,7 +2035,7 @@ export class SurveyModel extends Base
     this.completedStateTextValue = text;
   }
   /**
-   * Clear the survey data and state. If the survey has a 'completed' state, it will have a 'running' state.
+   * Clears the survey data and state. If the survey has a `completed` state, it will get a `running` state.
    * @param clearData clear the data
    * @param gotoFirstPage make the first page as a current page.
    * @see data
@@ -2021,7 +2104,7 @@ export class SurveyModel extends Base
     });
   }
   /**
-   * Returns the progress that a user made by answering on the survey.
+   * Returns the progress that a user made while going through the survey.
    */
   public getProgress(): number {
     if (this.currentPage == null) return 0;
@@ -2042,7 +2125,7 @@ export class SurveyModel extends Base
     return Math.ceil((index * 100) / this.visiblePageCount);
   }
   /**
-   * Returns true if navigation buttons: 'Prev', 'Next' or 'Complete' are shown.
+   * Returns the navigation buttons (i.e., 'Prev', 'Next', or 'Complete') position.
    */
   public get isNavigationButtonsShowing(): string {
     if (this.isDesignMode) return "none";
@@ -2057,14 +2140,14 @@ export class SurveyModel extends Base
     return this.showNavigationButtons;
   }
   /**
-   * Returns true if the survey in the edit mode.
+   * Returns `true` if the survey is in edit mode.
    * @see mode
    */
   public get isEditMode(): boolean {
     return this.mode == "edit";
   }
   /**
-   * Returns true if the survey in the display mode.
+   * Returns `true` if the survey is in display mode.
    * @see mode
    */
   public get isDisplayMode(): boolean {
@@ -2074,7 +2157,7 @@ export class SurveyModel extends Base
     return this.textUpdateMode == "onTyping";
   }
   /**
-   * Returns true if the survey in the design mode. It is used by SurveyJS Editor
+   * Returns `true` if the survey is in design mode. It is used by SurveyJS Editor.
    * @see setDesignMode
    */
   public get isDesignMode(): boolean {
@@ -2082,7 +2165,7 @@ export class SurveyModel extends Base
   }
   private _isDesignMode: boolean = false;
   /**
-   * Call it to set the survey into the design mode.
+   * Sets the survey into design mode.
    * @param value use true to set the survey into the design mode.
    */
   public setDesignMode(value: boolean) {
@@ -2090,7 +2173,7 @@ export class SurveyModel extends Base
     this.onQuestionsOnPageModeChanged("standard");
   }
   /**
-   * Set this property to true, to show all elements in the survey, regardless their visibility. It is false by default.
+   * Gets or sets whether to show all elements in the survey, regardless their visibility. The default value is `false`.
    */
   public get showInvisibleElements(): boolean {
     return this.getPropertyValue("showInvisibleElements", false);
@@ -2116,7 +2199,7 @@ export class SurveyModel extends Base
     return this.isDesignMode || this.showInvisibleElements;
   }
   /**
-   * Returns true, if a user has already completed the survey on this browser and there is a cookie about it. Survey goes to 'completed' state if the function returns true.
+   * Returns `true`, if a user has already completed the survey in this browser and there is a cookie about it. Survey goes to `completed` state if the function returns `true`.
    * @see cookieName
    * @see setCookie
    * @see deleteCookie
@@ -2128,7 +2211,7 @@ export class SurveyModel extends Base
     return cookies && cookies.indexOf(this.cookieName + "=true") > -1;
   }
   /**
-   * Set the cookie with cookieName in the browser. It is done automatically on survey complete if cookieName is not empty.
+   * Set the cookie with `cookieName` in user's browser. It is done automatically on survey complete if the `cookieName` property value is not empty.
    * @see cookieName
    * @see hasCookie
    * @see deleteCookie
@@ -2139,7 +2222,7 @@ export class SurveyModel extends Base
       this.cookieName + "=true; expires=Fri, 31 Dec 9999 0:0:0 GMT";
   }
   /**
-   * Delete the cookie with cookieName in the browser.
+   * Deletes the cookie with `cookieName` from the browser.
    * @see cookieName
    * @see hasCookie
    * @see setCookie
@@ -2149,14 +2232,19 @@ export class SurveyModel extends Base
     document.cookie = this.cookieName + "=;";
   }
   /**
-   * Set it to true, to ignore validation, like requried questions and others, on nextPage and completeLastPage functions.
+   * Gets or sets whether the survey must ignore validation like required questions and others, on `nextPage` and `completeLastPage` function calls. The default is `false`. 
    * @see nextPage
    * @see completeLastPage
    * @see mode
    */
   public ignoreValidation: boolean = false;
   /**
-   * Call it to go to the next page. It returns false, if it is the last page. If there is an error, for example required question is empty, the function returns false as well.
+   * Navigates user to the next page. 
+   * 
+   * Returns `false` in the following cases:
+   * 
+   * - if the current page is the last page. 
+   * - if the current page contains errors (for example, a required question is empty).
    * @see isCurrentPageHasErrors
    * @see prevPage
    * @see completeLastPage
@@ -2213,16 +2301,16 @@ export class SurveyModel extends Base
     this.doCurrentPageCompleteCore(doComplete);
   }
   /**
-   * Returns true, if there is any error on the current page. For example, the required question is empty or a question validation is failed.
+   * Returns `true`, if the current page contains errors, for example, the required question is empty or a question validation is failed.
    * @see nextPage
    */
   public get isCurrentPageHasErrors(): boolean {
     return this.checkIsCurrentPageHasErrors();
   }
   /**
-   * Returns true, if there is an error on any visible page
-   * @param fireCallback set it to true, to show errors in UI
-   * @param focusOnFirstError set it to true to focus on the first question that doesn't pass the validation and make the page, where question located, the current.
+   * Returns `true`, if any of the survey pages contains errors.
+   * @param fireCallback set it to `true`, to show errors in UI.
+   * @param focusOnFirstError set it to `true` to focus on the first question that doesn't pass the validation and make the page, where the question is located, the current.
    */
   public hasErrors(
     fireCallback: boolean = true,
@@ -2243,10 +2331,10 @@ export class SurveyModel extends Base
     return res;
   }
   /**
-   * Ensure that pages, panels and questions have unique question names.
-   * You may ensure unique names for individual page and panel (and all their elements) or question
-   * If the parameter is underfined then survey ensure that all its elements are unique.
-   * @param element page, panel or question, it is null by default, that means all survey elements will be checked
+   * Checks whether survey elements (pages, panels, and questions) have unique question names.
+   * You can check for unique names for individual page and panel (and all their elements) or a question.
+   * If the parameter is not specified, then a survey checks that all its elements have unique names.
+   * @param element page, panel or question, it is `null` by default, that means all survey elements will be checked
    */
   public ensureUniqueNames(element: ISurveyElement = null) {
     if (element == null) {
@@ -2357,7 +2445,7 @@ export class SurveyModel extends Base
     });
   }
   /**
-   * Call it to go to the previous page. It returns false if the current page is the first page already. It doesn't perform any checks, required questions can be empty.
+   * Navigates user to a previous page. If the current page is the first page, `prevPage` returns `false`. `prevPage` does not perform any checks, required questions can be empty.
    * @see isFirstPage
    */
   public prevPage(): boolean {
@@ -2367,7 +2455,8 @@ export class SurveyModel extends Base
     this.currentPage = vPages[index - 1];
   }
   /**
-   * Call it to complete the survey, if the current page is the last one. It returns false if there is an error on the page. If there is no errors on the page, it calls doComplete and returns true.
+   * Completes the survey, if the current page is the last one. It returns `false` if the last page has no errors.
+   * If the last page has no errors, `completeLastPage` calls `doComplete` and returns `true`.
    * @see isCurrentPageHasErrors
    * @see nextPage
    * @see doComplete
@@ -2389,8 +2478,7 @@ export class SurveyModel extends Base
     return true;
   }
   /**
-   * Set this property to true, if you want to combine all your pages in one page. Pages will be converted into panels.
-   * Please use questionsOnPageMode property. This property becomes obsolete
+   * Obsolete use the `questionsOnPageMode` property instead.
    * @see questionsOnPageMode
    */
   public get isSinglePage(): boolean {
@@ -2400,9 +2488,12 @@ export class SurveyModel extends Base
     this.questionsOnPageMode = val ? "singlePage" : "standard";
   }
   /**
-   * Set this property to 'singlePage', if you want to combine all your pages in one page. Pages will be converted into panels.
-   * Set it to 'questionPerPage', if you want to have one question per page. Survey will create a separate page for every question.
-   * This property made isSinglePage property obsolete
+   * Gets or sets a value that specifies how the survey combines questions, panels, and pages. 
+   * 
+   * The following options are available:
+   * 
+   * - `singlePage` - combine all survey pages in a single page. Pages will be converted to panels.
+   * - `questionPerPage` - show one question per page. Survey will create a separate page for every question.
    */
   public get questionsOnPageMode(): string {
     return this.getPropertyValue("questionsOnPageMode", "standard");
@@ -2411,7 +2502,8 @@ export class SurveyModel extends Base
     this.setPropertyValue("questionsOnPageMode", val);
   }
   /**
-   * Set this property to true, to make the first page your starting page. The end-user could not comeback to the start page and it is not count in the progress.
+   * Gets or sets whether the first survey page is a start page. Set this property to `true`, to make the first page a starting page.
+   * An end user cannot navigate to the start page and the start page does not affect a survey progress.
    */
   public get firstPageIsStarted(): boolean {
     return this.getPropertyValue("firstPageIsStarted", false);
@@ -2496,7 +2588,7 @@ export class SurveyModel extends Base
         var element = Serializer.createClass(originalElement.getType());
         if (!element) continue;
         var jsonObj = new JsonObject();
-        //Deserealize page properties only, excluding elements
+        //Deserialize page properties only, excluding elements
         jsonObj.lightSerializing = true;
         var pageJson = jsonObj.toJsonObject(originalPage);
 
@@ -2513,7 +2605,7 @@ export class SurveyModel extends Base
     return res;
   }
   /**
-   * Returns true if the current page is the first one.
+   * Gets whether the current page is the first one.
    */
   public get isFirstPage(): boolean {
     if (this.currentPage == null) return true;
@@ -2525,7 +2617,7 @@ export class SurveyModel extends Base
     return this.getPageMaxTimeToFinish(page) <= 0;
   }
   /**
-   * Returns true if the current page is the last one.
+   * Gets whether the current page is the last one.
    */
   public get isLastPage(): boolean {
     if (this.currentPage == null) return true;
@@ -2533,8 +2625,18 @@ export class SurveyModel extends Base
     return vPages.indexOf(this.currentPage) == vPages.length - 1;
   }
   /**
-   * Call it to complete the survey. It writes cookie if cookieName property is not empty, set the survey into 'completed' state, fire onComplete event and sendResult into [dxsurvey.com](http://www.dxsurvey.com) service if surveyPostId property is not empty. It doesn't perform any validation, unlike completeLastPage function.
-   * It calls navigateToUrl after calling onComplete event. In case calling options.showDataSaving callback in onComplete event, navigateToUrl will be used on calling options.showDataSavingSuccess callback.
+   * Completes the survey. 
+   * 
+   * Calling this function performs the following tasks:
+   * 
+   * - writes cookie if the `cookieName` property is not empty
+   * - sets the survey into `completed` state
+   * - fires the `onComplete` event
+   * - calls `sendResult` function. 
+   * 
+   * Calling the `doComplete` function does not perform any validation, unlike the `completeLastPage` function.
+   * It calls `navigateToUrl` after calling `onComplete` event.
+   * In case calling `options.showDataSaving` callback in the `onComplete` event, `navigateToUrl` is used on calling `options.showDataSavingSuccess` callback.
    * @see cookieName
    * @see state
    * @see onComplete
@@ -2579,7 +2681,7 @@ export class SurveyModel extends Base
     }
   }
   /**
-   * Start the survey. Change the mode from "starting" to "running". You need to call it, if there is a started page in your survey, otherwise it does nothing.
+   * Starts the survey. Changes the survey mode from "starting" to "running". Call this function if your survey has a start page, otherwise this function does nothing.
    * @see firstPageIsStarted
    */
   public start(): boolean {
@@ -2591,7 +2693,7 @@ export class SurveyModel extends Base
     return true;
   }
   /**
-   * Returns true, if at the current moment the question values on the current page are validating on the server.
+   * Gets whether the question values on the current page are validating on the server at the current moment.
    * @see onServerValidateQuestions
    */
   public get isValidatingOnServer(): boolean {
@@ -2671,7 +2773,7 @@ export class SurveyModel extends Base
     this.isCompleted = true;
   }
   /**
-   * Returns the html for completed 'Thank you' page.
+   * Returns the HTML content for the complete page.
    * @see completedHtml
    */
   public get processedCompletedHtml(): string {
@@ -2682,8 +2784,9 @@ export class SurveyModel extends Base
     return "<h3>" + this.getLocString("completingSurvey") + "</h3>";
   }
   /**
-   * Returns the html showing that the user has already completed the survey
+   * Returns the HTML content, that is shown to a user that had completed the survey before.
    * @see completedHtml
+   * @see cookieName
    */
   public get processedCompletedBeforeHtml(): string {
     if (this.completedBeforeHtml) {
@@ -2692,7 +2795,7 @@ export class SurveyModel extends Base
     return "<h3>" + this.getLocString("completingSurveyBefore") + "</h3>";
   }
   /**
-   * Returns the html that shows on loading the json.
+   * Returns the HTML content, that is shows when a survey loads the survey JSON.
    */
   public get processedLoadingHtml(): string {
     if (this.loadingHtml) {
@@ -2857,10 +2960,10 @@ export class SurveyModel extends Base
   }
 
   /**
-   * Upload the file into server
-   * @param name question name
-   * @param file uploading file
-   * @param storeDataAsText set it to true to encode file content into the survey results
+   * Uploads a file to server.
+   * @param name a question name
+   * @param file an uploaded file
+   * @param storeDataAsText set it to `true` to encode file content into the survey results
    * @param uploadingCallback a call back function to get the status on uploading the file
    */
   public uploadFiles(
@@ -2882,9 +2985,9 @@ export class SurveyModel extends Base
     }
   }
   /**
-   * Download the file from server
-   * @param name question name
-   * @param fileValue single file question value
+   * Downloads a file from server
+   * @param name a question name
+   * @param fileValue a single file question value
    * @param callback a call back function to get the status on downloading the file and the downloaded file content
    */
   public downloadFile(
@@ -2903,9 +3006,9 @@ export class SurveyModel extends Base
     });
   }
   /**
-   * Clear files from server
-   * @param name question name
-   * @param value file question value
+   * Clears files from server.
+   * @param name a question name
+   * @param value a file question value
    * @param callback a call back function to get the status of the clearing operation
    */
   public clearFiles(
@@ -2970,8 +3073,8 @@ export class SurveyModel extends Base
     return this.pages[index];
   }
   /**
-   * Add a page into the survey
-   * @param page
+   * Adds an existing page to the survey.
+   * @param page a newly added page
    * @see addNewPage
    */
   public addPage(page: PageModel) {
@@ -2980,7 +3083,7 @@ export class SurveyModel extends Base
     this.updateVisibleIndexes();
   }
   /**
-   * Creates a new page and adds it into the survey. Genarates a new name if the name parameter is not set.
+   * Creates a new page and adds it to a survey. Generates a new name if the `name` parameter is not specified.
    * @param name a page name
    * @see addPage
    */
@@ -2990,7 +3093,7 @@ export class SurveyModel extends Base
     return page;
   }
   /**
-   * Remove the page from the survey
+   * Removes a page from a survey.
    * @param page
    */
   public removePage(page: PageModel) {
@@ -3003,9 +3106,9 @@ export class SurveyModel extends Base
     this.updateVisibleIndexes();
   }
   /**
-   * Returns a question by its name
+   * Returns a question by its name.
    * @param name a question name
-   * @param caseInsensitive
+   * @param caseInsensitive 
    * @see getQuestionByValueName
    */
   public getQuestionByName(
@@ -3045,8 +3148,8 @@ export class SurveyModel extends Base
     return res;
   }
   /**
-   * Get a list of questions by their names
-   * @param names the array of names
+   * Gets a list of questions by their names.
+   * @param names an array of question names
    * @param caseInsensitive
    */
   public getQuestionsByNames(
@@ -3074,7 +3177,7 @@ export class SurveyModel extends Base
     return null;
   }
   /**
-   * Returns a page on which a question is located
+   * Returns a page on which a question is located.
    * @param question
    */
   public getPageByQuestion(question: IQuestion): PageModel {
@@ -3091,8 +3194,8 @@ export class SurveyModel extends Base
     return null;
   }
   /**
-   * Rertuns a list of pages by their names
-   * @param names a list of pages names
+   * Returns a list of pages by their names.
+   * @param names a list of page names
    */
   public getPagesByNames(names: string[]): PageModel[] {
     var result: PageModel[] = [];
@@ -3105,8 +3208,8 @@ export class SurveyModel extends Base
     return result;
   }
   /**
-   * Returns the list of all questions in the survey
-   * @param visibleOnly set it true, if you want to get only visible questions
+   * Returns a list of all questions in a survey.
+   * @param visibleOnly set it `true`, if you want to get only visible questions
    */
   public getAllQuestions(
     visibleOnly: boolean = false,
@@ -3142,7 +3245,7 @@ export class SurveyModel extends Base
     return result;
   }
   /**
-   * Returns a panel by its name
+   * Returns a panel by its name.
    * @param name a panel name
    * @param caseInsensitive
    * @see getQuestionByName
@@ -3161,7 +3264,7 @@ export class SurveyModel extends Base
     return null;
   }
   /**
-   * Returns the list of all panels in the survey
+   * Returns a list of all survey's panels.
    */
   public getAllPanels(
     visibleOnly: boolean = false,
@@ -3307,10 +3410,10 @@ export class SurveyModel extends Base
     }
   }
   /**
-   * Send the survey result into [dxsurvey.com](http://www.dxsurvey.com) service.
+   * Sends a survey result to the [dxsurvey.com](http://www.dxsurvey.com) service.
    * @param postId [dxsurvey.com](http://www.dxsurvey.com) service postId
-   * @param clientId Typically a customer e-mail or an identificator
-   * @param isPartialCompleted Set it to true if the survey is not completed yet and it is an intermediate results
+   * @param clientId Typically a customer e-mail or an identifier
+   * @param isPartialCompleted Set it to `true` if the survey is not completed yet and the results are intermediate
    * @see surveyPostId
    * @see clientId
    */
@@ -3358,7 +3461,7 @@ export class SurveyModel extends Base
     );
   }
   /**
-   * It calls the [dxsurvey.com](http://www.dxsurvey.com) service and on callback fires onGetResult event with all answers that your users made for a question.
+   * Calls the [dxsurvey.com](http://www.dxsurvey.com) service and, on callback, fires the `onGetResult` event with all answers that your users made for a question.
    * @param resultId [dxsurvey.com](http://www.dxsurvey.com) service resultId
    * @param name The question name
    * @see onGetResult
@@ -3380,9 +3483,10 @@ export class SurveyModel extends Base
     });
   }
   /**
-   * Loads the survey Json from the [dxsurvey.com](http://www.dxsurvey.com) service. If clientId is not null and user has already completed the survey, the survey will go into "completedbefore" state.
+   * Loads the survey JSON from the [dxsurvey.com](http://www.dxsurvey.com) service.
+   * If `clientId` is not `null` and a user had completed a survey before, the survey switches to `completedbefore` state.
    * @param surveyId [dxsurvey.com](http://www.dxsurvey.com) service surveyId
-   * @param clientId indentificator for a user, for example e-mail or unique customer id in your web application.
+   * @param clientId users' indentifier, for example an e-mail or a unique customer id in your web application.
    * @see state
    */
   public loadSurveyFromService(
@@ -3611,7 +3715,7 @@ export class SurveyModel extends Base
   /**
    * Sets a variable value. Variable, unlike values, are not stored in the survey results.
    * @param name A variable name
-   * @param newValue
+   * @param newValue A variable new value
    * @see GetVariable
    */
   public setVariable(name: string, newValue: any) {
@@ -3626,7 +3730,7 @@ export class SurveyModel extends Base
     return Helpers.getUnbindValue(value);
   }
   /**
-   * Returns a question value
+   * Returns a question value (answer) by a question's name.
    * @param name A question name
    * @see data
    * @see setValue
@@ -3637,9 +3741,11 @@ export class SurveyModel extends Base
     return this.getUnbindValue(value);
   }
   /**
-   * Sets a question value. It runs all triggers and conditions (visibleIf properties). Goes to the next page if goNextPageAutomatic is true and all questions on the current page are answered correctly.
+   * Sets a question value (answer). It runs all triggers and conditions (`visibleIf` properties). 
+   * 
+   * Goes to the next page if `goNextPageAutomatic` is `true` and all questions on the current page are answered correctly.
    * @param name A question name
-   * @param newValue
+   * @param newValue A new question value
    * @see data
    * @see getValue
    * @see PageModel.visibleIf
@@ -3728,8 +3834,8 @@ export class SurveyModel extends Base
     }
   }
   /**
-   * Returns the comment value
-   * @param name
+   * Returns the comment value.
+   * @param name A comment's name.
    * @see setComment
    */
   public getComment(name: string): string {
@@ -3738,9 +3844,9 @@ export class SurveyModel extends Base
     return result;
   }
   /**
-   * Set the comment value
-   * @param name
-   * @param newValue
+   * Sets a comment value.
+   * @param name A comment name.
+   * @param newValue A new comment value.
    * @see getComment
    */
   public setComment(
@@ -3775,16 +3881,16 @@ export class SurveyModel extends Base
     }
   }
   /**
-   * Remove the value from the survey result.
-   * @param {string} name The name of the value. Typically it is a question name
+   * Removes a value from the survey results.
+   * @param {string} name The name of the value. Typically it is a question name.
    */
   public clearValue(name: string) {
     this.setValue(name, null);
     this.setComment(name, null);
   }
   /**
-   * Set this value to true, to clear value on disable items in checkbox, dropdown and radiogroup questions.
-   * By default values are not cleared on disabled the corresponded items. This property is not persisted in survey json and you have to set it in code.
+   * Gets or sets whether to clear value on disable items in checkbox, dropdown and radiogroup questions.
+   * By default, values are not cleared on disabled the corresponded items. This property is not persisted in survey JSON and you have to set it in code.
    */
   public get clearValueOnDisableItems(): boolean {
     return this.getPropertyValue("clearValueOnDisableItems", false);
@@ -4026,13 +4132,13 @@ export class SurveyModel extends Base
     return options.html;
   }
   /**
-   * Returns the number of corrected answers on quiz
+   * Returns an amount of corrected quiz answers.
    */
   public getCorrectedAnswerCount(): number {
     return this.getCorrectedAnswerCountCore(true);
   }
   /**
-   * Returns quiz question number. It may be different from getQuizQuestions.length because some widgets like matrix may have several questions. For example by number of rows
+   * Returns quiz question number. It may be different from `getQuizQuestions.length` because some widgets like matrix may have several questions.
    * @see getQuizQuestions
    */
   public getQuizQuestionCount(): number {
@@ -4044,7 +4150,7 @@ export class SurveyModel extends Base
     return res;
   }
   /**
-   * Returns the number of incorrected answers on quiz
+   * Returns an amount of incorrect quiz answers.
    */
   public getInCorrectedAnswerCount(): number {
     return this.getCorrectedAnswerCountCore(false);
@@ -4087,8 +4193,14 @@ export class SurveyModel extends Base
     return this.getInCorrectedAnswerCount();
   }
   /**
-   * Set it to 'top' or 'bottom' if you want to show the Panel with information about how much time the end-user spent of the survey/page.
-   * If the value doesn't equal 'none' then survey calls startTimer() method on survey rendering.
+   * Gets or sets a timer panel position. The timer panel displays information about how much time an end user spends on a survey/page.
+   * 
+   * The available options:
+   * - `top` - display timer panel in the top.
+   * - `bottom` - display timer panel in the bottom.
+   * - `none` - do not display a timer panel.
+   * 
+   * If the value is not equal to 'none', the survey calls the `startTimer()` method on survey rendering.
    * @see showTimerPanelMode
    * @see startTimer
    * @see stopTimer
@@ -4106,8 +4218,14 @@ export class SurveyModel extends Base
     return this.isTimerStarted && this.showTimerPanel == "bottom";
   }
   /**
-   * Set this property to 'page' or 'survey' to show the timer information for page or survey only.
-   * Use onTimerPanelInfoText event to change the default text.
+   * Gets or set a value that specifies whether the timer displays information for the page or for the entire survey. 
+   * 
+   * The available options:
+   * 
+   * - `page` - show timer information for page
+   * - `survey` - show timer information for survey
+   * 
+   * Use the `onTimerPanelInfoText` event to change the default text.
    * @see showTimerPanel
    * @see onTimerPanelInfoText
    */
@@ -4193,7 +4311,7 @@ export class SurveyModel extends Base
   }
   private timerFunc: any = null;
   /**
-   * Call this method to start timer that will calculate how much time end-user spends on the survey or on pages
+   * Starts a timer that will calculate how much time end-user spends on the survey or on pages.
    * @see stopTimer
    * @see timeSpent
    */
@@ -4212,7 +4330,7 @@ export class SurveyModel extends Base
     }
   }
   /**
-   * Stop the timer.
+   * Stops the timer.
    * @see startTimer
    * @see timeSpent
    */
@@ -4222,13 +4340,13 @@ export class SurveyModel extends Base
     SurveyTimer.instance.stop(this.timerFunc);
   }
   /**
-   * Returns the time in seconds end-user spends on the survey
+   * Returns the time in seconds an end user spends on the survey
    * @see startTimer
    * @see PageModel.timeSpent
    */
   public timeSpent = 0;
   /**
-   * The maximum time in seconds that end-user has to complete the survey. If the value is 0 or less, the end-user has unlimited number of time to finish the survey.
+   * Gets or sets the maximum time in seconds that end user has to complete a survey. If the value is 0 or less, an end user has no time limit to finish a survey.
    * @see startTimer
    * @see maxTimeToFinishPage
    */
@@ -4239,7 +4357,9 @@ export class SurveyModel extends Base
     this.setPropertyValue("maxTimeToFinish", val);
   }
   /**
-   * The maximum time in seconds that end-user has to complete a page in the survey. If the value is 0 or less, the end-user has unlimited time. You may override this value for every page.
+   * Gets or sets the maximum time in seconds that end user has to complete a page in the survey. If the value is 0 or less, an end user has no time limit. 
+   * 
+   * You may override this value for every page.
    * @see startTimer
    * @see maxTimeToFinish
    * @see PageModel.maxTimeToFinish

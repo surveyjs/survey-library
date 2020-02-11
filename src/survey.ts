@@ -147,6 +147,8 @@ export class SurveyModel extends Base
    * <br/> `option.oldCurrentPage` - the previous current/active page.
    * <br/> `option.newCurrentPage` - a new current/active page.
    * <br/> `option.allowChanging` - set it to `false` to disable the current page changing. It is `true` by default.
+   * <br/> `option.isNextPage` - commonly means, that end-user press the next page button. In general, it means that options.newCurrentPage is the next page after options.oldCurrentPage
+   * <br/> `option.isPrevPage` - commonly means, that end-user press the previous page button. In general, it means that options.newCurrentPage is the previous page before options.oldCurrentPage
    * @see currentPage
    * @see currentPageNo
    * @see nextPage
@@ -163,6 +165,8 @@ export class SurveyModel extends Base
    * <br/> `sender` - the survey object that fires the event.
    * <br/> `option.oldCurrentPage` - a previous current/active page.
    * <br/> `option.newCurrentPage` - a new current/active page.
+   * <br/> `option.isNextPage` - commonly means, that end-user press the next page button. In general, it means that options.newCurrentPage is the next page after options.oldCurrentPage
+   * <br/> `option.isPrevPage` - commonly means, that end-user press the previous page button. In general, it means that options.newCurrentPage is the previous page before options.oldCurrentPage
    * @see currentPage
    * @see currentPageNo
    * @see nextPage
@@ -2092,7 +2096,9 @@ export class SurveyModel extends Base
     var options = {
       oldCurrentPage: oldValue,
       newCurrentPage: newValue,
-      allowChanging: true
+      allowChanging: true,
+      isNextPage: this.isNextPage(newValue, oldValue),
+      isPrevPage: this.isPrevPage(newValue, oldValue)      
     };
     this.onCurrentPageChanging.fire(this, options);
     return options.allowChanging;
@@ -2100,8 +2106,18 @@ export class SurveyModel extends Base
   protected currentPageChanged(newValue: PageModel, oldValue: PageModel) {
     this.onCurrentPageChanged.fire(this, {
       oldCurrentPage: oldValue,
-      newCurrentPage: newValue
+      newCurrentPage: newValue,
+      isNextPage: this.isNextPage(newValue, oldValue),
+      isPrevPage: this.isPrevPage(newValue, oldValue)      
     });
+  }
+  private isNextPage(newValue: PageModel, oldValue: PageModel): boolean {
+    if(!newValue || !oldValue) return false;
+    return newValue.visibleIndex == oldValue.visibleIndex + 1;
+  }
+  private isPrevPage(newValue: PageModel, oldValue: PageModel): boolean {
+    if(!newValue || !oldValue) return false;
+    return newValue.visibleIndex + 1 == oldValue.visibleIndex;
   }
   /**
    * Returns the progress that a user made while going through the survey.

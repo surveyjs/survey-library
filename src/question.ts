@@ -1221,9 +1221,10 @@ export class Question extends SurveyElement
     }
   }
   private isValueChangedInSurvey = false;
+  protected allowNotifyValueChanged = true;
   protected setNewValue(newValue: any) {
     this.setNewValueInData(newValue);
-    this.onValueChanged();
+    this.allowNotifyValueChanged && this.onValueChanged();
   }
   protected locNotificationInData = false;
   protected isTextValue(): boolean {
@@ -1254,7 +1255,8 @@ export class Question extends SurveyElement
       this.data.setValue(
         this.getValueName(),
         newValue,
-        this.getDataLocNotification()
+        this.getDataLocNotification(),
+        this.allowNotifyValueChanged
       );
     }
   }
@@ -1285,7 +1287,8 @@ export class Question extends SurveyElement
   }
   protected setQuestionValue(newValue: any, updateIsAnswered: boolean = true) {
     this.questionValue = newValue;
-    this.fireCallback(this.valueChangedCallback);
+    this.allowNotifyValueChanged &&
+      this.fireCallback(this.valueChangedCallback);
     if (updateIsAnswered) this.updateIsAnswered();
   }
   onSurveyValueChanged(newValue: any) {

@@ -522,6 +522,25 @@ QUnit.test(
   }
 );
 
+QUnit.test("preset data and same data from url", function(assert) {
+  var survey = new SurveyModel();
+  var counter = 0;
+  survey.addNewPage("1");
+  var question = new QuestionDropdownModelTester("q1");
+  survey.storeOthersAsComment = false;
+
+  survey.onValueChanging.add(function() {
+    counter++;
+  });
+
+  question.choicesByUrl.url = "{state}";
+  survey.pages[0].addQuestion(question);
+  survey.data = { q1: "CA" };
+  question["onLoadChoicesFromUrl"]([new ItemValue("CA"), new ItemValue("AA")]);
+
+  assert.equal(counter, 0, "value doesn't change");
+});
+
 QUnit.test(
   "defaultValue for radiogroup where value is object for choices by url, bug: https://surveyjs.answerdesk.io/ticket/details/T2055",
   function(assert) {
@@ -555,8 +574,9 @@ QUnit.test(
       { identity: { id: 1024 }, localizedData: { id: "A4" } }
     ].map(i => new ItemValue(i.identity, i.localizedData.id));
     question["onLoadChoicesFromUrl"](loadedItems);
-    assert.ok(
-      question.value === question["activeChoices"][2].value,
+    assert.equal(
+      question.value,
+      question["activeChoices"][2].value,
       "Choosen exactly choice item value"
     );
     survey.doComplete();

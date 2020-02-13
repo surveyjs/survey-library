@@ -3801,7 +3801,8 @@ export class SurveyModel extends Base
     triggerKeys[name] = newValue;
     this.checkTriggers(triggerKeys, false);
     this.runConditions();
-    this.notifyQuestionOnValueChanged(name, newValue);
+    if (allowNotifyValueChanged)
+      this.notifyQuestionOnValueChanged(name, newValue);
     if (locNotification !== "text") {
       this.tryGoNextPageAutomatic(name);
     }

@@ -533,6 +533,10 @@ QUnit.test("preset data and same data from url", function(assert) {
     counter++;
   });
 
+  survey.onValueChanged.add(function() {
+    counter++;
+  });
+
   question.choicesByUrl.url = "{state}";
   survey.pages[0].addQuestion(question);
   survey.data = { q1: "CA" };

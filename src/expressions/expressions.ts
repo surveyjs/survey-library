@@ -53,6 +53,9 @@ export class BinaryOperand extends Operand {
   public get conjunction(): string {
     return this.isConjunction ? this.operatorName : "";
   }
+  public get operator(): string {
+    return this.operatorName;
+  }
   public get leftOperand() {
     return this.left;
   }

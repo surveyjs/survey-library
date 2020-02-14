@@ -50,6 +50,9 @@ export class BinaryOperand extends Operand {
   public get isConjunction() {
     return this.operatorName == "or" || this.operatorName == "and";
   }
+  public get conjunction(): string {
+    return this.isConjunction ? this.operatorName : "";
+  }
   public get leftOperand() {
     return this.left;
   }

@@ -611,11 +611,19 @@ export class QuestionSelectBase extends Question {
         cachedValues,
         newChoices
       );
-      if (!!newValue && !this.isReadOnly && this.value !== newValue.value) {
-        this.locNotificationInData = true;
-        this.value = undefined;
-        this.locNotificationInData = false;
-        this.value = newValue.value;
+      if (!!newValue && !this.isReadOnly) {
+        var hasChanged = !Helpers.isTwoValueEquals(this.value, newValue.value);
+        try {
+          this.allowNotifyValueChanged = false;
+          this.locNotificationInData = true;
+          this.value = undefined;
+          this.locNotificationInData = false;
+
+          this.allowNotifyValueChanged = hasChanged;
+          this.value = newValue.value;
+        } finally {
+          this.allowNotifyValueChanged = true;
+        }
       }
     }
     this.choicesLoaded();

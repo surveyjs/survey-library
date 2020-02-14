@@ -9,7 +9,12 @@ import { settings } from "./settings";
 
 export interface ISurveyData {
   getValue(name: string): any;
-  setValue(name: string, newValue: any, locNotification: any): any;
+  setValue(
+    name: string,
+    newValue: any,
+    locNotification: any,
+    allowNotifyValueChanged?: boolean
+  ): any;
   getVariable(name: string): any;
   setVariable(name: string, newValue: any): void;
   getComment(name: string): string;
@@ -138,7 +143,11 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner {
   matrixCellValueChanging(question: IQuestion, options: any): any;
   matrixCellValidate(question: IQuestion, options: any): SurveyError;
   dynamicPanelAdded(question: IQuestion): any;
-  dynamicPanelRemoved(question: IQuestion, panelIndex: number, panel: IPanel): any;
+  dynamicPanelRemoved(
+    question: IQuestion,
+    panelIndex: number,
+    panel: IPanel
+  ): any;
   dynamicPanelItemValueChanged(question: IQuestion, options: any): any;
 
   dragAndDropAllow(options: any): boolean;

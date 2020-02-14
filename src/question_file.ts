@@ -28,7 +28,7 @@ export class QuestionFileModel extends Question {
     return "file";
   }
   public clearOnDeletingContainer() {
-    this.survey.clearFiles(this.name, this.value, null, () => { });
+    this.survey.clearFiles(this.name, this.value, null, () => {});
   }
   /**
    * Set it to true, to show the preview for the image files.
@@ -382,10 +382,19 @@ export class QuestionFileModel extends Question {
     }
     return questionPlainData;
   }
+  public supportComment(): boolean {
+    return true;
+  }
 }
 Serializer.addClass(
   "file",
   [
+    { name: "hasComment:boolean", layout: "row" },
+    {
+      name: "commentText",
+      serializationProperty: "locCommentText",
+      layout: "row"
+    },
     { name: "showPreview:boolean", default: true },
     "allowMultiple:boolean",
     { name: "allowImagesPreview:boolean", default: true },

@@ -214,6 +214,7 @@ export var modernCss = {
   expression: "",
   file: {
     root: "sv-file",
+    other: "sv-comment sv-question__other",
     placeholderInput: "sv-visuallyhidden",
     preview: "sv-file__preview",
     fileSign: "sv-hidden",

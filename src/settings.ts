@@ -14,7 +14,7 @@ export var settings = {
   /**
    * SurveyJS web service API url
    */
-  surveyServiceUrl: "https://dxsurveyapi.azurewebsites.net/api/Survey",
+  surveyServiceUrl: "https://api.surveyjs.io/public/v1/Survey",
   /**
    * separator that can allow to set value and text of ItemValue object in one string as: "value|text"
    */

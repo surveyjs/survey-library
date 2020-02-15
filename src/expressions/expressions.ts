@@ -123,6 +123,9 @@ export class UnaryOperand extends Operand {
       OperandMaker.throwInvalidOperatorError(operatorName);
     }
   }
+  public get operator(): string {
+    return this.operatorName;
+  }
   public getType(): string {
     return "unary";
   }

@@ -116,7 +116,7 @@ export class BinaryOperand extends Operand {
 
 export class UnaryOperand extends Operand {
   private consumer: Function;
-  constructor(private expression: Operand, private operatorName: string) {
+  constructor(private expressionValue: Operand, private operatorName: string) {
     super();
     this.consumer = OperandMaker.unaryFunctions[operatorName];
     if (this.consumer == null) {
@@ -125,6 +125,9 @@ export class UnaryOperand extends Operand {
   }
   public get operator(): string {
     return this.operatorName;
+  }
+  public get expression(): Operand {
+    return this.expressionValue;
   }
   public getType(): string {
     return "unary";

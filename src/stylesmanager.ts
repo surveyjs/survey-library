@@ -164,12 +164,14 @@ export class StylesManager {
       "display: inline-block; box-sizing: border-box; width: 63px; height: 24px; margin-right: 17px; margin-left: 21px; padding: 2px 3px; vertical-align: middle; border-radius: 12px; cursor: pointer;",
     ".sv_main .sv-boolean__slider":
       "display: inline-block; width: 20px; height: 20px; transition-duration: .4s; transition-property: margin-left; border: none; border-radius: 100%;",
-    ".sv_main sv-boolean__label": "vertical-align: middle",
+    ".sv_main sv-boolean__label": "vertical-align: middle;",
     ".sv_main .sv-boolean--indeterminate  .sv-boolean__slider":
       "margin-left: calc(50% - 10px);",
     ".sv_main .sv-boolean--checked  .sv-boolean__slider":
-      "margin-left: calc(100% - 20px);"
+      "margin-left: calc(100% - 20px);",
     // EO boolean
+    ".sv_main .sv_q_num": "float: left;",
+    ".sv_main .sv_q_num + span": "float: left;"
   };
 
   public static Media: { [key: string]: { media: string; style: string } } = {

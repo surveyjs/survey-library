@@ -141,7 +141,7 @@ export class SurveyQuestion extends SurveyElementBase {
           {questionNumber}
         </span>
       );
-      delimiter = <span className={cssClasses.number}>.{"\u00A0"}</span>;
+      delimiter = <span>.{"\u00A0"}</span>;
     }
 
     var requredSpan = this.question.getQuestionTitleTemplate() ? null : (

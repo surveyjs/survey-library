@@ -3,8 +3,11 @@
 # Add steps that build, run tests, deploy, and more:
 # https://aka.ms/yaml
 
+#trigger only "by hand"
 trigger:
-- master
+  branches:
+    exclude:
+    - master
 
 pool:
   vmImage: 'ubuntu-latest'

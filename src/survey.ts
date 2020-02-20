@@ -3418,6 +3418,7 @@ export class SurveyModel extends Base
     var pages = this.pages;
     var values = this.getFilteredValues();
     var properties = this.getFilteredProperties();
+    var oldCurrentPageIndex = this.pages.indexOf(this.currentPageValue);
     for (var i = 0; i < this.calculatedValues.length; i++) {
       this.calculatedValues[i].resetCalculation();
     }
@@ -3430,6 +3431,17 @@ export class SurveyModel extends Base
     }
     for (var i = 0; i < pages.length; i++) {
       pages[i].runCondition(values, properties);
+    }
+    this.checkIfNewPagesBecomeVisible(oldCurrentPageIndex);
+  }
+  private checkIfNewPagesBecomeVisible(oldCurrentPageIndex: number) {
+    var newCurrentPageIndex = this.pages.indexOf(this.currentPageValue);
+    if (newCurrentPageIndex <= oldCurrentPageIndex + 1) return;
+    for (var i = oldCurrentPageIndex + 1; i < newCurrentPageIndex; i++) {
+      if (this.pages[i].isVisible) {
+        this.currentPage = this.pages[i];
+        break;
+      }
     }
   }
   /**

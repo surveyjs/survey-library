@@ -3,7 +3,9 @@ import { SurveyQuestionUncontrolledElement } from "./reactquestionelement";
 import { QuestionTextModel } from "../question_text";
 import { ReactQuestionFactory } from "./reactquestionfactory";
 
-export class SurveyQuestionText extends SurveyQuestionUncontrolledElement<QuestionTextModel> {
+export class SurveyQuestionText extends SurveyQuestionUncontrolledElement<
+  QuestionTextModel
+> {
   constructor(props: any) {
     super(props);
   }
@@ -16,6 +18,10 @@ export class SurveyQuestionText extends SurveyQuestionUncontrolledElement<Questi
     var onInput = this.question.isInputTextUpdate
       ? this.updateValueOnEvent
       : null;
+    var placeHolder =
+      this.question.inputType === "range" || this.question.isReadOnly
+        ? ""
+        : this.question.placeHolder;
     return (
       <input
         id={this.question.inputId}
@@ -25,7 +31,7 @@ export class SurveyQuestionText extends SurveyQuestionUncontrolledElement<Questi
         ref={input => (this.control = input)}
         maxLength={this.question.getMaxLength()}
         size={this.question.size}
-        placeholder={this.question.placeHolder}
+        placeholder={placeHolder}
         onBlur={onBlur}
         onInput={onInput}
         aria-required={this.question.isRequired}

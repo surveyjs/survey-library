@@ -6,7 +6,7 @@
     :maxlength="question.getMaxLength()"
     :size="question.size"
     :id="question.inputId"
-    :placeholder="question.placeHolder"
+    :placeholder="question.inputType === 'range' || question.isReadOnly ? '' : question.placeHolder"
     :value="question.value"
     @change="change"
     @keyup="keyup"

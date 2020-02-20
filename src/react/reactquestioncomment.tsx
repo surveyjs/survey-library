@@ -22,7 +22,7 @@ export class SurveyQuestionComment extends SurveyQuestionUncontrolledElement<
     var onInput = this.question.isInputTextUpdate
       ? this.updateValueOnEvent
       : null;
-
+    var placeHolder = this.question.isReadOnly ? "" : this.question.placeHolder;
     return (
       <textarea
         id={this.question.inputId}
@@ -30,7 +30,7 @@ export class SurveyQuestionComment extends SurveyQuestionUncontrolledElement<
         disabled={this.isDisplayMode}
         ref={tetxarea => (this.control = tetxarea)}
         maxLength={this.question.getMaxLength()}
-        placeholder={this.question.placeHolder}
+        placeholder={placeHolder}
         onBlur={onBlur}
         onInput={onInput}
         onChange={this.updateValueOnEvent}

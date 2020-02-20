@@ -10,7 +10,7 @@
       :cols="question.cols"
       v-bind:aria-label="question.locTitle.renderedHtml"
       :rows="question.rows"
-      :placeholder="question.placeHolder"
+      :placeholder="question.isReadOnly ? '' : question.placeHolder"
       :class="question.cssClasses ? question.cssClasses.root : 'panel-comment-root'"
       @change="change"
       @keyup="keyup"

@@ -1369,7 +1369,7 @@ export class Question extends SurveyElement
 }
 Serializer.addClass("question", [
   "!name",
-  { name: "visible:boolean", default: true },
+  { name: "visible:switch", default: true },
   { name: "useDisplayValuesInTitle:boolean", default: true, layout: "row" },
   "visibleIf:condition",
   { name: "width" },
@@ -1402,13 +1402,13 @@ Serializer.addClass("question", [
   "enableIf:condition",
   "defaultValue:value",
   "correctAnswer:value",
-  "isRequired:boolean",
+  "isRequired:switch",
   "requiredIf:condition",
   {
     name: "requiredErrorText:text",
     serializationProperty: "locRequiredErrorText"
   },
-  "readOnly:boolean",
+  "readOnly:switch",
   {
     name: "validators:validators",
     baseClassName: "surveyvalidator",

@@ -389,7 +389,7 @@ export class QuestionFileModel extends Question {
 Serializer.addClass(
   "file",
   [
-    { name: "hasComment:boolean", layout: "row" },
+    { name: "hasComment:switch", layout: "row" },
     {
       name: "commentText",
       serializationProperty: "locCommentText",

@@ -823,7 +823,7 @@ export class QuestionCheckboxBase extends QuestionSelectBase {
 Serializer.addClass(
   "selectbase",
   [
-    { name: "hasComment:boolean", layout: "row" },
+    { name: "hasComment:switch", layout: "row" },
     {
       name: "commentText",
       serializationProperty: "locCommentText",

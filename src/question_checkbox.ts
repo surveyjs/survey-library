@@ -12,6 +12,7 @@ import { LocalizableString } from "./localizablestring";
 export class QuestionCheckboxModel extends QuestionCheckboxBase {
   private noneItemValue: ItemValue = new ItemValue("none");
   private selectAllItemValue: ItemValue = new ItemValue("selectall");
+  private invisibleOldValues: any = {};
   constructor(public name: string) {
     super(name);
     var noneItemText = this.createLocalizableString("noneText", this, true);
@@ -175,6 +176,9 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     return false;
   }
   protected setNewValue(newValue: any) {
+    if (!this.isChangingValueOnClearIncorrect) {
+      this.invisibleOldValues = [];
+    }
     newValue = this.valueFromData(newValue);
     var value = this.value;
     if (!newValue) newValue = [];
@@ -236,10 +240,14 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
   protected clearDisabledValuesCore() {
     this.clearIncorrectAndDisabledValues(true);
   }
+  private isChangingValueOnClearIncorrect: boolean = false;
   private clearIncorrectAndDisabledValues(clearDisabled: boolean) {
     var val = this.value;
-    if (!val) return;
+    var hasChanged = false;
+    var restoredValues = this.restoreValuesFromInvisible();
+    if (!val && restoredValues.length == 0) return;
     if (!Array.isArray(val) || val.length == 0) {
+      this.isChangingValueOnClearIncorrect = true;
       if (!clearDisabled) {
         if (this.hasComment) {
           this.value = null;
@@ -247,23 +255,49 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
           this.clearValue();
         }
       }
-      return;
+      this.isChangingValueOnClearIncorrect = false;
+      if (restoredValues.length == 0) return;
+      val = [];
     }
     var newValue = [];
     for (var i = 0; i < val.length; i++) {
+      var isUnkown = this.canClearValueAnUnknow(val[i]);
       if (
-        (!clearDisabled && !this.canClearValueAnUnknow(val[i])) ||
+        (!clearDisabled && !isUnkown) ||
         (clearDisabled && !this.isValueDisabled(val[i]))
       ) {
         newValue.push(val[i]);
+      } else {
+        hasChanged = true;
+        if (isUnkown) {
+          this.invisibleOldValues[val[i]] = true;
+        }
       }
     }
-    if (newValue.length == val.length) return;
+    for (var i = 0; i < restoredValues.length; i++) {
+      newValue.push(restoredValues[i]);
+      hasChanged = true;
+    }
+    if (!hasChanged) return;
+    this.isChangingValueOnClearIncorrect = true;
     if (newValue.length == 0) {
       this.clearValue();
     } else {
       this.value = newValue;
     }
+    this.isChangingValueOnClearIncorrect = false;
+  }
+  private restoreValuesFromInvisible(): Array<any> {
+    var res = [];
+    var visItems = this.visibleChoices;
+    for (var i = 0; i < visItems.length; i++) {
+      var val = visItems[i].value;
+      if (this.invisibleOldValues[val]) {
+        res.push(val);
+        delete this.invisibleOldValues[val];
+      }
+    }
+    return res;
   }
   public getConditionJson(operator: string = null, path: string = null): any {
     var json = super.getConditionJson();

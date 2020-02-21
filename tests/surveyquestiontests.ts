@@ -1953,6 +1953,63 @@ QUnit.test("defaultValue propeprty as array", function(assert) {
   question.defaultValue = null;
   assert.deepEqual(question.defaultValue, [], "It is empty by default");
 });
+QUnit.test("Restore/Store item value in checkbox on hiding/showing", function(
+  assert
+) {
+  var survey = new SurveyModel({
+    elements: [
+      {
+        type: "checkbox",
+        name: "q2",
+        choices: [
+          "item1",
+          "item2",
+          {
+            value: "item3",
+            text: "item3 - conditional Item",
+            visibleIf: "{q1}='yes'"
+          },
+          "item4",
+          "item5"
+        ],
+        defaultValue: ["item1", "item3", "item5"]
+      }
+    ]
+  });
+  var question = <QuestionCheckboxModel>survey.getQuestionByName("q2");
+  assert.deepEqual(
+    question.value,
+    ["item1", "item5"],
+    "item3 is invisible - remove it"
+  );
+  survey.setValue("q1", "yes");
+  assert.deepEqual(
+    question.value,
+    ["item1", "item5", "item3"],
+    "item3 is visible - restore it's value"
+  );
+  survey.setValue("q1", "no");
+  assert.deepEqual(
+    question.value,
+    ["item1", "item5"],
+    "item3 is invisible again - remove it"
+  );
+  survey.setValue("q1", "yes");
+  assert.deepEqual(
+    question.value,
+    ["item1", "item5", "item3"],
+    "item3 is visible again - restore it's value"
+  );
+  survey.setValue("q1", "no");
+  question.value = ["item1", "item5"];
+  survey.setValue("q1", "yes");
+  assert.deepEqual(
+    question.value,
+    ["item1", "item5"],
+    "item3 is visible again, but we uncheck the value when it was hidden"
+  );
+});
+
 QUnit.test("Clear errors on making question invisible, bug#846", function(
   assert
 ) {

@@ -152,10 +152,8 @@ export class QuestionSelectBase extends Question {
       this.filteredChoicesValue = null;
     }
     if (hasChanges) {
-      if (!!this.filteredChoicesValue) {
-        this.clearIncorrectValues();
-      }
       this.onVisibleChoicesChanged();
+      this.clearIncorrectValues();
     }
     return hasChanges;
   }

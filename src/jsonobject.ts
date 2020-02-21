@@ -111,7 +111,7 @@ export class JsonObjectProperty implements IObject {
     if (!Helpers.isValueEmpty(this.defaultValue))
       return this.defaultValue == value;
     return (
-      (value === false && this.type == "boolean") ||
+      (value === false && (this.type == "boolean" || this.type == "switch")) ||
       value === "" ||
       Helpers.isValueEmpty(value)
     );
@@ -140,7 +140,7 @@ export class JsonObjectProperty implements IObject {
           if (this.type == "number") {
             value = parseInt(value);
           }
-          if (this.type == "boolean") {
+          if (this.type == "boolean" || this.type == "switch") {
             value = value.toLowerCase() === "true";
           }
         }

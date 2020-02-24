@@ -11,6 +11,11 @@ pool:
   vmImage: 'Ubuntu-16.04'
 
 steps:
+
+- checkout: self
+  persistCredentials: true
+  clean: true
+
 - task: NodeTool@0
   inputs:
     versionSpec: '10.x'

@@ -3,9 +3,9 @@
 #trigger only "by hand"
 trigger: none
 
-#Need only for specific version
-variables:
-  SurveyJSVersion: '1.1.1'
+# Uncomment for specific version
+#variables:
+#  SurveyJSVersion: '1.1.1'
 
 pool:
   vmImage: 'Ubuntu-16.04'

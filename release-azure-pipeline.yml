@@ -49,6 +49,7 @@ steps:
     workingDir: 'packages/survey-angular'
     publishEndpoint: 'NPM Registry'
     verbose: true
+  displayName: 'npm publish survey-angular'
 
 - task: Npm@1
   inputs:
@@ -56,6 +57,7 @@ steps:
     workingDir: 'packages/survey-react'
     publishEndpoint: 'NPM Registry'
     verbose: true
+  displayName: 'npm publish survey-react'
 
 - task: Npm@1
   inputs:
@@ -63,6 +65,7 @@ steps:
     workingDir: 'packages/survey-vue'
     publishEndpoint: 'NPM Registry'
     verbose: true
+  displayName: 'npm publish survey-vue'
 
 - task: Npm@1
   inputs:
@@ -70,6 +73,7 @@ steps:
     workingDir: 'packages/survey-knockout'
     publishEndpoint: 'NPM Registry'
     verbose: true
+  displayName: 'npm publish survey-knockout'
 
 - task: Npm@1
   inputs:
@@ -77,6 +81,7 @@ steps:
     workingDir: 'packages/survey-jquery'
     publishEndpoint: 'NPM Registry'
     verbose: true
+  displayName: 'npm publish survey-jquery'
 
 - task: Npm@1
   inputs:
@@ -84,6 +89,7 @@ steps:
     workingDir: 'packages/survey-core'
     publishEndpoint: 'NPM Registry'
     verbose: true
+  displayName: 'npm publish survey-core'
 
 
 - script: |
@@ -107,4 +113,4 @@ steps:
     PathtoPublish: '$(Build.ArtifactStagingDirectory)'
     ArtifactName: 'SurveyJSVersionFile'
     publishLocation: 'Container'
-  displayName: 'Publish Build Artifacts: SurveyJSVersionFile'
+  displayName: 'Publish Build Artifact - SurveyJSVersionFile'

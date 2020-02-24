@@ -1,4 +1,4 @@
-# Start release pipeline (survey-library)
+# Start SurveyJS release pipeline (survey-library)
 
 #trigger only "by hand"
 trigger: none

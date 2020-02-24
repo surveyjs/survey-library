@@ -3,6 +3,7 @@
 #trigger only "by hand"
 trigger: none
 
+#Need only for specific version
 variables:
   SurveyJSVersion: '1.1.1'
 
@@ -22,7 +23,19 @@ steps:
     git checkout master
     git pull origin master
     git fetch --tags --force
+  displayName: 'git prepare'
+
+# Comment for specific version
+- powershell: |
     npm run release
+  displayName: 'npm run release standart'
+
+# Uncomment for specific version
+#- powershell: |
+#    npm run release -- --release-as $(SurveyJSVersion)
+#  displayName: 'npm run release specific version'
+
+- powershell: |
     $version = (git describe --tags).replace("v", "")
     Write-Host "##vso[task.setvariable variable=SurveyJSVersion;]$version"
     git push --follow-tags origin master;

@@ -1,0 +1,110 @@
+# Start release pipeline (survey-library)
+
+#trigger only "by hand"
+trigger: none
+
+variables:
+  SurveyJSVersion: '1.1.1'
+
+pool:
+  vmImage: 'Ubuntu-16.04'
+
+steps:
+- task: NodeTool@0
+  inputs:
+    versionSpec: '10.x'
+  displayName: 'install Node.js'
+
+- powershell: |
+    echo $(git --version)
+    git config --global user.email "kurmanov.work@gmail.com"
+    git config --global user.name "dmitrykurmanov"
+    git checkout master
+    git pull origin master
+    git fetch --tags --force
+    npm run release
+    $version = (git describe --tags).replace("v", "")
+    Write-Host "##vso[task.setvariable variable=SurveyJSVersion;]$version"
+    git push --follow-tags origin master;
+  displayName: 'npm run release and setup env var SurveyJSVersion'
+
+- powershell: |
+    git push --follow-tags origin master;
+  displayName: 'push release commit to github'
+
+- script: |
+    npm install
+    npm run build_prod
+    npm run testsingle
+    npm run testcafe_ci
+  displayName: 'npm install and build'
+
+- script: |
+    npm run doc_gen
+  displayName: 'generate docs'
+
+- task: Npm@1
+  inputs:
+    command: 'publish'
+    workingDir: 'packages/survey-angular'
+    publishEndpoint: 'NPM Registry'
+    verbose: true
+
+- task: Npm@1
+  inputs:
+    command: 'publish'
+    workingDir: 'packages/survey-react'
+    publishEndpoint: 'NPM Registry'
+    verbose: true
+
+- task: Npm@1
+  inputs:
+    command: 'publish'
+    workingDir: 'packages/survey-vue'
+    publishEndpoint: 'NPM Registry'
+    verbose: true
+
+- task: Npm@1
+  inputs:
+    command: 'publish'
+    workingDir: 'packages/survey-knockout'
+    publishEndpoint: 'NPM Registry'
+    verbose: true
+
+- task: Npm@1
+  inputs:
+    command: 'publish'
+    workingDir: 'packages/survey-jquery'
+    publishEndpoint: 'NPM Registry'
+    verbose: true
+
+- task: Npm@1
+  inputs:
+    command: 'publish'
+    workingDir: 'packages/survey-core'
+    publishEndpoint: 'NPM Registry'
+    verbose: true
+
+
+- script: |
+    npm run doc_update
+  displayName: 'update docs'
+
+- powershell: |
+    New-Item "version.txt"
+    Set-Content version.txt $(SurveyJSVersion)
+    Get-Content version.txt
+  displayName: 'create version file as build artifact'
+
+- task: CopyFiles@2
+  inputs:
+    contents: 'version.txt'
+    targetFolder: $(Build.ArtifactStagingDirectory)
+  displayName: 'copy version file to Build.ArtifactStagingDirectory'
+
+- task: PublishBuildArtifacts@1
+  inputs:
+    PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+    ArtifactName: 'SurveyJSVersionFile'
+    publishLocation: 'Container'
+  displayName: 'Publish Build Artifacts: SurveyJSVersionFile'

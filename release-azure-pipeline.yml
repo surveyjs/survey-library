@@ -2,6 +2,7 @@
 
 #trigger only "by hand"
 trigger: none
+pr: none
 
 # Uncomment for specific version
 #variables:

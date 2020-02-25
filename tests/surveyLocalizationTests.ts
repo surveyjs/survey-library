@@ -7,6 +7,7 @@ import "../src/localization/french";
 import "../src/localization/finnish";
 import "../src/localization/german";
 import "../src/localization/swedish";
+import "../src/localization/czech";
 
 export default QUnit.module("LocalizationsTests");
 
@@ -172,3 +173,22 @@ QUnit.test("Return English localization texts if text not exist", function(
   surveyLocalization.defaultLocale = oldDl;
   surveyLocalization.currentLocale = oldCl;
 });
+
+QUnit.test(
+  "Czech locale is 'cs', but support the old one 'cz', Bug #2004",
+  function(assert) {
+    var oldDl = surveyLocalization.defaultLocale;
+    var oldCl = surveyLocalization.currentLocale;
+    surveyLocalization.currentLocale = "cz";
+    assert.equal(surveyLocalization.currentLocale, "cs", "sz => sc, current");
+    surveyLocalization.defaultLocale = "cz";
+    assert.equal(surveyLocalization.defaultLocale, "cs", "sz => sc, default");
+    assert.equal(
+      surveyLocalization.getString("pagePrevText"),
+      "Předchozí",
+      "Set locale correctly"
+    );
+    surveyLocalization.defaultLocale = oldDl;
+    surveyLocalization.currentLocale = oldCl;
+  }
+);

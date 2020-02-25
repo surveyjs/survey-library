@@ -33,5 +33,5 @@ export var czechSurveyStrings = {
   removeRow: "Odstranit"
 };
 
-surveyLocalization.locales["cz"] = czechSurveyStrings;
-surveyLocalization.localeNames["cz"] = "čeština";
+surveyLocalization.locales["cs"] = czechSurveyStrings;
+surveyLocalization.localeNames["cs"] = "čeština";

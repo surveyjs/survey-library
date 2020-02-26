@@ -12,8 +12,10 @@ import { SurveyTimerPanel } from "./reacttimerpanel";
 import { SurveyElementBase, SurveyLocString } from "./reactquestionelement";
 import { PageModel } from "../page";
 import { StylesManager } from "../stylesmanager";
+import { Helpers } from "../helpers";
 
 export class Survey extends SurveyElementBase implements ISurveyCreator {
+  private previousJSON = {};
   public static get cssType(): string {
     return surveyCss.currentType;
   }
@@ -36,6 +38,13 @@ export class Survey extends SurveyElementBase implements ISurveyCreator {
   }
   protected getStateElement(): Base {
     return this.survey;
+  }
+  shouldComponentUpdate(nextProps: any, nextState: any) {
+    if (this.isModelJSONChanged(nextProps)) {
+      this.createSurvey(nextProps);
+      this.updateSurvey(nextProps, {});
+    }
+    return true;
   }
   componentDidUpdate(prevProps: any, prevState: any) {
     super.componentDidUpdate(prevProps, prevState);
@@ -242,11 +251,13 @@ export class Survey extends SurveyElementBase implements ISurveyCreator {
   }
   protected createSurvey(newProps: any) {
     if (!newProps) newProps = {};
+    this.previousJSON = {};
     if (newProps) {
       if (newProps.model) {
         this.survey = newProps.model;
       } else {
         if (newProps.json) {
+          this.previousJSON = newProps.json;
           this.survey = new ReactSurveyModel(newProps.json);
         }
       }
@@ -257,6 +268,15 @@ export class Survey extends SurveyElementBase implements ISurveyCreator {
       this.survey.mergeCss(newProps.css, this.css);
     }
     this.setSurveyEvents();
+  }
+  private isModelJSONChanged(newProps: any): boolean {
+    if (!!newProps["model"]) {
+      return this.survey !== newProps["model"];
+    }
+    if (!!newProps["json"]) {
+      return !Helpers.isTwoValueEquals(newProps["json"], this.previousJSON);
+    }
+    return false;
   }
   protected updateSurvey(newProps: any, oldProps: any) {
     if (!newProps) return;

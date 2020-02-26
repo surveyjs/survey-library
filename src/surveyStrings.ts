@@ -3,8 +3,8 @@ import { englishStrings } from "./localization/english";
 export var surveyLocalization = {
   currentLocaleValue: "",
   defaultLocaleValue: "en",
-  locales: <{[index: string]: any}>{},
-  localeNames: <{[index: string]: any}>{},
+  locales: <{ [index: string]: any }>{},
+  localeNames: <{ [index: string]: any }>{},
   supportedLocales: <Array<any>>[],
   get currentLocale() {
     return this.currentLocaleValue === this.defaultLocaleValue
@@ -12,12 +12,14 @@ export var surveyLocalization = {
       : this.currentLocaleValue;
   },
   set currentLocale(val: string) {
+    if (val === "cz") val = "cs";
     this.currentLocaleValue = val;
   },
   get defaultLocale() {
     return this.defaultLocaleValue;
   },
   set defaultLocale(val: string) {
+    if (val === "cz") val = "cs";
     this.defaultLocaleValue = val;
   },
   getString: function(strName: string) {
@@ -26,7 +28,7 @@ export var surveyLocalization = {
       : this.locales[this.defaultLocale];
     if (!loc || !loc[strName]) loc = this.locales[this.defaultLocale];
     var result = loc[strName];
-    if(result === undefined) {
+    if (result === undefined) {
       result = this.locales["en"][strName];
     }
     return result;

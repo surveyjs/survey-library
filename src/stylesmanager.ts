@@ -35,8 +35,6 @@ export class StylesManager {
     ".sv_row .sv_qstn": "float: left",
     ".sv_row .sv_qstn:last-child": "float: none",
     ".sv_qstn": "display: inline-block; vertical-align: top; overflow: auto;",
-    ".progress": "width: 60%;",
-    ".progress-bar": "width: auto; margin-left: 2px; margin-right: 2px;",
     ".sv_p_container": "display: inline-block; vertical-align: top;",
     ".sv_qbln .checkbox-material": "margin-right: 3px;",
     ".sv_qcbx .checkbox-material": "margin-right: 5px;",

@@ -55,13 +55,11 @@ export class QuestionMatrix extends QuestionMatrixModel {
   }
   protected onColumnsChanged() {
     super.onColumnsChanged();
-    this.koVisibleRows(this.visibleRows);
     this.koVisibleColumns(this.visibleColumns);
   }
   protected onRowsChanged() {
     super.onRowsChanged();
     this.koVisibleRows(this.visibleRows);
-    this.koVisibleColumns(this.visibleColumns);
   }
   public onSurveyLoad() {
     super.onSurveyLoad();

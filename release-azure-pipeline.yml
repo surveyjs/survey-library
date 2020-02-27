@@ -22,6 +22,10 @@ steps:
     versionSpec: '10.x'
   displayName: 'install Node.js'
 
+- script: |
+    npm install
+  displayName: 'npm install'
+
 - powershell: |
     echo $(git --version)
     git config --global user.email "kurmanov.work@gmail.com"
@@ -30,10 +34,6 @@ steps:
     git pull origin master
     git fetch --tags --force
   displayName: 'git prepare'
-
-- script: |
-    npm install
-  displayName: 'npm install'
 
 # Comment for specific version
 - powershell: |

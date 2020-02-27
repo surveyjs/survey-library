@@ -113,7 +113,7 @@ steps:
     npm run doc_update
   displayName: 'update docs'
 
-# setup build artifact
+# create build artifact file 'version.txt'
 - powershell: |
     New-Item "version.txt"
     Set-Content version.txt $(SurveyJSVersion)

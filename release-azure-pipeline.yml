@@ -44,12 +44,7 @@ steps:
 - powershell: |
     $version = (git describe --tags).replace("v", "")
     Write-Host "##vso[task.setvariable variable=SurveyJSVersion;]$version"
-    git push --follow-tags origin master;
   displayName: 'npm run release and setup env var SurveyJSVersion'
-
-- powershell: |
-    git push --follow-tags origin master;
-  displayName: 'push release commit to github'
 
 - script: |
     npm install
@@ -57,6 +52,10 @@ steps:
     npm run testsingle
     npm run testcafe_ci
   displayName: 'npm install and build'
+
+- powershell: |
+    git push --follow-tags origin master;
+  displayName: 'push release commit to github'
 
 - script: |
     npm run doc_gen
@@ -110,11 +109,11 @@ steps:
     verbose: true
   displayName: 'npm publish survey-core'
 
-
 - script: |
     npm run doc_update
   displayName: 'update docs'
 
+# setup build artifact
 - powershell: |
     New-Item "version.txt"
     Set-Content version.txt $(SurveyJSVersion)

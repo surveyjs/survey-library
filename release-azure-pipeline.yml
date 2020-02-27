@@ -31,6 +31,10 @@ steps:
     git fetch --tags --force
   displayName: 'git prepare'
 
+- script: |
+    npm install
+  displayName: 'npm install'
+
 # Comment for specific version
 - powershell: |
     npm run release
@@ -47,11 +51,10 @@ steps:
   displayName: 'npm run release and setup env var SurveyJSVersion'
 
 - script: |
-    npm install
     npm run build_prod
     npm run testsingle
     npm run testcafe_ci
-  displayName: 'npm install and build'
+  displayName: 'npm build and test'
 
 - powershell: |
     git push --follow-tags origin master;

@@ -438,6 +438,9 @@ export class JsonMetadataClass {
       if (!!propInfo.visibleIf) {
         prop.visibleIf = propInfo.visibleIf;
       }
+      if (propInfo.readOnly === true) {
+        prop.readOnly = true;
+      }
       if (propInfo.choices) {
         var choicesFunc =
           typeof propInfo.choices === "function" ? propInfo.choices : null;

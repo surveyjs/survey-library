@@ -293,7 +293,8 @@ Serializer.addClass(
       choices: () => {
         return [500, 1500];
       }
-    }
+    },
+    { name: "readOnlyName", readOnly: true }
   ],
   function() {
     return new Truck();
@@ -429,8 +430,8 @@ QUnit.test("Metadata add at the beginning parent class properties ", function(
 ) {
   assert.equal(
     Serializer.getProperties("truck").length,
-    2,
-    "1 + 1 parent propreties"
+    3,
+    "2 + 1 parent propreties"
   );
   assert.equal(
     Serializer.getProperties("truck")[0].name,
@@ -1223,6 +1224,11 @@ QUnit.test("Get property and readonly", function(assert) {
   property.readOnly = true;
   var property2 = Serializer.findProperty("truck", "name");
   assert.equal(property2.readOnly, true, "readOnly is true now");
+});
+
+QUnit.test("Set readOnly by default", function(assert) {
+  var property = Serializer.findProperty("truck", "readOnlyName");
+  assert.equal(property.readOnly, true, "readOnly is true by default");
 });
 
 QUnit.test(

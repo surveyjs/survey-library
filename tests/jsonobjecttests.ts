@@ -1396,8 +1396,22 @@ QUnit.test("Create localizable property", function(assert) {
     name: "myLocalizableProp:text",
     isLocalizable: true
   });
+  var property = Serializer.findProperty("car", "myLocalizableProp");
+  assert.equal(
+    property.serializationProperty,
+    "locmyLocalizableProp",
+    "set correct serializationProperty"
+  );
   var truck = new Truck();
+  assert.notOk(truck["myLocalizableProp"], "It is empty");
+  assert.notOk(property.getPropertyValue(truck), "It is empty, via property");
+
   truck["myLocalizableProp"] = "default_Text";
+  assert.equal(
+    property.getPropertyValue(truck),
+    "default_Text",
+    "get value via property"
+  );
   assert.equal(
     truck["myLocalizableProp"],
     "default_Text",
@@ -1420,6 +1434,64 @@ QUnit.test("Create localizable property", function(assert) {
 
   Serializer.removeProperty("car", "myLocalizableProp");
 });
+
+QUnit.test(
+  "Create localizable property in Item value, use getPropertyValue/setPropertyValue",
+  function(assert) {
+    Serializer.addProperty("itemvalue", {
+      name: "myLocalizableProp:text",
+      isLocalizable: true
+    });
+    var property = Serializer.findProperty("itemvalue", "myLocalizableProp");
+    var itemValue = new ItemValue(1);
+    var car = new Car();
+    itemValue.locOwner = car;
+    assert.notOk(itemValue["myLocalizableProp"], "It is empty");
+    assert.notOk(
+      property.getPropertyValue(itemValue),
+      "It is empty, via property"
+    );
+
+    //property.setValue(itemValue, "default_Text", null);
+    itemValue["myLocalizableProp"] = "default_Text";
+    assert.equal(
+      property.getPropertyValue(itemValue),
+      "default_Text",
+      "get value via property"
+    );
+    assert.equal(
+      itemValue["myLocalizableProp"],
+      "default_Text",
+      "The default text is here"
+    );
+    car.locale = "de";
+    //property.setValue(itemValue, "de_Text", null);
+    itemValue["myLocalizableProp"] = "de_Text";
+    assert.equal(
+      property.getPropertyValue(itemValue),
+      "de_Text",
+      "The 'de' text is here, via property"
+    );
+    assert.equal(
+      itemValue["myLocalizableProp"],
+      "de_Text",
+      "The 'de' text is here"
+    );
+    car.locale = "en";
+    assert.equal(
+      itemValue["myLocalizableProp"],
+      "default_Text",
+      "Use default value again"
+    );
+    assert.equal(
+      property.getPropertyValue(itemValue),
+      "default_Text",
+      "Use default value again via property"
+    );
+
+    Serializer.removeProperty("itemvalue", "myLocalizableProp");
+  }
+);
 
 QUnit.test(
   "Create  object with virtual type by using parent constructor",

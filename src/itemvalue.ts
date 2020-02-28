@@ -207,6 +207,9 @@ export class ItemValue extends Base {
   public getType(): string {
     return !!this.typeName ? this.typeName : "itemvalue";
   }
+  public getLocale(): string {
+    return this.locText.locale;
+  }
   public get locText(): LocalizableString {
     return this.locTextValue;
   }

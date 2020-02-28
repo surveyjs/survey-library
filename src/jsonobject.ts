@@ -123,7 +123,11 @@ export class JsonObjectProperty implements IObject {
     return obj[this.name];
   }
   public getPropertyValue(obj: any): any {
-    if (this.isLocalizable) return obj[this.serializationProperty].text;
+    if (this.isLocalizable) {
+      return !!obj[this.serializationProperty]
+        ? obj[this.serializationProperty].text
+        : null;
+    }
     return this.getValue(obj);
   }
   public get hasToUseSetValue() {
@@ -458,7 +462,7 @@ export class JsonMetadataClass {
         prop.onSetValue = propInfo.onSetValue;
       }
       if (propInfo.isLocalizable) {
-        propInfo.serializationProperty = "loc" + propInfo.name;
+        propInfo.serializationProperty = "loc" + prop.name;
       }
       if (propInfo.serializationProperty) {
         prop.serializationProperty = propInfo.serializationProperty;

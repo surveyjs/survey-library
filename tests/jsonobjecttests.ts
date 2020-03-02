@@ -1986,3 +1986,35 @@ QUnit.test("custom property and onSetValue", function(assert) {
   );
   Serializer.removeProperty("car", "onSetValueCheck");
 });
+
+class RedefinedNameCar extends Car {
+  constructor() {
+    super();
+  }
+  public getType(): string {
+    return "numberedcarredefinedname";
+  }
+}
+
+QUnit.test("re-defnine property in dynamic type", function(assert) {
+  Serializer.addClass(
+    "numberedcarredefinedname",
+    [],
+    () => new RedefinedNameCar(),
+    "car"
+  );
+  Serializer.addProperties("numberedcarredefinedname", [
+    {
+      name: "name:number",
+      default: 100
+    }
+  ]);
+  CarOwner.supportedCars["numberedcarredefinedname"] = ["name"];
+  var carOwner = <CarOwner>Serializer.createClass("carowner");
+  carOwner.carType = "numberedcarredefinedname";
+  var properties = Serializer.getPropertiesByObj(carOwner);
+  var nameProperties = properties.filter(p => p.name === "name");
+  assert.equal(nameProperties.length, 1, "Only one name property");
+  assert.equal(nameProperties[0].type, "number", "It's the overriden property");
+  Serializer.removeClass("numberedcarredefinedname");
+});

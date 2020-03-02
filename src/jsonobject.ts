@@ -606,18 +606,18 @@ export class JsonMetadata {
   }
   public getPropertiesByObj(obj: any): Array<JsonObjectProperty> {
     if (!obj || !obj.getType) return [];
-    var res = [];
+    var res: any = {};
     var props = this.getProperties(obj.getType());
     for (var i = 0; i < props.length; i++) {
-      res.push(props[i]);
+      res[props[i].name] = props[i];
     }
     var dynamicProps = this.getDynamicProperties(obj);
     if (dynamicProps && dynamicProps.length > 0) {
       for (var i = 0; i < dynamicProps.length; i++) {
-        res.push(dynamicProps[i]);
+        res[dynamicProps[i].name] = dynamicProps[i];
       }
     }
-    return res;
+    return Object.keys(res).map(key => res[key]);
   }
 
   public findProperty(

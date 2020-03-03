@@ -86,7 +86,6 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
       this.createNewArray("value");
     }
   }
-
   protected getValueCore() {
     var value = super.getValueCore();
     if (value !== undefined) {
@@ -96,6 +95,17 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
       return [];
     }
     return value;
+  }
+  private convertValToArrayForMultSelect(val: any): any {
+    if (!this.multiSelect) return val;
+    if (Helpers.isValueEmpty(val) || Array.isArray(val)) return val;
+    return [val];
+  }
+  protected renderedValueFromDataCore(val: any): any {
+    return this.convertValToArrayForMultSelect(val);
+  }
+  protected rendredValueToDataCore(val: any): any {
+    return this.convertValToArrayForMultSelect(val);
   }
   /**
    * The image height.

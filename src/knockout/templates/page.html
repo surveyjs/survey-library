@@ -1,9 +1,11 @@
 ﻿<script type="text/html" id="survey-page">
   <div data-bind="css: cssClasses.page.root">
-      <h4 data-bind="visible: data.showPageTitles, css: cssClasses.page.title">
+      <!-- ko if: data.showPageTitles -->
+      <h4 data-bind="css: cssClasses.page.title">
           <!-- ko template: { name: 'survey-string', data: locTitle } -->
           <!-- /ko -->
       </h4>
+      <!-- /ko -->
       <div data-bind="visible: data.showPageTitles, css: cssClasses.page.description">
           <!-- ko template: { name: 'survey-string', data: locDescription } -->
           <!-- /ko -->

@@ -3854,6 +3854,7 @@ export class SurveyModel extends Base
         (!question.visible || !question.supportGoNextPageAutomatic()))
     )
       return;
+    if (question.hasErrors(false)) return;
     var questions = this.getCurrentPageQuestions();
     if (questions.indexOf(question) < 0) return;
     for (var i = 0; i < questions.length; i++) {

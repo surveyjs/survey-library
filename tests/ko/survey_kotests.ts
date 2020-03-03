@@ -198,6 +198,53 @@ QUnit.test(
     );
   }
 );
+
+QUnit.test(
+  "Question Matrix: columnsVisibleIf, rowsVisibleIf, Bug #2012",
+  function(assert) {
+    var survey = new Survey();
+    var page = survey.addNewPage("page1");
+    var matrix = new QuestionMatrix("q1");
+    matrix.rows = ["row1", "row2", "row3"];
+    matrix.columns = ["col1", "col2", "col3"];
+    matrix.rowsVisibleIf = "{rowValue} contains {item}";
+    matrix.columnsVisibleIf = "{colValue} contains {item}";
+    page.addQuestion(matrix);
+    assert.equal(
+      matrix.koVisibleColumns().length,
+      0,
+      "There is no visible columns initially"
+    );
+    assert.equal(
+      matrix.koVisibleRows().length,
+      0,
+      "There is no visible rows initially"
+    );
+    survey.setValue("rowValue", ["row1"]);
+    assert.equal(
+      matrix.koVisibleColumns().length,
+      0,
+      "rowValue: 'row1', colValue: '', visibleColumns"
+    );
+    assert.equal(
+      matrix.koVisibleRows().length,
+      1,
+      "rowValue: 'row1', colValue: '', visibleRows"
+    );
+    survey.setValue("colValue", ["col1"]);
+    assert.equal(
+      matrix.koVisibleColumns().length,
+      1,
+      "rowValue: 'row1', colValue: 'col1', visibleColumns"
+    );
+    assert.equal(
+      matrix.koVisibleRows().length,
+      1,
+      "rowValue: 'row1', colValue: 'col1', visibleRows"
+    );
+  }
+);
+
 QUnit.test(
   "Question MatrixDropdown: change matrix value after visibleRows generation",
   function(assert) {

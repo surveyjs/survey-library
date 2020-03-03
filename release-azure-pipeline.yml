@@ -22,6 +22,10 @@ steps:
     versionSpec: '10.x'
   displayName: 'install Node.js'
 
+- script: |
+    npm install
+  displayName: 'npm install'
+
 - powershell: |
     echo $(git --version)
     git config --global user.email "kurmanov.work@gmail.com"
@@ -44,19 +48,17 @@ steps:
 - powershell: |
     $version = (git describe --tags).replace("v", "")
     Write-Host "##vso[task.setvariable variable=SurveyJSVersion;]$version"
-    git push --follow-tags origin master;
   displayName: 'npm run release and setup env var SurveyJSVersion'
+
+- script: |
+    npm run build_prod
+    npm run testsingle
+    npm run testcafe_ci
+  displayName: 'npm build and test'
 
 - powershell: |
     git push --follow-tags origin master;
   displayName: 'push release commit to github'
-
-- script: |
-    npm install
-    npm run build_prod
-    npm run testsingle
-    npm run testcafe_ci
-  displayName: 'npm install and build'
 
 - script: |
     npm run doc_gen
@@ -110,11 +112,11 @@ steps:
     verbose: true
   displayName: 'npm publish survey-core'
 
-
 - script: |
     npm run doc_update
   displayName: 'update docs'
 
+# create build artifact file 'version.txt'
 - powershell: |
     New-Item "version.txt"
     Set-Content version.txt $(SurveyJSVersion)

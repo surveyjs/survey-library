@@ -293,7 +293,8 @@ Serializer.addClass(
       choices: () => {
         return [500, 1500];
       }
-    }
+    },
+    { name: "readOnlyName", readOnly: true }
   ],
   function() {
     return new Truck();
@@ -429,8 +430,8 @@ QUnit.test("Metadata add at the beginning parent class properties ", function(
 ) {
   assert.equal(
     Serializer.getProperties("truck").length,
-    2,
-    "1 + 1 parent propreties"
+    3,
+    "2 + 1 parent propreties"
   );
   assert.equal(
     Serializer.getProperties("truck")[0].name,
@@ -1225,6 +1226,11 @@ QUnit.test("Get property and readonly", function(assert) {
   assert.equal(property2.readOnly, true, "readOnly is true now");
 });
 
+QUnit.test("Set readOnly by default", function(assert) {
+  var property = Serializer.findProperty("truck", "readOnlyName");
+  assert.equal(property.readOnly, true, "readOnly is true by default");
+});
+
 QUnit.test(
   "Add alternative/misspelled property support, https://github.com/surveyjs/surveyjs/issues/280",
   function(assert) {
@@ -1390,8 +1396,22 @@ QUnit.test("Create localizable property", function(assert) {
     name: "myLocalizableProp:text",
     isLocalizable: true
   });
+  var property = Serializer.findProperty("car", "myLocalizableProp");
+  assert.equal(
+    property.serializationProperty,
+    "locmyLocalizableProp",
+    "set correct serializationProperty"
+  );
   var truck = new Truck();
+  assert.notOk(truck["myLocalizableProp"], "It is empty");
+  assert.notOk(property.getPropertyValue(truck), "It is empty, via property");
+
   truck["myLocalizableProp"] = "default_Text";
+  assert.equal(
+    property.getPropertyValue(truck),
+    "default_Text",
+    "get value via property"
+  );
   assert.equal(
     truck["myLocalizableProp"],
     "default_Text",
@@ -1414,6 +1434,64 @@ QUnit.test("Create localizable property", function(assert) {
 
   Serializer.removeProperty("car", "myLocalizableProp");
 });
+
+QUnit.test(
+  "Create localizable property in Item value, use getPropertyValue/setPropertyValue",
+  function(assert) {
+    Serializer.addProperty("itemvalue", {
+      name: "myLocalizableProp:text",
+      isLocalizable: true
+    });
+    var property = Serializer.findProperty("itemvalue", "myLocalizableProp");
+    var itemValue = new ItemValue(1);
+    var car = new Car();
+    itemValue.locOwner = car;
+    assert.notOk(itemValue["myLocalizableProp"], "It is empty");
+    assert.notOk(
+      property.getPropertyValue(itemValue),
+      "It is empty, via property"
+    );
+
+    //property.setValue(itemValue, "default_Text", null);
+    itemValue["myLocalizableProp"] = "default_Text";
+    assert.equal(
+      property.getPropertyValue(itemValue),
+      "default_Text",
+      "get value via property"
+    );
+    assert.equal(
+      itemValue["myLocalizableProp"],
+      "default_Text",
+      "The default text is here"
+    );
+    car.locale = "de";
+    //property.setValue(itemValue, "de_Text", null);
+    itemValue["myLocalizableProp"] = "de_Text";
+    assert.equal(
+      property.getPropertyValue(itemValue),
+      "de_Text",
+      "The 'de' text is here, via property"
+    );
+    assert.equal(
+      itemValue["myLocalizableProp"],
+      "de_Text",
+      "The 'de' text is here"
+    );
+    car.locale = "en";
+    assert.equal(
+      itemValue["myLocalizableProp"],
+      "default_Text",
+      "Use default value again"
+    );
+    assert.equal(
+      property.getPropertyValue(itemValue),
+      "default_Text",
+      "Use default value again via property"
+    );
+
+    Serializer.removeProperty("itemvalue", "myLocalizableProp");
+  }
+);
 
 QUnit.test(
   "Create  object with virtual type by using parent constructor",
@@ -1979,4 +2057,36 @@ QUnit.test("custom property and onSetValue", function(assert) {
     "onSetValue attribute is working"
   );
   Serializer.removeProperty("car", "onSetValueCheck");
+});
+
+class RedefinedNameCar extends Car {
+  constructor() {
+    super();
+  }
+  public getType(): string {
+    return "numberedcarredefinedname";
+  }
+}
+
+QUnit.test("re-defnine property in dynamic type", function(assert) {
+  Serializer.addClass(
+    "numberedcarredefinedname",
+    [],
+    () => new RedefinedNameCar(),
+    "car"
+  );
+  Serializer.addProperties("numberedcarredefinedname", [
+    {
+      name: "name:number",
+      default: 100
+    }
+  ]);
+  CarOwner.supportedCars["numberedcarredefinedname"] = ["name"];
+  var carOwner = <CarOwner>Serializer.createClass("carowner");
+  carOwner.carType = "numberedcarredefinedname";
+  var properties = Serializer.getPropertiesByObj(carOwner);
+  var nameProperties = properties.filter(p => p.name === "name");
+  assert.equal(nameProperties.length, 1, "Only one name property");
+  assert.equal(nameProperties[0].type, "number", "It's the overriden property");
+  Serializer.removeClass("numberedcarredefinedname");
 });

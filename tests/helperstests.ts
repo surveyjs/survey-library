@@ -223,6 +223,18 @@ QUnit.test("isTwoValueEquals, 0 and '0'", function(assert) {
   );
 });
 
+QUnit.test(
+  "isTwoValueEquals, numbers and string + string and string, Bug# 2000",
+  function(assert) {
+    assert.equal(Helpers.isTwoValueEquals(10, "10"), true, "10 equals '10'");
+    assert.equal(Helpers.isTwoValueEquals(10, "010"), true, "10 equals '010'");
+    assert.equal(
+      Helpers.isTwoValueEquals("10", "010"),
+      false,
+      "'10' not equals '010'"
+    );
+  }
+);
 QUnit.test("Helpers.isNumber", function(assert) {
   assert.equal(Helpers.isNumber("1"), true, "1 is a number");
   assert.equal(Helpers.isNumber("0xabcd"), true, "0xabcd is a number");

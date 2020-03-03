@@ -138,7 +138,8 @@ export class QuestionMatrixBaseModel<TRow, TColumn> extends Question {
     }
     var hasChanges =
       this.hasRowsAsItems() && this.runConditionsForRows(values, properties);
-    hasChanges = this.runConditionsForColumns(values, properties) || hasChanges;
+    var hasColumnsChanged = this.runConditionsForColumns(values, properties);
+    hasChanges = hasColumnsChanged || hasChanges;
     if (hasChanges) {
       if (!!this.filteredColumns || !!this.filteredRows) {
         this.clearIncorrectValues();
@@ -147,6 +148,9 @@ export class QuestionMatrixBaseModel<TRow, TColumn> extends Question {
         this.restoreNewVisibleRowsValues(oldVisibleRows);
       }
       this.generatedVisibleRows = null;
+      if (hasColumnsChanged) {
+        this.onColumnsChanged();
+      }
       this.onRowsChanged();
     }
     return hasChanges;

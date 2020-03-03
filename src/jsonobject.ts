@@ -123,7 +123,11 @@ export class JsonObjectProperty implements IObject {
     return obj[this.name];
   }
   public getPropertyValue(obj: any): any {
-    if (this.isLocalizable) return obj[this.serializationProperty].text;
+    if (this.isLocalizable) {
+      return !!obj[this.serializationProperty]
+        ? obj[this.serializationProperty].text
+        : null;
+    }
     return this.getValue(obj);
   }
   public get hasToUseSetValue() {
@@ -438,6 +442,9 @@ export class JsonMetadataClass {
       if (!!propInfo.visibleIf) {
         prop.visibleIf = propInfo.visibleIf;
       }
+      if (propInfo.readOnly === true) {
+        prop.readOnly = true;
+      }
       if (propInfo.choices) {
         var choicesFunc =
           typeof propInfo.choices === "function" ? propInfo.choices : null;
@@ -455,7 +462,7 @@ export class JsonMetadataClass {
         prop.onSetValue = propInfo.onSetValue;
       }
       if (propInfo.isLocalizable) {
-        propInfo.serializationProperty = "loc" + propInfo.name;
+        propInfo.serializationProperty = "loc" + prop.name;
       }
       if (propInfo.serializationProperty) {
         prop.serializationProperty = propInfo.serializationProperty;
@@ -603,18 +610,18 @@ export class JsonMetadata {
   }
   public getPropertiesByObj(obj: any): Array<JsonObjectProperty> {
     if (!obj || !obj.getType) return [];
-    var res = [];
+    var res: any = {};
     var props = this.getProperties(obj.getType());
     for (var i = 0; i < props.length; i++) {
-      res.push(props[i]);
+      res[props[i].name] = props[i];
     }
     var dynamicProps = this.getDynamicProperties(obj);
     if (dynamicProps && dynamicProps.length > 0) {
       for (var i = 0; i < dynamicProps.length; i++) {
-        res.push(dynamicProps[i]);
+        res[dynamicProps[i].name] = dynamicProps[i];
       }
     }
-    return res;
+    return Object.keys(res).map(key => res[key]);
   }
 
   public findProperty(

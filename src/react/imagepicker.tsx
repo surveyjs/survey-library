@@ -91,8 +91,8 @@ export class SurveyQuestionImagePicker extends SurveyQuestionElementBase {
     isFirst: boolean,
     cssClasses: any
   ): JSX.Element {
-    var id = isFirst ? this.question.inputId : null;
-    let itemClass = this.getItemClass(isChecked, isDisabled);
+    var id = this.question.inputId + "_" + item.value;
+    var itemClass = this.getItemClass(isChecked, isDisabled);
     var text = null;
     if (this.question.showLabel) {
       text = (

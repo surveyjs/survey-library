@@ -162,11 +162,10 @@ export class SurveyQuestionUncontrolledElement<
   protected get question(): T {
     return this.questionBase as T;
   }
-  getSnapshotBeforeUpdate(prevProps: any, prevState: any): any {
+  componentDidUpdate() {
     if (!!this.control) {
       this.control.value = this.getValue(this.questionBase.value);
     }
-    return null;
   }
   componentDidMount() {
     if (!!this.control) {

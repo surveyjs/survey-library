@@ -3,6 +3,16 @@ import { QuestionImagePickerModel } from "../question_imagepicker";
 import { Serializer } from "../jsonobject";
 import { QuestionFactory } from "../questionfactory";
 import { QuestionCheckboxBaseImplementor } from "./koquestion_baseselect";
+import { Question } from "../question";
+
+class QuestionImagePickerImplementor extends QuestionCheckboxBaseImplementor {
+  constructor(question: Question) {
+    super(question);
+  }
+  protected getKoValue() {
+    return this.question.renderedValue;
+  }
+}
 
 export class QuestionImagePicker extends QuestionImagePickerModel {
   constructor(public name: string) {
@@ -10,7 +20,7 @@ export class QuestionImagePicker extends QuestionImagePickerModel {
   }
   protected onBaseCreating() {
     super.onBaseCreating();
-    new QuestionCheckboxBaseImplementor(this);
+    new QuestionImagePickerImplementor(this);
   }
   getItemClass(item: any) {
     var itemClass =
@@ -18,9 +28,6 @@ export class QuestionImagePicker extends QuestionImagePickerModel {
       (this.colCount === 0
         ? " " + this.cssClasses.itemInline
         : " sv-q-col-" + this.colCount);
-    if (this.multiSelect) {
-      this.renderedValue = this.value;
-    }
     var isChecked = this.isItemSelected(item);
     var isDisabled = this.isReadOnly || !item.isEnabled;
     var allowHover = !isChecked && !isDisabled;

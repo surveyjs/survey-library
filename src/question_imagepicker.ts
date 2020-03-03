@@ -36,7 +36,7 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
    * @param item image picker item value
    */
   public isItemSelected(item: ItemValue): boolean {
-    var val = this.renderedValue;
+    var val = this.value;
     if (Helpers.isValueEmpty(val)) return false;
     if (!this.multiSelect) return Helpers.isTwoValueEquals(val, item.value);
     if (!Array.isArray(val)) return false;
@@ -79,15 +79,23 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
   public set showLabel(newValue: boolean) {
     this.setPropertyValue("showLabel", newValue);
   }
+  endLoadingFromJson() {
+    super.endLoadingFromJson();
+    if (!this.isDesignMode && this.multiSelect) {
+      this.createNewArray("renderedValue");
+      this.createNewArray("value");
+    }
+  }
+
   protected getValueCore() {
     var value = super.getValueCore();
-    if(value !== undefined) {
+    if (value !== undefined) {
       return value;
     }
-    if(this.multiSelect) {
+    if (this.multiSelect) {
       return [];
     }
-    return  value;
+    return value;
   }
   /**
    * The image height.

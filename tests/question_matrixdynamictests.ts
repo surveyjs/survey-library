@@ -3380,11 +3380,48 @@ QUnit.test(
     survey.data = { teachersRate: [{ subject: 1, explains: 0 }] };
     var rows = matrix.visibleRows;
     assert.equal(rows.length, 1, "we reset the number of rows to 1.");
-    
+
     matrix.addRow();
     matrix.addRow();
     survey.data = { teachersRate: [{ subject: 1, explains: 0 }] };
     rows = matrix.visibleRows;
     assert.equal(rows.length, 1, "we reset the number of rows to 1 again.");
+  }
+);
+
+QUnit.test(
+  "Change question in rendered cell on changing column type, Bug https://github.com/surveyjs/survey-creator/issues/690",
+  function(assert) {
+    var survey = new SurveyModel({
+      questions: [
+        {
+          type: "matrixdynamic",
+          name: "teachersRate",
+          rowCount: 1,
+          choices: [1, 2],
+          columns: [
+            {
+              name: "subject"
+            }
+          ]
+        }
+      ]
+    });
+    var matrix = <QuestionMatrixDynamicModel>(
+      survey.getQuestionByName("teachersRate")
+    );
+
+    assert.equal(
+      matrix.renderedTable.rows[0].cells[0].question.getType(),
+      "dropdown",
+      "Default cell type"
+    );
+
+    matrix.columns[0].cellType = "radiogroup";
+    assert.equal(
+      matrix.renderedTable.rows[0].cells[0].question.getType(),
+      "radiogroup",
+      "Cell type should be changed"
+    );
   }
 );

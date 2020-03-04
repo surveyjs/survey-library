@@ -67,6 +67,7 @@ export interface IMatrixColumnOwner extends ILocalizableOwner {
   getRequiredText(): string;
   onColumnPropertiesChanged(column: MatrixDropdownColumn): void;
   getCellType(): string;
+  onColumnCellTypeChanged(column: MatrixDropdownColumn): void;
 }
 
 function onUpdateSelectBaseCellQuestion(
@@ -273,6 +274,9 @@ export class MatrixDropdownColumn extends Base implements ILocalizableOwner {
     val = val.toLocaleLowerCase();
     this.setPropertyValue("cellType", val);
     this.updateTemplateQuestion();
+    if (!!this.colOwner) {
+      this.colOwner.onColumnCellTypeChanged(this);
+    }
   }
   public get templateQuestion() {
     return this.templateQuestionValue;
@@ -1453,6 +1457,11 @@ export class QuestionMatrixDropdownModelBase
     if (!!this.generatedTotalRow) {
       this.generatedTotalRow.updateCellQuestionOnColumnChanged(column);
     }
+    this.onColumnsChanged();
+  }
+  onColumnCellTypeChanged(column: MatrixDropdownColumn) {
+    this.generatedVisibleRows = null;
+    this.resetRenderedTable();
   }
   public get hasFooter(): boolean {
     return this.getPropertyValue("hasFooter", false);

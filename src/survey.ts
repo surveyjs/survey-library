@@ -492,6 +492,17 @@ export class SurveyModel extends Base
     any
   > = new Event<(sender: SurveyModel, options: any) => any, any>();
   /**
+   * The event is fired after survey is loaded from api.surveyjs.io service.
+   * You can use this event to perform manipulation with the survey model after it was loaded from the web service.
+   * <br/> `sender` - the survey object that fires the event.
+   * @see surveyId
+   * @see loadSurveyFromService
+   */
+  public onLoadedSurveyFromService: Event<
+    (sender: SurveyModel, options: any) => any,
+    any
+  > = new Event<(sender: SurveyModel, options: any) => any, any>();
+  /**
    * The event is fired on processing the text when it finds a text in brackets: `{somevalue}`. By default, it uses the value of survey question values and variables.
    * For example, you may use the text processing in loading choices from the web. If your `choicesByUrl.url` equals to "UrlToServiceToGetAllCities/{country}/{state}",
    * you may set on this event `options.value` to "all" or empty string when the "state" value/question is non selected by a user.
@@ -928,6 +939,7 @@ export class SurveyModel extends Base
   /**
    * Gets or sets an identifier of a survey model loaded from the [dxsurvey.com](http://www.dxsurvey.com) service. When specified, the survey JSON is automatically loaded from [dxsurvey.com](http://www.dxsurvey.com) service.
    * @see loadSurveyFromService
+   * @see onLoadedSurveyFromService
    */
   public get surveyId(): string {
     return this.getPropertyValue("surveyId", "");
@@ -3523,6 +3535,7 @@ export class SurveyModel extends Base
    * @param surveyId [dxsurvey.com](http://www.dxsurvey.com) service surveyId
    * @param clientId users' indentifier, for example an e-mail or a unique customer id in your web application.
    * @see state
+   * @see onLoadedSurveyFromService
    */
   public loadSurveyFromService(
     surveyId: string = null,
@@ -3572,6 +3585,7 @@ export class SurveyModel extends Base
     this.fromJSON(json);
     this.notifyAllQuestionsOnValueChanged();
     this.onLoadSurveyFromService();
+    this.onLoadedSurveyFromService.fire(this, {});
   }
   protected onLoadingSurveyFromService() {}
   protected onLoadSurveyFromService() {}

@@ -155,7 +155,7 @@ export class UnaryOperand extends Operand {
 }
 
 export class ArrayOperand extends Operand {
-  constructor(private values: Array<Operand>) {
+  constructor(public values: Array<Operand>) {
     super();
   }
   public getType(): string {

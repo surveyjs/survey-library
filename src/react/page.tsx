@@ -29,7 +29,7 @@ export class SurveyPage extends SurveyPanelBase {
     );
   }
   protected renderTitle(): JSX.Element {
-    if (!this.survey.showPageTitles) return null;
+    if (!this.page._showTitle) return null;
     var text = SurveyElementBase.renderLocString(this.page.locTitle);
     return <h4 className={this.panelBase.cssClasses.page.title}>{text}</h4>;
   }

@@ -146,6 +146,9 @@ export class PanelModelBase extends SurveyElement
   get locTitle(): LocalizableString {
     return this.getLocalizableString("title");
   }
+  get _showTitle(): boolean {
+    return (<any>this.survey).showPageTitles && this.title.length > 0; 
+  }
   /**
    * PanelModel or PageModel description property. It renders under title by using smaller font. Unlike the title, description can be empty.
    * @see title

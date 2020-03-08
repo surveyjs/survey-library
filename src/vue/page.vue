@@ -52,7 +52,7 @@ export class Page extends Vue {
     });
   }
   get showHeader() {
-    return this.survey.showPageTitles;
+    return this.page._showTitle;
   }
   get num() {
     return this.page.num > 0 ? this.page.num + ". " : "";

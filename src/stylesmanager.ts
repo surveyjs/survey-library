@@ -46,10 +46,10 @@ export class StylesManager {
       "position: absolute; margin: 0; display: block; width: 100%;",
     ".sv_qstn td": "position: relative;",
     ".sv_q_mt_item_value": "float: left;",
-    "[dir=\"rtl\"] .sv_q_mt_item_value": "float: right;",
+    '[dir="rtl"] .sv_q_mt_item_value': "float: right;",
     ".sv_qstn.sv_qstn_left": "margin-top: 0.75em;",
     ".sv_qstn .title-left": "float: left; margin-right: 1em;",
-    "[dir=\"rtl\"] .sv_qstn .title-left": "float: right; margin-left: 1em;",
+    '[dir="rtl"] .sv_qstn .title-left': "float: right; margin-left: 1em;",
     ".sv_qstn .content-left": "overflow: hidden",
     ".sv_q_radiogroup_inline .sv_q_radiogroup_other": "display: inline-block;",
     ".sv_q_checkbox_inline .sv_q_checkbox_other": "display: inline-block;",
@@ -544,15 +544,108 @@ export class StylesManager {
     //eo boolean
   };
   public static modernThemeCss: { [key: string]: string } = {
-    ".sv-paneldynamic__add-btn": "background-color: $add-button-color;",
-    ".sv-paneldynamic__remove-btn": "background-color: $remove-button-color;",
+    // ".sv-paneldynamic__add-btn": "background-color: $add-button-color;",
+    // ".sv-paneldynamic__remove-btn": "background-color: $remove-button-color;",
     ".sv-boolean__switch": "background-color: $main-color;",
     ".sv-boolean__slider": "background-color: $slider-color;",
     ".sv-boolean__label--disabled": "color: $disabled-label-color;",
     ".sv-boolean--disabled .sv-boolean__switch":
       "background-color: $disabled-switch-color;",
     ".sv-boolean--disabled .sv-boolean__slider":
-      "background-color: $disabled-slider-color;"
+      "background-color: $disabled-slider-color;",
+
+    ".sv-btn": "color: $inputs-background-color;",
+    ".sv-checkbox__svg": "border-color: $border-color; fill: transparent;",
+    ".sv-checkbox--allowhover:hover .sv-checkbox__svg":
+      "background-color: $main-hover-color; fill: $inputs-background-color;",
+    ".sv-checkbox--checked .sv-checkbox__svg":
+      "background-color: $main-color; fill: $inputs-background-color;",
+    ".sv-checkbox--checked.sv-checkbox--disabled .sv-checkbox__svg":
+      "background-color: $disable-color; fill: $inputs-background-color;",
+    ".sv-checkbox--disabled .sv-checkbox__svg": "border-color: $disable-color;",
+    ".sv-comment": "border-color: text-border-color;",
+    ".sv-comment:focus": "border-color: $main-color;",
+    ".sv-completedpage":
+      "color: $text-color; background-color: $body-container-background-color;",
+    ".sv-container-modern": "color: $text-color;",
+    ".sv-container-modern__title": "color: $main-color;",
+    ".sv-description": "color: $disabled-text-color;",
+    ".sv-dropdown": "border-bottom: 0.06em solid $text-border-color;",
+    ".sv-dropdown:focus": "border-color: $dropdown-border-color;",
+    ".sv-dropdown--error": "border-color: $error-color; color: $error-color;",
+    ".sv-dropdown--error::placeholder": "color: $error-color;",
+    ".sv-file__decorator":
+      "background-color: $body-container-background-color;",
+    ".sv-file__clean-btn": "background-color: $remove-button-color;",
+    ".sv-file__choose-btn": "background-color: $add-button-color;",
+    ".sv-file__choose-btn--disabled": "background-color: $disable-color;",
+    ".sv-file__remove-svg": "fill: #ff1800;",
+    ".sv-file__sign a": "color: $text-color;",
+    ".sv-footer__complete-btn": "background-color: $main-color;",
+    ".sv-footer__next-btn": "background-color: $main-color;",
+    ".sv-footer__prev-btn": "background-color: $main-color;",
+    ".sv-footer__start-btn": "background-color: $main-color;",
+    ".sv-imagepicker__item--allowhover:hover .sv-imagepicker__image":
+      "background-color: $main-hover-color; border-color: $main-hover-color;",
+    ".sv-imagepicker__item--checked .sv-imagepicker__image":
+      "background-color: $main-color; border-color: $main-color;",
+    ".sv-imagepicker__item--disabled.sv-imagepicker__item--checked .sv-imagepicker__image":
+      "background-color: $disable-color; border-color: $disable-color;",
+    ".sv-item__control:focus + .sv-item__decorator":
+      "border-color: $main-color;",
+    ".sv-matrix__text--сhecked":
+      "color: $inputs-background-color; background-color: $main-color;",
+    ".sv-matrix__text--disabled.sv-matrix__text--сhecked":
+      "background-color: $disable-color;",
+    ".sv-matrixdynamic__add-btn": "background-color: $add-button-color;",
+    ".sv-matrixdynamic__remove-btn": "background-color: $remove-button-color;",
+    ".sv-paneldynamic__add-btn": "background-color: $add-button-color;",
+    ".sv-paneldynamic__remove-btn": "background-color: $remove-button-color;",
+    ".sv-paneldynamic__prev-btn, .sv-paneldynamic__next-btn":
+      "fill: $text-color;",
+    ".sv-paneldynamic__prev-btn--disabled, .sv-paneldynamic__next-btn--disabled":
+      "fill: $disable-color;",
+    ".sv-paneldynamic__progress-text": "color: $progress-text-color;",
+    ".sv-progress": "background-color: $header-background-color;",
+    ".sv-progress__bar": "background-color: $main-color;",
+    ".sv-progress__text": "color: $progress-text-color;",
+    ".sv-question__erbox": "color: $error-color;",
+    ".sv-question__title--answer":
+      "background-color: $answer-background-color;",
+    ".sv-question__title--error": "background-color: $error-background-color;",
+    ".sv-radio__svg": "border-color: $border-color; fill: transparent;",
+    ".sv-radio--allowhover:hover .sv-radio__svg": "fill: $border-color;",
+    ".sv-radio--checked .sv-radio__svg":
+      "border-color: $radio-checked-color; fill: $radio-checked-color;",
+    ".sv-radio--disabled .sv-radio__svg": "border-color: $disable-color;",
+    ".sv-radio--disabled.sv-radio--checked .sv-radio__svg":
+      "fill: $disable-color;",
+    ".sv-rating": "color: $text-color;",
+    ".sv-rating input:focus + .sv-rating__min-text + .sv-rating__item-text, .sv-rating input:focus + .sv-rating__item-text":
+      "outline-color: $main-color;",
+    ".sv-rating__item-text":
+      "color: $main-hover-color; border: solid 0.1875em $main-hover-color;",
+    ".sv-rating__item-text:hover":
+      "background-color: $main-hover-color; color: $body-background-color;",
+    ".sv-rating__item--selected .sv-rating__item-text":
+      "background-color: $main-color; color: $body-background-color; border-color: $main-color;",
+    ".sv-rating--disabled .sv-rating__item-text":
+      "color: $disable-color; border-color: $disable-color;",
+    ".sv-rating--disabled .sv-rating__item-text:hover":
+      "background-color: transparent;",
+    ".sv-rating--disabled .sv-rating__item-text:hover .sv-rating__item--selected .sv-rating__item-text":
+      "background-color: $disable-color; color: $body-background-color;",
+    ".sv-root-modern::-webkit-scrollbar":
+      "background-color: $main-hover-color;",
+    ".sv-root-modern::-webkit-scrollbar-thumb": "background: $main-color;",
+    ".sv-selectbase__clear-btn": "background-color: $clean-button-color;",
+    ".sv-table": "background-color: rgba($main-hover-color, 0.1);",
+    ".sv-text:focus": "border-color: $main-color;",
+    ".sv-text::placeholder": "color: $text-color;",
+    '.sv-text[type="date"]::-webkit-calendar-picker-indicator':
+      "color: transparent; background: transparent;",
+    ".sv-text--error": "color: $error-color; border-color: $error-color;",
+    ".sv-text--error::placeholder": "color: $error-color;"
   };
   public static bootstrapThemeCss: { [key: string]: string } = {
     ".sv_main .sv_q_imgsel.checked label>div": "background-color: $main-color",

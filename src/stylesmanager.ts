@@ -431,7 +431,8 @@ export class StylesManager {
       "$answer-background-color": "rgba(26, 179, 148, 0.2)",
       "$error-background-color": "rgba(213, 41, 1, 0.2)",
       "$radio-checked-color": "#404040",
-      "$clean-button-color": "#1948b3"
+      "$clean-button-color": "#1948b3",
+      "$body-background-color": "#ffffff"
     },
     bootstrap: {
       "$main-color": "#18a689",
@@ -560,6 +561,7 @@ export class StylesManager {
   public static modernThemeCss: { [key: string]: string } = {
     // ".sv-paneldynamic__add-btn": "background-color: $add-button-color;",
     // ".sv-paneldynamic__remove-btn": "background-color: $remove-button-color;",
+    ".sv-root-modern": "background-color: $body-background-color;",
     ".sv-boolean__switch": "background-color: $main-color;",
     ".sv-boolean__slider": "background-color: $slider-color;",
     ".sv-boolean__label--disabled": "color: $disabled-label-color;",

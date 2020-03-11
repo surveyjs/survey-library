@@ -417,7 +417,21 @@ export class StylesManager {
       "$disabled-label-color": "rgba(64, 64, 64, 0.5)",
       "$slider-color": "white",
       "$disabled-switch-color": "#9f9f9f",
-      "$disabled-slider-color": "#cfcfcf"
+      "$disabled-slider-color": "#cfcfcf",
+      "$error-color": "#d52901",
+      "$text-color": "#404040",
+      "$inputs-background-color": "#f4f4f4",
+      "$main-hover-color": "#9f9f9f",
+      "$body-container-background-color": "#f4f4f4",
+      "$text-border-color": "#d4d4d4",
+      "$disabled-text-color": "rgba(64, 64, 64, 0.5)",
+      "$border-color": "rgb(64, 64, 64, 0.5)",
+      "$dropdown-border-color": "#d4d4d4",
+      "$header-background-color": "#e7e7e7",
+      "$answer-background-color": "rgba(26, 179, 148, 0.2)",
+      "$error-background-color": "rgba(213, 41, 1, 0.2)",
+      "$radio-checked-color": "#404040",
+      "$clean-button-color": "#1948b3"
     },
     bootstrap: {
       "$main-color": "#18a689",
@@ -563,7 +577,7 @@ export class StylesManager {
     ".sv-checkbox--checked.sv-checkbox--disabled .sv-checkbox__svg":
       "background-color: $disable-color; fill: $inputs-background-color;",
     ".sv-checkbox--disabled .sv-checkbox__svg": "border-color: $disable-color;",
-    ".sv-comment": "border-color: text-border-color;",
+    ".sv-comment": "border-color: $text-border-color;",
     ".sv-comment:focus": "border-color: $main-color;",
     ".sv-completedpage":
       "color: $text-color; background-color: $body-container-background-color;",
@@ -574,6 +588,7 @@ export class StylesManager {
     ".sv-dropdown:focus": "border-color: $dropdown-border-color;",
     ".sv-dropdown--error": "border-color: $error-color; color: $error-color;",
     ".sv-dropdown--error::placeholder": "color: $error-color;",
+    ".sv-dropdown--error::-ms-input-placeholder": "color: $error-color;",
     ".sv-file__decorator":
       "background-color: $body-container-background-color;",
     ".sv-file__clean-btn": "background-color: $remove-button-color;",
@@ -641,11 +656,15 @@ export class StylesManager {
     ".sv-selectbase__clear-btn": "background-color: $clean-button-color;",
     ".sv-table": "background-color: rgba($main-hover-color, 0.1);",
     ".sv-text:focus": "border-color: $main-color;",
-    ".sv-text::placeholder": "color: $text-color;",
     '.sv-text[type="date"]::-webkit-calendar-picker-indicator':
       "color: transparent; background: transparent;",
     ".sv-text--error": "color: $error-color; border-color: $error-color;",
-    ".sv-text--error::placeholder": "color: $error-color;"
+    ".sv-text--error::placeholder": "color: $error-color;",
+    ".sv-text--error::-ms-placeholder": "color: $error-color;",
+    ".sv-text--error:-ms-placeholder": "color: $error-color;",
+    ".sv-text::placeholder": "color: $text-color;",
+    ".sv-text::-ms-placeholder": "color: $text-color;",
+    ".sv-text:-ms-placeholder": "color: $text-color;"
   };
   public static bootstrapThemeCss: { [key: string]: string } = {
     ".sv_main .sv_q_imgsel.checked label>div": "background-color: $main-color",
@@ -812,10 +831,12 @@ export class StylesManager {
                 theme[colorVariableName]
               ))
           );
-          sheet.insertRule(
-            themeSelector + selector + " { " + cssRuleText + " }",
-            0
-          );
+          try {
+            sheet.insertRule(
+              themeSelector + selector + " { " + cssRuleText + " }",
+              0
+            );
+          } catch (e) {}
         });
       }
     }
@@ -837,22 +858,26 @@ export class StylesManager {
 
   public initializeStyles(sheet: CSSStyleSheet) {
     if (StylesManager.Enabled) {
-      Object.keys(StylesManager.Styles).forEach(selector =>
-        sheet.insertRule(
-          selector + " { " + StylesManager.Styles[selector] + " }",
-          0
-        )
-      );
+      Object.keys(StylesManager.Styles).forEach(selector => {
+        try {
+          sheet.insertRule(
+            selector + " { " + StylesManager.Styles[selector] + " }",
+            0
+          );
+        } catch (e) {}
+      });
       Object.keys(StylesManager.Media).forEach(selector => {
-        sheet.insertRule(
-          StylesManager.Media[selector].media +
-            " { " +
-            selector +
-            " { " +
-            StylesManager.Media[selector].style +
-            " } }",
-          0
-        );
+        try {
+          sheet.insertRule(
+            StylesManager.Media[selector].media +
+              " { " +
+              selector +
+              " { " +
+              StylesManager.Media[selector].style +
+              " } }",
+            0
+          );
+        } catch (e) {}
       });
     }
   }

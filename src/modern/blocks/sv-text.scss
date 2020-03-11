@@ -23,6 +23,15 @@
   -webkit-box-shadow: 0 0 0 30px white inset;
 }
 .sv-text::placeholder {
+  opacity: 1;
+  color: $text-color;
+}
+.sv-text:-ms-input-placeholder {
+  opacity: 1;
+  color: $text-color;
+}
+.sv-text::-ms-input-placeholder {
+  opacity: 1;
   color: $text-color;
 }
 .sv-text[type="date"] {
@@ -51,5 +60,11 @@
   border-color: $error-color;
 }
 .sv-text--error::placeholder {
+  color: $error-color;
+}
+.sv-text--error::-ms-input-placeholder {
+  color: $error-color;
+}
+.sv-text--error::-ms-input-placeholder {
   color: $error-color;
 }

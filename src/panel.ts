@@ -147,7 +147,10 @@ export class PanelModelBase extends SurveyElement
     return this.getLocalizableString("title");
   }
   get _showTitle(): boolean {
-    return (<any>this.survey).showPageTitles && this.title.length > 0; 
+    return (
+      this.isDesignMode ||
+      ((<any>this.survey).showPageTitles && this.title.length > 0)
+    );
   }
   /**
    * PanelModel or PageModel description property. It renders under title by using smaller font. Unlike the title, description can be empty.
@@ -217,10 +220,10 @@ export class PanelModelBase extends SurveyElement
     this.setPropertyValue("visibleIf", val);
   }
   public get cssClasses(): any {
-    var classes = { panel: {}, error: {}, row: ""};
+    var classes = { panel: {}, error: {}, row: "" };
     this.copyCssClasses(classes.panel, this.css.panel);
     this.copyCssClasses(classes.error, this.css.error);
-    if(!!this.css.row) {
+    if (!!this.css.row) {
       classes.row = this.css.row;
     }
     if (this.survey) {
@@ -1407,9 +1410,8 @@ export class PanelModel extends PanelModelBase implements IElement {
     return indent * css.question.indent + "px";
   }
   public clearOnDeletingContainer() {
-    this.elements.forEach((element) => {
-      if (element instanceof Question ||
-          element instanceof PanelModel) {
+    this.elements.forEach(element => {
+      if (element instanceof Question || element instanceof PanelModel) {
         element.clearOnDeletingContainer();
       }
     });

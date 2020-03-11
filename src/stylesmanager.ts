@@ -561,7 +561,6 @@ export class StylesManager {
   public static modernThemeCss: { [key: string]: string } = {
     // ".sv-paneldynamic__add-btn": "background-color: $add-button-color;",
     // ".sv-paneldynamic__remove-btn": "background-color: $remove-button-color;",
-    ".sv-root-modern": "background-color: $body-background-color;",
     ".sv-boolean__switch": "background-color: $main-color;",
     ".sv-boolean__slider": "background-color: $slider-color;",
     ".sv-boolean__label--disabled": "color: $disabled-label-color;",

@@ -8,6 +8,9 @@ trigger:
   branches:
     include:
     - master
+  tags:
+    exclude:
+      - v*.*.*
 
 pool:
   vmImage: 'Ubuntu-16.04'

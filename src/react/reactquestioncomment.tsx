@@ -33,7 +33,6 @@ export class SurveyQuestionComment extends SurveyQuestionUncontrolledElement<
         placeholder={placeHolder}
         onBlur={onBlur}
         onInput={onInput}
-        onChange={this.updateValueOnEvent}
         cols={this.question.cols}
         rows={this.question.rows}
         aria-label={this.question.locTitle.renderedHtml}

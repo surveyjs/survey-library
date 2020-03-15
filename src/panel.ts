@@ -152,6 +152,12 @@ export class PanelModelBase extends SurveyElement
       ((<any>this.survey).showPageTitles && this.title.length > 0)
     );
   }
+  get _showDescription(): boolean {
+    return (
+      this.isDesignMode ||
+      ((<any>this.survey).showPageTitles && this.description.length > 0)
+    );
+  }
   /**
    * PanelModel or PageModel description property. It renders under title by using smaller font. Unlike the title, description can be empty.
    * @see title

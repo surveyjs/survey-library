@@ -36,6 +36,7 @@ steps:
     contents: 'packages/**'
     targetFolder: $(Build.ArtifactStagingDirectory)
 
+#publishLocation: 'Container' - store the artifact in Azure Pipelines
 - task: PublishBuildArtifacts@1
   inputs:
     PathtoPublish: '$(Build.ArtifactStagingDirectory)'

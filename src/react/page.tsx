@@ -34,7 +34,7 @@ export class SurveyPage extends SurveyPanelBase {
     return <h4 className={this.panelBase.cssClasses.page.title}>{text}</h4>;
   }
   protected renderDescription(): JSX.Element {
-    if (!this.survey.showPageTitles) return null;
+    if (!this.page._showDescription) return null;
     var text = SurveyElementBase.renderLocString(this.page.locDescription);
     return <div className={this.panelBase.cssClasses.page.description}>{text}</div>;
   }

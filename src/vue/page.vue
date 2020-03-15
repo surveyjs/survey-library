@@ -3,7 +3,7 @@
     <h4 v-if="showHeader" :class="page.cssClasses.page.title">
       <survey-string :locString="page.locTitle" />
     </h4>
-    <div v-if="showHeader" :class="page.cssClasses.page.description">
+    <div v-if="showDescription" :class="page.cssClasses.page.description">
       <survey-string :locString="page.locDescription" />
     </div>
     <div
@@ -53,6 +53,9 @@ export class Page extends Vue {
   }
   get showHeader() {
     return this.page._showTitle;
+  }
+  get showDescription() {
+    return this.page._showDescription;
   }
   get num() {
     return this.page.num > 0 ? this.page.num + ". " : "";

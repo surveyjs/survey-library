@@ -132,8 +132,25 @@ export class ReactSurveyElement extends SurveyElementBase {
 }
 
 export class SurveyQuestionElementBase extends SurveyElementBase {
+  control: any;
   constructor(props: any) {
     super(props);
+  }
+  componentDidUpdate(prevProps: any, prevState: any) {
+    super.componentDidUpdate(prevProps, prevState);
+    this.updateDomElement();
+  }
+  componentDidMount() {
+    this.updateDomElement();
+  }
+  protected updateDomElement() {
+    var el = this.control;
+    if (!!el) {
+      if (el.getAttribute("data-rendered") !== "r") {
+        el.setAttribute("data-rendered", "r");
+        this.questionBase.afterRenderInput(el);
+      }
+    }
   }
   protected get questionBase(): Question {
     return this.props.question;
@@ -154,7 +171,6 @@ export class SurveyQuestionElementBase extends SurveyElementBase {
 export class SurveyQuestionUncontrolledElement<
   T extends Question
 > extends SurveyQuestionElementBase {
-  control: any;
   constructor(props: any) {
     super(props);
     this.updateValueOnEvent = this.updateValueOnEvent.bind(this);
@@ -162,19 +178,15 @@ export class SurveyQuestionUncontrolledElement<
   protected get question(): T {
     return this.questionBase as T;
   }
-  componentDidUpdate() {
-    if (!!this.control) {
-      this.control.value = this.getValue(this.questionBase.value);
-    }
-  }
-  componentDidMount() {
-    if (!!this.control) {
-      this.control.value = this.getValue(this.questionBase.value);
-    }
-  }
   updateValueOnEvent = (event: any) => {
     this.questionBase.value = event.target.value;
   };
+  protected updateDomElement() {
+    if (!!this.control) {
+      this.control.value = this.getValue(this.questionBase.value);
+    }
+    super.updateDomElement();
+  }
   private getValue(val: any): any {
     if (Helpers.isValueEmpty(val)) return "";
     return val;

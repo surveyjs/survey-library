@@ -20,7 +20,10 @@ export class SurveyQuestionCheckbox extends SurveyQuestionElementBase {
     if (!this.question) return null;
     var cssClasses = this.question.cssClasses;
     return (
-      <fieldset className={cssClasses.root}>
+      <fieldset
+        className={cssClasses.root}
+        ref={fieldset => (this.control = fieldset)}
+      >
         <legend aria-label={this.question.locTitle.renderedHtml} />
         {this.question.hasColumns
           ? this.getColumns(cssClasses)

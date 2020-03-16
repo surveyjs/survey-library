@@ -29,6 +29,9 @@ export class QuestionMatrixBaseModel<TRow, TColumn> extends Question {
   public getType(): string {
     return "matrixbase";
   }
+  public get isCompositeQuestion(): boolean {
+    return true;
+  }
   public get isAllowTitleLeft(): boolean {
     return false;
   }

@@ -575,6 +575,17 @@ export class SurveyModel extends Base
     any
   > = new Event<(sender: SurveyModel, options: any) => any, any>();
   /**
+   * The event is fired right after a non-composite question (text, comment, dropdown, radiogroup, checkbox) is rendered in DOM. Use it to modify HTML elements.
+   * This event is not fired for matrices, panels, multiple text and image picker.
+   * <br/> `sender` - the survey object that fires the event.
+   * <br/> `options.question` - a question object for which the event is fired.
+   * <br/> `options.htmlElement` - an HTML element bound to the question object.
+   */
+  public onAfterRenderQuestionInput: Event<
+    (sender: SurveyModel, options: any) => any,
+    any
+  > = new Event<(sender: SurveyModel, options: any) => any, any>();
+  /**
    * The event is fired right after a panel is rendered in DOM. Use it to modify HTML elements.
    * <br/> `sender` - the survey object that fires the event
    * <br/> `options.panel` - a panel object for which the event is fired
@@ -2895,6 +2906,12 @@ export class SurveyModel extends Base
   }
   afterRenderQuestion(question: IQuestion, htmlElement: any) {
     this.onAfterRenderQuestion.fire(this, {
+      question: question,
+      htmlElement: htmlElement
+    });
+  }
+  afterRenderQuestionInput(question: IQuestion, htmlElement: any) {
+    this.onAfterRenderQuestionInput.fire(this, {
       question: question,
       htmlElement: htmlElement
     });

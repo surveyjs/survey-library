@@ -1,3 +1,4 @@
+/*
 import {
   frameworks,
   url,
@@ -83,3 +84,4 @@ frameworks.forEach(framework => {
     assert.ok(await isBorderOk());
   });
 });
+*/

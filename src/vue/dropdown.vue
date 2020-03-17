@@ -18,6 +18,7 @@
     <div
       disabled
       v-else
+      :id="question.inputId"
       :class="question.cssClasses.control"
     >{{isOtherSelected ? question.otherText : question.displayValue}}</div>
     <survey-other-choice v-show="isOtherSelected" :question="question" />

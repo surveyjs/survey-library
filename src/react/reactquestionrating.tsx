@@ -43,7 +43,7 @@ export class SurveyQuestionRating extends SurveyQuestionElementBase {
     }
     var comment = this.question.hasOther ? this.renderOther(cssClasses) : null;
     return (
-      <div className={cssClasses.root}>
+      <div className={cssClasses.root} ref={div => (this.control = div)}>
         {values}
         {comment}
       </div>

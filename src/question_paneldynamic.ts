@@ -250,8 +250,11 @@ export class QuestionPanelDynamicModel extends Question
   public getType(): string {
     return "paneldynamic";
   }
+  public get isCompositeQuestion(): boolean {
+    return true;
+  }
   public clearOnDeletingContainer() {
-    this.panels.forEach((panel) => {
+    this.panels.forEach(panel => {
       panel.clearOnDeletingContainer();
     });
   }

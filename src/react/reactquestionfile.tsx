@@ -91,6 +91,7 @@ export class SurveyQuestionFile extends SurveyQuestionElementBase {
         disabled={this.isDisplayMode}
         className={this.question.cssClasses.fileInput}
         id={this.question.inputId}
+        ref={input => (this.control = input)}
         type="file"
         onChange={!this.isDisplayMode ? this.handleOnChange : null}
         aria-required={this.question.isRequired}

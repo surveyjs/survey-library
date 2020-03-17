@@ -18,6 +18,9 @@ export class QuestionHtmlModel extends QuestionNonValue {
   public getType(): string {
     return "html";
   }
+  public get isCompositeQuestion(): boolean {
+    return true;
+  }
   /**
    * Set html to display it
    */

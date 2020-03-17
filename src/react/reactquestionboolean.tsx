@@ -19,20 +19,14 @@ export class SurveyQuestionBoolean extends SurveyQuestionElementBase {
     this.question.checkedValue = event.target.checked;
     this.setState({ value: this.question.checkedValue });
   }
-  componentDidMount() {
-    super.componentDidMount();
-    this.updateIndeterminate();
-  }
-  componentDidUpdate(prevProps: any, prevState: any) {
-    super.componentDidUpdate(prevProps, prevState);
-    this.updateIndeterminate();
-  }
-  private updateIndeterminate() {
+  protected updateDomElement() {
     if (!this.question) return;
     var el: any = this.refs["check"];
     if (el) {
       el["indeterminate"] = this.question.isIndeterminate;
     }
+    this.control = el;
+    super.updateDomElement();
   }
   private getItemClass(): string {
     var cssClasses = this.question.cssClasses;

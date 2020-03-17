@@ -14,7 +14,7 @@
                 <!-- /ko -->
             </div>
             <!-- /ko -->
-            <!-- ko template: { name: item.editor.koTemplateName(), data: item.editor, as: 'question' } -->
+            <!-- ko template: { name: item.editor.koTemplateName(), data: item.editor, as: 'question', afterRender: item.editor.koQuestionAfterRender } -->
             <!-- /ko -->
             <!-- ko if: item.editor.errorLocation == 'bottom' -->
               <!-- ko template: { name: 'survey-question-errors', data: item.editor } -->

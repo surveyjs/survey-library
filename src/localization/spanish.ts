@@ -3,7 +3,7 @@ import { surveyLocalization } from "../surveyStrings";
 export var spanishSurveyStrings = {
   pagePrevText: "Anterior",
   pageNextText: "Siguiente",
-  completeText: "Completo",
+  completeText: "Completar",
   otherItemText: "Otro (describa)",
   progressText: "Página {0} de {1}",
   emptySurvey: "No hay página visible o pregunta en la encuesta.",

@@ -14,7 +14,6 @@
   vertical-align: top;
 }
 .sv-selectbase__label {
-  display: block;
   box-sizing: border-box;
   width: 100%;
   cursor: inherit;
@@ -23,6 +22,6 @@
   margin-top: 0.9em;
   background-color: $clean-button-color;
 }
-.sv-selectbase .sv-selectbase__item.sv-q-col-1{
+.sv-selectbase .sv-selectbase__item.sv-q-col-1 {
   padding-right: 0;
 }

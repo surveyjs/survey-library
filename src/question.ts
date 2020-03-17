@@ -456,6 +456,13 @@ export class Question extends SurveyElement
       this
     );
   }
+  public get isCompositeQuestion(): boolean {
+    return false;
+  }
+  public afterRenderInput(el: any) {
+    if (this.isCompositeQuestion || !this.survey) return;
+    this.survey.afterRenderQuestionInput(this, el);
+  }
   /**
    * Returns the rendred question title.
    */

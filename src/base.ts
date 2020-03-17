@@ -118,6 +118,7 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner {
   updatePanelCssClasses(panel: IPanel, cssClasses: any): any;
   updatePageCssClasses(panel: IPanel, cssClasses: any): any;
   afterRenderQuestion(question: IQuestion, htmlElement: any): any;
+  afterRenderQuestionInput(question: IQuestion, htmlElement: any): any;
   afterRenderPanel(panel: IElement, htmlElement: any): any;
   afterRenderPage(htmlElement: any): any;
 
@@ -847,8 +848,17 @@ export class SurveyElement extends Base implements ISurveyElement {
     if (elemTop < 0) el.scrollIntoView();
     return elemTop < 0;
   }
-  public static GetFirstNonTextElement(elements: any) {
-    if (!elements || !elements.length) return;
+  public static GetFirstNonTextElement(
+    elements: any,
+    removeSpaces: boolean = false
+  ) {
+    if (!elements || !elements.length || elements.length == 0) return null;
+    if (removeSpaces) {
+      var tEl = elements[0];
+      if (tEl.nodeName === "#text") tEl.data = "";
+      tEl = elements[elements.length - 1];
+      if (tEl.nodeName === "#text") tEl.data = "";
+    }
     for (var i = 0; i < elements.length; i++) {
       if (elements[i].nodeName != "#text" && elements[i].nodeName != "#comment")
         return elements[i];

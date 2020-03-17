@@ -141,11 +141,10 @@ export class QuestionImplementor extends ImplementorBase {
     this.question.locTitle.onChanged();
   }
   protected koQuestionAfterRender(elements: any, con: any) {
-    var el = SurveyElement.GetFirstNonTextElement(elements);
-    var tEl = elements[0];
-    if (tEl.nodeName === "#text") tEl.data = "";
-    tEl = elements[elements.length - 1];
-    if (tEl.nodeName === "#text") tEl.data = "";
+    var el = SurveyElement.GetFirstNonTextElement(elements, true);
+    if (!!el) {
+      this.question.afterRenderInput(el);
+    }
     if (el && this.question.customWidget) {
       this.question.customWidget.afterRender(this.question, el);
       ko.utils.domNodeDisposal.addDisposeCallback(el, () => {

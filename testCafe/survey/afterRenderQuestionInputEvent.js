@@ -10,78 +10,69 @@ import { Selector, ClientFunction } from "testcafe";
 const assert = require("assert");
 const title = `afterRenderQuestionEvent`;
 
-const setupSurvey = ClientFunction(() => {
-  window.survey.onAfterRenderQuestionInput.add(function(survey, options) {
-    if (options.question.name == "question4b") {
-      options.htmlElement.style.border = "1px solid #CCC";
-    }
-  });
-});
-
 const json = {
-  pages: [
+  elements: [
     {
-      elements: [
+      type: "text",
+      name: "q1"
+    },
+    {
+      type: "multipletext",
+      name: "q2",
+      items: [{ name: "item1" }, { name: "item2" }]
+    },
+    {
+      type: "matrixdynamic",
+      name: "q3",
+      rowCount: 1,
+      columns: [
         {
-          name: "question4a",
-          type: "radiogroup",
-          title: "4 (a) question 4a ",
-          choices: [
-            {
-              text: "Yes",
-              value: "valueYes"
-            },
-            {
-              text: "No",
-              value: "valueNo"
-            }
-          ]
-        },
-        {
-          name: "question4b",
-          visibleIf: "{question4a} = 'valueYes'",
-          type: "radiogroup",
-          title: "4 (b) Test question 4b",
-          choices: [
-            {
-              text: "Yes",
-              value: "BA17018_02_01"
-            },
-            {
-              text: "No",
-              value: "BA17018_02_02"
-            }
-          ]
+          name: "col1",
+          cellType: "text"
         }
-      ],
-      name: "sectionTest"
+      ]
     }
-  ],
-  title: "Test Sample"
+  ]
 };
 
 frameworks.forEach(framework => {
   fixture`${framework} ${title}`.page`${url}${framework}`.beforeEach(
     async t => {
-      await initSurvey(framework, json);
-      await setupSurvey();
+      var f = function(sender, options) {
+        if (options.question.getType() === "text") {
+          options.htmlElement.addEventListener("keypress", function(evt) {
+            if (
+              (evt.which != 8 &&
+                evt.which != 0 &&
+                evt.which != 46 &&
+                evt.which < 48) ||
+              evt.which > 57
+            ) {
+              evt.preventDefault();
+            }
+          });
+        }
+      };
+      var events = { onAfterRenderQuestionInput: f };
+      await initSurvey(framework, json, events);
     }
   );
 
-  test(`afterRenderQuestion fires for initially hidden questions`, async t => {
-    const getQuestionCount = ClientFunction(
-      () => document.querySelectorAll(".sv_q.sv_qstn").length
-    );
-    const isBorderOk = ClientFunction(
-      () =>
-        document.querySelectorAll(".sv_q.sv_qstn")[1].style.border ===
-        "1px solid rgb(204, 204, 204)"
-    );
+  test(`afterRenderQuestionInput do not allow to enter 'e' into number input in text question, multiple text and matrix`, async t => {
+    const inputs = Selector(`input.sv_q_text_root`);
+    await t.typeText(inputs.nth(0), "123e");
+    await t.typeText(inputs.nth(1), "234e");
+    await t.typeText(inputs.nth(2), "e345e");
+    await t.typeText(inputs.nth(3), "e456e");
 
-    assert.equal(await getQuestionCount(), 1);
-    await t.click(`input[value=valueYes]`);
-    assert.equal(await getQuestionCount(), 2);
-    assert.ok(await isBorderOk());
+    await t.click(`input[value="Complete"]`);
+    const surveyResult = await getSurveyResult();
+    assert.deepEqual(surveyResult, {
+      q1: "123",
+      q2: { item1: "234", item2: "345" },
+      q3: [{ col1: "456" }]
+    });
+    await t.wait(1000);
   });
 });
 */

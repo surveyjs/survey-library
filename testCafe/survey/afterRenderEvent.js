@@ -9,14 +9,6 @@ import { Selector, ClientFunction } from "testcafe";
 const assert = require("assert");
 const title = `afterRenderQuestionEvent`;
 
-const setupSurvey = ClientFunction(() => {
-  window.survey.onAfterRenderQuestion.add(function(survey, options) {
-    if (options.question.name == "question4b") {
-      options.htmlElement.style.border = "1px solid #CCC";
-    }
-  });
-});
-
 const json = {
   pages: [
     {
@@ -62,8 +54,13 @@ const json = {
 frameworks.forEach(framework => {
   fixture`${framework} ${title}`.page`${url}${framework}`.beforeEach(
     async t => {
-      await initSurvey(framework, json);
-      await setupSurvey();
+      var f = function(survey, options) {
+        if (options.question.name == "question4b") {
+          options.htmlElement.style.border = "1px solid #CCC";
+        }
+      };
+      var events = { onAfterRenderQuestion: f };
+      await initSurvey(framework, json, events);
     }
   );
 

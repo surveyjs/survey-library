@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.5.16](https://github.com/surveyjs/survey-library/compare/v1.5.15...v1.5.16) (2020-03-18)
+
+
+### Bug Fixes
+
+* react version: Comment Question raise onValueChanged on typing a letter [#2028](https://github.com/surveyjs/survey-library/issues/2028) ([8545d26](https://github.com/surveyjs/survey-library/commit/8545d265b1adaf0fb8b28a394fcc0de7dfb50641))
+
 ### [1.5.15](https://github.com/surveyjs/survey-library/compare/v1.5.14...v1.5.15) (2020-03-12)
 
 ### [1.5.14](https://github.com/surveyjs/survey-library/compare/v1.5.13...v1.5.14) (2020-03-11)

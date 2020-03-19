@@ -424,3 +424,41 @@ QUnit.test("Base propertyValueChanged itemValue", function(assert) {
 
   assert.equal(counter, 1, "callback called");
 });
+
+QUnit.test("Base propertyValueChanged colOwner - column undo/redo", function(
+  assert
+) {
+  var counter1 = 0;
+  var counter2 = 0;
+  var baseObj: any = new Base();
+
+  baseObj.colOwner = {
+    doPropertyValueChangedCallback: (
+      name: string,
+      oldValue: any,
+      newValue: any,
+      sender: Base,
+      arrayChanges: ArrayChanges
+    ) => {
+      counter1++;
+    }
+  };
+  baseObj.locOwner = {
+    doPropertyValueChangedCallback: (
+      name: string,
+      oldValue: any,
+      newValue: any,
+      sender: Base,
+      arrayChanges: ArrayChanges
+    ) => {
+      counter2++;
+    }
+  };
+
+  assert.equal(counter1, 0, "initial");
+  assert.equal(counter2, 0, "initial");
+
+  baseObj.setPropertyValue("some", 1);
+  assert.equal(counter1, 1, "callback colOwner called");
+  assert.equal(counter2, 0, "callback locOwner not called");
+});

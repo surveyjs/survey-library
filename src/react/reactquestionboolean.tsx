@@ -8,6 +8,7 @@ import { ReactQuestionFactory } from "./reactquestionfactory";
 import { OtherEmptyError } from "../error";
 
 export class SurveyQuestionBoolean extends SurveyQuestionElementBase {
+  private isIndeterminateChange: boolean = false;
   constructor(props: any) {
     super(props);
     this.handleOnChange = this.handleOnChange.bind(this);
@@ -16,8 +17,20 @@ export class SurveyQuestionBoolean extends SurveyQuestionElementBase {
     return this.questionBase as QuestionBooleanModel;
   }
   handleOnChange(event: any) {
+    if (this.isIndeterminateChange) {
+      this.isIndeterminateChange = false;
+      return;
+    }
     this.question.checkedValue = event.target.checked;
     this.setState({ value: this.question.checkedValue });
+  }
+  handleOnClick(event: any) {
+    if (!this.question.isIndeterminate) return;
+    else {
+      this.isIndeterminateChange = true;
+      this.question.checkedValue = true;
+      this.setState({ value: this.question.checkedValue });
+    }
   }
   protected updateDomElement() {
     if (!this.question) return;
@@ -56,7 +69,7 @@ export class SurveyQuestionBoolean extends SurveyQuestionElementBase {
     var itemClass = this.getItemClass();
     return (
       <div className={cssClasses.root}>
-        <label className={itemClass}>
+        <label className={itemClass} onClick={this.handleOnClick.bind(this)}>
           <input
             ref="check"
             type="checkbox"

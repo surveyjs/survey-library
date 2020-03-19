@@ -457,7 +457,17 @@ export class Base {
     if (!target) target = this;
     let parentBase: Base = this;
 
-    if ((<any>this)["locOwner"]) {
+    if ((<any>this)["colOwner"]) {
+      parentBase = (<any>this)["colOwner"];
+      parentBase.doPropertyValueChangedCallback &&
+        parentBase.doPropertyValueChangedCallback(
+          name,
+          oldValue,
+          newValue,
+          arrayChanges,
+          target
+        );
+    } else if ((<any>this)["locOwner"]) {
       parentBase = (<any>this)["locOwner"];
       parentBase.doPropertyValueChangedCallback &&
         parentBase.doPropertyValueChangedCallback(

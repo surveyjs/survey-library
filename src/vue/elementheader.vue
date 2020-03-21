@@ -39,23 +39,23 @@ export class ElementHeader extends Vue {
 
   getTitleClass(element: Question) {
     var cssClasses = element.cssClasses;
-    var titleClass = cssClasses.title;
-    if (element.containsErrors) {
+    var titleClass = cssClasses.title || "";
+    if (element.containsErrors && !!cssClasses.titleOnError) {
       titleClass += " " + cssClasses.titleOnError;
-    } else if (element.isAnswered) {
+    } else if (element.isAnswered && !!cssClasses.titleOnAnswer) {
       titleClass += " " + cssClasses.titleOnAnswer;
     }
     return titleClass;
   }
   getHeaderClass(element: Question) {
-    var headerClass = element.cssClasses.header;
-    if (element.hasTitleOnTop) {
+    var headerClass = element.cssClasses.header || "";
+    if (element.hasTitleOnTop && !!element.cssClasses.headerTop) {
       headerClass += " " + element.cssClasses.headerTop;
     }
-    if (element.hasTitleOnLeft) {
+    if (element.hasTitleOnLeft && !!element.cssClasses.headerLeft) {
       headerClass += " " + element.cssClasses.headerLeft;
     }
-    if (element.hasTitleOnBottom) {
+    if (element.hasTitleOnBottom && !!element.cssClasses.headerBottom) {
       headerClass += " " + element.cssClasses.headerBottom;
     }
     return headerClass;

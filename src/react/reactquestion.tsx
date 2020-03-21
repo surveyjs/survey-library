@@ -131,33 +131,26 @@ export class SurveyQuestion extends SurveyElementBase {
     return SurveyQuestion.renderQuestionBody(this.creator, this.question);
   }
   protected renderTitle(cssClasses: any): JSX.Element {
-    var titleText = SurveyElementBase.renderLocString(this.question.locTitle);
-    var number = null;
+    var spans = [];
+    if (this.question.isRequireTextOnStart) {
+      spans.push(this.renderRequireText(cssClasses));
+    }
     var questionNumber = this.question["no"];
     if (questionNumber) {
-      number = (
+      spans.push(
         <span className={cssClasses.number} style={{ position: "static" }}>
           {questionNumber}
         </span>
       );
     }
-    var requreSpan = this.renderRequireText(cssClasses);
-    var requireOnStart = this.question.isRequireTextOnStart ? requreSpan : null;
-    var requireBeforeTitle = this.question.isRequireTextBeforeTitle
-      ? requreSpan
-      : null;
-    var requireAfterTitle = this.question.isRequireTextAfterTitle
-      ? requreSpan
-      : null;
-    return (
-      <h5 className={this.getTitleClass(this.question)}>
-        {requireOnStart}
-        {number}
-        {requireBeforeTitle}
-        {titleText}
-        {requireAfterTitle}
-      </h5>
-    );
+    if (this.question.isRequireTextBeforeTitle) {
+      spans.push(this.renderRequireText(cssClasses));
+    }
+    spans.push(SurveyElementBase.renderLocString(this.question.locTitle));
+    if (this.question.isRequireTextAfterTitle) {
+      spans.push(this.renderRequireText(cssClasses));
+    }
+    return <h5 className={this.getTitleClass(this.question)}>{spans}</h5>;
   }
   private renderRequireText(cssClasses: any): JSX.Element {
     return (

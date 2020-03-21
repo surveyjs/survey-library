@@ -26,7 +26,7 @@ const json = {
 frameworks.forEach(framework => {
   fixture`${framework} ${title}`
     .page`${url}${framework}/customWidget.html`.beforeEach(async ctx => {
-    await initSurvey(framework, json, "bootstrap");
+    await initSurvey(framework, json);
   });
 
   test(`check integrity`, async t => {

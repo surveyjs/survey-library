@@ -59,14 +59,14 @@ export class QuestionImplementor extends ImplementorBase {
     (<any>this.question)["koHeaderClass"] = ko.pureComputed(function() {
       var question = self.question;
       var cssClasses = self.question.cssClasses;
-      var headerClass = cssClasses.header;
-      if (question.hasTitleOnTop) {
+      var headerClass = cssClasses.header || "";
+      if (question.hasTitleOnTop && !!cssClasses.headerTop) {
         headerClass += " " + cssClasses.headerTop;
       }
-      if (question.hasTitleOnLeft) {
+      if (question.hasTitleOnLeft && !!cssClasses.headerLeft) {
         headerClass += " " + cssClasses.headerLeft;
       }
-      if (question.hasTitleOnBottom) {
+      if (question.hasTitleOnBottom && !!cssClasses.headerBottom) {
         headerClass += " " + cssClasses.headerBottom;
       }
       return headerClass;

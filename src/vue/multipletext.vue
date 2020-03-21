@@ -10,9 +10,13 @@
           :key="'label' + item.editor.id"
           :class="question.cssClasses.itemTitle + ' ' + question.cssClasses.cell"
         >
+          <span
+            v-if="item.editor.isRequireTextBeforeTitle || item.editor.isRequireTextOnStart"
+            :class="question.cssClasses.requiredText"
+          >{{item.editor.requiredText}}</span>
           <survey-string :locString="item.locTitle" />
           <span
-            v-if="!question.getQuestionTitleTemplate()"
+            v-if="item.editor.isRequireTextAfterTitle"
             :class="question.cssClasses.requiredText"
           >{{item.editor.requiredText}}</span>
         </td>

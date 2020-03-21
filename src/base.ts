@@ -80,7 +80,7 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner {
     question: IQuestion,
     errors: Array<SurveyError>
   ): void;
-  getQuestionTitleTemplate(): string;
+  questionTitlePattern: string;
   getUpdatedQuestionTitle(question: IQuestion, title: string): string;
 
   questionStartIndex: string;

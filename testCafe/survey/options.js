@@ -143,7 +143,7 @@ frameworks.forEach(framework => {
 
   test(`set question numbers on page`, async t => {
     const getPosition = ClientFunction(() =>
-      document.documentElement.innerHTML.indexOf(">1</span>")
+      document.documentElement.innerHTML.indexOf(">1.</span>")
     );
 
     await t.click(`input[type=checkbox]`).click(`input[value="Next"]`);

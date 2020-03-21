@@ -133,7 +133,6 @@ export class SurveyQuestion extends SurveyElementBase {
   protected renderTitle(cssClasses: any): JSX.Element {
     var titleText = SurveyElementBase.renderLocString(this.question.locTitle);
     var number = null;
-    var delimiter = null;
     var questionNumber = this.question["no"];
     if (questionNumber) {
       number = (
@@ -141,22 +140,30 @@ export class SurveyQuestion extends SurveyElementBase {
           {questionNumber}
         </span>
       );
-      delimiter = <span>.{"\u00A0"}</span>;
     }
-
-    var requredSpan = this.question.getQuestionTitleTemplate() ? null : (
+    var requreSpan = this.renderRequireText(cssClasses);
+    var requireOnStart = this.question.isRequireTextOnStart ? requreSpan : null;
+    var requireBeforeTitle = this.question.isRequireTextBeforeTitle
+      ? requreSpan
+      : null;
+    var requireAfterTitle = this.question.isRequireTextAfterTitle
+      ? requreSpan
+      : null;
+    return (
+      <h5 className={this.getTitleClass(this.question)}>
+        {requireOnStart}
+        {number}
+        {requireBeforeTitle}
+        {titleText}
+        {requireAfterTitle}
+      </h5>
+    );
+  }
+  private renderRequireText(cssClasses: any): JSX.Element {
+    return (
       <span className={cssClasses.requiredText}>
         {this.question.requiredText}
       </span>
-    );
-
-    return (
-      <h5 className={this.getTitleClass(this.question)}>
-        {number}
-        {delimiter}
-        {titleText}
-        {requredSpan}
-      </h5>
     );
   }
   private getTitleClass(element: Question) {

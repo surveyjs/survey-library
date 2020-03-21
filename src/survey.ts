@@ -867,12 +867,6 @@ export class SurveyModel extends Base
       value.locOwner = self;
     });
     this.registerFunctionOnPropertyValueChanged(
-      "questionTitleTemplate",
-      function() {
-        self.questionTitleTemplateCache = undefined;
-      }
-    );
-    this.registerFunctionOnPropertyValueChanged(
       "firstPageIsStarted",
       function() {
         self.onFirstPageIsStartedChanged();
@@ -1163,6 +1157,7 @@ export class SurveyModel extends Base
   }
   /**
    * Gets or sets the first question index. The first question index is '1' by default. You may start it from '100' or from 'A', by setting '100' or 'A' to this property.
+   * You can set the start index to "(1)" or "# A)" or "a)" to render question number as (1), # A) and a) accordingly.
    * @see Question.title
    * @see requiredText
    */
@@ -1310,7 +1305,6 @@ export class SurveyModel extends Base
     return this.localeValue;
   }
   public set locale(value: string) {
-    this.questionTitleTemplateCache = undefined;
     surveyLocalization.currentLocale = value;
     this.localeValue = surveyLocalization.currentLocale;
     this.setPropertyValue("locale", this.localeValue);
@@ -1556,36 +1550,105 @@ export class SurveyModel extends Base
     return this.getLocalizableString("complete");
   }
   /**
-   * Gets or sets a question title template.
+   * Set the pattern for question title. Default is "numTitleRequire", 1. What is your name? *,
+   * You can set it to numRequireTitle: 1. * What is your name?
+   * You can set it to requireNumTitle: * 1. What is your name?
+   * You can set it to numTitle (remove require symbol completely): 1. What is your name?
    * @see QuestionModel.title
+   */
+  public get questionTitlePattern(): string {
+    return this.getPropertyValue("questionTitlePattern", "numTitleRequire");
+  }
+  public set questionTitlePattern(val: string) {
+    if (
+      val !== "numRequireTitle" &&
+      val !== "requireNumTitle" &&
+      val != "numTitle"
+    ) {
+      val = "numTitleRequire";
+    }
+    this.setPropertyValue("questionTitlePattern", val);
+  }
+  /**
+   * Gets or sets a question title template. Obsolete, please use questionTitlePattern
+   * @see QuestionModel.title
+   * @see questionTitlePattern
    */
   public get questionTitleTemplate(): string {
     return this.getLocalizableStringText("questionTitleTemplate");
   }
   public set questionTitleTemplate(value: string) {
-    if (!!value && value.indexOf("{no}") !== -1) {
-      var noIndex = value.indexOf("{no}");
-      var prevBrIndex = noIndex;
-      var nextBrIndex = noIndex + 4;
-      while (prevBrIndex >= 0 && value[prevBrIndex] !== "}") prevBrIndex--;
-      while (nextBrIndex < value.length && value[nextBrIndex] !== "{")
-        nextBrIndex++;
-      value =
-        value.substring(0, prevBrIndex + 1) + value.substring(nextBrIndex);
-    }
     this.setLocalizableStringText("questionTitleTemplate", value);
+    this.questionTitlePattern = this.getNewTitlePattern(value);
+    this.questionStartIndex = this.getNewQuestionTitleElement(
+      value,
+      "no",
+      this.questionStartIndex,
+      "1"
+    );
+    this.requiredText = this.getNewQuestionTitleElement(
+      value,
+      "require",
+      this.requiredText,
+      "*"
+    );
   }
-  private questionTitleTemplateCache: string = undefined;
-  /**
-   * Returns a question title template.
-   * @see questionTitleTemplate
-   * @see QuestionModel.title
-   */
-  public getQuestionTitleTemplate(): string {
-    if (this.questionTitleTemplateCache === undefined) {
-      this.questionTitleTemplateCache = this.locQuestionTitleTemplate.textOrHtml;
+  private getNewTitlePattern(template: string): string {
+    if (!!template) {
+      var strs = [];
+      while (template.indexOf("{") > -1) {
+        template = template.substr(template.indexOf("{") + 1);
+        var ind = template.indexOf("}");
+        if (ind < 0) break;
+        strs.push(template.substr(0, ind));
+        template = template.substr(ind + 1);
+      }
+      if (strs.length > 1) {
+        if (strs[0] == "require") return "requireNumTitle";
+        if (strs[1] == "require" && strs.length == 3) return "numRequireTitle";
+        if (strs.indexOf("require") < 0) return "numTitle";
+      }
+      if (strs.length == 1 && strs[0] == "title") {
+        return "numTitle";
+      }
     }
-    return this.questionTitleTemplateCache;
+    return "numTitleRequire";
+  }
+  private getNewQuestionTitleElement(
+    template: string,
+    name: string,
+    currentValue: string,
+    defaultValue: string
+  ): string {
+    name = "{" + name + "}";
+    if (!template || template.indexOf(name) < 0) return currentValue;
+    var ind = template.indexOf(name);
+    var prefix = "";
+    var postfix = "";
+    var i = ind - 1;
+    for (; i >= 0; i--) {
+      if (template[i] == "}") break;
+    }
+    if (i < ind - 1) {
+      prefix = template.substr(i + 1, ind - i - 1);
+    }
+    ind += name.length;
+    i = ind;
+    for (; i < template.length; i++) {
+      if (template[i] == "{") break;
+    }
+    if (i > ind) {
+      postfix = template.substr(ind, i - ind);
+    }
+    i = 0;
+    while (i < prefix.length && prefix.charCodeAt(i) < 33) i++;
+    prefix = prefix.substr(i);
+    i = postfix.length - 1;
+    while (i >= 0 && postfix.charCodeAt(i) < 33) i--;
+    postfix = postfix.substr(0, i + 1);
+    if (!prefix && !postfix) return currentValue;
+    var value = !!currentValue ? currentValue : defaultValue;
+    return prefix + value + postfix;
   }
   get locQuestionTitleTemplate(): LocalizableString {
     return this.getLocalizableString("questionTitleTemplate");
@@ -4643,7 +4706,19 @@ Serializer.addClass("survey", [
   { name: "requiredText", default: "*" },
   "questionStartIndex",
   {
+    name: "questionTitlePattern",
+    default: "numTitleRequire",
+    choices: [
+      "numTitleRequire",
+      "numRequireTitle",
+      "requireNumTitle",
+      "numTitle"
+    ]
+  },
+  {
     name: "questionTitleTemplate",
+    visible: false,
+    isSerializable: false,
     serializationProperty: "locQuestionTitleTemplate"
   },
   { name: "firstPageIsStarted:boolean", default: false },

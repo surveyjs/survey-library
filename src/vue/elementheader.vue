@@ -2,14 +2,21 @@
   <div :class="getHeaderClass(element)">
     <h5 v-if="element.hasTitle" :class="getTitleClass(element)">
       <span
+        v-if="element.isRequireTextOnStart"
+        :class="element.cssClasses.requiredText"
+      >{{element.requiredText}}</span>
+      <span
         v-if="element.no"
         style="position: static;"
         :class="element.cssClasses.number"
       >{{element.no}}</span>
-      <span v-if="element.no" style="position: static;">.&nbsp</span>
+      <span
+        v-if="element.isRequireTextBeforeTitle"
+        :class="element.cssClasses.requiredText"
+      >{{element.requiredText}}</span>
       <survey-string :locString="element.locTitle" />
       <span
-        v-if="!element.getQuestionTitleTemplate()"
+        v-if="element.isRequireTextAfterTitle"
         :class="element.cssClasses.requiredText"
       >{{element.requiredText}}</span>
     </h5>

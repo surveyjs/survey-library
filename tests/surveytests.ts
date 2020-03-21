@@ -2202,24 +2202,44 @@ QUnit.test("question fullTitle", function(assert) {
   question.isRequired = true;
   assert.equal(question.requiredText, "*");
   survey.questionStartIndex = "100";
-  assert.equal(question["no"], 101);
+  assert.equal(question.no, "101.");
   survey.questionStartIndex = "A";
-  assert.equal(question["no"], "B");
+  assert.equal(question.no, "B.");
   survey.questionTitleTemplate = "{no}) {title} ({require})";
-  assert.equal(question.fullTitle, "My Title (*)");
+  assert.equal(question.no, "B)");
+  assert.equal(question.requiredText, "(*)");
 });
-QUnit.test("remove {no} from title template", function(assert) {
+QUnit.test("question.no and survey.questionStartIndex", function(assert) {
   var survey = twoPageSimplestSurvey();
-  survey.questionTitleTemplate = "{no}) {title} ({require})";
-  assert.equal(survey.questionTitleTemplate, "{title} ({require})");
-  survey.questionTitleTemplate = "{require} - ({no}) {title} ({require})";
-  assert.equal(survey.questionTitleTemplate, "{require}{title} ({require})");
-  survey.questionTitleTemplate = "{require} - ({no}) {title} {no} ({require})";
-  assert.equal(
-    survey.questionTitleTemplate,
-    "{require}{title} {no} ({require})"
-  );
+  var question = <Question>survey.pages[0].questions[1];
+  assert.equal(question.no, "2.");
+  survey.questionStartIndex = "100";
+  assert.equal(question.no, "101.");
+  survey.questionStartIndex = "A";
+  assert.equal(question.no, "B.");
+  survey.questionStartIndex = "10)";
+  assert.equal(question.no, "11)");
+  survey.questionStartIndex = "(10)";
+  assert.equal(question.no, "(11)");
+  survey.questionStartIndex = "# 1";
+  assert.equal(question.no, "# 2");
 });
+QUnit.test(
+  "update survey.questionStartIndex and survey.requiredText based on survey.questionTitleTemplate",
+  function(assert) {
+    var survey = new SurveyModel();
+    survey.questionTitleTemplate = "{no}) {title} {require}";
+    assert.equal(survey.questionStartIndex, "1)", "{no})");
+    survey.questionStartIndex = "a";
+    survey.questionTitleTemplate = "{no}) {title} {require}";
+    assert.equal(survey.questionStartIndex, "a)", "{no}) + startIndex = 'a'");
+    survey.questionTitleTemplate = "{title} ({require})";
+    assert.equal(survey.requiredText, "(*)", "({require})");
+    survey.requiredText = "!!";
+    survey.questionTitleTemplate = "{no}) {title} ({require})";
+    assert.equal(survey.requiredText, "(!!)", "({require}) + !!");
+  }
+);
 QUnit.test("clearInvisibleValues", function(assert) {
   var survey = twoPageSimplestSurvey();
   survey.clearInvisibleValues = true;
@@ -3902,23 +3922,11 @@ QUnit.test("Survey Markdown - question title", function(assert) {
     "title1, q2.value is value2!",
     "question.locTitle.renderedHtml, use markdown and text preprocessing"
   );
-
-  survey.questionTitleTemplate = "{no}) {title} ({require})markdown";
-  assert.equal(
-    survey.questionTitleTemplate,
-    "{title} ({require})markdown",
-    "{no}) should be removed"
-  );
   q1.isRequired = true;
   assert.equal(
-    q1.fullTitle,
-    "title1, q2.value is value2! (*)!",
-    "question.title with chaqnged questionTitleTemplate, use markdown and text preprocessing"
-  );
-  assert.equal(
-    loc.renderedHtml,
-    "title1, q2.value is value2! (*)!",
-    "question.locTitle.renderedHtml with chaqnged questionTitleTemplate, use markdown and text preprocessing"
+    q1.requiredText,
+    "*",
+    "question.title requiredText is not empty"
   );
 });
 
@@ -9150,4 +9158,33 @@ QUnit.test("Survey<=Base propertyValueChanged", function(assert) {
   survey.title = "new";
 
   assert.equal(counter, 1, "callback called");
+});
+
+QUnit.test("Survey questionTitleTemplate -> questionTitlePattern", function(
+  assert
+) {
+  var survey = new SurveyModel();
+  assert.equal(survey.questionTitlePattern, "numTitleRequire", "default value");
+  survey.questionTitleTemplate = "{require} {no}{title}";
+  assert.equal(
+    survey.questionTitlePattern,
+    "requireNumTitle",
+    "{require} {no}{title}"
+  );
+  survey.questionTitleTemplate = "{no}{require} {title}";
+  assert.equal(
+    survey.questionTitlePattern,
+    "numRequireTitle",
+    "{no}{require} {title}"
+  );
+  survey.questionTitleTemplate = "{title}";
+  assert.equal(survey.questionTitlePattern, "numTitle", "{title}");
+  survey.questionTitleTemplate = "{no}{title}{require}";
+  assert.equal(
+    survey.questionTitlePattern,
+    "numTitleRequire",
+    "{no}{title}{require}"
+  );
+  survey.questionTitleTemplate = "{no}{title}";
+  assert.equal(survey.questionTitlePattern, "numTitle", "{no}{title}");
 });

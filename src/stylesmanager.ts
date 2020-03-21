@@ -168,8 +168,8 @@ export class StylesManager {
     ".sv_main .sv-boolean--checked  .sv-boolean__slider":
       "margin-left: calc(100% - 20px);",
     // EO boolean
-    ".sv_main .sv_q_num": "float: left;",
-    ".sv_main .sv_q_num + span": "float: left;"
+    ".sv_main .sv_q_num": "",
+    ".sv_main .sv_q_num + span": ""
   };
 
   public static Media: { [key: string]: { media: string; style: string } } = {

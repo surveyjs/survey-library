@@ -78,9 +78,11 @@ export class Question extends SurveyElement
     });
     var locTitleValue = this.createLocalizableString("title", this, true);
     locTitleValue.onGetTextCallback = function(text) {
-      var res = self.calcFullTitle(text);
-      if (!self.survey) return res;
-      return self.survey.getUpdatedQuestionTitle(this, res);
+      if (!text) {
+        text = self.name;
+      }
+      if (!self.survey) return text;
+      return self.survey.getUpdatedQuestionTitle(this, text);
     };
     this.locProcessedTitle = new LocalizableString(this, true);
     this.locProcessedTitle.sharedData = locTitleValue;
@@ -476,38 +478,18 @@ export class Question extends SurveyElement
    */
   public get fullTitle(): string {
     return this.locTitle.renderedHtml;
-    /*
-    var res = this.calcFullTitle();
-    if (!this.survey) return res;
-    return this.survey.getUpdatedQuestionTitle(this, res);
-    */
   }
-  public getQuestionTitleTemplate() {
-    if (this.questionTitleTemplateCallback)
-      return this.questionTitleTemplateCallback();
-    return !!this.survey ? this.survey.getQuestionTitleTemplate() : null;
+  public get questionTitlePattern(): string {
+    return !!this.survey ? this.survey.questionTitlePattern : "numTitleRequire";
   }
-  private calcFullTitle(text: string): string {
-    var titleTemplate = this.getQuestionTitleTemplate();
-    if (titleTemplate) {
-      if (!this.textPreProcessor) {
-        var self = this;
-        this.textPreProcessor = new TextPreProcessor();
-        this.textPreProcessor.onProcess = function(
-          textValue: TextPreProcessorValue
-        ) {
-          self.getProcessedTextValue(textValue);
-        };
-      }
-      return this.textPreProcessor.process(
-        titleTemplate,
-        this.useDisplayValuesInTitle
-      );
-    }
-    if (!text) {
-      text = this.name;
-    }
-    return text;
+  public get isRequireTextOnStart() {
+    return this.isRequired && this.questionTitlePattern == "requireNumTitle";
+  }
+  public get isRequireTextBeforeTitle() {
+    return this.isRequired && this.questionTitlePattern == "numRequireTitle";
+  }
+  public get isRequireTextAfterTitle() {
+    return this.isRequired && this.questionTitlePattern == "numTitleRequire";
   }
   /**
    * The Question renders on the new line if the property is true. If the property is false, the question tries to render on the same line/row with a previous question/panel.
@@ -819,15 +801,46 @@ export class Question extends SurveyElement
   public get no(): string {
     if (this.visibleIndex < 0) return "";
     var startIndex = 1;
+    var prefix = "";
+    var postfix = ".";
     var isNumeric = true;
     var str = "";
     if (this.survey && this.survey.questionStartIndex) {
       str = this.survey.questionStartIndex;
-      if (parseInt(str)) startIndex = parseInt(str);
-      else if (str.length == 1) isNumeric = false;
+      var ind = str.length - 1;
+      while (ind >= 0 && this.isCharNotLetterAndDigit(str[ind])) ind--;
+      var newPostfix = "";
+      if (ind < str.length - 1) {
+        newPostfix = str.substr(ind + 1);
+        str = str.substr(0, ind + 1);
+      }
+      if (!!str) {
+        var ind = 0;
+        while (ind < str.length && this.isCharNotLetterAndDigit(str[ind]))
+          ind++;
+        if (ind > 0) {
+          prefix = str.substr(0, ind);
+          str = str.substr(ind);
+        }
+      }
+      if (!!newPostfix || !!prefix) {
+        postfix = newPostfix;
+      }
+      if (!!str) {
+        if (parseInt(str)) startIndex = parseInt(str);
+        else if (str.length == 1) isNumeric = false;
+      }
     }
-    if (isNumeric) return (this.visibleIndex + startIndex).toString();
-    return String.fromCharCode(str.charCodeAt(0) + this.visibleIndex);
+    if (isNumeric)
+      return prefix + (this.visibleIndex + startIndex).toString() + postfix;
+    return (
+      prefix +
+      String.fromCharCode(str.charCodeAt(0) + this.visibleIndex) +
+      postfix
+    );
+  }
+  private isCharNotLetterAndDigit(ch: string): boolean {
+    return ch.toUpperCase() == ch.toLowerCase() && (ch < "0" || ch > "9");
   }
   public onSurveyLoad() {
     this.fireCallback(this.surveyLoadCallback);

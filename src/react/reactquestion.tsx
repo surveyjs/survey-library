@@ -131,9 +131,11 @@ export class SurveyQuestion extends SurveyElementBase {
     return SurveyQuestion.renderQuestionBody(this.creator, this.question);
   }
   protected renderTitle(cssClasses: any): JSX.Element {
+    var spaceSpan = <span>&nbsp;</span>;
     var spans = [];
     if (this.question.isRequireTextOnStart) {
       spans.push(this.renderRequireText(cssClasses));
+      spans.push(spaceSpan);
     }
     var questionNumber = this.question["no"];
     if (questionNumber) {
@@ -142,12 +144,15 @@ export class SurveyQuestion extends SurveyElementBase {
           {questionNumber}
         </span>
       );
+      spans.push(spaceSpan);
     }
     if (this.question.isRequireTextBeforeTitle) {
       spans.push(this.renderRequireText(cssClasses));
+      spans.push(spaceSpan);
     }
     spans.push(SurveyElementBase.renderLocString(this.question.locTitle));
     if (this.question.isRequireTextAfterTitle) {
+      spans.push(spaceSpan);
       spans.push(this.renderRequireText(cssClasses));
     }
     return <h5 className={this.getTitleClass(this.question)}>{spans}</h5>;

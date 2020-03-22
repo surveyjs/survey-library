@@ -9188,3 +9188,28 @@ QUnit.test("Survey questionTitleTemplate -> questionTitlePattern", function(
   survey.questionTitleTemplate = "{no}{title}";
   assert.equal(survey.questionTitlePattern, "numTitle", "{no}{title}");
 });
+
+QUnit.test("Survey.getQuestionTitlePatternOptions()", function(assert) {
+  var survey = new SurveyModel();
+  survey.questionStartIndex = "# 1.";
+  survey.requiredText = "(*)";
+  var options = survey.getQuestionTitlePatternOptions();
+  assert.deepEqual(options, [
+    {
+      value: "numTitleRequire",
+      text: "# 1. Question Title (*)"
+    },
+    {
+      value: "numRequireTitle",
+      text: "# 1. (*) Question Title"
+    },
+    {
+      value: "requireNumTitle",
+      text: "(*) # 1. Question Title"
+    },
+    {
+      value: "numTitle",
+      text: "# 1. Question Title"
+    }
+  ]);
+});

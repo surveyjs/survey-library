@@ -1569,6 +1569,28 @@ export class SurveyModel extends Base
     }
     this.setPropertyValue("questionTitlePattern", val);
   }
+  getQuestionTitlePatternOptions(): Array<any> {
+    var res = new Array<any>();
+    var title = this.getLocString("questionTitlePatternText");
+    var num = !!this.questionStartIndex ? this.questionStartIndex : "1.";
+    res.push({
+      value: "numTitleRequire",
+      text: num + " " + title + " " + this.requiredText
+    });
+    res.push({
+      value: "numRequireTitle",
+      text: num + " " + this.requiredText + " " + title
+    });
+    res.push({
+      value: "requireNumTitle",
+      text: this.requiredText + " " + num + " " + title
+    });
+    res.push({
+      value: "numTitle",
+      text: num + " " + title
+    });
+    return res;
+  }
   /**
    * Gets or sets a question title template. Obsolete, please use questionTitlePattern
    * @see QuestionModel.title
@@ -4708,12 +4730,10 @@ Serializer.addClass("survey", [
   {
     name: "questionTitlePattern",
     default: "numTitleRequire",
-    choices: [
-      "numTitleRequire",
-      "numRequireTitle",
-      "requireNumTitle",
-      "numTitle"
-    ]
+    dependsOn: ["questionStartIndex", "requiredText"],
+    choices: (obj: any) => {
+      return obj.getQuestionTitlePatternOptions();
+    }
   },
   {
     name: "questionTitleTemplate",

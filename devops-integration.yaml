@@ -16,6 +16,10 @@ pool:
   vmImage: 'Ubuntu-16.04'
 
 steps:
+- checkout: self
+  persistCredentials: true
+  clean: true
+
 - task: NodeTool@0
   inputs:
     versionSpec: '8.x'
@@ -30,6 +34,14 @@ steps:
     npm run testsingle
     npm run testcafe_ci
   displayName: 'run tests'
+
+- script: |
+    npm run doc_gen
+  displayName: 'generate docs'
+
+- script: |
+    npm run doc_update
+  displayName: 'update docs'
 
 - task: CopyFiles@2
   inputs:

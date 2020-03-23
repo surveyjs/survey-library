@@ -7680,6 +7680,181 @@ QUnit.test(
   }
 );
 
+QUnit.test(
+  "question.getPlainData - select base - multiple select - other",
+  function(assert) {
+    var question = new QuestionCheckboxModel("q1");
+    new JsonObject().toObject(
+      {
+        type: "checkbox",
+        name: "q1",
+        hasOther: true,
+        choices: [
+          {
+            value: "lion"
+          },
+          {
+            value: "giraffe"
+          },
+          {
+            value: "panda"
+          },
+          {
+            value: "camel"
+          }
+        ]
+      },
+      question
+    );
+
+    question.value = ["other", "giraffe"];
+    question.comment = "Other value text";
+
+    var plainData = question.getPlainData();
+    assert.deepEqual(plainData.value, ["other", "giraffe"]);
+    assert.equal(plainData.isNode, true);
+    assert.deepEqual(plainData.data.length, 2);
+    assert.deepEqual(plainData.data[0].isNode, false);
+    assert.deepEqual(plainData.data[0].isOther, true);
+    assert.deepEqual(plainData.data[0].value, "other");
+    assert.deepEqual(plainData.data[0].title, "Choice");
+    assert.deepEqual(plainData.data[0].displayValue, "Other value text");
+    assert.deepEqual(plainData.data[1].isNode, false);
+    assert.deepEqual(plainData.data[1].value, "giraffe");
+    assert.deepEqual(plainData.data[1].title, "Choice");
+  }
+);
+
+QUnit.test(
+  "question.getPlainData - select base - multiple select - comment",
+  function(assert) {
+    var question = new QuestionCheckboxModel("q1");
+    new JsonObject().toObject(
+      {
+        type: "checkbox",
+        name: "q1",
+        hasComment: true,
+        choices: [
+          {
+            value: "lion"
+          },
+          {
+            value: "giraffe"
+          },
+          {
+            value: "panda"
+          },
+          {
+            value: "camel"
+          }
+        ]
+      },
+      question
+    );
+
+    question.value = ["giraffe"];
+    question.comment = "Comment text";
+
+    var plainData = question.getPlainData();
+    assert.deepEqual(plainData.value, ["giraffe"]);
+    assert.equal(plainData.isNode, true);
+    assert.deepEqual(plainData.data.length, 2);
+    assert.deepEqual(plainData.data[0].isNode, false);
+    assert.deepEqual(plainData.data[0].isComment, true);
+    assert.deepEqual(plainData.data[0].title, "Comment");
+    assert.deepEqual(plainData.data[0].value, "-Comment");
+    assert.deepEqual(plainData.data[0].displayValue, "Comment text");
+    assert.deepEqual(plainData.data[1].value, "giraffe");
+    assert.deepEqual(plainData.data[1].title, "Choice");
+  }
+);
+
+QUnit.test(
+  "question.getPlainData - select base - single select - other",
+  function(assert) {
+    var question = new QuestionCheckboxModel("q1");
+    new JsonObject().toObject(
+      {
+        type: "radiogroup",
+        name: "q1",
+        hasOther: true,
+        choices: [
+          {
+            value: "lion"
+          },
+          {
+            value: "giraffe"
+          },
+          {
+            value: "panda"
+          },
+          {
+            value: "camel"
+          }
+        ]
+      },
+      question
+    );
+
+    question.value = "other";
+    question.comment = "Other value text";
+
+    var plainData = question.getPlainData();
+    assert.deepEqual(plainData.value, ["other"]);
+    assert.equal(plainData.isNode, true);
+    assert.deepEqual(plainData.data.length, 1);
+    assert.deepEqual(plainData.data[0].isNode, false);
+    assert.deepEqual(plainData.data[0].isOther, true);
+    assert.deepEqual(plainData.data[0].value, "other");
+    assert.deepEqual(plainData.data[0].title, "Choice");
+    assert.deepEqual(plainData.data[0].displayValue, "Other value text");
+  }
+);
+
+QUnit.test(
+  "question.getPlainData - select base - single select - comment",
+  function(assert) {
+    var question = new QuestionCheckboxModel("q1");
+    new JsonObject().toObject(
+      {
+        type: "radiogroup",
+        name: "q1",
+        hasComment: true,
+        choices: [
+          {
+            value: "lion"
+          },
+          {
+            value: "giraffe"
+          },
+          {
+            value: "panda"
+          },
+          {
+            value: "camel"
+          }
+        ]
+      },
+      question
+    );
+
+    question.value = "giraffe";
+    question.comment = "Comment text";
+
+    var plainData = question.getPlainData();
+    assert.deepEqual(plainData.value, ["giraffe"]);
+    assert.equal(plainData.isNode, true);
+    assert.deepEqual(plainData.data.length, 2);
+    assert.deepEqual(plainData.data[0].isNode, false);
+    assert.deepEqual(plainData.data[0].isComment, true);
+    assert.deepEqual(plainData.data[0].title, "Comment");
+    assert.deepEqual(plainData.data[0].value, "-Comment");
+    assert.deepEqual(plainData.data[0].displayValue, "Comment text");
+    assert.deepEqual(plainData.data[1].value, "giraffe");
+    assert.deepEqual(plainData.data[1].title, "Choice");
+  }
+);
+
 QUnit.test("question.valueName is numeric, Bug# 1432", function(assert) {
   var survey = new SurveyModel({
     questions: [

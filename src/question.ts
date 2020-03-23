@@ -19,6 +19,7 @@ import { ILocalizableOwner, LocalizableString } from "./localizablestring";
 import { ConditionRunner } from "./conditions";
 import { QuestionCustomWidget } from "./questionCustomWidgets";
 import { CustomWidgetCollection } from "./questionCustomWidgets";
+import { settings } from "./settings";
 
 export interface IConditionObject {
   name: string;
@@ -983,6 +984,21 @@ export class Question extends SurveyElement
           calculation.propertyName
         ];
       });
+      if (this.hasComment) {
+        questionPlainData.isNode = true;
+        questionPlainData.data = [
+          {
+            name: 0,
+            isComment: true,
+            title: "Comment",
+            value: settings.commentPrefix,
+            displayValue: this.comment,
+            getString: (val: any) =>
+              typeof val === "object" ? JSON.stringify(val) : val,
+            isNode: false
+          }
+        ];
+      }
       return questionPlainData;
     }
     return undefined;

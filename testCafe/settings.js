@@ -59,3 +59,19 @@ export const setOptions = ClientFunction((questionName, modValue) => {
   mergeOptions(q, modValue);
   survey.render();
 });
+
+export const sumElementInnerText = ClientFunction((tagName, index) => {
+  let el = document.getElementsByTagName(tagName)[index];
+  const spans = el.querySelectorAll("span");
+  let res = "";
+  for (let i = 0; i < spans.length; i++) {
+    var sp = spans[i];
+    if (!sp.innerHTML || sp.innerHTML == "&nbsp;") continue;
+    let childs = sp.getElementsByTagName("span");
+    if (childs.length > 0) continue;
+    if (!!res) res += " ";
+    res += sp.innerHTML;
+  }
+
+  return res;
+});

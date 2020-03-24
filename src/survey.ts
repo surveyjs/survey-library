@@ -4732,6 +4732,7 @@ Serializer.addClass("survey", [
     default: "numTitleRequire",
     dependsOn: ["questionStartIndex", "requiredText"],
     choices: (obj: any) => {
+      if (!obj) return [];
       return obj.getQuestionTitlePatternOptions();
     }
   },

@@ -54,8 +54,9 @@ steps:
   inputs:
     SourceFolder: '$(Build.SourcesDirectory)/survey-library/docs'
     TargetFolder: '$(Build.SourcesDirectory)/service/surveyjs.io/App_Data/Docs'
-    OverWrite: true
+    CleanTargetFolder: true
   displayName: 'copy generated docs to the local surveyjs/service repo'
+
 
 # read about the problem with git output ($env:GIT_REDIRECT_STDERR = '2>&1') :
 # https://github.com/microsoft/azure-pipelines-yaml/issues/248

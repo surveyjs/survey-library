@@ -97,6 +97,7 @@ export var defaultBootstrapMaterialCss = {
     other: "sv_q_dd_other form-control"
   },
   html: { root: "" },
+  image: { root: "sv_q_image", image: "sv_image_image" },
   matrix: {
     root: "table sv_q_matrix",
     row: "form-group",

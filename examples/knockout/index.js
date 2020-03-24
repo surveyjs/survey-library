@@ -118,6 +118,14 @@ function init() {
         ]
       },
       {
+        type: "image",
+        name: "banner",
+        imageHeight: "300px",
+        imageWidth: "450px",
+        imageLink:
+          "https://surveyjs.io/Content/Images/examples/image-picker/lion.jpg"
+      },
+      {
         type: "imagepicker",
         name: "choosepicture",
         title: "Imagepicker",

@@ -615,6 +615,10 @@ $label-disabled-color: rgba(64, 64, 64, 0.5);
       }
     }
   }
+
+  .sv_q_image {
+    display: inline-block;
+  }
 }
 
 @import "./main.rtl.scss";

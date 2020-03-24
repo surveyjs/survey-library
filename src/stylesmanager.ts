@@ -1,6 +1,6 @@
 import { surveyCss } from "./defaultCss/cssstandard";
 export class StylesManager {
-  private static SurveyJSStylesSheetId = "surveyjs";
+  private static SurveyJSStylesSheetId = "surveyjs-styles";
 
   public static Styles: { [key: string]: string } = {
     // ".sv_bootstrap_css":

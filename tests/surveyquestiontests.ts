@@ -29,7 +29,8 @@ import { surveyLocalization } from "../src/surveyStrings";
 import { settings } from "../src/settings";
 import { QuestionImagePickerModel } from "../src/question_imagepicker";
 import { FunctionFactory } from "../src/functionsfactory";
-import { ArrayChanges } from "../src/base";
+import { ArrayChanges, SurveyError } from "../src/base";
+import { CustomError, RequreNumericError } from "../src/error";
 
 export default QUnit.module("Survey_Questions");
 
@@ -3444,4 +3445,15 @@ QUnit.test("Question<=Base propertyValueChanged", function(assert) {
   question.title = "new";
 
   assert.equal(counter, 1, "callback called");
+});
+
+QUnit.test("Question.addError(SurveyError|string)", function(assert) {
+  var question = new QuestionTextModel("q");
+  question.addError(new RequreNumericError("Error 1"));
+  question.addError("Error 2");
+  assert.equal(question.errors.length, 2, "There are two errors");
+  assert.equal(question.errors[0].getErrorType(), "requirenumeric", "numeric");
+  assert.equal(question.errors[1].getErrorType(), "custom", "custom");
+  assert.equal(question.errors[0].text, "Error 1", "numeric error text");
+  assert.equal(question.errors[1].text, "Error 2", "custom error text");
 });

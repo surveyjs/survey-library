@@ -12,7 +12,7 @@ import {
   Event
 } from "./base";
 import { surveyLocalization } from "./surveyStrings";
-import { AnswerRequiredError } from "./error";
+import { AnswerRequiredError, CustomError } from "./error";
 import { SurveyValidator, IValidatorOwner, ValidatorRunner } from "./validator";
 import { TextPreProcessor, TextPreProcessorValue } from "./textPreProcessor";
 import { ILocalizableOwner, LocalizableString } from "./localizablestring";
@@ -1157,8 +1157,15 @@ export class Question extends SurveyElement
    * Add error into the question error list.
    * @param error
    */
-  public addError(error: SurveyError) {
-    this.errors.push(error);
+  public addError(error: SurveyError | string) {
+    if (!error) return;
+    let newError: SurveyError = null;
+    if (typeof error === "string" || error instanceof String) {
+      newError = new CustomError(<string>error, this.survey);
+    } else {
+      newError = <SurveyError>error;
+    }
+    this.errors.push(newError);
   }
   /**
    * Remove a particular error from the question error list.

@@ -1014,13 +1014,14 @@ It means you can set a question title as: `"{name}, could you please provide us 
 
 You can control the question numbering. All questions titles show question numbers by default: from 1 to the visible question number in the survey. You can hide question numbers by setting [survey.showQuestionNumbers](https://surveyjs.io/Documentation/Library/?id=surveymodel#showQuestionNumbers) property to `off`, or start the numbering from the beginning on each page, by setting this property to `onPage`.
 
-You may use alphabet numbering by setting [survey.questionStartIndex](https://surveyjs.io/Documentation/Library/?id=surveymodel#questionStartIndex) property to `A` or `a`.
+You may use alphabet numbering by setting [survey.questionStartIndex](https://surveyjs.io/Documentation/Library/?id=surveymodel#questionStartIndex) property to `A.` or `a.`.
+You can add prefix and change the postfix (default is dot) for this property, for example: `# (1)` or `(A)`.
 
 ### Question Required Mark
 
 Use the [survey.requiredText](https://surveyjs.io/Documentation/Library/?id=surveymodel#requiredText) property to change the required symbol. SurveyJS uses the asterisk (`*`) symbol by default. You can change it to another text or make it empty.
 
-The default template for the question title is: "{title} {required}". Use the [survey.questionTitleTemplate](https://surveyjs.io/Documentation/Library/?id=surveymodel#questionTitleTemplate) property to change the question title template, for example: `({title} ({required}):`.
+By default question required mark renders at the end of question title: `2. What is your Name? *`. You can use [survey.questionTitlePattern](https://surveyjs.io/Documentation/Library/?id=surveymodel#questionTitlePatten) to show it at the beginning, set this property to: `requireNumTitle`, or before title: `numRequireTitle` or remove requried text completely from question title to set the property to: `numTitle`.
 
 > **Example**
 >

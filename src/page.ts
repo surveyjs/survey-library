@@ -160,7 +160,9 @@ export class PageModel extends PanelModelBase implements IPage {
    * Call it to scroll to the page top.
    */
   public scrollToTop() {
-    SurveyElement.ScrollElementToTop(this.id);
+    if (!!this.survey) {
+      this.survey.scrollElementToTop(this, null, this, this.id);
+    }
   }
   /**
    * Time in seconds end-user spent on this page

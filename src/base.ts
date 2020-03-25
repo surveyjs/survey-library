@@ -152,6 +152,13 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner {
   dynamicPanelItemValueChanged(question: IQuestion, options: any): any;
 
   dragAndDropAllow(options: any): boolean;
+
+  scrollElementToTop(
+    element: ISurveyElement,
+    question: IQuestion,
+    page: IPage,
+    id: string
+  ): any;
 }
 export interface ISurveyImpl {
   geSurveyData(): ISurveyData;

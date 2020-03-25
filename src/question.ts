@@ -619,7 +619,9 @@ export class Question extends SurveyElement
    * @param onError set this parameter to true, to focus the input with the first error, other wise the first input will be focused.
    */
   public focus(onError: boolean = false) {
-    SurveyElement.ScrollElementToTop(this.id);
+    if (!!this.survey) {
+      this.survey.scrollElementToTop(this, this, null, this.id);
+    }
     var id = !onError
       ? this.getFirstInputElementId()
       : this.getFirstErrorInputElementId();

@@ -13,7 +13,8 @@ import {
   SurveyError,
   Event,
   ISurveyErrorOwner,
-  ISurveyElement
+  ISurveyElement,
+  SurveyElement
 } from "./base";
 import { surveyCss } from "./defaultCss/cssstandard";
 import { ISurveyTriggerOwner, SurveyTrigger } from "./trigger";
@@ -822,6 +823,20 @@ export class SurveyModel extends Base
     (sender: SurveyModel, options: any) => any,
     any
   > = new Event<(sender: SurveyModel, options: any) => any, any>();
+  /**
+   * Use this event to control scrolling element to top. You can cancel the default behavior by setting options.cancel property to true.
+   * <br/> `sender` - the survey object that fires the event.
+   * <br/> `options.element` - an element that is going to be scrolled on top.
+   * <br/> `options.question` - a question that is going to be scrolled on top. It can be null if options.page is not null.
+   * <br/> `options.page` - a page that is going to be scrolled on top. It can be null if options.question is not null.
+   * <br/> `options.elementId` - the unique element DOM Id.
+   * <br/> `options.cancel` - set this property to true to cancel the default scrolling.
+   */
+  public onScrollingElementToTop: Event<
+    (sender: SurveyModel, options: any) => any,
+    any
+  > = new Event<(sender: SurveyModel, options: any) => any, any>();
+
   /**
    * The list of errors on loading survey JSON. If the list is empty after loading a JSON, then the JSON is correct and has no errors.
    * @see JsonError
@@ -3090,6 +3105,25 @@ export class SurveyModel extends Base
     options.allow = true;
     this.onDragDropAllow.fire(this, options);
     return options.allow;
+  }
+
+  scrollElementToTop(
+    element: ISurveyElement,
+    question: IQuestion,
+    page: IPage,
+    id: string
+  ): any {
+    var options = {
+      element: element,
+      question: question,
+      page: page,
+      elementId: id,
+      cancel: false
+    };
+    this.onScrollingElementToTop.fire(this, options);
+    if (!options.cancel) {
+      SurveyElement.ScrollElementToTop(options.elementId);
+    }
   }
 
   /**

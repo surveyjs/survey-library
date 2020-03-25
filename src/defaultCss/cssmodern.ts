@@ -81,6 +81,7 @@ export var modernCss = {
     formGroup: "sv-question__form-group",
     hasError: ""
   },
+  image: { root: "sv-image", image: "sv_image_image" },
   error: {
     root: "sv-question__erbox",
     icon: "",

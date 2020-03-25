@@ -41,11 +41,11 @@ Finally you may select one of our npm packages, based on your JavaScript platfor
 
 | Platform | css section  |
 |---|---|
-| [Angular2+](https://angular.io/) | `<script src="https://unpkg.com/survey-angular/survey.min.css"></script>` |
-| [jQuery](https://jquery.com/) |  `<script src="https://unpkg.com/survey-jquery/survey.min.css"></script>` |
-| [Knockout.js](http://knockoutjs.com) |  `<script src="https://unpkg.com/survey-knockout/survey.min.css"></script>` |
-| [React](https://facebook.github.io/react/) |  `<script src="https://unpkg.com/survey-react/survey.min.css"></script>` |
-| [Vue.js](https://vuejs.org/) |  `<script src="https://unpkg.com/survey-vue/survey.min.css"></script>` |
+| [Angular2+](https://angular.io/) | `<link href="https://unpkg.com/survey-angular/survey.min.css" type="text/css" rel="stylesheet"/>` |
+| [jQuery](https://jquery.com/) |  `<link href="https://unpkg.com/survey-jquery/survey.min.css" type="text/css" rel="stylesheet"/>` |
+| [Knockout.js](http://knockoutjs.com) |  `<link href="https://unpkg.com/survey-knockout/survey.min.css" type="text/css" rel="stylesheet"/>` |
+| [React](https://facebook.github.io/react/) |  `<link href="https://unpkg.com/survey-react/survey.min.css" type="text/css" rel="stylesheet"/>` |
+| [Vue.js](https://vuejs.org/) |  `<link href="https://unpkg.com/survey-vue/survey.min.css" type="text/css" rel="stylesheet"/>` |
 
 ## Step 3. Build Survey JSON
                     

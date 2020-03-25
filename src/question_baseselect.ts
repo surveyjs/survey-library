@@ -467,28 +467,34 @@ export class QuestionSelectBase extends Question {
     if (!!questionPlainData) {
       var values = Array.isArray(this.value) ? this.value : [this.value];
       questionPlainData.isNode = true;
-      questionPlainData.data = values.map((dataValue, index) => {
-        var choice = ItemValue.getItemByValue(this.visibleChoices, dataValue);
-        var choiceDataItem = <any>{
-          name: index,
-          title: "Choice",
-          value: dataValue,
-          displayValue: this.getChoicesDisplayValue(
-            this.visibleChoices,
-            dataValue
-          ),
-          getString: (val: any) =>
-            typeof val === "object" ? JSON.stringify(val) : val,
-          isNode: false
-        };
-        if (!!choice) {
-          (options.calculations || []).forEach(calculation => {
-            choiceDataItem[calculation.propertyName] =
-              choice[calculation.propertyName];
-          });
-        }
-        return choiceDataItem;
-      });
+      questionPlainData.data = (questionPlainData.data || []).concat(
+        values.map((dataValue, index) => {
+          var choice = ItemValue.getItemByValue(this.visibleChoices, dataValue);
+          var choiceDataItem = <any>{
+            name: index,
+            title: "Choice",
+            value: dataValue,
+            displayValue: this.getChoicesDisplayValue(
+              this.visibleChoices,
+              dataValue
+            ),
+            getString: (val: any) =>
+              typeof val === "object" ? JSON.stringify(val) : val,
+            isNode: false
+          };
+          if (!!choice) {
+            (options.calculations || []).forEach(calculation => {
+              choiceDataItem[calculation.propertyName] =
+                choice[calculation.propertyName];
+            });
+          }
+          if (this.isOtherSelected && this.otherItemValue === choice) {
+            choiceDataItem.isOther = true;
+            choiceDataItem.displayValue = this.comment;
+          }
+          return choiceDataItem;
+        })
+      );
     }
     return questionPlainData;
   }

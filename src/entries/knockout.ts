@@ -49,6 +49,7 @@ export { QuestionExpression } from "../knockout/koquestion_expression";
 export { QuestionImagePicker } from "../knockout/koquestion_imagepicker";
 export { SurveyWindow } from "../knockout/koSurveyWindow";
 export { SurveyTemplateText } from "../knockout/templateText";
+export { QuestionImage } from "../knockout/koquestion_image";
 
 //Uncomment to include the "date" question type.
 //export {QuestionDate} from "../plugins/knockout/koquestion_date";

@@ -106,6 +106,7 @@ export var defaultStandardCss = {
     other: "sv_q_dd_other"
   },
   html: { root: "" },
+  image: { root: "sv_q_image", image: "sv_image_image" },
   matrix: {
     root: "sv_q_matrix",
     label: "sv_q_m_label",

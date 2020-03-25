@@ -76,9 +76,7 @@
 .sv-question__form-group {
   margin-top: 0.5em;
 }
-.sv-question__num {
-  float: left;
-  & + span {
-    float: left;
-  }
+
+.sv-image {
+  display: inline-block;
 }

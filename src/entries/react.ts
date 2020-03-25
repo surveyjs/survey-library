@@ -12,9 +12,7 @@ export { defaultStandardCss } from "../defaultCss/cssstandard";
 // css bootstrap
 export { defaultBootstrapCss } from "../defaultCss/cssbootstrap";
 // css bootstrap + material
-export {
-  defaultBootstrapMaterialCss
-} from "../defaultCss/cssbootstrapmaterial";
+export { defaultBootstrapMaterialCss } from "../defaultCss/cssbootstrapmaterial";
 export { modernCss } from "../defaultCss/cssmodern";
 
 // react
@@ -60,15 +58,9 @@ export { SurveyQuestionRadiogroup } from "../react/reactquestionradiogroup";
 export { SurveyQuestionText } from "../react/reactquestiontext";
 export { SurveyQuestionBoolean } from "../react/reactquestionboolean";
 export { SurveyQuestionEmpty } from "../react/reactquestionempty";
-export {
-  SurveyQuestionMatrixDropdownCell
-} from "../react/reactquestionmatrixdropdownbase";
-export {
-  SurveyQuestionMatrixDropdown
-} from "../react/reactquestionmatrixdropdown";
-export {
-  SurveyQuestionMatrixDynamic
-} from "../react/reactquestionmatrixdynamic";
+export { SurveyQuestionMatrixDropdownCell } from "../react/reactquestionmatrixdropdownbase";
+export { SurveyQuestionMatrixDropdown } from "../react/reactquestionmatrixdropdown";
+export { SurveyQuestionMatrixDynamic } from "../react/reactquestionmatrixdynamic";
 export { SurveyQuestionPanelDynamic } from "../react/reactquestionpaneldynamic";
 export { SurveyProgress } from "../react/reactSurveyProgress";
 export { SurveyQuestionRating } from "../react/reactquestionrating";
@@ -77,6 +69,7 @@ export { SurveyWindow } from "../react/reactSurveyWindow";
 export { ReactQuestionFactory } from "../react/reactquestionfactory";
 export { ReactElementFactory } from "../react/element-factory";
 export { SurveyQuestionImagePicker } from "../react/imagepicker";
+export { SurveyQuestionImage } from "../react/image";
 
 //Uncomment to include the "date" question type.
 //export {default as SurveyQuestionDate} from "../plugins/react/reactquestiondate";

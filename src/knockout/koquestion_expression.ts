@@ -6,14 +6,8 @@ import { QuestionImplementor } from "./koquestion";
 import { Question } from "../question";
 
 export class QuestionExpressionImplementor extends QuestionImplementor {
-  koDisplayValue: any;
   constructor(public question: Question) {
     super(question);
-    this.koDisplayValue = ko.observable(this.question.displayValue);
-    (<any>this.question)["koDisplayValue"] = this.koDisplayValue;
-    ko.computed(() => {
-      this.koDisplayValue(this.question.displayValue);
-    });
   }
 }
 

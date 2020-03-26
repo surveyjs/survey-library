@@ -579,6 +579,9 @@ export class MatrixDropdownCell {
     this.questionValue = this.createQuestion(column, row, data);
     this.questionValue.updateCustomWidget();
   }
+  public locStrsChanged() {
+    this.question.locStrsChanged();
+  }
   protected createQuestion(
     column: MatrixDropdownColumn,
     row: MatrixDropdownRowModelBase,
@@ -637,6 +640,10 @@ export class MatrixDropdownTotalCell extends MatrixDropdownCell {
     var res = <Question>Serializer.createClass("expression");
     res.setSurveyImpl(row);
     return res;
+  }
+  public locStrsChanged() {
+    this.updateCellQuestion();
+    super.locStrsChanged();
   }
   public updateCellQuestion() {
     this.question.locCalculation();
@@ -849,7 +856,7 @@ export class MatrixDropdownRowModelBase
   }
   public locStrsChanged() {
     for (var i = 0; i < this.cells.length; i++) {
-      this.cells[i].question.locStrsChanged();
+      this.cells[i].locStrsChanged();
     }
   }
   public updateCellQuestionOnColumnChanged(column: MatrixDropdownColumn) {

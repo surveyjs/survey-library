@@ -11,6 +11,7 @@ import { CustomWidgetCollection } from "../src/questionCustomWidgets";
 import { FunctionFactory } from "../src/functionsfactory";
 import { Question } from "../src/question";
 import { ExpressionValidator } from "../src/validator";
+import { QuestionExpressionModel } from "../src/question_expression";
 
 export default QUnit.module("Survey_QuestionMatrixDynamic");
 
@@ -3422,6 +3423,82 @@ QUnit.test(
       matrix.renderedTable.rows[0].cells[0].question.getType(),
       "radiogroup",
       "Cell type should be changed"
+    );
+  }
+);
+
+QUnit.test(
+  "Column.totalformat property doesn't changed on changing survey locale",
+  function(assert) {
+    var survey = new SurveyModel({
+      elements: [
+        {
+          type: "matrixdropdown",
+          name: "matrix",
+          isRequired: true,
+          columns: [
+            {
+              name: "col1",
+              cellType: "text",
+              totalType: "sum",
+              totalFormat: {
+                default: "Total column 1: {0}",
+                de: "Total Spalt 1: {0}",
+                fr: "Total colonne 1: {0}"
+              },
+              inputType: "number"
+            }
+          ],
+          rows: [
+            {
+              value: "one",
+              text: {
+                default: "One",
+                fr: " Un",
+                de: " Ein"
+              }
+            }
+          ]
+        }
+      ]
+    });
+    survey.setValue("matrix", { one: { col1: 10 } });
+    var matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+    assert.equal(
+      matrix.renderedTable.footerRow.cells.length,
+      2,
+      "There are two cells in the footer row"
+    );
+    assert.equal(
+      <QuestionExpressionModel>(
+        matrix.renderedTable.footerRow.cells[1].question.displayValue
+      ),
+      "Total column 1: 10",
+      "total for en locale is correct"
+    );
+    survey.locale = "de";
+    assert.equal(
+      <QuestionExpressionModel>(
+        matrix.renderedTable.footerRow.cells[1].question.displayValue
+      ),
+      "Total Spalt 1: 10",
+      "total for de locale is correct"
+    );
+    survey.locale = "fr";
+    assert.equal(
+      <QuestionExpressionModel>(
+        matrix.renderedTable.footerRow.cells[1].question.displayValue
+      ),
+      "Total colonne 1: 10",
+      "total for fr locale is correct"
+    );
+    survey.locale = "";
+    assert.equal(
+      <QuestionExpressionModel>(
+        matrix.renderedTable.footerRow.cells[1].question.displayValue
+      ),
+      "Total column 1: 10",
+      "total for en locale again is correct"
     );
   }
 );

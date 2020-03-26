@@ -42,6 +42,7 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
     var self = this;
     this.registerFunctionOnPropertyValueChanged("rows", function() {
       self.generatedVisibleRows = null;
+      self.resetRenderedTable();
       self.filterItems();
     });
   }

@@ -45,6 +45,10 @@
     background-color: $main-color;
     color: $body-background-color;
     border-color: $main-color;
+
+    &:hover {
+      background-color: $main-color;
+    }
   }
 }
 

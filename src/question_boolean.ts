@@ -31,9 +31,6 @@ export class QuestionBooleanModel extends Question {
   public get hasTitle(): boolean {
     return true;
   }
-  supportGoNextPageAutomatic() {
-    return true;
-  }
   /**
    * Get/set question value in 3 modes: indeterminate (value is empty), true (check is set) and false (check is unset).
    * @see valueTrue
@@ -91,7 +88,7 @@ export class QuestionBooleanModel extends Question {
     if (this.locLabel.text) return this.locLabel;
     return this.showTitle ? this.locLabel : this.locTitle;
   }
- 
+
   /**
    * Set this property, if you want to have a different label for state when check is set.
    */
@@ -104,7 +101,7 @@ export class QuestionBooleanModel extends Question {
   get locLabelTrue(): LocalizableString {
     return this.getLocalizableString("labelTrue");
   }
- 
+
   /**
    * Set this property, if you want to have a different label for state when check is unset.
    */
@@ -117,7 +114,7 @@ export class QuestionBooleanModel extends Question {
   get locLabelFalse(): LocalizableString {
     return this.getLocalizableString("labelFalse");
   }
-  
+
   /**
    * Set this property to true to show the question title. It is hidden by default.
    */
@@ -127,7 +124,7 @@ export class QuestionBooleanModel extends Question {
   public set showTitle(val: boolean) {
     this.setPropertyValue("showTitle", val);
   }
-  
+
   /**
    * Set this property, if you want to have a different value from true when check is set.
    */

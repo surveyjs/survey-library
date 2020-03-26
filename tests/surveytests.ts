@@ -9388,3 +9388,19 @@ QUnit.test("Survey.getQuestionTitlePatternOptions()", function(assert) {
     }
   ]);
 });
+
+QUnit.test(
+  "Survey.getQuestionByName with caseInsensitive equals to true, Bug ##2051",
+  function(assert) {
+    var survey = new SurveyModel({
+      elements: [
+        {
+          type: "text",
+          name: "Q1"
+        }
+      ]
+    });
+    assert.ok(survey.getQuestionByName("q1", true), "q1");
+    assert.ok(survey.getQuestionByName("Q1", true), "Q1");
+  }
+);

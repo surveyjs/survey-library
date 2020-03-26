@@ -3282,6 +3282,10 @@ export class SurveyModel extends Base
     name: string,
     caseInsensitive: boolean = false
   ): Question {
+    if (!name) return null;
+    if (caseInsensitive) {
+      name = name.toLowerCase();
+    }
     var hash: HashTable<any> = !!caseInsensitive
       ? this.questionHashes.namesInsensitive
       : this.questionHashes.names;

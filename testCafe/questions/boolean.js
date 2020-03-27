@@ -1,11 +1,5 @@
-import {
-  frameworks,
-  url,
-  setOptions,
-  initSurvey,
-  getSurveyResult
-} from "../settings";
-import { Selector, ClientFunction } from "testcafe";
+import { frameworks, url, initSurvey } from "../settings";
+import { ClientFunction } from "testcafe";
 const assert = require("assert");
 const title = `boolean`;
 
@@ -35,12 +29,48 @@ frameworks.forEach(framework => {
 
     assert.equal(await isCheckedClassExists(), false);
 
-    await t.click(`div input`);
-
-    assert.equal(await isCheckedClassExists(), true);
-
-    await t.click(`div input`);
+    await t.click(`div label`, { offsetX: 1 });
 
     assert.equal(await isCheckedClassExists(), false);
+
+    await t.click(`div label`);
+
+    assert.equal(await isCheckedClassExists(), true);
+  });
+
+  const getQuestionValue = ClientFunction(() => {
+    return survey.getAllQuestions()[0].value;
+  });
+
+  test(`click on true label in intermediate state`, async t => {
+    assert.equal(await getQuestionValue(), null);
+
+    await t.click(`.sv-boolean__label:nth-of-type(2)`);
+
+    assert.equal(await getQuestionValue(), true);
+  });
+
+  test(`click on false label in intermediate state`, async t => {
+    assert.equal(await getQuestionValue(), null);
+
+    await t.click(`.sv-boolean__label:first-of-type`);
+
+    assert.equal(await getQuestionValue(), false);
+  });
+
+  test(`click on right side of switch in intermediate state`, async t => {
+    assert.equal(await getQuestionValue(), null);
+
+    await t.click(`.sv-boolean__switch`, { offsetX: -1 });
+
+    assert.equal(await getQuestionValue(), true);
+  });
+
+  test(`click on left side of switch in intermediate state`, async t => {
+    assert.equal(await getQuestionValue(), null);
+
+    await t.click(`.sv-boolean__switch`, { offsetX: 1 });
+
+    assert.equal(await getQuestionValue(), false);
   });
 });

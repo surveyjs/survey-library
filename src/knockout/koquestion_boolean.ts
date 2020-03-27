@@ -36,6 +36,32 @@ export class QuestionBoolean extends QuestionBooleanModel {
         : "")
     );
   }
+  private preventDefaults(event: any) {
+    event.preventDefault();
+    event.stopPropagation();
+  }
+  private onLabelClick(event: any, value: boolean) {
+    if (this.isIndeterminate) {
+      this.preventDefaults(event);
+      this.checkedValue = value;
+    }
+    return true;
+  }
+  public onSwitchClick(data: any, event: any) {
+    if (this.isIndeterminate) {
+      this.preventDefaults(event);
+      var percentage = event.offsetX / event.target.offsetWidth;
+      this.checkedValue = percentage > 0.5;
+      return;
+    }
+    return true;
+  }
+  public onTrueLabelClick(data: any, event: any) {
+    return this.onLabelClick(event, true);
+  }
+  public onFalseLabelClick(data: any, event: any) {
+    return this.onLabelClick(event, false);
+  }
 }
 Serializer.overrideClassCreator("boolean", function() {
   return new QuestionBoolean("");

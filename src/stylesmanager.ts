@@ -130,7 +130,7 @@ export class StylesManager {
       "margin-left: 0; padding-left: 0; line-height: initial;",
     ".sv_main .sv-hidden": "display: none !important;",
     ".sv_main .sv-visuallyhidden":
-      "position: absolute; height: 1px; width: 1px; overflow: hidden; clip: rect(1px 1px 1px 1px); clip: rect(1px, 1px, 1px, 1px);",
+      "position: absolute; height: 1px !important; width: 1px !important; overflow: hidden; clip: rect(1px 1px 1px 1px); clip: rect(1px, 1px, 1px, 1px);",
 
     // paneldynamic progress
     ".sv_main .sv-progress":
@@ -162,7 +162,7 @@ export class StylesManager {
       "display: inline-block; box-sizing: border-box; width: 63px; height: 24px; margin-right: 17px; margin-left: 21px; padding: 2px 3px; vertical-align: middle; border-radius: 12px; cursor: pointer;",
     ".sv_main .sv-boolean__slider":
       "display: inline-block; width: 20px; height: 20px; transition-duration: .4s; transition-property: margin-left; border: none; border-radius: 100%;",
-    ".sv_main sv-boolean__label": "vertical-align: middle;",
+    ".sv_main .sv-boolean__label": "vertical-align: middle; cursor: pointer;",
     ".sv_main .sv-boolean--indeterminate  .sv-boolean__slider":
       "margin-left: calc(50% - 10px);",
     ".sv_main .sv-boolean--checked  .sv-boolean__slider":

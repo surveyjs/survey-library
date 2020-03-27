@@ -13,7 +13,8 @@
   padding: 0.125em 0.1875em;
   border-radius: 0.75em;
 }
-[dir="rtl"], [style*="direction:rtl"] {
+[dir="rtl"],
+[style*="direction:rtl"] {
   .sv-boolean__switch {
     float: right;
   }
@@ -39,10 +40,12 @@
   }
 }
 .sv-boolean__label {
+  cursor: pointer;
   float: left;
 }
-[dir="rtl"], [style*="direction:rtl"] {
+[dir="rtl"],
+[style*="direction:rtl"] {
   .sv-boolean__label {
     float: right;
   }
-}  
+}

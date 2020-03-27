@@ -3502,3 +3502,37 @@ QUnit.test(
     );
   }
 );
+
+QUnit.test(
+  "Changing rows in matrix dropdown doesn't update the table",
+  function(assert) {
+    var survey = new SurveyModel({
+      elements: [
+        {
+          type: "matrixdropdown",
+          name: "matrix",
+          columns: [
+            {
+              name: "col1"
+            }
+          ],
+          rows: ["row1", "row2"]
+        }
+      ]
+    });
+    var matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+    assert.equal(matrix.renderedTable.rows.length, 2, "There are two rows");
+    matrix.rows.push(new ItemValue("row2"));
+    assert.equal(
+      matrix.renderedTable.rows.length,
+      3,
+      "There are three rows now"
+    );
+    matrix.rows.splice(0, 1);
+    assert.equal(
+      matrix.renderedTable.rows.length,
+      2,
+      "There are two rows again"
+    );
+  }
+);

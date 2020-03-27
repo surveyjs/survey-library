@@ -66,7 +66,16 @@ export var germanSurveyStrings = {
   timerLimitSurvey: "Sie haben insgesamt {0} von {1} benötigt.",
   cleanCaption: "Sauber",
   clearCaption: "Leeren",
-  removeFileCaption: "Datei löschen"
+  removeFileCaption: "Datei löschen",
+  booleanCheckedLabel: "Ja",
+  booleanUncheckedLabel: "Nein",
+  chooseFileCaption: "Datei wählen",
+  confirmRemoveAllFiles: "Sind sie sicher, dass sie alle Dateien löschen möchten?",
+  confirmRemoveFile: "Sind sie sicher, dass sie diese Datei löschen möchten: {0}?",
+  noFileChosen: "Keine Datei ausgewählt",
+  panelDynamicProgressText: "Eintrag {0} von {1}",
+  questionTitlePatternText: "Fragetitel",
+  questionsProgressText: "{0} von {1} Fragen beantwortet",
 };
 
 surveyLocalization.locales["de"] = germanSurveyStrings;

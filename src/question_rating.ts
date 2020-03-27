@@ -161,7 +161,7 @@ export class QuestionRatingModel extends Question {
 Serializer.addClass(
   "rating",
   [
-    { name: "hasComment:boolean", layout: "row" },
+    { name: "hasComment:switch", layout: "row" },
     {
       name: "commentText",
       serializationProperty: "locCommentText",

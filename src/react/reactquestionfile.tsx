@@ -118,7 +118,12 @@ export class SurveyQuestionFile extends SurveyQuestionElementBase {
       this.question.cssClasses.chooseFile +
       (this.isDisplayMode ? " " + this.question.cssClasses.disabled : "");
     chooseFile = (
-      <label className={chooseFileCss} htmlFor={this.question.inputId}>
+      <label
+        role="button"
+        className={chooseFileCss}
+        htmlFor={this.question.inputId}
+        aria-label={this.question.chooseButtonCaption}
+      >
         {this.question.chooseButtonCaption}
       </label>
     );

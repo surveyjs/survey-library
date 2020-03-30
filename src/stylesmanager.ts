@@ -533,6 +533,10 @@ export class StylesManager {
       "color: $body-background-color; background-color: $main-hover-color;",
 
     ".sv_main .sv_q_file_remove:hover": "color: $main-color;",
+    ".sv_main .sv_q_file_choose_button":
+      "color: $body-background-color; background-color: $main-color;",
+    ".sv_main .sv_q_file_choose_button:hover":
+      "background-color: $main-hover-color;",
 
     ".sv_main .sv_q_imgsel.checked label>div": "background-color: $main-color",
 

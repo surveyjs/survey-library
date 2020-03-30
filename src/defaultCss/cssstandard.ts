@@ -183,15 +183,17 @@ export var defaultStandardCss = {
   expression: "",
   file: {
     root: "sv_q_file",
-    placeholderInput: "sv_q_file_placeholder",
+    placeholderInput: "sv-visuallyhidden",
     preview: "sv_q_file_preview",
     removeButton: "sv_q_file_remove_button",
-    fileInput: "sv_q_file_input",
+    fileInput: "sv-visuallyhidden",
     removeFile: "sv_q_file_remove",
     removeFileSvg: "sv-hidden",
-    fileDecorator: "sv-hidden",
+    fileDecorator: "sv-file__decorator",
     fileSignBottom: "sv-hidden",
-    removeButtonBottom: "sv-hidden"
+    removeButtonBottom: "sv-hidden",
+    chooseFile: "sv_q_file_choose_button",
+    noFileChosen: "sv_q_file_placeholder"
   },
   saveData: {
     root: "",

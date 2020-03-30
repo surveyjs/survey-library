@@ -222,7 +222,7 @@ To store survey results on SurveyJS backend, do the following:
 2. [Create a new survey](https://surveyjs.io/Service/MySurveys). If you do not want to load the survey from SurveyJS service, then you do not need to keep the survey definition in the service.
 3. Get a Post Id for a new survey:
 
-    ![survey get post id](images/survey-get-postid.png)
+    ![survey get post id](https://github.com/surveyjs/surveyjs/blob/master/docs/images/survey-get-postid.png?raw=true)
 
 4. Set the Survey's [surveyPostId](https://surveyjs.io/Documentation/Library/?id=surveymodel#surveyPostId) to the _PostId_ value:
 

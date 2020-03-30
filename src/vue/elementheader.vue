@@ -1,6 +1,10 @@
  <template>
   <div :class="getHeaderClass(element)">
-    <h5 v-if="element.hasTitle" :class="getTitleClass(element)">
+    <h5
+      v-if="element.hasTitle"
+      :class="getTitleClass(element)"
+      v-bind:aria-label="element.locTitle.renderedHtml"
+    >
       <span
         v-if="element.isRequireTextOnStart"
         :class="element.cssClasses.requiredText"

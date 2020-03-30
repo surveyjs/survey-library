@@ -155,7 +155,14 @@ export class SurveyQuestion extends SurveyElementBase {
       spans.push(spaceSpan);
       spans.push(this.renderRequireText(cssClasses));
     }
-    return <h5 className={this.getTitleClass(this.question)}>{spans}</h5>;
+    return (
+      <h5
+        className={this.getTitleClass(this.question)}
+        aria-label={this.question.locTitle.renderedHtml}
+      >
+        {spans}
+      </h5>
+    );
   }
   private renderRequireText(cssClasses: any): JSX.Element {
     return (

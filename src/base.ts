@@ -127,7 +127,7 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner {
     name: string,
     index: number
   ): IQuestion;
-  matrixRowAdded(question: IQuestion): any;
+  matrixRowAdded(question: IQuestion, row: any): any;
   matrixBeforeRowAdded(options: {
     question: IQuestion;
     canAddRow: boolean;

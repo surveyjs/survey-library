@@ -600,6 +600,7 @@ export class SurveyModel extends Base
    * The event is fired on adding a new row in Matrix Dynamic question.
    * <br/> `sender` - the survey object that fires the event
    * <br/> `options.question` - a matrix question.
+   * <br/> `options.row` - a new added row.
    * @see QuestionMatrixDynamicModel
    * @see QuestionMatrixDynamicModel.visibleRows
    */
@@ -3025,8 +3026,8 @@ export class SurveyModel extends Base
   matrixBeforeRowAdded(options: any) {
     this.onMatrixBeforeRowAdded.fire(this, options);
   }
-  matrixRowAdded(question: IQuestion) {
-    this.onMatrixRowAdded.fire(this, { question: question });
+  matrixRowAdded(question: IQuestion, row: any) {
+    this.onMatrixRowAdded.fire(this, { question: question, row: row });
   }
   getQuestionByValueNameFromArray(
     valueName: string,

@@ -450,7 +450,7 @@ export class QuestionMatrixModel
       var row = this.rows[i];
       if (!!row.value) {
         objects.push({
-          name: this.name + "." + row.value,
+          name: this.getValueName() + "." + row.value,
           text: this.processedTitle + "." + row.calculatedText,
           question: this
         });

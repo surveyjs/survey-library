@@ -340,7 +340,7 @@ export class QuestionMultipleTextModel extends Question
     for (var i = 0; i < this.items.length; i++) {
       var item = this.items[i];
       objects.push({
-        name: this.name + "." + item.name,
+        name: this.getValueName() + "." + item.name,
         text: this.processedTitle + "." + item.fullTitle,
         question: this
       });

@@ -1075,7 +1075,7 @@ export class QuestionPanelDynamicModel extends Question
     var hasContext = !!context
       ? this.template.questions.indexOf(context) > -1
       : false;
-    var prefixName = this.name + "[0].";
+    var prefixName = this.getValueName() + "[0].";
     var prefixText = this.processedTitle + "[0].";
     var panelObjs = new Array<IConditionObject>();
     var questions = this.template.questions;

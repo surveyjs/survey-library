@@ -453,7 +453,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     for (var i = 0; i < this.columns.length; i++) {
       var column = this.columns[i];
       objects.push({
-        name: this.name + "[0]." + column.name,
+        name: this.getValueName() + "[0]." + column.name,
         text: this.processedTitle + "[0]." + column.fullTitle,
         question: this
       });

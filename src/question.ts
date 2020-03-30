@@ -1126,7 +1126,7 @@ export class Question extends SurveyElement
     context: any
   ) {
     objects.push({
-      name: this.name,
+      name: this.getValueName(),
       text: this.processedTitle,
       question: this
     });

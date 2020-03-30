@@ -94,7 +94,7 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
     for (var i = 0; i < this.rows.length; i++) {
       var row = this.rows[i];
       if (!row.value) continue;
-      var prefixName = this.name + "." + row.value + ".";
+      var prefixName = this.getValueName() + "." + row.value + ".";
       var prefixTitle = this.processedTitle + "." + row.calculatedText + ".";
       for (var j = 0; j < this.columns.length; j++) {
         var column = this.columns[j];

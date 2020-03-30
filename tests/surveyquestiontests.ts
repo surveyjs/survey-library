@@ -2061,6 +2061,10 @@ QUnit.test("question.addConditionObjectsByContext", function(assert) {
   q_matrix.rows = ["row1", "row2"];
   q_matrix.rows[0].text = "Row 1";
   q_matrix.addConditionObjectsByContext(objs, null);
+  var qValueName = new QuestionTextModel("q_text");
+  qValueName.valueName = "valueText";
+  qValueName.title = "Text Question";
+  qValueName.addConditionObjectsByContext(objs, null);
   for (var i = 0; i < objs.length; i++) {
     objs[i].question = objs[i].question.name;
   }
@@ -2071,7 +2075,8 @@ QUnit.test("question.addConditionObjectsByContext", function(assert) {
       { name: "q_mt.item1", text: "q_mt.Item 1 title", question: "q_mt" },
       { name: "q_mt.item2", text: "q_mt.item2", question: "q_mt" },
       { name: "q_matrix.row1", text: "q_matrix.Row 1", question: "q_matrix" },
-      { name: "q_matrix.row2", text: "q_matrix.row2", question: "q_matrix" }
+      { name: "q_matrix.row2", text: "q_matrix.row2", question: "q_matrix" },
+      { name: "valueText", text: "Text Question", question: "q_text" }
     ],
     "addConditionObjectsByContext work correctly"
   );

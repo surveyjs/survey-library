@@ -1121,9 +1121,6 @@ export class Question extends SurveyElement
   protected addSupportedValidators(supportedValidators: Array<string>) {
     supportedValidators.push("expression");
   }
-  public addConditionNames(names: Array<string>) {
-    names.push(this.name);
-  }
   public addConditionObjectsByContext(
     objects: Array<IConditionObject>,
     context: any

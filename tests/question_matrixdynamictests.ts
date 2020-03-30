@@ -1244,18 +1244,6 @@ QUnit.test(
   }
 );
 
-QUnit.test("matrixDynamic.addConditionNames", function(assert) {
-  var names = [];
-  var question = new QuestionMatrixDynamicModel("matrix");
-  question.addColumn("col1");
-  question.addColumn("col2");
-  question.addConditionNames(names);
-  assert.deepEqual(
-    names,
-    ["matrix[0].col1", "matrix[0].col2"],
-    "addConditionNames work correctly for matrix dynamic"
-  );
-});
 QUnit.test("matrixDynamic.addConditionObjectsByContext", function(assert) {
   var objs = [];
   var question = new QuestionMatrixDynamicModel("matrix");
@@ -1366,25 +1354,6 @@ QUnit.test("matrixDropdown.addConditionObjectsByContext", function(assert) {
       { name: "row.col2", text: "row.col2", question: "matrix" }
     ],
     "addConditionObjectsByContext work correctly for matrix dropdown with context"
-  );
-});
-
-QUnit.test("matrixDropdown.addConditionNames", function(assert) {
-  var names = [];
-  var question = new QuestionMatrixDropdownModel("matrix");
-  question.addColumn("col1");
-  question.addColumn("col2");
-  question.rows = ["row1", "row2"];
-  question.addConditionNames(names);
-  assert.deepEqual(
-    names,
-    [
-      "matrix.row1.col1",
-      "matrix.row1.col2",
-      "matrix.row2.col1",
-      "matrix.row2.col2"
-    ],
-    "addConditionNames work correctly for matrix dropdown"
   );
 });
 

@@ -1289,22 +1289,6 @@ QUnit.test(
   }
 );
 
-QUnit.test("panelDynamic.addConditionNames", function(assert) {
-  var names = [];
-  var panel = new QuestionPanelDynamicModel("panel");
-  panel.template.addNewQuestion("text", "q1");
-  var question = new QuestionMultipleTextModel("q2");
-  question.addItem("item1");
-  question.addItem("item2");
-  panel.template.addQuestion(question);
-  panel.addConditionNames(names);
-  assert.deepEqual(
-    names,
-    ["panel[0].q1", "panel[0].q2.item1", "panel[0].q2.item2"],
-    "addConditionNames work correctly for panel dynamic"
-  );
-});
-
 QUnit.test("panelDynamic.addConditionObjectsByContext", function(assert) {
   var objs = [];
   var panel = new QuestionPanelDynamicModel("panel");

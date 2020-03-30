@@ -1068,17 +1068,6 @@ export class QuestionPanelDynamicModel extends Question
         )
       : null;
   }
-  public addConditionNames(names: Array<string>) {
-    var prefix = this.name + "[0].";
-    var panelNames: Array<any> = [];
-    var questions = this.template.questions;
-    for (var i = 0; i < questions.length; i++) {
-      questions[i].addConditionNames(panelNames);
-    }
-    for (var i = 0; i < panelNames.length; i++) {
-      names.push(prefix + panelNames[i]);
-    }
-  }
   public addConditionObjectsByContext(
     objects: Array<IConditionObject>,
     context: any

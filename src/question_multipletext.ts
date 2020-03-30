@@ -333,11 +333,6 @@ export class QuestionMultipleTextModel extends Question
     }
     return null;
   }
-  public addConditionNames(names: Array<string>) {
-    for (var i = 0; i < this.items.length; i++) {
-      names.push(this.name + "." + this.items[i].name);
-    }
-  }
   public addConditionObjectsByContext(
     objects: Array<IConditionObject>,
     context: any

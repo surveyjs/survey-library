@@ -184,7 +184,7 @@ To load survey model from SurveyJS Service, do the following:
 2. Create a new Survey in the [SurveyJS Service](https://surveyjs.io/Service/MySurveys).
 3. In the [SurveyJS Service](https://surveyjs.io/Service/MySurveys) page, copy your Survey Id.
 
-    ![get survey id](images/survey-id.png)
+    ![get survey id](https://github.com/surveyjs/surveyjs/blob/master/docs/images/survey-id.png)
 
 4. Create a survey as shown in a code sample below.
 

@@ -66,6 +66,7 @@ export interface IMatrixDropdownData {
 export interface IMatrixColumnOwner extends ILocalizableOwner {
   getRequiredText(): string;
   onColumnPropertiesChanged(column: MatrixDropdownColumn): void;
+  onShowInMultipleColumnsChanged(column: MatrixDropdownColumn): void;
   getCellType(): string;
   onColumnCellTypeChanged(column: MatrixDropdownColumn): void;
 }
@@ -227,6 +228,12 @@ export class MatrixDropdownColumn extends Base implements ILocalizableOwner {
         self.doColumnPropertiesChanged();
       }
     );
+    this.registerFunctionOnPropertyValueChanged(
+      "showInMultipleColumns",
+      function() {
+        self.doShowInMultipleColumnsChanged();
+      }
+    );
     this.updateTemplateQuestion();
     this.name = name;
     if (title) this.title = title;
@@ -358,6 +365,18 @@ export class MatrixDropdownColumn extends Base implements ILocalizableOwner {
   }
   public set requiredIf(val: string) {
     this.templateQuestion.requiredIf = val;
+  }
+  public get showInMultipleColumns(): boolean {
+    return this.getPropertyValue("showInMultipleColumns", false);
+  }
+  public set showInMultipleColumns(val: boolean) {
+    this.setPropertyValue("showInMultipleColumns", val);
+  }
+  public get isSupportMultipleColumns(): boolean {
+    return ["checkbox", "dropdown", "radiogroup"].indexOf(this.cellType) > -1;
+  }
+  public get isShowInMultipleColumns(): boolean {
+    return this.showInMultipleColumns && this.isSupportMultipleColumns;
   }
   public get hasCondition(): boolean {
     return (
@@ -521,6 +540,11 @@ export class MatrixDropdownColumn extends Base implements ILocalizableOwner {
   private doColumnPropertiesChanged() {
     if (this.colOwner != null && !this.isLoadingFromJson) {
       this.colOwner.onColumnPropertiesChanged(this);
+    }
+  }
+  private doShowInMultipleColumnsChanged() {
+    if (this.colOwner != null && !this.isLoadingFromJson) {
+      this.colOwner.onShowInMultipleColumnsChanged(this);
     }
   }
   private getProperties(curCellType: string): Array<JsonObjectProperty> {
@@ -967,6 +991,8 @@ export class QuestionMatrixDropdownRenderedCell {
   public cell: MatrixDropdownCell;
   public row: MatrixDropdownRowModelBase;
   public question: Question;
+  public isChoice: boolean = false;
+  public choiceValue: any;
   public isRemoveRow: boolean;
   public matrix: QuestionMatrixDropdownModelBase;
   public constructor() {
@@ -1067,7 +1093,11 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
       for (var i = 0; i < this.matrix.visibleColumns.length; i++) {
         var column = this.matrix.visibleColumns[i];
         if (!column.hasVisibleCell) continue;
-        this.headerRow.cells.push(this.createHeaderCell(column));
+        if (column.isShowInMultipleColumns) {
+          this.createMutlipleColumnsHeader(column);
+        } else {
+          this.headerRow.cells.push(this.createHeaderCell(column));
+        }
       }
     } else {
       var rows = this.matrix.visibleRows;
@@ -1094,8 +1124,13 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     }
     var cells = this.matrix.visibleTotalRow.cells;
     for (var i = 0; i < cells.length; i++) {
-      if (!cells[i].column.hasVisibleCell) continue;
-      this.footerRow.cells.push(this.createEditCell(cells[i]));
+      var cell = cells[i];
+      if (!cell.column.hasVisibleCell) continue;
+      if (cell.column.isShowInMultipleColumns) {
+        this.createMutlipleColumnsFooter(this.footerRow, cell);
+      } else {
+        this.footerRow.cells.push(this.createEditCell(cell));
+      }
     }
     if (this.hasRemoveRows) {
       this.footerRow.cells.push(this.createHeaderCell(null));
@@ -1128,7 +1163,11 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     for (var i = 0; i < row.cells.length; i++) {
       var cell = row.cells[i];
       if (!cell.column.hasVisibleCell) continue;
-      res.cells.push(this.createEditCell(cell));
+      if (cell.column.isShowInMultipleColumns) {
+        this.createMutlipleEditCells(res, cell);
+      } else {
+        res.cells.push(this.createEditCell(cell));
+      }
     }
     if (this.hasRemoveRows) {
       res.cells.push(this.createRemoveRowCell(row));
@@ -1181,6 +1220,19 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     }
     return res;
   }
+  private createMutlipleEditCells(
+    rRow: QuestionMatrixDropdownRenderedRow,
+    cell: MatrixDropdownCell
+  ) {
+    var choices = this.getMultipleColumnChoices(cell.column);
+    if (!choices) return;
+    for (var i = 0; i < choices.length; i++) {
+      var rCell = this.createEditCell(cell);
+      rCell.isChoice = true;
+      rCell.choiceValue = choices[i].value;
+      rRow.cells.push(rCell);
+    }
+  }
   private createEditCell(
     cell: MatrixDropdownCell
   ): QuestionMatrixDropdownRenderedCell {
@@ -1191,13 +1243,39 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     res.matrix = this.matrix;
     return res;
   }
+  private createMutlipleColumnsFooter(
+    rRow: QuestionMatrixDropdownRenderedRow,
+    cell: MatrixDropdownCell
+  ) {
+    this.createMutlipleEditCells(rRow, cell);
+  }
+  private createMutlipleColumnsHeader(column: MatrixDropdownColumn) {
+    var choices = this.getMultipleColumnChoices(column);
+    if (!choices) return;
+    for (var i = 0; i < choices.length; i++) {
+      var cell = this.createTextCell(choices[i].locText);
+      this.setHeaderCell(column, cell);
+      this.headerRow.cells.push(cell);
+    }
+  }
+  private getMultipleColumnChoices(column: MatrixDropdownColumn): any {
+    var choices = column.templateQuestion.visibleChoices;
+    if (!choices || !Array.isArray(choices)) return null;
+    return choices;
+  }
   private createHeaderCell(
     column: MatrixDropdownColumn
   ): QuestionMatrixDropdownRenderedCell {
     var cell = this.createTextCell(!!column ? column.locTitle : null);
+    this.setHeaderCell(column, cell);
+    return cell;
+  }
+  private setHeaderCell(
+    column: MatrixDropdownColumn,
+    cell: QuestionMatrixDropdownRenderedCell
+  ) {
     cell.minWidth = column != null ? this.matrix.getColumnWidth(column) : "";
     cell.width = column != null ? column.width : "";
-    return cell;
   }
   private createRemoveRowCell(
     row: MatrixDropdownRowModelBase
@@ -1465,6 +1543,10 @@ export class QuestionMatrixDropdownModelBase
       this.generatedTotalRow.updateCellQuestionOnColumnChanged(column);
     }
     this.onColumnsChanged();
+  }
+  onShowInMultipleColumnsChanged(column: MatrixDropdownColumn) {
+    this.generatedVisibleRows = null;
+    this.resetRenderedTable();
   }
   onColumnCellTypeChanged(column: MatrixDropdownColumn) {
     this.generatedVisibleRows = null;
@@ -2235,6 +2317,14 @@ Serializer.addClass(
     "visibleIf:condition",
     "enableIf:condition",
     "requiredIf:condition",
+    {
+      name: "showInMultipleColumns:boolean",
+      dependsOn: "cellType",
+      visibleIf: function(obj: any) {
+        if (!obj) return false;
+        return obj.isSupportMultipleColumns;
+      }
+    },
     {
       name: "validators:validators",
       baseClassName: "surveyvalidator",

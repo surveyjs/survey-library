@@ -3505,3 +3505,82 @@ QUnit.test(
     );
   }
 );
+QUnit.test("showInMultipleColumns property", function(assert) {
+  var survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdropdown",
+        name: "matrix",
+        columns: [
+          {
+            name: "col1",
+            cellType: "text",
+            totalType: "sum"
+          },
+          {
+            name: "col2",
+            cellType: "radiogroup",
+            choices: ["1", "2", "3"]
+          },
+          {
+            name: "col3",
+            cellType: "comment"
+          }
+        ],
+        rows: ["row1", "row2"]
+      }
+    ]
+  });
+  var matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+  assert.equal(
+    matrix.renderedTable.headerRow.cells.length,
+    1 + 3,
+    "header: row value + 3 columns"
+  );
+  assert.equal(
+    matrix.renderedTable.rows[0].cells.length,
+    1 + 3,
+    "first row: row value + 3 columns"
+  );
+  assert.equal(
+    matrix.renderedTable.footerRow.cells.length,
+    1 + 3,
+    "footer: row value + 3 columns"
+  );
+  assert.equal(
+    matrix.renderedTable.headerRow.cells[2].locTitle.renderedHtml,
+    "col2",
+    "Column header"
+  );
+  matrix.columns[1].showInMultipleColumns = true;
+  assert.equal(
+    matrix.renderedTable.headerRow.cells.length,
+    1 + 2 + 3,
+    "header: row value + 2 columns + showInMultipleColumns column"
+  );
+  assert.equal(
+    matrix.renderedTable.rows[0].cells.length,
+    1 + 2 + 3,
+    "first row: row value + 2 columns + showInMultipleColumns column"
+  );
+  assert.equal(
+    matrix.renderedTable.footerRow.cells.length,
+    1 + 2 + 3,
+    "footer:  row value + 2 columns + showInMultipleColumns column"
+  );
+  assert.equal(
+    matrix.renderedTable.headerRow.cells[2].locTitle.renderedHtml,
+    "1",
+    "Column header, first choice"
+  );
+  assert.equal(
+    matrix.renderedTable.rows[0].cells[2].isChoice,
+    true,
+    "first row, first choice: isChoice"
+  );
+  assert.equal(
+    matrix.renderedTable.rows[0].cells[2].choiceValue,
+    "1",
+    "first row, first choice: choiceValue = 1"
+  );
+});

@@ -103,6 +103,7 @@ export { QuestionTextModel } from "../../question_text";
 export { QuestionBooleanModel } from "../../question_boolean";
 export { QuestionImagePickerModel } from "../../question_imagepicker";
 export { QuestionImageModel } from "../../question_image";
+export { QuestionSignaturePadModel } from "../../question_signaturepad";
 export {
   QuestionPanelDynamicModel,
   QuestionPanelDynamicItem

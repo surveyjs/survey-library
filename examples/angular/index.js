@@ -23,6 +23,12 @@ function init() {
     title: "Survey New Design Test",
     questions: [
       {
+        name: "signature",
+        type: "signaturepad",
+        title: "Sign here",
+        isRequired: true
+      },
+      {
         name: "name",
         type: "text",
         title: "Text",

@@ -59,3 +59,4 @@ export { FlowPanelElement } from "../vue/flowpanelelement.vue";
 export { Row } from "../vue/row.vue";
 export { ElementHeader } from "../vue/elementheader.vue";
 export { Image } from "../vue/image.vue";
+export { SignaturePad } from "../vue/signaturepad.vue";

@@ -1178,8 +1178,13 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     var columns = this.matrix.columns;
     var renderedRows = [];
     for (var i = 0; i < columns.length; i++) {
-      if (columns[i].isVisible && columns[i].hasVisibleCell) {
-        renderedRows.push(this.createVerticalRow(columns[i], i));
+      var col = columns[i];
+      if (col.isVisible && col.hasVisibleCell) {
+        if (col.isShowInMultipleColumns) {
+          this.createMutlipleVerticalRows(renderedRows, col, i);
+        } else {
+          renderedRows.push(this.createVerticalRow(col, i));
+        }
       }
     }
     if (this.hasRemoveRows) {
@@ -1187,17 +1192,35 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     }
     return renderedRows;
   }
-  private createVerticalRow(
+  private createMutlipleVerticalRows(
+    renderedRows: Array<QuestionMatrixDropdownRenderedRow>,
     column: MatrixDropdownColumn,
     index: number
+  ) {
+    var choices = this.getMultipleColumnChoices(column);
+    if (!choices) return;
+    for (var i = 0; i < choices.length; i++) {
+      renderedRows.push(this.createVerticalRow(column, index, choices[i]));
+    }
+  }
+  private createVerticalRow(
+    column: MatrixDropdownColumn,
+    index: number,
+    choice: ItemValue = null
   ): QuestionMatrixDropdownRenderedRow {
     var res = new QuestionMatrixDropdownRenderedRow();
     if (this.matrix.showHeader) {
-      res.cells.push(this.createTextCell(column.locTitle));
+      var lTitle = !!choice ? choice.locText : column.locTitle;
+      res.cells.push(this.createTextCell(lTitle));
     }
     var rows = this.matrix.visibleRows;
     for (var i = 0; i < rows.length; i++) {
-      res.cells.push(this.createEditCell(rows[i].cells[index]));
+      var rCell = this.createEditCell(rows[i].cells[index]);
+      rCell.isChoice = !!choice;
+      if (rCell.isChoice) {
+        rCell.choiceValue = choice.value;
+      }
+      res.cells.push(rCell);
     }
     if (this.matrix.hasTotal) {
       res.cells.push(

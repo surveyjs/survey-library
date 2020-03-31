@@ -3584,3 +3584,76 @@ QUnit.test("showInMultipleColumns property", function(assert) {
     "first row, first choice: choiceValue = 1"
   );
 });
+QUnit.test(
+  "showInMultipleColumns property + columnLayout = 'vertical'",
+  function(assert) {
+    var survey = new SurveyModel({
+      elements: [
+        {
+          type: "matrixdropdown",
+          name: "matrix",
+          columnLayout: "vertical",
+          columns: [
+            {
+              name: "col1",
+              cellType: "text",
+              totalType: "sum"
+            },
+            {
+              name: "col2",
+              cellType: "radiogroup",
+              showInMultipleColumns: true,
+              choices: ["1", "2", "3"]
+            },
+            {
+              name: "col3",
+              cellType: "comment"
+            }
+          ],
+          rows: ["row1", "row2"]
+        }
+      ]
+    });
+    var matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+    assert.equal(
+      matrix.renderedTable.headerRow.cells.length,
+      1 + 2 + 1,
+      "header: column header + 2 rows + total"
+    );
+    assert.equal(
+      matrix.renderedTable.rows.length,
+      2 + 3,
+      "rows.length = 2 columns + showInMultipleColumns column"
+    );
+    assert.equal(
+      matrix.renderedTable.rows[1].cells[0].locTitle.renderedHtml,
+      "1",
+      "header for showInMultipleColumns column"
+    );
+    assert.equal(
+      matrix.renderedTable.rows[1].cells[1].isChoice,
+      true,
+      "showInMultipleColumns, first choice: isChoice"
+    );
+    assert.equal(
+      matrix.renderedTable.rows[1].cells[1].choiceValue,
+      "1",
+      "showInMultipleColumns, first choice: choiceValue"
+    );
+    assert.equal(
+      matrix.renderedTable.rows[1 + 2].cells[0].locTitle.renderedHtml,
+      "3",
+      "header for showInMultipleColumns column, third choice"
+    );
+    assert.equal(
+      matrix.renderedTable.rows[1 + 2].cells[1].isChoice,
+      true,
+      "showInMultipleColumns, third choice: isChoice"
+    );
+    assert.equal(
+      matrix.renderedTable.rows[1 + 2].cells[1].choiceValue,
+      "3",
+      "showInMultipleColumns, third choice: choiceValue"
+    );
+  }
+);

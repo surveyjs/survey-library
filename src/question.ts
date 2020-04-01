@@ -466,6 +466,8 @@ export class Question extends SurveyElement
     if (this.isCompositeQuestion || !this.survey) return;
     this.survey.afterRenderQuestionInput(this, el);
   }
+  public beforeDestoyInput(el: any) {
+  }
   /**
    * Returns the rendred question title.
    */

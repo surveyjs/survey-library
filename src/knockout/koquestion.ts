@@ -144,14 +144,17 @@ export class QuestionImplementor extends ImplementorBase {
     var el = SurveyElement.GetFirstNonTextElement(elements, true);
     if (!!el) {
       this.question.afterRenderInput(el);
-    }
-    if (el && this.question.customWidget) {
-      this.question.customWidget.afterRender(this.question, el);
+      if(!!this.question.customWidget) {
+        this.question.customWidget.afterRender(this.question, el);
+      }
       ko.utils.domNodeDisposal.addDisposeCallback(el, () => {
-        try {
-          this.question.customWidget.willUnmount(this.question, el);
-        } catch {
-          console.warn("Custom widget will unmount failed");
+        this.question.beforeDestoyInput(el);
+        if(!!this.question.customWidget) {
+          try {
+            this.question.customWidget.willUnmount(this.question, el);
+          } catch {
+            console.warn("Custom widget will unmount failed");
+          }
         }
       });
     }

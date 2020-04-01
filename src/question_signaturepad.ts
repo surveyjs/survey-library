@@ -46,6 +46,11 @@ export class QuestionSignaturePadModel extends Question {
     }
     super.afterRenderInput(el);
   }
+  public beforeDestoyInput(el: any) {
+    if(!!el) {
+      this.destroySignaturePad(el);
+    }
+  }
 
   initSignaturePad(el: HTMLElement) {
     var canvas: any = el.getElementsByTagName("canvas")[0];

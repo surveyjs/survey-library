@@ -19,7 +19,7 @@ export class SurveyLocString extends React.Component<any, any> {
   componentDidMount() {
     if (!this.locStr) return;
     var self = this;
-    this.locStr.onChanged = function() {
+    this.locStr.onChanged = function () {
       self.setState({ changed: self.state.changed + 1 });
     };
   }
@@ -116,7 +116,7 @@ export class SurveyElementBase extends React.Component<any, any> {
       var val: any = hash[key];
       if (Array.isArray(val)) {
         var val: any = val;
-        val["onArrayChanged"] = () => {};
+        val["onArrayChanged"] = () => { };
       }
     });
   }
@@ -142,6 +142,12 @@ export class SurveyQuestionElementBase extends SurveyElementBase {
   }
   componentDidMount() {
     this.updateDomElement();
+  }
+  componentWillUnmount() {
+    super.componentWillUnmount();
+    if (!!this.questionBase) {
+      this.questionBase.beforeDestoyInput(this.control);
+    }
   }
   protected updateDomElement() {
     var el = this.control;
@@ -170,7 +176,7 @@ export class SurveyQuestionElementBase extends SurveyElementBase {
 
 export class SurveyQuestionUncontrolledElement<
   T extends Question
-> extends SurveyQuestionElementBase {
+  > extends SurveyQuestionElementBase {
   constructor(props: any) {
     super(props);
     this.updateValueOnEvent = this.updateValueOnEvent.bind(this);

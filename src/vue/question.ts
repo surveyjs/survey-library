@@ -19,6 +19,12 @@ export class QuestionVue<T extends Question> extends Vue {
       this.question.afterRenderInput(this.$el);
     }
   }
+  beforeDestroy() {
+    if (this.question) {
+      this.question.beforeDestoyInput(this.$el);
+    }
+  }
+
 }
 
 export default QuestionVue;

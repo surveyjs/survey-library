@@ -1,10 +1,10 @@
 <script type="text/html" id="survey-question-signaturepad">
-    <div class='sjs_sp_container'>
+    <div data-bind="css: question.koCss().root">
         <div>
             <canvas tabindex='0'></canvas>
         </div>
-        <div class='sjs_sp_controls'>
-            <button type='button' class='sjs_sp_clear' title='Clear'>✖</button>
+        <div data-bind="css: question.koCss().controls">
+            <button type='button' data-bind="css: question.koCss().clearButton, attr: { title: question.clearButtonCaption }">✖</button>
         </div>
     </div>
 </script>

@@ -169,7 +169,14 @@ export class StylesManager {
       "margin-left: calc(100% - 20px);",
     // EO boolean
     ".sv_main .sv_q_num": "",
-    ".sv_main .sv_q_num + span": ""
+    ".sv_main .sv_q_num + span": "",
+
+    // SignaturePad
+    ".sv_main .sjs_sp_container": "position: relative;",
+    ".sv_main .sjs_sp_controls": "position: absolute; left: 0; bottom: 0;",
+    ".sv_main .sjs_sp_controls > button": "user-select: none;",
+    ".sv_main .sjs_sp_container>div>canvas:focus": "outline: none;"
+    
   };
 
   public static Media: { [key: string]: { media: string; style: string } } = {

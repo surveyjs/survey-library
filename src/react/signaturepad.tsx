@@ -14,13 +14,14 @@ export class SurveyQuestionSignaturePad extends SurveyQuestionElementBase {
     return this.questionBase as QuestionSignaturePadModel;
   }
   render(): JSX.Element {
+    var cssClasses = this.question.cssClasses;
     return (
-      <div className="sjs_sp_container" ref={root => (this.control = root)}>
+      <div className={cssClasses.root} ref={root => (this.control = root)}>
         <div>
           <canvas tabIndex={0}></canvas>
         </div>
-        <div className="sjs_sp_controls">
-          <button type="button" className="sjs_sp_clear" title="Clear">✖</button>
+        <div className={cssClasses.controls}>
+          <button type="button" className={cssClasses.clearButton} title={this.question.clearButtonCaption}>✖</button>
         </div>
       </div>
     );

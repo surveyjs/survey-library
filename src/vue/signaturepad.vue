@@ -1,10 +1,10 @@
 <template>
-        <div class='sjs_sp_container'>
+        <div :class="question.cssClasses.root">
         <div>
             <canvas tabindex='0'></canvas>
         </div>
-        <div class='sjs_sp_controls'>
-            <button type='button' class='sjs_sp_clear' title='Clear'>✖</button>
+        <div :class="question.cssClasses.controls">
+            <button type='button' :class="question.cssClasses.clearButton" :title="question.clearButtonCaption">✖</button>
         </div>
     </div>
 

@@ -1,5 +1,6 @@
 import { Serializer } from "./jsonobject";
 import { Question } from "./question";
+import { surveyLocalization } from "./surveyStrings";
 import SignaturePad from "signature_pad";
 
 var defaultWidth = 300;
@@ -149,6 +150,12 @@ export class QuestionSignaturePadModel extends Question {
   }
   public set penColor(val: string) {
     this.setPropertyValue("penColor", val);
+  }
+  /**
+   * The clear signature button caption.
+   */
+  get clearButtonCaption(): string {
+    return surveyLocalization.getString("clearCaption");
   }
 }
 

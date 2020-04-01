@@ -191,6 +191,11 @@ export var defaultBootstrapMaterialCss = {
     fileSignBottom: "sv-hidden",
     removeButtonBottom: "sv-hidden"
   },
+  signaturepad: {
+    root: "sv_q_signaturepad sjs_sp_container",
+    controls: "sjs_sp_controls",
+    clearButton: "sjs_sp_clear"
+  },
   saveData: {
     root: "",
     saving: "alert alert-info",

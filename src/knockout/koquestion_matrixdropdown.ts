@@ -74,7 +74,7 @@ export class QuestionMatrixBaseImplementor extends QuestionImplementor {
     var el = SurveyElement.GetFirstNonTextElement(elements);
     if (!el) return;
     var cell = <QuestionMatrixDropdownRenderedCell>con;
-    cell.question.afterRenderInput(el);
+    cell.question.afterRenderQuestionElement(el);
     if (cell.question.customWidget) {
       cell.question.customWidget.afterRender(cell.question, el);
       ko.utils.domNodeDisposal.addDisposeCallback(el, () => {

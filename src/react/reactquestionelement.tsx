@@ -146,7 +146,7 @@ export class SurveyQuestionElementBase extends SurveyElementBase {
   componentWillUnmount() {
     super.componentWillUnmount();
     if (!!this.questionBase) {
-      this.questionBase.beforeDestoyInput(this.control);
+      this.questionBase.beforeDestoyQuestionElement(this.control);
     }
   }
   protected updateDomElement() {
@@ -154,7 +154,7 @@ export class SurveyQuestionElementBase extends SurveyElementBase {
     if (!!el) {
       if (el.getAttribute("data-rendered") !== "r") {
         el.setAttribute("data-rendered", "r");
-        this.questionBase.afterRenderInput(el);
+        this.questionBase.afterRenderQuestionElement(el);
       }
     }
   }

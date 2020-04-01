@@ -16,12 +16,12 @@ export class QuestionVue<T extends Question> extends Vue {
   }
   mounted() {
     if (this.question) {
-      this.question.afterRenderInput(this.$el);
+      this.question.afterRenderQuestionElement(this.$el);
     }
   }
   beforeDestroy() {
     if (this.question) {
-      this.question.beforeDestoyInput(this.$el);
+      this.question.beforeDestoyQuestionElement(this.$el);
     }
   }
 

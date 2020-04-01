@@ -462,11 +462,11 @@ export class Question extends SurveyElement
   public get isCompositeQuestion(): boolean {
     return false;
   }
-  public afterRenderInput(el: any) {
+  public afterRenderQuestionElement(el: any) {
     if (this.isCompositeQuestion || !this.survey) return;
     this.survey.afterRenderQuestionInput(this, el);
   }
-  public beforeDestoyInput(el: any) {
+  public beforeDestoyQuestionElement(el: any) {
   }
   /**
    * Returns the rendred question title.

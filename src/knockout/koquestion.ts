@@ -143,12 +143,12 @@ export class QuestionImplementor extends ImplementorBase {
   protected koQuestionAfterRender(elements: any, con: any) {
     var el = SurveyElement.GetFirstNonTextElement(elements, true);
     if (!!el) {
-      this.question.afterRenderInput(el);
+      this.question.afterRenderQuestionElement(el);
       if(!!this.question.customWidget) {
         this.question.customWidget.afterRender(this.question, el);
       }
       ko.utils.domNodeDisposal.addDisposeCallback(el, () => {
-        this.question.beforeDestoyInput(el);
+        this.question.beforeDestoyQuestionElement(el);
         if(!!this.question.customWidget) {
           try {
             this.question.customWidget.willUnmount(this.question, el);

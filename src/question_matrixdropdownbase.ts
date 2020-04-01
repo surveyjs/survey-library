@@ -993,7 +993,7 @@ export class QuestionMatrixDropdownRenderedCell {
   public row: MatrixDropdownRowModelBase;
   public question: Question;
   public isRemoveRow: boolean;
-  public isFirstChoice: boolean;
+  public choiceIndex: number;
   public matrix: QuestionMatrixDropdownModelBase;
   public constructor() {
     this.idValue = QuestionMatrixDropdownRenderedCell.counter++;
@@ -1039,6 +1039,9 @@ export class QuestionMatrixDropdownRenderedCell {
   }
   public get isCheckbox(): boolean {
     return this.isChoice && this.question.getType() == "checkbox";
+  }
+  public get isFirstChoice(): boolean {
+    return this.choiceIndex === 0;
   }
 }
 
@@ -1250,7 +1253,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     for (var i = 0; i < rows.length; i++) {
       var rCell = this.createEditCell(rows[i].cells[index]);
       rCell.item = choice;
-      rCell.isFirstChoice = i == 0;
+      rCell.choiceIndex = i;
       res.cells.push(rCell);
     }
     if (this.matrix.hasTotal) {
@@ -1285,7 +1288,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
       var rCell = this.createEditCell(cell);
       if (!isFooter) {
         rCell.item = choices[i];
-        rCell.isFirstChoice = i == 0;
+        rCell.choiceIndex = i;
       }
       rRow.cells.push(rCell);
     }

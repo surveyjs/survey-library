@@ -1603,6 +1603,9 @@ export class QuestionMatrixDropdownModelBase
       this.generatedTotalRow.updateCellQuestionOnColumnChanged(column);
     }
     this.onColumnsChanged();
+    if (column.isShowInMultipleColumns) {
+      this.onShowInMultipleColumnsChanged(column);
+    }
   }
   onShowInMultipleColumnsChanged(column: MatrixDropdownColumn) {
     this.generatedVisibleRows = null;

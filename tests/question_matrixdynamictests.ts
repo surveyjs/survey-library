@@ -3739,3 +3739,39 @@ QUnit.test(
     );
   }
 );
+QUnit.test(
+  "showInMultipleColumns property, using default choices and cellType",
+  function(assert) {
+    var survey = new SurveyModel({
+      elements: [
+        {
+          type: "matrixdropdown",
+          name: "matrix",
+          columns: [
+            {
+              name: "col1",
+              cellType: "text"
+            },
+            {
+              name: "col2",
+              cellType: "radiogroup",
+              showInMultipleColumns: true
+            },
+            {
+              name: "col3",
+              cellType: "comment"
+            }
+          ],
+          rows: ["row1", "row2"],
+          choices: ["1", "2", "3"]
+        }
+      ]
+    });
+    var matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+    assert.equal(
+      matrix.renderedTable.headerRow.cells.length,
+      1 + 2 + 3,
+      "header: row value + 3 columns"
+    );
+  }
+);

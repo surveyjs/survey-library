@@ -373,7 +373,7 @@ export class MatrixDropdownColumn extends Base implements ILocalizableOwner {
     this.setPropertyValue("showInMultipleColumns", val);
   }
   public get isSupportMultipleColumns(): boolean {
-    return ["checkbox", "dropdown", "radiogroup"].indexOf(this.cellType) > -1;
+    return ["checkbox", "radiogroup"].indexOf(this.cellType) > -1;
   }
   public get isShowInMultipleColumns(): boolean {
     return this.showInMultipleColumns && this.isSupportMultipleColumns;
@@ -1319,6 +1319,9 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     }
   }
   private getMultipleColumnChoices(column: MatrixDropdownColumn): any {
+    var choices = column.templateQuestion.choices;
+    if (!!choices && Array.isArray(choices) && choices.length == 0)
+      return this.matrix.choices;
     var choices = column.templateQuestion.visibleChoices;
     if (!choices || !Array.isArray(choices)) return null;
     return choices;

@@ -3505,3 +3505,273 @@ QUnit.test(
     );
   }
 );
+QUnit.test("showInMultipleColumns property", function(assert) {
+  var survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdropdown",
+        name: "matrix",
+        columns: [
+          {
+            name: "col1",
+            cellType: "text",
+            totalType: "sum"
+          },
+          {
+            name: "col2",
+            cellType: "checkbox",
+            choices: ["1", "2", "3"]
+          },
+          {
+            name: "col3",
+            cellType: "comment"
+          }
+        ],
+        rows: ["row1", "row2"]
+      }
+    ]
+  });
+  var matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+  assert.equal(
+    matrix.renderedTable.headerRow.cells.length,
+    1 + 3,
+    "header: row value + 3 columns"
+  );
+  assert.equal(
+    matrix.renderedTable.rows[0].cells.length,
+    1 + 3,
+    "first row: row value + 3 columns"
+  );
+  assert.equal(
+    matrix.renderedTable.footerRow.cells.length,
+    1 + 3,
+    "footer: row value + 3 columns"
+  );
+  assert.equal(
+    matrix.renderedTable.headerRow.cells[2].locTitle.renderedHtml,
+    "col2",
+    "Column header"
+  );
+  matrix.columns[1].showInMultipleColumns = true;
+  assert.equal(
+    matrix.renderedTable.headerRow.cells.length,
+    1 + 2 + 3,
+    "header: row value + 2 columns + showInMultipleColumns column"
+  );
+  assert.equal(
+    matrix.renderedTable.rows[0].cells.length,
+    1 + 2 + 3,
+    "first row: row value + 2 columns + showInMultipleColumns column"
+  );
+  assert.equal(
+    matrix.renderedTable.footerRow.cells.length,
+    1 + 2 + 3,
+    "footer:  row value + 2 columns + showInMultipleColumns column"
+  );
+  assert.equal(
+    matrix.renderedTable.headerRow.cells[2].locTitle.renderedHtml,
+    "1",
+    "Column header, first choice"
+  );
+  assert.equal(
+    matrix.renderedTable.rows[0].cells[2].isCheckbox,
+    true,
+    "first row, first choice: it is checkbox"
+  );
+  assert.equal(
+    matrix.renderedTable.rows[0].cells[2].isChoice,
+    true,
+    "first row, first choice: isChoice"
+  );
+  assert.equal(
+    matrix.renderedTable.rows[0].cells[2].choiceValue,
+    "1",
+    "first row, first choice: choiceValue = 1"
+  );
+  assert.equal(
+    matrix.renderedTable.rows[0].cells[1].showErrorOnTop,
+    true,
+    "first row, text question: showErrorOnTop"
+  );
+  assert.equal(
+    matrix.renderedTable.rows[0].cells[1].showErrorOnBottom,
+    false,
+    "first row, text question: showErrorOnBottom"
+  );
+  assert.equal(
+    matrix.renderedTable.rows[0].cells[2].showErrorOnTop,
+    true,
+    "first row, first choice: showErrorOnTop"
+  );
+  assert.equal(
+    matrix.renderedTable.rows[0].cells[2].showErrorOnBottom,
+    false,
+    "first row, first choice: showErrorOnBottom"
+  );
+  assert.equal(
+    matrix.renderedTable.rows[0].cells[3].showErrorOnTop,
+    false,
+    "first row, second choice: showErrorOnTop"
+  );
+  assert.equal(
+    matrix.renderedTable.rows[0].cells[3].showErrorOnBottom,
+    false,
+    "first row, second choice: showErrorOnBottom"
+  );
+  assert.equal(
+    matrix.renderedTable.footerRow.cells[2].isChoice,
+    false,
+    "footer cell:  isChoice should be false"
+  );
+});
+QUnit.test(
+  "showInMultipleColumns property + columnLayout = 'vertical'",
+  function(assert) {
+    var survey = new SurveyModel({
+      elements: [
+        {
+          type: "matrixdropdown",
+          name: "matrix",
+          columnLayout: "vertical",
+          columns: [
+            {
+              name: "col1",
+              cellType: "text",
+              totalType: "sum"
+            },
+            {
+              name: "col2",
+              cellType: "radiogroup",
+              showInMultipleColumns: true,
+              choices: ["1", "2", "3"]
+            },
+            {
+              name: "col3",
+              cellType: "comment"
+            }
+          ],
+          rows: ["row1", "row2"]
+        }
+      ]
+    });
+    var matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+    assert.equal(
+      matrix.renderedTable.headerRow.cells.length,
+      1 + 2 + 1,
+      "header: column header + 2 rows + total"
+    );
+    assert.equal(
+      matrix.renderedTable.rows.length,
+      2 + 3,
+      "rows.length = 2 columns + showInMultipleColumns column"
+    );
+    assert.equal(
+      matrix.renderedTable.rows[1].cells[0].locTitle.renderedHtml,
+      "1",
+      "header for showInMultipleColumns column"
+    );
+    assert.equal(
+      matrix.renderedTable.rows[1].cells[1].isChoice,
+      true,
+      "showInMultipleColumns, first choice: isChoice"
+    );
+    assert.equal(
+      matrix.renderedTable.rows[1].cells[1].choiceValue,
+      "1",
+      "showInMultipleColumns, first choice: choiceValue"
+    );
+    assert.equal(
+      matrix.renderedTable.rows[1 + 2].cells[0].locTitle.renderedHtml,
+      "3",
+      "header for showInMultipleColumns column, third choice"
+    );
+    assert.equal(
+      matrix.renderedTable.rows[1 + 2].cells[1].isChoice,
+      true,
+      "showInMultipleColumns, third choice: isChoice"
+    );
+    assert.equal(
+      matrix.renderedTable.rows[1 + 2].cells[1].choiceValue,
+      "3",
+      "showInMultipleColumns, third choice: choiceValue"
+    );
+  }
+);
+QUnit.test(
+  "showInMultipleColumns property, update on visibleChoices change",
+  function(assert) {
+    var survey = new SurveyModel({
+      elements: [
+        {
+          type: "matrixdropdown",
+          name: "matrix",
+          columns: [
+            {
+              name: "col1",
+              cellType: "text"
+            },
+            {
+              name: "col2",
+              cellType: "checkbox",
+              showInMultipleColumns: true,
+              choices: ["1", "2", "3"]
+            },
+            {
+              name: "col3",
+              cellType: "comment"
+            }
+          ],
+          rows: ["row1", "row2"]
+        }
+      ]
+    });
+    var matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+    assert.equal(
+      matrix.renderedTable.headerRow.cells.length,
+      1 + 2 + 3,
+      "header: row value + 3 columns"
+    );
+    matrix.columns[1].choices.push(new ItemValue(4));
+    assert.equal(
+      matrix.renderedTable.headerRow.cells.length,
+      1 + 2 + 4,
+      "header: row value + 4 columns"
+    );
+  }
+);
+QUnit.test(
+  "showInMultipleColumns property, using default choices and cellType",
+  function(assert) {
+    var survey = new SurveyModel({
+      elements: [
+        {
+          type: "matrixdropdown",
+          name: "matrix",
+          columns: [
+            {
+              name: "col1",
+              cellType: "text"
+            },
+            {
+              name: "col2",
+              cellType: "radiogroup",
+              showInMultipleColumns: true
+            },
+            {
+              name: "col3",
+              cellType: "comment"
+            }
+          ],
+          rows: ["row1", "row2"],
+          choices: ["1", "2", "3"]
+        }
+      ]
+    });
+    var matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+    assert.equal(
+      matrix.renderedTable.headerRow.cells.length,
+      1 + 2 + 3,
+      "header: row value + 3 columns"
+    );
+  }
+);

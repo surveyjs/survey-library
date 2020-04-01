@@ -334,7 +334,7 @@ export class SurveyQuestionAndErrorsCell extends ReactSurveyElement {
   render(): JSX.Element {
     if (!this.question) return null;
     var errorsLocation = this.creator.questionErrorLocation();
-    var errors = this.question.isVisible ? (
+    var errors = this.getShowErrors() ? (
       <SurveyElementErrors
         element={this.question}
         cssClasses={this.cssClasses}
@@ -345,15 +345,13 @@ export class SurveyQuestionAndErrorsCell extends ReactSurveyElement {
     var errorsTop = errorsLocation === "top" ? errors : null;
     var errorsBottom = errorsLocation === "bottom" ? errors : null;
     var renderedCell = this.renderQuestion();
+    var style = this.getCellStyle();
     return (
       <td
         ref="cell"
         className={this.getCellClass() + " " + this.cssClasses.cell}
-        headers={
-          this.question.isVisible && !!this["cell"]
-            ? this["cell"].column.locTitle.renderedHtml
-            : ""
-        }
+        headers={this.question.isVisible ? this.getHeaderText() : ""}
+        style={style}
       >
         {errorsTop}
         {renderedCell}
@@ -361,7 +359,16 @@ export class SurveyQuestionAndErrorsCell extends ReactSurveyElement {
       </td>
     );
   }
-  private renderQuestion(): JSX.Element {
+  protected getShowErrors(): boolean {
+    return this.question.isVisible;
+  }
+  protected getCellStyle(): any {
+    return null;
+  }
+  protected renderQuestion(): JSX.Element {
     return SurveyQuestion.renderQuestionBody(this.creator, this.question);
+  }
+  protected getHeaderText(): string {
+    return !!this["cell"] ? this["cell"].column.locTitle.renderedHtml : "";
   }
 }

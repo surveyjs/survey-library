@@ -16,6 +16,8 @@ import {
   QuestionMatrixDropdownRenderedCell
 } from "../question_matrixdropdownbase";
 import { Question } from "../question";
+import { SurveyQuestionCheckboxItem } from "./reactquestioncheckbox";
+import { SurveyQuestionRadioItem } from "./reactquestionradiogroup";
 
 export class SurveyQuestionMatrixDropdownBase extends SurveyQuestionElementBase {
   constructor(props: any) {
@@ -148,7 +150,7 @@ export class SurveyQuestionMatrixDropdownBase extends SurveyQuestionElementBase 
         <SurveyQuestionMatrixDropdownCell
           key={key}
           cssClasses={cssClasses}
-          cell={cell.cell}
+          cell={cell}
           creator={this.creator}
         />
       );
@@ -175,7 +177,7 @@ export class SurveyQuestionMatrixDropdownCell extends SurveyQuestionAndErrorsCel
   constructor(props: any) {
     super(props);
   }
-  private get cell(): MatrixDropdownCell {
+  private get cell(): QuestionMatrixDropdownRenderedCell {
     return this.props.cell;
   }
   protected getQuestion(): Question {
@@ -198,10 +200,16 @@ export class SurveyQuestionMatrixDropdownCell extends SurveyQuestionAndErrorsCel
         cellQuestion: this.question,
         htmlElement: el,
         row: this.cell.row,
-        column: this.cell.column
+        column: this.cell.cell.column
       };
       this.question.survey.matrixAfterCellRender(this.question, options);
     }
+  }
+  protected getShowErrors(): boolean {
+    return (
+      this.question.isVisible &&
+      (!this.cell.isChoice || this.cell.isFirstChoice)
+    );
   }
   protected getCellClass(): any {
     var question = this.cell.question;
@@ -214,5 +222,50 @@ export class SurveyQuestionMatrixDropdownCell extends SurveyQuestionAndErrorsCel
     cellClass += " " + question.cssClasses.asCell;
 
     return cellClass;
+  }
+  protected getCellStyle(): any {
+    if (!this.cell.isChoice) return super.getCellStyle();
+    return { textAlign: "center" };
+  }
+
+  protected getHeaderText(): string {
+    return !!this.cell.locTitle ? this.cell.locTitle.renderedHtml : "";
+  }
+  protected renderQuestion(): JSX.Element {
+    if (!this.cell.isChoice)
+      return SurveyQuestion.renderQuestionBody(this.creator, this.question);
+    if (this.cell.isCheckbox) return this.renderCellCheckboxButton();
+    return this.renderCellRadiogroupButton();
+  }
+  private renderCellCheckboxButton(): JSX.Element {
+    var key = this.cell.question.id + "item" + this.cell.choiceIndex;
+    return (
+      <SurveyQuestionCheckboxItem
+        key={key}
+        question={this.cell.question}
+        cssClasses={this.cell.question.cssClasses}
+        isDisplayMode={this.cell.question.isDisplayMode}
+        item={this.cell.item}
+        isFirst={this.cell.isFirstChoice}
+        index={this.cell.choiceIndex.toString()}
+        hideCaption={true}
+      />
+    );
+  }
+  private renderCellRadiogroupButton(): JSX.Element {
+    var key = this.cell.question.id + "item" + this.cell.choiceIndex;
+    return (
+      <SurveyQuestionRadioItem
+        key={key}
+        question={this.cell.question}
+        cssClasses={this.cell.question.cssClasses}
+        isDisplayMode={this.cell.question.isDisplayMode}
+        item={this.cell.item}
+        index={this.cell.choiceIndex.toString()}
+        isChecked={this.cell.question.value === this.cell.item.value}
+        isDisabled={this.cell.question.isReadOnly || !this.cell.item.isEnabled}
+        hideCaption={true}
+      />
+    );
   }
 }

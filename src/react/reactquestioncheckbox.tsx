@@ -106,6 +106,9 @@ export class SurveyQuestionCheckboxItem extends ReactSurveyElement {
   protected get index(): number {
     return this.props.index;
   }
+  private get hideCaption(): boolean {
+    return this.props.hideCaption === true;
+  }
   public shouldComponentUpdate(): boolean {
     return (
       !this.question.customWidget ||
@@ -165,7 +168,7 @@ export class SurveyQuestionCheckboxItem extends ReactSurveyElement {
     otherItem: JSX.Element
   ): JSX.Element {
     var id = this.question.inputId + "_" + this.index;
-    var text = this.renderLocString(this.item.locText);
+    var text = !this.hideCaption ? this.renderLocString(this.item.locText) : "";
     let itemClass = this.getItemClass(isChecked, isDisabled);
     let labelClass = this.question.getLabelClass(isChecked);
     var onItemChanged =

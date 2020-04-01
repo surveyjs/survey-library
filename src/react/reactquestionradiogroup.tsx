@@ -122,6 +122,9 @@ export class SurveyQuestionRadioItem extends ReactSurveyElement {
   protected get isDisabled(): boolean {
     return this.props.isDisabled;
   }
+  private get hideCaption(): boolean {
+    return this.props.hideCaption === true;
+  }
   public shouldComponentUpdate(): boolean {
     return (
       !this.question.customWidget ||
@@ -155,8 +158,9 @@ export class SurveyQuestionRadioItem extends ReactSurveyElement {
         : null;
 
     var id = this.question.inputId + "_" + this.index;
-    var itemText = this.renderLocString(this.item.locText, this.textStyle);
-
+    var itemText = !this.hideCaption
+      ? this.renderLocString(this.item.locText, this.textStyle)
+      : "";
     var itemClass = this.getItemClass(this.isChecked, this.isDisabled);
     var labelClass = this.question.getLabelClass(this.isChecked);
     var locText: any = this.item.locText;

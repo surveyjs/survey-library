@@ -334,7 +334,7 @@ export class SurveyQuestionAndErrorsCell extends ReactSurveyElement {
   render(): JSX.Element {
     if (!this.question) return null;
     var errorsLocation = this.creator.questionErrorLocation();
-    var errors = this.question.isVisible ? (
+    var errors = this.getShowErrors() ? (
       <SurveyElementErrors
         element={this.question}
         cssClasses={this.cssClasses}
@@ -358,6 +358,9 @@ export class SurveyQuestionAndErrorsCell extends ReactSurveyElement {
         {errorsBottom}
       </td>
     );
+  }
+  protected getShowErrors(): boolean {
+    return this.question.isVisible;
   }
   protected getCellStyle(): any {
     return null;

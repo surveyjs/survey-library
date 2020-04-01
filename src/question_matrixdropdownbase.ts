@@ -985,15 +985,15 @@ export class MatrixDropdownTotalRowModel extends MatrixDropdownRowModelBase {
 export class QuestionMatrixDropdownRenderedCell {
   private static counter = 1;
   private idValue: number;
+  private itemValue: ItemValue;
   public minWidth: string = "";
   public width: string = "";
   public locTitle: LocalizableString;
   public cell: MatrixDropdownCell;
   public row: MatrixDropdownRowModelBase;
   public question: Question;
-  public isChoice: boolean = false;
-  public choiceValue: any;
   public isRemoveRow: boolean;
+  public isFirstChoice: boolean;
   public matrix: QuestionMatrixDropdownModelBase;
   public constructor() {
     this.idValue = QuestionMatrixDropdownRenderedCell.counter++;
@@ -1006,6 +1006,39 @@ export class QuestionMatrixDropdownRenderedCell {
   }
   public get id(): number {
     return this.idValue;
+  }
+  public get showErrorOnTop(): boolean {
+    return this.showErrorOnCore("top");
+  }
+  public get showErrorOnBottom(): boolean {
+    return this.showErrorOnCore("bottom");
+  }
+  private showErrorOnCore(location: string): boolean {
+    return (
+      this.getShowErrorLocation() == location &&
+      (!this.isChoice || this.isFirstChoice)
+    );
+  }
+  private getShowErrorLocation(): string {
+    return this.hasQuestion ? this.question.survey.questionErrorLocation : "";
+  }
+  public get item(): ItemValue {
+    return this.itemValue;
+  }
+  public set item(val: ItemValue) {
+    this.itemValue = val;
+    if (!!val) {
+      val.hideCaption = true;
+    }
+  }
+  public get isChoice(): boolean {
+    return !!this.item;
+  }
+  public get choiceValue(): any {
+    return this.isChoice ? this.item.value : null;
+  }
+  public get isCheckbox(): boolean {
+    return this.isChoice && this.question.getType() == "checkbox";
   }
 }
 
@@ -1216,10 +1249,8 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     var rows = this.matrix.visibleRows;
     for (var i = 0; i < rows.length; i++) {
       var rCell = this.createEditCell(rows[i].cells[index]);
-      rCell.isChoice = !!choice;
-      if (rCell.isChoice) {
-        rCell.choiceValue = choice.value;
-      }
+      rCell.item = choice;
+      rCell.isFirstChoice = i == 0;
       res.cells.push(rCell);
     }
     if (this.matrix.hasTotal) {
@@ -1245,14 +1276,17 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
   }
   private createMutlipleEditCells(
     rRow: QuestionMatrixDropdownRenderedRow,
-    cell: MatrixDropdownCell
+    cell: MatrixDropdownCell,
+    isFooter: boolean = false
   ) {
     var choices = this.getMultipleColumnChoices(cell.column);
     if (!choices) return;
     for (var i = 0; i < choices.length; i++) {
       var rCell = this.createEditCell(cell);
-      rCell.isChoice = true;
-      rCell.choiceValue = choices[i].value;
+      if (!isFooter) {
+        rCell.item = choices[i];
+        rCell.isFirstChoice = i == 0;
+      }
       rRow.cells.push(rCell);
     }
   }
@@ -1270,7 +1304,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     rRow: QuestionMatrixDropdownRenderedRow,
     cell: MatrixDropdownCell
   ) {
-    this.createMutlipleEditCells(rRow, cell);
+    this.createMutlipleEditCells(rRow, cell, true);
   }
   private createMutlipleColumnsHeader(column: MatrixDropdownColumn) {
     var choices = this.getMultipleColumnChoices(column);

@@ -3519,7 +3519,7 @@ QUnit.test("showInMultipleColumns property", function(assert) {
           },
           {
             name: "col2",
-            cellType: "radiogroup",
+            cellType: "checkbox",
             choices: ["1", "2", "3"]
           },
           {
@@ -3574,6 +3574,11 @@ QUnit.test("showInMultipleColumns property", function(assert) {
     "Column header, first choice"
   );
   assert.equal(
+    matrix.renderedTable.rows[0].cells[2].isCheckbox,
+    true,
+    "first row, first choice: it is checkbox"
+  );
+  assert.equal(
     matrix.renderedTable.rows[0].cells[2].isChoice,
     true,
     "first row, first choice: isChoice"
@@ -3582,6 +3587,41 @@ QUnit.test("showInMultipleColumns property", function(assert) {
     matrix.renderedTable.rows[0].cells[2].choiceValue,
     "1",
     "first row, first choice: choiceValue = 1"
+  );
+  assert.equal(
+    matrix.renderedTable.rows[0].cells[1].showErrorOnTop,
+    true,
+    "first row, text question: showErrorOnTop"
+  );
+  assert.equal(
+    matrix.renderedTable.rows[0].cells[1].showErrorOnBottom,
+    false,
+    "first row, text question: showErrorOnBottom"
+  );
+  assert.equal(
+    matrix.renderedTable.rows[0].cells[2].showErrorOnTop,
+    true,
+    "first row, first choice: showErrorOnTop"
+  );
+  assert.equal(
+    matrix.renderedTable.rows[0].cells[2].showErrorOnBottom,
+    false,
+    "first row, first choice: showErrorOnBottom"
+  );
+  assert.equal(
+    matrix.renderedTable.rows[0].cells[3].showErrorOnTop,
+    false,
+    "first row, second choice: showErrorOnTop"
+  );
+  assert.equal(
+    matrix.renderedTable.rows[0].cells[3].showErrorOnBottom,
+    false,
+    "first row, second choice: showErrorOnBottom"
+  );
+  assert.equal(
+    matrix.renderedTable.footerRow.cells[2].isChoice,
+    false,
+    "footer cell:  isChoice should be false"
   );
 });
 QUnit.test(

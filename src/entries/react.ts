@@ -70,6 +70,7 @@ export { ReactQuestionFactory } from "../react/reactquestionfactory";
 export { ReactElementFactory } from "../react/element-factory";
 export { SurveyQuestionImagePicker } from "../react/imagepicker";
 export { SurveyQuestionImage } from "../react/image";
+export { SurveyQuestionSignaturePad } from "../react/signaturepad";
 
 //Uncomment to include the "date" question type.
 //export {default as SurveyQuestionDate} from "../plugins/react/reactquestiondate";

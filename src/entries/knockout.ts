@@ -50,6 +50,7 @@ export { QuestionImagePicker } from "../knockout/koquestion_imagepicker";
 export { SurveyWindow } from "../knockout/koSurveyWindow";
 export { SurveyTemplateText } from "../knockout/templateText";
 export { QuestionImage } from "../knockout/koquestion_image";
+export { QuestionSignaturePad } from "../knockout/koquestion_signaturepad";
 
 //Uncomment to include the "date" question type.
 //export {QuestionDate} from "../plugins/knockout/koquestion_date";

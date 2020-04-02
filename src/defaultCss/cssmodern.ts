@@ -231,6 +231,11 @@ export var modernCss = {
     removeFileSvg: "sv-file__remove-svg",
     wrapper: "sv-file__wrapper"
   },
+  signaturepad: {
+    root: "sv-signaturepad sjs_sp_container",
+    controls: "sjs_sp_controls",
+    clearButton: "sjs_sp_clear"
+  },
   saveData: {
     root: "",
     saving: "",

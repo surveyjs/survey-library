@@ -195,6 +195,11 @@ export var defaultStandardCss = {
     chooseFile: "sv_q_file_choose_button",
     noFileChosen: "sv_q_file_placeholder"
   },
+  signaturepad: {
+    root: "sv_q_signaturepad sjs_sp_container",
+    controls: "sjs_sp_controls",
+    clearButton: "sjs_sp_clear"
+  },
   saveData: {
     root: "",
     saving: "",

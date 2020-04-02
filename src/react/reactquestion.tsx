@@ -130,29 +130,54 @@ export class SurveyQuestion extends SurveyElementBase {
   protected renderQuestion(): JSX.Element {
     return SurveyQuestion.renderQuestionBody(this.creator, this.question);
   }
+
+  private TitleKeyIndex = 0;
+  private TitleKeyPrefix = this.question.name + "-titleKey-";
+  private getTitleKey = () => {
+    this.TitleKeyIndex++;
+    return this.TitleKeyPrefix + this.TitleKeyIndex;
+  };
+
   protected renderTitle(cssClasses: any): JSX.Element {
-    var spaceSpan = <span>&nbsp;</span>;
+    var getSpaceSpan = () => {
+      return (
+        <span data-key={this.getTitleKey()} key={this.getTitleKey()}>
+          &nbsp;
+        </span>
+      );
+    };
+
     var spans = [];
     if (this.question.isRequireTextOnStart) {
       spans.push(this.renderRequireText(cssClasses));
-      spans.push(spaceSpan);
+      spans.push(getSpaceSpan());
     }
     var questionNumber = this.question["no"];
     if (questionNumber) {
       spans.push(
-        <span className={cssClasses.number} style={{ position: "static" }}>
+        <span
+          data-key={this.getTitleKey()}
+          key={this.getTitleKey()}
+          className={cssClasses.number}
+          style={{ position: "static" }}
+        >
           {questionNumber}
         </span>
       );
-      spans.push(spaceSpan);
+      spans.push(getSpaceSpan());
     }
     if (this.question.isRequireTextBeforeTitle) {
       spans.push(this.renderRequireText(cssClasses));
-      spans.push(spaceSpan);
+      spans.push(getSpaceSpan());
     }
-    spans.push(SurveyElementBase.renderLocString(this.question.locTitle));
+    var locStr = (
+      <span data-key={this.getTitleKey()} key={this.getTitleKey()}>
+        {SurveyElementBase.renderLocString(this.question.locTitle, null)}
+      </span>
+    );
+    spans.push(locStr);
     if (this.question.isRequireTextAfterTitle) {
-      spans.push(spaceSpan);
+      spans.push(getSpaceSpan());
       spans.push(this.renderRequireText(cssClasses));
     }
     return (
@@ -166,7 +191,11 @@ export class SurveyQuestion extends SurveyElementBase {
   }
   private renderRequireText(cssClasses: any): JSX.Element {
     return (
-      <span className={cssClasses.requiredText}>
+      <span
+        data-key={this.getTitleKey()}
+        key={this.getTitleKey()}
+        className={cssClasses.requiredText}
+      >
         {this.question.requiredText}
       </span>
     );

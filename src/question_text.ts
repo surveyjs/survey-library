@@ -28,6 +28,9 @@ export class QuestionTextModel extends Question {
   public set inputType(val: string) {
     val = val.toLowerCase();
     if (val == "datetime_local") val = "datetime-local";
+    this.min = undefined;
+    this.max = undefined;
+    this.step = undefined;
     this.setPropertyValue("inputType", val.toLowerCase());
   }
   public getValidators(): Array<SurveyValidator> {
@@ -69,6 +72,40 @@ export class QuestionTextModel extends Question {
   public set size(val: number) {
     this.setPropertyValue("size", val);
   }
+  /**
+   * The minimum value
+   */
+  public get min(): string {
+    return this.getPropertyValue("min");
+  }
+  public set min(val: string) {
+    this.setPropertyValue("min", val);
+  }
+  /**
+   * The maximum value
+   */
+  public get max(): string {
+    var maxValue = this.getPropertyValue("max");
+    if (
+      !maxValue &&
+      (this.inputType === "date" || this.inputType === "datetime-local")
+    ) {
+      maxValue = "2999-12-31";
+    }
+    return maxValue;
+  }
+  public set max(val: string) {
+    this.setPropertyValue("max", val);
+  }
+  /**
+   * The step value
+   */
+  public get step(): string {
+    return this.getPropertyValue("step");
+  }
+  public set step(val: string) {
+    this.setPropertyValue("step", val);
+  }
   isEmpty(): boolean {
     return super.isEmpty() || this.value === "";
   }
@@ -104,6 +141,16 @@ export class QuestionTextModel extends Question {
   }
 }
 
+const minMaxTypes = [
+  "number",
+  "range",
+  "date",
+  "datetime-local",
+  "month",
+  "time",
+  "week"
+];
+
 Serializer.addClass(
   "text",
   [
@@ -128,6 +175,30 @@ Serializer.addClass(
       ]
     },
     { name: "size:number", default: 25 },
+    {
+      name: "min",
+      dependsOn: "inputType",
+      visibleIf: function(obj: any) {
+        if (!obj) return false;
+        return minMaxTypes.indexOf(obj.inputType) !== -1;
+      }
+    },
+    {
+      name: "max",
+      dependsOn: "inputType",
+      visibleIf: function(obj: any) {
+        if (!obj) return false;
+        return minMaxTypes.indexOf(obj.inputType) !== -1;
+      }
+    },
+    {
+      name: "step",
+      dependsOn: "inputType",
+      visibleIf: function(obj: any) {
+        if (!obj) return false;
+        return minMaxTypes.indexOf(obj.inputType) !== -1;
+      }
+    },
     { name: "maxLength:number", default: -1 },
     { name: "placeHolder", serializationProperty: "locPlaceHolder" }
   ],

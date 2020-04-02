@@ -3445,3 +3445,23 @@ QUnit.test("Question.addError(SurveyError|string)", function(assert) {
   assert.equal(question.errors[0].text, "Error 1", "numeric error text");
   assert.equal(question.errors[1].text, "Error 2", "custom error text");
 });
+
+QUnit.test("QuestionText min/max value", function(assert) {
+  var question = new QuestionTextModel("q");
+  assert.equal(question.min, undefined, "Empty min");
+  assert.equal(question.max, undefined, "Empty max");
+  question.min = "1";
+  question.max = "5";
+  assert.equal(question.min, "1", "min 1");
+  assert.equal(question.max, "5", "max 5");
+  question.inputType = "number";
+  assert.equal(question.min, undefined, "min reset");
+  assert.equal(question.max, undefined, "max reset");
+  question.inputType = "date";
+  assert.equal(question.min, undefined, "min not set");
+  assert.equal(question.max, "2999-12-31", "max is default");
+  question.min = "2000-01-01";
+  question.max = "2020-12-31";
+  assert.equal(question.min, "2000-01-01", "min is set");
+  assert.equal(question.max, "2020-12-31", "max is set");
+});

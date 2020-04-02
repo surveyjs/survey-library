@@ -30,6 +30,9 @@ export class SurveyQuestionText extends SurveyQuestionUncontrolledElement<
         type={this.question.inputType}
         ref={input => (this.control = input)}
         maxLength={this.question.getMaxLength()}
+        min={this.question.min}
+        max={this.question.max}
+        step={this.question.step}
         size={this.question.size}
         placeholder={placeHolder}
         onBlur={onBlur}

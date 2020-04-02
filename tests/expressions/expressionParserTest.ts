@@ -286,6 +286,18 @@ QUnit.test("Run sum function with arrays, Bug #1808", function(assert) {
   assert.equal(runner.run(values), 10, "2 + 5 + 3 == 10");
 });
 
+QUnit.test("Run min function", function(assert) {
+  var runner = new ExpressionRunner("min({var1},{var2})");
+  var values = { var1: [4, 2, 5], var2: 3 };
+  assert.equal(runner.run(values), 2, "4, 2, 5, 3, min is 2");
+});
+
+QUnit.test("Run max function", function(assert) {
+  var runner = new ExpressionRunner("max({var1},{var2})");
+  var values = { var1: [4, 2, 5, 3], var2: 3 };
+  assert.equal(runner.run(values), 5, "4, 2, 5, 3, max is 5");
+});
+
 QUnit.test("Run age function", function(assert) {
   var runner = new ConditionRunner("age({bithday}) >= 21");
   var values = { bithday: new Date(1974, 1, 1) };

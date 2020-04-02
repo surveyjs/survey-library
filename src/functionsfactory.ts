@@ -78,6 +78,33 @@ function sum(params: any[]): any {
 }
 FunctionFactory.Instance.register("sum", sum);
 
+function min_max(params: any[], isMin: boolean): any {
+  var arr: any[] = [];
+  getParamsAsArray(params, arr);
+  var res = undefined;
+  for (var i = 0; i < arr.length; i++) {
+    if (res === undefined) {
+      res = arr[i];
+    }
+    if (isMin) {
+      if (res > arr[i]) res = arr[i];
+    } else {
+      if (res < arr[i]) res = arr[i];
+    }
+  }
+  return res;
+}
+
+function min(params: any[]): any {
+  return min_max(params, true);
+}
+FunctionFactory.Instance.register("min", min);
+
+function max(params: any[]): any {
+  return min_max(params, false);
+}
+FunctionFactory.Instance.register("max", max);
+
 function count(params: any[]): any {
   var arr: any[] = [];
   getParamsAsArray(params, arr);

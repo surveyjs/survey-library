@@ -6,6 +6,8 @@ We recommend that you use the [SurveyJS Creator](https://surveyjs.io/create-surv
 
 For information about integrating a survey into a web page, refer to the [Add Survey into your Web Page](https://surveyjs.io/Documentation/Library/?id=Add-Survey-into-your-Web-Page) article.
 
+Please visit our [what's new page](https://surveyjs.io/WhatsNew) to see what we have added recently or what is coming soon.
+
 - [Supported Platforms](#platforms)
 - [Survey Objects](#objects)
   - [Create Simple Survey Model (Using JSON or in Code)](#objects-createmodel)

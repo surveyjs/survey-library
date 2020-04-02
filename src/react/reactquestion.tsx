@@ -170,12 +170,9 @@ export class SurveyQuestion extends SurveyElementBase {
       spans.push(this.renderRequireText(cssClasses));
       spans.push(getSpaceSpan());
     }
-    var locStr = (
-      <span data-key={this.getTitleKey()} key={this.getTitleKey()}>
-        {SurveyElementBase.renderLocString(this.question.locTitle, null)}
-      </span>
+    spans.push(
+      SurveyElementBase.renderLocString(this.question.locTitle, null, this.getTitleKey())
     );
-    spans.push(locStr);
     if (this.question.isRequireTextAfterTitle) {
       spans.push(getSpaceSpan());
       spans.push(this.renderRequireText(cssClasses));

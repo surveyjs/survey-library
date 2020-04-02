@@ -36,9 +36,10 @@ export class SurveyLocString extends React.Component<any, any> {
 export class SurveyElementBase extends React.Component<any, any> {
   public static renderLocString(
     locStr: LocalizableString,
-    style: any = null
+    style: any = null,
+    key?: string
   ): JSX.Element {
-    return <SurveyLocString locStr={locStr} style={style} />;
+    return <SurveyLocString locStr={locStr} style={style} key={key} />;
   }
   constructor(props: any) {
     super(props);

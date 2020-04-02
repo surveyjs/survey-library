@@ -777,6 +777,8 @@ The table below demonstrates a list of built-in functions:
 | `isContainerReady("panelname/pagename")` | Returns `true`, if all questions in container (panel or page) are answered correctly. It validates (silently) all questions recursively in the container. If there is an error it returns `false`, otherwise `true`. If a question value is empty, but it does not have validators and it is not required then validation would pass successful. |
 | `isDisplayMode()` | Returns `true` if the survey is in display mode. Here is the example of usage: `isDisplayMode() <> true` |
 | `sum(par1, par2, ...)` | Returns the summary of passed parameters. |
+| `max(par1, par2, ...)` | Returns the maximum of passed parameters. [from v1.5.19](https://surveyjs.io/whatsnew#v1.5.19) |
+| `min(par1, par2, ...)` | Returns the minimum of passed parameters. [from v1.5.19](https://surveyjs.io/whatsnew#v1.5.19) |
 | `avg(par1, par2, ...)` | Returns the average value for passed parameters. |
 | `sumInArray({questionName}, 'propertyName')` | Returns the summary for array of objects {questionName} by property 'propertyName'. `sumInArray('matrixdynamic', 'total') > 1000` |
 | `avgInArray({questionName}, 'propertyName')` | Returns the average value for array of objects {questionName} by property 'propertyName'. `avgInArray('matrixdynamic', 'quantity') > 4` |

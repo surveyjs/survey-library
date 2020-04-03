@@ -52,9 +52,15 @@ steps:
 
 - script: |
     npm run build_prod
+  displayName: 'build'
+
+- script: |
     npm run testsingle
+  displayName: 'unit tests'
+
+- script: |
     npm run testcafe_ci
-  displayName: 'npm build and test'
+  displayName: 'functional tests'
 
 - powershell: |
     git push --follow-tags origin master;

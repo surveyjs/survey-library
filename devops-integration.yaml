@@ -42,8 +42,12 @@ steps:
 - script: |
     cd $(Build.SourcesDirectory)/survey-library
     npm run testsingle
+  displayName: 'run unit tests'
+
+- script: |
+    cd $(Build.SourcesDirectory)/survey-library
     npm run testcafe_ci
-  displayName: 'run tests'
+  displayName: 'run functional tests'
 
 - script: |
     cd $(Build.SourcesDirectory)/survey-library
@@ -71,6 +75,7 @@ steps:
     git fetch --tags --force
     git add surveyjs.io/App_Data/Docs
     git commit -m "[skip ci] Updated survey-library docs"
+    git pull origin master
     git push origin master
   displayName: 'git surveyjs/service push updated docs'
 

@@ -5,6 +5,8 @@
       v-for="element in row.elements"
       :key="element.idValue"
       :id="element.id"
+      :role="element.getType() === 'radiogroup' ? 'radiogroup' : element.getType() === 'checkbox' ? 'group' : null"
+      :aria-labelledby="element.id + '_aria'"
       :name="element.name"
       :style="{ paddingLeft: element.paddingLeft, paddingRight: element.paddingRight, width: element.renderWidth, display: 'inline-block' }"
       :element="element"

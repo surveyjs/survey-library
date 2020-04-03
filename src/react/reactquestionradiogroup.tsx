@@ -180,6 +180,7 @@ export class SurveyQuestionRadioItem extends ReactSurveyElement {
             onChange={this.handleOnChange}
             aria-required={this.question.isRequired}
             aria-label={locText.renderedHtml}
+            role="radio"
           />
           <span className={this.cssClasses.materialDecorator}>
             <svg

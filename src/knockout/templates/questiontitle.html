@@ -1,6 +1,6 @@
 <script type="text/html" id="survey-question-title">
   <div data-bind="css: question.koHeaderClass">
-    <h5 data-bind="css: koTitleClass, attr: { 'aria-label': question.locTitle.renderedHtml }">
+    <h5 data-bind="css: koTitleClass, attr: { 'aria-label': question.locTitle.renderedHtml, id: id + '_aria' }">
         <!-- ko template: { name: 'survey-question-title-content', data: question } --><!-- /ko -->
       </h5>
     <div data-bind="visible: question.hasDescriptionUnderTitle, css: koCss().description">

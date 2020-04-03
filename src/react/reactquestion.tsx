@@ -114,6 +114,9 @@ export class SurveyQuestion extends SurveyElementBase {
         id={question.id}
         className={questionRootClass}
         style={rootStyle}
+        role={question.getType() === 'radiogroup' ? 'radiogroup' :
+          question.getType() === 'checkbox' ? 'group' : null}
+        aria-labelledby={question.id + "_aria"}
       >
         {headerTop}
         <div className={contentClass}>
@@ -181,6 +184,7 @@ export class SurveyQuestion extends SurveyElementBase {
       <h5
         className={this.getTitleClass(this.question)}
         aria-label={this.question.locTitle.renderedHtml}
+        id={this.question.id + "_aria"}
       >
         {spans}
       </h5>

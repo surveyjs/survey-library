@@ -6,6 +6,7 @@
           :name="question.name + '_' + question.id"
           :value="item.value"
           :id="question.inputId + '_' + index"
+          :role="'radio'"
           v-model="question.renderedValue"
           :disabled="question.isReadOnly || !item.isEnabled"
           v-bind:aria-required="question.isRequired"

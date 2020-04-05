@@ -26,6 +26,7 @@ export * from "../expressions/expressionParserTest";
 export * from "../questionDropdown";
 export * from "../questionImagepicker";
 export * from "../questionBoolean";
+export * from "../question_customtests";
 
 // localization
 import "../../src/localization/russian";

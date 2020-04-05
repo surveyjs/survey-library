@@ -42,13 +42,13 @@ export class QuestionSignaturePadModel extends Question {
     return "signaturepad";
   }
   public afterRenderQuestionElement(el: any) {
-    if(!!el) {
+    if (!!el) {
       this.initSignaturePad(el);
     }
     super.afterRenderQuestionElement(el);
   }
   public beforeDestoyQuestionElement(el: any) {
-    if(!!el) {
+    if (!!el) {
       this.destroySignaturePad(el);
     }
   }
@@ -106,9 +106,7 @@ export class QuestionSignaturePadModel extends Question {
   }
   destroySignaturePad(el: HTMLElement) {
     if (this.signaturePad) {
-      this.onPropertyChanged.remove(
-        this.signaturePad.propertyChangedHandler
-      );
+      this.onPropertyChanged.remove(this.signaturePad.propertyChangedHandler);
       this.signaturePad.off();
     }
     this.readOnlyChangedCallback = null;
@@ -164,22 +162,22 @@ Serializer.addClass(
   [
     {
       name: "allowClear:boolean",
-      default: true
+      default: true,
     },
     {
       name: "width:number",
-      default: 300
+      default: 300,
     },
     {
       name: "height:number",
-      default: 200
+      default: 200,
     },
     {
       name: "penColor",
-      default: "#1ab394"
-    }
+      default: "#1ab394",
+    },
   ],
-  function() {
+  function () {
     return new QuestionSignaturePadModel("");
   },
   "question"

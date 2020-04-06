@@ -19,9 +19,10 @@ export class CustomQuestionJSON {
       name,
       [],
       function (json: any) {
-        if (!!self.IsComposite)
-          return new QuestionCompositeModel(json.name, self);
-        return new QuestionCustomModel(json.name, self);
+        return CustomQuestionCollection.Instance.createQuestion(
+          json.name,
+          self
+        );
       },
       "question"
     );
@@ -34,6 +35,14 @@ export class CustomQuestionJSON {
 export class CustomQuestionCollection {
   public static Instance: CustomQuestionCollection = new CustomQuestionCollection();
   private customQuestionValues: Array<CustomQuestionJSON> = [];
+  public onCreateComposite: (
+    name: string,
+    questionJSON: CustomQuestionJSON
+  ) => QuestionCompositeModel;
+  public onCreateCustom: (
+    name: string,
+    questionJSON: CustomQuestionJSON
+  ) => QuestionCustomModel;
   public add(json: any) {
     if (!json) return;
     let name = json.name;
@@ -62,6 +71,29 @@ export class CustomQuestionCollection {
       Serializer.removeClass(this.customQuestionValues[i].name);
     }
     this.customQuestionValues = [];
+  }
+  public createQuestion(
+    name: string,
+    questionJSON: CustomQuestionJSON
+  ): Question {
+    if (!!questionJSON.IsComposite)
+      return this.createCompositeModel(name, questionJSON);
+    return this.createCustomModel(name, questionJSON);
+  }
+  protected createCompositeModel(
+    name: string,
+    questionJSON: CustomQuestionJSON
+  ): QuestionCompositeModel {
+    if (!!this.onCreateComposite)
+      return this.onCreateComposite(name, questionJSON);
+    return new QuestionCompositeModel(name, questionJSON);
+  }
+  protected createCustomModel(
+    name: string,
+    questionJSON: CustomQuestionJSON
+  ): QuestionCustomModel {
+    if (!!this.onCreateCustom) return this.onCreateCustom(name, questionJSON);
+    return new QuestionCustomModel(name, questionJSON);
   }
 }
 
@@ -157,7 +189,16 @@ export class QuestionCustomModel extends QuestionCustomModelBase {
     super(name, customQuestion);
     this.questionWrapper = this.createQuestion();
   }
-  public get question(): Question {
+  public getTemplate(): string {
+    return "custom";
+  }
+  public onFirstRendering() {
+    if (!!this.questionWrapper) {
+      this.questionWrapper.onFirstRendering();
+    }
+    super.onFirstRendering();
+  }
+  public get contentQuestion(): Question {
     return this.questionWrapper;
   }
   protected createQuestion(): Question {
@@ -166,26 +207,27 @@ export class QuestionCustomModel extends QuestionCustomModelBase {
       var qType = json.questionJSON.type;
       if (!qType || !Serializer.findClass(qType))
         throw "type attribute in questionJSON is empty or incorrect";
-      var res = <Question>Serializer.createClass(qType, json.questionJSON);
+      var res = <Question>Serializer.createClass(qType);
       this.initElement(res);
+      res.fromJSON(json.questionJSON);
       return res;
     }
     return null;
   }
   public setSurveyImpl(value: ISurveyImpl) {
     super.setSurveyImpl(value);
-    this.initElement(this.question);
+    this.initElement(this.contentQuestion);
   }
   protected setQuestionValue(newValue: any, updateIsAnswered: boolean = true) {
     super.setQuestionValue(newValue, updateIsAnswered);
-    if (!!this.question) {
-      this.question.value = newValue;
+    if (!!this.contentQuestion) {
+      this.contentQuestion.value = newValue;
     }
   }
   onSurveyValueChanged(newValue: any) {
     super.onSurveyValueChanged(newValue);
-    if (!!this.question) {
-      this.question.onSurveyValueChanged(newValue);
+    if (!!this.contentQuestion) {
+      this.contentQuestion.onSurveyValueChanged(newValue);
     }
   }
   protected initElement(el: SurveyElement) {

@@ -12,7 +12,7 @@ export class QuestionImplementor extends ImplementorBase {
   constructor(public question: Question) {
     super(question);
     var isSynchronizing = false;
-    this._koValue.subscribe(newValue => {
+    this._koValue.subscribe((newValue) => {
       if (!isSynchronizing) {
         this.question.value = newValue;
       }
@@ -30,25 +30,25 @@ export class QuestionImplementor extends ImplementorBase {
         return this._koValue;
       },
       enumerable: true,
-      configurable: true
+      configurable: true,
     });
     var self = this;
-    question.surveyLoadCallback = function() {
+    question.surveyLoadCallback = function () {
       self.onSurveyLoad();
     };
-    this.koTemplateName = ko.pureComputed(function() {
+    this.koTemplateName = ko.pureComputed(function () {
       return self.getTemplateName();
     });
     this.koElementType = ko.observable("survey-question");
     (<any>this.question)["koElementType"] = this.koElementType;
     (<any>this.question)["koTemplateName"] = this.koTemplateName;
-    (<any>this.question)["updateQuestion"] = function() {
+    (<any>this.question)["updateQuestion"] = function () {
       self.updateQuestion();
     };
-    (<any>this.question)["koCss"] = ko.pureComputed(function() {
+    (<any>this.question)["koCss"] = ko.pureComputed(function () {
       return self.question.cssClasses;
     });
-    (<any>this.question)["koRootClass"] = ko.pureComputed(function() {
+    (<any>this.question)["koRootClass"] = ko.pureComputed(function () {
       var question = self.question;
       var result = question.cssMainRoot;
       if (question.koCss().small && !question.width) {
@@ -56,7 +56,7 @@ export class QuestionImplementor extends ImplementorBase {
       }
       return result;
     });
-    (<any>this.question)["koHeaderClass"] = ko.pureComputed(function() {
+    (<any>this.question)["koHeaderClass"] = ko.pureComputed(function () {
       var question = self.question;
       var cssClasses = self.question.cssClasses;
       var headerClass = cssClasses.header || "";
@@ -71,14 +71,14 @@ export class QuestionImplementor extends ImplementorBase {
       }
       return headerClass;
     });
-    (<any>this.question)["koContentClass"] = ko.pureComputed(function() {
+    (<any>this.question)["koContentClass"] = ko.pureComputed(function () {
       var question = self.question;
       return (
         question.koCss().content +
         (question.hasTitleOnLeft ? " " + question.koCss().contentLeft : "")
       );
     });
-    (<any>this.question)["koTitleClass"] = ko.pureComputed(function() {
+    (<any>this.question)["koTitleClass"] = ko.pureComputed(function () {
       var question = self.question;
       var cssClasses = question.cssClasses;
       var result = cssClasses.title;
@@ -89,7 +89,7 @@ export class QuestionImplementor extends ImplementorBase {
       }
       return result;
     });
-    (<any>this.question)["koErrorClass"] = ko.pureComputed(function() {
+    (<any>this.question)["koErrorClass"] = ko.pureComputed(function () {
       var question = self.question;
       var classes = question.cssClasses.error.root;
       if (question.errorLocation == "top") {
@@ -99,11 +99,14 @@ export class QuestionImplementor extends ImplementorBase {
       }
       return classes;
     });
-    question.registerFunctionOnPropertyValueChanged("visibleIndex", function() {
-      self.onVisibleIndexChanged();
-    });
+    question.registerFunctionOnPropertyValueChanged(
+      "visibleIndex",
+      function () {
+        self.onVisibleIndexChanged();
+      }
+    );
     this.koDummy = ko.observable(0);
-    (<any>this.question)["koQuestionAfterRender"] = function(
+    (<any>this.question)["koQuestionAfterRender"] = function (
       el: any,
       con: any
     ) {
@@ -144,12 +147,12 @@ export class QuestionImplementor extends ImplementorBase {
     var el = SurveyElement.GetFirstNonTextElement(elements, true);
     if (!!el) {
       this.question.afterRenderQuestionElement(el);
-      if(!!this.question.customWidget) {
+      if (!!this.question.customWidget) {
         this.question.customWidget.afterRender(this.question, el);
       }
       ko.utils.domNodeDisposal.addDisposeCallback(el, () => {
         this.question.beforeDestoyQuestionElement(el);
-        if(!!this.question.customWidget) {
+        if (!!this.question.customWidget) {
           try {
             this.question.customWidget.willUnmount(this.question, el);
           } catch {

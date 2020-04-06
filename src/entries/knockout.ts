@@ -33,12 +33,12 @@ export { MatrixRow, QuestionMatrix } from "../knockout/koquestion_matrix";
 export { QuestionMatrixDropdown } from "../knockout/koquestion_matrixdropdown";
 export {
   QuestionMatrixDynamicImplementor,
-  QuestionMatrixDynamic
+  QuestionMatrixDynamic,
 } from "../knockout/koquestion_matrixdynamic";
 export { QuestionPanelDynamic } from "../knockout/koquestion_paneldynamic";
 export {
   MultipleTextItem,
-  QuestionMultipleText
+  QuestionMultipleText,
 } from "../knockout/koquestion_multipletext";
 export { QuestionRadiogroup } from "../knockout/koquestion_radiogroup";
 export { QuestionRating } from "../knockout/koquestion_rating";
@@ -51,6 +51,8 @@ export { SurveyWindow } from "../knockout/koSurveyWindow";
 export { SurveyTemplateText } from "../knockout/templateText";
 export { QuestionImage } from "../knockout/koquestion_image";
 export { QuestionSignaturePad } from "../knockout/koquestion_signaturepad";
+
+export { QuestionCustom } from "../knockout/koquestion_custom";
 
 //Uncomment to include the "date" question type.
 //export {QuestionDate} from "../plugins/knockout/koquestion_date";

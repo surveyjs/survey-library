@@ -22,6 +22,12 @@ QUnit.test("Single: Register and load from json", function (assert) {
   var q = <Question>survey.getAllQuestions()[0];
   assert.equal(q.getType(), "newquestion", "type is correct");
   assert.equal(q.name, "q1", "name is correct");
+  assert.equal(
+    q.questionTemp.getType(),
+    "dropdown",
+    "Type for question is correct"
+  );
+  assert.equal(q.questionTemp.choices.length, 5, "There are five choices");
   assert.deepEqual(
     survey.toJSON(),
     {
@@ -67,13 +73,13 @@ QUnit.test("Single: Create the wrapper question and sync the value", function (
   });
   var q = <QuestionCustomModel>survey.getAllQuestions()[0];
   assert.equal(
-    q.question.getType(),
+    q.contentQuestion.getType(),
     "dropdown",
     "Question the type was created"
   );
   q.value = 1;
-  assert.equal(q.question.value, 1, "Set value to wrapper value");
-  q.question.value = 2;
+  assert.equal(q.contentQuestion.value, 1, "Set value to wrapper value");
+  q.contentQuestion.value = 2;
   assert.equal(q.value, 2, "Set value to custom question");
   CustomQuestionCollection.Instance.clear();
 });

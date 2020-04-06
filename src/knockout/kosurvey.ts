@@ -45,6 +45,7 @@ export class Survey extends SurveyModel {
   koProgress: any;
   koProgressText: any;
   koAfterRenderPage: any;
+  koAfterRenderHeader: any;
   koCompletedState: any;
   koCompletedStateText: any;
   koCompletedStateCss: any;
@@ -221,6 +222,10 @@ export class Survey extends SurveyModel {
     this.koAfterRenderPage = function(elements: any, con: any) {
       var el = SurveyElement.GetFirstNonTextElement(elements);
       if (el) self.afterRenderPage(el);
+    };
+    this.koAfterRenderHeader = function(elements: any, con: any) {
+      var el = SurveyElement.GetFirstNonTextElement(elements);
+      if (el) self.afterRenderHeader(el);
     };
   }
   protected currentPageChanged(newValue: PageModel, oldValue: PageModel) {

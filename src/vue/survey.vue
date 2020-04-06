@@ -1,20 +1,16 @@
 <template>
   <div :class="css.root">
     <form onsubmit="return false;">
-      <div class="sv_custom_header"></div>
+      <div v-if="!survey.hasLogo" class="sv_custom_header"></div>
       <div :class="css.container">
-        <div v-if="hasTitle" :class="css.header">
-          <h3 :class="css.title">
-            <survey-string :locString="survey.locTitle" />
-          </h3>
-          <h5 :class="css.description">
-            <survey-string :locString="survey.locDescription" />
-          </h5>
-        </div>
+        <survey-header :survey="survey" />
         <template v-if="survey.state === 'starting'">
           <div :class="css.body">
             <div
-              v-if="survey.isNavigationButtonsShowing === 'top' || survey.isNavigationButtonsShowing === 'both'"
+              v-if="
+                survey.isNavigationButtonsShowing === 'top' ||
+                  survey.isNavigationButtonsShowing === 'both'
+              "
               :class="css.footer"
             >
               <input
@@ -31,7 +27,10 @@
               :css="css"
             />
             <div
-              v-if="survey.isNavigationButtonsShowing === 'bottom' || survey.isNavigationButtonsShowing === 'both'"
+              v-if="
+                survey.isNavigationButtonsShowing === 'bottom' ||
+                  survey.isNavigationButtonsShowing === 'both'
+              "
               :class="css.footer"
             >
               <input
@@ -45,10 +44,21 @@
         </template>
         <template v-if="survey.state === 'running'">
           <div :class="css.body">
-            <survey-progress v-if="survey.isShowProgressBarOnTop" :survey="survey" :css="css" />
-            <survey-timerpanel v-if="survey.isTimerPanelShowingOnTop" :survey="survey" :css="css" />
+            <survey-progress
+              v-if="survey.isShowProgressBarOnTop"
+              :survey="survey"
+              :css="css"
+            />
+            <survey-timerpanel
+              v-if="survey.isTimerPanelShowingOnTop"
+              :survey="survey"
+              :css="css"
+            />
             <div
-              v-if="survey.isNavigationButtonsShowing === 'top' || survey.isNavigationButtonsShowing === 'both'"
+              v-if="
+                survey.isNavigationButtonsShowing === 'top' ||
+                  survey.isNavigationButtonsShowing === 'both'
+              "
               :class="css.footer"
             >
               <input
@@ -85,9 +95,16 @@
               :survey="survey"
               :css="css"
             />
-            <survey-progress v-if="survey.isShowProgressBarOnBottom" :survey="survey" :css="css" />
+            <survey-progress
+              v-if="survey.isShowProgressBarOnBottom"
+              :survey="survey"
+              :css="css"
+            />
             <div
-              v-if="survey.isNavigationButtonsShowing === 'bottom' || survey.isNavigationButtonsShowing === 'both'"
+              v-if="
+                survey.isNavigationButtonsShowing === 'bottom' ||
+                  survey.isNavigationButtonsShowing === 'both'
+              "
               :class="css.footer"
             >
               <input
@@ -116,10 +133,13 @@
           </div>
         </template>
         <div v-if="hasCompletedPage">
-          <div v-html="getProcessedCompletedHtml()" :class="getCompletedPageClasses()"></div>
+          <div
+            v-html="getProcessedCompletedHtml()"
+            :class="getCompletedPageClasses()"
+          ></div>
           <div v-if="survey.completedState != ''" :class="css.saveData.root">
             <div :class="getCompletedStateClasses()">
-              <span>{{survey.completedStateText}}</span>
+              <span>{{ survey.completedStateText }}</span>
               <input
                 type="button"
                 v-if="survey.completedState == 'error'"
@@ -140,7 +160,9 @@
           :class="css.body"
           v-html="survey.processedLoadingHtml"
         ></div>
-        <div v-if="survey.state === 'empty'" :class="css.bodyEmpty">{{survey.emptySurveyText}}</div>
+        <div v-if="survey.state === 'empty'" :class="css.bodyEmpty">
+          {{ survey.emptySurveyText }}
+        </div>
       </div>
     </form>
   </div>

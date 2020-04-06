@@ -82,16 +82,20 @@ export class Survey extends SurveyElementBase implements ISurveyCreator {
     } else {
       renderResult = this.renderSurvey();
     }
-    var title = this.renderTitle();
+    var header = this.renderHeader();
     var onSubmit = function(event: React.FormEvent<HTMLFormElement>) {
       event.preventDefault();
     };
+    var customHeader = <div className="sv_custom_header" />;
+    if (this.survey.hasLogo) {
+      customHeader = null;
+    }
     return (
       <div ref="root" className={this.css.root}>
         <form onSubmit={onSubmit}>
-          <div className="sv_custom_header" />
+          {customHeader}
           <div className={this.css.container}>
-            {title}
+            {header}
             {renderResult}
           </div>
         </form>
@@ -213,11 +217,66 @@ export class Survey extends SurveyElementBase implements ISurveyCreator {
       );
     }
     return title ? (
-      <div className={this.css.header}>
+      <div className={this.css.headerText}>
         <h3 className={this.css.title}>{title}</h3>
         <h5 className={this.css.description}>{description}</h5>
       </div>
     ) : null;
+  }
+  protected renderHeader(): JSX.Element {
+    if (this.survey.title && this.survey.showTitle) {
+      let title = this.renderTitle();
+      let style: any = { objectFit: this.survey.logoFit };
+      let imageBefore = null;
+      let imageAfter = [];
+      if (this.survey.isLogoBefore) {
+        imageBefore = (
+          <div className={this.survey.logoClassNames}>
+            <img
+              className={this.survey.css.logoImage}
+              src={this.survey.locLogo.renderedHtml}
+              width={
+                this.survey.logoWidth ? this.survey.logoWidth + "px" : undefined
+              }
+              height={
+                this.survey.logoHeight
+                  ? this.survey.logoHeight + "px"
+                  : undefined
+              }
+              style={style}
+            />
+          </div>
+        );
+      }
+      if (this.survey.isLogoAfter) {
+        imageAfter.push(
+          <div className={this.survey.logoClassNames}>
+            <img
+              className={this.survey.css.logoImage}
+              src={this.survey.locLogo.renderedHtml}
+              width={
+                this.survey.logoWidth ? this.survey.logoWidth + "px" : undefined
+              }
+              height={
+                this.survey.logoHeight
+                  ? this.survey.logoHeight + "px"
+                  : undefined
+              }
+              style={style}
+            />
+          </div>
+        );
+        imageAfter.push(<div className="sv-logo--right-tail"></div>);
+      }
+      return (
+        <div className={this.css.header}>
+          {imageBefore}
+          {title}
+          {imageAfter}
+        </div>
+      );
+    }
+    return null;
   }
   protected renderTimerPanel(location: string) {
     if (this.survey.showTimerPanel != location) return null;

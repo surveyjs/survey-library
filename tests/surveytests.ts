@@ -9427,3 +9427,60 @@ QUnit.test(
     assert.ok(survey.getQuestionByName("Q1", true), "Q1");
   }
 );
+
+QUnit.test("Survey hasLogo", function(assert) {
+  var survey = new SurveyModel({});
+  assert.notOk(survey.hasLogo);
+  assert.equal(survey.logoPosition, "left");
+  assert.notOk(!!survey.locLogo.renderedHtml);
+  survey.logo = "some url";
+  assert.ok(survey.hasLogo);
+});
+
+QUnit.test("Survey isLogoBefore/isLogoAfter", function(assert) {
+  var survey = new SurveyModel({});
+  assert.notOk(!!survey.locLogo.renderedHtml);
+  assert.equal(survey.logoPosition, "left");
+
+  assert.notOk(survey.isLogoBefore);
+  assert.notOk(survey.isLogoAfter);
+
+  survey.logo = "some url";
+  assert.ok(survey.isLogoBefore);
+  assert.notOk(survey.isLogoAfter);
+
+  survey.logoPosition = "top";
+  assert.ok(survey.isLogoBefore);
+  assert.notOk(survey.isLogoAfter);
+
+  survey.logoPosition = "right";
+  assert.notOk(survey.isLogoBefore);
+  assert.ok(survey.isLogoAfter);
+
+  survey.logoPosition = "bottom";
+  assert.notOk(survey.isLogoBefore);
+  assert.ok(survey.isLogoAfter);
+
+  survey.logoPosition = "none";
+  assert.notOk(survey.isLogoBefore);
+  assert.notOk(survey.isLogoAfter);
+});
+
+QUnit.test("Survey logoClassNames", function(assert) {
+  var survey = new SurveyModel({});
+  assert.equal(survey.logoPosition, "left");
+
+  assert.equal(survey.logoClassNames, "sv_logo sv-logo--left");
+
+  survey.logoPosition = "top";
+  assert.equal(survey.logoClassNames, "sv_logo sv-logo--top");
+
+  survey.logoPosition = "right";
+  assert.equal(survey.logoClassNames, "sv_logo sv-logo--right");
+
+  survey.logoPosition = "bottom";
+  assert.equal(survey.logoClassNames, "sv_logo sv-logo--bottom");
+
+  survey.logoPosition = "none";
+  assert.equal(survey.logoClassNames, "sv_logo undefined");
+});

@@ -558,6 +558,15 @@ export class SurveyModel extends Base
   /**
    * The event is fired right after a page is rendered in DOM. Use it to modify HTML elements.
    * <br/> `sender` - the survey object that fires the event.
+   * <br/> `options.htmlElement` - an HTML element bound to the survey header object.
+   */
+  public onAfterRenderHeader: Event<
+    (sender: SurveyModel, options: any) => any,
+    any
+  > = new Event<(sender: SurveyModel, options: any) => any, any>();
+  /**
+   * The event is fired right after a page is rendered in DOM. Use it to modify HTML elements.
+   * <br/> `sender` - the survey object that fires the event.
    * <br/> `options.page` - a page object for which the event is fired. Typically the current/active page.
    * <br/> `options.htmlElement` - an HTML element bound to the page object.
    */
@@ -852,6 +861,7 @@ export class SurveyModel extends Base
     }
     this.createLocalizableString("title", this, true);
     this.createLocalizableString("description", this, true);
+    this.createLocalizableString("logo", this, false);
     this.createLocalizableString("completedHtml", this);
     this.createLocalizableString("completedBeforeHtml", this);
     this.createLocalizableString("loadingHtml", this);
@@ -1404,6 +1414,83 @@ export class SurveyModel extends Base
   }
   get locDescription(): LocalizableString {
     return this.getLocalizableString("description");
+  }
+  /**
+   * Gets or sets a survey logo.
+   * @see title
+   */
+  public get logo(): string {
+    return this.getLocalizableStringText("logo");
+  }
+  public set logo(value: string) {
+    this.setLocalizableStringText("logo", value);
+  }
+  get locLogo(): LocalizableString {
+    return this.getLocalizableString("logo");
+  }
+  /**
+   * Gets or sets a survey logo width.
+   * @see logo
+   */
+  public get logoWidth(): number {
+    return this.getPropertyValue("logoWidth", 300);
+  }
+  public set logoWidth(value: number) {
+    this.setPropertyValue("logoWidth", value);
+  }
+  /**
+   * Gets or sets a survey logo height.
+   * @see logo
+   */
+  public get logoHeight(): number {
+    return this.getPropertyValue("logoHeight", 200);
+  }
+  public set logoHeight(value: number) {
+    this.setPropertyValue("logoHeight", value);
+  }
+  /**
+   * Gets or sets a survey logo position.
+   * @see logo
+   */
+  public get logoPosition(): string {
+    return this.getPropertyValue("logoPosition", "left");
+  }
+  public set logoPosition(value: string) {
+    this.setPropertyValue("logoPosition", value);
+  }
+  public get hasLogo() {
+    return !!this.logo && this.logoPosition !== "none";
+  }
+  public get isLogoBefore() {
+    return (
+      this.hasLogo &&
+      (this.logoPosition === "left" || this.logoPosition === "top")
+    );
+  }
+  public get isLogoAfter() {
+    return (
+      this.hasLogo &&
+      (this.logoPosition === "right" || this.logoPosition === "bottom")
+    );
+  }
+  public get logoClassNames(): string {
+    var logoClasses: { [index: string]: string } = {
+      left: "sv-logo--left",
+      right: "sv-logo--right",
+      top: "sv-logo--top",
+      bottom: "sv-logo--bottom"
+    };
+    return this.css.logo + " " + logoClasses[this.logoPosition];
+  }
+  /**
+   * The logo fit mode.
+   * @see logo
+   */
+  public get logoFit(): string {
+    return this.getPropertyValue("logoFit");
+  }
+  public set logoFit(val: string) {
+    this.setPropertyValue("logoFit", val);
   }
   /**
    * Gets or sets the HTML content displayed on the complete page. Use this property to change the default complete page text.
@@ -3002,6 +3089,12 @@ export class SurveyModel extends Base
     if (this.onAfterRenderPage.isEmpty) return;
     this.onAfterRenderPage.fire(this, {
       page: this.currentPage,
+      htmlElement: htmlElement
+    });
+  }
+  afterRenderHeader(htmlElement: any) {
+    if (this.onAfterRenderHeader.isEmpty) return;
+    this.onAfterRenderHeader.fire(this, {
       htmlElement: htmlElement
     });
   }
@@ -4653,6 +4746,19 @@ Serializer.addClass("survey", [
   },
   { name: "title", serializationProperty: "locTitle" },
   { name: "description:text", serializationProperty: "locDescription" },
+  { name: "logo", serializationProperty: "locLogo" },
+  { name: "logoWidth:number", default: 300, minValue: 0 },
+  { name: "logoHeight:number", default: 200, minValue: 0 },
+  {
+    name: "logoFit",
+    default: "contain",
+    choices: ["none", "contain", "cover", "fill"]
+  },
+  {
+    name: "logoPosition",
+    default: "left",
+    choices: ["none", "left", "right", "top", "bottom"]
+  },
   { name: "focusFirstQuestionAutomatic:boolean", default: true },
   { name: "focusOnFirstError:boolean", default: true },
   { name: "completedHtml:html", serializationProperty: "locCompletedHtml" },

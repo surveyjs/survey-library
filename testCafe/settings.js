@@ -6,7 +6,7 @@ export const url = "http://127.0.0.1:8080/examples/";
 export const initSurvey = ClientFunction((framework, json, events) => {
   var model = new Survey.Model(json);
 
-  var surveyComplete = function(model) {
+  var surveyComplete = function (model) {
     window.SurveyResult = model.data;
     document.getElementById("surveyResultElement").innerHTML = JSON.stringify(
       model.data
@@ -30,7 +30,7 @@ export const initSurvey = ClientFunction((framework, json, events) => {
     ReactDOM.render(
       React.createElement(Survey.Survey, {
         model: model,
-        onComplete: surveyComplete
+        onComplete: surveyComplete,
       }),
       document.getElementById("surveyElement")
     );
@@ -40,17 +40,27 @@ export const initSurvey = ClientFunction((framework, json, events) => {
     !!window.vueApp && vueApp.$destroy();
     window.vueApp = new Vue({
       el: "#surveyElement",
-      data: { survey: model }
+      data: { survey: model },
     });
   }
 
   window.survey = model;
 });
 
-export const getSurveyResult = ClientFunction(() => window.SurveyResult);
+export const getSurveyResult = ClientFunction(() => {
+  var result = window.SurveyResult;
+
+  if (typeof result === "undefined") {
+    return result;
+  }
+
+  return JSON.parse(JSON.stringify(result)); // clean result object from the vuejs stuff
+});
+
+// export const getSurveyResult = ClientFunction(() => window.SurveyResult);
 
 export const setOptions = ClientFunction((questionName, modValue) => {
-  var mergeOptions = function(obj1, obj2) {
+  var mergeOptions = function (obj1, obj2) {
     for (var attrname in obj2) {
       obj1[attrname] = obj2[attrname];
     }

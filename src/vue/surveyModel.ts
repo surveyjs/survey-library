@@ -63,6 +63,9 @@ export class VueSurveyModel extends SurveyModel {
   public doAfterRenderSurvey(el: any) {
     this.afterRenderSurvey(el);
   }
+  public doAfterRenderHeader(el: any) {
+    this.afterRenderHeader(el);
+  }
   panelAdded(panel: IElement, index: number, parentPanel: any, rootPanel: any) {
     VueSurveyModel.updatePropertiesHash(panel);
     super.panelAdded(panel, index, parentPanel, rootPanel);

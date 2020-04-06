@@ -9,6 +9,9 @@ export var defaultBootstrapCss = {
   footer: "panel-footer card-footer",
   title: "",
   description: "",
+  logo: "sv_logo",
+  logoImage: "sv_logo__image",
+  headerText: "sv_header__text",
   navigationButton: "",
   completedPage: "",
   navigation: {

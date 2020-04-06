@@ -21,6 +21,8 @@ function init() {
   var json = {
     showProgressBar: "both",
     title: "Survey New Design Test",
+    logo: "https://surveyjs.io/Content/Images/examples/image-picker/lion.jpg",
+    logoPosition: "left",
     questions: [
       {
         name: "signature",

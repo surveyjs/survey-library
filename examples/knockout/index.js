@@ -22,6 +22,8 @@ function init() {
     showProgressBar: "both",
     description: "Survey Description",
     title: "Survey New Design Test",
+    logo: "https://surveyjs.io/Content/Images/examples/image-picker/lion.jpg",
+    logoPosition: "left",
     questions: [
       {
         name: "signature",

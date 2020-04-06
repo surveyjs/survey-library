@@ -9,6 +9,7 @@ import {
   IElement,
   SurveyElement,
 } from "./base";
+import { PanelModel } from "./panel";
 
 export class CustomQuestionJSON {
   public constructor(public name: string, public json: any) {
@@ -17,10 +18,15 @@ export class CustomQuestionJSON {
       name,
       [],
       function (json: any) {
+        if (!!self.IsComposite)
+          return new QuestionCompositeModel(json.name, self);
         return new QuestionCustomModel(json.name, self);
       },
       "question"
     );
+  }
+  public get IsComposite() {
+    return !!this.json.elementsJSON;
   }
 }
 
@@ -58,51 +64,17 @@ export class CustomQuestionCollection {
   }
 }
 
-export class QuestionCustomModel extends Question
+export class QuestionCustomModelBase extends Question
   implements ISurveyImpl, ISurveyData, IPanel {
-  private questionWrapper: Question;
   constructor(public name: string, public customQuestion: CustomQuestionJSON) {
     super(name);
-    this.questionWrapper = this.createQuestion();
   }
   public getType(): string {
     return !!this.customQuestion ? this.customQuestion.name : "custom";
   }
-  public get question(): Question {
-    return this.questionWrapper;
-  }
-  public setSurveyImpl(value: ISurveyImpl) {
-    super.setSurveyImpl(value);
-    this.initElement(this.question);
-  }
-  protected setQuestionValue(newValue: any, updateIsAnswered: boolean = true) {
-    super.setQuestionValue(newValue, updateIsAnswered);
-    if (!!this.question) {
-      this.question.value = newValue;
-    }
-  }
-  onSurveyValueChanged(newValue: any) {
-    super.onSurveyValueChanged(newValue);
-    if (!!this.question) {
-      this.question.onSurveyValueChanged(newValue);
-    }
-  }
-  protected createQuestion(): Question {
-    var json = this.customQuestion.json;
-    if (!!json.questionJSON) {
-      var qType = json.questionJSON.type;
-      if (!qType || !Serializer.findClass(qType))
-        throw "type attribute in questionJSON is empty or incorrect";
-      var res = <Question>Serializer.createClass(qType, json.questionJSON);
-      this.initElement(res);
-      return res;
-    }
-    return null;
-  }
-  private initElement(el: SurveyElement) {
+  protected initElement(el: SurveyElement) {
     if (!el) return;
     el.setSurveyImpl(this);
-    (<Question>el).parent = this;
   }
   //ISurveyImpl
   geSurveyData(): ISurveyData {
@@ -172,5 +144,73 @@ export class QuestionCustomModel extends Question
   }
   indexOf(el: IElement): number {
     return -1;
+  }
+}
+
+export class QuestionCustomModel extends QuestionCustomModelBase {
+  private questionWrapper: Question;
+  constructor(public name: string, public customQuestion: CustomQuestionJSON) {
+    super(name, customQuestion);
+    this.questionWrapper = this.createQuestion();
+  }
+  public get question(): Question {
+    return this.questionWrapper;
+  }
+  protected createQuestion(): Question {
+    var json = this.customQuestion.json;
+    if (!!json.questionJSON) {
+      var qType = json.questionJSON.type;
+      if (!qType || !Serializer.findClass(qType))
+        throw "type attribute in questionJSON is empty or incorrect";
+      var res = <Question>Serializer.createClass(qType, json.questionJSON);
+      this.initElement(res);
+      return res;
+    }
+    return null;
+  }
+  public setSurveyImpl(value: ISurveyImpl) {
+    super.setSurveyImpl(value);
+    this.initElement(this.question);
+  }
+  protected setQuestionValue(newValue: any, updateIsAnswered: boolean = true) {
+    super.setQuestionValue(newValue, updateIsAnswered);
+    if (!!this.question) {
+      this.question.value = newValue;
+    }
+  }
+  onSurveyValueChanged(newValue: any) {
+    super.onSurveyValueChanged(newValue);
+    if (!!this.question) {
+      this.question.onSurveyValueChanged(newValue);
+    }
+  }
+  protected initElement(el: SurveyElement) {
+    super.initElement(el);
+    if (!!el) {
+      (<Question>el).parent = this;
+    }
+  }
+}
+
+export class QuestionCompositeModel extends QuestionCustomModelBase {
+  private panelWrapper: PanelModel;
+  constructor(public name: string, public customQuestion: CustomQuestionJSON) {
+    super(name, customQuestion);
+    this.panelWrapper = this.createPanel();
+  }
+  public get panel(): PanelModel {
+    return this.panelWrapper;
+  }
+  protected createPanel(): PanelModel {
+    var res = this.createPanelCore();
+    var elJSON = this.customQuestion.json.elementsJSON;
+    if (!!elJSON) {
+      res.fromJSON({ elements: elJSON });
+    }
+    this.initElement(res);
+    return res;
+  }
+  protected createPanelCore(): PanelModel {
+    return new PanelModel("panel");
   }
 }

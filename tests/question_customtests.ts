@@ -2,15 +2,17 @@ import { SurveyModel } from "../src/survey";
 import { Question } from "../src/question";
 import {
   QuestionCustomModel,
+  QuestionCompositeModel,
   CustomQuestionCollection,
   CustomQuestionJSON,
 } from "../src/question_custom";
 
 export default QUnit.module("custom questions");
 
-QUnit.test("Register and load from json", function (assert) {
+QUnit.test("Single: Register and load from json", function (assert) {
   var json = {
     name: "newquestion",
+    questionJSON: { type: "dropdown", choices: [1, 2, 3, 4, 5] },
   };
   CustomQuestionCollection.Instance.add(json);
   var survey = new SurveyModel({
@@ -32,7 +34,29 @@ QUnit.test("Register and load from json", function (assert) {
   CustomQuestionCollection.Instance.clear();
 });
 
-QUnit.test("Create the wrapper question and sync the value", function (assert) {
+QUnit.test("Composite: Register and load from json", function (assert) {
+  var json = {
+    name: "customerinfo",
+    elementsJSON: [
+      { type: "text", name: "firstName" },
+      { type: "text", name: "lastName" },
+    ],
+  };
+  CustomQuestionCollection.Instance.add(json);
+  var survey = new SurveyModel({
+    elements: [{ type: "customerinfo", name: "q1" }],
+  });
+  assert.equal(survey.getAllQuestions().length, 1, "Question is created");
+  var q = <QuestionCompositeModel>survey.getAllQuestions()[0];
+  assert.equal(q.getType(), "customerinfo", "type is correct");
+  assert.equal(q.name, "q1", "name is correct");
+  assert.equal(q.panel.elements.length, 2, "There are two elements in panel");
+  CustomQuestionCollection.Instance.clear();
+});
+
+QUnit.test("Single: Create the wrapper question and sync the value", function (
+  assert
+) {
   var json = {
     name: "newquestion",
     questionJSON: { type: "dropdown", choices: [1, 2, 3, 4, 5] },

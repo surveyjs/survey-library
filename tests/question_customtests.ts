@@ -77,3 +77,26 @@ QUnit.test("Single: Create the wrapper question and sync the value", function (
   assert.equal(q.value, 2, "Set value to custom question");
   CustomQuestionCollection.Instance.clear();
 });
+
+QUnit.test("Composite: sync values", function (assert) {
+  var json = {
+    name: "customerinfo",
+    elementsJSON: [
+      { type: "text", name: "firstName" },
+      { type: "text", name: "lastName" },
+    ],
+  };
+  CustomQuestionCollection.Instance.add(json);
+  var survey = new SurveyModel({
+    elements: [{ type: "customerinfo", name: "q1" }],
+  });
+  var q = <QuestionCompositeModel>survey.getAllQuestions()[0];
+  var firstName = q.panel.getQuestionByName("firstName");
+  var lastName = q.panel.getQuestionByName("lastName");
+  firstName.value = "John";
+  assert.deepEqual(survey.data, { q1: { firstName: "John" } });
+  q.value = { firstName: "Andrew", lastName: "Telnov" };
+  assert.equal(firstName.value, "Andrew", "question value is replaced");
+  assert.equal(lastName.value, "Telnov", "question value is set");
+  CustomQuestionCollection.Instance.clear();
+});

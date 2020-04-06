@@ -10,6 +10,7 @@ import {
   SurveyElement,
 } from "./base";
 import { PanelModel } from "./panel";
+import { Helpers } from "./helpers";
 
 export class CustomQuestionJSON {
   public constructor(public name: string, public json: any) {
@@ -88,7 +89,7 @@ export class QuestionCustomModelBase extends Question
   }
   //ISurveyData
   getValue(name: string): any {
-    return !!this.data ? this.data.getValue(this.name) : null;
+    return this.value;
   }
   setValue(
     name: string,
@@ -98,11 +99,14 @@ export class QuestionCustomModelBase extends Question
   ): any {
     if (!this.data) return;
     this.data.setValue(
-      this.name,
-      newValue,
+      this.getValueName(),
+      this.convertValue(name, newValue),
       locNotification,
       allowNotifyValueChanged
     );
+  }
+  protected convertValue(name: string, newValue: any): any {
+    return newValue;
   }
   getVariable(name: string): any {
     return !!this.data ? this.data.getVariable(name) : null;
@@ -112,11 +116,11 @@ export class QuestionCustomModelBase extends Question
     this.data.setVariable(name, newValue);
   }
   getComment(name: string): string {
-    return !!this.data ? this.data.getComment(this.name) : "";
+    return !!this.data ? this.data.getComment(this.getValueName()) : "";
   }
   setComment(name: string, newValue: string, locNotification: any): any {
     if (!this.data) return;
-    this.data.setComment(this.name, newValue, locNotification);
+    this.data.setComment(this.getValueName(), newValue, locNotification);
   }
   getAllValues(): any {
     return !!this.data ? this.data.getAllValues() : {};
@@ -212,5 +216,27 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
   }
   protected createPanelCore(): PanelModel {
     return new PanelModel("panel");
+  }
+  getValue(name: string): any {
+    var val = this.value;
+    return !!val ? val[name] : null;
+  }
+  protected convertValue(name: string, newValue: any): any {
+    var val = this.value;
+    if (!val) val = {};
+    if (Helpers.isValueEmpty(newValue)) {
+      delete val[name];
+    } else {
+      val[name] = newValue;
+    }
+    return val;
+  }
+  protected setQuestionValue(newValue: any, updateIsAnswered: boolean = true) {
+    super.setQuestionValue(newValue, updateIsAnswered);
+    var questions = this.panel.questions;
+    for (var i = 0; i < questions.length; i++) {
+      var key = questions[i].getValueName();
+      questions[i].value = !!newValue ? newValue[key] : undefined;
+    }
   }
 }

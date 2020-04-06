@@ -244,20 +244,20 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
     super(name, customQuestion);
     this.panelWrapper = this.createPanel();
   }
-  public get panel(): PanelModel {
+  public getTemplate(): string {
+    return "composite";
+  }
+  public get contentPanel(): PanelModel {
     return this.panelWrapper;
   }
   protected createPanel(): PanelModel {
-    var res = this.createPanelCore();
+    var res = <PanelModel>Serializer.createClass("panel");
     var elJSON = this.customQuestion.json.elementsJSON;
     if (!!elJSON) {
       res.fromJSON({ elements: elJSON });
     }
     this.initElement(res);
     return res;
-  }
-  protected createPanelCore(): PanelModel {
-    return new PanelModel("panel");
   }
   getValue(name: string): any {
     var val = this.value;
@@ -275,7 +275,7 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
   }
   protected setQuestionValue(newValue: any, updateIsAnswered: boolean = true) {
     super.setQuestionValue(newValue, updateIsAnswered);
-    var questions = this.panel.questions;
+    var questions = this.contentPanel.questions;
     for (var i = 0; i < questions.length; i++) {
       var key = questions[i].getValueName();
       questions[i].value = !!newValue ? newValue[key] : undefined;

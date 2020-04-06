@@ -56,7 +56,11 @@ QUnit.test("Composite: Register and load from json", function (assert) {
   var q = <QuestionCompositeModel>survey.getAllQuestions()[0];
   assert.equal(q.getType(), "customerinfo", "type is correct");
   assert.equal(q.name, "q1", "name is correct");
-  assert.equal(q.panel.elements.length, 2, "There are two elements in panel");
+  assert.equal(
+    q.contentPanel.elements.length,
+    2,
+    "There are two elements in panel"
+  );
   CustomQuestionCollection.Instance.clear();
 });
 
@@ -97,8 +101,8 @@ QUnit.test("Composite: sync values", function (assert) {
     elements: [{ type: "customerinfo", name: "q1" }],
   });
   var q = <QuestionCompositeModel>survey.getAllQuestions()[0];
-  var firstName = q.panel.getQuestionByName("firstName");
-  var lastName = q.panel.getQuestionByName("lastName");
+  var firstName = q.contentPanel.getQuestionByName("firstName");
+  var lastName = q.contentPanel.getQuestionByName("lastName");
   firstName.value = "John";
   assert.deepEqual(survey.data, { q1: { firstName: "John" } });
   q.value = { firstName: "Andrew", lastName: "Telnov" };

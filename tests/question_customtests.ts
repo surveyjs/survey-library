@@ -19,15 +19,15 @@ QUnit.test("Single: Register and load from json", function (assert) {
     elements: [{ type: "newquestion", name: "q1" }],
   });
   assert.equal(survey.getAllQuestions().length, 1, "Question is created");
-  var q = <Question>survey.getAllQuestions()[0];
+  var q = <QuestionCustomModel>survey.getAllQuestions()[0];
   assert.equal(q.getType(), "newquestion", "type is correct");
   assert.equal(q.name, "q1", "name is correct");
   assert.equal(
-    q.questionTemp.getType(),
+    q.contentQuestion.getType(),
     "dropdown",
     "Type for question is correct"
   );
-  assert.equal(q.questionTemp.choices.length, 5, "There are five choices");
+  assert.equal(q.contentQuestion.choices.length, 5, "There are five choices");
   assert.deepEqual(
     survey.toJSON(),
     {

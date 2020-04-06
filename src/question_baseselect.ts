@@ -34,14 +34,14 @@ export class QuestionSelectBase extends Question {
     super(name);
     var self = this;
     this.createItemValues("choices");
-    this.registerFunctionOnPropertyValueChanged("choices", function() {
+    this.registerFunctionOnPropertyValueChanged("choices", function () {
       if (!self.filterItems()) {
         self.onVisibleChoicesChanged();
       }
     });
     this.registerFunctionOnPropertyValueChanged(
       "hideIfChoicesEmpty",
-      function() {
+      function () {
         self.updateVisibilityBasedOnChoices();
       }
     );
@@ -52,16 +52,16 @@ export class QuestionSelectBase extends Question {
     this.createLocalizableString("otherErrorText", this, true);
     this.otherItemValue.locOwner = this;
     this.otherItemValue.setLocText(locOtherText);
-    locOtherText.onGetTextCallback = function(text) {
+    locOtherText.onGetTextCallback = function (text) {
       return !!text ? text : surveyLocalization.getString("otherItemText");
     };
-    this.choicesByUrl.beforeSendRequestCallback = function() {
+    this.choicesByUrl.beforeSendRequestCallback = function () {
       self.onBeforeSendRequest();
     };
-    this.choicesByUrl.getResultCallback = function(items: Array<ItemValue>) {
+    this.choicesByUrl.getResultCallback = function (items: Array<ItemValue>) {
       self.onLoadChoicesFromUrl(items);
     };
-    this.choicesByUrl.updateResultCallback = function(
+    this.choicesByUrl.updateResultCallback = function (
       items: Array<ItemValue>,
       serverResult: any
     ): Array<ItemValue> {
@@ -218,15 +218,15 @@ export class QuestionSelectBase extends Question {
   protected createRestfull(): ChoicesRestfull {
     return new ChoicesRestfull();
   }
-  protected getComment(): string {
+  protected getQuestionComment(): string {
     if (!!this.commentValue) return this.commentValue;
-    if (this.getStoreOthersAsComment()) return super.getComment();
+    if (this.getStoreOthersAsComment()) return super.getQuestionComment();
     return this.commentValue;
   }
   private isSettingComment: boolean = false;
-  protected setComment(newValue: string) {
+  protected setQuestionComment(newValue: string) {
     if (this.hasComment || this.getStoreOthersAsComment())
-      super.setComment(newValue);
+      super.setQuestionComment(newValue);
     else {
       if (!this.isSettingComment && newValue != this.commentValue) {
         this.isSettingComment = true;
@@ -295,8 +295,8 @@ export class QuestionSelectBase extends Question {
     return this.otherItem.value;
   }
   protected rendredValueToDataCore(val: any): any {
-    if (val == this.otherItem.value && this.getComment()) {
-      val = this.getComment();
+    if (val == this.otherItem.value && this.getQuestionComment()) {
+      val = this.getQuestionComment();
     }
     return val;
   }
@@ -460,7 +460,7 @@ export class QuestionSelectBase extends Question {
         propertyName: string;
       }>;
     } = {
-      includeEmpty: true
+      includeEmpty: true,
     }
   ) {
     var questionPlainData = super.getPlainData(options);
@@ -480,10 +480,10 @@ export class QuestionSelectBase extends Question {
             ),
             getString: (val: any) =>
               typeof val === "object" ? JSON.stringify(val) : val,
-            isNode: false
+            isNode: false,
           };
           if (!!choice) {
-            (options.calculations || []).forEach(calculation => {
+            (options.calculations || []).forEach((calculation) => {
               choiceDataItem[calculation.propertyName] =
                 choice[calculation.propertyName];
             });
@@ -698,7 +698,7 @@ export class QuestionSelectBase extends Question {
     return array;
   }
   private sortArray(array: Array<ItemValue>, mult: number): Array<ItemValue> {
-    return array.sort(function(a, b) {
+    return array.sort(function (a, b) {
       if (a.calculatedText < b.calculatedText) return -1 * mult;
       if (a.calculatedText > b.calculatedText) return 1 * mult;
       return 0;
@@ -796,7 +796,7 @@ export class QuestionSelectBase extends Question {
       this.onReadyChanged.fire(this, {
         question: this,
         isReady: true,
-        olsIsReady: oldIsReady
+        olsIsReady: oldIsReady,
       });
   }
 }
@@ -833,30 +833,30 @@ Serializer.addClass(
     {
       name: "commentText",
       serializationProperty: "locCommentText",
-      layout: "row"
+      layout: "row",
     },
     "hasOther:boolean",
     { name: "otherPlaceHolder", serializationProperty: "locOtherPlaceHolder" },
     {
       name: "choices:itemvalue[]",
-      baseValue: function() {
+      baseValue: function () {
         return surveyLocalization.getString("choices_Item");
-      }
+      },
     },
     {
       name: "choicesOrder",
       default: "none",
-      choices: ["none", "asc", "desc", "random"]
+      choices: ["none", "asc", "desc", "random"],
     },
     {
       name: "choicesByUrl:restfull",
       className: "ChoicesRestfull",
-      onGetValue: function(obj: any) {
+      onGetValue: function (obj: any) {
         return obj.choicesByUrl.getData();
       },
-      onSetValue: function(obj: any, value: any) {
+      onSetValue: function (obj: any, value: any) {
         obj.choicesByUrl.setData(value);
-      }
+      },
     },
     "hideIfChoicesEmpty:boolean",
     "choicesVisibleIf:condition",
@@ -867,8 +867,8 @@ Serializer.addClass(
       name: "storeOthersAsComment",
       default: "default",
       choices: ["default", true, false],
-      visible: false
-    }
+      visible: false,
+    },
   ],
   null,
   "question"
@@ -881,8 +881,8 @@ Serializer.addClass(
       name: "colCount:number",
       default: 1,
       choices: [0, 1, 2, 3, 4, 5],
-      layout: "row"
-    }
+      layout: "row",
+    },
   ],
   null,
   "selectbase"

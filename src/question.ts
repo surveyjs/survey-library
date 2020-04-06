@@ -9,7 +9,7 @@ import {
   IConditionRunner,
   ISurveyImpl,
   IPage,
-  Event
+  Event,
 } from "./base";
 import { surveyLocalization } from "./surveyStrings";
 import { AnswerRequiredError, CustomError } from "./error";
@@ -35,7 +35,7 @@ export class Question extends SurveyElement
   [index: string]: any;
   private static TextPreprocessorValuesMap = {
     title: "processedTitle",
-    require: "requiredText"
+    require: "requiredText",
   };
   private static questionCounter = 100;
   private static getQuestionId(): string {
@@ -74,11 +74,11 @@ export class Question extends SurveyElement
     this.id = Question.getQuestionId();
     this.onCreating();
     var self = this;
-    this.createNewArray("validators", function(validator: any) {
+    this.createNewArray("validators", function (validator: any) {
       validator.errorOwner = self;
     });
     var locTitleValue = this.createLocalizableString("title", this, true);
-    locTitleValue.onGetTextCallback = function(text) {
+    locTitleValue.onGetTextCallback = function (text) {
       if (!text) {
         text = self.name;
       }
@@ -93,26 +93,26 @@ export class Question extends SurveyElement
       this,
       true
     );
-    locCommentText.onGetTextCallback = function(text) {
+    locCommentText.onGetTextCallback = function (text) {
       return !!text ? text : surveyLocalization.getString("otherItemText");
     };
 
     this.createLocalizableString("requiredErrorText", this);
-    this.registerFunctionOnPropertyValueChanged("width", function() {
+    this.registerFunctionOnPropertyValueChanged("width", function () {
       if (!!self.parent) {
         self.parent.elementWidthChanged(self);
       }
     });
     this.registerFunctionOnPropertiesValueChanged(
       ["indent", "rightIndent"],
-      function() {
+      function () {
         self.onIndentChanged();
       }
     );
 
     this.registerFunctionOnPropertiesValueChanged(
       ["hasComment", "hasOther"],
-      function() {
+      function () {
         self.initCommentFromSurvey();
       }
     );
@@ -466,8 +466,7 @@ export class Question extends SurveyElement
     if (this.isCompositeQuestion || !this.survey) return;
     this.survey.afterRenderQuestionInput(this, el);
   }
-  public beforeDestoyQuestionElement(el: any) {
-  }
+  public beforeDestoyQuestionElement(el: any) {}
   /**
    * Returns the rendred question title.
    */
@@ -968,7 +967,7 @@ export class Question extends SurveyElement
         propertyName: string;
       }>;
     } = {
-      includeEmpty: true
+      includeEmpty: true,
     }
   ) {
     if (options.includeEmpty || !this.isEmpty()) {
@@ -979,9 +978,9 @@ export class Question extends SurveyElement
         displayValue: this.displayValue,
         isNode: false,
         getString: (val: any) =>
-          typeof val === "object" ? JSON.stringify(val) : val
+          typeof val === "object" ? JSON.stringify(val) : val,
       };
-      (options.calculations || []).forEach(calculation => {
+      (options.calculations || []).forEach((calculation) => {
         questionPlainData[calculation.propertyName] = this[
           calculation.propertyName
         ];
@@ -997,8 +996,8 @@ export class Question extends SurveyElement
             displayValue: this.comment,
             getString: (val: any) =>
               typeof val === "object" ? JSON.stringify(val) : val,
-            isNode: false
-          }
+            isNode: false,
+          },
         ];
       }
       return questionPlainData;
@@ -1070,19 +1069,19 @@ export class Question extends SurveyElement
    * The question comment value.
    */
   public get comment(): string {
-    return this.getComment();
+    return this.getQuestionComment();
   }
   public set comment(newValue: string) {
     if (!!newValue) {
       newValue = newValue.toString().trim();
     }
     if (this.comment == newValue) return;
-    this.setComment(newValue);
+    this.setQuestionComment(newValue);
   }
-  protected getComment(): string {
+  protected getQuestionComment(): string {
     return this.questionComment;
   }
-  protected setComment(newValue: string) {
+  protected setQuestionComment(newValue: string) {
     this.setNewComment(newValue);
   }
   /**
@@ -1130,7 +1129,7 @@ export class Question extends SurveyElement
     objects.push({
       name: this.getValueName(),
       text: this.processedTitle,
-      question: this
+      question: this,
     });
   }
   public getConditionJson(operator: string = null, path: string = null): any {
@@ -1420,25 +1419,25 @@ Serializer.addClass("question", [
   {
     name: "page",
     isSerializable: false,
-    choices: function(obj: any) {
+    choices: function (obj: any) {
       var survey = obj ? obj.survey : null;
       return survey
         ? survey.pages.map((p: any) => {
             return { value: p.name, text: p.title };
           })
         : [];
-    }
+    },
   },
   { name: "title:text", serializationProperty: "locTitle", layout: "row" },
   {
     name: "description:text",
     serializationProperty: "locDescription",
-    layout: "row"
+    layout: "row",
   },
   {
     name: "descriptionLocation",
     default: "default",
-    choices: ["default", "underInput", "underTitle"]
+    choices: ["default", "underInput", "underTitle"],
   },
   "valueName",
   "enableIf:condition",
@@ -1448,19 +1447,19 @@ Serializer.addClass("question", [
   "requiredIf:condition",
   {
     name: "requiredErrorText:text",
-    serializationProperty: "locRequiredErrorText"
+    serializationProperty: "locRequiredErrorText",
   },
   "readOnly:switch",
   {
     name: "validators:validators",
     baseClassName: "surveyvalidator",
-    classNamePart: "validator"
+    classNamePart: "validator",
   },
   {
     name: "titleLocation",
     default: "default",
     choices: ["default", "top", "bottom", "left", "hidden"],
-    layout: "row"
-  }
+    layout: "row",
+  },
 ]);
 Serializer.addAlterNativeClassName("question", "questionbase");

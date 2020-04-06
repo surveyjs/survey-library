@@ -31,3 +31,25 @@ QUnit.test("Register and load from json", function (assert) {
   );
   CustomQuestionCollection.Instance.clear();
 });
+
+QUnit.test("Create the wrapper question and sync the value", function (assert) {
+  var json = {
+    name: "newquestion",
+    questionJSON: { type: "dropdown", choices: [1, 2, 3, 4, 5] },
+  };
+  CustomQuestionCollection.Instance.add(json);
+  var survey = new SurveyModel({
+    elements: [{ type: "newquestion", name: "q1" }],
+  });
+  var q = <QuestionCustomModel>survey.getAllQuestions()[0];
+  assert.equal(
+    q.question.getType(),
+    "dropdown",
+    "Question the type was created"
+  );
+  q.value = 1;
+  assert.equal(q.question.value, 1, "Set value to wrapper value");
+  q.question.value = 2;
+  assert.equal(q.value, 2, "Set value to custom question");
+  CustomQuestionCollection.Instance.clear();
+});

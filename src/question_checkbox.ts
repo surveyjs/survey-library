@@ -16,7 +16,7 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
   constructor(public name: string) {
     super(name);
     var noneItemText = this.createLocalizableString("noneText", this, true);
-    noneItemText.onGetTextCallback = function(text) {
+    noneItemText.onGetTextCallback = function (text) {
       return !!text ? text : surveyLocalization.getString("noneItemText");
     };
     this.noneItemValue.locOwner = this;
@@ -27,7 +27,7 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
       this,
       true
     );
-    selectAllItemText.onGetTextCallback = function(text) {
+    selectAllItemText.onGetTextCallback = function (text) {
       return !!text ? text : surveyLocalization.getString("selectAllItemText");
     };
     this.selectAllItem.locOwner = this;
@@ -36,7 +36,7 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     var self = this;
     this.registerFunctionOnPropertiesValueChanged(
       ["hasNone", "noneText", "hasSelectAll", "selectAllText"],
-      function() {
+      function () {
         self.onVisibleChoicesChanged();
       }
     );
@@ -347,9 +347,9 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     if (!val || !val.length) return val;
     for (var i = 0; i < val.length; i++) {
       if (val[i] == this.otherItem.value) {
-        if (this.getComment()) {
+        if (this.getQuestionComment()) {
           var newVal = val.slice();
-          newVal[i] = this.getComment();
+          newVal[i] = this.getQuestionComment();
           return newVal;
         }
       }
@@ -371,14 +371,14 @@ Serializer.addClass(
     "hasSelectAll:boolean",
     "hasNone:boolean",
     { name: "noneText", serializationProperty: "locNoneText" },
-    { name: "selectAllText", serializationProperty: "locSelectAllText" }
+    { name: "selectAllText", serializationProperty: "locSelectAllText" },
   ],
-  function() {
+  function () {
     return new QuestionCheckboxModel("");
   },
   "checkboxbase"
 );
-QuestionFactory.Instance.registerQuestion("checkbox", name => {
+QuestionFactory.Instance.registerQuestion("checkbox", (name) => {
   var q = new QuestionCheckboxModel(name);
   q.choices = QuestionFactory.DefaultChoices;
   return q;

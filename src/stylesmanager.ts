@@ -175,8 +175,21 @@ export class StylesManager {
     ".sv_main .sjs_sp_container": "position: relative;",
     ".sv_main .sjs_sp_controls": "position: absolute; left: 0; bottom: 0;",
     ".sv_main .sjs_sp_controls > button": "user-select: none;",
-    ".sv_main .sjs_sp_container>div>canvas:focus": "outline: none;"
-    
+    ".sv_main .sjs_sp_container>div>canvas:focus": "outline: none;",
+
+    // logo
+    ".sv_main .sv_header": "white-space: nowrap;",
+    ".sv_main .sv_logo": "",
+    ".sv_main .sv-logo--left":
+      "display: inline-block; vertical-align: top; margin-right: 2em;",
+    ".sv_main .sv-logo--right":
+      "display: inline-block; vertical-align: top; margin-left: 2em; float: right;",
+    ".sv_main .sv-logo--right+.sv-logo--right-tail": "clear: both;",
+    ".sv_main .sv-logo--top":
+      "display: block; width: 100%; text-align: center;",
+    ".sv_main .sv-logo--bottom":
+      "display: block; width: 100%; text-align: center;",
+    ".sv_main .sv_header__text": "display: inline-block; vertical-align: top;"
   };
 
   public static Media: { [key: string]: { media: string; style: string } } = {

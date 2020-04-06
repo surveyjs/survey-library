@@ -2,13 +2,9 @@
 
   <div data-bind="css: css.root, afterRender: koEventAfterRender">
       <form onsubmit="return false;">
-          <div class="sv_custom_header"></div>
+          <div class="sv_custom_header" data-bind="visible: !hasLogo"></div>
           <div data-bind="css: css.container">
-              <!-- ko if: (locTitle.koRenderedHtml().length > 0) && showTitle -->
-              <div data-bind="css: css.header">
-                  <h3 data-bind="css: css.title"><!-- ko template: { name: 'survey-string', data: locTitle } --><!-- /ko --></h3>
-                  <h5 data-bind="css: css.description"><!-- ko template: { name: 'survey-string', data: locDescription } --><!-- /ko --></h5>
-              </div>
+              <!-- ko template: { name: 'survey-header', afterRender: koAfterRenderHeader } -->
               <!-- /ko -->
               <!-- ko if: koState() == "starting" -->
               <div data-bind="css: css.body">

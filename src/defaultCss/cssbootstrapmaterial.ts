@@ -9,6 +9,9 @@ export var defaultBootstrapMaterialCss = {
   footer: "panel-footer",
   title: "",
   description: "",
+  logo: "sv_logo",
+  logoImage: "sv_logo__image",
+  headerText: "sv_header__text",
   navigationButton: "",
   completedPage: "",
   navigation: {

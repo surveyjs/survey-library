@@ -8,6 +8,9 @@ export var modernCss = {
   footer: "sv-footer sv-body__footer sv-clearfix",
   title: "",
   description: "",
+  logo: "sv-logo",
+  logoImage: "sv-logo__image",
+  headerText: "sv-header__text",
   navigationButton: "",
   completedPage: "sv-completedpage",
   navigation: {

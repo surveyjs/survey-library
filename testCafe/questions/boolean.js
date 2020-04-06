@@ -10,39 +10,39 @@ var json = {
       name: "bool",
       title: "Please answer the question",
       label: "Are you 21 or older?",
-      isRequired: true
-    }
-  ]
+      isRequired: true,
+    },
+  ],
 };
 
-frameworks.forEach(framework => {
+frameworks.forEach((framework) => {
   fixture`${framework} ${title}`.page`${url}${framework}`.beforeEach(
-    async t => {
+    async (t) => {
       await initSurvey(framework, json);
     }
   );
 
-  test(`checked class`, async t => {
+  test(`checked class`, async (t) => {
     const isCheckedClassExists = ClientFunction(() =>
       document.querySelector(`div label`).classList.contains("checked")
     );
 
-    assert.equal(await isCheckedClassExists(), false);
+    await t.expect(isCheckedClassExists()).eql(false);
 
     await t.click(`div label`, { offsetX: 1 });
 
-    assert.equal(await isCheckedClassExists(), false);
+    await t.expect(isCheckedClassExists()).eql(false);
 
     await t.click(`div label`);
 
-    assert.equal(await isCheckedClassExists(), true);
+    await t.expect(isCheckedClassExists()).eql(true);
   });
 
   const getQuestionValue = ClientFunction(() => {
     return survey.getAllQuestions()[0].value;
   });
 
-  test(`click on true label in intermediate state`, async t => {
+  test(`click on true label in intermediate state`, async (t) => {
     assert.equal(await getQuestionValue(), null);
 
     await t.click(`.sv-boolean__label:nth-of-type(2)`);
@@ -50,7 +50,7 @@ frameworks.forEach(framework => {
     assert.equal(await getQuestionValue(), true);
   });
 
-  test(`click on false label in intermediate state`, async t => {
+  test(`click on false label in intermediate state`, async (t) => {
     assert.equal(await getQuestionValue(), null);
 
     await t.click(`.sv-boolean__label:first-of-type`);
@@ -58,7 +58,7 @@ frameworks.forEach(framework => {
     assert.equal(await getQuestionValue(), false);
   });
 
-  test(`click on right side of switch in intermediate state`, async t => {
+  test(`click on right side of switch in intermediate state`, async (t) => {
     assert.equal(await getQuestionValue(), null);
 
     await t.click(`.sv-boolean__switch`, { offsetX: -1 });
@@ -66,7 +66,7 @@ frameworks.forEach(framework => {
     assert.equal(await getQuestionValue(), true);
   });
 
-  test(`click on left side of switch in intermediate state`, async t => {
+  test(`click on left side of switch in intermediate state`, async (t) => {
     assert.equal(await getQuestionValue(), null);
 
     await t.click(`.sv-boolean__switch`, { offsetX: 1 });

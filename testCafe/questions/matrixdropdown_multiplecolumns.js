@@ -3,7 +3,7 @@ import {
   url,
   setOptions,
   initSurvey,
-  getSurveyResult
+  getSurveyResult,
 } from "../settings";
 import { Selector, ClientFunction } from "testcafe";
 const assert = require("assert");
@@ -25,14 +25,14 @@ const json = {
             "Disagree",
             "Neutral",
             "Agree",
-            "Strongly agree"
-          ]
+            "Strongly agree",
+          ],
         },
         {
           name: "comment",
           title: "Please comment",
-          cellType: "comment"
-        }
+          cellType: "comment",
+        },
       ],
       rows: [
         "Excited",
@@ -42,25 +42,25 @@ const json = {
         "Emotionally safe",
         "Apprehensive",
         "Nervous",
-        "Scared"
-      ]
-    }
-  ]
+        "Scared",
+      ],
+    },
+  ],
 };
 
-frameworks.forEach(framework => {
+frameworks.forEach((framework) => {
   fixture`${framework} ${title}`.page`${url}${framework}`.beforeEach(
-    async t => {
+    async (t) => {
       await initSurvey(framework, json);
     }
   );
 
-  test(`multiple columns`, async t => {
-    const baseSelectorFunc = function(strings, ...values) {
+  test(`multiple columns`, async (t) => {
+    const baseSelectorFunc = function (strings, ...values) {
       return `tbody > tr:nth-child(${values[0]}) > td:nth-child(${values[1]})`;
     };
 
-    await t.expect(Selector("th").withText("Strongly disagree").exists);
+    await t.expect(Selector("th").withText("Strongly disagree").exists).ok();
     await t.expect(Selector("th").count).eql(7);
 
     await t
@@ -76,10 +76,10 @@ frameworks.forEach(framework => {
     let surveyResult = await getSurveyResult();
     assert.deepEqual(surveyResult.question1.Excited, {
       col1: "Strongly disagree",
-      comment: "Some comment"
+      comment: "Some comment",
     });
     assert.deepEqual(surveyResult.question1["Emotionally safe"], {
-      col1: "Strongly agree"
+      col1: "Strongly agree",
     });
   });
 });

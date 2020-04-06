@@ -3,7 +3,7 @@ import {
   url,
   setOptions,
   initSurvey,
-  getSurveyResult
+  getSurveyResult,
 } from "../settings";
 import { Selector, ClientFunction } from "testcafe";
 const assert = require("assert");
@@ -17,7 +17,7 @@ const json = {
       operator: "equal",
       value: "Yes",
       setToName: "name",
-      setValue: "Jon Snow"
+      setValue: "Jon Snow",
     },
     {
       type: "setvalue",
@@ -25,7 +25,7 @@ const json = {
       operator: "equal",
       value: "Yes",
       setToName: "email",
-      setValue: "jon.snow@nightwatch.com"
+      setValue: "jon.snow@nightwatch.com",
     },
     {
       type: "setvalue",
@@ -34,7 +34,7 @@ const json = {
       value: "Yes",
       setToName: "tempvar",
       isVariable: true,
-      setValue: "You have decided to use your current information."
+      setValue: "You have decided to use your current information.",
     },
     {
       type: "setvalue",
@@ -42,7 +42,7 @@ const json = {
       operator: "equal",
       value: "No",
       setToName: "name",
-      setValue: ""
+      setValue: "",
     },
     {
       type: "setvalue",
@@ -50,7 +50,7 @@ const json = {
       operator: "equal",
       value: "No",
       setToName: "email",
-      setValue: ""
+      setValue: "",
     },
     {
       type: "setvalue",
@@ -59,8 +59,8 @@ const json = {
       value: "No",
       setToName: "tempvar",
       isVariable: true,
-      setValue: "You have decided not to use your current information."
-    }
+      setValue: "You have decided not to use your current information.",
+    },
   ],
   pages: [
     {
@@ -72,7 +72,7 @@ const json = {
           title: "Use your current data",
           choices: ["Yes", "No"],
           isRequired: true,
-          colCount: 0
+          colCount: 0,
         },
         { type: "text", name: "name", title: "Name:", isRequired: true },
         {
@@ -80,37 +80,37 @@ const json = {
           name: "email",
           title: "Your e-mail",
           isRequired: true,
-          validators: [{ type: "email" }]
-        }
-      ]
-    }
+          validators: [{ type: "email" }],
+        },
+      ],
+    },
   ],
   completedHtml:
-    "<p><h4>Thank you for sharing this information with us.</h4></p><p>Your name is: <b>{name}</b></p><p>Your email is: <b>{email}</b></p><p>This information is not in the survey data result:<b> {tempvar}</b></p>"
+    "<p><h4>Thank you for sharing this information with us.</h4></p><p>Your name is: <b>{name}</b></p><p>Your email is: <b>{email}</b></p><p>This information is not in the survey data result:<b> {tempvar}</b></p>",
 };
 
-frameworks.forEach(framework => {
+frameworks.forEach((framework) => {
   fixture`${framework} ${title}`.page`${url}${framework}`.beforeEach(
-    async t => {
+    async (t) => {
       await initSurvey(framework, json);
     }
   );
 
-  test(`check visibility`, async t => {
-    const getPosition = ClientFunction(index =>
+  test(`check visibility`, async (t) => {
+    const getPosition = ClientFunction((index) =>
       document.documentElement.innerHTML.indexOf("Jon Snow")
     );
     let surveyResult;
 
     await t.click(`input[value="Yes"]`).click(`input[value="Complete"]`);
 
-    assert.notEqual(await getPosition());
+    assert.notEqual(await getPosition(), -1);
 
     surveyResult = await getSurveyResult();
     assert.deepEqual(surveyResult, {
       copy: "Yes",
       name: "Jon Snow",
-      email: "jon.snow@nightwatch.com"
+      email: "jon.snow@nightwatch.com",
     });
   });
 });

@@ -1,6 +1,9 @@
 <template>
   <div
-    v-if="survey.locTitle.renderedHtml.length > 0 && survey.showTitle"
+    v-if="
+      (survey.locTitle.renderedHtml.length > 0 && survey.showTitle) ||
+        survey.hasLogo
+    "
     :class="survey.css.header"
   >
     <div v-if="survey.isLogoBefore" :class="survey.logoClassNames">
@@ -13,7 +16,10 @@
       />
     </div>
 
-    <div :class="survey.css.headerText">
+    <div
+      v-if="survey.locTitle.renderedHtml.length > 0 && survey.showTitle"
+      :class="survey.css.headerText"
+    >
       <h3 :class="survey.css.title">
         <survey-string :locString="survey.locTitle" />
       </h3>

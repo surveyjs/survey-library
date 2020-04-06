@@ -224,7 +224,7 @@ export class Survey extends SurveyElementBase implements ISurveyCreator {
     ) : null;
   }
   protected renderHeader(): JSX.Element {
-    if (this.survey.title && this.survey.showTitle) {
+    if ((this.survey.title && this.survey.showTitle) || this.survey.hasLogo) {
       let title = this.renderTitle();
       let style: any = { objectFit: this.survey.logoFit };
       let imageBefore = null;

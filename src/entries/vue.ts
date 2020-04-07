@@ -61,3 +61,5 @@ export { ElementHeader } from "../vue/elementheader.vue";
 export { Image } from "../vue/image.vue";
 export { SignaturePad } from "../vue/signaturepad.vue";
 export { SurveyHeader } from "../vue/header.vue";
+export { Custom } from "../vue/custom.vue";
+export { Composite } from "../vue/composite.vue";

@@ -32,3 +32,6 @@
 .sv-dropdown--error::placeholder {
   color: $error-color;
 }
+.sv-dropdown option {
+  color: $text-color;
+}

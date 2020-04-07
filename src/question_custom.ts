@@ -27,7 +27,7 @@ export class CustomQuestionJSON {
       "question"
     );
   }
-  public get IsComposite() {
+  public get isComposite() {
     return !!this.json.elementsJSON;
   }
 }
@@ -43,6 +43,7 @@ export class CustomQuestionCollection {
     name: string,
     questionJSON: CustomQuestionJSON
   ) => QuestionCustomModel;
+  public onAddingJson: (name: string, isComposite: boolean) => void;
   public add(json: any) {
     if (!json) return;
     let name = json.name;
@@ -57,7 +58,10 @@ export class CustomQuestionCollection {
     if (!!Serializer.findClass(name)) {
       throw "There is already class with name '" + name + "'";
     }
-    this.customQuestionValues.push(new CustomQuestionJSON(name, json));
+    var customQuestion = new CustomQuestionJSON(name, json);
+    if (!!this.onAddingJson)
+      this.onAddingJson(name, customQuestion.isComposite);
+    this.customQuestionValues.push(customQuestion);
   }
   public getCustomQuestionByName(name: string): CustomQuestionJSON {
     for (var i = 0; i < this.customQuestionValues.length; i++) {
@@ -76,7 +80,7 @@ export class CustomQuestionCollection {
     name: string,
     questionJSON: CustomQuestionJSON
   ): Question {
-    if (!!questionJSON.IsComposite)
+    if (!!questionJSON.isComposite)
       return this.createCompositeModel(name, questionJSON);
     return this.createCustomModel(name, questionJSON);
   }

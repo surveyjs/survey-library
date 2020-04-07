@@ -20,7 +20,7 @@ export { Survey } from "../react/reactSurvey";
 export { ReactSurveyModel, ReactWindowModel } from "../react/reactsurveymodel";
 export {
   ReactSurveyModel as Model,
-  ReactWindowModel as WindowModel
+  ReactWindowModel as WindowModel,
 } from "../react/reactsurveymodel";
 export { SurveyNavigationBase } from "../react/reactSurveyNavigationBase";
 export { SurveyTimerPanel } from "../react/reacttimerpanel";
@@ -32,24 +32,24 @@ export { SurveyFlowPanel } from "../react/flow-panel";
 export {
   SurveyQuestion,
   SurveyElementErrors,
-  SurveyQuestionAndErrorsCell
+  SurveyQuestionAndErrorsCell,
 } from "../react/reactquestion";
 export {
   SurveyElementBase,
-  SurveyQuestionElementBase
+  SurveyQuestionElementBase,
 } from "../react/reactquestionelement";
 export {
   SurveyQuestionCommentItem,
-  SurveyQuestionComment
+  SurveyQuestionComment,
 } from "../react/reactquestioncomment";
 export {
   SurveyQuestionCheckbox,
-  SurveyQuestionCheckboxItem
+  SurveyQuestionCheckboxItem,
 } from "../react/reactquestioncheckbox";
 export { SurveyQuestionDropdown } from "../react/reactquestiondropdown";
 export {
   SurveyQuestionMatrix,
-  SurveyQuestionMatrixRow
+  SurveyQuestionMatrixRow,
 } from "../react/reactquestionmatrix";
 export { SurveyQuestionHtml } from "../react/reactquestionhtml";
 export { SurveyQuestionFile } from "../react/reactquestionfile";
@@ -71,6 +71,10 @@ export { ReactElementFactory } from "../react/element-factory";
 export { SurveyQuestionImagePicker } from "../react/imagepicker";
 export { SurveyQuestionImage } from "../react/image";
 export { SurveyQuestionSignaturePad } from "../react/signaturepad";
+export {
+  SurveyQuestionCustom,
+  SurveyQuestionComposite,
+} from "../react/reactquestioncustom";
 
 //Uncomment to include the "date" question type.
 //export {default as SurveyQuestionDate} from "../plugins/react/reactquestiondate";

@@ -705,6 +705,12 @@ export class Question extends SurveyElement
   public set id(val: string) {
     this.setPropertyValue("id", val);
   }
+  public get ariaTitleId(): string {
+    return this.id + "_ariaTitle";
+  }
+  public get ariaRole(): string {
+    return null;
+  }
   public get hasOther(): boolean {
     return this.getPropertyValue("hasOther", false);
   }

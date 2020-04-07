@@ -4,7 +4,7 @@
       v-if="element.hasTitle"
       :class="getTitleClass(element)"
       v-bind:aria-label="element.locTitle.renderedHtml"
-      v-bind:id="element.id + '_aria'"
+      v-bind:id="element.ariaTitleId"
     >
       <span
         v-if="element.isRequireTextOnStart"

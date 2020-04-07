@@ -41,6 +41,9 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
       }
     );
   }
+  public get ariaRole(): string {
+    return "group";
+  }
   public getType(): string {
     return "checkbox";
   }

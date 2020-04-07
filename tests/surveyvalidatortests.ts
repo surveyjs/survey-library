@@ -137,6 +137,30 @@ QUnit.test("Text validator", function(assert) {
   assert.notEqual(validator.validate("abc12"), null, "Not just text");
 });
 
+QUnit.test("Text validator calls onPropertyValueChangedCallback", function(
+  assert
+) {
+  var validator = new TextValidator();
+  var changes = {};
+  validator.onPropertyValueChangedCallback = name => {
+    changes[name] = true;
+  };
+  validator.fromJSON({
+    type: "text",
+    minLength: 11,
+    maxLength: 15,
+    allowDigits: true
+  });
+  assert.equal(validator.minLength, 11, "minLength loaded");
+  assert.equal(validator.maxLength, 15, "maxLength loaded");
+  validator.minLength = 1;
+  assert.equal(changes["minLength"], true, "minLength changed");
+  validator.maxLength = 5;
+  assert.equal(changes["maxLength"], true, "maxLength changed");
+  validator.allowDigits = false;
+  assert.equal(changes["allowDigits"], true, "allowDigits changed");
+});
+
 export class CamelCaseValidator extends SurveyValidator {
   public getType(): string {
     return "CamelCaseValidator";
@@ -222,8 +246,8 @@ QUnit.test(
       ]
     };
     var survey = new SurveyModel(json);
-    var question = <QuestionMultipleTextModel>survey.getQuestionByName(
-      "pricelimit"
+    var question = <QuestionMultipleTextModel>(
+      survey.getQuestionByName("pricelimit")
     );
     question.items[1].value = 3;
     assert.equal(
@@ -297,8 +321,8 @@ QUnit.test("Expression validator", function(assert) {
     ]
   };
   var survey = new SurveyModel(json);
-  var question = <QuestionMultipleTextModel>survey.getQuestionByName(
-    "pricelimit"
+  var question = <QuestionMultipleTextModel>(
+    survey.getQuestionByName("pricelimit")
   );
   question.items[0].value = 5;
   question.items[1].value = 3;

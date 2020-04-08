@@ -20,11 +20,12 @@
 import Vue from "vue";
 import { Component, Prop } from "vue-property-decorator";
 import { default as QuestionVue } from "./question";
+import { Question } from "../question";
 import { QuestionCustomModel } from "../question_custom";
 
 @Component
 export class Custom extends QuestionVue<QuestionCustomModel> {
-  get contentQuestion() {
+  get contentQuestion(): Question {
     return this.question.contentQuestion;
   }
 }

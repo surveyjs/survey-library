@@ -21,10 +21,11 @@ import Vue from "vue";
 import { Component, Prop } from "vue-property-decorator";
 import { default as QuestionVue } from "./question";
 import { QuestionCompositeModel } from "../question_custom";
+import { PanelModel } from "../panel";
 
 @Component
 export class Composite extends QuestionVue<QuestionCompositeModel> {
-  get contentPanel() {
+  get contentPanel(): PanelModel {
     return this.question.contentPanel;
   }
 }

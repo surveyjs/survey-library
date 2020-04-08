@@ -269,7 +269,20 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
       res.fromJSON({ elements: elJSON });
     }
     this.initElement(res);
+    res.readOnly = this.isReadOnly;
     return res;
+  }
+  protected onReadOnlyChanged() {
+    if (!!this.contentPanel) {
+      this.contentPanel.readOnly = this.isReadOnly;
+    }
+    super.onReadOnlyChanged();
+  }
+  public onSurveyLoad() {
+    if (!!this.contentPanel) {
+      this.contentPanel.readOnly = this.isReadOnly;
+    }
+    super.onSurveyLoad();
   }
   getValue(name: string): any {
     var val = this.value;

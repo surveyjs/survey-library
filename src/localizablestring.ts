@@ -12,6 +12,7 @@ export interface ILocalizableOwner {
  * It uses in all objects where support for multi-languages and markdown is required.
  */
 export class LocalizableString {
+  public static SerializeAsObject: boolean = false;
   public static get defaultLocale(): string {
     return settings.defaultLocaleName;
   }
@@ -146,16 +147,20 @@ export class LocalizableString {
     return keys;
   }
   public getJson(): any {
-    if (!!this.sharedData) return this.getJson();
+    if (!!this.sharedData) return this.sharedData.getJson();
     var keys = this.getValuesKeys();
     if (keys.length == 0) return null;
-    if (keys.length == 1 && keys[0] == settings.defaultLocaleName)
+    if (
+      keys.length == 1 &&
+      keys[0] == settings.defaultLocaleName &&
+      !settings.serializeLocalizableStringAsObject
+    )
       return (<any>this).values[keys[0]];
     return this.values;
   }
   public setJson(value: any) {
     if (!!this.sharedData) {
-      this.setJson(value);
+      this.sharedData.setJson(value);
       return;
     }
     this.values = {};
@@ -171,7 +176,7 @@ export class LocalizableString {
     this.strChanged();
   }
   public equals(obj: any): boolean {
-    if (!!this.sharedData) return this.equals(obj);
+    if (!!this.sharedData) return this.sharedData.equals(obj);
     if (!obj || !obj.values) return false;
     return Helpers.isTwoValueEquals(this.values, obj.values);
   }

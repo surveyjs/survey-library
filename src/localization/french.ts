@@ -9,6 +9,8 @@ export var frenchSurveyStrings = {
   noneItemText: "Aucun",
   selectAllItemText: "Tout sélectionner",
   progressText: "Page {0} sur {1}",
+  panelDynamicProgressText: "Enregistrement {0} sur {1}",
+  questionsProgressText: "{0}/{1} question(s) répondue(s)",
   emptySurvey: "Il n'y a ni page visible ni question visible dans ce questionnaire",
   completingSurvey: "Merci d'avoir répondu au questionnaire !",
   completingSurveyBefore: "Nos données indiquent que vous avez déjà rempli ce questionnaire.",
@@ -37,6 +39,7 @@ export var frenchSurveyStrings = {
   uploadingFile: "Votre fichier est en cours de chargement. Merci d'attendre quelques secondes et de réessayer.",
   loadingFile: "Chargement...",
   chooseFile: "Ajouter des fichiers...",
+  noFileChosen: "Aucun fichier ajouté",
   confirmDelete: "Voulez-vous supprimer cet enregistrement ?",
   keyDuplicationError: "Cette valeur doit être unique.",
   addColumn: "Ajouter une colonne",
@@ -61,9 +64,14 @@ export var frenchSurveyStrings = {
   timerLimitSurvey: "Vous avez passé {0} sur {1} au total.",
   cleanCaption: "Nettoyer",
   clearCaption: "Vider",
+  chooseFileCaption: "Ajouter un fichier",
   removeFileCaption: "Enlever ce fichier",
   booleanCheckedLabel: "Oui",
-  booleanUncheckedLabel: "Non"
+  booleanUncheckedLabel: "Non",
+  confirmRemoveFile: "Êtes-vous certains de vouloir supprimer ce fichier : {0}?",
+  confirmRemoveAllFiles: "Êtes-vous certains de vouloir supprimer tous les fichiers?",
+  questionTitlePatternText: "Titre de la question"
+
 };
 
 surveyLocalization.locales["fr"] = frenchSurveyStrings;

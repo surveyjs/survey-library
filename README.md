@@ -16,21 +16,21 @@
 
 ## Documentation
 
-[SurveyJS Library Documentation](https://surveyjs.io/Documentation/Library/)
+[SurveyJS Library Documentation](https://surveyjs.io/Documentation/Library)
 
 ## Live Examples
 
-[SurveyJS Library Live Examples](https://surveyjs.io/Examples/Library/)
+[SurveyJS Library Live Examples](https://surveyjs.io/Examples/Library)
 
 ## Survey Creator / Form Builder
 
-[Create your Survey or Form now](https://surveyjs.io/create-survey/)
+[Create your Survey or Form now](https://surveyjs.io/create-survey)
 
 Survey Creator sources are [here](https://github.com/surveyjs/survey-creator)
 
 ## Export Survey to PDF
 
-[Export to pdf overview](https://surveyjs.io/Overview/Survey-Pdf-Export/)
+[Export to pdf overview](https://surveyjs.io/Overview/Survey-Pdf-Export)
 
 Export to PDF sources are [here](https://github.com/surveyjs/survey-pdf)
 

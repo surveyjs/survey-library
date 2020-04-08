@@ -237,7 +237,7 @@ QUnit.test("Single: hasError", function (assert) {
   };
   CustomQuestionCollection.Instance.add(json);
   var survey = new SurveyModel({
-    elements: [{ type: "newquestion", name: "q1", readOnly: true }],
+    elements: [{ type: "newquestion", name: "q1" }],
   });
   var q = <QuestionCustomModel>survey.getAllQuestions()[0];
   assert.equal(q.hasErrors(), true, "contentQuestion is required");
@@ -256,7 +256,7 @@ QUnit.test("Composite: hasErrors", function (assert) {
   };
   CustomQuestionCollection.Instance.add(json);
   var survey = new SurveyModel({
-    elements: [{ type: "customerinfo", name: "q1", readOnly: true }],
+    elements: [{ type: "customerinfo", name: "q1" }],
   });
   var q = <QuestionCompositeModel>survey.getAllQuestions()[0];
   var firstName = q.contentPanel.getQuestionByName("firstName");

@@ -20,7 +20,7 @@ export class CustomQuestionJSON {
       [],
       function (json: any) {
         return CustomQuestionCollection.Instance.createQuestion(
-          json.name,
+          !!json ? json.name : "",
           self
         );
       },
@@ -62,6 +62,9 @@ export class CustomQuestionCollection {
     if (!!this.onAddingJson)
       this.onAddingJson(name, customQuestion.isComposite);
     this.customQuestionValues.push(customQuestion);
+  }
+  public get items(): Array<CustomQuestionJSON> {
+    return this.customQuestionValues;
   }
   public getCustomQuestionByName(name: string): CustomQuestionJSON {
     for (var i = 0; i < this.customQuestionValues.length; i++) {
@@ -112,6 +115,7 @@ export class QuestionCustomModelBase extends Question
   protected initElement(el: SurveyElement) {
     if (!el) return;
     el.setSurveyImpl(this);
+    el.disableDesignActions = true;
   }
   //ISurveyImpl
   geSurveyData(): ISurveyData {
@@ -191,7 +195,9 @@ export class QuestionCustomModel extends QuestionCustomModelBase {
   private questionWrapper: Question;
   constructor(public name: string, public customQuestion: CustomQuestionJSON) {
     super(name, customQuestion);
+    SurveyElement.CreateDisabledDesignElements = true;
     this.questionWrapper = this.createQuestion();
+    SurveyElement.CreateDisabledDesignElements = false;
   }
   public getTemplate(): string {
     return "custom";
@@ -246,7 +252,9 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
   private panelWrapper: PanelModel;
   constructor(public name: string, public customQuestion: CustomQuestionJSON) {
     super(name, customQuestion);
+    SurveyElement.CreateDisabledDesignElements = true;
     this.panelWrapper = this.createPanel();
+    SurveyElement.CreateDisabledDesignElements = false;
   }
   public getTemplate(): string {
     return "composite";

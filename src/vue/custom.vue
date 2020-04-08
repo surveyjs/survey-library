@@ -4,6 +4,7 @@
       <survey-element
         :key="contentQuestion.idValue"
         :id="contentQuestion.id"
+        :role="contentQuestion.ariaRole"
         :aria-labelledby="contentQuestion.id + '_aria'"
         :name="contentQuestion.name"
         :style="{ width: '100%' }"

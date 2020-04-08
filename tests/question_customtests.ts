@@ -226,3 +226,42 @@ QUnit.test("Composite: read only", function (assert) {
   assert.equal(firstName.isReadOnly, true, "firstName is read Only again");
   CustomQuestionCollection.Instance.clear();
 });
+QUnit.test("Single: hasError", function (assert) {
+  var json = {
+    name: "newquestion",
+    questionJSON: {
+      type: "dropdown",
+      choices: [1, 2, 3, 4, 5],
+      isRequired: true,
+    },
+  };
+  CustomQuestionCollection.Instance.add(json);
+  var survey = new SurveyModel({
+    elements: [{ type: "newquestion", name: "q1", readOnly: true }],
+  });
+  var q = <QuestionCustomModel>survey.getAllQuestions()[0];
+  assert.equal(q.hasErrors(), true, "contentQuestion is required");
+  assert.equal(q.errors.length, 1, "There is one error");
+  q.contentQuestion.value = 1;
+  assert.equal(q.hasErrors(), false, "contentQuestion has value");
+  CustomQuestionCollection.Instance.clear();
+});
+QUnit.test("Composite: hasErrors", function (assert) {
+  var json = {
+    name: "customerinfo",
+    elementsJSON: [
+      { type: "text", name: "firstName", isRequired: true },
+      { type: "text", name: "lastName" },
+    ],
+  };
+  CustomQuestionCollection.Instance.add(json);
+  var survey = new SurveyModel({
+    elements: [{ type: "customerinfo", name: "q1", readOnly: true }],
+  });
+  var q = <QuestionCompositeModel>survey.getAllQuestions()[0];
+  var firstName = q.contentPanel.getQuestionByName("firstName");
+  assert.equal(q.hasErrors(), true, "firstName is required");
+  firstName.value = "abc";
+  assert.equal(q.hasErrors(), false, "firstName has value");
+  CustomQuestionCollection.Instance.clear();
+});

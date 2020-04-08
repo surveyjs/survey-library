@@ -104,7 +104,7 @@ export class CustomQuestionCollection {
   }
 }
 
-export class QuestionCustomModelBase extends Question
+export abstract class QuestionCustomModelBase extends Question
   implements ISurveyImpl, ISurveyData, IPanel {
   constructor(public name: string, public customQuestion: CustomQuestionJSON) {
     super(name);
@@ -112,6 +112,14 @@ export class QuestionCustomModelBase extends Question
   public getType(): string {
     return !!this.customQuestion ? this.customQuestion.name : "custom";
   }
+  public onFirstRendering() {
+    var el = this.getElement();
+    if (!!el) {
+      el.onFirstRendering();
+    }
+    super.onFirstRendering();
+  }
+  protected abstract getElement(): SurveyElement;
   protected initElement(el: SurveyElement) {
     if (!el) return;
     el.setSurveyImpl(this);
@@ -202,11 +210,17 @@ export class QuestionCustomModel extends QuestionCustomModelBase {
   public getTemplate(): string {
     return "custom";
   }
-  public onFirstRendering() {
-    if (!!this.questionWrapper) {
-      this.questionWrapper.onFirstRendering();
+  protected getElement(): SurveyElement {
+    return this.contentQuestion;
+  }
+  public hasErrors(fireCallback: boolean = true, rec: any = null): boolean {
+    if (!this.contentQuestion) return false;
+    var res = this.contentQuestion.hasErrors(fireCallback, rec);
+    this.errors = [];
+    for (var i = 0; i < this.contentQuestion.errors.length; i++) {
+      this.errors.push(this.contentQuestion.errors[i]);
     }
-    super.onFirstRendering();
+    return res;
   }
   public get contentQuestion(): Question {
     return this.questionWrapper;
@@ -259,8 +273,15 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
   public getTemplate(): string {
     return "composite";
   }
+  protected getElement(): SurveyElement {
+    return this.contentPanel;
+  }
   public get contentPanel(): PanelModel {
     return this.panelWrapper;
+  }
+  public hasErrors(fireCallback: boolean = true, rec: any = null): boolean {
+    if (!this.contentPanel) return false;
+    return this.contentPanel.hasErrors(fireCallback, false, rec);
   }
   protected createPanel(): PanelModel {
     var res = <PanelModel>Serializer.createClass("panel");

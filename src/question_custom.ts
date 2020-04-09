@@ -1,5 +1,5 @@
 import { Question } from "./question";
-import { Serializer } from "./jsonobject";
+import { Serializer, CustomPropertiesCollection } from "./jsonobject";
 import {
   ISurveyImpl,
   ISurveyData,
@@ -26,6 +26,19 @@ export class CustomQuestionJSON {
       },
       "question"
     );
+    this.onInit();
+  }
+  public onInit() {
+    if (!this.json.onInit) return;
+    this.json.onInit();
+  }
+  public onPropertyChanged(
+    question: Question,
+    propertyName: string,
+    newValue: any
+  ) {
+    if (!this.json.onPropertyChanged) return;
+    this.json.onPropertyChanged(question, propertyName, newValue);
   }
   public get isComposite() {
     return !!this.json.elementsJSON;
@@ -108,9 +121,16 @@ export abstract class QuestionCustomModelBase extends Question
   implements ISurveyImpl, ISurveyData, IPanel {
   constructor(public name: string, public customQuestion: CustomQuestionJSON) {
     super(name);
+    CustomPropertiesCollection.createProperties(this);
   }
   public getType(): string {
     return !!this.customQuestion ? this.customQuestion.name : "custom";
+  }
+  protected onPropertyValueChanged(name: string, oldValue: any, newValue: any) {
+    super.onPropertyValueChanged(name, oldValue, newValue);
+    if (!!this.customQuestion) {
+      this.customQuestion.onPropertyChanged(this, name, newValue);
+    }
   }
   public onFirstRendering() {
     var el = this.getElement();

@@ -6,6 +6,7 @@ import {
   CustomQuestionCollection,
   CustomQuestionJSON,
 } from "../src/question_custom";
+import { Serializer } from "../src/jsonobject";
 
 export default QUnit.module("custom questions");
 
@@ -263,5 +264,38 @@ QUnit.test("Composite: hasErrors", function (assert) {
   assert.equal(q.hasErrors(), true, "firstName is required");
   firstName.value = "abc";
   assert.equal(q.hasErrors(), false, "firstName has value");
+  CustomQuestionCollection.Instance.clear();
+});
+
+QUnit.test("Composite: onPropertyChanged", function (assert) {
+  var json = {
+    name: "customerinfo",
+    elementsJSON: [
+      { type: "text", name: "firstName", isRequired: true },
+      { type: "text", name: "lastName" },
+    ],
+    onInit() {
+      Serializer.addProperty("customerinfo", {
+        name: "showLastName:boolean",
+        default: true,
+      });
+    },
+    onPropertyChanged: function (question, propertyName, newValue) {
+      if (propertyName == "showLastName") {
+        question.contentPanel.getQuestionByName("lastName").visible = newValue;
+      }
+    },
+  };
+  CustomQuestionCollection.Instance.add(json);
+  var survey = new SurveyModel({
+    elements: [{ type: "customerinfo", name: "q1" }],
+  });
+  var q = <QuestionCompositeModel>survey.getAllQuestions()[0];
+  var lastName = q.contentPanel.getQuestionByName("lastName");
+  assert.equal(lastName.visible, true, "It is visible by default");
+  q.showLastName = false;
+  assert.equal(lastName.visible, false, "showLastName is false");
+  q.showLastName = true;
+  assert.equal(lastName.visible, true, "showLastName is true");
   CustomQuestionCollection.Instance.clear();
 });

@@ -7,6 +7,8 @@ import {
   CustomQuestionJSON,
 } from "../src/question_custom";
 import { Serializer } from "../src/jsonobject";
+import { QuestionDropdownModel } from "../src/question_dropdown";
+import { QuestionTextModel } from "../src/question_text";
 
 export default QUnit.module("custom questions");
 
@@ -297,5 +299,78 @@ QUnit.test("Composite: onPropertyChanged", function (assert) {
   assert.equal(lastName.visible, false, "showLastName is false");
   q.showLastName = true;
   assert.equal(lastName.visible, true, "showLastName is true");
+  CustomQuestionCollection.Instance.clear();
+});
+QUnit.test("Single: create from code", function (assert) {
+  var json = {
+    name: "newquestion",
+    createQuestion: function () {
+      var res = new QuestionDropdownModel("question");
+      res.choices = [1, 2, 3, 4, 5];
+      return res;
+    },
+  };
+  CustomQuestionCollection.Instance.add(json);
+  var survey = new SurveyModel({
+    elements: [{ type: "newquestion", name: "q1" }],
+  });
+  var q = <QuestionCustomModel>survey.getAllQuestions()[0];
+  assert.equal(
+    q.contentQuestion.getType(),
+    "dropdown",
+    "content question created correctly"
+  );
+  assert.equal(
+    q.contentQuestion.choices.length,
+    5,
+    "content question choices are here"
+  );
+  CustomQuestionCollection.Instance.clear();
+});
+QUnit.test("Composite: create from code", function (assert) {
+  var json = {
+    name: "customerinfo",
+    createElements: function (panel) {
+      panel.addNewQuestion("text", "firstName");
+      panel.addNewQuestion("text", "lastName");
+      panel.questions[0].isRequired = true;
+    },
+  };
+  CustomQuestionCollection.Instance.add(json);
+  var survey = new SurveyModel({
+    elements: [{ type: "customerinfo", name: "q1" }],
+  });
+  var q = <QuestionCompositeModel>survey.getAllQuestions()[0];
+  var firstName = q.contentPanel.getQuestionByName("firstName");
+  var lastName = q.contentPanel.getQuestionByName("lastName");
+  assert.equal(firstName.getType(), "text", "first name is creted");
+  assert.equal(lastName.getType(), "text", "last name is creted");
+  assert.equal(firstName.isRequired, true, "first name is required");
+  CustomQuestionCollection.Instance.clear();
+});
+QUnit.test("Composite: onPropertyChanged", function (assert) {
+  var json = {
+    name: "customerinfo",
+    elementsJSON: [
+      { type: "text", name: "firstName", isRequired: true },
+      { type: "text", name: "lastName" },
+    ],
+    onCreated: function (question) {
+      question.contentPanel.getQuestionByName(
+        "lastName"
+      ).startWithNewLine = false;
+    },
+  };
+  CustomQuestionCollection.Instance.add(json);
+  var survey = new SurveyModel({
+    elements: [{ type: "customerinfo", name: "q1" }],
+  });
+  var q = <QuestionCompositeModel>survey.getAllQuestions()[0];
+  var lastName = q.contentPanel.getQuestionByName("lastName");
+  assert.equal(
+    lastName.startWithNewLine,
+    false,
+    "onCreated function is called"
+  );
   CustomQuestionCollection.Instance.clear();
 });

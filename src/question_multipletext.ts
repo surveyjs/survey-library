@@ -5,7 +5,7 @@ import {
   ISurvey,
   IPanel,
   IElement,
-  ITextProcessor
+  ITextProcessor,
 } from "./base";
 import { SurveyValidator, IValidatorOwner } from "./validator";
 import { Question, IConditionObject } from "./question";
@@ -37,7 +37,7 @@ export class MultipleTextItemModel extends Base
   constructor(name: any = null, title: string = null) {
     super();
     this.editorValue = this.createEditor(name);
-    this.editor.questionTitleTemplateCallback = function() {
+    this.editor.questionTitleTemplateCallback = function () {
       return "";
     };
     this.editor.titleLocation = "left";
@@ -258,13 +258,13 @@ export class QuestionMultipleTextModel extends Question
   constructor(public name: string) {
     super(name);
     var self = this;
-    this.createNewArray("items", function(item: any) {
+    this.createNewArray("items", function (item: any) {
       item.setData(self);
     });
-    this.registerFunctionOnPropertyValueChanged("items", function() {
+    this.registerFunctionOnPropertyValueChanged("items", function () {
       self.fireCallback(self.colCountChangedCallback);
     });
-    this.registerFunctionOnPropertyValueChanged("colCount", function() {
+    this.registerFunctionOnPropertyValueChanged("colCount", function () {
       self.fireCallback(self.colCountChangedCallback);
     });
   }
@@ -342,7 +342,7 @@ export class QuestionMultipleTextModel extends Question
       objects.push({
         name: this.getValueName() + "." + item.name,
         text: this.processedTitle + "." + item.fullTitle,
-        question: this
+        question: this,
       });
     }
   }
@@ -514,6 +514,9 @@ export class QuestionMultipleTextModel extends Question
   getQuestionTitleLocation(): string {
     return "left";
   }
+  getQuestionStartIndex(): string {
+    return this.getStartIndex();
+  }
   getChildrenLayoutType(): string {
     return "row";
   }
@@ -549,22 +552,22 @@ Serializer.addClass(
         "text",
         "time",
         "url",
-        "week"
-      ]
+        "week",
+      ],
     },
     { name: "title", serializationProperty: "locTitle" },
     { name: "maxLength:number", default: -1 },
     {
       name: "requiredErrorText:text",
-      serializationProperty: "locRequiredErrorText"
+      serializationProperty: "locRequiredErrorText",
     },
     {
       name: "validators:validators",
       baseClassName: "surveyvalidator",
-      classNamePart: "validator"
-    }
+      classNamePart: "validator",
+    },
   ],
-  function() {
+  function () {
     return new MultipleTextItemModel("");
   }
 );
@@ -574,15 +577,15 @@ Serializer.addClass(
   [
     { name: "!items:textitems", className: "multipletextitem" },
     { name: "itemSize:number", default: 25, minValue: 0 },
-    { name: "colCount:number", default: 1, choices: [1, 2, 3, 4, 5] }
+    { name: "colCount:number", default: 1, choices: [1, 2, 3, 4, 5] },
   ],
-  function() {
+  function () {
     return new QuestionMultipleTextModel("");
   },
   "question"
 );
 
-QuestionFactory.Instance.registerQuestion("multipletext", name => {
+QuestionFactory.Instance.registerQuestion("multipletext", (name) => {
   var q = new QuestionMultipleTextModel(name);
   q.addItem("text1");
   q.addItem("text2");

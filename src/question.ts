@@ -826,10 +826,12 @@ export class Question extends SurveyElement
    * @see SurveyModel.questionStartIndex
    */
   public get no(): string {
-    return Helpers.getNumberByIndex(
-      this.visibleIndex,
-      !!this.survey ? this.survey.questionStartIndex : ""
-    );
+    return Helpers.getNumberByIndex(this.visibleIndex, this.getStartIndex());
+  }
+  protected getStartIndex(): string {
+    if (!!this.parent) return this.parent.getQuestionStartIndex();
+    if (!!this.survey) return this.survey.questionStartIndex;
+    return "";
   }
   public onSurveyLoad() {
     this.fireCallback(this.surveyLoadCallback);

@@ -660,6 +660,14 @@ export class PanelModelBase extends SurveyElement
     if (this.parent) return this.parent.getQuestionTitleLocation();
     return this.survey ? this.survey.questionTitleLocation : "top";
   }
+  protected getStartIndex(): string {
+    if (!!this.parent) return this.parent.getQuestionStartIndex();
+    if (!!this.survey) return this.survey.questionStartIndex;
+    return "";
+  }
+  getQuestionStartIndex(): string {
+    return this.getStartIndex();
+  }
   getChildrenLayoutType(): string {
     return "row";
   }
@@ -1374,6 +1382,22 @@ export class PanelModel extends PanelModelBase implements IElement {
     this.notifySurveyOnVisibilityChanged();
   }
   /**
+   * Gets or sets the first question index for elements inside the panel. The first question index is '1.' by default and it is taken from survey.questionStartIndex property.
+   * You may start it from '100' or from 'A', by setting '100' or 'A' to this property.
+   * You can set the start index to "(1)" or "# A)" or "a)" to render question number as (1), # A) and a) accordingly.
+   * @see survey.questionStartIndex
+   */
+  public get questionStartIndex(): string {
+    return this.getPropertyValue("questionStartIndex", "");
+  }
+  public set questionStartIndex(val: string) {
+    this.setPropertyValue("questionStartIndex", val);
+  }
+  getQuestionStartIndex(): string {
+    if (!!this.questionStartIndex) return this.questionStartIndex;
+    return super.getQuestionStartIndex();
+  }
+  /**
    * The property returns the question number. If question is invisible then it returns empty string.
    * If visibleIndex is 1, then no is 2, or 'B' if survey.questionStartIndex is 'A'.
    * @see SurveyModel.questionStartIndex
@@ -1384,10 +1408,7 @@ export class PanelModel extends PanelModelBase implements IElement {
   protected setNo(visibleIndex: number) {
     this.setPropertyValue(
       "no",
-      Helpers.getNumberByIndex(
-        this.visibleIndex,
-        !!this.survey ? this.survey.questionStartIndex : ""
-      )
+      Helpers.getNumberByIndex(this.visibleIndex, this.getStartIndex())
     );
   }
   protected beforeSetVisibleIndex(index: number): number {
@@ -1584,6 +1605,7 @@ Serializer.addClass(
       default: "default",
       choices: ["default", "onpanel", "off"],
     },
+    "questionStartIndex",
   ],
   function () {
     return new PanelModel();

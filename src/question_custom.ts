@@ -218,6 +218,9 @@ export abstract class QuestionCustomModelBase extends Question
   getQuestionTitleLocation(): string {
     return "left";
   }
+  getQuestionStartIndex(): string {
+    return this.getStartIndex();
+  }
   getChildrenLayoutType(): string {
     return "row";
   }

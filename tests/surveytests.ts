@@ -1302,6 +1302,39 @@ QUnit.test(
     );
   }
 );
+QUnit.test("Panel.questionStartIndex", function (assert) {
+  var survey = new SurveyModel();
+  var page = survey.addNewPage("page1");
+  var q1 = page.addNewQuestion("text", "q1");
+  var panel = page.addNewPanel("panel1");
+  var q2 = panel.addNewQuestion("text", "q2");
+  var q3 = panel.addNewQuestion("text", "q3");
+  var q4 = page.addNewQuestion("text", "q4");
+  survey.questionStartIndex = "1)";
+  panel.questionStartIndex = "A.";
+  assert.equal(q1.no, "1)", "the first question");
+  assert.equal(q2.no, "B.", "second quesiton");
+  assert.equal(q3.no, "C.", "the thrid question");
+  assert.equal(q4.no, "4)", "the fourth question");
+  panel.showQuestionNumbers = "onpanel";
+  assert.equal(q2.no, "A.", "second quesiton, onpanel");
+  assert.equal(q3.no, "B.", "the thrid question, onpanel");
+  assert.equal(q4.no, "2)", "the fourth question, onpanel");
+});
+
+QUnit.test("Panel.questionStartIndex, nested Panel", function (assert) {
+  var survey = new SurveyModel();
+  var page = survey.addNewPage("page1");
+  var panel = page.addNewPanel("panel1");
+  var nestedPanel = panel.addNewPanel("panel2");
+  panel.addNewQuestion("text", "q2");
+  nestedPanel.addNewQuestion("text", "q3");
+  nestedPanel.title = "title";
+  survey.questionStartIndex = "1)";
+  panel.questionStartIndex = "A.";
+  nestedPanel.showNumber = true;
+  assert.equal(nestedPanel.no, "A.", "use panel questionStartIndex");
+});
 
 QUnit.test("showQuestionNumbers - question fullTitle", function (assert) {
   var survey = twoPageSimplestSurvey();

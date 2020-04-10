@@ -1,7 +1,9 @@
+.sv-row > .sv-row__panel,
 .sv-row__question {
   vertical-align: top;
   white-space: normal;
 }
+.sv-row > .sv-row__panel,
 .sv-row__question:not(:last-child) {
   float: left;
   @media only screen and (max-width: 600px) {
@@ -9,7 +11,8 @@
     float: none;
   }
 }
-[dir="rtl"], [style*="direction:rtl"] {
+[dir="rtl"],
+[style*="direction:rtl"] {
   .sv-row__question:not(:last-child) {
     float: right;
   }
@@ -22,6 +25,7 @@
     max-width: 50%;
   }
 }
+.sv-row > .sv-row__panel,
 .sv-row__question {
   @media only screen and (max-width: 600px) {
     width: 100% !important;

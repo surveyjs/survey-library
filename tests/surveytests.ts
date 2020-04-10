@@ -9531,6 +9531,12 @@ QUnit.test("Question css classes", function (assert) {
   assert.equal(q1.cssTitle, "title", "question title clear");
   q1.value = "somevalue";
   assert.equal(q1.cssTitle, "title onAnswer", "question title on answer 2");
+  survey.questionTitleLocation = "left";
+  assert.equal(
+    q1.cssRoot,
+    defaultQuestionRoot + addLeft,
+    "survey.questionTitleLocation = left"
+  );
 });
 
 QUnit.test("Survey<=Base propertyValueChanged", function (assert) {

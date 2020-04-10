@@ -935,6 +935,14 @@ export class PanelModelBase extends SurveyElement
     }
     super.onReadOnlyChanged();
   }
+  public updateElementCss() {
+    for (var i = 0; i < this.elements.length; i++) {
+      var el = <SurveyElement>(<any>this.elements[i]);
+      el.updateElementCss();
+    }
+    super.updateElementCss();
+  }
+
   /**
    * An expression that returns true or false. If it returns false the Panel/Page becomes read only and an end-user will not able to answer on qustions inside it.
    * The library runs the expression on survey start and on changing a question value. If the property is empty then readOnly property is used.

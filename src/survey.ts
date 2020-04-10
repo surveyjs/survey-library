@@ -14,7 +14,7 @@ import {
   Event,
   ISurveyErrorOwner,
   ISurveyElement,
-  SurveyElement
+  SurveyElement,
 } from "./base";
 import { surveyCss } from "./defaultCss/cssstandard";
 import { ISurveyTriggerOwner, SurveyTrigger } from "./trigger";
@@ -34,7 +34,7 @@ import { PanelModelBase } from "./panel";
 import {
   HtmlConditionItem,
   UrlConditionItem,
-  ExpressionItem
+  ExpressionItem,
 } from "./expressionItems";
 import { ExpressionRunner, ConditionRunner } from "./conditions";
 import { settings } from "./settings";
@@ -872,33 +872,33 @@ export class SurveyModel extends Base
     this.createLocalizableString("questionTitleTemplate", this, true);
 
     this.textPreProcessor = new TextPreProcessor();
-    this.textPreProcessor.onProcess = function(
+    this.textPreProcessor.onProcess = function (
       textValue: TextPreProcessorValue
     ) {
       self.getProcessedTextValue(textValue);
     };
-    this.createNewArray("pages", function(value: any) {
+    this.createNewArray("pages", function (value: any) {
       self.doOnPageAdded(value);
     });
-    this.createNewArray("triggers", function(value: any) {
+    this.createNewArray("triggers", function (value: any) {
       value.setOwner(self);
     });
-    this.createNewArray("calculatedValues", function(value: any) {
+    this.createNewArray("calculatedValues", function (value: any) {
       value.setOwner(self);
     });
-    this.createNewArray("completedHtmlOnCondition", function(value: any) {
+    this.createNewArray("completedHtmlOnCondition", function (value: any) {
       value.locOwner = self;
     });
-    this.createNewArray("navigateToUrlOnCondition", function(value: any) {
+    this.createNewArray("navigateToUrlOnCondition", function (value: any) {
       value.locOwner = self;
     });
     this.registerFunctionOnPropertyValueChanged(
       "firstPageIsStarted",
-      function() {
+      function () {
         self.onFirstPageIsStartedChanged();
       }
     );
-    this.registerFunctionOnPropertyValueChanged("mode", function() {
+    this.registerFunctionOnPropertyValueChanged("mode", function () {
       self.onModeChanged();
     });
     this.onBeforeCreating();
@@ -1178,7 +1178,7 @@ export class SurveyModel extends Base
     }
     this.onSettingQuestionErrors.fire(this, {
       question: question,
-      errors: errors
+      errors: errors,
     });
   }
   /**
@@ -1478,7 +1478,7 @@ export class SurveyModel extends Base
       left: "sv-logo--left",
       right: "sv-logo--right",
       top: "sv-logo--top",
-      bottom: "sv-logo--bottom"
+      bottom: "sv-logo--bottom",
     };
     return this.css.logo + " " + logoClasses[this.logoPosition];
   }
@@ -1678,19 +1678,19 @@ export class SurveyModel extends Base
     var num = !!this.questionStartIndex ? this.questionStartIndex : "1.";
     res.push({
       value: "numTitleRequire",
-      text: num + " " + title + " " + this.requiredText
+      text: num + " " + title + " " + this.requiredText,
     });
     res.push({
       value: "numRequireTitle",
-      text: num + " " + this.requiredText + " " + title
+      text: num + " " + this.requiredText + " " + title,
     });
     res.push({
       value: "requireNumTitle",
-      text: this.requiredText + " " + num + " " + title
+      text: this.requiredText + " " + num + " " + title,
     });
     res.push({
       value: "numTitle",
-      text: num + " " + title
+      text: num + " " + title,
     });
     return res;
   }
@@ -1872,6 +1872,15 @@ export class SurveyModel extends Base
   }
   public set questionTitleLocation(value: string) {
     this.setPropertyValue("questionTitleLocation", value.toLowerCase());
+    if (!this.isLoadingFromJson) {
+      this.updateElementCss();
+    }
+  }
+  protected updateElementCss() {
+    var pages = this.visiblePages;
+    for (var i = 0; i < pages.length; i++) {
+      pages[i].updateElementCss();
+    }
   }
   /**
    * Gets or sets the error message position.
@@ -1984,11 +1993,11 @@ export class SurveyModel extends Base
         propertyName: string;
       }>;
     } = {
-      includeEmpty: true
+      includeEmpty: true,
     }
   ) {
     var result: Array<any> = [];
-    this.getAllQuestions().forEach(question => {
+    this.getAllQuestions().forEach((question) => {
       var resultItem = (<Question>question).getPlainData(options);
       if (!!resultItem) {
         result.push(resultItem);
@@ -2309,7 +2318,7 @@ export class SurveyModel extends Base
       newCurrentPage: newValue,
       allowChanging: true,
       isNextPage: this.isNextPage(newValue, oldValue),
-      isPrevPage: this.isPrevPage(newValue, oldValue)
+      isPrevPage: this.isPrevPage(newValue, oldValue),
     };
     this.onCurrentPageChanging.fire(this, options);
     return options.allowChanging;
@@ -2319,7 +2328,7 @@ export class SurveyModel extends Base
       oldCurrentPage: oldValue,
       newCurrentPage: newValue,
       isNextPage: this.isNextPage(newValue, oldValue),
-      isPrevPage: this.isPrevPage(newValue, oldValue)
+      isPrevPage: this.isPrevPage(newValue, oldValue),
     });
   }
   private isNextPage(newValue: PageModel, oldValue: PageModel): boolean {
@@ -2417,7 +2426,7 @@ export class SurveyModel extends Base
       if (visPages.indexOf(page) > -1 != page.isVisible) {
         this.onPageVisibleChanged.fire(this, {
           page: page,
-          visible: page.isVisible
+          visible: page.isVisible,
         });
       }
     }
@@ -2671,7 +2680,7 @@ export class SurveyModel extends Base
     this.onValidatedErrorsOnCurrentPage.fire(this, {
       questions: questions,
       errors: errors,
-      page: page
+      page: page,
     });
   }
   /**
@@ -2887,20 +2896,20 @@ export class SurveyModel extends Base
     var self = this;
     var savingDataStarted = false;
     var onCompleteOptions = {
-      showDataSaving: function(text: string) {
+      showDataSaving: function (text: string) {
         savingDataStarted = true;
         self.setCompletedState("saving", text);
       },
-      showDataSavingError: function(text: string) {
+      showDataSavingError: function (text: string) {
         self.setCompletedState("error", text);
       },
-      showDataSavingSuccess: function(text: string) {
+      showDataSavingSuccess: function (text: string) {
         self.setCompletedState("success", text);
         self.navigateTo();
       },
-      showDataSavingClear: function(text: string) {
+      showDataSavingClear: function (text: string) {
         self.setCompletedState("", "");
-      }
+      },
     };
     this.onComplete.fire(this, onCompleteOptions);
     if (!previousCookie && this.surveyPostId) {
@@ -2946,9 +2955,9 @@ export class SurveyModel extends Base
       data: <{ [index: string]: any }>{},
       errors: {},
       survey: this,
-      complete: function() {
+      complete: function () {
         self.completeServerValidation(options);
-      }
+      },
     };
     for (var i = 0; i < this.currentPage.questions.length; i++) {
       var question = this.currentPage.questions[i];
@@ -3064,56 +3073,56 @@ export class SurveyModel extends Base
   protected afterRenderSurvey(htmlElement: any) {
     this.onAfterRenderSurvey.fire(this, {
       survey: this,
-      htmlElement: htmlElement
+      htmlElement: htmlElement,
     });
   }
   updateQuestionCssClasses(question: IQuestion, cssClasses: any) {
     this.onUpdateQuestionCssClasses.fire(this, {
       question: question,
-      cssClasses: cssClasses
+      cssClasses: cssClasses,
     });
   }
   updatePanelCssClasses(panel: IPanel, cssClasses: any) {
     this.onUpdatePanelCssClasses.fire(this, {
       panel: panel,
-      cssClasses: cssClasses
+      cssClasses: cssClasses,
     });
   }
   updatePageCssClasses(page: IPage, cssClasses: any) {
     this.onUpdatePageCssClasses.fire(this, {
       page: page,
-      cssClasses: cssClasses
+      cssClasses: cssClasses,
     });
   }
   afterRenderPage(htmlElement: any) {
     if (this.onAfterRenderPage.isEmpty) return;
     this.onAfterRenderPage.fire(this, {
       page: this.currentPage,
-      htmlElement: htmlElement
+      htmlElement: htmlElement,
     });
   }
   afterRenderHeader(htmlElement: any) {
     if (this.onAfterRenderHeader.isEmpty) return;
     this.onAfterRenderHeader.fire(this, {
-      htmlElement: htmlElement
+      htmlElement: htmlElement,
     });
   }
   afterRenderQuestion(question: IQuestion, htmlElement: any) {
     this.onAfterRenderQuestion.fire(this, {
       question: question,
-      htmlElement: htmlElement
+      htmlElement: htmlElement,
     });
   }
   afterRenderQuestionInput(question: IQuestion, htmlElement: any) {
     this.onAfterRenderQuestionInput.fire(this, {
       question: question,
-      htmlElement: htmlElement
+      htmlElement: htmlElement,
     });
   }
   afterRenderPanel(panel: IElement, htmlElement: any) {
     this.onAfterRenderPanel.fire(this, {
       panel: panel,
-      htmlElement: htmlElement
+      htmlElement: htmlElement,
     });
   }
   matrixBeforeRowAdded(options: any) {
@@ -3139,7 +3148,7 @@ export class SurveyModel extends Base
     this.onMatrixRowRemoved.fire(this, {
       question: question,
       rowIndex: rowIndex,
-      row: row
+      row: row,
     });
   }
   matrixAllowRemoveRow(
@@ -3151,7 +3160,7 @@ export class SurveyModel extends Base
       question: question,
       rowIndex: rowIndex,
       row: row,
-      allow: true
+      allow: true,
     };
     this.onMatrixAllowRemoveRow.fire(this, options);
     return options.allow;
@@ -3188,7 +3197,7 @@ export class SurveyModel extends Base
     this.onDynamicPanelRemoved.fire(this, {
       question: question,
       panelIndex: panelIndex,
-      panel: panel
+      panel: panel,
     });
   }
   dynamicPanelItemValueChanged(question: IQuestion, options: any) {
@@ -3212,7 +3221,7 @@ export class SurveyModel extends Base
       question: question,
       page: page,
       elementId: id,
-      cancel: false
+      cancel: false,
     };
     this.onScrollingElementToTop.fire(this, options);
     if (!options.cancel) {
@@ -3238,7 +3247,7 @@ export class SurveyModel extends Base
       this.onUploadFiles.fire(this, {
         name: name,
         files: files || [],
-        callback: uploadingCallback
+        callback: uploadingCallback,
       });
     }
     if (this.surveyPostId) {
@@ -3263,7 +3272,7 @@ export class SurveyModel extends Base
       name: questionName,
       content: fileValue.content || fileValue,
       fileValue: fileValue,
-      callback: callback
+      callback: callback,
     });
   }
   /**
@@ -3285,7 +3294,7 @@ export class SurveyModel extends Base
       name: name,
       value: value,
       fileName: fileName,
-      callback: callback
+      callback: callback,
     });
   }
   updateChoicesFromServer(
@@ -3296,7 +3305,7 @@ export class SurveyModel extends Base
     var options = {
       question: question,
       choices: choices,
-      serverResult: serverResult
+      serverResult: serverResult,
     };
     this.onLoadChoicesFromServer.fire(this, options);
     return options.choices;
@@ -3311,7 +3320,7 @@ export class SurveyModel extends Base
     uploadingCallback: (status: string, data: any) => any
   ) {
     var responses: Array<any> = [];
-    files.forEach(file => {
+    files.forEach((file) => {
       if (uploadingCallback) uploadingCallback("uploading", file);
       this.createSurveyService().sendFile(
         this.surveyPostId,
@@ -3550,7 +3559,7 @@ export class SurveyModel extends Base
       name: valueName,
       question: this.getQuestionByValueName(valueName),
       value: newValue,
-      oldValue: this.getValue(valueName)
+      oldValue: this.getValue(valueName),
     };
     this.onValueChanging.fire(this, options);
     return options.value;
@@ -3582,14 +3591,14 @@ export class SurveyModel extends Base
         this.onValueChanged.fire(this, {
           name: valueName,
           question: question,
-          value: newValue
+          value: newValue,
         });
       }
     } else {
       this.onValueChanged.fire(this, {
         name: valueName,
         question: null,
-        value: newValue
+        value: newValue,
       });
     }
     this.notifyElementsOnAnyValueOrVariableChanged(valueName);
@@ -3723,7 +3732,7 @@ export class SurveyModel extends Base
     this.createSurveyService().sendResult(
       postId,
       this.data,
-      function(success: boolean, response: any, request: any) {
+      function (success: boolean, response: any, request: any) {
         if (self.surveyShowDataSaving) {
           if (success) {
             self.setCompletedState("success", "");
@@ -3734,7 +3743,7 @@ export class SurveyModel extends Base
         self.onSendResult.fire(self, {
           success: success,
           response: response,
-          request: request
+          request: request,
         });
       },
       this.clientId,
@@ -3749,7 +3758,7 @@ export class SurveyModel extends Base
    */
   public getResult(resultId: string, name: string) {
     var self = this;
-    this.createSurveyService().getResult(resultId, name, function(
+    this.createSurveyService().getResult(resultId, name, function (
       success: boolean,
       data: any,
       dataList: any[],
@@ -3759,7 +3768,7 @@ export class SurveyModel extends Base
         success: success,
         data: data,
         dataList: dataList,
-        response: response
+        response: response,
       });
     });
   }
@@ -3788,7 +3797,7 @@ export class SurveyModel extends Base
       this.createSurveyService().getSurveyJsonAndIsCompleted(
         this.surveyId,
         this.clientId,
-        function(
+        function (
           success: boolean,
           json: string,
           isCompleted: string,
@@ -3802,7 +3811,7 @@ export class SurveyModel extends Base
         }
       );
     } else {
-      this.createSurveyService().loadSurvey(this.surveyId, function(
+      this.createSurveyService().loadSurvey(this.surveyId, function (
         success: boolean,
         result: string,
         response: any
@@ -4164,7 +4173,7 @@ export class SurveyModel extends Base
       this.onValueChanged.fire(this, {
         name: commentName,
         question: question,
-        value: newValue
+        value: newValue,
       });
     }
   }
@@ -4191,7 +4200,7 @@ export class SurveyModel extends Base
     this.onVisibleChanged.fire(this, {
       question: question,
       name: question.name,
-      visible: newValue
+      visible: newValue,
     });
     if (
       question &&
@@ -4232,7 +4241,7 @@ export class SurveyModel extends Base
       name: question.name,
       index: index,
       parentPanel: parentPanel,
-      rootPanel: rootPanel
+      rootPanel: rootPanel,
     });
   }
   questionRemoved(question: IQuestion) {
@@ -4244,7 +4253,7 @@ export class SurveyModel extends Base
     this.updateVisibleIndexes();
     this.onQuestionRemoved.fire(this, {
       question: question,
-      name: question.name
+      name: question.name,
     });
   }
   questionRenamed(
@@ -4259,7 +4268,7 @@ export class SurveyModel extends Base
     names: {},
     namesInsensitive: {},
     valueNames: {},
-    valueNamesInsensitive: {}
+    valueNamesInsensitive: {},
   };
   private questionHashesClear() {
     this.questionHashes.names = {};
@@ -4358,7 +4367,7 @@ export class SurveyModel extends Base
       name: panel.name,
       index: index,
       parentPanel: parentPanel,
-      rootPanel: rootPanel
+      rootPanel: rootPanel,
     });
   }
   panelRemoved(panel: IElement) {
@@ -4371,7 +4380,7 @@ export class SurveyModel extends Base
       name: question.name,
       question: question,
       value: question.value,
-      error: <any>null
+      error: <any>null,
     };
     this.onValidateQuestion.fire(this, options);
     return options.error ? new CustomError(options.error, this) : null;
@@ -4381,7 +4390,7 @@ export class SurveyModel extends Base
     var options = {
       name: panel.name,
       panel: panel,
-      error: <any>null
+      error: <any>null,
     };
     this.onValidatePanel.fire(this, options);
     return options.error ? new CustomError(options.error, this) : null;
@@ -4401,7 +4410,7 @@ export class SurveyModel extends Base
   ): any {
     var res = {
       text: this.processTextCore(text, returnDisplayValue, doEncoding),
-      hasAllValuesOnLastRun: true
+      hasAllValuesOnLastRun: true,
     };
     res.hasAllValuesOnLastRun = this.textPreProcessor.hasAllValuesOnLastRun;
     return res;
@@ -4450,7 +4459,7 @@ export class SurveyModel extends Base
       question: <IQuestion>null,
       result: false,
       correctAnswers: 0,
-      incorrectAnswers: 0
+      incorrectAnswers: 0,
     };
     for (var i = 0; i < questions.length; i++) {
       var q = <Question>questions[i];
@@ -4606,7 +4615,7 @@ export class SurveyModel extends Base
   public startTimer() {
     if (this.isTimerStarted || this.isDesignMode) return;
     var self = this;
-    this.timerFunc = function() {
+    this.timerFunc = function () {
       self.doTimer();
     };
     this.isTimerStarted = true;
@@ -4742,7 +4751,7 @@ Serializer.addClass("survey", [
     },
     onGetValue: (obj: any): any => {
       return obj.locale == surveyLocalization.defaultLocale ? null : obj.locale;
-    }
+    },
   },
   { name: "title", serializationProperty: "locTitle" },
   { name: "description:text", serializationProperty: "locDescription" },
@@ -4752,23 +4761,23 @@ Serializer.addClass("survey", [
   {
     name: "logoFit",
     default: "contain",
-    choices: ["none", "contain", "cover", "fill"]
+    choices: ["none", "contain", "cover", "fill"],
   },
   {
     name: "logoPosition",
     default: "left",
-    choices: ["none", "left", "right", "top", "bottom"]
+    choices: ["none", "left", "right", "top", "bottom"],
   },
   { name: "focusFirstQuestionAutomatic:boolean", default: true },
   { name: "focusOnFirstError:boolean", default: true },
   { name: "completedHtml:html", serializationProperty: "locCompletedHtml" },
   {
     name: "completedBeforeHtml:html",
-    serializationProperty: "locCompletedBeforeHtml"
+    serializationProperty: "locCompletedBeforeHtml",
   },
   {
     name: "completedHtmlOnCondition:htmlconditions",
-    className: "htmlconditionitem"
+    className: "htmlconditionitem",
   },
   { name: "loadingHtml:html", serializationProperty: "locLoadingHtml" },
   { name: "pages", className: "page", visible: false },
@@ -4778,22 +4787,22 @@ Serializer.addClass("survey", [
     baseClassName: "question",
     visible: false,
     isLightSerializable: false,
-    onGetValue: function(obj: any): any {
+    onGetValue: function (obj: any): any {
       return null;
     },
-    onSetValue: function(obj: any, value: any, jsonConverter: any) {
+    onSetValue: function (obj: any, value: any, jsonConverter: any) {
       var page = obj.addNewPage("");
       jsonConverter.toObject({ questions: value }, page);
-    }
+    },
   },
   {
     name: "triggers:triggers",
     baseClassName: "surveytrigger",
-    classNamePart: "trigger"
+    classNamePart: "trigger",
   },
   {
     name: "calculatedValues:calculatedvalues",
-    className: "calculatedvalue"
+    className: "calculatedvalue",
   },
   { name: "surveyId", visible: false },
   { name: "surveyPostId", visible: false },
@@ -4803,7 +4812,7 @@ Serializer.addClass("survey", [
   {
     name: "showNavigationButtons",
     default: "bottom",
-    choices: ["none", "top", "bottom", "both"]
+    choices: ["none", "top", "bottom", "both"],
   },
   { name: "showPrevButton:boolean", default: true },
   { name: "showTitle:boolean", default: true },
@@ -4812,39 +4821,39 @@ Serializer.addClass("survey", [
   "navigateToUrl",
   {
     name: "navigateToUrlOnCondition:urlconditions",
-    className: "urlconditionitem"
+    className: "urlconditionitem",
   },
   {
     name: "questionsOrder",
     default: "initial",
-    choices: ["initial", "random"]
+    choices: ["initial", "random"],
   },
   "showPageNumbers:boolean",
   {
     name: "showQuestionNumbers",
     default: "on",
-    choices: ["on", "onPage", "off"]
+    choices: ["on", "onPage", "off"],
   },
   {
     name: "questionTitleLocation",
     default: "top",
-    choices: ["top", "bottom", "left"]
+    choices: ["top", "bottom", "left"],
   },
   {
     name: "questionDescriptionLocation",
     default: "underTitle",
-    choices: ["underInput", "underTitle"]
+    choices: ["underInput", "underTitle"],
   },
   { name: "questionErrorLocation", default: "top", choices: ["top", "bottom"] },
   {
     name: "showProgressBar",
     default: "off",
-    choices: ["off", "top", "bottom", "both"]
+    choices: ["off", "top", "bottom", "both"],
   },
   {
     name: "progressBarType",
     default: "pages",
-    choices: ["pages", "questions", "correctQuestions"]
+    choices: ["pages", "questions", "correctQuestions"],
   },
   { name: "mode", default: "edit", choices: ["edit", "display"] },
   { name: "storeOthersAsComment:boolean", default: true },
@@ -4854,17 +4863,17 @@ Serializer.addClass("survey", [
   {
     name: "clearInvisibleValues",
     default: "onComplete",
-    choices: ["none", "onComplete", "onHidden"]
+    choices: ["none", "onComplete", "onHidden"],
   },
   {
     name: "checkErrorsMode",
     default: "onNextPage",
-    choices: ["onNextPage", "onValueChanged", "onComplete"]
+    choices: ["onNextPage", "onValueChanged", "onComplete"],
   },
   {
     name: "textUpdateMode",
     default: "onBlur",
-    choices: ["onBlur", "onTyping"]
+    choices: ["onBlur", "onTyping"],
   },
   { name: "startSurveyText", serializationProperty: "locStartSurveyText" },
   { name: "pagePrevText", serializationProperty: "locPagePrevText" },
@@ -4879,36 +4888,36 @@ Serializer.addClass("survey", [
     choices: (obj: any) => {
       if (!obj) return [];
       return obj.getQuestionTitlePatternOptions();
-    }
+    },
   },
   {
     name: "questionTitleTemplate",
     visible: false,
     isSerializable: false,
-    serializationProperty: "locQuestionTitleTemplate"
+    serializationProperty: "locQuestionTitleTemplate",
   },
   { name: "firstPageIsStarted:boolean", default: false },
   {
     name: "isSinglePage:boolean",
     default: false,
     visible: false,
-    isSerializable: false
+    isSerializable: false,
   },
   {
     name: "questionsOnPageMode",
     default: "standard",
-    choices: ["singlePage", "standard", "questionPerPage"]
+    choices: ["singlePage", "standard", "questionPerPage"],
   },
   { name: "maxTimeToFinish:number", default: 0, minValue: 0 },
   { name: "maxTimeToFinishPage:number", default: 0, minValue: 0 },
   {
     name: "showTimerPanel",
     default: "none",
-    choices: ["none", "top", "bottom"]
+    choices: ["none", "top", "bottom"],
   },
   {
     name: "showTimerPanelMode",
     default: "all",
-    choices: ["all", "page", "survey"]
-  }
+    choices: ["all", "page", "survey"],
+  },
 ]);

@@ -99,7 +99,7 @@ export class Question extends SurveyElement
 
     this.createLocalizableString("requiredErrorText", this);
     this.registerFunctionOnPropertyValueChanged("width", function () {
-      self.calcCssClasses();
+      self.updateElementCss();
       if (!!self.parent) {
         self.parent.elementWidthChanged(self);
       }
@@ -306,7 +306,7 @@ export class Question extends SurveyElement
   }
   public set parent(val: IPanel) {
     this.setPropertyValue("parent", val);
-    this.calcCssClasses();
+    this.updateElementCss();
     this.onParentChanged();
   }
   protected onParentChanged() {}
@@ -329,7 +329,7 @@ export class Question extends SurveyElement
       this.titleLocation == "hidden" || value == "hidden";
     this.setPropertyValue("titleLocation", value.toLowerCase());
     if (!this.isLoadingFromJson) {
-      this.calcCssClasses();
+      this.updateElementCss();
     }
     if (isVisibilityChanged) {
       this.notifySurveyVisibilityChanged();
@@ -637,7 +637,7 @@ export class Question extends SurveyElement
     }
     return res;
   }
-  protected calcCssClasses() {
+  public updateElementCss() {
     if (this.isLoadingFromJson) return;
     var cssClasses = this.cssClasses;
     this.setCssRoot(this.getCssRoot(cssClasses));
@@ -930,14 +930,14 @@ export class Question extends SurveyElement
     this.fireCallback(this.surveyLoadCallback);
     this.updateValueWithDefaults();
     this.updateDisplayValue();
-    this.calcCssClasses();
+    this.updateElementCss();
   }
   protected onSetData() {
     super.onSetData();
     this.initDataFromSurvey();
     this.onSurveyValueChanged(this.value);
     this.updateValueWithDefaults();
-    this.calcCssClasses();
+    this.updateElementCss();
   }
   protected initDataFromSurvey() {
     if (!!this.data) {
@@ -1234,7 +1234,7 @@ export class Question extends SurveyElement
     }
     this.updateContainsErrors();
     if (oldHasErrors != errors.length > 0) {
-      this.calcCssClasses();
+      this.updateElementCss();
     }
     return errors.length > 0;
   }
@@ -1354,7 +1354,7 @@ export class Question extends SurveyElement
     this.setNewValueInData(newValue);
     this.allowNotifyValueChanged && this.onValueChanged();
     if (this.isAnswered != oldAnswered) {
-      this.calcCssClasses();
+      this.updateElementCss();
     }
   }
   protected locNotificationInData = false;

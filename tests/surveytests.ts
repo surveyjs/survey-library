@@ -1220,6 +1220,89 @@ QUnit.test(
   }
 );
 
+QUnit.test("Question/Panel visibleIndex", function (assert) {
+  var survey = new SurveyModel();
+  var page = survey.addNewPage("page1");
+  var q1 = page.addNewQuestion("text", "q1");
+  var panel = page.addNewPanel("panel1");
+  var q2 = panel.addNewQuestion("text", "q2");
+  var q3 = panel.addNewQuestion("text", "q3");
+  var q4 = page.addNewQuestion("text", "q4");
+  assert.equal(q2.visibleIndex, 1, "second quesiton");
+  assert.equal(q4.visibleIndex, 3, "fourth quesiton");
+  panel.title = "Some text";
+  assert.equal(panel.visibleIndex, -1, "Panel title is empty");
+  assert.equal(panel.no, "", "Panel no property,  title is empty");
+  panel.showNumber = true;
+  assert.equal(panel.visibleIndex, 1, "Panel has visibleIndex");
+  assert.equal(panel.no, "2.", "Panel no property");
+  assert.equal(q2.visibleIndex, 2, "second quesiton + panel has index");
+  assert.equal(q4.visibleIndex, 4, "fourth quesiton + panel has index");
+  panel.showQuestionNumbers = "off";
+  assert.equal(
+    q2.visibleIndex,
+    -1,
+    "second quesiton + panel has index, questions inside panel have not numbering"
+  );
+  assert.equal(
+    q3.visibleIndex,
+    -1,
+    "third quesiton + panel has index, questions inside panel have not numbering"
+  );
+  assert.equal(
+    q4.visibleIndex,
+    2,
+    "fourth quesiton + panel has index, questions inside panel have not numbering"
+  );
+  panel.showQuestionNumbers = "onpanel";
+  assert.equal(
+    q2.visibleIndex,
+    0,
+    "second quesiton + panel has index, questions inside panel have its own numbering"
+  );
+  assert.equal(
+    q3.visibleIndex,
+    1,
+    "third quesiton + panel has index, questions  inside panel have its own numbering"
+  );
+  assert.equal(
+    q4.visibleIndex,
+    2,
+    "fourth quesiton + panel has index, questions  inside panel have its own numbering"
+  );
+  panel.showNumber = false;
+  assert.equal(panel.visibleIndex, -1, "Panel showNumber is false");
+  assert.equal(panel.no, "", "Panel no property,  showNumber is false");
+});
+
+QUnit.test(
+  "Question/Panel visibleIndex, the panel is first with showNumber false and showQuestionNumbering onpanel",
+  function (assert) {
+    var survey = new SurveyModel();
+    var page = survey.addNewPage("page1");
+    var panel = page.addNewPanel("panel1");
+    var q2 = panel.addNewQuestion("text", "q2");
+    var q3 = panel.addNewQuestion("text", "q3");
+    var q4 = page.addNewQuestion("text", "q4");
+    panel.showQuestionNumbers = "onpanel";
+    assert.equal(
+      q2.visibleIndex,
+      0,
+      "second quesiton + panel has index, questions inside panel have its own numbering"
+    );
+    assert.equal(
+      q3.visibleIndex,
+      1,
+      "third quesiton + panel has index, questions  inside panel have its own numbering"
+    );
+    assert.equal(
+      q4.visibleIndex,
+      0,
+      "fourth quesiton + panel has index, questions  inside panel have its own numbering"
+    );
+  }
+);
+
 QUnit.test("showQuestionNumbers - question fullTitle", function (assert) {
   var survey = twoPageSimplestSurvey();
   assert.equal((<Question>survey.getQuestionByName("question1"))["no"], 1);

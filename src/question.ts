@@ -99,6 +99,7 @@ export class Question extends SurveyElement
 
     this.createLocalizableString("requiredErrorText", this);
     this.registerFunctionOnPropertyValueChanged("width", function () {
+      self.calcCssClasses();
       if (!!self.parent) {
         self.parent.elementWidthChanged(self);
       }
@@ -305,6 +306,7 @@ export class Question extends SurveyElement
   }
   public set parent(val: IPanel) {
     this.setPropertyValue("parent", val);
+    this.calcCssClasses();
     this.onParentChanged();
   }
   protected onParentChanged() {}
@@ -326,6 +328,9 @@ export class Question extends SurveyElement
     var isVisibilityChanged =
       this.titleLocation == "hidden" || value == "hidden";
     this.setPropertyValue("titleLocation", value.toLowerCase());
+    if (!this.isLoadingFromJson) {
+      this.calcCssClasses();
+    }
     if (isVisibilityChanged) {
       this.notifySurveyVisibilityChanged();
     }
@@ -535,23 +540,111 @@ export class Question extends SurveyElement
     }
     return classes;
   }
-  public get cssMainRoot(): any {
-    var classes = this.cssClasses;
-    if (!classes.mainRoot) return {};
+  public get cssRoot(): string {
+    return this.getPropertyValue("cssRoot", "");
+  }
+  protected setCssRoot(val: string) {
+    this.setPropertyValue("cssRoot", val);
+  }
+  protected getCssRoot(cssClasses: any): string {
     var res =
       this.isFlowLayout && !this.isDesignMode
-        ? classes.flowRoot
-        : classes.mainRoot;
-    if (!this.isFlowLayout && this.getTitleLocation() == "left") {
-      res += " " + classes.titleLeftRoot;
+        ? cssClasses.flowRoot
+        : cssClasses.mainRoot;
+    if (!res) res = "";
+    if (
+      !this.isFlowLayout &&
+      this.hasTitleOnLeft &&
+      !!cssClasses.titleLeftRoot
+    ) {
+      res += " " + cssClasses.titleLeftRoot;
     }
-    if (this.errors.length > 0) {
-      res += " " + classes.hasError;
+    if (this.errors.length > 0 && !!cssClasses.hasError) {
+      res += " " + cssClasses.hasError;
+    }
+    if (cssClasses.small && !this.width) {
+      res += " " + cssClasses.small;
     }
     return res;
   }
-  protected getRootCss(classes: any) {
-    return !!classes.question ? classes.question.root : "";
+  public get cssHeader(): string {
+    return this.getPropertyValue("cssHeader", "");
+  }
+  protected setCssHeader(val: string) {
+    this.setPropertyValue("cssHeader", val);
+  }
+  protected getCssHeader(cssClasses: any): string {
+    var res = cssClasses.header || "";
+    if (this.hasTitleOnTop && !!cssClasses.headerTop) {
+      res += " " + cssClasses.headerTop;
+    }
+    if (this.hasTitleOnLeft && !!cssClasses.headerLeft) {
+      res += " " + cssClasses.headerLeft;
+    }
+    if (this.hasTitleOnBottom && !!cssClasses.headerBottom) {
+      res += " " + cssClasses.headerBottom;
+    }
+    return res;
+  }
+  public get cssContent(): string {
+    return this.getPropertyValue("cssContent", "");
+  }
+  protected setCssContent(val: string) {
+    this.setPropertyValue("cssContent", val);
+  }
+  protected getCssContent(cssClasses: any): string {
+    var res = cssClasses.content || "";
+    if (this.hasTitleOnLeft && !!cssClasses.contentLeft) {
+      res += " " + cssClasses.contentLeft;
+    }
+    return res;
+  }
+  public get cssTitle(): string {
+    return this.getPropertyValue("cssTitle", "");
+  }
+  protected setCssTitle(val: string) {
+    this.setPropertyValue("cssTitle", val);
+  }
+  protected getCssTitle(cssClasses: any): string {
+    var result = cssClasses.title;
+    if (this.containsErrors) {
+      if (!!cssClasses.titleOnError) {
+        result += " " + cssClasses.titleOnError;
+      }
+    } else if (this.isAnswered && !!cssClasses.titleOnAnswer) {
+      result += " " + cssClasses.titleOnAnswer;
+    }
+    return result;
+  }
+  public get cssError(): string {
+    return this.getPropertyValue("cssError", "");
+  }
+  protected setCssError(val: string) {
+    this.setPropertyValue("cssError", val);
+  }
+  //TODO was not removed from other places
+  protected getCssError(cssClasses: any): string {
+    var res = cssClasses.error.root || "";
+    if (this.errorLocation == "top") {
+      if (!!cssClasses.error.locationTop) {
+        res += " " + cssClasses.error.locationTop;
+      }
+    } else if (
+      this.errorLocation === "bottom" &&
+      !!cssClasses.error.locationBottom
+    ) {
+      res += " " + cssClasses.error.locationBottom;
+    }
+    return res;
+  }
+  protected calcCssClasses() {
+    if (this.isLoadingFromJson) return;
+    var cssClasses = this.cssClasses;
+    this.setCssRoot(this.getCssRoot(cssClasses));
+    this.setCssHeader(this.getCssHeader(cssClasses));
+    this.setCssContent(this.getCssContent(cssClasses));
+    this.setCssTitle(this.getCssTitle(cssClasses));
+    this.setCssError(this.getCssError(cssClasses));
   }
   protected updateCssClasses(res: any, css: any) {
     if (!css.question) return;
@@ -837,12 +930,14 @@ export class Question extends SurveyElement
     this.fireCallback(this.surveyLoadCallback);
     this.updateValueWithDefaults();
     this.updateDisplayValue();
+    this.calcCssClasses();
   }
   protected onSetData() {
     super.onSetData();
     this.initDataFromSurvey();
     this.onSurveyValueChanged(this.value);
     this.updateValueWithDefaults();
+    this.calcCssClasses();
   }
   protected initDataFromSurvey() {
     if (!!this.data) {
@@ -1129,6 +1224,7 @@ export class Question extends SurveyElement
    * @param fireCallback set it to true to show an error in UI.
    */
   public hasErrors(fireCallback: boolean = true, rec: any = null): boolean {
+    var oldHasErrors = this.errors.length > 0;
     var errors = this.checkForErrors();
     if (fireCallback) {
       if (!!this.survey) {
@@ -1137,6 +1233,9 @@ export class Question extends SurveyElement
       this.errors = errors;
     }
     this.updateContainsErrors();
+    if (oldHasErrors != errors.length > 0) {
+      this.calcCssClasses();
+    }
     return errors.length > 0;
   }
   /**
@@ -1251,8 +1350,12 @@ export class Question extends SurveyElement
   private isValueChangedInSurvey = false;
   protected allowNotifyValueChanged = true;
   protected setNewValue(newValue: any) {
+    var oldAnswered = this.isAnswered;
     this.setNewValueInData(newValue);
     this.allowNotifyValueChanged && this.onValueChanged();
+    if (this.isAnswered != oldAnswered) {
+      this.calcCssClasses();
+    }
   }
   protected locNotificationInData = false;
   protected isTextValue(): boolean {

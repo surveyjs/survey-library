@@ -85,13 +85,7 @@ export class SurveyQuestion extends SurveyElementBase {
     var descriptionUnderInput = question.hasDescriptionUnderInput
       ? this.renderDescription(cssClasses, true)
       : null;
-    var contentClass =
-      question.cssClasses.content +
-      (question.hasTitleOnLeft ? " " + question.cssClasses.contentLeft : "");
-    let questionRootClass = question.cssMainRoot;
-    if (question.cssClasses.small && !question.width) {
-      questionRootClass += " " + question.cssClasses.small;
-    }
+    let questionRootClass = question.cssRoot;
 
     var comment =
       question && question.hasComment ? this.renderComment(cssClasses) : null;
@@ -118,7 +112,7 @@ export class SurveyQuestion extends SurveyElementBase {
         aria-labelledby={question.ariaTitleId}
       >
         {headerTop}
-        <div className={contentClass}>
+        <div className={question.cssContent}>
           {errorsTop}
           {questionRender}
           {comment}
@@ -173,7 +167,11 @@ export class SurveyQuestion extends SurveyElementBase {
       spans.push(getSpaceSpan());
     }
     spans.push(
-      SurveyElementBase.renderLocString(this.question.locTitle, null, this.getTitleKey())
+      SurveyElementBase.renderLocString(
+        this.question.locTitle,
+        null,
+        this.getTitleKey()
+      )
     );
     if (this.question.isRequireTextAfterTitle) {
       spans.push(getSpaceSpan());
@@ -181,7 +179,7 @@ export class SurveyQuestion extends SurveyElementBase {
     }
     return (
       <h5
-        className={this.getTitleClass(this.question)}
+        className={this.question.cssTitle}
         aria-label={this.question.locTitle.renderedHtml}
         id={this.question.ariaTitleId}
       >
@@ -200,17 +198,6 @@ export class SurveyQuestion extends SurveyElementBase {
       </span>
     );
   }
-  private getTitleClass(element: Question) {
-    var cssClasses = element.cssClasses;
-    var result = cssClasses.title;
-    if (element.containsErrors) {
-      result += " " + cssClasses.titleOnError;
-    } else if (element.isAnswered) {
-      result += " " + cssClasses.titleOnAnswer;
-    }
-    return result;
-  }
-
   protected renderDescription(
     cssClasses: any,
     isUnderInput: boolean = false
@@ -246,18 +233,8 @@ export class SurveyQuestion extends SurveyElementBase {
     var description = question.hasDescriptionUnderTitle
       ? this.renderDescription(cssClasses)
       : null;
-    var headerClass = cssClasses.header;
-    if (question.hasTitleOnTop) {
-      headerClass += " " + cssClasses.headerTop;
-    }
-    if (question.hasTitleOnLeft) {
-      headerClass += " " + cssClasses.headerLeft;
-    }
-    if (question.hasTitleOnBottom) {
-      headerClass += " " + cssClasses.headerBottom;
-    }
     return (
-      <div className={headerClass}>
+      <div className={question.cssHeader}>
         {title}
         {description}
       </div>
@@ -275,7 +252,7 @@ export class SurveyQuestion extends SurveyElementBase {
   }
 }
 
-ReactElementFactory.Instance.registerElement("question", props => {
+ReactElementFactory.Instance.registerElement("question", (props) => {
   return React.createElement(SurveyQuestion, props);
 });
 

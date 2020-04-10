@@ -9451,11 +9451,13 @@ QUnit.test(
 
 QUnit.test("Different css for different surveys", function (assert) {
   var json = { questions: [{ type: "text", name: "q" }] };
-  var survey1 = new SurveyModel(json);
-  var survey2 = new SurveyModel(json);
+  var survey1 = new SurveyModel();
+  var survey2 = new SurveyModel();
   var defaultQuestionRoot = survey1.css.question.mainRoot;
   survey1.css.question.mainRoot += " class1";
   survey2.css.question.mainRoot += " class2";
+  survey1.fromJSON(json);
+  survey2.fromJSON(json);
   assert.equal(
     survey1.css.question.mainRoot,
     defaultQuestionRoot + " class1",
@@ -9469,15 +9471,66 @@ QUnit.test("Different css for different surveys", function (assert) {
   var question1 = survey1.getQuestionByName("q");
   var question2 = survey2.getQuestionByName("q");
   assert.equal(
-    question1.cssMainRoot,
+    question1.cssRoot,
     defaultQuestionRoot + " class1",
     "Correct css name for question1"
   );
   assert.equal(
-    question2.cssMainRoot,
+    question2.cssRoot,
     defaultQuestionRoot + " class2",
     "Correct css name for question2"
   );
+});
+
+QUnit.test("Question css classes", function (assert) {
+  var survey = new SurveyModel();
+  survey.css.question.hasError = "error";
+  survey.css.question.small = "small";
+  survey.css.question.title = "title";
+  survey.css.question.titleOnError = "onError";
+  survey.css.question.titleOnAnswer = "onAnswer";
+  survey.fromJSON({
+    questions: [{ type: "text", name: "q1", isRequired: true }],
+  });
+  var q1 = survey.getQuestionByName("q1");
+  var defaultQuestionRoot = survey.css.question.mainRoot;
+  assert.equal(
+    q1.cssRoot,
+    defaultQuestionRoot + " small",
+    "Default question root"
+  );
+  assert.equal(q1.cssTitle, "title", "Default question title");
+  q1.titleLocation = "left";
+  var addLeft = " " + survey.css.question.titleLeftRoot;
+  assert.equal(
+    q1.cssRoot,
+    defaultQuestionRoot + addLeft + " small",
+    "titleLocation = left"
+  );
+  q1.width = "40%";
+  assert.equal(
+    q1.cssRoot,
+    defaultQuestionRoot + addLeft,
+    "titleLocation = left and remove small"
+  );
+  q1.titleLocation = "default";
+  assert.equal(
+    q1.cssRoot,
+    defaultQuestionRoot,
+    "titleLocation = default and remove small"
+  );
+  survey.hasErrors();
+  var addError = " " + survey.css.question.hasError;
+  assert.equal(q1.cssRoot, defaultQuestionRoot + addError, "has error");
+  assert.equal(q1.cssTitle, "title onError", "question title, on error");
+  q1.value = "somevalue";
+  survey.hasErrors();
+  assert.equal(q1.cssRoot, defaultQuestionRoot, "no errors");
+  assert.equal(q1.cssTitle, "title onAnswer", "question title, on answer");
+  q1.clearValue();
+  assert.equal(q1.cssTitle, "title", "question title clear");
+  q1.value = "somevalue";
+  assert.equal(q1.cssTitle, "title onAnswer", "question title on answer 2");
 });
 
 QUnit.test("Survey<=Base propertyValueChanged", function (assert) {

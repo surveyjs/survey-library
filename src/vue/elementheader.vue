@@ -43,27 +43,10 @@ export class ElementHeader extends Vue {
   @Prop element: IElement;
 
   getTitleClass(element: Question) {
-    var cssClasses = element.cssClasses;
-    var titleClass = cssClasses.title || "";
-    if (element.containsErrors && !!cssClasses.titleOnError) {
-      titleClass += " " + cssClasses.titleOnError;
-    } else if (element.isAnswered && !!cssClasses.titleOnAnswer) {
-      titleClass += " " + cssClasses.titleOnAnswer;
-    }
-    return titleClass;
+    return element.cssTitle;
   }
   getHeaderClass(element: Question) {
-    var headerClass = element.cssClasses.header || "";
-    if (element.hasTitleOnTop && !!element.cssClasses.headerTop) {
-      headerClass += " " + element.cssClasses.headerTop;
-    }
-    if (element.hasTitleOnLeft && !!element.cssClasses.headerLeft) {
-      headerClass += " " + element.cssClasses.headerLeft;
-    }
-    if (element.hasTitleOnBottom && !!element.cssClasses.headerBottom) {
-      headerClass += " " + element.cssClasses.headerBottom;
-    }
-    return headerClass;
+    return element.cssHeader;
   }
 }
 Vue.component("survey-element-header", ElementHeader);

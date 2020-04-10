@@ -48,56 +48,8 @@ export class QuestionImplementor extends ImplementorBase {
     (<any>this.question)["koCss"] = ko.pureComputed(function () {
       return self.question.cssClasses;
     });
-    (<any>this.question)["koRootClass"] = ko.pureComputed(function () {
-      var question = self.question;
-      var result = question.cssMainRoot;
-      if (question.koCss().small && !question.width) {
-        result += " " + question.koCss().small;
-      }
-      return result;
-    });
-    (<any>this.question)["koHeaderClass"] = ko.pureComputed(function () {
-      var question = self.question;
-      var cssClasses = self.question.cssClasses;
-      var headerClass = cssClasses.header || "";
-      if (question.hasTitleOnTop && !!cssClasses.headerTop) {
-        headerClass += " " + cssClasses.headerTop;
-      }
-      if (question.hasTitleOnLeft && !!cssClasses.headerLeft) {
-        headerClass += " " + cssClasses.headerLeft;
-      }
-      if (question.hasTitleOnBottom && !!cssClasses.headerBottom) {
-        headerClass += " " + cssClasses.headerBottom;
-      }
-      return headerClass;
-    });
-    (<any>this.question)["koContentClass"] = ko.pureComputed(function () {
-      var question = self.question;
-      return (
-        question.koCss().content +
-        (question.hasTitleOnLeft ? " " + question.koCss().contentLeft : "")
-      );
-    });
-    (<any>this.question)["koTitleClass"] = ko.pureComputed(function () {
-      var question = self.question;
-      var cssClasses = question.cssClasses;
-      var result = cssClasses.title;
-      if (question.containsErrors) {
-        result += " " + cssClasses.titleOnError;
-      } else if (question.isAnswered) {
-        result += " " + cssClasses.titleOnAnswer;
-      }
-      return result;
-    });
     (<any>this.question)["koErrorClass"] = ko.pureComputed(function () {
-      var question = self.question;
-      var classes = question.cssClasses.error.root;
-      if (question.errorLocation == "top") {
-        classes += " " + question.cssClasses.error.locationTop;
-      } else if (question.errorLocation === "bottom") {
-        classes += " " + question.cssClasses.error.locationBottom;
-      }
-      return classes;
+      return self.question.cssError;
     });
     question.registerFunctionOnPropertyValueChanged(
       "visibleIndex",

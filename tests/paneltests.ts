@@ -11,7 +11,7 @@ import { QuestionRadiogroupModel } from "../src/question_radiogroup";
 
 export default QUnit.module("Panel");
 
-QUnit.test("questions-elements synhronization", function(assert) {
+QUnit.test("questions-elements synhronization", function (assert) {
   var page = new PageModel();
   page.addNewQuestion("text", "q1");
   page.addNewQuestion("text", "q2");
@@ -28,7 +28,7 @@ QUnit.test("questions-elements synhronization", function(assert) {
   );
 });
 
-QUnit.test("elements-questions synhronization", function(assert) {
+QUnit.test("elements-questions synhronization", function (assert) {
   var page = new PageModel();
   page.elements.push(new QuestionTextModel("q1"));
   page.elements.push(new QuestionTextModel("q2"));
@@ -41,11 +41,16 @@ QUnit.test("elements-questions synhronization", function(assert) {
   assert.equal(page.questions[1].name, "q3", "The second element is correct");
 });
 
-QUnit.test("load page from json with old questions", function(assert) {
+QUnit.test("load page from json with old questions", function (assert) {
   var page = new PageModel();
   var jsonObject = new JsonObject();
   jsonObject.toObject(
-    { questions: [{ type: "text", name: "q1" }, { type: "text", name: "q2" }] },
+    {
+      questions: [
+        { type: "text", name: "q1" },
+        { type: "text", name: "q2" },
+      ],
+    },
     page
   );
   assert.equal(page.elements.length, 2, "There are two elements");
@@ -53,7 +58,7 @@ QUnit.test("load page from json with old questions", function(assert) {
   assert.equal(jsonObject.errors.length, 0, "There is no errors");
 });
 
-QUnit.test("Simple test on nested panel", function(assert) {
+QUnit.test("Simple test on nested panel", function (assert) {
   var page = new PageModel();
   page.addNewQuestion("text", "q1");
   var panel = page.addNewPanel("p1");
@@ -71,7 +76,7 @@ QUnit.test("Simple test on nested panel", function(assert) {
   assert.equal(page.questions.length, 5, "There are five questions");
 });
 
-QUnit.test("add questions to list", function(assert) {
+QUnit.test("add questions to list", function (assert) {
   var page = new PageModel();
   page.addNewQuestion("text", "q1");
   var panel = page.addNewPanel("p1");
@@ -82,7 +87,7 @@ QUnit.test("add questions to list", function(assert) {
   assert.equal(list.length, 3, "There are three questions");
 });
 
-QUnit.test("load nested panel from json", function(assert) {
+QUnit.test("load nested panel from json", function (assert) {
   var page = new PageModel();
   var jsonObject = new JsonObject();
   jsonObject.toObject(
@@ -91,10 +96,13 @@ QUnit.test("load nested panel from json", function(assert) {
         { type: "text", name: "q1" },
         {
           type: "panel",
-          elements: [{ type: "text", name: "q1" }, { type: "text", name: "q3" }]
+          elements: [
+            { type: "text", name: "q1" },
+            { type: "text", name: "q3" },
+          ],
         },
-        { type: "text", name: "q4" }
-      ]
+        { type: "text", name: "q4" },
+      ],
     },
     page
   );
@@ -103,7 +111,7 @@ QUnit.test("load nested panel from json", function(assert) {
   assert.equal(jsonObject.errors.length, 0, "There is no errors");
 });
 
-QUnit.test("panel rows generation - simple", function(assert) {
+QUnit.test("panel rows generation - simple", function (assert) {
   var page = new PageModel();
   var q1 = page.addNewQuestion("text", "q1");
   page.addNewQuestion("text", "q2");
@@ -113,7 +121,7 @@ QUnit.test("panel rows generation - simple", function(assert) {
   assert.equal(page.rows[0].visible, false, "The first row is invisible now");
 });
 
-QUnit.test("panel rows generation - startNewLine false", function(assert) {
+QUnit.test("panel rows generation - startNewLine false", function (assert) {
   var page = new PageModel();
   var q1 = page.addNewQuestion("text", "q1");
   var q2 = page.addNewQuestion("text", "q2");
@@ -126,7 +134,7 @@ QUnit.test("panel rows generation - startNewLine false", function(assert) {
   assert.equal(page.rows[0].visible, false, "The first row is invisible now");
 });
 
-QUnit.test("panel rows generation - nested panel", function(assert) {
+QUnit.test("panel rows generation - nested panel", function (assert) {
   var page = new PageModel();
   var q1 = page.addNewQuestion("text", "q1");
   var p1 = page.addNewPanel("p1");
@@ -160,11 +168,11 @@ QUnit.test("panel rows generation - nested panel", function(assert) {
     "The panel row is invisible - it is empty"
   );
 });
-QUnit.test("panel isExpanded and isCollapsed", function(assert) {
+QUnit.test("panel isExpanded and isCollapsed", function (assert) {
   var page = new PageModel();
   var panel = page.addNewPanel("p1");
   var stateChangedCounter = 0;
-  panel.stateChangedCallback = function() {
+  panel.stateChangedCallback = function () {
     stateChangedCounter++;
   };
   assert.equal(panel.isCollapsed, false, "Panel is not collapsed by default");
@@ -178,7 +186,7 @@ QUnit.test("panel isExpanded and isCollapsed", function(assert) {
   assert.equal(panel.isExpanded, true, "Panel is expanded");
   assert.equal(stateChangedCounter, 2, "callback is called two time");
 });
-QUnit.test("Expand panel on validation error", function(assert) {
+QUnit.test("Expand panel on validation error", function (assert) {
   var survey = new SurveyModel();
   var page = survey.addNewPage("page1");
   var panel1 = page.addNewPanel("p1");
@@ -193,7 +201,7 @@ QUnit.test("Expand panel on validation error", function(assert) {
   assert.equal(panel1.isCollapsed, false, "Panel1 is not collapsed");
   assert.equal(panel2.isCollapsed, false, "Panel2 is not collpased");
 });
-QUnit.test("Panel.isRequired", function(assert) {
+QUnit.test("Panel.isRequired", function (assert) {
   var survey = new SurveyModel();
   var page = survey.addNewPage("page1");
   var panel = page.addNewPanel("p1");
@@ -214,7 +222,7 @@ QUnit.test("Panel.isRequired", function(assert) {
   );
 });
 
-QUnit.test("Panel with paneldynamic error focus", function(assert) {
+QUnit.test("Panel with paneldynamic error focus", function (assert) {
   var json = {
     elements: [
       {
@@ -226,17 +234,17 @@ QUnit.test("Panel with paneldynamic error focus", function(assert) {
             name: "paneldynamic1",
             panelCount: 1,
             templateElements: [
-              { type: "text", name: "textinpd", isRequired: true }
-            ]
-          }
-        ]
-      }
-    ]
+              { type: "text", name: "textinpd", isRequired: true },
+            ],
+          },
+        ],
+      },
+    ],
   };
   var survey = new SurveyModel(json);
   var rec = {
     focuseOnFirstError: true,
-    firstErrorQuestion: <any>null
+    firstErrorQuestion: <any>null,
   };
   var panel = survey.getPanelByName("p1");
 
@@ -250,54 +258,57 @@ QUnit.test("Panel with paneldynamic error focus", function(assert) {
   );
 });
 
-QUnit.test("Required panel error focus/not focus - T3101 - Stop focus when page has error", function(assert) {
-  var json = {
-    elements: [
-      { type: "checkbox", name: "chk0" },
-      {
-        name: "p1",
-        type: "panel",
-        isRequired: true,
-        elements: [
-          { type: "checkbox", name: "chk1", isRequired: true },
-          {
-            type: "panel",
-            name: "panel",
-            elements: [
-              { type: "checkbox", name: "textinpd", isRequired: true }
-            ]
-          }
-        ]
-      }
-    ]
-  };
-  var survey = new SurveyModel(json);
-  var page = survey.currentPage;
+QUnit.test(
+  "Required panel error focus/not focus - T3101 - Stop focus when page has error",
+  function (assert) {
+    var json = {
+      elements: [
+        { type: "checkbox", name: "chk0" },
+        {
+          name: "p1",
+          type: "panel",
+          isRequired: true,
+          elements: [
+            { type: "checkbox", name: "chk1", isRequired: true },
+            {
+              type: "panel",
+              name: "panel",
+              elements: [
+                { type: "checkbox", name: "textinpd", isRequired: true },
+              ],
+            },
+          ],
+        },
+      ],
+    };
+    var survey = new SurveyModel(json);
+    var page = survey.currentPage;
 
-  var rec = {
-    focuseOnFirstError: true,
-    firstErrorQuestion: <any>null
-  };
-  page.hasErrors(true, true, rec);
-  assert.equal(
-    rec.firstErrorQuestion.name,
-    "chk1",
-    "scroll to first question in the dynamicpanel instead of dynamicpanel itself"
-  );
+    var rec = {
+      focuseOnFirstError: true,
+      firstErrorQuestion: <any>null,
+    };
+    page.hasErrors(true, true, rec);
+    assert.equal(
+      rec.firstErrorQuestion.name,
+      "chk1",
+      "scroll to first question in the dynamicpanel instead of dynamicpanel itself"
+    );
 
-  var rec = {
-    focuseOnFirstError: false,
-    firstErrorQuestion: <any>null
-  };
-  page.hasErrors(true, false, rec);
-  assert.equal(
-    !rec.firstErrorQuestion,
-    true,
-    "don't scroll to question - T3101 - Stop focus when page has error"
-  );
-});
+    var rec = {
+      focuseOnFirstError: false,
+      firstErrorQuestion: <any>null,
+    };
+    page.hasErrors(true, false, rec);
+    assert.equal(
+      !rec.firstErrorQuestion,
+      true,
+      "don't scroll to question - T3101 - Stop focus when page has error"
+    );
+  }
+);
 
-QUnit.test("Panel.getValue()", function(assert) {
+QUnit.test("Panel.getValue()", function (assert) {
   var survey = new SurveyModel();
   var page = survey.addNewPage("page1");
   var panel1 = page.addNewPanel("p1");
@@ -333,7 +344,7 @@ QUnit.test("Panel.getValue()", function(assert) {
   );
 });
 
-QUnit.test("Panel.getValue() + others, Bug# 1573, T1701", function(assert) {
+QUnit.test("Panel.getValue() + others, Bug# 1573, T1701", function (assert) {
   var survey = new SurveyModel({
     elements: [
       {
@@ -343,11 +354,11 @@ QUnit.test("Panel.getValue() + others, Bug# 1573, T1701", function(assert) {
         choices: [
           {
             value: "butter",
-            text: "Butter"
-          }
-        ]
-      }
-    ]
+            text: "Butter",
+          },
+        ],
+      },
+    ],
   });
   survey.setValue("spread", "other");
   survey.setComment("spread", "Jam");
@@ -389,7 +400,7 @@ QUnit.test("Panel.getValue() + others, Bug# 1573, T1701", function(assert) {
   );
 });
 
-QUnit.test("Panel.getComments()", function(assert) {
+QUnit.test("Panel.getComments()", function (assert) {
   var survey = new SurveyModel();
   var page = survey.addNewPage("page1");
   var panel1 = page.addNewPanel("p1");
@@ -420,7 +431,7 @@ QUnit.test("Panel.getComments()", function(assert) {
   );
 });
 
-QUnit.test("Page getPanels and Survey getAllPanels", function(assert) {
+QUnit.test("Page getPanels and Survey getAllPanels", function (assert) {
   var survey = new SurveyModel();
   var page1 = survey.addNewPage("page1");
   var panel1 = page1.addNewPanel("p1");
@@ -446,7 +457,7 @@ QUnit.test("Page getPanels and Survey getAllPanels", function(assert) {
   );
 });
 
-QUnit.test("Get first focused question correctly, Bug#1417", function(assert) {
+QUnit.test("Get first focused question correctly, Bug#1417", function (assert) {
   var survey = new SurveyModel({
     elements: [
       { type: "html", name: "q1" },
@@ -456,8 +467,8 @@ QUnit.test("Get first focused question correctly, Bug#1417", function(assert) {
         visible: false,
         elements: [
           { type: "text", name: "q2" },
-          { type: "text", name: "q3", isRequired: true }
-        ]
+          { type: "text", name: "q3", isRequired: true },
+        ],
       },
       {
         type: "panel",
@@ -469,20 +480,20 @@ QUnit.test("Get first focused question correctly, Bug#1417", function(assert) {
             name: "p3",
             elements: [
               { type: "text", name: "q4" },
-              { type: "text", name: "q5", isRequired: true }
-            ]
-          }
-        ]
+              { type: "text", name: "q5", isRequired: true },
+            ],
+          },
+        ],
       },
       {
         type: "panel",
         name: "p4",
         elements: [
           { type: "text", name: "q6" },
-          { type: "text", name: "q7", isRequired: true }
-        ]
-      }
-    ]
+          { type: "text", name: "q7", isRequired: true },
+        ],
+      },
+    ],
   });
   var page = survey.pages[0];
   page.hasErrors(true);
@@ -498,7 +509,7 @@ QUnit.test("Get first focused question correctly, Bug#1417", function(assert) {
   );
 });
 
-QUnit.test("Flow Panel, add new element/remove element", function(assert) {
+QUnit.test("Flow Panel, add new element/remove element", function (assert) {
   var panel = new FlowPanelModel("p");
   panel.addNewQuestion("text", "q1");
   assert.equal(panel.content, "{element:q1}", "element was added into content");
@@ -506,7 +517,7 @@ QUnit.test("Flow Panel, add new element/remove element", function(assert) {
   assert.equal(panel.content, "", "element is removed from content");
 });
 
-QUnit.test("getLayoutType()", function(assert) {
+QUnit.test("getLayoutType()", function (assert) {
   var survey = new SurveyModel();
   var page = survey.addNewPage("p");
   var q1 = page.addNewQuestion("text", "q1");
@@ -526,54 +537,47 @@ QUnit.test("getLayoutType()", function(assert) {
   assert.equal(q3.getLayoutType(), "flow");
 });
 
-QUnit.test("Hide question title for flow layout", function(assert) {
+QUnit.test("Hide question title for flow layout", function (assert) {
   var flowPanel = new FlowPanelModel("flowPanel");
   var q = flowPanel.addNewQuestion("text", "q");
   assert.equal(q.getTitleLocation(), "hidden", "Hide for flow layout");
 });
-QUnit.test("Do not generate rows and do not set renderWidth", function(assert) {
+QUnit.test("Do not generate rows and do not set renderWidth", function (
+  assert
+) {
   var flowPanel = new FlowPanelModel("flowPanel");
   var q = flowPanel.addNewQuestion("text", "q");
   assert.equal(flowPanel.rows.length, 0, "There is no rows");
   assert.equal(q.renderWidth, "", "render width is empty");
 });
-QUnit.test("question.cssMainRootClass", function(assert) {
+QUnit.test("question.cssRoot class", function (assert) {
   var survey = new SurveyModel();
   var page = survey.addNewPage("p");
   var flowPanel = new FlowPanelModel("flowPanel");
   page.addElement(flowPanel);
   var q1 = flowPanel.addNewQuestion("text", "q1");
   var q2 = page.addNewQuestion("text", "q2");
-  assert.equal(
-    q1.cssMainRoot,
-    "sv_q_flow sv_qstn",
-    "flow question.cssMainRoot"
-  );
-  assert.equal(q2.cssMainRoot, "sv_q sv_qstn", "non flow question.cssMainRoot");
+  assert.equal(q1.cssRoot, "sv_q_flow sv_qstn", "flow question.cssRoot");
+  assert.equal(q2.cssRoot, "sv_q sv_qstn", "non flow question.cssRoot");
   q1.titleLocation = "left";
   q2.titleLocation = "left";
+  assert.equal(q1.cssRoot, "sv_q_flow sv_qstn", "flow question.cssRoot");
   assert.equal(
-    q1.cssMainRoot,
-    "sv_q_flow sv_qstn",
-    "flow question.cssMainRoot"
-  );
-  assert.equal(
-    q2.cssMainRoot,
+    q2.cssRoot,
     "sv_q sv_qstn sv_qstn_left",
-    "non flow question.cssMainRoot"
+    "non flow question.cssRoot"
   );
 });
 QUnit.test(
   "FlowPanel: checkbox and radiogroup - always keep colCount to 0",
-  function(assert) {
+  function (assert) {
     var survey = new SurveyModel();
     var page = survey.addNewPage("p");
     var flowPanel = new FlowPanelModel("flowPanel");
     page.addElement(flowPanel);
     var q1 = <QuestionCheckboxModel>flowPanel.addNewQuestion("checkbox", "q1");
-    var q2 = <QuestionRadiogroupModel>flowPanel.addNewQuestion(
-      "radiogroup",
-      "q2"
+    var q2 = <QuestionRadiogroupModel>(
+      flowPanel.addNewQuestion("radiogroup", "q2")
     );
     assert.equal(q1.colCount, 0, "checkbox.colCount is 0 now");
     assert.equal(q2.colCount, 0, "radiogroup.colCount is 0 now");
@@ -585,7 +589,7 @@ QUnit.test(
     assert.equal(q2.colCount, 0, "radiogroup.colCount is still 0");
   }
 );
-QUnit.test("FlowPanel: support limited number of questions", function(assert) {
+QUnit.test("FlowPanel: support limited number of questions", function (assert) {
   var flowPanel = new FlowPanelModel("flowPanel");
   assert.notOk(flowPanel.addNewPanel("p1"), "We can't add panel");
   assert.notOk(flowPanel.addNewQuestion("matrix", "q1"), "We can't add matrix");

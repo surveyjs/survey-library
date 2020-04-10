@@ -38,23 +38,10 @@ export class SurveyElementVue extends Vue {
     return "survey-" + element.getTemplate();
   }
   getRootClass(element: Question) {
-    var rootClass = "";
-    if (!!element.cssMainRoot) {
-      rootClass += element.cssMainRoot;
-    }
-
-    if (element.cssClasses.small && !element.width) {
-      rootClass += " " + element.cssClasses.small;
-    }
-
-    return rootClass;
+    return element.cssRoot;
   }
   getContentClass(element: Question) {
-    var contentClass = element.cssClasses.content;
-    if (element.hasTitleOnLeft) {
-      contentClass += " " + element.cssClasses.contentLeft;
-    }
-    return contentClass;
+    return element.cssContent;
   }
   get hasErrorsOnTop() {
     return !this.element.isPanel && this.survey.questionErrorLocation === "top";

@@ -8,7 +8,7 @@
       </div>
       <!-- /ko -->
 
-      <!-- ko if: (locTitle.koRenderedHtml().length > 0) && showTitle -->
+      <!-- ko if: (locTitle.koRenderedHtml().length > 0) && showTitle || isDesignMode -->
       <div data-bind="css: css.headerText">
           <h3 data-bind="css: css.title"><!-- ko template: { name: 'survey-string', data: locTitle } --><!-- /ko --></h3>
           <h5 data-bind="css: css.description"><!-- ko template: { name: 'survey-string', data: locDescription } --><!-- /ko --></h5>

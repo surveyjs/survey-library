@@ -2,7 +2,7 @@
 
 This article describes how SurveyJS Library works, its concepts and main functionality.
 
-We recommend that you use the [SurveyJS Creator](https://surveyjs.io/create-survey/) to create a survey without any coding.
+We recommend that you use the [SurveyJS Creator](https://surveyjs.io/create-survey) to create a survey without any coding.
 
 For information about integrating a survey into a web page, refer to the [Add Survey into your Web Page](https://surveyjs.io/Documentation/Library/?id=Add-Survey-into-your-Web-Page) article.
 
@@ -463,7 +463,7 @@ To be more precise, the **question.name** is used, unless **question.valueName**
 
 ### Predefined Answers
 
-You may need to have predefined answers. For example, you need to have a default value for Boolean question as `True`. To specify a default value, use the [question.defaultValue](https://surveyjs.io/Documentation/Library/?id=Question#defaultValue) property. You can specify this property in JSON, or in our [Survey Creator](https://surveyjs.io/create-survey/). After loading the JSON, on starting the survey, the **defaultValue** property is copied to the **question.value** property.
+You may need to have predefined answers. For example, you need to have a default value for Boolean question as `True`. To specify a default value, use the [question.defaultValue](https://surveyjs.io/Documentation/Library/?id=Question#defaultValue) property. You can specify this property in JSON, or in our [Survey Creator](https://surveyjs.io/create-survey). After loading the JSON, on starting the survey, the **defaultValue** property is copied to the **question.value** property.
 
 > **Tip**
 >
@@ -1063,7 +1063,7 @@ Since v1.1.10, SurveyJS supports [async expressions](#conditions-asyncfunctions)
 
 ### Standard Validators
 
-The simplest and most used validation is a required value. You must set **question.isRequired** to `true` and SurveyJS will require the user answer the question. In [SurveyJS Creator](https://surveyjs.io/create-survey/), toggle exclamation mark (!) to make a question required. To override the error text on required error, change the survey **requiredText** property.
+The simplest and most used validation is a required value. You must set **question.isRequired** to `true` and SurveyJS will require the user answer the question. In [SurveyJS Creator](https://surveyjs.io/create-survey), toggle exclamation mark (!) to make a question required. To override the error text on required error, change the survey **requiredText** property.
 
 Except required validation, there is a list of built-in validation classes, that you may use by adding them into [question.validators](https://surveyjs.io/Documentation/Library/?id=Question#validators) array property. For example, the following code adds a validation for e-mail input:
 
@@ -1119,7 +1119,7 @@ survey.onValidateQuestion.add(function(sender, options) {
 
 ### Custom Validators
 
-You may implement your own validator, if you want to use it in [SurveyJS Creator](https://surveyjs.io/create-survey/), for example, or going to use it in your surveys.
+You may implement your own validator, if you want to use it in [SurveyJS Creator](https://surveyjs.io/create-survey), for example, or going to use it in your surveys.
 
 > **Example**
 >
@@ -1184,7 +1184,7 @@ Use the [survey.locale](https://surveyjs.io/Documentation/Library/?id=surveymode
 survey.locale="es";
 ```
 
-To see the list of all available translations, open the [SurveyJS Creator](https://surveyjs.io/create-survey/), click on Survey Settings button, and open the Default Language drop down.
+To see the list of all available translations, open the [SurveyJS Creator](https://surveyjs.io/create-survey), click on Survey Settings button, and open the Default Language drop down.
 
 The localization is supported by the community. If any strings are not translated to your language, or you want to translate them in a different way, you can change the translation locally:
 

@@ -50,5 +50,9 @@ export var settings = {
   /**
    * Disable the question while choices are getting from the web service
    */
-  disableOnGettingChoicesFromWeb: false
+  disableOnGettingChoicesFromWeb: false,
+  /**
+   * Set to true to always serialize the localization string as object even if there is only one value for default locale. Instead of string "MyStr" serialize as {default: "MyStr"}
+   */
+  serializeLocalizableStringAsObject: false,
 };

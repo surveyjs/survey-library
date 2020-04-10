@@ -1,6 +1,7 @@
 <template>
   <div v-if="question.isVisible" :class="question.cssClasses.panel.container" :style="rootStyle">
     <h4 v-show="hasTitle" :class="getTitleStyle()" v-on:click="changeExpanded">
+      <span v-if="question.no" style="position: static;">{{question.no}}</span>
       <survey-string :locString="question.locTitle" />
       <span v-show="showIcon" :class="iconCss"></span>
     </h4>

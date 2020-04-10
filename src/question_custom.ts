@@ -1,5 +1,5 @@
 import { Question } from "./question";
-import { Serializer } from "./jsonobject";
+import { Serializer, CustomPropertiesCollection } from "./jsonobject";
 import {
   ISurveyImpl,
   ISurveyData,
@@ -20,15 +20,32 @@ export class CustomQuestionJSON {
       [],
       function (json: any) {
         return CustomQuestionCollection.Instance.createQuestion(
-          json.name,
+          !!json ? json.name : "",
           self
         );
       },
       "question"
     );
+    this.onInit();
+  }
+  public onInit() {
+    if (!this.json.onInit) return;
+    this.json.onInit();
+  }
+  public onCreated(question: Question) {
+    if (!this.json.onCreated) return;
+    this.json.onCreated(question);
+  }
+  public onPropertyChanged(
+    question: Question,
+    propertyName: string,
+    newValue: any
+  ) {
+    if (!this.json.onPropertyChanged) return;
+    this.json.onPropertyChanged(question, propertyName, newValue);
   }
   public get isComposite() {
-    return !!this.json.elementsJSON;
+    return !!this.json.elementsJSON || !!this.json.createElements;
   }
 }
 
@@ -62,6 +79,9 @@ export class CustomQuestionCollection {
     if (!!this.onAddingJson)
       this.onAddingJson(name, customQuestion.isComposite);
     this.customQuestionValues.push(customQuestion);
+  }
+  public get items(): Array<CustomQuestionJSON> {
+    return this.customQuestionValues;
   }
   public getCustomQuestionByName(name: string): CustomQuestionJSON {
     for (var i = 0; i < this.customQuestionValues.length; i++) {
@@ -101,17 +121,40 @@ export class CustomQuestionCollection {
   }
 }
 
-export class QuestionCustomModelBase extends Question
+export abstract class QuestionCustomModelBase extends Question
   implements ISurveyImpl, ISurveyData, IPanel {
   constructor(public name: string, public customQuestion: CustomQuestionJSON) {
     super(name);
+    CustomPropertiesCollection.createProperties(this);
+    SurveyElement.CreateDisabledDesignElements = true;
+    this.createWrapper();
+    SurveyElement.CreateDisabledDesignElements = false;
+    if (!!this.customQuestion) {
+      this.customQuestion.onCreated(this);
+    }
   }
   public getType(): string {
     return !!this.customQuestion ? this.customQuestion.name : "custom";
   }
+  protected createWrapper() {}
+  protected onPropertyValueChanged(name: string, oldValue: any, newValue: any) {
+    super.onPropertyValueChanged(name, oldValue, newValue);
+    if (!!this.customQuestion && !this.isLoadingFromJson) {
+      this.customQuestion.onPropertyChanged(this, name, newValue);
+    }
+  }
+  public onFirstRendering() {
+    var el = this.getElement();
+    if (!!el) {
+      el.onFirstRendering();
+    }
+    super.onFirstRendering();
+  }
+  protected abstract getElement(): SurveyElement;
   protected initElement(el: SurveyElement) {
     if (!el) return;
     el.setSurveyImpl(this);
+    el.disableDesignActions = true;
   }
   //ISurveyImpl
   geSurveyData(): ISurveyData {
@@ -189,18 +232,23 @@ export class QuestionCustomModelBase extends Question
 
 export class QuestionCustomModel extends QuestionCustomModelBase {
   private questionWrapper: Question;
-  constructor(public name: string, public customQuestion: CustomQuestionJSON) {
-    super(name, customQuestion);
-    this.questionWrapper = this.createQuestion();
-  }
   public getTemplate(): string {
     return "custom";
   }
-  public onFirstRendering() {
-    if (!!this.questionWrapper) {
-      this.questionWrapper.onFirstRendering();
+  protected createWrapper() {
+    this.questionWrapper = this.createQuestion();
+  }
+  protected getElement(): SurveyElement {
+    return this.contentQuestion;
+  }
+  public hasErrors(fireCallback: boolean = true, rec: any = null): boolean {
+    if (!this.contentQuestion) return false;
+    var res = this.contentQuestion.hasErrors(fireCallback, rec);
+    this.errors = [];
+    for (var i = 0; i < this.contentQuestion.errors.length; i++) {
+      this.errors.push(this.contentQuestion.errors[i]);
     }
-    super.onFirstRendering();
+    return res;
   }
   public get contentQuestion(): Question {
     return this.questionWrapper;
@@ -211,9 +259,14 @@ export class QuestionCustomModel extends QuestionCustomModelBase {
       var qType = json.questionJSON.type;
       if (!qType || !Serializer.findClass(qType))
         throw "type attribute in questionJSON is empty or incorrect";
-      var res = <Question>Serializer.createClass(qType);
+      let res = <Question>Serializer.createClass(qType);
       this.initElement(res);
       res.fromJSON(json.questionJSON);
+      return res;
+    }
+    if (!!json.createQuestion) {
+      let res = json.createQuestion();
+      this.initElement(res);
       return res;
     }
     return null;
@@ -244,24 +297,46 @@ export class QuestionCustomModel extends QuestionCustomModelBase {
 
 export class QuestionCompositeModel extends QuestionCustomModelBase {
   private panelWrapper: PanelModel;
-  constructor(public name: string, public customQuestion: CustomQuestionJSON) {
-    super(name, customQuestion);
+  protected createWrapper() {
     this.panelWrapper = this.createPanel();
   }
   public getTemplate(): string {
     return "composite";
   }
+  protected getElement(): SurveyElement {
+    return this.contentPanel;
+  }
   public get contentPanel(): PanelModel {
     return this.panelWrapper;
   }
+  public hasErrors(fireCallback: boolean = true, rec: any = null): boolean {
+    if (!this.contentPanel) return false;
+    return this.contentPanel.hasErrors(fireCallback, false, rec);
+  }
   protected createPanel(): PanelModel {
     var res = <PanelModel>Serializer.createClass("panel");
-    var elJSON = this.customQuestion.json.elementsJSON;
-    if (!!elJSON) {
-      res.fromJSON({ elements: elJSON });
+    var json = this.customQuestion.json;
+    if (!!json.elementsJSON) {
+      res.fromJSON({ elements: json.elementsJSON });
+    }
+    if (!!json.createElements) {
+      json.createElements(res);
     }
     this.initElement(res);
+    res.readOnly = this.isReadOnly;
     return res;
+  }
+  protected onReadOnlyChanged() {
+    if (!!this.contentPanel) {
+      this.contentPanel.readOnly = this.isReadOnly;
+    }
+    super.onReadOnlyChanged();
+  }
+  public onSurveyLoad() {
+    if (!!this.contentPanel) {
+      this.contentPanel.readOnly = this.isReadOnly;
+    }
+    super.onSurveyLoad();
   }
   getValue(name: string): any {
     var val = this.value;

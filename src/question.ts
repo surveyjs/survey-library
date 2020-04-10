@@ -198,9 +198,7 @@ export class Question extends SurveyElement
     if (val == this.visible) return;
     this.setPropertyValue("visible", val);
     this.onVisibleChanged();
-    if (this.survey) {
-      this.survey.questionVisibilityChanged(<IQuestion>this, this.visible);
-    }
+    this.notifySurveyVisibilityChanged();
   }
   protected onVisibleChanged() {
     this.setPropertyValue("isVisible", this.isVisible);
@@ -236,9 +234,24 @@ export class Question extends SurveyElement
   }
   /**
    * Returns the visible index of the question in the survey. It can be from 0 to all visible questions count - 1
+   * The visibleIndex is -1 if the title is 'hidden' or hideNumber is true
+   * @see titleLocation
+   * @see hideNumber
    */
   public get visibleIndex(): number {
     return this.getPropertyValue("visibleIndex", -1);
+  }
+  /**
+   * Set hideNumber to true to stop showing the number for this question. The question will not be counter
+   * @see visibleIndex
+   * @see titleLocation
+   */
+  public get hideNumber(): boolean {
+    return this.getPropertyValue("hideNumber", false);
+  }
+  public set hideNumber(val: boolean) {
+    this.setPropertyValue("hideNumber", val);
+    this.notifySurveyVisibilityChanged();
   }
   /**
    * Returns true if the question may have a title located on the left
@@ -313,9 +326,13 @@ export class Question extends SurveyElement
     var isVisibilityChanged =
       this.titleLocation == "hidden" || value == "hidden";
     this.setPropertyValue("titleLocation", value.toLowerCase());
-    if (isVisibilityChanged && this.survey) {
-      this.survey.questionVisibilityChanged(this, this.visible);
+    if (isVisibilityChanged) {
+      this.notifySurveyVisibilityChanged();
     }
+  }
+  private notifySurveyVisibilityChanged() {
+    if (!this.survey || this.isLoadingFromJson) return;
+    this.survey.questionVisibilityChanged(this, this.isVisible);
   }
   /**
    * Return the title location based on question titleLocation property and QuestionTitleLocation of it's parents
@@ -809,48 +826,10 @@ export class Question extends SurveyElement
    * @see SurveyModel.questionStartIndex
    */
   public get no(): string {
-    if (this.visibleIndex < 0) return "";
-    var startIndex = 1;
-    var prefix = "";
-    var postfix = ".";
-    var isNumeric = true;
-    var str = "";
-    if (this.survey && this.survey.questionStartIndex) {
-      str = this.survey.questionStartIndex;
-      var ind = str.length - 1;
-      while (ind >= 0 && this.isCharNotLetterAndDigit(str[ind])) ind--;
-      var newPostfix = "";
-      if (ind < str.length - 1) {
-        newPostfix = str.substr(ind + 1);
-        str = str.substr(0, ind + 1);
-      }
-      if (!!str) {
-        var ind = 0;
-        while (ind < str.length && this.isCharNotLetterAndDigit(str[ind]))
-          ind++;
-        if (ind > 0) {
-          prefix = str.substr(0, ind);
-          str = str.substr(ind);
-        }
-      }
-      if (!!newPostfix || !!prefix) {
-        postfix = newPostfix;
-      }
-      if (!!str) {
-        if (parseInt(str)) startIndex = parseInt(str);
-        else if (str.length == 1) isNumeric = false;
-      }
-    }
-    if (isNumeric)
-      return prefix + (this.visibleIndex + startIndex).toString() + postfix;
-    return (
-      prefix +
-      String.fromCharCode(str.charCodeAt(0) + this.visibleIndex) +
-      postfix
+    return Helpers.getNumberByIndex(
+      this.visibleIndex,
+      !!this.survey ? this.survey.questionStartIndex : ""
     );
-  }
-  private isCharNotLetterAndDigit(ch: string): boolean {
-    return ch.toUpperCase() == ch.toLowerCase() && (ch < "0" || ch > "9");
   }
   public onSurveyLoad() {
     this.fireCallback(this.surveyLoadCallback);
@@ -1343,7 +1322,7 @@ export class Question extends SurveyElement
     this.updateDisplayValue();
   }
   public setVisibleIndex(val: number): number {
-    if (!this.isVisible || !this.hasTitle) {
+    if (!this.isVisible || !this.hasTitle || this.hideNumber) {
       val = -1;
     }
     this.setPropertyValue("visibleIndex", val);
@@ -1445,6 +1424,7 @@ Serializer.addClass("question", [
     default: "default",
     choices: ["default", "underInput", "underTitle"],
   },
+  "hideNumber:boolean",
   "valueName",
   "enableIf:condition",
   "defaultValue:value",

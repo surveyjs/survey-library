@@ -3,7 +3,7 @@ import { HashTable, Helpers } from "./helpers";
 import {
   CustomPropertiesCollection,
   JsonObject,
-  Serializer
+  Serializer,
 } from "./jsonobject";
 import { settings } from "./settings";
 
@@ -383,7 +383,7 @@ export class Base {
     for (var key in this.propertyHash) {
       keys.push(key);
     }
-    keys.forEach(key => func(this.propertyHash, key));
+    keys.forEach((key) => func(this.propertyHash, key));
   }
   /**
    * set property value
@@ -435,7 +435,7 @@ export class Base {
     this.onPropertyChanged.fire(this, {
       name: name,
       oldValue: oldValue,
-      newValue: newValue
+      newValue: newValue,
     });
 
     this.doPropertyValueChangedCallback &&
@@ -646,7 +646,7 @@ export class Base {
   }
   protected createItemValues(name: string): Array<any> {
     var self = this;
-    var result = this.createNewArray(name, function(item: any) {
+    var result = this.createNewArray(name, function (item: any) {
       item.locOwner = self;
     });
     this.arraysInfo[name].isItemValues = true;
@@ -677,7 +677,7 @@ export class Base {
     }
     this.arraysInfo[name] = { onPush: onPush, isItemValues: false };
     var self = this;
-    newArray.push = function(value): number {
+    newArray.push = function (value): number {
       var result = Object.getPrototypeOf(newArray).push.call(newArray, value);
       if (onPush) onPush(value, newArray.length - 1);
       const arrayChanges = new ArrayChanges(
@@ -690,7 +690,7 @@ export class Base {
       self.notifyArrayChanged(newArray);
       return result;
     };
-    newArray.unshift = function(value): number {
+    newArray.unshift = function (value): number {
       var result = Object.getPrototypeOf(newArray).unshift.call(
         newArray,
         value
@@ -701,7 +701,7 @@ export class Base {
       self.notifyArrayChanged(newArray);
       return result;
     };
-    newArray.pop = function(): number {
+    newArray.pop = function (): number {
       var result = Object.getPrototypeOf(newArray).pop.call(newArray);
       if (onRemove) onRemove(result);
       const arrayChanges = new ArrayChanges(newArray.length - 1, 1, [], []);
@@ -709,7 +709,7 @@ export class Base {
       self.notifyArrayChanged(newArray);
       return result;
     };
-    newArray.splice = function(
+    newArray.splice = function (
       start?: number,
       deleteCount?: number,
       ...items: any[]
@@ -891,12 +891,15 @@ export class SurveyElement extends Base implements ISurveyElement {
     }
     return false;
   }
+  public static CreateDisabledDesignElements: boolean = false;
+  public disableDesignActions: boolean =
+    SurveyElement.CreateDisabledDesignElements;
   constructor(name: string) {
     super();
     this.name = name;
     this.createNewArray("errors");
     var self = this;
-    this.registerFunctionOnPropertyValueChanged("isReadOnly", function() {
+    this.registerFunctionOnPropertyValueChanged("isReadOnly", function () {
       self.onReadOnlyChanged();
     });
   }

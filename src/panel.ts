@@ -1353,9 +1353,8 @@ export class PanelModel extends PanelModelBase implements IElement {
     return this.getPropertyValue("visibleIndex", -1);
   }
   /**
-   * Set hideNumber to true to stop showing the number for this question. The question will not be counter
+   * Set showNumber to true to start showing the number for this panel.
    * @see visibleIndex
-   * @see showNumber
    */
   public get showNumber(): boolean {
     return this.getPropertyValue("showNumber", false);

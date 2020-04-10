@@ -198,6 +198,11 @@ export class Survey extends SurveyModel {
     var self = this;
     this.dummyObservable = ko.observable(0);
     this.koCurrentPage = ko.observable(this.currentPage);
+    this.isCurrentPageEmpty = ko.computed(
+      () =>
+        !!this.koCurrentPage() &&
+        this.getRows(this.koCurrentPage()).length === 0
+    );
     this.koIsFirstPage = ko.computed(() => {
       this.dummyObservable();
       return this.isFirstPage;
@@ -277,6 +282,9 @@ export class Survey extends SurveyModel {
       this.koCurrentPage(this.currentPage);
     }
     this.koState(this.state);
+  }
+  private getRows(pnl: any): Array<any> {
+    return !!pnl["koRows"] ? pnl["koRows"]() : pnl.rows;
   }
   private updateCurrentPageQuestions() {
     var questions = this.currentPage ? this.currentPage.questions : [];

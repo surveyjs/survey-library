@@ -46,10 +46,6 @@ export var modernCss = {
     progressText: "sv-paneldynamic__progress-text",
     separator: "sv-paneldynamic__separator",
   },
-  composite: {
-    root: "sv-paneldynamic",
-    title: "sv-title sv-question__title",
-  },
   progress: "sv-progress sv-body__progress",
   progressBar: "sv-progress__bar",
   progressText: "sv-progress__text",

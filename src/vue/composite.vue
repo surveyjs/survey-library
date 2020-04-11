@@ -1,19 +1,5 @@
 <template>
-  <div>
-    <div>
-      <survey-element
-        :key="contentPanel.idValue"
-        :id="contentPanel.id"
-        :role="contentPanel.ariaRole"
-        :aria-labelledby="contentPanel.id + '_aria'"
-        :name="contentPanel.name"
-        :style="{ width: '100%' }"
-        :element="contentPanel"
-        :survey="question.survey"
-        :css="css"
-      />
-    </div>
-  </div>
+  <survey-panel :question="contentPanel" :css="css" />
 </template>
 
 <script lang="ts">

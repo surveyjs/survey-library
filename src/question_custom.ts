@@ -156,6 +156,18 @@ export abstract class QuestionCustomModelBase extends Question
     el.setSurveyImpl(this);
     el.disableDesignActions = true;
   }
+  public setSurveyImpl(value: ISurveyImpl) {
+    super.setSurveyImpl(value);
+    this.initElement(this.getElement());
+  }
+  protected setQuestionValue(newValue: any, updateIsAnswered: boolean = true) {
+    super.setQuestionValue(newValue, updateIsAnswered);
+    this.updateElementCss();
+  }
+  protected setNewValue(newValue: any) {
+    super.setNewValue(newValue);
+    this.updateElementCss();
+  }
   //ISurveyImpl
   geSurveyData(): ISurveyData {
     return this;
@@ -183,6 +195,8 @@ export abstract class QuestionCustomModelBase extends Question
       locNotification,
       allowNotifyValueChanged
     );
+    this.updateIsAnswered();
+    this.updateElementCss();
   }
   protected convertValue(name: string, newValue: any): any {
     return newValue;
@@ -278,20 +292,11 @@ export class QuestionCustomModel extends QuestionCustomModelBase {
     }
     return null;
   }
-  public setSurveyImpl(value: ISurveyImpl) {
-    super.setSurveyImpl(value);
-    this.initElement(this.contentQuestion);
-  }
   protected setQuestionValue(newValue: any, updateIsAnswered: boolean = true) {
     super.setQuestionValue(newValue, updateIsAnswered);
     if (!!this.contentQuestion) {
       this.contentQuestion.value = newValue;
     }
-    this.updateElementCss();
-  }
-  protected setNewValue(newValue: any) {
-    super.setNewValue(newValue);
-    this.updateElementCss();
   }
   onSurveyValueChanged(newValue: any) {
     super.onSurveyValueChanged(newValue);
@@ -331,8 +336,15 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
     return this.panelWrapper;
   }
   public hasErrors(fireCallback: boolean = true, rec: any = null): boolean {
-    if (!this.contentPanel) return false;
-    return this.contentPanel.hasErrors(fireCallback, false, rec);
+    var res = super.hasErrors(fireCallback, rec);
+    if (!this.contentPanel) return res;
+    return this.contentPanel.hasErrors(fireCallback, false, rec) || res;
+  }
+  public updateElementCss() {
+    super.updateElementCss();
+    if (this.contentPanel) {
+      this.contentPanel.updateElementCss();
+    }
   }
   protected createPanel(): PanelModel {
     var res = <PanelModel>Serializer.createClass("panel");

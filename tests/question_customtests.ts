@@ -287,6 +287,25 @@ QUnit.test("Composite: hasErrors", function (assert) {
   assert.equal(q.hasErrors(), false, "firstName has value");
   CustomQuestionCollection.Instance.clear();
 });
+QUnit.test("Composite: hasErrors/isRequired", function (assert) {
+  var json = {
+    name: "customerinfo",
+    elementsJSON: [
+      { type: "text", name: "firstName" },
+      { type: "text", name: "lastName" },
+    ],
+  };
+  CustomQuestionCollection.Instance.add(json);
+  var survey = new SurveyModel({
+    elements: [{ type: "customerinfo", name: "q1", isRequired: true }],
+  });
+  var q = <QuestionCompositeModel>survey.getAllQuestions()[0];
+  var firstName = q.contentPanel.getQuestionByName("firstName");
+  assert.equal(q.hasErrors(), true, "question is empty");
+  firstName.value = "abc";
+  assert.equal(q.hasErrors(), false, "question is not empty");
+  CustomQuestionCollection.Instance.clear();
+});
 
 QUnit.test("Composite: onPropertyChanged", function (assert) {
   var json = {
@@ -437,5 +456,47 @@ QUnit.test("Custom, get css from contentQuestion", function (assert) {
     q1.cssTitle,
     "title onAnswer",
     "q1 is not empty, show in title, via contentQuestion"
+  );
+});
+QUnit.test("Composite, update panel css", function (assert) {
+  var survey = new SurveyModel();
+  survey.css.question.small = "small";
+  survey.css.question.title = "title";
+  survey.css.question.titleOnAnswer = "onAnswer";
+  var json = {
+    name: "customerinfo",
+    elementsJSON: [
+      { type: "text", name: "firstName", isRequired: true },
+      { type: "text", name: "lastName" },
+    ],
+    onCreated: function (question) {
+      question.contentPanel.getQuestionByName(
+        "lastName"
+      ).startWithNewLine = false;
+    },
+  };
+  CustomQuestionCollection.Instance.add(json);
+  survey.fromJSON({
+    elements: [{ type: "customerinfo", name: "q1" }],
+  });
+  var q1 = survey.getQuestionByName("q1");
+  var lastName = q1.contentPanel.getQuestionByName("lastName");
+  var defaultQuestionRoot = survey.css.question.mainRoot;
+  assert.equal(
+    lastName.cssRoot,
+    defaultQuestionRoot + " small",
+    "Update content question css"
+  );
+  lastName.value = "val";
+  assert.equal(q1.isEmpty(), false, "q1 is not empty");
+  assert.equal(q1.cssTitle, "title onAnswer", "q1 is not empty, show in title");
+  lastName.clearValue();
+  assert.equal(q1.isEmpty(), true, "q1 is empty");
+  assert.equal(q1.cssTitle, "title", "q1 is clear");
+  q1.value = { lastName: "val" };
+  assert.equal(
+    q1.cssTitle,
+    "title onAnswer",
+    "q1 is not empty, show in title, via lastName"
   );
 });

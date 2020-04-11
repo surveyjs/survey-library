@@ -251,6 +251,10 @@ export class QuestionCustomModel extends QuestionCustomModelBase {
     for (var i = 0; i < this.contentQuestion.errors.length; i++) {
       this.errors.push(this.contentQuestion.errors[i]);
     }
+    if (!res) {
+      res = super.hasErrors(fireCallback, rec);
+    }
+    this.updateElementCss();
     return res;
   }
   public get contentQuestion(): Question {
@@ -283,6 +287,11 @@ export class QuestionCustomModel extends QuestionCustomModelBase {
     if (!!this.contentQuestion) {
       this.contentQuestion.value = newValue;
     }
+    this.updateElementCss();
+  }
+  protected setNewValue(newValue: any) {
+    super.setNewValue(newValue);
+    this.updateElementCss();
   }
   onSurveyValueChanged(newValue: any) {
     super.onSurveyValueChanged(newValue);
@@ -296,6 +305,12 @@ export class QuestionCustomModel extends QuestionCustomModelBase {
       (<Question>el).parent = this;
     }
   }
+  protected updateElementCssCore(cssClasses: any) {
+    if (!!this.contentQuestion) {
+      cssClasses = this.contentQuestion.cssClasses;
+    }
+    super.updateElementCssCore(cssClasses);
+  }
 }
 
 export class QuestionCompositeModel extends QuestionCustomModelBase {
@@ -304,6 +319,9 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
     this.panelWrapper = this.createPanel();
   }
   public getTemplate(): string {
+    return "composite";
+  }
+  protected getCssType(): string {
     return "composite";
   }
   protected getElement(): SurveyElement {

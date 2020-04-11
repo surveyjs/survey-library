@@ -249,6 +249,25 @@ QUnit.test("Single: hasError", function (assert) {
   assert.equal(q.hasErrors(), false, "contentQuestion has value");
   CustomQuestionCollection.Instance.clear();
 });
+QUnit.test("Single: hasError/isRequired", function (assert) {
+  var json = {
+    name: "newquestion",
+    questionJSON: {
+      type: "dropdown",
+      choices: [1, 2, 3, 4, 5],
+    },
+  };
+  CustomQuestionCollection.Instance.add(json);
+  var survey = new SurveyModel({
+    elements: [{ type: "newquestion", name: "q1", isRequired: true }],
+  });
+  var q = <QuestionCustomModel>survey.getAllQuestions()[0];
+  assert.equal(q.hasErrors(), true, "contentQuestion is required");
+  assert.equal(q.errors.length, 1, "There is one error");
+  q.contentQuestion.value = 1;
+  assert.equal(q.hasErrors(), false, "contentQuestion has value");
+  CustomQuestionCollection.Instance.clear();
+});
 QUnit.test("Composite: hasErrors", function (assert) {
   var json = {
     name: "customerinfo",
@@ -373,4 +392,50 @@ QUnit.test("Composite: onPropertyChanged", function (assert) {
     "onCreated function is called"
   );
   CustomQuestionCollection.Instance.clear();
+});
+QUnit.test("Custom, get css from contentQuestion", function (assert) {
+  var survey = new SurveyModel();
+  survey.css.dropdown.small = "small";
+  survey.css.dropdown.title = "title";
+  survey.css.question.titleOnAnswer = "onAnswer";
+  var json = {
+    name: "newquestion",
+    createQuestion: function () {
+      var res = new QuestionDropdownModel("question");
+      res.choices = [1, 2, 3, 4, 5];
+      return res;
+    },
+  };
+  CustomQuestionCollection.Instance.add(json);
+  survey.fromJSON({
+    elements: [{ type: "newquestion", name: "q1" }],
+  });
+  var q1 = survey.getQuestionByName("q1");
+  var defaultQuestionRoot = survey.css.question.mainRoot;
+  assert.equal(
+    q1.cssRoot,
+    defaultQuestionRoot + " small",
+    "Default question root, take small from dropdown"
+  );
+  assert.equal(q1.cssTitle, "title", "Default question title");
+  q1.titleLocation = "left";
+  var addLeft = " " + survey.css.question.titleLeftRoot;
+  assert.equal(
+    q1.cssRoot,
+    defaultQuestionRoot + addLeft + " small",
+    "titleLocation = left, take small from dropdown"
+  );
+  q1.titleLocation = "default";
+  q1.value = 1;
+  assert.equal(q1.isEmpty(), false, "q1 is not empty");
+  assert.equal(q1.cssTitle, "title onAnswer", "q1 is not empty, show in title");
+  q1.clearValue();
+  assert.equal(q1.isEmpty(), true, "q1 is empty");
+  assert.equal(q1.cssTitle, "title");
+  q1.contentQuestion.value = 1;
+  assert.equal(
+    q1.cssTitle,
+    "title onAnswer",
+    "q1 is not empty, show in title, via contentQuestion"
+  );
 });

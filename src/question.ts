@@ -639,7 +639,9 @@ export class Question extends SurveyElement
   }
   public updateElementCss() {
     if (this.isLoadingFromJson) return;
-    var cssClasses = this.cssClasses;
+    this.updateElementCssCore(this.cssClasses);
+  }
+  protected updateElementCssCore(cssClasses: any) {
     this.setCssRoot(this.getCssRoot(cssClasses));
     this.setCssHeader(this.getCssHeader(cssClasses));
     this.setCssContent(this.getCssContent(cssClasses));
@@ -656,7 +658,7 @@ export class Question extends SurveyElement
         res.title += " " + css.question.titleRequired;
       }
     }
-    var objCss = css[this.getType()];
+    var objCss = css[this.getCssType()];
     if (objCss === undefined || objCss === null) return;
     if (typeof objCss === "string" || objCss instanceof String) {
       res.root = (res.root ? res.root + " " : "") + objCss;
@@ -665,6 +667,9 @@ export class Question extends SurveyElement
         res[key] = objCss[key];
       }
     }
+  }
+  protected getCssType(): string {
+    return this.getType();
   }
   private get css(): any {
     return !!this.survey ? this.survey.getCss() : {};

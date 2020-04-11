@@ -271,6 +271,13 @@ export class QuestionCustomModel extends QuestionCustomModelBase {
     this.updateElementCss();
     return res;
   }
+  public focus(onError: boolean = false) {
+    if (!!this.contentQuestion) {
+      this.contentQuestion.focus(onError);
+    } else {
+      super.focus(onError);
+    }
+  }
   public get contentQuestion(): Question {
     return this.questionWrapper;
   }

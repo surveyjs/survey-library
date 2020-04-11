@@ -355,6 +355,7 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
   }
   protected createPanel(): PanelModel {
     var res = <PanelModel>Serializer.createClass("panel");
+    res.showQuestionNumbers = "off";
     var json = this.customQuestion.json;
     if (!!json.elementsJSON) {
       res.fromJSON({ elements: json.elementsJSON });
@@ -378,6 +379,14 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
     }
     super.onSurveyLoad();
   }
+  public setVisibleIndex(val: number): number {
+    var res = super.setVisibleIndex(val);
+    if (this.isVisible && !!this.contentPanel) {
+      res += this.contentPanel.setVisibleIndex(val);
+    }
+    return res;
+  }
+
   getValue(name: string): any {
     var val = this.value;
     return !!val ? val[name] : null;

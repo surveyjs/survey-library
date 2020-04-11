@@ -397,19 +397,27 @@ QUnit.test("Composite: onPropertyChanged", function (assert) {
       question.contentPanel.getQuestionByName(
         "lastName"
       ).startWithNewLine = false;
+      question.contentPanel.showQuestionNumbers = "onpanel";
+      question.contentPanel.questionStartIndex = "a.";
     },
   };
   CustomQuestionCollection.Instance.add(json);
   var survey = new SurveyModel({
-    elements: [{ type: "customerinfo", name: "q1" }],
+    elements: [
+      { type: "text", name: "q1" },
+      { type: "customerinfo", name: "q2" },
+      { type: "text", name: "q3" },
+    ],
   });
-  var q = <QuestionCompositeModel>survey.getAllQuestions()[0];
+  var q = <QuestionCompositeModel>survey.getAllQuestions()[1];
   var lastName = q.contentPanel.getQuestionByName("lastName");
   assert.equal(
     lastName.startWithNewLine,
     false,
     "onCreated function is called"
   );
+  assert.equal(lastName.visibleIndex, 1, "second question");
+  assert.equal(lastName.no, "b.", "second question, no is 'b.'");
   CustomQuestionCollection.Instance.clear();
 });
 QUnit.test("Custom, get css from contentQuestion", function (assert) {

@@ -12,6 +12,7 @@ import {
 } from "./base";
 import { PanelModel } from "./panel";
 import { Helpers, HashTable } from "./helpers";
+import { ItemValue } from "./itemvalue";
 
 export class CustomQuestionJSON {
   public constructor(public name: string, public json: any) {
@@ -44,6 +45,21 @@ export class CustomQuestionJSON {
   ) {
     if (!this.json.onPropertyChanged) return;
     this.json.onPropertyChanged(question, propertyName, newValue);
+  }
+  public onItemValuePropertyChanged(
+    question: Question,
+    item: ItemValue,
+    propertyName: string,
+    name: string,
+    newValue: any
+  ) {
+    if (!this.json.onItemValuePropertyChanged) return;
+    this.json.onItemValuePropertyChanged(question, {
+      obj: item,
+      propertyName: propertyName,
+      name: name,
+      newValue: newValue,
+    });
   }
   public get isComposite() {
     return !!this.json.elementsJSON || !!this.json.createElements;
@@ -142,6 +158,23 @@ export abstract class QuestionCustomModelBase extends Question
     super.onPropertyValueChanged(name, oldValue, newValue);
     if (!!this.customQuestion && !this.isLoadingFromJson) {
       this.customQuestion.onPropertyChanged(this, name, newValue);
+    }
+  }
+  public itemValuePropertyChanged(
+    item: ItemValue,
+    name: string,
+    oldValue: any,
+    newValue: any
+  ) {
+    super.itemValuePropertyChanged(item, name, oldValue, newValue);
+    if (!!this.customQuestion && !this.isLoadingFromJson) {
+      this.customQuestion.onItemValuePropertyChanged(
+        this,
+        item,
+        item.ownerPropertyName,
+        name,
+        newValue
+      );
     }
   }
   public onFirstRendering() {
@@ -424,12 +457,12 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
   public runCondition(values: HashTable<any>, properties: HashTable<any>) {
     super.runCondition(values, properties);
     if (!!this.contentPanel) {
-      var oldPanel = values.panel;
-      values.panel = this.contentPanel.getValue();
+      var oldComposite = values.composite;
+      values.composite = this.contentPanel.getValue();
       this.contentPanel.runCondition(values, properties);
-      delete values["panel"];
-      if (!!oldPanel) {
-        values.panel = oldPanel;
+      delete values["composite"];
+      if (!!oldComposite) {
+        values.composite = oldComposite;
       }
     }
   }

@@ -640,7 +640,7 @@ QUnit.test("Single: matrixdropdown expressions", function (assert) {
   );
   CustomQuestionCollection.Instance.clear();
 });
-QUnit.test("Composite: expression, {panel} prefix", function (assert) {
+QUnit.test("Composite: expression, {composite} prefix", function (assert) {
   var json = {
     name: "customerinfo",
     elementsJSON: [
@@ -648,7 +648,7 @@ QUnit.test("Composite: expression, {panel} prefix", function (assert) {
       {
         type: "text",
         name: "lastName",
-        visibleIf: "{panel.firstName} = 'Jon'",
+        visibleIf: "{composite.firstName} = 'Jon'",
       },
     ],
   };

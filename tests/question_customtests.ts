@@ -609,7 +609,7 @@ QUnit.test("Single: matrixdropdown.defaultValue", function (assert) {
   );
   CustomQuestionCollection.Instance.clear();
 });
-QUnit.test("Single: matrixdropdown.defaultValue", function (assert) {
+QUnit.test("Single: matrixdropdown expressions", function (assert) {
   var json = {
     name: "order",
     questionJSON: orderJSON,
@@ -638,5 +638,29 @@ QUnit.test("Single: matrixdropdown.defaultValue", function (assert) {
     },
     "Set data corectly"
   );
+  CustomQuestionCollection.Instance.clear();
+});
+QUnit.test("Composite: expression, {panel} prefix", function (assert) {
+  var json = {
+    name: "customerinfo",
+    elementsJSON: [
+      { type: "text", name: "firstName" },
+      {
+        type: "text",
+        name: "lastName",
+        visibleIf: "{panel.firstName} = 'Jon'",
+      },
+    ],
+  };
+  CustomQuestionCollection.Instance.add(json);
+  var survey = new SurveyModel({
+    elements: [{ type: "customerinfo", name: "q1", isRequired: true }],
+  });
+  var q = <QuestionCompositeModel>survey.getAllQuestions()[0];
+  var firstName = q.contentPanel.getQuestionByName("firstName");
+  var lastName = q.contentPanel.getQuestionByName("lastName");
+  assert.equal(lastName.isVisible, false, "lastName is hidden by default");
+  firstName.value = "Jon";
+  assert.equal(lastName.isVisible, true, "lastName is showing now");
   CustomQuestionCollection.Instance.clear();
 });

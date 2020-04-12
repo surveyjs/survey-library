@@ -167,13 +167,6 @@ export abstract class QuestionCustomModelBase extends Question
       this.getElement().onSurveyLoad();
     }
   }
-  public runCondition(values: HashTable<any>, properties: HashTable<any>) {
-    super.runCondition(values, properties);
-    var el = this.getElement();
-    if (!!el) {
-      (<IConditionRunner>(<any>el)).runCondition(values, properties);
-    }
-  }
   protected setQuestionValue(newValue: any, updateIsAnswered: boolean = true) {
     super.setQuestionValue(newValue, updateIsAnswered);
     this.updateElementCss();
@@ -320,6 +313,12 @@ export class QuestionCustomModel extends QuestionCustomModelBase {
     }
     return res;
   }
+  public runCondition(values: HashTable<any>, properties: HashTable<any>) {
+    super.runCondition(values, properties);
+    if (!!this.contentQuestion) {
+      this.contentQuestion.runCondition(values, properties);
+    }
+  }
   protected convertDataName(name: string): string {
     if (!this.contentQuestion) return super.convertDataName(name);
     var newName = name.replace(
@@ -422,7 +421,18 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
     }
     return res;
   }
-
+  public runCondition(values: HashTable<any>, properties: HashTable<any>) {
+    super.runCondition(values, properties);
+    if (!!this.contentPanel) {
+      var oldPanel = values.panel;
+      values.panel = this.contentPanel.getValue();
+      this.contentPanel.runCondition(values, properties);
+      delete values["panel"];
+      if (!!oldPanel) {
+        values.panel = oldPanel;
+      }
+    }
+  }
   getValue(name: string): any {
     var val = this.value;
     return !!val ? val[name] : null;

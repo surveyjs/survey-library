@@ -8,9 +8,10 @@ import {
   IPanel,
   IElement,
   SurveyElement,
+  IConditionRunner,
 } from "./base";
 import { PanelModel } from "./panel";
-import { Helpers } from "./helpers";
+import { Helpers, HashTable } from "./helpers";
 
 export class CustomQuestionJSON {
   public constructor(public name: string, public json: any) {
@@ -166,6 +167,13 @@ export abstract class QuestionCustomModelBase extends Question
       this.getElement().onSurveyLoad();
     }
   }
+  public runCondition(values: HashTable<any>, properties: HashTable<any>) {
+    super.runCondition(values, properties);
+    var el = this.getElement();
+    if (!!el) {
+      (<IConditionRunner>(<any>el)).runCondition(values, properties);
+    }
+  }
   protected setQuestionValue(newValue: any, updateIsAnswered: boolean = true) {
     super.setQuestionValue(newValue, updateIsAnswered);
     this.updateElementCss();
@@ -195,16 +203,20 @@ export abstract class QuestionCustomModelBase extends Question
     allowNotifyValueChanged?: boolean
   ): any {
     if (!this.data) return;
+    var newName = this.convertDataName(name);
     this.data.setValue(
-      this.getValueName(),
-      this.convertValue(name, newValue),
+      newName,
+      this.convertDataValue(name, newValue),
       locNotification,
       allowNotifyValueChanged
     );
     this.updateIsAnswered();
     this.updateElementCss();
   }
-  protected convertValue(name: string, newValue: any): any {
+  protected convertDataName(name: string): string {
+    return this.getValueName();
+  }
+  protected convertDataValue(name: string, newValue: any): any {
     return newValue;
   }
   getVariable(name: string): any {
@@ -289,24 +301,39 @@ export class QuestionCustomModel extends QuestionCustomModelBase {
   }
   protected createQuestion(): Question {
     var json = this.customQuestion.json;
+    var res = null;
     if (!!json.questionJSON) {
       var qType = json.questionJSON.type;
       if (!qType || !Serializer.findClass(qType))
         throw "type attribute in questionJSON is empty or incorrect";
-      let res = <Question>Serializer.createClass(qType);
+      res = <Question>Serializer.createClass(qType);
       this.initElement(res);
       res.fromJSON(json.questionJSON);
-      return res;
+    } else {
+      if (!!json.createQuestion) {
+        res = json.createQuestion();
+        this.initElement(res);
+      }
     }
-    if (!!json.createQuestion) {
-      let res = json.createQuestion();
-      this.initElement(res);
-      return res;
+    if (!!res && !res.name) {
+      res.name = "question";
     }
-    return null;
+    return res;
   }
-  protected convertValue(name: string, newValue: any): any {
-    return !!this.contentQuestion ? this.contentQuestion.value : newValue;
+  protected convertDataName(name: string): string {
+    if (!this.contentQuestion) return super.convertDataName(name);
+    var newName = name.replace(
+      this.contentQuestion.getValueName(),
+      this.getValueName()
+    );
+    return newName.indexOf(this.getValueName()) == 0
+      ? newName
+      : super.convertDataName(name);
+  }
+  protected convertDataValue(name: string, newValue: any): any {
+    return this.convertDataName(name) == super.convertDataName(name)
+      ? this.contentQuestion.value
+      : newValue;
   }
   protected setQuestionValue(newValue: any, updateIsAnswered: boolean = true) {
     super.setQuestionValue(newValue, updateIsAnswered);
@@ -400,7 +427,7 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
     var val = this.value;
     return !!val ? val[name] : null;
   }
-  protected convertValue(name: string, newValue: any): any {
+  protected convertDataValue(name: string, newValue: any): any {
     var val = this.value;
     if (!val) val = {};
     if (Helpers.isValueEmpty(newValue)) {

@@ -9,6 +9,7 @@ import {
 import { Serializer } from "../src/jsonobject";
 import { QuestionDropdownModel } from "../src/question_dropdown";
 import { QuestionTextModel } from "../src/question_text";
+import { QuestionMatrixDropdownModel } from "../src/question_matrixdropdown";
 
 export default QUnit.module("custom questions");
 
@@ -550,42 +551,45 @@ QUnit.test("Composite: defaultValue", function (assert) {
   assert.deepEqual(q.value, { firstName: "Jon" }, "question defaultValue");
   CustomQuestionCollection.Instance.clear();
 });
+
+var orderJSON = {
+  type: "matrixdropdown",
+  columns: [
+    {
+      name: "price",
+      title: "Price",
+      cellType: "expression",
+      displayStyle: "currency",
+    },
+    {
+      name: "qty",
+      title: "Qty",
+      cellType: "dropdown",
+      optionsCaption: "0",
+      choices: [1, 2, 3, 4, 5],
+    },
+    {
+      name: "total",
+      title: "Total",
+      cellType: "expression",
+      displayStyle: "currency",
+      expression: "{row.qty} * {row.price}",
+      totalType: "sum",
+      totalDisplayStyle: "currency",
+    },
+  ],
+  rows: ["Steak", "Salmon", "Beer"],
+  defaultValue: {
+    Steak: { price: 23 },
+    Salmon: { price: 19 },
+    Beer: { price: 5 },
+  },
+};
+
 QUnit.test("Single: matrixdropdown.defaultValue", function (assert) {
   var json = {
     name: "order",
-    questionJSON: {
-      type: "matrixdropdown",
-      columns: [
-        {
-          name: "price",
-          title: "Price",
-          cellType: "expression",
-          displayStyle: "currency",
-        },
-        {
-          name: "qty",
-          title: "Qty",
-          cellType: "dropdown",
-          optionsCaption: "0",
-          choices: [1, 2, 3, 4, 5],
-        },
-        {
-          name: "total",
-          title: "Total",
-          cellType: "expression",
-          displayStyle: "currency",
-          expression: "{row.qty} * {row.price}",
-          totalType: "sum",
-          totalDisplayStyle: "currency",
-        },
-      ],
-      rows: ["Steak", "Salmon", "Beer"],
-      defaultValue: {
-        Steak: { price: 23 },
-        Salmon: { price: 19 },
-        Beer: { price: 5 },
-      },
-    },
+    questionJSON: orderJSON,
   };
   CustomQuestionCollection.Instance.add(json);
   var survey = new SurveyModel({
@@ -602,6 +606,37 @@ QUnit.test("Single: matrixdropdown.defaultValue", function (assert) {
     q.contentQuestion.value,
     value,
     "defaultValue is set for contentQuestion"
+  );
+  CustomQuestionCollection.Instance.clear();
+});
+QUnit.test("Single: matrixdropdown.defaultValue", function (assert) {
+  var json = {
+    name: "order",
+    questionJSON: orderJSON,
+  };
+  CustomQuestionCollection.Instance.add(json);
+  var survey = new SurveyModel({
+    elements: [{ type: "order", name: "q1", isRequired: true }],
+  });
+  var q = <QuestionCustomModel>survey.getAllQuestions()[0];
+  var value = {
+    Steak: { price: 23, total: 0 },
+    Salmon: { price: 19, total: 0 },
+    Beer: { price: 5, total: 0 },
+  };
+  var matrix = <QuestionMatrixDropdownModel>q.contentQuestion;
+  matrix.visibleRows[0].getQuestionByColumnName("qty").value = 1;
+  assert.deepEqual(
+    survey.data,
+    {
+      q1: {
+        Steak: { price: 23, qty: 1, total: 23 },
+        Salmon: { price: 19, total: 0 },
+        Beer: { price: 5, total: 0 },
+      },
+      "q1-total": { total: 23 },
+    },
+    "Set data corectly"
   );
   CustomQuestionCollection.Instance.clear();
 });

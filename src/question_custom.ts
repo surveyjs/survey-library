@@ -305,6 +305,9 @@ export class QuestionCustomModel extends QuestionCustomModelBase {
     }
     return null;
   }
+  protected convertValue(name: string, newValue: any): any {
+    return !!this.contentQuestion ? this.contentQuestion.value : newValue;
+  }
   protected setQuestionValue(newValue: any, updateIsAnswered: boolean = true) {
     super.setQuestionValue(newValue, updateIsAnswered);
     if (!!this.contentQuestion) {

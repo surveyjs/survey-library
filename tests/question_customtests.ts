@@ -550,3 +550,58 @@ QUnit.test("Composite: defaultValue", function (assert) {
   assert.deepEqual(q.value, { firstName: "Jon" }, "question defaultValue");
   CustomQuestionCollection.Instance.clear();
 });
+QUnit.test("Single: matrixdropdown.defaultValue", function (assert) {
+  var json = {
+    name: "order",
+    questionJSON: {
+      type: "matrixdropdown",
+      columns: [
+        {
+          name: "price",
+          title: "Price",
+          cellType: "expression",
+          displayStyle: "currency",
+        },
+        {
+          name: "qty",
+          title: "Qty",
+          cellType: "dropdown",
+          optionsCaption: "0",
+          choices: [1, 2, 3, 4, 5],
+        },
+        {
+          name: "total",
+          title: "Total",
+          cellType: "expression",
+          displayStyle: "currency",
+          expression: "{row.qty} * {row.price}",
+          totalType: "sum",
+          totalDisplayStyle: "currency",
+        },
+      ],
+      rows: ["Steak", "Salmon", "Beer"],
+      defaultValue: {
+        Steak: { price: 23 },
+        Salmon: { price: 19 },
+        Beer: { price: 5 },
+      },
+    },
+  };
+  CustomQuestionCollection.Instance.add(json);
+  var survey = new SurveyModel({
+    elements: [{ type: "order", name: "q1", isRequired: true }],
+  });
+  var q = <QuestionCustomModel>survey.getAllQuestions()[0];
+  var value = {
+    Steak: { price: 23, total: 0 },
+    Salmon: { price: 19, total: 0 },
+    Beer: { price: 5, total: 0 },
+  };
+  assert.deepEqual(q.value, value, "defaultValue is set");
+  assert.deepEqual(
+    q.contentQuestion.value,
+    value,
+    "defaultValue is set for contentQuestion"
+  );
+  CustomQuestionCollection.Instance.clear();
+});

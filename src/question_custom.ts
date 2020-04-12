@@ -38,6 +38,10 @@ export class CustomQuestionJSON {
     if (!this.json.onCreated) return;
     this.json.onCreated(question);
   }
+  public onLoaded(question: Question) {
+    if (!this.json.onLoaded) return;
+    this.json.onLoaded(question);
+  }
   public onPropertyChanged(
     question: Question,
     propertyName: string,
@@ -198,6 +202,7 @@ export abstract class QuestionCustomModelBase extends Question
     super.onSurveyLoad();
     if (!!this.getElement()) {
       this.getElement().onSurveyLoad();
+      this.customQuestion.onLoaded(this);
     }
   }
   protected setQuestionValue(newValue: any, updateIsAnswered: boolean = true) {

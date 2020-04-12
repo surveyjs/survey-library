@@ -35,7 +35,7 @@ export class JsonObjectProperty implements IObject {
     "visibleIf",
     "maxLength",
     "maxValue",
-    "minValue"
+    "minValue",
   ];
   private typeValue: string = null;
   private choicesValue: Array<any> = null;
@@ -309,18 +309,18 @@ export class CustomPropertiesCollection {
     ) {
       obj.createCustomLocalizableObj(prop.name);
       var locDesc = {
-        get: function() {
+        get: function () {
           return obj.getLocalizableString(prop.name);
-        }
+        },
       };
       Object.defineProperty(obj, prop.serializationProperty, locDesc);
       var desc = {
-        get: function() {
+        get: function () {
           return obj.getLocalizableStringText(prop.name, prop.defaultValue);
         },
-        set: function(v: any) {
+        set: function (v: any) {
           obj.setLocalizableStringText(prop.name, v);
-        }
+        },
       };
       Object.defineProperty(obj, prop.name, desc);
     } else {
@@ -329,8 +329,9 @@ export class CustomPropertiesCollection {
         JsonObject.metaData.isDescendantOf(prop.className, "itemvalue") &&
         typeof obj.createNewArray === "function"
       ) {
-        obj.createNewArray(prop.name, function(item: any) {
+        obj.createNewArray(prop.name, function (item: any) {
           item.locOwner = obj;
+          item.ownerPropertyName = prop.name;
         });
         obj.setPropertyValue(prop.name, defaultValue);
         defaultValue = null;
@@ -340,13 +341,13 @@ export class CustomPropertiesCollection {
           get: () => {
             return obj.getPropertyValue(prop.name, defaultValue);
           },
-          set: function(v: any) {
+          set: function (v: any) {
             if (!!prop.onSetValue) {
               prop.onSetValue(obj, v, null);
             } else {
               obj.setPropertyValue(prop.name, v);
             }
-          }
+          },
         };
         Object.defineProperty(obj, prop.name, desc);
       }
@@ -621,7 +622,7 @@ export class JsonMetadata {
         res[dynamicProps[i].name] = dynamicProps[i];
       }
     }
-    return Object.keys(res).map(key => res[key]);
+    return Object.keys(res).map((key) => res[key]);
   }
 
   public findProperty(
@@ -672,10 +673,10 @@ export class JsonMetadata {
     var customTemplateName = res.getTemplate
       ? res.getTemplate()
       : res.getType();
-    res.getType = function() {
+    res.getType = function () {
       return customTypeName;
     };
-    res.getTemplate = function() {
+    res.getTemplate = function () {
       return customTemplateName;
     };
     CustomPropertiesCollection.createProperties(res);

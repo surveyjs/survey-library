@@ -6,6 +6,7 @@ import {
   Serializer,
 } from "./jsonobject";
 import { settings } from "./settings";
+import { ItemValue } from "./itemvalue";
 
 export interface ISurveyData {
   getValue(name: string): any;
@@ -267,7 +268,27 @@ export class Base {
     key: string;
   }>;
   protected isLoadingFromJsonValue: boolean = false;
+  /**
+   * Event that raise on property change of the sender object
+   * sender - the object that owns the property
+   * options.name - the property name that has been changed
+   * options.oldValue - old value. Please note, it equals to options.newValue if property is an array
+   * options.newValue - new value.
+   */
   public onPropertyChanged: Event<
+    (sender: Base, options: any) => any,
+    any
+  > = new Event<(sender: Base, options: any) => any, any>();
+  /**
+   * Event that raised on changing property of the ItemValue object.
+   * sender - the object that owns the property
+   * options.propertyName - the property name to which ItemValue array is belong. It can be "choices" for dropdown question
+   * options.obj - the instance of ItemValue object which property has been changed
+   * options.name - the property of ItemObject that has been changed
+   * options.oldValue - old value
+   * options.newValue - new value
+   */
+  public onItemValuePropertyChanged: Event<
     (sender: Base, options: any) => any,
     any
   > = new Event<(sender: Base, options: any) => any, any>();
@@ -418,7 +439,20 @@ export class Base {
     sender: Base,
     arrayChanges: ArrayChanges
   ) {}
-
+  public itemValuePropertyChanged(
+    item: ItemValue,
+    name: string,
+    oldValue: any,
+    newValue: any
+  ) {
+    this.onItemValuePropertyChanged.fire(this, {
+      obj: item,
+      name: name,
+      oldValue: oldValue,
+      newValue: newValue,
+      propertyName: item.ownerPropertyName,
+    });
+  }
   protected onPropertyValueChanged(
     name: string,
     oldValue: any,
@@ -649,6 +683,7 @@ export class Base {
     var self = this;
     var result = this.createNewArray(name, function (item: any) {
       item.locOwner = self;
+      item.ownerPropertyName = name;
     });
     this.arraysInfo[name].isItemValues = true;
     return result;

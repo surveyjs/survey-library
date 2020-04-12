@@ -33,7 +33,7 @@ export class LocalizableString {
     this.onCreating();
   }
   public get locale() {
-    return this.owner ? this.owner.getLocale() : "";
+    return this.owner && this.owner.getLocale ? this.owner.getLocale() : "";
   }
   public strChanged() {
     if (this.renderedText === null) return;

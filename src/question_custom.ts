@@ -160,6 +160,12 @@ export abstract class QuestionCustomModelBase extends Question
     super.setSurveyImpl(value);
     this.initElement(this.getElement());
   }
+  public onSurveyLoad() {
+    super.onSurveyLoad();
+    if (!!this.getElement()) {
+      this.getElement().onSurveyLoad();
+    }
+  }
   protected setQuestionValue(newValue: any, updateIsAnswered: boolean = true) {
     super.setQuestionValue(newValue, updateIsAnswered);
     this.updateElementCss();

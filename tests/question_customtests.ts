@@ -465,6 +465,7 @@ QUnit.test("Custom, get css from contentQuestion", function (assert) {
     "title onAnswer",
     "q1 is not empty, show in title, via contentQuestion"
   );
+  CustomQuestionCollection.Instance.clear();
 });
 QUnit.test("Composite, update panel css", function (assert) {
   var survey = new SurveyModel();
@@ -507,4 +508,45 @@ QUnit.test("Composite, update panel css", function (assert) {
     "title onAnswer",
     "q1 is not empty, show in title, via lastName"
   );
+  CustomQuestionCollection.Instance.clear();
+});
+QUnit.test("Single: defaultValue", function (assert) {
+  var json = {
+    name: "newquestion",
+    questionJSON: {
+      type: "dropdown",
+      choices: [1, 2, 3, 4, 5],
+      defaultValue: 2,
+    },
+  };
+  CustomQuestionCollection.Instance.add(json);
+  var survey = new SurveyModel({
+    elements: [{ type: "newquestion", name: "q1", isRequired: true }],
+  });
+  var q = <QuestionCustomModel>survey.getAllQuestions()[0];
+  assert.equal(q.value, 2, "defaultValue is set");
+  assert.equal(
+    q.contentQuestion.value,
+    2,
+    "defaultValue is set for contentQuestion"
+  );
+  CustomQuestionCollection.Instance.clear();
+});
+QUnit.test("Composite: defaultValue", function (assert) {
+  var json = {
+    name: "customerinfo",
+    elementsJSON: [
+      { type: "text", name: "firstName", defaultValue: "Jon" },
+      { type: "text", name: "lastName" },
+    ],
+  };
+  CustomQuestionCollection.Instance.add(json);
+  var survey = new SurveyModel({
+    elements: [{ type: "customerinfo", name: "q1", isRequired: true }],
+  });
+  var q = <QuestionCompositeModel>survey.getAllQuestions()[0];
+  var firstName = q.contentPanel.getQuestionByName("firstName");
+  assert.equal(firstName.value, "Jon", "firstName defaultValue");
+  assert.deepEqual(q.value, { firstName: "Jon" }, "question defaultValue");
+  CustomQuestionCollection.Instance.clear();
 });

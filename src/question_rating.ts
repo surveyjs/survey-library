@@ -15,10 +15,10 @@ export class QuestionRatingModel extends Question {
     super(name);
     this.createItemValues("rates");
     var self = this;
-    this.registerFunctionOnPropertyValueChanged("rates", function() {
+    this.registerFunctionOnPropertyValueChanged("rates", function () {
       self.fireCallback(self.rateValuesChangedCallback);
     });
-    this.onPropertyChanged.add(function(sender: any, options: any) {
+    this.onPropertyChanged.add(function (sender: any, options: any) {
       if (
         options.name == "rateMin" ||
         options.name == "rateMax" ||
@@ -38,10 +38,10 @@ export class QuestionRatingModel extends Question {
       this,
       true
     );
-    locMinRateDescriptionValue.onGetTextCallback = function(text) {
+    locMinRateDescriptionValue.onGetTextCallback = function (text) {
       return text ? text + " " : text;
     };
-    locMaxRateDescriptionValue.onGetTextCallback = function(text) {
+    locMaxRateDescriptionValue.onGetTextCallback = function (text) {
       return text ? " " + text : text;
     };
   }
@@ -112,14 +112,25 @@ export class QuestionRatingModel extends Question {
     if (this.rateValues.length > 0) return this.rateValues;
     var res = [];
     var value = this.rateMin;
+    var step = this.rateStep;
     while (
       value <= this.rateMax &&
       res.length < settings.ratingMaximumRateValueCount
     ) {
       res.push(new ItemValue(value));
-      value += this.rateStep;
+      value = this.correctValue(value + step, step);
     }
     return res;
+  }
+  private correctValue(value: number, step: number): number {
+    if (!value) return value;
+    if (Math.round(value) == value) return value;
+    var fr = 0;
+    while (Math.round(step) != step) {
+      step *= 10;
+      fr++;
+    }
+    return parseFloat(value.toFixed(fr));
   }
   public getType(): string {
     return "rating";
@@ -165,10 +176,10 @@ Serializer.addClass(
     {
       name: "commentText",
       serializationProperty: "locCommentText",
-      layout: "row"
+      layout: "row",
     },
     {
-      name: "rateValues:itemvalue[]"
+      name: "rateValues:itemvalue[]",
     },
     { name: "rateMin:number", default: 1 },
     { name: "rateMax:number", default: 5 },
@@ -176,19 +187,19 @@ Serializer.addClass(
     {
       name: "minRateDescription",
       alternativeName: "mininumRateDescription",
-      serializationProperty: "locMinRateDescription"
+      serializationProperty: "locMinRateDescription",
     },
     {
       name: "maxRateDescription",
       alternativeName: "maximumRateDescription",
-      serializationProperty: "locMaxRateDescription"
-    }
+      serializationProperty: "locMaxRateDescription",
+    },
   ],
-  function() {
+  function () {
     return new QuestionRatingModel("");
   },
   "question"
 );
-QuestionFactory.Instance.registerQuestion("rating", name => {
+QuestionFactory.Instance.registerQuestion("rating", (name) => {
   return new QuestionRatingModel(name);
 });

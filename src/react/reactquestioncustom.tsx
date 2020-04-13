@@ -7,7 +7,6 @@ import { SurveyQuestion } from "./reactquestion";
 import {
   QuestionCustomModel,
   QuestionCompositeModel,
-  CustomQuestionCollection,
 } from "../question_custom";
 import { ReactQuestionFactory } from "./reactquestionfactory";
 import { SurveyPanel } from "./panel";

@@ -14,14 +14,14 @@ import { PanelModel } from "./panel";
 import { Helpers, HashTable } from "./helpers";
 import { ItemValue } from "./itemvalue";
 
-export class CustomQuestionJSON {
+export class ComponentQuestionJSON {
   public constructor(public name: string, public json: any) {
     var self = this;
     Serializer.addClass(
       name,
       [],
       function (json: any) {
-        return CustomQuestionCollection.Instance.createQuestion(
+        return ComponentCollection.Instance.createQuestion(
           !!json ? json.name : "",
           self
         );
@@ -70,16 +70,16 @@ export class CustomQuestionJSON {
   }
 }
 
-export class CustomQuestionCollection {
-  public static Instance: CustomQuestionCollection = new CustomQuestionCollection();
-  private customQuestionValues: Array<CustomQuestionJSON> = [];
+export class ComponentCollection {
+  public static Instance: ComponentCollection = new ComponentCollection();
+  private customQuestionValues: Array<ComponentQuestionJSON> = [];
   public onCreateComposite: (
     name: string,
-    questionJSON: CustomQuestionJSON
+    questionJSON: ComponentQuestionJSON
   ) => QuestionCompositeModel;
   public onCreateCustom: (
     name: string,
-    questionJSON: CustomQuestionJSON
+    questionJSON: ComponentQuestionJSON
   ) => QuestionCustomModel;
   public onAddingJson: (name: string, isComposite: boolean) => void;
   public add(json: any) {
@@ -96,15 +96,15 @@ export class CustomQuestionCollection {
     if (!!Serializer.findClass(name)) {
       throw "There is already class with name '" + name + "'";
     }
-    var customQuestion = new CustomQuestionJSON(name, json);
+    var customQuestion = new ComponentQuestionJSON(name, json);
     if (!!this.onAddingJson)
       this.onAddingJson(name, customQuestion.isComposite);
     this.customQuestionValues.push(customQuestion);
   }
-  public get items(): Array<CustomQuestionJSON> {
+  public get items(): Array<ComponentQuestionJSON> {
     return this.customQuestionValues;
   }
-  public getCustomQuestionByName(name: string): CustomQuestionJSON {
+  public getCustomQuestionByName(name: string): ComponentQuestionJSON {
     for (var i = 0; i < this.customQuestionValues.length; i++) {
       if (this.customQuestionValues[i].name == name)
         return this.customQuestionValues[i];
@@ -119,7 +119,7 @@ export class CustomQuestionCollection {
   }
   public createQuestion(
     name: string,
-    questionJSON: CustomQuestionJSON
+    questionJSON: ComponentQuestionJSON
   ): Question {
     if (!!questionJSON.isComposite)
       return this.createCompositeModel(name, questionJSON);
@@ -127,7 +127,7 @@ export class CustomQuestionCollection {
   }
   protected createCompositeModel(
     name: string,
-    questionJSON: CustomQuestionJSON
+    questionJSON: ComponentQuestionJSON
   ): QuestionCompositeModel {
     if (!!this.onCreateComposite)
       return this.onCreateComposite(name, questionJSON);
@@ -135,7 +135,7 @@ export class CustomQuestionCollection {
   }
   protected createCustomModel(
     name: string,
-    questionJSON: CustomQuestionJSON
+    questionJSON: ComponentQuestionJSON
   ): QuestionCustomModel {
     if (!!this.onCreateCustom) return this.onCreateCustom(name, questionJSON);
     return new QuestionCustomModel(name, questionJSON);
@@ -144,7 +144,10 @@ export class CustomQuestionCollection {
 
 export abstract class QuestionCustomModelBase extends Question
   implements ISurveyImpl, ISurveyData, IPanel {
-  constructor(public name: string, public customQuestion: CustomQuestionJSON) {
+  constructor(
+    public name: string,
+    public customQuestion: ComponentQuestionJSON
+  ) {
     super(name);
     CustomPropertiesCollection.createProperties(this);
     SurveyElement.CreateDisabledDesignElements = true;

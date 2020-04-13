@@ -132,8 +132,9 @@ export {
 } from "../../questionCustomWidgets";
 export {
   QuestionCustomModel,
-  CustomQuestionJSON,
-  CustomQuestionCollection,
+  QuestionCompositeModel,
+  ComponentQuestionJSON,
+  ComponentCollection,
 } from "../../question_custom";
 
 export { StylesManager } from "../../stylesmanager";

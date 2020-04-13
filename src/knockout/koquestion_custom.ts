@@ -3,13 +3,13 @@ import { Question } from "../question";
 import {
   QuestionCustomModel,
   QuestionCompositeModel,
-  CustomQuestionJSON,
-  CustomQuestionCollection,
+  ComponentQuestionJSON,
+  ComponentCollection,
 } from "../question_custom";
 import { QuestionImplementor } from "./koquestion";
 
 export class QuestionCustom extends QuestionCustomModel {
-  constructor(public name: string, questionJSON: CustomQuestionJSON) {
+  constructor(public name: string, questionJSON: ComponentQuestionJSON) {
     super(name, questionJSON);
   }
   protected onBaseCreating() {
@@ -19,7 +19,7 @@ export class QuestionCustom extends QuestionCustomModel {
 }
 
 export class QuestionComposite extends QuestionCompositeModel {
-  constructor(public name: string, questionJSON: CustomQuestionJSON) {
+  constructor(public name: string, questionJSON: ComponentQuestionJSON) {
     super(name, questionJSON);
   }
   protected onBaseCreating() {
@@ -28,16 +28,16 @@ export class QuestionComposite extends QuestionCompositeModel {
   }
 }
 
-CustomQuestionCollection.Instance.onCreateCustom = function (
+ComponentCollection.Instance.onCreateCustom = function (
   name: string,
-  questionJSON: CustomQuestionJSON
+  questionJSON: ComponentQuestionJSON
 ) {
   return new QuestionCustom(name, questionJSON);
 };
 
-CustomQuestionCollection.Instance.onCreateComposite = function (
+ComponentCollection.Instance.onCreateComposite = function (
   name: string,
-  questionJSON: CustomQuestionJSON
+  questionJSON: ComponentQuestionJSON
 ) {
   return new QuestionComposite(name, questionJSON);
 };

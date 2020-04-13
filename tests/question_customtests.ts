@@ -3,8 +3,7 @@ import { Question } from "../src/question";
 import {
   QuestionCustomModel,
   QuestionCompositeModel,
-  CustomQuestionCollection,
-  CustomQuestionJSON,
+  ComponentCollection,
 } from "../src/question_custom";
 import { Serializer } from "../src/jsonobject";
 import { QuestionDropdownModel } from "../src/question_dropdown";
@@ -19,7 +18,7 @@ QUnit.test("Single: Register and load from json", function (assert) {
     name: "newquestion",
     questionJSON: { type: "dropdown", choices: [1, 2, 3, 4, 5] },
   };
-  CustomQuestionCollection.Instance.add(json);
+  ComponentCollection.Instance.add(json);
   var survey = new SurveyModel({
     elements: [{ type: "newquestion", name: "q1" }],
   });
@@ -42,7 +41,7 @@ QUnit.test("Single: Register and load from json", function (assert) {
     },
     "Seralized correctly"
   );
-  CustomQuestionCollection.Instance.clear();
+  ComponentCollection.Instance.clear();
 });
 
 QUnit.test("Composite: Register and load from json", function (assert) {
@@ -53,7 +52,7 @@ QUnit.test("Composite: Register and load from json", function (assert) {
       { type: "text", name: "lastName" },
     ],
   };
-  CustomQuestionCollection.Instance.add(json);
+  ComponentCollection.Instance.add(json);
   var survey = new SurveyModel({
     elements: [{ type: "customerinfo", name: "q1" }],
   });
@@ -66,7 +65,7 @@ QUnit.test("Composite: Register and load from json", function (assert) {
     2,
     "There are two elements in panel"
   );
-  CustomQuestionCollection.Instance.clear();
+  ComponentCollection.Instance.clear();
 });
 
 QUnit.test("Single: Create the wrapper question and sync the value", function (
@@ -76,7 +75,7 @@ QUnit.test("Single: Create the wrapper question and sync the value", function (
     name: "newquestion",
     questionJSON: { type: "dropdown", choices: [1, 2, 3, 4, 5] },
   };
-  CustomQuestionCollection.Instance.add(json);
+  ComponentCollection.Instance.add(json);
   var survey = new SurveyModel({
     elements: [{ type: "newquestion", name: "q1" }],
   });
@@ -90,7 +89,7 @@ QUnit.test("Single: Create the wrapper question and sync the value", function (
   assert.equal(q.contentQuestion.value, 1, "Set value to wrapper value");
   q.contentQuestion.value = 2;
   assert.equal(q.value, 2, "Set value to custom question");
-  CustomQuestionCollection.Instance.clear();
+  ComponentCollection.Instance.clear();
 });
 
 QUnit.test("Composite: sync values", function (assert) {
@@ -101,7 +100,7 @@ QUnit.test("Composite: sync values", function (assert) {
       { type: "text", name: "lastName" },
     ],
   };
-  CustomQuestionCollection.Instance.add(json);
+  ComponentCollection.Instance.add(json);
   var survey = new SurveyModel({
     elements: [{ type: "customerinfo", name: "q1" }],
   });
@@ -113,14 +112,14 @@ QUnit.test("Composite: sync values", function (assert) {
   q.value = { firstName: "Andrew", lastName: "Telnov" };
   assert.equal(firstName.value, "Andrew", "question value is replaced");
   assert.equal(lastName.value, "Telnov", "question value is set");
-  CustomQuestionCollection.Instance.clear();
+  ComponentCollection.Instance.clear();
 });
 QUnit.test("Single: disableDesignActions property", function (assert) {
   var json = {
     name: "newquestion",
     questionJSON: { type: "dropdown", choices: [1, 2, 3, 4, 5] },
   };
-  CustomQuestionCollection.Instance.add(json);
+  ComponentCollection.Instance.add(json);
   var survey = new SurveyModel({
     elements: [{ type: "newquestion", name: "q1" }],
   });
@@ -135,7 +134,7 @@ QUnit.test("Single: disableDesignActions property", function (assert) {
     true,
     "Design action is disabled for contentQuestion"
   );
-  CustomQuestionCollection.Instance.clear();
+  ComponentCollection.Instance.clear();
 });
 QUnit.test("Composite: disableDesignActions property", function (assert) {
   var json = {
@@ -145,7 +144,7 @@ QUnit.test("Composite: disableDesignActions property", function (assert) {
       { type: "text", name: "lastName" },
     ],
   };
-  CustomQuestionCollection.Instance.add(json);
+  ComponentCollection.Instance.add(json);
   var survey = new SurveyModel({
     elements: [{ type: "customerinfo", name: "q1" }],
   });
@@ -166,14 +165,14 @@ QUnit.test("Composite: disableDesignActions property", function (assert) {
     true,
     "Design action is disabled for firstName"
   );
-  CustomQuestionCollection.Instance.clear();
+  ComponentCollection.Instance.clear();
 });
 QUnit.test("Single: read-only", function (assert) {
   var json = {
     name: "newquestion",
     questionJSON: { type: "dropdown", choices: [1, 2, 3, 4, 5] },
   };
-  CustomQuestionCollection.Instance.add(json);
+  ComponentCollection.Instance.add(json);
   var survey = new SurveyModel({
     elements: [{ type: "newquestion", name: "q1", readOnly: true }],
   });
@@ -196,7 +195,7 @@ QUnit.test("Single: read-only", function (assert) {
     true,
     "contentQuestion is read only again"
   );
-  CustomQuestionCollection.Instance.clear();
+  ComponentCollection.Instance.clear();
 });
 QUnit.test("Composite: read only", function (assert) {
   var json = {
@@ -206,7 +205,7 @@ QUnit.test("Composite: read only", function (assert) {
       { type: "text", name: "lastName" },
     ],
   };
-  CustomQuestionCollection.Instance.add(json);
+  ComponentCollection.Instance.add(json);
   var survey = new SurveyModel({
     elements: [{ type: "customerinfo", name: "q1", readOnly: true }],
   });
@@ -229,7 +228,7 @@ QUnit.test("Composite: read only", function (assert) {
     "contentPanel is read only again"
   );
   assert.equal(firstName.isReadOnly, true, "firstName is read Only again");
-  CustomQuestionCollection.Instance.clear();
+  ComponentCollection.Instance.clear();
 });
 QUnit.test("Single: hasError", function (assert) {
   var json = {
@@ -240,7 +239,7 @@ QUnit.test("Single: hasError", function (assert) {
       isRequired: true,
     },
   };
-  CustomQuestionCollection.Instance.add(json);
+  ComponentCollection.Instance.add(json);
   var survey = new SurveyModel({
     elements: [{ type: "newquestion", name: "q1" }],
   });
@@ -249,7 +248,7 @@ QUnit.test("Single: hasError", function (assert) {
   assert.equal(q.errors.length, 1, "There is one error");
   q.contentQuestion.value = 1;
   assert.equal(q.hasErrors(), false, "contentQuestion has value");
-  CustomQuestionCollection.Instance.clear();
+  ComponentCollection.Instance.clear();
 });
 QUnit.test("Single: hasError/isRequired", function (assert) {
   var json = {
@@ -259,7 +258,7 @@ QUnit.test("Single: hasError/isRequired", function (assert) {
       choices: [1, 2, 3, 4, 5],
     },
   };
-  CustomQuestionCollection.Instance.add(json);
+  ComponentCollection.Instance.add(json);
   var survey = new SurveyModel({
     elements: [{ type: "newquestion", name: "q1", isRequired: true }],
   });
@@ -268,7 +267,7 @@ QUnit.test("Single: hasError/isRequired", function (assert) {
   assert.equal(q.errors.length, 1, "There is one error");
   q.contentQuestion.value = 1;
   assert.equal(q.hasErrors(), false, "contentQuestion has value");
-  CustomQuestionCollection.Instance.clear();
+  ComponentCollection.Instance.clear();
 });
 QUnit.test("Composite: hasErrors", function (assert) {
   var json = {
@@ -278,7 +277,7 @@ QUnit.test("Composite: hasErrors", function (assert) {
       { type: "text", name: "lastName" },
     ],
   };
-  CustomQuestionCollection.Instance.add(json);
+  ComponentCollection.Instance.add(json);
   var survey = new SurveyModel({
     elements: [{ type: "customerinfo", name: "q1" }],
   });
@@ -287,7 +286,7 @@ QUnit.test("Composite: hasErrors", function (assert) {
   assert.equal(q.hasErrors(), true, "firstName is required");
   firstName.value = "abc";
   assert.equal(q.hasErrors(), false, "firstName has value");
-  CustomQuestionCollection.Instance.clear();
+  ComponentCollection.Instance.clear();
 });
 QUnit.test("Composite: hasErrors/isRequired", function (assert) {
   var json = {
@@ -297,7 +296,7 @@ QUnit.test("Composite: hasErrors/isRequired", function (assert) {
       { type: "text", name: "lastName" },
     ],
   };
-  CustomQuestionCollection.Instance.add(json);
+  ComponentCollection.Instance.add(json);
   var survey = new SurveyModel({
     elements: [{ type: "customerinfo", name: "q1", isRequired: true }],
   });
@@ -306,7 +305,7 @@ QUnit.test("Composite: hasErrors/isRequired", function (assert) {
   assert.equal(q.hasErrors(), true, "question is empty");
   firstName.value = "abc";
   assert.equal(q.hasErrors(), false, "question is not empty");
-  CustomQuestionCollection.Instance.clear();
+  ComponentCollection.Instance.clear();
 });
 
 QUnit.test("Composite: onPropertyChanged", function (assert) {
@@ -328,7 +327,7 @@ QUnit.test("Composite: onPropertyChanged", function (assert) {
       }
     },
   };
-  CustomQuestionCollection.Instance.add(json);
+  ComponentCollection.Instance.add(json);
   var survey = new SurveyModel({
     elements: [{ type: "customerinfo", name: "q1" }],
   });
@@ -339,7 +338,7 @@ QUnit.test("Composite: onPropertyChanged", function (assert) {
   assert.equal(lastName.visible, false, "showLastName is false");
   q.showLastName = true;
   assert.equal(lastName.visible, true, "showLastName is true");
-  CustomQuestionCollection.Instance.clear();
+  ComponentCollection.Instance.clear();
 });
 QUnit.test("Single: create from code", function (assert) {
   var json = {
@@ -350,7 +349,7 @@ QUnit.test("Single: create from code", function (assert) {
       return res;
     },
   };
-  CustomQuestionCollection.Instance.add(json);
+  ComponentCollection.Instance.add(json);
   var survey = new SurveyModel({
     elements: [{ type: "newquestion", name: "q1" }],
   });
@@ -365,7 +364,7 @@ QUnit.test("Single: create from code", function (assert) {
     5,
     "content question choices are here"
   );
-  CustomQuestionCollection.Instance.clear();
+  ComponentCollection.Instance.clear();
 });
 QUnit.test("Composite: create from code", function (assert) {
   var json = {
@@ -376,7 +375,7 @@ QUnit.test("Composite: create from code", function (assert) {
       panel.questions[0].isRequired = true;
     },
   };
-  CustomQuestionCollection.Instance.add(json);
+  ComponentCollection.Instance.add(json);
   var survey = new SurveyModel({
     elements: [{ type: "customerinfo", name: "q1" }],
   });
@@ -386,7 +385,7 @@ QUnit.test("Composite: create from code", function (assert) {
   assert.equal(firstName.getType(), "text", "first name is creted");
   assert.equal(lastName.getType(), "text", "last name is creted");
   assert.equal(firstName.isRequired, true, "first name is required");
-  CustomQuestionCollection.Instance.clear();
+  ComponentCollection.Instance.clear();
 });
 QUnit.test("Composite: onPropertyChanged", function (assert) {
   var json = {
@@ -403,7 +402,7 @@ QUnit.test("Composite: onPropertyChanged", function (assert) {
       question.contentPanel.questionStartIndex = "a.";
     },
   };
-  CustomQuestionCollection.Instance.add(json);
+  ComponentCollection.Instance.add(json);
   var survey = new SurveyModel({
     elements: [
       { type: "text", name: "q1" },
@@ -420,7 +419,7 @@ QUnit.test("Composite: onPropertyChanged", function (assert) {
   );
   assert.equal(lastName.visibleIndex, 1, "second question");
   assert.equal(lastName.no, "b.", "second question, no is 'b.'");
-  CustomQuestionCollection.Instance.clear();
+  ComponentCollection.Instance.clear();
 });
 QUnit.test("Custom, get css from contentQuestion", function (assert) {
   var survey = new SurveyModel();
@@ -435,7 +434,7 @@ QUnit.test("Custom, get css from contentQuestion", function (assert) {
       return res;
     },
   };
-  CustomQuestionCollection.Instance.add(json);
+  ComponentCollection.Instance.add(json);
   survey.fromJSON({
     elements: [{ type: "newquestion", name: "q1" }],
   });
@@ -467,7 +466,7 @@ QUnit.test("Custom, get css from contentQuestion", function (assert) {
     "title onAnswer",
     "q1 is not empty, show in title, via contentQuestion"
   );
-  CustomQuestionCollection.Instance.clear();
+  ComponentCollection.Instance.clear();
 });
 QUnit.test("Composite, update panel css", function (assert) {
   var survey = new SurveyModel();
@@ -486,7 +485,7 @@ QUnit.test("Composite, update panel css", function (assert) {
       ).startWithNewLine = false;
     },
   };
-  CustomQuestionCollection.Instance.add(json);
+  ComponentCollection.Instance.add(json);
   survey.fromJSON({
     elements: [{ type: "customerinfo", name: "q1" }],
   });
@@ -510,7 +509,7 @@ QUnit.test("Composite, update panel css", function (assert) {
     "title onAnswer",
     "q1 is not empty, show in title, via lastName"
   );
-  CustomQuestionCollection.Instance.clear();
+  ComponentCollection.Instance.clear();
 });
 QUnit.test("Single: defaultValue", function (assert) {
   var json = {
@@ -521,7 +520,7 @@ QUnit.test("Single: defaultValue", function (assert) {
       defaultValue: 2,
     },
   };
-  CustomQuestionCollection.Instance.add(json);
+  ComponentCollection.Instance.add(json);
   var survey = new SurveyModel({
     elements: [{ type: "newquestion", name: "q1", isRequired: true }],
   });
@@ -532,7 +531,7 @@ QUnit.test("Single: defaultValue", function (assert) {
     2,
     "defaultValue is set for contentQuestion"
   );
-  CustomQuestionCollection.Instance.clear();
+  ComponentCollection.Instance.clear();
 });
 QUnit.test("Composite: defaultValue", function (assert) {
   var json = {
@@ -542,7 +541,7 @@ QUnit.test("Composite: defaultValue", function (assert) {
       { type: "text", name: "lastName" },
     ],
   };
-  CustomQuestionCollection.Instance.add(json);
+  ComponentCollection.Instance.add(json);
   var survey = new SurveyModel({
     elements: [{ type: "customerinfo", name: "q1", isRequired: true }],
   });
@@ -550,7 +549,7 @@ QUnit.test("Composite: defaultValue", function (assert) {
   var firstName = q.contentPanel.getQuestionByName("firstName");
   assert.equal(firstName.value, "Jon", "firstName defaultValue");
   assert.deepEqual(q.value, { firstName: "Jon" }, "question defaultValue");
-  CustomQuestionCollection.Instance.clear();
+  ComponentCollection.Instance.clear();
 });
 
 var orderJSON = {
@@ -592,7 +591,7 @@ QUnit.test("Single: matrixdropdown.defaultValue", function (assert) {
     name: "order",
     questionJSON: orderJSON,
   };
-  CustomQuestionCollection.Instance.add(json);
+  ComponentCollection.Instance.add(json);
   var survey = new SurveyModel({
     elements: [{ type: "order", name: "q1", isRequired: true }],
   });
@@ -608,14 +607,14 @@ QUnit.test("Single: matrixdropdown.defaultValue", function (assert) {
     value,
     "defaultValue is set for contentQuestion"
   );
-  CustomQuestionCollection.Instance.clear();
+  ComponentCollection.Instance.clear();
 });
 QUnit.test("Single: matrixdropdown expressions", function (assert) {
   var json = {
     name: "order",
     questionJSON: orderJSON,
   };
-  CustomQuestionCollection.Instance.add(json);
+  ComponentCollection.Instance.add(json);
   var survey = new SurveyModel({
     elements: [{ type: "order", name: "q1", isRequired: true }],
   });
@@ -639,7 +638,7 @@ QUnit.test("Single: matrixdropdown expressions", function (assert) {
     },
     "Set data corectly"
   );
-  CustomQuestionCollection.Instance.clear();
+  ComponentCollection.Instance.clear();
 });
 QUnit.test("Composite: expression, {composite} prefix", function (assert) {
   var json = {
@@ -653,7 +652,7 @@ QUnit.test("Composite: expression, {composite} prefix", function (assert) {
       },
     ],
   };
-  CustomQuestionCollection.Instance.add(json);
+  ComponentCollection.Instance.add(json);
   var survey = new SurveyModel({
     elements: [{ type: "customerinfo", name: "q1", isRequired: true }],
   });
@@ -663,7 +662,7 @@ QUnit.test("Composite: expression, {composite} prefix", function (assert) {
   assert.equal(lastName.isVisible, false, "lastName is hidden by default");
   firstName.value = "Jon";
   assert.equal(lastName.isVisible, true, "lastName is showing now");
-  CustomQuestionCollection.Instance.clear();
+  ComponentCollection.Instance.clear();
 });
 QUnit.test("Single: matrixdropdown onCreated after load properties", function (
   assert
@@ -744,7 +743,7 @@ QUnit.test("Single: matrixdropdown onCreated after load properties", function (
       question.contentQuestion.defaultValue = defaultValue;
     },
   };
-  CustomQuestionCollection.Instance.add(json);
+  ComponentCollection.Instance.add(json);
   var survey = new SurveyModel({
     elements: [
       {
@@ -770,5 +769,5 @@ QUnit.test("Single: matrixdropdown onCreated after load properties", function (
     "Default value set correctly"
   );
   Serializer.removeClass("itemorder");
-  CustomQuestionCollection.Instance.clear();
+  ComponentCollection.Instance.clear();
 });

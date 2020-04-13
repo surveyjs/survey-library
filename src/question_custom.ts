@@ -452,8 +452,21 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
   public onSurveyLoad() {
     if (!!this.contentPanel) {
       this.contentPanel.readOnly = this.isReadOnly;
+      this.setIsContentElement(this.contentPanel);
     }
     super.onSurveyLoad();
+  }
+  private setIsContentElement(panel: PanelModel) {
+    panel.isContentElement = true;
+    var elements = panel.elements;
+    for (var i = 0; i < elements.length; i++) {
+      var el = elements[i];
+      if (el.isPanel) {
+        this.setIsContentElement(<PanelModel>el);
+      } else {
+        (<Question>el).isContentElement = true;
+      }
+    }
   }
   public setVisibleIndex(val: number): number {
     var res = super.setVisibleIndex(val);

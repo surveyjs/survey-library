@@ -969,8 +969,13 @@ export class SurveyElement extends Base implements ISurveyElement {
   public get isDesignMode(): boolean {
     return !!this.survey && this.survey.isDesignMode;
   }
+  public isContentElement: boolean = false;
   public get areInvisibleElementsShowing(): boolean {
-    return !!this.survey && this.survey.areInvisibleElementsShowing;
+    return (
+      !!this.survey &&
+      this.survey.areInvisibleElementsShowing &&
+      !this.isContentElement
+    );
   }
   public get isVisible(): boolean {
     return true;

@@ -771,3 +771,66 @@ QUnit.test("Single: matrixdropdown onCreated after load properties", function (
   Serializer.removeClass("itemorder");
   ComponentCollection.Instance.clear();
 });
+
+QUnit.test("Complex: hide content question in designMode", function (assert) {
+  ComponentCollection.Instance.add({
+    name: "fullname",
+    elementsJSON: [
+      {
+        type: "text",
+        name: "firstName",
+      },
+      {
+        type: "text",
+        name: "lastName",
+      },
+      {
+        type: "text",
+        name: "middleName",
+        visible: false,
+      },
+    ],
+    onInit() {
+      Serializer.addProperty("fullname", {
+        name: "showMiddleName:boolean",
+      });
+    },
+    onLoaded(question) {
+      this.changeMiddleVisibility(question);
+    },
+    onPropertyChanged(question, propertyName, newValue) {
+      if (propertyName == "showMiddleName") {
+        this.changeMiddleVisibility(question);
+      }
+    },
+    changeMiddleVisibility(question) {
+      let middle = question.contentPanel.getQuestionByName("middleName");
+      if (!!middle) {
+        middle.visible = question.showMiddleName === true;
+      }
+    },
+  });
+  var survey = new SurveyModel();
+  survey.setDesignMode(true);
+  survey.fromJSON({
+    elements: [
+      {
+        type: "fullname",
+        question: "q1",
+      },
+    ],
+  });
+  var q = <QuestionCompositeModel>survey.getAllQuestions()[0];
+  var middleName = q.contentPanel.getQuestionByName("middleName");
+  assert.equal(middleName.isVisible, false, "It is invisible by default");
+  assert.equal(
+    middleName.areInvisibleElementsShowing,
+    false,
+    "All invisible content elements are stay invisible"
+  );
+  q.showMiddleName = true;
+  assert.equal(middleName.isVisible, true, "showMiddleName is true");
+  q.showMiddleName = false;
+  assert.equal(middleName.isVisible, false, "showMiddleName is false");
+  ComponentCollection.Instance.clear();
+});

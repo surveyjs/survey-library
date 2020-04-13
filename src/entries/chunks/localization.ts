@@ -27,6 +27,7 @@ import "../../localization/russian";
 import "../../localization/simplified-chinese";
 import "../../localization/spanish";
 import "../../localization/swedish";
+import "../../localization/thai";
 import "../../localization/turkish";
 import "../../localization/traditional-chinese";
 import "../../localization/ukrainian";

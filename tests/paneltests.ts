@@ -8,6 +8,7 @@ import { JsonObject, Serializer } from "../src/jsonobject";
 import { FlowPanelModel } from "../src/flowpanel";
 import { QuestionCheckboxModel } from "../src/question_checkbox";
 import { QuestionRadiogroupModel } from "../src/question_radiogroup";
+import { settings } from "../src/settings";
 
 export default QUnit.module("Panel");
 
@@ -595,3 +596,41 @@ QUnit.test("FlowPanel: support limited number of questions", function (assert) {
   assert.notOk(flowPanel.addNewQuestion("matrix", "q1"), "We can't add matrix");
   assert.ok(flowPanel.addNewQuestion("boolean", "q1"), "We can add boolean");
 });
+
+QUnit.test(
+  "PageModel: isDesignMode && allowShowEmptyTitleInDesignMode",
+  function (assert) {
+    var survey = new SurveyModel();
+    var page = survey.addNewPage("page");
+    assert.notOk(page._showTitle, "Empty title is not visible at runtime");
+    assert.notOk(
+      page._showDescription,
+      "Empty title is not visible at runtime - description"
+    );
+    survey.setDesignMode(true);
+    assert.ok(
+      page._showTitle,
+      "Empty title is visible in DesignMode by default"
+    );
+    assert.ok(
+      page._showDescription,
+      "Empty description is visible in DesignMode by default"
+    );
+    settings.allowShowEmptyTitleInDesignMode = false;
+    assert.notOk(
+      page._showTitle,
+      "Empty title is not visible at DesignMode after flag"
+    );
+    assert.notOk(
+      page._showDescription,
+      "Empty description is not visible at DesignMode after flag"
+    );
+    page.title = "My title";
+    page.description = "My description";
+    assert.ok(page._showTitle, "Entered title is visible in DesignMode");
+    assert.ok(
+      page._showDescription,
+      "Entered description is visible in DesignMode"
+    );
+  }
+);

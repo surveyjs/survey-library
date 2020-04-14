@@ -55,4 +55,8 @@ export var settings = {
    * Set to true to always serialize the localization string as object even if there is only one value for default locale. Instead of string "MyStr" serialize as {default: "MyStr"}
    */
   serializeLocalizableStringAsObject: false,
+  /**
+   * Set to false to hide empty page title in design mode
+   */
+  allowShowEmptyTitleInDesignMode: true,
 };

@@ -148,13 +148,13 @@ export class PanelModelBase extends SurveyElement
   }
   get _showTitle(): boolean {
     return (
-      this.isDesignMode ||
+      (this.isDesignMode && settings.allowShowEmptyTitleInDesignMode) ||
       ((<any>this.survey).showPageTitles && this.title.length > 0)
     );
   }
   get _showDescription(): boolean {
     return (
-      this.isDesignMode ||
+      (this.isDesignMode && settings.allowShowEmptyTitleInDesignMode) ||
       ((<any>this.survey).showPageTitles && this.description.length > 0)
     );
   }

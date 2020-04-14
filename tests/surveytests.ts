@@ -1976,6 +1976,22 @@ QUnit.test("Triggers shouldn't fire on data assignment", function (assert) {
   survey.data = { question1: "Hello" };
   assert.equal(survey.getValue("name1"), null, "value still is not set");
 });
+QUnit.test("Value trigger test, setValue is empty, clear the data", function (
+  assert
+) {
+  var survey = twoPageSimplestSurvey();
+  var trigger = new SurveyTriggerSetValue();
+  survey.triggers.push(trigger);
+  trigger.expression = "{question1}='Hello'";
+  trigger.setToName = "question2";
+  survey.setValue("question2", "abc");
+  assert.equal(survey.getValue("question2"), "abc", "value is set");
+  survey.setValue("question1", "Hello");
+  assert.notOk(
+    survey.getValue("question2"),
+    "value is cleard because setValue is empty"
+  );
+});
 QUnit.test("RunExpression trigger test", function (assert) {
   var survey = twoPageSimplestSurvey();
   survey.setValue("val1", 3);

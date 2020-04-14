@@ -135,7 +135,6 @@ export {
   QuestionCompositeModel,
   ComponentQuestionJSON,
   ComponentCollection,
-  ComponentCollection as CustomQuestionCollection,
 } from "../../question_custom";
 
 export { StylesManager } from "../../stylesmanager";

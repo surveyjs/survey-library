@@ -2196,3 +2196,36 @@ QUnit.test("ItemValue notifications", function (assert) {
   Serializer.removeProperty("dealer", "orders");
   Serializer.removeClass("itemorder");
 });
+
+QUnit.test("Override invisible property by making it visible", function (
+  assert
+) {
+  Serializer.addProperty("itemvalue", { name: "price:number", visible: false });
+  Serializer.addClass(
+    "itemorder",
+    [
+      {
+        name: "price:number",
+        visible: true,
+      },
+    ],
+    function () {
+      return new ItemValue(null, null, "itemorder");
+    },
+    "itemvalue"
+  );
+  var properties = Serializer.getProperties("itemvalue");
+  var propertiesOrder = Serializer.getProperties("itemorder");
+  assert.equal(
+    properties.length,
+    propertiesOrder.length,
+    "The number of properties are the same"
+  );
+  var l = properties.length - 1;
+  assert.equal(properties[l].name, "price", "itemvalue: price propeprty");
+  assert.equal(properties[l].visible, false, "itemvalue: price invisible");
+  assert.equal(propertiesOrder[l].name, "price", "itemorder: price propeprty");
+  assert.equal(propertiesOrder[l].visible, true, "itemorder: price visible");
+  Serializer.removeClass("itemorder");
+  Serializer.removeProperty("item", "price");
+});

@@ -437,8 +437,8 @@ export class JsonMetadataClass {
       if (!Helpers.isValueEmpty(propInfo.isDynamicChoices)) {
         prop.isDynamicChoices = propInfo.isDynamicChoices;
       }
-      if (propInfo.visible === false) {
-        prop.visible = false;
+      if (propInfo.visible === true || propInfo.visible === false) {
+        prop.visible = propInfo.visible;
       }
       if (!!propInfo.visibleIf) {
         prop.visibleIf = propInfo.visibleIf;

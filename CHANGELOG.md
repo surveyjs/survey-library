@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.5.20](https://github.com/surveyjs/survey-library/compare/v1.5.19...v1.5.20) (2020-04-15)
+
+
+### Bug Fixes
+
+* An execption raised in matrix with now standard rows and total row [#2087](https://github.com/surveyjs/survey-library/issues/2087) ([3d6fac8](https://github.com/surveyjs/survey-library/commit/3d6fac855a17c75f396abed67d8e790f0ee94942))
+* Could not override invisible property, by making it visible [#2090](https://github.com/surveyjs/survey-library/issues/2090) ([087aa0b](https://github.com/surveyjs/survey-library/commit/087aa0b2aedde6e24aa97968d80f4f6af485ff2d))
+* Round correctly rateValues for step less than 1 for rating question [#743](https://github.com/surveyjs/survey-library/issues/743) ([4c56424](https://github.com/surveyjs/survey-library/commit/4c564246a4ea5d90ab7f84e62dd134f4f5040434))
+
 ### [1.5.19](https://github.com/surveyjs/survey-library/compare/v1.5.18...v1.5.19) (2020-04-07)
 
 ### [1.5.18](https://github.com/surveyjs/survey-library/compare/v1.5.17...v1.5.18) (2020-03-31)

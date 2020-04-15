@@ -2229,3 +2229,18 @@ QUnit.test("Override invisible property by making it visible", function (
   Serializer.removeClass("itemorder");
   Serializer.removeProperty("item", "price");
 });
+
+QUnit.test("ItemValue value changed notifications", function (assert) {
+  var itemValue = new ItemValue("item");
+  var valueChangedCount = 0;
+  itemValue.registerFunctionOnPropertyValueChanged(
+    "value",
+    () => {
+      valueChangedCount++;
+    },
+    "val_changed"
+  );
+  itemValue.value = "Test";
+  assert.equal(valueChangedCount, 1, "changed notification has been fired");
+  itemValue.unRegisterFunctionOnPropertyValueChanged("value", "val_changed");
+});

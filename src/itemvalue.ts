@@ -237,7 +237,7 @@ export class ItemValue extends Base {
   public set value(newValue: any) {
     var oldValue = this.itemValue;
     this.itemValue = newValue;
-    this.onPropertyValueChanged("value", oldValue, this.itemValue);
+    this.propertyValueChanged("value", oldValue, this.itemValue);
     if (!this.itemValue) return;
     var str: string = this.itemValue.toString();
     var index = str.indexOf(settings.itemValueSeparator);

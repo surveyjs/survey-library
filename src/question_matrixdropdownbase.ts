@@ -1387,6 +1387,8 @@ export class QuestionMatrixDropdownModelBase
   onRenderedTableCreatedCallback: (
     table: QuestionMatrixDropdownRenderedTable
   ) => void;
+  onCellCreatedCallback: (options: any) => void;
+  onCellValueChangedCallback: (options: any) => void;
 
   protected createColumnValues() {
     return this.createNewArray("columns", (item: any) => {
@@ -1538,6 +1540,9 @@ export class QuestionMatrixDropdownModelBase
       options.cell = cell;
       options.cellQuestion = cell.question;
       options.value = cell.value;
+      if (!!this.onCellCreatedCallback) {
+        this.onCellCreatedCallback(options);
+      }
       this.survey.matrixCellCreated(this, options);
     }
   }
@@ -2221,6 +2226,9 @@ export class QuestionMatrixDropdownModelBase
   ) {
     if (!this.survey) return;
     var options = this.getOnCellValueChangedOptions(row, columnName, rowValue);
+    if (!!this.onCellValueChangedCallback) {
+      this.onCellValueChangedCallback(options);
+    }
     this.survey.matrixCellValueChanged(this, options);
   }
   validateCell(

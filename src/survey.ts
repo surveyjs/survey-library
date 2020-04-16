@@ -3632,7 +3632,7 @@ export class SurveyModel extends Base
     }
   }
   private checkOnPageTriggers() {
-    var questions = this.getCurrentPageQuestions();
+    var questions = this.getCurrentPageQuestions(true);
     var values: { [index: string]: any } = {};
     for (var i = 0; i < questions.length; i++) {
       var question = questions[i];
@@ -3641,13 +3641,15 @@ export class SurveyModel extends Base
     }
     this.checkTriggers(values, true);
   }
-  private getCurrentPageQuestions(): Array<Question> {
+  private getCurrentPageQuestions(
+    includeInvsible: boolean = false
+  ): Array<Question> {
     var result: Array<Question> = [];
     var page = this.currentPage;
     if (!page) return result;
     for (var i = 0; i < page.questions.length; i++) {
       var question = page.questions[i];
-      if (!question.visible || !question.name) continue;
+      if ((!includeInvsible && !question.visible) || !question.name) continue;
       result.push(question);
     }
     return result;

@@ -6152,6 +6152,110 @@ QUnit.test("Compete trigger and goNextPageAutomatic option", function (assert) {
   assert.equal(completedCounter, 1, "The survey is completed one time");
 });
 
+QUnit.test("Compete trigger with invisible question, Bug #2098", function (
+  assert
+) {
+  var json = {
+    pages: [
+      {
+        elements: [
+          {
+            type: "text",
+            name: "age",
+            inputType: "number",
+          },
+          {
+            type: "text",
+            name: "status",
+            visible: false,
+          },
+        ],
+      },
+      {
+        elements: [
+          {
+            type: "text",
+            name: "question1",
+          },
+        ],
+      },
+      {
+        elements: [
+          {
+            type: "text",
+            name: "question2",
+          },
+        ],
+      },
+    ],
+    triggers: [
+      {
+        type: "setvalue",
+        expression: "{age} > 20",
+        setToName: "status",
+        setValue: "screenout",
+      },
+      {
+        type: "complete",
+        expression: "{status}='screenout'",
+      },
+    ],
+  };
+  var survey = new SurveyModel(json);
+  survey.getQuestionByName("age").value = 30;
+  survey.nextPage();
+  assert.equal(survey.state, "completed", "Survey is completed");
+});
+
+QUnit.test("Compete trigger with invisible question, #2, Bug #2098", function (
+  assert
+) {
+  var json = {
+    pages: [
+      {
+        elements: [
+          {
+            type: "text",
+            name: "age",
+            inputType: "number",
+          },
+          {
+            type: "text",
+            name: "status",
+            visible: false,
+          },
+        ],
+      },
+      {
+        elements: [
+          {
+            type: "text",
+            name: "question1",
+          },
+        ],
+      },
+      {
+        elements: [
+          {
+            type: "text",
+            name: "question2",
+          },
+        ],
+      },
+    ],
+    triggers: [
+      {
+        type: "complete",
+        expression: "{status}='screenout'",
+      },
+    ],
+  };
+  var survey = new SurveyModel(json);
+  survey.getQuestionByName("status").value = "screenout";
+  survey.nextPage();
+  assert.equal(survey.state, "completed", "Survey is completed");
+});
+
 QUnit.test("textUpdateMode=onTyping and goNextPageAutomatic option", function (
   assert
 ) {

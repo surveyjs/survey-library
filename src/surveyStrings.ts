@@ -22,18 +22,26 @@ export var surveyLocalization = {
     if (val === "cz") val = "cs";
     this.defaultLocaleValue = val;
   },
-  getString: function(strName: string) {
+  getLocaleStrings(loc: string): any {
+    return this.localeNames[loc];
+  },
+  getCurrentStrings(): any {
     var loc = this.currentLocale
       ? this.locales[this.currentLocale]
       : this.locales[this.defaultLocale];
-    if (!loc || !loc[strName]) loc = this.locales[this.defaultLocale];
+    if (!loc) loc = this.locales[this.defaultLocale];
+    return loc;
+  },
+  getString: function (strName: string) {
+    var loc = this.getCurrentStrings();
+    if (!loc[strName]) loc = this.locales[this.defaultLocale];
     var result = loc[strName];
     if (result === undefined) {
       result = this.locales["en"][strName];
     }
     return result;
   },
-  getLocales: function(): Array<string> {
+  getLocales: function (): Array<string> {
     var res = [];
     res.push("");
     if (this.supportedLocales && this.supportedLocales.length > 0) {
@@ -47,7 +55,7 @@ export var surveyLocalization = {
     }
     res.sort();
     return res;
-  }
+  },
 };
 
 export var surveyStrings = englishStrings;

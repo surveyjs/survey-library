@@ -497,38 +497,15 @@ export class Base {
     target?: Base
   ) {
     if (!target) target = this;
-    let parentBase: Base = this;
-
-    if ((<any>this)["colOwner"]) {
-      parentBase = (<any>this)["colOwner"];
-      parentBase.doPropertyValueChangedCallback &&
-        parentBase.doPropertyValueChangedCallback(
-          name,
-          oldValue,
-          newValue,
-          arrayChanges,
-          target
-        );
-    } else if ((<any>this)["locOwner"]) {
-      parentBase = (<any>this)["locOwner"];
-      parentBase.doPropertyValueChangedCallback &&
-        parentBase.doPropertyValueChangedCallback(
-          name,
-          oldValue,
-          newValue,
-          arrayChanges,
-          target
-        );
-    } else if ((<any>this)["survey"]) {
-      parentBase = (<any>this)["survey"];
-      parentBase.doPropertyValueChangedCallback &&
-        parentBase.doPropertyValueChangedCallback(
-          name,
-          oldValue,
-          newValue,
-          arrayChanges,
-          target
-        );
+    let parentBase = this.getOwnerForPropertyChanged();
+    if (!!parentBase) {
+      parentBase.doPropertyValueChangedCallback(
+        name,
+        oldValue,
+        newValue,
+        arrayChanges,
+        target
+      );
     } else {
       this.onPropertyValueChangedCallback(
         name,
@@ -538,6 +515,15 @@ export class Base {
         arrayChanges
       );
     }
+  }
+  private getOwnerForPropertyChanged(): Base {
+    var testProps = ["colOwner", "locOwner", "survey", "owner", "errorOwner"];
+    for (var i = 0; i < testProps.length; i++) {
+      var prop = testProps[i];
+      var testObj = (<any>this)[prop];
+      if (!!testObj && !!testObj.doPropertyValueChangedCallback) return testObj;
+    }
+    return null;
   }
 
   /**

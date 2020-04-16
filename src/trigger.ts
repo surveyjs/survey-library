@@ -208,12 +208,15 @@ export interface ISurveyTriggerOwner {
  * It extends the Trigger base class and add properties required for SurveyJS classes.
  */
 export class SurveyTrigger extends Trigger {
-  protected owner: ISurveyTriggerOwner = null;
+  protected ownerValue: ISurveyTriggerOwner = null;
   constructor() {
     super();
   }
+  public get owner(): ISurveyTriggerOwner {
+    return this.ownerValue;
+  }
   public setOwner(owner: ISurveyTriggerOwner) {
-    this.owner = owner;
+    this.ownerValue = owner;
   }
   public get isOnNextPage() {
     return false;
@@ -273,14 +276,29 @@ export class SurveyTriggerComplete extends SurveyTrigger {
  * If expression returns true, the value from property **setValue** will be set to **setToName**
  */
 export class SurveyTriggerSetValue extends SurveyTrigger {
-  public setToName: string;
-  public setValue: any;
-  public isVariable: boolean;
   constructor() {
     super();
   }
   public getType(): string {
     return "setvaluetrigger";
+  }
+  public get setToName(): string {
+    return this.getPropertyValue("setToName", "");
+  }
+  public set setToName(val: string) {
+    this.setPropertyValue("setToName", val);
+  }
+  public get setValue(): any {
+    return this.getPropertyValue("setValue");
+  }
+  public set setValue(val: any) {
+    this.setPropertyValue("setValue", val);
+  }
+  public get isVariable(): boolean {
+    return this.getPropertyValue("isVariable", false);
+  }
+  public set isVariable(val: boolean) {
+    this.setPropertyValue("isVariable", val);
   }
   protected onSuccess(values: HashTable<any>, properties: HashTable<any>) {
     if (!this.setToName || !this.owner) return;
@@ -291,12 +309,17 @@ export class SurveyTriggerSetValue extends SurveyTrigger {
  * If expression returns true, the survey go to question **gotoName** and focus it.
  */
 export class SurveyTriggerSkip extends SurveyTrigger {
-  public gotoName: string;
   constructor() {
     super();
   }
   public getType(): string {
     return "skiptrigger";
+  }
+  public get gotoName(): string {
+    return this.getPropertyValue("gotoName", "");
+  }
+  public set gotoName(val: string) {
+    this.setPropertyValue("gotoName", val);
   }
   protected onSuccess(values: HashTable<any>, properties: HashTable<any>) {
     if (!this.gotoName || !this.owner) return;
@@ -307,13 +330,23 @@ export class SurveyTriggerSkip extends SurveyTrigger {
  * If expression returns true, the **runExpression** will be run. If **setToName** property is not empty then the result of **runExpression** will be set to it.
  */
 export class SurveyTriggerRunExpression extends SurveyTrigger {
-  public setToName: string;
-  public runExpression: any;
   constructor() {
     super();
   }
   public getType(): string {
     return "runexpressiontrigger";
+  }
+  public get setToName(): string {
+    return this.getPropertyValue("setToName", "");
+  }
+  public set setToName(val: string) {
+    this.setPropertyValue("setToName", val);
+  }
+  public get runExpression(): string {
+    return this.getPropertyValue("runExpression", "");
+  }
+  public set runExpression(val: string) {
+    this.setPropertyValue("runExpression", val);
   }
   protected onSuccess(values: HashTable<any>, properties: HashTable<any>) {
     if (!this.owner || !this.runExpression) return;
@@ -336,10 +369,20 @@ export class SurveyTriggerRunExpression extends SurveyTrigger {
  * If expression returns true, the value from question **fromName** will be set into **setToName**.
  */
 export class SurveyTriggerCopyValue extends SurveyTrigger {
-  public setToName: string;
-  public fromName: any;
   constructor() {
     super();
+  }
+  public get setToName(): string {
+    return this.getPropertyValue("setToName", "");
+  }
+  public set setToName(val: string) {
+    this.setPropertyValue("setToName", val);
+  }
+  public get fromName(): string {
+    return this.getPropertyValue("fromName", "");
+  }
+  public set fromName(val: string) {
+    this.setPropertyValue("fromName", val);
   }
   public getType(): string {
     return "copyvaluetrigger";

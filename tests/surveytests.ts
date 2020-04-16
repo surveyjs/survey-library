@@ -17,6 +17,7 @@ import {
   EmailValidator,
   NumericValidator,
   ExpressionValidator,
+  TextValidator,
 } from "../src/validator";
 import { JsonObject, Serializer } from "../src/jsonobject";
 import { QuestionTextModel } from "../src/question_text";
@@ -9576,6 +9577,67 @@ QUnit.test("Survey<=Base propertyValueChanged", function (assert) {
 
   assert.equal(counter, 1, "callback called");
 });
+
+QUnit.test(
+  "Survey.onPropertyValueChangedCallback for validators and triggers",
+  function (assert) {
+    var json = {
+      title: "title",
+      questions: [
+        {
+          type: "text",
+          name: "q1",
+          validators: [{ type: "text", maxLength: 3 }],
+        },
+        { type: "text", name: "q2" },
+      ],
+      triggers: [
+        {
+          type: "setvalue",
+          setToName: "q1",
+          expression: "{q2}='1",
+          setValue: "2",
+        },
+      ],
+    };
+    var survey = new SurveyModel(json);
+    var counter = 0;
+    var propName = null;
+    var testOldValue = null;
+    var testNewValue = null;
+    var senderType = null;
+
+    survey.onPropertyValueChangedCallback = (
+      name: string,
+      oldValue: any,
+      newValue: any,
+      sender: any,
+      arrayChanges: ArrayChanges
+    ) => {
+      counter++;
+      propName = name;
+      testOldValue = oldValue;
+      testNewValue = newValue;
+      senderType = sender.getType();
+    };
+
+    assert.equal(counter, 0, "initial");
+
+    (<SurveyTriggerSetValue>survey.triggers[0]).setValue = "3";
+
+    assert.equal(counter, 1, "trigger: callback called");
+    assert.equal(propName, "setValue", "trigger: property name is correct");
+    assert.equal(testOldValue, "2", "trigger: oldValue is correct");
+    assert.equal(testNewValue, "3", "trigger: newValue is correct");
+    assert.equal(senderType, "setvaluetrigger", "trigger: sender is correct");
+    (<TextValidator>survey.getQuestionByName("q1").validators[0]).maxLength = 5;
+    assert.equal(counter, 2, "validator: callback called");
+    assert.equal(propName, "maxLength", "validator: property name is correct");
+    assert.equal(testOldValue, 3, "validator: oldValue is correct");
+    assert.equal(testNewValue, 5, "validator: newValue is correct");
+    assert.equal(senderType, "textvalidator", "validator: sender is correct");
+  }
+);
 
 QUnit.test("Survey questionTitleTemplate -> questionTitlePattern", function (
   assert

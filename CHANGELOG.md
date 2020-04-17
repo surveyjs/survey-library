@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.7.2](https://github.com/surveyjs/survey-library/compare/v1.7.1...v1.7.2) (2020-04-17)
+
+
+### Bug Fixes
+
+* Complete trigger doesn't work when invisible questions are in expression [#2098](https://github.com/surveyjs/survey-library/issues/2098) ([e192e9f](https://github.com/surveyjs/survey-library/commit/e192e9fb15b4fc589524526016edc22b3bb72e54))
+* Triggers properties are not observable/react and trigger doesn't call survey.onPropertyValueChangedCallback [#2093](https://github.com/surveyjs/survey-library/issues/2093) ([f86712f](https://github.com/surveyjs/survey-library/commit/f86712f523287360c7289ebc878d05663b638a7e))
+
 ### [1.7.1](https://github.com/surveyjs/survey-library/compare/v1.5.20...v1.7.1) (2020-04-15)
 
 ### [1.5.20](https://github.com/surveyjs/survey-library/compare/v1.5.19...v1.5.20) (2020-04-15)

@@ -2,7 +2,7 @@ import {
   QuestionMatrixDropdownModelBase,
   MatrixDropdownRowModelBase,
   IMatrixDropdownData,
-  MatrixDropdownColumn
+  MatrixDropdownColumn,
 } from "./question_matrixdropdownbase";
 import { Serializer } from "./jsonobject";
 import { QuestionFactory } from "./questionfactory";
@@ -147,6 +147,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
    * The minimum row count. A user could not delete a row if the rowCount equals to minRowCount
    * @see rowCount
    * @see maxRowCount
+   * @see allowAddRows
    */
   public get minRowCount(): number {
     return this.getPropertyValue("minRowCount", 0);
@@ -161,6 +162,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
    * The maximum row count. A user could not add a row if the rowCount equals to maxRowCount
    * @see rowCount
    * @see minRowCount
+   * @see allowAddRows
    */
   public get maxRowCount(): number {
     return this.getPropertyValue("maxRowCount", settings.matrixMaximumRowCount);
@@ -175,13 +177,41 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     if (this.rowCount > val) this.rowCount = val;
   }
   /**
+   * Set this property to false to disable ability to add new rows. "Add new Row" button becomes invsible in UI
+   * @see canAddRow
+   * @see allowRemoveRows
+   */
+  public get allowAddRows(): boolean {
+    return this.getPropertyValue("allowAddRows", true);
+  }
+  public set allowAddRows(val: boolean) {
+    this.setPropertyValue("allowAddRows", val);
+  }
+  /**
+   * Set this property to false to disable ability to remove rows. "Remove" row buttons become invsible in UI
+   * @see canRemoveRows
+   * @see allowAddRows
+   */
+  public get allowRemoveRows(): boolean {
+    return this.getPropertyValue("allowRemoveRows", true);
+  }
+  public set allowRemoveRows(val: boolean) {
+    this.setPropertyValue("allowRemoveRows", val);
+    if (!this.isLoadingFromJson) {
+      this.resetRenderedTable();
+    }
+  }
+  /**
    * Returns true, if a new row can be added.
+   * @see allowAddRows
    * @see maxRowCount
    * @see canRemoveRows
    * @see rowCount
    */
   public get canAddRow(): boolean {
-    return !this.isReadOnly && this.rowCount < this.maxRowCount;
+    return (
+      this.allowAddRows && !this.isReadOnly && this.rowCount < this.maxRowCount
+    );
   }
   /**
    * Returns true, if row can be removed.
@@ -190,7 +220,11 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
    * @see rowCount
    */
   public get canRemoveRows(): boolean {
-    return !this.isReadOnly && this.rowCount > this.minRowCount;
+    return (
+      this.allowRemoveRows &&
+      !this.isReadOnly &&
+      this.rowCount > this.minRowCount
+    );
   }
   public canRemoveRow(row: MatrixDropdownRowModelBase): boolean {
     if (!this.survey) return true;
@@ -455,13 +489,13 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
       objects.push({
         name: this.getValueName() + "[0]." + column.name,
         text: this.processedTitle + "[0]." + column.fullTitle,
-        question: this
+        question: this,
       });
       if (hasContext && column != context) {
         objects.push({
           name: "row." + column.name,
           text: "row." + column.fullTitle,
-          question: this
+          question: this,
         });
       }
     }
@@ -610,39 +644,41 @@ Serializer.addClass(
   "matrixdynamic",
   [
     { name: "rowsVisibleIf:condition", visible: false },
+    { name: "allowAddRows:boolean", default: true },
+    { name: "allowRemoveRows:boolean", default: true },
     { name: "rowCount:number", default: 2, minValue: 0 },
     { name: "minRowCount:number", default: 0, minValue: 0 },
     {
       name: "maxRowCount:number",
-      default: settings.matrixMaximumRowCount
+      default: settings.matrixMaximumRowCount,
     },
     { name: "keyName" },
     {
       name: "keyDuplicationError",
-      serializationProperty: "locKeyDuplicationError"
+      serializationProperty: "locKeyDuplicationError",
     },
     "defaultRowValue:rowvalue",
     "defaultValueFromLastRow:boolean",
     { name: "confirmDelete:boolean" },
     {
       name: "confirmDeleteText",
-      serializationProperty: "locConfirmDeleteText"
+      serializationProperty: "locConfirmDeleteText",
     },
     {
       name: "addRowLocation",
       default: "default",
-      choices: ["default", "top", "bottom", "topBottom"]
+      choices: ["default", "top", "bottom", "topBottom"],
     },
     { name: "addRowText", serializationProperty: "locAddRowText" },
-    { name: "removeRowText", serializationProperty: "locRemoveRowText" }
+    { name: "removeRowText", serializationProperty: "locRemoveRowText" },
   ],
-  function() {
+  function () {
     return new QuestionMatrixDynamicModel("");
   },
   "matrixdropdownbase"
 );
 
-QuestionFactory.Instance.registerQuestion("matrixdynamic", name => {
+QuestionFactory.Instance.registerQuestion("matrixdynamic", (name) => {
   var q = new QuestionMatrixDynamicModel(name);
   q.choices = [1, 2, 3, 4, 5];
   QuestionMatrixDropdownModelBase.addDefaultColumns(q);

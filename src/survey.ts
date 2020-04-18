@@ -247,6 +247,21 @@ export class SurveyModel extends Base
     any
   > = new Event<(sender: SurveyModel, options: any) => any, any>();
   /**
+   * The event is fired on creating a new question.
+   * Unlike the onQuestionAdded event, this event calls for all question created in survey including inside: a page, panel, matrix cell, dynamic panel and multiple text.
+   * or inside a matrix cell or it can be a text question in multiple text items or inside a panel of a panel dynamic.
+   * You can use this event to set up properties to a question based on it's type for all questions, regardless where they are located, on the page or inside a matrix cell.
+   * Please note: If you want to use this event for questions loaded from JSON then you have to create survey with empty/null JSON parameter, assign the event and call survey.fromJSON(yourJSON) function.
+   * <br/> `sender` - the survey object that fires the event.
+   * <br/> `options.question` - a newly created question object.
+   * @see Question
+   * @see onQuestionAdded
+   */
+  public onQuestionCreated: Event<
+    (sender: SurveyModel, options: any) => any,
+    any
+  > = new Event<(sender: SurveyModel, options: any) => any, any>();
+  /**
    * The event is fired on adding a new question into survey.
    * <br/> `sender` - the survey object that fires the event.
    * <br/> `options.question` - a newly added question object.
@@ -255,6 +270,7 @@ export class SurveyModel extends Base
    * <br/> `options.parentPanel` - a container where a new question is located. It can be a page or panel.
    * <br/> `options.rootPanel` - typically, it is a page.
    * @see Question
+   * @see onQuestionCreated
    */
   public onQuestionAdded: Event<
     (sender: SurveyModel, options: any) => any,
@@ -4219,6 +4235,9 @@ export class SurveyModel extends Base
   panelVisibilityChanged(panel: IPanel, newValue: boolean) {
     this.updateVisibleIndexes();
     this.onPanelVisibleChanged.fire(this, { panel: panel, visible: newValue });
+  }
+  questionCreated(question: IQuestion): any {
+    this.onQuestionCreated.fire(this, { question: question });
   }
   questionAdded(
     question: IQuestion,

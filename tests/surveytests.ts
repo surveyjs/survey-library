@@ -9869,3 +9869,66 @@ QUnit.test("Survey logoClassNames", function (assert) {
   survey.logoPosition = "none";
   assert.equal(survey.logoClassNames, "sv_logo undefined");
 });
+QUnit.test("Survey.onQuestionCreated", function (assert) {
+  var survey = new SurveyModel();
+  survey.onQuestionCreated.add(function (sender, options) {
+    options.question.tag = "was here";
+  });
+  survey.fromJSON({
+    elements: [
+      {
+        type: "text",
+        name: "q1",
+      },
+      {
+        type: "matrixdynamic",
+        name: "q2",
+        columns: [
+          {
+            name: "col1",
+          },
+        ],
+      },
+      {
+        type: "multipletext",
+        name: "q3",
+        items: [
+          {
+            name: "item1",
+          },
+        ],
+      },
+      {
+        type: "paneldynamic",
+        name: "q4",
+        templateElements: [
+          {
+            type: "text",
+            name: "question1",
+          },
+        ],
+        panelCount: 1,
+      },
+    ],
+  });
+  assert.equal(
+    survey.getQuestionByName("q1").tag,
+    "was here",
+    "onQuestionCreated calls for a standard question"
+  );
+  assert.equal(
+    survey.getQuestionByName("q2").visibleRows[0].cells[0].question.tag,
+    "was here",
+    "onQuestionCreated calls for a matrix cell question"
+  );
+  assert.equal(
+    survey.getQuestionByName("q3").items[0].editor.tag,
+    "was here",
+    "onQuestionCreated calls for a multiple text question"
+  );
+  assert.equal(
+    survey.getQuestionByName("q4").panels[0].questions[0].tag,
+    "was here",
+    "onQuestionCreated calls for a multiple text question"
+  );
+});

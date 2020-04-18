@@ -45,6 +45,7 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner {
   panelVisibilityChanged(panel: IPanel, newValue: boolean): any;
   questionVisibilityChanged(question: IQuestion, newValue: boolean): any;
   questionsOrder: string;
+  questionCreated(question: IQuestion): any;
   questionAdded(
     question: IQuestion,
     index: number,

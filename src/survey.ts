@@ -2361,7 +2361,7 @@ export class SurveyModel extends Base
   public getProgress(): number {
     if (this.currentPage == null) return 0;
     if (this.progressBarType === "questions") {
-      var questions = this.getAllQuestions();
+      var questions = this.getQuestionsWithInput();
       var answeredQuestionsCount = questions.reduce(
         (a: number, b: Question) => a + (b.isEmpty() ? 0 : 1),
         0
@@ -2369,12 +2369,22 @@ export class SurveyModel extends Base
       return Math.ceil((answeredQuestionsCount * 100) / questions.length);
     }
     if (this.progressBarType === "correctQuestions") {
-      var questions = this.getAllQuestions();
+      var questions = this.getQuestionsWithInput();
       var correctAnswersCount = this.getCorrectedAnswerCount();
       return Math.ceil((correctAnswersCount * 100) / questions.length);
     }
     var index = this.visiblePages.indexOf(this.currentPage) + 1;
     return Math.ceil((index * 100) / this.visiblePageCount);
+  }
+  private getQuestionsWithInput(): Array<Question> {
+    var allQuestions = this.getAllQuestions();
+    var questions = new Array<Question>();
+    for (var i = 0; i < allQuestions.length; i++) {
+      if (allQuestions[i].hasInput) {
+        questions.push(allQuestions[i]);
+      }
+    }
+    return questions;
   }
   /**
    * Returns the navigation buttons (i.e., 'Prev', 'Next', or 'Complete') position.
@@ -3064,7 +3074,7 @@ export class SurveyModel extends Base
   public get progressText(): string {
     if (this.currentPage == null) return "";
     if (this.progressBarType === "questions") {
-      var questions = this.getAllQuestions();
+      var questions = this.getQuestionsWithInput();
       var answeredQuestionsCount = questions.reduce(
         (a: number, b: Question) => a + (b.isEmpty() ? 0 : 1),
         0
@@ -3075,7 +3085,7 @@ export class SurveyModel extends Base
       );
     }
     if (this.progressBarType === "correctQuestions") {
-      var questions = this.getAllQuestions();
+      var questions = this.getQuestionsWithInput();
       var correctAnswersCount = this.getCorrectedAnswerCount();
       return this.getLocString("questionsProgressText")["format"](
         correctAnswersCount,
@@ -3504,8 +3514,8 @@ export class SurveyModel extends Base
   public getAllQuestions(
     visibleOnly: boolean = false,
     includingDesignTime: boolean = false
-  ): Array<IQuestion> {
-    var result = new Array<IQuestion>();
+  ): Array<Question> {
+    var result = new Array<Question>();
     for (var i: number = 0; i < this.pages.length; i++) {
       this.pages[i].addQuestionsToList(
         result,

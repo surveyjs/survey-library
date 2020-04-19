@@ -15,7 +15,7 @@ export class QuestionExpressionModel extends Question {
     super(name);
     this.createLocalizableString("format", this);
     var self = this;
-    this.registerFunctionOnPropertyValueChanged("expression", function() {
+    this.registerFunctionOnPropertyValueChanged("expression", function () {
       if (self.expressionRunner) {
         self.expressionRunner = new ExpressionRunner(self.expression);
       }
@@ -23,6 +23,9 @@ export class QuestionExpressionModel extends Question {
   }
   public getType(): string {
     return "expression";
+  }
+  public get hasInput(): boolean {
+    return false;
   }
   /**
    * Use this property to display the value in your own format. Make sure you have "{0}" substring in your string, to display the actual value.
@@ -59,7 +62,7 @@ export class QuestionExpressionModel extends Question {
     if (!this.expressionRunner) {
       this.expressionRunner = new ExpressionRunner(this.expression);
     }
-    this.expressionRunner.onRunComplete = newValue => {
+    this.expressionRunner.onRunComplete = (newValue) => {
       if (!Helpers.isTwoValueEquals(newValue, this.value)) {
         this.value = newValue;
       }
@@ -132,7 +135,7 @@ export class QuestionExpressionModel extends Question {
       var options = {
         style: this.displayStyle,
         currency: this.currency,
-        useGrouping: this.useGrouping
+        useGrouping: this.useGrouping,
       };
       if (this.maximumFractionDigits > -1) {
         (<any>options)["maximumFractionDigits"] = this.maximumFractionDigits;
@@ -325,7 +328,7 @@ export function getCurrecyCodes(): Array<string> {
     "YER",
     "ZAR",
     "ZMW",
-    "ZWL"
+    "ZWL",
   ];
 }
 
@@ -337,14 +340,14 @@ Serializer.addClass(
     {
       name: "displayStyle",
       default: "none",
-      choices: ["none", "decimal", "currency", "percent", "date"]
+      choices: ["none", "decimal", "currency", "percent", "date"],
     },
     {
       name: "currency",
       choices: () => {
         return getCurrecyCodes();
       },
-      default: "USD"
+      default: "USD",
     },
     { name: "maximumFractionDigits:number", default: -1 },
     { name: "minimumFractionDigits:number", default: -1 },
@@ -357,13 +360,13 @@ Serializer.addClass(
     { name: "validators", visible: false },
     { name: "defaultValue", visible: false },
     { name: "correctAnswer", visible: false },
-    { name: "requiredIf", visible: false }
+    { name: "requiredIf", visible: false },
   ],
-  function() {
+  function () {
     return new QuestionExpressionModel("");
   },
   "question"
 );
-QuestionFactory.Instance.registerQuestion("expression", name => {
+QuestionFactory.Instance.registerQuestion("expression", (name) => {
   return new QuestionExpressionModel(name);
 });

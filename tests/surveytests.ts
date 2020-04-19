@@ -356,6 +356,45 @@ QUnit.test("Next, Prev, IsFirst and IsLast Page and progressText", function (
     "Answered 1 question - but questions with the same name"
   );
 });
+QUnit.test(
+  "survey.progressBarType = 'questions' and non input question, bug #2108",
+  function (assert) {
+    var survey = new SurveyModel({
+      progressBarType: "questions",
+      elements: [
+        {
+          type: "text",
+          name: "q1",
+        },
+        {
+          type: "html",
+          name: "q2",
+        },
+        {
+          type: "text",
+          name: "q3",
+        },
+        {
+          type: "expression",
+          name: "q4",
+        },
+      ],
+    });
+    survey.progressBarType = "questions";
+    assert.equal(survey.getProgress(), 0, "The progress is 0");
+    assert.equal(
+      survey.progressText,
+      "Answered 0/2 questions",
+      "Questions progress indicator"
+    );
+    survey.getQuestionByName("q1").value = "Answer 1";
+    assert.equal(survey.getProgress(), 50, "The progress is 50%");
+    assert.equal(survey.progressText, "Answered 1/2 questions");
+    survey.getQuestionByName("q3").value = "Answer 3";
+    assert.equal(survey.getProgress(), 100, "The progress is 100%");
+    assert.equal(survey.progressText, "Answered 2/2 questions");
+  }
+);
 QUnit.test("Next, Prev, Next", function (assert) {
   var survey = new SurveyModel();
   survey.addPage(createPageWithQuestion("Page 1"));

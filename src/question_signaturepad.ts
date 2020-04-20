@@ -2,6 +2,7 @@ import { Serializer } from "./jsonobject";
 import { Question } from "./question";
 import { surveyLocalization } from "./surveyStrings";
 import SignaturePad from "signature_pad";
+import { QuestionFactory } from "./questionfactory";
 
 var defaultWidth = 300;
 var defaultHeight = 200;
@@ -182,3 +183,6 @@ Serializer.addClass(
   },
   "question"
 );
+QuestionFactory.Instance.registerQuestion("signaturepad", (name) => {
+  return new QuestionSignaturePadModel(name);
+});

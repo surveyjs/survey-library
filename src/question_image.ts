@@ -3,7 +3,7 @@ import { Serializer } from "./jsonobject";
 import { QuestionFactory } from "./questionfactory";
 
 /**
- * A Model for html question. Unlike other questions it doesn't have value and title.
+ * A Model for image question. This question hasn't any functionality and can be used to improve the appearance of the survey.
  */
 export class QuestionImageModel extends QuestionNonValue {
   constructor(public name: string) {

@@ -33,7 +33,7 @@ function resizeCanvas(canvas: HTMLCanvasElement) {
 }
 
 /**
- * A Model for an question that renders empty "div" tag. It used as a base class for some custom widgets
+ * A Model for signature pad question.
  */
 export class QuestionSignaturePadModel extends Question {
   constructor(public name: string) {

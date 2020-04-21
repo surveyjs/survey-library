@@ -2575,6 +2575,43 @@ QUnit.test("Several questions in one row", function (assert) {
   }
 });
 QUnit.test(
+  "Rendered width with setting width in the same row, using calc",
+  function (assert) {
+    var page = new PageModel();
+    for (var i = 0; i < 5; i++) {
+      page.addNewQuestion("text", "q" + (i + 1));
+      page.questions[i].startWithNewLine = false;
+    }
+    assert.equal(
+      page.questions[1].renderWidth,
+      "20.000000%",
+      "the width is 20%"
+    );
+    page.questions[1].width = "100";
+    assert.equal(page.questions[1].renderWidth, "100px", "the width in px");
+    page.questions[1].width = "120 px";
+    assert.equal(
+      page.questions[1].renderWidth,
+      "120 px",
+      "the width is not changed"
+    );
+    page.questions[1].width = "10%";
+    page.questions[2].width = "120";
+    assert.equal(
+      page.questions[0].renderWidth,
+      "calc((100% - 10% - 120px)/3)",
+      "Use calc() function"
+    );
+    page.questions[3].visible = false;
+    page.questions[4].visible = false;
+    assert.equal(
+      page.questions[0].renderWidth,
+      "calc(100% - 10% - 120px)",
+      "Do not calc on 1"
+    );
+  }
+);
+QUnit.test(
   "Render width should work for strings only - https://surveyjs.answerdesk.io/ticket/details/T2273",
   function (assert) {
     var page = new PageModel();

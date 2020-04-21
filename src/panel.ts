@@ -65,19 +65,57 @@ export class QuestionRowModel extends Base {
     var visCount = this.visibleElements.length;
     if (visCount == 0) return;
     var counter = 0;
+    var preSetWidthElements = [];
     for (var i = 0; i < this.elements.length; i++) {
-      if (this.elements[i].isVisible) {
-        var q = this.elements[i];
-        q.renderWidth =
-          !!q.width && typeof q.width === "string"
-            ? q.width
-            : (100 / visCount).toFixed(6) + "%";
-        q.rightIndent = counter < visCount - 1 ? 1 : 0;
+      var el = this.elements[i];
+      if (el.isVisible) {
+        var width = this.getElementWidth(el);
+        if (!!width) {
+          el.renderWidth = this.getRenderedWidthFromWidth(width);
+          preSetWidthElements.push(el);
+        }
+        el.rightIndent = counter < visCount - 1 ? 1 : 0;
         counter++;
       } else {
-        this.elements[i].renderWidth = "";
+        el.renderWidth = "";
       }
     }
+    for (var i = 0; i < this.elements.length; i++) {
+      var el = this.elements[i];
+      if (!el.isVisible || preSetWidthElements.indexOf(el) > -1) continue;
+      if (preSetWidthElements.length == 0) {
+        el.renderWidth = (100 / visCount).toFixed(6) + "%";
+      } else {
+        el.renderWidth = this.getRenderedCalcWidth(
+          el,
+          preSetWidthElements,
+          visCount
+        );
+      }
+    }
+  }
+  private getRenderedCalcWidth(
+    el: IElement,
+    preSetWidthElements: Array<IElement>,
+    visCount: number
+  ): string {
+    var expression = "100%";
+    for (var i = 0; i < preSetWidthElements.length; i++) {
+      expression += " - " + preSetWidthElements[i].renderWidth;
+    }
+    var calcWidthEl = visCount - preSetWidthElements.length;
+    if (calcWidthEl > 1) {
+      expression = "(" + expression + ")/" + calcWidthEl.toString();
+    }
+    return "calc(" + expression + ")";
+  }
+  private getElementWidth(el: IElement): string {
+    var width = el.width;
+    if (!width || typeof width !== "string") return "";
+    return width.trim();
+  }
+  private getRenderedWidthFromWidth(width: string): string {
+    return Helpers.isNumber(width) ? width + "px" : width;
   }
   private calcVisible(): boolean {
     return this.visibleElements.length > 0;

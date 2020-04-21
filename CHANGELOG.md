@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.7.3](https://github.com/surveyjs/survey-library/compare/v1.7.2...v1.7.3) (2020-04-21)
+
+
+### Bug Fixes
+
+* survey.progressBarType is "questions" calculates incorrectly if there are non input questions in survey [#2108](https://github.com/surveyjs/survey-library/issues/2108) ([9606a2c](https://github.com/surveyjs/survey-library/commit/9606a2ce4122c17dfe293634faf7f0719806203e))
+
 ### [1.7.2](https://github.com/surveyjs/survey-library/compare/v1.7.1...v1.7.2) (2020-04-17)
 
 

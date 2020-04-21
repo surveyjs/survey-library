@@ -23,7 +23,7 @@ export var surveyLocalization = {
     this.defaultLocaleValue = val;
   },
   getLocaleStrings(loc: string): any {
-    return this.localeNames[loc];
+    return this.locales[loc];
   },
   getCurrentStrings(): any {
     var loc = this.currentLocale

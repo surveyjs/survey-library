@@ -21,8 +21,20 @@
   padding-bottom: 2.5em;
 }
 .sv-row__question--small:only-child {
-  @media only screen and (min-width: 1000px) {
-    max-width: 50%;
+  @media only screen and (max-width: 6000px) {
+    max-width: 3000px;
+  }
+  @media only screen and (max-width: 3000px) {
+    max-width: 1200px;
+  }
+  @media only screen and (max-width: 2000px) {
+    max-width: 700px;
+  }
+  @media only screen and (max-width: 1000px) {
+    max-width: 500px;
+  }
+  @media only screen and (max-width: 500px) {
+    max-width: 300px;
   }
 }
 .sv-row > .sv-row__panel,

@@ -1900,8 +1900,8 @@ export class QuestionMatrixDropdownModelBase
     if (rowIndex < 0) return null;
     var visRows = this.visibleRows;
     if (rowIndex >= visRows.length) return null;
+    visRows[rowIndex].value = rowValue;
     this.onRowChanged(visRows[rowIndex], "", rowValue, false);
-    this.onValueChanged();
   }
   protected generateRows(): Array<MatrixDropdownRowModelBase> {
     return null;

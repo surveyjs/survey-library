@@ -3797,3 +3797,41 @@ QUnit.test(
     );
   }
 );
+QUnit.test(
+  "showInMultipleColumns property, using default choices and cellType",
+  function (assert) {
+    var survey = new SurveyModel({
+      elements: [
+        {
+          type: "matrixdynamic",
+          name: "matrix",
+          cellType: "text",
+          columns: [
+            {
+              name: "col1",
+            },
+            {
+              name: "col2",
+            },
+            {
+              name: "col3",
+            },
+          ],
+          rowCount: 1,
+        },
+      ],
+    });
+    var matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+
+    var rows = matrix.visibleRows;
+    matrix.addRow();
+    matrix.setRowValue(1, { col1: "1", col2: 2, col3: "3" });
+    rows = matrix.visibleRows;
+    assert.equal(rows.length, 2, "There are two rows");
+    assert.equal(
+      rows[1].getQuestionByColumnName("col1").value,
+      "1",
+      "Set the value correctly"
+    );
+  }
+);

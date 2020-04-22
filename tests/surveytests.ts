@@ -56,6 +56,7 @@ import {
   Const,
 } from "../src/expressions/expressions";
 import { ArrayChanges } from "../src/base";
+import { Helpers } from "../src/helpers";
 
 export default QUnit.module("Survey");
 
@@ -2611,6 +2612,28 @@ QUnit.test(
     );
   }
 );
+QUnit.test("Rendered width when all widths for questions are set", function (
+  assert
+) {
+  var page = new PageModel();
+  page.addNewQuestion("text", "q1");
+  var panel = page.addNewPanel("panel1");
+  panel.startWithNewLine = false;
+  panel.addNewQuestion("text", "q2");
+  page.elements[0].width = "20em";
+  assert.equal(page.elements[0].renderWidth, "20em", "q1.renderedWidth");
+  assert.equal(
+    panel.renderWidth,
+    "calc(100% - 20em)",
+    "panel1.renderedWidth, calculated"
+  );
+  panel.width = "calc(100% - 40px)";
+  assert.equal(
+    panel.renderWidth,
+    "calc(100% - 40px)",
+    "panel1.renderedWidth, from width"
+  );
+});
 QUnit.test(
   "Render width should work for strings only - https://surveyjs.answerdesk.io/ticket/details/T2273",
   function (assert) {

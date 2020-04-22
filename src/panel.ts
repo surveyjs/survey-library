@@ -1630,6 +1630,7 @@ Serializer.addClass(
       serializationProperty: "locRequiredErrorText",
     },
     { name: "startWithNewLine:boolean", default: true },
+    "width",
     { name: "innerIndent:number", default: 0, choices: [0, 1, 2, 3] },
     { name: "indent:number", default: 0, choices: [0, 1, 2, 3] },
     {

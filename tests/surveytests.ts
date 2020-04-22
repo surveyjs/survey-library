@@ -2634,6 +2634,43 @@ QUnit.test("Rendered width when all widths for questions are set", function (
     "panel1.renderedWidth, from width"
   );
 });
+QUnit.test("panel.rederWidth, load from JSON", function (assert) {
+  var survey = new SurveyModel({
+    elements: [
+      {
+        type: "text",
+        name: "q1",
+        width: "120px",
+      },
+      {
+        type: "panel",
+        name: "panel1",
+        width: "calc(90% - 130px)",
+        startWithNewLine: false,
+        elements: [
+          {
+            type: "text",
+            name: "q2",
+          },
+        ],
+      },
+    ],
+  });
+  survey.currentPage.onFirstRendering();
+  var q1 = survey.getQuestionByName("q1");
+  var panel1 = <PanelModel>survey.getPanelByName("panel1");
+  assert.equal(q1.renderWidth, "120px", "question.renderWidth is fine");
+  assert.equal(
+    panel1.width,
+    "calc(90% - 130px)",
+    "panel1.width loaded correctly"
+  );
+  assert.equal(
+    panel1.renderWidth,
+    "calc(90% - 130px)",
+    "panel.renderWidth is fine"
+  );
+});
 QUnit.test(
   "Render width should work for strings only - https://surveyjs.answerdesk.io/ticket/details/T2273",
   function (assert) {

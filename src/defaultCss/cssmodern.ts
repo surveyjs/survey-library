@@ -127,6 +127,7 @@ export var modernCss = {
   },
   boolean: {
     root: "",
+    small: "sv-row__question--small",
     item: "sv-boolean sv-item",
     control: "sv-visuallyhidden",
     itemChecked: "sv-boolean--checked",
@@ -236,6 +237,7 @@ export var modernCss = {
   },
   signaturepad: {
     root: "sv-signaturepad sjs_sp_container",
+    small: "sv-row__question--small",
     controls: "sjs_sp_controls",
     clearButton: "sjs_sp_clear",
   },

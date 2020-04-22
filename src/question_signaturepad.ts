@@ -36,6 +36,14 @@ function resizeCanvas(canvas: HTMLCanvasElement) {
  * A Model for signature pad question.
  */
 export class QuestionSignaturePadModel extends Question {
+  protected getCssRoot(cssClasses: any): string {
+    var classes = super.getCssRoot(cssClasses);
+    if ("" + this.width === "300") {
+      classes += " " + cssClasses.small;
+    }
+    return classes;
+  }
+
   constructor(public name: string) {
     super(name);
   }

@@ -178,7 +178,7 @@ export class StylesManager {
     ".sv_main .sjs_sp_container>div>canvas:focus": "outline: none;",
 
     // logo
-    ".sv_main .sv_header": "white-space: nowrap;",
+    // ".sv_main .sv_header": "white-space: nowrap;",
     ".sv_main .sv_logo": "",
     ".sv_main .sv-logo--left":
       "display: inline-block; vertical-align: top; margin-right: 2em;",

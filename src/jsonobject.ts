@@ -27,6 +27,7 @@ export class JsonObjectProperty implements IObject {
     "serializationProperty",
     "onGetValue",
     "onSetValue",
+    "displayName",
     "category",
     "categoryIndex",
     "visibleIndex",
@@ -56,6 +57,7 @@ export class JsonObjectProperty implements IObject {
   public baseClassName: string = null;
   public defaultValueValue: any = null;
   public serializationProperty: string = null;
+  public displayName: string = null;
   public category: string = "";
   public categoryIndex: number = -1;
   public visibleIndex: number = -1;
@@ -415,6 +417,9 @@ export class JsonMetadataClass {
       }
       if (!Helpers.isValueEmpty(propInfo.maxLength)) {
         prop.maxLength = propInfo.maxLength;
+      }
+      if (!Helpers.isValueEmpty(propInfo.displayName)) {
+        prop.displayName = propInfo.displayName;
       }
       if (!Helpers.isValueEmpty(propInfo.category)) {
         prop.category = propInfo.category;

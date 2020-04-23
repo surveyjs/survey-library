@@ -7048,6 +7048,11 @@ QUnit.test("getPlainData", function (assert) {
   assert.equal(plainData[1].data[0].displayValue, "item1");
   assert.equal(plainData[1].data[1].value, "item2");
   assert.equal(plainData[1].data[1].displayValue, "item2");
+
+  assert.equal(plainData[2].name, "question4");
+  assert.equal(plainData[2].title, "radiogroup");
+  assert.equal(plainData[2].value, "item3");
+  assert.ok(plainData[2].isNode);
 });
 
 QUnit.test(

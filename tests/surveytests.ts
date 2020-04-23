@@ -56,7 +56,7 @@ import {
   Const,
 } from "../src/expressions/expressions";
 import { ArrayChanges } from "../src/base";
-import { Helpers } from "../src/helpers";
+import { settings } from "../src/settings";
 
 export default QUnit.module("Survey");
 
@@ -1708,6 +1708,24 @@ QUnit.test("Complete trigger test", function (assert) {
   survey.nextPage();
   assert.equal(survey.state, "completed");
 });
+QUnit.test(
+  "Complete trigger test, settings.executeCompleteTriggerOnValueChanged",
+  function (assert) {
+    settings.executeCompleteTriggerOnValueChanged = true;
+    var survey = twoPageSimplestSurvey();
+    var trigger = new SurveyTriggerComplete();
+    survey.triggers.push(trigger);
+    trigger.name = "question1";
+    trigger.value = "Hello";
+
+    survey.setValue("question1", "H");
+    assert.equal(survey.state, "running");
+
+    survey.setValue("question1", "Hello");
+    assert.equal(survey.state, "completed");
+    settings.executeCompleteTriggerOnValueChanged = false;
+  }
+);
 QUnit.test("CompleteTrigger.toString()", function (assert) {
   var trigger = new SurveyTriggerComplete();
   trigger.name = "question1";
@@ -7030,6 +7048,11 @@ QUnit.test("getPlainData", function (assert) {
   assert.equal(plainData[1].data[0].displayValue, "item1");
   assert.equal(plainData[1].data[1].value, "item2");
   assert.equal(plainData[1].data[1].displayValue, "item2");
+
+  assert.equal(plainData[2].name, "question4");
+  assert.equal(plainData[2].title, "radiogroup");
+  assert.equal(plainData[2].value, "item3");
+  assert.ok(plainData[2].isNode);
 });
 
 QUnit.test(

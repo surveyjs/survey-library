@@ -4,6 +4,7 @@ import { Serializer } from "./jsonobject";
 import { ConditionRunner, ExpressionRunner } from "./conditions";
 import { OperandMaker } from "./expressions/expressions";
 import { ProcessValue } from "./conditionProcessValue";
+import { settings } from "./settings";
 
 /**
  * A base class for all triggers.
@@ -266,7 +267,7 @@ export class SurveyTriggerComplete extends SurveyTrigger {
     return "completetrigger";
   }
   public get isOnNextPage() {
-    return true;
+    return !settings.executeCompleteTriggerOnValueChanged;
   }
   protected onSuccess(values: HashTable<any>, properties: HashTable<any>) {
     if (this.owner) this.owner.setCompleted();

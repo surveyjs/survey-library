@@ -59,4 +59,8 @@ export var settings = {
    * Set to false to hide empty page title in design mode
    */
   allowShowEmptyTitleInDesignMode: true,
+  /**
+   * Set this property to true to execute the complete trigger on value change instead of on next page.
+   */
+  executeCompleteTriggerOnValueChanged: false,
 };

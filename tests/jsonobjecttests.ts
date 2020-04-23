@@ -290,6 +290,7 @@ Serializer.addClass(
   [
     {
       name: "maxWeight:number",
+      displayName: "Maximum Weight",
       choices: () => {
         return [500, 1500];
       },
@@ -2243,4 +2244,11 @@ QUnit.test("ItemValue value changed notifications", function (assert) {
   itemValue.value = "Test";
   assert.equal(valueChangedCount, 1, "changed notification has been fired");
   itemValue.unRegisterFunctionOnPropertyValueChanged("value", "val_changed");
+});
+QUnit.test("property.displayName", function (assert) {
+  assert.equal(
+    Serializer.findProperty("truck", "maxWeight").displayName,
+    "Maximum Weight",
+    "property.displayName is correct"
+  );
 });

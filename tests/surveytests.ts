@@ -56,7 +56,7 @@ import {
   Const,
 } from "../src/expressions/expressions";
 import { ArrayChanges } from "../src/base";
-import { Helpers } from "../src/helpers";
+import { settings } from "../src/settings";
 
 export default QUnit.module("Survey");
 
@@ -1708,6 +1708,24 @@ QUnit.test("Complete trigger test", function (assert) {
   survey.nextPage();
   assert.equal(survey.state, "completed");
 });
+QUnit.test(
+  "Complete trigger test, settings.executeCompleteTriggerOnValueChanged",
+  function (assert) {
+    settings.executeCompleteTriggerOnValueChanged = true;
+    var survey = twoPageSimplestSurvey();
+    var trigger = new SurveyTriggerComplete();
+    survey.triggers.push(trigger);
+    trigger.name = "question1";
+    trigger.value = "Hello";
+
+    survey.setValue("question1", "H");
+    assert.equal(survey.state, "running");
+
+    survey.setValue("question1", "Hello");
+    assert.equal(survey.state, "completed");
+    settings.executeCompleteTriggerOnValueChanged = false;
+  }
+);
 QUnit.test("CompleteTrigger.toString()", function (assert) {
   var trigger = new SurveyTriggerComplete();
   trigger.name = "question1";

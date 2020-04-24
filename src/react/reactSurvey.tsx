@@ -83,7 +83,7 @@ export class Survey extends SurveyElementBase implements ISurveyCreator {
       renderResult = this.renderSurvey();
     }
     var header = this.renderHeader();
-    var onSubmit = function(event: React.FormEvent<HTMLFormElement>) {
+    var onSubmit = function (event: React.FormEvent<HTMLFormElement>) {
       event.preventDefault();
     };
     var customHeader = <div className="sv_custom_header" />;
@@ -337,7 +337,7 @@ export class Survey extends SurveyElementBase implements ISurveyCreator {
     }
     return false;
   }
-  protected updateSurvey(newProps: any, oldProps: any) {
+  protected updateSurvey(newProps: any, oldProps?: any) {
     if (!newProps) return;
     oldProps = oldProps || {};
     for (var key in newProps) {
@@ -358,12 +358,12 @@ export class Survey extends SurveyElementBase implements ISurveyCreator {
   protected setSurveyEvents() {
     var self = this;
 
-    this.survey.renderCallback = function() {
+    this.survey.renderCallback = function () {
       var counter =
         !!self.state && !!self.state.modelChanged ? self.state.modelChanged : 0;
       self.setState({ modelChanged: counter + 1 });
     };
-    this.survey.onPartialSend.add(sender => {
+    this.survey.onPartialSend.add((sender) => {
       self.setState(self.state);
     });
     this.survey.onCurrentPageChanged.add(this.onCurrentPageChangedHandler);
@@ -376,7 +376,7 @@ export class Survey extends SurveyElementBase implements ISurveyCreator {
       {
         question: question,
         isDisplayMode: question.isReadOnly,
-        creator: this
+        creator: this,
       }
     );
   }

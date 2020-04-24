@@ -7,14 +7,14 @@ import { surveyCss } from "../defaultCss/cssstandard";
 import { koTemplate, SurveyTemplateText } from "./templateText";
 import {
   QuestionCustomWidget,
-  CustomWidgetCollection
+  CustomWidgetCollection,
 } from "../questionCustomWidgets";
 import { LocalizableString } from "../localizablestring";
 import { ItemValue } from "../itemvalue";
 import { ImplementorBase } from "./kobase";
 import { StylesManager } from "../stylesmanager";
 
-CustomWidgetCollection.Instance.onCustomWidgetAdded.add(customWidget => {
+CustomWidgetCollection.Instance.onCustomWidgetAdded.add((customWidget) => {
   if (customWidget.widgetJson.isDefaultRender) return;
   if (!customWidget.htmlTemplate)
     customWidget.htmlTemplate =
@@ -224,11 +224,11 @@ export class Survey extends SurveyModel {
     this.koCompletedStateText = ko.observable("");
     this.koCompletedStateCss = ko.observable("");
     this.koTimerInfoText = ko.observable(this.timerInfoText);
-    this.koAfterRenderPage = function(elements: any, con: any) {
+    this.koAfterRenderPage = function (elements: any, con: any) {
       var el = SurveyElement.GetFirstNonTextElement(elements);
       if (el) self.afterRenderPage(el);
     };
-    this.koAfterRenderHeader = function(elements: any, con: any) {
+    this.koAfterRenderHeader = function (elements: any, con: any) {
       var el = SurveyElement.GetFirstNonTextElement(elements);
       if (el) self.afterRenderHeader(el);
     };
@@ -293,44 +293,72 @@ export class Survey extends SurveyModel {
       if (q.visible) q["updateQuestion"]();
     }
   }
+  public updateSurvey(newProps: any, oldProps?: any) {
+    for (var key in newProps) {
+      if (key == "model" || key == "children") continue;
+      if (key == "css") {
+        this.mergeValues(newProps.css, this.getCss());
+        this.updateElementCss();
+        continue;
+      }
+      if (key.indexOf("on") == 0 && this[key] && this[key].add) {
+        let funcBody = newProps[key];
+        let func = function (sender: any, options: any) {
+          funcBody(sender, options);
+        };
+        this[key].add(func);
+      } else {
+        this[key] = newProps[key];
+      }
+    }
+
+    if (newProps && newProps.data)
+      this.onValueChanged.add((sender, options) => {
+        newProps.data[options.name] = options.value;
+      });
+  }
 }
 
-LocalizableString.prototype["onCreating"] = function() {
+LocalizableString.prototype["onCreating"] = function () {
   var self = this;
   this.koReRender = ko.observable(0);
   Object.defineProperty(self, "koHasHtml", {
     get: () => {
       self.koReRender();
       return self.hasHtml;
-    }
+    },
   });
-  this.koRenderedHtml = ko.pureComputed(function() {
+  this.koRenderedHtml = ko.pureComputed(function () {
     self.koReRender();
     return self.renderedHtml;
   });
 };
 
-ItemValue.prototype["onCreating"] = function() {
+ItemValue.prototype["onCreating"] = function () {
   new ImplementorBase(this);
 };
 
-LocalizableString.prototype["onChanged"] = function() {
+LocalizableString.prototype["onChanged"] = function () {
   this.koReRender(this.koReRender() + 1);
 };
 
 ko.components.register("survey", {
   viewModel: {
-    createViewModel: function(params: any, componentInfo: any) {
+    createViewModel: function (params: any, componentInfo: any) {
       var survey: Survey = ko.unwrap(params.survey);
       survey.render();
       return params.survey;
-    }
+    },
   },
-  template: koTemplate
+  template: koTemplate,
 });
 
 ko.bindingHandlers["surveyProp"] = {
-  update: function(element: any, valueAccessor: any, allBindingsAccessor: any) {
+  update: function (
+    element: any,
+    valueAccessor: any,
+    allBindingsAccessor: any
+  ) {
     var value = ko.utils.unwrapObservable(valueAccessor()) || {};
     for (var propName in value) {
       if (typeof propName == "string") {
@@ -338,16 +366,16 @@ ko.bindingHandlers["surveyProp"] = {
         element[propName] = propValue;
       }
     }
-  }
+  },
 };
 SurveyModel.platform = "knockout";
 
 export var registerTemplateEngine = (ko: any, platform: string) => {
-  (<any>ko).surveyTemplateEngine = function() {};
+  (<any>ko).surveyTemplateEngine = function () {};
 
   (<any>ko).surveyTemplateEngine.prototype = new ko.nativeTemplateEngine();
 
-  (<any>ko).surveyTemplateEngine.prototype.makeTemplateSource = function(
+  (<any>ko).surveyTemplateEngine.prototype.makeTemplateSource = function (
     template: any,
     templateDocument: any
   ) {

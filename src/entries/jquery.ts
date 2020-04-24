@@ -15,9 +15,7 @@ export { defaultStandardCss } from "../defaultCss/cssstandard";
 // css bootstrap
 export { defaultBootstrapCss } from "../defaultCss/cssbootstrap";
 // css bootstrap + material
-export {
-  defaultBootstrapMaterialCss
-} from "../defaultCss/cssbootstrapmaterial";
+export { defaultBootstrapMaterialCss } from "../defaultCss/cssbootstrapmaterial";
 export { modernCss } from "../defaultCss/cssmodern";
 
 import { Survey, SurveyWindow } from "./knockout";
@@ -25,21 +23,20 @@ export { Survey as Model };
 
 import { SurveyModel } from "../survey";
 import { registerTemplateEngine } from "../knockout/kosurvey";
-import { updateSurveyProps } from "../utils/updateSurveyProps";
 
 jQuery["fn"].extend({
-  Survey: function(props: any) {
-    return this.each(function() {
-      var model = props.model;
-      updateSurveyProps(model, props);
+  Survey: function (props: any) {
+    return this.each(function () {
+      var model: Survey = props.model;
+      model.updateSurvey(props);
       model.render(this);
     });
   },
 
-  SurveyWindow: function(props: any) {
-    return this.each(function() {
-      var model = props.model;
-      updateSurveyProps(model, props);
+  SurveyWindow: function (props: any) {
+    return this.each(function () {
+      var model: Survey = props.model;
+      model.updateSurvey(props);
       var survey = new SurveyWindow(null, model);
       if (props.expanded !== undefined) {
         survey.isExpanded = props.expanded;
@@ -52,7 +49,7 @@ jQuery["fn"].extend({
       }
       survey.show();
     });
-  }
+  },
 });
 
 SurveyModel.platform = "jquery";

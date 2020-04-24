@@ -11,12 +11,12 @@ import { QuestionPanelDynamic } from "../../src/knockout/koquestion_paneldynamic
 import { MatrixDropdownColumn } from "../../src/question_matrixdropdownbase";
 import {
   QuestionMultipleText,
-  MultipleTextItem
+  MultipleTextItem,
 } from "../../src/knockout/koquestion_multipletext";
 import { Page, Panel, QuestionRow } from "../../src/knockout/kopage";
 import {
   CustomWidgetCollection,
-  QuestionCustomWidget
+  QuestionCustomWidget,
 } from "../../src/questionCustomWidgets";
 import { koTemplate } from "../../src/knockout/templateText";
 import { QuestionMatrixDynamic } from "../../src/knockout/koquestion_matrixdynamic";
@@ -29,7 +29,7 @@ import * as ko from "knockout";
 
 export default QUnit.module("koTests");
 
-QUnit.test("Survey.koCurrentPage", function(assert) {
+QUnit.test("Survey.koCurrentPage", function (assert) {
   var survey = new Survey();
   survey.addPage(createPageWithQuestion("Page 1"));
   survey.addPage(createPageWithQuestion("Page 2"));
@@ -59,7 +59,7 @@ QUnit.test("Survey.koCurrentPage", function(assert) {
   assert.equal(survey.koIsFirstPage(), false, "is last page");
   assert.equal(survey.koIsLastPage(), true, "is last page");
 });
-QUnit.test("koOtherVisible for one choice items", function(assert) {
+QUnit.test("koOtherVisible for one choice items", function (assert) {
   var survey = new Survey();
   var question = new QuestionCheckbox("q");
   question.hasOther = true;
@@ -72,7 +72,9 @@ QUnit.test("koOtherVisible for one choice items", function(assert) {
     "Other visible is true after selecting it"
   );
 });
-QUnit.test("Create koValue as observable array for checkbox", function(assert) {
+QUnit.test("Create koValue as observable array for checkbox", function (
+  assert
+) {
   var question = new QuestionCheckbox("q");
   question.koValue.push("test1");
   question.koValue.push("test2");
@@ -87,7 +89,7 @@ QUnit.test("Create koValue as observable array for checkbox", function(assert) {
     "value is set correctly."
   );
 });
-QUnit.test("Default value for checkbox", function(assert) {
+QUnit.test("Default value for checkbox", function (assert) {
   var survey = new Survey();
   survey.addNewPage("p1");
   var question = new QuestionCheckbox("q");
@@ -98,7 +100,7 @@ QUnit.test("Default value for checkbox", function(assert) {
     "the koValue by default should be empty array"
   );
 });
-QUnit.test("koOtherVisible for multi choice items", function(assert) {
+QUnit.test("koOtherVisible for multi choice items", function (assert) {
   var survey = new Survey();
   var question = new QuestionCheckbox("q");
   question.hasOther = true;
@@ -120,7 +122,7 @@ QUnit.test("koOtherVisible for multi choice items", function(assert) {
 });
 QUnit.test(
   "Update koValue on changing data in Survey or Question.value ",
-  function(assert) {
+  function (assert) {
     var survey = new Survey();
     survey.setValue("textQuestion", "initialValue");
     var page = survey.addNewPage("my page");
@@ -134,7 +136,7 @@ QUnit.test(
 );
 QUnit.test(
   "Update koValue on changing data in Survey or Question.value for Multiple Answer Question ",
-  function(assert) {
+  function (assert) {
     var survey = new Survey();
     survey.setValue("checkboxQuestion", "initialValue");
     var page = survey.addNewPage("my page");
@@ -152,7 +154,7 @@ QUnit.test(
     assert.deepEqual(question.value, ["setFromSurvey"], "set from survey");
   }
 );
-QUnit.test("Question Matrix: koValue in MatrixValue", function(assert) {
+QUnit.test("Question Matrix: koValue in MatrixValue", function (assert) {
   var matrix = new QuestionMatrix("q1");
   matrix.rows = ["row1", "row2"];
   matrix.columns = ["col1", "col2"];
@@ -167,7 +169,7 @@ QUnit.test("Question Matrix: koValue in MatrixValue", function(assert) {
     "the matrix value changed correctly"
   );
 });
-QUnit.test("Question Matrix: update koVisibleColumns on assign", function(
+QUnit.test("Question Matrix: update koVisibleColumns on assign", function (
   assert
 ) {
   var matrix = new QuestionMatrix("q1");
@@ -184,7 +186,7 @@ QUnit.test("Question Matrix: update koVisibleColumns on assign", function(
 });
 QUnit.test(
   "Question Matrix: change matrix value after visibleRows generation",
-  function(assert) {
+  function (assert) {
     var matrix = new QuestionMatrix("q1");
     matrix.rows = ["row1", "row2"];
     matrix.columns = ["col1", "col2"];
@@ -201,7 +203,7 @@ QUnit.test(
 
 QUnit.test(
   "Question Matrix: columnsVisibleIf, rowsVisibleIf, Bug #2012",
-  function(assert) {
+  function (assert) {
     var survey = new Survey();
     var page = survey.addNewPage("page1");
     var matrix = new QuestionMatrix("q1");
@@ -247,7 +249,7 @@ QUnit.test(
 
 QUnit.test(
   "Question MatrixDropdown: change matrix value after visibleRows generation",
-  function(assert) {
+  function (assert) {
     var matrix = new QuestionMatrixDropdown("q1");
     matrix.rows = ["row1", "row2", "row3"];
     matrix.columns.push(new MatrixDropdownColumn("column1"));
@@ -260,7 +262,7 @@ QUnit.test(
   }
 );
 
-QUnit.test("Matrixdynamic checkbox column does not work, Bug#1031", function(
+QUnit.test("Matrixdynamic checkbox column does not work, Bug#1031", function (
   assert
 ) {
   var survey = new Survey({
@@ -273,12 +275,12 @@ QUnit.test("Matrixdynamic checkbox column does not work, Bug#1031", function(
             name: "col1",
             cellType: "checkbox",
             colCount: 1,
-            choices: ["1", "2", "3"]
-          }
+            choices: ["1", "2", "3"],
+          },
         ],
-        rowCount: 1
-      }
-    ]
+        rowCount: 1,
+      },
+    ],
   });
   var question: QuestionMatrixDynamic = <any>survey.getQuestionByName("q1");
   var rows = question.visibleRows;
@@ -291,7 +293,7 @@ QUnit.test("Matrixdynamic checkbox column does not work, Bug#1031", function(
   );
 });
 
-QUnit.test("Question MultipleText: koValue in TextItem", function(assert) {
+QUnit.test("Question MultipleText: koValue in TextItem", function (assert) {
   var mQuestion = new QuestionMultipleText("q1");
   mQuestion.items.push(new MultipleTextItem("i1"));
   mQuestion.items.push(new MultipleTextItem("i2"));
@@ -315,7 +317,7 @@ QUnit.test("Question MultipleText: koValue in TextItem", function(assert) {
   mQuestion.value = null;
   assert.equal(mQuestion.items[0].value, null, "empty the value");
 });
-QUnit.test("Question MultipleText: koRows", function(assert) {
+QUnit.test("Question MultipleText: koRows", function (assert) {
   var mQuestion = new QuestionMultipleText("q1");
   mQuestion.items.push(new MultipleTextItem("i1"));
   mQuestion.items.push(new MultipleTextItem("i2"));
@@ -330,7 +332,7 @@ QUnit.test("Question MultipleText: koRows", function(assert) {
     "just one item in the first row"
   );
 });
-QUnit.test("koElements", function(assert) {
+QUnit.test("koElements", function (assert) {
   var survey = new Survey();
   var page = survey.addNewPage("page1");
   page.addNewQuestion("text", "q1");
@@ -353,7 +355,7 @@ QUnit.test("koElements", function(assert) {
     "One element in the second row, ko"
   );
 });
-QUnit.test("Set notification on setting survey data", function(assert) {
+QUnit.test("Set notification on setting survey data", function (assert) {
   var survey = new Survey();
   var page = survey.addNewPage("page1");
   var question = page.addNewQuestion("text", "q1");
@@ -362,7 +364,7 @@ QUnit.test("Set notification on setting survey data", function(assert) {
   assert.equal(survey.getValue("q1"), "value2", "survey data for q1");
   assert.equal(question.value, "value2", "knockout value is updated.");
 });
-QUnit.test("On make survey data empy for Multiple text question", function(
+QUnit.test("On make survey data empy for Multiple text question", function (
   assert
 ) {
   var survey = new Survey();
@@ -375,7 +377,7 @@ QUnit.test("On make survey data empy for Multiple text question", function(
   survey.data = null;
   assert.equal(question.items[0].value, null, "Make the data empty");
 });
-QUnit.test("isVisible property", function(assert) {
+QUnit.test("isVisible property", function (assert) {
   var survey = new Survey();
   var page = survey.addNewPage("page1");
   var question = page.addNewQuestion("text", "q1");
@@ -383,7 +385,7 @@ QUnit.test("isVisible property", function(assert) {
   question.visible = false;
   assert.equal(question.isVisible, false, "it is false now");
 });
-QUnit.test("comment property", function(assert) {
+QUnit.test("comment property", function (assert) {
   var survey = new Survey();
   survey.data = { q: "other", "q-Comment": "aaaa" };
   var page = survey.addNewPage("page1");
@@ -393,7 +395,7 @@ QUnit.test("comment property", function(assert) {
   question.hasOther = true;
   assert.equal(question.comment, "aaaa", "Set ko Comment");
 });
-QUnit.test("Load title correctly from JSON", function(assert) {
+QUnit.test("Load title correctly from JSON", function (assert) {
   var survey = new Survey({ questions: [{ type: "text", name: "question1" }] });
   assert.equal(
     survey.pages[0].questions[0]["locTitle"]["koRenderedHtml"](),
@@ -401,7 +403,7 @@ QUnit.test("Load title correctly from JSON", function(assert) {
     "title is getting from name"
   );
 });
-QUnit.test("errors should be empty after prevPage bug#151", function(assert) {
+QUnit.test("errors should be empty after prevPage bug#151", function (assert) {
   var survey = new Survey();
   survey.goNextPageAutomatic = true;
   var page = survey.addNewPage("page1");
@@ -425,14 +427,14 @@ QUnit.test("errors should be empty after prevPage bug#151", function(assert) {
   assert.equal(errorCount, 0, "The question has not errors");
 });
 
-QUnit.test("add customwidget item", function(assert) {
+QUnit.test("add customwidget item", function (assert) {
   CustomWidgetCollection.Instance.clear();
   CustomWidgetCollection.Instance.addCustomWidget({
     name: "first",
     htmlTemplate: "<input type='text' />",
-    isFit: question => {
+    isFit: (question) => {
       return false;
-    }
+    },
   });
   assert.equal(
     CustomWidgetCollection.Instance.widgets.length,
@@ -444,7 +446,7 @@ QUnit.test("add customwidget item", function(assert) {
   CustomWidgetCollection.Instance.clear();
 });
 
-QUnit.test("Localization, choices.locText.koRenderedHtml, #349", function(
+QUnit.test("Localization, choices.locText.koRenderedHtml, #349", function (
   assert
 ) {
   var survey = new Survey();
@@ -475,7 +477,7 @@ QUnit.test("Localization, choices.locText.koRenderedHtml, #349", function(
   survey.locale = "";
 });
 
-QUnit.test("Localization, otherItem", function(assert) {
+QUnit.test("Localization, otherItem", function (assert) {
   var survey = new Survey();
   var page = survey.addNewPage("page");
   var q1 = <QuestionCheckbox>page.addNewQuestion("checkbox", "q1");
@@ -496,7 +498,7 @@ QUnit.test("Localization, otherItem", function(assert) {
   survey.locale = "";
 });
 
-QUnit.test("otherItem, set text, editor: #90", function(assert) {
+QUnit.test("otherItem, set text, editor: #90", function (assert) {
   var survey = new Survey({
     questions: [
       {
@@ -504,16 +506,16 @@ QUnit.test("otherItem, set text, editor: #90", function(assert) {
         name: "q1",
         choices: [1, 2],
         hasOther: true,
-        otherText: "my other"
-      }
-    ]
+        otherText: "my other",
+      },
+    ],
   });
   var q1 = <QuestionCheckbox>survey.pages[0].questions[0];
   assert.equal(q1.name, "q1", "question load correctly");
   assert.equal(q1.visibleChoices[2].text, "my other", "use otherText");
 });
 
-QUnit.test("Update page.title correctly with numbers", function(assert) {
+QUnit.test("Update page.title correctly with numbers", function (assert) {
   var survey = new Survey();
   survey.addPage(createPageWithQuestion("page1"));
   survey.addPage(createPageWithQuestion("page2"));
@@ -536,7 +538,7 @@ QUnit.test("Update page.title correctly with numbers", function(assert) {
 
 QUnit.test(
   "Survey display mode should set isReadOnly to true for questions",
-  function(assert) {
+  function (assert) {
     var survey = new Survey();
     var page = new Page("page1");
     survey.addPage(page);
@@ -584,7 +586,7 @@ QUnit.test(
 
 QUnit.test(
   "Matrixdynamic adjust rowCount on setting the survey.data with another locale",
-  function(assert) {
+  function (assert) {
     var survey = new Survey();
     survey.addNewPage("p1");
     var question = new QuestionMatrixDynamic("q1");
@@ -598,7 +600,7 @@ QUnit.test(
   }
 );
 
-QUnit.test("Text preprocessing variable and value. Fix the bug#461", function(
+QUnit.test("Text preprocessing variable and value. Fix the bug#461", function (
   assert
 ) {
   var survey = new Survey();
@@ -627,7 +629,7 @@ QUnit.test("Text preprocessing variable and value. Fix the bug#461", function(
   );
 });
 
-QUnit.test("Load Panel from Json + visibleIf + startWithNewLine", function(
+QUnit.test("Load Panel from Json + visibleIf + startWithNewLine", function (
   assert
 ) {
   var json = {
@@ -641,11 +643,11 @@ QUnit.test("Load Panel from Json + visibleIf + startWithNewLine", function(
             type: "text",
             name: "q2",
             visibleIf: "{q1}=a",
-            startWithNewLine: false
-          }
-        ]
-      }
-    ]
+            startWithNewLine: false,
+          },
+        ],
+      },
+    ],
   };
   var survey = new Survey(json);
   var panel = survey.getAllPanels()[0];
@@ -661,19 +663,19 @@ QUnit.test("Load Panel from Json + visibleIf + startWithNewLine", function(
   );
 });
 
-QUnit.test("Load Panel from Json + isSinglePage", function(assert) {
+QUnit.test("Load Panel from Json + isSinglePage", function (assert) {
   var json = {
     isSinglePage: true,
     pages: [
       {
         name: "page1",
-        elements: [{ type: "text", name: "q1" }]
+        elements: [{ type: "text", name: "q1" }],
       },
       {
         name: "page2",
-        elements: [{ type: "text", name: "q2" }]
-      }
-    ]
+        elements: [{ type: "text", name: "q2" }],
+      },
+    ],
   };
   var survey = new Survey(json);
   var page = survey.pages[0];
@@ -687,7 +689,7 @@ QUnit.test("Load Panel from Json + isSinglePage", function(assert) {
   assert.equal(q.isVisible, true, "The question is visible");
 });
 
-QUnit.test("Load PanelDynamic from Json", function(assert) {
+QUnit.test("Load PanelDynamic from Json", function (assert) {
   var json = {
     questions: [
       {
@@ -696,10 +698,10 @@ QUnit.test("Load PanelDynamic from Json", function(assert) {
         panelCount: 3,
         templateElements: [
           { type: "text", name: "q1" },
-          { type: "text", name: "q2" }
-        ]
-      }
-    ]
+          { type: "text", name: "q2" },
+        ],
+      },
+    ],
   };
   var survey = new Survey(json);
   var question = <QuestionPanelDynamic>survey.getAllQuestions()[0];
@@ -733,7 +735,7 @@ QUnit.test("Load PanelDynamic from Json", function(assert) {
   question.value = [
     { q1: "item1_1", q2: "item1_2" },
     { q1: "item2_1", q2: "item2_2" },
-    {}
+    {},
   ];
   assert.equal(
     <Question>panel.questions[0].value,
@@ -744,7 +746,7 @@ QUnit.test("Load PanelDynamic from Json", function(assert) {
   assert.equal(question.panels.length, 2, "2 panels, panels has been updated");
 });
 
-QUnit.test("Load PanelDynamic from Json, nested panel", function(assert) {
+QUnit.test("Load PanelDynamic from Json, nested panel", function (assert) {
   var json = {
     questions: [
       {
@@ -756,11 +758,11 @@ QUnit.test("Load PanelDynamic from Json, nested panel", function(assert) {
           {
             type: "panel",
             name: "np1",
-            elements: [{ type: "text", name: "q2" }]
-          }
-        ]
-      }
-    ]
+            elements: [{ type: "text", name: "q2" }],
+          },
+        ],
+      },
+    ],
   };
   var survey = new Survey(json);
   var question = <QuestionPanelDynamic>survey.getAllQuestions()[0];
@@ -825,7 +827,7 @@ QUnit.test("Load PanelDynamic from Json, nested panel", function(assert) {
   );
 });
 
-QUnit.test("PanelDynamic and koRenderedHtml on text processing", function(
+QUnit.test("PanelDynamic and koRenderedHtml on text processing", function (
   assert
 ) {
   var json = {
@@ -840,11 +842,11 @@ QUnit.test("PanelDynamic and koRenderedHtml on text processing", function(
             type: "panel",
             name: "np1",
             title: "{panel.q1}",
-            elements: [{ type: "text", name: "q2", title: "{panel.q1}" }]
-          }
-        ]
-      }
-    ]
+            elements: [{ type: "text", name: "q2", title: "{panel.q1}" }],
+          },
+        ],
+      },
+    ],
   };
   var survey = new Survey(json);
   var question = <QuestionPanelDynamic>survey.getAllQuestions()[0];
@@ -862,7 +864,7 @@ QUnit.test("PanelDynamic and koRenderedHtml on text processing", function(
   assert.equal(pLocTitle["koRenderedHtml"](), "val1", "np1 title is q1.value");
 });
 
-QUnit.test("koSurvey matrix.rowsVisibleIf", function(assert) {
+QUnit.test("koSurvey matrix.rowsVisibleIf", function (assert) {
   var survey = new Survey();
   var page = survey.addNewPage("p1");
   var qCars = new QuestionCheckbox("cars");
@@ -898,7 +900,7 @@ export class DesignerSurveyTester extends Survey {
 
 QUnit.test(
   "Questions are not rendered in Panel inside Dynamic Panel in Editor, editor bug #216",
-  function(assert) {
+  function (assert) {
     var survey = new DesignerSurveyTester({
       pages: [
         {
@@ -913,16 +915,16 @@ QUnit.test(
                   elements: [
                     {
                       type: "text",
-                      name: "question2"
-                    }
+                      name: "question2",
+                    },
                   ],
-                  name: "panel1"
-                }
-              ]
-            }
-          ]
-        }
-      ]
+                  name: "panel1",
+                },
+              ],
+            },
+          ],
+        },
+      ],
     });
     var dynamicPanel = <QuestionPanelDynamic>(
       survey.getQuestionByName("question1")
@@ -950,7 +952,7 @@ QUnit.test(
 
 QUnit.test(
   "Add invisible question in Panel from JSON in Editor, editor bug #218",
-  function(assert) {
+  function (assert) {
     var survey = new DesignerSurveyTester();
     var page = survey.addNewPage("page1");
     var json = {
@@ -959,10 +961,10 @@ QUnit.test(
         {
           type: "text",
           name: "question2",
-          visible: false
-        }
+          visible: false,
+        },
       ],
-      name: "panel1"
+      name: "panel1",
     };
     var newElement = Serializer.createClass("panel");
     new JsonObject().toObject(json, newElement);
@@ -983,11 +985,11 @@ QUnit.test(
 
 QUnit.test(
   "Load rating from JSON, bug# https://github.com/surveyjs/editor/issues/171",
-  function(assert) {
+  function (assert) {
     var json = {
       questions: [
-        { type: "rating", name: "q", rateMax: 8, rateMin: 2, rateStep: 2 }
-      ]
+        { type: "rating", name: "q", rateMax: 8, rateMin: 2, rateStep: 2 },
+      ],
     };
     var survey = new Survey(json);
 
@@ -999,7 +1001,7 @@ QUnit.test(
     );
   }
 );
-QUnit.test("Default value doesn't set in PanelDynamic , bug#910", function(
+QUnit.test("Default value doesn't set in PanelDynamic , bug#910", function (
   assert
 ) {
   var json = {
@@ -1011,18 +1013,18 @@ QUnit.test("Default value doesn't set in PanelDynamic , bug#910", function(
           {
             type: "text",
             name: "q1",
-            defaultValue: "value1"
+            defaultValue: "value1",
           },
           {
             type: "dropdown",
             name: "q2",
             defaultValue: "item2",
-            choices: ["item1", "item2", "item3"]
-          }
+            choices: ["item1", "item2", "item3"],
+          },
         ],
-        panelCount: 1
-      }
-    ]
+        panelCount: 1,
+      },
+    ],
   };
   var survey = new Survey(json);
   var panel = <QuestionPanelDynamic>survey.getQuestionByName("pdynamic");
@@ -1034,7 +1036,7 @@ QUnit.test("Default value doesn't set in PanelDynamic , bug#910", function(
 
 QUnit.test(
   "Survey.isSinglePage = true, the last page doesn't added, bug#1009",
-  function(assert) {
+  function (assert) {
     var json = {
       pages: [
         {
@@ -1042,29 +1044,29 @@ QUnit.test(
           elements: [
             {
               name: "text1",
-              type: "text"
-            }
-          ]
+              type: "text",
+            },
+          ],
         },
         {
           name: "page2",
           elements: [
             {
               name: "text2",
-              type: "text"
-            }
-          ]
+              type: "text",
+            },
+          ],
         },
         {
           name: "page3",
           elements: [
             {
               name: "text3",
-              type: "text"
-            }
-          ]
-        }
-      ]
+              type: "text",
+            },
+          ],
+        },
+      ],
     };
     var survey = new Survey(json);
     survey.isSinglePage = true;
@@ -1086,7 +1088,7 @@ QUnit.test(
   }
 );
 
-QUnit.test("Survey Localization - radiogroup.otheItem, Bug#1045", function(
+QUnit.test("Survey Localization - radiogroup.otheItem, Bug#1045", function (
   assert
 ) {
   var json = {
@@ -1098,10 +1100,10 @@ QUnit.test("Survey Localization - radiogroup.otheItem, Bug#1045", function(
         choices: [1, 2],
         otherText: {
           default: "Other",
-          es: "Otro"
-        }
-      }
-    ]
+          es: "Otro",
+        },
+      },
+    ],
   };
 
   var survey = new Survey(json);
@@ -1135,7 +1137,7 @@ QUnit.test("Survey Localization - radiogroup.otheItem, Bug#1045", function(
 
 QUnit.test(
   "PanelDynamic and MatrixDynamic, survey in readonly mode, Bug#1051",
-  function(assert) {
+  function (assert) {
     var json = {
       questions: [
         {
@@ -1145,9 +1147,9 @@ QUnit.test(
           templateElements: [
             {
               type: "text",
-              name: "q1"
-            }
-          ]
+              name: "q1",
+            },
+          ],
         },
         {
           type: "matrixdynamic",
@@ -1155,15 +1157,15 @@ QUnit.test(
           rowCount: 2,
           columns: [
             {
-              name: "col1"
-            }
-          ]
+              name: "col1",
+            },
+          ],
         },
         {
           type: "text",
-          name: "q2"
-        }
-      ]
+          name: "q2",
+        },
+      ],
     };
     var survey = new Survey(json);
     var panel = <QuestionPanelDynamic>survey.getQuestionByName("panel");
@@ -1205,7 +1207,7 @@ function createPageWithQuestion(name: string): Page {
   return page;
 }
 
-QUnit.test("koquestion inside panel vidibleif", function(assert) {
+QUnit.test("koquestion inside panel vidibleif", function (assert) {
   var json = {
     pages: [
       {
@@ -1214,12 +1216,12 @@ QUnit.test("koquestion inside panel vidibleif", function(assert) {
           {
             type: "dropdown",
             name: "question1",
-            choices: ["item1", "item2", "item3"]
+            choices: ["item1", "item2", "item3"],
           },
           {
             type: "checkbox",
             name: "question2",
-            choices: ["item1", "item2", "item3"]
+            choices: ["item1", "item2", "item3"],
           },
           {
             type: "panel",
@@ -1228,15 +1230,15 @@ QUnit.test("koquestion inside panel vidibleif", function(assert) {
               {
                 type: "rating",
                 name: "question3",
-                visibleIf: "{question2} contain 'item2'"
-              }
+                visibleIf: "{question2} contain 'item2'",
+              },
             ],
             visibleIf: "{question1} equal 'item1'",
-            state: "collapsed"
-          }
-        ]
-      }
-    ]
+            state: "collapsed",
+          },
+        ],
+      },
+    ],
   };
   var survey = new Survey(json);
 
@@ -1264,7 +1266,7 @@ QUnit.test("koquestion inside panel vidibleif", function(assert) {
 
 QUnit.test(
   "multipletext item is not readonly when survey is readonly, bug #1177",
-  function(assert) {
+  function (assert) {
     var json = {
       mode: "display",
       elements: [
@@ -1273,11 +1275,11 @@ QUnit.test(
           name: "question1",
           items: [
             {
-              name: "text1"
-            }
-          ]
-        }
-      ]
+              name: "text1",
+            },
+          ],
+        },
+      ],
     };
     var survey = new Survey(json);
     var q = <QuestionMultipleText>survey.getQuestionByName("question1");
@@ -1287,7 +1289,7 @@ QUnit.test(
   }
 );
 
-QUnit.test("Dynamic Panel bug with localization, bug #1184", function(assert) {
+QUnit.test("Dynamic Panel bug with localization, bug #1184", function (assert) {
   var json = {
     locale: "de",
     elements: [
@@ -1299,28 +1301,28 @@ QUnit.test("Dynamic Panel bug with localization, bug #1184", function(assert) {
             type: "radiogroup",
             name: "question91",
             title: {
-              de: "Wählen Sie eine Option"
+              de: "Wählen Sie eine Option",
             },
             choices: [
               {
                 value: "Option 1/2",
-                text: "Option 1/2"
+                text: "Option 1/2",
               },
               {
                 value: "Option 3",
-                text: "Option 3"
+                text: "Option 3",
               },
               {
                 value: "Option 4",
-                text: "Option 4"
-              }
-            ]
-          }
+                text: "Option 4",
+              },
+            ],
+          },
         ],
         templateTitle: "Panel #{panelIndex}",
-        panelCount: 2
-      }
-    ]
+        panelCount: 2,
+      },
+    ],
   };
   var survey = new Survey(json);
   survey.isSinglePage = true;
@@ -1331,24 +1333,24 @@ QUnit.test("Dynamic Panel bug with localization, bug #1184", function(assert) {
         type: "radiogroup",
         name: "question91",
         title: {
-          de: "Wählen Sie eine Option"
+          de: "Wählen Sie eine Option",
         },
         choices: [
           {
             value: "Option 1/2",
-            text: "Option 1/2"
+            text: "Option 1/2",
           },
           {
             value: "Option 3",
-            text: "Option 3"
+            text: "Option 3",
           },
           {
             value: "Option 4",
-            text: "Option 4"
-          }
-        ]
-      }
-    ]
+            text: "Option 4",
+          },
+        ],
+      },
+    ],
   };
   var qJson = q.template.toJSON();
   delete qJson["title"];
@@ -1383,7 +1385,7 @@ QUnit.test("Dynamic Panel bug with localization, bug #1184", function(assert) {
 
 QUnit.test(
   "exception during changing multiSelect for imagepicker, bug https://github.com/surveyjs/editor/issues/374",
-  function(assert) {
+  function (assert) {
     var survey = new Survey();
     var page = survey.addNewPage("p");
     var q = new QuestionImagePicker("question1");
@@ -1397,29 +1399,30 @@ QUnit.test(
   }
 );
 
-QUnit.test("Could not assign value into mutlipletext question, #1229", function(
-  assert
-) {
-  var survey = new Survey();
-  var page = survey.addNewPage("page1");
-  var question = new QuestionMultipleText("q1");
-  question.addItem("item1");
-  question.addItem("item2");
-  page.addQuestion(question);
-  survey.data = { q1: { item1: "val1", item2: "val2" } };
-  assert.equal(
-    question.items[0].editor.value,
-    "val1",
-    "val1 is set to the question item"
-  );
-  assert.equal(
-    question.items[1].editor.value,
-    "val2",
-    "val1 is set to the question item"
-  );
-});
+QUnit.test(
+  "Could not assign value into mutlipletext question, #1229",
+  function (assert) {
+    var survey = new Survey();
+    var page = survey.addNewPage("page1");
+    var question = new QuestionMultipleText("q1");
+    question.addItem("item1");
+    question.addItem("item2");
+    page.addQuestion(question);
+    survey.data = { q1: { item1: "val1", item2: "val2" } };
+    assert.equal(
+      question.items[0].editor.value,
+      "val1",
+      "val1 is set to the question item"
+    );
+    assert.equal(
+      question.items[1].editor.value,
+      "val2",
+      "val1 is set to the question item"
+    );
+  }
+);
 
-QUnit.test("Checkbox Select All Test", function(assert) {
+QUnit.test("Checkbox Select All Test", function (assert) {
   var survey = new Survey();
   var page = survey.addNewPage("page1");
   var question = new QuestionCheckbox("q1");
@@ -1440,7 +1443,7 @@ QUnit.test("Checkbox Select All Test", function(assert) {
 
 QUnit.test(
   "Changing isRequired doesn't update title for questions in dynamic panel, Bug in Editor #385",
-  function(assert) {
+  function (assert) {
     var survey = new Survey();
     var page = survey.addNewPage("page1");
     var question = new QuestionPanelDynamic("q1");
@@ -1471,7 +1474,7 @@ QUnit.test(
 
 QUnit.test(
   "panel.visibleIf doesn't work if it is a single panel on the page, #1329",
-  function(assert) {
+  function (assert) {
     var json = {
       pages: [
         {
@@ -1480,9 +1483,9 @@ QUnit.test(
             {
               type: "radiogroup",
               name: "question1",
-              choices: ["item1", "item2", "item3"]
-            }
-          ]
+              choices: ["item1", "item2", "item3"],
+            },
+          ],
         },
         {
           name: "page2",
@@ -1494,14 +1497,14 @@ QUnit.test(
                 {
                   type: "radiogroup",
                   name: "question2",
-                  choices: ["item1", "item2", "item3"]
-                }
+                  choices: ["item1", "item2", "item3"],
+                },
               ],
-              visibleIf: "{question1} = 'item1'"
-            }
-          ]
-        }
-      ]
+              visibleIf: "{question1} = 'item1'",
+            },
+          ],
+        },
+      ],
     };
     var survey = new Survey(json);
     assert.equal(survey.koIsLastPage(), true, "There is one visible page");
@@ -1565,7 +1568,7 @@ QUnit.test("Expression with two columns doesn't work, bug#1199", function(
 });
 */
 
-QUnit.test("Loc string text preprocessing update on change value", function(
+QUnit.test("Loc string text preprocessing update on change value", function (
   assert
 ) {
   var json = {
@@ -1574,20 +1577,20 @@ QUnit.test("Loc string text preprocessing update on change value", function(
         questions: [
           {
             type: "text",
-            name: "name"
-          }
-        ]
+            name: "name",
+          },
+        ],
       },
       {
         questions: [
           {
             type: "comment",
             name: "comment",
-            title: "{name}, text"
-          }
-        ]
-      }
-    ]
+            title: "{name}, text",
+          },
+        ],
+      },
+    ],
   };
 
   var survey = new Survey(json);
@@ -1608,9 +1611,9 @@ QUnit.test("Loc string text preprocessing update on change value", function(
     "The first value"
   );
 });
-QUnit.test("question.paddingLeft and question.paddingRight", function(assert) {
+QUnit.test("question.paddingLeft and question.paddingRight", function (assert) {
   var survey = new Survey({
-    elements: [{ type: "panel", name: "p1" }]
+    elements: [{ type: "panel", name: "p1" }],
   });
   var panel = <Panel>survey.getPanelByName("p1");
   assert.equal(panel.paddingLeft, "", "left is empty");
@@ -1622,17 +1625,17 @@ QUnit.test("question.paddingLeft and question.paddingRight", function(assert) {
   assert.equal(panel.paddingRight, "40px", "right is not empty");
   assert.equal(panel.paddingLeft, "60px", "left is not empty");
 });
-QUnit.test("panel and question paddings form json", function(assert) {
+QUnit.test("panel and question paddings form json", function (assert) {
   var survey = new Survey({
     elements: [
       {
         type: "panel",
         name: "p1",
         innerIndent: 2,
-        indent: 3
+        indent: 3,
       },
-      { type: "text", name: "q1", indent: 1 }
-    ]
+      { type: "text", name: "q1", indent: 1 },
+    ],
   });
   var panel = <Panel>survey.getPanelByName("p1");
   var question = <Question>survey.getQuestionByName("q1");
@@ -1640,23 +1643,23 @@ QUnit.test("panel and question paddings form json", function(assert) {
   assert.equal(panel.innerPaddingLeft, "40px", "panel inner left is 40px");
   assert.equal(question.paddingLeft, "20px", "question left is 20px");
 });
-QUnit.test("Questions are randomized", function(assert) {
+QUnit.test("Questions are randomized", function (assert) {
   var survey = new Survey({
     elements: [
       {
         type: "text",
-        name: "question1"
+        name: "question1",
       },
       {
         type: "text",
-        name: "question2"
+        name: "question2",
       },
       {
         type: "text",
-        name: "question3"
-      }
+        name: "question3",
+      },
     ],
-    questionsOrder: "random"
+    questionsOrder: "random",
   });
   var page = survey.pages[0];
   assert.equal(page.areQuestionsRandomized, true, "Questions are randomized");
@@ -1669,33 +1672,33 @@ function doTimer(count: number) {
 }
 QUnit.test(
   "Complete pages by timer and questionsOrder = 'random', Bug#1406, Bug#1482",
-  function(assert) {
+  function (assert) {
     var survey = new Survey({
       pages: [
         {
           name: "startPage",
-          elements: [{ type: "text", name: "startQuestion" }]
+          elements: [{ type: "text", name: "startQuestion" }],
         },
         {
           name: "page1",
           elements: [
             { type: "text", name: "q1" },
-            { type: "text", name: "q2" }
-          ]
+            { type: "text", name: "q2" },
+          ],
         },
         {
           name: "page2",
           elements: [
             { type: "text", name: "q3" },
-            { type: "text", name: "q4" }
+            { type: "text", name: "q4" },
           ],
-          maxTimeToFinish: 5
-        }
+          maxTimeToFinish: 5,
+        },
       ],
       firstPageIsStarted: true,
       maxTimeToFinishPage: 10,
       questionsOrder: "random",
-      showTimerPanel: "top"
+      showTimerPanel: "top",
     });
     assert.equal(survey.startedPage.name, "startPage", "The start page");
     assert.equal(
@@ -1717,7 +1720,7 @@ QUnit.test(
   }
 );
 
-QUnit.test("https://github.com/surveyjs/surveyjs/issues/1501", function(
+QUnit.test("https://github.com/surveyjs/surveyjs/issues/1501", function (
   assert
 ) {
   var survey = new Survey();
@@ -1737,3 +1740,21 @@ QUnit.test("https://github.com/surveyjs/surveyjs/issues/1501", function(
 
   assert.equal(counter, 2, "computed has been triggered");
 });
+
+QUnit.test(
+  "Some custom CSS not working - https://github.com/surveyjs/survey-library/issues/2122",
+  function (assert) {
+    var survey = new Survey();
+    var page = survey.addNewPage("page");
+    var q1 = <QuestionCheckbox>page.addNewQuestion("checkbox", "q1");
+    var myCss = {
+      question: {
+        title: "sq-title-red",
+      },
+    };
+
+    assert.equal(q1.cssTitle, "sv_q_title", "Originsl CSS classes");
+    survey.updateSurvey({ css: myCss });
+    assert.equal(q1.cssTitle, "sq-title-red", "CSS classes have been updated");
+  }
+);

@@ -3608,7 +3608,7 @@ export class SurveyModel extends Base
         var question = questions[i];
         if (this.checkErrorsMode == "onValueChanged") {
           var oldErrorCount = question.errors.length;
-          question.hasErrors(true);
+          question.hasErrors(true, { isOnValueChanged: true });
           if (oldErrorCount > 0 || question.errors.length > 0) {
             this.fireValidatedErrorsOnPage(<PageModel>question.page);
           }

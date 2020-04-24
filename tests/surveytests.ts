@@ -10091,3 +10091,33 @@ QUnit.test("Survey.onQuestionCreated", function (assert) {
     "onQuestionCreated calls for a multiple text question"
   );
 });
+QUnit.test(
+  "Survey.checkErrorsMode=onValueChanged, some errors should be shown onNextPage only",
+  function (assert) {
+    var survey = new SurveyModel({
+      elements: [
+        {
+          type: "matrix",
+          name: "question1",
+          columns: ["Column 1", "Column 2", "Column 3"],
+          rows: ["Row 1", "Row 2"],
+          isAllRowRequired: true,
+        },
+      ],
+      checkErrorsMode: "onValueChanged",
+    });
+    var question1 = survey.getQuestionByName("question1");
+    question1.value = { "Row 1": "Column 2" };
+    assert.equal(question1.errors.length, 0, "There is no errors yet");
+    survey.completeLastPage();
+    assert.equal(
+      question1.errors.length,
+      1,
+      "There is one error, isAllRowRequried"
+    );
+    question1.value = { "Row 1": "Column 3" };
+    assert.equal(question1.errors.length, 1, "The error was not fixed");
+    question1.value = { "Row 1": "Column 3", "Row 2": "Column 3" };
+    assert.equal(question1.errors.length, 0, "The error is gone");
+  }
+);

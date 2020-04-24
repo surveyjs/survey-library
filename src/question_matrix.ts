@@ -183,10 +183,10 @@ export class QuestionMatrixModel
     super(name);
     this.cellsValue = new MartrixCells(this);
     var self = this;
-    this.registerFunctionOnPropertyValueChanged("columns", function() {
+    this.registerFunctionOnPropertyValueChanged("columns", function () {
       self.onColumnsChanged();
     });
-    this.registerFunctionOnPropertyValueChanged("rows", function() {
+    this.registerFunctionOnPropertyValueChanged("rows", function () {
       if (!self.filterItems()) {
         self.onRowsChanged();
       }
@@ -332,9 +332,15 @@ export class QuestionMatrixModel
   supportGoNextPageAutomatic() {
     return this.hasValuesInAllRows();
   }
-  protected onCheckForErrors(errors: Array<SurveyError>) {
-    super.onCheckForErrors(errors);
-    if (this.hasErrorInRows()) {
+  protected onCheckForErrors(
+    errors: Array<SurveyError>,
+    isOnValueChanged: boolean
+  ) {
+    super.onCheckForErrors(errors, isOnValueChanged);
+    if (
+      (!isOnValueChanged || this.errors.length > 0) &&
+      this.hasErrorInRows()
+    ) {
       errors.push(new RequiredInAllRowsError(null, this));
     }
   }
@@ -404,14 +410,14 @@ export class QuestionMatrixModel
         propertyName: string;
       }>;
     } = {
-      includeEmpty: true
+      includeEmpty: true,
     }
   ) {
     var questionPlainData = super.getPlainData(options);
     if (!!questionPlainData) {
       var values = this.createValueCopy();
       questionPlainData.isNode = true;
-      questionPlainData.data = Object.keys(values || {}).map(rowName => {
+      questionPlainData.data = Object.keys(values || {}).map((rowName) => {
         var row = this.rows.filter(
           (r: MatrixRowModel) => r.value === rowName
         )[0];
@@ -425,14 +431,14 @@ export class QuestionMatrixModel
           ),
           getString: (val: any) =>
             typeof val === "object" ? JSON.stringify(val) : val,
-          isNode: false
+          isNode: false,
         };
         var item = ItemValue.getItemByValue(
           this.visibleColumns,
           values[rowName]
         );
         if (!!item) {
-          (options.calculations || []).forEach(calculation => {
+          (options.calculations || []).forEach((calculation) => {
             rowDataItem[calculation.propertyName] =
               item[calculation.propertyName];
           });
@@ -452,7 +458,7 @@ export class QuestionMatrixModel
         objects.push({
           name: this.getValueName() + "." + row.value,
           text: this.processedTitle + "." + row.calculatedText,
-          question: this
+          question: this,
         });
       }
     }
@@ -502,31 +508,31 @@ Serializer.addClass(
   [
     {
       name: "columns:itemvalue[]",
-      baseValue: function() {
+      baseValue: function () {
         return surveyLocalization.getString("matrix_column");
-      }
+      },
     },
     {
       name: "rows:itemvalue[]",
-      baseValue: function() {
+      baseValue: function () {
         return surveyLocalization.getString("matrix_row");
-      }
+      },
     },
     { name: "cells:cells", serializationProperty: "cells" },
     {
       name: "rowsOrder",
       default: "initial",
-      choices: ["initial", "random"]
+      choices: ["initial", "random"],
     },
-    "isAllRowRequired:boolean"
+    "isAllRowRequired:boolean",
   ],
-  function() {
+  function () {
     return new QuestionMatrixModel("");
   },
   "matrixbase"
 );
 
-QuestionFactory.Instance.registerQuestion("matrix", name => {
+QuestionFactory.Instance.registerQuestion("matrix", (name) => {
   var q = new QuestionMatrixModel(name);
   q.rows = QuestionFactory.DefaultRows;
   q.columns = QuestionFactory.DefaultColums;

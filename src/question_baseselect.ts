@@ -528,8 +528,11 @@ export class QuestionSelectBase extends Question {
   public supportOther(): boolean {
     return true;
   }
-  protected onCheckForErrors(errors: Array<SurveyError>) {
-    super.onCheckForErrors(errors);
+  protected onCheckForErrors(
+    errors: Array<SurveyError>,
+    isOnValueChanged: boolean
+  ) {
+    super.onCheckForErrors(errors, isOnValueChanged);
     if (!this.hasOther || !this.isOtherSelected || this.comment) return;
     errors.push(new OtherEmptyError(this.otherErrorText, this));
   }

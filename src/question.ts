@@ -1233,7 +1233,7 @@ export class Question extends SurveyElement
    */
   public hasErrors(fireCallback: boolean = true, rec: any = null): boolean {
     var oldHasErrors = this.errors.length > 0;
-    var errors = this.checkForErrors();
+    var errors = this.checkForErrors(!!rec && rec.isOnValueChanged === true);
     if (fireCallback) {
       if (!!this.survey) {
         this.survey.beforeSettingQuestionErrors(this, errors);
@@ -1284,15 +1284,18 @@ export class Question extends SurveyElement
     var index = errors.indexOf(error);
     if (index !== -1) errors.splice(index, 1);
   }
-  private checkForErrors(): Array<SurveyError> {
+  private checkForErrors(isOnValueChanged: boolean): Array<SurveyError> {
     var qErrors = new Array<SurveyError>();
     if (this.isVisible && !this.isReadOnly) {
-      this.collectErrors(qErrors);
+      this.collectErrors(qErrors, isOnValueChanged);
     }
     return qErrors;
   }
-  private collectErrors(qErrors: Array<SurveyError>) {
-    this.onCheckForErrors(qErrors);
+  private collectErrors(
+    qErrors: Array<SurveyError>,
+    isOnValueChanged: boolean
+  ) {
+    this.onCheckForErrors(qErrors, isOnValueChanged);
     if (qErrors.length == 0) {
       var errors = this.runValidators();
       if (errors.length > 0) {
@@ -1314,7 +1317,10 @@ export class Question extends SurveyElement
     if (this.validateValueCallback) return this.validateValueCallback();
     return this.survey ? this.survey.validateQuestion(this) : null;
   }
-  protected onCheckForErrors(errors: Array<SurveyError>) {
+  protected onCheckForErrors(
+    errors: Array<SurveyError>,
+    isOnValueChanged: boolean
+  ) {
     if (this.hasRequiredError()) {
       errors.push(new AnswerRequiredError(this.requiredErrorText, this));
     }

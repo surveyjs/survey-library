@@ -1321,7 +1321,7 @@ export class Question extends SurveyElement
     errors: Array<SurveyError>,
     isOnValueChanged: boolean
   ) {
-    if (this.hasRequiredError()) {
+    if (!isOnValueChanged && this.hasRequiredError()) {
       errors.push(new AnswerRequiredError(this.requiredErrorText, this));
     }
   }

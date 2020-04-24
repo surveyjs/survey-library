@@ -8584,8 +8584,8 @@ QUnit.test("Test onValidatedErrorsOnCurrentPage event", function (assert) {
   survey.setValue("q1", "val1");
   survey.nextPage();
   assert.equal(counter, 2, "called two times");
-  assert.equal(errors.length, 1, "there is one error");
-  assert.equal(questions.length, 1, "there is one error");
+  assert.equal(errors.length, 1, "there is one error, #1");
+  assert.equal(questions.length, 1, "there is one error, #2");
 
   survey.setValue("q2", "val2");
   survey.nextPage();
@@ -8597,8 +8597,8 @@ QUnit.test("Test onValidatedErrorsOnCurrentPage event", function (assert) {
 
   survey.setValue("q3", "val3");
   assert.equal(counter, 4, "called four times");
-  assert.equal(errors.length, 1, "there is one error");
-  assert.equal(questions.length, 1, "there is one error");
+  assert.equal(errors.length, 1, "there is one error, #3");
+  assert.equal(questions.length, 1, "there is one error, #4");
 
   survey.setValue("q3", "a@b.com");
   assert.equal(counter, 5, "called five times");
@@ -8611,9 +8611,12 @@ QUnit.test("Test onValidatedErrorsOnCurrentPage event", function (assert) {
   assert.equal(questions.length, 0, "there is no errors");
 
   survey.clearValue("q3");
+  assert.equal(counter, 5, "Do not call errors validation on clearing value");
+  assert.equal(errors.length, 0, "there is no errors on clearing value");
+  survey.completeLastPage();
   assert.equal(counter, 6, "called six times");
-  assert.equal(errors.length, 1, "there is one error");
-  assert.equal(questions.length, 1, "there is one error");
+  assert.equal(errors.length, 2, "there are two errors onComplete, #5");
+  assert.equal(questions.length, 2, "there are two question onComplete, #6");
 });
 
 QUnit.test("survey.completedHtmlOnCondition", function (assert) {
@@ -9413,8 +9416,14 @@ QUnit.test(
     question.value = "";
     assert.equal(
       panelDynamic.containsErrors,
+      false,
+      "We do not show error on value change"
+    );
+    survey.completeLastPage();
+    assert.equal(
+      panelDynamic.containsErrors,
       true,
-      "The panel has errors after value changed to empty"
+      "The panel has errors after value changed to empty. Show it on next page event"
     );
   }
 );

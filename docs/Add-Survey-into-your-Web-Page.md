@@ -10,6 +10,7 @@ If you do not want to use our Azure CDN, you may download our script files from 
 
 
 Finally you may select one of our npm packages, based on your JavaScript platform, and install it.
+*Please note*: If you do not use any of this framework and do not use jQuery, then the right choice is [knockout](http://knockoutjs.com). It is a small library that helps creating UI with Model-View-View-Model pattern. You can include knockout script (~25k min+gz) just for SurveyJS and forget about this library existing in your application. 
 
 | Platform | npm command |
 |---|---|

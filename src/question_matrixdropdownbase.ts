@@ -122,6 +122,8 @@ export var matrixDropdownColumnTypes = {
       "choicesByUrl",
       "otherText",
       "choicesVisibleIf",
+      "hasSelectAll",
+      "hasNone",
     ],
     onCellQuestionUpdate: (
       cellQuestion: any,

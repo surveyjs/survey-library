@@ -1027,8 +1027,6 @@ You can add prefix and change the postfix (default is dot) for this property, fo
 
 Use the [survey.requiredText](https://surveyjs.io/Documentation/Library/?id=surveymodel#requiredText) property to change the required symbol. SurveyJS uses the asterisk (`*`) symbol by default. You can change it to another text or make it empty.
 
-By default question required mark renders at the end of question title: `2. What is your Name? *`. You can use [survey.questionTitlePattern](https://surveyjs.io/Documentation/Library/?id=surveymodel#questionTitlePattern) to show it at the beginning, set this property to: `requireNumTitle`, or before title: `numRequireTitle` or remove requried text completely from question title to set the property to: `numTitle`.
-
 > **Example**
 >
 > [Process Text](https://surveyjs.io/Examples/Library/?id=survey-processtext)

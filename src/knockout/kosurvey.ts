@@ -317,6 +317,22 @@ export class Survey extends SurveyModel {
         newProps.data[options.name] = options.value;
       });
   }
+  public dispose() {
+    super.dispose();
+    if (!!this.renderedElement) {
+      ko.cleanNode(this.renderedElement);
+      this.renderedElement.innerHTML = "";
+    }
+    this.isCurrentPageEmpty.dispose();
+    this.koIsFirstPage.dispose();
+    this.koIsLastPage.dispose();
+    this.koProgressText.dispose();
+    this.koProgress.dispose();
+    this.iteratePropertiesHash((hash, key) => {
+      delete hash[key];
+    });
+    this.koCurrentPage(undefined);
+  }
 }
 
 LocalizableString.prototype["onCreating"] = function () {

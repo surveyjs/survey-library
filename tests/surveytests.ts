@@ -10130,3 +10130,22 @@ QUnit.test(
     assert.equal(question1.errors.length, 0, "The error is gone");
   }
 );
+QUnit.test(
+  "dispose survey - https://github.com/surveyjs/survey-library/issues/2131",
+  function (assert) {
+    var survey = new SurveyModel({
+      elements: [
+        {
+          type: "matrix",
+          name: "question1",
+          columns: ["Column 1", "Column 2", "Column 3"],
+          rows: ["Row 1", "Row 2"],
+        },
+      ],
+    });
+    assert.equal(survey.pages.length, 1, "One page");
+    assert.equal(survey.pages[0].elements.length, 1, "One element");
+    survey.dispose();
+    assert.equal(survey.pages.length, 0, "No pages");
+  }
+);

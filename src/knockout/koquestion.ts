@@ -114,4 +114,13 @@ export class QuestionImplementor extends ImplementorBase {
       });
     }
   }
+  public dispose() {
+    super.dispose();
+    this.koTemplateName.dispose();
+    (<any>this.question)["koCss"].dispose();
+    (<any>this.question)["koErrorClass"].dispose();
+    this.question.unRegisterFunctionOnPropertyValueChanged("visibleIndex");
+    (<any>this.question)["updateQuestion"] = undefined;
+    (<any>this.question)["koQuestionAfterRender"] = undefined;
+  }
 }

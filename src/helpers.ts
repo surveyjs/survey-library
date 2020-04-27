@@ -171,7 +171,20 @@ export class Helpers {
     if (!!startIndexStr) {
       str = startIndexStr;
       var ind = str.length - 1;
-      while (ind >= 0 && Helpers.isCharNotLetterAndDigit(str[ind])) ind--;
+      var hasDigit = false;
+      for (var i = 0; i < str.length; i++) {
+        if (Helpers.isCharDigit(str[i])) {
+          hasDigit = true;
+          break;
+        }
+      }
+      var checkLetter = function () {
+        return (
+          (hasDigit && !Helpers.isCharDigit(str[ind])) ||
+          Helpers.isCharNotLetterAndDigit(str[ind])
+        );
+      };
+      while (ind >= 0 && checkLetter()) ind--;
       var newPostfix = "";
       if (ind < str.length - 1) {
         newPostfix = str.substr(ind + 1);
@@ -179,8 +192,7 @@ export class Helpers {
       }
       if (!!str) {
         var ind = 0;
-        while (ind < str.length && Helpers.isCharNotLetterAndDigit(str[ind]))
-          ind++;
+        while (ind < str.length && checkLetter()) ind++;
         if (ind > 0) {
           prefix = str.substr(0, ind);
           str = str.substr(ind);
@@ -198,7 +210,10 @@ export class Helpers {
     return prefix + String.fromCharCode(str.charCodeAt(0) + index) + postfix;
   }
   public static isCharNotLetterAndDigit(ch: string): boolean {
-    return ch.toUpperCase() == ch.toLowerCase() && (ch < "0" || ch > "9");
+    return ch.toUpperCase() == ch.toLowerCase() && !Helpers.isCharDigit(ch);
+  }
+  public static isCharDigit(ch: string): boolean {
+    return ch >= "0" && ch <= "9";
   }
 }
 if (!(<any>String.prototype)["format"]) {

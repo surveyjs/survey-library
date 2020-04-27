@@ -265,3 +265,10 @@ QUnit.test("Helpers.isNumber", function (assert) {
     "0xbe0eb53f46cd790cd13851d5eff43d12404d33e8 is not a number"
   );
 });
+QUnit.test("Helpers.getNumberByIndex", function (assert) {
+  assert.equal(Helpers.getNumberByIndex(0, "1."), "1.", "0/1.");
+  assert.equal(Helpers.getNumberByIndex(2, "1."), "3.", "2/3.");
+  assert.equal(Helpers.getNumberByIndex(2, "a)"), "c)", "2/a)");
+  assert.equal(Helpers.getNumberByIndex(2, "#1)"), "#3)", "2/#1)");
+  assert.equal(Helpers.getNumberByIndex(2, "Q1."), "Q3.", "2/Q1.");
+});

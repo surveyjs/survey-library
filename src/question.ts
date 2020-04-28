@@ -1511,6 +1511,7 @@ export class Question extends SurveyElement
   getAllValues(): any {
     return !!this.data ? this.data.getAllValues() : null;
   }
+  public dispose() {}
 }
 Serializer.addClass("question", [
   "!name",

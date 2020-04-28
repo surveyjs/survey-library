@@ -37,4 +37,12 @@ export class ImplementorBase {
         ? hash[key](val)
         : (hash[key] = ko.observable(val));
   }
+  public dispose() {
+    this.element.iteratePropertiesHash((hash, key) => {
+      delete hash[key];
+    });
+    this.element.createArrayCoreHandler = undefined;
+    this.element.getPropertyValueCoreHandler = undefined;
+    this.element.setPropertyValueCoreHandler = undefined;
+  }
 }

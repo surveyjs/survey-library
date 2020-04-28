@@ -4772,6 +4772,15 @@ export class SurveyModel extends Base
     question.focus();
     return true;
   }
+  /**
+   * Use this method to dispose survey model properly.
+   */
+  public dispose() {
+    for (var i = 0; i < this.pages.length; i++) {
+      this.pages[i].dispose();
+    }
+    this.pages.splice(0, this.pages.length);
+  }
 }
 
 Serializer.addClass("survey", [

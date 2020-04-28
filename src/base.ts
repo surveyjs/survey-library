@@ -200,6 +200,7 @@ export interface IElement extends IConditionRunner, ISurveyElement {
   updateCustomWidgets(): any;
   clearIncorrectValues(): any;
   clearErrors(): any;
+  dispose(): void;
 }
 
 export interface IQuestion extends IElement, ISurveyErrorOwner {

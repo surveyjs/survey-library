@@ -60,6 +60,9 @@ export class CustomWidgetCollection {
   public get widgets(): Array<QuestionCustomWidget> {
     return this.widgetsValues;
   }
+  public add(widgetJson: any, activatedBy: string = "property") {
+    this.addCustomWidget(widgetJson, activatedBy);
+  }
   public addCustomWidget(widgetJson: any, activatedBy: string = "property") {
     var name = widgetJson.name;
     if (!name) {

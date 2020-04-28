@@ -1,6 +1,13 @@
 .sv-row {
   display: flex;
   flex-wrap: wrap;
+
+  //TODO need for vuejs because it contains additional div in the row
+  > div {
+    display: flex;
+    flex-wrap: wrap;
+    flex-basis: 100%;
+  }
 }
 
 .sv-row > .sv-row__panel,

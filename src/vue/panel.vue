@@ -59,7 +59,7 @@ export class Panel extends Vue {
   get rootStyle() {
     var result = {};
     if (this.question.renderWidth) {
-      (<any>result)["width"] = this.question.renderWidth;
+      (<any>result)["flex"] = "1 1 " + this.question.renderWidth;
     }
     return result;
   }

@@ -98,7 +98,11 @@ export class SurveyQuestion extends SurveyElementBase {
         ? this.renderErrors(cssClasses, "bottom")
         : null;
     let rootStyle: { [index: string]: any } = {};
-    if (question.renderWidth) rootStyle["width"] = question.renderWidth;
+    if (question.renderWidth) {
+      rootStyle["flexGrow"] = 1;
+      rootStyle["flexShrink"] = 1;
+      rootStyle["flexBasis"] = question.renderWidth;
+    }
     if (!!question.paddingLeft) rootStyle["paddingLeft"] = question.paddingLeft;
     if (!!question.paddingRight)
       rootStyle["paddingRight"] = question.paddingRight;

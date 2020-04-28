@@ -39,7 +39,11 @@ export class SurveyPanel extends SurveyPanelBase {
       content = this.renderContent(style, rows, className);
     }
     var rootStyle: { [index: string]: any } = {};
-    if (this.panel.renderWidth) rootStyle["width"] = this.panel.renderWidth;
+    if (this.panel.renderWidth) {
+      rootStyle["flexGrow"] = 1;
+      rootStyle["flexShrink"] = 1;
+      rootStyle["flexBasis"] = this.panel.renderWidth;
+    }
     var bottom = this.renderBottom();
     return (
       <div

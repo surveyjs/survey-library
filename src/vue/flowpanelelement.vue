@@ -14,7 +14,7 @@
       <survey-element
         :key="question.idValue"
         :id="question.id"
-        :style="{ flexBasis: question.renderWidth, flexGrow: 1, flexShrink: 1, width: question.renderWidth }"
+        :style="{ flexBasis: question.renderWidth, flexGrow: 1, flexShrink: 1, width: question.renderWidth, minWidth: '300px' }"
         :element="question"
         :survey="survey"
         :css="css"

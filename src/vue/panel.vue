@@ -63,6 +63,7 @@ export class Panel extends Vue {
       (<any>result)["flexGrow"] = 1;
       (<any>result)["flexShrink"] = 1;
       (<any>result)["width"] = this.question.renderWidth;
+      (<any>result)["minWidth"] = "300px";
     }
     return result;
   }

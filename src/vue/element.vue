@@ -1,7 +1,7 @@
 <template>
   <div :class="getRootClass(element)">
     <survey-element-header v-if="element.hasTitleOnLeftTop" :element="element" />
-    <div :class="getContentClass(element)">
+    <div class="sv-vue-row-additional-div" :class="getContentClass(element)">
       <survey-errors v-if="hasErrorsOnTop" :question="element" :location="'top'" />
       <component :is="getWidgetComponentName(element)" :question="element" :css="css" />
       <div v-if="element.hasComment" :class="element.cssClasses.formGroup">

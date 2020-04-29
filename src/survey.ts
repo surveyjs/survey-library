@@ -1959,13 +1959,13 @@ export class SurveyModel extends Base
    */
   public get data(): any {
     var result: { [index: string]: any } = {};
-    this.setCalcuatedValuesIntoResult(result);
     for (var key in this.valuesHash) {
       var dataValue = this.getDataValueCore(this.valuesHash, key);
       if (dataValue !== undefined) {
         result[key] = dataValue;
       }
     }
+    this.setCalcuatedValuesIntoResult(result);
     return result;
   }
   public set data(data: any) {

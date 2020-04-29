@@ -3,13 +3,13 @@ import { CalculatedValue } from "../src/calculatedValue";
 
 export default QUnit.module("CalculatedValues");
 
-QUnit.test("Use calculated value in expression", function(assert) {
+QUnit.test("Use calculated value in expression", function (assert) {
   var survey = new SurveyModel({
     elements: [
       { type: "text", name: "q1", defaultValue: 1 },
       { type: "text", name: "q2", defaultValue: 2 },
-      { type: "text", name: "q3", visibleIf: "{var1} > 2" }
-    ]
+      { type: "text", name: "q3", visibleIf: "{var1} > 2" },
+    ],
   });
   assert.equal(
     survey.getQuestionByName("q3").isVisible,
@@ -31,7 +31,7 @@ QUnit.test("Use calculated value in expression", function(assert) {
     "It is invisible again, var1 equals 2"
   );
 });
-QUnit.test("Deserialize/serialize calculated values", function(assert) {
+QUnit.test("Deserialize/serialize calculated values", function (assert) {
   var json = {
     pages: [
       {
@@ -39,11 +39,11 @@ QUnit.test("Deserialize/serialize calculated values", function(assert) {
         elements: [
           { type: "text", name: "q1", defaultValue: 1 },
           { type: "text", name: "q2", defaultValue: 2 },
-          { type: "text", name: "q3", visibleIf: "{var1} > 2" }
-        ]
-      }
+          { type: "text", name: "q3", visibleIf: "{var1} > 2" },
+        ],
+      },
     ],
-    calculatedValues: [{ name: "var1", expression: "{q1} + {q2}" }]
+    calculatedValues: [{ name: "var1", expression: "{q1} + {q2}" }],
   };
   var survey = new SurveyModel(json);
   assert.equal(survey.getVariable("var1"), 3, "var1 is calculated");
@@ -54,12 +54,12 @@ QUnit.test("Deserialize/serialize calculated values", function(assert) {
   );
   assert.deepEqual(survey.toJSON(), json, "Serialized correctly");
 });
-QUnit.test("Include into result", function(assert) {
+QUnit.test("Include into result", function (assert) {
   var survey = new SurveyModel({
     elements: [
       { type: "text", name: "q1", defaultValue: 1 },
-      { type: "text", name: "q2", defaultValue: 2 }
-    ]
+      { type: "text", name: "q2", defaultValue: 2 },
+    ],
   });
   survey.calculatedValues.push(new CalculatedValue("var1", "{q1} + {q2}"));
   assert.equal(survey.getVariable("var1"), 3, "var1 is calculated");
@@ -68,7 +68,7 @@ QUnit.test("Include into result", function(assert) {
   assert.deepEqual(survey.data, { q1: 1, q2: 2, var1: 3 });
 });
 
-QUnit.test("Use complex values in variables, Bug#T2705", function(assert) {
+QUnit.test("Use complex values in variables, Bug#T2705", function (assert) {
   var survey = new SurveyModel({});
   survey.setVariable("obj", { state: "CA" });
   survey.setVariable("arr", [{ state: "CA" }, { state: "TX" }]);
@@ -83,7 +83,7 @@ QUnit.test("Use complex values in variables, Bug#T2705", function(assert) {
 
 QUnit.test(
   "Error with calculated values on setting survey.data, Bug #1973",
-  function(assert) {
+  function (assert) {
     var json = {
       pages: [
         {
@@ -93,14 +93,14 @@ QUnit.test(
             {
               type: "expression",
               name: "question2",
-              expression: "{var1}"
+              expression: "{var1}",
             },
             {
               type: "expression",
               name: "question5",
-              expression: "{totale}"
-            }
-          ]
+              expression: "{totale}",
+            },
+          ],
         },
         {
           name: "page2",
@@ -109,20 +109,20 @@ QUnit.test(
             {
               type: "expression",
               name: "question4",
-              expression: "{var2}"
-            }
-          ]
-        }
+              expression: "{var2}",
+            },
+          ],
+        },
       ],
       calculatedValues: [
         {
           name: "totale",
           expression: "{var1}+{var2}",
-          includeIntoResult: true
+          includeIntoResult: true,
         },
         { name: "var1", expression: "{question1}", includeIntoResult: true },
-        { name: "var2", expression: "{question3}", includeIntoResult: true }
-      ]
+        { name: "var2", expression: "{question3}", includeIntoResult: true },
+      ],
     };
 
     var survey = new SurveyModel(json);
@@ -131,12 +131,48 @@ QUnit.test(
       question2: 7,
       question5: 12,
       question3: 5,
-      question4: 5
+      question4: 5,
     };
     assert.equal(
       survey.getValue("question5"),
       12,
       "expression with calculated values returns correct value: {totale} = {var1} + {var2} = {question1} + {question3} = 7 + 5"
+    );
+  }
+);
+
+QUnit.test(
+  "Survey.data doesn't contain the calculatedValue change, if it exists before, Bug #2133",
+  function (assert) {
+    var json = {
+      pages: [
+        {
+          name: "page1",
+          elements: [
+            {
+              type: "text",
+              name: "fruit",
+              title: "Enter a fruit",
+            },
+          ],
+        },
+      ],
+      calculatedValues: [
+        {
+          name: "finalAnswer",
+          expression: "{fruit}",
+          includeIntoResult: true,
+        },
+      ],
+    };
+
+    var survey = new SurveyModel(json);
+    survey.data = { fruit: "apple", finalAnswer: "apple" };
+    survey.setValue("fruit", "orange");
+    assert.deepEqual(
+      survey.data,
+      { fruit: "orange", finalAnswer: "orange" },
+      "finalAnswer is 'orange' too."
     );
   }
 );

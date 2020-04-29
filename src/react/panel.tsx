@@ -6,6 +6,8 @@ import { ReactElementFactory } from "./element-factory";
 import { SurveyPanelBase } from "./panel-base";
 import { PanelModel } from "../panel";
 
+import { detectIEBrowser } from "../utils/utils";
+
 export class SurveyPanel extends SurveyPanelBase {
   private hasBeenExpanded: boolean = false;
   constructor(props: any) {
@@ -40,9 +42,13 @@ export class SurveyPanel extends SurveyPanelBase {
     }
     var rootStyle: { [index: string]: any } = {};
     if (this.panel.renderWidth) {
-      rootStyle["flexGrow"] = 1;
-      rootStyle["flexShrink"] = 1;
-      rootStyle["flexBasis"] = this.panel.renderWidth;
+      if (detectIEBrowser()) {
+        rootStyle["width"] = this.panel.renderWidth;
+      } else {
+        rootStyle["flexGrow"] = 1;
+        rootStyle["flexShrink"] = 1;
+        rootStyle["flexBasis"] = this.panel.renderWidth;
+      }
     }
     var bottom = this.renderBottom();
     return (

@@ -16,6 +16,13 @@ function compareVersions(a: any, b: any) {
 function confirmAction(message: string): boolean {
   return confirm(message);
 }
+function detectIEBrowser() {
+  var ua = window.navigator.userAgent;
+  var oldIe = ua.indexOf("MSIE ");
+  var elevenIe = ua.indexOf("Trident/");
+
+  return oldIe > -1 || elevenIe > -1;
+}
 function detectIEOrEdge() {
   if (typeof (<any>detectIEOrEdge).isIEOrEdge == "undefined") {
     var ua = window.navigator.userAgent;
@@ -30,10 +37,7 @@ function loadFileFromBase64(b64Data: string, fileName: string) {
   var byteString = atob(b64Data.split(",")[1]);
 
   // separate out the mime component
-  var mimeString = b64Data
-    .split(",")[0]
-    .split(":")[1]
-    .split(";")[0];
+  var mimeString = b64Data.split(",")[0].split(":")[1].split(";")[0];
 
   // write the bytes of the string to an ArrayBuffer
   var ab = new ArrayBuffer(byteString.length);
@@ -45,7 +49,7 @@ function loadFileFromBase64(b64Data: string, fileName: string) {
   var bb = new Blob([ab], { type: mimeString });
   if (window.navigator && window.navigator.msSaveBlob) {
     window.navigator.msSaveOrOpenBlob(bb, fileName);
-  } 
+  }
 }
 function isMobile() {
   return typeof window.orientation !== "undefined";
@@ -55,6 +59,7 @@ export {
   compareVersions,
   confirmAction,
   detectIEOrEdge,
+  detectIEBrowser,
   loadFileFromBase64,
-  isMobile
+  isMobile,
 };

@@ -6,6 +6,8 @@ import { SurveyElementBase, ReactSurveyElement } from "./reactquestionelement";
 import { SurveyCustomWidget } from "./custom-widget";
 import { ReactElementFactory } from "./element-factory";
 
+import { detectIEBrowser } from "../utils/utils";
+
 export interface ISurveyCreator {
   createQuestionElement(question: Question): JSX.Element;
   renderError(key: string, error: SurveyError, cssClasses: any): JSX.Element;
@@ -99,9 +101,13 @@ export class SurveyQuestion extends SurveyElementBase {
         : null;
     let rootStyle: { [index: string]: any } = {};
     if (question.renderWidth) {
-      rootStyle["flexGrow"] = 1;
-      rootStyle["flexShrink"] = 1;
-      rootStyle["flexBasis"] = question.renderWidth;
+      if (detectIEBrowser()) {
+        rootStyle["width"] = question.renderWidth;
+      } else {
+        rootStyle["flexGrow"] = 1;
+        rootStyle["flexShrink"] = 1;
+        rootStyle["flexBasis"] = question.renderWidth;
+      }
     }
     if (!!question.paddingLeft) rootStyle["paddingLeft"] = question.paddingLeft;
     if (!!question.paddingRight)

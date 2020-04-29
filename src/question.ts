@@ -1063,7 +1063,7 @@ export class Question extends SurveyElement
     if (options.includeEmpty || !this.isEmpty()) {
       var questionPlainData = <any>{
         name: this.name,
-        title: this.title,
+        title: this.locTitle.renderedHtml,
         value: this.value,
         displayValue: this.displayValue,
         isNode: false,

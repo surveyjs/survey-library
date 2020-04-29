@@ -8302,6 +8302,45 @@ QUnit.test(
   }
 );
 
+QUnit.test(
+  "question.getPlainData - markdown processed titles - T3888 - question#getPlainData() returns markdown-rendered values, but not markdown-rendered titles",
+  function (assert) {
+    var survey = new SurveyModel();
+    var page = survey.addNewPage("Page 1");
+    var question = new QuestionRadiogroupModel("q1");
+    new JsonObject().toObject(
+      {
+        type: "radiogroup",
+        name: "q1",
+        title: "Title *marked*",
+        choices: [
+          {
+            value: "lion",
+            text: "lion *marked*"
+          },
+          {
+            value: "giraffe",
+            text: "giraffe *marked*"
+          }
+        ],
+      },
+      question
+    );
+    page.addQuestion(question);
+    survey.onTextMarkdown.add(function (survey, options) {
+      if (options.text.indexOf("*") > -1)
+        options.html = options.text.replace(/\*/g, "<>");
+    });
+
+    question.value = "giraffe";
+
+    var plainData = question.getPlainData();
+    assert.deepEqual(plainData.value, "giraffe");
+    assert.deepEqual(plainData.title, "Title <>marked<>");
+    assert.deepEqual(plainData.displayValue, "giraffe <>marked<>");
+  }
+);
+
 QUnit.test("question.valueName is numeric, Bug# 1432", function (assert) {
   var survey = new SurveyModel({
     questions: [

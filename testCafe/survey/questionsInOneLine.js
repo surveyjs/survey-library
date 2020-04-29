@@ -59,9 +59,9 @@ frameworks.forEach(framework => {
     const isOneLine = ClientFunction(
       () =>
         document.querySelectorAll("div > h5:last-of-type")[2].parentNode
-          .parentNode.style.width === "50%" &&
+          .parentNode.style.flex === "1 1 50%" &&
         document.querySelectorAll("div > h5:last-of-type")[3].parentNode
-          .parentNode.style.width === "50%"
+          .parentNode.style.flex === "1 1 50%"
     );
     const isCountRight = ClientFunction(
       () => document.querySelectorAll("div > h5:last-of-type").length === 6

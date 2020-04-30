@@ -34,7 +34,8 @@ export class StylesManager {
     ".sv_row": "clear: both; min-width:300px;",
     ".sv_row .sv_qstn": "float: left",
     ".sv_row .sv_qstn:last-child": "float: none",
-    ".sv_qstn": "display: inline-block; vertical-align: top; overflow: auto;",
+    ".sv_qstn":
+      "display: inline-block; vertical-align: top; overflow: auto; min-width:300px;",
     ".sv_p_container":
       "display: inline-block; vertical-align: top; min-width:300px;",
     ".sv_qbln .checkbox-material": "margin-right: 3px;",

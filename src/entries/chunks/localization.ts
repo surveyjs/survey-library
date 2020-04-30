@@ -4,6 +4,7 @@ import "../../localization/catalan";
 import "../../localization/czech";
 import "../../localization/danish";
 import "../../localization/dutch";
+import "../../localization/estonian";
 import "../../localization/finnish";
 import "../../localization/french";
 import "../../localization/georgian";

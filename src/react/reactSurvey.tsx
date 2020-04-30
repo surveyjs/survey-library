@@ -341,10 +341,15 @@ export class Survey extends SurveyElementBase implements ISurveyCreator {
     if (!newProps) return;
     oldProps = oldProps || {};
     for (var key in newProps) {
-      if (key == "model" || key == "children" || key == "css" || key == "json")
+      if (key == "model" || key == "children" || key == "json") {
         continue;
+      }
+      if (key == "css") {
+        this.survey.mergeValues(newProps.css, this.survey.getCss());
+        this.survey["updateElementCss"]();
+        continue;
+      }
       if (newProps[key] === oldProps[key]) continue;
-
       if (key.indexOf("on") == 0 && this.survey[key] && this.survey[key].add) {
         if (!!oldProps[key]) {
           this.survey[key].remove(oldProps[key]);

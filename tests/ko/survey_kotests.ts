@@ -1744,17 +1744,37 @@ QUnit.test("https://github.com/surveyjs/surveyjs/issues/1501", function (
 QUnit.test(
   "Some custom CSS not working - https://github.com/surveyjs/survey-library/issues/2122",
   function (assert) {
-    var survey = new Survey();
-    var page = survey.addNewPage("page");
-    var q1 = <QuestionCheckbox>page.addNewQuestion("checkbox", "q1");
+    var survey = new Survey({
+      questions:[
+        {
+          name: "q1",
+          type: "text"
+        },
+        {
+          "type": "paneldynamic",
+          "name": "p1",
+          "templateElements": [
+            {
+              name: "name",
+              type: "text"
+            }
+          ],
+          "panelCount": 2
+        }
+      ]
+    });
+    var q1 = survey.getQuestionByName("q1");
+    var p1 = survey.getQuestionByName("p1");
     var myCss = {
       question: {
         title: "sq-title-red",
       },
     };
 
-    assert.equal(q1.cssTitle, "sv_q_title", "Originsl CSS classes");
+    assert.equal(q1.cssTitle, "sv_q_title", "Original CSS classes");
+    assert.equal(p1.panels[0].elements[0].cssTitle, "sv_q_title", "Original CSS classes for questions in dynamic panel");
     survey.updateSurvey({ css: myCss });
     assert.equal(q1.cssTitle, "sq-title-red", "CSS classes have been updated");
+    assert.equal(p1.panels[0].elements[0].cssTitle, "sq-title-red", "CSS classes for questions in dynamic panel");
   }
 );

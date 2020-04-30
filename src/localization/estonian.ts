@@ -10,7 +10,7 @@ export var estonianSurveyStrings = {
   selectAllItemText: "Vali kõik",
   progressText: "Lehekülg {0}/{1}",
   panelDynamicProgressText: "Kirje {0}/{1}",
-  questionsProgressText: "VAstatud {0}/{1} küsimustest",
+  questionsProgressText: "Vastatud {0}/{1} küsimustest",
   emptySurvey: "Selles uuringue ei ole ühtki nähtavad lehekülge või küsimust.",
   completingSurvey: "Aitäh, et vastasid ankeedile!",
   completingSurveyBefore:

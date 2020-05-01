@@ -8316,12 +8316,12 @@ QUnit.test(
         choices: [
           {
             value: "lion",
-            text: "lion *marked*"
+            text: "lion *marked*",
           },
           {
             value: "giraffe",
-            text: "giraffe *marked*"
-          }
+            text: "giraffe *marked*",
+          },
         ],
       },
       question
@@ -8338,6 +8338,33 @@ QUnit.test(
     assert.deepEqual(plainData.value, "giraffe");
     assert.deepEqual(plainData.title, "Title <>marked<>");
     assert.deepEqual(plainData.displayValue, "giraffe <>marked<>");
+  }
+);
+
+QUnit.test(
+  "question.getPlainData - optional question type",
+  function (assert) {
+    var survey = new SurveyModel();
+    var page = survey.addNewPage("Page 1");
+    var question = new QuestionRadiogroupModel("q1");
+    new JsonObject().toObject(
+      {
+        type: "radiogroup",
+        name: "q1",
+        choices: [1,2,3],
+      },
+      question
+    );
+    page.addQuestion(question);
+    survey.data = { q1: 2}
+
+    var plainData = question.getPlainData();
+    assert.deepEqual(plainData.name, "q1");
+    assert.deepEqual(plainData.questionType, undefined);
+
+    plainData = question.getPlainData({ includeQuestionTypes: true });
+    assert.deepEqual(plainData.name, "q1");
+    assert.deepEqual(plainData.questionType, "radiogroup");
   }
 );
 
@@ -10166,6 +10193,41 @@ QUnit.test(
     question1.value = { "Row 1": "Column 3" };
     assert.equal(question1.errors.length, 1, "The error was not fixed");
     question1.value = { "Row 1": "Column 3", "Row 2": "Column 3" };
+    assert.equal(question1.errors.length, 0, "The error is gone");
+  }
+);
+QUnit.test(
+  "Survey.checkErrorsMode=onValueChanged, check input date error onNextpage, Bug #2141",
+  function (assert) {
+    var survey = new SurveyModel({
+      elements: [
+        {
+          type: "text",
+          name: "birthdate",
+          isRequired: true,
+          validators: [
+            {
+              type: "expression",
+              expression: "getDate({birthdate}) < getDate('2020-01-01')",
+            },
+          ],
+          inputType: "date",
+        },
+      ],
+      checkErrorsMode: "onValueChanged",
+    });
+    var question1 = survey.getQuestionByName("birthdate");
+    question1.value = new Date("2020-01-02");
+    assert.equal(question1.errors.length, 0, "There is no errors yet");
+    survey.completeLastPage();
+    assert.equal(
+      question1.errors.length,
+      1,
+      "There is one error, birthdate is incorrect"
+    );
+    question1.value = new Date("2020-02-02");
+    assert.equal(question1.errors.length, 1, "The error was not fixed");
+    question1.value = new Date("2019-01-02");
     assert.equal(question1.errors.length, 0, "The error is gone");
   }
 );

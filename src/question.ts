@@ -1053,11 +1053,13 @@ export class Question extends SurveyElement
   public getPlainData(
     options: {
       includeEmpty?: boolean;
+      includeQuestionTypes?: boolean;
       calculations?: Array<{
         propertyName: string;
       }>;
     } = {
       includeEmpty: true,
+      includeQuestionTypes: false
     }
   ) {
     if (options.includeEmpty || !this.isEmpty()) {
@@ -1070,6 +1072,9 @@ export class Question extends SurveyElement
         getString: (val: any) =>
           typeof val === "object" ? JSON.stringify(val) : val,
       };
+      if(options.includeQuestionTypes === true) {
+        questionPlainData.questionType = this.getType();
+      }
       (options.calculations || []).forEach((calculation) => {
         questionPlainData[calculation.propertyName] = this[
           calculation.propertyName
@@ -1296,14 +1301,13 @@ export class Question extends SurveyElement
     isOnValueChanged: boolean
   ) {
     this.onCheckForErrors(qErrors, isOnValueChanged);
-    if (qErrors.length == 0) {
-      var errors = this.runValidators();
-      if (errors.length > 0) {
-        //validators may change the question value.
-        qErrors.length = 0;
-        for (var i = 0; i < errors.length; i++) {
-          qErrors.push(errors[i]);
-        }
+    if (qErrors.length > 0 || !this.canRunValidators(isOnValueChanged)) return;
+    var errors = this.runValidators();
+    if (errors.length > 0) {
+      //validators may change the question value.
+      qErrors.length = 0;
+      for (var i = 0; i < errors.length; i++) {
+        qErrors.push(errors[i]);
       }
     }
     if (this.survey && qErrors.length == 0) {
@@ -1312,6 +1316,9 @@ export class Question extends SurveyElement
         qErrors.push(error);
       }
     }
+  }
+  protected canRunValidators(isOnValueChanged: boolean): boolean {
+    return true;
   }
   private fireSurveyValidation(): SurveyError {
     if (this.validateValueCallback) return this.validateValueCallback();

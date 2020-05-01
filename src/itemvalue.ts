@@ -188,7 +188,6 @@ export class ItemValue extends Base {
     return hasChanded;
   }
   public ownerPropertyName: string = "";
-  private visibleIfValue: string = "";
   private itemValue: any;
   private locTextValue: LocalizableString;
   private isVisibleValue: boolean = true;
@@ -296,10 +295,10 @@ export class ItemValue extends Base {
     }
   }
   public get visibleIf(): string {
-    return this.visibleIfValue;
+    return this.getPropertyValue("visibleIf", "");
   }
   public set visibleIf(val: string) {
-    this.visibleIfValue = val;
+    this.setPropertyValue("visibleIf", val);
   }
   public get isVisible() {
     return this.isVisibleValue;

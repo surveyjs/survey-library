@@ -37,7 +37,7 @@ export class QuestionTextModel extends Question {
     var validators = super.getValidators();
     if (
       this.inputType === "email" &&
-      !this.validators.some(v => v.getType() === "emailvalidator")
+      !this.validators.some((v) => v.getType() === "emailvalidator")
     ) {
       validators.push(new EmailValidator());
     }
@@ -124,6 +124,13 @@ export class QuestionTextModel extends Question {
   get locPlaceHolder(): LocalizableString {
     return this.getLocalizableString("placeHolder");
   }
+  protected canRunValidators(isOnValueChanged: boolean): boolean {
+    return (
+      this.errors.length > 0 ||
+      !isOnValueChanged ||
+      ["date", "datetime", "datetime-local"].indexOf(this.inputType) < 0
+    );
+  }
   protected setNewValue(newValue: any) {
     newValue = this.correctValueType(newValue);
     super.setNewValue(newValue);
@@ -148,7 +155,7 @@ const minMaxTypes = [
   "datetime-local",
   "month",
   "time",
-  "week"
+  "week",
 ];
 
 Serializer.addClass(
@@ -171,43 +178,43 @@ Serializer.addClass(
         "text",
         "time",
         "url",
-        "week"
-      ]
+        "week",
+      ],
     },
     { name: "size:number", default: 25 },
     {
       name: "min",
       dependsOn: "inputType",
-      visibleIf: function(obj: any) {
+      visibleIf: function (obj: any) {
         if (!obj) return false;
         return minMaxTypes.indexOf(obj.inputType) !== -1;
-      }
+      },
     },
     {
       name: "max",
       dependsOn: "inputType",
-      visibleIf: function(obj: any) {
+      visibleIf: function (obj: any) {
         if (!obj) return false;
         return minMaxTypes.indexOf(obj.inputType) !== -1;
-      }
+      },
     },
     {
       name: "step",
       dependsOn: "inputType",
-      visibleIf: function(obj: any) {
+      visibleIf: function (obj: any) {
         if (!obj) return false;
         return minMaxTypes.indexOf(obj.inputType) !== -1;
-      }
+      },
     },
     { name: "maxLength:number", default: -1 },
-    { name: "placeHolder", serializationProperty: "locPlaceHolder" }
+    { name: "placeHolder", serializationProperty: "locPlaceHolder" },
   ],
-  function() {
+  function () {
     return new QuestionTextModel("");
   },
   "question"
 );
 
-QuestionFactory.Instance.registerQuestion("text", name => {
+QuestionFactory.Instance.registerQuestion("text", (name) => {
   return new QuestionTextModel(name);
 });

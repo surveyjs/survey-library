@@ -31,11 +31,13 @@ export class StylesManager {
     ".sv_main.sv_bootstrapmaterial_css .checkbox":
       "margin-top:10px;margin-bottom:10px;",
 
-    ".sv_row": "clear: both;",
+    ".sv_row": "clear: both; min-width:300px;",
     ".sv_row .sv_qstn": "float: left",
     ".sv_row .sv_qstn:last-child": "float: none",
-    ".sv_qstn": "display: inline-block; vertical-align: top; overflow: auto;",
-    ".sv_p_container": "display: inline-block; vertical-align: top;",
+    ".sv_qstn":
+      "display: inline-block; vertical-align: top; overflow: auto; min-width:300px;",
+    ".sv_p_container":
+      "display: inline-block; vertical-align: top; min-width:300px;",
     ".sv_qbln .checkbox-material": "margin-right: 3px;",
     ".sv_qcbx .checkbox-material": "margin-right: 5px;",
     ".sv_qcbx .checkbox label": "justify-content: left; display: inline-block;",
@@ -189,88 +191,115 @@ export class StylesManager {
       "display: block; width: 100%; text-align: center;",
     ".sv_main .sv-logo--bottom":
       "display: block; width: 100%; text-align: center;",
-    ".sv_main .sv_header__text": "display: inline-block; vertical-align: top;"
+    ".sv_main .sv_header__text": "display: inline-block; vertical-align: top;",
   };
 
   public static Media: { [key: string]: { media: string; style: string } } = {
     ".sv_qstn fieldset .sv-q-col-1": {
       style: "width: 100%;",
-      media: "@media only screen and (max-width: 480px)"
+      media: "@media only screen and (max-width: 480px)",
     },
     ".sv_qstn fieldset .sv-q-col-2": {
       style: "width: 100%;",
-      media: "@media only screen and (max-width: 480px)"
+      media: "@media only screen and (max-width: 480px)",
     },
     ".sv_qstn fieldset .sv-q-col-3": {
       style: "width: 100%;",
-      media: "@media only screen and (max-width: 480px)"
+      media: "@media only screen and (max-width: 480px)",
     },
     ".sv_qstn fieldset .sv-q-col-4": {
       style: "width: 100%;",
-      media: "@media only screen and (max-width: 480px)"
+      media: "@media only screen and (max-width: 480px)",
     },
     ".sv_qstn fieldset .sv-q-col-5": {
       style: "width: 100%;",
-      media: "@media only screen and (max-width: 480px)"
+      media: "@media only screen and (max-width: 480px)",
     },
 
     ".sv_main .sv_container .panel-body.card-block .sv_row .sv_qstn": {
       style: "display: block; width: 100% !important;",
-      media: "@media (max-width: 600px)"
+      media: "@media (max-width: 600px)",
     },
     ".sv_main .sv_container .panel-body.card-block .sv_row .sv_qstn .title-left": {
       style: "float: none;",
-      media: "@media (max-width: 600px)"
+      media: "@media (max-width: 600px)",
     },
     ".sv_main .sv_container .panel-body.card-block .sv_row .sv_qstn .sv_q_radiogroup_inline, .sv_main .sv_container .panel-body.card-block .sv_row .sv_qstn .sv_q_checkbox_inline, .sv_main .sv_container .panel-body.card-block .sv_row .sv_qstn .sv_q_imagepicker_inline": {
       style: "display: block;",
-      media: "@media (max-width: 600px)"
+      media: "@media (max-width: 600px)",
     },
     ".sv_main .sv_container .panel-body.card-block .sv_row .sv_qstn table.table": {
       style: "display: block;",
-      media: "@media (max-width: 600px)"
+      media: "@media (max-width: 600px)",
     },
     ".sv_main .sv_container .panel-body.card-block .sv_row .sv_qstn table.table thead": {
       style: "display: none;",
-      media: "@media (max-width: 600px)"
+      media: "@media (max-width: 600px)",
     },
     ".sv_main .sv_container .panel-body.card-block .sv_row .sv_qstn table.table tbody, .sv_main .sv_container .panel-body.card-block .sv_row .sv_qstn table.table tr, .sv_main .sv_container .panel-body.card-block .sv_row .sv_qstn table.table td": {
       style: "display: block;",
-      media: "@media (max-width: 600px)"
+      media: "@media (max-width: 600px)",
     },
     ".sv_main .sv_container .panel-body.card-block .sv_row .sv_qstn table.table:not(.sv_q_matrix) td:before": {
       style: "content: attr(headers);",
-      media: "@media (max-width: 600px)"
+      media: "@media (max-width: 600px)",
     },
     ".sv_main .sv_container .panel-body.card-block .sv_row .sv_qstn table.sv_q_matrix td:after": {
       style: "content: attr(headers); padding-left: 1em",
-      media: "@media (max-width: 600px)"
+      media: "@media (max-width: 600px)",
     },
     ".sv_main .sv_container .panel-body.card-block .sv_row .sv_qstn .radio label, .sv_main .sv_container .panel-body.card-block .sv_row .sv_qstn .checkbox label": {
       style: "line-height: 12px; vertical-align: top;",
-      media: "@media (max-width: 600px)"
+      media: "@media (max-width: 600px)",
     },
     ".sv_qstn label.sv_q_m_label": {
       style: "display: inline;",
-      media: "@media (max-width: 600px)"
+      media: "@media (max-width: 600px)",
     },
     ".sv_main .sv_custom_header": {
       style: "display: none;",
-      media: "@media (max-width: 1300px)"
+      media: "@media (max-width: 1300px)",
     },
     ".sv_main .sv_container .sv_header h3": {
       style: "font-size: 1.5em;",
-      media: "@media (max-width: 1300px)"
+      media: "@media (max-width: 1300px)",
     },
     ".sv_main .sv_container .sv_header h3 span": {
       style: "font-size: 0.75em;",
-      media: "@media (max-width: 700px)"
+      media: "@media (max-width: 700px)",
     },
 
     ".sv_main.sv_bootstrap_css .sv-progress__text": {
       style: "margin-left: 8em;",
-      media: "@media (min-width: 768px)"
-    }
+      media: "@media (min-width: 768px)",
+    },
+
+    ".sv_row": {
+      style: " display: flex; flex-wrap: wrap;",
+      media: "@supports (display: flex)",
+    },
+
+    ".sv-vue-row-additional-div": {
+      style: " display: flex; flex-wrap: wrap; flex-basis: 100%;",
+      media: "@supports (display: flex)",
+    },
+
+    ".sv-row > .sv-row__panel, .sv-row__question:not(:last-child)": {
+      style: "float: left;",
+      media:
+        "@media screen and (-ms-high-contrast: active), (-ms-high-contrast: none)",
+    },
+
+    "[dir='rtl'],[style*='direction:rtl'] .sv-row__question:not(:last-child)": {
+      style: "float: right;",
+      media:
+        "@media screen and (-ms-high-contrast: active), (-ms-high-contrast: none)",
+    },
+
+    ".sv-row > .sv-row__panel, .sv-row__question": {
+      style: "width: 100% !important; padding-right: 0 !important;",
+      media: "@media only screen and (max-width: 600px)",
+    },
   };
 
   public static ThemeColors: { [key: string]: { [key: string]: string } } = {
@@ -294,7 +323,7 @@ export class StylesManager {
       "$disabled-label-color": "rgba(64, 64, 64, 0.5)",
       "$slider-color": "white",
       "$disabled-switch-color": "#9f9f9f",
-      "$disabled-slider-color": "#cfcfcf"
+      "$disabled-slider-color": "#cfcfcf",
     },
     orange: {
       "$header-background-color": "#4a4a4a",
@@ -316,7 +345,7 @@ export class StylesManager {
       "$disabled-label-color": "rgba(64, 64, 64, 0.5)",
       "$slider-color": "white",
       "$disabled-switch-color": "#9f9f9f",
-      "$disabled-slider-color": "#cfcfcf"
+      "$disabled-slider-color": "#cfcfcf",
     },
     darkblue: {
       "$header-background-color": "#d9d8dd",
@@ -338,7 +367,7 @@ export class StylesManager {
       "$disabled-label-color": "rgba(64, 64, 64, 0.5)",
       "$slider-color": "white",
       "$disabled-switch-color": "#9f9f9f",
-      "$disabled-slider-color": "#cfcfcf"
+      "$disabled-slider-color": "#cfcfcf",
     },
     darkrose: {
       "$header-background-color": "#ddd2ce",
@@ -360,7 +389,7 @@ export class StylesManager {
       "$disabled-label-color": "rgba(64, 64, 64, 0.5)",
       "$slider-color": "white",
       "$disabled-switch-color": "#9f9f9f",
-      "$disabled-slider-color": "#cfcfcf"
+      "$disabled-slider-color": "#cfcfcf",
     },
     stone: {
       "$header-background-color": "#cdccd2",
@@ -382,7 +411,7 @@ export class StylesManager {
       "$disabled-label-color": "rgba(64, 64, 64, 0.5)",
       "$slider-color": "white",
       "$disabled-switch-color": "#9f9f9f",
-      "$disabled-slider-color": "#cfcfcf"
+      "$disabled-slider-color": "#cfcfcf",
     },
     winter: {
       "$header-background-color": "#82b8da",
@@ -404,7 +433,7 @@ export class StylesManager {
       "$disabled-label-color": "rgba(64, 64, 64, 0.5)",
       "$slider-color": "white",
       "$disabled-switch-color": "#9f9f9f",
-      "$disabled-slider-color": "#cfcfcf"
+      "$disabled-slider-color": "#cfcfcf",
     },
     winterstone: {
       "$header-background-color": "#323232",
@@ -426,7 +455,7 @@ export class StylesManager {
       "$disabled-label-color": "rgba(64, 64, 64, 0.5)",
       "$slider-color": "white",
       "$disabled-switch-color": "#9f9f9f",
-      "$disabled-slider-color": "#cfcfcf"
+      "$disabled-slider-color": "#cfcfcf",
     },
     modern: {
       "$main-color": "#1ab394",
@@ -452,7 +481,7 @@ export class StylesManager {
       "$error-background-color": "rgba(213, 41, 1, 0.2)",
       "$radio-checked-color": "#404040",
       "$clean-button-color": "#1948b3",
-      "$body-background-color": "#ffffff"
+      "$body-background-color": "#ffffff",
     },
     bootstrap: {
       "$main-color": "#18a689",
@@ -463,7 +492,7 @@ export class StylesManager {
       "$disabled-label-color": "rgba(64, 64, 64, 0.5)",
       "$slider-color": "white",
       "$disabled-switch-color": "#9f9f9f",
-      "$disabled-slider-color": "#cfcfcf"
+      "$disabled-slider-color": "#cfcfcf",
     },
     bootstrapmaterial: {
       "$main-color": "#18a689",
@@ -475,8 +504,8 @@ export class StylesManager {
       "$disabled-label-color": "rgba(64, 64, 64, 0.5)",
       "$slider-color": "white",
       "$disabled-switch-color": "#9f9f9f",
-      "$disabled-slider-color": "#cfcfcf"
-    }
+      "$disabled-slider-color": "#cfcfcf",
+    },
   };
   public static ThemeCss: { [key: string]: string } = {
     ".sv_default_css": "background-color: $body-container-background-color;",
@@ -579,7 +608,7 @@ export class StylesManager {
     ".sv_main .sv-boolean--disabled .sv-boolean__switch":
       "background-color: $disabled-switch-color;",
     ".sv_main .sv-boolean--disabled .sv-boolean__slider":
-      "background-color: $disabled-slider-color;"
+      "background-color: $disabled-slider-color;",
     //eo boolean
   };
   public static modernThemeCss: { [key: string]: string } = {
@@ -689,7 +718,7 @@ export class StylesManager {
     ".sv-text--error:-ms-placeholder": "color: $error-color;",
     ".sv-text::placeholder": "color: $text-color;",
     ".sv-text::-ms-placeholder": "color: $text-color;",
-    ".sv-text:-ms-placeholder": "color: $text-color;"
+    ".sv-text:-ms-placeholder": "color: $text-color;",
   };
   public static bootstrapThemeCss: { [key: string]: string } = {
     ".sv_main .sv_q_imgsel.checked label>div": "background-color: $main-color",
@@ -721,7 +750,7 @@ export class StylesManager {
     ".sv_main .sv-boolean--disabled .sv-boolean__switch":
       "background-color: $disabled-switch-color;",
     ".sv_main .sv-boolean--disabled  .sv-boolean__slider":
-      "background-color: $disabled-slider-color;"
+      "background-color: $disabled-slider-color;",
     //eo boolean
   };
 
@@ -796,7 +825,7 @@ export class StylesManager {
     ".sv_main .sv-boolean--disabled .sv-boolean__switch":
       "background-color: $disabled-switch-color;",
     ".sv_main .sv-boolean--disabled  .sv-boolean__slider":
-      "background-color: $disabled-slider-color;"
+      "background-color: $disabled-slider-color;",
     //eo boolean
   };
 
@@ -851,10 +880,10 @@ export class StylesManager {
           StylesManager.ThemeColors[themeName] ||
           StylesManager.ThemeColors["default"];
 
-        Object.keys(ThemeCss).forEach(selector => {
+        Object.keys(ThemeCss).forEach((selector) => {
           let cssRuleText = ThemeCss[selector];
           Object.keys(theme).forEach(
-            colorVariableName =>
+            (colorVariableName) =>
               (cssRuleText = cssRuleText.replace(
                 new RegExp("\\" + colorVariableName, "g"),
                 theme[colorVariableName]
@@ -887,7 +916,7 @@ export class StylesManager {
 
   public initializeStyles(sheet: CSSStyleSheet) {
     if (StylesManager.Enabled) {
-      Object.keys(StylesManager.Styles).forEach(selector => {
+      Object.keys(StylesManager.Styles).forEach((selector) => {
         try {
           sheet.insertRule(
             selector + " { " + StylesManager.Styles[selector] + " }",
@@ -895,7 +924,7 @@ export class StylesManager {
           );
         } catch (e) {}
       });
-      Object.keys(StylesManager.Media).forEach(selector => {
+      Object.keys(StylesManager.Media).forEach((selector) => {
         try {
           sheet.insertRule(
             StylesManager.Media[selector].media +

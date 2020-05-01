@@ -456,11 +456,13 @@ export class QuestionSelectBase extends Question {
   public getPlainData(
     options: {
       includeEmpty?: boolean;
+      includeQuestionTypes?: boolean;
       calculations?: Array<{
         propertyName: string;
       }>;
     } = {
       includeEmpty: true,
+      includeQuestionTypes: false
     }
   ) {
     var questionPlainData = super.getPlainData(options);

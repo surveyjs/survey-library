@@ -2005,11 +2005,13 @@ export class SurveyModel extends Base
   public getPlainData(
     options: {
       includeEmpty?: boolean;
+      includeQuestionTypes?: boolean;
       calculations?: Array<{
         propertyName: string;
       }>;
     } = {
       includeEmpty: true,
+      includeQuestionTypes: false
     }
   ) {
     var result: Array<any> = [];

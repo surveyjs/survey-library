@@ -38,7 +38,12 @@ export class SurveyElementVue extends Vue {
     return "survey-" + element.getTemplate();
   }
   getRootClass(element: Question) {
-    return element.cssRoot;
+    let cssRoot = element.cssRoot;
+    if (element.isReadOnly) {
+      cssRoot += " " + (<any>this.element).cssClasses.disabled;
+    }
+
+    return cssRoot;
   }
   getContentClass(element: Question) {
     return element.cssContent;

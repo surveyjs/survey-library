@@ -9,13 +9,15 @@ export var simplifiedChineseSurveyStrings = {
   noneItemText: "无",
   selectAllItemText: "选择全部",
   progressText: "第 {0} 页, 共 {1} 页",
+  panelDynamicProgressText: "第 {0}, 共 {1}",
   questionsProgressText: "第 {0}/{1} 题",
   emptySurvey: "问卷中没有问题或页面",
-  completingSurveyBefore: "你已完成问卷.",
   completingSurvey: "感谢您的参与!",
+  completingSurveyBefore:
+    "您已经完成了此问卷",
   loadingSurvey: "问卷正在加载中...",
   optionsCaption: "请选择...",
-  value: "值",
+  value: "值", 
   requiredError: "请填写此问题",
   requiredErrorInPanel: "至少回答一题.",
   requiredInAllRowsError: "请填写所有行中问题",
@@ -26,16 +28,19 @@ export var simplifiedChineseSurveyStrings = {
   minRowCountError: "最少需要填写 {0} 行答案",
   minSelectError: "最少需要选择 {0} 项答案",
   maxSelectError: "最多只能选择 {0} 项答案",
-  numericMinMax: "答案 '{0}' 必须大于等于 {1} 且小于等于 {2}",
+  numericMinMax:
+  "答案 '{0}' 必须大于等于 {1} 且小于等于 {2}",
   numericMin: "答案 '{0}' 必须大于等于 {1}",
   numericMax: "答案 '{0}' 必须小于等于 {1}",
   invalidEmail: "请输入有效的 Email 地址",
   invalidExpression: "公式: {0} 无效.", 
   urlRequestError: "载入选项时发生错误 '{0}': {1}",
-  urlGetChoicesError: "未能载入有效的选项或请求参数路径有误",
+  urlGetChoicesError: 
+  "未能载入有效的选项或请求参数路径有误",
   exceedMaxSize: "文件大小不能超过 {0}",
   otherRequiredError: "请完成其他问题",
-  uploadingFile: "文件上传中... 请耐心等待几秒后重试",
+  uploadingFile: 
+  "文件上传中... 请耐心等待几秒后重试",
   loadingFile: "加载...",
   chooseFile: "选择文件...",
   noFileChosen: "未选择文件",
@@ -64,7 +69,13 @@ export var simplifiedChineseSurveyStrings = {
   timerLimitSurvey: "总计用时 {0} 共 {1}.",
   cleanCaption: "清理",
   clearCaption: "清除",
+  chooseFileCaption: "选择文件",
   removeFileCaption: "移除文件"
+  booleanCheckedLabel: "是",
+  booleanUncheckedLabel: "否",
+  confirmRemoveFile: "删除文件: {0}?",
+  confirmRemoveAllFiles: "确认要删除所有文件吗?",
+  questionTitlePatternText: "问题名"
 };
 
 surveyLocalization.locales["zh-cn"] = simplifiedChineseSurveyStrings;

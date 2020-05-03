@@ -75,7 +75,11 @@
 .sv-question__form-group {
   margin-top: 0.5em;
 }
-
+.sv-question--disabled {
+  .sv-question__header {
+    color: $disabled-text-color;
+  }
+}
 .sv-image {
   display: inline-block;
 }

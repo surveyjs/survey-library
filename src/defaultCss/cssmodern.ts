@@ -83,6 +83,7 @@ export var modernCss = {
     footer: "sv-question__footer",
     formGroup: "sv-question__form-group",
     hasError: "",
+    disabled: "sv-question--disabled",
   },
   image: { root: "sv-image", image: "sv_image_image" },
   error: {

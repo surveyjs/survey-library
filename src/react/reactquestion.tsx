@@ -107,6 +107,11 @@ export class SurveyQuestion extends SurveyElementBase {
     if (!!question.paddingLeft) rootStyle["paddingLeft"] = question.paddingLeft;
     if (!!question.paddingRight)
       rootStyle["paddingRight"] = question.paddingRight;
+
+    if (question.isReadOnly) {
+      questionRootClass += " " + cssClasses.disabled;
+    }
+
     return (
       <div
         ref="root"

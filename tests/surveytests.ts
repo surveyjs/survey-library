@@ -8341,6 +8341,33 @@ QUnit.test(
   }
 );
 
+QUnit.test(
+  "question.getPlainData - optional question type",
+  function (assert) {
+    var survey = new SurveyModel();
+    var page = survey.addNewPage("Page 1");
+    var question = new QuestionRadiogroupModel("q1");
+    new JsonObject().toObject(
+      {
+        type: "radiogroup",
+        name: "q1",
+        choices: [1,2,3],
+      },
+      question
+    );
+    page.addQuestion(question);
+    survey.data = { q1: 2}
+
+    var plainData = question.getPlainData();
+    assert.deepEqual(plainData.name, "q1");
+    assert.deepEqual(plainData.questionType, undefined);
+
+    plainData = question.getPlainData({ includeQuestionTypes: true });
+    assert.deepEqual(plainData.name, "q1");
+    assert.deepEqual(plainData.questionType, "radiogroup");
+  }
+);
+
 QUnit.test("question.valueName is numeric, Bug# 1432", function (assert) {
   var survey = new SurveyModel({
     questions: [

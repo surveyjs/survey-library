@@ -48,6 +48,12 @@ export class QuestionImplementor extends ImplementorBase {
     (<any>this.question)["koCss"] = ko.pureComputed(function () {
       return self.question.cssClasses;
     });
+    (<any>this.question)["koRootCss"] = ko.pureComputed(function () {
+      var cssRoot = self.question.cssRoot;
+      if (self.question.isReadOnly)
+        cssRoot += " " + self.question.cssClasses.disabled;
+      return cssRoot;
+    });
     (<any>this.question)["koErrorClass"] = ko.pureComputed(function () {
       return self.question.cssError;
     });

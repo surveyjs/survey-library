@@ -1053,11 +1053,13 @@ export class Question extends SurveyElement
   public getPlainData(
     options: {
       includeEmpty?: boolean;
+      includeQuestionTypes?: boolean;
       calculations?: Array<{
         propertyName: string;
       }>;
     } = {
       includeEmpty: true,
+      includeQuestionTypes: false
     }
   ) {
     if (options.includeEmpty || !this.isEmpty()) {
@@ -1070,6 +1072,9 @@ export class Question extends SurveyElement
         getString: (val: any) =>
           typeof val === "object" ? JSON.stringify(val) : val,
       };
+      if(options.includeQuestionTypes === true) {
+        questionPlainData.questionType = this.getType();
+      }
       (options.calculations || []).forEach((calculation) => {
         questionPlainData[calculation.propertyName] = this[
           calculation.propertyName

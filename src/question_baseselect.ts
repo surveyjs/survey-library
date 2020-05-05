@@ -323,6 +323,9 @@ export class QuestionSelectBase extends Question {
   public set choices(newValue: Array<any>) {
     this.setPropertyValue("choices", newValue);
   }
+  /**
+   * Set this property to true to hide the question if there is no visible choices.
+   */
   public get hideIfChoicesEmpty(): boolean {
     return this.getPropertyValue("hideIfChoicesEmpty", false);
   }
@@ -462,7 +465,7 @@ export class QuestionSelectBase extends Question {
       }>;
     } = {
       includeEmpty: true,
-      includeQuestionTypes: false
+      includeQuestionTypes: false,
     }
   ) {
     var questionPlainData = super.getPlainData(options);

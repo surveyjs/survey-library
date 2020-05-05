@@ -191,6 +191,9 @@ export class QuestionMatrixModel
         self.onRowsChanged();
       }
     });
+    this.registerFunctionOnPropertyValueChanged("hideIfRowsEmpty", function () {
+      self.updateVisibilityBasedOnRows();
+    });
   }
   public getType(): string {
     return "matrix";
@@ -221,6 +224,15 @@ export class QuestionMatrixModel
     if (val == this.rowsOrder) return;
     this.setPropertyValue("rowsOrder", val);
     this.onRowsChanged();
+  }
+  /**
+   * Set this property to true to hide the question if there is no visible rows in the matrix.
+   */
+  public get hideIfRowsEmpty(): boolean {
+    return this.getPropertyValue("hideIfRowsEmpty", false);
+  }
+  public set hideIfRowsEmpty(val: boolean) {
+    this.setPropertyValue("hideIfRowsEmpty", val);
   }
   getRows(): Array<any> {
     return this.rows;
@@ -288,6 +300,7 @@ export class QuestionMatrixModel
   endLoadingFromJson() {
     super.endLoadingFromJson();
     this.rows = this.sortVisibleRows(this.rows);
+    this.updateVisibilityBasedOnRows();
   }
   protected processRowsOnSet(newRows: Array<any>) {
     return this.sortVisibleRows(newRows);
@@ -485,6 +498,17 @@ export class QuestionMatrixModel
     }
     return super.getFirstInputElementId();
   }
+  protected onRowsChanged() {
+    this.updateVisibilityBasedOnRows();
+    super.onRowsChanged();
+  }
+  private updateVisibilityBasedOnRows() {
+    if (this.hideIfRowsEmpty) {
+      this.visible =
+        this.rows.length > 0 &&
+        (!this.filteredRows || this.filteredRows.length > 0);
+    }
+  }
   //IMatrixData
   onMatrixRowChanged(row: MatrixRowModel) {
     if (this.isRowChanging) return;
@@ -525,6 +549,7 @@ Serializer.addClass(
       choices: ["initial", "random"],
     },
     "isAllRowRequired:boolean",
+    "hideIfRowsEmpty:boolean",
   ],
   function () {
     return new QuestionMatrixModel("");

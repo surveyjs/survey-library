@@ -2781,13 +2781,28 @@ QUnit.test("Test property hideIfChoicesEmpty", function (assert) {
   assert.equal(question.isVisible, true, "There is one visible item");
 });
 
-QUnit.test("Test property hideIfChoicesEmpty - load from json", function (
-  assert
-) {
+QUnit.test("Test property hideIfRowsEmpty", function (assert) {
+  var survey = new SurveyModel();
+  var page = survey.addNewPage("p1");
+  var question = new QuestionMatrixModel("q1");
+  page.addElement(question);
+  assert.equal(question.isVisible, true, "By default it is visible");
+  question.hideIfRowsEmpty = true;
+  assert.equal(question.isVisible, false, "Rows are empty");
+  question.rows = [1, 2, 3];
+  assert.equal(question.isVisible, true, "Rows are not empty");
+  question.rowsVisibleIf = "{item} = {val1}";
+  assert.equal(question.isVisible, false, "Filtered rows are empty");
+  survey.setValue("val1", 2);
+  assert.equal(question.isVisible, true, "There is one visible item");
+});
+
+QUnit.test("Test property hideIfRowsEmpty - load from json", function (assert) {
   var survey = new SurveyModel({
-    elements: [{ type: "dropdown", name: "q1", hideIfChoicesEmpty: true }],
+    elements: [{ type: "matrix", name: "q1", hideIfRowsEmpty: true }],
   });
-  var question = survey.getQuestionByName("q1");
+  var question = <QuestionMatrixModel>survey.getQuestionByName("q1");
+  assert.equal(question.rows.length, 0, "There is no rows");
   assert.equal(question.isVisible, false, "It is invisible");
 });
 

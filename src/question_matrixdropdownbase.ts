@@ -479,8 +479,12 @@ export class MatrixDropdownColumn extends Base implements ILocalizableOwner {
     this.updateCellQuestion(cellQuestion, data);
     return cellQuestion;
   }
-  public updateCellQuestion(cellQuestion: Question, data: any) {
-    this.setQuestionProperties(cellQuestion);
+  public updateCellQuestion(
+    cellQuestion: Question,
+    data: any,
+    onUpdateJson: (json: any) => any = null
+  ) {
+    this.setQuestionProperties(cellQuestion, onUpdateJson);
     var qType = cellQuestion.getType();
     var qDefinition = (<any>matrixDropdownColumnTypes)[qType];
     if (qDefinition && qDefinition["onCellQuestionUpdate"]) {
@@ -525,9 +529,15 @@ export class MatrixDropdownColumn extends Base implements ILocalizableOwner {
     this.setQuestionProperties(question);
     return question;
   }
-  protected setQuestionProperties(question: Question) {
+  protected setQuestionProperties(
+    question: Question,
+    onUpdateJson: (json: any) => any = null
+  ) {
     if (this.templateQuestion) {
       var json = new JsonObject().toJsonObject(this.templateQuestion, true);
+      if (onUpdateJson) {
+        onUpdateJson(json);
+      }
       json.type = question.getType();
       question.startLoadingFromJson();
       new JsonObject().toObject(json, question);
@@ -673,7 +683,9 @@ export class MatrixDropdownTotalCell extends MatrixDropdownCell {
   }
   public updateCellQuestion() {
     this.question.locCalculation();
-    this.column.updateCellQuestion(this.question, null);
+    this.column.updateCellQuestion(this.question, null, function (json) {
+      delete json["defaultValue"];
+    });
     this.question.expression = this.getTotalExpression();
     this.question.format = this.column.totalFormat;
     this.question.currency = this.column.totalCurrency;
@@ -702,7 +714,7 @@ export class MatrixDropdownRowModelBase
     return "srow_" + MatrixDropdownRowModelBase.idCounter++;
   }
   protected data: IMatrixDropdownData;
-  private isSettingValue: boolean = false;
+  protected isSettingValue: boolean = false;
   private idValue: string;
   private textPreProcessor: TextPreProcessor;
 
@@ -966,7 +978,7 @@ export class MatrixDropdownTotalRowModel extends MatrixDropdownRowModelBase {
     return new MatrixDropdownTotalCell(column, this, this.data);
   }
   public setValue(name: string, newValue: any) {
-    if (!!this.data) {
+    if (!!this.data && !this.isSettingValue) {
       this.data.onTotalValueChanged();
     }
   }
@@ -2338,7 +2350,12 @@ export class QuestionMatrixDropdownModelBase
     );
   }
   onTotalValueChanged(): any {
-    if (!!this.data && !!this.visibleTotalRow) {
+    if (
+      !!this.data &&
+      !!this.visibleTotalRow &&
+      !this.isLoadingFromJson &&
+      !this.isSett
+    ) {
       this.data.setValue(
         this.getValueName() + settings.matrixTotalValuePostFix,
         this.totalValue,

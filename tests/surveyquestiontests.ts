@@ -1714,6 +1714,18 @@ QUnit.test("Boolean question defaultValue as a boolean values", function (
   assert.deepEqual(survey.data, { bool: false }, "add question into survey");
 });
 
+QUnit.test("Boolean question read only checkedValue", function (
+  assert
+) {
+  var question = new QuestionBooleanModel("bool");
+  question.readOnly = true;
+  assert.equal(question.checkedValue, null, "Indertemenated by default");
+  question.checkedValue = false;
+  assert.equal(question.checkedValue, null, "Indertemenated by default is not changed due to read only mode");
+  question.checkedValue = true;
+  assert.equal(question.checkedValue, null, "Indertemenated by default is not changed due to read only mode");
+});
+
 QUnit.test(
   "defaultValue and hasOther - radiogroup, bug#384 (Editor)",
   function (assert) {

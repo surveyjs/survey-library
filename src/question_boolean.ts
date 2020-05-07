@@ -41,6 +41,9 @@ export class QuestionBooleanModel extends Question {
     return this.value == this.getValueTrue();
   }
   public set checkedValue(val: any) {
+    if(this.isReadOnly) {
+      return;
+    }
     if (this.isValueEmpty(val)) {
       this.value = null;
     } else {

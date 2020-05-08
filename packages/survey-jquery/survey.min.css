@@ -1,6 +1,6 @@
 /*!
- * surveyjs - Survey JavaScript library v1.1.24
- * Copyright (c) 2015-2019 Devsoft Baltic OÜ  - http://surveyjs.io/
+ * surveyjs - Survey JavaScript library v1.7.5
+ * Copyright (c) 2015-2020 Devsoft Baltic OÜ  - http://surveyjs.io/
  * License: MIT (http://www.opensource.org/licenses/mit-license.php)
  */
 .sv_window {
@@ -154,7 +154,7 @@
 .sv_main {
   position: relative;
   width: 100%;
-  font-family: "Segoe UI", Frutiger, "Frutiger Linotype", "Dejavu Sans", "Helvetica Neue", Arial, sans-serif;
+  font-family: "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif, "Helvetica Neue", Arial, sans-serif;
   font-size: 14px; }
   .sv_main hr {
     border: none; }
@@ -394,6 +394,8 @@
           float: right; }
         .sv_main .sv_container .sv_body .sv_nav .sv_prev_btn {
           float: left; }
+  .sv_main .sv_q_image {
+    display: inline-block; }
 
 [dir="rtl"] .sv_main input, [style*="direction:rtl"] .sv_main input {
   text-align: right; }
@@ -470,3 +472,43 @@
     .sv_main .sv_container .sv_body .sv_p_root .sv_row .sv_q table.sv_q_matrix td:after,
     .sv_main .sv_container .sv_body .sv_p_root .sv_row .sv_qstn table.sv_q_matrix td:after {
       content: attr(headers); } }
+
+.sv_main .sv_qstn .sv_q_file .sv-visuallyhidden {
+  position: absolute !important;
+  opacity: 0; }
+
+.sv_main .sv_qstn .sv_q_file .sv_q_file_choose_button {
+  display: inline-block;
+  box-sizing: border-box;
+  min-width: 100px;
+  line-height: 2em;
+  padding: 0.25em 2em;
+  font-size: 0.85em;
+  font-weight: bold;
+  border: none;
+  border-radius: 2px;
+  cursor: pointer; }
+
+.sv_main .sv_qstn .sv_q_file .sv_q_file_remove_button {
+  padding: 0.25em 2em; }
+
+.sv_main .sv_qstn .sv_q_file .sv-file__decorator {
+  display: inline-block;
+  min-width: 250px; }
+  .sv_main .sv_qstn .sv_q_file .sv-file__decorator .sv_q_file_placeholder {
+    margin-left: 1em;
+    display: inline-block; }
+
+.sjs_sp_container {
+  position: relative; }
+
+.sjs_sp_controls {
+  position: absolute;
+  left: 0;
+  bottom: 0; }
+
+.sjs_sp_controls > button {
+  user-select: none; }
+
+.sjs_sp_container > div > canvas:focus {
+  outline: none; }

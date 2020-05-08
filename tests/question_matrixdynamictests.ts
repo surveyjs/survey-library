@@ -2613,6 +2613,7 @@ QUnit.test("matrix dropdown + renderedTable.headerRow", function (assert) {
   assert.equal(cells[0].hasTitle, true, "header rows");
   assert.equal(cells[0].locTitle.renderedHtml, "", "Nothing to render");
   assert.equal(cells[0].minWidth, "", "minWidth is empty for row header");
+  assert.equal(cells[0].width, "", "width is empty for row header");
   assert.equal(cells[1].hasTitle, true, "col1");
   assert.equal(cells[1].hasQuestion, false, "no question");
   assert.equal(cells[1].minWidth, "", "col1.minWidth");
@@ -2620,6 +2621,11 @@ QUnit.test("matrix dropdown + renderedTable.headerRow", function (assert) {
   assert.equal(cells[1].locTitle.renderedHtml, "col1", "col1");
   assert.equal(cells[2].locTitle.renderedHtml, "col2", "col2");
   assert.equal(cells[2].minWidth, "100px", "col2.minWidth");
+
+  matrix.rowTitleWidth = "400px";
+  cells = matrix.renderedTable.headerRow.cells;
+  assert.equal(cells[0].width, "400px", "col1 width get from rowTitleWidth");
+
   matrix.showHeader = false;
   assert.equal(matrix.renderedTable.showHeader, false, "Header is not shown");
   assert.notOk(!!matrix.renderedTable.headerRow, "Header row is null");

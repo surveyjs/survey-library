@@ -1352,7 +1352,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     cell: QuestionMatrixDropdownRenderedCell
   ) {
     cell.minWidth = column != null ? this.matrix.getColumnWidth(column) : "";
-    cell.width = column != null ? column.width : "";
+    cell.width = column != null ? column.width : this.matrix.getRowTitleWidth();
   }
   private createRemoveRowCell(
     row: MatrixDropdownRowModelBase
@@ -1431,7 +1431,7 @@ export class QuestionMatrixDropdownModelBase
       }
     );
     this.registerFunctionOnPropertiesValueChanged(
-      ["cellType", "optionsCaption", "columnColCount"],
+      ["cellType", "optionsCaption", "columnColCount", "rowTitleWidth"],
       function () {
         self.generatedVisibleRows = null;
         self.resetRenderedTable();
@@ -1636,6 +1636,9 @@ export class QuestionMatrixDropdownModelBase
   onColumnCellTypeChanged(column: MatrixDropdownColumn) {
     this.generatedVisibleRows = null;
     this.resetRenderedTable();
+  }
+  public getRowTitleWidth(): string {
+    return "";
   }
   public get hasFooter(): boolean {
     return this.getPropertyValue("hasFooter", false);

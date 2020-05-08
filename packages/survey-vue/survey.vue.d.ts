@@ -929,7 +929,7 @@ export declare class Survey extends Vue {
     completeLastPage(): void;
     doTrySaveAgain(): void;
 }
-export default Survey;
+
 
 export declare class CustomWidget extends Vue {
     css: any;
@@ -943,12 +943,12 @@ export declare class CustomWidget extends Vue {
     updated(): void;
     beforeDestroy(): void;
 }
-export default CustomWidget;
+
 
 export declare class SurveyString extends Vue {
     locString: LocalizableString;
 }
-export default SurveyString;
+
 
 export declare class SurveyElementVue extends Vue {
     css: any;
@@ -961,7 +961,7 @@ export declare class SurveyElementVue extends Vue {
     readonly hasErrorsOnBottom: boolean;
     mounted(): void;
 }
-export default SurveyElementVue;
+
 
 export declare class Window extends Vue {
     window: SurveyWindowModel;
@@ -978,7 +978,7 @@ export declare class Window extends Vue {
     doExpand(): void;
     doHide(): void;
 }
-export default Window;
+
 
 export declare class Page extends Vue {
     survey: SurveyModel;
@@ -991,13 +991,13 @@ export declare class Page extends Vue {
     readonly num: string;
     readonly rows: QuestionRowModel[];
 }
-export default Page;
+
 
 export declare class Radiogroup extends QuestionVue<QuestionRadiogroupModel> {
     readonly choicesCount: number;
     getItemClass(item: any): any;
 }
-export default Radiogroup;
+
 
 export declare class RadiogroupItem extends Vue {
     question: any;
@@ -1006,7 +1006,7 @@ export declare class RadiogroupItem extends Vue {
     getLabelClass(item: any): any;
     getControlLabelClass(item: any): any;
 }
-export default RadiogroupItem;
+
 
 export declare class OtherChoice extends Vue {
     question: Question;
@@ -1014,25 +1014,25 @@ export declare class OtherChoice extends Vue {
     change(event: any): void;
     keyup(event: any): void;
 }
-export default OtherChoice;
+
 
 export declare class Rating extends QuestionVue<QuestionRatingModel> {
     getCss(question: QuestionRatingModel, item: any): any;
     change(e: any): void;
     getRootClass(question: QuestionRatingModel): any;
 }
-export default Rating;
+
 
 export declare class Comment extends QuestionVue<QuestionCommentModel> {
     change(event: any): void;
     keyup(event: any): void;
 }
-export default Comment;
+
 
 export declare class Checkbox extends QuestionVue<QuestionCheckboxModel> {
     getItemClass(item: any): any;
 }
-export default Checkbox;
+
 
 export declare class CheckboxItem extends Vue {
     question: any;
@@ -1041,41 +1041,41 @@ export declare class CheckboxItem extends Vue {
     isAllSelected: boolean;
     getLabelClass(item: any): any;
 }
-export default CheckboxItem;
+
 
 export declare class Text extends QuestionVue<QuestionTextModel> {
     change(event: any): void;
     keyup(event: any): void;
 }
-export default Text;
+
 
 export declare class Boolean extends QuestionVue<QuestionBooleanModel> {
     readonly itemClass: any;
     getLabelClass(checked: boolean): string;
 }
-export default Boolean;
+
 
 export declare class Empty extends QuestionVue<QuestionEmptyModel> {
 }
-export default Empty;
+
 
 export declare class MultipleText extends QuestionVue<QuestionMultipleTextModel> {
     getWidgetComponentName(question: Question): "survey-customwidget" | "survey-text";
     readonly hasErrorsOnTop: boolean;
     readonly hasErrorsOnBottom: boolean;
 }
-export default MultipleText;
+
 
 export declare class Matrix extends QuestionVue<QuestionMatrixModel> {
     getItemClass(row: any, column: any): string;
     cellClick(row: any, column: any): void;
 }
-export default Matrix;
+
 
 export declare class Dropdown extends QuestionVue<QuestionDropdownModel> {
     readonly isOtherSelected: boolean;
 }
-export default Dropdown;
+
 
 export declare class File extends QuestionVue<QuestionFileModel> {
     onDragOver: (event: any) => void;
@@ -1085,7 +1085,7 @@ export declare class File extends QuestionVue<QuestionFileModel> {
     doRemoveFile(data: any): void;
     getPlaceholderClass(): string;
 }
-export default File;
+
 
 export declare class MatrixCell extends Vue {
     question: Question;
@@ -1099,22 +1099,22 @@ export declare class MatrixCell extends Vue {
     removeRowClick(): void;
     mounted(): void;
 }
-export default MatrixCell;
+
 
 export declare class MatrixTable extends Vue {
     question: QuestionMatrixDropdownModelBase;
     readonly table: QuestionMatrixDropdownRenderedTable;
 }
-export default MatrixTable;
+
 
 export declare class MatrixDropdown extends QuestionVue<QuestionMatrixDropdownModel> {
 }
-export default MatrixDropdown;
+
 
 export declare class MatrixDynamic extends QuestionVue<QuestionMatrixDynamicModel> {
     addRowClick(): void;
 }
-export default MatrixDynamic;
+
 
 export declare class Errors extends Vue {
     question: Question;
@@ -1122,22 +1122,22 @@ export declare class Errors extends Vue {
     readonly isShow: boolean;
     readonly classes: any;
 }
-export default Errors;
+
 
 export declare class Html extends Vue {
     question: QuestionHtmlModel;
     css: any;
 }
-export default Html;
+
 
 export declare class Expression extends QuestionVue<QuestionExpressionModel> {
 }
-export default Expression;
+
 
 export declare class ImagePicker extends QuestionVue<QuestionImagePickerModel> {
     getItemClass(item: any): string;
 }
-export default ImagePicker;
+
 
 export declare class PanelDynamic extends QuestionVue<QuestionPanelDynamicModel> {
     readonly renderedPanels: PanelModel[];
@@ -1145,7 +1145,7 @@ export declare class PanelDynamic extends QuestionVue<QuestionPanelDynamicModel>
     addPanelClick(): void;
     getButtonAddCss(question: Question): string;
 }
-export default PanelDynamic;
+
 
 export declare class PanelDynamicProgress extends Vue {
     question: QuestionPanelDynamicModel;
@@ -1159,21 +1159,21 @@ export declare class PanelDynamicProgress extends Vue {
     getButtonNextCss(question: Question): any;
     readonly progress: string;
 }
-export default PanelDynamicProgress;
+
 
 export declare class Progress extends Vue {
     survey: SurveyModel;
     css: any;
     readonly progress: string;
 }
-export default Progress;
+
 
 export declare class TimerPanel extends Vue {
     survey: SurveyModel;
     css: any;
     readonly text: string;
 }
-export default TimerPanel;
+
 
 export declare class Panel extends Vue {
     question: PanelModel;
@@ -1190,7 +1190,7 @@ export declare class Panel extends Vue {
     changeExpanded(): void;
     getTitleStyle(): any;
 }
-export default Panel;
+
 
 export declare class FlowPanel extends Vue {
     question: FlowPanelModel;
@@ -1211,7 +1211,7 @@ export declare class FlowPanel extends Vue {
     changeExpanded(): void;
     getTitleStyle(): any;
 }
-export default FlowPanel;
+
 
 export declare class FlowPanelElement extends Vue {
     static idValue: number;
@@ -1228,7 +1228,7 @@ export declare class FlowPanelElement extends Vue {
     beforeMount(): void;
     getWidgetComponentName(element: Question): string;
 }
-export default FlowPanelElement;
+
 
 export declare class Row extends Vue {
     row: any;
@@ -1236,14 +1236,14 @@ export declare class Row extends Vue {
     survey: SurveyModel;
     mounted(): void;
 }
-export default Row;
+
 
 export declare class ElementHeader extends Vue {
     element: IElement;
     getTitleClass(element: Question): any;
     getHeaderClass(element: Question): any;
 }
-export default ElementHeader;
+
 
 /**
     * Global survey settings
@@ -6856,7 +6856,7 @@ export declare class QuestionVue<T extends Question> extends Vue {
     css: any;
     changeQuestion(new_val: T, old_val: T): void;
 }
-export default QuestionVue;
+
 
 /**
     * A Model for a matrix base question.

@@ -6561,7 +6561,7 @@ export declare class QuestionRow extends QuestionRowModel {
     koGetType: any;
     koElementAfterRender: any;
     constructor(panel: PanelModelBase);
-    getElementType(el: any): "survey-question" | "survey-panel";
+    getElementType(el: any): "survey-panel" | "survey-question";
     koAfterRender(el: any, con: any): void;
 }
 export declare class PanelImplementorBase extends ImplementorBase {

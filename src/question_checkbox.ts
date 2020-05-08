@@ -12,10 +12,11 @@ import { LocalizableString } from "./localizablestring";
 export class QuestionCheckboxModel extends QuestionCheckboxBase {
   private noneItemValue: ItemValue = new ItemValue("none");
   private selectAllItemValue: ItemValue = new ItemValue("selectall");
+  private invisibleOldValues: any = {};
   constructor(public name: string) {
     super(name);
     var noneItemText = this.createLocalizableString("noneText", this, true);
-    noneItemText.onGetTextCallback = function(text) {
+    noneItemText.onGetTextCallback = function (text) {
       return !!text ? text : surveyLocalization.getString("noneItemText");
     };
     this.noneItemValue.locOwner = this;
@@ -26,7 +27,7 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
       this,
       true
     );
-    selectAllItemText.onGetTextCallback = function(text) {
+    selectAllItemText.onGetTextCallback = function (text) {
       return !!text ? text : surveyLocalization.getString("selectAllItemText");
     };
     this.selectAllItem.locOwner = this;
@@ -35,10 +36,16 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     var self = this;
     this.registerFunctionOnPropertiesValueChanged(
       ["hasNone", "noneText", "hasSelectAll", "selectAllText"],
-      function() {
+      function () {
         self.onVisibleChoicesChanged();
       }
     );
+  }
+  public get ariaRole(): string {
+    return "group";
+  }
+  public getType(): string {
+    return "checkbox";
   }
   protected onCreating() {
     super.onCreating();
@@ -172,6 +179,9 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     return false;
   }
   protected setNewValue(newValue: any) {
+    if (!this.isChangingValueOnClearIncorrect) {
+      this.invisibleOldValues = [];
+    }
     newValue = this.valueFromData(newValue);
     var value = this.value;
     if (!newValue) newValue = [];
@@ -233,10 +243,14 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
   protected clearDisabledValuesCore() {
     this.clearIncorrectAndDisabledValues(true);
   }
+  private isChangingValueOnClearIncorrect: boolean = false;
   private clearIncorrectAndDisabledValues(clearDisabled: boolean) {
     var val = this.value;
-    if (!val) return;
+    var hasChanged = false;
+    var restoredValues = this.restoreValuesFromInvisible();
+    if (!val && restoredValues.length == 0) return;
     if (!Array.isArray(val) || val.length == 0) {
+      this.isChangingValueOnClearIncorrect = true;
       if (!clearDisabled) {
         if (this.hasComment) {
           this.value = null;
@@ -244,23 +258,49 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
           this.clearValue();
         }
       }
-      return;
+      this.isChangingValueOnClearIncorrect = false;
+      if (restoredValues.length == 0) return;
+      val = [];
     }
     var newValue = [];
     for (var i = 0; i < val.length; i++) {
+      var isUnkown = this.canClearValueAnUnknow(val[i]);
       if (
-        (!clearDisabled && !this.canClearValueAnUnknow(val[i])) ||
+        (!clearDisabled && !isUnkown) ||
         (clearDisabled && !this.isValueDisabled(val[i]))
       ) {
         newValue.push(val[i]);
+      } else {
+        hasChanged = true;
+        if (isUnkown) {
+          this.invisibleOldValues[val[i]] = true;
+        }
       }
     }
-    if (newValue.length == val.length) return;
+    for (var i = 0; i < restoredValues.length; i++) {
+      newValue.push(restoredValues[i]);
+      hasChanged = true;
+    }
+    if (!hasChanged) return;
+    this.isChangingValueOnClearIncorrect = true;
     if (newValue.length == 0) {
       this.clearValue();
     } else {
       this.value = newValue;
     }
+    this.isChangingValueOnClearIncorrect = false;
+  }
+  private restoreValuesFromInvisible(): Array<any> {
+    var res = [];
+    var visItems = this.visibleChoices;
+    for (var i = 0; i < visItems.length; i++) {
+      var val = visItems[i].value;
+      if (this.invisibleOldValues[val]) {
+        res.push(val);
+        delete this.invisibleOldValues[val];
+      }
+    }
+    return res;
   }
   public getConditionJson(operator: string = null, path: string = null): any {
     var json = super.getConditionJson();
@@ -310,9 +350,9 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     if (!val || !val.length) return val;
     for (var i = 0; i < val.length; i++) {
       if (val[i] == this.otherItem.value) {
-        if (this.getComment()) {
+        if (this.getQuestionComment()) {
           var newVal = val.slice();
-          newVal[i] = this.getComment();
+          newVal[i] = this.getQuestionComment();
           return newVal;
         }
       }
@@ -323,9 +363,9 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     if (this.hasNone && val == this.noneItemValue.value) return false;
     return super.hasUnknownValue(val, includeOther);
   }
-
-  public getType(): string {
-    return "checkbox";
+  protected addSupportedValidators(supportedValidators: Array<string>) {
+    super.addSupportedValidators(supportedValidators);
+    supportedValidators.push("answercount");
   }
 }
 Serializer.addClass(
@@ -334,14 +374,14 @@ Serializer.addClass(
     "hasSelectAll:boolean",
     "hasNone:boolean",
     { name: "noneText", serializationProperty: "locNoneText" },
-    { name: "selectAllText", serializationProperty: "locSelectAllText" }
+    { name: "selectAllText", serializationProperty: "locSelectAllText" },
   ],
-  function() {
+  function () {
     return new QuestionCheckboxModel("");
   },
   "checkboxbase"
 );
-QuestionFactory.Instance.registerQuestion("checkbox", name => {
+QuestionFactory.Instance.registerQuestion("checkbox", (name) => {
   var q = new QuestionCheckboxModel(name);
   q.choices = QuestionFactory.DefaultChoices;
   return q;

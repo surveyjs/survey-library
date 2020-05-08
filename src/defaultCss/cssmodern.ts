@@ -6,13 +6,18 @@ export var modernCss = {
   body: "sv-body",
   bodyEmpty: "sv-body sv-body--empty",
   footer: "sv-footer sv-body__footer sv-clearfix",
+  title: "",
+  description: "",
+  logo: "sv-logo",
+  logoImage: "sv-logo__image",
+  headerText: "sv-header__text",
   navigationButton: "",
   completedPage: "sv-completedpage",
   navigation: {
     complete: "sv-btn sv-footer__complete-btn",
     prev: "sv-btn sv-footer__prev-btn",
     next: "sv-btn sv-footer__next-btn",
-    start: "sv-btn sv-footer__start-btn"
+    start: "sv-btn sv-footer__start-btn",
   },
   panel: {
     title: "sv-title sv-panel__title",
@@ -21,7 +26,7 @@ export var modernCss = {
     container: "sv-panel sv-row__panel",
     content: "sv-panel__content",
     icon: "sv-panel__icon",
-    iconExpanded: "sv-panel__icon--expanded"
+    iconExpanded: "sv-panel__icon--expanded",
   },
   paneldynamic: {
     root: "sv-paneldynamic",
@@ -39,7 +44,7 @@ export var modernCss = {
     progress: "sv-progress",
     progressBar: "sv-progress__bar",
     progressText: "sv-paneldynamic__progress-text",
-    separator: "sv-paneldynamic__separator"
+    separator: "sv-paneldynamic__separator",
   },
   progress: "sv-progress sv-body__progress",
   progressBar: "sv-progress__bar",
@@ -47,8 +52,8 @@ export var modernCss = {
   progressTextInBar: "sv-hidden",
   page: {
     root: "sv-page sv-body__page",
-    title: "sv-page__title",
-    description: "sv-description sv-page__description"
+    title: "sv-title sv-page__title",
+    description: "sv-description sv-page__description",
   },
   pageTitle: "sv-title sv-page__title",
   pageDescription: "sv-description sv-page__description",
@@ -77,14 +82,16 @@ export var modernCss = {
     indent: 20,
     footer: "sv-question__footer",
     formGroup: "sv-question__form-group",
-    hasError: ""
+    hasError: "",
+    disabled: "sv-question--disabled",
   },
+  image: { root: "sv-image", image: "sv_image_image" },
   error: {
     root: "sv-question__erbox",
     icon: "",
     item: "",
     locationTop: "sv-question__erbox--location--top",
-    locationBottom: "sv-question__erbox--location--bottom"
+    locationBottom: "sv-question__erbox--location--bottom",
   },
   checkbox: {
     root: "sv-selectbase",
@@ -100,7 +107,7 @@ export var modernCss = {
     controlLabel: "sv-item__control-label",
     materialDecorator: "sv-item__decorator sv-checkbox__decorator",
     other: "sv-comment sv-question__other",
-    column: "sv-selectbase__column"
+    column: "sv-selectbase__column",
   },
   radiogroup: {
     root: "sv-selectbase",
@@ -117,10 +124,11 @@ export var modernCss = {
     materialDecorator: "sv-item__decorator sv-radio__decorator",
     other: "sv-comment sv-question__other",
     clearButton: "sv-btn sv-selectbase__clear-btn",
-    column: "sv-selectbase__column"
+    column: "sv-selectbase__column",
   },
   boolean: {
     root: "",
+    small: "sv-row__question--small",
     item: "sv-boolean sv-item",
     control: "sv-visuallyhidden",
     itemChecked: "sv-boolean--checked",
@@ -129,19 +137,19 @@ export var modernCss = {
     switch: "sv-boolean__switch",
     slider: "sv-boolean__slider",
     label: "sv-boolean__label ",
-    disabledLabel: "sv-boolean__label--disabled"
+    disabledLabel: "sv-boolean__label--disabled",
   },
   text: {
     root: "sv-text",
     small: "sv-row__question--small",
-    onError: "sv-text--error"
+    onError: "sv-text--error",
   },
   multipletext: {
     root: "sv-multipletext",
     item: "sv-multipletext__item",
     itemTitle: "sv-multipletext__item-title",
     row: "sv-multipletext__row",
-    cell: "sv-multipletext__cell"
+    cell: "sv-multipletext__cell",
   },
   dropdown: {
     root: "",
@@ -149,7 +157,7 @@ export var modernCss = {
     control: "sv-dropdown",
     selectWrapper: "",
     other: "sv-comment sv-question__other",
-    onError: "sv-dropdown--error"
+    onError: "sv-dropdown--error",
   },
   imagepicker: {
     root: "sv-imagepicker",
@@ -163,7 +171,7 @@ export var modernCss = {
     image: "sv-imagepicker__image",
     itemText: "sv-imagepicker__text",
     clearButton: "sv-btn",
-    other: "sv-comment sv-question__other"
+    other: "sv-comment sv-question__other",
   },
   matrix: {
     tableWrapper: "sv-matrix",
@@ -179,12 +187,12 @@ export var modernCss = {
     itemDecorator: "sv-item__svg sv-radio__svg",
     cellText: "sv-matrix__text",
     cellTextSelected: "sv-matrix__text--сhecked",
-    cellTextDisabled: "sv-matrix__text--disabled"
+    cellTextDisabled: "sv-matrix__text--disabled",
   },
   matrixdropdown: {
     root: "sv-table",
     cell: "sv-table__cell",
-    headerCell: "sv-table__cell sv-table__cell--header"
+    headerCell: "sv-table__cell sv-table__cell--header",
   },
   matrixdynamic: {
     root: "sv-table sv-matrixdynamic",
@@ -194,7 +202,7 @@ export var modernCss = {
     buttonAdd: "sv-matrixdynamic__add-btn",
     buttonRemove: "sv-matrixdynamic__remove-btn",
     iconAdd: "",
-    iconRemove: ""
+    iconRemove: "",
   },
   rating: {
     root: "sv-rating",
@@ -203,15 +211,16 @@ export var modernCss = {
     minText: "sv-rating__min-text",
     itemText: "sv-rating__item-text",
     maxText: "sv-rating__max-text",
-    disabled: "sv-rating--disabled"
+    disabled: "sv-rating--disabled",
   },
   comment: {
     root: "sv-comment",
-    small: "sv-row__question--small"
+    small: "sv-row__question--small",
   },
   expression: "",
   file: {
     root: "sv-file",
+    other: "sv-comment sv-question__other",
     placeholderInput: "sv-visuallyhidden",
     preview: "sv-file__preview",
     fileSign: "sv-hidden",
@@ -225,26 +234,32 @@ export var modernCss = {
     removeButtonBottom: "sv-btn sv-file__clean-btn",
     removeFile: "sv-hidden",
     removeFileSvg: "sv-file__remove-svg",
-    wrapper: "sv-file__wrapper"
+    wrapper: "sv-file__wrapper",
+  },
+  signaturepad: {
+    root: "sv-signaturepad sjs_sp_container",
+    small: "sv-row__question--small",
+    controls: "sjs_sp_controls",
+    clearButton: "sjs_sp_clear",
   },
   saveData: {
     root: "",
     saving: "",
     error: "",
     success: "",
-    saveAgainButton: ""
+    saveAgainButton: "",
   },
   window: {
-    root: "",
-    body: "",
+    root: "sv_window",
+    body: "sv_window_content",
     header: {
-      root: "",
+      root: "sv_window_title",
       title: "",
       button: "",
       buttonExpanded: "",
-      buttonCollapsed: ""
-    }
-  }
+      buttonCollapsed: "",
+    },
+  },
 };
 
 surveyCss["modern"] = modernCss;

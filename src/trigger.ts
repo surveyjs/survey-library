@@ -4,6 +4,7 @@ import { Serializer } from "./jsonobject";
 import { ConditionRunner, ExpressionRunner } from "./conditions";
 import { OperandMaker } from "./expressions/expressions";
 import { ProcessValue } from "./conditionProcessValue";
+import { settings } from "./settings";
 
 /**
  * A base class for all triggers.
@@ -15,38 +16,38 @@ export class Trigger extends Base {
   static get operators() {
     if (Trigger.operatorsValue != null) return Trigger.operatorsValue;
     Trigger.operatorsValue = {
-      empty: function(value: any, expectedValue: any) {
+      empty: function (value: any, expectedValue: any) {
         return !value;
       },
-      notempty: function(value: any, expectedValue: any) {
+      notempty: function (value: any, expectedValue: any) {
         return !!value;
       },
-      equal: function(value: any, expectedValue: any) {
+      equal: function (value: any, expectedValue: any) {
         return value == expectedValue;
       },
-      notequal: function(value: any, expectedValue: any) {
+      notequal: function (value: any, expectedValue: any) {
         return value != expectedValue;
       },
-      contains: function(value: any, expectedValue: any) {
+      contains: function (value: any, expectedValue: any) {
         return value && value["indexOf"] && value.indexOf(expectedValue) > -1;
       },
-      notcontains: function(value: any, expectedValue: any) {
+      notcontains: function (value: any, expectedValue: any) {
         return (
           !value || !value["indexOf"] || value.indexOf(expectedValue) == -1
         );
       },
-      greater: function(value: any, expectedValue: any) {
+      greater: function (value: any, expectedValue: any) {
         return value > expectedValue;
       },
-      less: function(value: any, expectedValue: any) {
+      less: function (value: any, expectedValue: any) {
         return value < expectedValue;
       },
-      greaterorequal: function(value: any, expectedValue: any) {
+      greaterorequal: function (value: any, expectedValue: any) {
         return value >= expectedValue;
       },
-      lessorequal: function(value: any, expectedValue: any) {
+      lessorequal: function (value: any, expectedValue: any) {
         return value <= expectedValue;
-      }
+      },
     };
     return Trigger.operatorsValue;
   }
@@ -59,11 +60,11 @@ export class Trigger extends Base {
     var self = this;
     this.registerFunctionOnPropertiesValueChanged(
       ["operator", "value", "name"],
-      function() {
+      function () {
         self.oldPropertiesChanged();
       }
     );
-    this.registerFunctionOnPropertyValueChanged("expression", function() {
+    this.registerFunctionOnPropertyValueChanged("expression", function () {
       self.onExpressionChanged();
     });
   }
@@ -208,12 +209,15 @@ export interface ISurveyTriggerOwner {
  * It extends the Trigger base class and add properties required for SurveyJS classes.
  */
 export class SurveyTrigger extends Trigger {
-  protected owner: ISurveyTriggerOwner = null;
+  protected ownerValue: ISurveyTriggerOwner = null;
   constructor() {
     super();
   }
+  public get owner(): ISurveyTriggerOwner {
+    return this.ownerValue;
+  }
   public setOwner(owner: ISurveyTriggerOwner) {
-    this.owner = owner;
+    this.ownerValue = owner;
   }
   public get isOnNextPage() {
     return false;
@@ -263,7 +267,7 @@ export class SurveyTriggerComplete extends SurveyTrigger {
     return "completetrigger";
   }
   public get isOnNextPage() {
-    return true;
+    return !settings.executeCompleteTriggerOnValueChanged;
   }
   protected onSuccess(values: HashTable<any>, properties: HashTable<any>) {
     if (this.owner) this.owner.setCompleted();
@@ -273,14 +277,29 @@ export class SurveyTriggerComplete extends SurveyTrigger {
  * If expression returns true, the value from property **setValue** will be set to **setToName**
  */
 export class SurveyTriggerSetValue extends SurveyTrigger {
-  public setToName: string;
-  public setValue: any;
-  public isVariable: boolean;
   constructor() {
     super();
   }
   public getType(): string {
     return "setvaluetrigger";
+  }
+  public get setToName(): string {
+    return this.getPropertyValue("setToName", "");
+  }
+  public set setToName(val: string) {
+    this.setPropertyValue("setToName", val);
+  }
+  public get setValue(): any {
+    return this.getPropertyValue("setValue");
+  }
+  public set setValue(val: any) {
+    this.setPropertyValue("setValue", val);
+  }
+  public get isVariable(): boolean {
+    return this.getPropertyValue("isVariable", false);
+  }
+  public set isVariable(val: boolean) {
+    this.setPropertyValue("isVariable", val);
   }
   protected onSuccess(values: HashTable<any>, properties: HashTable<any>) {
     if (!this.setToName || !this.owner) return;
@@ -291,12 +310,17 @@ export class SurveyTriggerSetValue extends SurveyTrigger {
  * If expression returns true, the survey go to question **gotoName** and focus it.
  */
 export class SurveyTriggerSkip extends SurveyTrigger {
-  public gotoName: string;
   constructor() {
     super();
   }
   public getType(): string {
     return "skiptrigger";
+  }
+  public get gotoName(): string {
+    return this.getPropertyValue("gotoName", "");
+  }
+  public set gotoName(val: string) {
+    this.setPropertyValue("gotoName", val);
   }
   protected onSuccess(values: HashTable<any>, properties: HashTable<any>) {
     if (!this.gotoName || !this.owner) return;
@@ -307,19 +331,29 @@ export class SurveyTriggerSkip extends SurveyTrigger {
  * If expression returns true, the **runExpression** will be run. If **setToName** property is not empty then the result of **runExpression** will be set to it.
  */
 export class SurveyTriggerRunExpression extends SurveyTrigger {
-  public setToName: string;
-  public runExpression: any;
   constructor() {
     super();
   }
   public getType(): string {
     return "runexpressiontrigger";
   }
+  public get setToName(): string {
+    return this.getPropertyValue("setToName", "");
+  }
+  public set setToName(val: string) {
+    this.setPropertyValue("setToName", val);
+  }
+  public get runExpression(): string {
+    return this.getPropertyValue("runExpression", "");
+  }
+  public set runExpression(val: string) {
+    this.setPropertyValue("runExpression", val);
+  }
   protected onSuccess(values: HashTable<any>, properties: HashTable<any>) {
     if (!this.owner || !this.runExpression) return;
     var expression = new ExpressionRunner(this.runExpression);
     if (expression.canRun) {
-      expression.onRunComplete = res => {
+      expression.onRunComplete = (res) => {
         this.onCompleteRunExpression(res);
       };
       expression.run(values, properties);
@@ -336,10 +370,20 @@ export class SurveyTriggerRunExpression extends SurveyTrigger {
  * If expression returns true, the value from question **fromName** will be set into **setToName**.
  */
 export class SurveyTriggerCopyValue extends SurveyTrigger {
-  public setToName: string;
-  public fromName: any;
   constructor() {
     super();
+  }
+  public get setToName(): string {
+    return this.getPropertyValue("setToName", "");
+  }
+  public set setToName(val: string) {
+    this.setPropertyValue("setToName", val);
+  }
+  public get fromName(): string {
+    return this.getPropertyValue("fromName", "");
+  }
+  public set fromName(val: string) {
+    this.setPropertyValue("fromName", val);
   }
   public getType(): string {
     return "copyvaluetrigger";
@@ -353,7 +397,7 @@ export class SurveyTriggerCopyValue extends SurveyTrigger {
 Serializer.addClass("trigger", [
   { name: "operator", default: "equal", visible: false },
   { name: "value", visible: false },
-  "expression:condition"
+  "expression:condition",
 ]);
 Serializer.addClass(
   "surveytrigger",
@@ -364,7 +408,7 @@ Serializer.addClass(
 Serializer.addClass(
   "visibletrigger",
   ["pages:pages", "questions:questions"],
-  function() {
+  function () {
     return new SurveyTriggerVisible();
   },
   "surveytrigger"
@@ -372,7 +416,7 @@ Serializer.addClass(
 Serializer.addClass(
   "completetrigger",
   [],
-  function() {
+  function () {
     return new SurveyTriggerComplete();
   },
   "surveytrigger"
@@ -380,25 +424,25 @@ Serializer.addClass(
 Serializer.addClass(
   "setvaluetrigger",
   [
-    { name: "!setToName:question" },
+    { name: "!setToName:questionvalue" },
     {
-      name: "!setValue:triggervalue",
+      name: "setValue:triggervalue",
       dependsOn: "setToName",
-      visibleIf: function(obj: any) {
+      visibleIf: function (obj: any) {
         return !!obj && !!obj["setToName"];
-      }
+      },
     },
-    { name: "isVariable:boolean", visible: false }
+    { name: "isVariable:boolean", visible: false },
   ],
-  function() {
+  function () {
     return new SurveyTriggerSetValue();
   },
   "surveytrigger"
 );
 Serializer.addClass(
   "copyvaluetrigger",
-  [{ name: "!setToName:question" }, { name: "!fromName:question" }],
-  function() {
+  [{ name: "!setToName:questionvalue" }, { name: "!fromName:questionvalue" }],
+  function () {
     return new SurveyTriggerCopyValue();
   },
   "surveytrigger"
@@ -406,15 +450,15 @@ Serializer.addClass(
 Serializer.addClass(
   "skiptrigger",
   [{ name: "!gotoName:question" }],
-  function() {
+  function () {
     return new SurveyTriggerSkip();
   },
   "surveytrigger"
 );
 Serializer.addClass(
   "runexpressiontrigger",
-  [{ name: "setToName:question" }, "runExpression:expression"],
-  function() {
+  [{ name: "setToName:questionvalue" }, "runExpression:expression"],
+  function () {
     return new SurveyTriggerRunExpression();
   },
   "surveytrigger"

@@ -1,6 +1,6 @@
 import { surveyCss } from "./defaultCss/cssstandard";
 export class StylesManager {
-  private static SurveyJSStylesSheetId = "surveyjs";
+  private static SurveyJSStylesSheetId = "surveyjs-styles";
 
   public static Styles: { [key: string]: string } = {
     // ".sv_bootstrap_css":
@@ -31,13 +31,13 @@ export class StylesManager {
     ".sv_main.sv_bootstrapmaterial_css .checkbox":
       "margin-top:10px;margin-bottom:10px;",
 
-    ".sv_row": "clear: both;",
+    ".sv_row": "clear: both; min-width:300px;",
     ".sv_row .sv_qstn": "float: left",
     ".sv_row .sv_qstn:last-child": "float: none",
-    ".sv_qstn": "display: inline-block; vertical-align: top; overflow: auto;",
-    ".progress": "width: 60%;",
-    ".progress-bar": "width: auto; margin-left: 2px; margin-right: 2px;",
-    ".sv_p_container": "display: inline-block; vertical-align: top;",
+    ".sv_qstn":
+      "display: inline-block; vertical-align: top; overflow: auto; min-width:300px;",
+    ".sv_p_container":
+      "display: inline-block; vertical-align: top; min-width:300px;",
     ".sv_qbln .checkbox-material": "margin-right: 3px;",
     ".sv_qcbx .checkbox-material": "margin-right: 5px;",
     ".sv_qcbx .checkbox label": "justify-content: left; display: inline-block;",
@@ -48,10 +48,10 @@ export class StylesManager {
       "position: absolute; margin: 0; display: block; width: 100%;",
     ".sv_qstn td": "position: relative;",
     ".sv_q_mt_item_value": "float: left;",
-    "[dir=\"rtl\"] .sv_q_mt_item_value": "float: right;",
+    '[dir="rtl"] .sv_q_mt_item_value': "float: right;",
     ".sv_qstn.sv_qstn_left": "margin-top: 0.75em;",
     ".sv_qstn .title-left": "float: left; margin-right: 1em;",
-    "[dir=\"rtl\"] .sv_qstn .title-left": "float: right; margin-left: 1em;",
+    '[dir="rtl"] .sv_qstn .title-left': "float: right; margin-left: 1em;",
     ".sv_qstn .content-left": "overflow: hidden",
     ".sv_q_radiogroup_inline .sv_q_radiogroup_other": "display: inline-block;",
     ".sv_q_checkbox_inline .sv_q_checkbox_other": "display: inline-block;",
@@ -132,7 +132,7 @@ export class StylesManager {
       "margin-left: 0; padding-left: 0; line-height: initial;",
     ".sv_main .sv-hidden": "display: none !important;",
     ".sv_main .sv-visuallyhidden":
-      "position: absolute; height: 1px; width: 1px; overflow: hidden; clip: rect(1px 1px 1px 1px); clip: rect(1px, 1px, 1px, 1px);",
+      "position: absolute; height: 1px !important; width: 1px !important; overflow: hidden; clip: rect(1px 1px 1px 1px); clip: rect(1px, 1px, 1px, 1px);",
 
     // paneldynamic progress
     ".sv_main .sv-progress":
@@ -164,93 +164,142 @@ export class StylesManager {
       "display: inline-block; box-sizing: border-box; width: 63px; height: 24px; margin-right: 17px; margin-left: 21px; padding: 2px 3px; vertical-align: middle; border-radius: 12px; cursor: pointer;",
     ".sv_main .sv-boolean__slider":
       "display: inline-block; width: 20px; height: 20px; transition-duration: .4s; transition-property: margin-left; border: none; border-radius: 100%;",
-    ".sv_main sv-boolean__label": "vertical-align: middle",
+    ".sv_main .sv-boolean__label": "vertical-align: middle; cursor: pointer;",
     ".sv_main .sv-boolean--indeterminate  .sv-boolean__slider":
       "margin-left: calc(50% - 10px);",
     ".sv_main .sv-boolean--checked  .sv-boolean__slider":
-      "margin-left: calc(100% - 20px);"
+      "margin-left: calc(100% - 20px);",
     // EO boolean
+    ".sv_main .sv_q_num": "",
+    ".sv_main .sv_q_num + span": "",
+
+    // SignaturePad
+    ".sv_main .sjs_sp_container": "position: relative;",
+    ".sv_main .sjs_sp_controls": "position: absolute; left: 0; bottom: 0;",
+    ".sv_main .sjs_sp_controls > button": "user-select: none;",
+    ".sv_main .sjs_sp_container>div>canvas:focus": "outline: none;",
+
+    // logo
+    // ".sv_main .sv_header": "white-space: nowrap;",
+    ".sv_main .sv_logo": "",
+    ".sv_main .sv-logo--left":
+      "display: inline-block; vertical-align: top; margin-right: 2em;",
+    ".sv_main .sv-logo--right":
+      "display: inline-block; vertical-align: top; margin-left: 2em; float: right;",
+    ".sv_main .sv-logo--right+.sv-logo--right-tail": "clear: both;",
+    ".sv_main .sv-logo--top":
+      "display: block; width: 100%; text-align: center;",
+    ".sv_main .sv-logo--bottom":
+      "display: block; width: 100%; text-align: center;",
+    ".sv_main .sv_header__text": "display: inline-block; vertical-align: top;",
   };
 
   public static Media: { [key: string]: { media: string; style: string } } = {
     ".sv_qstn fieldset .sv-q-col-1": {
       style: "width: 100%;",
-      media: "@media only screen and (max-width: 480px)"
+      media: "@media only screen and (max-width: 480px)",
     },
     ".sv_qstn fieldset .sv-q-col-2": {
       style: "width: 100%;",
-      media: "@media only screen and (max-width: 480px)"
+      media: "@media only screen and (max-width: 480px)",
     },
     ".sv_qstn fieldset .sv-q-col-3": {
       style: "width: 100%;",
-      media: "@media only screen and (max-width: 480px)"
+      media: "@media only screen and (max-width: 480px)",
     },
     ".sv_qstn fieldset .sv-q-col-4": {
       style: "width: 100%;",
-      media: "@media only screen and (max-width: 480px)"
+      media: "@media only screen and (max-width: 480px)",
     },
     ".sv_qstn fieldset .sv-q-col-5": {
       style: "width: 100%;",
-      media: "@media only screen and (max-width: 480px)"
+      media: "@media only screen and (max-width: 480px)",
     },
 
     ".sv_main .sv_container .panel-body.card-block .sv_row .sv_qstn": {
       style: "display: block; width: 100% !important;",
-      media: "@media (max-width: 600px)"
+      media: "@media (max-width: 600px)",
     },
     ".sv_main .sv_container .panel-body.card-block .sv_row .sv_qstn .title-left": {
       style: "float: none;",
-      media: "@media (max-width: 600px)"
+      media: "@media (max-width: 600px)",
     },
     ".sv_main .sv_container .panel-body.card-block .sv_row .sv_qstn .sv_q_radiogroup_inline, .sv_main .sv_container .panel-body.card-block .sv_row .sv_qstn .sv_q_checkbox_inline, .sv_main .sv_container .panel-body.card-block .sv_row .sv_qstn .sv_q_imagepicker_inline": {
       style: "display: block;",
-      media: "@media (max-width: 600px)"
+      media: "@media (max-width: 600px)",
     },
     ".sv_main .sv_container .panel-body.card-block .sv_row .sv_qstn table.table": {
       style: "display: block;",
-      media: "@media (max-width: 600px)"
+      media: "@media (max-width: 600px)",
     },
     ".sv_main .sv_container .panel-body.card-block .sv_row .sv_qstn table.table thead": {
       style: "display: none;",
-      media: "@media (max-width: 600px)"
+      media: "@media (max-width: 600px)",
     },
     ".sv_main .sv_container .panel-body.card-block .sv_row .sv_qstn table.table tbody, .sv_main .sv_container .panel-body.card-block .sv_row .sv_qstn table.table tr, .sv_main .sv_container .panel-body.card-block .sv_row .sv_qstn table.table td": {
       style: "display: block;",
-      media: "@media (max-width: 600px)"
+      media: "@media (max-width: 600px)",
     },
     ".sv_main .sv_container .panel-body.card-block .sv_row .sv_qstn table.table:not(.sv_q_matrix) td:before": {
       style: "content: attr(headers);",
-      media: "@media (max-width: 600px)"
+      media: "@media (max-width: 600px)",
     },
     ".sv_main .sv_container .panel-body.card-block .sv_row .sv_qstn table.sv_q_matrix td:after": {
       style: "content: attr(headers); padding-left: 1em",
-      media: "@media (max-width: 600px)"
+      media: "@media (max-width: 600px)",
     },
     ".sv_main .sv_container .panel-body.card-block .sv_row .sv_qstn .radio label, .sv_main .sv_container .panel-body.card-block .sv_row .sv_qstn .checkbox label": {
       style: "line-height: 12px; vertical-align: top;",
-      media: "@media (max-width: 600px)"
+      media: "@media (max-width: 600px)",
     },
     ".sv_qstn label.sv_q_m_label": {
       style: "display: inline;",
-      media: "@media (max-width: 600px)"
+      media: "@media (max-width: 600px)",
     },
     ".sv_main .sv_custom_header": {
       style: "display: none;",
-      media: "@media (max-width: 1300px)"
+      media: "@media (max-width: 1300px)",
     },
     ".sv_main .sv_container .sv_header h3": {
       style: "font-size: 1.5em;",
-      media: "@media (max-width: 1300px)"
+      media: "@media (max-width: 1300px)",
     },
     ".sv_main .sv_container .sv_header h3 span": {
       style: "font-size: 0.75em;",
-      media: "@media (max-width: 700px)"
+      media: "@media (max-width: 700px)",
     },
 
     ".sv_main.sv_bootstrap_css .sv-progress__text": {
       style: "margin-left: 8em;",
-      media: "@media (min-width: 768px)"
-    }
+      media: "@media (min-width: 768px)",
+    },
+
+    ".sv_row": {
+      style: " display: flex; flex-wrap: wrap;",
+      media: "@supports (display: flex)",
+    },
+
+    ".sv-vue-row-additional-div": {
+      style: " display: flex; flex-wrap: wrap; flex-basis: 100%;",
+      media: "@supports (display: flex)",
+    },
+
+    ".sv-row > .sv-row__panel, .sv-row__question:not(:last-child)": {
+      style: "float: left;",
+      media:
+        "@media screen and (-ms-high-contrast: active), (-ms-high-contrast: none)",
+    },
+
+    "[dir='rtl'],[style*='direction:rtl'] .sv-row__question:not(:last-child)": {
+      style: "float: right;",
+      media:
+        "@media screen and (-ms-high-contrast: active), (-ms-high-contrast: none)",
+    },
+
+    ".sv-row > .sv-row__panel, .sv-row__question": {
+      style: "width: 100% !important; padding-right: 0 !important;",
+      media: "@media only screen and (max-width: 600px)",
+    },
   };
 
   public static ThemeColors: { [key: string]: { [key: string]: string } } = {
@@ -274,7 +323,7 @@ export class StylesManager {
       "$disabled-label-color": "rgba(64, 64, 64, 0.5)",
       "$slider-color": "white",
       "$disabled-switch-color": "#9f9f9f",
-      "$disabled-slider-color": "#cfcfcf"
+      "$disabled-slider-color": "#cfcfcf",
     },
     orange: {
       "$header-background-color": "#4a4a4a",
@@ -296,7 +345,7 @@ export class StylesManager {
       "$disabled-label-color": "rgba(64, 64, 64, 0.5)",
       "$slider-color": "white",
       "$disabled-switch-color": "#9f9f9f",
-      "$disabled-slider-color": "#cfcfcf"
+      "$disabled-slider-color": "#cfcfcf",
     },
     darkblue: {
       "$header-background-color": "#d9d8dd",
@@ -318,7 +367,7 @@ export class StylesManager {
       "$disabled-label-color": "rgba(64, 64, 64, 0.5)",
       "$slider-color": "white",
       "$disabled-switch-color": "#9f9f9f",
-      "$disabled-slider-color": "#cfcfcf"
+      "$disabled-slider-color": "#cfcfcf",
     },
     darkrose: {
       "$header-background-color": "#ddd2ce",
@@ -340,7 +389,7 @@ export class StylesManager {
       "$disabled-label-color": "rgba(64, 64, 64, 0.5)",
       "$slider-color": "white",
       "$disabled-switch-color": "#9f9f9f",
-      "$disabled-slider-color": "#cfcfcf"
+      "$disabled-slider-color": "#cfcfcf",
     },
     stone: {
       "$header-background-color": "#cdccd2",
@@ -362,7 +411,7 @@ export class StylesManager {
       "$disabled-label-color": "rgba(64, 64, 64, 0.5)",
       "$slider-color": "white",
       "$disabled-switch-color": "#9f9f9f",
-      "$disabled-slider-color": "#cfcfcf"
+      "$disabled-slider-color": "#cfcfcf",
     },
     winter: {
       "$header-background-color": "#82b8da",
@@ -384,7 +433,7 @@ export class StylesManager {
       "$disabled-label-color": "rgba(64, 64, 64, 0.5)",
       "$slider-color": "white",
       "$disabled-switch-color": "#9f9f9f",
-      "$disabled-slider-color": "#cfcfcf"
+      "$disabled-slider-color": "#cfcfcf",
     },
     winterstone: {
       "$header-background-color": "#323232",
@@ -406,7 +455,7 @@ export class StylesManager {
       "$disabled-label-color": "rgba(64, 64, 64, 0.5)",
       "$slider-color": "white",
       "$disabled-switch-color": "#9f9f9f",
-      "$disabled-slider-color": "#cfcfcf"
+      "$disabled-slider-color": "#cfcfcf",
     },
     modern: {
       "$main-color": "#1ab394",
@@ -417,7 +466,22 @@ export class StylesManager {
       "$disabled-label-color": "rgba(64, 64, 64, 0.5)",
       "$slider-color": "white",
       "$disabled-switch-color": "#9f9f9f",
-      "$disabled-slider-color": "#cfcfcf"
+      "$disabled-slider-color": "#cfcfcf",
+      "$error-color": "#d52901",
+      "$text-color": "#404040",
+      "$inputs-background-color": "#f4f4f4",
+      "$main-hover-color": "#9f9f9f",
+      "$body-container-background-color": "#f4f4f4",
+      "$text-border-color": "#d4d4d4",
+      "$disabled-text-color": "rgba(64, 64, 64, 0.5)",
+      "$border-color": "rgb(64, 64, 64, 0.5)",
+      "$dropdown-border-color": "#d4d4d4",
+      "$header-background-color": "#e7e7e7",
+      "$answer-background-color": "rgba(26, 179, 148, 0.2)",
+      "$error-background-color": "rgba(213, 41, 1, 0.2)",
+      "$radio-checked-color": "#404040",
+      "$clean-button-color": "#1948b3",
+      "$body-background-color": "#ffffff",
     },
     bootstrap: {
       "$main-color": "#18a689",
@@ -428,7 +492,7 @@ export class StylesManager {
       "$disabled-label-color": "rgba(64, 64, 64, 0.5)",
       "$slider-color": "white",
       "$disabled-switch-color": "#9f9f9f",
-      "$disabled-slider-color": "#cfcfcf"
+      "$disabled-slider-color": "#cfcfcf",
     },
     bootstrapmaterial: {
       "$main-color": "#18a689",
@@ -440,8 +504,8 @@ export class StylesManager {
       "$disabled-label-color": "rgba(64, 64, 64, 0.5)",
       "$slider-color": "white",
       "$disabled-switch-color": "#9f9f9f",
-      "$disabled-slider-color": "#cfcfcf"
-    }
+      "$disabled-slider-color": "#cfcfcf",
+    },
   };
   public static ThemeCss: { [key: string]: string } = {
     ".sv_default_css": "background-color: $body-container-background-color;",
@@ -518,6 +582,10 @@ export class StylesManager {
       "color: $body-background-color; background-color: $main-hover-color;",
 
     ".sv_main .sv_q_file_remove:hover": "color: $main-color;",
+    ".sv_main .sv_q_file_choose_button":
+      "color: $body-background-color; background-color: $main-color;",
+    ".sv_main .sv_q_file_choose_button:hover":
+      "background-color: $main-hover-color;",
 
     ".sv_main .sv_q_imgsel.checked label>div": "background-color: $main-color",
 
@@ -540,19 +608,117 @@ export class StylesManager {
     ".sv_main .sv-boolean--disabled .sv-boolean__switch":
       "background-color: $disabled-switch-color;",
     ".sv_main .sv-boolean--disabled .sv-boolean__slider":
-      "background-color: $disabled-slider-color;"
+      "background-color: $disabled-slider-color;",
     //eo boolean
   };
   public static modernThemeCss: { [key: string]: string } = {
-    ".sv-paneldynamic__add-btn": "background-color: $add-button-color;",
-    ".sv-paneldynamic__remove-btn": "background-color: $remove-button-color;",
+    // ".sv-paneldynamic__add-btn": "background-color: $add-button-color;",
+    // ".sv-paneldynamic__remove-btn": "background-color: $remove-button-color;",
     ".sv-boolean__switch": "background-color: $main-color;",
     ".sv-boolean__slider": "background-color: $slider-color;",
     ".sv-boolean__label--disabled": "color: $disabled-label-color;",
     ".sv-boolean--disabled .sv-boolean__switch":
       "background-color: $disabled-switch-color;",
     ".sv-boolean--disabled .sv-boolean__slider":
-      "background-color: $disabled-slider-color;"
+      "background-color: $disabled-slider-color;",
+
+    ".sv-btn": "color: $inputs-background-color;",
+    ".sv-checkbox__svg": "border-color: $border-color; fill: transparent;",
+    ".sv-checkbox--allowhover:hover .sv-checkbox__svg":
+      "background-color: $main-hover-color; fill: $inputs-background-color;",
+    ".sv-checkbox--checked .sv-checkbox__svg":
+      "background-color: $main-color; fill: $inputs-background-color;",
+    ".sv-checkbox--checked.sv-checkbox--disabled .sv-checkbox__svg":
+      "background-color: $disable-color; fill: $inputs-background-color;",
+    ".sv-checkbox--disabled .sv-checkbox__svg": "border-color: $disable-color;",
+    ".sv-comment": "border-color: $text-border-color;",
+    ".sv-comment:focus": "border-color: $main-color;",
+    ".sv-completedpage":
+      "color: $text-color; background-color: $body-container-background-color;",
+    ".sv-container-modern": "color: $text-color;",
+    ".sv-container-modern__title": "color: $main-color;",
+    ".sv-description": "color: $disabled-text-color;",
+    ".sv-dropdown": "border-bottom: 0.06em solid $text-border-color;",
+    ".sv-dropdown:focus": "border-color: $dropdown-border-color;",
+    ".sv-dropdown--error": "border-color: $error-color; color: $error-color;",
+    ".sv-dropdown--error::placeholder": "color: $error-color;",
+    ".sv-dropdown--error::-ms-input-placeholder": "color: $error-color;",
+    ".sv-file__decorator":
+      "background-color: $body-container-background-color;",
+    ".sv-file__clean-btn": "background-color: $remove-button-color;",
+    ".sv-file__choose-btn": "background-color: $add-button-color;",
+    ".sv-file__choose-btn--disabled": "background-color: $disable-color;",
+    ".sv-file__remove-svg": "fill: #ff1800;",
+    ".sv-file__sign a": "color: $text-color;",
+    ".sv-footer__complete-btn": "background-color: $main-color;",
+    ".sv-footer__next-btn": "background-color: $main-color;",
+    ".sv-footer__prev-btn": "background-color: $main-color;",
+    ".sv-footer__start-btn": "background-color: $main-color;",
+    ".sv-imagepicker__item--allowhover:hover .sv-imagepicker__image":
+      "background-color: $main-hover-color; border-color: $main-hover-color;",
+    ".sv-imagepicker__item--checked .sv-imagepicker__image":
+      "background-color: $main-color; border-color: $main-color;",
+    ".sv-imagepicker__item--disabled.sv-imagepicker__item--checked .sv-imagepicker__image":
+      "background-color: $disable-color; border-color: $disable-color;",
+    ".sv-item__control:focus + .sv-item__decorator":
+      "border-color: $main-color;",
+    ".sv-matrix__text--сhecked":
+      "color: $inputs-background-color; background-color: $main-color;",
+    ".sv-matrix__text--disabled.sv-matrix__text--сhecked":
+      "background-color: $disable-color;",
+    ".sv-matrixdynamic__add-btn": "background-color: $add-button-color;",
+    ".sv-matrixdynamic__remove-btn": "background-color: $remove-button-color;",
+    ".sv-paneldynamic__add-btn": "background-color: $add-button-color;",
+    ".sv-paneldynamic__remove-btn": "background-color: $remove-button-color;",
+    ".sv-paneldynamic__prev-btn, .sv-paneldynamic__next-btn":
+      "fill: $text-color;",
+    ".sv-paneldynamic__prev-btn--disabled, .sv-paneldynamic__next-btn--disabled":
+      "fill: $disable-color;",
+    ".sv-paneldynamic__progress-text": "color: $progress-text-color;",
+    ".sv-progress": "background-color: $header-background-color;",
+    ".sv-progress__bar": "background-color: $main-color;",
+    ".sv-progress__text": "color: $progress-text-color;",
+    ".sv-question__erbox": "color: $error-color;",
+    ".sv-question__title--answer":
+      "background-color: $answer-background-color;",
+    ".sv-question__title--error": "background-color: $error-background-color;",
+    ".sv-radio__svg": "border-color: $border-color; fill: transparent;",
+    ".sv-radio--allowhover:hover .sv-radio__svg": "fill: $border-color;",
+    ".sv-radio--checked .sv-radio__svg":
+      "border-color: $radio-checked-color; fill: $radio-checked-color;",
+    ".sv-radio--disabled .sv-radio__svg": "border-color: $disable-color;",
+    ".sv-radio--disabled.sv-radio--checked .sv-radio__svg":
+      "fill: $disable-color;",
+    ".sv-rating": "color: $text-color;",
+    ".sv-rating input:focus + .sv-rating__min-text + .sv-rating__item-text, .sv-rating input:focus + .sv-rating__item-text":
+      "outline-color: $main-color;",
+    ".sv-rating__item-text":
+      "color: $main-hover-color; border: solid 0.1875em $main-hover-color;",
+    ".sv-rating__item-text:hover":
+      "background-color: $main-hover-color; color: $body-background-color;",
+    ".sv-rating__item--selected .sv-rating__item-text":
+      "background-color: $main-color; color: $body-background-color; border-color: $main-color;",
+    ".sv-rating--disabled .sv-rating__item-text":
+      "color: $disable-color; border-color: $disable-color;",
+    ".sv-rating--disabled .sv-rating__item-text:hover":
+      "background-color: transparent;",
+    ".sv-rating--disabled .sv-rating__item-text:hover .sv-rating__item--selected .sv-rating__item-text":
+      "background-color: $disable-color; color: $body-background-color;",
+    ".sv-root-modern::-webkit-scrollbar":
+      "background-color: $main-hover-color;",
+    ".sv-root-modern::-webkit-scrollbar-thumb": "background: $main-color;",
+    ".sv-selectbase__clear-btn": "background-color: $clean-button-color;",
+    ".sv-table": "background-color: rgba($main-hover-color, 0.1);",
+    ".sv-text:focus": "border-color: $main-color;",
+    '.sv-text[type="date"]::-webkit-calendar-picker-indicator':
+      "color: transparent; background: transparent;",
+    ".sv-text--error": "color: $error-color; border-color: $error-color;",
+    ".sv-text--error::placeholder": "color: $error-color;",
+    ".sv-text--error::-ms-placeholder": "color: $error-color;",
+    ".sv-text--error:-ms-placeholder": "color: $error-color;",
+    ".sv-text::placeholder": "color: $text-color;",
+    ".sv-text::-ms-placeholder": "color: $text-color;",
+    ".sv-text:-ms-placeholder": "color: $text-color;",
   };
   public static bootstrapThemeCss: { [key: string]: string } = {
     ".sv_main .sv_q_imgsel.checked label>div": "background-color: $main-color",
@@ -563,6 +729,8 @@ export class StylesManager {
       "width: auto; margin-left: 2px; margin-right: 2px;",
     ".sv_main .table>tbody>tr>td": "min-width: 90px;",
     ".sv_main f-panel .sv_qstn": "padding: 0; vertical-align: middle;",
+
+    ".sv_main .sv_q_image": "display: inline-block;",
 
     //progress bar
     ".sv_main .sv-progress": "background-color: $header-background-color;",
@@ -582,7 +750,7 @@ export class StylesManager {
     ".sv_main .sv-boolean--disabled .sv-boolean__switch":
       "background-color: $disabled-switch-color;",
     ".sv_main .sv-boolean--disabled  .sv-boolean__slider":
-      "background-color: $disabled-slider-color;"
+      "background-color: $disabled-slider-color;",
     //eo boolean
   };
 
@@ -594,6 +762,8 @@ export class StylesManager {
 
     ".sv_main.sv_bootstrapmaterial_css .sv_qstn label.sv_q_m_label":
       "height: 100%;",
+
+    ".sv_main.sv_bootstrapmaterial_css .sv_q_image": "display: inline-block;",
 
     ".sv_main.sv_bootstrapmaterial_css .checkbox input[type=checkbox]:checked + .checkbox-material .check":
       "border-color: $main-color;",
@@ -655,7 +825,7 @@ export class StylesManager {
     ".sv_main .sv-boolean--disabled .sv-boolean__switch":
       "background-color: $disabled-switch-color;",
     ".sv_main .sv-boolean--disabled  .sv-boolean__slider":
-      "background-color: $disabled-slider-color;"
+      "background-color: $disabled-slider-color;",
     //eo boolean
   };
 
@@ -710,19 +880,21 @@ export class StylesManager {
           StylesManager.ThemeColors[themeName] ||
           StylesManager.ThemeColors["default"];
 
-        Object.keys(ThemeCss).forEach(selector => {
+        Object.keys(ThemeCss).forEach((selector) => {
           let cssRuleText = ThemeCss[selector];
           Object.keys(theme).forEach(
-            colorVariableName =>
+            (colorVariableName) =>
               (cssRuleText = cssRuleText.replace(
                 new RegExp("\\" + colorVariableName, "g"),
                 theme[colorVariableName]
               ))
           );
-          sheet.insertRule(
-            themeSelector + selector + " { " + cssRuleText + " }",
-            0
-          );
+          try {
+            sheet.insertRule(
+              themeSelector + selector + " { " + cssRuleText + " }",
+              0
+            );
+          } catch (e) {}
         });
       }
     }
@@ -744,22 +916,26 @@ export class StylesManager {
 
   public initializeStyles(sheet: CSSStyleSheet) {
     if (StylesManager.Enabled) {
-      Object.keys(StylesManager.Styles).forEach(selector =>
-        sheet.insertRule(
-          selector + " { " + StylesManager.Styles[selector] + " }",
-          0
-        )
-      );
-      Object.keys(StylesManager.Media).forEach(selector => {
-        sheet.insertRule(
-          StylesManager.Media[selector].media +
-            " { " +
-            selector +
-            " { " +
-            StylesManager.Media[selector].style +
-            " } }",
-          0
-        );
+      Object.keys(StylesManager.Styles).forEach((selector) => {
+        try {
+          sheet.insertRule(
+            selector + " { " + StylesManager.Styles[selector] + " }",
+            0
+          );
+        } catch (e) {}
+      });
+      Object.keys(StylesManager.Media).forEach((selector) => {
+        try {
+          sheet.insertRule(
+            StylesManager.Media[selector].media +
+              " { " +
+              selector +
+              " { " +
+              StylesManager.Media[selector].style +
+              " } }",
+            0
+          );
+        } catch (e) {}
       });
     }
   }

@@ -138,8 +138,10 @@ export class ValidatorRunner {
  * Validate numeric values.
  */
 export class NumericValidator extends SurveyValidator {
-  constructor(public minValue: number = null, public maxValue: number = null) {
+  constructor(minValue: number = null, maxValue: number = null) {
     super();
+    this.minValue = minValue;
+    this.maxValue = maxValue;
   }
   public getType(): string {
     return "numericvalidator";
@@ -185,17 +187,38 @@ export class NumericValidator extends SurveyValidator {
         ["format"](vName, this.maxValue);
     }
   }
+  /**
+   * The minValue property.
+   */
+  public get minValue(): number {
+    return this.getPropertyValue("minValue");
+  }
+  public set minValue(val: number) {
+    this.setPropertyValue("minValue", val);
+  }
+  /**
+   * The maxValue property.
+   */
+  public get maxValue(): number {
+    return this.getPropertyValue("maxValue");
+  }
+  public set maxValue(val: number) {
+    this.setPropertyValue("maxValue", val);
+  }
 }
 /**
  * Validate text values.
  */
 export class TextValidator extends SurveyValidator {
   constructor(
-    public minLength: number = 0,
-    public maxLength: number = 0,
-    public allowDigits = true
+    minLength: number = 0,
+    maxLength: number = 0,
+    allowDigits = true
   ) {
     super();
+    this.minLength = minLength;
+    this.maxLength = maxLength;
+    this.allowDigits = allowDigits;
   }
   public getType(): string {
     return "textvalidator";
@@ -234,11 +257,40 @@ export class TextValidator extends SurveyValidator {
       .getString("textMaxLength")
       ["format"](this.maxLength);
   }
+  /**
+   * The minLength property.
+   */
+  public get minLength(): number {
+    return this.getPropertyValue("minLength");
+  }
+  public set minLength(val: number) {
+    this.setPropertyValue("minLength", val);
+  }
+  /**
+   * The maxLength property.
+   */
+  public get maxLength(): number {
+    return this.getPropertyValue("maxLength");
+  }
+  public set maxLength(val: number) {
+    this.setPropertyValue("maxLength", val);
+  }
+  /**
+   * The allowDigits property.
+   */
+  public get allowDigits(): boolean {
+    return this.getPropertyValue("allowDigits", true);
+  }
+  public set allowDigits(val: boolean) {
+    this.setPropertyValue("allowDigits", val);
+  }
 }
 
 export class AnswerCountValidator extends SurveyValidator {
-  constructor(public minCount: number = null, public maxCount: number = null) {
+  constructor(minCount: number = null, maxCount: number = null) {
     super();
+    this.minCount = minCount;
+    this.maxCount = maxCount;
   }
   public getType(): string {
     return "answercountvalidator";
@@ -276,13 +328,32 @@ export class AnswerCountValidator extends SurveyValidator {
   protected getDefaultErrorText(name: string) {
     return name;
   }
+  /**
+   * The minCount property.
+   */
+  public get minCount(): number {
+    return this.getPropertyValue("minCount");
+  }
+  public set minCount(val: number) {
+    this.setPropertyValue("minCount", val);
+  }
+  /**
+   * The maxCount property.
+   */
+  public get maxCount(): number {
+    return this.getPropertyValue("maxCount");
+  }
+  public set maxCount(val: number) {
+    this.setPropertyValue("maxCount", val);
+  }
 }
 /**
  * Use it to validate the text by regular expressions.
  */
 export class RegexValidator extends SurveyValidator {
-  constructor(public regex: string = null) {
+  constructor(regex: string = null) {
     super();
+    this.regex = regex;
   }
   public getType(): string {
     return "regexvalidator";
@@ -306,6 +377,15 @@ export class RegexValidator extends SurveyValidator {
   private hasError(re: RegExp, value: any, name: string): ValidatorResult {
     if (re.test(value)) return null;
     return new ValidatorResult(value, this.createCustomError(name));
+  }
+  /**
+   * The regex property.
+   */
+  public get regex(): string {
+    return this.getPropertyValue("regex");
+  }
+  public set regex(val: string) {
+    this.setPropertyValue("regex", val);
   }
 }
 /**
@@ -340,8 +420,9 @@ export class EmailValidator extends SurveyValidator {
 export class ExpressionValidator extends SurveyValidator {
   private conditionRunner: ConditionRunner = null;
   private isRunningValue: boolean = false;
-  constructor(public expression: string = null) {
+  constructor(expression: string = null) {
     super();
+    this.expression = expression;
   }
   public getType(): string {
     return "expressionvalidator";
@@ -394,6 +475,15 @@ export class ExpressionValidator extends SurveyValidator {
     if (!this.expression) return false;
     this.conditionRunner = new ConditionRunner(this.expression);
     return true;
+  }
+  /**
+   * The expression property.
+   */
+  public get expression(): string {
+    return this.getPropertyValue("expression");
+  }
+  public set expression(val: string) {
+    this.setPropertyValue("expression", val);
   }
 }
 

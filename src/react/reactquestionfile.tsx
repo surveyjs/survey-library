@@ -2,7 +2,11 @@ import * as React from "react";
 import { SurveyQuestionElementBase } from "./reactquestionelement";
 import { QuestionFileModel } from "../question_file";
 import { ReactQuestionFactory } from "./reactquestionfactory";
-import { confirmAction } from "../utils/utils";
+import {
+  confirmAction,
+  detectIEOrEdge,
+  loadFileFromBase64
+} from "../utils/utils";
 export class SurveyQuestionFile extends SurveyQuestionElementBase {
   constructor(props: any) {
     super(props);
@@ -53,6 +57,12 @@ export class SurveyQuestionFile extends SurveyQuestionElementBase {
     question.removeFile(event);
     this.setState({ fileLoaded: this.state.fileLoaded + 1 });
   };
+  handleOnDownloadFile = (event: any, data: any) => {
+    if (detectIEOrEdge()) {
+      event.preventDefault();
+      loadFileFromBase64(data.content, data.name);
+    }
+  };
   private onChange = (src: any) => {
     if (!(window as any)["FileReader"]) return;
     if (!src || !src.files || src.files.length < 1) return;
@@ -81,6 +91,7 @@ export class SurveyQuestionFile extends SurveyQuestionElementBase {
         disabled={this.isDisplayMode}
         className={this.question.cssClasses.fileInput}
         id={this.question.inputId}
+        ref={input => (this.control = input)}
         type="file"
         onChange={!this.isDisplayMode ? this.handleOnChange : null}
         aria-required={this.question.isRequired}
@@ -107,7 +118,12 @@ export class SurveyQuestionFile extends SurveyQuestionElementBase {
       this.question.cssClasses.chooseFile +
       (this.isDisplayMode ? " " + this.question.cssClasses.disabled : "");
     chooseFile = (
-      <label className={chooseFileCss} htmlFor={this.question.inputId}>
+      <label
+        role="button"
+        className={chooseFileCss}
+        htmlFor={this.question.inputId}
+        aria-label={this.question.chooseButtonCaption}
+      >
         {this.question.chooseButtonCaption}
       </label>
     );
@@ -145,6 +161,9 @@ export class SurveyQuestionFile extends SurveyQuestionElementBase {
       var fileSign = (
         <a
           href={val.content}
+          onClick={event => {
+            this.handleOnDownloadFile(event, val);
+          }}
           title={val.name}
           download={val.name}
           style={{ width: this.question.imageWidth + "px" }}

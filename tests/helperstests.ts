@@ -5,7 +5,7 @@ import { ProcessValue } from "../src/conditionProcessValue";
 
 export default QUnit.module("Helpers");
 
-QUnit.test("Event hasEvents property", function(assert) {
+QUnit.test("Event hasEvents property", function (assert) {
   assert.ok(Helpers.isArrayContainsEqual([1], [1]), "Arrays are equal");
   assert.notOk(Helpers.isArrayContainsEqual([1], [1, 2]), "Different length");
   assert.notOk(
@@ -25,7 +25,7 @@ QUnit.test("Event hasEvents property", function(assert) {
     "Ignore Order = false: We believe it is not the same arrays"
   );
 });
-QUnit.test("Helpers.isValueEmpty function", function(assert) {
+QUnit.test("Helpers.isValueEmpty function", function (assert) {
   assert.equal(Helpers.isValueEmpty(false), false, "false is not empty value");
   assert.equal(Helpers.isValueEmpty(0), false, "0 is not empty value");
   assert.equal(Helpers.isValueEmpty(null), true, "null is empty value");
@@ -53,7 +53,7 @@ QUnit.test("Helpers.isValueEmpty function", function(assert) {
     "the object is empty, empty string"
   );
 });
-QUnit.test("isTwoValueEquals with validators", function(assert) {
+QUnit.test("isTwoValueEquals with validators", function (assert) {
   var survey = new SurveyModel();
   var validators1 = [];
   var validator1 = new EmailValidator();
@@ -76,7 +76,7 @@ QUnit.test("isTwoValueEquals with validators", function(assert) {
   survey.locale = "";
 });
 
-QUnit.test("isTwoValueEquals, undefined", function(assert) {
+QUnit.test("isTwoValueEquals, undefined", function (assert) {
   assert.equal(
     Helpers.isTwoValueEquals([], undefined),
     true,
@@ -105,7 +105,7 @@ QUnit.test("isTwoValueEquals, undefined", function(assert) {
   );
 });
 
-QUnit.test("Return correct value for array.length", function(assert) {
+QUnit.test("Return correct value for array.length", function (assert) {
   var process = new ProcessValue();
   assert.equal(
     process.getValue("ar.length", { ar: [1, 2] }),
@@ -137,7 +137,7 @@ QUnit.test("Return correct value for array.length", function(assert) {
   );
 });
 
-QUnit.test("isConvertibleToNumber", function(assert) {
+QUnit.test("isConvertibleToNumber", function (assert) {
   assert.equal(
     Helpers.isConvertibleToNumber("0"),
     true,
@@ -159,7 +159,7 @@ QUnit.test("isConvertibleToNumber", function(assert) {
     "undefined is not convertible to number"
   );
   assert.equal(
-    Helpers.isConvertibleToNumber('undefined'),
+    Helpers.isConvertibleToNumber("undefined"),
     false,
     "'undefined' is not convertible to number"
   );
@@ -169,13 +169,32 @@ QUnit.test("isConvertibleToNumber", function(assert) {
     "array is not convertible to number"
   );
   assert.equal(
-    Helpers.isConvertibleToNumber(['1']),
+    Helpers.isConvertibleToNumber(["1"]),
     false,
     "array of string is not convertible to number"
   );
 });
 
-QUnit.test("isTwoValueEquals, 0 and '0'", function(assert) {
+QUnit.test("isTwoValueEquals, undefined, null and empty string", function (
+  assert
+) {
+  assert.equal(
+    Helpers.isTwoValueEquals(undefined, null),
+    true,
+    "null and undefined are equals"
+  );
+  assert.equal(
+    Helpers.isTwoValueEquals(undefined, ""),
+    true,
+    "undefined and empty string are equals"
+  );
+  assert.equal(
+    Helpers.isTwoValueEquals(null, ""),
+    true,
+    "null and empty string are equals"
+  );
+});
+QUnit.test("isTwoValueEquals, 0 and '0'", function (assert) {
   assert.equal(
     Helpers.isTwoValueEquals(0, "0"),
     true,
@@ -186,11 +205,7 @@ QUnit.test("isTwoValueEquals, 0 and '0'", function(assert) {
     false,
     "Zero dosnt' equal '0a'"
   );
-  assert.equal(
-    Helpers.isTwoValueEquals(undefined, 0),
-    false,
-    "undefined vs 0"
-  );
+  assert.equal(Helpers.isTwoValueEquals(undefined, 0), false, "undefined vs 0");
   assert.equal(
     Helpers.isTwoValueEquals(undefined, "0"),
     false,
@@ -201,29 +216,45 @@ QUnit.test("isTwoValueEquals, 0 and '0'", function(assert) {
     false,
     "'0' vs 'undefined'"
   );
+  assert.equal(Helpers.isTwoValueEquals(1, "1"), true, "1 is '1'");
+  assert.equal(Helpers.isTwoValueEquals(1.5, "1.5"), true, "1.5 is '1.5'");
+  assert.equal(Helpers.isTwoValueEquals(1, "1.5"), false, "1 is not '1.5'");
+  assert.equal(Helpers.isTwoValueEquals(2, "1.5"), false, "2 is not '1.5'");
   assert.equal(
-    Helpers.isTwoValueEquals(1, '1'),
+    Helpers.isTwoValueEquals(true, "true"),
     true,
-    "1 is '1'"
+    "'true' equals true"
   );
   assert.equal(
-    Helpers.isTwoValueEquals(1.5, '1.5'),
+    Helpers.isTwoValueEquals(false, "false"),
     true,
-    "1.5 is '1.5'"
+    "'false' equals false"
   );
   assert.equal(
-    Helpers.isTwoValueEquals(1, '1.5'),
-    false,
-    "1 is not '1.5'"
+    Helpers.isTwoValueEquals("True", true),
+    true,
+    "'True' equals true"
   );
   assert.equal(
-    Helpers.isTwoValueEquals(2, '1.5'),
-    false,
-    "2 is not '1.5'"
+    Helpers.isTwoValueEquals("False", false),
+    true,
+    "'False' equals false"
   );
 });
 
-QUnit.test("Helpers.isNumber", function(assert) {
+QUnit.test(
+  "isTwoValueEquals, numbers and string + string and string, Bug# 2000",
+  function (assert) {
+    assert.equal(Helpers.isTwoValueEquals(10, "10"), true, "10 equals '10'");
+    assert.equal(Helpers.isTwoValueEquals(10, "010"), true, "10 equals '010'");
+    assert.equal(
+      Helpers.isTwoValueEquals("10", "010"),
+      false,
+      "'10' not equals '010'"
+    );
+  }
+);
+QUnit.test("Helpers.isNumber", function (assert) {
   assert.equal(Helpers.isNumber("1"), true, "1 is a number");
   assert.equal(Helpers.isNumber("0xabcd"), true, "0xabcd is a number");
   assert.equal(Helpers.isNumber("23.3"), true, "23.3 is a number");
@@ -233,4 +264,11 @@ QUnit.test("Helpers.isNumber", function(assert) {
     false,
     "0xbe0eb53f46cd790cd13851d5eff43d12404d33e8 is not a number"
   );
+});
+QUnit.test("Helpers.getNumberByIndex", function (assert) {
+  assert.equal(Helpers.getNumberByIndex(0, "1."), "1.", "0/1.");
+  assert.equal(Helpers.getNumberByIndex(2, "1."), "3.", "2/3.");
+  assert.equal(Helpers.getNumberByIndex(2, "a)"), "c)", "2/a)");
+  assert.equal(Helpers.getNumberByIndex(2, "#1)"), "#3)", "2/#1)");
+  assert.equal(Helpers.getNumberByIndex(2, "Q1."), "Q3.", "2/Q1.");
 });

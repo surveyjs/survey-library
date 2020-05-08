@@ -31,7 +31,11 @@
         </svg>
         <span class="check"></span>
       </span>
-      <span :class="question.cssClasses.controlLabel" :title="item.locText.koRenderedHtml">
+      <span
+        v-if="!hideLabel"
+        :class="question.cssClasses.controlLabel"
+        :title="item.locText.koRenderedHtml"
+      >
         <survey-string :locString="item.locText" />
       </span>
     </label>
@@ -52,6 +56,7 @@ export class CheckboxItem extends Vue {
   @Prop question: any;
   @Prop item: any;
   @Prop index: any;
+  @Prop hideLabel: boolean;
   get isAllSelected() {
     return this.question.isAllSelected;
   }

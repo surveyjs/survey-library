@@ -29,7 +29,7 @@ export class SurveyPanel extends SurveyPanelBase {
     );
     var style = {
       paddingLeft: this.panel.innerPaddingLeft,
-      display: !this.panel.isCollapsed ? "block" : "none"
+      display: !this.panel.isCollapsed ? "block" : "none",
     };
     var content = null;
     if (!this.panel.isCollapsed || this.hasBeenExpanded) {
@@ -39,7 +39,12 @@ export class SurveyPanel extends SurveyPanelBase {
       content = this.renderContent(style, rows, className);
     }
     var rootStyle: { [index: string]: any } = {};
-    if (this.panel.renderWidth) rootStyle["width"] = this.panel.renderWidth;
+    if (this.panel.renderWidth) {
+      rootStyle["width"] = this.panel.renderWidth;
+      rootStyle["flexGrow"] = 1;
+      rootStyle["flexShrink"] = 1;
+      rootStyle["flexBasis"] = this.panel.renderWidth;
+    }
     var bottom = this.renderBottom();
     return (
       <div
@@ -66,15 +71,48 @@ export class SurveyPanel extends SurveyPanelBase {
       </div>
     );
   }
+  private TitleKeyIndex = 0;
+  private getTitleKey = () => {
+    this.TitleKeyIndex++;
+    return this.panel.name + "-titleKey-" + this.TitleKeyIndex;
+  };
+
   protected renderTitle(): JSX.Element {
     if (!this.panelBase.title) return null;
-    var text = SurveyElementBase.renderLocString(this.panelBase.locTitle);
+    var getSpaceSpan = () => {
+      return (
+        <span data-key={this.getTitleKey()} key={this.getTitleKey()}>
+          &nbsp;
+        </span>
+      );
+    };
+    var number = null;
+    var numberSpace = null;
+    if (!!this.panel.no) {
+      number = (
+        <span
+          data-key={this.getTitleKey()}
+          key={this.getTitleKey()}
+          style={{ position: "static" }}
+        >
+          {this.panel.no}
+        </span>
+      );
+      numberSpace = getSpaceSpan();
+    }
+
+    var text = SurveyElementBase.renderLocString(
+      this.panelBase.locTitle,
+      null,
+      this.getTitleKey()
+    );
     var expandCollapse = null;
-    var titleStyle = this.css.panel.title;
+    var titleStyle = this.panel.cssClasses.panel.title;
     if (this.panel.isCollapsed || this.panel.isExpanded) {
-      titleStyle += " " + this.css.panel.titleExpandable;
-      var iconCss = this.css.panel.icon;
-      if (!this.panel.isCollapsed) iconCss += " " + this.css.panel.iconExpanded;
+      titleStyle += " " + this.panel.cssClasses.panel.titleExpandable;
+      var iconCss = this.panel.cssClasses.panel.icon;
+      if (!this.panel.isCollapsed)
+        iconCss += " " + this.panel.cssClasses.panel.iconExpanded;
       var changeExpanded = () => {
         if (this.panel.isCollapsed) {
           this.panel.expand();
@@ -87,6 +125,8 @@ export class SurveyPanel extends SurveyPanelBase {
 
     return (
       <h4 className={titleStyle} onClick={changeExpanded}>
+        {number}
+        {numberSpace}
         {text}
         {expandCollapse}
       </h4>
@@ -95,13 +135,15 @@ export class SurveyPanel extends SurveyPanelBase {
   protected renderDescription(): JSX.Element {
     if (!this.panelBase.description) return null;
     var text = SurveyElementBase.renderLocString(this.panelBase.locDescription);
-    return <div className={this.css.panel.description}>{text}</div>;
+    return (
+      <div className={this.panel.cssClasses.panel.description}>{text}</div>
+    );
   }
   protected renderBottom(): JSX.Element {
     return null;
   }
 }
 
-ReactElementFactory.Instance.registerElement("panel", props => {
+ReactElementFactory.Instance.registerElement("panel", (props) => {
   return React.createElement(SurveyPanel, props);
 });

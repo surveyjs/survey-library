@@ -1,27 +1,23 @@
 import { Serializer } from "./jsonobject";
-import { HashTable } from "./helpers";
+import { HashTable, Helpers } from "./helpers";
 import {
   Base,
   ISurveyImpl,
   IPage,
   IPanel,
   IConditionRunner,
-  ISurvey,
-  ISurveyData,
   IElement,
   ISurveyElement,
   IQuestion,
   SurveyElement,
   SurveyError,
-  ISurveyErrorOwner
+  ISurveyErrorOwner,
 } from "./base";
 import { Question } from "./question";
 import { ConditionRunner } from "./conditions";
 import { QuestionFactory } from "./questionfactory";
 import { ILocalizableOwner, LocalizableString } from "./localizablestring";
-import { surveyCss } from "./defaultCss/cssstandard";
 import { OneAnswerRequiredError } from "./error";
-import { QuestionPanelDynamic } from "./knockout/koquestion_paneldynamic";
 import { PageModel } from "./page";
 import { settings } from "./settings";
 
@@ -52,7 +48,7 @@ export class QuestionRowModel extends Base {
     this.setPropertyValue("visible", val);
   }
   public get visibleElements(): Array<IElement> {
-    return this.elements.filter(e => e.isVisible);
+    return this.elements.filter((e) => e.isVisible);
   }
   public updateVisible() {
     this.visible = this.calcVisible();
@@ -69,19 +65,57 @@ export class QuestionRowModel extends Base {
     var visCount = this.visibleElements.length;
     if (visCount == 0) return;
     var counter = 0;
+    var preSetWidthElements = [];
     for (var i = 0; i < this.elements.length; i++) {
-      if (this.elements[i].isVisible) {
-        var q = this.elements[i];
-        q.renderWidth =
-          !!q.width && typeof q.width === "string"
-            ? q.width
-            : (100 / visCount).toFixed(6) + "%";
-        q.rightIndent = counter < visCount - 1 ? 1 : 0;
+      var el = this.elements[i];
+      if (el.isVisible) {
+        var width = this.getElementWidth(el);
+        if (!!width) {
+          el.renderWidth = this.getRenderedWidthFromWidth(width);
+          preSetWidthElements.push(el);
+        }
+        el.rightIndent = counter < visCount - 1 ? 1 : 0;
         counter++;
       } else {
-        this.elements[i].renderWidth = "";
+        el.renderWidth = "";
       }
     }
+    for (var i = 0; i < this.elements.length; i++) {
+      var el = this.elements[i];
+      if (!el.isVisible || preSetWidthElements.indexOf(el) > -1) continue;
+      if (preSetWidthElements.length == 0) {
+        el.renderWidth = (100 / visCount).toFixed(6) + "%";
+      } else {
+        el.renderWidth = this.getRenderedCalcWidth(
+          el,
+          preSetWidthElements,
+          visCount
+        );
+      }
+    }
+  }
+  private getRenderedCalcWidth(
+    el: IElement,
+    preSetWidthElements: Array<IElement>,
+    visCount: number
+  ): string {
+    var expression = "100%";
+    for (var i = 0; i < preSetWidthElements.length; i++) {
+      expression += " - " + preSetWidthElements[i].renderWidth;
+    }
+    var calcWidthEl = visCount - preSetWidthElements.length;
+    if (calcWidthEl > 1) {
+      expression = "(" + expression + ")/" + calcWidthEl.toString();
+    }
+    return "calc(" + expression + ")";
+  }
+  private getElementWidth(el: IElement): string {
+    var width = el.width;
+    if (!width || typeof width !== "string") return "";
+    return width.trim();
+  }
+  private getRenderedWidthFromWidth(width: string): string {
+    return Helpers.isNumber(width) ? width + "px" : width;
   }
   private calcVisible(): boolean {
     return this.visibleElements.length > 0;
@@ -149,6 +183,18 @@ export class PanelModelBase extends SurveyElement
   }
   get locTitle(): LocalizableString {
     return this.getLocalizableString("title");
+  }
+  get _showTitle(): boolean {
+    return (
+      ((<any>this.survey).showPageTitles && this.title.length > 0) ||
+      (this.isDesignMode && settings.allowShowEmptyTitleInDesignMode)
+    );
+  }
+  get _showDescription(): boolean {
+    return (
+      ((<any>this.survey).showPageTitles && this.description.length > 0) ||
+      (this.isDesignMode && settings.allowShowEmptyTitleInDesignMode)
+    );
   }
   /**
    * PanelModel or PageModel description property. It renders under title by using smaller font. Unlike the title, description can be empty.
@@ -218,16 +264,19 @@ export class PanelModelBase extends SurveyElement
     this.setPropertyValue("visibleIf", val);
   }
   public get cssClasses(): any {
-    var classes = { error: {} };
-    this.copyCssClasses(classes, this.css);
+    var classes = { panel: {}, error: {}, row: "" };
+    this.copyCssClasses(classes.panel, this.css.panel);
     this.copyCssClasses(classes.error, this.css.error);
+    if (!!this.css.row) {
+      classes.row = this.css.row;
+    }
     if (this.survey) {
       this.survey.updatePanelCssClasses(this, classes);
     }
     return classes;
   }
-  private get css(): any {
-    return surveyCss.getCss();
+  protected get css(): any {
+    return !!this.survey ? this.survey.getCss() : {};
   }
   /**
    * A unique element identificator. It is generated automatically.
@@ -423,7 +472,7 @@ export class PanelModelBase extends SurveyElement
           fireCallback: fireCallback,
           focuseOnFirstError: focusOnFirstError,
           firstErrorQuestion: <any>null,
-          result: false
+          result: false,
         };
     this.hasErrorsCore(rec);
     if (rec.firstErrorQuestion) {
@@ -461,7 +510,7 @@ export class PanelModelBase extends SurveyElement
     }
     rec.result = true;
     errors.push(new OneAnswerRequiredError(this.requiredErrorText, this));
-    if (!rec.firstErrorQuestion) {
+    if (rec.focuseOnFirstError && !rec.firstErrorQuestion) {
       rec.firstErrorQuestion = visQuestions[0];
     }
   }
@@ -649,6 +698,14 @@ export class PanelModelBase extends SurveyElement
     if (this.parent) return this.parent.getQuestionTitleLocation();
     return this.survey ? this.survey.questionTitleLocation : "top";
   }
+  protected getStartIndex(): string {
+    if (!!this.parent) return this.parent.getQuestionStartIndex();
+    if (!!this.survey) return this.survey.questionStartIndex;
+    return "";
+  }
+  getQuestionStartIndex(): string {
+    return this.getStartIndex();
+  }
   getChildrenLayoutType(): string {
     return "row";
   }
@@ -707,14 +764,14 @@ export class PanelModelBase extends SurveyElement
     var self = this;
     (<Base>(<any>element)).registerFunctionOnPropertiesValueChanged(
       ["visible", "isVisible"],
-      function() {
+      function () {
         self.onElementVisibilityChanged(element);
       },
       this.id
     );
     (<Base>(<any>element)).registerFunctionOnPropertyValueChanged(
       "startWithNewLine",
-      function() {
+      function () {
         self.onElementStartWithNewLineChanged(element);
       },
       this.id
@@ -879,10 +936,25 @@ export class PanelModelBase extends SurveyElement
       return 0;
     }
     var startIndex = index;
+    index += this.beforeSetVisibleIndex(index);
+    var panelStartIndex = this.getPanelStartIndex(index);
+    var panelIndex = panelStartIndex;
     for (var i = 0; i < this.elements.length; i++) {
-      index += this.elements[i].setVisibleIndex(index);
+      panelIndex += this.elements[i].setVisibleIndex(panelIndex);
+    }
+    if (this.isContinueNumbering()) {
+      index += panelIndex - panelStartIndex;
     }
     return index - startIndex;
+  }
+  protected beforeSetVisibleIndex(index: number): number {
+    return 0;
+  }
+  protected getPanelStartIndex(index: number): number {
+    return index;
+  }
+  protected isContinueNumbering() {
+    return true;
   }
   /**
    * Retuns true if readOnly property is true or survey is in display mode or parent panel/page is readOnly.
@@ -901,6 +973,14 @@ export class PanelModelBase extends SurveyElement
     }
     super.onReadOnlyChanged();
   }
+  public updateElementCss() {
+    for (var i = 0; i < this.elements.length; i++) {
+      var el = <SurveyElement>(<any>this.elements[i]);
+      el.updateElementCss();
+    }
+    super.updateElementCss();
+  }
+
   /**
    * An expression that returns true or false. If it returns false the Panel/Page becomes read only and an end-user will not able to answer on qustions inside it.
    * The library runs the expression on survey start and on changing a question value. If the property is empty then readOnly property is used.
@@ -1208,6 +1288,12 @@ export class PanelModelBase extends SurveyElement
     this.removeElement(src);
     this.addElement(target, targetIndex);
   }
+  public dispose() {
+    for (var i = 0; i < this.elements.length; i++) {
+      this.elements[i].dispose();
+    }
+    this.elements.splice(0, this.elements.length);
+  }
 }
 
 /**
@@ -1219,17 +1305,17 @@ export class PanelModel extends PanelModelBase implements IElement {
   constructor(public name: string = "") {
     super(name);
     var self = this;
-    this.registerFunctionOnPropertyValueChanged("state", function() {
+    this.registerFunctionOnPropertyValueChanged("state", function () {
       if (self.stateChangedCallback) self.stateChangedCallback();
     });
-    this.registerFunctionOnPropertyValueChanged("width", function() {
+    this.registerFunctionOnPropertyValueChanged("width", function () {
       if (!!self.parent) {
         self.parent.elementWidthChanged(self);
       }
     });
     this.registerFunctionOnPropertiesValueChanged(
       ["indent", "innerIndent", "rightIndent"],
-      function() {
+      function () {
         self.onIndentChanged();
       }
     );
@@ -1309,6 +1395,96 @@ export class PanelModel extends PanelModelBase implements IElement {
    */
   public moveTo(container: IPanel, insertBefore: any = null): boolean {
     return this.moveToBase(this.parent, container, insertBefore);
+  }
+  /**
+   * Returns the visible index of the panel in the survey. Commonly it is -1 and it doesn't show.
+   * You have to set showNumber to true to show index/numbering for the Panel
+   * @see showNumber
+   */
+  public get visibleIndex(): number {
+    return this.getPropertyValue("visibleIndex", -1);
+  }
+  /**
+   * Set showNumber to true to start showing the number for this panel.
+   * @see visibleIndex
+   */
+  public get showNumber(): boolean {
+    return this.getPropertyValue("showNumber", false);
+  }
+  public set showNumber(val: boolean) {
+    this.setPropertyValue("showNumber", val);
+    this.notifySurveyOnVisibilityChanged();
+  }
+  /**
+   * Gets or sets a value that specifies how the elements numbers inside panel are displayed.
+   *
+   * The following options are available:
+   *
+   * - `default` - display questions numbers as defined in parent panel or survey
+   * - `onpanel` - display questions numbers, start numbering from beginning of this page
+   * - `off` - turn off the numbering for questions titles
+   * @see showNumber
+   */
+  public get showQuestionNumbers(): string {
+    return this.getPropertyValue("showQuestionNumbers", "default");
+  }
+  public set showQuestionNumbers(value: string) {
+    this.setPropertyValue("showQuestionNumbers", value);
+    this.notifySurveyOnVisibilityChanged();
+  }
+  /**
+   * Gets or sets the first question index for elements inside the panel. The first question index is '1.' by default and it is taken from survey.questionStartIndex property.
+   * You may start it from '100' or from 'A', by setting '100' or 'A' to this property.
+   * You can set the start index to "(1)" or "# A)" or "a)" to render question number as (1), # A) and a) accordingly.
+   * @see survey.questionStartIndex
+   */
+  public get questionStartIndex(): string {
+    return this.getPropertyValue("questionStartIndex", "");
+  }
+  public set questionStartIndex(val: string) {
+    this.setPropertyValue("questionStartIndex", val);
+  }
+  getQuestionStartIndex(): string {
+    if (!!this.questionStartIndex) return this.questionStartIndex;
+    return super.getQuestionStartIndex();
+  }
+  /**
+   * The property returns the question number. If question is invisible then it returns empty string.
+   * If visibleIndex is 1, then no is 2, or 'B' if survey.questionStartIndex is 'A'.
+   * @see SurveyModel.questionStartIndex
+   */
+  public get no(): string {
+    return this.getPropertyValue("no", "");
+  }
+  protected setNo(visibleIndex: number) {
+    this.setPropertyValue(
+      "no",
+      Helpers.getNumberByIndex(this.visibleIndex, this.getStartIndex())
+    );
+  }
+  protected beforeSetVisibleIndex(index: number): number {
+    let visibleIndex = -1;
+    if (this.showNumber && (this.isDesignMode || !this.locTitle.isEmpty)) {
+      visibleIndex = index;
+    }
+    this.setPropertyValue("visibleIndex", visibleIndex);
+    this.setNo(visibleIndex);
+    return visibleIndex < 0 ? 0 : 1;
+  }
+  protected getPanelStartIndex(index: number): number {
+    if (this.showQuestionNumbers == "off") return -1;
+    if (this.showQuestionNumbers == "onpanel") return 0;
+    return index;
+  }
+  protected isContinueNumbering() {
+    return (
+      this.showQuestionNumbers != "off" && this.showQuestionNumbers != "onpanel"
+    );
+  }
+  private notifySurveyOnVisibilityChanged() {
+    if (this.survey != null && !this.isLoadingFromJson) {
+      this.survey.panelVisibilityChanged(this, this.isVisible);
+    }
   }
   protected hasErrorsCore(rec: any) {
     super.hasErrorsCore(rec);
@@ -1404,12 +1580,17 @@ export class PanelModel extends PanelModelBase implements IElement {
     if (!css) return "";
     return indent * css.question.indent + "px";
   }
+  public clearOnDeletingContainer() {
+    this.elements.forEach((element) => {
+      if (element instanceof Question || element instanceof PanelModel) {
+        element.clearOnDeletingContainer();
+      }
+    });
+  }
   protected onVisibleChanged() {
     super.onVisibleChanged();
     this.setPropertyValue("isVisible", this.isVisible);
-    if (this.survey != null) {
-      this.survey.panelVisibilityChanged(this, this.visible);
-    }
+    this.notifySurveyOnVisibilityChanged();
   }
 }
 
@@ -1422,7 +1603,7 @@ Serializer.addClass(
       alternativeName: "questions",
       baseClassName: "question",
       visible: false,
-      isLightSerializable: false
+      isLightSerializable: false,
     },
     { name: "visible:boolean", default: true },
     "visibleIf:condition",
@@ -1431,12 +1612,12 @@ Serializer.addClass(
     {
       name: "questionTitleLocation",
       default: "default",
-      choices: ["default", "top", "bottom", "left", "hidden"]
+      choices: ["default", "top", "bottom", "left", "hidden"],
     },
     { name: "title", serializationProperty: "locTitle" },
-    { name: "description:text", serializationProperty: "locDescription" }
+    { name: "description:text", serializationProperty: "locDescription" },
   ],
-  function() {
+  function () {
     return new PanelModelBase();
   }
 );
@@ -1447,30 +1628,38 @@ Serializer.addClass(
     {
       name: "state",
       default: "default",
-      choices: ["default", "collapsed", "expanded"]
+      choices: ["default", "collapsed", "expanded"],
     },
     "isRequired:boolean",
     {
       name: "requiredErrorText:text",
-      serializationProperty: "locRequiredErrorText"
+      serializationProperty: "locRequiredErrorText",
     },
     { name: "startWithNewLine:boolean", default: true },
+    "width",
     { name: "innerIndent:number", default: 0, choices: [0, 1, 2, 3] },
     { name: "indent:number", default: 0, choices: [0, 1, 2, 3] },
     {
       name: "page",
       isSerializable: false,
-      choices: function(obj: any) {
+      choices: function (obj: any) {
         var survey = obj ? obj.survey : null;
         return survey
           ? survey.pages.map((p: any) => {
               return { value: p.name, text: p.title };
             })
           : [];
-      }
-    }
+      },
+    },
+    "showNumber:boolean",
+    {
+      name: "showQuestionNumbers",
+      default: "default",
+      choices: ["default", "onpanel", "off"],
+    },
+    "questionStartIndex",
   ],
-  function() {
+  function () {
     return new PanelModel();
   },
   "panelbase"

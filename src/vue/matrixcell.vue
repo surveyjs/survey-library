@@ -1,12 +1,31 @@
 <template>
-  <td :class="getCellClass()" :headers="getHeaders()">
+  <td :class="getCellClass()" :headers="getHeaders()" :style="getCellStyle()">
     <div v-if="cell.hasQuestion">
       <survey-errors v-if="hasErrorsOnTop" :question="cell.question" :location="'top'" />
       <component
+        v-if="!cell.isChoice"
         v-show="isVisible"
         :is="getWidgetComponentName(cell.question)"
         :question="cell.question"
       />
+      <survey-radiogroup-item
+        v-if="cell.isChoice && !cell.isCheckbox"
+        :key="cell.item.value"
+        :class="getItemClass(cell.item)"
+        :question="cell.question"
+        :item="cell.item"
+        :index="'' + cell.index"
+        :hideLabel="true"
+      ></survey-radiogroup-item>
+      <survey-checkbox-item
+        v-if="cell.isChoice && cell.isCheckbox"
+        :key="cell.item.value"
+        :class="getItemClass(cell.item)"
+        :question="cell.question"
+        :item="cell.item"
+        :index="'' + cell.index"
+        :hideLabel="true"
+      ></survey-checkbox-item>
       <survey-errors v-if="hasErrorsOnBottom" :question="cell.question" :location="'bottom'" />
     </div>
     <button
@@ -25,7 +44,6 @@
 <script lang="ts">
 import Vue from "vue";
 import { Component, Prop } from "vue-property-decorator";
-import { surveyCss } from "../defaultCss/cssstandard";
 import { Question } from "../question";
 import {
   MatrixDropdownCell,
@@ -45,12 +63,10 @@ export class MatrixCell extends Vue {
     return "survey-" + element.getType();
   }
   get hasErrorsOnTop() {
-    var q = this.cell.question;
-    return q.isVisible && q.survey.questionErrorLocation === "top";
+    return this.cell.showErrorOnTop;
   }
   get hasErrorsOnBottom() {
-    var q = this.cell.question;
-    return q.isVisible && q.survey.questionErrorLocation === "bottom";
+    return this.cell.showErrorOnBottom;
   }
   getHeaders() {
     var element = this.cell.question;
@@ -70,6 +86,21 @@ export class MatrixCell extends Vue {
     cellClass += " " + element.cssClasses.asCell;
 
     return cellClass;
+  }
+  getCellStyle() {
+    if (!this.cell.isChoice) return null;
+    return { "text-align": "center" };
+  }
+  getItemClass(item: any) {
+    var cssClasses = this.cell.question.cssClasses;
+    var isDisabled = this.cell.question.isReadOnly || !item.isEnabled;
+    var isChecked = item.value === this.cell.question.renderedValue;
+    var allowHover = !isDisabled && !isChecked;
+    var itemClass = this.cell.question.cssClasses.item;
+    if (isDisabled) itemClass += " " + cssClasses.itemDisabled;
+    if (isChecked) itemClass += " " + cssClasses.itemChecked;
+    if (allowHover) itemClass += " " + cssClasses.itemHover;
+    return itemClass;
   }
   removeRowClick() {
     this.question.removeRowUI(this.cell.row);

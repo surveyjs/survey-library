@@ -6,13 +6,24 @@
       :class="question.cssClasses.row"
     >
       <template v-for="item in row">
-        <td :key="'label' + item.editor.id" :class="question.cssClasses.itemTitle + ' ' + question.cssClasses.cell">
-          <survey-string :locString="item.locTitle"/>
+        <td
+          :key="'label' + item.editor.id"
+          :class="question.cssClasses.itemTitle + ' ' + question.cssClasses.cell"
+        >
+          <span
+            v-if="item.editor.isRequireTextBeforeTitle || item.editor.isRequireTextOnStart"
+            :class="question.cssClasses.requiredText"
+          >{{item.editor.requiredText}}</span>
+          <survey-string :locString="item.locTitle" />
+          <span
+            v-if="item.editor.isRequireTextAfterTitle"
+            :class="question.cssClasses.requiredText"
+          >{{item.editor.requiredText}}</span>
         </td>
         <td :key="item.editor.id" :css="question.cssClasses.cell">
-          <survey-errors v-if="hasErrorsOnTop" :question="item.editor" :location="'top'"/>
-          <component :is="getWidgetComponentName(item.editor)" :question="item.editor"/>
-          <survey-errors v-if="hasErrorsOnBottom" :question="item.editor" :location="'bottom'"/>
+          <survey-errors v-if="hasErrorsOnTop" :question="item.editor" :location="'top'" />
+          <component :is="getWidgetComponentName(item.editor)" :question="item.editor" />
+          <survey-errors v-if="hasErrorsOnBottom" :question="item.editor" :location="'bottom'" />
         </td>
       </template>
     </tr>

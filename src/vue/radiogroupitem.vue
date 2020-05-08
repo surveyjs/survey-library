@@ -6,6 +6,7 @@
           :name="question.name + '_' + question.id"
           :value="item.value"
           :id="question.inputId + '_' + index"
+          :role="'radio'"
           v-model="question.renderedValue"
           :disabled="question.isReadOnly || !item.isEnabled"
           v-bind:aria-required="question.isRequired"
@@ -18,7 +19,7 @@
           </svg>
         </span>
         <span class="check"></span>
-        <span :class="getControlLabelClass(item)" :title="item.locText.koRenderedHtml">
+        <span v-if="!hideLabel" :class="getControlLabelClass(item)" :title="item.locText.koRenderedHtml">
           <survey-string :locString="item.locText"/>
         </span>
       </label>
@@ -39,6 +40,7 @@ export class RadiogroupItem extends Vue {
   @Prop question: any;
   @Prop item: any;
   @Prop index: any;
+  @Prop hideLabel: boolean;
   getLabelClass(item: any) {
     return this.question.getLabelClass(item.value === this.question.value);
   }

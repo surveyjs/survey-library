@@ -22,6 +22,9 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
   protected getItemValueType() {
     return "imageitemvalue";
   }
+  public get isCompositeQuestion(): boolean {
+    return true;
+  }
   /**
    * Multi select option. If set to true, then allows to select multiple images.
    */
@@ -36,7 +39,7 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
    * @param item image picker item value
    */
   public isItemSelected(item: ItemValue): boolean {
-    var val = this.renderedValue;
+    var val = this.value;
     if (Helpers.isValueEmpty(val)) return false;
     if (!this.multiSelect) return Helpers.isTwoValueEquals(val, item.value);
     if (!Array.isArray(val)) return false;
@@ -79,8 +82,33 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
   public set showLabel(newValue: boolean) {
     this.setPropertyValue("showLabel", newValue);
   }
+  endLoadingFromJson() {
+    super.endLoadingFromJson();
+    if (!this.isDesignMode && this.multiSelect) {
+      this.createNewArray("renderedValue");
+      this.createNewArray("value");
+    }
+  }
   protected getValueCore() {
-    return super.getValueCore() || (this.multiSelect && []) || undefined;
+    var value = super.getValueCore();
+    if (value !== undefined) {
+      return value;
+    }
+    if (this.multiSelect) {
+      return [];
+    }
+    return value;
+  }
+  private convertValToArrayForMultSelect(val: any): any {
+    if (!this.multiSelect) return val;
+    if (Helpers.isValueEmpty(val) || Array.isArray(val)) return val;
+    return [val];
+  }
+  protected renderedValueFromDataCore(val: any): any {
+    return this.convertValToArrayForMultSelect(val);
+  }
+  protected rendredValueToDataCore(val: any): any {
+    return this.convertValToArrayForMultSelect(val);
   }
   /**
    * The image height.

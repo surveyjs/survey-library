@@ -16,7 +16,7 @@ export {
   TextValidator,
   ValidatorResult,
   ExpressionValidator,
-  ValidatorRunner
+  ValidatorRunner,
 } from "../../validator";
 export { ItemValue } from "../../itemvalue";
 export { Base, Event, SurveyError, ISurvey, SurveyElement } from "../../base";
@@ -26,10 +26,10 @@ export {
   AnswerRequiredError,
   OneAnswerRequiredError,
   RequreNumericError,
-  ExceedSizeError
+  ExceedSizeError,
 } from "../../error";
 export { ILocalizableOwner, LocalizableString } from "../../localizablestring";
-export { HtmlConditionItem } from "../../htmlConditionItem";
+export { HtmlConditionItem, UrlConditionItem } from "../../expressionItems";
 export { ChoicesRestfull } from "../../choicesRestfull";
 export { FunctionFactory, registerFunction } from "../../functionsfactory";
 export { ConditionRunner, ExpressionRunner } from "../../conditions";
@@ -39,7 +39,7 @@ export {
   BinaryOperand,
   Variable,
   FunctionOperand,
-  ArrayOperand
+  ArrayOperand,
 } from "../../expressions/expressions";
 export { ConditionsParser } from "../../conditionsParser";
 export { ProcessValue } from "../../conditionProcessValue";
@@ -54,31 +54,31 @@ export {
   JsonObjectProperty,
   JsonRequiredPropertyError,
   JsonUnknownPropertyError,
-  Serializer
+  Serializer,
 } from "../../jsonobject";
 export {
   MatrixDropdownCell,
   MatrixDropdownColumn,
   matrixDropdownColumnTypes,
   MatrixDropdownRowModelBase,
-  QuestionMatrixDropdownModelBase
+  QuestionMatrixDropdownModelBase,
 } from "../../question_matrixdropdownbase";
 export {
   MatrixDropdownRowModel,
-  QuestionMatrixDropdownModel
+  QuestionMatrixDropdownModel,
 } from "../../question_matrixdropdown";
 export {
   MatrixDynamicRowModel,
-  QuestionMatrixDynamicModel
+  QuestionMatrixDynamicModel,
 } from "../../question_matrixdynamic";
 export {
   MatrixRowModel,
   MartrixCells,
-  QuestionMatrixModel
+  QuestionMatrixModel,
 } from "../../question_matrix";
 export {
   MultipleTextItemModel,
-  QuestionMultipleTextModel
+  QuestionMultipleTextModel,
 } from "../../question_multipletext";
 export { PanelModel, PanelModelBase, QuestionRowModel } from "../../panel";
 export { FlowPanelModel } from "../../flowpanel";
@@ -88,7 +88,7 @@ export { QuestionNonValue } from "../../questionnonvalue";
 export { QuestionEmptyModel } from "../../question_empty";
 export {
   QuestionCheckboxBase,
-  QuestionSelectBase
+  QuestionSelectBase,
 } from "../../question_baseselect";
 export { QuestionCheckboxModel } from "../../question_checkbox";
 export { QuestionCommentModel } from "../../question_comment";
@@ -102,9 +102,11 @@ export { QuestionExpressionModel } from "../../question_expression";
 export { QuestionTextModel } from "../../question_text";
 export { QuestionBooleanModel } from "../../question_boolean";
 export { QuestionImagePickerModel } from "../../question_imagepicker";
+export { QuestionImageModel } from "../../question_image";
+export { QuestionSignaturePadModel } from "../../question_signaturepad";
 export {
   QuestionPanelDynamicModel,
-  QuestionPanelDynamicItem
+  QuestionPanelDynamicItem,
 } from "../../question_paneldynamic";
 export { SurveyTimer } from "../../surveytimer";
 export { SurveyModel } from "../../survey";
@@ -115,7 +117,7 @@ export {
   SurveyTriggerVisible,
   SurveyTriggerCopyValue,
   SurveyTriggerRunExpression,
-  Trigger
+  Trigger,
 } from "../../trigger";
 export { SurveyWindowModel } from "../../surveyWindow";
 export { TextPreProcessor } from "../../textPreProcessor";
@@ -126,8 +128,14 @@ export { surveyLocalization, surveyStrings } from "../../surveyStrings";
 // export { cultureInfo } from "../../cultureInfo";
 export {
   QuestionCustomWidget,
-  CustomWidgetCollection
+  CustomWidgetCollection,
 } from "../../questionCustomWidgets";
+export {
+  QuestionCustomModel,
+  QuestionCompositeModel,
+  ComponentQuestionJSON,
+  ComponentCollection,
+} from "../../question_custom";
 
 export { StylesManager } from "../../stylesmanager";
 

@@ -23,6 +23,9 @@ class QuestionDropdownImplementor extends QuestionSelectBaseImplementor {
 export class QuestionDropdown extends QuestionDropdownModel {
   constructor(public name: string) {
     super(name);
+  }
+  protected onBaseCreating() {
+    super.onBaseCreating();
     new QuestionDropdownImplementor(this);
   }
 }

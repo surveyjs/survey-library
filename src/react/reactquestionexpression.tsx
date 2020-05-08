@@ -16,7 +16,11 @@ export class SurveyQuestionExpression extends SurveyQuestionElementBase {
     if (!this.question) return null;
     var cssClasses = this.question.cssClasses;
     return (
-      <div id={this.question.inputId} className={cssClasses.root}>
+      <div
+        id={this.question.inputId}
+        className={cssClasses.root}
+        ref={div => (this.control = div)}
+      >
         {this.question.displayValue}
       </div>
     );

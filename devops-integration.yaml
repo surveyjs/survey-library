@@ -3,35 +3,88 @@
 # Add steps that analyze code, save build artifacts, deploy, and more:
 # https://docs.microsoft.com/azure/devops/pipelines/languages/javascript
 
+resources:
+  repositories:
+    - repository: Service # The name used to reference this repository in the checkout step
+      type: github
+      endpoint: surveyjs
+      name: surveyjs/service
+
 trigger:
   batch: true
   branches:
     include:
     - master
+  tags:
+    exclude:
+      - v*.*.*
 
 pool:
   vmImage: 'Ubuntu-16.04'
 
 steps:
+- checkout: self
+- checkout: Service
+  persistCredentials: true
+  clean: true
+
 - task: NodeTool@0
   inputs:
     versionSpec: '8.x'
   displayName: 'Install Node.js'
 
 - script: |
+    cd $(Build.SourcesDirectory)/survey-library
     npm install
     npm run build_prod
   displayName: 'npm install and build'
 
 - script: |
+    cd $(Build.SourcesDirectory)/survey-library
     npm run testsingle
   displayName: 'run unit tests'
 
+- script: |
+    cd $(Build.SourcesDirectory)/survey-library
+    npm run testcafe_ci
+  displayName: 'run functional tests'
+
+- script: |
+    cd $(Build.SourcesDirectory)/survey-library
+    npm run doc_gen
+  displayName: 'generate docs'
+
 - task: CopyFiles@2
   inputs:
-    contents: 'packages/**'
-    targetFolder: $(Build.ArtifactStagingDirectory)
+    SourceFolder: '$(Build.SourcesDirectory)/survey-library/docs'
+    TargetFolder: '$(Build.SourcesDirectory)/service/surveyjs.io/App_Data/Docs'
+    CleanTargetFolder: true
+  displayName: 'copy generated docs to the local surveyjs/service repo'
 
+
+# read about the problem with git output ($env:GIT_REDIRECT_STDERR = '2>&1') :
+# https://github.com/microsoft/azure-pipelines-yaml/issues/248
+# https://stackoverflow.com/questions/58485585/azure-pipeline-powershell-and-git-on-windows-server-2019-gives-error-in-output
+- powershell: |
+    cd $(Build.SourcesDirectory)/service
+    $env:GIT_REDIRECT_STDERR = '2>&1'
+    git config --global user.email "kurmanov.work@gmail.com"
+    git config --global user.name "dmitrykurmanov"
+    git checkout master
+    git pull origin master
+    git fetch --tags --force
+    git add surveyjs.io/App_Data/Docs
+    git commit -m "[skip ci] Updated survey-library docs"
+    git pull origin master
+    git push origin master
+  displayName: 'git surveyjs/service push updated docs'
+
+- task: CopyFiles@2
+  inputs:
+    SourceFolder: '$(Build.SourcesDirectory)/survey-library/packages'
+    TargetFolder: '$(Build.ArtifactStagingDirectory)/packages'
+
+#publishLocation: 'Container' - store the artifact in Azure Pipelines
 - task: PublishBuildArtifacts@1
   inputs:
     PathtoPublish: '$(Build.ArtifactStagingDirectory)'

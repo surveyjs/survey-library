@@ -1,34 +1,34 @@
 ﻿<script type="text/html" id="survey-question">
-    <div data-bind="css: question.koRootClass(), style: { paddingLeft: question.paddingLeft, paddingRight: question.paddingRight, width: question.renderWidth }, attr: {id: question.id, name: question.name}">
-        <!-- ko if: question.hasTitleOnLeftTop -->
-        <!--ko template: { name: 'survey-question-title', data: question  } -->
-        <!-- /ko -->
-        <!-- /ko -->
-        <div data-bind="css: question.koContentClass">
-            <!-- ko if: question.errorLocation == 'top' -->
-                <!-- ko template: { name: 'survey-question-errors', data: question } -->
-                <!-- /ko -->
-            <!-- /ko -->
-            <!-- ko template: { name: question.koTemplateName(), data: question, afterRender: question.koQuestionAfterRender } -->
-            <!-- /ko -->
-            <!-- ko if: question.hasComment -->
-            <div data-bind="css: question.koCss().formGroup">
-              <!-- ko template: { name: 'survey-string', data: question.locCommentText } -->
+  <div data-bind="css: question.koRootCss(), style: { paddingLeft: question.paddingLeft, paddingRight: question.paddingRight, flexBasis: renderWidth, flexGrow: 1, flexShrink: 1, width: renderWidth }, attr: { id: question.id, name: question.name, role: question.ariaRole, 'aria-labelledby': question.ariaTitleId }">
+      <!-- ko if: question.hasTitleOnLeftTop -->
+      <!--ko template: { name: 'survey-question-title', data: question  } -->
+      <!-- /ko -->
+      <!-- /ko -->
+      <div data-bind="css: question.cssContent">
+          <!-- ko if: question.errorLocation == 'top' -->
+              <!-- ko template: { name: 'survey-question-errors', data: question } -->
               <!-- /ko -->
-              <div data-bind="template: { name: 'survey-comment', data: {'question': question, 'visible': true } }"></div>
-            </div>
+          <!-- /ko -->
+          <!-- ko template: { name: question.koTemplateName(), data: question, afterRender: question.koQuestionAfterRender } -->
+          <!-- /ko -->
+          <!-- ko if: question.hasComment -->
+          <div data-bind="css: question.koCss().formGroup">
+            <!-- ko template: { name: 'survey-string', data: question.locCommentText } -->
             <!-- /ko -->
-            <!-- ko if: question.errorLocation == 'bottom' -->
-                <!-- ko template: { name: 'survey-question-errors', data: question } -->
-                <!-- /ko -->
-            <!-- /ko -->
-            <div data-bind="visible: question.hasDescriptionUnderInput, css: koCss().descriptionUnderInput">
-                <!-- ko template: { name: 'survey-string', data: locDescription } --><!-- /ko -->
-            </div>
-        </div>
-        <!-- ko if: question.hasTitleOnBottom -->
-        <!--ko template: { name: 'survey-question-title', data: question  } -->
-        <!-- /ko -->
-        <!-- /ko -->
-    </div>
-  </script>
+            <div data-bind="template: { name: 'survey-comment', data: {'question': question, 'visible': true } }"></div>
+          </div>
+          <!-- /ko -->
+          <!-- ko if: question.errorLocation == 'bottom' -->
+              <!-- ko template: { name: 'survey-question-errors', data: question } -->
+              <!-- /ko -->
+          <!-- /ko -->
+          <div data-bind="visible: question.hasDescriptionUnderInput, css: koCss().descriptionUnderInput">
+              <!-- ko template: { name: 'survey-string', data: locDescription } --><!-- /ko -->
+          </div>
+      </div>
+      <!-- ko if: question.hasTitleOnBottom -->
+      <!--ko template: { name: 'survey-question-title', data: question  } -->
+      <!-- /ko -->
+      <!-- /ko -->
+  </div>
+</script>

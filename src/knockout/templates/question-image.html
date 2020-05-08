@@ -1,0 +1,10 @@
+﻿<script type="text/html" id="survey-question-image">
+  <div data-bind="css: question.koCss().root">
+    <!-- ko if: question.contentMode === "image" -->
+    <img data-bind="css: question.koCss().image, attr: { src: $data.imageLink, width: question.imageWidth ? question.imageWidth + 'px' : undefined, height: question.imageHeight ? question.imageHeight + 'px' : undefined }, style: { objectFit: question.imageFit }"/>
+    <!-- /ko -->
+    <!-- ko if: question.contentMode === "video" -->
+    <embed data-bind="css: question.koCss().image, attr: { src: $data.imageLink, width: question.imageWidth ? question.imageWidth + 'px' : undefined, height: question.imageHeight ? question.imageHeight + 'px' : undefined }, style: { objectFit: question.imageFit }"/>
+    <!-- /ko -->
+  </div>
+</script>

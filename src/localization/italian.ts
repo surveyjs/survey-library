@@ -35,6 +35,9 @@ export var italianSurveyStrings = {
   exceedMaxSize: "Il file non può eccedere {0}",
   otherRequiredError: "Inserire il valore 'altro'",
   uploadingFile: "File in caricamento. Attendi alcuni secondi e riprova",
+  loadingFile: "Caricamento...",
+  chooseFile: "Selezionare file(s)...",
+  noFileChosen: "Nessun file selezionato",
   confirmDelete: "Sei sicuro di voler elminare il record?",
   keyDuplicationError: "Questo valore deve essere univoco.",
   addRow: "Aggiungi riga",
@@ -57,7 +60,9 @@ export var italianSurveyStrings = {
     "Hai impiegato {0} di {1} su questa pagina e {2} di {3} in totale.",
   timerLimitPage: "Hai impiegato {0} di {1} su questa pagina.",
   timerLimitSurvey: "Hai impiegato {0} di {1} in totale.",
-  cleanCaption: "Pulisci"
+  cleanCaption: "Pulisci",
+  confirmRemoveFile: "Sei sicuro di voler elminare questo file: {0}?",
+  confirmRemoveAllFiles: "Sei sicuro di voler elminare tutti i files?"
 };
 
 surveyLocalization.locales["it"] = italianSurveyStrings;

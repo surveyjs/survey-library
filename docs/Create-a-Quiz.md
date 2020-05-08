@@ -1,99 +1,117 @@
 # Create a Quiz
 
-You may use SurveyJS to create not only surveys and complex forms, but also quizzes. In this article, we will show it show to make a quiz, by setting just some properties.
+SurveyJS allows you to create quizzes, i.e., time limited surveys. This document describes how to create a quiz in SurveyJS.
 
-## Step 1. Setup the start page.
+## Step 1. Setup the Start Page
 
 Unlike a survey or form, a quiz should have a start page, with a text on it, optionally some inputs, like name/e-mails, and a start button. 
 
-To create the start page, just set the survey **firstPageIsStarted** property to true.
+To create the start page, set the [survey.firstPageIsStarted](https://surveyjs.io/Documentation/Library/?id=surveymodel#firstPageIsStarted) property to `true`.
 
 ```javascript
 survey.firstPageIsStarted = true;
 ```
 
-Now, on running the survey, the first page shows as a page with a "start" button. After a user click on the "start" button, he will not be able to comeback by pressing the "previous" button. 
-The reason is simple, the "start" page is not the first page. A user will see the first page after clicking on the "start" button. 
 
-To change the "start" button text, use survey **startSurveyText** property.
+### Start Button 
+
+When a survey is run, it displays a start page with a "start" button. After users click the "start" button, they cannot navigate back by pressing the "previous" button: the start page is not the first page of survey. The first survey page is opened when a user clicks "start".
+
+To change the "start" button text, use [survey.startSurveyText](https://surveyjs.io/Documentation/Library/?id=surveymodel#startSurveyText) property.
 
 ```javascript
 survey.startSurveyText = "Click to start my Quiz";
 ```
 
-Talking about the "previous" button. You may want to make it invisible in your survey, so your user will not be able to comeback on the previous page(s). 
+### Previous Button
 
-In this case set **showPrevButton** property to false.
+Set the [survey.showPrevButton](https://surveyjs.io/Documentation/Library/?id=surveymodel#showPrevButton) property to `false` to make the "previous" button invisible in your survey, so your users will not be able to navigate back to a previous page.
 
 ```javascript
 survey.showPrevButton = false;
 ```
 
-You will definately need to explain what this quiz about, and for this purpose. We are suggesting to use our Html question. You may display any html, including video and audio. 
-You may ask your users to enter their names or/and e-mails. 
+### Quiz Explain Text
 
-You start page JSON may look like:
+To explain what the current quiz is about, we suggest you to use the [Html question](https://surveyjs.io/Documentation/Library/?id=questionhtmlmodel). In this question type, you can display any html, including video and audio. 
+
+You can also ask your users to enter their names or/and e-mails using a text question. 
+
+Your start page JSON may look like:
 
 ```json
 {
     elements: [
         {
             type: "html",
-            html: "You are about to start my quiz.  You will have to finish it in a short time. Please be ready to answer 10 questions in 2 minutes after clicking the start button."
+            html: "You are about to start my quiz. Please be ready to answer 10 questions in 2 minutes after clicking the start button."
         },
         {
             type: "text",
             name: "userName",
-            title: "Please enter your name:"
+            title: "Enter your name:"
         }
     ]
 }
 ```
 
-## Step 2. Show the results after finishing the quiz.
+## Step 2. Show the Results After Quiz Finish
 
-You may want to show the results immediately. In this case you have to compare the correct answers and your user answers.
-Every question in SurveyJS has a property **correctedAnswers**. If you use it for all questions, then you will be use a computed SurveyJS variables **correctedAnswers** and **inCorrectedAnswers**. On every request, it compares answers (question values) with the **correctedAnswers** property. 
+SurveyJS allows you to immediately display quiz results.
 
-For example, your survey **htmlCompleted** property, the html showing on finishing the quiz, may look like:
+Every question in SurveyJS exposes the [question.correctAnswer](https://surveyjs.io/Documentation/Library/?id=Question#correctAnswer) property. On every request, SurveyJS compares answers (question values) with the **correctAnswer** property. If you use this property for all questions, you can use the computed SurveyJS [survey.correctAnswers](https://surveyjs.io/Documentation/Library/?id=SurveyModel#correctAnswers) and [survey.inCorrectAnswers](https://surveyjs.io/Documentation/Library/?id=SurveyModel#inCorrectAnswers) properties to show calculated quiz results.
+
+The code sample below illustrates how you can use the [survey.completedHtml](https://surveyjs.io/Documentation/Library/?id=SurveyModel#completedHtml) property to display quiz results.
 
 ```json
-completedHtml: "You have answered correctly {correctedAnswers} questions from {questionCount}."
+completedHtml: "You have answered correctly {correctAnswers} questions from {questionCount}."
 ```
 
-The **questionCount** returns the number of visible questions in your quiz. 
+The **questionCount** property returns the number of visible questions in your quiz. 
 
-Of course, by using **onComplete** event, you may change **completedHtml** dynamically and show the given answers and correct answeres, for example.
+You can handle the **onComplete** event to change **completedHtml** dynamically and show, for example, the user's answers vs. correct answers.
 
-## Step 3. Setup a time limit.
+## Step 3. Set a Time Limit
 
-You may set the maximum time a user may spend on your quiz in total or on every page.
-Set survey **maxTimeToFinish** property to 60 (seconds), for example, to allow your users spending maximum one minute on your quiz. The default value is 0 and it means that there is no time limit. 
-You may set the survey **maxTimeToFinishPage** property, for example to 30, to limit your users on answering every page in 30 seconds in maximum. 
-Finally, every page has its own **maxTimeToFinish** property, that allows you to set the different time limit for a particular page. 
+SurveyJS provides the following time limit options:
+- Max time per page (for all survey's pages)
 
-The timer is start when a user press the "start" button on the starting page. You may handle it manually by calling **startTimer** and **stopTimer** functions.
+  Specified by the [survey.maxTimeToFinishPage](https://surveyjs.io/Documentation/Library/?id=surveymodel#maxTimeToFinishPage) property. 
+
+- Max time per each individual page
+
+  Specified by the [page.maxTimeToFinish](https://surveyjs.io/Documentation/Library/?id=pagemodel#maxTimeToFinish) property.
+
+- Max time per quiz 
+  
+  Specified by the [survey.maxTimeToFinish](https://surveyjs.io/Documentation/Library/?id=surveymodel#maxTimeToFinish) property.
+ 
+
+The default value is **0** and it means that there is no time limit. 
+
+### Timer
+
+The timer starts when a user presses the "start" button on the starting page. You can start and stop the timer when needed by calling the [survey.startTimer](https://surveyjs.io/Documentation/Library/?id=surveymodel) and [survey.stopTimer](https://surveyjs.io/Documentation/Library/?id=surveymodel#stopTimer) functions.
 
 ```javascript
 survey.startTimer();
 survey.stopTimer();
 ```
 
-There are additionally two important properties that you may find usefull: **showTimerPanel** and **showTimerPanelMode**. 
-
-You have to set survey **showTimerPanel** to "top" or "bottom" to show the timer panel.
+Set the [survey.showTimerPanel](https://surveyjs.io/Documentation/Library/?id=surveymodel#showTimerPanel) to "top" or "bottom" to show the timer panel.
 
 ```javascript
 survey.showTimerPanel = "top";
 ```
 
-To show information about time left for quiz in total, set **showTimerPanelMode** to "survey", and to show time left for the current page to "page". 
-The default value is "all", and a user may see information about left time in total and for the current page.
+To show information about time left, set the [survey.showTimerPanelMode](https://surveyjs.io/Documentation/Library/?id=surveymodel#showTimerPanelMode) property to:
 
-## Step 4. Integrate a quiz into your web application.
+ - `survey` - show time left for the current quiz in total;
+ - `page` - show time left for the current page;
+ - `all` (default) - show time left in total and for the current page.
 
-#### SurveyJS quiz is a typical survey
-SurveyJS quiz does not differs from any other survey. You may integrate it or use it on our service in the same way you would do for any other survey. 
-Please go to our [Getting Started Page](https://surveyjs.io/Documentation/Library/?id=Add-Survey-into-your-Web-Page) for more information. 
+## Step 4. Integrate a Quiz Into Your Web Application
 
-To see our quiz in action, please go to [this example](https://surveyjs.io/Examples/Library/?id=survey-quiz).
+SurveyJS quiz does not differ from any other survey. You may integrate it or use it on our service in the same way as for any other survey. Refer to the [Getting Started Page](https://surveyjs.io/Documentation/Library/?id=Add-Survey-into-your-Web-Page) for more information. 
+
+To see a quiz in action, try the [Quiz](https://surveyjs.io/Examples/Library/?id=survey-quiz) example.

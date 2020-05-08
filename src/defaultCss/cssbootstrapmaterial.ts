@@ -7,6 +7,11 @@ export var defaultBootstrapMaterialCss = {
   body: "panel-body",
   bodyEmpty: "panel-body sv_body_empty",
   footer: "panel-footer",
+  title: "",
+  description: "",
+  logo: "sv_logo",
+  logoImage: "sv_logo__image",
+  headerText: "sv_header__text",
   navigationButton: "",
   completedPage: "",
   navigation: {
@@ -21,7 +26,7 @@ export var defaultBootstrapMaterialCss = {
   page: {
     root: "",
     title: "",
-    description: ""
+    description: "small"
   },
   pageTitle: "",
   pageDescription: "small",
@@ -95,6 +100,7 @@ export var defaultBootstrapMaterialCss = {
     other: "sv_q_dd_other form-control"
   },
   html: { root: "" },
+  image: { root: "sv_q_image", image: "sv_image_image" },
   matrix: {
     root: "table sv_q_matrix",
     row: "form-group",
@@ -187,6 +193,11 @@ export var defaultBootstrapMaterialCss = {
     fileDecorator: "sv-hidden",
     fileSignBottom: "sv-hidden",
     removeButtonBottom: "sv-hidden"
+  },
+  signaturepad: {
+    root: "sv_q_signaturepad sjs_sp_container",
+    controls: "sjs_sp_controls",
+    clearButton: "sjs_sp_clear"
   },
   saveData: {
     root: "",

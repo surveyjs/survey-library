@@ -1,18 +1,11 @@
 import * as React from "react";
 import { SurveyModel } from "../survey";
 import { SurveyWindowModel } from "../surveyWindow";
-import { surveyCss } from "../defaultCss/cssstandard";
 
 export class ReactSurveyModel extends SurveyModel {
   renderCallback: () => void;
   constructor(jsonObj: any = null) {
     super(jsonObj);
-  }
-  get css() {
-    return surveyCss.getCss();
-  }
-  set css(value: any) {
-    this.mergeValues(value, this.css);
   }
   public render() {
     if (this.renderCallback) {
@@ -26,7 +19,7 @@ export class ReactSurveyModel extends SurveyModel {
     this.afterRenderSurvey(el);
   }
   protected onLoadSurveyFromService() {
-    if(!!this.currentPage) {
+    if (!!this.currentPage) {
       this.currentPage.setWasShown(false);
       this.currentPage.onFirstRendering();
     }
@@ -39,19 +32,25 @@ export class ReactSurveyModel extends SurveyModel {
     super.setCompletedState(value, text);
     this.render();
   }
-  public start() {
-    super.start();
+  public start(): boolean {
+    var res = super.start();
     this.render();
+    return res;
   }
 }
 
 export class ReactWindowModel extends SurveyWindowModel {
-  renderCallback: () => void;
   constructor(jsonObj: any = null, model: ReactSurveyModel = null) {
     super(jsonObj, model);
   }
   protected createSurvey(jsonObj: any): SurveyModel {
     return new ReactSurveyModel(jsonObj);
+  }
+  public get renderCallback(): () => void {
+    return this.survey.renderCallback;
+  }
+  public set renderCallback(val: () => void) {
+    this.survey.renderCallback = val;
   }
 }
 

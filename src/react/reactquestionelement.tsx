@@ -1,5 +1,5 @@
 import * as React from "react";
-import { ItemValue } from "../itemvalue";
+import { Helpers } from "../helpers";
 import { LocalizableString } from "../localizablestring";
 import { Question } from "../question";
 import { ISurveyCreator } from "./reactquestion";
@@ -19,7 +19,7 @@ export class SurveyLocString extends React.Component<any, any> {
   componentDidMount() {
     if (!this.locStr) return;
     var self = this;
-    this.locStr.onChanged = function() {
+    this.locStr.onChanged = function () {
       self.setState({ changed: self.state.changed + 1 });
     };
   }
@@ -36,21 +36,38 @@ export class SurveyLocString extends React.Component<any, any> {
 export class SurveyElementBase extends React.Component<any, any> {
   public static renderLocString(
     locStr: LocalizableString,
-    style: any = null
+    style: any = null,
+    key?: string
   ): JSX.Element {
-    return <SurveyLocString locStr={locStr} style={style} />;
+    return <SurveyLocString locStr={locStr} style={style} key={key} />;
   }
   constructor(props: any) {
     super(props);
   }
   componentDidMount() {
-    this.makeBaseElementReact();
+    this.makeBaseElementsReact();
   }
   componentWillUnmount() {
-    this.unMakeBaseElementReact();
+    this.unMakeBaseElementsReact();
   }
   componentDidUpdate(prevProps: any, prevState: any) {
-    this.makeBaseElementReact();
+    this.makeBaseElementsReact();
+  }
+  private makeBaseElementsReact() {
+    var els = this.getStateElements();
+    for (var i = 0; i < els.length; i++) {
+      this.makeBaseElementReact(els[i]);
+    }
+  }
+  private unMakeBaseElementsReact() {
+    var els = this.getStateElements();
+    for (var i = 0; i < els.length; i++) {
+      this.makeBaseElementReact(els[i]);
+    }
+  }
+  protected getStateElements(): Array<Base> {
+    var el = this.getStateElement();
+    return !!el ? [el] : [];
   }
   protected getStateElement(): Base {
     return null;
@@ -64,8 +81,7 @@ export class SurveyElementBase extends React.Component<any, any> {
   ): JSX.Element {
     return SurveyElementBase.renderLocString(locStr, style);
   }
-  protected makeBaseElementReact() {
-    var stateElement = this.getStateElement();
+  private makeBaseElementReact(stateElement: Base) {
     if (!stateElement) return;
     stateElement.iteratePropertiesHash((hash, key) => {
       var val: any = hash[key];
@@ -94,15 +110,14 @@ export class SurveyElementBase extends React.Component<any, any> {
       }
     };
   }
-  protected unMakeBaseElementReact() {
-    var stateElement = this.getStateElement();
+  private unMakeBaseElementReact(stateElement: Base) {
     if (!stateElement) return;
     stateElement.setPropertyValueCoreHandler = undefined;
     stateElement.iteratePropertiesHash((hash, key) => {
       var val: any = hash[key];
       if (Array.isArray(val)) {
         var val: any = val;
-        val["onArrayChanged"] = () => {};
+        val["onArrayChanged"] = () => { };
       }
     });
   }
@@ -118,8 +133,31 @@ export class ReactSurveyElement extends SurveyElementBase {
 }
 
 export class SurveyQuestionElementBase extends SurveyElementBase {
+  control: any;
   constructor(props: any) {
     super(props);
+  }
+  componentDidUpdate(prevProps: any, prevState: any) {
+    super.componentDidUpdate(prevProps, prevState);
+    this.updateDomElement();
+  }
+  componentDidMount() {
+    this.updateDomElement();
+  }
+  componentWillUnmount() {
+    super.componentWillUnmount();
+    if (!!this.questionBase) {
+      this.questionBase.beforeDestoyQuestionElement(this.control);
+    }
+  }
+  protected updateDomElement() {
+    var el = this.control;
+    if (!!el) {
+      if (el.getAttribute("data-rendered") !== "r") {
+        el.setAttribute("data-rendered", "r");
+        this.questionBase.afterRenderQuestionElement(el);
+      }
+    }
   }
   protected get questionBase(): Question {
     return this.props.question;
@@ -134,5 +172,30 @@ export class SurveyQuestionElementBase extends SurveyElementBase {
       !!this.questionBase.customWidget.widgetJson.isDefaultRender ||
       !!this.questionBase.customWidget.widgetJson.render
     );
+  }
+}
+
+export class SurveyQuestionUncontrolledElement<
+  T extends Question
+  > extends SurveyQuestionElementBase {
+  constructor(props: any) {
+    super(props);
+    this.updateValueOnEvent = this.updateValueOnEvent.bind(this);
+  }
+  protected get question(): T {
+    return this.questionBase as T;
+  }
+  updateValueOnEvent = (event: any) => {
+    this.questionBase.value = event.target.value;
+  };
+  protected updateDomElement() {
+    if (!!this.control) {
+      this.control.value = this.getValue(this.questionBase.value);
+    }
+    super.updateDomElement();
+  }
+  private getValue(val: any): any {
+    if (Helpers.isValueEmpty(val)) return "";
+    return val;
   }
 }

@@ -1,5 +1,5 @@
 <template>
-  <div style="clear:both;">
+  <div style="clear:both;" :class="this.cssClass">
     <div :class="question.cssClasses.progressContainer">
       <div :title="question.panelPrevText">
         <svg viewBox="0 0 10 10" :class="getButtonPrevCss(question)" @click="prevPanelClick">
@@ -42,6 +42,10 @@ import { QuestionRow } from "../knockout/kopage";
 export class PanelDynamicProgress extends Vue {
   @Prop question: QuestionPanelDynamicModel;
 
+  get cssClass() {
+    return this.question.isProgressTopShowing ? 
+          this.question.cssClasses.progressTop: this.question.cssClasses.progressBottom;
+  }
   get rangeMax() {
     return this.question.panelCount - 1;
   }

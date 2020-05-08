@@ -1,62 +1,43 @@
 import * as React from "react";
 import {
-  SurveyElementBase,
   ReactSurveyElement,
-  SurveyQuestionElementBase
+  SurveyQuestionUncontrolledElement
 } from "./reactquestionelement";
+import { Helpers } from "../helpers";
 import { QuestionCommentModel } from "../question_comment";
-import { Question } from "../question";
 import { ReactQuestionFactory } from "./reactquestionfactory";
 
-export class SurveyQuestionComment extends SurveyQuestionElementBase {
+export class SurveyQuestionComment extends SurveyQuestionUncontrolledElement<
+  QuestionCommentModel
+> {
   constructor(props: any) {
     super(props);
-    this.handleOnChange = this.handleOnChange.bind(this);
-    this.updateValueOnEvent = this.updateValueOnEvent.bind(this);
-  }
-  protected get question(): QuestionCommentModel {
-    return this.questionBase as QuestionCommentModel;
-  }
-  handleOnChange(event: any) {
-    this.setState({ value: event.target.value });
-  }
-  updateValueOnEvent(event: any) {
-    this.question.value = event.target.value;
-    this.setState({ value: this.getStateValue() });
   }
   render(): JSX.Element {
     if (!this.question) return null;
     var cssClasses = this.question.cssClasses;
-    var commentValue =
-      !!this.state && this.state.value !== undefined
-        ? this.state.value
-        : this.getStateValue();
     var onBlur = !this.question.isInputTextUpdate
       ? this.updateValueOnEvent
       : null;
     var onInput = this.question.isInputTextUpdate
       ? this.updateValueOnEvent
       : null;
-
+    var placeHolder = this.question.isReadOnly ? "" : this.question.placeHolder;
     return (
       <textarea
         id={this.question.inputId}
         className={cssClasses.root}
-        readOnly={this.isDisplayMode}
-        value={commentValue}
+        disabled={this.isDisplayMode}
+        ref={tetxarea => (this.control = tetxarea)}
         maxLength={this.question.getMaxLength()}
-        placeholder={this.question.placeHolder}
+        placeholder={placeHolder}
         onBlur={onBlur}
         onInput={onInput}
-        onChange={this.handleOnChange}
         cols={this.question.cols}
         rows={this.question.rows}
         aria-label={this.question.locTitle.renderedHtml}
       />
     );
-  }
-  private getStateValue(): any {
-    return !this.question.isEmpty() ? this.question.value : "";
   }
 }
 
@@ -82,7 +63,6 @@ export class SurveyQuestionCommentItem extends ReactSurveyElement {
       <textarea
         className={className}
         value={comment}
-        readOnly={this.isDisplayMode}
         disabled={this.isDisplayMode}
         maxLength={question.getOthersMaxLength()}
         placeholder={question.otherPlaceHolder}

@@ -14,9 +14,7 @@ export { defaultStandardCss } from "../defaultCss/cssstandard";
 // css bootstrap
 export { defaultBootstrapCss } from "../defaultCss/cssbootstrap";
 // css bootstrap + material
-export {
-  defaultBootstrapMaterialCss
-} from "../defaultCss/cssbootstrapmaterial";
+export { defaultBootstrapMaterialCss } from "../defaultCss/cssbootstrapmaterial";
 export { modernCss } from "../defaultCss/cssmodern";
 
 import { Survey, SurveyWindow } from "./knockout";
@@ -38,24 +36,22 @@ export class ReactSurveyModel extends Survey {
   }
 }
 
-import { updateSurveyProps } from "../utils/updateSurveyProps";
-
 export class SurveyNG {
   public static render(elementId: string | Element, props: any) {
     var element: Element =
       typeof elementId === "string"
         ? document.getElementById(elementId)
         : elementId;
-    var model = props.model;
-    updateSurveyProps(model, props);
+    var model: Survey = props.model;
+    model.updateSurvey(props);
     model.render(element);
   }
 }
 
 export class SurveyWindowNG {
   public static render(elementId: string | Element, props: any) {
-    var model = props.model;
-    updateSurveyProps(model, props);
+    var model: Survey = props.model;
+    model.updateSurvey(props);
     var survey = new SurveyWindow(null, model);
     if (props.expanded !== undefined) {
       survey.isExpanded = props.expanded;

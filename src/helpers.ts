@@ -67,16 +67,30 @@ export class Helpers {
       return true;
     if (Array.isArray(y) && y.length === 0 && typeof x === "undefined")
       return true;
-    if ((x === undefined || x === null) && y === "undefined") return true;
-    if ((y === undefined || y === null) && x === "undefined") return true;
+    if ((x === undefined || x === null) && (y === "undefined" || y === ""))
+      return true;
+    if ((y === undefined || y === null) && (x === "undefined" || x === ""))
+      return true;
 
-    if(Helpers.isConvertibleToNumber(x) && Helpers.isConvertibleToNumber(y)) {
-      if(parseInt(x) === parseInt(y) && parseFloat(x) === parseFloat(y)) {
+    if (typeof x === "string" && typeof y == "string") return x == y;
+
+    if (Helpers.isConvertibleToNumber(x) && Helpers.isConvertibleToNumber(y)) {
+      if (parseInt(x) === parseInt(y) && parseFloat(x) === parseFloat(y)) {
         return true;
       }
     }
 
-    if ((x && !y) || (!x && y)) return false;
+    if (
+      (!Helpers.isValueEmpty(x) && Helpers.isValueEmpty(y)) ||
+      (Helpers.isValueEmpty(x) && !Helpers.isValueEmpty(y))
+    )
+      return false;
+    if ((x === true || x === false) && typeof y == "string") {
+      return x.toString() === y.toLocaleLowerCase();
+    }
+    if ((y === true || y === false) && typeof x == "string") {
+      return y.toString() === x.toLocaleLowerCase();
+    }
     if (!(x instanceof Object) && !(y instanceof Object)) return x == y;
     if (!(x instanceof Object) || !(y instanceof Object)) return false;
     if (x["equals"]) return x.equals(y);
@@ -115,8 +129,21 @@ export class Helpers {
     }
     return value;
   }
+  public static createCopy(obj: any) {
+    var res: any = {};
+    if (!obj) return res;
+    for (var key in obj) {
+      res[key] = obj[key];
+    }
+    return res;
+  }
   public static isConvertibleToNumber(value: any): boolean {
-    return value !== undefined && value !== null && !Array.isArray(value) && !isNaN(value);
+    return (
+      value !== undefined &&
+      value !== null &&
+      !Array.isArray(value) &&
+      !isNaN(value)
+    );
   }
   public static isNumber(value: any): boolean {
     if (
@@ -134,11 +161,65 @@ export class Helpers {
     }
     return maxLength > 0 ? maxLength : null;
   }
+  public static getNumberByIndex(index: number, startIndexStr: string): string {
+    if (index < 0) return "";
+    var startIndex = 1;
+    var prefix = "";
+    var postfix = ".";
+    var isNumeric = true;
+    var str = "";
+    if (!!startIndexStr) {
+      str = startIndexStr;
+      var ind = str.length - 1;
+      var hasDigit = false;
+      for (var i = 0; i < str.length; i++) {
+        if (Helpers.isCharDigit(str[i])) {
+          hasDigit = true;
+          break;
+        }
+      }
+      var checkLetter = function () {
+        return (
+          (hasDigit && !Helpers.isCharDigit(str[ind])) ||
+          Helpers.isCharNotLetterAndDigit(str[ind])
+        );
+      };
+      while (ind >= 0 && checkLetter()) ind--;
+      var newPostfix = "";
+      if (ind < str.length - 1) {
+        newPostfix = str.substr(ind + 1);
+        str = str.substr(0, ind + 1);
+      }
+      if (!!str) {
+        var ind = 0;
+        while (ind < str.length && checkLetter()) ind++;
+        if (ind > 0) {
+          prefix = str.substr(0, ind);
+          str = str.substr(ind);
+        }
+      }
+      if (!!newPostfix || !!prefix) {
+        postfix = newPostfix;
+      }
+      if (!!str) {
+        if (parseInt(str)) startIndex = parseInt(str);
+        else if (str.length == 1) isNumeric = false;
+      }
+    }
+    if (isNumeric) return prefix + (index + startIndex).toString() + postfix;
+    return prefix + String.fromCharCode(str.charCodeAt(0) + index) + postfix;
+  }
+  public static isCharNotLetterAndDigit(ch: string): boolean {
+    return ch.toUpperCase() == ch.toLowerCase() && !Helpers.isCharDigit(ch);
+  }
+  public static isCharDigit(ch: string): boolean {
+    return ch >= "0" && ch <= "9";
+  }
 }
 if (!(<any>String.prototype)["format"]) {
-  (<any>String.prototype)["format"] = function() {
+  (<any>String.prototype)["format"] = function () {
     var args = arguments;
-    return this.replace(/{(\d+)}/g, function(match: any, number: any) {
+    return this.replace(/{(\d+)}/g, function (match: any, number: any) {
       return typeof args[number] != "undefined" ? args[number] : match;
     });
   };

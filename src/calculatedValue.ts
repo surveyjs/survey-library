@@ -65,19 +65,21 @@ export class CalculatedValue extends Base {
   public unlocCalculation() {
     this.expressionIsRunning = false;
   }
+  private isCalculated = false;
+  public resetCalculation() {
+    this.isCalculated = false;
+  }
+  public doCalculation(
+    calculatedValues: Array<CalculatedValue>,
+    values: HashTable<any>,
+    properties: HashTable<any>
+  ) {
+    if (this.isCalculated) return;
+    this.runExpressionCore(calculatedValues, values, properties);
+    this.isCalculated = true;
+  }
   public runExpression(values: HashTable<any>, properties: HashTable<any>) {
-    if (!this.canRunExpression) return;
-    this.locCalculation();
-    if (!this.expressionRunner) {
-      this.expressionRunner = new ExpressionRunner(this.expression);
-    }
-    this.expressionRunner.onRunComplete = newValue => {
-      if (!Helpers.isTwoValueEquals(newValue, this.value)) {
-        this.setValue(newValue);
-      }
-      this.unlocCalculation();
-    };
-    this.expressionRunner.run(values, properties);
+    this.runExpressionCore(null, values, properties);
   }
   public get value(): any {
     if (!this.data) return undefined;
@@ -102,6 +104,43 @@ export class CalculatedValue extends Base {
       this.data.getFilteredValues(),
       this.data.getFilteredProperties()
     );
+  }
+  private runExpressionCore(
+    calculatedValues: Array<CalculatedValue>,
+    values: HashTable<any>,
+    properties: HashTable<any>
+  ) {
+    if (!this.canRunExpression) return;
+    this.ensureExpression(values);
+    this.locCalculation();
+    if (!!calculatedValues) {
+      this.runDependentExpressions(calculatedValues, values, properties);
+    }
+    this.expressionRunner.run(values, properties);
+  }
+  private runDependentExpressions(
+    calculatedValues: Array<CalculatedValue>,
+    values: HashTable<any>,
+    properties: HashTable<any>
+  ) {
+    var variables = this.expressionRunner.getVariables();
+    if (!variables) return;
+    for (var i = 0; i < calculatedValues.length; i++) {
+      var calcItem = calculatedValues[i];
+      if (calcItem === this || variables.indexOf(calcItem.name) < 0) continue;
+      calcItem.doCalculation(calculatedValues, values, properties);
+      values[calcItem.name] = calcItem.value;
+    }
+  }
+  private ensureExpression(values: HashTable<any>) {
+    if (!!this.expressionRunner) return;
+    this.expressionRunner = new ExpressionRunner(this.expression);
+    this.expressionRunner.onRunComplete = newValue => {
+      if (!Helpers.isTwoValueEquals(newValue, this.value)) {
+        this.setValue(newValue);
+      }
+      this.unlocCalculation();
+    };
   }
 }
 

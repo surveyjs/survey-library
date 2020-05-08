@@ -19,30 +19,22 @@ export class MultipleTextItem extends MultipleTextItemModel {
   }
 }
 
-export class QuestionMultipleTextImplementor extends QuestionImplementor {
-  koRows: any;
-  constructor(question: Question) {
-    super(question);
-    this.koRows = ko.observableArray(
-      (<QuestionMultipleTextModel>this.question).getRows()
-    );
-    (<any>this.question)["koRows"] = this.koRows;
-    this.onColCountChanged();
-    var self = this;
-    (<QuestionMultipleTextModel>this
-      .question).colCountChangedCallback = function() {
-      self.onColCountChanged();
-    };
-  }
-  protected onColCountChanged() {
-    this.koRows((<QuestionMultipleTextModel>this.question).getRows());
-  }
-}
-
 export class QuestionMultipleText extends QuestionMultipleTextModel {
+  koRows: any;
   constructor(public name: string) {
     super(name);
-    new QuestionMultipleTextImplementor(this);
+    this.koRows = ko.observableArray(this.getRows());
+    this.colCountChangedCallback = () => {
+      this.onColCountChanged();
+    };
+    this.onColCountChanged();
+  }
+  protected onBaseCreating() {
+    super.onBaseCreating();
+    new QuestionImplementor(this);
+  }
+  protected onColCountChanged() {
+    this.koRows(this.getRows());
   }
   protected createTextItem(name: string, title: string): MultipleTextItemModel {
     return new MultipleTextItem(name, title);

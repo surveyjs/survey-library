@@ -1,15 +1,27 @@
  <template>
   <div :class="getHeaderClass(element)">
-    <h5 v-if="element.hasTitle" :class="getTitleClass(element)">
+    <h5
+      v-if="element.hasTitle"
+      :class="getTitleClass(element)"
+      v-bind:aria-label="element.locTitle.renderedHtml"
+      v-bind:id="element.ariaTitleId"
+    >
+      <span
+        v-if="element.isRequireTextOnStart"
+        :class="element.cssClasses.requiredText"
+      >{{element.requiredText}}</span>
       <span
         v-if="element.no"
         style="position: static;"
         :class="element.cssClasses.number"
       >{{element.no}}</span>
-      <span v-if="element.no" style="position: static;">.&nbsp</span>
+      <span
+        v-if="element.isRequireTextBeforeTitle"
+        :class="element.cssClasses.requiredText"
+      >{{element.requiredText}}</span>
       <survey-string :locString="element.locTitle" />
       <span
-        v-if="!element.getQuestionTitleTemplate()"
+        v-if="element.isRequireTextAfterTitle"
         :class="element.cssClasses.requiredText"
       >{{element.requiredText}}</span>
     </h5>
@@ -31,27 +43,10 @@ export class ElementHeader extends Vue {
   @Prop element: IElement;
 
   getTitleClass(element: Question) {
-    var cssClasses = element.cssClasses;
-    var titleClass = cssClasses.title;
-    if (element.containsErrors) {
-      titleClass += " " + cssClasses.titleOnError;
-    } else if (element.isAnswered) {
-      titleClass += " " + cssClasses.titleOnAnswer;
-    }
-    return titleClass;
+    return element.cssTitle;
   }
   getHeaderClass(element: Question) {
-    var headerClass = element.cssClasses.header;
-    if (element.hasTitleOnTop) {
-      headerClass += " " + element.cssClasses.headerTop;
-    }
-    if (element.hasTitleOnLeft) {
-      headerClass += " " + element.cssClasses.headerLeft;
-    }
-    if (element.hasTitleOnBottom) {
-      headerClass += " " + element.cssClasses.headerBottom;
-    }
-    return headerClass;
+    return element.cssHeader;
   }
 }
 Vue.component("survey-element-header", ElementHeader);

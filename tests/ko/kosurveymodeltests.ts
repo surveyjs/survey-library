@@ -57,7 +57,12 @@ QUnit.test("Deserialize rate widget, custom rateValues", function(assert) {
 QUnit.test("Create rows", function(assert) {
   var survey = new Survey();
   new JsonObject().toObject(
-    { questions: [{ type: "text", name: "q1" }, { type: "text", name: "q2" }] },
+    {
+      questions: [
+        { type: "text", name: "q1" },
+        { type: "text", name: "q2" }
+      ]
+    },
     survey
   );
   var page = <Page>survey.currentPage;
@@ -149,5 +154,68 @@ QUnit.test(
     q.value = [1, "none"];
     assert.deepEqual(q.value, ["none"], "we keep only none");
     assert.deepEqual(q.koValue(), ["none"], "ko values keeps none");
+  }
+);
+QUnit.test(
+  "Do not change currentPage on calculating expressions, Bug T3455",
+  function(assert) {
+    var survey = new Survey({
+      pages: [
+        {
+          name: "page1",
+          elements: [
+            {
+              type: "html",
+              name: "question5",
+              html: "Page 1"
+            },
+            {
+              type: "radiogroup",
+              name: "question1",
+              title: "What do you want to do?",
+              choices: [
+                {
+                  value: "item1",
+                  text: "Goto Page 3"
+                },
+                {
+                  value: "item2",
+                  text: "Goto Page 2 (Hide Page 1)"
+                }
+              ]
+            }
+          ],
+          visibleIf: "{question1} <> 'item2'"
+        },
+        {
+          name: "page2",
+          elements: [
+            {
+              type: "html",
+              name: "question2",
+              html: "Page 2"
+            }
+          ],
+          visibleIf: "{question1} = 'item2'"
+        },
+        {
+          name: "page3",
+          elements: [
+            {
+              type: "html",
+              name: "question3",
+              html: "Page 3"
+            }
+          ]
+        }
+      ]
+    });
+    assert.equal(survey.currentPage.name, "page1", "The first page is showing");
+    survey.getQuestionByName("question1").value = "item2";
+    assert.equal(
+      survey.currentPage.name,
+      "page2",
+      "Show the second page and make it current"
+    );
   }
 );

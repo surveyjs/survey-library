@@ -575,3 +575,63 @@ QUnit.test("Do not deseriabled default comment text - 'Other text:'", function(
     "in questions we should have only type and name"
   );
 });
+
+QUnit.test("Test fromJSON/clone/ensureUniqueNames functionalities", function(
+  assert
+) {
+  var survey = new SurveyModel();
+  var page = survey.addNewPage("page1");
+  page.title = "Test title";
+  page.addNewQuestion("dropdown", "q1");
+  page.fromJSON({
+    elements: [
+      { type: "text", name: "q11" },
+      { type: "comment", name: "q22" }
+    ]
+  });
+  assert.equal(page.questions.length, 2, "There are two questions");
+  assert.equal(page.questions[0].name, "q11", "The fist question is q11");
+  assert.equal(
+    page.questions[0].getType(),
+    "text",
+    "The fist question type is text"
+  );
+  assert.equal(page.title, "Test title", "Reset the title");
+  var clonePage = <PageModel>page.clone();
+  assert.equal(clonePage.name, "page1", "Clone page: name");
+  assert.equal(clonePage.title, "Test title", "Clone page: title");
+  assert.equal(
+    clonePage.questions.length,
+    2,
+    "Clone page: There are two questions"
+  );
+  assert.equal(
+    clonePage.questions[0].name,
+    "q11",
+    "Clone page: The fist question is q11"
+  );
+  assert.equal(
+    clonePage.questions[0].getType(),
+    "text",
+    "Clone page: The fist question type is text"
+  );
+  survey.ensureUniqueNames(clonePage);
+  assert.equal(clonePage.name, "page2", "Clone page - unique: name");
+  assert.equal(
+    clonePage.questions[0].name,
+    "q12",
+    "Clone page - unique: The fist question is q12"
+  );
+  assert.equal(
+    clonePage.questions[1].name,
+    "q23",
+    "Clone page - unique: The fist question is q23"
+  );
+
+  var clonePage2 = <PageModel>page.clone();
+  survey.addPage(clonePage2);
+  survey.ensureUniqueNames();
+  assert.ok(survey.getPageByName("page2"), "Renamed page1->page2");
+  assert.ok(survey.getQuestionByName("q12"), "Renamed q11->q12");
+  assert.ok(survey.getQuestionByName("q23"), "Renamed q22->q23");
+});

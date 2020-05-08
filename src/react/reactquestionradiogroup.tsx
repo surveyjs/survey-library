@@ -33,7 +33,10 @@ export class SurveyQuestionRadiogroup extends SurveyQuestionElementBase {
       );
     }
     return (
-      <fieldset className={cssClasses.root}>
+      <fieldset
+        className={cssClasses.root}
+        ref={fieldset => (this.control = fieldset)}
+      >
         <legend aria-label={this.question.locTitle.renderedHtml} />
         {this.question.hasColumns
           ? this.getColumns(cssClasses)
@@ -46,7 +49,7 @@ export class SurveyQuestionRadiogroup extends SurveyQuestionElementBase {
     var value = this.getStateValue();
     return this.question.columns.map((column: any, ci: number) => {
       var items = column.map((item: any, ii: number) =>
-        this.renderItem(item, value, cssClasses, '' + ci + ii)
+        this.renderItem(item, value, cssClasses, "" + ci + ii)
       );
       return (
         <div key={"column" + ci} className={this.question.getColumnClass()}>
@@ -60,7 +63,7 @@ export class SurveyQuestionRadiogroup extends SurveyQuestionElementBase {
     var value = this.getStateValue();
     for (var i = 0; i < this.question.visibleChoices.length; i++) {
       var item = this.question.visibleChoices[i];
-      items.push(this.renderItem(item, value, cssClasses, '' + i));
+      items.push(this.renderItem(item, value, cssClasses, "" + i));
     }
     return items;
   }
@@ -119,6 +122,9 @@ export class SurveyQuestionRadioItem extends ReactSurveyElement {
   protected get isDisabled(): boolean {
     return this.props.isDisabled;
   }
+  private get hideCaption(): boolean {
+    return this.props.hideCaption === true;
+  }
   public shouldComponentUpdate(): boolean {
     return (
       !this.question.customWidget ||
@@ -152,8 +158,9 @@ export class SurveyQuestionRadioItem extends ReactSurveyElement {
         : null;
 
     var id = this.question.inputId + "_" + this.index;
-    var itemText = this.renderLocString(this.item.locText, this.textStyle);
-
+    var itemText = !this.hideCaption
+      ? this.renderLocString(this.item.locText, this.textStyle)
+      : "";
     var itemClass = this.getItemClass(this.isChecked, this.isDisabled);
     var labelClass = this.question.getLabelClass(this.isChecked);
     var locText: any = this.item.locText;
@@ -173,6 +180,7 @@ export class SurveyQuestionRadioItem extends ReactSurveyElement {
             onChange={this.handleOnChange}
             aria-required={this.question.isRequired}
             aria-label={locText.renderedHtml}
+            role="radio"
           />
           <span className={this.cssClasses.materialDecorator}>
             <svg
@@ -183,10 +191,7 @@ export class SurveyQuestionRadioItem extends ReactSurveyElement {
             </svg>
           </span>
           <span className="check" />
-          <span
-            className={controlLabelClass}
-            title={locText["koRenderedHtml"]}
-          >
+          <span className={controlLabelClass} title={locText["koRenderedHtml"]}>
             {itemText}
           </span>
         </label>

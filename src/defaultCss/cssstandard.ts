@@ -14,6 +14,11 @@ export var defaultStandardCss = {
   body: "sv_body",
   bodyEmpty: "sv_body sv_body_empty",
   footer: "sv_nav",
+  title: "",
+  description: "",
+  logo: "sv_logo",
+  logoImage: "sv_logo__image",
+  headerText: "sv_header__text",
   navigationButton: "",
   completedPage: "sv_completed_page",
   navigation: {
@@ -27,7 +32,7 @@ export var defaultStandardCss = {
   progressTextInBar: "sv-hidden",
   page: {
     root: "sv_p_root",
-    title: "",
+    title: "sv_page_title",
     description: ""
   },
   // TODO: move to the page object
@@ -104,6 +109,7 @@ export var defaultStandardCss = {
     other: "sv_q_dd_other"
   },
   html: { root: "" },
+  image: { root: "sv_q_image", image: "sv_image_image" },
   matrix: {
     root: "sv_q_matrix",
     label: "sv_q_m_label",
@@ -180,15 +186,22 @@ export var defaultStandardCss = {
   expression: "",
   file: {
     root: "sv_q_file",
-    placeholderInput: "sv_q_file_placeholder",
+    placeholderInput: "sv-visuallyhidden",
     preview: "sv_q_file_preview",
     removeButton: "sv_q_file_remove_button",
-    fileInput: "sv_q_file_input",
+    fileInput: "sv-visuallyhidden",
     removeFile: "sv_q_file_remove",
     removeFileSvg: "sv-hidden",
-    fileDecorator: "sv-hidden",
+    fileDecorator: "sv-file__decorator",
     fileSignBottom: "sv-hidden",
-    removeButtonBottom: "sv-hidden"
+    removeButtonBottom: "sv-hidden",
+    chooseFile: "sv_q_file_choose_button",
+    noFileChosen: "sv_q_file_placeholder"
+  },
+  signaturepad: {
+    root: "sv_q_signaturepad sjs_sp_container",
+    controls: "sjs_sp_controls",
+    clearButton: "sjs_sp_clear"
   },
   saveData: {
     root: "",

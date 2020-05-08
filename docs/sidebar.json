@@ -13,10 +13,6 @@
       "Title": "Create a quiz"
     },
     {
-      "Name": "Pdf-Export",
-      "Title": "PDF Export"
-    },
-    {
       "Name": "api",
       "Title": "Survey API",
       "Items": [

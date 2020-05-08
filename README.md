@@ -2,7 +2,8 @@
 
 **SurveyJS** is a modern way to add surveys and forms to your website. It has versions for angular2+, jQuery, knockout, react and vue.
 
-[![Build Status](https://travis-ci.org/surveyjs/survey-library.svg?branch=master)](https://travis-ci.org/surveyjs/survey-library) [![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat)](LICENSE)
+[![Build Status](https://dev.azure.com/SurveyJS/SurveyJS%20Integration%20Tests/_apis/build/status/SurveyJS%20Library?branchName=master)](https://dev.azure.com/SurveyJS/SurveyJS%20Integration%20Tests/_build/latest?definitionId=7&branchName=master)
+[![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat)](LICENSE)
 <a href="https://github.com/DevExpress/testcafe">
 <img alt="Tested with TestCafe" src="https://img.shields.io/badge/tested%20with-TestCafe-2fa4cf.svg">
 </a>
@@ -15,21 +16,21 @@
 
 ## Documentation
 
-[SurveyJS Library Documentation](https://surveyjs.io/Documentation/Library/)
+[SurveyJS Library Documentation](https://surveyjs.io/Documentation/Library)
 
 ## Live Examples
 
-[SurveyJS Library Live Examples](https://surveyjs.io/Examples/Library/)
+[SurveyJS Library Live Examples](https://surveyjs.io/Examples/Library)
 
 ## Survey Creator / Form Builder
 
-[Create your Survey or Form now](https://surveyjs.io/create-survey/)
+[Create your Survey or Form now](https://surveyjs.io/create-survey)
 
 Survey Creator sources are [here](https://github.com/surveyjs/survey-creator)
 
 ## Export Survey to PDF
 
-[Export to pdf overview](https://surveyjs.io/Overview/Survey-Pdf-Export/)
+[Export to pdf overview](https://surveyjs.io/Overview/Survey-Pdf-Export)
 
 Export to PDF sources are [here](https://github.com/surveyjs/survey-pdf)
 

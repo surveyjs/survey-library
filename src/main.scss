@@ -4,60 +4,12 @@
   background-position: center;
 }
 
-.sv_window {
-  position: fixed;
-  bottom: 3px;
-  right: 10px;
-  background-color: cadetblue;
-  padding: 1px;
-  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-  font-size: 14px;
-  font-style: normal;
-  font-weight: 400;
-  line-height: 1.42857143;
-  text-align: left;
-  text-align: start;
-  text-decoration: none;
-  text-shadow: none;
-  text-transform: none;
-  letter-spacing: normal;
-  word-break: normal;
-  word-spacing: normal;
-  word-wrap: normal;
-  white-space: normal;
-  background-color: #fff;
-  -webkit-background-clip: padding-box;
-  background-clip: padding-box;
-  border: 1px solid #ccc;
-  border: 1px solid rgba(0, 0, 0, 0.2);
-  border-radius: 6px;
-  -webkit-box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
-  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
-  line-break: auto;
-}
-.sv_window_title {
-  padding: 8px 14px;
-  margin: 0;
-  font-size: 14px;
-  background-color: #f7f7f7;
-  border-bottom: 1px solid #ebebeb;
-  border-radius: 5px 5px 0 0;
-}
-.sv_window_content {
-  padding: 8px;
-  margin: 0;
-}
-.sv_window_title a,
-.sv_window_title a:link,
-.sv_window_title a:visited {
-  text-decoration: none;
-  font-size: 14px;
-  font-style: normal;
-  color: black;
-}
+@import "./window.scss";
 
 $header-background-color: #e7e7e7;
 $body-container-background-color: #f4f4f4;
+
+$font-family: "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif;
 
 $main-color: #1ab394;
 $main-hover-color: darken($main-color, 5%);
@@ -235,8 +187,7 @@ $label-disabled-color: rgba(64, 64, 64, 0.5);
   position: relative;
   width: 100%;
   //background-color: $body-container-background-color;
-  font-family: "Segoe UI", Frutiger, "Frutiger Linotype", "Dejavu Sans",
-    "Helvetica Neue", Arial, sans-serif;
+  font-family: $font-family, "Helvetica Neue", Arial, sans-serif;
   font-size: $font-size;
 
   hr {
@@ -664,7 +615,46 @@ $label-disabled-color: rgba(64, 64, 64, 0.5);
       }
     }
   }
+
+  .sv_q_image {
+    display: inline-block;
+  }
 }
 
 @import "./main.rtl.scss";
 @import "./main.m600.scss";
+
+.sv_main {
+  .sv_qstn .sv_q_file {
+    .sv-visuallyhidden {
+      position: absolute !important;
+      opacity: 0;
+    }
+    .sv_q_file_choose_button {
+      display: inline-block;
+      box-sizing: border-box;
+      min-width: 100px;
+      line-height: 2em;
+      padding: 0.25em 2em;
+      font-size: 0.85em;
+      font-weight: bold;
+      border: none;
+      border-radius: 2px;
+      cursor: pointer;
+    }
+    .sv_q_file_remove_button {
+      padding: 0.25em 2em;
+    }
+    .sv-file__decorator {
+      display: inline-block;
+      min-width: 250px;
+
+      .sv_q_file_placeholder {
+        margin-left: 1em;
+        display: inline-block;
+      }
+    }
+  }
+}
+
+@import "./signaturepad.scss";

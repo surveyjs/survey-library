@@ -13,9 +13,7 @@ export { defaultStandardCss } from "../defaultCss/cssstandard";
 // css bootstrap
 export { defaultBootstrapCss } from "../defaultCss/cssbootstrap";
 // css bootstrap + material
-export {
-  defaultBootstrapMaterialCss
-} from "../defaultCss/cssbootstrapmaterial";
+export { defaultBootstrapMaterialCss } from "../defaultCss/cssbootstrapmaterial";
 export { modernCss } from "../defaultCss/cssmodern";
 
 import { VueSurveyModel } from "../vue/surveyModel";
@@ -51,6 +49,7 @@ export { Html } from "../vue/html.vue";
 export { Expression } from "../vue/expression.vue";
 export { ImagePicker } from "../vue/imagepicker.vue";
 export { PanelDynamic } from "../vue/paneldynamic.vue";
+export { PanelDynamicRemove } from "../vue/paneldynamicremove.vue";
 export { PanelDynamicProgress } from "../vue/paneldynamicprogress.vue";
 export { Progress } from "../vue/progress.vue";
 export { TimerPanel } from "../vue/timerpanel.vue";
@@ -59,3 +58,8 @@ export { FlowPanel } from "../vue/flowpanel.vue";
 export { FlowPanelElement } from "../vue/flowpanelelement.vue";
 export { Row } from "../vue/row.vue";
 export { ElementHeader } from "../vue/elementheader.vue";
+export { Image } from "../vue/image.vue";
+export { SignaturePad } from "../vue/signaturepad.vue";
+export { SurveyHeader } from "../vue/header.vue";
+export { Custom } from "../vue/custom.vue";
+export { Composite } from "../vue/composite.vue";

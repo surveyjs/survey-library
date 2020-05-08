@@ -1,32 +1,26 @@
 .sv-question {
   overflow: auto;
   box-sizing: border-box;
-  font-family: "Segoe UI";
+  font-family: inherit;
 }
 .sv-question__title {
   position: relative;
-  overflow: hidden;
   box-sizing: border-box;
-  height: 1.75em;
   margin: 0;
   padding: 0.25em 0.44em;
   cursor: default;
-  white-space: nowrap;
-  text-overflow: ellipsis;
   font-size: 1.25em;
+  word-break: break-word;
 }
 .sv-question__required-text {
-  position: absolute;
-  top: 0;
+  line-height: 0.8em;
   font-size: 1.4em;
 }
 .sv-question__description {
-  overflow: hidden;
   margin: 0;
   padding-left: 0.55em;
-  white-space: nowrap;
-  text-overflow: ellipsis;
   font-size: 1em;
+  word-break: break-word;
 }
 .sv-question__input {
   width: 100%;
@@ -63,7 +57,8 @@
   width: 27%;
   margin-right: 0.875em;
 }
-[dir="rtl"], [style*="direction:rtl"] {
+[dir="rtl"],
+[style*="direction:rtl"] {
   .sv-question__header--location--left {
     float: right;
   }
@@ -79,4 +74,12 @@
 }
 .sv-question__form-group {
   margin-top: 0.5em;
+}
+.sv-question--disabled {
+  .sv-question__header {
+    color: $disabled-text-color;
+  }
+}
+.sv-image {
+  display: inline-block;
 }

@@ -2,7 +2,7 @@
   <div class="form-group">
     <textarea
       :readonly="question.isReadOnly"
-      :disabled="question.isReadOnly"  
+      :disabled="question.isReadOnly"
       :class="question.cssClasses.other || commentClass"
       :value="question.comment"
       :maxlength="question.getOthersMaxLength()"
@@ -11,13 +11,12 @@
       @change="change"
       @keyup="keyup"
     />
-   </div>
+  </div>
 </template>
 
 <script lang="ts">
 import Vue from "vue";
 import { Component, Prop } from "vue-property-decorator";
-import { surveyCss } from "../defaultCss/cssstandard";
 import { Question } from "../question";
 
 @Component

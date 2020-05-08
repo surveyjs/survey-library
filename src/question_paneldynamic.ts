@@ -11,7 +11,7 @@ import {
   ITextProcessor
 } from "./base";
 import { surveyLocalization } from "./surveyStrings";
-import { ILocalizableOwner, LocalizableString } from "./localizablestring";
+import { LocalizableString } from "./localizablestring";
 import { TextPreProcessor, TextPreProcessorValue } from "./textPreProcessor";
 import { ProcessValue } from "./conditionProcessValue";
 import { Question, IConditionObject } from "./question";
@@ -106,9 +106,10 @@ export class QuestionPanelDynamicItem
   //ITextProcessor
   private getProcessedTextValue(textValue: TextPreProcessorValue) {
     if (!textValue) return;
+    var panelIndex = !!this.data ? this.data.getItemIndex(this) : -1;
     if (textValue.name == QuestionPanelDynamicItem.IndexVariableName) {
       textValue.isExists = true;
-      textValue.value = this.data.getItemIndex(this) + 1;
+      textValue.value = panelIndex + 1;
       return;
     }
     var firstName = new ProcessValue().getFirstName(textValue.name);
@@ -122,11 +123,8 @@ export class QuestionPanelDynamicItem
     );
     var firstName = new ProcessValue().getFirstName(textValue.name);
     var question = <Question>this.panel.getQuestionByValueName(firstName);
-    if (!question && !!this.data) {
-      question = this.data.getSharedQuestionFromArray(
-        firstName,
-        this.data.getItemIndex(this)
-      );
+    if (!question && panelIndex > -1) {
+      question = this.data.getSharedQuestionFromArray(firstName, panelIndex);
     }
     var values = {};
     if (question) {
@@ -251,6 +249,14 @@ export class QuestionPanelDynamicModel extends Question
   }
   public getType(): string {
     return "paneldynamic";
+  }
+  public get isCompositeQuestion(): boolean {
+    return true;
+  }
+  public clearOnDeletingContainer() {
+    this.panels.forEach(panel => {
+      panel.clearOnDeletingContainer();
+    });
   }
   public get isAllowTitleLeft(): boolean {
     return false;
@@ -986,13 +992,16 @@ export class QuestionPanelDynamicModel extends Question
   public removePanel(value: any) {
     var index = this.getPanelIndex(value);
     if (index < 0 || index >= this.panelCount) return;
+    var panel = this.panels[index];
     this.panels.splice(index, 1);
     var value = this.value;
     if (!value || !Array.isArray(value) || index >= value.length) return;
+    this.isValueChangingInternally = true;
     value.splice(index, 1);
     this.value = value;
     this.fireCallback(this.panelCountChangedCallback);
-    if (this.survey) this.survey.dynamicPanelRemoved(this, index);
+    if (this.survey) this.survey.dynamicPanelRemoved(this, index, panel);
+    this.isValueChangingInternally = false;
   }
   private getPanelIndex(val: any): number {
     if (Helpers.isNumber(val)) return val;
@@ -1059,17 +1068,6 @@ export class QuestionPanelDynamicModel extends Question
         )
       : null;
   }
-  public addConditionNames(names: Array<string>) {
-    var prefix = this.name + "[0].";
-    var panelNames: Array<any> = [];
-    var questions = this.template.questions;
-    for (var i = 0; i < questions.length; i++) {
-      questions[i].addConditionNames(panelNames);
-    }
-    for (var i = 0; i < panelNames.length; i++) {
-      names.push(prefix + panelNames[i]);
-    }
-  }
   public addConditionObjectsByContext(
     objects: Array<IConditionObject>,
     context: any
@@ -1077,7 +1075,7 @@ export class QuestionPanelDynamicModel extends Question
     var hasContext = !!context
       ? this.template.questions.indexOf(context) > -1
       : false;
-    var prefixName = this.name + "[0].";
+    var prefixName = this.getValueName() + "[0].";
     var prefixText = this.processedTitle + "[0].";
     var panelObjs = new Array<IConditionObject>();
     var questions = this.template.questions;
@@ -1158,12 +1156,14 @@ export class QuestionPanelDynamicModel extends Question
     values: HashTable<any>,
     properties: HashTable<any>
   ) {
-    var newValues: { [index: string]: any } = {};
+    var cachedValues: { [index: string]: any } = {};
     if (values && values instanceof Object) {
-      newValues = JSON.parse(JSON.stringify(values));
+      cachedValues = JSON.parse(JSON.stringify(values));
     }
     for (var i = 0; i < this.panels.length; i++) {
       var panelValues = this.getPanelItemData(this.panels[i].data);
+      //Should be unique for every panel due async expression support
+      var newValues = Helpers.createCopy(cachedValues);
       newValues[
         QuestionPanelDynamicItem.ItemVariableName.toLowerCase()
       ] = panelValues;
@@ -1360,6 +1360,7 @@ export class QuestionPanelDynamicModel extends Question
     panel.renderWidth = "100%";
     panel.updateCustomWidgets();
     new QuestionPanelDynamicItem(this, panel);
+    panel.onFirstRendering();
     return panel;
   }
   protected createAndSetupNewPanelObject(): PanelModel {
@@ -1527,7 +1528,13 @@ export class QuestionPanelDynamicModel extends Question
     }
     return questionPlainData;
   }
-
+  public updateElementCss() {
+    super.updateElementCss();
+    for (var i = 0; i < this.panels.length; i++) {
+      var el = this.panels[i];
+      el.updateElementCss();
+    }
+  }
   public get progressText(): string {
     var rangeMax = this.panelCount;
     return surveyLocalization

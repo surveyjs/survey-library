@@ -27,11 +27,16 @@ export class JsonObjectProperty implements IObject {
     "serializationProperty",
     "onGetValue",
     "onSetValue",
+    "displayName",
+    "category",
+    "categoryIndex",
+    "visibleIndex",
+    "showMode",
     "dependedProperties",
     "visibleIf",
     "maxLength",
     "maxValue",
-    "minValue"
+    "minValue",
   ];
   private typeValue: string = null;
   private choicesValue: Array<any> = null;
@@ -52,6 +57,11 @@ export class JsonObjectProperty implements IObject {
   public baseClassName: string = null;
   public defaultValueValue: any = null;
   public serializationProperty: string = null;
+  public displayName: string = null;
+  public category: string = "";
+  public categoryIndex: number = -1;
+  public visibleIndex: number = -1;
+  public showMode: string = null;
   public maxLength: number = -1;
   public maxValue: any;
   public minValue: any;
@@ -103,7 +113,7 @@ export class JsonObjectProperty implements IObject {
     if (!Helpers.isValueEmpty(this.defaultValue))
       return this.defaultValue == value;
     return (
-      (value === false && this.type == "boolean") ||
+      (value === false && (this.type == "boolean" || this.type == "switch")) ||
       value === "" ||
       Helpers.isValueEmpty(value)
     );
@@ -115,7 +125,11 @@ export class JsonObjectProperty implements IObject {
     return obj[this.name];
   }
   public getPropertyValue(obj: any): any {
-    if (this.isLocalizable) return obj[this.serializationProperty].text;
+    if (this.isLocalizable) {
+      return !!obj[this.serializationProperty]
+        ? obj[this.serializationProperty].text
+        : null;
+    }
     return this.getValue(obj);
   }
   public get hasToUseSetValue() {
@@ -132,7 +146,7 @@ export class JsonObjectProperty implements IObject {
           if (this.type == "number") {
             value = parseInt(value);
           }
-          if (this.type == "boolean") {
+          if (this.type == "boolean" || this.type == "switch") {
             value = value.toLowerCase() === "true";
           }
         }
@@ -297,18 +311,18 @@ export class CustomPropertiesCollection {
     ) {
       obj.createCustomLocalizableObj(prop.name);
       var locDesc = {
-        get: function() {
+        get: function () {
           return obj.getLocalizableString(prop.name);
-        }
+        },
       };
       Object.defineProperty(obj, prop.serializationProperty, locDesc);
       var desc = {
-        get: function() {
+        get: function () {
           return obj.getLocalizableStringText(prop.name, prop.defaultValue);
         },
-        set: function(v: any) {
+        set: function (v: any) {
           obj.setLocalizableStringText(prop.name, v);
-        }
+        },
       };
       Object.defineProperty(obj, prop.name, desc);
     } else {
@@ -317,8 +331,9 @@ export class CustomPropertiesCollection {
         JsonObject.metaData.isDescendantOf(prop.className, "itemvalue") &&
         typeof obj.createNewArray === "function"
       ) {
-        obj.createNewArray(prop.name, function(item: any) {
+        obj.createNewArray(prop.name, function (item: any) {
           item.locOwner = obj;
+          item.ownerPropertyName = prop.name;
         });
         obj.setPropertyValue(prop.name, defaultValue);
         defaultValue = null;
@@ -328,13 +343,13 @@ export class CustomPropertiesCollection {
           get: () => {
             return obj.getPropertyValue(prop.name, defaultValue);
           },
-          set: function(v: any) {
+          set: function (v: any) {
             if (!!prop.onSetValue) {
               prop.onSetValue(obj, v, null);
             } else {
               obj.setPropertyValue(prop.name, v);
             }
-          }
+          },
         };
         Object.defineProperty(obj, prop.name, desc);
       }
@@ -403,6 +418,21 @@ export class JsonMetadataClass {
       if (!Helpers.isValueEmpty(propInfo.maxLength)) {
         prop.maxLength = propInfo.maxLength;
       }
+      if (!Helpers.isValueEmpty(propInfo.displayName)) {
+        prop.displayName = propInfo.displayName;
+      }
+      if (!Helpers.isValueEmpty(propInfo.category)) {
+        prop.category = propInfo.category;
+      }
+      if (!Helpers.isValueEmpty(propInfo.categoryIndex)) {
+        prop.categoryIndex = propInfo.categoryIndex;
+      }
+      if (!Helpers.isValueEmpty(propInfo.visibleIndex)) {
+        prop.visibleIndex = propInfo.visibleIndex;
+      }
+      if (!Helpers.isValueEmpty(propInfo.showMode)) {
+        prop.showMode = propInfo.showMode;
+      }
       if (!Helpers.isValueEmpty(propInfo.maxValue)) {
         prop.maxValue = propInfo.maxValue;
       }
@@ -412,11 +442,14 @@ export class JsonMetadataClass {
       if (!Helpers.isValueEmpty(propInfo.isDynamicChoices)) {
         prop.isDynamicChoices = propInfo.isDynamicChoices;
       }
-      if (propInfo.visible === false) {
-        prop.visible = false;
+      if (propInfo.visible === true || propInfo.visible === false) {
+        prop.visible = propInfo.visible;
       }
       if (!!propInfo.visibleIf) {
         prop.visibleIf = propInfo.visibleIf;
+      }
+      if (propInfo.readOnly === true) {
+        prop.readOnly = true;
       }
       if (propInfo.choices) {
         var choicesFunc =
@@ -435,7 +468,7 @@ export class JsonMetadataClass {
         prop.onSetValue = propInfo.onSetValue;
       }
       if (propInfo.isLocalizable) {
-        propInfo.serializationProperty = "loc" + propInfo.name;
+        propInfo.serializationProperty = "loc" + prop.name;
       }
       if (propInfo.serializationProperty) {
         prop.serializationProperty = propInfo.serializationProperty;
@@ -583,18 +616,18 @@ export class JsonMetadata {
   }
   public getPropertiesByObj(obj: any): Array<JsonObjectProperty> {
     if (!obj || !obj.getType) return [];
-    var res = [];
+    var res: any = {};
     var props = this.getProperties(obj.getType());
     for (var i = 0; i < props.length; i++) {
-      res.push(props[i]);
+      res[props[i].name] = props[i];
     }
     var dynamicProps = this.getDynamicProperties(obj);
     if (dynamicProps && dynamicProps.length > 0) {
       for (var i = 0; i < dynamicProps.length; i++) {
-        res.push(dynamicProps[i]);
+        res[dynamicProps[i].name] = dynamicProps[i];
       }
     }
-    return res;
+    return Object.keys(res).map((key) => res[key]);
   }
 
   public findProperty(
@@ -645,10 +678,10 @@ export class JsonMetadata {
     var customTemplateName = res.getTemplate
       ? res.getTemplate()
       : res.getType();
-    res.getType = function() {
+    res.getType = function () {
       return customTypeName;
     };
-    res.getTemplate = function() {
+    res.getTemplate = function () {
       return customTemplateName;
     };
     CustomPropertiesCollection.createProperties(res);

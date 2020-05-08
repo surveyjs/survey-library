@@ -1,27 +1,14 @@
 import * as React from "react";
-import { Helpers } from "../helpers";
-import { Base } from "../base";
-import { SurveyQuestionElementBase } from "./reactquestionelement";
+import { SurveyQuestionUncontrolledElement } from "./reactquestionelement";
 import { QuestionTextModel } from "../question_text";
 import { ReactQuestionFactory } from "./reactquestionfactory";
 
-export class SurveyQuestionText extends SurveyQuestionElementBase {
-  input: any;
+export class SurveyQuestionText extends SurveyQuestionUncontrolledElement<
+  QuestionTextModel
+> {
   constructor(props: any) {
     super(props);
   }
-  protected get question(): QuestionTextModel {
-    return this.questionBase as QuestionTextModel;
-  }
-  componentWillUpdate() {
-    this.input.value = this.getValue(this.question.value);
-  }
-  componentDidMount() {
-    this.input.value = this.getValue(this.question.value);
-  }
-  updateValueOnEvent = (event: any) => {
-    this.question.value = event.target.value;
-  };
   render(): JSX.Element {
     if (!this.question) return null;
     var cssClasses = this.question.cssClasses;
@@ -31,26 +18,29 @@ export class SurveyQuestionText extends SurveyQuestionElementBase {
     var onInput = this.question.isInputTextUpdate
       ? this.updateValueOnEvent
       : null;
+    var placeHolder =
+      this.question.inputType === "range" || this.question.isReadOnly
+        ? ""
+        : this.question.placeHolder;
     return (
       <input
         id={this.question.inputId}
         disabled={this.isDisplayMode}
         className={cssClasses.root}
         type={this.question.inputType}
-        ref={input => (this.input = input)}
+        ref={input => (this.control = input)}
         maxLength={this.question.getMaxLength()}
+        min={this.question.min}
+        max={this.question.max}
+        step={this.question.step}
         size={this.question.size}
-        placeholder={this.question.placeHolder}
+        placeholder={placeHolder}
         onBlur={onBlur}
         onInput={onInput}
         aria-required={this.question.isRequired}
         aria-label={this.question.locTitle.renderedHtml}
       />
     );
-  }
-  private getValue(val: any): any {
-    if (Helpers.isValueEmpty(val)) return "";
-    return val;
   }
 }
 

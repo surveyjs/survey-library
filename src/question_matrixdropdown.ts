@@ -1,7 +1,7 @@
 import {
   QuestionMatrixDropdownModelBase,
   MatrixDropdownRowModelBase,
-  IMatrixDropdownData
+  IMatrixDropdownData,
 } from "./question_matrixdropdownbase";
 import { Serializer } from "./jsonobject";
 import { ItemValue } from "./itemvalue";
@@ -40,8 +40,9 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
     super(name);
     this.createLocalizableString("totalText", this, true);
     var self = this;
-    this.registerFunctionOnPropertyValueChanged("rows", function() {
+    this.registerFunctionOnPropertyValueChanged("rows", function () {
       self.generatedVisibleRows = null;
+      self.resetRenderedTable();
       self.filterItems();
     });
   }
@@ -62,6 +63,18 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
   }
   public getFooterText(): LocalizableString {
     return this.locTotalText;
+  }
+  /**
+   * The column width for the first column, row title column.
+   */
+  public get rowTitleWidth(): string {
+    return this.getPropertyValue("rowTitleWidth", "");
+  }
+  public set rowTitleWidth(val: string) {
+    this.setPropertyValue("rowTitleWidth", val);
+  }
+  public getRowTitleWidth(): string {
+    return this.rowTitleWidth;
   }
   protected getDisplayValueCore(keysAsText: boolean, value: any): any {
     var values = this.createValueCopy();
@@ -85,15 +98,6 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
     }
     return values;
   }
-  public addConditionNames(names: Array<string>) {
-    for (var i = 0; i < this.rows.length; i++) {
-      if (!this.rows[i].value) continue;
-      var prefix = this.name + "." + this.rows[i].value + ".";
-      for (var j = 0; j < this.columns.length; j++) {
-        names.push(prefix + this.columns[j].name);
-      }
-    }
-  }
   public addConditionObjectsByContext(
     objects: Array<IConditionObject>,
     context: any
@@ -102,14 +106,14 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
     for (var i = 0; i < this.rows.length; i++) {
       var row = this.rows[i];
       if (!row.value) continue;
-      var prefixName = this.name + "." + row.value + ".";
+      var prefixName = this.getValueName() + "." + row.value + ".";
       var prefixTitle = this.processedTitle + "." + row.calculatedText + ".";
       for (var j = 0; j < this.columns.length; j++) {
         var column = this.columns[j];
         objects.push({
           name: prefixName + column.name,
           text: prefixTitle + column.fullTitle,
-          question: this
+          question: this,
         });
       }
     }
@@ -120,7 +124,7 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
         objects.push({
           name: "row." + column.name,
           text: "row." + column.fullTitle,
-          question: this
+          question: this,
         });
       }
     }
@@ -172,18 +176,19 @@ Serializer.addClass(
   "matrixdropdown",
   [
     {
-      name: "rows:itemvalue[]"
+      name: "rows:itemvalue[]",
     },
     "rowsVisibleIf:condition",
-    { name: "totalText", serializationProperty: "locTotalText" }
+    "rowTitleWidth",
+    { name: "totalText", serializationProperty: "locTotalText" },
   ],
-  function() {
+  function () {
     return new QuestionMatrixDropdownModel("");
   },
   "matrixdropdownbase"
 );
 
-QuestionFactory.Instance.registerQuestion("matrixdropdown", name => {
+QuestionFactory.Instance.registerQuestion("matrixdropdown", (name) => {
   var q = new QuestionMatrixDropdownModel(name);
   q.choices = [1, 2, 3, 4, 5];
   q.rows = QuestionFactory.DefaultColums;

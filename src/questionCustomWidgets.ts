@@ -21,6 +21,11 @@ export class QuestionCustomWidget {
       return this.widgetJson.isFit(question);
     return false;
   }
+  public init() {
+    if (this.widgetJson.init) {
+      this.widgetJson.init();
+    }
+  }
   public activatedByChanged(activatedBy: string) {
     if (this.isLibraryLoaded() && this.widgetJson.activatedByChanged) {
       this.widgetJson.activatedByChanged(activatedBy);
@@ -55,6 +60,9 @@ export class CustomWidgetCollection {
   public get widgets(): Array<QuestionCustomWidget> {
     return this.widgetsValues;
   }
+  public add(widgetJson: any, activatedBy: string = "property") {
+    this.addCustomWidget(widgetJson, activatedBy);
+  }
   public addCustomWidget(widgetJson: any, activatedBy: string = "property") {
     var name = widgetJson.name;
     if (!name) {
@@ -62,6 +70,7 @@ export class CustomWidgetCollection {
     }
     var customWidget = new QuestionCustomWidget(name, widgetJson);
     this.widgetsValues.push(customWidget);
+    customWidget.init();
     (<any>this).widgetsActivatedBy[name] = activatedBy;
     customWidget.activatedByChanged(activatedBy);
     this.onCustomWidgetAdded.fire(customWidget, null);
@@ -71,7 +80,7 @@ export class CustomWidgetCollection {
    * @param widgetName the custom widget name
    * @see setActivatedBy
    */
-  public getActivatedBy(widgetName: string) {
+  public getActivatedBy(widgetName: string): string {
     var res = (<any>this).widgetsActivatedBy[widgetName];
     return res ? res : "property";
   }

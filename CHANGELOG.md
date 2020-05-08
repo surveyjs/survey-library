@@ -1,6 +1,154 @@
-# Change Log
+# Changelog
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
+
+### [1.7.5](https://github.com/surveyjs/survey-library/compare/v1.7.4...v1.7.5) (2020-05-06)
+
+### [1.7.4](https://github.com/surveyjs/survey-library/compare/v1.7.3...v1.7.4) (2020-04-29)
+
+### [1.7.3](https://github.com/surveyjs/survey-library/compare/v1.7.2...v1.7.3) (2020-04-21)
+
+
+### Bug Fixes
+
+* survey.progressBarType is "questions" calculates incorrectly if there are non input questions in survey [#2108](https://github.com/surveyjs/survey-library/issues/2108) ([9606a2c](https://github.com/surveyjs/survey-library/commit/9606a2ce4122c17dfe293634faf7f0719806203e))
+
+### [1.7.2](https://github.com/surveyjs/survey-library/compare/v1.7.1...v1.7.2) (2020-04-17)
+
+
+### Bug Fixes
+
+* Complete trigger doesn't work when invisible questions are in expression [#2098](https://github.com/surveyjs/survey-library/issues/2098) ([e192e9f](https://github.com/surveyjs/survey-library/commit/e192e9fb15b4fc589524526016edc22b3bb72e54))
+* Triggers properties are not observable/react and trigger doesn't call survey.onPropertyValueChangedCallback [#2093](https://github.com/surveyjs/survey-library/issues/2093) ([f86712f](https://github.com/surveyjs/survey-library/commit/f86712f523287360c7289ebc878d05663b638a7e))
+
+### [1.7.1](https://github.com/surveyjs/survey-library/compare/v1.5.20...v1.7.1) (2020-04-15)
+
+### [1.5.20](https://github.com/surveyjs/survey-library/compare/v1.5.19...v1.5.20) (2020-04-15)
+
+
+### Bug Fixes
+
+* An execption raised in matrix with now standard rows and total row [#2087](https://github.com/surveyjs/survey-library/issues/2087) ([3d6fac8](https://github.com/surveyjs/survey-library/commit/3d6fac855a17c75f396abed67d8e790f0ee94942))
+* Could not override invisible property, by making it visible [#2090](https://github.com/surveyjs/survey-library/issues/2090) ([087aa0b](https://github.com/surveyjs/survey-library/commit/087aa0b2aedde6e24aa97968d80f4f6af485ff2d))
+* Round correctly rateValues for step less than 1 for rating question [#743](https://github.com/surveyjs/survey-library/issues/743) ([4c56424](https://github.com/surveyjs/survey-library/commit/4c564246a4ea5d90ab7f84e62dd134f4f5040434))
+
+### [1.5.19](https://github.com/surveyjs/survey-library/compare/v1.5.18...v1.5.19) (2020-04-07)
+
+### [1.5.18](https://github.com/surveyjs/survey-library/compare/v1.5.17...v1.5.18) (2020-03-31)
+
+### [1.5.17](https://github.com/surveyjs/survey-library/compare/v1.5.16...v1.5.17) (2020-03-24)
+
+### [1.5.16](https://github.com/surveyjs/survey-library/compare/v1.5.15...v1.5.16) (2020-03-18)
+
+
+### Bug Fixes
+
+* react version: Comment Question raise onValueChanged on typing a letter [#2028](https://github.com/surveyjs/survey-library/issues/2028) ([8545d26](https://github.com/surveyjs/survey-library/commit/8545d265b1adaf0fb8b28a394fcc0de7dfb50641))
+
+### [1.5.15](https://github.com/surveyjs/survey-library/compare/v1.5.14...v1.5.15) (2020-03-12)
+
+### [1.5.14](https://github.com/surveyjs/survey-library/compare/v1.5.13...v1.5.14) (2020-03-11)
+
+### [1.5.13](https://github.com/surveyjs/survey-library/compare/v1.5.12...v1.5.13) (2020-03-04)
+
+### [1.5.12](https://github.com/surveyjs/survey-library/compare/v1.5.11...v1.5.12) (2020-02-28)
+
+### [1.5.11](https://github.com/surveyjs/survey-library/compare/v1.5.10...v1.5.11) (2020-02-28)
+
+<a name="1.5.10"></a>
+## [1.5.10](https://github.com/surveyjs/surveyjs/compare/v1.5.9...v1.5.10) (2020-02-18)
+
+
+
+<a name="1.5.9"></a>
+## [1.5.9](https://github.com/surveyjs/survey-library/compare/v1.5.8...v1.5.9) (2020-02-14)
+
+
+
+<a name="1.5.8"></a>
+## [1.5.8](https://github.com/surveyjs/surveyjs/compare/v1.5.7...v1.5.8) (2020-02-12)
+
+
+
+<a name="1.5.7"></a>
+## [1.5.7](https://github.com/surveyjs/surveyjs/compare/v1.5.6...v1.5.7) (2020-02-11)
+
+
+
+<a name="1.5.6"></a>
+## [1.5.6](https://github.com/surveyjs/survey-library/compare/v1.5.5...v1.5.6) (2020-02-07)
+
+
+
+<a name="1.5.5"></a>
+## [1.5.5](https://github.com/surveyjs/survey-library/compare/v1.5.4...v1.5.5) (2020-02-03)
+
+
+
+<a name="1.5.4"></a>
+## [1.5.4](https://github.com/surveyjs/survey-library/compare/v1.5.3...v1.5.4) (2020-01-31)
+
+
+
+<a name="1.5.3"></a>
+## [1.5.3](https://github.com/surveyjs/survey-library/compare/v1.5.2...v1.5.3) (2020-01-30)
+
+
+
+<a name="1.5.2"></a>
+## [1.5.2](https://github.com/surveyjs/survey-library/compare/v1.5.1...v1.5.2) (2020-01-29)
+
+
+
+<a name="1.5.1"></a>
+## [1.5.1](https://github.com/surveyjs/survey-library/compare/v1.5.0...v1.5.1) (2020-01-24)
+
+
+
+<a name="1.1.33"></a>
+## [1.1.33](https://github.com/surveyjs/surveyjs/compare/v1.1.32...v1.1.33) (2020-01-20)
+
+
+
+<a name="1.1.32"></a>
+## [1.1.32](https://github.com/surveyjs/surveyjs/compare/v1.1.31...v1.1.32) (2020-01-14)
+
+
+
+<a name="1.1.31"></a>
+## [1.1.31](https://github.com/surveyjs/surveyjs/compare/v1.1.30...v1.1.31) (2020-01-09)
+
+
+
+<a name="1.1.30"></a>
+## [1.1.30](https://github.com/surveyjs/surveyjs/compare/v1.1.29...v1.1.30) (2020-01-09)
+
+
+
+<a name="1.1.29"></a>
+## [1.1.29](https://github.com/surveyjs/survey-library/compare/v1.1.28...v1.1.29) (2019-12-30)
+
+
+
+<a name="1.1.28"></a>
+## [1.1.28](https://github.com/surveyjs/survey-library/compare/v1.1.27...v1.1.28) (2019-12-30)
+
+
+
+<a name="1.1.27"></a>
+## [1.1.27](https://github.com/surveyjs/survey-library/compare/v1.1.26...v1.1.27) (2019-12-30)
+
+
+
+<a name="1.1.26"></a>
+## [1.1.26](https://github.com/surveyjs/survey-library/compare/v1.1.25...v1.1.26) (2019-12-24)
+
+
+
+<a name="1.1.25"></a>
+## [1.1.25](https://github.com/surveyjs/survey-library/compare/v1.1.24...v1.1.25) (2019-12-17)
+
+
 
 <a name="1.1.24"></a>
 ## [1.1.24](https://github.com/surveyjs/survey-library/compare/v1.1.23...v1.1.24) (2019-12-10)

@@ -66,7 +66,11 @@ export class FlowPanel extends Vue {
   get rootStyle() {
     var result = {};
     if (this.question.renderWidth) {
+      (<any>result)["flexBasis"] = this.question.renderWidth;
+      (<any>result)["flexGrow"] = 1;
+      (<any>result)["flexShrink"] = 1;
       (<any>result)["width"] = this.question.renderWidth;
+      (<any>result)["minWidth"] = "300px";
     }
     return result;
   }

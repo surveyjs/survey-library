@@ -14,7 +14,7 @@ export var settings = {
   /**
    * SurveyJS web service API url
    */
-  surveyServiceUrl: "https://dxsurveyapi.azurewebsites.net/api/Survey",
+  surveyServiceUrl: "https://api.surveyjs.io/public/v1/Survey",
   /**
    * separator that can allow to set value and text of ItemValue object in one string as: "value|text"
    */
@@ -50,5 +50,17 @@ export var settings = {
   /**
    * Disable the question while choices are getting from the web service
    */
-  disableOnGettingChoicesFromWeb: false
+  disableOnGettingChoicesFromWeb: false,
+  /**
+   * Set to true to always serialize the localization string as object even if there is only one value for default locale. Instead of string "MyStr" serialize as {default: "MyStr"}
+   */
+  serializeLocalizableStringAsObject: false,
+  /**
+   * Set to false to hide empty page title in design mode
+   */
+  allowShowEmptyTitleInDesignMode: true,
+  /**
+   * Set this property to true to execute the complete trigger on value change instead of on next page.
+   */
+  executeCompleteTriggerOnValueChanged: false,
 };

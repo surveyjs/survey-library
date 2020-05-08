@@ -19,7 +19,6 @@ export class QuestionCheckbox extends QuestionCheckboxModel {
   private isAllSelectedUpdating = false;
   constructor(public name: string) {
     super(name);
-    new QuestionCheckboxImplementor(this);
     this.koAllSelected = ko.observable(this.isAllSelected);
     var self = this;
     this.koAllSelected.subscribe(function(newValue: any) {
@@ -27,6 +26,10 @@ export class QuestionCheckbox extends QuestionCheckboxModel {
       if (newValue) self.selectAll();
       else self.clearValue();
     });
+  }
+  protected onBaseCreating() {
+    super.onBaseCreating();
+    new QuestionCheckboxImplementor(this);
   }
   protected onValueChanged() {
     super.onValueChanged();
@@ -60,6 +63,9 @@ export class QuestionCheckbox extends QuestionCheckboxModel {
   }
   getLabelClass(item: any) {
     return super.getLabelClass(this.isItemSelected(item));
+  }
+  getItemIndex(item: any) {
+    return this.visibleChoices.indexOf(item);
   }
 }
 

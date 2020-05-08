@@ -14,6 +14,7 @@ import { settings } from "./settings";
  * It is a base class for checkbox, dropdown and radiogroup questions.
  */
 export class QuestionSelectBase extends Question {
+  public visibleChoicesChangedCallback: () => void;
   private filteredChoicesValue: Array<ItemValue> = null;
   private conditionChoicesVisibleIfRunner: ConditionRunner;
   private conditionChoicesEnableIfRunner: ConditionRunner;
@@ -32,15 +33,15 @@ export class QuestionSelectBase extends Question {
   constructor(name: string) {
     super(name);
     var self = this;
-    this.choices = this.createItemValues("choices");
-    this.registerFunctionOnPropertyValueChanged("choices", function() {
+    this.createItemValues("choices");
+    this.registerFunctionOnPropertyValueChanged("choices", function () {
       if (!self.filterItems()) {
         self.onVisibleChoicesChanged();
       }
     });
     this.registerFunctionOnPropertyValueChanged(
       "hideIfChoicesEmpty",
-      function() {
+      function () {
         self.updateVisibilityBasedOnChoices();
       }
     );
@@ -51,16 +52,16 @@ export class QuestionSelectBase extends Question {
     this.createLocalizableString("otherErrorText", this, true);
     this.otherItemValue.locOwner = this;
     this.otherItemValue.setLocText(locOtherText);
-    locOtherText.onGetTextCallback = function(text) {
+    locOtherText.onGetTextCallback = function (text) {
       return !!text ? text : surveyLocalization.getString("otherItemText");
     };
-    this.choicesByUrl.beforeSendRequestCallback = function() {
+    this.choicesByUrl.beforeSendRequestCallback = function () {
       self.onBeforeSendRequest();
     };
-    this.choicesByUrl.getResultCallback = function(items: Array<ItemValue>) {
+    this.choicesByUrl.getResultCallback = function (items: Array<ItemValue>) {
       self.onLoadChoicesFromUrl(items);
     };
-    this.choicesByUrl.updateResultCallback = function(
+    this.choicesByUrl.updateResultCallback = function (
       items: Array<ItemValue>,
       serverResult: any
     ): Array<ItemValue> {
@@ -151,10 +152,8 @@ export class QuestionSelectBase extends Question {
       this.filteredChoicesValue = null;
     }
     if (hasChanges) {
-      if (!!this.filteredChoicesValue) {
-        this.clearIncorrectValues();
-      }
       this.onVisibleChoicesChanged();
+      this.clearIncorrectValues();
     }
     return hasChanges;
   }
@@ -219,15 +218,15 @@ export class QuestionSelectBase extends Question {
   protected createRestfull(): ChoicesRestfull {
     return new ChoicesRestfull();
   }
-  protected getComment(): string {
+  protected getQuestionComment(): string {
     if (!!this.commentValue) return this.commentValue;
-    if (this.getStoreOthersAsComment()) return super.getComment();
+    if (this.getStoreOthersAsComment()) return super.getQuestionComment();
     return this.commentValue;
   }
   private isSettingComment: boolean = false;
-  protected setComment(newValue: string) {
+  protected setQuestionComment(newValue: string) {
     if (this.hasComment || this.getStoreOthersAsComment())
-      super.setComment(newValue);
+      super.setQuestionComment(newValue);
     else {
       if (!this.isSettingComment && newValue != this.commentValue) {
         this.isSettingComment = true;
@@ -296,8 +295,8 @@ export class QuestionSelectBase extends Question {
     return this.otherItem.value;
   }
   protected rendredValueToDataCore(val: any): any {
-    if (val == this.otherItem.value && this.getComment()) {
-      val = this.getComment();
+    if (val == this.otherItem.value && this.getQuestionComment()) {
+      val = this.getQuestionComment();
     }
     return val;
   }
@@ -324,6 +323,9 @@ export class QuestionSelectBase extends Question {
   public set choices(newValue: Array<any>) {
     this.setPropertyValue("choices", newValue);
   }
+  /**
+   * Set this property to true to hide the question if there is no visible choices.
+   */
   public get hideIfChoicesEmpty(): boolean {
     return this.getPropertyValue("hideIfChoicesEmpty", false);
   }
@@ -457,39 +459,47 @@ export class QuestionSelectBase extends Question {
   public getPlainData(
     options: {
       includeEmpty?: boolean;
+      includeQuestionTypes?: boolean;
       calculations?: Array<{
         propertyName: string;
       }>;
     } = {
-      includeEmpty: true
+      includeEmpty: true,
+      includeQuestionTypes: false,
     }
   ) {
     var questionPlainData = super.getPlainData(options);
     if (!!questionPlainData) {
       var values = Array.isArray(this.value) ? this.value : [this.value];
       questionPlainData.isNode = true;
-      questionPlainData.data = values.map((dataValue, index) => {
-        var choice = ItemValue.getItemByValue(this.visibleChoices, dataValue);
-        var choiceDataItem = <any>{
-          name: index,
-          title: "Choice",
-          value: dataValue,
-          displayValue: this.getChoicesDisplayValue(
-            this.visibleChoices,
-            dataValue
-          ),
-          getString: (val: any) =>
-            typeof val === "object" ? JSON.stringify(val) : val,
-          isNode: false
-        };
-        if (!!choice) {
-          (options.calculations || []).forEach(calculation => {
-            choiceDataItem[calculation.propertyName] =
-              choice[calculation.propertyName];
-          });
-        }
-        return choiceDataItem;
-      });
+      questionPlainData.data = (questionPlainData.data || []).concat(
+        values.map((dataValue, index) => {
+          var choice = ItemValue.getItemByValue(this.visibleChoices, dataValue);
+          var choiceDataItem = <any>{
+            name: index,
+            title: "Choice",
+            value: dataValue,
+            displayValue: this.getChoicesDisplayValue(
+              this.visibleChoices,
+              dataValue
+            ),
+            getString: (val: any) =>
+              typeof val === "object" ? JSON.stringify(val) : val,
+            isNode: false,
+          };
+          if (!!choice) {
+            (options.calculations || []).forEach((calculation) => {
+              choiceDataItem[calculation.propertyName] =
+                choice[calculation.propertyName];
+            });
+          }
+          if (this.isOtherSelected && this.otherItemValue === choice) {
+            choiceDataItem.isOther = true;
+            choiceDataItem.displayValue = this.comment;
+          }
+          return choiceDataItem;
+        })
+      );
     }
     return questionPlainData;
   }
@@ -523,8 +533,11 @@ export class QuestionSelectBase extends Question {
   public supportOther(): boolean {
     return true;
   }
-  protected onCheckForErrors(errors: Array<SurveyError>) {
-    super.onCheckForErrors(errors);
+  protected onCheckForErrors(
+    errors: Array<SurveyError>,
+    isOnValueChanged: boolean
+  ) {
+    super.onCheckForErrors(errors, isOnValueChanged);
     if (!this.hasOther || !this.isOtherSelected || this.comment) return;
     errors.push(new OtherEmptyError(this.otherErrorText, this));
   }
@@ -611,10 +624,18 @@ export class QuestionSelectBase extends Question {
         newChoices
       );
       if (!!newValue && !this.isReadOnly) {
-        this.locNotificationInData = true;
-        this.value = undefined;
-        this.locNotificationInData = false;
-        this.value = newValue.value;
+        var hasChanged = !Helpers.isTwoValueEquals(this.value, newValue.value);
+        try {
+          this.allowNotifyValueChanged = false;
+          this.locNotificationInData = true;
+          this.value = undefined;
+          this.locNotificationInData = false;
+
+          this.allowNotifyValueChanged = hasChanged;
+          this.value = newValue.value;
+        } finally {
+          this.allowNotifyValueChanged = true;
+        }
       }
     }
     this.choicesLoaded();
@@ -669,6 +690,8 @@ export class QuestionSelectBase extends Question {
     if (this.isLoadingFromJson) return;
     this.updateVisibleChoices();
     this.updateVisibilityBasedOnChoices();
+    if (!!this.visibleChoicesChangedCallback)
+      this.visibleChoicesChangedCallback();
   }
   private updateVisibilityBasedOnChoices() {
     if (this.hideIfChoicesEmpty) {
@@ -683,7 +706,7 @@ export class QuestionSelectBase extends Question {
     return array;
   }
   private sortArray(array: Array<ItemValue>, mult: number): Array<ItemValue> {
-    return array.sort(function(a, b) {
+    return array.sort(function (a, b) {
       if (a.calculatedText < b.calculatedText) return -1 * mult;
       if (a.calculatedText > b.calculatedText) return 1 * mult;
       return 0;
@@ -781,7 +804,7 @@ export class QuestionSelectBase extends Question {
       this.onReadyChanged.fire(this, {
         question: this,
         isReady: true,
-        olsIsReady: oldIsReady
+        olsIsReady: oldIsReady,
       });
   }
 }
@@ -814,34 +837,34 @@ export class QuestionCheckboxBase extends QuestionSelectBase {
 Serializer.addClass(
   "selectbase",
   [
-    { name: "hasComment:boolean", layout: "row" },
+    { name: "hasComment:switch", layout: "row" },
     {
       name: "commentText",
       serializationProperty: "locCommentText",
-      layout: "row"
+      layout: "row",
     },
     "hasOther:boolean",
     { name: "otherPlaceHolder", serializationProperty: "locOtherPlaceHolder" },
     {
       name: "choices:itemvalue[]",
-      baseValue: function() {
+      baseValue: function () {
         return surveyLocalization.getString("choices_Item");
-      }
+      },
     },
     {
       name: "choicesOrder",
       default: "none",
-      choices: ["none", "asc", "desc", "random"]
+      choices: ["none", "asc", "desc", "random"],
     },
     {
       name: "choicesByUrl:restfull",
       className: "ChoicesRestfull",
-      onGetValue: function(obj: any) {
+      onGetValue: function (obj: any) {
         return obj.choicesByUrl.getData();
       },
-      onSetValue: function(obj: any, value: any) {
+      onSetValue: function (obj: any, value: any) {
         obj.choicesByUrl.setData(value);
-      }
+      },
     },
     "hideIfChoicesEmpty:boolean",
     "choicesVisibleIf:condition",
@@ -852,8 +875,8 @@ Serializer.addClass(
       name: "storeOthersAsComment",
       default: "default",
       choices: ["default", true, false],
-      visible: false
-    }
+      visible: false,
+    },
   ],
   null,
   "question"
@@ -866,8 +889,8 @@ Serializer.addClass(
       name: "colCount:number",
       default: 1,
       choices: [0, 1, 2, 3, 4, 5],
-      layout: "row"
-    }
+      layout: "row",
+    },
   ],
   null,
   "selectbase"

@@ -522,6 +522,29 @@ QUnit.test(
   }
 );
 
+QUnit.test("preset data and same data from url", function(assert) {
+  var survey = new SurveyModel();
+  var counter = 0;
+  survey.addNewPage("1");
+  var question = new QuestionDropdownModelTester("q1");
+  survey.storeOthersAsComment = false;
+
+  survey.onValueChanging.add(function() {
+    counter++;
+  });
+
+  survey.onValueChanged.add(function() {
+    counter++;
+  });
+
+  question.choicesByUrl.url = "{state}";
+  survey.pages[0].addQuestion(question);
+  survey.data = { q1: "CA" };
+  question["onLoadChoicesFromUrl"]([new ItemValue("CA"), new ItemValue("AA")]);
+
+  assert.equal(counter, 0, "value doesn't change");
+});
+
 QUnit.test(
   "defaultValue for radiogroup where value is object for choices by url, bug: https://surveyjs.answerdesk.io/ticket/details/T2055",
   function(assert) {
@@ -555,8 +578,9 @@ QUnit.test(
       { identity: { id: 1024 }, localizedData: { id: "A4" } }
     ].map(i => new ItemValue(i.identity, i.localizedData.id));
     question["onLoadChoicesFromUrl"](loadedItems);
-    assert.ok(
-      question.value === question["activeChoices"][2].value,
+    assert.equal(
+      question.value,
+      question["activeChoices"][2].value,
       "Choosen exactly choice item value"
     );
     survey.doComplete();
@@ -576,6 +600,42 @@ QUnit.test(
       },
       "Initial value is set correctly"
     );
+  }
+);
+
+QUnit.test(
+  "valueChanged shouldn't be risen on choicesByUrl loaded - T3372 - onValueChanging (bug)",
+  function(assert) {
+    var json = {
+      pages: [
+        {
+          name: "page1",
+          elements: [
+            {
+              type: "dropdown",
+              name: "test",
+              defaultValue: "A",
+              choicesByUrl: {
+                url: "",
+                valueName: "identity",
+                titleName: "localizedData.id"
+              }
+            }
+          ]
+        }
+      ]
+    };
+    var survey = new SurveyModel(json);
+    var question = <QuestionRadiogroupModel>survey.getQuestionByName("test");
+    var loadedItems = ["A", "B", "C"].map(i => new ItemValue(i));
+
+    var changedCount = 0;
+    survey.onValueChanging.add(() => {
+      changedCount++;
+    });
+
+    question["onLoadChoicesFromUrl"](loadedItems);
+    assert.equal(changedCount, 0, "No changed events has been risen");
   }
 );
 
@@ -671,9 +731,8 @@ QUnit.test("Use values and not text, Bug #627", function(assert) {
   survey.addNewPage("1");
   var question = new QuestionDropdownModelTester("q1");
   survey.pages[0].addQuestion(question);
-  var stateQuestion = <QuestionDropdownModel>survey.pages[0].addNewQuestion(
-    "dropdown",
-    "state"
+  var stateQuestion = <QuestionDropdownModel>(
+    survey.pages[0].addNewQuestion("dropdown", "state")
   );
   stateQuestion.choices = [
     { value: "ca_cities", text: "City from California" },
@@ -701,9 +760,8 @@ QUnit.test("Process text in url as case insensitive, Bug #997", function(
   survey.addNewPage("1");
   var question = new QuestionDropdownModelTester("q1");
   survey.pages[0].addQuestion(question);
-  var stateQuestion = <QuestionDropdownModel>survey.pages[0].addNewQuestion(
-    "dropdown",
-    "State"
+  var stateQuestion = <QuestionDropdownModel>(
+    survey.pages[0].addNewQuestion("dropdown", "State")
   );
   stateQuestion.choices = [
     { value: "ca_cities", text: "City from California" },
@@ -893,8 +951,8 @@ QUnit.test("Load countries, custom properties, #615", function(assert) {
 QUnit.test("Load countries, custom itemvalue class", function(assert) {
   Serializer.addProperty("itemvalue", "alpha3_code");
   Serializer.addProperty("itemvalue", "customProperty");
-  var question = <QuestionDropdownImageTester>Serializer.createClass(
-    "imagepicker_choicesrest"
+  var question = <QuestionDropdownImageTester>(
+    Serializer.createClass("imagepicker_choicesrest")
   );
   question.choicesByUrl.url = "allcountries";
   question.choicesByUrl.path = "RestResponse;result";
@@ -919,8 +977,8 @@ QUnit.test("Load countries, custom itemvalue class", function(assert) {
 QUnit.test(
   "choicesByUrl + custom itemvalue class, save/load to/from json",
   function(assert) {
-    var question = <QuestionDropdownImageTester>Serializer.createClass(
-      "imagepicker_choicesrest"
+    var question = <QuestionDropdownImageTester>(
+      Serializer.createClass("imagepicker_choicesrest")
     );
     question.choicesByUrl.url = "allcountries";
     question.choicesByUrl.path = "RestResponse;result";
@@ -941,8 +999,8 @@ QUnit.test(
       "choicesByUrl + custom itemvalue class restore correctly"
     );
 
-    var loadedQuestion = <QuestionDropdownImageTester>Serializer.createClass(
-      "imagepicker_choicesrest"
+    var loadedQuestion = <QuestionDropdownImageTester>(
+      Serializer.createClass("imagepicker_choicesrest")
     );
     new JsonObject().toObject(json, loadedQuestion);
     assert.equal(

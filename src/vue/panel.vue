@@ -1,6 +1,7 @@
 <template>
   <div v-if="question.isVisible" :class="question.cssClasses.panel.container" :style="rootStyle">
     <h4 v-show="hasTitle" :class="getTitleStyle()" v-on:click="changeExpanded">
+      <span v-if="question.no" style="position: static;">{{question.no}}</span>
       <survey-string :locString="question.locTitle" />
       <span v-show="showIcon" :class="iconCss"></span>
     </h4>
@@ -44,16 +45,25 @@ export class Panel extends Vue {
     }
     this.isCollapsed = this.question.isCollapsed;
     var self = this;
-    this.question.registerFunctionOnPropertyValueChanged("state", function(
-      val: any
-    ) {
-      self.isCollapsed = self.question.isCollapsed;
-    });
+    this.question.registerFunctionOnPropertyValueChanged(
+      "state",
+      function(val: any) {
+        self.isCollapsed = self.question.isCollapsed;
+      },
+      "panel"
+    );
+  }
+  beforeDestroy() {
+    this.question.unRegisterFunctionOnPropertyValueChanged("state", "panel");
   }
   get rootStyle() {
     var result = {};
     if (this.question.renderWidth) {
+      (<any>result)["flexBasis"] = this.question.renderWidth;
+      (<any>result)["flexGrow"] = 1;
+      (<any>result)["flexShrink"] = 1;
       (<any>result)["width"] = this.question.renderWidth;
+      (<any>result)["minWidth"] = "300px";
     }
     return result;
   }

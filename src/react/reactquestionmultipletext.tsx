@@ -40,9 +40,25 @@ export class SurveyQuestionMultipleText extends SurveyQuestionElementBase {
     for (var i = 0; i < items.length; i++) {
       var item = items[i];
       var itemTitle = this.renderLocString(item.locTitle);
+      var spaceSpan = <span>&nbsp;</span>;
+      var spans = [];
+      var ed = item.editor;
+      if (!!ed.isRequireTextOnStart || ed.isRequireTextBeforeTitle) {
+        spans.push(
+          <span className={cssClasses.requiredText}>{ed.requiredText}</span>
+        );
+        spans.push(spaceSpan);
+      }
+      spans.push(<span className={cssClasses.itemTitle}>{itemTitle}</span>);
+      if (!!ed.isRequireTextAfterTitle) {
+        spans.push(spaceSpan);
+        spans.push(
+          <span className={cssClasses.requiredText}>{ed.requiredText}</span>
+        );
+      }
       tds.push(
-        <td key={"label" + i} className = {cssClasses.cell} >
-          <span className={cssClasses.itemTitle}>{itemTitle}</span>
+        <td key={"label" + i} className={cssClasses.cell}>
+          {spans}
         </td>
       );
       tds.push(

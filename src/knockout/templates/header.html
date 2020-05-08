@@ -1,0 +1,27 @@
+﻿<script type="text/html" id="survey-header">
+  <!-- ko if: (locTitle.koRenderedHtml().length > 0) && showTitle || hasLogo -->
+  <div data-bind="css: css.header">
+
+      <!-- ko if: isLogoBefore -->
+      <div data-bind="css: logoClassNames">
+          <img data-bind="css: css.logoImage, attr: { src: locLogo.koRenderedHtml, width: logoWidth ? logoWidth + 'px' : undefined, height: logoHeight ? logoHeight + 'px' : undefined }, style: { objectFit: logoFit }">
+      </div>
+      <!-- /ko -->
+
+      <!-- ko if: (locTitle.koRenderedHtml().length > 0) && showTitle || isDesignMode -->
+      <div data-bind="css: css.headerText">
+          <h3 data-bind="css: css.title"><!-- ko template: { name: 'survey-string', data: locTitle } --><!-- /ko --></h3>
+          <h5 data-bind="css: css.description"><!-- ko template: { name: 'survey-string', data: locDescription } --><!-- /ko --></h5>
+      </div>
+      <!-- /ko -->
+
+      <!-- ko if: isLogoAfter -->
+      <div data-bind="css: logoClassNames">
+        <img data-bind="css: css.logoImage, attr: { src: locLogo.koRenderedHtml, width: logoWidth ? logoWidth + 'px' : undefined, height: logoHeight ? logoHeight + 'px' : undefined }, style: { objectFit: logoFit }">
+      </div>
+      <div class="sv-logo--right-tail"></div>
+      <!-- /ko -->
+
+  </div>
+  <!-- /ko -->
+</script>

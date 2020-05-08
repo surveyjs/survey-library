@@ -21,7 +21,15 @@ function init() {
   var json = {
     showProgressBar: "both",
     title: "Survey New Design Test",
+    logo: "https://surveyjs.io/Content/Images/examples/image-picker/lion.jpg",
+    logoPosition: "left",
     questions: [
+      {
+        name: "signature",
+        type: "signaturepad",
+        title: "Sign here",
+        isRequired: true
+      },
       {
         name: "name",
         type: "text",
@@ -115,6 +123,14 @@ function init() {
           "Toyota",
           "Citroen"
         ]
+      },
+      {
+        type: "image",
+        name: "banner",
+        imageHeight: "300px",
+        imageWidth: "450px",
+        imageLink:
+          "https://surveyjs.io/Content/Images/examples/image-picker/lion.jpg"
       },
       {
         type: "imagepicker",

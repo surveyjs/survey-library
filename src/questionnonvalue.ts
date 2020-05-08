@@ -30,7 +30,6 @@ export class QuestionNonValue extends Question {
   public supportGoNextPageAutomatic() {
     return false;
   }
-  public addConditionNames(names: Array<string>) {}
   public addConditionObjectsByContext(
     objects: Array<IConditionObject>,
     context: any

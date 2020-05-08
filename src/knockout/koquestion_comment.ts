@@ -7,6 +7,9 @@ import { QuestionImplementor } from "./koquestion";
 export class QuestionComment extends QuestionCommentModel {
   constructor(public name: string) {
     super(name);
+  }
+  protected onBaseCreating() {
+    super.onBaseCreating();
     new QuestionImplementor(this);
   }
 }

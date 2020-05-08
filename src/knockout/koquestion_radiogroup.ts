@@ -7,6 +7,9 @@ import { QuestionCheckboxBaseImplementor } from "./koquestion_baseselect";
 export class QuestionRadiogroup extends QuestionRadiogroupModel {
   constructor(public name: string) {
     super(name);
+  }
+  protected onBaseCreating() {
+    super.onBaseCreating();
     new QuestionCheckboxBaseImplementor(this);
   }
   getItemClass(item: any) {
@@ -27,6 +30,9 @@ export class QuestionRadiogroup extends QuestionRadiogroupModel {
   }
   getLabelClass(item: any) {
     return super.getLabelClass(item.value === this.value);
+  }
+  getItemIndex(item: any) {
+    return this.visibleChoices.indexOf(item);
   }
   getControlLabelClass(item: any) {
     return super.getControlLabelClass(item.value === this.value);

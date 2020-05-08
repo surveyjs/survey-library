@@ -6,7 +6,7 @@ import {
   MatrixDropdownCell,
   MatrixDropdownRowModelBase,
   QuestionMatrixDropdownRenderedTable,
-  QuestionMatrixDropdownRenderedCell
+  QuestionMatrixDropdownRenderedCell,
 } from "../question_matrixdropdownbase";
 import { Serializer } from "../jsonobject";
 import { QuestionFactory } from "../questionfactory";
@@ -25,35 +25,37 @@ export class QuestionMatrixBaseImplementor extends QuestionImplementor {
   constructor(question: Question) {
     super(question);
     var self = this;
-    this.koCellAfterRender = function(el: any, con: any) {
+    this.koCellAfterRender = function (el: any, con: any) {
       return self.cellAfterRender(el, con);
     };
     this.koRecalc = ko.observable(0);
-    this.koTable = ko.pureComputed(function() {
+    this.koTable = ko.pureComputed(function () {
       self.koRecalc();
       return (<QuestionMatrixDropdownModel>self.question).renderedTable;
     });
-    (<QuestionMatrixDropdownModel>this
-      .question).onRenderedTableCreatedCallback = function(
+    (<QuestionMatrixDropdownModel>(
+      this.question
+    )).onRenderedTableCreatedCallback = function (
       table: QuestionMatrixDropdownRenderedTable
     ) {
       new ImplementorBase(table);
     };
-    (<QuestionMatrixDropdownModel>this
-      .question).onRenderedTableResetCallback = function() {
+    (<QuestionMatrixDropdownModel>(
+      this.question
+    )).onRenderedTableResetCallback = function () {
       self.koRecalc(self.koRecalc() + 1);
     };
-    this.koAddRowClick = function() {
+    this.koAddRowClick = function () {
       self.addRow();
     };
-    this.koRemoveRowClick = function(data: any) {
+    this.koRemoveRowClick = function (data: any) {
       self.removeRow(data.row);
     };
-    this.koIsAddRowOnTop = ko.pureComputed(function() {
+    this.koIsAddRowOnTop = ko.pureComputed(function () {
       self.koRecalc();
       return self.isAddRowTop();
     });
-    this.koIsAddRowOnBottom = ko.pureComputed(function() {
+    this.koIsAddRowOnBottom = ko.pureComputed(function () {
       self.koRecalc();
       return self.isAddRowBottom();
     });
@@ -72,6 +74,7 @@ export class QuestionMatrixBaseImplementor extends QuestionImplementor {
     var el = SurveyElement.GetFirstNonTextElement(elements);
     if (!el) return;
     var cell = <QuestionMatrixDropdownRenderedCell>con;
+    cell.question.afterRenderQuestionElement(el);
     if (cell.question.customWidget) {
       cell.question.customWidget.afterRender(cell.question, el);
       ko.utils.domNodeDisposal.addDisposeCallback(el, () => {
@@ -83,7 +86,7 @@ export class QuestionMatrixBaseImplementor extends QuestionImplementor {
       cellQuestion: cell.question,
       htmlElement: el,
       row: cell.row,
-      column: !!cell.cell ? cell.cell.column : null
+      column: !!cell.cell ? cell.cell.column : null,
     };
     this.question.survey.matrixAfterCellRender(this.question, options);
   }
@@ -98,20 +101,41 @@ export class QuestionMatrixBaseImplementor extends QuestionImplementor {
   }
   protected addRow() {}
   protected removeRow(row: MatrixDropdownRowModelBase) {}
-}
-
-export class QuestionMatrixDropdown extends QuestionMatrixDropdownModel {
-  constructor(public name: string) {
-    super(name);
-    new QuestionMatrixBaseImplementor(this);
+  public dispose() {
+    super.dispose();
+    this.koTemplateName.dispose();
+    this.koTable.dispose();
+    this.koIsAddRowOnTop.dispose();
+    this.koIsAddRowOnBottom.dispose();
+    (<QuestionMatrixDropdownModel>(
+      this.question
+    )).onRenderedTableCreatedCallback = undefined;
+    (<QuestionMatrixDropdownModel>(
+      this.question
+    )).onRenderedTableResetCallback = undefined;
   }
 }
 
-Serializer.overrideClassCreator("matrixdropdown", function() {
+export class QuestionMatrixDropdown extends QuestionMatrixDropdownModel {
+  private _implementor: QuestionImplementor;
+  constructor(public name: string) {
+    super(name);
+  }
+  protected onBaseCreating() {
+    super.onBaseCreating();
+    this._implementor = new QuestionMatrixBaseImplementor(this);
+  }
+  public dispose() {
+    this._implementor.dispose();
+    this._implementor = undefined;
+  }
+}
+
+Serializer.overrideClassCreator("matrixdropdown", function () {
   return new QuestionMatrixDropdown("");
 });
 
-QuestionFactory.Instance.registerQuestion("matrixdropdown", name => {
+QuestionFactory.Instance.registerQuestion("matrixdropdown", (name) => {
   var q = new QuestionMatrixDropdown(name);
   q.choices = [1, 2, 3, 4, 5];
   q.rows = QuestionFactory.DefaultRows;

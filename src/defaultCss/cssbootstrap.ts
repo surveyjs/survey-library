@@ -7,6 +7,11 @@ export var defaultBootstrapCss = {
   body: "panel-body card-block mt-4",
   bodyEmpty: "panel-body card-block mt-4 sv_body_empty",
   footer: "panel-footer card-footer",
+  title: "",
+  description: "",
+  logo: "sv_logo",
+  logoImage: "sv_logo__image",
+  headerText: "sv_header__text",
   navigationButton: "",
   completedPage: "",
   navigation: {
@@ -21,7 +26,7 @@ export var defaultBootstrapCss = {
   page: {
     root: "",
     title: "",
-    description: ""
+    description: "small"
   },
   pageTitle: "",
   pageDescription: "small",
@@ -94,6 +99,7 @@ export var defaultBootstrapCss = {
     other: "sv_q_dd_other form-control"
   },
   html: { root: "" },
+  image: { root: "sv_q_image", image: "sv_image_image" },
   matrix: {
     root: "table sv_q_matrix",
     label: "sv_q_m_label",
@@ -182,6 +188,11 @@ export var defaultBootstrapCss = {
     fileDecorator: "sv-hidden",
     fileSignBottom: "sv-hidden",
     removeButtonBottom: "sv-hidden"
+  },
+  signaturepad: {
+    root: "sv_q_signaturepad sjs_sp_container",
+    controls: "sjs_sp_controls",
+    clearButton: "sjs_sp_clear"
   },
   saveData: {
     root: "",

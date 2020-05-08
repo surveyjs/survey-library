@@ -16,7 +16,7 @@ export class FlowPanel extends FlowPanelModel {
     new ImplementorBase(this);
     this.onCreating();
     var self = this;
-    this.koElementAfterRender = function(el: any, con: any) {
+    this.koElementAfterRender = function (el: any, con: any) {
       return self.elementAfterRender(el, con);
     };
   }
@@ -39,7 +39,7 @@ export class FlowPanel extends FlowPanelModel {
   }
 }
 
-Serializer.overrideClassCreator("flowpanel", function() {
+Serializer.overrideClassCreator("flowpanel", function () {
   return new FlowPanel();
 });
 /*
@@ -49,7 +49,7 @@ ElementFactory.Instance.registerElement("flowpanel", name => {
 */
 ko.components.register("f-panel", {
   viewModel: {
-    createViewModel: function(params: any, componentInfo: any) {
+    createViewModel: function (params: any, componentInfo: any) {
       var self = this;
       var question = ko.unwrap(params.question);
       self.element = componentInfo.element;
@@ -57,22 +57,22 @@ ko.components.register("f-panel", {
       self.isOnFocus = false;
       self.wasChanged = false;
       self.isContentUpdating = false;
-      question.contentChangedCallback = function() {
+      question.contentChangedCallback = function () {
         if (self.isContentUpdating) return;
         ko.cleanNode(self.element);
         self.element.innerHTML = question.html;
         ko.applyBindings({ question }, self.element);
         ko.tasks.runEarly();
       };
-      self.element.onfocus = function() {
+      self.element.onfocus = function () {
         self.isOnFocus = true;
       };
-      self.element.onblur = function() {
+      self.element.onblur = function () {
         if (self.wasChanged) self.updateContent();
         self.isOnFocus = false;
         self.wasChanged = false;
       };
-      self.element.ondragend = function(event: any) {
+      self.element.ondragend = function (event: any) {
         var regEx = /{(.*?(element:)[^$].*?)}/g;
         var str = self.element.innerHTML;
         var res = regEx.exec(str);
@@ -83,12 +83,12 @@ ko.components.register("f-panel", {
           }
         }
       };
-      self.updateContent = function() {
+      self.updateContent = function () {
         self.isContentUpdating = true;
         question.content = self.getContent();
         self.isContentUpdating = false;
       };
-      question.getContent = self.getContent = function(deletedName: string) {
+      question.getContent = self.getContent = function (deletedName: string) {
         var content = document.createElement("DIV");
         content.innerHTML = self.element.innerHTML;
         var cps = content.querySelectorAll('span[question="true"]');
@@ -107,16 +107,16 @@ ko.components.register("f-panel", {
         characterData: true,
         attributes: true,
         childList: true,
-        subtree: true
+        subtree: true,
       };
-      var callback = function(mutationsList: any, observer: any) {
+      var callback = function (mutationsList: any, observer: any) {
         if (!self.isOnFocus) return;
         self.wasChanged = true;
       };
       var observer = new MutationObserver(callback);
       observer.observe(self.element, config);
       return { question };
-    }
+    },
   },
-  template: "<div></div>"
+  template: "<div></div>",
 });

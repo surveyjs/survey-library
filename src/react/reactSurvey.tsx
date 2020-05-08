@@ -12,8 +12,10 @@ import { SurveyTimerPanel } from "./reacttimerpanel";
 import { SurveyElementBase, SurveyLocString } from "./reactquestionelement";
 import { PageModel } from "../page";
 import { StylesManager } from "../stylesmanager";
+import { Helpers } from "../helpers";
 
 export class Survey extends SurveyElementBase implements ISurveyCreator {
+  private previousJSON = {};
   public static get cssType(): string {
     return surveyCss.currentType;
   }
@@ -36,6 +38,13 @@ export class Survey extends SurveyElementBase implements ISurveyCreator {
   }
   protected getStateElement(): Base {
     return this.survey;
+  }
+  shouldComponentUpdate(nextProps: any, nextState: any) {
+    if (this.isModelJSONChanged(nextProps)) {
+      this.createSurvey(nextProps);
+      this.updateSurvey(nextProps, {});
+    }
+    return true;
   }
   componentDidUpdate(prevProps: any, prevState: any) {
     super.componentDidUpdate(prevProps, prevState);
@@ -73,16 +82,20 @@ export class Survey extends SurveyElementBase implements ISurveyCreator {
     } else {
       renderResult = this.renderSurvey();
     }
-    var title = this.renderTitle();
-    var onSubmit = function(event: React.FormEvent<HTMLFormElement>) {
+    var header = this.renderHeader();
+    var onSubmit = function (event: React.FormEvent<HTMLFormElement>) {
       event.preventDefault();
     };
+    var customHeader = <div className="sv_custom_header" />;
+    if (this.survey.hasLogo) {
+      customHeader = null;
+    }
     return (
       <div ref="root" className={this.css.root}>
         <form onSubmit={onSubmit}>
-          <div className="sv_custom_header" />
+          {customHeader}
           <div className={this.css.container}>
-            {title}
+            {header}
             {renderResult}
           </div>
         </form>
@@ -93,10 +106,10 @@ export class Survey extends SurveyElementBase implements ISurveyCreator {
     return this.doRender();
   }
   public get css(): any {
-    return surveyCss.getCss();
+    return this.survey.css;
   }
   public set css(value: any) {
-    this.survey.mergeCss(value, this.css);
+    this.survey.css = value;
   }
   handleTryAgainClick(event: any) {
     this.survey.doComplete();
@@ -204,11 +217,66 @@ export class Survey extends SurveyElementBase implements ISurveyCreator {
       );
     }
     return title ? (
-      <div className={this.css.header}>
-        <h3>{title}</h3>
-        <h5>{description}</h5>
+      <div className={this.css.headerText}>
+        <h3 className={this.css.title}>{title}</h3>
+        <h5 className={this.css.description}>{description}</h5>
       </div>
     ) : null;
+  }
+  protected renderHeader(): JSX.Element {
+    if ((this.survey.title && this.survey.showTitle) || this.survey.hasLogo) {
+      let title = this.renderTitle();
+      let style: any = { objectFit: this.survey.logoFit };
+      let imageBefore = null;
+      let imageAfter = [];
+      if (this.survey.isLogoBefore) {
+        imageBefore = (
+          <div className={this.survey.logoClassNames}>
+            <img
+              className={this.survey.css.logoImage}
+              src={this.survey.locLogo.renderedHtml}
+              width={
+                this.survey.logoWidth ? this.survey.logoWidth + "px" : undefined
+              }
+              height={
+                this.survey.logoHeight
+                  ? this.survey.logoHeight + "px"
+                  : undefined
+              }
+              style={style}
+            />
+          </div>
+        );
+      }
+      if (this.survey.isLogoAfter) {
+        imageAfter.push(
+          <div className={this.survey.logoClassNames}>
+            <img
+              className={this.survey.css.logoImage}
+              src={this.survey.locLogo.renderedHtml}
+              width={
+                this.survey.logoWidth ? this.survey.logoWidth + "px" : undefined
+              }
+              height={
+                this.survey.logoHeight
+                  ? this.survey.logoHeight + "px"
+                  : undefined
+              }
+              style={style}
+            />
+          </div>
+        );
+        imageAfter.push(<div className="sv-logo--right-tail"></div>);
+      }
+      return (
+        <div className={this.css.header}>
+          {imageBefore}
+          {title}
+          {imageAfter}
+        </div>
+      );
+    }
+    return null;
   }
   protected renderTimerPanel(location: string) {
     if (this.survey.showTimerPanel != location) return null;
@@ -242,11 +310,13 @@ export class Survey extends SurveyElementBase implements ISurveyCreator {
   }
   protected createSurvey(newProps: any) {
     if (!newProps) newProps = {};
+    this.previousJSON = {};
     if (newProps) {
       if (newProps.model) {
         this.survey = newProps.model;
       } else {
         if (newProps.json) {
+          this.previousJSON = newProps.json;
           this.survey = new ReactSurveyModel(newProps.json);
         }
       }
@@ -258,14 +328,28 @@ export class Survey extends SurveyElementBase implements ISurveyCreator {
     }
     this.setSurveyEvents();
   }
-  protected updateSurvey(newProps: any, oldProps: any) {
+  private isModelJSONChanged(newProps: any): boolean {
+    if (!!newProps["model"]) {
+      return this.survey !== newProps["model"];
+    }
+    if (!!newProps["json"]) {
+      return !Helpers.isTwoValueEquals(newProps["json"], this.previousJSON);
+    }
+    return false;
+  }
+  protected updateSurvey(newProps: any, oldProps?: any) {
     if (!newProps) return;
     oldProps = oldProps || {};
     for (var key in newProps) {
-      if (key == "model" || key == "children" || key == "css" || key == "json")
+      if (key == "model" || key == "children" || key == "json") {
         continue;
+      }
+      if (key == "css") {
+        this.survey.mergeValues(newProps.css, this.survey.getCss());
+        this.survey["updateElementCss"]();
+        continue;
+      }
       if (newProps[key] === oldProps[key]) continue;
-
       if (key.indexOf("on") == 0 && this.survey[key] && this.survey[key].add) {
         if (!!oldProps[key]) {
           this.survey[key].remove(oldProps[key]);
@@ -279,12 +363,12 @@ export class Survey extends SurveyElementBase implements ISurveyCreator {
   protected setSurveyEvents() {
     var self = this;
 
-    this.survey.renderCallback = function() {
+    this.survey.renderCallback = function () {
       var counter =
         !!self.state && !!self.state.modelChanged ? self.state.modelChanged : 0;
       self.setState({ modelChanged: counter + 1 });
     };
-    this.survey.onPartialSend.add(sender => {
+    this.survey.onPartialSend.add((sender) => {
       self.setState(self.state);
     });
     this.survey.onCurrentPageChanged.add(this.onCurrentPageChangedHandler);
@@ -297,7 +381,7 @@ export class Survey extends SurveyElementBase implements ISurveyCreator {
       {
         question: question,
         isDisplayMode: question.isReadOnly,
-        creator: this
+        creator: this,
       }
     );
   }

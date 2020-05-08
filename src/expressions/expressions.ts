@@ -50,6 +50,12 @@ export class BinaryOperand extends Operand {
   public get isConjunction() {
     return this.operatorName == "or" || this.operatorName == "and";
   }
+  public get conjunction(): string {
+    return this.isConjunction ? this.operatorName : "";
+  }
+  public get operator(): string {
+    return this.operatorName;
+  }
   public get leftOperand() {
     return this.left;
   }
@@ -110,12 +116,18 @@ export class BinaryOperand extends Operand {
 
 export class UnaryOperand extends Operand {
   private consumer: Function;
-  constructor(private expression: Operand, private operatorName: string) {
+  constructor(private expressionValue: Operand, private operatorName: string) {
     super();
     this.consumer = OperandMaker.unaryFunctions[operatorName];
     if (this.consumer == null) {
       OperandMaker.throwInvalidOperatorError(operatorName);
     }
+  }
+  public get operator(): string {
+    return this.operatorName;
+  }
+  public get expression(): Operand {
+    return this.expressionValue;
   }
   public getType(): string {
     return "unary";
@@ -143,7 +155,7 @@ export class UnaryOperand extends Operand {
 }
 
 export class ArrayOperand extends Operand {
-  constructor(private values: Array<Operand>) {
+  constructor(public values: Array<Operand>) {
     super();
   }
   public getType(): string {
@@ -275,13 +287,15 @@ export class FunctionOperand extends Operand {
   }
   public evaluateAsync(processValue: ProcessValue) {
     this.isReadyValue = false;
-    if (!processValue.properties) processValue.properties = {};
-    processValue.properties.returnResult = (result: any) => {
+    var asyncProcessValue = new ProcessValue();
+    asyncProcessValue.values = Helpers.createCopy(processValue.values);
+    asyncProcessValue.properties = Helpers.createCopy(processValue.properties);
+    asyncProcessValue.properties.returnResult = (result: any) => {
       this.asynResult = result;
       this.isReadyValue = true;
       this.onAsyncReady();
     };
-    this.evaluateCore(processValue);
+    this.evaluateCore(asyncProcessValue);
   }
   public evaluate(processValue?: ProcessValue): any {
     if (this.isReady) return this.asynResult;
@@ -382,8 +396,12 @@ export class OperandMaker {
   static binaryFunctions: HashTable<Function> = {
     arithmeticOp(operatorName: string) {
       return function(a: any, b: any): any {
-        if (Helpers.isValueEmpty(a) && !OperandMaker.isSpaceString(a)) a = 0;
-        if (Helpers.isValueEmpty(b) && !OperandMaker.isSpaceString(b)) b = 0;
+        if (Helpers.isValueEmpty(a) && !OperandMaker.isSpaceString(a)) {
+          a = typeof b === "string" ? "" : 0;
+        }
+        if (Helpers.isValueEmpty(b) && !OperandMaker.isSpaceString(b)) {
+          b = typeof a === "string" ? "" : 0;
+        }
 
         let consumer = OperandMaker.binaryFunctions[operatorName];
         return consumer == null ? null : consumer.call(this, a, b);
@@ -395,7 +413,7 @@ export class OperandMaker {
     or: function(a: boolean, b: boolean): boolean {
       return a || b;
     },
-    plus: function(a: number, b: number): number {
+    plus: function(a: any, b: any): any {
       return a + b;
     },
     minus: function(a: number, b: number): number {

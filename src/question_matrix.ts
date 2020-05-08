@@ -183,13 +183,16 @@ export class QuestionMatrixModel
     super(name);
     this.cellsValue = new MartrixCells(this);
     var self = this;
-    this.registerFunctionOnPropertyValueChanged("columns", function() {
+    this.registerFunctionOnPropertyValueChanged("columns", function () {
       self.onColumnsChanged();
     });
-    this.registerFunctionOnPropertyValueChanged("rows", function() {
+    this.registerFunctionOnPropertyValueChanged("rows", function () {
       if (!self.filterItems()) {
         self.onRowsChanged();
       }
+    });
+    this.registerFunctionOnPropertyValueChanged("hideIfRowsEmpty", function () {
+      self.updateVisibilityBasedOnRows();
     });
   }
   public getType(): string {
@@ -221,6 +224,15 @@ export class QuestionMatrixModel
     if (val == this.rowsOrder) return;
     this.setPropertyValue("rowsOrder", val);
     this.onRowsChanged();
+  }
+  /**
+   * Set this property to true to hide the question if there is no visible rows in the matrix.
+   */
+  public get hideIfRowsEmpty(): boolean {
+    return this.getPropertyValue("hideIfRowsEmpty", false);
+  }
+  public set hideIfRowsEmpty(val: boolean) {
+    this.setPropertyValue("hideIfRowsEmpty", val);
   }
   getRows(): Array<any> {
     return this.rows;
@@ -288,6 +300,7 @@ export class QuestionMatrixModel
   endLoadingFromJson() {
     super.endLoadingFromJson();
     this.rows = this.sortVisibleRows(this.rows);
+    this.updateVisibilityBasedOnRows();
   }
   protected processRowsOnSet(newRows: Array<any>) {
     return this.sortVisibleRows(newRows);
@@ -332,9 +345,15 @@ export class QuestionMatrixModel
   supportGoNextPageAutomatic() {
     return this.hasValuesInAllRows();
   }
-  protected onCheckForErrors(errors: Array<SurveyError>) {
-    super.onCheckForErrors(errors);
-    if (this.hasErrorInRows()) {
+  protected onCheckForErrors(
+    errors: Array<SurveyError>,
+    isOnValueChanged: boolean
+  ) {
+    super.onCheckForErrors(errors, isOnValueChanged);
+    if (
+      (!isOnValueChanged || this.errors.length > 0) &&
+      this.hasErrorInRows()
+    ) {
       errors.push(new RequiredInAllRowsError(null, this));
     }
   }
@@ -404,14 +423,14 @@ export class QuestionMatrixModel
         propertyName: string;
       }>;
     } = {
-      includeEmpty: true
+      includeEmpty: true,
     }
   ) {
     var questionPlainData = super.getPlainData(options);
     if (!!questionPlainData) {
       var values = this.createValueCopy();
       questionPlainData.isNode = true;
-      questionPlainData.data = Object.keys(values || {}).map(rowName => {
+      questionPlainData.data = Object.keys(values || {}).map((rowName) => {
         var row = this.rows.filter(
           (r: MatrixRowModel) => r.value === rowName
         )[0];
@@ -425,14 +444,14 @@ export class QuestionMatrixModel
           ),
           getString: (val: any) =>
             typeof val === "object" ? JSON.stringify(val) : val,
-          isNode: false
+          isNode: false,
         };
         var item = ItemValue.getItemByValue(
           this.visibleColumns,
           values[rowName]
         );
         if (!!item) {
-          (options.calculations || []).forEach(calculation => {
+          (options.calculations || []).forEach((calculation) => {
             rowDataItem[calculation.propertyName] =
               item[calculation.propertyName];
           });
@@ -442,13 +461,6 @@ export class QuestionMatrixModel
     }
     return questionPlainData;
   }
-  public addConditionNames(names: Array<string>) {
-    for (var i = 0; i < this.rows.length; i++) {
-      if (this.rows[i].value) {
-        names.push(this.name + "." + this.rows[i].value);
-      }
-    }
-  }
   public addConditionObjectsByContext(
     objects: Array<IConditionObject>,
     context: any
@@ -457,9 +469,9 @@ export class QuestionMatrixModel
       var row = this.rows[i];
       if (!!row.value) {
         objects.push({
-          name: this.name + "." + row.value,
+          name: this.getValueName() + "." + row.value,
           text: this.processedTitle + "." + row.calculatedText,
-          question: this
+          question: this,
         });
       }
     }
@@ -486,6 +498,17 @@ export class QuestionMatrixModel
     }
     return super.getFirstInputElementId();
   }
+  protected onRowsChanged() {
+    this.updateVisibilityBasedOnRows();
+    super.onRowsChanged();
+  }
+  private updateVisibilityBasedOnRows() {
+    if (this.hideIfRowsEmpty) {
+      this.visible =
+        this.rows.length > 0 &&
+        (!this.filteredRows || this.filteredRows.length > 0);
+    }
+  }
   //IMatrixData
   onMatrixRowChanged(row: MatrixRowModel) {
     if (this.isRowChanging) return;
@@ -509,31 +532,32 @@ Serializer.addClass(
   [
     {
       name: "columns:itemvalue[]",
-      baseValue: function() {
+      baseValue: function () {
         return surveyLocalization.getString("matrix_column");
-      }
+      },
     },
     {
       name: "rows:itemvalue[]",
-      baseValue: function() {
+      baseValue: function () {
         return surveyLocalization.getString("matrix_row");
-      }
+      },
     },
     { name: "cells:cells", serializationProperty: "cells" },
     {
       name: "rowsOrder",
       default: "initial",
-      choices: ["initial", "random"]
+      choices: ["initial", "random"],
     },
-    "isAllRowRequired:boolean"
+    "isAllRowRequired:boolean",
+    "hideIfRowsEmpty:boolean",
   ],
-  function() {
+  function () {
     return new QuestionMatrixModel("");
   },
   "matrixbase"
 );
 
-QuestionFactory.Instance.registerQuestion("matrix", name => {
+QuestionFactory.Instance.registerQuestion("matrix", (name) => {
   var q = new QuestionMatrixModel(name);
   q.rows = QuestionFactory.DefaultRows;
   q.columns = QuestionFactory.DefaultColums;

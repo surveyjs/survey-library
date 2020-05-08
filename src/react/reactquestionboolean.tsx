@@ -8,31 +8,57 @@ import { ReactQuestionFactory } from "./reactquestionfactory";
 import { OtherEmptyError } from "../error";
 
 export class SurveyQuestionBoolean extends SurveyQuestionElementBase {
+  private isIndeterminateChange: boolean = false;
   constructor(props: any) {
     super(props);
     this.handleOnChange = this.handleOnChange.bind(this);
+    this.handleOnClick = this.handleOnClick.bind(this);
+    this.handleOnLabelClick = this.handleOnLabelClick.bind(this);
+    this.handleOnSwitchClick = this.handleOnSwitchClick.bind(this);
   }
   protected get question(): QuestionBooleanModel {
     return this.questionBase as QuestionBooleanModel;
   }
-  handleOnChange(event: any) {
-    this.question.checkedValue = event.target.checked;
+  private preventDefaults(event: any) {
+    event.preventDefault();
+    event.stopPropagation();
+  }
+  private doCheck(value: boolean) {
+    this.question.checkedValue = value;
     this.setState({ value: this.question.checkedValue });
   }
-  componentDidMount() {
-    super.componentDidMount();
-    this.updateIndeterminate();
+  handleOnChange(event: any) {
+    this.doCheck(event.target.checked);
   }
-  componentDidUpdate(prevProps: any, prevState: any) {
-    super.componentDidUpdate(prevProps, prevState);
-    this.updateIndeterminate();
+  handleOnClick(event: any) {
+    if (this.question.isIndeterminate) {
+      this.preventDefaults(event);
+      this.question.checkedValue = true;
+      this.setState({ value: this.question.checkedValue });
+    }
   }
-  private updateIndeterminate() {
+  handleOnSwitchClick(event: any) {
+    if (this.question.isIndeterminate) {
+      this.preventDefaults(event);
+      var percentage = event.nativeEvent.offsetX / event.target.offsetWidth;
+      return this.doCheck(percentage > 0.5);
+    }
+  }
+  handleOnLabelClick(event: any, value: boolean) {
+    if (this.question.isIndeterminate) {
+      this.preventDefaults(event);
+      this.doCheck(value);
+    }
+  }
+
+  protected updateDomElement() {
     if (!this.question) return;
     var el: any = this.refs["check"];
     if (el) {
       el["indeterminate"] = this.question.isIndeterminate;
     }
+    this.control = el;
+    super.updateDomElement();
   }
   private getItemClass(): string {
     var cssClasses = this.question.cssClasses;
@@ -62,7 +88,7 @@ export class SurveyQuestionBoolean extends SurveyQuestionElementBase {
     var itemClass = this.getItemClass();
     return (
       <div className={cssClasses.root}>
-        <label className={itemClass}>
+        <label className={itemClass} onClick={this.handleOnClick}>
           <input
             ref="check"
             type="checkbox"
@@ -78,13 +104,19 @@ export class SurveyQuestionBoolean extends SurveyQuestionElementBase {
             onChange={this.handleOnChange}
             aria-label={this.question.locTitle.renderedHtml}
           />
-          <span className={this.getLabelClass(false)}>
+          <span
+            className={this.getLabelClass(false)}
+            onClick={event => this.handleOnLabelClick(event, false)}
+          >
             {this.question.locLabelFalse.renderedHtml}
           </span>
-          <div className={cssClasses.switch}>
+          <div className={cssClasses.switch} onClick={this.handleOnSwitchClick}>
             <span className={cssClasses.slider} />
           </div>
-          <span className={this.getLabelClass(true)}>
+          <span
+            className={this.getLabelClass(true)}
+            onClick={event => this.handleOnLabelClick(event, true)}
+          >
             {this.question.locLabelTrue.renderedHtml}
           </span>
         </label>

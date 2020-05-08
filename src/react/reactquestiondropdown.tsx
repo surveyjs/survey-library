@@ -1,25 +1,18 @@
 import * as React from "react";
 import {
-  SurveyQuestionElementBase,
+  SurveyQuestionUncontrolledElement,
   ReactSurveyElement
 } from "./reactquestionelement";
+import { Helpers } from "../helpers";
 import { QuestionDropdownModel } from "../question_dropdown";
 import { SurveyQuestionCommentItem } from "./reactquestioncomment";
 import { ReactQuestionFactory } from "./reactquestionfactory";
 import { ItemValue } from "../itemvalue";
 import { Base } from "../base";
 
-export class SurveyQuestionDropdown extends SurveyQuestionElementBase {
+export class SurveyQuestionDropdown extends SurveyQuestionUncontrolledElement<QuestionDropdownModel> {
   constructor(props: any) {
     super(props);
-    this.handleOnChange = this.handleOnChange.bind(this);
-  }
-  protected get question(): QuestionDropdownModel {
-    return this.questionBase as QuestionDropdownModel;
-  }
-  handleOnChange(event: any) {
-    this.question.renderedValue = event.target.value;
-    this.setState({ value: this.getStateValue() });
   }
   render(): JSX.Element {
     if (!this.question) return null;
@@ -58,19 +51,14 @@ export class SurveyQuestionDropdown extends SurveyQuestionElementBase {
       <option value="">{this.question.optionsCaption}</option>
     ) : null;
 
-    var value =
-      !!this.state && this.state.value !== undefined
-        ? this.state.value
-        : this.getStateValue();
-
     return (
       <div className={cssClasses.selectWrapper}>
         <select
           id={this.question.inputId}
           className={cssClasses.control}
-          value={value}
-          onChange={this.handleOnChange}
-          onInput={this.handleOnChange}
+          ref={select => (this.control = select)}
+          onChange={this.updateValueOnEvent}
+          onInput={this.updateValueOnEvent}
           aria-label={this.question.locTitle.renderedHtml}
         >
           {captionOption}
@@ -90,9 +78,6 @@ export class SurveyQuestionDropdown extends SurveyQuestionElementBase {
         />
       </div>
     );
-  }
-  private getStateValue(): any {
-    return !this.question.isEmpty() ? this.question.renderedValue : "";
   }
 }
 

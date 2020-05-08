@@ -3,18 +3,14 @@ import { QuestionBooleanModel } from "../question_boolean";
 import { Serializer } from "../jsonobject";
 import { QuestionFactory } from "../questionfactory";
 import { QuestionImplementor } from "./koquestion";
-import { Question } from "../question";
-
-export class QuestionBooleanImplementor extends QuestionImplementor {
-  constructor(public question: Question) {
-    super(question);
-  }
-}
 
 export class QuestionBoolean extends QuestionBooleanModel {
   constructor(public name: string) {
     super(name);
-    new QuestionBooleanImplementor(this);
+  }
+  protected onBaseCreating() {
+    super.onBaseCreating();
+    new QuestionImplementor(this);
   }
   public getItemCss(row: any, column: any) {
     let isChecked = this.checkedValue;
@@ -39,6 +35,32 @@ export class QuestionBoolean extends QuestionBooleanModel {
         ? " " + this.cssClasses.disabledLabel
         : "")
     );
+  }
+  private preventDefaults(event: any) {
+    event.preventDefault();
+    event.stopPropagation();
+  }
+  private onLabelClick(event: any, value: boolean) {
+    if (this.isIndeterminate) {
+      this.preventDefaults(event);
+      this.checkedValue = value;
+    }
+    return true;
+  }
+  public onSwitchClick(data: any, event: any) {
+    if (this.isIndeterminate) {
+      this.preventDefaults(event);
+      var percentage = event.offsetX / event.target.offsetWidth;
+      this.checkedValue = percentage > 0.5;
+      return;
+    }
+    return true;
+  }
+  public onTrueLabelClick(data: any, event: any) {
+    return this.onLabelClick(event, true);
+  }
+  public onFalseLabelClick(data: any, event: any) {
+    return this.onLabelClick(event, false);
   }
 }
 Serializer.overrideClassCreator("boolean", function() {

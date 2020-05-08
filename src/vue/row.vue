@@ -1,12 +1,14 @@
 <template>
-  <div>
+  <div class="sv-vue-row-additional-div">
     <survey-element
       v-if="element.visible"
       v-for="element in row.elements"
       :key="element.idValue"
       :id="element.id"
+      :role="element.ariaRole"
+      :aria-labelledby="element.ariaTitleId"
       :name="element.name"
-      :style="{ paddingLeft: element.paddingLeft, paddingRight: element.paddingRight, width: element.renderWidth, display: 'inline-block' }"
+      :style="{ paddingLeft: element.paddingLeft, paddingRight: element.paddingRight, flexBasis: element.renderWidth, flexGrow: 1, flexShrink: 1, width: element.renderWidth, minWidth: '300px', display: 'inline-block' }"
       :element="element"
       :survey="survey"
       :css="css"

@@ -12,9 +12,7 @@ export { defaultStandardCss } from "../defaultCss/cssstandard";
 // css bootstrap
 export { defaultBootstrapCss } from "../defaultCss/cssbootstrap";
 // css bootstrap + material
-export {
-  defaultBootstrapMaterialCss
-} from "../defaultCss/cssbootstrapmaterial";
+export { defaultBootstrapMaterialCss } from "../defaultCss/cssbootstrapmaterial";
 export { modernCss } from "../defaultCss/cssmodern";
 
 // knockout
@@ -24,12 +22,8 @@ export { ImplementorBase } from "../knockout/kobase";
 export { QuestionRow, Page, Panel } from "../knockout/kopage";
 export { FlowPanel } from "../knockout/koflowpanel";
 export { QuestionImplementor } from "../knockout/koquestion";
-export {
-  QuestionSelectBaseImplementor
-} from "../knockout/koquestion_baseselect";
-export {
-  QuestionCheckboxBaseImplementor
-} from "../knockout/koquestion_baseselect";
+export { QuestionSelectBaseImplementor } from "../knockout/koquestion_baseselect";
+export { QuestionCheckboxBaseImplementor } from "../knockout/koquestion_baseselect";
 export { QuestionCheckbox } from "../knockout/koquestion_checkbox";
 export { QuestionComment } from "../knockout/koquestion_comment";
 export { QuestionDropdown } from "../knockout/koquestion_dropdown";
@@ -39,13 +33,12 @@ export { MatrixRow, QuestionMatrix } from "../knockout/koquestion_matrix";
 export { QuestionMatrixDropdown } from "../knockout/koquestion_matrixdropdown";
 export {
   QuestionMatrixDynamicImplementor,
-  QuestionMatrixDynamic
+  QuestionMatrixDynamic,
 } from "../knockout/koquestion_matrixdynamic";
 export { QuestionPanelDynamic } from "../knockout/koquestion_paneldynamic";
 export {
   MultipleTextItem,
-  QuestionMultipleTextImplementor,
-  QuestionMultipleText
+  QuestionMultipleText,
 } from "../knockout/koquestion_multipletext";
 export { QuestionRadiogroup } from "../knockout/koquestion_radiogroup";
 export { QuestionRating } from "../knockout/koquestion_rating";
@@ -56,6 +49,10 @@ export { QuestionExpression } from "../knockout/koquestion_expression";
 export { QuestionImagePicker } from "../knockout/koquestion_imagepicker";
 export { SurveyWindow } from "../knockout/koSurveyWindow";
 export { SurveyTemplateText } from "../knockout/templateText";
+export { QuestionImage } from "../knockout/koquestion_image";
+export { QuestionSignaturePad } from "../knockout/koquestion_signaturepad";
+
+export { QuestionCustom } from "../knockout/koquestion_custom";
 
 //Uncomment to include the "date" question type.
 //export {QuestionDate} from "../plugins/knockout/koquestion_date";

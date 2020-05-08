@@ -1,4 +1,4 @@
-import { Base, Event } from "../src/base";
+import { Base, Event, ArrayChanges } from "../src/base";
 import { ItemValue } from "../src/itemvalue";
 import { ILocalizableOwner, LocalizableString } from "../src/localizablestring";
 import { Serializer } from "../src/jsonobject";
@@ -380,5 +380,85 @@ QUnit.test("Base array propety value, set value", function(assert) {
     true,
     "The third  item, isNew property is set"
   );
-  assert.equal(counter, 2, "event called two time");
+  assert.equal(counter, 2, "event called two times");
+});
+
+QUnit.test("Base onPropertyValueChangedCallback", function(assert) {
+  var base = new BaseTester();
+  var counter = 0;
+
+  base.onPropertyValueChangedCallback = (
+    name: string,
+    oldValue: any,
+    newValue: any,
+    sender: Base,
+    arrayChanges: ArrayChanges
+  ) => {
+    counter++;
+  };
+
+  assert.equal(counter, 0, "initial");
+
+  base.setPropertyValue("some", "some");
+
+  assert.equal(counter, 1, "callback called");
+});
+
+QUnit.test("Base propertyValueChanged itemValue", function(assert) {
+  var itemValue = new ItemValue("Item");
+  var counter = 0;
+
+  itemValue.onPropertyValueChangedCallback = (
+    name: string,
+    oldValue: any,
+    newValue: any,
+    sender: Base,
+    arrayChanges: ArrayChanges
+  ) => {
+    counter++;
+  };
+
+  assert.equal(counter, 0, "initial");
+
+  itemValue.text = "new";
+
+  assert.equal(counter, 1, "callback called");
+});
+
+QUnit.test("Base propertyValueChanged colOwner - column undo/redo", function(
+  assert
+) {
+  var counter1 = 0;
+  var counter2 = 0;
+  var baseObj: any = new Base();
+
+  baseObj.colOwner = {
+    doPropertyValueChangedCallback: (
+      name: string,
+      oldValue: any,
+      newValue: any,
+      sender: Base,
+      arrayChanges: ArrayChanges
+    ) => {
+      counter1++;
+    }
+  };
+  baseObj.locOwner = {
+    doPropertyValueChangedCallback: (
+      name: string,
+      oldValue: any,
+      newValue: any,
+      sender: Base,
+      arrayChanges: ArrayChanges
+    ) => {
+      counter2++;
+    }
+  };
+
+  assert.equal(counter1, 0, "initial");
+  assert.equal(counter2, 0, "initial");
+
+  baseObj.setPropertyValue("some", 1);
+  assert.equal(counter1, 1, "callback colOwner called");
+  assert.equal(counter2, 0, "callback locOwner not called");
 });

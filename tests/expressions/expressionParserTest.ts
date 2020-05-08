@@ -286,6 +286,18 @@ QUnit.test("Run sum function with arrays, Bug #1808", function(assert) {
   assert.equal(runner.run(values), 10, "2 + 5 + 3 == 10");
 });
 
+QUnit.test("Run min function", function(assert) {
+  var runner = new ExpressionRunner("min({var1},{var2})");
+  var values = { var1: [4, 2, 5], var2: 3 };
+  assert.equal(runner.run(values), 2, "4, 2, 5, 3, min is 2");
+});
+
+QUnit.test("Run max function", function(assert) {
+  var runner = new ExpressionRunner("max({var1},{var2})");
+  var values = { var1: [4, 2, 5, 3], var2: 3 };
+  assert.equal(runner.run(values), 5, "4, 2, 5, 3, max is 5");
+});
+
 QUnit.test("Run age function", function(assert) {
   var runner = new ConditionRunner("age({bithday}) >= 21");
   var values = { bithday: new Date(1974, 1, 1) };
@@ -951,4 +963,26 @@ QUnit.test("isString function", function(assert) {
     "'0xbe0eb53f46cd790cd13851d5eff43d12404d33e8' is string"
   );
   FunctionFactory.Instance.unregister("isString");
+});
+QUnit.test('express with iif and "[" inside, Bug#1942', function(assert) {
+  // prettier-ignore
+  var expression = "{val1} + iif({val2} = \"item2\", \"[\" + {val1} + \"]\", \"x\")";
+  var runner = new ExpressionRunner(expression);
+  var values: any = { val1: "1", val2: "item2" };
+  assert.equal(runner.run(values), "1[1]", "val1 + [val1]");
+  values.val2 = "item1";
+  assert.equal(runner.run(values), "1x", "1 + 'x'");
+  values.val1 = undefined;
+  assert.equal(runner.run(values), "x", "undefined + 'x'");
+  // prettier-ignore
+  expression = "{val1} + \"x\"";
+  var runner = new ExpressionRunner(expression);
+  assert.equal(runner.run(values), "x", "undefined + 'x' without iif");
+  expression = '{val1} + "[" + {val1} + "]"';
+  var runner = new ExpressionRunner(expression);
+  assert.equal(
+    runner.run(values),
+    "[]",
+    "undefined + '[' + undefined + ']' without iif"
+  );
 });

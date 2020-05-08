@@ -1,5 +1,10 @@
 import { ILocalizableOwner, LocalizableString } from "./localizablestring";
-import { JsonObject, JsonObjectProperty, Serializer } from "./jsonobject";
+import {
+  JsonObject,
+  JsonObjectProperty,
+  Serializer,
+  CustomPropertiesCollection,
+} from "./jsonobject";
 import { Helpers } from "./helpers";
 import { ConditionRunner } from "./conditions";
 import { Base } from "./base";
@@ -27,17 +32,17 @@ export class ItemValue extends Base {
     items: Array<ItemValue>,
     locOwner: ILocalizableOwner
   ) {
-    items.push = function(value): number {
+    items.push = function (value): number {
       var result = Array.prototype.push.call(this, value);
       value.locOwner = locOwner;
       return result;
     };
-    items.unshift = function(value): number {
+    items.unshift = function (value): number {
       var result = Array.prototype.unshift.call(this, value);
       value.locOwner = locOwner;
       return result;
     };
-    items.splice = function(
+    items.splice = function (
       start?: number,
       deleteCount?: number,
       ...items: ItemValue[]
@@ -182,7 +187,7 @@ export class ItemValue extends Base {
     }
     return hasChanded;
   }
-  private visibleIfValue: string = "";
+  public ownerPropertyName: string = "";
   private itemValue: any;
   private locTextValue: LocalizableString;
   private isVisibleValue: boolean = true;
@@ -192,7 +197,7 @@ export class ItemValue extends Base {
   constructor(value: any, text: string = null, private typeName = "itemvalue") {
     super();
     this.locTextValue = new LocalizableString(null, true);
-    this.locTextValue.onGetTextCallback = txt => {
+    this.locTextValue.onGetTextCallback = (txt) => {
       return txt ? txt : !this.isValueItemEmpty ? this.value.toString() : null;
     };
     if (text) this.locText.text = text;
@@ -201,11 +206,17 @@ export class ItemValue extends Base {
     } else {
       this.value = value;
     }
+    if (this.getType() != "itemvalue") {
+      CustomPropertiesCollection.createProperties(this);
+    }
     this.onCreating();
   }
   public onCreating(): any {}
   public getType(): string {
     return !!this.typeName ? this.typeName : "itemvalue";
+  }
+  public getLocale(): string {
+    return this.locText.locale;
   }
   public get locText(): LocalizableString {
     return this.locTextValue;
@@ -223,7 +234,9 @@ export class ItemValue extends Base {
     return this.itemValue;
   }
   public set value(newValue: any) {
+    var oldValue = this.itemValue;
     this.itemValue = newValue;
+    this.propertyValueChanged("value", oldValue, this.itemValue);
     if (!this.itemValue) return;
     var str: string = this.itemValue.toString();
     var index = str.indexOf(settings.itemValueSeparator);
@@ -241,7 +254,9 @@ export class ItemValue extends Base {
     return this.locText.calculatedText; //TODO: it will be correct to use this.locText.text, however it would require a lot of rewritting in Creator
   }
   public set text(newText: string) {
+    const oldText = this.locText.text;
     this.locText.text = newText;
+    this.propertyValueChanged("text", oldText, newText);
   }
   public get calculatedText() {
     return this.locText.calculatedText;
@@ -280,10 +295,10 @@ export class ItemValue extends Base {
     }
   }
   public get visibleIf(): string {
-    return this.visibleIfValue;
+    return this.getPropertyValue("visibleIf", "");
   }
   public set visibleIf(val: string) {
-    this.visibleIfValue = val;
+    this.setPropertyValue("visibleIf", val);
   }
   public get isVisible() {
     return this.isVisibleValue;
@@ -299,6 +314,11 @@ export class ItemValue extends Base {
   }
   public addUsedLocales(locales: Array<string>) {
     this.AddLocStringToUsedLocales(this.locTextValue, locales);
+  }
+  protected onPropertyValueChanged(name: string, oldValue: any, newValue: any) {
+    var funcName = "itemValuePropertyChanged";
+    if (!this.locOwner || !(<any>this.locOwner)[funcName]) return;
+    (<any>this.locOwner)[funcName](this, name, oldValue, newValue);
   }
   protected getConditionRunner(isVisible: boolean) {
     if (isVisible) return this.getVisibleConditionRunner();
@@ -323,7 +343,7 @@ export class ItemValue extends Base {
   }
 }
 
-Base.createItemValue = function(source: any, type?: string): any {
+Base.createItemValue = function (source: any, type?: string): any {
   var item = null;
   if (!!type) {
     item = JsonObject.metaData.createClass(type, {});
@@ -335,10 +355,10 @@ Base.createItemValue = function(source: any, type?: string): any {
   item.setData(source);
   return item;
 };
-Base.itemValueLocStrChanged = function(arr: Array<any>): void {
+Base.itemValueLocStrChanged = function (arr: Array<any>): void {
   ItemValue.locStrsChanged(arr);
 };
-JsonObjectProperty.getItemValuesDefaultValue = function(val: any): any {
+JsonObjectProperty.getItemValuesDefaultValue = function (val: any): any {
   var res = new Array<ItemValue>();
   ItemValue.setData(res, val || []);
   return res;
@@ -350,10 +370,10 @@ Serializer.addClass(
     "value",
     {
       name: "text",
-      serializationProperty: "locText"
+      serializationProperty: "locText",
     },
-    { name: "visibleIf:condition", visible: false },
-    { name: "enableIf:condition", visible: false }
+    { name: "visibleIf:condition", showMode: "form" },
+    { name: "enableIf:condition", showMode: "form" },
   ],
   (value: any) => new ItemValue(value)
 );

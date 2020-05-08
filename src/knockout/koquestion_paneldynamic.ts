@@ -147,16 +147,19 @@ export class QuestionPanelDynamicImplementor extends QuestionImplementor {
     (<any>this.question)["koPanelAfterRender"] = function(el: any, con: any) {
       self.panelAfterRender(el, con);
     };
-    (<QuestionPanelDynamic>this
-      .question).panelCountChangedCallback = function() {
+    (<QuestionPanelDynamic>(
+      this.question
+    )).panelCountChangedCallback = function() {
       self.onPanelCountChanged();
     };
-    (<QuestionPanelDynamic>this
-      .question).renderModeChangedCallback = function() {
+    (<QuestionPanelDynamic>(
+      this.question
+    )).renderModeChangedCallback = function() {
       self.onRenderModeChanged();
     };
-    (<QuestionPanelDynamic>this
-      .question).currentIndexChangedCallback = function() {
+    (<QuestionPanelDynamic>(
+      this.question
+    )).currentIndexChangedCallback = function() {
       self.onCurrentIndexChanged();
     };
   }
@@ -218,13 +221,16 @@ export class QuestionPanelDynamicImplementor extends QuestionImplementor {
 
   protected get progress() {
     var rangeMax = this.question.panelCount - 1;
-    return this.question.currentIndex / rangeMax * 100 + "%";
+    return (this.question.currentIndex / rangeMax) * 100 + "%";
   }
 }
 
 export class QuestionPanelDynamic extends QuestionPanelDynamicModel {
   constructor(public name: string) {
     super(name);
+  }
+  protected onBaseCreating() {
+    super.onBaseCreating();
     new QuestionPanelDynamicImplementor(this);
   }
   protected createNewPanelObject(): PanelModel {

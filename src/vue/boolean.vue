@@ -13,11 +13,11 @@
         v-bind:aria-required="question.isRequired"
         :aria-label="question.locTitle.renderedHtml"
       />
-      <span :class="getLabelClass(false)">{{question.locLabelFalse.renderedHtml}}</span>
-      <div :class="question.cssClasses.switch">
+      <span :class="getLabelClass(false)" v-on:click="onLabelClick($event, false)">{{question.locLabelFalse.renderedHtml}}</span>
+      <div :class="question.cssClasses.switch" v-on:click="onSwitchClick($event)">
         <span :class="question.cssClasses.slider" />
       </div>
-      <span :class="getLabelClass(true)">{{question.locLabelTrue.renderedHtml}}</span>
+      <span :class="getLabelClass(true)" v-on:click="onLabelClick($event, true)">{{question.locLabelTrue.renderedHtml}}</span>
     </label>
   </div>
 </template>
@@ -52,6 +52,23 @@ export class Boolean extends QuestionVue<QuestionBooleanModel> {
         ? question.cssClasses.disabledLabel
         : "")
     );
+  }
+  private preventDefaults(event: any) {
+    event.preventDefault();
+    event.stopPropagation();
+  }
+  public onSwitchClick(event: any) {
+    if (this.question.isIndeterminate) {
+      this.preventDefaults(event);
+      var percentage = event.offsetX / event.target.offsetWidth;
+      this.question.checkedValue = percentage > 0.5;
+     }
+  }
+  public onLabelClick(event: any, value: boolean){
+    if(this.question.isIndeterminate){
+      this.preventDefaults(event)
+      this.question.checkedValue = value; 
+    }
   }
 }
 Vue.component("survey-boolean", Boolean);

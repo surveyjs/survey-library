@@ -13,10 +13,10 @@ export class QuestionRow extends QuestionRowModel {
     super(panel);
     new ImplementorBase(this);
     var self = this;
-    this.koGetType = function(el: any) {
+    this.koGetType = function (el: any) {
       return self.getElementType(el);
     };
-    this.koElementAfterRender = function(el: any, con: any) {
+    this.koElementAfterRender = function (el: any, con: any) {
       return self.elementAfterRender(el, con);
     };
   }
@@ -50,6 +50,7 @@ export class PanelImplementorBase extends ImplementorBase {
 }
 
 export class Panel extends PanelModel {
+  private _implementor: ImplementorBase;
   koElementType: any;
   koCss: any;
   koIsExpanded: any;
@@ -58,25 +59,28 @@ export class Panel extends PanelModel {
   doExpand: any;
   constructor(name: string = "") {
     super(name);
-    new PanelImplementorBase(this);
     this.onCreating();
     var self = this;
     this.koElementType = ko.observable("survey-panel");
-    this.koCss = ko.pureComputed(function() {
+    this.koCss = ko.pureComputed(function () {
       return self.cssClasses;
     });
     this.koIsCollapsed = ko.observable(this.isCollapsed);
     this.koIsExpanded = ko.observable(this.isExpanded);
-    this.stateChangedCallback = function() {
+    this.stateChangedCallback = function () {
       self.onStateChanged();
     };
-    this.doExpand = function() {
+    this.doExpand = function () {
       self.changeExpanded();
     };
-    this.koErrorClass = ko.pureComputed(function() {
+    this.koErrorClass = ko.pureComputed(function () {
       var rootClass = self.cssClasses.error.root;
       return rootClass ? rootClass : "panel-error-root";
     });
+  }
+  protected onBaseCreating() {
+    super.onBaseCreating();
+    this._implementor = new PanelImplementorBase(this);
   }
   protected createRow(): QuestionRowModel {
     return new QuestionRow(this);
@@ -108,13 +112,23 @@ export class Panel extends PanelModel {
     super.endLoadingFromJson();
     this.onStateChanged();
   }
+  public dispose() {
+    this.koCss.dispose();
+    this.koErrorClass.dispose();
+    this._implementor.dispose();
+    this._implementor = undefined;
+  }
 }
 
 export class Page extends PageModel {
+  private _implementor: ImplementorBase;
   constructor(name: string = "") {
     super(name);
-    new ImplementorBase(this);
     this.onCreating();
+  }
+  protected onBaseCreating() {
+    super.onBaseCreating();
+    this._implementor = new ImplementorBase(this);
   }
   protected createRow(): QuestionRowModel {
     return new QuestionRow(this);
@@ -127,15 +141,19 @@ export class Page extends PageModel {
   protected onNumChanged(value: number) {
     this.locTitle.onChanged();
   }
+  public dispose() {
+    this._implementor.dispose();
+    this._implementor = undefined;
+  }
 }
 
-Serializer.overrideClassCreator("panel", function() {
+Serializer.overrideClassCreator("panel", function () {
   return new Panel();
 });
-Serializer.overrideClassCreator("page", function() {
+Serializer.overrideClassCreator("page", function () {
   return new Page();
 });
 
-ElementFactory.Instance.registerElement("panel", name => {
+ElementFactory.Instance.registerElement("panel", (name) => {
   return new Panel(name);
 });

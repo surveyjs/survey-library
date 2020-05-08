@@ -23,7 +23,7 @@ export class SurveyQuestion extends SurveyElementBase {
     if (!customWidget) {
       return creator.createQuestionElement(question);
     }
-    return <SurveyCustomWidget creator={creator} question={question}/>;
+    return <SurveyCustomWidget creator={creator} question={question} />;
   }
   constructor(props: any) {
     super(props);
@@ -85,13 +85,7 @@ export class SurveyQuestion extends SurveyElementBase {
     var descriptionUnderInput = question.hasDescriptionUnderInput
       ? this.renderDescription(cssClasses, true)
       : null;
-    var contentClass =
-      question.cssClasses.content +
-      (question.hasTitleOnLeft ? " " + question.cssClasses.contentLeft : "");
-    let questionRootClass = question.cssMainRoot;
-    if (question.cssClasses.small && !question.width) {
-      questionRootClass += " " + question.cssClasses.small;
-    }
+    let questionRootClass = question.cssRoot;
 
     var comment =
       question && question.hasComment ? this.renderComment(cssClasses) : null;
@@ -104,19 +98,31 @@ export class SurveyQuestion extends SurveyElementBase {
         ? this.renderErrors(cssClasses, "bottom")
         : null;
     let rootStyle: { [index: string]: any } = {};
-    if (question.renderWidth) rootStyle["width"] = question.renderWidth;
+    if (question.renderWidth) {
+      rootStyle["width"] = question.renderWidth;
+      rootStyle["flexGrow"] = 1;
+      rootStyle["flexShrink"] = 1;
+      rootStyle["flexBasis"] = question.renderWidth;
+    }
     if (!!question.paddingLeft) rootStyle["paddingLeft"] = question.paddingLeft;
     if (!!question.paddingRight)
       rootStyle["paddingRight"] = question.paddingRight;
+
+    if (question.isReadOnly) {
+      questionRootClass += " " + cssClasses.disabled;
+    }
+
     return (
       <div
         ref="root"
         id={question.id}
         className={questionRootClass}
         style={rootStyle}
+        role={question.ariaRole}
+        aria-labelledby={question.ariaTitleId}
       >
         {headerTop}
-        <div className={contentClass}>
+        <div className={question.cssContent}>
           {errorsTop}
           {questionRender}
           {comment}
@@ -130,49 +136,78 @@ export class SurveyQuestion extends SurveyElementBase {
   protected renderQuestion(): JSX.Element {
     return SurveyQuestion.renderQuestionBody(this.creator, this.question);
   }
+
+  private TitleKeyIndex = 0;
+  private TitleKeyPrefix = this.question.name + "-titleKey-";
+  private getTitleKey = () => {
+    this.TitleKeyIndex++;
+    return this.TitleKeyPrefix + this.TitleKeyIndex;
+  };
+
   protected renderTitle(cssClasses: any): JSX.Element {
-    var titleText = SurveyElementBase.renderLocString(this.question.locTitle);
-    var number = null;
-    var delimiter = null;
+    var getSpaceSpan = () => {
+      return (
+        <span data-key={this.getTitleKey()} key={this.getTitleKey()}>
+          &nbsp;
+        </span>
+      );
+    };
+
+    var spans = [];
+    if (this.question.isRequireTextOnStart) {
+      spans.push(this.renderRequireText(cssClasses));
+      spans.push(getSpaceSpan());
+    }
     var questionNumber = this.question["no"];
     if (questionNumber) {
-      number = (
-        <span className={cssClasses.number} style={{ position: "static" }}>
+      spans.push(
+        <span
+          data-key={this.getTitleKey()}
+          key={this.getTitleKey()}
+          className={cssClasses.number}
+          style={{ position: "static" }}
+        >
           {questionNumber}
         </span>
       );
-      delimiter = <span className={cssClasses.number}>.{"\u00A0"}</span>;
+      spans.push(getSpaceSpan());
     }
-
-    var requredSpan = this.question.getQuestionTitleTemplate() ? null : (
-      <span className={cssClasses.requiredText}>
-        {this.question.requiredText}
-      </span>
+    if (this.question.isRequireTextBeforeTitle) {
+      spans.push(this.renderRequireText(cssClasses));
+      spans.push(getSpaceSpan());
+    }
+    spans.push(
+      SurveyElementBase.renderLocString(
+        this.question.locTitle,
+        null,
+        this.getTitleKey()
+      )
     );
-
+    if (this.question.isRequireTextAfterTitle) {
+      spans.push(getSpaceSpan());
+      spans.push(this.renderRequireText(cssClasses));
+    }
     return (
       <h5
-        className={this.getTitleClass(this.question)}
-        title={this.question.locTitle.renderedHtml}
+        className={this.question.cssTitle}
+        aria-label={this.question.locTitle.renderedHtml}
+        id={this.question.ariaTitleId}
       >
-        {number}
-        {delimiter}
-        {titleText}
-        {requredSpan}
+        {spans}
       </h5>
     );
   }
-  private getTitleClass(element: Question) {
-    var cssClasses = element.cssClasses;
-    var result = cssClasses.title;
-    if (element.containsErrors) {
-      result += " " + cssClasses.titleOnError;
-    } else if (element.isAnswered) {
-      result += " " + cssClasses.titleOnAnswer;
-    }
-    return result;
+  private renderRequireText(cssClasses: any): JSX.Element {
+    return (
+      <span
+        data-key={this.getTitleKey()}
+        key={this.getTitleKey()}
+        className={cssClasses.requiredText}
+      >
+        {this.question.requiredText}
+      </span>
+    );
   }
-
   protected renderDescription(
     cssClasses: any,
     isUnderInput: boolean = false
@@ -208,18 +243,8 @@ export class SurveyQuestion extends SurveyElementBase {
     var description = question.hasDescriptionUnderTitle
       ? this.renderDescription(cssClasses)
       : null;
-    var headerClass = cssClasses.header;
-    if (question.hasTitleOnTop) {
-      headerClass += " " + cssClasses.headerTop;
-    }
-    if (question.hasTitleOnLeft) {
-      headerClass += " " + cssClasses.headerLeft;
-    }
-    if (question.hasTitleOnBottom) {
-      headerClass += " " + cssClasses.headerBottom;
-    }
     return (
-      <div className={headerClass}>
+      <div className={question.cssHeader}>
         {title}
         {description}
       </div>
@@ -237,7 +262,7 @@ export class SurveyQuestion extends SurveyElementBase {
   }
 }
 
-ReactElementFactory.Instance.registerElement("question", props => {
+ReactElementFactory.Instance.registerElement("question", (props) => {
   return React.createElement(SurveyQuestion, props);
 });
 
@@ -325,7 +350,7 @@ export class SurveyQuestionAndErrorsCell extends ReactSurveyElement {
   render(): JSX.Element {
     if (!this.question) return null;
     var errorsLocation = this.creator.questionErrorLocation();
-    var errors = this.question.isVisible ? (
+    var errors = this.getShowErrors() ? (
       <SurveyElementErrors
         element={this.question}
         cssClasses={this.cssClasses}
@@ -336,15 +361,13 @@ export class SurveyQuestionAndErrorsCell extends ReactSurveyElement {
     var errorsTop = errorsLocation === "top" ? errors : null;
     var errorsBottom = errorsLocation === "bottom" ? errors : null;
     var renderedCell = this.renderQuestion();
+    var style = this.getCellStyle();
     return (
       <td
         ref="cell"
         className={this.getCellClass() + " " + this.cssClasses.cell}
-        headers={
-          this.question.isVisible && !!this["cell"]
-            ? this["cell"].column.locTitle.renderedHtml
-            : ""
-        }
+        headers={this.question.isVisible ? this.getHeaderText() : ""}
+        style={style}
       >
         {errorsTop}
         {renderedCell}
@@ -352,7 +375,16 @@ export class SurveyQuestionAndErrorsCell extends ReactSurveyElement {
       </td>
     );
   }
-  private renderQuestion(): JSX.Element {
+  protected getShowErrors(): boolean {
+    return this.question.isVisible;
+  }
+  protected getCellStyle(): any {
+    return null;
+  }
+  protected renderQuestion(): JSX.Element {
     return SurveyQuestion.renderQuestionBody(this.creator, this.question);
+  }
+  protected getHeaderText(): string {
+    return !!this["cell"] ? this["cell"].column.locTitle.renderedHtml : "";
   }
 }

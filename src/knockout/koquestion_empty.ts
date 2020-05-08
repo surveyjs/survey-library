@@ -7,6 +7,9 @@ import { Question } from "../question";
 export class QuestionEmpty extends QuestionEmptyModel {
   constructor(public name: string) {
     super(name);
+  }
+  protected onBaseCreating() {
+    super.onBaseCreating();
     new QuestionImplementor(this);
   }
 }

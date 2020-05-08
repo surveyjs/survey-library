@@ -59,6 +59,24 @@ export class PageModel extends PanelModelBase implements IPage {
   public get isStarted(): boolean {
     return this.survey && this.survey.isPageStarted(this);
   }
+  public get cssClasses(): any {
+    var css = this.css;
+    var classes = { page: {}, pageTitle: "", pageDescription: "", row: "" };
+    this.copyCssClasses(classes.page, css.page);
+    if (!!css.pageTitle) {
+      classes.pageTitle = css.pageTitle;
+    }
+    if (!!css.pageDescription) {
+      classes.pageDescription = css.pageDescription;
+    }
+    if (!!css.row) {
+      classes.row = css.row;
+    }
+    if (this.survey) {
+      this.survey.updatePageCssClasses(this, classes);
+    }
+    return classes;
+  }
   getIsPageVisible(exceptionQuestion: IQuestion): boolean {
     if (this.isStarted) return false;
     return super.getIsPageVisible(exceptionQuestion);
@@ -142,7 +160,9 @@ export class PageModel extends PanelModelBase implements IPage {
    * Call it to scroll to the page top.
    */
   public scrollToTop() {
-    SurveyElement.ScrollElementToTop(this.id);
+    if (!!this.survey) {
+      this.survey.scrollElementToTop(this, null, this, this.id);
+    }
   }
   /**
    * Time in seconds end-user spent on this page

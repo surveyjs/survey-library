@@ -15,7 +15,7 @@ export class QuestionDropdownModel extends QuestionSelectBase {
     var self = this;
     this.registerFunctionOnPropertiesValueChanged(
       ["choicesMin", "choicesMax", "choicesStep"],
-      function() {
+      function () {
         self.onVisibleChoicesChanged();
       }
     );
@@ -24,7 +24,7 @@ export class QuestionDropdownModel extends QuestionSelectBase {
    * This flag controls whether to show options caption item ('Choose...').
    */
   public get showOptionsCaption(): boolean {
-    return this.getPropertyValue("showOptionsCaption");
+    return this.getPropertyValue("showOptionsCaption", true);
   }
   public set showOptionsCaption(val: boolean) {
     this.setPropertyValue("showOptionsCaption", val);
@@ -122,14 +122,14 @@ Serializer.addClass(
     { name: "showOptionsCaption:boolean", default: true },
     { name: "choicesMin:number", default: 0 },
     { name: "choicesMax:number", default: 0 },
-    { name: "choicesStep:number", default: 1, minValue: 1 }
+    { name: "choicesStep:number", default: 1, minValue: 1 },
   ],
-  function() {
+  function () {
     return new QuestionDropdownModel("");
   },
   "selectbase"
 );
-QuestionFactory.Instance.registerQuestion("dropdown", name => {
+QuestionFactory.Instance.registerQuestion("dropdown", (name) => {
   var q = new QuestionDropdownModel(name);
   q.choices = QuestionFactory.DefaultChoices;
   return q;

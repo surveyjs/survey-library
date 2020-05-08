@@ -1,7 +1,7 @@
 <template>
   <div :class="getRootClass(element)">
     <survey-element-header v-if="element.hasTitleOnLeftTop" :element="element" />
-    <div :class="getContentClass(element)">
+    <div class="sv-vue-row-additional-div" :class="getContentClass(element)">
       <survey-errors v-if="hasErrorsOnTop" :question="element" :location="'top'" />
       <component :is="getWidgetComponentName(element)" :question="element" :css="css" />
       <div v-if="element.hasComment" :class="element.cssClasses.formGroup">
@@ -38,23 +38,15 @@ export class SurveyElementVue extends Vue {
     return "survey-" + element.getTemplate();
   }
   getRootClass(element: Question) {
-    var rootClass = "";
-    if (!!element.cssMainRoot) {
-      rootClass += element.cssMainRoot;
+    let cssRoot = element.cssRoot;
+    if (element.isReadOnly) {
+      cssRoot += " " + (<any>this.element).cssClasses.disabled;
     }
 
-    if (element.cssClasses.small && !element.width) {
-      rootClass += " " + element.cssClasses.small;
-    }
-
-    return rootClass;
+    return cssRoot;
   }
   getContentClass(element: Question) {
-    var contentClass = element.cssClasses.content;
-    if (element.hasTitleOnLeft) {
-      contentClass += " " + element.cssClasses.contentLeft;
-    }
-    return contentClass;
+    return element.cssContent;
   }
   get hasErrorsOnTop() {
     return !this.element.isPanel && this.survey.questionErrorLocation === "top";

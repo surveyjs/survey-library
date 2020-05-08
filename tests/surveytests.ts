@@ -5477,6 +5477,60 @@ QUnit.test(
   }
 );
 
+QUnit.test("survey.isSinglePage revert and other value", function (assert) {
+  var survey = new SurveyModel({
+    storeOthersAsComment: false,
+    elements: [
+      {
+        type: "checkbox",
+        name: "q1",
+        hasOther: true,
+        choices: [1, 2],
+      },
+    ],
+  });
+  var question = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+  question.value = "other";
+  question.comment = "other2";
+  survey.isSinglePage = true;
+  assert.equal(
+    survey.storeOthersAsComment,
+    false,
+    "Keep storeOthersAsComment false"
+  );
+  assert.equal(survey.getValue("q1"), "other2");
+  question = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+  assert.deepEqual(question.value, ["other2"], "question value");
+  assert.deepEqual(question.renderedValue, ["other"], "question renderedValue");
+  assert.deepEqual(question.comment, "other2", "question comment");
+  assert.deepEqual(survey.getValue("q1"), ["other2"], "survey value");
+  assert.deepEqual(survey.getComment("q1"), "", "survey comment");
+});
+
+QUnit.test(
+  "survey.storeOthersAsComment add checkbox question from code with preset value",
+  function (assert) {
+    var survey = new SurveyModel({
+      storeOthersAsComment: false,
+      elements: [{ type: "text", name: "q2" }],
+    });
+    survey.setValue("q1", ["other2"]);
+    var question = new QuestionCheckboxModel("q1");
+    question.choices = [1, 2];
+    question.hasOther = true;
+    survey.pages[0].addQuestion(question);
+    assert.deepEqual(question.value, ["other2"], "question value");
+    assert.deepEqual(
+      question.renderedValue,
+      ["other"],
+      "question renderedValue"
+    );
+    assert.deepEqual(question.comment, "other2", "question comment");
+    assert.deepEqual(survey.getValue("q1"), ["other2"], "survey value");
+    assert.deepEqual(survey.getComment("q1"), "", "survey comment");
+  }
+);
+
 QUnit.test("survey.questionsOnPageMode", function (assert) {
   var survey = twoPageSimplestSurvey();
   var questions = survey.getAllQuestions();
@@ -8341,32 +8395,29 @@ QUnit.test(
   }
 );
 
-QUnit.test(
-  "question.getPlainData - optional question type",
-  function (assert) {
-    var survey = new SurveyModel();
-    var page = survey.addNewPage("Page 1");
-    var question = new QuestionRadiogroupModel("q1");
-    new JsonObject().toObject(
-      {
-        type: "radiogroup",
-        name: "q1",
-        choices: [1,2,3],
-      },
-      question
-    );
-    page.addQuestion(question);
-    survey.data = { q1: 2}
+QUnit.test("question.getPlainData - optional question type", function (assert) {
+  var survey = new SurveyModel();
+  var page = survey.addNewPage("Page 1");
+  var question = new QuestionRadiogroupModel("q1");
+  new JsonObject().toObject(
+    {
+      type: "radiogroup",
+      name: "q1",
+      choices: [1, 2, 3],
+    },
+    question
+  );
+  page.addQuestion(question);
+  survey.data = { q1: 2 };
 
-    var plainData = question.getPlainData();
-    assert.deepEqual(plainData.name, "q1");
-    assert.deepEqual(plainData.questionType, undefined);
+  var plainData = question.getPlainData();
+  assert.deepEqual(plainData.name, "q1");
+  assert.deepEqual(plainData.questionType, undefined);
 
-    plainData = question.getPlainData({ includeQuestionTypes: true });
-    assert.deepEqual(plainData.name, "q1");
-    assert.deepEqual(plainData.questionType, "radiogroup");
-  }
-);
+  plainData = question.getPlainData({ includeQuestionTypes: true });
+  assert.deepEqual(plainData.name, "q1");
+  assert.deepEqual(plainData.questionType, "radiogroup");
+});
 
 QUnit.test("question.valueName is numeric, Bug# 1432", function (assert) {
   var survey = new SurveyModel({

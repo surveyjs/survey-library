@@ -2011,7 +2011,7 @@ export class SurveyModel extends Base
       }>;
     } = {
       includeEmpty: true,
-      includeQuestionTypes: false
+      includeQuestionTypes: false,
     }
   ) {
     var result: Array<any> = [];

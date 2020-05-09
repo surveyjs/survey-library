@@ -1714,6 +1714,18 @@ QUnit.test("Boolean question defaultValue as a boolean values", function (
   assert.deepEqual(survey.data, { bool: false }, "add question into survey");
 });
 
+QUnit.test("Boolean question read only checkedValue", function (
+  assert
+) {
+  var question = new QuestionBooleanModel("bool");
+  question.readOnly = true;
+  assert.equal(question.checkedValue, null, "Indertemenated by default");
+  question.checkedValue = false;
+  assert.equal(question.checkedValue, null, "Indertemenated by default is not changed due to read only mode");
+  question.checkedValue = true;
+  assert.equal(question.checkedValue, null, "Indertemenated by default is not changed due to read only mode");
+});
+
 QUnit.test(
   "defaultValue and hasOther - radiogroup, bug#384 (Editor)",
   function (assert) {
@@ -2781,13 +2793,28 @@ QUnit.test("Test property hideIfChoicesEmpty", function (assert) {
   assert.equal(question.isVisible, true, "There is one visible item");
 });
 
-QUnit.test("Test property hideIfChoicesEmpty - load from json", function (
-  assert
-) {
+QUnit.test("Test property hideIfRowsEmpty", function (assert) {
+  var survey = new SurveyModel();
+  var page = survey.addNewPage("p1");
+  var question = new QuestionMatrixModel("q1");
+  page.addElement(question);
+  assert.equal(question.isVisible, true, "By default it is visible");
+  question.hideIfRowsEmpty = true;
+  assert.equal(question.isVisible, false, "Rows are empty");
+  question.rows = [1, 2, 3];
+  assert.equal(question.isVisible, true, "Rows are not empty");
+  question.rowsVisibleIf = "{item} = {val1}";
+  assert.equal(question.isVisible, false, "Filtered rows are empty");
+  survey.setValue("val1", 2);
+  assert.equal(question.isVisible, true, "There is one visible item");
+});
+
+QUnit.test("Test property hideIfRowsEmpty - load from json", function (assert) {
   var survey = new SurveyModel({
-    elements: [{ type: "dropdown", name: "q1", hideIfChoicesEmpty: true }],
+    elements: [{ type: "matrix", name: "q1", hideIfRowsEmpty: true }],
   });
-  var question = survey.getQuestionByName("q1");
+  var question = <QuestionMatrixModel>survey.getQuestionByName("q1");
+  assert.equal(question.rows.length, 0, "There is no rows");
   assert.equal(question.isVisible, false, "It is invisible");
 });
 

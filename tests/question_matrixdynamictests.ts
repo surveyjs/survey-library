@@ -2613,6 +2613,7 @@ QUnit.test("matrix dropdown + renderedTable.headerRow", function (assert) {
   assert.equal(cells[0].hasTitle, true, "header rows");
   assert.equal(cells[0].locTitle.renderedHtml, "", "Nothing to render");
   assert.equal(cells[0].minWidth, "", "minWidth is empty for row header");
+  assert.equal(cells[0].width, "", "width is empty for row header");
   assert.equal(cells[1].hasTitle, true, "col1");
   assert.equal(cells[1].hasQuestion, false, "no question");
   assert.equal(cells[1].minWidth, "", "col1.minWidth");
@@ -2620,6 +2621,11 @@ QUnit.test("matrix dropdown + renderedTable.headerRow", function (assert) {
   assert.equal(cells[1].locTitle.renderedHtml, "col1", "col1");
   assert.equal(cells[2].locTitle.renderedHtml, "col2", "col2");
   assert.equal(cells[2].minWidth, "100px", "col2.minWidth");
+
+  matrix.rowTitleWidth = "400px";
+  cells = matrix.renderedTable.headerRow.cells;
+  assert.equal(cells[0].width, "400px", "col1 width get from rowTitleWidth");
+
   matrix.showHeader = false;
   assert.equal(matrix.renderedTable.showHeader, false, "Header is not shown");
   assert.notOk(!!matrix.renderedTable.headerRow, "Header row is null");
@@ -3832,6 +3838,58 @@ QUnit.test(
       rows[1].getQuestionByColumnName("col1").value,
       "1",
       "Set the value correctly"
+    );
+  }
+);
+
+QUnit.test(
+  "showInMultipleColumns property, using default choices and cellType, Bug #2151",
+  function (assert) {
+    var survey = new SurveyModel({
+      elements: [
+        {
+          type: "matrixdropdown",
+          name: "matrix",
+          columns: [
+            {
+              name: "Column 1",
+            },
+            {
+              name: "Column 2",
+            },
+            {
+              name: "Column 3",
+              totalType: "sum",
+            },
+            {
+              name: "Column 4",
+              cellType: "boolean",
+            },
+          ],
+          choices: [1, 2, 3, 4, 5],
+          cellType: "text",
+          rows: ["Row 1", "Row 2"],
+        },
+      ],
+    });
+    var matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+
+    assert.equal(matrix.renderedTable.rows.length, 2, "There are two rows");
+    assert.equal(
+      matrix.renderedTable.footerRow.cells[3].question.value,
+      0,
+      "Summary is 0"
+    );
+    var totalBoolQuestion = matrix.renderedTable.footerRow.cells[4].question;
+    assert.equal(
+      totalBoolQuestion.value,
+      null,
+      "There is no question value for boolean column"
+    );
+    assert.equal(
+      totalBoolQuestion.getType(),
+      "expression",
+      "Total question for boolean column is expression"
     );
   }
 );

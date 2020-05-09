@@ -246,7 +246,11 @@ export class QuestionSelectBase extends Question {
     this.value = this.rendredValueToData(val);
   }
   protected setQuestionValue(newValue: any) {
-    if (Helpers.isTwoValueEquals(this.value, newValue)) return;
+    if (
+      this.isLoadingFromJson ||
+      Helpers.isTwoValueEquals(this.value, newValue)
+    )
+      return;
     super.setQuestionValue(newValue);
     this.setPropertyValue("renderedValue", this.rendredValueFromData(newValue));
     if (this.hasComment) return;
@@ -323,6 +327,9 @@ export class QuestionSelectBase extends Question {
   public set choices(newValue: Array<any>) {
     this.setPropertyValue("choices", newValue);
   }
+  /**
+   * Set this property to true to hide the question if there is no visible choices.
+   */
   public get hideIfChoicesEmpty(): boolean {
     return this.getPropertyValue("hideIfChoicesEmpty", false);
   }
@@ -462,7 +469,7 @@ export class QuestionSelectBase extends Question {
       }>;
     } = {
       includeEmpty: true,
-      includeQuestionTypes: false
+      includeQuestionTypes: false,
     }
   ) {
     var questionPlainData = super.getPlainData(options);

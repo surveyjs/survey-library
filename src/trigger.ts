@@ -424,7 +424,7 @@ Serializer.addClass(
 Serializer.addClass(
   "setvaluetrigger",
   [
-    { name: "!setToName:question" },
+    { name: "!setToName:questionvalue" },
     {
       name: "setValue:triggervalue",
       dependsOn: "setToName",
@@ -441,7 +441,7 @@ Serializer.addClass(
 );
 Serializer.addClass(
   "copyvaluetrigger",
-  [{ name: "!setToName:question" }, { name: "!fromName:question" }],
+  [{ name: "!setToName:questionvalue" }, { name: "!fromName:questionvalue" }],
   function () {
     return new SurveyTriggerCopyValue();
   },
@@ -457,7 +457,7 @@ Serializer.addClass(
 );
 Serializer.addClass(
   "runexpressiontrigger",
-  [{ name: "setToName:question" }, "runExpression:expression"],
+  [{ name: "setToName:questionvalue" }, "runExpression:expression"],
   function () {
     return new SurveyTriggerRunExpression();
   },

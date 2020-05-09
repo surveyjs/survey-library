@@ -354,6 +354,13 @@ export class QuestionCustomModel extends QuestionCustomModelBase {
     }
     return res;
   }
+  public onSurveyLoad() {
+    super.onSurveyLoad();
+    if (!this.contentQuestion) return;
+    if (this.isEmpty() && !this.contentQuestion.isEmpty()) {
+      this.value = this.contentQuestion.value;
+    }
+  }
   public runCondition(values: HashTable<any>, properties: HashTable<any>) {
     super.runCondition(values, properties);
     if (!!this.contentQuestion) {

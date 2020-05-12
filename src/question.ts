@@ -55,6 +55,7 @@ export class Question extends SurveyElement
   commentChangedCallback: () => void;
   validateValueCallback: () => SurveyError;
   questionTitleTemplateCallback: () => string;
+  afterRenderQuestionCallback: (question: Question, element: any) => any;
   private locProcessedTitle: LocalizableString;
   protected isReadyValue: boolean = true;
 
@@ -494,6 +495,9 @@ export class Question extends SurveyElement
   public afterRender(el: any) {
     if (!this.survey) return;
     this.survey.afterRenderQuestion(this, el);
+    if (!!this.afterRenderQuestionCallback) {
+      this.afterRenderQuestionCallback(this, el);
+    }
   }
   public beforeDestoyQuestionElement(el: any) {}
   /**

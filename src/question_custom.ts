@@ -42,9 +42,17 @@ export class ComponentQuestionJSON {
     if (!this.json.onLoaded) return;
     this.json.onLoaded(question);
   }
-  public onAfterRender(question: Question, el: any) {
+  public onAfterRender(question: Question, htmlElement: any) {
     if (!this.json.onAfterRender) return;
-    this.json.onAfterRender(question, el);
+    this.json.onAfterRender(question, htmlElement);
+  }
+  public onAfterRenderContentElement(
+    question: Question,
+    element: Question,
+    htmlElement: any
+  ) {
+    if (!this.json.onAfterRenderContentElement) return;
+    this.json.onAfterRenderContentElement(question, element, htmlElement);
   }
   public onPropertyChanged(
     question: Question,
@@ -411,6 +419,18 @@ export class QuestionCustomModel extends QuestionCustomModelBase {
     super.initElement(el);
     if (!!el) {
       (<Question>el).parent = this;
+      (<Question>el).afterRenderQuestionCallback = (
+        question: Question,
+        element: any
+      ) => {
+        if (!!this.customQuestion) {
+          this.customQuestion.onAfterRenderContentElement(
+            this,
+            question,
+            element
+          );
+        }
+      };
     }
   }
   protected updateElementCssCore(cssClasses: any) {
@@ -461,6 +481,7 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
     }
     this.initElement(res);
     res.readOnly = this.isReadOnly;
+    this.setAfterRenderCallbacks(res);
     return res;
   }
   protected onReadOnlyChanged() {
@@ -527,6 +548,22 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
     for (var i = 0; i < questions.length; i++) {
       var key = questions[i].getValueName();
       questions[i].value = !!newValue ? newValue[key] : undefined;
+    }
+  }
+  private setAfterRenderCallbacks(panel: PanelModel) {
+    if (!panel || !this.customQuestion) return;
+    var questions = panel.questions;
+    for (var i = 0; i < questions.length; i++) {
+      questions[i].afterRenderQuestionCallback = (
+        question: Question,
+        element: any
+      ) => {
+        this.customQuestion.onAfterRenderContentElement(
+          this,
+          question,
+          element
+        );
+      };
     }
   }
 }

@@ -42,6 +42,10 @@ export class ComponentQuestionJSON {
     if (!this.json.onLoaded) return;
     this.json.onLoaded(question);
   }
+  public onAfterRender(question: Question, el: any) {
+    if (!this.json.onAfterRender) return;
+    this.json.onAfterRender(question, el);
+  }
   public onPropertyChanged(
     question: Question,
     propertyName: string,
@@ -206,6 +210,15 @@ export abstract class QuestionCustomModelBase extends Question
     if (!!this.getElement()) {
       this.getElement().onSurveyLoad();
       this.customQuestion.onLoaded(this);
+    }
+  }
+  public afterRenderQuestionElement(el: any) {
+    //Do nothing
+  }
+  public afterRender(el: any) {
+    super.afterRender(el);
+    if (!!this.customQuestion) {
+      this.customQuestion.onAfterRender(this, el);
     }
   }
   protected setQuestionValue(newValue: any, updateIsAnswered: boolean = true) {

@@ -5,6 +5,7 @@ import { Serializer } from "../jsonobject";
 import { SurveyElement, IElement } from "../base";
 import { ElementFactory } from "../questionfactory";
 import { ImplementorBase } from "./kobase";
+import { Question } from "../question";
 
 export class QuestionRow extends QuestionRowModel {
   koGetType: any;
@@ -38,7 +39,7 @@ export class QuestionRow extends QuestionRowModel {
     if (element.isPanel) {
       this.panel.survey.afterRenderPanel(con, el);
     } else {
-      this.panel.survey.afterRenderQuestion(con, el);
+      (<Question>element).afterRender(el);
     }
   }
 }

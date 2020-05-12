@@ -61,14 +61,10 @@ export class SurveyQuestion extends SurveyElementBase {
   private doAfterRender() {
     if (this.question) {
       var el: any = this.refs["root"];
-      if (
-        el &&
-        this.question.survey &&
-        el.getAttribute("data-rendered") !== "r"
-      ) {
+      if (el && el.getAttribute("data-rendered") !== "r") {
         el.setAttribute("data-rendered", "r");
         el.setAttribute("name", this.question.name);
-        this.question.survey.afterRenderQuestion(this.question, el);
+        this.question.afterRender(el);
       }
     }
   }

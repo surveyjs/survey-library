@@ -156,7 +156,7 @@ export var matrixDropdownColumnTypes = {
     },
   },
   text: {
-    properties: ["placeHolder", "inputType", "maxLength"],
+    properties: ["placeHolder", "inputType", "maxLength", "min", "max", "step"],
     onCellQuestionUpdate: (
       cellQuestion: any,
       column: any,

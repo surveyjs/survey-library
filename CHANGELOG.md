@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.7.6](https://github.com/surveyjs/survey-library/compare/v1.7.5...v1.7.6) (2020-05-12)
+
+
+### Bug Fixes
+
+* Checkbox question doesn't keep it's comment value on changing survey.isSinglePage [#2160](https://github.com/surveyjs/survey-library/issues/2160) ([977e306](https://github.com/surveyjs/survey-library/commit/977e306b46a908441214270db411ba0dbe70c276))
+
 ### [1.7.5](https://github.com/surveyjs/survey-library/compare/v1.7.4...v1.7.5) (2020-05-06)
 
 ### [1.7.4](https://github.com/surveyjs/survey-library/compare/v1.7.3...v1.7.4) (2020-04-29)

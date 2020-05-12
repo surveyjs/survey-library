@@ -57,8 +57,8 @@ export class SurveyElementVue extends Vue {
     );
   }
   mounted() {
-    if (this.survey && !this.element.isPanel) {
-      this.survey.afterRenderQuestion(<IQuestion>this.element, this.$el);
+    if (!this.element.isPanel) {
+      (<Question>this.element).afterRender(this.$el);
     }
   }
 }

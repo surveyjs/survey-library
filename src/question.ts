@@ -55,6 +55,7 @@ export class Question extends SurveyElement
   commentChangedCallback: () => void;
   validateValueCallback: () => SurveyError;
   questionTitleTemplateCallback: () => string;
+  afterRenderQuestionCallback: (question: Question, element: any) => any;
   private locProcessedTitle: LocalizableString;
   protected isReadyValue: boolean = true;
 
@@ -488,8 +489,15 @@ export class Question extends SurveyElement
     return false;
   }
   public afterRenderQuestionElement(el: any) {
-    if (this.isCompositeQuestion || !this.survey) return;
+    if (!this.survey) return;
     this.survey.afterRenderQuestionInput(this, el);
+  }
+  public afterRender(el: any) {
+    if (!this.survey) return;
+    this.survey.afterRenderQuestion(this, el);
+    if (!!this.afterRenderQuestionCallback) {
+      this.afterRenderQuestionCallback(this, el);
+    }
   }
   public beforeDestoyQuestionElement(el: any) {}
   /**
@@ -1059,7 +1067,7 @@ export class Question extends SurveyElement
       }>;
     } = {
       includeEmpty: true,
-      includeQuestionTypes: false
+      includeQuestionTypes: false,
     }
   ) {
     if (options.includeEmpty || !this.isEmpty()) {
@@ -1072,7 +1080,7 @@ export class Question extends SurveyElement
         getString: (val: any) =>
           typeof val === "object" ? JSON.stringify(val) : val,
       };
-      if(options.includeQuestionTypes === true) {
+      if (options.includeQuestionTypes === true) {
         questionPlainData.questionType = this.getType();
       }
       (options.calculations || []).forEach((calculation) => {

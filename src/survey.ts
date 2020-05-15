@@ -881,10 +881,10 @@ export class SurveyModel extends Base
     this.createLocalizableString("completedHtml", this);
     this.createLocalizableString("completedBeforeHtml", this);
     this.createLocalizableString("loadingHtml", this);
-    this.createLocalizableString("startSurvey", this);
-    this.createLocalizableString("pagePrev", this);
-    this.createLocalizableString("pageNext", this);
-    this.createLocalizableString("complete", this);
+    this.createLocalizableString("startSurveyText", this);
+    this.createLocalizableString("pagePrevText", this);
+    this.createLocalizableString("pageNextText", this);
+    this.createLocalizableString("completeText", this);
     this.createLocalizableString("questionTitleTemplate", this, true);
 
     this.textPreProcessor = new TextPreProcessor();
@@ -1610,15 +1610,15 @@ export class SurveyModel extends Base
    */
   public get startSurveyText(): string {
     return this.getLocalizableStringText(
-      "startSurvey",
+      "startSurveyText",
       this.getLocString("startSurveyText")
     );
   }
   public set startSurveyText(newValue: string) {
-    this.setLocalizableStringText("startSurvey", newValue);
+    this.setLocalizableStringText("startSurveyText", newValue);
   }
   get locStartSurveyText(): LocalizableString {
-    return this.getLocalizableString("startSurvey");
+    return this.getLocalizableString("startSurveyText");
   }
   /**
    * Gets or sets the 'Prev' button caption.
@@ -1626,15 +1626,15 @@ export class SurveyModel extends Base
    */
   public get pagePrevText(): string {
     return this.getLocalizableStringText(
-      "pagePrev",
+      "pagePrevText",
       this.getLocString("pagePrevText")
     );
   }
   public set pagePrevText(newValue: string) {
-    this.setLocalizableStringText("pagePrev", newValue);
+    this.setLocalizableStringText("pagePrevText", newValue);
   }
   get locPagePrevText(): LocalizableString {
-    return this.getLocalizableString("pagePrev");
+    return this.getLocalizableString("pagePrevText");
   }
   /**
    * Gets or sets the 'Next' button caption.
@@ -1642,15 +1642,15 @@ export class SurveyModel extends Base
    */
   public get pageNextText(): string {
     return this.getLocalizableStringText(
-      "pageNext",
+      "pageNextText",
       this.getLocString("pageNextText")
     );
   }
   public set pageNextText(newValue: string) {
-    this.setLocalizableStringText("pageNext", newValue);
+    this.setLocalizableStringText("pageNextText", newValue);
   }
   get locPageNextText(): LocalizableString {
-    return this.getLocalizableString("pageNext");
+    return this.getLocalizableString("pageNextText");
   }
   /**
    *  Gets or sets the 'Complete' button caption.
@@ -1658,15 +1658,15 @@ export class SurveyModel extends Base
    */
   public get completeText(): string {
     return this.getLocalizableStringText(
-      "complete",
+      "completeText",
       this.getLocString("completeText")
     );
   }
   public set completeText(newValue: string) {
-    this.setLocalizableStringText("complete", newValue);
+    this.setLocalizableStringText("completeText", newValue);
   }
   get locCompleteText(): LocalizableString {
-    return this.getLocalizableString("complete");
+    return this.getLocalizableString("completeText");
   }
   /**
    * Set the pattern for question title. Default is "numTitleRequire", 1. What is your name? *,

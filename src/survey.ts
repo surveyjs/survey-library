@@ -2234,6 +2234,7 @@ export class SurveyModel extends Base
       this.startedPage
     )
       return "starting";
+    if (this.isShowingPreview) return this.currentPage ? "preview" : "empty";
     return this.currentPage ? "running" : "empty";
   }
   private get isCompleted(): boolean {
@@ -2241,6 +2242,14 @@ export class SurveyModel extends Base
   }
   private set isCompleted(val: boolean) {
     this.setPropertyValue("isCompleted", val);
+  }
+  private get isShowingPreview(): boolean {
+    return this.getPropertyValue("isShowingPreview", false);
+  }
+  private set isShowingPreview(val: boolean) {
+    if (this.isShowingPreview == val) return;
+    this.setPropertyValue("isShowingPreview", val);
+    this.onShowingPreviewChanged();
   }
   private get isStartedState(): boolean {
     return this.getPropertyValue("isStartedState", false);
@@ -2410,12 +2419,26 @@ export class SurveyModel extends Base
   public get isEditMode(): boolean {
     return this.mode == "edit";
   }
+  public get isCompleteButtonVisible(): boolean {
+    return (
+      this.isEditMode &&
+      (!this.isShowPreviewBeforeComplete || this.state == "preview")
+    );
+  }
+  public get isPreviewButtonVisible(): boolean {
+    return (
+      this.isEditMode &&
+      this.isShowPreviewBeforeComplete &&
+      this.state == "running"
+    );
+  }
   /**
-   * Returns `true` if the survey is in display mode.
+   * Returns `true` if the survey is in display mode or in preview mode.
    * @see mode
+   * @see showPreviewBeforeComplete
    */
   public get isDisplayMode(): boolean {
-    return this.mode == "display";
+    return this.mode == "display" || this.state == "preview";
   }
   public get isUpdateValueTextOnTyping(): boolean {
     return this.textUpdateMode == "onTyping";
@@ -2731,6 +2754,21 @@ export class SurveyModel extends Base
   public completeLastPage(): boolean {
     return this.doCurrentPageComplete(true);
   }
+  public showPreview(): boolean {
+    if (this.hasErrorsOnNavigate(true)) return false;
+    this.isShowingPreview = true;
+    return true;
+  }
+  public cancelPreview(curPage: any = null) {
+    if (!this.isShowingPreview) return;
+    this.isShowingPreview = false;
+    if (!curPage && this.visiblePageCount > 0) {
+      curPage = this.visiblePageCount - 1;
+    }
+    if (curPage !== null) {
+      this.currentPage = curPage;
+    }
+  }
   protected doCurrentPageComplete(doComplete: boolean): boolean {
     if (this.hasErrorsOnNavigate(doComplete)) return false;
     return this.doCurrentPageCompleteCore(doComplete);
@@ -2783,48 +2821,86 @@ export class SurveyModel extends Base
       this.firstPageIsStarted && this.pages.length > 0 && this.pages[0] === page
     );
   }
+  /**
+   * Set this property to "showAllQuestions" or "showAnsweredQuestions" to preview results to a user before he/she completes the survey.
+   */
+  public get showPreviewBeforeComplete(): string {
+    return this.getPropertyValue("showPreviewBeforeComplete", "noPreview");
+  }
+  public set showPreviewBeforeComplete(val: string) {
+    this.setPropertyValue("showPreviewBeforeComplete", val);
+  }
+  public get isShowPreviewBeforeComplete(): boolean {
+    var preview = this.showPreviewBeforeComplete;
+    return preview == "showAllQuestions" || preview == "showAnsweredQuestions";
+  }
   protected onFirstPageIsStartedChanged() {
     if (this.pages.length == 0) return;
     this.isStartedState = this.firstPageIsStarted;
     this.pageVisibilityChanged(this.pages[0], !this.firstPageIsStarted);
   }
-  origionalPages: any = null;
-  protected onQuestionsOnPageModeChanged(oldValue: string) {
-    if (this.questionsOnPageMode == "standard" || this.isDesignMode) {
-      if (this.origionalPages) {
-        this.questionHashesClear();
-        this.pages.splice(0, this.pages.length);
-        for (var i = 0; i < this.origionalPages.length; i++) {
-          this.pages.push(this.origionalPages[i]);
-        }
-      }
-      this.origionalPages = null;
+  runningPages: any = null;
+  private onShowingPreviewChanged() {
+    if (this.isDesignMode) return;
+    if (this.isShowingPreview) {
+      this.runningPages = this.pages.slice(0, this.pages.length);
+      this.setupPagesForPageModes(true);
     } else {
-      this.questionHashesClear();
-      if (!oldValue || oldValue == "standard") {
-        this.origionalPages = this.pages.slice(0, this.pages.length);
+      if (this.runningPages) {
+        this.restoreOrigionalPages(this.runningPages);
       }
-      var startIndex = this.firstPageIsStarted ? 1 : 0;
-      super.startLoadingFromJson();
-      var newPages = this.createPagesForQuestionOnPageMode(startIndex);
-      var deletedLen = this.pages.length - startIndex;
-      this.pages.splice(startIndex, deletedLen);
-      for (var i = 0; i < newPages.length; i++) {
-        this.pages.push(newPages[i]);
-      }
-      super.endLoadingFromJson();
-      for (var i = 0; i < newPages.length; i++) {
-        newPages[i].endLoadingFromJson();
-        newPages[i].setSurveyImpl(this);
-      }
-      this.doElementsOnLoad();
+      this.runningPages = null;
     }
     this.updateVisibleIndexes();
   }
+  origionalPages: any = null;
+  protected onQuestionsOnPageModeChanged(oldValue: string) {
+    if (this.isShowingPreview) return;
+    if (this.questionsOnPageMode == "standard" || this.isDesignMode) {
+      if (this.origionalPages) {
+        this.restoreOrigionalPages(this.origionalPages);
+      }
+      this.origionalPages = null;
+    } else {
+      if (!oldValue || oldValue == "standard") {
+        this.origionalPages = this.pages.slice(0, this.pages.length);
+      }
+      this.setupPagesForPageModes(this.isSinglePage);
+    }
+    this.updateVisibleIndexes();
+  }
+  private restoreOrigionalPages(originalPages: Array<PageModel>) {
+    this.questionHashesClear();
+    this.pages.splice(0, this.pages.length);
+    for (var i = 0; i < originalPages.length; i++) {
+      this.pages.push(originalPages[i]);
+    }
+  }
+  private setupPagesForPageModes(isSinglePage: boolean) {
+    this.questionHashesClear();
+    var startIndex = this.firstPageIsStarted ? 1 : 0;
+    super.startLoadingFromJson();
+    var newPages = this.createPagesForQuestionOnPageMode(
+      isSinglePage,
+      startIndex
+    );
+    var deletedLen = this.pages.length - startIndex;
+    this.pages.splice(startIndex, deletedLen);
+    for (var i = 0; i < newPages.length; i++) {
+      this.pages.push(newPages[i]);
+    }
+    super.endLoadingFromJson();
+    for (var i = 0; i < newPages.length; i++) {
+      newPages[i].endLoadingFromJson();
+      newPages[i].setSurveyImpl(this);
+    }
+    this.doElementsOnLoad();
+  }
   private createPagesForQuestionOnPageMode(
+    isSinglePage: boolean,
     startIndex: number
   ): Array<PageModel> {
-    if (this.isSinglePage) {
+    if (isSinglePage) {
       return [this.createSinglePage(startIndex)];
     }
     return this.createPagesForEveryQuestion(startIndex);
@@ -4949,6 +5025,11 @@ Serializer.addClass("survey", [
     name: "questionsOnPageMode",
     default: "standard",
     choices: ["singlePage", "standard", "questionPerPage"],
+  },
+  {
+    name: "showPreviewBeforeComplete",
+    default: "noPreview",
+    choices: ["noPreview", "showAllQuestions", "showAnsweredQuestions"],
   },
   { name: "maxTimeToFinish:number", default: 0, minValue: 0 },
   { name: "maxTimeToFinishPage:number", default: 0, minValue: 0 },

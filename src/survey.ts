@@ -2485,6 +2485,9 @@ export class SurveyModel extends Base
   public get areInvisibleElementsShowing(): boolean {
     return this.isDesignMode || this.showInvisibleElements;
   }
+  public get areEmptyElementsHidden(): boolean {
+    return this.showPreviewBeforeComplete == "showAnsweredQuestions";
+  }
   /**
    * Returns `true`, if a user has already completed the survey in this browser and there is a cookie about it. Survey goes to `completed` state if the function returns `true`.
    * @see cookieName
@@ -2752,7 +2755,11 @@ export class SurveyModel extends Base
    * @see doComplete
    */
   public completeLastPage(): boolean {
-    return this.doCurrentPageComplete(true);
+    var res = this.doCurrentPageComplete(true);
+    if (res) {
+      this.cancelPreview();
+    }
+    return res;
   }
   public showPreview(): boolean {
     if (this.hasErrorsOnNavigate(true)) return false;

@@ -1,4 +1,5 @@
 import { SurveyModel } from "../src/survey";
+import { surveyLocalization } from "../src/surveyStrings";
 
 export default QUnit.module("SurveyShowPreviewTests");
 
@@ -134,5 +135,136 @@ QUnit.test(
     );
   }
 );
+QUnit.test(
+  "showPreviewBeforeComplete = 'showAllQuestions', restore pages before onComplete",
+  function (assert) {
+    var survey = new SurveyModel({
+      pages: [
+        { elements: [{ type: "text", name: "q1" }] },
+        { elements: [{ type: "text", name: "q2" }] },
+      ],
+    });
+    survey.showPreviewBeforeComplete = "showAllQuestions";
+    survey.currentPageNo = 1;
+    survey.showPreview();
+    survey.completeLastPage();
+    assert.equal(survey.visiblePages.length, 2, "We have two pages again");
+    assert.equal(survey.currentPageNo, 1, "Current page is the last one");
+  }
+);
 
-//TODO diferent questionOnPage mode, restore pages before onComplete
+QUnit.test(
+  "showPreviewBeforeComplete = 'showAllQuestions', questionsOnPageMode = 'singlePage'",
+  function (assert) {
+    var survey = new SurveyModel({
+      pages: [
+        { elements: [{ type: "text", name: "q1" }] },
+        { elements: [{ type: "text", name: "q2" }] },
+      ],
+    });
+    survey.questionsOnPageMode = "singlePage";
+    survey.showPreviewBeforeComplete = "showAllQuestions";
+    survey.currentPageNo = 1;
+    survey.showPreview();
+    survey.cancelPreview();
+    assert.equal(survey.visiblePages.length, 1, "We have one page");
+    assert.equal(survey.getAllPanels().length, 2, "There are two panels");
+    assert.equal(survey.getAllQuestions().length, 2, "There are two questions");
+    assert.equal(
+      survey.getAllQuestions()[0].isReadOnly,
+      false,
+      "Questions are not readonly"
+    );
+  }
+);
+QUnit.test(
+  "showPreviewBeforeComplete = 'showAllQuestions', questionsOnPageMode = 'questionPerPage'",
+  function (assert) {
+    var survey = new SurveyModel({
+      pages: [
+        {
+          elements: [
+            { type: "text", name: "q1" },
+            { type: "text", name: "q2" },
+          ],
+        },
+        {
+          elements: [
+            { type: "text", name: "q3" },
+            { type: "text", name: "q4" },
+          ],
+        },
+      ],
+    });
+    survey.questionsOnPageMode = "questionPerPage";
+    survey.showPreviewBeforeComplete = "showAllQuestions";
+    survey.currentPageNo = 1;
+    survey.showPreview();
+    assert.equal(survey.visiblePages.length, 1, "We have one page");
+    assert.equal(survey.getAllPanels().length, 4, "There is four panels");
+    assert.equal(
+      survey.getAllQuestions().length,
+      4,
+      "There are four questions"
+    );
+    assert.equal(
+      survey.getAllQuestions()[0].isReadOnly,
+      true,
+      "Questions are readonly"
+    );
+    survey.cancelPreview();
+    assert.equal(
+      survey.visiblePages.length,
+      4,
+      "We have one page per question"
+    );
+    assert.equal(survey.getAllPanels().length, 0, "There is no panels");
+    assert.equal(
+      survey.getAllQuestions().length,
+      4,
+      "There are four questions"
+    );
+    assert.equal(
+      survey.getAllQuestions()[0].isReadOnly,
+      false,
+      "Questions are not readonly"
+    );
+  }
+);
+QUnit.test("showPreviewBeforeComplete = 'showAnsweredQuestions'", function (
+  assert
+) {
+  var survey = new SurveyModel({
+    pages: [
+      { elements: [{ type: "text", name: "q1" }] },
+      { elements: [{ type: "text", name: "q2" }] },
+    ],
+  });
+  survey.setValue("q2", "va1");
+  survey.showPreviewBeforeComplete = "showAnsweredQuestions";
+  survey.currentPageNo = 1;
+  survey.showPreview();
+  assert.equal(survey.visiblePages.length, 1, "We have one page");
+  assert.equal(survey.getAllPanels().length, 2, "There are two panels");
+  assert.equal(survey.getAllQuestions().length, 2, "There are two questions");
+  assert.equal(
+    survey.getAllPanels()[0].isVisible,
+    false,
+    "question inside is empty"
+  );
+  assert.equal(
+    survey.getAllQuestions()[0].isVisible,
+    false,
+    "question is empty"
+  );
+  assert.equal(
+    survey.getAllPanels()[1].isVisible,
+    true,
+    "question inside is not empty"
+  );
+  assert.equal(
+    survey.getAllQuestions()[1].isVisible,
+    true,
+    "question is not empty"
+  );
+});

@@ -232,6 +232,8 @@ export class Question extends SurveyElement
    * Returns true if the question is visible or survey is in design mode right now.
    */
   public get isVisible(): boolean {
+    if (this.survey && this.survey.areEmptyElementsHidden && this.isEmpty())
+      return false;
     return this.visible || this.areInvisibleElementsShowing;
   }
   /**

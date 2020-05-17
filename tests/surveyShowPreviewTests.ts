@@ -16,6 +16,11 @@ QUnit.test("Complete and Preview button visibility", function (assert) {
     false,
     "preview button: running survey, no preview"
   );
+  assert.equal(
+    survey.isCancelPreviewButtonVisible,
+    false,
+    "cancel preview button: running survey, no preview"
+  );
   survey.showPreviewBeforeComplete = "showAllQuestions";
   assert.equal(survey.isShowPreviewBeforeComplete, true, "has preview");
   assert.equal(
@@ -28,6 +33,11 @@ QUnit.test("Complete and Preview button visibility", function (assert) {
     true,
     "preview button: running survey, has preview"
   );
+  assert.equal(
+    survey.isCancelPreviewButtonVisible,
+    false,
+    "cancel preview button: running survey, has preview"
+  );
   survey.showPreview();
   assert.equal(
     survey.isCompleteButtonVisible,
@@ -39,6 +49,11 @@ QUnit.test("Complete and Preview button visibility", function (assert) {
     false,
     "preview button: running survey, show preview"
   );
+  assert.equal(
+    survey.isCancelPreviewButtonVisible,
+    true,
+    "cancel preview button: running survey, show preview"
+  );
   survey.cancelPreview();
   assert.equal(
     survey.isCompleteButtonVisible,
@@ -49,6 +64,11 @@ QUnit.test("Complete and Preview button visibility", function (assert) {
     survey.isPreviewButtonVisible,
     true,
     "preview button: running survey, cancel preview"
+  );
+  assert.equal(
+    survey.isCancelPreviewButtonVisible,
+    false,
+    "cancel preview button: running survey, cancel preview"
   );
 });
 

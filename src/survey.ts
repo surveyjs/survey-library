@@ -885,6 +885,8 @@ export class SurveyModel extends Base
     this.createLocalizableString("pagePrevText", this);
     this.createLocalizableString("pageNextText", this);
     this.createLocalizableString("completeText", this);
+    this.createLocalizableString("previewText", this);
+    this.createLocalizableString("editText", this);
     this.createLocalizableString("questionTitleTemplate", this, true);
 
     this.textPreProcessor = new TextPreProcessor();
@@ -1669,6 +1671,45 @@ export class SurveyModel extends Base
     return this.getLocalizableString("completeText");
   }
   /**
+   *  Gets or sets the 'Preview' button caption.
+   * @see locale
+   * @see showPreviewBeforeComplete
+   * @see editText
+   * @see showPreview
+   */
+  public get previewText(): string {
+    return this.getLocalizableStringText(
+      "previewText",
+      this.getLocString("previewText")
+    );
+  }
+  public set previewText(newValue: string) {
+    this.setLocalizableStringText("previewText", newValue);
+  }
+  get locPreviewText(): LocalizableString {
+    return this.getLocalizableString("previewText");
+  }
+  /**
+   *  Gets or sets the 'Edit' button caption.
+   * @see locale
+   * @see showPreviewBeforeComplete
+   * @see previewText
+   * @see cancelPreview
+   */
+  public get editText(): string {
+    return this.getLocalizableStringText(
+      "editText",
+      this.getLocString("editText")
+    );
+  }
+  public set editText(newValue: string) {
+    this.setLocalizableStringText("editText", newValue);
+  }
+  get locEditText(): LocalizableString {
+    return this.getLocalizableString("editText");
+  }
+
+  /**
    * Set the pattern for question title. Default is "numTitleRequire", 1. What is your name? *,
    * You can set it to numRequireTitle: 1. * What is your name?
    * You can set it to requireNumTitle: * 1. What is your name?
@@ -2432,6 +2473,13 @@ export class SurveyModel extends Base
       this.state == "running"
     );
   }
+  public get isCancelPreviewButtonVisible(): boolean {
+    return (
+      this.isEditMode &&
+      this.isShowPreviewBeforeComplete &&
+      this.state == "preview"
+    );
+  }
   /**
    * Returns `true` if the survey is in display mode or in preview mode.
    * @see mode
@@ -2858,6 +2906,7 @@ export class SurveyModel extends Base
       }
       this.runningPages = null;
     }
+    this.currentPageNo = 0;
     this.updateVisibleIndexes();
   }
   origionalPages: any = null;
@@ -5004,6 +5053,8 @@ Serializer.addClass("survey", [
   { name: "pagePrevText", serializationProperty: "locPagePrevText" },
   { name: "pageNextText", serializationProperty: "locPageNextText" },
   { name: "completeText", serializationProperty: "locCompleteText" },
+  { name: "previewText", serializationProperty: "locPreviewText" },
+  { name: "editText", serializationProperty: "locEditText" },
   { name: "requiredText", default: "*" },
   "questionStartIndex",
   {

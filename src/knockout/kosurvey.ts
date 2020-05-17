@@ -116,6 +116,18 @@ export class Survey extends SurveyModel {
       this.css.navigation.complete
     );
   }
+  public get cssNavigationPreview() {
+    return this.getNavigationCss(
+      this.css.navigationButton,
+      this.css.navigation.preview
+    );
+  }
+  public get cssNavigationEdit() {
+    return this.getNavigationCss(
+      this.css.navigationButton,
+      this.css.navigation.edit
+    );
+  }
   public get cssNavigationPrev() {
     return this.getNavigationCss(
       this.css.navigationButton,

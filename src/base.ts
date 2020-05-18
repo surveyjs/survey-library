@@ -74,6 +74,7 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner {
   isDisplayMode: boolean;
   isDesignMode: boolean;
   areInvisibleElementsShowing: boolean;
+  areEmptyElementsHidden: boolean;
   isLoadingFromJson: boolean;
   isUpdateValueTextOnTyping: boolean;
 

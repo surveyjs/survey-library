@@ -26,7 +26,7 @@
         <input
           type="button"
           :value="survey.editText"
-          :class="survey.cssNavigationPreview"
+          :class="survey.cssNavigationEdit"
           @click="cancelPreview"
         />
       </div>

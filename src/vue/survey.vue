@@ -16,7 +16,7 @@
               <input
                 type="button"
                 :value="survey.startSurveyText"
-                :class="getNavBtnClasses('start')"
+                :class="survey.cssNavigationStart"
                 @click="start"
               />
             </div>
@@ -36,54 +36,22 @@
               <input
                 type="button"
                 :value="survey.startSurveyText"
-                :class="getNavBtnClasses('start')"
+                :class="survey.cssNavigationStart"
                 @click="start"
               />
             </div>
           </div>
         </template>
-        <template v-if="survey.state === 'running'">
+        <template v-if="survey.state === 'running' || survey.state === 'preview'">
           <div :class="css.body">
-            <survey-progress
-              v-if="survey.isShowProgressBarOnTop"
+            <survey-progress v-if="survey.isShowProgressBarOnTop" :survey="survey" :css="css" />
+            <survey-timerpanel v-if="survey.isTimerPanelShowingOnTop" :survey="survey" :css="css" />
+            <survey-navigation
+              v-if="survey.isNavigationButtonsShowing === 'top' ||
+                  survey.isNavigationButtonsShowing === 'both'"
               :survey="survey"
               :css="css"
             />
-            <survey-timerpanel
-              v-if="survey.isTimerPanelShowingOnTop"
-              :survey="survey"
-              :css="css"
-            />
-            <div
-              v-if="
-                survey.isNavigationButtonsShowing === 'top' ||
-                  survey.isNavigationButtonsShowing === 'both'
-              "
-              :class="css.footer"
-            >
-              <input
-                type="button"
-                :value="survey.pagePrevText"
-                v-show="!survey.isFirstPage && survey.isShowPrevButton"
-                :class="getNavBtnClasses('prev')"
-                @click="prevPage"
-              />
-              <input
-                type="button"
-                :value="survey.pageNextText"
-                v-show="!survey.isLastPage"
-                :class="getNavBtnClasses('next')"
-                @click="nextPage"
-              />
-              <input
-                v-if="survey.isEditMode"
-                type="button"
-                :value="survey.completeText"
-                v-show="survey.isLastPage"
-                :class="getNavBtnClasses('complete')"
-                @click="completeLastPage"
-              />
-            </div>
             <survey-page
               :id="survey.currentPage.id"
               :survey="survey"
@@ -95,48 +63,17 @@
               :survey="survey"
               :css="css"
             />
-            <survey-progress
-              v-if="survey.isShowProgressBarOnBottom"
+            <survey-progress v-if="survey.isShowProgressBarOnBottom" :survey="survey" :css="css" />
+            <survey-navigation
+              v-if="survey.isNavigationButtonsShowing === 'bottom' ||
+                  survey.isNavigationButtonsShowing === 'both'"
               :survey="survey"
               :css="css"
             />
-            <div
-              v-if="
-                survey.isNavigationButtonsShowing === 'bottom' ||
-                  survey.isNavigationButtonsShowing === 'both'
-              "
-              :class="css.footer"
-            >
-              <input
-                type="button"
-                :value="survey.pagePrevText"
-                v-show="!survey.isFirstPage && survey.isShowPrevButton"
-                :class="getNavBtnClasses('prev')"
-                @click="prevPage"
-              />
-              <input
-                type="button"
-                :value="survey.pageNextText"
-                v-show="!survey.isLastPage"
-                :class="getNavBtnClasses('next')"
-                @click="nextPage"
-              />
-              <input
-                v-if="survey.isEditMode"
-                type="button"
-                :value="survey.completeText"
-                v-show="survey.isLastPage"
-                :class="getNavBtnClasses('complete')"
-                @click="completeLastPage"
-              />
-            </div>
           </div>
         </template>
         <div v-if="hasCompletedPage">
-          <div
-            v-html="getProcessedCompletedHtml()"
-            :class="getCompletedPageClasses()"
-          ></div>
+          <div v-html="getProcessedCompletedHtml()" :class="getCompletedPageClasses()"></div>
           <div v-if="survey.completedState != ''" :class="css.saveData.root">
             <div :class="getCompletedStateClasses()">
               <span>{{ survey.completedStateText }}</span>
@@ -160,9 +97,7 @@
           :class="css.body"
           v-html="survey.processedLoadingHtml"
         ></div>
-        <div v-if="survey.state === 'empty'" :class="css.bodyEmpty">
-          {{ survey.emptySurveyText }}
-        </div>
+        <div v-if="survey.state === 'empty'" :class="css.bodyEmpty">{{ survey.emptySurveyText }}</div>
       </div>
     </form>
   </div>
@@ -208,10 +143,6 @@ export class Survey extends Vue {
   get css() {
     return this.survey.css;
   }
-  getNavBtnClasses(btnType: any) {
-    const btnClass = this.css.navigation[btnType];
-    return this.css.navigationButton + " " + btnClass;
-  }
   getCompletedPageClasses() {
     var css = this.css;
     return css.body + " " + css.completedPage;
@@ -228,15 +159,6 @@ export class Survey extends Vue {
   }
   start() {
     this.survey.start();
-  }
-  prevPage() {
-    this.survey.prevPage();
-  }
-  nextPage() {
-    this.survey.nextPage();
-  }
-  completeLastPage() {
-    this.survey.completeLastPage();
   }
   doTrySaveAgain() {
     this.survey.doComplete();

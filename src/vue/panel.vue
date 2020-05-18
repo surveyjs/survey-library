@@ -22,6 +22,14 @@
       >
         <survey-row :row="row" :survey="survey" :css="css"></survey-row>
       </div>
+      <div v-if="question.hasEditButton" :class="question.cssClasses.panel.footer">
+        <input
+          type="button"
+          :value="survey.editText"
+          :class="survey.cssNavigationPreview"
+          @click="cancelPreview"
+        />
+      </div>
     </div>
   </div>
 </template>
@@ -100,6 +108,9 @@ export class Panel extends Vue {
         this.question.collapse();
       }
     }
+  }
+  cancelPreview() {
+    this.question.cancelPreview();
   }
   getTitleStyle() {
     var result = this.css.panel.title;

@@ -51,6 +51,7 @@ export { ImagePicker } from "../vue/imagepicker.vue";
 export { PanelDynamic } from "../vue/paneldynamic.vue";
 export { PanelDynamicRemove } from "../vue/paneldynamicremove.vue";
 export { PanelDynamicProgress } from "../vue/paneldynamicprogress.vue";
+export { Navigation } from "../vue/navigation.vue";
 export { Progress } from "../vue/progress.vue";
 export { TimerPanel } from "../vue/timerpanel.vue";
 export { Panel } from "../vue/panel.vue";

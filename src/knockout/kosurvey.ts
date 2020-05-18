@@ -110,52 +110,6 @@ export class Survey extends SurveyModel {
     var el = <any>document.activeElement;
     if (!!el && !!el.blur) el.blur();
   }
-  public get cssNavigationComplete() {
-    return this.getNavigationCss(
-      this.css.navigationButton,
-      this.css.navigation.complete
-    );
-  }
-  public get cssNavigationPreview() {
-    return this.getNavigationCss(
-      this.css.navigationButton,
-      this.css.navigation.preview
-    );
-  }
-  public get cssNavigationEdit() {
-    return this.getNavigationCss(
-      this.css.navigationButton,
-      this.css.navigation.edit
-    );
-  }
-  public get cssNavigationPrev() {
-    return this.getNavigationCss(
-      this.css.navigationButton,
-      this.css.navigation.prev
-    );
-  }
-  public get cssNavigationStart() {
-    return this.getNavigationCss(
-      this.css.navigationButton,
-      this.css.navigation.start
-    );
-  }
-  public get cssNavigationNext() {
-    return this.getNavigationCss(
-      this.css.navigationButton,
-      this.css.navigation.next
-    );
-  }
-  public get completedCss() {
-    var css = this.css;
-    return css.body + " " + css.completedPage;
-  }
-  private getNavigationCss(main: string, btn: string) {
-    var res = "";
-    if (main) res = main;
-    if (btn) res += " " + btn;
-    return res;
-  }
   public render(element: any = null) {
     this.updateKoCurrentPage();
     this.updateCustomWidgets(this.currentPage);

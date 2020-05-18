@@ -10,9 +10,13 @@ export class SurveyPanel extends SurveyPanelBase {
   private hasBeenExpanded: boolean = false;
   constructor(props: any) {
     super(props);
+    this.handleEditClick = this.handleEditClick.bind(this);
   }
   public get panel(): PanelModel {
     return this.panelBase as PanelModel;
+  }
+  handleEditClick(event: any) {
+    this.panel.cancelPreview();
   }
   render(): JSX.Element {
     if (this.panelBase == null || this.survey == null || this.creator == null)
@@ -140,7 +144,17 @@ export class SurveyPanel extends SurveyPanelBase {
     );
   }
   protected renderBottom(): JSX.Element {
-    return null;
+    if (!this.panel.hasEditButton || !this.survey) return;
+    return (
+      <div className={this.panel.cssClasses.panel.footer}>
+        <input
+          className={this.survey.cssNavigationEdit}
+          type="button"
+          onClick={this.handleEditClick}
+          value={this.survey.editText}
+        />
+      </div>
+    );
   }
 }
 

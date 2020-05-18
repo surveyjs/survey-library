@@ -44,12 +44,12 @@ import { settings } from "./settings";
  */
 export class SurveyModel extends Base
   implements
-  ISurvey,
-  ISurveyData,
-  ISurveyImpl,
-  ISurveyTriggerOwner,
-  ISurveyErrorOwner,
-  ILocalizableOwner {
+    ISurvey,
+    ISurveyData,
+    ISurveyImpl,
+    ISurveyTriggerOwner,
+    ISurveyErrorOwner,
+    ILocalizableOwner {
   [index: string]: any;
   private static stylesManager: StylesManager = null;
   public static platform: string = "unknown";
@@ -965,6 +965,52 @@ export class SurveyModel extends Base
   public set css(value: any) {
     this.mergeValues(value, this.css);
   }
+  public get cssNavigationComplete() {
+    return this.getNavigationCss(
+      this.css.navigationButton,
+      this.css.navigation.complete
+    );
+  }
+  public get cssNavigationPreview() {
+    return this.getNavigationCss(
+      this.css.navigationButton,
+      this.css.navigation.preview
+    );
+  }
+  public get cssNavigationEdit() {
+    return this.getNavigationCss(
+      this.css.navigationButton,
+      this.css.navigation.edit
+    );
+  }
+  public get cssNavigationPrev() {
+    return this.getNavigationCss(
+      this.css.navigationButton,
+      this.css.navigation.prev
+    );
+  }
+  public get cssNavigationStart() {
+    return this.getNavigationCss(
+      this.css.navigationButton,
+      this.css.navigation.start
+    );
+  }
+  public get cssNavigationNext() {
+    return this.getNavigationCss(
+      this.css.navigationButton,
+      this.css.navigation.next
+    );
+  }
+  public get completedCss() {
+    var css = this.css;
+    return css.body + " " + css.completedPage;
+  }
+  private getNavigationCss(main: string, btn: string) {
+    var res = "";
+    if (main) res = main;
+    if (btn) res += " " + btn;
+    return res;
+  }
   /**
    * Gets or sets a list of triggers in the survey.
    * @see SurveyTrigger
@@ -1375,7 +1421,7 @@ export class SurveyModel extends Base
     }
     return locs;
   }
-  protected onLocaleChanged() { }
+  protected onLocaleChanged() {}
   //ILocalizableOwner
   getLocale() {
     return this.locale;
@@ -2051,9 +2097,9 @@ export class SurveyModel extends Base
         propertyName: string;
       }>;
     } = {
-        includeEmpty: true,
-        includeQuestionTypes: false,
-      }
+      includeEmpty: true,
+      includeQuestionTypes: false,
+    }
   ) {
     var result: Array<any> = [];
     this.getAllQuestions().forEach((question) => {
@@ -3136,7 +3182,7 @@ export class SurveyModel extends Base
     this.setPropertyValue("isValidatingOnServer", val);
     this.onIsValidatingOnServerChanged();
   }
-  protected onIsValidatingOnServerChanged() { }
+  protected onIsValidatingOnServerChanged() {}
   protected doServerValidation(): boolean {
     if (
       !this.onServerValidateQuestions ||
@@ -4028,8 +4074,8 @@ export class SurveyModel extends Base
     this.onLoadSurveyFromService();
     this.onLoadedSurveyFromService.fire(this, {});
   }
-  protected onLoadingSurveyFromService() { }
-  protected onLoadSurveyFromService() { }
+  protected onLoadingSurveyFromService() {}
+  protected onLoadSurveyFromService() {}
   private updateVisibleIndexes() {
     if (this.isLoadingFromJson || !!this.isEndLoadingFromJson) return;
     this.updatePageVisibleIndexes(this.showPageNumbers);
@@ -4084,8 +4130,8 @@ export class SurveyModel extends Base
     this.isEndLoadingFromJson = null;
     this.updateVisibleIndexes();
   }
-  protected onBeforeCreating() { }
-  protected onCreating() { }
+  protected onBeforeCreating() {}
+  protected onCreating() {}
   private getProcessedTextValue(textValue: TextPreProcessorValue): void {
     this.getProcessedTextValueCore(textValue);
     if (!this.onProcessTextValue.isEmpty) {
@@ -4788,13 +4834,13 @@ export class SurveyModel extends Base
   ): string {
     return this.maxTimeToFinish > 0
       ? this.getLocString("timerLimitSurvey")["format"](
-        surveySpent,
-        surveyLimit
-      )
+          surveySpent,
+          surveyLimit
+        )
       : this.getLocString("timerSpentSurvey")["format"](
-        surveySpent,
-        surveyLimit
-      );
+          surveySpent,
+          surveyLimit
+        );
   }
   private getDisplayTime(val: number): string {
     var min = Math.floor(val / 60);

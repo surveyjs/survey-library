@@ -1,10 +1,10 @@
 export var surveyCss: any = {
   currentType: "",
-  getCss: function() {
+  getCss: function () {
     var loc = this.currentType ? this[this.currentType] : defaultStandardCss;
     if (!loc) loc = defaultStandardCss;
     return loc;
-  }
+  },
 };
 
 export var defaultStandardCss = {
@@ -25,7 +25,9 @@ export var defaultStandardCss = {
     complete: "sv_complete_btn",
     prev: "sv_prev_btn",
     next: "sv_next_btn",
-    start: "sv_start_btn"
+    start: "sv_start_btn",
+    preview: "sv_preview_btn",
+    edit: "sv_edit_btn",
   },
   progress: "sv_progress",
   progressBar: "sv_progress_bar",
@@ -33,7 +35,7 @@ export var defaultStandardCss = {
   page: {
     root: "sv_p_root",
     title: "sv_page_title",
-    description: ""
+    description: "",
   },
   // TODO: move to the page object
   pageTitle: "sv_page_title",
@@ -57,7 +59,7 @@ export var defaultStandardCss = {
     hasError: "",
     indent: 20,
     footer: "sv_q_footer",
-    formGroup: "form-group"
+    formGroup: "form-group",
   },
   panel: {
     title: "sv_p_title",
@@ -65,14 +67,15 @@ export var defaultStandardCss = {
     icon: "sv_panel_icon",
     iconExpanded: "sv_expanded",
     description: "sv_p_description",
-    container: "sv_p_container"
+    container: "sv_p_container",
+    footer: "sv_p_footer",
   },
   error: {
     root: "sv_q_erbox",
     icon: "",
     item: "",
     locationTop: "sv_qstn_error_top",
-    locationBottom: "sv_qstn_error_bottom"
+    locationBottom: "sv_qstn_error_bottom",
   },
 
   boolean: {
@@ -85,7 +88,7 @@ export var defaultStandardCss = {
     switch: "sv-boolean__switch",
     slider: "sv-boolean__slider",
     label: "sv-boolean__label ",
-    disabledLabel: "sv-boolean__label--disabled"
+    disabledLabel: "sv-boolean__label--disabled",
   },
   checkbox: {
     root: "sv_qcbc sv_qcbx",
@@ -99,14 +102,14 @@ export var defaultStandardCss = {
     controlLabel: "sv_q_checkbox_control_label",
     materialDecorator: "checkbox-material",
     other: "sv_q_other sv_q_checkbox_other",
-    column: "sv_q_select_column"
+    column: "sv_q_select_column",
   },
   comment: "",
   dropdown: {
     root: "",
     control: "sv_q_dropdown_control",
     selectWrapper: "sv_select_wrapper",
-    other: "sv_q_dd_other"
+    other: "sv_q_dd_other",
   },
   html: { root: "" },
   image: { root: "sv_q_image", image: "sv_image_image" },
@@ -117,7 +120,7 @@ export var defaultStandardCss = {
     itemDecorator: "sv-hidden",
     cellText: "sv_q_m_cell_text",
     cellTextSelected: "sv_q_m_cell_selected",
-    cellLabel: "sv_q_m_cell_label"
+    cellLabel: "sv_q_m_cell_label",
   },
   matrixdropdown: { root: "sv_q_matrix_dropdown" },
   matrixdynamic: {
@@ -126,7 +129,7 @@ export var defaultStandardCss = {
     buttonAdd: "",
     buttonRemove: "",
     iconAdd: "",
-    iconRemove: ""
+    iconRemove: "",
   },
   paneldynamic: {
     root: "sv_panel_dynamic",
@@ -139,13 +142,13 @@ export var defaultStandardCss = {
     progressContainer: "sv-paneldynamic__progress-container",
     progress: "sv-progress",
     progressBar: "sv-progress__bar",
-    progressText: "sv-paneldynamic__progress-text"
+    progressText: "sv-paneldynamic__progress-text",
   },
   multipletext: {
     root: "sv_q_mt",
     itemTitle: "sv_q_mt_title",
     row: "sv_q_mt_row",
-    itemValue: "sv_q_mt_item_value sv_q_text_root"
+    itemValue: "sv_q_mt_item_value sv_q_text_root",
   },
   radiogroup: {
     root: "sv_qcbc",
@@ -160,7 +163,7 @@ export var defaultStandardCss = {
     materialDecorator: "circle",
     other: "sv_q_other sv_q_radiogroup_other",
     clearButton: "sv_q_radiogroup_clear",
-    column: "sv_q_select_column"
+    column: "sv_q_select_column",
   },
   imagepicker: {
     root: "sv_imgsel",
@@ -171,7 +174,7 @@ export var defaultStandardCss = {
     image: "sv_q_imgsel_image",
     itemInline: "sv_q_imagepicker_inline",
     itemText: "sv_q_imgsel_text",
-    clearButton: "sv_q_radiogroup_clear"
+    clearButton: "sv_q_radiogroup_clear",
   },
   rating: {
     root: "sv_q_rating",
@@ -180,7 +183,7 @@ export var defaultStandardCss = {
     minText: "sv_q_rating_min_text",
     itemText: "sv_q_rating_item_text",
     maxText: "sv_q_rating_max_text",
-    disabled: ""
+    disabled: "",
   },
   text: "sv_q_text_root",
   expression: "",
@@ -196,19 +199,19 @@ export var defaultStandardCss = {
     fileSignBottom: "sv-hidden",
     removeButtonBottom: "sv-hidden",
     chooseFile: "sv_q_file_choose_button",
-    noFileChosen: "sv_q_file_placeholder"
+    noFileChosen: "sv_q_file_placeholder",
   },
   signaturepad: {
     root: "sv_q_signaturepad sjs_sp_container",
     controls: "sjs_sp_controls",
-    clearButton: "sjs_sp_clear"
+    clearButton: "sjs_sp_clear",
   },
   saveData: {
     root: "",
     saving: "",
     error: "",
     success: "",
-    saveAgainButton: ""
+    saveAgainButton: "",
   },
   window: {
     root: "sv_window",
@@ -218,9 +221,9 @@ export var defaultStandardCss = {
       title: "",
       button: "",
       buttonExpanded: "",
-      buttonCollapsed: ""
-    }
-  }
+      buttonCollapsed: "",
+    },
+  },
 };
 
 surveyCss["standard"] = defaultStandardCss;

@@ -72,6 +72,7 @@ export class StylesManager {
       "content: ''; background-repeat: no-repeat; background-position: center; padding: 0.5em; display: inline-block; background-image: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4NCjwhLS0gR2VuZXJhdG9yOiBBZG9iZSBJbGx1c3RyYXRvciAyMi4wLjEsIFNWRyBFeHBvcnQgUGx1Zy1JbiAuIFNWRyBWZXJzaW9uOiA2LjAwIEJ1aWxkIDApICAtLT4NCjxzdmcgdmVyc2lvbj0iMS4xIiBpZD0iTGF5ZXJfMSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWxuczp4bGluaz0iaHR0cDovL3d3dy53My5vcmcvMTk5OS94bGluayIgeD0iMHB4IiB5PSIwcHgiDQoJIHZpZXdCb3g9IjAgMCAxMCAxMCIgc3R5bGU9ImVuYWJsZS1iYWNrZ3JvdW5kOm5ldyAwIDAgMTAgMTA7IiB4bWw6c3BhY2U9InByZXNlcnZlIj4NCjxzdHlsZSB0eXBlPSJ0ZXh0L2NzcyI+DQoJLnN0MHtmaWxsOiM2RDcwNzI7fQ0KPC9zdHlsZT4NCjxwb2x5Z29uIGNsYXNzPSJzdDAiIHBvaW50cz0iMiwyIDAsNCA1LDkgMTAsNCA4LDIgNSw1ICIvPg0KPC9zdmc+DQo=);",
     ".sv_p_title .sv_panel_icon.sv_expanded::before":
       "transform: rotate(180deg);",
+    ".sv_p_footer": "padding-left: 1em; padding-bottom: 1em;",
 
     ".sv_q_file > input[type=file], .sv_q_file > button":
       "display: inline-block;",
@@ -654,6 +655,8 @@ export class StylesManager {
     ".sv-footer__next-btn": "background-color: $main-color;",
     ".sv-footer__prev-btn": "background-color: $main-color;",
     ".sv-footer__start-btn": "background-color: $main-color;",
+    ".sv-footer__preview-btn": "background-color: $main-color;",
+    ".sv-footer__edit-btn": "background-color: $main-color;",
     ".sv-imagepicker__item--allowhover:hover .sv-imagepicker__image":
       "background-color: $main-hover-color; border-color: $main-hover-color;",
     ".sv-imagepicker__item--checked .sv-imagepicker__image":

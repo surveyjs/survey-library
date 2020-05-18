@@ -18,7 +18,9 @@ export var defaultBootstrapMaterialCss = {
     complete: "btn sv_complete_btn btn-primary",
     prev: "btn sv_prev_btn btn-primary",
     next: "btn sv_next_btn btn-primary",
-    start: "btn sv_start_btn btn-primary"
+    start: "btn sv_start_btn btn-primary",
+    preview: "btn sv_preview_btn btn-primary",
+    edit: "btn sv_edit_btn btn-primary",
   },
   progress: "progress center-block mx-auto mb-4",
   progressBar: "progress-bar",
@@ -26,7 +28,7 @@ export var defaultBootstrapMaterialCss = {
   page: {
     root: "",
     title: "",
-    description: "small"
+    description: "small",
   },
   pageTitle: "",
   pageDescription: "small",
@@ -49,7 +51,7 @@ export var defaultBootstrapMaterialCss = {
     titleRequired: "",
     hasError: "has-error",
     indent: 20,
-    formGroup: "form-group"
+    formGroup: "form-group",
   },
   panel: {
     title: "sv_p_title",
@@ -57,14 +59,15 @@ export var defaultBootstrapMaterialCss = {
     icon: "sv_panel_icon",
     iconExpanded: "sv_expanded",
     description: "small sv_p_description",
-    container: "sv_p_container"
+    container: "sv_p_container",
+    footer: "sv_p_footer",
   },
   error: {
     root: "alert alert-danger",
     icon: "glyphicon glyphicon-exclamation-sign",
     item: "",
     locationTop: "sv_qstn_error_top",
-    locationBottom: "sv_qstn_error_bottom"
+    locationBottom: "sv_qstn_error_bottom",
   },
 
   boolean: {
@@ -77,7 +80,7 @@ export var defaultBootstrapMaterialCss = {
     switch: "sv-boolean__switch",
     slider: "sv-boolean__slider",
     label: "sv-boolean__label ",
-    disabledLabel: "sv-boolean__label--disabled"
+    disabledLabel: "sv-boolean__label--disabled",
   },
   checkbox: {
     root: "sv_qcbx form-inline",
@@ -91,13 +94,13 @@ export var defaultBootstrapMaterialCss = {
     controlLabel: "",
     materialDecorator: "checkbox-material",
     other: "sv_q_checkbox_other form-control",
-    column: "sv_q_select_column"
+    column: "sv_q_select_column",
   },
   comment: "form-control",
   dropdown: {
     root: "",
     control: "form-control",
-    other: "sv_q_dd_other form-control"
+    other: "sv_q_dd_other form-control",
   },
   html: { root: "" },
   image: { root: "sv_q_image", image: "sv_image_image" },
@@ -110,7 +113,7 @@ export var defaultBootstrapMaterialCss = {
     cellLabel: "sv_q_m_cell_label",
     itemValue: "form-control",
     itemChecked: "checked",
-    itemDecorator: "sv-hidden"
+    itemDecorator: "sv-hidden",
   },
   matrixdropdown: { root: "table", itemValue: "form-group" },
   matrixdynamic: {
@@ -120,7 +123,7 @@ export var defaultBootstrapMaterialCss = {
     buttonAdd: "",
     buttonRemove: "",
     iconAdd: "",
-    iconRemove: ""
+    iconRemove: "",
   },
   paneldynamic: {
     root: "",
@@ -137,13 +140,13 @@ export var defaultBootstrapMaterialCss = {
     progressContainer: "sv-paneldynamic__progress-container",
     progress: "sv-progress",
     progressBar: "sv-progress__bar",
-    progressText: "sv-paneldynamic__progress-text"
+    progressText: "sv-paneldynamic__progress-text",
   },
   multipletext: {
     root: "table",
     itemTitle: "",
     row: "form-group",
-    itemValue: "sv_q_mt_item_value form-control"
+    itemValue: "sv_q_mt_item_value form-control",
   },
   radiogroup: {
     root: "",
@@ -158,7 +161,7 @@ export var defaultBootstrapMaterialCss = {
     materialDecorator: "circle",
     other: "sv_q_radiogroup_other form-control",
     clearButton: "sv_q_radiogroup_clear button btn btn-primary",
-    column: "sv_q_select_column"
+    column: "sv_q_select_column",
   },
   imagepicker: {
     root: "sv_imgsel",
@@ -169,7 +172,7 @@ export var defaultBootstrapMaterialCss = {
     itemControl: "sv_q_imgsel_control_item",
     image: "sv_q_imgsel_image",
     itemText: "sv_q_imgsel_text",
-    clearButton: "sv_q_radiogroup_clear"
+    clearButton: "sv_q_radiogroup_clear",
   },
   rating: {
     root: "btn-group",
@@ -178,7 +181,7 @@ export var defaultBootstrapMaterialCss = {
     minText: "sv_q_rating_min_text",
     itemText: "sv_q_rating_item_text",
     maxText: "sv_q_rating_max_text",
-    disabled: ""
+    disabled: "",
   },
   text: "form-control",
   expression: "form-control",
@@ -192,19 +195,19 @@ export var defaultBootstrapMaterialCss = {
     removeFileSvg: "sv-hidden",
     fileDecorator: "sv-hidden",
     fileSignBottom: "sv-hidden",
-    removeButtonBottom: "sv-hidden"
+    removeButtonBottom: "sv-hidden",
   },
   signaturepad: {
     root: "sv_q_signaturepad sjs_sp_container",
     controls: "sjs_sp_controls",
-    clearButton: "sjs_sp_clear"
+    clearButton: "sjs_sp_clear",
   },
   saveData: {
     root: "",
     saving: "alert alert-info",
     error: "alert alert-danger",
     success: "alert alert-success",
-    saveAgainButton: ""
+    saveAgainButton: "",
   },
   window: {
     root: "modal-content",
@@ -214,8 +217,8 @@ export var defaultBootstrapMaterialCss = {
       title: "pull-left",
       button: "glyphicon pull-right",
       buttonExpanded: "glyphicon pull-right glyphicon-chevron-up",
-      buttonCollapsed: "glyphicon pull-right glyphicon-chevron-down"
-    }
-  }
+      buttonCollapsed: "glyphicon pull-right glyphicon-chevron-down",
+    },
+  },
 };
 (<any>surveyCss)["bootstrapmaterial"] = defaultBootstrapMaterialCss;

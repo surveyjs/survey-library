@@ -85,7 +85,6 @@
       <input type="button" data-bind="value: pagePrevText, click: prevPage, visible: !koIsFirstPage() && isShowPrevButton, css: cssNavigationPrev"
       />
       <input type="button" data-bind="value: pageNextText, click: nextPageUIClick, event: { mousedown: nextPageMouseDown }, visible: !koIsLastPage(), css: cssNavigationNext" />
-      <input type="button" data-bind="value: editText, click: cancelPreview, visible: koIsLastPage() && isCancelPreviewButtonVisible, css: cssNavigationEdit" />
       <input type="button" data-bind="value: previewText, click: showPreview, visible: koIsLastPage() && isPreviewButtonVisible, css: cssNavigationPreview" />
       <input type="button" data-bind="value: completeText, click: completeLastPage, visible: koIsLastPage() && isCompleteButtonVisible, css: cssNavigationComplete" />
   </div>

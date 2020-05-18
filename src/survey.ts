@@ -2534,7 +2534,10 @@ export class SurveyModel extends Base
     return this.isDesignMode || this.showInvisibleElements;
   }
   public get areEmptyElementsHidden(): boolean {
-    return this.showPreviewBeforeComplete == "showAnsweredQuestions";
+    return (
+      this.isShowingPreview &&
+      this.showPreviewBeforeComplete == "showAnsweredQuestions"
+    );
   }
   /**
    * Returns `true`, if a user has already completed the survey in this browser and there is a cookie about it. Survey goes to `completed` state if the function returns `true`.
@@ -2809,11 +2812,24 @@ export class SurveyModel extends Base
     }
     return res;
   }
+  /**
+   * Show preview for the survey. Go to the "preview" state
+   * @see showPreviewBeforeComplete
+   * @see cancelPreview
+   * @see state
+   */
   public showPreview(): boolean {
     if (this.hasErrorsOnNavigate(true)) return false;
     this.isShowingPreview = true;
     return true;
   }
+  /**
+   * Canel preview and go back to the "running" state.
+   * @param curPage - a new current page. If the parameter is underfined then the last page becomes current.
+   * @see showPreviewBeforeComplete
+   * @see showPreview
+   * @see state
+   */
   public cancelPreview(curPage: any = null) {
     if (!this.isShowingPreview) return;
     this.isShowingPreview = false;
@@ -2823,6 +2839,22 @@ export class SurveyModel extends Base
     if (curPage !== null) {
       this.currentPage = curPage;
     }
+  }
+  public cancelPreviewByPage(panel: IPanel): any {
+    var pageIndex = this.getVisiblePageIndexByRootPanel(panel);
+    this.cancelPreview(pageIndex > -1 ? pageIndex : undefined);
+  }
+  private getVisiblePageIndexByRootPanel(panel: IPanel): number {
+    if (!panel) return -1;
+    var panels = this.getAllPanels();
+    var index = 0;
+    for (var i = 0; i < panels.length; i++) {
+      if (panels[i].parent === this.currentPageValue) {
+        if (panels[i] == panel) return index;
+        index++;
+      }
+    }
+    return -1;
   }
   protected doCurrentPageComplete(doComplete: boolean): boolean {
     if (this.hasErrorsOnNavigate(doComplete)) return false;
@@ -2906,8 +2938,9 @@ export class SurveyModel extends Base
       }
       this.runningPages = null;
     }
-    this.currentPageNo = 0;
+    this.updateAllElementsVisibility(this.pages);
     this.updateVisibleIndexes();
+    this.currentPageNo = 0;
   }
   origionalPages: any = null;
   protected onQuestionsOnPageModeChanged(oldValue: string) {

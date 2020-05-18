@@ -78,6 +78,9 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner {
   isLoadingFromJson: boolean;
   isUpdateValueTextOnTyping: boolean;
 
+  state: string;
+  cancelPreviewByPage(panel: IPanel): any;
+
   requiredText: string;
   beforeSettingQuestionErrors(
     question: IQuestion,

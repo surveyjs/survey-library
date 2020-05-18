@@ -1,5 +1,6 @@
 import { SurveyModel } from "../src/survey";
 import { surveyLocalization } from "../src/surveyStrings";
+import { PanelModel } from "../src/panel";
 
 export default QUnit.module("SurveyShowPreviewTests");
 
@@ -288,3 +289,85 @@ QUnit.test("showPreviewBeforeComplete = 'showAnsweredQuestions'", function (
     "question is not empty"
   );
 });
+QUnit.test(
+  "showPreviewBeforeComplete = 'showAllQuestions', edit page",
+  function (assert) {
+    var survey = new SurveyModel({
+      pages: [
+        { elements: [{ type: "text", name: "q1" }] },
+        {
+          elements: [
+            {
+              type: "panel",
+              name: "panel1",
+              elements: [{ type: "text", name: "q2" }],
+            },
+          ],
+        },
+        { elements: [{ type: "text", name: "q3" }] },
+      ],
+    });
+    survey.showPreviewBeforeComplete = "showAllQuestions";
+    survey.currentPageNo = 2;
+    assert.equal(survey.getAllPanels().length, 1, "There is one panel");
+    assert.equal(
+      (<PanelModel>survey.getAllPanels()[0]).hasEditButton,
+      false,
+      "The panel is not editable"
+    );
+    survey.showPreview();
+    assert.equal(survey.visiblePageCount, 1, "Show preview");
+    assert.equal(survey.getAllPanels().length, 4, "There are four panels");
+    assert.equal(
+      (<PanelModel>survey.getAllPanels()[0]).hasEditButton,
+      true,
+      "The panel is editable"
+    );
+    var panel = <PanelModel>survey.getAllPanels()[1].elements[0];
+    assert.equal(
+      panel.hasEditButton,
+      false,
+      "The standard panel doesn't have edit button"
+    );
+    (<PanelModel>survey.getAllPanels()[1]).cancelPreview();
+    assert.equal(survey.state, "running", "Preview is canceled");
+    assert.equal(survey.visiblePageCount, 3, "There are three visible pages");
+    assert.equal(survey.currentPageNo, 1, "We are editing the second page");
+  }
+);
+QUnit.test(
+  "showPreviewBeforeComplete = 'showAnsweredQuestions', edit page",
+  function (assert) {
+    var survey = new SurveyModel({
+      pages: [
+        { elements: [{ type: "text", name: "q1" }] },
+        { elements: [{ type: "text", name: "q2" }] },
+        { elements: [{ type: "text", name: "q3" }] },
+      ],
+    });
+    survey.showPreviewBeforeComplete = "showAnsweredQuestions";
+    survey.data = { q2: "2", q3: "3" };
+    survey.currentPageNo = 2;
+    survey.showPreview();
+    assert.equal(survey.visiblePageCount, 1, "Show preview");
+    assert.equal(survey.getAllPanels().length, 3, "There are three panels");
+    (<PanelModel>survey.getAllPanels()[1]).cancelPreview();
+    assert.equal(survey.state, "running", "Preview is canceled");
+    assert.equal(survey.visiblePageCount, 3, "There are three visible pages");
+    assert.equal(survey.currentPageNo, 1, "We are editing the second page");
+  }
+);
+QUnit.test(
+  "showPreviewBeforeComplete = 'showAnsweredQuestions', do not hide questions on running state",
+  function (assert) {
+    var survey = new SurveyModel({
+      pages: [
+        { elements: [{ type: "text", name: "q1" }] },
+        { elements: [{ type: "text", name: "q2" }] },
+        { elements: [{ type: "text", name: "q3" }] },
+      ],
+    });
+    survey.showPreviewBeforeComplete = "showAnsweredQuestions";
+    assert.equal(survey.visiblePageCount, 3, "There are 3 visible pages");
+  }
+);

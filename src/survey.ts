@@ -44,12 +44,12 @@ import { settings } from "./settings";
  */
 export class SurveyModel extends Base
   implements
-    ISurvey,
-    ISurveyData,
-    ISurveyImpl,
-    ISurveyTriggerOwner,
-    ISurveyErrorOwner,
-    ILocalizableOwner {
+  ISurvey,
+  ISurveyData,
+  ISurveyImpl,
+  ISurveyTriggerOwner,
+  ISurveyErrorOwner,
+  ILocalizableOwner {
   [index: string]: any;
   private static stylesManager: StylesManager = null;
   public static platform: string = "unknown";
@@ -1375,7 +1375,7 @@ export class SurveyModel extends Base
     }
     return locs;
   }
-  protected onLocaleChanged() {}
+  protected onLocaleChanged() { }
   //ILocalizableOwner
   getLocale() {
     return this.locale;
@@ -2051,9 +2051,9 @@ export class SurveyModel extends Base
         propertyName: string;
       }>;
     } = {
-      includeEmpty: true,
-      includeQuestionTypes: false,
-    }
+        includeEmpty: true,
+        includeQuestionTypes: false,
+      }
   ) {
     var result: Array<any> = [];
     this.getAllQuestions().forEach((question) => {
@@ -3136,7 +3136,7 @@ export class SurveyModel extends Base
     this.setPropertyValue("isValidatingOnServer", val);
     this.onIsValidatingOnServerChanged();
   }
-  protected onIsValidatingOnServerChanged() {}
+  protected onIsValidatingOnServerChanged() { }
   protected doServerValidation(): boolean {
     if (
       !this.onServerValidateQuestions ||
@@ -3424,12 +3424,14 @@ export class SurveyModel extends Base
 
   /**
    * Uploads a file to server.
+   * @param question a file question object
    * @param name a question name
    * @param file an uploaded file
    * @param storeDataAsText set it to `true` to encode file content into the survey results
    * @param uploadingCallback a call back function to get the status on uploading the file
    */
   public uploadFiles(
+    question: IQuestion,
     name: string,
     files: File[],
     uploadingCallback: (status: string, data: any) => any
@@ -3438,6 +3440,7 @@ export class SurveyModel extends Base
       uploadingCallback("error", files);
     } else {
       this.onUploadFiles.fire(this, {
+        question: question,
         name: name,
         files: files || [],
         callback: uploadingCallback,
@@ -4025,8 +4028,8 @@ export class SurveyModel extends Base
     this.onLoadSurveyFromService();
     this.onLoadedSurveyFromService.fire(this, {});
   }
-  protected onLoadingSurveyFromService() {}
-  protected onLoadSurveyFromService() {}
+  protected onLoadingSurveyFromService() { }
+  protected onLoadSurveyFromService() { }
   private updateVisibleIndexes() {
     if (this.isLoadingFromJson || !!this.isEndLoadingFromJson) return;
     this.updatePageVisibleIndexes(this.showPageNumbers);
@@ -4081,8 +4084,8 @@ export class SurveyModel extends Base
     this.isEndLoadingFromJson = null;
     this.updateVisibleIndexes();
   }
-  protected onBeforeCreating() {}
-  protected onCreating() {}
+  protected onBeforeCreating() { }
+  protected onCreating() { }
   private getProcessedTextValue(textValue: TextPreProcessorValue): void {
     this.getProcessedTextValueCore(textValue);
     if (!this.onProcessTextValue.isEmpty) {
@@ -4785,13 +4788,13 @@ export class SurveyModel extends Base
   ): string {
     return this.maxTimeToFinish > 0
       ? this.getLocString("timerLimitSurvey")["format"](
-          surveySpent,
-          surveyLimit
-        )
+        surveySpent,
+        surveyLimit
+      )
       : this.getLocString("timerSpentSurvey")["format"](
-          surveySpent,
-          surveyLimit
-        );
+        surveySpent,
+        surveyLimit
+      );
   }
   private getDisplayTime(val: number): string {
     var min = Math.floor(val / 60);

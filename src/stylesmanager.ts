@@ -704,9 +704,8 @@ export class StylesManager {
       "background-color: transparent;",
     ".sv-rating--disabled .sv-rating__item-text:hover .sv-rating__item--selected .sv-rating__item-text":
       "background-color: $disable-color; color: $body-background-color;",
-    ".sv-root-modern::-webkit-scrollbar":
-      "background-color: $main-hover-color;",
-    ".sv-root-modern::-webkit-scrollbar-thumb": "background: $main-color;",
+    "::-webkit-scrollbar": "background-color: $main-hover-color;",
+    "::-webkit-scrollbar-thumb": "background: $main-color;",
     ".sv-selectbase__clear-btn": "background-color: $clean-button-color;",
     ".sv-table": "background-color: rgba($main-hover-color, 0.1);",
     ".sv-text:focus": "border-color: $main-color;",

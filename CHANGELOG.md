@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.7.7](https://github.com/surveyjs/survey-library/compare/v1.7.6...v1.7.7) (2020-05-19)
+
+
+### Bug Fixes
+
+* Updating Navigation button text will not call `onModified` and `saveSurveyFunc` [#792](https://github.com/surveyjs/survey-library/issues/792) ([f82aa93](https://github.com/surveyjs/survey-library/commit/f82aa93b5dbd279852cf40e451a05760fd2bcfe3))
+
 ### [1.7.6](https://github.com/surveyjs/survey-library/compare/v1.7.5...v1.7.6) (2020-05-12)
 
 

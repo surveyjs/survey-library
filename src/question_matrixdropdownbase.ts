@@ -380,14 +380,6 @@ export class MatrixDropdownColumn extends Base implements ILocalizableOwner {
   public get isShowInMultipleColumns(): boolean {
     return this.showInMultipleColumns && this.isSupportMultipleColumns;
   }
-  public get hasCondition(): boolean {
-    return (
-      !!this.visibleIf ||
-      !!this.enableIf ||
-      !!this.requiredIf ||
-      this.cellType === "expression"
-    );
-  }
   public get validators(): Array<SurveyValidator> {
     return this.templateQuestion.validators;
   }
@@ -649,14 +641,6 @@ export class MatrixDropdownCell {
   public runCondition(values: HashTable<any>, properties: HashTable<any>) {
     this.question.runCondition(values, properties);
   }
-  public get hasCondition(): boolean {
-    return (
-      !!this.question.visibleIf ||
-      !!this.question.enableIf ||
-      !!this.question.requiredIf ||
-      this.question.getType() === "expression"
-    );
-  }
 }
 
 export class MatrixDropdownTotalCell extends MatrixDropdownCell {
@@ -876,12 +860,6 @@ export class MatrixDropdownRowModelBase
         }
       }
     }
-  }
-  public get hasCondition(): boolean {
-    for (var i = 0; i < this.cells.length; i++) {
-      if (this.cells[i].hasCondition) return true;
-    }
-    return false;
   }
   public getLocale(): string {
     return this.data ? this.data.getLocale() : "";
@@ -1708,7 +1686,7 @@ export class QuestionMatrixDropdownModelBase
     values: HashTable<any>,
     properties: HashTable<any>
   ) {
-    if (!this.generatedVisibleRows || !this.hasCellsCondition) return;
+    if (!this.generatedVisibleRows) return;
     var newValues = this.getRowConditionValues(values);
     var rows = this.generatedVisibleRows;
     for (var i = 0; i < rows.length; i++) {
@@ -1765,13 +1743,6 @@ export class QuestionMatrixDropdownModelBase
     newValues["row"] = {};
     newValues["totalRow"] = totalRow;
     return newValues;
-  }
-  private get hasCellsCondition(): boolean {
-    var rows = this.generatedVisibleRows;
-    for (var i = 0; i < rows.length; i++) {
-      if (rows[i].hasCondition) return true;
-    }
-    return false;
   }
   public locStrsChanged() {
     super.locStrsChanged();

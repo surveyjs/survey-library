@@ -863,6 +863,11 @@ export class SurveyModel extends Base
     any
   > = new Event<(sender: SurveyModel, options: any) => any, any>();
 
+  public onLocaleChangedEvent: Event<
+    (sender: SurveyModel, value: string) => any,
+    any
+  > = new Event<(sender: SurveyModel) => any, any>();
+
   /**
    * The list of errors on loading survey JSON. If the list is empty after loading a JSON, then the JSON is correct and has no errors.
    * @see JsonError
@@ -1400,6 +1405,7 @@ export class SurveyModel extends Base
     this.setPropertyValue("locale", this.localeValue);
     this.locStrsChanged();
     this.onLocaleChanged();
+    this.onLocaleChangedEvent.fire(this, value);
   }
   /**
    * Returns an array of locales that are used in the current survey.

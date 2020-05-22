@@ -224,6 +224,7 @@ export interface IQuestion extends IElement, ISurveyErrorOwner {
   updateValueWithDefaults(): any;
   getQuestionFromArray(name: string, index: number): IQuestion;
   value: any;
+  survey: any;
 }
 export interface IParentElement {
   addElement(element: IElement, index: number): any;

@@ -1470,6 +1470,9 @@ export class Question extends SurveyElement
   public supportGoNextPageAutomatic() {
     return false;
   }
+  public supportGoNextPageError() {
+    return true;
+  }
   /**
    * Call this function to remove values from the current question, that end-user will not be able to enter.
    * For example the value that doesn't exists in a radigroup/dropdown/checkbox choices or matrix rows/columns.

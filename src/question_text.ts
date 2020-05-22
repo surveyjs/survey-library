@@ -112,6 +112,9 @@ export class QuestionTextModel extends Question {
   supportGoNextPageAutomatic() {
     return true;
   }
+  public supportGoNextPageError() {
+    return ["date", "datetime", "datetime-local"].indexOf(this.inputType) < 0;
+  }
   /**
    * The input place holder.
    */
@@ -128,7 +131,7 @@ export class QuestionTextModel extends Question {
     return (
       this.errors.length > 0 ||
       !isOnValueChanged ||
-      ["date", "datetime", "datetime-local"].indexOf(this.inputType) < 0
+      this.supportGoNextPageError()
     );
   }
   protected setNewValue(newValue: any) {

@@ -867,6 +867,82 @@ QUnit.test("Should not show errors with others bug #2014", function (assert) {
   question.comment = "Some text";
   assert.equal(survey.currentPageNo, 1, "The second page is shown");
 });
+QUnit.test(
+  "Show error on question value changed if can't go to the next page",
+  function (assert) {
+    var survey = new SurveyModel({
+      goNextPageAutomatic: true,
+      pages: [
+        {
+          elements: [
+            { type: "text", name: "q1", isRequired: true },
+            {
+              type: "text",
+              name: "q2",
+              validators: [{ type: "numeric", minValue: 10 }],
+            },
+          ],
+        },
+        { elements: [{ type: "text", inputType: "date", name: "q3" }] },
+      ],
+    });
+    survey
+      .getQuestionByName("q3")
+      .validators.push(
+        new ExpressionValidator("{q3} >= '" + new Date().toString() + "'")
+      );
+    survey.setValue("q2", 3);
+    assert.equal(survey.currentPageNo, 0, "q1 is empty");
+    assert.equal(
+      survey.getQuestionByName("q1").errors.length,
+      0,
+      "We do not show errors for q1"
+    );
+    assert.equal(
+      survey.getQuestionByName("q2").errors.length,
+      0,
+      "We do not show errors for q2, q1 is empty"
+    );
+    survey.setValue("q1", 1);
+    assert.equal(survey.currentPageNo, 0, "q2 has error, do not move");
+    assert.equal(
+      survey.getQuestionByName("q1").errors.length,
+      0,
+      "there is no error"
+    );
+    assert.equal(
+      survey.getQuestionByName("q2").errors.length,
+      1,
+      "There is an error in q2, we can't move further"
+    );
+    survey.getQuestionByName("q2").errors.splice(0, 1);
+    survey.clear(true, true);
+    survey.setValue("q1", 1);
+    assert.equal(survey.currentPageNo, 0, "q2 is empty");
+    assert.equal(
+      survey.getQuestionByName("q2").errors.length,
+      0,
+      "We do not touch q2 yet"
+    );
+    survey.setValue("q2", 5);
+    assert.equal(survey.currentPageNo, 0, "q2 has error, do not move");
+    assert.equal(
+      survey.getQuestionByName("q2").errors.length,
+      1,
+      "Show errors q2 is changed."
+    );
+    survey.setValue("q2", 11);
+    assert.equal(survey.currentPageNo, 1, "q2 has no errors");
+    var d = new Date();
+    d.setDate(d.getDate() - 5);
+    survey.setValue("q3", d);
+    assert.equal(
+      survey.getQuestionByName("q3").errors.length,
+      0,
+      "Do not show errors, because input type is date"
+    );
+  }
+);
 
 QUnit.test(
   "Invisible required questions should not be take into account",

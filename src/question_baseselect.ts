@@ -75,6 +75,9 @@ export class QuestionSelectBase extends Question {
   public getType(): string {
     return "selectbase";
   }
+  public supportGoNextPageError() {
+    return !this.isOtherSelected || !!this.comment;
+  }
   isLayoutTypeSupported(layoutType: string): boolean {
     return true;
   }

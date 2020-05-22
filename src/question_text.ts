@@ -183,7 +183,7 @@ Serializer.addClass(
     },
     { name: "size:number", default: 25 },
     {
-      name: "min",
+      name: "min:number",
       dependsOn: "inputType",
       visibleIf: function (obj: any) {
         if (!obj) return false;
@@ -191,7 +191,7 @@ Serializer.addClass(
       },
     },
     {
-      name: "max",
+      name: "max:number",
       dependsOn: "inputType",
       visibleIf: function (obj: any) {
         if (!obj) return false;
@@ -199,7 +199,7 @@ Serializer.addClass(
       },
     },
     {
-      name: "step",
+      name: "step:number",
       dependsOn: "inputType",
       visibleIf: function (obj: any) {
         if (!obj) return false;

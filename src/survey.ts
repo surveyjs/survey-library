@@ -2048,6 +2048,7 @@ export class SurveyModel extends Base
    * > If you set the `data` property after creating the survey, you may need to set the `currentPageNo` to `0`, if you are using `visibleIf` properties for questions/pages/panels to ensure that you are starting from the first page.
    * @see setValue
    * @see getValue
+   * @see mergeData
    * @see currentPageNo
    */
   public get data(): any {
@@ -2063,6 +2064,19 @@ export class SurveyModel extends Base
   }
   public set data(data: any) {
     this.valuesHash = {};
+    this.setDataCore(data);
+  }
+  /**
+   * Merge the values into survey.data. It works as survey.data, except it doesn't clean the existing data, but overrides them.
+   * @param data data to merge. It should be an object {keyValue: Value, ...}
+   * @see data
+   * @see setValue
+   */
+  public mergeData(data: any) {
+    if (!data) return;
+    this.setDataCore(data);
+  }
+  public setDataCore(data: any) {
     if (data) {
       for (var key in data) {
         this.setDataValueCore(this.valuesHash, key, data[key]);

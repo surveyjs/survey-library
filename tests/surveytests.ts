@@ -72,6 +72,27 @@ QUnit.test("set data property", function (assert) {
   survey.data = null;
   assert.deepEqual(survey.data, {}, "clear data");
 });
+QUnit.test("merge data property", function (assert) {
+  var survey = new SurveyModel();
+  survey.mergeData({ strVal: "item1", intVal: 5 });
+  assert.deepEqual(
+    survey.data,
+    { strVal: "item1", intVal: 5 },
+    "works as set data for empty data"
+  );
+  survey.mergeData({ intVal: 7, boolVal: false });
+  assert.deepEqual(
+    survey.data,
+    { strVal: "item1", intVal: 7, boolVal: false },
+    "merge the data, overrides values"
+  );
+  survey.mergeData(null);
+  assert.deepEqual(
+    survey.data,
+    { strVal: "item1", intVal: 7, boolVal: false },
+    "do nothing"
+  );
+});
 QUnit.test("Add two pages", function (assert) {
   var survey = new SurveyModel();
   survey.addPage(new PageModel("Page 1"));

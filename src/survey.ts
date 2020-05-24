@@ -2899,7 +2899,7 @@ export class SurveyModel extends Base
   public cancelPreview(curPage: any = null) {
     if (!this.isShowingPreview) return;
     this.isShowingPreview = false;
-    if (!curPage && this.visiblePageCount > 0) {
+    if (Helpers.isValueEmpty(curPage) && this.visiblePageCount > 0) {
       curPage = this.visiblePageCount - 1;
     }
     if (curPage !== null) {

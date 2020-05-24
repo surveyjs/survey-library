@@ -371,3 +371,30 @@ QUnit.test(
     assert.equal(survey.visiblePageCount, 3, "There are 3 visible pages");
   }
 );
+QUnit.test(
+  "showPreviewBeforeComplete = 'showAnsweredQuestions', Bug#2190",
+  function (assert) {
+    var survey = new SurveyModel({
+      pages: [
+        {
+          elements: [
+            { type: "text", name: "question1", defaultValue: "A" },
+            { type: "text", name: "question2" },
+          ],
+        },
+        {
+          elements: [
+            { type: "text", name: "question3", defaultValue: "B" },
+            { type: "text", name: "question4" },
+            { type: "text", name: "question5" },
+          ],
+        },
+      ],
+    });
+    survey.showPreviewBeforeComplete = "showAnsweredQuestions";
+    survey.currentPageNo = 1;
+    survey.showPreview();
+    (<PanelModel>survey.getAllPanels()[0]).cancelPreview();
+    assert.equal(survey.currentPageNo, 0, "Go to the first page");
+  }
+);

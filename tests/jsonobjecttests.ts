@@ -1037,6 +1037,27 @@ QUnit.test("Property Choices func test", function (assert) {
     "'maxWeight' property choices"
   );
 });
+QUnit.test("Property set choices test", function (assert) {
+  var property = Serializer.addProperty("sport", "choices2");
+  property.setChoices([1, 2, 3]);
+  assert.deepEqual(
+    property.choices,
+    [1, 2, 3],
+    "set choices array works correctly"
+  );
+  property.setChoices(
+    null,
+    (obj: any): Array<any> => {
+      return [4, 5, 6];
+    }
+  );
+  assert.deepEqual(
+    property.choices,
+    [4, 5, 6],
+    "set choices function works correctly"
+  );
+  Serializer.removeProperty("sport", "choices2");
+});
 QUnit.test("Create inherited class instead of origional", function (assert) {
   var container = new CreatingObjectContainer();
   var jsonObj = new JsonObject();

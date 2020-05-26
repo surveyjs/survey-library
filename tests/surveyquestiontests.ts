@@ -2230,13 +2230,9 @@ QUnit.test("comment.readOnlyCommentRenderer", function (assert) {
 QUnit.test("QuestionSelectBase readOnlyCommentRenderer", function (assert) {
   var survey = new SurveyModel();
   var page = survey.addNewPage("p1");
-  var q = new QuestionSelectBase("q1");
+  var q = new QuestionCheckboxModel("q1");
   page.addElement(q);
-  assert.equal(
-    q.readOnlyCommentRenderer,
-    "default",
-    "default is 'default'"
-  );
+  assert.equal(q.readOnlyCommentRenderer, "default", "default is 'default'");
 
   q.readOnlyCommentRenderer = "div";
   assert.equal(

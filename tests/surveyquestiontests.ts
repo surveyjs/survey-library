@@ -1714,16 +1714,22 @@ QUnit.test("Boolean question defaultValue as a boolean values", function (
   assert.deepEqual(survey.data, { bool: false }, "add question into survey");
 });
 
-QUnit.test("Boolean question read only checkedValue", function (
-  assert
-) {
+QUnit.test("Boolean question read only checkedValue", function (assert) {
   var question = new QuestionBooleanModel("bool");
   question.readOnly = true;
   assert.equal(question.checkedValue, null, "Indertemenated by default");
   question.checkedValue = false;
-  assert.equal(question.checkedValue, null, "Indertemenated by default is not changed due to read only mode");
+  assert.equal(
+    question.checkedValue,
+    null,
+    "Indertemenated by default is not changed due to read only mode"
+  );
   question.checkedValue = true;
-  assert.equal(question.checkedValue, null, "Indertemenated by default is not changed due to read only mode");
+  assert.equal(
+    question.checkedValue,
+    null,
+    "Indertemenated by default is not changed due to read only mode"
+  );
 });
 
 QUnit.test(
@@ -2200,6 +2206,44 @@ QUnit.test("questiontext.maxLength", function (assert) {
   assert.equal(qText.getMaxLength(), null, "makes it underfined");
   qText.maxLength = 5;
   assert.equal(qText.getMaxLength(), 5, "gets 5 from question");
+});
+
+QUnit.test("comment.readOnlyCommentRenderer", function (assert) {
+  var survey = new SurveyModel();
+  var page = survey.addNewPage("p1");
+  var qComment = new QuestionCommentModel("q1");
+  page.addElement(qComment);
+  assert.equal(
+    qComment.readOnlyCommentRenderer,
+    "default",
+    "default is 'default'"
+  );
+
+  qComment.readOnlyCommentRenderer = "div";
+  assert.equal(
+    qComment.readOnlyCommentRenderer,
+    "div",
+    "readOnlyCommentRenderer set to 'div'"
+  );
+});
+
+QUnit.test("QuestionSelectBase readOnlyCommentRenderer", function (assert) {
+  var survey = new SurveyModel();
+  var page = survey.addNewPage("p1");
+  var q = new QuestionSelectBase("q1");
+  page.addElement(q);
+  assert.equal(
+    q.readOnlyCommentRenderer,
+    "default",
+    "default is 'default'"
+  );
+
+  q.readOnlyCommentRenderer = "div";
+  assert.equal(
+    q.readOnlyCommentRenderer,
+    "div",
+    "readOnlyCommentRenderer set to 'div'"
+  );
 });
 
 QUnit.test("runCondition on adding element into survey", function (assert) {

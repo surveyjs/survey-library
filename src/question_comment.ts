@@ -62,6 +62,16 @@ export class QuestionCommentModel extends Question {
   public set cols(val: number) {
     this.setPropertyValue("cols", val);
   }
+  /**
+   * ReadOnly renderer type. Possible values 'default', 'div'.
+   */
+  public get readOnlyCommentRenderer(): string {
+    return this.getPropertyValue("readOnlyCommentRenderer");
+  }
+  public set readOnlyCommentRenderer(val: string) {
+    this.setPropertyValue("readOnlyCommentRenderer", val);
+  }
+
   public getType(): string {
     return "comment";
   }
@@ -79,13 +89,18 @@ Serializer.addClass(
     { name: "maxLength:number", default: -1 },
     { name: "cols:number", default: 50 },
     { name: "rows:number", default: 4 },
-    { name: "placeHolder", serializationProperty: "locPlaceHolder" }
+    { name: "placeHolder", serializationProperty: "locPlaceHolder" },
+    {
+      name: "readOnlyCommentRenderer:string",
+      default: "default",
+      isSerializable: false,
+    },
   ],
-  function() {
+  function () {
     return new QuestionCommentModel("");
   },
   "question"
 );
-QuestionFactory.Instance.registerQuestion("comment", name => {
+QuestionFactory.Instance.registerQuestion("comment", (name) => {
   return new QuestionCommentModel(name);
 });

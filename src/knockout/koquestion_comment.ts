@@ -12,11 +12,15 @@ export class QuestionComment extends QuestionCommentModel {
     super.onBaseCreating();
     new QuestionImplementor(this);
   }
+
+  protected isReadOnlyRenderDiv() {
+    return this.readOnly && this.readOnlyCommentRenderer === "div";
+  }
 }
 
-Serializer.overrideClassCreator("comment", function() {
+Serializer.overrideClassCreator("comment", function () {
   return new QuestionComment("");
 });
-QuestionFactory.Instance.registerQuestion("comment", name => {
+QuestionFactory.Instance.registerQuestion("comment", (name) => {
   return new QuestionComment(name);
 });

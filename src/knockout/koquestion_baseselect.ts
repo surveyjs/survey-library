@@ -3,14 +3,17 @@ import { QuestionImplementor } from "./koquestion";
 import { Question } from "../question";
 import {
   QuestionSelectBase,
-  QuestionCheckboxBase
+  QuestionCheckboxBase,
 } from "../question_baseselect";
 
 export class QuestionSelectBaseImplementor extends QuestionImplementor {
   protected onCreated() {}
   constructor(question: Question) {
     super(question);
-
+    (<any>this.question)["isReadOnlyRenderDiv"] = () => {
+      var question = this.question;
+      return question.readOnly && question.readOnlyCommentRenderer === "div";
+    }
     this.onCreated();
   }
   protected get isOtherSelected(): boolean {

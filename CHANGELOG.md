@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.7.8](https://github.com/surveyjs/survey-library/compare/v1.7.7...v1.7.8) (2020-05-26)
+
+
+### Bug Fixes
+
+* goNextPageAutomatic not triggering validation errors [#2161](https://github.com/surveyjs/survey-library/issues/2161) ([cb0114e](https://github.com/surveyjs/survey-library/commit/cb0114e982816f1070bb59632fadde2c3dcf8b8a))
+
 ### [1.7.7](https://github.com/surveyjs/survey-library/compare/v1.7.6...v1.7.7) (2020-05-19)
 
 

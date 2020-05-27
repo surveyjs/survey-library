@@ -843,6 +843,9 @@ export class QuestionCheckboxBase extends QuestionSelectBase {
   public set readOnlyCommentRenderer(val: string) {
     this.setPropertyValue("readOnlyCommentRenderer", val);
   }
+  protected isReadOnlyRenderDiv() {
+    return this.readOnly && this.readOnlyCommentRenderer === "div";
+  }
   protected onParentChanged() {
     super.onParentChanged();
     if (this.isFlowLayout) {

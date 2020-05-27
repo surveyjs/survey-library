@@ -1,5 +1,5 @@
 ﻿<script type="text/html" id="survey-question-comment">
-  <!--ko if: !isReadOnlyRenderDiv() -->
+  <!--ko if: !question.isReadOnlyRenderDiv() -->
     <!--ko if: !question.isInputTextUpdate -->
     <textarea type="text" data-bind="attr: {'readonly': question.isReadOnly, 'disabled': question.isReadOnly, maxLength: question.getMaxLength(), cols: question.cols, rows: question.rows, id: question.inputId, placeholder: question.isReadOnly ? undefined : question.placeHolder, 'aria-label': question.locTitle.renderedHtml}, value:question.value, css: question.koCss().root"></textarea>
     <!--/ko-->
@@ -8,7 +8,7 @@
     <!--/ko-->
   <!--/ko-->
 
-  <!--ko if: isReadOnlyRenderDiv() -->
+  <!--ko if: question.isReadOnlyRenderDiv() -->
     <div data-bind="text: question.value"></div>
   <!--/ko-->
 </script>

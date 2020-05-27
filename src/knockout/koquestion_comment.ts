@@ -12,10 +12,6 @@ export class QuestionComment extends QuestionCommentModel {
     super.onBaseCreating();
     new QuestionImplementor(this);
   }
-
-  protected isReadOnlyRenderDiv() {
-    return this.readOnly && this.readOnlyCommentRenderer === "div";
-  }
 }
 
 Serializer.overrideClassCreator("comment", function () {

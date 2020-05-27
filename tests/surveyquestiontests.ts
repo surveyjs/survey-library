@@ -2212,11 +2212,17 @@ QUnit.test("comment.readOnlyCommentRenderer", function (assert) {
   var survey = new SurveyModel();
   var page = survey.addNewPage("p1");
   var qComment = new QuestionCommentModel("q1");
+  survey.mode = "display";
   page.addElement(qComment);
   assert.equal(
     qComment.readOnlyCommentRenderer,
     "default",
     "default is 'default'"
+  );
+  assert.equal(
+    qComment["isReadOnlyRenderDiv"](),
+    false,
+    "isReadOnlyRenderDiv false"
   );
 
   qComment.readOnlyCommentRenderer = "div";
@@ -2225,14 +2231,21 @@ QUnit.test("comment.readOnlyCommentRenderer", function (assert) {
     "div",
     "readOnlyCommentRenderer set to 'div'"
   );
+  assert.equal(
+    qComment["isReadOnlyRenderDiv"](),
+    true,
+    "isReadOnlyRenderDiv true"
+  );
 });
 
 QUnit.test("QuestionSelectBase readOnlyCommentRenderer", function (assert) {
   var survey = new SurveyModel();
   var page = survey.addNewPage("p1");
   var q = new QuestionCheckboxModel("q1");
+  survey.mode = "display";
   page.addElement(q);
   assert.equal(q.readOnlyCommentRenderer, "default", "default is 'default'");
+  assert.equal(q["isReadOnlyRenderDiv"](), false, "isReadOnlyRenderDiv false");
 
   q.readOnlyCommentRenderer = "div";
   assert.equal(
@@ -2240,6 +2253,7 @@ QUnit.test("QuestionSelectBase readOnlyCommentRenderer", function (assert) {
     "div",
     "readOnlyCommentRenderer set to 'div'"
   );
+  assert.equal(q["isReadOnlyRenderDiv"](), true, "isReadOnlyRenderDiv true");
 });
 
 QUnit.test("runCondition on adding element into survey", function (assert) {

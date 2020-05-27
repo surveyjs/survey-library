@@ -71,6 +71,9 @@ export class QuestionCommentModel extends Question {
   public set readOnlyCommentRenderer(val: string) {
     this.setPropertyValue("readOnlyCommentRenderer", val);
   }
+  protected isReadOnlyRenderDiv() {
+    return this.readOnly && this.readOnlyCommentRenderer === "div";
+  }
 
   public getType(): string {
     return "comment";

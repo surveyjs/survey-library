@@ -3,14 +3,13 @@ import { QuestionImplementor } from "./koquestion";
 import { Question } from "../question";
 import {
   QuestionSelectBase,
-  QuestionCheckboxBase
+  QuestionCheckboxBase,
 } from "../question_baseselect";
 
 export class QuestionSelectBaseImplementor extends QuestionImplementor {
   protected onCreated() {}
   constructor(question: Question) {
     super(question);
-
     this.onCreated();
   }
   protected get isOtherSelected(): boolean {

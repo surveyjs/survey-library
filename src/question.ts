@@ -55,6 +55,7 @@ export class Question extends SurveyElement
   commentChangedCallback: () => void;
   validateValueCallback: () => SurveyError;
   questionTitleTemplateCallback: () => string;
+  afterRenderQuestionCallback: (question: Question, element: any) => any;
   private locProcessedTitle: LocalizableString;
   protected isReadyValue: boolean = true;
 
@@ -68,6 +69,10 @@ export class Question extends SurveyElement
     (sender: Question, options: any) => any,
     any
   > = new Event<(sender: Question, options: any) => any, any>();
+
+  public isReadOnlyRenderDiv() {
+    return this.isReadOnly && settings.readOnlyCommentRenderMode === "div";
+  }
 
   constructor(public name: string) {
     super(name);
@@ -231,6 +236,8 @@ export class Question extends SurveyElement
    * Returns true if the question is visible or survey is in design mode right now.
    */
   public get isVisible(): boolean {
+    if (this.survey && this.survey.areEmptyElementsHidden && this.isEmpty())
+      return false;
     return this.visible || this.areInvisibleElementsShowing;
   }
   /**
@@ -488,8 +495,15 @@ export class Question extends SurveyElement
     return false;
   }
   public afterRenderQuestionElement(el: any) {
-    if (this.isCompositeQuestion || !this.survey) return;
+    if (!this.survey) return;
     this.survey.afterRenderQuestionInput(this, el);
+  }
+  public afterRender(el: any) {
+    if (!this.survey) return;
+    this.survey.afterRenderQuestion(this, el);
+    if (!!this.afterRenderQuestionCallback) {
+      this.afterRenderQuestionCallback(this, el);
+    }
   }
   public beforeDestoyQuestionElement(el: any) {}
   /**
@@ -1059,7 +1073,7 @@ export class Question extends SurveyElement
       }>;
     } = {
       includeEmpty: true,
-      includeQuestionTypes: false
+      includeQuestionTypes: false,
     }
   ) {
     if (options.includeEmpty || !this.isEmpty()) {
@@ -1072,7 +1086,7 @@ export class Question extends SurveyElement
         getString: (val: any) =>
           typeof val === "object" ? JSON.stringify(val) : val,
       };
-      if(options.includeQuestionTypes === true) {
+      if (options.includeQuestionTypes === true) {
         questionPlainData.questionType = this.getType();
       }
       (options.calculations || []).forEach((calculation) => {
@@ -1459,6 +1473,9 @@ export class Question extends SurveyElement
   }
   public supportGoNextPageAutomatic() {
     return false;
+  }
+  public supportGoNextPageError() {
+    return true;
   }
   /**
    * Call this function to remove values from the current question, that end-user will not be able to enter.

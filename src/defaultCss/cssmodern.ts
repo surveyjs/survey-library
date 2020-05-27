@@ -18,6 +18,8 @@ export var modernCss = {
     prev: "sv-btn sv-footer__prev-btn",
     next: "sv-btn sv-footer__next-btn",
     start: "sv-btn sv-footer__start-btn",
+    preview: "sv-btn sv-footer__preview-btn",
+    edit: "sv-btn sv-footer__edit-btn",
   },
   panel: {
     title: "sv-title sv-panel__title",
@@ -27,6 +29,7 @@ export var modernCss = {
     content: "sv-panel__content",
     icon: "sv-panel__icon",
     iconExpanded: "sv-panel__icon--expanded",
+    footer: "sv-panel__footer",
   },
   paneldynamic: {
     root: "sv-paneldynamic",

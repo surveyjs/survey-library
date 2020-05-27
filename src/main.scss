@@ -281,7 +281,9 @@ $label-disabled-color: rgba(64, 64, 64, 0.5);
           font-size: 1.15em;
           margin: 1.5em 0 0 0;
         }
-
+        .sv_p_panel {
+          margin: 0 0 1.5em 0;
+        }
         & > .sv_row {
           //border-bottom: 1px solid $header-background-color;
           padding: 0;
@@ -609,7 +611,13 @@ $label-disabled-color: rgba(64, 64, 64, 0.5);
         .sv_complete_btn {
           float: right;
         }
+        .sv_preview_btn {
+          float: right;
+        }
         .sv_prev_btn {
+          float: left;
+        }
+        .sv_edit_btn {
           float: left;
         }
       }

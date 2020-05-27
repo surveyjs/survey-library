@@ -112,6 +112,9 @@ export class QuestionTextModel extends Question {
   supportGoNextPageAutomatic() {
     return true;
   }
+  public supportGoNextPageError() {
+    return ["date", "datetime", "datetime-local"].indexOf(this.inputType) < 0;
+  }
   /**
    * The input place holder.
    */
@@ -128,7 +131,7 @@ export class QuestionTextModel extends Question {
     return (
       this.errors.length > 0 ||
       !isOnValueChanged ||
-      ["date", "datetime", "datetime-local"].indexOf(this.inputType) < 0
+      this.supportGoNextPageError()
     );
   }
   protected setNewValue(newValue: any) {
@@ -183,7 +186,7 @@ Serializer.addClass(
     },
     { name: "size:number", default: 25 },
     {
-      name: "min",
+      name: "min:number",
       dependsOn: "inputType",
       visibleIf: function (obj: any) {
         if (!obj) return false;
@@ -191,7 +194,7 @@ Serializer.addClass(
       },
     },
     {
-      name: "max",
+      name: "max:number",
       dependsOn: "inputType",
       visibleIf: function (obj: any) {
         if (!obj) return false;
@@ -199,7 +202,7 @@ Serializer.addClass(
       },
     },
     {
-      name: "step",
+      name: "step:number",
       dependsOn: "inputType",
       visibleIf: function (obj: any) {
         if (!obj) return false;

@@ -63,4 +63,8 @@ export var settings = {
    * Set this property to true to execute the complete trigger on value change instead of on next page.
    */
   executeCompleteTriggerOnValueChanged: false,
+  /**
+   * Set this property to change readOnlyCommentRenderMode: "textarea" (default) or (div)
+   */
+  readOnlyCommentRenderMode: "textarea",
 };

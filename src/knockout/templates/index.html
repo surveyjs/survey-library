@@ -19,7 +19,7 @@
                   <!-- /ko -->
               </div>
               <!-- /ko -->
-              <!-- ko if: koState() == "running" -->
+              <!-- ko if: koState() == "running" || koState() == "preview" -->
               <div data-bind="css: css.body">
                   <!-- ko if: isTimerPanelShowingOnTop -->
                   <!-- ko template: { name: 'survey-timerpanel'} -->
@@ -85,8 +85,8 @@
       <input type="button" data-bind="value: pagePrevText, click: prevPage, visible: !koIsFirstPage() && isShowPrevButton, css: cssNavigationPrev"
       />
       <input type="button" data-bind="value: pageNextText, click: nextPageUIClick, event: { mousedown: nextPageMouseDown }, visible: !koIsLastPage(), css: cssNavigationNext" />
-      <input type="button" data-bind="value: completeText, click: completeLastPage, visible: koIsLastPage() && isEditMode, css: cssNavigationComplete"
-      />
+      <input type="button" data-bind="value: previewText, click: showPreview, visible: koIsLastPage() && isPreviewButtonVisible, css: cssNavigationPreview" />
+      <input type="button" data-bind="value: completeText, click: completeLastPage, visible: koIsLastPage() && isCompleteButtonVisible, css: cssNavigationComplete" />
   </div>
 </script>
 <script type="text/html" id="survey-navigation-start">

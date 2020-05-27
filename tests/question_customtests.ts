@@ -834,3 +834,127 @@ QUnit.test("Complex: hide content question in designMode", function (assert) {
   assert.equal(middleName.isVisible, false, "showMiddleName is false");
   ComponentCollection.Instance.clear();
 });
+QUnit.test("Single: onAfterRender and onAfterRenderContentElement", function (
+  assert
+) {
+  var afterRenderQuestion = null;
+  var afterRenderHtmlElement = 0;
+  var afterRenderContentElementQuestion = null;
+  var afterRenderContentElement = null;
+  var afterRenderContentElementHtml = 0;
+  var json = {
+    name: "newquestion",
+    onAfterRender(question, htmlElement) {
+      afterRenderQuestion = question;
+      afterRenderHtmlElement = htmlElement;
+    },
+    onAfterRenderContentElement(question, element, htmlElement) {
+      afterRenderContentElementQuestion = question;
+      afterRenderContentElement = element;
+      afterRenderContentElementHtml = htmlElement;
+    },
+    questionJSON: {
+      type: "dropdown",
+      choices: [1, 2, 3, 4, 5],
+    },
+  };
+  ComponentCollection.Instance.add(json);
+  var survey = new SurveyModel({
+    elements: [{ type: "newquestion", name: "q1" }],
+  });
+  var q = <QuestionCustomModel>survey.getAllQuestions()[0];
+  q.afterRender(5);
+  assert.equal(
+    afterRenderQuestion.name,
+    "q1",
+    "onAfterRender, question parameter is correct"
+  );
+  assert.equal(
+    afterRenderHtmlElement,
+    5,
+    "onAfterRender, htmlElement parameter is correct"
+  );
+  q.contentQuestion.afterRender(7);
+  assert.equal(
+    afterRenderContentElementQuestion.name,
+    "q1",
+    "afterRenderContentElement, question parameter is correct"
+  );
+  assert.equal(
+    afterRenderContentElement.getType(),
+    "dropdown",
+    "afterRenderContentElement, element parameter is correct"
+  );
+  assert.equal(
+    afterRenderContentElementHtml,
+    7,
+    "afterRenderContentElement, htmlElement parameter is correct"
+  );
+  ComponentCollection.Instance.clear();
+});
+
+QUnit.test(
+  "Composite: onAfterRender and onAfterRenderContentElement",
+  function (assert) {
+    var afterRenderQuestion = null;
+    var afterRenderHtmlElement = 0;
+    var afterRenderContentElementQuestion = null;
+    var afterRenderContentElement = null;
+    var afterRenderContentElementHtml = 0;
+    var json = {
+      name: "fullname",
+      elementsJSON: [
+        {
+          type: "text",
+          name: "firstName",
+        },
+        {
+          type: "text",
+          name: "lastName",
+        },
+      ],
+      onAfterRender(question, htmlElement) {
+        afterRenderQuestion = question;
+        afterRenderHtmlElement = htmlElement;
+      },
+      onAfterRenderContentElement(question, element, htmlElement) {
+        afterRenderContentElementQuestion = question;
+        afterRenderContentElement = element;
+        afterRenderContentElementHtml = htmlElement;
+      },
+    };
+    ComponentCollection.Instance.add(json);
+    var survey = new SurveyModel({
+      elements: [{ type: "fullname", name: "q1" }],
+    });
+    var q = <QuestionCompositeModel>survey.getAllQuestions()[0];
+    q.afterRender(5);
+    assert.equal(
+      afterRenderQuestion.name,
+      "q1",
+      "onAfterRender, question parameter is correct"
+    );
+    assert.equal(
+      afterRenderHtmlElement,
+      5,
+      "onAfterRender, htmlElement parameter is correct"
+    );
+    (<Question>q.contentPanel.elements[0]).afterRender(7);
+    assert.equal(
+      afterRenderContentElementQuestion.name,
+      "q1",
+      "afterRenderContentElement, question parameter is correct"
+    );
+    assert.equal(
+      afterRenderContentElement.name,
+      "firstName",
+      "afterRenderContentElement, element parameter is correct"
+    );
+    assert.equal(
+      afterRenderContentElementHtml,
+      7,
+      "afterRenderContentElement, htmlElement parameter is correct"
+    );
+    ComponentCollection.Instance.clear();
+  }
+);

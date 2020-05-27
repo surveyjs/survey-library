@@ -17,6 +17,9 @@
       <div data-bind="visible: !koIsCollapsed(), style: { paddingLeft: innerPaddingLeft}, css: cssClasses.panel.content">
           <!-- ko template: { name: 'survey-rows', data: $data} -->
           <!-- /ko -->
+          <div data-bind="visible: hasEditButton, css: cssClasses.panel.footer">
+            <input type="button" data-bind="value: survey.editText, click: cancelPreview, css: survey.cssNavigationEdit" />
+        </div>
       </div>
   </div>
 </script>

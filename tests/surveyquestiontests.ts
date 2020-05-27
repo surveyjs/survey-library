@@ -1714,16 +1714,22 @@ QUnit.test("Boolean question defaultValue as a boolean values", function (
   assert.deepEqual(survey.data, { bool: false }, "add question into survey");
 });
 
-QUnit.test("Boolean question read only checkedValue", function (
-  assert
-) {
+QUnit.test("Boolean question read only checkedValue", function (assert) {
   var question = new QuestionBooleanModel("bool");
   question.readOnly = true;
   assert.equal(question.checkedValue, null, "Indertemenated by default");
   question.checkedValue = false;
-  assert.equal(question.checkedValue, null, "Indertemenated by default is not changed due to read only mode");
+  assert.equal(
+    question.checkedValue,
+    null,
+    "Indertemenated by default is not changed due to read only mode"
+  );
   question.checkedValue = true;
-  assert.equal(question.checkedValue, null, "Indertemenated by default is not changed due to read only mode");
+  assert.equal(
+    question.checkedValue,
+    null,
+    "Indertemenated by default is not changed due to read only mode"
+  );
 });
 
 QUnit.test(
@@ -2200,6 +2206,41 @@ QUnit.test("questiontext.maxLength", function (assert) {
   assert.equal(qText.getMaxLength(), null, "makes it underfined");
   qText.maxLength = 5;
   assert.equal(qText.getMaxLength(), 5, "gets 5 from question");
+});
+
+QUnit.test("readOnlyCommentRenderMode", function (assert) {
+  var survey = new SurveyModel();
+  var page = survey.addNewPage("p1");
+  var qComment = new QuestionCommentModel("q1");
+  var qRadio = new QuestionRadiogroupModel("q2");
+  survey.mode = "display";
+
+  page.addElement(qComment);
+  page.addElement(qRadio);
+  
+  assert.equal(
+    qComment["isReadOnlyRenderDiv"](),
+    false,
+    "isReadOnlyRenderDiv false"
+  );
+  assert.equal(
+    qRadio["isReadOnlyRenderDiv"](),
+    false,
+    "isReadOnlyRenderDiv false"
+  );
+
+  survey.readOnlyCommentRenderMode = "div";
+
+  assert.equal(
+    qComment["isReadOnlyRenderDiv"](),
+    true,
+    "isReadOnlyRenderDiv true"
+  );
+  assert.equal(
+    qRadio["isReadOnlyRenderDiv"](),
+    true,
+    "isReadOnlyRenderDiv true"
+  );
 });
 
 QUnit.test("runCondition on adding element into survey", function (assert) {

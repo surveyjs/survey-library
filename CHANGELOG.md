@@ -2,6 +2,27 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.7.8](https://github.com/surveyjs/survey-library/compare/v1.7.7...v1.7.8) (2020-05-26)
+
+
+### Bug Fixes
+
+* goNextPageAutomatic not triggering validation errors [#2161](https://github.com/surveyjs/survey-library/issues/2161) ([cb0114e](https://github.com/surveyjs/survey-library/commit/cb0114e982816f1070bb59632fadde2c3dcf8b8a))
+
+### [1.7.7](https://github.com/surveyjs/survey-library/compare/v1.7.6...v1.7.7) (2020-05-19)
+
+
+### Bug Fixes
+
+* Updating Navigation button text will not call `onModified` and `saveSurveyFunc` [#792](https://github.com/surveyjs/survey-library/issues/792) ([f82aa93](https://github.com/surveyjs/survey-library/commit/f82aa93b5dbd279852cf40e451a05760fd2bcfe3))
+
+### [1.7.6](https://github.com/surveyjs/survey-library/compare/v1.7.5...v1.7.6) (2020-05-12)
+
+
+### Bug Fixes
+
+* Checkbox question doesn't keep it's comment value on changing survey.isSinglePage [#2160](https://github.com/surveyjs/survey-library/issues/2160) ([977e306](https://github.com/surveyjs/survey-library/commit/977e306b46a908441214270db411ba0dbe70c276))
+
 ### [1.7.5](https://github.com/surveyjs/survey-library/compare/v1.7.4...v1.7.5) (2020-05-06)
 
 ### [1.7.4](https://github.com/surveyjs/survey-library/compare/v1.7.3...v1.7.4) (2020-04-29)

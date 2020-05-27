@@ -863,6 +863,11 @@ export class SurveyModel extends Base
     any
   > = new Event<(sender: SurveyModel, options: any) => any, any>();
 
+  public onLocaleChangedEvent: Event<
+    (sender: SurveyModel, value: string) => any,
+    any
+  > = new Event<(sender: SurveyModel) => any, any>();
+
   /**
    * The list of errors on loading survey JSON. If the list is empty after loading a JSON, then the JSON is correct and has no errors.
    * @see JsonError
@@ -881,10 +886,12 @@ export class SurveyModel extends Base
     this.createLocalizableString("completedHtml", this);
     this.createLocalizableString("completedBeforeHtml", this);
     this.createLocalizableString("loadingHtml", this);
-    this.createLocalizableString("startSurvey", this);
-    this.createLocalizableString("pagePrev", this);
-    this.createLocalizableString("pageNext", this);
-    this.createLocalizableString("complete", this);
+    this.createLocalizableString("startSurveyText", this);
+    this.createLocalizableString("pagePrevText", this);
+    this.createLocalizableString("pageNextText", this);
+    this.createLocalizableString("completeText", this);
+    this.createLocalizableString("previewText", this);
+    this.createLocalizableString("editText", this);
     this.createLocalizableString("questionTitleTemplate", this, true);
 
     this.textPreProcessor = new TextPreProcessor();
@@ -962,6 +969,52 @@ export class SurveyModel extends Base
   }
   public set css(value: any) {
     this.mergeValues(value, this.css);
+  }
+  public get cssNavigationComplete() {
+    return this.getNavigationCss(
+      this.css.navigationButton,
+      this.css.navigation.complete
+    );
+  }
+  public get cssNavigationPreview() {
+    return this.getNavigationCss(
+      this.css.navigationButton,
+      this.css.navigation.preview
+    );
+  }
+  public get cssNavigationEdit() {
+    return this.getNavigationCss(
+      this.css.navigationButton,
+      this.css.navigation.edit
+    );
+  }
+  public get cssNavigationPrev() {
+    return this.getNavigationCss(
+      this.css.navigationButton,
+      this.css.navigation.prev
+    );
+  }
+  public get cssNavigationStart() {
+    return this.getNavigationCss(
+      this.css.navigationButton,
+      this.css.navigation.start
+    );
+  }
+  public get cssNavigationNext() {
+    return this.getNavigationCss(
+      this.css.navigationButton,
+      this.css.navigation.next
+    );
+  }
+  public get completedCss() {
+    var css = this.css;
+    return css.body + " " + css.completedPage;
+  }
+  private getNavigationCss(main: string, btn: string) {
+    var res = "";
+    if (main) res = main;
+    if (btn) res += " " + btn;
+    return res;
   }
   /**
    * Gets or sets a list of triggers in the survey.
@@ -1352,6 +1405,16 @@ export class SurveyModel extends Base
     this.setPropertyValue("locale", this.localeValue);
     this.locStrsChanged();
     this.onLocaleChanged();
+    this.onLocaleChangedEvent.fire(this, value);
+  }
+  /**
+   * Set this property to change readOnlyCommentRenderMode: "textarea" (default) or (div)
+   */
+  public get readOnlyCommentRenderMode(): string {
+    return settings.readOnlyCommentRenderMode;
+  }
+  public set readOnlyCommentRenderMode(val: string) {
+    settings.readOnlyCommentRenderMode = val;
   }
   /**
    * Returns an array of locales that are used in the current survey.
@@ -1610,15 +1673,15 @@ export class SurveyModel extends Base
    */
   public get startSurveyText(): string {
     return this.getLocalizableStringText(
-      "startSurvey",
+      "startSurveyText",
       this.getLocString("startSurveyText")
     );
   }
   public set startSurveyText(newValue: string) {
-    this.setLocalizableStringText("startSurvey", newValue);
+    this.setLocalizableStringText("startSurveyText", newValue);
   }
   get locStartSurveyText(): LocalizableString {
-    return this.getLocalizableString("startSurvey");
+    return this.getLocalizableString("startSurveyText");
   }
   /**
    * Gets or sets the 'Prev' button caption.
@@ -1626,15 +1689,15 @@ export class SurveyModel extends Base
    */
   public get pagePrevText(): string {
     return this.getLocalizableStringText(
-      "pagePrev",
+      "pagePrevText",
       this.getLocString("pagePrevText")
     );
   }
   public set pagePrevText(newValue: string) {
-    this.setLocalizableStringText("pagePrev", newValue);
+    this.setLocalizableStringText("pagePrevText", newValue);
   }
   get locPagePrevText(): LocalizableString {
-    return this.getLocalizableString("pagePrev");
+    return this.getLocalizableString("pagePrevText");
   }
   /**
    * Gets or sets the 'Next' button caption.
@@ -1642,15 +1705,15 @@ export class SurveyModel extends Base
    */
   public get pageNextText(): string {
     return this.getLocalizableStringText(
-      "pageNext",
+      "pageNextText",
       this.getLocString("pageNextText")
     );
   }
   public set pageNextText(newValue: string) {
-    this.setLocalizableStringText("pageNext", newValue);
+    this.setLocalizableStringText("pageNextText", newValue);
   }
   get locPageNextText(): LocalizableString {
-    return this.getLocalizableString("pageNext");
+    return this.getLocalizableString("pageNextText");
   }
   /**
    *  Gets or sets the 'Complete' button caption.
@@ -1658,16 +1721,55 @@ export class SurveyModel extends Base
    */
   public get completeText(): string {
     return this.getLocalizableStringText(
-      "complete",
+      "completeText",
       this.getLocString("completeText")
     );
   }
   public set completeText(newValue: string) {
-    this.setLocalizableStringText("complete", newValue);
+    this.setLocalizableStringText("completeText", newValue);
   }
   get locCompleteText(): LocalizableString {
-    return this.getLocalizableString("complete");
+    return this.getLocalizableString("completeText");
   }
+  /**
+   *  Gets or sets the 'Preview' button caption.
+   * @see locale
+   * @see showPreviewBeforeComplete
+   * @see editText
+   * @see showPreview
+   */
+  public get previewText(): string {
+    return this.getLocalizableStringText(
+      "previewText",
+      this.getLocString("previewText")
+    );
+  }
+  public set previewText(newValue: string) {
+    this.setLocalizableStringText("previewText", newValue);
+  }
+  get locPreviewText(): LocalizableString {
+    return this.getLocalizableString("previewText");
+  }
+  /**
+   *  Gets or sets the 'Edit' button caption.
+   * @see locale
+   * @see showPreviewBeforeComplete
+   * @see previewText
+   * @see cancelPreview
+   */
+  public get editText(): string {
+    return this.getLocalizableStringText(
+      "editText",
+      this.getLocString("editText")
+    );
+  }
+  public set editText(newValue: string) {
+    this.setLocalizableStringText("editText", newValue);
+  }
+  get locEditText(): LocalizableString {
+    return this.getLocalizableString("editText");
+  }
+
   /**
    * Set the pattern for question title. Default is "numTitleRequire", 1. What is your name? *,
    * You can set it to numRequireTitle: 1. * What is your name?
@@ -1955,6 +2057,7 @@ export class SurveyModel extends Base
    * > If you set the `data` property after creating the survey, you may need to set the `currentPageNo` to `0`, if you are using `visibleIf` properties for questions/pages/panels to ensure that you are starting from the first page.
    * @see setValue
    * @see getValue
+   * @see mergeData
    * @see currentPageNo
    */
   public get data(): any {
@@ -1970,6 +2073,19 @@ export class SurveyModel extends Base
   }
   public set data(data: any) {
     this.valuesHash = {};
+    this.setDataCore(data);
+  }
+  /**
+   * Merge the values into survey.data. It works as survey.data, except it doesn't clean the existing data, but overrides them.
+   * @param data data to merge. It should be an object {keyValue: Value, ...}
+   * @see data
+   * @see setValue
+   */
+  public mergeData(data: any) {
+    if (!data) return;
+    this.setDataCore(data);
+  }
+  public setDataCore(data: any) {
     if (data) {
       for (var key in data) {
         this.setDataValueCore(this.valuesHash, key, data[key]);
@@ -2011,7 +2127,7 @@ export class SurveyModel extends Base
       }>;
     } = {
       includeEmpty: true,
-      includeQuestionTypes: false
+      includeQuestionTypes: false,
     }
   ) {
     var result: Array<any> = [];
@@ -2234,6 +2350,7 @@ export class SurveyModel extends Base
       this.startedPage
     )
       return "starting";
+    if (this.isShowingPreview) return this.currentPage ? "preview" : "empty";
     return this.currentPage ? "running" : "empty";
   }
   private get isCompleted(): boolean {
@@ -2241,6 +2358,14 @@ export class SurveyModel extends Base
   }
   private set isCompleted(val: boolean) {
     this.setPropertyValue("isCompleted", val);
+  }
+  private get isShowingPreview(): boolean {
+    return this.getPropertyValue("isShowingPreview", false);
+  }
+  private set isShowingPreview(val: boolean) {
+    if (this.isShowingPreview == val) return;
+    this.setPropertyValue("isShowingPreview", val);
+    this.onShowingPreviewChanged();
   }
   private get isStartedState(): boolean {
     return this.getPropertyValue("isStartedState", false);
@@ -2410,12 +2535,33 @@ export class SurveyModel extends Base
   public get isEditMode(): boolean {
     return this.mode == "edit";
   }
+  public get isCompleteButtonVisible(): boolean {
+    return (
+      this.isEditMode &&
+      (!this.isShowPreviewBeforeComplete || this.state == "preview")
+    );
+  }
+  public get isPreviewButtonVisible(): boolean {
+    return (
+      this.isEditMode &&
+      this.isShowPreviewBeforeComplete &&
+      this.state == "running"
+    );
+  }
+  public get isCancelPreviewButtonVisible(): boolean {
+    return (
+      this.isEditMode &&
+      this.isShowPreviewBeforeComplete &&
+      this.state == "preview"
+    );
+  }
   /**
-   * Returns `true` if the survey is in display mode.
+   * Returns `true` if the survey is in display mode or in preview mode.
    * @see mode
+   * @see showPreviewBeforeComplete
    */
   public get isDisplayMode(): boolean {
-    return this.mode == "display";
+    return this.mode == "display" || this.state == "preview";
   }
   public get isUpdateValueTextOnTyping(): boolean {
     return this.textUpdateMode == "onTyping";
@@ -2461,6 +2607,12 @@ export class SurveyModel extends Base
   }
   public get areInvisibleElementsShowing(): boolean {
     return this.isDesignMode || this.showInvisibleElements;
+  }
+  public get areEmptyElementsHidden(): boolean {
+    return (
+      this.isShowingPreview &&
+      this.showPreviewBeforeComplete == "showAnsweredQuestions"
+    );
   }
   /**
    * Returns `true`, if a user has already completed the survey in this browser and there is a cookie about it. Survey goes to `completed` state if the function returns `true`.
@@ -2729,7 +2881,55 @@ export class SurveyModel extends Base
    * @see doComplete
    */
   public completeLastPage(): boolean {
-    return this.doCurrentPageComplete(true);
+    var res = this.doCurrentPageComplete(true);
+    if (res) {
+      this.cancelPreview();
+    }
+    return res;
+  }
+  /**
+   * Show preview for the survey. Go to the "preview" state
+   * @see showPreviewBeforeComplete
+   * @see cancelPreview
+   * @see state
+   */
+  public showPreview(): boolean {
+    if (this.hasErrorsOnNavigate(true)) return false;
+    this.isShowingPreview = true;
+    return true;
+  }
+  /**
+   * Canel preview and go back to the "running" state.
+   * @param curPage - a new current page. If the parameter is underfined then the last page becomes current.
+   * @see showPreviewBeforeComplete
+   * @see showPreview
+   * @see state
+   */
+  public cancelPreview(curPage: any = null) {
+    if (!this.isShowingPreview) return;
+    this.isShowingPreview = false;
+    if (Helpers.isValueEmpty(curPage) && this.visiblePageCount > 0) {
+      curPage = this.visiblePageCount - 1;
+    }
+    if (curPage !== null) {
+      this.currentPage = curPage;
+    }
+  }
+  public cancelPreviewByPage(panel: IPanel): any {
+    var pageIndex = this.getVisiblePageIndexByRootPanel(panel);
+    this.cancelPreview(pageIndex > -1 ? pageIndex : undefined);
+  }
+  private getVisiblePageIndexByRootPanel(panel: IPanel): number {
+    if (!panel) return -1;
+    var panels = this.getAllPanels();
+    var index = 0;
+    for (var i = 0; i < panels.length; i++) {
+      if (panels[i].parent === this.currentPageValue) {
+        if (panels[i] == panel) return index;
+        index++;
+      }
+    }
+    return -1;
   }
   protected doCurrentPageComplete(doComplete: boolean): boolean {
     if (this.hasErrorsOnNavigate(doComplete)) return false;
@@ -2783,48 +2983,88 @@ export class SurveyModel extends Base
       this.firstPageIsStarted && this.pages.length > 0 && this.pages[0] === page
     );
   }
+  /**
+   * Set this property to "showAllQuestions" or "showAnsweredQuestions" to preview results to a user before he/she completes the survey.
+   */
+  public get showPreviewBeforeComplete(): string {
+    return this.getPropertyValue("showPreviewBeforeComplete", "noPreview");
+  }
+  public set showPreviewBeforeComplete(val: string) {
+    this.setPropertyValue("showPreviewBeforeComplete", val);
+  }
+  public get isShowPreviewBeforeComplete(): boolean {
+    var preview = this.showPreviewBeforeComplete;
+    return preview == "showAllQuestions" || preview == "showAnsweredQuestions";
+  }
   protected onFirstPageIsStartedChanged() {
     if (this.pages.length == 0) return;
     this.isStartedState = this.firstPageIsStarted;
     this.pageVisibilityChanged(this.pages[0], !this.firstPageIsStarted);
   }
+  runningPages: any = null;
+  private onShowingPreviewChanged() {
+    if (this.isDesignMode) return;
+    if (this.isShowingPreview) {
+      this.runningPages = this.pages.slice(0, this.pages.length);
+      this.setupPagesForPageModes(true);
+    } else {
+      if (this.runningPages) {
+        this.restoreOrigionalPages(this.runningPages);
+      }
+      this.runningPages = null;
+    }
+    this.updateAllElementsVisibility(this.pages);
+    this.updateVisibleIndexes();
+    this.currentPageNo = 0;
+  }
   origionalPages: any = null;
   protected onQuestionsOnPageModeChanged(oldValue: string) {
+    if (this.isShowingPreview) return;
     if (this.questionsOnPageMode == "standard" || this.isDesignMode) {
       if (this.origionalPages) {
-        this.questionHashesClear();
-        this.pages.splice(0, this.pages.length);
-        for (var i = 0; i < this.origionalPages.length; i++) {
-          this.pages.push(this.origionalPages[i]);
-        }
+        this.restoreOrigionalPages(this.origionalPages);
       }
       this.origionalPages = null;
     } else {
-      this.questionHashesClear();
       if (!oldValue || oldValue == "standard") {
         this.origionalPages = this.pages.slice(0, this.pages.length);
       }
-      var startIndex = this.firstPageIsStarted ? 1 : 0;
-      super.startLoadingFromJson();
-      var newPages = this.createPagesForQuestionOnPageMode(startIndex);
-      var deletedLen = this.pages.length - startIndex;
-      this.pages.splice(startIndex, deletedLen);
-      for (var i = 0; i < newPages.length; i++) {
-        this.pages.push(newPages[i]);
-      }
-      super.endLoadingFromJson();
-      for (var i = 0; i < newPages.length; i++) {
-        newPages[i].endLoadingFromJson();
-        newPages[i].setSurveyImpl(this);
-      }
-      this.doElementsOnLoad();
+      this.setupPagesForPageModes(this.isSinglePage);
     }
     this.updateVisibleIndexes();
   }
+  private restoreOrigionalPages(originalPages: Array<PageModel>) {
+    this.questionHashesClear();
+    this.pages.splice(0, this.pages.length);
+    for (var i = 0; i < originalPages.length; i++) {
+      this.pages.push(originalPages[i]);
+    }
+  }
+  private setupPagesForPageModes(isSinglePage: boolean) {
+    this.questionHashesClear();
+    var startIndex = this.firstPageIsStarted ? 1 : 0;
+    super.startLoadingFromJson();
+    var newPages = this.createPagesForQuestionOnPageMode(
+      isSinglePage,
+      startIndex
+    );
+    var deletedLen = this.pages.length - startIndex;
+    this.pages.splice(startIndex, deletedLen);
+    for (var i = 0; i < newPages.length; i++) {
+      this.pages.push(newPages[i]);
+    }
+    super.endLoadingFromJson();
+    for (var i = 0; i < newPages.length; i++) {
+      newPages[i].endLoadingFromJson();
+      newPages[i].setSurveyImpl(this);
+    }
+    this.doElementsOnLoad();
+  }
   private createPagesForQuestionOnPageMode(
+    isSinglePage: boolean,
     startIndex: number
   ): Array<PageModel> {
-    if (this.isSinglePage) {
+    if (isSinglePage) {
       return [this.createSinglePage(startIndex)];
     }
     return this.createPagesForEveryQuestion(startIndex);
@@ -3259,12 +3499,14 @@ export class SurveyModel extends Base
 
   /**
    * Uploads a file to server.
+   * @param question a file question object
    * @param name a question name
    * @param file an uploaded file
    * @param storeDataAsText set it to `true` to encode file content into the survey results
    * @param uploadingCallback a call back function to get the status on uploading the file
    */
   public uploadFiles(
+    question: IQuestion,
     name: string,
     files: File[],
     uploadingCallback: (status: string, data: any) => any
@@ -3273,6 +3515,7 @@ export class SurveyModel extends Base
       uploadingCallback("error", files);
     } else {
       this.onUploadFiles.fire(this, {
+        question: question,
         name: name,
         files: files || [],
         callback: uploadingCallback,
@@ -4141,7 +4384,7 @@ export class SurveyModel extends Base
         (!question.visible || !question.supportGoNextPageAutomatic()))
     )
       return;
-    if (question.hasErrors(false)) return;
+    if (question.hasErrors(false) && !question.supportGoNextPageError()) return;
     var questions = this.getCurrentPageQuestions();
     if (questions.indexOf(question) < 0) return;
     for (var i = 0; i < questions.length; i++) {
@@ -4921,6 +5164,8 @@ Serializer.addClass("survey", [
   { name: "pagePrevText", serializationProperty: "locPagePrevText" },
   { name: "pageNextText", serializationProperty: "locPageNextText" },
   { name: "completeText", serializationProperty: "locCompleteText" },
+  { name: "previewText", serializationProperty: "locPreviewText" },
+  { name: "editText", serializationProperty: "locEditText" },
   { name: "requiredText", default: "*" },
   "questionStartIndex",
   {
@@ -4950,6 +5195,11 @@ Serializer.addClass("survey", [
     default: "standard",
     choices: ["singlePage", "standard", "questionPerPage"],
   },
+  {
+    name: "showPreviewBeforeComplete",
+    default: "noPreview",
+    choices: ["noPreview", "showAllQuestions", "showAnsweredQuestions"],
+  },
   { name: "maxTimeToFinish:number", default: 0, minValue: 0 },
   { name: "maxTimeToFinishPage:number", default: 0, minValue: 0 },
   {
@@ -4961,5 +5211,10 @@ Serializer.addClass("survey", [
     name: "showTimerPanelMode",
     default: "all",
     choices: ["all", "page", "survey"],
+  },
+  {
+    name: "readOnlyCommentRenderMode",
+    default: "textarea",
+    isSerializable: false,
   },
 ]);

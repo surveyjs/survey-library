@@ -178,7 +178,10 @@ export class JsonObjectProperty implements IObject {
     if (this.choicesfunc != null) return this.choicesfunc(obj, choicesCallback);
     return null;
   }
-  public setChoices(value: Array<any>, valueFunc: () => Array<any>) {
+  public setChoices(
+    value: Array<any>,
+    valueFunc: (obj: any) => Array<any> = null
+  ) {
     this.choicesValue = value;
     this.choicesfunc = valueFunc;
   }
@@ -713,14 +716,14 @@ export class JsonMetadata {
       this.addCustomPropertyCore(metaDataClass, propertiesInfos[i]);
     }
   }
-  public addProperty(className: string, propertyInfo: any) {
-    this.addCustomPropertyCore(this.findClass(className), propertyInfo);
+  public addProperty(className: string, propertyInfo: any): JsonObjectProperty {
+    return this.addCustomPropertyCore(this.findClass(className), propertyInfo);
   }
   private addCustomPropertyCore(
     metaDataClass: JsonMetadataClass,
     propertyInfo: any
-  ) {
-    if (!metaDataClass) return;
+  ): JsonObjectProperty {
+    if (!metaDataClass) return null;
     var property = metaDataClass.createProperty(propertyInfo);
     if (property) {
       property.isCustom = true;
@@ -728,6 +731,7 @@ export class JsonMetadata {
       this.emptyClassPropertiesHash(metaDataClass);
       CustomPropertiesCollection.addProperty(metaDataClass.name, property);
     }
+    return property;
   }
   public removeProperty(className: string, propertyName: string) {
     var metaDataClass = this.findClass(className);

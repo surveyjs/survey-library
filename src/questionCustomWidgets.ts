@@ -2,10 +2,20 @@ import { Base, IQuestion, Event } from "./base";
 
 export class QuestionCustomWidget {
   public htmlTemplate: string;
+  public isFirstRender: boolean = true;
+
   constructor(public name: string, public widgetJson: any) {
     this.htmlTemplate = widgetJson.htmlTemplate ? widgetJson.htmlTemplate : "";
   }
   public afterRender(question: IQuestion, el: any) {
+    if (this.isFirstRender) {
+      this.isFirstRender = false;
+      question.survey.onLocaleChangedEvent.add(() => {
+        this.widgetJson.willUnmount(question, el);
+        this.widgetJson.afterRender(question, el);
+      });
+    }
+
     if (this.widgetJson.afterRender) this.widgetJson.afterRender(question, el);
   }
   public willUnmount(question: IQuestion, el: any) {

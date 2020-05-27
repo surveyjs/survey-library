@@ -3893,3 +3893,40 @@ QUnit.test(
     );
   }
 );
+QUnit.test(
+  "Filter choices on value change in the next column, Bug #2182",
+  function (assert) {
+    var survey = new SurveyModel({
+      elements: [
+        {
+          type: "matrixdynamic",
+          name: "matrix",
+          columns: [
+            {
+              name: "column1",
+              cellType: "text",
+            },
+            {
+              name: "column2",
+              choices: [
+                { value: "A", visibleIf: "{row.column1} = 1" },
+                { value: "B", visibleIf: "{row.column1} = 2" },
+                { value: "C", visibleIf: "{row.column1} = 2" },
+              ],
+            },
+          ],
+          rowCount: 1,
+        },
+      ],
+    });
+    var matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+    var rows = matrix.visibleRows;
+    var q1 = rows[0].cells[0].question;
+    var q2 = <QuestionDropdownModel>rows[0].cells[1].question;
+    assert.equal(q2.visibleChoices.length, 0, "There is no visible choices");
+    q1.value = 1;
+    assert.equal(q2.visibleChoices.length, 1, "There is 'A' item");
+    q1.value = 2;
+    assert.equal(q2.visibleChoices.length, 2, "There is 'B' and 'C' items");
+  }
+);

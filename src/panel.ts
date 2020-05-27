@@ -1587,6 +1587,14 @@ export class PanelModel extends PanelModelBase implements IElement {
       }
     });
   }
+  public get hasEditButton(): boolean {
+    if (this.survey && this.survey.state == "preview") return this.depth == 1;
+    return false;
+  }
+  public cancelPreview() {
+    if (!this.hasEditButton) return;
+    this.survey.cancelPreviewByPage(this);
+  }
   protected onVisibleChanged() {
     super.onVisibleChanged();
     this.setPropertyValue("isVisible", this.isVisible);

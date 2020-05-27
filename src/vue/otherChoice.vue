@@ -1,6 +1,7 @@
 <template>
   <div class="form-group">
     <textarea
+      v-if="!question.isReadOnlyRenderDiv()"
       :readonly="question.isReadOnly"
       :disabled="question.isReadOnly"
       :class="question.cssClasses.other || commentClass"
@@ -11,6 +12,7 @@
       @change="change"
       @keyup="keyup"
     />
+    <div v-if="question.isReadOnlyRenderDiv()">{{question.comment}}</div>
   </div>
 </template>
 

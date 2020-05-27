@@ -834,18 +834,6 @@ export class QuestionCheckboxBase extends QuestionSelectBase {
     this.setPropertyValue("colCount", value);
     this.fireCallback(this.colCountChangedCallback);
   }
-  /**
-   * ReadOnly renderer type for comment (hasComment). Possible values 'default', 'div'.
-   */
-  public get readOnlyCommentRenderer(): string {
-    return this.getPropertyValue("readOnlyCommentRenderer");
-  }
-  public set readOnlyCommentRenderer(val: string) {
-    this.setPropertyValue("readOnlyCommentRenderer", val);
-  }
-  protected isReadOnlyRenderDiv() {
-    return this.readOnly && this.readOnlyCommentRenderer === "div";
-  }
   protected onParentChanged() {
     super.onParentChanged();
     if (this.isFlowLayout) {
@@ -861,11 +849,6 @@ Serializer.addClass(
       name: "commentText",
       serializationProperty: "locCommentText",
       layout: "row",
-    },
-    {
-      name: "readOnlyCommentRenderer:string",
-      default: "default",
-      isSerializable: false,
     },
     "hasOther:boolean",
     { name: "otherPlaceHolder", serializationProperty: "locOtherPlaceHolder" },

@@ -62,19 +62,6 @@ export class QuestionCommentModel extends Question {
   public set cols(val: number) {
     this.setPropertyValue("cols", val);
   }
-  /**
-   * ReadOnly renderer type. Possible values 'default', 'div'.
-   */
-  public get readOnlyCommentRenderer(): string {
-    return this.getPropertyValue("readOnlyCommentRenderer");
-  }
-  public set readOnlyCommentRenderer(val: string) {
-    this.setPropertyValue("readOnlyCommentRenderer", val);
-  }
-  protected isReadOnlyRenderDiv() {
-    return this.readOnly && this.readOnlyCommentRenderer === "div";
-  }
-
   public getType(): string {
     return "comment";
   }
@@ -93,11 +80,6 @@ Serializer.addClass(
     { name: "cols:number", default: 50 },
     { name: "rows:number", default: 4 },
     { name: "placeHolder", serializationProperty: "locPlaceHolder" },
-    {
-      name: "readOnlyCommentRenderer:string",
-      default: "default",
-      isSerializable: false,
-    },
   ],
   function () {
     return new QuestionCommentModel("");

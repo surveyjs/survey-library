@@ -1,6 +1,7 @@
 <template>
   <div>
     <textarea
+      v-if="!question.isReadOnlyRenderDiv()"
       type="text"
       :readonly="question.isReadOnly"
       :disabled="question.isReadOnly"
@@ -15,7 +16,8 @@
       @change="change"
       @keyup="keyup"
     ></textarea>
-  </div>
+    <div>
+  <div v-if="question.isReadOnlyRenderDiv()">{{question.value}}</div>
 </template>
 
 <script lang="ts">

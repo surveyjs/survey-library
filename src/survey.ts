@@ -1408,6 +1408,15 @@ export class SurveyModel extends Base
     this.onLocaleChangedEvent.fire(this, value);
   }
   /**
+   * Set this property to change readOnlyCommentRenderMode: "textarea" (default) or (div)
+   */
+  public get readOnlyCommentRenderMode(): string {
+    return settings.readOnlyCommentRenderMode;
+  }
+  public set readOnlyCommentRenderMode(val: string) {
+    settings.readOnlyCommentRenderMode = val;
+  }
+  /**
    * Returns an array of locales that are used in the current survey.
    */
   public getUsedLocales(): Array<string> {
@@ -5202,5 +5211,10 @@ Serializer.addClass("survey", [
     name: "showTimerPanelMode",
     default: "all",
     choices: ["all", "page", "survey"],
+  },
+  {
+    name: "readOnlyCommentRenderMode",
+    default: "textarea",
+    isSerializable: false,
   },
 ]);

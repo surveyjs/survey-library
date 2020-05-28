@@ -79,13 +79,13 @@ Serializer.addClass(
     { name: "maxLength:number", default: -1 },
     { name: "cols:number", default: 50 },
     { name: "rows:number", default: 4 },
-    { name: "placeHolder", serializationProperty: "locPlaceHolder" }
+    { name: "placeHolder", serializationProperty: "locPlaceHolder" },
   ],
-  function() {
+  function () {
     return new QuestionCommentModel("");
   },
   "question"
 );
-QuestionFactory.Instance.registerQuestion("comment", name => {
+QuestionFactory.Instance.registerQuestion("comment", (name) => {
   return new QuestionCommentModel(name);
 });

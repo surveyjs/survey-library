@@ -70,6 +70,10 @@ export class Question extends SurveyElement
     any
   > = new Event<(sender: Question, options: any) => any, any>();
 
+  public isReadOnlyRenderDiv() {
+    return this.isReadOnly && settings.readOnlyCommentRenderMode === "div";
+  }
+
   constructor(public name: string) {
     super(name);
     this.id = Question.getQuestionId();

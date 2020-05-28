@@ -14,9 +14,9 @@ export class QuestionComment extends QuestionCommentModel {
   }
 }
 
-Serializer.overrideClassCreator("comment", function() {
+Serializer.overrideClassCreator("comment", function () {
   return new QuestionComment("");
 });
-QuestionFactory.Instance.registerQuestion("comment", name => {
+QuestionFactory.Instance.registerQuestion("comment", (name) => {
   return new QuestionComment(name);
 });

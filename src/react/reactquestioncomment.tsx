@@ -1,7 +1,7 @@
 import * as React from "react";
 import {
   ReactSurveyElement,
-  SurveyQuestionUncontrolledElement
+  SurveyQuestionUncontrolledElement,
 } from "./reactquestionelement";
 import { Helpers } from "../helpers";
 import { QuestionCommentModel } from "../question_comment";
@@ -23,12 +23,15 @@ export class SurveyQuestionComment extends SurveyQuestionUncontrolledElement<
       ? this.updateValueOnEvent
       : null;
     var placeHolder = this.question.isReadOnly ? "" : this.question.placeHolder;
+    if (this.question.isReadOnlyRenderDiv()) {
+      return <div>{this.question.value}</div>;
+    }
     return (
       <textarea
         id={this.question.inputId}
         className={cssClasses.root}
         disabled={this.isDisplayMode}
-        ref={tetxarea => (this.control = tetxarea)}
+        ref={(tetxarea) => (this.control = tetxarea)}
         maxLength={this.question.getMaxLength()}
         placeholder={placeHolder}
         onBlur={onBlur}
@@ -59,6 +62,9 @@ export class SurveyQuestionCommentItem extends ReactSurveyElement {
       !!this.state && this.state.comment !== undefined
         ? this.state.comment
         : question.comment || "";
+    if (question.isReadOnlyRenderDiv()) {
+      return <div>{comment}</div>;
+    }
     return (
       <textarea
         className={className}
@@ -75,6 +81,6 @@ export class SurveyQuestionCommentItem extends ReactSurveyElement {
   }
 }
 
-ReactQuestionFactory.Instance.registerQuestion("comment", props => {
+ReactQuestionFactory.Instance.registerQuestion("comment", (props) => {
   return React.createElement(SurveyQuestionComment, props);
 });

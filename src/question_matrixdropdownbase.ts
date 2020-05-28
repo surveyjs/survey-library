@@ -2306,6 +2306,7 @@ export class QuestionMatrixDropdownModelBase
     return { value: newValue, rowValue: rowValue };
   }
   getRowIndex(row: MatrixDropdownRowModelBase): number {
+    if (!this.generatedVisibleRows) return -1;
     return this.visibleRows.indexOf(row);
   }
   getSharedQuestionByName(

@@ -54,6 +54,7 @@ export class ChoicesRestfull extends Base {
   }
   public static clearCache() {
     ChoicesRestfull.itemsResult = {};
+    ChoicesRestfull.sendingSameRequests = {};
   }
   private static itemsResult: { [index: string]: any } = {};
   private static sendingSameRequests: {
@@ -189,10 +190,11 @@ export class ChoicesRestfull extends Base {
     xhr.open("GET", this.processedUrl);
     xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
     var self = this;
-    xhr.onload = function() {
+    var loadingObjHash = this.objHash;
+    xhr.onload = function () {
       self.isRunningValue = false;
       if (xhr.status === 200) {
-        self.onLoad(self.parseResponse(xhr.response));
+        self.onLoad(self.parseResponse(xhr.response), loadingObjHash);
       } else {
         self.onError(xhr.statusText, xhr.responseText);
       }
@@ -313,8 +315,11 @@ export class ChoicesRestfull extends Base {
       this.beforeSendRequestCallback();
     }
   }
-  protected onLoad(result: any) {
-    var items = [];
+  protected onLoad(result: any, loadingObjHash: string = null) {
+    if (!loadingObjHash) {
+      loadingObjHash = this.objHash;
+    }
+    var items = new Array<ItemValue>();
     var updatedResult = this.getResultAfterPath(result);
     if (updatedResult && updatedResult["length"]) {
       for (var i = 0; i < updatedResult.length; i++) {
@@ -336,9 +341,16 @@ export class ChoicesRestfull extends Base {
     if (this.updateResultCallback) {
       items = this.updateResultCallback(items, result);
     }
-    ChoicesRestfull.itemsResult[this.objHash] = items;
-    this.getResultCallback(items);
+    ChoicesRestfull.itemsResult[loadingObjHash] = items;
+    this.callResultCallback(items, loadingObjHash);
     ChoicesRestfull.unregisterSameRequests(this, items);
+  }
+  protected callResultCallback(
+    items: Array<ItemValue>,
+    loadingObjHash: string
+  ) {
+    if (loadingObjHash != this.objHash) return;
+    this.getResultCallback(items);
   }
   private setCustomProperties(item: ItemValue, itemValue: any) {
     var properties = this.getCustomProperties();
@@ -425,9 +437,9 @@ Serializer.addClass(
     "path",
     "valueName",
     "titleName",
-    { name: "allowEmptyResponse:boolean", default: false }
+    { name: "allowEmptyResponse:boolean", default: false },
   ],
-  function() {
+  function () {
     return new ChoicesRestfull();
   }
 );

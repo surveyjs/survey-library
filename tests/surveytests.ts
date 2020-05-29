@@ -10398,3 +10398,17 @@ QUnit.test(
     assert.equal(survey.pages.length, 0, "No pages");
   }
 );
+
+QUnit.test("visibleIf doens't work correctly, Bug #2193", function (assert) {
+  var survey = new SurveyModel({
+    elements: [
+      {
+        type: "text",
+        name: "q1",
+        visibleIf: "[] contains 'C1'",
+      },
+    ],
+  });
+  var question = survey.getQuestionByName("q1");
+  assert.equal(question.isVisible, false, "question should be invisible");
+});

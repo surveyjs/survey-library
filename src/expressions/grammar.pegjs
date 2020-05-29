@@ -115,7 +115,7 @@ ArrayOp
 Sequence
   = expr:Expression? tail:(_ "," _ Expression)* {
     if (expr == null)
-      return [];
+      return new ArrayOperand([]);
 
     var array = [expr];
     if (Array.isArray(tail)) {

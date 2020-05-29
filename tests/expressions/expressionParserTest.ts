@@ -386,9 +386,12 @@ QUnit.test("Bug with contains, bug#781", function (assert) {
   assert.equal(runner.run(values), false, "['2'] contains '1'");
 });
 
-QUnit.test("Check contains with empty array", function (assert) {
+QUnit.test("Check contains with empty array, Bug #2193", function (assert) {
   var runner = new ConditionRunner("[] contains 'C1'");
   assert.equal(runner.run({}), false, "[] doesn't contain 'C1'");
+  var parser = new ConditionsParser();
+  var operand = parser.parseExpression("[] contains 'C1'");
+  assert.ok(operand, "The expression parse correctly");
 });
 
 QUnit.test("contains as equal", function (assert) {

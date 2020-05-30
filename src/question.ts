@@ -555,6 +555,7 @@ export class Question extends SurveyElement
     if (this.survey) {
       this.survey.updateQuestionCssClasses(this, classes);
     }
+    this.updateElementCssCore(classes);
     return classes;
   }
   public get cssRoot(): string {

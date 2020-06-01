@@ -293,6 +293,12 @@ export class ChoicesRestfull extends Base {
   public set allowEmptyResponse(val: boolean) {
     this.setPropertyValue("allowEmptyResponse", val);
   }
+  public get attachOriginalItems(): boolean {
+    return this.getPropertyValue("attachOriginalItems", false);
+  }
+  public set attachOriginalItems(val: boolean) {
+    this.setPropertyValue("attachOriginalItems", val);
+  }
   public get itemValueType(): string {
     if (!this.owner) return "itemvalue";
     var prop = Serializer.findProperty(this.owner.getType(), "choices");
@@ -331,6 +337,9 @@ export class ChoicesRestfull extends Base {
         var title = this.getTitle(itemValue);
         var item = new ItemValue(value, title);
         this.setCustomProperties(item, itemValue);
+        if (this.attachOriginalItems) {
+          item.originalItem = itemValue;
+        }
         items.push(item);
       }
     } else {
@@ -430,6 +439,7 @@ export class ChoicesRestfull extends Base {
     );
   }
 }
+
 Serializer.addClass(
   "choicesByUrl",
   [
@@ -438,6 +448,7 @@ Serializer.addClass(
     "valueName",
     "titleName",
     { name: "allowEmptyResponse:boolean", default: false },
+    { name: "attachOriginalItems:boolean", default: false }
   ],
   function () {
     return new ChoicesRestfull();

@@ -283,6 +283,35 @@ QUnit.test("Load countries", function (assert) {
   );
 });
 
+QUnit.test("attachOriginalItems", function (assert) {
+  var test = new ChoicesRestfullTester();
+  var items: Array<ItemValue> = [];
+  test.getResultCallback = function (res: Array<ItemValue>) {
+    items = res;
+  };
+  test.noCaching = true;
+  test.url = "allcountries";
+  test.path = "RestResponse;result";
+  test.attachOriginalItems = true;
+  test.run();
+  assert.equal(items.length, 5, "there are 5 countries");
+  assert.equal(
+    items[0].value,
+    "Afghanistan",
+    "the first country is Afghanistan"
+  );
+  assert.deepEqual(
+    items[0].originalItem,
+    {
+      name: "Afghanistan",
+      locName: { en: "Afghanistan" },
+      alpha2_code: "AF",
+      alpha3_code: "AFG",
+    },
+    "keeps the original item"
+  );
+});
+
 QUnit.test(
   "Do not run same request several times at the same time. Wait for the first one",
   function (assert) {
@@ -318,7 +347,7 @@ QUnit.test("encode parameters", function (assert) {
   survey.setValue("q1", "R&D");
   var test = new ChoicesRestfullTester();
   test.url = "TestUrl/{q1}";
-  test.getResultCallback = function (res: Array<ItemValue>) {};
+  test.getResultCallback = function (res: Array<ItemValue>) { };
   test.run(survey);
   assert.equal(test.testProcessedUrl, "TestUrl/R%26D", "Encode the string");
   settings.webserviceEncodeParameters = false;
@@ -337,7 +366,7 @@ QUnit.test("Process text in event", function (assert) {
   });
   var test = new ChoicesRestfullTester();
   test.url = "TestUrl/{q1}";
-  test.getResultCallback = function (res: Array<ItemValue>) {};
+  test.getResultCallback = function (res: Array<ItemValue>) { };
   test.run(survey);
   assert.equal(test.testProcessedUrl, "TestUrl/R%26D");
 });

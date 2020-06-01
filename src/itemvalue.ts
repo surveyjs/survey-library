@@ -211,7 +211,7 @@ export class ItemValue extends Base {
     }
     this.onCreating();
   }
-  public onCreating(): any {}
+  public onCreating(): any { }
   public getType(): string {
     return !!this.typeName ? this.typeName : "itemvalue";
   }
@@ -341,6 +341,7 @@ export class ItemValue extends Base {
   private get isValueItemEmpty() {
     return !this.itemValue && this.itemValue !== 0 && this.itemValue !== false;
   }
+  public originalItem: any;
 }
 
 Base.createItemValue = function (source: any, type?: string): any {

@@ -1388,6 +1388,7 @@ QUnit.test("matrixDynamic.getConditionJson", function (assert) {
 
 QUnit.test("matrixDynamic.panelsState, set value", function (assert) {
   var panel = new QuestionPanelDynamicModel("panel");
+  panel.templateTitle = "Panel Title";
   panel.template.addNewQuestion("text", "q1");
   panel.panelCount = 2;
   assert.equal(panel.panelsState, "default", "The default value is normal");
@@ -1442,11 +1443,36 @@ QUnit.test("matrixDynamic.panelsState, set value", function (assert) {
   );
 });
 
+QUnit.test("matrixDynamic.panelsState and not panel.title", function (assert) {
+  var panel = new QuestionPanelDynamicModel("panel");
+  panel.template.addNewQuestion("text", "q1");
+  panel.panelCount = 2;
+  assert.equal(panel.panelsState, "default", "The default value is normal");
+  assert.equal(
+    panel.panels[0].state,
+    "default",
+    "The default value for all panels is normal"
+  );
+  panel.panelsState = "collapsed";
+  assert.equal(
+    panel.panels[0].state,
+    "default",
+    "panelsState = 'expanded', by panel title is empty"
+  );
+  panel.panelsState = "firstExpanded";
+  assert.equal(
+    panel.panels[0].state,
+    "default",
+    "panelsState = 'firstExpanded', but panel.title is empty"
+  );
+});
+
 QUnit.test("matrixDynamic.panelsState, add panel always expanded", function (
   assert
 ) {
   var panel = new QuestionPanelDynamicModel("panel");
   panel.template.addNewQuestion("text", "q1");
+  panel.templateTitle = "Some text";
   panel.panelCount = 2;
   panel.addPanelUI();
   assert.equal(
@@ -1479,6 +1505,7 @@ QUnit.test("matrixDynamic.panelsState, load from json", function (assert) {
         panelCount: 2,
         panelsState: "firstExpanded",
         templateElements: [{ type: "text", name: "q1" }],
+        templateTitle: "Some text",
       },
     ],
   };
@@ -1495,6 +1522,34 @@ QUnit.test("matrixDynamic.panelsState, load from json", function (assert) {
     "The second panel is collapsed"
   );
 });
+QUnit.test(
+  "matrixDynamic.panelsState, not tempalteTitle load from json",
+  function (assert) {
+    var json = {
+      questions: [
+        {
+          type: "paneldynamic",
+          name: "q",
+          panelCount: 2,
+          panelsState: "firstExpanded",
+          templateElements: [{ type: "text", name: "q1" }],
+        },
+      ],
+    };
+    var survey = new SurveyModel(json);
+    var panel = <QuestionPanelDynamicModel>survey.getQuestionByName("q");
+    assert.equal(
+      panel.panels[0].state,
+      "default",
+      "First panel, not templateTitle"
+    );
+    assert.equal(
+      panel.panels[1].state,
+      "default",
+      "Second panel, not templateTitle"
+    );
+  }
+);
 QUnit.test(
   "Dynamic Panel, multiple text question and validation, Bug#1037",
   function (assert) {

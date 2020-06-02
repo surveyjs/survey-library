@@ -8,7 +8,7 @@ import {
   ISurveyData,
   ISurvey,
   ISurveyImpl,
-  ITextProcessor
+  ITextProcessor,
 } from "./base";
 import { surveyLocalization } from "./surveyStrings";
 import { LocalizableString } from "./localizablestring";
@@ -43,7 +43,7 @@ export class QuestionPanelDynamicItem
     this.panelValue = panel;
     var self = this;
     this.textPreProcessor = new TextPreProcessor();
-    this.textPreProcessor.onProcess = function(
+    this.textPreProcessor.onProcess = function (
       textValue: TextPreProcessorValue
     ) {
       self.getProcessedTextValue(textValue);
@@ -194,11 +194,11 @@ export class QuestionPanelDynamicModel extends Question
     this.template.selectedElementInDesign = this;
 
     var self = this;
-    this.template.addElementCallback = function(element) {
+    this.template.addElementCallback = function (element) {
       self.addOnPropertyChangedCallback(element);
       self.rebuildPanels();
     };
-    this.template.removeElementCallback = function(element) {
+    this.template.removeElementCallback = function (element) {
       self.rebuildPanels();
     };
 
@@ -208,7 +208,7 @@ export class QuestionPanelDynamicModel extends Question
     this.createLocalizableString("panelRemoveText", this);
     this.createLocalizableString("panelPrevText", this);
     this.createLocalizableString("panelNextText", this);
-    this.registerFunctionOnPropertyValueChanged("panelsState", function() {
+    this.registerFunctionOnPropertyValueChanged("panelsState", function () {
       self.setPanelsState();
     });
   }
@@ -225,11 +225,11 @@ export class QuestionPanelDynamicModel extends Question
   }
   private addOnPropertyChangedCallback(element: IElement) {
     var self = this;
-    (<Base>(<any>element)).onPropertyChanged.add(function(element, options) {
+    (<Base>(<any>element)).onPropertyChanged.add(function (element, options) {
       self.onTemplateElementPropertyChanged(element, options);
     });
     if (element.isPanel) {
-      (<PanelModel>(<any>element)).addElementCallback = function(element) {
+      (<PanelModel>(<any>element)).addElementCallback = function (element) {
         self.addOnPropertyChangedCallback(element);
       };
     }
@@ -254,7 +254,7 @@ export class QuestionPanelDynamicModel extends Question
     return true;
   }
   public clearOnDeletingContainer() {
-    this.panels.forEach(panel => {
+    this.panels.forEach((panel) => {
       panel.clearOnDeletingContainer();
     });
   }
@@ -590,7 +590,9 @@ export class QuestionPanelDynamicModel extends Question
         if (this.panelsState === "expand") {
           panel.expand();
         } else {
-          panel.collapse();
+          if (!!panel.title) {
+            panel.collapse();
+          }
         }
       }
     }
@@ -630,7 +632,8 @@ export class QuestionPanelDynamicModel extends Question
     }
   }
   private setPanelsState() {
-    if (this.isDesignMode || this.renderMode != "list") return;
+    if (this.isDesignMode || this.renderMode != "list" || !this.templateTitle)
+      return;
     for (var i = 0; i < this.panels.length; i++) {
       var state = this.panelsState;
       if (state === "firstExpanded") {
@@ -1086,7 +1089,7 @@ export class QuestionPanelDynamicModel extends Question
       objects.push({
         name: prefixName + panelObjs[i].name,
         text: prefixText + panelObjs[i].text,
-        question: panelObjs[i].question
+        question: panelObjs[i].question,
       });
     }
     if (hasContext) {
@@ -1095,7 +1098,7 @@ export class QuestionPanelDynamicModel extends Question
         objects.push({
           name: "panel." + panelObjs[i].name,
           text: "panel." + panelObjs[i].text,
-          question: panelObjs[i].question
+          question: panelObjs[i].question,
         });
       }
     }
@@ -1366,7 +1369,7 @@ export class QuestionPanelDynamicModel extends Question
   protected createAndSetupNewPanelObject(): PanelModel {
     var panel = this.createNewPanelObject();
     var self = this;
-    panel.onGetQuestionTitleLocation = function() {
+    panel.onGetQuestionTitleLocation = function () {
       return self.getTemplateQuestionTitleLocation();
     };
     return panel;
@@ -1479,7 +1482,7 @@ export class QuestionPanelDynamicModel extends Question
         name: name,
         itemIndex: index,
         itemValue: qValue[index],
-        value: val
+        value: val,
       };
       this.survey.dynamicPanelItemValueChanged(this, options);
     }
@@ -1497,7 +1500,7 @@ export class QuestionPanelDynamicModel extends Question
         propertyName: string;
       }>;
     } = {
-      includeEmpty: true
+      includeEmpty: true,
     }
   ) {
     var questionPlainData = super.getPlainData(options);
@@ -1515,9 +1518,9 @@ export class QuestionPanelDynamicModel extends Question
             isNode: true,
             data: panel.questions
               .map((question: Question) => question.getPlainData(options))
-              .filter((d: any) => !!d)
+              .filter((d: any) => !!d),
           };
-          (options.calculations || []).forEach(calculation => {
+          (options.calculations || []).forEach((calculation) => {
             panelDataItem[calculation.propertyName] = (<any>panel)[
               calculation.propertyName
             ];
@@ -1550,41 +1553,41 @@ Serializer.addClass(
       name: "templateElements",
       alternativeName: "questions",
       visible: false,
-      isLightSerializable: false
+      isLightSerializable: false,
     },
     { name: "templateTitle:text", serializationProperty: "locTemplateTitle" },
     {
       name: "templateDescription:text",
-      serializationProperty: "locTemplateDescription"
+      serializationProperty: "locTemplateDescription",
     },
     { name: "allowAddPanel:boolean", default: true },
     { name: "allowRemovePanel:boolean", default: true },
     {
       name: "panelCount:number",
       default: 0,
-      choices: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+      choices: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
     },
     { name: "minPanelCount:number", default: 0, minValue: 0 },
     {
       name: "maxPanelCount:number",
-      default: settings.panelMaximumPanelCount
+      default: settings.panelMaximumPanelCount,
     },
     "defaultPanelValue:panelvalue",
     "defaultValueFromLastPanel:boolean",
     {
       name: "panelsState",
       default: "default",
-      choices: ["default", "collapsed", "expanded", "firstExpanded"]
+      choices: ["default", "collapsed", "expanded", "firstExpanded"],
     },
     { name: "keyName" },
     {
       name: "keyDuplicationError",
-      serializationProperty: "locKeyDuplicationError"
+      serializationProperty: "locKeyDuplicationError",
     },
     { name: "confirmDelete:boolean" },
     {
       name: "confirmDeleteText",
-      serializationProperty: "locConfirmDeleteText"
+      serializationProperty: "locConfirmDeleteText",
     },
     { name: "panelAddText", serializationProperty: "locPanelAddText" },
     { name: "panelRemoveText", serializationProperty: "locPanelRemoveText" },
@@ -1593,25 +1596,25 @@ Serializer.addClass(
     {
       name: "showQuestionNumbers",
       default: "off",
-      choices: ["off", "onPanel", "onSurvey"]
+      choices: ["off", "onPanel", "onSurvey"],
     },
     { name: "showRangeInProgress:boolean", default: true },
     {
       name: "renderMode",
       default: "list",
-      choices: ["list", "progressTop", "progressBottom", "progressTopBottom"]
+      choices: ["list", "progressTop", "progressBottom", "progressTopBottom"],
     },
     {
       name: "templateTitleLocation",
       default: "default",
-      choices: ["default", "top", "bottom", "left"]
-    }
+      choices: ["default", "top", "bottom", "left"],
+    },
   ],
-  function() {
+  function () {
     return new QuestionPanelDynamicModel("");
   },
   "question"
 );
-QuestionFactory.Instance.registerQuestion("paneldynamic", name => {
+QuestionFactory.Instance.registerQuestion("paneldynamic", (name) => {
   return new QuestionPanelDynamicModel(name);
 });

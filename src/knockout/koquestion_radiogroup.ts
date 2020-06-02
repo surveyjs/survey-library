@@ -15,7 +15,7 @@ export class QuestionRadiogroup extends QuestionRadiogroupModel {
   getItemClass(item: any) {
     var itemClass = this.cssClasses.item;
     var isDisabled = this.isReadOnly || !item.isEnabled;
-    var isChecked = item.value === this.value;
+    var isChecked = item.value === this.value || this.isOtherSelected && this.otherItem.value === item.value;
     var allowHover = !isDisabled && !isChecked;
     if (!this.hasColumns) {
       itemClass +=

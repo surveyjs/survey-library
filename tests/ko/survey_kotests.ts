@@ -1778,3 +1778,35 @@ QUnit.test(
     assert.equal(p1.panels[0].elements[0].cssTitle, "sq-title-red", "CSS classes for questions in dynamic panel");
   }
 );
+
+QUnit.test("Other item selected and not checked - https://github.com/surveyjs/survey-library/issues/2200", function (
+  assert
+) {
+  var q1 = new QuestionRadiogroup("q1");
+  q1.fromJSON({
+    type: "radiogroup",
+    name: "q1",
+    hasOther: true,
+    storeOthersAsComment: false,
+    choices: [1, 2]
+  });
+  q1["copyCssClasses"] = classes => {
+    classes.item = "item";
+    classes.itemChecked = "checked";
+  }
+
+  assert.notOk(q1.isOtherSelected);
+  assert.equal(
+    q1.getItemClass(q1.otherItem),
+    "item sv-q-col-1 undefined",
+    "other is not selected"
+  );
+
+  q1.value = "some text";
+  assert.ok(q1.isOtherSelected);
+  assert.equal(
+    q1.getItemClass(q1.otherItem),
+    "item sv-q-col-1 checked",
+    "other is selected"
+  );
+});

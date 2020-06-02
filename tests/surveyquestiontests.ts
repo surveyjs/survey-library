@@ -2229,7 +2229,7 @@ QUnit.test("readOnlyCommentRenderMode", function (assert) {
     "isReadOnlyRenderDiv false"
   );
 
-  survey.readOnlyCommentRenderMode = "div";
+  settings.readOnlyCommentRenderMode = "div";
 
   assert.equal(
     qComment["isReadOnlyRenderDiv"](),

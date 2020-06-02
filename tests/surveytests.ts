@@ -4810,6 +4810,30 @@ QUnit.test("Survey Elements css", function (assert) {
   css.question.titleRequired = "";
 });
 
+QUnit.test("Question cssRoot", function (assert) {
+  var survey = new SurveyModel();
+  var page = survey.addNewPage("page1");
+  var textQuestion = page.addNewQuestion("text", "q1");
+  var checkQuestion = page.addNewQuestion("checkbox", "q2");
+
+  textQuestion.cssClasses;
+  assert.equal(textQuestion.cssRoot, "sv_q sv_qstn", "text question root class - original");
+  checkQuestion.cssClasses;
+  assert.equal(checkQuestion.cssRoot, "sv_q sv_qstn", "checkbox question root class - original");
+
+  survey.onUpdateQuestionCssClasses.add(function (survey, options) {
+    if (options.question.getType() == "checkbox") {
+      options.cssClasses.mainRoot = "testMainRoot";
+      options.cssClasses.root = "testRoot";
+    }
+  });
+
+  textQuestion.cssClasses;
+  assert.equal(textQuestion.cssRoot, "sv_q sv_qstn", "text question root class");
+  checkQuestion.cssClasses;
+  assert.equal(checkQuestion.cssRoot, "testMainRoot", "checkbox question root class");
+});
+
 QUnit.test("Use send data to custom server", function (assert) {
   var survey = twoPageSimplestSurvey();
   var onCompleteOptions = null;

@@ -4817,9 +4817,17 @@ QUnit.test("Question cssRoot", function (assert) {
   var checkQuestion = page.addNewQuestion("checkbox", "q2");
 
   textQuestion.cssClasses;
-  assert.equal(textQuestion.cssRoot, "sv_q sv_qstn", "text question root class - original");
+  assert.equal(
+    textQuestion.cssRoot,
+    "sv_q sv_qstn",
+    "text question root class - original"
+  );
   checkQuestion.cssClasses;
-  assert.equal(checkQuestion.cssRoot, "sv_q sv_qstn", "checkbox question root class - original");
+  assert.equal(
+    checkQuestion.cssRoot,
+    "sv_q sv_qstn",
+    "checkbox question root class - original"
+  );
 
   survey.onUpdateQuestionCssClasses.add(function (survey, options) {
     if (options.question.getType() == "checkbox") {
@@ -4829,9 +4837,17 @@ QUnit.test("Question cssRoot", function (assert) {
   });
 
   textQuestion.cssClasses;
-  assert.equal(textQuestion.cssRoot, "sv_q sv_qstn", "text question root class");
+  assert.equal(
+    textQuestion.cssRoot,
+    "sv_q sv_qstn",
+    "text question root class"
+  );
   checkQuestion.cssClasses;
-  assert.equal(checkQuestion.cssRoot, "testMainRoot", "checkbox question root class");
+  assert.equal(
+    checkQuestion.cssRoot,
+    "testMainRoot",
+    "checkbox question root class"
+  );
 });
 
 QUnit.test("Use send data to custom server", function (assert) {
@@ -10435,4 +10451,32 @@ QUnit.test("visibleIf doens't work correctly, Bug #2193", function (assert) {
   });
   var question = survey.getQuestionByName("q1");
   assert.equal(question.isVisible, false, "question should be invisible");
+});
+
+QUnit.test("Avoid stack overrflow in triggers, Bug #2202", function (assert) {
+  var survey = new SurveyModel({
+    elements: [
+      { type: "text", name: "q1" },
+      { type: "text", name: "q2" },
+      { type: "text", name: "q3" },
+    ],
+    triggers: [
+      {
+        type: "setvalue",
+        expression: "{q1} > 0 or {q3} > 1",
+        setToName: "q3",
+        setValue: 5,
+      },
+      {
+        type: "setvalue",
+        expression: "{q2} > 0 or {q3} > 1",
+        setToName: "q3",
+        setValue: 6,
+      },
+    ],
+  });
+  survey.setValue("q1", 1);
+  survey.setValue("q2", 2);
+  assert.equal(survey.getValue("q1"), 1, "q1 is set, no stackoverflow");
+  assert.equal(survey.getValue("q2"), 2, "q2 is set, no stackoverflow");
 });

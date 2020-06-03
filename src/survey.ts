@@ -3916,8 +3916,15 @@ export class SurveyModel extends Base
     }
     return result;
   }
+  private isTriggerIsRunning: boolean = false;
   private checkTriggers(key: any, isOnNextPage: boolean) {
-    if (this.isCompleted || this.triggers.length == 0) return;
+    if (
+      this.isCompleted ||
+      this.triggers.length == 0 ||
+      this.isTriggerIsRunning
+    )
+      return;
+    this.isTriggerIsRunning = true;
     var values = this.getFilteredValues();
     var properties = this.getFilteredProperties();
     for (var i: number = 0; i < this.triggers.length; i++) {
@@ -3926,6 +3933,7 @@ export class SurveyModel extends Base
         trigger.checkExpression(key, values, properties);
       }
     }
+    this.isTriggerIsRunning = false;
   }
   private doElementsOnLoad() {
     for (var i = 0; i < this.pages.length; i++) {
@@ -5202,5 +5210,5 @@ Serializer.addClass("survey", [
     name: "showTimerPanelMode",
     default: "all",
     choices: ["all", "page", "survey"],
-  }
+  },
 ]);

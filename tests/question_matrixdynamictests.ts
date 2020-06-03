@@ -3894,6 +3894,79 @@ QUnit.test(
   }
 );
 QUnit.test(
+  "showInMultipleColumns property, columnLayout: 'vertical' and other is empty value, Bug #2200",
+  function (assert) {
+    var survey = new SurveyModel({
+      elements: [
+        {
+          type: "matrixdropdown",
+          name: "matrix",
+          columnLayout: "vertical",
+          columns: [
+            {
+              name: "col1",
+              cellType: "radiogroup",
+              hasOther: true,
+              showInMultipleColumns: true,
+              choices: [1, 2],
+            },
+          ],
+          rows: ["row1", "row2"],
+        },
+      ],
+    });
+    var matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+
+    assert.equal(
+      matrix.renderedTable.rows.length,
+      3,
+      "There are two choices + other"
+    );
+    matrix.value = { row1: { col1: "other" } };
+    assert.equal(matrix.hasErrors(), true, "There is error");
+    assert.equal(
+      matrix.renderedTable.rows[0].cells[1].isChoice,
+      true,
+      "The first cell is checkbox"
+    );
+    assert.equal(
+      matrix.renderedTable.rows[2].cells[1].isChoice,
+      true,
+      "The third cell is checkbox"
+    );
+    assert.equal(
+      matrix.renderedTable.rows[0].cells[1].isFirstChoice,
+      true,
+      "The first cell is firstchoice"
+    );
+    assert.equal(
+      matrix.renderedTable.rows[2].cells[1].isFirstChoice,
+      false,
+      "The third cell is not firstchoice"
+    );
+    assert.equal(
+      matrix.renderedTable.rows[2].cells[1].choiceIndex,
+      2,
+      "The third cell choiceIndex is not 0"
+    );
+    assert.equal(
+      matrix.renderedTable.rows[0].cells[1].showErrorOnTop,
+      true,
+      "Show errors for the first cell"
+    );
+    assert.equal(
+      matrix.renderedTable.rows[1].cells[1].showErrorOnTop,
+      false,
+      "Do not show errors for the second cell"
+    );
+    assert.equal(
+      matrix.renderedTable.rows[2].cells[1].showErrorOnTop,
+      false,
+      "Do not show errors for the third cell"
+    );
+  }
+);
+QUnit.test(
   "Filter choices on value change in the next column, Bug #2182",
   function (assert) {
     var survey = new SurveyModel({

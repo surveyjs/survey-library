@@ -1228,13 +1228,14 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     var choices = this.getMultipleColumnChoices(column);
     if (!choices) return;
     for (var i = 0; i < choices.length; i++) {
-      renderedRows.push(this.createVerticalRow(column, index, choices[i]));
+      renderedRows.push(this.createVerticalRow(column, index, choices[i], i));
     }
   }
   private createVerticalRow(
     column: MatrixDropdownColumn,
     index: number,
-    choice: ItemValue = null
+    choice: ItemValue = null,
+    choiceIndex: number = -1
   ): QuestionMatrixDropdownRenderedRow {
     var res = new QuestionMatrixDropdownRenderedRow();
     if (this.matrix.showHeader) {
@@ -1245,7 +1246,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     for (var i = 0; i < rows.length; i++) {
       var rCell = this.createEditCell(rows[i].cells[index]);
       rCell.item = choice;
-      rCell.choiceIndex = i;
+      rCell.choiceIndex = choiceIndex >= 0 ? choiceIndex : i;
       res.cells.push(rCell);
     }
     if (this.matrix.hasTotal) {

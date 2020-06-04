@@ -17,11 +17,9 @@ export { modernCss } from "../defaultCss/cssmodern";
 
 // react
 export { Survey } from "../react/reactSurvey";
-export { ReactSurveyModel, ReactWindowModel } from "../react/reactsurveymodel";
-export {
-  ReactSurveyModel as Model,
-  ReactWindowModel as WindowModel,
-} from "../react/reactsurveymodel";
+import { ReactSurveyModel, ReactWindowModel } from "../react/reactsurveymodel";
+export { ReactSurveyModel as Model };
+export { ReactWindowModel as WindowModel };
 export { SurveyNavigationBase } from "../react/reactSurveyNavigationBase";
 export { SurveyTimerPanel } from "../react/reacttimerpanel";
 export { SurveyNavigation } from "../react/reactSurveyNavigation";

@@ -435,7 +435,7 @@ export class SurveyModel extends Base
     any
   > = new Event<(sender: SurveyModel, options: any) => any, any>();
   /**
-   * The event fires when it gets response from the [dxsurvey.com](http://www.dxsurvey.com) service on saving survey results. Use it to find out if the results have been saved successfully.
+   * The event fires when it gets response from the [api.surveyjs.io](https://api.surveyjs.io) service on saving survey results. Use it to find out if the results have been saved successfully.
    * <br/> `sender` - the survey object that fires the event.
    * <br/> `options.success` - it is `true` if the results has been sent to the service successfully.
    * <br/> `options.response` - a response from the service.
@@ -445,7 +445,7 @@ export class SurveyModel extends Base
     any
   > = new Event<(sender: SurveyModel, options: any) => any, any>();
   /**
-   * Use it to get results after calling the `getResult` method. It returns a simple analytics from [dxsurvey.com](http://www.dxsurvey.com) service.
+   * Use it to get results after calling the `getResult` method. It returns a simple analytics from [api.surveyjs.io](https://api.surveyjs.io) service.
    * <br/> `sender` - the survey object that fires the event.
    * <br/> `options.success` - it is `true` if the results were got from the service successfully.
    * <br/> `options.data` - the object `{AnswersCount, QuestionResult : {} }`. `AnswersCount` is the number of posted survey results. `QuestionResult` is an object with all possible unique answers to the question and number of these answers.
@@ -1037,7 +1037,7 @@ export class SurveyModel extends Base
     this.setPropertyValue("calculatedValues", val);
   }
   /**
-   * Gets or sets an identifier of a survey model loaded from the [dxsurvey.com](http://www.dxsurvey.com) service. When specified, the survey JSON is automatically loaded from [dxsurvey.com](http://www.dxsurvey.com) service.
+   * Gets or sets an identifier of a survey model loaded from the [api.surveyjs.io](https://api.surveyjs.io) service. When specified, the survey JSON is automatically loaded from [api.surveyjs.io](https://api.surveyjs.io) service.
    * @see loadSurveyFromService
    * @see onLoadedSurveyFromService
    */
@@ -1048,7 +1048,7 @@ export class SurveyModel extends Base
     this.setPropertyValue("surveyId", val);
   }
   /**
-   * Gets or sets an identifier of a survey model saved to the [dxsurvey.com](http://www.dxsurvey.com) service. When specified, the survey data is automatically saved to the [dxsurvey.com](http://www.dxsurvey.com) service.
+   * Gets or sets an identifier of a survey model saved to the [api.surveyjs.io](https://api.surveyjs.io) service. When specified, the survey data is automatically saved to the [api.surveyjs.io](https://api.surveyjs.io) service.
    * @see onComplete
    * @see surveyShowDataSaving
    */
@@ -1060,7 +1060,7 @@ export class SurveyModel extends Base
   }
   /**
    * Gets or sets user's identifier (e.g., e-mail or unique customer id) in your web application.
-   * If you load survey or post survey results from/to [dxsurvey.com](http://www.dxsurvey.com) service, then the library do not allow users to run the same survey the second time.
+   * If you load survey or post survey results from/to [api.surveyjs.io](https://api.surveyjs.io) service, then the library do not allow users to run the same survey the second time.
    * On the second run, the user will see the survey complete page.
    */
   public get clientId(): string {
@@ -1092,7 +1092,7 @@ export class SurveyModel extends Base
     this.setPropertyValue("sendResultOnPageNext", val);
   }
   /**
-   * Gets or sets whether to show the progress on saving/sending data into the [dxsurvey.com](http://www.dxsurvey.com) service.
+   * Gets or sets whether to show the progress on saving/sending data into the [api.surveyjs.io](https://api.surveyjs.io) service.
    * @see surveyPostId
    */
   public get surveyShowDataSaving(): boolean {
@@ -1643,7 +1643,7 @@ export class SurveyModel extends Base
     return this.getLocalizableString("completedBeforeHtml");
   }
   /**
-   * The HTML that shows on loading survey Json from the [dxsurvey.com](http://www.dxsurvey.com) service.
+   * The HTML that shows on loading survey Json from the [api.surveyjs.io](https://api.surveyjs.io) service.
    * @see surveyId
    * @see locale
    */
@@ -3972,8 +3972,8 @@ export class SurveyModel extends Base
     }
   }
   /**
-   * Sends a survey result to the [dxsurvey.com](http://www.dxsurvey.com) service.
-   * @param postId [dxsurvey.com](http://www.dxsurvey.com) service postId
+   * Sends a survey result to the [api.surveyjs.io](https://api.surveyjs.io) service.
+   * @param postId [api.surveyjs.io](https://api.surveyjs.io) service postId
    * @param clientId Typically a customer e-mail or an identifier
    * @param isPartialCompleted Set it to `true` if the survey is not completed yet and the results are intermediate
    * @see surveyPostId
@@ -4023,8 +4023,8 @@ export class SurveyModel extends Base
     );
   }
   /**
-   * Calls the [dxsurvey.com](http://www.dxsurvey.com) service and, on callback, fires the `onGetResult` event with all answers that your users made for a question.
-   * @param resultId [dxsurvey.com](http://www.dxsurvey.com) service resultId
+   * Calls the [api.surveyjs.io](https://api.surveyjs.io) service and, on callback, fires the `onGetResult` event with all answers that your users made for a question.
+   * @param resultId [api.surveyjs.io](https://api.surveyjs.io) service resultId
    * @param name The question name
    * @see onGetResult
    */
@@ -4045,9 +4045,9 @@ export class SurveyModel extends Base
     });
   }
   /**
-   * Loads the survey JSON from the [dxsurvey.com](http://www.dxsurvey.com) service.
+   * Loads the survey JSON from the [api.surveyjs.io](https://api.surveyjs.io) service.
    * If `clientId` is not `null` and a user had completed a survey before, the survey switches to `completedbefore` state.
-   * @param surveyId [dxsurvey.com](http://www.dxsurvey.com) service surveyId
+   * @param surveyId [api.surveyjs.io](https://api.surveyjs.io) service surveyId
    * @param clientId users' indentifier, for example an e-mail or a unique customer id in your web application.
    * @see state
    * @see onLoadedSurveyFromService

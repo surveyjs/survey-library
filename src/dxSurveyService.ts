@@ -1,6 +1,6 @@
 import { settings } from "./settings";
 /**
- * The class contains methods to work with www.dxsurvey.com service.
+ * The class contains methods to work with api.surveyjs.io service.
  */
 export class dxSurveyService {
   public static get serviceUrl(): string {
@@ -20,7 +20,7 @@ export class dxSurveyService {
       dxSurveyService.serviceUrl + "/getSurvey?surveyId=" + surveyId
     );
     xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-    xhr.onload = function() {
+    xhr.onload = function () {
       var result = JSON.parse(xhr.response);
       onLoad(xhr.status == 200, result, xhr.response);
     };
@@ -46,7 +46,7 @@ export class dxSurveyService {
         clientId
     );
     xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-    xhr.onload = function() {
+    xhr.onload = function () {
       var result = JSON.parse(xhr.response);
       var surveyJson = result ? result.survey : null;
       var isCompleted = result ? result.isCompleted : null;
@@ -69,7 +69,7 @@ export class dxSurveyService {
     if (isPartialCompleted) (<any>data)["isPartialCompleted"] = true;
     var dataStringify: string = JSON.stringify(data);
     var self = this;
-    xhr.onload = xhr.onerror = function() {
+    xhr.onload = xhr.onerror = function () {
       if (!onSendResult) return;
       onSendResult(xhr.status === 200, xhr.response, xhr);
     };
@@ -81,7 +81,7 @@ export class dxSurveyService {
     onSendFile: (success: boolean, response: any) => void
   ) {
     var xhr = new XMLHttpRequest();
-    xhr.onload = xhr.onerror = function() {
+    xhr.onload = xhr.onerror = function () {
       if (!onSendFile) return;
       onSendFile(xhr.status == 200, JSON.parse(xhr.response));
     };
@@ -106,7 +106,7 @@ export class dxSurveyService {
     xhr.open("GET", dxSurveyService.serviceUrl + "/getResult?" + data);
     xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
     var self = this;
-    xhr.onload = function() {
+    xhr.onload = function () {
       var result = null;
       var list = null;
       if (xhr.status == 200) {
@@ -131,7 +131,7 @@ export class dxSurveyService {
     xhr.open("GET", dxSurveyService.serviceUrl + "/isCompleted?" + data);
     xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
     var self = this;
-    xhr.onload = function() {
+    xhr.onload = function () {
       var result = null;
       if (xhr.status == 200) {
         result = JSON.parse(xhr.response);

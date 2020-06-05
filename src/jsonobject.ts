@@ -34,6 +34,7 @@ export class JsonObjectProperty implements IObject {
     "showMode",
     "dependedProperties",
     "visibleIf",
+    "onPropertyEditorUpdate",
     "maxLength",
     "maxValue",
     "minValue",
@@ -69,6 +70,7 @@ export class JsonObjectProperty implements IObject {
   public onGetValue: (obj: any) => any = null;
   public onSetValue: (obj: any, value: any, jsonConv: JsonObject) => any = null;
   public visibleIf: (obj: any) => boolean = null;
+  public onPropertyEditorUpdate: (obj: any, propEditor: any) => any;
 
   constructor(public name: string, isRequired: boolean = false) {
     this.isRequiredValue = isRequired;
@@ -450,6 +452,9 @@ export class JsonMetadataClass {
       }
       if (!!propInfo.visibleIf) {
         prop.visibleIf = propInfo.visibleIf;
+      }
+      if (!!propInfo.onPropertyEditorUpdate) {
+        prop.onPropertyEditorUpdate = propInfo.onPropertyEditorUpdate;
       }
       if (propInfo.readOnly === true) {
         prop.readOnly = true;

@@ -186,19 +186,25 @@ Serializer.addClass(
     },
     { name: "size:number", default: 25 },
     {
-      name: "min:number",
+      name: "min",
       dependsOn: "inputType",
       visibleIf: function (obj: any) {
         if (!obj) return false;
         return minMaxTypes.indexOf(obj.inputType) !== -1;
       },
+      onPropertyEditorUpdate: function (obj: any, propertyEditor: any) {
+        propertyEditor.inputType = obj.inputType;
+      },
     },
     {
-      name: "max:number",
+      name: "max",
       dependsOn: "inputType",
       visibleIf: function (obj: any) {
         if (!obj) return false;
         return minMaxTypes.indexOf(obj.inputType) !== -1;
+      },
+      onPropertyEditorUpdate: function (obj: any, propertyEditor: any) {
+        propertyEditor.inputType = obj.inputType;
       },
     },
     {
@@ -206,7 +212,7 @@ Serializer.addClass(
       dependsOn: "inputType",
       visibleIf: function (obj: any) {
         if (!obj) return false;
-        return minMaxTypes.indexOf(obj.inputType) !== -1;
+        return obj.inputType === "number";
       },
     },
     { name: "maxLength:number", default: -1 },

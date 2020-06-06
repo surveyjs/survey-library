@@ -314,7 +314,7 @@ export class Base {
     CustomPropertiesCollection.createProperties(this);
     this.onBaseCreating();
   }
-  protected onBaseCreating() { }
+  protected onBaseCreating() {}
   /**
    * Returns the type of the object as a string as it represents in the json. It should be in lowcase.
    */
@@ -446,7 +446,7 @@ export class Base {
     newValue: any,
     sender: Base,
     arrayChanges: ArrayChanges
-  ) { }
+  ) {}
   public itemValuePropertyChanged(
     item: ItemValue,
     name: string,
@@ -465,7 +465,7 @@ export class Base {
     name: string,
     oldValue: any,
     newValue: any
-  ) { }
+  ) {}
   protected propertyValueChanged(
     name: string,
     oldValue: any,
@@ -846,7 +846,7 @@ export class ArrayChanges {
     public deleteCount: number,
     public itemsToAdd: any[],
     public deletedItems: any[]
-  ) { }
+  ) {}
 }
 
 export class SurveyError {
@@ -855,7 +855,7 @@ export class SurveyError {
   constructor(
     public text: string = null,
     protected errorOwner: ISurveyErrorOwner = null
-  ) { }
+  ) {}
   public get locText() {
     if (!this.locTextValue) {
       this.locTextValue = new LocalizableString(this.errorOwner, true);
@@ -979,6 +979,7 @@ export class SurveyElement extends Base implements ISurveyElement {
   }
   /**
    * Set it to true to make an element question/panel/page readonly.
+   * Please note, this property is hidden for question without input, for example html question.
    * @see enableIf
    * @see isReadOnly
    */
@@ -997,7 +998,7 @@ export class SurveyElement extends Base implements ISurveyElement {
       this.readOnlyChangedCallback();
     }
   }
-  public updateElementCss() { }
+  public updateElementCss() {}
   public get isLoadingFromJson() {
     if (this.isLoadingFromJsonValue) return true;
     return this.survey ? this.survey.isLoadingFromJson : false;
@@ -1016,7 +1017,7 @@ export class SurveyElement extends Base implements ISurveyElement {
       this.onNameChanged(oldValue);
     }
   }
-  protected onNameChanged(oldValue: string) { }
+  protected onNameChanged(oldValue: string) {}
   /**
    * The list of errors. It is created by callig hasErrors functions
    * @see hasErrors
@@ -1049,10 +1050,10 @@ export class SurveyElement extends Base implements ISurveyElement {
   public set selectedElementInDesign(val: SurveyElement) {
     this.selectedElementInDesignValue = val;
   }
-  public updateCustomWidgets() { }
+  public updateCustomWidgets() {}
 
-  public onSurveyLoad() { }
-  public onFirstRendering() { }
+  public onSurveyLoad() {}
+  public onFirstRendering() {}
   endLoadingFromJson() {
     super.endLoadingFromJson();
     if (!this.survey) {
@@ -1071,7 +1072,7 @@ export class SurveyElement extends Base implements ISurveyElement {
   public get isPanel() {
     return false;
   }
-  public delete() { }
+  public delete() {}
   protected removeSelfFromList(list: Array<any>) {
     if (!list || !Array.isArray(list)) return;
     var index = list.indexOf(this);
@@ -1086,7 +1087,7 @@ export class SurveyElement extends Base implements ISurveyElement {
     if (!html || !this.textProcessor) return html;
     return this.textProcessor.processText(html, true);
   }
-  protected onSetData() { }
+  protected onSetData() {}
   protected getPage(parent: IPanel): IPage {
     while (parent && parent.parent) parent = parent.parent;
     if (parent && parent.getType() == "page") return <IPage>(<any>parent);

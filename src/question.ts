@@ -132,6 +132,7 @@ export class Question extends SurveyElement
    * Question name should be unique in the survey and valueName could be not unique. It allows to share data between several questions with the same valueName.
    * The library set the value automatically if the question.name property is not valid. For example, if it contains the period '.' symbol.
    * In this case if you set the question.name property to 'x.y' then the valueName becomes 'x y'.
+   * Please note, this property is hidden for questions without input, for example html question.
    * @see name
    */
   public get valueName(): string {
@@ -214,6 +215,7 @@ export class Question extends SurveyElement
   }
   /**
    * Use it to choose how other question values will be rendered in title if referenced in {}.
+   * Please note, this property is hidden for question without input, for example html question.
    */
   public get useDisplayValuesInTitle(): boolean {
     return this.getPropertyValue("useDisplayValuesInTitle", true);
@@ -329,6 +331,7 @@ export class Question extends SurveyElement
   }
   /**
    * Set this property different from "default" to set the specific question title location for this panel/page.
+   * Please note, this property is hidden for questions without input, for example html question.
    * @see SurveyModel.questionTitleLocation
    */
   public get titleLocation(): string {
@@ -408,6 +411,7 @@ export class Question extends SurveyElement
   }
   /**
    * Question description. It renders under question title by using smaller font. Unlike the title, description can be empty.
+   * Please note, this property is hidden for questions without input, for example html question.
    * @see title
    */
   public get description(): string {
@@ -445,6 +449,7 @@ export class Question extends SurveyElement
   }
   /**
    * The custom text that will be shown on required error. Use this property, if you do not want to show the default text.
+   * Please note, this property is hidden for question without input, for example html question.
    */
   public get requiredErrorText(): string {
     return this.getLocalizableStringText("requiredErrorText");
@@ -794,6 +799,7 @@ export class Question extends SurveyElement
   }
   /**
    * Set this property to true, to make the question a required. If a user doesn't answer the question then a validation error will be generated.
+   * Please note, this property is hidden for question without input, for example html question.
    */
   public get isRequired(): boolean {
     return this.getPropertyValue("isRequired", false);
@@ -809,6 +815,7 @@ export class Question extends SurveyElement
    * An expression that returns true or false. If it returns true the Question becomes required and an end-user has to answer it.
    * If it returns false the Question then an end-user may not answer it the Question maybe empty.
    * The library runs the expression on survey start and on changing a question value. If the property is empty then isRequired property is used.
+   * Please note, this property is hidden for question without input, for example html question.
    * @see isRequired
    */
   public get requiredIf(): string {
@@ -869,6 +876,7 @@ export class Question extends SurveyElement
   }
   /**
    * An expression that returns true or false. If it returns false the Question becomes read only and an end-user will not able to answer on the qustion. The library runs the expression on survey start and on changing a question value. If the property is empty then readOnly property is used.
+   * Please note, this property is hidden for question without input, for example html question.
    * @see readOnly
    * @see isReadOnly
    */
@@ -1052,6 +1060,7 @@ export class Question extends SurveyElement
   }
   /**
    * Set the default value to the question. It will be assign to the question on loading the survey from JSON or adding a question to the survey or on setting this property of the value is empty.
+   * Please note, this property is hidden for question without input, for example html question.
    */
   public get defaultValue(): any {
     return this.getPropertyValue("defaultValue");
@@ -1116,6 +1125,7 @@ export class Question extends SurveyElement
   }
   /**
    * The correct answer on the question. Set this value if you are doing a quiz.
+   * Please note, this property is hidden for question without input, for example html question.
    * @see SurveyModel.correctAnswers
    * @see SurveyModel.inCorrectAnswers
    */
@@ -1214,6 +1224,7 @@ export class Question extends SurveyElement
   }
   /**
    * The list of question validators.
+   * Please note, this property is hidden for question without input, for example html question.
    */
   public get validators(): Array<SurveyValidator> {
     return this.getPropertyValue("validators");

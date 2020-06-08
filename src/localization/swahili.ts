@@ -77,7 +77,7 @@ export var swahiliStrings = {
   booleanUncheckedLabel: "Hapana",
   confirmRemoveFile: "Je! Una uhakika kuwa unataka kuondoa faili hii: {0}?",
   confirmRemoveAllFiles: "Je! Una uhakika kuwa unataka kuondoa faili zote?",
-  questionTitlePatternText: "Kichwa cha swali",
+  questionTitlePatternText: "Kichwa cha Swali",
 };
 
 

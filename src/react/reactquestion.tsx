@@ -99,6 +99,8 @@ export class SurveyQuestion extends SurveyElementBase {
       rootStyle["flexGrow"] = 1;
       rootStyle["flexShrink"] = 1;
       rootStyle["flexBasis"] = question.renderWidth;
+      rootStyle["minWidth"] = question.minWidth;
+      rootStyle["maxWidth"] = question.maxWidth;
     }
     if (!!question.paddingLeft) rootStyle["paddingLeft"] = question.paddingLeft;
     if (!!question.paddingRight)

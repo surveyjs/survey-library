@@ -1,5 +1,5 @@
 <script type="text/html" id="survey-panel">
-  <div data-bind="style:{ flexBasis: renderWidth, flexGrow: 1, flexShrink: 1, width: renderWidth }, attr: {id: id}, css: cssClasses.panel.container">
+  <div data-bind="style:{ flexBasis: renderWidth, flexGrow: 1, flexShrink: 1, width: renderWidth, minWidth: minWidth, maxWidth: maxWidth }, attr: {id: id}, css: cssClasses.panel.container">
       <h4 data-bind="visible: (processedTitle.length > 0), css: $data.getTitleStyle(), click: doExpand">
           <!-- ko if: no -->
           <span style="position: static;" data-bind="css: koCss().number, text: no"></span>

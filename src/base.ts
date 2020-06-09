@@ -195,6 +195,8 @@ export interface IElement extends IConditionRunner, ISurveyElement {
   parent: IPanel;
   renderWidth: string;
   width: string;
+  minWidth ? : string;
+  maxWidth ? : string;
   rightIndent: number;
   startWithNewLine: boolean;
   getPanel(): IPanel;

@@ -8,7 +8,7 @@
       :role="element.ariaRole"
       :aria-labelledby="element.ariaTitleId"
       :name="element.name"
-      :style="{ paddingLeft: element.paddingLeft, paddingRight: element.paddingRight, flexBasis: element.renderWidth, flexGrow: 1, flexShrink: 1, width: element.renderWidth, minWidth: '300px', display: 'inline-block' }"
+      :style="{ paddingLeft: element.paddingLeft, paddingRight: element.paddingRight, flexBasis: element.renderWidth, flexGrow: 1, flexShrink: 1, width: element.renderWidth, minWidth: element.minWidth, maxWidth: element.maxWidth, display: 'inline-block' }"
       :element="element"
       :survey="survey"
       :css="css"

@@ -48,6 +48,8 @@ export class SurveyPanel extends SurveyPanelBase {
       rootStyle["flexGrow"] = 1;
       rootStyle["flexShrink"] = 1;
       rootStyle["flexBasis"] = this.panel.renderWidth;
+      rootStyle["minWidth"] = this.panel["minWidth"];
+      rootStyle["maxWidth"] = this.panel["maxWidth"];
     }
     var bottom = this.renderBottom();
     return (

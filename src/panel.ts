@@ -68,6 +68,8 @@ export class QuestionRowModel extends Base {
     var preSetWidthElements = [];
     for (var i = 0; i < this.elements.length; i++) {
       var el = this.elements[i];
+      this.setElementMaxMinWidth(el);
+
       if (el.isVisible) {
         var width = this.getElementWidth(el);
         if (!!width) {
@@ -94,6 +96,20 @@ export class QuestionRowModel extends Base {
       }
     }
   }
+  public setElementMaxMinWidth(el: IElement): void {
+    if (
+      el.width &&
+      typeof el.width === "string" &&
+      el.width.indexOf("%") === -1
+    ) {
+      el.minWidth = el.width;
+      el.maxWidth = el.width;
+    } else {
+      el.minWidth = "300px";
+      el.maxWidth = "initial";
+    }
+  }
+
   private getRenderedCalcWidth(
     el: IElement,
     preSetWidthElements: Array<IElement>,
@@ -1302,6 +1318,8 @@ export class PanelModelBase extends SurveyElement
  */
 export class PanelModel extends PanelModelBase implements IElement {
   stateChangedCallback: () => void;
+  public minWidth?: string;
+  public maxWidth?: string;
   constructor(public name: string = "") {
     super(name);
     var self = this;

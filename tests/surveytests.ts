@@ -6778,8 +6778,8 @@ QUnit.test("survey.showInvisibleElements property", function (assert) {
             type: "text",
             name: "question2",
             visible: false,
-          },
-        ],
+          }
+        ]
       },
       {
         elements: [
@@ -6788,8 +6788,15 @@ QUnit.test("survey.showInvisibleElements property", function (assert) {
             name: "question3",
             visibleIf: "{question1} = 'test'",
           },
-        ],
-      },
+          // {
+          //   type: "checkbox",
+          //   name: "question4",
+          //   choices: [ "item1", "item2" ],
+          //   visibleIf: "{question1} = 'test'",
+          //   choicesVisibleIf: "{question1} = 'test'"
+          //  }
+        ]
+      }
     ],
   };
   var survey = new SurveyModel(json);
@@ -6799,6 +6806,11 @@ QUnit.test("survey.showInvisibleElements property", function (assert) {
     false,
     "question2 is invisible"
   );
+  // assert.equal(
+  //   survey.getQuestionByName("question4").visibleChoices.length,
+  //   0,
+  //   "There is zero visible choies"
+  // );
   survey.showInvisibleElements = true;
   assert.equal(survey.visiblePages.length, 2, "There are two visible pages");
   assert.equal(
@@ -6806,6 +6818,11 @@ QUnit.test("survey.showInvisibleElements property", function (assert) {
     true,
     "question2 is visible"
   );
+  // assert.equal(
+  //   survey.getQuestionByName("question4").visibleChoices.length,
+  //   2,
+  //   "There is two visible choies"
+  // );
 });
 
 QUnit.test(

@@ -6,7 +6,7 @@
       :key="element.idValue"
       :id="element.id"
       :role="element.ariaRole"
-      :aria-labelledby="element.ariaTitleId"
+      :aria-labelledby="element.hasTitle ? element.ariaTitleId : null"
       :name="element.name"
       :style="{ paddingLeft: element.paddingLeft, paddingRight: element.paddingRight, flexBasis: element.renderWidth, flexGrow: 1, flexShrink: 1, width: element.renderWidth, minWidth: element.minWidth, maxWidth: element.maxWidth, display: 'inline-block' }"
       :element="element"

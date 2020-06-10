@@ -12,6 +12,7 @@ import { FunctionFactory } from "../src/functionsfactory";
 import { Question } from "../src/question";
 import { ExpressionValidator } from "../src/validator";
 import { QuestionExpressionModel } from "../src/question_expression";
+import { QuestionFactory } from "../src/questionfactory";
 
 export default QUnit.module("Survey_QuestionMatrixDynamic");
 
@@ -2341,10 +2342,9 @@ QUnit.test(
     );
     matrix.columns[0].choices = ["1", "2", "3"];
     assert.deepEqual(question.choices.length, 3, "Choices set correctly");
-    assert.equal(counter, 4, "There was only one change");
+    assert.equal(counter, 1, "There was only one change");
   }
 );
-
 QUnit.test(
   "customwidget.readOnlyChangedCallback doesn't work correctly, https://surveyjs.answerdesk.io/ticket/details/T1869",
   function (assert) {

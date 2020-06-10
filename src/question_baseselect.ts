@@ -207,8 +207,9 @@ export class QuestionSelectBase extends Question {
     return ItemValue.runConditionsForItems(
       this.activeChoices,
       this.filteredChoices,
-      this.areInvisibleElementsShowing ? null :
-        this.conditionChoicesVisibleIfRunner,
+      this.areInvisibleElementsShowing
+        ? null
+        : this.conditionChoicesVisibleIfRunner,
       values,
       properties
     );
@@ -564,7 +565,6 @@ export class QuestionSelectBase extends Question {
   }
   onSurveyLoad() {
     super.onSurveyLoad();
-    this.setPropertyValue("visibleChoices", []);
     this.runChoicesByUrl();
     this.onVisibleChoicesChanged();
   }

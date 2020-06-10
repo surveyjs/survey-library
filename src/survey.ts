@@ -2582,6 +2582,8 @@ export class SurveyModel extends Base
   public set showInvisibleElements(val: boolean) {
     var visPages = this.visiblePages;
     this.setPropertyValue("showInvisibleElements", val);
+    if (this.isLoadingFromJson) return;
+    this.runConditions();
     this.updateAllElementsVisibility(visPages);
   }
   private updateAllElementsVisibility(visPages: Array<PageModel>) {

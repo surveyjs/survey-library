@@ -207,7 +207,8 @@ export class QuestionSelectBase extends Question {
     return ItemValue.runConditionsForItems(
       this.activeChoices,
       this.filteredChoices,
-      this.conditionChoicesVisibleIfRunner,
+      this.areInvisibleElementsShowing ? null :
+        this.conditionChoicesVisibleIfRunner,
       values,
       properties
     );

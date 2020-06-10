@@ -2341,7 +2341,7 @@ QUnit.test(
     );
     matrix.columns[0].choices = ["1", "2", "3"];
     assert.deepEqual(question.choices.length, 3, "Choices set correctly");
-    assert.equal(counter, 1, "There was only one change");
+    assert.equal(counter, 4, "There was only one change");
   }
 );
 

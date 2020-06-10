@@ -564,6 +564,7 @@ export class QuestionSelectBase extends Question {
   }
   onSurveyLoad() {
     super.onSurveyLoad();
+    this.setPropertyValue("visibleChoices", []);
     this.runChoicesByUrl();
     this.onVisibleChoicesChanged();
   }

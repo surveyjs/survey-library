@@ -18,7 +18,9 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
   supportGoNextPageAutomatic() {
     return true;
   }
-
+  public get hasSingleInput(): boolean {
+    return false;
+  }
   protected getItemValueType() {
     return "imageitemvalue";
   }
@@ -153,7 +155,7 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
 
 Serializer.addClass("imageitemvalue", [], undefined, "itemvalue");
 Serializer.addProperty("imageitemvalue", {
-  name: "imageLink"
+  name: "imageLink",
 });
 
 Serializer.addClass(
@@ -167,39 +169,39 @@ Serializer.addClass(
     {
       name: "contentMode",
       default: "image",
-      choices: ["image", "video"]
+      choices: ["image", "video"],
     },
     {
       name: "imageFit",
       default: "contain",
-      choices: ["none", "contain", "cover", "fill"]
+      choices: ["none", "contain", "cover", "fill"],
     },
     { name: "imageHeight:number", default: 150, minValue: 0 },
-    { name: "imageWidth:number", default: 200, minValue: 0 }
+    { name: "imageWidth:number", default: 200, minValue: 0 },
   ],
-  function() {
+  function () {
     return new QuestionImagePickerModel("");
   },
   "checkboxbase"
 );
 Serializer.addProperty("imagepicker", {
   name: "showLabel:boolean",
-  default: false
+  default: false,
 });
 Serializer.addProperty("imagepicker", {
   name: "colCount:number",
   default: 0,
-  choices: [0, 1, 2, 3, 4, 5]
+  choices: [0, 1, 2, 3, 4, 5],
 });
 Serializer.addProperty("imagepicker", {
   name: "multiSelect:boolean",
-  default: false
+  default: false,
 });
 Serializer.addProperty("imagepicker", {
-  name: "choices:imageitemvalue[]"
+  name: "choices:imageitemvalue[]",
 });
 
-QuestionFactory.Instance.registerQuestion("imagepicker", name => {
+QuestionFactory.Instance.registerQuestion("imagepicker", (name) => {
   var q = new QuestionImagePickerModel(name);
   //q.choices = QuestionFactory.DefaultChoices;
   return q;

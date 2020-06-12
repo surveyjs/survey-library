@@ -3375,6 +3375,14 @@ export class SurveyModel extends Base
     });
   }
   afterRenderQuestionInput(question: IQuestion, htmlElement: any) {
+    if (this.onAfterRenderQuestionInput.isEmpty) return;
+    let id = (<Question>question).inputId;
+    if (!!id && htmlElement.id !== id && typeof document !== "undefined") {
+      let el = document.getElementById(id);
+      if (!!el) {
+        htmlElement = el;
+      }
+    }
     this.onAfterRenderQuestionInput.fire(this, {
       question: question,
       htmlElement: htmlElement,

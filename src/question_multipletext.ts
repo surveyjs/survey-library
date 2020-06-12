@@ -280,6 +280,9 @@ export class QuestionMultipleTextModel extends Question
   public get isAllowTitleLeft(): boolean {
     return false;
   }
+  public get hasSingleInput(): boolean {
+    return false;
+  }
   onSurveyLoad() {
     this.editorsOnSurveyLoad();
     super.onSurveyLoad();

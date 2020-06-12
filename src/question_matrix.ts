@@ -198,6 +198,9 @@ export class QuestionMatrixModel
   public getType(): string {
     return "matrix";
   }
+  public get hasSingleInput(): boolean {
+    return false;
+  }
   /**
    * Set this property to true, if you want a user to answer all rows.
    */

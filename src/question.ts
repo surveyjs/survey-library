@@ -389,9 +389,17 @@ export class Question extends SurveyElement
   }
   /**
    * Returns false if the question doesn't have an input element, for example: QuestionHtmlModel
+   * @see hasSingleInput
    */
   public get hasInput(): boolean {
     return true;
+  }
+  /**
+   * Returns false if the question doesn't have an input element or have multiple inputs: matrices or panel dynamic
+   * @see hasInput
+   */
+  public get hasSingleInput(): boolean {
+    return this.hasInput;
   }
   public get inputId(): string {
     return this.id + "i";
@@ -500,7 +508,7 @@ export class Question extends SurveyElement
     return false;
   }
   public afterRenderQuestionElement(el: any) {
-    if (!this.survey) return;
+    if (!this.survey || !this.hasSingleInput) return;
     this.survey.afterRenderQuestionInput(this, el);
   }
   public afterRender(el: any) {

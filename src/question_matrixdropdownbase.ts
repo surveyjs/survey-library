@@ -1434,6 +1434,9 @@ export class QuestionMatrixDropdownModelBase
   public getType(): string {
     return "matrixdropdownbase";
   }
+  public get hasSingleInput(): boolean {
+    return false;
+  }
   public get isRowsDynamic(): boolean {
     return false;
   }

@@ -615,13 +615,6 @@ export class JsonMetadata {
     this.classProperties[className] = properties;
     this.classHashProperties[className] = hashProperties;
   }
-  private getDynamicProperties(obj: any): Array<JsonObjectProperty> {
-    if (obj.getDynamicProperties && obj.getDynamicType) {
-      var names = obj.getDynamicProperties();
-      return JsonObject.metaData.findProperties(obj.getDynamicType(), names);
-    }
-    return [];
-  }
   public getPropertiesByObj(obj: any): Array<JsonObjectProperty> {
     if (!obj || !obj.getType) return [];
     var res: any = {};
@@ -629,13 +622,41 @@ export class JsonMetadata {
     for (var i = 0; i < props.length; i++) {
       res[props[i].name] = props[i];
     }
-    var dynamicProps = this.getDynamicProperties(obj);
+    var dynamicProps = !!obj.getDynamicType
+      ? this.getProperties(obj.getDynamicType())
+      : null;
     if (dynamicProps && dynamicProps.length > 0) {
       for (var i = 0; i < dynamicProps.length; i++) {
-        res[dynamicProps[i].name] = dynamicProps[i];
+        let dProp = dynamicProps[i];
+        if (!!res[dProp.name]) continue;
+        res[dProp.name] = dProp;
       }
     }
     return Object.keys(res).map((key) => res[key]);
+  }
+  public getDynamicPropertiesByObj(
+    obj: any,
+    dynamicType: string = null
+  ): Array<JsonObjectProperty> {
+    if (!obj || !obj.getType || (!obj.getDynamicType && !dynamicType))
+      return [];
+    var dType = !!dynamicType ? dynamicType : obj.getDynamicType();
+    if (!dType) return [];
+    var dynamicProps = this.getProperties(dType);
+    if (!dynamicProps || dynamicProps.length == 0) return [];
+    var hash: any = {};
+    var props = this.getProperties(obj.getType());
+    for (var i = 0; i < props.length; i++) {
+      hash[props[i].name] = props[i];
+    }
+    var res = [];
+    for (var i = 0; i < dynamicProps.length; i++) {
+      let dProp = dynamicProps[i];
+      if (!hash[dProp.name]) {
+        res.push(dProp);
+      }
+    }
+    return res;
   }
 
   public findProperty(
@@ -1023,11 +1044,7 @@ export class JsonObject {
     return result;
   }
   private getDynamicProperties(obj: any): Array<JsonObjectProperty> {
-    if (obj.getDynamicProperties && obj.getDynamicType) {
-      var names = obj.getDynamicProperties();
-      return JsonObject.metaData.findProperties(obj.getDynamicType(), names);
-    }
-    return [];
+    return Serializer.getDynamicPropertiesByObj(obj);
   }
   private addDynamicProperties(
     obj: any,

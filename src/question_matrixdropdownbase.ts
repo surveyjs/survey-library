@@ -246,12 +246,6 @@ export class MatrixDropdownColumn extends Base implements ILocalizableOwner {
   getDynamicType(): string {
     return this.calcCellQuestionType();
   }
-  getDynamicProperties(): Array<string> {
-    var qType = this.calcCellQuestionType();
-    var qDefinition = (<any>matrixDropdownColumnTypes)[qType];
-    if (qDefinition) return qDefinition.properties;
-    return [];
-  }
   public get colOwner(): IMatrixColumnOwner {
     return this.colOwnerValue;
   }
@@ -552,9 +546,7 @@ export class MatrixDropdownColumn extends Base implements ILocalizableOwner {
     }
   }
   private getProperties(curCellType: string): Array<JsonObjectProperty> {
-    var qDef = (<any>matrixDropdownColumnTypes)[curCellType];
-    if (!qDef || !qDef.properties) return [];
-    return Serializer.findProperties(curCellType, qDef.properties);
+    return Serializer.getDynamicPropertiesByObj(this, curCellType);
   }
   private removeProperties(curCellType: string) {
     var properties = this.getProperties(curCellType);

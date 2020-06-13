@@ -66,10 +66,6 @@ class Truck extends BigCar {
 
 class CarOwner extends Base {
   private carValue: Car;
-  static supportedCars = {
-    fast: [],
-    truck: ["maxWeight"],
-  };
   constructor() {
     super();
     this.carValue = new FastCar();
@@ -83,9 +79,6 @@ class CarOwner extends Base {
   getDynamicType(): string {
     return this.carType;
   }
-  getDynamicProperties(): Array<string> {
-    return CarOwner.supportedCars[this.carType];
-  }
   public name: string;
   public get car(): Car {
     return this.carValue;
@@ -94,7 +87,7 @@ class CarOwner extends Base {
     return this.carValue.getType();
   }
   public set carType(val: string) {
-    if (val == this.carType || !CarOwner.supportedCars[val]) return;
+    if (val == this.carType) return;
     var newCar = <Car>Serializer.createClass(val);
     if (!newCar) return;
     this.removeProperties();
@@ -102,28 +95,31 @@ class CarOwner extends Base {
     this.addProperties();
   }
   private removeProperties() {
-    var props = CarOwner.supportedCars[this.carType];
+    var props = Serializer.getDynamicPropertiesByObj(this, this.carType);
     for (var i = 0; i < props.length; i++) {
-      delete this[props[i]];
+      delete this[props[i].name];
     }
   }
   private addProperties() {
-    var props = CarOwner.supportedCars[this.carType];
-    var car = this.car;
+    var props = Serializer.getDynamicPropertiesByObj(this);
     for (var i = 0; i < props.length; i++) {
-      var propName = props[i];
+      var propName = props[i].name;
       if (!!this[propName]) continue;
-      var desc = {
-        configurable: true,
-        get: function () {
-          return car[propName];
-        },
-        set: function (v: any) {
-          car[propName] = v;
-        },
-      };
-      Object.defineProperty(this, propName, desc);
+      this.defineNewProperty(propName);
     }
+  }
+  private defineNewProperty(propName: string) {
+    var car = this.car;
+    var desc = {
+      configurable: true,
+      get: function () {
+        return car[propName];
+      },
+      set: function (v: any) {
+        car[propName] = v;
+      },
+    };
+    Object.defineProperty(this, propName, desc);
   }
 }
 
@@ -2095,6 +2091,9 @@ class RedefinedNameCar extends Car {
 }
 
 QUnit.test("re-defnine property in dynamic type", function (assert) {
+  var properties = Serializer.getPropertiesByObj(
+    <CarOwner>Serializer.createClass("carowner")
+  );
   Serializer.addClass(
     "numberedcarredefinedname",
     [],
@@ -2107,13 +2106,21 @@ QUnit.test("re-defnine property in dynamic type", function (assert) {
       default: 100,
     },
   ]);
-  CarOwner.supportedCars["numberedcarredefinedname"] = ["name"];
   var carOwner = <CarOwner>Serializer.createClass("carowner");
   carOwner.carType = "numberedcarredefinedname";
-  var properties = Serializer.getPropertiesByObj(carOwner);
-  var nameProperties = properties.filter((p) => p.name === "name");
+  var newProperties = Serializer.getPropertiesByObj(carOwner);
+  assert.equal(
+    properties.length,
+    newProperties.length,
+    "We do not add new property, since it has the same name as original"
+  );
+  var nameProperties = newProperties.filter((p) => p.name === "name");
   assert.equal(nameProperties.length, 1, "Only one name property");
-  assert.equal(nameProperties[0].type, "number", "It's the overriden property");
+  assert.equal(
+    nameProperties[0].type,
+    "string",
+    "We do not change the property"
+  );
   Serializer.removeClass("numberedcarredefinedname");
 });
 

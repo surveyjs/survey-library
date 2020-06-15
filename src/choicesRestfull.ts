@@ -240,25 +240,29 @@ export class ChoicesRestfull extends Base {
   }
   public setData(json: any) {
     this.clear();
-    if (json.url) this.url = json.url;
-    if (json.path) this.path = json.path;
-    if (json.valueName) this.valueName = json.valueName;
-    if (json.titleName) this.titleName = json.titleName;
+    if(json.url) this.url = json.url;
+    if(json.path) this.path = json.path;
+    if(json.valueName) this.valueName = json.valueName;
+    if(json.titleName) this.titleName = json.titleName;
+    if(json.allowEmptyResponse !== undefined) this.allowEmptyResponse = json.allowEmptyResponse;
+    if(json.attachOriginalItems !== undefined) this.attachOriginalItems = json.attachOriginalItems;
     var properties = this.getCustomPropertiesNames();
-    for (var i = 0; i < properties.length; i++) {
-      if (json[properties[i]]) (<any>this)[properties[i]] = json[properties[i]];
+    for(var i = 0; i < properties.length; i++) {
+      if(json[properties[i]]) (<any>this)[properties[i]] = json[properties[i]];
     }
   }
   public getData(): any {
-    if (this.isEmpty) return null;
+    if(this.isEmpty) return null;
     var res: any = {};
-    if (this.url) res["url"] = this.url;
-    if (this.path) res["path"] = this.path;
-    if (this.valueName) res["valueName"] = this.valueName;
-    if (this.titleName) res["titleName"] = this.titleName;
+    if(this.url) res["url"] = this.url;
+    if(this.path) res["path"] = this.path;
+    if(this.valueName) res["valueName"] = this.valueName;
+    if(this.titleName) res["titleName"] = this.titleName;
+    if(this.allowEmptyResponse) res["allowEmptyResponse"] = this.allowEmptyResponse;
+    if(this.attachOriginalItems) res["attachOriginalItems"] = this.attachOriginalItems;
     var properties = this.getCustomPropertiesNames();
-    for (var i = 0; i < properties.length; i++) {
-      if ((<any>this)[properties[i]])
+    for(var i = 0; i < properties.length; i++) {
+      if((<any>this)[properties[i]])
         res[properties[i]] = (<any>this)[properties[i]];
     }
     return res;

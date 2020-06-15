@@ -312,6 +312,29 @@ QUnit.test("attachOriginalItems", function (assert) {
   );
 });
 
+QUnit.test("Load attachOriginalItems value from JSON", function(assert) {
+  var test = new ChoicesRestfull();
+  assert.notOk(test.attachOriginalItems, "attachOriginalItems initially false");
+  test.fromJSON({
+    url: "allcountries",
+    path: "RestResponse;result",
+    attachOriginalItems: true
+  });
+  assert.ok(test.attachOriginalItems, "attachOriginalItems has been loaded");
+
+  var question = new QuestionDropdownModel("q1");
+  assert.notOk(question.choicesByUrl.attachOriginalItems, "question: attachOriginalItems initially false");
+  question.fromJSON({
+    choicesByUrl: {
+      url: "allcountries",
+      path: "RestResponse;result",
+      attachOriginalItems: true
+    }
+  });
+  assert.equal(question.choicesByUrl.url, "allcountries", "question: url has been loaded");
+  assert.ok(question.choicesByUrl.attachOriginalItems, "question: attachOriginalItems has been loaded");
+});
+
 QUnit.test(
   "Do not run same request several times at the same time. Wait for the first one",
   function (assert) {

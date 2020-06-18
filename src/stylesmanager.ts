@@ -506,6 +506,7 @@ export class StylesManager {
       "$slider-color": "white",
       "$disabled-switch-color": "#9f9f9f",
       "$disabled-slider-color": "#cfcfcf",
+      "$body-background-color": "#ffffff"
     },
   };
   public static ThemeCss: { [key: string]: string } = {

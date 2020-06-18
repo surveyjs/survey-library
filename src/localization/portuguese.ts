@@ -66,7 +66,12 @@ export var portugueseSurveyStrings = {
   timerLimitSurvey: "Você gastou {0} de {1} no total.",
   cleanCaption: "Limpar",
   clearCaption: "Limpar",
-  removeFileCaption: "Remover este arquivo"
+  removeFileCaption: "Remover este arquivo",
+  booleanCheckedLabel: "Sim",
+  booleanUncheckedLabel: "Não",
+  confirmRemoveFile: "Tem certeza que deseja remover este arquivo: {0}?",
+  confirmRemoveAllFiles: "Tem certeza que deseja remover todos os arquivos?",
+  questionTitlePatternText: "Título da questão",
 };
 
 surveyLocalization.locales["pt"] = portugueseSurveyStrings;

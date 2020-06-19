@@ -298,6 +298,15 @@ QUnit.test("Run max function", function (assert) {
   assert.equal(runner.run(values), 5, "4, 2, 5, 3, max is 5");
 });
 
+QUnit.test("Run min/max functions with zeros, Bug #2229", function (assert) {
+  var runner = new ExpressionRunner("min({var1},{var2})");
+  var values = { var1: 0, var2: 3 };
+  assert.equal(runner.run(values), 0, "0, 3, min is 0");
+  runner = new ExpressionRunner("max({var1},{var2})");
+  values = { var1: 0, var2: -3 };
+  assert.equal(runner.run(values), 0, "0, -3, max is 0");
+});
+
 QUnit.test("Run age function", function (assert) {
   var runner = new ConditionRunner("age({bithday}) >= 21");
   var values = { bithday: new Date(1974, 1, 1) };

@@ -42,7 +42,7 @@ export class FunctionFactory {
     var func = this.functionHash[name];
     if (!func) return null;
     let classRunner = {
-      func: func
+      func: func,
     };
 
     if (properties) {
@@ -57,7 +57,7 @@ export class FunctionFactory {
 export var registerFunction = FunctionFactory.Instance.register;
 
 function getParamsAsArray(value: any, arr: any[]) {
-  if (!value) return;
+  if (value === undefined || value === null) return;
   if (Array.isArray(value)) {
     for (var i = 0; i < value.length; i++) {
       getParamsAsArray(value[i], arr);
@@ -159,7 +159,7 @@ function calcInArray(
 }
 
 function sumInArray(params: any[]): any {
-  var res = calcInArray(params, function(res: number, val: number): number {
+  var res = calcInArray(params, function (res: number, val: number): number {
     if (res == undefined) res = 0;
     return +res + +val;
   });
@@ -168,7 +168,7 @@ function sumInArray(params: any[]): any {
 FunctionFactory.Instance.register("sumInArray", sumInArray);
 
 function minInArray(params: any[]): any {
-  return calcInArray(params, function(res: number, val: number): number {
+  return calcInArray(params, function (res: number, val: number): number {
     if (res == undefined) return val;
     return res < val ? res : val;
   });
@@ -176,7 +176,7 @@ function minInArray(params: any[]): any {
 FunctionFactory.Instance.register("minInArray", minInArray);
 
 function maxInArray(params: any[]): any {
-  return calcInArray(params, function(res: number, val: number): number {
+  return calcInArray(params, function (res: number, val: number): number {
     if (res == undefined) return val;
     return res > val ? res : val;
   });
@@ -184,7 +184,7 @@ function maxInArray(params: any[]): any {
 FunctionFactory.Instance.register("maxInArray", maxInArray);
 
 function countInArray(params: any[]): any {
-  var res = calcInArray(params, function(res: number, val: number): number {
+  var res = calcInArray(params, function (res: number, val: number): number {
     if (res == undefined) res = 0;
     return res + 1;
   });

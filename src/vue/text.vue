@@ -17,6 +17,7 @@
     :value="question.value"
     @change="change"
     @keyup="keyup"
+    v-bind:aria-required="question.isRequired"
     v-bind:aria-label="question.locTitle.renderedHtml"
   />
 </template>

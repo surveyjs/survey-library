@@ -4,25 +4,30 @@ import { QuestionBooleanModel } from "../src/question_boolean";
 
 export default QUnit.module("boolean");
 
-
-QUnit.test("Test boolean labelTrue and labelFalse property", function(
-  assert
-) {
+QUnit.test("Test boolean labelTrue and labelFalse property", function (assert) {
   var json = {
     questions: [
       {
         type: "boolean",
         name: "bool",
-        label: "Default label tests"
-      }
-    ]
+        label: "Default label tests",
+      },
+    ],
   };
   var survey = new SurveyModel(json);
 
   var question = <QuestionBooleanModel>survey.getAllQuestions()[0];
 
-  assert.equal(question.labelTrue, "Yes", "default labelTrue is ok");
-  assert.equal(question.labelFalse, "No", "default labelFalse is ok");
+  assert.equal(
+    question.locLabelTrue.textOrHtml,
+    "Yes",
+    "default labelTrue is ok"
+  );
+  assert.equal(
+    question.locLabelFalse.textOrHtml,
+    "No",
+    "default labelFalse is ok"
+  );
   assert.equal(
     question.locLabelTrue.renderedHtml,
     "Yes",
@@ -33,8 +38,8 @@ QUnit.test("Test boolean labelTrue and labelFalse property", function(
     "No",
     "default locLabelFalse is ok"
   );
-  question.labelTrue = "Check"
-  question.labelFalse = "Uncheck"
+  question.labelTrue = "Check";
+  question.labelFalse = "Uncheck";
   assert.equal(question.labelTrue, "Check", "labelTrue is ok");
   assert.equal(question.labelFalse, "Uncheck", "labelFalse is ok");
   assert.equal(
@@ -48,4 +53,3 @@ QUnit.test("Test boolean labelTrue and labelFalse property", function(
     "locLabelFalse is ok"
   );
 });
-

@@ -3573,12 +3573,12 @@ QUnit.test(
   function (assert) {
     var question = new QuestionBooleanModel("q");
     assert.equal(
-      question.locLabelTrue.renderedHtml,
+      question.locLabelTrue.textOrHtml,
       "Yes",
       "Default value for labelTrue"
     );
     assert.equal(
-      question.locLabelFalse.renderedHtml,
+      question.locLabelFalse.textOrHtml,
       "No",
       "Default value for labelFalse"
     );

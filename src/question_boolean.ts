@@ -11,14 +11,14 @@ export class QuestionBooleanModel extends Question {
   constructor(public name: string) {
     super(name);
     this.createLocalizableString("label", this, true);
-    var locLabelFalse = this.createLocalizableString("labelFalse", this, true);
-    var locLabelTrue = this.createLocalizableString("labelTrue", this, true);
-    locLabelFalse.onGetTextCallback = (text: string): string => {
+    this.createLocalizableString("labelFalse", this, true);
+    this.createLocalizableString("labelTrue", this, true);
+    this.locLabelFalse.onGetTextCallback = (text: string): string => {
       return !!text
         ? text
         : surveyLocalization.getString("booleanUncheckedLabel");
     };
-    locLabelTrue.onGetTextCallback = (text: string): string => {
+    this.locLabelTrue.onGetTextCallback = (text: string): string => {
       return !!text
         ? text
         : surveyLocalization.getString("booleanCheckedLabel");

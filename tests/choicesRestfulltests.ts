@@ -312,6 +312,29 @@ QUnit.test("attachOriginalItems", function (assert) {
   );
 });
 
+QUnit.test("attachOriginalItems in question", function(assert) {
+  var question = new QuestionDropdownModelTester("q1");
+  question.fromJSON({
+    choicesByUrl: {
+      url: "allcountries",
+      path: "RestResponse;result",
+      attachOriginalItems: true
+    }
+  });
+  question.onSurveyLoad();
+  assert.equal(question.visibleChoices.length, 5, "Choices has been loaded");
+  assert.deepEqual(
+    question.visibleChoices[0].originalItem,
+    {
+      name: "Afghanistan",
+      locName: { en: "Afghanistan" },
+      alpha2_code: "AF",
+      alpha3_code: "AFG",
+    },
+    "keeps the original item"
+  );
+});
+
 QUnit.test("Load attachOriginalItems value from JSON", function(assert) {
   var test = new ChoicesRestfull();
   assert.notOk(test.attachOriginalItems, "attachOriginalItems initially false");

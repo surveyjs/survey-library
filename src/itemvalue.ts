@@ -64,13 +64,16 @@ export class ItemValue extends Base {
     items.length = 0;
     for (var i = 0; i < values.length; i++) {
       var value = values[i];
-      var item;
+      var item: ItemValue;
       if (typeof value.getType === "function") {
         item = Serializer.createClass(value.getType());
       } else {
         item = new ItemValue(null);
       }
       item.setData(value);
+      if(!!value.originalItem) {
+        item.originalItem = value.originalItem;
+      }
       items.push(item);
     }
   }

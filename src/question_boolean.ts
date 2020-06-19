@@ -11,10 +11,18 @@ export class QuestionBooleanModel extends Question {
   constructor(public name: string) {
     super(name);
     this.createLocalizableString("label", this, true);
-    this.createLocalizableString("labelFalse", this, true);
-    this.createLocalizableString("labelTrue", this, true);
-    this.labelTrue = surveyLocalization.getString("booleanCheckedLabel");
-    this.labelFalse = surveyLocalization.getString("booleanUncheckedLabel");
+    var locLabelFalse = this.createLocalizableString("labelFalse", this, true);
+    var locLabelTrue = this.createLocalizableString("labelTrue", this, true);
+    locLabelFalse.onGetTextCallback = (text: string): string => {
+      return !!text
+        ? text
+        : surveyLocalization.getString("booleanUncheckedLabel");
+    };
+    locLabelTrue.onGetTextCallback = (text: string): string => {
+      return !!text
+        ? text
+        : surveyLocalization.getString("booleanCheckedLabel");
+    };
   }
   public getType(): string {
     return "boolean";
@@ -41,7 +49,7 @@ export class QuestionBooleanModel extends Question {
     return this.value == this.getValueTrue();
   }
   public set checkedValue(val: any) {
-    if(this.isReadOnly) {
+    if (this.isReadOnly) {
       return;
     }
     if (this.isValueEmpty(val)) {
@@ -166,26 +174,26 @@ Serializer.addClass(
       name: "defaultValue:dropdown",
       alternativeName: "booleanDefaultValue",
       default: "indeterminate",
-      choices: ["indeterminate", "false", "true"]
+      choices: ["indeterminate", "false", "true"],
     },
     { name: "label:text", serializationProperty: "locLabel" },
     {
       name: "labelTrue:text",
-      serializationProperty: "locLabelTrue"
+      serializationProperty: "locLabelTrue",
     },
     {
       name: "labelFalse:text",
-      serializationProperty: "locLabelFalse"
+      serializationProperty: "locLabelFalse",
     },
     "showTitle:boolean",
     "valueTrue",
-    "valueFalse"
+    "valueFalse",
   ],
-  function() {
+  function () {
     return new QuestionBooleanModel("");
   },
   "question"
 );
-QuestionFactory.Instance.registerQuestion("boolean", name => {
+QuestionFactory.Instance.registerQuestion("boolean", (name) => {
   return new QuestionBooleanModel(name);
 });

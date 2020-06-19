@@ -2217,7 +2217,7 @@ QUnit.test("readOnlyCommentRenderMode", function (assert) {
 
   page.addElement(qComment);
   page.addElement(qRadio);
-  
+
   assert.equal(
     qComment["isReadOnlyRenderDiv"](),
     false,
@@ -3568,3 +3568,24 @@ QUnit.test("QuestionRating rateStep less than 1", function (assert) {
     "The fourth value"
   );
 });
+QUnit.test(
+  "Do not serialize default values labelTrue/labelFalse for boolean question, Bug #2231",
+  function (assert) {
+    var question = new QuestionBooleanModel("q");
+    assert.equal(
+      question.locLabelTrue.renderedHtml,
+      "Yes",
+      "Default value for labelTrue"
+    );
+    assert.equal(
+      question.locLabelFalse.renderedHtml,
+      "No",
+      "Default value for labelFalse"
+    );
+    assert.deepEqual(
+      question.toJSON(),
+      { name: "q" },
+      "Serialize type and name only"
+    );
+  }
+);

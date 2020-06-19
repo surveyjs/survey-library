@@ -2867,7 +2867,7 @@ export class SurveyModel extends Base
     this.currentPage = vPages[index - 1];
   }
   /**
-   * Completes the survey, if the current page is the last one. It returns `false` if the last page has no errors.
+   * Completes the survey, if the current page is the last one. It returns `false` if the last page has errors.
    * If the last page has no errors, `completeLastPage` calls `doComplete` and returns `true`.
    * @see isCurrentPageHasErrors
    * @see nextPage
@@ -3137,6 +3137,7 @@ export class SurveyModel extends Base
    * Calling the `doComplete` function does not perform any validation, unlike the `completeLastPage` function.
    * It calls `navigateToUrl` after calling `onComplete` event.
    * In case calling `options.showDataSaving` callback in the `onComplete` event, `navigateToUrl` is used on calling `options.showDataSavingSuccess` callback.
+   * @see completeLastPage
    * @see cookieName
    * @see state
    * @see onComplete

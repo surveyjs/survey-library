@@ -9,7 +9,7 @@ import { ReactQuestionFactory } from "./reactquestionfactory";
 
 export class SurveyQuestionComment extends SurveyQuestionUncontrolledElement<
   QuestionCommentModel
-> {
+  > {
   constructor(props: any) {
     super(props);
   }
@@ -38,6 +38,7 @@ export class SurveyQuestionComment extends SurveyQuestionUncontrolledElement<
         onInput={onInput}
         cols={this.question.cols}
         rows={this.question.rows}
+        aria-required={this.question.isRequired}
         aria-label={this.question.locTitle.renderedHtml}
       />
     );
@@ -75,6 +76,7 @@ export class SurveyQuestionCommentItem extends ReactSurveyElement {
         onChange={handleOnChange}
         onBlur={onBlur}
         onInput={onInput}
+        aria-required={question.isRequired}
         aria-label={question.locTitle.renderedHtml}
       />
     );

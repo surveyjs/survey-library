@@ -15,6 +15,7 @@
       :class="question.cssClasses ? question.cssClasses.root : 'panel-comment-root'"
       @change="change"
       @keyup="keyup"
+      v-bind:aria-required="question.isRequired"
     ></textarea>
     <div>
   <div v-if="question.isReadOnlyRenderDiv()">{{question.value}}</div>

@@ -806,7 +806,7 @@ export class StylesManager {
 
     ".sv_main.sv_bootstrapmaterial_css .form-group input[type=file]":
       "position: relative; opacity: 1;",
-    ".sv_main.sv_bootstrapmaterial_css .progress": "width: 60%;",
+    ".sv_main.sv_bootstrapmaterial_css .progress": "width: 60%; height: 1.5em;",
     ".sv_main.sv_bootstrapmaterial_css .progress-bar":
       "width: auto; margin-left: 2px; margin-right: 2px;",
 

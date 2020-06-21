@@ -3,10 +3,10 @@ import { surveyCss } from "./cssstandard";
 export var defaultBootstrapMaterialCss = {
   root: "sv_main sv_bootstrapmaterial_css",
   container: "sv_container",
-  header: "panel-heading",
-  body: "panel-body",
-  bodyEmpty: "panel-body sv_body_empty",
-  footer: "panel-footer",
+  header: "card-heading",
+  body: "card-body",
+  bodyEmpty: "card-body sv_body_empty",
+  footer: "card-footer",
   title: "",
   description: "",
   logo: "sv_logo",
@@ -71,7 +71,7 @@ export var defaultBootstrapMaterialCss = {
   },
 
   boolean: {
-    root: "sv_qbln form-inline checkbox",
+    root: "sv_qbln checkbox",
     item: "sv-boolean",
     control: "sv-visuallyhidden",
     itemChecked: "sv-boolean--checked checked",
@@ -83,7 +83,7 @@ export var defaultBootstrapMaterialCss = {
     disabledLabel: "sv-boolean__label--disabled",
   },
   checkbox: {
-    root: "sv_qcbx form-inline",
+    root: "sv_qcbx",
     item: "checkbox",
     itemChecked: "checked",
     itemInline: "sv_q_checkbox_inline",
@@ -92,7 +92,7 @@ export var defaultBootstrapMaterialCss = {
     label: "",
     labelChecked: "",
     controlLabel: "",
-    materialDecorator: "checkbox-material",
+    materialDecorator: "checkbox-decorator",
     other: "sv_q_checkbox_other form-control",
     column: "sv_q_select_column",
   },
@@ -114,6 +114,7 @@ export var defaultBootstrapMaterialCss = {
     itemValue: "form-control",
     itemChecked: "checked",
     itemDecorator: "sv-hidden",
+    materialDecorator: "bmd-radio"
   },
   matrixdropdown: { root: "table", itemValue: "form-group" },
   matrixdynamic: {
@@ -133,8 +134,8 @@ export var defaultBootstrapMaterialCss = {
       "sv-paneldynamic__progress sv-paneldynamic__progress--bottom",
     title: "sv-title sv-question__title",
     button: "button",
-    buttonAdd: "button sv-paneldynamic__add-btn",
-    buttonRemove: "button sv-paneldynamic__remove-btn",
+    buttonAdd: "button sv-paneldynamic__add-btn btn btn-primary",
+    buttonRemove: "button sv-paneldynamic__remove-btn btn-primary",
     buttonPrev: "sv-paneldynamic__prev-btn",
     buttonNext: "sv-paneldynamic__next-btn",
     progressContainer: "sv-paneldynamic__progress-container",
@@ -158,7 +159,7 @@ export var defaultBootstrapMaterialCss = {
     labelChecked: "",
     itemControl: "",
     controlLabel: "sv_q_radiogroup_control_label",
-    materialDecorator: "circle",
+    materialDecorator: "bmd-radio",
     other: "sv_q_radiogroup_other form-control",
     clearButton: "sv_q_radiogroup_clear button btn btn-primary",
     column: "sv_q_select_column",
@@ -213,7 +214,7 @@ export var defaultBootstrapMaterialCss = {
     root: "modal-content",
     body: "modal-body",
     header: {
-      root: "modal-header panel-title",
+      root: "modal-header card-title",
       title: "pull-left",
       button: "glyphicon pull-right",
       buttonExpanded: "glyphicon pull-right glyphicon-chevron-up",

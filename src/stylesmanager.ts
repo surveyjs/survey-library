@@ -759,7 +759,7 @@ export class StylesManager {
 
   public static bootstrapmaterialThemeCss: { [key: string]: string } = {
     ".sv_main.sv_bootstrapmaterial_css .form-group.is-focused .form-control":
-      "background-image: linear-gradient($main-color, $main-color), linear-gradient(#D2D2D2, #D2D2D2);",
+      "linear-gradient(0deg, $main-color 2px, $main-color 0),linear-gradient(0deg, #D2D2D2 1px, transparent 0);",
     ".sv_main.sv_bootstrapmaterial_css .form-group.is-focused label":
       "color:$main-color;",
 

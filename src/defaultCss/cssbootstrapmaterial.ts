@@ -34,8 +34,8 @@ export var defaultBootstrapMaterialCss = {
   pageDescription: "small",
   row: "sv_row",
   question: {
-    mainRoot: "sv_qstn form-group",
-    flowRoot: "sv_q_flow form-group",
+    mainRoot: "sv_qstn form-group bmd-form-group",
+    flowRoot: "sv_q_flow form-group bmd-form-group",
     header: "",
     headerLeft: "title-left",
     content: "",
@@ -51,7 +51,7 @@ export var defaultBootstrapMaterialCss = {
     titleRequired: "",
     hasError: "has-error",
     indent: 20,
-    formGroup: "form-group",
+    formGroup: "form-group bmd-form-group",
   },
   panel: {
     title: "sv_p_title",
@@ -106,7 +106,7 @@ export var defaultBootstrapMaterialCss = {
   image: { root: "sv_q_image", image: "sv_image_image" },
   matrix: {
     root: "table sv_q_matrix",
-    row: "form-group",
+    row: "form-group bmd-form-group",
     label: "sv_q_m_label radio-inline",
     cellText: "sv_q_m_cell_text",
     cellTextSelected: "sv_q_m_cell_selected bg-primary",
@@ -116,11 +116,13 @@ export var defaultBootstrapMaterialCss = {
     itemDecorator: "sv-hidden",
     materialDecorator: "bmd-radio"
   },
-  matrixdropdown: { root: "table", itemValue: "form-group" },
+  matrixdropdown: { root: "table", itemValue: "form-group bmd-form-group" },
   matrixdynamic: {
+    mainRoot: "sv_qstn",
+    flowRoot: "sv_q_flow",
     root: "table",
     button: "btn btn-primary",
-    itemValue: "form-group",
+    itemValue: "form-group bmd-form-group",
     buttonAdd: "",
     buttonRemove: "",
     iconAdd: "",
@@ -135,7 +137,7 @@ export var defaultBootstrapMaterialCss = {
     title: "sv-title sv-question__title",
     button: "button",
     buttonAdd: "button sv-paneldynamic__add-btn btn btn-primary",
-    buttonRemove: "button sv-paneldynamic__remove-btn btn-primary",
+    buttonRemove: "button sv-paneldynamic__remove-btn btn btn-primary",
     buttonPrev: "sv-paneldynamic__prev-btn",
     buttonNext: "sv-paneldynamic__next-btn",
     progressContainer: "sv-paneldynamic__progress-container",
@@ -146,7 +148,7 @@ export var defaultBootstrapMaterialCss = {
   multipletext: {
     root: "table",
     itemTitle: "",
-    row: "form-group",
+    row: "form-group bmd-form-group",
     itemValue: "sv_q_mt_item_value form-control",
   },
   radiogroup: {
@@ -187,7 +189,7 @@ export var defaultBootstrapMaterialCss = {
   text: "form-control",
   expression: "form-control",
   file: {
-    root: "form-group is-fileinput sv_q_file",
+    root: "form-group bmd-form-group is-fileinput sv_q_file",
     placeholderInput: "",
     preview: "sv_q_file_preview",
     removeButton: "sv_q_file_remove_button",

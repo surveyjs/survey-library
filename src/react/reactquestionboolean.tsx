@@ -40,7 +40,8 @@ export class SurveyQuestionBoolean extends SurveyQuestionElementBase {
   handleOnSwitchClick(event: any) {
     if (this.question.isIndeterminate) {
       this.preventDefaults(event);
-      var isRightClick = event.offsetX / event.target.offsetWidth > 0.5;
+      var isRightClick =
+        event.nativeEvent.offsetX / event.target.offsetWidth > 0.5;
       var isRtl =
         document.defaultView.getComputedStyle(event.target).direction == "rtl";
       var value = isRtl ? !isRightClick : isRightClick;

@@ -170,6 +170,19 @@ export class StylesManager {
       "margin-left: calc(50% - 10px);",
     ".sv_main .sv-boolean--checked  .sv-boolean__slider":
       "margin-left: calc(100% - 20px);",
+    "[dir='rtl'] .sv-boolean__label ": "float: right;",
+    "[dir='rtl'] .sv-boolean--indeterminate .sv-boolean__slider":
+      "margin-right: calc(50% - 0.625em);",
+    "[dir='rtl'] .sv-boolean--checked .sv-boolean__slider":
+      "margin-right: calc(100% - 1.25em);",
+    "[dir='rtl'] .sv-boolean__switch": "float: right;",
+    "[style*='direction:rtl'] .sv-boolean__label ": "float: right;",
+    "[style*='direction:rtl'] .sv-boolean--indeterminate .sv-boolean__slider":
+      "margin-right: calc(50% - 0.625em);",
+    "[style*='direction:rtl'] .sv-boolean--checked .sv-boolean__slider":
+      "margin-right: calc(100% - 1.25em);",
+    "[style*='direction:rtl'] .sv-boolean__switch": "float: right;",
+
     // EO boolean
     ".sv_main .sv_q_num": "",
     ".sv_main .sv_q_num + span": "",
@@ -506,7 +519,7 @@ export class StylesManager {
       "$slider-color": "white",
       "$disabled-switch-color": "#9f9f9f",
       "$disabled-slider-color": "#cfcfcf",
-      "$body-background-color": "#ffffff"
+      "$body-background-color": "#ffffff",
     },
   };
   public static ThemeCss: { [key: string]: string } = {

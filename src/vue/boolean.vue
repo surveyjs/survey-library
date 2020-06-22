@@ -60,8 +60,10 @@ export class Boolean extends QuestionVue<QuestionBooleanModel> {
   public onSwitchClick(event: any) {
     if (this.question.isIndeterminate) {
       this.preventDefaults(event);
-      var percentage = event.offsetX / event.target.offsetWidth;
-      this.question.checkedValue = percentage > 0.5;
+      var isRightClick = event.offsetX / event.target.offsetWidth > 0.5;
+      var isRtl =
+        document.defaultView.getComputedStyle(event.target).direction == "rtl";
+      this.question.checkedValue = isRtl ? !isRightClick : isRightClick;
      }
   }
   public onLabelClick(event: any, value: boolean){

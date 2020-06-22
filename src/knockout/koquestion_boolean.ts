@@ -50,8 +50,11 @@ export class QuestionBoolean extends QuestionBooleanModel {
   public onSwitchClick(data: any, event: any) {
     if (this.isIndeterminate) {
       this.preventDefaults(event);
-      var percentage = event.offsetX / event.target.offsetWidth;
-      this.checkedValue = percentage > 0.5;
+      var isRightClick = event.offsetX / event.target.offsetWidth > 0.5;
+      var isRtl =
+        document.defaultView.getComputedStyle(event.target).direction == "rtl";
+
+      this.checkedValue = isRtl ? !isRightClick : isRightClick;
       return;
     }
     return true;
@@ -63,10 +66,10 @@ export class QuestionBoolean extends QuestionBooleanModel {
     return this.onLabelClick(event, false);
   }
 }
-Serializer.overrideClassCreator("boolean", function() {
+Serializer.overrideClassCreator("boolean", function () {
   return new QuestionBoolean("");
 });
 
-QuestionFactory.Instance.registerQuestion("boolean", name => {
+QuestionFactory.Instance.registerQuestion("boolean", (name) => {
   return new QuestionBoolean(name);
 });

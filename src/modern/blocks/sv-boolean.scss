@@ -49,3 +49,16 @@
     float: right;
   }
 }
+[dir="rtl"],
+[style*="direction:rtl"] {
+  .sv-boolean--indeterminate {
+    .sv-boolean__slider {
+      margin-right: calc(50% - 0.625em);
+    }
+  }
+  .sv-boolean--checked {
+    .sv-boolean__slider {
+      margin-right: calc(100% - 1.25em);
+    }
+  }
+}

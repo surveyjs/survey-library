@@ -1,7 +1,7 @@
 import * as React from "react";
 import {
   ReactSurveyElement,
-  SurveyQuestionElementBase
+  SurveyQuestionElementBase,
 } from "./reactquestionelement";
 import { QuestionBooleanModel } from "../question_boolean";
 import { ReactQuestionFactory } from "./reactquestionfactory";
@@ -40,8 +40,12 @@ export class SurveyQuestionBoolean extends SurveyQuestionElementBase {
   handleOnSwitchClick(event: any) {
     if (this.question.isIndeterminate) {
       this.preventDefaults(event);
-      var percentage = event.nativeEvent.offsetX / event.target.offsetWidth;
-      return this.doCheck(percentage > 0.5);
+      var isRightClick =
+        event.nativeEvent.offsetX / event.target.offsetWidth > 0.5;
+      var isRtl =
+        document.defaultView.getComputedStyle(event.target).direction == "rtl";
+      var value = isRtl ? !isRightClick : isRightClick;
+      return this.doCheck(value);
     }
   }
   handleOnLabelClick(event: any, value: boolean) {
@@ -106,7 +110,7 @@ export class SurveyQuestionBoolean extends SurveyQuestionElementBase {
           />
           <span
             className={this.getLabelClass(false)}
-            onClick={event => this.handleOnLabelClick(event, false)}
+            onClick={(event) => this.handleOnLabelClick(event, false)}
           >
             {this.question.locLabelFalse.renderedHtml}
           </span>
@@ -115,7 +119,7 @@ export class SurveyQuestionBoolean extends SurveyQuestionElementBase {
           </div>
           <span
             className={this.getLabelClass(true)}
-            onClick={event => this.handleOnLabelClick(event, true)}
+            onClick={(event) => this.handleOnLabelClick(event, true)}
           >
             {this.question.locLabelTrue.renderedHtml}
           </span>
@@ -125,6 +129,6 @@ export class SurveyQuestionBoolean extends SurveyQuestionElementBase {
   }
 }
 
-ReactQuestionFactory.Instance.registerQuestion("boolean", props => {
+ReactQuestionFactory.Instance.registerQuestion("boolean", (props) => {
   return React.createElement(SurveyQuestionBoolean, props);
 });

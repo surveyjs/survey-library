@@ -195,8 +195,8 @@ export interface IElement extends IConditionRunner, ISurveyElement {
   parent: IPanel;
   renderWidth: string;
   width: string;
-  minWidth ? : string;
-  maxWidth ? : string;
+  minWidth?: string;
+  maxWidth?: string;
   rightIndent: number;
   startWithNewLine: boolean;
   getPanel(): IPanel;
@@ -278,6 +278,7 @@ export class Base {
     key: string;
   }>;
   protected isLoadingFromJsonValue: boolean = false;
+  public loadingOwner: Base = null;
   /**
    * Event that raise on property change of the sender object
    * sender - the object that owns the property
@@ -333,9 +334,14 @@ export class Base {
   /**
    * Returns true if the object is loading from Json at the current moment.
    */
-  public get isLoadingFromJson() {
+  public get isLoadingFromJson(): boolean {
+    return this.getIsLoadingFromJson();
+  }
+  protected getIsLoadingFromJson(): boolean {
+    if (!!this.loadingOwner && this.loadingOwner.isLoadingFromJson) return true;
     return this.isLoadingFromJsonValue;
   }
+
   startLoadingFromJson() {
     this.isLoadingFromJsonValue = true;
   }
@@ -1001,8 +1007,8 @@ export class SurveyElement extends Base implements ISurveyElement {
     }
   }
   public updateElementCss() {}
-  public get isLoadingFromJson() {
-    if (this.isLoadingFromJsonValue) return true;
+  protected getIsLoadingFromJson(): boolean {
+    if (super.getIsLoadingFromJson()) return true;
     return this.survey ? this.survey.isLoadingFromJson : false;
   }
   /**

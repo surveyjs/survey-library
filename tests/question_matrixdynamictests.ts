@@ -2312,6 +2312,85 @@ QUnit.test("columnsVisibleIf produce the bug, Bug#1540", function (assert) {
   );
 });
 
+QUnit.test("column.choicesEnableIf", function (assert) {
+  var json = {
+    elements: [
+      {
+        type: "matrixdynamic",
+        name: "matrix",
+        rowCount: 1,
+        columns: [
+          {
+            name: "col1",
+            cellType: "checkbox",
+            choices: [1, 2, 3, 4],
+          },
+          {
+            name: "col2",
+            cellType: "dropdown",
+            choices: [1, 2, 3, 4],
+            choicesEnableIf: "{row.col1} contains {item}",
+          },
+        ],
+      },
+    ],
+  };
+  var survey = new SurveyModel(json);
+  var matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+  var row = matrix.visibleRows[0];
+  var col1Q = row.getQuestionByColumnName("col1");
+  var col2Q = <QuestionDropdownModel>row.getQuestionByColumnName("col2");
+  var col2TemplateQ = matrix.columns[1].templateQuestion;
+  assert.equal(
+    col2Q.choicesEnableIf,
+    "{row.col1} contains {item}",
+    "The choicesEnableIf property is set"
+  );
+  assert.ok(
+    col2TemplateQ.loadingOwner,
+    "loading owner is set to template question"
+  );
+  assert.ok(col2Q.loadingOwner, "loading owner is set to question");
+  assert.equal(
+    col2TemplateQ.isLoadingFromJson,
+    false,
+    "We are not loading from JSON template question"
+  );
+  assert.equal(
+    col2Q.isLoadingFromJson,
+    false,
+    "We are not loading from JSON cell question"
+  );
+  matrix.columns[1].startLoadingFromJson();
+  assert.equal(
+    col2TemplateQ.isLoadingFromJson,
+    true,
+    "We are loading from JSON the template question"
+  );
+  assert.equal(
+    col2Q.isLoadingFromJson,
+    true,
+    "We are loading from JSON the cell question"
+  );
+  matrix.columns[1].endLoadingFromJson();
+
+  assert.equal(col2Q.choices.length, 4, "There are 4 choices");
+  assert.equal(col2Q.choices[0].isEnabled, false, "First choice is disabled");
+  assert.equal(col2Q.choices[1].isEnabled, false, "Second choice is disabled");
+  col1Q.value = [1, 2];
+  assert.equal(col2Q.choices[0].isEnabled, true, "First choice is enabled now");
+  assert.equal(
+    col2Q.choices[1].isEnabled,
+    true,
+    "The second choice is enabled now"
+  );
+  assert.equal(
+    col2Q.choices[2].isEnabled,
+    false,
+    "The third choice is still disabled"
+  );
+});
+
 QUnit.test(
   "register function on visibleChoices change calls many times, Bug#1622",
   function (assert) {

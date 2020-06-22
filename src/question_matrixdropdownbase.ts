@@ -65,7 +65,11 @@ export interface IMatrixDropdownData {
 
 export interface IMatrixColumnOwner extends ILocalizableOwner {
   getRequiredText(): string;
-  onColumnPropertiesChanged(column: MatrixDropdownColumn): void;
+  onColumnPropertyChanged(
+    column: MatrixDropdownColumn,
+    name: string,
+    newValue: any
+  ): void;
   onShowInMultipleColumnsChanged(column: MatrixDropdownColumn): void;
   getCellType(): string;
   onColumnCellTypeChanged(column: MatrixDropdownColumn): void;
@@ -216,20 +220,6 @@ export class MatrixDropdownColumn extends Base implements ILocalizableOwner {
     super();
     var self = this;
     this.createLocalizableString("totalFormat", this);
-    this.registerFunctionOnPropertiesValueChanged(
-      [
-        "totalType",
-        "totalExpression",
-        "totalFormat",
-        "totalCurrency",
-        "totalDisplayStyle",
-        "totalMaximumFractionDigits",
-        "totalMinimumFractionDigits",
-      ],
-      function () {
-        self.doColumnPropertiesChanged();
-      }
-    );
     this.registerFunctionOnPropertyValueChanged(
       "showInMultipleColumns",
       function () {
@@ -239,6 +229,10 @@ export class MatrixDropdownColumn extends Base implements ILocalizableOwner {
     this.updateTemplateQuestion();
     this.name = name;
     if (title) this.title = title;
+  }
+  endLoadingFromJson() {
+    super.endLoadingFromJson();
+    this.templateQuestion.endLoadingFromJson();
   }
   getDynamicPropertyName(): string {
     return "cellType";
@@ -462,7 +456,7 @@ export class MatrixDropdownColumn extends Base implements ILocalizableOwner {
   public createCellQuestion(data: any): Question {
     var qType = this.calcCellQuestionType();
     var cellQuestion = <Question>this.createNewQuestion(qType);
-    this.updateCellQuestion(cellQuestion, data);
+    this.callOnCellQuestionUpdate(cellQuestion, data);
     return cellQuestion;
   }
   public updateCellQuestion(
@@ -471,6 +465,9 @@ export class MatrixDropdownColumn extends Base implements ILocalizableOwner {
     onUpdateJson: (json: any) => any = null
   ) {
     this.setQuestionProperties(cellQuestion, onUpdateJson);
+    this.callOnCellQuestionUpdate(cellQuestion, data);
+  }
+  private callOnCellQuestionUpdate(cellQuestion: Question, data: any) {
     var qType = cellQuestion.getType();
     var qDefinition = (<any>matrixDropdownColumnTypes)[qType];
     if (qDefinition && qDefinition["onCellQuestionUpdate"]) {
@@ -503,8 +500,8 @@ export class MatrixDropdownColumn extends Base implements ILocalizableOwner {
     this.templateQuestion.locOwner = this;
     this.addProperties(curCellType);
     var self = this;
-    this.templateQuestion.onPropertyChanged.add(function () {
-      self.doColumnPropertiesChanged();
+    this.templateQuestion.onPropertyChanged.add(function (sender, options) {
+      self.doColumnPropertiesChanged(options.name, options.newValue);
     });
   }
   protected createNewQuestion(cellType: string): Question {
@@ -512,6 +509,7 @@ export class MatrixDropdownColumn extends Base implements ILocalizableOwner {
     if (!question) {
       question = <Question>Serializer.createClass("text");
     }
+    question.loadingOwner = this;
     this.setQuestionProperties(question);
     return question;
   }
@@ -525,19 +523,17 @@ export class MatrixDropdownColumn extends Base implements ILocalizableOwner {
         onUpdateJson(json);
       }
       json.type = question.getType();
-      question.startLoadingFromJson();
       new JsonObject().toObject(json, question);
-      question.endLoadingFromJson();
-      question.onSurveyLoad();
     }
   }
   protected propertyValueChanged(name: string, oldValue: any, newValue: any) {
     super.propertyValueChanged(name, oldValue, newValue);
-    this.doColumnPropertiesChanged();
+    this.doColumnPropertiesChanged(name, newValue);
   }
-  private doColumnPropertiesChanged() {
+  private doColumnPropertiesChanged(name: string, newValue: any) {
+    if (name == "visibleChoices") return; //TODO descriptor doesn't return that it is a read-only property
     if (this.colOwner != null && !this.isLoadingFromJson) {
-      this.colOwner.onColumnPropertiesChanged(this);
+      this.colOwner.onColumnPropertyChanged(this, name, newValue);
     }
   }
   private doShowInMultipleColumnsChanged() {
@@ -867,10 +863,14 @@ export class MatrixDropdownRowModelBase
       this.cells[i].locStrsChanged();
     }
   }
-  public updateCellQuestionOnColumnChanged(column: MatrixDropdownColumn) {
+  public updateCellQuestionOnColumnChanged(
+    column: MatrixDropdownColumn,
+    name: string,
+    newValue: any
+  ) {
     for (var i = 0; i < this.cells.length; i++) {
       if (this.cells[i].column === column) {
-        this.updateCellOnColumnChanged(this.cells[i]);
+        this.updateCellOnColumnChanged(this.cells[i], name, newValue);
         return;
       }
     }
@@ -882,8 +882,12 @@ export class MatrixDropdownRowModelBase
       }
     }
   }
-  protected updateCellOnColumnChanged(cell: MatrixDropdownCell) {
-    cell.column.updateCellQuestion(cell.question, this);
+  protected updateCellOnColumnChanged(
+    cell: MatrixDropdownCell,
+    name: string,
+    newValue: any
+  ) {
+    cell.question[name] = newValue;
   }
   protected buildCells(value: any) {
     this.isSettingValue = true;
@@ -961,7 +965,11 @@ export class MatrixDropdownTotalRowModel extends MatrixDropdownRowModelBase {
       counter++;
     } while (!Helpers.isTwoValueEquals(prevValue, this.value) && counter < 3);
   }
-  protected updateCellOnColumnChanged(cell: MatrixDropdownCell) {
+  protected updateCellOnColumnChanged(
+    cell: MatrixDropdownCell,
+    name: string,
+    newValue: any
+  ) {
     (<MatrixDropdownTotalCell>cell).updateCellQuestion();
   }
 }
@@ -1589,14 +1597,26 @@ export class QuestionMatrixDropdownModelBase
   public getRequiredText(): string {
     return this.survey ? this.survey.requiredText : "";
   }
-  onColumnPropertiesChanged(column: MatrixDropdownColumn) {
+  onColumnPropertyChanged(
+    column: MatrixDropdownColumn,
+    name: string,
+    newValue: any
+  ) {
     this.updateHasFooter();
     if (!this.generatedVisibleRows) return;
     for (var i = 0; i < this.generatedVisibleRows.length; i++) {
-      this.generatedVisibleRows[i].updateCellQuestionOnColumnChanged(column);
+      this.generatedVisibleRows[i].updateCellQuestionOnColumnChanged(
+        column,
+        name,
+        newValue
+      );
     }
     if (!!this.generatedTotalRow) {
-      this.generatedTotalRow.updateCellQuestionOnColumnChanged(column);
+      this.generatedTotalRow.updateCellQuestionOnColumnChanged(
+        column,
+        name,
+        newValue
+      );
     }
     this.onColumnsChanged();
     if (column.isShowInMultipleColumns) {

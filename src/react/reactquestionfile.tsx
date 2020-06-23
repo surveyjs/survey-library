@@ -96,6 +96,8 @@ export class SurveyQuestionFile extends SurveyQuestionElementBase {
         onChange={!this.isDisplayMode ? this.handleOnChange : null}
         aria-required={this.question.isRequired}
         aria-label={this.question.locTitle.renderedHtml}
+        aria-invalid={this.question.errors.length > 0}
+        aria-describedby={this.question.errors.length > 0 ? this.question.id + '_errors' : null}
         multiple={this.question.allowMultiple}
         title={this.question.inputTitle}
         accept={this.question.acceptedTypes}

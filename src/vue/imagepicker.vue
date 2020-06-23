@@ -3,8 +3,8 @@
         <legend v-bind:aria-label="question.locTitle.renderedHtml"></legend>
         <div v-for="(item, index) in question.visibleChoices" :key="item.value" :class="getItemClass(item)" >
             <label :class="question.cssClasses.label">
-                <input v-if="question.multiSelect" style="display: none;" type="checkbox" :name="question.name + '_' + question.id" :value="item.value" :id="question.inputId + '_' + item.value" v-model="question.value" :disabled="question.isReadOnly || !item.isEnabled" v-bind:aria-required="question.isRequired" :aria-label="question.locTitle.renderedHtml" :class="question.cssClasses.itemControl"/>
-                <input v-else style="display: none;" type="radio" :name="question.name + '_' + question.id" :value="item.value" :id="question.inputId + '_' + item.value" v-model="question.value" :disabled="question.isReadOnly || !item.isEnabled" v-bind:aria-required="question.isRequired" :aria-label="question.locTitle.renderedHtml" :class="question.cssClasses.itemControl"/>
+                <input v-if="question.multiSelect" style="display: none;" type="checkbox" :name="question.name + '_' + question.id" :value="item.value" :id="question.inputId + '_' + item.value" v-model="question.value" :disabled="question.isReadOnly || !item.isEnabled" v-bind:aria-required="question.isRequired" :aria-label="question.locTitle.renderedHtml" :aria-invalid="question.errors.length > 0" :aria-describedby="question.errors.length > 0 ? question.id + '_errors' : null" :class="question.cssClasses.itemControl"/>
+                <input v-else style="display: none;" type="radio" :name="question.name + '_' + question.id" :value="item.value" :id="question.inputId + '_' + item.value" v-model="question.value" :disabled="question.isReadOnly || !item.isEnabled" v-bind:aria-required="question.isRequired" :aria-label="question.locTitle.renderedHtml" :aria-invalid="question.errors.length > 0" :aria-describedby="question.errors.length > 0 ? question.id + '_errors' : null" :class="question.cssClasses.itemControl"/>
                 <div>
                     <img v-if="question.contentMode === 'image'" :class="question.cssClasses.image" :src="item.imageLink" :width="question.imageWidth ? question.imageWidth + 'px' : undefined" :height="question.imageHeight ? question.imageHeight + 'px' : undefined" v-bind:style="{ objectFit: question.imageFit }" :alt="item.text || item.value"/>
                     <embed v-if="question.contentMode === 'video'" :class="question.cssClasses.image" :src="item.imageLink" :width="question.imageWidth ? question.imageWidth + 'px' : undefined" :height="question.imageHeight ? question.imageHeight + 'px' : undefined" v-bind:style="{ objectFit: question.imageFit }"/>
@@ -12,7 +12,7 @@
                 </div>
             </label>
         </div>
-    </fieldset>
+    </fieldset> 
 </template>
 
 <script lang="ts">

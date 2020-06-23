@@ -162,6 +162,8 @@ export class SurveyQuestionImagePicker extends SurveyQuestionElementBase {
             disabled={this.isDisplayMode || !item.isEnabled}
             onChange={this.handleOnChange}
             aria-label={this.question.locTitle.renderedHtml}
+            aria-invalid={this.question.errors.length > 0}
+            aria-describedby={this.question.errors.length > 0 ? this.question.id + '_errors' : null}    
           />
           <div>
             {control}

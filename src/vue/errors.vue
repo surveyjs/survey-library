@@ -1,5 +1,5 @@
 <template>
-  <div role="alert" v-show="isShow" :class="classes">
+  <div role="alert" v-show="isShow" :class="classes" :id="question.id + '_errors'">
     <div v-for="error in question.errors">
       <span
         :class="question.cssClasses ? question.cssClasses.error.icon : 'panel-error-icon'"

@@ -28,7 +28,7 @@ export class QuestionFileModel extends Question {
     return "file";
   }
   public clearOnDeletingContainer() {
-    this.survey.clearFiles(this.name, this.value, null, () => { });
+    this.survey.clearFiles(this.name, this.value, null, () => {});
   }
   /**
    * Set it to true, to show the preview for the image files.
@@ -128,7 +128,7 @@ export class QuestionFileModel extends Question {
   public getConfirmRemoveMessage(fileName: string): string {
     return surveyLocalization
       .getString("confirmRemoveFile")
-    ["format"](fileName);
+      ["format"](fileName);
   }
   /**
    * The remove all files confirmation message.
@@ -263,7 +263,7 @@ export class QuestionFileModel extends Question {
     this.previewValue = [];
     var state =
       (!Array.isArray(newValue) && !!newValue) ||
-        (Array.isArray(newValue) && newValue.length > 0)
+      (Array.isArray(newValue) && newValue.length > 0)
         ? this.showPreview
           ? "loading"
           : "loaded"
@@ -273,8 +273,8 @@ export class QuestionFileModel extends Question {
     var newValues = Array.isArray(newValue)
       ? newValue
       : !!newValue
-        ? [newValue]
-        : [];
+      ? [newValue]
+      : [];
 
     if (this.storeDataAsText) {
       newValues.forEach((value) => {
@@ -364,8 +364,8 @@ export class QuestionFileModel extends Question {
         propertyName: string;
       }>;
     } = {
-        includeEmpty: true,
-      }
+      includeEmpty: true,
+    }
   ) {
     var questionPlainData = super.getPlainData(options);
     if (!!questionPlainData && !this.isEmpty()) {
@@ -395,6 +395,10 @@ Serializer.addClass(
     { name: "hasComment:switch", layout: "row" },
     {
       name: "commentText",
+      dependsOn: "hasComment",
+      visibleIf: function (obj: any) {
+        return obj.hasComment;
+      },
       serializationProperty: "locCommentText",
       layout: "row",
     },

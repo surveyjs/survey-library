@@ -175,6 +175,10 @@ Serializer.addClass(
     { name: "hasComment:switch", layout: "row" },
     {
       name: "commentText",
+      dependsOn: "hasComment",
+      visibleIf: function (obj: any) {
+        return obj.hasComment;
+      },
       serializationProperty: "locCommentText",
       layout: "row",
     },

@@ -38,7 +38,9 @@ export class SurveyQuestionText extends SurveyQuestionUncontrolledElement<
         onBlur={onBlur}
         onInput={onInput}
         aria-required={this.question.isRequired}
-        aria-label={this.question.locTitle.renderedHtml}
+        aria-label={this.question.locTitle.renderedHtml} 
+        aria-invalid={this.question.errors.length > 0}
+        aria-describedby={this.question.errors.length > 0 ? this.question.id + '_errors' : null}
       />
     );
   }

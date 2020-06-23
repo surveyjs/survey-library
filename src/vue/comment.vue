@@ -16,6 +16,8 @@
       @change="change"
       @keyup="keyup"
       v-bind:aria-required="question.isRequired"
+      :aria-invalid="question.errors.length > 0"
+      :aria-describedby="question.errors.length > 0 ? question.id + '_errors' : null"  
     ></textarea>
     <div>
   <div v-if="question.isReadOnlyRenderDiv()">{{question.value}}</div>

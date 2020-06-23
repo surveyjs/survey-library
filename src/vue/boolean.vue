@@ -12,6 +12,8 @@
         :disabled="question.isReadOnly"
         v-bind:aria-required="question.isRequired"
         :aria-label="question.locTitle.renderedHtml"
+        :aria-invalid="question.errors.length > 0"
+        :aria-describedby="question.errors.length > 0 ? question.id + '_errors' : null"  
       />
       <span :class="getLabelClass(false)" v-on:click="onLabelClick($event, false)">{{question.locLabelFalse.renderedHtml}}</span>
       <div :class="question.cssClasses.switch" v-on:click="onSwitchClick($event)">

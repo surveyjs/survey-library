@@ -6,6 +6,8 @@
         v-model="question.renderedValue"
         :class="question.cssClasses.control"
         v-bind:aria-label="question.locTitle.renderedHtml"
+        :aria-invalid="question.errors.length > 0"
+        :aria-describedby="question.errors.length > 0 ? question.id + '_errors' : null"  
       >
         <option v-if="question.showOptionsCaption" :value="undefined">{{question.optionsCaption}}</option>
         <option

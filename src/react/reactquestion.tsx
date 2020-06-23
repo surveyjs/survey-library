@@ -255,6 +255,7 @@ export class SurveyQuestion extends SurveyElementBase {
         cssClasses={cssClasses}
         creator={this.creator}
         location={location}
+        id={this.question.id +"_errors"}
       />
     );
   }
@@ -268,6 +269,9 @@ export class SurveyElementErrors extends ReactSurveyElement {
   constructor(props: any) {
     super(props);
     this.state = this.getState();
+  }
+  protected get id(): string {
+    return this.props.id;
   }
   protected get element(): SurveyElement {
     var element = this.props.element;
@@ -300,7 +304,7 @@ export class SurveyElementErrors extends ReactSurveyElement {
     }
 
     return (
-      <div role="alert" className={classes}>
+      <div role="alert" className={classes} id={this.id}>
         {errors}
       </div>
     );

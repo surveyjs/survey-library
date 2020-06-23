@@ -80,6 +80,8 @@ export class SurveyQuestionRating extends SurveyQuestionElementBase {
           onChange={this.handleOnChange}
           aria-required={this.question.isRequired}
           aria-label={item.locText.text}
+          aria-invalid={this.question.errors.length > 0}
+          aria-describedby={this.question.errors.length > 0 ? this.question.id + '_errors' : null}  
         />
         {minTextBlock}
         <span className={cssClasses.itemText}>{itemText}</span>

@@ -773,9 +773,7 @@ export class StylesManager {
   public static bootstrapmaterialThemeCss: { [key: string]: string } = {
     ".sv_main.sv_bootstrapmaterial_css .form-group.is-focused .form-control":
       "linear-gradient(0deg, $main-color 2px, $main-color 0),linear-gradient(0deg, #D2D2D2 1px, transparent 0);",
-    ".sv_main.sv_bootstrapmaterial_css .form-group.is-focused label":
-      "color:$main-color;",
-
+    ".sv_main.sv_bootstrapmaterial_css .sv_qstn": "margin-bottom: 1rem;",
     ".sv_main.sv_bootstrapmaterial_css .sv_qstn label.sv_q_m_label":
       "height: 100%;",
 
@@ -835,9 +833,12 @@ export class StylesManager {
       "fill: $text-color",
 
     //boolean
+    ".sv_main .sv-boolean .checkbox-decorator": "display: none;",
     ".sv_main .sv-boolean__switch": "background-color: $main-color;",
     ".sv_main .sv-boolean__slider": "background-color: $slider-color;",
-    ".sv_main .sv-boolean__label--disabled": "color: $disabled-label-color;",
+    ".sv_main .sv-boolean__label.sv-boolean__label--disabled":
+      "color: $disabled-label-color;",
+    ".sv_main .sv-boolean__label": "color: $text-color;",
     ".sv_main .sv-boolean--disabled .sv-boolean__switch":
       "background-color: $disabled-switch-color;",
     ".sv_main .sv-boolean--disabled  .sv-boolean__slider":

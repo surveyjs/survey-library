@@ -878,8 +878,22 @@ Serializer.addClass(
     "hideIfChoicesEmpty:boolean",
     "choicesVisibleIf:condition",
     "choicesEnableIf:condition",
-    { name: "otherText", serializationProperty: "locOtherText" },
-    { name: "otherErrorText", serializationProperty: "locOtherErrorText" },
+    {
+      name: "otherText",
+      serializationProperty: "locOtherText",
+      dependsOn: "hasOther",
+      visibleIf: function (obj: any) {
+        return obj.hasOther;
+      },
+    },
+    {
+      name: "otherErrorText",
+      serializationProperty: "locOtherErrorText",
+      dependsOn: "hasOther",
+      visibleIf: function (obj: any) {
+        return obj.hasOther;
+      },
+    },
     {
       name: "storeOthersAsComment",
       default: "default",

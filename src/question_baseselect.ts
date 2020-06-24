@@ -856,8 +856,6 @@ Serializer.addClass(
       serializationProperty: "locCommentText",
       layout: "row",
     },
-    "hasOther:boolean",
-    { name: "otherPlaceHolder", serializationProperty: "locOtherPlaceHolder" },
     {
       name: "choices:itemvalue[]",
       baseValue: function () {
@@ -882,6 +880,15 @@ Serializer.addClass(
     "hideIfChoicesEmpty:boolean",
     "choicesVisibleIf:condition",
     "choicesEnableIf:condition",
+    "hasOther:boolean",
+    {
+      name: "otherPlaceHolder",
+      serializationProperty: "locOtherPlaceHolder",
+      dependsOn: "hasOther",
+      visibleIf: function (obj: any) {
+        return obj.hasOther;
+      },
+    },
     {
       name: "otherText",
       serializationProperty: "locOtherText",

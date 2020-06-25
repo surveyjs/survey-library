@@ -1616,7 +1616,7 @@ Serializer.addClass("question", [
         return false;
       }
       var survey: SurveyModel = obj ? obj.survey : null;
-      return !survey || survey.showQuestionNumbers !== "off";
+      return !survey || survey.showQuestionNumbers !== "off" || (!!parent && parent.showQuestionNumbers === "onpanel");
     },
   },
   "valueName",

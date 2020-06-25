@@ -10526,4 +10526,7 @@ QUnit.test("Question hideNumber visibility depending on parent settings, https:/
   panel.showQuestionNumbers = "default";
   survey.showQuestionNumbers = "off";
   assert.notOk(property.visibleIf(question), "Invisible due to survey settings");
+
+  panel.showQuestionNumbers = "onpanel";
+  assert.ok(property.visibleIf(question), "Visible because of onpanel");
 });

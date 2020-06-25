@@ -1592,7 +1592,22 @@ Serializer.addClass("question", [
     default: "default",
     choices: ["default", "underInput", "underTitle"],
   },
-  "hideNumber:boolean",
+  {
+    name: "hideNumber:boolean",
+    dependsOn: "titleLocation",
+    visibleIf: function(obj: any) {
+      if ((<Question>obj).titleLocation === "hidden") {
+        return false;
+      }
+      var parent: PanelModel = obj ? obj.parent : null;
+      var numberingAllowedByParent = !parent || parent.showQuestionNumbers !== "off";
+      if (!numberingAllowedByParent) {
+        return false;
+      }
+      var survey: SurveyModel = obj ? obj.survey : null;
+      return !survey || survey.showQuestionNumbers !== "off";
+    },
+  },
   "valueName",
   "enableIf:condition",
   "defaultValue:value",

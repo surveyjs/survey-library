@@ -10497,3 +10497,33 @@ QUnit.test("Avoid stack overrflow in triggers, Bug #2202", function (assert) {
   assert.equal(survey.getValue("q1"), 1, "q1 is set, no stackoverflow");
   assert.equal(survey.getValue("q2"), 2, "q2 is set, no stackoverflow");
 });
+
+QUnit.test("Question hideNumber visibility depending on parent settings, https://surveyjs.answerdesk.io/ticket/details/t4504/survey-creator-can-we-hide-show-number-property-on-questions-if-numbering-is-off-at-form", function(assert) {
+  var survey = new SurveyModel({
+    elements: [
+      {
+        type: "panel",
+        name: "p1",
+        elements: [
+          { type: "text", name: "q1" },
+        ]
+      },
+    ]
+  });
+  var panel = <PanelModel>survey.getPanelByName("p1");
+  var question = survey.getQuestionByName("q1");
+  var property = Serializer.findProperty("question", "hideNumber");
+
+  assert.ok(property.visibleIf(question), "Visible by default");
+
+  question.titleLocation = "hidden";
+  assert.notOk(property.visibleIf(question), "Invisible for hidden title");
+
+  question.titleLocation = "default";
+  panel.showQuestionNumbers = "off";
+  assert.notOk(property.visibleIf(question), "Invisible due to parent settings");
+
+  panel.showQuestionNumbers = "default";
+  survey.showQuestionNumbers = "off";
+  assert.notOk(property.visibleIf(question), "Invisible due to survey settings");
+});

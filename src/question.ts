@@ -20,6 +20,8 @@ import { ConditionRunner } from "./conditions";
 import { QuestionCustomWidget } from "./questionCustomWidgets";
 import { CustomWidgetCollection } from "./questionCustomWidgets";
 import { settings } from "./settings";
+import { SurveyModel } from './survey';
+import { PanelModel } from './panel';
 
 export interface IConditionObject {
   name: string;
@@ -1594,8 +1596,11 @@ Serializer.addClass("question", [
   },
   {
     name: "hideNumber:boolean",
-    dependsOn: "titleLocation",
+    // dependsOn: "titleLocation",
     visibleIf: function(obj: any) {
+      if(!obj) {
+        return true;
+      }
       if ((<Question>obj).titleLocation === "hidden") {
         return false;
       }

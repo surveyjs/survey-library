@@ -449,7 +449,7 @@ export class SurveyModel extends Base
    * <br/> `sender` - the survey object that fires the event.
    * <br/> `options.success` - it is `true` if the results were got from the service successfully.
    * <br/> `options.data` - the object `{AnswersCount, QuestionResult : {} }`. `AnswersCount` is the number of posted survey results. `QuestionResult` is an object with all possible unique answers to the question and number of these answers.
-   * <br/> `options.dataList` - an array of objects `{name, value}`, where `name` is an unique value/answer to the question and `value` is a number/count of such answers.
+   * <br/> `options.dataList` - an array of objects `{name, value}`, where `name` is a unique value/answer to the question and `value` is a number/count of such answers.
    * <br/> `options.response` - the server response.
    * @see getResult
    */

@@ -27,7 +27,7 @@ const json = {
         { value: "affordable", text: "Product is affordable" },
         { value: "does what it claims", text: "Product does what it claims" },
         {
-          value: "better then others",
+          value: "better than others",
           text: "Product is better than other products on the market"
         },
         { value: "easy to use", text: "Product is easy to use" }
@@ -98,7 +98,7 @@ frameworks.forEach(framework => {
     assert.deepEqual(surveyResult.Quality, {
       affordable: "3",
       "does what it claims": "4",
-      "better then others": "2",
+      "better than others": "2",
       "easy to use": "5"
     });
   });

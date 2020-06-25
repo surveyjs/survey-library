@@ -1577,7 +1577,7 @@ export class QuestionMatrixDropdownModelBase
     this.fireCallback(this.updateCellsCallback);
   }
   /**
-   * Use this property to set the mimimum column width.
+   * Use this property to set the minimum column width.
    */
   public get columnMinWidth(): string {
     return this.getPropertyValue("columnMinWidth", "");
@@ -1776,7 +1776,7 @@ export class QuestionMatrixDropdownModelBase
     }
   }
   /**
-   * Returns the column by it's name. Retuns null if a column with this name doesn't exist.
+   * Returns the column by it's name. Returns null if a column with this name doesn't exist.
    * @param column
    */
   public getColumnByName(columnName: string): MatrixDropdownColumn {

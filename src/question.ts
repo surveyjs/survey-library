@@ -1585,6 +1585,12 @@ Serializer.addClass("question", [
   },
   { name: "title:text", serializationProperty: "locTitle", layout: "row" },
   {
+    name: "titleLocation",
+    default: "default",
+    choices: ["default", "top", "bottom", "left", "hidden"],
+    layout: "row",
+  },
+  {
     name: "description:text",
     serializationProperty: "locDescription",
     layout: "row",
@@ -1596,7 +1602,7 @@ Serializer.addClass("question", [
   },
   {
     name: "hideNumber:boolean",
-    // dependsOn: "titleLocation",
+    dependsOn: "titleLocation",
     visibleIf: function(obj: any) {
       if(!obj) {
         return true;
@@ -1628,12 +1634,6 @@ Serializer.addClass("question", [
     name: "validators:validators",
     baseClassName: "surveyvalidator",
     classNamePart: "validator",
-  },
-  {
-    name: "titleLocation",
-    default: "default",
-    choices: ["default", "top", "bottom", "left", "hidden"],
-    layout: "row",
   },
 ]);
 Serializer.addAlterNativeClassName("question", "questionbase");

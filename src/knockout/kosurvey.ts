@@ -328,7 +328,12 @@ ko.components.register("survey", {
   viewModel: {
     createViewModel: function (params: any, componentInfo: any) {
       var survey: Survey = ko.unwrap(params.survey);
-      survey.render();
+      setTimeout(() => {
+        var surveyRoot = document.createElement("div");
+        componentInfo.element.appendChild(surveyRoot);
+        survey.render(surveyRoot);
+      }, 1);
+      // ko.tasks.runEarly();
       return params.survey;
     },
   },

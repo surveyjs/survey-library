@@ -1085,7 +1085,7 @@ Here is the list of standard validators
 | --- | --- | --- |
 | numeric | NumericValidator | Raises an error if the question answer is not a number, or if an entered number is outside the `minValue` and `maxValue` range.|
 | text | TextValidator| Raises an error the entered text length is outside the `minLength` and `maxLength` range.|
-| expression |ExpressionValidator | Raises an error when the expression returns `false`.  Use the **expression** property to specify the validated expression. This validator was added in v1.0.23. <br/>The following expression validator raises error if the summary is less then 100: `expression: "{price} \* {quantity} >= 100"`. |
+| expression |ExpressionValidator | Raises an error when the expression returns `false`.  Use the **expression** property to specify the validated expression. This validator was added in v1.0.23. <br/>The following expression validator raises error if the summary is less than 100: `expression: "{price} \* {quantity} >= 100"`. |
 | answercount | AnswerCountValidator | Works for questions which value is array, for example: checkbox. Raises an error if a user selects less choices that `minCount` (if `minCount` defined) or more than `maxCount` (if `maxCount` is defined). |
 | regex | RegexValidator | Raises an error, if the entered value it does not fit the regular expression defined in the `regex` property. |
 | email | EmailValidator | Raises an error, if the entered value is not a valid e-mail. |

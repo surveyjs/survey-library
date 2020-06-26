@@ -254,7 +254,7 @@ export class ItemValue extends Base {
     return this.locText.pureText ? true : false;
   }
   public get text(): string {
-    return this.locText.calculatedText; //TODO: it will be correct to use this.locText.text, however it would require a lot of rewritting in Creator
+    return this.locText.calculatedText; //TODO: it will be correct to use this.locText.text, however it would require a lot of rewriting in Creator
   }
   public set text(newText: string) {
     const oldText = this.locText.text;

@@ -54,7 +54,7 @@ QUnit.test("ProcessValue getFirstName", function(assert) {
   assert.equal(process.getFirstName("name-1.name2"), "name-1", "till .");
   assert.equal(process.getFirstName("name-1[0].value"), "name-1", "till [");
 });
-QUnit.test("ProcessValue getFirstName witht object", function(assert) {
+QUnit.test("ProcessValue getFirstName with object", function(assert) {
   var obj = { "a.b.c": { d: 1 } };
   var process = new ProcessValue();
   assert.equal(process.getFirstName("name1", obj), "name1", "name is the same");

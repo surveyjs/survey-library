@@ -39,7 +39,7 @@ const json = {
                 "brother",
                 "sister",
                 "son",
-                "dauhter"
+                "daughter"
               ],
               isRequired: true
             },

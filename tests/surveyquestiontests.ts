@@ -846,7 +846,7 @@ QUnit.test("Numeric validation and with 0, Bug #462", function (assert) {
   var mText = new QuestionTextModel("");
   mText.validators.push(new NumericValidator(1, 100));
   mText.value = 0;
-  assert.equal(mText.hasErrors(), true, "0 is less then 1");
+  assert.equal(mText.hasErrors(), true, "0 is less than 1");
 });
 QUnit.test("Use Email validator for inputType = email", function (assert) {
   var mText = new QuestionTextModel("");
@@ -891,7 +891,7 @@ QUnit.test("Validators for array value question", function (assert) {
   question.value = ["item1", "item2", "item3"];
   assert.equal(question.hasErrors(), false, "There is one item in value");
   question.value = ["item1", "item2", "item3", "item4"];
-  assert.equal(question.hasErrors(), true, "It should be less then 3 items");
+  assert.equal(question.hasErrors(), true, "It should be less than 3 items");
   question.value = ["item1", "item3"];
   assert.equal(question.hasErrors(), false, "There is two items in value");
 });
@@ -1858,7 +1858,7 @@ QUnit.test(
     );
     assert.ok(
       question.value[0] === question.choices[1].value,
-      "Choosen exactly choice item value"
+      "Chosen exactly choice item value"
     );
   }
 );
@@ -1910,7 +1910,7 @@ QUnit.test(
     var question = <QuestionRadiogroupModel>survey.getQuestionByName("q1");
     assert.ok(
       question.value === question.choices[1].value,
-      "Choosen exactly choice item value"
+      "Chosen exactly choice item value"
     );
     survey.doComplete();
     assert.deepEqual(

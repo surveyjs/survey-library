@@ -18,7 +18,7 @@ QUnit.test("Test timer event", function(assert) {
   assert.equal(counter, 5, "Timer called 5 times");
   SurveyTimer.instance.stop(func);
   doTimer(3);
-  assert.equal(counter, 5, "Timer was stopped nothing happend");
+  assert.equal(counter, 5, "Timer was stopped nothing happened");
 });
 
 QUnit.test("Spent time on survey", function(assert) {

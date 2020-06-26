@@ -822,7 +822,7 @@ QUnit.test("PanelDynamic, keyName + hasError, Bug #1820", function (assert) {
               "brother",
               "sister",
               "son",
-              "dauhter",
+              "daughter",
             ],
           },
         ],

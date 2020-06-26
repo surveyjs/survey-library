@@ -319,7 +319,7 @@ export class QuestionSelectBase extends Question {
     return !!itemValue && !itemValue.isEnabled;
   }
   /**
-   * If the clearIncorrectValuesCallback is set, it is used to clear incorrrect values instead of default behaviour.
+   * If the clearIncorrectValuesCallback is set, it is used to clear incorrect values instead of default behaviour.
    */
   public clearIncorrectValuesCallback: () => void;
   /**

@@ -47,7 +47,7 @@ export class QuestionTextModel extends Question {
     return true;
   }
   /**
-   * The maximim text length. If it is -1, defaul value, then the survey maxTextLength property will be used.
+   * The maximum text length. If it is -1, defaul value, then the survey maxTextLength property will be used.
    * If it is 0, then the value is unlimited
    * @see SurveyModel.maxTextLength
    */

@@ -20,6 +20,8 @@ import { ConditionRunner } from "./conditions";
 import { QuestionCustomWidget } from "./questionCustomWidgets";
 import { CustomWidgetCollection } from "./questionCustomWidgets";
 import { settings } from "./settings";
+import { SurveyModel } from './survey';
+import { PanelModel } from './panel';
 
 export interface IConditionObject {
   name: string;
@@ -873,7 +875,7 @@ export class Question extends SurveyElement
     return this.hasComment || this.hasOther;
   }
   /**
-   * Retuns true if readOnly property is true or survey is in display mode or parent panel/page is readOnly.
+   * Returns true if readOnly property is true or survey is in display mode or parent panel/page is readOnly.
    * @see SurveyModel.model
    * @see readOnly
    */
@@ -1583,6 +1585,12 @@ Serializer.addClass("question", [
   },
   { name: "title:text", serializationProperty: "locTitle", layout: "row" },
   {
+    name: "titleLocation",
+    default: "default",
+    choices: ["default", "top", "bottom", "left", "hidden"],
+    layout: "row",
+  },
+  {
     name: "description:text",
     serializationProperty: "locDescription",
     layout: "row",
@@ -1592,7 +1600,25 @@ Serializer.addClass("question", [
     default: "default",
     choices: ["default", "underInput", "underTitle"],
   },
-  "hideNumber:boolean",
+  {
+    name: "hideNumber:boolean",
+    dependsOn: "titleLocation",
+    visibleIf: function(obj: any) {
+      if(!obj) {
+        return true;
+      }
+      if ((<Question>obj).titleLocation === "hidden") {
+        return false;
+      }
+      var parent: PanelModel = obj ? obj.parent : null;
+      var numberingAllowedByParent = !parent || parent.showQuestionNumbers !== "off";
+      if (!numberingAllowedByParent) {
+        return false;
+      }
+      var survey: SurveyModel = obj ? obj.survey : null;
+      return !survey || survey.showQuestionNumbers !== "off" || (!!parent && parent.showQuestionNumbers === "onpanel");
+    },
+  },
   "valueName",
   "enableIf:condition",
   "defaultValue:value",
@@ -1608,12 +1634,6 @@ Serializer.addClass("question", [
     name: "validators:validators",
     baseClassName: "surveyvalidator",
     classNamePart: "validator",
-  },
-  {
-    name: "titleLocation",
-    default: "default",
-    choices: ["default", "top", "bottom", "left", "hidden"],
-    layout: "row",
   },
 ]);
 Serializer.addAlterNativeClassName("question", "questionbase");

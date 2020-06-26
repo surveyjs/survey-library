@@ -378,8 +378,8 @@ QUnit.test("MinRowCountError", function(assert) {
 
 QUnit.test("Regex number validator, Bug#1775", function(assert) {
   var validator = new RegexValidator("^0*(?:[2-9]|[1-9]dd*)$");
-  validator.text = "More then 0";
-  assert.equal(validator.validate(0).error.text, "More then 0", "0 give error");
+  validator.text = "More than 0";
+  assert.equal(validator.validate(0).error.text, "More than 0", "0 give error");
   assert.equal(validator.validate(2), null, "Parse correctly 2");
   assert.equal(validator.validate(null), null, "Parse correctly null");
 });

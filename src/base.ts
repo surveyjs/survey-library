@@ -546,7 +546,7 @@ export class Base {
    * Register a function that will be called on a property value changed.
    * @param name the property name
    * @param func the function with no parameters that will be called on property changed.
-   * @param key an optional parameter. If there is already a registered function for this property witht the same key, it will be overwritten.
+   * @param key an optional parameter. If there is already a registered function for this property with the same key, it will be overwritten.
    */
   public registerFunctionOnPropertyValueChanged(
     name: string,
@@ -571,7 +571,7 @@ export class Base {
    * Register a function that will be called on a property value changed from the names list.
    * @param names the list of properties names
    * @param func the function with no parameters that will be called on property changed.
-   * @param key an optional parameter. If there is already a registered function for this property witht the same key, it will be overwritten.
+   * @param key an optional parameter. If there is already a registered function for this property with the same key, it will be overwritten.
    */
   public registerFunctionOnPropertiesValueChanged(
     names: Array<string>,

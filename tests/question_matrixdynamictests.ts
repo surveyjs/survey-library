@@ -4082,3 +4082,81 @@ QUnit.test(
     assert.equal(q2.visibleChoices.length, 2, "There is 'B' and 'C' items");
   }
 );
+QUnit.test(
+  "Survey.checkErrorsMode=onValueChanged, some errors should be shown onNextPage only, multipletext",
+  function (assert) {
+    var survey = new SurveyModel({
+      elements: [
+        {
+          type: "matrixdynamic",
+          name: "question1",
+          columns: [
+            {
+              name: "Column 1",
+              isRequired: true,
+            },
+            {
+              name: "Column 2",
+              isRequired: true,
+            },
+          ],
+        },
+      ],
+      checkErrorsMode: "onValueChanged",
+    });
+    var matrix = <QuestionMatrixDynamicModel>(
+      survey.getQuestionByName("question1")
+    );
+    var rows = matrix.visibleRows;
+    rows[0].cells[0].value = 1;
+    assert.equal(
+      rows[0].cells[1].question.errors.length,
+      0,
+      "There is no errors yet in the cell, first row, second column"
+    );
+    assert.equal(
+      rows[1].cells[0].question.errors.length,
+      0,
+      "There is no errors yet in the cell, second row, first column"
+    );
+    survey.completeLastPage();
+    assert.equal(
+      rows[0].cells[1].question.errors.length,
+      1,
+      "There is error in the cell, first row, second column"
+    );
+    assert.equal(
+      rows[1].cells[0].question.errors.length,
+      1,
+      "There is error in the cell, second row, first column"
+    );
+    rows[0].cells[0].value = 2;
+    assert.equal(
+      rows[0].cells[1].question.errors.length,
+      1,
+      "The error in the cell is not fixed, first row, second column"
+    );
+    assert.equal(
+      rows[1].cells[0].question.errors.length,
+      1,
+      "The error in the cell is not fixed, first column"
+    );
+    rows[0].cells[1].value = 1;
+    assert.equal(
+      rows[0].cells[1].question.errors.length,
+      0,
+      "The error in the cell is gone, first row, second column"
+    );
+    assert.equal(
+      rows[1].cells[0].question.errors.length,
+      1,
+      "The error in the cell is not fixed, first column, #2"
+    );
+    rows[1].cells[0].value = 1;
+    assert.equal(
+      rows[1].cells[0].question.errors.length,
+      0,
+      "The error in the cell is gone, first column, #2"
+    );
+  }
+);

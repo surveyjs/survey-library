@@ -6778,8 +6778,8 @@ QUnit.test("survey.showInvisibleElements property", function (assert) {
             type: "text",
             name: "question2",
             visible: false,
-          }
-        ]
+          },
+        ],
       },
       {
         elements: [
@@ -6791,12 +6791,12 @@ QUnit.test("survey.showInvisibleElements property", function (assert) {
           {
             type: "checkbox",
             name: "question4",
-            choices: [ "item1", "item2" ],
+            choices: ["item1", "item2"],
             visibleIf: "{question1} = 'test'",
-            choicesVisibleIf: "{question1} = 'test'"
-           }
-        ]
-      }
+            choicesVisibleIf: "{question1} = 'test'",
+          },
+        ],
+      },
     ],
   };
   var survey = new SurveyModel(json);
@@ -10372,7 +10372,7 @@ QUnit.test("Survey.onQuestionCreated", function (assert) {
   );
 });
 QUnit.test(
-  "Survey.checkErrorsMode=onValueChanged, some errors should be shown onNextPage only",
+  "Survey.checkErrorsMode=onValueChanged, some errors should be shown onNextPage only, matrix",
   function (assert) {
     var survey = new SurveyModel({
       elements: [
@@ -10399,6 +10399,57 @@ QUnit.test(
     assert.equal(question1.errors.length, 1, "The error was not fixed");
     question1.value = { "Row 1": "Column 3", "Row 2": "Column 3" };
     assert.equal(question1.errors.length, 0, "The error is gone");
+  }
+);
+QUnit.test(
+  "Survey.checkErrorsMode=onValueChanged, some errors should be shown onNextPage only, multipletext",
+  function (assert) {
+    var survey = new SurveyModel({
+      elements: [
+        {
+          type: "multipletext",
+          name: "question1",
+          items: [
+            { name: "item1", isRequired: true },
+            { name: "item2", isRequired: true },
+          ],
+        },
+      ],
+      checkErrorsMode: "onValueChanged",
+    });
+    var question1 = <QuestionMultipleTextModel>(
+      survey.getQuestionByName("question1")
+    );
+    question1.items[0].editor.value = "value1";
+    assert.deepEqual(
+      survey.data,
+      { question1: { item1: "value1" } },
+      "Data set correctly"
+    );
+    assert.equal(question1.errors.length, 0, "There is no errors yet");
+    assert.equal(
+      question1.items[1].editor.errors.length,
+      0,
+      "There is no errors in item2"
+    );
+    survey.completeLastPage();
+    assert.equal(
+      question1.items[1].editor.errors.length,
+      1,
+      "There is one error, isRequired"
+    );
+    question1.items[0].editor.value = "value1_1";
+    assert.equal(
+      question1.items[1].editor.errors.length,
+      1,
+      "The error is not fixed"
+    );
+    question1.items[1].editor.value = "value2";
+    assert.equal(
+      question1.items[1].editor.errors.length,
+      0,
+      "The error is gone"
+    );
   }
 );
 QUnit.test(

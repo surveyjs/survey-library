@@ -441,7 +441,13 @@ export class QuestionMultipleTextModel extends Question
       ) => {
         this.raiseOnCompletedAsyncValidators();
       };
-      res = this.items[i].editor.hasErrors(fireCallback) || res;
+      if (
+        !!rec &&
+        rec.isOnValueChanged === true &&
+        this.items[i].editor.isEmpty()
+      )
+        continue;
+      res = this.items[i].editor.hasErrors(fireCallback, rec) || res;
     }
     return super.hasErrors(fireCallback) || res;
   }

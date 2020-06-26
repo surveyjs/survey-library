@@ -354,7 +354,7 @@ export class PanelModelBase extends SurveyElement
     return null;
   }
   /**
-   * Retuns the element by its name. It works recursively.
+   * Returns the element by its name. It works recursively.
    * @param name the element name
    */
   public getElementByName(name: string): IElement {
@@ -973,7 +973,7 @@ export class PanelModelBase extends SurveyElement
     return true;
   }
   /**
-   * Retuns true if readOnly property is true or survey is in display mode or parent panel/page is readOnly.
+   * Returns true if readOnly property is true or survey is in display mode or parent panel/page is readOnly.
    * @see SurveyModel.model
    * @see readOnly
    */

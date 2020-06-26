@@ -6,7 +6,7 @@ import { Serializer } from "./jsonobject";
 /**
  * The calculated value is a way to define the variable in Survey Creator.
  * It has two main properties: name and expression. Based on expression the value read-only property is automatically calculated.
- * The name property should be unique though all calcualted values.
+ * The name property should be unique though all calculated values.
  * It uses survey.getVariable/seruvey.setVariable functions to get/set its value. The class do not store its value internally.
  * You may set includeIntoResult property to true to store this calculated value into survey result.
  */

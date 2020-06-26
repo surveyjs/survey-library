@@ -790,7 +790,7 @@ QUnit.test(
     assert.equal(question.errors.length, 1, "The error about invalid value");
 
     question.value = { Row1: { Column1: 30 } };
-    assert.equal(question.errors.length, 0, "No errors - choosen right value");
+    assert.equal(question.errors.length, 0, "No errors - chosen right value");
   }
 );
 QUnit.test("survey.checkErrorsMode = 'onComplete'", function (assert) {
@@ -3679,7 +3679,7 @@ QUnit.test("assign customWidgets to questions", function (assert) {
   });
   var survey = twoPageSimplestSurvey();
   survey.pages[0].addNewQuestion("checkbox", "question5");
-  assert.equal(survey.currentPageNo, 0, "the first page is choosen");
+  assert.equal(survey.currentPageNo, 0, "the first page is chosen");
   assert.equal(
     (<Question>survey.getQuestionByName("question1")).customWidget,
     null,
@@ -3787,7 +3787,7 @@ QUnit.test("customWidgets support displayValue", function (assert) {
   });
   var survey = twoPageSimplestSurvey();
   var question = survey.pages[0].addNewQuestion("text", "text");
-  assert.equal(survey.currentPageNo, 0, "the first page is choosen");
+  assert.equal(survey.currentPageNo, 0, "the first page is chosen");
   assert.equal(
     question.customWidget.name,
     "first",

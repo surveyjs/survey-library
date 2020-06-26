@@ -728,7 +728,7 @@ QUnit.test(
     assert.equal(
       question.value,
       question["activeChoices"][2].value,
-      "Choosen exactly choice item value"
+      "Chosen exactly choice item value"
     );
     survey.doComplete();
     assert.deepEqual(
@@ -841,7 +841,7 @@ QUnit.test(
     survey.setValue("q1", [{ id: 1023 }]);
     assert.ok(
       question.value[0] === question["activeChoices"][2].value,
-      "Choosen exactly choice item value"
+      "Chosen exactly choice item value"
     );
     survey.doComplete();
     assert.deepEqual(

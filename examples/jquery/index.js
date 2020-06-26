@@ -204,7 +204,7 @@ function init() {
             text: "Product does what it claims"
           },
           {
-            value: "better then others",
+            value: "better than others",
             text: "Product is better than other products on the market"
           },
           {
@@ -311,7 +311,7 @@ function init() {
               },
               {
                 value: 1,
-                text: "less then a year"
+                text: "less than a year"
               }
             ]
           },
@@ -773,7 +773,7 @@ function init() {
               "brother",
               "sister",
               "son",
-              "dauhter"
+              "daughter"
             ],
             isRequired: true
           },

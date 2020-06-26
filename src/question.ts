@@ -875,7 +875,7 @@ export class Question extends SurveyElement
     return this.hasComment || this.hasOther;
   }
   /**
-   * Retuns true if readOnly property is true or survey is in display mode or parent panel/page is readOnly.
+   * Returns true if readOnly property is true or survey is in display mode or parent panel/page is readOnly.
    * @see SurveyModel.model
    * @see readOnly
    */

@@ -6,10 +6,10 @@
 | notempty          | returns true if the left operand is not empty                                                     | `{questionName} notempty`                                                   |
 | = == equal        | returns true if two values are equal                                                              | `{questionName} = 5, {questionName} == 'abc', {questionName} equal 124`     |
 | <> != notequal    | returns true if two values are not equal                                                          | `{questionName} <> 5, {questionName} != 'abc', {questionName} notequal 124` |
-| > greater         | returns true if the left operand greater then the second operand                                  | `{questionName} > 2, {questionName} greater 'a'`                            |
-| < less            | returns true if the left operand less then the second operand                                     | `{questionName} < 2, {questionName} less 'a'`                               |
-| >= greaterorequal | returns true if the left operand equal or greater then the second operand                         | `{questionName} >= 2, {questionName} greaterorequal 'a'`                    |
-| <= lessorequal    | returns true if the left operand equal or less then the second operand                            | `{questionName} <= 2, {questionName} lessorequal 'a'`                       |
+| > greater         | returns true if the left operand greater than the second operand                                  | `{questionName} > 2, {questionName} greater 'a'`                            |
+| < less            | returns true if the left operand less than the second operand                                     | `{questionName} < 2, {questionName} less 'a'`                               |
+| >= greaterorequal | returns true if the left operand equal or greater than the second operand                         | `{questionName} >= 2, {questionName} greaterorequal 'a'`                    |
+| <= lessorequal    | returns true if the left operand equal or less than the second operand                            | `{questionName} <= 2, {questionName} lessorequal 'a'`                       |
 | contains          | return true if the left operand is an array and it contains a value of the second operand         | `{questionName} contains 'a'`                                               |
 | notcontains       | return true if the left operand is an array and it does not contain a value of the second operand | `{questionName} notcontains 'a'`                                            |
 | ! not             | change the result of a condition to the oposite                                                   | `!({isLoayl} == 'yes')`                                                     |

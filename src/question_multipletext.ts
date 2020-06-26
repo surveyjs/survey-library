@@ -123,7 +123,7 @@ export class MultipleTextItemModel extends Base
     return this.editor.fullTitle;
   }
   /**
-   * The maximim text length. If it is -1, defaul value, then the survey maxTextLength property will be used.
+   * The maximum text length. If it is -1, defaul value, then the survey maxTextLength property will be used.
    * If it is 0, then the value is unlimited
    * @see SurveyModel.maxTextLength
    */

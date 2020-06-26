@@ -1213,7 +1213,7 @@ QUnit.test("MatrixDropdownColumn load choices from json", function (assert) {
           { value: 2, text: "1-2 years" },
           {
             value: 1,
-            text: "less then a year",
+            text: "less than a year",
           },
         ],
       },

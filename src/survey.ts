@@ -1928,6 +1928,7 @@ export class SurveyModel extends Base
    *
    * The following options are available:
    *
+   * - `off` (default) - don't show progress bar
    * - `top` - show progress bar in the top
    * - `bottom` - show progress bar in the bottom
    * - `both` - show progress bar in both sides: top and bottom.

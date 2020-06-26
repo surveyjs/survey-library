@@ -682,7 +682,7 @@ You can enable the **automatic navigation** by setting the **goNextPageAutomatic
 
 #### Survey Progress
 
-To show a progress bar, set the **showProgressBar** property to `top` or `bottom`. To change the default text: `Page x of N`, change the localization string **Survey.defaultStrings.progressText**, the default string for English localization is: "_Page {0} of {1}_".
+To show a progress bar, set the **showProgressBar** property to `top`, `bottom` or `both`. To change the default text: `Page x of N`, change the localization string **Survey.defaultStrings.progressText**, the default string for English localization is: "_Page {0} of {1}_".
 
 #### All Questions on a Single Page
 

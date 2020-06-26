@@ -5177,7 +5177,12 @@ Serializer.addClass("survey", [
   { name: "previewText", serializationProperty: "locPreviewText" },
   { name: "editText", serializationProperty: "locEditText" },
   { name: "requiredText", default: "*" },
-  "questionStartIndex",
+  {
+    name: "questionStartIndex",
+    visibleIf: function(survey: any) {
+      return !survey || survey.showQuestionNumbers !== "off";
+    },
+  },
   {
     name: "questionTitlePattern",
     default: "numTitleRequire",

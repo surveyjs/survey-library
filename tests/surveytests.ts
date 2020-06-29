@@ -10549,41 +10549,277 @@ QUnit.test("Avoid stack overrflow in triggers, Bug #2202", function (assert) {
   assert.equal(survey.getValue("q2"), 2, "q2 is set, no stackoverflow");
 });
 
-QUnit.test("Question hideNumber visibility depending on parent settings, https://surveyjs.answerdesk.io/ticket/details/t4504/survey-creator-can-we-hide-show-number-property-on-questions-if-numbering-is-off-at-form", function(assert) {
-  var survey = new SurveyModel({
-    elements: [
-      {
-        type: "panel",
-        name: "p1",
-        elements: [
-          { type: "text", name: "q1" },
-        ]
-      },
-    ]
-  });
-  var panel = <PanelModel>survey.getPanelByName("p1");
-  var question = survey.getQuestionByName("q1");
-  var property = Serializer.findProperty("question", "hideNumber");
+QUnit.test(
+  "Question hideNumber visibility depending on parent settings, https://surveyjs.answerdesk.io/ticket/details/t4504/survey-creator-can-we-hide-show-number-property-on-questions-if-numbering-is-off-at-form",
+  function (assert) {
+    var survey = new SurveyModel({
+      elements: [
+        {
+          type: "panel",
+          name: "p1",
+          elements: [{ type: "text", name: "q1" }],
+        },
+      ],
+    });
+    var panel = <PanelModel>survey.getPanelByName("p1");
+    var question = survey.getQuestionByName("q1");
+    var property = Serializer.findProperty("question", "hideNumber");
 
-  assert.ok(property.visibleIf(question), "Visible by default");
+    assert.ok(property.visibleIf(question), "Visible by default");
 
-  question.titleLocation = "hidden";
-  assert.notOk(property.visibleIf(question), "Invisible for hidden title");
+    question.titleLocation = "hidden";
+    assert.notOk(property.visibleIf(question), "Invisible for hidden title");
 
-  question.titleLocation = "default";
-  panel.showQuestionNumbers = "off";
-  assert.notOk(property.visibleIf(question), "Invisible due to parent settings");
+    question.titleLocation = "default";
+    panel.showQuestionNumbers = "off";
+    assert.notOk(
+      property.visibleIf(question),
+      "Invisible due to parent settings"
+    );
 
-  panel.showQuestionNumbers = "default";
-  survey.showQuestionNumbers = "off";
-  assert.notOk(property.visibleIf(question), "Invisible due to survey settings");
+    panel.showQuestionNumbers = "default";
+    survey.showQuestionNumbers = "off";
+    assert.notOk(
+      property.visibleIf(question),
+      "Invisible due to survey settings"
+    );
 
-  panel.showQuestionNumbers = "onpanel";
-  assert.ok(property.visibleIf(question), "Visible because of onpanel");
+    panel.showQuestionNumbers = "onpanel";
+    assert.ok(property.visibleIf(question), "Visible because of onpanel");
 
-  var propertyStartIndex = Serializer.findProperty("survey", "questionStartIndex");
-  assert.notOk(propertyStartIndex.visibleIf(survey), "Invisible due to survey settings");
+    var propertyStartIndex = Serializer.findProperty(
+      "survey",
+      "questionStartIndex"
+    );
+    assert.notOk(
+      propertyStartIndex.visibleIf(survey),
+      "Invisible due to survey settings"
+    );
 
-  survey.showQuestionNumbers = "default";
-  assert.ok(propertyStartIndex.visibleIf(survey), "Visible by default");
-});
+    survey.showQuestionNumbers = "default";
+    assert.ok(propertyStartIndex.visibleIf(survey), "Visible by default");
+  }
+);
+QUnit.test(
+  "Pages visibleIndex doesn't set correctly, https://surveyjs.answerdesk.io/ticket/details/T4506, Bug#2248",
+  function (assert) {
+    var survey = new SurveyModel({
+      pages: [
+        {
+          name: "CCOP Outage?",
+          elements: [
+            {
+              type: "radiogroup",
+              name: "CCOP Outage?",
+              choices: ["item1", "item2"],
+            },
+          ],
+        },
+        {
+          name: "Planned or Unplanned?",
+          elements: [
+            {
+              type: "radiogroup",
+              name: "Planned or Unplanned?",
+              visibleIf: "{CCOP Outage?} = 'item1'",
+              choices: ["item2", "item3"],
+            },
+          ],
+        },
+        {
+          name: "Enter Parent ticket number:",
+          elements: [
+            {
+              type: "text",
+              name: "Enter Parent ticket number:",
+              visibleIf: "{Planned or Unplanned?} = 'item2'",
+            },
+          ],
+        },
+        {
+          name: "Advice planned",
+          elements: [
+            {
+              type: "radiogroup",
+              name: "Advice planned",
+              visibleIf: "{Planned or Unplanned?} = 'item3'",
+              choices: ["item1"],
+            },
+          ],
+        },
+        {
+          name: "Check modem power",
+          elements: [
+            {
+              type: "radiogroup",
+              name: "Check modem power",
+              visibleIf: "{CCOP Outage?} = 'item2'",
+              choices: ["item1", "item2"],
+            },
+          ],
+        },
+        {
+          name: "Replace modem",
+          elements: [
+            {
+              type: "radiogroup",
+              name: "Replace modem",
+              visibleIf: "{Check modem power} = 'item1'",
+              hideNumber: true,
+              choices: ["item1", "item2", "item3"],
+            },
+          ],
+        },
+        {
+          name: "Select ticket action 1",
+          elements: [
+            {
+              type: "radiogroup",
+              name: "Select ticket action 1",
+              visibleIf: "{Replace modem} anyof ['item1', 'item2', 'item3']",
+              hideNumber: true,
+              choices: ["item1", "item2"],
+            },
+          ],
+          title: "Select ticket action 1",
+        },
+        {
+          name: "Check modem lights",
+          elements: [
+            {
+              type: "radiogroup",
+              name: "Check modem lights",
+              visibleIf: "{Check modem power} = 'item2'",
+              choices: ["item1", "item2", "item3", "item4", "item5", "item6"],
+            },
+          ],
+        },
+        {
+          name: "Checks",
+          elements: [
+            {
+              type: "checkbox",
+              name: "Checks",
+              visibleIf:
+                "{Check modem lights} anyof ['item1', 'item3', 'item5']",
+              title: "Checks",
+              hideNumber: true,
+              choices: [
+                "item1",
+                "item2",
+                "item3",
+                "item4",
+                "item5",
+                "item6",
+                "item7",
+              ],
+            },
+          ],
+        },
+        {
+          elements: [
+            {
+              type: "radiogroup",
+              name: "Please select ticket action",
+              visibleIf:
+                "{Checks} allof ['item1', 'item2', 'item3', 'item4', 'item5', 'item6', 'item7']",
+              choices: ["item1", "item2", "item3"],
+            },
+          ],
+        },
+      ],
+    });
+    survey.setValue("CCOP Outage?", "item2");
+    assert.equal(
+      survey.pages[1].isVisible,
+      false,
+      "The second page is invisible"
+    );
+    assert.equal(
+      survey.pages[1].visibleIndex,
+      -1,
+      "The second page visible index is -1"
+    );
+    assert.equal(survey.pages[4].isVisible, true, "The 5th page is visible");
+    assert.equal(
+      survey.pages[4].visibleIndex,
+      1,
+      "The fourth page visible index is 1"
+    );
+  }
+);
+QUnit.test(
+  "Change pages visibleIndex on page visibilityChange, https://surveyjs.answerdesk.io/ticket/details/T4506, Bug#2248",
+  function (assert) {
+    var survey = new SurveyModel({
+      pages: [
+        {
+          elements: [
+            {
+              type: "radiogroup",
+              name: "question1",
+              choices: ["item1", "item2"],
+            },
+          ],
+        },
+        {
+          elements: [
+            {
+              type: "radiogroup",
+              name: "question2",
+              visibleIf: "{question1} = 'item1'",
+              choices: ["item2", "item3"],
+            },
+          ],
+        },
+        {
+          elements: [
+            {
+              type: "radiogroup",
+              name: "question3",
+              visibleIf: "{question1} = 'item2'",
+              choices: ["item2", "item3"],
+            },
+          ],
+        },
+      ],
+    });
+    assert.equal(
+      survey.pages[1].isVisible,
+      false,
+      "The second page is invisible initially"
+    );
+    assert.equal(
+      survey.pages[1].visibleIndex,
+      -1,
+      "The second page visible index is -1 initially"
+    );
+    assert.equal(
+      survey.pages[2].isVisible,
+      false,
+      "The third page is invisible initially"
+    );
+    assert.equal(
+      survey.pages[2].visibleIndex,
+      -1,
+      "The third page visible index is -1 initially"
+    );
+    survey.setValue("question1", "item2");
+    assert.equal(
+      survey.pages[1].isVisible,
+      false,
+      "The second page is invisible"
+    );
+    assert.equal(
+      survey.pages[1].visibleIndex,
+      -1,
+      "The second page visible index is -1"
+    );
+    assert.equal(survey.pages[2].isVisible, true, "The third page is visible");
+    assert.equal(
+      survey.pages[2].visibleIndex,
+      1,
+      "The third page visible index is 1"
+    );
+  }
+);

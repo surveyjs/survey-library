@@ -60,6 +60,7 @@ export var defaultStandardCss = {
     indent: 20,
     footer: "sv_q_footer",
     formGroup: "form-group",
+    asCell: "sv_matrix_cell",
   },
   panel: {
     title: "sv_p_title",
@@ -122,7 +123,7 @@ export var defaultStandardCss = {
     cellTextSelected: "sv_q_m_cell_selected",
     cellLabel: "sv_q_m_cell_label",
   },
-  matrixdropdown: { root: "sv_q_matrix_dropdown" },
+  matrixdropdown: { root: "sv_q_matrix_dropdown", cell: "sv_matrix_cell" },
   matrixdynamic: {
     root: "sv_q_matrix_dynamic",
     button: "sv_matrix_dynamic_button",
@@ -130,6 +131,7 @@ export var defaultStandardCss = {
     buttonRemove: "",
     iconAdd: "",
     iconRemove: "",
+    cell: "sv_matrix_cell",
   },
   paneldynamic: {
     root: "sv_panel_dynamic",

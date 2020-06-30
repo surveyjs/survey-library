@@ -8,6 +8,7 @@
 .sv-table__cell {
   padding: 0.9375em 0;
   box-sizing: content-box;
+  vertical-align: top;
 }
 .sv-table__cell:not(:last-child) {
   padding-right: 1em;

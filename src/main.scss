@@ -144,6 +144,10 @@ $label-disabled-color: rgba(64, 64, 64, 0.5);
     }
   }
 
+  .sv_matrix_cell {
+    vertical-align: top;
+  }
+
   .sv_q_m_cell_selected {
     color: $body-background-color;
     background-color: $main-hover-color;

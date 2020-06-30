@@ -5023,7 +5023,9 @@ export class SurveyModel extends Base
     var question = this.getQuestionByName(name, true);
     if (!question || !question.isVisible || !question.page) return false;
     this.currentPage = question.page;
-    question.focus();
+    setInterval(function () {
+      question.focus(), 1;
+    });
     return true;
   }
   /**

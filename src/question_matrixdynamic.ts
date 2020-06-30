@@ -665,6 +665,9 @@ Serializer.addClass(
     { name: "confirmDelete:boolean" },
     {
       name: "confirmDeleteText",
+      visibleIf: function (obj: any): boolean {
+        return !obj || obj.confirmDelete;
+      },
       serializationProperty: "locConfirmDeleteText",
     },
     {

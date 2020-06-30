@@ -4133,11 +4133,10 @@ export class SurveyModel extends Base
   private updatePageVisibleIndexes(showIndex: boolean) {
     var index = 0;
     for (var i = 0; i < this.pages.length; i++) {
-      this.pages[i].visibleIndex = this.pages[i].visible ? index++ : -1;
+      var isPageVisible = this.pages[i].isVisible;
+      this.pages[i].visibleIndex = isPageVisible ? index++ : -1;
       this.pages[i].num =
-        showIndex && this.pages[i].visible
-          ? this.pages[i].visibleIndex + 1
-          : -1;
+        showIndex && isPageVisible ? this.pages[i].visibleIndex + 1 : -1;
     }
   }
   public fromJSON(json: any) {
@@ -5075,7 +5074,7 @@ Serializer.addClass("survey", [
     className: "htmlconditionitem",
   },
   { name: "loadingHtml:html", serializationProperty: "locLoadingHtml" },
-  { name: "pages", className: "page", visible: false },
+  { name: "pages:surveypages", className: "page" },
   {
     name: "questions",
     alternativeName: "elements",
@@ -5179,7 +5178,7 @@ Serializer.addClass("survey", [
   { name: "requiredText", default: "*" },
   {
     name: "questionStartIndex",
-    visibleIf: function(survey: any) {
+    visibleIf: function (survey: any) {
       return !survey || survey.showQuestionNumbers !== "off";
     },
   },

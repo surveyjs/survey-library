@@ -13,6 +13,7 @@ import { MinRowCountError, KeyDuplicationError } from "./error";
 import { IConditionObject } from "./question";
 import { Helpers } from "./helpers";
 import { settings } from "./settings";
+import { confirmAction } from "./utils/utils";
 
 export class MatrixDynamicRowModel extends MatrixDropdownRowModelBase {
   constructor(public index: number, data: IMatrixDropdownData, value: any) {
@@ -332,7 +333,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     }
     if (
       !this.isRequireConfirmOnRowDelete(value) ||
-      confirm(this.confirmDeleteText)
+      confirmAction(this.confirmDeleteText)
     ) {
       this.removeRow(value);
     }
@@ -665,6 +666,7 @@ Serializer.addClass(
     { name: "confirmDelete:boolean" },
     {
       name: "confirmDeleteText",
+      dependsOn: "confirmDelete",
       visibleIf: function (obj: any): boolean {
         return !obj || obj.confirmDelete;
       },

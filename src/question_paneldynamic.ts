@@ -21,6 +21,7 @@ import { QuestionFactory } from "./questionfactory";
 import { KeyDuplicationError } from "./error";
 import { settings } from "./settings";
 import { Panel } from "./knockout/kopage";
+import { confirmAction } from "./utils/utils";
 
 export interface IQuestionPanelDynamicData {
   getItemIndex(item: ISurveyData): number;
@@ -970,7 +971,7 @@ export class QuestionPanelDynamicModel extends Question
    */
   public removePanelUI(value: any) {
     if (!this.canRemovePanel) return;
-    if (!this.confirmDelete || confirm(this.confirmDeleteText)) {
+    if (!this.confirmDelete || confirmAction(this.confirmDeleteText)) {
       this.removePanel(value);
     }
   }

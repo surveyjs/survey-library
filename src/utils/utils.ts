@@ -1,3 +1,4 @@
+import { settings } from "./../settings";
 function compareVersions(a: any, b: any) {
   var i, diff;
   var regExStrip0 = /(\.0+)+$/;
@@ -14,6 +15,8 @@ function compareVersions(a: any, b: any) {
   return segmentsA.length - segmentsB.length;
 }
 function confirmAction(message: string): boolean {
+  if (!!settings && !!settings.confirmActionFunc)
+    return settings.confirmActionFunc(message);
   return confirm(message);
 }
 function detectIEBrowser() {

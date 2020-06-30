@@ -67,4 +67,11 @@ export var settings = {
    * Set this property to change readOnlyCommentRenderMode: "textarea" (default) or (div)
    */
   readOnlyCommentRenderMode: "textarea",
+  /**
+   * Override this function, set your function, if you want to show your own dialog confirm window instead of standard browser window.
+   * @param message
+   */
+  confirmActionFunc: function (message: string): boolean {
+    return confirm(message);
+  },
 };

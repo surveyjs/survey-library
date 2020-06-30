@@ -385,7 +385,7 @@ export class QuestionMatrixModel
     return new MatrixRowModel(item, fullName, this, value);
   }
   protected setQuestionValue(newValue: any) {
-    super.setQuestionValue(newValue);
+    super.setQuestionValue(newValue, this.isRowChanging);
     if (
       this.isRowChanging ||
       !this.generatedVisibleRows ||
@@ -404,6 +404,7 @@ export class QuestionMatrixModel
         this.generatedVisibleRows[i].value = rowVal;
       }
     }
+    this.updateIsAnswered();
     this.isRowChanging = false;
   }
   protected getDisplayValueCore(keysAsText: boolean, value: any): any {

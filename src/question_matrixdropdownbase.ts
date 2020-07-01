@@ -2396,7 +2396,6 @@ Serializer.addClass(
       name: "requiredErrorText:text",
       serializationProperty: "locRequiredErrorText",
     },
-    "hasOther:boolean",
     "readOnly:boolean",
     "minWidth",
     "width",

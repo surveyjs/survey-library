@@ -50,6 +50,7 @@ export class Survey extends SurveyModel {
   koCompletedStateText: any;
   koCompletedStateCss: any;
   koTimerInfoText: any;
+  koTitleTemplate = ko.observable("survey-header");
 
   public getDataValueCore(valuesHash: any, key: string) {
     if (valuesHash[key] === undefined) {

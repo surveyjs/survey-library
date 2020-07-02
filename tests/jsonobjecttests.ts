@@ -485,6 +485,22 @@ QUnit.test("Serialize object with it's type", function (assert) {
     "serialize object with it's type"
   );
 });
+QUnit.test(
+  "Serialize create readOnly custom property using onGetValue",
+  function (assert) {
+    Serializer.addProperty("truck", {
+      name: "calc",
+      onGetValue: function (obj: any): any {
+        return !!obj && !!obj.maxWeight ? obj.maxWeight * 2 : 0;
+      },
+      onSetValue: function (obj: any) {},
+    });
+    var truck = new Truck();
+    truck.maxWeight = 100;
+    assert.equal(truck["calc"], "200", "100 * 2");
+    Serializer.removeProperty("truck", "calc");
+  }
+);
 QUnit.test("Check isRequired property", function (assert) {
   assert.equal(
     Serializer.findProperty("sport", "maxSpeed").isRequired,

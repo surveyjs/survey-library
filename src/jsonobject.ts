@@ -346,6 +346,9 @@ export class CustomPropertiesCollection {
       if (!!obj.getPropertyValue && !!obj.setPropertyValue) {
         var desc = {
           get: () => {
+            if (!!prop.onGetValue) {
+              return prop.onGetValue(obj);
+            }
             return obj.getPropertyValue(prop.name, defaultValue);
           },
           set: function (v: any) {

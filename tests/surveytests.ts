@@ -183,6 +183,41 @@ QUnit.test("Remove Page in design mode", function (assert) {
     "the second page is  current"
   );
 });
+QUnit.test(
+  "Do not change currentPage on re-ordering pages in design mode (remove/delete)",
+  function (assert) {
+    var survey = new SurveyModel();
+    survey.setDesignMode(true);
+    survey.addNewPage("Page1");
+    survey.addNewPage("Page2");
+    survey.addNewPage("Page3");
+    assert.equal(survey.PageCount, 3, "3 pages");
+    assert.equal(survey.currentPage.name, "Page1", "The first page is current");
+    survey.onContainsPageCallback = function () {
+      return true;
+    };
+    var page = survey.pages[0];
+    survey.pages.splice(0, 1);
+    assert.equal(
+      survey.currentPage.name,
+      "Page1",
+      "The first page is still current"
+    );
+    survey.pages.splice(2, 0, page);
+    survey.onContainsPageCallback = null;
+    assert.equal(
+      survey.currentPage.name,
+      "Page1",
+      "The first page is still current, # 2"
+    );
+    assert.equal(
+      survey.pages[2].name,
+      "Page1",
+      "The first page is becomes last in list"
+    );
+  }
+);
+
 QUnit.test("Survey.onValueChanged event, #352", function (assert) {
   var survey = new SurveyModel();
   var page = survey.addNewPage("page1");

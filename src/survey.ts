@@ -2236,7 +2236,12 @@ export class SurveyModel extends Base
     var vPages = this.visiblePages;
     if (this.currentPageValue != null) {
       if (vPages.indexOf(this.currentPageValue) < 0) {
-        this.currentPage = null;
+        if (
+          !this.onContainsPageCallback ||
+          !this.onContainsPageCallback(this.currentPageValue)
+        ) {
+          this.currentPage = null;
+        }
       }
     }
     if (this.currentPageValue == null && vPages.length > 0) {

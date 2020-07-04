@@ -1841,6 +1841,52 @@ QUnit.test("Complete trigger test", function (assert) {
   assert.equal(survey.state, "completed");
 });
 QUnit.test(
+  "Complete trigger test, check isCompleteOnTrigger property",
+  function (assert) {
+    var survey = twoPageSimplestSurvey();
+    var trigger = new SurveyTriggerComplete();
+    survey.triggers.push(trigger);
+    trigger.name = "question1";
+    trigger.value = "Hello";
+    var isCompleteOnTrigger_Completing = false;
+    var isCompleteOnTrigger_Completed = false;
+    survey.onCompleting.add(function (sender, options) {
+      isCompleteOnTrigger_Completing = options.isCompleteOnTrigger;
+    });
+    survey.onCompleting.add(function (sender, options) {
+      isCompleteOnTrigger_Completed = options.isCompleteOnTrigger;
+    });
+
+    survey.setValue("question1", "Hello");
+    assert.equal(survey.state, "running");
+    survey.nextPage();
+    assert.equal(survey.state, "completed");
+    assert.equal(
+      isCompleteOnTrigger_Completing,
+      true,
+      "isCompleteOnTrigger property works for onCompleting event"
+    );
+    assert.equal(
+      isCompleteOnTrigger_Completed,
+      true,
+      "isCompleteOnTrigger property works for onCompleted event"
+    );
+    survey.clear();
+    survey.nextPage();
+    survey.completeLastPage();
+    assert.equal(
+      isCompleteOnTrigger_Completing,
+      false,
+      "isCompleteOnTrigger property works for onCompleting event, #2"
+    );
+    assert.equal(
+      isCompleteOnTrigger_Completed,
+      false,
+      "isCompleteOnTrigger property works for onCompleted event, #2"
+    );
+  }
+);
+QUnit.test(
   "Complete trigger test, settings.executeCompleteTriggerOnValueChanged",
   function (assert) {
     settings.executeCompleteTriggerOnValueChanged = true;

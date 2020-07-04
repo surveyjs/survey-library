@@ -90,6 +90,7 @@ export class SurveyModel extends Base
    * The event is fired before the survey is completed and the `onComplete` event is fired. You can prevent the survey from completing by setting `options.allowComplete` to `false`
    * <br/> `sender` - the survey object that fires the event.
    * <br/> `options.allowComplete` - Specifies whether a user can complete a survey. Set this property to `false` to prevent the survey from completing. The default value is `true`.
+   * <br/> `options.isCompleteOnTrigger` - returns true if the survey is completing on "complete" trigger.
    * @see onComplete
    */
   public onCompleting: Event<
@@ -103,7 +104,8 @@ export class SurveyModel extends Base
    * <br/> `options.showDataSavingError(text)` - call this method to show that an error occurred while saving the data on your server. If you want to show a custom error, use an optional `text` parameter.
    * <br/> `options.showDataSavingSuccess(text)` - call this method to show that the data was successfully saved on the server.
    * <br/> `options.showDataSavingClear` - call this method to hide the text about the saving progress.
-   * @see data
+   * <br/> `options.isCompleteOnTrigger` - returns true if the survey is completed on "complete" trigger.
+   *  @see data
    * @see clearInvisibleValues
    * @see completeLastPage
    * @see surveyPostId
@@ -3151,8 +3153,11 @@ export class SurveyModel extends Base
    * @see navigateToUrl
    * @see navigateToUrlOnCondition
    */
-  public doComplete() {
-    var onCompletingOptions = { allowComplete: true };
+  public doComplete(isCompleteOnTrigger: boolean = false) {
+    var onCompletingOptions = {
+      allowComplete: true,
+      isCompleteOnTrigger: isCompleteOnTrigger,
+    };
     this.onCompleting.fire(this, onCompletingOptions);
     if (!onCompletingOptions.allowComplete) return;
     let previousCookie = this.hasCookie;
@@ -3163,6 +3168,7 @@ export class SurveyModel extends Base
     var self = this;
     var savingDataStarted = false;
     var onCompleteOptions = {
+      isCompleteOnTrigger: isCompleteOnTrigger,
       showDataSaving: function (text: string) {
         savingDataStarted = true;
         self.setCompletedState("saving", text);
@@ -3272,7 +3278,7 @@ export class SurveyModel extends Base
       var index = vPages.indexOf(this.currentPage);
       this.currentPage = vPages[index + 1];
     } else {
-      this.doComplete();
+      this.doComplete(true);
     }
   }
   public setCompleted() {

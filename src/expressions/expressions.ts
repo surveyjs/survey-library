@@ -1,6 +1,7 @@
 import { HashTable, Helpers } from "../helpers";
 import { FunctionFactory } from "../functionsfactory";
 import { ProcessValue } from "../conditionProcessValue";
+import { equal } from "assert";
 
 export abstract class Operand {
   public toString(func: (op: Operand) => string = undefined): string {
@@ -169,7 +170,7 @@ export class ArrayOperand extends Operand {
     return (
       "[" +
       this.values
-        .map(function(el: Operand) {
+        .map(function (el: Operand) {
           return el.toString(func);
         })
         .join(", ") +
@@ -178,25 +179,25 @@ export class ArrayOperand extends Operand {
   }
 
   public evaluate(processValue?: ProcessValue): Array<any> {
-    return this.values.map(function(el: Operand) {
+    return this.values.map(function (el: Operand) {
       return el.evaluate(processValue);
     });
   }
 
   public setVariables(variables: Array<string>) {
-    this.values.forEach(el => {
+    this.values.forEach((el) => {
       el.setVariables(variables);
     });
   }
 
   public hasFunction(): boolean {
-    return this.values.some(operand => operand.hasFunction());
+    return this.values.some((operand) => operand.hasFunction());
   }
   public hasAsyncFunction(): boolean {
-    return this.values.some(operand => operand.hasAsyncFunction());
+    return this.values.some((operand) => operand.hasAsyncFunction());
   }
   public addToAsyncList(list: Array<FunctionOperand>) {
-    this.values.forEach(operand => operand.addToAsyncList(list));
+    this.values.forEach((operand) => operand.addToAsyncList(list));
   }
 }
 
@@ -382,20 +383,20 @@ export class OperandMaker {
   }
 
   static unaryFunctions: HashTable<Function> = {
-    empty: function(value: any): boolean {
+    empty: function (value: any): boolean {
       return Helpers.isValueEmpty(value);
     },
-    notempty: function(value: any): boolean {
+    notempty: function (value: any): boolean {
       return !OperandMaker.unaryFunctions.empty(value);
     },
-    negate: function(value: boolean): boolean {
+    negate: function (value: boolean): boolean {
       return !value;
-    }
+    },
   };
 
   static binaryFunctions: HashTable<Function> = {
     arithmeticOp(operatorName: string) {
-      return function(a: any, b: any): any {
+      return function (a: any, b: any): any {
         if (Helpers.isValueEmpty(a) && !OperandMaker.isSpaceString(a)) {
           a = typeof b === "string" ? "" : 0;
         }
@@ -407,62 +408,62 @@ export class OperandMaker {
         return consumer == null ? null : consumer.call(this, a, b);
       };
     },
-    and: function(a: boolean, b: boolean): boolean {
+    and: function (a: boolean, b: boolean): boolean {
       return a && b;
     },
-    or: function(a: boolean, b: boolean): boolean {
+    or: function (a: boolean, b: boolean): boolean {
       return a || b;
     },
-    plus: function(a: any, b: any): any {
+    plus: function (a: any, b: any): any {
       return a + b;
     },
-    minus: function(a: number, b: number): number {
+    minus: function (a: number, b: number): number {
       return a - b;
     },
-    mul: function(a: number, b: number): number {
+    mul: function (a: number, b: number): number {
       return a * b;
     },
-    div: function(a: number, b: number): number {
+    div: function (a: number, b: number): number {
       if (!b) return null;
       return a / b;
     },
-    mod: function(a: number, b: number): number {
+    mod: function (a: number, b: number): number {
       if (!b) return null;
       return a % b;
     },
-    power: function(a: number, b: number): number {
+    power: function (a: number, b: number): number {
       return Math.pow(a, b);
     },
-    greater: function(left: any, right: any): boolean {
+    greater: function (left: any, right: any): boolean {
       if (left == null || right == null) return false;
       return left > right;
     },
-    less: function(left: any, right: any): boolean {
+    less: function (left: any, right: any): boolean {
       if (left == null || right == null) return false;
       return left < right;
     },
-    greaterorequal: function(left: any, right: any): boolean {
-      if (left == null || right == null) return false;
-      return left >= right;
+    greaterorequal: function (left: any, right: any): boolean {
+      if (OperandMaker.binaryFunctions.equal(left, right)) return true;
+      return OperandMaker.binaryFunctions.greater(left, right);
     },
-    lessorequal: function(left: any, right: any): boolean {
-      if (left == null || right == null) return false;
-      return left <= right;
+    lessorequal: function (left: any, right: any): boolean {
+      if (OperandMaker.binaryFunctions.equal(left, right)) return true;
+      return OperandMaker.binaryFunctions.less(left, right);
     },
-    equal: function(left: any, right: any): boolean {
+    equal: function (left: any, right: any): boolean {
       return Helpers.isTwoValueEquals(left, right, true);
     },
-    notequal: function(left: any, right: any): boolean {
+    notequal: function (left: any, right: any): boolean {
       return !Helpers.isTwoValueEquals(left, right, true);
     },
-    contains: function(left: any, right: any): boolean {
+    contains: function (left: any, right: any): boolean {
       return OperandMaker.binaryFunctions.containsCore(left, right, true);
     },
-    notcontains: function(left: any, right: any): boolean {
+    notcontains: function (left: any, right: any): boolean {
       if (!left && !Helpers.isValueEmpty(right)) return true;
       return OperandMaker.binaryFunctions.containsCore(left, right, false);
     },
-    anyof: function(left: any, right: any): boolean {
+    anyof: function (left: any, right: any): boolean {
       if (!left && Helpers.isValueEmpty(right)) return true;
       if (!left || (!Array.isArray(left) && left.length === 0)) return false;
       if (Helpers.isValueEmpty(right)) return true;
@@ -475,7 +476,7 @@ export class OperandMaker {
       }
       return false;
     },
-    allof: function(left: any, right: any): boolean {
+    allof: function (left: any, right: any): boolean {
       if (!left && !Helpers.isValueEmpty(right)) return false;
       if (!Array.isArray(right))
         return OperandMaker.binaryFunctions.contains(left, right);
@@ -485,7 +486,7 @@ export class OperandMaker {
       }
       return true;
     },
-    containsCore: function(left: any, right: any, isContains: any): boolean {
+    containsCore: function (left: any, right: any, isContains: any): boolean {
       if (!left) return false;
       if (!left.length) {
         left = left.toString();
@@ -506,7 +507,7 @@ export class OperandMaker {
         if (i == left.length) return !isContains;
       }
       return isContains;
-    }
+    },
   };
 
   static operatorToString(operatorName: string): string {
@@ -529,6 +530,6 @@ export class OperandMaker {
     or: "or",
     power: "^",
     mod: "%",
-    negate: "!"
+    negate: "!",
   };
 }

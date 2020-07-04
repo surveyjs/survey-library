@@ -817,6 +817,51 @@ QUnit.test("Compare undefined object with string", function (assert) {
   assert.equal(runner.run(values), true, "undefined = 'undefined'");
 });
 
+QUnit.test("Compare two underfined variables", function (assert) {
+  var values: any = { v1: undefined, v2: undefined };
+  assert.equal(
+    new ConditionRunner("{v1} = {v2}").run(values),
+    true,
+    "undefined = undefined"
+  );
+  assert.equal(
+    new ConditionRunner("{v1} != {v2}").run(values),
+    false,
+    "undefined != undefined"
+  );
+  assert.equal(
+    new ConditionRunner("{v1} <= {v2}").run(values),
+    true,
+    "undefined <= undefined"
+  );
+  assert.equal(
+    new ConditionRunner("{v1} >= {v2}").run(values),
+    true,
+    "undefined >= undefined"
+  );
+  assert.equal(
+    new ConditionRunner("{v1} < {v2}").run(values),
+    false,
+    "undefined < undefined"
+  );
+  assert.equal(
+    new ConditionRunner("{v1} > {v2}").run(values),
+    false,
+    "undefined > undefined"
+  );
+  values.v1 = 1;
+  assert.equal(
+    new ConditionRunner("{v1} > {v2}").run(values),
+    false,
+    "1 > undefined"
+  );
+  assert.equal(
+    new ConditionRunner("{v1} < {v2}").run(values),
+    false,
+    "1 < undefined"
+  );
+});
+
 QUnit.test("Support apostrophes in value name", function (assert) {
   var runner = new ConditionRunner("{a'b\"c} = 1");
   var values: any = { "a'b\"c": 1 };

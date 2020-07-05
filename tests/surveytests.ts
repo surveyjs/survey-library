@@ -8935,38 +8935,54 @@ QUnit.test("Test onValidatedErrorsOnCurrentPage event", function (assert) {
 
   survey.setValue("q1", "val1");
   survey.nextPage();
-  assert.equal(counter, 2, "called two times");
+  assert.equal(
+    counter,
+    2 + 1,
+    "called 3 times, one time calls on value changed, since question has an error"
+  );
   assert.equal(errors.length, 1, "there is one error, #1");
   assert.equal(questions.length, 1, "there is one error, #2");
 
   survey.setValue("q2", "val2");
   survey.nextPage();
-  assert.equal(counter, 3, "called three times");
+  assert.equal(
+    counter,
+    3 + 2,
+    "called three times + two times, times time calls on value changed, since questions have errors"
+  );
   assert.equal(errors.length, 0, "there is no errors");
   assert.equal(questions.length, 0, "there is no errors");
 
   survey.checkErrorsMode = "onValueChanged";
 
   survey.setValue("q3", "val3");
-  assert.equal(counter, 4, "called four times");
+  assert.equal(counter, 4 + 2, "called four times");
   assert.equal(errors.length, 1, "there is one error, #3");
   assert.equal(questions.length, 1, "there is one error, #4");
 
   survey.setValue("q3", "a@b.com");
-  assert.equal(counter, 5, "called five times");
+  assert.equal(counter, 5 + 2, "called five times");
   assert.equal(errors.length, 0, "there is no errors");
   assert.equal(questions.length, 0, "there is no errors");
 
   survey.setValue("q3", "a@c.com");
-  assert.equal(counter, 5, "called five times - it doesn't called this time");
+  assert.equal(
+    counter,
+    5 + 2,
+    "called five times - it doesn't called this time"
+  );
   assert.equal(errors.length, 0, "there is no errors");
   assert.equal(questions.length, 0, "there is no errors");
 
   survey.clearValue("q3");
-  assert.equal(counter, 5, "Do not call errors validation on clearing value");
+  assert.equal(
+    counter,
+    5 + 2,
+    "Do not call errors validation on clearing value"
+  );
   assert.equal(errors.length, 0, "there is no errors on clearing value");
   survey.completeLastPage();
-  assert.equal(counter, 6, "called six times");
+  assert.equal(counter, 6 + 2, "called six times");
   assert.equal(errors.length, 2, "there are two errors onComplete, #5");
   assert.equal(questions.length, 2, "there are two question onComplete, #6");
 });
@@ -10566,6 +10582,55 @@ QUnit.test(
     assert.equal(question1.errors.length, 1, "The error was not fixed");
     question1.value = new Date("2019-01-02");
     assert.equal(question1.errors.length, 0, "The error is gone");
+  }
+);
+QUnit.test(
+  "Update question errors on value change if question has error already regardless survey.checkErrorsMode property. #2265",
+  function (assert) {
+    var survey = new SurveyModel({
+      elements: [
+        {
+          type: "text",
+          name: "q1",
+          isRequired: true,
+        },
+        {
+          type: "text",
+          name: "q2",
+          isRequired: true,
+          validators: [
+            {
+              type: "email",
+            },
+          ],
+        },
+      ],
+    });
+    var q1 = survey.getQuestionByName("q1");
+    var q2 = survey.getQuestionByName("q2");
+    survey.completeLastPage();
+    assert.equal(q1.errors.length, 1, "q1 is required");
+    assert.equal(q2.errors.length, 1, "q2 is required");
+    assert.equal(
+      q2.errors[0].getErrorType(),
+      "required",
+      "q2 error is require"
+    );
+    q1.value = "some value";
+    q2.value = "some value";
+    assert.equal(q1.errors.length, 0, "q1 has value and we remove error");
+    assert.equal(
+      q2.errors.length,
+      1,
+      "q2 has value and we remove error required error, but there is e-mail error"
+    );
+    assert.notEqual(
+      q2.errors[0].getErrorType(),
+      "required",
+      "q2 error - wrong e-mail format"
+    );
+    q2.value = "jon_snow@nightwatch.org";
+    assert.equal(q2.errors.length, 0, "q2 has no errors");
   }
 );
 QUnit.test(

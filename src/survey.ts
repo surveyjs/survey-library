@@ -3864,7 +3864,10 @@ export class SurveyModel extends Base
     if (!!questions) {
       for (var i: number = 0; i < questions.length; i++) {
         var question = questions[i];
-        if (this.checkErrorsMode == "onValueChanged") {
+        if (
+          this.checkErrorsMode == "onValueChanged" ||
+          question.errors.length > 0
+        ) {
           var oldErrorCount = question.errors.length;
           question.hasErrors(true, { isOnValueChanged: true });
           if (oldErrorCount > 0 || question.errors.length > 0) {

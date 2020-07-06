@@ -1277,6 +1277,52 @@ QUnit.test("Checkbox store others value not in comment", function (assert) {
   assert.deepEqual(survey.data, { q: ["A", "B"] }, "'B' is set");
 });
 
+QUnit.skip("Checkbox store others value not in comment after select another items - https://github.com/surveyjs/survey-library/issues/2221", function (assert) {
+  var survey = new SurveyModel();
+  survey.addNewPage("page1");
+  var question = new QuestionCheckboxModel("q");
+  question.choices = ["A", "B", "C", "D"];
+  question.hasOther = true;
+  question.storeOthersAsComment = false;
+  survey.pages[0].addQuestion(question);
+
+  question.value = null;
+  assert.equal(question.isOtherSelected, false, "Others is not selected");
+  assert.deepEqual(survey.data, {}, "There is no data in survey");
+
+  question.comment = null;
+  question.value = ["A", question.otherItem.value];
+  assert.equal(
+    question.isOtherSelected,
+    true,
+    "Any other value that is not from choices is other"
+  );
+  assert.deepEqual(
+    survey.data,
+    { q: ["A", question.otherItem.value] },
+    "Other Item is set"
+  );
+  question.comment = "commentTest";
+  assert.equal(
+    question.isOtherSelected,
+    true,
+    "Any other value that is not from choices is other"
+  );
+  assert.deepEqual(
+    survey.data,
+    { q: ["A", "commentTest"] },
+    "Other text is set"
+  );
+
+  question.value = ["A", question.otherItem.value, "B"];
+  assert.deepEqual(question.value, ["A", "commentTest", "B"], "'commentTest' is still set to the question");
+  assert.deepEqual(
+    survey.data,
+    { q: ["A", "commentTest", "B"] },
+    "'commentTest' is still set in the survey data"
+  );
+});
+
 QUnit.test("radiogroup.renderedValue - simple synhronization", function (
   assert
 ) {

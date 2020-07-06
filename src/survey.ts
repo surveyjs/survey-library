@@ -2869,6 +2869,7 @@ export class SurveyModel extends Base
    */
   public prevPage(): boolean {
     if (this.isFirstPage) return false;
+    this.resetNavigationButton();
     var vPages = this.visiblePages;
     var index = vPages.indexOf(this.currentPage);
     this.currentPage = vPages[index - 1];
@@ -2887,6 +2888,14 @@ export class SurveyModel extends Base
     }
     return res;
   }
+  private isNavigationButtonPressed: boolean = false;
+  public navigationMouseDown(): boolean {
+    this.isNavigationButtonPressed = true;
+    return true;
+  }
+  private resetNavigationButton() {
+    this.isNavigationButtonPressed = false;
+  }
   /**
    * Show preview for the survey. Go to the "preview" state
    * @see showPreviewBeforeComplete
@@ -2894,6 +2903,7 @@ export class SurveyModel extends Base
    * @see state
    */
   public showPreview(): boolean {
+    this.resetNavigationButton();
     if (this.hasErrorsOnNavigate(true)) return false;
     this.isShowingPreview = true;
     return true;
@@ -2932,6 +2942,7 @@ export class SurveyModel extends Base
     return -1;
   }
   protected doCurrentPageComplete(doComplete: boolean): boolean {
+    this.resetNavigationButton();
     if (this.hasErrorsOnNavigate(doComplete)) return false;
     return this.doCurrentPageCompleteCore(doComplete);
   }
@@ -3865,8 +3876,9 @@ export class SurveyModel extends Base
       for (var i: number = 0; i < questions.length; i++) {
         var question = questions[i];
         if (
-          this.checkErrorsMode == "onValueChanged" ||
-          question.errors.length > 0
+          !this.isNavigationButtonPressed &&
+          (this.checkErrorsMode == "onValueChanged" ||
+            question.errors.length > 0)
         ) {
           var oldErrorCount = question.errors.length;
           question.hasErrors(true, { isOnValueChanged: true });

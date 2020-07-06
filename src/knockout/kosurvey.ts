@@ -108,8 +108,7 @@ export class Survey extends SurveyModel {
   }
   public nextPageMouseDown() {
     this.mouseDownPage = this.currentPage;
-    var el = <any>document.activeElement;
-    if (!!el && !!el.blur) el.blur();
+    return this.navigationMouseDown();
   }
   public render(element: any = null) {
     this.updateKoCurrentPage();

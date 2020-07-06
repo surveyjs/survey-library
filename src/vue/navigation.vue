@@ -5,6 +5,7 @@
       :value="survey.pagePrevText"
       v-show="!survey.isFirstPage && survey.isShowPrevButton"
       :class="survey.cssNavigationPrev"
+      @mousedown="buttonMouseDown"
       @click="prevPage"
     />
     <input
@@ -12,6 +13,7 @@
       :value="survey.pageNextText"
       v-show="!survey.isLastPage"
       :class="survey.cssNavigationNext"
+      @mousedown="nextButtonMouseDown"
       @click="nextPage"
     />
     <input
@@ -20,6 +22,7 @@
       :value="survey.previewText"
       v-show="survey.isLastPage"
       :class="survey.cssNavigationPreview"
+      @mousedown="buttonMouseDown"
       @click="showPreview"
     />
     <input
@@ -28,6 +31,7 @@
       :value="survey.completeText"
       v-show="survey.isLastPage"
       :class="survey.cssNavigationComplete"
+      @mousedown="buttonMouseDown"
       @click="completeLastPage"
     />
   </div>
@@ -37,15 +41,27 @@
 import Vue from "vue";
 import { Component, Prop } from "vue-property-decorator";
 import { SurveyModel } from "../survey";
+import { PageModel } from "../page";
 
 @Component
 export class Navigation extends Vue {
+  private mouseDownPage: PageModel;
   @Prop survey: SurveyModel;
   @Prop css: any;
+  nextButtonMouseDown() {
+    this.mouseDownPage = this.survey.currentPage;
+    return this.survey.navigationMouseDown();
+  }
+  buttonMouseDown() {
+    return this.survey.navigationMouseDown();
+  }
   prevPage() {
     this.survey.prevPage();
   }
   nextPage() {
+    if (!!this.mouseDownPage && this.mouseDownPage !== this.survey.currentPage)
+      return;
+    this.mouseDownPage = null;
     this.survey.nextPage();
   }
   completeLastPage() {

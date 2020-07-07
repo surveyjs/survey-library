@@ -201,7 +201,7 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
         }
       }
     }
-    super.setNewValue(newValue);
+    super.setNewValue(this.rendredValueToData(newValue));
   }
   private noneIndexInArray(val: any) {
     if (!val || !Array.isArray(val)) return -1;

@@ -104,9 +104,6 @@ export class QuestionRowModel extends Base {
     ) {
       el.minWidth = el.width;
       el.maxWidth = el.width;
-    } else {
-      el.minWidth = settings.minWidth;
-      el.maxWidth = settings.maxWidth;
     }
   }
 

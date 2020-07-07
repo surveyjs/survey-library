@@ -638,12 +638,12 @@ QUnit.test(
 QUnit.test("QuestionRowModel setElementMaxMinWidth", function (assert) {
   var qrm = new QuestionRowModel((<any>{ areInvisibleElementsShowing: false }));
 
-  var el1: any = { width: "100px" };
+  var el1: any = { width: "100px", minWidth: settings.minWidth, maxWidth: settings.maxWidth };
   qrm.setElementMaxMinWidth(el1);
   assert.equal(el1.minWidth, "100px", "minWidth in 'px' is set");
   assert.equal(el1.maxWidth, "100px", "maxWidth in 'px' is set");
 
-  var el2: any = { width: "20%" };
+  var el2: any = { width: "20%", minWidth: settings.minWidth, maxWidth: settings.maxWidth };
   qrm.setElementMaxMinWidth(el2);
   assert.equal(el2.minWidth, "300px", "minWidth in '%' is default");
   assert.equal(el2.maxWidth, "initial", "maxWidth in '%' is default");

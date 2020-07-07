@@ -74,4 +74,12 @@ export var settings = {
   confirmActionFunc: function (message: string): boolean {
     return confirm(message);
   },
+  /**
+   * Set this property to change the default value of the minWidth constraint
+   */
+  minWidth: "300px",
+  /**
+   * Set this property to change the default value of the minWidth constraint
+   */
+  maxWidth: "initial",
 };

@@ -717,6 +717,24 @@ export class Question extends SurveyElement
     this.setPropertyValue("width", val);
   }
   /**
+   * Use it to set the specific minWidth constraint to the question like css style (%, px, em etc).
+   */
+  public get minWidth(): string {
+    return this.getPropertyValue("minWidth", settings.minWidth);
+  }
+  public set minWidth(val: string) {
+    this.setPropertyValue("minWidth", val);
+  }
+  /**
+   * Use it to set the specific maxWidth constraint to the question like css style (%, px, em etc).
+   */
+  public get maxWidth(): string {
+    return this.getPropertyValue("maxWidth", settings.maxWidth);
+  }
+  public set maxWidth(val: string) {
+    this.setPropertyValue("maxWidth", val);
+  }
+  /**
    * The rendered width of the question.
    */
   public get renderWidth(): string {
@@ -1565,6 +1583,8 @@ Serializer.addClass("question", [
   { name: "useDisplayValuesInTitle:boolean", default: true, layout: "row" },
   "visibleIf:condition",
   { name: "width" },
+  { name: "minWidth", default: settings.minWidth },
+  { name: "maxWidth", default: settings.maxWidth },
   { name: "startWithNewLine:boolean", default: true, layout: "row" },
   { name: "indent:number", default: 0, choices: [0, 1, 2, 3], layout: "row" },
   {

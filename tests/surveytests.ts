@@ -10185,7 +10185,7 @@ QUnit.test("Question css classes", function (assert) {
   assert.equal(q1.cssRoot, defaultQuestionRoot, "no errors");
   assert.equal(q1.cssTitle, "title onAnswer", "question title, on answer");
   q1.clearValue();
-  assert.equal(q1.cssTitle, "title onError", "question title clear");
+  assert.equal(q1.cssTitle, "title", "question title clear");
   q1.value = "somevalue";
   assert.equal(q1.cssTitle, "title onAnswer", "question title on answer 2");
   survey.questionTitleLocation = "left";

@@ -20,8 +20,8 @@ import { ConditionRunner } from "./conditions";
 import { QuestionCustomWidget } from "./questionCustomWidgets";
 import { CustomWidgetCollection } from "./questionCustomWidgets";
 import { settings } from "./settings";
-import { SurveyModel } from './survey';
-import { PanelModel } from './panel';
+import { SurveyModel } from "./survey";
+import { PanelModel } from "./panel";
 
 export interface IConditionObject {
   name: string;
@@ -1624,20 +1624,25 @@ Serializer.addClass("question", [
   {
     name: "hideNumber:boolean",
     dependsOn: "titleLocation",
-    visibleIf: function(obj: any) {
-      if(!obj) {
+    visibleIf: function (obj: any) {
+      if (!obj) {
         return true;
       }
       if ((<Question>obj).titleLocation === "hidden") {
         return false;
       }
       var parent: PanelModel = obj ? obj.parent : null;
-      var numberingAllowedByParent = !parent || parent.showQuestionNumbers !== "off";
+      var numberingAllowedByParent =
+        !parent || parent.showQuestionNumbers !== "off";
       if (!numberingAllowedByParent) {
         return false;
       }
       var survey: SurveyModel = obj ? obj.survey : null;
-      return !survey || survey.showQuestionNumbers !== "off" || (!!parent && parent.showQuestionNumbers === "onpanel");
+      return (
+        !survey ||
+        survey.showQuestionNumbers !== "off" ||
+        (!!parent && parent.showQuestionNumbers === "onpanel")
+      );
     },
   },
   "valueName",

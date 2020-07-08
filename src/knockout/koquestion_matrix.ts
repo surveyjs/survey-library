@@ -42,8 +42,8 @@ export class MatrixRow extends MatrixRowModel {
   }
 }
 export class QuestionMatrix extends QuestionMatrixModel {
-  koVisibleRows: any = ko.observableArray<MatrixRowModel>();
-  koVisibleColumns: any = ko.observableArray<any>();
+  koVisibleRows: any = <any>ko.observableArray<MatrixRowModel>();
+  koVisibleColumns: any = <any>ko.observableArray<any>();
   constructor(public name: string) {
     super(name);
     this.koVisibleRows(this.visibleRows);

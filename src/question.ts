@@ -1482,7 +1482,6 @@ export class Question extends SurveyElement
         this.isSurveyInputTextUpdate ? "text" : false
       );
     }
-    this.hasErrors();
   }
   //IQuestion
   updateValueFromSurvey(newValue: any) {

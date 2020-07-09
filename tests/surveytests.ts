@@ -10634,6 +10634,48 @@ QUnit.test(
   }
 );
 QUnit.test(
+  "Update question errors on other text change if survey.checkErrorsMode property is 'onValueChanged'. Bug#1854",
+  function (assert) {
+    var survey = new SurveyModel({
+      checkErrorsMode: "onValueChanged",
+      elements: [
+        {
+          type: "dropdown",
+          name: "q1",
+          choices: [1, 2],
+          hasOther: true,
+        },
+      ],
+    });
+    var q1 = <QuestionDropdownModel>survey.getQuestionByName("q1");
+    q1.value = q1.otherItem.value;
+    assert.equal(q1.errors.length, 1, "There is an error right now");
+    q1.comment = "some value";
+    assert.equal(q1.errors.length, 0, "There is no error now");
+  }
+);
+QUnit.test(
+  "Update question errors on other text change if question has error already. Bug #1854",
+  function (assert) {
+    var survey = new SurveyModel({
+      elements: [
+        {
+          type: "dropdown",
+          name: "q1",
+          choices: [1, 2],
+          hasOther: true,
+        },
+      ],
+    });
+    var q1 = <QuestionDropdownModel>survey.getQuestionByName("q1");
+    q1.value = q1.otherItem.value;
+    survey.completeLastPage();
+    assert.equal(q1.errors.length, 1, "There is an error right now");
+    q1.comment = "some value";
+    assert.equal(q1.errors.length, 0, "There is no error now");
+  }
+);
+QUnit.test(
   "dispose survey - https://github.com/surveyjs/survey-library/issues/2131",
   function (assert) {
     var survey = new SurveyModel({

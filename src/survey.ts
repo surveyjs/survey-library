@@ -3869,23 +3869,28 @@ export class SurveyModel extends Base
       }
     }
   }
+  private checkQuestionErrorOnValueChanged(question: Question) {
+    if (
+      !this.isNavigationButtonPressed &&
+      (this.checkErrorsMode == "onValueChanged" || question.errors.length > 0)
+    ) {
+      var oldErrorCount = question.errors.length;
+      question.hasErrors(true, { isOnValueChanged: true });
+      if (
+        !!question.page &&
+        (oldErrorCount > 0 || question.errors.length > 0)
+      ) {
+        this.fireValidatedErrorsOnPage(<PageModel>question.page);
+      }
+    }
+  }
   protected notifyQuestionOnValueChanged(valueName: string, newValue: any) {
     if (this.isLoadingFromJson) return;
     var questions = this.getQuestionsByValueNameCore(valueName);
     if (!!questions) {
       for (var i: number = 0; i < questions.length; i++) {
         var question = questions[i];
-        if (
-          !this.isNavigationButtonPressed &&
-          (this.checkErrorsMode == "onValueChanged" ||
-            question.errors.length > 0)
-        ) {
-          var oldErrorCount = question.errors.length;
-          question.hasErrors(true, { isOnValueChanged: true });
-          if (oldErrorCount > 0 || question.errors.length > 0) {
-            this.fireValidatedErrorsOnPage(<PageModel>question.page);
-          }
-        }
+        this.checkQuestionErrorOnValueChanged(question);
         question.onSurveyValueChanged(newValue);
         this.onValueChanged.fire(this, {
           name: valueName,
@@ -4471,6 +4476,7 @@ export class SurveyModel extends Base
     if (!!questions) {
       for (var i: number = 0; i < questions.length; i++) {
         questions[i].updateCommentFromSurvey(newValue);
+        this.checkQuestionErrorOnValueChanged(questions[i]);
       }
     }
     if (locNotification !== "text") {

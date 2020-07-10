@@ -605,7 +605,7 @@ QUnit.test(
     assert.notOk(page._showTitle, "Empty title is not visible at runtime");
     assert.notOk(
       page._showDescription,
-      "Empty title is not visible at runtime - description"
+      "Empty description is not visible at runtime - description"
     );
     survey.setDesignMode(true);
     assert.ok(
@@ -616,14 +616,24 @@ QUnit.test(
       page._showDescription,
       "Empty description is visible in DesignMode by default"
     );
-    settings.allowShowEmptyTitleInDesignMode = false;
-    assert.notOk(
+    settings.allowShowEmptyDescriptionInDesignMode = false;
+    assert.ok(
       page._showTitle,
-      "Empty title is not visible at DesignMode after flag"
+      "Empty title is visible in DesignMode after description flag"
     );
     assert.notOk(
       page._showDescription,
-      "Empty description is not visible at DesignMode after flag"
+      "Empty description is not visible in DesignMode after description flag"
+    );
+    settings.allowShowEmptyDescriptionInDesignMode = true;
+    settings.allowShowEmptyTitleInDesignMode = false;
+    assert.notOk(
+      page._showTitle,
+      "Empty title is not visible at DesignMode after title flag"
+    );
+    assert.notOk(
+      page._showDescription,
+      "Empty description is not visible at DesignMode after tile flag"
     );
     page.title = "My title";
     page.description = "My description";

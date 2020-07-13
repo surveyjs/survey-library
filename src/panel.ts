@@ -206,7 +206,8 @@ export class PanelModelBase extends SurveyElement
   get _showDescription(): boolean {
     return (
       ((<any>this.survey).showPageTitles && this.description.length > 0) ||
-      (this.isDesignMode && settings.allowShowEmptyTitleInDesignMode)
+      (this.isDesignMode && settings.allowShowEmptyTitleInDesignMode &&
+        settings.allowShowEmptyDescriptionInDesignMode)
     );
   }
   /**

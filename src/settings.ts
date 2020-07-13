@@ -56,9 +56,13 @@ export var settings = {
    */
   serializeLocalizableStringAsObject: false,
   /**
-   * Set to false to hide empty page title in design mode
+   * Set to false to hide empty page title and description in design mode
    */
   allowShowEmptyTitleInDesignMode: true,
+  /**
+   * Set to false to hide empty page description in design mode
+   */
+  allowShowEmptyDescriptionInDesignMode: true,
   /**
    * Set this property to true to execute the complete trigger on value change instead of on next page.
    */

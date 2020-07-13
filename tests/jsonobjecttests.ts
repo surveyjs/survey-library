@@ -2296,3 +2296,22 @@ QUnit.test("property.displayName", function (assert) {
     "property.displayName is correct"
   );
 });
+QUnit.test("Serializer.getAllClasses() function", function (assert) {
+  var classes = Serializer.getAllClasses();
+  assert.ok(classes.indexOf("truck") > -1, "Has truck");
+  assert.ok(classes.indexOf("question") > -1, "Has question");
+  assert.notOk(classes.indexOf("dummy_") > -1, "Has no dummy_");
+});
+QUnit.test("Serializer.getAllPropertiesByName() function", function (assert) {
+  var properties = Serializer.getAllPropertiesByName("description");
+  assert.equal(
+    properties.length,
+    5,
+    "survey, panelbase, question, customtruck, nonvalue"
+  );
+  assert.equal(
+    properties[0].name,
+    "description",
+    "Find property with the correct name"
+  );
+});

@@ -39,6 +39,7 @@ export class JsonObjectProperty implements IObject {
     "maxValue",
     "minValue",
   ];
+  private classInfoValue: JsonMetadataClass;
   private typeValue: string = null;
   private choicesValue: Array<any> = null;
   private baseValue: any = null;
@@ -72,8 +73,16 @@ export class JsonObjectProperty implements IObject {
   public visibleIf: (obj: any) => boolean = null;
   public onPropertyEditorUpdate: (obj: any, propEditor: any) => any;
 
-  constructor(public name: string, isRequired: boolean = false) {
+  constructor(
+    classInfo: JsonMetadataClass,
+    public name: string,
+    isRequired: boolean = false
+  ) {
+    this.classInfoValue = classInfo;
     this.isRequiredValue = isRequired;
+  }
+  public get classInfo(): JsonMetadataClass {
+    return this.classInfoValue;
   }
   public get type(): string {
     return this.typeValue ? this.typeValue : "string";
@@ -406,7 +415,7 @@ export class JsonMetadataClass {
     var isRequired =
       this.getIsPropertyNameRequired(propertyName) || !!propInfo.isRequired;
     propertyName = this.getPropertyName(propertyName);
-    var prop = new JsonObjectProperty(propertyName, isRequired);
+    var prop = new JsonObjectProperty(this, propertyName, isRequired);
     if (propertyType) {
       prop.type = propertyType;
     }
@@ -661,7 +670,6 @@ export class JsonMetadata {
     }
     return res;
   }
-
   public findProperty(
     className: string,
     propertyName: string
@@ -683,6 +691,29 @@ export class JsonMetadata {
       }
     }
     return result;
+  }
+  public getAllPropertiesByName(
+    propertyName: string
+  ): Array<JsonObjectProperty> {
+    var res = new Array<JsonObjectProperty>();
+    var classes = this.getAllClasses();
+    for (var i = 0; i < classes.length; i++) {
+      var classInfo = this.findClass(classes[i]);
+      for (var j = 0; j < classInfo.properties.length; j++) {
+        if (classInfo.properties[j].name == propertyName) {
+          res.push(classInfo.properties[j]);
+          break;
+        }
+      }
+    }
+    return res;
+  }
+  public getAllClasses(): Array<string> {
+    var res = new Array<string>();
+    for (var name in this.classes) {
+      res.push(name);
+    }
+    return res;
   }
   public createClass(name: string, json: any = undefined): any {
     name = name.toLowerCase();

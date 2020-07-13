@@ -5055,7 +5055,7 @@ export class SurveyModel extends Base
     var question = this.getQuestionByName(name, true);
     if (!question || !question.isVisible || !question.page) return false;
     this.currentPage = question.page;
-    setInterval(function () {
+    setTimeout(function () {
       question.focus(), 1;
     });
     return true;

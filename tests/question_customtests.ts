@@ -310,13 +310,13 @@ QUnit.test("Composite: hasErrors/isRequired", function (assert) {
 
 QUnit.test("Composite: onPropertyChanged", function (assert) {
   var json = {
-    name: "customerinfo",
+    name: "customerInfo",
     elementsJSON: [
       { type: "text", name: "firstName", isRequired: true },
       { type: "text", name: "lastName" },
     ],
     onInit() {
-      Serializer.addProperty("customerinfo", {
+      Serializer.addProperty("customerInfo", {
         name: "showLastName:boolean",
         default: true,
       });

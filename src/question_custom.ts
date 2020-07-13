@@ -100,6 +100,7 @@ export class ComponentCollection {
     if (!name) {
       throw "Attribute name is missed";
     }
+    name = name.toLowerCase();
     if (!!this.getCustomQuestionByName(name)) {
       throw (
         "There is already registered custom question with name '" + name + "'"

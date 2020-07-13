@@ -1946,7 +1946,8 @@ export class SurveyModel extends Base
    *
    * - `pages` (default),
    * - `questions`,
-   * - `correctQuestions`.
+   * - `correctQuestions`,
+   * - `buttons`.
    */
   public get progressBarType(): string {
     return this.getPropertyValue("progressBarType");
@@ -5149,7 +5150,7 @@ Serializer.addClass("survey", [
   {
     name: "progressBarType",
     default: "pages",
-    choices: ["pages", "questions", "correctQuestions"],
+    choices: ["pages", "questions", "correctQuestions", "buttons"],
   },
   { name: "mode", default: "edit", choices: ["edit", "display"] },
   { name: "storeOthersAsComment:boolean", default: true },

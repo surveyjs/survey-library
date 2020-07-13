@@ -74,7 +74,7 @@
     "replace-in-file": "^3.1.1",
     "rimraf": "2.5.4",
     "sass-loader": "4.1.1",
-    "standard-version": "^7.1.0",
+    "standard-version": "^8.0.1",
     "style-loader": "0.13.1",
     "surveyjs-doc-generator": "git+https://github.com/surveyjs/surveyjs-doc-generator.git",
     "testcafe": "^1.8.3",

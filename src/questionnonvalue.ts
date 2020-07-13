@@ -47,15 +47,15 @@ Serializer.addClass(
     { name: "enableIf", visible: false },
     { name: "defaultValue", visible: false },
     { name: "correctAnswer", visible: false },
-    { name: "isRequired", visible: false },
+    { name: "isRequired", visible: false, isSerializable: false },
     { name: "requiredErrorText", visible: false },
     { name: "readOnly", visible: false },
     { name: "requiredIf", visible: false },
     { name: "validators", visible: false },
     { name: "titleLocation", visible: false },
-    { name: "useDisplayValuesInTitle", visible: false }
+    { name: "useDisplayValuesInTitle", visible: false },
   ],
-  function() {
+  function () {
     return new QuestionNonValue("");
   },
   "question"

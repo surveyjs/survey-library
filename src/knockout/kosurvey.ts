@@ -121,8 +121,8 @@ export class Survey extends SurveyModel {
       this.renderedElement = element;
     }
     element = this.renderedElement;
-    if (!element) return;
     self.startTimerFromUI();
+    if (!element) return;
     self.applyBinding();
   }
   public clear(clearData: boolean = true, gotoFirstPage: boolean = true) {

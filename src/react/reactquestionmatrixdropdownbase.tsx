@@ -229,7 +229,8 @@ export class SurveyQuestionMatrixDropdownCell extends SurveyQuestionAndErrorsCel
   }
 
   protected getHeaderText(): string {
-    return !!this.cell.locTitle ? this.cell.locTitle.renderedHtml : "";
+    var column = this.cell.cell && this.cell.cell.column;
+    return !!(column && column.locTitle) ? column.locTitle.renderedHtml : "";
   }
   protected renderQuestion(): JSX.Element {
     if (!this.cell.isChoice)

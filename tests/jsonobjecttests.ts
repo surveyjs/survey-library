@@ -2315,3 +2315,15 @@ QUnit.test("Serializer.getAllPropertiesByName() function", function (assert) {
     "Find property with the correct name"
   );
 });
+QUnit.test("nextToProperty attribute", function (assert) {
+  var prop = Serializer.addProperty("truck", {
+    name: "test",
+    nextToProperty: "name",
+  });
+  assert.equal(
+    prop.nextToProperty,
+    "name",
+    "created with correct nextToProperty attribute"
+  );
+  Serializer.removeProperty("truck", "test");
+});

@@ -31,6 +31,7 @@ export class JsonObjectProperty implements IObject {
     "category",
     "categoryIndex",
     "visibleIndex",
+    "nextToProperty",
     "showMode",
     "dependedProperties",
     "visibleIf",
@@ -63,6 +64,7 @@ export class JsonObjectProperty implements IObject {
   public category: string = "";
   public categoryIndex: number = -1;
   public visibleIndex: number = -1;
+  public nextToProperty: string = null;
   public showMode: string = null;
   public maxLength: number = -1;
   public maxValue: any;
@@ -443,6 +445,9 @@ export class JsonMetadataClass {
       }
       if (!Helpers.isValueEmpty(propInfo.categoryIndex)) {
         prop.categoryIndex = propInfo.categoryIndex;
+      }
+      if (!Helpers.isValueEmpty(propInfo.nextToProperty)) {
+        prop.nextToProperty = propInfo.nextToProperty;
       }
       if (!Helpers.isValueEmpty(propInfo.visibleIndex)) {
         prop.visibleIndex = propInfo.visibleIndex;

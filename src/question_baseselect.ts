@@ -813,7 +813,7 @@ export class QuestionSelectBase extends Question {
       this.onReadyChanged.fire(this, {
         question: this,
         isReady: true,
-        olsIsReady: oldIsReady,
+        oldIsReady: oldIsReady,
       });
   }
 }

@@ -1,3 +1,13 @@
 <script type="text/html" id="survey-progress-buttons">
-    <div>Hello there</div>
+    <img>
+    <div>
+        <ul>
+            <!-- ko foreach: visiblePages -->
+            <li>
+                <span data-bind="text: name"></span>
+            </li>
+            <!-- /ko -->
+        </ul>
+    </div>
+    <img>
 </script>

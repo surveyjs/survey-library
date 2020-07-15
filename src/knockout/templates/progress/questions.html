@@ -1,9 +1,4 @@
 ﻿<script type="text/html" id="survey-progress-questions">
-    <div data-bind="css: css.progress">
-        <div data-bind="css: css.progressBar, style:{width: koProgress() + '%'}"
-            role="progressbar" aria-valuemin="0" aria-valuemax="100">
-            <span data-bind="text:koProgressText, css: css.progressText + ' ' + css.progressTextInBar"></span>
-        </div>
-        <span data-bind="text:koProgressText, css: css.progressText + ' ' + css.progressTextUnderBar"></span>
-    </div>
+    <!-- ko template: { name: 'survey-progress-progress' } -->
+    <!-- /ko -->
 </script>

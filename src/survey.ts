@@ -462,6 +462,7 @@ export class SurveyModel extends Base
   /**
    * The event is fired on uploading the file in QuestionFile when `storeDataAsText` is set to `false`. Use this event to change the uploaded file name or to prevent a particular file from being uploaded.
    * <br/> `sender` - the survey object that fires the event.
+   * <br/> `options.question` - the file question instance.
    * <br/> `options.name` - the file name.
    * <br/> `options.file` - the Javascript File object.
    * <br/> `options.accept` - a boolean value, `true` by default. Set it to `false` to deny this file uploading.

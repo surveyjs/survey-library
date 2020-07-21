@@ -111,6 +111,7 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner {
     callback: (status: string, data: any) => any
   ): any;
   clearFiles(
+    question: IQuestion,
     name: string,
     value: any,
     fileName: string,

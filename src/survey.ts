@@ -462,6 +462,7 @@ export class SurveyModel extends Base
   /**
    * The event is fired on uploading the file in QuestionFile when `storeDataAsText` is set to `false`. Use this event to change the uploaded file name or to prevent a particular file from being uploaded.
    * <br/> `sender` - the survey object that fires the event.
+   * <br/> `options.question` - the file question instance.
    * <br/> `options.name` - the file name.
    * <br/> `options.file` - the Javascript File object.
    * <br/> `options.accept` - a boolean value, `true` by default. Set it to `false` to deny this file uploading.
@@ -488,6 +489,7 @@ export class SurveyModel extends Base
   /**
    * This event is fired on clearing the value in a QuestionFile. Use this event to remove files stored on your server.
    * <br/> `sender` - the survey object that fires the event.
+   * <br/> `question` - the question instance.
    * <br/> `options.name` - the question name.
    * <br/> `options.value` - the question value.
    * <br/> `options.fileName` - a removed file's name, set it to `null` to clear all files.
@@ -3572,11 +3574,13 @@ export class SurveyModel extends Base
   }
   /**
    * Clears files from server.
-   * @param name a question name
-   * @param value a file question value
-   * @param callback a call back function to get the status of the clearing operation
+   * @param question question
+   * @param name question name
+   * @param value file question value
+   * @param callback call back function to get the status of the clearing operation
    */
   public clearFiles(
+    question: IQuestion,
     name: string,
     value: any,
     fileName: string,
@@ -3586,6 +3590,7 @@ export class SurveyModel extends Base
       !!callback && callback("success", value);
     }
     this.onClearFiles.fire(this, {
+      question: question,
       name: name,
       value: value,
       fileName: fileName,

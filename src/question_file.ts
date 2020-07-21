@@ -28,7 +28,7 @@ export class QuestionFileModel extends Question {
     return "file";
   }
   public clearOnDeletingContainer() {
-    this.survey.clearFiles(this.name, this.value, null, () => {});
+    this.survey.clearFiles(this, this.name, this.value, null, () => {});
   }
   /**
    * Set it to true, to show the preview for the image files.
@@ -172,7 +172,7 @@ export class QuestionFileModel extends Question {
    * Clear value programmatically.
    */
   public clear(doneCallback?: () => void) {
-    this.survey.clearFiles(this.name, this.value, null, (status, data) => {
+    this.survey.clearFiles(this, this.name, this.value, null, (status, data) => {
       if (status === "success") {
         this.value = undefined;
         this.errors = [];
@@ -185,6 +185,7 @@ export class QuestionFileModel extends Question {
    */
   public removeFile(content: { name: string }) {
     this.survey.clearFiles(
+      this,
       this.name,
       this.value,
       content.name,

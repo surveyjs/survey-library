@@ -1,5 +1,5 @@
 <script type="text/html" id="survey-question-title">
-  <div data-bind="css: question.cssHeader">
+  <div data-bind="css: question.cssHeader, click: function() { if (hasInput) focus(); }">
     <h5 data-bind="css: cssTitle, attr: { 'aria-label': question.locTitle.renderedHtml, id: ariaTitleId }">
         <!-- ko template: { name: 'survey-question-title-content', data: question } --><!-- /ko -->
       </h5>

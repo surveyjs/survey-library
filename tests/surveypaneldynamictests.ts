@@ -2999,6 +2999,7 @@ QUnit.test(
     survey.onClearFiles.add(function (sender, options) {
       counter++;
       options.callback("success");
+      assert.equal(options.question.name, "q2", "Question is passed in options");
     });
     var panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
     (<QuestionFileModel>panel.panels[0].getQuestionByName("q2")).value =

@@ -62,7 +62,7 @@ export class SurveyElementBase extends React.Component<any, any> {
   private unMakeBaseElementsReact() {
     var els = this.getStateElements();
     for (var i = 0; i < els.length; i++) {
-      this.makeBaseElementReact(els[i]);
+      this.unMakeBaseElementReact(els[i]);
     }
   }
   protected getStateElements(): Array<Base> {
@@ -117,7 +117,7 @@ export class SurveyElementBase extends React.Component<any, any> {
       var val: any = hash[key];
       if (Array.isArray(val)) {
         var val: any = val;
-        val["onArrayChanged"] = () => { };
+        val["onArrayChanged"] = () => {};
       }
     });
   }
@@ -177,7 +177,7 @@ export class SurveyQuestionElementBase extends SurveyElementBase {
 
 export class SurveyQuestionUncontrolledElement<
   T extends Question
-  > extends SurveyQuestionElementBase {
+> extends SurveyQuestionElementBase {
   constructor(props: any) {
     super(props);
     this.updateValueOnEvent = this.updateValueOnEvent.bind(this);

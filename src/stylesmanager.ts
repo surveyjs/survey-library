@@ -124,6 +124,9 @@ export class StylesManager {
 
     ".sv_progress_bar > span": "white-space: nowrap;",
 
+    //progressButtons
+    ".sv_progress-buttons__container" : "width: 100%; height: 110px; max-width: 1100px; margin: 10px auto; margin-bottom: -70px; white-space: nowrap; overflow: hidden;",
+
     ".sv_qstn .sv_q_select_column":
       "display: inline-block; vertical-align: top; min-width: 10%;",
 

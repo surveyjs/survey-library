@@ -2999,7 +2999,11 @@ QUnit.test(
     survey.onClearFiles.add(function (sender, options) {
       counter++;
       options.callback("success");
-      assert.equal(options.question.name, "q2", "Question is passed in options");
+      assert.equal(
+        options.question.name,
+        "q2",
+        "Question is passed in options"
+      );
     });
     var panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
     (<QuestionFileModel>panel.panels[0].getQuestionByName("q2")).value =
@@ -3142,5 +3146,32 @@ QUnit.test(
       defaultValue,
       "value is copied from default value"
     );
+  }
+);
+QUnit.test(
+  "Do not change panelCount on loading in design-time, Bug #2291",
+  function (assert) {
+    var json = {
+      elements: [
+        {
+          type: "paneldynamic",
+          name: "measurements",
+          templateElements: [
+            {
+              type: "paneldynamic",
+              name: "Some details",
+              panelCount: 1,
+              templateElements: [{ type: "text", name: "q1" }],
+            },
+          ],
+          panelCount: 0,
+        },
+      ],
+    };
+    var survey = new SurveyModel();
+    survey.setDesignMode(true);
+    survey.fromJSON(json);
+    var q = <QuestionPanelDynamicModel>survey.getQuestionByName("measurements");
+    assert.equal(q.panelCount, 0, "The panel count is 0");
   }
 );

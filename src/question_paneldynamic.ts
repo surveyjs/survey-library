@@ -1387,7 +1387,7 @@ export class QuestionPanelDynamicModel extends Question
     return new PanelModel();
   }
   private setPanelCountBasedOnValue() {
-    if (this.isValueChangingInternally) return;
+    if (this.isValueChangingInternally || this.isDesignMode) return;
     var val = this.value;
     var newPanelCount = val && Array.isArray(val) ? val.length : 0;
     if (newPanelCount == 0 && this.loadingPanelCount > 0) {

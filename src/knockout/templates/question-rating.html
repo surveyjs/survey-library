@@ -2,7 +2,7 @@
   <div data-bind="css: question.koCss().root">
       <!-- ko foreach: question.koVisibleRateValues -->
       <label data-bind="css: question.koGetCss($data)">
-          <input type="radio" class="sv-visuallyhidden" data-bind="attr: {name: question.name, id: question.name + $index(), value: $data.value, 'aria-required': question.isRequired, 'aria-label': $data.locText.text, 'aria-invalid': question.errors.length > 0, 'aria-describedby': question.errors.length > 0 ? question.id + '_errors' : null}, event: { change: question.koChange}, enable: !question.isReadOnly"
+          <input type="radio" class="sv-visuallyhidden" data-bind="attr: {name: question.name, id: question.name + $index(), value: $data.value, 'aria-required': question.isRequired, 'aria-label': $data.locText.text, 'aria-invalid': question.errors.length > 0, 'aria-describedby': question.errors.length > 0 ? question.id + '_errors' : null}, checkedValue: $data.value, checked: question.value, enable: !question.isReadOnly"
           />
           <!-- ko if: $index() == 0 -->
           <span data-bind="css: question.koCss().minText">

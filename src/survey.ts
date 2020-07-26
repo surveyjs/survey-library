@@ -5217,6 +5217,7 @@ Serializer.addClass("survey", [
   { name: "requiredText", default: "*" },
   {
     name: "questionStartIndex",
+    dependsOn: ["showQuestionNumbers"],
     visibleIf: function (survey: any) {
       return !survey || survey.showQuestionNumbers !== "off";
     },

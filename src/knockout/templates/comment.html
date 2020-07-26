@@ -1,9 +1,9 @@
 ﻿<script type="text/html" id="survey-comment">
   <!--ko if: !question.isReadOnlyRenderDiv() -->
-      <!--ko if: !question.isSurveyInputTextUpdate -->
+      <!--ko if: !question.isInputTextUpdate -->
       <textarea type="text" data-bind="disable: question.isReadOnly, value: $data.question.comment, visible: $data.visible, css: question.koCss().other, attr: {maxLength: question.getOthersMaxLength(), 'aria-label': !!question.locTitle && question.locTitle.renderedHtml, placeholder: question.otherPlaceHolder}"></textarea>
       <!--/ko-->
-      <!--ko if: question.isSurveyInputTextUpdate -->
+      <!--ko if: question.isInputTextUpdate -->
       <textarea type="text" data-bind="disable: question.isReadOnly, textInput: $data.question.comment, visible: $data.visible, css: question.koCss().other, attr: {maxLength: question.getOthersMaxLength(), 'aria-label': !!question.locTitle && question.locTitle.renderedHtml, placeholder: question.otherPlaceHolder}"></textarea>
       <!--/ko-->
    <!--/ko-->

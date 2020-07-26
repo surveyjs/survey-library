@@ -9,7 +9,7 @@ import { ReactQuestionFactory } from "./reactquestionfactory";
 
 export class SurveyQuestionComment extends SurveyQuestionUncontrolledElement<
   QuestionCommentModel
-  > {
+> {
   constructor(props: any) {
     super(props);
   }
@@ -41,7 +41,9 @@ export class SurveyQuestionComment extends SurveyQuestionUncontrolledElement<
         aria-required={this.question.isRequired}
         aria-label={this.question.locTitle.renderedHtml}
         aria-invalid={this.question.errors.length > 0}
-        aria-describedby={this.question.errors.length > 0 ? this.question.id + '_errors' : null}
+        aria-describedby={
+          this.question.errors.length > 0 ? this.question.id + "_errors" : null
+        }
       />
     );
   }
@@ -58,8 +60,8 @@ export class SurveyQuestionCommentItem extends ReactSurveyElement {
     let updateValueOnEvent = (event: any) => {
       question.comment = event.target.value;
     };
-    var onBlur = !question.isSurveyInputTextUpdate ? updateValueOnEvent : null;
-    var onInput = question.isSurveyInputTextUpdate ? updateValueOnEvent : null;
+    var onBlur = !question.isInputTextUpdate ? updateValueOnEvent : null;
+    var onInput = question.isInputTextUpdate ? updateValueOnEvent : null;
 
     let comment =
       !!this.state && this.state.comment !== undefined

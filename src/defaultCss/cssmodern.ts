@@ -30,6 +30,8 @@ export var modernCss = {
     icon: "sv-panel__icon",
     iconExpanded: "sv-panel__icon--expanded",
     footer: "sv-panel__footer",
+    requiredText: "sv-question__required-text",
+    number: "sv-question__num",
   },
   paneldynamic: {
     root: "sv-paneldynamic",

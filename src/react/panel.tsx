@@ -77,41 +77,10 @@ export class SurveyPanel extends SurveyPanelBase {
       </div>
     );
   }
-  private TitleKeyIndex = 0;
-  private getTitleKey = () => {
-    this.TitleKeyIndex++;
-    return this.panel.name + "-titleKey-" + this.TitleKeyIndex;
-  };
-
   protected renderTitle(): JSX.Element {
     if (!this.panelBase.title) return null;
-    var getSpaceSpan = () => {
-      return (
-        <span data-key={this.getTitleKey()} key={this.getTitleKey()}>
-          &nbsp;
-        </span>
-      );
-    };
-    var number = null;
-    var numberSpace = null;
-    if (!!this.panel.no) {
-      number = (
-        <span
-          data-key={this.getTitleKey()}
-          key={this.getTitleKey()}
-          style={{ position: "static" }}
-        >
-          {this.panel.no}
-        </span>
-      );
-      numberSpace = getSpaceSpan();
-    }
+    var spans = this.renderTitleSpans(this.panel, this.panel.cssClasses);
 
-    var text = SurveyElementBase.renderLocString(
-      this.panelBase.locTitle,
-      null,
-      this.getTitleKey()
-    );
     var expandCollapse = null;
     var titleStyle = this.panel.cssClasses.panel.title;
     if (this.panel.isCollapsed || this.panel.isExpanded) {
@@ -131,9 +100,7 @@ export class SurveyPanel extends SurveyPanelBase {
 
     return (
       <h4 className={titleStyle} onClick={changeExpanded}>
-        {number}
-        {numberSpace}
-        {text}
+        {spans}
         {expandCollapse}
       </h4>
     );

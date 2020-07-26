@@ -3,7 +3,7 @@ import { Helpers } from "../helpers";
 import { LocalizableString } from "../localizablestring";
 import { Question } from "../question";
 import { ISurveyCreator } from "./reactquestion";
-import { Base } from "../base";
+import { Base, ITitleOwner } from "../base";
 
 export class SurveyLocString extends React.Component<any, any> {
   constructor(props: any) {
@@ -80,6 +80,74 @@ export class SurveyElementBase extends React.Component<any, any> {
     style: any = null
   ): JSX.Element {
     return SurveyElementBase.renderLocString(locStr, style);
+  }
+
+  private titleKeyIndex = 0;
+  private titleKeyPrefix = "-titleKey-";
+  private getTitleKey = (element: ITitleOwner) => {
+    this.titleKeyIndex++;
+    return element.name + this.titleKeyPrefix + this.titleKeyIndex;
+  };
+  protected renderTitleSpans(element: ITitleOwner, cssClasses: any) {
+    var getSpaceSpan = () => {
+      return (
+        <span
+          data-key={this.getTitleKey(element)}
+          key={this.getTitleKey(element)}
+        >
+          &nbsp;
+        </span>
+      );
+    };
+    var spans = [];
+    if (element.isRequireTextOnStart) {
+      spans.push(this.renderRequireText(element, cssClasses));
+      spans.push(getSpaceSpan());
+    }
+    var questionNumber = element.no;
+    if (questionNumber) {
+      spans.push(
+        <span
+          data-key={this.getTitleKey(element)}
+          key={this.getTitleKey(element)}
+          className={cssClasses.number}
+          style={{ position: "static" }}
+        >
+          {questionNumber}
+        </span>
+      );
+      spans.push(getSpaceSpan());
+    }
+    if (element.isRequireTextBeforeTitle) {
+      spans.push(this.renderRequireText(element, cssClasses));
+      spans.push(getSpaceSpan());
+    }
+    spans.push(
+      SurveyElementBase.renderLocString(
+        element.locTitle,
+        null,
+        this.getTitleKey(element)
+      )
+    );
+    if (element.isRequireTextAfterTitle) {
+      spans.push(getSpaceSpan());
+      spans.push(this.renderRequireText(element, cssClasses));
+    }
+    return spans;
+  }
+  private renderRequireText(
+    element: ITitleOwner,
+    cssClasses: any
+  ): JSX.Element {
+    return (
+      <span
+        data-key={this.getTitleKey(element)}
+        key={this.getTitleKey(element)}
+        className={cssClasses.requiredText}
+      >
+        {element.requiredText}
+      </span>
+    );
   }
   private makeBaseElementReact(stateElement: Base) {
     if (!stateElement) return;

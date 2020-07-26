@@ -10,6 +10,7 @@ import {
   ISurveyImpl,
   IPage,
   Event,
+  ITitleOwner,
 } from "./base";
 import { surveyLocalization } from "./surveyStrings";
 import { AnswerRequiredError, CustomError } from "./error";
@@ -33,7 +34,12 @@ export interface IConditionObject {
  * A base class for all questions.
  */
 export class Question extends SurveyElement
-  implements IQuestion, IConditionRunner, ILocalizableOwner, IValidatorOwner {
+  implements
+    IQuestion,
+    IConditionRunner,
+    ILocalizableOwner,
+    IValidatorOwner,
+    ITitleOwner {
   [index: string]: any;
   private static TextPreprocessorValuesMap = {
     title: "processedTitle",
@@ -535,17 +541,17 @@ export class Question extends SurveyElement
   public get fullTitle(): string {
     return this.locTitle.renderedHtml;
   }
-  public get questionTitlePattern(): string {
+  protected get titlePattern(): string {
     return !!this.survey ? this.survey.questionTitlePattern : "numTitleRequire";
   }
   public get isRequireTextOnStart() {
-    return this.isRequired && this.questionTitlePattern == "requireNumTitle";
+    return this.isRequired && this.titlePattern == "requireNumTitle";
   }
   public get isRequireTextBeforeTitle() {
-    return this.isRequired && this.questionTitlePattern == "numRequireTitle";
+    return this.isRequired && this.titlePattern == "numRequireTitle";
   }
   public get isRequireTextAfterTitle() {
-    return this.isRequired && this.questionTitlePattern == "numTitleRequire";
+    return this.isRequired && this.titlePattern == "numTitleRequire";
   }
   /**
    * The Question renders on the new line if the property is true. If the property is false, the question tries to render on the same line/row with a previous question/panel.

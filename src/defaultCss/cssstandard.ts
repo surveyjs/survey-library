@@ -70,6 +70,8 @@ export var defaultStandardCss = {
     description: "sv_p_description",
     container: "sv_p_container",
     footer: "sv_p_footer",
+    number: "sv_q_num",
+    requiredText: "sv_q_required_text",
   },
   error: {
     root: "sv_q_erbox",

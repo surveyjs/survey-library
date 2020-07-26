@@ -1,8 +1,24 @@
 <template>
   <div v-if="question.isVisible" :class="question.cssClasses.panel.container" :style="rootStyle">
     <h4 v-show="hasTitle" :class="getTitleStyle()" v-on:click="changeExpanded">
-      <span v-if="question.no" style="position: static;">{{question.no}}</span>
+      <span
+        v-if="question.isRequireTextOnStart"
+        :class="question.cssClasses.requiredText"
+      >{{question.requiredText}}</span>
+      <span
+        v-if="question.no"
+        style="position: static;"
+        :class="question.cssClasses.number"
+      >{{question.no}}</span>
+      <span
+        v-if="question.isRequireTextBeforeTitle"
+        :class="question.cssClasses.requiredText"
+      >{{question.requiredText}}</span>
       <survey-string :locString="question.locTitle" />
+      <span
+        v-if="question.isRequireTextAfterTitle"
+        :class="question.cssClasses.requiredText"
+      >{{question.requiredText}}</span>
       <span v-show="showIcon" :class="iconCss"></span>
     </h4>
     <div :class="question.cssClasses.panel.description">

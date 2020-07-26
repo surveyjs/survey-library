@@ -61,6 +61,8 @@ export var defaultBootstrapMaterialCss = {
     description: "small sv_p_description",
     container: "sv_p_container",
     footer: "sv_p_footer",
+    number: "sv_q_num",
+    requiredText: "sv_q_required_text",
   },
   error: {
     root: "alert alert-danger",
@@ -114,7 +116,7 @@ export var defaultBootstrapMaterialCss = {
     itemValue: "form-control",
     itemChecked: "checked",
     itemDecorator: "sv-hidden",
-    materialDecorator: "bmd-radio"
+    materialDecorator: "bmd-radio",
   },
   matrixdropdown: { root: "table", itemValue: "form-group bmd-form-group" },
   matrixdynamic: {

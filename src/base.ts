@@ -247,6 +247,15 @@ export interface IPanel extends ISurveyElement, IParentElement {
 export interface IPage extends IPanel, IConditionRunner {
   isStarted: boolean;
 }
+export interface ITitleOwner {
+  name: string;
+  no: string;
+  requiredText: string;
+  isRequireTextOnStart: boolean;
+  isRequireTextBeforeTitle: boolean;
+  isRequireTextAfterTitle: boolean;
+  locTitle: LocalizableString;
+}
 /**
  * The base class for SurveyJS objects.
  */

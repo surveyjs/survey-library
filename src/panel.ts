@@ -12,6 +12,7 @@ import {
   SurveyElement,
   SurveyError,
   ISurveyErrorOwner,
+  ITitleOwner,
 } from "./base";
 import { Question } from "./question";
 import { ConditionRunner } from "./conditions";
@@ -206,7 +207,8 @@ export class PanelModelBase extends SurveyElement
   get _showDescription(): boolean {
     return (
       ((<any>this.survey).showPageTitles && this.description.length > 0) ||
-      (this.isDesignMode && settings.allowShowEmptyTitleInDesignMode &&
+      (this.isDesignMode &&
+        settings.allowShowEmptyTitleInDesignMode &&
         settings.allowShowEmptyDescriptionInDesignMode)
     );
   }
@@ -228,6 +230,27 @@ export class PanelModelBase extends SurveyElement
     for (var i = 0; i < this.elements.length; i++) {
       this.elements[i].locStrsChanged();
     }
+  }
+  /**
+   * Returns the char/string for a required panel.
+   * @see SurveyModel.requiredText
+   */
+  public get requiredText(): string {
+    return this.survey != null && this.isRequired
+      ? this.survey.requiredText
+      : "";
+  }
+  protected get titlePattern(): string {
+    return !!this.survey ? this.survey.questionTitlePattern : "numTitleRequire";
+  }
+  public get isRequireTextOnStart() {
+    return this.isRequired && this.titlePattern == "requireNumTitle";
+  }
+  public get isRequireTextBeforeTitle() {
+    return this.isRequired && this.titlePattern == "numRequireTitle";
+  }
+  public get isRequireTextAfterTitle() {
+    return this.isRequired && this.titlePattern == "numTitleRequire";
   }
   /**
    * The custom text that will be shown on required error. Use this property, if you do not want to show the default text.
@@ -1314,7 +1337,8 @@ export class PanelModelBase extends SurveyElement
  * A container element, similar to the Page objects. However, unlike the Page, Panel can't be a root.
  * It may contain questions and other panels.
  */
-export class PanelModel extends PanelModelBase implements IElement {
+export class PanelModel extends PanelModelBase
+  implements IElement, ITitleOwner {
   stateChangedCallback: () => void;
   public minWidth?: string;
   public maxWidth?: string;

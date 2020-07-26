@@ -134,57 +134,8 @@ export class SurveyQuestion extends SurveyElementBase {
   protected renderQuestion(): JSX.Element {
     return SurveyQuestion.renderQuestionBody(this.creator, this.question);
   }
-
-  private TitleKeyIndex = 0;
-  private TitleKeyPrefix = this.question.name + "-titleKey-";
-  private getTitleKey = () => {
-    this.TitleKeyIndex++;
-    return this.TitleKeyPrefix + this.TitleKeyIndex;
-  };
-
   protected renderTitle(cssClasses: any): JSX.Element {
-    var getSpaceSpan = () => {
-      return (
-        <span data-key={this.getTitleKey()} key={this.getTitleKey()}>
-          &nbsp;
-        </span>
-      );
-    };
-
-    var spans = [];
-    if (this.question.isRequireTextOnStart) {
-      spans.push(this.renderRequireText(cssClasses));
-      spans.push(getSpaceSpan());
-    }
-    var questionNumber = this.question["no"];
-    if (questionNumber) {
-      spans.push(
-        <span
-          data-key={this.getTitleKey()}
-          key={this.getTitleKey()}
-          className={cssClasses.number}
-          style={{ position: "static" }}
-        >
-          {questionNumber}
-        </span>
-      );
-      spans.push(getSpaceSpan());
-    }
-    if (this.question.isRequireTextBeforeTitle) {
-      spans.push(this.renderRequireText(cssClasses));
-      spans.push(getSpaceSpan());
-    }
-    spans.push(
-      SurveyElementBase.renderLocString(
-        this.question.locTitle,
-        null,
-        this.getTitleKey()
-      )
-    );
-    if (this.question.isRequireTextAfterTitle) {
-      spans.push(getSpaceSpan());
-      spans.push(this.renderRequireText(cssClasses));
-    }
+    var spans = this.renderTitleSpans(this.question, cssClasses);
     return (
       <h5
         className={this.question.cssTitle}
@@ -193,17 +144,6 @@ export class SurveyQuestion extends SurveyElementBase {
       >
         {spans}
       </h5>
-    );
-  }
-  private renderRequireText(cssClasses: any): JSX.Element {
-    return (
-      <span
-        data-key={this.getTitleKey()}
-        key={this.getTitleKey()}
-        className={cssClasses.requiredText}
-      >
-        {this.question.requiredText}
-      </span>
     );
   }
   protected renderDescription(
@@ -242,8 +182,12 @@ export class SurveyQuestion extends SurveyElementBase {
       ? this.renderDescription(cssClasses)
       : null;
     return (
-      <div className={question.cssHeader} 
-           onClick={function() { if (question.hasInput) question.focus(); }}>
+      <div
+        className={question.cssHeader}
+        onClick={function () {
+          if (question.hasInput) question.focus();
+        }}
+      >
         {title}
         {description}
       </div>
@@ -256,7 +200,7 @@ export class SurveyQuestion extends SurveyElementBase {
         cssClasses={cssClasses}
         creator={this.creator}
         location={location}
-        id={this.question.id +"_errors"}
+        id={this.question.id + "_errors"}
       />
     );
   }

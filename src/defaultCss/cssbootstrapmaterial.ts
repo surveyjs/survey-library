@@ -56,6 +56,7 @@ export var defaultBootstrapMaterialCss = {
   panel: {
     title: "sv_p_title",
     titleExpandable: "sv_p_title_expandable",
+    titleOnError: "",
     icon: "sv_panel_icon",
     iconExpanded: "sv_expanded",
     description: "small sv_p_description",

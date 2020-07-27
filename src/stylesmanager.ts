@@ -699,6 +699,7 @@ export class StylesManager {
     ".sv-question__title--answer":
       "background-color: $answer-background-color;",
     ".sv-question__title--error": "background-color: $error-background-color;",
+    ".sv-panel__title--error": "background-color: $error-background-color;",
     ".sv-radio__svg": "border-color: $border-color; fill: transparent;",
     ".sv-radio--allowhover:hover .sv-radio__svg": "fill: $border-color;",
     ".sv-radio--checked .sv-radio__svg":

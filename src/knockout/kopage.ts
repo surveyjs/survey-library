@@ -107,6 +107,9 @@ export class Panel extends PanelModel {
     if (this.koIsCollapsed() || this.koIsExpanded()) {
       result += " " + this.cssClasses.panel.titleExpandable;
     }
+    if (this.containsErrors) {
+      result += " " + this.cssClasses.panel.titleOnError;
+    }
     return result;
   }
   endLoadingFromJson() {

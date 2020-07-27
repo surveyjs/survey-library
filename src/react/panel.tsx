@@ -98,6 +98,10 @@ export class SurveyPanel extends SurveyPanelBase {
       expandCollapse = <span className={iconCss} />;
     }
 
+    if (this.panel.containsErrors) {
+      titleStyle += " " + this.panel.cssClasses.panel.titleOnError;
+    }
+
     return (
       <h4 className={titleStyle} onClick={changeExpanded}>
         {spans}

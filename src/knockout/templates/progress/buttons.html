@@ -1,8 +1,8 @@
 <script type="text/html" id="survey-progress-buttons">
     <div data-bind="css: css.progressButtonsContainer">
-        <img>
-        <div>
-            <ul>
+        <img data-bind="css: css.progressButtonsImageButton">
+        <div data-bind="css: css.progressButtonsListContainer">
+            <ul data-bind="css: css.progressButtonsList">
                 <!-- ko foreach: visiblePages -->
                 <li>
                     <span data-bind="text: name"></span>
@@ -10,6 +10,6 @@
                 <!-- /ko -->
             </ul>
         </div>
-        <img>
+        <img data-bind="css: css.progressButtonsImageButton">
     </div>
 </script>

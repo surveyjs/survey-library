@@ -416,10 +416,12 @@ export class SurveyModel extends Base
     any
   > = new Event<(sender: SurveyModel, options: any) => any, any>();
   /**
-   * Use this event to change the question title in code.
+   * Use this event to change the question title in code. If you want to remove question numbering then set showQuestionNumbers to "off".
    * <br/> `sender` - the survey object that fires the event.
-   * <br/> `options.title` - a calculated question title, based on question `title`, `name`, `isRequired`, and `visibleIndex` properties.
+   * <br/> `options.title` - a calculated question title, based on question `title`, `name`.
    * <br/> `options.question` - a question object.
+   * @see showQuestionNumbers
+   * @see requiredText
    */
   public onGetQuestionTitle: Event<
     (sender: SurveyModel, options: any) => any,

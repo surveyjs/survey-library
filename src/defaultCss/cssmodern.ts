@@ -24,6 +24,7 @@ export var modernCss = {
   panel: {
     title: "sv-title sv-panel__title",
     titleExpandable: "sv-panel__title--expandable",
+    titleOnError: "sv-panel__title--error",
     description: "sv-description sv-panel__description",
     container: "sv-panel sv-row__panel",
     content: "sv-panel__content",

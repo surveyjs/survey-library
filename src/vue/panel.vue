@@ -134,6 +134,9 @@ export class Panel extends Vue {
     if (this.question.isCollapsed || this.question.isExpanded) {
       result += " " + this.css.panel.titleExpandable;
     }
+    if (this.question.containsErrors) {
+      result += " " + this.question.cssClasses.panel.titleOnError;
+    }
     return result;
   }
 }

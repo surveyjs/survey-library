@@ -43,3 +43,6 @@
 .sv-panel .sv-row:not(:last-child) {
   padding-bottom: 1.875em;
 }
+.sv-panel__title--error {
+  background-color: $error-background-color;
+}

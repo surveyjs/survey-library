@@ -317,6 +317,9 @@ export class MatrixDropdownColumn extends Base implements ILocalizableOwner {
   public set isRequired(val: boolean) {
     this.templateQuestion.isRequired = val;
   }
+  public get requiredText(): string {
+    return this.templateQuestion.requiredText;
+  }
   public get requiredErrorText(): string {
     return this.templateQuestion.requiredErrorText;
   }
@@ -987,6 +990,7 @@ export class QuestionMatrixDropdownRenderedCell {
   public isRemoveRow: boolean;
   public choiceIndex: number;
   public matrix: QuestionMatrixDropdownModelBase;
+  public requiredText: string;
   public constructor() {
     this.idValue = QuestionMatrixDropdownRenderedCell.counter++;
   }
@@ -1240,7 +1244,11 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     var res = new QuestionMatrixDropdownRenderedRow();
     if (this.matrix.showHeader) {
       var lTitle = !!choice ? choice.locText : column.locTitle;
-      res.cells.push(this.createTextCell(lTitle));
+      var hCell = this.createTextCell(lTitle);
+      if (!choice) {
+        this.setRequriedToHeaderCell(column, hCell);
+      }
+      res.cells.push(hCell);
     }
     var rows = this.matrix.visibleRows;
     for (var i = 0; i < rows.length; i++) {
@@ -1332,6 +1340,15 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
   ) {
     cell.minWidth = column != null ? this.matrix.getColumnWidth(column) : "";
     cell.width = column != null ? column.width : this.matrix.getRowTitleWidth();
+    this.setRequriedToHeaderCell(column, cell);
+  }
+  private setRequriedToHeaderCell(
+    column: MatrixDropdownColumn,
+    cell: QuestionMatrixDropdownRenderedCell
+  ) {
+    if (!!column && column.isRequired && this.matrix.survey) {
+      cell.requiredText = this.matrix.survey.requiredText;
+    }
   }
   private createRemoveRowCell(
     row: MatrixDropdownRowModelBase
@@ -1619,6 +1636,9 @@ export class QuestionMatrixDropdownModelBase
       );
     }
     this.onColumnsChanged();
+    if (name == "isRequired") {
+      this.resetRenderedTable();
+    }
     if (column.isShowInMultipleColumns) {
       this.onShowInMultipleColumnsChanged(column);
     }

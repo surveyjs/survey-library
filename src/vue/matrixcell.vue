@@ -38,6 +38,7 @@
       <span :class="question.cssClasses.iconRemove"></span>
     </button>
     <survey-string v-if="cell.hasTitle" :locString="cell.locTitle" />
+    <span v-if="!!cell.requiredText">{{cell.requiredText}}</span>
   </td>
 </template>
 
@@ -47,7 +48,7 @@ import { Component, Prop } from "vue-property-decorator";
 import { Question } from "../question";
 import {
   MatrixDropdownCell,
-  QuestionMatrixDropdownRenderedCell
+  QuestionMatrixDropdownRenderedCell,
 } from "../question_matrixdropdownbase";
 
 @Component
@@ -121,7 +122,7 @@ export class MatrixCell extends Vue {
       cellQuestion: this.cell.question,
       htmlElement: this.$el,
       row: this.cell.row,
-      column: this.cell.cell.column
+      column: this.cell.cell.column,
     };
     this.question.survey.matrixAfterCellRender(this.question, options);
   }

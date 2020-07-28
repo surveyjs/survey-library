@@ -3281,6 +3281,34 @@ QUnit.test("survey.onMatrixAllowRemoveRow", function (assert) {
   );
 });
 
+QUnit.test("column is requriedText, Bug #2297", function (assert) {
+  var survey = new SurveyModel({
+    questions: [
+      {
+        type: "matrixdynamic",
+        name: "q1",
+        rowCount: 2,
+        columns: [{ name: "1", isRequired: true }, { name: "2" }],
+      },
+    ],
+  });
+  var matrix = <QuestionMatrixDynamicModel>survey.getAllQuestions()[0];
+  var table = matrix.renderedTable;
+  assert.equal(
+    table.headerRow.cells[0].requiredText,
+    "*",
+    "required Text is here"
+  );
+  assert.notOk(table.headerRow.cells[1].requiredText, "required Text is empty");
+  matrix.columnsLocation = "vertical";
+  table = matrix.renderedTable;
+  assert.equal(
+    table.rows[0].cells[0].requiredText,
+    "*",
+    "The first cell in the row is a column header now"
+  );
+});
+
 QUnit.test(
   "two shared matrixdynamic - should be no errors, Bug #T3121 (https://surveyjs.answerdesk.io/ticket/details/T3121)",
   function (assert) {

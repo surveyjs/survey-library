@@ -96,7 +96,7 @@ export class Question extends SurveyElement
         text = self.name;
       }
       if (!self.survey) return text;
-      return self.survey.getUpdatedQuestionTitle(this, text);
+      return self.survey.getUpdatedQuestionTitle(self, text);
     };
     this.locProcessedTitle = new LocalizableString(this, true);
     this.locProcessedTitle.sharedData = locTitleValue;

@@ -1,15 +1,15 @@
 <script type="text/html" id="survey-progress-buttons">
-    <div data-bind="css: css.progressButtonsContainer">
-        <img data-bind="css: css.progressButtonsImageButton">
-        <div data-bind="css: css.progressButtonsListContainer">
-            <ul data-bind="css: css.progressButtonsList">
-                <!-- ko foreach: visiblePages -->
+    <div data-bind="css: model.css.progressButtonsContainer">
+        <img data-bind="css: model.css.progressButtonsImageButton">
+        <div data-bind="css: model.css.progressButtonsListContainer">
+            <ul data-bind="css: model.css.progressButtonsList">
+                <!-- ko foreach: model.visiblePages -->
                 <li>
                     <span data-bind="text: name"></span>
                 </li>
                 <!-- /ko -->
             </ul>
         </div>
-        <img data-bind="css: css.progressButtonsImageButton">
+        <img data-bind="css: model.css.progressButtonsImageButton">
     </div>
 </script>

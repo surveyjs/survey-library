@@ -1,14 +1,11 @@
 import * as ko from "knockout";
 import { SurveyModel } from "../survey";
-import { IPage, IQuestion, Event, SurveyElement } from "../base";
+import { IPage, SurveyElement } from "../base";
 import { Page } from "./kopage";
 import { PageModel } from "../page";
 import { surveyCss } from "../defaultCss/cssstandard";
 import { koTemplate, SurveyTemplateText } from "./templateText";
-import {
-  QuestionCustomWidget,
-  CustomWidgetCollection,
-} from "../questionCustomWidgets";
+import { CustomWidgetCollection } from "../questionCustomWidgets";
 import { LocalizableString } from "../localizablestring";
 import { ItemValue } from "../itemvalue";
 import { ImplementorBase } from "./kobase";
@@ -417,3 +414,34 @@ export var registerTemplateEngine = (ko: any, platform: string) => {
   var surveyTemplateEngineInstance = new (<any>ko).surveyTemplateEngine();
   ko.setTemplateEngine(surveyTemplateEngineInstance);
 };
+
+//реэкспортнуть это через отдельный файлик (не импорт)
+ko.components.register("survey-progress-pages", {
+  viewModel: function (params: any) {
+    this.survey = params.model;
+    return { model: this.survey, foo: "132" };
+  },
+  //nodeDOMremoval чтобы отключать таймер
+  template: { element: "survey-progress-pages" }
+});
+ko.components.register("survey-progress-questions", {
+  viewModel: function (params: any) {
+    this.survey = params.model;
+    return { model: this.survey };
+  },
+  template: { element: "survey-progress-questions" }
+});
+ko.components.register("survey-progress-correctquestions", {
+  viewModel: function (params: any) {
+    this.survey = params.model;
+    return { model: this.survey };
+  },
+  template: { element: "survey-progress-correctquestions" }   
+});
+ko.components.register("survey-progress-buttons", {
+  viewModel: function (params: any) {
+    this.survey = params.model;
+    return { model: this.survey };
+  },
+  template: { element: "survey-progress-buttons" }
+});

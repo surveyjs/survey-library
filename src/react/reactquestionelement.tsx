@@ -143,7 +143,7 @@ export class SurveyElementBase extends React.Component<any, any> {
       <span
         data-key={this.getTitleKey(element)}
         key={this.getTitleKey(element)}
-        className={cssClasses.requiredText}
+        className={cssClasses.requiredText || cssClasses.panel.requiredText}
       >
         {element.requiredText}
       </span>

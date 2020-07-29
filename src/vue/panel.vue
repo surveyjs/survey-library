@@ -1,10 +1,7 @@
 <template>
   <div v-if="question.isVisible" :class="question.cssClasses.panel.container" :style="rootStyle">
     <h4 v-show="hasTitle" :class="getTitleStyle()" v-on:click="changeExpanded">
-      <span
-        v-if="question.isRequireTextOnStart"
-        :class="question.cssClasses.requiredText"
-      >{{question.requiredText}}</span>
+      <span v-if="question.isRequireTextOnStart" :class="requiredTextCss">{{question.requiredText}}</span>
       <span
         v-if="question.no"
         style="position: static;"
@@ -12,12 +9,12 @@
       >{{question.no}}</span>
       <span
         v-if="question.isRequireTextBeforeTitle"
-        :class="question.cssClasses.requiredText"
+        :class="requiredTextCss"
       >{{question.requiredText}}</span>
       <survey-string :locString="question.locTitle" />
       <span
         v-if="question.isRequireTextAfterTitle"
-        :class="question.cssClasses.requiredText"
+        :class="requiredTextCss"
       >{{question.requiredText}}</span>
       <span v-show="showIcon" :class="iconCss"></span>
     </h4>
@@ -138,6 +135,13 @@ export class Panel extends Vue {
       result += " " + this.question.cssClasses.panel.titleOnError;
     }
     return result;
+  }
+
+  get requiredTextCss() {
+    return (
+      this.question.cssClasses.requiredText ||
+      this.question.cssClasses.panel.requiredText
+    );
   }
 }
 Vue.component("survey-panel", Panel);

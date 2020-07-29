@@ -118,6 +118,9 @@ export class QuestionExpressionModel extends Question {
     if (getCurrecyCodes().indexOf(val) < 0) return;
     this.setPropertyValue("currency", val);
   }
+  /**
+   * 	Determines whether to display grouping separators. The default value is true.
+   */
   public get useGrouping(): boolean {
     return this.getPropertyValue("useGrouping", true);
   }

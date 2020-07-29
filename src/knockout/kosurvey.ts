@@ -414,34 +414,3 @@ export var registerTemplateEngine = (ko: any, platform: string) => {
   var surveyTemplateEngineInstance = new (<any>ko).surveyTemplateEngine();
   ko.setTemplateEngine(surveyTemplateEngineInstance);
 };
-
-//реэкспортнуть это через отдельный файлик (не импорт)
-ko.components.register("survey-progress-pages", {
-  viewModel: function (params: any) {
-    this.survey = params.model;
-    return { model: this.survey, foo: "132" };
-  },
-  //nodeDOMremoval чтобы отключать таймер
-  template: { element: "survey-progress-pages" }
-});
-ko.components.register("survey-progress-questions", {
-  viewModel: function (params: any) {
-    this.survey = params.model;
-    return { model: this.survey };
-  },
-  template: { element: "survey-progress-questions" }
-});
-ko.components.register("survey-progress-correctquestions", {
-  viewModel: function (params: any) {
-    this.survey = params.model;
-    return { model: this.survey };
-  },
-  template: { element: "survey-progress-correctquestions" }   
-});
-ko.components.register("survey-progress-buttons", {
-  viewModel: function (params: any) {
-    this.survey = params.model;
-    return { model: this.survey };
-  },
-  template: { element: "survey-progress-buttons" }
-});

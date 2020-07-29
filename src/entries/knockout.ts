@@ -53,6 +53,11 @@ export { QuestionImage } from "../knockout/koquestion_image";
 export { QuestionSignaturePad } from "../knockout/koquestion_signaturepad";
 
 export { QuestionCustom } from "../knockout/koquestion_custom";
+export * from "../knockout/components/progress/buttons";
+export * from "../knockout/components/progress/correctquestions";
+export * from "../knockout/components/progress/pages";
+export * from "../knockout/components/progress/progress";
+export * from "../knockout/components/progress/questions";
 
 //Uncomment to include the "date" question type.
 //export {QuestionDate} from "../plugins/knockout/koquestion_date";

@@ -9,6 +9,7 @@
           :style="{ minWidth: cell.minWidth, width: cell.width }"
         >
           <survey-string :locString="cell.locTitle" />
+          <span v-if="!!cell.requiredText">{{cell.requiredText}}</span>
         </th>
       </tr>
     </thead>
@@ -41,7 +42,7 @@ import { Component, Prop } from "vue-property-decorator";
 import { Question } from "../question";
 import {
   QuestionMatrixDropdownModelBase,
-  QuestionMatrixDropdownRenderedTable
+  QuestionMatrixDropdownRenderedTable,
 } from "../question_matrixdropdownbase";
 
 @Component

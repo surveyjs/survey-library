@@ -6138,20 +6138,27 @@ QUnit.test(
     assert.equal(survey.getInCorrectedAnswers(), 1, "1 in matrix");
   }
 );
-QUnit.test("survey.onGetQuestionTitle event. ", function (assert) {
-  var survey = new SurveyModel();
-  var page = survey.addNewPage("page");
-  var question = <Question>page.addNewQuestion("text", "question1");
-  assert.equal(
-    question.fullTitle,
-    "question1",
-    "by default it is question name if title is empty"
-  );
-  survey.onGetQuestionTitle.add(function (survey, options) {
-    if (options.question.title == options.question.name) options.title = "";
-  });
-  assert.equal(question.fullTitle, "", "it is empty now");
-});
+QUnit.test(
+  "survey.onGetQuestionTitle event. Update unit test for bug: #2298",
+  function (assert) {
+    var survey = new SurveyModel();
+    var page = survey.addNewPage("page");
+    var question = <Question>page.addNewQuestion("text", "question1");
+    assert.equal(
+      question.fullTitle,
+      "question1",
+      "by default it is question name if title is empty"
+    );
+    var questionName = "";
+    survey.onGetQuestionTitle.add(function (survey, options) {
+      questionName = options.question.name;
+      if (options.question.title == options.question.name) options.title = "";
+    });
+    assert.equal(question.fullTitle, "", "it is empty now");
+    //check bug: #2298
+    assert.equal(questionName, "question1", "options.question is corrrect");
+  }
+);
 
 QUnit.test(
   "Do not run conditions (enableIf/visibleIf) at design-time/Editor, Bug #999",

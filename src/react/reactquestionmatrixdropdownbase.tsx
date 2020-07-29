@@ -1,19 +1,19 @@
 import * as React from "react";
 import {
   ReactSurveyElement,
-  SurveyQuestionElementBase
+  SurveyQuestionElementBase,
 } from "./reactquestionelement";
 import {
   ISurveyCreator,
   SurveyQuestion,
-  SurveyQuestionAndErrorsCell
+  SurveyQuestionAndErrorsCell,
 } from "./reactquestion";
 import {
   MatrixDropdownCell,
   MatrixDropdownRowModelBase,
   QuestionMatrixDropdownModelBase,
   QuestionMatrixDropdownRenderedRow,
-  QuestionMatrixDropdownRenderedCell
+  QuestionMatrixDropdownRenderedCell,
 } from "../question_matrixdropdownbase";
 import { Question } from "../question";
 import { SurveyQuestionCheckboxItem } from "./reactquestioncheckbox";
@@ -89,6 +89,10 @@ export class SurveyQuestionMatrixDropdownBase extends SurveyQuestionElementBase 
         columnStyle.minWidth = cell.minWidth;
       }
       var columnTitle = this.renderLocString(cell.locTitle);
+      var requiredSpace = !!cell.requiredText ? <span>&nbsp;</span> : null;
+      var requiredText = !!cell.requiredText ? (
+        <span>{cell.requiredText}</span>
+      ) : null;
       headers.push(
         <th
           className={this.question.cssClasses.headerCell}
@@ -96,6 +100,8 @@ export class SurveyQuestionMatrixDropdownBase extends SurveyQuestionElementBase 
           style={columnStyle}
         >
           {columnTitle}
+          {requiredSpace}
+          {requiredText}
         </th>
       );
     }
@@ -156,8 +162,14 @@ export class SurveyQuestionMatrixDropdownBase extends SurveyQuestionElementBase 
       );
     }
     var cellContent = null;
+    var requiredSpace = null;
+    var requiredText = null;
     if (cell.hasTitle) {
       cellContent = this.renderLocString(cell.locTitle);
+      if (cell.requiredText) {
+        requiredSpace = <span>&nbsp;</span>;
+        requiredText = <span>{cell.requiredText}</span>;
+      }
     }
     if (cell.isRemoveRow) {
       cellContent = this.renderRemoveButton(cell.row);
@@ -165,6 +177,8 @@ export class SurveyQuestionMatrixDropdownBase extends SurveyQuestionElementBase 
     return (
       <td className={cssClasses.cell} key={key}>
         {cellContent}
+        {requiredSpace}
+        {requiredText}
       </td>
     );
   }
@@ -200,7 +214,7 @@ export class SurveyQuestionMatrixDropdownCell extends SurveyQuestionAndErrorsCel
         cellQuestion: this.question,
         htmlElement: el,
         row: this.cell.row,
-        column: this.cell.cell.column
+        column: this.cell.cell.column,
       };
       this.question.survey.matrixAfterCellRender(this.question, options);
     }

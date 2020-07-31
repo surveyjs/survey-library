@@ -97,6 +97,8 @@ export var defaultStandardCss = {
   checkbox: {
     root: "sv_qcbc sv_qcbx",
     item: "sv_q_checkbox",
+    itemSelectAll: "sv_q_checkbox_selectall",
+    itemNone: "sv_q_checkbox_none",
     itemChecked: "checked",
     itemInline: "sv_q_checkbox_inline",
     label: "sv_q_checkbox_label",

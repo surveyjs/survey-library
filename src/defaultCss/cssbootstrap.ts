@@ -88,6 +88,8 @@ export var defaultBootstrapCss = {
     root: "sv_qcbc sv_qcbx form-inline",
     item: "checkbox",
     itemChecked: "checked",
+    itemSelectAll: "sv_q_checkbox_selectall",
+    itemNone: "sv_q_checkbox_none",
     itemInline: "sv_q_checkbox_inline",
     itemControl: "",
     itemDecorator: "sv-hidden",

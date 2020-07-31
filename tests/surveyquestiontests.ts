@@ -1277,52 +1277,59 @@ QUnit.test("Checkbox store others value not in comment", function (assert) {
   assert.deepEqual(survey.data, { q: ["A", "B"] }, "'B' is set");
 });
 
-QUnit.test("Checkbox store others value not in comment after select another items - https://github.com/surveyjs/survey-library/issues/2221", function (assert) {
-  var survey = new SurveyModel();
-  survey.addNewPage("page1");
-  var question = new QuestionCheckboxModel("q");
-  question.choices = ["A", "B", "C", "D"];
-  question.hasOther = true;
-  question.storeOthersAsComment = false;
-  survey.pages[0].addQuestion(question);
-  // survey.storeOthersAsComment = false;
+QUnit.test(
+  "Checkbox store others value not in comment after select another items - https://github.com/surveyjs/survey-library/issues/2221",
+  function (assert) {
+    var survey = new SurveyModel();
+    survey.addNewPage("page1");
+    var question = new QuestionCheckboxModel("q");
+    question.choices = ["A", "B", "C", "D"];
+    question.hasOther = true;
+    question.storeOthersAsComment = false;
+    survey.pages[0].addQuestion(question);
+    // survey.storeOthersAsComment = false;
 
-  question.value = null;
-  assert.equal(question.isOtherSelected, false, "Others is not selected");
-  assert.deepEqual(survey.data, {}, "There is no data in survey");
+    question.value = null;
+    assert.equal(question.isOtherSelected, false, "Others is not selected");
+    assert.deepEqual(survey.data, {}, "There is no data in survey");
 
-  question.comment = null;
-  question.value = ["A", question.otherItem.value];
-  assert.equal(
-    question.isOtherSelected,
-    true,
-    "Any other value that is not from choices is other"
-  );
-  assert.deepEqual(
-    survey.data,
-    { q: ["A", question.otherItem.value] },
-    "Other Item is set"
-  );
-  question.comment = "commentTest";
-  assert.equal(
-    question.isOtherSelected,
-    true,
-    "Any other value that is not from choices is other"
-  );
-  assert.deepEqual(
-    survey.data,
-    { q: ["A", "commentTest"] },
-    "Other text is set"
-  );
+    question.comment = null;
+    question.value = ["A", question.otherItem.value];
+    assert.equal(
+      question.isOtherSelected,
+      true,
+      "Any other value that is not from choices is other"
+    );
+    assert.deepEqual(
+      survey.data,
+      { q: ["A", question.otherItem.value] },
+      "Other Item is set"
+    );
+    question.comment = "commentTest";
+    assert.equal(
+      question.isOtherSelected,
+      true,
+      "Any other value that is not from choices is other"
+    );
+    assert.deepEqual(
+      survey.data,
+      { q: ["A", "commentTest"] },
+      "Other text is set"
+    );
 
-  question.value = ["A", question.otherItem.value, "B"];
-  assert.deepEqual(question.value, ["A", "commentTest", "B"], "'commentTest' is still set to the question");
-  assert.deepEqual(
-    survey.data,
-    { q: ["A", "commentTest", "B"] },
-    "'commentTest' is still set in the survey data"
-  );
-});
+    question.value = ["A", question.otherItem.value, "B"];
+    assert.deepEqual(
+      question.value,
+      ["A", "commentTest", "B"],
+      "'commentTest' is still set to the question"
+    );
+    assert.deepEqual(
+      survey.data,
+      { q: ["A", "commentTest", "B"] },
+      "'commentTest' is still set in the survey data"
+    );
+  }
+);
 
 QUnit.test("radiogroup.renderedValue - simple synhronization", function (
   assert
@@ -3636,3 +3643,39 @@ QUnit.test(
     );
   }
 );
+QUnit.test("Checkbox question getItemClass()", function (assert) {
+  var survey = new SurveyModel({
+    elements: [
+      {
+        type: "checkbox",
+        name: "q1",
+        storeOthersAsComment: false,
+        hasSelectAll: true,
+        hasNone: true,
+        choices: [1, 2],
+      },
+    ],
+  });
+  var q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+  q1.value = [1];
+  assert.equal(
+    q1.getItemClass(q1.visibleChoices[0]),
+    "sv_q_checkbox sv-q-col-1 sv_q_checkbox_selectall",
+    "select all"
+  );
+  assert.equal(
+    q1.getItemClass(q1.visibleChoices[1]),
+    "sv_q_checkbox sv-q-col-1 checked",
+    "item 1"
+  );
+  assert.equal(
+    q1.getItemClass(q1.visibleChoices[2]),
+    "sv_q_checkbox sv-q-col-1",
+    "item 2"
+  );
+  assert.equal(
+    q1.getItemClass(q1.visibleChoices[3]),
+    "sv_q_checkbox sv-q-col-1 sv_q_checkbox_none",
+    "None"
+  );
+});

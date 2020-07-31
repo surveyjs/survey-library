@@ -55,9 +55,12 @@ export class QuestionRadiogroupModel extends QuestionCheckboxBase {
           ? " " + this.cssClasses.itemInline
           : " sv-q-col-" + this.colCount;
     }
-    if (isDisabled) itemClass += " " + this.cssClasses.itemDisabled;
-    if (isChecked) itemClass += " " + this.cssClasses.itemChecked;
-    if (allowHover) itemClass += " " + this.cssClasses.itemHover;
+    if (isDisabled && !!this.cssClasses.itemDisabled)
+      itemClass += " " + this.cssClasses.itemDisabled;
+    if (isChecked && !!this.cssClasses.itemChecked)
+      itemClass += " " + this.cssClasses.itemChecked;
+    if (allowHover && !!this.cssClasses.itemHover)
+      itemClass += " " + this.cssClasses.itemHover;
     return itemClass;
   }
 }

@@ -160,13 +160,13 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
     var isChecked = this.isItemSelected(item);
     var isDisabled = this.isReadOnly || !item.isEnabled;
     var allowHover = !isChecked && !isDisabled;
-    if (isChecked) {
+    if (isChecked && !!this.cssClasses.itemChecked) {
       itemClass += " " + this.cssClasses.itemChecked;
     }
-    if (isDisabled) {
+    if (isDisabled && !!this.cssClasses.itemDisabled) {
       itemClass += " " + this.cssClasses.itemDisabled;
     }
-    if (allowHover) {
+    if (allowHover && !!this.cssClasses.itemHover) {
       itemClass += " " + this.cssClasses.itemHover;
     }
     return itemClass;

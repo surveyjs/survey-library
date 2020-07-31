@@ -183,6 +183,8 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     var isChecked = this.isItemSelected(item);
     var isDisabled = this.isReadOnly || !item.isEnabled;
     var allowHover = !isChecked && !isDisabled;
+    var isSelectAll = item === this.selectAllItem;
+    var isNone = item === this.noneItem;
     var itemClass = this.cssClasses.item;
     if (!this.hasColumns) {
       itemClass +=
@@ -190,9 +192,16 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
           ? " " + this.cssClasses.itemInline
           : " sv-q-col-" + this.colCount;
     }
-    if (isDisabled) itemClass += " " + this.cssClasses.itemDisabled;
-    if (isChecked) itemClass += " " + this.cssClasses.itemChecked;
-    if (allowHover) itemClass += " " + this.cssClasses.itemHover;
+    if (isDisabled && !!this.cssClasses.itemDisabled)
+      itemClass += " " + this.cssClasses.itemDisabled;
+    if (isChecked && !!this.cssClasses.itemChecked)
+      itemClass += " " + this.cssClasses.itemChecked;
+    if (allowHover && !!this.cssClasses.itemHover)
+      itemClass += " " + this.cssClasses.itemHover;
+    if (isSelectAll && !!this.cssClasses.itemSelectAll)
+      itemClass += " " + this.cssClasses.itemSelectAll;
+    if (isNone && !!this.cssClasses.itemNone)
+      itemClass += " " + this.cssClasses.itemNone;
     return itemClass;
   }
   protected setNewValue(newValue: any) {

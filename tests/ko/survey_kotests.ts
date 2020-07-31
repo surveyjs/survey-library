@@ -1745,23 +1745,23 @@ QUnit.test(
   "Some custom CSS not working - https://github.com/surveyjs/survey-library/issues/2122",
   function (assert) {
     var survey = new Survey({
-      questions:[
+      questions: [
         {
           name: "q1",
-          type: "text"
+          type: "text",
         },
         {
-          "type": "paneldynamic",
-          "name": "p1",
-          "templateElements": [
+          type: "paneldynamic",
+          name: "p1",
+          templateElements: [
             {
               name: "name",
-              type: "text"
-            }
+              type: "text",
+            },
           ],
-          "panelCount": 2
-        }
-      ]
+          panelCount: 2,
+        },
+      ],
     });
     var q1 = survey.getQuestionByName("q1");
     var p1 = survey.getQuestionByName("p1");
@@ -1772,41 +1772,50 @@ QUnit.test(
     };
 
     assert.equal(q1.cssTitle, "sv_q_title", "Original CSS classes");
-    assert.equal(p1.panels[0].elements[0].cssTitle, "sv_q_title", "Original CSS classes for questions in dynamic panel");
+    assert.equal(
+      p1.panels[0].elements[0].cssTitle,
+      "sv_q_title",
+      "Original CSS classes for questions in dynamic panel"
+    );
     survey.updateSurvey({ css: myCss });
     assert.equal(q1.cssTitle, "sq-title-red", "CSS classes have been updated");
-    assert.equal(p1.panels[0].elements[0].cssTitle, "sq-title-red", "CSS classes for questions in dynamic panel");
+    assert.equal(
+      p1.panels[0].elements[0].cssTitle,
+      "sq-title-red",
+      "CSS classes for questions in dynamic panel"
+    );
   }
 );
 
-QUnit.test("Other item selected and not checked - https://github.com/surveyjs/survey-library/issues/2200", function (
-  assert
-) {
-  var q1 = new QuestionRadiogroup("q1");
-  q1.fromJSON({
-    type: "radiogroup",
-    name: "q1",
-    hasOther: true,
-    storeOthersAsComment: false,
-    choices: [1, 2]
-  });
-  q1["copyCssClasses"] = classes => {
-    classes.item = "item";
-    classes.itemChecked = "checked";
+QUnit.test(
+  "Other item selected and not checked - https://github.com/surveyjs/survey-library/issues/2200",
+  function (assert) {
+    var q1 = new QuestionRadiogroup("q1");
+    q1.fromJSON({
+      type: "radiogroup",
+      name: "q1",
+      hasOther: true,
+      storeOthersAsComment: false,
+      choices: [1, 2],
+    });
+    q1["copyCssClasses"] = (classes) => {
+      classes.item = "item";
+      classes.itemChecked = "checked";
+    };
+
+    assert.notOk(q1.isOtherSelected);
+    assert.equal(
+      q1.getItemClass(q1.otherItem),
+      "item sv-q-col-1",
+      "other is not selected"
+    );
+
+    q1.value = "some text";
+    assert.ok(q1.isOtherSelected);
+    assert.equal(
+      q1.getItemClass(q1.otherItem),
+      "item sv-q-col-1 checked",
+      "other is selected"
+    );
   }
-
-  assert.notOk(q1.isOtherSelected);
-  assert.equal(
-    q1.getItemClass(q1.otherItem),
-    "item sv-q-col-1 undefined",
-    "other is not selected"
-  );
-
-  q1.value = "some text";
-  assert.ok(q1.isOtherSelected);
-  assert.equal(
-    q1.getItemClass(q1.otherItem),
-    "item sv-q-col-1 checked",
-    "other is selected"
-  );
-});
+);

@@ -102,6 +102,8 @@ export var modernCss = {
   checkbox: {
     root: "sv-selectbase",
     item: "sv-item sv-checkbox sv-selectbase__item",
+    itemSelectAll: "sv-checkbox--selectall",
+    itemNone: "sv-checkbox--none",
     itemDisabled: "sv-item--disabled sv-checkbox--disabled",
     itemChecked: "sv-checkbox--checked",
     itemHover: "sv-checkbox--allowhover",

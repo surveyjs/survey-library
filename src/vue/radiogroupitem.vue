@@ -44,10 +44,10 @@ export class RadiogroupItem extends Vue {
   @Prop index: any;
   @Prop hideLabel: boolean;
   getLabelClass(item: any) {
-    return this.question.getLabelClass(item.value === this.question.value);
+    return this.question.getLabelClass(item);
   }
   getControlLabelClass(item: any) {
-    return this.question.getControlLabelClass(item.value === this.question.value);
+    return this.question.getControlLabelClass(item);
   }
 }
 Vue.component("survey-radiogroup-item", RadiogroupItem);

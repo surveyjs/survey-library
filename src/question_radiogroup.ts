@@ -42,18 +42,36 @@ export class QuestionRadiogroupModel extends QuestionCheckboxBase {
   supportGoNextPageAutomatic() {
     return true;
   }
+  getItemClass(item: any) {
+    var itemClass = this.cssClasses.item;
+    var isDisabled = this.isReadOnly || !item.isEnabled;
+    var isChecked =
+      item.value === this.value ||
+      (this.isOtherSelected && this.otherItem.value === item.value);
+    var allowHover = !isDisabled && !isChecked;
+    if (!this.hasColumns) {
+      itemClass +=
+        this.colCount === 0
+          ? " " + this.cssClasses.itemInline
+          : " sv-q-col-" + this.colCount;
+    }
+    if (isDisabled) itemClass += " " + this.cssClasses.itemDisabled;
+    if (isChecked) itemClass += " " + this.cssClasses.itemChecked;
+    if (allowHover) itemClass += " " + this.cssClasses.itemHover;
+    return itemClass;
+  }
 }
 
 Serializer.addClass(
   "radiogroup",
   [{ name: "showClearButton:boolean", default: false }],
-  function() {
+  function () {
     return new QuestionRadiogroupModel("");
   },
   "checkboxbase"
 );
 
-QuestionFactory.Instance.registerQuestion("radiogroup", name => {
+QuestionFactory.Instance.registerQuestion("radiogroup", (name) => {
   var q = new QuestionRadiogroupModel(name);
   q.choices = QuestionFactory.DefaultChoices;
   return q;

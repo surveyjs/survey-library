@@ -178,6 +178,23 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     }
     return false;
   }
+  getItemClass(item: any) {
+    var val = this.value; //trigger dependencies from koValue for knockout
+    var isChecked = this.isItemSelected(item);
+    var isDisabled = this.isReadOnly || !item.isEnabled;
+    var allowHover = !isChecked && !isDisabled;
+    var itemClass = this.cssClasses.item;
+    if (!this.hasColumns) {
+      itemClass +=
+        this.colCount === 0
+          ? " " + this.cssClasses.itemInline
+          : " sv-q-col-" + this.colCount;
+    }
+    if (isDisabled) itemClass += " " + this.cssClasses.itemDisabled;
+    if (isChecked) itemClass += " " + this.cssClasses.itemChecked;
+    if (allowHover) itemClass += " " + this.cssClasses.itemHover;
+    return itemClass;
+  }
   protected setNewValue(newValue: any) {
     if (!this.isChangingValueOnClearIncorrect) {
       this.invisibleOldValues = [];

@@ -1,7 +1,7 @@
 import * as React from "react";
 import {
   SurveyQuestionElementBase,
-  ReactSurveyElement
+  ReactSurveyElement,
 } from "./reactquestionelement";
 import { QuestionRadiogroupModel } from "../question_radiogroup";
 import { ItemValue } from "../itemvalue";
@@ -35,7 +35,7 @@ export class SurveyQuestionRadiogroup extends SurveyQuestionElementBase {
     return (
       <fieldset
         className={cssClasses.root}
-        ref={fieldset => (this.control = fieldset)}
+        ref={(fieldset) => (this.control = fieldset)}
       >
         <legend aria-label={this.question.locTitle.renderedHtml} />
         {this.question.hasColumns
@@ -87,7 +87,6 @@ export class SurveyQuestionRadiogroup extends SurveyQuestionElementBase {
         textStyle={this.textStyle}
         index={index}
         isChecked={value === item.value}
-        isDisabled={this.question.isReadOnly || !item.isEnabled}
       />
     );
   }
@@ -119,9 +118,6 @@ export class SurveyQuestionRadioItem extends ReactSurveyElement {
   protected get isChecked(): boolean {
     return this.props.isChecked;
   }
-  protected get isDisabled(): boolean {
-    return this.props.isDisabled;
-  }
   private get hideCaption(): boolean {
     return this.props.hideCaption === true;
   }
@@ -136,20 +132,6 @@ export class SurveyQuestionRadioItem extends ReactSurveyElement {
   handleOnChange(event: any) {
     this.question.renderedValue = this.item.value;
   }
-  getItemClass(isChecked: boolean, isDisabled: boolean) {
-    var itemClass = this.cssClasses.item;
-    var allowHover = !isDisabled && !isChecked;
-    if (isDisabled) itemClass += " " + this.cssClasses.itemDisabled;
-    if (isChecked) itemClass += " " + this.cssClasses.itemChecked;
-    if (allowHover) itemClass += " " + this.cssClasses.itemHover;
-    if (!this.question.hasColumns) {
-      itemClass +=
-        this.question.colCount === 0
-          ? " " + this.cssClasses.itemInline
-          : " sv-q-col-" + this.question.colCount;
-    }
-    return itemClass;
-  }
   render(): JSX.Element {
     if (!this.item || !this.question) return null;
     var otherItem =
@@ -161,10 +143,10 @@ export class SurveyQuestionRadioItem extends ReactSurveyElement {
     var itemText = !this.hideCaption
       ? this.renderLocString(this.item.locText, this.textStyle)
       : "";
-    var itemClass = this.getItemClass(this.isChecked, this.isDisabled);
-    var labelClass = this.question.getLabelClass(this.isChecked);
+    var itemClass = this.question.getItemClass(this.item);
+    var labelClass = this.question.getLabelClass(this.item);
     var locText: any = this.item.locText;
-    var controlLabelClass = this.question.getControlLabelClass(this.isChecked);
+    var controlLabelClass = this.question.getControlLabelClass(this.item);
 
     return (
       <div className={itemClass}>
@@ -181,7 +163,11 @@ export class SurveyQuestionRadioItem extends ReactSurveyElement {
             aria-required={this.question.isRequired}
             aria-label={locText.renderedHtml}
             aria-invalid={this.question.errors.length > 0}
-            aria-describedby={this.question.errors.length > 0 ? this.question.id + '_errors' : null}    
+            aria-describedby={
+              this.question.errors.length > 0
+                ? this.question.id + "_errors"
+                : null
+            }
             role="radio"
           />
           <span className={this.cssClasses.materialDecorator}>
@@ -215,6 +201,6 @@ export class SurveyQuestionRadioItem extends ReactSurveyElement {
   }
 }
 
-ReactQuestionFactory.Instance.registerQuestion("radiogroup", props => {
+ReactQuestionFactory.Instance.registerQuestion("radiogroup", (props) => {
   return React.createElement(SurveyQuestionRadiogroup, props);
 });

@@ -68,7 +68,7 @@ export class CheckboxItem extends Vue {
     this.question.isAllSelected = val;
   }
   getLabelClass(item: any) {
-    return this.question.getLabelClass(this.question.isItemSelected(item));
+    return this.question.getLabelClass(item);
   }
 }
 Vue.component("survey-checkbox-item", CheckboxItem);

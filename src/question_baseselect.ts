@@ -741,7 +741,13 @@ export class QuestionSelectBase extends Question {
     super.clearValueIfInvisible();
     this.clearIncorrectValues();
   }
-
+  /**
+   * Returns true if item is selected
+   * @param item checkbox or radio item value
+   */
+  public isItemSelected(item: ItemValue): boolean {
+    return item.value === this.value;
+  }
   private clearDisabledValues() {
     if (!this.survey || !this.survey.clearValueOnDisableItems) return;
     this.clearDisabledValuesCore();
@@ -774,16 +780,16 @@ export class QuestionSelectBase extends Question {
     }
     return columnClass;
   }
-  getLabelClass(isChecked: boolean) {
+  getLabelClass(item: ItemValue) {
     var labelClass = this.cssClasses.label;
-    if (isChecked) {
+    if (this.isItemSelected(item)) {
       labelClass += " " + this.cssClasses.labelChecked;
     }
     return labelClass;
   }
-  getControlLabelClass(isChecked: boolean) {
+  getControlLabelClass(item: ItemValue) {
     var controlLabelClass = this.cssClasses.controlLabel;
-    if (isChecked) {
+    if (this.isItemSelected(item)) {
       controlLabelClass += " " + this.cssClasses.controlLabelChecked;
     }
     return controlLabelClass;
@@ -835,6 +841,9 @@ export class QuestionCheckboxBase extends QuestionSelectBase {
     if (value < 0 || value > 5 || this.isFlowLayout) return;
     this.setPropertyValue("colCount", value);
     this.fireCallback(this.colCountChangedCallback);
+  }
+  getItemIndex(item: any) {
+    return this.visibleChoices.indexOf(item);
   }
   protected onParentChanged() {
     super.onParentChanged();

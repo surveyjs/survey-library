@@ -54,45 +54,16 @@ export class SurveyQuestionImagePicker extends SurveyQuestionElementBase {
     isFirst: boolean,
     cssClasses: any
   ): JSX.Element {
-    var isChecked = this.question.isItemSelected(item);
-    var isDisabled = this.question.isReadOnly || !item.isEnabled;
-    return this.renderElement(
-      key,
-      item,
-      isChecked,
-      isDisabled,
-      isFirst,
-      cssClasses
-    );
-  }
-  private getItemClass(isChecked: boolean, isDisabled: boolean) {
-    var cssClasses = this.question.cssClasses;
-    var colCount = this.question.colCount;
-    var itemClass =
-      cssClasses.item +
-      (colCount === 0 ? " " + cssClasses.itemInline : " sv-q-col-" + colCount);
-    var allowHover = !isChecked && !isDisabled;
-    if (isChecked) {
-      itemClass += " " + cssClasses.itemChecked;
-    }
-    if (isDisabled) {
-      itemClass += " " + cssClasses.itemDisabled;
-    }
-    if (allowHover) {
-      itemClass += " " + cssClasses.itemHover;
-    }
-    return itemClass;
+    return this.renderElement(key, item, isFirst, cssClasses);
   }
   protected renderElement(
     key: string,
     item: ItemValue,
     isChecked: boolean,
-    isDisabled: boolean,
-    isFirst: boolean,
     cssClasses: any
   ): JSX.Element {
     var id = this.question.inputId + "_" + item.value;
-    var itemClass = this.getItemClass(isChecked, isDisabled);
+    var itemClass = this.question.getItemClass(item);
     var text = null;
     if (this.question.showLabel) {
       text = (
@@ -163,7 +134,11 @@ export class SurveyQuestionImagePicker extends SurveyQuestionElementBase {
             onChange={this.handleOnChange}
             aria-label={this.question.locTitle.renderedHtml}
             aria-invalid={this.question.errors.length > 0}
-            aria-describedby={this.question.errors.length > 0 ? this.question.id + '_errors' : null}    
+            aria-describedby={
+              this.question.errors.length > 0
+                ? this.question.id + "_errors"
+                : null
+            }
           />
           <div>
             {control}
@@ -175,6 +150,6 @@ export class SurveyQuestionImagePicker extends SurveyQuestionElementBase {
   }
 }
 
-ReactQuestionFactory.Instance.registerQuestion("imagepicker", props => {
+ReactQuestionFactory.Instance.registerQuestion("imagepicker", (props) => {
   return React.createElement(SurveyQuestionImagePicker, props);
 });

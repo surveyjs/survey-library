@@ -229,6 +229,9 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     }
     super.setNewValue(this.rendredValueToData(newValue));
   }
+  protected getIsMultipleValue(): boolean {
+    return true;
+  }
   private noneIndexInArray(val: any) {
     if (!val || !Array.isArray(val)) return -1;
     var noneValue = this.noneItem.value;

@@ -130,6 +130,18 @@ export class QuestionSelectBase extends Question {
     super.setDefaultValue();
     this.isSettingDefaultValue = false;
   }
+  protected getIsMultipleValue(): boolean {
+    return false;
+  }
+  protected convertDefaultValue(val: any): any {
+    if (val == null || val == undefined) return val;
+    if (this.getIsMultipleValue()) {
+      if (!Array.isArray(val)) return [val];
+    } else {
+      if (Array.isArray(val) && val.length > 0) return val[0];
+    }
+    return val;
+  }
   protected filterItems(): boolean {
     if (
       this.isLoadingFromJson ||

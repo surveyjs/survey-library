@@ -1102,7 +1102,7 @@ export class Question extends SurveyElement
     return this.getPropertyValue("defaultValue");
   }
   public set defaultValue(val: any) {
-    this.setPropertyValue("defaultValue", val);
+    this.setPropertyValue("defaultValue", this.convertDefaultValue(val));
     this.updateValueWithDefaults();
   }
   /**
@@ -1169,7 +1169,10 @@ export class Question extends SurveyElement
     return this.getPropertyValue("correctAnswer");
   }
   public set correctAnswer(val: any) {
-    this.setPropertyValue("correctAnswer", val);
+    this.setPropertyValue("correctAnswer", this.convertDefaultValue(val));
+  }
+  protected convertDefaultValue(val: any): any {
+    return val;
   }
   /**
    * Returns questions count: 1 for the non-matrix questions and all inner visible questions that has input(s) widgets for question of matrix types.

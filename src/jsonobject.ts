@@ -1260,18 +1260,26 @@ export class JsonObject {
     property: JsonObjectProperty
   ) {
     if (obj[key] && value.length > 0) obj[key].splice(0, obj[key].length);
-    if (!obj[key]) obj[key] = [];
+    var valueRes = obj[key] ? obj[key] : [];
+    this.addValuesIntoArray(value, valueRes, property);
+    if (!obj[key]) obj[key] = valueRes;
+  }
+  private addValuesIntoArray(
+    value: Array<any>,
+    result: Array<any>,
+    property: JsonObjectProperty
+  ) {
     for (var i = 0; i < value.length; i++) {
       var newValue = this.createNewObj(value[i], property);
       if (newValue.newObj) {
         if (!!value[i].name) {
           newValue.newObj.name = value[i].name;
         }
-        obj[key].push(newValue.newObj);
+        result.push(newValue.newObj);
         this.toObjectCore(value[i], newValue.newObj);
       } else {
         if (!newValue.error) {
-          obj[key].push(value[i]);
+          result.push(value[i]);
         }
       }
     }

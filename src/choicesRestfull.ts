@@ -210,7 +210,13 @@ export class ChoicesRestfull extends Base {
     return "choicesByUrl";
   }
   public get isEmpty(): boolean {
-    return !this.url && !this.path && !this.valueName && !this.titleName;
+    return (
+      !this.url &&
+      !this.path &&
+      !this.valueName &&
+      !this.titleName &&
+      !this.imageLinkName
+    );
   }
   public getCustomPropertiesNames(): Array<string> {
     var properties = this.getCustomProperties();
@@ -240,29 +246,35 @@ export class ChoicesRestfull extends Base {
   }
   public setData(json: any) {
     this.clear();
-    if(json.url) this.url = json.url;
-    if(json.path) this.path = json.path;
-    if(json.valueName) this.valueName = json.valueName;
-    if(json.titleName) this.titleName = json.titleName;
-    if(json.allowEmptyResponse !== undefined) this.allowEmptyResponse = json.allowEmptyResponse;
-    if(json.attachOriginalItems !== undefined) this.attachOriginalItems = json.attachOriginalItems;
+    if (json.url) this.url = json.url;
+    if (json.path) this.path = json.path;
+    if (json.valueName) this.valueName = json.valueName;
+    if (json.titleName) this.titleName = json.titleName;
+    if (json.imageLinkName) this.imageLinkName = json.imageLinkName;
+    if (json.allowEmptyResponse !== undefined)
+      this.allowEmptyResponse = json.allowEmptyResponse;
+    if (json.attachOriginalItems !== undefined)
+      this.attachOriginalItems = json.attachOriginalItems;
     var properties = this.getCustomPropertiesNames();
-    for(var i = 0; i < properties.length; i++) {
-      if(json[properties[i]]) (<any>this)[properties[i]] = json[properties[i]];
+    for (var i = 0; i < properties.length; i++) {
+      if (json[properties[i]]) (<any>this)[properties[i]] = json[properties[i]];
     }
   }
   public getData(): any {
-    if(this.isEmpty) return null;
+    if (this.isEmpty) return null;
     var res: any = {};
-    if(this.url) res["url"] = this.url;
-    if(this.path) res["path"] = this.path;
-    if(this.valueName) res["valueName"] = this.valueName;
-    if(this.titleName) res["titleName"] = this.titleName;
-    if(this.allowEmptyResponse) res["allowEmptyResponse"] = this.allowEmptyResponse;
-    if(this.attachOriginalItems) res["attachOriginalItems"] = this.attachOriginalItems;
+    if (this.url) res["url"] = this.url;
+    if (this.path) res["path"] = this.path;
+    if (this.valueName) res["valueName"] = this.valueName;
+    if (this.titleName) res["titleName"] = this.titleName;
+    if (this.imageLinkName) res["imageLinkName"] = this.imageLinkName;
+    if (this.allowEmptyResponse)
+      res["allowEmptyResponse"] = this.allowEmptyResponse;
+    if (this.attachOriginalItems)
+      res["attachOriginalItems"] = this.attachOriginalItems;
     var properties = this.getCustomPropertiesNames();
-    for(var i = 0; i < properties.length; i++) {
-      if((<any>this)[properties[i]])
+    for (var i = 0; i < properties.length; i++) {
+      if ((<any>this)[properties[i]])
         res[properties[i]] = (<any>this)[properties[i]];
     }
     return res;
@@ -291,6 +303,12 @@ export class ChoicesRestfull extends Base {
   public set titleName(val: string) {
     this.setPropertyValue("titleName", val);
   }
+  public get imageLinkName(): string {
+    return this.getPropertyValue("imageLinkName", "");
+  }
+  public set imageLinkName(val: string) {
+    this.setPropertyValue("imageLinkName", val);
+  }
   public get allowEmptyResponse(): boolean {
     return this.getPropertyValue("allowEmptyResponse", false);
   }
@@ -315,6 +333,7 @@ export class ChoicesRestfull extends Base {
     this.path = "";
     this.valueName = "";
     this.titleName = "";
+    this.imageLinkName = "";
     var properties = this.getCustomPropertiesNames();
     for (var i = 0; i < properties.length; i++) {
       if ((<any>this)[properties[i]]) (<any>this)[properties[i]] = "";
@@ -343,6 +362,10 @@ export class ChoicesRestfull extends Base {
         this.setCustomProperties(item, itemValue);
         if (this.attachOriginalItems) {
           item.originalItem = itemValue;
+        }
+        var imageLink = this.getImageLink(itemValue);
+        if (!!imageLink) {
+          item.imageLink = imageLink;
         }
         items.push(item);
       }
@@ -421,6 +444,10 @@ export class ChoicesRestfull extends Base {
     var title = this.titleName ? this.titleName : "title";
     return this.getValueCore(item, title);
   }
+  private getImageLink(item: any): any {
+    var imageLink = this.imageLinkName ? this.imageLinkName : "imageLink";
+    return this.getValueCore(item, imageLink);
+  }
   private getValueCore(item: any, property: string): any {
     if (!item) return null;
     if (property.indexOf(".") < 0) return item[property];
@@ -439,7 +466,9 @@ export class ChoicesRestfull extends Base {
       ";" +
       this.valueName +
       ";" +
-      this.titleName
+      this.titleName +
+      ";" +
+      this.imageLinkName
     );
   }
 }
@@ -451,8 +480,14 @@ Serializer.addClass(
     "path",
     "valueName",
     "titleName",
+    {
+      name: "imageLinkName",
+      visibleIf: function (obj: any) {
+        return !!obj && !!obj.owner && obj.owner.getType() == "imagepicker";
+      },
+    },
     { name: "allowEmptyResponse:boolean", default: false },
-    { name: "attachOriginalItems:boolean", default: false, visible: false }
+    { name: "attachOriginalItems:boolean", default: false, visible: false },
   ],
   function () {
     return new ChoicesRestfull();

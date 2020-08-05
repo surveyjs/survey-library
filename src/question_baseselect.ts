@@ -122,7 +122,10 @@ export class QuestionSelectBase extends Question {
     this.runItemsEnableCondition(values, properties);
     this.runItemsCondition(values, properties);
   }
-  isSettingDefaultValue: boolean = false;
+  protected isTextValue(): boolean {
+    return true; //for comments and others
+  }
+  private isSettingDefaultValue: boolean = false;
   protected setDefaultValue() {
     this.isSettingDefaultValue =
       !this.isValueEmpty(this.defaultValue) &&

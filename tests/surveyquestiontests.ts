@@ -3679,3 +3679,81 @@ QUnit.test("Checkbox question getItemClass()", function (assert) {
     "None"
   );
 });
+QUnit.test(
+  "Convert correctValue/defaultValue correctly on JSON loading",
+  function (assert) {
+    var json = {
+      elements: [
+        {
+          type: "radiogroup",
+          name: "radio_correct",
+          items: [1, 2, 3],
+          defaultValue: 1,
+          correctAnswer: "234",
+        },
+        {
+          type: "checkbox",
+          name: "check_correct",
+          items: [1, 2, 3],
+          defaultValue: [1],
+          correctAnswer: [2],
+        },
+        {
+          type: "radiogroup",
+          name: "radio_incorrect",
+          items: [1, 2, 3],
+          defaultValue: [1, 2],
+          correctAnswer: [2],
+        },
+        {
+          type: "checkbox",
+          name: "check_incorrect",
+          items: [1, 2, 3],
+          defaultValue: 1,
+          correctAnswer: "123",
+        },
+      ],
+    };
+    var survey = new SurveyModel(json);
+    var radio_correct = survey.getQuestionByName("radio_correct");
+    var check_correct = survey.getQuestionByName("check_correct");
+    var radio_incorrect = survey.getQuestionByName("radio_incorrect");
+    var check_incorrect = survey.getQuestionByName("check_incorrect");
+    assert.equal(radio_correct.defaultValue, 1, "radio_correct, defaultValue");
+    assert.equal(
+      radio_correct.correctAnswer,
+      "234",
+      "radio_correct, correctAnswer"
+    );
+    assert.deepEqual(
+      check_correct.defaultValue,
+      [1],
+      "check_correct, defaultValue"
+    );
+    assert.deepEqual(
+      check_correct.correctAnswer,
+      [2],
+      "check_correct, correctAnswer"
+    );
+    assert.equal(
+      radio_incorrect.defaultValue,
+      1,
+      "radio_incorrect, defaultValue"
+    );
+    assert.equal(
+      radio_incorrect.correctAnswer,
+      2,
+      "radio_incorrect, correctAnswer"
+    );
+    assert.deepEqual(
+      check_incorrect.defaultValue,
+      [1],
+      "check_incorrect, defaultValue"
+    );
+    assert.deepEqual(
+      check_incorrect.correctAnswer,
+      ["123"],
+      "check_incorrect, correctAnswer"
+    );
+  }
+);

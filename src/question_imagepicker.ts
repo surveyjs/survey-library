@@ -171,6 +171,9 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
     }
     return itemClass;
   }
+  protected convertDefaultValue(val: any): any {
+    return val;
+  }
 }
 
 Serializer.addClass("imageitemvalue", [], undefined, "itemvalue");

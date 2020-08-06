@@ -7,6 +7,7 @@ import {
 } from "./jsonobject";
 import { settings } from "./settings";
 import { ItemValue } from "./itemvalue";
+import { stringify } from "querystring";
 
 export interface ISurveyData {
   getValue(name: string): any;
@@ -1030,10 +1031,13 @@ export class SurveyElement extends Base implements ISurveyElement {
   }
   public set name(val: string) {
     var oldValue = this.name;
-    this.setPropertyValue("name", val);
+    this.setPropertyValue("name", this.getValidName(val));
     if (!this.isLoadingFromJson && !!oldValue) {
       this.onNameChanged(oldValue);
     }
+  }
+  protected getValidName(name: string): string {
+    return name;
   }
   protected onNameChanged(oldValue: string) {}
   /**

@@ -11018,3 +11018,22 @@ QUnit.test(
     );
   }
 );
+QUnit.test("Do allow to set incrorect name", function (assert) {
+  var survey = new SurveyModel();
+  var page = survey.addNewPage("p1 ");
+  var panel = page.addNewPanel(" panel1");
+  var question = page.addNewQuestion("text", "{q1 ");
+  assert.equal(page.name, "p1", "Remove trailing space from page");
+  assert.equal(panel.name, "panel1", "Remove trailing space from panel");
+  assert.equal(
+    question.name,
+    "q1",
+    "Remove trailing space and { from question"
+  );
+  question.name = " {q2} s ";
+  assert.equal(
+    question.name,
+    "q2 s",
+    "Remove trailing space and { } from question"
+  );
+});

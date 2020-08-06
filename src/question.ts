@@ -1494,6 +1494,10 @@ export class Question extends SurveyElement
       );
     }
   }
+  protected getValidName(name: string): string {
+    if (!name) return name;
+    return name.trim().replace(/[\{\}]+/g, "");
+  }
   //IQuestion
   updateValueFromSurvey(newValue: any) {
     newValue = Helpers.getUnbindValue(newValue);

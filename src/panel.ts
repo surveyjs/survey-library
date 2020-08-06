@@ -363,6 +363,10 @@ export class PanelModelBase extends SurveyElement
 
     return this.questionsValue;
   }
+  protected getValidName(name: string): string {
+    if (!!name) return name.trim();
+    return name;
+  }
   /**
    * Returns the question by its name
    * @param name the question name

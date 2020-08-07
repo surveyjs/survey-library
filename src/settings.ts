@@ -86,4 +86,8 @@ export var settings = {
    * Set this property to change the default value of the minWidth constraint
    */
   maxWidth: "initial",
+  /**
+   * This property tells how many times survey re-run expressions on value changes during condition running. We need it to avoid recursions in the expressions
+   */
+  maximumConditionRunCountOnValueChanged: 10,
 };

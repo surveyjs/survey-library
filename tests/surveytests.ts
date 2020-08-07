@@ -6318,7 +6318,7 @@ QUnit.test(
 );
 
 QUnit.test(
-  "clearInvisibleValues: 'onHidden' doesn't work. The fix was created by introducing conditionVersion, Bug ##1172",
+  "clearInvisibleValues: 'onHidden' doesn't work. The fix was created by introducing conditionVersion, Bug ##1172. NOTE conditionVersion was removed due refactoring and using different approach",
   function (assert) {
     var json = {
       pages: [

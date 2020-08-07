@@ -2136,13 +2136,11 @@ export class SurveyModel extends Base
     });
     return result;
   }
-  private conditionVersion = 0;
   getFilteredValues(): any {
     var values: { [index: string]: any } = {};
     for (var key in this.variablesHash) values[key] = this.variablesHash[key];
     for (var key in this.valuesHash)
       values[key] = this.getDataValueCore(this.valuesHash, key);
-    values["conditionVersion"] = ++this.conditionVersion;
     return values;
   }
   getFilteredProperties(): any {
@@ -3989,26 +3987,61 @@ export class SurveyModel extends Base
       this.pages[i].onSurveyLoad();
     }
   }
+  private conditionValues: any = null;
+  private get isRunningConditions(): boolean {
+    return !!this.conditionValues;
+  }
+  private isValueChangedOnRunningCondition: boolean = false;
+  private conditionRunnerCounter: number = 0;
   private runConditions() {
-    if (this.isCompleted || this.isEndLoadingFromJson === "processing") return;
-    var pages = this.pages;
-    var values = this.getFilteredValues();
+    if (
+      this.isCompleted ||
+      this.isEndLoadingFromJson === "processing" ||
+      this.isRunningConditions
+    )
+      return;
+    this.conditionValues = this.getFilteredValues();
     var properties = this.getFilteredProperties();
     var oldCurrentPageIndex = this.pages.indexOf(this.currentPageValue);
+    this.runConditionsCore(properties);
+    this.checkIfNewPagesBecomeVisible(oldCurrentPageIndex);
+    this.conditionValues = null;
+    if (
+      this.isValueChangedOnRunningCondition &&
+      this.conditionRunnerCounter <
+        settings.maximumConditionRunCountOnValueChanged
+    ) {
+      this.isValueChangedOnRunningCondition = false;
+      this.conditionRunnerCounter++;
+      this.runConditions();
+    } else {
+      this.isValueChangedOnRunningCondition = false;
+      this.conditionRunnerCounter = 0;
+    }
+  }
+  private runConditionOnValueChanged(name: string, value: any) {
+    if (this.isRunningConditions) {
+      this.conditionValues[name] = value;
+      this.isValueChangedOnRunningCondition = true;
+    } else {
+      this.runConditions();
+    }
+  }
+  private runConditionsCore(properties: any) {
+    var pages = this.pages;
     for (var i = 0; i < this.calculatedValues.length; i++) {
       this.calculatedValues[i].resetCalculation();
     }
     for (var i = 0; i < this.calculatedValues.length; i++) {
       this.calculatedValues[i].doCalculation(
         this.calculatedValues,
-        values,
+        this.conditionValues,
         properties
       );
     }
     for (var i = 0; i < pages.length; i++) {
-      pages[i].runCondition(values, properties);
+      pages[i].runCondition(this.conditionValues, properties);
     }
-    this.checkIfNewPagesBecomeVisible(oldCurrentPageIndex);
   }
   private checkIfNewPagesBecomeVisible(oldCurrentPageIndex: number) {
     var newCurrentPageIndex = this.pages.indexOf(this.currentPageValue);
@@ -4335,7 +4368,7 @@ export class SurveyModel extends Base
     name = name.toLowerCase();
     this.variablesHash[name] = newValue;
     this.notifyElementsOnAnyValueOrVariableChanged(name);
-    this.runConditions();
+    this.runConditionOnValueChanged(name, newValue);
   }
   //ISurvey data
   protected getUnbindValue(value: any): any {
@@ -4389,7 +4422,7 @@ export class SurveyModel extends Base
     var triggerKeys: { [index: string]: any } = {};
     triggerKeys[name] = newValue;
     this.checkTriggers(triggerKeys, false);
-    this.runConditions();
+    this.runConditionOnValueChanged(name, newValue);
     if (allowNotifyValueChanged)
       this.notifyQuestionOnValueChanged(name, newValue);
     if (locNotification !== "text") {

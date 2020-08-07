@@ -3914,6 +3914,10 @@ export class SurveyModel extends Base
   }
   private notifyElementsOnAnyValueOrVariableChanged(name: string) {
     if (this.isEndLoadingFromJson === "processing") return;
+    if (this.isRunningConditions) {
+      this.conditionNotifyElementsOnAnyValueOrVariableChanged = true;
+      return;
+    }
     for (var i = 0; i < this.pages.length; i++) {
       this.pages[i].onAnyValueChanged(name);
     }
@@ -3993,6 +3997,8 @@ export class SurveyModel extends Base
   }
   private isValueChangedOnRunningCondition: boolean = false;
   private conditionRunnerCounter: number = 0;
+  private conditionUpdateVisibleIndexes: boolean = false;
+  private conditionNotifyElementsOnAnyValueOrVariableChanged: boolean = false;
   private runConditions() {
     if (
       this.isCompleted ||
@@ -4017,6 +4023,14 @@ export class SurveyModel extends Base
     } else {
       this.isValueChangedOnRunningCondition = false;
       this.conditionRunnerCounter = 0;
+      if (this.conditionUpdateVisibleIndexes) {
+        this.conditionUpdateVisibleIndexes = false;
+        this.updateVisibleIndexes();
+      }
+      if (this.conditionNotifyElementsOnAnyValueOrVariableChanged) {
+        this.conditionNotifyElementsOnAnyValueOrVariableChanged = false;
+        this.notifyElementsOnAnyValueOrVariableChanged("");
+      }
     }
   }
   private runConditionOnValueChanged(name: string, value: any) {
@@ -4188,6 +4202,15 @@ export class SurveyModel extends Base
   protected onLoadSurveyFromService() {}
   private updateVisibleIndexes() {
     if (this.isLoadingFromJson || !!this.isEndLoadingFromJson) return;
+    if (
+      this.isRunningConditions &&
+      this.onVisibleChanged.isEmpty &&
+      this.onPageVisibleChanged.isEmpty
+    ) {
+      //Run update visible index only one time on finishing running conditions
+      this.conditionUpdateVisibleIndexes = true;
+      return;
+    }
     this.updatePageVisibleIndexes(this.showPageNumbers);
     if (this.showQuestionNumbers == "onPage") {
       var visPages = this.visiblePages;

@@ -242,6 +242,7 @@ export class Const extends Operand {
 }
 
 export class Variable extends Const {
+  private valueInfo: any = {};
   constructor(private variableName: string) {
     super(variableName);
   }
@@ -258,10 +259,11 @@ export class Variable extends Const {
   public get variable() {
     return this.variableName;
   }
-
   public evaluate(processValue?: ProcessValue): any {
-    return processValue.hasValue(this.variableName)
-      ? this.getCorrectValue(processValue.getValue(this.variableName))
+    this.valueInfo.name = this.variableName;
+    processValue.getValueInfo(this.valueInfo);
+    return this.valueInfo.hasValue
+      ? this.getCorrectValue(this.valueInfo.value)
       : null;
   }
   public setVariables(variables: Array<string>) {

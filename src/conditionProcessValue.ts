@@ -1,10 +1,5 @@
 import { Helpers, HashTable } from "./helpers";
 
-export interface ValueCore {
-  hasValue: boolean;
-  value: any;
-}
-
 export class ProcessValue {
   public values: HashTable<any> = null;
   public properties: HashTable<any> = null;
@@ -28,6 +23,11 @@ export class ProcessValue {
     var res = this.getValueCore(text, values);
     return res.hasValue;
   }
+  public getValue(text: string, values: HashTable<any> = null): any {
+    if (!values) values = this.values;
+    var res = this.getValueCore(text, values);
+    return res.value;
+  }
   public setValue(obj: any, text: string, value: any) {
     if (!text) return;
     var nonNestedObj = this.getNonNestedObject(obj, text);
@@ -38,13 +38,34 @@ export class ProcessValue {
       obj[text] = value;
     }
   }
-  public getValue(text: string, values: HashTable<any> = null): any {
-    if (!values) values = this.values;
-    var res = this.getValueCore(text, values);
-    return res.value;
+  public getValueInfo(valueInfo: any) {
+    if (!!valueInfo.path) {
+      valueInfo.value = this.getValueFromPath(valueInfo.path, this.values);
+      valueInfo.hasValue =
+        valueInfo.value !== null && !Helpers.isValueEmpty(valueInfo.value);
+      return;
+    }
+    var res = this.getValueCore(valueInfo.name, this.values);
+    valueInfo.value = res.value;
+    valueInfo.hasValue = res.hasValue;
+    valueInfo.path = res.hasValue ? res.path : null;
+  }
+  private getValueFromPath(path: Array<string | number>, values: any): any {
+    var index = 0;
+    while (!!values && index < path.length) {
+      var ind_name = path[index];
+      if (
+        Helpers.isNumber(ind_name) &&
+        (!Array.isArray(values) || ind_name >= values.length)
+      )
+        return null;
+      values = values[ind_name];
+      index++;
+    }
+    return values;
   }
   private getValueCore(text: string, values: any): any {
-    var res: ValueCore = { hasValue: false, value: null };
+    var res: any = { hasValue: false, value: null, path: null };
     var curValue = values;
     if (!curValue && curValue !== 0 && curValue !== false) return res;
     if (
@@ -57,6 +78,7 @@ export class ProcessValue {
     }
     var nonNestedObj = this.getNonNestedObject(curValue, text);
     if (!nonNestedObj) return res;
+    res.path = nonNestedObj.path;
     res.value = !!nonNestedObj.text
       ? this.getObjectValue(nonNestedObj.value, nonNestedObj.text)
       : nonNestedObj.value;
@@ -65,11 +87,12 @@ export class ProcessValue {
   }
   private getNonNestedObject(obj: any, text: string): any {
     var curName = this.getFirstPropertyName(text, obj);
+    var path = !!curName ? [curName] : null;
     while (text != curName && !!obj) {
       var isArray = text[0] == "[";
       if (!isArray) {
         if (!curName && text == this.getFirstName(text))
-          return { value: obj, text: text };
+          return { value: obj, text: text, path: path };
         obj = this.getObjectValue(obj, curName);
         if (Helpers.isValueEmpty(obj)) return null;
         text = text.substr(curName.length);
@@ -78,13 +101,17 @@ export class ProcessValue {
         if (!objInArray) return null;
         obj = objInArray.value;
         text = objInArray.text;
+        path.push(objInArray.index);
       }
       if (!!text && text[0] == ".") {
         text = text.substr(1);
       }
       curName = this.getFirstPropertyName(text, obj);
+      if (!!curName) {
+        path.push(curName);
+      }
     }
-    return { value: obj, text: text };
+    return { value: obj, text: text, path: path };
   }
   private getObjInArray(curValue: any, text: string): any {
     if (!Array.isArray(curValue)) return null;
@@ -97,7 +124,7 @@ export class ProcessValue {
     text = index < text.length ? text.substr(index + 1) : "";
     index = this.getIntValue(str);
     if (index < 0 || index >= curValue.length) return null;
-    return { value: curValue[index], text: text };
+    return { value: curValue[index], text: text, index: index };
   }
   private getFirstPropertyName(name: string, obj: any): string {
     if (!name) return name;

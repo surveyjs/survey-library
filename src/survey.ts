@@ -1440,6 +1440,9 @@ export class SurveyModel extends Base
   }
   public locStrsChanged() {
     super.locStrsChanged();
+    if (this.isStartedState && this.startedPage) {
+      this.startedPage.locStrsChanged();
+    }
     if (this.currentPage) {
       this.currentPage.locStrsChanged();
     }

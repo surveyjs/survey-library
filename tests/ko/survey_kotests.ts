@@ -1819,3 +1819,41 @@ QUnit.test(
     );
   }
 );
+
+QUnit.test("survey.firstPageIsStarted=true + multiple-language", function (
+  assert
+) {
+  var json = {
+    firstPageIsStarted: true,
+    pages: [
+      {
+        elements: [
+          {
+            type: "text",
+            name: "q1",
+            title: { default: "q1-en", de: "q1-de" },
+          },
+        ],
+      },
+      {
+        elements: [
+          {
+            type: "text",
+            name: "q2",
+            title: { default: "q2-en", de: "q2-de" },
+          },
+        ],
+      },
+    ],
+  };
+  var survey = new Survey(json);
+  var q1 = survey.getQuestionByName("q1");
+  var q2 = survey.getQuestionByName("q2");
+  assert.equal(q1.locTitle["koRenderedHtml"](), "q1-en", "en locale, q1");
+  assert.equal(q2.locTitle["koRenderedHtml"](), "q2-en", "en locale, q2");
+  var prevLocale = survey.locale;
+  survey.locale = "de";
+  assert.equal(q1.locTitle["koRenderedHtml"](), "q1-de", "de locale, q1");
+  assert.equal(q2.locTitle["koRenderedHtml"](), "q2-de", "de locale, q2");
+  survey.locale = prevLocale;
+});

@@ -254,7 +254,11 @@ export class SurveyQuestionUncontrolledElement<
     return this.questionBase as T;
   }
   updateValueOnEvent = (event: any) => {
-    this.questionBase.value = event.target.value;
+    if (
+      !Helpers.isTwoValueEquals(this.questionBase.value, event.target.value)
+    ) {
+      this.questionBase.value = event.target.value;
+    }
   };
   protected updateDomElement() {
     if (!!this.control) {

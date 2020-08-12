@@ -4188,3 +4188,19 @@ QUnit.test(
     );
   }
 );
+QUnit.test("column should call property changed on custom property", function (
+  assert
+) {
+  Serializer.addProperty("text", "prop1");
+  var matrix = new QuestionMatrixDynamicModel("q1");
+  var column = matrix.addColumn("col1");
+  column.cellType = "text";
+  var counter = 0;
+  column.registerFunctionOnPropertyValueChanged("prop1", () => {
+    counter++;
+  });
+  column["prop1"] = 3;
+  assert.equal(column.templateQuestion["prop1"], 3, "Property is set");
+  assert.equal(counter, 1, "Notification is called");
+  Serializer.removeProperty("text", "prop1");
+});

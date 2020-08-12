@@ -573,6 +573,7 @@ export class MatrixDropdownColumn extends Base implements ILocalizableOwner {
     propName: string,
     isReadOnly: boolean
   ) {
+    var self = this;
     var desc = {
       configurable: true,
       get: function () {
@@ -581,7 +582,9 @@ export class MatrixDropdownColumn extends Base implements ILocalizableOwner {
     };
     if (!isReadOnly) {
       (<any>desc)["set"] = function (v: any) {
+        let oldValue = (<any>question)[propName];
         (<any>question)[propName] = v;
+        self.propertyValueChanged(propName, oldValue, v);
       };
     }
     Object.defineProperty(this, propName, desc);

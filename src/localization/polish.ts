@@ -46,7 +46,7 @@ export var polishSurveyStrings = {
   timerSec: "sek",
   timerSpentAll: "Spędziłeś {0} na tej stronie a w sumie {1}.",
   timerSpentPage: "Spędziłeś {0} na tej stronie.",
-  timerSpentSurvey: "Spędziłeś w smumie {0}.",
+  timerSpentSurvey: "Spędziłeś w sumie {0}.",
   timerLimitAll: "Spędziłeś {0} z {1} na tej stronie a w sumie {2} z {3}.",
   timerLimitPage: "Spędziłeś {0} z {1} na tej stronie",
   timerLimitSurvey: "Spędziłeś {0} z {1}.",

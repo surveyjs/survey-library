@@ -1,6 +1,7 @@
 import { QuestionNonValue } from "./questionnonvalue";
 import { Serializer } from "./jsonobject";
 import { QuestionFactory } from "./questionfactory";
+import { LocalizableString } from "./localizablestring";
 
 /**
  * A Model for image question. This question hasn't any functionality and can be used to improve the appearance of the survey.
@@ -8,6 +9,7 @@ import { QuestionFactory } from "./questionfactory";
 export class QuestionImageModel extends QuestionNonValue {
   constructor(public name: string) {
     super(name);
+    this.createLocalizableString("imageLink", this, false);
   }
   public getType(): string {
     return "image";
@@ -19,10 +21,13 @@ export class QuestionImageModel extends QuestionNonValue {
    * The image URL.
    */
   public get imageLink(): string {
-    return this.getPropertyValue("imageLink");
+    return this.getLocalizableStringText("imageLink");
   }
   public set imageLink(val: string) {
-    this.setPropertyValue("imageLink", val);
+    this.setLocalizableStringText("imageLink", val);
+  }
+  get locImageLink(): LocalizableString {
+    return this.getLocalizableString("imageLink");
   }
   /**
    * The image height.
@@ -68,26 +73,26 @@ export class QuestionImageModel extends QuestionNonValue {
 Serializer.addClass(
   "image",
   [
-    { name: "imageLink" },
+    { name: "imageLink", serializationProperty: "locImageLink" },
     {
       name: "contentMode",
       default: "image",
-      choices: ["image", "video"]
+      choices: ["image", "video"],
     },
     {
       name: "imageFit",
       default: "contain",
-      choices: ["none", "contain", "cover", "fill"]
+      choices: ["none", "contain", "cover", "fill"],
     },
     { name: "imageHeight:number", default: 150, minValue: 0 },
-    { name: "imageWidth:number", default: 200, minValue: 0 }
+    { name: "imageWidth:number", default: 200, minValue: 0 },
   ],
-  function() {
+  function () {
     return new QuestionImageModel("");
   },
   "nonvalue"
 );
 
-QuestionFactory.Instance.registerQuestion("image", name => {
+QuestionFactory.Instance.registerQuestion("image", (name) => {
   return new QuestionImageModel(name);
 });

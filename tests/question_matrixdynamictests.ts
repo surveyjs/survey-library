@@ -1421,6 +1421,44 @@ QUnit.test("matrixDropdown.clearInvisibleValues", function (assert) {
   );
 });
 
+QUnit.test(
+  "matrixDynamic.clearInvisibleValues do not call it on changing condition if clearInvisibleValues doesn't eaqual to 'onHidden'",
+  function (assert) {
+    var survey = new SurveyModel({
+      elements: [
+        {
+          type: "matrixdropdown",
+          name: "q1",
+          columns: [
+            {
+              name: "color",
+              cellType: "text",
+            },
+          ],
+          rows: [
+            "1",
+            {
+              value: "2",
+              visibleIf: "{var1}=1",
+            },
+            "3",
+          ],
+        },
+      ],
+    });
+    var question = <QuestionMatrixDropdownModel>survey.getQuestionByName("q1");
+    assert.equal(question.isEmpty(), true, "It is empty");
+    survey.setValue("var1", 1);
+    question.value = { "2": "abc" };
+    survey.setValue("var1", 2);
+    assert.deepEqual(question.value, { "2": "abc" }, "Change nothing");
+    survey.setValue("var1", 1);
+    survey.clearInvisibleValues = "onHidden";
+    survey.setValue("var1", 2);
+    assert.equal(question.isEmpty(), true, "It is empty again");
+  }
+);
+
 QUnit.test("Matrixdropdown column.index", function (assert) {
   var question = new QuestionMatrixDropdownModel("matrixDropdown");
   question.rows = ["row1"];
@@ -1597,6 +1635,7 @@ QUnit.test(
   "matrix.rowsVisibleIf, clear value on making the value invisible",
   function (assert) {
     var survey = new SurveyModel();
+    survey.clearInvisibleValues = "onHidden";
     var page = survey.addNewPage("p1");
     var qBestCar = new QuestionMatrixDropdownModel("bestCar");
     qBestCar.cellType = "text";

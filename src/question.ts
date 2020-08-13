@@ -359,6 +359,9 @@ export class Question extends SurveyElement
   private notifySurveyVisibilityChanged() {
     if (!this.survey || this.isLoadingFromJson) return;
     this.survey.questionVisibilityChanged(this, this.isVisible);
+    if (this.survey.isClearValueOnHidden && !this.visible) {
+      this.clearValue();
+    }
   }
   /**
    * Return the title location based on question titleLocation property and QuestionTitleLocation of it's parents

@@ -4579,6 +4579,9 @@ export class SurveyModel extends Base
   public set clearValueOnDisableItems(val: boolean) {
     this.setPropertyValue("clearValueOnDisableItems", val);
   }
+  get isClearValueOnHidden(): boolean {
+    return this.clearInvisibleValues == "onHidden";
+  }
   questionVisibilityChanged(question: IQuestion, newValue: boolean) {
     this.updateVisibleIndexes();
     this.onVisibleChanged.fire(this, {
@@ -4586,13 +4589,6 @@ export class SurveyModel extends Base
       name: question.name,
       visible: newValue,
     });
-    if (
-      question &&
-      !question.visible &&
-      this.clearInvisibleValues == "onHidden"
-    ) {
-      question.clearValue();
-    }
   }
   pageVisibilityChanged(page: IPage, newValue: boolean) {
     this.updateVisibleIndexes();

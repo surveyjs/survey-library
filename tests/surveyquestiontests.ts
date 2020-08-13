@@ -2407,6 +2407,7 @@ QUnit.test(
   "matrix.rowsVisibleIf, clear value on making the value invisible",
   function (assert) {
     var survey = new SurveyModel();
+    survey.clearInvisibleValues = "onHidden";
     var page = survey.addNewPage("p1");
     var qBestCar = new QuestionMatrixModel("bestCar");
     qBestCar.columns = ["col1", "col2"];
@@ -2431,6 +2432,7 @@ QUnit.test(
   "matrix.columnsVisibleIf, clear value on making the value invisible",
   function (assert) {
     var survey = new SurveyModel();
+    survey.clearInvisibleValues = "onHidden";
     var page = survey.addNewPage("p1");
     var qBestCar = new QuestionMatrixModel("bestCar");
     qBestCar.rows = ["col1", "col2"];
@@ -3014,6 +3016,7 @@ QUnit.test(
   "matrix single choice. Restore new visible values from defaultValue if they are exists, Issue# T3038, https://surveyjs.answerdesk.io/ticket/details/T3038",
   function (assert) {
     var survey = new SurveyModel({
+      clearInvisibleValues: "onHidden",
       elements: [
         {
           type: "matrix",

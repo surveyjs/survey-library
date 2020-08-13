@@ -686,6 +686,7 @@ export class MatrixDropdownRowModelBase
   public static RowVariableName = "row";
   public static OwnerVariableName = "self";
   public static IndexVariableName = "rowIndex";
+  public static RowValueVariableName = "rowValue";
 
   private static idCounter: number = 1;
   private static getId(): string {
@@ -747,6 +748,7 @@ export class MatrixDropdownRowModelBase
       values[MatrixDropdownRowModelBase.OwnerVariableName] = this.data.value;
     }
     values[MatrixDropdownRowModelBase.IndexVariableName] = this.rowIndex;
+    values[MatrixDropdownRowModelBase.RowValueVariableName] = this.rowName;
     if (!properties) properties = {};
     properties[MatrixDropdownRowModelBase.RowVariableName] = this;
     for (var i = 0; i < this.cells.length; i++) {

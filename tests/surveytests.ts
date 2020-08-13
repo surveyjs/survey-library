@@ -11020,9 +11020,9 @@ QUnit.test(
 );
 QUnit.test("Do allow to set incrorect name", function (assert) {
   var survey = new SurveyModel();
-  var page = survey.addNewPage("p1 ");
+  var page = survey.addNewPage("p1");
   var panel = page.addNewPanel(" panel1");
-  var question = page.addNewQuestion("text", "{q1 ");
+  var question = page.addNewQuestion("text", "{q1");
   assert.equal(page.name, "p1", "Remove trailing space from page");
   assert.equal(panel.name, "panel1", "Remove trailing space from panel");
   assert.equal(
@@ -11037,3 +11037,55 @@ QUnit.test("Do allow to set incrorect name", function (assert) {
     "Remove trailing space and { } from question"
   );
 });
+QUnit.test(
+  "setvaluetrigger doesn't work correctly for when questionsOnPageMode=questionPerPage and question in a panel, Bug#2328",
+  function (assert) {
+    var survey = new SurveyModel({
+      pages: [
+        {
+          name: "page1",
+          elements: [
+            {
+              type: "radiogroup",
+              name: "question2",
+              choices: ["item1", "item2", "item3"],
+            },
+            {
+              type: "panel",
+              name: "panel2",
+              elements: [
+                {
+                  type: "text",
+                  name: "question3",
+                },
+              ],
+              title: "panel2",
+            },
+          ],
+        },
+      ],
+      triggers: [
+        {
+          type: "setvalue",
+          expression: "{question2} notempty",
+          setToName: "question3",
+          setValue: "abcd",
+        },
+      ],
+      textUpdateMode: "onTyping",
+      questionsOnPageMode: "questionPerPage",
+    });
+    assert.ok(survey.getQuestionByName("question3"), "question3 is here");
+    var q3 = survey.visiblePages[1].questions[0];
+    assert.equal(q3.name, "question3", "Question name is correct");
+    assert.equal(q3.parent.name, "panel2", "Parent is correct for question3");
+    survey.setValue("question2", "item2");
+    survey.nextPage();
+    assert.equal(survey.getValue("question3"), "abcd", "Trigger set value");
+    assert.equal(
+      survey.getQuestionByName("question3").value,
+      "abcd",
+      "Trigger set question value"
+    );
+  }
+);

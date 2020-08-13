@@ -3047,6 +3047,7 @@ export class SurveyModel extends Base
       }
       this.setupPagesForPageModes(this.isSinglePage);
     }
+
     this.updateVisibleIndexes();
   }
   private restoreOrigionalPages(originalPages: Array<PageModel>) {
@@ -3123,6 +3124,9 @@ export class SurveyModel extends Base
         var json = new JsonObject().toJsonObject(originalElement);
         new JsonObject().toObject(json, element);
         page.addElement(element);
+        for (var k = 0; k < page.questions.length; k++) {
+          this.questionHashesAdded(page.questions[k]);
+        }
       }
     }
     return res;

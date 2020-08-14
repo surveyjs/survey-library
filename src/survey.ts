@@ -465,9 +465,8 @@ export class SurveyModel extends Base
    * The event is fired on uploading the file in QuestionFile when `storeDataAsText` is set to `false`. Use this event to change the uploaded file name or to prevent a particular file from being uploaded.
    * <br/> `sender` - the survey object that fires the event.
    * <br/> `options.question` - the file question instance.
-   * <br/> `options.name` - the file name.
-   * <br/> `options.file` - the Javascript File object.
-   * <br/> `options.accept` - a boolean value, `true` by default. Set it to `false` to deny this file uploading.
+   * <br/> `options.name` - the file question name.
+   * <br/> `options.files` - the Javascript File objects array to upload.
    * @see uploadFiles
    * @see QuestionFileModel.storeDataAsText
    */
@@ -3534,9 +3533,8 @@ export class SurveyModel extends Base
    * Uploads a file to server.
    * @param question a file question object
    * @param name a question name
-   * @param file an uploaded file
-   * @param storeDataAsText set it to `true` to encode file content into the survey results
-   * @param uploadingCallback a call back function to get the status on uploading the file
+   * @param files files to upload
+   * @param uploadingCallback a call back function to get the status on uploading the files
    */
   public uploadFiles(
     question: IQuestion,

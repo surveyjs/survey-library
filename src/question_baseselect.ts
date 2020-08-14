@@ -650,11 +650,12 @@ export class QuestionSelectBase extends Question {
       if (!!newValue && !this.isReadOnly) {
         var hasChanged = !Helpers.isTwoValueEquals(this.value, newValue.value);
         try {
-          this.allowNotifyValueChanged = false;
-          this.locNotificationInData = true;
-          this.value = undefined;
-          this.locNotificationInData = false;
-
+          if (!Helpers.isValueEmpty(newValue.value)) {
+            this.allowNotifyValueChanged = false;
+            this.locNotificationInData = true;
+            this.value = undefined;
+            this.locNotificationInData = false;
+          }
           this.allowNotifyValueChanged = hasChanged;
           this.value = newValue.value;
         } finally {

@@ -210,3 +210,18 @@ QUnit.test("ProcessValue getValueInfo() with array", function (assert) {
   assert.equal(valueInfo.value, null, "value is null");
   assert.equal(valueInfo.hasValue, false, "value is not here");
 });
+QUnit.test(
+  "ProcessValue getValueInfo() numbers in non array object, Bug#2331",
+  function (assert) {
+    var value = { v: { 1: "a", 2: "b" } };
+    var process = new ProcessValue();
+    process.values = value;
+    var valueInfo: any = { name: "v.2" };
+    process.getValueInfo(valueInfo);
+    assert.equal(valueInfo.value, "b", "value is b");
+    assert.deepEqual(valueInfo.path, ["v", "2"], "path is correct");
+    value.v[2] = "c";
+    process.getValueInfo(valueInfo);
+    assert.equal(valueInfo.value, "c", "get correct value, c");
+  }
+);

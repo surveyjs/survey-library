@@ -56,7 +56,8 @@ export class ProcessValue {
       var ind_name = path[index];
       if (
         Helpers.isNumber(ind_name) &&
-        (!Array.isArray(values) || ind_name >= values.length)
+        Array.isArray(values) &&
+        ind_name >= values.length
       )
         return null;
       values = values[ind_name];

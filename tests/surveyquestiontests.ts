@@ -503,6 +503,39 @@ QUnit.test("Matrix Question isAllRowRequired property", function (assert) {
   matrix.isAllRowRequired = true;
   assert.equal(matrix.hasErrors(), true, "There is no errors by default");
 });
+QUnit.test(
+  "Matrix Question isAllRowRequired property, value is zero, Bug#2332",
+  function (assert) {
+    var matrix = new QuestionMatrixModel("q1");
+    matrix.fromJSON({
+      type: "matrix",
+      name: "question",
+      isRequired: true,
+      columns: [
+        {
+          value: 0,
+          text: "No",
+        },
+        {
+          value: 1,
+          text: "Maybe",
+        },
+        {
+          value: 2,
+          text: "Yes",
+        },
+      ],
+      rows: ["item1", "item2"],
+      isAllRowRequired: true,
+    });
+    assert.equal(matrix.hasErrors(), true, "is Required error");
+    var rows = matrix.visibleRows;
+    rows[0].value = 0;
+    assert.equal(matrix.hasErrors(), true, "isAllRowRequired error");
+    rows[1].value = 0;
+    assert.equal(matrix.hasErrors(), false, "There is no errors");
+  }
+);
 QUnit.test("Matrix Question supportGoNextPageAutomatic property", function (
   assert
 ) {

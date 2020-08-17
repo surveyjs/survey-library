@@ -369,8 +369,7 @@ export class QuestionMatrixModel
     if (!rows) rows = this.visibleRows;
     if (!rows) return true;
     for (var i = 0; i < rows.length; i++) {
-      var val = rows[i].value;
-      if (!val) return false;
+      if (Helpers.isValueEmpty(rows[i].value)) return false;
     }
     return true;
   }

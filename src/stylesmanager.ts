@@ -134,6 +134,8 @@ export class StylesManager {
     ".sv_progress-buttons__list li:before": "width: 24px; height: 24px; content: ''; line-height: 30px; border: 3px solid #8dd9ca; display: block; margin: 0 auto 10px auto; border-radius: 50%; background-color: #8dd9ca;",
     ".sv_progress-buttons__list li:after": "width: 73%; height: 3px; content: ''; position: absolute; background-color: #d4d4d4; top: 15px; left: -36.5%;",
     ".sv_progress-buttons__list li:first-child:after": "content: none;",
+    ".sv_progress-buttons__list .sv_progress-buttons__page-title": "color: $text-color; font-weight: bold;",
+    ".sv_progress-buttons__list .sv_progress-buttons__page-description": "color: $text-color;",
 
     ".sv_qstn .sv_q_select_column":
       "display: inline-block; vertical-align: top; min-width: 10%;",

@@ -4,9 +4,9 @@
         <ul data-bind="css: model.css.progressButtonsList">
             <!-- ko foreach: model.visiblePages -->
             <li>
-                <span data-bind="text: navigationTitle || name"></span>
+                <span data-bind="css: css.progressButtonsPageTitle, text: navigationTitle || name"></span>
                 <br>
-                <span data-bind="text: navigationDescription"></span>
+                <span data-bind="css: css.progressButtonsPageDescription, text: navigationDescription"></span>
             </li>
             <!-- /ko -->
         </ul>

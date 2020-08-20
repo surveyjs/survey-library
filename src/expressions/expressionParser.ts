@@ -353,8 +353,8 @@ function peg$parse(input: string, options?: IParseOptions) {
   const peg$c145 = "\\\"";
   const peg$c146 = peg$literalExpectation("\\\"", false);
   const peg$c147 = function(): any { return "\""; };
-  const peg$c148 = /^[^"'{}]/;
-  const peg$c149 = peg$classExpectation(["\"", "'", "{", "}"], true, false);
+  const peg$c148 = /^[^"']/;
+  const peg$c149 = peg$classExpectation(["\"", "'"], true, false);
   const peg$c150 = function(): any { return text(); };
   const peg$c151 = /^[^{}]/;
   const peg$c152 = peg$classExpectation(["{", "}"], true, false);

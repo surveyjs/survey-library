@@ -1050,3 +1050,15 @@ QUnit.test('express with iif and "[" inside, Bug#1942', function (assert) {
     "undefined + '[' + undefined + ']' without iif"
   );
 });
+QUnit.test('expression with "{", Bug#2337', function (assert) {
+  // prettier-ignore
+  var expression = "{val1} + '\{ text' + '\}'";
+  var runner = new ExpressionRunner(expression);
+  var values: any = { val1: "1" };
+  assert.equal(runner.run(values), "1{ text}", "{");
+
+  expression = "{val1} + '{ text' + '}'";
+  runner = new ExpressionRunner(expression);
+  var values: any = { val1: "1" };
+  assert.equal(runner.run(values), "1{ text}", "{ without escape");
+});

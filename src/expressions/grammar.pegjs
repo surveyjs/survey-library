@@ -150,7 +150,7 @@ AnyInput
 AnyCharacters
   = "\\'"       { return "'"; }
   / "\\\""      { return "\""; }
-  / [^\"\'\{\}] { return text(); }
+  / [^\"\'] { return text(); }
 
 ValueCharacters
   = [^\{\}] { return text(); }

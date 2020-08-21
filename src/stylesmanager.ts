@@ -125,7 +125,8 @@ export class StylesManager {
     ".sv_progress_bar > span": "white-space: nowrap;",
 
     //progressButtons
-    ".sv_progress-buttons__container": "width: 100%; height: 110px; max-width: 1100px; margin: 10px auto; margin-bottom: -70px; white-space: nowrap; overflow: hidden;",
+    ".sv_progress-buttons__container-center": "text-align: center;",
+    ".sv_progress-buttons__container": "display: inline-block; width: 100%; max-width: 1100px; white-space: nowrap; overflow: hidden;",
     ".sv_progress-buttons__image-button": "display: inline-block; vertical-align: top; margin-top: 26px;",
     ".sv_progress-buttons__image-button .sv_progress-buttons__image-button--hidden": "visibility: hidden;",
     ".sv_progress-buttons__list-container": "max-width: calc(100% - 32px); display: inline-block; overflow: hidden;",

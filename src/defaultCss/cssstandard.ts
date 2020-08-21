@@ -32,6 +32,7 @@ export var defaultStandardCss = {
   progress: "sv_progress",
   progressBar: "sv_progress_bar",
   progressTextInBar: "sv-hidden",
+  progressButtonsContainerCenter: "sv_progress-buttons__container-center",
   progressButtonsContainer: "sv_progress-buttons__container",
   progressButtonsImageButton: "sv_progress-buttons__image-button",
   progressButtonsImageButtonHidden: "sv_progress-buttons__image-button--hidden",

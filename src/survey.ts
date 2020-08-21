@@ -1413,7 +1413,7 @@ export class SurveyModel extends Base
     this.onLocaleChangedEvent.fire(this, value);
   }
   /**
-   * Returns an array of locales that are used in the current survey.
+   * Returns an array of locales that are used in the survey's translation.
    */
   public getUsedLocales(): Array<string> {
     var locs = new Array<string>();

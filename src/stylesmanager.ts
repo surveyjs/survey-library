@@ -144,10 +144,10 @@ export class StylesManager {
 
     // paneldynamic
     ".sv_main .sv-paneldynamic__progress-container":
-      "position: relative; margin-right: 250px; margin-top: 20px;",
-    ".sv_main .sv-paneldynamic__add-btn": "float: right; margin-top: -18px;",
+      "position: relative; display: inline-block; width: calc(100% - 250px); margin-top: 20px;",
+    ".sv_main .sv-paneldynamic__add-btn": "float: right;",
     ".sv_main .sv-paneldynamic__add-btn--list-mode":
-      "  float: none; margin-top: 1em;",
+      "float: none; margin-top: 0;",
     ".sv_main .sv-paneldynamic__remove-btn ": "margin-top: 1.25em;",
     ".sv_main .sv-paneldynamic__prev-btn, .sv_main .sv-paneldynamic__next-btn":
       "box-sizing: border-box; display: inline-block; cursor: pointer; width: 0.7em; top: -0.28em; position: absolute;",

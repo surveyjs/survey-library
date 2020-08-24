@@ -330,7 +330,8 @@ $label-disabled-color: rgba(64, 64, 64, 0.5);
 
             .sv-paneldynamic__progress-container {
               position: relative;
-              margin-right: 250px;
+              display: inline-block;
+              width: calc(100% - 250px);
               margin-left: 40px;
               margin-top: 10px;
             }
@@ -417,7 +418,9 @@ $label-disabled-color: rgba(64, 64, 64, 0.5);
               //background-color: $main-color;
               background-image: url("./images/ArrowDown_34x34.svg");
               @include svg-icon();
-              height: 2em;
+              //height: 2em;
+              z-index: 1;
+              pointer-events: none;
             }
           }
 

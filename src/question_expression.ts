@@ -355,7 +355,6 @@ Serializer.addClass(
     { name: "maximumFractionDigits:number", default: -1 },
     { name: "minimumFractionDigits:number", default: -1 },
     { name: "useGrouping:boolean", default: true },
-    { name: "commentText", visible: false },
     { name: "enableIf", visible: false },
     { name: "isRequired", visible: false },
     { name: "readOnly", visible: false },

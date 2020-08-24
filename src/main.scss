@@ -417,7 +417,9 @@ $label-disabled-color: rgba(64, 64, 64, 0.5);
               //background-color: $main-color;
               background-image: url("./images/ArrowDown_34x34.svg");
               @include svg-icon();
-              height: 2em;
+              //height: 2em;
+              z-index: 1;
+              pointer-events: none;
             }
           }
 

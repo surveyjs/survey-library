@@ -54,14 +54,14 @@ export class SurveyQuestionImagePicker extends SurveyQuestionElementBase {
     isFirst: boolean,
     cssClasses: any
   ): JSX.Element {
-    return this.renderElement(key, item, isFirst, cssClasses);
+    return this.renderElement(key, item, cssClasses);
   }
   protected renderElement(
     key: string,
     item: ItemValue,
-    isChecked: boolean,
     cssClasses: any
   ): JSX.Element {
+    var isChecked = this.question.isItemSelected(item);
     var id = this.question.inputId + "_" + item.value;
     var itemClass = this.question.getItemClass(item);
     var text = null;

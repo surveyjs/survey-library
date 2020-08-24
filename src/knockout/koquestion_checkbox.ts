@@ -31,8 +31,8 @@ export class QuestionCheckbox extends QuestionCheckboxModel {
     super.onBaseCreating();
     new QuestionCheckboxImplementor(this);
   }
-  protected onValueChanged() {
-    super.onValueChanged();
+  public onSurveyValueChanged(newValue: any) {
+    super.onSurveyValueChanged(newValue);
     this.updateAllSelected();
   }
   protected onVisibleChoicesChanged() {

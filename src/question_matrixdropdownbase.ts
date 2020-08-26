@@ -1100,7 +1100,8 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     if (this.rows.length >= this.matrix.visibleRows.length) return;
     this.rows.push(
       this.createHorizontalRow(
-        this.matrix.visibleRows[this.matrix.visibleRows.length - 1]
+        this.matrix.visibleRows[this.matrix.visibleRows.length - 1],
+        this.matrix.visibleRows.length == 1 && !this.matrix.showHeader
       )
     );
   }
@@ -1180,16 +1181,23 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     var rows = this.matrix.visibleRows;
     var renderedRows = [];
     for (var i = 0; i < rows.length; i++) {
-      renderedRows.push(this.createHorizontalRow(rows[i]));
+      renderedRows.push(
+        this.createHorizontalRow(rows[i], i == 0 && !this.matrix.showHeader)
+      );
     }
     return renderedRows;
   }
   private createHorizontalRow(
-    row: MatrixDropdownRowModelBase
+    row: MatrixDropdownRowModelBase,
+    useAsHeader: boolean
   ): QuestionMatrixDropdownRenderedRow {
     var res = new QuestionMatrixDropdownRenderedRow();
     if (this.matrix.hasRowText) {
-      res.cells.push(this.createTextCell(row.locText));
+      var renderedCell = this.createTextCell(row.locText);
+      res.cells.push(renderedCell);
+      if (useAsHeader) {
+        this.setHeaderCellWidth(null, renderedCell);
+      }
     }
     for (var i = 0; i < row.cells.length; i++) {
       var cell = row.cells[i];
@@ -1197,7 +1205,11 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
       if (cell.column.isShowInMultipleColumns) {
         this.createMutlipleEditCells(res, cell);
       } else {
-        res.cells.push(this.createEditCell(cell));
+        var renderedCell = this.createEditCell(cell);
+        res.cells.push(renderedCell);
+        if (useAsHeader) {
+          this.setHeaderCellWidth(cell.column, renderedCell);
+        }
       }
     }
     if (this.hasRemoveRows) {
@@ -1330,6 +1342,12 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     return cell;
   }
   private setHeaderCell(
+    column: MatrixDropdownColumn,
+    cell: QuestionMatrixDropdownRenderedCell
+  ) {
+    this.setHeaderCellWidth(column, cell);
+  }
+  private setHeaderCellWidth(
     column: MatrixDropdownColumn,
     cell: QuestionMatrixDropdownRenderedCell
   ) {

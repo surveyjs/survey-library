@@ -89,8 +89,10 @@ export class MatrixCell extends Vue {
     return cellClass;
   }
   getCellStyle() {
-    if (!this.cell.isChoice) return null;
-    return { "text-align": "center" };
+    if (this.cell.isChoice) return { "text-align": "center" };
+    if (!!this.cell.width || !!this.cell.minWidth)
+      return { width: this.cell.width, minWidth: this.cell.minWidth };
+    return null;
   }
   getItemClass(item: any) {
     var cssClasses = this.cell.question.cssClasses;

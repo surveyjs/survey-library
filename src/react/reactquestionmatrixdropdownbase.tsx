@@ -164,6 +164,12 @@ export class SurveyQuestionMatrixDropdownBase extends SurveyQuestionElementBase 
     var cellContent = null;
     var requiredSpace = null;
     var requiredText = null;
+    var cellStyle: any = null;
+    if (!!cell.width || !!cell.minWidth) {
+      cellStyle = {};
+      if (!!cell.width) cellStyle.width = cell.width;
+      if (!!cell.minWidth) cellStyle.minWidth = cell.minWidth;
+    }
     if (cell.hasTitle) {
       cellContent = this.renderLocString(cell.locTitle);
       if (cell.requiredText) {
@@ -175,7 +181,7 @@ export class SurveyQuestionMatrixDropdownBase extends SurveyQuestionElementBase 
       cellContent = this.renderRemoveButton(cell.row);
     }
     return (
-      <td className={cssClasses.cell} key={key}>
+      <td className={cssClasses.cell} key={key} style={cellStyle}>
         {cellContent}
         {requiredSpace}
         {requiredText}
@@ -238,7 +244,16 @@ export class SurveyQuestionMatrixDropdownCell extends SurveyQuestionAndErrorsCel
     return cellClass;
   }
   protected getCellStyle(): any {
-    if (!this.cell.isChoice) return super.getCellStyle();
+    if (!this.cell.isChoice) {
+      var res: any = super.getCellStyle();
+      if (!!this.cell.width || !!this.cell.minWidth) {
+        if (!res) res = {};
+        if (!!this.cell.width) res.width = this.cell.width;
+        if (!!this.cell.minWidth) res.minWidth = this.cell.minWidth;
+      }
+
+      return res;
+    }
     return { textAlign: "center" };
   }
 

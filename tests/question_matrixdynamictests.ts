@@ -2775,6 +2775,19 @@ QUnit.test("matrix dropdown + renderedTable.headerRow", function (assert) {
   assert.equal(matrix.renderedTable.showHeader, false, "Header is not shown");
   assert.notOk(!!matrix.renderedTable.headerRow, "Header row is null");
 
+  //Test case for #2346 - set width to <td> in first row if header is hidden
+  var firstRow = matrix.renderedTable.rows[0];
+  assert.equal(
+    firstRow.cells[2].minWidth,
+    "100px",
+    "Header is hidden: col2.minWidth"
+  );
+  assert.equal(
+    firstRow.cells[0].width,
+    "400px",
+    "Header is hidden: col1 width get from rowTitleWidth"
+  );
+
   matrix.columnLayout = "vertical";
   cells = matrix.renderedTable.headerRow.cells;
   assert.equal(cells.length, 3, "3 rows");

@@ -42,8 +42,7 @@ import { settings } from "./settings";
 /**
  * The `Survey` object contains information about the survey, Pages, Questions, flow logic and etc.
  */
-export class SurveyModel
-  extends Base
+export class SurveyModel extends Base
   implements
     ISurvey,
     ISurveyData,
@@ -68,15 +67,6 @@ export class SurveyModel
   }
   public set commentPrefix(val: string) {
     settings.commentPrefix = val;
-  }
-  /**
-   * Set this property to change readOnlyCommentRenderMode: "textarea" (default) or (div)
-   */
-  public get readOnlyCommentRenderMode(): string {
-    return settings.readOnlyCommentRenderMode;
-  }
-  public set readOnlyCommentRenderMode(val: string) {
-    settings.readOnlyCommentRenderMode = val;
   }
 
   private get currentPageValue(): PageModel {
@@ -5335,10 +5325,5 @@ Serializer.addClass("survey", [
     name: "showTimerPanelMode",
     default: "all",
     choices: ["all", "page", "survey"],
-  },
-  {
-    name: "readOnlyCommentRenderMode",
-    default: "textarea",
-    isSerializable: false,
   },
 ]);

@@ -46,6 +46,12 @@ export class PageModel extends PanelModelBase implements IPage {
   public get locNavigationDescription(): LocalizableString {
     return this.getLocalizableString("navigationDescription");
   }
+  public get passed(): boolean {
+    return this.getPropertyValue("passed", false);
+  }
+  public set passed(val: boolean) {
+    this.setPropertyValue("passed", val);
+  }
   public delete() {
     if (!!this.survey) {
       this.removeSelfFromList(this.survey.pages);

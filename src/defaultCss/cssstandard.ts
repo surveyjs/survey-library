@@ -38,6 +38,8 @@ export var defaultStandardCss = {
   progressButtonsImageButtonHidden: "sv_progress-buttons__image-button--hidden",
   progressButtonsListContainer: "sv_progress-buttons__list-container",
   progressButtonsList: "sv_progress-buttons__list",
+  progressButtonsListElementCompleted: "sv_progress-buttons__list-element--completed",
+  progressButtonsListElementCurrent: "sv_progress-buttons__list-element--current",
   progressButtonsPageTitle: "sv_progress-buttons__page-title",
   progressButtonsPageDescription: "sv_progress-buttons__page-description",
   page: {

@@ -11089,3 +11089,26 @@ QUnit.test(
     );
   }
 );
+QUnit.test(
+  "comment doesn't set when storeOthersAsComment equals false, Bug#2353",
+  function (assert) {
+    var survey = new SurveyModel({
+      storeOthersAsComment: false,
+      questions: [
+        {
+          type: "radiogroup",
+          name: "test",
+          title: "My Test field",
+          choices: ["A", "B", "C"],
+          hasComment: true,
+        },
+      ],
+    });
+    survey.data = {
+      test: "B",
+      "test-Comment": "ABC",
+    };
+    var question = survey.getQuestionByName("test");
+    assert.equal(question.comment, "ABC", "Comment text set correctly");
+  }
+);

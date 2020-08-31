@@ -12,6 +12,10 @@ export var settings = {
    */
   webserviceEncodeParameters: true,
   /**
+   * Cache the result for choices getting from web services. Set this property to false, to disable the caching.
+   */
+  useCachingForChoicesRestfull: true,
+  /**
    * SurveyJS web service API url
    */
   surveyServiceUrl: "https://api.surveyjs.io/public/v1/Survey",

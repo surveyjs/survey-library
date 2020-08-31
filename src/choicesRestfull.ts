@@ -61,6 +61,7 @@ export class ChoicesRestfull extends Base {
     [index: string]: Array<ChoicesRestfull>;
   } = {};
   private static addSameRequest(obj: ChoicesRestfull): boolean {
+    if (!settings.useCachingForChoicesRestfull) return false;
     var hash = obj.objHash;
     var res = ChoicesRestfull.sendingSameRequests[hash];
     if (!res) {
@@ -71,6 +72,7 @@ export class ChoicesRestfull extends Base {
     return true;
   }
   private static unregisterSameRequests(obj: ChoicesRestfull, items: any) {
+    if (!settings.useCachingForChoicesRestfull) return;
     var res = ChoicesRestfull.sendingSameRequests[obj.objHash];
     delete ChoicesRestfull.sendingSameRequests[obj.objHash];
     for (var i = 0; i < res.length; i++) {
@@ -377,7 +379,9 @@ export class ChoicesRestfull extends Base {
     if (this.updateResultCallback) {
       items = this.updateResultCallback(items, result);
     }
-    ChoicesRestfull.itemsResult[loadingObjHash] = items;
+    if (settings.useCachingForChoicesRestfull) {
+      ChoicesRestfull.itemsResult[loadingObjHash] = items;
+    }
     this.callResultCallback(items, loadingObjHash);
     ChoicesRestfull.unregisterSameRequests(this, items);
   }

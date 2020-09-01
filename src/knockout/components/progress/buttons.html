@@ -2,13 +2,11 @@
     <div data-bind="css: model.css.progressButtonsContainer">
         <img data-bind="css: model.css.progressButtonsImageButton">
         <div data-bind="css: model.css.progressButtonsListContainer">
-            <ul data-bind="css: model.css.progressButtonsList">
-                <!-- ko foreach: model.visiblePages -->
-                <li>
+            <ul data-bind="foreach: model.visiblePages, css: model.css.progressButtonsList">
+                <li data-bind="css: $parent.getListElementCss($index)">
                     <div data-bind="css: css.progressButtonsPageTitle, text: navigationTitle || name"></div>
                     <div data-bind="css: css.progressButtonsPageDescription, text: navigationDescription"></div>
                 </li>
-                <!-- /ko -->
             </ul>
         </div>
         <img data-bind="css: model.css.progressButtonsImageButton">

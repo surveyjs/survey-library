@@ -5,8 +5,8 @@ trigger: none
 pr: none
 
 # Uncomment for specific version
-variables:
-  SurveyJSVersion: '1.8.0'
+# variables:
+#  SurveyJSVersion: '1.8.0'
 
 pool:
   vmImage: 'Ubuntu-16.04'
@@ -36,14 +36,14 @@ steps:
   displayName: 'git prepare'
 
 # Comment for specific version
-#- powershell: |
-#    npm run release
-#  displayName: 'npm run release standart'
+- powershell: |
+    npm run release
+  displayName: 'npm run release standart'
 
 # Uncomment for specific version
-- powershell: |
-    npm run release -- --release-as $(SurveyJSVersion)
-  displayName: 'npm run release specific version'
+#- powershell: |
+#    npm run release -- --release-as $(SurveyJSVersion)
+#  displayName: 'npm run release specific version'
 
 - powershell: |
     $version = (git describe --tags).replace("v", "")

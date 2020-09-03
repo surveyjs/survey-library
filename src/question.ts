@@ -989,6 +989,7 @@ export class Question extends SurveyElement
    * @see SurveyModel.questionStartIndex
    */
   public get no(): string {
+    if (!this.hasTitle || this.hideNumber) return "";
     return Helpers.getNumberByIndex(this.visibleIndex, this.getStartIndex());
   }
   protected getStartIndex(): string {
@@ -1520,7 +1521,11 @@ export class Question extends SurveyElement
     this.updateDisplayValue();
   }
   public setVisibleIndex(val: number): number {
-    if (!this.isVisible || !this.hasTitle || this.hideNumber) {
+    if (
+      !this.isVisible ||
+      (!this.hasTitle && !settings.setQuestionVisibleIndexForHiddenTitle) ||
+      (this.hideNumber && !settings.setQuestionVisibleIndexForHiddenNumber)
+    ) {
       val = -1;
     }
     this.setPropertyValue("visibleIndex", val);

@@ -2613,6 +2613,94 @@ QUnit.test("question.no and survey.questionStartIndex", function (assert) {
   assert.equal(question.no, "# 2");
 });
 QUnit.test(
+  "question.no/queston.visibleIndex and hideNo/hideTitle options",
+  function (assert) {
+    var survey = new SurveyModel({
+      questions: [
+        { type: "text", name: "q1" },
+        { type: "text", name: "q2" },
+        { type: "text", name: "q3" },
+      ],
+    });
+    var q1 = survey.pages[0].questions[0];
+    var q2 = survey.pages[0].questions[1];
+    var q3 = survey.pages[0].questions[2];
+    q2.titleLocation = "hidden";
+    assert.equal(
+      q2.visibleIndex,
+      -1,
+      "titleLocation = 'hidden', default behavior"
+    );
+    assert.equal(q2.no, "", "titleLocation = 'hidden'");
+    assert.equal(
+      q3.visibleIndex,
+      1,
+      "previous question titleLocation = 'hidden', default behavior"
+    );
+    assert.equal(q3.no, "2.", "previous question titleLocation = 'hidden'");
+    q1.visible = false;
+    settings.setQuestionVisibleIndexForHiddenTitle = true;
+    q1.visible = true;
+    assert.equal(
+      q2.visibleIndex,
+      1,
+      "titleLocation = 'hidden', setQuestionVisibleIndexForHiddenTitle"
+    );
+    assert.equal(
+      q2.no,
+      "",
+      "titleLocation = 'hidden', setQuestionVisibleIndexForHiddenTitle"
+    );
+    assert.equal(
+      q3.visibleIndex,
+      2,
+      "previous question titleLocation = 'hidden', default behavior, setQuestionVisibleIndexForHiddenTitle"
+    );
+    assert.equal(
+      q3.no,
+      "3.",
+      "previous question titleLocation = 'hidden', setQuestionVisibleIndexForHiddenTitle"
+    );
+    settings.setQuestionVisibleIndexForHiddenTitle = false;
+
+    q2.titleLocation = "default";
+    q2.hideNumber = true;
+    assert.equal(q2.visibleIndex, -1, "hideNumber = true, default behavior");
+    assert.equal(q2.no, "", "titleLocation = 'hidden'");
+    assert.equal(
+      q3.visibleIndex,
+      1,
+      "previous question hideNumber = true, default behavior"
+    );
+    assert.equal(q3.no, "2.", "previous question hideNumber = true");
+    q1.visible = false;
+    settings.setQuestionVisibleIndexForHiddenNumber = true;
+    q1.visible = true;
+    assert.equal(
+      q2.visibleIndex,
+      1,
+      "hideNumber = true, setQuestionVisibleIndexForHiddenNumber"
+    );
+    assert.equal(
+      q2.no,
+      "",
+      "hideNumber = true, setQuestionVisibleIndexForHiddenNumber"
+    );
+    assert.equal(
+      q3.visibleIndex,
+      2,
+      "previous question hideNumber = true, default behavior, setQuestionVisibleIndexForHiddenNumber"
+    );
+    assert.equal(
+      q3.no,
+      "3.",
+      "previous question hideNumber = true, setQuestionVisibleIndexForHiddenNumber"
+    );
+    settings.setQuestionVisibleIndexForHiddenNumber = false;
+  }
+);
+
+QUnit.test(
   "update survey.questionStartIndex and survey.requiredText based on survey.questionTitleTemplate",
   function (assert) {
     var survey = new SurveyModel();

@@ -172,13 +172,19 @@ export class QuestionFileModel extends Question {
    * Clear value programmatically.
    */
   public clear(doneCallback?: () => void) {
-    this.survey.clearFiles(this, this.name, this.value, null, (status, data) => {
-      if (status === "success") {
-        this.value = undefined;
-        this.errors = [];
-        !!doneCallback && doneCallback();
+    this.survey.clearFiles(
+      this,
+      this.name,
+      this.value,
+      null,
+      (status, data) => {
+        if (status === "success") {
+          this.value = undefined;
+          this.errors = [];
+          !!doneCallback && doneCallback();
+        }
       }
-    });
+    );
   }
   /**
    * Remove file item programmatically.
@@ -330,6 +336,9 @@ export class QuestionFileModel extends Question {
       this.isUploading = true;
     }
     if (state === "loaded") {
+      this.isUploading = false;
+    }
+    if (state === "error") {
       this.isUploading = false;
     }
     this.currentState = state;

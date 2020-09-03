@@ -5,8 +5,8 @@ trigger: none
 pr: none
 
 # Uncomment for specific version
-#variables:
-#  SurveyJSVersion: '1.7.1'
+# variables:
+#  SurveyJSVersion: '1.8.0'
 
 pool:
   vmImage: 'Ubuntu-16.04'

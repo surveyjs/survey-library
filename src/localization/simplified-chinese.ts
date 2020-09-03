@@ -4,11 +4,14 @@ export var simplifiedChineseSurveyStrings = {
   pagePrevText: "上一页",
   pageNextText: "下一页",
   completeText: "提交问卷",
+  previewText: "预览",
+  editText: "编辑",
   startSurveyText: "开始问卷",
   otherItemText: "填写其他答案",
   noneItemText: "无",
   selectAllItemText: "选择全部",
   progressText: "第 {0} 页, 共 {1} 页",
+  panelDynamicProgressText: "{0} of {1}",
   questionsProgressText: "第 {0}/{1} 题",
   emptySurvey: "问卷中没有问题或页面",
   completingSurveyBefore: "你已完成问卷.",
@@ -64,7 +67,13 @@ export var simplifiedChineseSurveyStrings = {
   timerLimitSurvey: "总计用时 {0} 共 {1}.",
   cleanCaption: "清理",
   clearCaption: "清除",
-  removeFileCaption: "移除文件"
+  chooseFileCaption: "选择文件",
+  removeFileCaption: "移除文件",
+  booleanCheckedLabel: "是",
+  booleanUncheckedLabel: "否",
+  confirmRemoveFile: "删除文件: {0}?",
+  confirmRemoveAllFiles: "删除所有文件?",
+  questionTitlePatternText: "标题"
 };
 
 surveyLocalization.locales["zh-cn"] = simplifiedChineseSurveyStrings;

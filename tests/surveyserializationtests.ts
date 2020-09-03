@@ -636,14 +636,22 @@ QUnit.test("Test fromJSON/clone/ensureUniqueNames functionalities", function (
   assert.ok(survey.getQuestionByName("q23"), "Renamed q22->q23");
 });
 
-QUnit.test("html question doesn't have errors", function (assert) {
-  var survey = new SurveyModel({
-    questions: [{ name: "q1", type: "html", html: "text", isRequired: true }],
-  });
-  var question = survey.getQuestionByName("q1");
-  assert.equal(
-    question.hasErrors(),
-    false,
-    "html question doesn't have errors"
-  );
-});
+QUnit.test(
+  "html and expression questions should not have errors, Bug#2359",
+  function (assert) {
+    var survey = new SurveyModel({
+      questions: [
+        { name: "q1", type: "html", html: "text", isRequired: true },
+        { name: "q2", type: "expression", isRequired: true },
+      ],
+    });
+    var q1 = survey.getQuestionByName("q1");
+    assert.equal(q1.hasErrors(), false, "html question doesn't have errors");
+    var q2 = survey.getQuestionByName("q2");
+    assert.equal(
+      q2.hasErrors(),
+      false,
+      "expression question doesn't have errors"
+    );
+  }
+);

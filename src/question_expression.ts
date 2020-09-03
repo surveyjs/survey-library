@@ -4,6 +4,7 @@ import { Serializer } from "./jsonobject";
 import { QuestionFactory } from "./questionfactory";
 import { LocalizableString } from "./localizablestring";
 import { ExpressionRunner } from "./conditions";
+import { SurveyError } from "./base";
 
 /**
  * A Model for expression question. It is a read-only question. It calculates value based on epxression property.
@@ -69,6 +70,12 @@ export class QuestionExpressionModel extends Question {
       this.unlocCalculation();
     };
     this.expressionRunner.run(values, properties);
+  }
+  public hasErrors(fireCallback: boolean = true, rec: any = null): boolean {
+    return false;
+  }
+  public getAllErrors(): Array<SurveyError> {
+    return [];
   }
   /**
    * The maximum number of fraction digits to use if displayStyle is not "none". Possible values are from 0 to 20. The default value is -1 and it means that this property is not used.

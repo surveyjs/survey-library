@@ -12,12 +12,22 @@ export class QuestionTextModel extends Question {
   constructor(public name: string) {
     super(name);
     this.createLocalizableString("placeHolder", this);
+    this.registerFunctionOnPropertiesValueChanged(
+      ["min", "max", "inputType"],
+      () => {
+        this.setRenderedMinMax();
+      }
+    );
   }
   protected isTextValue(): boolean {
     return this.inputType == "text";
   }
   public getType(): string {
     return "text";
+  }
+  public onSurveyLoad() {
+    super.onSurveyLoad();
+    this.setRenderedMinMax();
   }
   /**
    * Use this property to change the default input type.
@@ -108,16 +118,36 @@ export class QuestionTextModel extends Question {
    */
   public get max(): string {
     var maxValue = this.getPropertyValue("max");
-    if (
-      !maxValue &&
-      (this.inputType === "date" || this.inputType === "datetime-local")
-    ) {
-      maxValue = "2999-12-31";
-    }
     return maxValue;
   }
   public set max(val: string) {
     this.setPropertyValue("max", val);
+  }
+  public get renderedMin(): any {
+    return this.getPropertyValue("renderedMin");
+  }
+  public get renderedMax(): any {
+    return this.getPropertyValue("renderedMax");
+  }
+  private setRenderedMinMax() {
+    this.setPropertyValue("renderedMin", this.getMinMaxValue(this.min));
+    var val = this.getMinMaxValue(this.max);
+    if (
+      !val &&
+      (this.inputType === "date" || this.inputType === "datetime-local")
+    ) {
+      val = "2999-12-31";
+    }
+    this.setPropertyValue("renderedMax", val);
+  }
+  private getMinMaxValue(val: any): any {
+    if (!!val && typeof val == "string" && val.length > 0 && val[0] == "=") {
+      val = this.runExpression(val.substr(1));
+    }
+    if (val instanceof Date) {
+      val = val.toISOString().slice(0, 10);
+    }
+    return val;
   }
   /**
    * The step value

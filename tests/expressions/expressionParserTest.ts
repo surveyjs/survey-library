@@ -315,6 +315,14 @@ QUnit.test("Run age function", function (assert) {
   values.bithday = new Date(curDate.getFullYear() - 10, 1, 1);
   assert.equal(runner.run(values), false, "false, the person is 10 years old");
 });
+QUnit.test("Run today function", function (assert) {
+  var runner = new ExpressionRunner("today()");
+  assert.equal(
+    runner.run({}).toISOString().slice(0, 10),
+    new Date().toISOString().slice(0, 10),
+    "check today"
+  );
+});
 
 QUnit.test("Run age function with empty value", function (assert) {
   var runner = new ConditionRunner("age({bithday}) >= 21");

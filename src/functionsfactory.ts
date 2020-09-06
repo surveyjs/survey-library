@@ -249,7 +249,6 @@ FunctionFactory.Instance.register("currentDate", currentDate);
 
 function today(params: any[]) {
   var res = new Date();
-  res = new Date(res.getFullYear(), res.getMonth(), res.getDate() + 1);
   if (Array.isArray(params) && params.length == 1) {
     res.setDate(res.getDate() + params[0]);
   }

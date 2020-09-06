@@ -117,8 +117,7 @@ export class QuestionTextModel extends Question {
    * The maximum value
    */
   public get max(): string {
-    var maxValue = this.getPropertyValue("max");
-    return maxValue;
+    return this.getPropertyValue("max");
   }
   public set max(val: string) {
     this.setPropertyValue("max", val);
@@ -130,8 +129,11 @@ export class QuestionTextModel extends Question {
     return this.getPropertyValue("renderedMax");
   }
   private setRenderedMinMax() {
-    this.setPropertyValue("renderedMin", this.getMinMaxValue(this.min));
-    var val = this.getMinMaxValue(this.max);
+    this.setPropertyValue(
+      "renderedMin",
+      this.getValueAndRunExpression(this.min)
+    );
+    var val = this.getValueAndRunExpression(this.max);
     if (
       !val &&
       (this.inputType === "date" || this.inputType === "datetime-local")
@@ -139,15 +141,6 @@ export class QuestionTextModel extends Question {
       val = "2999-12-31";
     }
     this.setPropertyValue("renderedMax", val);
-  }
-  private getMinMaxValue(val: any): any {
-    if (!!val && typeof val == "string" && val.length > 0 && val[0] == "=") {
-      val = this.runExpression(val.substr(1));
-    }
-    if (val instanceof Date) {
-      val = val.toISOString().slice(0, 10);
-    }
-    return val;
   }
   /**
    * The step value

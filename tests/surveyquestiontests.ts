@@ -3655,8 +3655,15 @@ QUnit.test("QuestionText renderedMin/renderedMax, today()", function (assert) {
     questions: [{ type: "text", name: "q", max: "=today()" }],
   });
   var question = <QuestionTextModel>survey.getQuestionByName("q");
-  var todayStr = new Date().toISOString().slice(0,10);
+  var todayStr = new Date().toISOString().slice(0, 10);
   assert.equal(question.renderedMax, todayStr, "today in format yyyy-mm-dd");
+});
+QUnit.test("Question defaultValue as expression", function (assert) {
+  var survey = new SurveyModel({
+    questions: [{ type: "text", name: "q", defaultValue: "=1+2" }],
+  });
+  var question = <QuestionTextModel>survey.getQuestionByName("q");
+  assert.equal(question.value, 3, "run expression");
 });
 QUnit.test("QuestionRating rateStep less than 1", function (assert) {
   var question = new QuestionRatingModel("q");

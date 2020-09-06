@@ -1230,7 +1230,19 @@ export class Question
     return this.isValueEmpty(this.defaultValue);
   }
   protected setDefaultValue() {
-    this.value = Helpers.getUnbindValue(this.defaultValue);
+    this.value = this.getValueAndRunExpression(
+      Helpers.getUnbindValue(this.defaultValue)
+    );
+  }
+  protected getValueAndRunExpression(val: any) {
+    if (!val) return val;
+    if (!!val && typeof val == "string" && val.length > 0 && val[0] == "=") {
+      val = this.runExpression(val.substr(1));
+    }
+    if (val instanceof Date) {
+      val = val.toISOString().slice(0, 10);
+    }
+    return val;
   }
 
   /**

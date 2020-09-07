@@ -6,6 +6,7 @@ export var progressButtonsComponent: any;
 ko.components.register("survey-progress-buttons", {
     viewModel: function (params: any) {
       var getListElementCss = function(index: any): string {
+        if (index() >= params.model.visiblePages.length) return;
         var elementCss: string = params.model.visiblePages[index()].passed ?
           params.model.css.progressButtonsListElementPassed : "";
         if (params.model.currentPageNo === index()) {
@@ -15,7 +16,6 @@ ko.components.register("survey-progress-buttons", {
         return elementCss;
       };
       var clickListElement = function(page: PageModel): void {
-        if (params.model['isCompleted']) return;
         if (page.visibleIndex < params.model.currentPageNo) {
           params.model.currentPageNo = page.visibleIndex;
         }

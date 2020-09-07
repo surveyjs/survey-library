@@ -140,6 +140,7 @@ export class StylesManager {
     ".sv_progress-buttons__list li.sv_progress-buttons__list-element--passed:before": "border-color: #1ab394; background-color: #1ab394;",
     ".sv_progress-buttons__list li.sv_progress-buttons__list-element--passed + li:after": "background-color: #8dd9ca;",
     ".sv_progress-buttons__list li.sv_progress-buttons__list-element--current:before": "border-color: #1ab394; background-color: white;",
+    ".sv_progress-buttons__list li.sv_progress-buttons__list-element--passed.sv_progress-buttons__list-element--current:before": "border-color: #1ab394; background-color: white;",
 
     ".sv_qstn .sv_q_select_column":
       "display: inline-block; vertical-align: top; min-width: 10%;",

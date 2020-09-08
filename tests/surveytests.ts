@@ -413,6 +413,30 @@ QUnit.test("Next, Prev, IsFirst and IsLast Page and progressText", function (
     "Answered 1 question - but questions with the same name"
   );
 });
+QUnit.test("progressText and onProgressText event", function (assert) {
+  var survey = new SurveyModel();
+  survey.addPage(createPageWithQuestion("Page 1"));
+  survey.addPage(createPageWithQuestion("Second page", "q2"));
+  survey.addPage(createPageWithQuestion("Third page", "q3"));
+  survey.addPage(createPageWithQuestion("Forth page", "q4"));
+
+  var questionCount = -1;
+  var answeredQuestionCount = -1;
+
+  survey.onProgressText.add((sender: SurveyModel, options: any) => {
+    questionCount = options.questionCount;
+    answeredQuestionCount = options.answeredQuestionCount;
+    options.text =
+      "Answered: " +
+      (100 * options.answeredQuestionCount) / options.questionCount +
+      "%";
+  });
+  assert.equal(survey.progressText, "Answered: 0%");
+  survey.getAllQuestions()[0].value = "Answer 1";
+  assert.equal(survey.progressText, "Answered: 25%");
+  assert.equal(questionCount, 4, "There are 4 questions");
+  assert.equal(answeredQuestionCount, 1, "One question is answered");
+});
 QUnit.test(
   "survey.progressBarType = 'questions' and non input question, bug #2108",
   function (assert) {
@@ -7082,9 +7106,12 @@ function twoPageSimplestSurvey() {
   page.addNewQuestion("text", "question4");
   return survey;
 }
-function createPageWithQuestion(name: string): PageModel {
+function createPageWithQuestion(
+  name: string,
+  questionName: string = "q1"
+): PageModel {
   var page = new PageModel(name);
-  page.addNewQuestion("text", "q1");
+  page.addNewQuestion("text", questionName);
   return page;
 }
 

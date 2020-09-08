@@ -31,6 +31,7 @@ import { QuestionImagePickerModel } from "../src/question_imagepicker";
 import { FunctionFactory } from "../src/functionsfactory";
 import { ArrayChanges, SurveyError } from "../src/base";
 import { CustomError, RequreNumericError } from "../src/error";
+import { QuestionSignaturePadModel } from "../src/question_signaturepad";
 
 export default QUnit.module("Survey_Questions");
 
@@ -3793,3 +3794,33 @@ QUnit.test(
     );
   }
 );
+
+QUnit.test("QuestionSignaturePadModel dataFormat default value", function (
+  assert
+) {
+  var question = new QuestionSignaturePadModel("q");
+  assert.equal(question.dataFormat, undefined, "default value");
+});
+
+QUnit.test("QuestionSignaturePadModel dataFormat values", function (assert) {
+  var question = new QuestionSignaturePadModel("q");
+  assert.equal(question.dataFormat, undefined, "defaultValue");
+
+  var el = document.createElement("div");
+  el.appendChild(document.createElement("canvas"));
+  el.appendChild(document.createElement("button"));
+  question.initSignaturePad(el);
+
+  question["updateValue"]();
+  assert.equal(question.value.substring(0, 15), "data:image/png;", "png");
+
+  question.dataFormat = "image/jpeg";
+  assert.equal(question.dataFormat, "image/jpeg", "jpeg format");
+  question["updateValue"]();
+  assert.equal(question.value.substring(0, 15), "data:image/jpeg", "jpeg");
+
+  question.dataFormat = "image/svg+xml";
+  assert.equal(question.dataFormat, "image/svg+xml", "svg format");
+  question["updateValue"]();
+  assert.equal(question.value.substring(0, 15), "data:image/svg+", "svg");
+});

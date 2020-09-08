@@ -3622,8 +3622,11 @@ QUnit.test("Question.addError(SurveyError|string)", function (assert) {
   assert.equal(question.errors[1].text, "Error 2", "custom error text");
 });
 
-QUnit.test("QuestionText min/max value", function (assert) {
-  var question = new QuestionTextModel("q");
+QUnit.test("QuestionText min/max value and renderedMin/renderedMax", function (
+  assert
+) {
+  var survey = new SurveyModel({ questions: [{ type: "text", name: "q" }] });
+  var question = <QuestionTextModel>survey.getQuestionByName("q");
   assert.equal(question.min, undefined, "Empty min");
   assert.equal(question.max, undefined, "Empty max");
   question.min = "1";
@@ -3635,11 +3638,33 @@ QUnit.test("QuestionText min/max value", function (assert) {
   assert.equal(question.max, undefined, "max reset");
   question.inputType = "date";
   assert.equal(question.min, undefined, "min not set");
-  assert.equal(question.max, "2999-12-31", "max is default");
+  assert.equal(question.max, undefined, "max is not set");
+  assert.equal(question.renderedMin, undefined, "renderedMin not set");
+  assert.equal(question.renderedMax, "2999-12-31", "renderedMax is default");
   question.min = "2000-01-01";
   question.max = "2020-12-31";
   assert.equal(question.min, "2000-01-01", "min is set");
   assert.equal(question.max, "2020-12-31", "max is set");
+  question.inputType = "number";
+  question.min = "1";
+  question.max = "=1+2";
+  assert.equal(question.renderedMin, 1, "min is set to 1");
+  assert.equal(question.renderedMax, 3, "max is set to 3");
+});
+QUnit.test("QuestionText renderedMin/renderedMax, today()", function (assert) {
+  var survey = new SurveyModel({
+    questions: [{ type: "text", name: "q", max: "=today()" }],
+  });
+  var question = <QuestionTextModel>survey.getQuestionByName("q");
+  var todayStr = new Date().toISOString().slice(0, 10);
+  assert.equal(question.renderedMax, todayStr, "today in format yyyy-mm-dd");
+});
+QUnit.test("Question defaultValue as expression", function (assert) {
+  var survey = new SurveyModel({
+    questions: [{ type: "text", name: "q", defaultValue: "=1+2" }],
+  });
+  var question = <QuestionTextModel>survey.getQuestionByName("q");
+  assert.equal(question.value, 3, "run expression");
 });
 QUnit.test("QuestionRating rateStep less than 1", function (assert) {
   var question = new QuestionRatingModel("q");

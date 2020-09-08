@@ -169,6 +169,7 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner {
     page: IPage,
     id: string
   ): any;
+  runExpression(expression: string): any;
 }
 export interface ISurveyImpl {
   geSurveyData(): ISurveyData;

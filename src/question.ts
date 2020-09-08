@@ -33,7 +33,8 @@ export interface IConditionObject {
 /**
  * A base class for all questions.
  */
-export class Question extends SurveyElement
+export class Question
+  extends SurveyElement
   implements
     IQuestion,
     IConditionRunner,
@@ -1023,6 +1024,10 @@ export class Question extends SurveyElement
       this.updateCommentFromSurvey("");
     }
   }
+  protected runExpression(expression: string): any {
+    if (!this.survey || !expression) return undefined;
+    return this.survey.runExpression(expression);
+  }
   private get questionValue(): any {
     return this.getPropertyValue("value");
   }
@@ -1225,7 +1230,19 @@ export class Question extends SurveyElement
     return this.isValueEmpty(this.defaultValue);
   }
   protected setDefaultValue() {
-    this.value = Helpers.getUnbindValue(this.defaultValue);
+    this.value = this.getValueAndRunExpression(
+      Helpers.getUnbindValue(this.defaultValue)
+    );
+  }
+  protected getValueAndRunExpression(val: any) {
+    if (!val) return val;
+    if (!!val && typeof val == "string" && val.length > 0 && val[0] == "=") {
+      val = this.runExpression(val.substr(1));
+    }
+    if (val instanceof Date) {
+      val = val.toISOString().slice(0, 10);
+    }
+    return val;
   }
 
   /**

@@ -373,8 +373,8 @@ QUnit.test("Next, Prev, IsFirst and IsLast Page and progressText", function (
   var survey = new SurveyModel();
   assert.equal(survey.progressText, "", "there is pages");
   survey.addPage(createPageWithQuestion("Page 1"));
-  survey.addPage(createPageWithQuestion("Second page"));
-  survey.addPage(createPageWithQuestion("Third page"));
+  survey.addPage(createPageWithQuestion("Second page", "q2"));
+  survey.addPage(createPageWithQuestion("Third page", "q3"));
   assert.equal(survey.currentPageNo, 0, "Current Page is  First");
   assert.equal(survey.isFirstPage, true, "Current Page is  First");
   assert.equal(survey.isLastPage, false, "Current Page is  First");
@@ -409,8 +409,14 @@ QUnit.test("Next, Prev, IsFirst and IsLast Page and progressText", function (
   survey.getAllQuestions()[0].value = "Answer 1";
   assert.equal(
     survey.progressText,
-    "Answered 3/3 questions",
-    "Answered 1 question - but questions with the same name"
+    "Answered 1/3 questions",
+    "Answered 1 question from 3"
+  );
+  survey.getAllQuestions()[1].visible = false;
+  assert.equal(
+    survey.progressText,
+    "Answered 1/2 questions",
+    "Make one question invisible"
   );
 });
 QUnit.test("progressText and onProgressText event", function (assert) {
@@ -437,6 +443,45 @@ QUnit.test("progressText and onProgressText event", function (assert) {
   assert.equal(questionCount, 4, "There are 4 questions");
   assert.equal(answeredQuestionCount, 1, "One question is answered");
 });
+QUnit.test(
+  "progressText, 'requiredQuestions' type and onProgressText event",
+  function (assert) {
+    var survey = new SurveyModel();
+    survey.addPage(createPageWithQuestion("Page 1", "q1"));
+    survey.addPage(createPageWithQuestion("Second page", "q2"));
+    survey.addPage(createPageWithQuestion("Third page", "q3"));
+    survey.addPage(createPageWithQuestion("Forth page", "q4"));
+    survey.getQuestionByName("q1").isRequired = true;
+    survey.getQuestionByName("q3").isRequired = true;
+    survey.progressBarType = "requiredQuestions";
+    assert.equal(survey.progressText, "Answered 0/2 questions");
+    survey.setValue("q1", "1");
+    assert.equal(survey.progressText, "Answered 1/2 questions");
+    survey.setValue("q2", "1");
+    assert.equal(
+      survey.progressText,
+      "Answered 1/2 questions",
+      "q2 is not required"
+    );
+    var questionCount = -1;
+    var answeredQuestionCount = -1;
+    var requiredQuestionCount = -1;
+    var requiredAnsweredQuestionCount = -1;
+
+    survey.onProgressText.add((sender: SurveyModel, options: any) => {
+      questionCount = options.questionCount;
+      answeredQuestionCount = options.answeredQuestionCount;
+      requiredQuestionCount = options.requiredQuestionCount;
+      requiredAnsweredQuestionCount = options.requiredQuestionCount;
+      options.text =
+        "Answered: " +
+        (100 * options.requiredAnsweredQuestionCount) /
+          options.requiredQuestionCount +
+        "%";
+    });
+    assert.equal(survey.progressText, "Answered: 50%");
+  }
+);
 QUnit.test(
   "survey.progressBarType = 'questions' and non input question, bug #2108",
   function (assert) {

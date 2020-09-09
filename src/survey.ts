@@ -1973,7 +1973,7 @@ export class SurveyModel
     return this.getPropertyValue("progressBarType");
   }
   public set progressBarType(newValue: string) {
-    this.setPropertyValue("progressBarType", newValue.toLowerCase());
+    this.setPropertyValue("progressBarType", newValue);
   }
   public get isShowProgressBarOnTop(): boolean {
     return this.showProgressBar === "top" || this.showProgressBar === "both";
@@ -3353,38 +3353,67 @@ export class SurveyModel
    */
   public get progressText(): string {
     if (this.currentPage == null) return "";
-    var options = { questionCount: -1, answeredQuestionCount: 0, text: "" };
+    var options = {
+      questionCount: 0,
+      answeredQuestionCount: 0,
+      requiredQuestionCount: 0,
+      requiredAnsweredQuestionCount: 0,
+      text: "",
+    };
+    var type = this.progressBarType.toLowerCase();
     if (
-      this.progressBarType === "questions" ||
-      this.progressBarType === "correctQuestions" ||
+      type === "questions" ||
+      type === "requiredquestions" ||
+      type === "correctquestions" ||
       !this.onProgressText.isEmpty
     ) {
       var questions = this.getQuestionsWithInput();
-      options.questionCount = questions.length;
-      options.answeredQuestionCount = questions.reduce(
-        (a: number, b: Question) => a + (b.isEmpty() ? 0 : 1),
-        0
-      );
+      options.questionCount = 0;
+      for (var i = 0; i < questions.length; i++) {
+        var q = questions[i];
+        if (!q.isVisible) continue;
+        options.questionCount++;
+        if (q.isRequired) {
+          options.requiredQuestionCount++;
+        }
+        if (!q.isEmpty()) {
+          options.answeredQuestionCount++;
+          if (q.isRequired) {
+            options.requiredAnsweredQuestionCount++;
+          }
+        }
+      }
     }
 
     options.text = this.getProgressText(
       options.questionCount,
-      options.answeredQuestionCount
+      options.answeredQuestionCount,
+      options.requiredQuestionCount,
+      options.requiredAnsweredQuestionCount
     );
     this.onProgressText.fire(this, options);
     return options.text;
   }
   private getProgressText(
     questionCount: number,
-    answeredQuestionCount: number
+    answeredQuestionCount: number,
+    requiredQuestionCount: number,
+    requiredAnsweredQuestionCount: number
   ): string {
-    if (this.progressBarType === "questions") {
+    var type = this.progressBarType.toLowerCase();
+    if (type === "questions") {
       return this.getLocString("questionsProgressText")["format"](
         answeredQuestionCount,
         questionCount
       );
     }
-    if (this.progressBarType === "correctQuestions") {
+    if (type === "requiredquestions") {
+      return this.getLocString("questionsProgressText")["format"](
+        requiredAnsweredQuestionCount,
+        requiredQuestionCount
+      );
+    }
+    if (type === "correctquestions") {
       var correctAnswersCount = this.getCorrectedAnswerCount();
       return this.getLocString("questionsProgressText")["format"](
         correctAnswersCount,
@@ -5278,7 +5307,7 @@ Serializer.addClass("survey", [
   {
     name: "progressBarType",
     default: "pages",
-    choices: ["pages", "questions", "correctQuestions"],
+    choices: ["pages", "questions", "requiredQuestions", "correctQuestions"],
   },
   { name: "mode", default: "edit", choices: ["edit", "display"] },
   { name: "storeOthersAsComment:boolean", default: true },

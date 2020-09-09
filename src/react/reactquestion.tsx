@@ -182,12 +182,7 @@ export class SurveyQuestion extends SurveyElementBase {
       ? this.renderDescription(cssClasses)
       : null;
     return (
-      <div
-        className={question.cssHeader}
-        onClick={function () {
-          if (question.hasInput) question.focus();
-        }}
-      >
+      <div className={question.cssHeader} onClick={question.clickTitleFunction}>
         {title}
         {description}
       </div>

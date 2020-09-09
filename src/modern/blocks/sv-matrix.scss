@@ -1,5 +1,9 @@
 .sv-matrix {
   overflow-x: auto;
+
+  .sv-table__cell--header {
+    text-align: center;
+  }
 }
 .sv-matrix__label {
   display: inline-block;
@@ -7,6 +11,10 @@
 }
 .sv-matrix__cell {
   min-width: 10em;
+  text-align: center;
+  &:first-child {
+    text-align: left;
+  }
 }
 .sv-matrix__text {
   cursor: pointer;

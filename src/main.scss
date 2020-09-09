@@ -509,6 +509,12 @@ $label-disabled-color: rgba(64, 64, 64, 0.5);
             }
           }
           &.sv_q_matrix {
+            td,
+            th {
+              padding: 0 1em;
+              text-align: center;
+            }
+
             td {
               @media (min-width: 768px) {
                 min-width: 10em;
@@ -517,6 +523,10 @@ $label-disabled-color: rgba(64, 64, 64, 0.5);
                 position: static;
                 display: block;
                 width: 100%;
+              }
+
+              &:first-child {
+                text-align: left;
               }
             }
           }
@@ -542,7 +552,6 @@ $label-disabled-color: rgba(64, 64, 64, 0.5);
             padding: 0.5em;
             vertical-align: bottom;
             font-weight: bold;
-            text-align: left;
           }
         }
 

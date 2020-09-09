@@ -11249,8 +11249,4 @@ QUnit.test("question.clickTitleFunction, Bug#2312", function (assert) {
     q2.clickTitleFunction,
     "q2 has not click title function, no input"
   );
-  survey.onTextMarkdown.add(function (sender, options) {
-    //do something
-  });
-  assert.notOk(q1.clickTitleFunction, "survey has markdown");
 });

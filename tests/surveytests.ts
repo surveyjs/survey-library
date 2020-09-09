@@ -413,6 +413,30 @@ QUnit.test("Next, Prev, IsFirst and IsLast Page and progressText", function (
     "Answered 1 question - but questions with the same name"
   );
 });
+QUnit.test("progressText and onProgressText event", function (assert) {
+  var survey = new SurveyModel();
+  survey.addPage(createPageWithQuestion("Page 1"));
+  survey.addPage(createPageWithQuestion("Second page", "q2"));
+  survey.addPage(createPageWithQuestion("Third page", "q3"));
+  survey.addPage(createPageWithQuestion("Forth page", "q4"));
+
+  var questionCount = -1;
+  var answeredQuestionCount = -1;
+
+  survey.onProgressText.add((sender: SurveyModel, options: any) => {
+    questionCount = options.questionCount;
+    answeredQuestionCount = options.answeredQuestionCount;
+    options.text =
+      "Answered: " +
+      (100 * options.answeredQuestionCount) / options.questionCount +
+      "%";
+  });
+  assert.equal(survey.progressText, "Answered: 0%");
+  survey.getAllQuestions()[0].value = "Answer 1";
+  assert.equal(survey.progressText, "Answered: 25%");
+  assert.equal(questionCount, 4, "There are 4 questions");
+  assert.equal(answeredQuestionCount, 1, "One question is answered");
+});
 QUnit.test(
   "survey.progressBarType = 'questions' and non input question, bug #2108",
   function (assert) {
@@ -2612,6 +2636,94 @@ QUnit.test("question.no and survey.questionStartIndex", function (assert) {
   survey.questionStartIndex = "# 1";
   assert.equal(question.no, "# 2");
 });
+QUnit.test(
+  "question.no/queston.visibleIndex and hideNo/hideTitle options",
+  function (assert) {
+    var survey = new SurveyModel({
+      questions: [
+        { type: "text", name: "q1" },
+        { type: "text", name: "q2" },
+        { type: "text", name: "q3" },
+      ],
+    });
+    var q1 = survey.pages[0].questions[0];
+    var q2 = survey.pages[0].questions[1];
+    var q3 = survey.pages[0].questions[2];
+    q2.titleLocation = "hidden";
+    assert.equal(
+      q2.visibleIndex,
+      -1,
+      "titleLocation = 'hidden', default behavior"
+    );
+    assert.equal(q2.no, "", "titleLocation = 'hidden'");
+    assert.equal(
+      q3.visibleIndex,
+      1,
+      "previous question titleLocation = 'hidden', default behavior"
+    );
+    assert.equal(q3.no, "2.", "previous question titleLocation = 'hidden'");
+    q1.visible = false;
+    settings.setQuestionVisibleIndexForHiddenTitle = true;
+    q1.visible = true;
+    assert.equal(
+      q2.visibleIndex,
+      1,
+      "titleLocation = 'hidden', setQuestionVisibleIndexForHiddenTitle"
+    );
+    assert.equal(
+      q2.no,
+      "",
+      "titleLocation = 'hidden', setQuestionVisibleIndexForHiddenTitle"
+    );
+    assert.equal(
+      q3.visibleIndex,
+      2,
+      "previous question titleLocation = 'hidden', default behavior, setQuestionVisibleIndexForHiddenTitle"
+    );
+    assert.equal(
+      q3.no,
+      "3.",
+      "previous question titleLocation = 'hidden', setQuestionVisibleIndexForHiddenTitle"
+    );
+    settings.setQuestionVisibleIndexForHiddenTitle = false;
+
+    q2.titleLocation = "default";
+    q2.hideNumber = true;
+    assert.equal(q2.visibleIndex, -1, "hideNumber = true, default behavior");
+    assert.equal(q2.no, "", "titleLocation = 'hidden'");
+    assert.equal(
+      q3.visibleIndex,
+      1,
+      "previous question hideNumber = true, default behavior"
+    );
+    assert.equal(q3.no, "2.", "previous question hideNumber = true");
+    q1.visible = false;
+    settings.setQuestionVisibleIndexForHiddenNumber = true;
+    q1.visible = true;
+    assert.equal(
+      q2.visibleIndex,
+      1,
+      "hideNumber = true, setQuestionVisibleIndexForHiddenNumber"
+    );
+    assert.equal(
+      q2.no,
+      "",
+      "hideNumber = true, setQuestionVisibleIndexForHiddenNumber"
+    );
+    assert.equal(
+      q3.visibleIndex,
+      2,
+      "previous question hideNumber = true, default behavior, setQuestionVisibleIndexForHiddenNumber"
+    );
+    assert.equal(
+      q3.no,
+      "3.",
+      "previous question hideNumber = true, setQuestionVisibleIndexForHiddenNumber"
+    );
+    settings.setQuestionVisibleIndexForHiddenNumber = false;
+  }
+);
+
 QUnit.test(
   "update survey.questionStartIndex and survey.requiredText based on survey.questionTitleTemplate",
   function (assert) {
@@ -6994,9 +7106,12 @@ function twoPageSimplestSurvey() {
   page.addNewQuestion("text", "question4");
   return survey;
 }
-function createPageWithQuestion(name: string): PageModel {
+function createPageWithQuestion(
+  name: string,
+  questionName: string = "q1"
+): PageModel {
   var page = new PageModel(name);
-  page.addNewQuestion("text", "q1");
+  page.addNewQuestion("text", questionName);
   return page;
 }
 
@@ -11087,5 +11202,28 @@ QUnit.test(
       "abcd",
       "Trigger set question value"
     );
+  }
+);
+QUnit.test(
+  "comment doesn't set when storeOthersAsComment equals false, Bug#2353",
+  function (assert) {
+    var survey = new SurveyModel({
+      storeOthersAsComment: false,
+      questions: [
+        {
+          type: "radiogroup",
+          name: "test",
+          title: "My Test field",
+          choices: ["A", "B", "C"],
+          hasComment: true,
+        },
+      ],
+    });
+    survey.data = {
+      test: "B",
+      "test-Comment": "ABC",
+    };
+    var question = survey.getQuestionByName("test");
+    assert.equal(question.comment, "ABC", "Comment text set correctly");
   }
 );

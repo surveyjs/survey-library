@@ -453,10 +453,10 @@ export class OperandMaker {
       return OperandMaker.binaryFunctions.less(left, right);
     },
     equal: function (left: any, right: any): boolean {
-      return Helpers.isTwoValueEquals(left, right, true);
+      return OperandMaker.isTwoValueEquals(left, right);
     },
     notequal: function (left: any, right: any): boolean {
-      return !Helpers.isTwoValueEquals(left, right, true);
+      return !OperandMaker.binaryFunctions.equal(left, right);
     },
     contains: function (left: any, right: any): boolean {
       return OperandMaker.binaryFunctions.containsCore(left, right, true);
@@ -504,13 +504,19 @@ export class OperandMaker {
         var i = 0;
         right = rightArray[rIndex];
         for (; i < left.length; i++) {
-          if (Helpers.isTwoValueEquals(left[i], right)) break;
+          if (OperandMaker.isTwoValueEquals(left[i], right)) break;
         }
         if (i == left.length) return !isContains;
       }
       return isContains;
     },
   };
+
+  static isTwoValueEquals(x: any, y: any): boolean {
+    if (x === "undefined") x = undefined;
+    if (y === "undefined") y = undefined;
+    return Helpers.isTwoValueEquals(x, y, true);
+  }
 
   static operatorToString(operatorName: string): string {
     let opStr = OperandMaker.signs[operatorName];

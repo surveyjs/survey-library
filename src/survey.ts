@@ -42,7 +42,8 @@ import { settings } from "./settings";
 /**
  * The `Survey` object contains information about the survey, Pages, Questions, flow logic and etc.
  */
-export class SurveyModel extends Base
+export class SurveyModel
+  extends Base
   implements
     ISurvey,
     ISurveyData,
@@ -424,6 +425,18 @@ export class SurveyModel extends Base
    * @see requiredText
    */
   public onGetQuestionTitle: Event<
+    (sender: SurveyModel, options: any) => any,
+    any
+  > = new Event<(sender: SurveyModel, options: any) => any, any>();
+  /**
+   * Use this event to change the progress text in code.
+   * <br/> `sender` - the survey object that fires the event.
+   * <br/> `options.text` - a progress text, that SurveyJS will render in progress bar.
+   * <br/> `options.questionCount` - a number of questions that have input(s). We do not count html or expression questions
+   * <br/> `options.answeredQuestionCount` - a number of questions that have input(s) and an user has answered.
+   *  @see progressBarType
+   */
+  public onProgressText: Event<
     (sender: SurveyModel, options: any) => any,
     any
   > = new Event<(sender: SurveyModel, options: any) => any, any>();
@@ -3340,23 +3353,42 @@ export class SurveyModel extends Base
    */
   public get progressText(): string {
     if (this.currentPage == null) return "";
-    if (this.progressBarType === "questions") {
+    var options = { questionCount: -1, answeredQuestionCount: 0, text: "" };
+    if (
+      this.progressBarType === "questions" ||
+      this.progressBarType === "correctQuestions" ||
+      !this.onProgressText.isEmpty
+    ) {
       var questions = this.getQuestionsWithInput();
-      var answeredQuestionsCount = questions.reduce(
+      options.questionCount = questions.length;
+      options.answeredQuestionCount = questions.reduce(
         (a: number, b: Question) => a + (b.isEmpty() ? 0 : 1),
         0
       );
+    }
+
+    options.text = this.getProgressText(
+      options.questionCount,
+      options.answeredQuestionCount
+    );
+    this.onProgressText.fire(this, options);
+    return options.text;
+  }
+  private getProgressText(
+    questionCount: number,
+    answeredQuestionCount: number
+  ): string {
+    if (this.progressBarType === "questions") {
       return this.getLocString("questionsProgressText")["format"](
-        answeredQuestionsCount,
-        questions.length
+        answeredQuestionCount,
+        questionCount
       );
     }
     if (this.progressBarType === "correctQuestions") {
-      var questions = this.getQuestionsWithInput();
       var correctAnswersCount = this.getCorrectedAnswerCount();
       return this.getLocString("questionsProgressText")["format"](
         correctAnswersCount,
-        questions.length
+        questionCount
       );
     }
     var vPages = this.visiblePages;

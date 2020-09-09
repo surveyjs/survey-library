@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.8.1](https://github.com/surveyjs/survey-library/compare/v1.8.0...v1.8.1) (2020-09-09)
+
+## [1.8.0](https://github.com/surveyjs/survey-library/compare/v1.7.28...v1.8.0) (2020-09-02)
+
+
+### Bug Fixes
+
+* Image Picker doesn't update items in designer on changing value/text and image link in choices property editor, https://github.com/surveyjs/survey-creator/issues/942 ([254fe49](https://github.com/surveyjs/survey-library/commit/254fe494b5a570824756098b0aa98d7b9cbe2cc6))
+* Width for column in Matrixdynamic does not work when the header is hidden [#2346](https://github.com/surveyjs/survey-library/issues/2346) ([db02e39](https://github.com/surveyjs/survey-library/commit/db02e3969548ab5b32e02fb5123fe258368a37fa))
+
 ### [1.7.28](https://github.com/surveyjs/survey-library/compare/v1.7.27...v1.7.28) (2020-08-25)
 
 ### [1.7.27](https://github.com/surveyjs/survey-library/compare/v1.7.26...v1.7.27) (2020-08-19)

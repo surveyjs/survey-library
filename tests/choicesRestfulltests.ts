@@ -312,14 +312,14 @@ QUnit.test("attachOriginalItems", function (assert) {
   );
 });
 
-QUnit.test("attachOriginalItems in question", function(assert) {
+QUnit.test("attachOriginalItems in question", function (assert) {
   var question = new QuestionDropdownModelTester("q1");
   question.fromJSON({
     choicesByUrl: {
       url: "allcountries",
       path: "RestResponse;result",
-      attachOriginalItems: true
-    }
+      attachOriginalItems: true,
+    },
   });
   question.onSurveyLoad();
   assert.equal(question.visibleChoices.length, 5, "Choices has been loaded");
@@ -335,27 +335,37 @@ QUnit.test("attachOriginalItems in question", function(assert) {
   );
 });
 
-QUnit.test("Load attachOriginalItems value from JSON", function(assert) {
+QUnit.test("Load attachOriginalItems value from JSON", function (assert) {
   var test = new ChoicesRestfull();
   assert.notOk(test.attachOriginalItems, "attachOriginalItems initially false");
   test.fromJSON({
     url: "allcountries",
     path: "RestResponse;result",
-    attachOriginalItems: true
+    attachOriginalItems: true,
   });
   assert.ok(test.attachOriginalItems, "attachOriginalItems has been loaded");
 
   var question = new QuestionDropdownModel("q1");
-  assert.notOk(question.choicesByUrl.attachOriginalItems, "question: attachOriginalItems initially false");
+  assert.notOk(
+    question.choicesByUrl.attachOriginalItems,
+    "question: attachOriginalItems initially false"
+  );
   question.fromJSON({
     choicesByUrl: {
       url: "allcountries",
       path: "RestResponse;result",
-      attachOriginalItems: true
-    }
+      attachOriginalItems: true,
+    },
   });
-  assert.equal(question.choicesByUrl.url, "allcountries", "question: url has been loaded");
-  assert.ok(question.choicesByUrl.attachOriginalItems, "question: attachOriginalItems has been loaded");
+  assert.equal(
+    question.choicesByUrl.url,
+    "allcountries",
+    "question: url has been loaded"
+  );
+  assert.ok(
+    question.choicesByUrl.attachOriginalItems,
+    "question: attachOriginalItems has been loaded"
+  );
 });
 
 QUnit.test(
@@ -393,7 +403,7 @@ QUnit.test("encode parameters", function (assert) {
   survey.setValue("q1", "R&D");
   var test = new ChoicesRestfullTester();
   test.url = "TestUrl/{q1}";
-  test.getResultCallback = function (res: Array<ItemValue>) { };
+  test.getResultCallback = function (res: Array<ItemValue>) {};
   test.run(survey);
   assert.equal(test.testProcessedUrl, "TestUrl/R%26D", "Encode the string");
   settings.webserviceEncodeParameters = false;
@@ -412,7 +422,7 @@ QUnit.test("Process text in event", function (assert) {
   });
   var test = new ChoicesRestfullTester();
   test.url = "TestUrl/{q1}";
-  test.getResultCallback = function (res: Array<ItemValue>) { };
+  test.getResultCallback = function (res: Array<ItemValue>) {};
   test.run(survey);
   assert.equal(test.testProcessedUrl, "TestUrl/R%26D");
 });
@@ -1227,6 +1237,48 @@ QUnit.test("choicesByUrl + isReady", function (assert) {
     true,
     "IsReady should be true after load survey"
   );
+});
+
+QUnit.test("isUsing cache", function (assert) {
+  var question = new QuestionDropdownModelTester("q1");
+  question.choicesByUrl.url = "someurl";
+  question.onSurveyLoad();
+  assert.equal(
+    question.choicesByUrl.isUsingCache,
+    true,
+    "Use cache by default"
+  );
+  settings.useCachingForChoicesRestfull = false;
+  assert.equal(
+    question.choicesByUrl.isUsingCache,
+    false,
+    "Do not use cache by default"
+  );
+  settings.useCachingForChoicesRestfull = true;
+  question.choicesByUrl.url = "someurl{NOCACHE}";
+  assert.equal(
+    question.choicesByUrl.isUsingCache,
+    false,
+    "Do not use cache by {NOCACHE}"
+  );
+  assert.equal(
+    question.restFullTest.testProcessedUrl,
+    "someurl",
+    "Remove {NOCACHE} from Url"
+  );
+  settings.useCachingForChoicesRestfull = false;
+  question.choicesByUrl.url = "someurl{CACHE}";
+  assert.equal(
+    question.choicesByUrl.isUsingCache,
+    true,
+    "Use cache by {CACHE}"
+  );
+  assert.equal(
+    question.restFullTest.testProcessedUrl,
+    "someurl",
+    "Remove {CACHE} from Url"
+  );
+  settings.useCachingForChoicesRestfull = true;
 });
 
 function getCACities() {

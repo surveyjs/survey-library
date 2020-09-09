@@ -3,6 +3,42 @@ import { QuestionFactory } from "./questionfactory";
 import { QuestionCheckboxBase } from "./question_baseselect";
 import { ItemValue } from "./itemvalue";
 import { Helpers } from "./helpers";
+import { ILocalizableOwner, LocalizableString } from "./localizablestring";
+
+export class ImageItemValue extends ItemValue implements ILocalizableOwner {
+  constructor(
+    value: any,
+    text: string = null,
+    protected typeName = "imageitemvalue"
+  ) {
+    super(value, text, typeName);
+    this.createLocalizableString("imageLink", this, false);
+  }
+  public getType(): string {
+    return !!this.typeName ? this.typeName : "itemvalue";
+  }
+  /**
+   * The image or video link property.
+   */
+  public get imageLink(): string {
+    return this.getLocalizableStringText("imageLink");
+  }
+  public set imageLink(val: string) {
+    this.setLocalizableStringText("imageLink", val);
+  }
+  get locImageLink(): LocalizableString {
+    return this.getLocalizableString("imageLink");
+  }
+  getLocale(): string {
+    return !!this.locOwner ? this.locOwner.getLocale() : "";
+  }
+  getMarkdownHtml(text: string): string {
+    return !!this.locOwner ? this.locOwner.getMarkdownHtml(text) : text;
+  }
+  getProcessedText(text: string): string {
+    return !!this.locOwner ? this.locOwner.getProcessedText(text) : text;
+  }
+}
 
 /**
  * A Model for a select image question.
@@ -176,10 +212,15 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
   }
 }
 
-Serializer.addClass("imageitemvalue", [], undefined, "itemvalue");
+Serializer.addClass(
+  "imageitemvalue",
+  [],
+  (value: any) => new ImageItemValue(value),
+  "itemvalue"
+);
 Serializer.addProperty("imageitemvalue", {
   name: "imageLink",
-  isLocalizable: true,
+  serializationProperty: "locImageLink",
 });
 
 Serializer.addClass(

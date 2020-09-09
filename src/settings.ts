@@ -12,6 +12,10 @@ export var settings = {
    */
   webserviceEncodeParameters: true,
   /**
+   * Cache the result for choices getting from web services. Set this property to false, to disable the caching.
+   */
+  useCachingForChoicesRestfull: true,
+  /**
    * SurveyJS web service API url
    */
   surveyServiceUrl: "https://api.surveyjs.io/public/v1/Survey",
@@ -90,4 +94,14 @@ export var settings = {
    * This property tells how many times survey re-run expressions on value changes during condition running. We need it to avoid recursions in the expressions
    */
   maximumConditionRunCountOnValueChanged: 10,
+  /**
+   * By default visibleIndex for question with titleLocation = "hidden" is -1, and survey doesn't count these questions when set questions numbers.
+   * Set it true, and a question next to a question with hidden title will increase it's number.
+   */
+  setQuestionVisibleIndexForHiddenTitle: false,
+  /**
+   * By default visibleIndex for question with hideNumber = true is -1, and survey doesn't count these questions when set questions numbers.
+   * Set it true, and a question next to a question with hidden title number will increase it's number.
+   */
+  setQuestionVisibleIndexForHiddenNumber: false,
 };

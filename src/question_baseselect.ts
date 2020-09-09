@@ -240,7 +240,8 @@ export class QuestionSelectBase extends Question {
   }
   protected getQuestionComment(): string {
     if (!!this.commentValue) return this.commentValue;
-    if (this.getStoreOthersAsComment()) return super.getQuestionComment();
+    if (this.hasComment || this.getStoreOthersAsComment())
+      return super.getQuestionComment();
     return this.commentValue;
   }
   private isSettingComment: boolean = false;

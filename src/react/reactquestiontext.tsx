@@ -28,24 +28,26 @@ export class SurveyQuestionText extends SurveyQuestionUncontrolledElement<
         disabled={this.isDisplayMode}
         className={cssClasses.root}
         type={this.question.inputType}
-        ref={input => (this.control = input)}
+        ref={(input) => (this.control = input)}
         maxLength={this.question.getMaxLength()}
-        min={this.question.min}
-        max={this.question.max}
+        min={this.question.renderedMin}
+        max={this.question.renderedMax}
         step={this.question.step}
         size={this.question.size}
         placeholder={placeHolder}
         onBlur={onBlur}
         onInput={onInput}
         aria-required={this.question.isRequired}
-        aria-label={this.question.locTitle.renderedHtml} 
+        aria-label={this.question.locTitle.renderedHtml}
         aria-invalid={this.question.errors.length > 0}
-        aria-describedby={this.question.errors.length > 0 ? this.question.id + '_errors' : null}
+        aria-describedby={
+          this.question.errors.length > 0 ? this.question.id + "_errors" : null
+        }
       />
     );
   }
 }
 
-ReactQuestionFactory.Instance.registerQuestion("text", props => {
+ReactQuestionFactory.Instance.registerQuestion("text", (props) => {
   return React.createElement(SurveyQuestionText, props);
 });

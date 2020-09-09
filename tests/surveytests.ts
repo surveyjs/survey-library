@@ -11227,3 +11227,30 @@ QUnit.test(
     assert.equal(question.comment, "ABC", "Comment text set correctly");
   }
 );
+QUnit.test("question.clickTitleFunction, Bug#2312", function (assert) {
+  var survey = new SurveyModel({
+    questions: [
+      {
+        type: "radiogroup",
+        name: "q1",
+        choices: ["A", "B", "C"],
+      },
+      {
+        type: "expression",
+        name: "q2",
+        expression: "1+2",
+      },
+    ],
+  });
+  var q1 = survey.getQuestionByName("q1");
+  var q2 = survey.getQuestionByName("q2");
+  assert.ok(q1.clickTitleFunction, "q1 has click title function");
+  assert.notOk(
+    q2.clickTitleFunction,
+    "q2 has not click title function, no input"
+  );
+  survey.onTextMarkdown.add(function (sender, options) {
+    //do something
+  });
+  assert.notOk(q1.clickTitleFunction, "survey has markdown");
+});

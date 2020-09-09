@@ -467,6 +467,16 @@ export class Question
       ? this.survey.questionDescriptionLocation
       : "underTitle";
   }
+  public get clickTitleFunction(): any {
+    if (this.hasInput) {
+      var self = this;
+      return function () {
+        self.focus();
+        return true;
+      };
+    }
+    return undefined;
+  }
   /**
    * The custom text that will be shown on required error. Use this property, if you do not want to show the default text.
    * Please note, this property is hidden for question without input, for example html question.

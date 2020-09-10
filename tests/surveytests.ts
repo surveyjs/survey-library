@@ -2695,6 +2695,8 @@ QUnit.test("question.no and survey.questionStartIndex", function (assert) {
   assert.equal(question.no, "(11)");
   survey.questionStartIndex = "# 1";
   assert.equal(question.no, "# 2");
+  survey.questionStartIndex = "1.2";
+  assert.equal(question.no, "1.3");
 });
 QUnit.test(
   "question.no/queston.visibleIndex and hideNo/hideTitle options",

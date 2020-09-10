@@ -188,20 +188,18 @@ export class Helpers {
         newPostfix = str.substr(ind + 1);
         str = str.substr(0, ind + 1);
       }
-      if (!!str) {
-        var ind = 0;
-        while (ind < str.length && checkLetter()) ind++;
-        if (ind > 0) {
-          prefix = str.substr(0, ind);
-          str = str.substr(ind);
-        }
+      ind = str.length - 1;
+      while (ind >= 0) {
+        if (checkLetter()) break;
+        ind--;
+        if (!hasDigit) break;
       }
+      var strIndex = str.substr(ind + 1);
+      prefix = str.substr(0, ind + 1);
+      if (parseInt(strIndex)) startIndex = parseInt(strIndex);
+      else if (strIndex.length == 1) isNumeric = false;
       if (!!newPostfix || !!prefix) {
         postfix = newPostfix;
-      }
-      if (!!str) {
-        if (parseInt(str)) startIndex = parseInt(str);
-        else if (str.length == 1) isNumeric = false;
       }
     }
     if (isNumeric) return prefix + (index + startIndex).toString() + postfix;

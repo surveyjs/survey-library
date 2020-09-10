@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.8.2](https://github.com/surveyjs/survey-library/compare/v1.8.1...v1.8.2) (2020-09-10)
+
+
+### Bug Fixes
+
+* Pressing markdown link focuses the answer input ([b9ead88](https://github.com/surveyjs/survey-library/commit/b9ead885039764e642785198ca45f732e6eb4088)), closes [#2312](https://github.com/surveyjs/survey-library/issues/2312)
+
 ### [1.8.1](https://github.com/surveyjs/survey-library/compare/v1.8.0...v1.8.1) (2020-09-09)
 
 ## [1.8.0](https://github.com/surveyjs/survey-library/compare/v1.7.28...v1.8.0) (2020-09-02)

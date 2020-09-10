@@ -72,6 +72,10 @@ export var settings = {
    */
   executeCompleteTriggerOnValueChanged: false,
   /**
+   * Set this property to false to execute the skip trigger on next page instead of on value change.
+   */
+  executeSkipTriggerOnValueChanged: true,
+  /**
    * Set this property to change readOnlyCommentRenderMode: "textarea" (default) or (div)
    */
   readOnlyCommentRenderMode: "textarea",

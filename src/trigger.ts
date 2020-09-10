@@ -322,6 +322,9 @@ export class SurveyTriggerSkip extends SurveyTrigger {
   public set gotoName(val: string) {
     this.setPropertyValue("gotoName", val);
   }
+  public get isOnNextPage() {
+    return !settings.executeSkipTriggerOnValueChanged;
+  }
   protected onSuccess(values: HashTable<any>, properties: HashTable<any>) {
     if (!this.gotoName || !this.owner) return;
     this.owner.focusQuestion(this.gotoName);

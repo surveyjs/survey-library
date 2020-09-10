@@ -3302,14 +3302,17 @@ export class SurveyModel
     }
   }
   protected doNextPage() {
+    var curPage = this.currentPage;
     this.checkOnPageTriggers();
     if (!this.isCompleted) {
       if (this.sendResultOnPageNext) {
         this.sendResult(this.surveyPostId, this.clientId, true);
       }
-      var vPages = this.visiblePages;
-      var index = vPages.indexOf(this.currentPage);
-      this.currentPage = vPages[index + 1];
+      if (curPage === this.currentPage) {
+        var vPages = this.visiblePages;
+        var index = vPages.indexOf(this.currentPage);
+        this.currentPage = vPages[index + 1];
+      }
     } else {
       this.doComplete(true);
     }

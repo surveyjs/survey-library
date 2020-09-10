@@ -2327,6 +2327,21 @@ QUnit.test("Skip trigger test", function (assert) {
   survey.setValue("question1", "Hello");
   assert.equal(survey.currentPageNo, 1, "the second page is active now");
 });
+QUnit.test("Skip trigger test", function (assert) {
+  settings.executeSkipTriggerOnValueChanged = false;
+  var survey = twoPageSimplestSurvey();
+  survey.addPage(createPageWithQuestion("p3", "q10"));
+  var trigger = new SurveyTriggerSkip();
+  survey.triggers.push(trigger);
+  trigger.expression = "{question1} = 'Hello'";
+  trigger.gotoName = "q10";
+  assert.equal(survey.currentPageNo, 0, "the first page is active");
+  survey.setValue("question1", "Hello");
+  assert.equal(survey.currentPageNo, 0, "the first page is still active");
+  survey.nextPage();
+  assert.equal(survey.currentPageNo, 2, "the third page is active");
+  settings.executeSkipTriggerOnValueChanged = true;
+});
 QUnit.test(
   "RunExpression trigger test with custom function, bug#T1734",
   function (assert) {

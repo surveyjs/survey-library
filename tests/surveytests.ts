@@ -2611,6 +2611,8 @@ QUnit.test("question.no and survey.questionStartIndex", function (assert) {
   assert.equal(question.no, "(11)");
   survey.questionStartIndex = "# 1";
   assert.equal(question.no, "# 2");
+  survey.questionStartIndex = "1.2";
+  assert.equal(question.no, "1.3");
 });
 QUnit.test(
   "update survey.questionStartIndex and survey.requiredText based on survey.questionTitleTemplate",

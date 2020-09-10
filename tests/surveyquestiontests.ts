@@ -362,7 +362,7 @@ QUnit.test("Question titleDescription", function (assert) {
     "survey.questionDescriptionLocation = 'underInput'"
   );
 });
-QUnit.skip("Use value of checkbox question as an array", function (assert) {
+QUnit.test("Use value of checkbox question as an array", function (assert) {
   var survey = new SurveyModel();
   var page = survey.addNewPage("Page 1");
   var question = new QuestionCheckboxModel("checkboxQuestion");

@@ -4571,7 +4571,7 @@ QUnit.test("Survey Markdown - question title", function (assert) {
   );
 });
 
-QUnit.skip(
+QUnit.test(
   "Survey Markdown - question title, if title is empty and question is required",
   function (assert) {
     var survey = new SurveyModel();
@@ -4581,9 +4581,7 @@ QUnit.skip(
     var q2 = <Question>page.addNewQuestion("text", "q2");
     var q3 = <Question>page.addNewQuestion("text", "q3");
     survey.onTextMarkdown.add(function (survey, options) {
-      options.html = options.text;
-      while (options.html.indexOf("*") > -1)
-        options.html = options.html.replace("*", "!");
+      options.html = options.text + "!";
     });
     q1.isRequired = true;
     q2.isRequired = true;
@@ -4593,7 +4591,7 @@ QUnit.skip(
 
     assert.equal(
       q1.locTitle.renderedHtml,
-      "q1 !",
+      "q1!",
       "q1.title, use markdown for requried text, title is empty"
     );
     assert.equal(
@@ -4603,7 +4601,7 @@ QUnit.skip(
     );
     assert.equal(
       q2.locTitle.renderedHtml,
-      "Q2 !",
+      "Q2!",
       "q2.title, use markdown for requried text, has title"
     );
     assert.equal(
@@ -4613,7 +4611,7 @@ QUnit.skip(
     );
     assert.equal(
       q3.locTitle.renderedHtml,
-      "!Q3 q1-Value !",
+      "*Q3 q1-Value!",
       "q3.title, use markdown for requried text and inside title and process text"
     );
     assert.equal(

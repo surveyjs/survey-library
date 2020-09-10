@@ -434,6 +434,8 @@ export class SurveyModel
    * <br/> `options.text` - a progress text, that SurveyJS will render in progress bar.
    * <br/> `options.questionCount` - a number of questions that have input(s). We do not count html or expression questions
    * <br/> `options.answeredQuestionCount` - a number of questions that have input(s) and an user has answered.
+   * <br/> `options.requiredQuestionCount` - a number of required questions that have input(s). We do not count html or expression questions
+   * <br/> `options.requiredAnsweredQuestionCount` - a number of required questions that have input(s) and an user has answered.
    *  @see progressBarType
    */
   public onProgressText: Event<

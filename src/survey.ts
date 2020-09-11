@@ -2946,20 +2946,7 @@ export class SurveyModel
     }
   }
   public cancelPreviewByPage(panel: IPanel): any {
-    var pageIndex = this.getVisiblePageIndexByRootPanel(panel);
-    this.cancelPreview(pageIndex > -1 ? pageIndex : undefined);
-  }
-  private getVisiblePageIndexByRootPanel(panel: IPanel): number {
-    if (!panel) return -1;
-    var panels = this.getAllPanels();
-    var index = 0;
-    for (var i = 0; i < panels.length; i++) {
-      if (panels[i].parent === this.currentPageValue) {
-        if (panels[i] == panel) return index;
-        index++;
-      }
-    }
-    return -1;
+    this.cancelPreview((<any>panel)["originalPage"]);
   }
   protected doCurrentPageComplete(doComplete: boolean): boolean {
     this.resetNavigationButton();
@@ -3107,6 +3094,7 @@ export class SurveyModel
     for (var i = startIndex; i < this.pages.length; i++) {
       var page = this.pages[i];
       var panel = Serializer.createClass("panel");
+      panel.originalPage = page;
       single.addPanel(panel);
       var json = new JsonObject().toJsonObject(page);
       new JsonObject().toObject(json, panel);

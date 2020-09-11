@@ -560,6 +560,11 @@ $label-disabled-color: rgba(64, 64, 64, 0.5);
           padding-top: 0.1em;
         }
 
+        .sv_q_checkbox_label,
+        .sv_q_radiogroup_label {
+          display: block;
+        }
+
         .sv_q_other {
           margin-left: 1em;
         }

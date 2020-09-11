@@ -900,6 +900,9 @@ export class SurveyError {
   }
 }
 
+/**
+ * Base class of SurveyJS Elements.
+ */
 export class SurveyElement extends Base implements ISurveyElement {
   private surveyImplValue: ISurveyImpl;
   private surveyDataValue: ISurveyData;

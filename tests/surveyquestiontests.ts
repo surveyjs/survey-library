@@ -3849,3 +3849,9 @@ QUnit.test("QuestionSignaturePadModel dataFormat values", function (assert) {
   question["updateValue"]();
   assert.equal(question.value.substring(0, 15), "data:image/svg+", "svg");
 });
+/*
+QUnit.test("Question.getProgressInfo()", function (assert) {
+  var question = new QuestionTextModel("q1");
+  
+});
+*/

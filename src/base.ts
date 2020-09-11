@@ -259,6 +259,12 @@ export interface ITitleOwner {
   isRequireTextAfterTitle: boolean;
   locTitle: LocalizableString;
 }
+export interface IProgressInfo {
+  questionCount: number;
+  answeredQuestionCount: number;
+  requiredQuestionCount: number;
+  answeredRequiredQuestionCount: number;
+}
 /**
  * The base class for SurveyJS objects.
  */
@@ -383,6 +389,14 @@ export class Base {
     var clonedObj = <Base>Serializer.createClass(this.getType());
     clonedObj.fromJSON(this.toJSON());
     return clonedObj;
+  }
+  public getProgressInfo(): IProgressInfo {
+    return {
+      questionCount: 0,
+      answeredQuestionCount: 0,
+      requiredQuestionCount: 0,
+      answeredRequiredQuestionCount: 0,
+    };
   }
   public locStrsChanged() {
     if (!!this.arraysInfo) {

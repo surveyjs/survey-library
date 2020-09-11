@@ -46,6 +46,8 @@ class XmlParser {
  * The run method call a restfull service and results can be get on getResultCallback.
  */
 export class ChoicesRestfull extends Base {
+  private static cacheText = "{CACHE}";
+  private static noCacheText = "{NOCACHE}";
   public static get EncodeParameters(): boolean {
     return settings.webserviceEncodeParameters;
   }
@@ -61,6 +63,7 @@ export class ChoicesRestfull extends Base {
     [index: string]: Array<ChoicesRestfull>;
   } = {};
   private static addSameRequest(obj: ChoicesRestfull): boolean {
+    if (!obj.isUsingCache) return false;
     var hash = obj.objHash;
     var res = ChoicesRestfull.sendingSameRequests[hash];
     if (!res) {
@@ -71,6 +74,7 @@ export class ChoicesRestfull extends Base {
     return true;
   }
   private static unregisterSameRequests(obj: ChoicesRestfull, items: any) {
+    if (!obj.isUsingCache) return;
     var res = ChoicesRestfull.sendingSameRequests[obj.objHash];
     delete ChoicesRestfull.sendingSameRequests[obj.objHash];
     for (var i = 0; i < res.length; i++) {
@@ -96,6 +100,7 @@ export class ChoicesRestfull extends Base {
   private isRunningValue: boolean = false;
   protected processedUrl: string = "";
   protected processedPath: string = "";
+  private isUsingCacheFromUrl: boolean = undefined;
   public getResultCallback: (items: Array<ItemValue>) => void;
   public beforeSendRequestCallback: () => void;
   public updateResultCallback: (
@@ -122,6 +127,11 @@ export class ChoicesRestfull extends Base {
     if (this.useChangedItemsResults()) return;
     if (ChoicesRestfull.addSameRequest(this)) return;
     this.sendRequest();
+  }
+  public get isUsingCache(): boolean {
+    if (this.isUsingCacheFromUrl === true) return true;
+    if (this.isUsingCacheFromUrl === false) return false;
+    return settings.useCachingForChoicesRestfull;
   }
   public get isRunning() {
     return this.isRunningValue;
@@ -284,6 +294,15 @@ export class ChoicesRestfull extends Base {
   }
   public set url(val: string) {
     this.setPropertyValue("url", val);
+    this.isUsingCacheFromUrl = undefined;
+    if (!val) return;
+    if (val.indexOf(ChoicesRestfull.cacheText) > -1) {
+      this.isUsingCacheFromUrl = true;
+    } else {
+      if (val.indexOf(ChoicesRestfull.noCacheText) > -1) {
+        this.isUsingCacheFromUrl = false;
+      }
+    }
   }
   public get path(): string {
     return this.getPropertyValue("path", "");
@@ -377,7 +396,9 @@ export class ChoicesRestfull extends Base {
     if (this.updateResultCallback) {
       items = this.updateResultCallback(items, result);
     }
-    ChoicesRestfull.itemsResult[loadingObjHash] = items;
+    if (this.isUsingCache) {
+      ChoicesRestfull.itemsResult[loadingObjHash] = items;
+    }
     this.callResultCallback(items, loadingObjHash);
     ChoicesRestfull.unregisterSameRequests(this, items);
   }

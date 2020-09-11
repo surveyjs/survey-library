@@ -1755,6 +1755,37 @@ QUnit.test("rowIndex variable, in text processing", function (assert) {
   assert.equal(rows[0].cells[0].question.value, 1, "The first row has index 1");
   assert.equal(rows[1].cells[0].question.value, 2, "The first row has index 2");
 });
+QUnit.test("rowValue variable, in text processing", function (assert) {
+  var json = {
+    elements: [
+      {
+        type: "matrixdropdown",
+        name: "q1",
+        columns: [
+          {
+            name: "column1",
+            cellType: "expression",
+            expression: "{rowValue} * 2",
+          },
+        ],
+        rows: [1, 2, 3],
+      },
+    ],
+  };
+  var survey = new SurveyModel(json);
+  var question = <QuestionMatrixDynamicModel>survey.getQuestionByName("q1");
+  var rows = question.visibleRows;
+  assert.equal(
+    rows[0].cells[0].question.value,
+    2,
+    "The first row has row name 1"
+  );
+  assert.equal(
+    rows[1].cells[0].question.value,
+    4,
+    "The first row has row name 2"
+  );
+});
 QUnit.test("rowValue variable in expression", function (assert) {
   var json = {
     elements: [

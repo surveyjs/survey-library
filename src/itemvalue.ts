@@ -71,7 +71,7 @@ export class ItemValue extends Base {
         item = new ItemValue(null);
       }
       item.setData(value);
-      if(!!value.originalItem) {
+      if (!!value.originalItem) {
         item.originalItem = value.originalItem;
       }
       items.push(item);
@@ -197,7 +197,11 @@ export class ItemValue extends Base {
   private visibleConditionRunner: ConditionRunner;
   private enableConditionRunner: ConditionRunner;
 
-  constructor(value: any, text: string = null, private typeName = "itemvalue") {
+  constructor(
+    value: any,
+    text: string = null,
+    protected typeName = "itemvalue"
+  ) {
     super();
     this.locTextValue = new LocalizableString(null, true);
     this.locTextValue.onGetTextCallback = (txt) => {
@@ -214,7 +218,7 @@ export class ItemValue extends Base {
     }
     this.onCreating();
   }
-  public onCreating(): any { }
+  public onCreating(): any {}
   public getType(): string {
     return !!this.typeName ? this.typeName : "itemvalue";
   }

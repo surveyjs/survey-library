@@ -340,9 +340,9 @@ QUnit.test(
   function (assert) {
     var survey = new SurveyModel({
       pages: [
-        { elements: [{ type: "text", name: "q1" }] },
-        { elements: [{ type: "text", name: "q2" }] },
-        { elements: [{ type: "text", name: "q3" }] },
+        { name: "p1", elements: [{ type: "text", name: "q1" }] },
+        { name: "p2", elements: [{ type: "text", name: "q2" }] },
+        { name: "p3", elements: [{ type: "text", name: "q3" }] },
       ],
     });
     survey.showPreviewBeforeComplete = "showAnsweredQuestions";
@@ -354,7 +354,11 @@ QUnit.test(
     (<PanelModel>survey.getAllPanels()[1]).cancelPreview();
     assert.equal(survey.state, "running", "Preview is canceled");
     assert.equal(survey.visiblePageCount, 3, "There are three visible pages");
-    assert.equal(survey.currentPageNo, 1, "We are editing the second page");
+    assert.equal(
+      survey.currentPage.name,
+      "p2",
+      "We are editing the second page"
+    );
   }
 );
 QUnit.test(
@@ -396,5 +400,63 @@ QUnit.test(
     survey.showPreview();
     (<PanelModel>survey.getAllPanels()[0]).cancelPreview();
     assert.equal(survey.currentPageNo, 0, "Go to the first page");
+  }
+);
+QUnit.test(
+  "showPreviewBeforeComplete = 'showAllQuestions' invisible Page, Bug#2385",
+  function (assert) {
+    var survey = new SurveyModel({
+      pages: [
+        {
+          elements: [
+            {
+              type: "boolean",
+              name: "mybool",
+              isRequired: true,
+            },
+          ],
+        },
+        {
+          elements: [
+            {
+              type: "text",
+              name: "not_visible",
+            },
+          ],
+          visibleIf: "{mybool}  = true",
+        },
+        {
+          name: "page_visible_always",
+          elements: [
+            {
+              type: "text",
+              name: "q_visible",
+            },
+          ],
+        },
+        {
+          elements: [
+            {
+              type: "text",
+              name: "text",
+            },
+          ],
+        },
+      ],
+      showPreviewBeforeComplete: "showAllQuestions",
+    });
+    survey.setValue("mybool", false);
+    survey.showPreview();
+    assert.equal(
+      survey.getAllPanels()[2].name,
+      "page_visible_always",
+      "It is always visible panel"
+    );
+    (<PanelModel>survey.getAllPanels()[2]).cancelPreview();
+    assert.equal(
+      survey.currentPage.name,
+      "page_visible_always",
+      "Go to correct page"
+    );
   }
 );

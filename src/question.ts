@@ -33,7 +33,8 @@ export interface IConditionObject {
 /**
  * A base class for all questions.
  */
-export class Question extends SurveyElement
+export class Question
+  extends SurveyElement
   implements
     IQuestion,
     IConditionRunner,
@@ -465,6 +466,16 @@ export class Question extends SurveyElement
     return !!this.survey
       ? this.survey.questionDescriptionLocation
       : "underTitle";
+  }
+  public get clickTitleFunction(): any {
+    if (this.hasInput) {
+      var self = this;
+      return function () {
+        self.focus();
+        return true;
+      };
+    }
+    return undefined;
   }
   /**
    * The custom text that will be shown on required error. Use this property, if you do not want to show the default text.
@@ -989,6 +1000,7 @@ export class Question extends SurveyElement
    * @see SurveyModel.questionStartIndex
    */
   public get no(): string {
+    if (!this.hasTitle || this.hideNumber) return "";
     return Helpers.getNumberByIndex(this.visibleIndex, this.getStartIndex());
   }
   protected getStartIndex(): string {
@@ -1021,6 +1033,10 @@ export class Question extends SurveyElement
     } else {
       this.updateCommentFromSurvey("");
     }
+  }
+  protected runExpression(expression: string): any {
+    if (!this.survey || !expression) return undefined;
+    return this.survey.runExpression(expression);
   }
   private get questionValue(): any {
     return this.getPropertyValue("value");
@@ -1224,7 +1240,19 @@ export class Question extends SurveyElement
     return this.isValueEmpty(this.defaultValue);
   }
   protected setDefaultValue() {
-    this.value = Helpers.getUnbindValue(this.defaultValue);
+    this.value = this.getValueAndRunExpression(
+      Helpers.getUnbindValue(this.defaultValue)
+    );
+  }
+  protected getValueAndRunExpression(val: any) {
+    if (!val) return val;
+    if (!!val && typeof val == "string" && val.length > 0 && val[0] == "=") {
+      val = this.runExpression(val.substr(1));
+    }
+    if (val instanceof Date) {
+      val = val.toISOString().slice(0, 10);
+    }
+    return val;
   }
 
   /**
@@ -1520,7 +1548,11 @@ export class Question extends SurveyElement
     this.updateDisplayValue();
   }
   public setVisibleIndex(val: number): number {
-    if (!this.isVisible || !this.hasTitle || this.hideNumber) {
+    if (
+      !this.isVisible ||
+      (!this.hasTitle && !settings.setQuestionVisibleIndexForHiddenTitle) ||
+      (this.hideNumber && !settings.setQuestionVisibleIndexForHiddenNumber)
+    ) {
       val = -1;
     }
     this.setPropertyValue("visibleIndex", val);

@@ -315,6 +315,14 @@ QUnit.test("Run age function", function (assert) {
   values.bithday = new Date(curDate.getFullYear() - 10, 1, 1);
   assert.equal(runner.run(values), false, "false, the person is 10 years old");
 });
+QUnit.test("Run today function", function (assert) {
+  var runner = new ExpressionRunner("today()");
+  assert.equal(
+    runner.run({}).toISOString().slice(0, 10),
+    new Date().toISOString().slice(0, 10),
+    "check today"
+  );
+});
 
 QUnit.test("Run age function with empty value", function (assert) {
   var runner = new ConditionRunner("age({bithday}) >= 21");
@@ -1061,4 +1069,14 @@ QUnit.test('expression with "{", Bug#2337', function (assert) {
   runner = new ExpressionRunner(expression);
   var values: any = { val1: "1" };
   assert.equal(runner.run(values), "1{ text}", "{ without escape");
+});
+QUnit.test("Disable converting string to number, #2376", function (assert) {
+  var runner = new ExpressionRunner("{val1} + {val2}");
+  var values: any = { val1: "1", val2: "02" };
+  assert.equal(runner.run(values), 3, "Convert strings to numbers");
+
+  runner = new ExpressionRunner("{#val1} + {#val2}");
+  assert.equal(runner.run(values), "102", "do not convert the value");
+  let expr = new ConditionsParser().createCondition("{#val1} + {#val2}");
+  assert.equal(expr.toString(), "({#val1} + {#val2})", "Do not loose '#'");
 });

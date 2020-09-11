@@ -44,6 +44,13 @@ export class QuestionSignaturePadModel extends Question {
     return classes;
   }
 
+  protected updateValue() {
+    if (this.signaturePad) {
+      var data = this.signaturePad.toDataURL(this.dataFormat);
+      this.value = data;
+    }
+  }
+
   constructor(public name: string) {
     super(name);
   }
@@ -89,8 +96,7 @@ export class QuestionSignaturePadModel extends Question {
       canvas.focus();
     };
     signaturePad.onEnd = () => {
-      var data = signaturePad.toDataURL();
-      this.value = data;
+      this.updateValue();
     };
     var updateValueHandler = () => {
       var data = this.value;
@@ -120,6 +126,17 @@ export class QuestionSignaturePadModel extends Question {
     }
     this.readOnlyChangedCallback = null;
     this.signaturePad = null;
+  }
+
+  /**
+   * Use it to set the specific dataFormat for the signature pad image data.
+   * formats: undefined (default) - png, "image/jpeg" - jpeg, "image/svg+xml" - svg
+   */
+  public get dataFormat(): string {
+    return this.getPropertyValue("dataFormat", undefined);
+  }
+  public set dataFormat(val: string) {
+    this.setPropertyValue("dataFormat", val);
   }
 
   /**
@@ -184,6 +201,11 @@ Serializer.addClass(
     {
       name: "penColor",
       default: "#1ab394",
+    },
+    {
+      name: "dataFormat",
+      default: undefined,
+      choices: [undefined, "image/jpeg", "image/svg+xml"],
     },
   ],
   function () {

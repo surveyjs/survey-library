@@ -242,9 +242,19 @@ export class Const extends Operand {
 }
 
 export class Variable extends Const {
+  static DisableConversionChar = "#";
   private valueInfo: any = {};
+  private useValueAsItIs: boolean = false;
   constructor(private variableName: string) {
     super(variableName);
+    if (
+      !!this.variableName &&
+      this.variableName.length > 1 &&
+      this.variableName[0] === Variable.DisableConversionChar
+    ) {
+      this.variableName = this.variableName.substr(1);
+      this.useValueAsItIs = true;
+    }
   }
   public getType(): string {
     return "variable";
@@ -254,7 +264,8 @@ export class Variable extends Const {
       var res = func(this);
       if (!!res) return res;
     }
-    return "{" + this.variableName + "}";
+    var prefix = this.useValueAsItIs ? Variable.DisableConversionChar : "";
+    return "{" + prefix + this.variableName + "}";
   }
   public get variable() {
     return this.variableName;
@@ -268,6 +279,10 @@ export class Variable extends Const {
   }
   public setVariables(variables: Array<string>) {
     variables.push(this.variableName);
+  }
+  protected getCorrectValue(value: any): any {
+    if (this.useValueAsItIs) return value;
+    return super.getCorrectValue(value);
   }
 }
 
@@ -453,10 +468,10 @@ export class OperandMaker {
       return OperandMaker.binaryFunctions.less(left, right);
     },
     equal: function (left: any, right: any): boolean {
-      return Helpers.isTwoValueEquals(left, right, true);
+      return OperandMaker.isTwoValueEquals(left, right);
     },
     notequal: function (left: any, right: any): boolean {
-      return !Helpers.isTwoValueEquals(left, right, true);
+      return !OperandMaker.binaryFunctions.equal(left, right);
     },
     contains: function (left: any, right: any): boolean {
       return OperandMaker.binaryFunctions.containsCore(left, right, true);
@@ -504,13 +519,19 @@ export class OperandMaker {
         var i = 0;
         right = rightArray[rIndex];
         for (; i < left.length; i++) {
-          if (Helpers.isTwoValueEquals(left[i], right)) break;
+          if (OperandMaker.isTwoValueEquals(left[i], right)) break;
         }
         if (i == left.length) return !isContains;
       }
       return isContains;
     },
   };
+
+  static isTwoValueEquals(x: any, y: any): boolean {
+    if (x === "undefined") x = undefined;
+    if (y === "undefined") y = undefined;
+    return Helpers.isTwoValueEquals(x, y, true);
+  }
 
   static operatorToString(operatorName: string): string {
     let opStr = OperandMaker.signs[operatorName];

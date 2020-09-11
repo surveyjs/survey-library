@@ -165,6 +165,7 @@ export class Helpers {
     var prefix = "";
     var postfix = ".";
     var isNumeric = true;
+    var strIndex = "A";
     var str = "";
     if (!!startIndexStr) {
       str = startIndexStr;
@@ -194,7 +195,7 @@ export class Helpers {
         ind--;
         if (!hasDigit) break;
       }
-      var strIndex = str.substr(ind + 1);
+      strIndex = str.substr(ind + 1);
       prefix = str.substr(0, ind + 1);
       if (parseInt(strIndex)) startIndex = parseInt(strIndex);
       else if (strIndex.length == 1) isNumeric = false;
@@ -203,7 +204,9 @@ export class Helpers {
       }
     }
     if (isNumeric) return prefix + (index + startIndex).toString() + postfix;
-    return prefix + String.fromCharCode(str.charCodeAt(0) + index) + postfix;
+    return (
+      prefix + String.fromCharCode(strIndex.charCodeAt(0) + index) + postfix
+    );
   }
   public static isCharNotLetterAndDigit(ch: string): boolean {
     return ch.toUpperCase() == ch.toLowerCase() && !Helpers.isCharDigit(ch);

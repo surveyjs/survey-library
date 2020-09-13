@@ -15,6 +15,8 @@ import {
   ISurveyImpl,
   ITextProcessor,
   SurveyError,
+  IProgressInfo,
+  SurveyElement,
 } from "./base";
 import { TextPreProcessor, TextPreProcessorValue } from "./textPreProcessor";
 import { ProcessValue } from "./conditionProcessValue";
@@ -2034,6 +2036,24 @@ export class QuestionMatrixDropdownModelBase
       );
     }
     return questionPlainData;
+  }
+  public getProgressInfo(): IProgressInfo {
+    return SurveyElement.getProgressInfoByElements(
+      this.getCellQuestions(),
+      this.isRequired
+    );
+  }
+  private getCellQuestions(): Array<Question> {
+    var rows = this.visibleRows;
+    if (!rows) return [];
+    var questions = [];
+    for (var i = 0; i < rows.length; i++) {
+      var row = rows[i];
+      for (var j = 0; j < row.cells.length; j++) {
+        questions.push(row.cells[j].question);
+      }
+    }
+    return questions;
   }
 
   protected onBeforeValueChanged(val: any) {}

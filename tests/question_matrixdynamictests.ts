@@ -4314,3 +4314,34 @@ QUnit.test("column should call property changed on custom property", function (
   assert.equal(counter, 1, "Notification is called");
   Serializer.removeProperty("text", "prop1");
 });
+QUnit.test("getProgressInfo", function (assert) {
+  var survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdynamic",
+        name: "matrix",
+        columns: [
+          {
+            name: "col1",
+            isRequired: true,
+          },
+          {
+            name: "col2",
+          },
+          {
+            name: "col3",
+            visibleIf: "{row.col2} notempty",
+          },
+        ],
+      },
+    ],
+  });
+  survey.data = { matrix: [{ col1: "1" }, { col2: "2" }, []] };
+  var question = survey.getQuestionByName("matrix");
+  assert.deepEqual(question.getProgressInfo(), {
+    questionCount: 9 - 2,
+    answeredQuestionCount: 2,
+    requiredQuestionCount: 3,
+    requiredAnsweredQuestionCount: 1,
+  });
+});

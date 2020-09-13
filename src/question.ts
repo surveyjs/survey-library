@@ -11,6 +11,7 @@ import {
   IPage,
   Event,
   ITitleOwner,
+  IProgressInfo,
 } from "./base";
 import { surveyLocalization } from "./surveyStrings";
 import { AnswerRequiredError, CustomError } from "./error";
@@ -293,7 +294,15 @@ export class Question
   public moveTo(container: IPanel, insertBefore: any = null): boolean {
     return this.moveToBase(this.parent, container, insertBefore);
   }
-
+  public getProgressInfo(): IProgressInfo {
+    if (!this.hasInput) return super.getProgressInfo();
+    return {
+      questionCount: 1,
+      answeredQuestionCount: !this.isEmpty() ? 1 : 0,
+      requiredQuestionCount: this.isRequired ? 1 : 0,
+      requiredAnsweredQuestionCount: !this.isEmpty() && this.isRequired ? 1 : 0,
+    };
+  }
   private runConditions() {
     if (this.data && !this.isLoadingFromJson && !this.isDesignMode) {
       this.runCondition(

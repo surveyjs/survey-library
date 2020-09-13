@@ -13,6 +13,7 @@ import {
   SurveyError,
   ISurveyErrorOwner,
   ITitleOwner,
+  IProgressInfo,
 } from "./base";
 import { Question } from "./question";
 import { ConditionRunner } from "./conditions";
@@ -139,7 +140,8 @@ export class QuestionRowModel extends Base {
 /**
  * A base class for a Panel and Page objects.
  */
-export class PanelModelBase extends SurveyElement
+export class PanelModelBase
+  extends SurveyElement
   implements IPanel, IConditionRunner, ILocalizableOwner, ISurveyErrorOwner {
   private static panelCounter = 100;
   private static getPanelId(): string {
@@ -750,6 +752,12 @@ export class PanelModelBase extends SurveyElement
   getChildrenLayoutType(): string {
     return "row";
   }
+  public getProgressInfo(): IProgressInfo {
+    return SurveyElement.getProgressInfoByElements(
+      <Array<SurveyElement>>(<any>this.elements),
+      this.isRequired
+    );
+  }
   protected get root(): PanelModelBase {
     var res = <PanelModelBase>this;
     while (res.parent) res = res.parent;
@@ -1336,7 +1344,8 @@ export class PanelModelBase extends SurveyElement
  * A container element, similar to the Page objects. However, unlike the Page, Panel can't be a root.
  * It may contain questions and other panels.
  */
-export class PanelModel extends PanelModelBase
+export class PanelModel
+  extends PanelModelBase
   implements IElement, ITitleOwner {
   stateChangedCallback: () => void;
   public minWidth?: string;

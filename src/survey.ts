@@ -15,6 +15,7 @@ import {
   ISurveyErrorOwner,
   ISurveyElement,
   SurveyElement,
+  IProgressInfo,
 } from "./base";
 import { surveyCss } from "./defaultCss/cssstandard";
 import { ISurveyTriggerOwner, SurveyTrigger } from "./trigger";
@@ -3341,6 +3342,9 @@ export class SurveyModel
     }
     return "<h3>" + this.getLocString("loadingSurvey") + "</h3>";
   }
+  public getProgressInfo(): IProgressInfo {
+    return SurveyElement.getProgressInfoByElements(this.visiblePages, false);
+  }
   /**
    * Returns the text for the current progress.
    */
@@ -3360,22 +3364,12 @@ export class SurveyModel
       type === "correctquestions" ||
       !this.onProgressText.isEmpty
     ) {
-      var questions = this.getQuestionsWithInput();
-      options.questionCount = 0;
-      for (var i = 0; i < questions.length; i++) {
-        var q = questions[i];
-        if (!q.isVisible) continue;
-        options.questionCount++;
-        if (q.isRequired) {
-          options.requiredQuestionCount++;
-        }
-        if (!q.isEmpty()) {
-          options.answeredQuestionCount++;
-          if (q.isRequired) {
-            options.requiredAnsweredQuestionCount++;
-          }
-        }
-      }
+      var info = this.getProgressInfo();
+      options.questionCount = info.questionCount;
+      options.answeredQuestionCount = info.answeredQuestionCount;
+      options.requiredQuestionCount = info.requiredQuestionCount;
+      options.requiredAnsweredQuestionCount =
+        info.requiredAnsweredQuestionCount;
     }
 
     options.text = this.getProgressText(

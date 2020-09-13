@@ -3849,9 +3849,110 @@ QUnit.test("QuestionSignaturePadModel dataFormat values", function (assert) {
   question["updateValue"]();
   assert.equal(question.value.substring(0, 15), "data:image/svg+", "svg");
 });
-/*
+
 QUnit.test("Question.getProgressInfo()", function (assert) {
   var question = new QuestionTextModel("q1");
-  
+  assert.deepEqual(question.getProgressInfo(), {
+    questionCount: 1,
+    answeredQuestionCount: 0,
+    requiredQuestionCount: 0,
+    requiredAnsweredQuestionCount: 0,
+  });
+  question.value = "1";
+  assert.deepEqual(question.getProgressInfo(), {
+    questionCount: 1,
+    answeredQuestionCount: 1,
+    requiredQuestionCount: 0,
+    requiredAnsweredQuestionCount: 0,
+  });
+  question.isRequired = true;
+  assert.deepEqual(question.getProgressInfo(), {
+    questionCount: 1,
+    answeredQuestionCount: 1,
+    requiredQuestionCount: 1,
+    requiredAnsweredQuestionCount: 1,
+  });
 });
-*/
+QUnit.test("QuestionMultipleText.getProgressInfo()", function (assert) {
+  var question = new QuestionMultipleTextModel("q1");
+  question.addItem("item1");
+  question.addItem("item2");
+  question.addItem("item3");
+  assert.deepEqual(
+    question.getProgressInfo(),
+    {
+      questionCount: 3,
+      answeredQuestionCount: 0,
+      requiredQuestionCount: 0,
+      requiredAnsweredQuestionCount: 0,
+    },
+    "empty"
+  );
+  question.isRequired = true;
+  assert.deepEqual(
+    question.getProgressInfo(),
+    {
+      questionCount: 3,
+      answeredQuestionCount: 0,
+      requiredQuestionCount: 1,
+      requiredAnsweredQuestionCount: 0,
+    },
+    "root is required"
+  );
+  question.value = { item1: "1" };
+  assert.deepEqual(
+    question.getProgressInfo(),
+    {
+      questionCount: 3,
+      answeredQuestionCount: 1,
+      requiredQuestionCount: 1,
+      requiredAnsweredQuestionCount: 1,
+    },
+    "root is requried and has one value"
+  );
+  question.isRequired = false;
+  assert.deepEqual(
+    question.getProgressInfo(),
+    {
+      questionCount: 3,
+      answeredQuestionCount: 1,
+      requiredQuestionCount: 0,
+      requiredAnsweredQuestionCount: 0,
+    },
+    "has one value"
+  );
+  question.items[0].isRequired = true;
+  question.items[1].isRequired = true;
+  assert.deepEqual(
+    question.getProgressInfo(),
+    {
+      questionCount: 3,
+      answeredQuestionCount: 1,
+      requiredQuestionCount: 2,
+      requiredAnsweredQuestionCount: 1,
+    },
+    "two items are required and has one value"
+  );
+  question.isRequired = true;
+  assert.deepEqual(
+    question.getProgressInfo(),
+    {
+      questionCount: 3,
+      answeredQuestionCount: 1,
+      requiredQuestionCount: 2,
+      requiredAnsweredQuestionCount: 1,
+    },
+    "root is required and two items are required and has one value"
+  );
+  question.items[1].editor.visible = false;
+  assert.deepEqual(
+    question.getProgressInfo(),
+    {
+      questionCount: 2,
+      answeredQuestionCount: 1,
+      requiredQuestionCount: 1,
+      requiredAnsweredQuestionCount: 1,
+    },
+    "root is required and two items are required and has one value and one required item is invisible"
+  );
+});

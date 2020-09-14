@@ -1186,6 +1186,7 @@ export class SurveyElement extends Base implements ISurveyElement {
 }
 
 export class Event<T extends Function, Options> {
+  public onCallbacksChanged: () => void;
   protected callbacks: Array<T>;
   public get isEmpty(): boolean {
     return this.callbacks == null || this.callbacks.length == 0;
@@ -1193,11 +1194,12 @@ export class Event<T extends Function, Options> {
   public fire(sender: any, options: Options) {
     if (this.callbacks == null) return;
     for (var i = 0; i < this.callbacks.length; i++) {
-      var callResult = this.callbacks[i](sender, options);
+      this.callbacks[i](sender, options);
     }
   }
   public clear() {
     this.callbacks = [];
+    this.fireCallbackChanged();
   }
   public add(func: T) {
     if (this.hasFunc(func)) return;
@@ -1205,15 +1207,22 @@ export class Event<T extends Function, Options> {
       this.callbacks = new Array<T>();
     }
     this.callbacks.push(func);
+    this.fireCallbackChanged();
   }
   public remove(func: T) {
     if (this.hasFunc(func)) {
       var index = this.callbacks.indexOf(func, 0);
       this.callbacks.splice(index, 1);
+      this.fireCallbackChanged();
     }
   }
   public hasFunc(func: T): boolean {
     if (this.callbacks == null) return false;
     return this.callbacks.indexOf(func, 0) > -1;
+  }
+  private fireCallbackChanged() {
+    if (!!this.onCallbacksChanged) {
+      this.onCallbacksChanged();
+    }
   }
 }

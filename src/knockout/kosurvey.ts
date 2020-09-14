@@ -43,7 +43,6 @@ export class Survey extends SurveyModel {
   dummyObservable: any;
   koState: any;
   koProgress: any;
-  koProgressText: any;
   koAfterRenderPage: any;
   koAfterRenderHeader: any;
   koCompletedState: any;
@@ -177,10 +176,6 @@ export class Survey extends SurveyModel {
       this.dummyObservable();
       return this.isLastPage;
     });
-    this.koProgressText = ko.computed(() => {
-      this.dummyObservable();
-      return this.progressText;
-    });
     this.koProgress = ko.computed(() => {
       this.dummyObservable();
       return this.getProgress();
@@ -292,7 +287,6 @@ export class Survey extends SurveyModel {
     this.isCurrentPageEmpty.dispose();
     this.koIsFirstPage.dispose();
     this.koIsLastPage.dispose();
-    this.koProgressText.dispose();
     this.koProgress.dispose();
     this.iteratePropertiesHash((hash, key) => {
       delete hash[key];

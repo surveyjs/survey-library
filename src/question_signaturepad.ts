@@ -103,9 +103,11 @@ export class QuestionSignaturePadModel extends Question {
       canvas.width = this.width || defaultWidth;
       canvas.height = this.height || defaultHeight;
       resizeCanvas(canvas);
-      signaturePad.fromDataURL(
-        data || "data:image/gif;base64,R0lGODlhAQABAIAAAP"
-      );
+      if (!data) {
+        signaturePad.clear();
+      } else {
+        signaturePad.fromDataURL(data);
+      }
     };
     this.valueChangedCallback = updateValueHandler;
     updateValueHandler();

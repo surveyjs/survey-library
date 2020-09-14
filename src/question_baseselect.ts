@@ -590,15 +590,19 @@ export class QuestionSelectBase extends Question {
       this.runChoicesByUrl();
     }
   }
+  private isRunningChoices: boolean = false;
   private runChoicesByUrl() {
-    if (!this.choicesByUrl || this.isLoadingFromJson) return;
+    if (!this.choicesByUrl || this.isLoadingFromJson || this.isRunningChoices)
+      return;
     var processor = this.surveyImpl
       ? this.surveyImpl.getTextProcessor()
       : this.textProcessor;
     if (!processor) processor = this.survey;
     if (!processor) return;
     this.isReadyValue = this.isChoicesLoaded || this.choicesByUrl.isEmpty;
+    this.isRunningChoices = true;
     this.choicesByUrl.run(processor);
+    this.isRunningChoices = false;
   }
   private isFirstLoadChoicesFromUrl = true;
   protected onBeforeSendRequest() {

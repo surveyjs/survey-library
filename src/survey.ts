@@ -2255,6 +2255,7 @@ export class SurveyModel
       this.firstPageIsStarted && this.pages.length > 0 ? this.pages[0] : null;
     if (!!page) {
       page.onFirstRendering();
+      page.setWasShown(true);
     }
     return page;
   }

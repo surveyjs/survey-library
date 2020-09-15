@@ -1857,3 +1857,28 @@ QUnit.test("survey.firstPageIsStarted=true + multiple-language", function (
   assert.equal(q2.locTitle["koRenderedHtml"](), "q2-de", "de locale, q2");
   survey.locale = prevLocale;
 });
+QUnit.test("survey.firstPageIsStarted=true + multiple-language", function (
+  assert
+) {
+  var survey = new Survey({
+    locale: "de",
+    pages: [
+      {
+        name: "startedPage",
+        elements: [
+          {
+            type: "text",
+            name: "question10",
+          },
+          {
+            type: "text",
+            name: "question11",
+            startWithNewLine: false,
+          },
+        ],
+      },
+    ],
+    firstPageIsStarted: true,
+  });
+  assert.equal(survey.startedPage.name, "startedPage", "Loaded fine");
+});

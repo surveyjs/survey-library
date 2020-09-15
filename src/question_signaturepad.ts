@@ -132,10 +132,10 @@ export class QuestionSignaturePadModel extends Question {
 
   /**
    * Use it to set the specific dataFormat for the signature pad image data.
-   * formats: undefined (default) - png, "image/jpeg" - jpeg, "image/svg+xml" - svg
+   * formats: "" (default) - png, "image/jpeg" - jpeg, "image/svg+xml" - svg
    */
   public get dataFormat(): string {
-    return this.getPropertyValue("dataFormat", undefined);
+    return this.getPropertyValue("dataFormat", "");
   }
   public set dataFormat(val: string) {
     this.setPropertyValue("dataFormat", val);
@@ -206,8 +206,12 @@ Serializer.addClass(
     },
     {
       name: "dataFormat",
-      default: undefined,
-      choices: [undefined, "image/jpeg", "image/svg+xml"],
+      default: "",
+      choices: [
+        { value: "", text: "PNG" },
+        { value: "image/jpeg", text: "JPEG" },
+        { value: "image/svg+xml", text: "SVG" },
+      ],
     },
   ],
   function () {

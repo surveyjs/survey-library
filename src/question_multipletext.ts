@@ -292,8 +292,8 @@ export class QuestionMultipleTextModel
     super.onSurveyLoad();
     this.fireCallback(this.colCountChangedCallback);
   }
-  setQuestionValue(newValue: any) {
-    super.setQuestionValue(newValue, false);
+  setQuestionValue(newValue: any, updateIsAnswered: boolean = true) {
+    super.setQuestionValue(newValue, updateIsAnswered);
     for (var i = 0; i < this.items.length; i++) {
       var item = this.items[i];
       if (item.editor) item.editor.updateValueFromSurvey(item.value);

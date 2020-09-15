@@ -1881,6 +1881,7 @@ export class QuestionMatrixDropdownModelBase
         );
       }
       this.updateValueOnRowsGeneration(this.generatedVisibleRows);
+      this.updateIsAnswered();
     }
     return this.generatedVisibleRows;
   }

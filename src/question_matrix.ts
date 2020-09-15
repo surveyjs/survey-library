@@ -383,8 +383,8 @@ export class QuestionMatrixModel
   ): MatrixRowModel {
     return new MatrixRowModel(item, fullName, this, value);
   }
-  protected setQuestionValue(newValue: any) {
-    super.setQuestionValue(newValue, this.isRowChanging);
+  protected setQuestionValue(newValue: any, updateIsAnswered: boolean = true) {
+    super.setQuestionValue(newValue, this.isRowChanging || updateIsAnswered);
     if (
       this.isRowChanging ||
       !this.generatedVisibleRows ||

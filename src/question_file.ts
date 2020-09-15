@@ -265,8 +265,8 @@ export class QuestionFileModel extends Question {
   public canPreviewImage(fileItem: any): boolean {
     return this.allowImagesPreview && !!fileItem && this.isFileImage(fileItem);
   }
-  protected setQuestionValue(newValue: any) {
-    super.setQuestionValue(newValue);
+  protected setQuestionValue(newValue: any, updateIsAnswered: boolean = true) {
+    super.setQuestionValue(newValue, updateIsAnswered);
     this.previewValue = [];
     var state =
       (!Array.isArray(newValue) && !!newValue) ||

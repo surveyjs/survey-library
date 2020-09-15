@@ -266,13 +266,13 @@ export class QuestionSelectBase extends Question {
     this.setPropertyValue("renderedValue", val);
     this.value = this.rendredValueToData(val);
   }
-  protected setQuestionValue(newValue: any) {
+  protected setQuestionValue(newValue: any, updateIsAnswered: boolean = true) {
     if (
       this.isLoadingFromJson ||
       Helpers.isTwoValueEquals(this.value, newValue)
     )
       return;
-    super.setQuestionValue(newValue);
+    super.setQuestionValue(newValue, updateIsAnswered);
     this.setPropertyValue("renderedValue", this.rendredValueFromData(newValue));
     if (this.hasComment) return;
     var isOtherSel = this.isOtherSelected;

@@ -4345,3 +4345,50 @@ QUnit.test("getProgressInfo", function (assert) {
     requiredAnsweredQuestionCount: 1,
   });
 });
+
+QUnit.test(
+  "isAnswered on setitting from survey.setValue(), Bug#2399",
+  function (assert) {
+    var survey = new SurveyModel({
+      pages: [
+        {
+          name: "page1",
+          elements: [
+            {
+              type: "matrixdynamic",
+              name: "HospitalAdmissions_Table",
+              columns: [
+                {
+                  name: "TreatmentProcedure",
+                  cellType: "text",
+                  width: "20",
+                },
+                {
+                  name: "Hospital",
+                  cellType: "text",
+                  width: "20",
+                },
+                {
+                  name: "Year",
+                  cellType: "dropdown",
+                },
+              ],
+              choices: ["2020", "2019"],
+              rowCount: 1,
+            },
+          ],
+        },
+      ],
+    });
+    var question = <QuestionMatrixDynamicModel>survey.getAllQuestions()[0];
+    survey.setValue("HospitalAdmissions_Table", [
+      {
+        TreatmentProcedure: "A",
+        Hospital: "B",
+        Year: "2020",
+      },
+    ]);
+    assert.equal(question.visibleRows.length, 1, "There is one row");
+    assert.equal(question.isAnswered, true, "matrix is answered");
+  }
+);

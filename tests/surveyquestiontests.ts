@@ -3824,12 +3824,12 @@ QUnit.test("QuestionSignaturePadModel dataFormat default value", function (
   assert
 ) {
   var question = new QuestionSignaturePadModel("q");
-  assert.equal(question.dataFormat, undefined, "default value");
+  assert.equal(question.dataFormat, "", "default value");
 });
 
 QUnit.test("QuestionSignaturePadModel dataFormat values", function (assert) {
   var question = new QuestionSignaturePadModel("q");
-  assert.equal(question.dataFormat, undefined, "defaultValue");
+  assert.equal(question.dataFormat, "", "defaultValue");
 
   var el = document.createElement("div");
   el.appendChild(document.createElement("canvas"));

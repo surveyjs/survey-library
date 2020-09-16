@@ -590,6 +590,28 @@ export class QuestionSelectBase extends Question {
       this.runChoicesByUrl();
     }
   }
+  updateValueFromSurvey(newValue: any) {
+    var newComment = "";
+    if (
+      this.hasOther &&
+      this.getStoreOthersAsComment() &&
+      this.hasUnknownValue(newValue) &&
+      !this.getHasOther(newValue)
+    ) {
+      newComment = this.getCommentFromValue(newValue);
+      newValue = this.setOtherValueIntoValue(newValue);
+    }
+    super.updateValueFromSurvey(newValue);
+    if (!!newComment) {
+      this.setNewComment(newComment);
+    }
+  }
+  protected getCommentFromValue(newValue: any): string {
+    return newValue;
+  }
+  protected setOtherValueIntoValue(newValue: any): any {
+    return this.otherItem.value;
+  }
   private isRunningChoices: boolean = false;
   private runChoicesByUrl() {
     if (!this.choicesByUrl || this.isLoadingFromJson || this.isRunningChoices)

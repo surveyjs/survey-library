@@ -3956,3 +3956,50 @@ QUnit.test("QuestionMultipleText.getProgressInfo()", function (assert) {
     "root is required and two items are required and has one value and one required item is invisible"
   );
 });
+QUnit.test("Set value with hasOther that is not in the list", function (
+  assert
+) {
+  var survey = new SurveyModel({
+    elements: [
+      { type: "dropdown", name: "q1", choices: [1, 2], hasOther: true },
+      { type: "checkbox", name: "q2", choices: [1, 2], hasOther: true },
+    ],
+  });
+  survey.data = { q1: "NonInList" };
+  var question = <QuestionDropdownModel>survey.getQuestionByName("q1");
+  assert.equal(question.value, question.otherItem.value, "other is set");
+  assert.equal(question.comment, "NonInList", "comment is set");
+  survey.data = { q1: 1 };
+  assert.equal(question.value, 1, "value is set");
+  assert.equal(question.comment, "", "comment is empty");
+  survey.data = { q1: "NonInList2" };
+  assert.equal(
+    question.value,
+    question.otherItem.value,
+    "other is set second time"
+  );
+  assert.equal(question.comment, "NonInList2", "comment is set second time");
+
+  survey.data = { q2: [1, "NonInList"] };
+  var question2 = <QuestionCheckboxModel>survey.getQuestionByName("q2");
+  assert.deepEqual(
+    question2.value,
+    [1, question2.otherItem.value],
+    "checkbox: other is set"
+  );
+  assert.equal(question2.comment, "NonInList", "checkbox: comment is set");
+  survey.data = { q2: [1, 2] };
+  assert.deepEqual(question2.value, [1, 2], "checkbox: value is set");
+  assert.equal(question2.comment, "", "checkbox: comment is empty");
+  survey.data = { q2: [2, "NonInList2"] };
+  assert.deepEqual(
+    question2.value,
+    [2, question2.otherItem.value],
+    "checkbox: other is set second time"
+  );
+  assert.equal(
+    question2.comment,
+    "NonInList2",
+    "checkbox: comment is set second time"
+  );
+});

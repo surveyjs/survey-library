@@ -8,7 +8,6 @@ import { Serializer } from "./jsonobject";
 import { QuestionFactory } from "./questionfactory";
 import { surveyLocalization } from "./surveyStrings";
 import { SurveyError } from "./base";
-import { LocalizableString } from "./localizablestring";
 import { MinRowCountError, KeyDuplicationError } from "./error";
 import { IConditionObject } from "./question";
 import { Helpers } from "./helpers";
@@ -29,7 +28,8 @@ export class MatrixDynamicRowModel extends MatrixDropdownRowModelBase {
  * A Model for a matrix dymanic question. You may use a dropdown, checkbox, radiogroup, text and comment questions as a cell editors.
  * An end-user may dynamically add/remove rows, unlike in matrix dropdown question.
  */
-export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
+export class QuestionMatrixDynamicModel
+  extends QuestionMatrixDropdownModelBase
   implements IMatrixDropdownData {
   private rowCounter = 0;
   private rowCountValue: number = 2;

@@ -5,10 +5,9 @@ import {
   IMatrixData,
 } from "../question_matrix";
 import { QuestionImplementor } from "./koquestion";
+import { ImplementorBase } from "./kobase";
 import { Serializer } from "../jsonobject";
 import { QuestionFactory } from "../questionfactory";
-import { ItemValue } from "../itemvalue";
-import { Helpers } from "../helpers";
 
 export class QuestionMatrix extends QuestionMatrixModel {
   koVisibleRows: any = <any>ko.observableArray<MatrixRowModel>();
@@ -33,6 +32,9 @@ export class QuestionMatrix extends QuestionMatrixModel {
   public onSurveyLoad() {
     super.onSurveyLoad();
     this.onRowsChanged();
+  }
+  protected onMatrixRowCreated(row: MatrixRowModel) {
+    new ImplementorBase(row);
   }
   protected getVisibleRows(): Array<MatrixRowModel> {
     var rows = super.getVisibleRows();

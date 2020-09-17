@@ -410,13 +410,16 @@ export class QuestionMatrixModel
   protected getIsAnswered(): boolean {
     return super.getIsAnswered() && this.hasValuesInAllRows();
   }
-  protected createMatrixRow(
+  private createMatrixRow(
     item: ItemValue,
     fullName: string,
     value: any
   ): MatrixRowModel {
-    return new MatrixRowModel(item, fullName, this, value);
+    var row = new MatrixRowModel(item, fullName, this, value);
+    this.onMatrixRowCreated(row);
+    return row;
   }
+  protected onMatrixRowCreated(row: MatrixRowModel) {}
   protected setQuestionValue(newValue: any, updateIsAnswered: boolean = true) {
     super.setQuestionValue(newValue, this.isRowChanging || updateIsAnswered);
     if (

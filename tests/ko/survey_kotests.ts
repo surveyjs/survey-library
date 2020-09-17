@@ -160,9 +160,9 @@ QUnit.test("Question Matrix: koValue in MatrixValue", function (assert) {
   matrix.columns = ["col1", "col2"];
   matrix.value = { row1: "col2" };
   var visibleRows = matrix.visibleRows;
-  assert.equal(visibleRows[0]["koValue"](), "col2", "set the correct value");
-  visibleRows[0]["koValue"]("col1");
-  visibleRows[1]["koValue"]("col2");
+  assert.equal(visibleRows[0].value, "col2", "set the correct value");
+  visibleRows[0].value = "col1";
+  visibleRows[1].value = "col2";
   assert.deepEqual(
     matrix.value,
     { row1: "col1", row2: "col2" },
@@ -192,9 +192,9 @@ QUnit.test(
     matrix.columns = ["col1", "col2"];
     var visibleRows = matrix.visibleRows;
     matrix.value = { row1: "col2" };
-    assert.equal(visibleRows[0]["koValue"](), "col2", "set the correct value");
+    assert.equal(visibleRows[0].value, "col2", "set the correct value");
     assert.equal(
-      matrix.koVisibleRows()[0]["koValue"](),
+      matrix.koVisibleRows()[0].value,
       "col2",
       "set the correct value in ko"
     );

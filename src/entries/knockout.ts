@@ -29,7 +29,7 @@ export { QuestionComment } from "../knockout/koquestion_comment";
 export { QuestionDropdown } from "../knockout/koquestion_dropdown";
 export { QuestionFile } from "../knockout/koquestion_file";
 export { QuestionHtml } from "../knockout/koquestion_html";
-export { MatrixRow, QuestionMatrix } from "../knockout/koquestion_matrix";
+export { QuestionMatrix } from "../knockout/koquestion_matrix";
 export { QuestionMatrixDropdown } from "../knockout/koquestion_matrixdropdown";
 export {
   QuestionMatrixDynamicImplementor,

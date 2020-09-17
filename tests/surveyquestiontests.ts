@@ -469,13 +469,13 @@ QUnit.test("Matrix Question: get/set values for two rows", function (assert) {
   assert.deepEqual(
     matrix.value,
     { row1: "col2" },
-    "the matrix value changed correctly"
+    "the matrix value changed correctly, #1"
   );
   rows[1].value = "col1";
   assert.deepEqual(
     matrix.value,
     { row1: "col2", row2: "col1" },
-    "the matrix value changed correctly"
+    "the matrix value changed correctly, #2"
   );
 });
 QUnit.test("Matrix Question set values after visible row generated", function (

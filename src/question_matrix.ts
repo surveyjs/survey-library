@@ -2,7 +2,7 @@ import { Helpers } from "./helpers";
 import { ItemValue } from "./itemvalue";
 import { QuestionMatrixBaseModel } from "./martixBase";
 import { JsonObject, Serializer } from "./jsonobject";
-import { SurveyError } from "./base";
+import { SurveyError, Base } from "./base";
 import { surveyLocalization } from "./surveyStrings";
 import { RequiredInAllRowsError } from "./error";
 import { QuestionFactory } from "./questionfactory";
@@ -15,10 +15,10 @@ export interface IMatrixData {
   onMatrixRowChanged(row: MatrixRowModel): void;
 }
 
-export class MatrixRowModel {
+export class MatrixRowModel extends Base {
   private data: IMatrixData;
   private item: ItemValue;
-  protected rowValue: any;
+  public cellClick: any;
 
   constructor(
     item: ItemValue,
@@ -26,9 +26,16 @@ export class MatrixRowModel {
     data: IMatrixData,
     value: any
   ) {
+    super();
     this.item = item;
     this.data = data;
-    this.rowValue = value;
+    this.value = value;
+    this.cellClick = (column: any) => {
+      this.value = column.value;
+    };
+    this.registerFunctionOnPropertyValueChanged("value", () => {
+      if (this.data) this.data.onMatrixRowChanged(this);
+    });
   }
   public get name(): string {
     return this.item.value;
@@ -40,14 +47,11 @@ export class MatrixRowModel {
     return this.item.locText;
   }
   public get value() {
-    return this.rowValue;
+    return this.getPropertyValue("value");
   }
   public set value(newValue: any) {
-    this.rowValue = newValue;
-    if (this.data) this.data.onMatrixRowChanged(this);
-    this.onValueChanged();
+    this.setPropertyValue("value", newValue);
   }
-  protected onValueChanged() {}
 }
 
 export interface IMatrixCellsOwner extends ILocalizableOwner {

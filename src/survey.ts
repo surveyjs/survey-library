@@ -4174,7 +4174,7 @@ export class SurveyModel
           if (success) {
             self.setCompletedState("success", "");
           } else {
-            self.setCompletedState("error", "");
+            self.setCompletedState("error", response);
           }
         }
         self.onSendResult.fire(self, {

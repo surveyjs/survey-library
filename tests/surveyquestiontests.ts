@@ -4003,3 +4003,24 @@ QUnit.test("Set value with hasOther that is not in the list", function (
     "checkbox: comment is set second time"
   );
 });
+QUnit.test("question.isInputTextUpdate", function (assert) {
+  var survey = new SurveyModel({
+    elements: [{ type: "text", name: "q1" }],
+  });
+  var question = <QuestionTextModel>survey.getQuestionByName("q1");
+  assert.equal(
+    question.isInputTextUpdate,
+    false,
+    "survey.textUpdateMode == onBlur (default)"
+  );
+  survey.textUpdateMode = "onTyping";
+  assert.equal(
+    question.isInputTextUpdate,
+    true,
+    "survey.textUpdateMode == onTyping"
+  );
+  question.inputType = "date";
+  assert.equal(question.isInputTextUpdate, false, "inputType = date");
+  question.inputType = "number";
+  assert.equal(question.isInputTextUpdate, true, "inputType = number");
+});

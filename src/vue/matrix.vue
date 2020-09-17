@@ -19,7 +19,7 @@
             <td
               v-if="question.hasCellText"
               v-for="(column, columnIndex) in question.visibleColumns"
-              :class="getItemClass(row, column) + ' ' + question.cssClasses.cell"
+              :class="question.getItemClass(row, column)"
               v-on:click="function() { cellClick(row, column); }"
             >
               <span>{{question.getCellDisplayLocText(row.name, column).renderedHtml}}</span>
@@ -31,7 +31,7 @@
               :class="question.cssClasses.cell"
               v-on:click="function() { cellClick(row, column); }"
             >
-              <label :class="getItemClass(row, column)">
+              <label :class="question.getItemClass(row, column)">
                 <input
                   type="radio"
                   :class="question.cssClasses.itemValue"
@@ -68,33 +68,6 @@ import { QuestionMatrixModel } from "../question_matrix";
 
 @Component
 export class Matrix extends QuestionVue<QuestionMatrixModel> {
-  getItemClass(row: any, column: any) {
-    var question = this.question;
-    var cssClasses = this.question.cssClasses;
-    var isChecked = row.value == column.value;
-    var isDisabled = question.isReadOnly;
-    var allowHover = !isChecked && !isDisabled;
-    var cellDisabledClass = question.hasCellText
-      ? cssClasses.cellTextDisabled
-      : cssClasses.itemDisabled;
-
-    var cellSelectedClass = question.hasCellText
-      ? cssClasses.cellTextSelected
-      : cssClasses.itemChecked;
-
-    var itemHoverClass = !question.hasCellText ? cssClasses.itemHover : "";
-
-    var cellClass = question.hasCellText
-      ? cssClasses.cellText
-      : cssClasses.label;
-
-    let itemClass =
-      cellClass +
-      (isChecked ? " " + cellSelectedClass : "") +
-      (isDisabled ? " " + cellDisabledClass : "") +
-      (allowHover ? " " + itemHoverClass : "");
-    return itemClass;
-  }
   cellClick(row: any, column: any) {
     if (this.question.isReadOnly) return;
     row.value = column.value;

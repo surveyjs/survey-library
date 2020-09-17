@@ -247,6 +247,36 @@ export class QuestionMatrixModel
   getColumns(): Array<any> {
     return this.visibleColumns;
   }
+  public getItemClass(row: any, column: any) {
+    var isChecked = row.value == column.value;
+    var isDisabled = this.isReadOnly;
+    var allowHover = !isChecked && !isDisabled;
+    var cellDisabledClass = this.hasCellText
+      ? this.cssClasses.cellTextDisabled
+      : this.cssClasses.itemDisabled;
+
+    var cellSelectedClass = this.hasCellText
+      ? this.cssClasses.cellTextSelected
+      : this.cssClasses.itemChecked;
+
+    var itemHoverClass = !this.hasCellText ? this.cssClasses.itemHover : "";
+
+    var cellClass = this.hasCellText
+      ? this.cssClasses.cellText
+      : this.cssClasses.label;
+
+    let itemClass =
+      this.hasCellText && !!this.cssClasses.cell
+        ? this.cssClasses.cell + " "
+        : "";
+    itemClass +=
+      cellClass +
+      (isChecked ? " " + cellSelectedClass : "") +
+      (isDisabled ? " " + cellDisabledClass : "") +
+      (allowHover ? " " + itemHoverClass : "");
+    return itemClass;
+  }
+
   protected getQuizQuestionCount() {
     var res = 0;
     for (var i = 0; i < this.rows.length; i++) {

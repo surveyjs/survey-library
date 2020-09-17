@@ -39,31 +39,6 @@ export class QuestionMatrix extends QuestionMatrixModel {
     this.koVisibleRows(rows);
     return rows;
   }
-  public getItemCss(row: any, column: any) {
-    var isChecked = row.value == column.value;
-    var isDisabled = this.isReadOnly;
-    var allowHover = !isChecked && !isDisabled;
-    var cellDisabledClass = this.hasCellText
-      ? this.cssClasses.cellTextDisabled
-      : this.cssClasses.itemDisabled;
-
-    var cellSelectedClass = this.hasCellText
-      ? this.cssClasses.cellTextSelected
-      : this.cssClasses.itemChecked;
-
-    var itemHoverClass = !this.hasCellText ? this.cssClasses.itemHover : "";
-
-    var cellClass = this.hasCellText
-      ? (<any>this)["koCss"]().cellText
-      : (<any>this)["koCss"]().label;
-
-    let itemClass =
-      cellClass +
-      (isChecked ? " " + cellSelectedClass : "") +
-      (isDisabled ? " " + cellDisabledClass : "") +
-      (allowHover ? " " + itemHoverClass : "");
-    return itemClass;
-  }
 }
 
 Serializer.overrideClassCreator("matrix", function () {

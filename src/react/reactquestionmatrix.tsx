@@ -1,7 +1,7 @@
 import * as React from "react";
 import {
   ReactSurveyElement,
-  SurveyQuestionElementBase
+  SurveyQuestionElementBase,
 } from "./reactquestionelement";
 import { QuestionMatrixModel } from "../question_matrix";
 import { MatrixRowModel } from "../question_matrix";
@@ -20,7 +20,7 @@ export class SurveyQuestionMatrix extends SurveyQuestionElementBase {
     super.componentDidMount();
     if (this.question) {
       var self = this;
-      this.question.visibleRowsChangedCallback = function() {
+      this.question.visibleRowsChangedCallback = function () {
         self.setState({ rowsChanged: self.state.rowsChanged + 1 });
       };
     }
@@ -125,7 +125,7 @@ export class SurveyQuestionMatrixRow extends ReactSurveyElement {
       var key = "value" + i;
 
       var isChecked = row.value == column.value;
-      let itemClass = this.getItemClass(row, column);
+      let itemClass = this.question.getItemClass(row, column);
       var inputId = this.question.inputId + "_" + row.name + "_" + i;
       if (this.question.hasCellText) {
         var getHandler = !this.question.isReadOnly
@@ -134,7 +134,7 @@ export class SurveyQuestionMatrixRow extends ReactSurveyElement {
         td = (
           <td
             key={key}
-            className={itemClass + " " + this.question.cssClasses.cell}
+            className={itemClass}
             onClick={getHandler ? getHandler(column) : null}
           >
             {this.renderLocString(
@@ -184,40 +184,11 @@ export class SurveyQuestionMatrixRow extends ReactSurveyElement {
 
     return tds;
   }
-
-  public getItemClass(row: any, column: any): string {
-    var question = this.question;
-    var cssClasses = this.question.cssClasses;
-    var isChecked = row.value == column.value;
-    var isDisabled = question.isReadOnly;
-    var allowHover = !isChecked && !isDisabled;
-    var cellDisabledClass = question.hasCellText
-      ? cssClasses.cellTextDisabled
-      : cssClasses.itemDisabled;
-
-    var cellSelectedClass = question.hasCellText
-      ? cssClasses.cellTextSelected
-      : cssClasses.itemChecked;
-
-    var itemHoverClass = !question.hasCellText ? cssClasses.itemHover : "";
-
-    var cellClass = question.hasCellText
-      ? cssClasses.cellText
-      : cssClasses.label;
-
-    let itemClass =
-      cellClass +
-      (isChecked ? " " + cellSelectedClass : "") +
-      (isDisabled ? " " + cellDisabledClass : "") +
-      (allowHover ? " " + itemHoverClass : "");
-    return itemClass;
-  }
-
   cellClick(row: any, column: any) {
     row.value = column.value;
   }
 }
 
-ReactQuestionFactory.Instance.registerQuestion("matrix", props => {
+ReactQuestionFactory.Instance.registerQuestion("matrix", (props) => {
   return React.createElement(SurveyQuestionMatrix, props);
 });

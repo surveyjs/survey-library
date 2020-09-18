@@ -3927,7 +3927,7 @@ export class SurveyModel
     var options = {
       name: valueName,
       question: this.getQuestionByValueName(valueName),
-      value: newValue,
+      value: Helpers.getUnbindValue(newValue),
       oldValue: this.getValue(valueName),
     };
     this.onValueChanging.fire(this, options);

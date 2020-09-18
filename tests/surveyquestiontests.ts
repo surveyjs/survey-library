@@ -529,11 +529,18 @@ QUnit.test(
       rows: ["item1", "item2"],
       isAllRowRequired: true,
     });
-    assert.equal(matrix.hasErrors(), true, "is Required error");
     var rows = matrix.visibleRows;
+    assert.equal(matrix.hasErrors(), true, "is Required error");
     rows[0].value = 0;
     assert.equal(matrix.hasErrors(), true, "isAllRowRequired error");
     rows[1].value = 0;
+    assert.deepEqual(
+      matrix.value,
+      { item1: 0, item2: 0 },
+      "value set correctly"
+    );
+    assert.equal(rows[0].value, 0, "First row value set correctly");
+    assert.equal(rows[1].value, 0, "Second row value set correctly");
     assert.equal(matrix.hasErrors(), false, "There is no errors");
   }
 );
@@ -4057,4 +4064,41 @@ QUnit.test("matirix row, rowClasses property", function (assert) {
     "row row_error",
     "Error for the second row"
   );
+});
+QUnit.test("matirix and survey.onValueChanged event, Bug#2408", function (
+  assert
+) {
+  var survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrix",
+        name: "q1",
+        columns: ["col1", "col2"],
+        rows: ["row1", "row2"],
+      },
+    ],
+  });
+  var question = <QuestionMatrixModel>survey.getQuestionByName("q1");
+  survey.onValueChanging.add(function (sender, options) {
+    var keys = [];
+    for (var key in options.value) {
+      keys.push(key);
+    }
+    if (keys.length == 2 && !!options.oldValue) {
+      for (var key in options.oldValue) {
+        delete options.value[key];
+        break;
+      }
+    }
+  });
+  var rows = question.visibleRows;
+  rows[0].value = "col1";
+  assert.deepEqual(question.value, { row1: "col1" }, "initial set correctly");
+  rows[1].value = "col1";
+  assert.deepEqual(
+    question.value,
+    { row2: "col1" },
+    "remove value in question"
+  );
+  assert.notOk(rows[0].value, "Clear value onValueChanging event");
 });

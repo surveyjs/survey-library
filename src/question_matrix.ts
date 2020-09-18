@@ -429,11 +429,7 @@ export class QuestionMatrixModel
   protected onMatrixRowCreated(row: MatrixRowModel) {}
   protected setQuestionValue(newValue: any, updateIsAnswered: boolean = true) {
     super.setQuestionValue(newValue, this.isRowChanging || updateIsAnswered);
-    if (
-      this.isRowChanging ||
-      !this.generatedVisibleRows ||
-      this.generatedVisibleRows.length == 0
-    )
+    if (!this.generatedVisibleRows || this.generatedVisibleRows.length == 0)
       return;
     this.isRowChanging = true;
     var val = this.value;
@@ -443,7 +439,8 @@ export class QuestionMatrixModel
     } else {
       for (var i = 0; i < this.generatedVisibleRows.length; i++) {
         var row = this.generatedVisibleRows[i];
-        var rowVal = val[row.name] ? val[row.name] : null;
+        var rowVal = val[row.name];
+        if (Helpers.isValueEmpty(rowVal)) rowVal = null;
         this.generatedVisibleRows[i].value = rowVal;
       }
     }

@@ -35,7 +35,8 @@ export class SurveyQuestionRadiogroup extends SurveyQuestionElementBase {
     return (
       <fieldset
         className={cssClasses.root}
-        ref={fieldset => (this.control = fieldset)}
+        ref={(fieldset) => (this.control = fieldset)}
+        role="radiogroup"
       >
         <legend aria-label={this.question.locTitle.renderedHtml} />
         {this.question.hasColumns

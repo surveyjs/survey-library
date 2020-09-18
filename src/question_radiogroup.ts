@@ -11,9 +11,6 @@ export class QuestionRadiogroupModel extends QuestionCheckboxBase {
   constructor(public name: string) {
     super(name);
   }
-  public get ariaRole(): string {
-    return "radiogroup";
-  }
   public getType(): string {
     return "radiogroup";
   }

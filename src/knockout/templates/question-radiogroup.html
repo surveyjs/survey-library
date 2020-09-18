@@ -1,27 +1,32 @@
 <script type="text/html" id="survey-question-radiogroup">
-  <fieldset data-bind="css: question.koCss().root">
-      <legend data-bind="attr: { 'aria-label': question.locTitle.renderedHtml }"></legend>
-      <!-- ko ifnot: question.hasColumns  -->
-        <!-- ko foreach: { data: question.visibleChoices, as: 'item', afterRender: question.koAfterRender }  -->
-            <!-- ko template: 'survey-radiogroup-item' -->
-            <!-- /ko -->
-        <!-- /ko -->
+  <fieldset data-bind="css: question.koCss().root" role="radiogroup">
+    <legend
+      data-bind="attr: { 'aria-label': question.locTitle.renderedHtml }"
+    ></legend>
+    <!-- ko ifnot: question.hasColumns  -->
+    <!-- ko foreach: { data: question.visibleChoices, as: 'item', afterRender: question.koAfterRender }  -->
+    <!-- ko template: 'survey-radiogroup-item' -->
+    <!-- /ko -->
+    <!-- /ko -->
+    <!-- /ko -->
+    <!-- ko if: question.hasColumns  -->
+    <!-- ko foreach: question.columns -->
+    <div data-bind="css: question.getColumnClass()">
+      <!-- ko foreach: { data: $data, as: 'item', afterRender: question.koAfterRender }  -->
+      <!-- ko template: 'survey-radiogroup-item' -->
       <!-- /ko -->
-      <!-- ko if: question.hasColumns  -->
-        <!-- ko foreach: question.columns -->
-        <div data-bind="css: question.getColumnClass()">
-            <!-- ko foreach: { data: $data, as: 'item', afterRender: question.koAfterRender }  -->
-                <!-- ko template: 'survey-radiogroup-item' -->
-                <!-- /ko -->
-            <!-- /ko -->
-            </div>
-        <!-- /ko -->
       <!-- /ko -->
-      <!-- ko if: question.canShowClearButton -->
-      <div>
-          <input type="button" data-bind="click:question.clearValue, css: question.koCss().clearButton, value: question.clearButtonCaption"/>
-      </div>
-      <!-- /ko -->
+    </div>
+    <!-- /ko -->
+    <!-- /ko -->
+    <!-- ko if: question.canShowClearButton -->
+    <div>
+      <input
+        type="button"
+        data-bind="click:question.clearValue, css: question.koCss().clearButton, value: question.clearButtonCaption"
+      />
+    </div>
+    <!-- /ko -->
   </fieldset>
 </script>
 <script type="text/html" id="survey-radiogroup-item">

@@ -12,7 +12,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="(row, rowIndex) in question.visibleRows" :class="question.cssClasses.row">
+          <tr v-for="(row, rowIndex) in question.visibleRows" :class="row.rowClasses">
             <td :class="question.cssClasses.cell" v-show="question.hasRows">
               <survey-string :locString="row.locText" />
             </td>

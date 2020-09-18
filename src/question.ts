@@ -520,6 +520,12 @@ export class Question
   public getAllErrors(): Array<SurveyError> {
     return this.errors.slice();
   }
+  public getErrorByType(errorType: string): SurveyError {
+    for (var i = 0; i < this.errors.length; i++) {
+      if (this.errors[i].getErrorType() === errorType) return this.errors[i];
+    }
+    return null;
+  }
   /**
    * The link to the custom widget.
    */

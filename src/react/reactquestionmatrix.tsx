@@ -109,7 +109,7 @@ export class SurveyQuestionMatrixRow extends ReactSurveyElement {
     }
     var tds = this.generateTds();
     return (
-      <tr>
+      <tr className={this.row.rowClasses}>
         {firstTD}
         {tds}
       </tr>

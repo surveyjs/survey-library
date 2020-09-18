@@ -184,6 +184,7 @@ export var modernCss = {
   matrix: {
     tableWrapper: "sv-matrix",
     root: "sv-table",
+    rowError: "sv-matrix__row--error",
     cell: "sv-table__cell sv-matrix__cell",
     headerCell: "sv-table__cell sv-table__cell--header",
     label: "sv-item sv-radio sv-matrix__label",

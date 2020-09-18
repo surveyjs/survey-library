@@ -18,7 +18,7 @@
               <!-- /ko -->
             <tbody>
                 <!-- ko foreach: { data: question.koVisibleRows, as: 'row' } -->
-                <tr data-bind="css: question.koCss().row">
+                <tr data-bind="css: row.rowClasses">
                     <td data-bind="visible: question.hasRows, css: question.koCss().cell">
                         <!-- ko template: { name: 'survey-string', data: row.locText } -->
                         <!-- /ko -->

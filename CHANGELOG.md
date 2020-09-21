@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.8.3](https://github.com/surveyjs/survey-library/compare/v1.8.2...v1.8.3) (2020-09-16)
+
+
+### Bug Fixes
+
+* onLoadChoicesFromServer event is fired ad-infinitum [#2388](https://github.com/surveyjs/survey-library/issues/2388) ([be48178](https://github.com/surveyjs/survey-library/commit/be481782f92b5b4676b389350f55cb8cdf971760))
+* Stackoverflow on JSON with non english locale and firstPageIsStarted equals to true [#2400](https://github.com/surveyjs/survey-library/issues/2400) ([4522d65](https://github.com/surveyjs/survey-library/commit/4522d654f91a72561dee70792a5a36d63b4676a6))
+* The isAnswered property of matrixdynamic is false after setting question's value for T5206 [#2399](https://github.com/surveyjs/survey-library/issues/2399) ([8205ad3](https://github.com/surveyjs/survey-library/commit/8205ad32e92cbc57127338f4fe756a9e33ea3d64))
+
 ### [1.8.2](https://github.com/surveyjs/survey-library/compare/v1.8.1...v1.8.2) (2020-09-10)
 
 

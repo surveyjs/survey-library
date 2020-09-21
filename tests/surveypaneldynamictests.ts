@@ -3175,3 +3175,27 @@ QUnit.test(
     assert.equal(q.panelCount, 0, "The panel count is 0");
   }
 );
+
+QUnit.test("getProgressInfo()", function (assert) {
+  var survey = new SurveyModel({
+    elements: [
+      {
+        type: "paneldynamic",
+        name: "panel",
+        templateElements: [
+          { type: "text", name: "q1", isRequired: true },
+          { type: "text", name: "q2" },
+          { type: "text", name: "q3" },
+        ],
+      },
+    ],
+  });
+  survey.data = { panel: [{ q1: "1" }, { q2: "2" }, []] };
+  var question = survey.getQuestionByName("panel");
+  assert.deepEqual(question.getProgressInfo(), {
+    questionCount: 9,
+    answeredQuestionCount: 2,
+    requiredQuestionCount: 3,
+    requiredAnsweredQuestionCount: 1,
+  });
+});

@@ -266,13 +266,13 @@ export class QuestionSelectBase extends Question {
     this.setPropertyValue("renderedValue", val);
     this.value = this.rendredValueToData(val);
   }
-  protected setQuestionValue(newValue: any) {
+  protected setQuestionValue(newValue: any, updateIsAnswered: boolean = true) {
     if (
       this.isLoadingFromJson ||
       Helpers.isTwoValueEquals(this.value, newValue)
     )
       return;
-    super.setQuestionValue(newValue);
+    super.setQuestionValue(newValue, updateIsAnswered);
     this.setPropertyValue("renderedValue", this.rendredValueFromData(newValue));
     if (this.hasComment) return;
     var isOtherSel = this.isOtherSelected;
@@ -590,15 +590,41 @@ export class QuestionSelectBase extends Question {
       this.runChoicesByUrl();
     }
   }
+  updateValueFromSurvey(newValue: any) {
+    var newComment = "";
+    if (
+      this.hasOther &&
+      this.getStoreOthersAsComment() &&
+      this.hasUnknownValue(newValue) &&
+      !this.getHasOther(newValue)
+    ) {
+      newComment = this.getCommentFromValue(newValue);
+      newValue = this.setOtherValueIntoValue(newValue);
+    }
+    super.updateValueFromSurvey(newValue);
+    if (!!newComment) {
+      this.setNewComment(newComment);
+    }
+  }
+  protected getCommentFromValue(newValue: any): string {
+    return newValue;
+  }
+  protected setOtherValueIntoValue(newValue: any): any {
+    return this.otherItem.value;
+  }
+  private isRunningChoices: boolean = false;
   private runChoicesByUrl() {
-    if (!this.choicesByUrl || this.isLoadingFromJson) return;
+    if (!this.choicesByUrl || this.isLoadingFromJson || this.isRunningChoices)
+      return;
     var processor = this.surveyImpl
       ? this.surveyImpl.getTextProcessor()
       : this.textProcessor;
     if (!processor) processor = this.survey;
     if (!processor) return;
     this.isReadyValue = this.isChoicesLoaded || this.choicesByUrl.isEmpty;
+    this.isRunningChoices = true;
     this.choicesByUrl.run(processor);
+    this.isRunningChoices = false;
   }
   private isFirstLoadChoicesFromUrl = true;
   protected onBeforeSendRequest() {

@@ -8,12 +8,12 @@ import { Serializer } from "./jsonobject";
 import { QuestionFactory } from "./questionfactory";
 import { surveyLocalization } from "./surveyStrings";
 import { SurveyError } from "./base";
-import { LocalizableString } from "./localizablestring";
 import { MinRowCountError, KeyDuplicationError } from "./error";
 import { IConditionObject } from "./question";
 import { Helpers } from "./helpers";
 import { settings } from "./settings";
 import { confirmAction } from "./utils/utils";
+import { LocalizableString } from "./localizablestring";
 
 export class MatrixDynamicRowModel extends MatrixDropdownRowModelBase {
   constructor(public index: number, data: IMatrixDropdownData, value: any) {
@@ -29,7 +29,8 @@ export class MatrixDynamicRowModel extends MatrixDropdownRowModelBase {
  * A Model for a matrix dymanic question. You may use a dropdown, checkbox, radiogroup, text and comment questions as a cell editors.
  * An end-user may dynamically add/remove rows, unlike in matrix dropdown question.
  */
-export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
+export class QuestionMatrixDynamicModel
+  extends QuestionMatrixDropdownModelBase
   implements IMatrixDropdownData {
   private rowCounter = 0;
   private rowCountValue: number = 2;
@@ -38,10 +39,16 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
 
   constructor(public name: string) {
     super(name);
-    this.createLocalizableString("confirmDeleteText", this);
-    this.createLocalizableString("keyDuplicationError", this);
-    this.createLocalizableString("addRowText", this);
-    this.createLocalizableString("removeRowText", this);
+    void (<LocalizableString>(
+      this.createLocalizableString("confirmDeleteText", this)
+    ));
+    void (<LocalizableString>(
+      this.createLocalizableString("keyDuplicationError", this)
+    ));
+    void (<LocalizableString>this.createLocalizableString("addRowText", this));
+    void (<LocalizableString>(
+      this.createLocalizableString("removeRowText", this)
+    ));
   }
   public getType(): string {
     return "matrixdynamic";

@@ -150,9 +150,15 @@ export class ChoicesRestfull extends Base {
     this.getResultCallback(items);
   }
   private processedText(textProcessor: ITextProcessor) {
+    var urlText = this.url;
+    if (!!urlText) {
+      urlText = urlText
+        .replace(ChoicesRestfull.cacheText, "")
+        .replace(ChoicesRestfull.noCacheText, "");
+    }
     if (textProcessor) {
       var pUrl = textProcessor.processTextEx(
-        this.url,
+        urlText,
         false,
         settings.webserviceEncodeParameters
       );
@@ -169,7 +175,7 @@ export class ChoicesRestfull extends Base {
         this.processedPath = pPath.text;
       }
     } else {
-      this.processedUrl = this.url;
+      this.processedUrl = urlText;
       this.processedPath = this.path;
     }
   }

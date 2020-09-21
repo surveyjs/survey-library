@@ -9,6 +9,8 @@ import {
   ISurvey,
   ISurveyImpl,
   ITextProcessor,
+  IProgressInfo,
+  SurveyElement,
 } from "./base";
 import { surveyLocalization } from "./surveyStrings";
 import { LocalizableString } from "./localizablestring";
@@ -175,7 +177,8 @@ export class QuestionPanelDynamicTemplateSurveyImpl implements ISurveyImpl {
  * A Model for a panel dymanic question. You setup the template panel, but adding elements (any question or a panel) and assign a text to it's title, and this panel will be used as a template on creating dynamic panels. The number of panels is defined by panelCount property.
  * An end-user may dynamically add/remove panels, unless you forbidden this.
  */
-export class QuestionPanelDynamicModel extends Question
+export class QuestionPanelDynamicModel
+  extends Question
   implements IQuestionPanelDynamicData {
   private templateValue: PanelModel;
   private loadingPanelCount: number = 0;
@@ -890,6 +893,12 @@ export class QuestionPanelDynamicModel extends Question
       if (!this.isRowEmpty(val[i])) return false;
     }
     return true;
+  }
+  public getProgressInfo(): IProgressInfo {
+    return SurveyElement.getProgressInfoByElements(
+      this.panels,
+      this.isRequired
+    );
   }
   private isRowEmpty(val: any) {
     for (var prop in val) {

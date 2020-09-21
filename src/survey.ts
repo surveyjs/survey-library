@@ -15,6 +15,7 @@ import {
   ISurveyErrorOwner,
   ISurveyElement,
   SurveyElement,
+  IProgressInfo,
 } from "./base";
 import { surveyCss } from "./defaultCss/cssstandard";
 import { ISurveyTriggerOwner, SurveyTrigger } from "./trigger";
@@ -944,6 +945,12 @@ export class SurveyModel
     this.registerFunctionOnPropertyValueChanged("mode", function () {
       self.onModeChanged();
     });
+    this.registerFunctionOnPropertyValueChanged("progressBarType", function () {
+      self.updateProgressText();
+    });
+    this.onProgressText.onCallbacksChanged = () => {
+      this.updateProgressText();
+    };
     this.onBeforeCreating();
     if (jsonObj) {
       if (typeof jsonObj === "string" || jsonObj instanceof String) {
@@ -2248,6 +2255,7 @@ export class SurveyModel
       this.firstPageIsStarted && this.pages.length > 0 ? this.pages[0] : null;
     if (!!page) {
       page.onFirstRendering();
+      page.setWasShown(true);
     }
     return page;
   }
@@ -2288,6 +2296,7 @@ export class SurveyModel
       newPage.setWasShown(true);
     }
     this.locStrsChanged();
+    this.updateProgressText();
     this.currentPageChanged(newPage, oldValue);
   }
   private getPageByObject(value: any): PageModel {
@@ -3341,11 +3350,31 @@ export class SurveyModel
     }
     return "<h3>" + this.getLocString("loadingSurvey") + "</h3>";
   }
+  public getProgressInfo(): IProgressInfo {
+    return SurveyElement.getProgressInfoByElements(this.visiblePages, false);
+  }
   /**
    * Returns the text for the current progress.
    */
   public get progressText(): string {
-    if (this.currentPage == null) return "";
+    var res = this.getPropertyValue("progressText", "");
+    if (!res) {
+      this.updateProgressText();
+      res = this.getPropertyValue("progressText", "");
+    }
+    return res;
+  }
+  public updateProgressText(onValueChanged: boolean = false) {
+    if (
+      onValueChanged &&
+      this.progressBarType == "pages" &&
+      this.onProgressText.isEmpty
+    )
+      return;
+    this.setPropertyValue("progressText", this.getProgressText());
+  }
+  public getProgressText(): string {
+    if (this.isDesignMode || this.currentPage == null) return "";
     var options = {
       questionCount: 0,
       answeredQuestionCount: 0,
@@ -3360,57 +3389,37 @@ export class SurveyModel
       type === "correctquestions" ||
       !this.onProgressText.isEmpty
     ) {
-      var questions = this.getQuestionsWithInput();
-      options.questionCount = 0;
-      for (var i = 0; i < questions.length; i++) {
-        var q = questions[i];
-        if (!q.isVisible) continue;
-        options.questionCount++;
-        if (q.isRequired) {
-          options.requiredQuestionCount++;
-        }
-        if (!q.isEmpty()) {
-          options.answeredQuestionCount++;
-          if (q.isRequired) {
-            options.requiredAnsweredQuestionCount++;
-          }
-        }
-      }
+      var info = this.getProgressInfo();
+      options.questionCount = info.questionCount;
+      options.answeredQuestionCount = info.answeredQuestionCount;
+      options.requiredQuestionCount = info.requiredQuestionCount;
+      options.requiredAnsweredQuestionCount =
+        info.requiredAnsweredQuestionCount;
     }
 
-    options.text = this.getProgressText(
-      options.questionCount,
-      options.answeredQuestionCount,
-      options.requiredQuestionCount,
-      options.requiredAnsweredQuestionCount
-    );
+    options.text = this.getProgressTextCore(options);
     this.onProgressText.fire(this, options);
     return options.text;
   }
-  private getProgressText(
-    questionCount: number,
-    answeredQuestionCount: number,
-    requiredQuestionCount: number,
-    requiredAnsweredQuestionCount: number
-  ): string {
+  private getProgressTextCore(info: IProgressInfo): string {
     var type = this.progressBarType.toLowerCase();
     if (type === "questions") {
       return this.getLocString("questionsProgressText")["format"](
-        answeredQuestionCount,
-        questionCount
+        info.answeredQuestionCount,
+        info.questionCount
       );
     }
     if (type === "requiredquestions") {
       return this.getLocString("questionsProgressText")["format"](
-        requiredAnsweredQuestionCount,
-        requiredQuestionCount
+        info.requiredAnsweredQuestionCount,
+        info.requiredQuestionCount
       );
     }
     if (type === "correctquestions") {
       var correctAnswersCount = this.getCorrectedAnswerCount();
       return this.getLocString("questionsProgressText")["format"](
         correctAnswersCount,
-        questionCount
+        info.questionCount
       );
     }
     var vPages = this.visiblePages;
@@ -3918,7 +3927,7 @@ export class SurveyModel
     var options = {
       name: valueName,
       question: this.getQuestionByValueName(valueName),
-      value: newValue,
+      value: Helpers.getUnbindValue(newValue),
       oldValue: this.getValue(valueName),
     };
     this.onValueChanging.fire(this, options);
@@ -4165,7 +4174,7 @@ export class SurveyModel
           if (success) {
             self.setCompletedState("success", "");
           } else {
-            self.setCompletedState("error", "");
+            self.setCompletedState("error", response);
           }
         }
         self.onSendResult.fire(self, {
@@ -4511,6 +4520,7 @@ export class SurveyModel
     if (locNotification !== "text") {
       this.tryGoNextPageAutomatic(name);
     }
+    this.updateProgressText(true);
   }
   private isValueEqual(name: string, newValue: any): boolean {
     if (newValue === "" || newValue === undefined) newValue = null;
@@ -4645,6 +4655,7 @@ export class SurveyModel
   }
   pageVisibilityChanged(page: IPage, newValue: boolean) {
     this.updateVisibleIndexes();
+    this.updateProgressText();
     this.onPageVisibleChanged.fire(this, { page: page, visible: newValue });
   }
   panelVisibilityChanged(panel: IPanel, newValue: boolean) {

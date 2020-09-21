@@ -646,15 +646,44 @@ QUnit.test(
 );
 
 QUnit.test("QuestionRowModel setElementMaxMinWidth", function (assert) {
-  var qrm = new QuestionRowModel((<any>{ areInvisibleElementsShowing: false }));
+  var qrm = new QuestionRowModel(<any>{ areInvisibleElementsShowing: false });
 
-  var el1: any = { width: "100px", minWidth: settings.minWidth, maxWidth: settings.maxWidth };
+  var el1: any = {
+    width: "100px",
+    minWidth: settings.minWidth,
+    maxWidth: settings.maxWidth,
+  };
   qrm.setElementMaxMinWidth(el1);
   assert.equal(el1.minWidth, "100px", "minWidth in 'px' is set");
   assert.equal(el1.maxWidth, "100px", "maxWidth in 'px' is set");
 
-  var el2: any = { width: "20%", minWidth: settings.minWidth, maxWidth: settings.maxWidth };
+  var el2: any = {
+    width: "20%",
+    minWidth: settings.minWidth,
+    maxWidth: settings.maxWidth,
+  };
   qrm.setElementMaxMinWidth(el2);
   assert.equal(el2.minWidth, "300px", "minWidth in '%' is default");
   assert.equal(el2.maxWidth, "initial", "maxWidth in '%' is default");
+});
+
+QUnit.test("Page/Panel.getProgressInfo()", function (assert) {
+  var page = new PageModel("q1");
+  var panel1 = page.addNewPanel("panel1");
+  var panel2 = page.addNewPanel("panel2");
+  panel1.isRequired = true;
+  panel1.addNewQuestion("text", "q1");
+  panel1.addNewQuestion("text", "q2");
+  panel2.addNewQuestion("text", "q3").isRequired = true;
+  panel2.addNewQuestion("text", "q4");
+  panel2.addNewQuestion("html", "q5");
+  panel2.addNewQuestion("expression", "q6");
+  page.getQuestionByName("q1").value = 1;
+  page.getQuestionByName("q3").value = 2;
+  assert.deepEqual(page.getProgressInfo(), {
+    questionCount: 4,
+    answeredQuestionCount: 2,
+    requiredQuestionCount: 2,
+    requiredAnsweredQuestionCount: 2,
+  });
 });

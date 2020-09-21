@@ -232,6 +232,24 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
   protected getIsMultipleValue(): boolean {
     return true;
   }
+  protected getCommentFromValue(newValue: any): string {
+    var ind = this.getFirstUnknownIndex(newValue);
+    if (ind < 0) return "";
+    return newValue[ind];
+  }
+  protected setOtherValueIntoValue(newValue: any): any {
+    var ind = this.getFirstUnknownIndex(newValue);
+    if (ind < 0) return newValue;
+    newValue.splice(ind, 1, this.otherItem.value);
+    return newValue;
+  }
+  private getFirstUnknownIndex(newValue: any): number {
+    if (!Array.isArray(newValue)) return -1;
+    for (var i = 0; i < newValue.length; i++) {
+      if (this.hasUnknownValue(newValue[i])) return i;
+    }
+    return -1;
+  }
   private noneIndexInArray(val: any) {
     if (!val || !Array.isArray(val)) return -1;
     var noneValue = this.noneItem.value;

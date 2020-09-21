@@ -11310,3 +11310,36 @@ QUnit.test("question.clickTitleFunction, Bug#2312", function (assert) {
     "q2 has not click title function, no input"
   );
 });
+QUnit.test("survey.getProgressInfo()", function (assert) {
+  var survey = new SurveyModel({
+    pages: [
+      {
+        elements: [
+          {
+            type: "paneldynamic",
+            name: "panel",
+            templateElements: [
+              { type: "text", name: "q1", isRequired: true },
+              { type: "text", name: "q2" },
+              { type: "text", name: "q3" },
+            ],
+          },
+          { type: "text", name: "tq1", isRequired: true },
+        ],
+      },
+      {
+        elements: [
+          { type: "text", name: "tq2", isRequired: true },
+          { type: "text", name: "tq3" },
+        ],
+      },
+    ],
+  });
+  survey.data = { panel: [{ q1: "1" }, { q2: "2" }, []], tq2: "3" };
+  assert.deepEqual(survey.getProgressInfo(), {
+    questionCount: 12,
+    answeredQuestionCount: 3,
+    requiredQuestionCount: 5,
+    requiredAnsweredQuestionCount: 2,
+  });
+});

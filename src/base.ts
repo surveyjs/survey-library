@@ -7,7 +7,6 @@ import {
 } from "./jsonobject";
 import { settings } from "./settings";
 import { ItemValue } from "./itemvalue";
-import { stringify } from "querystring";
 
 export interface ISurveyData {
   getValue(name: string): any;
@@ -259,6 +258,12 @@ export interface ITitleOwner {
   isRequireTextAfterTitle: boolean;
   locTitle: LocalizableString;
 }
+export interface IProgressInfo {
+  questionCount: number;
+  answeredQuestionCount: number;
+  requiredQuestionCount: number;
+  requiredAnsweredQuestionCount: number;
+}
 /**
  * The base class for SurveyJS objects.
  */
@@ -383,6 +388,9 @@ export class Base {
     var clonedObj = <Base>Serializer.createClass(this.getType());
     clonedObj.fromJSON(this.toJSON());
     return clonedObj;
+  }
+  public getProgressInfo(): IProgressInfo {
+    return SurveyElement.createProgressInfo();
   }
   public locStrsChanged() {
     if (!!this.arraysInfo) {
@@ -900,7 +908,39 @@ export class SurveyError {
   }
 }
 
+/**
+ * Base class of SurveyJS Elements.
+ */
 export class SurveyElement extends Base implements ISurveyElement {
+  public static createProgressInfo(): IProgressInfo {
+    return {
+      questionCount: 0,
+      answeredQuestionCount: 0,
+      requiredQuestionCount: 0,
+      requiredAnsweredQuestionCount: 0,
+    };
+  }
+  public static getProgressInfoByElements(
+    children: Array<SurveyElement>,
+    isRequired: boolean
+  ): IProgressInfo {
+    var info = SurveyElement.createProgressInfo();
+    for (var i = 0; i < children.length; i++) {
+      if (!children[i].isVisible) continue;
+      var childInfo = children[i].getProgressInfo();
+      info.questionCount += childInfo.questionCount;
+      info.answeredQuestionCount += childInfo.answeredQuestionCount;
+      info.requiredQuestionCount += childInfo.requiredQuestionCount;
+      info.requiredAnsweredQuestionCount +=
+        childInfo.requiredAnsweredQuestionCount;
+    }
+    if (isRequired && info.questionCount > 0) {
+      if (info.requiredQuestionCount == 0) info.requiredQuestionCount = 1;
+      if (info.answeredQuestionCount > 0)
+        info.requiredAnsweredQuestionCount = 1;
+    }
+    return info;
+  }
   private surveyImplValue: ISurveyImpl;
   private surveyDataValue: ISurveyData;
   private surveyValue: ISurvey;
@@ -1146,6 +1186,7 @@ export class SurveyElement extends Base implements ISurveyElement {
 }
 
 export class Event<T extends Function, Options> {
+  public onCallbacksChanged: () => void;
   protected callbacks: Array<T>;
   public get isEmpty(): boolean {
     return this.callbacks == null || this.callbacks.length == 0;
@@ -1153,11 +1194,12 @@ export class Event<T extends Function, Options> {
   public fire(sender: any, options: Options) {
     if (this.callbacks == null) return;
     for (var i = 0; i < this.callbacks.length; i++) {
-      var callResult = this.callbacks[i](sender, options);
+      this.callbacks[i](sender, options);
     }
   }
   public clear() {
     this.callbacks = [];
+    this.fireCallbackChanged();
   }
   public add(func: T) {
     if (this.hasFunc(func)) return;
@@ -1165,15 +1207,22 @@ export class Event<T extends Function, Options> {
       this.callbacks = new Array<T>();
     }
     this.callbacks.push(func);
+    this.fireCallbackChanged();
   }
   public remove(func: T) {
     if (this.hasFunc(func)) {
       var index = this.callbacks.indexOf(func, 0);
       this.callbacks.splice(index, 1);
+      this.fireCallbackChanged();
     }
   }
   public hasFunc(func: T): boolean {
     if (this.callbacks == null) return false;
     return this.callbacks.indexOf(func, 0) > -1;
+  }
+  private fireCallbackChanged() {
+    if (!!this.onCallbacksChanged) {
+      this.onCallbacksChanged();
+    }
   }
 }

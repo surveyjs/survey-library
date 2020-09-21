@@ -4314,3 +4314,286 @@ QUnit.test("column should call property changed on custom property", function (
   assert.equal(counter, 1, "Notification is called");
   Serializer.removeProperty("text", "prop1");
 });
+QUnit.test("getProgressInfo", function (assert) {
+  var survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdynamic",
+        name: "matrix",
+        columns: [
+          {
+            name: "col1",
+            isRequired: true,
+          },
+          {
+            name: "col2",
+          },
+          {
+            name: "col3",
+            visibleIf: "{row.col2} notempty",
+          },
+        ],
+      },
+    ],
+  });
+  survey.data = { matrix: [{ col1: "1" }, { col2: "2" }, []] };
+  var question = survey.getQuestionByName("matrix");
+  assert.deepEqual(question.getProgressInfo(), {
+    questionCount: 9 - 2,
+    answeredQuestionCount: 2,
+    requiredQuestionCount: 3,
+    requiredAnsweredQuestionCount: 1,
+  });
+});
+
+QUnit.test(
+  "isAnswered on setitting from survey.setValue(), Bug#2399",
+  function (assert) {
+    var survey = new SurveyModel({
+      pages: [
+        {
+          name: "page1",
+          elements: [
+            {
+              type: "matrixdynamic",
+              name: "HospitalAdmissions_Table",
+              columns: [
+                {
+                  name: "TreatmentProcedure",
+                  cellType: "text",
+                  width: "20",
+                },
+                {
+                  name: "Hospital",
+                  cellType: "text",
+                  width: "20",
+                },
+                {
+                  name: "Year",
+                  cellType: "dropdown",
+                },
+              ],
+              choices: ["2020", "2019"],
+              rowCount: 1,
+            },
+          ],
+        },
+      ],
+    });
+    var question = <QuestionMatrixDynamicModel>survey.getAllQuestions()[0];
+    survey.setValue("HospitalAdmissions_Table", [
+      {
+        TreatmentProcedure: "A",
+        Hospital: "B",
+        Year: "2020",
+      },
+    ]);
+    assert.equal(question.visibleRows.length, 1, "There is one row");
+    assert.equal(question.isAnswered, true, "matrix is answered");
+  }
+);
+QUnit.test(
+  "Use survey.storeOthersAsComment in matrix, cellType = dropdown",
+  function (assert) {
+    var survey = new SurveyModel({
+      elements: [
+        {
+          type: "matrixdynamic",
+          name: "q1",
+          columns: [
+            {
+              name: "col1",
+              cellType: "dropdown",
+              choices: [1, 2, 3],
+              hasOther: true,
+            },
+          ],
+          rowCount: 1,
+        },
+      ],
+    });
+    var question = <QuestionMatrixDynamicModel>survey.getAllQuestions()[0];
+    var cellQuestion = <QuestionDropdownModel>(
+      question.visibleRows[0].cells[0].question
+    );
+    assert.equal(
+      cellQuestion.getType(),
+      "dropdown",
+      "Cell question was created correctly"
+    );
+    cellQuestion.value = cellQuestion.otherItem.value;
+    cellQuestion.comment = "My Comment";
+    assert.deepEqual(
+      question.value,
+      [{ col1: "other", "col1-Comment": "My Comment" }],
+      "Has comment"
+    );
+    question.value = [{ col1: 1 }];
+    assert.equal(cellQuestion.value, 1, "value sets correctly into cell");
+    assert.equal(
+      cellQuestion.comment,
+      "",
+      "comment clears correctly in cell question"
+    );
+    question.value = [{ col1: "other", "col1-Comment": "New Comment" }];
+    assert.equal(
+      cellQuestion.value,
+      "other",
+      "value other sets correctly into cell"
+    );
+    assert.equal(
+      cellQuestion.comment,
+      "New Comment",
+      "comment sets correctly into cell question"
+    );
+    question.value = [{ col1: 1 }];
+    question.value = [{ col1: "NotInList" }];
+    assert.equal(
+      cellQuestion.value,
+      "other",
+      "value other sets correctly into cell using NotInList"
+    );
+    assert.equal(
+      cellQuestion.comment,
+      "NotInList",
+      "comment sets correctly into cell question using NotInList"
+    );
+  }
+);
+QUnit.test(
+  "Use survey.storeOthersAsComment in matrix, cellType = checkbox",
+  function (assert) {
+    var survey = new SurveyModel({
+      elements: [
+        {
+          type: "matrixdynamic",
+          name: "q1",
+          columns: [
+            {
+              name: "col1",
+              cellType: "checkbox",
+              choices: [1, 2, 3],
+              hasOther: true,
+            },
+          ],
+          rowCount: 1,
+        },
+      ],
+    });
+    var question = <QuestionMatrixDynamicModel>survey.getAllQuestions()[0];
+    var cellQuestion = <QuestionCheckboxModel>(
+      question.visibleRows[0].cells[0].question
+    );
+    assert.equal(
+      cellQuestion.getType(),
+      "checkbox",
+      "Cell question was created correctly"
+    );
+    cellQuestion.value = [1, cellQuestion.otherItem.value];
+    cellQuestion.comment = "My Comment";
+    assert.deepEqual(
+      question.value,
+      [{ col1: [1, "other"], "col1-Comment": "My Comment" }],
+      "Has comment"
+    );
+    question.value = [{ col1: [1] }];
+    assert.deepEqual(cellQuestion.value, [1], "value sets correctly into cell");
+    assert.equal(
+      cellQuestion.comment,
+      "",
+      "comment clears correctly in cell question"
+    );
+    question.value = [{ col1: [1, "other"], "col1-Comment": "New Comment" }];
+    assert.deepEqual(
+      cellQuestion.value,
+      [1, "other"],
+      "value other sets correctly into cell"
+    );
+    assert.equal(
+      cellQuestion.comment,
+      "New Comment",
+      "comment sets correctly into cell question"
+    );
+    question.value = [{ col1: [1] }];
+    question.value = [{ col1: [1, "NotInList"] }];
+    assert.deepEqual(
+      cellQuestion.value,
+      [1, "other"],
+      "value other sets correctly into cell using NotInList"
+    );
+    assert.equal(
+      cellQuestion.comment,
+      "NotInList",
+      "comment sets correctly into cell question using NotInList"
+    );
+  }
+);
+QUnit.test(
+  "Use survey.storeOthersAsComment = false in matrix, cellType = checkbox",
+  function (assert) {
+    var survey = new SurveyModel({
+      storeOthersAsComment: false,
+      elements: [
+        {
+          type: "matrixdynamic",
+          name: "q1",
+          columns: [
+            {
+              name: "col1",
+              cellType: "checkbox",
+              choices: [1, 2, 3],
+              hasOther: true,
+            },
+          ],
+          rowCount: 1,
+        },
+      ],
+    });
+    var question = <QuestionMatrixDynamicModel>survey.getAllQuestions()[0];
+    var cellQuestion = <QuestionCheckboxModel>(
+      question.visibleRows[0].cells[0].question
+    );
+    assert.equal(
+      cellQuestion.getType(),
+      "checkbox",
+      "Cell question was created correctly"
+    );
+    cellQuestion.value = [1, cellQuestion.otherItem.value];
+    cellQuestion.comment = "My Comment";
+    assert.deepEqual(
+      question.value,
+      [{ col1: [1, "My Comment"] }],
+      "Has comment in value"
+    );
+    question.value = [{ col1: [1] }];
+    assert.deepEqual(cellQuestion.value, [1], "value sets correctly into cell");
+    assert.equal(
+      cellQuestion.comment,
+      "",
+      "comment clears correctly in cell question"
+    );
+    question.value = [{ col1: [1, "New Comment"] }];
+    assert.deepEqual(
+      cellQuestion.value,
+      [1, "New Comment"],
+      "value other sets correctly into cell"
+    );
+    assert.equal(
+      cellQuestion.comment,
+      "New Comment",
+      "comment sets correctly into cell question"
+    );
+    question.value = [{ col1: [1] }];
+    question.value = [{ col1: [1, "NotInList"] }];
+    assert.deepEqual(
+      cellQuestion.value,
+      [1, "NotInList"],
+      "value other sets correctly into cell using NotInList"
+    );
+    assert.equal(
+      cellQuestion.comment,
+      "NotInList",
+      "comment sets correctly into cell question using NotInList"
+    );
+  }
+);

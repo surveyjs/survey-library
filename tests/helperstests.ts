@@ -281,6 +281,7 @@ QUnit.test("Helpers.getNumberByIndex", function (assert) {
   assert.equal(Helpers.getNumberByIndex(2, "#1)"), "#3)", "2/#1)");
   assert.equal(Helpers.getNumberByIndex(2, "Q1."), "Q3.", "2/Q1.");
   assert.equal(Helpers.getNumberByIndex(2, "(10)"), "(12)", "2/(10)");
+  assert.equal(Helpers.getNumberByIndex(2, "# (a)"), "# (c)", "2/# (a)");
   assert.equal(Helpers.getNumberByIndex(2, "1.2"), "1.4", "2/1.2");
   assert.equal(Helpers.getNumberByIndex(2, "1.2."), "1.4.", "2/1.2.");
   assert.equal(Helpers.getNumberByIndex(2, "1.2.11"), "1.2.13", "2/1.2.11");

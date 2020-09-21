@@ -1,5 +1,5 @@
 <template>
-  <fieldset :class="question.cssClasses.root">
+  <fieldset :class="question.cssClasses.root" role="radiogroup">
     <legend v-bind:aria-label="question.locTitle.renderedHtml"></legend>
     <survey-radiogroup-item
       v-if="!question.hasColumns"

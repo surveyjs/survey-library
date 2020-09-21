@@ -20,7 +20,7 @@ export class QuestionTextModel extends Question {
     );
   }
   protected isTextValue(): boolean {
-    return this.inputType == "text";
+    return ["text", "number", "password"].indexOf(this.inputType) > -1;
   }
   public getType(): string {
     return "text";

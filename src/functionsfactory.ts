@@ -218,7 +218,9 @@ function age(params: any[]): any {
   var birthDay = new Date(params[0]);
   var ageDifMs = Date.now() - birthDay.getTime();
   var ageDate = new Date(ageDifMs); // miliseconds from epoch
-  return Math.abs(ageDate.getUTCFullYear() - 1970);
+  return (
+    Math.abs(ageDate.getUTCFullYear() - 1970) * (ageDifMs / Math.abs(ageDifMs))
+  );
 }
 FunctionFactory.Instance.register("age", age);
 

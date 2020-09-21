@@ -1080,3 +1080,17 @@ QUnit.test("Disable converting string to number, #2376", function (assert) {
   let expr = new ConditionsParser().createCondition("{#val1} + {#val2}");
   assert.equal(expr.toString(), "({#val1} + {#val2})", "Do not loose '#'");
 });
+
+QUnit.test("ExpressionRunner: age", function (assert) {
+  var runner = new ExpressionRunner("age({d})");
+  var d = new Date();
+  d.setDate(d.getDate() - 1);
+  d.setFullYear(d.getFullYear() - 10);
+  var values = { d: d };
+  assert.equal(runner.run(values), 10, "10 year");
+  d = new Date();
+  d.setDate(d.getDate() + 1);
+  d.setFullYear(d.getFullYear() + 10);
+  values.d = d;
+  assert.equal(runner.run(values), -10, "Date in the future, 10 years");
+});

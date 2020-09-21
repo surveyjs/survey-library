@@ -548,19 +548,19 @@ export class StylesManager {
       "background-color: $body-container-background-color;",
 
     ".sv_default_css .sv_q_other input":
-      "color: $text-color; border-color: $border-color; background-color: $inputs-background-color;",
+      "color: $text-color; -webkit-text-fill-color: $text-color; border-color: $border-color; background-color: $inputs-background-color;",
     ".sv_default_css .sv_q_text_root":
-      "color: $text-color; border-color: $border-color; background-color: $inputs-background-color;",
+      "color: $text-color; -webkit-text-fill-color: $text-color; border-color: $border-color; background-color: $inputs-background-color;",
     ".sv_default_css .sv_q_dropdown_control":
       "color: $text-color; border-color: $border-color; background-color: $inputs-background-color;",
     ".sv_default_css input[type='text']":
-      "color: $text-color; border-color: $border-color; background-color: $inputs-background-color;",
+      "color: $text-color; -webkit-text-fill-color: $text-color; border-color: $border-color; background-color: $inputs-background-color;",
     ".sv_default_css select":
       "color: $text-color; border-color: $border-color; background-color: $inputs-background-color;",
     ".sv_default_css textarea":
-      "color: $text-color; border-color: $border-color; background-color: $inputs-background-color;",
+      "color: $text-color; -webkit-text-fill-color: $text-color; border-color: $border-color; background-color: $inputs-background-color;",
     ".sv_default_css input:not([type='button']):not([type='reset']):not([type='submit']):not([type='image']):not([type='checkbox']):not([type='radio'])":
-      "border: 1px solid $border-color; background-color: $inputs-background-color;color: $text-color;",
+      "border: 1px solid $border-color; background-color: $inputs-background-color;color: $text-color; -webkit-text-fill-color: $text-color;",
     ".sv_default_css input:not([type='button']):not([type='reset']):not([type='submit']):not([type='image']):not([type='checkbox']):not([type='radio']):focus":
       "border: 1px solid $main-color;",
     ".sv_default_css .sv_container .sv_body .sv_p_root .sv_q .sv_select_wrapper .sv_q_dropdown_control ":

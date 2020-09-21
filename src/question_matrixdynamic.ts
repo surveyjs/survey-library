@@ -13,6 +13,7 @@ import { IConditionObject } from "./question";
 import { Helpers } from "./helpers";
 import { settings } from "./settings";
 import { confirmAction } from "./utils/utils";
+import { LocalizableString } from "./localizablestring";
 
 export class MatrixDynamicRowModel extends MatrixDropdownRowModelBase {
   constructor(public index: number, data: IMatrixDropdownData, value: any) {
@@ -38,10 +39,16 @@ export class QuestionMatrixDynamicModel
 
   constructor(public name: string) {
     super(name);
-    this.createLocalizableString("confirmDeleteText", this);
-    this.createLocalizableString("keyDuplicationError", this);
-    this.createLocalizableString("addRowText", this);
-    this.createLocalizableString("removeRowText", this);
+    void (<LocalizableString>(
+      this.createLocalizableString("confirmDeleteText", this)
+    ));
+    void (<LocalizableString>(
+      this.createLocalizableString("keyDuplicationError", this)
+    ));
+    void (<LocalizableString>this.createLocalizableString("addRowText", this));
+    void (<LocalizableString>(
+      this.createLocalizableString("removeRowText", this)
+    ));
   }
   public getType(): string {
     return "matrixdynamic";

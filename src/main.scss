@@ -66,10 +66,13 @@ $label-disabled-color: rgba(64, 64, 64, 0.5);
   input:not([type="button"]):not([type="reset"]):not([type="submit"]):not([type="image"]):not([type="checkbox"]):not([type="radio"]),
   select,
   textarea {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
     border: 1px solid $border-color;
     color: $text-color;
     background-color: $inputs-background-color;
-
+    opacity: 1;
     &:focus {
       border: 1px solid $main-color;
     }
@@ -201,6 +204,9 @@ $label-disabled-color: rgba(64, 64, 64, 0.5);
 
   input[type="button"],
   button {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
     font-size: 0.85em;
     font-weight: bold;
     //color: $body-background-color;

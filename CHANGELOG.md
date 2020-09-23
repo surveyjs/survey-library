@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.8.4](https://github.com/surveyjs/survey-library/compare/v1.8.3...v1.8.4) (2020-09-22)
+
+
+### Bug Fixes
+
+* choicesByUrl doesn't work with {NOCACHE}/{CACHE} [#2406](https://github.com/surveyjs/survey-library/issues/2406) ([ef9a10d](https://github.com/surveyjs/survey-library/commit/ef9a10d08ed7b6c8127bb0f05ae898293e32f388))
+
 ### [1.8.3](https://github.com/surveyjs/survey-library/compare/v1.8.2...v1.8.3) (2020-09-16)
 
 

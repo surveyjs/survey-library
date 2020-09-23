@@ -19,13 +19,13 @@
 .sv-matrix__text {
   cursor: pointer;
 }
-.sv-matrix__text--сhecked {
+.sv-matrix__text--checked {
   color: #ffffff;
   background-color: $main-color;
 }
 .sv-matrix__text--disabled {
   cursor: default;
-  &.sv-matrix__text--сhecked {
+  &.sv-matrix__text--checked {
     background-color: $disable-color;
   }
 }

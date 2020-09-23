@@ -1,6 +1,6 @@
 <div data-bind="css: model.css.progressButtonsContainerCenter">
     <div data-bind="css: model.css.progressButtonsContainer">
-        <img data-bind="css: model.css.progressButtonsImageButton">
+        <img data-bind="css: model.css.progressButtonsImageButtonLeft">
         <div data-bind="css: model.css.progressButtonsListContainer">
             <ul data-bind="foreach: model.visiblePages, css: model.css.progressButtonsList">
                 <li data-bind="css: $parent.getListElementCss($index), click: $parent.clickListElement">
@@ -9,6 +9,6 @@
                 </li>
             </ul>
         </div>
-        <img data-bind="css: model.css.progressButtonsImageButton">
+        <img data-bind="css: model.css.progressButtonsImageButtonRight">
     </div>
 </div>

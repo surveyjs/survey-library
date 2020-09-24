@@ -173,7 +173,7 @@ frameworks.forEach((framework) => {
       }
     }
 
-    assert(rnd_count >= 4); // beacuse of 'none', 'asc', 'desc' and if 4 it is really rnd
+    assert(rnd_count >= 4); // because of 'none', 'asc', 'desc' and if 4 it is really rnd
   });
 
   test(`check integrity`, async (t) => {

@@ -38,10 +38,12 @@ export class QuestionTextModel extends Question {
   public set inputType(val: string) {
     val = val.toLowerCase();
     if (val == "datetime_local") val = "datetime-local";
-    this.min = undefined;
-    this.max = undefined;
-    this.step = undefined;
     this.setPropertyValue("inputType", val.toLowerCase());
+    if (!this.isLoadingFromJson) {
+      this.min = undefined;
+      this.max = undefined;
+      this.step = undefined;
+    }
   }
   /**
    * Gets or sets a value that specifies how the question updates it's value.

@@ -4102,3 +4102,22 @@ QUnit.test("matirix and survey.onValueChanged event, Bug#2408", function (
   );
   assert.notOk(rows[0].value, "Clear value onValueChanging event");
 });
+QUnit.test(
+  "min/max properties do not load if they are upper inputType, Bug#",
+  function (assert) {
+    var survey = new SurveyModel({
+      elements: [
+        {
+          type: "text",
+          name: "q1",
+          min: 0,
+          max: 100,
+          inputType: "number",
+        },
+      ],
+    });
+    var question = <QuestionTextModel>survey.getQuestionByName("q1");
+    assert.equal(question.min, 0, "min value is set");
+    assert.equal(question.max, 100, "max value is set");
+  }
+);

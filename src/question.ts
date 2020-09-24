@@ -1136,7 +1136,18 @@ export class Question
     return this.getPropertyValue("defaultValue");
   }
   public set defaultValue(val: any) {
+    if (this.isValueExpression(val)) {
+      this.defaultValueExpression = val.substr(1);
+      return;
+    }
     this.setPropertyValue("defaultValue", this.convertDefaultValue(val));
+    this.updateValueWithDefaults();
+  }
+  public get defaultValueExpression(): any {
+    return this.getPropertyValue("defaultValueExpression");
+  }
+  public set defaultValueExpression(val: any) {
+    this.setPropertyValue("defaultValueExpression", val);
     this.updateValueWithDefaults();
   }
   /**
@@ -1252,18 +1263,22 @@ export class Question
     return this.defaultValue;
   }
   protected isDefaultValueEmpty(): boolean {
-    return this.isValueEmpty(this.defaultValue);
+    return !this.defaultValueExpression && this.isValueEmpty(this.defaultValue);
   }
   protected setDefaultValue() {
     this.value = this.getValueAndRunExpression(
-      Helpers.getUnbindValue(this.defaultValue)
+      Helpers.getUnbindValue(this.defaultValue),
+      this.defaultValueExpression
     );
   }
-  protected getValueAndRunExpression(val: any) {
-    if (!val) return val;
-    if (!!val && typeof val == "string" && val.length > 0 && val[0] == "=") {
-      val = this.runExpression(val.substr(1));
+  protected isValueExpression(val: any) {
+    return !!val && typeof val == "string" && val.length > 0 && val[0] == "=";
+  }
+  protected getValueAndRunExpression(val: any, expression: string) {
+    if (!!expression) {
+      val = this.runExpression(expression);
     }
+    if (!val) return val;
     if (val instanceof Date) {
       val = val.toISOString().slice(0, 10);
     }
@@ -1712,6 +1727,10 @@ Serializer.addClass("question", [
   "valueName",
   "enableIf:condition",
   "defaultValue:value",
+  {
+    name: "defaultValueExpression:expression",
+    category: "logic",
+  },
   "correctAnswer:value",
   "isRequired:switch",
   "requiredIf:condition",

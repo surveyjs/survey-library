@@ -13,7 +13,7 @@ export class QuestionTextModel extends Question {
     super(name);
     this.createLocalizableString("placeHolder", this);
     this.registerFunctionOnPropertiesValueChanged(
-      ["min", "max", "inputType"],
+      ["min", "max", "inputType", "minValueExpression", "maxValueExpression"],
       () => {
         this.setRenderedMinMax();
       }
@@ -113,6 +113,10 @@ export class QuestionTextModel extends Question {
     return this.getPropertyValue("min");
   }
   public set min(val: string) {
+    if (this.isValueExpression(val)) {
+      this.minValueExpression = val.substr(1);
+      return;
+    }
     this.setPropertyValue("min", val);
   }
   /**
@@ -122,7 +126,23 @@ export class QuestionTextModel extends Question {
     return this.getPropertyValue("max");
   }
   public set max(val: string) {
+    if (this.isValueExpression(val)) {
+      this.maxValueExpression = val.substr(1);
+      return;
+    }
     this.setPropertyValue("max", val);
+  }
+  public get minValueExpression(): string {
+    return this.getPropertyValue("minValueExpression", "");
+  }
+  public set minValueExpression(val: string) {
+    this.setPropertyValue("minValueExpression", val);
+  }
+  public get maxValueExpression(): string {
+    return this.getPropertyValue("maxValueExpression", "");
+  }
+  public set maxValueExpression(val: string) {
+    this.setPropertyValue("maxValueExpression", val);
   }
   public get renderedMin(): any {
     return this.getPropertyValue("renderedMin");
@@ -133,9 +153,9 @@ export class QuestionTextModel extends Question {
   private setRenderedMinMax() {
     this.setPropertyValue(
       "renderedMin",
-      this.getValueAndRunExpression(this.min)
+      this.getValueAndRunExpression(this.min, this.minValueExpression)
     );
-    var val = this.getValueAndRunExpression(this.max);
+    var val = this.getValueAndRunExpression(this.max, this.maxValueExpression);
     if (
       !val &&
       (this.inputType === "date" || this.inputType === "datetime-local")
@@ -262,6 +282,24 @@ Serializer.addClass(
       },
       onPropertyEditorUpdate: function (obj: any, propertyEditor: any) {
         propertyEditor.inputType = obj.inputType;
+      },
+    },
+    {
+      name: "minValueExpression:expression",
+      category: "logic",
+      dependsOn: "inputType",
+      visibleIf: function (obj: any) {
+        if (!obj) return false;
+        return minMaxTypes.indexOf(obj.inputType) !== -1;
+      },
+    },
+    {
+      name: "maxValueExpression:expression",
+      category: "logic",
+      dependsOn: "inputType",
+      visibleIf: function (obj: any) {
+        if (!obj) return false;
+        return minMaxTypes.indexOf(obj.inputType) !== -1;
       },
     },
     {

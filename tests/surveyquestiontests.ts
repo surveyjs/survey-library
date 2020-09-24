@@ -3666,9 +3666,52 @@ QUnit.test("QuestionText renderedMin/renderedMax, today()", function (assert) {
   var todayStr = new Date().toISOString().slice(0, 10);
   assert.equal(question.renderedMax, todayStr, "today in format yyyy-mm-dd");
 });
+QUnit.test("QuestionText min/maxValueExpression, today()", function (assert) {
+  var survey = new SurveyModel({
+    questions: [{ type: "text", name: "q", maxValueExpression: "today()" }],
+  });
+  var question = <QuestionTextModel>survey.getQuestionByName("q");
+  var todayStr = new Date().toISOString().slice(0, 10);
+  assert.equal(
+    question.renderedMax,
+    todayStr,
+    "renderedMax: today in format yyyy-mm-dd"
+  );
+});
+QUnit.test("QuestionText min/maxValueExpression, today()", function (assert) {
+  var survey = new SurveyModel({
+    questions: [{ type: "text", name: "q", min: "=today()" }],
+  });
+  var question = <QuestionTextModel>survey.getQuestionByName("q");
+  assert.equal(
+    question.minValueExpression,
+    "today()",
+    "convert the min into minValueExpression"
+  );
+  assert.notOk(question.min, "min value becomes empty");
+  var todayStr = new Date().toISOString().slice(0, 10);
+  assert.equal(
+    question.renderedMin,
+    todayStr,
+    "renderedMin: today in format yyyy-mm-dd"
+  );
+});
 QUnit.test("Question defaultValue as expression", function (assert) {
   var survey = new SurveyModel({
     questions: [{ type: "text", name: "q", defaultValue: "=1+2" }],
+  });
+  var question = <QuestionTextModel>survey.getQuestionByName("q");
+  assert.notOk(question.defaultValue, "defaultValue is empty");
+  assert.equal(
+    question.defaultValueExpression,
+    "1+2",
+    "convert expression from default value"
+  );
+  assert.equal(question.value, 3, "run expression");
+});
+QUnit.test("Question defaultValueExpression", function (assert) {
+  var survey = new SurveyModel({
+    questions: [{ type: "text", name: "q", defaultValueExpression: "1+2" }],
   });
   var question = <QuestionTextModel>survey.getQuestionByName("q");
   assert.equal(question.value, 3, "run expression");

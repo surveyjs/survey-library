@@ -26,8 +26,13 @@ export var progressButtonsViewModel: any = function(params: any) {
       params.model.currentPageNo = i;
     }
   };
+  var clickScrollButton = function(listContainerElement: Element, scrollToLeft: boolean) {
+    listContainerElement.scrollLeft += (scrollToLeft ? -1 : 1) * 70;
+  };
   return { model: params.model,
-    getListElementCss: getListElementCss, clickListElement: clickListElement };
+    getListElementCss: getListElementCss,
+    clickListElement: clickListElement,
+    clickScrollButton: clickScrollButton };
   //nodeDOMremoval чтобы отключать таймер
 };
 

@@ -59,7 +59,36 @@ function loadFileFromBase64(b64Data: string, fileName: string) {
 function isMobile() {
   return typeof window.orientation !== "undefined";
 }
+function isElementVisible(
+  element: HTMLElement,
+  threshold: number = 0,
+  mode: "visible" | "above" | "below" = "visible"
+) {
+  var elementRect = element.getBoundingClientRect();
+  var viewHeight = Math.max(
+    document.documentElement.clientHeight,
+    window.innerHeight
+  );
+  var isAbove = elementRect.bottom - threshold < 0;
+  var isBelow = elementRect.top - viewHeight + threshold >= 0;
 
+  return mode === "above"
+    ? isAbove
+    : mode === "below"
+    ? isBelow
+    : !isAbove && !isBelow;
+}
+function findScrollableParent(element: HTMLElement): HTMLElement {
+  if (!element) {
+    return undefined;
+  }
+
+  if (element.scrollHeight > element.clientHeight) {
+    return element;
+  } else {
+    return findScrollableParent(element.parentElement);
+  }
+}
 export {
   compareVersions,
   confirmAction,
@@ -67,4 +96,6 @@ export {
   detectIEBrowser,
   loadFileFromBase64,
   isMobile,
+  isElementVisible,
+  findScrollableParent,
 };

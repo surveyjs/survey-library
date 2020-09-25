@@ -108,4 +108,9 @@ export var settings = {
    * Set it true, and a question next to a question with hidden title number will increase it's number.
    */
   setQuestionVisibleIndexForHiddenNumber: false,
+  /**
+   * By default all rows are rendered no matters whwther they are visible.
+   * Set it true, and survey markup rows will be rendered only if they are visible in viewport.
+   */
+  lazyRowsRendering: false,
 };

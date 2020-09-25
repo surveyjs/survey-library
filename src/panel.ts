@@ -22,6 +22,7 @@ import { ILocalizableOwner, LocalizableString } from "./localizablestring";
 import { OneAnswerRequiredError } from "./error";
 import { PageModel } from "./page";
 import { settings } from "./settings";
+import { findScrollableParent, isElementVisible } from "./utils/utils";
 
 export class DragDropInfo {
   constructor(
@@ -35,8 +36,29 @@ export class DragDropInfo {
 }
 
 export class QuestionRowModel extends Base {
+  protected lazyRenderingBehavior(
+    rowContainerDiv: HTMLElement,
+    model: QuestionRowModel
+  ) {
+    var scrollableParent: any = findScrollableParent(rowContainerDiv);
+    if (!scrollableParent) {
+      scrollableParent = window;
+    }
+    var updateVisibility = () => {
+      var isRowContainerDivVisible = isElementVisible(rowContainerDiv, 50);
+      model.isNeedRender = isRowContainerDivVisible;
+      if (isRowContainerDivVisible) {
+        scrollableParent.removeEventListener("scroll", updateVisibility);
+      }
+    };
+    setTimeout(() => {
+      scrollableParent.addEventListener("scroll", updateVisibility);
+      updateVisibility();
+    }, 10);
+  }
   constructor(public panel: PanelModelBase) {
     super();
+    this.isNeedRender = !settings.lazyRowsRendering;
     this.visible = panel.areInvisibleElementsShowing;
     this.createNewArray("elements");
   }
@@ -48,6 +70,12 @@ export class QuestionRowModel extends Base {
   }
   public set visible(val: boolean) {
     this.setPropertyValue("visible", val);
+  }
+  public get isNeedRender(): boolean {
+    return this.getPropertyValue("isneedrender", true);
+  }
+  public set isNeedRender(val: boolean) {
+    this.setPropertyValue("isneedrender", val);
   }
   public get visibleElements(): Array<IElement> {
     return this.elements.filter((e) => e.isVisible);

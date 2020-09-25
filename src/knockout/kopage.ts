@@ -42,6 +42,12 @@ export class QuestionRow extends QuestionRowModel {
       (<Question>element).afterRender(el);
     }
   }
+  rowAfterRender(elements: HTMLElement[], model: QuestionRow) {
+    if (!model.isNeedRender) {
+      var rowContainerDiv = elements[0].parentElement;
+      model.lazyRenderingBehavior(rowContainerDiv, model);
+    }
+  }
 }
 
 export class PanelImplementorBase extends ImplementorBase {

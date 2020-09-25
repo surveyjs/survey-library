@@ -36,7 +36,7 @@ export class DragDropInfo {
 }
 
 export class QuestionRowModel extends Base {
-  protected lazyRenderingBehavior(
+  public lazyRenderingBehavior(
     rowContainerDiv: HTMLElement,
     model: QuestionRowModel
   ) {

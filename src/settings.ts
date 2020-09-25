@@ -111,6 +111,7 @@ export var settings = {
   /**
    * By default all rows are rendered no matters whwther they are visible.
    * Set it true, and survey markup rows will be rendered only if they are visible in viewport.
+   * This feature is experimantal and works in survey-knockout, survey-angular and survey-jquery only
    */
   lazyRowsRendering: false,
 };

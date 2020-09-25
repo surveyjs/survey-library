@@ -1,14 +1,14 @@
 <div data-bind="css: model.css.progressButtonsContainerCenter">
     <div data-bind="css: model.css.progressButtonsContainer">
-        <img data-bind="css: model.css.progressButtonsImageButtonLeft, click: clickScrollButton.bind($data, $element.nextElementSibling, true)">
+        <img data-bind="css: getScrollButtonCss(true), click: clickScrollButton.bind($data, $element.nextElementSibling, true)">
         <div data-bind="css: model.css.progressButtonsListContainer">
             <ul data-bind="foreach: model.visiblePages, css: model.css.progressButtonsList">
-                <li data-bind="css: $parent.getListElementCss($index), click: $parent.clickListElement">
+                <li data-bind="css: $parent.getListElementCss($index), click: $parent.clickListElement.bind($parent)">
                     <div data-bind="css: css.progressButtonsPageTitle, text: navigationTitle || name"></div>
                     <div data-bind="css: css.progressButtonsPageDescription, text: navigationDescription"></div>
                 </li>
             </ul>
         </div>
-        <img data-bind="css: model.css.progressButtonsImageButtonRight, click: clickScrollButton.bind($data, $element.previousElementSibling, false)">
+        <img data-bind="css: getScrollButtonCss(false), click: clickScrollButton.bind($data, $element.previousElementSibling, false)">
     </div>
 </div>

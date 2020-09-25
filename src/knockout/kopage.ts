@@ -6,6 +6,7 @@ import { SurveyElement, IElement } from "../base";
 import { ElementFactory } from "../questionfactory";
 import { ImplementorBase } from "./kobase";
 import { Question } from "../question";
+import { settings } from "../settings";
 
 export class QuestionRow extends QuestionRowModel {
   koGetType: any;
@@ -46,6 +47,10 @@ export class QuestionRow extends QuestionRowModel {
     if (!model.isNeedRender) {
       var rowContainerDiv = elements[0].parentElement;
       model.lazyRenderingBehavior(rowContainerDiv, model);
+      ko.utils.domNodeDisposal.addDisposeCallback(
+        rowContainerDiv,
+        () => (model.isNeedRender = !settings.lazyRowsRendering)
+      );
     }
   }
 }

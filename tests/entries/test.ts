@@ -1,6 +1,7 @@
 // common
 export * from "../helperstests";
 export * from "../basetests";
+export * from "../bindablePropertiesTests";
 export * from "../localizablestringtests";
 export * from "../choicesRestfulltests";
 export * from "../jsonobjecttests";

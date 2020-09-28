@@ -33,7 +33,6 @@ export class QuestionMatrixDynamicModel
   extends QuestionMatrixDropdownModelBase
   implements IMatrixDropdownData {
   private rowCounter = 0;
-  private rowCountValue: number = 2;
   private initialRowCount: number = 2;
   private setRowCountValueFromData: boolean = false;
 
@@ -126,6 +125,12 @@ export class QuestionMatrixDynamicModel
    */
   public get rowCount(): number {
     return this.rowCountValue;
+  }
+  private get rowCountValue(): number {
+    return this.getPropertyValue("rowCount", 2);
+  }
+  private set rowCountValue(val: number) {
+    this.setPropertyValue("rowCount", val);
   }
   public set rowCount(val: number) {
     if (val < 0 || val > settings.matrixMaximumRowCount) return;

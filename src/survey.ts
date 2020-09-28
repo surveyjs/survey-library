@@ -3979,6 +3979,9 @@ export class SurveyModel
         value: newValue,
       });
     }
+    for (var i = 0; i < this.pages.length; i++) {
+      this.pages[i].checkBindableProperties(valueName, newValue);
+    }
     this.notifyElementsOnAnyValueOrVariableChanged(valueName);
   }
   private notifyElementsOnAnyValueOrVariableChanged(name: string) {

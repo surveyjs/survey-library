@@ -3,6 +3,7 @@ import { HashTable, Helpers } from "./helpers";
 import {
   CustomPropertiesCollection,
   JsonObject,
+  JsonObjectProperty,
   Serializer,
 } from "./jsonobject";
 import { settings } from "./settings";
@@ -264,6 +265,61 @@ export interface IProgressInfo {
   requiredQuestionCount: number;
   requiredAnsweredQuestionCount: number;
 }
+
+export class BindableProperties {
+  private bindings: any = null;
+  constructor() {}
+  public getType(): string {
+    return "bindableproperties";
+  }
+  public setBinding(propertyName: string, valueName: string) {
+    if (!this.bindings) this.bindings = {};
+    if (!!valueName) {
+      this.bindings[propertyName] = valueName;
+    } else {
+      delete this.bindings[propertyName];
+      if (Object.keys(this.bindings).length == 0) {
+        this.bindings = null;
+      }
+    }
+  }
+  public clearBinding(propertyName: string) {
+    this.setBinding(propertyName, "");
+  }
+  public isEmpty(): boolean {
+    return !this.bindings;
+  }
+  public getValueNameByPropertyName(propertyName: string): string {
+    if (!this.bindings) return undefined;
+    return this.bindings[propertyName];
+  }
+  public getPropertiesByValueName(valueName: string): Array<string> {
+    if (!this.bindings) return [];
+    var res: Array<string> = [];
+    for (var key in this.bindings) {
+      if (this.bindings[key] == valueName) {
+        res.push(key);
+      }
+    }
+    return res;
+  }
+  public getJson(): any {
+    if (this.isEmpty()) return null;
+    var res: any = {};
+    for (var key in this.bindings) {
+      res[key] = this.bindings[key];
+    }
+    return res;
+  }
+  public setJson(value: any) {
+    this.bindings = null;
+    if (!value) return;
+    this.bindings = {};
+    for (var key in value) {
+      this.bindings[key] = value[key];
+    }
+  }
+}
 /**
  * The base class for SurveyJS objects.
  */
@@ -290,6 +346,7 @@ export class Base {
   private propertyHash: { [index: string]: any } = {};
   private localizableStrings: { [index: string]: LocalizableString };
   private arraysInfo: { [index: string]: any };
+  private bindablePropertiesValue = new BindableProperties();
   private onPropChangeFunctions: Array<{
     name: string;
     func: (...args: any[]) => void;
@@ -342,6 +399,19 @@ export class Base {
   public getType(): string {
     return "base";
   }
+  public get bindableProperties(): BindableProperties {
+    return this.bindablePropertiesValue;
+  }
+  checkBindableProperties(valueName: string, value: any) {}
+  protected updateBindableProperties(propertyName: string, value: any) {
+    var valueName = this.bindableProperties.getValueNameByPropertyName(
+      propertyName
+    );
+    if (!!valueName) {
+      this.updateBindableValue(valueName, value);
+    }
+  }
+  protected updateBindableValue(valueName: string, value: any) {}
   /**
    * Returns the element template name without prefix. Typically it equals to getType().
    * @see getType
@@ -503,6 +573,7 @@ export class Base {
     target?: Base
   ) {
     if (this.isLoadingFromJson) return;
+    this.updateBindableProperties(name, newValue);
     this.onPropertyValueChanged(name, oldValue, newValue);
     this.onPropertyChanged.fire(this, {
       name: name,
@@ -1082,6 +1153,14 @@ export class SurveyElement extends Base implements ISurveyElement {
     return name;
   }
   protected onNameChanged(oldValue: string) {}
+  protected updateBindableValue(valueName: string, value: any) {
+    if (
+      !!this.data &&
+      !Helpers.isTwoValueEquals(value, this.data.getValue(valueName))
+    ) {
+      this.data.setValue(valueName, value, false);
+    }
+  }
   /**
    * The list of errors. It is created by callig hasErrors functions
    * @see hasErrors

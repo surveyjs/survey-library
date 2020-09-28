@@ -1198,8 +1198,15 @@ export class PanelModelBase
     conditionRunner.run(values, properties);
   }
   onAnyValueChanged(name: string) {
-    for (var i = 0; i < this.elements.length; i++) {
-      this.elements[i].onAnyValueChanged(name);
+    var els = this.elements;
+    for (var i = 0; i < els.length; i++) {
+      els[i].onAnyValueChanged(name);
+    }
+  }
+  checkBindableProperties(valueName: string, value: any) {
+    var els = this.elements;
+    for (var i = 0; i < els.length; i++) {
+      (<Base>(<any>els[i])).checkBindableProperties(valueName, value);
     }
   }
   protected dragDropAddTarget(dragDropInfo: DragDropInfo) {

@@ -1611,6 +1611,13 @@ export class Question
   }
   public clearUnusedValues() {}
   onAnyValueChanged(name: string) {}
+  checkBindableProperties(valueName: string, value: any) {
+    if (this.bindableProperties.isEmpty() || !this.data) return;
+    var props = this.bindableProperties.getPropertiesByValueName(valueName);
+    for (var i = 0; i < props.length; i++) {
+      this[props[i]] = value;
+    }
+  }
   //ILocalizableOwner
   locOwner: ILocalizableOwner = null;
   /**
@@ -1744,5 +1751,6 @@ Serializer.addClass("question", [
     baseClassName: "surveyvalidator",
     classNamePart: "validator",
   },
+  { name: "bindableProperties", serializationProperty: "bindableProperties" },
 ]);
 Serializer.addAlterNativeClassName("question", "questionbase");

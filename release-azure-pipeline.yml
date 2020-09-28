@@ -66,6 +66,16 @@ steps:
     git push --follow-tags origin master;
   displayName: 'push release commit to github'
 
+- task: GitHubRelease@1
+  inputs:
+    gitHubConnection: 'github.com_dmitrykurmanov'
+    repositoryName: 'surveyjs/survey-library'
+    action: 'create'
+    target: '$(Build.SourceVersion)'
+    tagSource: 'gitTag'
+    changeLogCompareToRelease: 'lastFullRelease'
+    changeLogType: 'commitBased'
+
 - script: |
     npm run doc_gen
   displayName: 'generate docs'

@@ -2932,6 +2932,7 @@ export class SurveyModel extends Base
   }
   private doCurrentPageCompleteCore(doComplete: boolean): boolean {
     if (this.doServerValidation()) return false;
+    this.currentPage.passed = true;
     if (doComplete) {
       this.doComplete();
     } else {
@@ -3265,7 +3266,6 @@ export class SurveyModel extends Base
       if (this.sendResultOnPageNext) {
         this.sendResult(this.surveyPostId, this.clientId, true);
       }
-      this.currentPage.passed = true;
       var vPages = this.visiblePages;
       var index = vPages.indexOf(this.currentPage);
       this.currentPage = vPages[index + 1];

@@ -137,7 +137,7 @@ QUnit.test("panel rows generation - startNewLine false", function (assert) {
 
 QUnit.test("panel rows generation - nested panel", function (assert) {
   var page = new PageModel();
-  var q1 = page.addNewQuestion("text", "q1");
+  page.addNewQuestion("text", "q1");
   var p1 = page.addNewPanel("p1");
   var p1q1 = p1.addNewQuestion("text", "p1q1");
   assert.equal(page.rows.length, 2, "There is two rows");

@@ -1,10 +1,7 @@
 import { SurveyModel } from "../src/survey";
 import { PageModel } from "../src/page";
 import { QuestionTextModel } from "../src/question_text";
-import {
-  QuestionMultipleTextModel,
-  MultipleTextItemModel
-} from "../src/question_multipletext";
+import { MultipleTextItemModel } from "../src/question_multipletext";
 import {
   QuestionMatrixDropdownModelBase,
   MatrixDropdownColumn

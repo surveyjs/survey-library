@@ -51,13 +51,24 @@ export class SurveyRow extends SurveyElementBase {
     if (!!el) {
       if (!this.row.isNeedRender) {
         var rowContainerDiv = el;
-        this.row.lazyRenderingBehavior(rowContainerDiv, this.row);
+        this.row.startLazyRendering(rowContainerDiv);
       }
     }
   }
+  public shouldComponentUpdate(nextProps: any, nextState: any): boolean {
+    if (nextProps.row !== this.row) {
+      nextProps.row.isNeedRender = this.row.isNeedRender;
+      this.stopLazyRendering();
+    }
+    return true;
+  }
+  private stopLazyRendering() {
+    this.row.stopLazyRendering();
+    this.row.isNeedRender = !settings.lazyRowsRendering;
+  }
   componentWillUnmount() {
     super.componentWillUnmount();
-    this.row.isNeedRender = !settings.lazyRowsRendering;
+    this.stopLazyRendering();
   }
 
   protected createElement(element: IElement): JSX.Element {

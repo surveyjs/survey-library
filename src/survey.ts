@@ -3980,7 +3980,7 @@ export class SurveyModel
       });
     }
     for (var i = 0; i < this.pages.length; i++) {
-      this.pages[i].checkBindableProperties(valueName, newValue);
+      this.pages[i].checkBindings(valueName, newValue);
     }
     this.notifyElementsOnAnyValueOrVariableChanged(valueName);
   }

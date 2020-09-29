@@ -1212,10 +1212,10 @@ export class PanelModelBase
       els[i].onAnyValueChanged(name);
     }
   }
-  checkBindableProperties(valueName: string, value: any) {
+  checkBindings(valueName: string, value: any) {
     var els = this.elements;
     for (var i = 0; i < els.length; i++) {
-      (<Base>(<any>els[i])).checkBindableProperties(valueName, value);
+      (<Base>(<any>els[i])).checkBindings(valueName, value);
     }
   }
   protected dragDropAddTarget(dragDropInfo: DragDropInfo) {

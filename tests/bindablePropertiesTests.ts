@@ -1,17 +1,17 @@
 import { SurveyModel } from "../src/survey";
-import { BindableProperties, Base } from "../src/base";
+import { Bindings, Base } from "../src/base";
 import { Serializer } from "../src/jsonobject";
 import { QuestionPanelDynamicModel } from "../src/question_paneldynamic";
 import { QuestionMatrixDynamicModel } from "../src/question_matrixdynamic";
 
-export default QUnit.module("BindableProperties");
+export default QUnit.module("Bindings");
 
-class BindableTester extends Base {
+class BindingsTester extends Base {
   constructor() {
     super();
   }
   public getType(): string {
-    return "bindabletester";
+    return "bindingstester";
   }
   public get strProperty(): string {
     return this.getPropertyValue("strProperty");
@@ -22,18 +22,15 @@ class BindableTester extends Base {
 }
 
 Serializer.addClass(
-  "bindabletester",
-  [
-    { name: "bindableProperties", serializationProperty: "bindableProperties" },
-    "strProperty",
-  ],
+  "bindingstester",
+  [{ name: "bindings", serializationProperty: "bindings" }, "strProperty"],
   function () {
-    return new BindableTester();
+    return new BindingsTester();
   }
 );
 
 QUnit.test("Use calculated value in expression", function (assert) {
-  var bindings = new BindableProperties();
+  var bindings = new Bindings();
   assert.equal(bindings.isEmpty(), true, "There is no binding");
   assert.notOk(
     bindings.getValueNameByPropertyName("defaultValue"),
@@ -85,20 +82,20 @@ QUnit.test("Use calculated value in expression", function (assert) {
 });
 
 QUnit.test("Serialization", function (assert) {
-  var obj = new BindableTester();
+  var obj = new BindingsTester();
   assert.deepEqual(obj.toJSON(), {}, "Object is empty");
-  obj.bindableProperties.setBinding("strProperty", "test");
+  obj.bindings.setBinding("strProperty", "test");
   assert.deepEqual(
     obj.toJSON(),
-    { bindableProperties: { strProperty: "test" } },
+    { bindings: { strProperty: "test" } },
     "serialize bindable property"
   );
 });
 QUnit.test("Load from JSON", function (assert) {
-  var obj = new BindableTester();
-  obj.fromJSON({ bindableProperties: { strProperty: "test" } });
+  var obj = new BindingsTester();
+  obj.fromJSON({ bindings: { strProperty: "test" } });
   assert.equal(
-    obj.bindableProperties.getValueNameByPropertyName("strProperty"),
+    obj.bindings.getValueNameByPropertyName("strProperty"),
     "test",
     "binding set from JSON"
   );
@@ -111,7 +108,7 @@ QUnit.test("Question, bind a property", function (assert) {
       {
         name: "q2",
         type: "text",
-        bindableProperties: {
+        bindings: {
           min: "q1",
         },
       },
@@ -119,7 +116,7 @@ QUnit.test("Question, bind a property", function (assert) {
   });
   var question = survey.getQuestionByName("q2");
   assert.equal(
-    question.bindableProperties.getValueNameByPropertyName("min"),
+    question.bindings.getValueNameByPropertyName("min"),
     "q1",
     "bindable properties serialized successful"
   );
@@ -138,7 +135,7 @@ QUnit.test("Dynamic Panel, bind panelCount", function (assert) {
         name: "panel1",
         type: "paneldynamic",
         templateElements: [{ name: "p_q1", type: "text" }],
-        bindableProperties: {
+        bindings: {
           panelCount: "q1",
         },
       },
@@ -146,7 +143,7 @@ QUnit.test("Dynamic Panel, bind panelCount", function (assert) {
   });
   var panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
   assert.equal(
-    panel.bindableProperties.getValueNameByPropertyName("panelCount"),
+    panel.bindings.getValueNameByPropertyName("panelCount"),
     "q1",
     "bindable properties serialized successful"
   );
@@ -168,7 +165,7 @@ QUnit.test("Dynamic Matrix, bind rowCount", function (assert) {
         name: "matrix1",
         type: "matrixdynamic",
         columns: [{ name: "col1" }],
-        bindableProperties: {
+        bindings: {
           rowCount: "q1",
         },
       },
@@ -176,7 +173,7 @@ QUnit.test("Dynamic Matrix, bind rowCount", function (assert) {
   });
   var matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix1");
   assert.equal(
-    matrix.bindableProperties.getValueNameByPropertyName("rowCount"),
+    matrix.bindings.getValueNameByPropertyName("rowCount"),
     "q1",
     "bindable properties serialized successful"
   );

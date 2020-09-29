@@ -1611,9 +1611,9 @@ export class Question
   }
   public clearUnusedValues() {}
   onAnyValueChanged(name: string) {}
-  checkBindableProperties(valueName: string, value: any) {
-    if (this.bindableProperties.isEmpty() || !this.data) return;
-    var props = this.bindableProperties.getPropertiesByValueName(valueName);
+  checkBindings(valueName: string, value: any) {
+    if (this.bindings.isEmpty() || !this.data) return;
+    var props = this.bindings.getPropertiesByValueName(valueName);
     for (var i = 0; i < props.length; i++) {
       this[props[i]] = value;
     }
@@ -1752,8 +1752,8 @@ Serializer.addClass("question", [
     classNamePart: "validator",
   },
   {
-    name: "bindableProperties",
-    serializationProperty: "bindableProperties",
+    name: "bindings",
+    serializationProperty: "bindings",
     visible: false,
   },
 ]);

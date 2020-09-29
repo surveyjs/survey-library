@@ -266,20 +266,20 @@ export interface IProgressInfo {
   requiredAnsweredQuestionCount: number;
 }
 
-export class BindableProperties {
-  private bindings: any = null;
+export class Bindings {
+  private values: any = null;
   constructor() {}
   public getType(): string {
-    return "bindableproperties";
+    return "bindings";
   }
   public setBinding(propertyName: string, valueName: string) {
-    if (!this.bindings) this.bindings = {};
+    if (!this.values) this.values = {};
     if (!!valueName) {
-      this.bindings[propertyName] = valueName;
+      this.values[propertyName] = valueName;
     } else {
-      delete this.bindings[propertyName];
-      if (Object.keys(this.bindings).length == 0) {
-        this.bindings = null;
+      delete this.values[propertyName];
+      if (Object.keys(this.values).length == 0) {
+        this.values = null;
       }
     }
   }
@@ -287,17 +287,17 @@ export class BindableProperties {
     this.setBinding(propertyName, "");
   }
   public isEmpty(): boolean {
-    return !this.bindings;
+    return !this.values;
   }
   public getValueNameByPropertyName(propertyName: string): string {
-    if (!this.bindings) return undefined;
-    return this.bindings[propertyName];
+    if (!this.values) return undefined;
+    return this.values[propertyName];
   }
   public getPropertiesByValueName(valueName: string): Array<string> {
-    if (!this.bindings) return [];
+    if (!this.values) return [];
     var res: Array<string> = [];
-    for (var key in this.bindings) {
-      if (this.bindings[key] == valueName) {
+    for (var key in this.values) {
+      if (this.values[key] == valueName) {
         res.push(key);
       }
     }
@@ -306,17 +306,17 @@ export class BindableProperties {
   public getJson(): any {
     if (this.isEmpty()) return null;
     var res: any = {};
-    for (var key in this.bindings) {
-      res[key] = this.bindings[key];
+    for (var key in this.values) {
+      res[key] = this.values[key];
     }
     return res;
   }
   public setJson(value: any) {
-    this.bindings = null;
+    this.values = null;
     if (!value) return;
-    this.bindings = {};
+    this.values = {};
     for (var key in value) {
-      this.bindings[key] = value[key];
+      this.values[key] = value[key];
     }
   }
 }
@@ -346,7 +346,7 @@ export class Base {
   private propertyHash: { [index: string]: any } = {};
   private localizableStrings: { [index: string]: LocalizableString };
   private arraysInfo: { [index: string]: any };
-  private bindablePropertiesValue = new BindableProperties();
+  private bindingsValue = new Bindings();
   private onPropChangeFunctions: Array<{
     name: string;
     func: (...args: any[]) => void;
@@ -399,19 +399,17 @@ export class Base {
   public getType(): string {
     return "base";
   }
-  public get bindableProperties(): BindableProperties {
-    return this.bindablePropertiesValue;
+  public get bindings(): Bindings {
+    return this.bindingsValue;
   }
-  checkBindableProperties(valueName: string, value: any) {}
-  protected updateBindableProperties(propertyName: string, value: any) {
-    var valueName = this.bindableProperties.getValueNameByPropertyName(
-      propertyName
-    );
+  checkBindings(valueName: string, value: any) {}
+  protected updateBindings(propertyName: string, value: any) {
+    var valueName = this.bindings.getValueNameByPropertyName(propertyName);
     if (!!valueName) {
-      this.updateBindableValue(valueName, value);
+      this.updateBindingValue(valueName, value);
     }
   }
-  protected updateBindableValue(valueName: string, value: any) {}
+  protected updateBindingValue(valueName: string, value: any) {}
   /**
    * Returns the element template name without prefix. Typically it equals to getType().
    * @see getType
@@ -573,7 +571,7 @@ export class Base {
     target?: Base
   ) {
     if (this.isLoadingFromJson) return;
-    this.updateBindableProperties(name, newValue);
+    this.updateBindings(name, newValue);
     this.onPropertyValueChanged(name, oldValue, newValue);
     this.onPropertyChanged.fire(this, {
       name: name,
@@ -1153,7 +1151,7 @@ export class SurveyElement extends Base implements ISurveyElement {
     return name;
   }
   protected onNameChanged(oldValue: string) {}
-  protected updateBindableValue(valueName: string, value: any) {
+  protected updateBindingValue(valueName: string, value: any) {
     if (
       !!this.data &&
       !Helpers.isTwoValueEquals(value, this.data.getValue(valueName))

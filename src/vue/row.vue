@@ -33,7 +33,7 @@ export class Row extends Vue {
       VueSurveyModel.updatePropertiesHash(this.row);
       if (!this.row.isNeedRender) {
         var rowContainerDiv = this.$el;
-        this.row.lazyRenderingBehavior(rowContainerDiv, this.row);
+        this.row.startLazyRendering(rowContainerDiv);
       }
     }
   }

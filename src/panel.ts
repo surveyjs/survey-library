@@ -36,25 +36,34 @@ export class DragDropInfo {
 }
 
 export class QuestionRowModel extends Base {
-  public lazyRenderingBehavior(
-    rowContainerDiv: HTMLElement,
-    model: QuestionRowModel
-  ) {
-    var scrollableParent: any = findScrollableParent(rowContainerDiv);
-    if (!scrollableParent) {
-      scrollableParent = window;
+  private _scrollableParent: any = undefined;
+  private _updateVisibility: any = undefined;
+  public startLazyRendering(rowContainerDiv: HTMLElement) {
+    this._scrollableParent = findScrollableParent(rowContainerDiv);
+    if (!this._scrollableParent) {
+      this._scrollableParent = window;
     }
-    var updateVisibility = () => {
+    this._updateVisibility = () => {
       var isRowContainerDivVisible = isElementVisible(rowContainerDiv, 50);
-      model.isNeedRender = isRowContainerDivVisible;
-      if (isRowContainerDivVisible) {
-        scrollableParent.removeEventListener("scroll", updateVisibility);
+      if (!this.isNeedRender && isRowContainerDivVisible) {
+        this.isNeedRender = true;
+        this.stopLazyRendering();
       }
     };
     setTimeout(() => {
-      scrollableParent.addEventListener("scroll", updateVisibility);
-      updateVisibility();
+      this._scrollableParent.addEventListener("scroll", this._updateVisibility);
+      this._updateVisibility();
     }, 10);
+  }
+  public stopLazyRendering() {
+    if (!!this._scrollableParent && !!this._updateVisibility) {
+      this._scrollableParent.removeEventListener(
+        "scroll",
+        this._updateVisibility
+      );
+    }
+    this._scrollableParent = undefined;
+    this._updateVisibility = undefined;
   }
   constructor(public panel: PanelModelBase) {
     super();

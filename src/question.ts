@@ -1751,6 +1751,10 @@ Serializer.addClass("question", [
     baseClassName: "surveyvalidator",
     classNamePart: "validator",
   },
-  { name: "bindableProperties", serializationProperty: "bindableProperties" },
+  {
+    name: "bindableProperties",
+    serializationProperty: "bindableProperties",
+    visible: false,
+  },
 ]);
 Serializer.addAlterNativeClassName("question", "questionbase");

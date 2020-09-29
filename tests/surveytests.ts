@@ -169,6 +169,10 @@ QUnit.test("PageModel navigationTitle and navigationDescription properties", fun
   assert.equal(page.locNavigationTitle.renderedHtml,
     "Title",
     "The locNavigationTitle property correspond navigationTitle");
+  page.navigationDescription = "Description";
+  assert.equal(page.locNavigationDescription.renderedHtml,
+    "Description",
+    "The locNavigationDescription property correspond navigationDescription");
 });
 QUnit.test("PageModel passed property", function (assert) {
   var json = {

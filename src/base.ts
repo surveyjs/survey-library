@@ -267,10 +267,23 @@ export interface IProgressInfo {
 }
 
 export class Bindings {
+  private properties: Array<JsonObjectProperty> = null;
   private values: any = null;
-  constructor() {}
+  constructor(private obj: Base) {}
   public getType(): string {
     return "bindings";
+  }
+  public getNames(): Array<string> {
+    var res: Array<string> = [];
+    if (!this.properties) {
+      this.fillProperties();
+    }
+    for (var i = 0; i < this.properties.length; i++) {
+      if (this.properties[i].isVisible("", this.obj)) {
+        res.push(this.properties[i].name);
+      }
+    }
+    return res;
   }
   public setBinding(propertyName: string, valueName: string) {
     if (!this.values) this.values = {};
@@ -319,6 +332,15 @@ export class Bindings {
       this.values[key] = value[key];
     }
   }
+  private fillProperties() {
+    this.properties = [];
+    var objProperties = Serializer.getPropertiesByObj(this.obj);
+    for (var i = 0; i < objProperties.length; i++) {
+      if (objProperties[i].isBindable) {
+        this.properties.push(objProperties[i]);
+      }
+    }
+  }
 }
 /**
  * The base class for SurveyJS objects.
@@ -346,7 +368,7 @@ export class Base {
   private propertyHash: { [index: string]: any } = {};
   private localizableStrings: { [index: string]: LocalizableString };
   private arraysInfo: { [index: string]: any };
-  private bindingsValue = new Bindings();
+  private bindingsValue: Bindings;
   private onPropChangeFunctions: Array<{
     name: string;
     func: (...args: any[]) => void;
@@ -389,6 +411,7 @@ export class Base {
   createArrayCoreHandler: (propertiesHash: any, name: string) => Array<any>;
 
   public constructor() {
+    this.bindingsValue = new Bindings(this);
     CustomPropertiesCollection.createProperties(this);
     this.onBaseCreating();
   }

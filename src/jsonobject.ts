@@ -16,6 +16,7 @@ export class JsonObjectProperty implements IObject {
     "isSerializable",
     "isLightSerializable",
     "isCustom",
+    "isBindable",
     "isDynamicChoices",
     "isLocalizableValue",
     "className",
@@ -54,6 +55,7 @@ export class JsonObjectProperty implements IObject {
   public isLightSerializable: boolean = true;
   public isCustom: boolean = false;
   public isDynamicChoices: boolean = false; //TODO obsolete, use dependsOn attribute
+  public isBindable: boolean = false;
   public className: string = null;
   public alternativeName: string = null;
   public classNamePart: string = null;
@@ -463,6 +465,9 @@ export class JsonMetadataClass {
       }
       if (!Helpers.isValueEmpty(propInfo.isDynamicChoices)) {
         prop.isDynamicChoices = propInfo.isDynamicChoices;
+      }
+      if (!Helpers.isValueEmpty(propInfo.isBindable)) {
+        prop.isBindable = propInfo.isBindable;
       }
       if (propInfo.visible === true || propInfo.visible === false) {
         prop.visible = propInfo.visible;

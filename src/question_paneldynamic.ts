@@ -1579,6 +1579,7 @@ Serializer.addClass(
     { name: "allowRemovePanel:boolean", default: true },
     {
       name: "panelCount:number",
+      isBindable: true,
       default: 0,
       choices: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
     },

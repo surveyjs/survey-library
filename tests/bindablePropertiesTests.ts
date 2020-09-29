@@ -23,14 +23,17 @@ class BindingsTester extends Base {
 
 Serializer.addClass(
   "bindingstester",
-  [{ name: "bindings", serializationProperty: "bindings" }, "strProperty"],
+  [
+    { name: "bindings", serializationProperty: "bindings" },
+    { name: "strProperty", isBindable: true },
+  ],
   function () {
     return new BindingsTester();
   }
 );
 
 QUnit.test("Use calculated value in expression", function (assert) {
-  var bindings = new Bindings();
+  var bindings = new Bindings(null);
   assert.equal(bindings.isEmpty(), true, "There is no binding");
   assert.notOk(
     bindings.getValueNameByPropertyName("defaultValue"),
@@ -185,4 +188,32 @@ QUnit.test("Dynamic Matrix, bind rowCount", function (assert) {
   assert.equal(survey.getValue("q1"), 6, "We added two rows");
   matrix.removeRow(0);
   assert.equal(survey.getValue("q1"), 5, "We removed one row");
+});
+
+QUnit.test("BindingsTester, getNames()", function (assert) {
+  assert.deepEqual(
+    new BindingsTester().bindings.getNames(),
+    ["strProperty"],
+    "One bindable property"
+  );
+  Serializer.findProperty("bindingstester", "strProperty").visible = false;
+  assert.deepEqual(
+    new BindingsTester().bindings.getNames(),
+    [],
+    "Made bindable property invisible"
+  );
+  Serializer.findProperty("bindingstester", "strProperty").visible = true;
+  assert.deepEqual(
+    new BindingsTester().bindings.getNames(),
+    ["strProperty"],
+    "Made bindable property visible again"
+  );
+});
+
+QUnit.test("Dynamic Panel, getNames()", function (assert) {
+  assert.deepEqual(
+    new QuestionPanelDynamicModel("q1").bindings.getNames(),
+    ["panelCount"],
+    "One bindable property"
+  );
 });

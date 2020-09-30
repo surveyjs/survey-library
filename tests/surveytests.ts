@@ -7081,7 +7081,47 @@ QUnit.test("survey.showInvisibleElements property", function (assert) {
   assert.equal(
     survey.getQuestionByName("question4").visibleChoices.length,
     2,
-    "There is two visible choices"
+    "There are two visible choices"
+  );
+});
+
+QUnit.test("survey.showInvisibleElements property, Bug#2423", function (
+  assert
+) {
+  var json = {
+    elements: [
+      {
+        type: "checkbox",
+        name: "q1",
+        choices: ["item1", { value: "item2", visibleIf: "true=false" }],
+        choicesVisibleIf: "{question1} = 'test'",
+      },
+      {
+        type: "matrix",
+        name: "q2",
+        columns: ["item1", { value: "item2", visibleIf: "true=false" }],
+        rows: ["item1", { value: "item2", visibleIf: "true=false" }],
+        columnsVisibleIf: "{question1} = 'test'",
+        rowsVisibleIf: "{question1} = 'test'",
+      },
+    ],
+  };
+  var survey = new SurveyModel(json);
+  survey.showInvisibleElements = true;
+  assert.equal(
+    survey.getQuestionByName("q1").visibleChoices.length,
+    2,
+    "There are two visible choices"
+  );
+  assert.equal(
+    survey.getQuestionByName("q2").visibleColumns.length,
+    2,
+    "There are two visible columns"
+  );
+  assert.equal(
+    survey.getQuestionByName("q2").visibleRows.length,
+    2,
+    "There are two visible rows"
   );
 });
 

@@ -226,7 +226,8 @@ export class QuestionSelectBase extends Question {
         ? null
         : this.conditionChoicesVisibleIfRunner,
       values,
-      properties
+      properties,
+      !this.survey || !this.survey.areInvisibleElementsShowing
     );
   }
   protected getHasOther(val: any): boolean {

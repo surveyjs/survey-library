@@ -5166,15 +5166,20 @@ export class SurveyModel
     if (isVariable) {
       this.setVariable(name, value);
     } else {
-      var processor = new ProcessValue();
-      var firstName = processor.getFirstName(name);
-      if (firstName == name) {
-        this.setValue(name, value);
+      var question = this.getQuestionByName(name);
+      if (!!question) {
+        question.value = value;
       } else {
-        if (!this.getValue(firstName)) return;
-        var data = this.getUnbindValue(this.getFilteredValues());
-        processor.setValue(data, name, value);
-        this.setValue(firstName, data[firstName]);
+        var processor = new ProcessValue();
+        var firstName = processor.getFirstName(name);
+        if (firstName == name) {
+          this.setValue(name, value);
+        } else {
+          if (!this.getValue(firstName)) return;
+          var data = this.getUnbindValue(this.getFilteredValues());
+          processor.setValue(data, name, value);
+          this.setValue(firstName, data[firstName]);
+        }
       }
     }
   }

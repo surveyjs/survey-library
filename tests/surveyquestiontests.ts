@@ -4182,3 +4182,31 @@ QUnit.test(
     assert.equal(question.max, 100, "max value is set");
   }
 );
+
+QUnit.test(
+  "setvalue trigger dosen't work for question name with '.', Bug#2420",
+  function (assert) {
+    var survey = new SurveyModel({
+      elements: [
+        {
+          type: "text",
+          name: "a.b",
+        },
+      ],
+      triggers: [
+        {
+          type: "setvalue",
+          expression: "{q1} = 1",
+          setToName: "a.b",
+          setValue: 2,
+        },
+      ],
+    });
+    survey.setValue("q1", 1);
+    assert.deepEqual(
+      survey.data,
+      { q1: 1, "a.b": 2 },
+      "trigger works correctly"
+    );
+  }
+);

@@ -168,6 +168,13 @@ export class QuestionRatingModel extends Question {
   get locMaxRateDescription(): LocalizableString {
     return this.getLocalizableString("maxRateDescription");
   }
+  protected valueToData(val: any): any {
+    if (this.rateValues.length > 0) {
+      var item = ItemValue.getItemByValue(this.rateValues, val);
+      return !!item ? item.value : val;
+    }
+    return !isNaN(val) ? parseFloat(val) : val;
+  }
 }
 Serializer.addClass(
   "rating",

@@ -3735,6 +3735,24 @@ QUnit.test("QuestionRating rateStep less than 1", function (assert) {
   );
 });
 QUnit.test(
+  "QuestionRating convert value to number when needed, Bug#2421",
+  function (assert) {
+    var question = new QuestionRatingModel("q");
+    question.value = "2";
+    assert.strictEqual(question.value, 2, "Convert to 2");
+    question.value = undefined;
+    assert.strictEqual(question.value, undefined, "undefined 1");
+    question.rateValues = [1, "2", "3", 4];
+    question.value = "3";
+    assert.strictEqual(question.value, "3", "No need to convert");
+    question.value = "1";
+    assert.strictEqual(question.value, 1, "Convert to item.value, 1");
+    question.value = undefined;
+    assert.strictEqual(question.value, undefined, "undefined 2");
+  }
+);
+
+QUnit.test(
   "Do not serialize default values labelTrue/labelFalse for boolean question, Bug #2231",
   function (assert) {
     var question = new QuestionBooleanModel("q");

@@ -1,5 +1,4 @@
 import { Survey } from "../../src/knockout/kosurvey";
-import { PanelModel } from "../../src/panel";
 import { QuestionText } from "../../src/knockout/koquestion_text";
 import { QuestionDropdown } from "../../src/knockout/koquestion_dropdown";
 import { QuestionCheckbox } from "../../src/knockout/koquestion_checkbox";
@@ -14,15 +13,13 @@ import {
   MultipleTextItem,
 } from "../../src/knockout/koquestion_multipletext";
 import { Page, Panel, QuestionRow } from "../../src/knockout/kopage";
-import {
-  CustomWidgetCollection,
-  QuestionCustomWidget,
-} from "../../src/questionCustomWidgets";
+import { CustomWidgetCollection } from "../../src/questionCustomWidgets";
 import { koTemplate } from "../../src/knockout/templateText";
 import { QuestionMatrixDynamic } from "../../src/knockout/koquestion_matrixdynamic";
 import { surveyLocalization } from "../../src/surveyStrings";
 import { QuestionRating } from "../../src/knockout/koquestion_rating";
 import { QuestionImagePicker } from "../../src/knockout/koquestion_imagepicker";
+import { ProgressButtonsViewModel } from "../../src/knockout/components/progress/buttons";
 import { JsonObject, Serializer } from "../../src/jsonobject";
 import { SurveyTimer } from "../../src/surveytimer";
 import * as ko from "knockout";
@@ -1809,4 +1806,125 @@ QUnit.test("Other item selected and not checked - https://github.com/surveyjs/su
     "item sv-q-col-1 checked",
     "other is selected"
   );
+});
+
+QUnit.test("ProgressButtonsViewModel component list elements", function(assert) {
+  var json = {
+    "pages": [
+     {
+      "name": "page1",
+      "elements": [
+       {
+        "type": "text",
+        "name": "question1"
+       }
+      ]
+     },
+     {
+      "name": "page2",
+      "elements": [
+       {
+        "type": "text",
+        "name": "question2"
+       }
+      ]
+     },
+     {
+      "name": "page3",
+      "elements": [
+       {
+        "type": "text",
+        "name": "question3"
+       }
+      ]
+     }
+    ]
+   };
+  var survey = new Survey(json);
+  var progress = new ProgressButtonsViewModel(survey,
+    { querySelector: function() { return undefined; } });
+  progress.dispose();
+  assert.equal(progress.getListElementCss(function() { return 0; }),
+    survey.css.progressButtonsListElementCurrent,
+    "1) Page 1 style is current");
+  assert.equal(progress.getListElementCss(function() { return 1; }),
+    "", "1) Page 2 style is empty");
+  assert.equal(progress.getListElementCss(function() { return 2; }),
+    "", "1) Page 3 style is empty");
+
+  progress.clickListElement(survey.pages[2]);
+  assert.equal(progress.getListElementCss(function() { return 0; }),
+    survey.css.progressButtonsListElementPassed,
+    "2) Page 1 style is passed");
+  assert.equal(progress.getListElementCss(function() { return 1; }),
+    survey.css.progressButtonsListElementPassed,
+    "2) Page 2 style is passed");
+  assert.equal(progress.getListElementCss(function() { return 2; }),
+    survey.css.progressButtonsListElementCurrent,
+    "2) Page 3 style is current");
+
+  progress.clickListElement(survey.pages[0]);
+  assert.equal(progress.getListElementCss(function() { return 0; }),
+    survey.css.progressButtonsListElementPassed + " " +
+      survey.css.progressButtonsListElementCurrent,
+    "3) Page 1 style is passed and current");
+  assert.equal(progress.getListElementCss(function() { return 1; }),
+    survey.css.progressButtonsListElementPassed,
+    "3) Page 2 style is passed");
+  assert.equal(progress.getListElementCss(function() { return 2; }),
+    "", "3) Page 3 style is empty");
+});
+
+QUnit.test("ProgressButtonsViewModel component scroll button", function(assert) {
+  var json = {
+    "pages": [
+     {
+      "name": "page1",
+      "elements": [
+       {
+        "type": "text",
+        "name": "question1"
+       }
+      ]
+     },
+     {
+      "name": "page2",
+      "elements": [
+       {
+        "type": "text",
+        "name": "question2"
+       }
+      ]
+     },
+     {
+      "name": "page3",
+      "elements": [
+       {
+        "type": "text",
+        "name": "question3"
+       }
+      ]
+     }
+    ]
+   };
+  var survey = new Survey(json);
+  var progress = new ProgressButtonsViewModel(survey,
+    { querySelector: function() { return undefined; } });
+  progress.dispose();
+  assert.equal(progress.getScrollButtonCss(true)(),
+    survey.css.progressButtonsImageButtonLeft + " " +
+     survey.css.progressButtonsImageButtonHidden,
+    "1) Scroll button left style is hidden");
+  assert.equal(progress.getScrollButtonCss(false)(),
+    survey.css.progressButtonsImageButtonRight + " " +
+     survey.css.progressButtonsImageButtonHidden,
+    "1) Scroll button right style is hidden");
+
+  progress['hasScroller'](true);
+  assert.equal(progress.getScrollButtonCss(true)(),
+    survey.css.progressButtonsImageButtonLeft,
+    "2) Scroll button left style is visible");
+  assert.equal(progress.getScrollButtonCss(false)(),
+    survey.css.progressButtonsImageButtonRight,
+    "2) Scroll button right style is visible");
 });

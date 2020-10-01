@@ -145,6 +145,20 @@ QUnit.test("ProcessValue setValue function", function (assert) {
   );
 });
 
+QUnit.test("ProcessValue setValue function - create path", function (assert) {
+  var processor = new ProcessValue();
+  var data = { a: {}, b: 1 };
+  processor.setValue(data, "a.b", 1);
+  assert.deepEqual(data, { a: { b: 1 }, b: 1 }, "set the object inside");
+  processor.setValue(data, "c.a.b", 2);
+  processor.setValue(data, "a[0].name", 1);
+  assert.deepEqual(
+    data,
+    { a: { b: 1 }, b: 1, c: { a: { b: 2 } } },
+    "create new object"
+  );
+});
+
 QUnit.test("ProcessValue setValue function for arrays", function (assert) {
   var processor = new ProcessValue();
   var data = { panel1: [{ question1: 1 }], panel2: [{}] };

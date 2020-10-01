@@ -5193,7 +5193,7 @@ export class SurveyModel
         if (firstName == name) {
           this.setValue(name, value);
         } else {
-          if (!this.getValue(firstName)) return;
+          if (!this.getQuestionByName(firstName)) return;
           var data = this.getUnbindValue(this.getFilteredValues());
           processor.setValue(data, name, value);
           this.setValue(firstName, data[firstName]);

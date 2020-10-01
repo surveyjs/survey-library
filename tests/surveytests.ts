@@ -11387,3 +11387,38 @@ QUnit.test("survey.getProgressInfo()", function (assert) {
     requiredAnsweredQuestionCount: 2,
   });
 });
+QUnit.test("trigger to copy matrix dropdown cell ", function (assert) {
+  var survey = new SurveyModel({
+    questions: [
+      {
+        name: "q1",
+        type: "matrixdropdown",
+        columns: [{ name: "col1" }, { name: "col2" }],
+        rows: ["row1", "row2"],
+        cellType: "text",
+      },
+      {
+        name: "q2",
+        type: "matrixdropdown",
+        columns: [{ name: "col3" }, { name: "col4" }],
+        rows: ["row3", "row4"],
+        cellType: "text",
+      },
+    ],
+    triggers: [
+      {
+        type: "copyvalue",
+        expression: "{q1.row1.col1} notempty",
+        fromName: "q1.row1.col1",
+        setToName: "q2.row3.col3",
+      },
+    ],
+  });
+  var visibleRows = survey.getQuestionByName("q1").visibleRows;
+  visibleRows[0].cells[0].value = "cell1";
+  assert.deepEqual(
+    survey.data,
+    { q1: { row1: { col1: "cell1" } }, q2: { row3: { col3: "cell1" } } },
+    "trigger works correctly"
+  );
+});

@@ -430,6 +430,18 @@ export class SurveyModel
     any
   > = new Event<(sender: SurveyModel, options: any) => any, any>();
   /**
+   * Use this event to change the question no in code. If you want to remove question numbering then set showQuestionNumbers to "off".
+   * <br/> `sender` - the survey object that fires the event.
+   * <br/> `options.no` - a calculated question no, based on question `visibleIndex`, survey `.questionStartIndex` properties. You can change it.
+   * <br/> `options.question` - a question object.
+   * @see showQuestionNumbers
+   * @see questionStartIndex
+   */
+  public onGetQuestionNo: Event<
+    (sender: SurveyModel, options: any) => any,
+    any
+  > = new Event<(sender: SurveyModel, options: any) => any, any>();
+  /**
    * Use this event to change the progress text in code.
    * <br/> `sender` - the survey object that fires the event.
    * <br/> `options.text` - a progress text, that SurveyJS will render in progress bar.
@@ -1923,6 +1935,12 @@ export class SurveyModel
     var options = { question: question, title: title };
     this.onGetQuestionTitle.fire(this, options);
     return options.title;
+  }
+  getUpdatedQuestionNo(question: IQuestion, no: string): string {
+    if (this.onGetQuestionNo.isEmpty) return no;
+    var options = { question: question, no: no };
+    this.onGetQuestionNo.fire(this, options);
+    return options.no;
   }
   /**
    * Gets or sets whether the survey displays page numbers on pages titles.

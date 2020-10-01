@@ -1016,7 +1016,11 @@ export class Question
    */
   public get no(): string {
     if (!this.hasTitle || this.hideNumber) return "";
-    return Helpers.getNumberByIndex(this.visibleIndex, this.getStartIndex());
+    var no = Helpers.getNumberByIndex(this.visibleIndex, this.getStartIndex());
+    if (!!this.survey) {
+      no = this.survey.getUpdatedQuestionNo(this, no);
+    }
+    return no;
   }
   protected getStartIndex(): string {
     if (!!this.parent) return this.parent.getQuestionStartIndex();

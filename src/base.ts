@@ -90,6 +90,7 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner {
   ): void;
   questionTitlePattern: string;
   getUpdatedQuestionTitle(question: IQuestion, title: string): string;
+  getUpdatedQuestionNo(question: IQuestion, no: string): string;
 
   questionStartIndex: string;
   questionTitleLocation: string;

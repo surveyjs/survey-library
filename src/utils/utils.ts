@@ -83,7 +83,7 @@ function findScrollableParent(element: HTMLElement): HTMLElement {
     return undefined;
   }
 
-  if (element.scrollHeight > element.clientHeight) {
+  if (element.scrollHeight > element.clientHeight && (getComputedStyle(element).overflowY === "scroll" || getComputedStyle(element).overflowY === "auto")) {
     return element;
   } else {
     return findScrollableParent(element.parentElement);

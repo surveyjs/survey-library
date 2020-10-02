@@ -1,8 +1,8 @@
 <script type="text/html" id="survey-panel">
-  <div data-bind="style:{ flexBasis: renderWidth, flexGrow: 1, flexShrink: 1, width: renderWidth, minWidth: $data.minWidth, maxWidth: $data.maxWidth }, attr: {id: id}, css: cssClasses.panel.container">
-      <h4 data-bind="visible: (processedTitle.length > 0), css: $data.getTitleStyle(), click: doExpand">
+  <div data-bind="style: { flexBasis: renderWidth, flexGrow: 1, flexShrink: 1, width: renderWidth, minWidth: $data.minWidth, maxWidth: $data.maxWidth }, attr: { id: id }, css: cssClasses.panel.container">
+      <h4 data-bind="visible: (title.length > 0), css: $data.getTitleStyle(), click: doExpand">
         <!-- ko template: { name: 'survey-question-title-content', data: $data } --><!-- /ko -->
-        <span  data-bind="visible: koIsCollapsed() || koIsExpanded(), css: cssClasses.panel.icon + (!koIsCollapsed() ? ' ' + cssClasses.panel.iconExpanded: '')"></span>
+        <span data-bind="visible: koIsCollapsed() || koIsExpanded(), css: cssClasses.panel.icon + (!koIsCollapsed() ? ' ' + cssClasses.panel.iconExpanded: ''), event: { keyup: pressExpand }" tabindex="0"></span>
       </h4>
       <div data-bind="css: cssClasses.panel.description">
           <!-- ko template: { name: 'survey-string', data: locDescription } -->
@@ -10,7 +10,7 @@
       </div>
       <!-- ko template: { name: 'survey-question-errors', data: $data } -->
       <!-- /ko -->
-      <div data-bind="visible: !koIsCollapsed(), style: { paddingLeft: innerPaddingLeft}, css: cssClasses.panel.content">
+      <div data-bind="visible: !koIsCollapsed(), style: { paddingLeft: innerPaddingLeft }, css: cssClasses.panel.content">
           <!-- ko template: { name: 'survey-rows', data: $data} -->
           <!-- /ko -->
           <div data-bind="visible: hasEditButton, css: cssClasses.panel.footer">

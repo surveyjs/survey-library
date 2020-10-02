@@ -16,7 +16,7 @@
         v-if="question.isRequireTextAfterTitle"
         :class="requiredTextCss"
       >{{question.requiredText}}</span>
-      <span v-show="showIcon" :class="iconCss"></span>
+      <span v-show="showIcon" :class="iconCss" v-on:keyup.enter="changeExpanded" tabindex="0"></span>
     </h4>
     <div :class="question.cssClasses.panel.description">
       <survey-string :locString="question.locDescription" />

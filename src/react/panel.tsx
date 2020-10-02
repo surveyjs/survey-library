@@ -95,7 +95,10 @@ export class SurveyPanel extends SurveyPanelBase {
           this.panel.collapse();
         }
       };
-      expandCollapse = <span className={iconCss} />;
+      var pressExpand = (event: any) => {
+        if (event.keyCode == 13) changeExpanded();
+      };
+      expandCollapse = <span className={iconCss} tabIndex={0} onKeyUp={pressExpand}/>;
     }
 
     if (this.panel.containsErrors) {

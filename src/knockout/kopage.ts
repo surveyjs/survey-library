@@ -69,6 +69,7 @@ export class Panel extends PanelModel {
   koIsCollapsed: any;
   koErrorClass: any;
   doExpand: any;
+  pressExpand: any;
   constructor(name: string = "") {
     super(name);
     this.onCreating();
@@ -84,6 +85,9 @@ export class Panel extends PanelModel {
     };
     this.doExpand = function () {
       self.changeExpanded();
+    };
+    this.pressExpand = function(_: any, event: any) {
+      if (event.which === 13) self.changeExpanded();
     };
     this.koErrorClass = ko.pureComputed(function () {
       var rootClass = self.cssClasses.error.root;

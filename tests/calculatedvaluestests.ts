@@ -176,3 +176,37 @@ QUnit.test(
     );
   }
 );
+QUnit.test(
+  "defaultValue and survey.clearInvisibleValues='onHidden', Bug#2428",
+  function (assert) {
+    var survey = new SurveyModel({
+      clearInvisibleValues: "onHidden",
+      elements: [
+        {
+          name: "q1",
+          type: "text",
+          defaultValue: 1,
+          visible: false,
+        },
+        {
+          name: "q2",
+          type: "text",
+          defaultValue: 2,
+          visible: false,
+        },
+      ],
+      calculatedValues: [{ name: "var1", expression: "{q1} + {q2}" }],
+    });
+    var q1 = survey.getQuestionByName("q1");
+    var q2 = survey.getQuestionByName("q2");
+
+    var calcValue = survey.calculatedValues[0];
+    assert.equal(calcValue.value, 0, "0 + 0");
+    q1.visible = true;
+    assert.equal(calcValue.value, 1, "1 + 0");
+    q2.visible = true;
+    assert.equal(calcValue.value, 3, "1 + 2");
+    q1.visible = false;
+    assert.equal(calcValue.value, 2, "0 + 2");
+  }
+);

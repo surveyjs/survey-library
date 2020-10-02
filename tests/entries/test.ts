@@ -1,4 +1,5 @@
 // common
+export * from "../calculatedvaluestests";
 export * from "../helperstests";
 export * from "../basetests";
 export * from "../bindablePropertiesTests";
@@ -22,7 +23,6 @@ export * from "../surveytimertests";
 export * from "../question_expressiontests";
 export * from "../questionFileTests";
 export * from "../dragdroptests";
-export * from "../calculatedvaluestests";
 export * from "../expressions/expressionsTest";
 export * from "../expressions/expressionParserTest";
 export * from "../questionDropdown";

@@ -11422,3 +11422,30 @@ QUnit.test("trigger to copy matrix dropdown cell ", function (assert) {
     "trigger works correctly"
   );
 });
+
+QUnit.test(
+  "defaultValue and survey.clearInvisibleValues='onHidden', Bug#2428",
+  function (assert) {
+    var survey = new SurveyModel({
+      clearInvisibleValues: "onHidden",
+      elements: [
+        {
+          name: "q1",
+          type: "text",
+          defaultValue: 1,
+          visible: false,
+        },
+      ],
+    });
+    var q1 = survey.getQuestionByName("q1");
+    assert.equal(q1.isEmpty(), true, "Question is invisible");
+    q1.visible = true;
+    assert.equal(q1.isEmpty(), false, "Question is visible");
+    assert.equal(q1.value, 1, "get value from defaultValue");
+    q1.visible = false;
+    assert.equal(q1.isEmpty(), true, "Question is invisible #2");
+    q1.visible = true;
+    assert.equal(q1.isEmpty(), false, "Question is visible #2");
+    assert.equal(q1.value, 1, "get value from defaultValue #2");
+  }
+);

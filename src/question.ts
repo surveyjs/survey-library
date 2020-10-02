@@ -219,6 +219,9 @@ export class Question
   }
   protected onVisibleChanged() {
     this.setPropertyValue("isVisible", this.isVisible);
+    if (this.isVisible && this.survey && this.survey.isClearValueOnHidden) {
+      this.updateValueWithDefaults();
+    }
     if (!this.isVisible && this.errors && this.errors.length > 0) {
       this.errors = [];
     }
@@ -1258,6 +1261,8 @@ export class Question
       return;
     if (!this.isDesignMode && !this.isEmpty()) return;
     if (this.isEmpty() && this.isDefaultValueEmpty()) return;
+    if (!!this.survey && this.survey.isClearValueOnHidden && !this.isVisible)
+      return;
     this.setDefaultValue();
   }
   getQuestionFromArray(name: string, index: number): IQuestion {

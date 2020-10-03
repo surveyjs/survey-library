@@ -53,10 +53,17 @@ export class MatrixRowModel extends Base {
     this.setPropertyValue("value", newValue);
   }
   public get rowClasses(): string {
-    return this.getPropertyValue("rowClasses", "");
-  }
-  public set rowClasses(value: string) {
-    this.setPropertyValue("rowClasses", value);
+    var cssClasses = (<any>this.data).cssClasses;
+    var rowClass = !!cssClasses.row ? cssClasses.row : "";
+    var rowErrorClass = !!cssClasses.rowError ? cssClasses.rowError : "";
+    var hasError = !!(<any>this.data).getErrorByType("requiredinallrowserror");
+
+    var classes = rowClass;
+    if (!!rowErrorClass && hasError && Helpers.isValueEmpty(this.value)) {
+      if (!!classes) classes += " ";
+      classes += rowErrorClass;
+    }
+    return classes;
   }
 }
 
@@ -330,7 +337,6 @@ export class QuestionMatrixModel
       );
     }
     this.generatedVisibleRows = result;
-    this.updateElementCss();
     return result;
   }
   protected sortVisibleRows(
@@ -504,30 +510,6 @@ export class QuestionMatrixModel
       });
     }
     return questionPlainData;
-  }
-  protected updateElementCssCore(cssClasses: any) {
-    super.updateElementCssCore(cssClasses);
-    var rows = this.generatedVisibleRows;
-    if (!rows) return;
-    var rowClass = !!cssClasses.row ? cssClasses.row : "";
-    var rowError = !!cssClasses.rowError ? cssClasses.rowError : "";
-    var hasError = !!this.getErrorByType("requiredinallrowserror");
-    for (var i = 0; i < rows.length; i++) {
-      this.updateRowCss(rows[i], rowClass, rowError, hasError);
-    }
-  }
-  private updateRowCss(
-    row: MatrixRowModel,
-    rowClass: string,
-    rowError: string,
-    hasError: boolean
-  ) {
-    var classes = rowClass;
-    if (!!rowError && hasError && Helpers.isValueEmpty(row.value)) {
-      if (!!classes) classes += " ";
-      classes += rowError;
-    }
-    row.rowClasses = classes;
   }
   public addConditionObjectsByContext(
     objects: Array<IConditionObject>,

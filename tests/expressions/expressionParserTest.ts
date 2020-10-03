@@ -704,6 +704,28 @@ QUnit.test("length for undefined arrays", function (assert) {
   var runner = new ConditionRunner("{val.length} = 0");
   assert.equal(runner.run({ val: [] }), true, "empty array length returns 0");
   assert.equal(runner.run({}), true, "underfined length returns 0");
+  assert.equal(
+    runner.run({ val: undefined }),
+    true,
+    "underfined length returns 0"
+  );
+  assert.equal(runner.run({ val: null }), true, "null length returns 0");
+  runner = new ConditionRunner("{val.length} < 4");
+  assert.equal(runner.run({ val: [] }), true, "empty array length < 4");
+  assert.equal(runner.run({}), true, "underfined length < 4");
+  assert.equal(runner.run({ val: undefined }), true, "underfined length  < 4");
+  assert.equal(runner.run({ val: null }), true, "null length  < 4");
+});
+
+QUnit.test("length for arrays that becomes undefined, Bug#2432", function (
+  assert
+) {
+  var runner = new ConditionRunner("{val.length} < 3");
+  var data = { val: [1, 2] };
+
+  assert.equal(runner.run(data), true, "[1,2].length < 3");
+  data.val = undefined;
+  assert.equal(runner.run(data), true, "undefined.length < 3");
 });
 
 QUnit.test("contain and noncontain for strings", function (assert) {

@@ -43,6 +43,14 @@ export class ProcessValue {
       valueInfo.value = this.getValueFromPath(valueInfo.path, this.values);
       valueInfo.hasValue =
         valueInfo.value !== null && !Helpers.isValueEmpty(valueInfo.value);
+      if (
+        !valueInfo.hasValue &&
+        valueInfo.path.length > 1 &&
+        valueInfo.path[valueInfo.path.length - 1] == "length"
+      ) {
+        valueInfo.hasValue = true;
+        valueInfo.value = 0;
+      }
       return;
     }
     var res = this.getValueCore(valueInfo.name, this.values);

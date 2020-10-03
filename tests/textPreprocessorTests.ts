@@ -239,3 +239,29 @@ QUnit.test(
     assert.equal(valueInfo.value, "c", "get correct value, c");
   }
 );
+QUnit.test(
+  "ProcessValue getValueInfo() with array, change the object to undefined, Bug#2432",
+  function (assert) {
+    var value = { Q11: { R11: [{ a: 1 }, { a: 2 }] } };
+    var process = new ProcessValue();
+    process.values = value;
+    var valueInfo: any = { name: "Q11.R11.length" };
+    process.getValueInfo(valueInfo);
+    assert.equal(valueInfo.value, 2, "length is 2");
+    assert.equal(valueInfo.hasValue, true, "value is here");
+    assert.deepEqual(
+      valueInfo.path,
+      ["Q11", "R11", "length"],
+      "path is correct"
+    );
+    value.Q11.R11.push({ a: 4 });
+    process.getValueInfo(valueInfo);
+    assert.equal(valueInfo.value, 3, "length is 3");
+    value.Q11.R11 = undefined;
+    process.getValueInfo(valueInfo);
+    assert.equal(valueInfo.value, 0, "length is 0, R11 is undefined");
+    value.Q11 = undefined;
+    process.getValueInfo(valueInfo);
+    assert.equal(valueInfo.value, 0, "length is 0, Q11 is undefined");
+  }
+);

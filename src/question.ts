@@ -329,7 +329,9 @@ export class Question
     return !!this.data ? this.data.getFilteredValues() : null;
   }
   public getDataFilteredProperties(): any {
-    return !!this.data ? this.data.getFilteredProperties() : null;
+    var props = !!this.data ? this.data.getFilteredProperties() : {};
+    props.question = this;
+    return props;
   }
   /**
    * A parent element. It can be panel or page.

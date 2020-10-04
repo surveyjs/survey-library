@@ -11449,3 +11449,31 @@ QUnit.test(
     assert.equal(q1.value, 1, "get value from defaultValue #2");
   }
 );
+QUnit.test("Add this.question into custom function for validators", function (
+  assert
+) {
+  var hasQuestion = false;
+  FunctionFactory.Instance.register("getCustValue", function getCustValue(
+    params
+  ) {
+    hasQuestion = !!this.question;
+    return this.question.value;
+  });
+  var survey = new SurveyModel({
+    elements: [
+      {
+        name: "q1",
+        type: "text",
+        validators: [{ type: "expression", expression: "getCustValue() > 5" }],
+      },
+    ],
+  });
+  var q1 = survey.getQuestionByName("q1");
+  q1.value = 3;
+  assert.equal(q1.hasErrors(), true, "value < 5");
+  assert.equal(hasQuestion, true, "this.question is not undefined");
+  q1.value = 10;
+  assert.equal(q1.hasErrors(), false, "value > 5");
+  FunctionFactory.Instance.unregister("getCustValue");
+  assert.equal(hasQuestion, true, "this.question is not undefined#2");
+});

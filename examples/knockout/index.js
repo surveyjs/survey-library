@@ -1,5 +1,6 @@
 function init() {
   var json = {
+    "title": "Hello Dynamic Component Navigation",
     "pages": [
      {
       "name": "page1",
@@ -95,8 +96,13 @@ function init() {
      }
     ],
     "showProgressBar": "top",
-    "progressBarType": "buttons"
-   };
+    "progressBarType": "hello"
+  };
+
+  ko.components.register("survey-progress-hello", {
+    viewModel: function(params) { return { model: params.model }; },
+    template: '<div data-bind="text: model.title"></div>'
+  });
 
   Survey.StylesManager.applyTheme("default");
   var model = new Survey.Model(json);

@@ -11477,3 +11477,52 @@ QUnit.test("Add this.question into custom function for validators", function (
   FunctionFactory.Instance.unregister("getCustValue");
   assert.equal(hasQuestion, true, "this.question is not undefined#2");
 });
+QUnit.test("Peform triggers on value changed manually", function (assert) {
+  var survey = new SurveyModel({
+    elements: [
+      {
+        name: "q1",
+        type: "text",
+      },
+      {
+        name: "q2",
+        type: "text",
+      },
+      {
+        name: "q3",
+        type: "text",
+      },
+      {
+        name: "q4",
+        type: "text",
+      },
+    ],
+    triggers: [
+      {
+        type: "copyvalue",
+        expression: "{q1} notempty",
+        setToName: "q2",
+        fromName: "q1",
+      },
+      {
+        type: "runexpression",
+        expression: "{q2} notempty",
+        setToName: "q3",
+        runExpression: "{q1} + {q2}",
+      },
+      {
+        type: "runexpression",
+        expression: "{q3} notempty",
+        setToName: "q4",
+        runExpression: "{q3} + {q3}",
+      },
+    ],
+  });
+  survey.data = { q1: 5 };
+  survey.runTriggers();
+  assert.deepEqual(
+    survey.data,
+    { q1: 5, q2: 5, q3: 10, q4: 20 },
+    "Triggers run successful"
+  );
+});

@@ -1651,6 +1651,12 @@ export class SurveyModel
     var properties = this.getFilteredProperties();
     return new ConditionRunner(expression).run(values, properties);
   }
+  /**
+   * Run all triggers that performs on value changed and not on moving to the next page.
+   */
+  public runTriggers(): void {
+    this.checkTriggers(this.data, false);
+  }
   public get renderedCompletedHtml(): string {
     var item = this.getExpressionItemOnRunCondition(
       this.completedHtmlOnCondition
@@ -4058,20 +4064,29 @@ export class SurveyModel
     return result;
   }
   private isTriggerIsRunning: boolean = false;
+  private triggerValues: any = null;
+  private triggerKeys: any = null;
   private checkTriggers(key: any, isOnNextPage: boolean) {
-    if (
-      this.isCompleted ||
-      this.triggers.length == 0 ||
-      this.isTriggerIsRunning
-    )
+    if (this.isCompleted || this.triggers.length == 0) return;
+    if (this.isTriggerIsRunning) {
+      this.triggerValues = this.getFilteredValues();
+      for (var k in key) {
+        this.triggerKeys[k] = key[k];
+      }
       return;
+    }
     this.isTriggerIsRunning = true;
-    var values = this.getFilteredValues();
+    this.triggerKeys = key;
+    this.triggerValues = this.getFilteredValues();
     var properties = this.getFilteredProperties();
     for (var i: number = 0; i < this.triggers.length; i++) {
       var trigger = this.triggers[i];
       if (trigger.isOnNextPage == isOnNextPage) {
-        trigger.checkExpression(key, values, properties);
+        trigger.checkExpression(
+          this.triggerKeys,
+          this.triggerValues,
+          properties
+        );
       }
     }
     this.isTriggerIsRunning = false;

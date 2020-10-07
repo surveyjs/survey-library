@@ -1,4 +1,3 @@
-import * as ko from "knockout";
 import { Serializer } from "../jsonobject";
 import { QuestionFactory } from "../questionfactory";
 import { QuestionImplementor } from "./koquestion";

@@ -293,6 +293,7 @@ export class Survey extends SurveyElementBase implements ISurveyCreator {
     );
   }
   protected renderProgress(isTop: boolean): JSX.Element {
+    // return React.createElement(SurveyProgress, {survey: this.survey, css: this.css, isTop: isTop});
     return <SurveyProgress survey={this.survey} css={this.css} isTop={isTop} />;
   }
   protected renderNavigation(navPosition: string): JSX.Element {

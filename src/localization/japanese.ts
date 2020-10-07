@@ -2,7 +2,7 @@
 import { surveyLocalization } from "../surveyStrings";
 
 export var japaneseSurveyStrings = {
-  pagePrevText: "前の",
+  pagePrevText: "前へ",
   pageNextText: "次へ",
   completeText: "完了",
   startSurveyText: "スタート",

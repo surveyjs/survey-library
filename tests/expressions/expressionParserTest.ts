@@ -1116,3 +1116,9 @@ QUnit.test("ExpressionRunner: age", function (assert) {
   values.d = d;
   assert.equal(runner.run(values), -10, "Date in the future, 10 years");
 });
+
+QUnit.test("000 == '000'", function (assert) {
+  var runner = new ConditionRunner("{val} == '000'");
+  var values: any = { val: "000" };
+  assert.equal(runner.run(values), true, "000 == '000'");
+});

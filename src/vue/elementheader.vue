@@ -1,5 +1,5 @@
  <template>
-  <div :class="getHeaderClass(element)" @click="element.clickTitleFunction">
+  <div :class="getHeaderClass(element)" @click="function() { if (element.hasInput) element.focus(); return true; }">
     <h5
       v-if="element.hasTitle"
       :class="getTitleClass(element)"

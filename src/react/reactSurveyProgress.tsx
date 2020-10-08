@@ -1,5 +1,6 @@
 import * as React from "react";
 import { SurveyNavigationBase } from "./reactSurveyNavigationBase";
+import { ReactElementFactory } from "./element-factory";
 
 export class SurveyProgress extends SurveyNavigationBase {
   constructor(props: any) {
@@ -47,3 +48,13 @@ export class SurveyProgress extends SurveyNavigationBase {
     );
   }
 }
+
+ReactElementFactory.Instance.registerElement("survey-progress-pages", (props) => {
+  return React.createElement(SurveyProgress, props);
+});
+ReactElementFactory.Instance.registerElement("survey-progress-questions", (props) => {
+  return React.createElement(SurveyProgress, props);
+});
+ReactElementFactory.Instance.registerElement("survey-progress-correctquestions", (props) => {
+  return React.createElement(SurveyProgress, props);
+});

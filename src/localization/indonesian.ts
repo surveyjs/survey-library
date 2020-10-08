@@ -4,11 +4,15 @@ export var indonesianStrings = {
   pagePrevText: "Sebelumnya",
   pageNextText: "Selanjutnya",
   completeText: "Selesai",
+  previewText: "Pratinjau",
+  editText: "Sunting",
   startSurveyText: "Mulai",
   otherItemText: "Lainnya (jelaskan)",
   noneItemText: "Tidak Ada",
   selectAllItemText: "Pilih Semua",
   progressText: "Halaman {0} dari {1}",
+  panelDynamicProgressText: "Rekam {0} dari {1}",
+  questionsProgressText: "Menjawab pertanyaan {0} / {1}",
   emptySurvey: "Tidak ada halaman atau pertanyaan dalam survei.",
   completingSurvey: "Terima kasih telah menyelesaikan survei!",
   completingSurveyBefore:
@@ -38,6 +42,7 @@ export var indonesianStrings = {
   uploadingFile: "Berkas Anda sedang diunggah. Silahkan tunggu beberapa saat atau coba lagi.",
   loadingFile: "Memuat...",
   chooseFile: "Pilih berkas...",
+  noFileChosen: "Tidak ada file yang dipilih",
   confirmDelete: "Apakah Anda ingin menghapus catatan?",
   keyDuplicationError: "Nilai harus unik.",
   addColumn: "Tambah kolom",
@@ -63,7 +68,13 @@ export var indonesianStrings = {
   timerLimitSurvey: "Anda telah menghabiskan {0} dari {1} secara keseluruhan.",
   cleanCaption: "Bersihkan",
   clearCaption: "Bersihkan",
-  removeFileCaption: "Hapus berkas ini"
+  chooseFileCaption: "Pilih File",
+  removeFileCaption: "Hapus berkas ini",
+  booleanCheckedLabel: "Iya",
+  booleanUncheckedLabel: "Tidak",
+  confirmRemoveFile: "Anda yakin ingin menghapus file ini: {0}?",
+  confirmRemoveAllFiles: "Anda yakin ingin menghapus semua file?",
+  questionTitlePatternText: "Judul pertanyaan",
 };
 
 surveyLocalization.locales["id"] = indonesianStrings;

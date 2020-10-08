@@ -5,6 +5,8 @@ export var thaiStrings = {
   pagePrevText: "ก่อนหน้า",
   pageNextText: "ถัดไป",
   completeText: "สำเร็จ",
+  previewText: "ดูตัวอย่าง",
+  editText: "แก้ไข",
   startSurveyText: "เริ่ม",
   otherItemText: "อื่นๆ (โปรดระบุ)",
   noneItemText: "ไม่มี",
@@ -77,6 +79,5 @@ export var thaiStrings = {
   questionTitlePatternText: "ชื่อคำถาม",
 };
 
-//Uncomment these two lines on creating a translation file. You should replace "en" and enStrings with your locale ("fr", "de" and so on) and your variable.
 surveyLocalization.locales["th"] = thaiStrings;
 surveyLocalization.localeNames["th"] = "ไทย";

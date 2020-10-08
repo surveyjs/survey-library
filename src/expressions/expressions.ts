@@ -227,11 +227,21 @@ export class Const extends Operand {
   protected getCorrectValue(value: any): any {
     if (!value || typeof value != "string") return value;
     if (this.isBooleanValue(value)) return value.toLowerCase() === "true";
+    if (
+      value.length > 1 &&
+      this.isQuote(value[0]) &&
+      this.isQuote(value[value.length - 1])
+    )
+      return value.substr(1, value.length - 2);
     if (OperandMaker.isNumeric(value)) {
       if (value.indexOf("0x") == 0) return parseInt(value);
+      if (value.length > 1 && value[0] == "0") return value;
       return parseFloat(value);
     }
     return value;
+  }
+  private isQuote(ch: string): boolean {
+    return ch == "'" || ch == '"';
   }
   private isBooleanValue(value: any): boolean {
     return (

@@ -4,11 +4,14 @@ export var ukrainianSurveyStrings = {
   pagePrevText: "Назад",
   pageNextText: "Далі",
   completeText: "Завершити",
+  previewText: "Попередній перегляд",
+  editText: "Редагувати",
   startSurveyText: "Почати",
   otherItemText: "Інше (будь ласка, опишіть)",
   noneItemText: "Жоден",
   selectAllItemText: "Вибрати все",
   progressText: "Сторінка {0} з {1}",
+  panelDynamicProgressText: "Запис {0} із {1}",
   questionsProgressText: "Відповіли на {0}/{1} питань",
   emptySurvey: "Немає жодного питання.",
   completingSurvey: "Дякуємо Вам за заповнення анкети!",
@@ -68,7 +71,13 @@ export var ukrainianSurveyStrings = {
   timerLimitSurvey: "Ви витратили {0} з {1} для всього тесту.",
   cleanCaption: "Очистити",
   clearCaption: "Очистити",
-  removeFileCaption: "Видалити файл"
+  chooseFileCaption: "Виберіть файл",
+  removeFileCaption: "Видалити файл",
+  booleanCheckedLabel: "Так",
+  booleanUncheckedLabel: "Ні",
+  confirmRemoveFile: "Ви впевнені, що хочете видалити цей файл: {0}?",
+  confirmRemoveAllFiles: "Ви впевнені, що хочете видалити всі файли?",
+  questionTitlePatternText: "Назва запитання",
 };
 
 surveyLocalization.locales["ua"] = ukrainianSurveyStrings;

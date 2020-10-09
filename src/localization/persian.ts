@@ -21,6 +21,7 @@ export var persianSurveyStrings = {
   optionsCaption: "انتخاب کنید...",
   value: "مقدار",
   requiredError: "لطفا به سوال پاسخ دهید",
+  requiredErrorInPanel: "لطفا حداقل به یک سوال پاسخ دهید.",
   requiredInAllRowsError: "لطفا سوالات تمام سطرها را پاسخ دهید.",
   numericError: "مقدار باید عددی باشد",
   textMinLength: "لطفا حداقل  {0} حرف وارد کنید",
@@ -78,5 +79,6 @@ export var persianSurveyStrings = {
   confirmRemoveAllFiles: "آیا میخواهید تمام فایل ها را پاک کنید?",
   questionTitlePatternText: "عنوان سوال",
 };
+
 surveyLocalization.locales["fa"] = persianSurveyStrings;
 surveyLocalization.localeNames["fa"] = "فارْسِى";

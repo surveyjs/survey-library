@@ -4,11 +4,15 @@ export var russianSurveyStrings = {
   pagePrevText: "Назад",
   pageNextText: "Далее",
   completeText: "Готово",
+  previewText: "Предварительный просмотр",
+  editText: "Редактирование",
   startSurveyText: "Начать",
   otherItemText: "Другое (пожалуйста, опишите)",
   noneItemText: "Нет",
   selectAllItemText: "Выбрать всё",
   progressText: "Страница {0} из {1}",
+  panelDynamicProgressText: "Запись {0} из {1}",
+  questionsProgressText: "Ответы на {0}/{1}вопросы",
   emptySurvey: "Нет ни одного вопроса.",
   completingSurvey: "Благодарим Вас за заполнение анкеты!",
   completingSurveyBefore:
@@ -41,6 +45,7 @@ export var russianSurveyStrings = {
     "Ваш файл загружается. Подождите несколько секунд и попробуйте снова.",
   loadingFile: "Загрузка...",
   chooseFile: "Выберите файл(ы)...",
+  noFileChosen: "Файл не выбран",
   confirmDelete: "Вы точно хотите удалить запись?",
   keyDuplicationError: "Это значение должно быть уникальным.",
   addColumn: "Добавить колонку",
@@ -66,7 +71,13 @@ export var russianSurveyStrings = {
   timerLimitSurvey: "Вы потратили {0} из {1} для всего теста.",
   cleanCaption: "Очистить",
   clearCaption: "Очистить",
-  removeFileCaption: "Удалить файл"
+  chooseFileCaption: "Выберите файл",
+  removeFileCaption: "Удалить файл",
+  booleanCheckedLabel: "Да",
+  booleanUncheckedLabel: "Нет",
+  confirmRemoveFile: "Вы уверены, что хотите удалить этот файл: {0}?",
+  confirmRemoveAllFiles: "Вы уверены, что хотите удалить все файлы?",
+  questionTitlePatternText: "Название вопроса",
 };
 
 surveyLocalization.locales["ru"] = russianSurveyStrings;

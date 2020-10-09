@@ -6,7 +6,9 @@ export var dutchSurveyStrings = {
   pagePrevText: "Vorige",
   pageNextText: "Volgende",
   completeText: "Verzenden",
-  startSurveyText: "Start",
+  previewText: "Voorbeeld",
+  editText: "Bewerk",
+  startSurveyText: "Begin met",
   otherItemText: "Anders, nl.",
   noneItemText: "Geen",
   selectAllItemText: "Selecteer Alles",
@@ -22,13 +24,14 @@ export var dutchSurveyStrings = {
   value: "waarde",
   requiredError: "Dit is een vereiste vraag",
   requiredErrorInPanel: "Gelieve ten minste een vraag te beantwoorden.",
+  requiredInAllRowsError: "Deze vraag vereist één antwoord per rij",
   numericError: "Het antwoord moet een getal zijn",
   textMinLength: "Vul minstens {0} karakters in",
-  minSelectError: "Selecteer minimum {0} antwoorden",
-  maxSelectError: "Selecteer niet meer dan {0} antwoorden",
   textMaxLength: "Gelieve minder dan {0} karakters in te vullen.",
   textMinMaxLength: "Gelieve meer dan {0} en minder dan {1} karakters in te vullen.",
   minRowCountError: "Gelieve ten minste {0} rijen in te vullen.",
+  minSelectError: "Selecteer minimum {0} antwoorden",
+  maxSelectError: "Selecteer niet meer dan {0} antwoorden",
   numericMinMax:
       "Uw antwoord '{0}' moet groter of gelijk zijn aan {1} en kleiner of gelijk aan {2}",
   numericMin: "Uw antwoord '{0}' moet groter of gelijk zijn aan {1}",
@@ -40,7 +43,6 @@ export var dutchSurveyStrings = {
       "De vraag gaf een leeg antwoord terug of de 'pad' eigenschap is niet correct",
   exceedMaxSize: "De grootte van het bestand mag niet groter zijn dan {0}",
   otherRequiredError: "Vul het veld 'Anders, nl.' in",
-  requiredInAllRowsError: "Deze vraag vereist één antwoord per rij",
   uploadingFile:
       "Uw bestand wordt opgeladen. Gelieve enkele seconden te wachten en opnieuw te proberen.",
   loadingFile: "Opladen...",
@@ -76,7 +78,8 @@ export var dutchSurveyStrings = {
   booleanCheckedLabel: "Ja",
   booleanUncheckedLabel: "Neen",
   confirmRemoveFile: "Bent u zeker dat u deze file wilt verwijderen: {0}?",
-  confirmRemoveAllFiles: "Bent u zeker dat u al deze files wilt verwijderen?"
+  confirmRemoveAllFiles: "Bent u zeker dat u al deze files wilt verwijderen?",
+  questionTitlePatternText: "Titel van de vraag",
 };
 
 surveyLocalization.locales["nl"] = dutchSurveyStrings;

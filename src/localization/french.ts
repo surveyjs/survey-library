@@ -4,6 +4,8 @@ export var frenchSurveyStrings = {
   pagePrevText: "Précédent",
   pageNextText: "Suivant",
   completeText: "Terminer",
+  previewText: "Aperçu",
+  editText: "Éditer",
   startSurveyText: "Commencer",
   otherItemText: "Autre (préciser)",
   noneItemText: "Aucun",
@@ -70,8 +72,7 @@ export var frenchSurveyStrings = {
   booleanUncheckedLabel: "Non",
   confirmRemoveFile: "Êtes-vous certains de vouloir supprimer ce fichier : {0}?",
   confirmRemoveAllFiles: "Êtes-vous certains de vouloir supprimer tous les fichiers?",
-  questionTitlePatternText: "Titre de la question"
-
+  questionTitlePatternText: "Titre de la question",
 };
 
 surveyLocalization.locales["fr"] = frenchSurveyStrings;

@@ -1,15 +1,18 @@
-//Uncomment this line on creating a translation file
 import { surveyLocalization } from "../surveyStrings";
 
 export var lithuaniaSurveyStrings = {
   pagePrevText: "Atgal",
   pageNextText: "Toliau",
   completeText: "Baigti",
+  previewText: "Peržiūra",
+  editText: "Redaguoti",
   startSurveyText: "Pradėti",
   otherItemText: "Kita (įvesti)",
   noneItemText: "Nėra",
   selectAllItemText: "Pasirinkti visus",
   progressText: "Puslapis {0} iš {1}",
+  panelDynamicProgressText: "Įrašyti {0} iš {1}",
+  questionsProgressText: "Atsakė į {0} / {1} klausimus",
   emptySurvey: "Apklausoje nėra matomo puslapio ar klausimo.",
   completingSurvey: "Dėkojame už dalyvavimą apklausoje!",
   completingSurveyBefore:
@@ -42,6 +45,7 @@ export var lithuaniaSurveyStrings = {
     "Jūsų failas yra keliamas. Palaukite keletą sekundžių ir bandykite dar kartą.",
   loadingFile: "Prašome palaukti...",
   chooseFile: "Pasirinkti failą(us)...",
+  noFileChosen: "Nepasirinktas joks failas",
   confirmDelete: "Ar norite ištrinti įrašą?",
   keyDuplicationError: "Ši reikšmė turėtų būti unikali.",
   addColumn: "Pridėti stulpelį",
@@ -67,9 +71,14 @@ export var lithuaniaSurveyStrings = {
   timerLimitSurvey: "Praleidote {0} iš {1} iš viso.",
   cleanCaption: "Išvalyti",
   clearCaption: "Valyti",
-  removeFileCaption: "Ištrinti šį failą"
+  chooseFileCaption: "Pasirinkti failą",
+  removeFileCaption: "Ištrinti šį failą",
+  booleanCheckedLabel: "Taip",
+  booleanUncheckedLabel: "Ne",
+  confirmRemoveFile: "Ar tikrai norite pašalinti šį failą: {0}?",
+  confirmRemoveAllFiles: "Ar tikrai norite pašalinti visus failus?",
+  questionTitlePatternText: "Klausimo pavadinimas",
 };
 
-//Uncomment these two lines on creating a translation file. You should replace "en" and enStrings with your locale ("fr", "de" and so on) and your variable.
 surveyLocalization.locales["lt"] = lithuaniaSurveyStrings;
 surveyLocalization.localeNames["lt"] = "Lietuvių";

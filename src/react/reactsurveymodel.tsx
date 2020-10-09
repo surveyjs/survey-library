@@ -1,4 +1,3 @@
-import * as React from "react";
 import { SurveyModel } from "../survey";
 import { SurveyWindowModel } from "../surveyWindow";
 

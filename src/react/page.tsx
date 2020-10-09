@@ -1,6 +1,6 @@
 import * as React from "react";
 import { PageModel } from "../page";
-import { SurveyElementBase } from "./reactquestionelement";
+import { SurveyElementBase } from "./reactquestion_element";
 import { PanelModelBase } from "../panel";
 import { SurveyPanelBase } from "./panel-base";
 

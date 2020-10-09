@@ -1,16 +1,8 @@
 import * as React from "react";
-import {
-  ReactSurveyElement,
-  SurveyQuestionElementBase
-} from "./reactquestionelement";
-import {
-  QuestionPanelDynamicModel,
-  QuestionPanelDynamicItem
-} from "../question_paneldynamic";
-import { PanelModel } from "../panel";
+import { SurveyQuestionElementBase } from "./reactquestion_element";
+import { QuestionPanelDynamicModel } from "../question_paneldynamic";
 import { SurveyPanel } from "./panel";
-import { ISurveyCreator } from "./reactquestion";
-import { ReactQuestionFactory } from "./reactquestionfactory";
+import { ReactQuestionFactory } from "./reactquestion_factory";
 import { SurveyModel } from "../survey";
 import { Question } from "../question";
 

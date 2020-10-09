@@ -1,9 +1,9 @@
 import * as React from "react";
-import { SurveyQuestionElementBase } from "./reactquestionelement";
-import { SurveyQuestionCommentItem } from "./reactquestioncomment";
+import { SurveyQuestionElementBase } from "./reactquestion_element";
+import { SurveyQuestionCommentItem } from "./reactquestion_comment";
 import { QuestionRatingModel } from "../question_rating";
 import { ItemValue } from "../itemvalue";
-import { ReactQuestionFactory } from "./reactquestionfactory";
+import { ReactQuestionFactory } from "./reactquestion_factory";
 
 export class SurveyQuestionRating extends SurveyQuestionElementBase {
   constructor(props: any) {

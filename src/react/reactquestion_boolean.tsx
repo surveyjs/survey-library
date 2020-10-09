@@ -1,7 +1,7 @@
 import * as React from "react";
-import { SurveyQuestionElementBase } from "./reactquestionelement";
+import { SurveyQuestionElementBase } from "./reactquestion_element";
 import { QuestionBooleanModel } from "../question_boolean";
-import { ReactQuestionFactory } from "./reactquestionfactory";
+import { ReactQuestionFactory } from "./reactquestion_factory";
 
 export class SurveyQuestionBoolean extends SurveyQuestionElementBase {
   private isIndeterminateChange: boolean = false;

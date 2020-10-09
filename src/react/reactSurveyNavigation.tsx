@@ -1,5 +1,4 @@
 import * as React from "react";
-import { SurveyModel } from "../survey";
 import { SurveyNavigationBase } from "./reactSurveyNavigationBase";
 
 export class SurveyNavigation extends SurveyNavigationBase {

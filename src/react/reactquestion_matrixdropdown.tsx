@@ -1,6 +1,6 @@
 import * as React from "react";
-import { SurveyQuestionMatrixDropdownBase } from "./reactquestionmatrixdropdownbase";
-import { ReactQuestionFactory } from "./reactquestionfactory";
+import { SurveyQuestionMatrixDropdownBase } from "./reactquestion_matrixdropdownbase";
+import { ReactQuestionFactory } from "./reactquestion_factory";
 
 export class SurveyQuestionMatrixDropdown extends SurveyQuestionMatrixDropdownBase {
   constructor(props: any) {

@@ -933,9 +933,15 @@ export class SurveyModel
     ) {
       self.getProcessedTextValue(textValue);
     };
-    this.createNewArray("pages", function (value: any) {
-      self.doOnPageAdded(value);
-    });
+    this.createNewArray(
+      "pages",
+      function (value: any) {
+        self.doOnPageAdded(value);
+      },
+      function (value: any) {
+        self.doOnPageRemoved(value);
+      }
+    );
     this.createNewArray("triggers", function (value: any) {
       value.setOwner(self);
     });
@@ -3738,21 +3744,26 @@ export class SurveyModel
   /**
    * Adds an existing page to the survey.
    * @param page a newly added page
+   * @param index - a page index to where insert a page. It is -1 by default and the page will be added into the end.
    * @see addNewPage
    */
-  public addPage(page: PageModel) {
+  public addPage(page: PageModel, index: number = -1) {
     if (page == null) return;
-    this.pages.push(page);
-    this.updateVisibleIndexes();
+    if (index < 0 || index >= this.pages.length) {
+      this.pages.push(page);
+    } else {
+      this.pages.splice(index, 0, page);
+    }
   }
   /**
    * Creates a new page and adds it to a survey. Generates a new name if the `name` parameter is not specified.
    * @param name a page name
+   * @param index - a page index to where insert a new page. It is -1 by default and the page will be added into the end.
    * @see addPage
    */
-  public addNewPage(name: string = null) {
+  public addNewPage(name: string = null, index: number = -1) {
     var page = this.createNewPage(name);
-    this.addPage(page);
+    this.addPage(page, index);
     return page;
   }
   /**
@@ -3766,7 +3777,6 @@ export class SurveyModel
     if (this.currentPageValue == page) {
       this.currentPage = this.pages.length > 0 ? this.pages[0] : null;
     }
-    this.updateVisibleIndexes();
   }
   /**
    * Returns a question by its name.
@@ -3943,7 +3953,13 @@ export class SurveyModel
     }
     return result;
   }
-  protected createNewPage(name: string) {
+  /**
+   * Creates and returns a new page, but do not add it into the survey.
+   * You can use addPage(page) function to add it into survey later.
+   * @see addPage
+   * @see addNewPage
+   */
+  public createNewPage(name: string): PageModel {
     return new PageModel(name);
   }
   protected questionOnValueChanging(valueName: string, newValue: any): any {
@@ -4569,8 +4585,12 @@ export class SurveyModel
     page.setSurveyImpl(this);
     if (!page.name) page.name = this.generateNewName(this.pages, "page");
     this.questionHashesPanelAdded(page);
+    this.updateVisibleIndexes();
     var options = { page: page };
     this.onPageAdded.fire(this, options);
+  }
+  protected doOnPageRemoved(page: PageModel) {
+    this.updateVisibleIndexes();
   }
   private generateNewName(elements: Array<any>, baseName: string): string {
     var keys: { [index: string]: any } = {};
@@ -4716,9 +4736,7 @@ export class SurveyModel
     if (!!(<Question>question).page) {
       this.questionHashesAdded(<Question>question);
     }
-    if (!this.isLoadingFromJson) {
-      this.updateVisibleIndexes();
-    }
+    this.updateVisibleIndexes();
     this.onQuestionAdded.fire(this, {
       question: question,
       name: question.name,

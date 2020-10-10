@@ -153,7 +153,7 @@ export class Survey extends SurveyModel {
     this.updateKoCurrentPage();
     return res;
   }
-  protected createNewPage(name: string) {
+  public createNewPage(name: string): PageModel {
     return new Page(name);
   }
   protected getHtmlTemplate(): string {

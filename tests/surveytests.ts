@@ -99,6 +99,26 @@ QUnit.test("Add two pages", function (assert) {
   survey.addPage(new PageModel("Page 2"));
   assert.equal(survey.PageCount, 2, "Two pages");
 });
+QUnit.test("create page and make it first", function (assert) {
+  var survey = new SurveyModel();
+  survey.addPage(new PageModel("Page 1"));
+  survey.addPage(new PageModel("Page 2"));
+  var newPage = survey.createNewPage("new Page");
+  survey.addPage(newPage, 0);
+  assert.equal(survey.PageCount, 3, "Three pages");
+  assert.equal(
+    survey.pages[0].name,
+    "new Page",
+    "New page is inserted correctly"
+  );
+  survey.addNewPage("second Page", 1);
+  assert.equal(survey.PageCount, 4, "Four pages");
+  assert.equal(
+    survey.pages[1].name,
+    "second Page",
+    "Second page is inserted correctly"
+  );
+});
 QUnit.test("Current Page", function (assert) {
   var survey = new SurveyModel();
   survey.addPage(createPageWithQuestion("Page 1"));

@@ -61,6 +61,7 @@ export { SurveyQuestionMatrixDropdown } from "../react/reactquestion_matrixdropd
 export { SurveyQuestionMatrixDynamic } from "../react/reactquestion_matrixdynamic";
 export { SurveyQuestionPanelDynamic } from "../react/reactquestion_paneldynamic";
 export { SurveyProgress } from "../react/reactSurveyProgress";
+export { SurveyProgressButtons } from "../react/reactSurveyProgressButtons";
 export { SurveyQuestionRating } from "../react/reactquestion_rating";
 export { SurveyQuestionExpression } from "../react/reactquestion_expression";
 export { SurveyWindow } from "../react/reactSurveyWindow";

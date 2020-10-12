@@ -18,13 +18,13 @@ export class SurveyWindow extends Survey {
   }
   render(): JSX.Element {
     if (!this.window.isShowing) return null;
-    var header = this.renderHeader();
+    var header = this.renderWindowHeader();
     var body = this.window.isExpanded ? this.renderBody() : null;
     let style: React.CSSProperties = {
       position: "fixed",
       bottom: 3,
       right: 10,
-      maxWidth: "60%"
+      maxWidth: "60%",
     };
     return (
       <div className={this.css.window.root} style={style}>
@@ -33,7 +33,7 @@ export class SurveyWindow extends Survey {
       </div>
     );
   }
-  protected renderHeader(): JSX.Element {
+  protected renderWindowHeader(): JSX.Element {
     var styleA = { width: "100%", cursor: "pointer" };
     var styleTitle = { paddingRight: "10px" };
     var glyphClassName = this.window.isExpanded
@@ -76,7 +76,7 @@ export class SurveyWindow extends Survey {
     if (!this.window.isExpanded && (newProps.expanded || newProps.isExpanded))
       this.window.expand();
     var self = this;
-    this.window.closeWindowOnCompleteCallback = function() {
+    this.window.closeWindowOnCompleteCallback = function () {
       self.window.hide();
     };
   }

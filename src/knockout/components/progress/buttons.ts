@@ -38,8 +38,8 @@ export class ProgressButtonsViewModel {
       this.model.currentPageNo = i;
     }
   }
-  public getScrollButtonCss(isLeftScroll: boolean) {
-    return ko.computed(function() {
+  public getScrollButtonCss(isLeftScroll: boolean): any {
+    return ko.computed(() => {
       let scrollCss: string = isLeftScroll ?
         this.model.css.progressButtonsImageButtonLeft :
         this.model.css.progressButtonsImageButtonRight;
@@ -47,10 +47,10 @@ export class ProgressButtonsViewModel {
       return scrollCss;
     }, this);
   }
-  public clickScrollButton(listContainerElement: Element, isLeftScroll: boolean) {
+  public clickScrollButton(listContainerElement: Element, isLeftScroll: boolean): void {
     listContainerElement.scrollLeft += (isLeftScroll ? -1 : 1) * 70;
   }
-  public dispose() {
+  public dispose(): void {
     if (typeof this.updateScroller !== "undefined") {
       clearInterval(this.updateScroller);
       this.updateScroller = undefined;

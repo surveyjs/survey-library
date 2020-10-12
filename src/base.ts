@@ -276,13 +276,19 @@ export class Bindings {
   }
   public getNames(): Array<string> {
     var res: Array<string> = [];
-    if (!this.properties) {
-      this.fillProperties();
-    }
+    this.fillProperties();
     for (var i = 0; i < this.properties.length; i++) {
       if (this.properties[i].isVisible("", this.obj)) {
         res.push(this.properties[i].name);
       }
+    }
+    return res;
+  }
+  public getProperties(): Array<JsonObjectProperty> {
+    var res: Array<JsonObjectProperty> = [];
+    this.fillProperties();
+    for (var i = 0; i < this.properties.length; i++) {
+      res.push(this.properties[i]);
     }
     return res;
   }
@@ -334,6 +340,7 @@ export class Bindings {
     }
   }
   private fillProperties() {
+    if (this.properties !== null) return;
     this.properties = [];
     var objProperties = Serializer.getPropertiesByObj(this.obj);
     for (var i = 0; i < objProperties.length; i++) {

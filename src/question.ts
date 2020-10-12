@@ -1763,9 +1763,11 @@ Serializer.addClass("question", [
     classNamePart: "validator",
   },
   {
-    name: "bindings",
+    name: "bindings:bindings",
     serializationProperty: "bindings",
-    visible: false,
+    visibleIf: function (obj: any) {
+      return obj.bindings.getNames().length > 0;
+    },
   },
 ]);
 Serializer.addAlterNativeClassName("question", "questionbase");

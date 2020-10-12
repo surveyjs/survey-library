@@ -1480,6 +1480,7 @@ export class SurveyModel
   }
   public locStrsChanged() {
     super.locStrsChanged();
+    this.updateProgressText();
     if (this.isStartedState && this.startedPage) {
       this.startedPage.locStrsChanged();
     }
@@ -2326,7 +2327,6 @@ export class SurveyModel
       newPage.setWasShown(true);
     }
     this.locStrsChanged();
-    this.updateProgressText();
     this.currentPageChanged(newPage, oldValue);
   }
   private getPageByObject(value: any): PageModel {

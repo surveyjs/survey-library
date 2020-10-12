@@ -11546,3 +11546,16 @@ QUnit.test("Peform triggers on value changed manually", function (assert) {
     "Triggers run successful"
   );
 });
+
+QUnit.test("Update progressText on changing locale, Bug#2453", function (
+  assert
+) {
+  var survey = new SurveyModel();
+  survey.addPage(createPageWithQuestion("Page 1"));
+  survey.addPage(createPageWithQuestion("Second page", "q2"));
+  assert.equal(survey.progressText, "Page 1 of 2", "in en");
+  var oldLocale = survey.locale;
+  survey.locale = "de";
+  assert.equal(survey.progressText, "Seite 1 von 2", "in de");
+  survey.locale = oldLocale;
+});

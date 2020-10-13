@@ -3,7 +3,7 @@
         <img data-bind="css: getScrollButtonCss(true), click: clickScrollButton.bind($data, $element.nextElementSibling, true)">
         <div data-bind="css: model.css.progressButtonsListContainer">
             <ul data-bind="foreach: model.visiblePages, css: model.css.progressButtonsList">
-                <li data-bind="css: $parent.getListElementCss($index), click: $parent.clickListElement.bind($parent)">
+                <li data-bind="css: $parent.getListElementCss($index), click: $parent.clickListElement.bind($parent, $index)">
                     <div data-bind="css: css.progressButtonsPageTitle, text: locNavigationTitle.koRenderedHtml() || name, attr: { title: locNavigationTitle.koRenderedHtml() || name }"></div>
                     <div data-bind="css: css.progressButtonsPageDescription, text: locNavigationDescription.koRenderedHtml(), attr: { title: locNavigationDescription.koRenderedHtml() }"></div>
                 </li>

@@ -2289,6 +2289,19 @@ export class SurveyModel extends Base
     if (value < 0 || value >= vPages.length) return;
     this.currentPage = vPages[value];
   }
+  public goToPage(visibleIndex: number): void {
+    if (visibleIndex < this.currentPageNo) {
+      this.currentPageNo = visibleIndex;
+    }
+    else if (visibleIndex > this.currentPageNo) {
+      let i: number = this.currentPageNo;
+      for (; i < visibleIndex; i++) {
+        if (this.visiblePages[i].hasErrors(true, true)) break;
+        this.visiblePages[i].passed = true;
+      }
+      this.currentPageNo = i;
+    }
+  }
   /**
    * Gets or sets the question display order. Use this property to randomize questions. You can randomize questions on a specific page.
    *

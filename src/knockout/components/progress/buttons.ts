@@ -1,6 +1,5 @@
 import * as ko from "knockout";
 import { SurveyModel } from "../../../survey";
-import { PageModel } from "../../../page";
 var template = require("html-loader?interpolate!val-loader!./buttons.html");
 
 export class ProgressButtonsViewModel {
@@ -25,18 +24,8 @@ export class ProgressButtonsViewModel {
     }
     return elementCss;
   }
-  public clickListElement(page: PageModel): void {
-    if (page.visibleIndex < this.model.currentPageNo) {
-      this.model.currentPageNo = page.visibleIndex;
-    }
-    else if (page.visibleIndex > this.model.currentPageNo) {
-      let i: number = this.model.currentPageNo;
-      for (; i < page.visibleIndex; i++) {
-        if (this.model.visiblePages[i].hasErrors(true, true)) break;
-        this.model.visiblePages[i].passed = true;
-      }
-      this.model.currentPageNo = i;
-    }
+  public clickListElement(index: any): void {
+    this.model.goToPage(index());
   }
   public getScrollButtonCss(isLeftScroll: boolean): any {
     return ko.computed(() => {

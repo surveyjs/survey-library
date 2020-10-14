@@ -12,7 +12,6 @@ import { FunctionFactory } from "../src/functionsfactory";
 import { Question } from "../src/question";
 import { ExpressionValidator } from "../src/validator";
 import { QuestionExpressionModel } from "../src/question_expression";
-import { QuestionFactory } from "../src/questionfactory";
 
 export default QUnit.module("Survey_QuestionMatrixDynamic");
 

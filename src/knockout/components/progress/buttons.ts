@@ -1,11 +1,14 @@
 import * as ko from "knockout";
 import { SurveyModel } from "../../../survey";
+import { SurveyProgressButtonsModel } from '../../../surveyProgressButtons';
 var template = require("html-loader?interpolate!val-loader!./buttons.html");
 
 export class ProgressButtonsViewModel {
+  private progressButtonsModel: SurveyProgressButtonsModel;
   private hasScroller = ko.observable(false);
   private updateScroller: any = undefined;
   constructor (private model: SurveyModel, private element: any) {
+    this.progressButtonsModel = new SurveyProgressButtonsModel(model);
     this.updateScroller = setInterval(() => {
       let listContainerElement: HTMLElement = this.element.querySelector(
         "." + model.css.progressButtonsListContainer);
@@ -15,17 +18,10 @@ export class ProgressButtonsViewModel {
     }, 100);
   }
   public getListElementCss(index: any): string {
-    if (index() >= this.model.visiblePages.length) return;
-    let elementCss: string = this.model.visiblePages[index()].passed ?
-      this.model.css.progressButtonsListElementPassed : "";
-    if (this.model.currentPageNo === index()) {
-      elementCss += !!elementCss ? " " : "";
-      elementCss += this.model.css.progressButtonsListElementCurrent;
-    }
-    return elementCss;
+    return this.progressButtonsModel.getListElementCss(index());
   }
   public clickListElement(index: any): void {
-    this.model.goToPage(index());
+    this.progressButtonsModel.clickListElement(index());
   }
   public getScrollButtonCss(isLeftScroll: boolean): any {
     return ko.computed(() => {

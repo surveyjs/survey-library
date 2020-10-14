@@ -1,7 +1,7 @@
 import { SurveyModel } from "../src/survey";
 import { SurveyTimer, surveyTimerFunctions } from "../src/surveytimer";
 
-export default QUnit.module("Survey");
+export default QUnit.module("SurveyTimer");
 
 surveyTimerFunctions.setTimeout = function(func: () => any): number {
   return 1;

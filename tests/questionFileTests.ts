@@ -1,7 +1,7 @@
 import { SurveyModel } from "../src/survey";
 import { QuestionFileModel } from "../src/question_file";
 
-export default QUnit.module("Survey");
+export default QUnit.module("Survey_QuestionFile");
 
 QUnit.test("QuestionFile value initialization strings", function(assert) {
   var json = {

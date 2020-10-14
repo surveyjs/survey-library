@@ -14,6 +14,7 @@ export * from "../surveytests";
 export * from "../surveytriggertests";
 export * from "../surveyvalidatortests";
 export * from "../surveyShowPreviewTests";
+export * from "../surveyProgressButtonsTest";
 export * from "../textPreprocessorTests";
 export * from "../lowercasetests";
 export * from "../elementslayouttests";

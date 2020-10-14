@@ -8,7 +8,7 @@ import {
 } from "../src/question_matrixdropdownbase";
 import { QuestionSelectBase } from "../src/question_baseselect";
 
-export default QUnit.module("Survey");
+export default QUnit.module("SurveyLowercase");
 
 QUnit.test("inputType value is always lower-case", function(assert) {
   var question = new QuestionTextModel("text");

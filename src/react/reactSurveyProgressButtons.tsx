@@ -2,10 +2,13 @@ import * as React from "react";
 import { SurveyNavigationBase } from "./reactSurveyNavigationBase";
 import { ReactElementFactory } from "./element-factory";
 import { PageModel } from "../page";
+import { SurveyProgressButtonsModel } from '../surveyProgressButtons';
 
 export class SurveyProgressButtons extends SurveyNavigationBase {
+  private progressButtonsModel: SurveyProgressButtonsModel;
   constructor(props: any) {
     super(props);
+    this.progressButtonsModel = new SurveyProgressButtonsModel(this.survey);
   }
   render(): JSX.Element {
     return (
@@ -27,15 +30,15 @@ export class SurveyProgressButtons extends SurveyNavigationBase {
   }
   protected getListElements(): JSX.Element[] {
     let buttons: JSX.Element[] = [];
-    this.survey.visiblePages.forEach((page: PageModel) => {
-      buttons.push(this.renderListElement(page));
+    this.survey.visiblePages.forEach((page: PageModel, index: number) => {
+      buttons.push(this.renderListElement(page, index));
     });
     return buttons;
   }
-  protected renderListElement(page: PageModel): JSX.Element {
+  protected renderListElement(page: PageModel, index: number): JSX.Element {
     return (
-      <li key={"listelement" + page.visibleIndex} className={this.getListElementCss(page)}
-        onClick={() => this.clickListElement(page.visibleIndex)}>
+      <li key={"listelement" + index} className={this.getListElementCss(index)}
+        onClick={() => this.clickListElement(index)}>
         <div className={this.css.progressButtonsPageTitle}>
           {page.navigationTitle || page.name}
         </div>
@@ -45,11 +48,11 @@ export class SurveyProgressButtons extends SurveyNavigationBase {
       </li>
     );
   }
-  protected getListElementCss(page: PageModel): string {
-    return "";
+  protected getListElementCss(index: number): string {
+    return this.progressButtonsModel.getListElementCss(index);
   }
   protected clickListElement(index: number): void {
-    this.survey.goToPage(index);
+    this.progressButtonsModel.clickListElement(index);
   }
 }
 

@@ -109,6 +109,7 @@ export {
   QuestionPanelDynamicItem,
 } from "../../question_paneldynamic";
 export { SurveyTimer } from "../../surveytimer";
+export { SurveyProgressButtonsModel } from "../../surveyProgressButtons";
 export { SurveyModel } from "../../survey";
 export {
   SurveyTrigger,

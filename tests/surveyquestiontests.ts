@@ -14,7 +14,6 @@ import {
 import {
   NumericValidator,
   AnswerCountValidator,
-  EmailValidator,
   RegexValidator,
   ExpressionValidator,
 } from "../src/validator";
@@ -29,8 +28,8 @@ import { surveyLocalization } from "../src/surveyStrings";
 import { settings } from "../src/settings";
 import { QuestionImagePickerModel } from "../src/question_imagepicker";
 import { FunctionFactory } from "../src/functionsfactory";
-import { ArrayChanges, SurveyError } from "../src/base";
-import { CustomError, RequreNumericError } from "../src/error";
+import { ArrayChanges } from "../src/base";
+import { RequreNumericError } from "../src/error";
 
 export default QUnit.module("Survey_Questions");
 

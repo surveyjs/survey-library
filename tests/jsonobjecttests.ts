@@ -6,7 +6,7 @@
 import { ItemValue } from "../src/itemvalue";
 import { Base } from "../src/base";
 import { Helpers } from "../src/helpers";
-import { ILocalizableOwner, LocalizableString } from "../src/localizablestring";
+import { ILocalizableOwner } from "../src/localizablestring";
 import { QuestionMatrixDynamicModel } from "../src/question_matrixdynamic";
 import { Question } from "../src/question";
 

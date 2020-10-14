@@ -1262,7 +1262,8 @@ export class SurveyModel
     var url = this.getNavigateToUrl();
     var options = { url: url };
     this.onNavigateToUrl.fire(this, options);
-    if (!options.url || !window || !window.location) return;
+    if (!options.url || typeof window === "undefined" || !window.location)
+      return;
     window.location.href = options.url;
   }
   /**
@@ -2681,7 +2682,7 @@ export class SurveyModel
    * @see state
    */
   public get hasCookie(): boolean {
-    if (!this.cookieName) return false;
+    if (!this.cookieName || typeof document === "undefined") return false;
     var cookies = document.cookie;
     return cookies && cookies.indexOf(this.cookieName + "=true") > -1;
   }
@@ -2692,7 +2693,7 @@ export class SurveyModel
    * @see deleteCookie
    */
   public setCookie() {
-    if (!this.cookieName) return;
+    if (!this.cookieName || typeof document === "undefined") return;
     document.cookie =
       this.cookieName + "=true; expires=Fri, 31 Dec 9999 0:0:0 GMT";
   }

@@ -1,12 +1,14 @@
 import { Event } from "./base";
 
 export var surveyTimerFunctions = {
-  setTimeout: function(func: () => any): number {
+  setTimeout: function (func: () => any): number {
+    if (typeof window === "undefined") return 0;
     return window.setTimeout(func, 1000);
   },
-  clearTimeout: function(timerId: number) {
+  clearTimeout: function (timerId: number) {
+    if (typeof window === "undefined") return;
     window.clearTimeout(timerId);
-  }
+  },
 };
 
 export class SurveyTimer {

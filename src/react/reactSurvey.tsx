@@ -369,7 +369,9 @@ export class Survey extends SurveyElementBase implements ISurveyCreator {
       self.setState({ modelChanged: counter + 1 });
     };
     this.survey.onPartialSend.add((sender) => {
-      self.setState(self.state);
+      if (!!self.state) {
+        self.setState(self.state);
+      }
     });
     this.survey.onCurrentPageChanged.add(this.onCurrentPageChangedHandler);
   }

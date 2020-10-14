@@ -23,6 +23,10 @@ export class SurveyLocString extends React.Component<any, any> {
       self.setState({ changed: self.state.changed + 1 });
     };
   }
+  componentWillUnmount() {
+    if (!this.locStr) return;
+    this.locStr.onChanged = function () {};
+  }
   render(): JSX.Element {
     if (!this.locStr) return null;
     if (this.locStr.hasHtml) {

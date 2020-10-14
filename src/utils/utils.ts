@@ -89,7 +89,7 @@ function isElementVisible(
 }
 function findScrollableParent(element: HTMLElement): HTMLElement {
   if (!element) {
-    return undefined;
+    return <any>window;
   }
   if (
     element.scrollHeight > element.clientHeight &&

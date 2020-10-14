@@ -1049,7 +1049,7 @@ export class SurveyElement extends Base implements ISurveyElement {
   public readOnlyChangedCallback: () => void;
 
   public static ScrollElementToTop(elementId: string): boolean {
-    if (!elementId) return false;
+    if (!elementId || typeof document === "undefined") return false;
     var el = document.getElementById(elementId);
     if (!el || !el.scrollIntoView) return false;
     var elemTop = el.getBoundingClientRect().top;
@@ -1074,7 +1074,7 @@ export class SurveyElement extends Base implements ISurveyElement {
     return null;
   }
   public static FocusElement(elementId: string): boolean {
-    if (!elementId) return false;
+    if (!elementId || typeof document === "undefined") return false;
     var el = document.getElementById(elementId);
     if (el) {
       el.focus();

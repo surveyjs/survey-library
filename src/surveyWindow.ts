@@ -27,7 +27,7 @@ export class SurveyWindowModel extends Base {
       this.windowElement = <HTMLDivElement>document.createElement("div");
     }
     var self = this;
-    this.survey.onComplete.add(function(survey, options) {
+    this.survey.onComplete.add(function (survey, options) {
       self.onSurveyComplete();
     });
   }
@@ -124,11 +124,16 @@ export class SurveyWindowModel extends Base {
     } else {
       var self = this;
       var timerId: any = null;
-      var func = function() {
+      var func = function () {
         self.closeWindowOnComplete();
-        window.clearInterval(timerId);
+        if (typeof window !== "undefined") {
+          window.clearInterval(timerId);
+        }
       };
-      timerId = window.setInterval(func, this.closeOnCompleteTimeout * 1000);
+      timerId =
+        typeof window !== "undefined"
+          ? window.setInterval(func, this.closeOnCompleteTimeout * 1000)
+          : 0;
     }
   }
   protected closeWindowOnComplete() {

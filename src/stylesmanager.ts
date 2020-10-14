@@ -849,7 +849,8 @@ export class StylesManager {
 
   private sheet: CSSStyleSheet = null;
 
-  static findSheet(styleSheetId: string) {
+  static findSheet(styleSheetId: string): any {
+    if (typeof document === "undefined") return null;
     for (let i = 0; i < document.styleSheets.length; i++) {
       if (
         !!document.styleSheets[i].ownerNode &&

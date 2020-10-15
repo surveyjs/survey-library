@@ -503,7 +503,7 @@ QUnit.test(
   }
 );
 QUnit.test(
-  "survey.progressBarType = 'questions' and non input question, bug #2108",
+  "survey.progressBarType = 'questions' and non input question, Bug #2108, Bug #2460",
   function (assert) {
     var survey = new SurveyModel({
       progressBarType: "questions",
@@ -528,6 +528,7 @@ QUnit.test(
     });
     survey.progressBarType = "questions";
     assert.equal(survey.getProgress(), 0, "The progress is 0");
+    assert.equal(survey.progressValue, 0, "The progress is 0, progressValue");
     assert.equal(
       survey.progressText,
       "Answered 0/2 questions",
@@ -535,10 +536,39 @@ QUnit.test(
     );
     survey.getQuestionByName("q1").value = "Answer 1";
     assert.equal(survey.getProgress(), 50, "The progress is 50%");
+    assert.equal(
+      survey.progressValue,
+      50,
+      "The progress is 50%, progressValue"
+    );
     assert.equal(survey.progressText, "Answered 1/2 questions");
     survey.getQuestionByName("q3").value = "Answer 3";
     assert.equal(survey.getProgress(), 100, "The progress is 100%");
+    assert.equal(
+      survey.progressValue,
+      100,
+      "The progress is 100%, progressValue"
+    );
     assert.equal(survey.progressText, "Answered 2/2 questions");
+    //Add test cases for Bug#2460
+    survey.getQuestionByName("q3").clearValue();
+    assert.equal(survey.getProgress(), 50, "The progress is 50% again");
+    assert.equal(
+      survey.progressValue,
+      50,
+      "The progress is 50% again, progressValue"
+    );
+    survey.getQuestionByName("q3").visible = false;
+    assert.equal(
+      survey.getProgress(),
+      100,
+      "The progress is 100%, the second answer is invisible"
+    );
+    assert.equal(
+      survey.progressValue,
+      100,
+      "The progress is 100%, the second answer is invisible, progressValue"
+    );
   }
 );
 QUnit.test("Next, Prev, Next", function (assert) {

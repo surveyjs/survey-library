@@ -40,6 +40,7 @@ export class JsonObjectProperty implements IObject {
     "maxLength",
     "maxValue",
     "minValue",
+    "dataListValue",
   ];
   private classInfoValue: JsonMetadataClass;
   private typeValue: string = null;
@@ -71,6 +72,7 @@ export class JsonObjectProperty implements IObject {
   public maxLength: number = -1;
   public maxValue: any;
   public minValue: any;
+  private dataListValue: Array<string>;
   public layout: string = null;
   public onGetValue: (obj: any) => any = null;
   public onSetValue: (obj: any, value: any, jsonConv: JsonObject) => any = null;
@@ -231,6 +233,12 @@ export class JsonObjectProperty implements IObject {
   }
   public set isLocalizable(val: boolean) {
     this.isLocalizableValue = val;
+  }
+  public get dataList(): Array<string> {
+    return Array.isArray(this.dataListValue) ? this.dataListValue : [];
+  }
+  public set dataList(val: Array<string>) {
+    this.dataListValue = val;
   }
   public mergeWith(prop: JsonObjectProperty) {
     var valuesNames = JsonObjectProperty.mergableValues;
@@ -462,6 +470,9 @@ export class JsonMetadataClass {
       }
       if (!Helpers.isValueEmpty(propInfo.minValue)) {
         prop.minValue = propInfo.minValue;
+      }
+      if (!Helpers.isValueEmpty(propInfo.dataList)) {
+        prop.dataList = propInfo.dataList;
       }
       if (!Helpers.isValueEmpty(propInfo.isDynamicChoices)) {
         prop.isDynamicChoices = propInfo.isDynamicChoices;

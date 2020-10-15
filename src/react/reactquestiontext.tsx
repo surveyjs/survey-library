@@ -35,6 +35,7 @@ export class SurveyQuestionText extends SurveyQuestionUncontrolledElement<
         step={this.question.step}
         size={this.question.size}
         placeholder={placeHolder}
+        autoComplete={this.question.autoComplete}
         onBlur={onBlur}
         onInput={onInput}
         aria-required={this.question.isRequired}

@@ -49,6 +49,7 @@ export class QuestionFile extends QuestionFileModel {
         event.returnValue = false;
         return false;
       }
+      event.dataTransfer.dropEffect = "copy";
       event.preventDefault();
     };
     (<any>this)["dochange"] = (data: any, event: any) => {

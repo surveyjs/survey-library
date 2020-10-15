@@ -117,6 +117,7 @@ export class File extends QuestionVue<QuestionFileModel> {
       event.returnValue = false;
       return false;
     }
+    event.dataTransfer.dropEffect = "copy";
     event.preventDefault();
   };
   onDrop = (event: any) => {

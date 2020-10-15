@@ -2008,6 +2008,7 @@ export class SurveyModel
    *
    * - `pages` (default),
    * - `questions`,
+   * - `requiredQuestions`,
    * - `correctQuestions`.
    */
   public get progressBarType(): string {
@@ -2542,34 +2543,36 @@ export class SurveyModel
   }
   /**
    * Returns the progress that a user made while going through the survey.
+   * It depends from progressBarType property
+   * @see progressBarType
+   * @see progressValue
    */
   public getProgress(): number {
     if (this.currentPage == null) return 0;
-    if (this.progressBarType === "questions") {
-      var questions = this.getQuestionsWithInput();
-      var answeredQuestionsCount = questions.reduce(
-        (a: number, b: Question) => a + (b.isEmpty() ? 0 : 1),
-        0
-      );
-      return Math.ceil((answeredQuestionsCount * 100) / questions.length);
-    }
-    if (this.progressBarType === "correctQuestions") {
-      var questions = this.getQuestionsWithInput();
-      var correctAnswersCount = this.getCorrectedAnswerCount();
-      return Math.ceil((correctAnswersCount * 100) / questions.length);
+    if (this.progressBarType !== "pages") {
+      var info = this.getProgressInfo();
+      if (this.progressBarType === "requiredQuestions") {
+        return info.requiredQuestionCount > 1
+          ? Math.ceil(
+              (info.requiredAnsweredQuestionCount * 100) /
+                info.requiredQuestionCount
+            )
+          : 100;
+      }
+      return info.questionCount > 1
+        ? Math.ceil((info.answeredQuestionCount * 100) / info.questionCount)
+        : 100;
     }
     var index = this.visiblePages.indexOf(this.currentPage) + 1;
     return Math.ceil((index * 100) / this.visiblePageCount);
   }
-  private getQuestionsWithInput(): Array<Question> {
-    var allQuestions = this.getAllQuestions();
-    var questions = new Array<Question>();
-    for (var i = 0; i < allQuestions.length; i++) {
-      if (allQuestions[i].hasInput) {
-        questions.push(allQuestions[i]);
-      }
-    }
-    return questions;
+  /**
+   * Returns the progress that a user made while going through the survey.
+   * It depends from progressBarType property
+   * @see progressBarType
+   */
+  public get progressValue(): number {
+    return this.getPropertyValue("progressValue", 0);
   }
   /**
    * Returns the navigation buttons (i.e., 'Prev', 'Next', or 'Complete') position.
@@ -3396,6 +3399,7 @@ export class SurveyModel
     return res;
   }
   public updateProgressText(onValueChanged: boolean = false) {
+    if (this.isDesignMode) return;
     if (
       onValueChanged &&
       this.progressBarType == "pages" &&
@@ -3403,6 +3407,7 @@ export class SurveyModel
     )
       return;
     this.setPropertyValue("progressText", this.getProgressText());
+    this.setPropertyValue("progressValue", this.getProgress());
   }
   public getProgressText(): string {
     if (this.isDesignMode || this.currentPage == null) return "";
@@ -4345,6 +4350,7 @@ export class SurveyModel
         index += this.pages[i].setVisibleIndex(index);
       }
     }
+    this.updateProgressText(true);
   }
   private updatePageVisibleIndexes(showIndex: boolean) {
     var index = 0;
@@ -4712,7 +4718,6 @@ export class SurveyModel
   }
   pageVisibilityChanged(page: IPage, newValue: boolean) {
     this.updateVisibleIndexes();
-    this.updateProgressText();
     this.onPageVisibleChanged.fire(this, { page: page, visible: newValue });
   }
   panelVisibilityChanged(panel: IPanel, newValue: boolean) {

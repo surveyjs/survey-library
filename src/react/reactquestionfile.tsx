@@ -28,6 +28,7 @@ export class SurveyQuestionFile extends SurveyQuestionElementBase {
       event.returnValue = false;
       return false;
     }
+    event.dataTransfer.dropEffect = "copy";
     event.preventDefault();
   };
   handleOnDrop = (event: any) => {

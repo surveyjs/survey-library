@@ -3321,11 +3321,16 @@ export class SurveyModel
     var self = options.survey;
     var hasErrors = false;
     if (options.errors) {
+      var hasToFocus = this.focusOnFirstError;
       for (var name in options.errors) {
         var question = self.getQuestionByName(name);
         if (question && question["errors"]) {
           hasErrors = true;
-          question["addError"](new CustomError(options.errors[name], this));
+          question.addError(new CustomError(options.errors[name], this));
+          if (hasToFocus) {
+            hasToFocus = false;
+            question.focus(true);
+          }
         }
       }
     }

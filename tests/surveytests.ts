@@ -11589,3 +11589,40 @@ QUnit.test("Update progressText on changing locale, Bug#2453", function (
   assert.equal(survey.progressText, "Seite 1 von 2", "in de");
   survey.locale = oldLocale;
 });
+QUnit.test(
+  "Focus question on Survey onServerValidateQuestions event, Bug#2464",
+  function (assert) {
+    var focusedQuestionId = "";
+    var oldFunc = SurveyElement.FocusElement;
+    SurveyElement.FocusElement = function (elId: string): boolean {
+      focusedQuestionId = elId;
+      return true;
+    };
+
+    var survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "q1", isRequired: true },
+        { type: "text", name: "q2" },
+      ],
+    });
+    survey.onServerValidateQuestions.add(function (sender, options) {
+      options.errors["q2"] = "error";
+      options.complete();
+    });
+    survey.completeLastPage();
+    assert.equal(
+      survey.getQuestionByName("q1").inputId,
+      focusedQuestionId,
+      "q1 is required"
+    );
+    survey.setValue("q1", "val1");
+    focusedQuestionId = "";
+    survey.completeLastPage();
+    assert.equal(
+      survey.getQuestionByName("q2").inputId,
+      focusedQuestionId,
+      "q2 has error"
+    );
+    SurveyElement.FocusElement = oldFunc;
+  }
+);

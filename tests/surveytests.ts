@@ -11626,3 +11626,42 @@ QUnit.test(
     SurveyElement.FocusElement = oldFunc;
   }
 );
+QUnit.test(
+  "Focus errored question when checkErrorsMode: `onComplete`, Bug#",
+  function (assert) {
+    var focusedQuestionId = "";
+    var oldFunc = SurveyElement.FocusElement;
+    SurveyElement.FocusElement = function (elId: string): boolean {
+      focusedQuestionId = elId;
+      return true;
+    };
+
+    var survey = new SurveyModel({
+      checkErrorsMode: "onComplete",
+      pages: [
+        {
+          elements: [
+            { type: "text", name: "q0" },
+            { type: "text", name: "q1", isRequired: true },
+          ],
+        },
+        {
+          elements: [{ type: "text", name: "q2", isRequired: true }],
+        },
+        {
+          elements: [{ type: "text", name: "q3", isRequired: true }],
+        },
+      ],
+    });
+    survey.nextPage();
+    survey.nextPage();
+    survey.completeLastPage();
+    assert.equal(survey.currentPageNo, 0, "The first page is active");
+    assert.equal(
+      survey.getQuestionByName("q1").inputId,
+      focusedQuestionId,
+      "q1 is required and q0 is not"
+    );
+    SurveyElement.FocusElement = oldFunc;
+  }
+);

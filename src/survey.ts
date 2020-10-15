@@ -2799,13 +2799,20 @@ export class SurveyModel
     var firstErrorPage = null;
     var res = false;
     for (var i = 0; i < visPages.length; i++) {
-      if (visPages[i].hasErrors(fireCallback, focusOnFirstError)) {
+      if (visPages[i].hasErrors(fireCallback, false)) {
         if (!firstErrorPage) firstErrorPage = visPages[i];
         res = true;
       }
     }
     if (focusOnFirstError && !!firstErrorPage) {
       this.currentPage = firstErrorPage;
+      var questions = firstErrorPage.questions;
+      for (var i = 0; i < questions.length; i++) {
+        if (questions[i].errors.length > 0) {
+          questions[i].focus(true);
+          break;
+        }
+      }
     }
     return res;
   }

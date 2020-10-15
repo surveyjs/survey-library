@@ -40,9 +40,6 @@ export class QuestionRowModel extends Base {
   private _updateVisibility: any = undefined;
   public startLazyRendering(rowContainerDiv: HTMLElement) {
     this._scrollableParent = findScrollableParent(rowContainerDiv);
-    if (!this._scrollableParent) {
-      this._scrollableParent = window;
-    }
     this._updateVisibility = () => {
       var isRowContainerDivVisible = isElementVisible(rowContainerDiv, 50);
       if (!this.isNeedRender && isRowContainerDivVisible) {

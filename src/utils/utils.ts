@@ -89,14 +89,16 @@ function isElementVisible(
 }
 function findScrollableParent(element: HTMLElement): HTMLElement {
   if (!element) {
-    return undefined;
+    return <any>window;
   }
-
   if (
     element.scrollHeight > element.clientHeight &&
     (getComputedStyle(element).overflowY === "scroll" ||
       getComputedStyle(element).overflowY === "auto")
   ) {
+    if(element === document.body) {
+      return <any>window;
+    }
     return element;
   } else {
     return findScrollableParent(element.parentElement);

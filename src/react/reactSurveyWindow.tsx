@@ -16,8 +16,10 @@ export class SurveyWindow extends Survey {
   handleOnExpanded(event: any) {
     this.window.isExpanded = !this.window.isExpanded;
   }
-  render(): JSX.Element {
-    if (!this.window.isShowing) return null;
+  protected canRender(): boolean {
+    return super.canRender() && this.window.isShowing;
+  }
+  protected renderElement(): JSX.Element {
     var header = this.renderWindowHeader();
     var body = this.window.isExpanded ? this.renderBody() : null;
     let style: React.CSSProperties = {

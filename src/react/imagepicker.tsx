@@ -26,8 +26,7 @@ export class SurveyQuestionImagePicker extends SurveyQuestionElementBase {
     }
     this.setState({ value: this.question.value });
   }
-  render(): JSX.Element {
-    if (!this.question) return null;
+  protected renderElement(): JSX.Element {
     var cssClasses = this.question.cssClasses;
     return (
       <fieldset className={cssClasses.root}>
@@ -41,22 +40,14 @@ export class SurveyQuestionImagePicker extends SurveyQuestionElementBase {
     for (var i = 0; i < this.question.visibleChoices.length; i++) {
       var item = this.question.visibleChoices[i];
       var key = "item" + i;
-      items.push(this.renderItem(key, item, i === 0, cssClasses));
+      items.push(this.renderItem(key, item, cssClasses));
     }
     return items;
   }
   protected get textStyle(): any {
     return { marginLeft: "3px", display: "inline", position: "static" };
   }
-  private renderItem(
-    key: string,
-    item: ItemValue,
-    isFirst: boolean,
-    cssClasses: any
-  ): JSX.Element {
-    return this.renderElement(key, item, cssClasses);
-  }
-  protected renderElement(
+  protected renderItem(
     key: string,
     item: ItemValue,
     cssClasses: any

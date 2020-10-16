@@ -68,11 +68,16 @@ export class SurveyQuestion extends SurveyElementBase {
       }
     }
   }
-  render(): JSX.Element {
+  protected canRender(): boolean {
+    return (
+      super.canRender() &&
+      !!this.question &&
+      !!this.creator &&
+      this.question.isVisible
+    );
+  }
+  protected renderElement(): JSX.Element {
     var question = this.question;
-
-    if (!question || !this.creator) return null;
-    if (!question.isVisible) return null;
     var cssClasses = question.cssClasses;
     var questionRender = this.renderQuestion();
     var header = this.renderHeader(question);
@@ -226,8 +231,10 @@ export class SurveyElementErrors extends ReactSurveyElement {
   private getState(prevState: any = null) {
     return !prevState ? { error: 0 } : { error: prevState.error + 1 };
   }
-  render(): JSX.Element {
-    if (!this.element || this.element.errors.length == 0) return null;
+  protected canRender(): boolean {
+    return !!this.element && this.element.errors.length > 0;
+  }
+  protected renderElement(): JSX.Element {
     var errors = [];
     for (var i = 0; i < this.element.errors.length; i++) {
       var key = "error" + i;
@@ -289,8 +296,10 @@ export class SurveyQuestionAndErrorsCell extends ReactSurveyElement {
   protected getCellClass(): any {
     return null;
   }
-  render(): JSX.Element {
-    if (!this.question) return null;
+  protected canRender(): boolean {
+    return !!this.question;
+  }
+  protected renderElement(): JSX.Element {
     var errorsLocation = this.creator.questionErrorLocation();
     var errors = this.getShowErrors() ? (
       <SurveyElementErrors

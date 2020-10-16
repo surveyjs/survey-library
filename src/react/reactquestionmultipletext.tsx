@@ -1,7 +1,7 @@
 import * as React from "react";
 import {
   ReactSurveyElement,
-  SurveyQuestionElementBase
+  SurveyQuestionElementBase,
 } from "./reactquestionelement";
 import { SurveyQuestionAndErrorsCell } from "./reactquestion";
 import { Helpers } from "../helpers";
@@ -16,8 +16,7 @@ export class SurveyQuestionMultipleText extends SurveyQuestionElementBase {
   protected get question(): QuestionMultipleTextModel {
     return this.questionBase as QuestionMultipleTextModel;
   }
-  render(): JSX.Element {
-    if (!this.question) return null;
+  protected renderElement(): JSX.Element {
     var cssClasses = this.question.cssClasses;
     var tableRows = this.question.getRows();
     var rows = [];
@@ -78,6 +77,6 @@ export class SurveyQuestionMultipleText extends SurveyQuestionElementBase {
   }
 }
 
-ReactQuestionFactory.Instance.registerQuestion("multipletext", props => {
+ReactQuestionFactory.Instance.registerQuestion("multipletext", (props) => {
   return React.createElement(SurveyQuestionMultipleText, props);
 });

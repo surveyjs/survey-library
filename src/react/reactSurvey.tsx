@@ -102,7 +102,7 @@ export class Survey extends SurveyElementBase implements ISurveyCreator {
       </div>
     );
   }
-  render(): JSX.Element {
+  protected renderElement(): JSX.Element {
     return this.doRender();
   }
   public get css(): any {

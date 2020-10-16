@@ -86,8 +86,7 @@ export class SurveyQuestionBoolean extends SurveyQuestionElementBase {
         : "")
     );
   }
-  render(): JSX.Element {
-    if (!this.question) return null;
+  protected renderElement(): JSX.Element {
     var cssClasses = this.question.cssClasses;
     var itemClass = this.getItemClass();
     return (
@@ -108,7 +107,11 @@ export class SurveyQuestionBoolean extends SurveyQuestionElementBase {
             onChange={this.handleOnChange}
             aria-label={this.question.locTitle.renderedHtml}
             aria-invalid={this.question.errors.length > 0}
-            aria-describedby={this.question.errors.length > 0 ? this.question.id + '_errors' : null}    
+            aria-describedby={
+              this.question.errors.length > 0
+                ? this.question.id + "_errors"
+                : null
+            }
           />
           <span
             className={this.getLabelClass(false)}

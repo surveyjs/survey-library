@@ -27,23 +27,21 @@ export class SurveyRow extends SurveyElementBase {
   protected get css(): any {
     return this.props.css;
   }
-  render(): JSX.Element {
-    if (this.row == null || this.survey == null || this.creator == null)
-      return null;
-    if (this.row.visible) {
-      var elements = null;
-      if (this.row.isNeedRender) {
-        elements = this.row.elements.map((element) =>
-          this.createElement(element)
-        );
-      }
-      return (
-        <div ref="root" className={this.css.row}>
-          {elements}
-        </div>
+  protected canRender(): boolean {
+    return !!this.row && !!this.survey && !!this.creator && this.row.visible;
+  }
+  protected renderElement(): JSX.Element {
+    var elements = null;
+    if (this.row.isNeedRender) {
+      elements = this.row.elements.map((element) =>
+        this.createElement(element)
       );
     }
-    return null;
+    return (
+      <div ref="root" className={this.css.row}>
+        {elements}
+      </div>
+    );
   }
   componentDidMount() {
     super.componentDidMount();

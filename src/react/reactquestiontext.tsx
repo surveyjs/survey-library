@@ -9,8 +9,7 @@ export class SurveyQuestionText extends SurveyQuestionUncontrolledElement<
   constructor(props: any) {
     super(props);
   }
-  render(): JSX.Element {
-    if (!this.question) return null;
+  protected renderElement(): JSX.Element {
     var cssClasses = this.question.cssClasses;
     var onBlur = !this.question.isInputTextUpdate
       ? this.updateValueOnEvent

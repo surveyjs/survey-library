@@ -16,8 +16,7 @@ export class SurveyQuestionCheckbox extends SurveyQuestionElementBase {
   protected get question(): QuestionCheckboxModel {
     return this.questionBase as QuestionCheckboxModel;
   }
-  render(): JSX.Element {
-    if (!this.question) return null;
+  protected renderElement(): JSX.Element {
     var cssClasses = this.question.cssClasses;
     return (
       <fieldset
@@ -134,8 +133,10 @@ export class SurveyQuestionCheckboxItem extends ReactSurveyElement {
   selectAllChanged(event: any) {
     this.question.toggleSelectAll();
   }
-  render(): JSX.Element {
-    if (!this.item || !this.question) return null;
+  protected canRender(): boolean {
+    return !!this.item && !!this.question;
+  }
+  protected renderElement(): JSX.Element {
     var isChecked = this.question.isItemSelected(this.item);
     var otherItem =
       this.item.value === this.question.otherItem.value && isChecked

@@ -80,8 +80,7 @@ export class SurveyQuestionFile extends SurveyQuestionElementBase {
     this.question.loadFiles(files);
     this.setState({ fileLoaded: this.state.fileLoaded + 1 });
   };
-  render(): JSX.Element {
-    if (!this.question) return null;
+  protected renderElement(): JSX.Element {
     var preview = this.renderPreview();
     var fileInput = null;
     var fileDecorator = this.renderFileDecorator();

@@ -1,7 +1,7 @@
 import * as React from "react";
 import {
   SurveyQuestionUncontrolledElement,
-  ReactSurveyElement
+  ReactSurveyElement,
 } from "./reactquestionelement";
 import { Helpers } from "../helpers";
 import { QuestionDropdownModel } from "../question_dropdown";
@@ -10,12 +10,13 @@ import { ReactQuestionFactory } from "./reactquestionfactory";
 import { ItemValue } from "../itemvalue";
 import { Base } from "../base";
 
-export class SurveyQuestionDropdown extends SurveyQuestionUncontrolledElement<QuestionDropdownModel> {
+export class SurveyQuestionDropdown extends SurveyQuestionUncontrolledElement<
+  QuestionDropdownModel
+> {
   constructor(props: any) {
     super(props);
   }
-  render(): JSX.Element {
-    if (!this.question) return null;
+  protected renderElement(): JSX.Element {
     var cssClasses = this.question.cssClasses;
     var comment = this.question.isOtherSelected
       ? this.renderOther(cssClasses)
@@ -56,12 +57,16 @@ export class SurveyQuestionDropdown extends SurveyQuestionUncontrolledElement<Qu
         <select
           id={this.question.inputId}
           className={cssClasses.control}
-          ref={select => (this.control = select)}
+          ref={(select) => (this.control = select)}
           onChange={this.updateValueOnEvent}
           onInput={this.updateValueOnEvent}
           aria-label={this.question.locTitle.renderedHtml}
           aria-invalid={this.question.errors.length > 0}
-          aria-describedby={this.question.errors.length > 0 ? this.question.id + '_errors' : null}  
+          aria-describedby={
+            this.question.errors.length > 0
+              ? this.question.id + "_errors"
+              : null
+          }
         >
           {captionOption}
           {options}
@@ -93,8 +98,10 @@ export class SurveyQuestionOptionItem extends ReactSurveyElement {
   private get item(): ItemValue {
     return this.props.item;
   }
-  render(): JSX.Element {
-    if (!this.item) return;
+  protected canRender(): boolean {
+    return !!this.item;
+  }
+  protected renderElement(): JSX.Element {
     return (
       <option value={this.item.value} disabled={!this.item.isEnabled}>
         {this.item.text}
@@ -103,6 +110,6 @@ export class SurveyQuestionOptionItem extends ReactSurveyElement {
   }
 }
 
-ReactQuestionFactory.Instance.registerQuestion("dropdown", props => {
+ReactQuestionFactory.Instance.registerQuestion("dropdown", (props) => {
   return React.createElement(SurveyQuestionDropdown, props);
 });

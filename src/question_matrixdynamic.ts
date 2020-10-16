@@ -499,19 +499,33 @@ export class QuestionMatrixDynamicModel
     var hasContext = !!context ? this.columns.indexOf(context) > -1 : false;
     for (var i = 0; i < this.columns.length; i++) {
       var column = this.columns[i];
-      objects.push({
-        name: this.getValueName() + "[0]." + column.name,
-        text: this.processedTitle + "[0]." + column.fullTitle,
-        question: this,
-      });
+      this.addColumnIntoaddConditionObjectsByContext(objects, 0, column);
       if (hasContext && column != context) {
-        objects.push({
-          name: "row." + column.name,
-          text: "row." + column.fullTitle,
-          question: this,
-        });
+        this.addColumnIntoaddConditionObjectsByContext(objects, -1, column);
+      }
+      for (
+        var j = 1;
+        j < Math.min(settings.matrixMaxRowCountInCondition, this.rowCount);
+        j++
+      ) {
+        this.addColumnIntoaddConditionObjectsByContext(objects, j, column);
       }
     }
+  }
+  private addColumnIntoaddConditionObjectsByContext(
+    objects: Array<IConditionObject>,
+    rowIndex: number,
+    column: MatrixDropdownColumn
+  ) {
+    var rowName = rowIndex > -1 ? "[" + rowIndex.toString() + "]." : "row.";
+    objects.push({
+      name:
+        (rowIndex > -1 ? this.getValueName() + rowName : rowName) + column.name,
+      text:
+        (rowIndex > -1 ? this.processedTitle + rowName : rowName) +
+        column.fullTitle,
+      question: this,
+    });
   }
   public supportGoNextPageAutomatic() {
     return false;

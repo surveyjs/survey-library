@@ -44,6 +44,10 @@ export var settings = {
    */
   matrixMaximumRowCount: 1000,
   /**
+   * Maximum rowCount that returns in addConditionObjectsByContext function
+   */
+  matrixMaxRowCountInCondition: 1,
+  /**
    * Maximum panel count in dynamic panel
    */
   panelMaximumPanelCount: 100,

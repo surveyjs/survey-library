@@ -109,7 +109,7 @@ export class QuestionImplementor extends ImplementorBase {
         this.question.customWidget.afterRender(this.question, el);
       }
       ko.utils.domNodeDisposal.addDisposeCallback(el, () => {
-        this.question.beforeDestoyQuestionElement(el);
+        this.question.beforeDestroyQuestionElement(el);
         if (!!this.question.customWidget) {
           try {
             this.question.customWidget.willUnmount(this.question, el);

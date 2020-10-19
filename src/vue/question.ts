@@ -21,7 +21,7 @@ export class QuestionVue<T extends Question> extends Vue {
   }
   beforeDestroy() {
     if (this.question) {
-      this.question.beforeDestoyQuestionElement(this.$el);
+      this.question.beforeDestroyQuestionElement(this.$el);
     }
   }
 

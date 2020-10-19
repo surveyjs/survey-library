@@ -560,7 +560,7 @@ export class Question
       this.afterRenderQuestionCallback(this, el);
     }
   }
-  public beforeDestoyQuestionElement(el: any) {}
+  public beforeDestroyQuestionElement(el: any) {}
   /**
    * Returns the rendred question title.
    */

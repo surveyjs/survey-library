@@ -63,7 +63,7 @@ export class QuestionSignaturePadModel extends Question {
     }
     super.afterRenderQuestionElement(el);
   }
-  public beforeDestoyQuestionElement(el: any) {
+  public beforeDestroyQuestionElement(el: any) {
     if (!!el) {
       this.destroySignaturePad(el);
     }

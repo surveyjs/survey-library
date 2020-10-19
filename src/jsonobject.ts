@@ -16,6 +16,8 @@ export class JsonObjectProperty implements IObject {
     "isSerializable",
     "isLightSerializable",
     "isCustom",
+    "isBindable",
+    "isUnique",
     "isDynamicChoices",
     "isLocalizableValue",
     "className",
@@ -45,6 +47,7 @@ export class JsonObjectProperty implements IObject {
   private choicesValue: Array<any> = null;
   private baseValue: any = null;
   private isRequiredValue: boolean = false;
+  private isUniqueValue: boolean = false;
   private readOnlyValue: boolean | null = null;
   private visibleValue: boolean | null = null;
   private isLocalizableValue: boolean | null = null;
@@ -103,6 +106,12 @@ export class JsonObjectProperty implements IObject {
   }
   public set isRequired(val: boolean) {
     this.isRequiredValue = val;
+  }
+  public get isUnique() {
+    return this.isUniqueValue;
+  }
+  public set isUnique(val: boolean) {
+    this.isUniqueValue = val;
   }
   public get hasToUseGetValue() {
     return this.onGetValue || this.serializationProperty;
@@ -463,6 +472,12 @@ export class JsonMetadataClass {
       }
       if (!Helpers.isValueEmpty(propInfo.isDynamicChoices)) {
         prop.isDynamicChoices = propInfo.isDynamicChoices;
+      }
+      if (!Helpers.isValueEmpty(propInfo.isBindable)) {
+        prop.isBindable = propInfo.isBindable;
+      }
+      if (!Helpers.isValueEmpty(propInfo.isUnique)) {
+        prop.isUnique = propInfo.isUnique;
       }
       if (propInfo.visible === true || propInfo.visible === false) {
         prop.visible = propInfo.visible;

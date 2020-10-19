@@ -264,7 +264,10 @@ Serializer.addClass(
 
 Serializer.addClass(
   "carowner",
-  [{ name: "carType", default: "fast" }, "name"],
+  [
+    { name: "carType", default: "fast" },
+    { name: "name", dataList: ["item1", "item2"], isUnique: true },
+  ],
   function () {
     return new CarOwner();
   }
@@ -2326,4 +2329,12 @@ QUnit.test("nextToProperty attribute", function (assert) {
     "created with correct nextToProperty attribute"
   );
   Serializer.removeProperty("truck", "test");
+});
+QUnit.test("check isUnique attribute", function (assert) {
+  var prop = Serializer.findProperty("carowner", "name");
+  assert.deepEqual(
+    prop.isUnique,
+    true,
+    "isUnique attribute created correctly"
+  );
 });

@@ -146,7 +146,7 @@ export class CalculatedValue extends Base {
 
 Serializer.addClass(
   "calculatedvalue",
-  ["!name", "expression:expression", "includeIntoResult:boolean"],
+  [{name: "!name", isUnique: true}, "expression:expression", "includeIntoResult:boolean"],
   function() {
     return new CalculatedValue();
   },

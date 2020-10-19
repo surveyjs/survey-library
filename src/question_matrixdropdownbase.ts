@@ -2379,7 +2379,7 @@ export class QuestionMatrixDropdownModelBase
 Serializer.addClass(
   "matrixdropdowncolumn",
   [
-    "!name",
+    {name: "!name", isUnique: true},
     { name: "title", serializationProperty: "locTitle" },
     {
       name: "cellType",

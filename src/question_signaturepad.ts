@@ -72,7 +72,7 @@ export class QuestionSignaturePadModel extends Question {
   initSignaturePad(el: HTMLElement) {
     var canvas: any = el.getElementsByTagName("canvas")[0];
     var buttonEl = el.getElementsByTagName("button")[0];
-    var signaturePad = new SignaturePad(canvas);
+    var signaturePad = new SignaturePad(canvas, { backgroundColor: "#ffffff" });
     if (this.isReadOnly) {
       signaturePad.off();
     }
@@ -189,23 +189,28 @@ Serializer.addClass(
   "signaturepad",
   [
     {
-      name: "allowClear:boolean",
-      default: true,
-    },
-    {
       name: "width:number",
+      category: "general",
       default: 300,
     },
     {
       name: "height:number",
+      category: "general",
       default: 200,
     },
     {
-      name: "penColor",
+      name: "allowClear:boolean",
+      category: "general",
+      default: true,
+    },
+    {
+      name: "penColor:color",
+      category: "general",
       default: "#1ab394",
     },
     {
       name: "dataFormat",
+      category: "general",
       default: "",
       choices: [
         { value: "", text: "PNG" },
@@ -213,6 +218,8 @@ Serializer.addClass(
         { value: "image/svg+xml", text: "SVG" },
       ],
     },
+    { name: "defaultValue", visible: false },
+    { name: "correctAnswer", visible: false },
   ],
   function () {
     return new QuestionSignaturePadModel("");

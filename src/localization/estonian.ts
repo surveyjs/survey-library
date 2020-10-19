@@ -4,6 +4,8 @@ export var estonianSurveyStrings = {
   pagePrevText: "Tagasi",
   pageNextText: "Edasi",
   completeText: "Lõpeta",
+  previewText: "Eelvaade",
+  editText: "Muuda",
   startSurveyText: "Alusta",
   otherItemText: "Muu (täpsusta)",
   noneItemText: "Mitte midagi",
@@ -33,6 +35,10 @@ export var estonianSurveyStrings = {
   numericMin: "'{0}' peaks olema võrdne või suurem kui {1}",
   numericMax: "'{0}' peaks olema võrnde või väiksem kui {1}",
   invalidEmail: "Sisesta palun korrektne e-posti aadress.",
+  invalidExpression: "Avaldis: {0} peaks tagastama tõese.",
+  urlRequestError: "Taotlus tagastas vea „{0}”. {1}",
+  urlGetChoicesError:
+    "Taotlus tagastas tühjad andmed või atribuut 'path' on vale",
   exceedMaxSize: "Faili suurus ei tohi ületada {0}.",
   otherRequiredError: "Sisesta palun muu vastus.",
   uploadingFile:
@@ -47,6 +53,7 @@ export var estonianSurveyStrings = {
   removeRow: "Eemalda",
   addPanel: "Lisa uus",
   removePanel: "Eemalda",
+  choices_Item: "üksus",
   matrix_column: "Veerg",
   matrix_row: "Rida",
   savingData: "Salvestan andmed serveris...",
@@ -70,7 +77,7 @@ export var estonianSurveyStrings = {
   booleanUncheckedLabel: "Ei",
   confirmRemoveFile: "Oled sa kindel, et soovid selle faili eemaldada: {0}?",
   confirmRemoveAllFiles: "Oled sa kindel, et soovid eemaldada kõik failid?",
-  questionTitlePatternText: "Küsimuse pealkiri"
+  questionTitlePatternText: "Küsimuse pealkiri",
 };
 
 surveyLocalization.locales["et"] = estonianSurveyStrings;

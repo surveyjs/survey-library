@@ -264,7 +264,10 @@ Serializer.addClass(
 
 Serializer.addClass(
   "carowner",
-  [{ name: "carType", default: "fast" }, "name"],
+  [
+    { name: "carType", default: "fast" },
+    { name: "name", dataList: ["item1", "item2"] },
+  ],
   function () {
     return new CarOwner();
   }
@@ -2326,4 +2329,12 @@ QUnit.test("nextToProperty attribute", function (assert) {
     "created with correct nextToProperty attribute"
   );
   Serializer.removeProperty("truck", "test");
+});
+QUnit.test("check dataList attribute", function (assert) {
+  var prop = Serializer.findProperty("carowner", "name");
+  assert.deepEqual(
+    prop.dataList,
+    ["item1", "item2"],
+    "dataList attribute created correctly"
+  );
 });

@@ -44,6 +44,10 @@ export var settings = {
    */
   matrixMaximumRowCount: 1000,
   /**
+   * Maximum rowCount that returns in addConditionObjectsByContext function
+   */
+  matrixMaxRowCountInCondition: 1,
+  /**
    * Maximum panel count in dynamic panel
    */
   panelMaximumPanelCount: 100,
@@ -108,4 +112,10 @@ export var settings = {
    * Set it true, and a question next to a question with hidden title number will increase it's number.
    */
   setQuestionVisibleIndexForHiddenNumber: false,
+  /**
+   * By default all rows are rendered no matters whwther they are visible.
+   * Set it true, and survey markup rows will be rendered only if they are visible in viewport.
+   * This feature is experimantal and might do not support all the use cases.
+   */
+  lazyRowsRendering: false,
 };

@@ -18,10 +18,15 @@ export class SurveyPanel extends SurveyPanelBase {
   handleEditClick(event: any) {
     this.panel.cancelPreview();
   }
-  render(): JSX.Element {
-    if (this.panelBase == null || this.survey == null || this.creator == null)
-      return null;
-    if (!this.panelBase.isVisible) return null;
+  protected canRender(): boolean {
+    return (
+      super.canRender() &&
+      !!this.survey &&
+      !!this.panelBase &&
+      this.panelBase.isVisible
+    );
+  }
+  protected renderElement(): JSX.Element {
     var title = this.renderTitle();
     var description = this.renderDescription();
     var errors = (
@@ -95,7 +100,12 @@ export class SurveyPanel extends SurveyPanelBase {
           this.panel.collapse();
         }
       };
-      expandCollapse = <span className={iconCss} />;
+      var pressExpand = (event: any) => {
+        if (event.keyCode == 13) changeExpanded();
+      };
+      expandCollapse = (
+        <span className={iconCss} tabIndex={0} onKeyUp={pressExpand} />
+      );
     }
 
     if (this.panel.containsErrors) {

@@ -2,6 +2,33 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.8.9](https://github.com/surveyjs/survey-library/compare/v1.8.8...v1.8.9) (2020-10-14)
+
+
+### Bug Fixes
+
+* Locale of progressbar does not change [#2453](https://github.com/surveyjs/survey-library/issues/2453) ([561a71e](https://github.com/surveyjs/survey-library/commit/561a71e6843bfefe00079b6a4cb68bf7580bdb8a))
+
+### [1.8.8](https://github.com/surveyjs/survey-library/compare/v1.8.7...v1.8.8) (2020-10-09)
+
+### [1.8.7](https://github.com/surveyjs/survey-library/compare/v1.8.6...v1.8.7) (2020-10-06)
+
+
+### Bug Fixes
+
+* showInvisibleElements not working for choices [#2423](https://github.com/surveyjs/survey-library/issues/2423) ([72fb591](https://github.com/surveyjs/survey-library/commit/72fb59118d77af57237e546ce165edbe39faae9f))
+
+### [1.8.6](https://github.com/surveyjs/survey-library/compare/v1.8.5...v1.8.6) (2020-09-29)
+
+### [1.8.5](https://github.com/surveyjs/survey-library/compare/v1.8.4...v1.8.5) (2020-09-29)
+
+### [1.8.4](https://github.com/surveyjs/survey-library/compare/v1.8.3...v1.8.4) (2020-09-22)
+
+
+### Bug Fixes
+
+* choicesByUrl doesn't work with {NOCACHE}/{CACHE} [#2406](https://github.com/surveyjs/survey-library/issues/2406) ([ef9a10d](https://github.com/surveyjs/survey-library/commit/ef9a10d08ed7b6c8127bb0f05ae898293e32f388))
+
 ### [1.8.3](https://github.com/surveyjs/survey-library/compare/v1.8.2...v1.8.3) (2020-09-16)
 
 

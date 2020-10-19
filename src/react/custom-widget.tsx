@@ -38,14 +38,10 @@ export class SurveyCustomWidget extends SurveyQuestionElementBase {
       }
     }
   }
-  render(): JSX.Element {
-    if (!this.questionBase || !this.creator) {
-      return null;
-    }
-    if (!this.questionBase.visible) {
-      return null;
-    }
-
+  protected canRender(): boolean {
+    return super.canRender() && this.questionBase.visible;
+  }
+  protected renderElement(): JSX.Element {
     let customWidget = this.questionBase.customWidget;
 
     if (customWidget.isDefaultRender) {

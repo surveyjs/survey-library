@@ -6,6 +6,7 @@ import { Question } from "../question";
 import { SurveyElementBase } from "./reactquestionelement";
 import { IElement, Base } from "../base";
 import { ReactElementFactory } from "./element-factory";
+import { settings } from "../settings";
 
 export class SurveyRow extends SurveyElementBase {
   constructor(props: any) {
@@ -26,17 +27,48 @@ export class SurveyRow extends SurveyElementBase {
   protected get css(): any {
     return this.props.css;
   }
-  render(): JSX.Element {
-    if (this.row == null || this.survey == null || this.creator == null)
-      return null;
-    if (this.row.visible) {
-      var elements = this.row.elements.map(element =>
+  protected canRender(): boolean {
+    return !!this.row && !!this.survey && !!this.creator && this.row.visible;
+  }
+  protected renderElement(): JSX.Element {
+    var elements = null;
+    if (this.row.isNeedRender) {
+      elements = this.row.elements.map((element) =>
         this.createElement(element)
       );
-      return <div className={this.css.row}>{elements}</div>;
     }
-    return null;
+    return (
+      <div ref="root" className={this.css.row}>
+        {elements}
+      </div>
+    );
   }
+  componentDidMount() {
+    super.componentDidMount();
+    var el: any = this.refs["root"];
+    if (!!el) {
+      if (!this.row.isNeedRender) {
+        var rowContainerDiv = el;
+        this.row.startLazyRendering(rowContainerDiv);
+      }
+    }
+  }
+  public shouldComponentUpdate(nextProps: any, nextState: any): boolean {
+    if (nextProps.row !== this.row) {
+      nextProps.row.isNeedRender = this.row.isNeedRender;
+      this.stopLazyRendering();
+    }
+    return true;
+  }
+  private stopLazyRendering() {
+    this.row.stopLazyRendering();
+    this.row.isNeedRender = !settings.lazyRowsRendering;
+  }
+  componentWillUnmount() {
+    super.componentWillUnmount();
+    this.stopLazyRendering();
+  }
+
   protected createElement(element: IElement): JSX.Element {
     var elementType = element.getType();
     if (!ReactElementFactory.Instance.isElementRegisgered(elementType)) {
@@ -47,7 +79,7 @@ export class SurveyRow extends SurveyElementBase {
       element: element,
       creator: this.creator,
       survey: this.survey,
-      css: this.css
+      css: this.css,
     });
   }
 }

@@ -679,9 +679,9 @@ export class StylesManager {
       "background-color: $disable-color; border-color: $disable-color;",
     ".sv-item__control:focus + .sv-item__decorator":
       "border-color: $main-color;",
-    ".sv-matrix__text--сhecked":
+    ".sv-matrix__text--checked":
       "color: $inputs-background-color; background-color: $main-color;",
-    ".sv-matrix__text--disabled.sv-matrix__text--сhecked":
+    ".sv-matrix__text--disabled.sv-matrix__text--checked":
       "background-color: $disable-color;",
     ".sv-matrixdynamic__add-btn": "background-color: $add-button-color;",
     ".sv-matrixdynamic__remove-btn": "background-color: $remove-button-color;",
@@ -849,7 +849,8 @@ export class StylesManager {
 
   private sheet: CSSStyleSheet = null;
 
-  static findSheet(styleSheetId: string) {
+  static findSheet(styleSheetId: string): any {
+    if (typeof document === "undefined") return null;
     for (let i = 0; i < document.styleSheets.length; i++) {
       if (
         !!document.styleSheets[i].ownerNode &&

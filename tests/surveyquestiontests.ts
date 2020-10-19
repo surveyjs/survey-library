@@ -3666,9 +3666,52 @@ QUnit.test("QuestionText renderedMin/renderedMax, today()", function (assert) {
   var todayStr = new Date().toISOString().slice(0, 10);
   assert.equal(question.renderedMax, todayStr, "today in format yyyy-mm-dd");
 });
+QUnit.test("QuestionText min/maxValueExpression, today()", function (assert) {
+  var survey = new SurveyModel({
+    questions: [{ type: "text", name: "q", maxValueExpression: "today()" }],
+  });
+  var question = <QuestionTextModel>survey.getQuestionByName("q");
+  var todayStr = new Date().toISOString().slice(0, 10);
+  assert.equal(
+    question.renderedMax,
+    todayStr,
+    "renderedMax: today in format yyyy-mm-dd"
+  );
+});
+QUnit.test("QuestionText min/maxValueExpression, today()", function (assert) {
+  var survey = new SurveyModel({
+    questions: [{ type: "text", name: "q", min: "=today()" }],
+  });
+  var question = <QuestionTextModel>survey.getQuestionByName("q");
+  assert.equal(
+    question.minValueExpression,
+    "today()",
+    "convert the min into minValueExpression"
+  );
+  assert.notOk(question.min, "min value becomes empty");
+  var todayStr = new Date().toISOString().slice(0, 10);
+  assert.equal(
+    question.renderedMin,
+    todayStr,
+    "renderedMin: today in format yyyy-mm-dd"
+  );
+});
 QUnit.test("Question defaultValue as expression", function (assert) {
   var survey = new SurveyModel({
     questions: [{ type: "text", name: "q", defaultValue: "=1+2" }],
+  });
+  var question = <QuestionTextModel>survey.getQuestionByName("q");
+  assert.notOk(question.defaultValue, "defaultValue is empty");
+  assert.equal(
+    question.defaultValueExpression,
+    "1+2",
+    "convert expression from default value"
+  );
+  assert.equal(question.value, 3, "run expression");
+});
+QUnit.test("Question defaultValueExpression", function (assert) {
+  var survey = new SurveyModel({
+    questions: [{ type: "text", name: "q", defaultValueExpression: "1+2" }],
   });
   var question = <QuestionTextModel>survey.getQuestionByName("q");
   assert.equal(question.value, 3, "run expression");
@@ -3691,6 +3734,24 @@ QUnit.test("QuestionRating rateStep less than 1", function (assert) {
     "The fourth value"
   );
 });
+QUnit.test(
+  "QuestionRating convert value to number when needed, Bug#2421",
+  function (assert) {
+    var question = new QuestionRatingModel("q");
+    question.value = "2";
+    assert.strictEqual(question.value, 2, "Convert to 2");
+    question.value = undefined;
+    assert.strictEqual(question.value, undefined, "undefined 1");
+    question.rateValues = [1, "2", "3", 4];
+    question.value = "3";
+    assert.strictEqual(question.value, "3", "No need to convert");
+    question.value = "1";
+    assert.strictEqual(question.value, 1, "Convert to item.value, 1");
+    question.value = undefined;
+    assert.strictEqual(question.value, undefined, "undefined 2");
+  }
+);
+
 QUnit.test(
   "Do not serialize default values labelTrue/labelFalse for boolean question, Bug #2231",
   function (assert) {
@@ -4102,3 +4163,50 @@ QUnit.test("matirix and survey.onValueChanged event, Bug#2408", function (
   );
   assert.notOk(rows[0].value, "Clear value onValueChanging event");
 });
+QUnit.test(
+  "min/max properties do not load if they are upper inputType, Bug#",
+  function (assert) {
+    var survey = new SurveyModel({
+      elements: [
+        {
+          type: "text",
+          name: "q1",
+          min: 0,
+          max: 100,
+          inputType: "number",
+        },
+      ],
+    });
+    var question = <QuestionTextModel>survey.getQuestionByName("q1");
+    assert.equal(question.min, 0, "min value is set");
+    assert.equal(question.max, 100, "max value is set");
+  }
+);
+
+QUnit.test(
+  "setvalue trigger dosen't work for question name with '.', Bug#2420",
+  function (assert) {
+    var survey = new SurveyModel({
+      elements: [
+        {
+          type: "text",
+          name: "a.b",
+        },
+      ],
+      triggers: [
+        {
+          type: "setvalue",
+          expression: "{q1} = 1",
+          setToName: "a.b",
+          setValue: 2,
+        },
+      ],
+    });
+    survey.setValue("q1", 1);
+    assert.deepEqual(
+      survey.data,
+      { q1: 1, "a.b": 2 },
+      "trigger works correctly"
+    );
+  }
+);

@@ -49,20 +49,16 @@ export class SurveyQuestionMatrixDropdownBase extends SurveyQuestionElementBase 
     this.updateVisibleRowsChangedCallback();
     this.renderedTableResetCallback();
   }
-  isRendering: boolean = false;
-  render(): JSX.Element {
-    if (!this.question) return null;
+  protected renderElement(): JSX.Element {
     return this.renderTableDiv();
   }
   renderTableDiv(): JSX.Element {
-    this.isRendering = true;
     var header = this.renderHeader();
     var footers = this.renderFooter();
     var rows = this.renderRows();
     var divStyle = this.question.horizontalScroll
       ? ({ overflowX: "scroll" } as React.CSSProperties)
       : ({} as React.CSSProperties);
-    this.isRendering = false;
     return (
       <div style={divStyle}>
         <table className={this.question.cssClasses.root}>

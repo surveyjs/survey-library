@@ -80,6 +80,5 @@ export var swahiliStrings = {
   questionTitlePatternText: "Kichwa cha Swali",
 };
 
-
 surveyLocalization.locales["sw"] = swahiliStrings;
 surveyLocalization.localeNames["sw"] = "Swahili";

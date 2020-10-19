@@ -13,6 +13,7 @@ import { Question } from "../src/question";
 import { ExpressionValidator } from "../src/validator";
 import { QuestionExpressionModel } from "../src/question_expression";
 import { QuestionFactory } from "../src/questionfactory";
+import { settings } from "../src/settings";
 
 export default QUnit.module("Survey_QuestionMatrixDynamic");
 
@@ -1289,6 +1290,66 @@ QUnit.test("matrixDynamic.addConditionObjectsByContext", function (assert) {
     "addConditionObjectsByContext work correctly for matrix dynamic with context"
   );
 });
+QUnit.test(
+  "matrixDynamic.addConditionObjectsByContext + settings.matrixMaxRowCountInCondition",
+  function (assert) {
+    var objs = [];
+    var question = new QuestionMatrixDynamicModel("matrix");
+    question.title = "Matrix";
+    question.addColumn("col1", "Column 1");
+    question.addConditionObjectsByContext(objs, null);
+    for (var i = 0; i < objs.length; i++) delete objs[i].question;
+    assert.deepEqual(
+      objs,
+      [
+        {
+          name: "matrix[0].col1",
+          text: "Matrix[0].Column 1",
+        },
+      ],
+      "addConditionObjectsByContext work correctly for matrix dynamic"
+    );
+    question.rowCount = 0;
+    settings.matrixMaxRowCountInCondition = 3;
+
+    objs = [];
+    question.addConditionObjectsByContext(objs, null);
+    for (var i = 0; i < objs.length; i++) delete objs[i].question;
+    assert.deepEqual(
+      objs,
+      [
+        {
+          name: "matrix[0].col1",
+          text: "Matrix[0].Column 1",
+        },
+      ],
+      "addConditionObjectsByContext work correctly for matrix dynamic, rowCount is 0"
+    );
+    question.rowCount = 4;
+    objs = [];
+    question.addConditionObjectsByContext(objs, null);
+    for (var i = 0; i < objs.length; i++) delete objs[i].question;
+    assert.deepEqual(
+      objs,
+      [
+        {
+          name: "matrix[0].col1",
+          text: "Matrix[0].Column 1",
+        },
+        {
+          name: "matrix[1].col1",
+          text: "Matrix[1].Column 1",
+        },
+        {
+          name: "matrix[2].col1",
+          text: "Matrix[2].Column 1",
+        },
+      ],
+      "addConditionObjectsByContext work correctly for matrix dynamic, rowCount is 4, but settings.matrixMaxRowCountInCondition is 3"
+    );
+    settings.matrixMaxRowCountInCondition = 1;
+  }
+);
 QUnit.test("matrixDropdown.addConditionObjectsByContext", function (assert) {
   var objs = [];
   var question = new QuestionMatrixDropdownModel("matrix");

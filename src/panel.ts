@@ -22,6 +22,7 @@ import { ILocalizableOwner, LocalizableString } from "./localizablestring";
 import { OneAnswerRequiredError } from "./error";
 import { PageModel } from "./page";
 import { settings } from "./settings";
+import { findScrollableParent, isElementVisible } from "./utils/utils";
 
 export class DragDropInfo {
   constructor(
@@ -35,8 +36,35 @@ export class DragDropInfo {
 }
 
 export class QuestionRowModel extends Base {
+  private _scrollableParent: any = undefined;
+  private _updateVisibility: any = undefined;
+  public startLazyRendering(rowContainerDiv: HTMLElement) {
+    this._scrollableParent = findScrollableParent(rowContainerDiv);
+    this._updateVisibility = () => {
+      var isRowContainerDivVisible = isElementVisible(rowContainerDiv, 50);
+      if (!this.isNeedRender && isRowContainerDivVisible) {
+        this.isNeedRender = true;
+        this.stopLazyRendering();
+      }
+    };
+    setTimeout(() => {
+      this._scrollableParent.addEventListener("scroll", this._updateVisibility);
+      this._updateVisibility();
+    }, 10);
+  }
+  public stopLazyRendering() {
+    if (!!this._scrollableParent && !!this._updateVisibility) {
+      this._scrollableParent.removeEventListener(
+        "scroll",
+        this._updateVisibility
+      );
+    }
+    this._scrollableParent = undefined;
+    this._updateVisibility = undefined;
+  }
   constructor(public panel: PanelModelBase) {
     super();
+    this.isNeedRender = !settings.lazyRowsRendering;
     this.visible = panel.areInvisibleElementsShowing;
     this.createNewArray("elements");
   }
@@ -48,6 +76,12 @@ export class QuestionRowModel extends Base {
   }
   public set visible(val: boolean) {
     this.setPropertyValue("visible", val);
+  }
+  public get isNeedRender(): boolean {
+    return this.getPropertyValue("isneedrender", true);
+  }
+  public set isNeedRender(val: boolean) {
+    this.setPropertyValue("isneedrender", val);
   }
   public get visibleElements(): Array<IElement> {
     return this.elements.filter((e) => e.isVisible);
@@ -1170,8 +1204,15 @@ export class PanelModelBase
     conditionRunner.run(values, properties);
   }
   onAnyValueChanged(name: string) {
-    for (var i = 0; i < this.elements.length; i++) {
-      this.elements[i].onAnyValueChanged(name);
+    var els = this.elements;
+    for (var i = 0; i < els.length; i++) {
+      els[i].onAnyValueChanged(name);
+    }
+  }
+  checkBindings(valueName: string, value: any) {
+    var els = this.elements;
+    for (var i = 0; i < els.length; i++) {
+      (<Base>(<any>els[i])).checkBindings(valueName, value);
     }
   }
   protected dragDropAddTarget(dragDropInfo: DragDropInfo) {

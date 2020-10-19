@@ -1,11 +1,11 @@
 import * as React from "react";
 import {
   ReactSurveyElement,
-  SurveyQuestionElementBase
+  SurveyQuestionElementBase,
 } from "./reactquestionelement";
 import {
   QuestionPanelDynamicModel,
-  QuestionPanelDynamicItem
+  QuestionPanelDynamicItem,
 } from "../question_paneldynamic";
 import { PanelModel } from "../panel";
 import { SurveyPanel } from "./panel";
@@ -29,13 +29,13 @@ export class SurveyQuestionPanelDynamic extends SurveyQuestionElementBase {
     super.componentDidMount();
     this.setState({ panelCounter: 0 });
     var self = this;
-    this.question.panelCountChangedCallback = function() {
+    this.question.panelCountChangedCallback = function () {
       self.updateQuestionRendering();
     };
-    this.question.currentIndexChangedCallback = function() {
+    this.question.currentIndexChangedCallback = function () {
       self.updateQuestionRendering();
     };
-    this.question.renderModeChangedCallback = function() {
+    this.question.renderModeChangedCallback = function () {
       self.updateQuestionRendering();
     };
   }
@@ -47,7 +47,7 @@ export class SurveyQuestionPanelDynamic extends SurveyQuestionElementBase {
   }
   private updateQuestionRendering() {
     this.setState({
-      panelCounter: this.state ? this.state.panelCounter + 1 : 1
+      panelCounter: this.state ? this.state.panelCounter + 1 : 1,
     });
   }
   handleOnPanelAddClick(event: any) {
@@ -62,8 +62,7 @@ export class SurveyQuestionPanelDynamic extends SurveyQuestionElementBase {
   handleOnRangeChange(event: any) {
     this.question.currentIndex = event.target.value;
   }
-  render(): JSX.Element {
-    if (!this.question) return null;
+  protected renderElement(): JSX.Element {
     var cssClasses = this.question.cssClasses;
     var panels = [];
     if (this.question.isRenderModeList) {
@@ -167,7 +166,7 @@ export class SurveyQuestionPanelDynamic extends SurveyQuestionElementBase {
     );
   }
   protected rendrerNextButton() {
-    var getButtonNextCss = function(question: Question) {
+    var getButtonNextCss = function (question: Question) {
       var btnClasses = question.cssClasses.buttonNext;
       if (!question.isNextButtonShowing) {
         btnClasses += " " + question.cssClasses.buttonNext + "--disabled";
@@ -286,6 +285,6 @@ export class SurveyQuestionPanelDynamicItem extends SurveyPanel {
   }
 }
 
-ReactQuestionFactory.Instance.registerQuestion("paneldynamic", props => {
+ReactQuestionFactory.Instance.registerQuestion("paneldynamic", (props) => {
   return React.createElement(SurveyQuestionPanelDynamic, props);
 });

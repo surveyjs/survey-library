@@ -6,17 +6,8 @@ import { QuestionImplementor } from "./koquestion";
 import { Question } from "../question";
 
 class QuestionTextImplementor extends QuestionImplementor {
-  koTextRootClass = ko.pureComputed(() => {
-    return (
-      this.question.koCss().control +
-      (this.question.errors.length > 0
-        ? " " + this.question.koCss().onError
-        : "")
-    );
-  });
   constructor(public question: Question) {
     super(question);
-    (<any>question)["koTextRootClass"] = this.koTextRootClass;
   }
 }
 export class QuestionText extends QuestionTextModel {
@@ -29,10 +20,10 @@ export class QuestionText extends QuestionTextModel {
   }
 }
 
-Serializer.overrideClassCreator("text", function() {
+Serializer.overrideClassCreator("text", function () {
   return new QuestionText("");
 });
 
-QuestionFactory.Instance.registerQuestion("text", name => {
+QuestionFactory.Instance.registerQuestion("text", (name) => {
   return new QuestionText(name);
 });

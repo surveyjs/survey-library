@@ -14,8 +14,8 @@ export var simplifiedChineseSurveyStrings = {
   panelDynamicProgressText: "{0} of {1}",
   questionsProgressText: "第 {0}/{1} 题",
   emptySurvey: "问卷中没有问题或页面",
-  completingSurveyBefore: "你已完成问卷.",
   completingSurvey: "感谢您的参与!",
+  completingSurveyBefore: "你已完成问卷.",
   loadingSurvey: "问卷正在加载中...",
   optionsCaption: "请选择...",
   value: "值",
@@ -33,7 +33,7 @@ export var simplifiedChineseSurveyStrings = {
   numericMin: "答案 '{0}' 必须大于等于 {1}",
   numericMax: "答案 '{0}' 必须小于等于 {1}",
   invalidEmail: "请输入有效的 Email 地址",
-  invalidExpression: "公式: {0} 无效.", 
+  invalidExpression: "公式: {0} 无效.",
   urlRequestError: "载入选项时发生错误 '{0}': {1}",
   urlGetChoicesError: "未能载入有效的选项或请求参数路径有误",
   exceedMaxSize: "文件大小不能超过 {0}",
@@ -73,7 +73,7 @@ export var simplifiedChineseSurveyStrings = {
   booleanUncheckedLabel: "否",
   confirmRemoveFile: "删除文件: {0}?",
   confirmRemoveAllFiles: "删除所有文件?",
-  questionTitlePatternText: "标题"
+  questionTitlePatternText: "标题",
 };
 
 surveyLocalization.locales["zh-cn"] = simplifiedChineseSurveyStrings;

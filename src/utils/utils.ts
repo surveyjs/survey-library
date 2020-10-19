@@ -20,6 +20,7 @@ function confirmAction(message: string): boolean {
   return confirm(message);
 }
 function detectIEBrowser() {
+  if (typeof window === "undefined") return false;
   var ua = window.navigator.userAgent;
   var oldIe = ua.indexOf("MSIE ");
   var elevenIe = ua.indexOf("Trident/");
@@ -27,6 +28,7 @@ function detectIEBrowser() {
   return oldIe > -1 || elevenIe > -1;
 }
 function detectIEOrEdge() {
+  if (typeof window === "undefined") return false;
   if (typeof (<any>detectIEOrEdge).isIEOrEdge == "undefined") {
     var ua = window.navigator.userAgent;
     var msie = ua.indexOf("MSIE ");
@@ -51,15 +53,57 @@ function loadFileFromBase64(b64Data: string, fileName: string) {
     }
     // write the ArrayBuffer to a blob, and you're done
     var bb = new Blob([ab], { type: mimeString });
-    if (window.navigator && window.navigator.msSaveBlob) {
+    if (
+      typeof window !== "undefined" &&
+      window.navigator &&
+      window.navigator.msSaveBlob
+    ) {
       window.navigator.msSaveOrOpenBlob(bb, fileName);
     }
   } catch (err) {}
 }
 function isMobile() {
-  return typeof window.orientation !== "undefined";
+  return (
+    typeof window !== "undefined" && typeof window.orientation !== "undefined"
+  );
 }
+function isElementVisible(
+  element: HTMLElement,
+  threshold: number = 0,
+  mode: "visible" | "above" | "below" = "visible"
+) {
+  if (typeof document === "undefined") return false;
+  var elementRect = element.getBoundingClientRect();
+  var viewHeight = Math.max(
+    document.documentElement.clientHeight,
+    window.innerHeight
+  );
+  var isAbove = elementRect.bottom - threshold < 0;
+  var isBelow = elementRect.top - viewHeight + threshold >= 0;
 
+  return mode === "above"
+    ? isAbove
+    : mode === "below"
+    ? isBelow
+    : !isAbove && !isBelow;
+}
+function findScrollableParent(element: HTMLElement): HTMLElement {
+  if (!element) {
+    return <any>window;
+  }
+  if (
+    element.scrollHeight > element.clientHeight &&
+    (getComputedStyle(element).overflowY === "scroll" ||
+      getComputedStyle(element).overflowY === "auto")
+  ) {
+    if(element === document.body) {
+      return <any>window;
+    }
+    return element;
+  } else {
+    return findScrollableParent(element.parentElement);
+  }
+}
 export {
   compareVersions,
   confirmAction,
@@ -67,4 +111,6 @@ export {
   detectIEBrowser,
   loadFileFromBase64,
   isMobile,
+  isElementVisible,
+  findScrollableParent,
 };

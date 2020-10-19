@@ -103,11 +103,11 @@ Atom
   / _ "{" value:ValueInput "}" { return new Variable(value); }
 
 ConstValue
-  = LogicValue
-  / ArithmeticValue
-  / LettersAndDigits
-  / "'" value:AnyInput "'"   { return value; }
-  / "\"" value:AnyInput "\"" { return value; }
+  = value:LogicValue  { return value; }
+  / value:ArithmeticValue  { return value; }
+  / value:LettersAndDigits  { return value; }
+  / "'" value:AnyInput "'" { return "'" + value + "'"; }
+  / "\"" value:AnyInput "\"" { return "'" + value + "'"; }
 
 ArrayOp
   = "[" sequence:Sequence "]" { return sequence; }

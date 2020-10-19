@@ -13,7 +13,7 @@ export class QuestionTextModel extends Question {
     super(name);
     this.createLocalizableString("placeHolder", this);
     this.registerFunctionOnPropertiesValueChanged(
-      ["min", "max", "inputType"],
+      ["min", "max", "inputType", "minValueExpression", "maxValueExpression"],
       () => {
         this.setRenderedMinMax();
       }
@@ -38,10 +38,12 @@ export class QuestionTextModel extends Question {
   public set inputType(val: string) {
     val = val.toLowerCase();
     if (val == "datetime_local") val = "datetime-local";
-    this.min = undefined;
-    this.max = undefined;
-    this.step = undefined;
     this.setPropertyValue("inputType", val.toLowerCase());
+    if (!this.isLoadingFromJson) {
+      this.min = undefined;
+      this.max = undefined;
+      this.step = undefined;
+    }
   }
   /**
    * Gets or sets a value that specifies how the question updates it's value.
@@ -104,6 +106,12 @@ export class QuestionTextModel extends Question {
   public set size(val: number) {
     this.setPropertyValue("size", val);
   }
+  public get autoComplete(): string {
+    return this.getPropertyValue("autoComplete", "");
+  }
+  public set autoComplete(val: string) {
+    this.setPropertyValue("autoComplete", val);
+  }
   /**
    * The minimum value
    */
@@ -111,6 +119,10 @@ export class QuestionTextModel extends Question {
     return this.getPropertyValue("min");
   }
   public set min(val: string) {
+    if (this.isValueExpression(val)) {
+      this.minValueExpression = val.substr(1);
+      return;
+    }
     this.setPropertyValue("min", val);
   }
   /**
@@ -120,7 +132,23 @@ export class QuestionTextModel extends Question {
     return this.getPropertyValue("max");
   }
   public set max(val: string) {
+    if (this.isValueExpression(val)) {
+      this.maxValueExpression = val.substr(1);
+      return;
+    }
     this.setPropertyValue("max", val);
+  }
+  public get minValueExpression(): string {
+    return this.getPropertyValue("minValueExpression", "");
+  }
+  public set minValueExpression(val: string) {
+    this.setPropertyValue("minValueExpression", val);
+  }
+  public get maxValueExpression(): string {
+    return this.getPropertyValue("maxValueExpression", "");
+  }
+  public set maxValueExpression(val: string) {
+    this.setPropertyValue("maxValueExpression", val);
   }
   public get renderedMin(): any {
     return this.getPropertyValue("renderedMin");
@@ -131,9 +159,9 @@ export class QuestionTextModel extends Question {
   private setRenderedMinMax() {
     this.setPropertyValue(
       "renderedMin",
-      this.getValueAndRunExpression(this.min)
+      this.getValueAndRunExpression(this.min, this.minValueExpression)
     );
-    var val = this.getValueAndRunExpression(this.max);
+    var val = this.getValueAndRunExpression(this.max, this.maxValueExpression);
     if (
       !val &&
       (this.inputType === "date" || this.inputType === "datetime-local")
@@ -241,6 +269,64 @@ Serializer.addClass(
       },
     },
     {
+      name: "autoComplete",
+      dataList: [
+        "name",
+        "honorific-prefix",
+        "given-name",
+        "additional-name",
+        "family-name",
+        "honorific-suffix",
+        "nickname",
+        "organization-title",
+        "username",
+        "new-password",
+        "current-password",
+        "organization",
+        "street-address",
+        "address-line1",
+        "address-line2",
+        "address-line3",
+        "address-level4",
+        "address-level3",
+        "address-level2",
+        "address-level1",
+        "country",
+        "country-name",
+        "postal-code",
+        "cc-name",
+        "cc-given-name",
+        "cc-additional-name",
+        "cc-family-name",
+        "cc-number",
+        "cc-exp",
+        "cc-exp-month",
+        "cc-exp-year",
+        "cc-csc",
+        "cc-type",
+        "transaction-currency",
+        "transaction-amount",
+        "language",
+        "bday",
+        "bday-day",
+        "bday-month",
+        "bday-year",
+        "sex",
+        "url",
+        "photo",
+        "tel",
+        "tel-country-code",
+        "tel-national",
+        "tel-area-code",
+        "tel-local",
+        "tel-local-prefix",
+        "tel-local-suffix",
+        "tel-extension",
+        "email",
+        "impp",
+      ],
+    },
+    {
       name: "min",
       dependsOn: "inputType",
       visibleIf: function (obj: any) {
@@ -260,6 +346,24 @@ Serializer.addClass(
       },
       onPropertyEditorUpdate: function (obj: any, propertyEditor: any) {
         propertyEditor.inputType = obj.inputType;
+      },
+    },
+    {
+      name: "minValueExpression:expression",
+      category: "logic",
+      dependsOn: "inputType",
+      visibleIf: function (obj: any) {
+        if (!obj) return false;
+        return minMaxTypes.indexOf(obj.inputType) !== -1;
+      },
+    },
+    {
+      name: "maxValueExpression:expression",
+      category: "logic",
+      dependsOn: "inputType",
+      visibleIf: function (obj: any) {
+        if (!obj) return false;
+        return minMaxTypes.indexOf(obj.inputType) !== -1;
       },
     },
     {

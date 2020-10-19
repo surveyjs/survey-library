@@ -30,7 +30,7 @@ export class ProcessValue {
   }
   public setValue(obj: any, text: string, value: any) {
     if (!text) return;
-    var nonNestedObj = this.getNonNestedObject(obj, text);
+    var nonNestedObj = this.getNonNestedObject(obj, text, true);
     if (!nonNestedObj) return;
     obj = nonNestedObj.value;
     text = nonNestedObj.text;
@@ -43,6 +43,14 @@ export class ProcessValue {
       valueInfo.value = this.getValueFromPath(valueInfo.path, this.values);
       valueInfo.hasValue =
         valueInfo.value !== null && !Helpers.isValueEmpty(valueInfo.value);
+      if (
+        !valueInfo.hasValue &&
+        valueInfo.path.length > 1 &&
+        valueInfo.path[valueInfo.path.length - 1] == "length"
+      ) {
+        valueInfo.hasValue = true;
+        valueInfo.value = 0;
+      }
       return;
     }
     var res = this.getValueCore(valueInfo.name, this.values);
@@ -77,7 +85,7 @@ export class ProcessValue {
       res.value = 0;
       res.hasValue = true;
     }
-    var nonNestedObj = this.getNonNestedObject(curValue, text);
+    var nonNestedObj = this.getNonNestedObject(curValue, text, false);
     if (!nonNestedObj) return res;
     res.path = nonNestedObj.path;
     res.value = !!nonNestedObj.text
@@ -86,8 +94,8 @@ export class ProcessValue {
     res.hasValue = !Helpers.isValueEmpty(res.value);
     return res;
   }
-  private getNonNestedObject(obj: any, text: string): any {
-    var curName = this.getFirstPropertyName(text, obj);
+  private getNonNestedObject(obj: any, text: string, createPath: boolean): any {
+    var curName = this.getFirstPropertyName(text, obj, createPath);
     var path = !!curName ? [curName] : null;
     while (text != curName && !!obj) {
       var isArray = text[0] == "[";
@@ -95,7 +103,7 @@ export class ProcessValue {
         if (!curName && text == this.getFirstName(text))
           return { value: obj, text: text, path: path };
         obj = this.getObjectValue(obj, curName);
-        if (Helpers.isValueEmpty(obj)) return null;
+        if (Helpers.isValueEmpty(obj) && !createPath) return null;
         text = text.substr(curName.length);
       } else {
         var objInArray = this.getObjInArray(obj, text);
@@ -107,7 +115,7 @@ export class ProcessValue {
       if (!!text && text[0] == ".") {
         text = text.substr(1);
       }
-      curName = this.getFirstPropertyName(text, obj);
+      curName = this.getFirstPropertyName(text, obj, createPath);
       if (!!curName) {
         path.push(curName);
       }
@@ -127,8 +135,13 @@ export class ProcessValue {
     if (index < 0 || index >= curValue.length) return null;
     return { value: curValue[index], text: text, index: index };
   }
-  private getFirstPropertyName(name: string, obj: any): string {
+  private getFirstPropertyName(
+    name: string,
+    obj: any,
+    createProp: boolean = false
+  ): string {
     if (!name) return name;
+    if (!obj) obj = {};
     if (obj.hasOwnProperty(name)) return name;
     name = name.toLowerCase();
     var A = name[0];
@@ -143,6 +156,14 @@ export class ProcessValue {
         if (ch != "." && ch != "[") continue;
         if (keyName == name.substr(0, keyName.length)) return key;
       }
+    }
+    if (createProp && name[0] !== "[") {
+      var ind = name.indexOf(".");
+      if (ind > -1) {
+        name = name.substr(0, ind);
+        obj[name] = {};
+      }
+      return name;
     }
     return "";
   }

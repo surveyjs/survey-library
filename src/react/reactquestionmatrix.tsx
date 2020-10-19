@@ -32,8 +32,7 @@ export class SurveyQuestionMatrix extends SurveyQuestionElementBase {
     }
   }
 
-  render(): JSX.Element {
-    if (!this.question) return null;
+  protected renderElement(): JSX.Element {
     var cssClasses = this.question.cssClasses;
     var firstTH = this.question.hasRows ? <td /> : null;
     var headers = [];
@@ -100,8 +99,10 @@ export class SurveyQuestionMatrixRow extends ReactSurveyElement {
     this.row.value = event.target.value;
     this.setState({ value: this.row.value });
   }
-  render(): JSX.Element {
-    if (!this.row) return null;
+  protected canRender(): boolean {
+    return !!this.row;
+  }
+  protected renderElement(): JSX.Element {
     var firstTD = null;
     if (this.question.hasRows) {
       var rowText = this.renderLocString(this.row.locText);

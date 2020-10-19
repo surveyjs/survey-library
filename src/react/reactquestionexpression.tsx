@@ -12,14 +12,13 @@ export class SurveyQuestionExpression extends SurveyQuestionElementBase {
   protected get question(): QuestionExpressionModel {
     return this.questionBase as QuestionExpressionModel;
   }
-  render(): JSX.Element {
-    if (!this.question) return null;
+  protected renderElement(): JSX.Element {
     var cssClasses = this.question.cssClasses;
     return (
       <div
         id={this.question.inputId}
         className={cssClasses.root}
-        ref={div => (this.control = div)}
+        ref={(div) => (this.control = div)}
       >
         {this.question.displayValue}
       </div>
@@ -27,6 +26,6 @@ export class SurveyQuestionExpression extends SurveyQuestionElementBase {
   }
 }
 
-ReactQuestionFactory.Instance.registerQuestion("expression", props => {
+ReactQuestionFactory.Instance.registerQuestion("expression", (props) => {
   return React.createElement(SurveyQuestionExpression, props);
 });

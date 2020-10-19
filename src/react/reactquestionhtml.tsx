@@ -10,8 +10,10 @@ export class SurveyQuestionHtml extends SurveyQuestionElementBase {
   protected get question(): QuestionHtmlModel {
     return this.questionBase as QuestionHtmlModel;
   }
-  render(): JSX.Element {
-    if (!this.question || !this.question.html) return null;
+  protected canRender(): boolean {
+    return super.canRender() && !!this.question.html;
+  }
+  protected renderElement(): JSX.Element {
     var htmlValue = { __html: this.question.locHtml.renderedHtml };
     return (
       <div
@@ -22,6 +24,6 @@ export class SurveyQuestionHtml extends SurveyQuestionElementBase {
   }
 }
 
-ReactQuestionFactory.Instance.registerQuestion("html", props => {
+ReactQuestionFactory.Instance.registerQuestion("html", (props) => {
   return React.createElement(SurveyQuestionHtml, props);
 });

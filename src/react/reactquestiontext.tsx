@@ -9,8 +9,7 @@ export class SurveyQuestionText extends SurveyQuestionUncontrolledElement<
   constructor(props: any) {
     super(props);
   }
-  render(): JSX.Element {
-    if (!this.question) return null;
+  protected renderElement(): JSX.Element {
     var cssClasses = this.question.cssClasses;
     var onBlur = !this.question.isInputTextUpdate
       ? this.updateValueOnEvent
@@ -35,6 +34,7 @@ export class SurveyQuestionText extends SurveyQuestionUncontrolledElement<
         step={this.question.step}
         size={this.question.size}
         placeholder={placeHolder}
+        autoComplete={this.question.autoComplete}
         onBlur={onBlur}
         onInput={onInput}
         aria-required={this.question.isRequired}

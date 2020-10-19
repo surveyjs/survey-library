@@ -589,6 +589,7 @@ export class QuestionPanelDynamicModel
       return;
     }
     if (val == this.panels.length || this.isDesignMode) return;
+    this.updateBindings("panelCount", val);
     this.prepareValueForPanelCreating();
     for (let i = this.panelCount; i < val; i++) {
       var panel = this.createNewPanel();
@@ -1010,6 +1011,7 @@ export class QuestionPanelDynamicModel
     if (index < 0 || index >= this.panelCount) return;
     var panel = this.panels[index];
     this.panels.splice(index, 1);
+    this.updateBindings("panelCount", this.panelCount);
     var value = this.value;
     if (!value || !Array.isArray(value) || index >= value.length) return;
     this.isValueChangingInternally = true;
@@ -1577,6 +1579,7 @@ Serializer.addClass(
     { name: "allowRemovePanel:boolean", default: true },
     {
       name: "panelCount:number",
+      isBindable: true,
       default: 0,
       choices: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
     },

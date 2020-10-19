@@ -13,8 +13,7 @@ export class SurveyQuestionComment extends SurveyQuestionUncontrolledElement<
   constructor(props: any) {
     super(props);
   }
-  render(): JSX.Element {
-    if (!this.question) return null;
+  protected renderElement(): JSX.Element {
     var cssClasses = this.question.cssClasses;
     var onBlur = !this.question.isInputTextUpdate
       ? this.updateValueOnEvent
@@ -50,9 +49,11 @@ export class SurveyQuestionComment extends SurveyQuestionUncontrolledElement<
 }
 
 export class SurveyQuestionCommentItem extends ReactSurveyElement {
-  render(): JSX.Element {
+  protected canRender(): boolean {
+    return !!this.props.question;
+  }
+  protected renderElement(): JSX.Element {
     let question = this.props.question;
-    if (!question) return null;
     let className = this.props.otherCss || this.cssClasses.comment;
     let handleOnChange = (event: any) => {
       this.setState({ comment: event.target.value });

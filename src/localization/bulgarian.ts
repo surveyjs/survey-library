@@ -1,15 +1,18 @@
-//Uncomment this line on creating a translation file
 import { surveyLocalization } from "../surveyStrings";
 
 export var bulgarianStrings = {
   pagePrevText: "Назад",
   pageNextText: "Напред",
   completeText: "Край",
+  previewText: "Визуализация",
+  editText: "редактиране",
   startSurveyText: "Начало",
   otherItemText: "Друго (опишете)",
   noneItemText: "Нито един",
   selectAllItemText: "Всички",
   progressText: "стр. {0}, общо стр. {1}",
+  panelDynamicProgressText: "Запис {0} от {1}",
+  questionsProgressText: "Отговорени на {0} / {1} въпроса",
   emptySurvey: "Анкетата не съдържа видими страници или въпроси.",
   completingSurvey: "Благодарим ви за участието в анкетата!",
   completingSurveyBefore:
@@ -42,6 +45,7 @@ export var bulgarianStrings = {
     "Вашит файл се зарежда на сървъра. Моля, изчакайте няколко секунди и тогава опитвайте отново.",
   loadingFile: "Зареждане...",
   chooseFile: "Изберете файл(ове)...",
+  noFileChosen: "Няма избран файл",
   confirmDelete: "Желаете ли да изтриете записа?",
   keyDuplicationError: "Стойността следва да бъде уникална.",
   addColumn: "Добавяне на колона",
@@ -67,9 +71,14 @@ export var bulgarianStrings = {
   timerLimitSurvey: "Вие използвахте общо {0} от {1}.",
   cleanCaption: "Изчистване",
   clearCaption: "Начално състояние",
-  removeFileCaption: "Премахване на файла"
+  chooseFileCaption: "Изберете файл",
+  removeFileCaption: "Премахване на файла",
+  booleanCheckedLabel: "Да",
+  booleanUncheckedLabel: "Не",
+  confirmRemoveFile: "Наистина ли искате да премахнете този файл: {0}?",
+  confirmRemoveAllFiles: "Наистина ли искате да премахнете всички файлове?",
+  questionTitlePatternText: "Заглавие на въпроса",
 };
 
-//Uncomment these two lines on creating a translation file. You should replace "en" and enStrings with your locale ("fr", "de" and so on) and your variable.
 surveyLocalization.locales["bg"] = bulgarianStrings;
 surveyLocalization.localeNames["bg"] = "Bulgarian";

@@ -16,8 +16,7 @@ export class SurveyQuestionRadiogroup extends SurveyQuestionElementBase {
   protected get question(): QuestionRadiogroupModel {
     return this.questionBase as QuestionRadiogroupModel;
   }
-  render(): JSX.Element {
-    if (!this.question) return null;
+  protected renderElement(): JSX.Element {
     var cssClasses = this.question.cssClasses;
     var clearButton = null;
     if (this.question.canShowClearButton) {
@@ -133,8 +132,10 @@ export class SurveyQuestionRadioItem extends ReactSurveyElement {
   handleOnChange(event: any) {
     this.question.renderedValue = this.item.value;
   }
-  render(): JSX.Element {
-    if (!this.item || !this.question) return null;
+  protected canRender(): boolean {
+    return !!this.question && !!this.item;
+  }
+  protected renderElement(): JSX.Element {
     var otherItem =
       this.isChecked && this.item.value === this.question.otherItem.value
         ? this.renderOther(this.cssClasses)

@@ -17,8 +17,7 @@ export class SurveyQuestionRating extends SurveyQuestionElementBase {
     this.question.value = event.target.value;
     this.setState({ value: this.question.value });
   }
-  render(): JSX.Element {
-    if (!this.question) return null;
+  protected renderElement(): JSX.Element {
     var cssClasses = this.question.cssClasses;
     var values = [];
     var minText = this.question.minRateDescription
@@ -43,7 +42,7 @@ export class SurveyQuestionRating extends SurveyQuestionElementBase {
     }
     var comment = this.question.hasOther ? this.renderOther(cssClasses) : null;
     return (
-      <div className={cssClasses.root} ref={div => (this.control = div)}>
+      <div className={cssClasses.root} ref={(div) => (this.control = div)}>
         {values}
         {comment}
       </div>
@@ -81,7 +80,11 @@ export class SurveyQuestionRating extends SurveyQuestionElementBase {
           aria-required={this.question.isRequired}
           aria-label={item.locText.text}
           aria-invalid={this.question.errors.length > 0}
-          aria-describedby={this.question.errors.length > 0 ? this.question.id + '_errors' : null}  
+          aria-describedby={
+            this.question.errors.length > 0
+              ? this.question.id + "_errors"
+              : null
+          }
         />
         {minTextBlock}
         <span className={cssClasses.itemText}>{itemText}</span>
@@ -101,6 +104,6 @@ export class SurveyQuestionRating extends SurveyQuestionElementBase {
     );
   }
 }
-ReactQuestionFactory.Instance.registerQuestion("rating", props => {
+ReactQuestionFactory.Instance.registerQuestion("rating", (props) => {
   return React.createElement(SurveyQuestionRating, props);
 });

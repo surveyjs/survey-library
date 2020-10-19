@@ -17,8 +17,7 @@ export class SurveyQuestionCustom extends SurveyQuestionUncontrolledElement<
   constructor(props: any) {
     super(props);
   }
-  render(): JSX.Element {
-    if (!this.question) return null;
+  protected renderElement(): JSX.Element {
     return SurveyQuestion.renderQuestionBody(
       this.creator,
       this.question.contentQuestion
@@ -32,8 +31,10 @@ export class SurveyQuestionComposite extends SurveyQuestionUncontrolledElement<
   constructor(props: any) {
     super(props);
   }
-  render(): JSX.Element {
-    if (!this.question || !this.question.contentPanel) return null;
+  protected canRender(): boolean {
+    return !!this.question.contentPanel;
+  }
+  protected renderElement(): JSX.Element {
     return (
       <SurveyPanel
         element={this.question.contentPanel}

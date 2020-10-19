@@ -23,6 +23,10 @@ export class SurveyLocString extends React.Component<any, any> {
       self.setState({ changed: self.state.changed + 1 });
     };
   }
+  componentWillUnmount() {
+    if (!this.locStr) return;
+    this.locStr.onChanged = function () {};
+  }
   render(): JSX.Element {
     if (!this.locStr) return null;
     if (this.locStr.hasHtml) {
@@ -41,6 +45,7 @@ export class SurveyElementBase extends React.Component<any, any> {
   ): JSX.Element {
     return <SurveyLocString locStr={locStr} style={style} key={key} />;
   }
+  private isRenderingValue: boolean;
   constructor(props: any) {
     super(props);
   }
@@ -52,6 +57,22 @@ export class SurveyElementBase extends React.Component<any, any> {
   }
   componentDidUpdate(prevProps: any, prevState: any) {
     this.makeBaseElementsReact();
+  }
+  render(): JSX.Element {
+    if (!this.canRender()) return null;
+    this.isRenderingValue = true;
+    var res = this.renderElement();
+    this.isRenderingValue = false;
+    return res;
+  }
+  protected get isRendering(): boolean {
+    return this.isRenderingValue;
+  }
+  protected canRender(): boolean {
+    return true;
+  }
+  protected renderElement(): JSX.Element {
+    return null;
   }
   private makeBaseElementsReact() {
     var els = this.getStateElements();
@@ -155,12 +176,14 @@ export class SurveyElementBase extends React.Component<any, any> {
       var val: any = hash[key];
       if (Array.isArray(val)) {
         var val: any = val;
-        val["onArrayChanged"] = () =>
+        val["onArrayChanged"] = () => {
+          if (this.isRendering) return;
           this.setState((state: any) => {
             var newState: { [index: string]: any } = {};
             newState[key] = val;
             return newState;
           });
+        };
       }
     });
     stateElement.setPropertyValueCoreHandler = (
@@ -170,6 +193,7 @@ export class SurveyElementBase extends React.Component<any, any> {
     ) => {
       if (hash[key] !== val) {
         hash[key] = val;
+        if (this.isRendering) return;
         this.setState((state: any) => {
           var newState: { [index: string]: any } = {};
           newState[key] = val;
@@ -232,6 +256,9 @@ export class SurveyQuestionElementBase extends SurveyElementBase {
   }
   protected get creator(): ISurveyCreator {
     return this.props.creator;
+  }
+  protected canRender(): boolean {
+    return !!this.questionBase && !!this.creator;
   }
   public shouldComponentUpdate(): boolean {
     return (

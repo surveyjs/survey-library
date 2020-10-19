@@ -33,7 +33,6 @@ export class QuestionMatrixDynamicModel
   extends QuestionMatrixDropdownModelBase
   implements IMatrixDropdownData {
   private rowCounter = 0;
-  private rowCountValue: number = 2;
   private initialRowCount: number = 2;
   private setRowCountValueFromData: boolean = false;
 
@@ -126,6 +125,12 @@ export class QuestionMatrixDynamicModel
    */
   public get rowCount(): number {
     return this.rowCountValue;
+  }
+  private get rowCountValue(): number {
+    return this.getPropertyValue("rowCount", 2);
+  }
+  private set rowCountValue(val: number) {
+    this.setPropertyValue("rowCount", val);
   }
   public set rowCount(val: number) {
     if (val < 0 || val > settings.matrixMaximumRowCount) return;
@@ -494,19 +499,33 @@ export class QuestionMatrixDynamicModel
     var hasContext = !!context ? this.columns.indexOf(context) > -1 : false;
     for (var i = 0; i < this.columns.length; i++) {
       var column = this.columns[i];
-      objects.push({
-        name: this.getValueName() + "[0]." + column.name,
-        text: this.processedTitle + "[0]." + column.fullTitle,
-        question: this,
-      });
+      this.addColumnIntoaddConditionObjectsByContext(objects, 0, column);
       if (hasContext && column != context) {
-        objects.push({
-          name: "row." + column.name,
-          text: "row." + column.fullTitle,
-          question: this,
-        });
+        this.addColumnIntoaddConditionObjectsByContext(objects, -1, column);
+      }
+      for (
+        var j = 1;
+        j < Math.min(settings.matrixMaxRowCountInCondition, this.rowCount);
+        j++
+      ) {
+        this.addColumnIntoaddConditionObjectsByContext(objects, j, column);
       }
     }
+  }
+  private addColumnIntoaddConditionObjectsByContext(
+    objects: Array<IConditionObject>,
+    rowIndex: number,
+    column: MatrixDropdownColumn
+  ) {
+    var rowName = rowIndex > -1 ? "[" + rowIndex.toString() + "]." : "row.";
+    objects.push({
+      name:
+        (rowIndex > -1 ? this.getValueName() + rowName : rowName) + column.name,
+      text:
+        (rowIndex > -1 ? this.processedTitle + rowName : rowName) +
+        column.fullTitle,
+      question: this,
+    });
   }
   public supportGoNextPageAutomatic() {
     return false;
@@ -657,7 +676,7 @@ Serializer.addClass(
     { name: "rowsVisibleIf:condition", visible: false },
     { name: "allowAddRows:boolean", default: true },
     { name: "allowRemoveRows:boolean", default: true },
-    { name: "rowCount:number", default: 2, minValue: 0 },
+    { name: "rowCount:number", default: 2, minValue: 0, isBindable: true },
     { name: "minRowCount:number", default: 0, minValue: 0 },
     {
       name: "maxRowCount:number",

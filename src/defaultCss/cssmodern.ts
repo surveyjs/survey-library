@@ -195,7 +195,7 @@ export var modernCss = {
     materialDecorator: "sv-item__decorator sv-radio__decorator",
     itemDecorator: "sv-item__svg sv-radio__svg",
     cellText: "sv-matrix__text",
-    cellTextSelected: "sv-matrix__text--сhecked",
+    cellTextSelected: "sv-matrix__text--checked",
     cellTextDisabled: "sv-matrix__text--disabled",
   },
   matrixdropdown: {

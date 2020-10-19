@@ -3,6 +3,7 @@ import { HashTable, Helpers } from "./helpers";
 import {
   CustomPropertiesCollection,
   JsonObject,
+  JsonObjectProperty,
   Serializer,
 } from "./jsonobject";
 import { settings } from "./settings";
@@ -89,6 +90,7 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner {
   ): void;
   questionTitlePattern: string;
   getUpdatedQuestionTitle(question: IQuestion, title: string): string;
+  getUpdatedQuestionNo(question: IQuestion, no: string): string;
 
   questionStartIndex: string;
   questionTitleLocation: string;
@@ -264,6 +266,90 @@ export interface IProgressInfo {
   requiredQuestionCount: number;
   requiredAnsweredQuestionCount: number;
 }
+
+export class Bindings {
+  private properties: Array<JsonObjectProperty> = null;
+  private values: any = null;
+  constructor(private obj: Base) {}
+  public getType(): string {
+    return "bindings";
+  }
+  public getNames(): Array<string> {
+    var res: Array<string> = [];
+    this.fillProperties();
+    for (var i = 0; i < this.properties.length; i++) {
+      if (this.properties[i].isVisible("", this.obj)) {
+        res.push(this.properties[i].name);
+      }
+    }
+    return res;
+  }
+  public getProperties(): Array<JsonObjectProperty> {
+    var res: Array<JsonObjectProperty> = [];
+    this.fillProperties();
+    for (var i = 0; i < this.properties.length; i++) {
+      res.push(this.properties[i]);
+    }
+    return res;
+  }
+  public setBinding(propertyName: string, valueName: string) {
+    if (!this.values) this.values = {};
+    if (!!valueName) {
+      this.values[propertyName] = valueName;
+    } else {
+      delete this.values[propertyName];
+      if (Object.keys(this.values).length == 0) {
+        this.values = null;
+      }
+    }
+  }
+  public clearBinding(propertyName: string) {
+    this.setBinding(propertyName, "");
+  }
+  public isEmpty(): boolean {
+    return !this.values;
+  }
+  public getValueNameByPropertyName(propertyName: string): string {
+    if (!this.values) return undefined;
+    return this.values[propertyName];
+  }
+  public getPropertiesByValueName(valueName: string): Array<string> {
+    if (!this.values) return [];
+    var res: Array<string> = [];
+    for (var key in this.values) {
+      if (this.values[key] == valueName) {
+        res.push(key);
+      }
+    }
+    return res;
+  }
+  public getJson(): any {
+    if (this.isEmpty()) return null;
+    var res: any = {};
+    for (var key in this.values) {
+      res[key] = this.values[key];
+    }
+    return res;
+  }
+  public setJson(value: any) {
+    this.values = null;
+    if (!value) return;
+    this.values = {};
+    for (var key in value) {
+      this.values[key] = value[key];
+    }
+  }
+  private fillProperties() {
+    if (this.properties !== null) return;
+    this.properties = [];
+    var objProperties = Serializer.getPropertiesByObj(this.obj);
+    for (var i = 0; i < objProperties.length; i++) {
+      if (objProperties[i].isBindable) {
+        this.properties.push(objProperties[i]);
+      }
+    }
+  }
+}
 /**
  * The base class for SurveyJS objects.
  */
@@ -290,6 +376,7 @@ export class Base {
   private propertyHash: { [index: string]: any } = {};
   private localizableStrings: { [index: string]: LocalizableString };
   private arraysInfo: { [index: string]: any };
+  private bindingsValue: Bindings;
   private onPropChangeFunctions: Array<{
     name: string;
     func: (...args: any[]) => void;
@@ -332,6 +419,7 @@ export class Base {
   createArrayCoreHandler: (propertiesHash: any, name: string) => Array<any>;
 
   public constructor() {
+    this.bindingsValue = new Bindings(this);
     CustomPropertiesCollection.createProperties(this);
     this.onBaseCreating();
   }
@@ -342,6 +430,17 @@ export class Base {
   public getType(): string {
     return "base";
   }
+  public get bindings(): Bindings {
+    return this.bindingsValue;
+  }
+  checkBindings(valueName: string, value: any) {}
+  protected updateBindings(propertyName: string, value: any) {
+    var valueName = this.bindings.getValueNameByPropertyName(propertyName);
+    if (!!valueName) {
+      this.updateBindingValue(valueName, value);
+    }
+  }
+  protected updateBindingValue(valueName: string, value: any) {}
   /**
    * Returns the element template name without prefix. Typically it equals to getType().
    * @see getType
@@ -503,6 +602,7 @@ export class Base {
     target?: Base
   ) {
     if (this.isLoadingFromJson) return;
+    this.updateBindings(name, newValue);
     this.onPropertyValueChanged(name, oldValue, newValue);
     this.onPropertyChanged.fire(this, {
       name: name,
@@ -949,7 +1049,7 @@ export class SurveyElement extends Base implements ISurveyElement {
   public readOnlyChangedCallback: () => void;
 
   public static ScrollElementToTop(elementId: string): boolean {
-    if (!elementId) return false;
+    if (!elementId || typeof document === "undefined") return false;
     var el = document.getElementById(elementId);
     if (!el || !el.scrollIntoView) return false;
     var elemTop = el.getBoundingClientRect().top;
@@ -974,7 +1074,7 @@ export class SurveyElement extends Base implements ISurveyElement {
     return null;
   }
   public static FocusElement(elementId: string): boolean {
-    if (!elementId) return false;
+    if (!elementId || typeof document === "undefined") return false;
     var el = document.getElementById(elementId);
     if (el) {
       el.focus();
@@ -1082,6 +1182,14 @@ export class SurveyElement extends Base implements ISurveyElement {
     return name;
   }
   protected onNameChanged(oldValue: string) {}
+  protected updateBindingValue(valueName: string, value: any) {
+    if (
+      !!this.data &&
+      !Helpers.isTwoValueEquals(value, this.data.getValue(valueName))
+    ) {
+      this.data.setValue(valueName, value, false);
+    }
+  }
   /**
    * The list of errors. It is created by callig hasErrors functions
    * @see hasErrors

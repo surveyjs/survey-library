@@ -109,9 +109,11 @@ import { Component, Prop } from "vue-property-decorator";
 import { surveyCss } from "../defaultCss/cssstandard";
 import { VueSurveyModel as SurveyModel } from "./surveyModel";
 import { StylesManager } from "../stylesmanager";
+import { BaseVue } from "./base";
+import {Base} from "../base";
 
 @Component
-export class Survey extends Vue {
+export class Survey extends BaseVue {
   @Prop survey: SurveyModel;
   processedCompletedHtmlValue: string;
 
@@ -122,8 +124,8 @@ export class Survey extends Vue {
   constructor() {
     super();
   }
-
-  mounted() {
+  protected getModel(): Base { return this.survey; }
+  protected onMounted() {
     var el = this.$el;
     if (el && this.survey) this.survey.doAfterRenderSurvey(el);
     this.survey.renderCallback = this.forceUpdate;

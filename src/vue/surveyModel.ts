@@ -1,20 +1,9 @@
 import Vue from "vue";
 import { SurveyModel } from "../survey";
 import { SurveyWindowModel } from "../surveyWindow";
-import { PageModel } from "../page";
-import { IQuestion, IElement } from "../base";
 import { surveyCss } from "../defaultCss/cssstandard";
 
 export class VueSurveyModel extends SurveyModel {
-  public static updatePropertiesHash(obj: any) {
-    obj.setPropertyValueCoreHandler = function(
-      propertiesHash: any,
-      name: string,
-      val: any
-    ) {
-      Vue.set(propertiesHash, name, val);
-    };
-  }
   renderCallback: () => void;
   public render() {
     if (this.renderCallback) {
@@ -39,36 +28,11 @@ export class VueSurveyModel extends SurveyModel {
   public deleteDataValueCore(valuesHash: any, key: string) {
     Vue.delete(valuesHash, key);
   }
-
-  protected setPropertyValueCore(propertiesHash: any, name: string, val: any) {
-    Vue.set(propertiesHash, name, val);
-  }
-  questionAdded(
-    question: IQuestion,
-    index: number,
-    parentPanel: any,
-    rootPanel: any
-  ) {
-    VueSurveyModel.updatePropertiesHash(question);
-    super.questionAdded(question, index, parentPanel, rootPanel);
-  }
-  matrixCellCreated(question: IQuestion, options: any) {
-    VueSurveyModel.updatePropertiesHash(options.cellQuestion);
-    super.matrixCellCreated(question, options);
-  }
-  protected doOnPageAdded(page: PageModel) {
-    VueSurveyModel.updatePropertiesHash(page);
-    super.doOnPageAdded(page);
-  }
   public doAfterRenderSurvey(el: any) {
     this.afterRenderSurvey(el);
   }
   public doAfterRenderHeader(el: any) {
     this.afterRenderHeader(el);
-  }
-  panelAdded(panel: IElement, index: number, parentPanel: any, rootPanel: any) {
-    VueSurveyModel.updatePropertiesHash(panel);
-    super.panelAdded(panel, index, parentPanel, rootPanel);
   }
 }
 

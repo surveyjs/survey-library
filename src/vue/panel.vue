@@ -51,16 +51,18 @@
 import Vue from "vue";
 import { Component, Prop } from "vue-property-decorator";
 import { PanelModelBase, PanelModel, QuestionRowModel } from "../panel";
-import { ISurvey } from "../base";
+import { ISurvey, Base } from "../base";
+import {BaseVue} from "./base";
 
 @Component
-export class Panel extends Vue {
+export class Panel extends BaseVue {
   @Prop question: PanelModel;
   @Prop isEditMode: Boolean;
   @Prop css: any;
   private isCollapsedValue: boolean = false;
 
-  mounted() {
+  protected getModel(): Base { return this.question; }
+  protected onMounted() {
     if (this.question.survey) {
       this.question.survey.afterRenderPanel(this.question, this.$el);
     }

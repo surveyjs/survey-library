@@ -23,14 +23,18 @@ import { SurveyModel } from "../survey";
 import { PanelModelBase, PanelModel, QuestionRowModel } from "../panel";
 import { VueSurveyModel } from "./surveyModel";
 import { settings } from "../settings";
+import { BaseVue } from "./base";
+import {Base} from "../base";
+
 @Component
-export class Row extends Vue {
+export class Row extends BaseVue {
   @Prop row: QuestionRowModel;
   @Prop css: any;
   @Prop survey: SurveyModel;
-  mounted() {
+
+  protected getModel(): Base { return this.row; }
+  protected onMounted() {
     if (!!this.row) {
-      VueSurveyModel.updatePropertiesHash(this.row);
       if (!this.row.isNeedRender) {
         var rowContainerDiv = this.$el;
         this.row.startLazyRendering(rowContainerDiv);

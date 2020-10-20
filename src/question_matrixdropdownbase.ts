@@ -113,7 +113,7 @@ export var matrixDropdownColumnTypes = {
       data: any
     ) => {
       onUpdateSelectBaseCellQuestion(cellQuestion, column, question, data);
-      if (
+      if (!!cellQuestion.locOptionsCaption &&
         cellQuestion.locOptionsCaption.isEmpty &&
         !question.locOptionsCaption.isEmpty
       ) {

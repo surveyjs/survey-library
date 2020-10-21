@@ -447,7 +447,7 @@ export class Question
    * Please note, this property is hidden for questions without input, for example html question.
    * @see title
    */
-  @property({ localizable: { name: "locDescription" } })
+  @property({ localizable: true })
   description: string;
   /**
    * Question description location. By default, value is "default" and it depends on survey questionDescriptionLocation property

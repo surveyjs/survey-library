@@ -3,58 +3,14 @@ import { Helpers, HashTable } from "./helpers";
 export interface IPropertyDecoratorOptions {
   defaultValue?: any;
   defaultSource?: string;
-  localizable?: { name: string, onGetTextCallback?: (str: string) => string };
+  localizable?: { name: string, onGetTextCallback?: (str: string) => string } | boolean;
 }
-
-// export function property(options: IPropertyDecoratorOptions) {
-//   return function (target: any, key: string) {
-//     // var t = Reflect.getMetadata("design:type", target, key);
-//     // console.log(`${key} type: ${t.name}`);
-//     const propertyInitializer = (object: any) => {
-//       if(!options.localizable) {
-//         Object.defineProperty(object, key, {
-//           get: function() { return object.getPropertyValue(key, options.defaultValue || object[options.defaultSource]); },
-//           set: function(val: any) { object.setPropertyValue(key, val); }
-//         });
-//       } else {
-//         const locString = object.createLocalizableString(key, object, true);
-//         if(typeof options.localizable.onGetTextCallback === "function") {
-//           locString.onGetTextCallback = options.localizable.onGetTextCallback;
-//         }
-//         Object.defineProperty(object, key, {
-//           get: function() { return object.getLocalizableStringText(key, options.defaultValue || object[options.defaultSource]); },
-//           set: function(val: any) { object.setLocalizableStringText(key, val); }
-//         });
-//         Object.defineProperty(object, options.localizable.name, {
-//           get: function() { return object.getLocalizableString(key); }
-//         });
-//       }
-//     };
-//     if(target.__SurveySerializerProperties === undefined) {
-//       target.__SurveySerializerProperties = [];
-//     }
-//     target.__SurveySerializerProperties.push(propertyInitializer);
-//   };
-// }
-
-// export function serializable<T extends { new (...args: any[]): {} }>(constructor: T) {
-//   return class extends constructor {
-//     constructor(...args: any[]) {
-//       super(...args);
-//       if(Array.isArray((<any>constructor).__SurveySerializerProperties)) {
-//         (<any>constructor).__SurveySerializerProperties.forEach((propertyInitializer: (self: any) => void) => {
-//           propertyInitializer(this);
-//         });
-//       }
-//     }
-//   };
-// }
 
 function ensureLocString(target: any, options: IPropertyDecoratorOptions, key: string) {
   let locString = target.getLocalizableString(key);
   if(!locString) {
     locString = target.createLocalizableString(key, target, true);
-    if(typeof options.localizable.onGetTextCallback === "function") {
+    if(typeof options.localizable === "object" && typeof options.localizable.onGetTextCallback === "function") {
       locString.onGetTextCallback = options.localizable.onGetTextCallback;
     }
   }
@@ -72,7 +28,7 @@ export function property(options: IPropertyDecoratorOptions) {
         get: function() { ensureLocString(this, options, key); return this.getLocalizableStringText(key, options.defaultValue || this[options.defaultSource]); },
         set: function(val: any) { ensureLocString(this, options, key);  this.setLocalizableStringText(key, val); }
       });
-      Object.defineProperty(target, options.localizable.name, {
+      Object.defineProperty(target, options.localizable === true ? "loc" + key.charAt(0).toUpperCase() + key.slice(1) : options.localizable.name, {
         get: function() {
           ensureLocString(this, options, key); 
           return this.getLocalizableString(key);

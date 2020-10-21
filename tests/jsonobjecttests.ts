@@ -2346,3 +2346,31 @@ QUnit.test("check isUnique attribute", function (assert) {
     "isUnique attribute created correctly"
   );
 });
+QUnit.test("multiplevalues/array property should call onPropertyChanged on modifying array", function (assert) {
+  Serializer.addProperty("carowner", "ar:multiplevalues");
+  var owner = new CarOwner();
+  var propName = "";
+  var counter = 0;
+  owner.onPropertyChanged.add((sender, options) => {
+    propName = options.name;
+    counter ++;
+  });
+  owner["ar"] = ["A"];
+  owner["ar"].push("B");
+  assert.deepEqual(
+    owner["ar"],
+    ["A", "B"],
+    "property set correctly"
+  );
+  assert.equal(
+    counter,
+    2,
+    "onPropertyChanged called two times"
+  );
+  assert.equal(
+    propName,
+    "ar",
+    "onPropertyChanged called on chaning 'ar' property"
+  );
+  Serializer.removeProperty("carowner", "ar:multiplevalues");
+});

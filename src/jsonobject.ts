@@ -361,16 +361,30 @@ export class CustomPropertiesCollection {
       Object.defineProperty(obj, prop.name, desc);
     } else {
       var defaultValue = prop.defaultValue;
-      if (
-        JsonObject.metaData.isDescendantOf(prop.className, "itemvalue") &&
-        typeof obj.createNewArray === "function"
-      ) {
-        obj.createNewArray(prop.name, function (item: any) {
-          item.locOwner = obj;
-          item.ownerPropertyName = prop.name;
-        });
-        obj.setPropertyValue(prop.name, defaultValue);
-        defaultValue = null;
+      var isArrayProp = false;
+      if(typeof obj.createNewArray === "function") {
+        if (
+          JsonObject.metaData.isDescendantOf(prop.className, "itemvalue")
+        ) {
+          obj.createNewArray(prop.name, function (item: any) {
+            item.locOwner = obj;
+            item.ownerPropertyName = prop.name;
+          });
+          isArrayProp = true;
+          obj.setPropertyValue(prop.name, defaultValue);
+          defaultValue = null;
+        }
+        //It is a simple array property
+        if(prop.type === "multiplevalues") {
+          obj.createNewArray(prop.name);
+          isArrayProp = true;
+        }
+        if(isArrayProp) {
+          if(Array.isArray(defaultValue)) {
+            obj.setPropertyValue(prop.name, defaultValue);
+          }
+          defaultValue = null;
+        }
       }
       if (!!obj.getPropertyValue && !!obj.setPropertyValue) {
         var desc = {

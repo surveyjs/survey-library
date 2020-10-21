@@ -16,11 +16,11 @@ function ensureLocString(target: any, options: IPropertyDecoratorOptions, key: s
   }
 }
 
-export function property(options: IPropertyDecoratorOptions) {
+export function property(options?: IPropertyDecoratorOptions) {
   return function (target: any, key: string) {
-    if(!options.localizable) {
+    if(!options || !options.localizable) {
       Object.defineProperty(target, key, {
-        get: function() { return this.getPropertyValue(key, options.defaultValue || this[options.defaultSource]); },
+        get: function() { return this.getPropertyValue(key, !!options ? options.defaultValue || this[options.defaultSource] : undefined); },
         set: function(val: any) { this.setPropertyValue(key, val); }
       });
     } else {

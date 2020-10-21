@@ -1,5 +1,5 @@
 import { HashTable, Helpers } from "./helpers";
-import { JsonObject, Serializer } from "./jsonobject";
+import { JsonObject, Serializer, property } from "./jsonobject";
 import {
   SurveyError,
   SurveyElement,
@@ -102,7 +102,6 @@ export class Question
     };
     this.locProcessedTitle = new LocalizableString(this, true);
     this.locProcessedTitle.sharedData = locTitleValue;
-    this.createLocalizableString("description", this, true);
     var locCommentText = this.createLocalizableString(
       "commentText",
       this,
@@ -448,15 +447,8 @@ export class Question
    * Please note, this property is hidden for questions without input, for example html question.
    * @see title
    */
-  public get description(): string {
-    return this.getLocalizableStringText("description");
-  }
-  public set description(val: string) {
-    this.setLocalizableStringText("description", val);
-  }
-  get locDescription(): LocalizableString {
-    return this.getLocalizableString("description");
-  }
+  @property({ localizable: true })
+  description: string;
   /**
    * Question description location. By default, value is "default" and it depends on survey questionDescriptionLocation property
    * You may change it to "underInput" to render it under question input or "underTitle" to rendered it under title.

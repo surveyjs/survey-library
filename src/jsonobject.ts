@@ -1,5 +1,43 @@
 import { Helpers, HashTable } from "./helpers";
 
+export interface IPropertyDecoratorOptions {
+  defaultValue?: any;
+  defaultSource?: string;
+  localizable?: { name: string, onGetTextCallback?: (str: string) => string } | boolean;
+}
+
+function ensureLocString(target: any, options: IPropertyDecoratorOptions, key: string) {
+  let locString = target.getLocalizableString(key);
+  if(!locString) {
+    locString = target.createLocalizableString(key, target, true);
+    if(typeof options.localizable === "object" && typeof options.localizable.onGetTextCallback === "function") {
+      locString.onGetTextCallback = options.localizable.onGetTextCallback;
+    }
+  }
+}
+
+export function property(options?: IPropertyDecoratorOptions) {
+  return function (target: any, key: string) {
+    if(!options || !options.localizable) {
+      Object.defineProperty(target, key, {
+        get: function() { return this.getPropertyValue(key, !!options ? options.defaultValue || this[options.defaultSource] : undefined); },
+        set: function(val: any) { this.setPropertyValue(key, val); }
+      });
+    } else {
+      Object.defineProperty(target, key, {
+        get: function() { ensureLocString(this, options, key); return this.getLocalizableStringText(key, options.defaultValue || this[options.defaultSource]); },
+        set: function(val: any) { ensureLocString(this, options, key);  this.setLocalizableStringText(key, val); }
+      });
+      Object.defineProperty(target, options.localizable === true ? "loc" + key.charAt(0).toUpperCase() + key.slice(1) : options.localizable.name, {
+        get: function() {
+          ensureLocString(this, options, key); 
+          return this.getLocalizableString(key);
+        }
+      });
+    }
+  };
+}
+
 export interface IObject {
   [key: string]: any;
 }

@@ -2372,5 +2372,5 @@ QUnit.test("multiplevalues/array property should call onPropertyChanged on modif
     "ar",
     "onPropertyChanged called on chaning 'ar' property"
   );
-  Serializer.removeProperty("carowner", "ar:multiplevalues");
+  Serializer.removeProperty("carowner", "ar");
 });

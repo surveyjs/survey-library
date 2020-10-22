@@ -57,6 +57,7 @@ import {
 } from "../src/expressions/expressions";
 import { ArrayChanges } from "../src/base";
 import { settings } from "../src/settings";
+import { CalculatedValue } from "../src/calculatedValue";
 
 export default QUnit.module("Survey");
 
@@ -4922,6 +4923,36 @@ QUnit.test("survey.clearIncorrectValues", function (assert) {
   );
   survey.clearIncorrectValues();
   assert.deepEqual(survey.data, {}, "The default value is removed");
+});
+
+QUnit.test("survey.clearIncorrectValues with parameter removeNonExisingKeys", function (assert) {
+  var json = {
+    elements: [
+        {
+          type: "text",
+          name: "q1",
+        },
+        {
+          type: "text",
+          name: "q2",
+        },
+    ],
+  };
+  var survey = new SurveyModel(json);
+  survey.setValue("q1", "v1");
+  survey.setValue("q2", "v2");
+  survey.setValue("q3", "v3");
+  assert.deepEqual(
+    survey.data,
+    { q1: "v1", q2: "v2", q3: "v3" },
+    "values set correctly"
+  );
+  survey.clearIncorrectValues(true);
+  assert.deepEqual(
+    survey.data,
+    { q1: "v1", q2: "v2"  },
+    "Remove q3 and val3 keys"
+  );
 });
 
 QUnit.test("Create questions from elements array - issue #395", function (

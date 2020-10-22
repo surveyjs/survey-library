@@ -1428,13 +1428,27 @@ export class SurveyModel
    * For example the value that doesn't exists in a radiogroup/dropdown/checkbox choices or matrix rows/columns.
    * Please note, this function doesn't clear values for invisible questions or values that doesn't associated with questions.
    * In fact this function just call clearIncorrectValues function of all questions in the survey
+   * @param removeNonExisingRootKeys - set this parameter to true to remove keys from survey.data that doesn't have corresponded questions and calculated values
    * @see Question.clearIncorrectValues
    * @see Page.clearIncorrectValues
    * @see Panel.clearIncorrectValues
    */
-  public clearIncorrectValues() {
+  public clearIncorrectValues(removeNonExisingRootKeys: boolean = false) {
     for (var i = 0; i < this.pages.length; i++) {
       this.pages[i].clearIncorrectValues();
+    }
+    if(!removeNonExisingRootKeys) return;
+    var data = this.data;
+    var hasChanges = false;
+    for(var key in data) {
+      if(!!this.getQuestionByValueName(key)) continue;
+      var calcValue = this.getCalculatedValueByName(key);
+      if(!!calcValue && calcValue.includeIntoResult) continue;
+      hasChanges = true;
+      delete data[key];
+    }
+    if(hasChanges) {
+      this.data = data;
     }
   }
 
@@ -3838,6 +3852,12 @@ export class SurveyModel
   ): IQuestion {
     var res = this.getQuestionsByValueNameCore(valueName, caseInsensitive);
     return !!res ? res[0] : null;
+  }
+  public getCalculatedValueByName(name: string): CalculatedValue {
+    for(var i = 0; i < this.calculatedValues.length; i ++) {
+      if(name == this.calculatedValues[i].name) return this.calculatedValues[i];
+    }
+    return null;
   }
   private getQuestionsByValueNameCore(
     valueName: string,

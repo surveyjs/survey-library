@@ -687,3 +687,27 @@ QUnit.test("Page/Panel.getProgressInfo()", function (assert) {
     requiredAnsweredQuestionCount: 2,
   });
 });
+QUnit.test("Panel.requiredIf", function (assert) {
+  var survey = new SurveyModel({
+    elements: [
+      {
+        type: "text",
+        name: "q1",
+      },
+      {
+        type: "panel",
+        name: "panel1",
+        requiredIf: "{q1} = 1",
+        elements: [
+          {type: "text", name: "q3"}
+        ]
+      }
+    ],
+  });
+  var panel = <PanelModel>survey.getPanelByName("panel1");
+  assert.equal(panel.isRequired, false, "It is not required by default");
+  survey.setValue("q1", 1);
+  assert.equal(panel.isRequired, true, "q1 is 1");
+  survey.setValue("q1", 2);
+  assert.equal(panel.isRequired, false, "q1 is 2");
+});

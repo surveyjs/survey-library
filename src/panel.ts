@@ -534,6 +534,17 @@ export class PanelModelBase
     this.setPropertyValue("isRequired", val);
   }
   /**
+   * An expression that returns true or false. If it returns true the Panel/Page becomes required.
+   * The library runs the expression on survey start and on changing a question value. If the property is empty then isRequired property is used.
+   * @see isRequired
+   */
+  public get requiredIf(): string {
+    return this.getPropertyValue("requiredIf", "");
+  }
+  public set requiredIf(val: string) {
+    this.setPropertyValue("requiredIf", val);
+  }
+  /**
    * Returns true, if there is an error on this Page or inside the current Panel
    * @param fireCallback set it to true, to show errors in UI
    * @param focusOnFirstError set it to true to focus on the first question that doesn't pass the validation
@@ -1180,6 +1191,7 @@ export class PanelModelBase
       this.runVisibleCondition(values, properties);
     }
     this.runEnableCondition(values, properties);
+    this.runRequiredCondition(values, properties);
   }
   private runVisibleCondition(
     values: HashTable<any>,
@@ -1200,6 +1212,17 @@ export class PanelModelBase
     var conditionRunner = new ConditionRunner(this.enableIf);
     conditionRunner.onRunComplete = (res: boolean) => {
       this.readOnly = !res;
+    };
+    conditionRunner.run(values, properties);
+  }
+  private runRequiredCondition(
+    values: HashTable<any>,
+    properties: HashTable<any>
+  ) {
+    if (!this.requiredIf) return;
+    var conditionRunner = new ConditionRunner(this.requiredIf);
+    conditionRunner.onRunComplete = (res: boolean) => {
+      this.isRequired = res;
     };
     conditionRunner.run(values, properties);
   }
@@ -1705,6 +1728,7 @@ Serializer.addClass(
     { name: "visible:boolean", default: true },
     "visibleIf:condition",
     "enableIf:condition",
+    "requiredIf:condition",
     "readOnly:boolean",
     {
       name: "questionTitleLocation",

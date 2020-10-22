@@ -548,8 +548,7 @@ export class QuestionMatrixDynamicModel
     return isDuplicated || prevValue;
   }
   private hasErrorInRows(): boolean {
-    if (this.minRowCount <= 0 || !this.generatedVisibleRows) return false;
-    var res = false;
+    if (this.minRowCount <= 0 || !this.isRequired || !this.generatedVisibleRows) return false;
     var setRowCount = 0;
     for (
       var rowIndex = 0;

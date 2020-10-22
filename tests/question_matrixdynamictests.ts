@@ -756,10 +756,10 @@ QUnit.test("matrixdynamic.defaultValue - check the complex property", function (
   );
 });
 
-QUnit.test("Matrixdropdown isRequiredInAllRows", function (assert) {
+QUnit.test("Matrixdropdown minRowCount", function (assert) {
   var question = new QuestionMatrixDynamicModel("matrix");
   question.rowCount = 2;
-  question.columns.push(new MatrixDropdownColumn("dropdown"));
+  question.addColumn("column1")
   var rows = question.visibleRows;
   assert.equal(
     question.hasErrors(),
@@ -771,8 +771,33 @@ QUnit.test("Matrixdropdown isRequiredInAllRows", function (assert) {
   question.minRowCount = 2;
   assert.equal(
     question.hasErrors(),
+    false,
+    "There is no errors in the matrix. question is not required"
+  );
+  question.minRowCount = 0;
+  question.isRequired = true;
+  assert.equal(
+    question.hasErrors(),
     true,
-    "Error, value in all rows are required"
+    "Error. Question is requried now"
+  );
+  rows[0].cells[0].question.value = "val1";
+  assert.equal(
+    question.hasErrors(),
+    false,
+    "Question has value"
+  );
+  question.minRowCount = 2;
+  assert.equal(
+    question.hasErrors(),
+    true,
+    "Error, value in two rows are required"
+  );
+  rows[1].cells[0].question.value = "val2";
+  assert.equal(
+    question.hasErrors(),
+    false,
+    "No errors, all rows have values"
   );
 });
 QUnit.test("Matrixdropdown supportGoNextPageAutomatic property", function (

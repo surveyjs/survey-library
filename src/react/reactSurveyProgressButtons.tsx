@@ -6,27 +6,36 @@ import { SurveyProgressButtonsModel } from '../surveyProgressButtons';
 
 export class SurveyProgressButtons extends SurveyNavigationBase {
   private progressButtonsModel: SurveyProgressButtonsModel;
+  private updateScroller: any = undefined;
+  private isNavigationMounted: boolean = false;
+  private listContainerRef: React.RefObject<HTMLDivElement>;
   constructor(props: any) {
     super(props);
     this.progressButtonsModel = new SurveyProgressButtonsModel(this.survey);
+    this.updateScroller = setInterval(() => {
+      if (this.isNavigationMounted) {
+        this.setState({ hasScroller: this.listContainerRef.current.scrollWidth >
+          this.listContainerRef.current.offsetWidth});
+      }
+    });
+    this.listContainerRef = React.createRef();
   }
   render(): JSX.Element {
     return (
       <div className={this.css.progressButtonsContainerCenter}>
         <div className={this.css.progressButtonsContainer}>
-          <img className={this.getScrollButtonCss(true)}></img>
-          <div className={this.css.progressButtonsListContainer}>
+          <div className={this.getScrollButtonCss(true)} role="button"
+            onClick={() => this.clickScrollButton(this.listContainerRef.current, true)}></div>
+          <div className={this.css.progressButtonsListContainer} ref={this.listContainerRef}>
             <ul className={this.css.progressButtonsList}>
               {this.getListElements()}
             </ul>
           </div>
-          <img className={this.getScrollButtonCss(false)}></img>
+          <div className={this.getScrollButtonCss(false)} role="button"
+            onClick={() => this.clickScrollButton(this.listContainerRef.current, false)}></div>
         </div>
       </div>
     );
-  }
-  protected getScrollButtonCss(isLeftScroll: boolean): string {
-    return "";
   }
   protected getListElements(): JSX.Element[] {
     let buttons: JSX.Element[] = [];
@@ -53,6 +62,22 @@ export class SurveyProgressButtons extends SurveyNavigationBase {
   }
   protected clickListElement(index: number): void {
     this.progressButtonsModel.clickListElement(index);
+  }
+  protected getScrollButtonCss(isLeftScroll: boolean): string {
+    let scrollCss: string = isLeftScroll ?
+      this.survey.css.progressButtonsImageButtonLeft :
+      this.survey.css.progressButtonsImageButtonRight;
+    if (!this.state.hasScroller) scrollCss += " " + this.survey.css.progressButtonsImageButtonHidden;
+    return scrollCss;
+  }
+  protected clickScrollButton(listContainerElement: Element, isLeftScroll: boolean): void {
+    listContainerElement.scrollLeft += (isLeftScroll ? -1 : 1) * 70;
+  }
+  componentDidMount() {
+    this.isNavigationMounted = true;
+  }
+  componentWillUnmount() {
+    this.isNavigationMounted = false;
   }
 }
 

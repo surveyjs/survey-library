@@ -1,6 +1,6 @@
 <div data-bind="css: model.css.progressButtonsContainerCenter">
     <div data-bind="css: model.css.progressButtonsContainer">
-        <img data-bind="css: getScrollButtonCss(true), click: clickScrollButton.bind($data, $element.nextElementSibling, true)">
+        <div data-bind="css: getScrollButtonCss(true), click: clickScrollButton.bind($data, $element.nextElementSibling, true)" role="button"></div>
         <div data-bind="css: model.css.progressButtonsListContainer">
             <ul data-bind="foreach: model.visiblePages, css: model.css.progressButtonsList">
                 <li data-bind="css: $parent.getListElementCss($index), click: $parent.clickListElement.bind($parent, $index)">
@@ -9,6 +9,6 @@
                 </li>
             </ul>
         </div>
-        <img data-bind="css: getScrollButtonCss(false), click: clickScrollButton.bind($data, $element.previousElementSibling, false)">
+        <div data-bind="css: getScrollButtonCss(false), click: clickScrollButton.bind($data, $element.previousElementSibling, false)" role="button"></div>
     </div>
 </div>

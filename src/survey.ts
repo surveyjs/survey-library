@@ -3004,7 +3004,7 @@ export class SurveyModel
     return this.doCurrentPageCompleteCore(doComplete);
   }
   private doCurrentPageCompleteCore(doComplete: boolean): boolean {
-    if (this.doServerValidation()) return false;
+    if (this.doServerValidation(doComplete)) return false;
     if (doComplete) {
       this.doComplete();
     } else {
@@ -3290,12 +3290,13 @@ export class SurveyModel
     this.onIsValidatingOnServerChanged();
   }
   protected onIsValidatingOnServerChanged() {}
-  protected doServerValidation(): boolean {
+  protected doServerValidation(doComplete: boolean): boolean {
     if (
       !this.onServerValidateQuestions ||
       this.onServerValidateQuestions.isEmpty
     )
       return false;
+    if(!doComplete && this.checkErrorsMode === "onComplete") return false;
     var self = this;
     var options = {
       data: <{ [index: string]: any }>{},
@@ -3305,12 +3306,16 @@ export class SurveyModel
         self.completeServerValidation(options);
       },
     };
-    for (var i = 0; i < this.currentPage.questions.length; i++) {
-      var question = this.currentPage.questions[i];
-      if (!question.visible) continue;
-      var value = this.getValue(question.getValueName());
-      if (!this.isValueEmpty(value))
-        options.data[question.getValueName()] = value;
+    if(doComplete && this.checkErrorsMode === "onComplete") {
+      options.data = this.data;
+    } else {
+      for (var i = 0; i < this.currentPage.questions.length; i++) {
+        var question = this.currentPage.questions[i];
+        if (!question.visible) continue;
+        var value = this.getValue(question.getValueName());
+        if (!this.isValueEmpty(value))
+          options.data[question.getValueName()] = value;
+      }
     }
     this.setIsValidatingOnServer(true);
 
@@ -3336,6 +3341,9 @@ export class SurveyModel
           question.addError(new CustomError(options.errors[name], this));
           if (hasToFocus) {
             hasToFocus = false;
+            if(!!question.page) {
+              this.currentPage = question.page;
+            }
             question.focus(true);
           }
         }

@@ -11627,7 +11627,7 @@ QUnit.test(
   }
 );
 QUnit.test(
-  "Focus errored question when checkErrorsMode: `onComplete`, Bug#",
+  "Focus errored question when checkErrorsMode: `onComplete` + onServerValidateQuestions, Bug#2466",
   function (assert) {
     var focusedQuestionId = "";
     var oldFunc = SurveyElement.FocusElement;
@@ -11657,6 +11657,56 @@ QUnit.test(
     survey.nextPage();
     survey.completeLastPage();
     assert.equal(survey.currentPageNo, 0, "The first page is active");
+    assert.equal(
+      survey.getQuestionByName("q1").inputId,
+      focusedQuestionId,
+      "q1 is required and q0 is not"
+    );
+    SurveyElement.FocusElement = oldFunc;
+  }
+);
+QUnit.test(
+  "Focus errored question when checkErrorsMode: `onComplete` + , Bug#2478",
+  function (assert) {
+    var focusedQuestionId = "";
+    var oldFunc = SurveyElement.FocusElement;
+    SurveyElement.FocusElement = function (elId: string): boolean {
+      focusedQuestionId = elId;
+      return true;
+    };
+
+    var survey = new SurveyModel({
+      checkErrorsMode: "onComplete",
+      pages: [
+        {
+          elements: [
+            { type: "text", name: "q0" },
+            { type: "text", name: "q1" },
+          ],
+        },
+        {
+          elements: [{ type: "text", name: "q2" }],
+        },
+        {
+          elements: [{ type: "text", name: "q3" }],
+        },
+      ],
+    });
+    var q1Value = null;
+    survey.onServerValidateQuestions.add(function (sender, options) {
+      options.errors["q1"] = "error";
+      q1Value = options.data["q1"];
+      options.complete();
+    });
+
+    survey.setValue("q1", "val1");
+    survey.nextPage();
+    assert.equal(survey.currentPageNo, 1, "Allow to go the second page");
+    survey.nextPage();
+    assert.equal(survey.currentPageNo, 2, "Allow to go the third page");
+    survey.completeLastPage();
+    assert.equal(survey.currentPageNo, 0, "The first page is active");
+    assert.equal(q1Value, "val1", "options.data set correctly");
     assert.equal(
       survey.getQuestionByName("q1").inputId,
       focusedQuestionId,

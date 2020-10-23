@@ -7,8 +7,10 @@ import { Base } from "../base";
 import { SurveyRow } from "./row";
 
 export class SurveyPanelBase extends SurveyElementBase {
+  protected rootRef: React.RefObject<HTMLDivElement>;
   constructor(props: any) {
     super(props);
+    this.rootRef = React.createRef();
   }
   protected getStateElement(): Base {
     return this.panelBase;
@@ -40,7 +42,7 @@ export class SurveyPanelBase extends SurveyElementBase {
   }
   componentWillUnmount() {
     super.componentWillUnmount();
-    var el: any = this.refs["root"];
+    var el = this.rootRef.current;
     if (!!el) {
       el.removeAttribute("data-rendered");
     }
@@ -57,7 +59,7 @@ export class SurveyPanelBase extends SurveyElementBase {
     this.doAfterRender();
   }
   private doAfterRender() {
-    var el: any = this.refs["root"];
+    var el = this.rootRef.current;
     if (el && this.survey) {
       if (this.panelBase.isPanel) {
         this.survey.afterRenderPanel(this.panelBase as PanelModel, el);

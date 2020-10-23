@@ -202,7 +202,7 @@ export class SurveyQuestionMatrixDropdownCell extends SurveyQuestionAndErrorsCel
     return !!this.cell ? this.cell.question : null;
   }
   protected doAfterRender() {
-    var el: any = this.refs["cell"];
+    var el = this.cellRef.current;
     if (
       el &&
       this.cell &&

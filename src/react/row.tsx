@@ -9,8 +9,10 @@ import { ReactElementFactory } from "./element-factory";
 import { settings } from "../settings";
 
 export class SurveyRow extends SurveyElementBase {
+  private rootRef: React.RefObject<HTMLDivElement>;
   constructor(props: any) {
     super(props);
+    this.rootRef = React.createRef();
   }
   protected getStateElement(): Base {
     return this.row;
@@ -38,14 +40,14 @@ export class SurveyRow extends SurveyElementBase {
       );
     }
     return (
-      <div ref="root" className={this.css.row}>
+      <div ref={this.rootRef} className={this.css.row}>
         {elements}
       </div>
     );
   }
   componentDidMount() {
     super.componentDidMount();
-    var el: any = this.refs["root"];
+    var el = this.rootRef.current;
     if (!!el) {
       if (!this.row.isNeedRender) {
         var rowContainerDiv = el;

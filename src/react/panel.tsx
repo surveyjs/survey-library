@@ -59,7 +59,7 @@ export class SurveyPanel extends SurveyPanelBase {
     var bottom = this.renderBottom();
     return (
       <div
-        ref="root"
+        ref={this.rootRef}
         className={this.panelBase.cssClasses.panel.container}
         style={rootStyle}
       >

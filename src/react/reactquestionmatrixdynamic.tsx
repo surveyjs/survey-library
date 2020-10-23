@@ -20,7 +20,7 @@ export class SurveyQuestionMatrixDynamic extends SurveyQuestionMatrixDropdownBas
     var cssClasses = this.question.cssClasses;
     var mainDiv = this.renderTableDiv();
     return (
-      <div ref="matrixDynamicRef">
+      <div>
         {this.renderAddRowButtonOnTop(cssClasses)}
         {mainDiv}
         {this.renderAddRowButtonOnBottom(cssClasses)}

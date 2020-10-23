@@ -8,13 +8,14 @@ import { ReactQuestionFactory } from "./reactquestionfactory";
 import { OtherEmptyError } from "../error";
 
 export class SurveyQuestionBoolean extends SurveyQuestionElementBase {
-  private isIndeterminateChange: boolean = false;
+  private checkRef: React.RefObject<HTMLInputElement>;
   constructor(props: any) {
     super(props);
     this.handleOnChange = this.handleOnChange.bind(this);
     this.handleOnClick = this.handleOnClick.bind(this);
     this.handleOnLabelClick = this.handleOnLabelClick.bind(this);
     this.handleOnSwitchClick = this.handleOnSwitchClick.bind(this);
+    this.checkRef = React.createRef();
   }
   protected get question(): QuestionBooleanModel {
     return this.questionBase as QuestionBooleanModel;
@@ -57,9 +58,9 @@ export class SurveyQuestionBoolean extends SurveyQuestionElementBase {
 
   protected updateDomElement() {
     if (!this.question) return;
-    var el: any = this.refs["check"];
+    var el = this.checkRef.current;
     if (el) {
-      el["indeterminate"] = this.question.isIndeterminate;
+      el.indeterminate = this.question.isIndeterminate;
     }
     this.control = el;
     super.updateDomElement();
@@ -93,7 +94,7 @@ export class SurveyQuestionBoolean extends SurveyQuestionElementBase {
       <div className={cssClasses.root}>
         <label className={itemClass} onClick={this.handleOnClick}>
           <input
-            ref="check"
+            ref={this.checkRef}
             type="checkbox"
             value={
               this.question.checkedValue === null

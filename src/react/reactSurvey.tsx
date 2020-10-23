@@ -16,6 +16,7 @@ import { Helpers } from "../helpers";
 
 export class Survey extends SurveyElementBase implements ISurveyCreator {
   private previousJSON = {};
+  private rootRef: React.RefObject<HTMLDivElement>;
   public static get cssType(): string {
     return surveyCss.currentType;
   }
@@ -35,6 +36,7 @@ export class Survey extends SurveyElementBase implements ISurveyCreator {
     this.updateSurvey(props, {});
     //set the first page
     var dummy = this.survey.currentPage;
+    this.rootRef = React.createRef();
   }
   protected getStateElement(): Base {
     return this.survey;
@@ -56,7 +58,7 @@ export class Survey extends SurveyElementBase implements ISurveyCreator {
   }
   componentDidMount() {
     super.componentDidMount();
-    var el = this.refs["root"];
+    var el = this.rootRef.current;
     if (el && this.survey) this.survey.doAfterRenderSurvey(el);
     if (this.survey) {
       this.survey.startTimerFromUI();
@@ -91,7 +93,7 @@ export class Survey extends SurveyElementBase implements ISurveyCreator {
       customHeader = null;
     }
     return (
-      <div ref="root" className={this.css.root}>
+      <div ref={this.rootRef} className={this.css.root}>
         <form onSubmit={onSubmit}>
           {customHeader}
           <div className={this.css.container}>

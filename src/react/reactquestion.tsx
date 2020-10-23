@@ -25,8 +25,10 @@ export class SurveyQuestion extends SurveyElementBase {
     }
     return <SurveyCustomWidget creator={creator} question={question} />;
   }
+  private rootRef: React.RefObject<HTMLDivElement>;
   constructor(props: any) {
     super(props);
+    this.rootRef = React.createRef();
   }
   protected getStateElement(): Base {
     return this.question;
@@ -49,7 +51,7 @@ export class SurveyQuestion extends SurveyElementBase {
     if (!!this.question) {
       this.question["react"] = null;
     }
-    var el: any = this.refs["root"];
+    var el = this.rootRef.current;
     if (!!el) {
       el.removeAttribute("data-rendered");
     }
@@ -60,7 +62,7 @@ export class SurveyQuestion extends SurveyElementBase {
   }
   private doAfterRender() {
     if (this.question) {
-      var el: any = this.refs["root"];
+      var el = this.rootRef.current;
       if (el && el.getAttribute("data-rendered") !== "r") {
         el.setAttribute("data-rendered", "r");
         el.setAttribute("name", this.question.name);
@@ -117,7 +119,7 @@ export class SurveyQuestion extends SurveyElementBase {
 
     return (
       <div
-        ref="root"
+        ref={this.rootRef}
         id={question.id}
         className={questionRootClass}
         style={rootStyle}
@@ -260,8 +262,10 @@ export class SurveyElementErrors extends ReactSurveyElement {
 
 export class SurveyQuestionAndErrorsCell extends ReactSurveyElement {
   [index: string]: any;
+  protected cellRef: React.RefObject<HTMLTableCellElement>;
   constructor(props: any) {
     super(props);
+    this.cellRef = React.createRef();
   }
   protected getStateElement(): Base {
     return this.question;
@@ -282,7 +286,7 @@ export class SurveyQuestionAndErrorsCell extends ReactSurveyElement {
   componentWillUnmount() {
     super.componentWillUnmount();
     if (this.question) {
-      var el: any = this.refs["cell"];
+      var el = this.cellRef.current;
       if (!!el) {
         el.removeAttribute("data-rendered");
       }
@@ -315,7 +319,7 @@ export class SurveyQuestionAndErrorsCell extends ReactSurveyElement {
     var style = this.getCellStyle();
     return (
       <td
-        ref="cell"
+        ref={this.cellRef}
         className={this.getCellClass() + " " + this.cssClasses.cell}
         headers={this.question.isVisible ? this.getHeaderText() : ""}
         style={style}

@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.8.11](https://github.com/surveyjs/survey-library/compare/v1.8.10...v1.8.11) (2020-10-23)
+
+
+### Bug Fixes
+
+* checkErrorMode equals "onComplete" doesn't work correctly with the server validation [#2478](https://github.com/surveyjs/survey-library/issues/2478) ([d116bf5](https://github.com/surveyjs/survey-library/commit/d116bf5e97bfc7bee0fdca1a1206591ab81375ff))
+* Do not generate an empty rows error for matrix dynamic if it not requried and minRowCount is set [#2479](https://github.com/surveyjs/survey-library/issues/2479) ([1ae8bb4](https://github.com/surveyjs/survey-library/commit/1ae8bb45a1cc9baf9186ed73710ff8231988a900))
+
 ### [1.8.10](https://github.com/surveyjs/survey-library/compare/v1.8.9...v1.8.10) (2020-10-21)
 
 ### [1.8.9](https://github.com/surveyjs/survey-library/compare/v1.8.8...v1.8.9) (2020-10-14)

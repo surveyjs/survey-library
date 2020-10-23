@@ -31,7 +31,7 @@
     "watch_jquery_dev": "webpack --env.buildType dev --env.platform jquery --watch",
     "watch_vue_dev": "webpack --env.buildType dev --env.platform vue --watch"
   },
-  "version": "1.8.10",
+  "version": "1.8.11",
   "name": "survey-library",
   "private": true,
   "devDependencies": {

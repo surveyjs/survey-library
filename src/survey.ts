@@ -80,6 +80,7 @@ export class SurveyModel
 
   private valuesHash: HashTable<any> = {};
   private variablesHash: HashTable<any> = {};
+  private editingObjValue: Base;
 
   private localeValue: string = "";
 
@@ -2131,7 +2132,9 @@ export class SurveyModel
    */
   public get data(): any {
     var result: { [index: string]: any } = {};
-    for (var key in this.valuesHash) {
+    var keys = this.getValuesKeys();
+    for (var i = 0; i < keys.length; i ++) {
+      var key = keys[i];
       var dataValue = this.getDataValueCore(this.valuesHash, key);
       if (dataValue !== undefined) {
         result[key] = dataValue;
@@ -2164,6 +2167,24 @@ export class SurveyModel
     this.notifyAllQuestionsOnValueChanged();
     this.notifyElementsOnAnyValueOrVariableChanged("");
     this.runConditions();
+  }
+  public get editingObj() : Base {
+    return this.editingObjValue;
+  }
+  private onEditingObjPropertyChanged : (sender: Base, options: any) => void;
+  public set editingObj(val: Base) {
+    if(this.editingObj == val) return;
+    if(!!this.editingObj) {
+      this.editingObj.onPropertyChanged.remove(this.onEditingObjPropertyChanged)
+    }
+    this.editingObjValue = val;
+    this.setDataCore({});
+    if(!!this.editingObj) {
+      this.onEditingObjPropertyChanged = (sender: Base, options: any) =>{
+        this.updateOnSetValue(options.name, options.newValue);
+      };
+      this.editingObj.onPropertyChanged.add(this.onEditingObjPropertyChanged);
+    }
   }
   private setCalcuatedValuesIntoResult(result: any) {
     for (var i = 0; i < this.calculatedValues.length; i++) {
@@ -2211,38 +2232,52 @@ export class SurveyModel
   getFilteredValues(): any {
     var values: { [index: string]: any } = {};
     for (var key in this.variablesHash) values[key] = this.variablesHash[key];
-    for (var key in this.valuesHash)
+    var keys = this.getValuesKeys();
+    for (var i = 0; i < keys.length; i ++) {
+      var key = keys[i];
       values[key] = this.getDataValueCore(this.valuesHash, key);
+    }
     return values;
   }
   getFilteredProperties(): any {
     return { survey: this };
   }
-
+  private getValuesKeys(): Array<string> {
+    if(!this.editingObj) return Object.keys(this.valuesHash);
+    var props = Serializer.getPropertiesByObj(this.editingObj);
+    var res = [];
+    for(var i = 0; i < props.length; i ++) {
+      res.push(props[i].name);
+    }
+    return res;
+  }
   public getDataValueCore(valuesHash: any, key: string) {
+    if(!!this.editingObj) return (<any>this.editingObj)[key];
     return valuesHash[key];
   }
   public setDataValueCore(valuesHash: any, key: string, value: any) {
-    valuesHash[key] = value;
+    if(!!this.editingObj) {
+      (<any>this.editingObj)[key] = value;
+    } else {
+      valuesHash[key] = value;
+    }
   }
   public deleteDataValueCore(valuesHash: any, key: string) {
-    delete valuesHash[key];
+    if(!!this.editingObj) {
+      (<any>this.editingObj)[key] = null;
+    } else {
+      delete valuesHash[key];
+    }
   }
-  // protected iterateDataValuesHash(func: (hash: any, key: any) => void) {
-  //   var keys: any[] = [];
-  //   for (var key in this.valuesHash) {
-  //     keys.push(key);
-  //   }
-  //   keys.forEach(key => func(this.valuesHash, key));
-  // }
-
   /**
    * Returns all comments from the data.
    * @see data
    */
   public get comments(): any {
     var result: { [index: string]: any } = {};
-    for (var key in this.valuesHash) {
+    var keys = this.getValuesKeys();
+    for (var i = 0; i < keys.length; i ++) {
+      var key = keys[i];
       if (key.indexOf(this.commentPrefix) > 0) {
         result[key] = this.getDataValueCore(this.valuesHash, key);
       }
@@ -4608,6 +4643,13 @@ export class SurveyModel
       newValue = this.getUnbindValue(newValue);
       this.setDataValueCore(this.valuesHash, name, newValue);
     }
+    this.updateOnSetValue(name, newValue, locNotification, allowNotifyValueChanged);
+  }
+  private updateOnSetValue(name: string,
+    newValue: any,
+    locNotification: any = false,
+    allowNotifyValueChanged: boolean = true
+  ) {
     this.updateQuestionValue(name, newValue);
     if (locNotification === true) return;
     var triggerKeys: { [index: string]: any } = {};

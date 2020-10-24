@@ -470,6 +470,13 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
       this.contentPanel.updateElementCss();
     }
   }
+  clearValueIfInvisible() {
+    super.clearValueIfInvisible();
+    var questions = this.contentPanel.questions;
+    for(var i = 0; i < questions.length; i ++) {
+      questions[i].clearValueIfInvisible();
+    }
+  }
   protected createPanel(): PanelModel {
     var res = <PanelModel>Serializer.createClass("panel");
     res.showQuestionNumbers = "off";

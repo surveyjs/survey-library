@@ -19,6 +19,7 @@ function init() {
   Survey.FunctionFactory.Instance.register("getItemPrice", getItemPrice);
 
   var json = {
+    "title": "Hello Dynamic Component Navigation",
     "pages": [
      {
       "name": "page1",
@@ -114,8 +115,17 @@ function init() {
      }
     ],
     "showProgressBar": "top",
-    "progressBarType": "buttons"
+    "progressBarType": "hello"
    };
+
+  class SurveyProgressHello extends React.Component {
+    render() {
+      return React.createElement('div', null, `${this.props.survey.title}`);
+    }
+  };
+  Survey.ReactElementFactory.Instance.registerElement("survey-progress-hello", (props) => {
+    return React.createElement(SurveyProgressHello, props);
+  });
 
   Survey.StylesManager.applyTheme("default");
   var model = new Survey.Model(json);

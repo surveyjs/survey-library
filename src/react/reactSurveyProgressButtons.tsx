@@ -78,6 +78,10 @@ export class SurveyProgressButtons extends SurveyNavigationBase {
   }
   componentWillUnmount() {
     this.isNavigationMounted = false;
+    if (typeof this.updateScroller !== "undefined") {
+      clearInterval(this.updateScroller);
+      this.updateScroller = undefined;
+    }
   }
 }
 

@@ -37,7 +37,7 @@ export class SurveyQuestionMatrix extends SurveyQuestionElementBase {
       var key = "column" + i;
       var columText = this.renderLocString(column.locText);
       headers.push(
-        <th className={this.question.cssClasses.headerCell} key={key} id={this.question.getAriaMatrixHeaderId(i)}>
+        <th className={this.question.cssClasses.headerCell} key={key}>
           {columText}
         </th>
       );
@@ -143,7 +143,7 @@ export class SurveyQuestionMatrixRow extends ReactSurveyElement {
         td = (
           <td
             key={key}
-            headers={this.question.getAriaMatrixHeaderId(i)}
+            headers={column.locText.renderedHtml}
             className={this.question.cssClasses.cell}
           >
             <label className={itemClass}>

@@ -64,6 +64,7 @@ export class PropertyGridModel {
         }
         if(prop.type == "string") return {type: "text"};        
         if(prop.type == "text") return {type: "comment"};
+        if(prop.type == "boolean" || prop.type == "switch") return {type: "boolean", default: false};
         if(prop.type == "itemvalue[]") {
             return {
                 type: "matrixdynamic",

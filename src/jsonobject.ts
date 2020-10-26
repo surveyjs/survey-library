@@ -409,8 +409,6 @@ export class CustomPropertiesCollection {
             item.ownerPropertyName = prop.name;
           });
           isArrayProp = true;
-          obj.setPropertyValue(prop.name, defaultValue);
-          defaultValue = null;
         }
         //It is a simple array property
         if(prop.type === "multiplevalues") {

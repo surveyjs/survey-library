@@ -2374,3 +2374,9 @@ QUnit.test("multiplevalues/array property should call onPropertyChanged on modif
   );
   Serializer.removeProperty("carowner", "ar");
 });
+QUnit.test("always return false for a boolean property", function (assert) {
+  Serializer.addProperty("truck", "boolProp:boolean");
+  var truck = new Truck();
+  assert.equal(truck.getPropertyValue("boolProp"), false, "There is no default value, but we use false as default for boolean ");
+  Serializer.removeProperty("truck", "boolProp");
+});

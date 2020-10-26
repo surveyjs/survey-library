@@ -418,10 +418,13 @@ export class Base {
   ) => void;
   createArrayCoreHandler: (propertiesHash: any, name: string) => Array<any>;
 
+  private isCreating = true;
+
   public constructor() {
     this.bindingsValue = new Bindings(this);
     CustomPropertiesCollection.createProperties(this);
     this.onBaseCreating();
+    this.isCreating = false;
   }
   protected onBaseCreating() {}
   /**
@@ -518,8 +521,10 @@ export class Base {
     if (this.IsPropertyEmpty(res)) {
       if (defaultValue != null) return defaultValue;
       var prop = Serializer.findProperty(this.getType(), name);
-      var serValue = !!prop && !prop.isCustom ? prop.defaultValue : null;
-      if (!this.IsPropertyEmpty(serValue)) return serValue;
+      if(!!prop && (!prop.isCustom || !this.isCreating)) {
+        if (!this.IsPropertyEmpty(prop.defaultValue) && !Array.isArray(prop.defaultValue)) return prop.defaultValue;
+        if(prop.type == "boolean" || prop.type == "switch") return false;
+      }
     }
     return res;
   }

@@ -2252,7 +2252,7 @@ export class SurveyModel
     return res;
   }
   public getDataValueCore(valuesHash: any, key: string) {
-    if(!!this.editingObj) return (<any>this.editingObj)[key];
+    if(!!this.editingObj) return this.editingObj.getPropertyValue(key);
     return valuesHash[key];
   }
   public setDataValueCore(valuesHash: any, key: string, value: any) {
@@ -4632,7 +4632,7 @@ export class SurveyModel
     var newValue = newQuestionValue;
     if (allowNotifyValueChanged)
       newValue = this.questionOnValueChanging(name, newQuestionValue);
-    if (
+    if (!this.editingObj &&
       this.isValueEqual(name, newValue) &&
       this.isTwoValueEquals(newValue, newQuestionValue)
     )

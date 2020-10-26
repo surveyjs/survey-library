@@ -51,12 +51,17 @@ export class Survey extends SurveyModel {
   koTitleTemplate: any = <any>ko.observable("survey-header");
 
   public getDataValueCore(valuesHash: any, key: string) {
+    if(!!this.editingObj) return super.getDataValueCore(valuesHash, key);
     if (valuesHash[key] === undefined) {
       valuesHash[key] = ko.observable();
     }
     return ko.unwrap(valuesHash[key]);
   }
   public setDataValueCore(valuesHash: any, key: string, value: any) {
+    if(!!this.editingObj) {
+      super.setDataValueCore(valuesHash, key, value);
+      return;
+    }
     if (ko.isWriteableObservable(valuesHash[key])) {
       valuesHash[key](value);
     } else {
@@ -71,6 +76,10 @@ export class Survey extends SurveyModel {
     }
   }
   public deleteDataValueCore(valuesHash: any, key: string) {
+    if(!!this.editingObj) {
+      super.deleteDataValueCore(valuesHash, key);
+      return;
+    }
     if (ko.isWriteableObservable(valuesHash[key])) {
       valuesHash[key](undefined);
     } else {

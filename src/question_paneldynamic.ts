@@ -1059,13 +1059,15 @@ export class QuestionPanelDynamicModel
     if (!values) return;
     var isChanged = false;
     for (var key in values) {
-      if (
-        !panel.getQuestionByName(key) &&
-        !this.getSharedQuestionFromArray(key, index)
-      ) {
-        delete values[key];
-        isChanged = true;
+      if(this.getSharedQuestionFromArray(key, index)) continue;
+      var q = panel.getQuestionByName(key);
+      if(!!q) continue;
+      if(key.indexOf(settings.commentPrefix) == key.length - settings.commentPrefix.length) {
+        q = panel.getQuestionByName(key.substr(0, key.indexOf(settings.commentPrefix)));
+        if(!!q) continue;
       }
+      delete values[key];
+      isChanged = true;
     }
     if (isChanged) {
       val[index] = values;

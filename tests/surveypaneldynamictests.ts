@@ -74,6 +74,25 @@ QUnit.test("Dynamic Panel, clearIncorrectValues", function (assert) {
   );
 });
 
+QUnit.test("Dynamic Panel, clearIncorrectValues, do not clear other value, Bug#2490", function (assert) {
+  var question = new QuestionPanelDynamicModel("q");
+  (<QuestionRadiogroupModel>(
+    question.template.addNewQuestion("radiogroup", "q1")
+  )).choices = [1, 2];
+  (<QuestionRadiogroupModel>(
+    question.template.addNewQuestion("radiogroup", "q2")
+  )).choices = [1, 2, 3];
+  question.template.questions[1].hasOther = true;
+
+  question.value = [{ q1: 1, q2: "other", "q2-Comment": "Some Value" }, { q1: 1, q2: 2, "q3-Comment": "Some Value" }];
+  question.clearIncorrectValues();
+  assert.deepEqual(
+    question.value,
+    [{ q1: 1, q2: "other", "q2-Comment": "Some Value" }, { q1: 1, q2: 2 }],
+    "Remove incorrect values, but do not remove correct comment"
+  );
+});
+
 QUnit.test(
   "By pass values from question.value into panel values and vice versa",
   function (assert) {

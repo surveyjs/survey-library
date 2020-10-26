@@ -6,7 +6,7 @@
         <thead v-if="question.showHeader">
           <tr>
             <td v-show="question.hasRows"></td>
-            <th v-for="(column, columnIndex) in question.visibleColumns" :key="columnIndex" :id="question.getAriaMatrixHeaderId(columnIndex)" :class="question.cssClasses.headerCell">
+            <th v-for="column in question.visibleColumns" :key="columnIndex" :class="question.cssClasses.headerCell">
               <survey-string :locString="column.locText" />
             </th>
           </tr>
@@ -29,7 +29,7 @@
               v-if="!question.hasCellText"
               v-for="(column, columnIndex) in question.visibleColumns"
               :key="columnIndex"
-              :headers="question.getAriaMatrixHeaderId(columnIndex)"
+              :headers="column.locText.renderedHtml"
               :class="question.cssClasses.cell"
               v-on:click="function() { cellClick(row, column); }"
             >

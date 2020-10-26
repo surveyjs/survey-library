@@ -1,5 +1,5 @@
 <script type="text/html" id="survey-question-matrix">
-   <div data-bind="css: question.koCss().tableWrapper">
+    <div data-bind="css: question.koCss().tableWrapper">
         <fieldset>
             <legend data-bind="attr: { 'aria-label': question.locTitle.renderedHtml }"></legend>
             <table data-bind="css: question.koCss().root">
@@ -8,7 +8,7 @@
                     <tr>
                         <td data-bind="visible: question.hasRows"></td>
                         <!-- ko foreach: question.koVisibleColumns -->
-                        <th data-bind="css: question.koCss().headerCell, attr: { id: question.getAriaMatrixHeaderId($index()) }">
+                        <th data-bind="css: question.koCss().headerCell">
                             <!-- ko template: { name: 'survey-string', data: locText } -->
                             <!-- /ko -->
                         </th>
@@ -31,10 +31,9 @@
                         </td>
                         <!-- /ko -->
                         <!-- ko if: !question.hasCellText -->
-                        <td data-bind="attr: { headers: question.getAriaMatrixHeaderId($index()) }, css: question.koCss().cell">
+                        <td data-bind="attr: { headers: $data.locText.renderedHtml }, css: question.koCss().cell">
                             <label data-bind="css: question.getItemClass(row, $data)">
-                                <input type="radio" data-bind="css: question.koCss().itemValue, attr: { name: row.fullName, 'aria-required': question.isRequired, 'aria-label': question.locTitle.renderedHtml, value: '' + $data.value, id: question.inputId + '_' + row.name + '_' + $index() }, checked: row.value, enable: !question.isReadOnly"
-                                />
+                                <input type="radio" data-bind="css: question.koCss().itemValue, attr: { name: row.fullName, 'aria-required': question.isRequired, 'aria-label': question.locTitle.renderedHtml, value: '' + $data.value, id: question.inputId + '_' + row.name + '_' + $index() }, checked: row.value, enable: !question.isReadOnly"/>
                                 <span data-bind="css: question.koCss().materialDecorator">
                                 <svg data-bind="css:question.koCss().itemDecorator" viewBox="-12 -12 24 24">
                                     <circle r="6" cx="0" cy="0">

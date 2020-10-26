@@ -913,9 +913,6 @@ export class Question
   public get ariaRole(): string {
     return null;
   }
-  public getAriaMatrixHeaderId(index: number): string {
-    return this.id + "_matrixHeader_" + index;
-  }
   public get hasOther(): boolean {
     return this.getPropertyValue("hasOther", false);
   }

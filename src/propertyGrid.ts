@@ -1,6 +1,37 @@
+import { getJSON } from 'jquery';
 import {Base} from "./base";
 import {JsonObjectProperty, Serializer} from "./jsonobject";
+import { Question } from './question';
 import { SurveyModel } from "./survey";
+
+export interface IPropertyGridEditor {
+    fit(prop: JsonObjectProperty): boolean;
+    getJSON(obj: Base, prop: JsonObjectProperty): any;
+    onCreated?: (question: Question, prop: JsonObjectProperty) => void;
+}
+
+export var PropertyGridEditorCollection = {
+    editors : new Array<IPropertyGridEditor>(),
+    register(editor: IPropertyGridEditor) {
+        this.editors.push(editor);
+    },
+    getEditor(prop: JsonObjectProperty): IPropertyGridEditor {
+        for(var i = this.editors.length - 1; i >= 0; i--) {
+            if(this.editors[i].fit(prop)) return this.editors[i];
+        }
+        return null;
+    },
+    getJSON(obj: Base, prop: JsonObjectProperty): any {
+        var res = this.getEditor(prop);
+        return !!res ? res.getJSON(obj, prop) : null;
+    },
+    onCreated(question: Question, prop: JsonObjectProperty): any {
+        var res = this.getEditor(prop);
+        if(!!res && !!res.onCreated) {
+            res.onCreated(question, prop);
+        }
+    }
+}
 
 export class PropertyGridModel {
     private static panelNameIndex = 0;
@@ -61,26 +92,54 @@ export class PropertyGridModel {
         }
     }
     private createQuestionJSON(prop: JsonObjectProperty): any {
-        var json = this.createQuestionJSONProps(prop);
+        var json = PropertyGridEditorCollection.getJSON(this.obj, prop);
         if(!json) return null;
         json.name = prop.name;
         json.visible = prop.visible;
         return json;
     }
-    private createQuestionJSONProps(prop: JsonObjectProperty): any {
-        if(prop.type == "string" && prop.hasChoices) {
-            return {type: "dropdown", showOptionsCaption: false, choices: prop.getChoices(this.obj)};
-        }
-        if(prop.type == "string") return {type: "text"};        
-        if(prop.type == "text") return {type: "comment"};
-        if(prop.type == "boolean" || prop.type == "switch") return {type: "boolean", default: false};
-        if(prop.type == "itemvalue[]") {
-            return {
-                type: "matrixdynamic",
-                cellType: "text",
-                columns: [{name: "value"}, {name: "text"}]
-            }
-        }
-        return null;
-    }
 }
+PropertyGridEditorCollection.register({
+    fit(prop: JsonObjectProperty): boolean{
+        return prop.type == "boolean" || prop.type == "switch";
+    },
+    getJSON(obj: Base, prop: JsonObjectProperty): any {
+        return {type: "boolean", default: false};
+    } 
+});
+PropertyGridEditorCollection.register({
+    fit(prop: JsonObjectProperty): boolean{
+        return prop.type == "string";
+    },
+    getJSON(obj: Base, prop: JsonObjectProperty): any {
+        return {type: "text"};
+    }
+});
+PropertyGridEditorCollection.register({
+    fit(prop: JsonObjectProperty): boolean{
+        return prop.type == "text";
+    },
+    getJSON(obj: Base, prop: JsonObjectProperty): any {
+        return {type: "comment"};
+    }
+});
+PropertyGridEditorCollection.register({
+    fit(prop: JsonObjectProperty): boolean{
+        return prop.type == "text" && prop.hasChoices;
+    },
+    getJSON(obj: Base, prop: JsonObjectProperty): any {
+        return {type: "dropdown", showOptionsCaption: false, choices: prop.getChoices(this.obj)};
+    }
+});
+PropertyGridEditorCollection.register({
+    fit(prop: JsonObjectProperty): boolean{
+        return prop.type == "itemvalue[]";
+    },
+    getJSON(obj: Base, prop: JsonObjectProperty): any {
+        return {
+            type: "matrixdynamic",
+            cellType: "text",
+            columns: [{name: "value"}, {name: "text"}]
+        };
+    }
+});

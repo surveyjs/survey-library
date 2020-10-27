@@ -6,12 +6,21 @@ export class PropertyGridModel {
     private static panelNameIndex = 0;
     private surveyValue: SurveyModel;
     private objValue: Base;
+    public objValueChangedCallback: () => void;
     constructor(obj: Base) {
-        this.objValue = obj;
-        this.surveyValue = this.createSurvey();
-        this.survey.editingObj = obj;
+        this.obj = obj;
     }
     public get obj() { return this.objValue; }
+    public set obj(value: Base) {
+        if(this.objValue != value) {
+            this.objValue = value;
+            this.surveyValue = this.createSurvey();
+            this.survey.editingObj = value;
+            if(this.objValueChangedCallback) {
+                this.objValueChangedCallback();
+            }
+        }
+    }
     public get survey() { return this.surveyValue;}
     protected createSurvey(): SurveyModel {
         return new SurveyModel(this.createJSON())

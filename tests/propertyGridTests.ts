@@ -31,3 +31,11 @@ QUnit.test("boolean property editor (boolean/switch)", function (assert) {
     isRequiredQuestion.value = false;
     assert.equal(question.isRequired, false, "isRequired is false again - two way bindings");
 });
+QUnit.test("Change editingObj of the property grid", function(assert) {
+    var question = new QuestionTextModel("q1");
+    var question2 = new QuestionTextModel("q2");
+    var propertyGrid = new PropertyGridModel(question);
+    assert.equal(propertyGrid.survey.getValue("name"), "q1", "name property value is set for the first editingObj");
+    propertyGrid.obj = question2;
+    assert.equal(propertyGrid.survey.getValue("name"), "q2", "name property value is set for the second editingObj");
+})

@@ -7,11 +7,14 @@ export class PropertyGridModel {
     private surveyValue: SurveyModel;
     private objValue: Base;
     constructor(obj: Base) {
-        this.objValue = obj;
-        this.surveyValue = this.createSurvey();
-        this.survey.editingObj = obj;
+        this.obj = obj;
     }
     public get obj() { return this.objValue; }
+    public set obj(value: Base) {
+        this.objValue = value;
+        this.surveyValue = this.createSurvey();
+        this.survey.editingObj = value;
+    }
     public get survey() { return this.surveyValue;}
     protected createSurvey(): SurveyModel {
         return new SurveyModel(this.createJSON())

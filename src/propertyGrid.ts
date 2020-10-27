@@ -6,14 +6,20 @@ export class PropertyGridModel {
     private static panelNameIndex = 0;
     private surveyValue: SurveyModel;
     private objValue: Base;
+    public objValueChangedCallback: () => void;
     constructor(obj: Base) {
         this.obj = obj;
     }
     public get obj() { return this.objValue; }
     public set obj(value: Base) {
-        this.objValue = value;
-        this.surveyValue = this.createSurvey();
-        this.survey.editingObj = value;
+        if(this.objValue != value) {
+            this.objValue = value;
+            this.surveyValue = this.createSurvey();
+            this.survey.editingObj = value;
+            if(this.objValueChangedCallback) {
+                this.objValueChangedCallback();
+            }
+        }
     }
     public get survey() { return this.surveyValue;}
     protected createSurvey(): SurveyModel {

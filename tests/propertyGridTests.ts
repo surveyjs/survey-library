@@ -39,3 +39,20 @@ QUnit.test("Change editingObj of the property grid", function(assert) {
     propertyGrid.obj = question2;
     assert.equal(propertyGrid.survey.getValue("name"), "q2", "name property value is set for the second editingObj");
 })
+QUnit.test("Check objValueChangedCallback", function(assert) {
+    var count = 0;
+    var objValueChangedCallback = () => {
+        count++;
+    }
+    var question = new QuestionTextModel("q1");
+    var question2 = new QuestionTextModel("q2");
+    var propertyGrid = new PropertyGridModel(question);
+    propertyGrid.objValueChangedCallback = objValueChangedCallback;
+    assert.equal(count, 0, "objValueChangedCallback isn't called");
+    propertyGrid.obj = question2;
+    assert.equal(count, 1, "objValueChangedCallback is called after changing obj value");
+    propertyGrid.obj = question2;
+    assert.equal(count, 1, "objValueChangedCallback isn't called after setting same obj value");
+    propertyGrid.obj = question;
+    assert.equal(count, 2, "objValueChangedCallback is called after changing obj value");
+})

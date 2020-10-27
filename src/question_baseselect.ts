@@ -775,6 +775,7 @@ export class QuestionSelectBase extends Question {
       this.survey.questionCountByValueName(this.getValueName()) > 1
     )
       return;
+    if(!!this.choicesByUrl && !this.choicesByUrl.isEmpty) return;
     if (this.clearIncorrectValuesCallback) {
       this.clearIncorrectValuesCallback();
     } else {

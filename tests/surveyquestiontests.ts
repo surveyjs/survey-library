@@ -2289,6 +2289,14 @@ QUnit.test("question.clearIncorrectValues", function (assert) {
   );
 });
 
+QUnit.test("question.clearIncorrectValues and choicesByUrl", function (assert) {
+  var question = new QuestionRadiogroupModel("q1");
+  question.choicesByUrl.url = "some url";
+  question.value = "item1";
+  question.clearIncorrectValues();
+  assert.equal(question.value, "item1", "Do not do anything if choicesByUrl is not empty");
+});
+
 QUnit.test("questiontext.maxLength", function (assert) {
   var survey = new SurveyModel();
   var page = survey.addNewPage("p1");

@@ -11746,3 +11746,30 @@ QUnit.test(
     SurveyElement.FocusElement = oldFunc;
   }
 );
+QUnit.test("Update currentPageValue on showing the only page, Bug#2496", function (
+  assert
+) {
+  var survey = new SurveyModel({
+    "pages": [
+     {
+      "name": "page1",
+      "elements": [
+       {
+        "type": "panel",
+        "name": "panel1",
+        "elements": [
+         {
+          "type": "text",
+          "name": "question1"
+         }
+        ],
+        "visible": false
+       }
+      ]
+     }
+    ],
+   });
+  assert.notOk(survey.getPropertyValue("currentPageValue"), "currentPageValue is not set");
+  (<PanelModel>survey.getPanelByName("panel1")).visible = true; 
+  assert.ok(survey.getPropertyValue("currentPageValue"), "currentPageValue is the only page");
+});

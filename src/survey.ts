@@ -4809,6 +4809,10 @@ export class SurveyModel
     });
   }
   pageVisibilityChanged(page: IPage, newValue: boolean) {
+    if(this.isLoadingFromJson) return;
+    if(newValue && !this.currentPageValue) {
+      this.currentPageValue = this.currentPage;
+    }
     this.updateVisibleIndexes();
     this.onPageVisibleChanged.fire(this, { page: page, visible: newValue });
   }

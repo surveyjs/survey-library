@@ -5,7 +5,8 @@ var template = require("html-loader?interpolate!val-loader!./buttons.html");
 
 export class ProgressButtonsViewModel {
   private progressButtonsModel: SurveyProgressButtonsModel;
-  private hasScroller = ko.observable(false);
+  private scrollButtonCssKo: any = undefined;
+  private hasScroller: any = ko.observable(false);
   private updateScroller: any = undefined;
   constructor (private model: SurveyModel, private element: any) {
     this.progressButtonsModel = new SurveyProgressButtonsModel(model);
@@ -24,13 +25,14 @@ export class ProgressButtonsViewModel {
     this.progressButtonsModel.clickListElement(index());
   }
   public getScrollButtonCss(isLeftScroll: boolean): any {
-    return ko.computed(() => {
+    this.scrollButtonCssKo = ko.computed(() => {
       let scrollCss: string = isLeftScroll ?
         this.model.css.progressButtonsImageButtonLeft :
         this.model.css.progressButtonsImageButtonRight;
       if (!this.hasScroller()) scrollCss += " " + this.model.css.progressButtonsImageButtonHidden;
       return scrollCss;
     }, this);
+    return this.scrollButtonCssKo;
   }
   public clickScrollButton(listContainerElement: Element, isLeftScroll: boolean): void {
     listContainerElement.scrollLeft += (isLeftScroll ? -1 : 1) * 70;
@@ -39,6 +41,10 @@ export class ProgressButtonsViewModel {
     if (typeof this.updateScroller !== "undefined") {
       clearInterval(this.updateScroller);
       this.updateScroller = undefined;
+    }
+    if (typeof this.scrollButtonCssKo !== "undefined") {
+      this.scrollButtonCssKo.dispose();
+      this.scrollButtonCssKo = undefined;
     }
   }
 };

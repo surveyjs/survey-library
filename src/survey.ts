@@ -2178,8 +2178,14 @@ export class SurveyModel
       this.editingObj.onPropertyChanged.remove(this.onEditingObjPropertyChanged)
     }
     this.editingObjValue = val;
-    this.setDataCore({});
+    if(!val) {
+      var questions = this.getAllQuestions();
+      for(var i = 0; i < questions.length; i ++) {
+        questions[i].unbindValue();
+      }
+    }
     if(!!this.editingObj) {
+      this.setDataCore({});
       this.onEditingObjPropertyChanged = (sender: Base, options: any) =>{
         this.updateOnSetValue(options.name, options.newValue);
       };
@@ -4048,7 +4054,7 @@ export class SurveyModel
     var options = {
       name: valueName,
       question: this.getQuestionByValueName(valueName),
-      value: Helpers.getUnbindValue(newValue),
+      value: this.getUnbindValue(newValue),
       oldValue: this.getValue(valueName),
     };
     this.onValueChanging.fire(this, options);
@@ -4059,8 +4065,11 @@ export class SurveyModel
     var questions = this.getQuestionsByValueNameCore(valueName);
     if (!!questions) {
       for (var i: number = 0; i < questions.length; i++) {
-        if (this.isTwoValueEquals(questions[i].value, newValue)) continue;
-        questions[i].updateValueFromSurvey(newValue);
+        var qValue = questions[i].value;
+        if(qValue === newValue && Array.isArray(qValue) && Base.isSurveyElement(qValue) 
+          || !this.isTwoValueEquals(qValue, newValue)) {
+          questions[i].updateValueFromSurvey(newValue);
+        }
       }
     }
   }
@@ -4598,6 +4607,7 @@ export class SurveyModel
   }
   //ISurvey data
   protected getUnbindValue(value: any): any {
+    if(Base.isSurveyElement(value)) return value;
     return Helpers.getUnbindValue(value);
   }
   /**

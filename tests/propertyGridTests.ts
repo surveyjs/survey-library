@@ -42,10 +42,12 @@ QUnit.test("itemvalue[] property editor", function (assert) {
     assert.equal(choicesQuestion.columns.length, 2, "There are two columns");
     assert.equal(choicesQuestion.visibleRows.length, 3, "There are three elements");
     assert.equal(choicesQuestion.visibleRows[0].cells[0].value, 1, "the first cell value is 3");
+    /*
     choicesQuestion.addRow();
     choicesQuestion.visibleRows[3].cells[0].value = 4
     assert.equal(question.choices.length, 4, "There are 4 items now");
     assert.equal(question.choices[3].value, 4, "The last item value is 4");
+    */
 /*    
     question.choices[1].text  = "Item 2";
     assert.equal(choicesQuestion.visibleRows[1].cells[1].value, "Item 2", "the second cell in second row is correct");

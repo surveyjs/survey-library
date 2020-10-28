@@ -354,6 +354,14 @@ export class Bindings {
  * The base class for SurveyJS objects.
  */
 export class Base {
+  public static isSurveyElement(val: any): boolean {
+    if(!val) return false;
+    if(Array.isArray(val)) {
+      if(val.length == 0) return false;
+      return Base.isSurveyElement(val[0]);
+    }
+    return !!val.getType && !!val.onPropertyChanged;
+  }
   public static get commentPrefix(): string {
     return settings.commentPrefix;
   }
@@ -565,13 +573,16 @@ export class Base {
         arrayInfo ? arrayInfo.isItemValues : false,
         arrayInfo ? arrayInfo.onPush : null
       );
-      //this.propertyValueChanged(name, oldValue, oldValue);
     } else {
       this.setPropertyValueCore(this.propertyHash, name, val);
       if (!this.isTwoValueEquals(oldValue, val)) {
         this.propertyValueChanged(name, oldValue, val);
       }
     }
+  }
+  protected clearPropertyValue(name: string) {
+    this.setPropertyValueCore(this.propertyHash, name, null);   
+    delete this.propertyHash[name]; 
   }
   public onPropertyValueChangedCallback(
     name: string,

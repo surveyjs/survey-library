@@ -154,13 +154,16 @@ export class QuestionMatrixBaseModel<TRow, TColumn> extends Question {
       if (!!oldVisibleRows) {
         this.restoreNewVisibleRowsValues(oldVisibleRows);
       }
-      this.generatedVisibleRows = null;
+      this.clearGeneratedRows();
       if (hasColumnsChanged) {
         this.onColumnsChanged();
       }
       this.onRowsChanged();
     }
     return hasChanges;
+  }
+  protected clearGeneratedRows() {
+    this.generatedVisibleRows = null;
   }
   private runConditionsForRows(
     values: HashTable<any>,
@@ -235,7 +238,7 @@ export class QuestionMatrixBaseModel<TRow, TColumn> extends Question {
   }
   protected clearInvisibleValuesInRows() {
     if (this.isEmpty()) return;
-    var newData = Helpers.getUnbindValue(this.value);
+    var newData = this.getUnbindValue(this.value);
     var rows = this.rows;
     for (var i = 0; i < rows.length; i++) {
       var key = rows[i].value;
@@ -249,7 +252,7 @@ export class QuestionMatrixBaseModel<TRow, TColumn> extends Question {
   private restoreNewVisibleRowsValues(oldVisibleRows: any) {
     var rows = !!this.filteredRows ? this.filteredRows : this.rows;
     var val = this.defaultValue;
-    var newValue = Helpers.getUnbindValue(this.value);
+    var newValue = this.getUnbindValue(this.value);
     var isChanged = false;
     for (var key in val) {
       if (

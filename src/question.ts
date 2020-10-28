@@ -12,6 +12,7 @@ import {
   Event,
   ITitleOwner,
   IProgressInfo,
+  Base
 } from "./base";
 import { surveyLocalization } from "./surveyStrings";
 import { AnswerRequiredError, CustomError } from "./error";
@@ -1082,8 +1083,15 @@ export class Question
     this.value = null;
     this.comment = null;
   }
+  public unbindValue() {
+    this.clearValue();
+  }
   public createValueCopy(): any {
-    return Helpers.getUnbindValue(this.value);
+    return this.getUnbindValue(this.value);
+  }
+  protected getUnbindValue(value: any) {
+    if(Base.isSurveyElement(value)) return value;
+    return Helpers.getUnbindValue(value);
   }
   private canClearValueAsInvisible(): boolean {
     if (this.isVisible && this.isParentVisible) return false;
@@ -1270,7 +1278,7 @@ export class Question
   }
   protected setDefaultValue() {
     this.value = this.getValueAndRunExpression(
-      Helpers.getUnbindValue(this.defaultValue),
+      this.getUnbindValue(this.defaultValue),
       this.defaultValueExpression
     );
   }
@@ -1564,7 +1572,7 @@ export class Question
   }
   //IQuestion
   updateValueFromSurvey(newValue: any) {
-    newValue = Helpers.getUnbindValue(newValue);
+    newValue = this.getUnbindValue(newValue);
     this.setQuestionValue(this.valueFromData(newValue));
   }
   updateCommentFromSurvey(newValue: any): any {

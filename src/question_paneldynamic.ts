@@ -1470,7 +1470,7 @@ export class QuestionPanelDynamicModel
     var items = this.items;
     var index = items.indexOf(item);
     if (index < 0) index = items.length;
-    var qValue = Helpers.getUnbindValue(this.value);
+    var qValue = this.getUnbindValue(this.value);
     if (!qValue || !Array.isArray(qValue)) {
       qValue = [];
     }

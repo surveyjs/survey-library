@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.8.12](https://github.com/surveyjs/survey-library/compare/v1.8.11...v1.8.12) (2020-10-28)
+
+
+### Bug Fixes
+
+* clearIncorrectValues function doesn't work correctly panel dynamic [#2490](https://github.com/surveyjs/survey-library/issues/2490) ([2e2a662](https://github.com/surveyjs/survey-library/commit/2e2a662b8b2c858df5583562259974756e9755a9))
+* function clearIncorrectValues() doesn't work correctly for questions that uses choicesByUrl property [#2492](https://github.com/surveyjs/survey-library/issues/2492) ([54835d9](https://github.com/surveyjs/survey-library/commit/54835d9548649bfe310ff02c38ccb5f347024e2f))
+
 ### [1.8.11](https://github.com/surveyjs/survey-library/compare/v1.8.10...v1.8.11) (2020-10-23)
 
 

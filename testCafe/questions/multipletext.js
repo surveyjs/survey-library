@@ -1,11 +1,4 @@
-import {
-  frameworks,
-  url,
-  setOptions,
-  initSurvey,
-  getSurveyResult
-} from "../settings";
-import { Selector, ClientFunction } from "testcafe";
+import { frameworks, url, initSurvey, getSurveyResult } from "../settings";
 const assert = require("assert");
 const title = `multipletext`;
 

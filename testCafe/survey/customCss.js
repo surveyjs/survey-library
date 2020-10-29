@@ -1,5 +1,5 @@
-import { frameworks, url, setOptions, getSurveyResult } from "../settings";
-import { Selector, ClientFunction } from "testcafe";
+import { frameworks, url } from "../settings";
+import { ClientFunction } from "testcafe";
 const assert = require("assert");
 const title = `customCss`;
 const initSurvey = ClientFunction((framework, json) => {

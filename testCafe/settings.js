@@ -1,16 +1,13 @@
-import { Selector, ClientFunction } from "testcafe";
-
+import { ClientFunction } from "testcafe";
 export const frameworks = ["knockout", "jquery", "react", "vue"];
 export const url = "http://127.0.0.1:8080/examples/";
 
 export const initSurvey = ClientFunction((framework, json, events) => {
   var model = new Survey.Model(json);
-
-  var surveyComplete = function (model) {
+  var surveyComplete = function(model) {
     window.SurveyResult = model.data;
-    document.getElementById("surveyResultElement").innerHTML = JSON.stringify(
-      model.data
-    );
+    document.getElementById("surveyResultElement").innerHTML =
+      JSON.stringify(model.data);
   };
   if (!!events) {
     for (var str in events) {
@@ -43,24 +40,20 @@ export const initSurvey = ClientFunction((framework, json, events) => {
       data: { survey: model },
     });
   }
-
   window.survey = model;
 });
 
 export const getSurveyResult = ClientFunction(() => {
   var result = window.SurveyResult;
-
   if (typeof result === "undefined") {
     return result;
   }
-
-  return JSON.parse(JSON.stringify(result)); // clean result object from the vuejs stuff
+  //clean result object from the vuejs stuff
+  return JSON.parse(JSON.stringify(result));
 });
 
-// export const getSurveyResult = ClientFunction(() => window.SurveyResult);
-
 export const setOptions = ClientFunction((questionName, modValue) => {
-  var mergeOptions = function (obj1, obj2) {
+  var mergeOptions = function(obj1, obj2) {
     for (var attrname in obj2) {
       obj1[attrname] = obj2[attrname];
     }
@@ -70,7 +63,7 @@ export const setOptions = ClientFunction((questionName, modValue) => {
   survey.render();
 });
 
-export const sumElementInnerText = ClientFunction((tagName, index) => {
+export const joinElementInnerText = ClientFunction((tagName, index) => {
   let el = document.getElementsByTagName(tagName)[index];
   const spans = el.querySelectorAll("span");
   let res = "";
@@ -82,6 +75,5 @@ export const sumElementInnerText = ClientFunction((tagName, index) => {
     if (!!res) res += " ";
     res += sp.innerHTML;
   }
-
   return res;
 });

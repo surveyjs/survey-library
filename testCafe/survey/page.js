@@ -1,6 +1,5 @@
 import { frameworks, url, initSurvey } from "../settings";
 import { ClientFunction } from "testcafe";
-
 const assert = require("assert");
 const title = `page`;
 

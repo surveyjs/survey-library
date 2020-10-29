@@ -1,6 +1,7 @@
 import { fromJson } from 'angular';
 import { getJSON } from 'jquery';
 import {Base} from "./base";
+import { ItemValue } from './itemvalue';
 import {JsonObjectProperty, Serializer} from "./jsonobject";
 import { Question } from './question';
 import { QuestionMatrixDynamicModel } from './question_matrixdynamic';
@@ -14,12 +15,18 @@ export interface IPropertyGridEditor {
 
 export var PropertyGridEditorCollection = {
     editors : new Array<IPropertyGridEditor>(),
+    fitHash : {},
     register(editor: IPropertyGridEditor) {
         this.editors.push(editor);
     },
     getEditor(prop: JsonObjectProperty): IPropertyGridEditor {
+        var fitEd = this.fitHash[prop.id];
+        if(!!fitEd) return fitEd;
         for(var i = this.editors.length - 1; i >= 0; i--) {
-            if(this.editors[i].fit(prop)) return this.editors[i];
+            if(this.editors[i].fit(prop)) {
+                this.fitHash[prop.id] = this.editors[i]; 
+                return this.editors[i];
+            }
         }
         return null;
     },
@@ -32,6 +39,21 @@ export var PropertyGridEditorCollection = {
         if(!!res && !!res.onCreated) {
             res.onCreated(obj, question, prop);
         }
+    }
+}
+
+class SurveyHelper {
+    public static getNewName(objs: Array<any>, baseName: string): string {
+        var hash: any = {};
+        for (var i = 0; i < objs.length; i++) {
+            hash[objs[i].name] = true;
+        }
+        var num = 1;
+        while (true) {
+        if (!hash[baseName + num.toString()]) break;
+        num++;
+        }
+        return baseName + num.toString();
     }
 }
 
@@ -95,7 +117,7 @@ export class PropertyGridModel {
         for(var i = 0; i < questions.length; i ++) {
             var q = questions[i];
             var prop = props[q.name];
-            PropertyGridEditorCollection.onCreated(this.obj, questions[i], props[questions[i].name]);
+            PropertyGridEditorCollection.onCreated(this.obj, q, prop);
         }
     }
     private createPanelJSON(category: string, isFirstPanel: boolean): any {
@@ -158,9 +180,13 @@ PropertyGridEditorCollection.register({
             columns: [{name: "value"}, {name: "text"}]
         };
     },
-    /*
     onCreated(obj: Base, question: Question, prop: JsonObjectProperty) {
         var matrix = <QuestionMatrixDynamicModel>question;
-
-    }*/
+        matrix.onGetValueForNewRowCallBack = (sender: QuestionMatrixDynamicModel): any => {
+            var newName = SurveyHelper.getNewName(sender.value, "item");
+            var item = Serializer.createClass(prop.className, {value: newName});
+            sender.value.push(item);
+            return item;
+        }
+    }
 });

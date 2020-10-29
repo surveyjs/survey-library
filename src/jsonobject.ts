@@ -45,6 +45,7 @@ export interface IObject {
 export class JsonObjectProperty implements IObject {
   public static getItemValuesDefaultValue: (val: any) => any;
   [key: string]: any;
+  private static Index = 1;
   private static mergableValues = [
     "typeValue",
     "choicesValue",
@@ -81,6 +82,7 @@ export class JsonObjectProperty implements IObject {
     "minValue",
     "dataListValue",
   ];
+  private idValue: number;
   private classInfoValue: JsonMetadataClass;
   private typeValue: string = null;
   private choicesValue: Array<any> = null;
@@ -126,7 +128,9 @@ export class JsonObjectProperty implements IObject {
   ) {
     this.classInfoValue = classInfo;
     this.isRequiredValue = isRequired;
+    this.idValue = JsonObjectProperty.Index ++;
   }
+  public get id(): number { return this.idValue};
   public get classInfo(): JsonMetadataClass {
     return this.classInfoValue;
   }

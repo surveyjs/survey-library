@@ -1,11 +1,5 @@
-import {
-  frameworks,
-  url,
-  setOptions,
-  initSurvey,
-  getSurveyResult
-} from "../settings";
-import { Selector, ClientFunction } from "testcafe";
+import { frameworks, url, initSurvey, getSurveyResult } from "../settings";
+import { ClientFunction } from "testcafe";
 const assert = require("assert");
 const title = `autoNextPage`;
 
@@ -78,19 +72,12 @@ frameworks.forEach(framework => {
       document.documentElement.innerHTML.indexOf("Page " + index + " of 3")
     );
     let surveyResult;
-
     assert.notEqual(await getProgressTextPosition(1), -1);
-
     await t.click(`input[type=radio]`);
-
     assert.notEqual(await getProgressTextPosition(2), -1);
-
     await t.click(`input[type=radio]`);
-
     assert.notEqual(await getProgressTextPosition(3), -1);
-
     await t.click(`input[type=radio]`);
-
     surveyResult = await getSurveyResult();
     assert.deepEqual(surveyResult, {
       civilwar: "1750-1800",

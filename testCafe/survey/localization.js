@@ -1,12 +1,5 @@
-import {
-  frameworks,
-  url,
-  setOptions,
-  initSurvey,
-  getSurveyResult
-} from "../settings";
-import { Selector, ClientFunction } from "testcafe";
-const assert = require("assert");
+import { frameworks, url, initSurvey } from "../settings";
+import { ClientFunction } from "testcafe";
 const title = `localization`;
 
 const setRu = ClientFunction(() => {

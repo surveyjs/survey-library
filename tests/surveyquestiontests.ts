@@ -4218,3 +4218,34 @@ QUnit.test(
     );
   }
 );
+QUnit.test(
+  "maxSelectedChoices in checkbox",
+  function (assert) {
+    var survey = new SurveyModel({
+      elements: [
+        {
+          type: "checkbox",
+          name: "q1",
+          choices: [1, 2, 3, 4, 5],
+          maxSelectedChoices: 2,
+          hasSelectAll: true,
+          hasOther: true
+        }
+      ]
+    });
+    var question = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+    assert.equal(question.choices[0].isEnabled, true, "the first item is enabled");
+    assert.equal(question.otherItem.isEnabled, true, "otherItem is enabled");
+    assert.equal(question.selectAllItem.isEnabled, false, "select all is disabled");
+    question.value = [2, 3];
+    assert.equal(question.choices[0].isEnabled, false, "the first item is disabled now");
+    assert.equal(question.choices[1].isEnabled, true, "the second item is selected");
+    assert.equal(question.otherItem.isEnabled, false, "otherItem is disabled");
+    question.value = [2];
+    assert.equal(question.choices[0].isEnabled, true, "the first item is enabled again");
+    assert.equal(question.otherItem.isEnabled, true, "otherItem is enabled again");
+    question.value = [2, "other"];
+    assert.equal(question.choices[0].isEnabled, false, "the first item is disabled again");
+    assert.equal(question.otherItem.isEnabled, true, "otherItem is enabled, it is selected");
+  }
+);

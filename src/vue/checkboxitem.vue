@@ -8,7 +8,7 @@
         :value="isAllSelected"
         v-model="isAllSelected"
         :id="question.inputId + '_' + index"
-        :disabled="question.isReadOnly"
+        :disabled="question.isReadOnly || !item.isEnabled"
         v-bind:aria-required="question.isRequired"
         :aria-label="item.locText.renderedHtml"
         :aria-invalid="question.errors.length > 0"

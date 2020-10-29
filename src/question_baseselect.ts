@@ -184,11 +184,16 @@ export class QuestionSelectBase extends Question {
       this.activeChoices,
       this.conditionChoicesEnableIfRunner,
       values,
-      properties
+      properties, (item: ItemValue): boolean => { return this.onEnableItemCallBack(item);}
     );
     if (hasChanged) {
       this.clearDisabledValues();
     }
+    this.onAfterRunItemsEnableCondition();
+  }
+  protected onAfterRunItemsEnableCondition() {}
+  protected onEnableItemCallBack(item: ItemValue): boolean {
+    return true;
   }
   private setConditionalChoicesRunner() {
     if (this.choicesVisibleIf) {

@@ -178,6 +178,35 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     }
     return false;
   }
+  /**
+   * Set this property different to 0 to limit the number of selected choices in the checkbox.
+   */
+  public get maxSelectedChoices(): number {
+    return this.getPropertyValue("maxSelectedChoices", 0);
+  }
+  public set maxSelectedChoices(val: number) {
+    if(val < 0) val = 0;
+    this.setPropertyValue("maxSelectedChoices", val);
+  }
+  protected onEnableItemCallBack(item: ItemValue): boolean {
+    if(!this.shouldCheckMaxSelectedChoices()) return true;
+    return this.isItemSelected(item);
+  }
+  protected onAfterRunItemsEnableCondition() {
+    if(this.maxSelectedChoices < 1) return;
+    if(this.hasSelectAll) {
+      this.selectAllItem.setIsEnabled(this.maxSelectedChoices >= this.activeChoices.length);
+    }
+    if(this.hasOther) {
+      this.otherItem.setIsEnabled(!this.shouldCheckMaxSelectedChoices() || this.isOtherSelected);
+    } 
+  }
+  private shouldCheckMaxSelectedChoices(): boolean {
+    if(this.maxSelectedChoices < 1) return false;
+    var val = this.value;
+    var len = !Array.isArray(val) ? 0 : val.length;
+    return len >= this.maxSelectedChoices;
+  }
   getItemClass(item: any) {
     var val = this.value; //trigger dependencies from koValue for knockout
     var isChecked = this.isItemSelected(item);
@@ -420,6 +449,7 @@ Serializer.addClass(
   [
     "hasSelectAll:boolean",
     "hasNone:boolean",
+    { name: "maxSelectedChoices", default: 0 },
     { name: "noneText", serializationProperty: "locNoneText" },
     { name: "selectAllText", serializationProperty: "locSelectAllText" },
   ],

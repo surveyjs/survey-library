@@ -3054,6 +3054,7 @@ export class SurveyModel
     this.cancelPreview((<any>panel)["originalPage"]);
   }
   protected doCurrentPageComplete(doComplete: boolean): boolean {
+    if(this.isValidatingOnServer) return false;
     this.resetNavigationButton();
     if (this.hasErrorsOnNavigate(doComplete)) return false;
     return this.doCurrentPageCompleteCore(doComplete);

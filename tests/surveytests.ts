@@ -1771,6 +1771,33 @@ QUnit.test("Server validation (old api version)", function (assert) {
   survey.nextPage();
   assert.equal(survey.currentPage.visibleIndex, 1, "No errors server error");
 });
+
+QUnit.test("Server validation - do not allow to validate multiple times, Bug#2497", function (assert) {
+  var survey = twoPageSimplestSurvey();
+  var opt = null;
+  var serverFunction = function (options) {
+    opt = options; 
+  };
+  var counter = 0; 
+  survey.onServerValidateQuestions.add(function (sender, options) {
+    serverFunction(options);
+    counter ++;
+  });
+  survey.setValue("question1", 101);
+  survey.nextPage();
+  survey.nextPage();
+  assert.equal(survey.currentPage.visibleIndex, 0, "The validation is not finished yet");
+  opt.complete();
+  assert.equal(counter, 1, "server validation should be called one time");
+  assert.equal(survey.currentPage.visibleIndex, 1, "Validation on next page is completed");
+  survey.completeLastPage();
+  survey.completeLastPage();
+  assert.equal(survey.currentPage.visibleIndex, 1, "The validation on complete is not finished yet");
+  opt.complete();
+  assert.equal(counter, 2, "server validation should be called two times");
+  assert.equal(survey.state, "completed", "Validation is completed");
+});
+
 QUnit.test("onVisibleChanged call validation", function (assert) {
   var survey = twoPageSimplestSurvey();
   survey.onValidateQuestion.add(function (sender, options) {

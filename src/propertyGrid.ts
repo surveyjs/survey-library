@@ -43,10 +43,10 @@ export var PropertyGridEditorCollection = {
 }
 
 class SurveyHelper {
-    public static getNewName(objs: Array<any>, baseName: string): string {
+    public static getNewName(objs: Array<any>, keyPropName: string, baseName: string): string {
         var hash: any = {};
         for (var i = 0; i < objs.length; i++) {
-            hash[objs[i].name] = true;
+            hash[objs[i][keyPropName]] = true;
         }
         var num = 1;
         while (true) {
@@ -163,30 +163,70 @@ PropertyGridEditorCollection.register({
 });
 PropertyGridEditorCollection.register({
     fit(prop: JsonObjectProperty): boolean{
-        return prop.type == "text" && prop.hasChoices;
+        return prop.type == "string" && prop.hasChoices;
     },
     getJSON(obj: Base, prop: JsonObjectProperty): any {
         return {type: "dropdown", showOptionsCaption: false, choices: prop.getChoices(this.obj)};
     }
 });
+function getColumnPropertyJSON(className: string, propName: string): any {
+    var prop = Serializer.findProperty(className, propName);
+    if(!prop) return null;
+    var json = PropertyGridEditorCollection.getJSON(null, prop);
+    if(!json) return null;
+    json.name = prop.name;
+    if(!!json.type) {
+        json.cellType = json.type;
+        delete json.type;
+    }
+    return json;
+}
+function getColumnsJSON(className: string, propNames: Array<string>): Array<any> {
+    var res: Array<any> = [];
+    for(var i = 0; i < propNames.length; i ++) {
+        var columnJSON = getColumnPropertyJSON(className, propNames[i]);
+        if(!!columnJSON) {
+            res.push(columnJSON);
+        }
+    }
+    return res;
+}
+function getMatrixJSON(prop: JsonObjectProperty, propNames: Array<string>): any {
+    return {
+        type: "matrixdynamic",
+        cellType: "text",
+        columns: getColumnsJSON(prop.className, propNames)
+    };
+}
+function createNewItem(matrix: QuestionMatrixDynamicModel, prop: JsonObjectProperty, keyPropName: string): Base {
+    var newName = SurveyHelper.getNewName(matrix.value, keyPropName, prop.getBaseValue());
+    var item = Serializer.createClass(prop.className, {keyPropName: newName});
+    matrix.value.push(item);
+    return item;    
+}
 PropertyGridEditorCollection.register({
     fit(prop: JsonObjectProperty): boolean{
         return prop.type == "itemvalue[]";
     },
     getJSON(obj: Base, prop: JsonObjectProperty): any {
-        return {
-            type: "matrixdynamic",
-            cellType: "text",
-            columns: [{name: "value"}, {name: "text"}]
-        };
+        return getMatrixJSON(prop, ["value", "text"]);
     },
     onCreated(obj: Base, question: Question, prop: JsonObjectProperty) {
-        var matrix = <QuestionMatrixDynamicModel>question;
-        matrix.onGetValueForNewRowCallBack = (sender: QuestionMatrixDynamicModel): any => {
-            var newName = SurveyHelper.getNewName(sender.value, "item");
-            var item = Serializer.createClass(prop.className, {value: newName});
-            sender.value.push(item);
-            return item;
+        question.onGetValueForNewRowCallBack = (sender: QuestionMatrixDynamicModel): any => {
+            return createNewItem(sender, prop, "value");
+        }
+    }
+});
+PropertyGridEditorCollection.register({
+    fit(prop: JsonObjectProperty): boolean{
+        return prop.type == "matrixdropdowncolumns";
+    },
+    getJSON(obj: Base, prop: JsonObjectProperty): any {
+        return getMatrixJSON(prop, ["cellType", "name", "title"]);
+    },
+    onCreated(obj: Base, question: Question, prop: JsonObjectProperty) {
+        question.onGetValueForNewRowCallBack = (sender: QuestionMatrixDynamicModel): any => {
+            return createNewItem(sender, prop, "name");
         }
     }
 });

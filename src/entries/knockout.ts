@@ -55,7 +55,7 @@ export { QuestionSignaturePad } from "../knockout/koquestion_signaturepad";
 export { QuestionCustom } from "../knockout/koquestion_custom";
 
 //Property Grid
-export {PropertyGrid} from "../knockout/koPropertyGrid";
+//export {PropertyGrid} from "../knockout/koPropertyGrid";
 
 //Uncomment to include the "date" question type.
 //export {QuestionDate} from "../plugins/knockout/koquestion_date";

@@ -734,6 +734,9 @@ export class MatrixDropdownRowModelBase
   public get locText(): LocalizableString {
     return null;
   }
+  public get hasPanel(): boolean {
+    return false;
+  }
   getAllValues(): any {
     return this.value;
   }
@@ -1549,6 +1552,15 @@ export class QuestionMatrixDropdownModelBase
    */
   public get isColumnLayoutHorizontal() {
     return this.columnLayout != "vertical";
+  }
+  /**
+   * Set the value to "default" to show the detailPanel 
+   */
+  public get detailPanelMode(): string {
+    return this.getPropertyValue("detailPanelMode", "none");
+  }
+  public set detailPanelMode(val: string) {
+    this.setPropertyValue("detailPanelMode", val);
   }
   public get hasRowText(): boolean {
     return true;

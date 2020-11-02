@@ -2,7 +2,7 @@ import { SurveyModel } from "../src/survey";
 import { QuestionCheckboxModel } from "../src/question_checkbox";
 import { EmailValidator } from "../src/validator";
 import { QuestionMatrixDropdownModel } from "../src/question_matrixdropdown";
-import { MatrixDropdownColumn } from "../src/question_matrixdropdownbase";
+import { MatrixDropdownColumn, matrixDropdownColumnTypes } from "../src/question_matrixdropdownbase";
 import { QuestionDropdownModel } from "../src/question_dropdown";
 import { QuestionMatrixDynamicModel } from "../src/question_matrixdynamic";
 import { JsonObject, Serializer } from "../src/jsonobject";
@@ -4726,3 +4726,15 @@ QUnit.test(
     assert.equal(matrix.visibleRows.length, 0, "Unbind value and columns");
   }
 );
+
+QUnit.test("column should call property changed on custom property", function (
+  assert
+) {
+  var matrix = new QuestionMatrixDynamicModel("q1");
+  var column = matrix.addColumn("col1");
+  matrix.rowCount = 2;
+  column.cellType = "text";
+  assert.equal(matrix.detailPanelMode, "none", "Default value");
+  matrix.detailPanelMode = "default";
+  assert.equal(matrix.visibleRows[0].hasPanel, false, "There is no panel here");
+});      

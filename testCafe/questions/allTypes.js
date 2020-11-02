@@ -19,6 +19,7 @@ frameworks.forEach((framework) => {
   if (framework !== "knockout") return;
   fixture`${framework} ${title}`.page`${url_test}modern/${framework}.html`.beforeEach(
     async (t) => {
+      await applyTheme("modern");
       await initSurvey(framework, json);
     }
   );

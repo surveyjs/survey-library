@@ -3,11 +3,27 @@
       <label data-bind="css: question.getItemCss()">
           <input type="checkbox" data-bind="css: question.koCss().control, attr: {name: question.name, id: question.inputId, 'aria-required': question.isRequired, 'aria-label': question.locTitle.renderedHtml, 'aria-invalid': question.errors.length > 0, 'aria-describedby': question.errors.length > 0 ? question.id + '_errors' : null}, checked: question.checkedValue, surveyProp: {indeterminate: question.isIndeterminate}, enable: !question.isReadOnly"
           />
+          <!-- ko if: renderAs === "switch" -->
           <span data-bind="css: question.getUncheckedLabelCss(), click: onFalseLabelClick"><!-- ko template: { name: 'survey-string', data: locLabelFalse } --><!-- /ko --></span>
           <div data-bind="css: question.koCss().switch, click: onSwitchClick">
               <span data-bind="css: question.koCss().slider"></span>
           </div>
           <span data-bind="css: question.getCheckedLabelCss(), click: onTrueLabelClick"><!-- ko template: { name: 'survey-string', data: locLabelTrue } --><!-- /ko --></span>
-      </label>
+          <!-- /ko -->
+          <!-- ko if: renderAs === "checkbox" -->
+          <span data-bind="css: question.koCss().materialDecorator">
+            <svg viewBox="0 0 24 24" data-bind="css:question.koCss().itemDecorator">
+              <rect data-bind="css:question.koCss().uncheckedPath"x="5" y="10" width="14" height="4"/>
+              <polygon data-bind="css:question.koCss().checkedPath" points="19,10 14,10 14,5 10,5 10,10 5,10 5,14 10,14 10,19 14,19 14,14 19,14 "/>
+              <path data-bind="css:question.koCss().indeterminatePath" d="M22,0H2C0.9,0,0,0.9,0,2v20c0,1.1,0.9,2,2,2h20c1.1,0,2-0.9,2-2V2C24,0.9,23.1,0,22,0z M21,18L6,3h15V18z M3,6l15,15H3V6z"/>
+            </svg>
+            <span class="check"></span>
+          </span>
+          <span data-bind="if: titleLocation === 'hidden', css: question.koCss().label">
+              <!-- ko template: { name: 'survey-string', data: locDisplayLabel } -->
+              <!-- /ko -->
+          </span>
+          <!-- /ko -->
+        </label>
   </div>
 </script>

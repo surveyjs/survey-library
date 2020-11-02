@@ -9,6 +9,7 @@ import { Question } from "./question";
 import { HashTable, Helpers } from "./helpers";
 import {
   Base,
+  IElement,
   IQuestion,
   ISurveyData,
   ISurvey,
@@ -28,6 +29,7 @@ import { ILocalizableOwner, LocalizableString } from "./localizablestring";
 import { SurveyValidator } from "./validator";
 import { getCurrecyCodes } from "./question_expression";
 import { FunctionFactory } from "./functionsfactory";
+import { PanelModel } from "./panel";
 import { settings } from "./settings";
 
 export interface IMatrixDropdownData {
@@ -44,6 +46,8 @@ export interface IMatrixDropdownData {
     rowValue: any
   ): any;
   getRowIndex(row: MatrixDropdownRowModelBase): number;
+  hasDetailPanel(row: MatrixDropdownRowModelBase): boolean;
+  createRowDetailPanel(row: MatrixDropdownRowModelBase): PanelModel;
   validateCell(
     row: MatrixDropdownRowModelBase,
     columnName: string,
@@ -692,6 +696,7 @@ export class MatrixDropdownRowModelBase
   protected isSettingValue: boolean = false;
   private idValue: string;
   private textPreProcessor: TextPreProcessor;
+  private detailPanelValue: PanelModel = null;
 
   public cells: Array<MatrixDropdownCell> = [];
 
@@ -735,7 +740,22 @@ export class MatrixDropdownRowModelBase
     return null;
   }
   public get hasPanel(): boolean {
-    return false;
+    if(!this.data) return false;
+    return this.data.hasDetailPanel(this);
+  }
+  public get detailPanel(): PanelModel {
+    return this.detailPanelValue;
+  }
+  public get isDetailPanelShowing(): boolean {
+    return !!this.detailPanel;
+  }
+  public showDetailPanel() {
+    if(this.isDetailPanelShowing || !this.hasPanel) return;
+    this.detailPanelValue = this.data.createRowDetailPanel(this);
+    this.detailPanelValue.setSurveyImpl(this);
+  }
+  public hideDetailPanel() {
+    this.detailPanelValue = null;
   }
   getAllValues(): any {
     return this.value;
@@ -1461,6 +1481,7 @@ export class QuestionMatrixDropdownModelBase
     for (var i = 0; i < colNames.length; i++) matrix.addColumn(colNames[i]);
   }
   private renderedTableValue: QuestionMatrixDropdownRenderedTable;
+  private detailPanelValue: PanelModel;
   protected isRowChanging = false;
   columnsChangedCallback: () => void;
   updateCellsCallback: () => void;
@@ -1483,6 +1504,9 @@ export class QuestionMatrixDropdownModelBase
     var self = this;
     this.createItemValues("choices");
     this.createLocalizableString("optionsCaption", this);
+    this.detailPanelValue = this.createNewDetailPanel();
+    this.detailPanel.renderWidth = "100%";
+    this.detailPanel.selectedElementInDesign = this;
     this.registerFunctionOnPropertyValueChanged("columns", function (
       newColumns: any
     ) {
@@ -1561,6 +1585,25 @@ export class QuestionMatrixDropdownModelBase
   }
   public set detailPanelMode(val: string) {
     this.setPropertyValue("detailPanelMode", val);
+  }
+  /**
+   * The detail template Panel. This panel is used as a template on creating detail panel for a row.
+   * @see  detailElements
+   * @see detailPanelMode
+   */
+  public get detailPanel(): PanelModel {
+    return this.detailPanelValue;
+  }
+  /**
+   * The template Panel elements, questions and panels.
+   * @see  detailPanel
+   * @see detailPanelMode
+   */
+  public get detailElements(): Array<IElement> {
+    return this.detailPanel.elements;
+  }
+  protected createNewDetailPanel(): PanelModel {
+    return new PanelModel();
   }
   public get hasRowText(): boolean {
     return true;
@@ -2473,6 +2516,17 @@ export class QuestionMatrixDropdownModelBase
   getRowIndex(row: MatrixDropdownRowModelBase): number {
     if (!this.generatedVisibleRows) return -1;
     return this.visibleRows.indexOf(row);
+  }
+  hasDetailPanel(row: MatrixDropdownRowModelBase): boolean {
+    return this.detailPanelMode != "none" && this.detailElements.length > 0;
+  }
+  createRowDetailPanel(row: MatrixDropdownRowModelBase): PanelModel {
+    var panel = this.createNewDetailPanel();
+    var json = this.detailPanel.toJSON();
+    new JsonObject().toObject(json, panel);
+    panel.renderWidth = "100%";
+    panel.updateCustomWidgets();
+    return panel;
   }
   getSharedQuestionByName(
     columnName: string,

@@ -4727,14 +4727,26 @@ QUnit.test(
   }
 );
 
-QUnit.test("column should call property changed on custom property", function (
+QUnit.test("Detail panel", function (
   assert
 ) {
   var matrix = new QuestionMatrixDynamicModel("q1");
   var column = matrix.addColumn("col1");
-  matrix.rowCount = 2;
+  matrix.value = [{col1: "r1v1", q2: "r1v2"}, {col1: "r2v1", q2: "r2v2"}];
   column.cellType = "text";
+  matrix.detailPanel.addNewQuestion("text", "q2");
   assert.equal(matrix.detailPanelMode, "none", "Default value");
-  matrix.detailPanelMode = "default";
   assert.equal(matrix.visibleRows[0].hasPanel, false, "There is no panel here");
+  assert.equal(matrix.visibleRows[0].detailPanel, null, "Panel is not created");
+  matrix.detailPanelMode = "default";
+  assert.equal(matrix.visibleRows[0].hasPanel, true, "The panel has been created");
+  assert.equal(matrix.visibleRows[0].detailPanel, null, "Panel is not created, it is hidden");
+  matrix.visibleRows[0].showDetailPanel();
+  assert.ok(matrix.visibleRows[0].detailPanel, "Detail Panel is created");
+  assert.equal(matrix.visibleRows[0].detailPanel.questions.length, 1, "There is one question here");
+  //TODO set value
+  //assert.equal(matrix.visibleRows[0].detailPanel.questions[0].value, "r1v1", "The value is set correctly");
+  matrix.visibleRows[0].hideDetailPanel();
+  assert.notOk(matrix.visibleRows[0].detailPanel, "Detail Panel is hidden");
+
 });      

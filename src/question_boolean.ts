@@ -88,8 +88,6 @@ export class QuestionBooleanModel extends Question {
   @property({ localizable: true })
   label: string;
 
-  @property({ defaultValue: "default" })
-  renderAs: string;
 
   get locDisplayLabel(): LocalizableString {
     if (this.locLabel.text) return this.locLabel;

@@ -12,7 +12,7 @@ import {
   Event,
   ITitleOwner,
   IProgressInfo,
-  Base
+  Base,
 } from "./base";
 import { surveyLocalization } from "./surveyStrings";
 import { AnswerRequiredError, CustomError } from "./error";
@@ -25,6 +25,7 @@ import { CustomWidgetCollection } from "./questionCustomWidgets";
 import { settings } from "./settings";
 import { SurveyModel } from "./survey";
 import { PanelModel } from "./panel";
+import { RendererFactory } from "./rendererFactory";
 
 export interface IConditionObject {
   name: string;
@@ -1090,7 +1091,7 @@ export class Question
     return this.getUnbindValue(this.value);
   }
   protected getUnbindValue(value: any) {
-    if(Base.isSurveyElement(value)) return value;
+    if (Base.isSurveyElement(value)) return value;
     return Helpers.getUnbindValue(value);
   }
   private canClearValueAsInvisible(): boolean {
@@ -1655,6 +1656,13 @@ export class Question
     if (this.locOwner) return this.locOwner.getProcessedText(text);
     return text;
   }
+  public getComponentName(): string {
+    return RendererFactory.Instance.getRendererByQuestion(this);
+  }
+  
+  @property({ defaultValue: "default" })
+  renderAs: string;
+
   //ISurveyErrorOwner
   getErrorCustomText(text: string, error: SurveyError): string {
     if (!!this.survey) return this.survey.getErrorCustomText(text, error);
@@ -1769,5 +1777,6 @@ Serializer.addClass("question", [
       return obj.bindings.getNames().length > 0;
     },
   },
+  { name: "renderAs", default: "default", visible: false },
 ]);
 Serializer.addAlterNativeClassName("question", "questionbase");

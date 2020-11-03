@@ -30,7 +30,8 @@
     "watch_react_dev": "webpack --env.buildType dev --env.platform react --watch",
     "watch_angular_dev": "webpack --env.buildType dev --env.platform angular --watch",
     "watch_jquery_dev": "webpack --env.buildType dev --env.platform jquery --watch",
-    "watch_vue_dev": "webpack --env.buildType dev --env.platform vue --watch"
+    "watch_vue_dev": "webpack --env.buildType dev --env.platform vue --watch",
+    "watch_core_dev": "webpack --env.buildType dev --env.platform core --watch"
   },
   "version": "1.8.12",
   "name": "survey-library",

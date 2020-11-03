@@ -88,8 +88,6 @@ export class QuestionBooleanModel extends Question {
   @property({ localizable: true })
   label: string;
 
-  @property({ defaultValue: "switch" })
-  renderAs: string;
 
   get locDisplayLabel(): LocalizableString {
     if (this.locLabel.text) return this.locLabel;
@@ -173,7 +171,7 @@ Serializer.addClass(
     "showTitle:boolean",
     "valueTrue",
     "valueFalse",
-    { name: "renderAs", default: "switch" },
+    { name: "renderAs", default: "default", visible: false },
   ],
   function () {
     return new QuestionBooleanModel("");

@@ -114,7 +114,7 @@ export class SurveyQuestionBoolean extends SurveyQuestionElementBase {
                 : null
             }
           />
-          {this.question.renderAs === "switch" && (
+          {(this.question.renderAs === "default" || this.question.renderAs === "switch") && (
           <span
             className={this.getLabelClass(false)}
             onClick={(event) => this.handleOnLabelClick(event, false)}
@@ -122,12 +122,12 @@ export class SurveyQuestionBoolean extends SurveyQuestionElementBase {
             {this.question.locLabelFalse.renderedHtml}
           </span>
           )}
-          {this.question.renderAs === "switch" && (
+          {(this.question.renderAs === "default" || this.question.renderAs === "switch") && (
           <div className={cssClasses.switch} onClick={this.handleOnSwitchClick}>
             <span className={cssClasses.slider} />
           </div>
           )}
-          {this.question.renderAs === "switch" && (
+          {(this.question.renderAs === "default" || this.question.renderAs === "switch") && (
           <span
             className={this.getLabelClass(true)}
             onClick={(event) => this.handleOnLabelClick(event, true)}

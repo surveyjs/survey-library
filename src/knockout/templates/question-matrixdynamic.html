@@ -87,7 +87,13 @@
             <!-- /ko -->
           <!-- /ko -->
           <!-- ko ifnot: $data.isChoice -->
-            <!-- ko template: { name: question.koTemplateName(), data: question, as: 'question', afterRender: function(el) { $data.matrix.koCellQuestionAfterRender(el, $data); } } --><!-- /ko -->
+            <!-- ko if: question.customWidget || question.renderAs === "default" -->
+                <!-- ko template: { name: question.koTemplateName(), data: question, as: 'question', afterRender: function(el) { $data.matrix.koCellQuestionAfterRender(el, $data); } } --><!-- /ko -->
+            <!-- /ko -->
+            <!-- ko ifnot: question.customWidget || question.renderAs === "default" -->
+                <!-- ko component: { name: question.getComponentName(), params: { question: question } } -->
+                <!-- /ko -->
+            <!-- /ko -->
           <!-- /ko -->
           <!-- ko if: $data.showErrorOnBottom -->
             <!-- ko template: { name: 'survey-question-errors', data: question } -->

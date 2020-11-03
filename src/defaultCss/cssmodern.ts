@@ -135,7 +135,7 @@ export var modernCss = {
     column: "sv-selectbase__column",
   },
   boolean: {
-    root: "",
+    root: "sv_qbln",
     small: "sv-row__question--small",
     item: "sv-boolean sv-item",
     control: "sv-visuallyhidden",

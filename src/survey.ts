@@ -2375,11 +2375,9 @@ export class SurveyModel
     if (newPage == this.currentPageValue) return;
     var oldValue = this.currentPageValue;
     if (!this.currentPageChanging(newPage, oldValue)) return;
-    if (!!newPage) {
-      newPage.onFirstRendering();
-    }
     this.currentPageValue = newPage;
     if (!!newPage) {
+      newPage.onFirstRendering();
       newPage.updateCustomWidgets();
       newPage.setWasShown(true);
     }

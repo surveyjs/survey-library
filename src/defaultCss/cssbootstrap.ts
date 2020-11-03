@@ -122,7 +122,7 @@ export var defaultBootstrapCss = {
     cellTextSelected: "sv_q_m_cell_selected bg-primary",
     cellLabel: "sv_q_m_cell_label",
   },
-  matrixdropdown: { root: "table" },
+  matrixdropdown: { root: "table", cell: "sv_matrix_cell" },
   matrixdynamic: {
     root: "table",
     button: "button",

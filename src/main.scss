@@ -695,6 +695,4 @@ $label-disabled-color: rgba(64, 64, 64, 0.5);
 }
 
 @import "./signaturepad.scss";
-
-@import "./modern/constants.scss";
-@import "./modern/blocks/sv-boolean.scss";
+@import "./boolean-checkbox.scss";

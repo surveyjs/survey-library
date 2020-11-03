@@ -15,11 +15,11 @@
         :aria-invalid="question.errors.length > 0"
         :aria-describedby="question.errors.length > 0 ? question.id + '_errors' : null"  
       />
-      <span v-if="question.renderAs==='switch'" :class="getLabelClass(false)" v-on:click="onLabelClick($event, false)">{{question.locLabelFalse.renderedHtml}}</span>
-      <div v-if="question.renderAs==='switch'" :class="question.cssClasses.switch" v-on:click="onSwitchClick($event)">
+      <span v-if="question.renderAs==='default' || question.renderAs==='switch'" :class="getLabelClass(false)" v-on:click="onLabelClick($event, false)">{{question.locLabelFalse.renderedHtml}}</span>
+      <div v-if="question.renderAs==='default' || question.renderAs==='switch'" :class="question.cssClasses.switch" v-on:click="onSwitchClick($event)">
         <span :class="question.cssClasses.slider" />
       </div>
-      <span v-if="question.renderAs==='switch'" :class="getLabelClass(true)" v-on:click="onLabelClick($event, true)">{{question.locLabelTrue.renderedHtml}}</span>
+      <span v-if="question.renderAs==='default' || question.renderAs==='switch'" :class="getLabelClass(true)" v-on:click="onLabelClick($event, true)">{{question.locLabelTrue.renderedHtml}}</span>
       
       <span v-if="question.renderAs==='checkbox'" :class="question.cssClasses.materialDecorator">
         <svg viewBox="0 0 24 24" :class="question.cssClasses.itemDecorator">

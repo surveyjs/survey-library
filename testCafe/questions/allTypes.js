@@ -16,7 +16,7 @@ const applyTheme = ClientFunction((theme) => {
   Survey.StylesManager.applyTheme(theme);
 });
 frameworks.forEach((framework) => {
-  if (framework !== "knockout") return;
+  if (framework !== "knockout" && framework !== "react") return;
   fixture`${framework} ${title}`.page`${url_test}modern/${framework}.html`.beforeEach(
     async (t) => {
       await applyTheme("modern");

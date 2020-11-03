@@ -63,3 +63,11 @@
     background-color: $disable-color;
   }
 }
+
+// Matrix cell
+td.sv_matrix_cell,
+td.td.sv_matrix_cell {
+  .sv_qbln {
+    text-align: center;
+  }
+}

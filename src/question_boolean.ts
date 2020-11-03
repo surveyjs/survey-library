@@ -173,7 +173,7 @@ Serializer.addClass(
     "showTitle:boolean",
     "valueTrue",
     "valueFalse",
-    { name: "renderAs", default: "switch", visible: false },
+    { name: "renderAs", default: "default", visible: false },
   ],
   function () {
     return new QuestionBooleanModel("");

@@ -18,7 +18,7 @@ const json = {
       choices: [
         { value: 1, text: "Yes" },
         { value: 0, text: "Sometimes" },
-        { value: -1, text: "No" }
+        { value: -1, text: "No" },
       ],
       columns: [
         {
@@ -53,8 +53,8 @@ const json = {
             "World Languages: German",
             "World Languages: Latin",
             "World Languages: Chinese",
-            "World Languages: Japanese"
-          ]
+            "World Languages: Japanese",
+          ],
         },
         { name: "explains", title: "Clearly explains the objectives" },
         { name: "interesting", title: "Makes class interesting" },
@@ -66,7 +66,7 @@ const json = {
         { name: "respect", title: "Has the respect of the student" },
         {
           name: "cooperation",
-          title: "Encourages cooperation and participation"
+          title: "Encourages cooperation and participation",
         },
         { name: "parents", title: "Communicates with my parents" },
         { name: "selfthinking", title: "Encourages me to think for myself" },
@@ -74,41 +74,45 @@ const json = {
           name: "frusturation",
           cellType: "comment",
           title: "Is there anything about this class that frustrates you?",
-          minWidth: "250px"
+          minWidth: "250px",
         },
         {
           name: "likeTheBest",
           cellType: "comment",
           title: "What do you like best about this class and/or teacher?",
-          minWidth: "250px"
+          minWidth: "250px",
         },
         {
           name: "improvements",
           cellType: "comment",
           title:
             "What do you wish this teacher would do differently that would improve this class?",
-          minWidth: "250px"
-        }
+          minWidth: "250px",
+        },
+        {
+          name: "bool",
+          cellType: "boolean",
+        },
       ],
-      rowCount: 2
-    }
-  ]
+      rowCount: 2,
+    },
+  ],
 };
 
-frameworks.forEach(framework => {
+frameworks.forEach((framework) => {
   fixture`${framework} ${title}`.page`${url}${framework}`.beforeEach(
-    async t => {
+    async (t) => {
       await initSurvey(framework, json);
     }
   );
 
-  test(`choose empty`, async t => {
+  test(`choose empty`, async (t) => {
     const getPosition = ClientFunction(() =>
       document.documentElement.innerHTML.indexOf("Please answer the question")
     );
     let position, positionOld;
     let surveyResult;
-    const baseSelectorFunc = function(strings, ...values) {
+    const baseSelectorFunc = function (strings, ...values) {
       return `tbody > tr:nth-child(${values[0]}) > td:nth-child(${values[1]})`;
     };
 
@@ -136,12 +140,12 @@ frameworks.forEach(framework => {
     assert.equal(typeof surveyResult, `undefined`);
   });
 
-  test(`choose several values`, async t => {
+  test(`choose several values`, async (t) => {
     let surveyResult, i;
-    const baseSelectorFunc = function(strings, ...values) {
+    const baseSelectorFunc = function (strings, ...values) {
       return `tbody > tr:nth-child(${values[0]}) > td:nth-child(${values[1]})`;
     };
-    const fillTheRow = async function(rowNumber) {
+    const fillTheRow = async function (rowNumber) {
       await t
         .click(`${baseSelectorFunc`${rowNumber}${1}`} select`)
         .click(
@@ -184,7 +188,7 @@ frameworks.forEach(framework => {
           cooperation: "1",
           parents: "1",
           selfthinking: "1",
-          subject: "Science: Physical Science"
+          subject: "Science: Physical Science",
         },
         {
           frusturation: "Wombats",
@@ -201,20 +205,20 @@ frameworks.forEach(framework => {
           cooperation: "1",
           parents: "1",
           selfthinking: "1",
-          subject: "Science: Physical Science"
-        }
-      ]
+          subject: "Science: Physical Science",
+        },
+      ],
     });
   });
 
-  test(`remove row`, async t => {
+  test(`remove row`, async (t) => {
     const getRowCount = ClientFunction(
       () => document.querySelectorAll(`tbody > tr`).length
     );
     let oldCount = await getRowCount();
     let newCount;
     let surveyResult;
-    const baseSelectorFunc = function(strings, ...values) {
+    const baseSelectorFunc = function (strings, ...values) {
       return `tbody > tr:nth-child(${values[0]}) > td:nth-child(${values[1]})`;
     };
 
@@ -227,7 +231,11 @@ frameworks.forEach(framework => {
       .click(
         `${baseSelectorFunc`${2}${1}`} select option[value="Science: Chemistry"]`
       )
-      .click(Selector(`${baseSelectorFunc`${2}${16}`} button[type=button]`).withText('Remove'));
+      .click(
+        Selector(`${baseSelectorFunc`${2}${17}`} button[type=button]`).withText(
+          "Remove"
+        )
+      );
 
     newCount = await getRowCount();
     assert(newCount === oldCount - 1);
@@ -238,19 +246,19 @@ frameworks.forEach(framework => {
     assert.equal(surveyResult.frameworksRate.length, 1);
   });
 
-  test(`add row`, async t => {
+  test(`add row`, async (t) => {
     const getRowCount = ClientFunction(
       () => document.querySelectorAll(`tbody > tr`).length
     );
     let oldCount = await getRowCount();
     let newCount;
     let surveyResult;
-    const baseSelectorFunc = function(strings, ...values) {
+    const baseSelectorFunc = function (strings, ...values) {
       return `tbody > tr:nth-child(${values[0]}) > td:nth-child(${values[1]})`;
     };
 
     await t
-      .click(Selector(`button[type=button]`).withText('Add Subject'))
+      .click(Selector(`button[type=button]`).withText("Add Subject"))
       .click(`${baseSelectorFunc`${1}${1}`} select`)
       .click(
         `${baseSelectorFunc`${1}${1}`} select option[value="Science: Physical Science"]`

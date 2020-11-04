@@ -1,0 +1,76 @@
+@import "./modern/constants.scss";
+.sv-boolean__decorator {
+  border-radius: 2px;
+}
+.sv_main .sv-boolean__decorator + .sv-boolean__label {
+  float: none;
+  vertical-align: top;
+  margin-left: 0.5em;
+}
+.sv-boolean__svg {
+  border: none;
+  border-radius: 2px;
+  background-color: $main-color;
+  fill: white;
+  width: 24px;
+  height: 24px;
+}
+.sv-boolean--allowhover:hover {
+  .sv-boolean__checked-path {
+    display: inline-block;
+  }
+  .sv-boolean__svg {
+    background-color: $main-hover-color;
+    fill: white;
+  }
+  .sv-boolean__unchecked-path,
+  .sv-boolean__indeterminate-path {
+    display: none;
+  }
+}
+.sv-boolean__checked-path,
+.sv-boolean__indeterminate-path {
+  display: none;
+}
+.sv-boolean--indeterminate {
+  .sv-boolean__svg {
+    background-color: inherit;
+    fill: $main-color;
+  }
+  .sv-boolean__indeterminate-path {
+    display: inline-block;
+  }
+}
+.sv-boolean--indeterminate,
+.sv-boolean--checked {
+  .sv-boolean__unchecked-path {
+    display: none;
+  }
+}
+.sv-boolean--checked {
+  .sv-boolean__checked-path {
+    display: inline-block;
+  }
+}
+.sv-boolean--disabled.sv-boolean--indeterminate {
+  .sv-boolean__svg {
+    background-color: inherit;
+    fill: $disable-color;
+  }
+}
+.sv-boolean--disabled {
+  .sv-boolean__svg {
+    background-color: $disable-color;
+  }
+}
+
+// Matrix cell
+td.sv_matrix_cell,
+td.td.sv_matrix_cell {
+  .sv_qbln {
+    text-align: center;
+    .sv-boolean {
+      text-align: initial;
+    }
+  }
+}

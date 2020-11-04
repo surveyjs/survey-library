@@ -135,7 +135,7 @@ export var modernCss = {
     column: "sv-selectbase__column",
   },
   boolean: {
-    root: "",
+    root: "sv_qbln",
     small: "sv-row__question--small",
     item: "sv-boolean sv-item",
     control: "sv-visuallyhidden",
@@ -146,6 +146,11 @@ export var modernCss = {
     slider: "sv-boolean__slider",
     label: "sv-boolean__label ",
     disabledLabel: "sv-boolean__label--disabled",
+    materialDecorator: "sv-item__decorator sv-boolean__decorator ",
+    itemDecorator: "sv-item__svg  sv-boolean__svg",
+    checkedPath: "sv-boolean__checked-path",
+    uncheckedPath: "sv-boolean__unchecked-path",
+    indeterminatePath: "sv-boolean__indeterminate-path",
   },
   text: {
     root: "sv-text",

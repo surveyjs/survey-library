@@ -186,7 +186,10 @@ export var matrixDropdownColumnTypes = {
     ) => {},
   },
   boolean: {
-    properties: ["defaultValue"],
+    properties: [
+      "renderAs",
+      "defaultValue"
+    ],
     onCellQuestionUpdate: (
       cellQuestion: any,
       column: any,
@@ -194,6 +197,7 @@ export var matrixDropdownColumnTypes = {
       data: any
     ) => {
       cellQuestion.showTitle = true;
+      cellQuestion.renderAs = column.renderAs;
     },
   },
   expression: {
@@ -408,6 +412,12 @@ export class MatrixDropdownColumn extends Base implements ILocalizableOwner {
   }
   get locTotalFormat(): LocalizableString {
     return this.getLocalizableString("totalFormat");
+  }
+  public get renderAs(): string {
+    return this.getPropertyValue("renderAs");
+  }
+  public set renderAs(val: string) {
+    this.setPropertyValue("renderAs", val);
   }
   public get totalMaximumFractionDigits(): number {
     return this.getPropertyValue("totalMaximumFractionDigits", -1);
@@ -2730,6 +2740,7 @@ Serializer.addClass(
     },
     { name: "totalMaximumFractionDigits:number", default: -1 },
     { name: "totalMinimumFractionDigits:number", default: -1 },
+    { name: "renderAs", default: "default", visible: false },
   ],
   function () {
     return new MatrixDropdownColumn("");

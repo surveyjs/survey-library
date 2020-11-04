@@ -44,13 +44,16 @@ import {
   QuestionMatrixDropdownModelBase,
   QuestionMatrixDropdownRenderedTable,
 } from "../question_matrixdropdownbase";
+import {BaseVue} from "./base";
+import { Base } from "../base";
 
 @Component
-export class MatrixTable extends Vue {
+export class MatrixTable extends BaseVue {
   @Prop question: QuestionMatrixDropdownModelBase;
   get table(): QuestionMatrixDropdownRenderedTable {
     return this.question.renderedTable;
   }
+  protected getModel(): Base { return this.question.renderedTable; }
 }
 
 Vue.component("survey-matrixtable", MatrixTable);

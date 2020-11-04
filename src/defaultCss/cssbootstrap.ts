@@ -83,6 +83,11 @@ export var defaultBootstrapCss = {
     slider: "sv-boolean__slider",
     label: "sv-boolean__label ",
     disabledLabel: "sv-boolean__label--disabled",
+    materialDecorator: "sv-item__decorator sv-boolean__decorator ",
+    itemDecorator: "sv-item__svg  sv-boolean__svg",
+    checkedPath: "sv-boolean__checked-path",
+    uncheckedPath: "sv-boolean__unchecked-path",
+    indeterminatePath: "sv-boolean__indeterminate-path",
   },
   checkbox: {
     root: "sv_qcbc sv_qcbx form-inline",
@@ -117,7 +122,7 @@ export var defaultBootstrapCss = {
     cellTextSelected: "sv_q_m_cell_selected bg-primary",
     cellLabel: "sv_q_m_cell_label",
   },
-  matrixdropdown: { root: "table" },
+  matrixdropdown: { root: "table", cell: "sv_matrix_cell" },
   matrixdynamic: {
     root: "table",
     button: "button",

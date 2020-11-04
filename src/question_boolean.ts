@@ -71,6 +71,7 @@ export class QuestionBooleanModel extends Question {
   }
   public getDefaultValue(): any {
     if (this.defaultValue == "indeterminate") return null;
+    if (this.defaultValue === undefined) return null;
     return this.defaultValue == "true"
       ? this.getValueTrue()
       : this.getValueFalse();
@@ -152,12 +153,6 @@ export class QuestionBooleanModel extends Question {
 Serializer.addClass(
   "boolean",
   [
-    {
-      name: "defaultValue:dropdown",
-      alternativeName: "booleanDefaultValue",
-      default: "indeterminate",
-      choices: ["indeterminate", "false", "true"],
-    },
     { name: "label:text", serializationProperty: "locLabel" },
     {
       name: "labelTrue:text",
@@ -170,6 +165,7 @@ Serializer.addClass(
     "showTitle:boolean",
     "valueTrue",
     "valueFalse",
+    { name: "renderAs", default: "default", visible: false },
   ],
   function () {
     return new QuestionBooleanModel("");

@@ -49,7 +49,10 @@ export interface IMatrixDropdownData {
   getRowValue(rowIndex: number): any;
   hasDetailPanel(row: MatrixDropdownRowModelBase): boolean;
   createRowDetailPanel(row: MatrixDropdownRowModelBase): PanelModel;
-  onDetailPanelChangeVisibility(row: MatrixDropdownRowModelBase, isShowing: boolean): void;
+  onDetailPanelChangeVisibility(
+    row: MatrixDropdownRowModelBase,
+    isShowing: boolean
+  ): void;
   validateCell(
     row: MatrixDropdownRowModelBase,
     columnName: string,
@@ -119,7 +122,8 @@ export var matrixDropdownColumnTypes = {
       data: any
     ) => {
       onUpdateSelectBaseCellQuestion(cellQuestion, column, question, data);
-      if (!!cellQuestion.locOptionsCaption &&
+      if (
+        !!cellQuestion.locOptionsCaption &&
         cellQuestion.locOptionsCaption.isEmpty &&
         !question.locOptionsCaption.isEmpty
       ) {
@@ -186,10 +190,7 @@ export var matrixDropdownColumnTypes = {
     ) => {},
   },
   boolean: {
-    properties: [
-      "renderAs",
-      "defaultValue"
-    ],
+    properties: ["renderAs", "defaultValue"],
     onCellQuestionUpdate: (
       cellQuestion: any,
       column: any,
@@ -522,7 +523,11 @@ export class MatrixDropdownColumn extends Base implements ILocalizableOwner {
     this.addProperties(curCellType);
     var self = this;
     this.templateQuestion.onPropertyChanged.add(function (sender, options) {
-      self.propertyValueChanged(options.name, options.oldvalue, options.newValue);
+      self.propertyValueChanged(
+        options.name,
+        options.oldvalue,
+        options.newValue
+      );
     });
   }
   protected createNewQuestion(cellType: string): Question {
@@ -753,7 +758,7 @@ export class MatrixDropdownRowModelBase
     return null;
   }
   public get hasPanel(): boolean {
-    if(!this.data) return false;
+    if (!this.data) return false;
     return this.data.hasDetailPanel(this);
   }
   public get detailPanel(): PanelModel {
@@ -763,22 +768,22 @@ export class MatrixDropdownRowModelBase
     return !!this.detailPanel;
   }
   public showDetailPanel() {
-    if(this.isDetailPanelShowing || !this.hasPanel || !this.data) return;
+    if (this.isDetailPanelShowing || !this.hasPanel || !this.data) return;
     this.detailPanelValue = this.data.createRowDetailPanel(this);
     var questions = this.detailPanelValue.questions;
     var value = this.data.getRowValue(this.data.getRowIndex(this));
-    for(var i = 0; i < questions.length; i ++) {
+    for (var i = 0; i < questions.length; i++) {
       var key = questions[i].getValueName();
-      if(!Helpers.isValueEmpty(value[key])) {
+      if (!Helpers.isValueEmpty(value[key])) {
         questions[i].value = value[key];
-      } 
+      }
     }
     this.detailPanelValue.setSurveyImpl(this);
     this.data.onDetailPanelChangeVisibility(this, true);
   }
   public hideDetailPanel() {
     this.detailPanelValue = null;
-    if(!!this.data) {
+    if (!!this.data) {
       this.data.onDetailPanelChangeVisibility(this, false);
     }
   }
@@ -808,7 +813,7 @@ export class MatrixDropdownRowModelBase
       values[MatrixDropdownRowModelBase.RowVariableName] = this.value;
       this.cells[i].runCondition(values, properties);
     }
-    if(!!this.detailPanel) {
+    if (!!this.detailPanel) {
       this.detailPanel.runCondition(values, properties);
     }
   }
@@ -913,18 +918,18 @@ export class MatrixDropdownRowModelBase
   }
   public get questions(): Array<Question> {
     var res: Array<Question> = [];
-    for(var i = 0; i < this.cells.length; i ++) {
+    for (var i = 0; i < this.cells.length; i++) {
       res.push(this.cells[i].question);
     }
-    var detailQuestions = !!this.detailPanel ? this.detailPanel.questions: [];
-    for(var i = 0; i < detailQuestions.length; i ++) {
+    var detailQuestions = !!this.detailPanel ? this.detailPanel.questions : [];
+    for (var i = 0; i < detailQuestions.length; i++) {
       res.push(detailQuestions[i]);
     }
     return res;
   }
   public getQuestionByName(name: string): Question {
     var res = this.getQuestionByColumnName(name);
-    if(!!res) return res;
+    if (!!res) return res;
     return !!this.detailPanel ? this.detailPanel.getQuestionByName(name) : null;
   }
   protected getSharedQuestionByName(columnName: string): Question {
@@ -961,7 +966,7 @@ export class MatrixDropdownRowModelBase
     for (var i = 0; i < this.cells.length; i++) {
       this.cells[i].locStrsChanged();
     }
-    if(!!this.detailPanel) {
+    if (!!this.detailPanel) {
       this.detailPanel.locStrsChanged();
     }
   }
@@ -980,7 +985,7 @@ export class MatrixDropdownRowModelBase
   public onQuestionReadOnlyChanged(parentIsReadOnly: boolean) {
     var questions = this.questions;
     for (var i = 0; i < questions.length; i++) {
-        questions[i].readOnly = parentIsReadOnly;
+      questions[i].readOnly = parentIsReadOnly;
     }
   }
   protected updateCellOnColumnChanged(
@@ -1000,6 +1005,10 @@ export class MatrixDropdownRowModelBase
       this.cells.push(cell);
       if (!!value && !Helpers.isValueEmpty(value[column.name])) {
         cell.question.value = value[column.name];
+        var commentKey = column.name + settings.commentPrefix;
+        if (!Helpers.isValueEmpty(value[commentKey])) {
+          cell.question.comment = value[commentKey];
+        }
       }
     }
     this.isSettingValue = false;
@@ -1016,18 +1025,20 @@ export class MatrixDropdownRowModelBase
   protected get rowIndex(): number {
     return !!this.data ? this.data.getRowIndex(this) + 1 : -1;
   }
-  private onEditingObjPropertyChanged : (sender: Base, options: any) => void;
+  private onEditingObjPropertyChanged: (sender: Base, options: any) => void;
   private editingObj: Base;
   public dispose() {
-    if(!!this.editingObj) {
-      this.editingObj.onPropertyChanged.remove(this.onEditingObjPropertyChanged);
+    if (!!this.editingObj) {
+      this.editingObj.onPropertyChanged.remove(
+        this.onEditingObjPropertyChanged
+      );
     }
   }
   private subscribeToChanges(value: any) {
-    if(!value || !value.getType || !value.onPropertyChanged) return;
-    if(value === this.editingObj) return;
+    if (!value || !value.getType || !value.onPropertyChanged) return;
+    if (value === this.editingObj) return;
     this.editingObj = <Base>value;
-    this.onEditingObjPropertyChanged = (sender: Base, options: any) =>{
+    this.onEditingObjPropertyChanged = (sender: Base, options: any) => {
       this.updateOnSetValue(options.name, options.newValue);
     };
     this.editingObj.onPropertyChanged.add(this.onEditingObjPropertyChanged);
@@ -1035,7 +1046,7 @@ export class MatrixDropdownRowModelBase
   private updateOnSetValue(name: string, newValue: any) {
     this.isSettingValue = true;
     var question = this.getQuestionByName(name);
-    if(!!question) {
+    if (!!question) {
       question.value = newValue;
     }
     this.isSettingValue = false;
@@ -1114,7 +1125,7 @@ export class QuestionMatrixDropdownRenderedCell {
   public matrix: QuestionMatrixDropdownModelBase;
   public requiredText: string;
   public colSpans: number = 1;
-  public panel: PanelModel; 
+  public panel: PanelModel;
   public constructor() {
     this.idValue = QuestionMatrixDropdownRenderedCell.counter++;
   }
@@ -1227,14 +1238,18 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     this.buildFooter();
   }
   public onAddedRow() {
-    if (this.getRenderedDataRowCount() >= this.matrix.visibleRows.length) return;
-    this.addHorizontalRow(this.rows, this.matrix.visibleRows[this.matrix.visibleRows.length - 1],
-      this.matrix.visibleRows.length == 1 && !this.matrix.showHeader);
+    if (this.getRenderedDataRowCount() >= this.matrix.visibleRows.length)
+      return;
+    this.addHorizontalRow(
+      this.rows,
+      this.matrix.visibleRows[this.matrix.visibleRows.length - 1],
+      this.matrix.visibleRows.length == 1 && !this.matrix.showHeader
+    );
   }
   private getRenderedDataRowCount(): number {
     var res = 0;
-    for(var i = 0; i < this.rows.length; i ++) {
-      if(!this.rows[i].isDetailRow) res ++;
+    for (var i = 0; i < this.rows.length; i++) {
+      if (!this.rows[i].isDetailRow) res++;
     }
     return res;
   }
@@ -1243,12 +1258,19 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     if (rowIndex < 0) return;
     this.rows.splice(rowIndex, 1);
   }
-  public onDetailPanelChangeVisibility(row: MatrixDropdownRowModelBase, isShowing: boolean) {
+  public onDetailPanelChangeVisibility(
+    row: MatrixDropdownRowModelBase,
+    isShowing: boolean
+  ) {
     var rowIndex = this.getRenderedRowIndex(row);
-    if(rowIndex < 0) return;
-    var panelRowIndex = rowIndex < this.rows.length - 1 && this.rows[rowIndex + 1].isDetailRow ? rowIndex + 1 : -1;
-    if(isShowing && panelRowIndex > -1 || !isShowing && panelRowIndex < 0) return;
-    if(isShowing) {
+    if (rowIndex < 0) return;
+    var panelRowIndex =
+      rowIndex < this.rows.length - 1 && this.rows[rowIndex + 1].isDetailRow
+        ? rowIndex + 1
+        : -1;
+    if ((isShowing && panelRowIndex > -1) || (!isShowing && panelRowIndex < 0))
+      return;
+    if (isShowing) {
       var detailRow = this.createDetailPanelRow(row, this.rows[rowIndex]);
       this.rows.splice(rowIndex + 1, 0, detailRow);
     } else {
@@ -1256,8 +1278,8 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     }
   }
   private getRenderedRowIndex(row: MatrixDropdownRowModelBase): number {
-    for(var i = 0; i < this.rows.length; i ++) {
-      if(this.rows[i].row == row) return i;
+    for (var i = 0; i < this.rows.length; i++) {
+      if (this.rows[i].row == row) return i;
     }
     return -1;
   }
@@ -1333,16 +1355,24 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     var rows = this.matrix.visibleRows;
     var renderedRows: Array<QuestionMatrixDropdownRenderedRow> = [];
     for (var i = 0; i < rows.length; i++) {
-      this.addHorizontalRow(renderedRows, rows[i], i == 0 && !this.matrix.showHeader);
+      this.addHorizontalRow(
+        renderedRows,
+        rows[i],
+        i == 0 && !this.matrix.showHeader
+      );
     }
     return renderedRows;
   }
-  private addHorizontalRow(renderedRows: Array<QuestionMatrixDropdownRenderedRow>, row: MatrixDropdownRowModelBase, useAsHeader: boolean) {
+  private addHorizontalRow(
+    renderedRows: Array<QuestionMatrixDropdownRenderedRow>,
+    row: MatrixDropdownRowModelBase,
+    useAsHeader: boolean
+  ) {
     var renderedRow = this.createHorizontalRow(row, useAsHeader);
     renderedRow.row = row;
     renderedRows.push(renderedRow);
-    if(row.isDetailPanelShowing) {
-      renderedRows.push(this.createDetailPanelRow(row, renderedRow))
+    if (row.isDetailPanelShowing) {
+      renderedRows.push(this.createDetailPanelRow(row, renderedRow));
     }
   }
   private createHorizontalRow(
@@ -1675,7 +1705,7 @@ export class QuestionMatrixDropdownModelBase
     return this.columnLayout != "vertical";
   }
   /**
-   * Set the value to "default" to show the detailPanel 
+   * Set the value to "default" to show the detailPanel
    */
   public get detailPanelMode(): string {
     return this.getPropertyValue("detailPanelMode", "none");
@@ -1736,7 +1766,7 @@ export class QuestionMatrixDropdownModelBase
     if (this.renderedTable.isRequireReset()) {
       this.resetRenderedTable();
     } else {
-      if(!!row) {
+      if (!!row) {
         this.renderedTable.onRemovedRow(row);
       }
     }
@@ -1747,8 +1777,8 @@ export class QuestionMatrixDropdownModelBase
     this.fireCallback(this.onRenderedTableResetCallback);
   }
   protected clearGeneratedRows() {
-    if(!this.generatedVisibleRows) return;
-    for(var i = 0; i < this.generatedVisibleRows.length; i ++) {
+    if (!this.generatedVisibleRows) return;
+    for (var i = 0; i < this.generatedVisibleRows.length; i++) {
       this.generatedVisibleRows[i].dispose();
     }
     super.clearGeneratedRows();
@@ -2192,7 +2222,7 @@ export class QuestionMatrixDropdownModelBase
   }
   protected getRowObj(row: MatrixDropdownRowModelBase): any {
     var obj = this.getRowValueCore(row, this.value);
-    return !!obj && !!obj.getType ? obj: null;
+    return !!obj && !!obj.getType ? obj : null;
   }
 
   protected getRowDisplayValue(
@@ -2556,16 +2586,16 @@ export class QuestionMatrixDropdownModelBase
     newRowValue: any,
     isDeletingValue: boolean
   ) {
-    var rowObj = !!columnName ? this.getRowObj(row): null;
-    if(!!rowObj ) {
+    var rowObj = !!columnName ? this.getRowObj(row) : null;
+    if (!!rowObj) {
       var columnValue = null;
-      if(!!newRowValue && !isDeletingValue) {
+      if (!!newRowValue && !isDeletingValue) {
         columnValue = newRowValue[columnName];
       }
       this.isRowChanging = true;
-      rowObj[columnName] = columnValue; 
+      rowObj[columnName] = columnValue;
       this.isRowChanging = false;
-        this.onCellValueChanged(row, columnName, rowObj);
+      this.onCellValueChanged(row, columnName, rowObj);
     } else {
       var oldValue = this.createNewValue(true);
       var combine = this.getNewValueOnRowChanged(
@@ -2627,8 +2657,11 @@ export class QuestionMatrixDropdownModelBase
     panel.updateCustomWidgets();
     return panel;
   }
-  onDetailPanelChangeVisibility(row: MatrixDropdownRowModelBase, isShowing: boolean): void {
-    if(!this.renderedTable) return;
+  onDetailPanelChangeVisibility(
+    row: MatrixDropdownRowModelBase,
+    isShowing: boolean
+  ): void {
+    if (!this.renderedTable) return;
     this.renderedTable.onDetailPanelChangeVisibility(row, isShowing);
   }
   getSharedQuestionByName(
@@ -2683,7 +2716,7 @@ export class QuestionMatrixDropdownModelBase
 Serializer.addClass(
   "matrixdropdowncolumn",
   [
-    {name: "!name", isUnique: true},
+    { name: "!name", isUnique: true },
     { name: "title", serializationProperty: "locTitle" },
     {
       name: "cellType",
@@ -2768,7 +2801,7 @@ Serializer.addClass(
     {
       name: "detailPanelMode",
       choices: ["none", "default"],
-      default: "none"
+      default: "none",
     },
     "horizontalScroll:boolean",
     {

@@ -13,6 +13,8 @@ import { QuestionFactory } from "../questionfactory";
 import { Question } from "../question";
 import { QuestionImplementor } from "./koquestion";
 import { ImplementorBase } from "./kobase";
+import { PanelModel} from "../panel";
+import {Panel} from "./kopage";
 
 export class QuestionMatrixBaseImplementor extends QuestionImplementor {
   koCellAfterRender: any;
@@ -137,6 +139,9 @@ export class QuestionMatrixDropdown extends QuestionMatrixDropdownModel {
   protected onBaseCreating() {
     super.onBaseCreating();
     this._implementor = new QuestionMatrixBaseImplementor(this);
+  }
+  protected createNewDetailPanel(): PanelModel {
+    return new Panel();
   }
   public dispose() {
     this._implementor.dispose();

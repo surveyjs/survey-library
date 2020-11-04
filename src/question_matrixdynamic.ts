@@ -379,9 +379,10 @@ export class QuestionMatrixDynamicModel
   public removeRow(index: number) {
     if (!this.canRemoveRows) return;
     if (index < 0 || index >= this.rowCount) return;
+    var row = !!this.visibleRows && index < this.visibleRows.length ? this.visibleRows[index] : null; 
     this.onStartRowAddingRemoving();
     this.removeRowCore(index);
-    this.onEndRowRemoving(index);
+    this.onEndRowRemoving(row);
   }
   private removeRowCore(index: number) {
     if (this.survey) {

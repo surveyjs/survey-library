@@ -25,6 +25,12 @@
               <!-- ko foreach: question.koTable().rows -->
               <tr>
                   <!-- ko foreach: $data.cells -->
+                    <!-- ko if: $data.hasPanel -->
+                    <td data-bind="attr: {colspan: $data.colSpans}">
+                        <!-- ko template: { name: $data.panel.koElementType, data: $data.panel } -->
+                        <!-- /ko -->
+                    </td>
+                    <!-- /ko -->
                     <!-- ko if: $data.hasQuestion -->
                         <!-- ko template: { name: 'survey-matrixcell', afterRender: function(els) { $data.matrix.koCellAfterRender(els, $data); } } --><!-- /ko -->
                     <!-- /ko -->

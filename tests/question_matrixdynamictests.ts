@@ -3243,7 +3243,7 @@ QUnit.test("matrix dynamic + renderedTable + add/remove rows", function (
   assert.equal(
     matrix.renderedTable.rows.length,
     3,
-    "There are 4 rows after remove"
+    "There are 3 rows after remove"
   );
   assert.equal(
     matrix.renderedTable.rows[0].id,
@@ -4727,14 +4727,14 @@ QUnit.test(
   }
 );
 
-QUnit.test("Detail panel", function (
+QUnit.test("Detail panel, get/set values", function (
   assert
 ) {
   var matrix = new QuestionMatrixDynamicModel("q1");
   var column = matrix.addColumn("col1");
-  matrix.value = [{col1: "r1v1", q2: "r1v2"}, {col1: "r2v1", q2: "r2v2"}];
   column.cellType = "text";
   matrix.detailPanel.addNewQuestion("text", "q2");
+  matrix.value = [{col1: "r1v1", q2: "r1v2"}, {col1: "r2v1", q2: "r2v2"}];
   assert.equal(matrix.detailPanelMode, "none", "Default value");
   assert.equal(matrix.visibleRows[0].hasPanel, false, "There is no panel here");
   assert.equal(matrix.visibleRows[0].detailPanel, null, "Panel is not created");
@@ -4744,9 +4744,80 @@ QUnit.test("Detail panel", function (
   matrix.visibleRows[0].showDetailPanel();
   assert.ok(matrix.visibleRows[0].detailPanel, "Detail Panel is created");
   assert.equal(matrix.visibleRows[0].detailPanel.questions.length, 1, "There is one question here");
-  //TODO set value
-  //assert.equal(matrix.visibleRows[0].detailPanel.questions[0].value, "r1v1", "The value is set correctly");
+  assert.equal(matrix.visibleRows[0].detailPanel.questions[0].value, "r1v2", "The value is set correctly");
+  matrix.visibleRows[0].detailPanel.questions[0].value = "r1v2_changed";
+  assert.deepEqual(matrix.value, [{col1: "r1v1", q2: "r1v2_changed"}, {col1: "r2v1", q2: "r2v2"}], "matrix value changed from detail panel");
+  matrix.value = [{col1: "r1v1", q2: "r1v2_changed_2"}, {col1: "r2v1", q2: "r2v2_changed"}];
+  assert.equal(matrix.visibleRows[0].detailPanel.questions[0].value, "r1v2_changed_2", "The value in detail panel changed correctly from outside");
   matrix.visibleRows[0].hideDetailPanel();
   assert.notOk(matrix.visibleRows[0].detailPanel, "Detail Panel is hidden");
-
-});      
+});
+QUnit.test("Detail panel, run conditions", function (
+  assert
+) {
+  var survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdynamic",
+        name: "matrix",
+        rowCount: 2,
+        detailPanelMode: "default",
+        columns: [{name: "col1"}, {name: "col2"}],
+        detailElements: [
+          {type: "text", name: "q1", visibleIf: "{question1} = 'val1'"},
+          {type: "text", name: "q2", visibleIf: "{row.col1} = 'val2'"},
+          {type: "text", name: "q3", visibleIf: "{row.q2} = 'val3'"},
+          {type: "text", name: "q4", visibleIf: "{question1} != 'val1'"},
+        ]
+      }
+    ]
+  })
+  var matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+  assert.equal(matrix.detailPanelMode, "default", "detail panel mode load correctly");
+  assert.equal(matrix.detailElements.length, 4, "detail elements loads correctly");
+  matrix.visibleRows[0].showDetailPanel();
+  assert.ok(matrix.visibleRows[0].detailPanel, "Detail Panel is created");
+  var panel = matrix.visibleRows[0].detailPanel;
+  assert.equal(panel.questions[0].isVisible, false, "first question is invisible");
+  assert.equal(panel.questions[1].isVisible, false, "second question is invisible");
+  assert.equal(panel.questions[2].isVisible, false, "third question is invisible");
+  assert.equal(panel.questions[3].isVisible, true, "fourth question is invisible");
+  survey.setValue("question1", "val1");
+  assert.equal(panel.questions[0].isVisible, true, "first question is visible now");
+  assert.equal(panel.questions[3].isVisible, false, "fourth question is invisible now");
+  matrix.visibleRows[0].cells[0].question.value = "val2";
+  assert.equal(panel.questions[1].isVisible, true, "second question is visible now");
+  panel.getQuestionByName("q2").value = "val3";
+  assert.equal(panel.questions[2].isVisible, true, "third question is visible now");
+});
+QUnit.test("Detail panel, rendered table", function (
+  assert
+) {
+  var survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdynamic",
+        name: "matrix",
+        rowCount: 2,
+        detailPanelMode: "default",
+        columns: [{name: "col1"}, {name: "col2"}, {name: "col3"}],
+        detailElements: [
+          {type: "text", name: "q1"}
+        ]
+      }
+    ]
+  })
+  var matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+  assert.equal(matrix.renderedTable.rows.length, 2, "There are two rows in rendering table");
+  var lastrowId = matrix.renderedTable.rows[1].id;
+  matrix.visibleRows[0].showDetailPanel();
+  assert.equal(matrix.renderedTable.rows.length, 3, "detail row is added");
+  assert.equal(matrix.renderedTable.rows[2].id, lastrowId, "We use the same rows");
+  assert.equal(matrix.renderedTable.rows[1].cells.length, 1, "There is only one cell in detail panel row");
+  assert.equal(matrix.renderedTable.rows[1].cells[0].colSpans, 4, "colSpans set correctly");
+  matrix.addRow();
+  assert.equal(matrix.renderedTable.rows.length, 4, "We added a new row");
+  matrix.removeRow(1);
+  assert.equal(matrix.renderedTable.rows.length, 3, "We removed one row");
+  assert.equal(matrix.renderedTable.rows[1].isDetailRow, true, "We removed correct row");
+});

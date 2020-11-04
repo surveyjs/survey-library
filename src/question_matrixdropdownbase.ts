@@ -113,7 +113,8 @@ export var matrixDropdownColumnTypes = {
       data: any
     ) => {
       onUpdateSelectBaseCellQuestion(cellQuestion, column, question, data);
-      if (!!cellQuestion.locOptionsCaption &&
+      if (
+        !!cellQuestion.locOptionsCaption &&
         cellQuestion.locOptionsCaption.isEmpty &&
         !question.locOptionsCaption.isEmpty
       ) {
@@ -180,10 +181,7 @@ export var matrixDropdownColumnTypes = {
     ) => {},
   },
   boolean: {
-    properties: [
-      "renderAs",
-      "defaultValue"
-    ],
+    properties: ["renderAs", "defaultValue"],
     onCellQuestionUpdate: (
       cellQuestion: any,
       column: any,
@@ -516,7 +514,11 @@ export class MatrixDropdownColumn extends Base implements ILocalizableOwner {
     this.addProperties(curCellType);
     var self = this;
     this.templateQuestion.onPropertyChanged.add(function (sender, options) {
-      self.propertyValueChanged(options.name, options.oldvalue, options.newValue);
+      self.propertyValueChanged(
+        options.name,
+        options.oldvalue,
+        options.newValue
+      );
     });
   }
   protected createNewQuestion(cellType: string): Question {
@@ -939,6 +941,10 @@ export class MatrixDropdownRowModelBase
       this.cells.push(cell);
       if (!!value && !Helpers.isValueEmpty(value[column.name])) {
         cell.question.value = value[column.name];
+        var commentKey = column.name + settings.commentPrefix;
+        if (!Helpers.isValueEmpty(value[commentKey])) {
+          cell.question.comment = value[commentKey];
+        }
       }
     }
     this.isSettingValue = false;
@@ -955,18 +961,20 @@ export class MatrixDropdownRowModelBase
   protected get rowIndex(): number {
     return !!this.data ? this.data.getRowIndex(this) + 1 : -1;
   }
-  private onEditingObjPropertyChanged : (sender: Base, options: any) => void;
+  private onEditingObjPropertyChanged: (sender: Base, options: any) => void;
   private editingObj: Base;
   public dispose() {
-    if(!!this.editingObj) {
-      this.editingObj.onPropertyChanged.remove(this.onEditingObjPropertyChanged);
+    if (!!this.editingObj) {
+      this.editingObj.onPropertyChanged.remove(
+        this.onEditingObjPropertyChanged
+      );
     }
   }
   private subscribeToChanges(value: any) {
-    if(!value || !value.getType || !value.onPropertyChanged) return;
-    if(value === this.editingObj) return;
+    if (!value || !value.getType || !value.onPropertyChanged) return;
+    if (value === this.editingObj) return;
     this.editingObj = <Base>value;
-    this.onEditingObjPropertyChanged = (sender: Base, options: any) =>{
+    this.onEditingObjPropertyChanged = (sender: Base, options: any) => {
       this.updateOnSetValue(options.name, options.newValue);
     };
     this.editingObj.onPropertyChanged.add(this.onEditingObjPropertyChanged);
@@ -974,7 +982,7 @@ export class MatrixDropdownRowModelBase
   private updateOnSetValue(name: string, newValue: any) {
     this.isSettingValue = true;
     var question = this.getQuestionByColumnName(name);
-    if(!!question) {
+    if (!!question) {
       question.value = newValue;
     }
     this.isSettingValue = false;
@@ -1603,8 +1611,8 @@ export class QuestionMatrixDropdownModelBase
     this.fireCallback(this.onRenderedTableResetCallback);
   }
   protected clearGeneratedRows() {
-    if(!this.generatedVisibleRows) return;
-    for(var i = 0; i < this.generatedVisibleRows.length; i ++) {
+    if (!this.generatedVisibleRows) return;
+    for (var i = 0; i < this.generatedVisibleRows.length; i++) {
       this.generatedVisibleRows[i].dispose();
     }
     super.clearGeneratedRows();
@@ -2048,7 +2056,7 @@ export class QuestionMatrixDropdownModelBase
   }
   protected getRowObj(row: MatrixDropdownRowModelBase): any {
     var obj = this.getRowValueCore(row, this.value);
-    return !!obj && !!obj.getType ? obj: null;
+    return !!obj && !!obj.getType ? obj : null;
   }
 
   protected getRowDisplayValue(
@@ -2412,16 +2420,16 @@ export class QuestionMatrixDropdownModelBase
     newRowValue: any,
     isDeletingValue: boolean
   ) {
-    var rowObj = !!columnName ? this.getRowObj(row): null;
-    if(!!rowObj ) {
+    var rowObj = !!columnName ? this.getRowObj(row) : null;
+    if (!!rowObj) {
       var columnValue = null;
-      if(!!newRowValue && !isDeletingValue) {
+      if (!!newRowValue && !isDeletingValue) {
         columnValue = newRowValue[columnName];
       }
       this.isRowChanging = true;
-      rowObj[columnName] = columnValue; 
+      rowObj[columnName] = columnValue;
       this.isRowChanging = false;
-        this.onCellValueChanged(row, columnName, rowObj);
+      this.onCellValueChanged(row, columnName, rowObj);
     } else {
       var oldValue = this.createNewValue(true);
       var combine = this.getNewValueOnRowChanged(
@@ -2524,7 +2532,7 @@ export class QuestionMatrixDropdownModelBase
 Serializer.addClass(
   "matrixdropdowncolumn",
   [
-    {name: "!name", isUnique: true},
+    { name: "!name", isUnique: true },
     { name: "title", serializationProperty: "locTitle" },
     {
       name: "cellType",

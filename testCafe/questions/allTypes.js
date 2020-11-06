@@ -1,5 +1,5 @@
 import { frameworks, url_test, initSurvey, getSurveyResult } from "../settings";
-import { ClientFunction } from "testcafe";
+import { Selector, ClientFunction } from "testcafe";
 const assert = require("assert");
 const title = `allTypes`;
 
@@ -8,6 +8,11 @@ var json = {
     {
       type: "text",
       name: "text_question",
+    },
+    {
+      type: "checkbox",
+      name: "checkbox_question",
+      choices: ["item1"]
     },
   ],
 };
@@ -32,12 +37,14 @@ const applyTheme = ClientFunction((theme) => {
         .typeText(
           `input[id=${await getQuestionInputIdByName("text_question")}]`,
           "test text"
-        )
-        .click("input[value=Complete]");
+        );
+      await t.click(Selector("span").withText("item1"));
+      await t.click("input[value=Complete]");
 
       let surveyResult = await getSurveyResult();
       assert.deepEqual(surveyResult, {
         text_question: "test text",
+        checkbox_question: ["item1"]
       });
     });
   });

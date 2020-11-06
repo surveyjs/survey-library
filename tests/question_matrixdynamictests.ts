@@ -4724,11 +4724,21 @@ QUnit.test("Detail panel, get/set values", function (assert) {
     "The panel has been created"
   );
   assert.equal(
+    matrix.visibleRows[0].isDetailPanelShowing,
+    false,
+    "detail panel is not showing"
+  );
+  assert.equal(
     matrix.visibleRows[0].detailPanel,
     null,
     "Panel is not created, it is hidden"
   );
   matrix.visibleRows[0].showDetailPanel();
+  assert.equal(
+    matrix.visibleRows[0].isDetailPanelShowing,
+    true,
+    "detail panel is showing"
+  );
   assert.ok(matrix.visibleRows[0].detailPanel, "Detail Panel is created");
   assert.equal(
     matrix.visibleRows[0].detailPanel.questions.length,
@@ -4759,6 +4769,11 @@ QUnit.test("Detail panel, get/set values", function (assert) {
     "The value in detail panel changed correctly from outside"
   );
   matrix.visibleRows[0].hideDetailPanel();
+  assert.equal(
+    matrix.visibleRows[0].isDetailPanelShowing,
+    false,
+    "detail panel is closed"
+  );
   assert.notOk(matrix.visibleRows[0].detailPanel, "Detail Panel is hidden");
 });
 QUnit.test("Detail panel, run conditions", function (assert) {
@@ -4851,36 +4866,36 @@ QUnit.test("Detail panel, rendered table", function (assert) {
     ],
   });
   var matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+  var rows = matrix.renderedTable.rows;
+  assert.equal(rows.length, 2, "There are two rows in rendering table");
   assert.equal(
-    matrix.renderedTable.rows.length,
-    2,
-    "There are two rows in rendering table"
+    rows[0].cells.length,
+    5,
+    "detail cell + 3 columns + delete button"
   );
-  var lastrowId = matrix.renderedTable.rows[1].id;
+  assert.equal(
+    matrix.renderedTable.headerRow.cells.length,
+    5,
+    "Header has for detail button space two"
+  );
+  assert.equal(rows[0].cells[0].isShowHideDetail, true, "it is a detail cell");
+  var lastrowId = rows[1].id;
   matrix.visibleRows[0].showDetailPanel();
-  assert.equal(matrix.renderedTable.rows.length, 3, "detail row is added");
+  assert.equal(rows.length, 3, "detail row is added");
   assert.equal(
     matrix.renderedTable.rows[2].id,
     lastrowId,
     "We use the same rows"
   );
   assert.equal(
-    matrix.renderedTable.rows[1].cells.length,
+    rows[1].cells.length,
     1,
     "There is only one cell in detail panel row"
   );
-  assert.equal(
-    matrix.renderedTable.rows[1].cells[0].colSpans,
-    4,
-    "colSpans set correctly"
-  );
+  assert.equal(rows[1].cells[0].colSpans, 5, "colSpans set correctly");
   matrix.addRow();
-  assert.equal(matrix.renderedTable.rows.length, 4, "We added a new row");
+  assert.equal(rows.length, 4, "We added a new row");
   matrix.removeRow(1);
-  assert.equal(matrix.renderedTable.rows.length, 3, "We removed one row");
-  assert.equal(
-    matrix.renderedTable.rows[1].isDetailRow,
-    true,
-    "We removed correct row"
-  );
+  assert.equal(rows.length, 3, "We removed one row");
+  assert.equal(rows[1].isDetailRow, true, "We removed correct row");
 });

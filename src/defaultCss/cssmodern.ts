@@ -207,6 +207,8 @@ export var modernCss = {
     root: "sv-table",
     cell: "sv-table__cell",
     headerCell: "sv-table__cell sv-table__cell--header",
+    icon: "sv-panel__icon",
+    iconExpanded: "sv-panel__icon--expanded",
   },
   matrixdynamic: {
     root: "sv-table sv-matrixdynamic",
@@ -217,6 +219,8 @@ export var modernCss = {
     buttonRemove: "sv-matrixdynamic__remove-btn",
     iconAdd: "",
     iconRemove: "",
+    icon: "sv-panel__icon",
+    iconExpanded: "sv-panel__icon--expanded",
   },
   rating: {
     root: "sv-rating",

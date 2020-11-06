@@ -48,6 +48,8 @@ export interface IMatrixDropdownData {
   getRowIndex(row: MatrixDropdownRowModelBase): number;
   getRowValue(rowIndex: number): any;
   hasDetailPanel(row: MatrixDropdownRowModelBase): boolean;
+  getIsDetailPanelShowing(row: MatrixDropdownRowModelBase): boolean;
+  setIsDetailPanelShowing(row: MatrixDropdownRowModelBase, val: boolean): void;
   createRowDetailPanel(row: MatrixDropdownRowModelBase): PanelModel;
   onDetailPanelChangeVisibility(
     row: MatrixDropdownRowModelBase,
@@ -716,16 +718,17 @@ export class MatrixDropdownRowModelBase
   private detailPanelValue: PanelModel = null;
 
   public cells: Array<MatrixDropdownCell> = [];
+  public showHideDetailPanelClick: any;
 
   constructor(data: IMatrixDropdownData, value: any) {
     this.data = data;
     this.subscribeToChanges(value);
     this.textPreProcessor = new TextPreProcessor();
-    var self = this;
-    this.textPreProcessor.onProcess = function (
-      textValue: TextPreProcessorValue
-    ) {
-      self.getProcessedTextValue(textValue);
+    this.textPreProcessor.onProcess = (textValue: TextPreProcessorValue) => {
+      this.getProcessedTextValue(textValue);
+    };
+    this.showHideDetailPanelClick = () => {
+      this.showHideDetailPanel();
     };
     this.idValue = MatrixDropdownRowModelBase.getId();
   }
@@ -765,7 +768,19 @@ export class MatrixDropdownRowModelBase
     return this.detailPanelValue;
   }
   public get isDetailPanelShowing(): boolean {
-    return !!this.detailPanel;
+    return !!this.data ? this.data.getIsDetailPanelShowing(this) : false;
+  }
+  private setIsDetailPanelShowing(val: boolean) {
+    if (!!this.data) {
+      this.data.setIsDetailPanelShowing(this, val);
+    }
+  }
+  private showHideDetailPanel() {
+    if (this.isDetailPanelShowing) {
+      this.hideDetailPanel();
+    } else {
+      this.showDetailPanel();
+    }
   }
   public showDetailPanel() {
     if (this.isDetailPanelShowing || !this.hasPanel || !this.data) return;
@@ -780,12 +795,14 @@ export class MatrixDropdownRowModelBase
     }
     this.detailPanelValue.setSurveyImpl(this);
     this.data.onDetailPanelChangeVisibility(this, true);
+    this.setIsDetailPanelShowing(true);
   }
   public hideDetailPanel() {
     this.detailPanelValue = null;
     if (!!this.data) {
       this.data.onDetailPanelChangeVisibility(this, false);
     }
+    this.setIsDetailPanelShowing(false);
   }
   getAllValues(): any {
     return this.value;
@@ -1126,6 +1143,7 @@ export class QuestionMatrixDropdownRenderedCell {
   public requiredText: string;
   public colSpans: number = 1;
   public panel: PanelModel;
+  public isShowHideDetail: boolean;
   public constructor() {
     this.idValue = QuestionMatrixDropdownRenderedCell.counter++;
   }
@@ -1292,6 +1310,9 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     this.setPropertyValue("showHeader", isShown);
     if (!isShown) return;
     this.headerRowValue = new QuestionMatrixDropdownRenderedRow();
+    if (this.getHasDetailPanelInRows()) {
+      this.headerRow.cells.push(this.createHeaderCell(null));
+    }
     if (this.matrix.hasRowText && this.matrix.showHeader) {
       this.headerRow.cells.push(this.createHeaderCell(null));
     }
@@ -1323,6 +1344,9 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
   protected buildFooter() {
     if (!this.showFooter) return;
     this.footerRowValue = new QuestionMatrixDropdownRenderedRow();
+    if (this.getHasDetailPanelInRows()) {
+      this.footerRow.cells.push(this.createHeaderCell(null));
+    }
     if (this.matrix.hasRowText) {
       this.footerRow.cells.push(
         this.createTextCell(this.matrix.getFooterText())
@@ -1347,6 +1371,14 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
       ? this.buildHorizontalRows()
       : this.buildVerticalRows();
     this.setPropertyValue("rows", rows);
+  }
+  private getHasDetailPanelInRows(): boolean {
+    if (!this.matrix.isColumnLayoutHorizontal) return false;
+    var rows = this.matrix.visibleRows;
+    for (var i = 0; i < rows.length; i++) {
+      if (rows[i].hasPanel) return true;
+    }
+    return false;
   }
   private canRemoveRow(row: MatrixDropdownRowModelBase): boolean {
     return this.matrix.canRemoveRow(row);
@@ -1380,6 +1412,12 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     useAsHeader: boolean
   ): QuestionMatrixDropdownRenderedRow {
     var res = new QuestionMatrixDropdownRenderedRow();
+    if (row.hasPanel) {
+      let cell = new QuestionMatrixDropdownRenderedCell();
+      cell.isShowHideDetail = true;
+      cell.row = row;
+      res.cells.push(cell);
+    }
     if (this.matrix.hasRowText) {
       var renderedCell = this.createTextCell(row.locText);
       res.cells.push(renderedCell);
@@ -1388,7 +1426,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
       }
     }
     for (var i = 0; i < row.cells.length; i++) {
-      var cell = row.cells[i];
+      let cell = row.cells[i];
       if (!cell.column.hasVisibleCell) continue;
       if (cell.column.isShowInMultipleColumns) {
         this.createMutlipleEditCells(res, cell);
@@ -2648,6 +2686,12 @@ export class QuestionMatrixDropdownModelBase
   }
   hasDetailPanel(row: MatrixDropdownRowModelBase): boolean {
     return this.detailPanelMode != "none" && this.detailElements.length > 0;
+  }
+  getIsDetailPanelShowing(row: MatrixDropdownRowModelBase): boolean {
+    return this.getPropertyValue("isRowShowing" + row.id, false);
+  }
+  setIsDetailPanelShowing(row: MatrixDropdownRowModelBase, val: boolean): void {
+    this.setPropertyValue("isRowShowing" + row.id, val);
   }
   createRowDetailPanel(row: MatrixDropdownRowModelBase): PanelModel {
     var panel = this.createNewDetailPanel();

@@ -31,6 +31,9 @@ export class MatrixDynamicRowModel extends MatrixDropdownRowModelBase {
  */
 export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   implements IMatrixDropdownData {
+  public onGetValueForNewRowCallBack: (
+    sender: QuestionMatrixDynamicModel
+  ) => any;
   private rowCounter = 0;
   private rowCountValue: number = 2;
   private initialRowCount: number = 2;
@@ -97,6 +100,12 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
       super.isDefaultValueEmpty() && this.isValueEmpty(this.defaultRowValue)
     );
   }
+  protected valueFromData(val: any): any {
+    if (this.minRowCount < 1) return super.valueFromData(val);
+    if (!Array.isArray(val)) val = [];
+    for (var i = val.length; i < this.minRowCount; i++) val.push({});
+    return val;
+  }
   protected setDefaultValue() {
     if (
       this.isValueEmpty(this.defaultRowValue) ||
@@ -143,6 +152,13 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
       }
     }
     this.onRowsChanged();
+  }
+  private getValueForNewRow(): any {
+    var res = null;
+    if (!!this.onGetValueForNewRowCallBack) {
+      res = this.onGetValueForNewRowCallBack(this);
+    }
+    return res;
   }
   /**
    * The minimum row count. A user could not delete a row if the rowCount equals to minRowCount
@@ -275,6 +291,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
           newValue = this.createNewValue();
         }
         if (
+          !Base.isSurveyElement(newValue) &&
           !Helpers.isTwoValueEquals(newValue[newValue.length - 1], row.value)
         ) {
           newValue[newValue.length - 1] = row.value;
@@ -536,7 +553,8 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     return isDuplicated || prevValue;
   }
   private hasErrorInRows(): boolean {
-    if (this.minRowCount <= 0 || !this.isRequired || !this.generatedVisibleRows) return false;
+    if (this.minRowCount <= 0 || !this.isRequired || !this.generatedVisibleRows)
+      return false;
     var setRowCount = 0;
     for (
       var rowIndex = 0;
@@ -638,7 +656,9 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   }
 
   private getRowValueByIndex(questionValue: any, index: number): any {
-    return index >= 0 && index < questionValue.length
+    return Array.isArray(questionValue) &&
+      index >= 0 &&
+      index < questionValue.length
       ? questionValue[index]
       : null;
   }

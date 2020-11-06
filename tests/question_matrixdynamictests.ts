@@ -1,8 +1,12 @@
 import { SurveyModel } from "../src/survey";
 import { QuestionCheckboxModel } from "../src/question_checkbox";
 import { EmailValidator } from "../src/validator";
-import { QuestionMatrixDropdownModel } from "../src/question_matrixdropdown";
 import {
+  MatrixDropdownRowModel,
+  QuestionMatrixDropdownModel,
+} from "../src/question_matrixdropdown";
+import {
+  MatrixDropdownRowModelBase,
   MatrixDropdownColumn,
   matrixDropdownColumnTypes,
 } from "../src/question_matrixdropdownbase";
@@ -17,6 +21,7 @@ import { ExpressionValidator } from "../src/validator";
 import { QuestionExpressionModel } from "../src/question_expression";
 import { QuestionFactory } from "../src/questionfactory";
 import { settings } from "../src/settings";
+import { PanelModel } from "../src/panel";
 
 export default QUnit.module("Survey_QuestionMatrixDynamic");
 
@@ -4898,4 +4903,37 @@ QUnit.test("Detail panel, rendered table", function (assert) {
   matrix.removeRow(1);
   assert.equal(rows.length, 3, "We removed one row");
   assert.equal(rows[1].isDetailRow, true, "We removed correct row");
+});
+QUnit.test("Detail panel, create elements in code", function (assert) {
+  var survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdynamic",
+        name: "matrix",
+        rowCount: 2,
+        detailPanelMode: "default",
+        columns: [{ name: "col1" }, { name: "col2" }, { name: "col3" }],
+      },
+    ],
+  });
+  var matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+  matrix.onHasDetailPanelCallback = (
+    row: MatrixDropdownRowModelBase
+  ): boolean => {
+    return true;
+  };
+  matrix.onCreateDetailPanelCallback = (
+    row: MatrixDropdownRowModelBase,
+    panel: PanelModel
+  ) => {
+    panel.addNewQuestion("text", "q1");
+    panel.addNewQuestion("text", "q2");
+  };
+  assert.equal(matrix.visibleRows[0].hasPanel, true, "There is a panel");
+  matrix.visibleRows[0].showDetailPanel();
+  assert.equal(
+    matrix.visibleRows[0].detailPanel.questions.length,
+    2,
+    "There are two questions"
+  );
 });

@@ -1657,6 +1657,11 @@ export class QuestionMatrixDropdownModelBase
   ) => void;
   onCellCreatedCallback: (options: any) => void;
   onCellValueChangedCallback: (options: any) => void;
+  onHasDetailPanelCallback: (row: MatrixDropdownRowModelBase) => boolean;
+  onCreateDetailPanelCallback: (
+    row: MatrixDropdownRowModelBase,
+    panel: PanelModel
+  ) => void;
 
   protected createColumnValues() {
     return this.createNewArray("columns", (item: any) => {
@@ -2685,7 +2690,10 @@ export class QuestionMatrixDropdownModelBase
     return this.visibleRows.indexOf(row);
   }
   hasDetailPanel(row: MatrixDropdownRowModelBase): boolean {
-    return this.detailPanelMode != "none" && this.detailElements.length > 0;
+    if (this.detailPanelMode == "none") return false;
+    if (!!this.onHasDetailPanelCallback)
+      return this.onHasDetailPanelCallback(row);
+    return this.detailElements.length > 0;
   }
   getIsDetailPanelShowing(row: MatrixDropdownRowModelBase): boolean {
     return this.getPropertyValue("isRowShowing" + row.id, false);
@@ -2699,6 +2707,9 @@ export class QuestionMatrixDropdownModelBase
     new JsonObject().toObject(json, panel);
     panel.renderWidth = "100%";
     panel.updateCustomWidgets();
+    if (!!this.onCreateDetailPanelCallback) {
+      this.onCreateDetailPanelCallback(row, panel);
+    }
     return panel;
   }
   onDetailPanelChangeVisibility(

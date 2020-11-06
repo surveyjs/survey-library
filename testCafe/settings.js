@@ -1,14 +1,16 @@
 import { ClientFunction } from "testcafe";
 export const frameworks = ["knockout", "jquery", "react", "vue"];
-export const url = "http://127.0.0.1:8080/examples/";
+export const url = "http://127.0.0.1:8080/examples_test/default/";
 export const url_test = "http://127.0.0.1:8080/examples_test/";
+export const url_widgets = "http://127.0.0.1:8080/examples/";
 
 export const initSurvey = ClientFunction((framework, json, events) => {
   var model = new Survey.Model(json);
-  var surveyComplete = function(model) {
+  var surveyComplete = function (model) {
     window.SurveyResult = model.data;
-    document.getElementById("surveyResultElement").innerHTML =
-      JSON.stringify(model.data);
+    document.getElementById("surveyResultElement").innerHTML = JSON.stringify(
+      model.data
+    );
   };
   if (!!events) {
     for (var str in events) {
@@ -54,7 +56,7 @@ export const getSurveyResult = ClientFunction(() => {
 });
 
 export const setOptions = ClientFunction((questionName, modValue) => {
-  var mergeOptions = function(obj1, obj2) {
+  var mergeOptions = function (obj1, obj2) {
     for (var attrname in obj2) {
       obj1[attrname] = obj2[attrname];
     }

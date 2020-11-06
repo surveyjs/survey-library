@@ -87,7 +87,7 @@ export class FlowPanelElement extends Vue {
     this.style = this.getStyle(nodeType);
   }
   //duplicated code from element.vue
-  getWidgetComponentName(element: Question) {
+  getComponentName(element: Question) {
     if (element.customWidget) {
       return "survey-customwidget";
     }

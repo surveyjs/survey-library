@@ -3,10 +3,7 @@
     <survey-element-header v-if="element.hasTitleOnLeftTop" :element="element" />
     <div :class="getContentClass(element)">
       <survey-errors v-if="hasErrorsOnTop" :question="element" :location="'top'" />
-
-      <component v-if="element.customWidget || element.renderAs === 'default'" :is="getWidgetComponentName(element)" :question="element" :css="css" />
-      <component v-else :is="element.getComponentName()" :question="element" :css="css" />
-
+      <component :is="getComponentName(element)" :question="element" :css="css" />
       <div v-if="element.hasComment" :class="element.cssClasses.formGroup">
         <div>{{element.commentText}}</div>
         <survey-other-choice :commentClass="css.comment" :question="element" />
@@ -34,11 +31,12 @@ export class SurveyElementVue extends Vue {
   @Prop css: any;
   @Prop survey: SurveyModel;
   @Prop element: IElement;
-  getWidgetComponentName(element: Question) {
-    if (element.customWidget) {
-      return "survey-customwidget";
+  getComponentName(element: Question) {
+    if (element.customWidget) return "survey-customwidget";
+    if (element.getType() === "panel" || element.renderAs === "default") {
+      return "survey-" + element.getTemplate();
     }
-    return "survey-" + element.getTemplate();
+    return element.getComponentName();
   }
   getRootClass(element: Question) {
     let cssRoot = element.cssRoot;

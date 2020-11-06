@@ -22,7 +22,7 @@
         </td>
         <td :key="item.editor.id" :css="question.cssClasses.cell">
           <survey-errors v-if="hasErrorsOnTop" :question="item.editor" :location="'top'" />
-          <component :is="getWidgetComponentName(item.editor)" :question="item.editor" />
+          <component :is="getComponentName(item.editor)" :question="item.editor" />
           <survey-errors v-if="hasErrorsOnBottom" :question="item.editor" :location="'bottom'" />
         </td>
       </template>
@@ -39,7 +39,7 @@ import { QuestionMultipleTextModel } from "../question_multipletext";
 
 @Component
 export class MultipleText extends QuestionVue<QuestionMultipleTextModel> {
-  getWidgetComponentName(question: Question) {
+  getComponentName(question: Question) {
     if (question.customWidget) {
       return "survey-customwidget";
     }

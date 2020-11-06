@@ -5,7 +5,7 @@
       <component
         v-if="!cell.isChoice && (cell.question.customWidget || cell.question.renderAs === 'default')"
         v-show="isVisible"
-        :is="getWidgetComponentName(cell.question)"
+        :is="getComponentName(cell.question)"
         :question="cell.question"
       />
       <component
@@ -63,7 +63,7 @@ export class MatrixCell extends Vue {
   @Prop cell: QuestionMatrixDropdownRenderedCell;
 
   isVisible: boolean = false;
-  getWidgetComponentName(element: Question) {
+  getComponentName(element: Question) {
     if (element.customWidget) {
       return "survey-customwidget";
     }

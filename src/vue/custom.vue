@@ -1,5 +1,5 @@
 <template>
-  <component :is="getWidgetComponentName(contentQuestion)" :question="contentQuestion" :css="css" />
+  <component :is="getComponentName(contentQuestion)" :question="contentQuestion" :css="css" />
 </template>
 
 <script lang="ts">
@@ -14,7 +14,7 @@ export class Custom extends QuestionVue<QuestionCustomModel> {
   get contentQuestion(): Question {
     return this.question.contentQuestion;
   }
-  getWidgetComponentName(element: Question): string {
+  getComponentName(element: Question): string {
     if (element.customWidget) {
       return "survey-customwidget";
     }

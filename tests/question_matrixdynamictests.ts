@@ -4780,3 +4780,29 @@ QUnit.test("Edit Array of Base elements", function (assert) {
   obj.columns[0].title = "col1Title_noreact";
   assert.equal(matrix.visibleRows.length, 0, "Unbind value and columns");
 });
+QUnit.test("Do not clear all rows if minRowCount is set", function (assert) {
+  var survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdynamic",
+        name: "q1",
+        columns: [
+          {
+            name: "col1",
+            cellType: "dropdown",
+            choices: [1, 2, 3],
+          },
+        ],
+        rowCount: 1,
+        minRowCount: 1,
+      },
+    ],
+  });
+  survey.data = {
+    q1: [{ col1: 1 }, { col1: 2 }],
+  };
+  var matrix = <QuestionMatrixDynamicModel>survey.getAllQuestions()[0];
+  assert.equal(matrix.rowCount, 2, "There are two rows");
+  survey.clear();
+  assert.equal(matrix.rowCount, 1, "We should have one row");
+});

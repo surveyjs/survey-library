@@ -381,7 +381,7 @@ export class Survey extends SurveyElementBase implements ISurveyCreator {
   //ISurveyCreator
   public createQuestionElement(question: Question): JSX.Element {
     return ReactQuestionFactory.Instance.createQuestion(
-      question.getTemplate(),
+      question.customWidget || question.renderAs === 'default' ? question.getTemplate() : question.getComponentName(),
       {
         question: question,
         isDisplayMode: question.isReadOnly,

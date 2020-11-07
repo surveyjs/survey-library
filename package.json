@@ -7,7 +7,6 @@
     "testcafe": "concurrently \"http-server\" \"testcafe chrome testCafe/\"",
     "testcafe_ci": "http-server --silent & testcafe chrome:headless testCafe/ --reporter minimal",
     "testcafe_sauce": "testcafe \"saucelabs:Chrome@56.0:Windows 10\" testCafe/",
-    "testcafe_file": "concurrently \"http-server\" \"testcafe chrome testCafe/questions/boolean.js\"",
     "release": "standard-version --message \"Release: %s [skip ci]\" ",
     "build_knockout_dev": "webpack --env.buildType dev --env.platform knockout",
     "build_react_dev": "webpack --env.buildType dev --env.platform react",

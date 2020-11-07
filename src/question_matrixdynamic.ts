@@ -32,7 +32,9 @@ export class MatrixDynamicRowModel extends MatrixDropdownRowModelBase {
 export class QuestionMatrixDynamicModel
   extends QuestionMatrixDropdownModelBase
   implements IMatrixDropdownData {
-  public onGetValueForNewRowCallBack: (sender: QuestionMatrixDynamicModel) => any;
+  public onGetValueForNewRowCallBack: (
+    sender: QuestionMatrixDynamicModel
+  ) => any;
   private rowCounter = 0;
   private initialRowCount: number = 2;
   private setRowCountValueFromData: boolean = false;
@@ -104,6 +106,12 @@ export class QuestionMatrixDynamicModel
       super.isDefaultValueEmpty() && this.isValueEmpty(this.defaultRowValue)
     );
   }
+  protected valueFromData(val: any): any {
+    if (this.minRowCount < 1) return super.valueFromData(val);
+    if (!Array.isArray(val)) val = [];
+    for (var i = val.length; i < this.minRowCount; i++) val.push({});
+    return val;
+  }
   protected setDefaultValue() {
     if (
       this.isValueEmpty(this.defaultRowValue) ||
@@ -159,7 +167,7 @@ export class QuestionMatrixDynamicModel
   }
   private getValueForNewRow(): any {
     var res = null;
-    if(!!this.onGetValueForNewRowCallBack) {
+    if (!!this.onGetValueForNewRowCallBack) {
       res = this.onGetValueForNewRowCallBack(this);
     }
     return res;
@@ -300,7 +308,8 @@ export class QuestionMatrixDynamicModel
         if (!newValue) {
           newValue = this.createNewValue();
         }
-        if (!Base.isSurveyElement(newValue) &&
+        if (
+          !Base.isSurveyElement(newValue) &&
           !Helpers.isTwoValueEquals(newValue[newValue.length - 1], row.value)
         ) {
           newValue[newValue.length - 1] = row.value;
@@ -563,7 +572,8 @@ export class QuestionMatrixDynamicModel
     return isDuplicated || prevValue;
   }
   private hasErrorInRows(): boolean {
-    if (this.minRowCount <= 0 || !this.isRequired || !this.generatedVisibleRows) return false;
+    if (this.minRowCount <= 0 || !this.isRequired || !this.generatedVisibleRows)
+      return false;
     var setRowCount = 0;
     for (
       var rowIndex = 0;
@@ -665,7 +675,9 @@ export class QuestionMatrixDynamicModel
   }
 
   private getRowValueByIndex(questionValue: any, index: number): any {
-    return Array.isArray(questionValue) && index >= 0 && index < questionValue.length
+    return Array.isArray(questionValue) &&
+      index >= 0 &&
+      index < questionValue.length
       ? questionValue[index]
       : null;
   }

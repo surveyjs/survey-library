@@ -4937,3 +4937,29 @@ QUnit.test("Detail panel, create elements in code", function (assert) {
     "There are two questions"
   );
 });
+QUnit.test("Do not clear all rows if minRowCount is set", function (assert) {
+  var survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdynamic",
+        name: "q1",
+        columns: [
+          {
+            name: "col1",
+            cellType: "dropdown",
+            choices: [1, 2, 3],
+          },
+        ],
+        rowCount: 1,
+        minRowCount: 1,
+      },
+    ],
+  });
+  survey.data = {
+    q1: [{ col1: 1 }, { col1: 2 }],
+  };
+  var matrix = <QuestionMatrixDynamicModel>survey.getAllQuestions()[0];
+  assert.equal(matrix.rowCount, 2, "There are two rows");
+  survey.clear();
+  assert.equal(matrix.rowCount, 1, "We should have one row");
+});

@@ -6,13 +6,21 @@
         <thead v-if="question.showHeader">
           <tr>
             <td v-show="question.hasRows"></td>
-            <th v-for="column in question.visibleColumns" :key="columnIndex" :class="question.cssClasses.headerCell">
+            <th
+              v-for="(column, columnIndex) in question.visibleColumns"
+              :key="columnIndex"
+              :class="question.cssClasses.headerCell"
+            >
               <survey-string :locString="column.locText" />
             </th>
           </tr>
         </thead>
         <tbody>
-          <tr v-for="(row, rowIndex) in question.visibleRows" :key="rowIndex" :class="row.rowClasses">
+          <tr
+            v-for="(row, rowIndex) in question.visibleRows"
+            :key="rowIndex"
+            :class="row.rowClasses"
+          >
             <td :class="question.cssClasses.cell" v-show="question.hasRows">
               <survey-string :locString="row.locText" />
             </td>
@@ -21,9 +29,11 @@
               v-for="(column, columnIndex) in question.visibleColumns"
               :key="columnIndex"
               :class="question.getItemClass(row, column)"
-              v-on:click="function() { cellClick(row, column); }"
+              v-on:click="cellClick(row, column)"
             >
-              <span>{{question.getCellDisplayLocText(row.name, column).renderedHtml}}</span>
+              <span>{{
+                question.getCellDisplayLocText(row.name, column).renderedHtml
+              }}</span>
             </td>
             <td
               v-if="!question.hasCellText"
@@ -31,7 +41,7 @@
               :key="columnIndex"
               :headers="column.locText.renderedHtml"
               :class="question.cssClasses.cell"
-              v-on:click="function() { cellClick(row, column); }"
+              v-on:click="cellClick(row, column)"
             >
               <label :class="question.getItemClass(row, column)">
                 <input
@@ -46,13 +56,18 @@
                   :aria-label="question.locTitle.renderedHtml"
                 />
                 <span :class="question.cssClasses.materialDecorator">
-                  <svg :class="question.cssClasses.itemDecorator" viewBox="-12 -12 24 24">
+                  <svg
+                    :class="question.cssClasses.itemDecorator"
+                    viewBox="-12 -12 24 24"
+                  >
                     <circle r="6" cx="0" cy="0" />
                   </svg>
                 </span>
                 <span class="circle"></span>
                 <span class="check"></span>
-                <span :style="{ 'display': 'none' }">{{question.locTitle.renderedHtml}}</span>
+                <span :style="{ display: 'none' }">{{
+                  question.locTitle.renderedHtml
+                }}</span>
               </label>
             </td>
           </tr>

@@ -1659,6 +1659,9 @@ export class Question
   public getComponentName(): string {
     return RendererFactory.Instance.getRendererByQuestion(this);
   }
+  public isDefaultRendering(): boolean {
+    return !!this.customWidget || this.renderAs === "default" || this.getComponentName() === "default";
+  }
   
   @property({ defaultValue: "default" })
   renderAs: string;

@@ -3,13 +3,13 @@
     <div v-if="cell.hasQuestion">
       <survey-errors v-if="hasErrorsOnTop" :question="cell.question" :location="'top'" />
       <component
-        v-if="!cell.isChoice && (cell.question.customWidget || cell.question.renderAs === 'default')"
+        v-if="!cell.isChoice && cell.question.isDefaultRendering()"
         v-show="isVisible"
         :is="getComponentName(cell.question)"
         :question="cell.question"
       />
       <component
-        v-if="!cell.isChoice && !(cell.question.customWidget || cell.question.renderAs === 'default')"
+        v-if="!cell.isChoice && !cell.isDefaultRendering()"
         v-show="isVisible"
         :is="cell.question.getComponentName()"
         :question="cell.question"

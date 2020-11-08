@@ -1042,19 +1042,23 @@ export class MatrixDropdownRowModelBase
   protected get rowIndex(): number {
     return !!this.data ? this.data.getRowIndex(this) + 1 : -1;
   }
+  public get editingObj(): Base {
+    return this.editingObjValue;
+  }
   private onEditingObjPropertyChanged: (sender: Base, options: any) => void;
-  private editingObj: Base;
+  private editingObjValue: Base;
   public dispose() {
     if (!!this.editingObj) {
       this.editingObj.onPropertyChanged.remove(
         this.onEditingObjPropertyChanged
       );
+      this.editingObjValue = null;
     }
   }
   private subscribeToChanges(value: any) {
     if (!value || !value.getType || !value.onPropertyChanged) return;
     if (value === this.editingObj) return;
-    this.editingObj = <Base>value;
+    this.editingObjValue = <Base>value;
     this.onEditingObjPropertyChanged = (sender: Base, options: any) => {
       this.updateOnSetValue(options.name, options.newValue);
     };

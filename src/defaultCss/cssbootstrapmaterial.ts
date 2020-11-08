@@ -126,7 +126,12 @@ export var defaultBootstrapMaterialCss = {
     itemDecorator: "sv-hidden",
     materialDecorator: "bmd-radio",
   },
-  matrixdropdown: { root: "table", itemValue: "form-group bmd-form-group" },
+  matrixdropdown: {
+    root: "table",
+    itemValue: "form-group bmd-form-group",
+    detailIcon: "sv_panel_icon",
+    detailIconExpanded: "sv_expanded",
+  },
   matrixdynamic: {
     mainRoot: "sv_qstn",
     flowRoot: "sv_q_flow",
@@ -137,6 +142,8 @@ export var defaultBootstrapMaterialCss = {
     buttonRemove: "",
     iconAdd: "",
     iconRemove: "",
+    detailIcon: "sv_panel_icon",
+    detailIconExpanded: "sv_expanded",
   },
   paneldynamic: {
     root: "",

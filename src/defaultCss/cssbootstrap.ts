@@ -122,7 +122,12 @@ export var defaultBootstrapCss = {
     cellTextSelected: "sv_q_m_cell_selected bg-primary",
     cellLabel: "sv_q_m_cell_label",
   },
-  matrixdropdown: { root: "table", cell: "sv_matrix_cell" },
+  matrixdropdown: {
+    root: "table",
+    cell: "sv_matrix_cell",
+    detailIcon: "sv_panel_icon",
+    detailIconExpanded: "sv_expanded",
+  },
   matrixdynamic: {
     root: "table",
     button: "button",
@@ -130,6 +135,8 @@ export var defaultBootstrapCss = {
     buttonRemove: "",
     iconAdd: "",
     iconRemove: "",
+    detailIcon: "sv_panel_icon",
+    detailIconExpanded: "sv_expanded",
   },
   paneldynamic: {
     root: "",
@@ -147,6 +154,8 @@ export var defaultBootstrapCss = {
     progress: "sv-progress",
     progressBar: "sv-progress__bar",
     progressText: "sv-paneldynamic__progress-text",
+    detailIcon: "sv-panel__icon",
+    detailIconExpanded: "sv-panel__icon--expanded",
   },
   multipletext: {
     root: "table",

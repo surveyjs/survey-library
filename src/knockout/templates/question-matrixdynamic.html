@@ -39,7 +39,7 @@
               data-bind="click:row.showHideDetailPanelClick"
             >
               <span
-                data-bind="css: question.koCss().icon + ($data.row.isDetailPanelShowing ? ' ' + question.koCss().iconExpanded: '')"
+                data-bind="css: question.getDetailPanelButtonCss($data.row)"
               ></span>
             </button>
           </td>

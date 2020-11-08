@@ -2700,6 +2700,22 @@ export class QuestionMatrixDropdownModelBase
   }
   setIsDetailPanelShowing(row: MatrixDropdownRowModelBase, val: boolean): void {
     this.setPropertyValue("isRowShowing" + row.id, val);
+    this.updateDetailPanelButtonCss(row);
+  }
+  public getDetailPanelButtonCss(row: MatrixDropdownRowModelBase): string {
+    var res = this.getPropertyValue("detailButtonCss" + row.id);
+    if (!!res) return res;
+    var res = this.cssClasses.detailIcon;
+    return !!res ? res : "";
+  }
+  private updateDetailPanelButtonCss(row: MatrixDropdownRowModelBase) {
+    var icon = this.cssClasses.detailIcon;
+    if (!icon) icon = "";
+    if (this.getIsDetailPanelShowing(row)) {
+      var iconExpanded = this.cssClasses.detailIconExpanded;
+      if (!!iconExpanded) icon += " " + iconExpanded;
+    }
+    this.setPropertyValue("detailButtonCss" + row.id, icon);
   }
   createRowDetailPanel(row: MatrixDropdownRowModelBase): PanelModel {
     var panel = this.createNewDetailPanel();

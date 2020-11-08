@@ -4711,7 +4711,13 @@ QUnit.test(
 );
 
 QUnit.test("Detail panel, get/set values", function (assert) {
+  var survey = new SurveyModel({});
+  survey.css = {
+    matrixdynamic: { detailIcon: "icon1", detailIconExpanded: "icon2" },
+  };
+  survey.addNewPage("p1");
   var matrix = new QuestionMatrixDynamicModel("q1");
+  survey.pages[0].addQuestion(matrix);
   var column = matrix.addColumn("col1");
   column.cellType = "text";
   matrix.detailPanel.addNewQuestion("text", "q2");
@@ -4738,6 +4744,11 @@ QUnit.test("Detail panel, get/set values", function (assert) {
     null,
     "Panel is not created, it is hidden"
   );
+  assert.equal(
+    matrix.getDetailPanelButtonCss(matrix.visibleRows[0]),
+    "icon1",
+    "detail button is closed"
+  );
   matrix.visibleRows[0].showDetailPanel();
   assert.equal(
     matrix.visibleRows[0].isDetailPanelShowing,
@@ -4745,6 +4756,11 @@ QUnit.test("Detail panel, get/set values", function (assert) {
     "detail panel is showing"
   );
   assert.ok(matrix.visibleRows[0].detailPanel, "Detail Panel is created");
+  assert.equal(
+    matrix.getDetailPanelButtonCss(matrix.visibleRows[0]),
+    "icon1 icon2",
+    "detail button is opened"
+  );
   assert.equal(
     matrix.visibleRows[0].detailPanel.questions.length,
     1,
@@ -4780,6 +4796,11 @@ QUnit.test("Detail panel, get/set values", function (assert) {
     "detail panel is closed"
   );
   assert.notOk(matrix.visibleRows[0].detailPanel, "Detail Panel is hidden");
+  assert.equal(
+    matrix.getDetailPanelButtonCss(matrix.visibleRows[0]),
+    "icon1",
+    "detail button is closed again"
+  );
 });
 QUnit.test("Detail panel, run conditions", function (assert) {
   var survey = new SurveyModel({

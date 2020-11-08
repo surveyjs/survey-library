@@ -9,7 +9,7 @@
         :question="cell.question"
       />
       <component
-        v-if="!cell.isChoice && !cell.isDefaultRendering()"
+        v-if="!cell.isChoice && !cell.question.isDefaultRendering()"
         v-show="isVisible"
         :is="cell.question.getComponentName()"
         :question="cell.question"

@@ -1475,7 +1475,6 @@ export class QuestionMatrixDropdownModelBase
     var colNames = QuestionFactory.DefaultColums;
     for (var i = 0; i < colNames.length; i++) matrix.addColumn(colNames[i]);
   }
-  private renderedTableValue: QuestionMatrixDropdownRenderedTable;
   protected isRowChanging = false;
   columnsChangedCallback: () => void;
   updateCellsCallback: () => void;
@@ -1604,6 +1603,12 @@ export class QuestionMatrixDropdownModelBase
     } else {
       this.renderedTable.onRemovedRow(index);
     }
+  }
+  private get renderedTableValue(): QuestionMatrixDropdownRenderedTable {
+    return this.getPropertyValue("renderedTable", null);
+  }
+  private set renderedTableValue(val: QuestionMatrixDropdownRenderedTable) {
+    this.setPropertyValue("renderedTable", val);
   }
   protected resetRenderedTable() {
     if (this.lockResetRenderedTable || this.isLoadingFromJson) return;

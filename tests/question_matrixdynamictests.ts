@@ -4728,7 +4728,7 @@ QUnit.test("Detail panel, get/set values", function (assert) {
   assert.equal(matrix.detailPanelMode, "none", "Default value");
   assert.equal(matrix.visibleRows[0].hasPanel, false, "There is no panel here");
   assert.equal(matrix.visibleRows[0].detailPanel, null, "Panel is not created");
-  matrix.detailPanelMode = "default";
+  matrix.detailPanelMode = "underRow";
   assert.equal(
     matrix.visibleRows[0].hasPanel,
     true,
@@ -4809,7 +4809,7 @@ QUnit.test("Detail panel, run conditions", function (assert) {
         type: "matrixdynamic",
         name: "matrix",
         rowCount: 2,
-        detailPanelMode: "default",
+        detailPanelMode: "underRow",
         columns: [{ name: "col1" }, { name: "col2" }],
         detailElements: [
           { type: "text", name: "q1", visibleIf: "{question1} = 'val1'" },
@@ -4823,7 +4823,7 @@ QUnit.test("Detail panel, run conditions", function (assert) {
   var matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
   assert.equal(
     matrix.detailPanelMode,
-    "default",
+    "underRow",
     "detail panel mode load correctly"
   );
   assert.equal(
@@ -4885,7 +4885,7 @@ QUnit.test("Detail panel, rendered table", function (assert) {
         type: "matrixdynamic",
         name: "matrix",
         rowCount: 2,
-        detailPanelMode: "default",
+        detailPanelMode: "underRow",
         columns: [{ name: "col1" }, { name: "col2" }, { name: "col3" }],
         detailElements: [{ type: "text", name: "q1" }],
       },
@@ -4932,7 +4932,7 @@ QUnit.test("Detail panel, create elements in code", function (assert) {
         type: "matrixdynamic",
         name: "matrix",
         rowCount: 2,
-        detailPanelMode: "default",
+        detailPanelMode: "underRow",
         columns: [{ name: "col1" }, { name: "col2" }, { name: "col3" }],
       },
     ],

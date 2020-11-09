@@ -243,7 +243,7 @@ function getMatrixJSON(
 ): any {
   return {
     type: "matrixdynamic",
-    detailPanelMode: "default",
+    detailPanelMode: "underRow",
     cellType: "text",
     rowCount: 0,
     columns: getColumnsJSON(prop.className, propNames),

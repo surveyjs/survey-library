@@ -18,6 +18,7 @@ import {
 import { Question } from "../question";
 import { SurveyQuestionCheckboxItem } from "./reactquestioncheckbox";
 import { SurveyQuestionRadioItem } from "./reactquestionradiogroup";
+import { SurveyPanel } from "./panel";
 
 export class SurveyQuestionMatrixDropdownBase extends SurveyQuestionElementBase {
   constructor(props: any) {
@@ -157,6 +158,23 @@ export class SurveyQuestionMatrixDropdownBase extends SurveyQuestionElementBase 
         />
       );
     }
+    if (cell.hasPanel) {
+      var panel = (
+        <SurveyPanel
+          key={cell.panel.id}
+          element={cell.panel}
+          survey={this.question.survey}
+          cssClasses={cssClasses}
+          isDisplayMode={this.isDisplayMode}
+          creator={this.creator}
+        />
+      );
+      return (
+        <td key={key} colSpan={cell.colSpans}>
+          {panel}
+        </td>
+      );
+    }
     var cellContent = null;
     var requiredSpace = null;
     var requiredText = null;
@@ -176,6 +194,14 @@ export class SurveyQuestionMatrixDropdownBase extends SurveyQuestionElementBase 
     if (cell.isRemoveRow) {
       cellContent = this.renderRemoveButton(cell.row);
     }
+    if (cell.isShowHideDetail) {
+      cellContent = (
+        <SurveyQuestionMatrixDetailButton
+          question={this.question}
+          row={cell.row}
+        />
+      );
+    }
     return (
       <td className={cssClasses.cell} key={key} style={cellStyle}>
         {cellContent}
@@ -186,6 +212,29 @@ export class SurveyQuestionMatrixDropdownBase extends SurveyQuestionElementBase 
   }
   renderRemoveButton(row: MatrixDropdownRowModelBase): JSX.Element {
     return null;
+  }
+}
+
+export class SurveyQuestionMatrixDetailButton extends ReactSurveyElement {
+  constructor(props: any) {
+    super(props);
+    this.handleOnShowHideClick = this.handleOnShowHideClick.bind(this);
+  }
+  private get question(): QuestionMatrixDropdownModelBase {
+    return this.props.question;
+  }
+  private get row(): MatrixDropdownRowModelBase {
+    return this.props.row;
+  }
+  handleOnShowHideClick(event: any) {
+    this.row.showHideDetailPanelClick();
+  }
+  protected renderElement(): JSX.Element {
+    return (
+      <button type="button" onClick={this.handleOnShowHideClick}>
+        <span className={this.question.getDetailPanelButtonCss(this.row)} />
+      </button>
+    );
   }
 }
 

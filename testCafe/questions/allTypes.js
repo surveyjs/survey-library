@@ -12,7 +12,17 @@ var json = {
     {
       type: "checkbox",
       name: "checkbox_question",
-      choices: ["item1"]
+      choices: ["item1"],
+    },
+    {
+      type: "radiogroup",
+      name: "radiogroup_question",
+      choices: ["item1"],
+    },
+    {
+      type: "dropdown",
+      name: "dropdown_question",
+      choices: ["item1"],
     },
   ],
 };
@@ -33,18 +43,39 @@ const applyTheme = ClientFunction((theme) => {
         return question.inputId;
       });
 
-      await t
-        .typeText(
-          `input[id=${await getQuestionInputIdByName("text_question")}]`,
-          "test text"
-        );
-      await t.click(Selector("span").withText("item1"));
+      await t.typeText(
+        `input[id=${await getQuestionInputIdByName("text_question")}]`,
+        "test text"
+      );
+
+      await t.click(
+        Selector("[aria-label='checkbox_question']")
+          .parent("[aria-labelledby]")
+          .find("span")
+          .withText("item1")
+      );
+
+      await t.click(
+        Selector("[aria-label='radiogroup_question']")
+          .parent("[aria-labelledby]")
+          .find("span")
+          .withText("item1")
+      );
+
+      const select = Selector("select[aria-label='dropdown_question']");
+      await t.click(select);
+      await t.click(
+        select.parent("[aria-labelledby]").find("option").withText("item1")
+      );
+
       await t.click("input[value=Complete]");
 
       let surveyResult = await getSurveyResult();
       assert.deepEqual(surveyResult, {
         text_question: "test text",
-        checkbox_question: ["item1"]
+        checkbox_question: ["item1"],
+        radiogroup_question: "item1",
+        dropdown_question: "item1",
       });
     });
   });

@@ -33,7 +33,7 @@ export class SurveyElementVue extends Vue {
   @Prop element: IElement;
   getComponentName(element: Question) {
     if (element.customWidget) return "survey-customwidget";
-    if (element.getType() === "panel" || element.renderAs === "default") {
+    if (element.getType() === "panel" || element.isDefaultRendering()) {
       return "survey-" + element.getTemplate();
     }
     return element.getComponentName();

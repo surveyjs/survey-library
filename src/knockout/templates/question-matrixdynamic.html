@@ -124,10 +124,10 @@
       <!-- /ko -->
       <!-- /ko -->
       <!-- ko ifnot: $data.isChoice -->
-      <!-- ko if: question.customWidget || question.renderAs === "default" -->
+      <!-- ko if: question.isDefaultRendering() -->
       <!-- ko template: { name: question.koTemplateName(), data: question, as: 'question', afterRender: function(el) { $data.matrix.koCellQuestionAfterRender(el, $data); } } --><!-- /ko -->
       <!-- /ko -->
-      <!-- ko ifnot: question.customWidget || question.renderAs === "default" -->
+      <!-- ko ifnot: question.isDefaultRendering() -->
       <!-- ko component: { name: question.getComponentName(), params: { question: question } } -->
       <!-- /ko -->
       <!-- /ko -->

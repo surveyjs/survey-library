@@ -1438,17 +1438,17 @@ export class SurveyModel
     for (var i = 0; i < this.pages.length; i++) {
       this.pages[i].clearIncorrectValues();
     }
-    if(!removeNonExisingRootKeys) return;
+    if (!removeNonExisingRootKeys) return;
     var data = this.data;
     var hasChanges = false;
-    for(var key in data) {
-      if(!!this.getQuestionByValueName(key)) continue;
+    for (var key in data) {
+      if (!!this.getQuestionByValueName(key)) continue;
       var calcValue = this.getCalculatedValueByName(key);
-      if(!!calcValue && calcValue.includeIntoResult) continue;
+      if (!!calcValue && calcValue.includeIntoResult) continue;
       hasChanges = true;
       delete data[key];
     }
-    if(hasChanges) {
+    if (hasChanges) {
       this.data = data;
     }
   }
@@ -2133,7 +2133,7 @@ export class SurveyModel
   public get data(): any {
     var result: { [index: string]: any } = {};
     var keys = this.getValuesKeys();
-    for (var i = 0; i < keys.length; i ++) {
+    for (var i = 0; i < keys.length; i++) {
       var key = keys[i];
       var dataValue = this.getDataValueCore(this.valuesHash, key);
       if (dataValue !== undefined) {
@@ -2168,26 +2168,28 @@ export class SurveyModel
     this.notifyElementsOnAnyValueOrVariableChanged("");
     this.runConditions();
   }
-  public get editingObj() : Base {
+  public get editingObj(): Base {
     return this.editingObjValue;
   }
-  private onEditingObjPropertyChanged : (sender: Base, options: any) => void;
+  private onEditingObjPropertyChanged: (sender: Base, options: any) => void;
   public set editingObj(val: Base) {
-    if(this.editingObj == val) return;
-    if(!!this.editingObj) {
-      this.editingObj.onPropertyChanged.remove(this.onEditingObjPropertyChanged)
+    if (this.editingObj == val) return;
+    if (!!this.editingObj) {
+      this.editingObj.onPropertyChanged.remove(
+        this.onEditingObjPropertyChanged
+      );
     }
     this.editingObjValue = val;
-    if(!val) {
+    if (!val) {
       var questions = this.getAllQuestions();
-      for(var i = 0; i < questions.length; i ++) {
+      for (var i = 0; i < questions.length; i++) {
         questions[i].unbindValue();
       }
     }
-    if(!!this.editingObj) {
+    if (!!this.editingObj) {
       this.setDataCore({});
-      this.onEditingObjPropertyChanged = (sender: Base, options: any) =>{
-        this.updateOnSetValue(options.name, options.newValue);
+      this.onEditingObjPropertyChanged = (sender: Base, options: any) => {
+        this.updateOnSetValue(options.name, options.newValue, options.oldValue);
       };
       this.editingObj.onPropertyChanged.add(this.onEditingObjPropertyChanged);
     }
@@ -2239,7 +2241,7 @@ export class SurveyModel
     var values: { [index: string]: any } = {};
     for (var key in this.variablesHash) values[key] = this.variablesHash[key];
     var keys = this.getValuesKeys();
-    for (var i = 0; i < keys.length; i ++) {
+    for (var i = 0; i < keys.length; i++) {
       var key = keys[i];
       values[key] = this.getDataValueCore(this.valuesHash, key);
     }
@@ -2249,27 +2251,27 @@ export class SurveyModel
     return { survey: this };
   }
   private getValuesKeys(): Array<string> {
-    if(!this.editingObj) return Object.keys(this.valuesHash);
+    if (!this.editingObj) return Object.keys(this.valuesHash);
     var props = Serializer.getPropertiesByObj(this.editingObj);
     var res = [];
-    for(var i = 0; i < props.length; i ++) {
+    for (var i = 0; i < props.length; i++) {
       res.push(props[i].name);
     }
     return res;
   }
   public getDataValueCore(valuesHash: any, key: string) {
-    if(!!this.editingObj) return this.editingObj.getPropertyValue(key);
+    if (!!this.editingObj) return this.editingObj.getPropertyValue(key);
     return valuesHash[key];
   }
   public setDataValueCore(valuesHash: any, key: string, value: any) {
-    if(!!this.editingObj) {
+    if (!!this.editingObj) {
       (<any>this.editingObj)[key] = value;
     } else {
       valuesHash[key] = value;
     }
   }
   public deleteDataValueCore(valuesHash: any, key: string) {
-    if(!!this.editingObj) {
+    if (!!this.editingObj) {
       (<any>this.editingObj)[key] = null;
     } else {
       delete valuesHash[key];
@@ -2282,7 +2284,7 @@ export class SurveyModel
   public get comments(): any {
     var result: { [index: string]: any } = {};
     var keys = this.getValuesKeys();
-    for (var i = 0; i < keys.length; i ++) {
+    for (var i = 0; i < keys.length; i++) {
       var key = keys[i];
       if (key.indexOf(this.commentPrefix) > 0) {
         result[key] = this.getDataValueCore(this.valuesHash, key);
@@ -3052,7 +3054,7 @@ export class SurveyModel
     this.cancelPreview((<any>panel)["originalPage"]);
   }
   protected doCurrentPageComplete(doComplete: boolean): boolean {
-    if(this.isValidatingOnServer) return false;
+    if (this.isValidatingOnServer) return false;
     this.resetNavigationButton();
     if (this.hasErrorsOnNavigate(doComplete)) return false;
     return this.doCurrentPageCompleteCore(doComplete);
@@ -3350,7 +3352,7 @@ export class SurveyModel
       this.onServerValidateQuestions.isEmpty
     )
       return false;
-    if(!doComplete && this.checkErrorsMode === "onComplete") return false;
+    if (!doComplete && this.checkErrorsMode === "onComplete") return false;
     var self = this;
     var options = {
       data: <{ [index: string]: any }>{},
@@ -3360,7 +3362,7 @@ export class SurveyModel
         self.completeServerValidation(options);
       },
     };
-    if(doComplete && this.checkErrorsMode === "onComplete") {
+    if (doComplete && this.checkErrorsMode === "onComplete") {
       options.data = this.data;
     } else {
       for (var i = 0; i < this.currentPage.questions.length; i++) {
@@ -3395,7 +3397,7 @@ export class SurveyModel
           question.addError(new CustomError(options.errors[name], this));
           if (hasToFocus) {
             hasToFocus = false;
-            if(!!question.page) {
+            if (!!question.page) {
               this.currentPage = question.page;
             }
             question.focus(true);
@@ -3894,8 +3896,9 @@ export class SurveyModel
     return !!res ? res[0] : null;
   }
   public getCalculatedValueByName(name: string): CalculatedValue {
-    for(var i = 0; i < this.calculatedValues.length; i ++) {
-      if(name == this.calculatedValues[i].name) return this.calculatedValues[i];
+    for (var i = 0; i < this.calculatedValues.length; i++) {
+      if (name == this.calculatedValues[i].name)
+        return this.calculatedValues[i];
     }
     return null;
   }
@@ -4065,8 +4068,12 @@ export class SurveyModel
     if (!!questions) {
       for (var i: number = 0; i < questions.length; i++) {
         var qValue = questions[i].value;
-        if(qValue === newValue && Array.isArray(qValue) && Base.isSurveyElement(qValue) 
-          || !this.isTwoValueEquals(qValue, newValue)) {
+        if (
+          (qValue === newValue &&
+            Array.isArray(qValue) &&
+            Base.isSurveyElement(qValue)) ||
+          !this.isTwoValueEquals(qValue, newValue)
+        ) {
           questions[i].updateValueFromSurvey(newValue);
         }
       }
@@ -4606,7 +4613,7 @@ export class SurveyModel
   }
   //ISurvey data
   protected getUnbindValue(value: any): any {
-    if(Base.isSurveyElement(value)) return value;
+    if (Base.isSurveyElement(value)) return value;
     return Helpers.getUnbindValue(value);
   }
   /**
@@ -4641,28 +4648,38 @@ export class SurveyModel
     var newValue = newQuestionValue;
     if (allowNotifyValueChanged)
       newValue = this.questionOnValueChanging(name, newQuestionValue);
-    if (!this.editingObj &&
+    if (
+      !this.editingObj &&
       this.isValueEqual(name, newValue) &&
       this.isTwoValueEquals(newValue, newQuestionValue)
     )
       return;
+    var oldValue = this.getValue(name);
     if (this.isValueEmpty(newValue)) {
       this.deleteDataValueCore(this.valuesHash, name);
     } else {
       newValue = this.getUnbindValue(newValue);
       this.setDataValueCore(this.valuesHash, name, newValue);
     }
-    this.updateOnSetValue(name, newValue, locNotification, allowNotifyValueChanged);
+    this.updateOnSetValue(
+      name,
+      newValue,
+      oldValue,
+      locNotification,
+      allowNotifyValueChanged
+    );
   }
-  private updateOnSetValue(name: string,
+  private updateOnSetValue(
+    name: string,
     newValue: any,
+    oldValue: any,
     locNotification: any = false,
     allowNotifyValueChanged: boolean = true
   ) {
     this.updateQuestionValue(name, newValue);
     if (locNotification === true) return;
     var triggerKeys: { [index: string]: any } = {};
-    triggerKeys[name] = newValue;
+    triggerKeys[name] = { newValue: newValue, oldValue: oldValue };
     this.checkTriggers(triggerKeys, false);
     this.runConditionOnValueChanged(name, newValue);
     if (allowNotifyValueChanged)
@@ -4808,8 +4825,8 @@ export class SurveyModel
     });
   }
   pageVisibilityChanged(page: IPage, newValue: boolean) {
-    if(this.isLoadingFromJson) return;
-    if(newValue && !this.currentPageValue) {
+    if (this.isLoadingFromJson) return;
+    if (newValue && !this.currentPageValue) {
       this.currentPageValue = this.currentPage;
     }
     this.updateVisibleIndexes();

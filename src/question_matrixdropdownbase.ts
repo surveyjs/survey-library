@@ -1278,7 +1278,14 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
   public onRemovedRow(row: MatrixDropdownRowModelBase) {
     var rowIndex = this.getRenderedRowIndex(row);
     if (rowIndex < 0) return;
-    this.rows.splice(rowIndex, 1);
+    var removeCount = 1;
+    if (
+      rowIndex < this.rows.length - 1 &&
+      this.rows[rowIndex + 1].isDetailRow
+    ) {
+      removeCount++;
+    }
+    this.rows.splice(rowIndex, removeCount);
   }
   public onDetailPanelChangeVisibility(
     row: MatrixDropdownRowModelBase,

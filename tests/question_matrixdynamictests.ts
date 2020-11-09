@@ -4924,6 +4924,9 @@ QUnit.test("Detail panel, rendered table", function (assert) {
   matrix.removeRow(1);
   assert.equal(rows.length, 3, "We removed one row");
   assert.equal(rows[1].isDetailRow, true, "We removed correct row");
+  matrix.removeRow(0);
+  assert.equal(rows.length, 1, "We removed data and detail panel row");
+  assert.equal(rows[0].isDetailRow, false, "We removed correct row");
 });
 QUnit.test("Detail panel, create elements in code", function (assert) {
   var survey = new SurveyModel({

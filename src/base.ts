@@ -250,6 +250,14 @@ export interface IPage extends IPanel, IConditionRunner {
  * The base class for SurveyJS objects.
  */
 export class Base {
+  public static isSurveyElement(val: any): boolean {
+    if(!val) return false;
+    if(Array.isArray(val)) {
+      if(val.length == 0) return false;
+      return Base.isSurveyElement(val[0]);
+    }
+    return !!val.getType && !!val.onPropertyChanged;
+  }
   public static get commentPrefix(): string {
     return settings.commentPrefix;
   }

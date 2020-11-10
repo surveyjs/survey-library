@@ -4987,3 +4987,53 @@ QUnit.test("Do not clear all rows if minRowCount is set", function (assert) {
   survey.clear();
   assert.equal(matrix.rowCount, 1, "We should have one row");
 });
+QUnit.test("Detail panel in designer", function (assert) {
+  var survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdynamic",
+        name: "matrix",
+        rowCount: 2,
+        columns: [{ name: "col1" }, { name: "col2" }, { name: "col3" }],
+      },
+    ],
+  });
+  survey.setDesignMode(true);
+  var matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+  assert.equal(
+    matrix.visibleRows.length,
+    2,
+    "There are two visible rows by default"
+  );
+  assert.equal(
+    matrix.visibleRows[0].isDetailPanelShowing,
+    false,
+    "We do not have detail row"
+  );
+  matrix.detailPanelMode = "underRow";
+  assert.equal(
+    matrix.visibleRows[0].isDetailPanelShowing,
+    true,
+    "We show the first detail panel now"
+  );
+  assert.equal(
+    matrix.visibleRows[1].isDetailPanelShowing,
+    false,
+    "We do not show detail panel for the second row"
+  );
+  assert.equal(
+    matrix.visibleRows[1].hasPanel,
+    true,
+    "Second row still has panel"
+  );
+  assert.equal(
+    matrix.visibleRows[0].detailPanel.id,
+    matrix.detailPanel.id,
+    "We use matrix detail panel in designer"
+  );
+  assert.equal(
+    matrix.detailPanel.isDesignMode,
+    true,
+    "detail panel in design mode"
+  );
+});

@@ -13,8 +13,8 @@ import { QuestionFactory } from "../questionfactory";
 import { Question } from "../question";
 import { QuestionImplementor } from "./koquestion";
 import { ImplementorBase } from "./kobase";
-import { PanelModel} from "../panel";
-import {Panel} from "./kopage";
+import { PanelModel } from "../panel";
+import { Panel } from "./kopage";
 
 export class QuestionMatrixBaseImplementor extends QuestionImplementor {
   koCellAfterRender: any;
@@ -74,6 +74,9 @@ export class QuestionMatrixBaseImplementor extends QuestionImplementor {
     (<any>this.question)["koRemoveRowClick"] = this.koRemoveRowClick;
     (<any>this.question)["koIsAddRowOnTop"] = this.koIsAddRowOnTop;
     (<any>this.question)["koIsAddRowOnBottom"] = this.koIsAddRowOnBottom;
+    (<any>this.question)["koPanelAfterRender"] = function (el: any, con: any) {
+      self.panelAfterRender(el, con);
+    };
   }
   protected getQuestionTemplate(): string {
     return "matrixdynamic";
@@ -116,6 +119,11 @@ export class QuestionMatrixBaseImplementor extends QuestionImplementor {
   }
   protected addRow() {}
   protected removeRow(row: MatrixDropdownRowModelBase) {}
+  private panelAfterRender(elements: any, con: any) {
+    if (!this.question || !this.question.survey) return;
+    var el = SurveyElement.GetFirstNonTextElement(elements);
+    this.question.survey.afterRenderPanel(con, el);
+  }
   public dispose() {
     super.dispose();
     this.koTemplateName.dispose();

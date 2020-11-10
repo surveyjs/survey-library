@@ -782,8 +782,11 @@ export class MatrixDropdownRowModelBase
       this.showDetailPanel();
     }
   }
+  private isCreatingDetailPanel = false;
   public showDetailPanel() {
-    if (this.isDetailPanelShowing || !this.hasPanel || !this.data) return;
+    if (this.isCreatingDetailPanel) return;
+    if (!!this.detailPanelValue || !this.hasPanel || !this.data) return;
+    this.isCreatingDetailPanel = true;
     this.detailPanelValue = this.data.createRowDetailPanel(this);
     var questions = this.detailPanelValue.questions;
     var value = this.data.getRowValue(this.data.getRowIndex(this));
@@ -796,6 +799,7 @@ export class MatrixDropdownRowModelBase
     this.detailPanelValue.setSurveyImpl(this);
     this.data.onDetailPanelChangeVisibility(this, true);
     this.setIsDetailPanelShowing(true);
+    this.isCreatingDetailPanel = false;
   }
   public hideDetailPanel() {
     this.detailPanelValue = null;
@@ -1718,6 +1722,7 @@ export class QuestionMatrixDropdownModelBase
         "isReadOnly",
         "rowCount",
         "hasFooter",
+        "detailPanelMode",
       ],
       function () {
         self.resetRenderedTable();
@@ -2707,11 +2712,22 @@ export class QuestionMatrixDropdownModelBase
   }
   hasDetailPanel(row: MatrixDropdownRowModelBase): boolean {
     if (this.detailPanelMode == "none") return false;
+    if (this.isDesignMode) return true;
     if (!!this.onHasDetailPanelCallback)
       return this.onHasDetailPanelCallback(row);
     return this.detailElements.length > 0;
   }
   getIsDetailPanelShowing(row: MatrixDropdownRowModelBase): boolean {
+    if (this.detailPanelMode == "none") return false;
+    if (this.isDesignMode) {
+      var res = this.visibleRows.indexOf(row) == 0;
+      if (res) {
+        if (!row.detailPanel) {
+          row.showDetailPanel();
+        }
+      }
+      return res;
+    }
     return this.getPropertyValue("isRowShowing" + row.id, false);
   }
   setIsDetailPanelShowing(row: MatrixDropdownRowModelBase, val: boolean): void {
@@ -2734,6 +2750,7 @@ export class QuestionMatrixDropdownModelBase
     this.setPropertyValue("detailButtonCss" + row.id, icon);
   }
   createRowDetailPanel(row: MatrixDropdownRowModelBase): PanelModel {
+    if (this.isDesignMode) return this.detailPanel;
     var panel = this.createNewDetailPanel();
     var json = this.detailPanel.toJSON();
     new JsonObject().toObject(json, panel);

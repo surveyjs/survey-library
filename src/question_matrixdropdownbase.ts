@@ -2710,6 +2710,11 @@ export class QuestionMatrixDropdownModelBase
     if (!this.generatedVisibleRows) return -1;
     return this.visibleRows.indexOf(row);
   }
+  public getElementsInDesign(includeHidden: boolean = false): Array<IElement> {
+    if (this.detailPanelMode == "none")
+      return super.getElementsInDesign(includeHidden);
+    return includeHidden ? [this.detailPanel] : this.detailElements;
+  }
   hasDetailPanel(row: MatrixDropdownRowModelBase): boolean {
     if (this.detailPanelMode == "none") return false;
     if (this.isDesignMode) return true;

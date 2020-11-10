@@ -28,6 +28,10 @@ var json = {
       type: "comment",
       name: "comment_question",
     },
+    {
+      type: "rating",
+      name: "rating_question",
+    },
   ],
 };
 
@@ -76,6 +80,13 @@ const applyTheme = ClientFunction((theme) => {
         "test comment"
       );
 
+      await t.click(
+        Selector("[aria-label='rating_question']")
+          .parent("[aria-labelledby]")
+          .find("span")
+          .withText("3")
+      );
+
       await t.click("input[value=Complete]");
 
       let surveyResult = await getSurveyResult();
@@ -85,6 +96,7 @@ const applyTheme = ClientFunction((theme) => {
         radiogroup_question: "item1",
         dropdown_question: "item1",
         comment_question: "test comment",
+        rating_question: 3,
       });
     });
   });

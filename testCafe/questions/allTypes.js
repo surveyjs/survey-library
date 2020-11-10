@@ -24,6 +24,10 @@ var json = {
       name: "dropdown_question",
       choices: ["item1"],
     },
+    {
+      type: "comment",
+      name: "comment_question",
+    },
   ],
 };
 
@@ -38,13 +42,10 @@ const applyTheme = ClientFunction((theme) => {
       await initSurvey(framework, json);
     });
     test("check survey will all types", async (t) => {
-      const getQuestionInputIdByName = ClientFunction((name) => {
-        let question = survey.getQuestionByName(name);
-        return question.inputId;
-      });
-
       await t.typeText(
-        `input[id=${await getQuestionInputIdByName("text_question")}]`,
+        Selector("[aria-label='text_question']")
+          .parent("[aria-labelledby]")
+          .find("input"),
         "test text"
       );
 
@@ -68,6 +69,13 @@ const applyTheme = ClientFunction((theme) => {
         select.parent("[aria-labelledby]").find("option").withText("item1")
       );
 
+      await t.typeText(
+        Selector("[aria-label='comment_question']")
+          .parent("[aria-labelledby]")
+          .find("textarea"),
+        "test comment"
+      );
+
       await t.click("input[value=Complete]");
 
       let surveyResult = await getSurveyResult();
@@ -76,6 +84,7 @@ const applyTheme = ClientFunction((theme) => {
         checkbox_question: ["item1"],
         radiogroup_question: "item1",
         dropdown_question: "item1",
+        comment_question: "test comment",
       });
     });
   });

@@ -52,6 +52,31 @@ var json = {
       name: "expression_question",
       expression: "1",
     },
+    {
+      type: "matrix",
+      name: "matrix_question",
+      columns: [
+       "Column 1"
+      ],
+      rows: [
+       "Row 1"
+      ]
+     },
+    {
+      type: "matrixdropdown",
+      name: "matrixdropdown_question",
+      columns: [
+       {
+        name: "Column 1"
+       }
+      ],
+      choices: [
+       1
+      ],
+      rows: [
+       "Row 1"
+      ]
+     },
   ],
 };
 
@@ -88,10 +113,10 @@ const applyTheme = ClientFunction((theme) => {
           .withText("item1")
       );
 
-      const select = Selector("select[aria-label='dropdown_question']");
-      await t.click(select);
+      const dropdownSelector = Selector("select[aria-label='dropdown_question']");
+      await t.click(dropdownSelector);
       await t.click(
-        select.parent("[aria-labelledby]").find("option").withText("item1")
+        dropdownSelector.parent("[aria-labelledby]").find("option").withText("item1")
       );
 
       await t.typeText(
@@ -131,6 +156,26 @@ const applyTheme = ClientFunction((theme) => {
           .withText("1")
       );
 
+      await t.click(
+        Selector("[aria-label='matrix_question']")
+          .parent("[aria-labelledby]")
+          .find("tr")
+          .withText("Row 1")
+          .find("input[type='radio']")
+      );
+
+      const matrixDropdownRow =
+        Selector("[aria-label='matrixdropdown_question']")
+          .parent("[aria-labelledby]")
+          .find("tr")
+          .withText("Row 1");
+      await t.click(
+        matrixDropdownRow.find("select")
+      );
+      await t.click(
+        matrixDropdownRow.find("option").withText("1")
+      );
+
       await t.click("input[value=Complete]");
 
       let surveyResult = await getSurveyResult();
@@ -143,6 +188,14 @@ const applyTheme = ClientFunction((theme) => {
         rating_question: 3,
         boolean_question: true,
         expression_question: 1,
+        matrix_question: {
+          "Row 1": "Column 1"
+        },
+        matrixdropdown_question: {
+          "Row 1": {
+            "Column 1": 1
+          }
+        },
       });
     });
   });

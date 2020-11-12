@@ -33,6 +33,17 @@ var json = {
       name: "rating_question",
     },
     {
+      type: "imagepicker",
+      name: "imagepicker_question",
+      choices: [
+        {
+          value: "item1",
+          imageLink:
+            "https://surveyjs.io/Content/Images/examples/image-picker/lion.jpg",
+        },
+      ],
+    },
+    {
       type: "boolean",
       name: "boolean_question",
     },
@@ -55,28 +66,20 @@ var json = {
     {
       type: "matrix",
       name: "matrix_question",
-      columns: [
-       "Column 1"
-      ],
-      rows: [
-       "Row 1"
-      ]
-     },
+      columns: ["Column 1"],
+      rows: ["Row 1"],
+    },
     {
       type: "matrixdropdown",
       name: "matrixdropdown_question",
       columns: [
-       {
-        name: "Column 1"
-       }
+        {
+          name: "Column 1",
+        },
       ],
-      choices: [
-       1
-      ],
-      rows: [
-       "Row 1"
-      ]
-     },
+      choices: [1],
+      rows: ["Row 1"],
+    },
   ],
 };
 
@@ -113,10 +116,15 @@ const applyTheme = ClientFunction((theme) => {
           .withText("item1")
       );
 
-      const dropdownSelector = Selector("select[aria-label='dropdown_question']");
+      const dropdownSelector = Selector(
+        "select[aria-label='dropdown_question']"
+      );
       await t.click(dropdownSelector);
       await t.click(
-        dropdownSelector.parent("[aria-labelledby]").find("option").withText("item1")
+        dropdownSelector
+          .parent("[aria-labelledby]")
+          .find("option")
+          .withText("item1")
       );
 
       await t.typeText(
@@ -131,6 +139,13 @@ const applyTheme = ClientFunction((theme) => {
           .parent("[aria-labelledby]")
           .find("span")
           .withText("3")
+      );
+
+      await t.click(
+        Selector("[aria-label='imagepicker_question']")
+          .parent("[aria-labelledby]")
+          .find("img")
+          .withAttribute("alt", "item1")
       );
 
       await t.click(
@@ -164,17 +179,14 @@ const applyTheme = ClientFunction((theme) => {
           .find("input[type='radio']")
       );
 
-      const matrixDropdownRow =
-        Selector("[aria-label='matrixdropdown_question']")
-          .parent("[aria-labelledby]")
-          .find("tr")
-          .withText("Row 1");
-      await t.click(
-        matrixDropdownRow.find("select")
-      );
-      await t.click(
-        matrixDropdownRow.find("option").withText("1")
-      );
+      const matrixDropdownRow = Selector(
+        "[aria-label='matrixdropdown_question']"
+      )
+        .parent("[aria-labelledby]")
+        .find("tr")
+        .withText("Row 1");
+      await t.click(matrixDropdownRow.find("select"));
+      await t.click(matrixDropdownRow.find("option").withText("1"));
 
       await t.click("input[value=Complete]");
 
@@ -186,15 +198,16 @@ const applyTheme = ClientFunction((theme) => {
         dropdown_question: "item1",
         comment_question: "test comment",
         rating_question: 3,
+        imagepicker_question: "item1",
         boolean_question: true,
         expression_question: 1,
         matrix_question: {
-          "Row 1": "Column 1"
+          "Row 1": "Column 1",
         },
         matrixdropdown_question: {
           "Row 1": {
-            "Column 1": 1
-          }
+            "Column 1": 1,
+          },
         },
       });
     });

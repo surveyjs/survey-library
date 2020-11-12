@@ -4802,6 +4802,59 @@ QUnit.test("Detail panel, get/set values", function (assert) {
     "detail button is closed again"
   );
 });
+QUnit.test("Detail panel in matrix dropdown, get/set values", function (
+  assert
+) {
+  var survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdropdown",
+        name: "matrix",
+        detailPanelMode: "underRow",
+        detailElements: [{ type: "text", name: "q1" }],
+        rows: ["row1", "row2"],
+        columns: [
+          { cellType: "text", name: "col1" },
+          { cellType: "text", name: "col2" },
+        ],
+      },
+    ],
+  });
+  var matrix = <QuestionMatrixDropdownModel>survey.getQuestionByName("matrix");
+  assert.equal(matrix.visibleRows[0].hasPanel, true, "Panel is here");
+  assert.equal(matrix.visibleRows[0].detailPanel, null, "Panel is not created");
+  assert.equal(
+    matrix.visibleRows[0].isDetailPanelShowing,
+    false,
+    "detail panel is not showing"
+  );
+  matrix.visibleRows[0].showDetailPanel();
+  assert.equal(
+    matrix.visibleRows[0].isDetailPanelShowing,
+    true,
+    "detail panel is showing"
+  );
+  assert.ok(matrix.visibleRows[0].detailPanel, "Detail Panel is created");
+  matrix.visibleRows[0].detailPanel.getQuestionByName("q1").value = 1;
+  assert.deepEqual(
+    survey.data,
+    { matrix: { row1: { q1: 1 } } },
+    "Survey data set correctly"
+  );
+  survey.data = { matrix: { row1: { q1: 2 }, row2: { col1: 1, q1: 3 } } };
+  assert.equal(
+    matrix.visibleRows[0].detailPanel.getQuestionByName("q1").value,
+    2,
+    "The value set from the survey correctly into opened detail panel question"
+  );
+  matrix.visibleRows[1].showDetailPanel();
+  assert.equal(
+    matrix.visibleRows[1].detailPanel.getQuestionByName("q1").value,
+    3,
+    "The value set from the survey correctly into closed detail panel question"
+  );
+});
+
 QUnit.test("Detail panel, run conditions", function (assert) {
   var survey = new SurveyModel({
     elements: [

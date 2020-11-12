@@ -790,10 +790,12 @@ export class MatrixDropdownRowModelBase
     this.detailPanelValue = this.data.createRowDetailPanel(this);
     var questions = this.detailPanelValue.questions;
     var value = this.data.getRowValue(this.data.getRowIndex(this));
-    for (var i = 0; i < questions.length; i++) {
-      var key = questions[i].getValueName();
-      if (!Helpers.isValueEmpty(value[key])) {
-        questions[i].value = value[key];
+    if (!Helpers.isValueEmpty(value)) {
+      for (var i = 0; i < questions.length; i++) {
+        var key = questions[i].getValueName();
+        if (!Helpers.isValueEmpty(value[key])) {
+          questions[i].value = value[key];
+        }
       }
     }
     this.detailPanelValue.setSurveyImpl(this);
@@ -1689,8 +1691,8 @@ export class QuestionMatrixDropdownModelBase
     this.createItemValues("choices");
     this.createLocalizableString("optionsCaption", this);
     this.detailPanelValue = this.createNewDetailPanel();
-    this.detailPanel.renderWidth = "100%";
     this.detailPanel.selectedElementInDesign = this;
+    this.detailPanel.renderWidth = "100%";
     this.registerFunctionOnPropertyValueChanged("columns", function (
       newColumns: any
     ) {

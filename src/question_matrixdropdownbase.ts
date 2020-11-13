@@ -18,6 +18,7 @@ import {
   SurveyError,
   IProgressInfo,
   SurveyElement,
+  IPanel,
 } from "./base";
 import { TextPreProcessor, TextPreProcessorValue } from "./textPreProcessor";
 import { ProcessValue } from "./conditionProcessValue";
@@ -1780,6 +1781,9 @@ export class QuestionMatrixDropdownModelBase
    */
   public get detailPanel(): PanelModel {
     return this.detailPanelValue;
+  }
+  public getPanel(): IPanel {
+    return this.detailPanel;
   }
   /**
    * The template Panel elements, questions and panels.

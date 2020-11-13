@@ -118,6 +118,29 @@ var json = {
         },
       ],
     },
+    {
+      type: "panel",
+      name: "panel",
+      elements: [
+        {
+          type: "text",
+          name: "panel_question",
+        },
+      ],
+      title: "panel_title",
+      state: "collapsed",
+    },
+    {
+      type: "paneldynamic",
+      name: "paneldynamic",
+      templateElements: [
+        {
+          type: "text",
+          name: "paneldynamic_question",
+        },
+      ],
+      panelCount: 1,
+    },
   ],
 };
 
@@ -248,6 +271,14 @@ const applyTheme = ClientFunction((theme) => {
           .parent("[aria-labelledby]")
           .find("input"),
         "test multiple text"
+      );
+
+      await t.click(Selector("span").withText("panel_title"));
+
+      await t.click(
+        Selector("[aria-label='paneldynamic']")
+          .parent("[aria-labelledby]")
+          .find("input[value='Remove']")
       );
 
       await t.click("input[value=Complete]");

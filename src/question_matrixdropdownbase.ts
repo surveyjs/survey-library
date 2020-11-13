@@ -1152,6 +1152,7 @@ export class QuestionMatrixDropdownRenderedCell {
   public choiceIndex: number;
   public matrix: QuestionMatrixDropdownModelBase;
   public requiredText: string;
+  public isEmpty: boolean;
   public colSpans: number = 1;
   public panel: PanelModel;
   public isShowHideDetail: boolean;
@@ -1468,9 +1469,15 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     var res = new QuestionMatrixDropdownRenderedRow();
     res.row = row;
     res.isDetailRow = true;
+    var buttonCell = new QuestionMatrixDropdownRenderedCell();
+    if (this.matrix.hasRowText) {
+      buttonCell.colSpans = 2;
+    }
+    buttonCell.isEmpty = true;
+    res.cells.push(buttonCell);
     var cell = new QuestionMatrixDropdownRenderedCell();
     cell.panel = row.detailPanel;
-    cell.colSpans = renderedRow.cells.length;
+    cell.colSpans = renderedRow.cells.length - buttonCell.colSpans;
     res.cells.push(cell);
     return res;
   }

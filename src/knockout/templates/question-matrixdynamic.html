@@ -32,6 +32,10 @@
                       </button>
                     </td>
                     <!-- /ko -->
+                    <!-- ko if: $data.isEmpty -->
+                    <td data-bind="attr: {colspan: $data.colSpans}">
+                    </td>
+                    <!-- /ko -->
                     <!-- ko if: $data.hasPanel -->
                     <td data-bind="attr: {colspan: $data.colSpans}">
                       <!-- ko template: { name: $data.panel.koElementType, data: $data.panel, afterRender: question.koPanelAfterRender } -->

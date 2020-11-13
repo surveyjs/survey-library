@@ -158,27 +158,11 @@ export class SurveyQuestionMatrixDropdownBase extends SurveyQuestionElementBase 
         />
       );
     }
-    if (cell.hasPanel) {
-      var panel = (
-        <SurveyPanel
-          key={cell.panel.id}
-          element={cell.panel}
-          survey={this.question.survey}
-          cssClasses={cssClasses}
-          isDisplayMode={this.isDisplayMode}
-          creator={this.creator}
-        />
-      );
-      return (
-        <td key={key} colSpan={cell.colSpans}>
-          {panel}
-        </td>
-      );
-    }
     var cellContent = null;
     var requiredSpace = null;
     var requiredText = null;
     var cellStyle: any = null;
+    var cellClassName = cssClasses.cell;
     if (!!cell.width || !!cell.minWidth) {
       cellStyle = {};
       if (!!cell.width) cellStyle.width = cell.width;
@@ -195,15 +179,35 @@ export class SurveyQuestionMatrixDropdownBase extends SurveyQuestionElementBase 
       cellContent = this.renderRemoveButton(cell.row);
     }
     if (cell.isShowHideDetail) {
+      cellClassName = cssClasses.detailCell;
       cellContent = (
         <SurveyQuestionMatrixDetailButton
           question={this.question}
           row={cell.row}
+          cssClasses={cssClasses}
+        />
+      );
+    }
+    if (cell.hasPanel) {
+      cellClassName = "";
+      cellContent = (
+        <SurveyPanel
+          key={cell.panel.id}
+          element={cell.panel}
+          survey={this.question.survey}
+          cssClasses={cssClasses}
+          isDisplayMode={this.isDisplayMode}
+          creator={this.creator}
         />
       );
     }
     return (
-      <td className={cssClasses.cell} key={key} style={cellStyle}>
+      <td
+        className={cellClassName}
+        key={key}
+        style={cellStyle}
+        colSpan={cell.colSpans}
+      >
         {cellContent}
         {requiredSpace}
         {requiredText}
@@ -231,7 +235,11 @@ export class SurveyQuestionMatrixDetailButton extends ReactSurveyElement {
   }
   protected renderElement(): JSX.Element {
     return (
-      <button type="button" onClick={this.handleOnShowHideClick}>
+      <button
+        type="button"
+        onClick={this.handleOnShowHideClick}
+        className={this.cssClasses.detailButton}
+      >
         <span className={this.question.getDetailPanelButtonCss(this.row)} />
       </button>
     );

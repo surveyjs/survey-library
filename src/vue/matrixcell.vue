@@ -8,6 +8,7 @@
     <button
       v-if="cell.isShowHideDetail"
       type="button"
+      :class="question.cssClasses.detailButton"
       @click="showHideDetailPanelClick()"
     >
       <span :class="question.getDetailPanelButtonCss(cell.row)"></span>
@@ -109,6 +110,8 @@ export class MatrixCell extends Vue {
     return element.isVisible ? this.cell.cell.column.locTitle.renderedHtml : "";
   }
   getCellClass() {
+    if (this.cell.isShowHideDetail) return this.question.cssClasses.detailCell;
+    if (this.cell.hasPanel) return "";
     var element = this.cell.question;
     if (!element) return this.question.cssClasses.cell;
 

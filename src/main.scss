@@ -150,6 +150,19 @@ $label-disabled-color: rgba(64, 64, 64, 0.5);
   .sv_matrix_cell {
     vertical-align: top;
   }
+  .sv_matrix_cell_detail {
+    vertical-align: middle;
+    text-align: center;
+    width: 32px;
+  }
+  .sv_matrix_cell_detail_button {
+    vertical-align: middle;
+    text-align: center;
+    width: 24px;
+    min-width: 0px;
+    background-color: lightgray;
+    padding: 0;
+  }
 
   .sv_q_m_cell_selected {
     color: $body-background-color;

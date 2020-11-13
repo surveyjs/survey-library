@@ -125,8 +125,10 @@ export var defaultBootstrapCss = {
   matrixdropdown: {
     root: "table",
     cell: "sv_matrix_cell",
-    detailIcon: "sv_panel_icon",
-    detailIconExpanded: "sv_expanded",
+    detailCell: "sv_matrix_cell_detail",
+    detailButton: "sv_matrix_cell_detail_button",
+    detailIcon: "sv_detail_panel_icon",
+    detailIconExpanded: "sv_detail_expanded",
   },
   matrixdynamic: {
     root: "table",
@@ -135,8 +137,10 @@ export var defaultBootstrapCss = {
     buttonRemove: "",
     iconAdd: "",
     iconRemove: "",
-    detailIcon: "sv_panel_icon",
-    detailIconExpanded: "sv_expanded",
+    detailCell: "sv_matrix_cell_detail",
+    detailButton: "sv_matrix_cell_detail_button",
+    detailIcon: "sv_detail_panel_icon",
+    detailIconExpanded: "sv_detail_expanded",
   },
   paneldynamic: {
     root: "",
@@ -154,8 +158,6 @@ export var defaultBootstrapCss = {
     progress: "sv-progress",
     progressBar: "sv-progress__bar",
     progressText: "sv-paneldynamic__progress-text",
-    detailIcon: "sv-panel__icon",
-    detailIconExpanded: "sv-panel__icon--expanded",
   },
   multipletext: {
     root: "table",

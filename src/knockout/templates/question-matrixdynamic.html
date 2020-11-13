@@ -26,14 +26,9 @@
               <tr>
                   <!-- ko foreach: $data.cells -->
                     <!-- ko if: $data.isShowHideDetail -->
-                    <td>
-                      <button
-                        type="button"
-                        data-bind="click:row.showHideDetailPanelClick"
-                      >
-                        <span
-                          data-bind="css: question.getDetailPanelButtonCss($data.row)"
-                        ></span>
+                    <td data-bind="css:question.koCss().detailCell">
+                      <button  type="button" data-bind="css:question.koCss().detailButton, click:row.showHideDetailPanelClick">
+                        <span data-bind="css: question.getDetailPanelButtonCss($data.row)"></span>
                       </button>
                     </td>
                     <!-- /ko -->

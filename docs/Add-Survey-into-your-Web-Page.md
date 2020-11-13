@@ -109,7 +109,7 @@ export class AppComponent  {
   ngOnInit() {
     var survey = new Survey.Model(surveyJSON);
     survey.onComplete.add(sendDataToServer);
-    Survey.SurveyWindowNG.render("surveyElement", {model:survey});
+    Survey.SurveyNG.render("surveyElement", {model:survey});
   }
 }
 ```

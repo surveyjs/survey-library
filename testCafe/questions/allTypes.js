@@ -41,14 +41,18 @@ var json = {
       choices: [
         {
           value: "item1",
-          imageLink:
-            "https://surveyjs.io/Content/Images/examples/image-picker/lion.jpg",
+          imageLink: img_base64,
         },
       ],
     },
     {
       type: "boolean",
       name: "boolean_question",
+    },
+    {
+      type: "image",
+      name: "image_question",
+      imageLink: img_base64,
     },
     {
       type: "html",
@@ -70,7 +74,8 @@ var json = {
       name: "file_question",
       defaultValue: [
         {
-          name: "file_question_image",
+          name:
+            "data:image/png;base64,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",
           type: "image/png",
           content: img_base64,
         },
@@ -92,6 +97,26 @@ var json = {
       ],
       choices: [1],
       rows: ["Row 1"],
+    },
+    {
+      type: "matrixdynamic",
+      name: "matrixdynamic_question",
+      columns: [
+        {
+          name: "Column 1",
+        },
+      ],
+      choices: [1],
+      rowCount: 1,
+    },
+    {
+      type: "multipletext",
+      name: "multipletext_question",
+      items: [
+        {
+          name: "text1",
+        },
+      ],
     },
   ],
 };
@@ -168,6 +193,8 @@ const applyTheme = ClientFunction((theme) => {
           .withText("Yes")
       );
 
+      await t.hover(Selector("[name='image_question']").find("img"));
+
       assert.equal(await Selector(".sjs-html-question").innerText, "html text");
 
       await t.click(
@@ -209,6 +236,20 @@ const applyTheme = ClientFunction((theme) => {
       await t.click(matrixDropdownRow.find("select"));
       await t.click(matrixDropdownRow.find("option").withText("1"));
 
+      await t.click(
+        Selector("[aria-label='matrixdynamic_question']")
+          .parent("[aria-labelledby]")
+          .find("span")
+          .withText("Remove")
+      );
+
+      await t.typeText(
+        Selector("[aria-label='multipletext_question']")
+          .parent("[aria-labelledby]")
+          .find("input"),
+        "test multiple text"
+      );
+
       await t.click("input[value=Complete]");
 
       let surveyResult = await getSurveyResult();
@@ -230,6 +271,7 @@ const applyTheme = ClientFunction((theme) => {
             "Column 1": 1,
           },
         },
+        multipletext_question: { text1: "test multiple text" },
       });
     });
   });

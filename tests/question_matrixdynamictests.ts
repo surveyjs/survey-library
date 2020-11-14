@@ -5099,3 +5099,38 @@ QUnit.test("Detail panel in designer", function (assert) {
     "detail panel in design mode"
   );
 });
+QUnit.test("Detail panel, show errors in panels", function (assert) {
+  var survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdynamic",
+        name: "matrix",
+        rowCount: 2,
+        detailPanelMode: "underRow",
+        columns: [{ name: "col1" }, { name: "col2" }, { name: "col3" }],
+        detailElements: [{ type: "text", name: "q1", isRequired: true }],
+      },
+    ],
+  });
+  var matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+  var rows = matrix.visibleRows;
+  rows[0].showDetailPanel();
+  assert.equal(
+    matrix.hasErrors(true),
+    true,
+    "There is an error in the first row"
+  );
+  rows[0].detailPanel.getQuestionByName("q1").value = "val1";
+  assert.equal(
+    matrix.hasErrors(true),
+    true,
+    "There is an error in the second row"
+  );
+  assert.equal(
+    rows[1].isDetailPanelShowing,
+    true,
+    "We show the detail panel in the second row"
+  );
+  rows[1].detailPanel.getQuestionByName("q1").value = "val2";
+  assert.equal(matrix.hasErrors(true), false, "There is no errors anymore");
+});

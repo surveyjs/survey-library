@@ -52,10 +52,6 @@ export interface IMatrixDropdownData {
   getIsDetailPanelShowing(row: MatrixDropdownRowModelBase): boolean;
   setIsDetailPanelShowing(row: MatrixDropdownRowModelBase, val: boolean): void;
   createRowDetailPanel(row: MatrixDropdownRowModelBase): PanelModel;
-  onDetailPanelChangeVisibility(
-    row: MatrixDropdownRowModelBase,
-    isShowing: boolean
-  ): void;
   validateCell(
     row: MatrixDropdownRowModelBase,
     columnName: string,
@@ -785,6 +781,11 @@ export class MatrixDropdownRowModelBase
   }
   private isCreatingDetailPanel = false;
   public showDetailPanel() {
+    this.ensureDetailPanel();
+    if (!this.detailPanelValue) return;
+    this.setIsDetailPanelShowing(true);
+  }
+  private ensureDetailPanel() {
     if (this.isCreatingDetailPanel) return;
     if (!!this.detailPanelValue || !this.hasPanel || !this.data) return;
     this.isCreatingDetailPanel = true;
@@ -800,14 +801,11 @@ export class MatrixDropdownRowModelBase
       }
     }
     this.detailPanelValue.setSurveyImpl(this);
-    this.data.onDetailPanelChangeVisibility(this, true);
-    this.setIsDetailPanelShowing(true);
     this.isCreatingDetailPanel = false;
   }
   public hideDetailPanel() {
     this.detailPanelValue = null;
     if (!!this.data) {
-      this.data.onDetailPanelChangeVisibility(this, false);
     }
     this.setIsDetailPanelShowing(false);
   }
@@ -1012,6 +1010,36 @@ export class MatrixDropdownRowModelBase
       questions[i].readOnly = parentIsReadOnly;
     }
   }
+  public hasErrors(
+    fireCallback: boolean,
+    rec: any,
+    raiseOnCompletedAsyncValidators: () => void
+  ): boolean {
+    var res = false;
+    var cells = this.cells;
+    if (!cells) return res;
+    for (var colIndex = 0; colIndex < cells.length; colIndex++) {
+      if (!cells[colIndex]) continue;
+      var question = cells[colIndex].question;
+      if (!question || !question.visible) continue;
+      question.onCompletedAsyncValidators = (hasErrors: boolean) => {
+        raiseOnCompletedAsyncValidators();
+      };
+      if (!!rec && rec.isOnValueChanged === true && question.isEmpty())
+        continue;
+      res = question.hasErrors(fireCallback, rec) || res;
+    }
+    if (this.hasPanel) {
+      this.ensureDetailPanel();
+      var panelHasError = this.detailPanel.hasErrors(fireCallback, false, rec);
+      if (panelHasError && fireCallback) {
+        this.showDetailPanel();
+      }
+      res = panelHasError || res;
+    }
+    return res;
+  }
+
   protected updateCellOnColumnChanged(
     cell: MatrixDropdownCell,
     name: string,
@@ -2455,8 +2483,8 @@ export class QuestionMatrixDropdownModelBase
     return every ? true : false;
   }
   public hasErrors(fireCallback: boolean = true, rec: any = null): boolean {
-    var errosInColumns = this.hasErrorInColumns(fireCallback, rec);
-    return super.hasErrors(fireCallback) || errosInColumns;
+    var errosInRows = this.hasErrorInRows(fireCallback, rec);
+    return super.hasErrors(fireCallback, rec) || errosInRows;
   }
   protected getIsRunningValidators(): boolean {
     if (super.getIsRunningValidators()) return true;
@@ -2489,23 +2517,14 @@ export class QuestionMatrixDropdownModelBase
     }
     return result;
   }
-  private hasErrorInColumns(fireCallback: boolean, rec: any): boolean {
+  private hasErrorInRows(fireCallback: boolean, rec: any): boolean {
     if (!this.generatedVisibleRows) return false;
     var res = false;
     for (var i = 0; i < this.generatedVisibleRows.length; i++) {
-      var cells = this.generatedVisibleRows[i].cells;
-      if (!cells) continue;
-      for (var colIndex = 0; colIndex < cells.length; colIndex++) {
-        if (!cells[colIndex]) continue;
-        var question = cells[colIndex].question;
-        if (!question || !question.visible) continue;
-        question.onCompletedAsyncValidators = (hasErrors: boolean) => {
+      res =
+        this.generatedVisibleRows[i].hasErrors(fireCallback, rec, () => {
           this.raiseOnCompletedAsyncValidators();
-        };
-        if (!!rec && rec.isOnValueChanged === true && question.isEmpty())
-          continue;
-        res = question.hasErrors(fireCallback, rec) || res;
-      }
+        }) || res;
     }
     return res;
   }
@@ -2749,8 +2768,12 @@ export class QuestionMatrixDropdownModelBase
     return this.getPropertyValue("isRowShowing" + row.id, false);
   }
   setIsDetailPanelShowing(row: MatrixDropdownRowModelBase, val: boolean): void {
+    if (val == this.getIsDetailPanelShowing(row)) return;
     this.setPropertyValue("isRowShowing" + row.id, val);
     this.updateDetailPanelButtonCss(row);
+    if (!!this.renderedTable) {
+      this.renderedTable.onDetailPanelChangeVisibility(row, val);
+    }
   }
   public getDetailPanelButtonCss(row: MatrixDropdownRowModelBase): string {
     var res = this.getPropertyValue("detailButtonCss" + row.id);
@@ -2778,13 +2801,6 @@ export class QuestionMatrixDropdownModelBase
       this.onCreateDetailPanelCallback(row, panel);
     }
     return panel;
-  }
-  onDetailPanelChangeVisibility(
-    row: MatrixDropdownRowModelBase,
-    isShowing: boolean
-  ): void {
-    if (!this.renderedTable) return;
-    this.renderedTable.onDetailPanelChangeVisibility(row, isShowing);
   }
   getSharedQuestionByName(
     columnName: string,

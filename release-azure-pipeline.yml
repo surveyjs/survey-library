@@ -63,6 +63,7 @@ steps:
   displayName: 'functional tests'
 
 - powershell: |
+    git pull origin master;
     git push --follow-tags origin master;
   displayName: 'push release commit to github'
 

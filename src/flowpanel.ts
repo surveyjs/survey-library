@@ -5,7 +5,7 @@ import { LocalizableString } from "./localizablestring";
 import { Question } from "./question";
 
 /**
- * The flow panel object. It is a container with flow layout where you can mix questions with mardown text.
+ * The flow panel object. It is a container with flow layout where you can mix questions with markdown text.
  *
  */
 export class FlowPanelModel extends PanelModel {

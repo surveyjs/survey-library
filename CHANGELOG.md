@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.8.13](https://github.com/surveyjs/survey-library/compare/v1.8.12...v1.8.13) (2020-11-09)
+
+
+### Bug Fixes
+
+* Do not call server validation several times [#2497](https://github.com/surveyjs/survey-library/issues/2497) ([ff4ee45](https://github.com/surveyjs/survey-library/commit/ff4ee45b49dc92fd24a461bc9aa58e53231c12e7))
+* Dynamic matrix containing dropdown field with hasOther poperty doesn't load it's data [#2508](https://github.com/surveyjs/survey-library/issues/2508) ([5bd154a](https://github.com/surveyjs/survey-library/commit/5bd154a349828143c1e63d9d3f646db5ddf06a70))
+* Panel title is not displayed in Creator on changing the title property value [#2510](https://github.com/surveyjs/survey-library/issues/2510) ([335ebf6](https://github.com/surveyjs/survey-library/commit/335ebf6ee252ff4abade424bb738682ee7b616e2))
+* Warning cause of missing prop matrix.vue [#2513](https://github.com/surveyjs/survey-library/issues/2513) ([29bba0a](https://github.com/surveyjs/survey-library/commit/29bba0a1401e15e4d1656647bd13358266891955))
+
 ### [1.8.12](https://github.com/surveyjs/survey-library/compare/v1.8.11...v1.8.12) (2020-10-28)
 
 

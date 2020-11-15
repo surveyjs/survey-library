@@ -7,6 +7,7 @@ export * from "../bindablePropertiesTests";
 export * from "../localizablestringtests";
 export * from "../choicesRestfulltests";
 export * from "../jsonobjecttests";
+export * from "../jsonSchemaTests";
 export * from "../surveyLocalizationTests";
 export * from "../surveyquestiontests";
 export * from "../question_matrixdynamictests";

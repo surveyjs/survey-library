@@ -3,14 +3,23 @@ import { Helpers, HashTable } from "./helpers";
 export interface IPropertyDecoratorOptions {
   defaultValue?: any;
   defaultSource?: string;
-  localizable?: { name: string, onGetTextCallback?: (str: string) => string } | boolean;
+  localizable?:
+    | { name: string; onGetTextCallback?: (str: string) => string }
+    | boolean;
 }
 
-function ensureLocString(target: any, options: IPropertyDecoratorOptions, key: string) {
+function ensureLocString(
+  target: any,
+  options: IPropertyDecoratorOptions,
+  key: string
+) {
   let locString = target.getLocalizableString(key);
-  if(!locString) {
+  if (!locString) {
     locString = target.createLocalizableString(key, target, true);
-    if(typeof options.localizable === "object" && typeof options.localizable.onGetTextCallback === "function") {
+    if (
+      typeof options.localizable === "object" &&
+      typeof options.localizable.onGetTextCallback === "function"
+    ) {
       locString.onGetTextCallback = options.localizable.onGetTextCallback;
     }
   }
@@ -18,22 +27,47 @@ function ensureLocString(target: any, options: IPropertyDecoratorOptions, key: s
 
 export function property(options?: IPropertyDecoratorOptions) {
   return function (target: any, key: string) {
-    if(!options || !options.localizable) {
+    if (!options || !options.localizable) {
       Object.defineProperty(target, key, {
-        get: function() { return this.getPropertyValue(key) || (!!options ? options.defaultValue || this[options.defaultSource] : undefined); },
-        set: function(val: any) { this.setPropertyValue(key, val); }
+        get: function () {
+          return (
+            this.getPropertyValue(key) ||
+            (!!options
+              ? options.defaultValue || this[options.defaultSource]
+              : undefined)
+          );
+        },
+        set: function (val: any) {
+          this.setPropertyValue(key, val);
+        },
       });
     } else {
       Object.defineProperty(target, key, {
-        get: function() { ensureLocString(this, options, key); return this.getLocalizableStringText(key) || (options.defaultValue || this[options.defaultSource]); },
-        set: function(val: any) { ensureLocString(this, options, key);  this.setLocalizableStringText(key, val); }
+        get: function () {
+          ensureLocString(this, options, key);
+          return (
+            this.getLocalizableStringText(key) ||
+            options.defaultValue ||
+            this[options.defaultSource]
+          );
+        },
+        set: function (val: any) {
+          ensureLocString(this, options, key);
+          this.setLocalizableStringText(key, val);
+        },
       });
-      Object.defineProperty(target, options.localizable === true ? "loc" + key.charAt(0).toUpperCase() + key.slice(1) : options.localizable.name, {
-        get: function() {
-          ensureLocString(this, options, key); 
-          return this.getLocalizableString(key);
+      Object.defineProperty(
+        target,
+        options.localizable === true
+          ? "loc" + key.charAt(0).toUpperCase() + key.slice(1)
+          : options.localizable.name,
+        {
+          get: function () {
+            ensureLocString(this, options, key);
+            return this.getLocalizableString(key);
+          },
         }
-      });
+      );
     }
   };
 }
@@ -128,9 +162,11 @@ export class JsonObjectProperty implements IObject {
   ) {
     this.classInfoValue = classInfo;
     this.isRequiredValue = isRequired;
-    this.idValue = JsonObjectProperty.Index ++;
+    this.idValue = JsonObjectProperty.Index++;
   }
-  public get id(): number { return this.idValue};
+  public get id(): number {
+    return this.idValue;
+  }
   public get classInfo(): JsonMetadataClass {
     return this.classInfoValue;
   }
@@ -307,6 +343,12 @@ export class JsonObjectProperty implements IObject {
   public getDependedProperties(): Array<string> {
     return !!this.dependedProperties ? this.dependedProperties : [];
   }
+  public schemaType(): string {
+    if (!!this.className) return "array";
+    if (!!this.baseClassName) return "array";
+    if (this.type == "boolean" || this.type == "number") return this.type;
+    return "string";
+  }
   private mergeValue(prop: JsonObjectProperty, valueName: string) {
     if (this[valueName] == null && prop[valueName] != null) {
       this[valueName] = prop[valueName];
@@ -404,10 +446,8 @@ export class CustomPropertiesCollection {
     } else {
       var defaultValue = prop.defaultValue;
       var isArrayProp = false;
-      if(typeof obj.createNewArray === "function") {
-        if (
-          JsonObject.metaData.isDescendantOf(prop.className, "itemvalue")
-        ) {
+      if (typeof obj.createNewArray === "function") {
+        if (JsonObject.metaData.isDescendantOf(prop.className, "itemvalue")) {
           obj.createNewArray(prop.name, function (item: any) {
             item.locOwner = obj;
             item.ownerPropertyName = prop.name;
@@ -415,12 +455,12 @@ export class CustomPropertiesCollection {
           isArrayProp = true;
         }
         //It is a simple array property
-        if(prop.type === "multiplevalues") {
+        if (prop.type === "multiplevalues") {
           obj.createNewArray(prop.name);
           isArrayProp = true;
         }
-        if(isArrayProp) {
-          if(Array.isArray(defaultValue)) {
+        if (isArrayProp) {
+          if (Array.isArray(defaultValue)) {
             obj.setPropertyValue(prop.name, defaultValue);
           }
           defaultValue = null;
@@ -960,6 +1000,81 @@ export class JsonMetadata {
   }
   public addAlterNativeClassName(name: string, alternativeName: string) {
     this.alternativeNames[alternativeName.toLowerCase()] = name.toLowerCase();
+  }
+  public generateSchema(className: string = undefined): any {
+    if (!className) className = "survey";
+    var classInfo = this.findClass(className);
+    if (!classInfo) return null;
+    var res = {
+      $schema: "http://json-schema.org/draft-07/schema#",
+      title: "SurveyJS Library json schema",
+      type: "object",
+      properties: {},
+      definitions: {},
+    };
+    this.generateSchemaProperties(classInfo, res.properties, res.definitions);
+    return res;
+  }
+  private generateSchemaProperties(
+    classInfo: JsonMetadataClass,
+    schemaProperties: any,
+    schemaDef: any
+  ): void {
+    if (!classInfo) return;
+    for (var i = 0; i < classInfo.properties.length; i++) {
+      var prop = classInfo.properties[i];
+      schemaProperties[prop.name] = this.generateSchemaProperty(
+        prop,
+        schemaDef
+      );
+    }
+  }
+  private generateSchemaProperty(
+    prop: JsonObjectProperty,
+    schemaDef: any
+  ): any {
+    var res: any = { type: prop.schemaType() };
+    if (prop.hasChoices) {
+      res.enum = prop.getChoices(null);
+    }
+    if (!!prop.className) {
+      res.items = { $ref: "#" + prop.className };
+      this.generateChemaClass(prop.className, schemaDef);
+    }
+    if (!!prop.baseClassName) {
+      var usedClasses = this.getChildrenClasses(prop.baseClassName, true);
+      if (prop.baseClassName == "question") {
+        usedClasses.push(this.findClass("panel"));
+      }
+      res.items = [];
+      for (var i = 0; i < usedClasses.length; i++) {
+        var className = usedClasses[i].name;
+        res.items.push({ $ref: "#" + className });
+        this.generateChemaClass(className, schemaDef);
+      }
+    }
+    return res;
+  }
+  private generateChemaClass(className: string, schemaDef: any) {
+    if (!!schemaDef[className]) return;
+    var classInfo = this.findClass(className);
+    if (!classInfo) return;
+    var hasParent = !!classInfo.parentName && classInfo.parentName != "base";
+    if (hasParent) {
+      this.generateChemaClass(classInfo.parentName, schemaDef);
+    }
+    var res: any = { type: "object", $id: "#" + className };
+    schemaDef[className] = res;
+    var props = {};
+    this.generateSchemaProperties(classInfo, props, schemaDef);
+    if (hasParent) {
+      res.allOff = [
+        { $ref: "#" + classInfo.parentName },
+        { properties: props },
+      ];
+    } else {
+      res.properties = props;
+    }
   }
   private fillProperties(
     name: string,

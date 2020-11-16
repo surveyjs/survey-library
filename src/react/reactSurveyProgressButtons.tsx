@@ -17,7 +17,7 @@ export class SurveyProgressButtons extends SurveyNavigationBase {
         this.setState({ hasScroller: this.listContainerRef.current.scrollWidth >
           this.listContainerRef.current.offsetWidth});
       }
-    });
+    }, 100);
     this.listContainerRef = React.createRef();
   }
   render(): JSX.Element {

@@ -53,6 +53,7 @@ export { PanelDynamicRemove } from "../vue/paneldynamicremove.vue";
 export { PanelDynamicProgress } from "../vue/paneldynamicprogress.vue";
 export { Navigation } from "../vue/navigation.vue";
 export { Progress } from "../vue/progress.vue";
+export { ProgressButtons } from "../vue/progressButtons.vue";
 export { TimerPanel } from "../vue/timerpanel.vue";
 export { Panel } from "../vue/panel.vue";
 export { FlowPanel } from "../vue/flowpanel.vue";

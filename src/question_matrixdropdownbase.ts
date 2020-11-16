@@ -804,9 +804,7 @@ export class MatrixDropdownRowModelBase
     this.isCreatingDetailPanel = false;
   }
   public hideDetailPanel() {
-    this.detailPanelValue = null;
-    if (!!this.data) {
-    }
+    //this.detailPanelValue = null;
     this.setIsDetailPanelShowing(false);
   }
   getAllValues(): any {
@@ -2774,6 +2772,14 @@ export class QuestionMatrixDropdownModelBase
     if (!!this.renderedTable) {
       this.renderedTable.onDetailPanelChangeVisibility(row, val);
     }
+    if (val && this.detailPanelMode === "underRowSingle") {
+      var rows = this.visibleRows;
+      for (var i = 0; i < rows.length; i++) {
+        if (rows[i].id !== row.id && rows[i].isDetailPanelShowing) {
+          rows[i].hideDetailPanel();
+        }
+      }
+    }
   }
   public getDetailPanelButtonCss(row: MatrixDropdownRowModelBase): string {
     var res = this.getPropertyValue("detailButtonCss" + row.id);
@@ -2938,7 +2944,7 @@ Serializer.addClass(
     },
     {
       name: "detailPanelMode",
-      choices: ["none", "underRow"],
+      choices: ["none", "underRow", "underRowSingle"],
       default: "none",
     },
     "horizontalScroll:boolean",

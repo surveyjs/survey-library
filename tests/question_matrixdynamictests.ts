@@ -4795,7 +4795,6 @@ QUnit.test("Detail panel, get/set values", function (assert) {
     false,
     "detail panel is closed"
   );
-  assert.notOk(matrix.visibleRows[0].detailPanel, "Detail Panel is hidden");
   assert.equal(
     matrix.getDetailPanelButtonCss(matrix.visibleRows[0]),
     "icon1",
@@ -5133,4 +5132,32 @@ QUnit.test("Detail panel, show errors in panels", function (assert) {
   );
   rows[1].detailPanel.getQuestionByName("q1").value = "val2";
   assert.equal(matrix.hasErrors(true), false, "There is no errors anymore");
+});
+QUnit.test("Detail panel, underRowSingle", function (assert) {
+  var survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdynamic",
+        name: "matrix",
+        rowCount: 3,
+        detailPanelMode: "underRowSingle",
+        columns: [{ name: "col1" }, { name: "col2" }, { name: "col3" }],
+        detailElements: [{ type: "text", name: "q1", isRequired: true }],
+      },
+    ],
+  });
+  var matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+  var rows = matrix.visibleRows;
+  rows[0].showDetailPanel();
+  rows[1].showDetailPanel();
+  assert.equal(
+    rows[1].isDetailPanelShowing,
+    true,
+    "Second row shows detail panel"
+  );
+  assert.equal(
+    rows[0].isDetailPanelShowing,
+    false,
+    "We automatically hide detail panel in the first row"
+  );
 });

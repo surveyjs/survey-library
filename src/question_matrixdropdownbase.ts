@@ -1501,9 +1501,17 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     }
     buttonCell.isEmpty = true;
     res.cells.push(buttonCell);
+    var deleteCell = null;
+    if (this.hasRemoveRows) {
+      deleteCell = new QuestionMatrixDropdownRenderedCell();
+      res.cells.push(deleteCell);
+    }
     var cell = new QuestionMatrixDropdownRenderedCell();
     cell.panel = row.detailPanel;
-    cell.colSpans = renderedRow.cells.length - buttonCell.colSpans;
+    cell.colSpans =
+      renderedRow.cells.length -
+      buttonCell.colSpans -
+      (!!deleteCell ? deleteCell.colSpans : 0);
     res.cells.push(cell);
     return res;
   }

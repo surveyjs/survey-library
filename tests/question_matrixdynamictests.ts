@@ -4967,8 +4967,8 @@ QUnit.test("Detail panel, rendered table", function (assert) {
   );
   assert.equal(
     rows[1].cells.length,
-    2,
-    "There are only two cells in detail panel row"
+    3,
+    "There are only 3 cells in detail panel row"
   );
   assert.equal(
     rows[1].cells[0].colSpans,
@@ -4977,8 +4977,13 @@ QUnit.test("Detail panel, rendered table", function (assert) {
   );
   assert.equal(
     rows[1].cells[1].colSpans,
-    4,
+    3,
     "colSpans set correctly for detail panel cell"
+  );
+  assert.equal(
+    rows[1].cells[2].colSpans,
+    1,
+    "the last cell in detail panel has one colspan"
   );
   matrix.addRow();
   assert.equal(rows.length, 4, "We added a new row");

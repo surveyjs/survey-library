@@ -1504,7 +1504,6 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     var deleteCell = null;
     if (this.hasRemoveRows) {
       deleteCell = new QuestionMatrixDropdownRenderedCell();
-      res.cells.push(deleteCell);
     }
     var cell = new QuestionMatrixDropdownRenderedCell();
     cell.panel = row.detailPanel;
@@ -1513,6 +1512,9 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
       buttonCell.colSpans -
       (!!deleteCell ? deleteCell.colSpans : 0);
     res.cells.push(cell);
+    if (!!deleteCell) {
+      res.cells.push(deleteCell);
+    }
     return res;
   }
 

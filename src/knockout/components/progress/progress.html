@@ -1,7 +1,7 @@
 <div data-bind="css: model.css.progress">
-    <div data-bind="css: model.css.progressBar, style: { width: model.koProgress() + '%' }"
+    <div data-bind="css: model.css.progressBar, style:{ width: model.progressValue + '%' }"
         role="progressbar" aria-valuemin="0" aria-valuemax="100">
-        <span data-bind="text: model.koProgressText, css: model.css.progressText + ' ' + model.css.progressTextInBar"></span>
+        <span data-bind="text: model.progressText, css: model.css.progressText + ' ' + model.css.progressTextInBar"></span>
     </div>
-    <span data-bind="text: model.koProgressText, css: model.css.progressText + ' ' + model.css.progressTextUnderBar"></span>
+    <span data-bind="text: model.progressText, css: model.css.progressText + ' ' + model.css.progressTextUnderBar"></span>
 </div>

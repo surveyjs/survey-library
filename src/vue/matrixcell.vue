@@ -3,9 +3,15 @@
     <div v-if="cell.hasQuestion">
       <survey-errors v-if="hasErrorsOnTop" :question="cell.question" :location="'top'" />
       <component
-        v-if="!cell.isChoice"
+        v-if="!cell.isChoice && cell.question.isDefaultRendering()"
         v-show="isVisible"
-        :is="getWidgetComponentName(cell.question)"
+        :is="getComponentName(cell.question)"
+        :question="cell.question"
+      />
+      <component
+        v-if="!cell.isChoice && !cell.question.isDefaultRendering()"
+        v-show="isVisible"
+        :is="cell.question.getComponentName()"
         :question="cell.question"
       />
       <survey-radiogroup-item
@@ -38,6 +44,7 @@
       <span :class="question.cssClasses.iconRemove"></span>
     </button>
     <survey-string v-if="cell.hasTitle" :locString="cell.locTitle" />
+    <span v-if="!!cell.requiredText">{{cell.requiredText}}</span>
   </td>
 </template>
 
@@ -47,7 +54,7 @@ import { Component, Prop } from "vue-property-decorator";
 import { Question } from "../question";
 import {
   MatrixDropdownCell,
-  QuestionMatrixDropdownRenderedCell
+  QuestionMatrixDropdownRenderedCell,
 } from "../question_matrixdropdownbase";
 
 @Component
@@ -56,7 +63,7 @@ export class MatrixCell extends Vue {
   @Prop cell: QuestionMatrixDropdownRenderedCell;
 
   isVisible: boolean = false;
-  getWidgetComponentName(element: Question) {
+  getComponentName(element: Question) {
     if (element.customWidget) {
       return "survey-customwidget";
     }
@@ -88,8 +95,10 @@ export class MatrixCell extends Vue {
     return cellClass;
   }
   getCellStyle() {
-    if (!this.cell.isChoice) return null;
-    return { "text-align": "center" };
+    if (this.cell.isChoice) return { "text-align": "center" };
+    if (!!this.cell.width || !!this.cell.minWidth)
+      return { width: this.cell.width, minWidth: this.cell.minWidth };
+    return null;
   }
   getItemClass(item: any) {
     var cssClasses = this.cell.question.cssClasses;
@@ -121,7 +130,7 @@ export class MatrixCell extends Vue {
       cellQuestion: this.cell.question,
       htmlElement: this.$el,
       row: this.cell.row,
-      column: this.cell.cell.column
+      column: this.cell.cell.column,
     };
     this.question.survey.matrixAfterCellRender(this.question, options);
   }

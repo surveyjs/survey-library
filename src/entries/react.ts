@@ -45,16 +45,14 @@ export {
   SurveyQuestionCheckboxItem,
 } from "../react/reactquestion_checkbox";
 export { SurveyQuestionDropdown } from "../react/reactquestion_dropdown";
-export {
-  SurveyQuestionMatrix,
-  SurveyQuestionMatrixRow,
-} from "../react/reactquestion_matrix";
+export { SurveyQuestionMatrix, SurveyQuestionMatrixRow } from "../react/reactquestion_matrix";
 export { SurveyQuestionHtml } from "../react/reactquestion_html";
 export { SurveyQuestionFile } from "../react/reactquestion_file";
 export { SurveyQuestionMultipleText } from "../react/reactquestion_multipletext";
 export { SurveyQuestionRadiogroup } from "../react/reactquestion_radiogroup";
 export { SurveyQuestionText } from "../react/reactquestion_text";
-export { SurveyQuestionBoolean } from "../react/reactquestion_boolean";
+export { SurveyQuestionBoolean } from "../react/boolean";
+export { SurveyQuestionBooleanCheckbox } from "../react/boolean-checkbox";
 export { SurveyQuestionEmpty } from "../react/reactquestion_empty";
 export { SurveyQuestionMatrixDropdownCell } from "../react/reactquestion_matrixdropdownbase";
 export { SurveyQuestionMatrixDropdown } from "../react/reactquestion_matrixdropdown";
@@ -71,6 +69,9 @@ export { SurveyQuestionImagePicker } from "../react/imagepicker";
 export { SurveyQuestionImage } from "../react/image";
 export { SurveyQuestionSignaturePad } from "../react/signaturepad";
 export { SurveyQuestionCustom, SurveyQuestionComposite } from "../react/reactquestion_custom";
+
+//Property Grid
+//export { PropertyGrid } from "../react/reactpropertygrid";
 
 //Uncomment to include the "date" question type.
 //export {default as SurveyQuestionDate} from "../plugins/react/reactquestiondate";

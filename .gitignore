@@ -31,5 +31,4 @@ Gemfile.lock
 /hosting.ini
 /doc_generator/*.json
 *.env
-package-lock.json 
-.prettierrc
+package-lock.json

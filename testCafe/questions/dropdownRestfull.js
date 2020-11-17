@@ -1,13 +1,7 @@
-import {
-  frameworks,
-  url,
-  setOptions,
-  initSurvey,
-  getSurveyResult
-} from "../settings";
+import { frameworks, url, initSurvey, getSurveyResult } from "../settings";
 import { ClientFunction } from "testcafe";
 const assert = require("assert");
-const title = `dropdown_restfull`;
+const title = `dropdownRestfull`;
 
 const json = {
   questions: [

@@ -23,7 +23,7 @@ export class Progress extends Vue {
   @Prop survey: SurveyModel;
   @Prop css: any;
   get progress() {
-    return this.survey.getProgress() + "%";
+    return this.survey.progressValue + "%";
   }
 }
 Vue.component("survey-progress-pages", Progress);

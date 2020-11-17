@@ -13,13 +13,12 @@ export class SurveyQuestionCheckbox extends SurveyQuestionElementBase {
   protected get question(): QuestionCheckboxModel {
     return this.questionBase as QuestionCheckboxModel;
   }
-  render(): JSX.Element {
-    if (!this.question) return null;
+  protected renderElement(): JSX.Element {
     var cssClasses = this.question.cssClasses;
     return (
       <fieldset
         className={cssClasses.root}
-        ref={fieldset => (this.control = fieldset)}
+        ref={(fieldset) => (this.control = fieldset)}
       >
         <legend aria-label={this.question.locTitle.renderedHtml} />
         {this.question.hasColumns
@@ -131,43 +130,28 @@ export class SurveyQuestionCheckboxItem extends ReactSurveyElement {
   selectAllChanged(event: any) {
     this.question.toggleSelectAll();
   }
-  render(): JSX.Element {
-    if (!this.item || !this.question) return null;
+  protected canRender(): boolean {
+    return !!this.item && !!this.question;
+  }
+  protected renderElement(): JSX.Element {
     var isChecked = this.question.isItemSelected(this.item);
-    var isDisabled = this.question.isReadOnly || !this.item.isEnabled;
     var otherItem =
       this.item.value === this.question.otherItem.value && isChecked
         ? this.renderOther()
         : null;
-    return this.renderCheckbox(isChecked, isDisabled, otherItem);
+    return this.renderCheckbox(isChecked, otherItem);
   }
   protected get inputStyle(): any {
     return { marginRight: "3px" };
   }
-  private getItemClass(isChecked: boolean, isDisabled: boolean): string {
-    var cssClasses = this.question.cssClasses;
-    var allowHover = !isChecked && !isDisabled;
-    var itemClass = cssClasses.item;
-    if (isDisabled) itemClass += " " + cssClasses.itemDisabled;
-    if (isChecked) itemClass += " " + cssClasses.itemChecked;
-    if (allowHover) itemClass += " " + cssClasses.itemHover;
-    if (!this.question.hasColumns) {
-      itemClass +=
-        this.question.colCount === 0
-          ? " " + this.cssClasses.itemInline
-          : " sv-q-col-" + this.question.colCount;
-    }
-    return itemClass;
-  }
   protected renderCheckbox(
     isChecked: boolean,
-    isDisabled: boolean,
     otherItem: JSX.Element
   ): JSX.Element {
     var id = this.question.inputId + "_" + this.index;
     var text = !this.hideCaption ? this.renderLocString(this.item.locText) : "";
-    let itemClass = this.getItemClass(isChecked, isDisabled);
-    let labelClass = this.question.getLabelClass(isChecked);
+    let itemClass = this.question.getItemClass(this.item);
+    let labelClass = this.question.getLabelClass(this.item);
     var onItemChanged =
       this.item == this.question.selectAllItem
         ? this.selectAllChanged
@@ -190,7 +174,11 @@ export class SurveyQuestionCheckboxItem extends ReactSurveyElement {
             aria-required={this.question.isRequired}
             aria-label={locText.renderedHtml}
             aria-invalid={this.question.errors.length > 0}
-            aria-describedby={this.question.errors.length > 0 ? this.question.id + '_errors' : null}    
+            aria-describedby={
+              this.question.errors.length > 0
+                ? this.question.id + "_errors"
+                : null
+            }
           />
           <span className={this.cssClasses.materialDecorator}>
             <svg viewBox="0 0 24 24" className={this.cssClasses.itemDecorator}>
@@ -223,6 +211,6 @@ export class SurveyQuestionCheckboxItem extends ReactSurveyElement {
   }
 }
 
-ReactQuestionFactory.Instance.registerQuestion("checkbox", props => {
+ReactQuestionFactory.Instance.registerQuestion("checkbox", (props) => {
   return React.createElement(SurveyQuestionCheckbox, props);
 });

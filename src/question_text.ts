@@ -12,12 +12,22 @@ export class QuestionTextModel extends Question {
   constructor(public name: string) {
     super(name);
     this.createLocalizableString("placeHolder", this);
+    this.registerFunctionOnPropertiesValueChanged(
+      ["min", "max", "inputType", "minValueExpression", "maxValueExpression"],
+      () => {
+        this.setRenderedMinMax();
+      }
+    );
   }
   protected isTextValue(): boolean {
-    return this.inputType == "text";
+    return ["text", "number", "password"].indexOf(this.inputType) > -1;
   }
   public getType(): string {
     return "text";
+  }
+  public onSurveyLoad() {
+    super.onSurveyLoad();
+    this.setRenderedMinMax();
   }
   /**
    * Use this property to change the default input type.
@@ -28,10 +38,34 @@ export class QuestionTextModel extends Question {
   public set inputType(val: string) {
     val = val.toLowerCase();
     if (val == "datetime_local") val = "datetime-local";
-    this.min = undefined;
-    this.max = undefined;
-    this.step = undefined;
     this.setPropertyValue("inputType", val.toLowerCase());
+    if (!this.isLoadingFromJson) {
+      this.min = undefined;
+      this.max = undefined;
+      this.step = undefined;
+    }
+  }
+  /**
+   * Gets or sets a value that specifies how the question updates it's value.
+   *
+   * The following options are available:
+   * - `default` - get the value from survey.textUpdateMode
+   * - `onBlur` - the value is updated after an input loses the focus.
+   * - `onTyping` - update the value of text questions, "text" and "comment", on every key press.
+   *
+   * Note, that setting to "onTyping" may lead to a performance degradation, in case you have many expressions in the survey.
+   * @see survey.textUpdateMode
+   */
+  public get textUpdateMode(): string {
+    return this.getPropertyValue("textUpdateMode");
+  }
+  public set textUpdateMode(val: string) {
+    this.setPropertyValue("textUpdateMode", val);
+  }
+  public get isSurveyInputTextUpdate(): boolean {
+    if (this.textUpdateMode == "default")
+      return !!this.survey ? this.survey.isUpdateValueTextOnTyping : false;
+    return this.textUpdateMode == "onTyping";
   }
   public getValidators(): Array<SurveyValidator> {
     var validators = super.getValidators();
@@ -72,6 +106,12 @@ export class QuestionTextModel extends Question {
   public set size(val: number) {
     this.setPropertyValue("size", val);
   }
+  public get autoComplete(): string {
+    return this.getPropertyValue("autoComplete", "");
+  }
+  public set autoComplete(val: string) {
+    this.setPropertyValue("autoComplete", val);
+  }
   /**
    * The minimum value
    */
@@ -79,23 +119,56 @@ export class QuestionTextModel extends Question {
     return this.getPropertyValue("min");
   }
   public set min(val: string) {
+    if (this.isValueExpression(val)) {
+      this.minValueExpression = val.substr(1);
+      return;
+    }
     this.setPropertyValue("min", val);
   }
   /**
    * The maximum value
    */
   public get max(): string {
-    var maxValue = this.getPropertyValue("max");
-    if (
-      !maxValue &&
-      (this.inputType === "date" || this.inputType === "datetime-local")
-    ) {
-      maxValue = "2999-12-31";
-    }
-    return maxValue;
+    return this.getPropertyValue("max");
   }
   public set max(val: string) {
+    if (this.isValueExpression(val)) {
+      this.maxValueExpression = val.substr(1);
+      return;
+    }
     this.setPropertyValue("max", val);
+  }
+  public get minValueExpression(): string {
+    return this.getPropertyValue("minValueExpression", "");
+  }
+  public set minValueExpression(val: string) {
+    this.setPropertyValue("minValueExpression", val);
+  }
+  public get maxValueExpression(): string {
+    return this.getPropertyValue("maxValueExpression", "");
+  }
+  public set maxValueExpression(val: string) {
+    this.setPropertyValue("maxValueExpression", val);
+  }
+  public get renderedMin(): any {
+    return this.getPropertyValue("renderedMin");
+  }
+  public get renderedMax(): any {
+    return this.getPropertyValue("renderedMax");
+  }
+  private setRenderedMinMax() {
+    this.setPropertyValue(
+      "renderedMin",
+      this.getValueAndRunExpression(this.min, this.minValueExpression)
+    );
+    var val = this.getValueAndRunExpression(this.max, this.maxValueExpression);
+    if (
+      !val &&
+      (this.inputType === "date" || this.inputType === "datetime-local")
+    ) {
+      val = "2999-12-31";
+    }
+    this.setPropertyValue("renderedMax", val);
   }
   /**
    * The step value
@@ -186,6 +259,74 @@ Serializer.addClass(
     },
     { name: "size:number", default: 25 },
     {
+      name: "textUpdateMode",
+      default: "default",
+      choices: ["default", "onBlur", "onTyping"],
+      dependsOn: "inputType",
+      visibleIf: function (obj: any) {
+        if (!obj) return false;
+        return obj.inputType == "text";
+      },
+    },
+    {
+      name: "autoComplete",
+      dataList: [
+        "name",
+        "honorific-prefix",
+        "given-name",
+        "additional-name",
+        "family-name",
+        "honorific-suffix",
+        "nickname",
+        "organization-title",
+        "username",
+        "new-password",
+        "current-password",
+        "organization",
+        "street-address",
+        "address-line1",
+        "address-line2",
+        "address-line3",
+        "address-level4",
+        "address-level3",
+        "address-level2",
+        "address-level1",
+        "country",
+        "country-name",
+        "postal-code",
+        "cc-name",
+        "cc-given-name",
+        "cc-additional-name",
+        "cc-family-name",
+        "cc-number",
+        "cc-exp",
+        "cc-exp-month",
+        "cc-exp-year",
+        "cc-csc",
+        "cc-type",
+        "transaction-currency",
+        "transaction-amount",
+        "language",
+        "bday",
+        "bday-day",
+        "bday-month",
+        "bday-year",
+        "sex",
+        "url",
+        "photo",
+        "tel",
+        "tel-country-code",
+        "tel-national",
+        "tel-area-code",
+        "tel-local",
+        "tel-local-prefix",
+        "tel-local-suffix",
+        "tel-extension",
+        "email",
+        "impp",
+      ],
+    },
+    {
       name: "min",
       dependsOn: "inputType",
       visibleIf: function (obj: any) {
@@ -205,6 +346,24 @@ Serializer.addClass(
       },
       onPropertyEditorUpdate: function (obj: any, propertyEditor: any) {
         propertyEditor.inputType = obj.inputType;
+      },
+    },
+    {
+      name: "minValueExpression:expression",
+      category: "logic",
+      dependsOn: "inputType",
+      visibleIf: function (obj: any) {
+        if (!obj) return false;
+        return minMaxTypes.indexOf(obj.inputType) !== -1;
+      },
+    },
+    {
+      name: "maxValueExpression:expression",
+      category: "logic",
+      dependsOn: "inputType",
+      visibleIf: function (obj: any) {
+        if (!obj) return false;
+        return minMaxTypes.indexOf(obj.inputType) !== -1;
       },
     },
     {

@@ -74,6 +74,25 @@ QUnit.test("Dynamic Panel, clearIncorrectValues", function (assert) {
   );
 });
 
+QUnit.test("Dynamic Panel, clearIncorrectValues, do not clear other value, Bug#2490", function (assert) {
+  var question = new QuestionPanelDynamicModel("q");
+  (<QuestionRadiogroupModel>(
+    question.template.addNewQuestion("radiogroup", "q1")
+  )).choices = [1, 2];
+  (<QuestionRadiogroupModel>(
+    question.template.addNewQuestion("radiogroup", "q2")
+  )).choices = [1, 2, 3];
+  question.template.questions[1].hasOther = true;
+
+  question.value = [{ q1: 1, q2: "other", "q2-Comment": "Some Value" }, { q1: 1, q2: 2, "q3-Comment": "Some Value" }];
+  question.clearIncorrectValues();
+  assert.deepEqual(
+    question.value,
+    [{ q1: 1, q2: "other", "q2-Comment": "Some Value" }, { q1: 1, q2: 2 }],
+    "Remove incorrect values, but do not remove correct comment"
+  );
+});
+
 QUnit.test(
   "By pass values from question.value into panel values and vice versa",
   function (assert) {
@@ -2999,6 +3018,11 @@ QUnit.test(
     survey.onClearFiles.add(function (sender, options) {
       counter++;
       options.callback("success");
+      assert.equal(
+        options.question.name,
+        "q2",
+        "Question is passed in options"
+      );
     });
     var panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
     (<QuestionFileModel>panel.panels[0].getQuestionByName("q2")).value =
@@ -3143,3 +3167,54 @@ QUnit.test(
     );
   }
 );
+QUnit.test(
+  "Do not change panelCount on loading in design-time, Bug #2291",
+  function (assert) {
+    var json = {
+      elements: [
+        {
+          type: "paneldynamic",
+          name: "measurements",
+          templateElements: [
+            {
+              type: "paneldynamic",
+              name: "Some details",
+              panelCount: 1,
+              templateElements: [{ type: "text", name: "q1" }],
+            },
+          ],
+          panelCount: 0,
+        },
+      ],
+    };
+    var survey = new SurveyModel();
+    survey.setDesignMode(true);
+    survey.fromJSON(json);
+    var q = <QuestionPanelDynamicModel>survey.getQuestionByName("measurements");
+    assert.equal(q.panelCount, 0, "The panel count is 0");
+  }
+);
+
+QUnit.test("getProgressInfo()", function (assert) {
+  var survey = new SurveyModel({
+    elements: [
+      {
+        type: "paneldynamic",
+        name: "panel",
+        templateElements: [
+          { type: "text", name: "q1", isRequired: true },
+          { type: "text", name: "q2" },
+          { type: "text", name: "q3" },
+        ],
+      },
+    ],
+  });
+  survey.data = { panel: [{ q1: "1" }, { q2: "2" }, []] };
+  var question = survey.getQuestionByName("panel");
+  assert.deepEqual(question.getProgressInfo(), {
+    questionCount: 9,
+    answeredQuestionCount: 2,
+    requiredQuestionCount: 3,
+    requiredAnsweredQuestionCount: 1,
+  });
+});

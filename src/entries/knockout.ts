@@ -29,7 +29,7 @@ export { QuestionComment } from "../knockout/koquestion_comment";
 export { QuestionDropdown } from "../knockout/koquestion_dropdown";
 export { QuestionFile } from "../knockout/koquestion_file";
 export { QuestionHtml } from "../knockout/koquestion_html";
-export { MatrixRow, QuestionMatrix } from "../knockout/koquestion_matrix";
+export { QuestionMatrix } from "../knockout/koquestion_matrix";
 export { QuestionMatrixDropdown } from "../knockout/koquestion_matrixdropdown";
 export {
   QuestionMatrixDynamicImplementor,
@@ -56,8 +56,15 @@ export { QuestionCustom } from "../knockout/koquestion_custom";
 export * from "../knockout/components/progress/buttons";
 export * from "../knockout/components/progress/progress";
 
+//Property Grid
+// export { PropertyGrid } from "../knockout/koPropertyGrid";
+
 //Uncomment to include the "date" question type.
 //export {QuestionDate} from "../plugins/knockout/koquestion_date";
+
+export * from "../knockout/components/checkbox";
+
+export * from "../rendererFactory";
 
 import * as ko from "knockout";
 import { SurveyModel } from "../survey";

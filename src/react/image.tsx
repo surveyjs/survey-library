@@ -10,8 +10,10 @@ export class SurveyQuestionImage extends SurveyQuestionElementBase {
   protected get question(): QuestionImageModel {
     return this.questionBase as QuestionImageModel;
   }
-  render(): JSX.Element {
-    if (!this.question || !this.question.imageLink) return null;
+  protected canRender(): boolean {
+    return super.canRender() && !!this.question.imageLink;
+  }
+  protected renderElement(): JSX.Element {
     var cssClasses = this.question.cssClasses;
     var style: any = { objectFit: this.question.imageFit };
     var control = null;
@@ -58,6 +60,6 @@ export class SurveyQuestionImage extends SurveyQuestionElementBase {
   }
 }
 
-ReactQuestionFactory.Instance.registerQuestion("image", props => {
+ReactQuestionFactory.Instance.registerQuestion("image", (props) => {
   return React.createElement(SurveyQuestionImage, props);
 });

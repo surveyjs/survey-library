@@ -53,18 +53,12 @@
 }
 
 .sv-rating__min-text {
-  @media only screen and (max-width: 600px) {
-    display: none;
-  }
   font-size: 1em;
   margin-right: 1.25em;
   cursor: pointer;
 }
 
 .sv-rating__max-text {
-  @media only screen and (max-width: 600px) {
-    display: none;
-  }
   font-size: 1em;
   margin-left: 0.87em;
   cursor: pointer;

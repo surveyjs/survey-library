@@ -605,7 +605,7 @@ QUnit.test(
     assert.notOk(page._showTitle, "Empty title is not visible at runtime");
     assert.notOk(
       page._showDescription,
-      "Empty title is not visible at runtime - description"
+      "Empty description is not visible at runtime - description"
     );
     survey.setDesignMode(true);
     assert.ok(
@@ -616,14 +616,24 @@ QUnit.test(
       page._showDescription,
       "Empty description is visible in DesignMode by default"
     );
-    settings.allowShowEmptyTitleInDesignMode = false;
-    assert.notOk(
+    settings.allowShowEmptyDescriptionInDesignMode = false;
+    assert.ok(
       page._showTitle,
-      "Empty title is not visible at DesignMode after flag"
+      "Empty title is visible in DesignMode after description flag"
     );
     assert.notOk(
       page._showDescription,
-      "Empty description is not visible at DesignMode after flag"
+      "Empty description is not visible in DesignMode after description flag"
+    );
+    settings.allowShowEmptyDescriptionInDesignMode = true;
+    settings.allowShowEmptyTitleInDesignMode = false;
+    assert.notOk(
+      page._showTitle,
+      "Empty title is not visible at DesignMode after title flag"
+    );
+    assert.notOk(
+      page._showDescription,
+      "Empty description is not visible at DesignMode after tile flag"
     );
     page.title = "My title";
     page.description = "My description";
@@ -636,15 +646,68 @@ QUnit.test(
 );
 
 QUnit.test("QuestionRowModel setElementMaxMinWidth", function (assert) {
-  var qrm = new QuestionRowModel((<any>{ areInvisibleElementsShowing: false }));
+  var qrm = new QuestionRowModel(<any>{ areInvisibleElementsShowing: false });
 
-  var el1: any = { width: "100px" };
+  var el1: any = {
+    width: "100px",
+    minWidth: settings.minWidth,
+    maxWidth: settings.maxWidth,
+  };
   qrm.setElementMaxMinWidth(el1);
   assert.equal(el1.minWidth, "100px", "minWidth in 'px' is set");
   assert.equal(el1.maxWidth, "100px", "maxWidth in 'px' is set");
 
-  var el2: any = { width: "20%" };
+  var el2: any = {
+    width: "20%",
+    minWidth: settings.minWidth,
+    maxWidth: settings.maxWidth,
+  };
   qrm.setElementMaxMinWidth(el2);
   assert.equal(el2.minWidth, "300px", "minWidth in '%' is default");
   assert.equal(el2.maxWidth, "initial", "maxWidth in '%' is default");
+});
+
+QUnit.test("Page/Panel.getProgressInfo()", function (assert) {
+  var page = new PageModel("q1");
+  var panel1 = page.addNewPanel("panel1");
+  var panel2 = page.addNewPanel("panel2");
+  panel1.isRequired = true;
+  panel1.addNewQuestion("text", "q1");
+  panel1.addNewQuestion("text", "q2");
+  panel2.addNewQuestion("text", "q3").isRequired = true;
+  panel2.addNewQuestion("text", "q4");
+  panel2.addNewQuestion("html", "q5");
+  panel2.addNewQuestion("expression", "q6");
+  page.getQuestionByName("q1").value = 1;
+  page.getQuestionByName("q3").value = 2;
+  assert.deepEqual(page.getProgressInfo(), {
+    questionCount: 4,
+    answeredQuestionCount: 2,
+    requiredQuestionCount: 2,
+    requiredAnsweredQuestionCount: 2,
+  });
+});
+QUnit.test("Panel.requiredIf", function (assert) {
+  var survey = new SurveyModel({
+    elements: [
+      {
+        type: "text",
+        name: "q1",
+      },
+      {
+        type: "panel",
+        name: "panel1",
+        requiredIf: "{q1} = 1",
+        elements: [
+          {type: "text", name: "q3"}
+        ]
+      }
+    ],
+  });
+  var panel = <PanelModel>survey.getPanelByName("panel1");
+  assert.equal(panel.isRequired, false, "It is not required by default");
+  survey.setValue("q1", 1);
+  assert.equal(panel.isRequired, true, "q1 is 1");
+  survey.setValue("q1", 2);
+  assert.equal(panel.isRequired, false, "q1 is 2");
 });

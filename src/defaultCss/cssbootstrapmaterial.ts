@@ -56,11 +56,14 @@ export var defaultBootstrapMaterialCss = {
   panel: {
     title: "sv_p_title",
     titleExpandable: "sv_p_title_expandable",
+    titleOnError: "",
     icon: "sv_panel_icon",
     iconExpanded: "sv_expanded",
     description: "small sv_p_description",
     container: "sv_p_container",
     footer: "sv_p_footer",
+    number: "sv_q_num",
+    requiredText: "sv_q_required_text",
   },
   error: {
     root: "alert alert-danger",
@@ -81,11 +84,18 @@ export var defaultBootstrapMaterialCss = {
     slider: "sv-boolean__slider",
     label: "sv-boolean__label ",
     disabledLabel: "sv-boolean__label--disabled",
+    materialDecorator: "sv-item__decorator sv-boolean__decorator ",
+    itemDecorator: "sv-item__svg  sv-boolean__svg",
+    checkedPath: "sv-boolean__checked-path",
+    uncheckedPath: "sv-boolean__unchecked-path",
+    indeterminatePath: "sv-boolean__indeterminate-path",
   },
   checkbox: {
     root: "sv_qcbx",
     item: "checkbox",
     itemChecked: "checked",
+    itemSelectAll: "sv_q_checkbox_selectall",
+    itemNone: "sv_q_checkbox_none",
     itemInline: "sv_q_checkbox_inline",
     itemDecorator: "sv-hidden",
     itemControl: "",
@@ -114,7 +124,7 @@ export var defaultBootstrapMaterialCss = {
     itemValue: "form-control",
     itemChecked: "checked",
     itemDecorator: "sv-hidden",
-    materialDecorator: "bmd-radio"
+    materialDecorator: "bmd-radio",
   },
   matrixdropdown: { root: "table", itemValue: "form-group bmd-form-group" },
   matrixdynamic: {

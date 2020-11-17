@@ -25,8 +25,10 @@ export class SurveyQuestion extends SurveyElementBase {
     }
     return <SurveyCustomWidget creator={creator} question={question} />;
   }
+  private rootRef: React.RefObject<HTMLDivElement>;
   constructor(props: any) {
     super(props);
+    this.rootRef = React.createRef();
   }
   protected getStateElement(): Base {
     return this.question;
@@ -49,7 +51,7 @@ export class SurveyQuestion extends SurveyElementBase {
     if (!!this.question) {
       this.question["react"] = null;
     }
-    var el: any = this.refs["root"];
+    var el = this.rootRef.current;
     if (!!el) {
       el.removeAttribute("data-rendered");
     }
@@ -60,7 +62,7 @@ export class SurveyQuestion extends SurveyElementBase {
   }
   private doAfterRender() {
     if (this.question) {
-      var el: any = this.refs["root"];
+      var el = this.rootRef.current;
       if (el && el.getAttribute("data-rendered") !== "r") {
         el.setAttribute("data-rendered", "r");
         el.setAttribute("name", this.question.name);
@@ -68,11 +70,16 @@ export class SurveyQuestion extends SurveyElementBase {
       }
     }
   }
-  render(): JSX.Element {
+  protected canRender(): boolean {
+    return (
+      super.canRender() &&
+      !!this.question &&
+      !!this.creator &&
+      this.question.isVisible
+    );
+  }
+  protected renderElement(): JSX.Element {
     var question = this.question;
-
-    if (!question || !this.creator) return null;
-    if (!question.isVisible) return null;
     var cssClasses = question.cssClasses;
     var questionRender = this.renderQuestion();
     var header = this.renderHeader(question);
@@ -112,7 +119,7 @@ export class SurveyQuestion extends SurveyElementBase {
 
     return (
       <div
-        ref="root"
+        ref={this.rootRef}
         id={question.id}
         className={questionRootClass}
         style={rootStyle}
@@ -134,57 +141,8 @@ export class SurveyQuestion extends SurveyElementBase {
   protected renderQuestion(): JSX.Element {
     return SurveyQuestion.renderQuestionBody(this.creator, this.question);
   }
-
-  private TitleKeyIndex = 0;
-  private TitleKeyPrefix = this.question.name + "-titleKey-";
-  private getTitleKey = () => {
-    this.TitleKeyIndex++;
-    return this.TitleKeyPrefix + this.TitleKeyIndex;
-  };
-
   protected renderTitle(cssClasses: any): JSX.Element {
-    var getSpaceSpan = () => {
-      return (
-        <span data-key={this.getTitleKey()} key={this.getTitleKey()}>
-          &nbsp;
-        </span>
-      );
-    };
-
-    var spans = [];
-    if (this.question.isRequireTextOnStart) {
-      spans.push(this.renderRequireText(cssClasses));
-      spans.push(getSpaceSpan());
-    }
-    var questionNumber = this.question["no"];
-    if (questionNumber) {
-      spans.push(
-        <span
-          data-key={this.getTitleKey()}
-          key={this.getTitleKey()}
-          className={cssClasses.number}
-          style={{ position: "static" }}
-        >
-          {questionNumber}
-        </span>
-      );
-      spans.push(getSpaceSpan());
-    }
-    if (this.question.isRequireTextBeforeTitle) {
-      spans.push(this.renderRequireText(cssClasses));
-      spans.push(getSpaceSpan());
-    }
-    spans.push(
-      SurveyElementBase.renderLocString(
-        this.question.locTitle,
-        null,
-        this.getTitleKey()
-      )
-    );
-    if (this.question.isRequireTextAfterTitle) {
-      spans.push(getSpaceSpan());
-      spans.push(this.renderRequireText(cssClasses));
-    }
+    var spans = this.renderTitleSpans(this.question, cssClasses);
     return (
       <h5
         className={this.question.cssTitle}
@@ -193,17 +151,6 @@ export class SurveyQuestion extends SurveyElementBase {
       >
         {spans}
       </h5>
-    );
-  }
-  private renderRequireText(cssClasses: any): JSX.Element {
-    return (
-      <span
-        data-key={this.getTitleKey()}
-        key={this.getTitleKey()}
-        className={cssClasses.requiredText}
-      >
-        {this.question.requiredText}
-      </span>
     );
   }
   protected renderDescription(
@@ -242,7 +189,7 @@ export class SurveyQuestion extends SurveyElementBase {
       ? this.renderDescription(cssClasses)
       : null;
     return (
-      <div className={question.cssHeader}>
+      <div className={question.cssHeader} onClick={question.clickTitleFunction}>
         {title}
         {description}
       </div>
@@ -255,7 +202,7 @@ export class SurveyQuestion extends SurveyElementBase {
         cssClasses={cssClasses}
         creator={this.creator}
         location={location}
-        id={this.question.id +"_errors"}
+        id={this.question.id + "_errors"}
       />
     );
   }
@@ -286,8 +233,10 @@ export class SurveyElementErrors extends ReactSurveyElement {
   private getState(prevState: any = null) {
     return !prevState ? { error: 0 } : { error: prevState.error + 1 };
   }
-  render(): JSX.Element {
-    if (!this.element || this.element.errors.length == 0) return null;
+  protected canRender(): boolean {
+    return !!this.element && this.element.errors.length > 0;
+  }
+  protected renderElement(): JSX.Element {
     var errors = [];
     for (var i = 0; i < this.element.errors.length; i++) {
       var key = "error" + i;
@@ -313,8 +262,10 @@ export class SurveyElementErrors extends ReactSurveyElement {
 
 export class SurveyQuestionAndErrorsCell extends ReactSurveyElement {
   [index: string]: any;
+  protected cellRef: React.RefObject<HTMLTableCellElement>;
   constructor(props: any) {
     super(props);
+    this.cellRef = React.createRef();
   }
   protected getStateElement(): Base {
     return this.question;
@@ -335,7 +286,7 @@ export class SurveyQuestionAndErrorsCell extends ReactSurveyElement {
   componentWillUnmount() {
     super.componentWillUnmount();
     if (this.question) {
-      var el: any = this.refs["cell"];
+      var el = this.cellRef.current;
       if (!!el) {
         el.removeAttribute("data-rendered");
       }
@@ -349,8 +300,10 @@ export class SurveyQuestionAndErrorsCell extends ReactSurveyElement {
   protected getCellClass(): any {
     return null;
   }
-  render(): JSX.Element {
-    if (!this.question) return null;
+  protected canRender(): boolean {
+    return !!this.question;
+  }
+  protected renderElement(): JSX.Element {
     var errorsLocation = this.creator.questionErrorLocation();
     var errors = this.getShowErrors() ? (
       <SurveyElementErrors
@@ -366,7 +319,7 @@ export class SurveyQuestionAndErrorsCell extends ReactSurveyElement {
     var style = this.getCellStyle();
     return (
       <td
-        ref="cell"
+        ref={this.cellRef}
         className={this.getCellClass() + " " + this.cssClasses.cell}
         headers={this.question.isVisible ? this.getHeaderText() : ""}
         style={style}

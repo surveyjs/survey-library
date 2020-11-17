@@ -2,12 +2,14 @@ import * as React from "react";
 import { SurveyQuestionElementBase } from "./reactquestion_element";
 
 export class SurveyCustomWidget extends SurveyQuestionElementBase {
+  private widgetRef: React.RefObject<HTMLDivElement>;
   constructor(props: any) {
     super(props);
+    this.widgetRef = React.createRef();
   }
   private _afterRender() {
     if (this.questionBase.customWidget) {
-      let el = this.refs["widget"];
+      let el = this.widgetRef.current;
       if (!!el) {
         this.questionBase.customWidget.afterRender(this.questionBase, el);
         this.questionBase.customWidgetData.isNeedRender = false;
@@ -32,25 +34,21 @@ export class SurveyCustomWidget extends SurveyQuestionElementBase {
   componentWillUnmount() {
     super.componentWillUnmount();
     if (this.questionBase.customWidget) {
-      let el = this.refs["widget"];
+      let el = this.widgetRef.current;
       if (!!el) {
         this.questionBase.customWidget.willUnmount(this.questionBase, el);
       }
     }
   }
-  render(): JSX.Element {
-    if (!this.questionBase || !this.creator) {
-      return null;
-    }
-    if (!this.questionBase.visible) {
-      return null;
-    }
-
+  protected canRender(): boolean {
+    return super.canRender() && this.questionBase.visible;
+  }
+  protected renderElement(): JSX.Element {
     let customWidget = this.questionBase.customWidget;
 
     if (customWidget.isDefaultRender) {
       return (
-        <div ref="widget">
+        <div ref={this.widgetRef}>
           {this.creator.createQuestionElement(this.questionBase)}
         </div>
       );
@@ -62,9 +60,9 @@ export class SurveyCustomWidget extends SurveyQuestionElementBase {
     } else {
       if (customWidget.htmlTemplate) {
         let htmlValue = { __html: customWidget.htmlTemplate };
-        return <div ref="widget" dangerouslySetInnerHTML={htmlValue} />;
+        return <div ref={this.widgetRef} dangerouslySetInnerHTML={htmlValue} />;
       }
     }
-    return <div ref="widget">{widget}</div>;
+    return <div ref={this.widgetRef}>{widget}</div>;
   }
 }

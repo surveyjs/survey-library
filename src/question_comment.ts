@@ -68,6 +68,28 @@ export class QuestionCommentModel extends Question {
   isEmpty(): boolean {
     return super.isEmpty() || this.value === "";
   }
+  /**
+   * Gets or sets a value that specifies how the question updates it's value.
+   *
+   * The following options are available:
+   * - `default` - get the value from survey.textUpdateMode
+   * - `onBlur` - the value is updated after an input loses the focus.
+   * - `onTyping` - update the value of text questions, "text" and "comment", on every key press.
+   *
+   * Note, that setting to "onTyping" may lead to a performance degradation, in case you have many expressions in the survey.
+   * @see survey.textUpdateMode
+   */
+  public get textUpdateMode(): string {
+    return this.getPropertyValue("textUpdateMode");
+  }
+  public set textUpdateMode(val: string) {
+    this.setPropertyValue("textUpdateMode", val);
+  }
+  public get isSurveyInputTextUpdate(): boolean {
+    if (this.textUpdateMode == "default")
+      return !!this.survey ? this.survey.isUpdateValueTextOnTyping : false;
+    return this.textUpdateMode == "onTyping";
+  }
   protected addSupportedValidators(supportedValidators: Array<string>) {
     super.addSupportedValidators(supportedValidators);
     supportedValidators.push("text", "regex");
@@ -80,6 +102,11 @@ Serializer.addClass(
     { name: "cols:number", default: 50 },
     { name: "rows:number", default: 4 },
     { name: "placeHolder", serializationProperty: "locPlaceHolder" },
+    {
+      name: "textUpdateMode",
+      default: "default",
+      choices: ["default", "onBlur", "onTyping"],
+    },
   ],
   function () {
     return new QuestionCommentModel("");

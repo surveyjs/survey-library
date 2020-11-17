@@ -172,8 +172,24 @@ export class Trigger extends Base {
     if (!keys) return false;
     this.buildUsedNames();
     if (this.hasFunction === true) return true;
+    var processValue = new ProcessValue();
     for (var i = 0; i < this.usedNames.length; i++) {
-      if (keys.hasOwnProperty(this.usedNames[i])) return true;
+      var name = this.usedNames[i];
+      var firstName = processValue.getFirstName(name);
+      if (!keys.hasOwnProperty(firstName)) continue;
+      if (name == firstName) return true;
+      var keyValue = keys[firstName];
+      if (
+        !keyValue.hasOwnProperty("oldValue") ||
+        !keyValue.hasOwnProperty("newValue")
+      )
+        return true;
+      var v: any = {};
+      v[firstName] = keyValue["oldValue"];
+      var oldValue = processValue.getValue(name, v);
+      v[firstName] = keyValue["newValue"];
+      var newValue = processValue.getValue(name, v);
+      return !Helpers.isTwoValueEquals(oldValue, newValue);
     }
     return false;
   }
@@ -187,10 +203,6 @@ export class Trigger extends Base {
     this.conditionRunner = new ConditionRunner(expression);
     this.hasFunction = this.conditionRunner.hasFunction();
     this.usedNames = this.conditionRunner.getVariables();
-    var processValue = new ProcessValue();
-    for (var i = 0; i < this.usedNames.length; i++) {
-      this.usedNames[i] = processValue.getFirstName(this.usedNames[i]);
-    }
   }
   private get isRequireValue(): boolean {
     return this.operator !== "empty" && this.operator != "notempty";
@@ -321,6 +333,9 @@ export class SurveyTriggerSkip extends SurveyTrigger {
   }
   public set gotoName(val: string) {
     this.setPropertyValue("gotoName", val);
+  }
+  public get isOnNextPage() {
+    return !settings.executeSkipTriggerOnValueChanged;
   }
   protected onSuccess(values: HashTable<any>, properties: HashTable<any>) {
     if (!this.gotoName || !this.owner) return;

@@ -1,9 +1,22 @@
 <template>
   <div v-if="question.isVisible" :class="question.cssClasses.panel.container" :style="rootStyle">
     <h4 v-show="hasTitle" :class="getTitleStyle()" v-on:click="changeExpanded">
-      <span v-if="question.no" style="position: static;">{{question.no}}</span>
+      <span v-if="question.isRequireTextOnStart" :class="requiredTextCss">{{question.requiredText}}</span>
+      <span
+        v-if="question.no"
+        style="position: static;"
+        :class="question.cssClasses.number"
+      >{{question.no}}</span>
+      <span
+        v-if="question.isRequireTextBeforeTitle"
+        :class="requiredTextCss"
+      >{{question.requiredText}}</span>
       <survey-string :locString="question.locTitle" />
-      <span v-show="showIcon" :class="iconCss"></span>
+      <span
+        v-if="question.isRequireTextAfterTitle"
+        :class="requiredTextCss"
+      >{{question.requiredText}}</span>
+      <span v-show="showIcon" :class="iconCss" v-on:keyup.enter="changeExpanded" tabindex="0"></span>
     </h4>
     <div :class="question.cssClasses.panel.description">
       <survey-string :locString="question.locDescription" />
@@ -38,16 +51,18 @@
 import Vue from "vue";
 import { Component, Prop } from "vue-property-decorator";
 import { PanelModelBase, PanelModel, QuestionRowModel } from "../panel";
-import { ISurvey } from "../base";
+import { ISurvey, Base } from "../base";
+import {BaseVue} from "./base";
 
 @Component
-export class Panel extends Vue {
+export class Panel extends BaseVue {
   @Prop question: PanelModel;
   @Prop isEditMode: Boolean;
   @Prop css: any;
   private isCollapsedValue: boolean = false;
 
-  mounted() {
+  protected getModel(): Base { return this.question; }
+  protected onMounted() {
     if (this.question.survey) {
       this.question.survey.afterRenderPanel(this.question, this.$el);
     }
@@ -118,7 +133,17 @@ export class Panel extends Vue {
     if (this.question.isCollapsed || this.question.isExpanded) {
       result += " " + this.css.panel.titleExpandable;
     }
+    if (this.question.containsErrors) {
+      result += " " + this.question.cssClasses.panel.titleOnError;
+    }
     return result;
+  }
+
+  get requiredTextCss() {
+    return (
+      this.question.cssClasses.requiredText ||
+      this.question.cssClasses.panel.requiredText
+    );
   }
 }
 Vue.component("survey-panel", Panel);

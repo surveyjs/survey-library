@@ -5,12 +5,11 @@ import { ReactQuestionFactory } from "./reactquestion_factory";
 
 export class SurveyQuestionComment extends SurveyQuestionUncontrolledElement<
   QuestionCommentModel
-  > {
+> {
   constructor(props: any) {
     super(props);
   }
-  render(): JSX.Element {
-    if (!this.question) return null;
+  protected renderElement(): JSX.Element {
     var cssClasses = this.question.cssClasses;
     var onBlur = !this.question.isInputTextUpdate
       ? this.updateValueOnEvent
@@ -37,16 +36,20 @@ export class SurveyQuestionComment extends SurveyQuestionUncontrolledElement<
         aria-required={this.question.isRequired}
         aria-label={this.question.locTitle.renderedHtml}
         aria-invalid={this.question.errors.length > 0}
-        aria-describedby={this.question.errors.length > 0 ? this.question.id + '_errors' : null}
+        aria-describedby={
+          this.question.errors.length > 0 ? this.question.id + "_errors" : null
+        }
       />
     );
   }
 }
 
 export class SurveyQuestionCommentItem extends ReactSurveyElement {
-  render(): JSX.Element {
+  protected canRender(): boolean {
+    return !!this.props.question;
+  }
+  protected renderElement(): JSX.Element {
     let question = this.props.question;
-    if (!question) return null;
     let className = this.props.otherCss || this.cssClasses.comment;
     let handleOnChange = (event: any) => {
       this.setState({ comment: event.target.value });
@@ -54,8 +57,8 @@ export class SurveyQuestionCommentItem extends ReactSurveyElement {
     let updateValueOnEvent = (event: any) => {
       question.comment = event.target.value;
     };
-    var onBlur = !question.isSurveyInputTextUpdate ? updateValueOnEvent : null;
-    var onInput = question.isSurveyInputTextUpdate ? updateValueOnEvent : null;
+    var onBlur = !question.isInputTextUpdate ? updateValueOnEvent : null;
+    var onInput = question.isInputTextUpdate ? updateValueOnEvent : null;
 
     let comment =
       !!this.state && this.state.comment !== undefined

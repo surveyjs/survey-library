@@ -12,6 +12,8 @@ import {
   SurveyElement,
   SurveyError,
   ISurveyErrorOwner,
+  ITitleOwner,
+  IProgressInfo,
 } from "./base";
 import { Question } from "./question";
 import { ConditionRunner } from "./conditions";
@@ -20,6 +22,7 @@ import { ILocalizableOwner, LocalizableString } from "./localizablestring";
 import { OneAnswerRequiredError } from "./error";
 import { PageModel } from "./page";
 import { settings } from "./settings";
+import { findScrollableParent, isElementVisible } from "./utils/utils";
 
 export class DragDropInfo {
   constructor(
@@ -33,8 +36,35 @@ export class DragDropInfo {
 }
 
 export class QuestionRowModel extends Base {
+  private _scrollableParent: any = undefined;
+  private _updateVisibility: any = undefined;
+  public startLazyRendering(rowContainerDiv: HTMLElement) {
+    this._scrollableParent = findScrollableParent(rowContainerDiv);
+    this._updateVisibility = () => {
+      var isRowContainerDivVisible = isElementVisible(rowContainerDiv, 50);
+      if (!this.isNeedRender && isRowContainerDivVisible) {
+        this.isNeedRender = true;
+        this.stopLazyRendering();
+      }
+    };
+    setTimeout(() => {
+      this._scrollableParent.addEventListener("scroll", this._updateVisibility);
+      this._updateVisibility();
+    }, 10);
+  }
+  public stopLazyRendering() {
+    if (!!this._scrollableParent && !!this._updateVisibility) {
+      this._scrollableParent.removeEventListener(
+        "scroll",
+        this._updateVisibility
+      );
+    }
+    this._scrollableParent = undefined;
+    this._updateVisibility = undefined;
+  }
   constructor(public panel: PanelModelBase) {
     super();
+    this.isNeedRender = !settings.lazyRowsRendering;
     this.visible = panel.areInvisibleElementsShowing;
     this.createNewArray("elements");
   }
@@ -46,6 +76,12 @@ export class QuestionRowModel extends Base {
   }
   public set visible(val: boolean) {
     this.setPropertyValue("visible", val);
+  }
+  public get isNeedRender(): boolean {
+    return this.getPropertyValue("isneedrender", true);
+  }
+  public set isNeedRender(val: boolean) {
+    this.setPropertyValue("isneedrender", val);
   }
   public get visibleElements(): Array<IElement> {
     return this.elements.filter((e) => e.isVisible);
@@ -104,9 +140,6 @@ export class QuestionRowModel extends Base {
     ) {
       el.minWidth = el.width;
       el.maxWidth = el.width;
-    } else {
-      el.minWidth = "300px";
-      el.maxWidth = "initial";
     }
   }
 
@@ -141,7 +174,8 @@ export class QuestionRowModel extends Base {
 /**
  * A base class for a Panel and Page objects.
  */
-export class PanelModelBase extends SurveyElement
+export class PanelModelBase
+  extends SurveyElement
   implements IPanel, IConditionRunner, ILocalizableOwner, ISurveyErrorOwner {
   private static panelCounter = 100;
   private static getPanelId(): string {
@@ -209,7 +243,9 @@ export class PanelModelBase extends SurveyElement
   get _showDescription(): boolean {
     return (
       ((<any>this.survey).showPageTitles && this.description.length > 0) ||
-      (this.isDesignMode && settings.allowShowEmptyTitleInDesignMode)
+      (this.isDesignMode &&
+        settings.allowShowEmptyTitleInDesignMode &&
+        settings.allowShowEmptyDescriptionInDesignMode)
     );
   }
   /**
@@ -230,6 +266,27 @@ export class PanelModelBase extends SurveyElement
     for (var i = 0; i < this.elements.length; i++) {
       this.elements[i].locStrsChanged();
     }
+  }
+  /**
+   * Returns the char/string for a required panel.
+   * @see SurveyModel.requiredText
+   */
+  public get requiredText(): string {
+    return this.survey != null && this.isRequired
+      ? this.survey.requiredText
+      : "";
+  }
+  protected get titlePattern(): string {
+    return !!this.survey ? this.survey.questionTitlePattern : "numTitleRequire";
+  }
+  public get isRequireTextOnStart() {
+    return this.isRequired && this.titlePattern == "requireNumTitle";
+  }
+  public get isRequireTextBeforeTitle() {
+    return this.isRequired && this.titlePattern == "numRequireTitle";
+  }
+  public get isRequireTextAfterTitle() {
+    return this.isRequired && this.titlePattern == "numTitleRequire";
   }
   /**
    * The custom text that will be shown on required error. Use this property, if you do not want to show the default text.
@@ -341,6 +398,10 @@ export class PanelModelBase extends SurveyElement
     }
 
     return this.questionsValue;
+  }
+  protected getValidName(name: string): string {
+    if (!!name) return name.trim();
+    return name;
   }
   /**
    * Returns the question by its name
@@ -471,6 +532,17 @@ export class PanelModelBase extends SurveyElement
   }
   public set isRequired(val: boolean) {
     this.setPropertyValue("isRequired", val);
+  }
+  /**
+   * An expression that returns true or false. If it returns true the Panel/Page becomes required.
+   * The library runs the expression on survey start and on changing a question value. If the property is empty then isRequired property is used.
+   * @see isRequired
+   */
+  public get requiredIf(): string {
+    return this.getPropertyValue("requiredIf", "");
+  }
+  public set requiredIf(val: string) {
+    this.setPropertyValue("requiredIf", val);
   }
   /**
    * Returns true, if there is an error on this Page or inside the current Panel
@@ -724,6 +796,12 @@ export class PanelModelBase extends SurveyElement
   }
   getChildrenLayoutType(): string {
     return "row";
+  }
+  public getProgressInfo(): IProgressInfo {
+    return SurveyElement.getProgressInfoByElements(
+      <Array<SurveyElement>>(<any>this.elements),
+      this.isRequired
+    );
   }
   protected get root(): PanelModelBase {
     var res = <PanelModelBase>this;
@@ -1103,21 +1181,17 @@ export class PanelModelBase extends SurveyElement
   public removeQuestion(question: Question) {
     this.removeElement(question);
   }
-  private conditionVersion = -1;
   runCondition(values: HashTable<any>, properties: HashTable<any>) {
     if (this.isDesignMode) return;
-    if (values.conditionVersion < this.conditionVersion) return;
-    this.conditionVersion = values.conditionVersion;
     var elements = this.elements.slice();
     for (var i = 0; i < elements.length; i++) {
-      if (values.conditionVersion < this.conditionVersion) return;
       elements[i].runCondition(values, properties);
     }
-    if (values.conditionVersion < this.conditionVersion) return;
     if (!this.areInvisibleElementsShowing) {
       this.runVisibleCondition(values, properties);
     }
     this.runEnableCondition(values, properties);
+    this.runRequiredCondition(values, properties);
   }
   private runVisibleCondition(
     values: HashTable<any>,
@@ -1141,9 +1215,27 @@ export class PanelModelBase extends SurveyElement
     };
     conditionRunner.run(values, properties);
   }
+  private runRequiredCondition(
+    values: HashTable<any>,
+    properties: HashTable<any>
+  ) {
+    if (!this.requiredIf) return;
+    var conditionRunner = new ConditionRunner(this.requiredIf);
+    conditionRunner.onRunComplete = (res: boolean) => {
+      this.isRequired = res;
+    };
+    conditionRunner.run(values, properties);
+  }
   onAnyValueChanged(name: string) {
-    for (var i = 0; i < this.elements.length; i++) {
-      this.elements[i].onAnyValueChanged(name);
+    var els = this.elements;
+    for (var i = 0; i < els.length; i++) {
+      els[i].onAnyValueChanged(name);
+    }
+  }
+  checkBindings(valueName: string, value: any) {
+    var els = this.elements;
+    for (var i = 0; i < els.length; i++) {
+      (<Base>(<any>els[i])).checkBindings(valueName, value);
     }
   }
   protected dragDropAddTarget(dragDropInfo: DragDropInfo) {
@@ -1316,7 +1408,9 @@ export class PanelModelBase extends SurveyElement
  * A container element, similar to the Page objects. However, unlike the Page, Panel can't be a root.
  * It may contain questions and other panels.
  */
-export class PanelModel extends PanelModelBase implements IElement {
+export class PanelModel
+  extends PanelModelBase
+  implements IElement, ITitleOwner {
   stateChangedCallback: () => void;
   public minWidth?: string;
   public maxWidth?: string;
@@ -1634,6 +1728,7 @@ Serializer.addClass(
     { name: "visible:boolean", default: true },
     "visibleIf:condition",
     "enableIf:condition",
+    "requiredIf:condition",
     "readOnly:boolean",
     {
       name: "questionTitleLocation",

@@ -163,10 +163,10 @@ export class StylesManager {
 
     // paneldynamic
     ".sv_main .sv-paneldynamic__progress-container":
-      "position: relative; margin-right: 250px; margin-top: 20px;",
-    ".sv_main .sv-paneldynamic__add-btn": "float: right; margin-top: -18px;",
+      "position: relative; display: inline-block; width: calc(100% - 250px); margin-top: 20px;",
+    ".sv_main .sv-paneldynamic__add-btn": "float: right;",
     ".sv_main .sv-paneldynamic__add-btn--list-mode":
-      "  float: none; margin-top: 1em;",
+      "float: none; margin-top: 0;",
     ".sv_main .sv-paneldynamic__remove-btn ": "margin-top: 1.25em;",
     ".sv_main .sv-paneldynamic__prev-btn, .sv_main .sv-paneldynamic__next-btn":
       "box-sizing: border-box; display: inline-block; cursor: pointer; width: 0.7em; top: -0.28em; position: absolute;",
@@ -224,7 +224,7 @@ export class StylesManager {
       "display: block; width: 100%; text-align: center;",
     ".sv_main .sv-logo--bottom":
       "display: block; width: 100%; text-align: center;",
-    ".sv_main .sv_header__text": "display: inline-block; vertical-align: top;",
+    ".sv_main .sv_header__text": "display: inline-block; vertical-align: top; width: 100%",
   };
 
   public static Media: { [key: string]: { media: string; style: string } } = {
@@ -567,19 +567,19 @@ export class StylesManager {
       "background-color: $body-container-background-color;",
 
     ".sv_default_css .sv_q_other input":
-      "color: $text-color; border-color: $border-color; background-color: $inputs-background-color;",
+      "color: $text-color; -webkit-text-fill-color: $text-color; border-color: $border-color; background-color: $inputs-background-color;",
     ".sv_default_css .sv_q_text_root":
-      "color: $text-color; border-color: $border-color; background-color: $inputs-background-color;",
+      "color: $text-color; -webkit-text-fill-color: $text-color; border-color: $border-color; background-color: $inputs-background-color;",
     ".sv_default_css .sv_q_dropdown_control":
       "color: $text-color; border-color: $border-color; background-color: $inputs-background-color;",
     ".sv_default_css input[type='text']":
-      "color: $text-color; border-color: $border-color; background-color: $inputs-background-color;",
+      "color: $text-color; -webkit-text-fill-color: $text-color; border-color: $border-color; background-color: $inputs-background-color;",
     ".sv_default_css select":
       "color: $text-color; border-color: $border-color; background-color: $inputs-background-color;",
     ".sv_default_css textarea":
-      "color: $text-color; border-color: $border-color; background-color: $inputs-background-color;",
+      "color: $text-color; -webkit-text-fill-color: $text-color; border-color: $border-color; background-color: $inputs-background-color;",
     ".sv_default_css input:not([type='button']):not([type='reset']):not([type='submit']):not([type='image']):not([type='checkbox']):not([type='radio'])":
-      "border: 1px solid $border-color; background-color: $inputs-background-color;color: $text-color;",
+      "border: 1px solid $border-color; background-color: $inputs-background-color;color: $text-color; -webkit-text-fill-color: $text-color;",
     ".sv_default_css input:not([type='button']):not([type='reset']):not([type='submit']):not([type='image']):not([type='checkbox']):not([type='radio']):focus":
       "border: 1px solid $main-color;",
     ".sv_default_css .sv_container .sv_body .sv_p_root .sv_q .sv_select_wrapper .sv_q_dropdown_control ":
@@ -698,9 +698,9 @@ export class StylesManager {
       "background-color: $disable-color; border-color: $disable-color;",
     ".sv-item__control:focus + .sv-item__decorator":
       "border-color: $main-color;",
-    ".sv-matrix__text--сhecked":
+    ".sv-matrix__text--checked":
       "color: $inputs-background-color; background-color: $main-color;",
-    ".sv-matrix__text--disabled.sv-matrix__text--сhecked":
+    ".sv-matrix__text--disabled.sv-matrix__text--checked":
       "background-color: $disable-color;",
     ".sv-matrixdynamic__add-btn": "background-color: $add-button-color;",
     ".sv-matrixdynamic__remove-btn": "background-color: $remove-button-color;",
@@ -718,6 +718,7 @@ export class StylesManager {
     ".sv-question__title--answer":
       "background-color: $answer-background-color;",
     ".sv-question__title--error": "background-color: $error-background-color;",
+    ".sv-panel__title--error": "background-color: $error-background-color;",
     ".sv-radio__svg": "border-color: $border-color; fill: transparent;",
     ".sv-radio--allowhover:hover .sv-radio__svg": "fill: $border-color;",
     ".sv-radio--checked .sv-radio__svg":
@@ -867,7 +868,8 @@ export class StylesManager {
 
   private sheet: CSSStyleSheet = null;
 
-  static findSheet(styleSheetId: string) {
+  static findSheet(styleSheetId: string): any {
+    if (typeof document === "undefined") return null;
     for (let i = 0; i < document.styleSheets.length; i++) {
       if (
         !!document.styleSheets[i].ownerNode &&

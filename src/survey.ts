@@ -15,6 +15,7 @@ import {
   ISurveyErrorOwner,
   ISurveyElement,
   SurveyElement,
+  IProgressInfo,
 } from "./base";
 import { surveyCss } from "./defaultCss/cssstandard";
 import { ISurveyTriggerOwner, SurveyTrigger } from "./trigger";
@@ -42,7 +43,8 @@ import { settings } from "./settings";
 /**
  * The `Survey` object contains information about the survey, Pages, Questions, flow logic and etc.
  */
-export class SurveyModel extends Base
+export class SurveyModel
+  extends Base
   implements
     ISurvey,
     ISurveyData,
@@ -78,6 +80,7 @@ export class SurveyModel extends Base
 
   private valuesHash: HashTable<any> = {};
   private variablesHash: HashTable<any> = {};
+  private editingObjValue: Base;
 
   private localeValue: string = "";
 
@@ -90,6 +93,7 @@ export class SurveyModel extends Base
    * The event is fired before the survey is completed and the `onComplete` event is fired. You can prevent the survey from completing by setting `options.allowComplete` to `false`
    * <br/> `sender` - the survey object that fires the event.
    * <br/> `options.allowComplete` - Specifies whether a user can complete a survey. Set this property to `false` to prevent the survey from completing. The default value is `true`.
+   * <br/> `options.isCompleteOnTrigger` - returns true if the survey is completing on "complete" trigger.
    * @see onComplete
    */
   public onCompleting: Event<
@@ -103,7 +107,8 @@ export class SurveyModel extends Base
    * <br/> `options.showDataSavingError(text)` - call this method to show that an error occurred while saving the data on your server. If you want to show a custom error, use an optional `text` parameter.
    * <br/> `options.showDataSavingSuccess(text)` - call this method to show that the data was successfully saved on the server.
    * <br/> `options.showDataSavingClear` - call this method to hide the text about the saving progress.
-   * @see data
+   * <br/> `options.isCompleteOnTrigger` - returns true if the survey is completed on "complete" trigger.
+   *  @see data
    * @see clearInvisibleValues
    * @see completeLastPage
    * @see surveyPostId
@@ -414,12 +419,40 @@ export class SurveyModel extends Base
     any
   > = new Event<(sender: SurveyModel, options: any) => any, any>();
   /**
-   * Use this event to change the question title in code.
+   * Use this event to change the question title in code. If you want to remove question numbering then set showQuestionNumbers to "off".
    * <br/> `sender` - the survey object that fires the event.
-   * <br/> `options.title` - a calculated question title, based on question `title`, `name`, `isRequired`, and `visibleIndex` properties.
+   * <br/> `options.title` - a calculated question title, based on question `title`, `name`.
    * <br/> `options.question` - a question object.
+   * @see showQuestionNumbers
+   * @see requiredText
    */
   public onGetQuestionTitle: Event<
+    (sender: SurveyModel, options: any) => any,
+    any
+  > = new Event<(sender: SurveyModel, options: any) => any, any>();
+  /**
+   * Use this event to change the question no in code. If you want to remove question numbering then set showQuestionNumbers to "off".
+   * <br/> `sender` - the survey object that fires the event.
+   * <br/> `options.no` - a calculated question no, based on question `visibleIndex`, survey `.questionStartIndex` properties. You can change it.
+   * <br/> `options.question` - a question object.
+   * @see showQuestionNumbers
+   * @see questionStartIndex
+   */
+  public onGetQuestionNo: Event<
+    (sender: SurveyModel, options: any) => any,
+    any
+  > = new Event<(sender: SurveyModel, options: any) => any, any>();
+  /**
+   * Use this event to change the progress text in code.
+   * <br/> `sender` - the survey object that fires the event.
+   * <br/> `options.text` - a progress text, that SurveyJS will render in progress bar.
+   * <br/> `options.questionCount` - a number of questions that have input(s). We do not count html or expression questions
+   * <br/> `options.answeredQuestionCount` - a number of questions that have input(s) and an user has answered.
+   * <br/> `options.requiredQuestionCount` - a number of required questions that have input(s). We do not count html or expression questions
+   * <br/> `options.requiredAnsweredQuestionCount` - a number of required questions that have input(s) and an user has answered.
+   *  @see progressBarType
+   */
+  public onProgressText: Event<
     (sender: SurveyModel, options: any) => any,
     any
   > = new Event<(sender: SurveyModel, options: any) => any, any>();
@@ -460,9 +493,9 @@ export class SurveyModel extends Base
   /**
    * The event is fired on uploading the file in QuestionFile when `storeDataAsText` is set to `false`. Use this event to change the uploaded file name or to prevent a particular file from being uploaded.
    * <br/> `sender` - the survey object that fires the event.
-   * <br/> `options.name` - the file name.
-   * <br/> `options.file` - the Javascript File object.
-   * <br/> `options.accept` - a boolean value, `true` by default. Set it to `false` to deny this file uploading.
+   * <br/> `options.question` - the file question instance.
+   * <br/> `options.name` - the file question name.
+   * <br/> `options.files` - the Javascript File objects array to upload.
    * @see uploadFiles
    * @see QuestionFileModel.storeDataAsText
    */
@@ -486,6 +519,7 @@ export class SurveyModel extends Base
   /**
    * This event is fired on clearing the value in a QuestionFile. Use this event to remove files stored on your server.
    * <br/> `sender` - the survey object that fires the event.
+   * <br/> `question` - the question instance.
    * <br/> `options.name` - the question name.
    * <br/> `options.value` - the question value.
    * <br/> `options.fileName` - a removed file's name, set it to `null` to clear all files.
@@ -900,9 +934,15 @@ export class SurveyModel extends Base
     ) {
       self.getProcessedTextValue(textValue);
     };
-    this.createNewArray("pages", function (value: any) {
-      self.doOnPageAdded(value);
-    });
+    this.createNewArray(
+      "pages",
+      function (value: any) {
+        self.doOnPageAdded(value);
+      },
+      function (value: any) {
+        self.doOnPageRemoved(value);
+      }
+    );
     this.createNewArray("triggers", function (value: any) {
       value.setOwner(self);
     });
@@ -924,6 +964,12 @@ export class SurveyModel extends Base
     this.registerFunctionOnPropertyValueChanged("mode", function () {
       self.onModeChanged();
     });
+    this.registerFunctionOnPropertyValueChanged("progressBarType", function () {
+      self.updateProgressText();
+    });
+    this.onProgressText.onCallbacksChanged = () => {
+      this.updateProgressText();
+    };
     this.onBeforeCreating();
     if (jsonObj) {
       if (typeof jsonObj === "string" || jsonObj instanceof String) {
@@ -1217,7 +1263,8 @@ export class SurveyModel extends Base
     var url = this.getNavigateToUrl();
     var options = { url: url };
     this.onNavigateToUrl.fire(this, options);
-    if (!options.url || !window || !window.location) return;
+    if (!options.url || typeof window === "undefined" || !window.location)
+      return;
     window.location.href = options.url;
   }
   /**
@@ -1382,13 +1429,27 @@ export class SurveyModel extends Base
    * For example the value that doesn't exists in a radiogroup/dropdown/checkbox choices or matrix rows/columns.
    * Please note, this function doesn't clear values for invisible questions or values that doesn't associated with questions.
    * In fact this function just call clearIncorrectValues function of all questions in the survey
+   * @param removeNonExisingRootKeys - set this parameter to true to remove keys from survey.data that doesn't have corresponded questions and calculated values
    * @see Question.clearIncorrectValues
    * @see Page.clearIncorrectValues
    * @see Panel.clearIncorrectValues
    */
-  public clearIncorrectValues() {
+  public clearIncorrectValues(removeNonExisingRootKeys: boolean = false) {
     for (var i = 0; i < this.pages.length; i++) {
       this.pages[i].clearIncorrectValues();
+    }
+    if (!removeNonExisingRootKeys) return;
+    var data = this.data;
+    var hasChanges = false;
+    for (var key in data) {
+      if (!!this.getQuestionByValueName(key)) continue;
+      var calcValue = this.getCalculatedValueByName(key);
+      if (!!calcValue && calcValue.includeIntoResult) continue;
+      hasChanges = true;
+      delete data[key];
+    }
+    if (hasChanges) {
+      this.data = data;
     }
   }
 
@@ -1403,12 +1464,13 @@ export class SurveyModel extends Base
     surveyLocalization.currentLocale = value;
     this.localeValue = surveyLocalization.currentLocale;
     this.setPropertyValue("locale", this.localeValue);
+    if (this.isLoadingFromJson) return;
     this.locStrsChanged();
     this.onLocaleChanged();
     this.onLocaleChangedEvent.fire(this, value);
   }
   /**
-   * Returns an array of locales that are used in the current survey.
+   * Returns an array of locales that are used in the survey's translation.
    */
   public getUsedLocales(): Array<string> {
     var locs = new Array<string>();
@@ -1434,6 +1496,10 @@ export class SurveyModel extends Base
   }
   public locStrsChanged() {
     super.locStrsChanged();
+    this.updateProgressText();
+    if (this.isStartedState && this.startedPage) {
+      this.startedPage.locStrsChanged();
+    }
     if (this.currentPage) {
       this.currentPage.locStrsChanged();
     }
@@ -1607,6 +1673,12 @@ export class SurveyModel extends Base
     var values = this.getFilteredValues();
     var properties = this.getFilteredProperties();
     return new ConditionRunner(expression).run(values, properties);
+  }
+  /**
+   * Run all triggers that performs on value changed and not on moving to the next page.
+   */
+  public runTriggers(): void {
+    this.checkTriggers(this.data, false);
   }
   public get renderedCompletedHtml(): string {
     var item = this.getExpressionItemOnRunCondition(
@@ -1893,6 +1965,12 @@ export class SurveyModel extends Base
     this.onGetQuestionTitle.fire(this, options);
     return options.title;
   }
+  getUpdatedQuestionNo(question: IQuestion, no: string): string {
+    if (this.onGetQuestionNo.isEmpty) return no;
+    var options = { question: question, no: no };
+    this.onGetQuestionNo.fire(this, options);
+    return options.no;
+  }
   /**
    * Gets or sets whether the survey displays page numbers on pages titles.
    */
@@ -1946,14 +2024,15 @@ export class SurveyModel extends Base
    *
    * - `pages` (default),
    * - `questions`,
+   * - `requiredQuestions`,
    * - `correctQuestions`,
-   * - `buttons`.
+   * - `buttons`
    */
   public get progressBarType(): string {
     return this.getPropertyValue("progressBarType");
   }
   public set progressBarType(newValue: string) {
-    this.setPropertyValue("progressBarType", newValue.toLowerCase());
+    this.setPropertyValue("progressBarType", newValue);
   }
   public get isShowProgressBarOnTop(): boolean {
     return this.showProgressBar === "top" || this.showProgressBar === "both";
@@ -2055,7 +2134,9 @@ export class SurveyModel extends Base
    */
   public get data(): any {
     var result: { [index: string]: any } = {};
-    for (var key in this.valuesHash) {
+    var keys = this.getValuesKeys();
+    for (var i = 0; i < keys.length; i++) {
+      var key = keys[i];
       var dataValue = this.getDataValueCore(this.valuesHash, key);
       if (dataValue !== undefined) {
         result[key] = dataValue;
@@ -2088,6 +2169,32 @@ export class SurveyModel extends Base
     this.notifyAllQuestionsOnValueChanged();
     this.notifyElementsOnAnyValueOrVariableChanged("");
     this.runConditions();
+  }
+  public get editingObj(): Base {
+    return this.editingObjValue;
+  }
+  private onEditingObjPropertyChanged: (sender: Base, options: any) => void;
+  public set editingObj(val: Base) {
+    if (this.editingObj == val) return;
+    if (!!this.editingObj) {
+      this.editingObj.onPropertyChanged.remove(
+        this.onEditingObjPropertyChanged
+      );
+    }
+    this.editingObjValue = val;
+    if (!val) {
+      var questions = this.getAllQuestions();
+      for (var i = 0; i < questions.length; i++) {
+        questions[i].unbindValue();
+      }
+    }
+    if (!!this.editingObj) {
+      this.setDataCore({});
+      this.onEditingObjPropertyChanged = (sender: Base, options: any) => {
+        this.updateOnSetValue(options.name, options.newValue, options.oldValue);
+      };
+      this.editingObj.onPropertyChanged.add(this.onEditingObjPropertyChanged);
+    }
   }
   private setCalcuatedValuesIntoResult(result: any) {
     for (var i = 0; i < this.calculatedValues.length; i++) {
@@ -2132,43 +2239,55 @@ export class SurveyModel extends Base
     });
     return result;
   }
-  private conditionVersion = 0;
   getFilteredValues(): any {
     var values: { [index: string]: any } = {};
     for (var key in this.variablesHash) values[key] = this.variablesHash[key];
-    for (var key in this.valuesHash)
+    var keys = this.getValuesKeys();
+    for (var i = 0; i < keys.length; i++) {
+      var key = keys[i];
       values[key] = this.getDataValueCore(this.valuesHash, key);
-    values["conditionVersion"] = ++this.conditionVersion;
+    }
     return values;
   }
   getFilteredProperties(): any {
     return { survey: this };
   }
-
+  private getValuesKeys(): Array<string> {
+    if (!this.editingObj) return Object.keys(this.valuesHash);
+    var props = Serializer.getPropertiesByObj(this.editingObj);
+    var res = [];
+    for (var i = 0; i < props.length; i++) {
+      res.push(props[i].name);
+    }
+    return res;
+  }
   public getDataValueCore(valuesHash: any, key: string) {
+    if (!!this.editingObj) return this.editingObj.getPropertyValue(key);
     return valuesHash[key];
   }
   public setDataValueCore(valuesHash: any, key: string, value: any) {
-    valuesHash[key] = value;
+    if (!!this.editingObj) {
+      (<any>this.editingObj)[key] = value;
+    } else {
+      valuesHash[key] = value;
+    }
   }
   public deleteDataValueCore(valuesHash: any, key: string) {
-    delete valuesHash[key];
+    if (!!this.editingObj) {
+      (<any>this.editingObj)[key] = null;
+    } else {
+      delete valuesHash[key];
+    }
   }
-  // protected iterateDataValuesHash(func: (hash: any, key: any) => void) {
-  //   var keys: any[] = [];
-  //   for (var key in this.valuesHash) {
-  //     keys.push(key);
-  //   }
-  //   keys.forEach(key => func(this.valuesHash, key));
-  // }
-
   /**
    * Returns all comments from the data.
    * @see data
    */
   public get comments(): any {
     var result: { [index: string]: any } = {};
-    for (var key in this.valuesHash) {
+    var keys = this.getValuesKeys();
+    for (var i = 0; i < keys.length; i++) {
+      var key = keys[i];
       if (key.indexOf(this.commentPrefix) > 0) {
         result[key] = this.getDataValueCore(this.valuesHash, key);
       }
@@ -2228,6 +2347,7 @@ export class SurveyModel extends Base
       this.firstPageIsStarted && this.pages.length > 0 ? this.pages[0] : null;
     if (!!page) {
       page.onFirstRendering();
+      page.setWasShown(true);
     }
     return page;
   }
@@ -2238,7 +2358,12 @@ export class SurveyModel extends Base
     var vPages = this.visiblePages;
     if (this.currentPageValue != null) {
       if (vPages.indexOf(this.currentPageValue) < 0) {
-        this.currentPage = null;
+        if (
+          !this.onContainsPageCallback ||
+          !this.onContainsPageCallback(this.currentPageValue)
+        ) {
+          this.currentPage = null;
+        }
       }
     }
     if (this.currentPageValue == null && vPages.length > 0) {
@@ -2254,11 +2379,9 @@ export class SurveyModel extends Base
     if (newPage == this.currentPageValue) return;
     var oldValue = this.currentPageValue;
     if (!this.currentPageChanging(newPage, oldValue)) return;
-    if (!!newPage) {
-      newPage.onFirstRendering();
-    }
     this.currentPageValue = newPage;
     if (!!newPage) {
+      newPage.onFirstRendering();
       newPage.updateCustomWidgets();
       newPage.setWasShown(true);
     }
@@ -2477,34 +2600,36 @@ export class SurveyModel extends Base
   }
   /**
    * Returns the progress that a user made while going through the survey.
+   * It depends from progressBarType property
+   * @see progressBarType
+   * @see progressValue
    */
   public getProgress(): number {
     if (this.currentPage == null) return 0;
-    if (this.progressBarType === "questions") {
-      var questions = this.getQuestionsWithInput();
-      var answeredQuestionsCount = questions.reduce(
-        (a: number, b: Question) => a + (b.isEmpty() ? 0 : 1),
-        0
-      );
-      return Math.ceil((answeredQuestionsCount * 100) / questions.length);
-    }
-    if (this.progressBarType === "correctQuestions") {
-      var questions = this.getQuestionsWithInput();
-      var correctAnswersCount = this.getCorrectedAnswerCount();
-      return Math.ceil((correctAnswersCount * 100) / questions.length);
+    if (this.progressBarType !== "pages") {
+      var info = this.getProgressInfo();
+      if (this.progressBarType === "requiredQuestions") {
+        return info.requiredQuestionCount > 1
+          ? Math.ceil(
+              (info.requiredAnsweredQuestionCount * 100) /
+                info.requiredQuestionCount
+            )
+          : 100;
+      }
+      return info.questionCount > 1
+        ? Math.ceil((info.answeredQuestionCount * 100) / info.questionCount)
+        : 100;
     }
     var index = this.visiblePages.indexOf(this.currentPage) + 1;
     return Math.ceil((index * 100) / this.visiblePageCount);
   }
-  private getQuestionsWithInput(): Array<Question> {
-    var allQuestions = this.getAllQuestions();
-    var questions = new Array<Question>();
-    for (var i = 0; i < allQuestions.length; i++) {
-      if (allQuestions[i].hasInput) {
-        questions.push(allQuestions[i]);
-      }
-    }
-    return questions;
+  /**
+   * Returns the progress that a user made while going through the survey.
+   * It depends from progressBarType property
+   * @see progressBarType
+   */
+  public get progressValue(): number {
+    return this.getPropertyValue("progressValue", 0);
   }
   /**
    * Returns the navigation buttons (i.e., 'Prev', 'Next', or 'Complete') position.
@@ -2617,7 +2742,7 @@ export class SurveyModel extends Base
    * @see state
    */
   public get hasCookie(): boolean {
-    if (!this.cookieName) return false;
+    if (!this.cookieName || typeof document === "undefined") return false;
     var cookies = document.cookie;
     return cookies && cookies.indexOf(this.cookieName + "=true") > -1;
   }
@@ -2628,7 +2753,7 @@ export class SurveyModel extends Base
    * @see deleteCookie
    */
   public setCookie() {
-    if (!this.cookieName) return;
+    if (!this.cookieName || typeof document === "undefined") return;
     document.cookie =
       this.cookieName + "=true; expires=Fri, 31 Dec 9999 0:0:0 GMT";
   }
@@ -2731,13 +2856,20 @@ export class SurveyModel extends Base
     var firstErrorPage = null;
     var res = false;
     for (var i = 0; i < visPages.length; i++) {
-      if (visPages[i].hasErrors(fireCallback, focusOnFirstError)) {
+      if (visPages[i].hasErrors(fireCallback, false)) {
         if (!firstErrorPage) firstErrorPage = visPages[i];
         res = true;
       }
     }
     if (focusOnFirstError && !!firstErrorPage) {
       this.currentPage = firstErrorPage;
+      var questions = firstErrorPage.questions;
+      for (var i = 0; i < questions.length; i++) {
+        if (questions[i].errors.length > 0) {
+          questions[i].focus(true);
+          break;
+        }
+      }
     }
     return res;
   }
@@ -2864,6 +2996,7 @@ export class SurveyModel extends Base
    */
   public prevPage(): boolean {
     if (this.isFirstPage) return false;
+    this.resetNavigationButton();
     var vPages = this.visiblePages;
     var index = vPages.indexOf(this.currentPage);
     this.currentPage = vPages[index - 1];
@@ -2882,6 +3015,14 @@ export class SurveyModel extends Base
     }
     return res;
   }
+  private isNavigationButtonPressed: boolean = false;
+  public navigationMouseDown(): boolean {
+    this.isNavigationButtonPressed = true;
+    return true;
+  }
+  private resetNavigationButton() {
+    this.isNavigationButtonPressed = false;
+  }
   /**
    * Show preview for the survey. Go to the "preview" state
    * @see showPreviewBeforeComplete
@@ -2889,6 +3030,7 @@ export class SurveyModel extends Base
    * @see state
    */
   public showPreview(): boolean {
+    this.resetNavigationButton();
     if (this.hasErrorsOnNavigate(true)) return false;
     this.isShowingPreview = true;
     return true;
@@ -2911,27 +3053,16 @@ export class SurveyModel extends Base
     }
   }
   public cancelPreviewByPage(panel: IPanel): any {
-    var pageIndex = this.getVisiblePageIndexByRootPanel(panel);
-    this.cancelPreview(pageIndex > -1 ? pageIndex : undefined);
-  }
-  private getVisiblePageIndexByRootPanel(panel: IPanel): number {
-    if (!panel) return -1;
-    var panels = this.getAllPanels();
-    var index = 0;
-    for (var i = 0; i < panels.length; i++) {
-      if (panels[i].parent === this.currentPageValue) {
-        if (panels[i] == panel) return index;
-        index++;
-      }
-    }
-    return -1;
+    this.cancelPreview((<any>panel)["originalPage"]);
   }
   protected doCurrentPageComplete(doComplete: boolean): boolean {
+    if (this.isValidatingOnServer) return false;
+    this.resetNavigationButton();
     if (this.hasErrorsOnNavigate(doComplete)) return false;
     return this.doCurrentPageCompleteCore(doComplete);
   }
   private doCurrentPageCompleteCore(doComplete: boolean): boolean {
-    if (this.doServerValidation()) return false;
+    if (this.doServerValidation(doComplete)) return false;
     this.currentPage.passed = true;
     if (doComplete) {
       this.doComplete();
@@ -3027,6 +3158,7 @@ export class SurveyModel extends Base
       }
       this.setupPagesForPageModes(this.isSinglePage);
     }
+
     this.updateVisibleIndexes();
   }
   private restoreOrigionalPages(originalPages: Array<PageModel>) {
@@ -3071,6 +3203,7 @@ export class SurveyModel extends Base
     for (var i = startIndex; i < this.pages.length; i++) {
       var page = this.pages[i];
       var panel = Serializer.createClass("panel");
+      panel.originalPage = page;
       single.addPanel(panel);
       var json = new JsonObject().toJsonObject(page);
       new JsonObject().toObject(json, panel);
@@ -3103,6 +3236,9 @@ export class SurveyModel extends Base
         var json = new JsonObject().toJsonObject(originalElement);
         new JsonObject().toObject(json, element);
         page.addElement(element);
+        for (var k = 0; k < page.questions.length; k++) {
+          this.questionHashesAdded(page.questions[k]);
+        }
       }
     }
     return res;
@@ -3149,8 +3285,11 @@ export class SurveyModel extends Base
    * @see navigateToUrl
    * @see navigateToUrlOnCondition
    */
-  public doComplete() {
-    var onCompletingOptions = { allowComplete: true };
+  public doComplete(isCompleteOnTrigger: boolean = false) {
+    var onCompletingOptions = {
+      allowComplete: true,
+      isCompleteOnTrigger: isCompleteOnTrigger,
+    };
     this.onCompleting.fire(this, onCompletingOptions);
     if (!onCompletingOptions.allowComplete) return;
     let previousCookie = this.hasCookie;
@@ -3161,6 +3300,7 @@ export class SurveyModel extends Base
     var self = this;
     var savingDataStarted = false;
     var onCompleteOptions = {
+      isCompleteOnTrigger: isCompleteOnTrigger,
       showDataSaving: function (text: string) {
         savingDataStarted = true;
         self.setCompletedState("saving", text);
@@ -3209,12 +3349,13 @@ export class SurveyModel extends Base
     this.onIsValidatingOnServerChanged();
   }
   protected onIsValidatingOnServerChanged() {}
-  protected doServerValidation(): boolean {
+  protected doServerValidation(doComplete: boolean): boolean {
     if (
       !this.onServerValidateQuestions ||
       this.onServerValidateQuestions.isEmpty
     )
       return false;
+    if (!doComplete && this.checkErrorsMode === "onComplete") return false;
     var self = this;
     var options = {
       data: <{ [index: string]: any }>{},
@@ -3224,12 +3365,16 @@ export class SurveyModel extends Base
         self.completeServerValidation(options);
       },
     };
-    for (var i = 0; i < this.currentPage.questions.length; i++) {
-      var question = this.currentPage.questions[i];
-      if (!question.visible) continue;
-      var value = this.getValue(question.getValueName());
-      if (!this.isValueEmpty(value))
-        options.data[question.getValueName()] = value;
+    if (doComplete && this.checkErrorsMode === "onComplete") {
+      options.data = this.data;
+    } else {
+      for (var i = 0; i < this.currentPage.questions.length; i++) {
+        var question = this.currentPage.questions[i];
+        if (!question.visible) continue;
+        var value = this.getValue(question.getValueName());
+        if (!this.isValueEmpty(value))
+          options.data[question.getValueName()] = value;
+      }
     }
     this.setIsValidatingOnServer(true);
 
@@ -3247,11 +3392,19 @@ export class SurveyModel extends Base
     var self = options.survey;
     var hasErrors = false;
     if (options.errors) {
+      var hasToFocus = this.focusOnFirstError;
       for (var name in options.errors) {
         var question = self.getQuestionByName(name);
         if (question && question["errors"]) {
           hasErrors = true;
-          question["addError"](new CustomError(options.errors[name], this));
+          question.addError(new CustomError(options.errors[name], this));
+          if (hasToFocus) {
+            hasToFocus = false;
+            if (!!question.page) {
+              this.currentPage = question.page;
+            }
+            question.focus(true);
+          }
         }
       }
     }
@@ -3261,16 +3414,19 @@ export class SurveyModel extends Base
     }
   }
   protected doNextPage() {
+    var curPage = this.currentPage;
     this.checkOnPageTriggers();
     if (!this.isCompleted) {
       if (this.sendResultOnPageNext) {
         this.sendResult(this.surveyPostId, this.clientId, true);
       }
-      var vPages = this.visiblePages;
-      var index = vPages.indexOf(this.currentPage);
-      this.currentPage = vPages[index + 1];
+      if (curPage === this.currentPage) {
+        var vPages = this.visiblePages;
+        var index = vPages.indexOf(this.currentPage);
+        this.currentPage = vPages[index + 1];
+      }
     } else {
-      this.doComplete();
+      this.doComplete(true);
     }
   }
   public setCompleted() {
@@ -3307,28 +3463,78 @@ export class SurveyModel extends Base
     }
     return "<h3>" + this.getLocString("loadingSurvey") + "</h3>";
   }
+  public getProgressInfo(): IProgressInfo {
+    return SurveyElement.getProgressInfoByElements(this.visiblePages, false);
+  }
   /**
    * Returns the text for the current progress.
    */
   public get progressText(): string {
-    if (this.currentPage == null) return "";
-    if (this.progressBarType === "questions") {
-      var questions = this.getQuestionsWithInput();
-      var answeredQuestionsCount = questions.reduce(
-        (a: number, b: Question) => a + (b.isEmpty() ? 0 : 1),
-        0
-      );
+    var res = this.getPropertyValue("progressText", "");
+    if (!res) {
+      this.updateProgressText();
+      res = this.getPropertyValue("progressText", "");
+    }
+    return res;
+  }
+  public updateProgressText(onValueChanged: boolean = false) {
+    if (this.isDesignMode) return;
+    if (
+      onValueChanged &&
+      this.progressBarType == "pages" &&
+      this.onProgressText.isEmpty
+    )
+      return;
+    this.setPropertyValue("progressText", this.getProgressText());
+    this.setPropertyValue("progressValue", this.getProgress());
+  }
+  public getProgressText(): string {
+    if (this.isDesignMode || this.currentPage == null) return "";
+    var options = {
+      questionCount: 0,
+      answeredQuestionCount: 0,
+      requiredQuestionCount: 0,
+      requiredAnsweredQuestionCount: 0,
+      text: "",
+    };
+    var type = this.progressBarType.toLowerCase();
+    if (
+      type === "questions" ||
+      type === "requiredquestions" ||
+      type === "correctquestions" ||
+      !this.onProgressText.isEmpty
+    ) {
+      var info = this.getProgressInfo();
+      options.questionCount = info.questionCount;
+      options.answeredQuestionCount = info.answeredQuestionCount;
+      options.requiredQuestionCount = info.requiredQuestionCount;
+      options.requiredAnsweredQuestionCount =
+        info.requiredAnsweredQuestionCount;
+    }
+
+    options.text = this.getProgressTextCore(options);
+    this.onProgressText.fire(this, options);
+    return options.text;
+  }
+  private getProgressTextCore(info: IProgressInfo): string {
+    var type = this.progressBarType.toLowerCase();
+    if (type === "questions") {
       return this.getLocString("questionsProgressText")["format"](
-        answeredQuestionsCount,
-        questions.length
+        info.answeredQuestionCount,
+        info.questionCount
       );
     }
-    if (this.progressBarType === "correctQuestions") {
-      var questions = this.getQuestionsWithInput();
+    if (type === "requiredquestions") {
+      return this.getLocString("questionsProgressText")["format"](
+        info.requiredAnsweredQuestionCount,
+        info.requiredQuestionCount
+      );
+    }
+    if (type === "correctquestions") {
       var correctAnswersCount = this.getCorrectedAnswerCount();
       return this.getLocString("questionsProgressText")["format"](
         correctAnswersCount,
-        questions.length
+        info.questionCount
       );
     }
     var vPages = this.visiblePages;
@@ -3506,9 +3712,8 @@ export class SurveyModel extends Base
    * Uploads a file to server.
    * @param question a file question object
    * @param name a question name
-   * @param file an uploaded file
-   * @param storeDataAsText set it to `true` to encode file content into the survey results
-   * @param uploadingCallback a call back function to get the status on uploading the file
+   * @param files files to upload
+   * @param uploadingCallback a call back function to get the status on uploading the files
    */
   public uploadFiles(
     question: IQuestion,
@@ -3553,11 +3758,13 @@ export class SurveyModel extends Base
   }
   /**
    * Clears files from server.
-   * @param name a question name
-   * @param value a file question value
-   * @param callback a call back function to get the status of the clearing operation
+   * @param question question
+   * @param name question name
+   * @param value file question value
+   * @param callback call back function to get the status of the clearing operation
    */
   public clearFiles(
+    question: IQuestion,
     name: string,
     value: any,
     fileName: string,
@@ -3567,6 +3774,7 @@ export class SurveyModel extends Base
       !!callback && callback("success", value);
     }
     this.onClearFiles.fire(this, {
+      question: question,
       name: name,
       value: value,
       fileName: fileName,
@@ -3621,21 +3829,26 @@ export class SurveyModel extends Base
   /**
    * Adds an existing page to the survey.
    * @param page a newly added page
+   * @param index - a page index to where insert a page. It is -1 by default and the page will be added into the end.
    * @see addNewPage
    */
-  public addPage(page: PageModel) {
+  public addPage(page: PageModel, index: number = -1) {
     if (page == null) return;
-    this.pages.push(page);
-    this.updateVisibleIndexes();
+    if (index < 0 || index >= this.pages.length) {
+      this.pages.push(page);
+    } else {
+      this.pages.splice(index, 0, page);
+    }
   }
   /**
    * Creates a new page and adds it to a survey. Generates a new name if the `name` parameter is not specified.
    * @param name a page name
+   * @param index - a page index to where insert a new page. It is -1 by default and the page will be added into the end.
    * @see addPage
    */
-  public addNewPage(name: string = null) {
+  public addNewPage(name: string = null, index: number = -1) {
     var page = this.createNewPage(name);
-    this.addPage(page);
+    this.addPage(page, index);
     return page;
   }
   /**
@@ -3649,7 +3862,6 @@ export class SurveyModel extends Base
     if (this.currentPageValue == page) {
       this.currentPage = this.pages.length > 0 ? this.pages[0] : null;
     }
-    this.updateVisibleIndexes();
   }
   /**
    * Returns a question by its name.
@@ -3685,6 +3897,13 @@ export class SurveyModel extends Base
   ): IQuestion {
     var res = this.getQuestionsByValueNameCore(valueName, caseInsensitive);
     return !!res ? res[0] : null;
+  }
+  public getCalculatedValueByName(name: string): CalculatedValue {
+    for (var i = 0; i < this.calculatedValues.length; i++) {
+      if (name == this.calculatedValues[i].name)
+        return this.calculatedValues[i];
+    }
+    return null;
   }
   private getQuestionsByValueNameCore(
     valueName: string,
@@ -3826,7 +4045,13 @@ export class SurveyModel extends Base
     }
     return result;
   }
-  protected createNewPage(name: string) {
+  /**
+   * Creates and returns a new page, but do not add it into the survey.
+   * You can use addPage(page) function to add it into survey later.
+   * @see addPage
+   * @see addNewPage
+   */
+  public createNewPage(name: string): PageModel {
     return new PageModel(name);
   }
   protected questionOnValueChanging(valueName: string, newValue: any): any {
@@ -3834,7 +4059,7 @@ export class SurveyModel extends Base
     var options = {
       name: valueName,
       question: this.getQuestionByValueName(valueName),
-      value: newValue,
+      value: this.getUnbindValue(newValue),
       oldValue: this.getValue(valueName),
     };
     this.onValueChanging.fire(this, options);
@@ -3845,8 +4070,30 @@ export class SurveyModel extends Base
     var questions = this.getQuestionsByValueNameCore(valueName);
     if (!!questions) {
       for (var i: number = 0; i < questions.length; i++) {
-        if (this.isTwoValueEquals(questions[i].value, newValue)) continue;
-        questions[i].updateValueFromSurvey(newValue);
+        var qValue = questions[i].value;
+        if (
+          (qValue === newValue &&
+            Array.isArray(qValue) &&
+            Base.isSurveyElement(qValue)) ||
+          !this.isTwoValueEquals(qValue, newValue)
+        ) {
+          questions[i].updateValueFromSurvey(newValue);
+        }
+      }
+    }
+  }
+  private checkQuestionErrorOnValueChanged(question: Question) {
+    if (
+      !this.isNavigationButtonPressed &&
+      (this.checkErrorsMode == "onValueChanged" || question.errors.length > 0)
+    ) {
+      var oldErrorCount = question.errors.length;
+      question.hasErrors(true, { isOnValueChanged: true });
+      if (
+        !!question.page &&
+        (oldErrorCount > 0 || question.errors.length > 0)
+      ) {
+        this.fireValidatedErrorsOnPage(<PageModel>question.page);
       }
     }
   }
@@ -3856,13 +4103,7 @@ export class SurveyModel extends Base
     if (!!questions) {
       for (var i: number = 0; i < questions.length; i++) {
         var question = questions[i];
-        if (this.checkErrorsMode == "onValueChanged") {
-          var oldErrorCount = question.errors.length;
-          question.hasErrors(true, { isOnValueChanged: true });
-          if (oldErrorCount > 0 || question.errors.length > 0) {
-            this.fireValidatedErrorsOnPage(<PageModel>question.page);
-          }
-        }
+        this.checkQuestionErrorOnValueChanged(question);
         question.onSurveyValueChanged(newValue);
         this.onValueChanged.fire(this, {
           name: valueName,
@@ -3877,10 +4118,17 @@ export class SurveyModel extends Base
         value: newValue,
       });
     }
+    for (var i = 0; i < this.pages.length; i++) {
+      this.pages[i].checkBindings(valueName, newValue);
+    }
     this.notifyElementsOnAnyValueOrVariableChanged(valueName);
   }
   private notifyElementsOnAnyValueOrVariableChanged(name: string) {
     if (this.isEndLoadingFromJson === "processing") return;
+    if (this.isRunningConditions) {
+      this.conditionNotifyElementsOnAnyValueOrVariableChanged = true;
+      return;
+    }
     for (var i = 0; i < this.pages.length; i++) {
       this.pages[i].onAnyValueChanged(name);
     }
@@ -3931,20 +4179,29 @@ export class SurveyModel extends Base
     return result;
   }
   private isTriggerIsRunning: boolean = false;
+  private triggerValues: any = null;
+  private triggerKeys: any = null;
   private checkTriggers(key: any, isOnNextPage: boolean) {
-    if (
-      this.isCompleted ||
-      this.triggers.length == 0 ||
-      this.isTriggerIsRunning
-    )
+    if (this.isCompleted || this.triggers.length == 0) return;
+    if (this.isTriggerIsRunning) {
+      this.triggerValues = this.getFilteredValues();
+      for (var k in key) {
+        this.triggerKeys[k] = key[k];
+      }
       return;
+    }
     this.isTriggerIsRunning = true;
-    var values = this.getFilteredValues();
+    this.triggerKeys = key;
+    this.triggerValues = this.getFilteredValues();
     var properties = this.getFilteredProperties();
     for (var i: number = 0; i < this.triggers.length; i++) {
       var trigger = this.triggers[i];
       if (trigger.isOnNextPage == isOnNextPage) {
-        trigger.checkExpression(key, values, properties);
+        trigger.checkExpression(
+          this.triggerKeys,
+          this.triggerValues,
+          properties
+        );
       }
     }
     this.isTriggerIsRunning = false;
@@ -3954,26 +4211,71 @@ export class SurveyModel extends Base
       this.pages[i].onSurveyLoad();
     }
   }
+  private conditionValues: any = null;
+  private get isRunningConditions(): boolean {
+    return !!this.conditionValues;
+  }
+  private isValueChangedOnRunningCondition: boolean = false;
+  private conditionRunnerCounter: number = 0;
+  private conditionUpdateVisibleIndexes: boolean = false;
+  private conditionNotifyElementsOnAnyValueOrVariableChanged: boolean = false;
   private runConditions() {
-    if (this.isCompleted || this.isEndLoadingFromJson === "processing") return;
-    var pages = this.pages;
-    var values = this.getFilteredValues();
+    if (
+      this.isCompleted ||
+      this.isEndLoadingFromJson === "processing" ||
+      this.isRunningConditions
+    )
+      return;
+    this.conditionValues = this.getFilteredValues();
     var properties = this.getFilteredProperties();
     var oldCurrentPageIndex = this.pages.indexOf(this.currentPageValue);
+    this.runConditionsCore(properties);
+    this.checkIfNewPagesBecomeVisible(oldCurrentPageIndex);
+    this.conditionValues = null;
+    if (
+      this.isValueChangedOnRunningCondition &&
+      this.conditionRunnerCounter <
+        settings.maximumConditionRunCountOnValueChanged
+    ) {
+      this.isValueChangedOnRunningCondition = false;
+      this.conditionRunnerCounter++;
+      this.runConditions();
+    } else {
+      this.isValueChangedOnRunningCondition = false;
+      this.conditionRunnerCounter = 0;
+      if (this.conditionUpdateVisibleIndexes) {
+        this.conditionUpdateVisibleIndexes = false;
+        this.updateVisibleIndexes();
+      }
+      if (this.conditionNotifyElementsOnAnyValueOrVariableChanged) {
+        this.conditionNotifyElementsOnAnyValueOrVariableChanged = false;
+        this.notifyElementsOnAnyValueOrVariableChanged("");
+      }
+    }
+  }
+  private runConditionOnValueChanged(name: string, value: any) {
+    if (this.isRunningConditions) {
+      this.conditionValues[name] = value;
+      this.isValueChangedOnRunningCondition = true;
+    } else {
+      this.runConditions();
+    }
+  }
+  private runConditionsCore(properties: any) {
+    var pages = this.pages;
     for (var i = 0; i < this.calculatedValues.length; i++) {
       this.calculatedValues[i].resetCalculation();
     }
     for (var i = 0; i < this.calculatedValues.length; i++) {
       this.calculatedValues[i].doCalculation(
         this.calculatedValues,
-        values,
+        this.conditionValues,
         properties
       );
     }
     for (var i = 0; i < pages.length; i++) {
-      pages[i].runCondition(values, properties);
+      pages[i].runCondition(this.conditionValues, properties);
     }
-    this.checkIfNewPagesBecomeVisible(oldCurrentPageIndex);
   }
   private checkIfNewPagesBecomeVisible(oldCurrentPageIndex: number) {
     var newCurrentPageIndex = this.pages.indexOf(this.currentPageValue);
@@ -4023,7 +4325,7 @@ export class SurveyModel extends Base
           if (success) {
             self.setCompletedState("success", "");
           } else {
-            self.setCompletedState("error", "");
+            self.setCompletedState("error", response);
           }
         }
         self.onSendResult.fire(self, {
@@ -4120,6 +4422,15 @@ export class SurveyModel extends Base
   protected onLoadSurveyFromService() {}
   private updateVisibleIndexes() {
     if (this.isLoadingFromJson || !!this.isEndLoadingFromJson) return;
+    if (
+      this.isRunningConditions &&
+      this.onVisibleChanged.isEmpty &&
+      this.onPageVisibleChanged.isEmpty
+    ) {
+      //Run update visible index only one time on finishing running conditions
+      this.conditionUpdateVisibleIndexes = true;
+      return;
+    }
     this.updatePageVisibleIndexes(this.showPageNumbers);
     if (this.showQuestionNumbers == "onPage") {
       var visPages = this.visiblePages;
@@ -4132,15 +4443,15 @@ export class SurveyModel extends Base
         index += this.pages[i].setVisibleIndex(index);
       }
     }
+    this.updateProgressText(true);
   }
   private updatePageVisibleIndexes(showIndex: boolean) {
     var index = 0;
     for (var i = 0; i < this.pages.length; i++) {
-      this.pages[i].visibleIndex = this.pages[i].visible ? index++ : -1;
+      var isPageVisible = this.pages[i].isVisible;
+      this.pages[i].visibleIndex = isPageVisible ? index++ : -1;
       this.pages[i].num =
-        showIndex && this.pages[i].visible
-          ? this.pages[i].visibleIndex + 1
-          : -1;
+        showIndex && isPageVisible ? this.pages[i].visibleIndex + 1 : -1;
     }
   }
   public fromJSON(json: any) {
@@ -4301,10 +4612,11 @@ export class SurveyModel extends Base
     name = name.toLowerCase();
     this.variablesHash[name] = newValue;
     this.notifyElementsOnAnyValueOrVariableChanged(name);
-    this.runConditions();
+    this.runConditionOnValueChanged(name, newValue);
   }
   //ISurvey data
   protected getUnbindValue(value: any): any {
+    if (Base.isSurveyElement(value)) return value;
     return Helpers.getUnbindValue(value);
   }
   /**
@@ -4340,27 +4652,45 @@ export class SurveyModel extends Base
     if (allowNotifyValueChanged)
       newValue = this.questionOnValueChanging(name, newQuestionValue);
     if (
+      !this.editingObj &&
       this.isValueEqual(name, newValue) &&
       this.isTwoValueEquals(newValue, newQuestionValue)
     )
       return;
+    var oldValue = this.getValue(name);
     if (this.isValueEmpty(newValue)) {
       this.deleteDataValueCore(this.valuesHash, name);
     } else {
       newValue = this.getUnbindValue(newValue);
       this.setDataValueCore(this.valuesHash, name, newValue);
     }
+    this.updateOnSetValue(
+      name,
+      newValue,
+      oldValue,
+      locNotification,
+      allowNotifyValueChanged
+    );
+  }
+  private updateOnSetValue(
+    name: string,
+    newValue: any,
+    oldValue: any,
+    locNotification: any = false,
+    allowNotifyValueChanged: boolean = true
+  ) {
     this.updateQuestionValue(name, newValue);
     if (locNotification === true) return;
     var triggerKeys: { [index: string]: any } = {};
-    triggerKeys[name] = newValue;
+    triggerKeys[name] = { newValue: newValue, oldValue: oldValue };
     this.checkTriggers(triggerKeys, false);
-    this.runConditions();
+    this.runConditionOnValueChanged(name, newValue);
     if (allowNotifyValueChanged)
       this.notifyQuestionOnValueChanged(name, newValue);
     if (locNotification !== "text") {
       this.tryGoNextPageAutomatic(name);
     }
+    this.updateProgressText(true);
   }
   private isValueEqual(name: string, newValue: any): boolean {
     if (newValue === "" || newValue === undefined) newValue = null;
@@ -4373,8 +4703,12 @@ export class SurveyModel extends Base
     page.setSurveyImpl(this);
     if (!page.name) page.name = this.generateNewName(this.pages, "page");
     this.questionHashesPanelAdded(page);
+    this.updateVisibleIndexes();
     var options = { page: page };
     this.onPageAdded.fire(this, options);
+  }
+  protected doOnPageRemoved(page: PageModel) {
+    this.updateVisibleIndexes();
   }
   private generateNewName(elements: Array<any>, baseName: string): string {
     var keys: { [index: string]: any } = {};
@@ -4449,6 +4783,7 @@ export class SurveyModel extends Base
     if (!!questions) {
       for (var i: number = 0; i < questions.length; i++) {
         questions[i].updateCommentFromSurvey(newValue);
+        this.checkQuestionErrorOnValueChanged(questions[i]);
       }
     }
     if (locNotification !== "text") {
@@ -4481,6 +4816,9 @@ export class SurveyModel extends Base
   public set clearValueOnDisableItems(val: boolean) {
     this.setPropertyValue("clearValueOnDisableItems", val);
   }
+  get isClearValueOnHidden(): boolean {
+    return this.clearInvisibleValues == "onHidden";
+  }
   questionVisibilityChanged(question: IQuestion, newValue: boolean) {
     this.updateVisibleIndexes();
     this.onVisibleChanged.fire(this, {
@@ -4488,15 +4826,12 @@ export class SurveyModel extends Base
       name: question.name,
       visible: newValue,
     });
-    if (
-      question &&
-      !question.visible &&
-      this.clearInvisibleValues == "onHidden"
-    ) {
-      question.clearValue();
-    }
   }
   pageVisibilityChanged(page: IPage, newValue: boolean) {
+    if (this.isLoadingFromJson) return;
+    if (newValue && !this.currentPageValue) {
+      this.currentPageValue = this.currentPage;
+    }
     this.updateVisibleIndexes();
     this.onPageVisibleChanged.fire(this, { page: page, visible: newValue });
   }
@@ -4522,9 +4857,7 @@ export class SurveyModel extends Base
     if (!!(<Question>question).page) {
       this.questionHashesAdded(<Question>question);
     }
-    if (!this.isLoadingFromJson) {
-      this.updateVisibleIndexes();
-    }
+    this.updateVisibleIndexes();
     this.onQuestionAdded.fire(this, {
       question: question,
       name: question.name,
@@ -5005,15 +5338,20 @@ export class SurveyModel extends Base
     if (isVariable) {
       this.setVariable(name, value);
     } else {
-      var processor = new ProcessValue();
-      var firstName = processor.getFirstName(name);
-      if (firstName == name) {
-        this.setValue(name, value);
+      var question = this.getQuestionByName(name);
+      if (!!question) {
+        question.value = value;
       } else {
-        if (!this.getValue(firstName)) return;
-        var data = this.getUnbindValue(this.getFilteredValues());
-        processor.setValue(data, name, value);
-        this.setValue(firstName, data[firstName]);
+        var processor = new ProcessValue();
+        var firstName = processor.getFirstName(name);
+        if (firstName == name) {
+          this.setValue(name, value);
+        } else {
+          if (!this.getQuestionByName(firstName)) return;
+          var data = this.getUnbindValue(this.getFilteredValues());
+          processor.setValue(data, name, value);
+          this.setValue(firstName, data[firstName]);
+        }
       }
     }
   }
@@ -5027,7 +5365,9 @@ export class SurveyModel extends Base
     var question = this.getQuestionByName(name, true);
     if (!question || !question.isVisible || !question.page) return false;
     this.currentPage = question.page;
-    question.focus();
+    setTimeout(function () {
+      question.focus(), 1;
+    });
     return true;
   }
   /**
@@ -5078,7 +5418,7 @@ Serializer.addClass("survey", [
     className: "htmlconditionitem",
   },
   { name: "loadingHtml:html", serializationProperty: "locLoadingHtml" },
-  { name: "pages", className: "page", visible: false },
+  { name: "pages:surveypages", className: "page" },
   {
     name: "questions",
     alternativeName: "elements",
@@ -5151,7 +5491,7 @@ Serializer.addClass("survey", [
   {
     name: "progressBarType",
     default: "pages",
-    choices: ["pages", "questions", "correctQuestions", "buttons"],
+    choices: ["pages", "questions", "requiredQuestions", "correctQuestions", "buttons"],
   },
   { name: "mode", default: "edit", choices: ["edit", "display"] },
   { name: "storeOthersAsComment:boolean", default: true },
@@ -5180,7 +5520,13 @@ Serializer.addClass("survey", [
   { name: "previewText", serializationProperty: "locPreviewText" },
   { name: "editText", serializationProperty: "locEditText" },
   { name: "requiredText", default: "*" },
-  "questionStartIndex",
+  {
+    name: "questionStartIndex",
+    dependsOn: ["showQuestionNumbers"],
+    visibleIf: function (survey: any) {
+      return !survey || survey.showQuestionNumbers !== "off";
+    },
+  },
   {
     name: "questionTitlePattern",
     default: "numTitleRequire",

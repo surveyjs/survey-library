@@ -2,7 +2,7 @@ import { Helpers } from "./helpers";
 import { ItemValue } from "./itemvalue";
 import { QuestionMatrixBaseModel } from "./martixBase";
 import { JsonObject, Serializer } from "./jsonobject";
-import { SurveyError } from "./base";
+import { SurveyError, Base } from "./base";
 import { surveyLocalization } from "./surveyStrings";
 import { RequiredInAllRowsError } from "./error";
 import { QuestionFactory } from "./questionfactory";
@@ -15,10 +15,10 @@ export interface IMatrixData {
   onMatrixRowChanged(row: MatrixRowModel): void;
 }
 
-export class MatrixRowModel {
+export class MatrixRowModel extends Base {
   private data: IMatrixData;
   private item: ItemValue;
-  protected rowValue: any;
+  public cellClick: any;
 
   constructor(
     item: ItemValue,
@@ -26,9 +26,16 @@ export class MatrixRowModel {
     data: IMatrixData,
     value: any
   ) {
+    super();
     this.item = item;
     this.data = data;
-    this.rowValue = value;
+    this.value = value;
+    this.cellClick = (column: any) => {
+      this.value = column.value;
+    };
+    this.registerFunctionOnPropertyValueChanged("value", () => {
+      if (this.data) this.data.onMatrixRowChanged(this);
+    });
   }
   public get name(): string {
     return this.item.value;
@@ -40,14 +47,24 @@ export class MatrixRowModel {
     return this.item.locText;
   }
   public get value() {
-    return this.rowValue;
+    return this.getPropertyValue("value");
   }
   public set value(newValue: any) {
-    this.rowValue = newValue;
-    if (this.data) this.data.onMatrixRowChanged(this);
-    this.onValueChanged();
+    this.setPropertyValue("value", newValue);
   }
-  protected onValueChanged() {}
+  public get rowClasses(): string {
+    var cssClasses = (<any>this.data).cssClasses;
+    var rowClass = !!cssClasses.row ? cssClasses.row : "";
+    var rowErrorClass = !!cssClasses.rowError ? cssClasses.rowError : "";
+    var hasError = !!(<any>this.data).getErrorByType("requiredinallrowserror");
+
+    var classes = rowClass;
+    if (!!rowErrorClass && hasError && Helpers.isValueEmpty(this.value)) {
+      if (!!classes) classes += " ";
+      classes += rowErrorClass;
+    }
+    return classes;
+  }
 }
 
 export interface IMatrixCellsOwner extends ILocalizableOwner {
@@ -243,6 +260,36 @@ export class QuestionMatrixModel
   getColumns(): Array<any> {
     return this.visibleColumns;
   }
+  public getItemClass(row: any, column: any) {
+    var isChecked = row.value == column.value;
+    var isDisabled = this.isReadOnly;
+    var allowHover = !isChecked && !isDisabled;
+    var cellDisabledClass = this.hasCellText
+      ? this.cssClasses.cellTextDisabled
+      : this.cssClasses.itemDisabled;
+
+    var cellSelectedClass = this.hasCellText
+      ? this.cssClasses.cellTextSelected
+      : this.cssClasses.itemChecked;
+
+    var itemHoverClass = !this.hasCellText ? this.cssClasses.itemHover : "";
+
+    var cellClass = this.hasCellText
+      ? this.cssClasses.cellText
+      : this.cssClasses.label;
+
+    let itemClass =
+      this.hasCellText && !!this.cssClasses.cell
+        ? this.cssClasses.cell + " "
+        : "";
+    itemClass +=
+      cellClass +
+      (isChecked ? " " + cellSelectedClass : "") +
+      (isDisabled ? " " + cellDisabledClass : "") +
+      (allowHover ? " " + itemHoverClass : "");
+    return itemClass;
+  }
+
   protected getQuizQuestionCount() {
     var res = 0;
     for (var i = 0; i < this.rows.length; i++) {
@@ -369,28 +416,26 @@ export class QuestionMatrixModel
     if (!rows) rows = this.visibleRows;
     if (!rows) return true;
     for (var i = 0; i < rows.length; i++) {
-      var val = rows[i].value;
-      if (!val) return false;
+      if (Helpers.isValueEmpty(rows[i].value)) return false;
     }
     return true;
   }
   protected getIsAnswered(): boolean {
     return super.getIsAnswered() && this.hasValuesInAllRows();
   }
-  protected createMatrixRow(
+  private createMatrixRow(
     item: ItemValue,
     fullName: string,
     value: any
   ): MatrixRowModel {
-    return new MatrixRowModel(item, fullName, this, value);
+    var row = new MatrixRowModel(item, fullName, this, value);
+    this.onMatrixRowCreated(row);
+    return row;
   }
-  protected setQuestionValue(newValue: any) {
-    super.setQuestionValue(newValue);
-    if (
-      this.isRowChanging ||
-      !this.generatedVisibleRows ||
-      this.generatedVisibleRows.length == 0
-    )
+  protected onMatrixRowCreated(row: MatrixRowModel) {}
+  protected setQuestionValue(newValue: any, updateIsAnswered: boolean = true) {
+    super.setQuestionValue(newValue, this.isRowChanging || updateIsAnswered);
+    if (!this.generatedVisibleRows || this.generatedVisibleRows.length == 0)
       return;
     this.isRowChanging = true;
     var val = this.value;
@@ -400,10 +445,12 @@ export class QuestionMatrixModel
     } else {
       for (var i = 0; i < this.generatedVisibleRows.length; i++) {
         var row = this.generatedVisibleRows[i];
-        var rowVal = val[row.name] ? val[row.name] : null;
+        var rowVal = val[row.name];
+        if (Helpers.isValueEmpty(rowVal)) rowVal = null;
         this.generatedVisibleRows[i].value = rowVal;
       }
     }
+    this.updateIsAnswered();
     this.isRowChanging = false;
   }
   protected getDisplayValueCore(keysAsText: boolean, value: any): any {

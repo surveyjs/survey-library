@@ -7,10 +7,7 @@ import { QuestionCommentModel } from "../src/question_comment";
 import { SurveyModel } from "../src/survey";
 import { QuestionCheckboxModel } from "../src/question_checkbox";
 import { QuestionMatrixModel, MatrixRowModel } from "../src/question_matrix";
-import {
-  MultipleTextItemModel,
-  QuestionMultipleTextModel,
-} from "../src/question_multipletext";
+import { MultipleTextItemModel, QuestionMultipleTextModel } from "../src/question_multipletext";
 import {
   NumericValidator,
   AnswerCountValidator,
@@ -30,6 +27,7 @@ import { QuestionImagePickerModel } from "../src/question_imagepicker";
 import { FunctionFactory } from "../src/functionsfactory";
 import { ArrayChanges } from "../src/base";
 import { RequreNumericError } from "../src/error";
+import { QuestionSignaturePadModel } from "../src/question_signaturepad";
 
 export default QUnit.module("Survey_Questions");
 
@@ -360,7 +358,7 @@ QUnit.test("Question titleDescription", function (assert) {
     "survey.questionDescriptionLocation = 'underInput'"
   );
 });
-QUnit.skip("Use value of checkbox question as an array", function (assert) {
+QUnit.test("Use value of checkbox question as an array", function (assert) {
   var survey = new SurveyModel();
   var page = survey.addNewPage("Page 1");
   var question = new QuestionCheckboxModel("checkboxQuestion");
@@ -467,13 +465,13 @@ QUnit.test("Matrix Question: get/set values for two rows", function (assert) {
   assert.deepEqual(
     matrix.value,
     { row1: "col2" },
-    "the matrix value changed correctly"
+    "the matrix value changed correctly, #1"
   );
   rows[1].value = "col1";
   assert.deepEqual(
     matrix.value,
     { row1: "col2", row2: "col1" },
-    "the matrix value changed correctly"
+    "the matrix value changed correctly, #2"
   );
 });
 QUnit.test("Matrix Question set values after visible row generated", function (
@@ -502,6 +500,46 @@ QUnit.test("Matrix Question isAllRowRequired property", function (assert) {
   matrix.isAllRowRequired = true;
   assert.equal(matrix.hasErrors(), true, "There is no errors by default");
 });
+QUnit.test(
+  "Matrix Question isAllRowRequired property, value is zero, Bug#2332",
+  function (assert) {
+    var matrix = new QuestionMatrixModel("q1");
+    matrix.fromJSON({
+      type: "matrix",
+      name: "question",
+      isRequired: true,
+      columns: [
+        {
+          value: 0,
+          text: "No",
+        },
+        {
+          value: 1,
+          text: "Maybe",
+        },
+        {
+          value: 2,
+          text: "Yes",
+        },
+      ],
+      rows: ["item1", "item2"],
+      isAllRowRequired: true,
+    });
+    var rows = matrix.visibleRows;
+    assert.equal(matrix.hasErrors(), true, "is Required error");
+    rows[0].value = 0;
+    assert.equal(matrix.hasErrors(), true, "isAllRowRequired error");
+    rows[1].value = 0;
+    assert.deepEqual(
+      matrix.value,
+      { item1: 0, item2: 0 },
+      "value set correctly"
+    );
+    assert.equal(rows[0].value, 0, "First row value set correctly");
+    assert.equal(rows[1].value, 0, "Second row value set correctly");
+    assert.equal(matrix.hasErrors(), false, "There is no errors");
+  }
+);
 QUnit.test("Matrix Question supportGoNextPageAutomatic property", function (
   assert
 ) {
@@ -1275,6 +1313,60 @@ QUnit.test("Checkbox store others value not in comment", function (assert) {
   assert.equal(question.isOtherSelected, false, "Others is not selected");
   assert.deepEqual(survey.data, { q: ["A", "B"] }, "'B' is set");
 });
+
+QUnit.test(
+  "Checkbox store others value not in comment after select another items - https://github.com/surveyjs/survey-library/issues/2221",
+  function (assert) {
+    var survey = new SurveyModel();
+    survey.addNewPage("page1");
+    var question = new QuestionCheckboxModel("q");
+    question.choices = ["A", "B", "C", "D"];
+    question.hasOther = true;
+    question.storeOthersAsComment = false;
+    survey.pages[0].addQuestion(question);
+    // survey.storeOthersAsComment = false;
+
+    question.value = null;
+    assert.equal(question.isOtherSelected, false, "Others is not selected");
+    assert.deepEqual(survey.data, {}, "There is no data in survey");
+
+    question.comment = null;
+    question.value = ["A", question.otherItem.value];
+    assert.equal(
+      question.isOtherSelected,
+      true,
+      "Any other value that is not from choices is other"
+    );
+    assert.deepEqual(
+      survey.data,
+      { q: ["A", question.otherItem.value] },
+      "Other Item is set"
+    );
+    question.comment = "commentTest";
+    assert.equal(
+      question.isOtherSelected,
+      true,
+      "Any other value that is not from choices is other"
+    );
+    assert.deepEqual(
+      survey.data,
+      { q: ["A", "commentTest"] },
+      "Other text is set"
+    );
+
+    question.value = ["A", question.otherItem.value, "B"];
+    assert.deepEqual(
+      question.value,
+      ["A", "commentTest", "B"],
+      "'commentTest' is still set to the question"
+    );
+    assert.deepEqual(
+      survey.data,
+      { q: ["A", "commentTest", "B"] },
+      "'commentTest' is still set in the survey data"
+    );
+  }
+);
 
 QUnit.test("radiogroup.renderedValue - simple synhronization", function (
   assert
@@ -2193,6 +2285,14 @@ QUnit.test("question.clearIncorrectValues", function (assert) {
   );
 });
 
+QUnit.test("question.clearIncorrectValues and choicesByUrl", function (assert) {
+  var question = new QuestionRadiogroupModel("q1");
+  question.choicesByUrl.url = "some url";
+  question.value = "item1";
+  question.clearIncorrectValues();
+  assert.equal(question.value, "item1", "Do not do anything if choicesByUrl is not empty");
+});
+
 QUnit.test("questiontext.maxLength", function (assert) {
   var survey = new SurveyModel();
   var page = survey.addNewPage("p1");
@@ -2352,6 +2452,7 @@ QUnit.test(
   "matrix.rowsVisibleIf, clear value on making the value invisible",
   function (assert) {
     var survey = new SurveyModel();
+    survey.clearInvisibleValues = "onHidden";
     var page = survey.addNewPage("p1");
     var qBestCar = new QuestionMatrixModel("bestCar");
     qBestCar.columns = ["col1", "col2"];
@@ -2376,6 +2477,7 @@ QUnit.test(
   "matrix.columnsVisibleIf, clear value on making the value invisible",
   function (assert) {
     var survey = new SurveyModel();
+    survey.clearInvisibleValues = "onHidden";
     var page = survey.addNewPage("p1");
     var qBestCar = new QuestionMatrixModel("bestCar");
     qBestCar.rows = ["col1", "col2"];
@@ -2959,6 +3061,7 @@ QUnit.test(
   "matrix single choice. Restore new visible values from defaultValue if they are exists, Issue# T3038, https://surveyjs.answerdesk.io/ticket/details/T3038",
   function (assert) {
     var survey = new SurveyModel({
+      clearInvisibleValues: "onHidden",
       elements: [
         {
           type: "matrix",
@@ -3530,8 +3633,11 @@ QUnit.test("Question.addError(SurveyError|string)", function (assert) {
   assert.equal(question.errors[1].text, "Error 2", "custom error text");
 });
 
-QUnit.test("QuestionText min/max value", function (assert) {
-  var question = new QuestionTextModel("q");
+QUnit.test("QuestionText min/max value and renderedMin/renderedMax", function (
+  assert
+) {
+  var survey = new SurveyModel({ questions: [{ type: "text", name: "q" }] });
+  var question = <QuestionTextModel>survey.getQuestionByName("q");
   assert.equal(question.min, undefined, "Empty min");
   assert.equal(question.max, undefined, "Empty max");
   question.min = "1";
@@ -3543,11 +3649,76 @@ QUnit.test("QuestionText min/max value", function (assert) {
   assert.equal(question.max, undefined, "max reset");
   question.inputType = "date";
   assert.equal(question.min, undefined, "min not set");
-  assert.equal(question.max, "2999-12-31", "max is default");
+  assert.equal(question.max, undefined, "max is not set");
+  assert.equal(question.renderedMin, undefined, "renderedMin not set");
+  assert.equal(question.renderedMax, "2999-12-31", "renderedMax is default");
   question.min = "2000-01-01";
   question.max = "2020-12-31";
   assert.equal(question.min, "2000-01-01", "min is set");
   assert.equal(question.max, "2020-12-31", "max is set");
+  question.inputType = "number";
+  question.min = "1";
+  question.max = "=1+2";
+  assert.equal(question.renderedMin, 1, "min is set to 1");
+  assert.equal(question.renderedMax, 3, "max is set to 3");
+});
+QUnit.test("QuestionText renderedMin/renderedMax, today()", function (assert) {
+  var survey = new SurveyModel({
+    questions: [{ type: "text", name: "q", max: "=today()" }],
+  });
+  var question = <QuestionTextModel>survey.getQuestionByName("q");
+  var todayStr = new Date().toISOString().slice(0, 10);
+  assert.equal(question.renderedMax, todayStr, "today in format yyyy-mm-dd");
+});
+QUnit.test("QuestionText min/maxValueExpression, today()", function (assert) {
+  var survey = new SurveyModel({
+    questions: [{ type: "text", name: "q", maxValueExpression: "today()" }],
+  });
+  var question = <QuestionTextModel>survey.getQuestionByName("q");
+  var todayStr = new Date().toISOString().slice(0, 10);
+  assert.equal(
+    question.renderedMax,
+    todayStr,
+    "renderedMax: today in format yyyy-mm-dd"
+  );
+});
+QUnit.test("QuestionText min/maxValueExpression, today()", function (assert) {
+  var survey = new SurveyModel({
+    questions: [{ type: "text", name: "q", min: "=today()" }],
+  });
+  var question = <QuestionTextModel>survey.getQuestionByName("q");
+  assert.equal(
+    question.minValueExpression,
+    "today()",
+    "convert the min into minValueExpression"
+  );
+  assert.notOk(question.min, "min value becomes empty");
+  var todayStr = new Date().toISOString().slice(0, 10);
+  assert.equal(
+    question.renderedMin,
+    todayStr,
+    "renderedMin: today in format yyyy-mm-dd"
+  );
+});
+QUnit.test("Question defaultValue as expression", function (assert) {
+  var survey = new SurveyModel({
+    questions: [{ type: "text", name: "q", defaultValue: "=1+2" }],
+  });
+  var question = <QuestionTextModel>survey.getQuestionByName("q");
+  assert.notOk(question.defaultValue, "defaultValue is empty");
+  assert.equal(
+    question.defaultValueExpression,
+    "1+2",
+    "convert expression from default value"
+  );
+  assert.equal(question.value, 3, "run expression");
+});
+QUnit.test("Question defaultValueExpression", function (assert) {
+  var survey = new SurveyModel({
+    questions: [{ type: "text", name: "q", defaultValueExpression: "1+2" }],
+  });
+  var question = <QuestionTextModel>survey.getQuestionByName("q");
+  assert.equal(question.value, 3, "run expression");
 });
 QUnit.test("QuestionRating rateStep less than 1", function (assert) {
   var question = new QuestionRatingModel("q");
@@ -3568,6 +3739,24 @@ QUnit.test("QuestionRating rateStep less than 1", function (assert) {
   );
 });
 QUnit.test(
+  "QuestionRating convert value to number when needed, Bug#2421",
+  function (assert) {
+    var question = new QuestionRatingModel("q");
+    question.value = "2";
+    assert.strictEqual(question.value, 2, "Convert to 2");
+    question.value = undefined;
+    assert.strictEqual(question.value, undefined, "undefined 1");
+    question.rateValues = [1, "2", "3", 4];
+    question.value = "3";
+    assert.strictEqual(question.value, "3", "No need to convert");
+    question.value = "1";
+    assert.strictEqual(question.value, 1, "Convert to item.value, 1");
+    question.value = undefined;
+    assert.strictEqual(question.value, undefined, "undefined 2");
+  }
+);
+
+QUnit.test(
   "Do not serialize default values labelTrue/labelFalse for boolean question, Bug #2231",
   function (assert) {
     var question = new QuestionBooleanModel("q");
@@ -3586,5 +3775,473 @@ QUnit.test(
       { name: "q" },
       "Serialize type and name only"
     );
+  }
+);
+QUnit.test("Checkbox question getItemClass()", function (assert) {
+  var survey = new SurveyModel({
+    elements: [
+      {
+        type: "checkbox",
+        name: "q1",
+        storeOthersAsComment: false,
+        hasSelectAll: true,
+        hasNone: true,
+        choices: [1, 2],
+      },
+    ],
+  });
+  var q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+  q1.value = [1];
+  assert.equal(
+    q1.getItemClass(q1.visibleChoices[0]),
+    "sv_q_checkbox sv-q-col-1 sv_q_checkbox_selectall",
+    "select all"
+  );
+  assert.equal(
+    q1.getItemClass(q1.visibleChoices[1]),
+    "sv_q_checkbox sv-q-col-1 checked",
+    "item 1"
+  );
+  assert.equal(
+    q1.getItemClass(q1.visibleChoices[2]),
+    "sv_q_checkbox sv-q-col-1",
+    "item 2"
+  );
+  assert.equal(
+    q1.getItemClass(q1.visibleChoices[3]),
+    "sv_q_checkbox sv-q-col-1 sv_q_checkbox_none",
+    "None"
+  );
+});
+QUnit.test(
+  "Convert correctValue/defaultValue correctly on JSON loading",
+  function (assert) {
+    var json = {
+      elements: [
+        {
+          type: "radiogroup",
+          name: "radio_correct",
+          items: [1, 2, 3],
+          defaultValue: 1,
+          correctAnswer: "234",
+        },
+        {
+          type: "checkbox",
+          name: "check_correct",
+          items: [1, 2, 3],
+          defaultValue: [1],
+          correctAnswer: [2],
+        },
+        {
+          type: "radiogroup",
+          name: "radio_incorrect",
+          items: [1, 2, 3],
+          defaultValue: [1, 2],
+          correctAnswer: [2],
+        },
+        {
+          type: "checkbox",
+          name: "check_incorrect",
+          items: [1, 2, 3],
+          defaultValue: 1,
+          correctAnswer: "123",
+        },
+      ],
+    };
+    var survey = new SurveyModel(json);
+    var radio_correct = survey.getQuestionByName("radio_correct");
+    var check_correct = survey.getQuestionByName("check_correct");
+    var radio_incorrect = survey.getQuestionByName("radio_incorrect");
+    var check_incorrect = survey.getQuestionByName("check_incorrect");
+    assert.equal(radio_correct.defaultValue, 1, "radio_correct, defaultValue");
+    assert.equal(
+      radio_correct.correctAnswer,
+      "234",
+      "radio_correct, correctAnswer"
+    );
+    assert.deepEqual(
+      check_correct.defaultValue,
+      [1],
+      "check_correct, defaultValue"
+    );
+    assert.deepEqual(
+      check_correct.correctAnswer,
+      [2],
+      "check_correct, correctAnswer"
+    );
+    assert.equal(
+      radio_incorrect.defaultValue,
+      1,
+      "radio_incorrect, defaultValue"
+    );
+    assert.equal(
+      radio_incorrect.correctAnswer,
+      2,
+      "radio_incorrect, correctAnswer"
+    );
+    assert.deepEqual(
+      check_incorrect.defaultValue,
+      [1],
+      "check_incorrect, defaultValue"
+    );
+    assert.deepEqual(
+      check_incorrect.correctAnswer,
+      ["123"],
+      "check_incorrect, correctAnswer"
+    );
+  }
+);
+
+QUnit.test("QuestionSignaturePadModel dataFormat default value", function (
+  assert
+) {
+  var question = new QuestionSignaturePadModel("q");
+  assert.equal(question.dataFormat, "", "default value");
+});
+
+QUnit.test("QuestionSignaturePadModel dataFormat values", function (assert) {
+  var question = new QuestionSignaturePadModel("q");
+  assert.equal(question.dataFormat, "", "defaultValue");
+
+  var el = document.createElement("div");
+  el.appendChild(document.createElement("canvas"));
+  el.appendChild(document.createElement("button"));
+  question.initSignaturePad(el);
+
+  question["updateValue"]();
+  assert.equal(question.value.substring(0, 15), "data:image/png;", "png");
+
+  question.dataFormat = "image/jpeg";
+  assert.equal(question.dataFormat, "image/jpeg", "jpeg format");
+  question["updateValue"]();
+  assert.equal(question.value.substring(0, 15), "data:image/jpeg", "jpeg");
+
+  question.dataFormat = "image/svg+xml";
+  assert.equal(question.dataFormat, "image/svg+xml", "svg format");
+  question["updateValue"]();
+  assert.equal(question.value.substring(0, 15), "data:image/svg+", "svg");
+});
+
+QUnit.test("Question.getProgressInfo()", function (assert) {
+  var question = new QuestionTextModel("q1");
+  assert.deepEqual(question.getProgressInfo(), {
+    questionCount: 1,
+    answeredQuestionCount: 0,
+    requiredQuestionCount: 0,
+    requiredAnsweredQuestionCount: 0,
+  });
+  question.value = "1";
+  assert.deepEqual(question.getProgressInfo(), {
+    questionCount: 1,
+    answeredQuestionCount: 1,
+    requiredQuestionCount: 0,
+    requiredAnsweredQuestionCount: 0,
+  });
+  question.isRequired = true;
+  assert.deepEqual(question.getProgressInfo(), {
+    questionCount: 1,
+    answeredQuestionCount: 1,
+    requiredQuestionCount: 1,
+    requiredAnsweredQuestionCount: 1,
+  });
+});
+QUnit.test("QuestionMultipleText.getProgressInfo()", function (assert) {
+  var question = new QuestionMultipleTextModel("q1");
+  question.addItem("item1");
+  question.addItem("item2");
+  question.addItem("item3");
+  assert.deepEqual(
+    question.getProgressInfo(),
+    {
+      questionCount: 3,
+      answeredQuestionCount: 0,
+      requiredQuestionCount: 0,
+      requiredAnsweredQuestionCount: 0,
+    },
+    "empty"
+  );
+  question.isRequired = true;
+  assert.deepEqual(
+    question.getProgressInfo(),
+    {
+      questionCount: 3,
+      answeredQuestionCount: 0,
+      requiredQuestionCount: 1,
+      requiredAnsweredQuestionCount: 0,
+    },
+    "root is required"
+  );
+  question.value = { item1: "1" };
+  assert.deepEqual(
+    question.getProgressInfo(),
+    {
+      questionCount: 3,
+      answeredQuestionCount: 1,
+      requiredQuestionCount: 1,
+      requiredAnsweredQuestionCount: 1,
+    },
+    "root is requried and has one value"
+  );
+  question.isRequired = false;
+  assert.deepEqual(
+    question.getProgressInfo(),
+    {
+      questionCount: 3,
+      answeredQuestionCount: 1,
+      requiredQuestionCount: 0,
+      requiredAnsweredQuestionCount: 0,
+    },
+    "has one value"
+  );
+  question.items[0].isRequired = true;
+  question.items[1].isRequired = true;
+  assert.deepEqual(
+    question.getProgressInfo(),
+    {
+      questionCount: 3,
+      answeredQuestionCount: 1,
+      requiredQuestionCount: 2,
+      requiredAnsweredQuestionCount: 1,
+    },
+    "two items are required and has one value"
+  );
+  question.isRequired = true;
+  assert.deepEqual(
+    question.getProgressInfo(),
+    {
+      questionCount: 3,
+      answeredQuestionCount: 1,
+      requiredQuestionCount: 2,
+      requiredAnsweredQuestionCount: 1,
+    },
+    "root is required and two items are required and has one value"
+  );
+  question.items[1].editor.visible = false;
+  assert.deepEqual(
+    question.getProgressInfo(),
+    {
+      questionCount: 2,
+      answeredQuestionCount: 1,
+      requiredQuestionCount: 1,
+      requiredAnsweredQuestionCount: 1,
+    },
+    "root is required and two items are required and has one value and one required item is invisible"
+  );
+});
+QUnit.test("Set value with hasOther that is not in the list", function (
+  assert
+) {
+  var survey = new SurveyModel({
+    elements: [
+      { type: "dropdown", name: "q1", choices: [1, 2], hasOther: true },
+      { type: "checkbox", name: "q2", choices: [1, 2], hasOther: true },
+    ],
+  });
+  survey.data = { q1: "NonInList" };
+  var question = <QuestionDropdownModel>survey.getQuestionByName("q1");
+  assert.equal(question.value, question.otherItem.value, "other is set");
+  assert.equal(question.comment, "NonInList", "comment is set");
+  survey.data = { q1: 1 };
+  assert.equal(question.value, 1, "value is set");
+  assert.equal(question.comment, "", "comment is empty");
+  survey.data = { q1: "NonInList2" };
+  assert.equal(
+    question.value,
+    question.otherItem.value,
+    "other is set second time"
+  );
+  assert.equal(question.comment, "NonInList2", "comment is set second time");
+
+  survey.data = { q2: [1, "NonInList"] };
+  var question2 = <QuestionCheckboxModel>survey.getQuestionByName("q2");
+  assert.deepEqual(
+    question2.value,
+    [1, question2.otherItem.value],
+    "checkbox: other is set"
+  );
+  assert.equal(question2.comment, "NonInList", "checkbox: comment is set");
+  survey.data = { q2: [1, 2] };
+  assert.deepEqual(question2.value, [1, 2], "checkbox: value is set");
+  assert.equal(question2.comment, "", "checkbox: comment is empty");
+  survey.data = { q2: [2, "NonInList2"] };
+  assert.deepEqual(
+    question2.value,
+    [2, question2.otherItem.value],
+    "checkbox: other is set second time"
+  );
+  assert.equal(
+    question2.comment,
+    "NonInList2",
+    "checkbox: comment is set second time"
+  );
+});
+QUnit.test("question.isInputTextUpdate", function (assert) {
+  var survey = new SurveyModel({
+    elements: [{ type: "text", name: "q1" }],
+  });
+  var question = <QuestionTextModel>survey.getQuestionByName("q1");
+  assert.equal(
+    question.isInputTextUpdate,
+    false,
+    "survey.textUpdateMode == onBlur (default)"
+  );
+  survey.textUpdateMode = "onTyping";
+  assert.equal(
+    question.isInputTextUpdate,
+    true,
+    "survey.textUpdateMode == onTyping"
+  );
+  question.inputType = "date";
+  assert.equal(question.isInputTextUpdate, false, "inputType = date");
+  question.inputType = "number";
+  assert.equal(question.isInputTextUpdate, true, "inputType = number");
+});
+QUnit.test("matirix row, rowClasses property", function (assert) {
+  var survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrix",
+        name: "q1",
+        columns: ["col1", "col2"],
+        rows: ["row1", "row2"],
+        isAllRowRequired: true,
+      },
+    ],
+  });
+  survey.css = { matrix: { row: "row", rowError: "row_error" } };
+  var question = <QuestionMatrixModel>survey.getQuestionByName("q1");
+  assert.ok(question.cssClasses.row, "Row class is not empty");
+  assert.equal(question.visibleRows[0].rowClasses, "row", "Set row class");
+  question.hasErrors();
+  assert.equal(
+    question.visibleRows[0].rowClasses,
+    "row row_error",
+    "Error for the first row"
+  );
+  question.visibleRows[0].value = "col1";
+  assert.equal(
+    question.visibleRows[0].rowClasses,
+    "row",
+    "first row value is set"
+  );
+  assert.equal(
+    question.visibleRows[1].rowClasses,
+    "row row_error",
+    "Error for the second row"
+  );
+});
+QUnit.test("matirix and survey.onValueChanged event, Bug#2408", function (
+  assert
+) {
+  var survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrix",
+        name: "q1",
+        columns: ["col1", "col2"],
+        rows: ["row1", "row2"],
+      },
+    ],
+  });
+  var question = <QuestionMatrixModel>survey.getQuestionByName("q1");
+  survey.onValueChanging.add(function (sender, options) {
+    var keys = [];
+    for (var key in options.value) {
+      keys.push(key);
+    }
+    if (keys.length == 2 && !!options.oldValue) {
+      for (var key in options.oldValue) {
+        delete options.value[key];
+        break;
+      }
+    }
+  });
+  var rows = question.visibleRows;
+  rows[0].value = "col1";
+  assert.deepEqual(question.value, { row1: "col1" }, "initial set correctly");
+  rows[1].value = "col1";
+  assert.deepEqual(
+    question.value,
+    { row2: "col1" },
+    "remove value in question"
+  );
+  assert.notOk(rows[0].value, "Clear value onValueChanging event");
+});
+QUnit.test(
+  "min/max properties do not load if they are upper inputType, Bug#",
+  function (assert) {
+    var survey = new SurveyModel({
+      elements: [
+        {
+          type: "text",
+          name: "q1",
+          min: 0,
+          max: 100,
+          inputType: "number",
+        },
+      ],
+    });
+    var question = <QuestionTextModel>survey.getQuestionByName("q1");
+    assert.equal(question.min, 0, "min value is set");
+    assert.equal(question.max, 100, "max value is set");
+  }
+);
+
+QUnit.test(
+  "setvalue trigger dosen't work for question name with '.', Bug#2420",
+  function (assert) {
+    var survey = new SurveyModel({
+      elements: [
+        {
+          type: "text",
+          name: "a.b",
+        },
+      ],
+      triggers: [
+        {
+          type: "setvalue",
+          expression: "{q1} = 1",
+          setToName: "a.b",
+          setValue: 2,
+        },
+      ],
+    });
+    survey.setValue("q1", 1);
+    assert.deepEqual(
+      survey.data,
+      { q1: 1, "a.b": 2 },
+      "trigger works correctly"
+    );
+  }
+);
+QUnit.test(
+  "maxSelectedChoices in checkbox",
+  function (assert) {
+    var survey = new SurveyModel({
+      elements: [
+        {
+          type: "checkbox",
+          name: "q1",
+          choices: [1, 2, 3, 4, 5],
+          maxSelectedChoices: 2,
+          hasSelectAll: true,
+          hasOther: true
+        }
+      ]
+    });
+    var question = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+    assert.equal(question.choices[0].isEnabled, true, "the first item is enabled");
+    assert.equal(question.otherItem.isEnabled, true, "otherItem is enabled");
+    assert.equal(question.selectAllItem.isEnabled, false, "select all is disabled");
+    question.value = [2, 3];
+    assert.equal(question.choices[0].isEnabled, false, "the first item is disabled now");
+    assert.equal(question.choices[1].isEnabled, true, "the second item is selected");
+    assert.equal(question.otherItem.isEnabled, false, "otherItem is disabled");
+    question.value = [2];
+    assert.equal(question.choices[0].isEnabled, true, "the first item is enabled again");
+    assert.equal(question.otherItem.isEnabled, true, "otherItem is enabled again");
+    question.value = [2, "other"];
+    assert.equal(question.choices[0].isEnabled, false, "the first item is disabled again");
+    assert.equal(question.otherItem.isEnabled, true, "otherItem is enabled, it is selected");
   }
 );

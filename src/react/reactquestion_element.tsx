@@ -3,7 +3,7 @@ import { Helpers } from "../helpers";
 import { LocalizableString } from "../localizablestring";
 import { Question } from "../question";
 import { ISurveyCreator } from "./reactquestion";
-import { Base } from "../base";
+import { Base, ITitleOwner } from "../base";
 
 export class SurveyLocString extends React.Component<any, any> {
   constructor(props: any) {
@@ -23,6 +23,10 @@ export class SurveyLocString extends React.Component<any, any> {
       self.setState({ changed: self.state.changed + 1 });
     };
   }
+  componentWillUnmount() {
+    if (!this.locStr) return;
+    this.locStr.onChanged = function () {};
+  }
   render(): JSX.Element {
     if (!this.locStr) return null;
     if (this.locStr.hasHtml) {
@@ -41,6 +45,7 @@ export class SurveyElementBase extends React.Component<any, any> {
   ): JSX.Element {
     return <SurveyLocString locStr={locStr} style={style} key={key} />;
   }
+  private isRenderingValue: boolean;
   constructor(props: any) {
     super(props);
   }
@@ -53,6 +58,22 @@ export class SurveyElementBase extends React.Component<any, any> {
   componentDidUpdate(prevProps: any, prevState: any) {
     this.makeBaseElementsReact();
   }
+  render(): JSX.Element {
+    if (!this.canRender()) return null;
+    this.isRenderingValue = true;
+    var res = this.renderElement();
+    this.isRenderingValue = false;
+    return res;
+  }
+  protected get isRendering(): boolean {
+    return this.isRenderingValue;
+  }
+  protected canRender(): boolean {
+    return true;
+  }
+  protected renderElement(): JSX.Element {
+    return null;
+  }
   private makeBaseElementsReact() {
     var els = this.getStateElements();
     for (var i = 0; i < els.length; i++) {
@@ -62,7 +83,7 @@ export class SurveyElementBase extends React.Component<any, any> {
   private unMakeBaseElementsReact() {
     var els = this.getStateElements();
     for (var i = 0; i < els.length; i++) {
-      this.makeBaseElementReact(els[i]);
+      this.unMakeBaseElementReact(els[i]);
     }
   }
   protected getStateElements(): Array<Base> {
@@ -81,18 +102,88 @@ export class SurveyElementBase extends React.Component<any, any> {
   ): JSX.Element {
     return SurveyElementBase.renderLocString(locStr, style);
   }
+
+  private titleKeyIndex = 0;
+  private titleKeyPrefix = "-titleKey-";
+  private getTitleKey = (element: ITitleOwner) => {
+    this.titleKeyIndex++;
+    return element.name + this.titleKeyPrefix + this.titleKeyIndex;
+  };
+  protected renderTitleSpans(element: ITitleOwner, cssClasses: any) {
+    var getSpaceSpan = () => {
+      return (
+        <span
+          data-key={this.getTitleKey(element)}
+          key={this.getTitleKey(element)}
+        >
+          &nbsp;
+        </span>
+      );
+    };
+    var spans = [];
+    if (element.isRequireTextOnStart) {
+      spans.push(this.renderRequireText(element, cssClasses));
+      spans.push(getSpaceSpan());
+    }
+    var questionNumber = element.no;
+    if (questionNumber) {
+      spans.push(
+        <span
+          data-key={this.getTitleKey(element)}
+          key={this.getTitleKey(element)}
+          className={cssClasses.number}
+          style={{ position: "static" }}
+        >
+          {questionNumber}
+        </span>
+      );
+      spans.push(getSpaceSpan());
+    }
+    if (element.isRequireTextBeforeTitle) {
+      spans.push(this.renderRequireText(element, cssClasses));
+      spans.push(getSpaceSpan());
+    }
+    spans.push(
+      SurveyElementBase.renderLocString(
+        element.locTitle,
+        null,
+        this.getTitleKey(element)
+      )
+    );
+    if (element.isRequireTextAfterTitle) {
+      spans.push(getSpaceSpan());
+      spans.push(this.renderRequireText(element, cssClasses));
+    }
+    return spans;
+  }
+  private renderRequireText(
+    element: ITitleOwner,
+    cssClasses: any
+  ): JSX.Element {
+    return (
+      <span
+        data-key={this.getTitleKey(element)}
+        key={this.getTitleKey(element)}
+        className={cssClasses.requiredText || cssClasses.panel.requiredText}
+      >
+        {element.requiredText}
+      </span>
+    );
+  }
   private makeBaseElementReact(stateElement: Base) {
     if (!stateElement) return;
     stateElement.iteratePropertiesHash((hash, key) => {
       var val: any = hash[key];
       if (Array.isArray(val)) {
         var val: any = val;
-        val["onArrayChanged"] = () =>
+        val["onArrayChanged"] = () => {
+          if (this.isRendering) return;
           this.setState((state: any) => {
             var newState: { [index: string]: any } = {};
             newState[key] = val;
             return newState;
           });
+        };
       }
     });
     stateElement.setPropertyValueCoreHandler = (
@@ -102,6 +193,7 @@ export class SurveyElementBase extends React.Component<any, any> {
     ) => {
       if (hash[key] !== val) {
         hash[key] = val;
+        if (this.isRendering) return;
         this.setState((state: any) => {
           var newState: { [index: string]: any } = {};
           newState[key] = val;
@@ -117,7 +209,7 @@ export class SurveyElementBase extends React.Component<any, any> {
       var val: any = hash[key];
       if (Array.isArray(val)) {
         var val: any = val;
-        val["onArrayChanged"] = () => { };
+        val["onArrayChanged"] = () => {};
       }
     });
   }
@@ -147,7 +239,7 @@ export class SurveyQuestionElementBase extends SurveyElementBase {
   componentWillUnmount() {
     super.componentWillUnmount();
     if (!!this.questionBase) {
-      this.questionBase.beforeDestoyQuestionElement(this.control);
+      this.questionBase.beforeDestroyQuestionElement(this.control);
     }
   }
   protected updateDomElement() {
@@ -165,6 +257,9 @@ export class SurveyQuestionElementBase extends SurveyElementBase {
   protected get creator(): ISurveyCreator {
     return this.props.creator;
   }
+  protected canRender(): boolean {
+    return !!this.questionBase && !!this.creator;
+  }
   public shouldComponentUpdate(): boolean {
     return (
       !this.questionBase.customWidget ||
@@ -177,7 +272,7 @@ export class SurveyQuestionElementBase extends SurveyElementBase {
 
 export class SurveyQuestionUncontrolledElement<
   T extends Question
-  > extends SurveyQuestionElementBase {
+> extends SurveyQuestionElementBase {
   constructor(props: any) {
     super(props);
     this.updateValueOnEvent = this.updateValueOnEvent.bind(this);
@@ -186,7 +281,11 @@ export class SurveyQuestionUncontrolledElement<
     return this.questionBase as T;
   }
   updateValueOnEvent = (event: any) => {
-    this.questionBase.value = event.target.value;
+    if (
+      !Helpers.isTwoValueEquals(this.questionBase.value, event.target.value)
+    ) {
+      this.questionBase.value = event.target.value;
+    }
   };
   protected updateDomElement() {
     if (!!this.control) {

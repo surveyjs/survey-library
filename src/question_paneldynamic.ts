@@ -9,6 +9,8 @@ import {
   ISurvey,
   ISurveyImpl,
   ITextProcessor,
+  IProgressInfo,
+  SurveyElement,
 } from "./base";
 import { surveyLocalization } from "./surveyStrings";
 import { LocalizableString } from "./localizablestring";
@@ -21,6 +23,7 @@ import { QuestionFactory } from "./questionfactory";
 import { KeyDuplicationError } from "./error";
 import { settings } from "./settings";
 import { Panel } from "./knockout/kopage";
+import { confirmAction } from "./utils/utils";
 
 export interface IQuestionPanelDynamicData {
   getItemIndex(item: ISurveyData): number;
@@ -174,7 +177,8 @@ export class QuestionPanelDynamicTemplateSurveyImpl implements ISurveyImpl {
  * A Model for a panel dymanic question. You setup the template panel, but adding elements (any question or a panel) and assign a text to it's title, and this panel will be used as a template on creating dynamic panels. The number of panels is defined by panelCount property.
  * An end-user may dynamically add/remove panels, unless you forbidden this.
  */
-export class QuestionPanelDynamicModel extends Question
+export class QuestionPanelDynamicModel
+  extends Question
   implements IQuestionPanelDynamicData {
   private templateValue: PanelModel;
   private loadingPanelCount: number = 0;
@@ -585,6 +589,7 @@ export class QuestionPanelDynamicModel extends Question
       return;
     }
     if (val == this.panels.length || this.isDesignMode) return;
+    this.updateBindings("panelCount", val);
     this.prepareValueForPanelCreating();
     for (let i = this.panelCount; i < val; i++) {
       var panel = this.createNewPanel();
@@ -890,6 +895,12 @@ export class QuestionPanelDynamicModel extends Question
     }
     return true;
   }
+  public getProgressInfo(): IProgressInfo {
+    return SurveyElement.getProgressInfoByElements(
+      this.panels,
+      this.isRequired
+    );
+  }
   private isRowEmpty(val: any) {
     for (var prop in val) {
       if (val.hasOwnProperty(prop)) return false;
@@ -970,7 +981,7 @@ export class QuestionPanelDynamicModel extends Question
    */
   public removePanelUI(value: any) {
     if (!this.canRemovePanel) return;
-    if (!this.confirmDelete || confirm(this.confirmDeleteText)) {
+    if (!this.confirmDelete || confirmAction(this.confirmDeleteText)) {
       this.removePanel(value);
     }
   }
@@ -1000,6 +1011,7 @@ export class QuestionPanelDynamicModel extends Question
     if (index < 0 || index >= this.panelCount) return;
     var panel = this.panels[index];
     this.panels.splice(index, 1);
+    this.updateBindings("panelCount", this.panelCount);
     var value = this.value;
     if (!value || !Array.isArray(value) || index >= value.length) return;
     this.isValueChangingInternally = true;
@@ -1047,13 +1059,15 @@ export class QuestionPanelDynamicModel extends Question
     if (!values) return;
     var isChanged = false;
     for (var key in values) {
-      if (
-        !panel.getQuestionByName(key) &&
-        !this.getSharedQuestionFromArray(key, index)
-      ) {
-        delete values[key];
-        isChanged = true;
+      if(this.getSharedQuestionFromArray(key, index)) continue;
+      var q = panel.getQuestionByName(key);
+      if(!!q) continue;
+      if(key.indexOf(settings.commentPrefix) == key.length - settings.commentPrefix.length) {
+        q = panel.getQuestionByName(key.substr(0, key.indexOf(settings.commentPrefix)));
+        if(!!q) continue;
       }
+      delete values[key];
+      isChanged = true;
     }
     if (isChanged) {
       val[index] = values;
@@ -1386,7 +1400,7 @@ export class QuestionPanelDynamicModel extends Question
     return new PanelModel();
   }
   private setPanelCountBasedOnValue() {
-    if (this.isValueChangingInternally) return;
+    if (this.isValueChangingInternally || this.isDesignMode) return;
     var val = this.value;
     var newPanelCount = val && Array.isArray(val) ? val.length : 0;
     if (newPanelCount == 0 && this.loadingPanelCount > 0) {
@@ -1456,7 +1470,7 @@ export class QuestionPanelDynamicModel extends Question
     var items = this.items;
     var index = items.indexOf(item);
     if (index < 0) index = items.length;
-    var qValue = Helpers.getUnbindValue(this.value);
+    var qValue = this.getUnbindValue(this.value);
     if (!qValue || !Array.isArray(qValue)) {
       qValue = [];
     }
@@ -1567,6 +1581,7 @@ Serializer.addClass(
     { name: "allowRemovePanel:boolean", default: true },
     {
       name: "panelCount:number",
+      isBindable: true,
       default: 0,
       choices: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
     },

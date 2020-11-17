@@ -10,7 +10,7 @@ export class SurveyProgress extends SurveyNavigationBase {
     return this.props.isTop;
   }
   protected get progress(): number {
-    return this.survey.getProgress();
+    return this.survey.progressValue;
   }
   protected get progressText(): string {
     return this.survey.progressText;
@@ -18,7 +18,7 @@ export class SurveyProgress extends SurveyNavigationBase {
   render(): JSX.Element {
     var style = this.isTop ? {} : { marginTop: "1em" };
     var progressStyle = {
-      width: this.progress + "%"
+      width: this.progress + "%",
     };
     return (
       <div className={this.css.progress} style={style}>
@@ -30,9 +30,7 @@ export class SurveyProgress extends SurveyNavigationBase {
           aria-valuemax={100}
         >
           <span
-            className={
-              this.css.progressText + " " + this.css.progressTextInBar
-            }
+            className={this.css.progressText + " " + this.css.progressTextInBar}
           >
             {this.progressText}
           </span>

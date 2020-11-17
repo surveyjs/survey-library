@@ -6,6 +6,7 @@ import { SurveyElement, IElement } from "../base";
 import { ElementFactory } from "../questionfactory";
 import { ImplementorBase } from "./kobase";
 import { Question } from "../question";
+import { settings } from "../settings";
 
 export class QuestionRow extends QuestionRowModel {
   koGetType: any;
@@ -42,6 +43,16 @@ export class QuestionRow extends QuestionRowModel {
       (<Question>element).afterRender(el);
     }
   }
+  rowAfterRender(elements: HTMLElement[], model: QuestionRow) {
+    if (!model.isNeedRender) {
+      var rowContainerDiv = elements[0].parentElement;
+      model.startLazyRendering(rowContainerDiv);
+      ko.utils.domNodeDisposal.addDisposeCallback(
+        rowContainerDiv,
+        () => (model.isNeedRender = !settings.lazyRowsRendering)
+      );
+    }
+  }
 }
 
 export class PanelImplementorBase extends ImplementorBase {
@@ -58,6 +69,7 @@ export class Panel extends PanelModel {
   koIsCollapsed: any;
   koErrorClass: any;
   doExpand: any;
+  pressExpand: any;
   constructor(name: string = "") {
     super(name);
     this.onCreating();
@@ -73,6 +85,9 @@ export class Panel extends PanelModel {
     };
     this.doExpand = function () {
       self.changeExpanded();
+    };
+    this.pressExpand = function(_: any, event: any) {
+      if (event.which === 13) self.changeExpanded();
     };
     this.koErrorClass = ko.pureComputed(function () {
       var rootClass = self.cssClasses.error.root;
@@ -106,6 +121,9 @@ export class Panel extends PanelModel {
     var result = this.cssClasses.panel.title;
     if (this.koIsCollapsed() || this.koIsExpanded()) {
       result += " " + this.cssClasses.panel.titleExpandable;
+    }
+    if (this.containsErrors) {
+      result += " " + this.cssClasses.panel.titleOnError;
     }
     return result;
   }

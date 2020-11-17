@@ -9,7 +9,13 @@
               <!-- ko template: { name: 'survey-question-errors', data: question } -->
               <!-- /ko -->
           <!-- /ko -->
-          <!-- ko template: { name: question.koTemplateName(), data: question, afterRender: question.koQuestionAfterRender } -->
+          <!-- ko if: question.isDefaultRendering() -->
+            <!-- ko template: { name: question.koTemplateName(), data: question, afterRender: question.koQuestionAfterRender } -->
+            <!-- /ko -->
+          <!-- /ko -->
+          <!-- ko ifnot: question.isDefaultRendering() -->
+            <!-- ko component: { name: getComponentName(), params: { question: question } } -->
+            <!-- /ko -->
           <!-- /ko -->
           <!-- ko if: question.hasComment -->
           <div data-bind="css: question.koCss().formGroup">

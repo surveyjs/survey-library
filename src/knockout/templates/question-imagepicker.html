@@ -8,13 +8,16 @@
               />
               <div>
                   <!-- ko if: question.contentMode === "image" -->
-                  <img data-bind="css: question.koCss().image, attr: { src: $data.imageLink, width: question.imageWidth ? question.imageWidth + 'px' : undefined, height: question.imageHeight ? question.imageHeight + 'px' : undefined, alt: text || value }, style: { objectFit: question.imageFit }"/>
+                  <img data-bind="css: question.koCss().image, attr: { src: $data.locImageLink.koRenderedHtml, width: question.imageWidth ? question.imageWidth + 'px' : undefined, height: question.imageHeight ? question.imageHeight + 'px' : undefined, alt: item.locText.koRenderedHtml }, style: { objectFit: question.imageFit }"/>
                   <!-- /ko -->
                   <!-- ko if: question.contentMode === "video" -->
-                  <embed data-bind="css: question.koCss().image, attr: { src: $data.imageLink, width: question.imageWidth ? question.imageWidth + 'px' : undefined, height: question.imageHeight ? question.imageHeight + 'px' : undefined }, style: { objectFit: question.imageFit }"/>
+                  <embed data-bind="css: question.koCss().image, attr: { src: $data.locImageLink.koRenderedHtml, width: question.imageWidth ? question.imageWidth + 'px' : undefined, height: question.imageHeight ? question.imageHeight + 'px' : undefined }, style: { objectFit: question.imageFit }"/>
                   <!-- /ko -->
                   <!-- ko if: question.showLabel -->
-                  <span data-bind="text: text || value, attr: { title: text || value }, css: question.koCss().itemText"></span>
+                  <span data-bind="css: question.koCss().itemText, attr: { title: item.locText.koRenderedHtml }">
+                    <!-- ko template: { name: 'survey-string', data: item.locText } -->
+                    <!-- /ko -->
+                </span>
                   <!-- /ko -->
               </div>
           </label>

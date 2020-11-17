@@ -3,6 +3,7 @@ import { HashTable, Helpers } from "./helpers";
 import {
   CustomPropertiesCollection,
   JsonObject,
+  JsonObjectProperty,
   Serializer,
 } from "./jsonobject";
 import { settings } from "./settings";
@@ -44,6 +45,7 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner {
   pageVisibilityChanged(page: IPage, newValue: boolean): any;
   panelVisibilityChanged(panel: IPanel, newValue: boolean): any;
   questionVisibilityChanged(question: IQuestion, newValue: boolean): any;
+  isClearValueOnHidden: boolean;
   questionsOrder: string;
   questionCreated(question: IQuestion): any;
   questionAdded(
@@ -88,6 +90,7 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner {
   ): void;
   questionTitlePattern: string;
   getUpdatedQuestionTitle(question: IQuestion, title: string): string;
+  getUpdatedQuestionNo(question: IQuestion, no: string): string;
 
   questionStartIndex: string;
   questionTitleLocation: string;
@@ -111,6 +114,7 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner {
     callback: (status: string, data: any) => any
   ): any;
   clearFiles(
+    question: IQuestion,
     name: string,
     value: any,
     fileName: string,
@@ -166,6 +170,7 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner {
     page: IPage,
     id: string
   ): any;
+  runExpression(expression: string): any;
 }
 export interface ISurveyImpl {
   geSurveyData(): ISurveyData;
@@ -246,10 +251,117 @@ export interface IPanel extends ISurveyElement, IParentElement {
 export interface IPage extends IPanel, IConditionRunner {
   isStarted: boolean;
 }
+export interface ITitleOwner {
+  name: string;
+  no: string;
+  requiredText: string;
+  isRequireTextOnStart: boolean;
+  isRequireTextBeforeTitle: boolean;
+  isRequireTextAfterTitle: boolean;
+  locTitle: LocalizableString;
+}
+export interface IProgressInfo {
+  questionCount: number;
+  answeredQuestionCount: number;
+  requiredQuestionCount: number;
+  requiredAnsweredQuestionCount: number;
+}
+
+export class Bindings {
+  private properties: Array<JsonObjectProperty> = null;
+  private values: any = null;
+  constructor(private obj: Base) {}
+  public getType(): string {
+    return "bindings";
+  }
+  public getNames(): Array<string> {
+    var res: Array<string> = [];
+    this.fillProperties();
+    for (var i = 0; i < this.properties.length; i++) {
+      if (this.properties[i].isVisible("", this.obj)) {
+        res.push(this.properties[i].name);
+      }
+    }
+    return res;
+  }
+  public getProperties(): Array<JsonObjectProperty> {
+    var res: Array<JsonObjectProperty> = [];
+    this.fillProperties();
+    for (var i = 0; i < this.properties.length; i++) {
+      res.push(this.properties[i]);
+    }
+    return res;
+  }
+  public setBinding(propertyName: string, valueName: string) {
+    if (!this.values) this.values = {};
+    if (!!valueName) {
+      this.values[propertyName] = valueName;
+    } else {
+      delete this.values[propertyName];
+      if (Object.keys(this.values).length == 0) {
+        this.values = null;
+      }
+    }
+  }
+  public clearBinding(propertyName: string) {
+    this.setBinding(propertyName, "");
+  }
+  public isEmpty(): boolean {
+    return !this.values;
+  }
+  public getValueNameByPropertyName(propertyName: string): string {
+    if (!this.values) return undefined;
+    return this.values[propertyName];
+  }
+  public getPropertiesByValueName(valueName: string): Array<string> {
+    if (!this.values) return [];
+    var res: Array<string> = [];
+    for (var key in this.values) {
+      if (this.values[key] == valueName) {
+        res.push(key);
+      }
+    }
+    return res;
+  }
+  public getJson(): any {
+    if (this.isEmpty()) return null;
+    var res: any = {};
+    for (var key in this.values) {
+      res[key] = this.values[key];
+    }
+    return res;
+  }
+  public setJson(value: any) {
+    this.values = null;
+    if (!value) return;
+    this.values = {};
+    for (var key in value) {
+      this.values[key] = value[key];
+    }
+  }
+  private fillProperties() {
+    if (this.properties !== null) return;
+    this.properties = [];
+    var objProperties = Serializer.getPropertiesByObj(this.obj);
+    for (var i = 0; i < objProperties.length; i++) {
+      if (objProperties[i].isBindable) {
+        this.properties.push(objProperties[i]);
+      }
+    }
+  }
+}
 /**
  * The base class for SurveyJS objects.
  */
 export class Base {
+  public static isSurveyElement(val: any): boolean {
+    if(!val) return false;
+    if(Array.isArray(val)) {
+      if(val.length == 0) return false;
+      return Base.isSurveyElement(val[0]);
+    }
+    return !!val.getType && !!val.onPropertyChanged;
+  }
   public static get commentPrefix(): string {
     return settings.commentPrefix;
   }
@@ -272,6 +384,7 @@ export class Base {
   private propertyHash: { [index: string]: any } = {};
   private localizableStrings: { [index: string]: LocalizableString };
   private arraysInfo: { [index: string]: any };
+  private bindingsValue: Bindings;
   private onPropChangeFunctions: Array<{
     name: string;
     func: (...args: any[]) => void;
@@ -313,9 +426,13 @@ export class Base {
   ) => void;
   createArrayCoreHandler: (propertiesHash: any, name: string) => Array<any>;
 
+  private isCreating = true;
+
   public constructor() {
+    this.bindingsValue = new Bindings(this);
     CustomPropertiesCollection.createProperties(this);
     this.onBaseCreating();
+    this.isCreating = false;
   }
   protected onBaseCreating() {}
   /**
@@ -324,6 +441,17 @@ export class Base {
   public getType(): string {
     return "base";
   }
+  public get bindings(): Bindings {
+    return this.bindingsValue;
+  }
+  checkBindings(valueName: string, value: any) {}
+  protected updateBindings(propertyName: string, value: any) {
+    var valueName = this.bindings.getValueNameByPropertyName(propertyName);
+    if (!!valueName) {
+      this.updateBindingValue(valueName, value);
+    }
+  }
+  protected updateBindingValue(valueName: string, value: any) {}
   /**
    * Returns the element template name without prefix. Typically it equals to getType().
    * @see getType
@@ -371,6 +499,9 @@ export class Base {
     clonedObj.fromJSON(this.toJSON());
     return clonedObj;
   }
+  public getProgressInfo(): IProgressInfo {
+    return SurveyElement.createProgressInfo();
+  }
   public locStrsChanged() {
     if (!!this.arraysInfo) {
       for (let key in this.arraysInfo) {
@@ -398,8 +529,10 @@ export class Base {
     if (this.IsPropertyEmpty(res)) {
       if (defaultValue != null) return defaultValue;
       var prop = Serializer.findProperty(this.getType(), name);
-      var serValue = !!prop && !prop.isCustom ? prop.defaultValue : null;
-      if (!this.IsPropertyEmpty(serValue)) return serValue;
+      if(!!prop && (!prop.isCustom || !this.isCreating)) {
+        if (!this.IsPropertyEmpty(prop.defaultValue) && !Array.isArray(prop.defaultValue)) return prop.defaultValue;
+        if(prop.type == "boolean" || prop.type == "switch") return false;
+      }
     }
     return res;
   }
@@ -440,13 +573,16 @@ export class Base {
         arrayInfo ? arrayInfo.isItemValues : false,
         arrayInfo ? arrayInfo.onPush : null
       );
-      //this.propertyValueChanged(name, oldValue, oldValue);
     } else {
       this.setPropertyValueCore(this.propertyHash, name, val);
       if (!this.isTwoValueEquals(oldValue, val)) {
         this.propertyValueChanged(name, oldValue, val);
       }
     }
+  }
+  protected clearPropertyValue(name: string) {
+    this.setPropertyValueCore(this.propertyHash, name, null);   
+    delete this.propertyHash[name]; 
   }
   public onPropertyValueChangedCallback(
     name: string,
@@ -482,6 +618,7 @@ export class Base {
     target?: Base
   ) {
     if (this.isLoadingFromJson) return;
+    this.updateBindings(name, newValue);
     this.onPropertyValueChanged(name, oldValue, newValue);
     this.onPropertyChanged.fire(this, {
       name: name,
@@ -887,7 +1024,39 @@ export class SurveyError {
   }
 }
 
+/**
+ * Base class of SurveyJS Elements.
+ */
 export class SurveyElement extends Base implements ISurveyElement {
+  public static createProgressInfo(): IProgressInfo {
+    return {
+      questionCount: 0,
+      answeredQuestionCount: 0,
+      requiredQuestionCount: 0,
+      requiredAnsweredQuestionCount: 0,
+    };
+  }
+  public static getProgressInfoByElements(
+    children: Array<SurveyElement>,
+    isRequired: boolean
+  ): IProgressInfo {
+    var info = SurveyElement.createProgressInfo();
+    for (var i = 0; i < children.length; i++) {
+      if (!children[i].isVisible) continue;
+      var childInfo = children[i].getProgressInfo();
+      info.questionCount += childInfo.questionCount;
+      info.answeredQuestionCount += childInfo.answeredQuestionCount;
+      info.requiredQuestionCount += childInfo.requiredQuestionCount;
+      info.requiredAnsweredQuestionCount +=
+        childInfo.requiredAnsweredQuestionCount;
+    }
+    if (isRequired && info.questionCount > 0) {
+      if (info.requiredQuestionCount == 0) info.requiredQuestionCount = 1;
+      if (info.answeredQuestionCount > 0)
+        info.requiredAnsweredQuestionCount = 1;
+    }
+    return info;
+  }
   private surveyImplValue: ISurveyImpl;
   private surveyDataValue: ISurveyData;
   private surveyValue: ISurvey;
@@ -896,7 +1065,7 @@ export class SurveyElement extends Base implements ISurveyElement {
   public readOnlyChangedCallback: () => void;
 
   public static ScrollElementToTop(elementId: string): boolean {
-    if (!elementId) return false;
+    if (!elementId || typeof document === "undefined") return false;
     var el = document.getElementById(elementId);
     if (!el || !el.scrollIntoView) return false;
     var elemTop = el.getBoundingClientRect().top;
@@ -921,7 +1090,7 @@ export class SurveyElement extends Base implements ISurveyElement {
     return null;
   }
   public static FocusElement(elementId: string): boolean {
-    if (!elementId) return false;
+    if (!elementId || typeof document === "undefined") return false;
     var el = document.getElementById(elementId);
     if (el) {
       el.focus();
@@ -1020,12 +1189,23 @@ export class SurveyElement extends Base implements ISurveyElement {
   }
   public set name(val: string) {
     var oldValue = this.name;
-    this.setPropertyValue("name", val);
+    this.setPropertyValue("name", this.getValidName(val));
     if (!this.isLoadingFromJson && !!oldValue) {
       this.onNameChanged(oldValue);
     }
   }
+  protected getValidName(name: string): string {
+    return name;
+  }
   protected onNameChanged(oldValue: string) {}
+  protected updateBindingValue(valueName: string, value: any) {
+    if (
+      !!this.data &&
+      !Helpers.isTwoValueEquals(value, this.data.getValue(valueName))
+    ) {
+      this.data.setValue(valueName, value, false);
+    }
+  }
   /**
    * The list of errors. It is created by callig hasErrors functions
    * @see hasErrors
@@ -1130,6 +1310,7 @@ export class SurveyElement extends Base implements ISurveyElement {
 }
 
 export class Event<T extends Function, Options> {
+  public onCallbacksChanged: () => void;
   protected callbacks: Array<T>;
   public get isEmpty(): boolean {
     return this.callbacks == null || this.callbacks.length == 0;
@@ -1137,11 +1318,12 @@ export class Event<T extends Function, Options> {
   public fire(sender: any, options: Options) {
     if (this.callbacks == null) return;
     for (var i = 0; i < this.callbacks.length; i++) {
-      var callResult = this.callbacks[i](sender, options);
+      this.callbacks[i](sender, options);
     }
   }
   public clear() {
     this.callbacks = [];
+    this.fireCallbackChanged();
   }
   public add(func: T) {
     if (this.hasFunc(func)) return;
@@ -1149,15 +1331,22 @@ export class Event<T extends Function, Options> {
       this.callbacks = new Array<T>();
     }
     this.callbacks.push(func);
+    this.fireCallbackChanged();
   }
   public remove(func: T) {
     if (this.hasFunc(func)) {
       var index = this.callbacks.indexOf(func, 0);
       this.callbacks.splice(index, 1);
+      this.fireCallbackChanged();
     }
   }
   public hasFunc(func: T): boolean {
     if (this.callbacks == null) return false;
     return this.callbacks.indexOf(func, 0) > -1;
+  }
+  private fireCallbackChanged() {
+    if (!!this.onCallbacksChanged) {
+      this.onCallbacksChanged();
+    }
   }
 }

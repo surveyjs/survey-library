@@ -5,7 +5,9 @@ import {
   ISurvey,
   IPanel,
   IElement,
+  SurveyElement,
   ITextProcessor,
+  IProgressInfo,
 } from "./base";
 import { SurveyValidator, IValidatorOwner } from "./validator";
 import { Question, IConditionObject } from "./question";
@@ -27,7 +29,8 @@ export interface IMultipleTextData extends ILocalizableOwner, IPanel {
   getIsRequiredText(): string;
 }
 
-export class MultipleTextItemModel extends Base
+export class MultipleTextItemModel
+  extends Base
   implements IValidatorOwner, ISurveyData, ISurveyImpl {
   private editorValue: QuestionTextModel;
   private data: IMultipleTextData;
@@ -252,7 +255,8 @@ export class MultipleTextItemModel extends Base
 /**
  * A Model for a multiple text question.
  */
-export class QuestionMultipleTextModel extends Question
+export class QuestionMultipleTextModel
+  extends Question
   implements IMultipleTextData, IPanel {
   colCountChangedCallback: () => void;
   constructor(public name: string) {
@@ -288,8 +292,8 @@ export class QuestionMultipleTextModel extends Question
     super.onSurveyLoad();
     this.fireCallback(this.colCountChangedCallback);
   }
-  setQuestionValue(newValue: any) {
-    super.setQuestionValue(newValue, false);
+  setQuestionValue(newValue: any, updateIsAnswered: boolean = true) {
+    super.setQuestionValue(newValue, updateIsAnswered);
     for (var i = 0; i < this.items.length; i++) {
       var item = this.items[i];
       if (item.editor) item.editor.updateValueFromSurvey(item.value);
@@ -441,7 +445,13 @@ export class QuestionMultipleTextModel extends Question
       ) => {
         this.raiseOnCompletedAsyncValidators();
       };
-      res = this.items[i].editor.hasErrors(fireCallback) || res;
+      if (
+        !!rec &&
+        rec.isOnValueChanged === true &&
+        this.items[i].editor.isEmpty()
+      )
+        continue;
+      res = this.items[i].editor.hasErrors(fireCallback, rec) || res;
     }
     return super.hasErrors(fireCallback) || res;
   }
@@ -478,7 +488,13 @@ export class QuestionMultipleTextModel extends Question
     }
     return true;
   }
-
+  public getProgressInfo(): IProgressInfo {
+    var elements = [];
+    for (var i = 0; i < this.items.length; i++) {
+      elements.push(this.items[i].editor);
+    }
+    return SurveyElement.getProgressInfoByElements(elements, this.isRequired);
+  }
   //IMultipleTextData
   getMultipleTextValue(name: string) {
     if (!this.value) return null;

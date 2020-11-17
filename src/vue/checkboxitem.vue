@@ -8,7 +8,7 @@
         :value="isAllSelected"
         v-model="isAllSelected"
         :id="question.inputId + '_' + index"
-        :disabled="question.isReadOnly"
+        :disabled="question.isReadOnly || !item.isEnabled"
         v-bind:aria-required="question.isRequired"
         :aria-label="item.locText.renderedHtml"
         :aria-invalid="question.errors.length > 0"
@@ -68,7 +68,7 @@ export class CheckboxItem extends Vue {
     this.question.isAllSelected = val;
   }
   getLabelClass(item: any) {
-    return this.question.getLabelClass(this.question.isItemSelected(item));
+    return this.question.getLabelClass(item);
   }
 }
 Vue.component("survey-checkbox-item", CheckboxItem);

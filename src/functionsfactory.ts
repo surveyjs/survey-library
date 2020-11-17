@@ -218,7 +218,9 @@ function age(params: any[]): any {
   var birthDay = new Date(params[0]);
   var ageDifMs = Date.now() - birthDay.getTime();
   var ageDate = new Date(ageDifMs); // miliseconds from epoch
-  return Math.abs(ageDate.getUTCFullYear() - 1970);
+  return (
+    Math.abs(ageDate.getUTCFullYear() - 1970) * (ageDifMs / Math.abs(ageDifMs))
+  );
 }
 FunctionFactory.Instance.register("age", age);
 
@@ -246,3 +248,12 @@ function currentDate() {
   return new Date();
 }
 FunctionFactory.Instance.register("currentDate", currentDate);
+
+function today(params: any[]) {
+  var res = new Date();
+  if (Array.isArray(params) && params.length == 1) {
+    res.setDate(res.getDate() + params[0]);
+  }
+  return res;
+}
+FunctionFactory.Instance.register("today", today);

@@ -39,22 +39,26 @@ export class Survey extends SurveyModel {
   koIsLastPage: any;
   dummyObservable: any;
   koState: any;
-  koProgress: any;
-  koProgressText: any;
   koAfterRenderPage: any;
   koAfterRenderHeader: any;
   koCompletedState: any;
   koCompletedStateText: any;
   koCompletedStateCss: any;
   koTimerInfoText: any;
+  koTitleTemplate: any = <any>ko.observable("survey-header");
 
   public getDataValueCore(valuesHash: any, key: string) {
+    if(!!this.editingObj) return super.getDataValueCore(valuesHash, key);
     if (valuesHash[key] === undefined) {
       valuesHash[key] = ko.observable();
     }
     return ko.unwrap(valuesHash[key]);
   }
   public setDataValueCore(valuesHash: any, key: string, value: any) {
+    if(!!this.editingObj) {
+      super.setDataValueCore(valuesHash, key, value);
+      return;
+    }
     if (ko.isWriteableObservable(valuesHash[key])) {
       valuesHash[key](value);
     } else {
@@ -69,6 +73,10 @@ export class Survey extends SurveyModel {
     }
   }
   public deleteDataValueCore(valuesHash: any, key: string) {
+    if(!!this.editingObj) {
+      super.deleteDataValueCore(valuesHash, key);
+      return;
+    }
     if (ko.isWriteableObservable(valuesHash[key])) {
       valuesHash[key](undefined);
     } else {
@@ -104,8 +112,7 @@ export class Survey extends SurveyModel {
   }
   public nextPageMouseDown() {
     this.mouseDownPage = this.currentPage;
-    var el = <any>document.activeElement;
-    if (!!el && !!el.blur) el.blur();
+    return this.navigationMouseDown();
   }
   public render(element: any = null) {
     this.updateKoCurrentPage();
@@ -118,8 +125,8 @@ export class Survey extends SurveyModel {
       this.renderedElement = element;
     }
     element = this.renderedElement;
-    if (!element) return;
     self.startTimerFromUI();
+    if (!element) return;
     self.applyBinding();
   }
   public clear(clearData: boolean = true, gotoFirstPage: boolean = true) {
@@ -151,7 +158,7 @@ export class Survey extends SurveyModel {
     this.updateKoCurrentPage();
     return res;
   }
-  protected createNewPage(name: string) {
+  public createNewPage(name: string): PageModel {
     return new Page(name);
   }
   protected getHtmlTemplate(): string {
@@ -173,14 +180,6 @@ export class Survey extends SurveyModel {
     this.koIsLastPage = ko.computed(() => {
       this.dummyObservable();
       return this.isLastPage;
-    });
-    this.koProgressText = ko.computed(() => {
-      this.dummyObservable();
-      return this.progressText;
-    });
-    this.koProgress = ko.computed(() => {
-      this.dummyObservable();
-      return this.getProgress();
     });
     this.koState = ko.observable(this.state);
     this.koCompletedState = ko.observable("");
@@ -289,8 +288,6 @@ export class Survey extends SurveyModel {
     this.isCurrentPageEmpty.dispose();
     this.koIsFirstPage.dispose();
     this.koIsLastPage.dispose();
-    this.koProgressText.dispose();
-    this.koProgress.dispose();
     this.iteratePropertiesHash((hash, key) => {
       delete hash[key];
     });

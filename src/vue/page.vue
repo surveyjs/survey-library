@@ -22,17 +22,19 @@ import Vue from "vue";
 import { Component, Prop } from "vue-property-decorator";
 import { SurveyModel } from "../survey";
 import { PageModel } from "../page";
+import { Base } from "../base";
 import { PanelModelBase, PanelModel, QuestionRowModel } from "../panel";
+import {BaseVue} from "./base";
 
 @Component
-export class Page extends Vue {
+export class Page extends BaseVue {
   @Prop survey: SurveyModel;
   @Prop page: PageModel;
   @Prop css: Object;
 
   isCurrentPageChanged: boolean = false;
-
-  mounted() {
+  protected getModel(): Base { return this.page; }
+  protected onMounted() {
     if (this.survey) {
       this.survey.afterRenderPage(this.$el);
 
@@ -41,7 +43,7 @@ export class Page extends Vue {
       });
     }
   }
-  updated() {
+  protected onUpdated() {
     var self = this;
     self.survey.afterRenderPage(this.$el);
     this.$nextTick(function() {

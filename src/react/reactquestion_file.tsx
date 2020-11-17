@@ -9,7 +9,7 @@ export class SurveyQuestionFile extends SurveyQuestionElementBase {
     this.state = {
       fileLoaded: 0,
       state: "empty",
-      rootClass: this.question.cssClasses.root
+      rootClass: this.question.cssClasses.root,
     };
     this.handleOnChange = this.handleOnChange.bind(this);
     this.question.onStateChanged.add((state: any) =>
@@ -20,6 +20,11 @@ export class SurveyQuestionFile extends SurveyQuestionElementBase {
     return this.questionBase as QuestionFileModel;
   }
   handleOnDragOver = (event: any) => {
+    if (this.question.isReadOnly) {
+      event.returnValue = false;
+      return false;
+    }
+    event.dataTransfer.dropEffect = "copy";
     event.preventDefault();
   };
   handleOnDrop = (event: any) => {
@@ -71,8 +76,7 @@ export class SurveyQuestionFile extends SurveyQuestionElementBase {
     this.question.loadFiles(files);
     this.setState({ fileLoaded: this.state.fileLoaded + 1 });
   };
-  render(): JSX.Element {
-    if (!this.question) return null;
+  protected renderElement(): JSX.Element {
     var preview = this.renderPreview();
     var fileInput = null;
     var fileDecorator = this.renderFileDecorator();
@@ -87,13 +91,15 @@ export class SurveyQuestionFile extends SurveyQuestionElementBase {
         disabled={this.isDisplayMode}
         className={this.question.cssClasses.fileInput}
         id={this.question.inputId}
-        ref={input => (this.control = input)}
+        ref={(input) => (this.control = input)}
         type="file"
         onChange={!this.isDisplayMode ? this.handleOnChange : null}
         aria-required={this.question.isRequired}
         aria-label={this.question.locTitle.renderedHtml}
         aria-invalid={this.question.errors.length > 0}
-        aria-describedby={this.question.errors.length > 0 ? this.question.id + '_errors' : null}
+        aria-describedby={
+          this.question.errors.length > 0 ? this.question.id + "_errors" : null
+        }
         multiple={this.question.allowMultiple}
         title={this.question.inputTitle}
         accept={this.question.acceptedTypes}
@@ -159,7 +165,7 @@ export class SurveyQuestionFile extends SurveyQuestionElementBase {
       var fileSign = (
         <a
           href={val.content}
-          onClick={event => {
+          onClick={(event) => {
             this.handleOnDownloadFile(event, val);
           }}
           title={val.name}
@@ -189,13 +195,13 @@ export class SurveyQuestionFile extends SurveyQuestionElementBase {
             <div>
               <span
                 className={this.question.cssClasses.removeFile}
-                onClick={event => this.handleOnRemoveFile(val)}
+                onClick={(event) => this.handleOnRemoveFile(val)}
               >
                 {this.question.removeFileCaption}
               </span>
               <svg
                 className={this.question.cssClasses.removeFileSvg}
-                onClick={event => this.handleOnRemoveFile(val)}
+                onClick={(event) => this.handleOnRemoveFile(val)}
                 viewBox="0 0 16 16"
               >
                 <path d="M8,2C4.7,2,2,4.7,2,8s2.7,6,6,6s6-2.7,6-6S11.3,2,8,2z M11,10l-1,1L8,9l-2,2l-1-1l2-2L5,6l1-1l2,2l2-2l1,1L9,8 L11,10z" />
@@ -212,6 +218,6 @@ export class SurveyQuestionFile extends SurveyQuestionElementBase {
   }
 }
 
-ReactQuestionFactory.Instance.registerQuestion("file", props => {
+ReactQuestionFactory.Instance.registerQuestion("file", (props) => {
   return React.createElement(SurveyQuestionFile, props);
 });

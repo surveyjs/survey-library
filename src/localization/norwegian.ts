@@ -4,9 +4,15 @@ export var norwegianSurveyStrings = {
   pagePrevText: "Forrige",
   pageNextText: "Neste",
   completeText: "Fullfør",
+  previewText: "Forhåndsvisning",
+  editText: "Redigere",
   startSurveyText: "Start",
   otherItemText: "Annet (beskriv)",
+  noneItemText: "Ingen",
+  selectAllItemText: "Velg alle",
   progressText: "Side {0} av {1}",
+  panelDynamicProgressText: "Ta opp {0} av {1}",
+  questionsProgressText: "Besvarte {0} / {1} spørsmål",
   emptySurvey: "Det er ingen synlig side eller spørsmål i undersøkelsen.",
   completingSurvey: "Takk for at du fullførte undersøkelsen!",
   completingSurveyBefore:
@@ -29,6 +35,7 @@ export var norwegianSurveyStrings = {
   numericMin: "'{0}' bør være lik eller mer enn {1}",
   numericMax: "'{0}' bør være lik eller mindre enn {1}",
   invalidEmail: "Vennligst skriv inn en gyldig e-post adresse.",
+  invalidExpression: "Uttrykket: {0} skal returnere 'sant'.",
   urlRequestError: "Forespørselen returnerte feilen '{0}'. {1}",
   urlGetChoicesError:
     "Forespørselen returnerte tomme data, eller 'sti' -egenskapen er feil",
@@ -36,8 +43,12 @@ export var norwegianSurveyStrings = {
   otherRequiredError: "Vennligst skriv inn den andre verdien.",
   uploadingFile:
     "Filen din lastes opp. Vennligst vent noen sekunder og prøv igjen.",
+  loadingFile: "Laster inn ...",
+  chooseFile: "Velg fil (er) ...",
+  noFileChosen: "Ingen fil valgt",
   confirmDelete: "Ønsker du å slette posten?",
   keyDuplicationError: "Denne verdien skal være unik.",
+  addColumn: "Legg til kolonne",
   addRow: "Legg til rad",
   removeRow: "Fjern",
   addPanel: "Legg til ny",
@@ -58,7 +69,16 @@ export var norwegianSurveyStrings = {
     "Du har tilbrakt {0} av {1} på denne siden og totalt {2} av {3}.",
   timerLimitPage: "Du har tilbrakt {0} av {1} på denne siden.",
   timerLimitSurvey: "Du har tilbrakt {0} av {1} totalt.",
-  cleanCaption: "Rens"
+  cleanCaption: "Rens",
+  clearCaption: "Klar",
+  chooseFileCaption: "Velg Fil",
+  removeFileCaption: "Fjern denne filen",
+  booleanCheckedLabel: "Ja",
+  booleanUncheckedLabel: "Nei",
+  confirmRemoveFile: "Er du sikker på at du vil fjerne denne filen: {0}?",
+  confirmRemoveAllFiles: "Er du sikker på at du vil fjerne alle filene?",
+  questionTitlePatternText: "Spørsmålstittel",
 };
+
 surveyLocalization.locales["no"] = norwegianSurveyStrings;
 surveyLocalization.localeNames["no"] = "norsk";

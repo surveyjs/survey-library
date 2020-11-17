@@ -71,7 +71,7 @@ export class ItemValue extends Base {
         item = new ItemValue(null);
       }
       item.setData(value);
-      if(!!value.originalItem) {
+      if (!!value.originalItem) {
         item.originalItem = value.originalItem;
       }
       items.push(item);
@@ -124,7 +124,8 @@ export class ItemValue extends Base {
     items: Array<ItemValue>,
     runner: ConditionRunner,
     values: any,
-    properties: any
+    properties: any,
+    onItemCallBack?: (item: ItemValue) => boolean
   ): boolean {
     return ItemValue.runConditionsForItemsCore(
       items,
@@ -132,7 +133,8 @@ export class ItemValue extends Base {
       runner,
       values,
       properties,
-      false
+      false, true,
+      onItemCallBack
     );
   }
   private static runConditionsForItemsCore(
@@ -142,7 +144,8 @@ export class ItemValue extends Base {
     values: any,
     properties: any,
     isVisible: boolean,
-    useItemExpression: boolean = true
+    useItemExpression: boolean = true,
+    onItemCallBack?: (item: ItemValue) => boolean
   ): boolean {
     if (!values) {
       values = {};
@@ -164,6 +167,9 @@ export class ItemValue extends Base {
       var newValue = true;
       if (itemRunner) {
         newValue = itemRunner.run(values, properties);
+      }
+      if(newValue && !!onItemCallBack) {
+        newValue = onItemCallBack(item);
       }
       if (!!filteredItems && newValue) {
         filteredItems.push(item);
@@ -197,7 +203,11 @@ export class ItemValue extends Base {
   private visibleConditionRunner: ConditionRunner;
   private enableConditionRunner: ConditionRunner;
 
-  constructor(value: any, text: string = null, private typeName = "itemvalue") {
+  constructor(
+    value: any,
+    text: string = null,
+    protected typeName = "itemvalue"
+  ) {
     super();
     this.locTextValue = new LocalizableString(null, true);
     this.locTextValue.onGetTextCallback = (txt) => {
@@ -214,7 +224,7 @@ export class ItemValue extends Base {
     }
     this.onCreating();
   }
-  public onCreating(): any { }
+  public onCreating(): any {}
   public getType(): string {
     return !!this.typeName ? this.typeName : "itemvalue";
   }

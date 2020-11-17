@@ -1,7 +1,7 @@
 <template>
   <div class="sv-vue-row-additional-div">
     <survey-element
-      v-if="element.visible"
+      v-if="row.isNeedRender && element.visible"
       v-for="element in row.elements"
       :key="element.idValue"
       :id="element.id"
@@ -22,14 +22,28 @@ import { Component, Prop } from "vue-property-decorator";
 import { SurveyModel } from "../survey";
 import { PanelModelBase, PanelModel, QuestionRowModel } from "../panel";
 import { VueSurveyModel } from "./surveyModel";
+import { settings } from "../settings";
+import { BaseVue } from "./base";
+import {Base} from "../base";
+
 @Component
-export class Row extends Vue {
-  @Prop row: any;
+export class Row extends BaseVue {
+  @Prop row: QuestionRowModel;
   @Prop css: any;
   @Prop survey: SurveyModel;
-  mounted() {
+
+  protected getModel(): Base { return this.row; }
+  protected onMounted() {
     if (!!this.row) {
-      VueSurveyModel.updatePropertiesHash(this.row);
+      if (!this.row.isNeedRender) {
+        var rowContainerDiv = this.$el;
+        this.row.startLazyRendering(rowContainerDiv);
+      }
+    }
+  }
+  beforeDestroy() {
+    if (!!this.row) {
+      this.row.isNeedRender = !settings.lazyRowsRendering;
     }
   }
 }

@@ -1,10 +1,4 @@
-import {
-  frameworks,
-  url,
-  setOptions,
-  initSurvey,
-  getSurveyResult
-} from "../settings";
+import { frameworks, url, setOptions, initSurvey, getSurveyResult } from "../settings";
 import { Selector, ClientFunction } from "testcafe";
 const assert = require("assert");
 const title = `comment`;

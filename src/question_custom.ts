@@ -100,6 +100,7 @@ export class ComponentCollection {
     if (!name) {
       throw "Attribute name is missed";
     }
+    name = name.toLowerCase();
     if (!!this.getCustomQuestionByName(name)) {
       throw (
         "There is already registered custom question with name '" + name + "'"
@@ -467,6 +468,13 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
     super.updateElementCss();
     if (this.contentPanel) {
       this.contentPanel.updateElementCss();
+    }
+  }
+  clearValueIfInvisible() {
+    super.clearValueIfInvisible();
+    var questions = this.contentPanel.questions;
+    for(var i = 0; i < questions.length; i ++) {
+      questions[i].clearValueIfInvisible();
     }
   }
   protected createPanel(): PanelModel {

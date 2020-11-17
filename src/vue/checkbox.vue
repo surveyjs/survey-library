@@ -36,22 +36,7 @@ import { QuestionCheckboxModel } from "../question_checkbox";
 @Component
 export class Checkbox extends QuestionVue<QuestionCheckboxModel> {
   getItemClass(item: any) {
-    var question = this.question;
-    var cssClasses = question.cssClasses;
-    var isChecked = question.isItemSelected(item);
-    var isDisabled = question.isReadOnly || !item.isEnabled;
-    var allowHover = !isChecked && !isDisabled;
-    var itemClass = cssClasses.item;
-    if (!question.hasColumns) {
-      itemClass +=
-        question.colCount === 0
-          ? " " + cssClasses.itemInline
-          : " sv-q-col-" + question.colCount;
-    }
-    if (isDisabled) itemClass += " " + cssClasses.itemDisabled;
-    if (isChecked) itemClass += " " + cssClasses.itemChecked;
-    if (allowHover) itemClass += " " + cssClasses.itemHover;
-    return itemClass;
+    return this.question.getItemClass(item);
   }
 }
 Vue.component("survey-checkbox", Checkbox);

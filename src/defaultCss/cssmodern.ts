@@ -24,12 +24,15 @@ export var modernCss = {
   panel: {
     title: "sv-title sv-panel__title",
     titleExpandable: "sv-panel__title--expandable",
+    titleOnError: "sv-panel__title--error",
     description: "sv-description sv-panel__description",
     container: "sv-panel sv-row__panel",
     content: "sv-panel__content",
     icon: "sv-panel__icon",
     iconExpanded: "sv-panel__icon--expanded",
     footer: "sv-panel__footer",
+    requiredText: "sv-panel__required-text",
+    number: "sv-question__num",
   },
   paneldynamic: {
     root: "sv-paneldynamic",
@@ -99,6 +102,8 @@ export var modernCss = {
   checkbox: {
     root: "sv-selectbase",
     item: "sv-item sv-checkbox sv-selectbase__item",
+    itemSelectAll: "sv-checkbox--selectall",
+    itemNone: "sv-checkbox--none",
     itemDisabled: "sv-item--disabled sv-checkbox--disabled",
     itemChecked: "sv-checkbox--checked",
     itemHover: "sv-checkbox--allowhover",
@@ -130,7 +135,7 @@ export var modernCss = {
     column: "sv-selectbase__column",
   },
   boolean: {
-    root: "",
+    root: "sv_qbln",
     small: "sv-row__question--small",
     item: "sv-boolean sv-item",
     control: "sv-visuallyhidden",
@@ -141,6 +146,11 @@ export var modernCss = {
     slider: "sv-boolean__slider",
     label: "sv-boolean__label ",
     disabledLabel: "sv-boolean__label--disabled",
+    materialDecorator: "sv-item__decorator sv-boolean__decorator ",
+    itemDecorator: "sv-item__svg  sv-boolean__svg",
+    checkedPath: "sv-boolean__checked-path",
+    uncheckedPath: "sv-boolean__unchecked-path",
+    indeterminatePath: "sv-boolean__indeterminate-path",
   },
   text: {
     root: "sv-text",
@@ -179,6 +189,7 @@ export var modernCss = {
   matrix: {
     tableWrapper: "sv-matrix",
     root: "sv-table",
+    rowError: "sv-matrix__row--error",
     cell: "sv-table__cell sv-matrix__cell",
     headerCell: "sv-table__cell sv-table__cell--header",
     label: "sv-item sv-radio sv-matrix__label",
@@ -189,7 +200,7 @@ export var modernCss = {
     materialDecorator: "sv-item__decorator sv-radio__decorator",
     itemDecorator: "sv-item__svg sv-radio__svg",
     cellText: "sv-matrix__text",
-    cellTextSelected: "sv-matrix__text--сhecked",
+    cellTextSelected: "sv-matrix__text--checked",
     cellTextDisabled: "sv-matrix__text--disabled",
   },
   matrixdropdown: {

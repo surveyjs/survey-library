@@ -5,8 +5,8 @@ trigger: none
 pr: none
 
 # Uncomment for specific version
-#variables:
-#  SurveyJSVersion: '1.7.1'
+# variables:
+#  SurveyJSVersion: '1.8.0'
 
 pool:
   vmImage: 'Ubuntu-16.04'
@@ -63,8 +63,19 @@ steps:
   displayName: 'functional tests'
 
 - powershell: |
+    git pull origin master;
     git push --follow-tags origin master;
   displayName: 'push release commit to github'
+
+- task: GitHubRelease@1
+  inputs:
+    gitHubConnection: 'github.com_dmitrykurmanov'
+    repositoryName: 'surveyjs/survey-library'
+    action: 'create'
+    target: '$(Build.SourceVersion)'
+    tagSource: 'gitTag'
+    changeLogCompareToRelease: 'lastFullRelease'
+    changeLogType: 'commitBased'
 
 - script: |
     npm run doc_gen

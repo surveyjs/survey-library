@@ -1,59 +1,58 @@
 <script type="text/html" id="survey-question-matrix">
- <div data-bind="css: question.koCss().tableWrapper"> 
- <fieldset>
-      <legend data-bind="attr: { 'aria-label': question.locTitle.renderedHtml }"></legend>
-      <table data-bind="css: question.koCss().root">
-            <!-- ko if: question.showHeader -->
-            <thead>
-                <tr>
-                    <td data-bind="visible: question.hasRows"></td>
-                    <!-- ko foreach: question.koVisibleColumns -->
-                    <th data-bind="css: question.koCss().headerCell">
-                        <!-- ko template: { name: 'survey-string', data: locText } -->
+    <div data-bind="css: question.koCss().tableWrapper">
+        <fieldset>
+            <legend data-bind="attr: { 'aria-label': question.locTitle.renderedHtml }"></legend>
+            <table data-bind="css: question.koCss().root">
+                <!-- ko if: question.showHeader -->
+                <thead>
+                    <tr>
+                        <td data-bind="visible: question.hasRows"></td>
+                        <!-- ko foreach: question.koVisibleColumns -->
+                        <th data-bind="css: question.koCss().headerCell">
+                            <!-- ko template: { name: 'survey-string', data: locText } -->
+                            <!-- /ko -->
+                        </th>
                         <!-- /ko -->
-                    </th>
+                    </tr>
+                </thead>
+                <!-- /ko -->
+                <tbody>
+                    <!-- ko foreach: { data: question.koVisibleRows, as: 'row' } -->
+                    <tr data-bind="css: row.rowClasses">
+                        <td data-bind="visible: question.hasRows, css: question.koCss().cell">
+                            <!-- ko template: { name: 'survey-string', data: row.locText } -->
+                            <!-- /ko -->
+                        </td>
+                        <!-- ko foreach: question.koVisibleColumns -->
+                        <!-- ko if: question.hasCellText -->
+                        <td data-bind="css: question.getItemClass(row, $data), click: function() { if (!question.isReadOnly) { row.cellClick($data); } }">
+                            <!-- ko template: { name: 'survey-string', data: question.getCellDisplayLocText(row.name, $data) } -->
+                            <!-- /ko -->
+                        </td>
+                        <!-- /ko -->
+                        <!-- ko if: !question.hasCellText -->
+                        <td data-bind="attr: { headers: $data.locText.renderedHtml }, css: question.koCss().cell">
+                            <label data-bind="css: question.getItemClass(row, $data)">
+                                <input type="radio" data-bind="css: question.koCss().itemValue, attr: { name: row.fullName, 'aria-required': question.isRequired, 'aria-label': question.locTitle.renderedHtml, value: '' + $data.value, id: question.inputId + '_' + row.name + '_' + $index() }, checked: row.value, enable: !question.isReadOnly"/>
+                                <span data-bind="css: question.koCss().materialDecorator">
+                                <svg data-bind="css:question.koCss().itemDecorator" viewBox="-12 -12 24 24">
+                                    <circle r="6" cx="0" cy="0">
+                                </svg>
+                                </span>
+                                <span class="circle"></span>
+                                <span class="check"></span>
+                                <span style="display: none" data-bind="text: $data.locText.text"></span>
+                            </label>
+                        </td>
+                        <!-- /ko -->
+                        <!-- /ko -->
+                    </tr>
                     <!-- /ko -->
-                </tr>
-            </thead>
-            <!-- /ko -->
-          <tbody>
-              <!-- ko foreach: { data: question.koVisibleRows, as: 'row' } -->
-              <tr data-bind="css: question.koCss().row">
-                  <td data-bind="visible: question.hasRows, css: question.koCss().cell">
-                      <!-- ko template: { name: 'survey-string', data: row.locText } -->
-                      <!-- /ko -->
-                  </td>
-                  <!-- ko foreach: question.koVisibleColumns -->
-                  <!-- ko if: question.hasCellText -->
-                  <td data-bind="css: question.koCss().cell + ' '+ question.getItemCss(row, $data), click: function() { if(!question.isReadOnly) {row.koCellClick($data); } }">
-                      <!-- ko template: { name: 'survey-string', data: question.getCellDisplayLocText(row.name, $data) } -->
-                      <!-- /ko -->
-                  </td>
-                  <!-- /ko -->
-                  <!-- ko if: !question.hasCellText -->
-                  <td data-bind="attr: { headers: $data.locText.renderedHtml }, css: question.koCss().cell">
-                      <label data-bind="css: question.getItemCss(row, $data)">
-                          <input type="radio" data-bind="css: question.koCss().itemValue, attr: {name: row.fullName, 'aria-required': question.isRequired, 'aria-label': question.locTitle.renderedHtml, value: '' + $data.value, id: question.inputId + '_' + row.name + '_' + $index()}, checked: row.koValue, enable: !question.isReadOnly"
-                          />
-                          <span data-bind="css: question.koCss().materialDecorator">
-                            <svg data-bind="css:question.koCss().itemDecorator" viewBox="-12 -12 24 24">
-                                <circle r="6" cx="0" cy="0">
-                            </svg>    
-                          </span>
-                          <span class="circle"></span>
-                          <span class="check"></span>
-                          <span style="display: none" data-bind="text: $data.locText.text"></span>
-                      </label>
-                  </td>
-                  <!-- /ko -->
-                  <!-- /ko -->
-              </tr>
-              <!-- /ko -->
-          </tbody>
-      </table>
-  </fieldset>
-</div>
+                </tbody>
+            </table>
+        </fieldset>
+    </div>
 </script>
 <script type="text/html" id="survey-text">
-  <span data-bind="text:$data.renderedHtml"></span>
+    <span data-bind="text:$data.renderedHtml"></span>
 </script>

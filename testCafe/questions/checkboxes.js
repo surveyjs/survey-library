@@ -1,10 +1,4 @@
-import {
-  frameworks,
-  url,
-  setOptions,
-  initSurvey,
-  getSurveyResult
-} from "../settings";
+import { frameworks, url, setOptions, initSurvey, getSurveyResult } from "../settings";
 import { Selector, ClientFunction } from "testcafe";
 const assert = require("assert");
 const title = `checkboxes`;
@@ -30,20 +24,20 @@ const json = {
         "BMW",
         "Peugeot",
         "Toyota",
-        "Citroen"
-      ]
-    }
-  ]
+        "Citroen",
+      ],
+    },
+  ],
 };
 
-frameworks.forEach(framework => {
+frameworks.forEach((framework) => {
   fixture`${framework} ${title}`.page`${url}${framework}`.beforeEach(
-    async ctx => {
+    async (ctx) => {
       await initSurvey(framework, json);
     }
   );
 
-  test(`choose empty`, async t => {
+  test(`choose empty`, async (t) => {
     const getPosition = ClientFunction(() =>
       document.documentElement.innerHTML.indexOf("Please answer the question")
     );
@@ -59,7 +53,7 @@ frameworks.forEach(framework => {
     assert.equal(typeof surveyResult, `undefined`);
   });
 
-  test(`choose none`, async t => {
+  test(`choose none`, async (t) => {
     let surveyResult;
 
     await t
@@ -73,7 +67,7 @@ frameworks.forEach(framework => {
     assert.deepEqual(surveyResult.car, ["none"]);
   });
 
-  test(`choose value`, async t => {
+  test(`choose value`, async (t) => {
     let surveyResult;
 
     await t
@@ -84,7 +78,7 @@ frameworks.forEach(framework => {
     assert.equal(surveyResult.car, "Nissan");
   });
 
-  test(`choose several values`, async t => {
+  test(`choose several values`, async (t) => {
     let surveyResult;
 
     await t
@@ -96,7 +90,7 @@ frameworks.forEach(framework => {
     assert.deepEqual(surveyResult.car, ["BMW", "Nissan"]);
   });
 
-  test(`change column count`, async t => {
+  test(`change column count`, async (t) => {
     const getClassName = ClientFunction(
       () => document.querySelector(`div[id*=sq_1] fieldset > div`).className
     );
@@ -114,7 +108,7 @@ frameworks.forEach(framework => {
     assert.notEqual(className.indexOf("sv-q-column-2"), -1);
   });
 
-  test(`change choices order`, async t => {
+  test(`change choices order`, async (t) => {
     const getChoicesCount = ClientFunction(
       () =>
         document.querySelectorAll(
@@ -124,13 +118,13 @@ frameworks.forEach(framework => {
     const getFirst = Selector(
       "div[id*=sq_1] fieldset > div:nth-child(2) > div",
       {
-        index: 0
+        index: 0,
       }
     );
     const getSecond = Selector(
       "div[id*=sq_1] fieldset > div:nth-child(3) > div",
       {
-        index: 0
+        index: 0,
       }
     );
     let rnd_count = 0;
@@ -173,10 +167,10 @@ frameworks.forEach(framework => {
       }
     }
 
-    assert(rnd_count >= 4); // beacuse of 'none', 'asc', 'desc' and if 4 it is really rnd
+    assert(rnd_count >= 4); // because of 'none', 'asc', 'desc' and if 4 it is really rnd
   });
 
-  test(`check integrity`, async t => {
+  test(`check integrity`, async (t) => {
     let i;
     const getChoicesCount = ClientFunction(
       () =>
@@ -197,7 +191,7 @@ frameworks.forEach(framework => {
         "Peugeot",
         "Toyota",
         "Citroen",
-        "Other (describe)"
+        "Other (describe)",
       ];
       var result;
       for (var i = 0; i < choices.length; i++) {
@@ -224,7 +218,7 @@ frameworks.forEach(framework => {
     await checkIntegrity();
   });
 
-  test(`show "other" choice`, async t => {
+  test(`show "other" choice`, async (t) => {
     const getPosition = ClientFunction(() =>
       document.documentElement.innerHTML.indexOf("Other")
     );
@@ -235,7 +229,7 @@ frameworks.forEach(framework => {
     assert.notEqual(position, -1);
   });
 
-  test(`check "other" choice doesn't change order`, async t => {
+  test(`check "other" choice doesn't change order`, async (t) => {
     const getOtherChoice = Selector(
       () =>
         document.querySelectorAll(
@@ -251,7 +245,7 @@ frameworks.forEach(framework => {
     assert.equal(otherChoice.textContent.trim(), "Other (describe)");
   });
 
-  test(`choose other`, async t => {
+  test(`choose other`, async (t) => {
     const getOtherInput = Selector(
       () => document.querySelectorAll("textarea")[0]
     );
@@ -268,8 +262,8 @@ frameworks.forEach(framework => {
     assert.equal(surveyResult["car-Comment"], "Zaporozec");
   });
 
-  test(`checked class`, async t => {
-    const isCheckedClassExistsByIndex = ClientFunction(index =>
+  test(`checked class`, async (t) => {
+    const isCheckedClassExistsByIndex = ClientFunction((index) =>
       document
         .querySelector(
           `fieldset .sv_q_select_column:nth-child(3) div:nth-child(${index})`
@@ -290,5 +284,36 @@ frameworks.forEach(framework => {
 
     assert.equal(await isCheckedClassExistsByIndex(2), true);
     assert.equal(await isCheckedClassExistsByIndex(3), true);
+  });
+
+  test("Check that selectAll item is checked after loading data - https://surveyjs.answerdesk.io/internal/ticket/details/T4979", async (t) => {
+    const enableHasSelectAll = ClientFunction(() => {
+      window.survey.getAllQuestions()[0].hasSelectAll = true;
+    });
+    const isSelectAllChecked = ClientFunction(() => {
+      return document.querySelector(
+        `fieldset .sv_q_select_column:nth-of-type(1) div:nth-of-type(1) input`
+      ).checked;
+    });
+    const setData = ClientFunction(() => {
+      window.survey.data = {
+        car: [
+          "None",
+          "Ford",
+          "Vauxhall",
+          "Volkswagen",
+          "Nissan",
+          "Audi",
+          "Mercedes-Benz",
+          "BMW",
+          "Peugeot",
+          "Toyota",
+          "Citroen",
+        ],
+      };
+    });
+    await enableHasSelectAll();
+    await setData();
+    assert.equal(await isSelectAllChecked(), true);
   });
 });

@@ -1,11 +1,5 @@
-import {
-  frameworks,
-  url,
-  setOptions,
-  initSurvey,
-  getSurveyResult
-} from "../settings";
-import { Selector, ClientFunction } from "testcafe";
+import { frameworks, url, setOptions, initSurvey, getSurveyResult } from "../settings";
+import { ClientFunction } from "testcafe";
 const assert = require("assert");
 const title = `matrix`;
 
@@ -21,29 +15,29 @@ const json = {
         { value: 2, text: "Disagree" },
         { value: 3, text: "Neutral" },
         { value: 4, text: "Agree" },
-        { value: 5, text: "Strongly Agree" }
+        { value: 5, text: "Strongly Agree" },
       ],
       rows: [
         { value: "affordable", text: "Product is affordable" },
         { value: "does what it claims", text: "Product does what it claims" },
         {
           value: "better than others",
-          text: "Product is better than other products on the market"
+          text: "Product is better than other products on the market",
         },
-        { value: "easy to use", text: "Product is easy to use" }
-      ]
-    }
-  ]
+        { value: "easy to use", text: "Product is easy to use" },
+      ],
+    },
+  ],
 };
 
-frameworks.forEach(framework => {
+frameworks.forEach((framework) => {
   fixture`${framework} ${title}`.page`${url}${framework}`.beforeEach(
-    async t => {
+    async (t) => {
       await initSurvey(framework, json);
     }
   );
 
-  test(`choose value`, async t => {
+  test(`choose value`, async (t) => {
     let surveyResult;
 
     await t
@@ -54,7 +48,7 @@ frameworks.forEach(framework => {
     assert.equal(surveyResult.Quality[`easy to use`], `5`);
   });
 
-  test(`choose several values`, async t => {
+  test(`choose several values`, async (t) => {
     let surveyResult;
 
     await t
@@ -65,11 +59,11 @@ frameworks.forEach(framework => {
     surveyResult = await getSurveyResult();
     assert.deepEqual(surveyResult.Quality, {
       "does what it claims": "4",
-      "easy to use": "5"
+      "easy to use": "5",
     });
   });
 
-  test(`require answer for all rows`, async t => {
+  test(`require answer for all rows`, async (t) => {
     let surveyResult;
     const getPosition = ClientFunction(() =>
       document.documentElement.innerHTML.indexOf(
@@ -99,12 +93,12 @@ frameworks.forEach(framework => {
       affordable: "3",
       "does what it claims": "4",
       "better than others": "2",
-      "easy to use": "5"
+      "easy to use": "5",
     });
   });
 
-  test(`checked class`, async t => {
-    const isCheckedClassExistsByIndex = ClientFunction(index =>
+  test(`checked class`, async (t) => {
+    const isCheckedClassExistsByIndex = ClientFunction((index) =>
       document
         .querySelector(`fieldset tbody tr td:nth-child(${index + 1}) label`)
         .classList.contains("checked")
@@ -122,5 +116,24 @@ frameworks.forEach(framework => {
 
     assert.equal(await isCheckedClassExistsByIndex(2), false);
     assert.equal(await isCheckedClassExistsByIndex(3), true);
+  });
+
+  test(`isAnswered for matrix with loading answers from data - #2239`, async (t) => {
+    const setData = ClientFunction(
+      () =>
+        (survey.data = {
+          Quality: {
+            affordable: "1",
+            "does what it claims": "1",
+            "better than others": "1",
+            "easy to use": "1",
+          },
+        })
+    );
+    await setData();
+    const getIsAnswered = ClientFunction(
+      () => survey.getAllQuestions()[0].isAnswered
+    );
+    assert.equal(await getIsAnswered(), true);
   });
 });

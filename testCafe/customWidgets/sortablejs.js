@@ -1,12 +1,10 @@
 import {
   frameworks,
-  url,
-  setOptions,
+  url_widgets,
   initSurvey,
-  addExternalDependencies,
-  getSurveyResult
+  getSurveyResult,
 } from "../settings";
-import { Selector, ClientFunction } from "testcafe";
+import { ClientFunction } from "testcafe";
 const assert = require("assert");
 const title = `sortablejs`;
 
@@ -18,18 +16,20 @@ const json = {
       title: "Life Priorities ",
       isRequired: true,
       colCount: 0,
-      choices: ["family", "work", "pets", "travels", "games"]
-    }
-  ]
+      choices: ["family", "work", "pets", "travels", "games"],
+    },
+  ],
 };
 
-frameworks.forEach(framework => {
+frameworks.forEach((framework) => {
   fixture`${framework} ${title}`
-    .page`${url}${framework}/customWidget.html`.beforeEach(async ctx => {
-    await initSurvey(framework, json);
-  });
+    .page`${url_widgets}${framework}/customWidget.html`.beforeEach(
+    async (ctx) => {
+      await initSurvey(framework, json);
+    }
+  );
 
-  test(`check integrity`, async t => {
+  test(`check integrity`, async (t) => {
     await t
       .hover(`div[data-value]:nth-child(1)`)
       .hover(`div[data-value]:nth-child(2)`)
@@ -38,7 +38,7 @@ frameworks.forEach(framework => {
       .hover(`div[data-value]:nth-child(5)`);
   });
 
-  test(`choose empty`, async t => {
+  test(`choose empty`, async (t) => {
     const getPosition = ClientFunction(() =>
       document.documentElement.innerHTML.indexOf("Please answer the question")
     );
@@ -54,7 +54,7 @@ frameworks.forEach(framework => {
     assert.equal(typeof surveyResult, `undefined`);
   });
 
-  test(`choose value`, async t => {
+  test(`choose value`, async (t) => {
     // TODO d&d doesn't work https://github.com/DevExpress/testcafe/issues/897
     // let surveyResult;
     //
@@ -67,7 +67,7 @@ frameworks.forEach(framework => {
     // assert.deepEqual(surveyResult.lifepriopity, ["travels","family"]);
   });
 
-  test(`change priority`, async t => {
+  test(`change priority`, async (t) => {
     // TODO d&d doesn't work https://github.com/DevExpress/testcafe/issues/897
     // let surveyResult;
     //

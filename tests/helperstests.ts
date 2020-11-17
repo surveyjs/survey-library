@@ -90,12 +90,12 @@ QUnit.test("isTwoValueEquals, undefined", function (assert) {
   );
   assert.equal(
     Helpers.isTwoValueEquals(undefined, "undefined"),
-    true,
+    false,
     "undefined vs 'undefined'"
   );
   assert.equal(
     Helpers.isTwoValueEquals("undefined", null),
-    true,
+    false,
     "null vs 'undefined'"
   );
   assert.equal(
@@ -254,6 +254,15 @@ QUnit.test(
     );
   }
 );
+QUnit.test("isTwoValueEquals, undefined vs 'undefined', Bug# ", function (
+  assert
+) {
+  assert.equal(
+    Helpers.isTwoValueEquals(undefined, "undefined"),
+    false,
+    "undefined not equals 'undefined'"
+  );
+});
 QUnit.test("Helpers.isNumber", function (assert) {
   assert.equal(Helpers.isNumber("1"), true, "1 is a number");
   assert.equal(Helpers.isNumber("0xabcd"), true, "0xabcd is a number");
@@ -271,4 +280,10 @@ QUnit.test("Helpers.getNumberByIndex", function (assert) {
   assert.equal(Helpers.getNumberByIndex(2, "a)"), "c)", "2/a)");
   assert.equal(Helpers.getNumberByIndex(2, "#1)"), "#3)", "2/#1)");
   assert.equal(Helpers.getNumberByIndex(2, "Q1."), "Q3.", "2/Q1.");
+  assert.equal(Helpers.getNumberByIndex(2, "(10)"), "(12)", "2/(10)");
+  assert.equal(Helpers.getNumberByIndex(2, "# (a)"), "# (c)", "2/# (a)");
+  assert.equal(Helpers.getNumberByIndex(2, "1.2"), "1.4", "2/1.2");
+  assert.equal(Helpers.getNumberByIndex(2, "1.2."), "1.4.", "2/1.2.");
+  assert.equal(Helpers.getNumberByIndex(2, "1.2.11"), "1.2.13", "2/1.2.11");
+  assert.equal(Helpers.getNumberByIndex(2, "1.2.11."), "1.2.13.", "2/1.2.11.");
 });

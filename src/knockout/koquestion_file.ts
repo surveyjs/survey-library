@@ -7,7 +7,7 @@ import { Question } from "../question";
 import {
   confirmAction,
   detectIEOrEdge,
-  loadFileFromBase64
+  loadFileFromBase64,
 } from "../utils/utils";
 
 export class QuestionFile extends QuestionFileModel {
@@ -37,6 +37,7 @@ export class QuestionFile extends QuestionFileModel {
       updateState(options.state);
     });
     (<any>this)["ondrop"] = (data: any, event: any) => {
+      if (this.isReadOnly) return false;
       event.preventDefault();
       let src = event.originalEvent
         ? event.originalEvent.dataTransfer
@@ -44,6 +45,11 @@ export class QuestionFile extends QuestionFileModel {
       this.onChange(src);
     };
     (<any>this)["ondragover"] = (data: any, event: any) => {
+      if (this.isReadOnly) {
+        event.returnValue = false;
+        return false;
+      }
+      event.dataTransfer.dropEffect = "copy";
       event.preventDefault();
     };
     (<any>this)["dochange"] = (data: any, event: any) => {
@@ -94,9 +100,9 @@ export class QuestionFile extends QuestionFileModel {
   }
 }
 
-Serializer.overrideClassCreator("file", function() {
+Serializer.overrideClassCreator("file", function () {
   return new QuestionFile("");
 });
-QuestionFactory.Instance.registerQuestion("file", name => {
+QuestionFactory.Instance.registerQuestion("file", (name) => {
   return new QuestionFile(name);
 });

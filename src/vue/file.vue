@@ -108,11 +108,16 @@ import { QuestionFileModel } from "../question_file";
 import {
   confirmAction,
   detectIEOrEdge,
-  loadFileFromBase64
+  loadFileFromBase64,
 } from "../utils/utils";
 @Component
 export class File extends QuestionVue<QuestionFileModel> {
   onDragOver = (event: any) => {
+    if (this.question.isReadOnly) {
+      event.returnValue = false;
+      return false;
+    }
+    event.dataTransfer.dropEffect = "copy";
     event.preventDefault();
   };
   onDrop = (event: any) => {

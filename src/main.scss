@@ -66,10 +66,13 @@ $label-disabled-color: rgba(64, 64, 64, 0.5);
   input:not([type="button"]):not([type="reset"]):not([type="submit"]):not([type="image"]):not([type="checkbox"]):not([type="radio"]),
   select,
   textarea {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
     border: 1px solid $border-color;
     color: $text-color;
     background-color: $inputs-background-color;
-
+    opacity: 1;
     &:focus {
       border: 1px solid $main-color;
     }
@@ -144,6 +147,10 @@ $label-disabled-color: rgba(64, 64, 64, 0.5);
     }
   }
 
+  .sv_matrix_cell {
+    vertical-align: top;
+  }
+
   .sv_q_m_cell_selected {
     color: $body-background-color;
     background-color: $main-hover-color;
@@ -197,6 +204,9 @@ $label-disabled-color: rgba(64, 64, 64, 0.5);
 
   input[type="button"],
   button {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
     font-size: 0.85em;
     font-weight: bold;
     //color: $body-background-color;
@@ -326,7 +336,8 @@ $label-disabled-color: rgba(64, 64, 64, 0.5);
 
             .sv-paneldynamic__progress-container {
               position: relative;
-              margin-right: 250px;
+              display: inline-block;
+              width: calc(100% - 250px);
               margin-left: 40px;
               margin-top: 10px;
             }
@@ -413,6 +424,9 @@ $label-disabled-color: rgba(64, 64, 64, 0.5);
               //background-color: $main-color;
               background-image: url("./images/ArrowDown_34x34.svg");
               @include svg-icon();
+              //height: 2em;
+              z-index: 1;
+              pointer-events: none;
             }
           }
 
@@ -501,6 +515,12 @@ $label-disabled-color: rgba(64, 64, 64, 0.5);
             }
           }
           &.sv_q_matrix {
+            td,
+            th {
+              padding: 0 1em;
+              text-align: center;
+            }
+
             td {
               @media (min-width: 768px) {
                 min-width: 10em;
@@ -509,6 +529,10 @@ $label-disabled-color: rgba(64, 64, 64, 0.5);
                 position: static;
                 display: block;
                 width: 100%;
+              }
+
+              &:first-child {
+                text-align: left;
               }
             }
           }
@@ -540,6 +564,11 @@ $label-disabled-color: rgba(64, 64, 64, 0.5);
         fieldset.sv_qcbc {
           line-height: $base-line-height;
           padding-top: 0.1em;
+        }
+
+        .sv_q_checkbox_label,
+        .sv_q_radiogroup_label {
+          display: block;
         }
 
         .sv_q_other {
@@ -666,3 +695,4 @@ $label-disabled-color: rgba(64, 64, 64, 0.5);
 }
 
 @import "./signaturepad.scss";
+@import "./boolean-checkbox.scss";

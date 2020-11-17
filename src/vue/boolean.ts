@@ -1,34 +1,7 @@
-<template>
-  <div :class="question.cssClasses.root">
-    <label :class="itemClass">
-      <input
-        type="checkbox"
-        :name="question.name"
-        :value="question.checkedValue"
-        v-model="question.checkedValue"
-        :class="question.cssClasses.control"
-        :id="question.inputId"
-        :indeterminate.prop="question.isIndeterminate"
-        :disabled="question.isReadOnly"
-        v-bind:aria-required="question.isRequired"
-        :aria-label="question.locTitle.renderedHtml"
-        :aria-invalid="question.errors.length > 0"
-        :aria-describedby="question.errors.length > 0 ? question.id + '_errors' : null"  
-      />
-      <span :class="getLabelClass(false)" v-on:click="onLabelClick($event, false)">{{question.locLabelFalse.renderedHtml}}</span>
-      <div :class="question.cssClasses.switch" v-on:click="onSwitchClick($event)">
-        <span :class="question.cssClasses.slider" />
-      </div>
-      <span :class="getLabelClass(true)" v-on:click="onLabelClick($event, true)">{{question.locLabelTrue.renderedHtml}}</span>
-    </label>
-  </div>
-</template>
-
-<script lang="ts">
 import Vue from "vue";
 import { Component, Prop, Watch } from "vue-property-decorator";
 import { default as QuestionVue } from "./question";
-import { QuestionBooleanModel } from "../question_boolean";
+import { QuestionBooleanModel } from '../question_boolean';
 
 @Component
 export class Boolean extends QuestionVue<QuestionBooleanModel> {
@@ -75,7 +48,3 @@ export class Boolean extends QuestionVue<QuestionBooleanModel> {
     }
   }
 }
-Vue.component("survey-boolean", Boolean);
-
-export default Boolean;
-</script>

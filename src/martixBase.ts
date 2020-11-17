@@ -123,7 +123,7 @@ export class QuestionMatrixBaseModel<TRow, TColumn> extends Question {
     this.fireCallback(this.visibleRowsChangedCallback);
   }
   protected shouldRunColumnExpression(): boolean {
-    return true;
+    return !this.survey || !this.survey.areInvisibleElementsShowing;
   }
   protected hasRowsAsItems(): boolean {
     return true;
@@ -144,13 +144,17 @@ export class QuestionMatrixBaseModel<TRow, TColumn> extends Question {
     var hasColumnsChanged = this.runConditionsForColumns(values, properties);
     hasChanges = hasColumnsChanged || hasChanges;
     if (hasChanges) {
-      if (!!this.filteredColumns || !!this.filteredRows) {
+      if (
+        !!this.survey &&
+        this.survey.isClearValueOnHidden &&
+        (!!this.filteredColumns || !!this.filteredRows)
+      ) {
         this.clearIncorrectValues();
       }
       if (!!oldVisibleRows) {
         this.restoreNewVisibleRowsValues(oldVisibleRows);
       }
-      this.generatedVisibleRows = null;
+      this.clearGeneratedRows();
       if (hasColumnsChanged) {
         this.onColumnsChanged();
       }
@@ -158,20 +162,27 @@ export class QuestionMatrixBaseModel<TRow, TColumn> extends Question {
     }
     return hasChanges;
   }
+  protected clearGeneratedRows() {
+    this.generatedVisibleRows = null;
+  }
   private runConditionsForRows(
     values: HashTable<any>,
     properties: HashTable<any>
   ): boolean {
-    var runner = !!this.rowsVisibleIf
-      ? new ConditionRunner(this.rowsVisibleIf)
-      : null;
+    var showInvisibile =
+      !!this.survey && this.survey.areInvisibleElementsShowing;
+    var runner =
+      !showInvisibile && !!this.rowsVisibleIf
+        ? new ConditionRunner(this.rowsVisibleIf)
+        : null;
     this.filteredRows = [];
     var hasChanged = ItemValue.runConditionsForItems(
       this.rows,
       this.filteredRows,
       runner,
       values,
-      properties
+      properties,
+      !showInvisibile
     );
     if (this.filteredRows.length === this.rows.length) {
       this.filteredRows = null;
@@ -182,9 +193,12 @@ export class QuestionMatrixBaseModel<TRow, TColumn> extends Question {
     values: HashTable<any>,
     properties: HashTable<any>
   ): boolean {
-    var runner = !!this.columnsVisibleIf
-      ? new ConditionRunner(this.columnsVisibleIf)
-      : null;
+    var useColumnsExpression =
+      !!this.survey && !this.survey.areInvisibleElementsShowing;
+    var runner =
+      useColumnsExpression && !!this.columnsVisibleIf
+        ? new ConditionRunner(this.columnsVisibleIf)
+        : null;
     this.filteredColumns = [];
     var hasChanged = ItemValue.runConditionsForItems(
       this.columns,
@@ -224,7 +238,7 @@ export class QuestionMatrixBaseModel<TRow, TColumn> extends Question {
   }
   protected clearInvisibleValuesInRows() {
     if (this.isEmpty()) return;
-    var newData = Helpers.getUnbindValue(this.value);
+    var newData = this.getUnbindValue(this.value);
     var rows = this.rows;
     for (var i = 0; i < rows.length; i++) {
       var key = rows[i].value;
@@ -238,7 +252,7 @@ export class QuestionMatrixBaseModel<TRow, TColumn> extends Question {
   private restoreNewVisibleRowsValues(oldVisibleRows: any) {
     var rows = !!this.filteredRows ? this.filteredRows : this.rows;
     var val = this.defaultValue;
-    var newValue = Helpers.getUnbindValue(this.value);
+    var newValue = this.getUnbindValue(this.value);
     var isChanged = false;
     for (var key in val) {
       if (
@@ -261,7 +275,7 @@ Serializer.addClass(
   [
     "columnsVisibleIf:condition",
     "rowsVisibleIf:condition",
-    { name: "showHeader:boolean", default: true }
+    { name: "showHeader:boolean", default: true },
   ],
   undefined,
   "question"

@@ -1,4 +1,4 @@
-import { frameworks, url, setOptions, getSurveyResult } from "../settings";
+import { frameworks, url } from "../settings";
 import { Selector, ClientFunction } from "testcafe";
 import uuid from "node-uuid";
 const assert = require("assert");

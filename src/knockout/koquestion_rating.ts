@@ -7,18 +7,13 @@ import { Question } from "../question";
 
 class QuestionRatingImplementor extends QuestionImplementor {
   koVisibleRateValues: any;
-  koChange: any;
   koCss: any;
   constructor(question: Question) {
     super(question);
     this.koVisibleRateValues = ko.observableArray();
     (<any>this.question)["koVisibleRateValues"] = this.koVisibleRateValues;
     var self = this;
-    this.koChange = function(val: any) {
-      self.question.value = val.itemValue;
-    };
-    (<any>this.question)["koChange"] = this.koChange;
-    (<QuestionRating>this.question).rateValuesChangedCallback = function() {
+    (<QuestionRating>this.question).rateValuesChangedCallback = function () {
       self.onRateValuesChanged();
     };
     (<any>this.question)["koGetCss"] = (val: any) => {
@@ -56,10 +51,10 @@ export class QuestionRating extends QuestionRatingModel {
   }
 }
 
-Serializer.overrideClassCreator("rating", function() {
+Serializer.overrideClassCreator("rating", function () {
   return new QuestionRating("");
 });
 
-QuestionFactory.Instance.registerQuestion("rating", name => {
+QuestionFactory.Instance.registerQuestion("rating", (name) => {
   return new QuestionRating(name);
 });

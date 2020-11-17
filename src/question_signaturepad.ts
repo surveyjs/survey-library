@@ -44,6 +44,13 @@ export class QuestionSignaturePadModel extends Question {
     return classes;
   }
 
+  protected updateValue() {
+    if (this.signaturePad) {
+      var data = this.signaturePad.toDataURL(this.dataFormat);
+      this.value = data;
+    }
+  }
+
   constructor(public name: string) {
     super(name);
   }
@@ -56,7 +63,7 @@ export class QuestionSignaturePadModel extends Question {
     }
     super.afterRenderQuestionElement(el);
   }
-  public beforeDestoyQuestionElement(el: any) {
+  public beforeDestroyQuestionElement(el: any) {
     if (!!el) {
       this.destroySignaturePad(el);
     }
@@ -65,7 +72,7 @@ export class QuestionSignaturePadModel extends Question {
   initSignaturePad(el: HTMLElement) {
     var canvas: any = el.getElementsByTagName("canvas")[0];
     var buttonEl = el.getElementsByTagName("button")[0];
-    var signaturePad = new SignaturePad(canvas);
+    var signaturePad = new SignaturePad(canvas, { backgroundColor: "#ffffff" });
     if (this.isReadOnly) {
       signaturePad.off();
     }
@@ -89,17 +96,18 @@ export class QuestionSignaturePadModel extends Question {
       canvas.focus();
     };
     signaturePad.onEnd = () => {
-      var data = signaturePad.toDataURL();
-      this.value = data;
+      this.updateValue();
     };
     var updateValueHandler = () => {
       var data = this.value;
       canvas.width = this.width || defaultWidth;
       canvas.height = this.height || defaultHeight;
       resizeCanvas(canvas);
-      signaturePad.fromDataURL(
-        data || "data:image/gif;base64,R0lGODlhAQABAIAAAP"
-      );
+      if (!data) {
+        signaturePad.clear();
+      } else {
+        signaturePad.fromDataURL(data);
+      }
     };
     this.valueChangedCallback = updateValueHandler;
     updateValueHandler();
@@ -120,6 +128,17 @@ export class QuestionSignaturePadModel extends Question {
     }
     this.readOnlyChangedCallback = null;
     this.signaturePad = null;
+  }
+
+  /**
+   * Use it to set the specific dataFormat for the signature pad image data.
+   * formats: "" (default) - png, "image/jpeg" - jpeg, "image/svg+xml" - svg
+   */
+  public get dataFormat(): string {
+    return this.getPropertyValue("dataFormat", "");
+  }
+  public set dataFormat(val: string) {
+    this.setPropertyValue("dataFormat", val);
   }
 
   /**
@@ -170,21 +189,37 @@ Serializer.addClass(
   "signaturepad",
   [
     {
-      name: "allowClear:boolean",
-      default: true,
-    },
-    {
       name: "width:number",
+      category: "general",
       default: 300,
     },
     {
       name: "height:number",
+      category: "general",
       default: 200,
     },
     {
-      name: "penColor",
+      name: "allowClear:boolean",
+      category: "general",
+      default: true,
+    },
+    {
+      name: "penColor:color",
+      category: "general",
       default: "#1ab394",
     },
+    {
+      name: "dataFormat",
+      category: "general",
+      default: "",
+      choices: [
+        { value: "", text: "PNG" },
+        { value: "image/jpeg", text: "JPEG" },
+        { value: "image/svg+xml", text: "SVG" },
+      ],
+    },
+    { name: "defaultValue", visible: false },
+    { name: "correctAnswer", visible: false },
   ],
   function () {
     return new QuestionSignaturePadModel("");

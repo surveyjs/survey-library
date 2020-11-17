@@ -178,6 +178,61 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     }
     return false;
   }
+  /**
+   * Set this property different to 0 to limit the number of selected choices in the checkbox.
+   */
+  public get maxSelectedChoices(): number {
+    return this.getPropertyValue("maxSelectedChoices", 0);
+  }
+  public set maxSelectedChoices(val: number) {
+    if(val < 0) val = 0;
+    this.setPropertyValue("maxSelectedChoices", val);
+  }
+  protected onEnableItemCallBack(item: ItemValue): boolean {
+    if(!this.shouldCheckMaxSelectedChoices()) return true;
+    return this.isItemSelected(item);
+  }
+  protected onAfterRunItemsEnableCondition() {
+    if(this.maxSelectedChoices < 1) return;
+    if(this.hasSelectAll) {
+      this.selectAllItem.setIsEnabled(this.maxSelectedChoices >= this.activeChoices.length);
+    }
+    if(this.hasOther) {
+      this.otherItem.setIsEnabled(!this.shouldCheckMaxSelectedChoices() || this.isOtherSelected);
+    } 
+  }
+  private shouldCheckMaxSelectedChoices(): boolean {
+    if(this.maxSelectedChoices < 1) return false;
+    var val = this.value;
+    var len = !Array.isArray(val) ? 0 : val.length;
+    return len >= this.maxSelectedChoices;
+  }
+  getItemClass(item: any) {
+    var val = this.value; //trigger dependencies from koValue for knockout
+    var isChecked = this.isItemSelected(item);
+    var isDisabled = this.isReadOnly || !item.isEnabled;
+    var allowHover = !isChecked && !isDisabled;
+    var isSelectAll = item === this.selectAllItem;
+    var isNone = item === this.noneItem;
+    var itemClass = this.cssClasses.item;
+    if (!this.hasColumns) {
+      itemClass +=
+        this.colCount === 0
+          ? " " + this.cssClasses.itemInline
+          : " sv-q-col-" + this.colCount;
+    }
+    if (isDisabled && !!this.cssClasses.itemDisabled)
+      itemClass += " " + this.cssClasses.itemDisabled;
+    if (isChecked && !!this.cssClasses.itemChecked)
+      itemClass += " " + this.cssClasses.itemChecked;
+    if (allowHover && !!this.cssClasses.itemHover)
+      itemClass += " " + this.cssClasses.itemHover;
+    if (isSelectAll && !!this.cssClasses.itemSelectAll)
+      itemClass += " " + this.cssClasses.itemSelectAll;
+    if (isNone && !!this.cssClasses.itemNone)
+      itemClass += " " + this.cssClasses.itemNone;
+    return itemClass;
+  }
   protected setNewValue(newValue: any) {
     if (!this.isChangingValueOnClearIncorrect) {
       this.invisibleOldValues = [];
@@ -201,7 +256,28 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
         }
       }
     }
-    super.setNewValue(newValue);
+    super.setNewValue(this.rendredValueToData(newValue));
+  }
+  protected getIsMultipleValue(): boolean {
+    return true;
+  }
+  protected getCommentFromValue(newValue: any): string {
+    var ind = this.getFirstUnknownIndex(newValue);
+    if (ind < 0) return "";
+    return newValue[ind];
+  }
+  protected setOtherValueIntoValue(newValue: any): any {
+    var ind = this.getFirstUnknownIndex(newValue);
+    if (ind < 0) return newValue;
+    newValue.splice(ind, 1, this.otherItem.value);
+    return newValue;
+  }
+  private getFirstUnknownIndex(newValue: any): number {
+    if (!Array.isArray(newValue)) return -1;
+    for (var i = 0; i < newValue.length; i++) {
+      if (this.hasUnknownValue(newValue[i])) return i;
+    }
+    return -1;
   }
   private noneIndexInArray(val: any) {
     if (!val || !Array.isArray(val)) return -1;
@@ -373,6 +449,7 @@ Serializer.addClass(
   [
     "hasSelectAll:boolean",
     "hasNone:boolean",
+    { name: "maxSelectedChoices", default: 0 },
     { name: "noneText", serializationProperty: "locNoneText" },
     { name: "selectAllText", serializationProperty: "locSelectAllText" },
   ],

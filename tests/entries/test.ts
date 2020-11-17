@@ -1,9 +1,13 @@
 // common
+export * from "../calculatedvaluestests";
 export * from "../helperstests";
 export * from "../basetests";
+export * from "../editingObjectTests";
+export * from "../bindablePropertiesTests";
 export * from "../localizablestringtests";
 export * from "../choicesRestfulltests";
 export * from "../jsonobjecttests";
+export * from "../jsonSchemaTests";
 export * from "../surveyLocalizationTests";
 export * from "../surveyquestiontests";
 export * from "../question_matrixdynamictests";
@@ -22,7 +26,6 @@ export * from "../surveytimertests";
 export * from "../question_expressiontests";
 export * from "../questionFileTests";
 export * from "../dragdroptests";
-export * from "../calculatedvaluestests";
 export * from "../expressions/expressionsTest";
 export * from "../expressions/expressionParserTest";
 export * from "../questionDropdown";
@@ -35,3 +38,8 @@ import "../../src/localization/russian";
 import "../../src/localization/french";
 import "../../src/localization/finnish";
 import "../../src/localization/german";
+
+//Property Grid
+import "../propertyGridTests";
+
+import "../renderFactoryTests";

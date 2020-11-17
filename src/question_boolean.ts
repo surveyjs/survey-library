@@ -1,5 +1,5 @@
 import { QuestionFactory } from "./questionfactory";
-import { Serializer } from "./jsonobject";
+import { property, Serializer } from "./jsonobject";
 import { Question } from "./question";
 import { LocalizableString } from "./localizablestring";
 import { surveyLocalization } from "./surveyStrings";
@@ -10,7 +10,6 @@ import { surveyLocalization } from "./surveyStrings";
 export class QuestionBooleanModel extends Question {
   constructor(public name: string) {
     super(name);
-    this.createLocalizableString("label", this, true);
     this.createLocalizableString("labelFalse", this, true);
     this.createLocalizableString("labelTrue", this, true);
     this.locLabelFalse.onGetTextCallback = (text: string): string => {
@@ -72,6 +71,7 @@ export class QuestionBooleanModel extends Question {
   }
   public getDefaultValue(): any {
     if (this.defaultValue == "indeterminate") return null;
+    if (this.defaultValue === undefined) return null;
     return this.defaultValue == "true"
       ? this.getValueTrue()
       : this.getValueFalse();
@@ -86,15 +86,9 @@ export class QuestionBooleanModel extends Question {
    * @see showTitle
    * @see title
    */
-  public get label(): string {
-    return this.getLocalizableStringText("label");
-  }
-  public set label(val: string) {
-    this.setLocalizableStringText("label", val);
-  }
-  get locLabel(): LocalizableString {
-    return this.getLocalizableString("label");
-  }
+  @property({ localizable: true })
+  label: string;
+
   get locDisplayLabel(): LocalizableString {
     if (this.locLabel.text) return this.locLabel;
     return this.showTitle ? this.locLabel : this.locTitle;
@@ -129,31 +123,20 @@ export class QuestionBooleanModel extends Question {
   /**
    * Set this property to true to show the question title. It is hidden by default.
    */
-  public get showTitle(): boolean {
-    return this.getPropertyValue("showTitle");
-  }
-  public set showTitle(val: boolean) {
-    this.setPropertyValue("showTitle", val);
-  }
+  @property()
+  showTitle: boolean;
 
   /**
    * Set this property, if you want to have a different value from true when check is set.
    */
-  public get valueTrue(): any {
-    return this.getPropertyValue("valueTrue");
-  }
-  public set valueTrue(val: any) {
-    this.setPropertyValue("valueTrue", val);
-  }
+  @property()
+  valueTrue: any;
   /**
    * Set this property, if you want to have a different value from false when check is unset.
    */
-  public get valueFalse(): any {
-    return this.getPropertyValue("valueFalse");
-  }
-  public set valueFalse(val: any) {
-    this.setPropertyValue("valueFalse", val);
-  }
+  @property()
+  valueFalse: any;
+
   private getValueTrue(): any {
     return this.valueTrue ? this.valueTrue : true;
   }
@@ -170,12 +153,6 @@ export class QuestionBooleanModel extends Question {
 Serializer.addClass(
   "boolean",
   [
-    {
-      name: "defaultValue:dropdown",
-      alternativeName: "booleanDefaultValue",
-      default: "indeterminate",
-      choices: ["indeterminate", "false", "true"],
-    },
     { name: "label:text", serializationProperty: "locLabel" },
     {
       name: "labelTrue:text",
@@ -188,6 +165,7 @@ Serializer.addClass(
     "showTitle:boolean",
     "valueTrue",
     "valueFalse",
+    { name: "renderAs", default: "default", visible: false },
   ],
   function () {
     return new QuestionBooleanModel("");

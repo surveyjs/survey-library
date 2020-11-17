@@ -1,16 +1,19 @@
 import * as React from "react";
-import { SurveyQuestionElementBase } from "./reactquestion_element";
+import {
+  SurveyQuestionElementBase,
+} from "./reactquestion_element";
 import { QuestionBooleanModel } from "../question_boolean";
 import { ReactQuestionFactory } from "./reactquestion_factory";
 
 export class SurveyQuestionBoolean extends SurveyQuestionElementBase {
-  private isIndeterminateChange: boolean = false;
+  protected checkRef: React.RefObject<HTMLInputElement>;
   constructor(props: any) {
     super(props);
     this.handleOnChange = this.handleOnChange.bind(this);
     this.handleOnClick = this.handleOnClick.bind(this);
     this.handleOnLabelClick = this.handleOnLabelClick.bind(this);
     this.handleOnSwitchClick = this.handleOnSwitchClick.bind(this);
+    this.checkRef = React.createRef();
   }
   protected get question(): QuestionBooleanModel {
     return this.questionBase as QuestionBooleanModel;
@@ -53,14 +56,14 @@ export class SurveyQuestionBoolean extends SurveyQuestionElementBase {
 
   protected updateDomElement() {
     if (!this.question) return;
-    var el: any = this.refs["check"];
+    var el = this.checkRef.current;
     if (el) {
-      el["indeterminate"] = this.question.isIndeterminate;
+      el.indeterminate = this.question.isIndeterminate;
     }
     this.control = el;
     super.updateDomElement();
   }
-  private getItemClass(): string {
+  protected getItemClass(): string {
     var cssClasses = this.question.cssClasses;
     var isChecked = this.question.checkedValue;
     var isDisabled = this.question.isReadOnly;
@@ -82,15 +85,14 @@ export class SurveyQuestionBoolean extends SurveyQuestionElementBase {
         : "")
     );
   }
-  render(): JSX.Element {
-    if (!this.question) return null;
+  protected renderElement(): JSX.Element {
     var cssClasses = this.question.cssClasses;
     var itemClass = this.getItemClass();
     return (
       <div className={cssClasses.root}>
         <label className={itemClass} onClick={this.handleOnClick}>
           <input
-            ref="check"
+            ref={this.checkRef}
             type="checkbox"
             value={
               this.question.checkedValue === null
@@ -104,7 +106,11 @@ export class SurveyQuestionBoolean extends SurveyQuestionElementBase {
             onChange={this.handleOnChange}
             aria-label={this.question.locTitle.renderedHtml}
             aria-invalid={this.question.errors.length > 0}
-            aria-describedby={this.question.errors.length > 0 ? this.question.id + '_errors' : null}    
+            aria-describedby={
+              this.question.errors.length > 0
+                ? this.question.id + "_errors"
+                : null
+            }
           />
           <span
             className={this.getLabelClass(false)}

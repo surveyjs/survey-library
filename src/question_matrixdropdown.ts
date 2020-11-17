@@ -41,7 +41,7 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
     this.createLocalizableString("totalText", this, true);
     var self = this;
     this.registerFunctionOnPropertyValueChanged("rows", function () {
-      self.generatedVisibleRows = null;
+      self.clearGeneratedRows();
       self.resetRenderedTable();
       self.filterItems();
     });

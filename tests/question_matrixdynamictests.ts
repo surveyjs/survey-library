@@ -12,6 +12,7 @@ import { FunctionFactory } from "../src/functionsfactory";
 import { Question } from "../src/question";
 import { ExpressionValidator } from "../src/validator";
 import { QuestionExpressionModel } from "../src/question_expression";
+import { settings } from "../src/settings";
 
 export default QUnit.module("Survey_QuestionMatrixDynamic");
 
@@ -754,10 +755,10 @@ QUnit.test("matrixdynamic.defaultValue - check the complex property", function (
   );
 });
 
-QUnit.test("Matrixdropdown isRequiredInAllRows", function (assert) {
+QUnit.test("Matrixdropdown minRowCount", function (assert) {
   var question = new QuestionMatrixDynamicModel("matrix");
   question.rowCount = 2;
-  question.columns.push(new MatrixDropdownColumn("dropdown"));
+  question.addColumn("column1");
   var rows = question.visibleRows;
   assert.equal(
     question.hasErrors(),
@@ -769,9 +770,22 @@ QUnit.test("Matrixdropdown isRequiredInAllRows", function (assert) {
   question.minRowCount = 2;
   assert.equal(
     question.hasErrors(),
-    true,
-    "Error, value in all rows are required"
+    false,
+    "There is no errors in the matrix. question is not required"
   );
+  question.minRowCount = 0;
+  question.isRequired = true;
+  assert.equal(question.hasErrors(), true, "Question is requried now");
+  rows[0].cells[0].question.value = "val1";
+  assert.equal(question.hasErrors(), false, "Question has value");
+  question.minRowCount = 2;
+  assert.equal(
+    question.hasErrors(),
+    true,
+    "Error, value in two rows are required"
+  );
+  rows[1].cells[0].question.value = "val2";
+  assert.equal(question.hasErrors(), false, "No errors, all rows have values");
 });
 QUnit.test("Matrixdropdown supportGoNextPageAutomatic property", function (
   assert
@@ -1288,6 +1302,66 @@ QUnit.test("matrixDynamic.addConditionObjectsByContext", function (assert) {
     "addConditionObjectsByContext work correctly for matrix dynamic with context"
   );
 });
+QUnit.test(
+  "matrixDynamic.addConditionObjectsByContext + settings.matrixMaxRowCountInCondition",
+  function (assert) {
+    var objs = [];
+    var question = new QuestionMatrixDynamicModel("matrix");
+    question.title = "Matrix";
+    question.addColumn("col1", "Column 1");
+    question.addConditionObjectsByContext(objs, null);
+    for (var i = 0; i < objs.length; i++) delete objs[i].question;
+    assert.deepEqual(
+      objs,
+      [
+        {
+          name: "matrix[0].col1",
+          text: "Matrix[0].Column 1",
+        },
+      ],
+      "addConditionObjectsByContext work correctly for matrix dynamic"
+    );
+    question.rowCount = 0;
+    settings.matrixMaxRowCountInCondition = 3;
+
+    objs = [];
+    question.addConditionObjectsByContext(objs, null);
+    for (var i = 0; i < objs.length; i++) delete objs[i].question;
+    assert.deepEqual(
+      objs,
+      [
+        {
+          name: "matrix[0].col1",
+          text: "Matrix[0].Column 1",
+        },
+      ],
+      "addConditionObjectsByContext work correctly for matrix dynamic, rowCount is 0"
+    );
+    question.rowCount = 4;
+    objs = [];
+    question.addConditionObjectsByContext(objs, null);
+    for (var i = 0; i < objs.length; i++) delete objs[i].question;
+    assert.deepEqual(
+      objs,
+      [
+        {
+          name: "matrix[0].col1",
+          text: "Matrix[0].Column 1",
+        },
+        {
+          name: "matrix[1].col1",
+          text: "Matrix[1].Column 1",
+        },
+        {
+          name: "matrix[2].col1",
+          text: "Matrix[2].Column 1",
+        },
+      ],
+      "addConditionObjectsByContext work correctly for matrix dynamic, rowCount is 4, but settings.matrixMaxRowCountInCondition is 3"
+    );
+    settings.matrixMaxRowCountInCondition = 1;
+  }
+);
 QUnit.test("matrixDropdown.addConditionObjectsByContext", function (assert) {
   var objs = [];
   var question = new QuestionMatrixDropdownModel("matrix");
@@ -1419,6 +1493,44 @@ QUnit.test("matrixDropdown.clearInvisibleValues", function (assert) {
     "clear unexisting columns and values"
   );
 });
+
+QUnit.test(
+  "matrixDynamic.clearInvisibleValues do not call it on changing condition if clearInvisibleValues doesn't eaqual to 'onHidden'",
+  function (assert) {
+    var survey = new SurveyModel({
+      elements: [
+        {
+          type: "matrixdropdown",
+          name: "q1",
+          columns: [
+            {
+              name: "color",
+              cellType: "text",
+            },
+          ],
+          rows: [
+            "1",
+            {
+              value: "2",
+              visibleIf: "{var1}=1",
+            },
+            "3",
+          ],
+        },
+      ],
+    });
+    var question = <QuestionMatrixDropdownModel>survey.getQuestionByName("q1");
+    assert.equal(question.isEmpty(), true, "It is empty");
+    survey.setValue("var1", 1);
+    question.value = { "2": "abc" };
+    survey.setValue("var1", 2);
+    assert.deepEqual(question.value, { "2": "abc" }, "Change nothing");
+    survey.setValue("var1", 1);
+    survey.clearInvisibleValues = "onHidden";
+    survey.setValue("var1", 2);
+    assert.equal(question.isEmpty(), true, "It is empty again");
+  }
+);
 
 QUnit.test("Matrixdropdown column.index", function (assert) {
   var question = new QuestionMatrixDropdownModel("matrixDropdown");
@@ -1596,6 +1708,7 @@ QUnit.test(
   "matrix.rowsVisibleIf, clear value on making the value invisible",
   function (assert) {
     var survey = new SurveyModel();
+    survey.clearInvisibleValues = "onHidden";
     var page = survey.addNewPage("p1");
     var qBestCar = new QuestionMatrixDropdownModel("bestCar");
     qBestCar.cellType = "text";
@@ -1714,6 +1827,64 @@ QUnit.test("rowIndex variable, in text processing", function (assert) {
   var rows = question.visibleRows;
   assert.equal(rows[0].cells[0].question.value, 1, "The first row has index 1");
   assert.equal(rows[1].cells[0].question.value, 2, "The first row has index 2");
+});
+QUnit.test("rowValue variable, in text processing", function (assert) {
+  var json = {
+    elements: [
+      {
+        type: "matrixdropdown",
+        name: "q1",
+        columns: [
+          {
+            name: "column1",
+            cellType: "expression",
+            expression: "{rowValue} * 2",
+          },
+        ],
+        rows: [1, 2, 3],
+      },
+    ],
+  };
+  var survey = new SurveyModel(json);
+  var question = <QuestionMatrixDynamicModel>survey.getQuestionByName("q1");
+  var rows = question.visibleRows;
+  assert.equal(
+    rows[0].cells[0].question.value,
+    2,
+    "The first row has row name 1"
+  );
+  assert.equal(
+    rows[1].cells[0].question.value,
+    4,
+    "The first row has row name 2"
+  );
+});
+QUnit.test("rowValue variable in expression", function (assert) {
+  var json = {
+    elements: [
+      {
+        type: "matrixdropdown",
+        name: "q1",
+        columns: [
+          { name: "column1", cellType: "expression", expression: "{rowValue}" },
+        ],
+        rows: ["Row 1", "Row 2"],
+      },
+    ],
+  };
+  var survey = new SurveyModel(json);
+  var question = <QuestionMatrixDynamicModel>survey.getQuestionByName("q1");
+  var rows = question.visibleRows;
+  assert.equal(
+    rows[0].cells[0].question.value,
+    "Row 1",
+    "The first row has rowValue 'Row 1'"
+  );
+  assert.equal(
+    rows[1].cells[0].question.value,
+    "Row 2",
+    "The first row has rowValue 'Row 2'"
+  );
 });
 
 QUnit.test("row property in custom function", function (assert) {
@@ -2708,6 +2879,19 @@ QUnit.test("matrix dropdown + renderedTable.headerRow", function (assert) {
   assert.equal(matrix.renderedTable.showHeader, false, "Header is not shown");
   assert.notOk(!!matrix.renderedTable.headerRow, "Header row is null");
 
+  //Test case for #2346 - set width to <td> in first row if header is hidden
+  var firstRow = matrix.renderedTable.rows[0];
+  assert.equal(
+    firstRow.cells[2].minWidth,
+    "100px",
+    "Header is hidden: col2.minWidth"
+  );
+  assert.equal(
+    firstRow.cells[0].width,
+    "400px",
+    "Header is hidden: col1 width get from rowTitleWidth"
+  );
+
   matrix.columnLayout = "vertical";
   cells = matrix.renderedTable.headerRow.cells;
   assert.equal(cells.length, 3, "3 rows");
@@ -3277,6 +3461,34 @@ QUnit.test("survey.onMatrixAllowRemoveRow", function (assert) {
     table.rows[2].cells[2].isRemoveRow,
     true,
     "The third row can be removed"
+  );
+});
+
+QUnit.test("column is requriedText, Bug #2297", function (assert) {
+  var survey = new SurveyModel({
+    questions: [
+      {
+        type: "matrixdynamic",
+        name: "q1",
+        rowCount: 2,
+        columns: [{ name: "1", isRequired: true }, { name: "2" }],
+      },
+    ],
+  });
+  var matrix = <QuestionMatrixDynamicModel>survey.getAllQuestions()[0];
+  var table = matrix.renderedTable;
+  assert.equal(
+    table.headerRow.cells[0].requiredText,
+    "*",
+    "required Text is here"
+  );
+  assert.notOk(table.headerRow.cells[1].requiredText, "required Text is empty");
+  matrix.columnsLocation = "vertical";
+  table = matrix.renderedTable;
+  assert.equal(
+    table.rows[0].cells[0].requiredText,
+    "*",
+    "The first cell in the row is a column header now"
   );
 });
 
@@ -4081,3 +4293,515 @@ QUnit.test(
     assert.equal(q2.visibleChoices.length, 2, "There is 'B' and 'C' items");
   }
 );
+QUnit.test(
+  "Survey.checkErrorsMode=onValueChanged, some errors should be shown onNextPage only, multipletext",
+  function (assert) {
+    var survey = new SurveyModel({
+      elements: [
+        {
+          type: "matrixdynamic",
+          name: "question1",
+          columns: [
+            {
+              name: "Column 1",
+              isRequired: true,
+            },
+            {
+              name: "Column 2",
+              isRequired: true,
+            },
+          ],
+        },
+      ],
+      checkErrorsMode: "onValueChanged",
+    });
+    var matrix = <QuestionMatrixDynamicModel>(
+      survey.getQuestionByName("question1")
+    );
+    var rows = matrix.visibleRows;
+    rows[0].cells[0].value = 1;
+    assert.equal(
+      rows[0].cells[1].question.errors.length,
+      0,
+      "There is no errors yet in the cell, first row, second column"
+    );
+    assert.equal(
+      rows[1].cells[0].question.errors.length,
+      0,
+      "There is no errors yet in the cell, second row, first column"
+    );
+    survey.completeLastPage();
+    assert.equal(
+      rows[0].cells[1].question.errors.length,
+      1,
+      "There is error in the cell, first row, second column"
+    );
+    assert.equal(
+      rows[1].cells[0].question.errors.length,
+      1,
+      "There is error in the cell, second row, first column"
+    );
+    rows[0].cells[0].value = 2;
+    assert.equal(
+      rows[0].cells[1].question.errors.length,
+      1,
+      "The error in the cell is not fixed, first row, second column"
+    );
+    assert.equal(
+      rows[1].cells[0].question.errors.length,
+      1,
+      "The error in the cell is not fixed, first column"
+    );
+    rows[0].cells[1].value = 1;
+    assert.equal(
+      rows[0].cells[1].question.errors.length,
+      0,
+      "The error in the cell is gone, first row, second column"
+    );
+    assert.equal(
+      rows[1].cells[0].question.errors.length,
+      1,
+      "The error in the cell is not fixed, first column, #2"
+    );
+    rows[1].cells[0].value = 1;
+    assert.equal(
+      rows[1].cells[0].question.errors.length,
+      0,
+      "The error in the cell is gone, first column, #2"
+    );
+  }
+);
+QUnit.test("column should call property changed on custom property", function (
+  assert
+) {
+  Serializer.addProperty("text", "prop1");
+  var matrix = new QuestionMatrixDynamicModel("q1");
+  var column = matrix.addColumn("col1");
+  column.cellType = "text";
+  var counter = 0;
+  column.registerFunctionOnPropertyValueChanged("prop1", () => {
+    counter++;
+  });
+  column["prop1"] = 3;
+  assert.equal(column.templateQuestion["prop1"], 3, "Property is set");
+  assert.equal(counter, 1, "Notification is called");
+  Serializer.removeProperty("text", "prop1");
+});
+QUnit.test("getProgressInfo", function (assert) {
+  var survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdynamic",
+        name: "matrix",
+        columns: [
+          {
+            name: "col1",
+            isRequired: true,
+          },
+          {
+            name: "col2",
+          },
+          {
+            name: "col3",
+            visibleIf: "{row.col2} notempty",
+          },
+        ],
+      },
+    ],
+  });
+  survey.data = { matrix: [{ col1: "1" }, { col2: "2" }, []] };
+  var question = survey.getQuestionByName("matrix");
+  assert.deepEqual(question.getProgressInfo(), {
+    questionCount: 9 - 2,
+    answeredQuestionCount: 2,
+    requiredQuestionCount: 3,
+    requiredAnsweredQuestionCount: 1,
+  });
+});
+
+QUnit.test(
+  "isAnswered on setitting from survey.setValue(), Bug#2399",
+  function (assert) {
+    var survey = new SurveyModel({
+      pages: [
+        {
+          name: "page1",
+          elements: [
+            {
+              type: "matrixdynamic",
+              name: "HospitalAdmissions_Table",
+              columns: [
+                {
+                  name: "TreatmentProcedure",
+                  cellType: "text",
+                  width: "20",
+                },
+                {
+                  name: "Hospital",
+                  cellType: "text",
+                  width: "20",
+                },
+                {
+                  name: "Year",
+                  cellType: "dropdown",
+                },
+              ],
+              choices: ["2020", "2019"],
+              rowCount: 1,
+            },
+          ],
+        },
+      ],
+    });
+    var question = <QuestionMatrixDynamicModel>survey.getAllQuestions()[0];
+    survey.setValue("HospitalAdmissions_Table", [
+      {
+        TreatmentProcedure: "A",
+        Hospital: "B",
+        Year: "2020",
+      },
+    ]);
+    assert.equal(question.visibleRows.length, 1, "There is one row");
+    assert.equal(question.isAnswered, true, "matrix is answered");
+  }
+);
+QUnit.test(
+  "Use survey.storeOthersAsComment in matrix, cellType = dropdown",
+  function (assert) {
+    var survey = new SurveyModel({
+      elements: [
+        {
+          type: "matrixdynamic",
+          name: "q1",
+          columns: [
+            {
+              name: "col1",
+              cellType: "dropdown",
+              choices: [1, 2, 3],
+              hasOther: true,
+            },
+          ],
+          rowCount: 1,
+        },
+      ],
+    });
+    var question = <QuestionMatrixDynamicModel>survey.getAllQuestions()[0];
+    var cellQuestion = <QuestionDropdownModel>(
+      question.visibleRows[0].cells[0].question
+    );
+    assert.equal(
+      cellQuestion.getType(),
+      "dropdown",
+      "Cell question was created correctly"
+    );
+    cellQuestion.value = cellQuestion.otherItem.value;
+    cellQuestion.comment = "My Comment";
+    assert.deepEqual(
+      question.value,
+      [{ col1: "other", "col1-Comment": "My Comment" }],
+      "Has comment"
+    );
+    question.value = [{ col1: 1 }];
+    assert.equal(cellQuestion.value, 1, "value sets correctly into cell");
+    assert.equal(
+      cellQuestion.comment,
+      "",
+      "comment clears correctly in cell question"
+    );
+    question.value = [{ col1: "other", "col1-Comment": "New Comment" }];
+    assert.equal(
+      cellQuestion.value,
+      "other",
+      "value other sets correctly into cell"
+    );
+    assert.equal(
+      cellQuestion.comment,
+      "New Comment",
+      "comment sets correctly into cell question"
+    );
+    question.value = [{ col1: 1 }];
+    question.value = [{ col1: "NotInList" }];
+    assert.equal(
+      cellQuestion.value,
+      "other",
+      "value other sets correctly into cell using NotInList"
+    );
+    assert.equal(
+      cellQuestion.comment,
+      "NotInList",
+      "comment sets correctly into cell question using NotInList"
+    );
+  }
+);
+QUnit.test(
+  "Use survey.storeOthersAsComment in matrix, cellType = checkbox",
+  function (assert) {
+    var survey = new SurveyModel({
+      elements: [
+        {
+          type: "matrixdynamic",
+          name: "q1",
+          columns: [
+            {
+              name: "col1",
+              cellType: "checkbox",
+              choices: [1, 2, 3],
+              hasOther: true,
+            },
+          ],
+          rowCount: 1,
+        },
+      ],
+    });
+    var question = <QuestionMatrixDynamicModel>survey.getAllQuestions()[0];
+    var cellQuestion = <QuestionCheckboxModel>(
+      question.visibleRows[0].cells[0].question
+    );
+    assert.equal(
+      cellQuestion.getType(),
+      "checkbox",
+      "Cell question was created correctly"
+    );
+    cellQuestion.value = [1, cellQuestion.otherItem.value];
+    cellQuestion.comment = "My Comment";
+    assert.deepEqual(
+      question.value,
+      [{ col1: [1, "other"], "col1-Comment": "My Comment" }],
+      "Has comment"
+    );
+    question.value = [{ col1: [1] }];
+    assert.deepEqual(cellQuestion.value, [1], "value sets correctly into cell");
+    assert.equal(
+      cellQuestion.comment,
+      "",
+      "comment clears correctly in cell question"
+    );
+    question.value = [{ col1: [1, "other"], "col1-Comment": "New Comment" }];
+    assert.deepEqual(
+      cellQuestion.value,
+      [1, "other"],
+      "value other sets correctly into cell"
+    );
+    assert.equal(
+      cellQuestion.comment,
+      "New Comment",
+      "comment sets correctly into cell question"
+    );
+    question.value = [{ col1: [1] }];
+    question.value = [{ col1: [1, "NotInList"] }];
+    assert.deepEqual(
+      cellQuestion.value,
+      [1, "other"],
+      "value other sets correctly into cell using NotInList"
+    );
+    assert.equal(
+      cellQuestion.comment,
+      "NotInList",
+      "comment sets correctly into cell question using NotInList"
+    );
+  }
+);
+QUnit.test(
+  "Use survey.storeOthersAsComment = false in matrix, cellType = checkbox",
+  function (assert) {
+    var survey = new SurveyModel({
+      storeOthersAsComment: false,
+      elements: [
+        {
+          type: "matrixdynamic",
+          name: "q1",
+          columns: [
+            {
+              name: "col1",
+              cellType: "checkbox",
+              choices: [1, 2, 3],
+              hasOther: true,
+            },
+          ],
+          rowCount: 1,
+        },
+      ],
+    });
+    var question = <QuestionMatrixDynamicModel>survey.getAllQuestions()[0];
+    var cellQuestion = <QuestionCheckboxModel>(
+      question.visibleRows[0].cells[0].question
+    );
+    assert.equal(
+      cellQuestion.getType(),
+      "checkbox",
+      "Cell question was created correctly"
+    );
+    cellQuestion.value = [1, cellQuestion.otherItem.value];
+    cellQuestion.comment = "My Comment";
+    assert.deepEqual(
+      question.value,
+      [{ col1: [1, "My Comment"] }],
+      "Has comment in value"
+    );
+    question.value = [{ col1: [1] }];
+    assert.deepEqual(cellQuestion.value, [1], "value sets correctly into cell");
+    assert.equal(
+      cellQuestion.comment,
+      "",
+      "comment clears correctly in cell question"
+    );
+    question.value = [{ col1: [1, "New Comment"] }];
+    assert.deepEqual(
+      cellQuestion.value,
+      [1, "New Comment"],
+      "value other sets correctly into cell"
+    );
+    assert.equal(
+      cellQuestion.comment,
+      "New Comment",
+      "comment sets correctly into cell question"
+    );
+    question.value = [{ col1: [1] }];
+    question.value = [{ col1: [1, "NotInList"] }];
+    assert.deepEqual(
+      cellQuestion.value,
+      [1, "NotInList"],
+      "value other sets correctly into cell using NotInList"
+    );
+    assert.equal(
+      cellQuestion.comment,
+      "NotInList",
+      "comment sets correctly into cell question using NotInList"
+    );
+  }
+);
+QUnit.test(
+  "Use survey.storeOthersAsComment in matrix, cellType = dropdown, set comment from survey",
+  function (assert) {
+    var survey = new SurveyModel({
+      elements: [
+        {
+          type: "matrixdynamic",
+          name: "q1",
+          columns: [
+            {
+              name: "col1",
+              cellType: "dropdown",
+              choices: [1, 2, 3],
+              hasOther: true,
+            },
+          ],
+        },
+      ],
+    });
+    survey.data = {
+      q1: [{ col1: 1 }, { col1: "other", "col1-Comment": "a comment" }],
+    };
+    var matrix = <QuestionMatrixDynamicModel>survey.getAllQuestions()[0];
+    assert.equal(
+      matrix.visibleRows[1].cells[0].question.comment,
+      "a comment",
+      "The comment set correctly"
+    );
+  }
+);
+
+QUnit.test("Edit Array of Base elements", function (assert) {
+  var survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdynamic",
+        name: "columns",
+        columns: [{ name: "cellType" }, { name: "name" }, { name: "title" }],
+      },
+    ],
+  });
+  var obj = new QuestionMatrixDynamicModel("q1");
+  obj.addColumn("col1");
+  obj.addColumn("col2");
+  var matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("columns");
+  matrix.onGetValueForNewRowCallBack = (
+    sender: QuestionMatrixDynamicModel
+  ): any => {
+    var column = new MatrixDropdownColumn("col4");
+    sender.value.push(column);
+    return column;
+  };
+  survey.editingObj = obj;
+  assert.equal(
+    matrix.visibleRows[0].cells[1].value,
+    "col1",
+    "column name set correctly"
+  );
+  matrix.visibleRows[0].cells[1].value = "col11";
+  assert.equal(
+    obj.columns[0].name,
+    "col11",
+    "columm name was changed from matrix"
+  );
+  assert.equal(
+    obj.columns[0].getType(),
+    "matrixdropdowncolumn",
+    "object is correct"
+  );
+  obj.columns[0].title = "col1Title";
+  assert.equal(
+    matrix.visibleRows[0].cells[2].value,
+    "col1Title",
+    "column title react on changes"
+  );
+  obj.addColumn("col3");
+  assert.equal(
+    matrix.visibleRows[2].cells[1].value,
+    "col3",
+    "column name set correctly for added row"
+  );
+  matrix.visibleRows[2].cells[1].value = "col33";
+  assert.equal(
+    obj.columns[2].name,
+    "col33",
+    "columm name for added row was changed from matrix"
+  );
+  assert.equal(
+    obj.columns[2].getType(),
+    "matrixdropdowncolumn",
+    "object is correct for added row"
+  );
+  matrix.addRow();
+  assert.equal(obj.columns.length, 4, "New column from editor is added");
+  assert.equal(
+    obj.columns[3].getType(),
+    "matrixdropdowncolumn",
+    "Added column is correct type"
+  );
+  assert.equal(
+    obj.columns[3].name,
+    "col4",
+    "Set the correct name to the added column"
+  );
+  survey.editingObj = null;
+  assert.equal(obj.columns.length, 4, "We do not change columns now");
+  obj.columns[0].title = "col1Title_noreact";
+  assert.equal(matrix.visibleRows.length, 0, "Unbind value and columns");
+});
+QUnit.test("Do not clear all rows if minRowCount is set", function (assert) {
+  var survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdynamic",
+        name: "q1",
+        columns: [
+          {
+            name: "col1",
+            cellType: "dropdown",
+            choices: [1, 2, 3],
+          },
+        ],
+        rowCount: 1,
+        minRowCount: 1,
+      },
+    ],
+  });
+  survey.data = {
+    q1: [{ col1: 1 }, { col1: 2 }],
+  };
+  var matrix = <QuestionMatrixDynamicModel>survey.getAllQuestions()[0];
+  assert.equal(matrix.rowCount, 2, "There are two rows");
+  survey.clear();
+  assert.equal(matrix.rowCount, 1, "We should have one row");
+});

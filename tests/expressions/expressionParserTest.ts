@@ -80,7 +80,7 @@ QUnit.test("Concat strings", function (assert) {
 
 QUnit.test("Variable Const", function (assert) {
   var varOperand = parse("'Im-Variable'");
-  assert.equal(varOperand.toString(), "Im-Variable");
+  assert.equal(varOperand.toString(), "'Im-Variable'");
   assert.equal(varOperand.evaluate(), "Im-Variable");
 
   var constOperand = parse("{ImConst}");
@@ -314,6 +314,14 @@ QUnit.test("Run age function", function (assert) {
   var curDate = new Date(Date.now());
   values.bithday = new Date(curDate.getFullYear() - 10, 1, 1);
   assert.equal(runner.run(values), false, "false, the person is 10 years old");
+});
+QUnit.test("Run today function", function (assert) {
+  var runner = new ExpressionRunner("today()");
+  assert.equal(
+    runner.run({}).toISOString().slice(0, 10),
+    new Date().toISOString().slice(0, 10),
+    "check today"
+  );
 });
 
 QUnit.test("Run age function with empty value", function (assert) {
@@ -696,6 +704,28 @@ QUnit.test("length for undefined arrays", function (assert) {
   var runner = new ConditionRunner("{val.length} = 0");
   assert.equal(runner.run({ val: [] }), true, "empty array length returns 0");
   assert.equal(runner.run({}), true, "underfined length returns 0");
+  assert.equal(
+    runner.run({ val: undefined }),
+    true,
+    "underfined length returns 0"
+  );
+  assert.equal(runner.run({ val: null }), true, "null length returns 0");
+  runner = new ConditionRunner("{val.length} < 4");
+  assert.equal(runner.run({ val: [] }), true, "empty array length < 4");
+  assert.equal(runner.run({}), true, "underfined length < 4");
+  assert.equal(runner.run({ val: undefined }), true, "underfined length  < 4");
+  assert.equal(runner.run({ val: null }), true, "null length  < 4");
+});
+
+QUnit.test("length for arrays that becomes undefined, Bug#2432", function (
+  assert
+) {
+  var runner = new ConditionRunner("{val.length} < 3");
+  var data = { val: [1, 2] };
+
+  assert.equal(runner.run(data), true, "[1,2].length < 3");
+  data.val = undefined;
+  assert.equal(runner.run(data), true, "undefined.length < 3");
 });
 
 QUnit.test("contain and noncontain for strings", function (assert) {
@@ -815,6 +845,51 @@ QUnit.test("Compare undefined object with string", function (assert) {
   var runner = new ConditionRunner("{value} = 'undefined'");
   var values: any = {};
   assert.equal(runner.run(values), true, "undefined = 'undefined'");
+});
+
+QUnit.test("Compare two underfined variables", function (assert) {
+  var values: any = { v1: undefined, v2: undefined };
+  assert.equal(
+    new ConditionRunner("{v1} = {v2}").run(values),
+    true,
+    "undefined = undefined"
+  );
+  assert.equal(
+    new ConditionRunner("{v1} != {v2}").run(values),
+    false,
+    "undefined != undefined"
+  );
+  assert.equal(
+    new ConditionRunner("{v1} <= {v2}").run(values),
+    true,
+    "undefined <= undefined"
+  );
+  assert.equal(
+    new ConditionRunner("{v1} >= {v2}").run(values),
+    true,
+    "undefined >= undefined"
+  );
+  assert.equal(
+    new ConditionRunner("{v1} < {v2}").run(values),
+    false,
+    "undefined < undefined"
+  );
+  assert.equal(
+    new ConditionRunner("{v1} > {v2}").run(values),
+    false,
+    "undefined > undefined"
+  );
+  values.v1 = 1;
+  assert.equal(
+    new ConditionRunner("{v1} > {v2}").run(values),
+    false,
+    "1 > undefined"
+  );
+  assert.equal(
+    new ConditionRunner("{v1} < {v2}").run(values),
+    false,
+    "1 < undefined"
+  );
 });
 
 QUnit.test("Support apostrophes in value name", function (assert) {
@@ -1004,4 +1079,75 @@ QUnit.test('express with iif and "[" inside, Bug#1942', function (assert) {
     "[]",
     "undefined + '[' + undefined + ']' without iif"
   );
+});
+QUnit.test('expression with "{", Bug#2337', function (assert) {
+  // prettier-ignore
+  var expression = "{val1} + '\{ text' + '\}'";
+  var runner = new ExpressionRunner(expression);
+  var values: any = { val1: "1" };
+  assert.equal(runner.run(values), "1{ text}", "{");
+
+  expression = "{val1} + '{ text' + '}'";
+  runner = new ExpressionRunner(expression);
+  var values: any = { val1: "1" };
+  assert.equal(runner.run(values), "1{ text}", "{ without escape");
+});
+QUnit.test("Disable converting string to number, #2376", function (assert) {
+  var runner = new ExpressionRunner("{val1} + {val2}");
+  var values: any = { val1: "1", val2: "102" };
+  assert.equal(runner.run(values), 103, "Convert strings to numbers");
+
+  runner = new ExpressionRunner("{#val1} + {#val2}");
+  assert.equal(runner.run(values), "1102", "do not convert the value");
+  let expr = new ConditionsParser().createCondition("{#val1} + {#val2}");
+  assert.equal(expr.toString(), "({#val1} + {#val2})", "Do not loose '#'");
+});
+
+QUnit.test("ExpressionRunner: age", function (assert) {
+  var runner = new ExpressionRunner("age({d})");
+  var d = new Date();
+  d.setDate(d.getDate() - 1);
+  d.setFullYear(d.getFullYear() - 10);
+  var values = { d: d };
+  assert.equal(runner.run(values), 10, "10 year");
+  d = new Date();
+  d.setDate(d.getDate() + 1);
+  d.setFullYear(d.getFullYear() + 10);
+  values.d = d;
+  assert.equal(runner.run(values), -10, "Date in the future, 10 years");
+});
+
+QUnit.test("parse({val} == '000')", function (assert) {
+  var op = <BinaryOperand>(
+    new ConditionsParser().parseExpression("{val} == '000'")
+  );
+  assert.equal(op.rightOperand.getType(), "const", "variable type");
+  assert.equal(
+    (<Const>op.rightOperand).toString(),
+    "'000'",
+    "value is string with quotes"
+  );
+  assert.strictEqual(
+    (<Const>op.rightOperand).correctValue,
+    "000",
+    "correct value is string"
+  );
+});
+
+QUnit.test("000 == '000', '00' != '000', '0' != '000', 0 != '000'", function (
+  assert
+) {
+  var runner = new ConditionRunner("{val} == '000'");
+  var values: any = { val: "000" };
+  assert.equal(runner.run(values), true, "000 == '000'");
+  values.val = "00";
+  assert.equal(runner.run(values), false, "'00' != '000'");
+  values.val = "0";
+  assert.equal(
+    runner.run(values),
+    true,
+    "'0' != '000', '0' and '000' converted to number"
+  );
+  values.val = 0;
+  assert.equal(runner.run(values), true, "0 != '000', convert '000' to number");
 });

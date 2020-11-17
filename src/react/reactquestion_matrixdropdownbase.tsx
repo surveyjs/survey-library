@@ -5,7 +5,7 @@ import {
   MatrixDropdownRowModelBase,
   QuestionMatrixDropdownModelBase,
   QuestionMatrixDropdownRenderedRow,
-  QuestionMatrixDropdownRenderedCell
+  QuestionMatrixDropdownRenderedCell,
 } from "../question_matrixdropdownbase";
 import { Question } from "../question";
 import { SurveyQuestionCheckboxItem } from "./reactquestion_checkbox";
@@ -41,20 +41,16 @@ export class SurveyQuestionMatrixDropdownBase extends SurveyQuestionElementBase 
     this.updateVisibleRowsChangedCallback();
     this.renderedTableResetCallback();
   }
-  isRendering: boolean = false;
-  render(): JSX.Element {
-    if (!this.question) return null;
+  protected renderElement(): JSX.Element {
     return this.renderTableDiv();
   }
   renderTableDiv(): JSX.Element {
-    this.isRendering = true;
     var header = this.renderHeader();
     var footers = this.renderFooter();
     var rows = this.renderRows();
     var divStyle = this.question.horizontalScroll
       ? ({ overflowX: "scroll" } as React.CSSProperties)
       : ({} as React.CSSProperties);
-    this.isRendering = false;
     return (
       <div style={divStyle}>
         <table className={this.question.cssClasses.root}>
@@ -81,6 +77,10 @@ export class SurveyQuestionMatrixDropdownBase extends SurveyQuestionElementBase 
         columnStyle.minWidth = cell.minWidth;
       }
       var columnTitle = this.renderLocString(cell.locTitle);
+      var requiredSpace = !!cell.requiredText ? <span>&nbsp;</span> : null;
+      var requiredText = !!cell.requiredText ? (
+        <span>{cell.requiredText}</span>
+      ) : null;
       headers.push(
         <th
           className={this.question.cssClasses.headerCell}
@@ -88,6 +88,8 @@ export class SurveyQuestionMatrixDropdownBase extends SurveyQuestionElementBase 
           style={columnStyle}
         >
           {columnTitle}
+          {requiredSpace}
+          {requiredText}
         </th>
       );
     }
@@ -148,15 +150,29 @@ export class SurveyQuestionMatrixDropdownBase extends SurveyQuestionElementBase 
       );
     }
     var cellContent = null;
+    var requiredSpace = null;
+    var requiredText = null;
+    var cellStyle: any = null;
+    if (!!cell.width || !!cell.minWidth) {
+      cellStyle = {};
+      if (!!cell.width) cellStyle.width = cell.width;
+      if (!!cell.minWidth) cellStyle.minWidth = cell.minWidth;
+    }
     if (cell.hasTitle) {
       cellContent = this.renderLocString(cell.locTitle);
+      if (cell.requiredText) {
+        requiredSpace = <span>&nbsp;</span>;
+        requiredText = <span>{cell.requiredText}</span>;
+      }
     }
     if (cell.isRemoveRow) {
       cellContent = this.renderRemoveButton(cell.row);
     }
     return (
-      <td className={cssClasses.cell} key={key}>
+      <td className={cssClasses.cell} key={key} style={cellStyle}>
         {cellContent}
+        {requiredSpace}
+        {requiredText}
       </td>
     );
   }
@@ -178,7 +194,7 @@ export class SurveyQuestionMatrixDropdownCell extends SurveyQuestionAndErrorsCel
     return !!this.cell ? this.cell.question : null;
   }
   protected doAfterRender() {
-    var el: any = this.refs["cell"];
+    var el = this.cellRef.current;
     if (
       el &&
       this.cell &&
@@ -192,7 +208,7 @@ export class SurveyQuestionMatrixDropdownCell extends SurveyQuestionAndErrorsCel
         cellQuestion: this.question,
         htmlElement: el,
         row: this.cell.row,
-        column: this.cell.cell.column
+        column: this.cell.cell.column,
       };
       this.question.survey.matrixAfterCellRender(this.question, options);
     }
@@ -216,12 +232,22 @@ export class SurveyQuestionMatrixDropdownCell extends SurveyQuestionAndErrorsCel
     return cellClass;
   }
   protected getCellStyle(): any {
-    if (!this.cell.isChoice) return super.getCellStyle();
+    if (!this.cell.isChoice) {
+      var res: any = super.getCellStyle();
+      if (!!this.cell.width || !!this.cell.minWidth) {
+        if (!res) res = {};
+        if (!!this.cell.width) res.width = this.cell.width;
+        if (!!this.cell.minWidth) res.minWidth = this.cell.minWidth;
+      }
+
+      return res;
+    }
     return { textAlign: "center" };
   }
 
   protected getHeaderText(): string {
-    return !!this.cell.locTitle ? this.cell.locTitle.renderedHtml : "";
+    var column = this.cell.cell && this.cell.cell.column;
+    return !!(column && column.locTitle) ? column.locTitle.renderedHtml : "";
   }
   protected renderQuestion(): JSX.Element {
     if (!this.cell.isChoice)

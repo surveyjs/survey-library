@@ -1,8 +1,12 @@
 ﻿<script type="text/html" id="survey-question-text">
   <!--ko if: !question.isInputTextUpdate -->
-  <input data-bind="disable: question.isReadOnly, attr: {type: question.inputType, size: question.size, id: question.inputId, placeholder: question.inputType === 'range' || question.isReadOnly ? undefined : question.placeHolder, maxLength: question.getMaxLength(), min: question.min, max: question.max, step: question.step, 'aria-required': question.isRequired, 'aria-label': question.locTitle.renderedHtml, 'aria-invalid': question.errors.length > 0, 'aria-describedby': question.errors.length > 0 ? question.id + '_errors' : null}, value: question.value, css: question.koCss().root + (question.errors.length > 0 ? ' ' + question.koCss().onError: '')"/>
+  <input
+    data-bind="disable: question.isReadOnly, attr: {type: question.inputType, size: question.size, id: question.inputId, placeholder: question.inputType === 'range' || question.isReadOnly ? undefined : question.placeHolder, maxLength: question.getMaxLength(), min: question.renderedMin, max: question.renderedMax, step: question.step, 'aria-required': question.isRequired, 'aria-label': question.locTitle.renderedHtml, 'aria-invalid': question.errors.length > 0, 'aria-describedby': question.errors.length > 0 ? question.id + '_errors' : null, autoComplete: question.autoComplete}, value: question.value, css: question.koCss().root + (question.errors.length > 0 ? ' ' + question.koCss().onError: '')"
+  />
   <!--/ko-->
   <!--ko if: question.isInputTextUpdate -->
-  <input data-bind="disable: question.isReadOnly, attr: {type: question.inputType, size: question.size, id: question.inputId, placeholder: question.inputType === 'range' || question.isReadOnly ? undefined : question.placeHolder, maxLength: question.getMaxLength(), min: question.min, max: question.max, step: question.step, 'aria-required': question.isRequired, 'aria-label': question.locTitle.renderedHtml, 'aria-invalid': question.errors.length > 0, 'aria-describedby': question.errors.length > 0 ? question.id + '_errors' : null}, textInput: question.value, css: question.koCss().root + (question.errors.length > 0 ? ' ' + question.koCss().onError: '')"/>
+  <input
+    data-bind="disable: question.isReadOnly, attr: {type: question.inputType, size: question.size, id: question.inputId, placeholder: question.inputType === 'range' || question.isReadOnly ? undefined : question.placeHolder, maxLength: question.getMaxLength(), min: question.renderedMin, max: question.renderedMax, step: question.step, 'aria-required': question.isRequired, 'aria-label': question.locTitle.renderedHtml, 'aria-invalid': question.errors.length > 0, 'aria-describedby': question.errors.length > 0 ? question.id + '_errors' : null, autoComplete: question.autoComplete}, textInput: question.value, css: question.koCss().root + (question.errors.length > 0 ? ' ' + question.koCss().onError: '')"
+  />
   <!--/ko-->
 </script>

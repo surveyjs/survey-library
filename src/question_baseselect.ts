@@ -122,13 +122,28 @@ export class QuestionSelectBase extends Question {
     this.runItemsEnableCondition(values, properties);
     this.runItemsCondition(values, properties);
   }
-  isSettingDefaultValue: boolean = false;
+  protected isTextValue(): boolean {
+    return true; //for comments and others
+  }
+  private isSettingDefaultValue: boolean = false;
   protected setDefaultValue() {
     this.isSettingDefaultValue =
       !this.isValueEmpty(this.defaultValue) &&
       this.hasUnknownValue(this.defaultValue);
     super.setDefaultValue();
     this.isSettingDefaultValue = false;
+  }
+  protected getIsMultipleValue(): boolean {
+    return false;
+  }
+  protected convertDefaultValue(val: any): any {
+    if (val == null || val == undefined) return val;
+    if (this.getIsMultipleValue()) {
+      if (!Array.isArray(val)) return [val];
+    } else {
+      if (Array.isArray(val) && val.length > 0) return val[0];
+    }
+    return val;
   }
   protected filterItems(): boolean {
     if (
@@ -169,11 +184,16 @@ export class QuestionSelectBase extends Question {
       this.activeChoices,
       this.conditionChoicesEnableIfRunner,
       values,
-      properties
+      properties, (item: ItemValue): boolean => { return this.onEnableItemCallBack(item);}
     );
     if (hasChanged) {
       this.clearDisabledValues();
     }
+    this.onAfterRunItemsEnableCondition();
+  }
+  protected onAfterRunItemsEnableCondition() {}
+  protected onEnableItemCallBack(item: ItemValue): boolean {
+    return true;
   }
   private setConditionalChoicesRunner() {
     if (this.choicesVisibleIf) {
@@ -211,7 +231,8 @@ export class QuestionSelectBase extends Question {
         ? null
         : this.conditionChoicesVisibleIfRunner,
       values,
-      properties
+      properties,
+      !this.survey || !this.survey.areInvisibleElementsShowing
     );
   }
   protected getHasOther(val: any): boolean {
@@ -225,7 +246,8 @@ export class QuestionSelectBase extends Question {
   }
   protected getQuestionComment(): string {
     if (!!this.commentValue) return this.commentValue;
-    if (this.getStoreOthersAsComment()) return super.getQuestionComment();
+    if (this.hasComment || this.getStoreOthersAsComment())
+      return super.getQuestionComment();
     return this.commentValue;
   }
   private isSettingComment: boolean = false;
@@ -250,13 +272,13 @@ export class QuestionSelectBase extends Question {
     this.setPropertyValue("renderedValue", val);
     this.value = this.rendredValueToData(val);
   }
-  protected setQuestionValue(newValue: any) {
+  protected setQuestionValue(newValue: any, updateIsAnswered: boolean = true) {
     if (
       this.isLoadingFromJson ||
       Helpers.isTwoValueEquals(this.value, newValue)
     )
       return;
-    super.setQuestionValue(newValue);
+    super.setQuestionValue(newValue, updateIsAnswered);
     this.setPropertyValue("renderedValue", this.rendredValueFromData(newValue));
     if (this.hasComment) return;
     var isOtherSel = this.isOtherSelected;
@@ -574,15 +596,41 @@ export class QuestionSelectBase extends Question {
       this.runChoicesByUrl();
     }
   }
+  updateValueFromSurvey(newValue: any) {
+    var newComment = "";
+    if (
+      this.hasOther &&
+      this.getStoreOthersAsComment() &&
+      this.hasUnknownValue(newValue) &&
+      !this.getHasOther(newValue)
+    ) {
+      newComment = this.getCommentFromValue(newValue);
+      newValue = this.setOtherValueIntoValue(newValue);
+    }
+    super.updateValueFromSurvey(newValue);
+    if (!!newComment) {
+      this.setNewComment(newComment);
+    }
+  }
+  protected getCommentFromValue(newValue: any): string {
+    return newValue;
+  }
+  protected setOtherValueIntoValue(newValue: any): any {
+    return this.otherItem.value;
+  }
+  private isRunningChoices: boolean = false;
   private runChoicesByUrl() {
-    if (!this.choicesByUrl || this.isLoadingFromJson) return;
+    if (!this.choicesByUrl || this.isLoadingFromJson || this.isRunningChoices)
+      return;
     var processor = this.surveyImpl
       ? this.surveyImpl.getTextProcessor()
       : this.textProcessor;
     if (!processor) processor = this.survey;
     if (!processor) return;
     this.isReadyValue = this.isChoicesLoaded || this.choicesByUrl.isEmpty;
+    this.isRunningChoices = true;
     this.choicesByUrl.run(processor);
+    this.isRunningChoices = false;
   }
   private isFirstLoadChoicesFromUrl = true;
   protected onBeforeSendRequest() {
@@ -635,11 +683,12 @@ export class QuestionSelectBase extends Question {
       if (!!newValue && !this.isReadOnly) {
         var hasChanged = !Helpers.isTwoValueEquals(this.value, newValue.value);
         try {
-          this.allowNotifyValueChanged = false;
-          this.locNotificationInData = true;
-          this.value = undefined;
-          this.locNotificationInData = false;
-
+          if (!Helpers.isValueEmpty(newValue.value)) {
+            this.allowNotifyValueChanged = false;
+            this.locNotificationInData = true;
+            this.value = undefined;
+            this.locNotificationInData = false;
+          }
           this.allowNotifyValueChanged = hasChanged;
           this.value = newValue.value;
         } finally {
@@ -731,6 +780,7 @@ export class QuestionSelectBase extends Question {
       this.survey.questionCountByValueName(this.getValueName()) > 1
     )
       return;
+    if(!!this.choicesByUrl && !this.choicesByUrl.isEmpty) return;
     if (this.clearIncorrectValuesCallback) {
       this.clearIncorrectValuesCallback();
     } else {
@@ -741,7 +791,13 @@ export class QuestionSelectBase extends Question {
     super.clearValueIfInvisible();
     this.clearIncorrectValues();
   }
-
+  /**
+   * Returns true if item is selected
+   * @param item checkbox or radio item value
+   */
+  public isItemSelected(item: ItemValue): boolean {
+    return item.value === this.value;
+  }
   private clearDisabledValues() {
     if (!this.survey || !this.survey.clearValueOnDisableItems) return;
     this.clearDisabledValuesCore();
@@ -774,16 +830,16 @@ export class QuestionSelectBase extends Question {
     }
     return columnClass;
   }
-  getLabelClass(isChecked: boolean) {
+  getLabelClass(item: ItemValue) {
     var labelClass = this.cssClasses.label;
-    if (isChecked) {
+    if (this.isItemSelected(item)) {
       labelClass += " " + this.cssClasses.labelChecked;
     }
     return labelClass;
   }
-  getControlLabelClass(isChecked: boolean) {
+  getControlLabelClass(item: ItemValue) {
     var controlLabelClass = this.cssClasses.controlLabel;
-    if (isChecked) {
+    if (this.isItemSelected(item)) {
       controlLabelClass += " " + this.cssClasses.controlLabelChecked;
     }
     return controlLabelClass;
@@ -813,7 +869,7 @@ export class QuestionSelectBase extends Question {
       this.onReadyChanged.fire(this, {
         question: this,
         isReady: true,
-        olsIsReady: oldIsReady,
+        oldIsReady: oldIsReady,
       });
   }
 }
@@ -835,6 +891,9 @@ export class QuestionCheckboxBase extends QuestionSelectBase {
     if (value < 0 || value > 5 || this.isFlowLayout) return;
     this.setPropertyValue("colCount", value);
     this.fireCallback(this.colCountChangedCallback);
+  }
+  getItemIndex(item: any) {
+    return this.visibleChoices.indexOf(item);
   }
   protected onParentChanged() {
     super.onParentChanged();

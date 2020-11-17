@@ -9,6 +9,7 @@
           :style="{ minWidth: cell.minWidth, width: cell.width }"
         >
           <survey-string :locString="cell.locTitle" />
+          <span v-if="!!cell.requiredText">{{cell.requiredText}}</span>
         </th>
       </tr>
     </thead>
@@ -41,15 +42,18 @@ import { Component, Prop } from "vue-property-decorator";
 import { Question } from "../question";
 import {
   QuestionMatrixDropdownModelBase,
-  QuestionMatrixDropdownRenderedTable
+  QuestionMatrixDropdownRenderedTable,
 } from "../question_matrixdropdownbase";
+import {BaseVue} from "./base";
+import { Base } from "../base";
 
 @Component
-export class MatrixTable extends Vue {
+export class MatrixTable extends BaseVue {
   @Prop question: QuestionMatrixDropdownModelBase;
   get table(): QuestionMatrixDropdownRenderedTable {
     return this.question.renderedTable;
   }
+  protected getModel(): Base { return this.question.renderedTable; }
 }
 
 Vue.component("survey-matrixtable", MatrixTable);

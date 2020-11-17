@@ -1,25 +1,38 @@
 <script type="text/html" id="survey-question-title">
-  <div data-bind="css: question.cssHeader">
-    <h5 data-bind="css: cssTitle, attr: { 'aria-label': question.locTitle.renderedHtml, id: ariaTitleId }">
-        <!-- ko template: { name: 'survey-question-title-content', data: question } --><!-- /ko -->
-      </h5>
-    <div data-bind="visible: question.hasDescriptionUnderTitle, css: koCss().description">
-        <!-- ko template: { name: 'survey-string', data: locDescription } --><!-- /ko -->
+  <div data-bind="css: question.cssHeader, click: question.clickTitleFunction">
+    <h5
+      data-bind="css: cssTitle, attr: { 'aria-label': question.locTitle.renderedHtml, id: ariaTitleId }"
+    >
+      <!-- ko template: { name: 'survey-question-title-content', data: question } --><!-- /ko -->
+    </h5>
+    <div
+      data-bind="visible: question.hasDescriptionUnderTitle, css: koCss().description"
+    >
+      <!-- ko template: { name: 'survey-string', data: locDescription } --><!-- /ko -->
     </div>
   </div>
 </script>
 <script type="text/html" id="survey-question-title-content">
-  <!-- ko if: question.isRequireTextOnStart -->
-  <span data-bind="css: koCss().requiredText, text: question.requiredText"></span>
+  <!-- ko if: $data.isRequireTextOnStart -->
+  <span
+    data-bind="css: koCss().requiredText || koCss().panel.requiredText, text: $data.requiredText"
+  ></span>
   <!-- /ko -->
   <!-- ko if: no -->
-  <span style="position: static;" data-bind="css: koCss().number, text: no"></span>
+  <span
+    style="position: static;"
+    data-bind="css: koCss().number, text: no"
+  ></span>
   <!-- /ko -->
-  <!-- ko if: question.isRequireTextBeforeTitle -->
-  <span data-bind="css: koCss().requiredText, text: question.requiredText"></span>
+  <!-- ko if: $data.isRequireTextBeforeTitle -->
+  <span
+    data-bind="css: koCss().requiredText || koCss().panel.requiredText, text: $data.requiredText"
+  ></span>
   <!-- /ko -->
   <!-- ko template: { name: 'survey-string', data: locTitle } --><!-- /ko -->
-  <!-- ko if: question.isRequireTextAfterTitle -->
-  <span data-bind="css: koCss().requiredText, text: question.requiredText"></span>
+  <!-- ko if: $data.isRequireTextAfterTitle -->
+  <span
+    data-bind="css: koCss().requiredText || koCss().panel.requiredText, text: $data.requiredText"
+  ></span>
   <!-- /ko -->
 </script>

@@ -264,7 +264,10 @@ Serializer.addClass(
 
 Serializer.addClass(
   "carowner",
-  [{ name: "carType", default: "fast" }, "name"],
+  [
+    { name: "carType", default: "fast" },
+    { name: "name", dataList: ["item1", "item2"], isUnique: true },
+  ],
   function () {
     return new CarOwner();
   }
@@ -485,6 +488,22 @@ QUnit.test("Serialize object with it's type", function (assert) {
     "serialize object with it's type"
   );
 });
+QUnit.test(
+  "Serialize create readOnly custom property using onGetValue",
+  function (assert) {
+    Serializer.addProperty("truck", {
+      name: "calc",
+      onGetValue: function (obj: any): any {
+        return !!obj && !!obj.maxWeight ? obj.maxWeight * 2 : 0;
+      },
+      onSetValue: function (obj: any) {},
+    });
+    var truck = new Truck();
+    truck.maxWeight = 100;
+    assert.equal(truck["calc"], "200", "100 * 2");
+    Serializer.removeProperty("truck", "calc");
+  }
+);
 QUnit.test("Check isRequired property", function (assert) {
   assert.equal(
     Serializer.findProperty("sport", "maxSpeed").isRequired,
@@ -2279,4 +2298,85 @@ QUnit.test("property.displayName", function (assert) {
     "Maximum Weight",
     "property.displayName is correct"
   );
+});
+QUnit.test("Serializer.getAllClasses() function", function (assert) {
+  var classes = Serializer.getAllClasses();
+  assert.ok(classes.indexOf("truck") > -1, "Has truck");
+  assert.ok(classes.indexOf("question") > -1, "Has question");
+  assert.notOk(classes.indexOf("dummy_") > -1, "Has no dummy_");
+});
+QUnit.test("Serializer.getAllPropertiesByName() function", function (assert) {
+  var properties = Serializer.getAllPropertiesByName("description");
+  assert.equal(
+    properties.length,
+    5,
+    "survey, panelbase, question, customtruck, nonvalue"
+  );
+  assert.equal(
+    properties[0].name,
+    "description",
+    "Find property with the correct name"
+  );
+});
+QUnit.test("nextToProperty attribute", function (assert) {
+  var prop = Serializer.addProperty("truck", {
+    name: "test",
+    nextToProperty: "name",
+  });
+  assert.equal(
+    prop.nextToProperty,
+    "name",
+    "created with correct nextToProperty attribute"
+  );
+  Serializer.removeProperty("truck", "test");
+});
+QUnit.test("check dataList attribute", function (assert) {
+  var prop = Serializer.findProperty("carowner", "name");
+  assert.deepEqual(
+    prop.dataList,
+    ["item1", "item2"],
+    "dataList attribute created correctly"
+  );
+});
+QUnit.test("check isUnique attribute", function (assert) {
+  var prop = Serializer.findProperty("carowner", "name");
+  assert.deepEqual(
+    prop.isUnique,
+    true,
+    "isUnique attribute created correctly"
+  );
+});
+QUnit.test("multiplevalues/array property should call onPropertyChanged on modifying array", function (assert) {
+  Serializer.addProperty("carowner", "ar:multiplevalues");
+  var owner = new CarOwner();
+  var propName = "";
+  var counter = 0;
+  owner.onPropertyChanged.add((sender, options) => {
+    propName = options.name;
+    counter ++;
+  });
+  owner["ar"] = ["A"];
+  owner["ar"].push("B");
+  assert.deepEqual(
+    owner["ar"],
+    ["A", "B"],
+    "property set correctly"
+  );
+  assert.equal(
+    counter,
+    2,
+    "onPropertyChanged called two times"
+  );
+  assert.equal(
+    propName,
+    "ar",
+    "onPropertyChanged called on chaning 'ar' property"
+  );
+  Serializer.removeProperty("carowner", "ar");
+});
+QUnit.test("always return false for a boolean property", function (assert) {
+  Serializer.addProperty("truck", "boolProp:boolean");
+  var truck = new Truck();
+  assert.equal(truck.getPropertyValue("boolProp"), false, "There is no default value, but we use false as default for boolean ");
+  Serializer.removeProperty("truck", "boolProp");
 });

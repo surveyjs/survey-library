@@ -6,12 +6,12 @@ import { QuestionCheckboxModel } from "../src/question_checkbox";
 import { Question } from "../src/question";
 import {
   QuestionMultipleTextModel,
-  MultipleTextItemModel
+  MultipleTextItemModel,
 } from "../src/question_multipletext";
 import { QuestionDropdownModel } from "../src/question_dropdown";
 import {
   QuestionMatrixDropdownModelBase,
-  MatrixDropdownColumn
+  MatrixDropdownColumn,
 } from "../src/question_matrixdropdownbase";
 import { ItemValue } from "../src/itemvalue";
 import { NumericValidator } from "../src/validator";
@@ -20,7 +20,7 @@ import { Helpers } from "../src/helpers";
 
 export default QUnit.module("SurveySerialization");
 
-QUnit.test("Serialize two pages", function(assert) {
+QUnit.test("Serialize two pages", function (assert) {
   var survey = new SurveyModel();
   survey.addNewPage("Page 1");
   survey.addNewPage("Page 2");
@@ -31,7 +31,7 @@ QUnit.test("Serialize two pages", function(assert) {
     "serialize two pages"
   );
 });
-QUnit.test("Deserialize two pages", function(assert) {
+QUnit.test("Deserialize two pages", function (assert) {
   var survey = new SurveyModel();
   new JsonObject().toObject(
     { pages: [{ name: "Page1" }, { name: "Page2" }] },
@@ -42,7 +42,7 @@ QUnit.test("Deserialize two pages", function(assert) {
   assert.equal(survey.pages[0].data, survey, "data interface is set");
   assert.equal(survey.pages[1].getType(), "page", "it is a live object");
 });
-QUnit.test("Serialize two questions", function(assert) {
+QUnit.test("Serialize two questions", function (assert) {
   var page = new PageModel("Page1");
   var textQuestion = new QuestionTextModel("textQuestion");
   textQuestion.isRequired = true;
@@ -59,7 +59,7 @@ QUnit.test("Serialize two questions", function(assert) {
     "serialize two questions"
   );
 });
-QUnit.test("Deserialize two questions", function(assert) {
+QUnit.test("Deserialize two questions", function (assert) {
   var survey = new SurveyModel();
   var page = new PageModel("Page1");
   survey.addPage(page);
@@ -71,9 +71,9 @@ QUnit.test("Deserialize two questions", function(assert) {
           type: "checkbox",
           name: "checkboxQuestion",
           isRequired: "true",
-          choices: ["red", "white"]
-        }
-      ]
+          choices: ["red", "white"],
+        },
+      ],
     },
     page
   );
@@ -113,7 +113,7 @@ QUnit.test("Deserialize two questions", function(assert) {
     "data interface is working"
   );
 });
-QUnit.test("Full survey deserialize with one question", function(assert) {
+QUnit.test("Full survey deserialize with one question", function (assert) {
   var survey = new SurveyModel();
   new JsonObject().toObject(
     {
@@ -126,11 +126,11 @@ QUnit.test("Full survey deserialize with one question", function(assert) {
               type: "checkbox",
               name: "checkboxQuestion",
               isRequired: "true",
-              choices: ["red", "white"]
-            }
-          ]
-        }
-      ]
+              choices: ["red", "white"],
+            },
+          ],
+        },
+      ],
     },
     survey
   );
@@ -143,7 +143,7 @@ QUnit.test("Full survey deserialize with one question", function(assert) {
 });
 QUnit.test(
   "Full survey deserialize with one question bypass pages object",
-  function(assert) {
+  function (assert) {
     var survey = new SurveyModel();
     new JsonObject().toObject(
       {
@@ -153,9 +153,9 @@ QUnit.test(
             type: "checkbox",
             name: "checkboxQuestion",
             isRequired: "true",
-            choices: ["red", "white"]
-          }
-        ]
+            choices: ["red", "white"],
+          },
+        ],
       },
       survey
     );
@@ -169,7 +169,7 @@ QUnit.test(
 );
 QUnit.test(
   "Full survey deserialize with one element bypass pages object",
-  function(assert) {
+  function (assert) {
     var survey = new SurveyModel();
     new JsonObject().toObject(
       {
@@ -179,9 +179,9 @@ QUnit.test(
             type: "checkbox",
             name: "checkboxQuestion",
             isRequired: "true",
-            choices: ["red", "white"]
-          }
-        ]
+            choices: ["red", "white"],
+          },
+        ],
       },
       survey
     );
@@ -193,7 +193,7 @@ QUnit.test(
     );
   }
 );
-QUnit.test("Serialize survey data", function(assert) {
+QUnit.test("Serialize survey data", function (assert) {
   var survey = new SurveyModel();
   survey.setValue("question1", "value1");
   survey.setValue("question2", true);
@@ -202,16 +202,16 @@ QUnit.test("Serialize survey data", function(assert) {
   var expectedData = {
     question1: "value1",
     question2: true,
-    question3: ["red", "white"]
+    question3: ["red", "white"],
   };
   assert.deepEqual(data, expectedData, "check if get data works correctly");
 });
-QUnit.test("Deserialize survey data", function(assert) {
+QUnit.test("Deserialize survey data", function (assert) {
   var survey = new SurveyModel();
   var data = {
     question1: "value1",
     question2: true,
-    question3: ["red", "white"]
+    question3: ["red", "white"],
   };
   survey.data = data;
   assert.equal(
@@ -230,7 +230,7 @@ QUnit.test("Deserialize survey data", function(assert) {
     "survey data for question 3"
   );
 });
-QUnit.test("Serialize mutltiple text question", function(assert) {
+QUnit.test("Serialize mutltiple text question", function (assert) {
   var mtQuestion = new QuestionMultipleTextModel("q1");
   mtQuestion.items.push(new MultipleTextItemModel("item1"));
   mtQuestion.items.push(new MultipleTextItemModel("item2", "text2"));
@@ -243,14 +243,14 @@ QUnit.test("Serialize mutltiple text question", function(assert) {
 });
 QUnit.test(
   "Deserialize/serialize mutltiple text question default value",
-  function(assert) {
+  function (assert) {
     var json = {
       name: "q",
       defaultValue: { item1: "11", item2: "22" },
       items: [
         { name: "item1", title: "Item 1" },
-        { name: "item2", title: "Item 2" }
-      ]
+        { name: "item2", title: "Item 2" },
+      ],
     };
     var q = new QuestionMultipleTextModel("q");
     new JsonObject().toObject(Helpers.getUnbindValue(json), q);
@@ -266,7 +266,7 @@ QUnit.test(
     assert.deepEqual(q.toJSON(), json, "Default value serialized correctly");
   }
 );
-QUnit.test("Serialize restfull choices", function(assert) {
+QUnit.test("Serialize restfull choices", function (assert) {
   var question = new QuestionDropdownModel("q1");
   question.choicesByUrl.path = "name";
   var jsObj = new JsonObject().toJsonObject(question);
@@ -276,12 +276,12 @@ QUnit.test("Serialize restfull choices", function(assert) {
     "serialize choicesByUrl"
   );
 });
-QUnit.test("Deserialize question with missing name", function(assert) {
+QUnit.test("Deserialize question with missing name", function (assert) {
   var survey = new SurveyModel();
   var jsonObj = new JsonObject();
   jsonObj.toObject(
     {
-      questions: [{ type: "text", isRequired: "true" }]
+      questions: [{ type: "text", isRequired: "true" }],
     },
     survey
   );
@@ -297,7 +297,7 @@ QUnit.test("Deserialize question with missing name", function(assert) {
     "The required property error"
   );
 });
-QUnit.test("Deserialize choicesByUrl", function(assert) {
+QUnit.test("Deserialize choicesByUrl", function (assert) {
   var question = new QuestionDropdownModel("q1");
   assert.equal(
     question.choicesByUrl.isEmpty,
@@ -311,8 +311,8 @@ QUnit.test("Deserialize choicesByUrl", function(assert) {
       name: "country",
       choicesByUrl: {
         url: "http://services.groupkt.com/country/get/all",
-        path: "RestResponse;result"
-      }
+        path: "RestResponse;result",
+      },
     },
     question
   );
@@ -328,7 +328,7 @@ QUnit.test("Deserialize choicesByUrl", function(assert) {
     "data is copied correctly"
   );
 });
-QUnit.test("MatrixDropdown serialize and deserialize", function(assert) {
+QUnit.test("MatrixDropdown serialize and deserialize", function (assert) {
   var matrix = new QuestionMatrixDropdownModelBase("q1");
   matrix.columns.push(new MatrixDropdownColumn("col1"));
   matrix.columns.push(new MatrixDropdownColumn("col2"));
@@ -345,7 +345,7 @@ QUnit.test("MatrixDropdown serialize and deserialize", function(assert) {
   );
 });
 
-QUnit.test("Survey serialize dropdown.choices localization", function(assert) {
+QUnit.test("Survey serialize dropdown.choices localization", function (assert) {
   var survey = new SurveyModel();
   var page = survey.addNewPage("page1");
   var q1 = <QuestionDropdownModel>page.addNewQuestion("dropdown", "question1");
@@ -363,18 +363,18 @@ QUnit.test("Survey serialize dropdown.choices localization", function(assert) {
           {
             type: "dropdown",
             choices: [
-              { value: "val1", text: { default: "text1", de: "de-text1" } }
+              { value: "val1", text: { default: "text1", de: "de-text1" } },
             ],
-            name: "question1"
-          }
-        ]
-      }
-    ]
+            name: "question1",
+          },
+        ],
+      },
+    ],
   };
   assert.deepEqual(json, checkedJson, "Jsons should be the same");
 });
 
-QUnit.test("Survey deserialize checkbox.choices localization", function(
+QUnit.test("Survey deserialize checkbox.choices localization", function (
   assert
 ) {
   //{ pages: [{elements: [], name: "page1"}]}
@@ -396,7 +396,7 @@ QUnit.test("Survey deserialize checkbox.choices localization", function(
   );
 });
 
-QUnit.test("Survey deserialize/serialize localization survey", function(
+QUnit.test("Survey deserialize/serialize localization survey", function (
   assert
 ) {
   var survey = new SurveyModel();
@@ -407,12 +407,12 @@ QUnit.test("Survey deserialize/serialize localization survey", function(
           {
             type: "checkbox",
             choices: [{ value: "2", text: { de: "second item" } }],
-            name: "question1"
-          }
+            name: "question1",
+          },
         ],
-        name: "page1"
-      }
-    ]
+        name: "page1",
+      },
+    ],
   };
   new JsonObject().toObject(origionalJson, survey);
 
@@ -426,7 +426,7 @@ QUnit.test("Survey deserialize/serialize localization survey", function(
 
 QUnit.test(
   "Survey deserialize dynamic matrix with different locale, Issue #507",
-  function(assert) {
+  function (assert) {
     var survey = new SurveyModel({
       pages: [
         {
@@ -436,12 +436,12 @@ QUnit.test(
               type: "matrixdropdown",
               name: "q1",
               columns: [{ name: "Column 1" }],
-              rows: ["Row 1", "Row 2"]
-            }
-          ]
-        }
+              rows: ["Row 1", "Row 2"],
+            },
+          ],
+        },
       ],
-      locale: "zh-cn"
+      locale: "zh-cn",
     });
     assert.equal(
       survey.getQuestionByName("q1").name,
@@ -453,13 +453,13 @@ QUnit.test(
 
 QUnit.test(
   "Survey checkbox.choices serialize/deserialize custom properties",
-  function(assert) {
+  function (assert) {
     Serializer.addProperty("itemvalue", "imageLink");
     var question = new QuestionCheckboxModel("q1");
     var jsonObj = new JsonObject();
     var originalJson = {
       name: "q1",
-      choices: [{ value: "2", imageLink: "link to image" }]
+      choices: [{ value: "2", imageLink: "link to image" }],
     };
     jsonObj.toObject(originalJson, question);
     assert.equal(
@@ -481,7 +481,7 @@ QUnit.test(
     Serializer.removeProperty("itemvalue", "imageLink");
   }
 );
-QUnit.test("Serialize numeric validation, minValue=0, Editor#239", function(
+QUnit.test("Serialize numeric validation, minValue=0, Editor#239", function (
   assert
 ) {
   var survey = new SurveyModel();
@@ -495,16 +495,16 @@ QUnit.test("Serialize numeric validation, minValue=0, Editor#239", function(
       {
         type: "numeric",
         minValue: 0,
-        maxValue: 100
-      }
-    ]
+        maxValue: 100,
+      },
+    ],
   };
   assert.deepEqual(json, originalJson, "minValue should be here");
 });
 
 QUnit.test(
   "Expressions + markup https://surveyjs.answerdesk.io/ticket/details/T909",
-  function(assert) {
+  function (assert) {
     var json = {
       pages: [
         {
@@ -513,7 +513,7 @@ QUnit.test(
             {
               type: "dropdown",
               name: "Q1",
-              choices: ["1", "2", "3"]
+              choices: ["1", "2", "3"],
             },
             {
               type: "radiogroup",
@@ -521,19 +521,19 @@ QUnit.test(
               choices: [
                 {
                   value: "{Q1} text",
-                  text: "{Q1} text"
-                }
-              ]
-            }
-          ]
-        }
-      ]
+                  text: "{Q1} text",
+                },
+              ],
+            },
+          ],
+        },
+      ],
     };
 
     var survey = new SurveyModel(json);
     var q1 = survey.getQuestionByName("Q1");
     var q2: QuestionRadiogroupModel = <any>survey.getQuestionByName("Radio1");
-    survey.onTextMarkdown.add(function(survey, options) {
+    survey.onTextMarkdown.add(function (survey, options) {
       options.html = options.text;
     });
 
@@ -544,7 +544,7 @@ QUnit.test(
   }
 );
 
-QUnit.test("Do not deseriabled default comment text - 'Other text:'", function(
+QUnit.test("Do not deseriabled default comment text - 'Other text:'", function (
   assert
 ) {
   var survey = new SurveyModel();
@@ -559,15 +559,15 @@ QUnit.test("Do not deseriabled default comment text - 'Other text:'", function(
         elements: [
           {
             type: "dropdown",
-            name: "q1"
+            name: "q1",
           },
           {
             type: "html",
-            name: "q2"
-          }
-        ]
-      }
-    ]
+            name: "q2",
+          },
+        ],
+      },
+    ],
   };
   assert.deepEqual(
     survey.toJSON(),
@@ -576,7 +576,7 @@ QUnit.test("Do not deseriabled default comment text - 'Other text:'", function(
   );
 });
 
-QUnit.test("Test fromJSON/clone/ensureUniqueNames functionalities", function(
+QUnit.test("Test fromJSON/clone/ensureUniqueNames functionalities", function (
   assert
 ) {
   var survey = new SurveyModel();
@@ -586,8 +586,8 @@ QUnit.test("Test fromJSON/clone/ensureUniqueNames functionalities", function(
   page.fromJSON({
     elements: [
       { type: "text", name: "q11" },
-      { type: "comment", name: "q22" }
-    ]
+      { type: "comment", name: "q22" },
+    ],
   });
   assert.equal(page.questions.length, 2, "There are two questions");
   assert.equal(page.questions[0].name, "q11", "The fist question is q11");
@@ -635,3 +635,23 @@ QUnit.test("Test fromJSON/clone/ensureUniqueNames functionalities", function(
   assert.ok(survey.getQuestionByName("q12"), "Renamed q11->q12");
   assert.ok(survey.getQuestionByName("q23"), "Renamed q22->q23");
 });
+
+QUnit.test(
+  "html and expression questions should not have errors, Bug#2359",
+  function (assert) {
+    var survey = new SurveyModel({
+      questions: [
+        { name: "q1", type: "html", html: "text", isRequired: true },
+        { name: "q2", type: "expression", isRequired: true },
+      ],
+    });
+    var q1 = survey.getQuestionByName("q1");
+    assert.equal(q1.hasErrors(), false, "html question doesn't have errors");
+    var q2 = survey.getQuestionByName("q2");
+    assert.equal(
+      q2.hasErrors(),
+      false,
+      "expression question doesn't have errors"
+    );
+  }
+);

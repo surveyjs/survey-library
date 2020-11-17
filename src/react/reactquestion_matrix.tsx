@@ -16,7 +16,7 @@ export class SurveyQuestionMatrix extends SurveyQuestionElementBase {
     super.componentDidMount();
     if (this.question) {
       var self = this;
-      this.question.visibleRowsChangedCallback = function() {
+      this.question.visibleRowsChangedCallback = function () {
         self.setState({ rowsChanged: self.state.rowsChanged + 1 });
       };
     }
@@ -28,8 +28,7 @@ export class SurveyQuestionMatrix extends SurveyQuestionElementBase {
     }
   }
 
-  render(): JSX.Element {
-    if (!this.question) return null;
+  protected renderElement(): JSX.Element {
     var cssClasses = this.question.cssClasses;
     var firstTH = this.question.hasRows ? <td /> : null;
     var headers = [];
@@ -96,8 +95,10 @@ export class SurveyQuestionMatrixRow extends ReactSurveyElement {
     this.row.value = event.target.value;
     this.setState({ value: this.row.value });
   }
-  render(): JSX.Element {
-    if (!this.row) return null;
+  protected canRender(): boolean {
+    return !!this.row;
+  }
+  protected renderElement(): JSX.Element {
     var firstTD = null;
     if (this.question.hasRows) {
       var rowText = this.renderLocString(this.row.locText);
@@ -105,7 +106,7 @@ export class SurveyQuestionMatrixRow extends ReactSurveyElement {
     }
     var tds = this.generateTds();
     return (
-      <tr>
+      <tr className={this.row.rowClasses}>
         {firstTD}
         {tds}
       </tr>
@@ -121,7 +122,7 @@ export class SurveyQuestionMatrixRow extends ReactSurveyElement {
       var key = "value" + i;
 
       var isChecked = row.value == column.value;
-      let itemClass = this.getItemClass(row, column);
+      let itemClass = this.question.getItemClass(row, column);
       var inputId = this.question.inputId + "_" + row.name + "_" + i;
       if (this.question.hasCellText) {
         var getHandler = !this.question.isReadOnly
@@ -130,7 +131,7 @@ export class SurveyQuestionMatrixRow extends ReactSurveyElement {
         td = (
           <td
             key={key}
-            className={itemClass + " " + this.question.cssClasses.cell}
+            className={itemClass}
             onClick={getHandler ? getHandler(column) : null}
           >
             {this.renderLocString(
@@ -180,40 +181,11 @@ export class SurveyQuestionMatrixRow extends ReactSurveyElement {
 
     return tds;
   }
-
-  public getItemClass(row: any, column: any): string {
-    var question = this.question;
-    var cssClasses = this.question.cssClasses;
-    var isChecked = row.value == column.value;
-    var isDisabled = question.isReadOnly;
-    var allowHover = !isChecked && !isDisabled;
-    var cellDisabledClass = question.hasCellText
-      ? cssClasses.cellTextDisabled
-      : cssClasses.itemDisabled;
-
-    var cellSelectedClass = question.hasCellText
-      ? cssClasses.cellTextSelected
-      : cssClasses.itemChecked;
-
-    var itemHoverClass = !question.hasCellText ? cssClasses.itemHover : "";
-
-    var cellClass = question.hasCellText
-      ? cssClasses.cellText
-      : cssClasses.label;
-
-    let itemClass =
-      cellClass +
-      (isChecked ? " " + cellSelectedClass : "") +
-      (isDisabled ? " " + cellDisabledClass : "") +
-      (allowHover ? " " + itemHoverClass : "");
-    return itemClass;
-  }
-
   cellClick(row: any, column: any) {
     row.value = column.value;
   }
 }
 
-ReactQuestionFactory.Instance.registerQuestion("matrix", props => {
+ReactQuestionFactory.Instance.registerQuestion("matrix", (props) => {
   return React.createElement(SurveyQuestionMatrix, props);
 });

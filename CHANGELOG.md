@@ -2,6 +2,118 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.8.13](https://github.com/surveyjs/survey-library/compare/v1.8.12...v1.8.13) (2020-11-09)
+
+
+### Bug Fixes
+
+* Do not call server validation several times [#2497](https://github.com/surveyjs/survey-library/issues/2497) ([ff4ee45](https://github.com/surveyjs/survey-library/commit/ff4ee45b49dc92fd24a461bc9aa58e53231c12e7))
+* Dynamic matrix containing dropdown field with hasOther poperty doesn't load it's data [#2508](https://github.com/surveyjs/survey-library/issues/2508) ([5bd154a](https://github.com/surveyjs/survey-library/commit/5bd154a349828143c1e63d9d3f646db5ddf06a70))
+* Panel title is not displayed in Creator on changing the title property value [#2510](https://github.com/surveyjs/survey-library/issues/2510) ([335ebf6](https://github.com/surveyjs/survey-library/commit/335ebf6ee252ff4abade424bb738682ee7b616e2))
+* Warning cause of missing prop matrix.vue [#2513](https://github.com/surveyjs/survey-library/issues/2513) ([29bba0a](https://github.com/surveyjs/survey-library/commit/29bba0a1401e15e4d1656647bd13358266891955))
+
+### [1.8.12](https://github.com/surveyjs/survey-library/compare/v1.8.11...v1.8.12) (2020-10-28)
+
+
+### Bug Fixes
+
+* clearIncorrectValues function doesn't work correctly panel dynamic [#2490](https://github.com/surveyjs/survey-library/issues/2490) ([2e2a662](https://github.com/surveyjs/survey-library/commit/2e2a662b8b2c858df5583562259974756e9755a9))
+* function clearIncorrectValues() doesn't work correctly for questions that uses choicesByUrl property [#2492](https://github.com/surveyjs/survey-library/issues/2492) ([54835d9](https://github.com/surveyjs/survey-library/commit/54835d9548649bfe310ff02c38ccb5f347024e2f))
+
+### [1.8.11](https://github.com/surveyjs/survey-library/compare/v1.8.10...v1.8.11) (2020-10-23)
+
+
+### Bug Fixes
+
+* checkErrorMode equals "onComplete" doesn't work correctly with the server validation [#2478](https://github.com/surveyjs/survey-library/issues/2478) ([d116bf5](https://github.com/surveyjs/survey-library/commit/d116bf5e97bfc7bee0fdca1a1206591ab81375ff))
+* Do not generate an empty rows error for matrix dynamic if it not requried and minRowCount is set [#2479](https://github.com/surveyjs/survey-library/issues/2479) ([1ae8bb4](https://github.com/surveyjs/survey-library/commit/1ae8bb45a1cc9baf9186ed73710ff8231988a900))
+
+### [1.8.10](https://github.com/surveyjs/survey-library/compare/v1.8.9...v1.8.10) (2020-10-21)
+
+### [1.8.9](https://github.com/surveyjs/survey-library/compare/v1.8.8...v1.8.9) (2020-10-14)
+
+
+### Bug Fixes
+
+* Locale of progressbar does not change [#2453](https://github.com/surveyjs/survey-library/issues/2453) ([561a71e](https://github.com/surveyjs/survey-library/commit/561a71e6843bfefe00079b6a4cb68bf7580bdb8a))
+
+### [1.8.8](https://github.com/surveyjs/survey-library/compare/v1.8.7...v1.8.8) (2020-10-09)
+
+### [1.8.7](https://github.com/surveyjs/survey-library/compare/v1.8.6...v1.8.7) (2020-10-06)
+
+
+### Bug Fixes
+
+* showInvisibleElements not working for choices [#2423](https://github.com/surveyjs/survey-library/issues/2423) ([72fb591](https://github.com/surveyjs/survey-library/commit/72fb59118d77af57237e546ce165edbe39faae9f))
+
+### [1.8.6](https://github.com/surveyjs/survey-library/compare/v1.8.5...v1.8.6) (2020-09-29)
+
+### [1.8.5](https://github.com/surveyjs/survey-library/compare/v1.8.4...v1.8.5) (2020-09-29)
+
+### [1.8.4](https://github.com/surveyjs/survey-library/compare/v1.8.3...v1.8.4) (2020-09-22)
+
+
+### Bug Fixes
+
+* choicesByUrl doesn't work with {NOCACHE}/{CACHE} [#2406](https://github.com/surveyjs/survey-library/issues/2406) ([ef9a10d](https://github.com/surveyjs/survey-library/commit/ef9a10d08ed7b6c8127bb0f05ae898293e32f388))
+
+### [1.8.3](https://github.com/surveyjs/survey-library/compare/v1.8.2...v1.8.3) (2020-09-16)
+
+
+### Bug Fixes
+
+* onLoadChoicesFromServer event is fired ad-infinitum [#2388](https://github.com/surveyjs/survey-library/issues/2388) ([be48178](https://github.com/surveyjs/survey-library/commit/be481782f92b5b4676b389350f55cb8cdf971760))
+* Stackoverflow on JSON with non english locale and firstPageIsStarted equals to true [#2400](https://github.com/surveyjs/survey-library/issues/2400) ([4522d65](https://github.com/surveyjs/survey-library/commit/4522d654f91a72561dee70792a5a36d63b4676a6))
+* The isAnswered property of matrixdynamic is false after setting question's value for T5206 [#2399](https://github.com/surveyjs/survey-library/issues/2399) ([8205ad3](https://github.com/surveyjs/survey-library/commit/8205ad32e92cbc57127338f4fe756a9e33ea3d64))
+
+### [1.8.2](https://github.com/surveyjs/survey-library/compare/v1.8.1...v1.8.2) (2020-09-10)
+
+
+### Bug Fixes
+
+* Pressing markdown link focuses the answer input ([b9ead88](https://github.com/surveyjs/survey-library/commit/b9ead885039764e642785198ca45f732e6eb4088)), closes [#2312](https://github.com/surveyjs/survey-library/issues/2312)
+
+### [1.8.1](https://github.com/surveyjs/survey-library/compare/v1.8.0...v1.8.1) (2020-09-09)
+
+## [1.8.0](https://github.com/surveyjs/survey-library/compare/v1.7.28...v1.8.0) (2020-09-02)
+
+
+### Bug Fixes
+
+* Image Picker doesn't update items in designer on changing value/text and image link in choices property editor, https://github.com/surveyjs/survey-creator/issues/942 ([254fe49](https://github.com/surveyjs/survey-library/commit/254fe494b5a570824756098b0aa98d7b9cbe2cc6))
+* Width for column in Matrixdynamic does not work when the header is hidden [#2346](https://github.com/surveyjs/survey-library/issues/2346) ([db02e39](https://github.com/surveyjs/survey-library/commit/db02e3969548ab5b32e02fb5123fe258368a37fa))
+
+### [1.7.28](https://github.com/surveyjs/survey-library/compare/v1.7.27...v1.7.28) (2020-08-25)
+
+### [1.7.27](https://github.com/surveyjs/survey-library/compare/v1.7.26...v1.7.27) (2020-08-19)
+
+### [1.7.26](https://github.com/surveyjs/survey-library/compare/v1.7.25...v1.7.26) (2020-08-11)
+
+### [1.7.25](https://github.com/surveyjs/survey-library/compare/v1.7.24...v1.7.25) (2020-08-04)
+
+### [1.7.24](https://github.com/surveyjs/survey-library/compare/v1.7.23...v1.7.24) (2020-07-28)
+
+### [1.7.23](https://github.com/surveyjs/survey-library/compare/v1.7.22...v1.7.23) (2020-07-22)
+
+### [1.7.22](https://github.com/surveyjs/survey-library/compare/v1.7.21...v1.7.22) (2020-07-22)
+
+### [1.7.21](https://github.com/surveyjs/survey-library/compare/v1.7.20...v1.7.21) (2020-07-22)
+
+### [1.7.20](https://github.com/surveyjs/survey-library/compare/v1.7.19...v1.7.20) (2020-07-15)
+
+
+### Bug Fixes
+
+* header attribute value in matrixdynamic cells ([031017c](https://github.com/surveyjs/survey-library/commit/031017c2a670823cfebf74e4e61bc08f05d958c4))
+
+### [1.7.19](https://github.com/surveyjs/survey-library/compare/v1.7.18...v1.7.19) (2020-07-09)
+
+### [1.7.18](https://github.com/surveyjs/survey-library/compare/v1.7.17...v1.7.18) (2020-07-04)
+
+### [1.7.17](https://github.com/surveyjs/survey-library/compare/v1.7.16...v1.7.17) (2020-07-01)
+
+### [1.7.16](https://github.com/surveyjs/survey-library/compare/v1.7.15...v1.7.16) (2020-06-30)
+
 ### [1.7.15](https://github.com/surveyjs/survey-library/compare/v1.7.14...v1.7.15) (2020-06-25)
 
 ### [1.7.14](https://github.com/surveyjs/survey-library/compare/v1.7.13...v1.7.14) (2020-06-25)

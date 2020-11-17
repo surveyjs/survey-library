@@ -8,10 +8,7 @@ import { QuestionMatrix } from "../../src/knockout/koquestion_matrix";
 import { QuestionMatrixDropdown } from "../../src/knockout/koquestion_matrixdropdown";
 import { QuestionPanelDynamic } from "../../src/knockout/koquestion_paneldynamic";
 import { MatrixDropdownColumn } from "../../src/question_matrixdropdownbase";
-import {
-  QuestionMultipleText,
-  MultipleTextItem,
-} from "../../src/knockout/koquestion_multipletext";
+import { QuestionMultipleText, MultipleTextItem } from "../../src/knockout/koquestion_multipletext";
 import { Page, Panel, QuestionRow } from "../../src/knockout/kopage";
 import { CustomWidgetCollection } from "../../src/questionCustomWidgets";
 import { koTemplate } from "../../src/knockout/templateText";
@@ -157,9 +154,9 @@ QUnit.test("Question Matrix: koValue in MatrixValue", function (assert) {
   matrix.columns = ["col1", "col2"];
   matrix.value = { row1: "col2" };
   var visibleRows = matrix.visibleRows;
-  assert.equal(visibleRows[0]["koValue"](), "col2", "set the correct value");
-  visibleRows[0]["koValue"]("col1");
-  visibleRows[1]["koValue"]("col2");
+  assert.equal(visibleRows[0].value, "col2", "set the correct value");
+  visibleRows[0].value = "col1";
+  visibleRows[1].value = "col2";
   assert.deepEqual(
     matrix.value,
     { row1: "col1", row2: "col2" },
@@ -189,9 +186,9 @@ QUnit.test(
     matrix.columns = ["col1", "col2"];
     var visibleRows = matrix.visibleRows;
     matrix.value = { row1: "col2" };
-    assert.equal(visibleRows[0]["koValue"](), "col2", "set the correct value");
+    assert.equal(visibleRows[0].value, "col2", "set the correct value");
     assert.equal(
-      matrix.koVisibleRows()[0]["koValue"](),
+      matrix.koVisibleRows()[0].value,
       "col2",
       "set the correct value in ko"
     );
@@ -1742,23 +1739,23 @@ QUnit.test(
   "Some custom CSS not working - https://github.com/surveyjs/survey-library/issues/2122",
   function (assert) {
     var survey = new Survey({
-      questions:[
+      questions: [
         {
           name: "q1",
-          type: "text"
+          type: "text",
         },
         {
-          "type": "paneldynamic",
-          "name": "p1",
-          "templateElements": [
+          type: "paneldynamic",
+          name: "p1",
+          templateElements: [
             {
               name: "name",
-              type: "text"
-            }
+              type: "text",
+            },
           ],
-          "panelCount": 2
-        }
-      ]
+          panelCount: 2,
+        },
+      ],
     });
     var q1 = survey.getQuestionByName("q1");
     var p1 = survey.getQuestionByName("p1");
@@ -1769,43 +1766,116 @@ QUnit.test(
     };
 
     assert.equal(q1.cssTitle, "sv_q_title", "Original CSS classes");
-    assert.equal(p1.panels[0].elements[0].cssTitle, "sv_q_title", "Original CSS classes for questions in dynamic panel");
+    assert.equal(
+      p1.panels[0].elements[0].cssTitle,
+      "sv_q_title",
+      "Original CSS classes for questions in dynamic panel"
+    );
     survey.updateSurvey({ css: myCss });
     assert.equal(q1.cssTitle, "sq-title-red", "CSS classes have been updated");
-    assert.equal(p1.panels[0].elements[0].cssTitle, "sq-title-red", "CSS classes for questions in dynamic panel");
+    assert.equal(
+      p1.panels[0].elements[0].cssTitle,
+      "sq-title-red",
+      "CSS classes for questions in dynamic panel"
+    );
   }
 );
 
-QUnit.test("Other item selected and not checked - https://github.com/surveyjs/survey-library/issues/2200", function (
+QUnit.test(
+  "Other item selected and not checked - https://github.com/surveyjs/survey-library/issues/2200",
+  function (assert) {
+    var q1 = new QuestionRadiogroup("q1");
+    q1.fromJSON({
+      type: "radiogroup",
+      name: "q1",
+      hasOther: true,
+      storeOthersAsComment: false,
+      choices: [1, 2],
+    });
+    q1["copyCssClasses"] = (classes) => {
+      classes.item = "item";
+      classes.itemChecked = "checked";
+    };
+
+    assert.notOk(q1.isOtherSelected);
+    assert.equal(
+      q1.getItemClass(q1.otherItem),
+      "item sv-q-col-1",
+      "other is not selected"
+    );
+
+    q1.value = "some text";
+    assert.ok(q1.isOtherSelected);
+    assert.equal(
+      q1.getItemClass(q1.otherItem),
+      "item sv-q-col-1 checked",
+      "other is selected"
+    );
+  }
+);
+
+QUnit.test("survey.firstPageIsStarted=true + multiple-language", function (
   assert
 ) {
-  var q1 = new QuestionRadiogroup("q1");
-  q1.fromJSON({
-    type: "radiogroup",
-    name: "q1",
-    hasOther: true,
-    storeOthersAsComment: false,
-    choices: [1, 2]
+  var json = {
+    firstPageIsStarted: true,
+    pages: [
+      {
+        elements: [
+          {
+            type: "text",
+            name: "q1",
+            title: { default: "q1-en", de: "q1-de" },
+          },
+        ],
+      },
+      {
+        elements: [
+          {
+            type: "text",
+            name: "q2",
+            title: { default: "q2-en", de: "q2-de" },
+          },
+        ],
+      },
+    ],
+  };
+  var survey = new Survey(json);
+  var q1 = survey.getQuestionByName("q1");
+  var q2 = survey.getQuestionByName("q2");
+  assert.equal(q1.locTitle["koRenderedHtml"](), "q1-en", "en locale, q1");
+  assert.equal(q2.locTitle["koRenderedHtml"](), "q2-en", "en locale, q2");
+  var prevLocale = survey.locale;
+  survey.locale = "de";
+  assert.equal(q1.locTitle["koRenderedHtml"](), "q1-de", "de locale, q1");
+  assert.equal(q2.locTitle["koRenderedHtml"](), "q2-de", "de locale, q2");
+  survey.locale = prevLocale;
+});
+
+QUnit.test("survey.firstPageIsStarted=true + multiple-language", function (
+  assert
+) {
+  var survey = new Survey({
+    locale: "de",
+    pages: [
+      {
+        name: "startedPage",
+        elements: [
+          {
+            type: "text",
+            name: "question10",
+          },
+          {
+            type: "text",
+            name: "question11",
+            startWithNewLine: false,
+          },
+        ],
+      },
+    ],
+    firstPageIsStarted: true,
   });
-  q1["copyCssClasses"] = classes => {
-    classes.item = "item";
-    classes.itemChecked = "checked";
-  }
-
-  assert.notOk(q1.isOtherSelected);
-  assert.equal(
-    q1.getItemClass(q1.otherItem),
-    "item sv-q-col-1 undefined",
-    "other is not selected"
-  );
-
-  q1.value = "some text";
-  assert.ok(q1.isOtherSelected);
-  assert.equal(
-    q1.getItemClass(q1.otherItem),
-    "item sv-q-col-1 checked",
-    "other is selected"
-  );
+  assert.equal(survey.startedPage.name, "startedPage", "Loaded fine");
 });
 
 QUnit.test("ProgressButtonsViewModel component scroll button", function(assert) {

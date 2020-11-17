@@ -14,14 +14,15 @@ export class SurveyPage extends SurveyPanelBase {
   public get page(): PageModel {
     return this.panelBase as PageModel;
   }
-  render(): JSX.Element {
-    if (this.page == null || this.survey == null || this.creator == null)
-      return null;
+  protected canRender(): boolean {
+    return super.canRender() && !!this.survey && !!this.page;
+  }
+  protected renderElement(): JSX.Element {
     var title = this.renderTitle();
     var description = this.renderDescription();
     var rows = this.renderRows(this.panelBase.cssClasses);
     return (
-      <div ref="root" className={this.panelBase.cssClasses.page.root}>
+      <div ref={this.rootRef} className={this.panelBase.cssClasses.page.root}>
         {title}
         {description}
         {rows}
@@ -36,6 +37,8 @@ export class SurveyPage extends SurveyPanelBase {
   protected renderDescription(): JSX.Element {
     if (!this.page._showDescription) return null;
     var text = SurveyElementBase.renderLocString(this.page.locDescription);
-    return <div className={this.panelBase.cssClasses.page.description}>{text}</div>;
+    return (
+      <div className={this.panelBase.cssClasses.page.description}>{text}</div>
+    );
   }
 }

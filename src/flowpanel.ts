@@ -5,7 +5,7 @@ import { LocalizableString } from "./localizablestring";
 import { Question } from "./question";
 
 /**
- * The flow panel object. It is a container with flow layout where you can mix questions with mardown text.
+ * The flow panel object. It is a container with flow layout where you can mix questions with markdown text.
  *
  */
 export class FlowPanelModel extends PanelModel {
@@ -17,7 +17,7 @@ export class FlowPanelModel extends PanelModel {
     super(name);
     this.createLocalizableString("content", this, true);
     var self = this;
-    this.registerFunctionOnPropertyValueChanged("content", function() {
+    this.registerFunctionOnPropertyValueChanged("content", function () {
       self.onContentChanged();
     });
   }
@@ -114,7 +114,12 @@ export class FlowPanelModel extends PanelModel {
     }
   }
   private insertTextAtCursor(text: string, prevName: string = null): boolean {
-    if (!this.isDesignMode || (!window && !window.getSelection)) return false;
+    if (
+      !this.isDesignMode ||
+      typeof document === "undefined" ||
+      !window.getSelection
+    )
+      return false;
     let sel = window.getSelection();
     if (sel.getRangeAt && sel.rangeCount) {
       let range = sel.getRangeAt(0);
@@ -137,7 +142,7 @@ export class FlowPanelModel extends PanelModel {
 Serializer.addClass(
   "flowpanel",
   [{ name: "content:html", serializationProperty: "locContent" }],
-  function() {
+  function () {
     return new FlowPanelModel();
   },
   "panel"

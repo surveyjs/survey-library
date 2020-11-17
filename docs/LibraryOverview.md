@@ -764,6 +764,28 @@ Survey.FunctionFactory.Instance.register("age", age);
 
 You may write, register, and use your own functions.
 
+1. function name have to be camelCase. 
+2. arguments object are passed to function as single parameter during run.
+
+in expression, if   `debugFunc({Q1}, {Q2})` are called, the `debugFunc` should have a shape of 
+
+```
+function debugFunc(params) {
+   let q1_value = params[0];
+   let q1_value = params[1];
+   ...
+}
+```
+instead of: 
+```
+function debugFunc(q1_value, q2_value) {
+}
+```
+
+The second form does not work.
+
+
+
 Starting with v1.0.21, you can access to your survey object as `this.survey` inside a custom function.
 
 As result you may, for example, pass a question name to your function: `myFunc('myQuestionName')` and then get it as:

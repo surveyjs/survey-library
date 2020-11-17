@@ -4,11 +4,15 @@ export var danishSurveyStrings = {
   pagePrevText: "Tilbage",
   pageNextText: "Videre",
   completeText: "Færdig",
+  previewText: "Forpremiere",
+  editText: "Redigér",
   startSurveyText: "Start",
   otherItemText: "Valgfrit svar...",
   noneItemText: "Ingen",
   selectAllItemText: "Vælg alle",
   progressText: "Side {0} af {1}",
+  panelDynamicProgressText: "Optag {0} af {1}",
+  questionsProgressText: "Besvarede {0} / {1} spørgsmål",
   emptySurvey: "Der er ingen synlige spørgsmål.",
   completingSurvey: "Mange tak for din besvarelse!",
   completingSurveyBefore:
@@ -41,6 +45,7 @@ export var danishSurveyStrings = {
     "Din fil bliver uploadet. Vent nogle sekunder og prøv eventuelt igen.",
   loadingFile: "Indlæser...",
   chooseFile: "Vælg fil(er)...",
+  noFileChosen: "Ingen fil er valgt",
   confirmDelete: "Vil du fjerne den?",
   keyDuplicationError: "Denne værdi skal være unik.",
   addColumn: "Tilføj kolonne",
@@ -66,7 +71,13 @@ export var danishSurveyStrings = {
   timerLimitSurvey: "Du har brugt {0} af {1} i alt.",
   cleanCaption: "Rens",
   clearCaption: "Fjern",
-  removeFileCaption: "Fjern denne fil"
+  chooseFileCaption: "Vælg fil",
+  removeFileCaption: "Fjern denne fil",
+  booleanCheckedLabel: "Ja",
+  booleanUncheckedLabel: "Ingen",
+  confirmRemoveFile: "Er du sikker på, at du vil fjerne denne fil: {0}?",
+  confirmRemoveAllFiles: "Er du sikker på, at du vil fjerne alle filer?",
+  questionTitlePatternText: "Spørgsmåls titel",
 };
 
 surveyLocalization.locales["da"] = danishSurveyStrings;

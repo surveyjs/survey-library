@@ -26,8 +26,7 @@ export class SurveyQuestionImagePicker extends SurveyQuestionElementBase {
     }
     this.setState({ value: this.question.value });
   }
-  render(): JSX.Element {
-    if (!this.question) return null;
+  protected renderElement(): JSX.Element {
     var cssClasses = this.question.cssClasses;
     return (
       <fieldset className={cssClasses.root}>
@@ -41,58 +40,21 @@ export class SurveyQuestionImagePicker extends SurveyQuestionElementBase {
     for (var i = 0; i < this.question.visibleChoices.length; i++) {
       var item = this.question.visibleChoices[i];
       var key = "item" + i;
-      items.push(this.renderItem(key, item, i === 0, cssClasses));
+      items.push(this.renderItem(key, item, cssClasses));
     }
     return items;
   }
   protected get textStyle(): any {
     return { marginLeft: "3px", display: "inline", position: "static" };
   }
-  private renderItem(
+  protected renderItem(
     key: string,
     item: ItemValue,
-    isFirst: boolean,
     cssClasses: any
   ): JSX.Element {
     var isChecked = this.question.isItemSelected(item);
-    var isDisabled = this.question.isReadOnly || !item.isEnabled;
-    return this.renderElement(
-      key,
-      item,
-      isChecked,
-      isDisabled,
-      isFirst,
-      cssClasses
-    );
-  }
-  private getItemClass(isChecked: boolean, isDisabled: boolean) {
-    var cssClasses = this.question.cssClasses;
-    var colCount = this.question.colCount;
-    var itemClass =
-      cssClasses.item +
-      (colCount === 0 ? " " + cssClasses.itemInline : " sv-q-col-" + colCount);
-    var allowHover = !isChecked && !isDisabled;
-    if (isChecked) {
-      itemClass += " " + cssClasses.itemChecked;
-    }
-    if (isDisabled) {
-      itemClass += " " + cssClasses.itemDisabled;
-    }
-    if (allowHover) {
-      itemClass += " " + cssClasses.itemHover;
-    }
-    return itemClass;
-  }
-  protected renderElement(
-    key: string,
-    item: ItemValue,
-    isChecked: boolean,
-    isDisabled: boolean,
-    isFirst: boolean,
-    cssClasses: any
-  ): JSX.Element {
     var id = this.question.inputId + "_" + item.value;
-    var itemClass = this.getItemClass(isChecked, isDisabled);
+    var itemClass = this.question.getItemClass(item);
     var text = null;
     if (this.question.showLabel) {
       text = (
@@ -163,7 +125,11 @@ export class SurveyQuestionImagePicker extends SurveyQuestionElementBase {
             onChange={this.handleOnChange}
             aria-label={this.question.locTitle.renderedHtml}
             aria-invalid={this.question.errors.length > 0}
-            aria-describedby={this.question.errors.length > 0 ? this.question.id + '_errors' : null}    
+            aria-describedby={
+              this.question.errors.length > 0
+                ? this.question.id + "_errors"
+                : null
+            }
           />
           <div>
             {control}
@@ -175,6 +141,6 @@ export class SurveyQuestionImagePicker extends SurveyQuestionElementBase {
   }
 }
 
-ReactQuestionFactory.Instance.registerQuestion("imagepicker", props => {
+ReactQuestionFactory.Instance.registerQuestion("imagepicker", (props) => {
   return React.createElement(SurveyQuestionImagePicker, props);
 });

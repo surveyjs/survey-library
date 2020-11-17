@@ -16,12 +16,11 @@ export class SurveyQuestionMatrixDynamic extends SurveyQuestionMatrixDropdownBas
   handleOnRowAddClick(event: any) {
     this.matrix.addRow();
   }
-  render(): JSX.Element {
-    if (!this.question) return null;
+  protected renderElement(): JSX.Element {
     var cssClasses = this.question.cssClasses;
     var mainDiv = this.renderTableDiv();
     return (
-      <div ref="matrixDynamicRef">
+      <div>
         {this.renderAddRowButtonOnTop(cssClasses)}
         {mainDiv}
         {this.renderAddRowButtonOnBottom(cssClasses)}
@@ -75,7 +74,7 @@ export class SurveyQuestionMatrixDynamicRemoveButton extends ReactSurveyElement 
   handleOnRowRemoveClick(event: any) {
     this.question.removeRowUI(this.row);
   }
-  render(): JSX.Element {
+  protected renderElement(): JSX.Element {
     return (
       <button
         className={this.cssClasses.button + " " + this.cssClasses.buttonRemove}
@@ -89,6 +88,6 @@ export class SurveyQuestionMatrixDynamicRemoveButton extends ReactSurveyElement 
   }
 }
 
-ReactQuestionFactory.Instance.registerQuestion("matrixdynamic", props => {
+ReactQuestionFactory.Instance.registerQuestion("matrixdynamic", (props) => {
   return React.createElement(SurveyQuestionMatrixDynamic, props);
 });

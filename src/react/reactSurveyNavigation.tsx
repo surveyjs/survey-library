@@ -8,6 +8,7 @@ export class SurveyNavigation extends SurveyNavigationBase {
     this.handlePrevClick = this.handlePrevClick.bind(this);
     this.handleNextClick = this.handleNextClick.bind(this);
     this.handleNextMouseDown = this.handleNextMouseDown.bind(this);
+    this.handleMouseDown = this.handleMouseDown.bind(this);
     this.handleCompleteClick = this.handleCompleteClick.bind(this);
     this.handlePreviewClick = this.handlePreviewClick.bind(this);
     this.handleStartClick = this.handleStartClick.bind(this);
@@ -23,8 +24,10 @@ export class SurveyNavigation extends SurveyNavigationBase {
   }
   handleNextMouseDown(event: any) {
     this.mouseDownPage = this.survey.currentPage;
-    var el: any = document.activeElement;
-    if (!!el && !!el["blur"]) el["blur"]();
+    return this.survey.navigationMouseDown();
+  }
+  handleMouseDown(event: any) {
+    return this.survey.navigationMouseDown();
   }
   handleCompleteClick(event: any) {
     this.survey.completeLastPage();
@@ -43,7 +46,7 @@ export class SurveyNavigation extends SurveyNavigationBase {
       !isStartedPage && !this.survey.isFirstPage && this.survey.isShowPrevButton
         ? this.renderButton(
             this.handlePrevClick,
-            null,
+            this.handleMouseDown,
             this.survey.pagePrevText,
             this.survey.cssNavigationPrev
           )
@@ -63,7 +66,7 @@ export class SurveyNavigation extends SurveyNavigationBase {
       this.survey.isCompleteButtonVisible
         ? this.renderButton(
             this.handleCompleteClick,
-            null,
+            this.handleMouseDown,
             this.survey.completeText,
             this.survey.cssNavigationComplete
           )
@@ -74,7 +77,7 @@ export class SurveyNavigation extends SurveyNavigationBase {
       this.survey.isPreviewButtonVisible
         ? this.renderButton(
             this.handlePreviewClick,
-            null,
+            this.handleMouseDown,
             this.survey.previewText,
             this.survey.cssNavigationPreview
           )

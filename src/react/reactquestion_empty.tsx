@@ -11,11 +11,11 @@ export class SurveyQuestionEmpty extends SurveyQuestionElementBase {
   protected get question(): QuestionEmptyModel {
     return this.questionBase as QuestionEmptyModel;
   }
-  render(): JSX.Element {
+  protected renderElement(): JSX.Element {
     return <div />;
   }
 }
 
-ReactQuestionFactory.Instance.registerQuestion("empty", props => {
+ReactQuestionFactory.Instance.registerQuestion("empty", (props) => {
   return React.createElement(SurveyQuestionEmpty, props);
 });

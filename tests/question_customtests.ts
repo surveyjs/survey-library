@@ -310,13 +310,13 @@ QUnit.test("Composite: hasErrors/isRequired", function (assert) {
 
 QUnit.test("Composite: onPropertyChanged", function (assert) {
   var json = {
-    name: "customerinfo",
+    name: "customerInfo",
     elementsJSON: [
       { type: "text", name: "firstName", isRequired: true },
       { type: "text", name: "lastName" },
     ],
     onInit() {
-      Serializer.addProperty("customerinfo", {
+      Serializer.addProperty("customerInfo", {
         name: "showLastName:boolean",
         default: true,
       });
@@ -662,6 +662,33 @@ QUnit.test("Composite: expression, {composite} prefix", function (assert) {
   assert.equal(lastName.isVisible, false, "lastName is hidden by default");
   firstName.value = "Jon";
   assert.equal(lastName.isVisible, true, "lastName is showing now");
+  ComponentCollection.Instance.clear();
+});
+QUnit.test("Composite: remove invisible values", function (assert) {
+  var json = {
+    name: "customerinfo",
+    elementsJSON: [
+      { type: "text", name: "firstName" },
+      {
+        type: "text",
+        name: "lastName",
+        visibleIf: "{composite.firstName} != 'Jon'",
+      },
+    ],
+  };
+  ComponentCollection.Instance.add(json);
+  var survey = new SurveyModel({
+    elements: [{ type: "customerinfo", name: "q1", isRequired: true }],
+  });
+  var q = <QuestionCompositeModel>survey.getAllQuestions()[0];
+  var firstName = q.contentPanel.getQuestionByName("firstName");
+  var lastName = q.contentPanel.getQuestionByName("lastName");
+  firstName.value = "first";
+  lastName.value = "last";
+  assert.equal(lastName.value, "last", "value set correctly");
+  firstName.value = "Jon";
+  survey.completeLastPage();
+  assert.deepEqual(survey.data, {q1: {firstName: "Jon"}}, "remove lastName");
   ComponentCollection.Instance.clear();
 });
 QUnit.test("Single: matrixdropdown onCreated after load properties", function (

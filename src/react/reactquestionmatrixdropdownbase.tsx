@@ -235,9 +235,9 @@ export class SurveyQuestionMatrixDetailButton extends ReactSurveyElement {
       <button
         type="button"
         onClick={this.handleOnShowHideClick}
-        className={this.cssClasses.detailButton}
+        className={this.question.getDetailPanelButtonCss(this.row)}
       >
-        <span className={this.question.getDetailPanelButtonCss(this.row)} />
+        <span className={this.question.getDetailPanelIconCss(this.row)} />
       </button>
     );
   }

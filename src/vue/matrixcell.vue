@@ -8,10 +8,10 @@
     <button
       v-if="cell.isShowHideDetail"
       type="button"
-      :class="question.cssClasses.detailButton"
+      :class="question.getDetailPanelButtonCss(cell.row)"
       @click="showHideDetailPanelClick()"
     >
-      <span :class="question.getDetailPanelButtonCss(cell.row)"></span>
+      <span :class="question.getDetailPanelIconCss(cell.row)"></span>
     </button>
     <component
       v-if="cell.hasPanel"

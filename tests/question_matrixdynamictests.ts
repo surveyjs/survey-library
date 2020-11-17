@@ -4745,7 +4745,7 @@ QUnit.test("Detail panel, get/set values", function (assert) {
     "Panel is not created, it is hidden"
   );
   assert.equal(
-    matrix.getDetailPanelButtonCss(matrix.visibleRows[0]),
+    matrix.getDetailPanelIconCss(matrix.visibleRows[0]),
     "icon1",
     "detail button is closed"
   );
@@ -4757,7 +4757,7 @@ QUnit.test("Detail panel, get/set values", function (assert) {
   );
   assert.ok(matrix.visibleRows[0].detailPanel, "Detail Panel is created");
   assert.equal(
-    matrix.getDetailPanelButtonCss(matrix.visibleRows[0]),
+    matrix.getDetailPanelIconCss(matrix.visibleRows[0]),
     "icon1 icon2",
     "detail button is opened"
   );
@@ -4796,7 +4796,7 @@ QUnit.test("Detail panel, get/set values", function (assert) {
     "detail panel is closed"
   );
   assert.equal(
-    matrix.getDetailPanelButtonCss(matrix.visibleRows[0]),
+    matrix.getDetailPanelIconCss(matrix.visibleRows[0]),
     "icon1",
     "detail button is closed again"
   );

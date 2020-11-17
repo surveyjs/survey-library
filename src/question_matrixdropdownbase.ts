@@ -2829,17 +2829,29 @@ export class QuestionMatrixDropdownModelBase
   public getDetailPanelButtonCss(row: MatrixDropdownRowModelBase): string {
     var res = this.getPropertyValue("detailButtonCss" + row.id);
     if (!!res) return res;
+    var res = this.cssClasses.detailButton;
+    return !!res ? res : "";
+  }
+  public getDetailPanelIconCss(row: MatrixDropdownRowModelBase): string {
+    var res = this.getPropertyValue("detailIconCss" + row.id);
+    if (!!res) return res;
     var res = this.cssClasses.detailIcon;
     return !!res ? res : "";
   }
   private updateDetailPanelButtonCss(row: MatrixDropdownRowModelBase) {
-    var icon = this.cssClasses.detailIcon;
+    var classes = this.cssClasses;
+    var icon = classes.detailIcon;
     if (!icon) icon = "";
+    var button = classes.detailButton;
+    if (!button) button = "";
     if (this.getIsDetailPanelShowing(row)) {
-      var iconExpanded = this.cssClasses.detailIconExpanded;
-      if (!!iconExpanded) icon += " " + iconExpanded;
+      if (!!classes.detailIconExpanded)
+        icon += " " + classes.detailIconExpanded;
+      if (!!classes.detailButtonExpanded)
+        button += " " + classes.detailButtonExpanded;
     }
-    this.setPropertyValue("detailButtonCss" + row.id, icon);
+    this.setPropertyValue("detailIconCss" + row.id, icon);
+    this.setPropertyValue("detailButtonCss" + row.id, button);
   }
   createRowDetailPanel(row: MatrixDropdownRowModelBase): PanelModel {
     if (this.isDesignMode) return this.detailPanel;

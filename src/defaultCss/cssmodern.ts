@@ -207,10 +207,12 @@ export var modernCss = {
     root: "sv-table",
     cell: "sv-table__cell",
     headerCell: "sv-table__cell sv-table__cell--header",
+    detailRowText: "sv-table__cell--detail-rowtext",
     detailCell: "sv-table__cell--detail",
     detailButton: "sv-table__cell--detail-button",
     detailIcon: "sv-detail-panel__icon",
     detailIconExpanded: "sv-detail-panel__icon--expanded",
+    detailPanelCell: "sv-table__cell--detail-panel",
   },
   matrixdynamic: {
     root: "sv-table sv-matrixdynamic",
@@ -225,6 +227,7 @@ export var modernCss = {
     detailButton: "sv-table__cell--detail-button",
     detailIcon: "sv-detail-panel__icon",
     detailIconExpanded: "sv-detail-panel__icon--expanded",
+    detailPanelCell: "sv-table__cell--detail-panel",
   },
   rating: {
     root: "sv-rating",

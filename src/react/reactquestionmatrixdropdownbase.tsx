@@ -162,7 +162,6 @@ export class SurveyQuestionMatrixDropdownBase extends SurveyQuestionElementBase 
     var requiredSpace = null;
     var requiredText = null;
     var cellStyle: any = null;
-    var cellClassName = cssClasses.cell;
     if (!!cell.width || !!cell.minWidth) {
       cellStyle = {};
       if (!!cell.width) cellStyle.width = cell.width;
@@ -179,7 +178,6 @@ export class SurveyQuestionMatrixDropdownBase extends SurveyQuestionElementBase 
       cellContent = this.renderRemoveButton(cell.row);
     }
     if (cell.isShowHideDetail) {
-      cellClassName = cssClasses.detailCell;
       cellContent = (
         <SurveyQuestionMatrixDetailButton
           question={this.question}
@@ -189,7 +187,6 @@ export class SurveyQuestionMatrixDropdownBase extends SurveyQuestionElementBase 
       );
     }
     if (cell.hasPanel) {
-      cellClassName = "";
       cellContent = (
         <SurveyPanel
           key={cell.panel.id}
@@ -203,7 +200,7 @@ export class SurveyQuestionMatrixDropdownBase extends SurveyQuestionElementBase 
     }
     return (
       <td
-        className={cellClassName}
+        className={cell.className}
         key={key}
         style={cellStyle}
         colSpan={cell.colSpans}
@@ -286,14 +283,9 @@ export class SurveyQuestionMatrixDropdownCell extends SurveyQuestionAndErrorsCel
   }
   protected getCellClass(): any {
     var question = this.cell.question;
-
-    var cellClass = this.cell.question.cssClasses.itemValue;
-
+    var cellClass = this.cell.className;
     if (question.errors.length !== 0)
       cellClass += " " + question.cssClasses.hasError;
-
-    cellClass += " " + question.cssClasses.asCell;
-
     return cellClass;
   }
   protected getCellStyle(): any {

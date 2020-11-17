@@ -129,10 +129,13 @@ export var defaultBootstrapMaterialCss = {
   matrixdropdown: {
     root: "table",
     itemValue: "form-group bmd-form-group",
+    headerCell: "sv_matrix_cell_header",
+    detailRowText: "sv_matrix_cell_detail_rowtext",
     detailCell: "sv_matrix_cell_detail",
     detailButton: "sv_matrix_cell_detail_button",
     detailIcon: "sv_detail_panel_icon",
     detailIconExpanded: "sv_detail_expanded",
+    detailPanelCell: "sv_matrix_cell_detail_panel",
   },
   matrixdynamic: {
     mainRoot: "sv_qstn",
@@ -144,10 +147,12 @@ export var defaultBootstrapMaterialCss = {
     buttonRemove: "",
     iconAdd: "",
     iconRemove: "",
+    headerCell: "sv_matrix_cell_header",
     detailCell: "sv_matrix_cell_detail",
     detailButton: "sv_matrix_cell_detail_button",
     detailIcon: "sv_detail_panel_icon",
     detailIconExpanded: "sv_detail_expanded",
+    detailPanelCell: "sv_matrix_cell_detail_panel",
   },
   paneldynamic: {
     root: "",

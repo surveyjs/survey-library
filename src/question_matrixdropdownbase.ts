@@ -1182,6 +1182,7 @@ export class QuestionMatrixDropdownRenderedCell {
   public colSpans: number = 1;
   public panel: PanelModel;
   public isShowHideDetail: boolean;
+  public className: string = "";
   public constructor() {
     this.idValue = QuestionMatrixDropdownRenderedCell.counter++;
   }
@@ -1253,6 +1254,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
   private headerRowValue: QuestionMatrixDropdownRenderedRow;
   private footerRowValue: QuestionMatrixDropdownRenderedRow;
   private hasRemoveRowsValue: boolean;
+  private cssClasses: any;
   public constructor(public matrix: QuestionMatrixDropdownModelBase) {
     super();
     this.createNewArray("rows");
@@ -1289,6 +1291,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     this.hasRemoveRowsValue = this.matrix.canRemoveRows;
     //build rows now
     var rows = this.matrix.visibleRows;
+    this.cssClasses = this.matrix.cssClasses;
     this.buildHeader();
     this.buildRows();
     this.buildFooter();
@@ -1460,6 +1463,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     if (row.hasPanel) {
       let cell = new QuestionMatrixDropdownRenderedCell();
       cell.isShowHideDetail = true;
+      cell.className = this.cssClasses.detailCell;
       cell.row = row;
       res.cells.push(cell);
     }
@@ -1468,6 +1472,10 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
       res.cells.push(renderedCell);
       if (useAsHeader) {
         this.setHeaderCellWidth(null, renderedCell);
+      }
+      if (row.hasPanel && !!this.cssClasses.detailRowText) {
+        if (!!renderedCell.className) renderedCell.className += " ";
+        renderedCell.className += this.cssClasses.detailRowText;
       }
     }
     for (var i = 0; i < row.cells.length; i++) {
@@ -1504,6 +1512,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     var deleteCell = null;
     if (this.hasRemoveRows) {
       deleteCell = new QuestionMatrixDropdownRenderedCell();
+      deleteCell.isEmpty = true;
     }
     var cell = new QuestionMatrixDropdownRenderedCell();
     cell.panel = row.detailPanel;
@@ -1511,6 +1520,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
       renderedRow.cells.length -
       buttonCell.colSpans -
       (!!deleteCell ? deleteCell.colSpans : 0);
+    cell.className = this.cssClasses.detailPanelCell;
     res.cells.push(cell);
     if (!!deleteCell) {
       res.cells.push(deleteCell);
@@ -1614,6 +1624,22 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     res.row = cell.row;
     res.question = cell.question;
     res.matrix = this.matrix;
+    var questionCss = cell.question.cssClasses;
+    var className = "";
+    if (!!questionCss) {
+      className = "";
+      if (!!questionCss.itemValue) {
+        className += " " + questionCss.itemValue;
+      }
+      if (!!questionCss.asCell) {
+        if (!!className) className += "";
+        className += questionCss.asCell;
+      }
+    }
+    if (!className && !!this.cssClasses.cell) {
+      className = this.cssClasses.cell;
+    }
+    res.className = className;
     return res;
   }
   private createMutlipleColumnsFooter(
@@ -1644,6 +1670,9 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
   ): QuestionMatrixDropdownRenderedCell {
     var cell = this.createTextCell(!!column ? column.locTitle : null);
     this.setHeaderCell(column, cell);
+    if (this.cssClasses.headerCell) {
+      cell.className = this.cssClasses.headerCell;
+    }
     return cell;
   }
   private setHeaderCell(
@@ -1674,6 +1703,9 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     var res = new QuestionMatrixDropdownRenderedCell();
     res.row = row;
     res.isRemoveRow = this.canRemoveRow(row);
+    if (!!this.cssClasses.cell) {
+      res.className = this.cssClasses.cell;
+    }
     return res;
   }
   private createTextCell(
@@ -1683,6 +1715,9 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     cell.locTitle = !!locTitle
       ? locTitle
       : new LocalizableString(this.matrix, false);
+    if (!!this.cssClasses.cell) {
+      cell.className = this.cssClasses.cell;
+    }
     return cell;
   }
 }

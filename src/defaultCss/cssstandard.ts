@@ -136,10 +136,13 @@ export var defaultStandardCss = {
   matrixdropdown: {
     root: "sv_q_matrix_dropdown",
     cell: "sv_matrix_cell",
+    headerCell: "sv_matrix_cell_header",
+    detailRowText: "sv_matrix_cell_detail_rowtext",
     detailCell: "sv_matrix_cell_detail",
     detailButton: "sv_matrix_cell_detail_button",
     detailIcon: "sv_detail_panel_icon",
     detailIconExpanded: "sv_detail_expanded",
+    detailPanelCell: "sv_matrix_cell_detail_panel",
   },
   matrixdynamic: {
     root: "sv_q_matrix_dynamic",
@@ -149,10 +152,12 @@ export var defaultStandardCss = {
     iconAdd: "",
     iconRemove: "",
     cell: "sv_matrix_cell",
+    headerCell: "sv_matrix_cell_header",
     detailCell: "sv_matrix_cell_detail",
     detailButton: "sv_matrix_cell_detail_button",
     detailIcon: "sv_detail_panel_icon",
     detailIconExpanded: "sv_detail_expanded",
+    detailPanelCell: "sv_matrix_cell_detail_panel",
   },
   paneldynamic: {
     root: "sv_panel_dynamic",

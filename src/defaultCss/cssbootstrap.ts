@@ -125,10 +125,13 @@ export var defaultBootstrapCss = {
   matrixdropdown: {
     root: "table",
     cell: "sv_matrix_cell",
+    headerCell: "sv_matrix_cell_header",
+    detailRowText: "sv_matrix_cell_detail_rowtext",
     detailCell: "sv_matrix_cell_detail",
     detailButton: "sv_matrix_cell_detail_button",
     detailIcon: "sv_detail_panel_icon",
     detailIconExpanded: "sv_detail_expanded",
+    detailPanelCell: "sv_matrix_cell_detail_panel",
   },
   matrixdynamic: {
     root: "table",
@@ -137,10 +140,12 @@ export var defaultBootstrapCss = {
     buttonRemove: "",
     iconAdd: "",
     iconRemove: "",
+    headerCell: "sv_matrix_cell_header",
     detailCell: "sv_matrix_cell_detail",
     detailButton: "sv_matrix_cell_detail_button",
     detailIcon: "sv_detail_panel_icon",
     detailIconExpanded: "sv_detail_expanded",
+    detailPanelCell: "sv_matrix_cell_detail_panel",
   },
   paneldynamic: {
     root: "",

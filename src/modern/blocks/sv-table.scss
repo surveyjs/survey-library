@@ -21,13 +21,32 @@
   font-weight: bold;
   text-align: left;
 }
+.sv-table__cell--rowText {
+  vertical-align: middle;
+}
 .sv-table__cell--detail {
   text-align: center;
   vertical-align: middle;
   width: 32px;
 }
+.sv-table__cell--detail-rowtext {
+  vertical-align: middle;
+}
+.sv-table__cell--detail-panel {
+  padding-left: 1em;
+}
 .sv-table__cell--detail-button {
+  border: 3px solid $border-color;
+  border-radius: 50px;
   text-align: center;
   vertical-align: middle;
-  width: 24px;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  margin: 0;
+  outline: none;
+  cursor: pointer;
+}
+button.sv-table__cell--detail-button:focus {
+  border-radius: 50px;
 }

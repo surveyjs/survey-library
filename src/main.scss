@@ -163,7 +163,9 @@ $label-disabled-color: rgba(64, 64, 64, 0.5);
     background-color: lightgray;
     padding: 0;
   }
-
+  .sv_matrix_cell_detail_rowtext {
+    vertical-align: middle;
+  }
   .sv_q_m_cell_selected {
     color: $body-background-color;
     background-color: $main-hover-color;

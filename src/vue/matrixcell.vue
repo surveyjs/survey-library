@@ -1,6 +1,6 @@
 <template>
   <td
-    :class="getCellClass()"
+    :class="cell.className"
     :headers="getHeaders()"
     :style="getCellStyle()"
     :colspan="cell.colSpans"
@@ -108,22 +108,6 @@ export class MatrixCell extends Vue {
     var element = this.cell.question;
     if (!element) return "";
     return element.isVisible ? this.cell.cell.column.locTitle.renderedHtml : "";
-  }
-  getCellClass() {
-    if (this.cell.isShowHideDetail) return this.question.cssClasses.detailCell;
-    if (this.cell.hasPanel) return "";
-    var element = this.cell.question;
-    if (!element) return this.question.cssClasses.cell;
-
-    var cellClass = element.cssClasses.itemValue;
-
-    if (!!element.errors && element.errors.length > 0) {
-      cellClass += " " + element.cssClasses.hasError;
-    }
-
-    cellClass += " " + element.cssClasses.asCell;
-
-    return cellClass;
   }
   getCellStyle() {
     if (this.cell.isChoice) return { "text-align": "center" };

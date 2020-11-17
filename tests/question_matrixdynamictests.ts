@@ -4976,6 +4976,11 @@ QUnit.test("Detail panel, rendered table", function (assert) {
     "the first cell in detail panel has one colspan"
   );
   assert.equal(
+    rows[1].cells[0].isEmpty,
+    true,
+    "the first cell in detail panel is empty"
+  );
+  assert.equal(
     rows[1].cells[1].colSpans,
     3,
     "colSpans set correctly for detail panel cell"
@@ -4984,6 +4989,11 @@ QUnit.test("Detail panel, rendered table", function (assert) {
     rows[1].cells[2].colSpans,
     1,
     "the last cell in detail panel has one colspan"
+  );
+  assert.equal(
+    rows[1].cells[2].isEmpty,
+    true,
+    "the last cell in detail panel is empty"
   );
   matrix.addRow();
   assert.equal(rows.length, 4, "We added a new row");
@@ -5164,5 +5174,48 @@ QUnit.test("Detail panel, underRowSingle", function (assert) {
     rows[0].isDetailPanelShowing,
     false,
     "We automatically hide detail panel in the first row"
+  );
+});
+QUnit.test("Detail panel, rendered table and className", function (assert) {
+  var survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdropdown",
+        name: "matrix",
+        rowCount: 2,
+        detailPanelMode: "underRow",
+        columns: [{ name: "col1" }, { name: "col2" }, { name: "col3" }],
+        detailElements: [{ type: "text", name: "q1" }],
+        rows: ["row1", "row2"],
+      },
+    ],
+  });
+  var matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+  matrix.visibleRows[0].showDetailPanel();
+  assert.equal(
+    matrix.renderedTable.headerRow.cells[1].className,
+    "sv_matrix_cell_header",
+    "Set header cell"
+  );
+  var rows = matrix.renderedTable.rows;
+  assert.equal(
+    rows[0].cells[0].className,
+    "sv_matrix_cell_detail",
+    "Detail button css"
+  );
+  assert.equal(
+    rows[0].cells[1].className,
+    "sv_matrix_cell sv_matrix_cell_detail_rowtext",
+    "row text css"
+  );
+  assert.equal(
+    rows[0].cells[2].className,
+    "sv_matrix_cell",
+    "row question cell css"
+  );
+  assert.equal(
+    rows[1].cells[1].className,
+    "sv_matrix_cell_detail_panel",
+    "panel cell css"
   );
 });

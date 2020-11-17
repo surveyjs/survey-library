@@ -207,6 +207,7 @@ const applyTheme = ClientFunction((theme) => {
           .parent("[aria-labelledby]")
           .find("img")
           .withAttribute("alt", "item1")
+          .parent()
       );
 
       await t.click(
@@ -248,6 +249,7 @@ const applyTheme = ClientFunction((theme) => {
           .find("tr")
           .withText("Row 1")
           .find("input[type='radio']")
+          .parent()
       );
 
       const matrixDropdownRow = Selector(

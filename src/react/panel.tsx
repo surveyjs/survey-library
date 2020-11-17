@@ -77,7 +77,7 @@ export class SurveyPanel extends SurveyPanelBase {
     className: string
   ): JSX.Element {
     return (
-      <div style={style} className={className}>
+      <div style={style} className={className} id={this.panel.contentId}>
         {rows}
       </div>
     );
@@ -103,8 +103,16 @@ export class SurveyPanel extends SurveyPanelBase {
       var pressExpand = (event: any) => {
         if (event.keyCode == 13) changeExpanded();
       };
+      var ariaExpanded = this.panel.isExpanded;
+      var ariaControls = this.panel.isExpanded ? this.panel.contentId : null;
       expandCollapse = (
-        <span className={iconCss} tabIndex={0} onKeyUp={pressExpand} />
+        <span
+          className={iconCss}
+          tabIndex={0}
+          onKeyUp={pressExpand}
+          aria-expanded={ariaExpanded}
+          aria-controls={ariaControls}
+        />
       );
     }
 

@@ -1435,6 +1435,9 @@ export class PanelModel
   public getType(): string {
     return "panel";
   }
+  public get contentId(): string {
+    return this.id + "_content";
+  }
   onSurveyLoad() {
     super.onSurveyLoad();
     this.onIndentChanged();

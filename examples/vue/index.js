@@ -115,8 +115,13 @@ function init() {
      }
     ],
     "showProgressBar": "top",
-    "progressBarType": "buttons"
-   };
+    "progressBarType": "hello"
+  };
+
+  Vue.component('survey-progress-hello', {
+    props: ['survey'],
+    template: '<div>{{ survey.title }}</div>'
+  });
 
   Survey.StylesManager.applyTheme("default");
 

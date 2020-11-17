@@ -1,4 +1,4 @@
-﻿<script type="text/html" id="survey-question-matrixdynamic">
+﻿﻿<script type="text/html" id="survey-question-matrixdynamic">
   <div data-bind="visible: question.koIsAddRowOnTop(), css: question.koCss().footer">
       <button type="button" data-bind="click:question.koAddRowClick, css: question.koCss().button + ' ' + question.koCss().buttonAdd">
           <span data-bind="text: question.addRowText"></span>
@@ -25,11 +25,28 @@
               <!-- ko foreach: question.koTable().rows -->
               <tr>
                   <!-- ko foreach: $data.cells -->
+                    <!-- ko if: $data.isShowHideDetail -->
+                    <td data-bind="css:$data.className">
+                      <button  type="button" data-bind="css:question.getDetailPanelButtonCss($data.row), click:row.showHideDetailPanelClick">
+                        <span data-bind="css: question.getDetailPanelIconCss($data.row)"></span>
+                      </button>
+                    </td>
+                    <!-- /ko -->
+                    <!-- ko if: $data.isEmpty -->
+                    <td data-bind="attr: {colspan: $data.colSpans}">
+                    </td>
+                    <!-- /ko -->
+                    <!-- ko if: $data.hasPanel -->
+                    <td data-bind="css:$data.className, attr: {colspan: $data.colSpans}">
+                      <!-- ko template: { name: $data.panel.koElementType, data: $data.panel, afterRender: question.koPanelAfterRender } -->
+                      <!-- /ko -->
+                    </td>
+                    <!-- /ko -->
                     <!-- ko if: $data.hasQuestion -->
                         <!-- ko template: { name: 'survey-matrixcell', afterRender: function(els) { $data.matrix.koCellAfterRender(els, $data); } } --><!-- /ko -->
                     <!-- /ko -->
                     <!-- ko if: $data.hasTitle -->
-                        <td data-bind="css: question.koCss().cell, style: { minWidth: $data.minWidth, width: $data.width }">
+                        <td data-bind="css: $data.className, style: { minWidth: $data.minWidth, width: $data.width }">
                             <!-- ko template: { name: 'survey-string', data: $data.locTitle } --><!-- /ko -->
                             <!-- ko if: $data.requiredText -->
                             <span data-bind="text: $data.requiredText"></span>
@@ -37,7 +54,7 @@
                         </td>
                     <!-- /ko -->
                     <!-- ko if: $data.isRemoveRow -->
-                    <td data-bind="css: question.koCss().cell">
+                    <td data-bind="css: $data.className">
                         <button type="button" data-bind="click:question.koRemoveRowClick, css: question.koCss().button + ' ' + question.koCss().buttonRemove">
                             <span data-bind="text: question.removeRowText"></span>
                             <span data-bind="css: question.koCss().iconRemove"></span>
@@ -72,7 +89,7 @@
   </div>
 </script>
 <script type="text/html" id="survey-matrixcell">
-  <td data-bind="css: question.koCss().asCell + ' ' + question.koCss().itemValue + (question.errors.length > 0 ? ' ' + question.koCss().hasError : ''), style: {'text-align': $data.isChoice ? 'center': '', minWidth: $data.minWidth, width: $data.width}, attr: { headers: question.isVisible ? question.locTitle.renderedHtml : '' }">
+  <td data-bind="css: $data.className + (question.errors.length > 0 ? ' ' + question.koCss().hasError : ''), style: {'text-align': $data.isChoice ? 'center': '', minWidth: $data.minWidth, width: $data.width}, attr: { headers: question.isVisible ? question.locTitle.renderedHtml : '' }">
       <div data-bind="visible: question.isVisible">
           <!-- ko if: $data.showErrorOnTop -->
             <!-- ko template: { name: 'survey-question-errors', data: question } -->

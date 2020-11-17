@@ -15,7 +15,7 @@ export class PropertyGrid extends PropertyGridModel {
     };
   }
 
-  protected createSurvey(): SurveyModel {
-    return new Survey(this.createJSON());
+  protected createSurvey(json: any): SurveyModel {
+    return new Survey(json);
   }
 }

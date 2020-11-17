@@ -1,7 +1,30 @@
 <template>
-  <td :class="getCellClass()" :headers="getHeaders()" :style="getCellStyle()">
+  <td
+    :class="cell.className"
+    :headers="getHeaders()"
+    :style="getCellStyle()"
+    :colspan="cell.colSpans"
+  >
+    <button
+      v-if="cell.isShowHideDetail"
+      type="button"
+      :class="question.getDetailPanelButtonCss(cell.row)"
+      @click="showHideDetailPanelClick()"
+    >
+      <span :class="question.getDetailPanelIconCss(cell.row)"></span>
+    </button>
+    <component
+      v-if="cell.hasPanel"
+      :is="getComponentName(cell.panel)"
+      :question="cell.panel"
+      :css="question.survey.css"
+    ></component>
     <div v-if="cell.hasQuestion">
-      <survey-errors v-if="hasErrorsOnTop" :question="cell.question" :location="'top'" />
+      <survey-errors
+        v-if="hasErrorsOnTop"
+        :question="cell.question"
+        :location="'top'"
+      />
       <component
         v-if="!cell.isChoice && cell.question.isDefaultRendering()"
         v-show="isVisible"
@@ -32,19 +55,25 @@
         :index="'' + cell.index"
         :hideLabel="true"
       ></survey-checkbox-item>
-      <survey-errors v-if="hasErrorsOnBottom" :question="cell.question" :location="'bottom'" />
+      <survey-errors
+        v-if="hasErrorsOnBottom"
+        :question="cell.question"
+        :location="'bottom'"
+      />
     </div>
     <button
       v-if="cell.isRemoveRow"
       type="button"
-      :class="question.cssClasses.button + ' ' + question.cssClasses.buttonRemove"
+      :class="
+        question.cssClasses.button + ' ' + question.cssClasses.buttonRemove
+      "
       @click="removeRowClick()"
     >
-      <span>{{question.removeRowText}}</span>
+      <span>{{ question.removeRowText }}</span>
       <span :class="question.cssClasses.iconRemove"></span>
     </button>
     <survey-string v-if="cell.hasTitle" :locString="cell.locTitle" />
-    <span v-if="!!cell.requiredText">{{cell.requiredText}}</span>
+    <span v-if="!!cell.requiredText">{{ cell.requiredText }}</span>
   </td>
 </template>
 
@@ -80,20 +109,6 @@ export class MatrixCell extends Vue {
     if (!element) return "";
     return element.isVisible ? this.cell.cell.column.locTitle.renderedHtml : "";
   }
-  getCellClass() {
-    var element = this.cell.question;
-    if (!element) return this.question.cssClasses.cell;
-
-    var cellClass = element.cssClasses.itemValue;
-
-    if (!!element.errors && element.errors.length > 0) {
-      cellClass += " " + element.cssClasses.hasError;
-    }
-
-    cellClass += " " + element.cssClasses.asCell;
-
-    return cellClass;
-  }
   getCellStyle() {
     if (this.cell.isChoice) return { "text-align": "center" };
     if (!!this.cell.width || !!this.cell.minWidth)
@@ -114,6 +129,9 @@ export class MatrixCell extends Vue {
   removeRowClick() {
     this.question.removeRowUI(this.cell.row);
   }
+  showHideDetailPanelClick() {
+    this.cell.row.showHideDetailPanelClick();
+  }
   mounted() {
     if (!this.cell.hasQuestion || !this.question || !this.question.survey)
       return;
@@ -121,7 +139,7 @@ export class MatrixCell extends Vue {
     var self = this;
     this.cell.question.registerFunctionOnPropertyValueChanged(
       "isVisible",
-      function() {
+      function () {
         self.onVisibilityChanged();
       }
     );

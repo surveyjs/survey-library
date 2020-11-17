@@ -7,17 +7,10 @@ import { SurveyProgressButtonsModel } from '../surveyProgressButtons';
 export class SurveyProgressButtons extends SurveyNavigationBase {
   private progressButtonsModel: SurveyProgressButtonsModel;
   private updateScroller: any = undefined;
-  private isNavigationMounted: boolean = false;
   private listContainerRef: React.RefObject<HTMLDivElement>;
   constructor(props: any) {
     super(props);
     this.progressButtonsModel = new SurveyProgressButtonsModel(this.survey);
-    this.updateScroller = setInterval(() => {
-      if (this.isNavigationMounted) {
-        this.setState({ hasScroller: this.listContainerRef.current.scrollWidth >
-          this.listContainerRef.current.offsetWidth});
-      }
-    }, 100);
     this.listContainerRef = React.createRef();
   }
   render(): JSX.Element {
@@ -74,10 +67,12 @@ export class SurveyProgressButtons extends SurveyNavigationBase {
     listContainerElement.scrollLeft += (isLeftScroll ? -1 : 1) * 70;
   }
   componentDidMount() {
-    this.isNavigationMounted = true;
+    this.updateScroller = setInterval(() => {
+      this.setState({ hasScroller: this.listContainerRef.current.scrollWidth >
+        this.listContainerRef.current.offsetWidth});
+    }, 100);
   }
   componentWillUnmount() {
-    this.isNavigationMounted = false;
     if (typeof this.updateScroller !== "undefined") {
       clearInterval(this.updateScroller);
       this.updateScroller = undefined;

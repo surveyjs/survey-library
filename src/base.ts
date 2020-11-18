@@ -355,9 +355,9 @@ export class Bindings {
  */
 export class Base {
   public static isSurveyElement(val: any): boolean {
-    if(!val) return false;
-    if(Array.isArray(val)) {
-      if(val.length == 0) return false;
+    if (!val) return false;
+    if (Array.isArray(val)) {
+      if (val.length == 0) return false;
       return Base.isSurveyElement(val[0]);
     }
     return !!val.getType && !!val.onPropertyChanged;
@@ -529,9 +529,13 @@ export class Base {
     if (this.IsPropertyEmpty(res)) {
       if (defaultValue != null) return defaultValue;
       var prop = Serializer.findProperty(this.getType(), name);
-      if(!!prop && (!prop.isCustom || !this.isCreating)) {
-        if (!this.IsPropertyEmpty(prop.defaultValue) && !Array.isArray(prop.defaultValue)) return prop.defaultValue;
-        if(prop.type == "boolean" || prop.type == "switch") return false;
+      if (!!prop && (!prop.isCustom || !this.isCreating)) {
+        if (
+          !this.IsPropertyEmpty(prop.defaultValue) &&
+          !Array.isArray(prop.defaultValue)
+        )
+          return prop.defaultValue;
+        if (prop.type == "boolean" || prop.type == "switch") return false;
       }
     }
     return res;
@@ -581,8 +585,8 @@ export class Base {
     }
   }
   protected clearPropertyValue(name: string) {
-    this.setPropertyValueCore(this.propertyHash, name, null);   
-    delete this.propertyHash[name]; 
+    this.setPropertyValueCore(this.propertyHash, name, null);
+    delete this.propertyHash[name];
   }
   public onPropertyValueChangedCallback(
     name: string,
@@ -827,8 +831,8 @@ export class Base {
     this.arraysInfo[name].isItemValues = true;
     return result;
   }
-  private notifyArrayChanged(ar: any) {
-    !!ar.onArrayChanged && ar.onArrayChanged();
+  private notifyArrayChanged(ar: any, arrayChanges: ArrayChanges) {
+    !!ar.onArrayChanged && ar.onArrayChanged(arrayChanges);
   }
   protected createNewArrayCore(name: string): Array<any> {
     var res = null;
@@ -862,7 +866,7 @@ export class Base {
         []
       );
       self.propertyValueChanged(name, newArray, newArray, arrayChanges);
-      self.notifyArrayChanged(newArray);
+      self.notifyArrayChanged(newArray, arrayChanges);
       return result;
     };
     newArray.unshift = function (value): number {
@@ -873,7 +877,7 @@ export class Base {
       if (onPush) onPush(value, newArray.length - 1);
       const arrayChanges = new ArrayChanges(0, 0, [value], []);
       self.propertyValueChanged(name, newArray, newArray, arrayChanges);
-      self.notifyArrayChanged(newArray);
+      self.notifyArrayChanged(newArray, arrayChanges);
       return result;
     };
     newArray.pop = function (): number {
@@ -881,7 +885,7 @@ export class Base {
       if (onRemove) onRemove(result);
       const arrayChanges = new ArrayChanges(newArray.length - 1, 1, [], []);
       self.propertyValueChanged(name, newArray, newArray, arrayChanges);
-      self.notifyArrayChanged(newArray);
+      self.notifyArrayChanged(newArray, arrayChanges);
       return result;
     };
     newArray.splice = function (
@@ -911,7 +915,7 @@ export class Base {
 
       const arrayChanges = new ArrayChanges(start, deleteCount, items, result);
       self.propertyValueChanged(name, newArray, newArray, arrayChanges);
-      self.notifyArrayChanged(newArray);
+      self.notifyArrayChanged(newArray, arrayChanges);
       return result;
     };
 
@@ -948,7 +952,7 @@ export class Base {
       deletedItems
     );
     this.propertyValueChanged(name, deletedItems, src, arrayChanges);
-    this.notifyArrayChanged(src);
+    this.notifyArrayChanged(src, arrayChanges);
   }
   protected isTwoValueEquals(
     x: any,

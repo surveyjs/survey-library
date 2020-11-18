@@ -36,6 +36,10 @@ export class DragDropInfo {
 }
 
 export class QuestionRowModel extends Base {
+  private static rowCounter = 100;
+  private static getRowId(): string {
+    return "pr_" + QuestionRowModel.rowCounter++;
+  }
   private _scrollableParent: any = undefined;
   private _updateVisibility: any = undefined;
   public startLazyRendering(rowContainerDiv: HTMLElement) {
@@ -62,11 +66,16 @@ export class QuestionRowModel extends Base {
     this._scrollableParent = undefined;
     this._updateVisibility = undefined;
   }
+  private idValue: string;
   constructor(public panel: PanelModelBase) {
     super();
+    this.idValue = QuestionRowModel.getRowId();
     this.isNeedRender = !settings.lazyRowsRendering;
     this.visible = panel.areInvisibleElementsShowing;
     this.createNewArray("elements");
+  }
+  public get id(): string {
+    return this.idValue;
   }
   public get elements(): Array<IElement> {
     return this.getPropertyValue("elements");

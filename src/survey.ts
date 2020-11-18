@@ -42,7 +42,8 @@ import { settings } from "./settings";
 /**
  * The `Survey` object contains information about the survey, Pages, Questions, flow logic and etc.
  */
-export class SurveyModel extends Base
+export class SurveyModel
+  extends Base
   implements
     ISurvey,
     ISurveyData,
@@ -4371,6 +4372,7 @@ export class SurveyModel extends Base
       this.isTwoValueEquals(newValue, newQuestionValue)
     )
       return;
+    var oldValue = this.getValue(name);
     if (this.isValueEmpty(newValue)) {
       this.deleteDataValueCore(this.valuesHash, name);
     } else {
@@ -4380,7 +4382,7 @@ export class SurveyModel extends Base
     this.updateQuestionValue(name, newValue);
     if (locNotification === true) return;
     var triggerKeys: { [index: string]: any } = {};
-    triggerKeys[name] = newValue;
+    triggerKeys[name] = { newValue: newValue, oldValue: oldValue };
     this.checkTriggers(triggerKeys, false);
     this.runConditions();
     if (allowNotifyValueChanged)

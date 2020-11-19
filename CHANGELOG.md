@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.8.14](https://github.com/surveyjs/survey-library/compare/v1.8.13...v1.8.14) (2020-11-19)
+
+
+### Bug Fixes
+
+* Panel title is not displayed in Creator on changing the title property value [#2510](https://github.com/surveyjs/survey-library/issues/2510) ([37bae80](https://github.com/surveyjs/survey-library/commit/37bae8098ea2157b5be451cf3e68ea6f4ab75ad9))
+* survey-react lazy rendering works slow in comparison with survey-knockout and survey-vue platforms [#2515](https://github.com/surveyjs/survey-library/issues/2515) ([980b330](https://github.com/surveyjs/survey-library/commit/980b330ea1607396707f4192a3185aa2e5e51d02))
+* Warning cause of missing prop matrix.vue [#2513](https://github.com/surveyjs/survey-library/issues/2513) ([ad52387](https://github.com/surveyjs/survey-library/commit/ad5238728e668d02b7c9c205653703ff6ba83e54))
+
 ### [1.8.13](https://github.com/surveyjs/survey-library/compare/v1.8.12...v1.8.13) (2020-11-09)
 
 

@@ -764,6 +764,9 @@ export class MatrixDropdownRowModelBase
   public get detailPanel(): PanelModel {
     return this.detailPanelValue;
   }
+  public get detailPanelId(): string {
+    return !!this.detailPanel ? this.detailPanel.id : "";
+  }
   public get isDetailPanelShowing(): boolean {
     return !!this.data ? this.data.getIsDetailPanelShowing(this) : false;
   }

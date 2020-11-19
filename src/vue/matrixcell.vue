@@ -10,6 +10,14 @@
       type="button"
       :class="question.getDetailPanelButtonCss(cell.row)"
       @click="showHideDetailPanelClick()"
+      v-bind:aria-expanded="
+        question.getIsDetailPanelShowing(cell.row) ? 'true' : 'false'
+      "
+      :aria-controls="
+        question.getIsDetailPanelShowing(cell.row)
+          ? cell.row.detailPanelId
+          : null
+      "
     >
       <span :class="question.getDetailPanelIconCss(cell.row)"></span>
     </button>

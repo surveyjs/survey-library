@@ -27,7 +27,7 @@
                   <!-- ko foreach: $data.cells -->
                     <!-- ko if: $data.isShowHideDetail -->
                     <td data-bind="css:$data.className">
-                      <button  type="button" data-bind="css:question.getDetailPanelButtonCss($data.row), click:row.showHideDetailPanelClick">
+                      <button  type="button" data-bind="css:question.getDetailPanelButtonCss($data.row), click:row.showHideDetailPanelClick, attr:{'aria-expanded': question.getIsDetailPanelShowing($data.row) ? 'true': 'false', 'aria-controls': question.getIsDetailPanelShowing($data.row) ? row.detailPanelId: false}">
                         <span data-bind="css: question.getDetailPanelIconCss($data.row)"></span>
                       </button>
                     </td>

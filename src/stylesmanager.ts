@@ -146,7 +146,7 @@ export class StylesManager {
     ".sv_progress-buttons__list li":
       "width: 138px; font-size: 14px; font-family: 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif; position: relative; text-align: center; vertical-align: top; display: inline-block;",
     ".sv_progress-buttons__list li:before":
-      "width: 24px; height: 24px; content: ''; line-height: 30px; border: 3px solid #8dd9ca; display: block; margin: 0 auto 10px auto; border-radius: 50%; background-color: #8dd9ca; cursor: pointer;",
+      "width: 24px; height: 24px; content: ''; line-height: 30px; border: 3px solid #8dd9ca; display: block; margin: 0 auto 10px auto; border-radius: 50%; box-sizing: content-box; background-color: #8dd9ca; cursor: pointer;",
     ".sv_progress-buttons__list li:after":
       "width: 73%; height: 3px; content: ''; position: absolute; background-color: #d4d4d4; top: 15px; left: -36.5%;",
     ".sv_progress-buttons__list li:first-child:after": "content: none;",

@@ -132,22 +132,36 @@ export class StylesManager {
 
     //progress buttons
     ".sv_progress-buttons__container-center": "text-align: center;",
-    ".sv_progress-buttons__container": "display: inline-block; width: 100%; max-width: 1100px; white-space: nowrap; overflow: hidden;",
-    ".sv_progress-buttons__image-button-left": "display: inline-block; vertical-align: top; margin-top: 22px; width: 16px; height: 16px; cursor: pointer; background-image: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4NCjwhLS0gR2VuZXJhdG9yOiBBZG9iZSBJbGx1c3RyYXRvciAyMi4wLjEsIFNWRyBFeHBvcnQgUGx1Zy1JbiAuIFNWRyBWZXJzaW9uOiA2LjAwIEJ1aWxkIDApICAtLT4NCjxzdmcgdmVyc2lvbj0iMS4xIiBpZD0iTGF5ZXJfMSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWxuczp4bGluaz0iaHR0cDovL3d3dy53My5vcmcvMTk5OS94bGluayIgeD0iMHB4IiB5PSIwcHgiDQoJIHZpZXdCb3g9IjAgMCAxNiAxNiIgc3R5bGU9ImVuYWJsZS1iYWNrZ3JvdW5kOm5ldyAwIDAgMTYgMTY7IiB4bWw6c3BhY2U9InByZXNlcnZlIj4NCjxwb2x5Z29uIHBvaW50cz0iMTEsMTIgOSwxNCAzLDggOSwyIDExLDQgNyw4ICIvPg0KPC9zdmc+DQo=);",
-    ".sv_progress-buttons__image-button-right": "display: inline-block; vertical-align: top; margin-top: 22px; width: 16px; height: 16px; cursor: pointer; background-image: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4NCjwhLS0gR2VuZXJhdG9yOiBBZG9iZSBJbGx1c3RyYXRvciAyMi4wLjEsIFNWRyBFeHBvcnQgUGx1Zy1JbiAuIFNWRyBWZXJzaW9uOiA2LjAwIEJ1aWxkIDApICAtLT4NCjxzdmcgdmVyc2lvbj0iMS4xIiBpZD0iTGF5ZXJfMSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWxuczp4bGluaz0iaHR0cDovL3d3dy53My5vcmcvMTk5OS94bGluayIgeD0iMHB4IiB5PSIwcHgiDQoJIHZpZXdCb3g9IjAgMCAxNiAxNiIgc3R5bGU9ImVuYWJsZS1iYWNrZ3JvdW5kOm5ldyAwIDAgMTYgMTY7IiB4bWw6c3BhY2U9InByZXNlcnZlIj4NCjxwb2x5Z29uIHBvaW50cz0iNSw0IDcsMiAxMyw4IDcsMTQgNSwxMiA5LDggIi8+DQo8L3N2Zz4NCg==);",
+    ".sv_progress-buttons__container":
+      "display: inline-block; font-size:0; width: 100%; max-width: 1100px; white-space: nowrap; overflow: hidden;",
+    ".sv_progress-buttons__image-button-left":
+      "display: inline-block; vertical-align: top; margin-top: 22px; font-size: 14px; width: 16px; height: 16px; cursor: pointer; background-image: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4NCjwhLS0gR2VuZXJhdG9yOiBBZG9iZSBJbGx1c3RyYXRvciAyMi4wLjEsIFNWRyBFeHBvcnQgUGx1Zy1JbiAuIFNWRyBWZXJzaW9uOiA2LjAwIEJ1aWxkIDApICAtLT4NCjxzdmcgdmVyc2lvbj0iMS4xIiBpZD0iTGF5ZXJfMSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWxuczp4bGluaz0iaHR0cDovL3d3dy53My5vcmcvMTk5OS94bGluayIgeD0iMHB4IiB5PSIwcHgiDQoJIHZpZXdCb3g9IjAgMCAxNiAxNiIgc3R5bGU9ImVuYWJsZS1iYWNrZ3JvdW5kOm5ldyAwIDAgMTYgMTY7IiB4bWw6c3BhY2U9InByZXNlcnZlIj4NCjxwb2x5Z29uIHBvaW50cz0iMTEsMTIgOSwxNCAzLDggOSwyIDExLDQgNyw4ICIvPg0KPC9zdmc+DQo=);",
+    ".sv_progress-buttons__image-button-right":
+      "display: inline-block; vertical-align: top; margin-top: 22px; font-size: 14px; width: 16px; height: 16px; cursor: pointer; background-image: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4NCjwhLS0gR2VuZXJhdG9yOiBBZG9iZSBJbGx1c3RyYXRvciAyMi4wLjEsIFNWRyBFeHBvcnQgUGx1Zy1JbiAuIFNWRyBWZXJzaW9uOiA2LjAwIEJ1aWxkIDApICAtLT4NCjxzdmcgdmVyc2lvbj0iMS4xIiBpZD0iTGF5ZXJfMSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWxuczp4bGluaz0iaHR0cDovL3d3dy53My5vcmcvMTk5OS94bGluayIgeD0iMHB4IiB5PSIwcHgiDQoJIHZpZXdCb3g9IjAgMCAxNiAxNiIgc3R5bGU9ImVuYWJsZS1iYWNrZ3JvdW5kOm5ldyAwIDAgMTYgMTY7IiB4bWw6c3BhY2U9InByZXNlcnZlIj4NCjxwb2x5Z29uIHBvaW50cz0iNSw0IDcsMiAxMyw4IDcsMTQgNSwxMiA5LDggIi8+DQo8L3N2Zz4NCg==);",
     ".sv_progress-buttons__image-button--hidden": "visibility: hidden;",
-    ".sv_progress-buttons__list-container": "max-width: calc(100% - 36px); display: inline-block; overflow: hidden;",
-    ".sv_progress-buttons__list": "padding-left: 28px; padding-right: 28px; display: inline-block; width: max-content;",
-    ".sv_progress-buttons__list li": "width: 138px; font-size: 14px; font-family: 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif; position: relative; text-align: center; vertical-align: top; display: inline-block;",
-    ".sv_progress-buttons__list li:before": "width: 24px; height: 24px; content: ''; line-height: 30px; border: 3px solid #8dd9ca; display: block; margin: 0 auto 10px auto; border-radius: 50%; background-color: #8dd9ca; cursor: pointer;",
-    ".sv_progress-buttons__list li:after": "width: 73%; height: 3px; content: ''; position: absolute; background-color: #d4d4d4; top: 15px; left: -36.5%;",
+    ".sv_progress-buttons__list-container":
+      "max-width: calc(100% - 36px); display: inline-block; overflow: hidden;",
+    ".sv_progress-buttons__list":
+      "display: inline-block; width: max-content; padding-left: 28px; padding-right: 28px; margin-top: 14px; margin-bottom: 14px;",
+    ".sv_progress-buttons__list li":
+      "width: 138px; font-size: 14px; font-family: 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif; position: relative; text-align: center; vertical-align: top; display: inline-block;",
+    ".sv_progress-buttons__list li:before":
+      "width: 24px; height: 24px; content: ''; line-height: 30px; border: 3px solid #8dd9ca; display: block; margin: 0 auto 10px auto; border-radius: 50%; background-color: #8dd9ca; cursor: pointer;",
+    ".sv_progress-buttons__list li:after":
+      "width: 73%; height: 3px; content: ''; position: absolute; background-color: #d4d4d4; top: 15px; left: -36.5%;",
     ".sv_progress-buttons__list li:first-child:after": "content: none;",
-    ".sv_progress-buttons__list .sv_progress-buttons__page-title": "width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: $text-color; font-weight: bold;",
-    ".sv_progress-buttons__list .sv_progress-buttons__page-description": "width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: $text-color;",
-    ".sv_progress-buttons__list li.sv_progress-buttons__list-element--passed:before": "border-color: #1ab394; background-color: #1ab394;",
-    ".sv_progress-buttons__list li.sv_progress-buttons__list-element--passed + li:after": "background-color: #8dd9ca;",
-    ".sv_progress-buttons__list li.sv_progress-buttons__list-element--current:before": "border-color: #1ab394; background-color: white;",
-    ".sv_progress-buttons__list li.sv_progress-buttons__list-element--passed.sv_progress-buttons__list-element--current:before": "border-color: #1ab394; background-color: white;",
+    ".sv_progress-buttons__list .sv_progress-buttons__page-title":
+      "width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: $text-color; font-weight: bold;",
+    ".sv_progress-buttons__list .sv_progress-buttons__page-description":
+      "width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: $text-color;",
+    ".sv_progress-buttons__list li.sv_progress-buttons__list-element--passed:before":
+      "border-color: #1ab394; background-color: #1ab394;",
+    ".sv_progress-buttons__list li.sv_progress-buttons__list-element--passed + li:after":
+      "background-color: #8dd9ca;",
+    ".sv_progress-buttons__list li.sv_progress-buttons__list-element--current:before":
+      "border-color: #1ab394; background-color: white;",
+    ".sv_progress-buttons__list li.sv_progress-buttons__list-element--passed.sv_progress-buttons__list-element--current:before":
+      "border-color: #1ab394; background-color: white;",
 
     ".sv_qstn .sv_q_select_column":
       "display: inline-block; vertical-align: top; min-width: 10%;",
@@ -230,7 +244,8 @@ export class StylesManager {
       "display: block; width: 100%; text-align: center;",
     ".sv_main .sv-logo--bottom":
       "display: block; width: 100%; text-align: center;",
-    ".sv_main .sv_header__text": "display: inline-block; vertical-align: top; width: 100%",
+    ".sv_main .sv_header__text":
+      "display: inline-block; vertical-align: top; width: 100%",
   };
 
   public static Media: { [key: string]: { media: string; style: string } } = {

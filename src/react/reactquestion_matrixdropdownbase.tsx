@@ -1,5 +1,5 @@
 import * as React from "react";
-import { SurveyQuestionElementBase } from "./reactquestion_element";
+import { ReactSurveyElement, SurveyQuestionElementBase } from "./reactquestion_element";
 import { SurveyQuestion, SurveyQuestionAndErrorsCell } from "./reactquestion";
 import {
   MatrixDropdownRowModelBase,

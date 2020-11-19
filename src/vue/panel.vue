@@ -1,28 +1,41 @@
 <template>
-  <div v-if="question.isVisible" :class="question.cssClasses.panel.container" :style="rootStyle">
+  <div
+    v-if="question.isVisible"
+    :class="question.cssClasses.panel.container"
+    :style="rootStyle"
+  >
     <h4 v-show="hasTitle" :class="getTitleStyle()" v-on:click="changeExpanded">
-      <span v-if="question.isRequireTextOnStart" :class="requiredTextCss">{{question.requiredText}}</span>
+      <span v-if="question.isRequireTextOnStart" :class="requiredTextCss">{{
+        question.requiredText
+      }}</span>
       <span
         v-if="question.no"
-        style="position: static;"
+        style="position: static"
         :class="question.cssClasses.number"
-      >{{question.no}}</span>
-      <span
-        v-if="question.isRequireTextBeforeTitle"
-        :class="requiredTextCss"
-      >{{question.requiredText}}</span>
+        >{{ question.no }}</span
+      >
+      <span v-if="question.isRequireTextBeforeTitle" :class="requiredTextCss">{{
+        question.requiredText
+      }}</span>
       <survey-string :locString="question.locTitle" />
+      <span v-if="question.isRequireTextAfterTitle" :class="requiredTextCss">{{
+        question.requiredText
+      }}</span>
       <span
-        v-if="question.isRequireTextAfterTitle"
-        :class="requiredTextCss"
-      >{{question.requiredText}}</span>
-      <span v-show="showIcon" :class="iconCss" v-on:keyup.enter="changeExpanded" tabindex="0"></span>
+        v-show="showIcon"
+        :class="iconCss"
+        v-on:keyup.enter="changeExpanded"
+        tabindex="0"
+        v-bind:aria-expanded="isCollapsed ? 'false' : 'true'"
+        :aria-controls="!isCollapsed ? question.contentId : null"
+      ></span>
     </h4>
     <div :class="question.cssClasses.panel.description">
       <survey-string :locString="question.locDescription" />
     </div>
     <survey-errors :question="question" />
     <div
+      :id="question.contentId"
       :style="{ paddingLeft: question.innerPaddingLeft }"
       v-show="!isCollapsed"
       :class="question.cssClasses.panel.content"
@@ -35,7 +48,10 @@
       >
         <survey-row :row="row" :survey="survey" :css="css"></survey-row>
       </div>
-      <div v-if="question.hasEditButton" :class="question.cssClasses.panel.footer">
+      <div
+        v-if="question.hasEditButton"
+        :class="question.cssClasses.panel.footer"
+      >
         <input
           type="button"
           :value="survey.editText"
@@ -52,7 +68,7 @@ import Vue from "vue";
 import { Component, Prop } from "vue-property-decorator";
 import { PanelModelBase, PanelModel, QuestionRowModel } from "../panel";
 import { ISurvey, Base } from "../base";
-import {BaseVue} from "./base";
+import { BaseVue } from "./base";
 
 @Component
 export class Panel extends BaseVue {
@@ -61,7 +77,9 @@ export class Panel extends BaseVue {
   @Prop css: any;
   private isCollapsedValue: boolean = false;
 
-  protected getModel(): Base { return this.question; }
+  protected getModel(): Base {
+    return this.question;
+  }
   protected onMounted() {
     if (this.question.survey) {
       this.question.survey.afterRenderPanel(this.question, this.$el);
@@ -70,7 +88,7 @@ export class Panel extends BaseVue {
     var self = this;
     this.question.registerFunctionOnPropertyValueChanged(
       "state",
-      function(val: any) {
+      function (val: any) {
         self.isCollapsed = self.question.isCollapsed;
       },
       "panel"

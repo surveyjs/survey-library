@@ -2,12 +2,13 @@ import { SurveyModel } from "../src/survey";
 import { QuestionTextModel } from "../src/question_text";
 import { PanelModel } from "../src/panel";
 import { QuestionPanelDynamicModel } from "../src/question_paneldynamic";
+import { QuestionMatrixDynamicModel } from "../src/question_matrixdynamic";
 import { FlowPanelModel } from "../src/flowpanel";
 import { QuestionMatrixModel } from "../src/question_matrix";
 
 export default QUnit.module("Drag and Drop Tests");
 
-QUnit.test("Show/hide new created item, simple test", function(assert) {
+QUnit.test("Show/hide new created item, simple test", function (assert) {
   var survey = new SurveyModel();
   var page = survey.addNewPage("p1");
   var q1 = page.addNewQuestion("text", "q1");
@@ -44,7 +45,7 @@ QUnit.test("Show/hide new created item, simple test", function(assert) {
   assert.equal(page.questions.length, 3, "3 questions now");
   assert.equal(page.questions[1].name, "qt", "It is a second question");
 });
-QUnit.test("Move item to the end", function(assert) {
+QUnit.test("Move item to the end", function (assert) {
   var survey = new SurveyModel();
   var page = survey.addNewPage("p1");
   var q1 = page.addNewQuestion("text", "q1");
@@ -58,7 +59,7 @@ QUnit.test("Move item to the end", function(assert) {
   assert.equal(page.questions.length, 3, "we have only two questions");
   assert.equal(page.questions[2].name, "q1", "The last question is q1 now");
 });
-QUnit.test("Do not move question to the same position", function(assert) {
+QUnit.test("Do not move question to the same position", function (assert) {
   var survey = new SurveyModel();
   var page = survey.addNewPage("p1");
   var q1 = page.addNewQuestion("text", "q1");
@@ -87,7 +88,7 @@ QUnit.test("Do not move question to the same position", function(assert) {
 });
 QUnit.test(
   "Do not move question to the same position, from bottom to top",
-  function(assert) {
+  function (assert) {
     var survey = new SurveyModel();
     var page = survey.addNewPage("p1");
     var q1 = page.addNewQuestion("text", "q1");
@@ -135,7 +136,7 @@ QUnit.test(
     );
   }
 );
-QUnit.test("Dropping element on the source should do nothing", function(
+QUnit.test("Dropping element on the source should do nothing", function (
   assert
 ) {
   var survey = new SurveyModel();
@@ -150,7 +151,7 @@ QUnit.test("Dropping element on the source should do nothing", function(
   page.dragDropFinish();
   assert.equal(page.elements.length, 1, "It should be stil one element");
 });
-QUnit.test("Do not move remove the target without source", function(assert) {
+QUnit.test("Do not move remove the target without source", function (assert) {
   var survey = new SurveyModel();
   var page = survey.addNewPage("p1");
   var q1 = page.addNewQuestion("text", "q1");
@@ -164,7 +165,7 @@ QUnit.test("Do not move remove the target without source", function(assert) {
   page.dragDropMoveTo(target, true);
   assert.equal(page.rows.length, 3, "Target is still shown");
 });
-QUnit.test("Show/hide/create for empty page", function(assert) {
+QUnit.test("Show/hide/create for empty page", function (assert) {
   var survey = new SurveyModel();
   var page = survey.addNewPage("p1");
   var target = new QuestionTextModel("qt");
@@ -180,7 +181,7 @@ QUnit.test("Show/hide/create for empty page", function(assert) {
   assert.equal(page.questions.length, 1, "one question now");
   assert.equal(page.questions[0].name, "qt", "A new question");
 });
-QUnit.test("Move item startWithNewLine=false", function(assert) {
+QUnit.test("Move item startWithNewLine=false", function (assert) {
   var survey = new SurveyModel();
   var page = survey.addNewPage("p1");
   var q1 = page.addNewQuestion("text", "q1");
@@ -224,7 +225,7 @@ QUnit.test("Move item startWithNewLine=false", function(assert) {
   assert.equal(page.questions.length, 3, "we have only two questions");
   assert.equal(page.questions[1].name, "q1", "The second question is q1 now");
 });
-QUnit.test("Move item startWithNewLine=false, 2", function(assert) {
+QUnit.test("Move item startWithNewLine=false, 2", function (assert) {
   var survey = new SurveyModel();
   var page = survey.addNewPage("p1");
   var q1 = page.addNewQuestion("text", "q1");
@@ -240,7 +241,7 @@ QUnit.test("Move item startWithNewLine=false, 2", function(assert) {
   assert.equal(page.questions.length, 3, "we have 3 questions");
   assert.equal(page.questions[2].name, "q2", "The last question is q2 now");
 });
-QUnit.test("Move item startWithNewLine=false, 3", function(assert) {
+QUnit.test("Move item startWithNewLine=false, 3", function (assert) {
   var survey = new SurveyModel();
   var page = survey.addNewPage("p1");
   var q1 = page.addNewQuestion("text", "q1");
@@ -260,7 +261,7 @@ QUnit.test("Move item startWithNewLine=false, 3", function(assert) {
   page.dragDropFinish();
   assert.equal(page.questions[0].name, "q2", "The first question is q2 now");
 });
-QUnit.test("Move panel startWithNewLine=false", function(assert) {
+QUnit.test("Move panel startWithNewLine=false", function (assert) {
   var survey = new SurveyModel();
   var page = survey.addNewPage("p1");
   var p1 = page.addNewPanel("p1");
@@ -319,7 +320,7 @@ QUnit.test("Move panel startWithNewLine=false", function(assert) {
   assert.equal(page.elements.length, 3, "we have only 3 panels");
   assert.equal(page.elements[1].name, "p1", "The second element is p1 now");
 });
-QUnit.test("Move question into empty panel", function(assert) {
+QUnit.test("Move question into empty panel", function (assert) {
   var survey = new SurveyModel();
   var page = survey.addNewPage("page1");
   var panel = page.addNewPanel("panel1");
@@ -338,7 +339,7 @@ QUnit.test("Move question into empty panel", function(assert) {
   assert.equal(panel.questions.length, 1, "There is one question in the panel");
   assert.equal(panel.questions[0].name, "q1", "It is the 'q1' question");
 });
-QUnit.test("Move panel into empty panel", function(assert) {
+QUnit.test("Move panel into empty panel", function (assert) {
   var survey = new SurveyModel();
   var page = survey.addNewPage("page1");
   var panel = page.addNewPanel("panel1");
@@ -357,7 +358,7 @@ QUnit.test("Move panel into empty panel", function(assert) {
   assert.equal(panel.elements.length, 1, "There is one panel in the panel");
   assert.equal(panel.elements[0].name, "p1", "It is the 'p1' panel");
 });
-QUnit.test("Optionally forbiden move panel into panel", function(assert) {
+QUnit.test("Optionally forbiden move panel into panel", function (assert) {
   var survey = new SurveyModel();
   var page = survey.addNewPage("page1");
   var panel = page.addNewPanel("panel1");
@@ -378,7 +379,7 @@ QUnit.test("Optionally forbiden move panel into panel", function(assert) {
   assert.equal(page.elements.length, 2, "There are two elements in page");
   assert.equal(page.elements[0].name, "p1", "It is the 'p1' panel");
 });
-QUnit.test("Move item in panel", function(assert) {
+QUnit.test("Move item in panel", function (assert) {
   var survey = new SurveyModel();
   var page = survey.addNewPage("page1");
   var panel = page.addNewPanel("panel1");
@@ -408,7 +409,7 @@ QUnit.test("Move item in panel", function(assert) {
   );
   assert.equal(panel.elements[1].name, "q1", "It is the 'q1' question");
 });
-QUnit.test("Move new item in panel with one question", function(assert) {
+QUnit.test("Move new item in panel with one question", function (assert) {
   var survey = new SurveyModel();
   var page = survey.addNewPage("page1");
   var panel = page.addNewPanel("panel1");
@@ -460,7 +461,7 @@ QUnit.test("Move new item in panel with one question", function(assert) {
   );
   assert.equal(panel.elements[1].name, "q2", "It is the 'q2' question");
 });
-QUnit.test("Move item before panel", function(assert) {
+QUnit.test("Move item before panel", function (assert) {
   var survey = new SurveyModel();
   var page = survey.addNewPage("page1");
   var panel = page.addNewPanel("panel1");
@@ -480,7 +481,7 @@ QUnit.test("Move item before panel", function(assert) {
   assert.equal(page.elements.length, 2, "There are two elements on the page");
   assert.equal(page.elements[0].name, "q1", "The first element is 'q1'");
 });
-QUnit.test("Move item after panel", function(assert) {
+QUnit.test("Move item after panel", function (assert) {
   var survey = new SurveyModel();
   var page = survey.addNewPage("page1");
   var panel = page.addNewPanel("panel1");
@@ -500,7 +501,7 @@ QUnit.test("Move item after panel", function(assert) {
   assert.equal(page.elements.length, 2, "There are two elements on the page");
   assert.equal(page.elements[1].name, "q1", "The first element is 'q1'");
 });
-QUnit.test("Move panel", function(assert) {
+QUnit.test("Move panel", function (assert) {
   var survey = new SurveyModel();
   var page = survey.addNewPage("page1");
   var q1 = page.addNewQuestion("text", "q1");
@@ -562,7 +563,7 @@ QUnit.test("Move panel", function(assert) {
     "The first element is 'panel1'"
   );
 });
-QUnit.test("Move panel, 2", function(assert) {
+QUnit.test("Move panel, 2", function (assert) {
   var survey = new SurveyModel();
   var page = survey.addNewPage("page1");
   var q1 = page.addNewQuestion("text", "q1");
@@ -606,7 +607,7 @@ QUnit.test("Move panel, 2", function(assert) {
     "Move 2. The panel1 is in the last row"
   );
 });
-QUnit.test("Move existing panel, 1", function(assert) {
+QUnit.test("Move existing panel, 1", function (assert) {
   var survey = new SurveyModel();
   var page = survey.addNewPage("page1");
   var q1 = page.addNewQuestion("text", "q1");
@@ -648,7 +649,7 @@ QUnit.test("Move existing panel, 1", function(assert) {
     "The question in the panel is correct"
   );
 });
-QUnit.test("Move question out of the panel", function(assert) {
+QUnit.test("Move question out of the panel", function (assert) {
   var survey = new SurveyModel();
   var page = survey.addNewPage("page1");
   var panel = page.addNewPanel("panel1");
@@ -680,7 +681,7 @@ QUnit.test("Move question out of the panel", function(assert) {
   assert.equal(page.elements.length, 2, "There are 2 elements on the page");
   assert.equal(page.elements[0].name, "q1", "The first element is 'q1'");
 });
-QUnit.test("Add item into page", function(assert) {
+QUnit.test("Add item into page", function (assert) {
   var survey = new SurveyModel();
   var page = survey.addNewPage("page1");
   var target = new PanelModel("panel1");
@@ -702,13 +703,12 @@ QUnit.test("Add item into page", function(assert) {
   );
 });
 
-QUnit.test("Move item into empty paneldynamic", function(assert) {
+QUnit.test("Move item into empty paneldynamic", function (assert) {
   var survey = new SurveyModel();
   survey.setDesignMode(true);
   var page = survey.addNewPage("page1");
-  var panelDynamic = <QuestionPanelDynamicModel>page.addNewQuestion(
-    "paneldynamic",
-    "panel1"
+  var panelDynamic = <QuestionPanelDynamicModel>(
+    page.addNewQuestion("paneldynamic", "panel1")
   );
   assert.equal(
     panelDynamic.template.elements.length,
@@ -735,7 +735,40 @@ QUnit.test("Move item into empty paneldynamic", function(assert) {
   );
 });
 
-QUnit.test("Don't allow to move empty paneldynamic into itself", function(
+QUnit.test("Move item into empty detailPanel", function (assert) {
+  var survey = new SurveyModel();
+  survey.setDesignMode(true);
+  var page = survey.addNewPage("page1");
+  var matrix = <QuestionMatrixDynamicModel>(
+    page.addNewQuestion("matrixdynamic", "matrix")
+  );
+  matrix.detailPanelMode = "underRow";
+  assert.equal(
+    matrix.detailPanel.elements.length,
+    0,
+    "There is no questions in the detailPanel"
+  );
+  var target = new QuestionTextModel("q1");
+  page.dragDropStart(null, target);
+  assert.equal(
+    page.dragDropMoveTo(matrix.detailPanel, true),
+    true,
+    "You can move a question here"
+  );
+  page.dragDropFinish();
+  assert.equal(
+    matrix.detailPanel.elements.length,
+    1,
+    "There is a question in the detailPanel"
+  );
+  assert.equal(
+    matrix.detailPanel.elements[0].name,
+    "q1",
+    "It is the 'q1' question"
+  );
+});
+
+QUnit.test("Don't allow to move empty paneldynamic into itself", function (
   assert
 ) {
   var survey = new SurveyModel();
@@ -748,7 +781,7 @@ QUnit.test("Don't allow to move empty paneldynamic into itself", function(
   assert.equal(panelDynamic.template.rows.length, 0, "The template is empty");
 });
 
-QUnit.test("survey onDragDropAllow event", function(assert) {
+QUnit.test("survey onDragDropAllow event", function (assert) {
   var survey = new SurveyModel();
   var page = survey.addNewPage("page1");
   var q1 = page.addNewQuestion("text", "q1");
@@ -760,7 +793,7 @@ QUnit.test("survey onDragDropAllow event", function(assert) {
   var panel2 = page.addNewPanel("panel2");
   var target = new QuestionTextModel("q1");
   var canInsertIntoPanel2 = false;
-  survey.onDragDropAllow.add(function(sender, options) {
+  survey.onDragDropAllow.add(function (sender, options) {
     options.allow =
       (canInsertIntoPanel2 || options.parent != panel2) &&
       options.insertBefore !== panel1 &&
@@ -795,7 +828,7 @@ QUnit.test("survey onDragDropAllow event", function(assert) {
   assert.equal(panel2.rows.length, 1, "can insert into panel2 now");
 });
 
-QUnit.test("survey onDragDropAllow event", function(assert) {
+QUnit.test("survey onDragDropAllow event", function (assert) {
   var survey = new SurveyModel();
   var page = survey.addNewPage("page1");
   var panel = new FlowPanelModel("panel1");
@@ -813,7 +846,7 @@ QUnit.test("survey onDragDropAllow event", function(assert) {
   assert.equal(page.rows.length, 2, "target is under panel");
 });
 
-QUnit.test("survey drop new question into FlowPanel", function(assert) {
+QUnit.test("survey drop new question into FlowPanel", function (assert) {
   var survey = new SurveyModel();
   var page = survey.addNewPage("page1");
   var panel = new FlowPanelModel("panel1");
@@ -852,7 +885,7 @@ QUnit.test("survey drop new question into FlowPanel", function(assert) {
   assert.equal(panel.rows.length, 0, "there is no rows in the flowpanel");
 });
 
-QUnit.test("survey drop move question in FlowPanel", function(assert) {
+QUnit.test("survey drop move question in FlowPanel", function (assert) {
   var survey = new SurveyModel();
   var page = survey.addNewPage("page1");
   var panel = new FlowPanelModel("panel1");
@@ -891,7 +924,7 @@ QUnit.test("survey drop move question in FlowPanel", function(assert) {
   );
 });
 
-QUnit.test("Do not all elements support flow layout", function(assert) {
+QUnit.test("Do not all elements support flow layout", function (assert) {
   var survey = new SurveyModel();
   var page = survey.addNewPage("page1");
   var panel = new FlowPanelModel("panel1");
@@ -924,7 +957,7 @@ QUnit.test("Do not all elements support flow layout", function(assert) {
   assert.equal(page.elements[0].name, "matrix", "The first element is matrix");
 });
 
-QUnit.test("Move flow panel up", function(assert) {
+QUnit.test("Move flow panel up", function (assert) {
   var survey = new SurveyModel();
   var page = survey.addNewPage("page1");
   var question = page.addNewQuestion("text", "q1");

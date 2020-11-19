@@ -7,7 +7,7 @@
     >
       <!-- ko template: { name: 'survey-question-title-content', data: $data } --><!-- /ko -->
       <span
-        data-bind="visible: koIsCollapsed() || koIsExpanded(), css: cssClasses.panel.icon + (!koIsCollapsed() ? ' ' + cssClasses.panel.iconExpanded: ''), event: { keyup: pressExpand }"
+        data-bind="visible: koIsCollapsed() || koIsExpanded(), css: cssClasses.panel.icon + (!koIsCollapsed() ? ' ' + cssClasses.panel.iconExpanded: ''), event: { keyup: pressExpand }, attr:{'aria-expanded': koIsCollapsed() ? 'false': 'true', 'aria-controls': !koIsCollapsed() ? contentId: false}"
         tabindex="0"
       ></span>
     </h4>
@@ -18,7 +18,7 @@
     <!-- ko template: { name: 'survey-question-errors', data: $data } -->
     <!-- /ko -->
     <div
-      data-bind="visible: !koIsCollapsed(), style: { paddingLeft: innerPaddingLeft }, css: cssClasses.panel.content"
+      data-bind="visible: !koIsCollapsed(), style: { paddingLeft: innerPaddingLeft }, css: cssClasses.panel.content, attr: {id:contentId}"
     >
       <!-- ko template: { name: 'survey-rows', data: $data} -->
       <!-- /ko -->

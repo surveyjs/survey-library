@@ -3,7 +3,7 @@ import { Helpers } from "../helpers";
 import { LocalizableString } from "../localizablestring";
 import { Question } from "../question";
 import { ISurveyCreator } from "./reactquestion";
-import { Base, ITitleOwner } from "../base";
+import { Base, ITitleOwner, ArrayChanges } from "../base";
 
 export class SurveyLocString extends React.Component<any, any> {
   constructor(props: any) {
@@ -46,8 +46,11 @@ export class SurveyElementBase extends React.Component<any, any> {
     return <SurveyLocString locStr={locStr} style={style} key={key} />;
   }
   private isRenderingValue: boolean;
+  private changedStatePropNameValue: string;
+  private nonStateProps: Array<string> = [];
   constructor(props: any) {
     super(props);
+    this.modifyNonStateProps(this.nonStateProps);
   }
   componentDidMount() {
     this.makeBaseElementsReact();
@@ -63,6 +66,7 @@ export class SurveyElementBase extends React.Component<any, any> {
     this.isRenderingValue = true;
     var res = this.renderElement();
     this.isRenderingValue = false;
+    this.changedStatePropNameValue = undefined;
     return res;
   }
   protected get isRendering(): boolean {
@@ -73,6 +77,9 @@ export class SurveyElementBase extends React.Component<any, any> {
   }
   protected renderElement(): JSX.Element {
     return null;
+  }
+  protected get changedStatePropName(): string {
+    return this.changedStatePropNameValue;
   }
   private makeBaseElementsReact() {
     var els = this.getStateElements();
@@ -86,6 +93,7 @@ export class SurveyElementBase extends React.Component<any, any> {
       this.unMakeBaseElementReact(els[i]);
     }
   }
+  protected modifyNonStateProps(nonStateProps: Array<string>) {}
   protected getStateElements(): Array<Base> {
     var el = this.getStateElement();
     return !!el ? [el] : [];
@@ -173,11 +181,13 @@ export class SurveyElementBase extends React.Component<any, any> {
   private makeBaseElementReact(stateElement: Base) {
     if (!stateElement) return;
     stateElement.iteratePropertiesHash((hash, key) => {
+      if (this.nonStateProps.indexOf(key) > -1) return;
       var val: any = hash[key];
       if (Array.isArray(val)) {
         var val: any = val;
-        val["onArrayChanged"] = () => {
+        val["onArrayChanged"] = (arrayChanges: ArrayChanges) => {
           if (this.isRendering) return;
+          this.changedStatePropNameValue = key;
           this.setState((state: any) => {
             var newState: { [index: string]: any } = {};
             newState[key] = val;
@@ -194,6 +204,7 @@ export class SurveyElementBase extends React.Component<any, any> {
       if (hash[key] !== val) {
         hash[key] = val;
         if (this.isRendering) return;
+        this.changedStatePropNameValue = key;
         this.setState((state: any) => {
           var newState: { [index: string]: any } = {};
           newState[key] = val;

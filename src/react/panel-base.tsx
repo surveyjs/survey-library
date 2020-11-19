@@ -15,6 +15,10 @@ export class SurveyPanelBase extends SurveyElementBase {
   protected getStateElement(): Base {
     return this.panelBase;
   }
+  protected modifyNonStateProps(nonStateProps: Array<string>) {
+    super.modifyNonStateProps(nonStateProps);
+    nonStateProps.push("elements");
+  }
   protected get survey(): SurveyModel {
     return this.getSurvey();
   }
@@ -68,23 +72,27 @@ export class SurveyPanelBase extends SurveyElementBase {
       }
     }
   }
+  private renderedRowsCache: any = {};
   protected renderRows(css: any): Array<JSX.Element> {
+    if (this.changedStatePropName !== "rows") {
+      this.renderedRowsCache = {};
+    }
     var rows = [];
     var questionRows = this.panelBase.rows;
     for (var i = 0; i < questionRows.length; i++) {
-      rows.push(this.createRow(questionRows[i], i, css));
+      var row = this.renderedRowsCache[questionRows[i].id];
+      if (!row) {
+        row = this.createRow(questionRows[i], css);
+        this.renderedRowsCache[questionRows[i].id] = row;
+      }
+      rows.push(row);
     }
     return rows;
   }
-  protected createRow(
-    row: QuestionRowModel,
-    index: number,
-    css: any
-  ): JSX.Element {
-    var rowName = "row" + (index + 1);
+  protected createRow(row: QuestionRowModel, css: any): JSX.Element {
     return (
       <SurveyRow
-        key={rowName}
+        key={row.id}
         row={row}
         survey={this.survey}
         creator={this.creator}

@@ -388,9 +388,13 @@ export class QuestionMatrixDynamicModel
   public removeRow(index: number) {
     if (!this.canRemoveRows) return;
     if (index < 0 || index >= this.rowCount) return;
+    var row =
+      !!this.visibleRows && index < this.visibleRows.length
+        ? this.visibleRows[index]
+        : null;
     this.onStartRowAddingRemoving();
     this.removeRowCore(index);
-    this.onEndRowRemoving(index);
+    this.onEndRowRemoving(row);
   }
   private removeRowCore(index: number) {
     if (this.survey) {
@@ -561,7 +565,7 @@ export class QuestionMatrixDynamicModel
     isOnValueChanged: boolean
   ) {
     super.onCheckForErrors(errors, isOnValueChanged);
-    if (!isOnValueChanged && this.hasErrorInRows()) {
+    if (!isOnValueChanged && this.hasErrorInMinRows()) {
       errors.push(new MinRowCountError(this.minRowCount, this));
     }
   }
@@ -570,7 +574,7 @@ export class QuestionMatrixDynamicModel
     var isDuplicated = this.isValueDuplicated();
     return isDuplicated || prevValue;
   }
-  private hasErrorInRows(): boolean {
+  private hasErrorInMinRows(): boolean {
     if (this.minRowCount <= 0 || !this.isRequired || !this.generatedVisibleRows)
       return false;
     var setRowCount = 0;

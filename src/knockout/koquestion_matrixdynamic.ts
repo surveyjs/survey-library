@@ -7,6 +7,8 @@ import { QuestionMatrixDynamicModel } from "../question_matrixdynamic";
 import { Question } from "../question";
 import { QuestionMatrixDropdownModelBase } from "../question_matrixdropdownbase";
 import { MatrixDynamicRowModel } from "../question_matrixdynamic";
+import { PanelModel} from "../panel";
+import {Panel} from "./kopage";
 
 export class QuestionMatrixDynamicImplementor extends QuestionMatrixBaseImplementor {
   constructor(question: Question) {
@@ -39,6 +41,9 @@ export class QuestionMatrixDynamic extends QuestionMatrixDynamicModel {
   protected onBaseCreating() {
     super.onBaseCreating();
     new QuestionMatrixDynamicImplementor(this);
+  }
+  protected createNewDetailPanel(): PanelModel {
+    return new Panel();
   }
 }
 

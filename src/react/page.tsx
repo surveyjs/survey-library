@@ -14,9 +14,6 @@ export class SurveyPage extends SurveyPanelBase {
   public get page(): PageModel {
     return this.panelBase as PageModel;
   }
-  protected canRender(): boolean {
-    return super.canRender() && !!this.survey && !!this.page;
-  }
   protected renderElement(): JSX.Element {
     var title = this.renderTitle();
     var description = this.renderDescription();

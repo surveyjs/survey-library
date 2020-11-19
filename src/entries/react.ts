@@ -75,8 +75,5 @@ export {
   SurveyQuestionComposite,
 } from "../react/reactquestioncustom";
 
-//Property Grid
-//export { PropertyGrid } from "../react/reactpropertygrid";
-
 //Uncomment to include the "date" question type.
 //export {default as SurveyQuestionDate} from "../plugins/react/reactquestiondate";

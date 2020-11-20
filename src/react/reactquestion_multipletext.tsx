@@ -1,13 +1,9 @@
 import * as React from "react";
-import {
-  ReactSurveyElement,
-  SurveyQuestionElementBase,
-} from "./reactquestionelement";
+import { SurveyQuestionElementBase } from "./reactquestion_element";
 import { SurveyQuestionAndErrorsCell } from "./reactquestion";
-import { Helpers } from "../helpers";
 import { QuestionMultipleTextModel } from "../question_multipletext";
 import { MultipleTextItemModel } from "../question_multipletext";
-import { ReactQuestionFactory } from "./reactquestionfactory";
+import { ReactQuestionFactory } from "./reactquestion_factory";
 
 export class SurveyQuestionMultipleText extends SurveyQuestionElementBase {
   constructor(props: any) {

@@ -1,9 +1,7 @@
 import * as React from "react";
-import { Helpers } from "../helpers";
-import { Base } from "../base";
-import { SurveyQuestionElementBase } from "./reactquestionelement";
+import { SurveyQuestionElementBase } from "./reactquestion_element";
 import { QuestionExpressionModel } from "../question_expression";
-import { ReactQuestionFactory } from "./reactquestionfactory";
+import { ReactQuestionFactory } from "./reactquestion_factory";
 
 export class SurveyQuestionExpression extends SurveyQuestionElementBase {
   constructor(props: any) {

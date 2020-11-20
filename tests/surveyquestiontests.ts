@@ -7,14 +7,10 @@ import { QuestionCommentModel } from "../src/question_comment";
 import { SurveyModel } from "../src/survey";
 import { QuestionCheckboxModel } from "../src/question_checkbox";
 import { QuestionMatrixModel, MatrixRowModel } from "../src/question_matrix";
-import {
-  MultipleTextItemModel,
-  QuestionMultipleTextModel,
-} from "../src/question_multipletext";
+import { MultipleTextItemModel, QuestionMultipleTextModel } from "../src/question_multipletext";
 import {
   NumericValidator,
   AnswerCountValidator,
-  EmailValidator,
   RegexValidator,
   ExpressionValidator,
 } from "../src/validator";
@@ -29,8 +25,8 @@ import { surveyLocalization } from "../src/surveyStrings";
 import { settings } from "../src/settings";
 import { QuestionImagePickerModel } from "../src/question_imagepicker";
 import { FunctionFactory } from "../src/functionsfactory";
-import { ArrayChanges, SurveyError } from "../src/base";
-import { CustomError, RequreNumericError } from "../src/error";
+import { ArrayChanges } from "../src/base";
+import { RequreNumericError } from "../src/error";
 import { QuestionSignaturePadModel } from "../src/question_signaturepad";
 
 export default QUnit.module("Survey_Questions");

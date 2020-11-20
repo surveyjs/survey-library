@@ -35,45 +35,40 @@ export {
 export {
   SurveyElementBase,
   SurveyQuestionElementBase,
-} from "../react/reactquestionelement";
+} from "../react/reactquestion_element";
 export {
   SurveyQuestionCommentItem,
   SurveyQuestionComment,
-} from "../react/reactquestioncomment";
+} from "../react/reactquestion_comment";
 export {
   SurveyQuestionCheckbox,
   SurveyQuestionCheckboxItem,
-} from "../react/reactquestioncheckbox";
-export { SurveyQuestionDropdown } from "../react/reactquestiondropdown";
-export {
-  SurveyQuestionMatrix,
-  SurveyQuestionMatrixRow,
-} from "../react/reactquestionmatrix";
-export { SurveyQuestionHtml } from "../react/reactquestionhtml";
-export { SurveyQuestionFile } from "../react/reactquestionfile";
-export { SurveyQuestionMultipleText } from "../react/reactquestionmultipletext";
-export { SurveyQuestionRadiogroup } from "../react/reactquestionradiogroup";
-export { SurveyQuestionText } from "../react/reactquestiontext";
+} from "../react/reactquestion_checkbox";
+export { SurveyQuestionDropdown } from "../react/reactquestion_dropdown";
+export { SurveyQuestionMatrix, SurveyQuestionMatrixRow } from "../react/reactquestion_matrix";
+export { SurveyQuestionHtml } from "../react/reactquestion_html";
+export { SurveyQuestionFile } from "../react/reactquestion_file";
+export { SurveyQuestionMultipleText } from "../react/reactquestion_multipletext";
+export { SurveyQuestionRadiogroup } from "../react/reactquestion_radiogroup";
+export { SurveyQuestionText } from "../react/reactquestion_text";
 export { SurveyQuestionBoolean } from "../react/boolean";
 export { SurveyQuestionBooleanCheckbox } from "../react/boolean-checkbox";
-export { SurveyQuestionEmpty } from "../react/reactquestionempty";
-export { SurveyQuestionMatrixDropdownCell } from "../react/reactquestionmatrixdropdownbase";
-export { SurveyQuestionMatrixDropdown } from "../react/reactquestionmatrixdropdown";
-export { SurveyQuestionMatrixDynamic } from "../react/reactquestionmatrixdynamic";
-export { SurveyQuestionPanelDynamic } from "../react/reactquestionpaneldynamic";
+export { SurveyQuestionEmpty } from "../react/reactquestion_empty";
+export { SurveyQuestionMatrixDropdownCell } from "../react/reactquestion_matrixdropdownbase";
+export { SurveyQuestionMatrixDropdown } from "../react/reactquestion_matrixdropdown";
+export { SurveyQuestionMatrixDynamic } from "../react/reactquestion_matrixdynamic";
+export { SurveyQuestionPanelDynamic } from "../react/reactquestion_paneldynamic";
 export { SurveyProgress } from "../react/reactSurveyProgress";
-export { SurveyQuestionRating } from "../react/reactquestionrating";
-export { SurveyQuestionExpression } from "../react/reactquestionexpression";
+export { SurveyProgressButtons } from "../react/reactSurveyProgressButtons";
+export { SurveyQuestionRating } from "../react/reactquestion_rating";
+export { SurveyQuestionExpression } from "../react/reactquestion_expression";
 export { SurveyWindow } from "../react/reactSurveyWindow";
-export { ReactQuestionFactory } from "../react/reactquestionfactory";
+export { ReactQuestionFactory } from "../react/reactquestion_factory";
 export { ReactElementFactory } from "../react/element-factory";
 export { SurveyQuestionImagePicker } from "../react/imagepicker";
 export { SurveyQuestionImage } from "../react/image";
 export { SurveyQuestionSignaturePad } from "../react/signaturepad";
-export {
-  SurveyQuestionCustom,
-  SurveyQuestionComposite,
-} from "../react/reactquestioncustom";
+export { SurveyQuestionCustom, SurveyQuestionComposite } from "../react/reactquestion_custom";
 
 //Uncomment to include the "date" question type.
 //export {default as SurveyQuestionDate} from "../plugins/react/reactquestiondate";

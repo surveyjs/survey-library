@@ -1,4 +1,3 @@
-import * as ko from "knockout";
 import { QuestionRadiogroupModel } from "../question_radiogroup";
 import { Serializer } from "../jsonobject";
 import { QuestionFactory } from "../questionfactory";

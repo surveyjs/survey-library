@@ -2,7 +2,7 @@ import * as React from "react";
 import { ISurveyCreator } from "./reactquestion";
 import { SurveyModel } from "../survey";
 import { QuestionRowModel, PanelModel, PanelModelBase } from "../panel";
-import { SurveyElementBase } from "./reactquestionelement";
+import { SurveyElementBase } from "./reactquestion_element";
 import { Base } from "../base";
 import { SurveyRow } from "./row";
 

@@ -1,8 +1,8 @@
 import * as React from "react";
 import { Question } from "../question";
 import { SurveyElement, SurveyError, Base } from "../base";
-import { SurveyQuestionCommentItem } from "./reactquestioncomment";
-import { SurveyElementBase, ReactSurveyElement } from "./reactquestionelement";
+import { SurveyQuestionCommentItem } from "./reactquestion_comment";
+import { SurveyElementBase, ReactSurveyElement } from "./reactquestion_element";
 import { SurveyCustomWidget } from "./custom-widget";
 import { ReactElementFactory } from "./element-factory";
 

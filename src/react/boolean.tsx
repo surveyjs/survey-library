@@ -1,11 +1,9 @@
 import * as React from "react";
 import {
-  ReactSurveyElement,
   SurveyQuestionElementBase,
-} from "./reactquestionelement";
+} from "./reactquestion_element";
 import { QuestionBooleanModel } from "../question_boolean";
-import { ReactQuestionFactory } from "./reactquestionfactory";
-import { OtherEmptyError } from "../error";
+import { ReactQuestionFactory } from "./reactquestion_factory";
 
 export class SurveyQuestionBoolean extends SurveyQuestionElementBase {
   protected checkRef: React.RefObject<HTMLInputElement>;

@@ -3,7 +3,6 @@ import { SurveyElement } from "../base";
 import { QuestionMatrixDropdownModel } from "../question_matrixdropdown";
 import {
   QuestionMatrixDropdownModelBase,
-  MatrixDropdownCell,
   MatrixDropdownRowModelBase,
   QuestionMatrixDropdownRenderedTable,
   QuestionMatrixDropdownRenderedCell,

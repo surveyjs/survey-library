@@ -2006,6 +2006,7 @@ export class SurveyModel
    *
    * The following options are available:
    *
+   * - `off` (default) - don't show progress bar
    * - `top` - show progress bar in the top
    * - `bottom` - show progress bar in the bottom
    * - `both` - show progress bar in both sides: top and bottom.
@@ -2024,7 +2025,8 @@ export class SurveyModel
    * - `pages` (default),
    * - `questions`,
    * - `requiredQuestions`,
-   * - `correctQuestions`.
+   * - `correctQuestions`,
+   * - `buttons`
    */
   public get progressBarType(): string {
     return this.getPropertyValue("progressBarType");
@@ -3061,6 +3063,7 @@ export class SurveyModel
   }
   private doCurrentPageCompleteCore(doComplete: boolean): boolean {
     if (this.doServerValidation(doComplete)) return false;
+    this.currentPage.passed = true;
     if (doComplete) {
       this.doComplete();
     } else {
@@ -5488,7 +5491,7 @@ Serializer.addClass("survey", [
   {
     name: "progressBarType",
     default: "pages",
-    choices: ["pages", "questions", "requiredQuestions", "correctQuestions"],
+    choices: ["pages", "questions", "requiredQuestions", "correctQuestions", "buttons"],
   },
   { name: "mode", default: "edit", choices: ["edit", "display"] },
   { name: "storeOthersAsComment:boolean", default: true },

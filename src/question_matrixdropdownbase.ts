@@ -788,6 +788,9 @@ export class MatrixDropdownRowModelBase
     if (!this.detailPanelValue) return;
     this.setIsDetailPanelShowing(true);
   }
+  public hideDetailPanel() {
+    this.setIsDetailPanelShowing(false);
+  }
   private ensureDetailPanel() {
     if (this.isCreatingDetailPanel) return;
     if (!!this.detailPanelValue || !this.hasPanel || !this.data) return;
@@ -805,10 +808,6 @@ export class MatrixDropdownRowModelBase
     }
     this.detailPanelValue.setSurveyImpl(this);
     this.isCreatingDetailPanel = false;
-  }
-  public hideDetailPanel() {
-    //this.detailPanelValue = null;
-    this.setIsDetailPanelShowing(false);
   }
   getAllValues(): any {
     return this.value;
@@ -1033,7 +1032,10 @@ export class MatrixDropdownRowModelBase
     if (this.hasPanel) {
       this.ensureDetailPanel();
       var panelHasError = this.detailPanel.hasErrors(fireCallback, false, rec);
-      if (panelHasError && fireCallback) {
+      if (!rec.hideErroredPanel && panelHasError && fireCallback) {
+        if (rec.isSingleDetailPanel) {
+          rec.hideErroredPanel = true;
+        }
         this.showDetailPanel();
       }
       res = panelHasError || res;
@@ -2566,6 +2568,8 @@ export class QuestionMatrixDropdownModelBase
   private hasErrorInRows(fireCallback: boolean, rec: any): boolean {
     if (!this.generatedVisibleRows) return false;
     var res = false;
+    if (!rec) rec = {};
+    rec.isSingleDetailPanel = this.detailPanelMode == "underRowSingle";
     for (var i = 0; i < this.generatedVisibleRows.length; i++) {
       res =
         this.generatedVisibleRows[i].hasErrors(fireCallback, rec, () => {

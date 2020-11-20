@@ -1,5 +1,4 @@
 import { Survey } from "../../src/knockout/kosurvey";
-import { PanelModel } from "../../src/panel";
 import { QuestionText } from "../../src/knockout/koquestion_text";
 import { QuestionDropdown } from "../../src/knockout/koquestion_dropdown";
 import { QuestionCheckbox } from "../../src/knockout/koquestion_checkbox";
@@ -9,20 +8,15 @@ import { QuestionMatrix } from "../../src/knockout/koquestion_matrix";
 import { QuestionMatrixDropdown } from "../../src/knockout/koquestion_matrixdropdown";
 import { QuestionPanelDynamic } from "../../src/knockout/koquestion_paneldynamic";
 import { MatrixDropdownColumn } from "../../src/question_matrixdropdownbase";
-import {
-  QuestionMultipleText,
-  MultipleTextItem,
-} from "../../src/knockout/koquestion_multipletext";
+import { QuestionMultipleText, MultipleTextItem } from "../../src/knockout/koquestion_multipletext";
 import { Page, Panel, QuestionRow } from "../../src/knockout/kopage";
-import {
-  CustomWidgetCollection,
-  QuestionCustomWidget,
-} from "../../src/questionCustomWidgets";
+import { CustomWidgetCollection } from "../../src/questionCustomWidgets";
 import { koTemplate } from "../../src/knockout/templateText";
 import { QuestionMatrixDynamic } from "../../src/knockout/koquestion_matrixdynamic";
 import { surveyLocalization } from "../../src/surveyStrings";
 import { QuestionRating } from "../../src/knockout/koquestion_rating";
 import { QuestionImagePicker } from "../../src/knockout/koquestion_imagepicker";
+import { ProgressButtonsViewModel } from "../../src/knockout/components/progress/buttons";
 import { JsonObject, Serializer } from "../../src/jsonobject";
 import { SurveyTimer } from "../../src/surveytimer";
 import * as ko from "knockout";
@@ -1857,6 +1851,7 @@ QUnit.test("survey.firstPageIsStarted=true + multiple-language", function (
   assert.equal(q2.locTitle["koRenderedHtml"](), "q2-de", "de locale, q2");
   survey.locale = prevLocale;
 });
+
 QUnit.test("survey.firstPageIsStarted=true + multiple-language", function (
   assert
 ) {
@@ -1881,4 +1876,58 @@ QUnit.test("survey.firstPageIsStarted=true + multiple-language", function (
     firstPageIsStarted: true,
   });
   assert.equal(survey.startedPage.name, "startedPage", "Loaded fine");
+});
+
+QUnit.test("ProgressButtonsViewModel component scroll button", function(assert) {
+  let json: any = {
+    "pages": [
+     {
+      "name": "page1",
+      "elements": [
+       {
+        "type": "text",
+        "name": "question1"
+       }
+      ]
+     },
+     {
+      "name": "page2",
+      "elements": [
+       {
+        "type": "text",
+        "name": "question2"
+       }
+      ]
+     },
+     {
+      "name": "page3",
+      "elements": [
+       {
+        "type": "text",
+        "name": "question3"
+       }
+      ]
+     }
+    ]
+   };
+  let survey: Survey = new Survey(json);
+  let progress: ProgressButtonsViewModel = new ProgressButtonsViewModel(survey,
+    { querySelector: function() { return undefined; } });
+  progress.dispose();
+  assert.equal(progress.getScrollButtonCss(true)(),
+    survey.css.progressButtonsImageButtonLeft + " " +
+     survey.css.progressButtonsImageButtonHidden,
+    "1) Scroll button left style is hidden");
+  assert.equal(progress.getScrollButtonCss(false)(),
+    survey.css.progressButtonsImageButtonRight + " " +
+     survey.css.progressButtonsImageButtonHidden,
+    "1) Scroll button right style is hidden");
+
+  progress['hasScroller'](true);
+  assert.equal(progress.getScrollButtonCss(true)(),
+    survey.css.progressButtonsImageButtonLeft,
+    "2) Scroll button left style is visible");
+  assert.equal(progress.getScrollButtonCss(false)(),
+    survey.css.progressButtonsImageButtonRight,
+    "2) Scroll button right style is visible");
 });

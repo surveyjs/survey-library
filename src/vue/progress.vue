@@ -26,6 +26,8 @@ export class Progress extends Vue {
     return this.survey.progressValue + "%";
   }
 }
-Vue.component("survey-progress", Progress);
+Vue.component("survey-progress-pages", Progress);
+Vue.component("survey-progress-questions", Progress);
+Vue.component("survey-progress-correctquestions", Progress);
 export default Progress;
 </script>

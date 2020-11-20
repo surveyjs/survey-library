@@ -19,7 +19,6 @@ import { FunctionFactory } from "../src/functionsfactory";
 import { Question } from "../src/question";
 import { ExpressionValidator } from "../src/validator";
 import { QuestionExpressionModel } from "../src/question_expression";
-import { QuestionFactory } from "../src/questionfactory";
 import { settings } from "../src/settings";
 import { PanelModel } from "../src/panel";
 
@@ -5176,6 +5175,58 @@ QUnit.test("Detail panel, underRowSingle", function (assert) {
     "We automatically hide detail panel in the first row"
   );
 });
+QUnit.test(
+  "Detail panel, show errors in panels and underRowSingle mode, Bug#2530",
+  function (assert) {
+    var survey = new SurveyModel({
+      elements: [
+        {
+          type: "matrixdynamic",
+          name: "matrix",
+          rowCount: 2,
+          detailPanelMode: "underRowSingle",
+          columns: [{ name: "col1" }, { name: "col2" }, { name: "col3" }],
+          detailElements: [{ type: "text", name: "q1", isRequired: true }],
+        },
+      ],
+    });
+    var matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+    var rows = matrix.visibleRows;
+    assert.equal(
+      rows[0].isDetailPanelShowing || rows[1].isDetailPanelShowing,
+      false,
+      "The the first and second rows are hidden by default"
+    );
+    assert.equal(
+      matrix.hasErrors(true),
+      true,
+      "There is an error in the first row"
+    );
+    assert.equal(
+      rows[0].isDetailPanelShowing,
+      true,
+      "We show the detail panel in the first row"
+    );
+    assert.equal(
+      rows[1].isDetailPanelShowing,
+      false,
+      "We do not show the detail panel in the second row yet"
+    );
+    rows[0].detailPanel.getQuestionByName("q1").value = "val1";
+    assert.equal(
+      matrix.hasErrors(true),
+      true,
+      "There is an error in the second row"
+    );
+    assert.equal(
+      rows[1].isDetailPanelShowing,
+      true,
+      "We show the detail panel in the second row"
+    );
+    rows[1].detailPanel.getQuestionByName("q1").value = "val2";
+    assert.equal(matrix.hasErrors(true), false, "There is no errors anymore");
+  }
+);
 QUnit.test("Detail panel, rendered table and className", function (assert) {
   var survey = new SurveyModel({
     elements: [

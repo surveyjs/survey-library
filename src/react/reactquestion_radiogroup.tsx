@@ -1,12 +1,9 @@
 import * as React from "react";
-import {
-  SurveyQuestionElementBase,
-  ReactSurveyElement,
-} from "./reactquestionelement";
+import { SurveyQuestionElementBase, ReactSurveyElement } from "./reactquestion_element";
 import { QuestionRadiogroupModel } from "../question_radiogroup";
 import { ItemValue } from "../itemvalue";
-import { SurveyQuestionCommentItem } from "./reactquestioncomment";
-import { ReactQuestionFactory } from "./reactquestionfactory";
+import { SurveyQuestionCommentItem } from "./reactquestion_comment";
+import { ReactQuestionFactory } from "./reactquestion_factory";
 import { Base } from "../base";
 
 export class SurveyQuestionRadiogroup extends SurveyQuestionElementBase {

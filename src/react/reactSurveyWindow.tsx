@@ -1,7 +1,7 @@
 import * as React from "react";
 import { Survey } from "./reactSurvey";
 import { ReactWindowModel } from "./reactsurveymodel";
-import { SurveyElementBase } from "./reactquestionelement";
+import { SurveyElementBase } from "./reactquestion_element";
 import { Base } from "../base";
 
 export class SurveyWindow extends Survey {

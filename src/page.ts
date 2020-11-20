@@ -1,15 +1,8 @@
 import { Serializer } from "./jsonobject";
-import { HashTable, Helpers } from "./helpers";
-import {
-  IPage,
-  IPanel,
-  IElement,
-  ISurveyElement,
-  IQuestion,
-  SurveyElement
-} from "./base";
-import { Question } from "./question";
+import { Helpers } from "./helpers";
+import { IPage, IPanel, IElement, ISurveyElement, IQuestion, } from "./base";
 import { DragDropInfo, PanelModelBase, QuestionRowModel } from "./panel";
+import { LocalizableString } from "./localizablestring";
 
 /**
  * The page object. It has elements collection, that contains questions and panels.
@@ -23,6 +16,8 @@ export class PageModel extends PanelModelBase implements IPage {
       if (self.num > 0) return self.num + ". " + text;
       return text;
     };
+    this.createLocalizableString("navigationTitle", this, true);
+    this.createLocalizableString("navigationDescription", this, true);
   }
   public getType(): string {
     return "page";
@@ -32,6 +27,30 @@ export class PageModel extends PanelModelBase implements IPage {
   }
   public get isPage() {
     return true;
+  }
+  public get navigationTitle(): string {
+    return this.getLocalizableStringText("navigationTitle");
+  }
+  public set navigationTitle(val: string) {
+    this.setLocalizableStringText("navigationTitle", val);
+  }
+  public get locNavigationTitle(): LocalizableString {
+    return this.getLocalizableString("navigationTitle");
+  }
+  public get navigationDescription(): string {
+    return this.getLocalizableStringText("navigationDescription");
+  }
+  public set navigationDescription(val: string) {
+    this.setLocalizableStringText("navigationDescription", val);
+  }
+  public get locNavigationDescription(): LocalizableString {
+    return this.getLocalizableString("navigationDescription");
+  }
+  public get passed(): boolean {
+    return this.getPropertyValue("passed", false);
+  }
+  public set passed(val: boolean) {
+    this.setPropertyValue("passed", val);
   }
   public delete() {
     if (!!this.survey) {
@@ -388,7 +407,21 @@ Serializer.addClass(
       default: "default",
       choices: ["default", "initial", "random"]
     },
-    { name: "maxTimeToFinish:number", default: 0, minValue: 0 }
+    { name: "maxTimeToFinish:number", default: 0, minValue: 0 },
+    {
+      name: "navigationTitle",
+      visibleIf: function (obj: any) {
+        return !!obj.survey && obj.survey.progressBarType === "buttons";
+      },
+      serializationProperty: "locNavigationTitle"
+    },
+    {
+      name: "navigationDescription",
+      visibleIf: function (obj: any) {
+        return !!obj.survey && obj.survey.progressBarType === "buttons";
+      },
+      serializationProperty: "locNavigationDescription"
+    }
   ],
   function() {
     return new PageModel();

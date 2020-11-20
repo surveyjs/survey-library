@@ -14,6 +14,7 @@ export class SurveyProgressButtonsModel {
     return elementCss;
   }
   public clickListElement(visibleIndex: number): void {
+    if (this.survey.isDesignMode) return;
     if (visibleIndex < this.survey.currentPageNo) {
       this.survey.currentPageNo = visibleIndex;
     }

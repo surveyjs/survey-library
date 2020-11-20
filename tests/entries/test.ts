@@ -39,7 +39,4 @@ import "../../src/localization/french";
 import "../../src/localization/finnish";
 import "../../src/localization/german";
 
-//Property Grid
-import "../propertyGridTests";
-
 import "../renderFactoryTests";

@@ -56,9 +56,6 @@ export { QuestionCustom } from "../knockout/koquestion_custom";
 export * from "../knockout/components/progress/buttons";
 export * from "../knockout/components/progress/progress";
 
-//Property Grid
-// export { PropertyGrid } from "../knockout/koPropertyGrid";
-
 //Uncomment to include the "date" question type.
 //export {QuestionDate} from "../plugins/knockout/koquestion_date";
 

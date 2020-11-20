@@ -72,6 +72,14 @@ export class SurveyPanelBase extends SurveyElementBase {
       }
     }
   }
+  protected canRender(): boolean {
+    return (
+      super.canRender() &&
+      !!this.survey &&
+      !!this.panelBase &&
+      this.panelBase.visible
+    );
+  }
   private renderedRowsCache: any = {};
   protected renderRows(css: any): Array<JSX.Element> {
     if (this.changedStatePropName !== "rows") {

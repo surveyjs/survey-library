@@ -18,14 +18,6 @@ export class SurveyPanel extends SurveyPanelBase {
   handleEditClick(event: any) {
     this.panel.cancelPreview();
   }
-  protected canRender(): boolean {
-    return (
-      super.canRender() &&
-      !!this.survey &&
-      !!this.panelBase &&
-      this.panelBase.isVisible
-    );
-  }
   protected renderElement(): JSX.Element {
     var title = this.renderTitle();
     var description = this.renderDescription();

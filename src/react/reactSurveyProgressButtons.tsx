@@ -41,10 +41,10 @@ export class SurveyProgressButtons extends SurveyNavigationBase {
     return (
       <li key={"listelement" + index} className={this.getListElementCss(index)}
         onClick={() => this.clickListElement(index)}>
-        <div className={this.css.progressButtonsPageTitle}>
+        <div className={this.css.progressButtonsPageTitle} title={page.navigationTitle || page.name}>
           {page.navigationTitle || page.name}
         </div>
-        <div className={this.css.progressButtonsPageDescription}>
+        <div className={this.css.progressButtonsPageDescription} title={page.navigationDescription}>
           {page.navigationDescription}
         </div>
       </li>

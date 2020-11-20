@@ -5,7 +5,7 @@
           <div :class="css.progressButtonsListContainer" ref="progressButtonsListContainer">
               <ul :class="css.progressButtonsList">
                   <li v-for="(page, index) in survey.visiblePages" :key="'listelement' + index" :class="getListElementCss(index)" v-on:click="clickListElement(index)">
-                      <div :class="css.progressButtonsPageTitle" :title="page.locNavigationTitle.renderedHtml || name">
+                      <div :class="css.progressButtonsPageTitle" :title="page.locNavigationTitle.renderedHtml || page.name">
                         {{page.locNavigationTitle.renderedHtml || page.name}}
                       </div>
                       <div :class="css.progressButtonsPageDescription" :title="page.locNavigationDescription.renderedHtml">

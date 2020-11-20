@@ -30,6 +30,7 @@ export * from "../expressions/expressionParserTest";
 export * from "../questionDropdown";
 export * from "../questionImagepicker";
 export * from "../questionBoolean";
+export * from "../question_baseselecttests";
 export * from "../question_customtests";
 
 // localization

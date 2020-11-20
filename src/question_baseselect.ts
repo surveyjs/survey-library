@@ -184,7 +184,10 @@ export class QuestionSelectBase extends Question {
       this.activeChoices,
       this.conditionChoicesEnableIfRunner,
       values,
-      properties, (item: ItemValue): boolean => { return this.onEnableItemCallBack(item);}
+      properties,
+      (item: ItemValue): boolean => {
+        return this.onEnableItemCallBack(item);
+      }
     );
     if (hasChanged) {
       this.clearDisabledValues();
@@ -780,7 +783,7 @@ export class QuestionSelectBase extends Question {
       this.survey.questionCountByValueName(this.getValueName()) > 1
     )
       return;
-    if(!!this.choicesByUrl && !this.choicesByUrl.isEmpty) return;
+    if (!!this.choicesByUrl && !this.choicesByUrl.isEmpty) return;
     if (this.clearIncorrectValuesCallback) {
       this.clearIncorrectValuesCallback();
     } else {
@@ -850,8 +853,14 @@ export class QuestionSelectBase extends Question {
     if (this.hasColumns && this.visibleChoices.length > 0) {
       for (var i = 0; i < colCount; i++) {
         var column = [];
-        for (var j = i; j < this.visibleChoices.length; j += colCount) {
-          column.push(this.visibleChoices[j]);
+        if (settings.showItemsInOrder == "column") {
+          for (var j = i * colCount; j < (i + 1) * colCount; j++) {
+            column.push(this.visibleChoices[j]);
+          }
+        } else {
+          for (var j = i; j < this.visibleChoices.length; j += colCount) {
+            column.push(this.visibleChoices[j]);
+          }
         }
         columns.push(column);
       }

@@ -118,4 +118,9 @@ export var settings = {
    * This feature is experimantal and might do not support all the use cases.
    */
   lazyRowsRendering: false,
+  /**
+   * By default checkbox and radiogroup items are ordered in rows.
+   * Set it "column", and items will be ordered in columns.
+   */
+  showItemsInOrder: "default",
 };

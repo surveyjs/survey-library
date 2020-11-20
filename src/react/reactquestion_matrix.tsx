@@ -1,8 +1,8 @@
 import * as React from "react";
-import { ReactSurveyElement, SurveyQuestionElementBase } from "./reactquestionelement";
+import { ReactSurveyElement, SurveyQuestionElementBase } from "./reactquestion_element";
 import { QuestionMatrixModel } from "../question_matrix";
 import { MatrixRowModel } from "../question_matrix";
-import { ReactQuestionFactory } from "./reactquestionfactory";
+import { ReactQuestionFactory } from "./reactquestion_factory";
 
 export class SurveyQuestionMatrix extends SurveyQuestionElementBase {
   constructor(props: any) {

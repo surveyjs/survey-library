@@ -1,14 +1,11 @@
 import * as ko from "knockout";
 import { SurveyModel } from "../survey";
-import { IPage, IQuestion, Event, SurveyElement } from "../base";
+import { IPage, SurveyElement } from "../base";
 import { Page } from "./kopage";
 import { PageModel } from "../page";
 import { surveyCss } from "../defaultCss/cssstandard";
 import { koTemplate, SurveyTemplateText } from "./templateText";
-import {
-  QuestionCustomWidget,
-  CustomWidgetCollection,
-} from "../questionCustomWidgets";
+import { CustomWidgetCollection } from "../questionCustomWidgets";
 import { LocalizableString } from "../localizablestring";
 import { ItemValue } from "../itemvalue";
 import { ImplementorBase } from "./kobase";

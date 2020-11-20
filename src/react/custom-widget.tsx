@@ -1,5 +1,5 @@
 import * as React from "react";
-import { SurveyQuestionElementBase } from "./reactquestionelement";
+import { SurveyQuestionElementBase } from "./reactquestion_element";
 
 export class SurveyCustomWidget extends SurveyQuestionElementBase {
   private widgetRef: React.RefObject<HTMLDivElement>;

@@ -1,0 +1,14 @@
+<div data-bind="css: model.css.progressButtonsContainerCenter">
+    <div data-bind="css: model.css.progressButtonsContainer">
+        <div data-bind="css: getScrollButtonCss(true), click: clickScrollButton.bind($data, $element.nextElementSibling, true)" role="button"></div>
+        <div data-bind="css: model.css.progressButtonsListContainer">
+            <ul data-bind="foreach: model.visiblePages, css: model.css.progressButtonsList">
+                <li data-bind="css: $parent.getListElementCss($index), click: $parent.clickListElement.bind($parent, $index)">
+                    <div data-bind="css: css.progressButtonsPageTitle, text: locNavigationTitle.koRenderedHtml() || name, attr: { title: locNavigationTitle.koRenderedHtml() || name }"></div>
+                    <div data-bind="css: css.progressButtonsPageDescription, text: locNavigationDescription.koRenderedHtml(), attr: { title: locNavigationDescription.koRenderedHtml() }"></div>
+                </li>
+            </ul>
+        </div>
+        <div data-bind="css: getScrollButtonCss(false), click: clickScrollButton.bind($data, $element.previousElementSibling, false)" role="button"></div>
+    </div>
+</div>

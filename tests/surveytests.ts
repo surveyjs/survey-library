@@ -1,3 +1,4 @@
+import { SurveyElement } from "../src/base";
 import { SurveyModel } from "../src/survey";
 import { PageModel } from "../src/page";
 import { PanelModel } from "../src/panel";
@@ -26,7 +27,7 @@ import {
   MultipleTextItemModel,
 } from "../src/question_multipletext";
 import { QuestionMatrixModel } from "../src/question_matrix";
-import { ISurvey, ISurveyData, SurveyElement } from "../src/base";
+import { ISurveyData } from "../src/base";
 import { ItemValue } from "../src/itemvalue";
 import { QuestionDropdownModel } from "../src/question_dropdown";
 import { QuestionCheckboxModel } from "../src/question_checkbox";
@@ -36,10 +37,7 @@ import { QuestionFileModel } from "../src/question_file";
 import { QuestionMatrixDropdownModel } from "../src/question_matrixdropdown";
 import { QuestionMatrixDynamicModel } from "../src/question_matrixdynamic";
 import { QuestionRatingModel } from "../src/question_rating";
-import {
-  CustomWidgetCollection,
-  QuestionCustomWidget,
-} from "../src/questionCustomWidgets";
+import { CustomWidgetCollection } from "../src/questionCustomWidgets";
 import { surveyCss } from "../src/defaultCss/cssstandard";
 import { dxSurveyService } from "../src/dxSurveyService";
 import { FunctionFactory } from "../src/functionsfactory";
@@ -168,7 +166,6 @@ QUnit.test("Set number and name into currentPage property", function (assert) {
     "The current page is still page3, set by name that doesn't exist"
   );
 });
-
 QUnit.test("CurrentPageNo", function (assert) {
   var survey = new SurveyModel();
   survey.addPage(createPageWithQuestion("Page 1"));
@@ -187,6 +184,75 @@ QUnit.test("CurrentPageNo", function (assert) {
     0,
     "the first page is current after removing the current one"
   );
+});
+QUnit.test("PageModel navigationTitle and navigationDescription properties", function (assert) {
+  var page = new PageModel("Page 1");
+  page.navigationTitle = "Title";
+  assert.equal(page.locNavigationTitle.renderedHtml,
+    "Title",
+    "The locNavigationTitle property correspond navigationTitle");
+  page.navigationDescription = "Description";
+  assert.equal(page.locNavigationDescription.renderedHtml,
+    "Description",
+    "The locNavigationDescription property correspond navigationDescription");
+});
+QUnit.test("PageModel passed property", function (assert) {
+  var json = {
+    "pages": [
+     {
+      "name": "page1",
+      "elements": [
+       {
+        "type": "text",
+        "name": "question1"
+       }
+      ]
+     },
+     {
+      "name": "page2",
+      "elements": [
+       {
+        "type": "text",
+        "name": "question2"
+       }
+      ]
+     },
+     {
+      "name": "page3",
+      "elements": [
+       {
+        "type": "text",
+        "name": "question3"
+       }
+      ]
+     }
+    ]
+   };
+  var survey = new SurveyModel(json);
+  assert.equal(survey.pages[0].passed, false, "1) Page 1 isn't passed");
+  assert.equal(survey.pages[1].passed, false, "1) Page 2 isn't passed");
+  assert.equal(survey.pages[2].passed, false, "1) Page 3 isn't passed");
+
+  survey.nextPage();
+  assert.equal(survey.pages[0].passed, true, "2) Page 1 is passed");
+  assert.equal(survey.pages[1].passed, false, "2) Page 2 isn't passed");
+  assert.equal(survey.pages[2].passed, false, "2) Page 3 isn't passed");
+
+  survey.nextPage();
+  assert.equal(survey.pages[0].passed, true, "3) Page 1 is passed");
+  assert.equal(survey.pages[1].passed, true, "3) Page 2 is passed");
+  assert.equal(survey.pages[2].passed, false, "3) Page 3 isn't passed");
+
+  survey.prevPage();
+  assert.equal(survey.pages[0].passed, true, "4) Page 1 is passed");
+  assert.equal(survey.pages[1].passed, true, "4) Page 2 is passed");
+  assert.equal(survey.pages[2].passed, false, "4) Page 3 isn't passed");
+
+  survey.nextPage();
+  survey.completeLastPage();
+  assert.equal(survey.pages[0].passed, true, "5) Page 1 is passed");
+  assert.equal(survey.pages[1].passed, true, "5) Page 2 is passed");
+  assert.equal(survey.pages[2].passed, true, "5) Page 3 is passed");
 });
 QUnit.test("Remove Page in design mode", function (assert) {
   var survey = new SurveyModel();
@@ -257,7 +323,6 @@ QUnit.test("Survey.onValueChanged event, #352", function (assert) {
   q1.comment = "new comment";
   assert.equal(valueChangedCallCounter, 3, "Set comment to other value");
 });
-
 QUnit.test("Do not show errors in display mode", function (assert) {
   var survey = twoPageSimplestSurvey();
   (<Question>survey.pages[0].questions[0]).isRequired = true;
@@ -265,7 +330,6 @@ QUnit.test("Do not show errors in display mode", function (assert) {
   survey.nextPage();
   assert.equal(survey.currentPageNo, 1, "Can move into another page");
 });
-
 QUnit.test("Do not show errors if survey.ignoreValidation = true", function (
   assert
 ) {
@@ -279,7 +343,6 @@ QUnit.test("Do not show errors if survey.ignoreValidation = true", function (
   survey.completeLastPage();
   assert.equal(survey.state, "completed", "Can complete survey with erros");
 });
-
 QUnit.test("Check pages state on onValueChanged event", function (assert) {
   var survey = new SurveyModel({
     pages: [
@@ -316,7 +379,6 @@ QUnit.test("Check pages state on onValueChanged event", function (assert) {
   var q1 = survey.getQuestionByName("question1");
   q1.value = "2";
 });
-
 QUnit.test("Question is readOnly", function (assert) {
   var survey = twoPageSimplestSurvey();
   var q1 = <Question>(<Question>survey.pages[0].questions[0]);
@@ -358,7 +420,6 @@ QUnit.test("DO not change errors array on fireCallback = false", function (
   page.hasErrors(true);
   assert.equal(q1.errors.length, 1, "The errors array is not empty now");
 });
-
 QUnit.test("Do not show required error for value 0 and false, #345", function (
   assert
 ) {

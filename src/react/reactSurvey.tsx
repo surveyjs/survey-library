@@ -5,14 +5,14 @@ import { SurveyNavigation } from "./reactSurveyNavigation";
 import { SurveyError, Base } from "../base";
 import { Question } from "../question";
 import { ISurveyCreator } from "./reactquestion";
-import { ReactQuestionFactory } from "./reactquestionfactory";
+import { ReactQuestionFactory } from "./reactquestion_factory";
 import { surveyCss } from "../defaultCss/cssstandard";
-import { SurveyProgress } from "./reactSurveyProgress";
 import { SurveyTimerPanel } from "./reacttimerpanel";
-import { SurveyElementBase, SurveyLocString } from "./reactquestionelement";
+import { SurveyElementBase, SurveyLocString } from "./reactquestion_element";
 import { PageModel } from "../page";
 import { StylesManager } from "../stylesmanager";
 import { Helpers } from "../helpers";
+import { ReactElementFactory } from "./element-factory";
 
 export class Survey extends SurveyElementBase implements ISurveyCreator {
   private previousJSON = {};
@@ -295,7 +295,10 @@ export class Survey extends SurveyElementBase implements ISurveyCreator {
     );
   }
   protected renderProgress(isTop: boolean): JSX.Element {
-    return <SurveyProgress survey={this.survey} css={this.css} isTop={isTop} />;
+    return ReactElementFactory.Instance.createElement(
+      "survey-progress-" + this.survey.progressBarType.toLowerCase(),
+      { survey: this.survey, css: this.css, isTop: isTop }
+    );
   }
   protected renderNavigation(navPosition: string): JSX.Element {
     if (

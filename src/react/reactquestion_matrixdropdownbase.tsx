@@ -1,23 +1,15 @@
 import * as React from "react";
+import { ReactSurveyElement, SurveyQuestionElementBase } from "./reactquestion_element";
+import { SurveyQuestion, SurveyQuestionAndErrorsCell } from "./reactquestion";
 import {
-  ReactSurveyElement,
-  SurveyQuestionElementBase,
-} from "./reactquestionelement";
-import {
-  ISurveyCreator,
-  SurveyQuestion,
-  SurveyQuestionAndErrorsCell,
-} from "./reactquestion";
-import {
-  MatrixDropdownCell,
   MatrixDropdownRowModelBase,
   QuestionMatrixDropdownModelBase,
   QuestionMatrixDropdownRenderedRow,
   QuestionMatrixDropdownRenderedCell,
 } from "../question_matrixdropdownbase";
 import { Question } from "../question";
-import { SurveyQuestionCheckboxItem } from "./reactquestioncheckbox";
-import { SurveyQuestionRadioItem } from "./reactquestionradiogroup";
+import { SurveyQuestionCheckboxItem } from "./reactquestion_checkbox";
+import { SurveyQuestionRadioItem } from "./reactquestion_radiogroup";
 import { SurveyPanel } from "./panel";
 
 export class SurveyQuestionMatrixDropdownBase extends SurveyQuestionElementBase {

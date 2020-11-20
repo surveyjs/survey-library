@@ -18,6 +18,7 @@ export * from "../surveytests";
 export * from "../surveytriggertests";
 export * from "../surveyvalidatortests";
 export * from "../surveyShowPreviewTests";
+export * from "../surveyProgressButtonsTest";
 export * from "../textPreprocessorTests";
 export * from "../lowercasetests";
 export * from "../elementslayouttests";
@@ -30,6 +31,7 @@ export * from "../expressions/expressionParserTest";
 export * from "../questionDropdown";
 export * from "../questionImagepicker";
 export * from "../questionBoolean";
+export * from "../question_baseselecttests";
 export * from "../question_customtests";
 
 // localization

@@ -1,9 +1,8 @@
 import * as React from "react";
-import { SurveyQuestion, ISurveyCreator } from "./reactquestion";
+import { ISurveyCreator } from "./reactquestion";
 import { SurveyModel } from "../survey";
-import { QuestionRowModel, PanelModel } from "../panel";
-import { Question } from "../question";
-import { SurveyElementBase } from "./reactquestionelement";
+import { QuestionRowModel } from "../panel";
+import { SurveyElementBase } from "./reactquestion_element";
 import { IElement, Base } from "../base";
 import { ReactElementFactory } from "./element-factory";
 import { settings } from "../settings";

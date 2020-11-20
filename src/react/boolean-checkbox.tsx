@@ -1,10 +1,5 @@
 import * as React from "react";
-import {
-  ReactSurveyElement,
-  SurveyQuestionElementBase,
-} from "./reactquestionelement";
-import { QuestionBooleanModel } from "../question_boolean";
-import { ReactQuestionFactory } from "./reactquestionfactory";
+import { ReactQuestionFactory } from "./reactquestion_factory";
 import { SurveyQuestionBoolean } from "./boolean";
 import { RendererFactory } from "../rendererFactory";
 

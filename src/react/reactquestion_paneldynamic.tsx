@@ -1,16 +1,8 @@
 import * as React from "react";
-import {
-  ReactSurveyElement,
-  SurveyQuestionElementBase,
-} from "./reactquestionelement";
-import {
-  QuestionPanelDynamicModel,
-  QuestionPanelDynamicItem,
-} from "../question_paneldynamic";
-import { PanelModel } from "../panel";
+import { SurveyQuestionElementBase } from "./reactquestion_element";
+import { QuestionPanelDynamicModel } from "../question_paneldynamic";
 import { SurveyPanel } from "./panel";
-import { ISurveyCreator } from "./reactquestion";
-import { ReactQuestionFactory } from "./reactquestionfactory";
+import { ReactQuestionFactory } from "./reactquestion_factory";
 import { SurveyModel } from "../survey";
 import { Question } from "../question";
 
@@ -63,7 +55,6 @@ export class SurveyQuestionPanelDynamic extends SurveyQuestionElementBase {
     this.question.currentIndex = event.target.value;
   }
   protected renderElement(): JSX.Element {
-    var cssClasses = this.question.cssClasses;
     var panels = [];
     if (this.question.isRenderModeList) {
       for (var i = 0; i < this.question.panels.length; i++) {
@@ -74,7 +65,7 @@ export class SurveyQuestionPanelDynamic extends SurveyQuestionElementBase {
             element={panel}
             question={this.question}
             index={i}
-            cssClasses={cssClasses}
+            cssClasses={this.question.cssClasses}
             isDisplayMode={this.isDisplayMode}
             creator={this.creator}
           />
@@ -89,22 +80,21 @@ export class SurveyQuestionPanelDynamic extends SurveyQuestionElementBase {
             element={panel}
             question={this.question}
             index={this.question.currentIndex}
-            cssClasses={cssClasses}
+            cssClasses={this.question.cssClasses}
             isDisplayMode={this.isDisplayMode}
             creator={this.creator}
           />
         );
       }
     }
-    var btnDeleteTD = !this.isDisplayMode ? <td /> : null;
     var btnAdd = this.question.isRenderModeList
       ? this.renderAddRowButton()
       : null;
     var navTop = this.question.isProgressTopShowing
-      ? this.renderNavigator(cssClasses)
+      ? this.renderNavigator()
       : null;
     var navBottom = this.question.isProgressBottomShowing
-      ? this.renderNavigator(cssClasses)
+      ? this.renderNavigator()
       : null;
 
     var style: any = {};
@@ -113,7 +103,7 @@ export class SurveyQuestionPanelDynamic extends SurveyQuestionElementBase {
     }
 
     return (
-      <div className={cssClasses.root}>
+      <div className={this.question.cssClasses.root}>
         {navTop}
         <div style={style}>{panels}</div>
         {navBottom}
@@ -121,7 +111,7 @@ export class SurveyQuestionPanelDynamic extends SurveyQuestionElementBase {
       </div>
     );
   }
-  protected renderNavigator(cssClasses: any): JSX.Element {
+  protected renderNavigator(): JSX.Element {
     var range = this.question.isRangeShowing ? this.renderRange() : null;
     var btnPrev = this.rendrerPrevButton();
     var btnNext = this.rendrerNextButton();

@@ -19,7 +19,6 @@ import { FunctionFactory } from "../src/functionsfactory";
 import { Question } from "../src/question";
 import { ExpressionValidator } from "../src/validator";
 import { QuestionExpressionModel } from "../src/question_expression";
-import { QuestionFactory } from "../src/questionfactory";
 import { settings } from "../src/settings";
 import { PanelModel } from "../src/panel";
 

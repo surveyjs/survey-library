@@ -1,11 +1,7 @@
 import * as React from "react";
-import {
-  ReactSurveyElement,
-  SurveyQuestionUncontrolledElement,
-} from "./reactquestionelement";
-import { Helpers } from "../helpers";
+import { ReactSurveyElement, SurveyQuestionUncontrolledElement } from "./reactquestion_element";
 import { QuestionCommentModel } from "../question_comment";
-import { ReactQuestionFactory } from "./reactquestionfactory";
+import { ReactQuestionFactory } from "./reactquestion_factory";
 
 export class SurveyQuestionComment extends SurveyQuestionUncontrolledElement<
   QuestionCommentModel

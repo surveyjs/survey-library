@@ -1,12 +1,8 @@
 import * as React from "react";
-import {
-  SurveyQuestionUncontrolledElement,
-  ReactSurveyElement,
-} from "./reactquestionelement";
-import { Helpers } from "../helpers";
+import { SurveyQuestionUncontrolledElement, ReactSurveyElement } from "./reactquestion_element";
 import { QuestionDropdownModel } from "../question_dropdown";
-import { SurveyQuestionCommentItem } from "./reactquestioncomment";
-import { ReactQuestionFactory } from "./reactquestionfactory";
+import { SurveyQuestionCommentItem } from "./reactquestion_comment";
+import { ReactQuestionFactory } from "./reactquestion_factory";
 import { ItemValue } from "../itemvalue";
 import { Base } from "../base";
 

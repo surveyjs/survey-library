@@ -1,12 +1,9 @@
 import * as React from "react";
-import {
-  ReactSurveyElement,
-  SurveyQuestionElementBase,
-} from "./reactquestionelement";
-import { SurveyQuestionCommentItem } from "./reactquestioncomment";
+import { ReactSurveyElement, SurveyQuestionElementBase } from "./reactquestion_element";
+import { SurveyQuestionCommentItem } from "./reactquestion_comment";
 import { QuestionCheckboxModel } from "../question_checkbox";
 import { ItemValue } from "../itemvalue";
-import { ReactQuestionFactory } from "./reactquestionfactory";
+import { ReactQuestionFactory } from "./reactquestion_factory";
 import { Base } from "../base";
 
 export class SurveyQuestionCheckbox extends SurveyQuestionElementBase {

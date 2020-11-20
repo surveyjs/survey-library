@@ -15,8 +15,8 @@ QUnit.test("Check QuestionSelectBase columns property", function (assert) {
       {
         type: "checkbox",
         name: "Question 1",
-        choices: ["Item1", "Item2", "Item3", "Item4"],
-        colCount: 2,
+        choices: ["Item1", "Item2", "Item3", "Item4", "Item5"],
+        colCount: 3,
       },
     ],
   };
@@ -26,20 +26,14 @@ QUnit.test("Check QuestionSelectBase columns property", function (assert) {
   var columns = getValuesInColumns(question);
   assert.deepEqual(
     columns,
-    [
-      ["Item1", "Item3"],
-      ["Item2", "Item4"],
-    ],
+    [["Item1", "Item4"], ["Item2", "Item5"], ["Item3"]],
     "check showItemsBy row"
   );
   settings.showItemsInOrder = "column";
   columns = getValuesInColumns(question);
   assert.deepEqual(
     columns,
-    [
-      ["Item1", "Item2"],
-      ["Item3", "Item4"],
-    ],
+    [["Item1", "Item2"], ["Item3", "Item4"], ["Item5"]],
     "check showItemsBy column"
   );
 });

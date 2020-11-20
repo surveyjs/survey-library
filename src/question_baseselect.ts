@@ -851,18 +851,34 @@ export class QuestionSelectBase extends Question {
     var columns = [];
     var colCount = this.colCount;
     if (this.hasColumns && this.visibleChoices.length > 0) {
-      for (var i = 0; i < colCount; i++) {
-        var column = [];
-        if (settings.showItemsInOrder == "column") {
-          for (var j = i * colCount; j < (i + 1) * colCount; j++) {
+      if (settings.showItemsInOrder == "column") {
+        var prevIndex = 0;
+        var leftElementsCount = this.visibleChoices.length % colCount;
+        for (var i = 0; i < colCount; i++) {
+          var column = [];
+          for (
+            var j = prevIndex;
+            j < prevIndex + Math.floor(this.visibleChoices.length / colCount);
+            j++
+          ) {
             column.push(this.visibleChoices[j]);
           }
-        } else {
+          if (leftElementsCount > 0) {
+            leftElementsCount--;
+            column.push(this.visibleChoices[j]);
+            j++;
+          }
+          prevIndex = j;
+          columns.push(column);
+        }
+      } else {
+        for (var i = 0; i < colCount; i++) {
+          var column = [];
           for (var j = i; j < this.visibleChoices.length; j += colCount) {
             column.push(this.visibleChoices[j]);
           }
+          columns.push(column);
         }
-        columns.push(column);
       }
     }
     return columns;

@@ -41,17 +41,19 @@ export var surveyLocalization = {
     }
     return result;
   },
-  getLocales: function (): Array<string> {
+  getLocales: function (removeDefaultLoc: boolean = false): Array<string> {
     var res = [];
     res.push("");
+    var locs = this.locales;
     if (this.supportedLocales && this.supportedLocales.length > 0) {
+      locs = {};
       for (var i = 0; i < this.supportedLocales.length; i++) {
-        res.push(this.supportedLocales[i]);
+        locs[this.supportedLocales[i]] = true;
       }
-    } else {
-      for (var key in this.locales) {
-        res.push(key);
-      }
+    }
+    for (var key in locs) {
+      if (removeDefaultLoc && key == this.defaultLocale) continue;
+      res.push(key);
     }
     res.sort();
     return res;

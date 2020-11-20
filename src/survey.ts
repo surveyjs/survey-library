@@ -5385,7 +5385,7 @@ Serializer.addClass("survey", [
   {
     name: "locale",
     choices: () => {
-      return surveyLocalization.getLocales();
+      return surveyLocalization.getLocales(true);
     },
     onGetValue: (obj: any): any => {
       return obj.locale == surveyLocalization.defaultLocale ? null : obj.locale;

@@ -11,7 +11,7 @@ import "../src/localization/czech";
 
 export default QUnit.module("LocalizationsTests");
 
-QUnit.test("get default strings", function(assert) {
+QUnit.test("get default strings", function (assert) {
   assert.equal(surveyLocalization.getString("pageNextText"), "Next");
   surveyLocalization.currentLocale = "en";
   assert.equal(surveyLocalization.getString("pageNextText"), "Next");
@@ -19,7 +19,7 @@ QUnit.test("get default strings", function(assert) {
   assert.equal(surveyLocalization.getString("pageNextText"), "Next");
   surveyLocalization.currentLocale = "";
 });
-QUnit.test("add new localization", function(assert) {
+QUnit.test("add new localization", function (assert) {
   var newLoc = { pageNextText: "Mynext" };
   surveyLocalization.locales["myen"] = newLoc;
   assert.equal(surveyLocalization.getString("pageNextText"), "Next");
@@ -28,7 +28,7 @@ QUnit.test("add new localization", function(assert) {
   assert.equal(surveyLocalization.getString("pagePrevText"), "Previous");
   surveyLocalization.currentLocale = "";
 });
-QUnit.test("make german as a default location", function(assert) {
+QUnit.test("make german as a default location", function (assert) {
   assert.equal(
     surveyLocalization.getString("pagePrevText"),
     "Previous",
@@ -47,40 +47,40 @@ QUnit.test("make german as a default location", function(assert) {
     "Get English string again"
   );
 });
-QUnit.test("set german localization", function(assert) {
+QUnit.test("set german localization", function (assert) {
   var locales = surveyLocalization.getLocales();
   assert.ok(locales.indexOf("en") > -1, "has en");
   assert.ok(locales.indexOf("de") > -1, "has de");
 });
-QUnit.test("set german localization", function(assert) {
+QUnit.test("set german localization", function (assert) {
   var survey = new SurveyModel();
   survey.locale = "de";
   assert.equal(survey.completeText, "Abschließen");
   surveyLocalization.currentLocale = "";
 });
-QUnit.test("set finnish localization", function(assert) {
+QUnit.test("set finnish localization", function (assert) {
   var locales = surveyLocalization.getLocales();
   assert.ok(locales.indexOf("en") > -1, "has en");
   assert.ok(locales.indexOf("fi") > -1, "has fi");
 });
-QUnit.test("set finnish localization", function(assert) {
+QUnit.test("set finnish localization", function (assert) {
   var survey = new SurveyModel();
   survey.locale = "fi";
   assert.equal(survey.completeText, "Valmis");
   surveyLocalization.currentLocale = "";
 });
-QUnit.test("set swedish localization", function(assert) {
+QUnit.test("set swedish localization", function (assert) {
   var locales = surveyLocalization.getLocales();
   assert.ok(locales.indexOf("en") > -1, "has en");
   assert.ok(locales.indexOf("sv") > -1, "has sv");
 });
-QUnit.test("set swedish localization", function(assert) {
+QUnit.test("set swedish localization", function (assert) {
   var survey = new SurveyModel();
   survey.locale = "sv";
   assert.equal(survey.completeText, "Färdig");
   surveyLocalization.currentLocale = "";
 });
-QUnit.test("Supported locales", function(assert) {
+QUnit.test("Supported locales + removeDefaultLoc", function (assert) {
   var localesCounts = surveyLocalization.getLocales().length;
   surveyLocalization.supportedLocales = ["en", "de"];
   assert.equal(
@@ -88,14 +88,24 @@ QUnit.test("Supported locales", function(assert) {
     2 + 1,
     "We support only two locales now"
   );
+  assert.deepEqual(
+    surveyLocalization.getLocales(true),
+    ["", "de"],
+    "We remove 'en' locales"
+  );
   surveyLocalization.supportedLocales = null;
   assert.equal(
     surveyLocalization.getLocales().length,
     localesCounts,
     "Support all locales"
   );
+  assert.equal(
+    surveyLocalization.getLocales(true).length,
+    localesCounts - 1,
+    "Support all locales, but without en"
+  );
 });
-QUnit.test("Do not have empty locale", function(assert) {
+QUnit.test("Do not have empty locale", function (assert) {
   var survey = new SurveyModel();
   surveyLocalization.defaultLocale = "de";
   survey.title = "Title_DE";
@@ -103,12 +113,12 @@ QUnit.test("Do not have empty locale", function(assert) {
   survey.title = "Title_EN";
   survey.locale = "";
   assert.deepEqual(survey.toJSON(), {
-    title: { en: "Title_EN", default: "Title_DE" }
+    title: { en: "Title_EN", default: "Title_DE" },
   });
   surveyLocalization.defaultLocale = "en";
 });
 
-QUnit.test("Do not serialize default locale", function(assert) {
+QUnit.test("Do not serialize default locale", function (assert) {
   var survey = new SurveyModel();
   surveyLocalization.defaultLocale = "de";
   survey.locale = "de";
@@ -119,7 +129,7 @@ QUnit.test("Do not serialize default locale", function(assert) {
 
 QUnit.test(
   "surveyLocalization returns empty on currentLocale if it equals to defaultLocale",
-  function(assert) {
+  function (assert) {
     assert.equal(
       surveyLocalization.currentLocale,
       "",
@@ -138,7 +148,7 @@ QUnit.test(
   }
 );
 
-QUnit.test("Fix the bug, when the default locale is set as specific", function(
+QUnit.test("Fix the bug, when the default locale is set as specific", function (
   assert
 ) {
   var json = {
@@ -147,10 +157,10 @@ QUnit.test("Fix the bug, when the default locale is set as specific", function(
         type: "text",
         name: "q1",
         title: {
-          en: "English 1"
-        }
-      }
-    ]
+          en: "English 1",
+        },
+      },
+    ],
   };
   var survey = new SurveyModel(json);
   var question = <Question>survey.getQuestionByName("q1");
@@ -161,7 +171,7 @@ QUnit.test("Fix the bug, when the default locale is set as specific", function(
   );
 });
 
-QUnit.test("Return English localization texts if text not exist", function(
+QUnit.test("Return English localization texts if text not exist", function (
   assert
 ) {
   surveyLocalization.locales["en"]["custom_test_key"] = "item";
@@ -176,7 +186,7 @@ QUnit.test("Return English localization texts if text not exist", function(
 
 QUnit.test(
   "Czech locale is 'cs', but support the old one 'cz', Bug #2004",
-  function(assert) {
+  function (assert) {
     var oldDl = surveyLocalization.defaultLocale;
     var oldCl = surveyLocalization.currentLocale;
     surveyLocalization.currentLocale = "cz";

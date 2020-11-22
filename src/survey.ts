@@ -4073,19 +4073,18 @@ export class SurveyModel
    */
   public getResult(resultId: string, name: string) {
     var self = this;
-    this.createSurveyService().getResult(resultId, name, function (
-      success: boolean,
-      data: any,
-      dataList: any[],
-      response: any
-    ) {
-      self.onGetResult.fire(self, {
-        success: success,
-        data: data,
-        dataList: dataList,
-        response: response,
-      });
-    });
+    this.createSurveyService().getResult(
+      resultId,
+      name,
+      function (success: boolean, data: any, dataList: any[], response: any) {
+        self.onGetResult.fire(self, {
+          success: success,
+          data: data,
+          dataList: dataList,
+          response: response,
+        });
+      }
+    );
   }
   /**
    * Loads the survey JSON from the [api.surveyjs.io](https://api.surveyjs.io) service.
@@ -4126,16 +4125,15 @@ export class SurveyModel
         }
       );
     } else {
-      this.createSurveyService().loadSurvey(this.surveyId, function (
-        success: boolean,
-        result: string,
-        response: any
-      ) {
-        self.isLoading = false;
-        if (success) {
-          self.loadSurveyFromServiceJson(result);
+      this.createSurveyService().loadSurvey(
+        this.surveyId,
+        function (success: boolean, result: string, response: any) {
+          self.isLoading = false;
+          if (success) {
+            self.loadSurveyFromServiceJson(result);
+          }
         }
-      });
+      );
     }
   }
   private loadSurveyFromServiceJson(json: any) {
@@ -5077,7 +5075,7 @@ Serializer.addClass("survey", [
   {
     name: "locale",
     choices: () => {
-      return surveyLocalization.getLocales();
+      return surveyLocalization.getLocales(true);
     },
     onGetValue: (obj: any): any => {
       return obj.locale == surveyLocalization.defaultLocale ? null : obj.locale;

@@ -245,7 +245,7 @@ export class StylesManager {
     ".sv_main .sv-logo--bottom":
       "display: block; width: 100%; text-align: center;",
     ".sv_main .sv_header__text":
-      "display: inline-block; vertical-align: top; width: 100%",
+      "display: inline-block; vertical-align: top; max-width: 100%",
   };
 
   public static Media: { [key: string]: { media: string; style: string } } = {

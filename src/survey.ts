@@ -1628,6 +1628,13 @@ export class SurveyModel
   public set logoFit(val: string) {
     this.setPropertyValue("logoFit", val);
   }
+  public get titleMaxWidth(): string {
+    var logoWidth = this.logoWidth;
+    if(this.logoPosition === "left" || this.logoPosition === "right") {
+      return "calc(100% - 5px - 2em - " + logoWidth + "px)";
+    }
+    return "";
+  }
   /**
    * Gets or sets the HTML content displayed on the complete page. Use this property to change the default complete page text.
    * @see showCompletedPage

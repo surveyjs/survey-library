@@ -19,6 +19,7 @@
     <div
       v-if="survey.locTitle.renderedHtml.length > 0 && survey.showTitle"
       :class="survey.css.headerText"
+      v-bind:style="{ maxWidth: survey.titleMaxWidth }"
     >
       <h3 :class="survey.css.title">
         <survey-string :locString="survey.locTitle" />

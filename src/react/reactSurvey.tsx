@@ -219,7 +219,7 @@ export class Survey extends SurveyElementBase implements ISurveyCreator {
       );
     }
     return title ? (
-      <div className={this.css.headerText}>
+      <div className={this.css.headerText} style={{ maxWidth: this.survey.titleMaxWidth }}>
         <h3 className={this.css.title}>{title}</h3>
         <h5 className={this.css.description}>{description}</h5>
       </div>

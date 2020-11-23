@@ -133,7 +133,8 @@ export class ItemValue extends Base {
       runner,
       values,
       properties,
-      false, true,
+      false,
+      true,
       onItemCallBack
     );
   }
@@ -168,7 +169,7 @@ export class ItemValue extends Base {
       if (itemRunner) {
         newValue = itemRunner.run(values, properties);
       }
-      if(newValue && !!onItemCallBack) {
+      if (newValue && !!onItemCallBack) {
         newValue = onItemCallBack(item);
       }
       if (!!filteredItems && newValue) {
@@ -312,6 +313,12 @@ export class ItemValue extends Base {
   }
   public set visibleIf(val: string) {
     this.setPropertyValue("visibleIf", val);
+  }
+  public get enableIf(): string {
+    return this.getPropertyValue("enableIf", "");
+  }
+  public set enableIf(val: string) {
+    this.setPropertyValue("enableIf", val);
   }
   public get isVisible() {
     return this.isVisibleValue;

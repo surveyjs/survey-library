@@ -28,6 +28,12 @@ steps:
   persistCredentials: true
   clean: true
 
+# Delete integration tests atrifact. Ban ReleaseAll until tests will be ok.
+- task: DeleteFiles@1
+  inputs:
+    SourceFolder: '$(System.ArtifactStagingDirectory)'
+    Contents: 'IntegrationTestsIsOk.txt'
+
 - task: NodeTool@0
   inputs:
     versionSpec: '12.x'

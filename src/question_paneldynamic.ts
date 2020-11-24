@@ -44,12 +44,9 @@ export class QuestionPanelDynamicItem
   constructor(data: IQuestionPanelDynamicData, panel: PanelModel) {
     this.data = data;
     this.panelValue = panel;
-    var self = this;
     this.textPreProcessor = new TextPreProcessor();
-    this.textPreProcessor.onProcess = function (
-      textValue: TextPreProcessorValue
-    ) {
-      self.getProcessedTextValue(textValue);
+    this.textPreProcessor.onProcess = (textValue: TextPreProcessorValue) => {
+      this.getProcessedTextValue(textValue);
     };
     this.setSurveyImpl();
   }
@@ -1059,12 +1056,17 @@ export class QuestionPanelDynamicModel
     if (!values) return;
     var isChanged = false;
     for (var key in values) {
-      if(this.getSharedQuestionFromArray(key, index)) continue;
+      if (this.getSharedQuestionFromArray(key, index)) continue;
       var q = panel.getQuestionByName(key);
-      if(!!q) continue;
-      if(key.indexOf(settings.commentPrefix) == key.length - settings.commentPrefix.length) {
-        q = panel.getQuestionByName(key.substr(0, key.indexOf(settings.commentPrefix)));
-        if(!!q) continue;
+      if (!!q) continue;
+      if (
+        key.indexOf(settings.commentPrefix) ==
+        key.length - settings.commentPrefix.length
+      ) {
+        q = panel.getQuestionByName(
+          key.substr(0, key.indexOf(settings.commentPrefix))
+        );
+        if (!!q) continue;
       }
       delete values[key];
       isChanged = true;

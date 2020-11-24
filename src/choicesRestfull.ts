@@ -101,6 +101,7 @@ export class ChoicesRestfull extends Base {
   protected processedUrl: string = "";
   protected processedPath: string = "";
   private isUsingCacheFromUrl: boolean = undefined;
+  public onProcessedUrlCallback: (url: string, path: string) => void;
   public getResultCallback: (items: Array<ItemValue>) => void;
   public beforeSendRequestCallback: () => void;
   public updateResultCallback: (
@@ -177,6 +178,9 @@ export class ChoicesRestfull extends Base {
     } else {
       this.processedUrl = urlText;
       this.processedPath = this.path;
+    }
+    if (this.onProcessedUrlCallback) {
+      this.onProcessedUrlCallback(this.processedUrl, this.processedPath);
     }
   }
   protected parseResponse(response: any) {

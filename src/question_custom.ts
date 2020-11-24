@@ -13,6 +13,8 @@ import {
 import { PanelModel } from "./panel";
 import { Helpers, HashTable } from "./helpers";
 import { ItemValue } from "./itemvalue";
+import { ProcessValue } from "./conditionProcessValue";
+import { TextPreProcessor, TextPreProcessorValue } from "./textPreProcessor";
 
 export class ComponentQuestionJSON {
   public constructor(public name: string, public json: any) {
@@ -155,7 +157,8 @@ export class ComponentCollection {
   }
 }
 
-export abstract class QuestionCustomModelBase extends Question
+export abstract class QuestionCustomModelBase
+  extends Question
   implements ISurveyImpl, ISurveyData, IPanel {
   constructor(
     public name: string,
@@ -332,6 +335,12 @@ export class QuestionCustomModel extends QuestionCustomModelBase {
   protected getElement(): SurveyElement {
     return this.contentQuestion;
   }
+  onAnyValueChanged(name: string) {
+    super.onAnyValueChanged(name);
+    if (!!this.contentQuestion) {
+      this.contentQuestion.onAnyValueChanged(name);
+    }
+  }
   public hasErrors(fireCallback: boolean = true, rec: any = null): boolean {
     if (!this.contentQuestion) return false;
     var res = this.contentQuestion.hasErrors(fireCallback, rec);
@@ -442,8 +451,78 @@ export class QuestionCustomModel extends QuestionCustomModelBase {
   }
 }
 
+class QuestionCompositeTextProcessor implements ITextProcessor {
+  private textPreProcessor: TextPreProcessor;
+  constructor(private composite: QuestionCompositeModel) {
+    this.textPreProcessor = new TextPreProcessor();
+    this.textPreProcessor.onProcess = (textValue: TextPreProcessorValue) => {
+      this.getProcessedTextValue(textValue);
+    };
+  }
+  private get survey(): ISurvey {
+    return this.composite.survey;
+  }
+  private get panel(): PanelModel {
+    return this.composite.contentPanel;
+  }
+  //ITextProcessor
+  private getProcessedTextValue(textValue: TextPreProcessorValue) {
+    if (!textValue) return;
+    var firstName = new ProcessValue().getFirstName(textValue.name);
+    textValue.isExists = firstName == QuestionCompositeModel.ItemVariableName;
+    textValue.canProcess = textValue.isExists;
+    if (!textValue.canProcess) return;
+    //name should start with the composite
+    textValue.name = textValue.name.replace(
+      QuestionCompositeModel.ItemVariableName + ".",
+      ""
+    );
+    var firstName = new ProcessValue().getFirstName(textValue.name);
+    var question = !!this.panel
+      ? <Question>this.panel.getQuestionByValueName(firstName)
+      : null;
+    var values = {};
+    if (question) {
+      (<any>values)[firstName] = textValue.returnDisplayValue
+        ? question.displayValue
+        : question.value;
+    } else {
+      var allValues = !!this.panel ? this.panel.getValue() : null;
+      if (allValues) {
+        (<any>values)[firstName] = allValues[firstName];
+      }
+    }
+    textValue.value = new ProcessValue().getValue(textValue.name, values);
+  }
+  processText(text: string, returnDisplayValue: boolean): string {
+    text = this.textPreProcessor.process(text, returnDisplayValue);
+    var survey = this.survey;
+    return survey ? survey.processText(text, returnDisplayValue) : text;
+  }
+  processTextEx(text: string, returnDisplayValue: boolean): any {
+    text = this.processText(text, returnDisplayValue);
+    var hasAllValuesOnLastRun = this.textPreProcessor.hasAllValuesOnLastRun;
+    var res = { hasAllValuesOnLastRun: true, text: text };
+    if (this.survey) {
+      res = this.survey.processTextEx(text, returnDisplayValue, false);
+    }
+    res.hasAllValuesOnLastRun =
+      res.hasAllValuesOnLastRun && hasAllValuesOnLastRun;
+    return res;
+  }
+}
+
 export class QuestionCompositeModel extends QuestionCustomModelBase {
+  public static ItemVariableName = "composite";
   private panelWrapper: PanelModel;
+  private textProcessing: QuestionCompositeTextProcessor;
+  constructor(
+    public name: string,
+    public customQuestion: ComponentQuestionJSON
+  ) {
+    super(name, customQuestion);
+    this.textProcessing = new QuestionCompositeTextProcessor(this);
+  }
   protected createWrapper() {
     this.panelWrapper = this.createPanel();
   }
@@ -470,11 +549,21 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
       this.contentPanel.updateElementCss();
     }
   }
+  getTextProcessor(): ITextProcessor {
+    return this.textProcessing;
+  }
   clearValueIfInvisible() {
     super.clearValueIfInvisible();
     var questions = this.contentPanel.questions;
-    for(var i = 0; i < questions.length; i ++) {
+    for (var i = 0; i < questions.length; i++) {
       questions[i].clearValueIfInvisible();
+    }
+  }
+  onAnyValueChanged(name: string) {
+    super.onAnyValueChanged(name);
+    var questions = this.contentPanel.questions;
+    for (var i = 0; i < questions.length; i++) {
+      questions[i].onAnyValueChanged(name);
     }
   }
   protected createPanel(): PanelModel {
@@ -527,12 +616,14 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
   public runCondition(values: HashTable<any>, properties: HashTable<any>) {
     super.runCondition(values, properties);
     if (!!this.contentPanel) {
-      var oldComposite = values.composite;
-      values.composite = this.contentPanel.getValue();
+      var oldComposite = values[QuestionCompositeModel.ItemVariableName];
+      values[
+        QuestionCompositeModel.ItemVariableName
+      ] = this.contentPanel.getValue();
       this.contentPanel.runCondition(values, properties);
-      delete values["composite"];
+      delete values[QuestionCompositeModel.ItemVariableName];
       if (!!oldComposite) {
-        values.composite = oldComposite;
+        values[QuestionCompositeModel.ItemVariableName] = oldComposite;
       }
     }
   }

@@ -1643,11 +1643,11 @@ export class Question
       ? this.locOwner.getLocale()
       : "";
   }
-  public getMarkdownHtml(text: string): string {
+  public getMarkdownHtml(text: string, name: string): string {
     return this.survey
-      ? this.survey.getSurveyMarkdownHtml(this, text)
+      ? this.survey.getSurveyMarkdownHtml(this, text, name)
       : this.locOwner
-      ? this.locOwner.getMarkdownHtml(text)
+      ? this.locOwner.getMarkdownHtml(text, name)
       : null;
   }
   public getProcessedText(text: string): string {

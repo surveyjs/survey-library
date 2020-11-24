@@ -4707,7 +4707,12 @@ QUnit.test("Survey Markdown - question title", function (assert) {
   var q1 = <Question>page.addNewQuestion("text", "q1");
   var q2 = <Question>page.addNewQuestion("text", "q2");
   survey.onTextMarkdown.add(function (survey, options) {
-    if (options.text.indexOf("markdown") > -1)
+    assert.equal(
+      options.name,
+      "title",
+      "question title markdown preprocessing"
+    );
+  if (options.text.indexOf("markdown") > -1)
       options.html = options.text.replace("markdown", "!");
   });
   q2.value = "value2";
@@ -4741,6 +4746,11 @@ QUnit.test(
     var q2 = <Question>page.addNewQuestion("text", "q2");
     var q3 = <Question>page.addNewQuestion("text", "q3");
     survey.onTextMarkdown.add(function (survey, options) {
+      assert.equal(
+        options.name,
+        "title",
+        "question title markdown preprocessing"
+      );
       options.html = options.text + "!";
     });
     q1.isRequired = true;
@@ -4825,6 +4835,11 @@ QUnit.test("Survey Markdown - page title + showPageNumbers = true", function (
   var page = survey.addNewPage("Page 1");
   var q1 = <Question>page.addNewQuestion("text", "q1");
   survey.onTextMarkdown.add(function (survey, options) {
+    assert.equal(
+      options.name,
+      "title",
+      "page title markdown preprocessing"
+    );
     if (options.text.indexOf("markdown") > -1)
       options.html = options.text.replace("markdown", "!");
   });
@@ -4923,7 +4938,12 @@ QUnit.test(
 QUnit.test("Survey Markdown - survey title", function (assert) {
   var survey = new SurveyModel();
   survey.onTextMarkdown.add(function (survey, options) {
-    if (options.text.indexOf("markdown") > -1)
+      assert.equal(
+        options.name,
+        "title",
+        "survey title markdown preprocessing"
+      );
+      if (options.text.indexOf("markdown") > -1)
       options.html = options.text.replace("markdown", "!");
   });
   survey.setValue("q1", "value1");

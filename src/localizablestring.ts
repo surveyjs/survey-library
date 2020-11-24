@@ -4,7 +4,7 @@ import { settings } from "./settings";
 
 export interface ILocalizableOwner {
   getLocale(): string;
-  getMarkdownHtml(text: string): string;
+  getMarkdownHtml(text: string, name: string): string;
   getProcessedText(text: string): string;
 }
 /**
@@ -28,7 +28,8 @@ export class LocalizableString {
   public sharedData: LocalizableString;
   constructor(
     public owner: ILocalizableOwner,
-    public useMarkdown: boolean = false
+    public useMarkdown: boolean = false,
+    public name?: string
   ) {
     this.onCreating();
   }
@@ -190,7 +191,7 @@ export class LocalizableString {
     if (!renderedText) return false;
     var loc = this.locale;
     if (!loc) loc = settings.defaultLocaleName;
-    (<any>this).htmlValues[loc] = this.owner.getMarkdownHtml(renderedText);
+    (<any>this).htmlValues[loc] = this.owner.getMarkdownHtml(renderedText, this.name);
     return (<any>this).htmlValues[loc] ? true : false;
   }
   private getHtmlValue(): string {

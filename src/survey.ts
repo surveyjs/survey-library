@@ -460,6 +460,7 @@ export class SurveyModel
    * Use this event to process the markdown text.
    * <br/> `sender` - the survey object that fires the event.
    * <br/> `options.element` - SurveyJS element (a question, panel, page, or survey) where the string is going to be rendered.
+   * <br/> `options.name` - a property name is going to be rendered.
    * <br/> `options.text` - a text that is going to be rendered.
    * <br/> `options.html` - an HTML content. It is `null` by default. Use this property to specify the HTML content rendered instead of `options.text`.
    */
@@ -1504,8 +1505,8 @@ export class SurveyModel
       this.currentPage.locStrsChanged();
     }
   }
-  public getMarkdownHtml(text: string): string {
-    return this.getSurveyMarkdownHtml(this, text);
+  public getMarkdownHtml(text: string, name: string): string {
+    return this.getSurveyMarkdownHtml(this, text, name);
   }
   public getProcessedText(text: string) {
     return this.processText(text, true);
@@ -5052,8 +5053,8 @@ export class SurveyModel
     if (this.isDesignMode) return text;
     return this.textPreProcessor.process(text, returnDisplayValue, doEncoding);
   }
-  getSurveyMarkdownHtml(element: Base, text: string): string {
-    var options = { element: element, text: text, html: <any>null };
+  getSurveyMarkdownHtml(element: Base, text: string, name: string): string {
+    var options = { element: element, text: text, name: name, html: <any>null };
     this.onTextMarkdown.fire(this, options);
     return options.html;
   }

@@ -314,8 +314,8 @@ export class PanelModelBase
       ? (<ILocalizableOwner>(<any>this.survey)).getLocale()
       : "";
   }
-  getMarkdownHtml(text: string) {
-    return this.survey ? this.survey.getSurveyMarkdownHtml(this, text) : null;
+  getMarkdownHtml(text: string, name: string) {
+    return this.survey ? this.survey.getSurveyMarkdownHtml(this, text, name) : null;
   }
   getProcessedText(text: string): string {
     return this.textProcessor

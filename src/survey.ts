@@ -1504,8 +1504,8 @@ export class SurveyModel
       this.currentPage.locStrsChanged();
     }
   }
-  public getMarkdownHtml(text: string): string {
-    return this.getSurveyMarkdownHtml(this, text);
+  public getMarkdownHtml(text: string, name: string): string {
+    return this.getSurveyMarkdownHtml(this, text, name);
   }
   public getProcessedText(text: string) {
     return this.processText(text, true);
@@ -5052,8 +5052,8 @@ export class SurveyModel
     if (this.isDesignMode) return text;
     return this.textPreProcessor.process(text, returnDisplayValue, doEncoding);
   }
-  getSurveyMarkdownHtml(element: Base, text: string): string {
-    var options = { element: element, text: text, html: <any>null };
+  getSurveyMarkdownHtml(element: Base, text: string, name: string): string {
+    var options = { element: element, text: text, name: name, html: <any>null };
     this.onTextMarkdown.fire(this, options);
     return options.html;
   }

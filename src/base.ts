@@ -72,7 +72,7 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner {
   hasVisibleQuestionByValueName(valueName: string): boolean;
   questionCountByValueName(valueName: string): number;
   processHtml(html: string): string;
-  getSurveyMarkdownHtml(element: Base, text: string): string;
+  getSurveyMarkdownHtml(element: Base, text: string, name: string): string;
   isDisplayMode: boolean;
   isDesignMode: boolean;
   areInvisibleElementsShowing: boolean;
@@ -764,7 +764,7 @@ export class Base {
     owner: ILocalizableOwner,
     useMarkDown: boolean = false
   ): LocalizableString {
-    var locStr = new LocalizableString(owner, useMarkDown);
+    var locStr = new LocalizableString(owner, useMarkDown, name);
     if (!this.localizableStrings) {
       this.localizableStrings = {};
     }

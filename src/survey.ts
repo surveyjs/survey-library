@@ -460,6 +460,7 @@ export class SurveyModel
    * Use this event to process the markdown text.
    * <br/> `sender` - the survey object that fires the event.
    * <br/> `options.element` - SurveyJS element (a question, panel, page, or survey) where the string is going to be rendered.
+   * <br/> `options.name` - a property name is going to be rendered.
    * <br/> `options.text` - a text that is going to be rendered.
    * <br/> `options.html` - an HTML content. It is `null` by default. Use this property to specify the HTML content rendered instead of `options.text`.
    */

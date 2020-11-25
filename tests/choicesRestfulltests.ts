@@ -444,30 +444,31 @@ QUnit.test("Load from plain text", function (assert) {
   );
 });
 
-QUnit.test("Load countries, complex valueName property, Issue#459", function (
-  assert
-) {
-  var test = new ChoicesRestfullTester();
-  var items = [];
-  test.getResultCallback = function (res: Array<ItemValue>) {
-    items = res;
-  };
-  test.url = "allcountries";
-  test.path = "RestResponse;result";
-  test.valueName = "locName.en";
-  test.run();
-  assert.equal(items.length, 5, "there are 5 countries");
-  assert.equal(
-    items[0].value,
-    "Afghanistan",
-    "the first country is Afghanistan"
-  );
-  assert.equal(
-    items[4].value,
-    "American Samoa",
-    "the fifth country is American Samoa"
-  );
-});
+QUnit.test(
+  "Load countries, complex valueName property, Issue#459",
+  function (assert) {
+    var test = new ChoicesRestfullTester();
+    var items = [];
+    test.getResultCallback = function (res: Array<ItemValue>) {
+      items = res;
+    };
+    test.url = "allcountries";
+    test.path = "RestResponse;result";
+    test.valueName = "locName.en";
+    test.run();
+    assert.equal(items.length, 5, "there are 5 countries");
+    assert.equal(
+      items[0].value,
+      "Afghanistan",
+      "the first country is Afghanistan"
+    );
+    assert.equal(
+      items[4].value,
+      "American Samoa",
+      "the fifth country is American Samoa"
+    );
+  }
+);
 
 QUnit.test("Test dropdown", function (assert) {
   var question = new QuestionDropdownModelTester("q1");
@@ -910,66 +911,72 @@ QUnit.test("Use values and not text, Bug #627", function (assert) {
   assert.equal(question.visibleChoices.length, 0, "It is empty again");
 });
 
-QUnit.test("Process text in url as case insensitive, Bug #997", function (
-  assert
-) {
-  var survey = new SurveyModel();
-  survey.addNewPage("1");
-  var question = new QuestionDropdownModelTester("q1");
-  survey.pages[0].addQuestion(question);
-  var stateQuestion = <QuestionDropdownModel>(
-    survey.pages[0].addNewQuestion("dropdown", "State")
-  );
-  stateQuestion.choices = [
-    { value: "ca_cities", text: "City from California" },
-    { value: "tx_cities", text: "City from Texas" },
-  ];
-  question.choicesByUrl.url = "{state}";
-  question.onSurveyLoad();
-  assert.equal(question.visibleChoices.length, 0, "It is empty");
-  stateQuestion.value = "ca_cities";
-  assert.equal(question.visibleChoices.length, 2, "We have two cities now, CA");
-  stateQuestion.value = "tx_cities";
-  assert.equal(
-    question.visibleChoices.length,
-    3,
-    "We have three cities now, TX"
-  );
-  stateQuestion.value = "";
-  assert.equal(question.visibleChoices.length, 0, "It is empty again");
-});
+QUnit.test(
+  "Process text in url as case insensitive, Bug #997",
+  function (assert) {
+    var survey = new SurveyModel();
+    survey.addNewPage("1");
+    var question = new QuestionDropdownModelTester("q1");
+    survey.pages[0].addQuestion(question);
+    var stateQuestion = <QuestionDropdownModel>(
+      survey.pages[0].addNewQuestion("dropdown", "State")
+    );
+    stateQuestion.choices = [
+      { value: "ca_cities", text: "City from California" },
+      { value: "tx_cities", text: "City from Texas" },
+    ];
+    question.choicesByUrl.url = "{state}";
+    question.onSurveyLoad();
+    assert.equal(question.visibleChoices.length, 0, "It is empty");
+    stateQuestion.value = "ca_cities";
+    assert.equal(
+      question.visibleChoices.length,
+      2,
+      "We have two cities now, CA"
+    );
+    stateQuestion.value = "tx_cities";
+    assert.equal(
+      question.visibleChoices.length,
+      3,
+      "We have three cities now, TX"
+    );
+    stateQuestion.value = "";
+    assert.equal(question.visibleChoices.length, 0, "It is empty again");
+  }
+);
 
-QUnit.test("Process text in url with default text, bug#1000", function (
-  assert
-) {
-  var json = {
-    elements: [
-      {
-        type: "dropdownrestfulltester",
-        name: "q1",
-        choicesByUrl: { url: "{state}" },
-        defaultValue: "Los Angeles",
-      },
-      {
-        type: "text",
-        name: "state",
-        defaultValue: "ca_cities",
-      },
-    ],
-  };
-  var survey = new SurveyModel(json);
-  var question = <QuestionDropdownModelTester>survey.getQuestionByName("q1");
-  assert.equal(
-    question.visibleChoices.length,
-    2,
-    "We have two cities on loading survey, CA"
-  );
-  assert.equal(
-    question.value,
-    "Los Angeles",
-    "The value is set correctly from defaultValue"
-  );
-});
+QUnit.test(
+  "Process text in url with default text, bug#1000",
+  function (assert) {
+    var json = {
+      elements: [
+        {
+          type: "dropdownrestfulltester",
+          name: "q1",
+          choicesByUrl: { url: "{state}" },
+          defaultValue: "Los Angeles",
+        },
+        {
+          type: "text",
+          name: "state",
+          defaultValue: "ca_cities",
+        },
+      ],
+    };
+    var survey = new SurveyModel(json);
+    var question = <QuestionDropdownModelTester>survey.getQuestionByName("q1");
+    assert.equal(
+      question.visibleChoices.length,
+      2,
+      "We have two cities on loading survey, CA"
+    );
+    assert.equal(
+      question.value,
+      "Los Angeles",
+      "The value is set correctly from defaultValue"
+    );
+  }
+);
 
 QUnit.test("Cascad dropdown in matrix dynamic", function (assert) {
   var survey = new SurveyModel();

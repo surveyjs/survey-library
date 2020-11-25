@@ -1,4 +1,8 @@
 import { Helpers } from "./helpers";
+import { Question } from "./question";
+import { PanelModel } from "./panel";
+import { ISurvey, ITextProcessor } from "./base";
+import { ProcessValue } from "./conditionProcessValue";
 
 export class TextPreProcessorItem {
   public start: number;
@@ -80,5 +84,73 @@ export class TextPreProcessor {
   private getName(name: string): string {
     if (!name) return;
     return name.trim();
+  }
+}
+
+export class QuestionTextProcessor implements ITextProcessor {
+  private textPreProcessor: TextPreProcessor;
+  constructor(protected variableName: string) {
+    this.textPreProcessor = new TextPreProcessor();
+    this.textPreProcessor.onProcess = (textValue: TextPreProcessorValue) => {
+      this.getProcessedTextValue(textValue);
+    };
+  }
+  protected get survey(): ISurvey {
+    return null;
+  }
+  protected get panel(): PanelModel {
+    return null;
+  }
+  protected getValues(): any {
+    return !!this.panel ? this.panel.getValue() : null;
+  }
+  protected getQuestionByName(name: string): Question {
+    return !!this.panel
+      ? <Question>this.panel.getQuestionByValueName(name)
+      : null;
+  }
+  protected onCustomProcessText(textValue: TextPreProcessorValue): boolean {
+    return false;
+  }
+  //ITextProcessor
+  private getProcessedTextValue(textValue: TextPreProcessorValue) {
+    if (!textValue) return;
+    if (this.onCustomProcessText(textValue)) return;
+    var firstName = new ProcessValue().getFirstName(textValue.name);
+    textValue.isExists = firstName == this.variableName;
+    textValue.canProcess = textValue.isExists;
+    if (!textValue.canProcess) return;
+    //name should start with the variable name
+    textValue.name = textValue.name.replace(this.variableName + ".", "");
+    var firstName = new ProcessValue().getFirstName(textValue.name);
+    var question = this.getQuestionByName(firstName);
+    var values = {};
+    if (question) {
+      (<any>values)[firstName] = textValue.returnDisplayValue
+        ? question.displayValue
+        : question.value;
+    } else {
+      var allValues = !!this.panel ? this.getValues() : null;
+      if (allValues) {
+        (<any>values)[firstName] = allValues[firstName];
+      }
+    }
+    textValue.value = new ProcessValue().getValue(textValue.name, values);
+  }
+  processText(text: string, returnDisplayValue: boolean): string {
+    text = this.textPreProcessor.process(text, returnDisplayValue);
+    var survey = this.survey;
+    return survey ? survey.processText(text, returnDisplayValue) : text;
+  }
+  processTextEx(text: string, returnDisplayValue: boolean): any {
+    text = this.processText(text, returnDisplayValue);
+    var hasAllValuesOnLastRun = this.textPreProcessor.hasAllValuesOnLastRun;
+    var res = { hasAllValuesOnLastRun: true, text: text };
+    if (this.survey) {
+      res = this.survey.processTextEx(text, returnDisplayValue, false);
+    }
+    res.hasAllValuesOnLastRun =
+      res.hasAllValuesOnLastRun && hasAllValuesOnLastRun;
+    return res;
   }
 }

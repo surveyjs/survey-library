@@ -20,8 +20,10 @@ import {
   SurveyElement,
   IPanel,
 } from "./base";
-import { TextPreProcessor, TextPreProcessorValue } from "./textPreProcessor";
-import { ProcessValue } from "./conditionProcessValue";
+import {
+  TextPreProcessorValue,
+  QuestionTextProcessor,
+} from "./textPreProcessor";
 import { ItemValue } from "./itemvalue";
 import { surveyLocalization } from "./surveyStrings";
 import { QuestionSelectBase } from "./question_baseselect";
@@ -101,7 +103,7 @@ function onUpdateSelectBaseCellQuestion(
     cellQuestion.choices = question.choices;
   }
   if (!cellQuestion.choicesByUrl.isEmpty) {
-    cellQuestion.choicesByUrl.run(data);
+    cellQuestion.choicesByUrl.run(data.getTextProcessor());
   }
 }
 export var matrixDropdownColumnTypes = {
@@ -697,8 +699,39 @@ export class MatrixDropdownTotalCell extends MatrixDropdownCell {
   }
 }
 
+class MatrixDropdownRowTextProcessor extends QuestionTextProcessor {
+  constructor(
+    protected row: MatrixDropdownRowModelBase,
+    protected variableName: string
+  ) {
+    super(variableName);
+  }
+  protected get survey(): ISurvey {
+    return this.row.getSurvey();
+  }
+  protected getValues(): any {
+    return this.row.value;
+  }
+  protected getQuestionByName(name: string): Question {
+    return this.row.getQuestionByName(name);
+  }
+  protected onCustomProcessText(textValue: TextPreProcessorValue): boolean {
+    if (textValue.name == MatrixDropdownRowModelBase.IndexVariableName) {
+      textValue.isExists = true;
+      textValue.value = this.row.rowIndex;
+      return true;
+    }
+    if (textValue.name == MatrixDropdownRowModelBase.RowValueVariableName) {
+      textValue.isExists = true;
+      textValue.value = this.row.rowName;
+      return true;
+    }
+    return false;
+  }
+}
+
 export class MatrixDropdownRowModelBase
-  implements ISurveyData, ISurveyImpl, ILocalizableOwner, ITextProcessor {
+  implements ISurveyData, ISurveyImpl, ILocalizableOwner {
   public static RowVariableName = "row";
   public static OwnerVariableName = "self";
   public static IndexVariableName = "rowIndex";
@@ -711,7 +744,7 @@ export class MatrixDropdownRowModelBase
   protected data: IMatrixDropdownData;
   protected isSettingValue: boolean = false;
   private idValue: string;
-  private textPreProcessor: TextPreProcessor;
+  private textPreProcessor: MatrixDropdownRowTextProcessor;
   private detailPanelValue: PanelModel = null;
 
   public cells: Array<MatrixDropdownCell> = [];
@@ -720,10 +753,10 @@ export class MatrixDropdownRowModelBase
   constructor(data: IMatrixDropdownData, value: any) {
     this.data = data;
     this.subscribeToChanges(value);
-    this.textPreProcessor = new TextPreProcessor();
-    this.textPreProcessor.onProcess = (textValue: TextPreProcessorValue) => {
-      this.getProcessedTextValue(textValue);
-    };
+    this.textPreProcessor = new MatrixDropdownRowTextProcessor(
+      this,
+      MatrixDropdownRowModelBase.RowVariableName
+    );
     this.showHideDetailPanelClick = () => {
       this.showHideDetailPanel();
     };
@@ -1077,7 +1110,10 @@ export class MatrixDropdownRowModelBase
   getSurvey(): ISurvey {
     return this.data ? this.data.getSurvey() : null;
   }
-  protected get rowIndex(): number {
+  getTextProcessor(): ITextProcessor {
+    return this.textPreProcessor;
+  }
+  public get rowIndex(): number {
     return !!this.data ? this.data.getRowIndex(this) + 1 : -1;
   }
   public get editingObj(): Base {
@@ -1109,33 +1145,6 @@ export class MatrixDropdownRowModelBase
       question.value = newValue;
     }
     this.isSettingValue = false;
-  }
-  //ITextProcessor
-  private getProcessedTextValue(textValue: TextPreProcessorValue) {
-    var firstName = new ProcessValue().getFirstName(textValue.name);
-    textValue.isExists =
-      firstName == MatrixDropdownRowModelBase.RowVariableName;
-    textValue.canProcess = textValue.isExists;
-    if (!textValue.isExists) return;
-    var values = { row: this.value };
-    textValue.value = new ProcessValue().getValue(textValue.name, values);
-  }
-  getTextProcessor(): ITextProcessor {
-    return this;
-  }
-  processText(text: string, returnDisplayValue: boolean): string {
-    text = this.textPreProcessor.process(text, returnDisplayValue);
-    if (!this.getSurvey()) return text;
-    return this.getSurvey().processText(text, returnDisplayValue);
-  }
-  processTextEx(text: string, returnDisplayValue: boolean): any {
-    text = this.processText(text, returnDisplayValue);
-    if (!this.getSurvey()) return text;
-    var hasAllValuesOnLastRun = this.textPreProcessor.hasAllValuesOnLastRun;
-    var res = this.getSurvey().processTextEx(text, returnDisplayValue, false);
-    res.hasAllValuesOnLastRun =
-      res.hasAllValuesOnLastRun && hasAllValuesOnLastRun;
-    return res;
   }
 }
 export class MatrixDropdownTotalRowModel extends MatrixDropdownRowModelBase {
@@ -1777,15 +1786,16 @@ export class QuestionMatrixDropdownModelBase
     this.detailPanelValue = this.createNewDetailPanel();
     this.detailPanel.selectedElementInDesign = this;
     this.detailPanel.renderWidth = "100%";
-    this.registerFunctionOnPropertyValueChanged("columns", function (
-      newColumns: any
-    ) {
-      self.updateColumnsIndexes(newColumns);
-      self.clearGeneratedRows();
-      self.generatedTotalRow = null;
-      self.resetRenderedTable();
-      self.fireCallback(self.columnsChangedCallback);
-    });
+    this.registerFunctionOnPropertyValueChanged(
+      "columns",
+      function (newColumns: any) {
+        self.updateColumnsIndexes(newColumns);
+        self.clearGeneratedRows();
+        self.generatedTotalRow = null;
+        self.resetRenderedTable();
+        self.fireCallback(self.columnsChangedCallback);
+      }
+    );
     this.registerFunctionOnPropertiesValueChanged(
       ["columnLayout", "addRowLocation"],
       function () {

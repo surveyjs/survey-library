@@ -525,6 +525,7 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
   protected createPanel(): PanelModel {
     var res = <PanelModel>Serializer.createClass("panel");
     res.showQuestionNumbers = "off";
+    res.renderWidth = "100%";
     var json = this.customQuestion.json;
     if (!!json.elementsJSON) {
       res.fromJSON({ elements: json.elementsJSON });

@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.8.17](https://github.com/surveyjs/survey-library/compare/v1.8.16...v1.8.17) (2020-11-26)
+
+
+### Bug Fixes
+
+* content panel in composite component has underfined renderWidth [#2537](https://github.com/surveyjs/survey-library/issues/2537) ([75f31e8](https://github.com/surveyjs/survey-library/commit/75f31e8700abf25aeb45923fde7d403acdac73d3))
+
 ### [1.8.16](https://github.com/surveyjs/survey-library/compare/v1.8.14...v1.8.16) (2020-11-24)
 
 ### [1.8.14](https://github.com/surveyjs/survey-library/compare/v1.8.13...v1.8.14) (2020-11-19)

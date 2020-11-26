@@ -110,13 +110,6 @@ steps:
     SourceFolder: '$(Build.SourcesDirectory)/survey-library/packages'
     TargetFolder: '$(Build.ArtifactStagingDirectory)/packages'
 
-# create build artifact file 'version.txt'
-- powershell: |
-    New-Item "version.txt"
-    Set-Content version.txt $(SurveyJSVersion)
-    Get-Content version.txt
-  displayName: 'create version file as build artifact'
-
 #trigger next build via the artifact file 'version.txt'
 - task: CopyFiles@2
   inputs:

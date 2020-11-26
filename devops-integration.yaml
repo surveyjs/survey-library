@@ -56,15 +56,12 @@ steps:
     $version = Get-Content $(Build.SourcesDirectory)/version.txt
     Write-Host "##vso[task.setvariable variable=SurveyJSVersion;]$version"
   displayName: 'setup SurveyJSVersion variable from SurveyJSVersionFile'
-
-- powershell: |
-    npm run release -- --release-as $(SurveyJSVersion)
-  displayName: 'npm run release specific version'
 ##########################################################################
 
 - script: |
     cd $(Build.SourcesDirectory)/survey-library
     npm install
+    npm run release -- --release-as $(SurveyJSVersion)
     npm run build_prod
   displayName: 'npm install and build'
 

@@ -108,18 +108,18 @@ steps:
 - task: CopyFiles@2
   inputs:
     SourceFolder: '$(Build.SourcesDirectory)/survey-library/packages'
-    TargetFolder: '$(Build.ArtifactStagingDirectory)/packages'
+    TargetFolder: '$(Build.ArtifactStagingDirectory)/SurveyJSLibraryBuild/packages'
 
 #trigger next build via the artifact file 'version.txt'
 - task: CopyFiles@2
   inputs:
     contents: 'version.txt'
-    targetFolder: $(Build.ArtifactStagingDirectory)
+    targetFolder: $(Build.ArtifactStagingDirectory)/SurveyJSLibraryBuild
   displayName: 'copy version file to Build.ArtifactStagingDirectory'
 
 #publishLocation: 'Container' - store the artifact in Azure Pipelines
 - task: PublishBuildArtifacts@1
   inputs:
-    PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+    PathtoPublish: '$(Build.ArtifactStagingDirectory)/SurveyJSLibraryBuild/'
     ArtifactName: 'SurveyJSLibraryBuild'
     publishLocation: 'Container'

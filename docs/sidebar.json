@@ -61,6 +61,10 @@
           "Title": "Boolean"
         },
         {
+          "Name": "questionimagemodel",
+          "Title": "Image"
+        },
+        {
           "Name": "questionhtmlmodel",
           "Title": "Html"
         },

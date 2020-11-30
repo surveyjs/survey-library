@@ -28,20 +28,40 @@ steps:
   persistCredentials: true
   clean: true
 
-# Delete integration tests atrifact. Ban ReleaseAll until tests will be ok.
-- task: DeleteFiles@1
-  inputs:
-    SourceFolder: '$(System.ArtifactStagingDirectory)'
-    Contents: 'IntegrationTestsIsOk.txt'
-
 - task: NodeTool@0
   inputs:
-    versionSpec: '12.x'
+    versionSpec: '14.x'
   displayName: 'Install Node.js'
+
+# setup next release version
+- task: DownloadBuildArtifacts@0
+  inputs:
+    buildType: 'specific'
+    project: 'af2804d2-859a-4705-9ef5-cdf46d1d5d4f'
+    pipeline: '47'
+    buildVersionToDownload: 'latest'
+    downloadType: 'single'
+    artifactName: 'ReleaseVersionFile'
+    downloadPath: '$(System.ArtifactsDirectory)'
+
+- task: CopyFiles@2
+  inputs:
+    SourceFolder: '$(System.ArtifactsDirectory)/ReleaseVersionFile/'
+    Contents: 'version.txt'
+    TargetFolder: '$(Build.SourcesDirectory)/'
+    OverWrite: true
+  displayName: 'Copy Build Artifact - SurveyJSVersion File'
+
+- powershell: |
+    $version = Get-Content $(Build.SourcesDirectory)/version.txt
+    Write-Host "##vso[task.setvariable variable=SurveyJSVersion;]$version"
+  displayName: 'setup SurveyJSVersion variable from SurveyJSVersionFile'
+##########################################################################
 
 - script: |
     cd $(Build.SourcesDirectory)/survey-library
     npm install
+    npm run release -- --release-as $(SurveyJSVersion)
     npm run build_prod
   displayName: 'npm install and build'
 
@@ -88,11 +108,18 @@ steps:
 - task: CopyFiles@2
   inputs:
     SourceFolder: '$(Build.SourcesDirectory)/survey-library/packages'
-    TargetFolder: '$(Build.ArtifactStagingDirectory)/packages'
+    TargetFolder: '$(Build.ArtifactStagingDirectory)/SurveyJSLibraryBuild/packages'
+
+#trigger next build via the artifact file 'version.txt'
+- task: CopyFiles@2
+  inputs:
+    contents: 'version.txt'
+    targetFolder: $(Build.ArtifactStagingDirectory)/SurveyJSLibraryBuild
+  displayName: 'copy version file to Build.ArtifactStagingDirectory'
 
 #publishLocation: 'Container' - store the artifact in Azure Pipelines
 - task: PublishBuildArtifacts@1
   inputs:
-    PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+    PathtoPublish: '$(Build.ArtifactStagingDirectory)/SurveyJSLibraryBuild/'
     ArtifactName: 'SurveyJSLibraryBuild'
     publishLocation: 'Container'

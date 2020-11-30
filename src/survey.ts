@@ -2542,6 +2542,7 @@ export class SurveyModel
     for (var i = 0; i < this.pages.length; i++) {
       this.pages[i].timeSpent = 0;
       this.pages[i].setWasShown(false);
+      this.pages[i].passed = false;
     }
     this.isCompleted = false;
     this.isCompletedBefore = false;

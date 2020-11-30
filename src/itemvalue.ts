@@ -264,6 +264,12 @@ export class ItemValue extends Base {
   public get hasText(): boolean {
     return this.locText.pureText ? true : false;
   }
+  public get pureText(): string {
+    return this.locText.pureText;
+  }
+  public set pureText(val: string) {
+    this.text = val;
+  }
   public get text(): string {
     return this.locText.calculatedText; //TODO: it will be correct to use this.locText.text, however it would require a lot of rewriting in Creator
   }

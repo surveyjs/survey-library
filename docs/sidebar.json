@@ -69,6 +69,10 @@
           "Title": "Html"
         },
         {
+          "Name": "questionsignaturepadmodel",
+          "Title": "Signature Pad"
+        },
+        {
           "Name": "questionexpressionmodel",
           "Title": "Expression"
         },

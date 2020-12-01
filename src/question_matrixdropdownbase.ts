@@ -2779,7 +2779,6 @@ export class QuestionMatrixDropdownModelBase
     isDeletingValue: boolean,
     newValue: any
   ): any {
-    if (!!row.editingObj) return;
     var rowValue = this.getRowValueCore(row, newValue, true);
     if (isDeletingValue) {
       delete rowValue[columnName];

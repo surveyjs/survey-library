@@ -1631,7 +1631,7 @@ export class SurveyModel
   }
   public get titleMaxWidth(): string {
     var logoWidth = this.logoWidth;
-    if(this.logoPosition === "left" || this.logoPosition === "right") {
+    if (this.logoPosition === "left" || this.logoPosition === "right") {
       return "calc(100% - 5px - 2em - " + logoWidth + "px)";
     }
     return "";
@@ -3041,6 +3041,7 @@ export class SurveyModel
   public showPreview(): boolean {
     this.resetNavigationButton();
     if (this.hasErrorsOnNavigate(true)) return false;
+    if (this.doServerValidation(true, true)) return false;
     this.isShowingPreview = true;
     return true;
   }
@@ -3358,7 +3359,10 @@ export class SurveyModel
     this.onIsValidatingOnServerChanged();
   }
   protected onIsValidatingOnServerChanged() {}
-  protected doServerValidation(doComplete: boolean): boolean {
+  protected doServerValidation(
+    doComplete: boolean,
+    isPreview: boolean = false
+  ): boolean {
     if (
       !this.onServerValidateQuestions ||
       this.onServerValidateQuestions.isEmpty
@@ -3371,7 +3375,7 @@ export class SurveyModel
       errors: {},
       survey: this,
       complete: function () {
-        self.completeServerValidation(options);
+        self.completeServerValidation(options, isPreview);
       },
     };
     if (doComplete && this.checkErrorsMode === "onComplete") {
@@ -3395,7 +3399,7 @@ export class SurveyModel
 
     return true;
   }
-  private completeServerValidation(options: any) {
+  private completeServerValidation(options: any, isPreview: boolean) {
     this.setIsValidatingOnServer(false);
     if (!options && !options.survey) return;
     var self = options.survey;
@@ -3418,8 +3422,12 @@ export class SurveyModel
       }
     }
     if (!hasErrors) {
-      if (self.isLastPage) self.doComplete();
-      else self.doNextPage();
+      if (isPreview) {
+        this.isShowingPreview = true;
+      } else {
+        if (self.isLastPage) self.doComplete();
+        else self.doNextPage();
+      }
     }
   }
   protected doNextPage() {
@@ -4355,19 +4363,18 @@ export class SurveyModel
    */
   public getResult(resultId: string, name: string) {
     var self = this;
-    this.createSurveyService().getResult(resultId, name, function (
-      success: boolean,
-      data: any,
-      dataList: any[],
-      response: any
-    ) {
-      self.onGetResult.fire(self, {
-        success: success,
-        data: data,
-        dataList: dataList,
-        response: response,
-      });
-    });
+    this.createSurveyService().getResult(
+      resultId,
+      name,
+      function (success: boolean, data: any, dataList: any[], response: any) {
+        self.onGetResult.fire(self, {
+          success: success,
+          data: data,
+          dataList: dataList,
+          response: response,
+        });
+      }
+    );
   }
   /**
    * Loads the survey JSON from the [api.surveyjs.io](https://api.surveyjs.io) service.
@@ -4408,16 +4415,15 @@ export class SurveyModel
         }
       );
     } else {
-      this.createSurveyService().loadSurvey(this.surveyId, function (
-        success: boolean,
-        result: string,
-        response: any
-      ) {
-        self.isLoading = false;
-        if (success) {
-          self.loadSurveyFromServiceJson(result);
+      this.createSurveyService().loadSurvey(
+        this.surveyId,
+        function (success: boolean, result: string, response: any) {
+          self.isLoading = false;
+          if (success) {
+            self.loadSurveyFromServiceJson(result);
+          }
         }
-      });
+      );
     }
   }
   private loadSurveyFromServiceJson(json: any) {
@@ -5500,7 +5506,13 @@ Serializer.addClass("survey", [
   {
     name: "progressBarType",
     default: "pages",
-    choices: ["pages", "questions", "requiredQuestions", "correctQuestions", "buttons"],
+    choices: [
+      "pages",
+      "questions",
+      "requiredQuestions",
+      "correctQuestions",
+      "buttons",
+    ],
   },
   { name: "mode", default: "edit", choices: ["edit", "display"] },
   { name: "storeOthersAsComment:boolean", default: true },

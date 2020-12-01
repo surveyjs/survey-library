@@ -1,4 +1,4 @@
-import { HashTable } from "./helpers";
+import { HashTable, Helpers } from "./helpers";
 
 export class FunctionFactory {
   public static Instance: FunctionFactory = new FunctionFactory();
@@ -63,6 +63,9 @@ function getParamsAsArray(value: any, arr: any[]) {
       getParamsAsArray(value[i], arr);
     }
   } else {
+    if (Helpers.isNumber(value)) {
+      value = parseFloat(value);
+    }
     arr.push(value);
   }
 }

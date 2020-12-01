@@ -224,15 +224,16 @@ QUnit.test("Condition check #303", function (assert) {
   assert.equal(runner.run(values), true, "The second part is correct");
 });
 
-QUnit.test("Condition check empty for undefined variables #323", function (
-  assert
-) {
-  var runner = new ConditionRunner("{var1} empty");
-  var values = {};
-  assert.equal(runner.run(values), true, "it is empty");
-  values = { var1: 1 };
-  assert.equal(runner.run(values), false, "it is not empty");
-});
+QUnit.test(
+  "Condition check empty for undefined variables #323",
+  function (assert) {
+    var runner = new ConditionRunner("{var1} empty");
+    var values = {};
+    assert.equal(runner.run(values), true, "it is empty");
+    values = { var1: 1 };
+    assert.equal(runner.run(values), false, "it is not empty");
+  }
+);
 
 QUnit.test("Condition check for undefined variables #323", function (assert) {
   var runner = new ConditionRunner("{var1} < 3 or {var1} empty");
@@ -285,6 +286,14 @@ QUnit.test("Run sum function with arrays, Bug #1808", function (assert) {
   var values = { var1: [2, 5], var2: 3 };
   assert.equal(runner.run(values), 10, "2 + 5 + 3 == 10");
 });
+QUnit.test(
+  "Run sum function with arrays, convert values from string to value",
+  function (assert) {
+    var runner = new ExpressionRunner("sum({var1},{var2})");
+    var values = { var1: ["2", "5"], var2: 3 };
+    assert.equal(runner.run(values), 10, "2 + 5 + 3 == 10");
+  }
+);
 
 QUnit.test("Run min function", function (assert) {
   var runner = new ExpressionRunner("min({var1},{var2})");
@@ -385,15 +394,16 @@ QUnit.test("true/false as constant in the left", function (assert) {
   assert.equal(runner.run(values), false, "false, true = false");
 });
 
-QUnit.test("Constant string with dash (-) doens't work correctly", function (
-  assert
-) {
-  var runner = new ConditionRunner("{a} = '01-01-2018'");
-  var values = { a: "01-01" };
-  assert.equal(runner.run(values), false, "'01-01' = '01-01-2018'");
-  values.a = "01-01-2018";
-  assert.equal(runner.run(values), true, "'01-01-2018' = '01-01-2018'");
-});
+QUnit.test(
+  "Constant string with dash (-) doens't work correctly",
+  function (assert) {
+    var runner = new ConditionRunner("{a} = '01-01-2018'");
+    var values = { a: "01-01" };
+    assert.equal(runner.run(values), false, "'01-01' = '01-01-2018'");
+    values.a = "01-01-2018";
+    assert.equal(runner.run(values), true, "'01-01-2018' = '01-01-2018'");
+  }
+);
 
 QUnit.test("Bug with contains, bug#781", function (assert) {
   var runner = new ConditionRunner("{ResultaatSelectie} contains '1'");
@@ -436,19 +446,20 @@ QUnit.test(
     assert.equal(runner.run(values), true, "0 = 0");
   }
 );
-QUnit.test("Bug with contains, support string.indexof, bug#831", function (
-  assert
-) {
-  var runner = new ConditionRunner("{str} contains '1'");
-  var values = { str: "12345" };
-  assert.equal(runner.run(values), true, "'12345' contains '1'");
-  values = { str: "2345" };
-  assert.equal(runner.run(values), false, "'2345' contains '1'");
-  runner = new ConditionRunner("{str} notcontains '1'");
-  assert.equal(runner.run(values), true, "'2345' notcontains '1'");
-  values = { str: "12345" };
-  assert.equal(runner.run(values), false, "'12345' notcontains '1'");
-});
+QUnit.test(
+  "Bug with contains, support string.indexof, bug#831",
+  function (assert) {
+    var runner = new ConditionRunner("{str} contains '1'");
+    var values = { str: "12345" };
+    assert.equal(runner.run(values), true, "'12345' contains '1'");
+    values = { str: "2345" };
+    assert.equal(runner.run(values), false, "'2345' contains '1'");
+    runner = new ConditionRunner("{str} notcontains '1'");
+    assert.equal(runner.run(values), true, "'2345' notcontains '1'");
+    values = { str: "12345" };
+    assert.equal(runner.run(values), false, "'12345' notcontains '1'");
+  }
+);
 
 QUnit.test("Bug with contains, bug#1039", function (assert) {
   var runner = new ConditionRunner("{ValueType} contains '3b'");
@@ -458,17 +469,22 @@ QUnit.test("Bug with contains, bug#1039", function (assert) {
   assert.equal(runner.run(values), false, "['1'] contains '3b'");
 });
 
-QUnit.test("Add support for array for cotains operator, issue#1366", function (
-  assert
-) {
-  var runner = new ConditionRunner("{value} contains ['a', 'b']");
-  var values = { value: ["a", "b"] };
-  assert.equal(runner.run(values), true, "['a', 'b'] contains ['a', 'b']");
-  values = { value: ["a", "c"] };
-  assert.equal(runner.run(values), false, "['a', 'c'] contains ['a', 'b']");
-  values = { value: ["a", "b", "c"] };
-  assert.equal(runner.run(values), true, "['a', 'b', 'c'] contains ['a', 'b']");
-});
+QUnit.test(
+  "Add support for array for cotains operator, issue#1366",
+  function (assert) {
+    var runner = new ConditionRunner("{value} contains ['a', 'b']");
+    var values = { value: ["a", "b"] };
+    assert.equal(runner.run(values), true, "['a', 'b'] contains ['a', 'b']");
+    values = { value: ["a", "c"] };
+    assert.equal(runner.run(values), false, "['a', 'c'] contains ['a', 'b']");
+    values = { value: ["a", "b", "c"] };
+    assert.equal(
+      runner.run(values),
+      true,
+      "['a', 'b', 'c'] contains ['a', 'b']"
+    );
+  }
+);
 
 QUnit.test("Escape quotes, bug#786", function (assert) {
   var runner = new ConditionRunner("{text} = 'I\\'m here'");
@@ -489,15 +505,16 @@ QUnit.test("Support equals and notequals, #781", function (assert) {
   values = { a: 2 };
   assert.equal(runner.run(values), false, "2 equals 1");
 });
-QUnit.test("Allow differnt symbols in variable name, bug#803", function (
-  assert
-) {
-  var runner = new ConditionRunner("{complex name #$%?dd} = 1");
-  var values = { "complex name #$%?dd": 1 };
-  assert.equal(runner.run(values), true, "1= 1");
-  values = { "complex name #$%?dd": 2 };
-  assert.equal(runner.run(values), false, "2 <> 1");
-});
+QUnit.test(
+  "Allow differnt symbols in variable name, bug#803",
+  function (assert) {
+    var runner = new ConditionRunner("{complex name #$%?dd} = 1");
+    var values = { "complex name #$%?dd": 1 };
+    assert.equal(runner.run(values), true, "1= 1");
+    values = { "complex name #$%?dd": 2 };
+    assert.equal(runner.run(values), false, "2 <> 1");
+  }
+);
 
 QUnit.test("Support array", function (assert) {
   var runner = new ConditionRunner("{a} equals [1, 2]");
@@ -663,19 +680,20 @@ QUnit.test("Variable may have '-' and '+' in their names", function (assert) {
   assert.equal(runner.run(values), false, "2 != 1");
 });
 
-QUnit.test("Variable equals 0x1 works incorrectly, Bug#1180", function (
-  assert
-) {
-  var runner = new ConditionRunner("{val} notempty");
-  var values = { val: "0x1" };
-  assert.equal(runner.run(values), true, "0x1 is not empty");
+QUnit.test(
+  "Variable equals 0x1 works incorrectly, Bug#1180",
+  function (assert) {
+    var runner = new ConditionRunner("{val} notempty");
+    var values = { val: "0x1" };
+    assert.equal(runner.run(values), true, "0x1 is not empty");
 
-  runner = new ConditionRunner("{val} = 2");
-  values = { val: "0x1" };
-  assert.equal(runner.run(values), false, "0x1 is not 2");
-  values = { val: "0x2" };
-  assert.equal(runner.run(values), true, "0x2 is not 2");
-});
+    runner = new ConditionRunner("{val} = 2");
+    values = { val: "0x1" };
+    assert.equal(runner.run(values), false, "0x1 is not 2");
+    values = { val: "0x2" };
+    assert.equal(runner.run(values), true, "0x2 is not 2");
+  }
+);
 
 QUnit.test("notempty with 0 and false, bug#1792", function (assert) {
   var runner = new ConditionRunner("{val} notempty");
@@ -717,16 +735,17 @@ QUnit.test("length for undefined arrays", function (assert) {
   assert.equal(runner.run({ val: null }), true, "null length  < 4");
 });
 
-QUnit.test("length for arrays that becomes undefined, Bug#2432", function (
-  assert
-) {
-  var runner = new ConditionRunner("{val.length} < 3");
-  var data = { val: [1, 2] };
+QUnit.test(
+  "length for arrays that becomes undefined, Bug#2432",
+  function (assert) {
+    var runner = new ConditionRunner("{val.length} < 3");
+    var data = { val: [1, 2] };
 
-  assert.equal(runner.run(data), true, "[1,2].length < 3");
-  data.val = undefined;
-  assert.equal(runner.run(data), true, "undefined.length < 3");
-});
+    assert.equal(runner.run(data), true, "[1,2].length < 3");
+    data.val = undefined;
+    assert.equal(runner.run(data), true, "undefined.length < 3");
+  }
+);
 
 QUnit.test("contain and noncontain for strings", function (assert) {
   var runner = new ConditionRunner("{val} contain 'ab'");
@@ -1134,20 +1153,25 @@ QUnit.test("parse({val} == '000')", function (assert) {
   );
 });
 
-QUnit.test("000 == '000', '00' != '000', '0' != '000', 0 != '000'", function (
-  assert
-) {
-  var runner = new ConditionRunner("{val} == '000'");
-  var values: any = { val: "000" };
-  assert.equal(runner.run(values), true, "000 == '000'");
-  values.val = "00";
-  assert.equal(runner.run(values), false, "'00' != '000'");
-  values.val = "0";
-  assert.equal(
-    runner.run(values),
-    true,
-    "'0' != '000', '0' and '000' converted to number"
-  );
-  values.val = 0;
-  assert.equal(runner.run(values), true, "0 != '000', convert '000' to number");
-});
+QUnit.test(
+  "000 == '000', '00' != '000', '0' != '000', 0 != '000'",
+  function (assert) {
+    var runner = new ConditionRunner("{val} == '000'");
+    var values: any = { val: "000" };
+    assert.equal(runner.run(values), true, "000 == '000'");
+    values.val = "00";
+    assert.equal(runner.run(values), false, "'00' != '000'");
+    values.val = "0";
+    assert.equal(
+      runner.run(values),
+      true,
+      "'0' != '000', '0' and '000' converted to number"
+    );
+    values.val = 0;
+    assert.equal(
+      runner.run(values),
+      true,
+      "0 != '000', convert '000' to number"
+    );
+  }
+);

@@ -2292,6 +2292,7 @@ export class QuestionMatrixDropdownModelBase
     var newValue = this.createNewValue();
     for (var i = 0; i < rows.length; i++) {
       var row = rows[i];
+      if (!!row.editingObj) continue;
       var rowValue = this.getRowValue(i);
       var rValue = row.value;
       if (this.isTwoValueEquals(rowValue, rValue)) continue;
@@ -2778,6 +2779,7 @@ export class QuestionMatrixDropdownModelBase
     isDeletingValue: boolean,
     newValue: any
   ): any {
+    if (!!row.editingObj) return;
     var rowValue = this.getRowValueCore(row, newValue, true);
     if (isDeletingValue) {
       delete rowValue[columnName];

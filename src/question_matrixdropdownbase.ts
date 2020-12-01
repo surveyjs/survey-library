@@ -2632,6 +2632,7 @@ export class QuestionMatrixDropdownModelBase
       question.readOnly = true;
     }
     question.setSurveyImpl(row);
+    question.setParentQuestion(this);
     return question;
   }
   protected deleteRowValue(

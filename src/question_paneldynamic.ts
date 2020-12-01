@@ -1374,6 +1374,10 @@ export class QuestionPanelDynamicModel
     panel.updateCustomWidgets();
     new QuestionPanelDynamicItem(this, panel);
     panel.onFirstRendering();
+    var questions = panel.questions;
+    for (var i = 0; i < questions.length; i++) {
+      questions[i].setParentQuestion(this);
+    }
     return panel;
   }
   protected createAndSetupNewPanelObject(): PanelModel {

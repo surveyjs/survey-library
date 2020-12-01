@@ -345,6 +345,17 @@ export class Question
     this.updateElementCss();
     this.onParentChanged();
   }
+  private parentQuestionValue: Question = null;
+  /**
+   * A parent question. It can be a dynamic panel or dynamic/dropdown matrices. If the value is a matrix, it means that question is a cell question.
+   * This property is null for a stand alone question.
+   */
+  public get parentQuestion(): Question {
+    return this.parentQuestionValue;
+  }
+  setParentQuestion(val: Question) {
+    this.parentQuestionValue = val;
+  }
   protected onParentChanged() {}
   /**
    * Returns false if the question doesn't have a title property, for example: QuestionHtmlModel, or titleLocation property equals to "hidden"
@@ -1660,9 +1671,13 @@ export class Question
     return RendererFactory.Instance.getRendererByQuestion(this);
   }
   public isDefaultRendering(): boolean {
-    return !!this.customWidget || this.renderAs === "default" || this.getComponentName() === "default";
+    return (
+      !!this.customWidget ||
+      this.renderAs === "default" ||
+      this.getComponentName() === "default"
+    );
   }
-  
+
   @property({ defaultValue: "default" })
   renderAs: string;
 

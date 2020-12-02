@@ -1256,6 +1256,7 @@ export class QuestionMatrixDropdownRenderedRow {
   private static counter = 1;
   private idValue: number;
   public cells: Array<QuestionMatrixDropdownRenderedCell> = [];
+  public className: string = "";
   public constructor() {
     this.idValue = QuestionMatrixDropdownRenderedRow.counter++;
   }
@@ -1516,6 +1517,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
   ): QuestionMatrixDropdownRenderedRow {
     var res = new QuestionMatrixDropdownRenderedRow();
     res.row = row;
+    res.className = this.cssClasses.detailRow;
     res.isDetailRow = true;
     var buttonCell = new QuestionMatrixDropdownRenderedCell();
     if (this.matrix.hasRowText) {
@@ -1786,16 +1788,15 @@ export class QuestionMatrixDropdownModelBase
     this.detailPanelValue = this.createNewDetailPanel();
     this.detailPanel.selectedElementInDesign = this;
     this.detailPanel.renderWidth = "100%";
-    this.registerFunctionOnPropertyValueChanged(
-      "columns",
-      function (newColumns: any) {
-        self.updateColumnsIndexes(newColumns);
-        self.clearGeneratedRows();
-        self.generatedTotalRow = null;
-        self.resetRenderedTable();
-        self.fireCallback(self.columnsChangedCallback);
-      }
-    );
+    this.registerFunctionOnPropertyValueChanged("columns", function (
+      newColumns: any
+    ) {
+      self.updateColumnsIndexes(newColumns);
+      self.clearGeneratedRows();
+      self.generatedTotalRow = null;
+      self.resetRenderedTable();
+      self.fireCallback(self.columnsChangedCallback);
+    });
     this.registerFunctionOnPropertiesValueChanged(
       ["columnLayout", "addRowLocation"],
       function () {

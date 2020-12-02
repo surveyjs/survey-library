@@ -149,7 +149,7 @@ module.exports = function(options) {
 
         rimraf.sync(packagePath + "typings");
         fs
-          .createReadStream("./npmREADME.md")
+          .createReadStream("./README.md")
           .pipe(fs.createWriteStream(packagePath + "README.md"));
       }
     }

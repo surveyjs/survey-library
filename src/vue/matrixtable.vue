@@ -14,7 +14,7 @@
       </tr>
     </thead>
     <tbody>
-      <tr v-for="row in table.rows" :key="question.inputId + '_' + row.id">
+      <tr v-for="row in table.rows" :class="row.className" :key="question.inputId + '_' + row.id">
         <survey-matrixcell
           :cell="cell"
           :question="question"

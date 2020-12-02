@@ -8,10 +8,10 @@
 <img alt="Tested with TestCafe" src="https://img.shields.io/badge/tested%20with-TestCafe-2fa4cf.svg">
 </a>
 <a href="https://github.com/surveyjs/survey-library/issues">
-<img alt="Issues" src="https://img.shields.io/github/issues/surveyjs/survey-library.svg">
+<img alt="Issues" title="Open Issues" src="https://img.shields.io/github/issues/surveyjs/survey-library.svg">
 </a>
 <a href="https://github.com/surveyjs/survey-library/issues?utf8=%E2%9C%93&q=is%3Aissue+is%3Aclosed+">
-<img alt="Closed issues" src="https://img.shields.io/github/issues-closed/surveyjs/survey-library.svg">
+<img alt="Closed issues" title="Closed Issues" src="https://img.shields.io/github/issues-closed/surveyjs/survey-library.svg">
 </a>
 
 ## Documentation

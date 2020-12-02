@@ -127,6 +127,10 @@ export class QuestionMatrixDynamicModel
     }
     this.value = newValue;
   }
+  protected isEditingSurveyElement(value: any): boolean {
+    if (!!this.survey && this.survey.isEditingSurveyElement) return true;
+    return super.isEditingSurveyElement(value);
+  }
   /**
    * The number of rows in the matrix.
    * @see minRowCount
@@ -309,7 +313,7 @@ export class QuestionMatrixDynamicModel
           newValue = this.createNewValue();
         }
         if (
-          !Base.isSurveyElement(newValue) &&
+          !this.isEditingSurveyElement(newValue) &&
           !Helpers.isTwoValueEquals(newValue[newValue.length - 1], row.value)
         ) {
           newValue[newValue.length - 1] = row.value;

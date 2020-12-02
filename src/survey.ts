@@ -2204,6 +2204,9 @@ export class SurveyModel
       this.editingObj.onPropertyChanged.add(this.onEditingObjPropertyChanged);
     }
   }
+  public get isEditingSurveyElement() {
+    return !!this.editingObj;
+  }
   private setCalcuatedValuesIntoResult(result: any) {
     for (var i = 0; i < this.calculatedValues.length; i++) {
       var calValue = this.calculatedValues[i];
@@ -4089,9 +4092,7 @@ export class SurveyModel
       for (var i: number = 0; i < questions.length; i++) {
         var qValue = questions[i].value;
         if (
-          (qValue === newValue &&
-            Array.isArray(qValue) &&
-            Base.isSurveyElement(qValue)) ||
+          (qValue === newValue && Array.isArray(qValue) && !!this.editingObj) ||
           !this.isTwoValueEquals(qValue, newValue)
         ) {
           questions[i].updateValueFromSurvey(newValue);
@@ -4631,7 +4632,7 @@ export class SurveyModel
   }
   //ISurvey data
   protected getUnbindValue(value: any): any {
-    if (Base.isSurveyElement(value)) return value;
+    if (!!this.editingObj) return value;
     return Helpers.getUnbindValue(value);
   }
   /**

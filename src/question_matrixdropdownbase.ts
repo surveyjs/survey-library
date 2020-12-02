@@ -2192,10 +2192,14 @@ export class QuestionMatrixDropdownModelBase
     );
   }
   private getRowConditionValues(values: HashTable<any>): HashTable<any> {
+    var newValues = values;
+    if (!newValues) newValues = {};
+    /*
     var newValues: { [index: string]: any } = {};
     if (values && values instanceof Object) {
       newValues = JSON.parse(JSON.stringify(values));
     }
+    */
     var totalRow = {};
     if (!Helpers.isValueEmpty(this.totalValue)) {
       totalRow = JSON.parse(JSON.stringify(this.totalValue));
@@ -2394,6 +2398,7 @@ export class QuestionMatrixDropdownModelBase
     rowValue: any
   ): any {
     if (!rowValue) return rowValue;
+    if (!!row.editingObj) return rowValue;
     for (var key in rowValue) {
       var question = row.getQuestionByName(key);
       if (!question) {

@@ -40,7 +40,8 @@ export var defaultStandardCss = {
   progressButtonsListContainer: "sv_progress-buttons__list-container",
   progressButtonsList: "sv_progress-buttons__list",
   progressButtonsListElementPassed: "sv_progress-buttons__list-element--passed",
-  progressButtonsListElementCurrent: "sv_progress-buttons__list-element--current",
+  progressButtonsListElementCurrent:
+    "sv_progress-buttons__list-element--current",
   progressButtonsPageTitle: "sv_progress-buttons__page-title",
   progressButtonsPageDescription: "sv_progress-buttons__page-description",
   page: {
@@ -148,6 +149,8 @@ export var defaultStandardCss = {
     root: "sv_q_matrix_dropdown",
     cell: "sv_matrix_cell",
     headerCell: "sv_matrix_cell_header",
+    row: "sv_matrix_row",
+    detailRow: "sv_matrix_detail_row",
     detailRowText: "sv_matrix_cell_detail_rowtext",
     detailCell: "sv_matrix_cell_detail",
     detailButton: "sv_matrix_cell_detail_button",
@@ -165,6 +168,8 @@ export var defaultStandardCss = {
     iconRemove: "",
     cell: "sv_matrix_cell",
     headerCell: "sv_matrix_cell_header",
+    row: "sv_matrix_row",
+    detailRow: "sv_matrix_detail_row",
     detailCell: "sv_matrix_cell_detail",
     detailButton: "sv_matrix_cell_detail_button",
     detailButtonExpanded: "sv_matrix_cell_detail_button_expanded",

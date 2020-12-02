@@ -132,7 +132,7 @@ export class SurveyQuestionMatrixDropdownBase extends SurveyQuestionElementBase 
       matrixrow.push(this.renderCell(cells[i], i, cssClasses));
     }
     var key = "row" + keyValue;
-    return <tr key={key}>{matrixrow}</tr>;
+    return <tr className={row.className} key={key}>{matrixrow}</tr>;
   }
   renderCell(
     cell: QuestionMatrixDropdownRenderedCell,

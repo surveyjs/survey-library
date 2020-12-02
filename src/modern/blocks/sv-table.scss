@@ -1,10 +1,26 @@
 .sv-table {
   width: 100%;
   background-color: rgba(159, 159, 159, 0.1);
-  padding: 0.9375em 1.875em 1.5625em;
   border-collapse: separate;
-  border-spacing: 2px;
+  border-spacing: 0;
+
+  thead {
+    padding-top: 0.9375em;
+  }
+  tbody {
+    padding-bottom: 1.5625em;
+  }
+  td:first-child {
+    padding-left: 1.875em;
+  }
+  td:last-child {
+    padding-right: 1.875em;
+  }
 }
+.sv-table__row--detail {
+  background-color: $header-background-color;
+}
+
 .sv-table__cell {
   padding: 0.9375em 0;
   box-sizing: content-box;

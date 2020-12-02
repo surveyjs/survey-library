@@ -21,6 +21,7 @@ import { ExpressionValidator } from "../src/validator";
 import { QuestionExpressionModel } from "../src/question_expression";
 import { settings } from "../src/settings";
 import { PanelModel } from "../src/panel";
+import { QuestionTextModel } from "../src/question_text";
 
 export default QUnit.module("Survey_QuestionMatrixDynamic");
 
@@ -856,6 +857,16 @@ QUnit.test(
     new JsonObject().toObject(json, question);
 
     assert.equal(question.columns.length, 2, "There were two columns");
+  }
+);
+
+QUnit.test(
+  "Text date supportGoNextPageAutomatic false",
+  function (assert) {
+    var question = new QuestionTextModel("text");
+    assert.equal(question.supportGoNextPageAutomatic(), true, "Suppored");
+    question.inputType = "date";
+    assert.equal(question.supportGoNextPageAutomatic(), false, "Not suppored for date");
   }
 );
 

@@ -74,11 +74,12 @@ export class StylesManager {
       "transform: rotate(180deg);",
     ".sv_p_footer": "padding-left: 1em; padding-bottom: 1em;padding-top: 1em;",
 
-    ".sv_detail_panel_icon": "",
+    ".sv_matrix_cell_detail_button": "position: relative",
+    ".sv_detail_panel_icon": "display: block; position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: 14px; height: 14px;",
     ".sv_detail_panel_icon::before":
-      "content: ''; background-repeat: no-repeat; background-position: center; width: 14px; height: 14px; margin-top: 4px; margin-left: 2px; display: inline-block; background-image: url(\"data:image/svg+xml,%3C%3Fxml version='1.0' encoding='utf-8'%3F%3E%3C!-- Generator: Adobe Illustrator 21.1.0, SVG Export Plug-In . SVG Version: 6.00 Build 0) --%3E%3Csvg version='1.1' id='Layer_1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' x='0px' y='0px' viewBox='0 0 15 15' style='enable-background:new 0 0 15 15;' xml:space='preserve'%3E%3Cstyle type='text/css'%3E .st0%7Bfill:%23FFFFFF;%7D%0A%3C/style%3E%3Cpolygon class='st0' points='14,5.5 12.6,4.1 7.5,9.1 2.4,4.1 1,5.5 7.5,12 '/%3E%3C/svg%3E%0A\");",
+      "content: ''; background-repeat: no-repeat; background-position: center; width: 14px; height: 14px; display: block; transform: rotate(270deg); background-image: url(\"data:image/svg+xml,%3C%3Fxml version='1.0' encoding='utf-8'%3F%3E%3C!-- Generator: Adobe Illustrator 21.1.0, SVG Export Plug-In . SVG Version: 6.00 Build 0) --%3E%3Csvg version='1.1' id='Layer_1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' x='0px' y='0px' viewBox='0 0 15 15' style='enable-background:new 0 0 15 15;' xml:space='preserve'%3E%3Cstyle type='text/css'%3E .st0%7Bfill:%23FFFFFF;%7D%0A%3C/style%3E%3Cpolygon class='st0' points='14,5.5 12.6,4.1 7.5,9.1 2.4,4.1 1,5.5 7.5,12 '/%3E%3C/svg%3E%0A\");",
     ".sv_detail_panel_icon.sv_detail_expanded::before":
-      "transform: rotate(270deg);",
+      "transform: rotate(0deg)",
 
     ".sv_q_file > input[type=file], .sv_q_file > button":
       "display: inline-block;",
@@ -953,7 +954,7 @@ export class StylesManager {
               themeSelector + selector + " { " + cssRuleText + " }",
               0
             );
-          } catch (e) {}
+          } catch (e) { }
         });
       }
     }
@@ -981,20 +982,20 @@ export class StylesManager {
             selector + " { " + StylesManager.Styles[selector] + " }",
             0
           );
-        } catch (e) {}
+        } catch (e) { }
       });
       Object.keys(StylesManager.Media).forEach((selector) => {
         try {
           sheet.insertRule(
             StylesManager.Media[selector].media +
-              " { " +
-              selector +
-              " { " +
-              StylesManager.Media[selector].style +
-              " } }",
+            " { " +
+            selector +
+            " { " +
+            StylesManager.Media[selector].style +
+            " } }",
             0
           );
-        } catch (e) {}
+        } catch (e) { }
       });
     }
   }

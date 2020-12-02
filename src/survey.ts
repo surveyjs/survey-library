@@ -1444,6 +1444,11 @@ export class SurveyModel
     var hasChanges = false;
     for (var key in data) {
       if (!!this.getQuestionByValueName(key)) continue;
+      if (
+        this.iscorrectValueWithPostPrefix(key, settings.commentPrefix) ||
+        this.iscorrectValueWithPostPrefix(key, settings.matrixTotalValuePostFix)
+      )
+        continue;
       var calcValue = this.getCalculatedValueByName(key);
       if (!!calcValue && calcValue.includeIntoResult) continue;
       hasChanges = true;
@@ -1452,6 +1457,16 @@ export class SurveyModel
     if (hasChanges) {
       this.data = data;
     }
+  }
+  private iscorrectValueWithPostPrefix(
+    key: string,
+    postPrefix: string
+  ): boolean {
+    if (key.indexOf(postPrefix) !== key.length - postPrefix.length)
+      return false;
+    return !!this.getQuestionByValueName(
+      key.substr(0, key.indexOf(postPrefix))
+    );
   }
 
   /**

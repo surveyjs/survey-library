@@ -1002,7 +1002,10 @@ export class MatrixDropdownRowModelBase
           this.setValue(key, question.value);
         }
       } else {
-        if (!this.getSharedQuestionByName(key)) {
+        if (
+          !this.getSharedQuestionByName(key) &&
+          key.indexOf(settings.matrixTotalValuePostFix) < 0
+        ) {
           this.setValue(key, null);
         }
       }
@@ -1788,15 +1791,16 @@ export class QuestionMatrixDropdownModelBase
     this.detailPanelValue = this.createNewDetailPanel();
     this.detailPanel.selectedElementInDesign = this;
     this.detailPanel.renderWidth = "100%";
-    this.registerFunctionOnPropertyValueChanged("columns", function (
-      newColumns: any
-    ) {
-      self.updateColumnsIndexes(newColumns);
-      self.clearGeneratedRows();
-      self.generatedTotalRow = null;
-      self.resetRenderedTable();
-      self.fireCallback(self.columnsChangedCallback);
-    });
+    this.registerFunctionOnPropertyValueChanged(
+      "columns",
+      function (newColumns: any) {
+        self.updateColumnsIndexes(newColumns);
+        self.clearGeneratedRows();
+        self.generatedTotalRow = null;
+        self.resetRenderedTable();
+        self.fireCallback(self.columnsChangedCallback);
+      }
+    );
     this.registerFunctionOnPropertiesValueChanged(
       ["columnLayout", "addRowLocation"],
       function () {

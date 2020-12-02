@@ -860,15 +860,16 @@ QUnit.test(
   }
 );
 
-QUnit.test(
-  "Text date supportGoNextPageAutomatic false",
-  function (assert) {
-    var question = new QuestionTextModel("text");
-    assert.equal(question.supportGoNextPageAutomatic(), true, "Suppored");
-    question.inputType = "date";
-    assert.equal(question.supportGoNextPageAutomatic(), false, "Not suppored for date");
-  }
-);
+QUnit.test("Text date supportGoNextPageAutomatic false", function (assert) {
+  var question = new QuestionTextModel("text");
+  assert.equal(question.supportGoNextPageAutomatic(), true, "Suppored");
+  question.inputType = "date";
+  assert.equal(
+    question.supportGoNextPageAutomatic(),
+    false,
+    "Not suppored for date"
+  );
+});
 
 QUnit.test("Matrixdropdown set columns", function (assert) {
   var question = new QuestionMatrixDropdownModel("matrix");
@@ -1531,6 +1532,45 @@ QUnit.test("matrixDropdown.clearInvisibleValues", function (assert) {
     "clear unexisting columns and values"
   );
 });
+
+QUnit.test(
+  "matrixDropdown.clearInvisibleValues, do not clear totals, Bug#2553",
+  function (assert) {
+    var json = {
+      elements: [
+        {
+          type: "matrixdynamic",
+          name: "question1",
+          rowCount: 1,
+          columns: [
+            {
+              name: "Column1",
+            },
+            {
+              name: "Column2",
+            },
+            {
+              name: "Column3",
+              cellType: "expression",
+              totalType: "sum",
+              expression: "{row.Column1}+{row.Column2}",
+            },
+          ],
+          cellType: "text",
+        },
+      ],
+    };
+
+    var survey = new SurveyModel(json);
+    var data = {
+      "question1-total": { Column3: 3 },
+      question1: [{ Column1: "1", Column2: "2", Column3: 3 }],
+    };
+    survey.data = data;
+    survey.clearIncorrectValues(true);
+    assert.deepEqual(survey.data, data, "values should be the same");
+  }
+);
 
 QUnit.test(
   "matrixDynamic.clearInvisibleValues do not call it on changing condition if clearInvisibleValues doesn't eaqual to 'onHidden'",

@@ -36,6 +36,8 @@
   padding-left: 1em;
 }
 .sv-table__cell--detail-button {
+  appearance: none;
+  position: relative;
   border: 3px solid $border-color;
   border-radius: 50px;
   text-align: center;
@@ -46,7 +48,4 @@
   margin: 0;
   outline: none;
   cursor: pointer;
-}
-button.sv-table__cell--detail-button:focus {
-  border-radius: 50px;
 }

@@ -156,16 +156,17 @@ $label-disabled-color: rgba(64, 64, 64, 0.5);
     width: 32px;
   }
   .sv_matrix_cell_detail_button {
-    vertical-align: middle;
-    text-align: center;
     width: 29px;
     height: 29px;
     min-width: 0px;
     padding: 0;
-    background-color: $main-color;
+    outline: none;
   }
   .sv_matrix_cell_detail_button_expanded {
     background-color: lightgray;
+    &:hover {
+      background-color: darkgray;
+    }
   }
   .sv_matrix_cell_detail_rowtext {
     vertical-align: middle;

@@ -23,7 +23,7 @@
           <!-- /ko -->
           <tbody>
               <!-- ko foreach: question.koTable().rows -->
-              <tr>
+              <tr data-bind="css:$data.className">
                   <!-- ko foreach: $data.cells -->
                     <!-- ko if: $data.isShowHideDetail -->
                     <td data-bind="css:$data.className">

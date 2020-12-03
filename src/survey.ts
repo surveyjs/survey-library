@@ -1444,6 +1444,11 @@ export class SurveyModel
     var hasChanges = false;
     for (var key in data) {
       if (!!this.getQuestionByValueName(key)) continue;
+      if (
+        this.iscorrectValueWithPostPrefix(key, settings.commentPrefix) ||
+        this.iscorrectValueWithPostPrefix(key, settings.matrixTotalValuePostFix)
+      )
+        continue;
       var calcValue = this.getCalculatedValueByName(key);
       if (!!calcValue && calcValue.includeIntoResult) continue;
       hasChanges = true;
@@ -1452,6 +1457,16 @@ export class SurveyModel
     if (hasChanges) {
       this.data = data;
     }
+  }
+  private iscorrectValueWithPostPrefix(
+    key: string,
+    postPrefix: string
+  ): boolean {
+    if (key.indexOf(postPrefix) !== key.length - postPrefix.length)
+      return false;
+    return !!this.getQuestionByValueName(
+      key.substr(0, key.indexOf(postPrefix))
+    );
   }
 
   /**
@@ -2203,6 +2218,9 @@ export class SurveyModel
       };
       this.editingObj.onPropertyChanged.add(this.onEditingObjPropertyChanged);
     }
+  }
+  public get isEditingSurveyElement() {
+    return !!this.editingObj;
   }
   private setCalcuatedValuesIntoResult(result: any) {
     for (var i = 0; i < this.calculatedValues.length; i++) {
@@ -4089,9 +4107,7 @@ export class SurveyModel
       for (var i: number = 0; i < questions.length; i++) {
         var qValue = questions[i].value;
         if (
-          (qValue === newValue &&
-            Array.isArray(qValue) &&
-            Base.isSurveyElement(qValue)) ||
+          (qValue === newValue && Array.isArray(qValue) && !!this.editingObj) ||
           !this.isTwoValueEquals(qValue, newValue)
         ) {
           questions[i].updateValueFromSurvey(newValue);
@@ -4631,7 +4647,7 @@ export class SurveyModel
   }
   //ISurvey data
   protected getUnbindValue(value: any): any {
-    if (Base.isSurveyElement(value)) return value;
+    if (!!this.editingObj) return value;
     return Helpers.getUnbindValue(value);
   }
   /**

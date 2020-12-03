@@ -1101,8 +1101,11 @@ export class Question
   public createValueCopy(): any {
     return this.getUnbindValue(this.value);
   }
+  protected isEditingSurveyElement(value: any): boolean {
+    return Base.isSurveyElement(value);
+  }
   protected getUnbindValue(value: any) {
-    if (Base.isSurveyElement(value)) return value;
+    if (this.isEditingSurveyElement(value)) return value;
     return Helpers.getUnbindValue(value);
   }
   private canClearValueAsInvisible(): boolean {

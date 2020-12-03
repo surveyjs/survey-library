@@ -1401,6 +1401,9 @@ export class Question
     if (oldHasErrors != errors.length > 0) {
       this.updateElementCss();
     }
+    if (this.isCollapsed && rec && fireCallback && errors.length > 0) {
+      this.expand();
+    }
     return errors.length > 0;
   }
   /**

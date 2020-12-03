@@ -8,6 +8,7 @@ export class QuestionImplementor extends ImplementorBase {
   private koDummy: any;
   koTemplateName: any;
   koElementType: any;
+  pressExpand: any;
   private _koValue = ko.observableArray<any>();
   constructor(public question: Question) {
     super(question);
@@ -17,6 +18,11 @@ export class QuestionImplementor extends ImplementorBase {
         this.question.value = newValue;
       }
     });
+    
+    
+    this.pressExpand = (_: any, event: any) => {
+      if (event.which === 13) this.changeExpanded();
+    };
     Object.defineProperty(this.question, "koValue", {
       get: () => {
         if (!Helpers.isTwoValueEquals(this._koValue(), this.getKoValue())) {
@@ -54,6 +60,8 @@ export class QuestionImplementor extends ImplementorBase {
         cssRoot += " " + self.question.cssClasses.disabled;
       return cssRoot;
     });
+    (<any>this.question)["pressExpand"] = this.pressExpand;
+
     (<any>this.question)["koErrorClass"] = ko.pureComputed(function () {
       return self.question.cssError;
     });
@@ -120,6 +128,16 @@ export class QuestionImplementor extends ImplementorBase {
       });
     }
   }
+
+  private changeExpanded() {
+    if (!this.question.isCollapsed && !this.question.isExpanded) return;
+    if (this.question.isCollapsed) {
+      this.question.expand();
+    } else {
+      this.question.collapse();
+    }
+  }
+
   public dispose() {
     super.dispose();
     this.koTemplateName.dispose();

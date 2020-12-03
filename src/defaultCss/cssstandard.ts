@@ -73,6 +73,8 @@ export var defaultStandardCss = {
     footer: "sv_q_footer",
     formGroup: "form-group",
     asCell: "sv_matrix_cell",
+    icon: "sv_question_icon",
+    iconExpanded: "sv_expanded",
   },
   panel: {
     title: "sv_p_title",

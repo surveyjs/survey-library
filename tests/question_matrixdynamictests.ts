@@ -5102,12 +5102,16 @@ QUnit.test("Detail panel, create elements in code", function (assert) {
   ): boolean => {
     return true;
   };
+  var createThirdQuestion = false;
   matrix.onCreateDetailPanelCallback = (
     row: MatrixDropdownRowModelBase,
     panel: PanelModel
   ) => {
     panel.addNewQuestion("text", "q1");
     panel.addNewQuestion("text", "q2");
+    if (createThirdQuestion) {
+      panel.addNewQuestion("text", "q3");
+    }
   };
   assert.equal(matrix.visibleRows[0].hasPanel, true, "There is a panel");
   matrix.visibleRows[0].showDetailPanel();
@@ -5115,6 +5119,21 @@ QUnit.test("Detail panel, create elements in code", function (assert) {
     matrix.visibleRows[0].detailPanel.questions.length,
     2,
     "There are two questions"
+  );
+  matrix.visibleRows[0].hideDetailPanel();
+  matrix.visibleRows[0].showDetailPanel();
+  assert.equal(
+    matrix.visibleRows[0].detailPanel.questions.length,
+    2,
+    "There are still two questions"
+  );
+  createThirdQuestion = true;
+  matrix.visibleRows[0].hideDetailPanel(true);
+  matrix.visibleRows[0].showDetailPanel();
+  assert.equal(
+    matrix.visibleRows[0].detailPanel.questions.length,
+    3,
+    "We have 3 questions now"
   );
 });
 QUnit.test("Do not clear all rows if minRowCount is set", function (assert) {

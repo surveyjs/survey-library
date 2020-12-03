@@ -821,8 +821,11 @@ export class MatrixDropdownRowModelBase
     if (!this.detailPanelValue) return;
     this.setIsDetailPanelShowing(true);
   }
-  public hideDetailPanel() {
+  public hideDetailPanel(destroyPanel: boolean = false) {
     this.setIsDetailPanelShowing(false);
+    if (destroyPanel) {
+      this.detailPanelValue = null;
+    }
   }
   private ensureDetailPanel() {
     if (this.isCreatingDetailPanel) return;
@@ -1002,7 +1005,10 @@ export class MatrixDropdownRowModelBase
           this.setValue(key, question.value);
         }
       } else {
-        if (!this.getSharedQuestionByName(key)) {
+        if (
+          !this.getSharedQuestionByName(key) &&
+          key.indexOf(settings.matrixTotalValuePostFix) < 0
+        ) {
           this.setValue(key, null);
         }
       }
@@ -1256,6 +1262,7 @@ export class QuestionMatrixDropdownRenderedRow {
   private static counter = 1;
   private idValue: number;
   public cells: Array<QuestionMatrixDropdownRenderedCell> = [];
+  public className: string = "";
   public constructor() {
     this.idValue = QuestionMatrixDropdownRenderedRow.counter++;
   }
@@ -1516,6 +1523,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
   ): QuestionMatrixDropdownRenderedRow {
     var res = new QuestionMatrixDropdownRenderedRow();
     res.row = row;
+    res.className = this.cssClasses.detailRow;
     res.isDetailRow = true;
     var buttonCell = new QuestionMatrixDropdownRenderedCell();
     if (this.matrix.hasRowText) {
@@ -2192,10 +2200,14 @@ export class QuestionMatrixDropdownModelBase
     );
   }
   private getRowConditionValues(values: HashTable<any>): HashTable<any> {
+    var newValues = values;
+    if (!newValues) newValues = {};
+    /*
     var newValues: { [index: string]: any } = {};
     if (values && values instanceof Object) {
       newValues = JSON.parse(JSON.stringify(values));
     }
+    */
     var totalRow = {};
     if (!Helpers.isValueEmpty(this.totalValue)) {
       totalRow = JSON.parse(JSON.stringify(this.totalValue));
@@ -2394,6 +2406,7 @@ export class QuestionMatrixDropdownModelBase
     rowValue: any
   ): any {
     if (!rowValue) return rowValue;
+    if (!!row.editingObj) return rowValue;
     for (var key in rowValue) {
       var question = row.getQuestionByName(key);
       if (!question) {

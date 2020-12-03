@@ -3,6 +3,7 @@ import { Base, Event, ArrayChanges } from "../src/base";
 import { QuestionTextModel } from "../src/question_text";
 import { MatrixDropdownColumn } from "../src/question_matrixdropdownbase";
 import { QuestionMatrixDynamicModel } from "../src/question_matrixdynamic";
+import { ExpressionValidator } from "../src/validator";
 
 export default QUnit.module("Survey.editingObj Tests");
 
@@ -120,5 +121,58 @@ QUnit.test("Edit columns in matrix", function (assert) {
     question.columns[2].getType(),
     "matrixdropdowncolumn",
     "column added with correct type"
+  );
+});
+QUnit.test("Edit validators in matrix", function (assert) {
+  var question = new QuestionTextModel("q1");
+  //question.validators.push(new ExpressionValidator());
+  var survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdynamic",
+        name: "validators",
+        rowCount: 0,
+        columns: [
+          {
+            cellType: "dropdown",
+            name: "validatorType",
+            choices: [{ value: "expressionvalidator", text: "expression" }],
+          },
+        ],
+      },
+    ],
+  });
+  var matrix = <QuestionMatrixDynamicModel>(
+    survey.getQuestionByName("validators")
+  );
+  matrix.onGetValueForNewRowCallBack = (
+    sender: QuestionMatrixDynamicModel
+  ): any => {
+    var item = new ExpressionValidator();
+    item["validatorType"] = item.getType();
+    sender.value.push(item);
+    //question.validators.push(item);
+    return item;
+  };
+  survey.editingObj = question;
+  assert.strictEqual(
+    matrix.value,
+    question.validators,
+    "matrix value and validators array is the same object"
+  );
+  assert.equal(matrix.visibleRows.length, 0, "visibleRows is empty");
+  matrix.addRow();
+  assert.equal(matrix.visibleRows.length, 1, "visibleRows has a row");
+  assert.equal(question.validators.length, 1, "Validator is here");
+  assert.equal(
+    question.validators[0]["validatorType"],
+    "expressionvalidator",
+    "validator is correct"
+  );
+  matrix.getDisplayValue(true);
+  assert.equal(
+    question.validators[0]["validatorType"],
+    "expressionvalidator",
+    "validator is correct after calling getDisplayValue"
   );
 });

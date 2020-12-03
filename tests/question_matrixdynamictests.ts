@@ -21,6 +21,7 @@ import { ExpressionValidator } from "../src/validator";
 import { QuestionExpressionModel } from "../src/question_expression";
 import { settings } from "../src/settings";
 import { PanelModel } from "../src/panel";
+import { QuestionTextModel } from "../src/question_text";
 
 export default QUnit.module("Survey_QuestionMatrixDynamic");
 
@@ -859,6 +860,17 @@ QUnit.test(
   }
 );
 
+QUnit.test("Text date supportGoNextPageAutomatic false", function (assert) {
+  var question = new QuestionTextModel("text");
+  assert.equal(question.supportGoNextPageAutomatic(), true, "Suppored");
+  question.inputType = "date";
+  assert.equal(
+    question.supportGoNextPageAutomatic(),
+    false,
+    "Not suppored for date"
+  );
+});
+
 QUnit.test("Matrixdropdown set columns", function (assert) {
   var question = new QuestionMatrixDropdownModel("matrix");
   question.rows = ["row1", "row2"];
@@ -1520,6 +1532,45 @@ QUnit.test("matrixDropdown.clearInvisibleValues", function (assert) {
     "clear unexisting columns and values"
   );
 });
+
+QUnit.test(
+  "matrixDropdown.clearInvisibleValues, do not clear totals, Bug#2553",
+  function (assert) {
+    var json = {
+      elements: [
+        {
+          type: "matrixdynamic",
+          name: "question1",
+          rowCount: 1,
+          columns: [
+            {
+              name: "Column1",
+            },
+            {
+              name: "Column2",
+            },
+            {
+              name: "Column3",
+              cellType: "expression",
+              totalType: "sum",
+              expression: "{row.Column1}+{row.Column2}",
+            },
+          ],
+          cellType: "text",
+        },
+      ],
+    };
+
+    var survey = new SurveyModel(json);
+    var data = {
+      "question1-total": { Column3: 3 },
+      question1: [{ Column1: "1", Column2: "2", Column3: 3 }],
+    };
+    survey.data = data;
+    survey.clearIncorrectValues(true);
+    assert.deepEqual(survey.data, data, "values should be the same");
+  }
+);
 
 QUnit.test(
   "matrixDynamic.clearInvisibleValues do not call it on changing condition if clearInvisibleValues doesn't eaqual to 'onHidden'",
@@ -5051,12 +5102,16 @@ QUnit.test("Detail panel, create elements in code", function (assert) {
   ): boolean => {
     return true;
   };
+  var createThirdQuestion = false;
   matrix.onCreateDetailPanelCallback = (
     row: MatrixDropdownRowModelBase,
     panel: PanelModel
   ) => {
     panel.addNewQuestion("text", "q1");
     panel.addNewQuestion("text", "q2");
+    if (createThirdQuestion) {
+      panel.addNewQuestion("text", "q3");
+    }
   };
   assert.equal(matrix.visibleRows[0].hasPanel, true, "There is a panel");
   matrix.visibleRows[0].showDetailPanel();
@@ -5064,6 +5119,21 @@ QUnit.test("Detail panel, create elements in code", function (assert) {
     matrix.visibleRows[0].detailPanel.questions.length,
     2,
     "There are two questions"
+  );
+  matrix.visibleRows[0].hideDetailPanel();
+  matrix.visibleRows[0].showDetailPanel();
+  assert.equal(
+    matrix.visibleRows[0].detailPanel.questions.length,
+    2,
+    "There are still two questions"
+  );
+  createThirdQuestion = true;
+  matrix.visibleRows[0].hideDetailPanel(true);
+  matrix.visibleRows[0].showDetailPanel();
+  assert.equal(
+    matrix.visibleRows[0].detailPanel.questions.length,
+    3,
+    "We have 3 questions now"
   );
 });
 QUnit.test("Do not clear all rows if minRowCount is set", function (assert) {

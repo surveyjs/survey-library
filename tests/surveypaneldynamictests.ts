@@ -2315,6 +2315,63 @@ QUnit.test("Panel dynamic and survey.data setup", function (assert) {
   );
 });
 QUnit.test(
+  "Panel dynamic and clearIncorrectValue, do not remove matrix-total values, Bug#2553",
+  function (assert) {
+    var json = {
+      elements: [
+        {
+          type: "paneldynamic",
+          name: "question3",
+          templateElements: [
+            {
+              type: "matrixdynamic",
+              name: "question1",
+              columns: [
+                {
+                  name: "Column1",
+                },
+                {
+                  name: "Column2",
+                },
+                {
+                  name: "Column3",
+                  cellType: "expression",
+                  totalType: "sum",
+                  expression: "{row.Column1}+{row.Column2}",
+                },
+              ],
+              cellType: "text",
+              rowCount: 1,
+            },
+            {
+              type: "expression",
+              name: "question2",
+              expression: "{panel.question1-total.column3}",
+            },
+          ],
+        },
+      ],
+    };
+
+    var survey = new SurveyModel(json);
+    var data = {
+      question3: [
+        {
+          "question1-total": { Column3: 3 },
+          question2: 3,
+          question1: [{ Column1: "1", Column2: "2", Column3: 3 }],
+        },
+      ],
+    };
+
+    survey.data = data;
+
+    survey.clearIncorrectValues();
+    assert.deepEqual(survey.data, data, "values should be the same");
+  }
+);
+
+QUnit.test(
   "Panel dynamic nested dynamic panel and display mode, Bug#1488",
   function (assert) {
     var json = {

@@ -1051,14 +1051,14 @@ export class QuestionPanelDynamicModel
       var q = panel.getQuestionByName(key);
       if (!!q) continue;
       if (
-        key.indexOf(settings.commentPrefix) ==
-        key.length - settings.commentPrefix.length
-      ) {
-        q = panel.getQuestionByName(
-          key.substr(0, key.indexOf(settings.commentPrefix))
-        );
-        if (!!q) continue;
-      }
+        this.iscorrectValueWithPostPrefix(panel, key, settings.commentPrefix) ||
+        this.iscorrectValueWithPostPrefix(
+          panel,
+          key,
+          settings.matrixTotalValuePostFix
+        )
+      )
+        continue;
       delete values[key];
       isChanged = true;
     }
@@ -1066,6 +1066,15 @@ export class QuestionPanelDynamicModel
       val[index] = values;
       this.value = val;
     }
+  }
+  private iscorrectValueWithPostPrefix(
+    panel: PanelModel,
+    key: string,
+    postPrefix: string
+  ): boolean {
+    if (key.indexOf(postPrefix) !== key.length - postPrefix.length)
+      return false;
+    return !!panel.getQuestionByName(key.substr(0, key.indexOf(postPrefix)));
   }
   public getSharedQuestionFromArray(
     name: string,

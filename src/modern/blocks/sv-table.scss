@@ -20,6 +20,13 @@
 }
 .sv-table__row--detail {
   background-color: $header-background-color;
+
+  .sv-table__cell--detail-panel,
+  td:first-child {
+    border-top: 1px solid $text-border-color;
+    border-bottom: 1px solid $text-border-color;
+    padding: 1em 0;
+  }
 }
 
 .sv-table__cell {

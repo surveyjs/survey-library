@@ -669,7 +669,7 @@ export class StylesManager {
     //eo boolean
 
     ".sv_main .sv_matrix_detail_row":
-      "background-color: $header-background-color",
+      "background-color: #ededed; border: 1px solid $header-background-color",
   };
   public static modernThemeCss: { [key: string]: string } = {
     // ".sv-paneldynamic__add-btn": "background-color: $add-button-color;",
@@ -817,7 +817,7 @@ export class StylesManager {
     //eo boolean
 
     ".sv_main .sv_matrix_detail_row":
-      "background-color: $header-background-color",
+      "background-color: #ededed; border: 1px solid $header-background-color",
   };
 
   public static bootstrapmaterialThemeCss: { [key: string]: string } = {
@@ -895,7 +895,7 @@ export class StylesManager {
       "background-color: $disabled-slider-color;",
     //eo boolean
     ".sv_main .sv_matrix_detail_row":
-      "background-color: $header-background-color",
+      "background-color: #ededed; border: 1px solid $header-background-color",
   };
 
   private sheet: CSSStyleSheet = null;

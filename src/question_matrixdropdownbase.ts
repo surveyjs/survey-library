@@ -821,8 +821,11 @@ export class MatrixDropdownRowModelBase
     if (!this.detailPanelValue) return;
     this.setIsDetailPanelShowing(true);
   }
-  public hideDetailPanel() {
+  public hideDetailPanel(destroyPanel: boolean = false) {
     this.setIsDetailPanelShowing(false);
+    if (destroyPanel) {
+      this.detailPanelValue = null;
+    }
   }
   private ensureDetailPanel() {
     if (this.isCreatingDetailPanel) return;

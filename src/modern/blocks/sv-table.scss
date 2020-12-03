@@ -4,11 +4,12 @@
   border-collapse: separate;
   border-spacing: 0;
 
-  thead {
-    padding-top: 0.9375em;
-  }
   tbody {
-    padding-bottom: 1.5625em;
+    tr:last-child {
+      .sv-table__cell {
+        padding-bottom: 2.5em;
+      }
+    }
   }
   td:first-child {
     padding-left: 1.875em;
@@ -36,6 +37,7 @@
   font-family: Raleway;
   font-weight: bold;
   text-align: left;
+  padding-top: 1.875em;
 }
 .sv-table__cell--rowText {
   vertical-align: middle;

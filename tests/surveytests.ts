@@ -5155,8 +5155,10 @@ QUnit.test("onMatrixRowAdded", function (assert) {
 });
 QUnit.test("onMatrixRowAdded + defaultValueFromLastRow", function (assert) {
   var survey = new SurveyModel();
+  var visibleRowsCount = -1;
   survey.onMatrixRowAdded.add(function (sender, options) {
     options.row.getQuestionByColumnName("col1").clearValue();
+    visibleRowsCount = options.question.visibleRows.length;
   });
   var page = survey.addNewPage("Page 1");
   var q1 = new QuestionMatrixDynamicModel("matrixdynamic");
@@ -5171,6 +5173,7 @@ QUnit.test("onMatrixRowAdded + defaultValueFromLastRow", function (assert) {
     { col1: 2, col2: "2" },
   ];
   q1.addRow();
+  assert.equal(visibleRowsCount, 3, "There are 3 visibleRows in event");
   assert.equal(q1.rowCount, 3, "there are 3 rows");
   assert.equal(q1.value[2]["col2"], "2", "get value from previous");
   assert.notOk(q1.value[2]["col1"], "clear value for this column");
@@ -5201,11 +5204,13 @@ QUnit.test("onMatrixBeforeRowAdded", function (assert) {
   );
 });
 
-QUnit.test("onMatrixRowRemoved", function (assert) {
+QUnit.test("onMatrixRowRemoved. Added a case for Bug#2557", function (assert) {
   var survey = new SurveyModel();
   var removedRowIndex = -1;
+  var visibleRowsCount = -1;
   survey.onMatrixRowRemoved.add(function (survey, options) {
     removedRowIndex = options.rowIndex;
+    visibleRowsCount = options.question.visibleRows.length;
   });
   var page = survey.addNewPage("Page 1");
   var q1 = new QuestionMatrixDynamicModel("matrixdynamic");
@@ -5218,6 +5223,11 @@ QUnit.test("onMatrixRowRemoved", function (assert) {
     removedRowIndex,
     1,
     "onMatrixRowRemoved event has been fired correctly"
+  );
+  assert.equal(
+    visibleRowsCount,
+    2,
+    "There should be two visible rows in event"
   );
 });
 

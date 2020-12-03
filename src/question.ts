@@ -1706,6 +1706,11 @@ export class Question
 }
 Serializer.addClass("question", [
   "!name",
+  {
+    name: "state",
+    default: "default",
+    choices: ["default", "collapsed", "expanded"],
+  },
   { name: "visible:switch", default: true },
   { name: "useDisplayValuesInTitle:boolean", default: true, layout: "row" },
   "visibleIf:condition",

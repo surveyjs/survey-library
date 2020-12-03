@@ -1033,6 +1033,7 @@ export class SurveyError {
  * Base class of SurveyJS Elements.
  */
 export class SurveyElement extends Base implements ISurveyElement {
+  stateChangedCallback: () => void;
   public static createProgressInfo(): IProgressInfo {
     return {
       questionCount: 0,
@@ -1114,6 +1115,52 @@ export class SurveyElement extends Base implements ISurveyElement {
     this.registerFunctionOnPropertyValueChanged("isReadOnly", function () {
       self.onReadOnlyChanged();
     });
+    this.registerFunctionOnPropertyValueChanged("state", function () {
+      if (self.stateChangedCallback) self.stateChangedCallback();
+    });
+  }
+    /**
+   * Set this property to "collapsed" to render only Panel title and expanded button and to "expanded" to render the collapsed button in the Panel caption
+   */
+  public get state(): string {
+    return this.getPropertyValue("state");
+  }
+  public set state(val: string) {
+    this.setPropertyValue("state", val);
+  }
+  /**
+   * Returns true if the Panel is in the collapsed state
+   * @see state
+   * @see collapse
+   * @see isExpanded
+   */
+  public get isCollapsed() {
+    return this.state == "collapsed";
+  }
+  /**
+   * Returns true if the Panel is in the expanded state
+   * @see state
+   * @see expand
+   * @see isCollapsed
+   */
+  public get isExpanded() {
+    if (this.isDesignMode) return;
+    return this.state == "expanded";
+  }
+  /**
+   * Collapse the Panel
+   * @see state
+   */
+  public collapse() {
+    if (this.isDesignMode) return;
+    this.state = "collapsed";
+  }
+  /**
+   * Expand the Panel
+   * @see state
+   */
+  public expand() {
+    this.state = "expanded";
   }
   public setSurveyImpl(value: ISurveyImpl) {
     this.surveyImplValue = value;

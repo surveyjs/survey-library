@@ -14,6 +14,7 @@ export interface ISurveyCreator {
 }
 
 export class SurveyQuestion extends SurveyElementBase {
+  private isNeedFocus = false;
   public static renderQuestionBody(
     creator: ISurveyCreator,
     question: Question
@@ -61,6 +62,10 @@ export class SurveyQuestion extends SurveyElementBase {
     this.doAfterRender();
   }
   private doAfterRender() {
+    if (this.isNeedFocus) {
+      this.question.clickTitleFunction();
+      this.isNeedFocus = false;
+    }
     if (this.question) {
       var el = this.rootRef.current;
       if (el && el.getAttribute("data-rendered") !== "r") {
@@ -152,12 +157,14 @@ export class SurveyQuestion extends SurveyElementBase {
       var changeExpanded = (event:any) => {
         if (this.question.isCollapsed) {
           this.question.expand();
-          return true;
-        } else {
+          this.isNeedFocus = true;
+          return;
+        } 
+        if (this.question.isExpanded) {
           this.question.collapse();
-          event.stopPropagation();
+          this.isNeedFocus = false;
+          return;
         }
-        
       };
       var pressExpand = (event: any) => {
         if (event.keyCode == 13) changeExpanded(event);

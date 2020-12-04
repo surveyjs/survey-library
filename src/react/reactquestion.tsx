@@ -113,6 +113,8 @@ export class SurveyQuestion extends SurveyElementBase {
     if (!!question.paddingRight)
       rootStyle["paddingRight"] = question.paddingRight;
 
+    var contentStyle = { display: !this.question.isCollapsed ? "block" : "none" };
+
     if (question.isReadOnly) {
       questionRootClass += " " + cssClasses.disabled;
     }
@@ -127,7 +129,7 @@ export class SurveyQuestion extends SurveyElementBase {
         aria-labelledby={question.hasTitle ? question.ariaTitleId : null}
       >
         {headerTop}
-        <div className={question.cssContent}>
+        <div className={question.cssContent} style={contentStyle}>
           {errorsTop}
           {questionRender}
           {comment}
@@ -142,14 +144,47 @@ export class SurveyQuestion extends SurveyElementBase {
     return SurveyQuestion.renderQuestionBody(this.creator, this.question);
   }
   protected renderTitle(cssClasses: any): JSX.Element {
+    var expandCollapse = null;
+    if (this.question.isCollapsed || this.question.isExpanded) {
+      var iconCss = this.question.cssClasses.icon;
+      if (!this.question.isCollapsed)
+        iconCss += " " + this.question.cssClasses.iconExpanded;
+      var changeExpanded = (event:any) => {
+        if (this.question.isCollapsed) {
+          this.question.expand();
+          return true;
+        } else {
+          this.question.collapse();
+          event.stopPropagation();
+        }
+        
+      };
+      var pressExpand = (event: any) => {
+        if (event.keyCode == 13) changeExpanded(event);
+      };
+      var ariaExpanded = this.question.isExpanded;
+      var ariaControls = this.question.isExpanded ? this.question.contentId : null;
+      expandCollapse = (
+        <span
+          className={iconCss}
+          tabIndex={0}
+          onKeyUp={pressExpand}
+          aria-expanded={ariaExpanded}
+          aria-controls={ariaControls}
+        />
+      );
+    }
+
     var spans = this.renderTitleSpans(this.question, cssClasses);
     return (
       <h5
         className={this.question.cssTitle}
         aria-label={this.question.locTitle.renderedHtml}
         id={this.question.ariaTitleId}
+        onClick={changeExpanded}
       >
         {spans}
+        {expandCollapse}
       </h5>
     );
   }

@@ -1,7 +1,7 @@
 <script type="text/html" id="survey-question-title">
   <div data-bind="css: question.cssHeader, click: question.clickTitleFunction">
     <h5
-      data-bind="css: cssTitle, attr: { 'aria-label': question.locTitle.renderedHtml, id: ariaTitleId} "
+      data-bind="css: cssTitle, attr: { 'aria-label': question.locTitle.renderedHtml, id: ariaTitleId}, click: doExpand"
     >
       <!-- ko template: { name: 'survey-question-title-content', data: question } --><!-- /ko -->
           <!-- ko if: isCollapsed || isExpanded, -->

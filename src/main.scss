@@ -678,6 +678,15 @@ $label-disabled-color: rgba(64, 64, 64, 0.5);
   }
 }
 
+// https://github.com/surveyjs/survey-library/issues/2559
+.sv_main .sv_p_root .sv_row {
+  .sv_q.sv_qstn {
+    &:first-child:last-child {
+      flex: none !important;
+    }
+  }
+}
+
 @import "./main.rtl.scss";
 @import "./main.m600.scss";
 

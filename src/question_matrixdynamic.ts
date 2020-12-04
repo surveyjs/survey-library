@@ -401,12 +401,9 @@ export class QuestionMatrixDynamicModel
     this.onEndRowRemoving(row);
   }
   private removeRowCore(index: number) {
-    if (this.survey) {
-      var row = this.generatedVisibleRows
-        ? this.generatedVisibleRows[index]
-        : null;
-      this.survey.matrixRowRemoved(this, index, row);
-    }
+    var row = this.generatedVisibleRows
+      ? this.generatedVisibleRows[index]
+      : null;
     if (this.generatedVisibleRows && index < this.generatedVisibleRows.length) {
       this.generatedVisibleRows.splice(index, 1);
     }
@@ -425,6 +422,9 @@ export class QuestionMatrixDynamicModel
       this.isRowChanging = false;
     }
     this.onRowsChanged();
+    if (this.survey) {
+      this.survey.matrixRowRemoved(this, index, row);
+    }
   }
   /**
    * Use this property to change the default text showing in the confirmation delete dialog on removing a row.

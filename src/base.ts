@@ -1119,7 +1119,7 @@ export class SurveyElement extends Base implements ISurveyElement {
       if (self.stateChangedCallback) self.stateChangedCallback();
     });
   }
-    /**
+  /**
    * Set this property to "collapsed" to render only Panel title and expanded button and to "expanded" to render the collapsed button in the Panel caption
    */
   public get state(): string {
@@ -1129,7 +1129,7 @@ export class SurveyElement extends Base implements ISurveyElement {
     this.setPropertyValue("state", val);
   }
   /**
-   * Returns true if the Panel is in the collapsed state
+   * Returns true if the Element is in the collapsed state
    * @see state
    * @see collapse
    * @see isExpanded
@@ -1138,7 +1138,7 @@ export class SurveyElement extends Base implements ISurveyElement {
     return this.state == "collapsed";
   }
   /**
-   * Returns true if the Panel is in the expanded state
+   * Returns true if the Element is in the expanded state
    * @see state
    * @see expand
    * @see isCollapsed
@@ -1148,7 +1148,7 @@ export class SurveyElement extends Base implements ISurveyElement {
     return this.state == "expanded";
   }
   /**
-   * Collapse the Panel
+   * Collapse the Element
    * @see state
    */
   public collapse() {
@@ -1156,12 +1156,27 @@ export class SurveyElement extends Base implements ISurveyElement {
     this.state = "collapsed";
   }
   /**
-   * Expand the Panel
+   * Expand the Element
    * @see state
    */
   public expand() {
     this.state = "expanded";
   }
+  /**
+   * Toggle element's state
+   * @see state
+   */
+  public toggleState() {
+    if (this.isCollapsed) {
+      this.expand();
+      return;
+    }
+    if (this.isExpanded) {
+      this.collapse();
+      return;
+    }
+  }
+
   public setSurveyImpl(value: ISurveyImpl) {
     this.surveyImplValue = value;
     if (!this.surveyImplValue) return;

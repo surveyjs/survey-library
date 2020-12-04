@@ -8,8 +8,8 @@ export class QuestionImplementor extends ImplementorBase {
   private koDummy: any;
   koTemplateName: any;
   koElementType: any;
-  doExpand: any;
-  pressExpand: any;
+  toggleStateByClick: any;
+  toggleStateByKeyUp: any;
   private _koValue = ko.observableArray<any>();
   constructor(public question: Question) {
     super(question);
@@ -20,11 +20,14 @@ export class QuestionImplementor extends ImplementorBase {
       }
     });
 
-    this.doExpand = () => {
-      this.changeExpanded();
+    this.toggleStateByClick = () => {
+      this.question.toggleState();
+      if (this.question.isExpanded) return true;
+      if (this.question.isCollapsed) return false;
     };
-    this.pressExpand = (_: any, event: any) => {
-      if (event.which === 13) this.changeExpanded();
+    this.toggleStateByKeyUp = (_: any, event: any) => {
+      if (event.which !== 13) return;
+      this.toggleStateByClick();
     };
     Object.defineProperty(this.question, "koValue", {
       get: () => {
@@ -63,8 +66,8 @@ export class QuestionImplementor extends ImplementorBase {
         cssRoot += " " + self.question.cssClasses.disabled;
       return cssRoot;
     });
-    (<any>this.question)["doExpand"] = this.doExpand;
-    (<any>this.question)["pressExpand"] = this.pressExpand;
+    (<any>this.question)["toggleStateByClick"] = this.toggleStateByClick;
+    (<any>this.question)["toggleStateByKeyUp"] = this.toggleStateByKeyUp;
 
     (<any>this.question)["koErrorClass"] = ko.pureComputed(function () {
       return self.question.cssError;
@@ -136,7 +139,7 @@ export class QuestionImplementor extends ImplementorBase {
   private changeExpanded() {
     if (!this.question.isCollapsed && !this.question.isExpanded) return;
     if (this.question.isCollapsed) {
-      this.question.expand();;
+      this.question.expand();
     } else {
       this.question.collapse();
       return false;

@@ -18,7 +18,11 @@ QUnit.test("panel isExpanded and isCollapsed", function (assert) {
   assert.equal(stateChangedCounter, 1, "callback is called one time");
   panel.expand();
   assert.equal(panel.isExpanded, true, "Panel is expanded");
-  assert.equal(stateChangedCounter, 2, "callback is called two time");
+  panel.toggleState();
+  assert.equal(panel.isExpanded, false, "Panel is not expanded");
+  panel.toggleState();
+  assert.equal(panel.isExpanded, true, "Panel is expanded");
+  assert.equal(stateChangedCounter, 4, "callback is called two time");
 });
 
 QUnit.test("question isExpanded and isCollapsed", function (assert) {
@@ -35,5 +39,9 @@ QUnit.test("question isExpanded and isCollapsed", function (assert) {
   assert.equal(stateChangedCounter, 1, "callback is called one time");
   q.expand();
   assert.equal(q.isExpanded, true, "Question is expanded");
-  assert.equal(stateChangedCounter, 2, "callback is called two time");
+  q.toggleState();
+  assert.equal(q.isExpanded, false, "Panel is not expanded");
+  q.toggleState();
+  assert.equal(q.isExpanded, true, "Panel is expanded");
+  assert.equal(stateChangedCounter, 4, "callback is called two time");
 });

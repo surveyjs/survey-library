@@ -58,6 +58,16 @@ export class TextPreProcessor {
     }
     return text;
   }
+  public processValue(
+    name: string,
+    returnDisplayValue: boolean
+  ): TextPreProcessorValue {
+    var textValue = new TextPreProcessorValue(name, returnDisplayValue);
+    if (!!this.onProcess) {
+      this.onProcess(textValue);
+    }
+    return textValue;
+  }
   public get hasAllValuesOnLastRun() {
     return !!this.hasAllValuesOnLastRunValue;
   }
@@ -94,6 +104,12 @@ export class QuestionTextProcessor implements ITextProcessor {
     this.textPreProcessor.onProcess = (textValue: TextPreProcessorValue) => {
       this.getProcessedTextValue(textValue);
     };
+  }
+  public processValue(
+    name: string,
+    returnDisplayValue: boolean
+  ): TextPreProcessorValue {
+    return this.textPreProcessor.processValue(name, returnDisplayValue);
   }
   protected get survey(): ISurvey {
     return null;

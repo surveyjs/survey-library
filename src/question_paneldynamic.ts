@@ -73,12 +73,36 @@ class QuestionPanelDynamicItemTextProcessor extends QuestionTextProcessor {
         return true;
       }
     }
+    if (
+      textValue.name.indexOf(
+        QuestionPanelDynamicItem.ParentItemVariableName + "."
+      ) == 0
+    ) {
+      var q = <Question>(<any>this.data);
+      if (!!q && !!q.parentQuestion && !!q.parent) {
+        var data = (<any>q.parent).data;
+        var processor = new QuestionPanelDynamicItemTextProcessor(
+          <IQuestionPanelDynamicData>(<any>q.parentQuestion),
+          <QuestionPanelDynamicItem>data,
+          QuestionPanelDynamicItem.ItemVariableName
+        );
+        var text = textValue.name.replace(
+          QuestionPanelDynamicItem.ParentItemVariableName,
+          QuestionPanelDynamicItem.ItemVariableName
+        );
+        var res = processor.processValue(text, textValue.returnDisplayValue);
+        textValue.isExists = res.isExists;
+        textValue.value = res.value;
+      }
+      return true;
+    }
     return false;
   }
 }
 
 export class QuestionPanelDynamicItem implements ISurveyData, ISurveyImpl {
   public static ItemVariableName = "panel";
+  public static ParentItemVariableName = "parentPanel";
   public static IndexVariableName = "panelIndex";
   private panelValue: PanelModel;
   private data: IQuestionPanelDynamicData;

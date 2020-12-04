@@ -457,6 +457,61 @@ QUnit.test("Text Processing from panel.data", function (assert) {
   );
 });
 
+QUnit.test("Text Processing and parent panel variable", function (assert) {
+  var survey = new SurveyModel({
+    elements: [
+      {
+        type: "paneldynamic",
+        name: "rootPanel",
+        panelCount: 1,
+        templateElements: [
+          {
+            type: "text",
+            name: "q1",
+            title: "{panel.q2}",
+          },
+          {
+            type: "text",
+            name: "q2",
+          },
+          {
+            type: "paneldynamic",
+            name: "childPanel",
+            panelCount: 1,
+            templateElements: [
+              {
+                type: "text",
+                name: "childPanel_q1",
+                title: "{parentPanel.q2}",
+              },
+            ],
+          },
+        ],
+      },
+    ],
+  });
+  var rootPanel = <QuestionPanelDynamicModel>(
+    survey.getQuestionByName("rootPanel")
+  );
+  var q1 = rootPanel.panels[0].getQuestionByName("q1");
+  var q2 = rootPanel.panels[0].getQuestionByName("q2");
+  var childPanel = <QuestionPanelDynamicModel>(
+    rootPanel.panels[0].getQuestionByName("childPanel")
+  );
+  var childPanel_q1 = childPanel.panels[0].getQuestionByName("childPanel_q1");
+  q2.value = "q2-title";
+  assert.equal(
+    q1.locTitle.renderedHtml,
+    "q2-title",
+    "root processed text correctly"
+  );
+  assert.equal(
+    childPanel_q1.locTitle.renderedHtml,
+    "q2-title",
+    "child processed text correctly"
+  );
+});
+
 QUnit.test("Set panel value, question.valueName", function (assert) {
   var survey = new SurveyModel();
   survey.addNewPage("p");

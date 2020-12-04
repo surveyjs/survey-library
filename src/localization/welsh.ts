@@ -75,5 +75,5 @@ export var welshSurveyStrings = {
   questionTitlePatternText: "Teitl y Cwestiwn ",
 };
 
-surveyLocalization.locales["wel"] = welshSurveyStrings;
-surveyLocalization.localeNames["wel"] = "cymraeg";
+surveyLocalization.locales["cy"] = welshSurveyStrings;
+surveyLocalization.localeNames["cy"] = "cymraeg";

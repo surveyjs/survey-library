@@ -61,6 +61,12 @@
   white-space: normal;
   min-width: 300px;
 }
+
+// https://github.com/surveyjs/survey-library/issues/2559
+.sv-row__question:first-child:last-child {
+  flex: none !important;
+}
+
 // .sv-row > .sv-row__panel,
 // .sv-row__question:not(:last-child) {
 //   float: left;

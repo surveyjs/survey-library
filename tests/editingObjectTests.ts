@@ -4,6 +4,11 @@ import { QuestionTextModel } from "../src/question_text";
 import { MatrixDropdownColumn } from "../src/question_matrixdropdownbase";
 import { QuestionMatrixDynamicModel } from "../src/question_matrixdynamic";
 import { ExpressionValidator } from "../src/validator";
+import {
+  QuestionCompositeModel,
+  ComponentCollection,
+} from "../src/question_custom";
+import { QuestionDropdownModel } from "../src/question_dropdown";
 
 export default QUnit.module("Survey.editingObj Tests");
 
@@ -175,4 +180,32 @@ QUnit.test("Edit validators in matrix", function (assert) {
     "expressionvalidator",
     "validator is correct after calling getDisplayValue"
   );
+});
+
+QUnit.test("Composite: create from code", function (assert) {
+  var json = {
+    name: "propertygrid_restfull",
+    createElements: function (panel) {
+      panel.fromJSON({
+        elements: [{ type: "text", name: "url" }],
+      });
+    },
+  };
+  ComponentCollection.Instance.add(json);
+  var survey = new SurveyModel({
+    elements: [{ type: "propertygrid_restfull", name: "choicesByUrl" }],
+  });
+  var question = new QuestionDropdownModel("q1");
+  question.choicesByUrl.url = "myUrl";
+  survey.editingObj = question;
+  var q = <QuestionCompositeModel>survey.getAllQuestions()[0];
+  var urlQ = q.contentPanel.questions[0];
+  assert.equal(urlQ.value, "myUrl", "Url set correctly from question");
+  urlQ.value = "myUrl2";
+  assert.equal(
+    question.choicesByUrl.url,
+    "myUrl2",
+    "Url set correctly into question"
+  );
+  ComponentCollection.Instance.clear();
 });

@@ -25,11 +25,6 @@ export class QuestionSelectBase extends Question {
   private cachedValueForUrlRequests: any = null;
   private isChoicesLoaded: boolean = false;
   private enableOnLoadingChoices: boolean = false;
-  /**
-   * Use this property to fill the choices from a restful service.
-   * @see choices
-   */
-  public choicesByUrl: ChoicesRestfull;
   constructor(name: string) {
     super(name);
     var self = this;
@@ -46,7 +41,7 @@ export class QuestionSelectBase extends Question {
       }
     );
     this.createNewArray("visibleChoices");
-    this.choicesByUrl = this.createRestfull();
+    this.setPropertyValue("choicesByUrl", this.createRestfull());
     this.choicesByUrl.owner = this;
     this.choicesByUrl.loadingOwner = this;
     var locOtherText = this.createLocalizableString("otherText", this, true);
@@ -348,6 +343,13 @@ export class QuestionSelectBase extends Question {
    * If the clearIncorrectValuesCallback is set, it is used to clear incorrect values instead of default behaviour.
    */
   public clearIncorrectValuesCallback: () => void;
+  /**
+   * Use this property to fill the choices from a restful service.
+   * @see choices
+   */
+  public get choicesByUrl(): ChoicesRestfull {
+    return this.getPropertyValue("choicesByUrl");
+  }
   /**
    * The list of items. Every item has value and text. If text is empty, the value is rendered. The item text supports markdown.
    * @see choicesByUrl

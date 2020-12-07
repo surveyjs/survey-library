@@ -1,4 +1,4 @@
-import { ITextProcessor, SurveyElement } from "../src/base";
+import { ITextProcessor, SurveyElement, Base, ArrayChanges } from "../src/base";
 import { SurveyModel } from "../src/survey";
 import { Question } from "../src/question";
 import { ChoicesRestfull } from "../src/choicesRestfull";
@@ -1287,6 +1287,43 @@ QUnit.test("isUsing cache", function (assert) {
   );
   settings.useCachingForChoicesRestfull = true;
 });
+
+QUnit.test(
+  "Do not call survey.onPropertyValueChangedCallback on loading choicesByUrl, Bug#2563",
+  function (assert) {
+    var counter = 0;
+    var survey = new SurveyModel();
+    survey.onPropertyValueChangedCallback = function (
+      name: string,
+      oldValue: any,
+      newValue: any,
+      sender: Base,
+      arrayChanges: ArrayChanges
+    ) {
+      if (!Serializer.findProperty(sender.getType(), name)) return;
+      counter++;
+    };
+    var json = {
+      elements: [
+        {
+          type: "dropdownrestfulltester",
+          name: "q1",
+          choicesByUrl: { url: "{state}" },
+        },
+      ],
+    };
+    counter = 0;
+    survey.fromJSON(json);
+    assert.equal(
+      counter,
+      0,
+      "We should call onPropertyValueChangedCallback on loading from JSON"
+    );
+    var q = <QuestionDropdownModel>survey.getQuestionByName("q1");
+    q.choicesByUrl.url = "{state}{city}";
+    assert.equal(counter, 1, "call onPropertyValueChangedCallback this time");
+  }
+);
 
 function getCACities() {
   return ["Los Angeles", "San Francisco"];

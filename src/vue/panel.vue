@@ -75,7 +75,8 @@ export class Panel extends BaseVue {
   @Prop question: PanelModel;
   @Prop isEditMode: Boolean;
   @Prop css: any;
-  private isCollapsedValue: boolean = false;
+  
+  private isCollapsed: boolean = false;
 
   protected getModel(): Base {
     return this.question;
@@ -85,17 +86,13 @@ export class Panel extends BaseVue {
       this.question.survey.afterRenderPanel(this.question, this.$el);
     }
     this.isCollapsed = this.question.isCollapsed;
-    var self = this;
-    this.question.registerFunctionOnPropertyValueChanged(
-      "state",
-      function (val: any) {
-        self.isCollapsed = self.question.isCollapsed;
-      },
-      "panel"
-    );
+
+    this.question.stateChangedCallback = () => {
+      this.isCollapsed = this.question.isCollapsed;
+    }
   }
   beforeDestroy() {
-    this.question.unRegisterFunctionOnPropertyValueChanged("state", "panel");
+    this.question.stateChangedCallback = null;
   }
   get rootStyle() {
     var result = {};
@@ -111,7 +108,7 @@ export class Panel extends BaseVue {
   }
   get showIcon() {
     return (
-      this.question && (this.question.isExpanded || this.question.isCollapsed)
+      this.question.isExpanded || this.question.isCollapsed
     );
   }
   get rows() {
@@ -128,20 +125,8 @@ export class Panel extends BaseVue {
     if (!this.isCollapsed) result += " " + this.css.panel.iconExpanded;
     return result;
   }
-  get isCollapsed() {
-    return this.isCollapsedValue;
-  }
-  set isCollapsed(val: boolean) {
-    this.isCollapsedValue = val;
-  }
   changeExpanded() {
-    if (this.question.isCollapsed || this.question.isExpanded) {
-      if (this.question.isCollapsed) {
-        this.question.expand();
-      } else {
-        this.question.collapse();
-      }
-    }
+    this.question.toggleState();
   }
   cancelPreview() {
     this.question.cancelPreview();

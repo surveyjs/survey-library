@@ -203,8 +203,18 @@ export interface IElement extends IConditionRunner, ISurveyElement {
   width: string;
   minWidth?: string;
   maxWidth?: string;
+  isExpanded: boolean;
+  isCollapsed: boolean;
   rightIndent: number;
   startWithNewLine: boolean;
+  toggleState(): void;
+  stateChangedCallback(): void;
+  registerFunctionOnPropertyValueChanged(
+    name: string,
+    func: any,
+    key: string
+  ): void;
+  unRegisterFunctionOnPropertyValueChanged(name: string, key: string): void;
   getPanel(): IPanel;
   getLayoutType(): string;
   isLayoutTypeSupported(layoutType: string): boolean;

@@ -2293,7 +2293,12 @@ export class SurveyModel
   }
   public setDataValueCore(valuesHash: any, key: string, value: any) {
     if (!!this.editingObj) {
-      (<any>this.editingObj)[key] = value;
+      var prop = Serializer.findProperty(this.editingObj.getType(), key);
+      if (!!prop && prop.isLocalizable) {
+        this.editingObj.setLocalizableStringText(key, value);
+      } else {
+        this.editingObj.setPropertyValue(key, value);
+      }
     } else {
       valuesHash[key] = value;
     }

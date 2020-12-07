@@ -218,12 +218,14 @@ FunctionFactory.Instance.register("getDate", getDate);
 function age(params: any[]): any {
   if (!params && params.length < 1) return null;
   if (!params[0]) return null;
-  var birthDay = new Date(params[0]);
-  var ageDifMs = Date.now() - birthDay.getTime();
-  var ageDate = new Date(ageDifMs); // miliseconds from epoch
-  return (
-    Math.abs(ageDate.getUTCFullYear() - 1970) * (ageDifMs / Math.abs(ageDifMs))
-  );
+  var birthDate = new Date(params[0]);
+  var today = new Date();
+  var age = today.getFullYear() - birthDate.getFullYear();
+  var m = today.getMonth() - birthDate.getMonth();
+  if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+    age -= age > 0 ? 1 : 0;
+  }
+  return age;
 }
 FunctionFactory.Instance.register("age", age);
 

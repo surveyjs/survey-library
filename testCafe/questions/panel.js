@@ -10,28 +10,30 @@ var json = {
       elements: [
         {
           type: "comment",
-          name: "question1"
+          name: "question1",
         },
         {
           type: "panel",
+          title: "Panel 1",
+          state: "expanded",
           elements: [
             {
               type: "checkbox",
               choices: [
                 {
                   value: "1",
-                  text: "first item"
+                  text: "first item",
                 },
                 {
                   value: "2",
-                  text: "second item"
+                  text: "second item",
                 },
                 {
                   value: "3",
-                  text: "third item"
-                }
+                  text: "third item",
+                },
               ],
-              name: "question2"
+              name: "question2",
             },
             {
               type: "panel",
@@ -41,64 +43,64 @@ var json = {
                   choices: [
                     {
                       value: "1",
-                      text: "first item"
+                      text: "first item",
                     },
                     {
                       value: "2",
-                      text: "second item"
+                      text: "second item",
                     },
                     {
                       value: "3",
-                      text: "third item"
-                    }
+                      text: "third item",
+                    },
                   ],
-                  name: "question3"
+                  name: "question3",
                 },
                 {
                   type: "rating",
-                  name: "question4"
-                }
+                  name: "question4",
+                },
               ],
               innerIndent: 1,
-              name: "panel2"
-            }
+              name: "panel2",
+            },
           ],
           innerIndent: 1,
-          name: "panel1"
-        }
-      ]
-    }
-  ]
+          name: "panel1",
+        },
+      ],
+    },
+  ],
 };
 
-frameworks.forEach(framework => {
+frameworks.forEach((framework) => {
   fixture`${framework} ${title}`.page`${url}${framework}`.beforeEach(
-    async t => {
+    async (t) => {
       await initSurvey(framework, json);
     }
   );
 
-  test(`titles and margins`, async t => {
+  test(`titles and margins`, async (t) => {
     let surveyResult;
     const getTitle1 = Selector(() => document.querySelectorAll("div"), {
       text: "question1",
       visibilityCheck: true,
-      timeout: 1000
+      timeout: 1000,
     });
     const getTitle2 = Selector(() => document.querySelectorAll("div"), {
       text: "question2",
       visibilityCheck: true,
-      timeout: 1000
+      timeout: 1000,
     });
     const getTitle3 = Selector(() => document.querySelectorAll("div"), {
       text: "question3",
       visibilityCheck: true,
-      timeout: 1000
+      timeout: 1000,
     });
     const getTitle4 = Selector(() => document.querySelectorAll("div"), {
       text: "question4",
       visibilityCheck: true,
-      timeout: 1000
+      timeout: 1000,
     });
 
     const getPanelsCountByMargin = ClientFunction(
@@ -111,5 +113,14 @@ frameworks.forEach(framework => {
     assert(await getTitle4());
 
     assert.equal(await getPanelsCountByMargin(), 2);
+  });
+
+  test(`expand collapse title`, async (t) => {
+    const panelTitle = Selector("h4").withText("Panel 1");
+    const contentItem = Selector("[name='question2']");
+
+    assert.equal(await contentItem.visible, true);
+    await t.click(panelTitle);
+    assert.equal(await contentItem.visible, false);
   });
 });

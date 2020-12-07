@@ -155,16 +155,12 @@ export class SurveyQuestion extends SurveyElementBase {
       if (!this.question.isCollapsed)
         iconCss += " " + this.question.cssClasses.iconExpanded;
       var changeExpanded = (event:any) => {
-        if (this.question.isCollapsed) {
-          this.question.expand();
-          this.isNeedFocus = true;
-          return;
-        } 
-        if (this.question.isExpanded) {
-          this.question.collapse();
-          this.isNeedFocus = false;
-          return;
-        }
+        let question = this.question;
+
+        if (!question.isExpanded && !question.isCollapsed) return;
+
+        question.toggleState();
+        this.isNeedFocus = question.isCollapsed;
       };
       var pressExpand = (event: any) => {
         if (event.keyCode == 13) changeExpanded(event);

@@ -34,6 +34,7 @@ export class SurveyQuestionRating extends SurveyQuestionElementBase {
         this.renderItem(
           "value" + i,
           this.question.visibleRateValues[i],
+          i,
           minTextValue,
           maxTextValue,
           cssClasses
@@ -51,6 +52,7 @@ export class SurveyQuestionRating extends SurveyQuestionElementBase {
   protected renderItem(
     key: string,
     item: ItemValue,
+    index: number,
     minText: JSX.Element,
     maxText: JSX.Element,
     cssClasses: any
@@ -73,6 +75,7 @@ export class SurveyQuestionRating extends SurveyQuestionElementBase {
           type="radio"
           className="sv-visuallyhidden"
           name={this.question.name}
+          id={this.question.inputId + "_" + index}
           value={item.value}
           disabled={this.isDisplayMode}
           checked={this.question.value == item.value}

@@ -10,7 +10,7 @@
           type="radio"
           class="sv-visuallyhidden"
           :name="question.name"
-          :id="question.name + index"
+          :id="question.inputId + '_' + index"
           :value="item.value"
           :disabled="question.isReadOnly"
           @change="change"

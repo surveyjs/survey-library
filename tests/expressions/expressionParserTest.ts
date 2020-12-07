@@ -17,6 +17,7 @@ import {
 
 import { ProcessValue } from "../../src/conditionProcessValue";
 import { FunctionFactory } from "../../src/functionsfactory";
+import { values } from "lodash";
 
 export default QUnit.module("Expressions");
 
@@ -324,6 +325,18 @@ QUnit.test("Run age function", function (assert) {
   values.bithday = new Date(curDate.getFullYear() - 10, 1, 1);
   assert.equal(runner.run(values), false, "false, the person is 10 years old");
 });
+QUnit.test("Run age function, Bug#2562", function (assert) {
+  var runner = new ExpressionRunner("age({bithday})");
+  var values = { bithday: new Date(1974, 1, 1) };
+  var date = new Date(Date.now());
+  date.setFullYear(date.getFullYear() - 90);
+  values = { bithday: date };
+  assert.equal(runner.run(values), 90, "90 years old, bithday is today");
+  date = new Date(date.getTime() + 60 * 60 * 24 * 1000);
+  values.bithday = date;
+  assert.equal(runner.run(values), 89, "one day till 90");
+});
+
 QUnit.test("Run today function", function (assert) {
   var runner = new ExpressionRunner("today()");
   assert.equal(

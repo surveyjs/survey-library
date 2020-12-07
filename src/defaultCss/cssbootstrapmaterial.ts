@@ -55,6 +55,7 @@ export var defaultBootstrapMaterialCss = {
     titleLeftRoot: "sv_qstn_left",
     requiredText: "sv_q_required_text",
     title: "",
+    titleExpandable: "sv_q_title_expandable",
     number: "sv_q_num",
     description: "small",
     descriptionUnderInput: "small",

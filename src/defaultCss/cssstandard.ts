@@ -63,6 +63,7 @@ export var defaultStandardCss = {
     titleLeftRoot: "sv_qstn_left",
     requiredText: "sv_q_required_text",
     title: "sv_q_title",
+    titleExpandable: "sv_q_title_expandable",
     number: "sv_q_num",
     description: "sv_q_description",
     comment: "",

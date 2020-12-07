@@ -685,6 +685,11 @@ export class Question
   }
   protected getCssTitle(cssClasses: any): string {
     var result = cssClasses.title;
+
+    if (this.isCollapsed || this.isExpanded) {
+      result += " " + cssClasses.titleExpandable;
+    }
+
     if (this.containsErrors) {
       if (!!cssClasses.titleOnError) {
         result += " " + cssClasses.titleOnError;

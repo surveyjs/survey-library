@@ -1,5 +1,8 @@
 import * as React from "react";
-import { ReactSurveyElement, SurveyQuestionElementBase } from "./reactquestion_element";
+import {
+  ReactSurveyElement,
+  SurveyQuestionElementBase,
+} from "./reactquestion_element";
 import { SurveyQuestion, SurveyQuestionAndErrorsCell } from "./reactquestion";
 import {
   MatrixDropdownRowModelBase,
@@ -132,7 +135,11 @@ export class SurveyQuestionMatrixDropdownBase extends SurveyQuestionElementBase 
       matrixrow.push(this.renderCell(cells[i], i, cssClasses));
     }
     var key = "row" + keyValue;
-    return <tr className={row.className} key={key}>{matrixrow}</tr>;
+    return (
+      <tr className={row.className} key={key}>
+        {matrixrow}
+      </tr>
+    );
   }
   renderCell(
     cell: QuestionMatrixDropdownRenderedCell,
@@ -316,7 +323,7 @@ export class SurveyQuestionMatrixDropdownCell extends SurveyQuestionAndErrorsCel
         key={key}
         question={this.cell.question}
         cssClasses={this.cell.question.cssClasses}
-        isDisplayMode={this.cell.question.isDisplayMode}
+        isDisplayMode={this.cell.question.isReadOnly}
         item={this.cell.item}
         isFirst={this.cell.isFirstChoice}
         index={this.cell.choiceIndex.toString()}
@@ -331,7 +338,7 @@ export class SurveyQuestionMatrixDropdownCell extends SurveyQuestionAndErrorsCel
         key={key}
         question={this.cell.question}
         cssClasses={this.cell.question.cssClasses}
-        isDisplayMode={this.cell.question.isDisplayMode}
+        isDisplayMode={this.cell.question.isReadOnly}
         item={this.cell.item}
         index={this.cell.choiceIndex.toString()}
         isChecked={this.cell.question.value === this.cell.item.value}

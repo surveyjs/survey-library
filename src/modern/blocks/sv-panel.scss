@@ -19,6 +19,9 @@
 .sv-panel__title--expandable {
   cursor: pointer;
 }
+.sv-panel__icon {
+  outline: none;
+}
 .sv-panel__icon:before {
   content: "";
   display: inline-block;

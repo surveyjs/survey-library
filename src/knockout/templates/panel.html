@@ -3,11 +3,11 @@
     data-bind="style: { flexBasis: renderWidth, flexGrow: 1, flexShrink: 1, width: renderWidth, minWidth: $data.minWidth, maxWidth: $data.maxWidth }, attr: { id: id }, css: cssClasses.panel.container"
   >
     <h4
-      data-bind="visible: !!locTitle.koRenderedHtml(), css: $data.getTitleStyle(), click: doExpand"
+      data-bind="visible: !!locTitle.koRenderedHtml(), css: $data.getTitleStyle(), click: toggleState"
     >
       <!-- ko template: { name: 'survey-question-title-content', data: $data } --><!-- /ko -->
       <span
-        data-bind="visible: koIsCollapsed() || koIsExpanded(), css: cssClasses.panel.icon + (!koIsCollapsed() ? ' ' + cssClasses.panel.iconExpanded: ''), event: { keyup: pressExpand }, attr:{'aria-expanded': koIsCollapsed() ? 'false': 'true', 'aria-controls': !koIsCollapsed() ? contentId: false}"
+        data-bind="visible: koIsCollapsed() || koIsExpanded(), css: cssClasses.panel.icon + (!koIsCollapsed() ? ' ' + cssClasses.panel.iconExpanded: ''), event: { keyup: toggleStateByKeyUp }, attr:{'aria-expanded': koIsCollapsed() ? 'false': 'true', 'aria-controls': !koIsCollapsed() ? contentId: false}"
         tabindex="0"
       ></span>
     </h4>

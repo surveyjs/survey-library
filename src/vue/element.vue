@@ -1,22 +1,22 @@
 <template>
   <div :class="getRootClass(element)">
-    <survey-element-header v-if="element.hasTitleOnLeftTop" :element="element" />
-    <div :class="getContentClass(element)">
-      <survey-errors v-if="hasErrorsOnTop" :question="element" :location="'top'" />
+    <survey-element-header v-if="!element.isPanel && element.hasTitleOnLeftTop" :element="element" :css="css" />
+    <div :class="getContentClass(element)" v-show="element.isPanel || !element.isCollapsed">
+      <survey-errors v-if="!element.isPanel && hasErrorsOnTop" :question="element" :location="'top'" />
       <component :is="getComponentName(element)" :question="element" :css="css" />
       <div v-if="element.hasComment" :class="element.cssClasses.formGroup">
         <div>{{element.commentText}}</div>
         <survey-other-choice :commentClass="css.comment" :question="element" />
       </div>
-      <survey-errors v-if="hasErrorsOnBottom" :question="element" :location="'bottom'" />
+      <survey-errors v-if="!element.isPanel && hasErrorsOnBottom" :question="element" :location="'bottom'" />
       <div
-        v-if="element.hasDescriptionUnderInput"
+        v-if="!element.isPanel && element.hasDescriptionUnderInput"
         :class="element.cssClasses.descriptionUnderInput"
       >
         <survey-string :locString="element.locDescription" />
       </div>
     </div>
-    <survey-element-header v-if="element.hasTitleOnBottom" :element="element" />
+    <survey-element-header v-if="!element.isPanel && element.hasTitleOnBottom" :element="element" :css="css"/>
   </div>
 </template>
 

@@ -53,6 +53,7 @@ export var defaultBootstrapCss = {
     contentLeft: "content-left",
     titleLeftRoot: "sv_qstn_left",
     title: "",
+    titleExpandable: "sv_q_title_expandable",
     number: "sv_q_num",
     description: "small",
     descriptionUnderInput: "small",

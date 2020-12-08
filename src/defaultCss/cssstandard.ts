@@ -63,6 +63,7 @@ export var defaultStandardCss = {
     titleLeftRoot: "sv_qstn_left",
     requiredText: "sv_q_required_text",
     title: "sv_q_title",
+    titleExpandable: "sv_q_title_expandable",
     number: "sv_q_num",
     description: "sv_q_description",
     comment: "",
@@ -73,6 +74,8 @@ export var defaultStandardCss = {
     footer: "sv_q_footer",
     formGroup: "form-group",
     asCell: "sv_matrix_cell",
+    icon: "sv_question_icon",
+    iconExpanded: "sv_expanded",
   },
   panel: {
     title: "sv_p_title",

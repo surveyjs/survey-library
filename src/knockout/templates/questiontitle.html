@@ -4,7 +4,7 @@
       data-bind="css: cssTitle, attr: { 'aria-label': question.locTitle.renderedHtml, id: ariaTitleId}, click: toggleStateByClick"
     >
       <!-- ko template: { name: 'survey-question-title-content', data: question } --><!-- /ko -->
-      <!-- ko if: isCollapsed || isExpanded, -->
+      <!-- ko if: isCollapsed || isExpanded -->
       <span
         data-bind="css: cssClasses.icon + (!isCollapsed ? ' ' + cssClasses.iconExpanded: ''), event: { keyup: toggleStateByKeyUp }, attr:{'aria-expanded': isCollapsed ? 'false': 'true'}"
         tabindex="0"

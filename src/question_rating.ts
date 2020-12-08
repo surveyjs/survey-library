@@ -135,6 +135,9 @@ export class QuestionRatingModel extends Question {
   public getType(): string {
     return "rating";
   }
+  protected getFirstInputElementId(): string {
+    return this.inputId + "_0";
+  }
   supportGoNextPageAutomatic() {
     return true;
   }

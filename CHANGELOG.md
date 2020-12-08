@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.8.19](https://github.com/surveyjs/survey-library/compare/v1.8.18...v1.8.19) (2020-12-08)
+
+
+### Bug Fixes
+
+* age() function doesn't work correctly [#2562](https://github.com/surveyjs/survey-library/issues/2562) ([4385cee](https://github.com/surveyjs/survey-library/commit/4385cee81248fe4892c3acd2c38d8a63548139e2))
+* choicesByUrl generates survey.onPropertyChangedCallback on loading from JSON [#2563](https://github.com/surveyjs/survey-library/issues/2563) ([cc50e7f](https://github.com/surveyjs/survey-library/commit/cc50e7f9ea936c4458e0a72476995f9db6bebe5a))
+* survey.clearIncorrectValues() remove totals matrix values if matrix is in dynamic panel [#2553](https://github.com/surveyjs/survey-library/issues/2553) ([51e9ef7](https://github.com/surveyjs/survey-library/commit/51e9ef74b46040f2839d808db440ecf718f8eeb5))
+* survey.onMatrixRowRemoved calls before row is removed [#2557](https://github.com/surveyjs/survey-library/issues/2557) ([3338044](https://github.com/surveyjs/survey-library/commit/33380442908f24bc3adec60e3281794a93707f9a))
+
 ### [1.8.18](https://github.com/surveyjs/survey-library/compare/v1.8.17...v1.8.18) (2020-12-01)
 
 ### [1.8.17](https://github.com/surveyjs/survey-library/compare/v1.8.16...v1.8.17) (2020-11-26)

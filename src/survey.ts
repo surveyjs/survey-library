@@ -2484,8 +2484,10 @@ export class SurveyModel
    * - `empty` - there is nothing to display in the current survey,
    * - `starting` - the survey's start page is displayed,
    * - `running` - a respondent is answering survey questions right now,
-   * - `preview` - a respondent is previewing answered questions before submitting the survey (see [example](https://surveyjs.io/Examples/Library?id=survey-showpreview),
+   * - `preview` - a respondent is previewing answered questions before submitting the survey (see [example](https://surveyjs.io/Examples/Library?id=survey-showpreview)),
    * - `completed` - a respondent has completed the survey and submitted the results.
+   * 
+   * @see {@link https://surveyjs.io/Documentation/Library#states|Survey States}
    */
   public get state(): string {
     if (this.isLoading) return "loading";
@@ -3057,10 +3059,11 @@ export class SurveyModel
     this.isNavigationButtonPressed = false;
   }
   /**
-   * Show preview for the survey. Go to the "preview" state
+   * Shows preview for the survey. Switches the survey to the "preview" state.
    * @see showPreviewBeforeComplete
    * @see cancelPreview
    * @see state
+   * @see {@link https://surveyjs.io/Documentation/Library#states-preview|Preview State}
    */
   public showPreview(): boolean {
     this.resetNavigationButton();
@@ -3070,11 +3073,12 @@ export class SurveyModel
     return true;
   }
   /**
-   * Canel preview and go back to the "running" state.
-   * @param curPage - a new current page. If the parameter is underfined then the last page becomes current.
+   * Cancels preview and switches back to the "running" state.
+   * @param curPage - A new current page. If the parameter is undefined then the last page becomes the current.
    * @see showPreviewBeforeComplete
    * @see showPreview
    * @see state
+   * @see {@link https://surveyjs.io/Documentation/Library#states-preview|Preview State}
    */
   public cancelPreview(curPage: any = null) {
     if (!this.isShowingPreview) return;
@@ -3145,7 +3149,11 @@ export class SurveyModel
     );
   }
   /**
-   * Set this property to "showAllQuestions" or "showAnsweredQuestions" to preview results to a user before he/she completes the survey.
+   * Set this property to "showAllQuestions" or "showAnsweredQuestions" to allow respondents to preview answers before submitting the survey results.
+   * @see showPreview
+   * @see cancelPreview
+   * @see state
+   * @see {@link https://surveyjs.io/Documentation/Library#states-preview|Preview State}
    */
   public get showPreviewBeforeComplete(): string {
     return this.getPropertyValue("showPreviewBeforeComplete", "noPreview");

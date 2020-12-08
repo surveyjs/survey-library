@@ -21,6 +21,7 @@ Please visit our [what's new page](https://surveyjs.io/WhatsNew) to see what we 
   - [State 'loading'](#states-loading)
   - [State 'starting'](#states-starting)
   - [State 'running'](#states-running)
+  - [State 'running'](#states-preview)  
   - [State 'completed'](#states-completed)
 - [Survey Data, Modify or View Survey Results](#data)
   - [Survey Data API](#survey-data-api)
@@ -402,6 +403,8 @@ You can change the [startSurveyText](https://surveyjs.io/Documentation/Library/?
 ### State 'running'
 
 While survey pages (with "Previous", "Next" and "Complete" buttons) are displayed to an end user, the survey is in the **running** state.
+
+<div id="states-preview"></div>
 
 ### State 'preview'
 

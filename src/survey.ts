@@ -2484,7 +2484,7 @@ export class SurveyModel
    * - `empty` - there is nothing to display in the current survey,
    * - `starting` - the survey's start page is displayed,
    * - `running` - a respondent is answering survey questions right now,
-   * - `preview` - a respondent is previewing answered questions before submitting the survey (see example: https://surveyjs.io/Examples/Library?id=survey-showpreview),
+   * - `preview` - a respondent is previewing answered questions before submitting the survey (see [example](https://surveyjs.io/Examples/Library?id=survey-showpreview),
    * - `completed` - a respondent has completed the survey and submitted the results.
    */
   public get state(): string {

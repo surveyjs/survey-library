@@ -403,6 +403,36 @@ You can change the [startSurveyText](https://surveyjs.io/Documentation/Library/?
 
 While survey pages (with "Previous", "Next" and "Complete" buttons) are displayed to an end user, the survey is in the **running** state.
 
+### State 'preview'
+
+You can allow respondents to preview and correct their answers before completing a survey. When survey preview mode is available, a survey's last page displays the "Preview" button instead of the "Complete" button. 
+A respondent's click on the "Preview" button switches the survey to preview state. In preview, all questions (or, optionally, only answered ones) are displayed on one page in read-only mode. Each survey page converts into a panel, every panel contains an "Edit" button". 
+Respondents can then switch to edit mode:
+for a panel - by clicking the panel's "Edit" button to edit questions of the corresponding survey page,
+for the entire survey (starting from its beggining) - by clicking the "Edit" button on Navigation tab.
+
+If a respondent satisfies with answers, he/she can click the "Complete" button to submit the survey results.
+
+Use the [showPreviewBeforeComplete](https://surveyjs.io/Documentation/Library/?id=surveymodel#showPreviewBeforeComplete) option to control the preview mode's availability and settings. The functionality is disabled by default.
+
+`survey.showPreviewBeforeComplete: string, ["noPreview", "showAllQuestions", "showAnsweredQuestions"]`, "noPreview" is the default value.
+
+`noPreview` - Preview mode is not available.  
+`showAllQuestions` - Displays all visible questions on the preview page.  
+`showAnsweredQuestions` - Displays only answered visible questions on the preview page. If you change this property when a survey is in the "preview" state and the preview page is displayed, then this change will not take effect.
+
+```javascript
+survey.showPreviewBeforeComplete = 'showAnsweredQuestions';
+```
+
+Example:  
+[Show Preview Before Complete](https://surveyjs.io/Examples/Library?id=survey-showpreview)
+
+To dynamically enter/leave preview mode via code, use the [showPreview](https://surveyjs.io/Documentation/Library/?id=surveymodel#showPreview) and [cancelPreview](https://surveyjs.io/Documentation/Library/?id=surveymodel#cancelPreview) methods.  
+
+`survey.showPreview(): boolean` - Switches a survey to the preview state; returns false if there is an error on the page.  
+`survey.cancelPreview()` - Switches back to edit mode.
+
 <div id="states-completed"></div>
 
 ### State 'completed'

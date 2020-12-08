@@ -2480,11 +2480,12 @@ export class SurveyModel
   /**
    * Returns the current survey state:
    *
-   * - `loading` - loading from the JSON,
-   * - `completed` - a user has completed the survey,
-   * - `starting` - the started page is showing,
-   * - `running` - a user answers questions right now,
-   * - `empty` - there is nothing to show in the current survey.
+   * - `loading` - the survey is being loaded from JSON,
+   * - `empty` - there is nothing to display in the current survey,
+   * - `starting` - the survey's start page is displayed,
+   * - `running` - a respondent is answering survey questions right now,
+   * - `preview` - a respondent is previewing answered questions before submitting the survey (see [example]{@link https://surveyjs.io/Examples/Library?id=survey-showpreview}),
+   * - `completed` - a respondent has completed the survey and submitted the results.
    */
   public get state(): string {
     if (this.isLoading) return "loading";

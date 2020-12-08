@@ -3655,7 +3655,7 @@ export class SurveyModel
     name: string,
     index: number
   ): IQuestion {
-    var questions = this.getQuestionsByValueNameCore(valueName);
+    var questions = this.getQuestionsByValueName(valueName);
     if (!questions) return;
     for (var i = 0; i < questions.length; i++) {
       var res = questions[i].getQuestionFromArray(name, index);
@@ -3929,23 +3929,25 @@ export class SurveyModel
    * @param valueName a question name
    * @param caseInsensitive
    * @see getQuestionByName
+   * @see getQuestionsByValueName
    * @see Question.valueName
    */
   public getQuestionByValueName(
     valueName: string,
     caseInsensitive: boolean = false
   ): IQuestion {
-    var res = this.getQuestionsByValueNameCore(valueName, caseInsensitive);
+    var res = this.getQuestionsByValueName(valueName, caseInsensitive);
     return !!res ? res[0] : null;
   }
-  public getCalculatedValueByName(name: string): CalculatedValue {
-    for (var i = 0; i < this.calculatedValues.length; i++) {
-      if (name == this.calculatedValues[i].name)
-        return this.calculatedValues[i];
-    }
-    return null;
-  }
-  private getQuestionsByValueNameCore(
+  /**
+   * Returns all questions by their valueName. name property is used if valueName property is empty.
+   * @param valueName a question name
+   * @param caseInsensitive
+   * @see getQuestionByName
+   * @see getQuestionByValueName
+   * @see Question.valueName
+   */
+  public getQuestionsByValueName(
     valueName: string,
     caseInsensitive: boolean = false
   ): Array<Question> {
@@ -3955,6 +3957,13 @@ export class SurveyModel
     var res = hash[valueName];
     if (!res) return null;
     return res;
+  }
+  public getCalculatedValueByName(name: string): CalculatedValue {
+    for (var i = 0; i < this.calculatedValues.length; i++) {
+      if (name == this.calculatedValues[i].name)
+        return this.calculatedValues[i];
+    }
+    return null;
   }
   /**
    * Gets a list of questions by their names.
@@ -4107,7 +4116,7 @@ export class SurveyModel
   }
   protected updateQuestionValue(valueName: string, newValue: any) {
     if (this.isLoadingFromJson) return;
-    var questions = this.getQuestionsByValueNameCore(valueName);
+    var questions = this.getQuestionsByValueName(valueName);
     if (!!questions) {
       for (var i: number = 0; i < questions.length; i++) {
         var qValue = questions[i].value;
@@ -4137,7 +4146,7 @@ export class SurveyModel
   }
   protected notifyQuestionOnValueChanged(valueName: string, newValue: any) {
     if (this.isLoadingFromJson) return;
-    var questions = this.getQuestionsByValueNameCore(valueName);
+    var questions = this.getQuestionsByValueName(valueName);
     if (!!questions) {
       for (var i: number = 0; i < questions.length; i++) {
         var question = questions[i];
@@ -4604,7 +4613,7 @@ export class SurveyModel
     }
   }
   hasVisibleQuestionByValueName(valueName: string): boolean {
-    var questions = this.getQuestionsByValueNameCore(valueName);
+    var questions = this.getQuestionsByValueName(valueName);
     if (!questions) return false;
     for (var i: number = 0; i < questions.length; i++) {
       if (questions[i].isVisible) return true;
@@ -4612,7 +4621,7 @@ export class SurveyModel
     return false;
   }
   questionCountByValueName(valueName: string): number {
-    var questions = this.getQuestionsByValueNameCore(valueName);
+    var questions = this.getQuestionsByValueName(valueName);
     return !!questions ? questions.length : 0;
   }
   private clearInvisibleQuestionValues() {
@@ -4815,7 +4824,7 @@ export class SurveyModel
     } else {
       this.setDataValueCore(this.valuesHash, commentName, newValue);
     }
-    var questions = this.getQuestionsByValueNameCore(name);
+    var questions = this.getQuestionsByValueName(name);
     if (!!questions) {
       for (var i: number = 0; i < questions.length; i++) {
         questions[i].updateCommentFromSurvey(newValue);

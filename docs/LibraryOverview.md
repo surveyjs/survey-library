@@ -21,7 +21,7 @@ Please visit our [what's new page](https://surveyjs.io/WhatsNew) to see what we 
   - [State 'loading'](#states-loading)
   - [State 'starting'](#states-starting)
   - [State 'running'](#states-running)
-  - [State 'running'](#states-preview)  
+  - [State 'preview'](#states-preview)  
   - [State 'completed'](#states-completed)
 - [Survey Data, Modify or View Survey Results](#data)
   - [Survey Data API](#survey-data-api)
@@ -265,7 +265,7 @@ Refer to [Localization and Multilanguages support section](#localization) for mo
 
 To store the survey results in your own storage, you use the [onComplete](https://surveyjs.io/Documentation/Library/?id=surveymodel#onComplete) event. It fires when an end user clicks the "Complete" button and a survey completion page is displayed.
 
-The implementation of the storing survey results in the database is fully depends on your server backend and database.
+The implementation of the storing survey results in the database fully depends on your server backend and database.
 
 The code sample below demonstrates how to send the survey results to your service, in case you have implemented the services on your web site:
 

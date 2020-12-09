@@ -2487,7 +2487,7 @@ export class SurveyModel
    * - `preview` - a respondent is previewing answered questions before submitting the survey (see [example](https://surveyjs.io/Examples/Library?id=survey-showpreview)),
    * - `completed` - a respondent has completed the survey and submitted the results.
    * 
-   * @see {@link https://surveyjs.io/Documentation/Library#states|Survey States}
+   * Details: [Preview State](https://surveyjs.io/Documentation/Library#states)
    */
   public get state(): string {
     if (this.isLoading) return "loading";
@@ -3060,10 +3060,11 @@ export class SurveyModel
   }
   /**
    * Shows preview for the survey. Switches the survey to the "preview" state.
+   * 
+   * Details: [Preview State](https://surveyjs.io/Documentation/Library#states-preview)
    * @see showPreviewBeforeComplete
    * @see cancelPreview
    * @see state
-   * @see {@link https://surveyjs.io/Documentation/Library#states-preview|Preview State}
    */
   public showPreview(): boolean {
     this.resetNavigationButton();
@@ -3074,11 +3075,12 @@ export class SurveyModel
   }
   /**
    * Cancels preview and switches back to the "running" state.
+   * 
+   * Details: [Preview State](https://surveyjs.io/Documentation/Library#states-preview)
    * @param curPage - A new current page. If the parameter is undefined then the last page becomes the current.
    * @see showPreviewBeforeComplete
    * @see showPreview
    * @see state
-   * @see {@link https://surveyjs.io/Documentation/Library#states-preview|Preview State}
    */
   public cancelPreview(curPage: any = null) {
     if (!this.isShowingPreview) return;
@@ -3110,7 +3112,7 @@ export class SurveyModel
     return true;
   }
   /**
-   * Obsolete use the `questionsOnPageMode` property instead.
+   * Obsolete. Use the `questionsOnPageMode` property instead.
    * @see questionsOnPageMode
    */
   public get isSinglePage(): boolean {
@@ -3150,10 +3152,14 @@ export class SurveyModel
   }
   /**
    * Set this property to "showAllQuestions" or "showAnsweredQuestions" to allow respondents to preview answers before submitting the survey results.
+   * 
+   * Details: [Preview State](https://surveyjs.io/Documentation/Library#states-preview)
+   * Example: [Show Preview Before Complete](https://surveyjs.io/Examples/Library?id=survey-showpreview)
    * @see showPreview
    * @see cancelPreview
    * @see state
-   * @see {@link https://surveyjs.io/Documentation/Library#states-preview|Preview State}
+   * @see previewText
+   * @see editText
    */
   public get showPreviewBeforeComplete(): string {
     return this.getPropertyValue("showPreviewBeforeComplete", "noPreview");

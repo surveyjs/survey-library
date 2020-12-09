@@ -68,8 +68,7 @@ export class Panel extends PanelModel {
   koIsExpanded: any;
   koIsCollapsed: any;
   koErrorClass: any;
-  doExpand: any;
-  pressExpand: any;
+  toggleStateByKeyUp: any;
   constructor(name: string = "") {
     super(name);
     this.onCreating();
@@ -83,11 +82,8 @@ export class Panel extends PanelModel {
     this.stateChangedCallback = function () {
       self.onStateChanged();
     };
-    this.doExpand = function () {
-      self.changeExpanded();
-    };
-    this.pressExpand = function(_: any, event: any) {
-      if (event.which === 13) self.changeExpanded();
+    this.toggleStateByKeyUp = function(_: any, event: any) {
+      if (event.which === 13) self.toggleState();
     };
     this.koErrorClass = ko.pureComputed(function () {
       var rootClass = self.cssClasses.error.root;
@@ -108,14 +104,6 @@ export class Panel extends PanelModel {
   private onStateChanged() {
     this.koIsCollapsed(this.isCollapsed);
     this.koIsExpanded(this.isExpanded);
-  }
-  private changeExpanded() {
-    if (!this.isCollapsed && !this.isExpanded) return;
-    if (this.isCollapsed) {
-      this.expand();
-    } else {
-      this.collapse();
-    }
   }
   getTitleStyle() {
     var result = this.cssClasses.panel.title;

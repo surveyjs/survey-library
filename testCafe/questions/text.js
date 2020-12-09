@@ -1,21 +1,27 @@
 import { frameworks, url, initSurvey, getSurveyResult } from "../settings";
+import { Selector } from "testcafe";
 const assert = require("assert");
 const title = `text`;
 
 const json = {
   questions: [
-    { name: "name", type: "text", title: "Please enter your name:" },
+    {
+      name: "name",
+      type: "text",
+      state: "expanded",
+      title: "Please enter your name:",
+    },
     {
       name: "birthdate",
       type: "text",
       inputType: "date",
-      title: "Your birthdate:"
+      title: "Your birthdate:",
     },
     {
       name: "color",
       type: "text",
       inputType: "color",
-      title: "Your favorite color:"
+      title: "Your favorite color:",
     },
     {
       name: "email",
@@ -23,73 +29,73 @@ const json = {
       inputType: "email",
       title: "Your e-mail:",
       isRequired: true,
-      validators: [{ type: "email" }]
+      validators: [{ type: "email" }],
     },
     {
       name: "datetime",
       type: "text",
       inputType: "datetime",
-      title: "Your lunch time:"
+      title: "Your lunch time:",
     },
     {
       name: "datetime-local",
       type: "text",
       inputType: "datetime-local",
-      title: "Your supper time:"
+      title: "Your supper time:",
     },
     {
       name: "month",
       type: "text",
       inputType: "month",
-      title: "Your favorite month:"
+      title: "Your favorite month:",
     },
     {
       name: "password",
       type: "text",
       inputType: "password",
-      title: "Please enter password:"
+      title: "Please enter password:",
     },
     {
       name: "range",
       type: "text",
       inputType: "range",
-      title: "Please set price range:"
+      title: "Please set price range:",
     },
     {
       name: "tel",
       type: "text",
       inputType: "tel",
-      title: "Enter your phone number"
+      title: "Enter your phone number",
     },
     {
       name: "time",
       type: "text",
       inputType: "time",
-      title: "When do you watch TV?"
+      title: "When do you watch TV?",
     },
     {
       name: "url",
       type: "text",
       inputType: "url",
-      title: "Add link to your site please"
+      title: "Add link to your site please",
     },
     {
       name: "week",
       type: "text",
       inputType: "week",
-      title: "Mark any week which you want"
-    }
-  ]
+      title: "Mark any week which you want",
+    },
+  ],
 };
 
-frameworks.forEach(framework => {
+frameworks.forEach((framework) => {
   fixture`${framework} ${title}`.page`${url}${framework}`.beforeEach(
-    async t => {
+    async (t) => {
       await initSurvey(framework, json);
     }
   );
 
-  test.skip(`fill text field`, async t => {
+  test.skip(`fill text field`, async (t) => {
     let surveyResult;
 
     await t
@@ -98,7 +104,7 @@ frameworks.forEach(framework => {
 
     surveyResult = await getSurveyResult();
     assert.deepEqual(surveyResult, {
-      email: "stub@gmail.com"
+      email: "stub@gmail.com",
     });
   });
 
@@ -121,7 +127,7 @@ frameworks.forEach(framework => {
   //   });
   // }
 
-  test(`check input types`, async t => {
+  test(`check input types`, async (t) => {
     const types = [
       "color",
       "date",
@@ -135,11 +141,21 @@ frameworks.forEach(framework => {
       "text",
       "time",
       "url",
-      "week"
+      "week",
     ];
 
     for (let i = 0; i < types.length; i++) {
       await t.hover(`input[type=${types[i]}]`);
     }
+  });
+
+  test(`expand collapse title`, async (t) => {
+    const title = "Please enter your name:";
+    const questionTitle = Selector("h5").withText(title);
+    const contentItem = Selector(`input[aria-label='${title}']`);
+
+    assert.equal(await contentItem.visible, true);
+    await t.click(questionTitle);
+    assert.equal(await contentItem.visible, false);
   });
 });

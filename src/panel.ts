@@ -1420,15 +1420,11 @@ export class PanelModelBase
 export class PanelModel
   extends PanelModelBase
   implements IElement, ITitleOwner {
-  stateChangedCallback: () => void;
   public minWidth?: string;
   public maxWidth?: string;
   constructor(public name: string = "") {
     super(name);
     var self = this;
-    this.registerFunctionOnPropertyValueChanged("state", function () {
-      if (self.stateChangedCallback) self.stateChangedCallback();
-    });
     this.registerFunctionOnPropertyValueChanged("width", function () {
       if (!!self.parent) {
         self.parent.elementWidthChanged(self);
@@ -1467,49 +1463,6 @@ export class PanelModel
     if (!!this.parent) {
       this.removeSelfFromList(this.parent.elements);
     }
-  }
-  /**
-   * Set this property to "collapsed" to render only Panel title and expanded button and to "expanded" to render the collapsed button in the Panel caption
-   */
-  public get state(): string {
-    return this.getPropertyValue("state");
-  }
-  public set state(val: string) {
-    this.setPropertyValue("state", val);
-  }
-  /**
-   * Returns true if the Panel is in the collapsed state
-   * @see state
-   * @see collapse
-   * @see isExpanded
-   */
-  public get isCollapsed() {
-    return this.state == "collapsed";
-  }
-  /**
-   * Returns true if the Panel is in the expanded state
-   * @see state
-   * @see expand
-   * @see isCollapsed
-   */
-  public get isExpanded() {
-    if (this.isDesignMode) return;
-    return this.state == "expanded";
-  }
-  /**
-   * Collapse the Panel
-   * @see state
-   */
-  public collapse() {
-    if (this.isDesignMode) return;
-    this.state = "collapsed";
-  }
-  /**
-   * Expand the Panel
-   * @see state
-   */
-  public expand() {
-    this.state = "expanded";
   }
   /**
    * Move panel to a new container Page/Panel. Add as a last element if insertBefore parameter is not used or inserted into the given index,

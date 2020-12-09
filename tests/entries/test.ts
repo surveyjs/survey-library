@@ -2,6 +2,7 @@
 export * from "../calculatedvaluestests";
 export * from "../helperstests";
 export * from "../basetests";
+export * from "../surveyElementTests";
 export * from "../editingObjectTests";
 export * from "../bindablePropertiesTests";
 export * from "../localizablestringtests";

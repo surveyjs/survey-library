@@ -685,6 +685,11 @@ export class Question
   }
   protected getCssTitle(cssClasses: any): string {
     var result = cssClasses.title;
+
+    if (this.isCollapsed || this.isExpanded) {
+      result += " " + cssClasses.titleExpandable;
+    }
+
     if (this.containsErrors) {
       if (!!cssClasses.titleOnError) {
         result += " " + cssClasses.titleOnError;
@@ -1401,6 +1406,9 @@ export class Question
     if (oldHasErrors != errors.length > 0) {
       this.updateElementCss();
     }
+    if (this.isCollapsed && rec && fireCallback && errors.length > 0) {
+      this.expand();
+    }
     return errors.length > 0;
   }
   /**
@@ -1706,6 +1714,11 @@ export class Question
 }
 Serializer.addClass("question", [
   "!name",
+  {
+    name: "state",
+    default: "default",
+    choices: ["default", "collapsed", "expanded"],
+  },
   { name: "visible:switch", default: true },
   { name: "useDisplayValuesInTitle:boolean", default: true, layout: "row" },
   "visibleIf:condition",

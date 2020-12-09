@@ -85,15 +85,8 @@ export class SurveyPanel extends SurveyPanelBase {
       var iconCss = this.panel.cssClasses.panel.icon;
       if (!this.panel.isCollapsed)
         iconCss += " " + this.panel.cssClasses.panel.iconExpanded;
-      var changeExpanded = () => {
-        if (this.panel.isCollapsed) {
-          this.panel.expand();
-        } else {
-          this.panel.collapse();
-        }
-      };
       var pressExpand = (event: any) => {
-        if (event.keyCode == 13) changeExpanded();
+        if (event.keyCode == 13) this.panel.toggleState();
       };
       var ariaExpanded = this.panel.isExpanded;
       var ariaControls = this.panel.isExpanded ? this.panel.contentId : null;
@@ -113,7 +106,7 @@ export class SurveyPanel extends SurveyPanelBase {
     }
 
     return (
-      <h4 className={titleStyle} onClick={changeExpanded}>
+      <h4 className={titleStyle} onClick={()=>{this.panel.toggleState()}}>
         {spans}
         {expandCollapse}
       </h4>

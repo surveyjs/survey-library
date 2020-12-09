@@ -203,8 +203,18 @@ export interface IElement extends IConditionRunner, ISurveyElement {
   width: string;
   minWidth?: string;
   maxWidth?: string;
+  isExpanded: boolean;
+  isCollapsed: boolean;
   rightIndent: number;
   startWithNewLine: boolean;
+  toggleState(): void;
+  stateChangedCallback(): void;
+  registerFunctionOnPropertyValueChanged(
+    name: string,
+    func: any,
+    key: string
+  ): void;
+  unRegisterFunctionOnPropertyValueChanged(name: string, key: string): void;
   getPanel(): IPanel;
   getLayoutType(): string;
   isLayoutTypeSupported(layoutType: string): boolean;
@@ -1033,6 +1043,7 @@ export class SurveyError {
  * Base class of SurveyJS Elements.
  */
 export class SurveyElement extends Base implements ISurveyElement {
+  stateChangedCallback: () => void;
   public static createProgressInfo(): IProgressInfo {
     return {
       questionCount: 0,
@@ -1114,7 +1125,68 @@ export class SurveyElement extends Base implements ISurveyElement {
     this.registerFunctionOnPropertyValueChanged("isReadOnly", function () {
       self.onReadOnlyChanged();
     });
+    this.registerFunctionOnPropertyValueChanged("state", function () {
+      if (self.stateChangedCallback) self.stateChangedCallback();
+    });
   }
+  /**
+   * Set this property to "collapsed" to render only Panel title and expanded button and to "expanded" to render the collapsed button in the Panel caption
+   */
+  public get state(): string {
+    return this.getPropertyValue("state");
+  }
+  public set state(val: string) {
+    this.setPropertyValue("state", val);
+  }
+  /**
+   * Returns true if the Element is in the collapsed state
+   * @see state
+   * @see collapse
+   * @see isExpanded
+   */
+  public get isCollapsed() {
+    if (this.isDesignMode) return;
+    return this.state == "collapsed";
+  }
+  /**
+   * Returns true if the Element is in the expanded state
+   * @see state
+   * @see expand
+   * @see isCollapsed
+   */
+  public get isExpanded() {
+    return this.state == "expanded";
+  }
+  /**
+   * Collapse the Element
+   * @see state
+   */
+  public collapse() {
+    if (this.isDesignMode) return;
+    this.state = "collapsed";
+  }
+  /**
+   * Expand the Element
+   * @see state
+   */
+  public expand() {
+    this.state = "expanded";
+  }
+  /**
+   * Toggle element's state
+   * @see state
+   */
+  public toggleState() {
+    if (this.isCollapsed) {
+      this.expand();
+      return;
+    }
+    if (this.isExpanded) {
+      this.collapse();
+      return;
+    }
+  }
+
   public setSurveyImpl(value: ISurveyImpl) {
     this.surveyImplValue = value;
     if (!this.surveyImplValue) return;

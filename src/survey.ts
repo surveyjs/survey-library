@@ -3065,6 +3065,8 @@ export class SurveyModel
    * @see showPreviewBeforeComplete
    * @see cancelPreview
    * @see state
+   * @see previewText
+   * @see editText
    */
   public showPreview(): boolean {
     this.resetNavigationButton();

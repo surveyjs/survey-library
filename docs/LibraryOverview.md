@@ -412,9 +412,9 @@ You can allow respondents to preview and correct their answers before completing
 A respondent's click on the "Preview" button switches the survey to preview state. In preview, all questions (or, optionally, only answered ones) are displayed on one page in read-only mode. Each survey page converts into a panel, every panel contains an "Edit" button". 
 Respondents can then switch to edit mode:
 for a panel - by clicking the panel's "Edit" button to edit questions of the corresponding survey page,
-for the entire survey (starting from its beggining) - by clicking the "Edit" button on Navigation tab.
+for the entire survey (starting from its beginning) - by clicking the "Edit" button on Navigation tab.
 
-If a respondent satisfies with answers, he/she can click the "Complete" button to submit the survey results.
+If a respondent is satisfied with the answers, he/she can click the "Complete" button to submit the survey results.
 
 Use the [showPreviewBeforeComplete](https://surveyjs.io/Documentation/Library/?id=surveymodel#showPreviewBeforeComplete) option to control the preview mode's availability and settings. The functionality is disabled by default.
 

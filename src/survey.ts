@@ -3443,6 +3443,7 @@ export class SurveyModel
           }
         }
       }
+      this.fireValidatedErrorsOnPage(this.currentPage);
     }
     if (!hasErrors) {
       if (isPreview) {

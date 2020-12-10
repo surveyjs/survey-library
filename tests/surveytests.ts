@@ -12018,6 +12018,63 @@ QUnit.test(
   }
 );
 QUnit.test(
+  "showPreviewBeforeComplete: 'showAllQuestions' and showProgressBar, Bug#2552",
+  function (assert) {
+    var survey = new SurveyModel({
+      pages: [
+        {
+          name: "page1",
+          elements: [
+            {
+              type: "boolean",
+              name: "question1",
+            },
+          ],
+        },
+        {
+          name: "page2",
+          elements: [
+            {
+              type: "boolean",
+              name: "question2",
+            },
+          ],
+        },
+        {
+          name: "page3",
+          elements: [
+            {
+              type: "boolean",
+              name: "question3",
+            },
+          ],
+        },
+      ],
+      showPreviewBeforeComplete: "showAllQuestions",
+      showProgressBar: "bottom",
+    });
+    survey.nextPage();
+    survey.nextPage();
+    assert.equal(
+      survey.isShowProgressBarOnBottom,
+      true,
+      "We need to show progress bar"
+    );
+    survey.showPreview();
+    assert.equal(
+      survey.isShowProgressBarOnBottom,
+      false,
+      "We don't need to show progress bar"
+    );
+    survey.cancelPreview();
+    assert.equal(
+      survey.isShowProgressBarOnBottom,
+      true,
+      "We need to show progress bar again"
+    );
+  }
+);
+QUnit.test(
   "Update currentPageValue on showing the only page, Bug#2496",
   function (assert) {
     var survey = new SurveyModel({

@@ -32,9 +32,6 @@ export class QuestionMatrixBaseModel<TRow, TColumn> extends Question {
   public get isCompositeQuestion(): boolean {
     return true;
   }
-  public get isAllowTitleLeft(): boolean {
-    return false;
-  }
   /**
    * Set this property to false, to hide table header. The default value is true.
    */

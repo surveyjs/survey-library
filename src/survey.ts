@@ -2480,11 +2480,14 @@ export class SurveyModel
   /**
    * Returns the current survey state:
    *
-   * - `loading` - loading from the JSON,
-   * - `completed` - a user has completed the survey,
-   * - `starting` - the started page is showing,
-   * - `running` - a user answers questions right now,
-   * - `empty` - there is nothing to show in the current survey.
+   * - `loading` - the survey is being loaded from JSON,
+   * - `empty` - there is nothing to display in the current survey,
+   * - `starting` - the survey's start page is displayed,
+   * - `running` - a respondent is answering survey questions right now,
+   * - `preview` - a respondent is previewing answered questions before submitting the survey (see [example](https://surveyjs.io/Examples/Library?id=survey-showpreview)),
+   * - `completed` - a respondent has completed the survey and submitted the results.
+   * 
+   * Details: [Preview State](https://surveyjs.io/Documentation/Library#states)
    */
   public get state(): string {
     if (this.isLoading) return "loading";
@@ -3056,10 +3059,14 @@ export class SurveyModel
     this.isNavigationButtonPressed = false;
   }
   /**
-   * Show preview for the survey. Go to the "preview" state
+   * Shows preview for the survey. Switches the survey to the "preview" state.
+   * 
+   * Details: [Preview State](https://surveyjs.io/Documentation/Library#states-preview)
    * @see showPreviewBeforeComplete
    * @see cancelPreview
    * @see state
+   * @see previewText
+   * @see editText
    */
   public showPreview(): boolean {
     this.resetNavigationButton();
@@ -3069,8 +3076,10 @@ export class SurveyModel
     return true;
   }
   /**
-   * Canel preview and go back to the "running" state.
-   * @param curPage - a new current page. If the parameter is underfined then the last page becomes current.
+   * Cancels preview and switches back to the "running" state.
+   * 
+   * Details: [Preview State](https://surveyjs.io/Documentation/Library#states-preview)
+   * @param curPage - A new current page. If the parameter is undefined then the last page becomes the current.
    * @see showPreviewBeforeComplete
    * @see showPreview
    * @see state
@@ -3105,7 +3114,7 @@ export class SurveyModel
     return true;
   }
   /**
-   * Obsolete use the `questionsOnPageMode` property instead.
+   * Obsolete. Use the `questionsOnPageMode` property instead.
    * @see questionsOnPageMode
    */
   public get isSinglePage(): boolean {
@@ -3144,7 +3153,15 @@ export class SurveyModel
     );
   }
   /**
-   * Set this property to "showAllQuestions" or "showAnsweredQuestions" to preview results to a user before he/she completes the survey.
+   * Set this property to "showAllQuestions" or "showAnsweredQuestions" to allow respondents to preview answers before submitting the survey results.
+   * 
+   * Details: [Preview State](https://surveyjs.io/Documentation/Library#states-preview)
+   * Example: [Show Preview Before Complete](https://surveyjs.io/Examples/Library?id=survey-showpreview)
+   * @see showPreview
+   * @see cancelPreview
+   * @see state
+   * @see previewText
+   * @see editText
    */
   public get showPreviewBeforeComplete(): string {
     return this.getPropertyValue("showPreviewBeforeComplete", "noPreview");

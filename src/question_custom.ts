@@ -531,7 +531,7 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
       res.fromJSON({ elements: json.elementsJSON });
     }
     if (!!json.createElements) {
-      json.createElements(res);
+      json.createElements(res, this);
     }
     this.initElement(res);
     res.readOnly = this.isReadOnly;

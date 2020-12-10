@@ -185,9 +185,11 @@ QUnit.test("Edit validators in matrix", function (assert) {
 QUnit.test("Composite: create from code", function (assert) {
   var json = {
     name: "propertygrid_restfull",
-    createElements: function (panel) {
+    createElements: function (panel, question) {
       panel.fromJSON({
-        elements: [{ type: "text", name: "url" }],
+        elements: [
+          { type: "text", name: "url", title: question.title + "_url" },
+        ],
       });
     },
   };
@@ -201,6 +203,7 @@ QUnit.test("Composite: create from code", function (assert) {
   var q = <QuestionCompositeModel>survey.getAllQuestions()[0];
   var urlQ = q.contentPanel.questions[0];
   assert.equal(urlQ.value, "myUrl", "Url set correctly from question");
+  assert.equal(urlQ.title, "choicesByUrl_url");
   urlQ.value = "myUrl2";
   assert.equal(
     question.choicesByUrl.url,

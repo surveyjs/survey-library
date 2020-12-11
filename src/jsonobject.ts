@@ -76,6 +76,13 @@ export interface IObject {
   [key: string]: any;
 }
 
+/**
+ * Contains information about a property of a survey element (page, panel, questions, and etc).
+ * @see addProperty
+ * @see removeProperty
+ * @see [Add Properties](https://surveyjs.io/Documentation/Survey-Creator#addproperties)
+ * @see [Remove Properties](https://surveyjs.io/Documentation/Survey-Creator#removeproperties)
+*/
 export class JsonObjectProperty implements IObject {
   public static getItemValuesDefaultValue: (val: any) => any;
   [key: string]: any;
@@ -679,6 +686,10 @@ export class JsonMetadataClass {
     return propertyName;
   }
 }
+
+/**
+ * The metadata object. It has controls object properties' runtime information.
+ */
 export class JsonMetadata {
   private classes: HashTable<JsonMetadataClass> = {};
   private alternativeNames: HashTable<string> = {};
@@ -1493,4 +1504,8 @@ export class JsonObject {
   }
 }
 
+/**
+ * An alias for the metadata object. It contains object properties' runtime information and allows you to modify it.
+ * @see JsonMetadata
+ */
 export var Serializer = JsonObject.metaData;

@@ -1,0 +1,10 @@
+<div class="sv-popup" data-bind="visible: isVisible, click: function() { isVisible(false) }" >
+  <div
+    class="sv-popup__container"
+    data-bind="style: { left: left, top: top }, class: styleClass"
+  >
+    <div class="sv-popup__content">
+      <!-- ko component: { name: contentComponentName, params: contentComponentData } --><!-- /ko -->
+    </div>
+  </div>
+</div>

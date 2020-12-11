@@ -688,7 +688,7 @@ export class JsonMetadataClass {
 }
 
 /**
- * The metadata object. It has controls object properties' runtime information.
+ * The metadata object. It contains object properties' runtime information and allows you to modify it.
  */
 export class JsonMetadata {
   private classes: HashTable<JsonMetadataClass> = {};

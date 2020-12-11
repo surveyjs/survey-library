@@ -54,12 +54,12 @@ export { QuestionSignaturePad } from "../knockout/koquestion_signaturepad";
 
 export { QuestionCustom } from "../knockout/koquestion_custom";
 export * from "../knockout/components/progress/buttons";
+export * from "../knockout/components/checkbox/checkbox";
 export * from "../knockout/components/progress/progress";
 
 //Uncomment to include the "date" question type.
 //export {QuestionDate} from "../plugins/knockout/koquestion_date";
 
-export * from "../knockout/components/checkbox";
 
 export * from "../rendererFactory";
 

@@ -5406,3 +5406,60 @@ QUnit.test("Detail panel, Process text in titles", function (assert) {
     "Text preprocessed correctly"
   );
 });
+
+QUnit.test("copyvalue trigger for dropdown matrix cell", function (assert) {
+  var survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdropdown",
+        name: "q1",
+        rows: ["item1", "Item2"],
+        columns: [{ name: "c1", cellType: "text" }],
+      },
+      {
+        type: "matrixdropdown",
+        name: "q2",
+        rows: ["item1", "Item2"],
+        columns: [{ name: "c1", cellType: "text" }],
+      },
+    ],
+    triggers: [
+      {
+        type: "copyvalue",
+        expression: "{q1.item1.c1} notempty",
+        setToName: "q2.item1.c1",
+        fromName: "q1.item1.c1",
+      },
+      {
+        type: "copyvalue",
+        expression: "{q1.Item2.c1} notempty",
+        setToName: "q2.Item2.c1",
+        fromName: "q1.Item2.c1",
+      },
+    ],
+  });
+  var q1 = <QuestionMatrixDynamicModel>survey.getQuestionByName("q1");
+  var q2 = <QuestionMatrixDynamicModel>survey.getQuestionByName("q2");
+  q1.visibleRows[0].cells[0].value = "val1";
+  q1.visibleRows[1].cells[0].value = "val2";
+  assert.equal(
+    q2.visibleRows[0].cells[0].value,
+    "val1",
+    "copy value for item1"
+  );
+  assert.equal(
+    survey.runCondition("{q1.Item2.c1} notempty"),
+    true,
+    "The expression returns true"
+  );
+  assert.equal(
+    survey.runExpression("{q1.Item2.c1}"),
+    "val2",
+    "The expression returns val2"
+  );
+  assert.equal(
+    q2.visibleRows[1].cells[0].value,
+    "val2",
+    "copy value for Item2"
+  );
+});

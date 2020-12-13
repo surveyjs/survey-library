@@ -143,18 +143,18 @@ export class ProcessValue {
     if (!name) return name;
     if (!obj) obj = {};
     if (obj.hasOwnProperty(name)) return name;
-    name = name.toLowerCase();
-    var A = name[0];
+    var nameInLow = name.toLowerCase();
+    var A = nameInLow[0];
     var a = A.toUpperCase();
     for (var key in obj) {
       var first = key[0];
       if (first === a || first === A) {
         var keyName = key.toLowerCase();
-        if (keyName == name) return key;
-        if (name.length <= keyName.length) continue;
-        var ch = name[keyName.length];
+        if (keyName == nameInLow) return key;
+        if (nameInLow.length <= keyName.length) continue;
+        var ch = nameInLow[keyName.length];
         if (ch != "." && ch != "[") continue;
-        if (keyName == name.substr(0, keyName.length)) return key;
+        if (keyName == nameInLow.substr(0, keyName.length)) return key;
       }
     }
     if (createProp && name[0] !== "[") {

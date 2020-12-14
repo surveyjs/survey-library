@@ -1867,7 +1867,7 @@ export class QuestionMatrixDropdownModelBase
     return this.columnLayout != "vertical";
   }
   /**
-   * Set the value to "underRow" to show the detailPanel under the row.
+   * Set the value to "underRow" to show the detailPanel under the row. Set the value to "popup" to show the detailPanel in the popup.
    */
   public get detailPanelMode(): string {
     return this.getPropertyValue("detailPanelMode", "none");
@@ -2593,7 +2593,7 @@ export class QuestionMatrixDropdownModelBase
     if (!this.generatedVisibleRows) return false;
     var res = false;
     if (!rec) rec = {};
-    rec.isSingleDetailPanel = this.detailPanelMode == "underRowSingle";
+    rec.isSingleDetailPanel = this.detailPanelMode === "underRowSingle";
     for (var i = 0; i < this.generatedVisibleRows.length; i++) {
       res =
         this.generatedVisibleRows[i].hasErrors(fireCallback, rec, () => {
@@ -3033,7 +3033,7 @@ Serializer.addClass(
     },
     {
       name: "detailPanelMode",
-      choices: ["none", "underRow", "underRowSingle"],
+      choices: ["none", "underRow", "underRowSingle", "popup"],
       default: "none",
     },
     "horizontalScroll:boolean",

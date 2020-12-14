@@ -1096,6 +1096,9 @@ export class Question
   public set value(newValue: any) {
     this.setNewValue(newValue);
   }
+  /**
+   * Clear the question value. It clears the question comment as well.
+   */
   public clearValue() {
     this.value = null;
     this.comment = null;

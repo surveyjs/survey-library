@@ -80,6 +80,6 @@ export class SurveyProgressButtons extends SurveyNavigationBase {
   }
 }
 
-ReactElementFactory.Instance.registerElement("survey-progress-buttons", (props) => {
+ReactElementFactory.Instance.registerElement("sv-progress-buttons", (props) => {
   return React.createElement(SurveyProgressButtons, props);
 });

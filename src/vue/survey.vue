@@ -44,7 +44,7 @@
         </template>
         <template v-if="survey.state === 'running' || survey.state === 'preview'">
           <div :class="css.body">
-            <component v-if="survey.isShowProgressBarOnTop" :is="'survey-progress-' + survey.progressBarType.toLowerCase()" :survey="survey" :css="css" />
+            <component v-if="survey.isShowProgressBarOnTop" :is="'sv-progress-' + survey.progressBarType.toLowerCase()" :survey="survey" :css="css" />
             <survey-timerpanel v-if="survey.isTimerPanelShowingOnTop" :survey="survey" :css="css" />
             <survey-navigation
               v-if="survey.isNavigationButtonsShowing === 'top' ||
@@ -63,7 +63,7 @@
               :survey="survey"
               :css="css"
             />
-            <component v-if="survey.isShowProgressBarOnBottom" :is="'survey-progress-' + survey.progressBarType.toLowerCase()" :survey="survey" :css="css" />
+            <component v-if="survey.isShowProgressBarOnBottom" :is="'sv-progress-' + survey.progressBarType.toLowerCase()" :survey="survey" :css="css" />
             <survey-navigation
               v-if="survey.isNavigationButtonsShowing === 'bottom' ||
                   survey.isNavigationButtonsShowing === 'both'"

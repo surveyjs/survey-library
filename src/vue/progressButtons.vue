@@ -68,6 +68,6 @@ export class ProgressButtons extends Vue {
   }
 }
 
-Vue.component("survey-progress-buttons", ProgressButtons);
+Vue.component("sv-progress-buttons", ProgressButtons);
 export default ProgressButtons;
 </script>

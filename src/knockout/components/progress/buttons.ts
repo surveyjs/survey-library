@@ -49,7 +49,7 @@ export class ProgressButtonsViewModel {
   }
 };
 
-ko.components.register("survey-progress-buttons", {
+ko.components.register("sv-progress-buttons", {
   viewModel: {
     createViewModel: (params: any, componentInfo: any) => {
       return new ProgressButtonsViewModel(params.model, componentInfo.element.nextElementSibling);

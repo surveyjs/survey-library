@@ -5,7 +5,7 @@ const template = require("./checkbox.html");
 
 export var CheckboxViewModel: any;
 
-ko.components.register("sjs-checkbox", {
+ko.components.register("sv-checkbox", {
   viewModel: {
     createViewModel: (params: any, componentInfo: any) => {
       return { question: params.question };
@@ -17,5 +17,5 @@ ko.components.register("sjs-checkbox", {
 RendererFactory.Instance.registerRenderer(
   "boolean",
   "checkbox",
-  "sjs-checkbox"
+  "sv-checkbox"
 );

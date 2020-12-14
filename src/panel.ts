@@ -315,7 +315,9 @@ export class PanelModelBase
       : "";
   }
   getMarkdownHtml(text: string, name: string) {
-    return this.survey ? this.survey.getSurveyMarkdownHtml(this, text, name) : null;
+    return this.survey
+      ? this.survey.getSurveyMarkdownHtml(this, text, name)
+      : null;
   }
   getProcessedText(text: string): string {
     return this.textProcessor
@@ -1016,6 +1018,20 @@ export class PanelModelBase
   }
   protected onVisibleChanged() {
     this.setPropertyValue("isVisible", this.isVisible);
+    if (
+      !!this.survey &&
+      this.survey.isClearValueOnHiddenContainer &&
+      !this.isLoadingFromJson
+    ) {
+      var questions = this.questions;
+      for (var i = 0; i < questions.length; i++) {
+        if (!this.isVisible) {
+          questions[i].clearValue();
+        } else {
+          questions[i].updateValueWithDefaults();
+        }
+      }
+    }
   }
   /**
    * Returns true if object is visible or survey is in design mode right now.
@@ -1674,7 +1690,6 @@ export class PanelModel
   }
   protected onVisibleChanged() {
     super.onVisibleChanged();
-    this.setPropertyValue("isVisible", this.isVisible);
     this.notifySurveyOnVisibilityChanged();
   }
 }

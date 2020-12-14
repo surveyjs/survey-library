@@ -11739,6 +11739,66 @@ QUnit.test(
   }
 );
 QUnit.test(
+  "defaultValue and survey.clearInvisibleValues='onHiddenContainer'",
+  function (assert) {
+    var survey = new SurveyModel({
+      clearInvisibleValues: "onHiddenContainer",
+      pages: [
+        {
+          elements: [
+            {
+              type: "panel",
+              name: "p1",
+              elements: [
+                {
+                  name: "q1",
+                  type: "text",
+                  defaultValue: 5,
+                },
+                {
+                  name: "q2",
+                  type: "text",
+                },
+              ],
+            },
+            {
+              name: "q3",
+              type: "text",
+            },
+          ],
+        },
+        {
+          elements: [{ name: "q4", type: "text" }],
+        },
+      ],
+    });
+    var p1 = <PanelModel>survey.getPanelByName("p1");
+    survey.data = { q1: 1, q2: 2, q3: 3, q4: 4 };
+    p1.visible = false;
+    assert.deepEqual(
+      survey.data,
+      { q3: 3, q4: 4 },
+      "Clear values on clearing panel"
+    );
+    p1.visible = true;
+    assert.deepEqual(
+      survey.data,
+      { q1: 5, q3: 3, q4: 4 },
+      "Restore default value on making panel visible"
+    );
+    survey.data = { q1: 1, q2: 2, q3: 3, q4: 4 };
+    survey.pages[0].visible = false;
+    assert.deepEqual(survey.data, { q4: 4 }, "Clear values on clearing page");
+    survey.pages[0].visible = true;
+    assert.deepEqual(
+      survey.data,
+      { q1: 5, q4: 4 },
+      "Restore default value on making page visbile"
+    );
+  }
+);
+
+QUnit.test(
   "Add this.question into custom function for validators",
   function (assert) {
     var hasQuestion = false;

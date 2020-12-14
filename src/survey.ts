@@ -1413,6 +1413,7 @@ export class SurveyModel
    *
    * - `none` - include the invisible values into the survey data.
    * - `onHidden` - clear the question value when it becomes invisible. If a question has value and it was invisible initially then survey clears the value on completing.
+   * - `onHiddenContainer` - clear the question value when it or its parent (page or panel) becomes invisible. If a question has value and it was invisible initially then survey clears the value on completing.
    * - `onComplete` (default) - clear invisible question values on survey complete. In this case, the invisible questions will not be stored on the server.
    * @see Question.visible
    * @see onComplete
@@ -4888,7 +4889,13 @@ export class SurveyModel
     this.setPropertyValue("clearValueOnDisableItems", val);
   }
   get isClearValueOnHidden(): boolean {
-    return this.clearInvisibleValues == "onHidden";
+    return (
+      this.clearInvisibleValues == "onHidden" ||
+      this.isClearValueOnHiddenContainer
+    );
+  }
+  get isClearValueOnHiddenContainer(): boolean {
+    return this.clearInvisibleValues == "onHiddenContainer";
   }
   questionVisibilityChanged(question: IQuestion, newValue: boolean) {
     this.updateVisibleIndexes();
@@ -5578,7 +5585,7 @@ Serializer.addClass("survey", [
   {
     name: "clearInvisibleValues",
     default: "onComplete",
-    choices: ["none", "onComplete", "onHidden"],
+    choices: ["none", "onComplete", "onHidden", "onHiddenContainer"],
   },
   {
     name: "checkErrorsMode",

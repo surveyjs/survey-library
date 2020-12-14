@@ -22,6 +22,7 @@ export class SurveyQuestionImage extends SurveyQuestionElementBase {
         <img
           className={cssClasses.image}
           src={this.question.imageLink}
+          alt={this.question.text || this.question.title}
           width={
             this.question.imageWidth
               ? this.question.imageWidth + "px"

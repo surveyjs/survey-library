@@ -296,7 +296,7 @@ export class Survey extends SurveyElementBase implements ISurveyCreator {
   }
   protected renderProgress(isTop: boolean): JSX.Element {
     return ReactElementFactory.Instance.createElement(
-      "survey-progress-" + this.survey.progressBarType.toLowerCase(),
+      "sv-progress-" + this.survey.progressBarType.toLowerCase(),
       { survey: this.survey, css: this.css, isTop: isTop }
     );
   }

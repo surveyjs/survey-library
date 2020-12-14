@@ -10,6 +10,7 @@ export class QuestionImageModel extends QuestionNonValue {
   constructor(public name: string) {
     super(name);
     this.createLocalizableString("imageLink", this, false);
+    this.createLocalizableString("text", this, false);
   }
   public getType(): string {
     return "image";
@@ -28,6 +29,18 @@ export class QuestionImageModel extends QuestionNonValue {
   }
   get locImageLink(): LocalizableString {
     return this.getLocalizableString("imageLink");
+  }
+  /**
+   * The image alt text.
+   */
+  public get text(): string {
+    return this.getLocalizableStringText("text");
+  }
+  public set text(val: string) {
+    this.setLocalizableStringText("text", val);
+  }
+  get locText(): LocalizableString {
+    return this.getLocalizableString("text");
   }
   /**
    * The image height.
@@ -74,6 +87,7 @@ Serializer.addClass(
   "image",
   [
     { name: "imageLink", serializationProperty: "locImageLink" },
+    { name: "text", serializationProperty: "locText" },
     {
       name: "contentMode",
       default: "image",

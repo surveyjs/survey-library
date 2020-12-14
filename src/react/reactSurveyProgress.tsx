@@ -47,12 +47,12 @@ export class SurveyProgress extends SurveyNavigationBase {
   }
 }
 
-ReactElementFactory.Instance.registerElement("survey-progress-pages", (props) => {
+ReactElementFactory.Instance.registerElement("sv-progress-pages", (props) => {
   return React.createElement(SurveyProgress, props);
 });
-ReactElementFactory.Instance.registerElement("survey-progress-questions", (props) => {
+ReactElementFactory.Instance.registerElement("sv-progress-questions", (props) => {
   return React.createElement(SurveyProgress, props);
 });
-ReactElementFactory.Instance.registerElement("survey-progress-correctquestions", (props) => {
+ReactElementFactory.Instance.registerElement("sv-progress-correctquestions", (props) => {
   return React.createElement(SurveyProgress, props);
 });

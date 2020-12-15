@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.8.21](https://github.com/surveyjs/survey-library/compare/v1.8.20...v1.8.21) (2020-12-15)
+
+
+### Bug Fixes
+
+* Optionally clear question value on hiding it's container (page or panel). [#2574](https://github.com/surveyjs/survey-library/issues/2574) ([482a422](https://github.com/surveyjs/survey-library/commit/482a4225a123f7bc949a18a77afd8e130865df37))
+* ProcessValue class doesn't correctly create path for uppercase variables. [#2571](https://github.com/surveyjs/survey-library/issues/2571) ([784b442](https://github.com/surveyjs/survey-library/commit/784b442c50db78b1ba37fe39c057bb6c2013ef86))
+* Progress bar during preview is showing "Page 1 of 1". [#2552](https://github.com/surveyjs/survey-library/issues/2552) ([7af1ebb](https://github.com/surveyjs/survey-library/commit/7af1ebb13d1173be5da356fe960cbc160c79b55d))
+
 ### [1.8.20](https://github.com/surveyjs/survey-library/compare/v1.8.19...v1.8.20) (2020-12-09)
 
 ### [1.8.19](https://github.com/surveyjs/survey-library/compare/v1.8.18...v1.8.19) (2020-12-08)

@@ -1025,3 +1025,62 @@ QUnit.test("Composite: update url, {composite} prefix", function (assert) {
   );
   ComponentCollection.Instance.clear();
 });
+QUnit.test("Composite: onValueChanged function", function (assert) {
+  var json = {
+    name: "testquestion",
+    elementsJSON: [
+      { type: "text", name: "q1" },
+      {
+        type: "dropdown",
+        name: "q2",
+        choices: ["A", "B", "C"],
+      },
+    ],
+    onValueChanged: (question: Question, name: string, value: any) => {
+      if (name == "q2") {
+        question.setValue("q1", value + value);
+      }
+    },
+  };
+  ComponentCollection.Instance.add(json);
+  var survey = new SurveyModel({
+    elements: [{ type: "testquestion", name: "q1" }],
+  });
+  var q = <QuestionCompositeModel>survey.getAllQuestions()[0];
+  q.contentPanel.getQuestionByName("q2").value = "A";
+  assert.equal(
+    q.contentPanel.getQuestionByName("q1").value,
+    "AA",
+    "onValueChanged works"
+  );
+  ComponentCollection.Instance.clear();
+});
+QUnit.test("Composite: set value from survey.data", function (assert) {
+  var json = {
+    name: "testquestion",
+    elementsJSON: [
+      { type: "text", name: "q1" },
+      {
+        type: "dropdown",
+        name: "q2",
+        choices: ["A", "B", "C"],
+      },
+    ],
+  };
+  ComponentCollection.Instance.add(json);
+  var survey = new SurveyModel({
+    elements: [{ type: "testquestion", name: "q1" }],
+  });
+  survey.data = { q1: { q1: "BB", q2: "B" } };
+  var q = <QuestionCompositeModel>survey.getAllQuestions()[0];
+  assert.equal(
+    q.contentPanel.getQuestionByName("q1").value,
+    "BB",
+    "set value into the first question in composite"
+  );
+  assert.equal(
+    q.contentPanel.getQuestionByName("q2").value,
+    "B",
+    "set value into the second question in composite"
+  );
+});

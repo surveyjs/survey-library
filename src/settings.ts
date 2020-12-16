@@ -123,4 +123,13 @@ export var settings = {
    * Set it "column", and items will be ordered in columns.
    */
   showItemsInOrder: "default",
+  /**
+   * Supported validators by question types. You can modify this variable to add validators for new question types or add/remove for existing question types.
+   */
+  supportedValidators: {
+    question: ["expression"],
+    comment: ["text", "regex"],
+    text: ["numeric", "text", "regex", "email"],
+    checkbox: ["answercount"],
+  },
 };

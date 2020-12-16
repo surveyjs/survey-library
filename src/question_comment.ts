@@ -90,10 +90,6 @@ export class QuestionCommentModel extends Question {
       return !!this.survey ? this.survey.isUpdateValueTextOnTyping : false;
     return this.textUpdateMode == "onTyping";
   }
-  protected addSupportedValidators(supportedValidators: Array<string>) {
-    super.addSupportedValidators(supportedValidators);
-    supportedValidators.push("text", "regex");
-  }
 }
 Serializer.addClass(
   "comment",

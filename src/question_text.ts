@@ -183,7 +183,7 @@ export class QuestionTextModel extends Question {
     return super.isEmpty() || this.value === "";
   }
   supportGoNextPageAutomatic() {
-    return ["date", "datetime", "datetime-local"].indexOf(this.inputType) < 0;;
+    return ["date", "datetime", "datetime-local"].indexOf(this.inputType) < 0;
   }
   public supportGoNextPageError() {
     return ["date", "datetime", "datetime-local"].indexOf(this.inputType) < 0;
@@ -217,10 +217,6 @@ export class QuestionTextModel extends Question {
       return Helpers.isNumber(newValue) ? parseFloat(newValue) : "";
     }
     return newValue;
-  }
-  protected addSupportedValidators(supportedValidators: Array<string>) {
-    super.addSupportedValidators(supportedValidators);
-    supportedValidators.push("numeric", "text", "regex", "email");
   }
 }
 

@@ -45,7 +45,7 @@ export class PopupViewModel {
           this.top(rect.top - height);
         }
       } else {
-        this.onHide();
+        if (typeof this.onHide === "function") this.onHide();
       }
     });
   }

@@ -827,9 +827,12 @@ export class MatrixDropdownRowModelBase
       this.detailPanelValue = null;
     }
   }
-  public createDetailPanelValue() {
-    var result = this.data.createRowDetailPanel(this);
-    var questions = result.questions;
+  private ensureDetailPanel() {
+    if (this.isCreatingDetailPanel) return;
+    if (!!this.detailPanelValue || !this.hasPanel || !this.data) return;
+    this.isCreatingDetailPanel = true;
+    this.detailPanelValue = this.data.createRowDetailPanel(this);
+    var questions = this.detailPanelValue.questions;
     var value = this.data.getRowValue(this.data.getRowIndex(this));
     if (!Helpers.isValueEmpty(value)) {
       for (var i = 0; i < questions.length; i++) {
@@ -839,14 +842,7 @@ export class MatrixDropdownRowModelBase
         }
       }
     }
-    result.setSurveyImpl(this);
-    return result;
-  }
-  private ensureDetailPanel() {
-    if (this.isCreatingDetailPanel) return;
-    if (!!this.detailPanelValue || !this.hasPanel || !this.data) return;
-    this.isCreatingDetailPanel = true;
-    this.detailPanelValue = this.createDetailPanelValue();
+    this.detailPanelValue.setSurveyImpl(this);
     this.isCreatingDetailPanel = false;
   }
   getAllValues(): any {

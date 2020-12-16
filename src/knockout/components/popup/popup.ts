@@ -13,6 +13,7 @@ export class PopupViewModel {
     public verticalPosition: "top" | "bottom" | "middle",
     public horizontalPosition: "left" | "right" | "center",
     public showPointer: boolean,
+    public onHide: () => any,
     targetElement: HTMLElement
   ) {
     this.container = document.createElement("div");
@@ -22,8 +23,8 @@ export class PopupViewModel {
 
     this.showSubscription = ko.computed(() => {
       const rect = targetElement.getBoundingClientRect();
-      let width: number = (<HTMLElement>this.container.
-        children[0].children[0]).offsetWidth;
+      let width: number = (<HTMLElement>this.container.children[0].children[0])
+        .offsetWidth;
       if (this.isVisible()) {
         if (horizontalPosition == "center") {
           this.left((rect.left + rect.right - width) / 2);
@@ -33,8 +34,9 @@ export class PopupViewModel {
           this.left(rect.right);
         }
 
-        let height: number = (<HTMLElement>this.container.
-          children[0].children[0]).offsetHeight;
+        let height: number = (<HTMLElement>(
+          this.container.children[0].children[0]
+        )).offsetHeight;
         if (verticalPosition == "bottom") {
           this.top(rect.bottom);
         } else if (verticalPosition == "middle") {
@@ -42,6 +44,8 @@ export class PopupViewModel {
         } else {
           this.top(rect.top - height);
         }
+      } else {
+        this.onHide();
       }
     });
   }
@@ -73,6 +77,7 @@ ko.components.register("sv-popup", {
         params.verticalPosition,
         params.horizontalPosition,
         params.showPointer,
+        params.onHide,
         componentInfo.element.parentElement
       );
       return viewModel;

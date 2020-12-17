@@ -4452,6 +4452,54 @@ QUnit.test(
     );
   }
 );
+QUnit.test("Survey.checkErrorsMode=onValueChanging", function (assert) {
+  var survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdynamic",
+        name: "question1",
+        rowCount: 2,
+        columns: [
+          {
+            name: "col1",
+            isRequired: true,
+            cellType: "text",
+            validators: [{ type: "emailvalidator" }],
+          },
+          {
+            name: "col2",
+            isRequired: true,
+            cellType: "text",
+          },
+        ],
+      },
+    ],
+    checkErrorsMode: "onValueChanging",
+  });
+  var matrix = <QuestionMatrixDynamicModel>(
+    survey.getQuestionByName("question1")
+  );
+  var rows = matrix.visibleRows;
+  rows[0].cells[0].value = "val";
+  assert.equal(
+    rows[0].cells[0].question.errors.length,
+    1,
+    "There is error, e-mail is incorrect"
+  );
+  assert.equal(
+    rows[0].cells[1].question.errors.length,
+    0,
+    "There is no errors yet in the cell, first row, second column"
+  );
+  assert.equal(
+    rows[1].cells[0].question.errors.length,
+    0,
+    "There is no errors yet in the cell, second row, first column"
+  );
+  assert.deepEqual(matrix.value, [{ col1: "val" }, {}], "set value to matrix");
+  assert.deepEqual(survey.data, {}, "do not set value into survey");
+});
+
 QUnit.test(
   "column should call property changed on custom property",
   function (assert) {

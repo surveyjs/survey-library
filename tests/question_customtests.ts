@@ -1055,6 +1055,43 @@ QUnit.test("Composite: onValueChanged function", function (assert) {
   );
   ComponentCollection.Instance.clear();
 });
+QUnit.test("Composite: checkErrorsMode=onValueChanging", function (assert) {
+  var json = {
+    name: "testquestion",
+    elementsJSON: [
+      { type: "text", name: "q1", validators: [{ type: "emailvalidator" }] },
+      {
+        type: "dropdown",
+        name: "q2",
+        choices: ["A", "B", "C"],
+      },
+    ],
+  };
+  ComponentCollection.Instance.add(json);
+  var survey = new SurveyModel({
+    checkErrorsMode: "onValueChanging",
+    elements: [{ type: "testquestion", name: "q1" }],
+  });
+  var q = <QuestionCompositeModel>survey.getAllQuestions()[0];
+  var q1 = q.contentPanel.getQuestionByName("q1");
+  q1.value = "a";
+  assert.equal(q1.value, "a", "keep the value");
+  assert.equal(q1.errors.length, 1, "question has error");
+  assert.deepEqual(
+    q.value,
+    { q1: "a" },
+    "keep the value in composite question"
+  );
+  assert.deepEqual(survey.data, {}, "survey data is empty");
+  q1.value = "a@a.com";
+  assert.equal(q1.errors.length, 0, "question has no errors");
+  assert.deepEqual(
+    survey.data,
+    { q1: { q1: "a@a.com" } },
+    "survey data is empty"
+  );
+  ComponentCollection.Instance.clear();
+});
 QUnit.test("Composite: set value from survey.data", function (assert) {
   var json = {
     name: "testquestion",

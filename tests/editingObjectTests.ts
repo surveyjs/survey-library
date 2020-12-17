@@ -227,12 +227,20 @@ QUnit.test("onValueChanging/changed and validation", function (assert) {
       { type: "comment", name: "title" },
     ],
   });
+  survey.onValueChanging.add(function (sender, options) {
+    if (options.name !== "name") return;
+    if (options.value.length != 3) {
+      options.value = options.oldValue;
+      options.question.addError("valueChanging");
+    }
+  });
   survey.editingObj = question;
-  assert.equal(question.title, "q1", "the default title value");
-  assert.equal(survey.getValue("title"), undefined, "The value is empty");
-  survey.setValue("title", "q1 title");
-  assert.equal(question.title, "q1 title", "set title property correctly");
-  survey.setValue("title", "");
-  assert.equal(question.title, "q1", "get title property from name");
+  var nameQuestion = survey.getQuestionByName("name");
+  nameQuestion.value = "q2";
+  assert.equal(question.name, "q1", "We have old value");
+  assert.equal(nameQuestion.errors.length, 1, "There is one error");
+  nameQuestion.value = "qq2";
+  assert.equal(question.name, "q2", "We have new value");
+  assert.equal(nameQuestion.errors.length, 0, "There is no errors");
 });
 */

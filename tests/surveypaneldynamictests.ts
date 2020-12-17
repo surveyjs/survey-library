@@ -3113,6 +3113,57 @@ QUnit.test(
 );
 
 QUnit.test(
+  "Paneldynamic duplicate key value error with checkErrorsMode: onValueChanging",
+  function (assert) {
+    var survey = new SurveyModel({
+      checkErrorsMode: "onValueChanging",
+      elements: [
+        {
+          name: "panel1",
+          type: "paneldynamic",
+          keyName: "id",
+          templateElements: [
+            {
+              name: "id",
+              type: "text",
+            },
+          ],
+          panelCount: 2,
+        },
+      ],
+    });
+
+    var panelDynamic = <QuestionPanelDynamicModel>(
+      survey.getQuestionByName("panel1")
+    );
+    var question1 = panelDynamic.panels[0].questions[0];
+    var question2 = panelDynamic.panels[1].questions[0];
+    question1.value = 1;
+    question2.value = 3;
+    assert.deepEqual(survey.data, { panel1: [{ id: 1 }, { id: 3 }] });
+    question2.value = 1;
+    assert.equal(
+      question2.errors.length,
+      1,
+      "There is unique value error, when two key values are equal"
+    );
+    assert.equal(question2.value, 1, "Keep incorrect value in question");
+    assert.deepEqual(
+      survey.data,
+      { panel1: [{ id: 1 }, { id: 3 }] },
+      "Do not change the survey.data with incorrect values"
+    );
+    question2.value = 2;
+    assert.equal(question2.errors.length, 0, "There is no errors");
+    assert.deepEqual(
+      survey.data,
+      { panel1: [{ id: 1 }, { id: 2 }] },
+      "set correct values into survey.data"
+    );
+  }
+);
+
+QUnit.test(
   "Do not reset panelCount after deleting the last panel, Bug #1972",
   function (assert) {
     var json = {

@@ -1382,6 +1382,7 @@ export class SurveyModel
    *
    * - `onNextPage` (default) - check errors on navigating to the next page or on completing the survey.
    * - `onValueChanged` - check errors on every question value (i.e., answer) changing.
+   * - `onValueChanging` - check errors before setting value into survey. If there is an error, then survey data is not changed, but question value will be keeped.
    * - `onComplete` - to validate all visible questions on complete button click. If there are errors on previous pages, then the page with the first error becomes the current.
    */
   public get checkErrorsMode(): string {
@@ -4161,15 +4162,34 @@ export class SurveyModel
       !this.isNavigationButtonPressed &&
       (this.checkErrorsMode == "onValueChanged" || question.errors.length > 0)
     ) {
-      var oldErrorCount = question.errors.length;
-      question.hasErrors(true, { isOnValueChanged: true });
-      if (
-        !!question.page &&
-        (oldErrorCount > 0 || question.errors.length > 0)
-      ) {
-        this.fireValidatedErrorsOnPage(<PageModel>question.page);
-      }
+      this.checkQuestionErrorOnValueChangedCore(question);
     }
+  }
+  private checkQuestionErrorOnValueChangedCore(question: Question): boolean {
+    var oldErrorCount = question.errors.length;
+    var res = question.hasErrors(true, { isOnValueChanged: true });
+    if (!!question.page && (oldErrorCount > 0 || question.errors.length > 0)) {
+      this.fireValidatedErrorsOnPage(<PageModel>question.page);
+    }
+    return res;
+  }
+  private checkErrorsOnValueChanging(
+    valueName: string,
+    newValue: any
+  ): boolean {
+    if (this.isLoadingFromJson) return false;
+    var questions = this.getQuestionsByValueName(valueName);
+    if (!questions) return false;
+    var res = false;
+    for (var i: number = 0; i < questions.length; i++) {
+      var q = questions[i];
+      if (!this.isTwoValueEquals(q.value, newValue)) {
+        q.value = newValue;
+      }
+      if (this.checkQuestionErrorOnValueChangedCore(q)) res = true;
+      res = res || q.errors.length > 0;
+    }
+    return res;
   }
   protected notifyQuestionOnValueChanged(valueName: string, newValue: any) {
     if (this.isLoadingFromJson) return;
@@ -4721,8 +4741,14 @@ export class SurveyModel
     allowNotifyValueChanged: boolean = true
   ) {
     var newValue = newQuestionValue;
-    if (allowNotifyValueChanged)
+    if (allowNotifyValueChanged) {
       newValue = this.questionOnValueChanging(name, newQuestionValue);
+    }
+    if (
+      this.checkErrorsMode == "onValueChanging" &&
+      this.checkErrorsOnValueChanging(name, newValue)
+    )
+      return;
     if (
       !this.editingObj &&
       this.isValueEqual(name, newValue) &&

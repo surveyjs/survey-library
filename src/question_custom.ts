@@ -624,11 +624,13 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
   }
   protected setQuestionValue(newValue: any, updateIsAnswered: boolean = true) {
     super.setQuestionValue(newValue, updateIsAnswered);
+    this.settingNewValue = true;
     var questions = this.contentPanel.questions;
     for (var i = 0; i < questions.length; i++) {
       var key = questions[i].getValueName();
       questions[i].value = !!newValue ? newValue[key] : undefined;
     }
+    this.settingNewValue = false;
   }
   private setAfterRenderCallbacks(panel: PanelModel) {
     if (!panel || !this.customQuestion) return;

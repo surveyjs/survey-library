@@ -1371,12 +1371,23 @@ export class Question
   }
   public getSupportedValidators(): Array<string> {
     var res: Array<string> = [];
-    this.addSupportedValidators(res);
+    var className = this.getType();
+    while (!!className) {
+      var classValidators = (<any>settings.supportedValidators)[className];
+      if (!!classValidators) {
+        for (var i = classValidators.length - 1; i >= 0; i--) {
+          res.splice(0, 0, classValidators[i]);
+        }
+      }
+      var classInfo = Serializer.findClass(className);
+      className = classInfo.parentName;
+    }
     return res;
   }
-  protected addSupportedValidators(supportedValidators: Array<string>) {
-    supportedValidators.push("expression");
-  }
+  private addSupportedValidators(
+    supportedValidators: Array<string>,
+    classValidators: Array<string>
+  ) {}
   public addConditionObjectsByContext(
     objects: Array<IConditionObject>,
     context: any

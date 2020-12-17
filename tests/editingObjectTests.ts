@@ -197,9 +197,14 @@ QUnit.test("Composite: create from code", function (assert) {
   var survey = new SurveyModel({
     elements: [{ type: "propertygrid_restfull", name: "choicesByUrl" }],
   });
+  var counter = 0;
+  survey.onValueChanging.add(function (sender, options) {
+    counter++;
+  });
   var question = new QuestionDropdownModel("q1");
   question.choicesByUrl.url = "myUrl";
   survey.editingObj = question;
+  assert.equal(counter, 0, "We do not change anything");
   var q = <QuestionCompositeModel>survey.getAllQuestions()[0];
   var urlQ = q.contentPanel.questions[0];
   assert.equal(urlQ.value, "myUrl", "Url set correctly from question");
@@ -210,5 +215,24 @@ QUnit.test("Composite: create from code", function (assert) {
     "myUrl2",
     "Url set correctly into question"
   );
+  assert.equal(counter, 1, "We change url");
   ComponentCollection.Instance.clear();
 });
+/*
+QUnit.test("onValueChanging/changed and validation", function (assert) {
+  var question = new QuestionDropdownModel("q1");
+  var survey = new SurveyModel({
+    elements: [
+      { type: "text", name: "name" },
+      { type: "comment", name: "title" },
+    ],
+  });
+  survey.editingObj = question;
+  assert.equal(question.title, "q1", "the default title value");
+  assert.equal(survey.getValue("title"), undefined, "The value is empty");
+  survey.setValue("title", "q1 title");
+  assert.equal(question.title, "q1 title", "set title property correctly");
+  survey.setValue("title", "");
+  assert.equal(question.title, "q1", "get title property from name");
+});
+*/

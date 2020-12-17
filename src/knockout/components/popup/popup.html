@@ -6,6 +6,9 @@
     class="sv-popup__container"
     data-bind="style: { left: left, top: top }, class: styleClass, click: function() { return true; }, clickBubble: false"
   >
+    <!-- ko if: showPointer  -->
+    <span data-bind="style: {left: pointerTarget().left, top: pointerTarget().top }" class="sv-popup__pointer"></span>
+    <!-- /ko -->
     <div class="sv-popup__content">
       <!-- ko component: { name: contentComponentName, params: contentComponentData } --><!-- /ko -->
     </div>

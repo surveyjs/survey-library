@@ -2,10 +2,14 @@ import * as ko from "knockout";
 const template = require("html-loader?interpolate!val-loader!./popup.html");
 
 export class PopupViewModel {
-  private container: HTMLElement;
   public top = ko.observable();
   public left = ko.observable();
+  public popupDirection = ko.observable<string>();
+  public pointerTarget = ko.observable<object>({});
+
+  private container: HTMLElement;
   private showSubscription: ko.Computed<void>;
+
   constructor(
     public contentComponentName: string,
     public contentComponentData: any,
@@ -14,6 +18,7 @@ export class PopupViewModel {
     public horizontalPosition: "left" | "right" | "center",
     public showPointer: boolean,
     public onHide: () => any,
+    public cssClass: string = "",
     targetElement: HTMLElement
   ) {
     this.container = document.createElement("div");
@@ -23,47 +28,124 @@ export class PopupViewModel {
 
     this.showSubscription = ko.computed(() => {
       const rect = targetElement.getBoundingClientRect();
-      let width: number = (<HTMLElement>this.container.children[0].children[0])
+      const height = (<HTMLElement>this.container.children[0].children[0])
+        .offsetHeight;
+      const width = (<HTMLElement>this.container.children[0].children[0])
         .offsetWidth;
-      if (this.isVisible()) {
-        if (horizontalPosition == "center") {
-          this.left((rect.left + rect.right - width) / 2);
-        } else if (horizontalPosition == "left") {
-          this.left(rect.left - width);
-        } else {
-          this.left(rect.right);
-        }
+      var pos = PopupUtils.calculatePosition(
+        rect,
+        height,
+        width,
+        verticalPosition,
+        horizontalPosition,
+        this.showPointer
+      );
+      this.left(pos.left);
+      this.top(pos.top);
 
-        let height: number = (<HTMLElement>(
-          this.container.children[0].children[0]
-        )).offsetHeight;
-        if (verticalPosition == "bottom") {
-          this.top(rect.bottom);
-        } else if (verticalPosition == "middle") {
-          this.top((rect.bottom + rect.top) / 2 - height / 2);
-        } else {
-          this.top(rect.top - height);
+      this.popupDirection(
+        PopupUtils.calculatePopupDirection(verticalPosition, horizontalPosition)
+      );
+
+      if (this.isVisible()) {
+        if (this.showPointer) {
+          this.pointerTarget(
+            PopupUtils.calculatePointerTarget(
+              rect,
+              pos.top,
+              pos.left,
+              verticalPosition,
+              horizontalPosition
+            )
+          );
         }
-      } else {
+      }else {
         if (typeof this.onHide === "function") this.onHide();
       }
     });
   }
 
   public get styleClass(): string {
-    let css = "";
+    var css = this.cssClass;
     if (this.showPointer) {
       css += " sv-popup--show-pointer";
+      css += ` sv-popup--${this.popupDirection()}`;
     }
-    css += ` sv-popup--${this.horizontalPosition}`;
-    css += ` sv-popup--${this.verticalPosition}`;
+
     return css;
   }
 
-  public dispose(): any {
+  public dispose() {
     this.showSubscription.dispose();
     ko.cleanNode(this.container);
     this.container.remove();
+  }
+}
+
+export class PopupUtils {
+  public static calculatePosition(
+    targetRect: ClientRect,
+    height: number,
+    width: number,
+    verticalPosition: string,
+    horizontalPosition: string,
+    showPointer: boolean
+  ) {
+    if (horizontalPosition == "center")
+      var left = (targetRect.left + targetRect.right - width) / 2;
+    else if (horizontalPosition == "left") left = targetRect.left - width;
+    else left = targetRect.right;
+
+    if (verticalPosition == "middle")
+      var top = (targetRect.top + targetRect.bottom - height) / 2;
+    else if (verticalPosition == "top") top = targetRect.top - height;
+    else top = targetRect.bottom;
+
+    if (showPointer) {
+      if (horizontalPosition != "center" && verticalPosition != "middle") {
+        if (verticalPosition == "top") {
+          top = top + targetRect.height;
+        } else {
+          top = top - targetRect.height;
+        }
+      }
+    }
+
+    return { left: left, top: top };
+  }
+
+  public static calculatePopupDirection(
+    verticalPosition: string,
+    horizontalPosition: string
+  ) {
+    var popupDirection: string;
+    if (horizontalPosition == "center" && verticalPosition != "middle") {
+      popupDirection = verticalPosition;
+    } else if (horizontalPosition != "center") {
+      popupDirection = horizontalPosition;
+    }
+    return popupDirection;
+  }
+
+  //called when showPointer  is true
+  public static calculatePointerTarget(
+    targetRect: ClientRect,
+    top: number,
+    left: number,
+    verticalPosition: string,
+    horizontalPosition: string
+  ) {
+    var targetPos: any = {};
+    if (horizontalPosition != "center") {
+      targetPos.top = targetRect.top + targetRect.height / 2;
+      targetPos.left = (<any>targetRect)[horizontalPosition];
+    } else if (verticalPosition != "middle") {
+      targetPos.top = (<any>targetRect)[verticalPosition];
+      targetPos.left = targetRect.left + targetRect.width / 2;
+    }
+    targetPos.left = targetPos.left - left;
+    targetPos.top = targetPos.top - top;
+    return targetPos;
   }
 }
 
@@ -78,6 +160,7 @@ ko.components.register("sv-popup", {
         params.horizontalPosition,
         params.showPointer,
         params.onHide,
+        params.cssClass,
         componentInfo.element.parentElement
       );
       return viewModel;

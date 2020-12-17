@@ -4496,8 +4496,19 @@ QUnit.test("Survey.checkErrorsMode=onValueChanging", function (assert) {
     0,
     "There is no errors yet in the cell, second row, first column"
   );
-  assert.deepEqual(matrix.value, [{ col1: "val" }, {}], "set value to matrix");
+  assert.notOk(matrix.value, "do not set value to matrix");
   assert.deepEqual(survey.data, {}, "do not set value into survey");
+  rows[0].cells[0].value = "a@a.com";
+  assert.deepEqual(
+    matrix.value,
+    [{ col1: "a@a.com" }, {}],
+    "set value to matrix"
+  );
+  assert.deepEqual(
+    survey.data,
+    { question1: [{ col1: "a@a.com" }, {}] },
+    "set value into survey"
+  );
 });
 
 QUnit.test(

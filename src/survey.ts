@@ -714,7 +714,7 @@ export class SurveyModel
    * <br/> `options.cellQuestion` - the question/editor in the cell. You may customize it, change it's properties, like choices or visible.
    * <br/> `options.rowValue` - the value of the current row. To access a particular column's value within the current row, use: `options.rowValue["columnValue"]`.
    * <br/> `options.column` - the matrix column object.
-   * <br/> `options.columName` - the matrix column name.
+   * <br/> `options.columnName` - the matrix column name.
    * <br/> `options.row` - the matrix row object.
    * @see onMatrixBeforeRowAdded
    * @see onMatrixRowAdded
@@ -746,7 +746,7 @@ export class SurveyModel
    * The event is fired when cell value is changed in Matrix Dynamic and Matrix Dropdown questions.
    * <br/> `sender` - the survey object that fires the event.
    * <br/> `options.question` - the matrix question.
-   * <br/> `options.columName` - the matrix column name.
+   * <br/> `options.columnName` - the matrix column name.
    * <br/> `options.value` - a new value.
    * <br/> `options.row` - the matrix row object.
    * <br/> `options.getCellQuestion(columnName)` - the function that returns the cell question by column name.
@@ -764,7 +764,7 @@ export class SurveyModel
    * The event is fired on changing cell value in Matrix Dynamic and Matrix Dropdown questions. You may change the `options.value` property to change a cell value.
    * <br/> `sender` - the survey object that fires the event.
    * <br/> `options.question` - the matrix question.
-   * <br/> `options.columName` - the matrix column name.
+   * <br/> `options.columnName` - the matrix column name.
    * <br/> `options.value` - a new value.
    * <br/> `options.oldValue` - the old value.
    * <br/> `options.row` - the matrix row object.
@@ -782,8 +782,9 @@ export class SurveyModel
   /**
    * The event is fired when Matrix Dynamic and Matrix Dropdown questions validate the cell value.
    * <br/> `sender` - the survey object that fires the event.
+   * <br/> `options.error` - an error string. It is empty by default.
    * <br/> `options.question` - the matrix question.
-   * <br/> `options.columName` - the matrix column name.
+   * <br/> `options.columnName` - the matrix column name.
    * <br/> `options.value` - a cell value.
    * <br/> `options.row` - the matrix row object.
    * <br/> `options.getCellQuestion(columnName)` - the function that returns the cell question by column name.
@@ -3727,6 +3728,9 @@ export class SurveyModel
   matrixCellValueChanging(question: IQuestion, options: any) {
     options.question = question;
     this.onMatrixCellValueChanging.fire(this, options);
+  }
+  get isValidateOnValueChanging(): boolean {
+    return this.checkErrorsMode == "onValueChanging";
   }
   matrixCellValidate(question: IQuestion, options: any): SurveyError {
     options.question = question;

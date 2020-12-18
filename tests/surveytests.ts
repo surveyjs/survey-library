@@ -935,6 +935,52 @@ QUnit.test("survey.checkErrorsMode = 'onValueChanged'", function (assert) {
   survey.setValue(question.name, "a@a.co");
   assert.equal(question.errors.length, 0, "The is not errors again");
 });
+QUnit.test("survey.checkErrorsMode = 'onValueChanging'", function (assert) {
+  var survey = twoPageSimplestSurvey();
+  var question = <Question>survey.pages[0].questions[0];
+  question.validators.push(new EmailValidator());
+  survey.checkErrorsMode = "onValueChanging";
+  survey.onValidateQuestion.add(function (sender, options) {
+    if (options.name !== "question2") return;
+    options.error = options.value.length != 3 ? "Require3Symbols" : null;
+  });
+  assert.equal(question.errors.length, 0, "there is no errors yet");
+  question.value = "it is not e-mail";
+  assert.equal(
+    question.errors.length,
+    1,
+    "The error about invalid e-mail is generated"
+  );
+  assert.equal(
+    question.value,
+    "it is not e-mail",
+    "the value keeps in question"
+  );
+  assert.notOk(
+    survey.getValue(question.name),
+    "We do not assign it to survey.data"
+  );
+  survey.setValue(question.name, "a@a.co");
+  assert.equal(question.errors.length, 0, "The is not errors again");
+  assert.equal(
+    survey.getValue(question.name),
+    "a@a.co",
+    "set value to survey.data"
+  );
+  question = survey.getQuestionByName("question2");
+  survey.setValue("question2", "val1");
+  assert.equal(question.value, "val1", "incorrect value set to question");
+  assert.equal(question.errors.length, 1, "error is generated");
+  assert.notOk(survey.getValue("question2"), "survey do not have this value");
+  survey.setValue("question2", "val");
+  assert.equal(question.value, "val", "correct value set to question");
+  assert.equal(question.errors.length, 0, "there is no errors");
+  assert.equal(
+    survey.getValue("question2"),
+    "val",
+    "set correct value into survey"
+  );
+});
 QUnit.test(
   "survey.checkErrorsMode = 'onValueChanged', load from json + defaultValue",
   function (assert) {

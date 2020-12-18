@@ -1867,7 +1867,7 @@ export class QuestionMatrixDropdownModelBase
     return this.columnLayout != "vertical";
   }
   /**
-   * Set the value to "underRow" to show the detailPanel under the row. Set the value to "popup" to show the detailPanel in the popup.
+   * Set the value to "underRow" to show the detailPanel under the row.
    */
   public get detailPanelMode(): string {
     return this.getPropertyValue("detailPanelMode", "none");
@@ -3033,7 +3033,7 @@ Serializer.addClass(
     },
     {
       name: "detailPanelMode",
-      choices: ["none", "underRow", "underRowSingle", "popup"],
+      choices: ["none", "underRow", "underRowSingle"],
       default: "none",
     },
     "horizontalScroll:boolean",

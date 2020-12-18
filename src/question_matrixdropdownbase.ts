@@ -2600,7 +2600,7 @@ export class QuestionMatrixDropdownModelBase
     if (!this.generatedVisibleRows) return false;
     var res = false;
     if (!rec) rec = {};
-    rec.isSingleDetailPanel = this.detailPanelMode == "underRowSingle";
+    rec.isSingleDetailPanel = this.detailPanelMode === "underRowSingle";
     for (var i = 0; i < this.generatedVisibleRows.length; i++) {
       res =
         this.generatedVisibleRows[i].hasErrors(fireCallback, rec, () => {

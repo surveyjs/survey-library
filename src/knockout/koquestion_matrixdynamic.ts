@@ -5,14 +5,15 @@ import { QuestionImplementor } from "./koquestion";
 import { QuestionMatrixBaseImplementor } from "./koquestion_matrixdropdown";
 import { QuestionMatrixDynamicModel } from "../question_matrixdynamic";
 import { Question } from "../question";
-import { QuestionMatrixDropdownModelBase } from "../question_matrixdropdownbase";
+import { MatrixDropdownRowModelBase, QuestionMatrixDropdownModelBase } from "../question_matrixdropdownbase";
 import { MatrixDynamicRowModel } from "../question_matrixdynamic";
-import { PanelModel} from "../panel";
-import {Panel} from "./kopage";
+import { PanelModel } from "../panel";
+import { Panel } from "./kopage";
 
 export class QuestionMatrixDynamicImplementor extends QuestionMatrixBaseImplementor {
   constructor(question: Question) {
     super(question);
+    (<any>this.question)["getKoPopupIsVisible"] = this.getKoPopupIsVisible;
   }
   protected isAddRowTop(): boolean {
     return (<QuestionMatrixDynamic>this.question).isAddRowOnTop;
@@ -32,6 +33,9 @@ export class QuestionMatrixDynamicImplementor extends QuestionMatrixBaseImplemen
   protected removeRow(row: MatrixDynamicRowModel) {
     (<QuestionMatrixDynamic>this.question).removeRowUI(row);
   }
+  public getKoPopupIsVisible(row: MatrixDropdownRowModelBase) {
+    return ko.observable(row.isDetailPanelShowing);
+  }
 }
 
 export class QuestionMatrixDynamic extends QuestionMatrixDynamicModel {
@@ -47,11 +51,11 @@ export class QuestionMatrixDynamic extends QuestionMatrixDynamicModel {
   }
 }
 
-Serializer.overrideClassCreator("matrixdynamic", function() {
+Serializer.overrideClassCreator("matrixdynamic", function () {
   return new QuestionMatrixDynamic("");
 });
 
-QuestionFactory.Instance.registerQuestion("matrixdynamic", name => {
+QuestionFactory.Instance.registerQuestion("matrixdynamic", (name) => {
   var q = new QuestionMatrixDynamic(name);
   q.choices = [1, 2, 3, 4, 5];
   q.rowCount = 2;

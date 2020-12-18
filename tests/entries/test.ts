@@ -42,3 +42,4 @@ import "../../src/localization/finnish";
 import "../../src/localization/german";
 
 import "../renderFactoryTests";
+import "../components/popuptests";

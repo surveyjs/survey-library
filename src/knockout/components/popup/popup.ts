@@ -17,6 +17,7 @@ export class PopupViewModel {
     public verticalPosition: "top" | "bottom" | "middle",
     public horizontalPosition: "left" | "right" | "center",
     public showPointer: boolean,
+    public isHideByClickOutside: boolean = true,
     public onHide: () => any,
     public cssClass: string = "",
     targetElement: HTMLElement
@@ -32,7 +33,7 @@ export class PopupViewModel {
         .offsetHeight;
       const width = (<HTMLElement>this.container.children[0].children[0])
         .offsetWidth;
-      var pos = PopupUtils.calculatePosition(
+      const pos = PopupUtils.calculatePosition(
         rect,
         height,
         width,
@@ -59,7 +60,7 @@ export class PopupViewModel {
             )
           );
         }
-      }else {
+      } else {
         if (typeof this.onHide === "function") this.onHide();
       }
     });
@@ -159,6 +160,7 @@ ko.components.register("sv-popup", {
         params.verticalPosition,
         params.horizontalPosition,
         params.showPointer,
+        params.isHideByClickOutside,
         params.onHide,
         params.cssClass,
         componentInfo.element.parentElement

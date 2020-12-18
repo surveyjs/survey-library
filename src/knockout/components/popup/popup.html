@@ -1,6 +1,6 @@
 <div
   class="sv-popup"
-  data-bind="visible: isVisible, click: function() { isVisible(false) }"
+  data-bind="visible: isVisible, click: function() { if (isHideByClickOutside) isVisible(false) }"
 >
   <div
     class="sv-popup__container"

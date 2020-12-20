@@ -11,11 +11,22 @@
       }
     }
   }
-  td:first-child {
-    padding-left: 1.875em;
+
+  tr:first-child {
+    .sv-table__cell {
+      padding-top: 1.875em;
+    }
   }
-  td:last-child {
-    padding-right: 1.875em;
+
+  td, th {
+    &:first-child {
+      padding-left: 1.875em;
+    }
+  }
+  td, th {
+    &:last-child {
+      padding-right: 1.875em;
+    }
   }
 }
 .sv-table__row--detail {
@@ -43,7 +54,6 @@
   font-family: Raleway;
   font-weight: bold;
   text-align: left;
-  padding-top: 1.875em;
 }
 .sv-table__cell--rowText {
   vertical-align: middle;

@@ -9,6 +9,7 @@ import { Serializer } from "../src/jsonobject";
 import { QuestionDropdownModel } from "../src/question_dropdown";
 import { QuestionTextModel } from "../src/question_text";
 import { QuestionMatrixDropdownModel } from "../src/question_matrixdropdown";
+import { QuestionPanelDynamicModel } from "../src/question_paneldynamic";
 import { ItemValue } from "../src/itemvalue";
 
 export default QUnit.module("custom questions");
@@ -1120,4 +1121,45 @@ QUnit.test("Composite: set value from survey.data", function (assert) {
     "B",
     "set value into the second question in composite"
   );
+});
+QUnit.test("Use components in dynamic panel", function (assert) {
+  ComponentCollection.Instance.add({
+    name: "singlequestion",
+    createQuestion: function () {
+      var res = new QuestionDropdownModel("question");
+      res.choices = [1, 2, 3, 4, 5];
+      return res;
+    },
+  });
+  ComponentCollection.Instance.add({
+    name: "compositequestion",
+    elementsJSON: [
+      { type: "text", name: "q1" },
+      {
+        type: "dropdown",
+        name: "q2",
+        choices: ["A", "B", "C"],
+      },
+    ],
+  });
+
+  var survey = new SurveyModel({
+    elements: [
+      {
+        type: "paneldynamic",
+        name: "q1",
+        templateElements: [
+          { type: "text", name: "q1" },
+          { type: "singlequestion", name: "q2" },
+          { type: "compositequestion", name: "q3" },
+        ],
+      },
+    ],
+  });
+  var panel = <QuestionPanelDynamicModel>survey.getAllQuestions()[0];
+  panel.panelCount = 1;
+  panel.panels[0].getQuestionByName("q2").value = 1;
+  panel.panels[0].getQuestionByName("q3").value = { q1: 1, q2: "B" };
+  assert.deepEqual(survey.data, { q1: [{ q2: 1, q3: { q1: 1, q2: "B" } }] });
+  ComponentCollection.Instance.clear();
 });

@@ -1695,6 +1695,15 @@ export class Question
   public getComponentName(): string {
     return RendererFactory.Instance.getRendererByQuestion(this);
   }
+
+  public getTitleActions(): Array<any> {
+    this.titleActions = this.survey.getUpdatedQuestionTitleActions(
+      this,
+      this.titleActions
+    );
+    return this.titleActions;
+  }
+
   public isDefaultRendering(): boolean {
     return (
       !!this.customWidget ||
@@ -1826,5 +1835,6 @@ Serializer.addClass("question", [
     },
   },
   { name: "renderAs", default: "default", visible: false },
+  { name: "renderTitleAs", default: "default", visible: false },
 ]);
 Serializer.addAlterNativeClassName("question", "questionbase");

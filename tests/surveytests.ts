@@ -12226,3 +12226,37 @@ QUnit.test("Expand question on validation error", function (assert) {
   assert.equal(q1.isCollapsed, false, "Question1 is not collapsed");
   assert.equal(q1.isExpanded, true, "Question1 is expanded");
 });
+
+QUnit.test("Check onGetPanelTitleActions event", (assert) => {
+  var survey = new SurveyModel({
+    elements: [
+      {
+        type: "panel",
+        name: "panel1",
+      },
+    ],
+  });
+  var panel = <PanelModel>survey.getPanelByName("panel1");
+  var testActions = [{ name: "simple" }, { name: "simple2" }];
+  survey.onGetPanelTitleActions.add((sender, options) => {
+    options.titleActions = testActions;
+  });
+  assert.deepEqual(panel.getTitleActions(), testActions);
+});
+
+QUnit.test("Check onGetQuestionTitleActions event", (assert) => {
+  var survey = new SurveyModel({
+    elements: [
+      {
+        type: "text",
+        name: "text1",
+      },
+    ],
+  });
+  var panel = <Question>survey.getQuestionByName("text1");
+  var testActions = [{ name: "simple" }, { name: "simple2" }];
+  survey.onGetQuestionTitleActions.add((sender, options) => {
+    options.titleActions = testActions;
+  });
+  assert.deepEqual(panel.getTitleActions(), testActions);
+});

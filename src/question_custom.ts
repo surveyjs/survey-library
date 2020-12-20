@@ -421,7 +421,10 @@ export class QuestionCustomModel extends QuestionCustomModelBase {
   }
   protected setQuestionValue(newValue: any, updateIsAnswered: boolean = true) {
     super.setQuestionValue(newValue, updateIsAnswered);
-    if (!!this.contentQuestion) {
+    if (
+      !!this.contentQuestion &&
+      !Helpers.isTwoValueEquals(this.contentQuestion.value, newValue)
+    ) {
       this.contentQuestion.value = newValue;
     }
   }

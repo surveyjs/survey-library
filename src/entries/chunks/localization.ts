@@ -23,6 +23,7 @@ import "../../localization/norwegian";
 import "../../localization/persian";
 import "../../localization/polish";
 import "../../localization/portuguese";
+import "../../localization/portuguese-br";
 import "../../localization/romanian";
 import "../../localization/russian";
 import "../../localization/simplified-chinese";

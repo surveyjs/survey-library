@@ -904,16 +904,6 @@ export class SurveyModel
     any
   > = new Event<(sender: SurveyModel) => any, any>();
 
-  public onGetQuestionTitleActions: Event<
-    (sender: SurveyModel, options: any) => any,
-    any
-  > = new Event<(sender: SurveyModel, options: any) => any, any>();
-
-  public onGetPanelTitleActions: Event<
-    (sender: SurveyModel, options: any) => any,
-    any
-  > = new Event<(sender: SurveyModel, options: any) => any, any>();
-
   /**
    * The list of errors on loading survey JSON. If the list is empty after loading a JSON, then the JSON is correct and has no errors.
    * @see JsonError
@@ -3769,27 +3759,6 @@ export class SurveyModel
     options.allow = true;
     this.onDragDropAllow.fire(this, options);
     return options.allow;
-  }
-
-  getUpdatedQuestionTitleActions(
-    question: IQuestion,
-    titleActions: Array<any>
-  ) {
-    var options = {
-      question: question,
-      titleActions: titleActions,
-    };
-    this.onGetQuestionTitleActions.fire(this, options);
-    return options.titleActions;
-  }
-
-  getUpdatedPanelTitleActions(panel: IPanel, titleActions: Array<any>) {
-    var options = {
-      panel: panel,
-      titleActions: titleActions,
-    };
-    this.onGetPanelTitleActions.fire(this, options);
-    return options.titleActions;
   }
 
   scrollElementToTop(

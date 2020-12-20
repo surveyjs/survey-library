@@ -5,18 +5,11 @@
     <h4
       data-bind="visible: !!locTitle.koRenderedHtml(), css: $data.getTitleStyle(), click: toggleState"
     >
-      <!-- ko ifnot: renderTitleAs == "default" -->
-        <!-- ko component: { name: getTitleComponentName(), params: { question: $data } } --><!-- /ko -->
-      <!-- /ko -->
-      <!-- ko if: renderTitleAs == "default" -->
-        <!-- ko template: { name: 'survey-question-title-content' } --><!-- /ko -->
-        <!-- ko if: isCollapsed || isExpanded -->
-        <span
-          data-bind="css: cssClasses.icon + (!isCollapsed ? ' ' + cssClasses.iconExpanded: ''), event: { keyup: toggleStateByKeyUp }, attr:{'aria-expanded': isCollapsed ? 'false': 'true'}"
-          tabindex="0"
-        ></span>
-        <!-- /ko --> 
-      <!-- /ko  -->
+      <!-- ko template: { name: 'survey-question-title-content', data: $data } --><!-- /ko -->
+      <span
+        data-bind="visible: koIsCollapsed() || koIsExpanded(), css: cssClasses.panel.icon + (!koIsCollapsed() ? ' ' + cssClasses.panel.iconExpanded: ''), event: { keyup: toggleStateByKeyUp }, attr:{'aria-expanded': koIsCollapsed() ? 'false': 'true', 'aria-controls': !koIsCollapsed() ? contentId: false}"
+        tabindex="0"
+      ></span>
     </h4>
     <div data-bind="css: cssClasses.panel.description">
       <!-- ko template: { name: 'survey-string', data: locDescription } -->

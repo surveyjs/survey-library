@@ -1,0 +1,15 @@
+<button
+  class="svc-action-bar-item svc-action-bar-item-dropdown"
+  data-bind="click: action, css: { 'svc-action-bar-item--active': !!ko.unwrap($data.isActive) }, class: $data.innerCss, attr: { disabled: $data.enabled !== undefined && !ko.unwrap($data.enabled), title: $data.tooltip || $data.title}"
+>
+  <!-- ko if: $data.icon -->
+  <svc-svg-icon
+    class="svc-action-bar-item__icon"
+    params="iconName: icon, size: 24"
+  ></svc-svg-icon>
+  <!-- /ko -->
+  <!-- ko if: $data.showTitle === undefined || (!!$data.icon && ko.unwrap($data.showTitle)) -->
+  <span class="svc-action-bar-item__title" data-bind="text: title"></span>
+  <!-- /ko -->
+  <svc-modal params= "name: name, data: model, isVisible: isVisible, verticalPosition: verticalPosition, horizontalPosition: horizontalPosition, showPointer: showPointer"></svc-modal>
+</button>

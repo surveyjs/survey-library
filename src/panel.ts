@@ -251,9 +251,10 @@ export class PanelModelBase
   }
 
   public getTitleActions(): Array<any> {
+    var titleActions = super.getTitleActions()
     this.titleActions = this.survey.getUpdatedPanelTitleActions(
       this,
-      this.titleActions
+      titleActions
     );
     return this.titleActions;
   }

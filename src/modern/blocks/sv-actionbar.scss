@@ -14,25 +14,25 @@ $base-unit: var(--base-unit, 8px);
   @return $result;
 }
 
-svc-action-bar {
+sv-action-bar {
   display: flex;
   align-items: center;
   margin-left: auto;
   padding: 0 0 0 calcSize(2);
 }
 
-.svc-action--first {
+.sv-action--first {
   flex: 1;
-  .svc-action-bar-item {
+  .sv-action-bar-item {
     flex-direction: row-reverse;
   }
-  .svc-action-bar-item__title {
+  .sv-action-bar-item__title {
     margin-left: 0;
     margin-right: calcSize(1);
   }
 }
 
-.svc-action-bar-separator {
+.sv-action-bar-separator {
   display: inline-block;
   width: 1px;
   height: 24px;
@@ -41,7 +41,7 @@ svc-action-bar {
   background-color: #d6d6d6;
 }
 
-.svc-action-bar-item {
+.sv-action-bar-item {
   -webkit-appearance: none;
   -moz-appearance: none;
   appearance: none;
@@ -59,7 +59,7 @@ svc-action-bar {
   font-family: $font-family;
 }
 
-.svc-action-bar-item__icon {
+.sv-action-bar-item__icon {
   svg {
     display: block;
   }
@@ -69,47 +69,47 @@ svc-action-bar {
 }
 
 //hovered state
-.svc-action-bar-item:hover {
+.sv-action-bar-item:hover {
   background-color: $background-dim;
 }
 
 //pressed state
-.svc-action-bar-item:active {
+.sv-action-bar-item:active {
   opacity: 0.5;
 }
 
-.svc-action-bar-item:focus {
+.sv-action-bar-item:focus {
   outline: none;
 }
 
 //disabled state
-.svc-action-bar-item:disabled {
+.sv-action-bar-item:disabled {
   opacity: 0.25;
   cursor: default;
   color: $foreground;
-  .svc-action-bar-item__icon use {
+  .sv-action-bar-item__icon use {
     fill: $foreground;
   }
 }
 
-.svc-action-bar-item__title {
+.sv-action-bar-item__title {
   margin-left: calcSize(1);
   vertical-align: middle;
 }
 
-.svc-action-bar-item--secondary {
-  .svc-action-bar-item__icon use {
+.sv-action-bar-item--secondary {
+  .sv-action-bar-item__icon use {
     fill: $secondary;
   }
 }
 
-.svc-action-bar-item--active {
-  .svc-action-bar-item__icon use {
+.sv-action-bar-item--active {
+  .sv-action-bar-item__icon use {
     fill: $primary;
   }
 }
 
-.svc-action-bar-item-dropdown {
+.sv-action-bar-item-dropdown {
   -webkit-appearance: none;
   -moz-appearance: none;
   appearance: none;

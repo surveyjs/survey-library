@@ -4,7 +4,7 @@ const template = require("./action-bar-item-dropdown.html");
 
 export var ActionBarItemDropdownViewModel: any;
 
-ko.components.register("svc-action-bar-item-dropdown", {
+ko.components.register("sv-action-bar-item-dropdown", {
   viewModel: {
     createViewModel: (params: any, componentInfo: any) => {
       var isVisible = ko.observable(false);

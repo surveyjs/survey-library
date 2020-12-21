@@ -78,7 +78,7 @@ export class ActionBarViewModel {
   }
 }
 
-ko.components.register("svc-action-bar", {
+ko.components.register("sv-action-bar", {
   viewModel: {
     createViewModel: (params: any, componentInfo: any) => {
       return new ActionBarViewModel(params.items);

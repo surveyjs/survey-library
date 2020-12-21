@@ -207,6 +207,9 @@ export interface ISurveyElement {
   setVisibleIndex(value: number): number;
   locStrsChanged(): any;
   delete(): any;
+  toggleState(): void;
+  stateChangedCallback(): void;
+  getTitleActions(): Array<any>;
 }
 export interface IElement extends IConditionRunner, ISurveyElement {
   visible: boolean;
@@ -219,8 +222,6 @@ export interface IElement extends IConditionRunner, ISurveyElement {
   isCollapsed: boolean;
   rightIndent: number;
   startWithNewLine: boolean;
-  toggleState(): void;
-  stateChangedCallback(): void;
   registerFunctionOnPropertyValueChanged(
     name: string,
     func: any,
@@ -1205,7 +1206,14 @@ export class SurveyElement extends Base implements ISurveyElement {
   }
 
   public getTitleComponentName(): string {
-    return RendererFactory.Instance.getRenderer("element", this.renderTitleAs);
+    const componentName = RendererFactory.Instance.getRenderer(
+      "element",
+      this.renderTitleAs
+    );
+    if (componentName == "default") {
+      return "sv-default-title";
+    }
+    return componentName;
   }
 
   @property({ defaultValue: "default" })

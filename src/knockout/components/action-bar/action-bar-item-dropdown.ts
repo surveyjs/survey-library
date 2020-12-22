@@ -16,7 +16,7 @@ ko.components.register("sv-action-bar-item-dropdown", {
           isVisible(!isVisible());
         },
         model: {
-          onItemSelect: (item) => {
+          onItemSelect: (item: any) => {
             params.item.action(item);
           },
           items: params.item.items,

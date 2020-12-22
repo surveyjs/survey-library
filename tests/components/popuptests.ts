@@ -1,4 +1,4 @@
-import { PopupUtils } from "../../src/knockout/components/popup/popup";
+import { PopupUtils } from "../../src/knockout/components/popup/popup-utils";
 
 export default QUnit.module("Popup");
 

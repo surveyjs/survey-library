@@ -1,0 +1,157 @@
+$primary: var(--primary, #19b394);
+
+$secondary: var(--secondary, #ff9814);
+
+$background-dim: var(--background-dim, #f3f3f3);
+
+$foreground: var(--foreground, #161616);
+$foreground-light: var(--foreground-light, #909090);
+
+$base-unit: var(--base-unit, 8px);
+
+@function calcSize($multiplier) {
+  $result: calc(#{$multiplier} * #{$base-unit});
+  @return $result;
+}
+
+sv-action-bar {
+  display: flex;
+  align-items: center;
+  margin-left: auto;
+  padding: 0 0 0 calcSize(2);
+}
+
+.sv-action--first {
+  flex: 1;
+  .sv-action-bar-item {
+    flex-direction: row-reverse;
+  }
+  .sv-action-bar-item__title {
+    margin-left: 0;
+    margin-right: calcSize(1);
+  }
+}
+
+.sv-action-bar-separator {
+  display: inline-block;
+  width: 1px;
+  height: 24px;
+  vertical-align: middle;
+  margin-right: 16px;
+  background-color: #d6d6d6;
+}
+
+.sv-action-bar-item {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  display: flex;
+  height: calcSize(5);
+  padding: calcSize(1);
+  box-sizing: border-box;
+  margin-right: calcSize(2);
+  border: none;
+  border-radius: 2px;
+  background-color: transparent;
+  cursor: pointer;
+  line-height: calcSize(3);
+  font-size: calcSize(2);
+  font-family: $font-family;
+}
+
+.sv-action-bar-item__icon {
+  svg {
+    display: block;
+  }
+  use {
+    fill: $foreground-light;
+  }
+}
+
+//hovered state
+.sv-action-bar-item:hover {
+  background-color: $background-dim;
+}
+
+//pressed state
+.sv-action-bar-item:active {
+  opacity: 0.5;
+}
+
+.sv-action-bar-item:focus {
+  outline: none;
+}
+
+//disabled state
+.sv-action-bar-item:disabled {
+  opacity: 0.25;
+  cursor: default;
+  color: $foreground;
+  .sv-action-bar-item__icon use {
+    fill: $foreground;
+  }
+}
+
+.sv-action-bar-item__title {
+  vertical-align: middle;
+}
+
+.sv-action-bar-item--secondary {
+  .sv-action-bar-item__icon use {
+    fill: $secondary;
+  }
+}
+
+.sv-action-bar-item--active {
+  .sv-action-bar-item__icon use {
+    fill: $primary;
+  }
+}
+
+.sv-action-bar-item-dropdown {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  display: flex;
+  height: calcSize(5);
+  padding: calcSize(1);
+  box-sizing: border-box;
+  margin-right: calcSize(2);
+  border: none;
+  border-radius: 2px;
+  background-color: transparent;
+  cursor: pointer;
+  line-height: calcSize(3);
+  font-size: calcSize(2);
+  font-family: $font-family;
+}
+
+.sv-action-bar-item__title--with-icon {
+  margin-left: calcSize(1);
+}
+
+.sv-action--last {
+  flex: 1;
+  justify-content: flex-end;
+  display: flex;
+}
+
+
+.sv-expand-action {
+  &:before {
+    content: "";
+    display: inline-block;
+    background-image: url("data:image/svg+xml,%3C%3Fxml version='1.0' encoding='utf-8'%3F%3E%3C!-- Generator: Adobe Illustrator 21.1.0, SVG Export Plug-In . SVG Version: 6.00 Build 0) --%3E%3Csvg version='1.1' id='Layer_1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' x='0px' y='0px' viewBox='0 0 10 10' style='enable-background:new 0 0 10 10;' xml:space='preserve'%3E%3Cstyle type='text/css'%3E .st0%7Bfill:%23404040;%7D%0A%3C/style%3E%3Cpolygon class='st0' points='2,2 0,4 5,9 10,4 8,2 5,5 '/%3E%3C/svg%3E%0A");
+    background-repeat: no-repeat;
+    background-position: center center;
+    height: 10px;
+    width: 12px;
+    margin: auto;
+    margin-left: 8px;
+  }
+}
+.sv-expand-action--expanded {
+  &:before {
+    transform: rotate(180deg);
+  }
+}

@@ -1,0 +1,6 @@
+<!-- ko template: { name: 'survey-question-title-content', data: element } --><!--/ko-->
+<!-- ko if: element.isCollapsed || element.isExpanded -->
+<span
+    data-bind="css: getIconClass(), event: { keyup: element.toggleStateByKeyUp }, attr:{'aria-expanded': element.isCollapsed ? 'false': 'true'}"
+    tabindex="0"></span>
+<!-- /ko -->

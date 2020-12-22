@@ -249,6 +249,16 @@ export class PanelModelBase
       (this.isDesignMode && settings.allowShowEmptyTitleInDesignMode)
     );
   }
+
+  public getTitleActions(): Array<any> {
+    var titleActions = super.getTitleActions()
+    this.titleActions = this.survey.getUpdatedPanelTitleActions(
+      this,
+      titleActions
+    );
+    return this.titleActions;
+  }
+
   get _showDescription(): boolean {
     return (
       ((<any>this.survey).showPageTitles && this.description.length > 0) ||
@@ -1763,6 +1773,8 @@ Serializer.addClass(
       choices: ["default", "onpanel", "off"],
     },
     "questionStartIndex",
+  { name: "renderTitleAs", default: "default", visible: false },
+
   ],
   function () {
     return new PanelModel();

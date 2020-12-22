@@ -13,6 +13,7 @@ import { settings } from "./settings";
 
 export interface IMatrixData {
   onMatrixRowChanged(row: MatrixRowModel): void;
+  getCorrectedRowValue(value: any): any;
 }
 
 export class MatrixRowModel extends Base {
@@ -50,6 +51,7 @@ export class MatrixRowModel extends Base {
     return this.getPropertyValue("value");
   }
   public set value(newValue: any) {
+    newValue = this.data.getCorrectedRowValue(newValue);
     this.setPropertyValue("value", newValue);
   }
   public get rowClasses(): string {
@@ -574,6 +576,16 @@ export class QuestionMatrixModel
       this.setNewValue(newValue);
     }
     this.isRowChanging = false;
+  }
+  getCorrectedRowValue(value: any): any {
+    for (var i = 0; i < this.columns.length; i++) {
+      if (value === this.columns[i].value) return value;
+    }
+    for (var i = 0; i < this.columns.length; i++) {
+      if (Helpers.isTwoValueEquals(value, this.columns[i].value))
+        return this.columns[i].value;
+    }
+    return value;
   }
 }
 

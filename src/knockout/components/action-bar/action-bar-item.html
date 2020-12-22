@@ -1,0 +1,14 @@
+<button
+  class="sv-action-bar-item"
+  data-bind="click: action, css: { 'sv-action-bar-item--active': !!ko.unwrap($data.isActive) }, class: $data.innerCss, attr: { disabled: $data.enabled !== undefined && !ko.unwrap($data.enabled), title: $data.tooltip || $data.title}"
+>
+  <!-- ko if: $data.icon -->
+  <svc-svg-icon
+    class="sv-action-bar-item__icon"
+    params="iconName: icon, size: 24"
+  ></svc-svg-icon>
+  <!-- /ko -->
+  <!-- ko if: $data.showTitle === undefined || (!!$data.icon && ko.unwrap($data.showTitle)) -->
+  <span class="sv-action-bar-item__title" data-bind="text: title, css: { 'sv-action-bar-item__title--with-icon': !!$data.icon }"></span>
+  <!-- /ko -->
+</button>

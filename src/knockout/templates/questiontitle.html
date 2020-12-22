@@ -3,13 +3,7 @@
     <h5
       data-bind="css: cssTitle, attr: { 'aria-label': question.locTitle.renderedHtml, id: ariaTitleId}, click: toggleStateByClick"
     >
-      <!-- ko template: { name: 'survey-question-title-content', data: question } --><!-- /ko -->
-      <!-- ko if: isCollapsed || isExpanded -->
-      <span
-        data-bind="css: cssClasses.icon + (!isCollapsed ? ' ' + cssClasses.iconExpanded: ''), event: { keyup: toggleStateByKeyUp }, attr:{'aria-expanded': isCollapsed ? 'false': 'true'}"
-        tabindex="0"
-      ></span>
-      <!-- /ko -->
+      <!-- ko component: { name: getTitleComponentName(), params: { element: $data } } --><!-- /ko -->
     </h5>
     <div
       data-bind="visible: question.hasDescriptionUnderTitle, css: koCss().description"

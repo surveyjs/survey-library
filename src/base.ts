@@ -4,10 +4,12 @@ import {
   CustomPropertiesCollection,
   JsonObject,
   JsonObjectProperty,
+  property,
   Serializer,
 } from "./jsonobject";
 import { settings } from "./settings";
 import { ItemValue } from "./itemvalue";
+import { RendererFactory } from "./rendererFactory";
 
 export interface ISurveyData {
   getValue(name: string): any;
@@ -93,6 +95,14 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner {
   questionTitlePattern: string;
   getUpdatedQuestionTitle(question: IQuestion, title: string): string;
   getUpdatedQuestionNo(question: IQuestion, no: string): string;
+  getUpdatedQuestionTitleActions(
+    question: IQuestion,
+    titleActions: Array<any>
+  ): Array<any>;
+  getUpdatedPanelTitleActions(
+    question: IPanel,
+    titleActions: Array<any>
+  ): Array<any>;
 
   questionStartIndex: string;
   questionTitleLocation: string;
@@ -197,6 +207,9 @@ export interface ISurveyElement {
   setVisibleIndex(value: number): number;
   locStrsChanged(): any;
   delete(): any;
+  toggleState(): void;
+  stateChangedCallback(): void;
+  getTitleActions(): Array<any>;
 }
 export interface IElement extends IConditionRunner, ISurveyElement {
   visible: boolean;
@@ -209,8 +222,6 @@ export interface IElement extends IConditionRunner, ISurveyElement {
   isCollapsed: boolean;
   rightIndent: number;
   startWithNewLine: boolean;
-  toggleState(): void;
-  stateChangedCallback(): void;
   registerFunctionOnPropertyValueChanged(
     name: string,
     func: any,
@@ -1045,6 +1056,7 @@ export class SurveyError {
  * Base class of SurveyJS Elements.
  */
 export class SurveyElement extends Base implements ISurveyElement {
+  protected titleActions: any[] = [];
   stateChangedCallback: () => void;
   public static createProgressInfo(): IProgressInfo {
     return {
@@ -1188,6 +1200,36 @@ export class SurveyElement extends Base implements ISurveyElement {
       return;
     }
   }
+
+  public getTitleActions(): Array<any> {
+    this.titleActions.push({
+      title: "",
+      action: () => {},
+      innerCss: () => {
+        var css = "sv-expand-action"
+        if (this.isExpanded) css+=" sv-expand-action--expanded";
+        return css
+      },
+      visible: () => {
+        return this.isExpanded || this.isCollapsed;
+      },
+    });
+    return this.titleActions;
+  }
+
+  public getTitleComponentName(): string {
+    const componentName = RendererFactory.Instance.getRenderer(
+      "element",
+      this.renderTitleAs
+    );
+    if (componentName == "default") {
+      return "sv-default-title";
+    }
+    return componentName;
+  }
+
+  @property({ defaultValue: "default" })
+  renderTitleAs: string;
 
   public setSurveyImpl(value: ISurveyImpl) {
     this.surveyImplValue = value;

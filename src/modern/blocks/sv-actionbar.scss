@@ -93,7 +93,6 @@ sv-action-bar {
 }
 
 .sv-action-bar-item__title {
-  margin-left: calcSize(1);
   vertical-align: middle;
 }
 
@@ -126,6 +125,17 @@ sv-action-bar {
   font-size: calcSize(2);
   font-family: $font-family;
 }
+
+.sv-action-bar-item__title--with-icon {
+  margin-left: calcSize(1);
+}
+
+.sv-action--last {
+  flex: 1;
+  justify-content: flex-end;
+  display: flex;
+}
+
 
 .sv-expand-action {
   &:before {

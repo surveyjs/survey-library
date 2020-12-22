@@ -1,8 +1,12 @@
 import * as React from "react";
-import { ReactSurveyElement, SurveyQuestionElementBase } from "./reactquestion_element";
+import {
+  ReactSurveyElement,
+  SurveyQuestionElementBase,
+} from "./reactquestion_element";
 import { QuestionMatrixModel } from "../question_matrix";
 import { MatrixRowModel } from "../question_matrix";
 import { ReactQuestionFactory } from "./reactquestion_factory";
+import { Helpers } from "../helpers";
 
 export class SurveyQuestionMatrix extends SurveyQuestionElementBase {
   constructor(props: any) {
@@ -121,6 +125,7 @@ export class SurveyQuestionMatrixRow extends ReactSurveyElement {
       var column = this.question.visibleColumns[i];
       var key = "value" + i;
 
+      //var isChecked = Helpers.isTwoValueEquals(row.value, column.value);
       var isChecked = row.value == column.value;
       let itemClass = this.question.getItemClass(row, column);
       var inputId = this.question.inputId + "_" + row.name + "_" + i;

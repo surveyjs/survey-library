@@ -15,6 +15,7 @@ export class PopupViewModel {
   constructor(
     public contentComponentName: string,
     public contentComponentData: any,
+    public contentTemplateName: string,
     public isVisible: ko.Observable<boolean>,
     public verticalPosition: "top" | "bottom" | "middle",
     public horizontalPosition: "left" | "right" | "center",
@@ -118,6 +119,7 @@ ko.components.register("sv-popup", {
       const viewModel = new PopupViewModel(
         params.contentComponentName,
         params.contentComponentData,
+        params.contentTemplateName,
         params.isVisible,
         params.verticalPosition,
         params.horizontalPosition,

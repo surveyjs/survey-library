@@ -63,12 +63,12 @@ export class SurveyQuestionBooleanCheckbox extends SurveyQuestionBoolean {
   }
 }
 
-ReactQuestionFactory.Instance.registerQuestion("boolean-checkbox", (props) => {
+ReactQuestionFactory.Instance.registerQuestion("sv-boolean-checkbox", (props) => {
   return React.createElement(SurveyQuestionBooleanCheckbox, props);
 });
 
 RendererFactory.Instance.registerRenderer(
   "boolean",
   "checkbox",
-  "boolean-checkbox"
+  "sv-boolean-checkbox"
 );

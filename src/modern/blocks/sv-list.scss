@@ -1,29 +1,11 @@
 $primary: var(--primary, #19b394);
-$primary-light: var(--primary-light, rgba(25, 179, 148, 0.1));
-$primary-foreground: var(--primary-foreground, #fff);
-
-$secondary: var(--secondary, #ff9814);
-$secondary-light: var(--secondary-light, rgba(255, 152, 20, 0.1));
-$secondary-foreground: var(--secondary-foreground, #fff);
 
 $background: var(--background, #fff);
 $background-dim: var(--background-dim, #f3f3f3);
-$background-for-editors: var(--background-for-editors, #f9f9f9);
 
-$foreground: var(--foreground, #161616);
 $foreground-light: var(--foreground-light, #909090);
 //todo: discuss this variable
 $foreground-disabled: var(--foreground-disabled, rgba(#161616, 0.16));
-
-$border: var(--border, #d6d6d6);
-$border-inside: var(--border-inside, rgba(0, 0, 0, 0.16));
-
-$shadow-medium: rgba(0, 0, 0, 0.1);
-
-$red: var(--red, #e60a3e);
-$red-light: var(--red-light, rgba(230, 10, 62, 0.1));
-$green: var(--green, #19b394);
-$green-light: var(--green-light, rgba(25, 179, 148, 0.1));
 
 $font-family: "Open Sans";
 

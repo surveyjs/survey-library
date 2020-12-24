@@ -26,7 +26,7 @@ export class PopupViewModel {
     public onHide = () => {},
     public onShow = () => {},
     public cssClass: string = "",
-    targetElement: HTMLElement
+    private targetElement: HTMLElement
   ) {
     this.container = document.createElement("div");
     document.body.appendChild(this.container);
@@ -34,49 +34,7 @@ export class PopupViewModel {
     ko.applyBindings(this, this.container);
 
     this.showSubscription = this.isVisible.subscribe((isVisible) => {
-      const rect = targetElement.getBoundingClientRect();
-      const popupContainer = <HTMLElement>(
-        this.container.children[0].children[0]
-      );
-
-      this.popupDirection(
-        PopupUtils.calculatePopupDirection(verticalPosition, horizontalPosition)
-      );
-
-      if (this.isVisible) {
-        do {
-          var height = popupContainer.offsetHeight;
-          var width = popupContainer.offsetWidth;
-          const pos = PopupUtils.calculatePosition(
-            rect,
-            height,
-            width,
-            verticalPosition,
-            horizontalPosition,
-            this.showPointer
-          );
-          this.left(pos.left);
-          this.top(pos.top);
-
-          if (this.showPointer) {
-            this.pointerTarget(
-              PopupUtils.calculatePointerTarget(
-                rect,
-                pos.top,
-                pos.left,
-                verticalPosition,
-                horizontalPosition
-              )
-            );
-          }
-        } while (
-          popupContainer.offsetWidth != width ||
-          popupContainer.offsetHeight != height
-        );
-        this.onShow();
-      } else {
-        this.onHide();
-      }
+      this.onIsVisibleChanged(isVisible);
     });
   }
 
@@ -88,6 +46,55 @@ export class PopupViewModel {
     }
 
     return css;
+  }
+
+  private onIsVisibleChanged(isVisible: boolean) {
+    if (isVisible) {
+      this.setupPopup();
+      this.onShow();
+    } else {
+      this.onHide();
+    }
+  }
+
+  private setupPopup() {
+    const rect = this.targetElement.getBoundingClientRect();
+    const popupContainer = <HTMLElement>this.container.children[0].children[0];
+    this.popupDirection(
+      PopupUtils.calculatePopupDirection(
+        this.verticalPosition,
+        this.horizontalPosition
+      )
+    );
+    do {
+      var height = popupContainer.offsetHeight;
+      var width = popupContainer.offsetWidth;
+      const pos = PopupUtils.calculatePosition(
+        rect,
+        height,
+        width,
+        this.verticalPosition,
+        this.horizontalPosition,
+        this.showPointer
+      );
+      this.left(pos.left);
+      this.top(pos.top);
+
+      if (this.showPointer) {
+        this.pointerTarget(
+          PopupUtils.calculatePointerTarget(
+            rect,
+            pos.top,
+            pos.left,
+            this.verticalPosition,
+            this.horizontalPosition
+          )
+        );
+      }
+    } while (
+      popupContainer.offsetWidth != width ||
+      popupContainer.offsetHeight != height
+    );
   }
 
   public clickOutside() {

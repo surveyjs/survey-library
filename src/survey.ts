@@ -1658,9 +1658,11 @@ export class SurveyModel
     this.setPropertyValue("logoFit", val);
   }
   public get titleMaxWidth(): string {
-    var logoWidth = this.logoWidth;
-    if (this.logoPosition === "left" || this.logoPosition === "right") {
-      return "calc(100% - 5px - 2em - " + logoWidth + "px)";
+    if (!this.isValueEmpty(this.logo)) {
+      var logoWidth = this.logoWidth;
+      if (this.logoPosition === "left" || this.logoPosition === "right") {
+        return "calc(100% - 5px - 2em - " + logoWidth + "px)";
+      }
     }
     return "";
   }

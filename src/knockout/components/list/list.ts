@@ -36,7 +36,7 @@ export interface ListItem {
   isEnabled?: boolean;
 }
 
-ko.components.register("svc-list", {
+ko.components.register("sv-list", {
   viewModel: {
     createViewModel: (params: any, componentInfo: any) => {
       const viewModel = new ListViewModel(

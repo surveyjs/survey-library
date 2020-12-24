@@ -16,7 +16,7 @@ $base-unit: var(--base-unit, 8px);
   @return $result;
 }
 
-.svc-list {
+.sv-list {
   display: flex;
   // position: absolute;
   flex-direction: column;
@@ -30,7 +30,7 @@ $base-unit: var(--base-unit, 8px);
   list-style-type: none;
 }
 
-.svc-list__item {
+.sv-list__item {
   width: 100%;
   box-sizing: border-box;
   padding: calcSize(1) calcSize(2);
@@ -38,7 +38,7 @@ $base-unit: var(--base-unit, 8px);
   cursor: pointer;
 }
 
-.svc-list__item-icon {
+.sv-list__item-icon {
   float: left;
   width: calcSize(3);
   height: calcSize(3);
@@ -51,11 +51,11 @@ $base-unit: var(--base-unit, 8px);
   margin-right: calcSize(2);
 }
 
-.svc-list__item:hover {
+.sv-list__item:hover {
   background-color: $background-dim;
 }
 
-.svc-list__item--selected {
+.sv-list__item--selected {
   background-color: $primary;
   color: $background;
 
@@ -63,12 +63,12 @@ $base-unit: var(--base-unit, 8px);
     background-color: $primary;
   }
 
-  .svc-list__item-icon use {
+  .sv-list__item-icon use {
     fill: $background;
   }
 }
 
-.svc-list__item--disabled {
+.sv-list__item--disabled {
   color: $foreground-disabled;
   cursor: default;
   pointer-events: none;

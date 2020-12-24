@@ -3,20 +3,13 @@
   data-bind="click: action, css: { 'sv-action-bar-item--active': !!ko.unwrap($data.isActive) }, class: $data.innerCss, attr: { disabled: $data.enabled !== undefined && !ko.unwrap($data.enabled), title: $data.tooltip || $data.title}"
 >
   <!-- ko if: $data.icon -->
-
-  <div
-    class="sv-action-bar-item__icon"
-    style="min-width: 24px; min-height: 24px; background-color: aqua"
-  ></div>
-
-  <!-- todo -->
-  <!-- <svc-svg-icon
+  <sv-svg-icon
     class="sv-action-bar-item__icon"
     params="iconName: icon, size: 24"
-  ></svc-svg-icon> -->
-  <!-- /todo -->
+  ></sv-svg-icon>
 
   <!-- /ko -->
+
   <!-- ko if: $data.showTitle === undefined ||  ko.unwrap($data.showTitle) || !$data.icon -->
   <span
     class="sv-action-bar-item__title"

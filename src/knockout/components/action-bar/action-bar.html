@@ -23,15 +23,15 @@
   <div
     class="svc-action-bar-item"
     tabindex="0"
-    data-bind="attr: { title: 'More...', role: 'button', 'aria-label': 'More...' }, css: 'svc-toolbox__item--dots'"
+    data-bind="attr: { title: 'More...', role: 'button', 'aria-label': 'More...' }, css: 'svc-action-bar-item--dots'"
   >
-    <div
+    <sv-svg-icon
       class="sv-action-bar-item__icon"
-      style="min-width: 24px; min-height: 24px; background-color: blue"
-    ></div>
+      params="iconName: 'icon-dots', size: 24"
+    ></sv-svg-icon>
     <sv-popup
-      class="svc-action-bar__popup"
-      params="contentComponentName: 'svc-list', contentComponentData: { items: invisibleItems, onItemSelect: invisibleItemSelected }, isVisible: showInvisibleItems, verticalPosition: 'bottom', horizontalPosition: 'left', showPointer: true"
+      class="sv-action-bar__popup"
+      params="contentComponentName: 'sv-list', contentComponentData: { items: invisibleItems, onItemSelect: invisibleItemSelected }, isVisible: showInvisibleItems, verticalPosition: 'bottom', horizontalPosition: 'left', showPointer: true"
     ></sv-popup>
   </div>
 </div>

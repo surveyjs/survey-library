@@ -9,20 +9,24 @@
       <span
         v-if="element.isRequireTextOnStart"
         :class="element.cssClasses.requiredText"
+        :aria-hidden="true"
       >{{element.requiredText}}</span>
       <span
         v-if="element.no"
         style="position: static;"
         :class="element.cssClasses.number"
+        :aria-hidden="true"
       >{{element.no}}</span>
       <span
         v-if="element.isRequireTextBeforeTitle"
         :class="element.cssClasses.requiredText"
+        :aria-hidden="true"
       >{{element.requiredText}}</span>
       <survey-string :locString="element.locTitle" />
       <span
         v-if="element.isRequireTextAfterTitle"
         :class="element.cssClasses.requiredText"
+        :aria-hidden="true"
       >{{element.requiredText}}</span>
     </h5>
     <div v-if="element.hasDescriptionUnderTitle" :class="element.cssClasses.description">

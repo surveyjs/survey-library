@@ -164,6 +164,7 @@ export class SurveyQuestion extends SurveyElementBase {
           key={this.getTitleKey()}
           className={cssClasses.number}
           style={{ position: "static" }}
+          aria-hidden={true}
         >
           {questionNumber}
         </span>
@@ -201,6 +202,7 @@ export class SurveyQuestion extends SurveyElementBase {
         data-key={this.getTitleKey()}
         key={this.getTitleKey()}
         className={cssClasses.requiredText}
+        aria-hidden={true}
       >
         {this.question.requiredText}
       </span>

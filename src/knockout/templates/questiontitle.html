@@ -10,16 +10,16 @@
 </script>
 <script type="text/html" id="survey-question-title-content">
   <!-- ko if: question.isRequireTextOnStart -->
-  <span data-bind="css: koCss().requiredText, text: question.requiredText"></span>
+  <span data-bind="css: koCss().requiredText, text: question.requiredText, attr: { 'aria-hidden': true }"></span>
   <!-- /ko -->
   <!-- ko if: no -->
-  <span style="position: static;" data-bind="css: koCss().number, text: no"></span>
+  <span style="position: static;" data-bind="css: koCss().number, text: no, attr: { 'aria-hidden': true }"></span>
   <!-- /ko -->
   <!-- ko if: question.isRequireTextBeforeTitle -->
-  <span data-bind="css: koCss().requiredText, text: question.requiredText"></span>
+  <span data-bind="css: koCss().requiredText, text: question.requiredText, attr: { 'aria-hidden': true }"></span>
   <!-- /ko -->
   <!-- ko template: { name: 'survey-string', data: locTitle } --><!-- /ko -->
   <!-- ko if: question.isRequireTextAfterTitle -->
-  <span data-bind="css: koCss().requiredText, text: question.requiredText"></span>
+  <span data-bind="css: koCss().requiredText, text: question.requiredText, attr: { 'aria-hidden': true }"></span>
   <!-- /ko -->
 </script>

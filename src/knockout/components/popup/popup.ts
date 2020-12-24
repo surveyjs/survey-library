@@ -34,37 +34,44 @@ export class PopupViewModel {
 
     this.showSubscription = ko.computed(() => {
       const rect = targetElement.getBoundingClientRect();
-      const height = (<HTMLElement>this.container.children[0].children[0])
-        .offsetHeight;
-      const width = (<HTMLElement>this.container.children[0].children[0])
-        .offsetWidth;
-      const pos = PopupUtils.calculatePosition(
-        rect,
-        height,
-        width,
-        verticalPosition,
-        horizontalPosition,
-        this.showPointer
+      const popupContainer = <HTMLElement>(
+        this.container.children[0].children[0]
       );
-      this.left(pos.left);
-      this.top(pos.top);
 
       this.popupDirection(
         PopupUtils.calculatePopupDirection(verticalPosition, horizontalPosition)
       );
 
       if (this.isVisible()) {
-        if (this.showPointer) {
-          this.pointerTarget(
-            PopupUtils.calculatePointerTarget(
-              rect,
-              pos.top,
-              pos.left,
-              verticalPosition,
-              horizontalPosition
-            )
+        do {
+          var height = popupContainer.offsetHeight;
+          var width = popupContainer.offsetWidth;
+          const pos = PopupUtils.calculatePosition(
+            rect,
+            height,
+            width,
+            verticalPosition,
+            horizontalPosition,
+            this.showPointer
           );
-        }
+          this.left(pos.left);
+          this.top(pos.top);
+
+          if (this.showPointer) {
+            this.pointerTarget(
+              PopupUtils.calculatePointerTarget(
+                rect,
+                pos.top,
+                pos.left,
+                verticalPosition,
+                horizontalPosition
+              )
+            );
+          }
+        } while (
+          popupContainer.offsetWidth != width ||
+          popupContainer.offsetHeight != height
+        );
         this.onShow();
       } else {
         this.onHide();

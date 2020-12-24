@@ -32,6 +32,8 @@ $base-unit: var(--base-unit, 8px);
 
 .sv-list__item {
   width: 100%;
+  display: flex;
+  align-items: center;
   box-sizing: border-box;
   padding: calcSize(1) calcSize(2);
 

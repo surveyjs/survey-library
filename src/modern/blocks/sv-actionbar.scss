@@ -19,6 +19,7 @@ sv-action-bar {
   align-items: center;
   margin-left: auto;
   padding: 0 0 0 calcSize(2);
+  overflow: hidden;
 }
 
 .sv-action--first {
@@ -57,6 +58,8 @@ sv-action-bar {
   line-height: calcSize(3);
   font-size: calcSize(2);
   font-family: $font-family;
+  overflow-x: hidden;
+  white-space: nowrap;
 }
 
 .sv-action-bar-item__icon {
@@ -94,6 +97,7 @@ sv-action-bar {
 
 .sv-action-bar-item__title {
   vertical-align: middle;
+  white-space: nowrap;
 }
 
 .sv-action-bar-item--secondary {
@@ -136,7 +140,6 @@ sv-action-bar {
   display: flex;
 }
 
-
 .sv-expand-action {
   &:before {
     content: "";
@@ -154,4 +157,9 @@ sv-action-bar {
   &:before {
     transform: rotate(180deg);
   }
+}
+
+.sv-action {
+  display: block;
+  width: 100%;
 }

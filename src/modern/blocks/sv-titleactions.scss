@@ -2,3 +2,8 @@
   display: flex;
   align-items: center;
 }
+
+.sv-title-actions__text {
+  white-space: nowrap;
+  // flex-shrink: 0.3;
+}

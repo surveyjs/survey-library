@@ -103,11 +103,7 @@ export class ActionBarViewModel {
     return (ko.unwrap(this.items) || []).length > 0;
   }
 
-  dispose() {
-    this.itemsSubscription.dispose();
-  }
-
-  showFirstN(visibleItemsCount: number) {
+  public showFirstN(visibleItemsCount: number) {
     let leftItemsToShow = visibleItemsCount;
     this.invisibleItems([]);
     ko.unwrap(this.items).forEach((item: any) => {
@@ -123,6 +119,10 @@ export class ActionBarViewModel {
     this.showInvisibleItems(false);
     model.action();
   };
+
+  dispose() {
+    this.itemsSubscription.dispose();
+  }
 }
 
 ko.components.register("sv-action-bar", {
@@ -140,21 +140,18 @@ ko.components.register("sv-action-bar", {
           parseFloat(style.marginRight);
         if (!!container) {
           let delta = container.scrollWidth - container.offsetWidth;
-          if (delta > 20 || widthWithMargins - previousWidth > 40) {
+          if (delta > 20 || widthWithMargins - previousWidth > 56) {
             if (delta > 20) {
               if (model.showTitles()) {
                 model.showTitles(false);
               } else {
-                model.showFirstN(container.offsetWidth / 40 - 2);
+                model.showFirstN(container.offsetWidth / 56 - 2);
               }
               ko.tasks.runEarly();
             } else {
-              if (widthWithMargins - previousWidth > 40) {
-                if (model.invisibleItems.length == 0 && !model.showTitles()) {
-                  model.showTitles(true);
-                } else {
-                  model.showFirstN(Number.MAX_VALUE);
-                }
+              if (widthWithMargins - previousWidth > 56) {
+                model.showTitles(true);
+                model.showFirstN(Number.MAX_VALUE);
                 ko.tasks.runEarly();
               }
             }

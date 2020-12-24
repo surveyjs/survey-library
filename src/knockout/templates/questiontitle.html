@@ -15,24 +15,24 @@
 <script type="text/html" id="survey-question-title-content">
   <!-- ko if: $data.isRequireTextOnStart -->
   <span
-    data-bind="css: koCss().requiredText || koCss().panel.requiredText, text: $data.requiredText"
+    data-bind="css: koCss().requiredText || koCss().panel.requiredText, text: $data.requiredText, attr: { 'aria-hidden': true }"
   ></span>
   <!-- /ko -->
   <!-- ko if: no -->
   <span
     style="position: static;"
-    data-bind="css: koCss().number, text: no"
+    data-bind="css: koCss().number, text: no, attr: { 'aria-hidden': true }"
   ></span>
   <!-- /ko -->
   <!-- ko if: $data.isRequireTextBeforeTitle -->
   <span
-    data-bind="css: koCss().requiredText || koCss().panel.requiredText, text: $data.requiredText"
+    data-bind="css: koCss().requiredText || koCss().panel.requiredText, text: $data.requiredText, attr: { 'aria-hidden': true }"
   ></span>
   <!-- /ko -->
   <!-- ko template: { name: 'survey-string', data: locTitle } --><!-- /ko -->
   <!-- ko if: $data.isRequireTextAfterTitle -->
   <span
-    data-bind="css: koCss().requiredText || koCss().panel.requiredText, text: $data.requiredText"
+    data-bind="css: koCss().requiredText || koCss().panel.requiredText, text: $data.requiredText, attr: { 'aria-hidden': true }"
   ></span>
   <!-- /ko -->
 </script>

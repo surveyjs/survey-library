@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.8.22](https://github.com/surveyjs/survey-library/compare/v1.8.21...v1.8.22) (2020-12-23)
+
+
+### Bug Fixes
+
+* Stack overflow on using component in Panel Dynamic [#2582](https://github.com/surveyjs/survey-library/issues/2582) ([1c527e4](https://github.com/surveyjs/survey-library/commit/1c527e49c9728b3ef2543e27bd8ff522bc90b0e3))
+
 ### [1.8.21](https://github.com/surveyjs/survey-library/compare/v1.8.20...v1.8.21) (2020-12-15)
 
 

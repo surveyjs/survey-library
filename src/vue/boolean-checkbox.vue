@@ -48,12 +48,12 @@ import { RendererFactory } from '../rendererFactory';
 export class BooleanCheckbox extends Boolean {
 }
 
-Vue.component("survey-boolean-checkbox", BooleanCheckbox);
+Vue.component("sv-boolean-checkbox", BooleanCheckbox);
 
 RendererFactory.Instance.registerRenderer(
   "boolean",
   "checkbox",
-  "survey-boolean-checkbox"
+  "sv-boolean-checkbox"
 );
 
 export default BooleanCheckbox;

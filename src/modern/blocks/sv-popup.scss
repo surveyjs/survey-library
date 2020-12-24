@@ -22,6 +22,8 @@ sv-popup {
   position: absolute;
   z-index: 1000;
   filter: drop-shadow(0px calcSize(1) calcSize(2) rgba(0, 0, 0, 0.1));
+  max-width: 100%;
+  max-height: 100%;
 }
 
 .sv-popup__content {

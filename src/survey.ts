@@ -1658,9 +1658,11 @@ export class SurveyModel
     this.setPropertyValue("logoFit", val);
   }
   public get titleMaxWidth(): string {
-    var logoWidth = this.logoWidth;
-    if (this.logoPosition === "left" || this.logoPosition === "right") {
-      return "calc(100% - 5px - 2em - " + logoWidth + "px)";
+    if (!this.isValueEmpty(this.logo)) {
+      var logoWidth = this.logoWidth;
+      if (this.logoPosition === "left" || this.logoPosition === "right") {
+        return "calc(100% - 5px - 2em - " + logoWidth + "px)";
+      }
     }
     return "";
   }
@@ -4741,6 +4743,18 @@ export class SurveyModel
     this.notifyElementsOnAnyValueOrVariableChanged(name);
     this.runConditionOnValueChanged(name, newValue);
   }
+  /**
+   * Returns all variables in the survey. Use setVariable function to create a new variable.
+   * @see getVariable
+   * @see setVariable
+   */
+  public getVariableNames(): Array<string> {
+    var res = [];
+    for (var key in this.variablesHash) {
+      res.push(key);
+    }
+    return res;
+  }
   //ISurvey data
   protected getUnbindValue(value: any): any {
     if (!!this.editingObj) return value;
@@ -5651,7 +5665,7 @@ Serializer.addClass("survey", [
   {
     name: "checkErrorsMode",
     default: "onNextPage",
-    choices: ["onNextPage", "onValueChanged", "onComplete"],
+    choices: ["onNextPage", "onValueChanged", "onValueChanging", "onComplete"],
   },
   {
     name: "textUpdateMode",

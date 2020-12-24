@@ -1,4 +1,6 @@
 import * as ko from "knockout";
+import { PopupUtils } from "./popup-utils";
+import { surveyLocalization } from "../../../surveyStrings";
 const template = require("html-loader?interpolate!val-loader!./popup.html");
 
 export class PopupViewModel {
@@ -8,61 +10,31 @@ export class PopupViewModel {
   public pointerTarget = ko.observable<object>({});
 
   private container: HTMLElement;
-  private showSubscription: ko.Computed<void>;
+  private showSubscription: ko.Subscription;
 
   constructor(
     public contentComponentName: string,
     public contentComponentData: any,
+    public contentTemplateName: string,
     public isVisible: ko.Observable<boolean>,
     public verticalPosition: "top" | "bottom" | "middle",
     public horizontalPosition: "left" | "right" | "center",
     public showPointer: boolean,
-    public isHideByClickOutside: boolean = true,
-    public onHide: () => any,
+    public isModal: boolean = false,
+    public onCancel = () => {},
+    public onApply = () => {},
+    public onHide = () => {},
+    public onShow = () => {},
     public cssClass: string = "",
-    targetElement: HTMLElement
+    private targetElement: HTMLElement
   ) {
     this.container = document.createElement("div");
     document.body.appendChild(this.container);
     this.container.innerHTML = template;
     ko.applyBindings(this, this.container);
 
-    this.showSubscription = ko.computed(() => {
-      const rect = targetElement.getBoundingClientRect();
-      const height = (<HTMLElement>this.container.children[0].children[0])
-        .offsetHeight;
-      const width = (<HTMLElement>this.container.children[0].children[0])
-        .offsetWidth;
-      const pos = PopupUtils.calculatePosition(
-        rect,
-        height,
-        width,
-        verticalPosition,
-        horizontalPosition,
-        this.showPointer
-      );
-      this.left(pos.left);
-      this.top(pos.top);
-
-      this.popupDirection(
-        PopupUtils.calculatePopupDirection(verticalPosition, horizontalPosition)
-      );
-
-      if (this.isVisible()) {
-        if (this.showPointer) {
-          this.pointerTarget(
-            PopupUtils.calculatePointerTarget(
-              rect,
-              pos.top,
-              pos.left,
-              verticalPosition,
-              horizontalPosition
-            )
-          );
-        }
-      } else {
-        if (typeof this.onHide === "function") this.onHide();
-      }
+    this.showSubscription = this.isVisible.subscribe((isVisible) => {
+      this.onIsVisibleChanged(isVisible);
     });
   }
 
@@ -76,77 +48,82 @@ export class PopupViewModel {
     return css;
   }
 
+  private onIsVisibleChanged(isVisible: boolean) {
+    if (isVisible) {
+      this.setupPopup();
+      this.onShow();
+    } else {
+      this.onHide();
+    }
+  }
+
+  private setupPopup() {
+    const rect = this.targetElement.getBoundingClientRect();
+    const popupContainer = <HTMLElement>this.container.children[0].children[0];
+    this.popupDirection(
+      PopupUtils.calculatePopupDirection(
+        this.verticalPosition,
+        this.horizontalPosition
+      )
+    );
+    do {
+      var height = popupContainer.offsetHeight;
+      var width = popupContainer.offsetWidth;
+      const pos = PopupUtils.calculatePosition(
+        rect,
+        height,
+        width,
+        this.verticalPosition,
+        this.horizontalPosition,
+        this.showPointer
+      );
+      this.left(pos.left);
+      this.top(pos.top);
+
+      if (this.showPointer) {
+        this.pointerTarget(
+          PopupUtils.calculatePointerTarget(
+            rect,
+            pos.top,
+            pos.left,
+            this.verticalPosition,
+            this.horizontalPosition
+          )
+        );
+      }
+    } while (
+      popupContainer.offsetWidth != width ||
+      popupContainer.offsetHeight != height
+    );
+  }
+
+  public clickOutside() {
+    if (this.isModal) return;
+    this.isVisible(false);
+  }
+
+  public cancel() {
+    this.onCancel();
+    this.isVisible(false);
+  }
+
+  public apply() {
+    this.onApply();
+    this.isVisible(false);
+  }
+
+  public get cancelButtonText() {
+    return surveyLocalization.getString("modalCancelButtonText");
+  }
+
+  public get applyButtonText() {
+    return surveyLocalization.getString("modalApplyButtonText");
+  }
+
   public dispose() {
     this.showSubscription.dispose();
     ko.cleanNode(this.container);
     this.container.remove();
-  }
-}
-
-export class PopupUtils {
-  public static calculatePosition(
-    targetRect: ClientRect,
-    height: number,
-    width: number,
-    verticalPosition: string,
-    horizontalPosition: string,
-    showPointer: boolean
-  ) {
-    if (horizontalPosition == "center")
-      var left = (targetRect.left + targetRect.right - width) / 2;
-    else if (horizontalPosition == "left") left = targetRect.left - width;
-    else left = targetRect.right;
-
-    if (verticalPosition == "middle")
-      var top = (targetRect.top + targetRect.bottom - height) / 2;
-    else if (verticalPosition == "top") top = targetRect.top - height;
-    else top = targetRect.bottom;
-
-    if (showPointer) {
-      if (horizontalPosition != "center" && verticalPosition != "middle") {
-        if (verticalPosition == "top") {
-          top = top + targetRect.height;
-        } else {
-          top = top - targetRect.height;
-        }
-      }
-    }
-
-    return { left: left, top: top };
-  }
-
-  public static calculatePopupDirection(
-    verticalPosition: string,
-    horizontalPosition: string
-  ) {
-    var popupDirection: string;
-    if (horizontalPosition == "center" && verticalPosition != "middle") {
-      popupDirection = verticalPosition;
-    } else if (horizontalPosition != "center") {
-      popupDirection = horizontalPosition;
-    }
-    return popupDirection;
-  }
-
-  //called when showPointer  is true
-  public static calculatePointerTarget(
-    targetRect: ClientRect,
-    top: number,
-    left: number,
-    verticalPosition: string,
-    horizontalPosition: string
-  ) {
-    var targetPos: any = {};
-    if (horizontalPosition != "center") {
-      targetPos.top = targetRect.top + targetRect.height / 2;
-      targetPos.left = (<any>targetRect)[horizontalPosition];
-    } else if (verticalPosition != "middle") {
-      targetPos.top = (<any>targetRect)[verticalPosition];
-      targetPos.left = targetRect.left + targetRect.width / 2;
-    }
-    targetPos.left = targetPos.left - left;
-    targetPos.top = targetPos.top - top;
-    return targetPos;
   }
 }
 
@@ -156,12 +133,16 @@ ko.components.register("sv-popup", {
       const viewModel = new PopupViewModel(
         params.contentComponentName,
         params.contentComponentData,
+        params.contentTemplateName,
         params.isVisible,
         params.verticalPosition,
         params.horizontalPosition,
         params.showPointer,
-        params.isHideByClickOutside,
+        params.isModal,
+        params.onCancel,
+        params.onApply,
         params.onHide,
+        params.onShow,
         params.cssClass,
         componentInfo.element.parentElement
       );

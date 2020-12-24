@@ -1,16 +1,32 @@
-<div
-  class="sv-popup"
-  data-bind="visible: isVisible, click: function() { if (isHideByClickOutside) isVisible(false) }"
->
+<div class="sv-popup" data-bind="visible: isVisible, click: clickOutside">
   <div
     class="sv-popup__container"
     data-bind="style: { left: left, top: top }, class: styleClass, click: function() { return true; }, clickBubble: false"
   >
     <!-- ko if: showPointer  -->
-    <span data-bind="style: {left: pointerTarget().left, top: pointerTarget().top }" class="sv-popup__pointer"></span>
+    <span
+      data-bind="style: {left: pointerTarget().left, top: pointerTarget().top }"
+      class="sv-popup__pointer"
+    ></span>
     <!-- /ko -->
+
+    <div class="sv-popup__header"></div>
+
     <div class="sv-popup__content">
+      <!-- ko if: contentComponentName  -->
       <!-- ko component: { name: contentComponentName, params: contentComponentData } --><!-- /ko -->
+      <!-- /ko -->
+
+      <!-- ko if: contentTemplateName  -->
+      <!-- ko template: { name: contentTemplateName, data: contentComponentData } --><!-- /ko -->
+      <!-- /ko -->
+    </div>
+
+    <div class="sv-popup__footer">
+      <!-- ko if: isModal  -->
+      <button data-bind="click: cancel, text: cancelButtonText">Cancel</button>
+      <button data-bind="click: apply, text: applyButtonText">Apply</button>
+      <!-- /ko -->
     </div>
   </div>
 </div>

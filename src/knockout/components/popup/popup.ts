@@ -10,7 +10,7 @@ export class PopupViewModel {
   public pointerTarget = ko.observable<object>({});
 
   private container: HTMLElement;
-  private showSubscription: ko.Computed<void>;
+  private showSubscription: ko.Subscription;
 
   constructor(
     public contentComponentName: string,
@@ -33,7 +33,7 @@ export class PopupViewModel {
     this.container.innerHTML = template;
     ko.applyBindings(this, this.container);
 
-    this.showSubscription = ko.computed(() => {
+    this.showSubscription = this.isVisible.subscribe((isVisible) => {
       const rect = targetElement.getBoundingClientRect();
       const height = (<HTMLElement>this.container.children[0].children[0])
         .offsetHeight;
@@ -54,7 +54,7 @@ export class PopupViewModel {
         PopupUtils.calculatePopupDirection(verticalPosition, horizontalPosition)
       );
 
-      if (this.isVisible()) {
+      if (isVisible) {
         if (this.showPointer) {
           this.pointerTarget(
             PopupUtils.calculatePointerTarget(
@@ -71,6 +71,8 @@ export class PopupViewModel {
         this.onHide();
       }
     });
+
+
   }
 
   public get styleClass(): string {

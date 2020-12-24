@@ -25,6 +25,10 @@ export class ActionBarItemModalViewModel {
     return this._item.data.contentTemplateName;
   }
 
+  public get onShow() {
+    return this._item.data.onShow || function () {};
+  }
+
   public get onApply() {
     return this._item.data.onApply || function () {};
   }

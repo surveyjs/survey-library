@@ -2794,6 +2794,12 @@ QUnit.test(
     );
   }
 );
+QUnit.test("survey.getAllVariables()", function (assert) {
+  var survey = twoPageSimplestSurvey();
+  survey.setVariable("user", "admin");
+  survey.setVariable("type", "2");
+  assert.deepEqual(survey.getVariableNames(), ["user", "type"]);
+});
 QUnit.test("pre process title", function (assert) {
   var survey = twoPageSimplestSurvey();
   survey.data = { name: "John" };

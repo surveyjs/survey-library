@@ -53,15 +53,14 @@ export { QuestionImage } from "../knockout/koquestion_image";
 export { QuestionSignaturePad } from "../knockout/koquestion_signaturepad";
 export { QuestionCustom } from "../knockout/koquestion_custom";
 
+export * from "../knockout/components/action-bar/action-bar";
+export * from "../knockout/components/boolean-checkbox/boolean-checkbox";
+export * from "../knockout/components/default-title/default-title";
 export * from "../knockout/components/panel/panel";
-export * from "../knockout/components/popup/popup";
 export * from "../knockout/components/popup/popup";
 export * from "../knockout/components/progress/buttons";
 export * from "../knockout/components/progress/progress";
-
-export * from "../knockout/components/action-bar/action-bar";
 export * from "../knockout/components/title-actions/title-actions";
-export * from "../knockout/components/default-title/default-title";
 
 //Uncomment to include the "date" question type.
 //export {QuestionDate} from "../plugins/knockout/koquestion_date";

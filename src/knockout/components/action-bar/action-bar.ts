@@ -5,6 +5,7 @@ const template = require("./action-bar.html");
 export * from "./action-bar-item";
 export * from "./action-bar-separator";
 export * from "./action-bar-item-dropdown";
+export * from "./action-bar-item-modal";
 
 export interface IActionBarItem {
   /**
@@ -44,7 +45,7 @@ export interface IActionBarItem {
    */
   innerCss?: ko.Computed<string> | string;
   /**
-   * Toolbar item data object. Used as data for custom template rendering
+   * Toolbar item data object. Used as data for custom template or component rendering
    */
   data?: any;
   /**

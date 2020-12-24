@@ -375,6 +375,7 @@ export class StylesManager {
       "$body-background-color": "white",
       "$inputs-background-color": "white",
       "$text-color": "#6d7072",
+      "$text-input-color": "#6d7072",
       "$header-color": "#6d7072",
       "$border-color": "#e7e7e7",
 
@@ -397,6 +398,7 @@ export class StylesManager {
       "$body-background-color": "white",
       "$inputs-background-color": "white",
       "$text-color": "#4a4a4a",
+      "$text-input-color": "#4a4a4a",
       "$header-color": "#f78119",
       "$border-color": "#e7e7e7",
 
@@ -419,6 +421,7 @@ export class StylesManager {
       "$body-background-color": "white",
       "$inputs-background-color": "white",
       "$text-color": "#4a4a4a",
+      "$text-input-color": "#4a4a4a",
       "$header-color": "#6d7072",
       "$border-color": "#e7e7e7",
 
@@ -441,6 +444,7 @@ export class StylesManager {
       "$body-background-color": "white",
       "$inputs-background-color": "white",
       "$text-color": "#4a4a4a",
+      "$text-input-color": "#4a4a4a",
       "$header-color": "#6d7072",
       "$border-color": "#e7e7e7",
 
@@ -463,6 +467,7 @@ export class StylesManager {
       "$body-background-color": "white",
       "$inputs-background-color": "white",
       "$text-color": "#0f0f33",
+      "$text-input-color": "#0f0f33",
       "$header-color": "#0f0f33",
       "$border-color": "#e7e7e7",
 
@@ -485,6 +490,7 @@ export class StylesManager {
       "$body-background-color": "white",
       "$inputs-background-color": "white",
       "$text-color": "#000",
+      "$text-input-color": "#000",
       "$header-color": "#000",
       "$border-color": "#e7e7e7",
 
@@ -507,6 +513,7 @@ export class StylesManager {
       "$body-background-color": "white",
       "$inputs-background-color": "white",
       "$text-color": "#000",
+      "$text-input-color": "#000",
       "$header-color": "#fff",
       "$border-color": "#e7e7e7",
 
@@ -532,6 +539,7 @@ export class StylesManager {
       "$disabled-slider-color": "#cfcfcf",
       "$error-color": "#d52901",
       "$text-color": "#404040",
+      "$text-input-color": "#404040",
       "$inputs-background-color": "#f4f4f4",
       "$main-hover-color": "#9f9f9f",
       "$body-container-background-color": "#f4f4f4",
@@ -549,6 +557,7 @@ export class StylesManager {
     bootstrap: {
       "$main-color": "#18a689",
       "$text-color": "#404040;",
+      "$text-input-color": "#404040;",
       "$progress-text-color": "#9d9d9d",
       "$disable-color": "#dbdbdb",
       "$header-background-color": "#e7e7e7",
@@ -560,6 +569,7 @@ export class StylesManager {
     bootstrapmaterial: {
       "$main-color": "#18a689",
       "$text-color": "#404040;",
+      "$text-input-color": "#404040;",
       "$progress-text-color": "#9d9d9d",
       "$disable-color": "#dbdbdb",
       "$header-background-color": "#e7e7e7",
@@ -601,15 +611,15 @@ export class StylesManager {
     ".sv_default_css .sv_q_text_root":
       "color: $text-color; -webkit-text-fill-color: $text-color; border-color: $border-color; background-color: $inputs-background-color;",
     ".sv_default_css .sv_q_dropdown_control":
-      "color: $text-color; border-color: $border-color; background-color: $inputs-background-color;",
+      "color: $text-input-color; border-color: $border-color; background-color: $inputs-background-color;",
     ".sv_default_css input[type='text']":
       "color: $text-color; -webkit-text-fill-color: $text-color; border-color: $border-color; background-color: $inputs-background-color;",
     ".sv_default_css select":
       "color: $text-color; border-color: $border-color; background-color: $inputs-background-color;",
     ".sv_default_css textarea":
-      "color: $text-color; -webkit-text-fill-color: $text-color; border-color: $border-color; background-color: $inputs-background-color;",
+      "color: $text-input-color; -webkit-text-fill-color: $text-input-color; border-color: $border-color; background-color: $inputs-background-color;",
     ".sv_default_css input:not([type='button']):not([type='reset']):not([type='submit']):not([type='image']):not([type='checkbox']):not([type='radio'])":
-      "border: 1px solid $border-color; background-color: $inputs-background-color;color: $text-color; -webkit-text-fill-color: $text-color;",
+      "border: 1px solid $border-color; background-color: $inputs-background-color;color: $text-input-color; -webkit-text-fill-color: $text-input-color;",
     ".sv_default_css input:not([type='button']):not([type='reset']):not([type='submit']):not([type='image']):not([type='checkbox']):not([type='radio']):focus":
       "border: 1px solid $main-color;",
     ".sv_default_css .sv_container .sv_body .sv_p_root .sv_q .sv_select_wrapper .sv_q_dropdown_control ":
@@ -785,9 +795,10 @@ export class StylesManager {
     ".sv-text--error::placeholder": "color: $error-color;",
     ".sv-text--error::-ms-placeholder": "color: $error-color;",
     ".sv-text--error:-ms-placeholder": "color: $error-color;",
-    ".sv-text::placeholder": "color: $text-color;",
-    ".sv-text::-ms-placeholder": "color: $text-color;",
-    ".sv-text:-ms-placeholder": "color: $text-color;",
+    "input.sv-text, textarea.sv-comment, select.sv-dropdown": "color: $text-input-color; background-color: $inputs-background-color;",
+    ".sv-text::placeholder": "color: $text-input-color;",
+    ".sv-text::-ms-placeholder": "color: $text-input-color;",
+    ".sv-text:-ms-placeholder": "color: $text-input-color;",
     ".sv-table__row--detail": "background-color: $header-background-color;",
   };
   public static bootstrapThemeCss: { [key: string]: string } = {

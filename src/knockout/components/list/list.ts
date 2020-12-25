@@ -32,7 +32,7 @@ export class ListViewModel {
 
 export interface ListItem {
   title: ko.MaybeObservable<string>;
-  icon: ko.MaybeObservable<string>;
+  iconName: ko.MaybeObservable<string>;
   isEnabled?: boolean;
 }
 

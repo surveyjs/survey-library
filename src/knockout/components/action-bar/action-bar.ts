@@ -76,7 +76,7 @@ export class ActionBarViewModel {
   public visibleItems: ko.ObservableArray<IActionBarItem>;
   public showInvisibleItems = ko.observable(false);
   public invisibleItems: ko.ObservableArray<IActionBarItem> = ko.observableArray();
-  public showTitles = ko.observable(true);
+  private _showTitles = ko.observable(true);
 
   constructor(_items: ko.MaybeObservableArray<IActionBarItem>) {
     this.itemsSubscription = ko.computed(() => {
@@ -86,7 +86,7 @@ export class ActionBarViewModel {
         var showTitle = item.showTitle;
         item.showTitle = ko.computed(() => {
           return (
-            this.showTitles() &&
+            this._showTitles() &&
             (ko.unwrap(showTitle) || showTitle === undefined)
           );
         });
@@ -115,6 +115,13 @@ export class ActionBarViewModel {
     });
   }
 
+  public hideTitles() {
+    this._showTitles(false);
+  }
+  public showTitles() {
+    this._showTitles(true);
+  }
+
   public invisibleItemSelected = (model: any) => {
     this.showInvisibleItems(false);
     model.action();
@@ -140,20 +147,16 @@ ko.components.register("sv-action-bar", {
           parseFloat(style.marginRight);
         if (!!container) {
           let delta = container.scrollWidth - container.offsetWidth;
-          if (delta > 20 || widthWithMargins - previousWidth > 56) {
-            if (delta > 20) {
-              if (model.showTitles()) {
-                model.showTitles(false);
-              } else {
-                model.showFirstN(container.offsetWidth / 56 - 2);
-              }
+          if (delta > 5 || widthWithMargins - previousWidth > 56) {
+            if (delta > 5) {
+              model.hideTitles();
+              model.showFirstN(
+                Math.floor((container.offsetWidth - 16) / 56) - 2
+              );
+            } else if (widthWithMargins - previousWidth > 56) {
+              model.showTitles();
+              model.showFirstN(Number.MAX_VALUE);
               ko.tasks.runEarly();
-            } else {
-              if (widthWithMargins - previousWidth > 56) {
-                model.showTitles(true);
-                model.showFirstN(Number.MAX_VALUE);
-                ko.tasks.runEarly();
-              }
             }
             previousWidth = widthWithMargins;
           }

@@ -23,7 +23,7 @@ ko.components.register("sv-action-bar-item-dropdown", {
           selectedItem: params.item.selectedItem
         },
         isVisible: isVisible,
-        name: "svc-list",
+        name: "sv-list",
         verticalPosition: params.item.verticalPosition || "middle",
         horizontalPosition: params.item.horizontalPosition || "right",
         showPointer: true

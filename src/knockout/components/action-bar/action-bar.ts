@@ -114,7 +114,9 @@ export class ActionBarViewModel {
       leftItemsToShow--;
     });
   }
-
+  public get isTitlesShown() {
+    return this._showTitles();
+  }
   public hideTitles() {
     this._showTitles(false);
   }
@@ -149,10 +151,13 @@ ko.components.register("sv-action-bar", {
           let delta = container.scrollWidth - container.offsetWidth;
           if (delta > 5 || widthWithMargins - previousWidth > 56) {
             if (delta > 5) {
-              model.hideTitles();
-              model.showFirstN(
-                Math.floor((container.offsetWidth - 16) / 56) - 2
-              );
+              if (model.isTitlesShown) {
+                model.hideTitles();
+              } else {
+                model.showFirstN(
+                  Math.floor((container.offsetWidth - 16) / 56) - 2
+                );
+              }
             } else if (widthWithMargins - previousWidth > 56) {
               model.showTitles();
               model.showFirstN(Number.MAX_VALUE);

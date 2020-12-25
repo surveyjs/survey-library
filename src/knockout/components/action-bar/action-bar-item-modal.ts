@@ -9,8 +9,8 @@ export class ActionBarItemModalViewModel {
 
   constructor(private _item: IActionBarItem) {}
 
-  public get icon() {
-    return this._item.icon;
+  public get iconName() {
+    return this._item.iconName;
   }
 
   public get contentComponentName() {

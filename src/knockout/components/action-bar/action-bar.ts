@@ -60,7 +60,7 @@ export interface IActionBarItem {
   /**
    * Toolbar item icon name
    */
-  icon?: string;
+  iconName?: string;
   /**
    * Toolbar item child items. Can be used as contianer for options
    */

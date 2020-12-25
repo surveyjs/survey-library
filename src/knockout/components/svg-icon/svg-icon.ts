@@ -18,7 +18,7 @@ ko.components.register("sv-svg-icon", {
         node.setAttributeNS(
           "http://www.w3.org/1999/xlink",
           "xlink:href",
-          "#" + ko.unwrap(params.iconName)
+          "#" + ko.unwrap(params.icon)
         );
       });
     },

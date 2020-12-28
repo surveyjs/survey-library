@@ -1,4 +1,4 @@
-import { Question } from "./question";
+import { Question, IConditionObject } from "./question";
 import { Serializer, CustomPropertiesCollection } from "./jsonobject";
 import {
   ISurveyImpl,
@@ -155,7 +155,8 @@ export class ComponentCollection {
   }
 }
 
-export abstract class QuestionCustomModelBase extends Question
+export abstract class QuestionCustomModelBase
+  extends Question
   implements ISurveyImpl, ISurveyData, IPanel {
   constructor(
     public name: string,
@@ -532,6 +533,22 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
   getValue(name: string): any {
     var val = this.value;
     return !!val ? val[name] : null;
+  }
+  public addConditionObjectsByContext(
+    objects: Array<IConditionObject>,
+    context: any
+  ) {
+    if (!this.contentPanel) return;
+    var questions = this.contentPanel.questions;
+    var prefixName = this.name;
+    var prefixText = this.title;
+    for (var i = 0; i < questions.length; i++) {
+      objects.push({
+        name: prefixName + "." + questions[i].name,
+        text: prefixText + "." + questions[i].title,
+        question: questions[i],
+      });
+    }
   }
   protected convertDataValue(name: string, newValue: any): any {
     var val = this.value;

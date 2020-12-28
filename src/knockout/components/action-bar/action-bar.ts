@@ -70,6 +70,24 @@ export interface IActionBarItem {
 /**
  * The toolbar item description.
  */
+
+export class IteratedItem {
+  constructor(item: any) {
+    Object.getOwnPropertyNames(item).forEach((propertyName) => {
+      Object.defineProperty(this, propertyName, {
+        get: () => {
+          const propertyValue = item[propertyName];
+          if (typeof propertyValue === "function" && propertyName != "action") {
+            return propertyValue();
+          } else {
+            return propertyValue;
+          }
+        },
+      });
+    });
+  }
+}
+
 export class ActionBarViewModel {
   public itemsSubscription: ko.Computed;
   public items: ko.ObservableArray = ko.observableArray();
@@ -82,20 +100,16 @@ export class ActionBarViewModel {
     this.itemsSubscription = ko.computed(() => {
       var items = ko.unwrap(_items);
       items.forEach((item) => {
-        //TODO
+        var iteratedItem: any = new IteratedItem(item);
         var showTitle = item.showTitle;
-        item.showTitle = ko.computed(() => {
-          return (
-            this._showTitles() &&
-            (ko.unwrap(showTitle) || showTitle === undefined)
-          );
+        iteratedItem.showTitle = ko.computed(() => {
+          return this._showTitles() && (showTitle || showTitle === undefined);
         });
-        item.visible = ko.observable(
-          ko.unwrap(item.visible) || item.visible === undefined
+        iteratedItem.visible = ko.observable(
+          item.visible || item.visible === undefined
         );
-        //
+        this.items.push(iteratedItem);
       });
-      this.items(items);
     });
   }
 

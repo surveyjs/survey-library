@@ -1,4 +1,4 @@
-import { Question } from "./question";
+import { Question, IConditionObject } from "./question";
 import { Serializer, CustomPropertiesCollection } from "./jsonobject";
 import {
   ISurveyImpl,
@@ -613,6 +613,22 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
       this.settingNewValue = true;
       q.value = newValue;
       this.settingNewValue = false;
+    }
+  }
+  public addConditionObjectsByContext(
+    objects: Array<IConditionObject>,
+    context: any
+  ) {
+    if (!this.contentPanel) return;
+    var questions = this.contentPanel.questions;
+    var prefixName = this.name;
+    var prefixText = this.title;
+    for (var i = 0; i < questions.length; i++) {
+      objects.push({
+        name: prefixName + "." + questions[i].name,
+        text: prefixText + "." + questions[i].title,
+        question: questions[i],
+      });
     }
   }
   protected convertDataValue(name: string, newValue: any): any {

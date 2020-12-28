@@ -1,4 +1,6 @@
 import * as ko from "knockout";
+import { ObjectWrapper } from "../../../utils/objectwrapper";
+import { ResponsibilityManager } from "../../../utils/resonsibilitymanager";
 
 const template = require("./action-bar.html");
 
@@ -71,23 +73,6 @@ export interface IActionBarItem {
  * The toolbar item description.
  */
 
-export class IteratedItem {
-  constructor(item: any) {
-    Object.getOwnPropertyNames(item).forEach((propertyName) => {
-      Object.defineProperty(this, propertyName, {
-        get: () => {
-          const propertyValue = item[propertyName];
-          if (typeof propertyValue === "function" && propertyName != "action") {
-            return propertyValue();
-          } else {
-            return propertyValue;
-          }
-        },
-      });
-    });
-  }
-}
-
 export class ActionBarViewModel {
   public itemsSubscription: ko.Computed;
   public items: ko.ObservableArray = ko.observableArray();
@@ -100,15 +85,15 @@ export class ActionBarViewModel {
     this.itemsSubscription = ko.computed(() => {
       var items = ko.unwrap(_items);
       items.forEach((item) => {
-        var iteratedItem: any = new IteratedItem(item);
+        var wrappedItem: any = new ObjectWrapper(item);
         var showTitle = item.showTitle;
-        iteratedItem.showTitle = ko.computed(() => {
+        wrappedItem.showTitle = ko.computed(() => {
           return this._showTitles() && (showTitle || showTitle === undefined);
         });
-        iteratedItem.visible = ko.observable(
+        wrappedItem.visible = ko.observable(
           item.visible || item.visible === undefined
         );
-        this.items.push(iteratedItem);
+        this.items.push(wrappedItem);
       });
     });
   }
@@ -121,20 +106,21 @@ export class ActionBarViewModel {
     let leftItemsToShow = visibleItemsCount;
     this.invisibleItems([]);
     ko.unwrap(this.items).forEach((item: any) => {
-      item.visible(leftItemsToShow >= 0);
-      if (leftItemsToShow < 0) {
+      item.visible(leftItemsToShow > 0);
+      if (leftItemsToShow <= 0) {
         this.invisibleItems.push(item);
       }
       leftItemsToShow--;
     });
   }
-  public get isTitlesShown() {
+  public get canShrink() {
     return this._showTitles();
   }
-  public hideTitles() {
+  public readonly canGrow = true;
+  public shrink() {
     this._showTitles(false);
   }
-  public showTitles() {
+  public grow() {
     this._showTitles(true);
   }
 
@@ -152,38 +138,14 @@ ko.components.register("sv-action-bar", {
   viewModel: {
     createViewModel: (params: any, componentInfo: any) => {
       const model = new ActionBarViewModel(params.items);
-      var previousWidth = 0;
+      var container: HTMLDivElement = componentInfo.element;
+      var manager = new ResponsibilityManager(container, model);
       let updateVisibleItems = setInterval(() => {
-        var container: HTMLDivElement = componentInfo.element;
-        var style = window.getComputedStyle(container);
-
-        var widthWithMargins =
-          container.offsetWidth +
-          parseFloat(style.marginLeft) +
-          parseFloat(style.marginRight);
-        if (!!container) {
-          let delta = container.scrollWidth - container.offsetWidth;
-          if (delta > 5 || widthWithMargins - previousWidth > 56) {
-            if (delta > 5) {
-              if (model.isTitlesShown) {
-                model.hideTitles();
-              } else {
-                model.showFirstN(
-                  Math.floor((container.offsetWidth - 16) / 56) - 2
-                );
-              }
-            } else if (widthWithMargins - previousWidth > 56) {
-              model.showTitles();
-              model.showFirstN(Number.MAX_VALUE);
-              ko.tasks.runEarly();
-            }
-            previousWidth = widthWithMargins;
-          }
-        }
+        manager.process();
+        ko.tasks.runEarly();
       }, 100);
       ko.utils.domNodeDisposal.addDisposeCallback(componentInfo.element, () => {
         clearInterval(updateVisibleItems);
-        model.dispose();
       });
       return model;
     },

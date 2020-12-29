@@ -2,7 +2,7 @@ export class ResponsibilityManager {
   private previousSpace = 0;
 
   constructor(
-    private container: HTMLDivElement,
+    protected container: HTMLDivElement,
     private model: any,
     private itemSize: number = 56
   ) {}
@@ -55,5 +55,31 @@ export class ResponsibilityManager {
         this.previousSpace = fullSpace;
       }
     }
+  }
+}
+
+export class VerticalResponsibilityManager extends ResponsibilityManager {
+  protected getAvailableSpace() {
+    var style = this.getComputedStyle(this.container);
+    var width = this.container.offsetHeight;
+    if (style.boxSizing == "border-box") {
+      width -= parseFloat(style.paddingTop) + parseFloat(style.paddingBottom);
+    }
+    return width;
+  }
+
+  protected getFullSpace() {
+    var style = this.getComputedStyle(this.container);
+    return (
+      this.container.offsetHeight +
+      parseFloat(style.marginTop) +
+      parseFloat(style.marginBottom)
+    );
+  }
+  protected getDimensions() {
+    return {
+      scrollDimension: this.container.scrollHeight,
+      offsetDimension: this.container.offsetHeight,
+    };
   }
 }

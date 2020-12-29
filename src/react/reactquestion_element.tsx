@@ -141,6 +141,7 @@ export class SurveyElementBase extends React.Component<any, any> {
           key={this.getTitleKey(element)}
           className={cssClasses.number}
           style={{ position: "static" }}
+          aria-hidden={true}
         >
           {questionNumber}
         </span>
@@ -173,6 +174,7 @@ export class SurveyElementBase extends React.Component<any, any> {
         data-key={this.getTitleKey(element)}
         key={this.getTitleKey(element)}
         className={cssClasses.requiredText || cssClasses.panel.requiredText}
+        aria-hidden={true}
       >
         {element.requiredText}
       </span>

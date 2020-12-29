@@ -6,6 +6,7 @@ import { ReactQuestionFactory } from "./reactquestion_factory";
 export class SurveyQuestionText extends SurveyQuestionUncontrolledElement<
   QuestionTextModel
 > {
+  private _isWaitingForEnter = false;
   constructor(props: any) {
     super(props);
   }
@@ -14,9 +15,17 @@ export class SurveyQuestionText extends SurveyQuestionUncontrolledElement<
     var onBlur = !this.question.isInputTextUpdate
       ? this.updateValueOnEvent
       : null;
-    var onInput = this.question.isInputTextUpdate
-      ? this.updateValueOnEvent
-      : null;
+    var onKeyDown = null;
+    var onKeyUp = null;
+    if(this.question.isInputTextUpdate) {
+      onKeyDown = (e: any) => this._isWaitingForEnter = (e.keyCode === 229);
+      onKeyUp = (e: any) => {
+        if(!this._isWaitingForEnter || (e.keyCode === 13)) {
+          this.updateValueOnEvent(e);
+          this._isWaitingForEnter = false;
+        }
+      }
+    }
     var placeHolder =
       this.question.inputType === "range" || this.question.isReadOnly
         ? ""
@@ -36,7 +45,9 @@ export class SurveyQuestionText extends SurveyQuestionUncontrolledElement<
         placeholder={placeHolder}
         autoComplete={this.question.autoComplete}
         onBlur={onBlur}
-        onInput={onInput}
+        // onChange={this.updateValueOnEvent}
+        onKeyUp={onKeyUp}
+        onKeyDown={onKeyDown}
         aria-required={this.question.isRequired}
         aria-label={this.question.locTitle.renderedHtml}
         aria-invalid={this.question.errors.length > 0}

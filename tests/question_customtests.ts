@@ -9,6 +9,7 @@ import { Serializer } from "../src/jsonobject";
 import { QuestionDropdownModel } from "../src/question_dropdown";
 import { QuestionTextModel } from "../src/question_text";
 import { QuestionMatrixDropdownModel } from "../src/question_matrixdropdown";
+import { QuestionPanelDynamicModel } from "../src/question_paneldynamic";
 import { ItemValue } from "../src/itemvalue";
 
 export default QUnit.module("custom questions");
@@ -1022,6 +1023,181 @@ QUnit.test("Composite: update url, {composite} prefix", function (assert) {
     processedUrl,
     "https://test.com/newValue",
     "Url proccessed correctly"
+  );
+  ComponentCollection.Instance.clear();
+});
+QUnit.test("Composite: onValueChanged function", function (assert) {
+  var json = {
+    name: "testquestion",
+    elementsJSON: [
+      { type: "text", name: "q1" },
+      {
+        type: "dropdown",
+        name: "q2",
+        choices: ["A", "B", "C"],
+      },
+    ],
+    onValueChanged: (question: Question, name: string, value: any) => {
+      if (name == "q2") {
+        question.setValue("q1", value + value);
+      }
+    },
+  };
+  ComponentCollection.Instance.add(json);
+  var survey = new SurveyModel({
+    elements: [{ type: "testquestion", name: "q1" }],
+  });
+  var q = <QuestionCompositeModel>survey.getAllQuestions()[0];
+  q.contentPanel.getQuestionByName("q2").value = "A";
+  assert.equal(
+    q.contentPanel.getQuestionByName("q1").value,
+    "AA",
+    "onValueChanged works"
+  );
+  ComponentCollection.Instance.clear();
+});
+QUnit.test("Composite: checkErrorsMode=onValueChanging", function (assert) {
+  var json = {
+    name: "testquestion",
+    elementsJSON: [
+      { type: "text", name: "q1", validators: [{ type: "emailvalidator" }] },
+      {
+        type: "dropdown",
+        name: "q2",
+        choices: ["A", "B", "C"],
+      },
+    ],
+  };
+  ComponentCollection.Instance.add(json);
+  var survey = new SurveyModel({
+    checkErrorsMode: "onValueChanging",
+    elements: [{ type: "testquestion", name: "q1" }],
+  });
+  var q = <QuestionCompositeModel>survey.getAllQuestions()[0];
+  var q1 = q.contentPanel.getQuestionByName("q1");
+  q1.value = "a";
+  assert.equal(q1.value, "a", "keep the value");
+  assert.equal(q1.errors.length, 1, "question has error");
+  assert.deepEqual(
+    q.value,
+    { q1: "a" },
+    "keep the value in composite question"
+  );
+  assert.deepEqual(survey.data, {}, "survey data is empty");
+  q1.value = "a@a.com";
+  assert.equal(q1.errors.length, 0, "question has no errors");
+  assert.deepEqual(
+    survey.data,
+    { q1: { q1: "a@a.com" } },
+    "survey data is empty"
+  );
+  ComponentCollection.Instance.clear();
+});
+QUnit.test("Composite: set value from survey.data", function (assert) {
+  var json = {
+    name: "testquestion",
+    elementsJSON: [
+      { type: "text", name: "q1" },
+      {
+        type: "dropdown",
+        name: "q2",
+        choices: ["A", "B", "C"],
+      },
+    ],
+  };
+  ComponentCollection.Instance.add(json);
+  var survey = new SurveyModel({
+    elements: [{ type: "testquestion", name: "q1" }],
+  });
+  survey.data = { q1: { q1: "BB", q2: "B" } };
+  var q = <QuestionCompositeModel>survey.getAllQuestions()[0];
+  assert.equal(
+    q.contentPanel.getQuestionByName("q1").value,
+    "BB",
+    "set value into the first question in composite"
+  );
+  assert.equal(
+    q.contentPanel.getQuestionByName("q2").value,
+    "B",
+    "set value into the second question in composite"
+  );
+});
+QUnit.test("Use components in dynamic panel", function (assert) {
+  ComponentCollection.Instance.add({
+    name: "singlequestion",
+    createQuestion: function () {
+      var res = new QuestionDropdownModel("question");
+      res.choices = [1, 2, 3, 4, 5];
+      return res;
+    },
+  });
+  ComponentCollection.Instance.add({
+    name: "compositequestion",
+    elementsJSON: [
+      { type: "text", name: "q1" },
+      {
+        type: "dropdown",
+        name: "q2",
+        choices: ["A", "B", "C"],
+      },
+    ],
+  });
+
+  var survey = new SurveyModel({
+    elements: [
+      {
+        type: "paneldynamic",
+        name: "q1",
+        templateElements: [
+          { type: "text", name: "q1" },
+          { type: "singlequestion", name: "q2" },
+          { type: "compositequestion", name: "q3" },
+        ],
+      },
+    ],
+  });
+  var panel = <QuestionPanelDynamicModel>survey.getAllQuestions()[0];
+  panel.panelCount = 1;
+  panel.panels[0].getQuestionByName("q2").value = 1;
+  panel.panels[0].getQuestionByName("q3").value = { q1: 1, q2: "B" };
+  assert.deepEqual(survey.data, { q1: [{ q2: 1, q3: { q1: 1, q2: "B" } }] });
+  ComponentCollection.Instance.clear();
+});
+
+QUnit.test("Composite: addConditionObjectsByContext", function (assert) {
+  var json = {
+    name: "testquestion",
+    elementsJSON: [
+      { type: "text", name: "q1" },
+      {
+        type: "dropdown",
+        name: "q2",
+        title: "Question 2",
+        choices: ["A", "B", "C"],
+      },
+    ],
+  };
+  ComponentCollection.Instance.add(json);
+  var survey = new SurveyModel({
+    elements: [{ type: "testquestion", name: "cp_question" }],
+  });
+  var q = <QuestionCompositeModel>survey.getAllQuestions()[0];
+  var objs = [];
+  q.addConditionObjectsByContext(objs, null);
+  for (var i = 0; i < objs.length; i++) {
+    objs[i].question = objs[i].question.getType();
+  }
+  assert.deepEqual(
+    objs,
+    [
+      { name: "cp_question.q1", text: "cp_question.q1", question: "text" },
+      {
+        name: "cp_question.q2",
+        text: "cp_question.Question 2",
+        question: "dropdown",
+      },
+    ],
+    "addConditionObjectsByContext work correctly for composite question"
   );
   ComponentCollection.Instance.clear();
 });

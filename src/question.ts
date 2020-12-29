@@ -1096,6 +1096,9 @@ export class Question
   public set value(newValue: any) {
     this.setNewValue(newValue);
   }
+  /**
+   * Clear the question value. It clears the question comment as well.
+   */
   public clearValue() {
     this.value = null;
     this.comment = null;
@@ -1368,12 +1371,23 @@ export class Question
   }
   public getSupportedValidators(): Array<string> {
     var res: Array<string> = [];
-    this.addSupportedValidators(res);
+    var className = this.getType();
+    while (!!className) {
+      var classValidators = (<any>settings.supportedValidators)[className];
+      if (!!classValidators) {
+        for (var i = classValidators.length - 1; i >= 0; i--) {
+          res.splice(0, 0, classValidators[i]);
+        }
+      }
+      var classInfo = Serializer.findClass(className);
+      className = classInfo.parentName;
+    }
     return res;
   }
-  protected addSupportedValidators(supportedValidators: Array<string>) {
-    supportedValidators.push("expression");
-  }
+  private addSupportedValidators(
+    supportedValidators: Array<string>,
+    classValidators: Array<string>
+  ) {}
   public addConditionObjectsByContext(
     objects: Array<IConditionObject>,
     context: any
@@ -1681,6 +1695,16 @@ export class Question
   public getComponentName(): string {
     return RendererFactory.Instance.getRendererByQuestion(this);
   }
+
+  public getTitleActions(): Array<any> {
+    var titleActions = super.getTitleActions()
+    this.titleActions = this.survey.getUpdatedQuestionTitleActions(
+      this,
+      titleActions
+    );
+    return this.titleActions;
+  }
+
   public isDefaultRendering(): boolean {
     return (
       !!this.customWidget ||
@@ -1812,5 +1836,6 @@ Serializer.addClass("question", [
     },
   },
   { name: "renderAs", default: "default", visible: false },
+  { name: "renderTitleAs", default: "default", visible: false },
 ]);
 Serializer.addAlterNativeClassName("question", "questionbase");

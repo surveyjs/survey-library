@@ -48,6 +48,7 @@ export interface IMatrixDropdownData {
     columnName: string,
     rowValue: any
   ): any;
+  isValidateOnValueChanging: boolean;
   getRowIndex(row: MatrixDropdownRowModelBase): number;
   getRowValue(rowIndex: number): any;
   hasDetailPanel(row: MatrixDropdownRowModelBase): boolean;
@@ -944,6 +945,12 @@ export class MatrixDropdownRowModelBase
         changedQuestion.value = changingValue;
       }
     } else {
+      if (
+        !!changedQuestion &&
+        this.data.isValidateOnValueChanging &&
+        changedQuestion.hasErrors(true, { isOnValueChanged: true })
+      )
+        return;
       this.data.onRowChanged(
         this,
         changedName,
@@ -2593,7 +2600,7 @@ export class QuestionMatrixDropdownModelBase
     if (!this.generatedVisibleRows) return false;
     var res = false;
     if (!rec) rec = {};
-    rec.isSingleDetailPanel = this.detailPanelMode == "underRowSingle";
+    rec.isSingleDetailPanel = this.detailPanelMode === "underRowSingle";
     for (var i = 0; i < this.generatedVisibleRows.length; i++) {
       res =
         this.generatedVisibleRows[i].hasErrors(fireCallback, rec, () => {
@@ -2738,6 +2745,9 @@ export class QuestionMatrixDropdownModelBase
       getCellQuestion: getQuestion,
     };
     return this.survey.matrixCellValidate(this, options);
+  }
+  get isValidateOnValueChanging(): boolean {
+    return !!this.survey ? this.survey.isValidateOnValueChanging : false;
   }
   onRowChanging(
     row: MatrixDropdownRowModelBase,

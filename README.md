@@ -145,13 +145,13 @@ Vue version:
 npm install survey-vue
 ```
 
-Or use Azure CDN:
+Or use unpkg CDN:
 
-* https://surveyjs.azureedge.net/{version-number}/survey.angular.min.js
-* https://surveyjs.azureedge.net/{version-number}/survey.ko.min.js
-* https://surveyjs.azureedge.net/{version-number}/survey.react.min.js
-* https://surveyjs.azureedge.net/{version-number}/survey.jquery.min.js
-* https://surveyjs.azureedge.net/{version-number}/survey.vue.min.js
+* https://unpkg.com/survey-angular@{version-number}/survey.angular.min.js
+* https://unpkg.com/survey-knockout@{version-number}/survey.ko.min.js
+* https://unpkg.com/survey-react@{version-number}/survey.react.min.js
+* https://unpkg.com/survey-jquery@{version-number}/survey.jquery.min.js
+* https://unpkg.com/survey-vue@{version-number}/survey.vue.min.js
 
 You find all versions/builds in the [surveyjs/build repo](https://github.com/surveyjs/builds).
 

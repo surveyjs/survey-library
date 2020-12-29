@@ -5,11 +5,7 @@
     <h4
       data-bind="visible: !!locTitle.koRenderedHtml(), css: $data.getTitleStyle(), click: toggleState"
     >
-      <!-- ko template: { name: 'survey-question-title-content', data: $data } --><!-- /ko -->
-      <span
-        data-bind="visible: koIsCollapsed() || koIsExpanded(), css: cssClasses.panel.icon + (!koIsCollapsed() ? ' ' + cssClasses.panel.iconExpanded: ''), event: { keyup: toggleStateByKeyUp }, attr:{'aria-expanded': koIsCollapsed() ? 'false': 'true', 'aria-controls': !koIsCollapsed() ? contentId: false}"
-        tabindex="0"
-      ></span>
+      <!-- ko component: { name: getTitleComponentName(), params: { element: $data } } --><!-- /ko -->
     </h4>
     <div data-bind="css: cssClasses.panel.description">
       <!-- ko template: { name: 'survey-string', data: locDescription } -->

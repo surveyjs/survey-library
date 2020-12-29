@@ -1,11 +1,11 @@
 import * as ko from "knockout";
 import { RendererFactory } from "../../../rendererFactory";
 
-const template = require("./checkbox.html");
+const template = require("./boolean-checkbox.html");
 
 export var CheckboxViewModel: any;
 
-ko.components.register("sjs-checkbox", {
+ko.components.register("sv-boolean-checkbox", {
   viewModel: {
     createViewModel: (params: any, componentInfo: any) => {
       return { question: params.question };
@@ -17,5 +17,5 @@ ko.components.register("sjs-checkbox", {
 RendererFactory.Instance.registerRenderer(
   "boolean",
   "checkbox",
-  "sjs-checkbox"
+  "sv-boolean-checkbox"
 );

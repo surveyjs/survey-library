@@ -4452,6 +4452,65 @@ QUnit.test(
     );
   }
 );
+QUnit.test("Survey.checkErrorsMode=onValueChanging", function (assert) {
+  var survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdynamic",
+        name: "question1",
+        rowCount: 2,
+        columns: [
+          {
+            name: "col1",
+            isRequired: true,
+            cellType: "text",
+            validators: [{ type: "emailvalidator" }],
+          },
+          {
+            name: "col2",
+            isRequired: true,
+            cellType: "text",
+          },
+        ],
+      },
+    ],
+    checkErrorsMode: "onValueChanging",
+  });
+  var matrix = <QuestionMatrixDynamicModel>(
+    survey.getQuestionByName("question1")
+  );
+  var rows = matrix.visibleRows;
+  rows[0].cells[0].value = "val";
+  assert.equal(
+    rows[0].cells[0].question.errors.length,
+    1,
+    "There is error, e-mail is incorrect"
+  );
+  assert.equal(
+    rows[0].cells[1].question.errors.length,
+    0,
+    "There is no errors yet in the cell, first row, second column"
+  );
+  assert.equal(
+    rows[1].cells[0].question.errors.length,
+    0,
+    "There is no errors yet in the cell, second row, first column"
+  );
+  assert.notOk(matrix.value, "do not set value to matrix");
+  assert.deepEqual(survey.data, {}, "do not set value into survey");
+  rows[0].cells[0].value = "a@a.com";
+  assert.deepEqual(
+    matrix.value,
+    [{ col1: "a@a.com" }, {}],
+    "set value to matrix"
+  );
+  assert.deepEqual(
+    survey.data,
+    { question1: [{ col1: "a@a.com" }, {}] },
+    "set value into survey"
+  );
+});
+
 QUnit.test(
   "column should call property changed on custom property",
   function (assert) {
@@ -5404,5 +5463,62 @@ QUnit.test("Detail panel, Process text in titles", function (assert) {
     q1.locTitle.renderedHtml,
     "rowIndex:2,rootQ:rootVal,row.col1:val1,row.q2:valQ2",
     "Text preprocessed correctly"
+  );
+});
+
+QUnit.test("copyvalue trigger for dropdown matrix cell", function (assert) {
+  var survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdropdown",
+        name: "q1",
+        rows: ["item1", "Item2"],
+        columns: [{ name: "c1", cellType: "text" }],
+      },
+      {
+        type: "matrixdropdown",
+        name: "q2",
+        rows: ["item1", "Item2"],
+        columns: [{ name: "c1", cellType: "text" }],
+      },
+    ],
+    triggers: [
+      {
+        type: "copyvalue",
+        expression: "{q1.item1.c1} notempty",
+        setToName: "q2.item1.c1",
+        fromName: "q1.item1.c1",
+      },
+      {
+        type: "copyvalue",
+        expression: "{q1.Item2.c1} notempty",
+        setToName: "q2.Item2.c1",
+        fromName: "q1.Item2.c1",
+      },
+    ],
+  });
+  var q1 = <QuestionMatrixDynamicModel>survey.getQuestionByName("q1");
+  var q2 = <QuestionMatrixDynamicModel>survey.getQuestionByName("q2");
+  q1.visibleRows[0].cells[0].value = "val1";
+  q1.visibleRows[1].cells[0].value = "val2";
+  assert.equal(
+    q2.visibleRows[0].cells[0].value,
+    "val1",
+    "copy value for item1"
+  );
+  assert.equal(
+    survey.runCondition("{q1.Item2.c1} notempty"),
+    true,
+    "The expression returns true"
+  );
+  assert.equal(
+    survey.runExpression("{q1.Item2.c1}"),
+    "val2",
+    "The expression returns val2"
+  );
+  assert.equal(
+    q2.visibleRows[1].cells[0].value,
+    "val2",
+    "copy value for Item2"
   );
 });

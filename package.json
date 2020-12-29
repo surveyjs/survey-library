@@ -32,7 +32,7 @@
     "watch_vue_dev": "webpack --env.buildType dev --env.platform vue --watch",
     "watch_core_dev": "webpack --env.buildType dev --env.platform core --watch"
   },
-  "version": "1.8.20",
+  "version": "1.8.22",
   "name": "survey-library",
   "private": true,
   "devDependencies": {
@@ -78,7 +78,7 @@
     "standard-version": "^8.0.1",
     "style-loader": "0.13.1",
     "surveyjs-doc-generator": "git+https://github.com/surveyjs/surveyjs-doc-generator.git",
-    "testcafe": "^1.9.2",
+    "testcafe": "^1.10.1",
     "testcafe-browser-provider-saucelabs": "1.1.0",
     "ts-loader": "2.3.4",
     "ts-node": "3.3.0",

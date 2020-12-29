@@ -185,9 +185,11 @@ QUnit.test("Edit validators in matrix", function (assert) {
 QUnit.test("Composite: create from code", function (assert) {
   var json = {
     name: "propertygrid_restfull",
-    createElements: function (panel) {
+    createElements: function (panel, question) {
       panel.fromJSON({
-        elements: [{ type: "text", name: "url" }],
+        elements: [
+          { type: "text", name: "url", title: question.title + "_url" },
+        ],
       });
     },
   };
@@ -195,17 +197,96 @@ QUnit.test("Composite: create from code", function (assert) {
   var survey = new SurveyModel({
     elements: [{ type: "propertygrid_restfull", name: "choicesByUrl" }],
   });
+  var counter = 0;
+  survey.onValueChanging.add(function (sender, options) {
+    counter++;
+  });
   var question = new QuestionDropdownModel("q1");
   question.choicesByUrl.url = "myUrl";
   survey.editingObj = question;
+  assert.equal(counter, 0, "We do not change anything");
   var q = <QuestionCompositeModel>survey.getAllQuestions()[0];
   var urlQ = q.contentPanel.questions[0];
   assert.equal(urlQ.value, "myUrl", "Url set correctly from question");
+  assert.equal(urlQ.title, "choicesByUrl_url");
   urlQ.value = "myUrl2";
   assert.equal(
     question.choicesByUrl.url,
     "myUrl2",
     "Url set correctly into question"
   );
+  assert.equal(counter, 1, "We change url");
   ComponentCollection.Instance.clear();
 });
+
+QUnit.test(
+  "simple validation, checkErrorsMode: onValueChanging",
+  function (assert) {
+    var question = new QuestionDropdownModel("q1");
+    var survey = new SurveyModel({
+      checkErrorsMode: "onValueChanging",
+      elements: [
+        { type: "text", name: "name" },
+        { type: "comment", name: "title" },
+      ],
+    });
+    survey.onValidateQuestion.add(function (sender, options) {
+      if (options.name !== "name") return;
+      options.error = options.value.length != 3 ? "require3symbols" : null;
+    });
+    survey.editingObj = question;
+    var nameQuestion = survey.getQuestionByName("name");
+    nameQuestion.value = "q2";
+    assert.equal(question.name, "q1", "We have old value");
+    assert.equal(nameQuestion.value, "q2", "We have new value in prop grid");
+    assert.equal(nameQuestion.errors.length, 1, "There is one error");
+    nameQuestion.value = "qq2";
+    assert.equal(question.name, "qq2", "We have new value");
+    assert.equal(nameQuestion.errors.length, 0, "There is no errors");
+  }
+);
+QUnit.test(
+  "Validate in matrix, checkErrorsMode: onValueChanging",
+  function (assert) {
+    var question = new QuestionMatrixDynamicModel("q1");
+    question.addColumn("col1");
+    question.addColumn("col2");
+    var survey = new SurveyModel({
+      checkErrorsMode: "onValueChanging",
+      elements: [
+        {
+          type: "matrixdynamic",
+          name: "columns",
+          columns: [
+            { cellType: "text", name: "name" },
+            { cellType: "text", name: "title" },
+          ],
+        },
+      ],
+    });
+    survey.onMatrixCellValidate.add(function (sender, options) {
+      if (options.columnName != "name") return;
+      options.error = options.value.length != 4 ? "Error in name" : null;
+    });
+    var matrix = <QuestionMatrixDynamicModel>(
+      survey.getQuestionByName("columns")
+    );
+    var row = matrix.visibleRows[0];
+    survey.editingObj = question;
+    matrix.visibleRows[0].cells[0].value = "col33";
+    assert.equal(
+      row.cells[0].value,
+      "col33",
+      "keep incorrect value in question cell"
+    );
+    assert.equal(row.cells[0].question.errors.length, 1, "There is an error");
+    assert.equal(
+      question.columns[0].name,
+      "col1",
+      "column name is not changed"
+    );
+    matrix.visibleRows[0].cells[0].value = "col3";
+    assert.equal(row.cells[0].question.errors.length, 0, "There is no errors");
+    assert.equal(question.columns[0].name, "col3", "column name is changed");
+  }
+);

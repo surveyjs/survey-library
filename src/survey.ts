@@ -714,7 +714,7 @@ export class SurveyModel
    * <br/> `options.cellQuestion` - the question/editor in the cell. You may customize it, change it's properties, like choices or visible.
    * <br/> `options.rowValue` - the value of the current row. To access a particular column's value within the current row, use: `options.rowValue["columnValue"]`.
    * <br/> `options.column` - the matrix column object.
-   * <br/> `options.columName` - the matrix column name.
+   * <br/> `options.columnName` - the matrix column name.
    * <br/> `options.row` - the matrix row object.
    * @see onMatrixBeforeRowAdded
    * @see onMatrixRowAdded
@@ -746,7 +746,7 @@ export class SurveyModel
    * The event is fired when cell value is changed in Matrix Dynamic and Matrix Dropdown questions.
    * <br/> `sender` - the survey object that fires the event.
    * <br/> `options.question` - the matrix question.
-   * <br/> `options.columName` - the matrix column name.
+   * <br/> `options.columnName` - the matrix column name.
    * <br/> `options.value` - a new value.
    * <br/> `options.row` - the matrix row object.
    * <br/> `options.getCellQuestion(columnName)` - the function that returns the cell question by column name.
@@ -764,7 +764,7 @@ export class SurveyModel
    * The event is fired on changing cell value in Matrix Dynamic and Matrix Dropdown questions. You may change the `options.value` property to change a cell value.
    * <br/> `sender` - the survey object that fires the event.
    * <br/> `options.question` - the matrix question.
-   * <br/> `options.columName` - the matrix column name.
+   * <br/> `options.columnName` - the matrix column name.
    * <br/> `options.value` - a new value.
    * <br/> `options.oldValue` - the old value.
    * <br/> `options.row` - the matrix row object.
@@ -782,8 +782,9 @@ export class SurveyModel
   /**
    * The event is fired when Matrix Dynamic and Matrix Dropdown questions validate the cell value.
    * <br/> `sender` - the survey object that fires the event.
+   * <br/> `options.error` - an error string. It is empty by default.
    * <br/> `options.question` - the matrix question.
-   * <br/> `options.columName` - the matrix column name.
+   * <br/> `options.columnName` - the matrix column name.
    * <br/> `options.value` - a cell value.
    * <br/> `options.row` - the matrix row object.
    * <br/> `options.getCellQuestion(columnName)` - the function that returns the cell question by column name.
@@ -902,6 +903,16 @@ export class SurveyModel
     (sender: SurveyModel, value: string) => any,
     any
   > = new Event<(sender: SurveyModel) => any, any>();
+
+  public onGetQuestionTitleActions: Event<
+    (sender: SurveyModel, options: any) => any,
+    any
+  > = new Event<(sender: SurveyModel, options: any) => any, any>();
+
+  public onGetPanelTitleActions: Event<
+    (sender: SurveyModel, options: any) => any,
+    any
+  > = new Event<(sender: SurveyModel, options: any) => any, any>();
 
   /**
    * The list of errors on loading survey JSON. If the list is empty after loading a JSON, then the JSON is correct and has no errors.
@@ -1382,6 +1393,7 @@ export class SurveyModel
    *
    * - `onNextPage` (default) - check errors on navigating to the next page or on completing the survey.
    * - `onValueChanged` - check errors on every question value (i.e., answer) changing.
+   * - `onValueChanging` - check errors before setting value into survey. If there is an error, then survey data is not changed, but question value will be keeped.
    * - `onComplete` - to validate all visible questions on complete button click. If there are errors on previous pages, then the page with the first error becomes the current.
    */
   public get checkErrorsMode(): string {
@@ -1413,6 +1425,7 @@ export class SurveyModel
    *
    * - `none` - include the invisible values into the survey data.
    * - `onHidden` - clear the question value when it becomes invisible. If a question has value and it was invisible initially then survey clears the value on completing.
+   * - `onHiddenContainer` - clear the question value when it or its parent (page or panel) becomes invisible. If a question has value and it was invisible initially then survey clears the value on completing.
    * - `onComplete` (default) - clear invisible question values on survey complete. In this case, the invisible questions will not be stored on the server.
    * @see Question.visible
    * @see onComplete
@@ -1645,9 +1658,11 @@ export class SurveyModel
     this.setPropertyValue("logoFit", val);
   }
   public get titleMaxWidth(): string {
-    var logoWidth = this.logoWidth;
-    if (this.logoPosition === "left" || this.logoPosition === "right") {
-      return "calc(100% - 5px - 2em - " + logoWidth + "px)";
+    if (!this.isValueEmpty(this.logo)) {
+      var logoWidth = this.logoWidth;
+      if (this.logoPosition === "left" || this.logoPosition === "right") {
+        return "calc(100% - 5px - 2em - " + logoWidth + "px)";
+      }
     }
     return "";
   }
@@ -2058,10 +2073,18 @@ export class SurveyModel
     this.setPropertyValue("progressBarType", newValue);
   }
   public get isShowProgressBarOnTop(): boolean {
+    if (!this.canShowProresBar()) return false;
     return this.showProgressBar === "top" || this.showProgressBar === "both";
   }
   public get isShowProgressBarOnBottom(): boolean {
+    if (!this.canShowProresBar()) return false;
     return this.showProgressBar === "bottom" || this.showProgressBar === "both";
+  }
+  private canShowProresBar(): boolean {
+    return (
+      !this.isShowingPreview ||
+      this.showPreviewBeforeComplete != "showAllQuestions"
+    );
   }
   /**
    * Returns the text/HTML that is rendered as a survey title.
@@ -2486,7 +2509,7 @@ export class SurveyModel
    * - `running` - a respondent is answering survey questions right now,
    * - `preview` - a respondent is previewing answered questions before submitting the survey (see [example](https://surveyjs.io/Examples/Library?id=survey-showpreview)),
    * - `completed` - a respondent has completed the survey and submitted the results.
-   * 
+   *
    * Details: [Preview State](https://surveyjs.io/Documentation/Library#states)
    */
   public get state(): string {
@@ -3060,7 +3083,7 @@ export class SurveyModel
   }
   /**
    * Shows preview for the survey. Switches the survey to the "preview" state.
-   * 
+   *
    * Details: [Preview State](https://surveyjs.io/Documentation/Library#states-preview)
    * @see showPreviewBeforeComplete
    * @see cancelPreview
@@ -3077,7 +3100,7 @@ export class SurveyModel
   }
   /**
    * Cancels preview and switches back to the "running" state.
-   * 
+   *
    * Details: [Preview State](https://surveyjs.io/Documentation/Library#states-preview)
    * @param curPage - A new current page. If the parameter is undefined then the last page becomes the current.
    * @see showPreviewBeforeComplete
@@ -3154,7 +3177,7 @@ export class SurveyModel
   }
   /**
    * Set this property to "showAllQuestions" or "showAnsweredQuestions" to allow respondents to preview answers before submitting the survey results.
-   * 
+   *
    * Details: [Preview State](https://surveyjs.io/Documentation/Library#states-preview)
    * Example: [Show Preview Before Complete](https://surveyjs.io/Examples/Library?id=survey-showpreview)
    * @see showPreview
@@ -3460,6 +3483,7 @@ export class SurveyModel
           }
         }
       }
+      this.fireValidatedErrorsOnPage(this.currentPage);
     }
     if (!hasErrors) {
       if (isPreview) {
@@ -3717,6 +3741,9 @@ export class SurveyModel
     options.question = question;
     this.onMatrixCellValueChanging.fire(this, options);
   }
+  get isValidateOnValueChanging(): boolean {
+    return this.checkErrorsMode == "onValueChanging";
+  }
   matrixCellValidate(question: IQuestion, options: any): SurveyError {
     options.question = question;
     this.onMatrixCellValidate.fire(this, options);
@@ -3744,6 +3771,27 @@ export class SurveyModel
     options.allow = true;
     this.onDragDropAllow.fire(this, options);
     return options.allow;
+  }
+
+  getUpdatedQuestionTitleActions(
+    question: IQuestion,
+    titleActions: Array<any>
+  ) {
+    var options = {
+      question: question,
+      titleActions: titleActions,
+    };
+    this.onGetQuestionTitleActions.fire(this, options);
+    return options.titleActions;
+  }
+
+  getUpdatedPanelTitleActions(panel: IPanel, titleActions: Array<any>) {
+    var options = {
+      panel: panel,
+      titleActions: titleActions,
+    };
+    this.onGetPanelTitleActions.fire(this, options);
+    return options.titleActions;
   }
 
   scrollElementToTop(
@@ -4151,15 +4199,34 @@ export class SurveyModel
       !this.isNavigationButtonPressed &&
       (this.checkErrorsMode == "onValueChanged" || question.errors.length > 0)
     ) {
-      var oldErrorCount = question.errors.length;
-      question.hasErrors(true, { isOnValueChanged: true });
-      if (
-        !!question.page &&
-        (oldErrorCount > 0 || question.errors.length > 0)
-      ) {
-        this.fireValidatedErrorsOnPage(<PageModel>question.page);
-      }
+      this.checkQuestionErrorOnValueChangedCore(question);
     }
+  }
+  private checkQuestionErrorOnValueChangedCore(question: Question): boolean {
+    var oldErrorCount = question.errors.length;
+    var res = question.hasErrors(true, { isOnValueChanged: true });
+    if (!!question.page && (oldErrorCount > 0 || question.errors.length > 0)) {
+      this.fireValidatedErrorsOnPage(<PageModel>question.page);
+    }
+    return res;
+  }
+  private checkErrorsOnValueChanging(
+    valueName: string,
+    newValue: any
+  ): boolean {
+    if (this.isLoadingFromJson) return false;
+    var questions = this.getQuestionsByValueName(valueName);
+    if (!questions) return false;
+    var res = false;
+    for (var i: number = 0; i < questions.length; i++) {
+      var q = questions[i];
+      if (!this.isTwoValueEquals(q.value, newValue)) {
+        q.value = newValue;
+      }
+      if (this.checkQuestionErrorOnValueChangedCore(q)) res = true;
+      res = res || q.errors.length > 0;
+    }
+    return res;
   }
   protected notifyQuestionOnValueChanged(valueName: string, newValue: any) {
     if (this.isLoadingFromJson) return;
@@ -4676,6 +4743,18 @@ export class SurveyModel
     this.notifyElementsOnAnyValueOrVariableChanged(name);
     this.runConditionOnValueChanged(name, newValue);
   }
+  /**
+   * Returns all variables in the survey. Use setVariable function to create a new variable.
+   * @see getVariable
+   * @see setVariable
+   */
+  public getVariableNames(): Array<string> {
+    var res = [];
+    for (var key in this.variablesHash) {
+      res.push(key);
+    }
+    return res;
+  }
   //ISurvey data
   protected getUnbindValue(value: any): any {
     if (!!this.editingObj) return value;
@@ -4711,8 +4790,14 @@ export class SurveyModel
     allowNotifyValueChanged: boolean = true
   ) {
     var newValue = newQuestionValue;
-    if (allowNotifyValueChanged)
+    if (allowNotifyValueChanged) {
       newValue = this.questionOnValueChanging(name, newQuestionValue);
+    }
+    if (
+      this.checkErrorsMode == "onValueChanging" &&
+      this.checkErrorsOnValueChanging(name, newValue)
+    )
+      return;
     if (
       !this.editingObj &&
       this.isValueEqual(name, newValue) &&
@@ -4879,7 +4964,13 @@ export class SurveyModel
     this.setPropertyValue("clearValueOnDisableItems", val);
   }
   get isClearValueOnHidden(): boolean {
-    return this.clearInvisibleValues == "onHidden";
+    return (
+      this.clearInvisibleValues == "onHidden" ||
+      this.isClearValueOnHiddenContainer
+    );
+  }
+  get isClearValueOnHiddenContainer(): boolean {
+    return this.clearInvisibleValues == "onHiddenContainer";
   }
   questionVisibilityChanged(question: IQuestion, newValue: boolean) {
     this.updateVisibleIndexes();
@@ -5569,12 +5660,12 @@ Serializer.addClass("survey", [
   {
     name: "clearInvisibleValues",
     default: "onComplete",
-    choices: ["none", "onComplete", "onHidden"],
+    choices: ["none", "onComplete", "onHidden", "onHiddenContainer"],
   },
   {
     name: "checkErrorsMode",
     default: "onNextPage",
-    choices: ["onNextPage", "onValueChanged", "onComplete"],
+    choices: ["onNextPage", "onValueChanged", "onValueChanging", "onComplete"],
   },
   {
     name: "textUpdateMode",

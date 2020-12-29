@@ -185,24 +185,28 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     return this.getPropertyValue("maxSelectedChoices", 0);
   }
   public set maxSelectedChoices(val: number) {
-    if(val < 0) val = 0;
+    if (val < 0) val = 0;
     this.setPropertyValue("maxSelectedChoices", val);
   }
   protected onEnableItemCallBack(item: ItemValue): boolean {
-    if(!this.shouldCheckMaxSelectedChoices()) return true;
+    if (!this.shouldCheckMaxSelectedChoices()) return true;
     return this.isItemSelected(item);
   }
   protected onAfterRunItemsEnableCondition() {
-    if(this.maxSelectedChoices < 1) return;
-    if(this.hasSelectAll) {
-      this.selectAllItem.setIsEnabled(this.maxSelectedChoices >= this.activeChoices.length);
+    if (this.maxSelectedChoices < 1) return;
+    if (this.hasSelectAll) {
+      this.selectAllItem.setIsEnabled(
+        this.maxSelectedChoices >= this.activeChoices.length
+      );
     }
-    if(this.hasOther) {
-      this.otherItem.setIsEnabled(!this.shouldCheckMaxSelectedChoices() || this.isOtherSelected);
-    } 
+    if (this.hasOther) {
+      this.otherItem.setIsEnabled(
+        !this.shouldCheckMaxSelectedChoices() || this.isOtherSelected
+      );
+    }
   }
   private shouldCheckMaxSelectedChoices(): boolean {
-    if(this.maxSelectedChoices < 1) return false;
+    if (this.maxSelectedChoices < 1) return false;
     var val = this.value;
     var len = !Array.isArray(val) ? 0 : val.length;
     return len >= this.maxSelectedChoices;
@@ -438,10 +442,6 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
   protected hasUnknownValue(val: any, includeOther: boolean = false): boolean {
     if (this.hasNone && val == this.noneItemValue.value) return false;
     return super.hasUnknownValue(val, includeOther);
-  }
-  protected addSupportedValidators(supportedValidators: Array<string>) {
-    super.addSupportedValidators(supportedValidators);
-    supportedValidators.push("answercount");
   }
 }
 Serializer.addClass(

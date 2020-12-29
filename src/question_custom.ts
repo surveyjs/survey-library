@@ -1,4 +1,4 @@
-import { Question } from "./question";
+import { Question, IConditionObject } from "./question";
 import { Serializer, CustomPropertiesCollection } from "./jsonobject";
 import {
   ISurveyImpl,
@@ -62,6 +62,10 @@ export class ComponentQuestionJSON {
   ) {
     if (!this.json.onPropertyChanged) return;
     this.json.onPropertyChanged(question, propertyName, newValue);
+  }
+  public onValueChanged(question: Question, name: string, newValue: any) {
+    if (!this.json.onValueChanged) return;
+    this.json.onValueChanged(question, name, newValue);
   }
   public onItemValuePropertyChanged(
     question: Question,
@@ -270,6 +274,9 @@ export abstract class QuestionCustomModelBase
     );
     this.updateIsAnswered();
     this.updateElementCss();
+    if (!!this.customQuestion) {
+      this.customQuestion.onValueChanged(this, name, newValue);
+    }
   }
   protected convertDataName(name: string): string {
     return this.getValueName();
@@ -414,7 +421,10 @@ export class QuestionCustomModel extends QuestionCustomModelBase {
   }
   protected setQuestionValue(newValue: any, updateIsAnswered: boolean = true) {
     super.setQuestionValue(newValue, updateIsAnswered);
-    if (!!this.contentQuestion) {
+    if (
+      !!this.contentQuestion &&
+      !Helpers.isTwoValueEquals(this.contentQuestion.value, newValue)
+    ) {
       this.contentQuestion.value = newValue;
     }
   }
@@ -531,7 +541,7 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
       res.fromJSON({ elements: json.elementsJSON });
     }
     if (!!json.createElements) {
-      json.createElements(res);
+      json.createElements(res, this);
     }
     this.initElement(res);
     res.readOnly = this.isReadOnly;
@@ -588,6 +598,39 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
     var val = this.value;
     return !!val ? val[name] : null;
   }
+  private settingNewValue: boolean = false;
+  setValue(
+    name: string,
+    newValue: any,
+    locNotification: any,
+    allowNotifyValueChanged?: boolean
+  ): any {
+    if (this.settingNewValue) return;
+    super.setValue(name, newValue, locNotification, allowNotifyValueChanged);
+    if (!this.contentPanel) return;
+    var q = this.contentPanel.getQuestionByName(name);
+    if (!!q && !Helpers.isTwoValueEquals(newValue, q.value)) {
+      this.settingNewValue = true;
+      q.value = newValue;
+      this.settingNewValue = false;
+    }
+  }
+  public addConditionObjectsByContext(
+    objects: Array<IConditionObject>,
+    context: any
+  ) {
+    if (!this.contentPanel) return;
+    var questions = this.contentPanel.questions;
+    var prefixName = this.name;
+    var prefixText = this.title;
+    for (var i = 0; i < questions.length; i++) {
+      objects.push({
+        name: prefixName + "." + questions[i].name,
+        text: prefixText + "." + questions[i].title,
+        question: questions[i],
+      });
+    }
+  }
   protected convertDataValue(name: string, newValue: any): any {
     var val = this.value;
     if (!val) val = {};
@@ -600,11 +643,13 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
   }
   protected setQuestionValue(newValue: any, updateIsAnswered: boolean = true) {
     super.setQuestionValue(newValue, updateIsAnswered);
+    this.settingNewValue = true;
     var questions = this.contentPanel.questions;
     for (var i = 0; i < questions.length; i++) {
       var key = questions[i].getValueName();
       questions[i].value = !!newValue ? newValue[key] : undefined;
     }
+    this.settingNewValue = false;
   }
   private setAfterRenderCallbacks(panel: PanelModel) {
     if (!panel || !this.customQuestion) return;

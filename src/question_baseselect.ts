@@ -376,9 +376,9 @@ export class QuestionSelectBase extends Question {
     this.setPropertyValue("choices", newValue);
   }
   /**
-   * Set this property to get choices from the question you have selected except defining them in this question. It will allow to avoid duplication in your survey definition.
-   * By setting this property, "choices", "choicesVisibleIf", "choicesEnableIf" and "choicesOrder" properties become invisible, since they are defined in another question.
-   * You can set `choicesFromQuestionMode` property to filter choices from another question.
+   * Set this property to get choices from the specified question instead of defining them in the current question. This avoids duplication of choices declaration in your survey definition.
+   * By setting this property, the "choices", "choicesVisibleIf", "choicesEnableIf" and "choicesOrder" properties become invisible, because these question characteristics depend on actions in another (specified) question.
+   * Use the `choicesFromQuestionMode` property to filter choices obtained from the specified question.
    * @see choices
    * @see choicesFromQuestionMode
    */
@@ -404,8 +404,8 @@ export class QuestionSelectBase extends Question {
     }
   }
   /**
-   * The property becomes visible when `choicesFromQuestion` property is selected. The default value is "all" and all visible choices from another question are show as it is.
-   * You can set this property to "selected" or "unselected" to show only selected choices from the previous question or unselected.
+   * This property becomes visible when the `choicesFromQuestion` property is selected. The default value is "all" (all visible choices from another question are displayed as they are).
+   * You can set this property to "selected" or "unselected" to display only selected or unselected choices from the specified question.
    * @see choicesFromQuestion
    */
   public get choicesFromQuestionMode(): string {

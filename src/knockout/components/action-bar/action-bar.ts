@@ -85,13 +85,16 @@ export class ActionBarViewModel {
     this.itemsSubscription = ko.computed(() => {
       var items = ko.unwrap(_items);
       items.forEach((item) => {
-        var wrappedItem: any = new ObjectWrapper(item);
+        var wrappedItem: any = new ObjectWrapper(item, ["action", "showTitle", "visible"]);
         var showTitle = item.showTitle;
         wrappedItem.showTitle = ko.computed(() => {
-          return this._showTitles() && (showTitle || showTitle === undefined);
+          return (
+            this._showTitles() &&
+            (ko.unwrap(showTitle) || showTitle === undefined)
+          );
         });
         wrappedItem.visible = ko.observable(
-          item.visible || item.visible === undefined
+          ko.unwrap(item.visible) || item.visible === undefined
         );
         this.items.push(wrappedItem);
       });

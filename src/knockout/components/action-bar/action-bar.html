@@ -2,7 +2,7 @@
 <!-- ko foreach: items-->
 <span
   class="sv-action"
-  data-bind="css: $data.css, visible: $data.visible === undefined || !!ko.unwrap($data.visible), attr: { id: $data.id }"
+  data-bind="css: $data.css, attr: { id: $data.id }, style: { visibility : $data.visible() ? 'visible': 'hidden' }"
 >
   <!-- ko ifnot: $data.template-->
   <!-- ko component: { name: $data.component || 'sv-action-bar-item', params: { item: $data } } -->
@@ -15,25 +15,3 @@
 </span>
 <!--/ko-->
 <!--/ko-->
-<!-- ko if: invisibleItems().length > 0 -->
-<div
-  class="svc-action"
-  data-bind="click: function() { showInvisibleItems(!showInvisibleItems()); }"
->
-  <div
-    class="svc-action-bar-item"
-    tabindex="0"
-    data-bind="attr: { title: 'More...', role: 'button', 'aria-label': 'More...' }, css: 'svc-action-bar-item--dots'"
-  >
-    <sv-svg-icon
-      class="sv-action-bar-item__icon"
-      params="iconName: 'icon-dots', size: 24"
-    ></sv-svg-icon>
-    <sv-popup
-      class="sv-action-bar__popup"
-      params="contentComponentName: 'sv-list', contentComponentData: { items: invisibleItems, onItemSelect: invisibleItemSelected }, isVisible: showInvisibleItems, verticalPosition: 'bottom', horizontalPosition: 'left', showPointer: true"
-    ></sv-popup>
-  </div>
-</div>
-
-<!-- /ko -->

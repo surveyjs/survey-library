@@ -76,16 +76,32 @@ export interface IActionBarItem {
 export class ActionBarViewModel {
   public itemsSubscription: ko.Computed;
   public items: ko.ObservableArray = ko.observableArray();
-  public visibleItems: ko.ObservableArray<IActionBarItem>;
-  public showInvisibleItems = ko.observable(false);
   public invisibleItems: ko.ObservableArray<IActionBarItem> = ko.observableArray();
   private _showTitles = ko.observable(true);
+  private dotsItem = {
+    component: "sv-action-bar-item-dropdown",
+    items: this.invisibleItems,
+    innerCss: "sv-dots",
+    iconName: "icon-dots",
+    visible: () => true,
+    verticalPosition: "bottom",
+    horizontalPosition: "left",
+    action: (item: any) => {
+      this.invisibleItemSelected(item);
+      return true;
+    },
+    closeOnAction: true,
+  };
 
   constructor(_items: ko.MaybeObservableArray<IActionBarItem>) {
     this.itemsSubscription = ko.computed(() => {
       var items = ko.unwrap(_items);
       items.forEach((item) => {
-        var wrappedItem: any = new ObjectWrapper(item, ["action", "showTitle", "visible"]);
+        var wrappedItem: any = new ObjectWrapper(item, [
+          "action",
+          "showTitle",
+          "visible",
+        ]);
         var showTitle = item.showTitle;
         wrappedItem.showTitle = ko.computed(() => {
           return (
@@ -109,12 +125,20 @@ export class ActionBarViewModel {
     let leftItemsToShow = visibleItemsCount;
     this.invisibleItems([]);
     ko.unwrap(this.items).forEach((item: any) => {
+      if (item === this.dotsItem) return;
       item.visible(leftItemsToShow > 0);
       if (leftItemsToShow <= 0) {
         this.invisibleItems.push(item);
       }
       leftItemsToShow--;
     });
+    var index = this.items.indexOf(this.dotsItem);
+    if (index !== -1) {
+      this.items.splice(index, 1);
+    }
+    if (visibleItemsCount < this.items().length) {
+      this.items.splice(visibleItemsCount, 0, this.dotsItem);
+    }
   }
   public get canShrink() {
     return this._showTitles();
@@ -128,7 +152,6 @@ export class ActionBarViewModel {
   }
 
   public invisibleItemSelected = (model: any) => {
-    this.showInvisibleItems(false);
     model.action();
   };
 
@@ -143,6 +166,15 @@ ko.components.register("sv-action-bar", {
       const model = new ActionBarViewModel(params.items);
       var container: HTMLDivElement = componentInfo.element;
       var manager = new ResponsibilityManager(container, model);
+      manager.getItemSizes = () => {
+        var widths: number[] = [];
+        container
+          .querySelectorAll("span.sv-action")
+          .forEach((actionContainer) => {
+            widths.push((<HTMLDivElement>actionContainer).offsetWidth);
+          });
+        return widths;
+      };
       let updateVisibleItems = setInterval(() => {
         manager.process();
         ko.tasks.runEarly();

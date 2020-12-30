@@ -20,6 +20,7 @@ sv-action-bar {
   margin-left: auto;
   padding: 0 0 0 calcSize(2);
   overflow: hidden;
+  white-space: nowrap;
 }
 
 .sv-action--first {
@@ -156,5 +157,11 @@ sv-action-bar {
 .sv-expand-action--expanded {
   &:before {
     transform: rotate(180deg);
+  }
+}
+.sv-dots {
+  margin-right: none;
+  &:hover {
+    background-color: inherit;
   }
 }

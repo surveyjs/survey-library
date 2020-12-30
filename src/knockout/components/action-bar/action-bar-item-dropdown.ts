@@ -11,22 +11,26 @@ ko.components.register("sv-action-bar-item-dropdown", {
       return {
         id: params.item.id,
         title: params.item.title,
-        icon: params.item.icon,
+        innerCss: params.item.innerCss,
+        iconName: params.item.iconName,
         action: () => {
           isVisible(!isVisible());
         },
         model: {
           onItemSelect: (item: any) => {
             params.item.action(item);
+            if (params.item.closeOnAction) {
+              isVisible(false);
+            }
           },
           items: params.item.items,
-          selectedItem: params.item.selectedItem
+          selectedItem: params.item.selectedItem,
         },
         isVisible: isVisible,
         name: "sv-list",
         verticalPosition: params.item.verticalPosition || "middle",
         horizontalPosition: params.item.horizontalPosition || "right",
-        showPointer: true
+        showPointer: true,
       };
     },
   },

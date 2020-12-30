@@ -1,6 +1,8 @@
 export class ResponsibilityManager {
   private previousSpace = 0;
-
+  private previousItemCount = Number.MAX_VALUE;
+  private _itemSizes: Array<number> = undefined;
+  public getItemSizes: () => Array<number>;
   constructor(
     protected container: HTMLDivElement,
     private model: any,
@@ -19,7 +21,7 @@ export class ResponsibilityManager {
 
   protected getAvailableSpace() {
     var style = this.getComputedStyle(this.container);
-    var width = this.container.offsetWidth;
+    var width = this.container.offsetWidth - this.itemSize;
     if (style.boxSizing == "border-box") {
       width -= parseFloat(style.paddingLeft) + parseFloat(style.paddingRight);
     }
@@ -32,6 +34,22 @@ export class ResponsibilityManager {
     };
   }
 
+  private getItemsCount(size: number) {
+    var sum = 0;
+    var itemSizes = this.itemSizes;
+    for (var i = 0; i < itemSizes.length && size >= sum; i++) {
+      sum += itemSizes[i];
+    }
+    return i - 1;
+  }
+
+  get itemSizes() {
+    if (!this._itemSizes) {
+      this._itemSizes = this.getItemSizes();
+    }
+    return this._itemSizes;
+  }
+
   process() {
     if (!!this.container) {
       var dimensions = this.getDimensions();
@@ -42,15 +60,18 @@ export class ResponsibilityManager {
           if (this.model.canShrink) {
             this.model.shrink();
           } else {
-            this.model.showFirstN(
-              Math.floor(this.getAvailableSpace() / this.itemSize) - 1
-            );
+            var count = this.getItemsCount(this.getAvailableSpace());
+            if (this.previousItemCount != count) {
+              this.model.showFirstN(count);
+              this.previousItemCount = count;
+            }
           }
         } else {
           if (this.model.canGrow) {
             this.model.grow();
           }
           this.model.showFirstN(Number.MAX_VALUE);
+          this.previousItemCount = Number.MAX_VALUE;
         }
         this.previousSpace = fullSpace;
       }

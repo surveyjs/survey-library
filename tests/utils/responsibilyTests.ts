@@ -23,10 +23,13 @@ class TestModel {
   }
 }
 
+var getItemSizes = () => [5, 5, 5, 5, 5, 5, 5];
+
 QUnit.test("Check on element with box-sizing: content-box", function (assert) {
   var container = { offsetWidth: 30, scrollWidth: 30 };
   var model = new TestModel();
   var manager = new ResponsibilityManager(<any>container, model, 5);
+  manager.getItemSizes = getItemSizes;
   manager.getComputedStyle = () => {
     return {
       marginLeft: "0px",
@@ -68,6 +71,7 @@ QUnit.test("Check on element with box-sizing: border-box", function (assert) {
   var container = { offsetWidth: 30, scrollWidth: 30 };
   var model = new TestModel();
   var manager = new ResponsibilityManager(<any>container, model, 5);
+  manager.getItemSizes = getItemSizes;
   manager.getComputedStyle = () => {
     return {
       marginLeft: "0px",
@@ -98,6 +102,7 @@ QUnit.test("Check on model which can shrink and grow", function (assert) {
   var model = new TestModel();
   model.canGrow = true;
   var manager = new ResponsibilityManager(<any>container, model, 5);
+  manager.getItemSizes = getItemSizes;
   manager.getComputedStyle = () => {
     return {
       marginLeft: "0px",
@@ -155,6 +160,7 @@ QUnit.test("Check on element with changing margins", function (assert) {
     marginRight: "0px",
   };
   var manager = new ResponsibilityManager(<any>container, model, 5);
+  manager.getItemSizes = getItemSizes;
   manager.getComputedStyle = () => {
     return style;
   };

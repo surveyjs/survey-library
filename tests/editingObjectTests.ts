@@ -216,6 +216,9 @@ QUnit.test("Composite: create from code", function (assert) {
     "Url set correctly into question"
   );
   assert.equal(counter, 1, "We change url");
+  urlQ.value = "";
+  assert.notOk(question.choicesByUrl.url, "Url is empty");
+  assert.equal(counter, 2, "We change url again");
   ComponentCollection.Instance.clear();
 });
 

@@ -634,7 +634,7 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
   protected convertDataValue(name: string, newValue: any): any {
     var val = this.value;
     if (!val) val = {};
-    if (Helpers.isValueEmpty(newValue)) {
+    if (Helpers.isValueEmpty(newValue) && !this.isEditingSurveyElement(val)) {
       delete val[name];
     } else {
       val[name] = newValue;

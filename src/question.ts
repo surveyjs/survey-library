@@ -1836,6 +1836,5 @@ Serializer.addClass("question", [
     },
   },
   { name: "renderAs", default: "default", visible: false },
-  { name: "renderTitleAs", default: "default", visible: false },
 ]);
 Serializer.addAlterNativeClassName("question", "questionbase");

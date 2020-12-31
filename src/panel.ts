@@ -1773,8 +1773,6 @@ Serializer.addClass(
       choices: ["default", "onpanel", "off"],
     },
     "questionStartIndex",
-  { name: "renderTitleAs", default: "default", visible: false },
-
   ],
   function () {
     return new PanelModel();

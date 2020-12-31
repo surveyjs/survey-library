@@ -4363,3 +4363,126 @@ QUnit.test(
     assert.strictEqual(matrix.visibleRows[0].value, "0", "Set '0' and not 0");
   }
 );
+QUnit.test("Base Select Question: choicesFromQuestion", function (assert) {
+  var survey = new SurveyModel({
+    elements: [
+      { type: "checkbox", name: "q1", choices: [1, 2, 3, 4, 5] },
+      {
+        type: "checkbox",
+        name: "q2",
+        choices: [1, 2, 3],
+        choicesFromQuestion: "q1",
+      },
+      { type: "radiogroup", name: "q3", choices: [1, 2, 3, 4, 5, 6, 7] },
+    ],
+  });
+  var q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+  var q2 = <QuestionCheckboxModel>survey.getQuestionByName("q2");
+  assert.equal(q2.visibleChoices.length, 5, "Get choices from q1");
+  q2.choicesFromQuestion = "q3";
+  assert.equal(q2.visibleChoices.length, 7, "Get choices from q3");
+  q2.choicesFromQuestion = "q1";
+  assert.equal(q2.visibleChoices.length, 5, "Get choices from q1 again");
+  q1.choices.push(new ItemValue(6));
+  assert.equal(q2.visibleChoices.length, 6, "q1.choices updated");
+});
+QUnit.test("Base Select Question: choicesFromQuestionMode", function (assert) {
+  var survey = new SurveyModel({
+    elements: [
+      { type: "checkbox", name: "q1", choices: [1, 2, 3, 4, 5] },
+      {
+        type: "checkbox",
+        name: "q2",
+        choices: [1, 2, 3],
+        choicesFromQuestion: "q1",
+        choicesFromQuestionMode: "selected",
+      },
+    ],
+  });
+  var q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+  var q2 = <QuestionCheckboxModel>survey.getQuestionByName("q2");
+  assert.equal(q2.visibleChoices.length, 0, "There is no selected");
+  q1.value = [1, 4];
+  assert.equal(q2.visibleChoices.length, 2, "There are two selected items");
+  q2.choicesFromQuestionMode = "unselected";
+  assert.equal(q2.visibleChoices.length, 3, "There are 3  unselected items");
+  q2.choicesFromQuestionMode = "all";
+  assert.equal(q2.visibleChoices.length, 5, "Show all items");
+  q1.choicesVisibleIf = "{item} > 2";
+  assert.equal(q2.visibleChoices.length, 3, "Appy q1.choicesVisibleIf");
+  q2.choicesFromQuestionMode = "unselected";
+  assert.equal(
+    q2.visibleChoices.length,
+    2,
+    "Appy choicesFromQuestionMode and choicesVisibleIf"
+  );
+});
+QUnit.test(
+  "Base Select Question: choicesFromQuestion double tunnel",
+  function (assert) {
+    var survey = new SurveyModel({
+      elements: [
+        { type: "checkbox", name: "q1", choices: [1, 2, 3, 4, 5] },
+        {
+          type: "radiogroup",
+          name: "q2",
+          choicesFromQuestion: "q1",
+          choicesFromQuestionMode: "selected",
+        },
+        {
+          type: "dropdown",
+          name: "q3",
+          choicesFromQuestion: "q2",
+          choicesFromQuestionMode: "unselected",
+        },
+      ],
+    });
+    var q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+    var q2 = <QuestionCheckboxModel>survey.getQuestionByName("q2");
+    var q3 = <QuestionCheckboxModel>survey.getQuestionByName("q3");
+    assert.equal(q2.visibleChoices.length, 0, "There is no selected in q2");
+    assert.equal(q3.visibleChoices.length, 0, "There is no selected in q3");
+    q1.value = [1, 4, 5];
+    assert.equal(
+      q2.visibleChoices.length,
+      3,
+      "There are three selected items in q2"
+    );
+    assert.equal(
+      q3.visibleChoices.length,
+      3,
+      "There are three selected items in q3"
+    );
+    q2.value = 4;
+    assert.equal(
+      q3.visibleChoices.length,
+      2,
+      "There are two selected items in q3 now"
+    );
+  }
+);
+QUnit.test(
+  "Reset choicesFromQuestion on deleting main question",
+  function (assert) {
+    var survey = new SurveyModel({
+      elements: [
+        { type: "checkbox", name: "q1", choices: [1, 2, 3, 4, 5] },
+        {
+          type: "checkbox",
+          name: "q2",
+          choices: [1, 2, 3],
+          choicesFromQuestion: "q1",
+        },
+        { type: "radiogroup", name: "q3", choices: [1, 2, 3, 4, 5, 6, 7] },
+      ],
+    });
+    var q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+    var q2 = <QuestionCheckboxModel>survey.getQuestionByName("q2");
+    assert.ok(q2.choicesFromQuestion, "choicesFromQuestion is here");
+    assert.equal(q2.visibleChoices.length, 5, "Get choices from q1");
+    survey.pages[0].removeElement(q1);
+    q1.dispose();
+    assert.notOk(q2.choicesFromQuestion, "choicesFromQuestion is reset");
+    assert.equal(q2.visibleChoices.length, 3, "Get choices from q2");
+  }
+);

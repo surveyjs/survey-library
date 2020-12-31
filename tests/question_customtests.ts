@@ -1163,3 +1163,41 @@ QUnit.test("Use components in dynamic panel", function (assert) {
   assert.deepEqual(survey.data, { q1: [{ q2: 1, q3: { q1: 1, q2: "B" } }] });
   ComponentCollection.Instance.clear();
 });
+
+QUnit.test("Composite: addConditionObjectsByContext", function (assert) {
+  var json = {
+    name: "testquestion",
+    elementsJSON: [
+      { type: "text", name: "q1" },
+      {
+        type: "dropdown",
+        name: "q2",
+        title: "Question 2",
+        choices: ["A", "B", "C"],
+      },
+    ],
+  };
+  ComponentCollection.Instance.add(json);
+  var survey = new SurveyModel({
+    elements: [{ type: "testquestion", name: "cp_question" }],
+  });
+  var q = <QuestionCompositeModel>survey.getAllQuestions()[0];
+  var objs = [];
+  q.addConditionObjectsByContext(objs, null);
+  for (var i = 0; i < objs.length; i++) {
+    objs[i].question = objs[i].question.getType();
+  }
+  assert.deepEqual(
+    objs,
+    [
+      { name: "cp_question.q1", text: "cp_question.q1", question: "text" },
+      {
+        name: "cp_question.q2",
+        text: "cp_question.Question 2",
+        question: "dropdown",
+      },
+    ],
+    "addConditionObjectsByContext work correctly for composite question"
+  );
+  ComponentCollection.Instance.clear();
+});

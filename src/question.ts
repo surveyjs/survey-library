@@ -1697,7 +1697,7 @@ export class Question
   }
 
   public getTitleActions(): Array<any> {
-    var titleActions = super.getTitleActions()
+    var titleActions = super.getTitleActions();
     this.titleActions = this.survey.getUpdatedQuestionTitleActions(
       this,
       titleActions

@@ -3773,6 +3773,11 @@ export class SurveyModel
     return options.allow;
   }
 
+  renderTitleActions(element: ISurveyElement): boolean {
+    if (element.isPanel) return !this.onGetPanelTitleActions.isEmpty;
+    else return !this.onGetQuestionTitleActions.isEmpty;
+  }
+
   getUpdatedQuestionTitleActions(
     question: IQuestion,
     titleActions: Array<any>

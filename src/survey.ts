@@ -1716,7 +1716,7 @@ export class SurveyModel
    * Run all triggers that performs on value changed and not on moving to the next page.
    */
   public runTriggers(): void {
-    this.checkTriggers(this.data, false);
+    this.checkTriggers(this.getFilteredValues(), false);
   }
   public get renderedCompletedHtml(): string {
     var item = this.getExpressionItemOnRunCondition(
@@ -2291,12 +2291,20 @@ export class SurveyModel
   getFilteredValues(): any {
     var values: { [index: string]: any } = {};
     for (var key in this.variablesHash) values[key] = this.variablesHash[key];
+    this.addCalculatedValuesIntoFilteredValues(values);
     var keys = this.getValuesKeys();
     for (var i = 0; i < keys.length; i++) {
       var key = keys[i];
       values[key] = this.getDataValueCore(this.valuesHash, key);
     }
     return values;
+  }
+  private addCalculatedValuesIntoFilteredValues(values: {
+    [index: string]: any;
+  }) {
+    var caclValues = this.calculatedValues;
+    for (var i = 0; i < caclValues.length; i++)
+      values[caclValues[i].name] = caclValues[i].value;
   }
   getFilteredProperties(): any {
     return { survey: this };
@@ -4294,6 +4302,7 @@ export class SurveyModel
       var name = question.getValueName();
       values[name] = this.getValue(name);
     }
+    this.addCalculatedValuesIntoFilteredValues(values);
     this.checkTriggers(values, true);
   }
   private getCurrentPageQuestions(
@@ -4830,8 +4839,8 @@ export class SurveyModel
     if (locNotification === true) return;
     var triggerKeys: { [index: string]: any } = {};
     triggerKeys[name] = { newValue: newValue, oldValue: oldValue };
-    this.checkTriggers(triggerKeys, false);
     this.runConditionOnValueChanged(name, newValue);
+    this.checkTriggers(triggerKeys, false);
     if (allowNotifyValueChanged)
       this.notifyQuestionOnValueChanged(name, newValue);
     if (locNotification !== "text") {

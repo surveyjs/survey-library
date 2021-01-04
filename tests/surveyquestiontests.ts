@@ -4486,3 +4486,17 @@ QUnit.test(
     assert.equal(q2.visibleChoices.length, 3, "Get choices from q2");
   }
 );
+QUnit.test("text question dataList", function (assert) {
+  var survey = new SurveyModel({
+    elements: [
+      { type: "text", name: "q1", dataList: ["abc", "def", "ghk"] },
+      { type: "text", name: "q2" },
+    ],
+  });
+  var q1 = <QuestionTextModel>survey.getQuestionByName("q1");
+  var q2 = <QuestionTextModel>survey.getQuestionByName("q2");
+  assert.deepEqual(q1.dataList, ["abc", "def", "ghk"]);
+  assert.equal(q1.dataListId, q1.id + "_datalist");
+  assert.deepEqual(q2.dataList, []);
+  assert.equal(q2.dataListId, "");
+});

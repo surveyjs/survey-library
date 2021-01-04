@@ -191,7 +191,10 @@ export class LocalizableString {
     if (!renderedText) return false;
     var loc = this.locale;
     if (!loc) loc = settings.defaultLocaleName;
-    (<any>this).htmlValues[loc] = this.owner.getMarkdownHtml(renderedText, this.name);
+    (<any>this).htmlValues[loc] = this.owner.getMarkdownHtml(
+      renderedText,
+      this.name
+    );
     return (<any>this).htmlValues[loc] ? true : false;
   }
   private getHtmlValue(): string {
@@ -222,6 +225,76 @@ export class LocalizableString {
   }
   private getValuesKeys(): string[] {
     if (!!this.sharedData) return this.sharedData.getValuesKeys();
+    return Object.keys(this.values);
+  }
+}
+/**
+ * The class represents the list of strings that supports multi-languages.
+ */
+export class LocalizableStrings {
+  private values: any = {};
+  constructor(public owner: ILocalizableOwner) {}
+  public get locale() {
+    return this.owner && this.owner.getLocale ? this.owner.getLocale() : "";
+  }
+  public get value(): Array<string> {
+    return this.getValue("");
+  }
+  public set value(val: Array<string>) {
+    this.setValue("", val);
+  }
+  public get text(): string {
+    return this.value.join("\n");
+  }
+  public set text(val: string) {
+    this.value = !!val ? val.split("\n") : [];
+  }
+  public getValue(loc: string) {
+    loc = this.getLocale(loc);
+    if (this.values[loc]) return this.values[loc];
+    var defLoc = settings.defaultLocaleName;
+    if (loc !== defLoc) return this.values[defLoc];
+    return [];
+  }
+  public setValue(loc: string, val: Array<string>) {
+    loc = this.getLocale(loc);
+    if (!val || val.length == 0) {
+      delete this.values[loc];
+    } else {
+      this.values[loc] = val;
+    }
+  }
+  public get isEmpty(): boolean {
+    return this.getValuesKeys().length == 0;
+  }
+  private getLocale(loc: string): string {
+    if (!!loc) return loc;
+    loc = this.locale;
+    return !!loc ? loc : settings.defaultLocaleName;
+  }
+  public getJson(): any {
+    var keys = this.getValuesKeys();
+    if (keys.length == 0) return null;
+    if (
+      keys.length == 1 &&
+      keys[0] == settings.defaultLocaleName &&
+      !settings.serializeLocalizableStringAsObject
+    )
+      return (<any>this).values[keys[0]];
+    return this.values;
+  }
+  public setJson(value: any) {
+    this.values = {};
+    if (!value) return;
+    if (Array.isArray(value)) {
+      this.setValue(null, value);
+    } else {
+      for (var key in value) {
+        this.setValue(key, value[key]);
+      }
+    }
+  }
+  private getValuesKeys(): string[] {
     return Object.keys(this.values);
   }
 }

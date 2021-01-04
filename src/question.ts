@@ -1697,7 +1697,7 @@ export class Question
   }
 
   public getTitleActions(): Array<any> {
-    var titleActions = super.getTitleActions()
+    var titleActions = super.getTitleActions();
     this.titleActions = this.survey.getUpdatedQuestionTitleActions(
       this,
       titleActions
@@ -1836,6 +1836,5 @@ Serializer.addClass("question", [
     },
   },
   { name: "renderAs", default: "default", visible: false },
-  { name: "renderTitleAs", default: "default", visible: false },
 ]);
 Serializer.addAlterNativeClassName("question", "questionbase");

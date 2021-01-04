@@ -4280,6 +4280,50 @@ QUnit.test(
     );
   }
 );
+QUnit.test(
+  "setvalue trigger dosen't work for question name with '.', Bug#2597",
+  function (assert) {
+    var survey = new SurveyModel({
+      elements: [
+        {
+          type: "dropdown",
+          name: "question.name1",
+          choices: ["item1", "item2", "item3", "item4"],
+        },
+        {
+          type: "text",
+          name: "question.name2",
+        },
+      ],
+      triggers: [
+        {
+          type: "setvalue",
+          expression: "{question.name1} anyof ['item1', 'item2']",
+          setToName: "question.name2",
+          setValue: "one",
+        },
+        {
+          type: "setvalue",
+          expression: "{question.name1} anyof ['item3', 'item4']",
+          setToName: "question.name2",
+          setValue: "two",
+        },
+      ],
+    });
+    survey.setValue("question.name1", ["item1"]);
+    assert.equal(
+      survey.getValue("question.name2"),
+      "one",
+      "trigger one works correctly"
+    );
+    survey.setValue("question.name1", ["item3"]);
+    assert.equal(
+      survey.getValue("question.name2"),
+      "two",
+      "trigger two works correctly"
+    );
+  }
+);
 QUnit.test("maxSelectedChoices in checkbox", function (assert) {
   var survey = new SurveyModel({
     elements: [

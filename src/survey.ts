@@ -3566,16 +3566,19 @@ export class SurveyModel
     }
     return res;
   }
+  private isCalculatingProgressText = false;
   public updateProgressText(onValueChanged: boolean = false) {
-    if (this.isDesignMode) return;
+    if (this.isDesignMode || this.isCalculatingProgressText) return;
     if (
       onValueChanged &&
       this.progressBarType == "pages" &&
       this.onProgressText.isEmpty
     )
       return;
+    this.isCalculatingProgressText = true;
     this.setPropertyValue("progressText", this.getProgressText());
     this.setPropertyValue("progressValue", this.getProgress());
+    this.isCalculatingProgressText = false;
   }
   public getProgressText(): string {
     if (this.isDesignMode || this.currentPage == null) return "";

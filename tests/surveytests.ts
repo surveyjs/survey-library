@@ -12266,3 +12266,29 @@ QUnit.test("Check onGetQuestionTitleActions event", (assert) => {
   });
   assert.deepEqual(panel.getTitleActions(), testActions);
 });
+QUnit.test(
+  "Stackoverflow error, https://surveyjs.answerdesk.io//ticket/details/T6023, Bug#2598",
+  (assert) => {
+    var survey = new SurveyModel({
+      elements: [
+        {
+          type: "boolean",
+          name: "q1",
+        },
+        {
+          type: "matrixdynamic",
+          name: "q2",
+          columns: [
+            {
+              name: "q3",
+              visibleIf: "{q1} = true",
+            },
+          ],
+          rowCount: 1,
+        },
+      ],
+      progressBarType: "buttons",
+    });
+    assert.ok(survey.getQuestionByName("q1"), "Do not produce stack-overflow");
+  }
+);

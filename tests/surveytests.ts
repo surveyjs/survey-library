@@ -2640,7 +2640,7 @@ QUnit.test("String format", function (assert) {
   var strResult = surveyLocalization.getString("textMinLength")["format"](10);
   assert.equal(
     strResult,
-    "Please enter at least 10 characters.",
+    "Please enter at least 10 character(s).",
     "The format string is working"
   );
 });

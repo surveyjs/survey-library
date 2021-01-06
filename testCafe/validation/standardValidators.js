@@ -10,7 +10,7 @@ const json = {
       name: "email",
       title: "Please enter your e-mail",
       isRequired: true,
-      validators: [{ type: "email" }]
+      validators: [{ type: "email" }],
     },
     {
       type: "multipletext",
@@ -22,36 +22,36 @@ const json = {
         {
           name: "leastamount",
           title: "The least amount you have ever paid for a computer",
-          validators: [{ type: "numeric", minValue: 10, maxValue: 10000 }]
+          validators: [{ type: "numeric", minValue: 10, maxValue: 10000 }],
         },
         {
           name: "mostamount",
           title: "The most amount you have ever paid for a computer",
-          validators: [{ type: "numeric", minValue: 10, maxValue: 10000 }]
-        }
-      ]
+          validators: [{ type: "numeric", minValue: 10, maxValue: 10000 }],
+        },
+      ],
     },
     {
       type: "comment",
       name: "firstcomputer",
       title: "Please tell us about your first computer",
       isRequired: true,
-      validators: [{ type: "text", minLength: 20 }]
-    }
-  ]
+      validators: [{ type: "text", minLength: 20 }],
+    },
+  ],
 };
 
-frameworks.forEach(framework => {
+frameworks.forEach((framework) => {
   fixture`${framework} ${title}`.page`${url}${framework}`.beforeEach(
-    async t => {
+    async (t) => {
       await initSurvey(framework, json);
     }
   );
 
-  test(`check validation`, async t => {
+  test(`check validation`, async (t) => {
     const getError = Selector((text, index) => {
       var nodes = [];
-      document.querySelectorAll("*").forEach(function(node) {
+      document.querySelectorAll("*").forEach(function (node) {
         if (node.innerHTML === text) nodes.push(node);
       });
 
@@ -59,7 +59,7 @@ frameworks.forEach(framework => {
     });
 
     const getTextInputByIndex = Selector(
-      index => document.querySelectorAll(".sv_q_text_root")[index]
+      (index) => document.querySelectorAll(".sv_q_text_root")[index]
     );
     const getTextarea = Selector(() => document.querySelector("textarea"));
     let surveyResult;
@@ -79,7 +79,7 @@ frameworks.forEach(framework => {
 
     await t
       .typeText(await getTextInputByIndex(0), `wombat@mail.mail`, {
-        replace: true
+        replace: true,
       })
       .typeText(await getTextInputByIndex(1), `wombat`)
       .click(`input[value="Complete"]`)
@@ -102,7 +102,7 @@ frameworks.forEach(framework => {
       .typeText(await getTextInputByIndex(1), `10`, { replace: true })
       .typeText(await getTextarea(), `0123456789`)
       .click(`input[value="Complete"]`)
-      .hover(getError(`Please enter at least 20 characters.`, 0));
+      .hover(getError(`Please enter at least 20 character(s).`, 0));
 
     await t
       .typeText(await getTextarea(), `01234567890123456789`, { replace: true })
@@ -114,8 +114,8 @@ frameworks.forEach(framework => {
       firstcomputer: "01234567890123456789",
       pricelimit: {
         leastamount: 10,
-        mostamount: 10000
-      }
+        mostamount: 10000,
+      },
     });
   });
 });

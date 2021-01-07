@@ -9,7 +9,7 @@
             <div
               v-if="
                 survey.isNavigationButtonsShowing === 'top' ||
-                  survey.isNavigationButtonsShowing === 'both'
+                survey.isNavigationButtonsShowing === 'both'
               "
               :class="css.footer"
             >
@@ -29,7 +29,7 @@
             <div
               v-if="
                 survey.isNavigationButtonsShowing === 'bottom' ||
-                  survey.isNavigationButtonsShowing === 'both'
+                survey.isNavigationButtonsShowing === 'both'
               "
               :class="css.footer"
             >
@@ -42,13 +42,26 @@
             </div>
           </div>
         </template>
-        <template v-if="survey.state === 'running' || survey.state === 'preview'">
+        <template
+          v-if="survey.state === 'running' || survey.state === 'preview'"
+        >
           <div :class="css.body">
-            <component v-if="survey.isShowProgressBarOnTop" :is="'sv-progress-' + survey.progressBarType.toLowerCase()" :survey="survey" :css="css" />
-            <survey-timerpanel v-if="survey.isTimerPanelShowingOnTop" :survey="survey" :css="css" />
+            <component
+              v-if="survey.isShowProgressBarOnTop"
+              :is="'sv-progress-' + survey.progressBarType.toLowerCase()"
+              :survey="survey"
+              :css="css"
+            />
+            <survey-timerpanel
+              v-if="survey.isTimerPanelShowingOnTop"
+              :survey="survey"
+              :css="css"
+            />
             <survey-navigation
-              v-if="survey.isNavigationButtonsShowing === 'top' ||
-                  survey.isNavigationButtonsShowing === 'both'"
+              v-if="
+                survey.isNavigationButtonsShowing === 'top' ||
+                survey.isNavigationButtonsShowing === 'both'
+              "
               :survey="survey"
               :css="css"
             />
@@ -63,17 +76,27 @@
               :survey="survey"
               :css="css"
             />
-            <component v-if="survey.isShowProgressBarOnBottom" :is="'sv-progress-' + survey.progressBarType.toLowerCase()" :survey="survey" :css="css" />
+            <component
+              v-if="survey.isShowProgressBarOnBottom"
+              :is="'sv-progress-' + survey.progressBarType.toLowerCase()"
+              :survey="survey"
+              :css="css"
+            />
             <survey-navigation
-              v-if="survey.isNavigationButtonsShowing === 'bottom' ||
-                  survey.isNavigationButtonsShowing === 'both'"
+              v-if="
+                survey.isNavigationButtonsShowing === 'bottom' ||
+                survey.isNavigationButtonsShowing === 'both'
+              "
               :survey="survey"
               :css="css"
             />
           </div>
         </template>
         <div v-if="hasCompletedPage">
-          <div v-html="getProcessedCompletedHtml()" :class="getCompletedPageClasses()"></div>
+          <div
+            v-html="getProcessedCompletedHtml()"
+            :class="getCompletedPageClasses()"
+          ></div>
           <div v-if="survey.completedState != ''" :class="css.saveData.root">
             <div :class="getCompletedStateClasses()">
               <span>{{ survey.completedStateText }}</span>
@@ -97,7 +120,9 @@
           :class="css.body"
           v-html="survey.processedLoadingHtml"
         ></div>
-        <div v-if="survey.state === 'empty'" :class="css.bodyEmpty">{{ survey.emptySurveyText }}</div>
+        <div v-if="survey.state === 'empty'" :class="css.bodyEmpty">
+          {{ survey.emptySurveyText }}
+        </div>
       </div>
     </form>
   </div>
@@ -110,7 +135,7 @@ import { surveyCss } from "../defaultCss/cssstandard";
 import { VueSurveyModel as SurveyModel } from "./surveyModel";
 import { StylesManager } from "../stylesmanager";
 import { BaseVue } from "./base";
-import {Base} from "../base";
+import { Base } from "../base";
 
 @Component
 export class Survey extends BaseVue {
@@ -124,8 +149,13 @@ export class Survey extends BaseVue {
   constructor() {
     super();
   }
-  protected getModel(): Base { return this.survey; }
+  protected getModel(): Base {
+    return this.survey;
+  }
   protected onMounted() {
+    if (!!this.survey) {
+      Vue.set(this.survey, "currentPage", this.survey.currentPage);
+    }
     var el = this.$el;
     if (el && this.survey) this.survey.doAfterRenderSurvey(el);
     this.survey.renderCallback = this.forceUpdate;
@@ -169,14 +199,14 @@ export class Survey extends BaseVue {
 
 // TODO: make this functionality available via surveyCss in all examples
 Object.defineProperty(Survey, "cssType", {
-  get: function() {
+  get: function () {
     return surveyCss.currentType;
   },
-  set: function(newType) {
+  set: function (newType) {
     StylesManager.applyTheme(newType);
   },
   enumerable: true,
-  configurable: false
+  configurable: false,
 });
 
 Vue.component("survey", Survey);

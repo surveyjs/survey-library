@@ -149,6 +149,7 @@ export class MartrixCells {
     return this.cellsOwner ? this.cellsOwner.getColumns() : [];
   }
   private getCellRowColumnValue(val: any, values: Array<any>): any {
+    if (val === null || val === undefined) return null;
     if (typeof val == "number") {
       if (val < 0 || val >= values.length) return null;
       val = values[val].value;

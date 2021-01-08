@@ -12292,3 +12292,24 @@ QUnit.test(
     assert.ok(survey.getQuestionByName("q1"), "Do not produce stack-overflow");
   }
 );
+QUnit.test(
+  "Do not create otherItem in image picker on loading it from JSON, even if hasOther is true, Bug#2603",
+  (assert) => {
+    var survey = new SurveyModel({
+      elements: [
+        {
+          type: "radiogroup",
+          name: "q1",
+          hasOther: true,
+          choices: ["item1", "item2", "item3"],
+        },
+      ],
+    });
+    var q1 = <QuestionRadiogroupModel>survey.getQuestionByName("q1");
+    assert.equal(q1.visibleChoices.length, 4, "There are 4 items");
+    var json = q1.toJSON();
+    var q2 = new QuestionImagePickerModel("q2");
+    q2.fromJSON(json);
+    assert.equal(q2.visibleChoices.length, 3, "There are 3 items");
+  }
+);

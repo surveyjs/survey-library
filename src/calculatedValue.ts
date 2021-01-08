@@ -30,6 +30,9 @@ export class CalculatedValue extends Base {
   public getType(): string {
     return "calculatedvalue";
   }
+  public get owner(): ISurveyData {
+    return this.data;
+  }
   /**
    * The calculated value name. It should be non empty and unique.
    */
@@ -135,7 +138,7 @@ export class CalculatedValue extends Base {
   private ensureExpression(values: HashTable<any>) {
     if (!!this.expressionRunner) return;
     this.expressionRunner = new ExpressionRunner(this.expression);
-    this.expressionRunner.onRunComplete = newValue => {
+    this.expressionRunner.onRunComplete = (newValue) => {
       if (!Helpers.isTwoValueEquals(newValue, this.value)) {
         this.setValue(newValue);
       }
@@ -146,8 +149,12 @@ export class CalculatedValue extends Base {
 
 Serializer.addClass(
   "calculatedvalue",
-  [{name: "!name", isUnique: true}, "expression:expression", "includeIntoResult:boolean"],
-  function() {
+  [
+    { name: "!name", isUnique: true },
+    "expression:expression",
+    "includeIntoResult:boolean",
+  ],
+  function () {
     return new CalculatedValue();
   },
   "base"

@@ -305,3 +305,72 @@ QUnit.test("Compete trigger and calculatedValues, Bug#2595", function (assert) {
   assert.equal(survey.state, "completed", "survey is completed");
   assert.equal(isCompleteOnTrigger, true, "complete on trigger");
 });
+
+QUnit.test(
+  "Survey.onPropertyValueChangedCallback for calculatedValues, Bug#2604",
+  function (assert) {
+    var json = {
+      questions: [
+        {
+          type: "text",
+          name: "q1",
+        },
+      ],
+      calculatedValues: [
+        {
+          name: "var1",
+          expression: "1+2",
+        },
+      ],
+    };
+    var survey = new SurveyModel(json);
+    var counter = 0;
+    var propName = null;
+    var testOldValue = null;
+    var testNewValue = null;
+    var senderType = null;
+
+    survey.onPropertyValueChangedCallback = (
+      name: string,
+      oldValue: any,
+      newValue: any,
+      sender: any,
+      arrayChanges: any
+    ) => {
+      if (name != "name" && name != "expression") return;
+      counter++;
+      propName = name;
+      testOldValue = oldValue;
+      testNewValue = newValue;
+      senderType = sender.getType();
+    };
+
+    assert.equal(counter, 0, "initial");
+    survey.calculatedValues[0].name = "var2";
+    assert.equal(counter, 1, "calculdatedValue: callback called");
+    assert.equal(
+      propName,
+      "name",
+      "calculdatedValue: property name is correct"
+    );
+    assert.equal(testOldValue, "var1", "calculdatedValue: oldValue is correct");
+    assert.equal(testNewValue, "var2", "calculdatedValue: newValue is correct");
+    survey.calculatedValues[0].expression = "1+2+3";
+    assert.equal(counter, 2, "calculdatedValue: callback called #2");
+    assert.equal(
+      propName,
+      "expression",
+      "calculdatedValue: property name is correct #2"
+    );
+    assert.equal(
+      testOldValue,
+      "1+2",
+      "calculdatedValue: oldValue is correct #2"
+    );
+    assert.equal(
+      testNewValue,
+      "1+2+3",
+      "calculdatedValue: newValue is correct #2"
+    );
+  }
+);

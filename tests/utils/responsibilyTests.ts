@@ -122,17 +122,9 @@ QUnit.test("Check on model which can shrink and grow", function (assert) {
   assert.notOk(model.canShrink, "process shrank model");
   assert.equal(
     model.visibleElementsCount,
-    Number.MAX_VALUE,
-    "process did not changed visible items count"
-  );
-
-  manager.process();
-  assert.equal(
-    model.visibleElementsCount,
     3,
-    "after shrink process changed visible items count"
+    "process changed visible items count"
   );
-
   container.offsetWidth = 18;
   manager.process();
   assert.equal(

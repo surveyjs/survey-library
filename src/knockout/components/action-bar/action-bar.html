@@ -2,7 +2,7 @@
 <!-- ko foreach: items-->
 <span
   class="sv-action"
-  data-bind="css: $data.css, attr: { id: $data.id }, style: { visibility : $data.visible() ? 'visible': 'hidden' }"
+  data-bind="css: $data.css, attr: { id: $data.id }, visible: $data.visible === undefined || $data.visible, style: { visibility : $data.isVisible() ? 'visible': 'hidden' }"
 >
   <!-- ko ifnot: $data.template-->
   <!-- ko component: { name: $data.component || 'sv-action-bar-item', params: { item: $data } } -->

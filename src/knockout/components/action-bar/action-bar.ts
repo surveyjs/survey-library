@@ -73,17 +73,15 @@ export interface IActionBarItem {
  * The toolbar item description.
  */
 
-export class ActionBarViewModel {
-  public itemsSubscription: ko.Computed;
-  public items: ko.ObservableArray = ko.observableArray();
-  public invisibleItems: ko.ObservableArray<IActionBarItem> = ko.observableArray();
-  private _showTitles = ko.observable(true);
+class ResponsibleElement {
+  public items: ko.ObservableArray<any> = ko.observableArray();
+  public invisibleItems: ko.ObservableArray<any> = ko.observableArray();
   private dotsItem = {
     component: "sv-action-bar-item-dropdown",
     items: this.invisibleItems,
     innerCss: "sv-dots",
     iconName: "icon-dots",
-    visible: () => true,
+    isVisible: () => true,
     verticalPosition: "bottom",
     horizontalPosition: "left",
     action: (item: any) => {
@@ -92,8 +90,36 @@ export class ActionBarViewModel {
     },
     closeOnAction: true,
   };
+  public showFirstN(visibleItemsCount: number) {
+    let leftItemsToShow = visibleItemsCount;
+    this.invisibleItems([]);
+    ko.unwrap(this.items).forEach((item: any) => {
+      if (item === this.dotsItem) return;
+      item.isVisible(leftItemsToShow > 0);
+      if (leftItemsToShow <= 0) {
+        this.invisibleItems.push(item);
+      }
+      leftItemsToShow--;
+    });
+    var index = this.items.indexOf(this.dotsItem);
+    if (index !== -1) {
+      this.items.splice(index, 1);
+    }
+    if (visibleItemsCount < this.items().length) {
+      this.items.splice(visibleItemsCount, 0, this.dotsItem);
+    }
+  }
+  public invisibleItemSelected = (model: any) => {
+    model.action();
+  };
+}
+
+export class ActionBarViewModel extends ResponsibleElement {
+  public itemsSubscription: ko.Computed;
+  private _showTitles = ko.observable(true);
 
   constructor(_items: ko.MaybeObservableArray<IActionBarItem>) {
+    super();
     this.itemsSubscription = ko.computed(() => {
       var items = ko.unwrap(_items);
       items.forEach((item) => {
@@ -109,9 +135,7 @@ export class ActionBarViewModel {
             (ko.unwrap(showTitle) || showTitle === undefined)
           );
         });
-        wrappedItem.visible = ko.observable(
-          ko.unwrap(item.visible) || item.visible === undefined
-        );
+        wrappedItem.isVisible = ko.observable(true);
         this.items.push(wrappedItem);
       });
     });
@@ -121,25 +145,6 @@ export class ActionBarViewModel {
     return (ko.unwrap(this.items) || []).length > 0;
   }
 
-  public showFirstN(visibleItemsCount: number) {
-    let leftItemsToShow = visibleItemsCount;
-    this.invisibleItems([]);
-    ko.unwrap(this.items).forEach((item: any) => {
-      if (item === this.dotsItem) return;
-      item.visible(leftItemsToShow > 0);
-      if (leftItemsToShow <= 0) {
-        this.invisibleItems.push(item);
-      }
-      leftItemsToShow--;
-    });
-    var index = this.items.indexOf(this.dotsItem);
-    if (index !== -1) {
-      this.items.splice(index, 1);
-    }
-    if (visibleItemsCount < this.items().length) {
-      this.items.splice(visibleItemsCount, 0, this.dotsItem);
-    }
-  }
   public get canShrink() {
     return this._showTitles();
   }
@@ -150,11 +155,6 @@ export class ActionBarViewModel {
   public grow() {
     this._showTitles(true);
   }
-
-  public invisibleItemSelected = (model: any) => {
-    model.action();
-  };
-
   dispose() {
     this.itemsSubscription.dispose();
   }

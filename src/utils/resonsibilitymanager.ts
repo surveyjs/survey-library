@@ -55,19 +55,22 @@ export class ResponsibilityManager {
       var dimensions = this.getDimensions();
       let delta = dimensions.scrollDimension - dimensions.offsetDimension;
       var fullSpace = this.getFullSpace();
-      if (delta > 5 || fullSpace - this.previousSpace > this.itemSize) {
+      if (fullSpace != this.previousSpace) {
         if (delta > 5) {
           if (this.model.canShrink) {
             this.model.shrink();
-          } else {
-            var count = this.getItemsCount(this.getAvailableSpace());
-            if (this.previousItemCount != count) {
-              this.model.showFirstN(count);
-              this.previousItemCount = count;
-            }
+          }
+          var count = this.getItemsCount(this.getAvailableSpace());
+          if (this.previousItemCount != count) {
+            this.model.showFirstN(count);
+            this.previousItemCount = count;
           }
         } else {
-          if (this.model.canGrow) {
+          if (
+            this.model.canGrow &&
+            delta <= 0 &&
+            fullSpace - this.previousSpace > this.itemSize
+          ) {
             this.model.grow();
           }
           this.model.showFirstN(Number.MAX_VALUE);

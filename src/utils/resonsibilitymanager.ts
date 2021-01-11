@@ -6,7 +6,7 @@ export class ResponsibilityManager {
   constructor(
     protected container: HTMLDivElement,
     private model: any,
-    private itemSize: number = 56
+    private dotsItemSize: number = 56
   ) {}
   getComputedStyle: any = window.getComputedStyle.bind(window);
 
@@ -21,7 +21,7 @@ export class ResponsibilityManager {
 
   protected getAvailableSpace() {
     var style = this.getComputedStyle(this.container);
-    var width = this.container.offsetWidth - this.itemSize;
+    var width = this.container.offsetWidth - this.dotsItemSize;
     if (style.boxSizing == "border-box") {
       width -= parseFloat(style.paddingLeft) + parseFloat(style.paddingRight);
     }
@@ -54,6 +54,9 @@ export class ResponsibilityManager {
     if (!!this.container) {
       var dimensions = this.getDimensions();
       let delta = dimensions.scrollDimension - dimensions.offsetDimension;
+      if (this.previousItemCount < Number.MAX_VALUE) {
+        delta -= this.dotsItemSize;
+      }
       var fullSpace = this.getFullSpace();
       if (fullSpace != this.previousSpace) {
         if (delta > 5) {
@@ -69,7 +72,7 @@ export class ResponsibilityManager {
           if (
             this.model.canGrow &&
             delta <= 0 &&
-            fullSpace - this.previousSpace > this.itemSize
+            fullSpace - this.previousSpace > this.dotsItemSize
           ) {
             this.model.grow();
           }

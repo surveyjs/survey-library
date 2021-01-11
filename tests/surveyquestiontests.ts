@@ -4543,4 +4543,10 @@ QUnit.test("text question dataList", function (assert) {
   assert.equal(q1.dataListId, q1.id + "_datalist");
   assert.deepEqual(q2.dataList, []);
   assert.equal(q2.dataListId, "");
+  q2.dataList = ["item1", "item2"];
+  assert.deepEqual(
+    q2.dataList,
+    ["item1", "item2"],
+    "Set from the code correctly"
+  );
 });

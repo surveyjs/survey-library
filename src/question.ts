@@ -68,6 +68,8 @@ export class Question
   validateValueCallback: () => SurveyError;
   questionTitleTemplateCallback: () => string;
   afterRenderQuestionCallback: (question: Question, element: any) => any;
+  valueFromDataCallback: (val: any) => any;
+  valueToDataCallback: (val: any) => any;
   private locProcessedTitle: LocalizableString;
   protected isReadyValue: boolean = true;
 
@@ -1578,6 +1580,9 @@ export class Question
   protected setValueCore(newValue: any) {
     this.setQuestionValue(newValue);
     if (this.data != null) {
+      if (!!this.valueToDataCallback) {
+        newValue = this.valueToDataCallback(newValue);
+      }
       this.data.setValue(
         this.getValueName(),
         newValue,
@@ -1610,6 +1615,9 @@ export class Question
   //IQuestion
   updateValueFromSurvey(newValue: any) {
     newValue = this.getUnbindValue(newValue);
+    if (!!this.valueFromDataCallback) {
+      newValue = this.valueFromDataCallback(newValue);
+    }
     this.setQuestionValue(this.valueFromData(newValue));
   }
   updateCommentFromSurvey(newValue: any): any {

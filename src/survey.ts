@@ -2319,14 +2319,19 @@ export class SurveyModel
     return res;
   }
   public getDataValueCore(valuesHash: any, key: string) {
-    if (!!this.editingObj) return this.editingObj.getPropertyValue(key);
+    if (!!this.editingObj) {
+      var prop = Serializer.findProperty(this.editingObj.getType(), key);
+      if (!!prop && prop.isLocalizable && prop.isArray)
+        return (<any>this.editingObj)[key];
+      return this.editingObj.getPropertyValue(key);
+    }
     return valuesHash[key];
   }
   public setDataValueCore(valuesHash: any, key: string, value: any) {
     if (!!this.editingObj) {
       var prop = Serializer.findProperty(this.editingObj.getType(), key);
       if (!!prop && prop.isLocalizable) {
-        this.editingObj.setLocalizableStringText(key, value);
+        (<any>this.editingObj)[key] = value;
       } else {
         this.editingObj.setPropertyValue(key, value);
       }

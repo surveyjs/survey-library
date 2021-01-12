@@ -70,12 +70,37 @@ export interface IActionBarItem {
  * The toolbar item description.
  */
 export class ActionBarViewModel {
-  items: ko.MaybeObservableArray<IActionBarItem>;
-  constructor(items: Array<IActionBarItem>) {
-    this.items = items;
+  items: ko.ObservableArray = ko.observableArray();
+  itemsSubscription: ko.Computed;
+  constructor(_items: Array<IActionBarItem>) {
+    this.itemsSubscription = ko.computed(() => {
+      _items.forEach((item: any) => {
+        var wrappedItem = new Object();
+        Object.getOwnPropertyNames(item).forEach((propertyName) => {
+          Object.defineProperty(wrappedItem, propertyName, {
+            get: () => {
+              const propertyValue = item[propertyName];
+              if (
+                typeof propertyValue === "function" &&
+                propertyName != "action"
+              ) {
+                return propertyValue();
+              } else {
+                return propertyValue;
+              }
+            },
+          });
+        });
+        this.items.push(wrappedItem);
+      });
+    });
   }
   get hasItems() {
     return (ko.unwrap(this.items) || []).length > 0;
+  }
+
+  dispose() {
+    this.itemsSubscription.dispose();
   }
 }
 

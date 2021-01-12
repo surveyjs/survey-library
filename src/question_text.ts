@@ -181,6 +181,9 @@ export class QuestionTextModel extends Question {
   public set step(val: string) {
     this.setPropertyValue("step", val);
   }
+  public get renderedStep(): string {
+    return Helpers.isValueEmpty(this.step) ? "any" : this.step;
+  }
   isEmpty(): boolean {
     return super.isEmpty() || this.value === "";
   }

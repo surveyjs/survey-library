@@ -40,7 +40,7 @@ export class SurveyQuestionText extends SurveyQuestionUncontrolledElement<Questi
           maxLength={this.question.getMaxLength()}
           min={this.question.renderedMin}
           max={this.question.renderedMax}
-          step={this.question.step}
+          step={this.question.renderedStep}
           size={this.question.size}
           placeholder={placeHolder}
           list={this.question.dataListId}

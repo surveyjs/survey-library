@@ -7,7 +7,7 @@
       :maxlength="question.getMaxLength()"
       :min="question.renderedMin"
       :max="question.renderedMax"
-      :step="question.step"
+      :step="question.renderedStep"
       :size="question.size"
       :id="question.inputId"
       :list="question.dataListId"

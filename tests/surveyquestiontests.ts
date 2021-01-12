@@ -4550,3 +4550,15 @@ QUnit.test("text question dataList", function (assert) {
     "Set from the code correctly"
   );
 });
+QUnit.test("text question renderedStep", function (assert) {
+  var survey = new SurveyModel({
+    elements: [
+      { type: "text", inputType: "number", name: "q1" },
+      { type: "text", inputType: "number", name: "q2", step: 0.2 },
+    ],
+  });
+  var q1 = <QuestionTextModel>survey.getQuestionByName("q1");
+  var q2 = <QuestionTextModel>survey.getQuestionByName("q2");
+  assert.equal(q1.renderedStep, "any", "Default value is 'any'");
+  assert.equal(q2.renderedStep, 0.2, "get value from step");
+});

@@ -2860,7 +2860,7 @@ export class SurveyModel
     if (this.isLastPage) return false;
     return this.doCurrentPageComplete(false);
   }
-  public hasErrorsOnNavigate(doComplete: boolean = false): boolean {
+  private hasErrorsOnNavigate(doComplete: boolean): boolean {
     if (this.ignoreValidation || !this.isEditMode) return false;
     if (this.checkErrorsMode === "onComplete") {
       if (!this.isLastPage) return false;

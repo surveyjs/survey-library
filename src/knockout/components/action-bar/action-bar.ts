@@ -73,13 +73,14 @@ export interface IActionBarItem {
  * The toolbar item description.
  */
 
-class ResponsibleElement {
+export class ResponsibleElement {
   public items: ko.ObservableArray<any> = ko.observableArray();
   public invisibleItems: ko.ObservableArray<any> = ko.observableArray();
-  private dotsItem = {
+  protected dotsItem = {
     component: "sv-action-bar-item-dropdown",
     items: this.invisibleItems,
-    innerCss: "sv-dots",
+    css: "sv-dots",
+    innerCss: "sv-dots__item",
     iconName: "icon-dots",
     isVisible: () => true,
     verticalPosition: "bottom",

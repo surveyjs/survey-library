@@ -12,6 +12,7 @@ ko.components.register("sv-action-bar-item-dropdown", {
         id: params.item.id,
         title: params.item.title,
         innerCss: params.item.innerCss,
+        css: params.item.css,
         iconName: params.item.iconName,
         action: () => {
           isVisible(!isVisible());

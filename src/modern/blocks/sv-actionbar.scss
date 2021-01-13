@@ -16,6 +16,7 @@ $base-unit: var(--base-unit, 8px);
 
 sv-action-bar {
   display: flex;
+  position: relative;
   align-items: center;
   margin-left: auto;
   padding: 0 0 0 calcSize(2);
@@ -164,4 +165,8 @@ sv-action-bar {
   &:hover {
     background-color: inherit;
   }
+}
+
+.sv-action--hidden {
+  visibility: hidden;
 }

@@ -1,3 +1,5 @@
+import { HtmlConditionItem } from "../expressionItems";
+
 export class ResponsibilityManager {
   private previousSpace = 0;
   private previousItemCount = Number.MAX_VALUE;
@@ -27,10 +29,10 @@ export class ResponsibilityManager {
     }
     return width;
   }
-  protected getDimensions() {
+  protected getDimensions(element: HTMLElement) {
     return {
-      scrollDimension: this.container.scrollWidth,
-      offsetDimension: this.container.offsetWidth,
+      scrollDimension: element.scrollWidth,
+      offsetDimension: element.offsetWidth,
     };
   }
 
@@ -52,13 +54,14 @@ export class ResponsibilityManager {
 
   process() {
     if (!!this.container) {
-      var dimensions = this.getDimensions();
-      let delta = dimensions.scrollDimension - dimensions.offsetDimension;
+      var dimensions = this.getDimensions(this.container);
+      var delta = dimensions.scrollDimension - dimensions.offsetDimension;
       if (this.previousItemCount < Number.MAX_VALUE) {
         delta -= this.dotsItemSize;
       }
-      var fullSpace = this.getFullSpace();
-      if (fullSpace != this.previousSpace) {
+      var parentSpace = this.getDimensions(this.container.parentElement)
+        .offsetDimension;
+      if (parentSpace != this.previousSpace) {
         if (delta > 5) {
           if (this.model.canShrink) {
             this.model.shrink();
@@ -72,14 +75,14 @@ export class ResponsibilityManager {
           if (
             this.model.canGrow &&
             delta <= 0 &&
-            fullSpace - this.previousSpace > this.dotsItemSize
+            parentSpace - this.previousSpace > this.dotsItemSize
           ) {
             this.model.grow();
           }
           this.model.showFirstN(Number.MAX_VALUE);
           this.previousItemCount = Number.MAX_VALUE;
         }
-        this.previousSpace = fullSpace;
+        this.previousSpace = parentSpace;
       }
     }
   }

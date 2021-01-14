@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.8.24](https://github.com/surveyjs/survey-library/compare/v1.8.23...v1.8.24) (2021-01-13)
+
+
+### Bug Fixes
+
+* Changing properties in CalculatedValue object doesn't call survey.onPropertyValueChangedCallback function [#2604](https://github.com/surveyjs/survey-library/issues/2604) ([2dc2b81](https://github.com/surveyjs/survey-library/commit/2dc2b81d47db0efc5dd9b5c811c7380d5fc13409))
+* Reference to null object error in matrix-rubric in preview page because of "paneldynamic" [#2602](https://github.com/surveyjs/survey-library/issues/2602) ([9c07e0d](https://github.com/surveyjs/survey-library/commit/9c07e0d260ec526c91bd6c0a81574a57327e19ec))
+
 ### [1.8.23](https://github.com/surveyjs/survey-library/compare/v1.8.22...v1.8.23) (2020-12-29)
 
 ### [1.8.22](https://github.com/surveyjs/survey-library/compare/v1.8.21...v1.8.22) (2020-12-23)

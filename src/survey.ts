@@ -2866,7 +2866,7 @@ export class SurveyModel
   }
   private hasErrorsOnNavigate(doComplete: boolean): boolean {
     if (this.ignoreValidation || !this.isEditMode) return false;
-    if (this.checkErrorsMode == "onComplete") {
+    if (this.checkErrorsMode === "onComplete") {
       if (!this.isLastPage) return false;
       if (this.hasErrors(true, true)) return true;
     } else {
@@ -3762,7 +3762,7 @@ export class SurveyModel
     this.onMatrixCellValueChanging.fire(this, options);
   }
   get isValidateOnValueChanging(): boolean {
-    return this.checkErrorsMode == "onValueChanging";
+    return this.checkErrorsMode === "onValueChanging";
   }
   matrixCellValidate(question: IQuestion, options: any): SurveyError {
     options.question = question;
@@ -4222,7 +4222,7 @@ export class SurveyModel
   private checkQuestionErrorOnValueChanged(question: Question) {
     if (
       !this.isNavigationButtonPressed &&
-      (this.checkErrorsMode == "onValueChanged" || question.errors.length > 0)
+      (this.checkErrorsMode === "onValueChanged" || question.errors.length > 0)
     ) {
       this.checkQuestionErrorOnValueChangedCore(question);
     }
@@ -4820,7 +4820,7 @@ export class SurveyModel
       newValue = this.questionOnValueChanging(name, newQuestionValue);
     }
     if (
-      this.checkErrorsMode == "onValueChanging" &&
+      this.checkErrorsMode === "onValueChanging" &&
       this.checkErrorsOnValueChanging(name, newValue)
     )
       return;

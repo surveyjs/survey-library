@@ -15,23 +15,23 @@ export interface IActionBarItem {
   /**
    * Set this property to false to make the toolbar item invisible.
    */
-  visible?: ko.Computed<boolean> | ko.Observable<boolean> | boolean;
+  visible?: any;
   /**
    * Toolbar item title
    */
-  title: ko.Computed<string> | string;
+  title: any;
   /**
    * Toolbar item tooltip
    */
-  tooltip?: ko.Computed<string> | string;
+  tooltip?: any;
   /**
    * Set this property to false to disable the toolbar item.
    */
-  enabled?: ko.Computed<boolean> | ko.Observable<boolean> | boolean;
+  enabled?: any;
   /**
    * Set this property to false to hide the toolbar item title.
    */
-  showTitle?: ko.Computed<boolean> | boolean;
+  showTitle?: any;
   /**
    * A callback that calls on toolbar item click.
    */
@@ -39,11 +39,11 @@ export interface IActionBarItem {
   /**
    * Toolbar item css class
    */
-  css?: ko.Computed<string> | string;
+  css?: any;
   /**
    * Toolbar inner element css class
    */
-  innerCss?: ko.Computed<string> | string;
+  innerCss?: any;
   /**
    * Toolbar item data object. Used as data for custom template or component rendering
    */
@@ -55,7 +55,7 @@ export interface IActionBarItem {
   /**
    * Toolbar item component name
    */
-  component?: ko.Computed<string> | string;
+  component?: any;
   /**
    * Toolbar item icon name
    */
@@ -63,15 +63,15 @@ export interface IActionBarItem {
   /**
    * Toolbar item child items. Can be used as contianer for options
    */
-  items?: ko.ObservableArray<IActionBarItem>;
+  items?: any;
 }
 
 /**
  * The toolbar item description.
  */
 export class ActionBarViewModel {
-  items: ko.ObservableArray = ko.observableArray();
-  itemsSubscription: ko.Computed;
+  items: any = ko.observableArray();
+  itemsSubscription: any;
   constructor(_items: Array<IActionBarItem>) {
     this.itemsSubscription = ko.computed(() => {
       _items.forEach((item: any) => {

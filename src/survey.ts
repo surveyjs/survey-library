@@ -1525,6 +1525,10 @@ export class SurveyModel
   }
   public locStrsChanged() {
     super.locStrsChanged();
+    //Do not set current page if it is not set yet.
+    //At first we do not need this, at second it creates issues with Vue CLI projects
+    //More information here: https://github.com/surveyjs/survey-library/issues/2599
+    if (!this.currentPageValue) return;
     this.updateProgressText();
     if (this.isStartedState && this.startedPage) {
       this.startedPage.locStrsChanged();

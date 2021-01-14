@@ -34,7 +34,7 @@ export class QuestionMatrixDynamicImplementor extends QuestionMatrixBaseImplemen
     (<QuestionMatrixDynamic>this.question).removeRowUI(row);
   }
   public getKoPopupIsVisible(row: MatrixDropdownRowModelBase) {
-    return ko.observable(row.isDetailPanelShowing);
+    return <any>ko.observable(row.isDetailPanelShowing);
   }
 }
 

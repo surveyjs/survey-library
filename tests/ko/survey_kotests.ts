@@ -8,7 +8,10 @@ import { QuestionMatrix } from "../../src/knockout/koquestion_matrix";
 import { QuestionMatrixDropdown } from "../../src/knockout/koquestion_matrixdropdown";
 import { QuestionPanelDynamic } from "../../src/knockout/koquestion_paneldynamic";
 import { MatrixDropdownColumn } from "../../src/question_matrixdropdownbase";
-import { QuestionMultipleText, MultipleTextItem } from "../../src/knockout/koquestion_multipletext";
+import {
+  QuestionMultipleText,
+  MultipleTextItem,
+} from "../../src/knockout/koquestion_multipletext";
 import { Page, Panel, QuestionRow } from "../../src/knockout/kopage";
 import { CustomWidgetCollection } from "../../src/questionCustomWidgets";
 import { koTemplate } from "../../src/knockout/templateText";
@@ -66,23 +69,24 @@ QUnit.test("koOtherVisible for one choice items", function (assert) {
     "Other visible is true after selecting it"
   );
 });
-QUnit.test("Create koValue as observable array for checkbox", function (
-  assert
-) {
-  var question = new QuestionCheckbox("q");
-  question.koValue.push("test1");
-  question.koValue.push("test2");
-  assert.deepEqual(
-    question.koValue(),
-    ["test1", "test2"],
-    "koValue is observable array"
-  );
-  assert.deepEqual(
-    question.value,
-    ["test1", "test2"],
-    "value is set correctly."
-  );
-});
+QUnit.test(
+  "Create koValue as observable array for checkbox",
+  function (assert) {
+    var question = new QuestionCheckbox("q");
+    question.koValue.push("test1");
+    question.koValue.push("test2");
+    assert.deepEqual(
+      question.koValue(),
+      ["test1", "test2"],
+      "koValue is observable array"
+    );
+    assert.deepEqual(
+      question.value,
+      ["test1", "test2"],
+      "value is set correctly."
+    );
+  }
+);
 QUnit.test("Default value for checkbox", function (assert) {
   var survey = new Survey();
   survey.addNewPage("p1");
@@ -163,21 +167,22 @@ QUnit.test("Question Matrix: koValue in MatrixValue", function (assert) {
     "the matrix value changed correctly"
   );
 });
-QUnit.test("Question Matrix: update koVisibleColumns on assign", function (
-  assert
-) {
-  var matrix = new QuestionMatrix("q1");
-  matrix.rows = ["row1", "row2"];
-  matrix.columns = ["col1", "col2"];
-  assert.equal(matrix.koVisibleColumns().length, 2, "initial columns");
-  matrix.columns = ["col1", "col2", "col3"];
-  assert.equal(matrix.koVisibleColumns().length, 3, "new columns");
-  assert.equal(
-    matrix.koVisibleColumns()[2].value,
-    "col3",
-    "new column value ok"
-  );
-});
+QUnit.test(
+  "Question Matrix: update koVisibleColumns on assign",
+  function (assert) {
+    var matrix = new QuestionMatrix("q1");
+    matrix.rows = ["row1", "row2"];
+    matrix.columns = ["col1", "col2"];
+    assert.equal(matrix.koVisibleColumns().length, 2, "initial columns");
+    matrix.columns = ["col1", "col2", "col3"];
+    assert.equal(matrix.koVisibleColumns().length, 3, "new columns");
+    assert.equal(
+      matrix.koVisibleColumns()[2].value,
+      "col3",
+      "new column value ok"
+    );
+  }
+);
 QUnit.test(
   "Question Matrix: change matrix value after visibleRows generation",
   function (assert) {
@@ -256,36 +261,37 @@ QUnit.test(
   }
 );
 
-QUnit.test("Matrixdynamic checkbox column does not work, Bug#1031", function (
-  assert
-) {
-  var survey = new Survey({
-    questions: [
-      {
-        type: "matrixdynamic",
-        name: "q1",
-        columns: [
-          {
-            name: "col1",
-            cellType: "checkbox",
-            colCount: 1,
-            choices: ["1", "2", "3"],
-          },
-        ],
-        rowCount: 1,
-      },
-    ],
-  });
-  var question: QuestionMatrixDynamic = <any>survey.getQuestionByName("q1");
-  var rows = question.visibleRows;
-  rows[0].cells[0].question.koValue(["1"]);
-  rows[0].cells[0].question.koValue(["1", "2"]);
-  assert.deepEqual(
-    survey.data,
-    { q1: [{ col1: ["1", "2"] }] },
-    "The value set correctly"
-  );
-});
+QUnit.test(
+  "Matrixdynamic checkbox column does not work, Bug#1031",
+  function (assert) {
+    var survey = new Survey({
+      questions: [
+        {
+          type: "matrixdynamic",
+          name: "q1",
+          columns: [
+            {
+              name: "col1",
+              cellType: "checkbox",
+              colCount: 1,
+              choices: ["1", "2", "3"],
+            },
+          ],
+          rowCount: 1,
+        },
+      ],
+    });
+    var question: QuestionMatrixDynamic = <any>survey.getQuestionByName("q1");
+    var rows = question.visibleRows;
+    rows[0].cells[0].question.koValue(["1"]);
+    rows[0].cells[0].question.koValue(["1", "2"]);
+    assert.deepEqual(
+      survey.data,
+      { q1: [{ col1: ["1", "2"] }] },
+      "The value set correctly"
+    );
+  }
+);
 
 QUnit.test("Question MultipleText: koValue in TextItem", function (assert) {
   var mQuestion = new QuestionMultipleText("q1");
@@ -358,19 +364,20 @@ QUnit.test("Set notification on setting survey data", function (assert) {
   assert.equal(survey.getValue("q1"), "value2", "survey data for q1");
   assert.equal(question.value, "value2", "knockout value is updated.");
 });
-QUnit.test("On make survey data empy for Multiple text question", function (
-  assert
-) {
-  var survey = new Survey();
-  var page = survey.addNewPage("page1");
-  var question = new QuestionMultipleText("q1");
-  page.addQuestion(question);
-  question.items.push(new MultipleTextItem("i1"));
-  question.items.push(new MultipleTextItem("i2"));
-  question.value = { i1: 10 };
-  survey.data = null;
-  assert.equal(question.items[0].value, null, "Make the data empty");
-});
+QUnit.test(
+  "On make survey data empy for Multiple text question",
+  function (assert) {
+    var survey = new Survey();
+    var page = survey.addNewPage("page1");
+    var question = new QuestionMultipleText("q1");
+    page.addQuestion(question);
+    question.items.push(new MultipleTextItem("i1"));
+    question.items.push(new MultipleTextItem("i2"));
+    question.value = { i1: 10 };
+    survey.data = null;
+    assert.equal(question.items[0].value, null, "Make the data empty");
+  }
+);
 QUnit.test("isVisible property", function (assert) {
   var survey = new Survey();
   var page = survey.addNewPage("page1");
@@ -440,36 +447,37 @@ QUnit.test("add customwidget item", function (assert) {
   CustomWidgetCollection.Instance.clear();
 });
 
-QUnit.test("Localization, choices.locText.koRenderedHtml, #349", function (
-  assert
-) {
-  var survey = new Survey();
-  var page = survey.addNewPage("page");
-  var q1 = <QuestionCheckbox>page.addNewQuestion("checkbox", "q1");
-  q1.choices = [{ value: 1, text: { default: "text1", de: "text_de" } }];
-  assert.equal(
-    q1.visibleChoices[0].text,
-    "text1",
-    "default locale, text property is 'text1'"
-  );
-  assert.equal(
-    q1.visibleChoices[0].locText["koRenderedHtml"](),
-    "text1",
-    "default locale, locText.koRenderedHtml() is 'text1'"
-  );
-  survey.locale = "de";
-  assert.equal(
-    q1.visibleChoices[0].text,
-    "text_de",
-    "default locale, text property is 'text_de'"
-  );
-  assert.equal(
-    q1.visibleChoices[0].locText["koRenderedHtml"](),
-    "text_de",
-    "default locale, locText.koRenderedHtml() is 'text_de'"
-  );
-  survey.locale = "";
-});
+QUnit.test(
+  "Localization, choices.locText.koRenderedHtml, #349",
+  function (assert) {
+    var survey = new Survey();
+    var page = survey.addNewPage("page");
+    var q1 = <QuestionCheckbox>page.addNewQuestion("checkbox", "q1");
+    q1.choices = [{ value: 1, text: { default: "text1", de: "text_de" } }];
+    assert.equal(
+      q1.visibleChoices[0].text,
+      "text1",
+      "default locale, text property is 'text1'"
+    );
+    assert.equal(
+      q1.visibleChoices[0].locText["koRenderedHtml"](),
+      "text1",
+      "default locale, locText.koRenderedHtml() is 'text1'"
+    );
+    survey.locale = "de";
+    assert.equal(
+      q1.visibleChoices[0].text,
+      "text_de",
+      "default locale, text property is 'text_de'"
+    );
+    assert.equal(
+      q1.visibleChoices[0].locText["koRenderedHtml"](),
+      "text_de",
+      "default locale, locText.koRenderedHtml() is 'text_de'"
+    );
+    survey.locale = "";
+  }
+);
 
 QUnit.test("Localization, otherItem", function (assert) {
   var survey = new Survey();
@@ -594,68 +602,71 @@ QUnit.test(
   }
 );
 
-QUnit.test("Text preprocessing variable and value. Fix the bug#461", function (
-  assert
-) {
-  var survey = new Survey();
-  survey.addNewPage("p1");
-  survey.setValue("val1", "");
-  survey.setVariable("var1", "");
-  var question = new QuestionText("q1");
-  survey.pages[0].addQuestion(question);
-  question.title = "{var1}{val1}";
-  assert.equal(
-    question.locTitle["koRenderedHtml"](),
-    "{val1}",
-    "The title is empty by default"
-  );
-  survey.setValue("val1", "[val1]");
-  assert.equal(
-    question.locTitle["koRenderedHtml"](),
-    "[val1]",
-    "The val1 is set"
-  );
-  survey.setVariable("var1", "[var1]");
-  assert.equal(
-    question.locTitle["koRenderedHtml"](),
-    "[var1][val1]",
-    "The var1 and val1 are set"
-  );
-});
+QUnit.test(
+  "Text preprocessing variable and value. Fix the bug#461",
+  function (assert) {
+    var survey = new Survey();
+    survey.addNewPage("p1");
+    survey.setValue("val1", "");
+    survey.setVariable("var1", "");
+    var question = new QuestionText("q1");
+    survey.pages[0].addQuestion(question);
+    assert.equal(survey.currentPage.name, "p1", "The current page is p1");
+    question.title = "{var1}{val1}";
+    assert.equal(
+      question.locTitle["koRenderedHtml"](),
+      "{val1}",
+      "The title is empty by default"
+    );
+    survey.setValue("val1", "[val1]");
+    assert.equal(
+      question.locTitle["koRenderedHtml"](),
+      "[val1]",
+      "The val1 is set"
+    );
+    survey.setVariable("var1", "[var1]");
+    assert.equal(
+      question.locTitle["koRenderedHtml"](),
+      "[var1][val1]",
+      "The var1 and val1 are set"
+    );
+  }
+);
 
-QUnit.test("Load Panel from Json + visibleIf + startWithNewLine", function (
-  assert
-) {
-  var json = {
-    questions: [
-      {
-        type: "panel",
-        name: "panel",
-        elements: [
-          { type: "text", name: "q1" },
-          {
-            type: "text",
-            name: "q2",
-            visibleIf: "{q1}=a",
-            startWithNewLine: false,
-          },
-        ],
-      },
-    ],
-  };
-  var survey = new Survey(json);
-  var panel = survey.getAllPanels()[0];
-  var rows = (<Panel>panel).rows;
-  var row = rows[0];
+QUnit.test(
+  "Load Panel from Json + visibleIf + startWithNewLine",
+  function (assert) {
+    var json = {
+      questions: [
+        {
+          type: "panel",
+          name: "panel",
+          elements: [
+            { type: "text", name: "q1" },
+            {
+              type: "text",
+              name: "q2",
+              visibleIf: "{q1}=a",
+              startWithNewLine: false,
+            },
+          ],
+        },
+      ],
+    };
+    var survey = new Survey(json);
+    var panel = survey.getAllPanels()[0];
+    var rows = (<Panel>panel).rows;
+    var row = rows[0];
 
-  assert.ok(row, "row is created");
-  assert.equal(rows.length, 1, "There are 1 row in the panel");
-  assert.equal(
-    survey.getQuestionByName("q2").isVisible,
-    false,
-    "The question is invisible"
-  );
-});
+    assert.ok(row, "row is created");
+    assert.equal(rows.length, 1, "There are 1 row in the panel");
+    assert.equal(
+      survey.getQuestionByName("q2").isVisible,
+      false,
+      "The question is invisible"
+    );
+  }
+);
 
 QUnit.test("Load Panel from Json + isSinglePage", function (assert) {
   var json = {
@@ -821,42 +832,47 @@ QUnit.test("Load PanelDynamic from Json, nested panel", function (assert) {
   );
 });
 
-QUnit.test("PanelDynamic and koRenderedHtml on text processing", function (
-  assert
-) {
-  var json = {
-    questions: [
-      {
-        type: "paneldynamic",
-        name: "q",
-        panelCount: 3,
-        templateElements: [
-          { type: "text", name: "q1" },
-          {
-            type: "panel",
-            name: "np1",
-            title: "{panel.q1}",
-            elements: [{ type: "text", name: "q2", title: "{panel.q1}" }],
-          },
-        ],
-      },
-    ],
-  };
-  var survey = new Survey(json);
-  var question = <QuestionPanelDynamic>survey.getAllQuestions()[0];
-  var panel = <Panel>question.panels[0];
-  var pLocTitle = (<Panel>panel.elements[1]).locTitle;
-  var qLocTitle = (<Question>panel.questions[1]).locTitle;
-  assert.equal(
-    qLocTitle["koRenderedHtml"](),
-    "q2",
-    "q2 title show q2 name by default"
-  );
-  assert.equal(pLocTitle["koRenderedHtml"](), "", "np1 title is empty");
-  panel.getQuestionByName("q1").value = "val1";
-  assert.equal(qLocTitle["koRenderedHtml"](), "val1", "q2 title is q1.value");
-  assert.equal(pLocTitle["koRenderedHtml"](), "val1", "np1 title is q1.value");
-});
+QUnit.test(
+  "PanelDynamic and koRenderedHtml on text processing",
+  function (assert) {
+    var json = {
+      questions: [
+        {
+          type: "paneldynamic",
+          name: "q",
+          panelCount: 3,
+          templateElements: [
+            { type: "text", name: "q1" },
+            {
+              type: "panel",
+              name: "np1",
+              title: "{panel.q1}",
+              elements: [{ type: "text", name: "q2", title: "{panel.q1}" }],
+            },
+          ],
+        },
+      ],
+    };
+    var survey = new Survey(json);
+    var question = <QuestionPanelDynamic>survey.getAllQuestions()[0];
+    var panel = <Panel>question.panels[0];
+    var pLocTitle = (<Panel>panel.elements[1]).locTitle;
+    var qLocTitle = (<Question>panel.questions[1]).locTitle;
+    assert.equal(
+      qLocTitle["koRenderedHtml"](),
+      "q2",
+      "q2 title show q2 name by default"
+    );
+    assert.equal(pLocTitle["koRenderedHtml"](), "", "np1 title is empty");
+    panel.getQuestionByName("q1").value = "val1";
+    assert.equal(qLocTitle["koRenderedHtml"](), "val1", "q2 title is q1.value");
+    assert.equal(
+      pLocTitle["koRenderedHtml"](),
+      "val1",
+      "np1 title is q1.value"
+    );
+  }
+);
 
 QUnit.test("koSurvey matrix.rowsVisibleIf", function (assert) {
   var survey = new Survey();
@@ -995,38 +1011,39 @@ QUnit.test(
     );
   }
 );
-QUnit.test("Default value doesn't set in PanelDynamic , bug#910", function (
-  assert
-) {
-  var json = {
-    questions: [
-      {
-        type: "paneldynamic",
-        name: "pdynamic",
-        templateElements: [
-          {
-            type: "text",
-            name: "q1",
-            defaultValue: "value1",
-          },
-          {
-            type: "dropdown",
-            name: "q2",
-            defaultValue: "item2",
-            choices: ["item1", "item2", "item3"],
-          },
-        ],
-        panelCount: 1,
-      },
-    ],
-  };
-  var survey = new Survey(json);
-  var panel = <QuestionPanelDynamic>survey.getQuestionByName("pdynamic");
-  var q1 = <Question>panel.panels[0].questions[0];
-  var q2 = <Question>panel.panels[0].questions[1];
-  assert.equal(q1.value, "value1", "The default value set to q1.value");
-  assert.equal(q2.value, "item2", "The default value set to q2.value");
-});
+QUnit.test(
+  "Default value doesn't set in PanelDynamic , bug#910",
+  function (assert) {
+    var json = {
+      questions: [
+        {
+          type: "paneldynamic",
+          name: "pdynamic",
+          templateElements: [
+            {
+              type: "text",
+              name: "q1",
+              defaultValue: "value1",
+            },
+            {
+              type: "dropdown",
+              name: "q2",
+              defaultValue: "item2",
+              choices: ["item1", "item2", "item3"],
+            },
+          ],
+          panelCount: 1,
+        },
+      ],
+    };
+    var survey = new Survey(json);
+    var panel = <QuestionPanelDynamic>survey.getQuestionByName("pdynamic");
+    var q1 = <Question>panel.panels[0].questions[0];
+    var q2 = <Question>panel.panels[0].questions[1];
+    assert.equal(q1.value, "value1", "The default value set to q1.value");
+    assert.equal(q2.value, "item2", "The default value set to q2.value");
+  }
+);
 
 QUnit.test(
   "Survey.isSinglePage = true, the last page doesn't added, bug#1009",
@@ -1082,52 +1099,53 @@ QUnit.test(
   }
 );
 
-QUnit.test("Survey Localization - radiogroup.otheItem, Bug#1045", function (
-  assert
-) {
-  var json = {
-    questions: [
-      {
-        type: "radiogroup",
-        name: "q1",
-        hasOther: true,
-        choices: [1, 2],
-        otherText: {
-          default: "Other",
-          es: "Otro",
+QUnit.test(
+  "Survey Localization - radiogroup.otheItem, Bug#1045",
+  function (assert) {
+    var json = {
+      questions: [
+        {
+          type: "radiogroup",
+          name: "q1",
+          hasOther: true,
+          choices: [1, 2],
+          otherText: {
+            default: "Other",
+            es: "Otro",
+          },
         },
-      },
-    ],
-  };
+      ],
+    };
 
-  var survey = new Survey(json);
-  var q1 = <QuestionRadiogroup>survey.getQuestionByName("q1");
+    var survey = new Survey(json);
+    var q1 = <QuestionRadiogroup>survey.getQuestionByName("q1");
 
-  assert.equal(
-    q1.visibleChoices[2].locText["koRenderedHtml"](),
-    "Other",
-    "By default it is Other"
-  );
-  survey.locale = "es";
-  assert.equal(
-    q1.visibleChoices[2].locText["koRenderedHtml"](),
-    "Otro",
-    "Otro for Spanish"
-  );
-  survey.locale = "";
-  assert.equal(
-    q1.visibleChoices[2].locText["koRenderedHtml"](),
-    "Other",
-    "It is default again"
-  );
-  survey.locale = "es";
-  assert.equal(
-    q1.visibleChoices[2].locText["koRenderedHtml"](),
-    "Otro",
-    "It is Spanish again"
-  );
-  survey.locale = "";
-});
+    assert.equal(
+      q1.visibleChoices[2].locText["koRenderedHtml"](),
+      "Other",
+      "By default it is Other"
+    );
+    survey.locale = "es";
+    assert.equal(
+      q1.visibleChoices[2].locText["koRenderedHtml"](),
+      "Otro",
+      "Otro for Spanish"
+    );
+    survey.locale = "";
+    assert.equal(
+      q1.visibleChoices[2].locText["koRenderedHtml"](),
+      "Other",
+      "It is default again"
+    );
+    survey.locale = "es";
+    assert.equal(
+      q1.visibleChoices[2].locText["koRenderedHtml"](),
+      "Otro",
+      "It is Spanish again"
+    );
+    survey.locale = "";
+  }
+);
 
 QUnit.test(
   "PanelDynamic and MatrixDynamic, survey in readonly mode, Bug#1051",
@@ -1562,49 +1580,50 @@ QUnit.test("Expression with two columns doesn't work, bug#1199", function(
 });
 */
 
-QUnit.test("Loc string text preprocessing update on change value", function (
-  assert
-) {
-  var json = {
-    pages: [
-      {
-        questions: [
-          {
-            type: "text",
-            name: "name",
-          },
-        ],
-      },
-      {
-        questions: [
-          {
-            type: "comment",
-            name: "comment",
-            title: "{name}, text",
-          },
-        ],
-      },
-    ],
-  };
+QUnit.test(
+  "Loc string text preprocessing update on change value",
+  function (assert) {
+    var json = {
+      pages: [
+        {
+          questions: [
+            {
+              type: "text",
+              name: "name",
+            },
+          ],
+        },
+        {
+          questions: [
+            {
+              type: "comment",
+              name: "comment",
+              title: "{name}, text",
+            },
+          ],
+        },
+      ],
+    };
 
-  var survey = new Survey(json);
-  var commentQuestion = <Question>survey.getQuestionByName("comment");
+    var survey = new Survey(json);
+    var commentQuestion = <Question>survey.getQuestionByName("comment");
 
-  survey.setValue("name", "a");
-  assert.equal(
-    commentQuestion.locTitle["koRenderedHtml"](),
-    "a, text",
-    "The first value"
-  );
+    survey.setValue("name", "a");
+    assert.equal(
+      commentQuestion.locTitle["koRenderedHtml"](),
+      "a, text",
+      "The first value"
+    );
 
-  survey.setValue("name", "b");
-  survey.nextPage();
-  assert.equal(
-    commentQuestion.locTitle["koRenderedHtml"](),
-    "b, text",
-    "The first value"
-  );
-});
+    survey.setValue("name", "b");
+    survey.nextPage();
+    assert.equal(
+      commentQuestion.locTitle["koRenderedHtml"](),
+      "b, text",
+      "The first value"
+    );
+  }
+);
 QUnit.test("question.paddingLeft and question.paddingRight", function (assert) {
   var survey = new Survey({
     elements: [{ type: "panel", name: "p1" }],
@@ -1714,26 +1733,27 @@ QUnit.test(
   }
 );
 
-QUnit.test("https://github.com/surveyjs/surveyjs/issues/1501", function (
-  assert
-) {
-  var survey = new Survey();
-  var page = survey.addNewPage("page");
-  var q1 = <QuestionCheckbox>page.addNewQuestion("checkbox", "q1");
-  q1.choices = [1, 2];
-  q1.hasOther = true;
-  q1.storeOthersAsComment = false;
-  var counter = 0;
+QUnit.test(
+  "https://github.com/surveyjs/surveyjs/issues/1501",
+  function (assert) {
+    var survey = new Survey();
+    var page = survey.addNewPage("page");
+    var q1 = <QuestionCheckbox>page.addNewQuestion("checkbox", "q1");
+    q1.choices = [1, 2];
+    q1.hasOther = true;
+    q1.storeOthersAsComment = false;
+    var counter = 0;
 
-  ko.computed(() => {
-    var v = q1.isOtherSelected;
-    counter++;
-  });
+    ko.computed(() => {
+      var v = q1.isOtherSelected;
+      counter++;
+    });
 
-  q1.value = "other";
+    q1.value = "other";
 
-  assert.equal(counter, 2, "computed has been triggered");
-});
+    assert.equal(counter, 2, "computed has been triggered");
+  }
+);
 
 QUnit.test(
   "Some custom CSS not working - https://github.com/surveyjs/survey-library/issues/2122",
@@ -1814,120 +1834,141 @@ QUnit.test(
   }
 );
 
-QUnit.test("survey.firstPageIsStarted=true + multiple-language", function (
-  assert
-) {
-  var json = {
-    firstPageIsStarted: true,
-    pages: [
-      {
-        elements: [
-          {
-            type: "text",
-            name: "q1",
-            title: { default: "q1-en", de: "q1-de" },
-          },
-        ],
-      },
-      {
-        elements: [
-          {
-            type: "text",
-            name: "q2",
-            title: { default: "q2-en", de: "q2-de" },
-          },
-        ],
-      },
-    ],
-  };
-  var survey = new Survey(json);
-  var q1 = survey.getQuestionByName("q1");
-  var q2 = survey.getQuestionByName("q2");
-  assert.equal(q1.locTitle["koRenderedHtml"](), "q1-en", "en locale, q1");
-  assert.equal(q2.locTitle["koRenderedHtml"](), "q2-en", "en locale, q2");
-  var prevLocale = survey.locale;
-  survey.locale = "de";
-  assert.equal(q1.locTitle["koRenderedHtml"](), "q1-de", "de locale, q1");
-  assert.equal(q2.locTitle["koRenderedHtml"](), "q2-de", "de locale, q2");
-  survey.locale = prevLocale;
-});
+QUnit.test(
+  "survey.firstPageIsStarted=true + multiple-language",
+  function (assert) {
+    var json = {
+      firstPageIsStarted: true,
+      pages: [
+        {
+          elements: [
+            {
+              type: "text",
+              name: "q1",
+              title: { default: "q1-en", de: "q1-de" },
+            },
+          ],
+        },
+        {
+          elements: [
+            {
+              type: "text",
+              name: "q2",
+              title: { default: "q2-en", de: "q2-de" },
+            },
+          ],
+        },
+      ],
+    };
+    var survey = new Survey(json);
+    var q1 = survey.getQuestionByName("q1");
+    var q2 = survey.getQuestionByName("q2");
+    assert.equal(q1.locTitle["koRenderedHtml"](), "q1-en", "en locale, q1");
+    assert.equal(q2.locTitle["koRenderedHtml"](), "q2-en", "en locale, q2");
+    var prevLocale = survey.locale;
+    survey.locale = "de";
+    assert.equal(q1.locTitle["koRenderedHtml"](), "q1-de", "de locale, q1");
+    assert.equal(q2.locTitle["koRenderedHtml"](), "q2-de", "de locale, q2");
+    survey.locale = prevLocale;
+  }
+);
 
-QUnit.test("survey.firstPageIsStarted=true + multiple-language", function (
-  assert
-) {
-  var survey = new Survey({
-    locale: "de",
-    pages: [
+QUnit.test(
+  "survey.firstPageIsStarted=true + multiple-language",
+  function (assert) {
+    var survey = new Survey({
+      locale: "de",
+      pages: [
+        {
+          name: "startedPage",
+          elements: [
+            {
+              type: "text",
+              name: "question10",
+            },
+            {
+              type: "text",
+              name: "question11",
+              startWithNewLine: false,
+            },
+          ],
+        },
+      ],
+      firstPageIsStarted: true,
+    });
+    assert.equal(survey.startedPage.name, "startedPage", "Loaded fine");
+  }
+);
+
+QUnit.test(
+  "ProgressButtonsViewModel component scroll button",
+  function (assert) {
+    let json: any = {
+      pages: [
+        {
+          name: "page1",
+          elements: [
+            {
+              type: "text",
+              name: "question1",
+            },
+          ],
+        },
+        {
+          name: "page2",
+          elements: [
+            {
+              type: "text",
+              name: "question2",
+            },
+          ],
+        },
+        {
+          name: "page3",
+          elements: [
+            {
+              type: "text",
+              name: "question3",
+            },
+          ],
+        },
+      ],
+    };
+    let survey: Survey = new Survey(json);
+    let progress: ProgressButtonsViewModel = new ProgressButtonsViewModel(
+      survey,
       {
-        name: "startedPage",
-        elements: [
-          {
-            type: "text",
-            name: "question10",
-          },
-          {
-            type: "text",
-            name: "question11",
-            startWithNewLine: false,
-          },
-        ],
-      },
-    ],
-    firstPageIsStarted: true,
-  });
-  assert.equal(survey.startedPage.name, "startedPage", "Loaded fine");
-});
+        querySelector: function () {
+          return undefined;
+        },
+      }
+    );
+    progress.dispose();
+    assert.equal(
+      progress.getScrollButtonCss(true)(),
+      survey.css.progressButtonsImageButtonLeft +
+        " " +
+        survey.css.progressButtonsImageButtonHidden,
+      "1) Scroll button left style is hidden"
+    );
+    assert.equal(
+      progress.getScrollButtonCss(false)(),
+      survey.css.progressButtonsImageButtonRight +
+        " " +
+        survey.css.progressButtonsImageButtonHidden,
+      "1) Scroll button right style is hidden"
+    );
 
-QUnit.test("ProgressButtonsViewModel component scroll button", function(assert) {
-  let json: any = {
-    "pages": [
-     {
-      "name": "page1",
-      "elements": [
-       {
-        "type": "text",
-        "name": "question1"
-       }
-      ]
-     },
-     {
-      "name": "page2",
-      "elements": [
-       {
-        "type": "text",
-        "name": "question2"
-       }
-      ]
-     },
-     {
-      "name": "page3",
-      "elements": [
-       {
-        "type": "text",
-        "name": "question3"
-       }
-      ]
-     }
-    ]
-   };
-  let survey: Survey = new Survey(json);
-  let progress: ProgressButtonsViewModel = new ProgressButtonsViewModel(survey,
-    { querySelector: function() { return undefined; } });
-  progress.dispose();
-  assert.equal(progress.getScrollButtonCss(true)(),
-    survey.css.progressButtonsImageButtonLeft + " " +
-     survey.css.progressButtonsImageButtonHidden,
-    "1) Scroll button left style is hidden");
-  assert.equal(progress.getScrollButtonCss(false)(),
-    survey.css.progressButtonsImageButtonRight + " " +
-     survey.css.progressButtonsImageButtonHidden,
-    "1) Scroll button right style is hidden");
-
-  progress['hasScroller'](true);
-  assert.equal(progress.getScrollButtonCss(true)(),
-    survey.css.progressButtonsImageButtonLeft,
-    "2) Scroll button left style is visible");
-  assert.equal(progress.getScrollButtonCss(false)(),
-    survey.css.progressButtonsImageButtonRight,
-    "2) Scroll button right style is visible");
-});
+    progress["hasScroller"](true);
+    assert.equal(
+      progress.getScrollButtonCss(true)(),
+      survey.css.progressButtonsImageButtonLeft,
+      "2) Scroll button left style is visible"
+    );
+    assert.equal(
+      progress.getScrollButtonCss(false)(),
+      survey.css.progressButtonsImageButtonRight,
+      "2) Scroll button right style is visible"
+    );
+  }
+);

@@ -8,7 +8,7 @@ export class ResponsibilityManager {
   constructor(
     protected container: HTMLDivElement,
     private model: any,
-    private dotsItemSize: number = 56
+    private dotsItemSize: number = 48
   ) {}
   getComputedStyle: any = window.getComputedStyle.bind(window);
 

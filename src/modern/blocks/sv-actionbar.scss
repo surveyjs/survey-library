@@ -161,7 +161,10 @@ sv-action-bar {
   }
 }
 .sv-dots {
-  margin-right: none;
+  width: 48px;
+}
+
+.sv-dots__item {
   &:hover {
     background-color: inherit;
   }

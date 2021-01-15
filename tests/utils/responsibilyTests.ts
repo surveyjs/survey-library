@@ -26,7 +26,7 @@ class TestModel {
 class SimpleContainer {
   parentElement: any;
   constructor(config: any) {
-    Object.assign(this, config);
+    (<any>Object).assign(this, config);
     this.parentElement = this;
   }
 }

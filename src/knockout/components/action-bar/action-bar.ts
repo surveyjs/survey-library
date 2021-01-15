@@ -123,11 +123,7 @@ export class ActionBarViewModel extends AdaptiveElement {
     this.itemsSubscription = ko.computed(() => {
       var items = ko.unwrap(_items);
       items.forEach((item) => {
-        var wrappedItem: any = new ObjectWrapper(item, [
-          "action",
-          "showTitle",
-          "visible",
-        ]);
+        var wrappedItem: any = new ObjectWrapper(item, ["action", "showTitle"]);
         var showTitle = item.showTitle;
         wrappedItem.showTitle = ko.computed(() => {
           return (

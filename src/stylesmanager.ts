@@ -539,8 +539,13 @@ export class StylesManager {
       "$disabled-slider-color": "#cfcfcf",
       "$error-color": "#d52901",
       "$text-color": "#404040",
+      "$light-text-color": "#fff",
+      "$button-text-color": "#fff",
+      "$checkmark-color": "#fff",
+      "$matrix-text-checked-color": "#fff",
+
       "$text-input-color": "#404040",
-      "$inputs-background-color": "#f4f4f4",
+      "$inputs-background-color": "transparent",
       "$main-hover-color": "#9f9f9f",
       "$body-container-background-color": "#f4f4f4",
       "$text-border-color": "#d4d4d4",
@@ -699,14 +704,14 @@ export class StylesManager {
     ".sv-boolean--disabled .sv-boolean__slider":
       "background-color: $disabled-slider-color;",
 
-    ".sv-btn": "color: $inputs-background-color;",
+    ".sv-btn": "color: $button-text-color;",
     ".sv-checkbox__svg": "border-color: $border-color; fill: transparent;",
     ".sv-checkbox--allowhover:hover .sv-checkbox__svg":
-      "background-color: $main-hover-color; fill: $inputs-background-color;",
+      "background-color: $main-hover-color; fill: $checkmark-color;",
     ".sv-checkbox--checked .sv-checkbox__svg":
-      "background-color: $main-color; fill: $inputs-background-color;",
+      "background-color: $main-color; fill: $checkmark-color;",
     ".sv-checkbox--checked.sv-checkbox--disabled .sv-checkbox__svg":
-      "background-color: $disable-color; fill: $inputs-background-color;",
+      "background-color: $disable-color; fill: $checkmark-color;",
     ".sv-checkbox--disabled .sv-checkbox__svg": "border-color: $disable-color;",
     ".sv-comment": "border-color: $text-border-color;",
     ".sv-comment:focus": "border-color: $main-color;",
@@ -742,7 +747,7 @@ export class StylesManager {
     ".sv-item__control:focus + .sv-item__decorator":
       "border-color: $main-color;",
     ".sv-matrix__text--checked":
-      "color: $inputs-background-color; background-color: $main-color;",
+      "color: $matrix-text-checked-color; background-color: $main-color;",
     ".sv-matrix__text--disabled.sv-matrix__text--checked":
       "background-color: $disable-color;",
     ".sv-matrixdynamic__add-btn": "background-color: $add-button-color;",
@@ -795,7 +800,8 @@ export class StylesManager {
     ".sv-text--error::placeholder": "color: $error-color;",
     ".sv-text--error::-ms-placeholder": "color: $error-color;",
     ".sv-text--error:-ms-placeholder": "color: $error-color;",
-    "input.sv-text, textarea.sv-comment, select.sv-dropdown": "color: $text-input-color; background-color: $inputs-background-color;",
+    "input.sv-text, textarea.sv-comment, select.sv-dropdown":
+      "color: $text-input-color; background-color: $inputs-background-color;",
     ".sv-text::placeholder": "color: $text-input-color;",
     ".sv-text::-ms-placeholder": "color: $text-input-color;",
     ".sv-text:-ms-placeholder": "color: $text-input-color;",

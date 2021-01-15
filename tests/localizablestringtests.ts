@@ -1,4 +1,8 @@
-import { ILocalizableOwner, LocalizableString } from "../src/localizablestring";
+import {
+  ILocalizableOwner,
+  LocalizableString,
+  LocalizableStrings,
+} from "../src/localizablestring";
 import { JsonObject, Serializer } from "../src/jsonobject";
 import { ItemValue } from "../src/itemvalue";
 import { HashTable } from "../src/helpers";
@@ -268,35 +272,40 @@ QUnit.test("Array<ItemValue> localization serialize", function (assert) {
     "serialize localization, with empty text in the second item"
   );
 });
-QUnit.test("Array<ItemValue> localization deserialize/setData", function (
-  assert
-) {
-  var owner = new LocalizableOwnerTester("");
-  var items = ItemValue.createArray(owner);
-  var json = [
-    {
-      value: "val1",
-      text: { default: "text1", de: "de-text1", pos: { start: 0, end: 10 } },
-    },
-    { value: "val2", text: "de-text2" },
-  ];
-  ItemValue.setData(items, json);
-  owner.locale = "fr";
-  assert.equal(items[0].calculatedText, "text1", "Check1, use default text");
-  assert.equal(
-    items[1].calculatedText,
-    "de-text2",
-    "Check2, use default value"
-  );
-  owner.locale = "de";
-  assert.equal(items[0].calculatedText, "de-text1", "Check3, use 'de' text");
-  assert.equal(items[1].calculatedText, "de-text2", "Check4, use 'de' value");
-  var serJson = [
-    { value: "val1", text: { default: "text1", de: "de-text1" } },
-    { value: "val2", text: "de-text2" },
-  ];
-  assert.deepEqual(ItemValue.getData(items), serJson, "There is no pos object");
-});
+QUnit.test(
+  "Array<ItemValue> localization deserialize/setData",
+  function (assert) {
+    var owner = new LocalizableOwnerTester("");
+    var items = ItemValue.createArray(owner);
+    var json = [
+      {
+        value: "val1",
+        text: { default: "text1", de: "de-text1", pos: { start: 0, end: 10 } },
+      },
+      { value: "val2", text: "de-text2" },
+    ];
+    ItemValue.setData(items, json);
+    owner.locale = "fr";
+    assert.equal(items[0].calculatedText, "text1", "Check1, use default text");
+    assert.equal(
+      items[1].calculatedText,
+      "de-text2",
+      "Check2, use default value"
+    );
+    owner.locale = "de";
+    assert.equal(items[0].calculatedText, "de-text1", "Check3, use 'de' text");
+    assert.equal(items[1].calculatedText, "de-text2", "Check4, use 'de' value");
+    var serJson = [
+      { value: "val1", text: { default: "text1", de: "de-text1" } },
+      { value: "val2", text: "de-text2" },
+    ];
+    assert.deepEqual(
+      ItemValue.getData(items),
+      serJson,
+      "There is no pos object"
+    );
+  }
+);
 
 QUnit.test(
   "Array<ItemValue> localization deserialize/setData, no default value",
@@ -447,3 +456,38 @@ QUnit.test(
     assert.equal(locString.text, "A", "the value is still 'A'");
   }
 );
+QUnit.test("Localizable strings get/set tests", function (assert) {
+  var owner = new LocalizableOwnerTester("");
+  var locStrings = new LocalizableStrings(owner);
+  assert.deepEqual(locStrings.value, [], "Empty by default");
+  locStrings.value = ["val1", "val2"];
+  assert.deepEqual(locStrings.value, ["val1", "val2"], "value is set");
+  owner.locale = "de";
+  assert.deepEqual(locStrings.value, ["val1", "val2"], "get default values");
+  locStrings.value = ["de-val1", "de-val2"];
+  assert.deepEqual(locStrings.value, ["de-val1", "de-val2"], "get de values");
+  owner.locale = "en";
+  assert.deepEqual(locStrings.value, ["val1", "val2"], "get default/en values");
+  assert.equal(locStrings.text, "val1\nval2", "use text");
+  locStrings.text = "val1\nval2\nval3";
+  assert.deepEqual(
+    locStrings.value,
+    ["val1", "val2", "val3"],
+    "get value via text property"
+  );
+});
+QUnit.test("Localizable strings getJson/setJson", function (assert) {
+  var owner = new LocalizableOwnerTester("");
+  var locStrings = new LocalizableStrings(owner);
+  assert.equal(locStrings.isEmpty, true, "it is empty");
+  assert.notOk(locStrings.getJson(), "it is empty");
+  locStrings.value = ["val1", "val2"];
+  assert.deepEqual(locStrings.getJson(), ["val1", "val2"], "one value type");
+  owner.locale = "de";
+  locStrings.value = ["de-val1", "de-val2"];
+  assert.deepEqual(
+    locStrings.getJson(),
+    { default: ["val1", "val2"], de: ["de-val1", "de-val2"] },
+    "return an object"
+  );
+});

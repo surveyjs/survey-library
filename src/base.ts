@@ -44,6 +44,7 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner {
   pages: Array<IPage>;
   getCss(): any;
   isPageStarted(page: IPage): boolean;
+  getQuestionByName(name: string): IQuestion;
   pageVisibilityChanged(page: IPage, newValue: boolean): any;
   panelVisibilityChanged(panel: IPanel, newValue: boolean): any;
   questionVisibilityChanged(question: IQuestion, newValue: boolean): any;
@@ -184,6 +185,7 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner {
     id: string
   ): any;
   runExpression(expression: string): any;
+  renderTitleActions(element: ISurveyElement): boolean;
 }
 export interface ISurveyImpl {
   geSurveyData(): ISurveyData;
@@ -1206,9 +1208,9 @@ export class SurveyElement extends Base implements ISurveyElement {
       title: "",
       action: () => {},
       innerCss: () => {
-        var css = "sv-expand-action"
-        if (this.isExpanded) css+=" sv-expand-action--expanded";
-        return css
+        var css = "sv-expand-action";
+        if (this.isExpanded) css += " sv-expand-action--expanded";
+        return css;
       },
       visible: () => {
         return this.isExpanded || this.isCollapsed;
@@ -1218,18 +1220,18 @@ export class SurveyElement extends Base implements ISurveyElement {
   }
 
   public getTitleComponentName(): string {
-    const componentName = RendererFactory.Instance.getRenderer(
-      "element",
-      this.renderTitleAs
-    );
+    var componentName = "default";
+    if (this.survey.renderTitleActions(this)) {
+      componentName = RendererFactory.Instance.getRenderer(
+        "element",
+        "title-actions"
+      );
+    }
     if (componentName == "default") {
       return "sv-default-title";
     }
     return componentName;
   }
-
-  @property({ defaultValue: "default" })
-  renderTitleAs: string;
 
   public setSurveyImpl(value: ISurveyImpl) {
     this.surveyImplValue = value;

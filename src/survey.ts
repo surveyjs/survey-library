@@ -1716,7 +1716,7 @@ export class SurveyModel
    * Run all triggers that performs on value changed and not on moving to the next page.
    */
   public runTriggers(): void {
-    this.checkTriggers(this.data, false);
+    this.checkTriggers(this.getFilteredValues(), false);
   }
   public get renderedCompletedHtml(): string {
     var item = this.getExpressionItemOnRunCondition(
@@ -2291,12 +2291,20 @@ export class SurveyModel
   getFilteredValues(): any {
     var values: { [index: string]: any } = {};
     for (var key in this.variablesHash) values[key] = this.variablesHash[key];
+    this.addCalculatedValuesIntoFilteredValues(values);
     var keys = this.getValuesKeys();
     for (var i = 0; i < keys.length; i++) {
       var key = keys[i];
       values[key] = this.getDataValueCore(this.valuesHash, key);
     }
     return values;
+  }
+  private addCalculatedValuesIntoFilteredValues(values: {
+    [index: string]: any;
+  }) {
+    var caclValues = this.calculatedValues;
+    for (var i = 0; i < caclValues.length; i++)
+      values[caclValues[i].name] = caclValues[i].value;
   }
   getFilteredProperties(): any {
     return { survey: this };
@@ -2311,14 +2319,19 @@ export class SurveyModel
     return res;
   }
   public getDataValueCore(valuesHash: any, key: string) {
-    if (!!this.editingObj) return this.editingObj.getPropertyValue(key);
+    if (!!this.editingObj) {
+      var prop = Serializer.findProperty(this.editingObj.getType(), key);
+      if (!!prop && prop.isLocalizable && prop.isArray)
+        return (<any>this.editingObj)[key];
+      return this.editingObj.getPropertyValue(key);
+    }
     return valuesHash[key];
   }
   public setDataValueCore(valuesHash: any, key: string, value: any) {
     if (!!this.editingObj) {
       var prop = Serializer.findProperty(this.editingObj.getType(), key);
       if (!!prop && prop.isLocalizable) {
-        this.editingObj.setLocalizableStringText(key, value);
+        (<any>this.editingObj)[key] = value;
       } else {
         this.editingObj.setPropertyValue(key, value);
       }
@@ -2849,7 +2862,7 @@ export class SurveyModel
   }
   private hasErrorsOnNavigate(doComplete: boolean): boolean {
     if (this.ignoreValidation || !this.isEditMode) return false;
-    if (this.checkErrorsMode == "onComplete") {
+    if (this.checkErrorsMode === "onComplete") {
       if (!this.isLastPage) return false;
       if (this.hasErrors(true, true)) return true;
     } else {
@@ -3558,16 +3571,19 @@ export class SurveyModel
     }
     return res;
   }
+  private isCalculatingProgressText = false;
   public updateProgressText(onValueChanged: boolean = false) {
-    if (this.isDesignMode) return;
+    if (this.isDesignMode || this.isCalculatingProgressText) return;
     if (
       onValueChanged &&
       this.progressBarType == "pages" &&
       this.onProgressText.isEmpty
     )
       return;
+    this.isCalculatingProgressText = true;
     this.setPropertyValue("progressText", this.getProgressText());
     this.setPropertyValue("progressValue", this.getProgress());
+    this.isCalculatingProgressText = false;
   }
   public getProgressText(): string {
     if (this.isDesignMode || this.currentPage == null) return "";
@@ -3742,7 +3758,7 @@ export class SurveyModel
     this.onMatrixCellValueChanging.fire(this, options);
   }
   get isValidateOnValueChanging(): boolean {
-    return this.checkErrorsMode == "onValueChanging";
+    return this.checkErrorsMode === "onValueChanging";
   }
   matrixCellValidate(question: IQuestion, options: any): SurveyError {
     options.question = question;
@@ -3771,6 +3787,11 @@ export class SurveyModel
     options.allow = true;
     this.onDragDropAllow.fire(this, options);
     return options.allow;
+  }
+
+  renderTitleActions(element: ISurveyElement): boolean {
+    if (element.isPanel) return !this.onGetPanelTitleActions.isEmpty;
+    else return !this.onGetQuestionTitleActions.isEmpty;
   }
 
   getUpdatedQuestionTitleActions(
@@ -4197,7 +4218,7 @@ export class SurveyModel
   private checkQuestionErrorOnValueChanged(question: Question) {
     if (
       !this.isNavigationButtonPressed &&
-      (this.checkErrorsMode == "onValueChanged" || question.errors.length > 0)
+      (this.checkErrorsMode === "onValueChanged" || question.errors.length > 0)
     ) {
       this.checkQuestionErrorOnValueChangedCore(question);
     }
@@ -4294,6 +4315,7 @@ export class SurveyModel
       var name = question.getValueName();
       values[name] = this.getValue(name);
     }
+    this.addCalculatedValuesIntoFilteredValues(values);
     this.checkTriggers(values, true);
   }
   private getCurrentPageQuestions(
@@ -4794,7 +4816,7 @@ export class SurveyModel
       newValue = this.questionOnValueChanging(name, newQuestionValue);
     }
     if (
-      this.checkErrorsMode == "onValueChanging" &&
+      this.checkErrorsMode === "onValueChanging" &&
       this.checkErrorsOnValueChanging(name, newValue)
     )
       return;
@@ -4830,8 +4852,8 @@ export class SurveyModel
     if (locNotification === true) return;
     var triggerKeys: { [index: string]: any } = {};
     triggerKeys[name] = { newValue: newValue, oldValue: oldValue };
-    this.checkTriggers(triggerKeys, false);
     this.runConditionOnValueChanged(name, newValue);
+    this.checkTriggers(triggerKeys, false);
     if (allowNotifyValueChanged)
       this.notifyQuestionOnValueChanged(name, newValue);
     if (locNotification !== "text") {

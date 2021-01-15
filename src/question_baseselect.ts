@@ -25,6 +25,7 @@ export class QuestionSelectBase extends Question {
   private cachedValueForUrlRequests: any = null;
   private isChoicesLoaded: boolean = false;
   private enableOnLoadingChoices: boolean = false;
+  private dependedQuestions: Array<QuestionSelectBase> = [];
   constructor(name: string) {
     super(name);
     var self = this;
@@ -34,6 +35,12 @@ export class QuestionSelectBase extends Question {
         self.onVisibleChoicesChanged();
       }
     });
+    this.registerFunctionOnPropertiesValueChanged(
+      ["choicesFromQuestion", "choicesFromQuestionMode"],
+      function () {
+        self.onVisibleChoicesChanged();
+      }
+    );
     this.registerFunctionOnPropertyValueChanged(
       "hideIfChoicesEmpty",
       function () {
@@ -70,6 +77,13 @@ export class QuestionSelectBase extends Question {
   }
   public getType(): string {
     return "selectbase";
+  }
+  public dispose() {
+    super.dispose();
+    for (var i = 0; i < this.dependedQuestions.length; i++) {
+      this.dependedQuestions[i].choicesFromQuestion = "";
+    }
+    this.removeFromDependedQuestion(this.getQuestionWithChoices());
   }
   public supportGoNextPageError() {
     return !this.isOtherSelected || !!this.comment;
@@ -353,12 +367,52 @@ export class QuestionSelectBase extends Question {
   /**
    * The list of items. Every item has value and text. If text is empty, the value is rendered. The item text supports markdown.
    * @see choicesByUrl
+   * @see choicesFromQuestion
    */
   public get choices(): Array<any> {
     return this.getPropertyValue("choices");
   }
   public set choices(newValue: Array<any>) {
     this.setPropertyValue("choices", newValue);
+  }
+  /**
+   * Set this property to get choices from the specified question instead of defining them in the current question. This avoids duplication of choices declaration in your survey definition.
+   * By setting this property, the "choices", "choicesVisibleIf", "choicesEnableIf" and "choicesOrder" properties become invisible, because these question characteristics depend on actions in another (specified) question.
+   * Use the `choicesFromQuestionMode` property to filter choices obtained from the specified question.
+   * @see choices
+   * @see choicesFromQuestionMode
+   */
+  public get choicesFromQuestion(): string {
+    return this.getPropertyValue("choicesFromQuestion");
+  }
+  public set choicesFromQuestion(val: string) {
+    var question = this.getQuestionWithChoices();
+    if (!!question) {
+      question.removeFromDependedQuestion(this);
+    }
+    this.setPropertyValue("choicesFromQuestion", val);
+  }
+  private addIntoDependedQuestion(question: QuestionSelectBase) {
+    if (!question || question.dependedQuestions.indexOf(this) > -1) return;
+    question.dependedQuestions.push(this);
+  }
+  private removeFromDependedQuestion(question: QuestionSelectBase) {
+    if (!question) return;
+    var index = question.dependedQuestions.indexOf(this);
+    if (index > -1) {
+      question.dependedQuestions.splice(index, 1);
+    }
+  }
+  /**
+   * This property becomes visible when the `choicesFromQuestion` property is selected. The default value is "all" (all visible choices from another question are displayed as they are).
+   * You can set this property to "selected" or "unselected" to display only selected or unselected choices from the specified question.
+   * @see choicesFromQuestion
+   */
+  public get choicesFromQuestionMode(): string {
+    return this.getPropertyValue("choicesFromQuestionMode");
+  }
+  public set choicesFromQuestionMode(val: string) {
+    this.setPropertyValue("choicesFromQuestionMode", val);
   }
   /**
    * Set this property to true to hide the question if there is no visible choices.
@@ -558,8 +612,41 @@ export class QuestionSelectBase extends Question {
       ? this.filteredChoicesValue
       : this.activeChoices;
   }
+  private otherQuestionActiveChoices: Array<ItemValue> = null;
   protected get activeChoices(): Array<ItemValue> {
+    var question = this.getQuestionWithChoices();
+    if (!!question) {
+      this.addIntoDependedQuestion(question);
+      this.otherQuestionActiveChoices = this.getChoicesFromQuestion(question);
+      return !!this.otherQuestionActiveChoices
+        ? this.otherQuestionActiveChoices
+        : question.visibleChoices;
+    }
     return this.choicesFromUrl ? this.choicesFromUrl : this.getChoices();
+  }
+  private getQuestionWithChoices(): QuestionSelectBase {
+    if (!this.choicesFromQuestion || !this.survey) return null;
+    var res: any = this.survey.getQuestionByName(this.choicesFromQuestion);
+    return !!res && !!res.visibleChoices && res !== this ? res : null;
+  }
+  private getChoicesFromQuestion(
+    question: QuestionSelectBase
+  ): Array<ItemValue> {
+    if (
+      this.choicesFromQuestionMode !== "selected" &&
+      this.choicesFromQuestionMode !== "unselected"
+    )
+      return null;
+    var res: Array<ItemValue> = [];
+    var isSelected = this.choicesFromQuestionMode == "selected";
+    var choices = question.visibleChoices;
+    for (var i = 0; i < choices.length; i++) {
+      var itemsSelected = question.isItemSelected(choices[i]);
+      if ((itemsSelected && isSelected) || (!itemsSelected && !isSelected)) {
+        res.push(choices[i]);
+      }
+    }
+    return res;
   }
   protected getChoices(): Array<ItemValue> {
     return this.choices;
@@ -600,6 +687,9 @@ export class QuestionSelectBase extends Question {
     super.onAnyValueChanged(name);
     if (name != this.getValueName()) {
       this.runChoicesByUrl();
+    }
+    if (!!name && name == this.choicesFromQuestion) {
+      this.onVisibleChoicesChanged();
     }
   }
   updateValueFromSurvey(newValue: any) {
@@ -750,12 +840,24 @@ export class QuestionSelectBase extends Question {
     }
     return { value: value };
   }
+  private isUpdatingChoicesDependedQuestions = false;
+  protected updateChoicesDependedQuestions() {
+    if (this.isUpdatingChoicesDependedQuestions) return;
+    this.isUpdatingChoicesDependedQuestions = true;
+    for (var i = 0; i < this.dependedQuestions.length; i++) {
+      this.dependedQuestions[i].onVisibleChoicesChanged();
+      this.dependedQuestions[i].updateChoicesDependedQuestions();
+    }
+    this.isUpdatingChoicesDependedQuestions = false;
+  }
   protected onVisibleChoicesChanged() {
     if (this.isLoadingFromJson) return;
     this.updateVisibleChoices();
     this.updateVisibilityBasedOnChoices();
-    if (!!this.visibleChoicesChangedCallback)
+    if (!!this.visibleChoicesChangedCallback) {
       this.visibleChoicesChangedCallback();
+    }
+    this.updateChoicesDependedQuestions();
   }
   private updateVisibilityBasedOnChoices() {
     if (this.hideIfChoicesEmpty) {
@@ -943,16 +1045,34 @@ Serializer.addClass(
       serializationProperty: "locCommentText",
       layout: "row",
     },
+    "choicesFromQuestion:question_selectbase",
     {
       name: "choices:itemvalue[]",
       baseValue: function () {
         return surveyLocalization.getString("choices_Item");
+      },
+      dependsOn: "choicesFromQuestion",
+      visibleIf: (obj: any) => {
+        return !obj.choicesFromQuestion;
+      },
+    },
+    {
+      name: "choicesFromQuestionMode",
+      default: "all",
+      choices: ["all", "selected", "unselected"],
+      dependsOn: "choicesFromQuestion",
+      visibleIf: (obj: any) => {
+        return !!obj.choicesFromQuestion;
       },
     },
     {
       name: "choicesOrder",
       default: "none",
       choices: ["none", "asc", "desc", "random"],
+      dependsOn: "choicesFromQuestion",
+      visibleIf: (obj: any) => {
+        return !obj.choicesFromQuestion;
+      },
     },
     {
       name: "choicesByUrl:restfull",
@@ -965,8 +1085,20 @@ Serializer.addClass(
       },
     },
     "hideIfChoicesEmpty:boolean",
-    "choicesVisibleIf:condition",
-    "choicesEnableIf:condition",
+    {
+      name: "choicesVisibleIf:condition",
+      dependsOn: "choicesFromQuestion",
+      visibleIf: (obj: any) => {
+        return !obj.choicesFromQuestion;
+      },
+    },
+    {
+      name: "choicesEnableIf:condition",
+      dependsOn: "choicesFromQuestion",
+      visibleIf: (obj: any) => {
+        return !obj.choicesFromQuestion;
+      },
+    },
     "hasOther:boolean",
     {
       name: "otherPlaceHolder",

@@ -1,17 +1,17 @@
 import * as ko from "knockout";
 import { SurveyModel } from "../../../survey";
 import { SurveyProgressButtonsModel } from '../../../surveyProgressButtons';
-var template = require("html-loader?interpolate!val-loader!./buttons.html");
+const template: any = require("html-loader?interpolate!val-loader!./buttons.html");
 
 export class ProgressButtonsViewModel {
   private progressButtonsModel: SurveyProgressButtonsModel;
   private scrollButtonCssKo: any = undefined;
   private hasScroller: any = ko.observable(false);
   private updateScroller: any = undefined;
-  constructor (private model: SurveyModel, private element: any) {
+  constructor (private model: SurveyModel, element: any) {
     this.progressButtonsModel = new SurveyProgressButtonsModel(model);
     this.updateScroller = setInterval(() => {
-      let listContainerElement: HTMLElement = this.element.querySelector(
+      let listContainerElement: HTMLElement = element.querySelector(
         "." + model.css.progressButtonsListContainer);
       if (!!listContainerElement) {
         this.hasScroller(listContainerElement.scrollWidth > listContainerElement.offsetWidth);

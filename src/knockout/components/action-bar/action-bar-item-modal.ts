@@ -6,8 +6,21 @@ const template = require("./action-bar-item-modal.html");
 
 export class ActionBarItemModalViewModel {
   public koIsVisible: any = ko.observable(false);
+  public koWasShown = ko.observable(false);
+  public koData = ko.observable();
 
   constructor(private _item: IActionBarItem) {}
+
+  public show() {
+    if (!this.koWasShown()) {
+      if (!!this._item.data.onCreated) {
+        this._item.data.onCreated();
+      }
+    }
+    this.koData(this.contentComponentData);
+    this.koWasShown(true);
+    this.koIsVisible(true);
+  }
 
   public get icon() {
     return this._item.icon;

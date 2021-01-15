@@ -329,6 +329,11 @@ export class PanelModelBase
       ? this.survey.getSurveyMarkdownHtml(this, text, name)
       : null;
   }
+  getRenderer(name: string): string {
+    return this.survey
+      ? this.survey.getRendererForString(this, name)
+      : null;
+  }
   getProcessedText(text: string): string {
     return this.textProcessor
       ? this.textProcessor.processText(text, true)

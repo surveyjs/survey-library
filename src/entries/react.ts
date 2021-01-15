@@ -69,6 +69,8 @@ export { SurveyQuestionImagePicker } from "../react/imagepicker";
 export { SurveyQuestionImage } from "../react/image";
 export { SurveyQuestionSignaturePad } from "../react/signaturepad";
 export { SurveyQuestionCustom, SurveyQuestionComposite } from "../react/reactquestion_custom";
+export { SurveyLocStringViewer } from "../react/string-viewer";
+export { SurveyLocStringEditor } from "../react/string-editor";
 
 //Uncomment to include the "date" question type.
 //export {default as SurveyQuestionDate} from "../plugins/react/reactquestiondate";

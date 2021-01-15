@@ -1536,6 +1536,14 @@ export class SurveyModel
   public getMarkdownHtml(text: string, name: string): string {
     return this.getSurveyMarkdownHtml(this, text, name);
   }
+  public getRenderer(name: string): string {
+    return this.getRendererForString(this, name);
+  }
+  public getRendererForString?(element: Base, name: string): string {
+    if (this.isDesignMode)
+      return LocalizableString.editableRenderer;
+    return undefined;
+  }
   public getProcessedText(text: string) {
     return this.processText(text, true);
   }

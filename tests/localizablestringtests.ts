@@ -18,6 +18,9 @@ class LocalizableOwnerTester implements ILocalizableOwner {
       return LocalizableOwnerTester.MarkdownText;
     return null;
   }
+  public getRenderer(name: string): string {
+    return undefined;
+  }
   public getProcessedText(text: string): string {
     for (var key in this.values) {
       text = text.replace("{" + key + "}", this.values[key]);

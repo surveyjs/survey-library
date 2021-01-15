@@ -1,4 +1,4 @@
-import { frameworks, url, setOptions, initSurvey, getSurveyResult, getQuestionValue, getQuestionJson } from "../settings";
+import { frameworks, url, setOptions, initSurvey, getSurveyResult } from "../settings";
 import { Selector, ClientFunction } from "testcafe";
 const assert = require("assert");
 const title = `checkboxes`;
@@ -31,7 +31,7 @@ const json = {
 };
 
 frameworks.forEach((framework) => {
-  fixture`${framework} ${title}`.page`${url}${framework}.html`.beforeEach(
+  fixture`${framework} ${title}`.page`${url}${framework}`.beforeEach(
     async (ctx) => {
       await initSurvey(framework, json);
     }
@@ -315,53 +315,5 @@ frameworks.forEach((framework) => {
     await enableHasSelectAll();
     await setData();
     assert.equal(await isSelectAllChecked(), true);
-  });
-});
-
-frameworks.forEach((framework) => {
-  fixture`${framework} ${title}`.page`${url}${framework}.html`.beforeEach(
-    async (t) => {
-      await initSurvey(framework, json, undefined, true);
-    }
-  );
-
-  test(`click on question title state editable`, async (t) => {
-    var newTitle = 'MyText';
-    var json = JSON.parse(await getQuestionJson());
-    var questionValue = await getQuestionValue();
-    assert.equal(questionValue.length, 0);
-  
-    var outerSelector = `.sv_q_title`;
-    var innerSelector = `.sv-string-editor`
-    await t
-      .click(outerSelector)
-      .selectEditableContent(outerSelector + ` ` + innerSelector)
-      .typeText(outerSelector + ` ` + innerSelector, newTitle)
-      .click(`body`, { offsetX: 0, offsetY: 0 });
-
-    questionValue = await getQuestionValue();
-    assert.equal(questionValue.length, 0);
-    var json = JSON.parse(await getQuestionJson());
-    assert.equal(json.title, newTitle);
-  });
-
-  test(`click on checkbox title state editable`, async (t) => {
-    var newTitle = 'MyText';
-    var json = JSON.parse(await getQuestionJson());
-    var questionValue = await getQuestionValue();
-    assert.equal(questionValue.length, 0);
-  
-    var outerSelector = `.sv_q_checkbox_control_label`;
-    var innerSelector = `.sv-string-editor`
-    await t
-      .click(outerSelector)
-      .selectEditableContent(outerSelector + ` ` + innerSelector)
-      .typeText(outerSelector + ` ` + innerSelector, newTitle)
-      .click(`body`, { offsetX: 0, offsetY: 0 });
-
-    questionValue = await getQuestionValue();
-    assert.equal(questionValue.length, 0);
-    var json = JSON.parse(await getQuestionJson());
-    assert.equal(json.choices[0].text, newTitle);
   });
 });

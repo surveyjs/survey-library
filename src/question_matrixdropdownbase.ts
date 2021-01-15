@@ -67,7 +67,6 @@ export interface IMatrixDropdownData {
   ): Question;
   getLocale(): string;
   getMarkdownHtml(text: string, name: string): string;
-  getRenderer(name: string): string;
   getProcessedText(text: string): string;
   getSharedQuestionByName(
     columnName: string,
@@ -474,9 +473,6 @@ export class MatrixDropdownColumn extends Base implements ILocalizableOwner {
   }
   public getMarkdownHtml(text: string, name: string): string {
     return this.colOwner ? this.colOwner.getMarkdownHtml(text, name) : null;
-  }
-  public getRenderer(name: string): string {
-    return !!this.colOwner ? this.colOwner.getRenderer(name) : null;
   }
   public getProcessedText(text: string): string {
     return this.colOwner ? this.colOwner.getProcessedText(text) : text;
@@ -1030,9 +1026,6 @@ export class MatrixDropdownRowModelBase
   }
   public getMarkdownHtml(text: string, name: string): string {
     return this.data ? this.data.getMarkdownHtml(text, name) : null;
-  }
-  public getRenderer(name: string): string {
-    return this.data ? this.data.getRenderer(name) : null;
   }
   public getProcessedText(text: string): string {
     return this.data ? this.data.getProcessedText(text) : text;

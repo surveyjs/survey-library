@@ -6,7 +6,6 @@ export interface ILocalizableOwner {
   getLocale(): string;
   getMarkdownHtml(text: string, name: string): string;
   getProcessedText(text: string): string;
-  getRenderer(name: string): string;
 }
 /**
  * The class represents the string that supports multi-languages and markdown.
@@ -20,8 +19,6 @@ export class LocalizableString {
   public static set defaultLocale(val: string) {
     settings.defaultLocaleName = val;
   }
-  public static defaultRenderer = "sv-string-viewer";
-  public static editableRenderer = "sv-string-editor";
   private values = {};
   private htmlValues = {};
   private renderedText: string = null;
@@ -178,15 +175,6 @@ export class LocalizableString {
       }
     }
     this.strChanged();
-  }
-  public get renderAs() : string {
-    if (!this.owner) {
-      return LocalizableString.defaultRenderer;
-    }
-    if (typeof this.owner.getRenderer !== "function") {
-      return LocalizableString.defaultRenderer;
-    }
-    return this.owner.getRenderer(this.name) || LocalizableString.defaultRenderer;
   }
   public equals(obj: any): boolean {
     if (!!this.sharedData) return this.sharedData.equals(obj);

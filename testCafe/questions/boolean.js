@@ -1,4 +1,4 @@
-import { frameworks, url, initSurvey, getQuestionValue, getQuestionJson } from "../settings";
+import { frameworks, url, initSurvey } from "../settings";
 import { ClientFunction } from "testcafe";
 const assert = require("assert");
 const title = `boolean`;
@@ -15,9 +15,8 @@ var json = {
   ],
 };
 
-
 frameworks.forEach((framework) => {
-  fixture`${framework} ${title}`.page`${url}${framework}.html`.beforeEach(
+  fixture`${framework} ${title}`.page`${url}${framework}`.beforeEach(
     async (t) => {
       await initSurvey(framework, json);
     }
@@ -37,6 +36,10 @@ frameworks.forEach((framework) => {
     await t.click(`div label`);
 
     await t.expect(isCheckedClassExists()).eql(true);
+  });
+
+  const getQuestionValue = ClientFunction(() => {
+    return survey.getAllQuestions()[0].value;
   });
 
   test(`click on true label in intermediate state`, async (t) => {
@@ -70,72 +73,4 @@ frameworks.forEach((framework) => {
 
     assert.equal(await getQuestionValue(), false);
   });
-});
-
-
-frameworks.forEach((framework) => {
-  fixture`${framework} ${title}`.page`${url}${framework}.html`.beforeEach(
-    async (t) => {
-      await initSurvey(framework, json, undefined, true);
-    }
-  );
-
-  test(`click on question title state editable`, async (t) => {
-    var newTitle = 'MyText';
-    var json = JSON.parse(await getQuestionJson());
-    assert.equal(await getQuestionValue(), null);
-  
-    var outerSelector = `.sv_q_title`;
-    var innerSelector = `.sv-string-editor`
-    await t
-      .click(outerSelector)
-      .selectEditableContent(outerSelector + ` ` + innerSelector)
-      .typeText(outerSelector + ` ` + innerSelector, newTitle)
-      .click(`body`);
-
-    assert.equal(await getQuestionValue(), null);
-    var json = JSON.parse(await getQuestionJson());
-    assert.equal(json.title, newTitle);
-  });
-
-  test(`click on true label in intermediate state editable`, async (t) => {
-    var newLabelTrue = 'MyText';
-    var json = JSON.parse(await getQuestionJson());
-    var labelFalse = json.labelFalse;
-    assert.equal(await getQuestionValue(), null);
-  
-    var outerSelector = `.sv-boolean__label:nth-of-type(2)`;
-    var innerSelector = `.sv-string-editor`
-    await t
-      .click(outerSelector)
-      .selectEditableContent(outerSelector + ` ` + innerSelector)
-      .typeText(outerSelector + ` ` + innerSelector, newLabelTrue)
-      .click(`body`);
-
-    assert.equal(await getQuestionValue(), null);
-    var json = JSON.parse(await getQuestionJson());
-    assert.equal(json.labelFalse, labelFalse);
-    assert.equal(json.labelTrue, newLabelTrue);
-  });  
-
-  test(`click on false label in intermediate state editable`, async (t) => {
-    var newLabelFalse = 'MyText';
-    var json = JSON.parse(await getQuestionJson());
-    var labelTrue = json.labelTrue;
-    assert.equal(await getQuestionValue(), null);
-  
-    var outerSelector = `.sv-boolean__label:nth-of-type(1)`;
-    var innerSelector = `.sv-string-editor`
-    await t
-      .click(outerSelector)
-      .selectEditableContent(outerSelector + ` ` + innerSelector)
-      .typeText(outerSelector + ` ` + innerSelector, newLabelFalse)
-      .click(`body`);
-
-    assert.equal(await getQuestionValue(), null);
-    var json = JSON.parse(await getQuestionJson());
-    assert.equal(json.labelFalse, newLabelFalse);
-    assert.equal(json.labelTrue, labelTrue);
-  });
-
 });

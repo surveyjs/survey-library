@@ -1,4 +1,8 @@
 <script type="text/html" id="survey-string">
-    <!-- ko component: { name: renderAs, params: { locString: $data } } -->
+    <!-- ko ifnot: koHasHtml -->
+    <span style="position: static;" data-bind="text: koRenderedHtml"></span>
+    <!-- /ko -->
+    <!-- ko if: koHasHtml -->
+    <span style="position: static;" data-bind="html: koRenderedHtml"></span>
     <!-- /ko -->
 </script>

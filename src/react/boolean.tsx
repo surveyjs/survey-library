@@ -116,7 +116,7 @@ export class SurveyQuestionBoolean extends SurveyQuestionElementBase {
             className={this.getLabelClass(false)}
             onClick={(event) => this.handleOnLabelClick(event, false)}
           >
-            {this.renderLocString(this.question.locLabelFalse)}
+            {this.question.locLabelFalse.renderedHtml}
           </span>
           <div className={cssClasses.switch} onClick={this.handleOnSwitchClick}>
             <span className={cssClasses.slider} />
@@ -125,7 +125,7 @@ export class SurveyQuestionBoolean extends SurveyQuestionElementBase {
             className={this.getLabelClass(true)}
             onClick={(event) => this.handleOnLabelClick(event, true)}
           >
-            {this.renderLocString(this.question.locLabelTrue)}
+            {this.question.locLabelTrue.renderedHtml}
           </span>
         </label>
       </div>

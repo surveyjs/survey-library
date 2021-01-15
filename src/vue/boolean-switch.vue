@@ -15,11 +15,11 @@
         :aria-invalid="question.errors.length > 0"
         :aria-describedby="question.errors.length > 0 ? question.id + '_errors' : null"  
       />
-      <span :class="getLabelClass(false)" v-on:click="onLabelClick($event, false)"><survey-string :locString="question.locLabelFalse"></survey-string></span>
+      <span :class="getLabelClass(false)" v-on:click="onLabelClick($event, false)">{{question.locLabelFalse.renderedHtml}}</span>
       <div :class="question.cssClasses.switch" v-on:click="onSwitchClick($event)">
         <span :class="question.cssClasses.slider" />
       </div>
-      <span :class="getLabelClass(true)" v-on:click="onLabelClick($event, true)"><survey-string :locString="question.locLabelTrue"></survey-string></span>
+      <span :class="getLabelClass(true)" v-on:click="onLabelClick($event, true)">{{question.locLabelTrue.renderedHtml}}</span>
     </label>
   </div>
 </template>

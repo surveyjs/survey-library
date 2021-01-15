@@ -61,8 +61,6 @@ export * from "../knockout/components/popup/popup";
 export * from "../knockout/components/progress/buttons";
 export * from "../knockout/components/progress/progress";
 export * from "../knockout/components/title-actions/title-actions";
-export * from "../knockout/components/string-editor";
-export * from "../knockout/components/string-viewer";
 
 //Uncomment to include the "date" question type.
 //export {QuestionDate} from "../plugins/knockout/koquestion_date";

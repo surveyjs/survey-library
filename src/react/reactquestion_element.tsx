@@ -4,7 +4,38 @@ import { LocalizableString } from "../localizablestring";
 import { Question } from "../question";
 import { ISurveyCreator } from "./reactquestion";
 import { Base, ITitleOwner, ArrayChanges } from "../base";
-import { ReactElementFactory } from "./element-factory";
+
+export class SurveyLocString extends React.Component<any, any> {
+  constructor(props: any) {
+    super(props);
+    this.state = { changed: 0 };
+  }
+  private get locStr(): LocalizableString {
+    return this.props.locStr;
+  }
+  private get style(): any {
+    return this.props.style;
+  }
+  componentDidMount() {
+    if (!this.locStr) return;
+    var self = this;
+    this.locStr.onChanged = function () {
+      self.setState({ changed: self.state.changed + 1 });
+    };
+  }
+  componentWillUnmount() {
+    if (!this.locStr) return;
+    this.locStr.onChanged = function () {};
+  }
+  render(): JSX.Element {
+    if (!this.locStr) return null;
+    if (this.locStr.hasHtml) {
+      let htmlValue = { __html: this.locStr.renderedHtml };
+      return <span style={this.style} dangerouslySetInnerHTML={htmlValue} />;
+    }
+    return <span style={this.style}>{this.locStr.renderedHtml}</span>;
+  }
+}
 
 export class SurveyElementBase extends React.Component<any, any> {
   public static renderLocString(
@@ -12,7 +43,7 @@ export class SurveyElementBase extends React.Component<any, any> {
     style: any = null,
     key?: string
   ): JSX.Element {
-    return ReactElementFactory.Instance.createElement(locStr.renderAs, { locStr: locStr, style: style, key: key } );
+    return <SurveyLocString locStr={locStr} style={style} key={key} />;
   }
   private isRenderingValue: boolean;
   private changedStatePropNameValue: string;

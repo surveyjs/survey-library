@@ -1694,13 +1694,6 @@ export class Question
       ? this.locOwner.getMarkdownHtml(text, name)
       : null;
   }
-  public getRenderer(name: string): string {
-      return this.survey && typeof this.survey.getRendererForString === "function"
-        ? this.survey.getRendererForString(this, name)
-        : this.locOwner && typeof this.locOwner.getRenderer === "function"
-        ? this.locOwner.getRenderer(name)
-        : null;
-  }
   public getProcessedText(text: string): string {
     if (this.textProcessor)
       return this.textProcessor.processText(text, this.useDisplayValuesInTitle);

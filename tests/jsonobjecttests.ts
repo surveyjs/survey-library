@@ -25,9 +25,6 @@ class Car extends Base implements ILocalizableOwner {
   getMarkdownHtml(text: string): string {
     return text;
   }
-  getRenderer(name: string): string {
-    return undefined;
-  }
   getProcessedText(text: string): string {
     return text;
   }

@@ -23,8 +23,6 @@ export { VueSurveyWindowModel as WindowModel };
 export { Survey } from "../vue/survey.vue";
 export { CustomWidget } from "../vue/customwidget.vue";
 export { SurveyString } from "../vue/string.vue";
-export { SurveyStringViewer } from "../vue/string-viewer.vue";
-export { SurveyStringEditor } from "../vue/string-editor.vue";
 export { SurveyElementVue } from "../vue/element.vue";
 export { Window } from "../vue/window.vue";
 export { Page } from "../vue/page.vue";

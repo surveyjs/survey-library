@@ -31,7 +31,9 @@
               :class="question.getItemClass(row, column)"
               v-on:click="cellClick(row, column)"
             >
-              <survey-string :locString="question.getCellDisplayLocText(row.name, column)"></survey-string>
+              <span>{{
+                question.getCellDisplayLocText(row.name, column).renderedHtml
+              }}</span>
             </td>
             <td
               v-if="!question.hasCellText"

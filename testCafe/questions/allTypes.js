@@ -156,6 +156,10 @@ const applyTheme = ClientFunction((theme) => {
       await initSurvey(framework, json);
     });
     test("check survey will all types", async (t) => {
+
+      var editable = Selector(".sv-string-editor");
+      await t.expect(editable.exists).notOk("There should not be any editable elements outside design mode");
+
       await t.typeText(
         Selector("[aria-label='text_question']")
           .parent("[aria-labelledby]")
@@ -309,3 +313,5 @@ const applyTheme = ClientFunction((theme) => {
     });
   });
 });
+
+

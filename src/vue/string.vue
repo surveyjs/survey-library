@@ -1,8 +1,5 @@
 <template>
-    <span style="position: static;">
-        <span style="position: static;" v-if="locString.hasHtml" v-html="locString.renderedHtml"></span>
-        <span style="position: static;" v-else>{{locString.renderedHtml}}</span>
-    </span>
+    <component :is="locString.renderAs" :locString="locString" />
 </template>
 
 <script lang="ts">

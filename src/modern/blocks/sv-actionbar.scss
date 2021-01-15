@@ -165,9 +165,18 @@ sv-action-bar {
 }
 
 .sv-dots__item {
+  width: 100%;
   &:hover {
     background-color: inherit;
   }
+  .sv-action-bar-item__icon {
+    margin: auto;
+  }
+}
+
+.sv-action {
+  display: flex;
+  align-items: center;
 }
 
 .sv-action--hidden {

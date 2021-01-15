@@ -73,7 +73,7 @@ export interface IActionBarItem {
  * The toolbar item description.
  */
 
-export class ResponsibleElement {
+export class AdaptiveElement {
   public items: ko.ObservableArray<any> = ko.observableArray();
   public invisibleItems: ko.ObservableArray<any> = ko.observableArray();
   protected dotsItem = {
@@ -83,6 +83,7 @@ export class ResponsibleElement {
     innerCss: "sv-dots__item",
     iconName: "icon-dots",
     isVisible: () => true,
+    showTitle: false,
     verticalPosition: "bottom",
     horizontalPosition: "left",
     action: (item: any) => {
@@ -115,7 +116,7 @@ export class ResponsibleElement {
   };
 }
 
-export class ActionBarViewModel extends ResponsibleElement {
+export class ActionBarViewModel extends AdaptiveElement {
   public itemsSubscription: ko.Computed;
   private _showTitles = ko.observable(true);
 

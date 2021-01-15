@@ -11,6 +11,7 @@ ko.components.register("sv-action-bar-item-dropdown", {
       return {
         id: params.item.id,
         title: params.item.title,
+        showTitle: params.item.showTitle,
         innerCss: params.item.innerCss,
         css: params.item.css,
         iconName: params.item.iconName,

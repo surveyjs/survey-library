@@ -2640,7 +2640,7 @@ QUnit.test("String format", function (assert) {
   var strResult = surveyLocalization.getString("textMinLength")["format"](10);
   assert.equal(
     strResult,
-    "Please enter at least 10 characters.",
+    "Please enter at least 10 character(s).",
     "The format string is working"
   );
 });
@@ -12266,3 +12266,50 @@ QUnit.test("Check onGetQuestionTitleActions event", (assert) => {
   });
   assert.deepEqual(panel.getTitleActions(), testActions);
 });
+QUnit.test(
+  "Stackoverflow error, https://surveyjs.answerdesk.io//ticket/details/T6023, Bug#2598",
+  (assert) => {
+    var survey = new SurveyModel({
+      elements: [
+        {
+          type: "boolean",
+          name: "q1",
+        },
+        {
+          type: "matrixdynamic",
+          name: "q2",
+          columns: [
+            {
+              name: "q3",
+              visibleIf: "{q1} = true",
+            },
+          ],
+          rowCount: 1,
+        },
+      ],
+      progressBarType: "buttons",
+    });
+    assert.ok(survey.getQuestionByName("q1"), "Do not produce stack-overflow");
+  }
+);
+QUnit.test(
+  "Do not create otherItem in image picker on loading it from JSON, even if hasOther is true, Bug#2603",
+  (assert) => {
+    var survey = new SurveyModel({
+      elements: [
+        {
+          type: "radiogroup",
+          name: "q1",
+          hasOther: true,
+          choices: ["item1", "item2", "item3"],
+        },
+      ],
+    });
+    var q1 = <QuestionRadiogroupModel>survey.getQuestionByName("q1");
+    assert.equal(q1.visibleChoices.length, 4, "There are 4 items");
+    var json = q1.toJSON();
+    var q2 = new QuestionImagePickerModel("q2");
+    q2.fromJSON(json);
+    assert.equal(q2.visibleChoices.length, 3, "There are 3 items");
+  }
+);

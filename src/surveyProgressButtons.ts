@@ -19,12 +19,10 @@ export class SurveyProgressButtonsModel {
       this.survey.currentPageNo = visibleIndex;
     }
     else if (visibleIndex > this.survey.currentPageNo) {
-      let i: number = this.survey.currentPageNo;
-      for (; i < visibleIndex; i++) {
-        if (this.survey.visiblePages[i].hasErrors(true, true)) break;
+      for (let i: number = this.survey.currentPageNo; i < visibleIndex; i++) {
+        if (!this.survey.nextPage()) break;
         this.survey.visiblePages[i].passed = true;
       }
-      this.survey.currentPageNo = i;
     }
   }
 }

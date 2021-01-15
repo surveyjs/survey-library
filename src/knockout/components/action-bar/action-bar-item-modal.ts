@@ -5,7 +5,7 @@ import { IActionBarItem } from "./action-bar";
 const template = require("./action-bar-item-modal.html");
 
 export class ActionBarItemModalViewModel {
-  public koIsVisible = ko.observable(false);
+  public koIsVisible: any = ko.observable(false);
 
   constructor(private _item: IActionBarItem) {}
 

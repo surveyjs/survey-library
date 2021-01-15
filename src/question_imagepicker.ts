@@ -66,6 +66,9 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
   public get isCompositeQuestion(): boolean {
     return true;
   }
+  public supportOther(): boolean {
+    return false;
+  }
   /**
    * Multi select option. If set to true, then allows to select multiple images.
    */

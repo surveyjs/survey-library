@@ -211,9 +211,11 @@ QUnit.test(
   }
 );
 
-QUnit.test("survey.clearIncorrectValues with parameter removeNonExisingRootKeys", function (assert) {
-  var json = {
-    elements: [
+QUnit.test(
+  "survey.clearIncorrectValues with parameter removeNonExisingRootKeys",
+  function (assert) {
+    var json = {
+      elements: [
         {
           type: "text",
           name: "q1",
@@ -222,28 +224,153 @@ QUnit.test("survey.clearIncorrectValues with parameter removeNonExisingRootKeys"
           type: "text",
           name: "q2",
         },
+      ],
+      calculatedValues: [
+        { name: "val1", expression: "{q1} + {q2}", includeIntoResult: true },
+      ],
+    };
+    var survey = new SurveyModel(json);
+    var calcValue = survey.getCalculatedValueByName("val1");
+    assert.ok(calcValue, "Calc value is here");
+    survey.setValue("q1", "v1");
+    survey.setValue("q2", "v2");
+    survey.setValue("q3", "v3");
+    survey.setValue("val3", "v4");
+    assert.deepEqual(
+      survey.data,
+      { q1: "v1", q2: "v2", q3: "v3", val1: "v1v2", val3: "v4" },
+      "values set correctly"
+    );
+    survey.clearIncorrectValues(true);
+    assert.deepEqual(
+      survey.data,
+      { q1: "v1", q2: "v2", val1: "v1v2" },
+      "Remove q3 and val3 keys"
+    );
+  }
+);
+
+QUnit.test("Compete trigger and calculatedValues, Bug#2595", function (assert) {
+  var json = {
+    pages: [
+      {
+        elements: [
+          {
+            type: "text",
+            name: "q1",
+          },
+          {
+            type: "text",
+            name: "q2",
+          },
+        ],
+      },
+      {
+        elements: [
+          {
+            type: "text",
+            name: "q3",
+          },
+        ],
+      },
     ],
     calculatedValues: [
-      {name: "val1", expression: "{q1} + {q2}", includeIntoResult: true }
-    ]
+      {
+        name: "result",
+        expression: "iif({q1} = 'val1', 'screenout', 'complete')",
+        includeIntoResult: true,
+      },
+    ],
+    triggers: [
+      {
+        type: "complete",
+        expression: "{result} = 'screenout'",
+      },
+    ],
   };
   var survey = new SurveyModel(json);
-  var calcValue = survey.getCalculatedValueByName("val1");
-  assert.ok(calcValue, "Calc value is here");
-  survey.setValue("q1", "v1");
-  survey.setValue("q2", "v2");
-  survey.setValue("q3", "v3");
-  survey.setValue("val3", "v4");
-  assert.deepEqual(
-    survey.data,
-    { q1: "v1", q2: "v2", q3: "v3", val1: "v1v2", val3: "v4" },
-    "values set correctly"
+  assert.equal(
+    survey.calculatedValues.length,
+    1,
+    "There is one calcualted values"
   );
-  survey.clearIncorrectValues(true);
-  assert.deepEqual(
-    survey.data,
-    { q1: "v1", q2: "v2", val1: "v1v2",  },
-    "Remove q3 and val3 keys"
-  );
+  var calcValue: CalculatedValue = survey.calculatedValues[0];
+  assert.equal(calcValue.name, "result", "calcValue is here");
+  var isCompleteOnTrigger = false;
+  survey.onComplete.add(function (sender, options) {
+    isCompleteOnTrigger = options.isCompleteOnTrigger;
+  });
+  survey.setValue("q1", "val1");
+  survey.nextPage();
+  assert.equal(survey.state, "completed", "survey is completed");
+  assert.equal(isCompleteOnTrigger, true, "complete on trigger");
 });
 
+QUnit.test(
+  "Survey.onPropertyValueChangedCallback for calculatedValues, Bug#2604",
+  function (assert) {
+    var json = {
+      questions: [
+        {
+          type: "text",
+          name: "q1",
+        },
+      ],
+      calculatedValues: [
+        {
+          name: "var1",
+          expression: "1+2",
+        },
+      ],
+    };
+    var survey = new SurveyModel(json);
+    var counter = 0;
+    var propName = null;
+    var testOldValue = null;
+    var testNewValue = null;
+    var senderType = null;
+
+    survey.onPropertyValueChangedCallback = (
+      name: string,
+      oldValue: any,
+      newValue: any,
+      sender: any,
+      arrayChanges: any
+    ) => {
+      if (name != "name" && name != "expression") return;
+      counter++;
+      propName = name;
+      testOldValue = oldValue;
+      testNewValue = newValue;
+      senderType = sender.getType();
+    };
+
+    assert.equal(counter, 0, "initial");
+    survey.calculatedValues[0].name = "var2";
+    assert.equal(counter, 1, "calculdatedValue: callback called");
+    assert.equal(
+      propName,
+      "name",
+      "calculdatedValue: property name is correct"
+    );
+    assert.equal(testOldValue, "var1", "calculdatedValue: oldValue is correct");
+    assert.equal(testNewValue, "var2", "calculdatedValue: newValue is correct");
+    survey.calculatedValues[0].expression = "1+2+3";
+    assert.equal(counter, 2, "calculdatedValue: callback called #2");
+    assert.equal(
+      propName,
+      "expression",
+      "calculdatedValue: property name is correct #2"
+    );
+    assert.equal(
+      testOldValue,
+      "1+2",
+      "calculdatedValue: oldValue is correct #2"
+    );
+    assert.equal(
+      testNewValue,
+      "1+2+3",
+      "calculdatedValue: newValue is correct #2"
+    );
+  }
+);

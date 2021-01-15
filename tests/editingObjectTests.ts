@@ -293,3 +293,29 @@ QUnit.test(
     assert.equal(question.columns[0].name, "col3", "column name is changed");
   }
 );
+QUnit.test("Edit question string[] property type", function (assert) {
+  var question = new QuestionTextModel("q1");
+  question.dataList = ["item1", "item2"];
+  var survey = new SurveyModel({
+    elements: [{ type: "comment", name: "dataList" }],
+  });
+  var dataListQuestion = survey.getQuestionByName("dataList");
+  dataListQuestion.valueFromDataCallback = function (val: any): any {
+    if (!Array.isArray(val)) return "";
+    return val.join("\n");
+  };
+  dataListQuestion.valueToDataCallback = function (val: any): any {
+    if (!val) return [];
+    return val.split("\n");
+  };
+  survey.editingObj = question;
+  assert.deepEqual(
+    survey.getValue("dataList"),
+    ["item1", "item2"],
+    "string[] property get correctly value"
+  );
+  assert.equal(dataListQuestion.value, "item1\nitem2");
+  dataListQuestion.value = "item1\nitem2\nitem3";
+  assert.equal(question.dataList.length, 3, "There are three items now");
+  assert.equal(question.dataList[2], "item3", "The third item is 'item3'");
+});

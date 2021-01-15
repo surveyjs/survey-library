@@ -175,6 +175,7 @@ export class Trigger extends Base {
     var processValue = new ProcessValue();
     for (var i = 0; i < this.usedNames.length; i++) {
       var name = this.usedNames[i];
+      if (keys.hasOwnProperty(name)) return true;
       var firstName = processValue.getFirstName(name);
       if (!keys.hasOwnProperty(firstName)) continue;
       if (name == firstName) return true;

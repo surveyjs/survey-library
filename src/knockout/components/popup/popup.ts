@@ -4,19 +4,19 @@ import { surveyLocalization } from "../../../surveyStrings";
 const template = require("html-loader?interpolate!val-loader!./popup.html");
 
 export class PopupViewModel {
-  public top = ko.observable();
-  public left = ko.observable();
-  public popupDirection = ko.observable<string>();
-  public pointerTarget = ko.observable<object>({});
+  public top: any = ko.observable();
+  public left: any = ko.observable();
+  public popupDirection: any = ko.observable<string>();
+  public pointerTarget: any = ko.observable<object>({});
 
   private container: HTMLElement;
-  private showSubscription: ko.Subscription;
+  private showSubscription: any;
 
   constructor(
     public contentComponentName: string,
     public contentComponentData: any,
     public contentTemplateName: string,
-    public isVisible: ko.Observable<boolean>,
+    public isVisible: any,
     public verticalPosition: "top" | "bottom" | "middle",
     public horizontalPosition: "left" | "right" | "center",
     public showPointer: boolean,
@@ -33,7 +33,7 @@ export class PopupViewModel {
     this.container.innerHTML = template;
     ko.applyBindings(this, this.container);
 
-    this.showSubscription = this.isVisible.subscribe((isVisible) => {
+    this.showSubscription = this.isVisible.subscribe((isVisible: any) => {
       this.onIsVisibleChanged(isVisible);
     });
   }

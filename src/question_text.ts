@@ -1,7 +1,7 @@
 import { QuestionFactory } from "./questionfactory";
 import { Serializer } from "./jsonobject";
 import { Question } from "./question";
-import { LocalizableString } from "./localizablestring";
+import { LocalizableString, LocalizableStrings } from "./localizablestring";
 import { Helpers } from "./helpers";
 import { EmailValidator, SurveyValidator } from "./validator";
 
@@ -9,9 +9,11 @@ import { EmailValidator, SurveyValidator } from "./validator";
  * A Model for an input text question.
  */
 export class QuestionTextModel extends Question {
+  private locDataListValue: LocalizableStrings;
   constructor(public name: string) {
     super(name);
     this.createLocalizableString("placeHolder", this);
+    this.locDataListValue = new LocalizableStrings(this);
     this.registerFunctionOnPropertiesValueChanged(
       ["min", "max", "inputType", "minValueExpression", "maxValueExpression"],
       () => {
@@ -179,6 +181,9 @@ export class QuestionTextModel extends Question {
   public set step(val: string) {
     this.setPropertyValue("step", val);
   }
+  public get renderedStep(): string {
+    return Helpers.isValueEmpty(this.step) ? "any" : this.step;
+  }
   isEmpty(): boolean {
     return super.isEmpty() || this.value === "";
   }
@@ -199,6 +204,21 @@ export class QuestionTextModel extends Question {
   }
   get locPlaceHolder(): LocalizableString {
     return this.getLocalizableString("placeHolder");
+  }
+  /**
+   * The list of recommended options available to choose.
+   */
+  public get dataList(): Array<string> {
+    return this.locDataList.value;
+  }
+  public set dataList(val: Array<string>) {
+    this.locDataList.value = val;
+  }
+  get locDataList(): LocalizableStrings {
+    return this.locDataListValue;
+  }
+  public get dataListId(): string {
+    return !this.locDataList.isEmpty ? this.id + "_datalist" : "";
   }
   protected canRunValidators(isOnValueChanged: boolean): boolean {
     return (
@@ -371,7 +391,24 @@ Serializer.addClass(
       },
     },
     { name: "maxLength:number", default: -1 },
-    { name: "placeHolder", serializationProperty: "locPlaceHolder" },
+    {
+      name: "placeHolder",
+      serializationProperty: "locPlaceHolder",
+      dependsOn: "inputType",
+      visibleIf: function (obj: any) {
+        if (!obj) return false;
+        return obj.inputType === "text";
+      },
+    },
+    {
+      name: "dataList:string[]",
+      serializationProperty: "locDataList",
+      dependsOn: "inputType",
+      visibleIf: function (obj: any) {
+        if (!obj) return false;
+        return obj.inputType === "text";
+      },
+    },
   ],
   function () {
     return new QuestionTextModel("");

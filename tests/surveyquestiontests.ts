@@ -4280,6 +4280,50 @@ QUnit.test(
     );
   }
 );
+QUnit.test(
+  "setvalue trigger dosen't work for question name with '.', Bug#2597",
+  function (assert) {
+    var survey = new SurveyModel({
+      elements: [
+        {
+          type: "dropdown",
+          name: "question.name1",
+          choices: ["item1", "item2", "item3", "item4"],
+        },
+        {
+          type: "text",
+          name: "question.name2",
+        },
+      ],
+      triggers: [
+        {
+          type: "setvalue",
+          expression: "{question.name1} anyof ['item1', 'item2']",
+          setToName: "question.name2",
+          setValue: "one",
+        },
+        {
+          type: "setvalue",
+          expression: "{question.name1} anyof ['item3', 'item4']",
+          setToName: "question.name2",
+          setValue: "two",
+        },
+      ],
+    });
+    survey.setValue("question.name1", ["item1"]);
+    assert.equal(
+      survey.getValue("question.name2"),
+      "one",
+      "trigger one works correctly"
+    );
+    survey.setValue("question.name1", ["item3"]);
+    assert.equal(
+      survey.getValue("question.name2"),
+      "two",
+      "trigger two works correctly"
+    );
+  }
+);
 QUnit.test("maxSelectedChoices in checkbox", function (assert) {
   var survey = new SurveyModel({
     elements: [
@@ -4486,3 +4530,35 @@ QUnit.test(
     assert.equal(q2.visibleChoices.length, 3, "Get choices from q2");
   }
 );
+QUnit.test("text question dataList", function (assert) {
+  var survey = new SurveyModel({
+    elements: [
+      { type: "text", name: "q1", dataList: ["abc", "def", "ghk"] },
+      { type: "text", name: "q2" },
+    ],
+  });
+  var q1 = <QuestionTextModel>survey.getQuestionByName("q1");
+  var q2 = <QuestionTextModel>survey.getQuestionByName("q2");
+  assert.deepEqual(q1.dataList, ["abc", "def", "ghk"]);
+  assert.equal(q1.dataListId, q1.id + "_datalist");
+  assert.deepEqual(q2.dataList, []);
+  assert.equal(q2.dataListId, "");
+  q2.dataList = ["item1", "item2"];
+  assert.deepEqual(
+    q2.dataList,
+    ["item1", "item2"],
+    "Set from the code correctly"
+  );
+});
+QUnit.test("text question renderedStep", function (assert) {
+  var survey = new SurveyModel({
+    elements: [
+      { type: "text", inputType: "number", name: "q1" },
+      { type: "text", inputType: "number", name: "q2", step: 0.2 },
+    ],
+  });
+  var q1 = <QuestionTextModel>survey.getQuestionByName("q1");
+  var q2 = <QuestionTextModel>survey.getQuestionByName("q2");
+  assert.equal(q1.renderedStep, "any", "Default value is 'any'");
+  assert.equal(q2.renderedStep, 0.2, "get value from step");
+});

@@ -68,6 +68,8 @@ export class Question
   validateValueCallback: () => SurveyError;
   questionTitleTemplateCallback: () => string;
   afterRenderQuestionCallback: (question: Question, element: any) => any;
+  valueFromDataCallback: (val: any) => any;
+  valueToDataCallback: (val: any) => any;
   private locProcessedTitle: LocalizableString;
   protected isReadyValue: boolean = true;
 
@@ -1578,6 +1580,9 @@ export class Question
   protected setValueCore(newValue: any) {
     this.setQuestionValue(newValue);
     if (this.data != null) {
+      if (!!this.valueToDataCallback) {
+        newValue = this.valueToDataCallback(newValue);
+      }
       this.data.setValue(
         this.getValueName(),
         newValue,
@@ -1610,6 +1615,9 @@ export class Question
   //IQuestion
   updateValueFromSurvey(newValue: any) {
     newValue = this.getUnbindValue(newValue);
+    if (!!this.valueFromDataCallback) {
+      newValue = this.valueFromDataCallback(newValue);
+    }
     this.setQuestionValue(this.valueFromData(newValue));
   }
   updateCommentFromSurvey(newValue: any): any {
@@ -1704,7 +1712,7 @@ export class Question
   }
 
   public getTitleActions(): Array<any> {
-    var titleActions = super.getTitleActions()
+    var titleActions = super.getTitleActions();
     this.titleActions = this.survey.getUpdatedQuestionTitleActions(
       this,
       titleActions
@@ -1843,6 +1851,5 @@ Serializer.addClass("question", [
     },
   },
   { name: "renderAs", default: "default", visible: false },
-  { name: "renderTitleAs", default: "default", visible: false },
 ]);
 Serializer.addAlterNativeClassName("question", "questionbase");

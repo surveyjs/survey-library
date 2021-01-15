@@ -56,6 +56,7 @@ import {
 import { ArrayChanges } from "../src/base";
 import { settings } from "../src/settings";
 import { CalculatedValue } from "../src/calculatedValue";
+import { LocalizableString } from "../src/localizablestring";
 
 export default QUnit.module("Survey");
 
@@ -12329,3 +12330,46 @@ QUnit.test(
     assert.equal(q2.visibleChoices.length, 3, "There are 3 items");
   }
 );
+
+QUnit.test("onTextRenderAs event", function (assert) {
+  var survey = new SurveyModel();
+  const questionName = 'any question';
+  var locString = new LocalizableString(survey, false, 'name');
+
+  var renderAs = survey.getRenderer(questionName);
+  assert.equal(locString.renderAs, LocalizableString.defaultRenderer);
+  assert.equal(renderAs, undefined);
+
+  survey.setDesignMode(true);
+  renderAs = survey.getRenderer(questionName);
+  assert.equal(locString.renderAs, LocalizableString.editableRenderer);
+  assert.equal(renderAs, LocalizableString.editableRenderer);
+
+  survey.setDesignMode(false);
+  renderAs = survey.getRenderer(questionName);
+  assert.equal(locString.renderAs, LocalizableString.defaultRenderer);
+  assert.equal(renderAs, undefined);
+
+  const customRendererView = 'my-custom-renderer-view';
+  const customRendererEdit = 'my-custom-renderer-edit';
+  survey.onTextRenderAs.add((s,e) => {
+    if (s.isDesignMode)
+      e.renderAs = customRendererEdit;
+    else
+      e.renderAs = customRendererView;
+  });
+
+  renderAs = survey.getRenderer(questionName);
+  assert.equal(locString.renderAs, customRendererView);
+  assert.equal(renderAs, customRendererView);
+
+  survey.setDesignMode(true);
+  renderAs = survey.getRenderer(questionName);
+  assert.equal(locString.renderAs, customRendererEdit);
+  assert.equal(renderAs, customRendererEdit);
+
+  survey.setDesignMode(false);
+  renderAs = survey.getRenderer(questionName);
+  assert.equal(locString.renderAs, customRendererView);
+  assert.equal(renderAs, customRendererView);
+});

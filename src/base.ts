@@ -78,7 +78,7 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner {
   questionCountByValueName(valueName: string): number;
   processHtml(html: string): string;
   getSurveyMarkdownHtml(element: Base, text: string, name: string): string;
-  getRendererForString?(element: Base, name: string): string;
+  getRendererForString(element: Base, name: string): string;
   isDisplayMode: boolean;
   isDesignMode: boolean;
   areInvisibleElementsShowing: boolean;

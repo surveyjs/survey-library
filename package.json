@@ -44,6 +44,7 @@
     "@types/react": "16.9.19",
     "@types/react-dom": "16.9.5",
     "@types/signature_pad": "^2.3.0",
+    "@types/sortablejs": "^1.10.6",
     "ajv": "4.11.2",
     "concurrently": "3.1.0",
     "css-loader": "0.26.1",
@@ -75,6 +76,8 @@
     "replace-in-file": "^3.1.1",
     "rimraf": "2.5.4",
     "sass-loader": "4.1.1",
+    "signature_pad": "^2.3.2",
+    "sortablejs": "^1.13.0",
     "standard-version": "^8.0.1",
     "style-loader": "0.13.1",
     "surveyjs-doc-generator": "git+https://github.com/surveyjs/surveyjs-doc-generator.git",
@@ -99,7 +102,5 @@
       "pre-push": "npm run testsingle"
     }
   },
-  "dependencies": {
-    "signature_pad": "^2.3.2"
-  }
+  "dependencies": {}
 }

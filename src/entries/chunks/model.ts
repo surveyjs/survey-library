@@ -1,6 +1,9 @@
 // styles
 import "../../main.scss";
 import "../../modern.scss";
+import Sortable from "sortablejs";
+
+export {Sortable};
 
 export let Version: string;
 Version = `${process.env.VERSION}`;
@@ -139,6 +142,8 @@ export {
 } from "../../question_custom";
 
 export { StylesManager } from "../../stylesmanager";
+
+
 
 //Uncomment to include the "date" question type.
 //export {default as QuestionDateModel} from "../../plugins/question_date";

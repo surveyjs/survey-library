@@ -1,6 +1,6 @@
 <button
   class="sv-action-bar-item sv-action-bar-item-modal"
-  data-bind="click: function(){koIsVisible(true);}"
+  data-bind="click: function(){show();}"
 >
   <!-- ko if: icon -->
   <svc-svg-icon
@@ -8,9 +8,10 @@
     params="iconName: icon, size: 24"
   ></svc-svg-icon>
   <!-- /ko -->
-
+  <!-- ko if: koWasShown -->
   <sv-popup
-    params="contentComponentName: contentComponentName, contentComponentData: contentComponentData, isVisible: koIsVisible, isModal: true, onCancel: onCancel, onApply: onApply, onShow: onShow, contentTemplateName: contentTemplateName, horizontalPosition: 'left'"
+    params="contentComponentName: contentComponentName, contentComponentData: koData, isVisible: koIsVisible, isModal: true, onCancel: onCancel, onApply: onApply, onShow: onShow, contentTemplateName: contentTemplateName, horizontalPosition: 'left'"
   >
   </sv-popup>
+  <!-- /ko -->
 </button>

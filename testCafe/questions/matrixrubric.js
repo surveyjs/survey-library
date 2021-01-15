@@ -1,7 +1,7 @@
 import { frameworks, url, setOptions, initSurvey, getSurveyResult, getQuestionValue, getQuestionJson } from "../settings";
 import { ClientFunction } from "testcafe";
 const assert = require("assert");
-const title = `matrix`;
+const title = `matrixrubric`;
 
 const json = {
   questions: [
@@ -26,6 +26,36 @@ const json = {
         },
         { value: "easy to use", text: "Product is easy to use" },
       ],
+      cells: {
+        affordable: {
+          1: "1x1",
+          2: "1x2",
+          3: "1x3",
+          4: "1x4",
+          5: "1x3",
+        },
+        "does what it claims": {
+          1: "2x1",
+          2: "2x2",
+          3: "2x3",
+          4: "2x4",
+          5: "2x3",
+        },
+        "better than others": {
+          1: "3x1",
+          2: "3x2",
+          3: "3x3",
+          4: "3x4",
+          5: "3x3",
+        },
+        "easy to use": {
+          1: "4x1",
+          2: "4x2",
+          3: "4x3",
+          4: "4x4",
+          5: "4x3",
+        }
+      }
     },
   ],
 };
@@ -41,7 +71,7 @@ frameworks.forEach((framework) => {
     let surveyResult;
 
     await t
-      .click(`input[name="sq_100_easy_to_use"][value="5"]`)
+      .click(`tbody tr:nth-child(4) td:nth-child(6)`)
       .click(`input[value=Complete]`);
 
     surveyResult = await getSurveyResult();
@@ -52,8 +82,8 @@ frameworks.forEach((framework) => {
     let surveyResult;
 
     await t
-      .click(`input[name="sq_100_does_what_it_claims"][value="4"]`)
-      .click(`input[name="sq_100_easy_to_use"][value="5"]`)
+      .click(`tbody tr:nth-child(2) td:nth-child(5)`)
+      .click(`tbody tr:nth-child(4) td:nth-child(6)`)
       .click(`input[value=Complete]`);
 
     surveyResult = await getSurveyResult();
@@ -82,10 +112,10 @@ frameworks.forEach((framework) => {
     assert.equal(typeof surveyResult, `undefined`);
 
     await t
-      .click(`input[name="sq_100_affordable"][value="3"]`)
-      .click(`input[name="sq_100_does_what_it_claims"][value="4"]`)
-      .click(`input[name="sq_100_better_than_others"][value="2"]`)
-      .click(`input[name="sq_100_easy_to_use"][value="5"]`)
+      .click(`tbody tr:nth-child(1) td:nth-child(4)`)
+      .click(`tbody tr:nth-child(2) td:nth-child(5)`)
+      .click(`tbody tr:nth-child(3) td:nth-child(3)`)
+      .click(`tbody tr:nth-child(4) td:nth-child(6)`)
       .click(`input[value=Complete]`);
 
     surveyResult = await getSurveyResult();
@@ -96,28 +126,6 @@ frameworks.forEach((framework) => {
       "easy to use": "5",
     });
   });
-
-  test(`checked class`, async (t) => {
-    const isCheckedClassExistsByIndex = ClientFunction((index) =>
-      document
-        .querySelector(`fieldset tbody tr td:nth-child(${index + 1}) label`)
-        .classList.contains("checked")
-    );
-
-    assert.equal(await isCheckedClassExistsByIndex(2), false);
-    assert.equal(await isCheckedClassExistsByIndex(3), false);
-
-    await t.click(`input[name="sq_100_affordable"][value="2"]`);
-
-    assert.equal(await isCheckedClassExistsByIndex(2), true);
-    assert.equal(await isCheckedClassExistsByIndex(3), false);
-
-    await t.click(`input[name="sq_100_affordable"][value="3"]`);
-
-    assert.equal(await isCheckedClassExistsByIndex(2), false);
-    assert.equal(await isCheckedClassExistsByIndex(3), true);
-  });
-
   test(`isAnswered for matrix with loading answers from data - #2239`, async (t) => {
     const setData = ClientFunction(
       () =>
@@ -137,7 +145,6 @@ frameworks.forEach((framework) => {
     assert.equal(await getIsAnswered(), true);
   });
 });
-
 
 frameworks.forEach((framework) => {
   fixture`${framework} ${title}`.page`${url}${framework}.html`.beforeEach(
@@ -203,5 +210,24 @@ frameworks.forEach((framework) => {
     assert.equal(questionValue, undefined);
     var json = JSON.parse(await getQuestionJson());
     assert.equal(json.rows[0].text, newTitle);
+  });
+
+  test(`click on cell title state editable`, async (t) => {
+    var newTitle = 'MyText';
+    var json = JSON.parse(await getQuestionJson());
+    var questionValue = await getQuestionValue();
+    assert.equal(questionValue, undefined);
+
+    var selector = `.sv_q_matrix tbody tr:nth-child(4) td:nth-child(6) .sv-string-editor`;
+    await t
+      .click(selector)
+      .selectEditableContent(selector)
+      .typeText(selector, newTitle)
+      .click(`body`, { offsetX: 0, offsetY: 0 });
+
+    questionValue = await getQuestionValue();
+    assert.equal(questionValue, undefined);
+    var json = JSON.parse(await getQuestionJson());
+    assert.equal(json.cells["easy to use"][5], newTitle);
   });
 });

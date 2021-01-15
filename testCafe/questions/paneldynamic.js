@@ -1,4 +1,4 @@
-import { frameworks, url, initSurvey, getSurveyResult } from "../settings";
+import { frameworks, url, initSurvey, getSurveyResult, getQuestionValue, getQuestionJson } from "../settings";
 import { Selector } from "testcafe";
 const assert = require("assert");
 const title = `paneldynamic`;
@@ -142,9 +142,10 @@ const json = {
     }
   ]
 };
+
 //var frameworks_ = ["knockout"];
 frameworks.forEach(framework => {
-  fixture`${framework} ${title}`.page`${url}${framework}`.beforeEach(
+  fixture`${framework} ${title}`.page`${url}${framework}.html`.beforeEach(
     async t => {
       await initSurvey(framework, json);
     }
@@ -240,5 +241,28 @@ frameworks.forEach(framework => {
         }
       ]
     });
+  });
+});
+
+frameworks.forEach((framework) => {
+  fixture`${framework} ${title}`.page`${url}${framework}.html`.beforeEach(
+    async (t) => {
+      await initSurvey(framework, json, undefined, true);
+    }
+  );
+
+  test(`click on panel title state editable`, async (t) => {
+    var newTitle = 'MyText';
+  
+    var outerSelector = `.sv_p_title`;
+    var innerSelector = `.sv-string-editor`
+    await t
+      .click(outerSelector)
+      .selectEditableContent(outerSelector + ` ` + innerSelector)
+      .typeText(outerSelector + ` ` + innerSelector, newTitle)
+      .click(`body`, { offsetX: 0, offsetY: 0 });
+
+    var json = JSON.parse(await getQuestionJson());
+    assert.equal(json.title, newTitle);
   });
 });

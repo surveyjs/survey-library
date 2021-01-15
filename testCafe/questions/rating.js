@@ -1,4 +1,4 @@
-import { frameworks, url, initSurvey, getSurveyResult } from "../settings";
+import { frameworks, url, initSurvey, getSurveyResult, getQuestionValue, getQuestionJson } from "../settings";
 import { Selector, ClientFunction } from "testcafe";
 const assert = require("assert");
 const title = `rating`;
@@ -16,7 +16,7 @@ const json = {
 };
 
 frameworks.forEach(framework => {
-  fixture`${framework} ${title}`.page`${url}${framework}`.beforeEach(
+  fixture`${framework} ${title}`.page`${url}${framework}.html`.beforeEach(
     async t => {
       await initSurvey(framework, json);
     }
@@ -48,4 +48,72 @@ frameworks.forEach(framework => {
       satisfaction: "3"
     });
   });
+});
+
+frameworks.forEach((framework) => {
+  fixture`${framework} ${title}`.page`${url}${framework}.html`.beforeEach(
+    async (t) => {
+      await initSurvey(framework, json, undefined, true);
+    }
+  );
+
+  test(`click on question title state editable`, async (t) => {
+    var newTitle = 'MyText';
+    var json = JSON.parse(await getQuestionJson());
+    assert.equal(await getQuestionValue(), null);
+  
+    var outerSelector = `.sv_q_title`;
+    var innerSelector = `.sv-string-editor`
+    await t
+      .click(outerSelector)
+      .selectEditableContent(outerSelector + ` ` + innerSelector)
+      .typeText(outerSelector + ` ` + innerSelector, newTitle)
+      .click(`body`);
+
+    assert.equal(await getQuestionValue(), null);
+    var json = JSON.parse(await getQuestionJson());
+    assert.equal(json.title, newTitle);
+  });
+
+  test(`click on min label in intermediate state editable`, async (t) => {
+    var newMinText = 'MyText';
+    var json = JSON.parse(await getQuestionJson());
+    var maxText = json.maxRateDescription;
+    assert.equal(await getQuestionValue(), null);
+  
+    var outerSelector = `.sv_q_rating .sv_q_rating_min_text`;
+    var innerSelector = `.sv-string-editor`
+    await t
+      .click(outerSelector)
+      .selectEditableContent(outerSelector + ` ` + innerSelector)
+      .typeText(outerSelector + ` ` + innerSelector, newMinText)
+      .click(`body`);
+
+    assert.equal(await getQuestionValue(), null);
+    var json = JSON.parse(await getQuestionJson());
+    assert.equal(json.minRateDescription, newMinText);
+    assert.equal(json.maxRateDescription, maxText);
+    
+  });  
+
+  test(`click on max label in intermediate state editable`, async (t) => {
+    var newMaxText = 'MyText';
+    var json = JSON.parse(await getQuestionJson());
+    var minText = json.minRateDescription;
+    assert.equal(await getQuestionValue(), null);
+  
+    var outerSelector = `.sv_q_rating .sv_q_rating_max_text`;
+    var innerSelector = `.sv-string-editor`
+    await t
+      .click(outerSelector)
+      .selectEditableContent(outerSelector + ` ` + innerSelector)
+      .typeText(outerSelector + ` ` + innerSelector, newMaxText)
+      .click(`body`);
+
+    assert.equal(await getQuestionValue(), null);
+    var json = JSON.parse(await getQuestionJson());
+    assert.equal(json.minRateDescription, minText);
+    assert.equal(json.maxRateDescription, newMaxText);
+  });
+
 });

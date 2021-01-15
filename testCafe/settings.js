@@ -94,3 +94,6 @@ export const getQuestionJson = ClientFunction(() => {
   return JSON.stringify(survey.getAllQuestions()[0].toJSON());
 });
 
+export const getPanelJson = ClientFunction(() => {
+  return JSON.stringify(survey.getAllPanels()[0].toJSON());
+});

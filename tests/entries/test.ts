@@ -34,6 +34,7 @@ export * from "../questionImagepicker";
 export * from "../questionBoolean";
 export * from "../question_baseselecttests";
 export * from "../question_customtests";
+export * from "../question_ranking";
 
 // localization
 import "../../src/localization/russian";

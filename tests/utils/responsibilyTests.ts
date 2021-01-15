@@ -1,4 +1,4 @@
-import { Model } from "vue-property-decorator";
+import { assign } from "lodash";
 import { ResponsibilityManager } from "../../src/utils/resonsibilitymanager";
 
 export default QUnit.module("ResponsibilityManager");
@@ -23,17 +23,26 @@ class TestModel {
   }
 }
 
+class SimpleContainer {
+  parentElement: any;
+  constructor(config: any) {
+    Object.assign(this, config);
+    this.parentElement = this;
+  }
+}
+
 var getItemSizes = () => [5, 5, 5, 5, 5, 5, 5];
 
 QUnit.test("Check on element with box-sizing: content-box", function (assert) {
-  var container = { offsetWidth: 30, scrollWidth: 30 };
+  var container: any = new SimpleContainer({
+    offsetWidth: 30,
+    scrollWidth: 30,
+  });
   var model = new TestModel();
   var manager = new ResponsibilityManager(<any>container, model, 5);
   manager.getItemSizes = getItemSizes;
   manager.getComputedStyle = () => {
     return {
-      marginLeft: "0px",
-      marginRight: "0px",
       boxSizing: "content-box",
     };
   };
@@ -68,14 +77,15 @@ QUnit.test("Check on element with box-sizing: content-box", function (assert) {
 });
 
 QUnit.test("Check on element with box-sizing: border-box", function (assert) {
-  var container = { offsetWidth: 30, scrollWidth: 30 };
+  var container: any = new SimpleContainer({
+    offsetWidth: 30,
+    scrollWidth: 30,
+  });
   var model = new TestModel();
   var manager = new ResponsibilityManager(<any>container, model, 5);
   manager.getItemSizes = getItemSizes;
   manager.getComputedStyle = () => {
     return {
-      marginLeft: "0px",
-      marginRight: "0px",
       boxSizing: "border-box",
       paddingLeft: "4px",
       paddingRight: "1px",
@@ -98,16 +108,16 @@ QUnit.test("Check on element with box-sizing: border-box", function (assert) {
 });
 
 QUnit.test("Check on model which can shrink and grow", function (assert) {
-  var container = { offsetWidth: 30, scrollWidth: 30 };
+  var container: any = new SimpleContainer({
+    offsetWidth: 30,
+    scrollWidth: 30,
+  });
   var model = new TestModel();
   model.canGrow = true;
   var manager = new ResponsibilityManager(<any>container, model, 5);
   manager.getItemSizes = getItemSizes;
   manager.getComputedStyle = () => {
-    return {
-      marginLeft: "0px",
-      marginRight: "0px",
-    };
+    return { boxSizing: "content-box" };
   };
   manager.process();
   assert.notOk(model.canGrow, "process method grew model at first");
@@ -143,21 +153,20 @@ QUnit.test("Check on model which can shrink and grow", function (assert) {
   );
 });
 
-QUnit.test("Check on element with changing margins", function (assert) {
-  var container = { offsetWidth: 30, scrollWidth: 30 };
+QUnit.test("Check on element with parent's changing width", function (assert) {
+  var container: any = { offsetWidth: 30, scrollWidth: 30 };
+  var parentElement: any = { offsetWidth: 30, scrollWidth: 30 };
+  container.parentElement = parentElement;
   var model = new TestModel();
   model.canGrow = true;
-  var style = {
-    marginLeft: "0px",
-    marginRight: "0px",
-  };
   var manager = new ResponsibilityManager(<any>container, model, 5);
   manager.getItemSizes = getItemSizes;
   manager.getComputedStyle = () => {
-    return style;
+    return { boxSizing: "content-box" };
   };
 
-  container.offsetWidth = 24;
+  container.offsetWidth = container.parentElement.offsetWidth = 24;
+
   manager.process();
   assert.ok(model.canGrow);
   assert.equal(
@@ -165,18 +174,18 @@ QUnit.test("Check on element with changing margins", function (assert) {
     3,
     "process method set number of visible items 3"
   );
-  container.scrollWidth = 24;
-  style.marginLeft = "5px";
-  style.marginRight = "1px";
+
+  container.offsetWidth = container.parentElement.offsetWidth = 29;
   manager.process();
 
-  assert.notOk(
-    model.canGrow,
-    "process grew model in favor of margin's increase"
-  );
+  assert.ok(model.canGrow, "process can't grew");
   assert.equal(
     model.visibleElementsCount,
     Number.MAX_VALUE,
-    "process method tries show all items in favor of margin's increase"
+    "process method tries to show all items"
   );
+  container.parentElement.offsetWidth = 36;
+  manager.process();
+
+  assert.ok(model.canGrow, "process grew container");
 });

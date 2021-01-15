@@ -12,15 +12,6 @@ export class ResponsibilityManager {
   ) {}
   getComputedStyle: any = window.getComputedStyle.bind(window);
 
-  protected getFullSpace() {
-    var style = this.getComputedStyle(this.container);
-    var widthWithMargins =
-      this.container.offsetWidth +
-      parseFloat(style.marginLeft) +
-      parseFloat(style.marginRight);
-    return widthWithMargins;
-  }
-
   protected getAvailableSpace() {
     var style = this.getComputedStyle(this.container);
     var width = this.container.offsetWidth - this.dotsItemSize;
@@ -29,6 +20,7 @@ export class ResponsibilityManager {
     }
     return width;
   }
+
   protected getDimensions(element: HTMLElement) {
     return {
       scrollDimension: element.scrollWidth,
@@ -98,14 +90,6 @@ export class VerticalResponsibilityManager extends ResponsibilityManager {
     return width;
   }
 
-  protected getFullSpace() {
-    var style = this.getComputedStyle(this.container);
-    return (
-      this.container.offsetHeight +
-      parseFloat(style.marginTop) +
-      parseFloat(style.marginBottom)
-    );
-  }
   protected getDimensions() {
     return {
       scrollDimension: this.container.scrollHeight,

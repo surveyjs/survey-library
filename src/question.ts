@@ -343,6 +343,8 @@ export class Question
     return this.getPropertyValue("parent", null);
   }
   public set parent(val: IPanel) {
+    if (this.parent === val) return;
+    this.delete();
     this.setPropertyValue("parent", val);
     this.updateElementCss();
     this.onParentChanged();

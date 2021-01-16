@@ -5747,6 +5747,22 @@ QUnit.test("Parent property in question", function (assert) {
   panel.addElement(q);
   assert.equal(q.parent.name, "panel");
 });
+QUnit.test(
+  "Remove question from it's previous container before adding to a new one",
+  function (assert) {
+    var survey = new SurveyModel();
+    var page = survey.addNewPage("page");
+    var panel1 = page.addNewPanel("panel1");
+    var panel2 = page.addNewPanel("panel2");
+    var q = panel1.addNewQuestion("text");
+    assert.equal(q.parent.name, "panel1");
+    assert.equal(panel1.elements.length, 1, "There is one element");
+    panel2.addElement(q);
+    assert.equal(q.parent.name, "panel2");
+    assert.equal(panel2.elements.length, 1, "There is one element in panel2");
+    assert.equal(panel1.elements.length, 0, "There is no elements in panel1");
+  }
+);
 QUnit.test("Page property in question", function (assert) {
   var survey = new SurveyModel();
   var page1 = survey.addNewPage("p1");

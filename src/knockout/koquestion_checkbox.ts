@@ -5,7 +5,7 @@ import { QuestionFactory } from "../questionfactory";
 import { QuestionCheckboxModel } from "../question_checkbox";
 import { Question } from "../question";
 
-class QuestionCheckboxImplementor extends QuestionCheckboxBaseImplementor {
+export class QuestionCheckboxImplementor extends QuestionCheckboxBaseImplementor {
   constructor(question: Question) {
     super(question);
   }

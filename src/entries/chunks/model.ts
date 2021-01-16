@@ -3,7 +3,7 @@ import "../../main.scss";
 import "../../modern.scss";
 import Sortable from "sortablejs";
 
-export {Sortable};
+export { Sortable };
 
 export let Version: string;
 Version = `${process.env.VERSION}`;
@@ -94,6 +94,7 @@ export {
   QuestionSelectBase,
 } from "../../question_baseselect";
 export { QuestionCheckboxModel } from "../../question_checkbox";
+export { QuestionRankingModel } from "../../question_ranking";
 export { QuestionCommentModel } from "../../question_comment";
 export { QuestionDropdownModel } from "../../question_dropdown";
 export { QuestionFactory, ElementFactory } from "../../questionfactory";
@@ -142,8 +143,6 @@ export {
 } from "../../question_custom";
 
 export { StylesManager } from "../../stylesmanager";
-
-
 
 //Uncomment to include the "date" question type.
 //export {default as QuestionDateModel} from "../../plugins/question_date";

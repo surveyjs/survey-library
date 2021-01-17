@@ -1556,7 +1556,6 @@ export class Question
       this.updateElementCss();
     }
   }
-  protected locNotificationInData = false;
   protected isTextValue(): boolean {
     return false;
   }
@@ -1564,7 +1563,6 @@ export class Question
     return !!this.survey ? this.survey.isUpdateValueTextOnTyping : false;
   }
   private getDataLocNotification(): any {
-    if (this.locNotificationInData) return this.locNotificationInData;
     return this.isInputTextUpdate ? "text" : false;
   }
   public get isInputTextUpdate() {

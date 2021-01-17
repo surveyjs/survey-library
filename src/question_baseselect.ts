@@ -781,12 +781,14 @@ export class QuestionSelectBase extends Question {
         try {
           if (!Helpers.isValueEmpty(newValue.value)) {
             this.allowNotifyValueChanged = false;
-            this.locNotificationInData = true;
-            this.value = undefined;
-            this.locNotificationInData = false;
+            this.setQuestionValue(undefined);
           }
           this.allowNotifyValueChanged = hasChanged;
-          this.value = newValue.value;
+          if (hasChanged) {
+            this.value = newValue.value;
+          } else {
+            this.setQuestionValue(newValue.value);
+          }
         } finally {
           this.allowNotifyValueChanged = true;
         }

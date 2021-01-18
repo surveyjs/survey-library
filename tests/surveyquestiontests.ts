@@ -3783,6 +3783,29 @@ QUnit.test("Question defaultValueExpression", function (assert) {
   var question = <QuestionTextModel>survey.getQuestionByName("q");
   assert.equal(question.value, 3, "run expression");
 });
+QUnit.test(
+  "Question defaultValueExpression with async function",
+  function (assert) {
+    var returnResultFunc: (res: any) => void;
+    function asyncFunc(params: any): any {
+      returnResultFunc = this.returnResult;
+      return false;
+    }
+    FunctionFactory.Instance.register("asyncFunc", asyncFunc, true);
+
+    var survey = new SurveyModel({
+      questions: [
+        { type: "text", name: "q1", defaultValue: 1 },
+        { type: "text", name: "q2", defaultValueExpression: "asyncFunc({q1})" },
+      ],
+    });
+    var question = <QuestionTextModel>survey.getQuestionByName("q2");
+    assert.notOk(question.value, "value is empty");
+    returnResultFunc(survey.getValue("q1") * 3);
+    assert.equal(question.value, 3, "Default async function is executed");
+    FunctionFactory.Instance.unregister("asyncFunc");
+  }
+);
 QUnit.test("QuestionRating rateStep less than 1", function (assert) {
   var question = new QuestionRatingModel("q");
   assert.equal(question.visibleRateValues.length, 5, "There are 5 values");

@@ -19,7 +19,7 @@ import { AnswerRequiredError, CustomError } from "./error";
 import { SurveyValidator, IValidatorOwner, ValidatorRunner } from "./validator";
 import { TextPreProcessor, TextPreProcessorValue } from "./textPreProcessor";
 import { ILocalizableOwner, LocalizableString } from "./localizablestring";
-import { ConditionRunner } from "./conditions";
+import { ConditionRunner, ExpressionRunner } from "./conditions";
 import { QuestionCustomWidget } from "./questionCustomWidgets";
 import { CustomWidgetCollection } from "./questionCustomWidgets";
 import { settings } from "./settings";
@@ -1304,25 +1304,44 @@ export class Question
     return !this.defaultValueExpression && this.isValueEmpty(this.defaultValue);
   }
   protected setDefaultValue() {
-    this.value = this.getValueAndRunExpression(
+    this.setValueAndRunExpression(
+      this.defaultValueExpression,
       this.getUnbindValue(this.defaultValue),
-      this.defaultValueExpression
+      (val) => {
+        this.value = val;
+      }
     );
   }
   protected isValueExpression(val: any) {
     return !!val && typeof val == "string" && val.length > 0 && val[0] == "=";
   }
-  protected getValueAndRunExpression(val: any, expression: string) {
-    if (!!expression) {
-      val = this.runExpression(expression);
+  protected setValueAndRunExpression(
+    expression: string,
+    defaultValue: any,
+    setFunc: (val: any) => void
+  ) {
+    var func = (val: any) => {
+      if (val instanceof Date) {
+        val = val.toISOString().slice(0, 10);
+      }
+      setFunc(val);
+    };
+    if (!!expression && !!this.data) {
+      var runner = new ExpressionRunner(expression);
+      if (runner.canRun) {
+        runner.onRunComplete = (res) => {
+          if (res == undefined) res = this.defaultValue;
+          func(res);
+        };
+        runner.run(
+          this.data.getFilteredValues(),
+          this.data.getFilteredProperties()
+        );
+      }
+    } else {
+      func(defaultValue);
     }
-    if (!val) return val;
-    if (val instanceof Date) {
-      val = val.toISOString().slice(0, 10);
-    }
-    return val;
   }
-
   /**
    * The question comment value.
    */

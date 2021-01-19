@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.8.26](https://github.com/surveyjs/survey-library/compare/v1.8.25...v1.8.26) (2021-01-19)
+
+
+### Bug Fixes
+
+* question defaultValueExpression doesn't support async functions [#2617](https://github.com/surveyjs/survey-library/issues/2617) ([0e11acf](https://github.com/surveyjs/survey-library/commit/0e11acf25996d57af03002512f526a64909dfa77))
+
 ### [1.8.25](https://github.com/surveyjs/survey-library/compare/v1.8.24...v1.8.25) (2021-01-14)
 
 ### [1.8.24](https://github.com/surveyjs/survey-library/compare/v1.8.23...v1.8.24) (2021-01-13)

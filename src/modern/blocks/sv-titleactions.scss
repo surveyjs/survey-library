@@ -2,3 +2,13 @@
   display: flex;
   align-items: center;
 }
+
+.sv-title-actions__title {
+  flex-wrap: wrap;
+  max-width: 90%;
+  min-width: 50%;
+}
+
+.sv-title-actions__bar {
+  min-width: 56px;
+}

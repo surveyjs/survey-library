@@ -25,6 +25,7 @@ export { QuestionImplementor } from "../knockout/koquestion";
 export { QuestionSelectBaseImplementor } from "../knockout/koquestion_baseselect";
 export { QuestionCheckboxBaseImplementor } from "../knockout/koquestion_baseselect";
 export { QuestionCheckbox } from "../knockout/koquestion_checkbox";
+export { QuestionRanking } from "../knockout/koquestion_ranking";
 export { QuestionComment } from "../knockout/koquestion_comment";
 export { QuestionDropdown } from "../knockout/koquestion_dropdown";
 export { QuestionFile } from "../knockout/koquestion_file";

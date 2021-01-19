@@ -91,6 +91,7 @@ export {
   QuestionSelectBase,
 } from "../../question_baseselect";
 export { QuestionCheckboxModel } from "../../question_checkbox";
+export { QuestionRankingModel } from "../../question_ranking";
 export { QuestionCommentModel } from "../../question_comment";
 export { QuestionDropdownModel } from "../../question_dropdown";
 export { QuestionFactory, ElementFactory } from "../../questionfactory";

@@ -159,18 +159,18 @@ export class QuestionTextModel extends Question {
     return this.getPropertyValue("renderedMax");
   }
   private setRenderedMinMax() {
-    this.setPropertyValue(
-      "renderedMin",
-      this.getValueAndRunExpression(this.min, this.minValueExpression)
-    );
-    var val = this.getValueAndRunExpression(this.max, this.maxValueExpression);
-    if (
-      !val &&
-      (this.inputType === "date" || this.inputType === "datetime-local")
-    ) {
-      val = "2999-12-31";
-    }
-    this.setPropertyValue("renderedMax", val);
+    this.setValueAndRunExpression(this.minValueExpression, this.min, (val) => {
+      this.setPropertyValue("renderedMin", val);
+    });
+    this.setValueAndRunExpression(this.maxValueExpression, this.max, (val) => {
+      if (
+        !val &&
+        (this.inputType === "date" || this.inputType === "datetime-local")
+      ) {
+        val = "2999-12-31";
+      }
+      this.setPropertyValue("renderedMax", val);
+    });
   }
   /**
    * The step value

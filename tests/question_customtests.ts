@@ -1002,7 +1002,7 @@ QUnit.test("Composite: update url, {composite} prefix", function (assert) {
         type: "dropdown",
         name: "url",
         choicesByUrl: {
-          url: "https://test.com/{composite.name}",
+          url: "an_url/{composite.name}",
         },
       },
     ],
@@ -1019,13 +1019,49 @@ QUnit.test("Composite: update url, {composite} prefix", function (assert) {
     processedUrl = url;
   };
   name.value = "newValue";
-  assert.equal(
-    processedUrl,
-    "https://test.com/newValue",
-    "Url proccessed correctly"
-  );
+  assert.equal(processedUrl, "an_url/newValue", "Url proccessed correctly");
   ComponentCollection.Instance.clear();
 });
+QUnit.test(
+  "Composite: update url, {composite} prefix on loaded",
+  function (assert) {
+    var processedUrl = "";
+    var json = {
+      name: "urltest",
+      elementsJSON: [
+        { type: "text", name: "name" },
+        {
+          type: "dropdown",
+          name: "url",
+          choicesByUrl: {
+            url: "an_url/{composite.name}",
+          },
+        },
+      ],
+      onLoaded(question) {
+        let name = question.contentPanel.getQuestionByName("name");
+        name.value = "newValue";
+        let url = question.contentPanel.getQuestionByName("url");
+        url.choicesByUrl.onProcessedUrlCallback = (
+          url: string,
+          path: string
+        ) => {
+          processedUrl = url;
+        };
+      },
+    };
+    ComponentCollection.Instance.add(json);
+    var survey = new SurveyModel({
+      elements: [{ type: "urltest", name: "q1", isRequired: true }],
+    });
+    assert.equal(
+      processedUrl,
+      "an_url/newValue",
+      "Url proccessed correctly on load"
+    );
+    ComponentCollection.Instance.clear();
+  }
+);
 QUnit.test("Composite: onValueChanged function", function (assert) {
   var json = {
     name: "testquestion",

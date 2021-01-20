@@ -130,6 +130,10 @@ export var defaultStandardCss = {
     other: "sv_q_other sv_q_checkbox_other",
     column: "sv_q_select_column",
   },
+  ranking: {
+    root: "sv-ranking",
+    item: "sv-ranking-item",
+  },
   comment: "",
   dropdown: {
     root: "",

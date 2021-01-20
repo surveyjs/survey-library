@@ -31,6 +31,8 @@ export { RadiogroupItem } from "../vue/radiogroupitem.vue";
 export { OtherChoice } from "../vue/otherChoice.vue";
 export { Rating } from "../vue/rating.vue";
 export { Comment } from "../vue/comment.vue";
+export { Ranking } from "../vue/ranking/ranking.vue";
+export { RankingItem } from "../vue/ranking/ranking-item.vue";
 export { Checkbox } from "../vue/checkbox.vue";
 export { CheckboxItem } from "../vue/checkboxitem.vue";
 export { Text } from "../vue/text.vue";

@@ -132,6 +132,11 @@ export var modernCss = {
     other: "sv-comment sv-question__other",
     column: "sv-selectbase__column",
   },
+  ranking: {
+    root: "sv-ranking",
+    rootMobile: "sv-ranking--mobile",
+    item: "sv-ranking-item",
+  },
   radiogroup: {
     root: "sv-selectbase",
     item: "sv-item sv-radio sv-selectbase__item",

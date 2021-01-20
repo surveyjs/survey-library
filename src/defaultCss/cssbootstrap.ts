@@ -117,6 +117,10 @@ export var defaultBootstrapCss = {
     other: "sv_q_checkbox_other form-control",
     column: "sv_q_select_column",
   },
+  ranking: {
+    root: "sv-ranking",
+    item: "sv-ranking-item",
+  },
   comment: "form-control",
   dropdown: {
     root: "",

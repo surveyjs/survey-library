@@ -14,8 +14,9 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
   public initSortable(domNode: HTMLElement) {
     if (!domNode) return;
     this.domNode = domNode;
+    const syncNumbers = this.syncNumbers;
 
-    this.sortableInst = new Sortable(this.domNode, {
+    this.sortableInst = new Sortable(domNode, {
       animation: 100,
       forceFallback: true,
       handle: this.mobileCheck()
@@ -26,21 +27,16 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
       dragClass: "sv-ranking-item--drag",
       onStart() {
         (<any>Sortable.ghost.style.opacity) = 1;
-        this.domNode.className += " ranking--drag";
+        domNode.className += " ranking--drag";
       },
       onEnd() {
-        this.domNode.className = this.domNode.className.replace(
-          " ranking--drag",
-          ""
-        );
+        domNode.className = domNode.className.replace(" ranking--drag", "");
       },
       onChange(evt) {
-        const indexNodes = this.domNode.querySelectorAll(
-          ".sv-ranking-item__index"
-        );
+        const indexNodes = domNode.querySelectorAll(".sv-ranking-item__index");
         const ghostNode = indexNodes[indexNodes.length - 1];
-        this.syncNumbers();
-        ghostNode.innerText = evt.newIndex + 1;
+        syncNumbers();
+        (<any>ghostNode).innerText = evt.newIndex + 1;
       },
     });
   }
@@ -106,12 +102,12 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
     this.syncNumbers();
   }
 
-  syncNumbers() {
+  syncNumbers = () => {
     const indexNodes = this.domNode.querySelectorAll(".sv-ranking-item__index");
     indexNodes.forEach((indexNode: any, index) => {
       indexNode.innerText = index + 1;
     });
-  }
+  };
 
   focusItem(index: number) {
     const itemsNodes: any = this.domNode.querySelectorAll(this.cssClasses.item);

@@ -16,9 +16,12 @@ $base-unit: var(--base-unit, 8px);
 
 sv-action-bar {
   display: flex;
+  position: relative;
   align-items: center;
   margin-left: auto;
   padding: 0 0 0 calcSize(2);
+  overflow: hidden;
+  white-space: nowrap;
 }
 
 .sv-action--first {
@@ -57,6 +60,8 @@ sv-action-bar {
   line-height: calcSize(3);
   font-size: calcSize(2);
   font-family: $font-family;
+  overflow-x: hidden;
+  white-space: nowrap;
 }
 
 .sv-action-bar-item__icon {
@@ -94,6 +99,7 @@ sv-action-bar {
 
 .sv-action-bar-item__title {
   vertical-align: middle;
+  white-space: nowrap;
 }
 
 .sv-action-bar-item--secondary {
@@ -136,7 +142,6 @@ sv-action-bar {
   display: flex;
 }
 
-
 .sv-expand-action {
   &:before {
     content: "";
@@ -153,4 +158,26 @@ sv-action-bar {
   &:before {
     transform: rotate(180deg);
   }
+}
+.sv-dots {
+  width: 48px;
+}
+
+.sv-dots__item {
+  width: 100%;
+  &:hover {
+    background-color: inherit;
+  }
+  .sv-action-bar-item__icon {
+    margin: auto;
+  }
+}
+
+.sv-action {
+  display: flex;
+  align-items: center;
+}
+
+.sv-action--hidden {
+  visibility: hidden;
 }

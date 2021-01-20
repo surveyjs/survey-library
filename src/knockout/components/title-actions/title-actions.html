@@ -1,4 +1,9 @@
 <div class="sv-title-actions">
-    <!-- ko template: { name: 'survey-question-title-content', data: question } --><!-- /ko -->
-    <sv-action-bar params="items: items"></sv-action-bar>
+  <span class="sv-title-actions__title">
+    <!-- ko template: { name: 'survey-question-title-content', data: element } --><!-- /ko -->
+  </span>
+  <sv-action-bar
+    class="sv-title-actions__bar"
+    params="items: items"
+  ></sv-action-bar>
 </div>

@@ -1,0 +1,19 @@
+<ul
+  class="sv-list"
+  data-bind="event: { mousedown: function (data, e) { e.preventDefault(); }}"
+>
+  <!--ko foreach: items-->
+  <li
+    class="sv-list__item"
+    data-bind="css: { 'sv-list__item--disabled': $parent.isItemDisabled($data), 'sv-list__item--selected': $parent.selectedItem() == $data }, click: $parent.selectItem"
+  >
+    <!-- ko if: $data.iconName -->
+    <sv-svg-icon
+      class="sv-list__item-icon"
+      params="iconName: iconName, size: 24"
+    ></sv-svg-icon>
+    <!-- /ko -->
+    <span data-bind="text: $data.title"></span>
+  </li>
+  <!-- /ko -->
+</ul>

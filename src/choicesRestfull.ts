@@ -77,6 +77,7 @@ export class ChoicesRestfull extends Base {
     if (!obj.isUsingCache) return;
     var res = ChoicesRestfull.sendingSameRequests[obj.objHash];
     delete ChoicesRestfull.sendingSameRequests[obj.objHash];
+    if (!res) return;
     for (var i = 0; i < res.length; i++) {
       if (!!res[i].getResultCallback) {
         res[i].getResultCallback(items);

@@ -58,6 +58,9 @@ export class SurveyValidator extends Base {
   getMarkdownHtml(text: string, name: string): string {
     return !!this.errorOwner ? this.errorOwner.getMarkdownHtml(text, name) : null;
   }
+  getRenderer(name: string): string {
+    return !!this.errorOwner ? this.errorOwner.getRenderer(name) : null;
+  }
   getProcessedText(text: string): string {
     return !!this.errorOwner ? this.errorOwner.getProcessedText(text) : text;
   }

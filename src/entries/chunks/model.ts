@@ -1,9 +1,6 @@
 // styles
 import "../../main.scss";
 import "../../modern.scss";
-import Sortable from "sortablejs";
-
-export { Sortable };
 
 export let Version: string;
 Version = `${process.env.VERSION}`;

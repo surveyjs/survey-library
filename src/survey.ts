@@ -469,6 +469,17 @@ export class SurveyModel
     any
   > = new Event<(sender: SurveyModel, options: any) => any, any>();
   /**
+   * Use this event to specity render component name used for text rendering.
+   * <br/> `sender` - the survey object that fires the event.
+   * <br/> `options.element` - SurveyJS element (a question, panel, page, or survey) where the string is going to be rendered.
+   * <br/> `options.name` - a property name is going to be rendered.
+   * <br/> `options.renderAs` - a component name used for text rendering.
+   */
+  public onTextRenderAs: Event<
+    (sender: SurveyModel, options: any) => any,
+    any
+  > = new Event<(sender: SurveyModel, options: any) => any, any>();
+  /**
    * The event fires when it gets response from the [api.surveyjs.io](https://api.surveyjs.io) service on saving survey results. Use it to find out if the results have been saved successfully.
    * <br/> `sender` - the survey object that fires the event.
    * <br/> `options.success` - it is `true` if the results has been sent to the service successfully.
@@ -1539,6 +1550,20 @@ export class SurveyModel
   }
   public getMarkdownHtml(text: string, name: string): string {
     return this.getSurveyMarkdownHtml(this, text, name);
+  }
+  public getRenderer(name: string): string {
+    return this.getRendererForString(this, name);
+  }
+  public getRendererForString(element: Base, name: string): string {
+    const renderAs = this.getBuiltInRendererForString(element, name);
+    var options = { element: element, name: name, renderAs: renderAs };
+    this.onTextRenderAs.fire(this, options);
+    return options.renderAs;
+  }
+  private getBuiltInRendererForString(element: Base, name: string): string {
+    if (this.isDesignMode)
+      return LocalizableString.editableRenderer;
+    return undefined;
   }
   public getProcessedText(text: string) {
     return this.processText(text, true);

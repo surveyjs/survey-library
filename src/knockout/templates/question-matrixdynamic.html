@@ -104,7 +104,8 @@
       <!-- /ko -->
     </table>
   </div>
-  <div data-bind="visible: !question.koTable().showTable">
+  <!-- ko ifnot: question.koTable().showTable -->
+  <div>
     <button
       type="button"
       data-bind="click:question.koAddRowClick, css: question.koCss().button + ' ' + question.koCss().buttonAdd"
@@ -113,6 +114,7 @@
       <span data-bind="css: question.koCss().iconAdd"></span>
     </button>
   </div>
+  <!-- /ko -->
   <div
     data-bind="visible: question.koTable().showAddRowOnBottom, css: question.koCss().footer"
   >

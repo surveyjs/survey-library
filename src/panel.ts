@@ -44,17 +44,25 @@ export class QuestionRowModel extends Base {
   private _updateVisibility: any = undefined;
   public startLazyRendering(rowContainerDiv: HTMLElement) {
     this._scrollableParent = findScrollableParent(rowContainerDiv);
-    this._updateVisibility = () => {
-      var isRowContainerDivVisible = isElementVisible(rowContainerDiv, 50);
-      if (!this.isNeedRender && isRowContainerDivVisible) {
-        this.isNeedRender = true;
-        this.stopLazyRendering();
-      }
-    };
-    setTimeout(() => {
-      this._scrollableParent.addEventListener("scroll", this._updateVisibility);
+    this.isNeedRender = !(this._scrollableParent.scrollHeight > this._scrollableParent.clientHeight);
+    if (!this.isNeedRender) {
+      this._updateVisibility = () => {
+        var isRowContainerDivVisible = isElementVisible(rowContainerDiv, 50);
+        if (!this.isNeedRender && isRowContainerDivVisible) {
+          this.isNeedRender = true;
+          this.stopLazyRendering();
+        }
+      };
+      setTimeout(() => {
+        this._scrollableParent.addEventListener("scroll", this._updateVisibility);
+        this._updateVisibility();
+      }, 10);
+    }
+  }
+  public ensureVisibility() {
+    if (!!this._updateVisibility) {
       this._updateVisibility();
-    }, 10);
+    }
   }
   public stopLazyRendering() {
     if (!!this._scrollableParent && !!this._updateVisibility) {
@@ -860,6 +868,12 @@ export class PanelModelBase
     return this.getPropertyValue("rows");
   }
 
+  public expand() {
+    super.expand();
+    this.rows.forEach((row) => {
+      row.ensureVisibility();
+    });
+  }
   protected onRowsChanged() {
     if (this.isLoadingFromJson) return;
     this.setPropertyValue("rows", this.buildRows());

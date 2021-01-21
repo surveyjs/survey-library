@@ -6,7 +6,7 @@
       :class="question.getItemClass(item)"
       :text="item.text"
       :index="index"
-      v-on:keydown="question.handleKeydown"
+      :handleKeydown="question.handleKeydown"
     ></survey-ranking-item>
   </div>
 </template>

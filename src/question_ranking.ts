@@ -20,7 +20,7 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
       animation: 100,
       forceFallback: true,
       handle: this.mobileCheck()
-        ? this.cssClasses.item
+        ? "." + this.cssClasses.item
         : ".sv-ranking-item__icon-container",
       ghostClass: "sv-ranking-item--ghost",
       chosenClass: "sv-ranking-item--chosen",
@@ -67,9 +67,9 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
     return css.root;
   }
 
-  handleKeydown(event: any) {
+  handleKeydown = (event: any) => {
     const key = event.key;
-    const array = this.domNode.querySelectorAll(this.cssClasses.item);
+    const array = this.domNode.querySelectorAll("." + this.cssClasses.item);
     const index = [].indexOf.call(array, event.target);
 
     if (key === "ArrowUp" && index) {
@@ -82,7 +82,7 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
     }
   }
 
-  moveItemUp(index: any) {
+  moveItemUp = (index: any) => {
     const array = this.sortableInst.toArray();
     const temp = array[index];
     array[index] = array[index - 1];
@@ -92,7 +92,7 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
     this.syncNumbers();
   }
 
-  moveItemDown(index: any) {
+  moveItemDown = (index: any) => {
     const array = this.sortableInst.toArray();
     const temp = array[index];
     array[index] = array[index + 1];
@@ -109,8 +109,8 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
     });
   };
 
-  focusItem(index: number) {
-    const itemsNodes: any = this.domNode.querySelectorAll(this.cssClasses.item);
+  focusItem = (index: number) => {
+    const itemsNodes: any = this.domNode.querySelectorAll("." + this.cssClasses.item);
     itemsNodes[index].focus();
   }
 }

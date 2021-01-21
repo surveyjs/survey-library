@@ -1,5 +1,5 @@
 <template>
-  <div tabindex="0">
+  <div tabindex="0" v-on:keydown="handleKeydown">
     <div tabindex="-1" style="outline: none;">
       <div class="sv-ranking-item__ghost" />
       <div class="sv-ranking-item__content">
@@ -41,6 +41,7 @@ import { Component, Prop } from "vue-property-decorator";
 export class RankingItem extends Vue {
   @Prop index: number;
   @Prop text: string;
+  @Prop handleKeydown: ()=>{};
 }
 Vue.component("survey-ranking-item", RankingItem);
 export default RankingItem;

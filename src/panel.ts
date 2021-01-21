@@ -868,12 +868,12 @@ export class PanelModelBase
     return this.getPropertyValue("rows");
   }
 
-  public expand() {
-    super.expand();
+  public ensureRowsVisibility() {
     this.rows.forEach((row) => {
       row.ensureVisibility();
     });
   }
+
   protected onRowsChanged() {
     if (this.isLoadingFromJson) return;
     this.setPropertyValue("rows", this.buildRows());

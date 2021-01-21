@@ -12373,3 +12373,44 @@ QUnit.test("onTextRenderAs event", function (assert) {
   assert.equal(locString.renderAs, customRendererView);
   assert.equal(renderAs, customRendererView);
 });
+
+QUnit.test("onElementContentVisibilityChanged event", function (assert) {
+  var json = {
+  "pages": [
+    {
+    "name": "page1",
+    "elements": [
+      {
+      "type": "panel",
+      "name": "panel1",
+      "state": "collapsed"
+      }
+    ]
+    }
+  ]
+  };
+
+  let stateChangedCounter = 0;
+
+  var survey = new SurveyModel(json);
+  survey.onElementContentVisibilityChanged.add((s,e) => {
+    stateChangedCounter++;
+  });
+  assert.equal(stateChangedCounter, 0);
+
+  var panel : PanelModel = <PanelModel>survey.getAllPanels()[0];
+  panel.expand();
+  assert.equal(stateChangedCounter, 1);
+  panel.expand();
+  assert.equal(stateChangedCounter, 2);
+  panel.collapse();
+  assert.equal(stateChangedCounter, 3);
+  panel.collapse();
+  assert.equal(stateChangedCounter, 4);
+  panel.toggleState();
+  assert.equal(stateChangedCounter, 5);
+  panel.toggleState();
+  assert.equal(stateChangedCounter, 6);
+  panel.state = "expanded";
+  assert.equal(stateChangedCounter, 7);
+});

@@ -392,6 +392,10 @@ export class PageModel extends PanelModelBase implements IPage {
   private dragDropIsSameElement(el1: IElement, el2: IElement) {
     return el1 == el2 || el1.name == el2.name;
   }
+  public ensureRowsVisibility() {
+    super.ensureRowsVisibility();
+    this.getPanels().forEach(panel => panel.ensureRowsVisibility() );
+  }
 }
 
 Serializer.addClass(

@@ -82,8 +82,8 @@ function isElementVisible(element: HTMLElement, threshold: number = 0) : boolean
   const topEl = elementRect.top;
   const bottomEl = elementRect.bottom;
 
-  const maxTop = topWin > topEl ? topWin : topEl;
-  const minBottom = bottomWin < bottomEl ? bottomWin : bottomEl;
+  const maxTop = Math.max(topWin, topEl);
+  const minBottom = Math.min(bottomWin, bottomEl);
   return maxTop <= minBottom;
 }
 

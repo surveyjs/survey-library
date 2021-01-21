@@ -5,7 +5,10 @@ import { QuestionImplementor } from "./koquestion";
 import { QuestionMatrixBaseImplementor } from "./koquestion_matrixdropdown";
 import { QuestionMatrixDynamicModel } from "../question_matrixdynamic";
 import { Question } from "../question";
-import { MatrixDropdownRowModelBase, QuestionMatrixDropdownModelBase } from "../question_matrixdropdownbase";
+import {
+  MatrixDropdownRowModelBase,
+  QuestionMatrixDropdownModelBase,
+} from "../question_matrixdropdownbase";
 import { MatrixDynamicRowModel } from "../question_matrixdynamic";
 import { PanelModel } from "../panel";
 import { Panel } from "./kopage";
@@ -14,12 +17,6 @@ export class QuestionMatrixDynamicImplementor extends QuestionMatrixBaseImplemen
   constructor(question: Question) {
     super(question);
     (<any>this.question)["getKoPopupIsVisible"] = this.getKoPopupIsVisible;
-  }
-  protected isAddRowTop(): boolean {
-    return (<QuestionMatrixDynamic>this.question).isAddRowOnTop;
-  }
-  protected isAddRowBottom(): boolean {
-    return (<QuestionMatrixDynamic>this.question).isAddRowOnBottom;
   }
   protected canRemoveRows(): boolean {
     return (

@@ -91,35 +91,43 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
     const index = [].indexOf.call(array, event.target);
 
     if (key === "ArrowUp" && index) {
-      this.moveItemUp(index);
-      this.focusItem(index - 1);
+      this.handleArrowUp(index);
     }
     if (key === "ArrowDown" && index !== array.length - 1) {
-      this.moveItemDown(index);
-      this.focusItem(index + 1);
+      this.handleArrowDown(index);
     }
   };
 
-  moveItemUp = (index: any) => {
+  handleArrowUp = (index: number) => {
     const array = this.sortableInst.toArray();
+    this.moveArrayItemBack(array, index);
+    this.sortableInst.sort(array);
+
+    this.syncNumbers();
+    this.setValue();
+    this.focusItem(index - 1);
+  };
+
+  handleArrowDown = (index: number) => {
+    const array = this.sortableInst.toArray();
+    this.moveArrayItemForward(array, index);
+    this.sortableInst.sort(array);
+
+    this.syncNumbers();
+    this.setValue();
+    this.focusItem(index + 1);
+  };
+
+  moveArrayItemBack = (array: string[], index: number) => {
     const temp = array[index];
     array[index] = array[index - 1];
     array[index - 1] = temp;
-
-    this.sortableInst.sort(array);
-    this.syncNumbers();
-    this.setValue();
   };
 
-  moveItemDown = (index: any) => {
-    const array = this.sortableInst.toArray();
+  moveArrayItemForward = (array: string[], index: number) => {
     const temp = array[index];
     array[index] = array[index + 1];
     array[index + 1] = temp;
-
-    this.sortableInst.sort(array);
-    this.syncNumbers();
-    this.setValue();
   };
 
   syncNumbers = () => {

@@ -4,7 +4,7 @@
 .sv-ranking--mobile {
   .sv-ranking-item__icon--hover {
     visibility: visible;
-    fill: gray;
+    fill: $main-hover-color;
   }
 }
 
@@ -30,15 +30,15 @@
     }
 
     .sv-ranking-item__index {
-      background: #fff;
-      border: 2px solid #19b394;
+      background: $body-background-color;
+      border: 2px solid $main-color-2;
     }
   }
 }
 
 .sv-ranking-item__content {
   display: inline-block;
-  background-color: #fff;
+  background-color: $body-background-color;
   padding-top: 5px;
   padding-bottom: 5px;
   padding-left: 35px;
@@ -59,6 +59,7 @@
   visibility: hidden;
   left: 10px;
   top: 20px;
+  fill: $main-color-2;
   position: absolute;
 }
 

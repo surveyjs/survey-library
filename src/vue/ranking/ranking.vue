@@ -19,14 +19,7 @@ import { default as QuestionVue } from "../question";
 import { QuestionRankingModel } from "../../question_ranking";
 
 @Component
-export class Ranking extends QuestionVue<QuestionRankingModel> {
-  onMounted() {
-    this.question.initSortable(<any>this.$refs.domNode);
-  }
-  onDestroyed() {
-    this.question.sortableInst.destroy();
-  }
-}
+export class Ranking extends QuestionVue<QuestionRankingModel> {}
 Vue.component("survey-ranking", Ranking);
 export default Ranking;
 </script>

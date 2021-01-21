@@ -8,7 +8,6 @@
             width="10"
             height="16"
             viewBox="0 0 10 16"
-            fill="#19B394"
             :class="cssClasses.itemIcon + ' ' + cssClasses.itemIconHoverMod"
             xmlns="http://www.w3.org/2000/svg">
             <path
@@ -18,7 +17,6 @@
             width="10"
             height="24"
             viewBox="0 0 10 24"
-            fill="#19B394"
             :class="cssClasses.itemIcon + ' ' + cssClasses.itemIconFocusMod"
             xmlns="http://www.w3.org/2000/svg">
             <path d="M10 5L5 0L0 5H4V9H6V5H10Z" />

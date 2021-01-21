@@ -7,8 +7,24 @@ import { QuestionCheckboxModel } from "./question_checkbox";
  * A Model for a ranking question
  */
 export class QuestionRankingModel extends QuestionCheckboxModel {
+  domNode: HTMLElement = null;
+  sortableInst: Sortable = null;
+
   public getType(): string {
     return "ranking";
+  }
+
+  //cross framework initialization
+  public afterRenderQuestionElement(el: any) {
+    if (!!el) {
+      this.initSortable(el);
+    }
+    super.afterRenderQuestionElement(el);
+  }
+  //cross framework destroy
+  public beforeDestroyQuestionElement(el: any) {
+    if (this.sortableInst) this.sortableInst.destroy();
+    super.beforeDestroyQuestionElement(el);
   }
 
   public initSortable(domNode: HTMLElement) {
@@ -45,9 +61,6 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
       },
     });
   }
-
-  domNode: HTMLElement = null;
-  sortableInst: Sortable = null;
 
   //TODO should calc only ones e.g. Survey.isMobile
   mobileCheck() {

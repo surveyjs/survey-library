@@ -187,6 +187,7 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner {
   ): any;
   runExpression(expression: string): any;
   renderTitleActions(element: ISurveyElement): boolean;
+  elementContentVisibilityChanged(element: ISurveyElement): void;
 }
 export interface ISurveyImpl {
   geSurveyData(): ISurveyData;
@@ -274,6 +275,7 @@ export interface IPanel extends ISurveyElement, IParentElement {
   elementWidthChanged(el: IElement): any;
   indexOf(el: IElement): number;
   elements: Array<IElement>;
+  ensureRowsVisibility(): void;
 }
 export interface IPage extends IPanel, IConditionRunner {
   isStarted: boolean;
@@ -1154,6 +1156,12 @@ export class SurveyElement extends Base implements ISurveyElement {
   }
   public set state(val: string) {
     this.setPropertyValue("state", val);
+    this.notifyStateChanged();
+  }
+  private notifyStateChanged() {
+    if (this.survey) {
+      this.survey.elementContentVisibilityChanged(this);
+    }
   }
   /**
    * Returns true if the Element is in the collapsed state

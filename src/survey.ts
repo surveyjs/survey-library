@@ -926,6 +926,17 @@ export class SurveyModel
   > = new Event<(sender: SurveyModel, options: any) => any, any>();
 
   /**
+   * The event is fired after the survey element content was collapsed or expanded.
+   * <br/> `sender` - the survey object that fires the event.
+   * <br/> `options.element` - Specifies which survey element content was collapsed or expanded.
+   * @see onElementContentVisibilityChanged
+   */
+  public onElementContentVisibilityChanged: Event<
+    (sender: SurveyModel, options: any) => any,
+    any
+  > = new Event<(sender: SurveyModel, options: any) => any, any>();
+
+  /**
    * The list of errors on loading survey JSON. If the list is empty after loading a JSON, then the JSON is correct and has no errors.
    * @see JsonError
    */
@@ -3821,6 +3832,10 @@ export class SurveyModel
   renderTitleActions(element: ISurveyElement): boolean {
     if (element.isPanel) return !this.onGetPanelTitleActions.isEmpty;
     else return !this.onGetQuestionTitleActions.isEmpty;
+  }
+  elementContentVisibilityChanged(element: ISurveyElement): void {
+    this.currentPage.ensureRowsVisibility();
+    this.onElementContentVisibilityChanged.fire(this, { element });
   }
 
   getUpdatedQuestionTitleActions(

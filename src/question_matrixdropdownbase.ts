@@ -1295,8 +1295,17 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     this.createNewArray("rows");
     this.build();
   }
+  public get showTable(): boolean {
+    return this.getPropertyValue("showTable", true);
+  }
   public get showHeader(): boolean {
     return this.getPropertyValue("showHeader");
+  }
+  public get showAddRowOnTop(): boolean {
+    return this.getPropertyValue("showAddRowOnTop", false);
+  }
+  public get showAddRowOnBottom(): boolean {
+    return this.getPropertyValue("showAddRowOnBottom", false);
   }
   public get showFooter(): boolean {
     return this.matrix.hasFooter && this.matrix.isColumnLayoutHorizontal;
@@ -1330,6 +1339,29 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     this.buildHeader();
     this.buildRows();
     this.buildFooter();
+    this.updateShowTableAndAddRow();
+  }
+  public updateShowTableAndAddRow() {
+    var showTable =
+      this.rows.length > 0 ||
+      this.matrix.isDesignMode ||
+      !this.matrix.getShowColumnsIfEmpty();
+    this.setPropertyValue("showTable", showTable);
+    var showAddRow = this.matrix.canAddRow && showTable;
+    var showAddRowOnTop = showAddRow;
+    var showAddRowOnBottom = showAddRow;
+    if (showAddRowOnTop) {
+      if (this.matrix.getAddRowLocation() === "default") {
+        showAddRowOnTop = this.matrix.columnLayout === "vertical";
+      } else {
+        showAddRowOnTop = this.matrix.getAddRowLocation() !== "bottom";
+      }
+    }
+    if (showAddRowOnBottom && this.matrix.getAddRowLocation() !== "topBottom") {
+      showAddRowOnBottom = !showAddRowOnTop;
+    }
+    this.setPropertyValue("showAddRowOnTop", showAddRowOnTop);
+    this.setPropertyValue("showAddRowOnBottom", showAddRowOnBottom);
   }
   public onAddedRow() {
     if (this.getRenderedDataRowCount() >= this.matrix.visibleRows.length)
@@ -1339,6 +1371,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
       this.matrix.visibleRows[this.matrix.visibleRows.length - 1],
       this.matrix.visibleRows.length == 1 && !this.matrix.showHeader
     );
+    this.updateShowTableAndAddRow();
   }
   private getRenderedDataRowCount(): number {
     var res = 0;
@@ -1358,6 +1391,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
       removeCount++;
     }
     this.rows.splice(rowIndex, removeCount);
+    this.updateShowTableAndAddRow();
   }
   public onDetailPanelChangeVisibility(
     row: MatrixDropdownRowModelBase,
@@ -1781,7 +1815,6 @@ export class QuestionMatrixDropdownModelBase
   protected isRowChanging = false;
   columnsChangedCallback: () => void;
   updateCellsCallback: () => void;
-  columnLayoutChangedCallback: () => void;
   onRenderedTableResetCallback: () => void;
   onRenderedTableCreatedCallback: (
     table: QuestionMatrixDropdownRenderedTable
@@ -1819,12 +1852,6 @@ export class QuestionMatrixDropdownModelBase
       }
     );
     this.registerFunctionOnPropertiesValueChanged(
-      ["columnLayout", "addRowLocation"],
-      function () {
-        self.fireCallback(self.columnLayoutChangedCallback);
-      }
-    );
-    this.registerFunctionOnPropertiesValueChanged(
       ["cellType", "optionsCaption", "columnColCount", "rowTitleWidth"],
       function () {
         self.clearGeneratedRows();
@@ -1835,6 +1862,8 @@ export class QuestionMatrixDropdownModelBase
     this.registerFunctionOnPropertiesValueChanged(
       [
         "columnLayout",
+        "addRowLocation",
+        "hideColumnsIfEmpty",
         "showHeader",
         "minRowCount",
         "isReadOnly",
@@ -1916,6 +1945,9 @@ export class QuestionMatrixDropdownModelBase
   }
   public getFooterText(): LocalizableString {
     return null;
+  }
+  public get canAddRow(): boolean {
+    return false;
   }
   public get canRemoveRows(): boolean {
     return false;
@@ -2102,6 +2134,17 @@ export class QuestionMatrixDropdownModelBase
   }
   public get hasFooter(): boolean {
     return this.getPropertyValue("hasFooter", false);
+  }
+  public getAddRowLocation(): string {
+    return "default";
+  }
+  public getShowColumnsIfEmpty(): boolean {
+    return false;
+  }
+  protected setShowColumnsIfEmpty() {
+    if (!!this.renderedTable) {
+      this.renderedTable.updateShowTableAndAddRow();
+    }
   }
   protected updateHasFooter() {
     this.setPropertyValue("hasFooter", this.hasTotal);

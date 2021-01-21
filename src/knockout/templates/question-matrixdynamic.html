@@ -1,6 +1,6 @@
 ﻿﻿<script type="text/html" id="survey-question-matrixdynamic">
   <div
-    data-bind="visible: question.koIsAddRowOnTop(), css: question.koCss().footer"
+    data-bind="visible: question.koTable().showAddRowOnTop, css: question.koCss().footer"
   >
     <button
       type="button"
@@ -10,7 +10,7 @@
       <span data-bind="css: question.koCss().iconAdd"></span>
     </button>
   </div>
-  <div data-bind="style: {overflowX: question.horizontalScroll? 'scroll': ''}">
+  <div data-bind="visible: question.koTable().showTable, style: {overflowX: question.horizontalScroll? 'scroll': ''}">
     <table data-bind="css: question.koCss().root">
       <!-- ko if: question.koTable().showHeader -->
       <thead>
@@ -104,8 +104,17 @@
       <!-- /ko -->
     </table>
   </div>
+  <div data-bind="visible: !question.koTable().showTable">
+    <button
+      type="button"
+      data-bind="click:question.koAddRowClick, css: question.koCss().button + ' ' + question.koCss().buttonAdd"
+    >
+      <span data-bind="text: question.addRowText"></span>
+      <span data-bind="css: question.koCss().iconAdd"></span>
+    </button>
+  </div>
   <div
-    data-bind="visible: question.koIsAddRowOnBottom(), css: question.koCss().footer"
+    data-bind="visible: question.koTable().showAddRowOnBottom, css: question.koCss().footer"
   >
     <button
       type="button"

@@ -179,6 +179,9 @@ export var defaultStandardCss = {
     detailIcon: "sv_detail_panel_icon",
     detailIconExpanded: "sv_detail_expanded",
     detailPanelCell: "sv_matrix_cell_detail_panel",
+    emptyRowsSection: "sv_matrix_empty_rows_section",
+    emptyRowsText: "sv_matrix_empty_rows_text",
+    emptyRowsButton: "",
   },
   paneldynamic: {
     root: "sv_panel_dynamic",

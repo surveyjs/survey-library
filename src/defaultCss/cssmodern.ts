@@ -249,6 +249,9 @@ export var modernCss = {
     detailIcon: "sv-detail-panel__icon",
     detailIconExpanded: "sv-detail-panel__icon--expanded",
     detailPanelCell: "sv-table__cell--detail-panel",
+    emptyRowsSection: "sv-table__empty--rows--section",
+    emptyRowsText: "sv-table__empty--rows--text",
+    emptyRowsButton: "",
   },
   rating: {
     root: "sv-rating",

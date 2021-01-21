@@ -52,6 +52,7 @@ export var englishStrings = {
   addColumn: "Add column",
   addRow: "Add row",
   removeRow: "Remove",
+  emptyRowsText: "There is no rows.",
   addPanel: "Add new",
   removePanel: "Remove",
   choices_Item: "item",

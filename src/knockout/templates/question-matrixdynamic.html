@@ -105,10 +105,11 @@
     </table>
   </div>
   <!-- ko ifnot: question.koTable().showTable -->
-  <div>
+  <div data-bind="css: question.koCss().emptyRowsSection">
+    <div  data-bind="css: question.koCss().emptyRowsText"><!-- ko template: { name: 'survey-string', data: question.locEmptyRowsText } --><!-- /ko --></div>
     <button
       type="button"
-      data-bind="click:question.koAddRowClick, css: question.koCss().button + ' ' + question.koCss().buttonAdd"
+      data-bind="click:question.koAddRowClick, css: question.koCss().button + ' ' + question.koCss().buttonAdd + '' + question.koCss().emptyRowsButton"
     >
       <span data-bind="text: question.addRowText"></span>
       <span data-bind="css: question.koCss().iconAdd"></span>

@@ -19,11 +19,21 @@
       v-if="question.renderedTable.showTable"
       :question="question"
     />
-    <div v-if="!question.renderedTable.showTable">
+    <div
+      v-if="!question.renderedTable.showTable"
+      :class="question.cssClasses.emptyRowsSection"
+    >
+      <div :class="question.cssClasses.emptyRowsText">
+        <survey-string :locString="question.locEmptyRowsText" />
+      </div>
       <button
         type="button"
         :class="
-          question.cssClasses.button + ' ' + question.cssClasses.buttonAdd
+          question.cssClasses.button +
+          ' ' +
+          question.cssClasses.buttonAdd +
+          ' ' +
+          question.cssClasses.emptyRowsButton
         "
         @click="addRowClick"
       >

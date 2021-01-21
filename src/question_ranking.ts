@@ -15,6 +15,7 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
     if (!domNode) return;
     this.domNode = domNode;
     const syncNumbers = this.syncNumbers;
+    const setValue = this.setValue;
 
     this.sortableInst = new Sortable(domNode, {
       animation: 100,
@@ -31,6 +32,7 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
       },
       onEnd() {
         domNode.className = domNode.className.replace(" ranking--drag", "");
+        setValue();
       },
       onChange(evt) {
         const indexNodes = domNode.querySelectorAll(".sv-ranking-item__index");
@@ -80,7 +82,7 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
       this.moveItemDown(index);
       this.focusItem(index + 1);
     }
-  }
+  };
 
   moveItemUp = (index: any) => {
     const array = this.sortableInst.toArray();
@@ -90,7 +92,8 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
 
     this.sortableInst.sort(array);
     this.syncNumbers();
-  }
+    this.setValue();
+  };
 
   moveItemDown = (index: any) => {
     const array = this.sortableInst.toArray();
@@ -100,7 +103,8 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
 
     this.sortableInst.sort(array);
     this.syncNumbers();
-  }
+    this.setValue();
+  };
 
   syncNumbers = () => {
     const indexNodes = this.domNode.querySelectorAll(".sv-ranking-item__index");
@@ -110,9 +114,20 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
   };
 
   focusItem = (index: number) => {
-    const itemsNodes: any = this.domNode.querySelectorAll("." + this.cssClasses.item);
+    const itemsNodes: any = this.domNode.querySelectorAll(
+      "." + this.cssClasses.item
+    );
     itemsNodes[index].focus();
-  }
+  };
+
+  setValue = () => {
+    let value: string[] = [];
+    const textNodes = this.domNode.querySelectorAll(".sv-ranking-item__text");
+    textNodes.forEach((textNode: any, index) => {
+      value.push(textNode.innerText);
+    });
+    this.value = value;
+  };
 }
 
 Serializer.addClass(

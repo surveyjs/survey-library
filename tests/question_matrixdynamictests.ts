@@ -1654,90 +1654,90 @@ QUnit.test("Matrixdynamic allowRemoveRows property", function (assert) {
 QUnit.test("Matrixdynamic addRowLocation", function (assert) {
   var question = new QuestionMatrixDynamicModel("matrix");
   assert.equal(
-    question.isAddRowOnTop,
+    question.renderedTable.showAddRowOnTop,
     false,
     "columnsLocation='horizontal', addRowLocation='default', #1"
   );
   assert.equal(
-    question.isAddRowOnBottom,
+    question.renderedTable.showAddRowOnBottom,
     true,
     "columnsLocation='horizontal', addRowLocation='default', #2"
   );
   question.addRowLocation = "top";
   assert.equal(
-    question.isAddRowOnTop,
+    question.renderedTable.showAddRowOnTop,
     true,
     "columnsLocation='horizontal', addRowLocation='top', #1"
   );
   assert.equal(
-    question.isAddRowOnBottom,
+    question.renderedTable.showAddRowOnBottom,
     false,
     "columnsLocation='horizontal', addRowLocation='top', #2"
   );
   question.addRowLocation = "bottom";
   assert.equal(
-    question.isAddRowOnTop,
+    question.renderedTable.showAddRowOnTop,
     false,
     "columnsLocation='horizontal', addRowLocation='bottom', #1"
   );
   assert.equal(
-    question.isAddRowOnBottom,
+    question.renderedTable.showAddRowOnBottom,
     true,
     "columnsLocation='horizontal', addRowLocation='bottom', #2"
   );
   question.addRowLocation = "topBottom";
   assert.equal(
-    question.isAddRowOnTop,
+    question.renderedTable.showAddRowOnTop,
     true,
     "columnsLocation='horizontal', addRowLocation='topBottom', #1"
   );
   assert.equal(
-    question.isAddRowOnBottom,
+    question.renderedTable.showAddRowOnBottom,
     true,
     "columnsLocation='horizontal', addRowLocation='topBottom', #2"
   );
   question.columnsLocation = "vertical";
   question.addRowLocation = "default";
   assert.equal(
-    question.isAddRowOnTop,
+    question.renderedTable.showAddRowOnTop,
     true,
     "columnsLocation='vertical', addRowLocation='default', #1"
   );
   assert.equal(
-    question.isAddRowOnBottom,
+    question.renderedTable.showAddRowOnBottom,
     false,
     "columnsLocation='vertical', addRowLocation='default', #2"
   );
   question.addRowLocation = "top";
   assert.equal(
-    question.isAddRowOnTop,
+    question.renderedTable.showAddRowOnTop,
     true,
     "columnsLocation='vertical', addRowLocation='top', #1"
   );
   assert.equal(
-    question.isAddRowOnBottom,
+    question.renderedTable.showAddRowOnBottom,
     false,
     "columnsLocation='vertical', addRowLocation='top', #2"
   );
   question.addRowLocation = "bottom";
   assert.equal(
-    question.isAddRowOnTop,
+    question.renderedTable.showAddRowOnTop,
     false,
     "columnsLocation='vertical', addRowLocation='bottom', #1"
   );
   assert.equal(
-    question.isAddRowOnBottom,
+    question.renderedTable.showAddRowOnBottom,
     true,
     "columnsLocation='vertical', addRowLocation='bottom', #2"
   );
   question.addRowLocation = "topBottom";
   assert.equal(
-    question.isAddRowOnTop,
+    question.renderedTable.showAddRowOnTop,
     true,
     "columnsLocation='vertical', addRowLocation='topBottom', #1"
   );
   assert.equal(
-    question.isAddRowOnBottom,
+    question.renderedTable.showAddRowOnBottom,
     true,
     "columnsLocation='vertical', addRowLocation='topBottom', #2"
   );
@@ -5521,4 +5521,47 @@ QUnit.test("copyvalue trigger for dropdown matrix cell", function (assert) {
     "val2",
     "copy value for Item2"
   );
+});
+QUnit.test("MatrixDynamic, ", function (assert) {
+  var survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdynamic",
+        name: "matrix",
+        rowCount: 0,
+        hideColumnsIfEmpty: true,
+        columns: [{ name: "col1" }],
+      },
+    ],
+  });
+  var matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+  assert.equal(matrix.renderedTable.showTable, false, "There is no rows");
+  assert.equal(
+    matrix.renderedTable.showAddRowOnBottom,
+    false,
+    "Do not show add button"
+  );
+  matrix.addRow();
+  assert.equal(matrix.renderedTable.showTable, true, "There is a row");
+  assert.equal(
+    matrix.renderedTable.showAddRowOnBottom,
+    true,
+    "Show add button"
+  );
+  matrix.removeRow(0);
+  assert.equal(matrix.renderedTable.showTable, false, "Matrix is empty again");
+  assert.equal(
+    matrix.renderedTable.showAddRowOnBottom,
+    false,
+    "Do not show add button again"
+  );
+  matrix.hideColumnsIfEmpty = false;
+  assert.equal(
+    matrix.renderedTable.showTable,
+    true,
+    "hideColumnsIfEmpty is false"
+  );
+  survey.setDesignMode(true);
+  matrix.hideColumnsIfEmpty = true;
+  assert.equal(matrix.renderedTable.showTable, true, "survey in design mode");
 });

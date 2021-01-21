@@ -51,6 +51,9 @@ export class QuestionMatrixDynamicModel
     void (<LocalizableString>(
       this.createLocalizableString("removeRowText", this)
     ));
+    this.registerFunctionOnPropertyValueChanged("hideColumnsIfEmpty", () => {
+      this.setShowColumnsIfEmpty();
+    });
   }
   public getType(): string {
     return "matrixdynamic";
@@ -485,17 +488,20 @@ export class QuestionMatrixDynamicModel
   public set addRowLocation(val: string) {
     this.setPropertyValue("addRowLocation", val);
   }
-  public get isAddRowOnTop() {
-    if (!this.canAddRow) return false;
-    if (this.addRowLocation === "default")
-      return this.columnLayout === "vertical";
-    return this.addRowLocation !== "bottom";
+  public getAddRowLocation(): string {
+    return this.addRowLocation;
   }
-  public get isAddRowOnBottom() {
-    if (!this.canAddRow) return false;
-    if (this.addRowLocation === "default")
-      return this.columnLayout === "horizontal";
-    return this.addRowLocation !== "top";
+  /**
+   * Set this property to true to hide matrix columns when there is no any row.
+   */
+  public get hideColumnsIfEmpty(): boolean {
+    return this.getPropertyValue("hideColumnsIfEmpty");
+  }
+  public set hideColumnsIfEmpty(val: boolean) {
+    this.setPropertyValue("hideColumnsIfEmpty", val);
+  }
+  public getShowColumnsIfEmpty() {
+    return this.hideColumnsIfEmpty;
   }
   /**
    * Use this property to change the default value of remove row button text.
@@ -738,6 +744,7 @@ Serializer.addClass(
     },
     { name: "addRowText", serializationProperty: "locAddRowText" },
     { name: "removeRowText", serializationProperty: "locRemoveRowText" },
+    "hideColumnsIfEmpty:boolean",
   ],
   function () {
     return new QuestionMatrixDynamicModel("");

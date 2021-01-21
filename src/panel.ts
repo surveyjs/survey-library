@@ -40,10 +40,10 @@ export class QuestionRowModel extends Base {
   private static getRowId(): string {
     return "pr_" + QuestionRowModel.rowCounter++;
   }
-  private _scrollableParent: any = undefined;
-  private _updateVisibility: any = undefined;
-  public startLazyRendering(rowContainerDiv: HTMLElement) {
-    this._scrollableParent = findScrollableParent(rowContainerDiv);
+  protected _scrollableParent: any = undefined;
+  protected _updateVisibility: any = undefined;
+  public startLazyRendering(rowContainerDiv: HTMLElement, findScrollableContainer = findScrollableParent) {
+    this._scrollableParent = findScrollableContainer(rowContainerDiv);
     this.isNeedRender = !(this._scrollableParent.scrollHeight > this._scrollableParent.clientHeight);
     if (!this.isNeedRender) {
       this._updateVisibility = () => {
@@ -54,7 +54,9 @@ export class QuestionRowModel extends Base {
         }
       };
       setTimeout(() => {
-        this._scrollableParent.addEventListener("scroll", this._updateVisibility);
+        if (!!this._scrollableParent.addEventListener) {
+          this._scrollableParent.addEventListener("scroll", this._updateVisibility);
+        }
         this._updateVisibility();
       }, 10);
     }
@@ -65,7 +67,7 @@ export class QuestionRowModel extends Base {
     }
   }
   public stopLazyRendering() {
-    if (!!this._scrollableParent && !!this._updateVisibility) {
+    if (!!this._scrollableParent && !!this._updateVisibility && !!this._scrollableParent.removeEventListener) {
       this._scrollableParent.removeEventListener(
         "scroll",
         this._updateVisibility

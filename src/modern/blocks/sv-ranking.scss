@@ -2,7 +2,7 @@
   outline: none;
 }
 .sv-ranking--mobile {
-  .sv-ranking-item__hover-icon {
+  .sv-ranking-item__icon--hover {
     visibility: visible;
     fill: gray;
   }
@@ -12,7 +12,7 @@
   margin-bottom: 5px;
 
   &:hover {
-    .sv-ranking-item__hover-icon {
+    .sv-ranking-item__icon--hover {
       visibility: visible;
     }
   }
@@ -20,11 +20,11 @@
   &:focus {
     outline: none;
 
-    .sv-ranking-item__hover-icon {
+    .sv-ranking-item__icon--hover {
       visibility: hidden;
     }
 
-    .sv-ranking-item__focus-icon {
+    .sv-ranking-item__icon--focus {
       visibility: visible;
       top: 15px;
     }
@@ -104,6 +104,6 @@
   }
 }
 
-.sv-ranking-item--drag .sv-ranking-item__hover-icon {
+.sv-ranking-item--drag .sv-ranking-item__icon--hover {
   visibility: visible;
 }

@@ -7,6 +7,7 @@
       :text="item.text"
       :index="index"
       :handleKeydown="question.handleKeydown"
+      :cssClasses="question.cssClasses"
     ></survey-ranking-item>
   </div>
 </template>

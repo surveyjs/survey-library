@@ -16,26 +16,29 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
     this.domNode = domNode;
     const syncNumbers = this.syncNumbers;
     const setValue = this.setValue;
+    const cssClasses = this.cssClasses;
 
     this.sortableInst = new Sortable(domNode, {
       animation: 100,
       forceFallback: true,
       handle: this.mobileCheck()
-        ? "." + this.cssClasses.item
-        : ".sv-ranking-item__icon-container",
-      ghostClass: "sv-ranking-item--ghost",
-      chosenClass: "sv-ranking-item--chosen",
-      dragClass: "sv-ranking-item--drag",
+        ? "." + cssClasses.item
+        : "." + cssClasses.itemIconContainer,
+      ghostClass: cssClasses.itemGhostMod,
+      dragClass: cssClasses.itemDragMod,
       onStart() {
         (<any>Sortable.ghost.style.opacity) = 1;
-        domNode.className += " ranking--drag";
+        domNode.className += " " + cssClasses.rootDragMod;
       },
       onEnd() {
-        domNode.className = domNode.className.replace(" ranking--drag", "");
+        domNode.className = domNode.className.replace(
+          " " + cssClasses.rootDragMod,
+          ""
+        );
         setValue();
       },
       onChange(evt) {
-        const indexNodes = domNode.querySelectorAll(".sv-ranking-item__index");
+        const indexNodes = domNode.querySelectorAll("." + cssClasses.itemIndex);
         const ghostNode = indexNodes[indexNodes.length - 1];
         syncNumbers();
         (<any>ghostNode).innerText = evt.newIndex + 1;
@@ -65,7 +68,7 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
 
   get rootClass() {
     const css = this.cssClasses;
-    if (this.mobileCheck()) return css.root + " " + css.rootMobile;
+    if (this.mobileCheck()) return css.root + " " + css.rootMobileMod;
     return css.root;
   }
 
@@ -107,7 +110,9 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
   };
 
   syncNumbers = () => {
-    const indexNodes = this.domNode.querySelectorAll(".sv-ranking-item__index");
+    const indexNodes = this.domNode.querySelectorAll(
+      "." + this.cssClasses.itemIndex
+    );
     indexNodes.forEach((indexNode: any, index) => {
       indexNode.innerText = index + 1;
     });
@@ -122,7 +127,9 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
 
   setValue = () => {
     let value: string[] = [];
-    const textNodes = this.domNode.querySelectorAll(".sv-ranking-item__text");
+    const textNodes = this.domNode.querySelectorAll(
+      "." + this.cssClasses.itemText
+    );
     textNodes.forEach((textNode: any, index) => {
       value.push(textNode.innerText);
     });

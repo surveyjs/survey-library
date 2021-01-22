@@ -66,7 +66,7 @@ Please visit our [what's new page](https://surveyjs.io/WhatsNew) to see what we 
 
 The SurveyJS Library is a JavaScript library that available for five platforms:
 
-- angular2+
+- Angular
 - jQuery
 - knockout
 - react
@@ -84,7 +84,7 @@ The library itself consists of two parts:
 
   This part deals with rendering and processing mouse and keyboard events.
   
-  The **jQuery** and **angular2+** versions are the wrappers around the **knockout** version with built-in **knockout** library in them. **Knockout**, **react**, and **vue** implementations are native.
+w  The **jQuery** and **Angular** versions are the wrappers around the **knockout** version with built-in **knockout** library in them. **Knockout**, **react**, and **vue** implementations are native.
 
 <div id="objects"></div>
 

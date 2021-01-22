@@ -1,5 +1,5 @@
 <template>
-  <div :class="question.rootClass" ref="domNode">
+  <div :class="question.rootClass">
     <survey-ranking-item
       v-for="(item, index) in question.visibleChoices"
       :key="item.value"

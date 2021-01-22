@@ -767,8 +767,9 @@ Serializer.addClass(
     { name: "removeRowText", serializationProperty: "locRemoveRowText" },
     "hideColumnsIfEmpty:boolean",
     {
-      name: "emptyRowsText",
+      name: "emptyRowsText:text",
       serializationProperty: "locEmptyRowsText",
+      dependsOn: "hideColumnsIfEmpty",
       visibleIf: function (obj: any): boolean {
         return !obj || obj.hideColumnsIfEmpty;
       },

@@ -45,7 +45,10 @@ export {
   SurveyQuestionCheckboxItem,
 } from "../react/reactquestion_checkbox";
 export { SurveyQuestionDropdown } from "../react/reactquestion_dropdown";
-export { SurveyQuestionMatrix, SurveyQuestionMatrixRow } from "../react/reactquestion_matrix";
+export {
+  SurveyQuestionMatrix,
+  SurveyQuestionMatrixRow,
+} from "../react/reactquestion_matrix";
 export { SurveyQuestionHtml } from "../react/reactquestion_html";
 export { SurveyQuestionFile } from "../react/reactquestion_file";
 export { SurveyQuestionMultipleText } from "../react/reactquestion_multipletext";
@@ -68,7 +71,11 @@ export { ReactElementFactory } from "../react/element-factory";
 export { SurveyQuestionImagePicker } from "../react/imagepicker";
 export { SurveyQuestionImage } from "../react/image";
 export { SurveyQuestionSignaturePad } from "../react/signaturepad";
-export { SurveyQuestionCustom, SurveyQuestionComposite } from "../react/reactquestion_custom";
+export {
+  SurveyQuestionCustom,
+  SurveyQuestionComposite,
+} from "../react/reactquestion_custom";
+export { DefaultTitle } from "../react/components/default-title/default-title";
 
 //Uncomment to include the "date" question type.
 //export {default as SurveyQuestionDate} from "../plugins/react/reactquestiondate";

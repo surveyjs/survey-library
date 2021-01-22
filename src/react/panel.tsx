@@ -76,29 +76,13 @@ export class SurveyPanel extends SurveyPanelBase {
   }
   protected renderTitle(): JSX.Element {
     if (!this.panelBase.title) return null;
-    var spans = this.renderTitleSpans(this.panel, this.panel.cssClasses);
-
-    var expandCollapse = null;
+    const titleComponent = ReactElementFactory.Instance.createElement(
+      this.panel.getTitleComponentName(),
+      { element: this.panel, cssClasses: this.panel.cssClasses.panel }
+    );
     var titleStyle = this.panel.cssClasses.panel.title;
     if (this.panel.isCollapsed || this.panel.isExpanded) {
       titleStyle += " " + this.panel.cssClasses.panel.titleExpandable;
-      var iconCss = this.panel.cssClasses.panel.icon;
-      if (!this.panel.isCollapsed)
-        iconCss += " " + this.panel.cssClasses.panel.iconExpanded;
-      var pressExpand = (event: any) => {
-        if (event.keyCode == 13) this.panel.toggleState();
-      };
-      var ariaExpanded = this.panel.isExpanded;
-      var ariaControls = this.panel.isExpanded ? this.panel.contentId : null;
-      expandCollapse = (
-        <span
-          className={iconCss}
-          tabIndex={0}
-          onKeyUp={pressExpand}
-          aria-expanded={ariaExpanded}
-          aria-controls={ariaControls}
-        />
-      );
     }
 
     if (this.panel.containsErrors) {
@@ -106,9 +90,13 @@ export class SurveyPanel extends SurveyPanelBase {
     }
 
     return (
-      <h4 className={titleStyle} onClick={()=>{this.panel.toggleState()}}>
-        {spans}
-        {expandCollapse}
+      <h4
+        className={titleStyle}
+        onClick={() => {
+          this.panel.toggleState();
+        }}
+      >
+        {titleComponent}
       </h4>
     );
   }

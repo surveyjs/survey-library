@@ -77,5 +77,6 @@ export {
 } from "../react/reactquestion_custom";
 export { DefaultTitle } from "../react/components/default-title/default-title";
 
+export { TitleActions } from "../react/components/title-actions/title-actions";
 //Uncomment to include the "date" question type.
 //export {default as SurveyQuestionDate} from "../plugins/react/reactquestiondate";

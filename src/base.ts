@@ -1204,6 +1204,7 @@ export class SurveyElement extends Base implements ISurveyElement {
   }
 
   public getTitleActions(): Array<any> {
+    this.titleActions = [];
     this.titleActions.push({
       title: "",
       action: () => {},

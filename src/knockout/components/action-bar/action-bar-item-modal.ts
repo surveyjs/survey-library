@@ -1,6 +1,6 @@
 import { throws } from "assert";
 import * as ko from "knockout";
-import { IActionBarItem } from "./action-bar";
+import { IActionBarItem } from "../../../base";
 
 const template = require("./action-bar-item-modal.html");
 

@@ -10,7 +10,7 @@ export class TitleContent extends React.Component<any, any> {
   }
 
   private get cssClasses() {
-    return this.element.cssClasses;
+    return this.props.cssClasses;
   }
 
   private get element(): Question {
@@ -72,6 +72,7 @@ export class TitleContent extends React.Component<any, any> {
     }
     return spans;
   }
+
   private renderRequireText(
     element: ITitleOwner,
     cssClasses: any

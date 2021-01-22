@@ -47,7 +47,10 @@ export class DefaultTitle extends React.Component<any, any> {
     }
     return (
       <>
-        <TitleContent element={this.element}></TitleContent>
+        <TitleContent
+          element={this.element}
+          cssClasses={this.cssClasses}
+        ></TitleContent>
         {expandCollapse}
       </>
     );

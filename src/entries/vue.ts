@@ -67,3 +67,8 @@ export { SignaturePad } from "../vue/signaturepad.vue";
 export { SurveyHeader } from "../vue/header.vue";
 export { Custom } from "../vue/custom.vue";
 export { Composite } from "../vue/composite.vue";
+
+export { TitleContent } from "../vue/titlecontent.vue";
+export { TitleActions } from "../vue/components/title-actions/title-actions.vue";
+export { DefaultTitle } from "../vue/components/default-title/default-title.vue";
+export { ActionBar } from "../vue/components/action-bar/action-bar.vue";

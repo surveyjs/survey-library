@@ -6,26 +6,26 @@
         :css="css"
       ></survey-question-title-content>
     </span>
-    <sv-action-bar
-      class="sv-title-actions__bar"
-      params="items: items"
-    ></sv-action-bar>
+    <sv-action-bar class="sv-title-actions__bar" :items="items"></sv-action-bar>
   </div>
 </template>
 
 <script lang="ts">
 import Vue from "vue";
-import { Prop } from "vue-property-decorator";
+import { Component, Prop } from "vue-property-decorator";
 import { ISurveyElement } from "../../../base";
 import { RendererFactory } from "../../../rendererFactory";
 
 @Component
-class TitleActions extends Vue {
+export class TitleActions extends Vue {
   @Prop element: ISurveyElement;
-  items: Array<any>;
+  @Prop css: any;
   constructor() {
     super();
-    this.items = this.element.getTitleActions();
+  }
+
+  public get items() {
+    return this.element.getTitleActions();
   }
 }
 
@@ -35,6 +35,6 @@ RendererFactory.Instance.registerRenderer(
   "sv-title-actions"
 );
 
-Vue.component("sv-default-title", TitleActions);
+Vue.component("sv-title-actions", TitleActions);
 export default TitleActions;
 </script>

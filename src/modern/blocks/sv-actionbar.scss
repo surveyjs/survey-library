@@ -14,7 +14,8 @@ $base-unit: var(--base-unit, 8px);
   @return $result;
 }
 
-sv-action-bar {
+sv-action-bar,
+.sv-action-bar {
   display: flex;
   position: relative;
   align-items: center;

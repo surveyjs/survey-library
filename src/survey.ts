@@ -3834,8 +3834,8 @@ export class SurveyModel
     else return !this.onGetQuestionTitleActions.isEmpty;
   }
   elementContentVisibilityChanged(element: ISurveyElement): void {
-    if (this.currentPage) {
-      this.currentPage.ensureRowsVisibility();
+    if (this.currentPageValue) {
+      this.currentPageValue.ensureRowsVisibility();
     }
     this.onElementContentVisibilityChanged.fire(this, { element });
   }

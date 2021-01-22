@@ -178,7 +178,7 @@ export class SurveyQuestionRadioItem extends ReactSurveyElement {
             </svg>
           </span>
           <span className="check" />
-          <span className={controlLabelClass} title={locText["koRenderedHtml"]}>
+          <span className={controlLabelClass} title={locText.text}>
             {itemText}
           </span>
         </label>

@@ -38,7 +38,7 @@
       <span
         v-if="!hideLabel"
         :class="question.cssClasses.controlLabel"
-        :title="item.locText.koRenderedHtml"
+        :title="item.locText.text"
       >
         <survey-string :locString="item.locText" />
       </span>

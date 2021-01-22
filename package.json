@@ -4,7 +4,7 @@
     "serve": "live-server --port=7777",
     "test": "karma start",
     "testsingle": "karma start --single-run",
-    "testcafe": "concurrently \"http-server\" \"testcafe chrome testCafe/ --selector-timeout 1500\"",
+    "testcafe": "concurrently \"http-server --silent\" \"testcafe -c 4 chrome testCafe/ --selector-timeout 1500 --reporter minimal\"",
     "testcafe_ci": "http-server --silent & testcafe chrome:headless testCafe/ --reporter minimal",
     "testcafe_sauce": "testcafe \"saucelabs:Chrome@56.0:Windows 10\" testCafe/",
     "release": "standard-version --message \"Release: %s [skip ci]\" ",

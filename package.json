@@ -2,6 +2,7 @@
   "scripts": {
     "start": "npm run build_dev && live-server --port=7777",
     "serve": "live-server --port=7777",
+    "serve_ci": "http-server",
     "test": "karma start",
     "testsingle": "karma start --single-run",
     "testcafe": "concurrently \"http-server --silent\" \"testcafe -c 4 chrome testCafe/ --selector-timeout 1500 --reporter minimal\"",

@@ -57,7 +57,7 @@ export class QuestionRowModel extends Base {
         if (!!this._scrollableParent && !!this._scrollableParent.addEventListener) {
           this._scrollableParent.addEventListener("scroll", this._updateVisibility);
         }
-        this._updateVisibility();
+        this.ensureVisibility();
       }, 10);
     }
   }

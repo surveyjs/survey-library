@@ -693,3 +693,184 @@ QUnit.test("Panel.requiredIf", function (assert) {
   survey.setValue("q1", 2);
   assert.equal(panel.isRequired, false, "q1 is 2");
 });
+
+QUnit.test("Panel.ensureRowsVisibility", function (assert) {
+  var json = {
+    "pages": [
+     {
+      "name": "page1",
+      "elements": [
+       {
+        "type": "panel",
+        "name": "panel1",
+        "elements": [
+         {
+          "type": "text",
+          "name": "question1"
+         },
+         {
+          "type": "checkbox",
+          "name": "question2",
+          "choices": [
+           "item1",
+           "item2",
+           "item3"
+          ]
+         }
+        ],
+        "state": "collapsed"
+       }
+      ]
+     }
+    ]
+   };
+
+   let counter = 0;
+   let handler = () => counter++;
+
+  var survey = new SurveyModel(json);
+  var panel : PanelModel = <PanelModel>survey.getAllPanels()[0];
+  const page = survey.currentPage;
+  page.setWasShown(false);
+  page.onFirstRendering();
+  assert.equal(panel.rows.length, 2);
+
+  panel.rows.forEach((row) => {
+    assert.equal(row["_updateVisibility"], undefined);
+    assert.equal(row["_scrollableParent"], undefined);
+    row["_updateVisibility"] = handler;
+  });
+  assert.equal(counter, 0);
+
+  panel.ensureRowsVisibility();
+  assert.equal(counter, 2);
+});
+
+QUnit.test("Panel.startLazyRendering isNeedRender=true", function (assert) {
+  var json = {
+    "pages": [
+     {
+      "name": "page1",
+      "elements": [
+       {
+        "type": "panel",
+        "name": "panel1",
+        "elements": [
+         {
+          "type": "text",
+          "name": "question1"
+         },
+         {
+          "type": "checkbox",
+          "name": "question2",
+          "choices": [
+           "item1",
+           "item2",
+           "item3"
+          ]
+         }
+        ],
+        "state": "collapsed"
+       }
+      ]
+     }
+    ]
+   };
+
+  const prevLazyRowsRendering = settings.lazyRowsRendering;
+  settings.lazyRowsRendering = true;
+  try {
+    var survey = new SurveyModel(json);
+    var panel : PanelModel = <PanelModel>survey.getAllPanels()[0];
+    const page = survey.currentPage;
+    page.setWasShown(false);
+    page.onFirstRendering();
+    assert.equal(panel.rows.length, 2);
+
+    panel.rows.forEach((row) => {
+      assert.equal(row["_scrollableParent"], undefined);
+      assert.equal(row["_updateVisibility"], undefined);
+      assert.equal(row.isNeedRender, false);
+      var div = document.createElement('div');
+      row.startLazyRendering(div, () => {
+        return <any>{ scrollHeight: 200, clientHeight: 300 };
+      });
+      assert.notEqual(row["_scrollableParent"], undefined);
+      assert.equal(row["_updateVisibility"], undefined);
+      assert.equal(row.isNeedRender, true);
+
+      row.stopLazyRendering();
+      assert.equal(row["_scrollableParent"], undefined);
+      assert.equal(row["_updateVisibility"], undefined);
+      assert.equal(row.isNeedRender, true);
+
+    });
+  }
+  finally {
+    settings.lazyRowsRendering = prevLazyRowsRendering;
+  }
+});
+
+QUnit.test("Panel.startLazyRendering isNeedRender=false", function (assert) {
+  var json = {
+    "pages": [
+     {
+      "name": "page1",
+      "elements": [
+       {
+        "type": "panel",
+        "name": "panel1",
+        "elements": [
+         {
+          "type": "text",
+          "name": "question1"
+         },
+         {
+          "type": "checkbox",
+          "name": "question2",
+          "choices": [
+           "item1",
+           "item2",
+           "item3"
+          ]
+         }
+        ],
+        "state": "collapsed"
+       }
+      ]
+     }
+    ]
+   };
+
+  const prevLazyRowsRendering = settings.lazyRowsRendering;
+  settings.lazyRowsRendering = true;
+  try {
+    var survey = new SurveyModel(json);
+    var panel : PanelModel = <PanelModel>survey.getAllPanels()[0];
+    const page = survey.currentPage;
+    page.setWasShown(false);
+    page.onFirstRendering();
+    assert.equal(panel.rows.length, 2);
+
+    panel.rows.forEach((row) => {
+      assert.equal(row["_scrollableParent"], undefined);
+      assert.equal(row["_updateVisibility"], undefined);
+      assert.equal(row.isNeedRender, false);
+      var div = document.createElement('div');
+      row.startLazyRendering(div, () => {
+        return <any>{ scrollHeight: 200, clientHeight: 100 };
+      });
+      assert.notEqual(row["_scrollableParent"], undefined);
+      assert.notEqual(row["_updateVisibility"], undefined);
+      assert.equal(row.isNeedRender, false);
+
+      row.stopLazyRendering();
+      assert.equal(row["_scrollableParent"], undefined);
+      assert.equal(row["_updateVisibility"], undefined);
+      assert.equal(row.isNeedRender, false);
+    });
+  }
+  finally {
+    settings.lazyRowsRendering = prevLazyRowsRendering;
+  }
+});

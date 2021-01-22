@@ -51,6 +51,12 @@ export class QuestionMatrixDynamicModel
     void (<LocalizableString>(
       this.createLocalizableString("removeRowText", this)
     ));
+    var locEmptyRowsText = <LocalizableString>(
+      this.createLocalizableString("emptyRowsText", this)
+    );
+    locEmptyRowsText.onGetTextCallback = (text: string): string => {
+      return !!text ? text : surveyLocalization.getString("emptyRowsText");
+    };
     this.registerFunctionOnPropertyValueChanged("hideColumnsIfEmpty", () => {
       this.setShowColumnsIfEmpty();
     });
@@ -518,6 +524,21 @@ export class QuestionMatrixDynamicModel
   get locRemoveRowText() {
     return this.getLocalizableString("removeRowText");
   }
+  /**
+   * Use this property to change the default value of remove row button text.
+   */
+  public get emptyRowsText() {
+    return this.getLocalizableStringText(
+      "emptyRowsText",
+      surveyLocalization.getString("emptyRowsText")
+    );
+  }
+  public set emptyRowsText(val: string) {
+    this.setLocalizableStringText("emptyRowsText", val);
+  }
+  get locEmptyRowsText() {
+    return this.getLocalizableString("emptyRowsText");
+  }
   protected getDisplayValueCore(keysAsText: boolean, value: any): any {
     var values = this.createValueCopy();
     if (!values || !Array.isArray(values)) return values;
@@ -745,6 +766,14 @@ Serializer.addClass(
     { name: "addRowText", serializationProperty: "locAddRowText" },
     { name: "removeRowText", serializationProperty: "locRemoveRowText" },
     "hideColumnsIfEmpty:boolean",
+    {
+      name: "emptyRowsText:text",
+      serializationProperty: "locEmptyRowsText",
+      dependsOn: "hideColumnsIfEmpty",
+      visibleIf: function (obj: any): boolean {
+        return !obj || obj.hideColumnsIfEmpty;
+      },
+    },
   ],
   function () {
     return new QuestionMatrixDynamicModel("");

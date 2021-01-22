@@ -214,6 +214,7 @@ module.exports = function(options) {
                 declaration: options.buildType === "prod",
                 outDir: packagePath + "typings/"
               },
+              //transpileOnly: options.buildType !== "prod",
               appendTsSuffixTo: [/\.vue$/]
             }
           }

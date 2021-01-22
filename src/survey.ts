@@ -2694,10 +2694,14 @@ export class SurveyModel
     return options.allowChanging;
   }
   protected currentPageChanged(newValue: PageModel, oldValue: PageModel) {
+    const isNextPage: boolean = this.isNextPage(newValue, oldValue);
+    if (isNextPage) {
+      oldValue.passed = true;
+    }
     this.onCurrentPageChanged.fire(this, {
       oldCurrentPage: oldValue,
       newCurrentPage: newValue,
-      isNextPage: this.isNextPage(newValue, oldValue),
+      isNextPage: isNextPage,
       isPrevPage: this.isPrevPage(newValue, oldValue),
     });
   }
@@ -3181,8 +3185,8 @@ export class SurveyModel
   }
   private doCurrentPageCompleteCore(doComplete: boolean): boolean {
     if (this.doServerValidation(doComplete)) return false;
-    this.currentPage.passed = true;
     if (doComplete) {
+      this.currentPage.passed = true;
       this.doComplete();
     } else {
       this.doNextPage();

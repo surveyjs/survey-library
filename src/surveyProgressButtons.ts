@@ -21,7 +21,6 @@ export class SurveyProgressButtonsModel {
     else if (visibleIndex > this.survey.currentPageNo) {
       for (let i: number = this.survey.currentPageNo; i < visibleIndex; i++) {
         if (!this.survey.nextPage()) break;
-        this.survey.visiblePages[i].passed = true;
       }
     }
   }

@@ -297,6 +297,7 @@ QUnit.test("Edit question string[] property type", function (assert) {
   var question = new QuestionTextModel("q1");
   question.dataList = ["item1", "item2"];
   var survey = new SurveyModel({
+    checkErrorsMode: "onValueChanging",
     elements: [{ type: "comment", name: "dataList" }],
   });
   var dataListQuestion = survey.getQuestionByName("dataList");

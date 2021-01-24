@@ -1100,6 +1100,12 @@ export class Question
   public set value(newValue: any) {
     this.setNewValue(newValue);
   }
+  public get valueForSurvey(): any {
+    if (!!this.valueToDataCallback) {
+      return this.valueToDataCallback(this.value);
+    }
+    return this.value;
+  }
   /**
    * Clear the question value. It clears the question comment as well.
    */
@@ -1599,9 +1605,7 @@ export class Question
   protected setValueCore(newValue: any) {
     this.setQuestionValue(newValue);
     if (this.data != null) {
-      if (!!this.valueToDataCallback) {
-        newValue = this.valueToDataCallback(newValue);
-      }
+      newValue = this.valueForSurvey;
       this.data.setValue(
         this.getValueName(),
         newValue,
@@ -1714,11 +1718,11 @@ export class Question
       : null;
   }
   public getRenderer(name: string): string {
-      return this.survey && typeof this.survey.getRendererForString === "function"
-        ? this.survey.getRendererForString(this, name)
-        : this.locOwner && typeof this.locOwner.getRenderer === "function"
-        ? this.locOwner.getRenderer(name)
-        : null;
+    return this.survey && typeof this.survey.getRendererForString === "function"
+      ? this.survey.getRendererForString(this, name)
+      : this.locOwner && typeof this.locOwner.getRenderer === "function"
+      ? this.locOwner.getRenderer(name)
+      : null;
   }
   public getProcessedText(text: string): string {
     if (this.textProcessor)

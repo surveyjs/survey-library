@@ -1572,8 +1572,7 @@ export class SurveyModel
     return options.renderAs;
   }
   private getBuiltInRendererForString(element: Base, name: string): string {
-    if (this.isDesignMode)
-      return LocalizableString.editableRenderer;
+    if (this.isDesignMode) return LocalizableString.editableRenderer;
     return undefined;
   }
   public getProcessedText(text: string) {
@@ -4287,7 +4286,7 @@ export class SurveyModel
     var res = false;
     for (var i: number = 0; i < questions.length; i++) {
       var q = questions[i];
-      if (!this.isTwoValueEquals(q.value, newValue)) {
+      if (!this.isTwoValueEquals(q.valueForSurvey, newValue)) {
         q.value = newValue;
       }
       if (this.checkQuestionErrorOnValueChangedCore(q)) res = true;

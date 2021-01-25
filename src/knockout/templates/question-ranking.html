@@ -13,7 +13,7 @@
     data-bind="event: { keydown: function(data, event){question.handleKeydown.call(question, event); return false;} }, css: question.getItemClass($data)"
   >
     <div tabindex="-1" style="outline: none;">
-      <div data-bind="css: question.cssClasses.itemGhostNode" />
+      <div data-bind="css: question.cssClasses.itemGhostNode"></div>
       <div data-bind="css: question.cssClasses.itemContent">
         <div data-bind="css: question.cssClasses.itemIconContainer">
           <svg

@@ -1,5 +1,6 @@
 import React from "react";
 import { ReactElementFactory } from "../../element-factory";
+import { SvgIcon } from "../svg-icon/svg-icon";
 
 export class ActionBarItem extends React.Component<any, any> {
   get item() {
@@ -13,6 +14,13 @@ export class ActionBarItem extends React.Component<any, any> {
     const title = this.item.tooltip || this.item.title;
     const isDisabled = this.item.enabled !== undefined && !this.item.enabled;
     const text = this.renderText();
+    const svgIcon = !!this.item.iconName ? (
+      <SvgIcon
+        cssClasses="sv-action-bar-item__icon"
+        size={24}
+        iconName={this.item.iconName}
+      ></SvgIcon>
+    ) : null;
     const button = (
       <button
         className={className}
@@ -20,6 +28,7 @@ export class ActionBarItem extends React.Component<any, any> {
         onClick={this.item.action}
         title={title}
       >
+        {svgIcon}
         {text}
       </button>
     );

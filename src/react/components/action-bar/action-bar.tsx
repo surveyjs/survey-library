@@ -2,6 +2,7 @@ import React from "react";
 import { IActionBarItem } from "../../../base";
 import { ReactElementFactory } from "../../element-factory";
 import { ObjectWrapper } from "../../../utils/objectwrapper";
+import { ActionBarSeparator } from "./action-bar-separator";
 export { ActionBarItem } from "./action-bar-item";
 // export * from "./action-bar-separator";
 
@@ -33,11 +34,16 @@ export class ActionBar extends React.Component<any, any> {
           item: wrappedItem,
         }
       );
-      var itemClass = !wrappedItem.isVisible ? "sv-action--hidden" : null;
+      const separator = wrappedItem.needSeparator ? (
+        <ActionBarSeparator></ActionBarSeparator>
+      ) : null;
+      var itemClass =
+        "sv-action " + (!wrappedItem.isVisible ? "sv-action--hidden" : null);
       var itemContainer = null;
       if (item.visible || item.visible === undefined)
         itemContainer = (
           <span className={itemClass} key={"item" + itemIndex}>
+            {separator}
             {itemComponent}
           </span>
         );

@@ -12,7 +12,8 @@
     <sv-svg-icon
       v-if="item.iconName"
       class="sv-action-bar-item__icon"
-      params="iconName: iconName, size: 24"
+      :iconName="item.iconName"
+      :size="24"
     ></sv-svg-icon>
 
     <span

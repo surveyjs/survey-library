@@ -72,3 +72,4 @@ export { TitleContent } from "../vue/titlecontent.vue";
 export { TitleActions } from "../vue/components/title-actions/title-actions.vue";
 export { DefaultTitle } from "../vue/components/default-title/default-title.vue";
 export { ActionBar } from "../vue/components/action-bar/action-bar.vue";
+export { SvgIcon } from "../vue/components/svg-icon/svg-icon.vue";

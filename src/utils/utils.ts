@@ -96,7 +96,7 @@ function findScrollableParent(element: HTMLElement): HTMLElement {
     (getComputedStyle(element).overflowY === "scroll" ||
       getComputedStyle(element).overflowY === "auto")
   ) {
-    if(element === document.body) {
+    if (element === document.body) {
       return <any>window;
     }
     return element;
@@ -104,6 +104,24 @@ function findScrollableParent(element: HTMLElement): HTMLElement {
     return findScrollableParent(element.parentElement);
   }
 }
+
+function createSvg(
+  size: number,
+  width: number,
+  height: number,
+  iconName: string,
+  svgElem: any
+) {
+  svgElem.style.width = (size || width || 16) + "px";
+  svgElem.style.height = (size || height || 16) + "px";
+  var node: any = svgElem.childNodes[0];
+  node.setAttributeNS(
+    "http://www.w3.org/1999/xlink",
+    "xlink:href",
+    "#" + iconName
+  );
+}
+
 export {
   compareVersions,
   confirmAction,
@@ -113,4 +131,5 @@ export {
   isMobile,
   isElementVisible,
   findScrollableParent,
+  createSvg,
 };

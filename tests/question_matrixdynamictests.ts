@@ -4462,13 +4462,11 @@ QUnit.test("Survey.checkErrorsMode=onValueChanging", function (assert) {
         columns: [
           {
             name: "col1",
-            isRequired: true,
             cellType: "text",
             validators: [{ type: "emailvalidator" }],
           },
           {
             name: "col2",
-            isRequired: true,
             cellType: "text",
           },
         ],

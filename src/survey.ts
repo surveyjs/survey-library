@@ -1572,8 +1572,7 @@ export class SurveyModel
     return options.renderAs;
   }
   private getBuiltInRendererForString(element: Base, name: string): string {
-    if (this.isDesignMode)
-      return LocalizableString.editableRenderer;
+    if (this.isDesignMode) return LocalizableString.editableRenderer;
     return undefined;
   }
   public getProcessedText(text: string) {
@@ -2694,10 +2693,14 @@ export class SurveyModel
     return options.allowChanging;
   }
   protected currentPageChanged(newValue: PageModel, oldValue: PageModel) {
+    const isNextPage: boolean = this.isNextPage(newValue, oldValue);
+    if (isNextPage) {
+      oldValue.passed = true;
+    }
     this.onCurrentPageChanged.fire(this, {
       oldCurrentPage: oldValue,
       newCurrentPage: newValue,
-      isNextPage: this.isNextPage(newValue, oldValue),
+      isNextPage: isNextPage,
       isPrevPage: this.isPrevPage(newValue, oldValue),
     });
   }
@@ -3181,8 +3184,8 @@ export class SurveyModel
   }
   private doCurrentPageCompleteCore(doComplete: boolean): boolean {
     if (this.doServerValidation(doComplete)) return false;
-    this.currentPage.passed = true;
     if (doComplete) {
+      this.currentPage.passed = true;
       this.doComplete();
     } else {
       this.doNextPage();
@@ -4287,7 +4290,7 @@ export class SurveyModel
     var res = false;
     for (var i: number = 0; i < questions.length; i++) {
       var q = questions[i];
-      if (!this.isTwoValueEquals(q.value, newValue)) {
+      if (!this.isTwoValueEquals(q.valueForSurvey, newValue)) {
         q.value = newValue;
       }
       if (this.checkQuestionErrorOnValueChangedCore(q)) res = true;

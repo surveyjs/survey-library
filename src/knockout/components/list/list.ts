@@ -13,14 +13,16 @@ export class ListViewModel {
     selectedItem?: ko.Observable<ListItem>
   ) {
     if (selectedItem !== undefined) {
-      if (ko.isObservable(selectedItem)) this.selectItem = selectedItem;
+      if (ko.isObservable(selectedItem)) this.selectedItem = selectedItem;
       else this.selectedItem(selectedItem);
     }
   }
 
   public selectItem = (itemValue: ListItem) => {
     this.isExpanded(false);
-    if (ko.unwrap(this.allowSelection)) this.selectedItem(itemValue);
+    if (ko.unwrap(this.allowSelection)) {
+      this.selectedItem(itemValue);
+    }
     if (!!this.onItemSelect) {
       this.onItemSelect(itemValue);
     }

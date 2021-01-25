@@ -3,11 +3,36 @@ import { PopupUtils } from "./popup-utils";
 import { surveyLocalization } from "../../../surveyStrings";
 const template = require("html-loader?interpolate!val-loader!./popup.html");
 
+export class PopupModel {
+  constructor(
+    public contentComponentName: string,
+    public contentComponentData: any,
+    public contentTemplateName: string,
+    public verticalPosition: "top" | "bottom" | "middle" = "bottom",
+    public horizontalPosition: "left" | "right" | "center" = "left",
+    public showPointer: boolean = true,
+    public isModal: boolean = false,
+    public onCancel = () => {},
+    public onApply = () => {},
+    public onHide = () => {},
+    public onShow = () => {},
+    public cssClass: string = ""    
+  ) {
+
+  }
+
+  public toggleVisibility() {
+    this.onToggleVisibility && this.onToggleVisibility();
+  }
+  public onToggleVisibility: () => void;
+}
+
 export class PopupViewModel {
   public top: any = ko.observable();
   public left: any = ko.observable();
   public popupDirection: any = ko.observable<string>();
   public pointerTarget: any = ko.observable<object>({});
+  public isVisible: any = ko.observable(false);
 
   private container: HTMLElement;
   private showSubscription: any;
@@ -16,7 +41,6 @@ export class PopupViewModel {
     public contentComponentName: string,
     public contentComponentData: any,
     public contentTemplateName: string,
-    public isVisible: any,
     public verticalPosition: "top" | "bottom" | "middle",
     public horizontalPosition: "left" | "right" | "center",
     public showPointer: boolean,
@@ -26,7 +50,8 @@ export class PopupViewModel {
     public onHide = () => {},
     public onShow = () => {},
     public cssClass: string = "",
-    private targetElement: HTMLElement
+    private targetElement: HTMLElement,
+    public model: PopupModel
   ) {
     this.container = document.createElement("div");
     document.body.appendChild(this.container);
@@ -36,6 +61,10 @@ export class PopupViewModel {
     this.showSubscription = this.isVisible.subscribe((isVisible: any) => {
       this.onIsVisibleChanged(isVisible);
     });
+
+    this.model.onToggleVisibility = () => {
+      this.isVisible(!this.isVisible());
+    };
   }
 
   public get styleClass(): string {
@@ -66,7 +95,8 @@ export class PopupViewModel {
         this.horizontalPosition
       )
     );
-    do {
+    //AM: hang up: page selector inside 'test survey' page causes infinite loop here
+    //do {
       var height = popupContainer.offsetHeight;
       var width = popupContainer.offsetWidth;
       const pos = PopupUtils.calculatePosition(
@@ -91,10 +121,10 @@ export class PopupViewModel {
           )
         );
       }
-    } while (
-      popupContainer.offsetWidth != width ||
-      popupContainer.offsetHeight != height
-    );
+    //} while (
+    //  popupContainer.offsetWidth != width ||
+    //  popupContainer.offsetHeight != height
+    //);
   }
 
   public clickOutside() {
@@ -121,6 +151,7 @@ export class PopupViewModel {
   }
 
   public dispose() {
+    this.model.onToggleVisibility = undefined;
     this.showSubscription.dispose();
     ko.cleanNode(this.container);
     this.container.remove();
@@ -130,21 +161,22 @@ export class PopupViewModel {
 ko.components.register("sv-popup", {
   viewModel: {
     createViewModel: (params: any, componentInfo: any) => {
+      const model = params.model;
       const viewModel = new PopupViewModel(
-        params.contentComponentName,
-        params.contentComponentData,
-        params.contentTemplateName,
-        params.isVisible,
-        params.verticalPosition,
-        params.horizontalPosition,
-        params.showPointer,
-        params.isModal,
-        params.onCancel,
-        params.onApply,
-        params.onHide,
-        params.onShow,
-        params.cssClass,
-        componentInfo.element.parentElement
+        model.contentComponentName,
+        model.contentComponentData,
+        model.contentTemplateName,
+        model.verticalPosition,
+        model.horizontalPosition,
+        model.showPointer,
+        model.isModal,
+        model.onCancel,
+        model.onApply,
+        model.onHide,
+        model.onShow,
+        model.cssClass,
+        componentInfo.element.parentElement,
+        model
       );
       return viewModel;
     },

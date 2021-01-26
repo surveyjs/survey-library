@@ -174,6 +174,7 @@ export class StylesManager {
       "border-color: #1ab394; background-color: white;",
     ".sv_progress-buttons__list li.sv_progress-buttons__list-element--passed.sv_progress-buttons__list-element--current:before":
       "border-color: #1ab394; background-color: white;",
+    ".sv_progress-buttons__list li.sv_progress-buttons__list-element--nonclickable:before": "cursor: not-allowed;",
 
     // ranking
     ".sv-ranking": "outline: none;",

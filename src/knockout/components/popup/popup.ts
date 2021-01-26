@@ -16,7 +16,7 @@ export class PopupModel {
     public onApply = () => {},
     public onHide = () => {},
     public onShow = () => {},
-    public cssClass: string = ""    
+    public cssClass: string = ""
   ) {
 
   }
@@ -28,30 +28,18 @@ export class PopupModel {
 }
 
 export class PopupViewModel {
-  public top: any = ko.observable();
-  public left: any = ko.observable();
-  public popupDirection: any = ko.observable<string>();
-  public pointerTarget: any = ko.observable<object>({});
-  public isVisible: any = ko.observable(false);
+  public top = ko.observable();
+  public left = ko.observable();
+  public popupDirection = ko.observable<string>();
+  public pointerTarget = ko.observable<object>({});
+  public isVisible = ko.observable(false);
 
-  private container: HTMLElement;
-  private showSubscription: any;
+  protected container: HTMLElement;
+  protected showSubscription: ko.Subscription;
 
   constructor(
-    public contentComponentName: string,
-    public contentComponentData: any,
-    public contentTemplateName: string,
-    public verticalPosition: "top" | "bottom" | "middle",
-    public horizontalPosition: "left" | "right" | "center",
-    public showPointer: boolean,
-    public isModal: boolean = false,
-    public onCancel = () => {},
-    public onApply = () => {},
-    public onHide = () => {},
-    public onShow = () => {},
-    public cssClass: string = "",
-    private targetElement: HTMLElement,
-    public model: PopupModel
+   public model: PopupModel,
+   private targetElement: HTMLElement    
   ) {
     this.container = document.createElement("div");
     document.body.appendChild(this.container);
@@ -66,7 +54,44 @@ export class PopupViewModel {
       this.isVisible(!this.isVisible());
     };
   }
-
+  //
+  public get contentComponentName(): string {
+    return this.model.contentComponentName;
+  }
+  public get contentComponentData(): any {
+    return this.model.contentComponentData;
+  }
+  public get contentTemplateName(): string {
+    return this.model.contentTemplateName;
+  }
+  public get verticalPosition(): "top" | "bottom" | "middle" {
+    return this.model.verticalPosition;
+  }
+  public get horizontalPosition(): "left" | "right" | "center" {
+    return this.model.horizontalPosition;
+  }
+  public get showPointer(): boolean {
+    return this.model.showPointer;
+  }
+  public get isModal(): boolean {
+    return this.model.isModal;
+  }
+  public get onCancel() {
+    return this.model.onCancel;
+  }
+  public get onApply() {
+    return this.model.onApply;
+  }
+  public get onHide() {
+    return this.model.onHide;
+  }
+  public get onShow() {
+    return this.model.onShow;
+  }
+  public get cssClass(): string {
+    return this.model.cssClass;
+  }
+  //
   public get styleClass(): string {
     var css = this.cssClass;
     if (this.showPointer) {
@@ -128,7 +153,9 @@ export class PopupViewModel {
   }
 
   public clickOutside() {
-    if (this.isModal) return;
+    if (this.isModal) {
+      return;
+    }
     this.isVisible(false);
   }
 
@@ -153,30 +180,19 @@ export class PopupViewModel {
   public dispose() {
     this.model.onToggleVisibility = undefined;
     this.showSubscription.dispose();
+    this.showSubscription = undefined;
     ko.cleanNode(this.container);
     this.container.remove();
+    this.container = undefined;
   }
 }
 
 ko.components.register("sv-popup", {
   viewModel: {
     createViewModel: (params: any, componentInfo: any) => {
-      const model = params.model;
       const viewModel = new PopupViewModel(
-        model.contentComponentName,
-        model.contentComponentData,
-        model.contentTemplateName,
-        model.verticalPosition,
-        model.horizontalPosition,
-        model.showPointer,
-        model.isModal,
-        model.onCancel,
-        model.onApply,
-        model.onHide,
-        model.onShow,
-        model.cssClass,
-        componentInfo.element.parentElement,
-        model
+        params.model,
+        componentInfo.element.parentElement
       );
       return viewModel;
     },

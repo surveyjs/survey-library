@@ -8,13 +8,17 @@
     params="iconName: iconName, size: 24"
   ></sv-svg-icon>
   <!-- /ko -->
-  <!-- ko if: $data.showTitle === undefined || (!!$data.iconName && ko.unwrap($data.showTitle)) -->
+  <!-- ko if: showTitle -->
   <span
     class="sv-action-bar-item__title"
     data-bind="text: title, css: { 'sv-action-bar-item__title--with-icon': !!$data.iconName }"
   ></span>
   <!-- /ko -->
+  <!-- <sv-popup
+    params="contentComponentName: name, contentComponentData: model, isVisible: isPopupVisible, verticalPosition: verticalPosition, horizontalPosition: horizontalPosition, showPointer: showPointer"
+  ></sv-popup> -->
   <sv-popup
-    params="contentComponentName: name, contentComponentData: model, isVisible: isVisible, verticalPosition: verticalPosition, horizontalPosition: horizontalPosition, showPointer: showPointer"
+    params="model: popupModel"
   ></sv-popup>
+
 </button>

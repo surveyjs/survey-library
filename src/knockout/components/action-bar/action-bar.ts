@@ -1,6 +1,8 @@
+import { timeStamp } from "console";
 import * as ko from "knockout";
 import { ObjectWrapper } from "../../../utils/objectwrapper";
 import { ResponsibilityManager } from "../../../utils/resonsibilitymanager";
+import { PopupModel } from "../popup/popup";
 
 const template = require("./action-bar.html");
 
@@ -71,24 +73,40 @@ export interface IActionBarItem {
 /**
  * The toolbar item description.
  */
-export class AdaptiveElement {
+export abstract class AdaptiveElement {
   public items: ko.ObservableArray<any> = ko.observableArray();
   public invisibleItems: ko.ObservableArray<any> = ko.observableArray();
+
+  public invisibleItemSelected(item: any) : void {
+    if (!!item && typeof item.action === "function")
+      item.action();
+  };
+
+  protected dotsItemPopupModel = new PopupModel(
+    "sv-list",
+    {
+      onItemSelect: (item: any) => {
+        this.invisibleItemSelected(item);
+        this.dotsItemPopupModel.toggleVisibility();
+      },
+      items: this.invisibleItems
+    },
+    undefined
+  );
+
   protected dotsItem = {
+    // (...) button
     component: "sv-action-bar-item-dropdown",
-    items: this.invisibleItems,
     css: "sv-dots",
     innerCss: "sv-dots__item",
     iconName: "icon-dots",
     isVisible: () => true,
     showTitle: false,
-    verticalPosition: "bottom",
-    horizontalPosition: "left",
     action: (item: any) => {
-      this.invisibleItemSelected(item);
-      return true;
+      this.dotsItemPopupModel.toggleVisibility();
     },
-    closeOnAction: true,
+
+    popupModel: this.dotsItemPopupModel
   };
   public showFirstN(visibleItemsCount: number) {
     let leftItemsToShow = visibleItemsCount;
@@ -109,9 +127,6 @@ export class AdaptiveElement {
       this.items.splice(visibleItemsCount, 0, this.dotsItem);
     }
   }
-  public invisibleItemSelected = (model: any) => {
-    model.action();
-  };
 }
 
 export class ActionBarViewModel extends AdaptiveElement {

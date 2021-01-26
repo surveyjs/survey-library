@@ -44,8 +44,15 @@ export {
   SurveyQuestionCheckbox,
   SurveyQuestionCheckboxItem,
 } from "../react/reactquestion_checkbox";
+export {
+  SurveyQuestionRanking,
+  SurveyQuestionRankingItem,
+} from "../react/reactquestion_ranking";
 export { SurveyQuestionDropdown } from "../react/reactquestion_dropdown";
-export { SurveyQuestionMatrix, SurveyQuestionMatrixRow } from "../react/reactquestion_matrix";
+export {
+  SurveyQuestionMatrix,
+  SurveyQuestionMatrixRow,
+} from "../react/reactquestion_matrix";
 export { SurveyQuestionHtml } from "../react/reactquestion_html";
 export { SurveyQuestionFile } from "../react/reactquestion_file";
 export { SurveyQuestionMultipleText } from "../react/reactquestion_multipletext";
@@ -68,7 +75,10 @@ export { ReactElementFactory } from "../react/element-factory";
 export { SurveyQuestionImagePicker } from "../react/imagepicker";
 export { SurveyQuestionImage } from "../react/image";
 export { SurveyQuestionSignaturePad } from "../react/signaturepad";
-export { SurveyQuestionCustom, SurveyQuestionComposite } from "../react/reactquestion_custom";
+export {
+  SurveyQuestionCustom,
+  SurveyQuestionComposite,
+} from "../react/reactquestion_custom";
 export { SurveyLocStringViewer } from "../react/string-viewer";
 export { SurveyLocStringEditor } from "../react/string-editor";
 

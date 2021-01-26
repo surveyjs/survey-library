@@ -1,13 +1,13 @@
 import * as ko from "knockout";
-import { QuestionCheckboxImplementor } from "./koquestion_checkbox";
 import { Serializer } from "../jsonobject";
 import { QuestionFactory } from "../questionfactory";
 import { QuestionRankingModel } from "../question_ranking";
+import { QuestionImplementor } from "./koquestion";
 
 export class QuestionRanking extends QuestionRankingModel {
   protected onBaseCreating() {
     super.onBaseCreating();
-    new QuestionCheckboxImplementor(this);
+    new QuestionImplementor(this);
   }
 }
 

@@ -83,4 +83,4 @@ export var croatianStrings = {
 };
 
 surveyLocalization.locales["hr"] = croatianStrings;
-surveyLocalization.localeNames["hr"] = "Croatian";
+surveyLocalization.localeNames["hr"] = "hrvatski";

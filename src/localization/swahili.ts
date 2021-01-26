@@ -26,7 +26,8 @@ export var swahiliStrings = {
   numericError: "Thamani inapaswa kuwa ya nambari.",
   textMinLength: "Tafadhali ingiza angalau{0} husika.",
   textMaxLength: "Tafadhali ingiza isiozidi {0} husika.",
-  textMinMaxLength: "Tafadhali ingiza kiwango zaidi ya {0} na kisichopungua {1} husika.",
+  textMinMaxLength:
+    "Tafadhali ingiza kiwango zaidi ya {0} na kisichopungua {1} husika.",
   minRowCountError: "Tafadhali jaza isiopungua {0} safu.",
   minSelectError: "Tafadhali chagua angalau {0} lahaja.",
   maxSelectError: "Tafadhali changua isiozidi {0} lahaja.",
@@ -65,8 +66,7 @@ export var swahiliStrings = {
   timerSpentAll: "Umetumia {0} kwenye ukurasa huu na {1} kwa jumla.",
   timerSpentPage: "Umetumia {0} kwenye ukurasa huu.",
   timerSpentSurvey: "Umetumia {0} kwa jumla.",
-  timerLimitAll:
-    "Umetumia {0} ya {1} kwenye ukurasa huu {2} wa {3} kwa jumla.",
+  timerLimitAll: "Umetumia {0} ya {1} kwenye ukurasa huu {2} wa {3} kwa jumla.",
   timerLimitPage: "Umetumia {0} ya {1} kwenye ukurasa huu.",
   timerLimitSurvey: "Umetumia {0} ya {1} kwa jumla.",
   cleanCaption: "Safisha",
@@ -81,4 +81,4 @@ export var swahiliStrings = {
 };
 
 surveyLocalization.locales["sw"] = swahiliStrings;
-surveyLocalization.localeNames["sw"] = "Swahili";
+surveyLocalization.localeNames["sw"] = "swahili";

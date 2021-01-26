@@ -26,20 +26,24 @@ export var indonesianStrings = {
   numericError: "Nilai harus berupa angka.",
   textMinLength: "Silahkan masukkan setidaknya {0} karakter.",
   textMaxLength: "Silahkan masukkan kurang {0} karakter.",
-  textMinMaxLength: "PSilahkan masukkan lebih dari {0} dan kurang dari {1} karakter.",
+  textMinMaxLength:
+    "PSilahkan masukkan lebih dari {0} dan kurang dari {1} karakter.",
   minRowCountError: "Silahkan isi setidaknya {0} baris.",
   minSelectError: "Silahkan pilih setidaknya {0} varian.",
   maxSelectError: "Silahkan pilih tidak lebih dari {0} varian.",
-  numericMinMax: "'{0}' harus sama dengan atau lebih dari {1} dan harus sama dengan atau kurang dari {2}",
+  numericMinMax:
+    "'{0}' harus sama dengan atau lebih dari {1} dan harus sama dengan atau kurang dari {2}",
   numericMin: "'{0}' harus sama dengan atau lebih dari {1}",
   numericMax: "'{0}' harus sama dengan atau kurang dari {1}",
   invalidEmail: "Silahkan masukkan e-mail yang benar.",
   invalidExpression: "Ekspresi: {0} harus mengembalikan 'benar'.",
   urlRequestError: "Permintaan mengembalikan kesalahan '{0}'. {1}",
-  urlGetChoicesError: "Permintaan mengembalikan data kosong atau properti 'path' salah.",
+  urlGetChoicesError:
+    "Permintaan mengembalikan data kosong atau properti 'path' salah.",
   exceedMaxSize: "Ukuran berkas tidak boleh melebihi {0}.",
   otherRequiredError: "Silahkan masukkan nilai lainnnya.",
-  uploadingFile: "Berkas Anda sedang diunggah. Silahkan tunggu beberapa saat atau coba lagi.",
+  uploadingFile:
+    "Berkas Anda sedang diunggah. Silahkan tunggu beberapa saat atau coba lagi.",
   loadingFile: "Memuat...",
   chooseFile: "Pilih berkas...",
   noFileChosen: "Tidak ada file yang dipilih",
@@ -59,7 +63,8 @@ export var indonesianStrings = {
   saveAgainButton: "Coba lagi",
   timerMin: "menit",
   timerSec: "detik",
-  timerSpentAll: "Anda telah menghabiskan {0} pada halaman ini dan {1} secara keseluruhan.",
+  timerSpentAll:
+    "Anda telah menghabiskan {0} pada halaman ini dan {1} secara keseluruhan.",
   timerSpentPage: "YAnda telah menghabiskan {0} pada halaman ini.",
   timerSpentSurvey: "Anda telah menghabiskan {0} secara keseluruhan.",
   timerLimitAll:
@@ -78,4 +83,4 @@ export var indonesianStrings = {
 };
 
 surveyLocalization.locales["id"] = indonesianStrings;
-surveyLocalization.localeNames["id"] = "Bahasa Indonesia";
+surveyLocalization.localeNames["id"] = "bahasa Indonesia";

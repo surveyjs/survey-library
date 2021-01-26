@@ -983,6 +983,47 @@ QUnit.test("survey.checkErrorsMode = 'onValueChanging'", function (assert) {
   );
 });
 QUnit.test(
+  "survey.checkErrorsMode = 'onValueChanging' and isRequired, Bug#2627",
+  function (assert) {
+    var survey = twoPageSimplestSurvey();
+    var question = <Question>survey.pages[0].questions[0];
+    question.isRequired = true;
+    question.value = "val1";
+    survey.checkErrorsMode = "onValueChanging";
+    assert.equal(question.errors.length, 0, "there is no errors yet");
+    question.value = "";
+    assert.equal(question.errors.length, 1, "The error is required");
+    assert.equal(question.value, "", "the value keeps in question");
+    assert.equal(
+      survey.getValue(question.name),
+      "val1",
+      "We do not assign it to survey.data"
+    );
+    survey.setValue(question.name, "val2");
+    assert.equal(question.errors.length, 0, "The is not errors again");
+    assert.equal(
+      survey.getValue(question.name),
+      "val2",
+      "set value to survey.data"
+    );
+    assert.equal(question.value, "val2", "set value to survey.data");
+    question.value = "";
+    assert.equal(question.errors.length, 1, "Show error again");
+    assert.equal(
+      survey.getValue(question.name),
+      "val2",
+      "keep old value in survey.data"
+    );
+    question.value = "val3";
+    assert.equal(question.errors.length, 0, "Error is gone");
+    assert.equal(
+      survey.getValue(question.name),
+      "val3",
+      "set new value in survey.data"
+    );
+  }
+);
+QUnit.test(
   "survey.checkErrorsMode = 'onValueChanged', load from json + defaultValue",
   function (assert) {
     var json = {
@@ -12333,8 +12374,8 @@ QUnit.test(
 
 QUnit.test("onTextRenderAs event", function (assert) {
   var survey = new SurveyModel();
-  const questionName = 'any question';
-  var locString = new LocalizableString(survey, false, 'name');
+  const questionName = "any question";
+  var locString = new LocalizableString(survey, false, "name");
 
   var renderAs = survey.getRenderer(questionName);
   assert.equal(locString.renderAs, LocalizableString.defaultRenderer);
@@ -12350,13 +12391,11 @@ QUnit.test("onTextRenderAs event", function (assert) {
   assert.equal(locString.renderAs, LocalizableString.defaultRenderer);
   assert.equal(renderAs, undefined);
 
-  const customRendererView = 'my-custom-renderer-view';
-  const customRendererEdit = 'my-custom-renderer-edit';
-  survey.onTextRenderAs.add((s,e) => {
-    if (s.isDesignMode)
-      e.renderAs = customRendererEdit;
-    else
-      e.renderAs = customRendererView;
+  const customRendererView = "my-custom-renderer-view";
+  const customRendererEdit = "my-custom-renderer-edit";
+  survey.onTextRenderAs.add((s, e) => {
+    if (s.isDesignMode) e.renderAs = customRendererEdit;
+    else e.renderAs = customRendererView;
   });
 
   renderAs = survey.getRenderer(questionName);
@@ -12376,29 +12415,29 @@ QUnit.test("onTextRenderAs event", function (assert) {
 
 QUnit.test("onElementContentVisibilityChanged event", function (assert) {
   var json = {
-  "pages": [
-    {
-    "name": "page1",
-    "elements": [
+    pages: [
       {
-      "type": "panel",
-      "name": "panel1",
-      "state": "collapsed"
-      }
-    ]
-    }
-  ]
+        name: "page1",
+        elements: [
+          {
+            type: "panel",
+            name: "panel1",
+            state: "collapsed",
+          },
+        ],
+      },
+    ],
   };
 
   let stateChangedCounter = 0;
 
   var survey = new SurveyModel(json);
-  survey.onElementContentVisibilityChanged.add((s,e) => {
+  survey.onElementContentVisibilityChanged.add((s, e) => {
     stateChangedCounter++;
   });
   assert.equal(stateChangedCounter, 0);
 
-  var panel : PanelModel = <PanelModel>survey.getAllPanels()[0];
+  var panel: PanelModel = <PanelModel>survey.getAllPanels()[0];
   panel.expand();
   assert.equal(stateChangedCounter, 1);
   panel.expand();

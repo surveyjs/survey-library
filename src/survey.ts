@@ -4274,7 +4274,9 @@ export class SurveyModel
   }
   private checkQuestionErrorOnValueChangedCore(question: Question): boolean {
     var oldErrorCount = question.errors.length;
-    var res = question.hasErrors(true, { isOnValueChanged: true });
+    var res = question.hasErrors(true, {
+      isOnValueChanged: !this.isValidateOnValueChanging,
+    });
     if (!!question.page && (oldErrorCount > 0 || question.errors.length > 0)) {
       this.fireValidatedErrorsOnPage(<PageModel>question.page);
     }
@@ -4865,7 +4867,7 @@ export class SurveyModel
       newValue = this.questionOnValueChanging(name, newQuestionValue);
     }
     if (
-      this.checkErrorsMode === "onValueChanging" &&
+      this.isValidateOnValueChanging &&
       this.checkErrorsOnValueChanging(name, newValue)
     )
       return;

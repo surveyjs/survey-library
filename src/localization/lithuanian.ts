@@ -15,8 +15,7 @@ export var lithuaniaSurveyStrings = {
   questionsProgressText: "Atsakė į {0} / {1} klausimus",
   emptySurvey: "Apklausoje nėra matomo puslapio ar klausimo.",
   completingSurvey: "Dėkojame už dalyvavimą apklausoje!",
-  completingSurveyBefore:
-    "Mūsų įrašai rodo, kad jau atlikote šią apklausą.",
+  completingSurveyBefore: "Mūsų įrašai rodo, kad jau atlikote šią apklausą.",
   loadingSurvey: "Prašome palaukti...",
   optionsCaption: "Pasirinkti...",
   value: "reikšmė",
@@ -26,7 +25,8 @@ export var lithuaniaSurveyStrings = {
   numericError: "Turi būti skaičiai.",
   textMinLength: "Prašome suvesti bent {0} simbolius.",
   textMaxLength: "Prašome suvesti mažiau nei {0} simbolių.",
-  textMinMaxLength: "Prašome suvesti daugiau nei {0} ir mažiau nei {1} simbolių.",
+  textMinMaxLength:
+    "Prašome suvesti daugiau nei {0} ir mažiau nei {1} simbolių.",
   minRowCountError: "Prašome suvesti ne mažiau nei {0} eilučių.",
   minSelectError: "Prašome pasirinkti bent {0} variantų.",
   maxSelectError: "Pasirinkite ne daugiau kaip {0} variantus.",
@@ -65,8 +65,7 @@ export var lithuaniaSurveyStrings = {
   timerSpentAll: "Praleidote {0} šiame puslapyje ir {1} iš viso.",
   timerSpentPage: "Praleidote {0} šiame puslapyje.",
   timerSpentSurvey: "Praleidote {0} iš viso.",
-  timerLimitAll:
-    "Praleidote {0} iš {1} šiame puslapyje ir {2} iš {3} iš viso.",
+  timerLimitAll: "Praleidote {0} iš {1} šiame puslapyje ir {2} iš {3} iš viso.",
   timerLimitPage: "Praleidote {0} iš {1} šiame puslapyje.",
   timerLimitSurvey: "Praleidote {0} iš {1} iš viso.",
   cleanCaption: "Išvalyti",
@@ -81,4 +80,4 @@ export var lithuaniaSurveyStrings = {
 };
 
 surveyLocalization.locales["lt"] = lithuaniaSurveyStrings;
-surveyLocalization.localeNames["lt"] = "Lietuvių";
+surveyLocalization.localeNames["lt"] = "lietuvių";

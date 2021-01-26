@@ -204,8 +204,8 @@ export class StylesManager {
     ".sv-ranking-item--ghost .sv-ranking-item__content": "visibility: hidden;",
     ".sv-ranking-item--drag .sv-ranking-item__content":
       "box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.1);border-radius: 100px;",
-    ".ranking--drag .sv-ranking-item:hover .sv-ranking-item__icon":
-      "visibility: hidden;",
+    ".sv-ranking--drag .sv-ranking-item:hover .sv-ranking-item__icon":
+      "visibility: hidden !important;",
     ".sv-ranking-item--drag .sv-ranking-item__icon--hover":
       "visibility: visible;",
 

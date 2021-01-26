@@ -55,7 +55,18 @@ export var surveyLocalization = {
       if (removeDefaultLoc && key == this.defaultLocale) continue;
       res.push(key);
     }
-    res.sort();
+    var locName = (loc: string): string => {
+      if (!loc) return "";
+      var res = (<any>surveyLocalization).localeNames[loc];
+      if (!res) res = loc;
+      return res.toLowerCase();
+    };
+    res.sort((a, b): number => {
+      var str1 = locName(a);
+      var str2 = locName(b);
+      if (str1 === str2) return 0;
+      return str1 < str2 ? -1 : 1;
+    });
     return res;
   },
 };

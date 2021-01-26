@@ -4,7 +4,7 @@
           <div :class="getScrollButtonCss(hasScroller, true)" v-on:click="clickScrollButton(true)" role="button"></div>
           <div :class="css.progressButtonsListContainer" ref="progressButtonsListContainer">
               <ul :class="css.progressButtonsList">
-                  <li v-for="(page, index) in survey.visiblePages" :key="'listelement' + index" :class="getListElementCss(index)" v-on:click="clickListElement(index)">
+                  <li v-for="(page, index) in survey.visiblePages" :key="'listelement' + index" :class="getListElementCss(index)" v-on:click="isListElementClickable(index) ? clickListElement(index) : null">
                       <div :class="css.progressButtonsPageTitle" :title="page.locNavigationTitle.renderedHtml || page.name">
                         {{page.locNavigationTitle.renderedHtml || page.name}}
                       </div>
@@ -42,6 +42,9 @@ export class ProgressButtons extends Vue {
       this.hasScroller = listContainerElement.scrollWidth >
         listContainerElement.offsetWidth;
     }, 100);
+  }
+  public isListElementClickable(index: number): boolean {
+    return this.progressButtonsModel.isListElementClickable(index);
   }
   public getListElementCss(index: number): string {
     return this.progressButtonsModel.getListElementCss(index);

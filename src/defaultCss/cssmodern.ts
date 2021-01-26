@@ -64,8 +64,8 @@ export var modernCss = {
   progressButtonsListContainer: "sv_progress-buttons__list-container",
   progressButtonsList: "sv_progress-buttons__list",
   progressButtonsListElementPassed: "sv_progress-buttons__list-element--passed",
-  progressButtonsListElementCurrent:
-    "sv_progress-buttons__list-element--current",
+  progressButtonsListElementCurrent: "sv_progress-buttons__list-element--current",
+  progressButtonsListElementNonClickable: "sv_progress-buttons__list-element--nonclickable",
   progressButtonsPageTitle: "sv_progress-buttons__page-title",
   progressButtonsPageDescription: "sv_progress-buttons__page-description",
   page: {

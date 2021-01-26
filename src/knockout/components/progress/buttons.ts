@@ -18,6 +18,9 @@ export class ProgressButtonsViewModel {
       }
     }, 100);
   }
+  public isListElementClickable(index: any): boolean {
+    return this.progressButtonsModel.isListElementClickable(index());
+  }
   public getListElementCss(index: any): string {
     return this.progressButtonsModel.getListElementCss(index());
   }

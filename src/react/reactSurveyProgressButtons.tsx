@@ -40,7 +40,7 @@ export class SurveyProgressButtons extends SurveyNavigationBase {
   protected renderListElement(page: PageModel, index: number): JSX.Element {
     return (
       <li key={"listelement" + index} className={this.getListElementCss(index)}
-        onClick={() => this.clickListElement(index)}>
+        onClick={this.isListElementClickable(index) ? () => this.clickListElement(index) : undefined}>
         <div className={this.css.progressButtonsPageTitle} title={page.navigationTitle || page.name}>
           {page.navigationTitle || page.name}
         </div>
@@ -49,6 +49,9 @@ export class SurveyProgressButtons extends SurveyNavigationBase {
         </div>
       </li>
     );
+  }
+  protected isListElementClickable(index: number): boolean {
+    return this.progressButtonsModel.isListElementClickable(index);
   }
   protected getListElementCss(index: number): string {
     return this.progressButtonsModel.getListElementCss(index);

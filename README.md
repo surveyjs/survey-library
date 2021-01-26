@@ -30,15 +30,15 @@ Survey Creator sources are [here](https://github.com/surveyjs/survey-creator)
 
 ## Export Survey to PDF
 
-[Export to pdf overview](https://surveyjs.io/Overview/Survey-Pdf-Export)
+[Export to PDF overview](https://surveyjs.io/Overview/Survey-Pdf-Export)
 
 Export to PDF sources are [here](https://github.com/surveyjs/survey-pdf)
 
 ## More info about SurveyJS
 
-![alt tag](https://cloud.githubusercontent.com/assets/22315929/22462339/ed33f60a-e7bd-11e6-942b-72882e6bf1db.gif)
-
 **SurveyJS** is the most feature-rich Survey / Form Library available at the current moment. It can be easily customized and extended to suit your needs.
+
+![alt tag](https://cloud.githubusercontent.com/assets/22315929/22462339/ed33f60a-e7bd-11e6-942b-72882e6bf1db.gif)
 
 ## Main Features
 
@@ -55,6 +55,7 @@ Export to PDF sources are [here](https://github.com/surveyjs/survey-pdf)
 * [Matrix Dynamic Question](https://surveyjs.io/Examples/Library/?id=questiontype-matrixdynamic)
 * [Multiple Text Question](https://surveyjs.io/Examples/Library/?id=questiontype-multipletext)
 * [Rating Question](https://surveyjs.io/Examples/Library/?id=questiontype-rating)
+* [Ranking Question](https://surveyjs.io/Examples/Library?id=questiontype-ranking)
 * [Comment Question](https://surveyjs.io/Examples/Library/?id=questiontype-comment)
 * [Html Question](https://surveyjs.io/Examples/Library/?id=questiontype-html)
 * [Files uploading Question](https://surveyjs.io/Examples/Library/?id=questiontype-file)
@@ -93,15 +94,15 @@ You may create a very complex forms with a lot of pages, like [this one](https:/
 
 ### Frequently used functionalities
 
-* [Quiz creating](https://surveyjs.io/Examples/Library/?id=survey-quiz)
+* [Quiz creation](https://surveyjs.io/Examples/Library/?id=survey-quiz)
 * [Show survey or form in the popup window](https://surveyjs.io/Examples/Library/?id=survey-window)
 * [Display mode](https://surveyjs.io/Examples/Library/?id=survey-displaymode)
 * [Custom navigation](https://surveyjs.io/Examples/Library/?id=survey-customnavigation)
 * [Sharing same data between questions](https://surveyjs.io/Examples/Library/?id=survey-shareddata)
 
-### To find out more about the library go
+### To find out more about the library
 
-* to the [SurveyJS Library Site](https://surveyjs.io/Library)
+* go to the [SurveyJS Library Site](https://surveyjs.io/Library)
 * explore the live [Examples](https://www.surveyjs.io/Examples/Library)
 * and create a survey or form using [Survey Creator](https://surveyjs.io/survey/Builder/)
 

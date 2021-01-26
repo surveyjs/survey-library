@@ -25,7 +25,9 @@
         </div>
 
         <div :class="cssClasses.itemIndex">{{index + 1}}</div>
-        <div :class="cssClasses.itemText">{{text}}</div>
+        <div :class="cssClasses.itemText">
+          <survey-string :locString="text" />
+        </div>
       </div>
     </div>
   </div>

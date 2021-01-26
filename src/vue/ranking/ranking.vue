@@ -4,7 +4,7 @@
       v-for="(item, index) in question.visibleChoices"
       :key="item.value"
       :class="question.getItemClass(item)"
-      :text="item.text"
+      :text="item.locText"
       :index="index"
       :handleKeydown="question.handleKeydown"
       :cssClasses="question.cssClasses"

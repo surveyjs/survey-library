@@ -20,8 +20,9 @@ export class SurveyQuestionRanking extends SurveyQuestionElementBase {
     for (var i = 0; i < this.question.visibleChoices.length; i++) {
       var item = this.question.visibleChoices[i];
       var key = item.value + "-" + i + "-item";
+      var text = this.renderLocString(item.locText);
       items.push(
-        this.renderItem(key, item.text, i, this.question.handleKeydown, this.question.cssClasses, this.question.getItemClass(item))
+        this.renderItem(key, text, i, this.question.handleKeydown, this.question.cssClasses, this.question.getItemClass(item))
       );
     }
     return items;
@@ -29,7 +30,7 @@ export class SurveyQuestionRanking extends SurveyQuestionElementBase {
 
   protected renderItem(
     key: string,
-    text: string,
+    text: JSX.Element,
     index: number,
     handleKeydown: (event:any)=>void,
     cssClasses: any,

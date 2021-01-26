@@ -42,9 +42,10 @@
         <div
           data-bind="text: $index() + 1, css: question.cssClasses.itemIndex"
         ></div>
-        <div
-          data-bind="text: $data.text, css: question.cssClasses.itemText"
-        ></div>
+        <div data-bind="css: question.cssClasses.itemText">
+          <!-- ko template: { name: 'survey-string', data: $data.locText } -->
+          <!-- /ko -->
+        </div>
       </div>
     </div>
   </div>

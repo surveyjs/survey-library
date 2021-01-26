@@ -10,7 +10,7 @@
 <script type="text/html" id="survey-ranking-item">
   <div
     tabindex="0"
-    data-bind="event: { keydown: function(data, event){question.handleKeydown.call(question, event); return false;} }, css: question.getItemClass($data)"
+    data-bind="event: { keydown: function(data, event){question.handleKeydown.call(question, event); return true;} }, css: question.getItemClass($data)"
   >
     <div tabindex="-1" style="outline: none;">
       <div data-bind="css: question.cssClasses.itemGhostNode"></div>

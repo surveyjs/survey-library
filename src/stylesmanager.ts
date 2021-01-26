@@ -175,6 +175,40 @@ export class StylesManager {
     ".sv_progress-buttons__list li.sv_progress-buttons__list-element--passed.sv_progress-buttons__list-element--current:before":
       "border-color: #1ab394; background-color: white;",
 
+    // ranking
+    ".sv-ranking": "outline: none;",
+    ".sv-ranking--mobile .sv-ranking-item__icon--hover":
+      "visibility:visible; fill:#9f9f9f;",
+    ".sv-ranking-item": "margin-bottom: 5px;position: relative;",
+    ".sv-ranking-item:focus .sv-ranking-item__icon--hover":
+      "visibility: hidden;",
+    ".sv-ranking-item:hover .sv-ranking-item__icon--hover":
+      "visibility: visible;",
+    ".sv-ranking-item:focus": "outline: none;",
+    ".sv-ranking-item:focus .sv-ranking-item__icon--focus":
+      "visibility: visible; top: 15px;",
+    ".sv-ranking-item:focus .sv-ranking-item__index":
+      "background: white; border: 2px solid #19b394;",
+    ".sv-ranking-item__content":
+      "display: inline-block;background-color: white;padding-top: 5px;padding-bottom: 5px;padding-left: 35px;padding-right: 10px;",
+    ".sv-ranking-item__icon-container":
+      "cursor: pointer;position: absolute;left: 0;top: 0;bottom: 0;width: 35px;",
+    ".sv-ranking-item__icon":
+      "visibility: hidden;left:10px;top:20px;fill:#19b394;position: absolute;",
+    ".sv-ranking-item__index":
+      "display: inline-block;padding: 10px 16px;background: rgba(25, 179, 148, 0.1);border-radius: 100px;border: 2px solid transparent;",
+    ".sv-ranking-item__text": "display: inline-block;",
+    ".sv-ranking-item__ghost":
+      "display: none;background: #f3f3f3;border-radius: 100px;width: 200px;height: 55px;z-index: 1;position: absolute;left: 35px;",
+    ".sv-ranking-item--ghost .sv-ranking-item__ghost": "display: block;",
+    ".sv-ranking-item--ghost .sv-ranking-item__content": "visibility: hidden;",
+    ".sv-ranking-item--drag .sv-ranking-item__content":
+      "box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.1);border-radius: 100px;",
+    ".ranking--drag .sv-ranking-item:hover .sv-ranking-item__icon":
+      "visibility: hidden;",
+    ".sv-ranking-item--drag .sv-ranking-item__icon--hover":
+      "visibility: visible;",
+
     ".sv_qstn .sv_q_select_column":
       "display: inline-block; vertical-align: top; min-width: 10%;",
 
@@ -589,6 +623,7 @@ export class StylesManager {
       "$body-background-color": "#ffffff",
     },
   };
+
   public static ThemeCss: { [key: string]: string } = {
     ".sv_default_css": "background-color: $body-container-background-color;",
 
@@ -696,6 +731,7 @@ export class StylesManager {
     ".sv_main .sv_matrix_detail_row":
       "background-color: #ededed; border-top: 1px solid $header-background-color; border-bottom: 1px solid $header-background-color;",
   };
+
   public static modernThemeCss: { [key: string]: string } = {
     // ".sv-paneldynamic__add-btn": "background-color: $add-button-color;",
     // ".sv-paneldynamic__remove-btn": "background-color: $remove-button-color;",
@@ -810,6 +846,7 @@ export class StylesManager {
     ".sv-text:-ms-placeholder": "color: $text-input-color;",
     ".sv-table__row--detail": "background-color: $header-background-color;",
   };
+
   public static bootstrapThemeCss: { [key: string]: string } = {
     ".sv_main .sv_q_imgsel.checked label>div": "background-color: $main-color",
     ".sv_main .sv_p_description": "padding-left: 1.66em;",

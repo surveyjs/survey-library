@@ -1604,7 +1604,7 @@ export class Question
   }
   protected setValueCore(newValue: any) {
     this.setQuestionValue(newValue);
-    if (this.data != null) {
+    if (this.data != null && this.canSetValueToSurvey()) {
       newValue = this.valueForSurvey;
       this.data.setValue(
         this.getValueName(),
@@ -1613,6 +1613,9 @@ export class Question
         this.allowNotifyValueChanged
       );
     }
+  }
+  protected canSetValueToSurvey(): boolean {
+    return true;
   }
   protected valueFromData(val: any): any {
     return val;

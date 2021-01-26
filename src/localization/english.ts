@@ -25,6 +25,8 @@ export var englishStrings = {
   requiredErrorInPanel: "Please answer at least one question.",
   requiredInAllRowsError: "Please answer questions in all rows.",
   numericError: "The value should be numeric.",
+  minError: "The value should not be less than {0}",
+  maxError: "The value should not be greater than {0}",
   textMinLength: "Please enter at least {0} character(s).",
   textMaxLength: "Please enter less than {0} character(s).",
   textMinMaxLength: "Please enter more than {0} and less than {1} characters.",

@@ -179,14 +179,16 @@ export class LocalizableString {
     }
     this.strChanged();
   }
-  public get renderAs() : string {
+  public get renderAs(): string {
     if (!this.owner) {
       return LocalizableString.defaultRenderer;
     }
     if (typeof this.owner.getRenderer !== "function") {
       return LocalizableString.defaultRenderer;
     }
-    return this.owner.getRenderer(this.name) || LocalizableString.defaultRenderer;
+    return (
+      this.owner.getRenderer(this.name) || LocalizableString.defaultRenderer
+    );
   }
   public equals(obj: any): boolean {
     if (!!this.sharedData) return this.sharedData.equals(obj);
@@ -256,7 +258,7 @@ export class LocalizableStrings {
     this.setValue("", val);
   }
   public get text(): string {
-    return this.value.join("\n");
+    return Array.isArray(this.value) ? this.value.join("\n") : "";
   }
   public set text(val: string) {
     this.value = !!val ? val.split("\n") : [];

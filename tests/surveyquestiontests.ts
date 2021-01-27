@@ -3876,6 +3876,29 @@ QUnit.test(
   }
 );
 
+QUnit.test(
+  "QuestionText min/max properties and global setting",
+  function (assert) {
+    settings.minDate = "1900-01-01";
+    settings.maxDate = "2100-01-01";
+    var survey = new SurveyModel({
+      questions: [
+        { type: "text", inputType: "date", name: "q1", min: "2020-01-01" },
+        { type: "text", inputType: "date", name: "q2", max: "2030-01-01" },
+      ],
+    });
+    var q1 = <QuestionTextModel>survey.getQuestionByName("q1");
+    var q2 = <QuestionTextModel>survey.getQuestionByName("q2");
+
+    assert.equal(q1.renderedMin, "2020-01-01");
+    assert.equal(q1.renderedMax, "2100-01-01");
+    assert.equal(q2.renderedMin, "1900-01-01");
+    assert.equal(q2.renderedMax, "2030-01-01");
+    settings.minDate = "";
+    settings.maxDate = "";
+  }
+);
+
 QUnit.test("Question defaultValue as expression", function (assert) {
   var survey = new SurveyModel({
     questions: [{ type: "text", name: "q", defaultValue: "=1+2" }],

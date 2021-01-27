@@ -7,6 +7,7 @@ import { EmailValidator, SurveyValidator } from "./validator";
 import { SurveyError } from "./base";
 import { surveyLocalization } from "./surveyStrings";
 import { CustomError } from "./error";
+import { settings } from "./settings";
 
 /**
  * A Model for an input text question.
@@ -275,11 +276,14 @@ export class QuestionTextModel extends Question {
   }
   private setRenderedMinMax() {
     this.setValueAndRunExpression(this.minValueExpression, this.min, (val) => {
+      if (!val && this.isDateInputType && !!settings.minDate) {
+        val = settings.minDate;
+      }
       this.setPropertyValue("renderedMin", val);
     });
     this.setValueAndRunExpression(this.maxValueExpression, this.max, (val) => {
       if (!val && this.isDateInputType) {
-        val = "2999-12-31";
+        val = !!settings.maxDate ? settings.maxDate : "2999-12-31";
       }
       this.setPropertyValue("renderedMax", val);
     });

@@ -94,7 +94,6 @@
     "vue-loader": "14.1.0",
     "vue-property-decorator": "4.0.0",
     "vue-template-compiler": "2.1.10",
-    "sortablejs": "1.13.0",
     "webpack": "2.2.1"
   },
   "husky": {
@@ -103,6 +102,7 @@
     }
   },
   "dependencies": {
-    "signature_pad": "^2.3.2"
+    "signature_pad": "^2.3.2",
+    "sortablejs": "1.13.0"
   }
 }

@@ -1,5 +1,8 @@
 <!-- ko if: hasItems-->
-<div class="sv-action-bar">
+<div
+  class="sv-action-bar"
+  data-bind="click: function() { return true; }, clickBubble: false"
+>
   <!-- ko foreach: items-->
   <span
     class="sv-action"

@@ -5,10 +5,14 @@ export const url_test = "http://127.0.0.1:8080/examples_test/";
 export const url_widgets = "http://127.0.0.1:8080/examples/";
 
 export const initSurvey = ClientFunction((framework, json, events) => {
-  console.error = msg => {throw new Error(msg)};
-  console.warn = msg => {throw new Error(msg)};
+  console.error = (msg) => {
+    throw new Error(msg);
+  };
+  console.warn = (msg) => {
+    throw new Error(msg);
+  };
   console.log("surveyjs console.error and console.warn override");
-  
+
   var model = new Survey.Model(json);
   var surveyComplete = function (model) {
     window.SurveyResult = model.data;

@@ -15,7 +15,16 @@ export class ActionBar extends React.Component<any, any> {
     var itemsContainer = null;
     if (this.hasItems) {
       const items = this.renderItems();
-      itemsContainer = <div className="sv-action-bar">{items}</div>;
+      itemsContainer = (
+        <div
+          className="sv-action-bar"
+          onClick={function (event) {
+            event.stopPropagation();
+          }}
+        >
+          {items}
+        </div>
+      );
     }
     return itemsContainer;
   }

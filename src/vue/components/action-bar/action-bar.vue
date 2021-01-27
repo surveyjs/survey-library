@@ -1,5 +1,13 @@
 <template>
-  <div v-if="hasItems" ref="container" class="sv-action-bar">
+  <div
+    v-if="hasItems"
+    ref="container"
+    class="sv-action-bar"
+    v-on:click="function (event) {
+        event.stopPropagation();
+      }
+    "
+  >
     <span
       class="sv-action"
       v-bind:class="{ 'sv-action--hidden': !item.isVisible }"

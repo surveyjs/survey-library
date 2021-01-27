@@ -11,7 +11,9 @@ export class StylesManager {
     //   "max-width: 80%; margin: auto; position: relative; color: #6d7072; padding: 0 1em;",
     // ".sv_bootstrap_css .panel-body":
     //   "background-color: white; padding: 1em 1em 5em 1em; border-top: 2px solid lightgray;",
+    ".sv-expand-action:before": `content: ""; display: inline-block; background-image: url("data:image/svg+xml,%3C%3Fxml version='1.0' encoding='utf-8'%3F%3E%3C!-- Generator: Adobe Illustrator 21.1.0, SVG Export Plug-In . SVG Version: 6.00 Build 0) --%3E%3Csvg version='1.1' id='Layer_1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' x='0px' y='0px' viewBox='0 0 10 10' style='enable-background:new 0 0 10 10;' xml:space='preserve'%3E%3Cstyle type='text/css'%3E .st0%7Bfill:%23404040;%7D%0A%3C/style%3E%3Cpolygon class='st0' points='2,2 0,4 5,9 10,4 8,2 5,5 '/%3E%3C/svg%3E%0A"); background-repeat: no-repeat; background-position: center center; height: 10px; width: 12px; margin: auto 8px;`,
 
+    ".sv-expand-action--expanded:before": `transform: rotate(180deg);`,
     ".sv_main span": "word-break: break-word;",
 
     ".sv_main legend": "border: none; margin: 0;",

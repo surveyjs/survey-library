@@ -40,7 +40,7 @@ export class ActionBarItem extends React.Component<any, any> {
     if (
       this.item.showTitle === undefined ||
       this.item.showTitle ||
-      this.item.iconName
+      !this.item.iconName
     ) {
       var titleClass =
         "sv-action-bar-item__title " +

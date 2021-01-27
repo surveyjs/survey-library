@@ -1,14 +1,16 @@
-import Sortable from "sortablejs";
+import SortableLib from "sortablejs";
 import { Serializer } from "./jsonobject";
 import { QuestionFactory } from "./questionfactory";
 import { QuestionCheckboxModel } from "./question_checkbox";
+
+const Sortable = <any>SortableLib;
 
 /**
  * A Model for a ranking question
  */
 export class QuestionRankingModel extends QuestionCheckboxModel {
   domNode: HTMLElement = null;
-  sortableInst: Sortable = null;
+  sortableInst: any = null;
 
   public getType(): string {
     return "ranking";
@@ -160,7 +162,13 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
 
 Serializer.addClass(
   "ranking",
-  [{ name: "noneText", serializationProperty: "locNoneText" }],
+  [
+    { name: "hasNone", visible: false },
+    { name: "noneText", visible: false },
+    { name: "hasSelectAll", visible: false },
+    { name: "selectAllText", visible: false },
+    { name: "colCount:number", visible: false },
+  ],
   function () {
     return new QuestionRankingModel("");
   },

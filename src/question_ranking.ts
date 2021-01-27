@@ -53,7 +53,7 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
         );
         setValue();
       },
-      onChange(evt) {
+      onChange(evt: any) {
         const indexNodes = domNode.querySelectorAll("." + cssClasses.itemIndex);
         const ghostNode = indexNodes[indexNodes.length - 1];
         syncNumbers();

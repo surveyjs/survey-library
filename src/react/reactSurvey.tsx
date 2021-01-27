@@ -220,7 +220,10 @@ export class Survey extends SurveyElementBase implements ISurveyCreator {
       );
     }
     return title ? (
-      <div className={this.css.headerText} style={{ maxWidth: this.survey.titleMaxWidth }}>
+      <div
+        className={this.css.headerText}
+        style={{ maxWidth: this.survey.titleMaxWidth }}
+      >
         <h3 className={this.css.title}>{title}</h3>
         <h5 className={this.css.description}>{description}</h5>
       </div>
@@ -282,7 +285,10 @@ export class Survey extends SurveyElementBase implements ISurveyCreator {
     return null;
   }
   protected renderTimerPanel(location: string) {
-    if (this.survey.showTimerPanel != location) return null;
+    if (location === "top" && !this.survey.isTimerPanelShowingOnTop)
+      return null;
+    if (location === "bottom" && !this.survey.isTimerPanelShowingOnBottom)
+      return null;
     return <SurveyTimerPanel survey={this.survey} />;
   }
   protected renderPage(page: PageModel): JSX.Element {
@@ -385,7 +391,9 @@ export class Survey extends SurveyElementBase implements ISurveyCreator {
   //ISurveyCreator
   public createQuestionElement(question: Question): JSX.Element {
     return ReactQuestionFactory.Instance.createQuestion(
-      question.isDefaultRendering() ? question.getTemplate() : question.getComponentName(),
+      question.isDefaultRendering()
+        ? question.getTemplate()
+        : question.getComponentName(),
       {
         question: question,
         isDisplayMode: question.isReadOnly,

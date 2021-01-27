@@ -112,8 +112,7 @@ export abstract class AdaptiveElement {
         this.dotsItemPopupModel.toggleVisibility();
       },
       items: this.invisibleItems
-    },
-    undefined
+    }
   );
 
   public showFirstN(visibleItemsCount: number) {

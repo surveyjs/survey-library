@@ -20,13 +20,11 @@ QUnit.test("PopupModel defaults", (assert) => {
   const data = {};
   const model: PopupModel = new PopupModel(
     "sv-list",
-    data,
-    "template-name"
+    data
   );
 
   assert.equal(model.contentComponentName, "sv-list");
   assert.equal(model.contentComponentData, data);
-  assert.equal(model.contentTemplateName, "template-name");
   assert.equal(model.verticalPosition, "bottom");
   assert.equal(model.horizontalPosition, "left");
   assert.equal(model.showPointer, true);
@@ -43,8 +41,7 @@ QUnit.test("PopupModel toggleVisibility", (assert) => {
   const data = {};
   const model: PopupModel = new PopupModel(
     "sv-list",
-    data,
-    "template-name"
+    data
   );
 
   let trace = "";
@@ -65,8 +62,7 @@ QUnit.test("PopupViewModel defaults", (assert) => {
   const data = {};
   const model: PopupModel = new PopupModel(
     "sv-list",
-    data,
-    ""
+    data
   );
 
   const targetElement: HTMLElement = document.createElement('div');
@@ -77,7 +73,6 @@ QUnit.test("PopupViewModel defaults", (assert) => {
 
   assert.equal(viewModel.contentComponentName, "sv-list");
   assert.equal(viewModel.contentComponentData, data);
-  assert.equal(viewModel.contentTemplateName, "");
   assert.equal(viewModel.verticalPosition, "bottom");
   assert.equal(viewModel.horizontalPosition, "left");
   assert.equal(viewModel.showPointer, true);
@@ -113,7 +108,7 @@ QUnit.test("PopupViewModel defaults", (assert) => {
 });
 
 QUnit.test("PopupViewModel styleClass", (assert) => {
-  const model: PopupModel = new PopupModel("sv-list", {}, "");
+  const model: PopupModel = new PopupModel("sv-list", {});
   const targetElement: HTMLElement = document.createElement('div');
   const viewModel: PopupViewModel = new PopupViewModel(model, targetElement);
 
@@ -129,7 +124,7 @@ QUnit.test("PopupViewModel styleClass", (assert) => {
 });
 
 QUnit.test("PopupViewModel isVisible", (assert) => {
-  const model: PopupModel = new PopupModel("sv-list", {}, "");
+  const model: PopupModel = new PopupModel("sv-list", {});
   const targetElement: HTMLElement = document.createElement('div');
   const viewModel: PopupViewModel = new PopupViewModel(model, targetElement);
 
@@ -170,7 +165,7 @@ QUnit.test("PopupViewModel isVisible", (assert) => {
 });
 
 QUnit.test("PopupModel toggleVisibility", (assert) => {
-  const model: PopupModel = new PopupModel("sv-list", {}, "");
+  const model: PopupModel = new PopupModel("sv-list", {});
   const targetElement: HTMLElement = document.createElement('div');
   const viewModel: PopupViewModel = new PopupViewModel(model, targetElement);
 
@@ -211,7 +206,7 @@ QUnit.test("PopupModel toggleVisibility", (assert) => {
 });
 
 QUnit.test("PopupModel clickOutside", (assert) => {
-  const model: PopupModel = new PopupModel("sv-list", {}, "");
+  const model: PopupModel = new PopupModel("sv-list", {});
   const targetElement: HTMLElement = document.createElement('div');
   const viewModel: PopupViewModel = new PopupViewModel(model, targetElement);
 
@@ -265,7 +260,7 @@ QUnit.test("PopupModel clickOutside", (assert) => {
 });
 
 QUnit.test("PopupModel cancel", (assert) => {
-  const model: PopupModel = new PopupModel("sv-list", {}, "");
+  const model: PopupModel = new PopupModel("sv-list", {});
   const targetElement: HTMLElement = document.createElement('div');
   const viewModel: PopupViewModel = new PopupViewModel(model, targetElement);
 
@@ -304,7 +299,7 @@ QUnit.test("PopupModel cancel", (assert) => {
 });
 
 QUnit.test("PopupModel apply", (assert) => {
-  const model: PopupModel = new PopupModel("sv-list", {}, "");
+  const model: PopupModel = new PopupModel("sv-list", {});
   const targetElement: HTMLElement = document.createElement('div');
   const viewModel: PopupViewModel = new PopupViewModel(model, targetElement);
 
@@ -347,8 +342,7 @@ QUnit.test("PopupViewModel dispose", (assert) => {
   const data = {};
   const model: PopupModel = new PopupModel(
     "sv-list",
-    data,
-    ""
+    data
   );
 
   const targetElement: HTMLElement = document.createElement('div');

@@ -7,7 +7,6 @@ export class PopupModel {
   constructor(
     public contentComponentName: string,
     public contentComponentData: any,
-    public contentTemplateName: string,
     public verticalPosition: "top" | "bottom" | "middle" = "bottom",
     public horizontalPosition: "left" | "right" | "center" = "left",
     public showPointer: boolean = true,
@@ -61,9 +60,6 @@ export class PopupViewModel {
   public get contentComponentData(): any {
     return this.model.contentComponentData;
   }
-  public get contentTemplateName(): string {
-    return this.model.contentTemplateName;
-  }
   public get verticalPosition(): "top" | "bottom" | "middle" {
     return this.model.verticalPosition;
   }
@@ -112,9 +108,22 @@ export class PopupViewModel {
   }
 
   private setupPopup() {
-    if (!this.targetElement) {
-      return;
+    if (this.isModal) {
+      this.setupModalPopup();
     }
+    else {
+      this.setupModelessPopup();
+    }
+  }
+  private setupModalPopup() {
+    setTimeout(() => {
+      const background = <HTMLElement>this.container.children[0];
+      const container = <HTMLElement>this.container.children[0].children[0];
+      this.left((background.offsetWidth - container.offsetWidth) / 2 + "px");
+      this.top((background.offsetHeight - container.offsetHeight) / 2 + "px");
+    }, 1);
+  }
+  private setupModelessPopup() {
     const rect = this.targetElement.getBoundingClientRect();
     const popupContainer = <HTMLElement>this.container.children[0].children[0];
     this.popupDirection(
@@ -187,6 +196,22 @@ export class PopupViewModel {
     ko.cleanNode(this.container);
     this.container.remove();
     this.container = undefined;
+  }
+
+  public static showModal(componentName: string, data: any, onApply: () => void, onCancel?: () => void) {
+    const popupModel = new PopupModel(
+      componentName,
+      data,
+      "top",
+      "left",
+      false,
+      true,
+      onCancel,
+      onApply
+    );
+
+    const popupViewModel: PopupViewModel = new PopupViewModel(popupModel, undefined);    
+    popupViewModel.isVisible(true);
   }
 }
 

@@ -11,9 +11,6 @@ export class StylesManager {
     //   "max-width: 80%; margin: auto; position: relative; color: #6d7072; padding: 0 1em;",
     // ".sv_bootstrap_css .panel-body":
     //   "background-color: white; padding: 1em 1em 5em 1em; border-top: 2px solid lightgray;",
-    ".sv-expand-action:before": `content: ""; display: inline-block; background-image: url("data:image/svg+xml,%3C%3Fxml version='1.0' encoding='utf-8'%3F%3E%3C!-- Generator: Adobe Illustrator 21.1.0, SVG Export Plug-In . SVG Version: 6.00 Build 0) --%3E%3Csvg version='1.1' id='Layer_1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' x='0px' y='0px' viewBox='0 0 10 10' style='enable-background:new 0 0 10 10;' xml:space='preserve'%3E%3Cstyle type='text/css'%3E .st0%7Bfill:%23404040;%7D%0A%3C/style%3E%3Cpolygon class='st0' points='2,2 0,4 5,9 10,4 8,2 5,5 '/%3E%3C/svg%3E%0A"); background-repeat: no-repeat; background-position: center center; height: 10px; width: 12px; margin: auto 8px;`,
-
-    ".sv-expand-action--expanded:before": `transform: rotate(180deg);`,
     ".sv_main span": "word-break: break-word;",
 
     ".sv_main legend": "border: none; margin: 0;",
@@ -257,6 +254,26 @@ export class StylesManager {
       "display: block; width: 100%; text-align: center;",
     ".sv_main .sv_header__text":
       "display: inline-block; vertical-align: top; max-width: 100%",
+
+    ".sv_main .sv-expand-action:before": `content: ""; display: inline-block; background-image: url("data:image/svg+xml,%3C%3Fxml version='1.0' encoding='utf-8'%3F%3E%3C!-- Generator: Adobe Illustrator 21.1.0, SVG Export Plug-In . SVG Version: 6.00 Build 0) --%3E%3Csvg version='1.1' id='Layer_1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' x='0px' y='0px' viewBox='0 0 10 10' style='enable-background:new 0 0 10 10;' xml:space='preserve'%3E%3Cstyle type='text/css'%3E .st0%7Bfill:%23404040;%7D%0A%3C/style%3E%3Cpolygon class='st0' points='2,2 0,4 5,9 10,4 8,2 5,5 '/%3E%3C/svg%3E%0A"); background-repeat: no-repeat; background-position: center center; height: 10px; width: 12px; margin: auto 8px;`,
+
+    ".sv_main .sv-expand-action--expanded:before": `transform: rotate(180deg);`,
+
+    ".sv_main sv-action-bar, .sv_main .sv-action-bar": `display: flex; position: relative; align-items: center; margin-left: auto; padding: 0 0 0 16px; overflow: hidden; white-space: nowrap;`,
+    ".sv_main .sv-action-bar-separator": `display: inline-block; width: 1px; height: 24px; vertical-align: middle; margin-right: 16px; background-color: #d6d6d6;`,
+    ".sv_main .sv-action-bar-item": `-webkit-appearance: none; -moz-appearance: none; appearance: none; display: flex; height: 40px; padding: 8px; box-sizing: border-box; margin-right: 16px; border: none; border-radius: 2px; background-color: transparent; cursor: pointer; line-height: 24px; font-size: 16px; overflow-x: hidden; white-space: nowrap; min-width: auto; font-weight: normal`,
+    ".sv_main .sv-action-bar-item__title": `vertical-align: middle; white-space: nowrap;`,
+    ".sv_main .sv-action-bar-item__title--with-icon": `margin-left: 8px;`,
+    ".sv_main .sv-action": `display: flex; align-items: center;`,
+    ".sv_main .sv-action--hidden": "visibility: hidden",
+    ".sv_main .sv-action-bar-item__icon svg": "display: block;",
+    ".sv_main .sv-action-bar-item:active": "opacity: 0.5;",
+    ".sv_main .sv-action-bar-item:focus": "outline: none;",
+
+    ".sv_main .sv-title-actions": "display: flex;align-items: center;",
+    ".sv_main .sv-title-actions__title":
+      "flex-wrap: wrap; max-width: 90%; min-width: 50%;",
+    ".sv_main .sv-title-actions__bar": "min-width: 56px;",
   };
 
   public static Media: { [key: string]: { media: string; style: string } } = {
@@ -390,6 +407,8 @@ export class StylesManager {
       "$slider-color": "white",
       "$disabled-switch-color": "#9f9f9f",
       "$disabled-slider-color": "#cfcfcf",
+      "$foreground-light": "909090",
+      "$background-dim": "#f3f3f3",
     },
     orange: {
       "$header-background-color": "#4a4a4a",
@@ -413,6 +432,8 @@ export class StylesManager {
       "$slider-color": "white",
       "$disabled-switch-color": "#9f9f9f",
       "$disabled-slider-color": "#cfcfcf",
+      "$foreground-light": "909090",
+      "$background-dim": "#f3f3f3",
     },
     darkblue: {
       "$header-background-color": "#d9d8dd",
@@ -436,6 +457,8 @@ export class StylesManager {
       "$slider-color": "white",
       "$disabled-switch-color": "#9f9f9f",
       "$disabled-slider-color": "#cfcfcf",
+      "$foreground-light": "909090",
+      "$background-dim": "#f3f3f3",
     },
     darkrose: {
       "$header-background-color": "#ddd2ce",
@@ -459,6 +482,8 @@ export class StylesManager {
       "$slider-color": "white",
       "$disabled-switch-color": "#9f9f9f",
       "$disabled-slider-color": "#cfcfcf",
+      "$foreground-light": "909090",
+      "$background-dim": "#f3f3f3",
     },
     stone: {
       "$header-background-color": "#cdccd2",
@@ -482,6 +507,8 @@ export class StylesManager {
       "$slider-color": "white",
       "$disabled-switch-color": "#9f9f9f",
       "$disabled-slider-color": "#cfcfcf",
+      "$foreground-light": "909090",
+      "$background-dim": "#f3f3f3",
     },
     winter: {
       "$header-background-color": "#82b8da",
@@ -505,6 +532,8 @@ export class StylesManager {
       "$slider-color": "white",
       "$disabled-switch-color": "#9f9f9f",
       "$disabled-slider-color": "#cfcfcf",
+      "$foreground-light": "909090",
+      "$background-dim": "#f3f3f3",
     },
     winterstone: {
       "$header-background-color": "#323232",
@@ -528,6 +557,8 @@ export class StylesManager {
       "$slider-color": "white",
       "$disabled-switch-color": "#9f9f9f",
       "$disabled-slider-color": "#cfcfcf",
+      "$foreground-light": "909090",
+      "$background-dim": "#f3f3f3",
     },
     modern: {
       "$main-color": "#1ab394",
@@ -560,6 +591,8 @@ export class StylesManager {
       "$radio-checked-color": "#404040",
       "$clean-button-color": "#1948b3",
       "$body-background-color": "#ffffff",
+      "$foreground-light": "909090",
+      "$background-dim": "#f3f3f3",
     },
     bootstrap: {
       "$main-color": "#18a689",
@@ -572,6 +605,8 @@ export class StylesManager {
       "$slider-color": "white",
       "$disabled-switch-color": "#9f9f9f",
       "$disabled-slider-color": "#cfcfcf",
+      "$foreground-light": "909090",
+      "$background-dim": "#f3f3f3",
     },
     bootstrapmaterial: {
       "$main-color": "#18a689",
@@ -586,6 +621,8 @@ export class StylesManager {
       "$disabled-switch-color": "#9f9f9f",
       "$disabled-slider-color": "#cfcfcf",
       "$body-background-color": "#ffffff",
+      "$foreground-light": "909090",
+      "$background-dim": "#f3f3f3",
     },
   };
   public static ThemeCss: { [key: string]: string } = {
@@ -694,6 +731,10 @@ export class StylesManager {
 
     ".sv_main .sv_matrix_detail_row":
       "background-color: #ededed; border-top: 1px solid $header-background-color; border-bottom: 1px solid $header-background-color;",
+
+    ".sv_main .sv-action-bar-item": "color: $text-color",
+    ".sv_main .sv-action-bar-item__icon use": "fill: $foreground-light",
+    ".sv_main .sv-action-bar-item:hover": "background-color: $background-dim",
   };
   public static modernThemeCss: { [key: string]: string } = {
     // ".sv-paneldynamic__add-btn": "background-color: $add-button-color;",
@@ -844,6 +885,10 @@ export class StylesManager {
 
     ".sv_main .sv_matrix_detail_row":
       "background-color: #ededed; border-top: 1px solid $header-background-color; border-bottom: 1px solid $header-background-color;",
+
+    ".sv_main .sv-action-bar-item": "color: $text-color",
+    ".sv_main .sv-action-bar-item__icon use": "fill: $foreground-light;",
+    ".sv_main .sv-action-bar-item:hover": "background-color: $background-dim",
   };
 
   public static bootstrapmaterialThemeCss: { [key: string]: string } = {
@@ -922,6 +967,10 @@ export class StylesManager {
     //eo boolean
     ".sv_main .sv_matrix_detail_row":
       "background-color: #ededed; border-top: 1px solid $header-background-color; border-bottom: 1px solid $header-background-color;",
+
+    ".sv_main .sv-action-bar-item": "color: $text-color",
+    ".sv_main .sv-action-bar-item__icon use": "fill: $foreground-light;",
+    ".sv_main .sv-action-bar-item:hover": "background-color: $background-dim",
   };
 
   private sheet: CSSStyleSheet = null;

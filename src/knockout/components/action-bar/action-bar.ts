@@ -1,6 +1,4 @@
-import { timeStamp } from "console";
 import * as ko from "knockout";
-import { ObjectWrapper } from "../../../utils/objectwrapper";
 import { ResponsibilityManager } from "../../../utils/resonsibilitymanager";
 import { PopupModel } from "../popup/popup";
 
@@ -9,7 +7,6 @@ const template = require("./action-bar.html");
 export * from "./action-bar-item";
 export * from "./action-bar-separator";
 export * from "./action-bar-item-dropdown";
-export * from "./action-bar-item-modal";
 
 export interface IActionBarItem {
   /**
@@ -23,7 +20,7 @@ export interface IActionBarItem {
   /**
    * Toolbar item title
    */
-  title: any;
+  title?: any;
   /**
    * Toolbar item tooltip
    */
@@ -39,7 +36,7 @@ export interface IActionBarItem {
   /**
    * A callback that calls on toolbar item click.
    */
-  action?: () => void;
+  action?: (context?: any) => void;
   /**
    * Toolbar item css class
    */
@@ -52,6 +49,9 @@ export interface IActionBarItem {
    * Toolbar item data object. Used as data for custom template or component rendering
    */
   data?: any;
+  popupModel?: any; //TODO: temp, use data insted
+  isActive?: any; //TODO: temp
+  needSeparator?: any; //TODO: temp
   /**
    * Toolbar item template name
    */
@@ -76,13 +76,35 @@ export interface IActionBarItem {
 export abstract class AdaptiveElement {
   public items: ko.ObservableArray<any> = ko.observableArray();
   public invisibleItems: ko.ObservableArray<any> = ko.observableArray();
+  public showTitles = ko.observable(true);
+  protected dotsItem: AdaptiveActionBarItemWrapper; // (...) button
+
+  constructor() {
+    this.dotsItem = new AdaptiveActionBarItemWrapper(
+      this,
+      {
+        id: "dotsItem-id",
+        component: "sv-action-bar-item-dropdown",
+        css: "sv-dots",
+        innerCss: "sv-dots__item",
+        iconName: "icon-dots",
+        showTitle: false,
+        action: (item: any) => {
+          this.dotsItemPopupModel.toggleVisibility();
+        },
+    
+        popupModel: this.dotsItemPopupModel
+      }
+    );
+  }
 
   public invisibleItemSelected(item: any) : void {
-    if (!!item && typeof item.action === "function")
+    if (!!item && typeof item.action === "function") {
       item.action();
+    }
   };
 
-  protected dotsItemPopupModel = new PopupModel(
+  protected dotsItemPopupModel: PopupModel = new PopupModel(
     "sv-list",
     {
       onItemSelect: (item: any) => {
@@ -94,20 +116,6 @@ export abstract class AdaptiveElement {
     undefined
   );
 
-  protected dotsItem = {
-    // (...) button
-    component: "sv-action-bar-item-dropdown",
-    css: "sv-dots",
-    innerCss: "sv-dots__item",
-    iconName: "icon-dots",
-    isVisible: () => true,
-    showTitle: false,
-    action: (item: any) => {
-      this.dotsItemPopupModel.toggleVisibility();
-    },
-
-    popupModel: this.dotsItemPopupModel
-  };
   public showFirstN(visibleItemsCount: number) {
     let leftItemsToShow = visibleItemsCount;
     this.invisibleItems([]);
@@ -129,26 +137,44 @@ export abstract class AdaptiveElement {
   }
 }
 
+export class AdaptiveActionBarItemWrapper implements IActionBarItem {
+  constructor(private owner: AdaptiveElement, private item: IActionBarItem) {}
+  public get id(): string { return this.item.id; }
+  public get visible(): any { return ko.unwrap(this.item.visible); }
+  public get title(): any { return ko.unwrap(this.item.title); }
+  public get tooltip(): any { return ko.unwrap(this.item.tooltip); }
+  public get enabled(): any { return ko.unwrap(this.item.enabled); }
+  //public get showTitle(): any { return ko.unwrap(this.item.showTitle); }
+  public showTitle = ko.computed(() => {
+    return (
+      this.owner.showTitles() &&
+      (ko.unwrap(this.item.showTitle) || this.item.showTitle === undefined)
+    );
+  });
+  public action() { this.item.action && this.item.action(); }
+  public get css(): any { return ko.unwrap(this.item.css);}
+  public get innerCss(): any { return ko.unwrap(this.item.innerCss); }
+  public get data(): any { return ko.unwrap(this.item.data); }
+  public get popupModel(): any { return ko.unwrap(this.item.popupModel); }
+  public get isActive(): any { return ko.unwrap(this.item.isActive); }
+  public get needSeparator(): any { return ko.unwrap(this.item.needSeparator); }
+  public get template(): string { return this.item.template; }
+  public get component(): any { return ko.unwrap(this.item.component); }
+  public get iconName(): string { return ko.unwrap(this.item.iconName); }
+  public get items(): any { return ko.unwrap(this.item.items); }
+  //
+  public isVisible = ko.observable(true);
+}
+
 export class ActionBarViewModel extends AdaptiveElement {
   public itemsSubscription: ko.Computed;
-  private _showTitles = ko.observable(true);
 
   constructor(_items: ko.MaybeObservableArray<IActionBarItem>) {
     super();
     this.itemsSubscription = ko.computed(() => {
       var items = ko.unwrap(_items);
       items.forEach((item) => {
-        var wrappedItem: any = new ObjectWrapper(item, ["action", "showTitle"]);
-        var showTitle = item.showTitle;
-        wrappedItem.showTitle = ko.computed(() => {
-          return (
-            this._showTitles() &&
-            (ko.unwrap(showTitle) || showTitle === undefined)
-          );
-        });
-        wrappedItem.isVisible = ko.observable(true);
-
-        this.items.push(wrappedItem);
+        this.items.push(new AdaptiveActionBarItemWrapper(this, item));
       });
     });
   }
@@ -158,14 +184,14 @@ export class ActionBarViewModel extends AdaptiveElement {
   }
 
   public get canShrink() {
-    return this._showTitles();
+    return this.showTitles();
   }
   public readonly canGrow = true;
   public shrink() {
-    this._showTitles(false);
+    this.showTitles(false);
   }
   public grow() {
-    this._showTitles(true);
+    this.showTitles(true);
   }
 
   dispose() {

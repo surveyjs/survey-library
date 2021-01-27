@@ -112,6 +112,9 @@ export class PopupViewModel {
   }
 
   private setupPopup() {
+    if (!this.targetElement) {
+      return;
+    }
     const rect = this.targetElement.getBoundingClientRect();
     const popupContainer = <HTMLElement>this.container.children[0].children[0];
     this.popupDirection(

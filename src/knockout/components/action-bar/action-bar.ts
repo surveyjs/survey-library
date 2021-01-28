@@ -1,4 +1,6 @@
 import * as ko from "knockout";
+import { Base } from "../../../base";
+import { property } from "../../../jsonobject";
 import { ResponsibilityManager } from "../../../utils/resonsibilitymanager";
 import { PopupModel } from "../popup/popup";
 
@@ -16,23 +18,23 @@ export interface IActionBarItem {
   /**
    * Set this property to false to make the toolbar item invisible.
    */
-  visible?: any;
+  visible?: boolean;
   /**
    * Toolbar item title
    */
-  title?: any;
+  title?: string;
   /**
    * Toolbar item tooltip
    */
-  tooltip?: any;
+  tooltip?: string;
   /**
    * Set this property to false to disable the toolbar item.
    */
-  enabled?: any;
+  enabled?: boolean;
   /**
    * Set this property to false to hide the toolbar item title.
    */
-  showTitle?: any;
+  showTitle?: (() => boolean) | boolean;
   /**
    * A callback that calls on toolbar item click.
    */
@@ -40,18 +42,18 @@ export interface IActionBarItem {
   /**
    * Toolbar item css class
    */
-  css?: any;
+  css?: string;
   /**
    * Toolbar inner element css class
    */
-  innerCss?: any;
+  innerCss?: string;
   /**
    * Toolbar item data object. Used as data for custom template or component rendering
    */
   data?: any;
-  popupModel?: any; //TODO: temp, use data insted
-  isActive?: any; //TODO: temp
-  needSeparator?: any; //TODO: temp
+  popupModel?: any; //TODO: temp, use data instead
+  isActive?: boolean; //TODO: temp
+  needSeparator?: boolean; //TODO: temp
   /**
    * Toolbar item template name
    */
@@ -59,7 +61,7 @@ export interface IActionBarItem {
   /**
    * Toolbar item component name
    */
-  component?: any;
+  component?: string;
   /**
    * Toolbar item icon name
    */
@@ -70,6 +72,29 @@ export interface IActionBarItem {
   items?: any;
 }
 
+export class ActionBarItem extends Base implements IActionBarItem {
+  constructor(item: IActionBarItem) {
+    super();
+    Object.assign(this, item);
+  }
+  @property() id: string;
+  @property() visible?: boolean;
+  @property() title?: string;
+  @property() tooltip?: string;
+  @property() enabled?: boolean;
+  @property() showTitle?: boolean | (() => boolean);
+  @property() action?: (context?: any) => void;
+  @property() css?: string;
+  @property() innerCss?: string;
+  @property() data?: any;
+  @property() popupModel?: any;
+  @property() isActive?: boolean;
+  @property() needSeparator?: boolean;
+  @property() template?: string;
+  @property() component?: string;
+  @property() iconName?: string;
+  @property() items?: any;
+}
 /**
  * The toolbar item description.
  */
@@ -82,7 +107,7 @@ export abstract class AdaptiveElement {
   constructor() {
     this.dotsItem = new AdaptiveActionBarItemWrapper(
       this,
-      {
+      new ActionBarItem({
         id: "dotsItem-id",
         component: "sv-action-bar-item-dropdown",
         css: "sv-dots",
@@ -94,7 +119,7 @@ export abstract class AdaptiveElement {
         },
     
         popupModel: this.dotsItemPopupModel
-      }
+      })
     );
   }
 
@@ -139,26 +164,26 @@ export abstract class AdaptiveElement {
 export class AdaptiveActionBarItemWrapper implements IActionBarItem {
   constructor(private owner: AdaptiveElement, private item: IActionBarItem) {}
   public get id(): string { return this.item.id; }
-  public get visible(): any { return ko.unwrap(this.item.visible); }
-  public get title(): any { return ko.unwrap(this.item.title); }
-  public get tooltip(): any { return ko.unwrap(this.item.tooltip); }
-  public get enabled(): any { return ko.unwrap(this.item.enabled); }
+  public get visible(): boolean { return ko.unwrap(this.item.visible); }
+  public get title(): string { return ko.unwrap(this.item.title); }
+  public get tooltip(): string { return ko.unwrap(this.item.tooltip); }
+  public get enabled(): boolean { return ko.unwrap(this.item.enabled); }
   //public get showTitle(): any { return ko.unwrap(this.item.showTitle); }
-  public showTitle = ko.computed(() => {
+  public showTitle = <() => boolean>ko.computed(() => {
     return (
       this.owner.showTitles() &&
       (ko.unwrap(this.item.showTitle) || this.item.showTitle === undefined)
     );
   });
   public action() { this.item.action && this.item.action(); }
-  public get css(): any { return ko.unwrap(this.item.css);}
-  public get innerCss(): any { return ko.unwrap(this.item.innerCss); }
+  public get css(): string { return ko.unwrap(this.item.css);}
+  public get innerCss(): string { return ko.unwrap(this.item.innerCss); }
   public get data(): any { return ko.unwrap(this.item.data); }
   public get popupModel(): any { return ko.unwrap(this.item.popupModel); }
-  public get isActive(): any { return ko.unwrap(this.item.isActive); }
-  public get needSeparator(): any { return ko.unwrap(this.item.needSeparator); }
+  public get isActive(): boolean { return ko.unwrap(this.item.isActive); }
+  public get needSeparator(): boolean { return ko.unwrap(this.item.needSeparator); }
   public get template(): string { return this.item.template; }
-  public get component(): any { return ko.unwrap(this.item.component); }
+  public get component(): string { return ko.unwrap(this.item.component); }
   public get iconName(): string { return ko.unwrap(this.item.iconName); }
   public get items(): any { return ko.unwrap(this.item.items); }
   //

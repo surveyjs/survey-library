@@ -6,23 +6,23 @@ export interface IActionBarItem {
   /**
    * Set this property to false to make the toolbar item invisible.
    */
-  visible?: any;
+  visible?: boolean;
   /**
    * Toolbar item title
    */
-  title?: any;
+  title?: string;
   /**
    * Toolbar item tooltip
    */
-  tooltip?: any;
+  tooltip?: string;
   /**
    * Set this property to false to disable the toolbar item.
    */
-  enabled?: any;
+  enabled?: boolean;
   /**
    * Set this property to false to hide the toolbar item title.
    */
-  showTitle?: any;
+  showTitle?: (() => boolean) | boolean;
   /**
    * A callback that calls on toolbar item click.
    */
@@ -30,18 +30,18 @@ export interface IActionBarItem {
   /**
    * Toolbar item css class
    */
-  css?: any;
+  css?: string;
   /**
    * Toolbar inner element css class
    */
-  innerCss?: any;
+  innerCss?: string;
   /**
    * Toolbar item data object. Used as data for custom template or component rendering
    */
   data?: any;
-  popupModel?: any; //TODO: temp, use data insted
-  isActive?: any; //TODO: temp
-  needSeparator?: any; //TODO: temp
+  popupModel?: any; //TODO: temp, use data instead
+  isActive?: boolean; //TODO: temp
+  needSeparator?: boolean; //TODO: temp
   /**
    * Toolbar item template name
    */
@@ -49,7 +49,7 @@ export interface IActionBarItem {
   /**
    * Toolbar item component name
    */
-  component?: any;
+  component?: string;
   /**
    * Toolbar item icon name
    */

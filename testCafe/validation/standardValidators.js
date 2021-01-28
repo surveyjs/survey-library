@@ -92,7 +92,7 @@ frameworks.forEach((framework) => {
       .click(`input[value="Complete"]`)
       .hover(
         getError(
-          `The 'value' should be equal or more than 10 and equal or less than 10000`,
+          `The 'value' should be at least 10 and at most 10000`,
           0
         )
       )

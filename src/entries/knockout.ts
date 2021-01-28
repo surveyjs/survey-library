@@ -25,6 +25,7 @@ export { QuestionImplementor } from "../knockout/koquestion";
 export { QuestionSelectBaseImplementor } from "../knockout/koquestion_baseselect";
 export { QuestionCheckboxBaseImplementor } from "../knockout/koquestion_baseselect";
 export { QuestionCheckbox } from "../knockout/koquestion_checkbox";
+export { QuestionRanking } from "../knockout/koquestion_ranking";
 export { QuestionComment } from "../knockout/koquestion_comment";
 export { QuestionDropdown } from "../knockout/koquestion_dropdown";
 export { QuestionFile } from "../knockout/koquestion_file";
@@ -61,6 +62,10 @@ export * from "../knockout/components/popup/popup";
 export * from "../knockout/components/progress/buttons";
 export * from "../knockout/components/progress/progress";
 export * from "../knockout/components/title-actions/title-actions";
+export * from "../knockout/components/string-editor";
+export * from "../knockout/components/string-viewer";
+
+
 export * from "../knockout/components/default-title/default-title";
 export * from "../knockout/components/list/list";
 export * from "../knockout/components/svg-icon/svg-icon";

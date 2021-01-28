@@ -1,5 +1,5 @@
 import React from "react";
-import { IActionBarItem } from "../../../base";
+import { IActionBarItem } from "../../../action-bar";
 import { ReactElementFactory } from "../../element-factory";
 import { ObjectWrapper } from "../../../utils/objectwrapper";
 import { ActionBarSeparator } from "./action-bar-separator";

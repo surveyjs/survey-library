@@ -21,7 +21,7 @@
           </svg>
         </span>
         <span class="check"></span>
-        <span v-if="!hideLabel" :class="getControlLabelClass(item)" :title="item.locText.koRenderedHtml">
+        <span v-if="!hideLabel" :class="getControlLabelClass(item)" :title="item.locText.text">
           <survey-string :locString="item.locText"/>
         </span>
       </label>

@@ -67,38 +67,38 @@ function isMobile() {
     typeof window !== "undefined" && typeof window.orientation !== "undefined"
   );
 }
+
 function isElementVisible(
   element: HTMLElement,
-  threshold: number = 0,
-  mode: "visible" | "above" | "below" = "visible"
-) {
-  if (typeof document === "undefined") return false;
-  var elementRect = element.getBoundingClientRect();
-  var viewHeight = Math.max(
+  threshold: number = 0
+): boolean {
+  if (typeof document === "undefined") {
+    return false;
+  }
+  const elementRect = element.getBoundingClientRect();
+  const viewHeight = Math.max(
     document.documentElement.clientHeight,
     window.innerHeight
   );
-  var isAbove = elementRect.bottom - threshold < 0;
-  var isBelow = elementRect.top - viewHeight + threshold >= 0;
+  const topWin = -threshold;
+  const bottomWin = viewHeight + threshold;
+  const topEl = elementRect.top;
+  const bottomEl = elementRect.bottom;
 
-  return mode === "above"
-    ? isAbove
-    : mode === "below"
-    ? isBelow
-    : !isAbove && !isBelow;
+  const maxTop = Math.max(topWin, topEl);
+  const minBottom = Math.min(bottomWin, bottomEl);
+  return maxTop <= minBottom;
 }
+
 function findScrollableParent(element: HTMLElement): HTMLElement {
   if (!element) {
-    return <any>window;
+    return <any>document.documentElement;
   }
   if (
     element.scrollHeight > element.clientHeight &&
     (getComputedStyle(element).overflowY === "scroll" ||
       getComputedStyle(element).overflowY === "auto")
   ) {
-    if (element === document.body) {
-      return <any>window;
-    }
     return element;
   } else {
     return findScrollableParent(element.parentElement);

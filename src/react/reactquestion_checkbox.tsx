@@ -188,7 +188,7 @@ export class SurveyQuestionCheckboxItem extends ReactSurveyElement {
           </span>
           <span
             className={this.cssClasses.controlLabel}
-            title={locText["koRenderedHtml"]}
+            title={locText.text}
           >
             {text}
           </span>

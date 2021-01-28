@@ -546,6 +546,9 @@ export class QuestionMultipleTextModel
   indexOf(el: IElement): number {
     return -1;
   }
+  ensureRowsVisibility(): void {
+    // do nothing
+  }
 }
 
 Serializer.addClass(

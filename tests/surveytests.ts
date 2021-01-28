@@ -56,6 +56,7 @@ import {
 import { ArrayChanges } from "../src/base";
 import { settings } from "../src/settings";
 import { CalculatedValue } from "../src/calculatedValue";
+import { LocalizableString } from "../src/localizablestring";
 
 export default QUnit.module("Survey");
 
@@ -981,6 +982,47 @@ QUnit.test("survey.checkErrorsMode = 'onValueChanging'", function (assert) {
     "set correct value into survey"
   );
 });
+QUnit.test(
+  "survey.checkErrorsMode = 'onValueChanging' and isRequired, Bug#2627",
+  function (assert) {
+    var survey = twoPageSimplestSurvey();
+    var question = <Question>survey.pages[0].questions[0];
+    question.isRequired = true;
+    question.value = "val1";
+    survey.checkErrorsMode = "onValueChanging";
+    assert.equal(question.errors.length, 0, "there is no errors yet");
+    question.value = "";
+    assert.equal(question.errors.length, 1, "The error is required");
+    assert.equal(question.value, "", "the value keeps in question");
+    assert.equal(
+      survey.getValue(question.name),
+      "val1",
+      "We do not assign it to survey.data"
+    );
+    survey.setValue(question.name, "val2");
+    assert.equal(question.errors.length, 0, "The is not errors again");
+    assert.equal(
+      survey.getValue(question.name),
+      "val2",
+      "set value to survey.data"
+    );
+    assert.equal(question.value, "val2", "set value to survey.data");
+    question.value = "";
+    assert.equal(question.errors.length, 1, "Show error again");
+    assert.equal(
+      survey.getValue(question.name),
+      "val2",
+      "keep old value in survey.data"
+    );
+    question.value = "val3";
+    assert.equal(question.errors.length, 0, "Error is gone");
+    assert.equal(
+      survey.getValue(question.name),
+      "val3",
+      "set new value in survey.data"
+    );
+  }
+);
 QUnit.test(
   "survey.checkErrorsMode = 'onValueChanged', load from json + defaultValue",
   function (assert) {
@@ -5747,6 +5789,22 @@ QUnit.test("Parent property in question", function (assert) {
   panel.addElement(q);
   assert.equal(q.parent.name, "panel");
 });
+QUnit.test(
+  "Remove question from it's previous container before adding to a new one",
+  function (assert) {
+    var survey = new SurveyModel();
+    var page = survey.addNewPage("page");
+    var panel1 = page.addNewPanel("panel1");
+    var panel2 = page.addNewPanel("panel2");
+    var q = panel1.addNewQuestion("text");
+    assert.equal(q.parent.name, "panel1");
+    assert.equal(panel1.elements.length, 1, "There is one element");
+    panel2.addElement(q);
+    assert.equal(q.parent.name, "panel2");
+    assert.equal(panel2.elements.length, 1, "There is one element in panel2");
+    assert.equal(panel1.elements.length, 0, "There is no elements in panel1");
+  }
+);
 QUnit.test("Page property in question", function (assert) {
   var survey = new SurveyModel();
   var page1 = survey.addNewPage("p1");
@@ -12313,3 +12371,85 @@ QUnit.test(
     assert.equal(q2.visibleChoices.length, 3, "There are 3 items");
   }
 );
+
+QUnit.test("onTextRenderAs event", function (assert) {
+  var survey = new SurveyModel();
+  const questionName = "any question";
+  var locString = new LocalizableString(survey, false, "name");
+
+  var renderAs = survey.getRenderer(questionName);
+  assert.equal(locString.renderAs, LocalizableString.defaultRenderer);
+  assert.equal(renderAs, undefined);
+
+  survey.setDesignMode(true);
+  renderAs = survey.getRenderer(questionName);
+  assert.equal(locString.renderAs, LocalizableString.editableRenderer);
+  assert.equal(renderAs, LocalizableString.editableRenderer);
+
+  survey.setDesignMode(false);
+  renderAs = survey.getRenderer(questionName);
+  assert.equal(locString.renderAs, LocalizableString.defaultRenderer);
+  assert.equal(renderAs, undefined);
+
+  const customRendererView = "my-custom-renderer-view";
+  const customRendererEdit = "my-custom-renderer-edit";
+  survey.onTextRenderAs.add((s, e) => {
+    if (s.isDesignMode) e.renderAs = customRendererEdit;
+    else e.renderAs = customRendererView;
+  });
+
+  renderAs = survey.getRenderer(questionName);
+  assert.equal(locString.renderAs, customRendererView);
+  assert.equal(renderAs, customRendererView);
+
+  survey.setDesignMode(true);
+  renderAs = survey.getRenderer(questionName);
+  assert.equal(locString.renderAs, customRendererEdit);
+  assert.equal(renderAs, customRendererEdit);
+
+  survey.setDesignMode(false);
+  renderAs = survey.getRenderer(questionName);
+  assert.equal(locString.renderAs, customRendererView);
+  assert.equal(renderAs, customRendererView);
+});
+
+QUnit.test("onElementContentVisibilityChanged event", function (assert) {
+  var json = {
+    pages: [
+      {
+        name: "page1",
+        elements: [
+          {
+            type: "panel",
+            name: "panel1",
+            state: "collapsed",
+          },
+        ],
+      },
+    ],
+  };
+
+  let stateChangedCounter = 0;
+
+  var survey = new SurveyModel(json);
+  survey.onElementContentVisibilityChanged.add((s, e) => {
+    stateChangedCounter++;
+  });
+  assert.equal(stateChangedCounter, 0);
+
+  var panel: PanelModel = <PanelModel>survey.getAllPanels()[0];
+  panel.expand();
+  assert.equal(stateChangedCounter, 1);
+  panel.expand();
+  assert.equal(stateChangedCounter, 2);
+  panel.collapse();
+  assert.equal(stateChangedCounter, 3);
+  panel.collapse();
+  assert.equal(stateChangedCounter, 4);
+  panel.toggleState();
+  assert.equal(stateChangedCounter, 5);
+  panel.toggleState();
+  assert.equal(stateChangedCounter, 6);
+  panel.state = "expanded";
+  assert.equal(stateChangedCounter, 7);
+});

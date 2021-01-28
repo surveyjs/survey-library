@@ -3763,6 +3763,142 @@ QUnit.test("QuestionText min/maxValueExpression, today()", function (assert) {
     "renderedMin: today in format yyyy-mm-dd"
   );
 });
+QUnit.test(
+  "QuestionText min/max do not allow to set value to survey if values are not in the range",
+  function (assert) {
+    var survey = new SurveyModel({
+      questions: [
+        { type: "text", name: "q1", inputType: "number", min: 3, max: 10 },
+        {
+          type: "text",
+          name: "q2",
+          inputType: "date",
+          min: "2020-01-01",
+          max: "2030-01-01",
+        },
+      ],
+    });
+    var q1 = <QuestionTextModel>survey.getQuestionByName("q1");
+    var q2 = <QuestionTextModel>survey.getQuestionByName("q2");
+    q1.value = 2;
+    assert.equal(q1.value, 2, "Value 2 is set into question");
+    assert.equal(
+      survey.getValue("q1"),
+      undefined,
+      "Value 2 is not set into survey"
+    );
+    assert.equal(
+      q1.errors.length,
+      0,
+      "There is no errors on setting invalid value"
+    );
+    assert.equal(q1.hasErrors(), true, "has errors on calling hasErrors");
+    assert.equal(q1.errors.length, 1, "We have one error now");
+    assert.equal(
+      q1.errors[0].text,
+      "The value should not be less than 3",
+      "Check error text"
+    );
+    q1.value = 5;
+    assert.equal(q1.value, 5, "Value 5 is set into question");
+    assert.equal(survey.getValue("q1"), 5, "Value 5 is set into survey");
+    assert.equal(
+      q1.errors.length,
+      0,
+      "There is no errors on setting valid value"
+    );
+    assert.equal(q1.hasErrors(), false, "hasErrors return false");
+    q1.value = 3;
+    assert.equal(q1.value, 3, "Value 3 is set into question");
+    assert.equal(survey.getValue("q1"), 3, "Value 3 is set into survey");
+    q1.value = 11;
+    assert.equal(q1.value, 11, "Value 11 is set into question");
+    assert.equal(survey.getValue("q1"), 3, "Value 11 is not set into survey");
+    q1.value = 10;
+    assert.equal(q1.value, 10, "Value 3 is set into question");
+    assert.equal(survey.getValue("q1"), 10, "Value 10 is set into survey");
+
+    q2.value = "2019-01-01";
+    assert.equal(
+      new Date(q2.value).getFullYear(),
+      2019,
+      "Value new Date('2019-01-01') is set into question"
+    );
+    assert.equal(
+      survey.getValue("q2"),
+      undefined,
+      "Value new Date('2019-01-01') is not set into survey"
+    );
+    q2.value = "2022-01-01";
+    assert.equal(
+      new Date(q2.value).getFullYear(),
+      2022,
+      "Value new Date('2022-01-01') is set into question"
+    );
+    assert.equal(
+      new Date(survey.getValue("q2")).getFullYear(),
+      2022,
+      "Value new Date('2022-01-01') is set into survey"
+    );
+    q2.value = "2020-01-01";
+    assert.equal(
+      new Date(q2.value).getFullYear(),
+      2020,
+      "Value new Date('2020-01-01') is set into question"
+    );
+    assert.equal(
+      new Date(survey.getValue("q2")).getFullYear(),
+      2020,
+      "Value new Date('2020-01-01') is set into survey"
+    );
+    q2.value = "2031-01-01";
+    assert.equal(
+      new Date(q2.value).getFullYear(),
+      2031,
+      "Value new Date('2031-01-01') is set into question"
+    );
+    assert.equal(
+      new Date(survey.getValue("q2")).getFullYear(),
+      2020,
+      "Value new Date('2031-01-01') is not set into survey"
+    );
+    q2.value = "2030-01-01";
+    assert.equal(
+      new Date(q2.value).getFullYear(),
+      2030,
+      "Value Date('2030-01-01') is set into question"
+    );
+    assert.equal(
+      new Date(survey.getValue("q2")).getFullYear(),
+      2030,
+      "Value new Date('2030-01-01') is set into survey"
+    );
+  }
+);
+
+QUnit.test(
+  "QuestionText min/max properties and global setting",
+  function (assert) {
+    settings.minDate = "1900-01-01";
+    settings.maxDate = "2100-01-01";
+    var survey = new SurveyModel({
+      questions: [
+        { type: "text", inputType: "date", name: "q1", min: "2020-01-01" },
+        { type: "text", inputType: "date", name: "q2", max: "2030-01-01" },
+      ],
+    });
+    var q1 = <QuestionTextModel>survey.getQuestionByName("q1");
+    var q2 = <QuestionTextModel>survey.getQuestionByName("q2");
+
+    assert.equal(q1.renderedMin, "2020-01-01");
+    assert.equal(q1.renderedMax, "2100-01-01");
+    assert.equal(q2.renderedMin, "1900-01-01");
+    assert.equal(q2.renderedMax, "2030-01-01");
+    settings.minDate = "";
+    settings.maxDate = "";
+  }
+);
+
 QUnit.test("Question defaultValue as expression", function (assert) {
   var survey = new SurveyModel({
     questions: [{ type: "text", name: "q", defaultValue: "=1+2" }],
@@ -3783,6 +3919,29 @@ QUnit.test("Question defaultValueExpression", function (assert) {
   var question = <QuestionTextModel>survey.getQuestionByName("q");
   assert.equal(question.value, 3, "run expression");
 });
+QUnit.test(
+  "Question defaultValueExpression with async function",
+  function (assert) {
+    var returnResultFunc: (res: any) => void;
+    function asyncFunc(params: any): any {
+      returnResultFunc = this.returnResult;
+      return false;
+    }
+    FunctionFactory.Instance.register("asyncFunc", asyncFunc, true);
+
+    var survey = new SurveyModel({
+      questions: [
+        { type: "text", name: "q1", defaultValue: 1 },
+        { type: "text", name: "q2", defaultValueExpression: "asyncFunc({q1})" },
+      ],
+    });
+    var question = <QuestionTextModel>survey.getQuestionByName("q2");
+    assert.notOk(question.value, "value is empty");
+    returnResultFunc(survey.getValue("q1") * 3);
+    assert.equal(question.value, 3, "Default async function is executed");
+    FunctionFactory.Instance.unregister("asyncFunc");
+  }
+);
 QUnit.test("QuestionRating rateStep less than 1", function (assert) {
   var question = new QuestionRatingModel("q");
   assert.equal(question.visibleRateValues.length, 5, "There are 5 values");

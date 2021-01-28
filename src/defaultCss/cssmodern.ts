@@ -64,8 +64,8 @@ export var modernCss = {
   progressButtonsListContainer: "sv_progress-buttons__list-container",
   progressButtonsList: "sv_progress-buttons__list",
   progressButtonsListElementPassed: "sv_progress-buttons__list-element--passed",
-  progressButtonsListElementCurrent:
-    "sv_progress-buttons__list-element--current",
+  progressButtonsListElementCurrent: "sv_progress-buttons__list-element--current",
+  progressButtonsListElementNonClickable: "sv_progress-buttons__list-element--nonclickable",
   progressButtonsPageTitle: "sv_progress-buttons__page-title",
   progressButtonsPageDescription: "sv_progress-buttons__page-description",
   page: {
@@ -131,6 +131,22 @@ export var modernCss = {
     materialDecorator: "sv-item__decorator sv-checkbox__decorator",
     other: "sv-comment sv-question__other",
     column: "sv-selectbase__column",
+  },
+  ranking: {
+    root: "sv-ranking",
+    rootMobileMod: "sv-ranking--mobile",
+    rootDragMod: "sv-ranking--drag",
+    item: "sv-ranking-item",
+    itemContent: "sv-ranking-item__content",
+    itemIndex: "sv-ranking-item__index",
+    itemText: "sv-ranking-item__text",
+    itemGhostNode: "sv-ranking-item__ghost",
+    itemIconContainer: "sv-ranking-item__icon-container",
+    itemIcon: "sv-ranking-item__icon",
+    itemIconHoverMod: "sv-ranking-item__icon--hover",
+    itemIconFocusMod: "sv-ranking-item__icon--focus",
+    itemGhostMod: "sv-ranking-item--ghost",
+    itemDragMod: "sv-ranking-item--drag",
   },
   radiogroup: {
     root: "sv-selectbase",
@@ -249,6 +265,9 @@ export var modernCss = {
     detailIcon: "sv-detail-panel__icon",
     detailIconExpanded: "sv-detail-panel__icon--expanded",
     detailPanelCell: "sv-table__cell--detail-panel",
+    emptyRowsSection: "sv-table__empty--rows--section",
+    emptyRowsText: "sv-table__empty--rows--text",
+    emptyRowsButton: "",
   },
   rating: {
     root: "sv-rating",

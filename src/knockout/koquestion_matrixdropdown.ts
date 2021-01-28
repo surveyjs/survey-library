@@ -21,8 +21,6 @@ export class QuestionMatrixBaseImplementor extends QuestionImplementor {
   koRecalc: any;
   koAddRowClick: any;
   koRemoveRowClick: any;
-  koIsAddRowOnTop: any;
-  koIsAddRowOnBottom: any;
   koTable: any;
   constructor(question: Question) {
     super(question);
@@ -56,14 +54,6 @@ export class QuestionMatrixBaseImplementor extends QuestionImplementor {
     this.koRemoveRowClick = function (data: any) {
       self.removeRow(data.row);
     };
-    this.koIsAddRowOnTop = ko.pureComputed(function () {
-      self.koRecalc();
-      return self.isAddRowTop();
-    });
-    this.koIsAddRowOnBottom = ko.pureComputed(function () {
-      self.koRecalc();
-      return self.isAddRowBottom();
-    });
     (<any>this.question)["koTable"] = this.koTable;
     (<any>this.question)["koCellAfterRender"] = this.koCellAfterRender;
     (<any>this.question)[
@@ -71,8 +61,6 @@ export class QuestionMatrixBaseImplementor extends QuestionImplementor {
     ] = this.koCellQuestionAfterRender;
     (<any>this.question)["koAddRowClick"] = this.koAddRowClick;
     (<any>this.question)["koRemoveRowClick"] = this.koRemoveRowClick;
-    (<any>this.question)["koIsAddRowOnTop"] = this.koIsAddRowOnTop;
-    (<any>this.question)["koIsAddRowOnBottom"] = this.koIsAddRowOnBottom;
     (<any>this.question)["koPanelAfterRender"] = function (el: any, con: any) {
       self.panelAfterRender(el, con);
     };
@@ -127,8 +115,6 @@ export class QuestionMatrixBaseImplementor extends QuestionImplementor {
     super.dispose();
     this.koTemplateName.dispose();
     this.koTable.dispose();
-    this.koIsAddRowOnTop.dispose();
-    this.koIsAddRowOnBottom.dispose();
     (<QuestionMatrixDropdownModel>(
       this.question
     )).onRenderedTableCreatedCallback = undefined;

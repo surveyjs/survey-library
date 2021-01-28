@@ -141,6 +141,11 @@ var json = {
       ],
       panelCount: 1,
     },
+    {
+      type: "ranking",
+      name: "ranking_question",
+      choices: ["item1", "item2"],
+    },
   ],
 };
 
@@ -156,6 +161,11 @@ const applyTheme = ClientFunction((theme) => {
       await initSurvey(framework, json);
     });
     test("check survey will all types", async (t) => {
+      var editable = Selector(".sv-string-editor");
+      await t
+        .expect(editable.exists)
+        .notOk("There should not be any editable elements outside design mode");
+
       await t.typeText(
         Selector("[aria-label='text_question']")
           .parent("[aria-labelledby]")
@@ -283,6 +293,17 @@ const applyTheme = ClientFunction((theme) => {
           .find("input[value='Remove']")
       );
 
+      await t.hover(
+        Selector("[aria-label='ranking_question']")
+          .parent("[aria-labelledby]")
+          .find("div")
+          .withText("item1")
+      );
+      await t.drag(Selector(".sv-ranking-item__icon--hover").nth(1), 0, -71, {
+        offsetX: 7,
+        offsetY: 8,
+      });
+
       await t.click("input[value=Complete]");
 
       let surveyResult = await getSurveyResult();
@@ -305,6 +326,7 @@ const applyTheme = ClientFunction((theme) => {
           },
         },
         multipletext_question: { text1: "test multiple text" },
+        ranking_question: ["item2", "item1"],
       });
     });
   });

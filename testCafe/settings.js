@@ -4,16 +4,13 @@ export const url = "http://127.0.0.1:8080/examples_test/default/";
 export const url_test = "http://127.0.0.1:8080/examples_test/";
 export const url_widgets = "http://127.0.0.1:8080/examples/";
 
-export const initSurvey = ClientFunction((framework, json, events) => {
-  console.error = (msg) => {
-    throw new Error(msg);
-  };
-  console.warn = (msg) => {
-    throw new Error(msg);
-  };
+export const initSurvey = ClientFunction((framework, json, events, isDesignMode) => {
+  console.error = msg => {throw new Error(msg)};
+  console.warn = msg => {throw new Error(msg)};
   console.log("surveyjs console.error and console.warn override");
-
+  
   var model = new Survey.Model(json);
+  model.setDesignMode(isDesignMode);
   var surveyComplete = function (model) {
     window.SurveyResult = model.data;
     document.getElementById("surveyResultElement").innerHTML = JSON.stringify(
@@ -87,4 +84,16 @@ export const joinElementInnerText = ClientFunction((tagName, index) => {
     res += sp.innerHTML;
   }
   return res;
+});
+
+export const getQuestionValue = ClientFunction(() => {
+  return survey.getAllQuestions()[0].value;
+});
+
+export const getQuestionJson = ClientFunction(() => {
+  return JSON.stringify(survey.getAllQuestions()[0].toJSON());
+});
+
+export const getPanelJson = ClientFunction(() => {
+  return JSON.stringify(survey.getAllPanels()[0].toJSON());
 });

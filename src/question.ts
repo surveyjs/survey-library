@@ -19,7 +19,7 @@ import { AnswerRequiredError, CustomError } from "./error";
 import { SurveyValidator, IValidatorOwner, ValidatorRunner } from "./validator";
 import { TextPreProcessor, TextPreProcessorValue } from "./textPreProcessor";
 import { ILocalizableOwner, LocalizableString } from "./localizablestring";
-import { ConditionRunner } from "./conditions";
+import { ConditionRunner, ExpressionRunner } from "./conditions";
 import { QuestionCustomWidget } from "./questionCustomWidgets";
 import { CustomWidgetCollection } from "./questionCustomWidgets";
 import { settings } from "./settings";
@@ -343,6 +343,8 @@ export class Question
     return this.getPropertyValue("parent", null);
   }
   public set parent(val: IPanel) {
+    if (this.parent === val) return;
+    this.delete();
     this.setPropertyValue("parent", val);
     this.updateElementCss();
     this.onParentChanged();
@@ -1098,6 +1100,12 @@ export class Question
   public set value(newValue: any) {
     this.setNewValue(newValue);
   }
+  public get valueForSurvey(): any {
+    if (!!this.valueToDataCallback) {
+      return this.valueToDataCallback(this.value);
+    }
+    return this.value;
+  }
   /**
    * Clear the question value. It clears the question comment as well.
    */
@@ -1302,25 +1310,44 @@ export class Question
     return !this.defaultValueExpression && this.isValueEmpty(this.defaultValue);
   }
   protected setDefaultValue() {
-    this.value = this.getValueAndRunExpression(
+    this.setValueAndRunExpression(
+      this.defaultValueExpression,
       this.getUnbindValue(this.defaultValue),
-      this.defaultValueExpression
+      (val) => {
+        this.value = val;
+      }
     );
   }
   protected isValueExpression(val: any) {
     return !!val && typeof val == "string" && val.length > 0 && val[0] == "=";
   }
-  protected getValueAndRunExpression(val: any, expression: string) {
-    if (!!expression) {
-      val = this.runExpression(expression);
+  protected setValueAndRunExpression(
+    expression: string,
+    defaultValue: any,
+    setFunc: (val: any) => void
+  ) {
+    var func = (val: any) => {
+      if (val instanceof Date) {
+        val = val.toISOString().slice(0, 10);
+      }
+      setFunc(val);
+    };
+    if (!!expression && !!this.data) {
+      var runner = new ExpressionRunner(expression);
+      if (runner.canRun) {
+        runner.onRunComplete = (res) => {
+          if (res == undefined) res = this.defaultValue;
+          func(res);
+        };
+        runner.run(
+          this.data.getFilteredValues(),
+          this.data.getFilteredProperties()
+        );
+      }
+    } else {
+      func(defaultValue);
     }
-    if (!val) return val;
-    if (val instanceof Date) {
-      val = val.toISOString().slice(0, 10);
-    }
-    return val;
   }
-
   /**
    * The question comment value.
    */
@@ -1554,7 +1581,6 @@ export class Question
       this.updateElementCss();
     }
   }
-  protected locNotificationInData = false;
   protected isTextValue(): boolean {
     return false;
   }
@@ -1562,7 +1588,6 @@ export class Question
     return !!this.survey ? this.survey.isUpdateValueTextOnTyping : false;
   }
   private getDataLocNotification(): any {
-    if (this.locNotificationInData) return this.locNotificationInData;
     return this.isInputTextUpdate ? "text" : false;
   }
   public get isInputTextUpdate() {
@@ -1579,10 +1604,8 @@ export class Question
   }
   protected setValueCore(newValue: any) {
     this.setQuestionValue(newValue);
-    if (this.data != null) {
-      if (!!this.valueToDataCallback) {
-        newValue = this.valueToDataCallback(newValue);
-      }
+    if (this.data != null && this.canSetValueToSurvey()) {
+      newValue = this.valueForSurvey;
       this.data.setValue(
         this.getValueName(),
         newValue,
@@ -1590,6 +1613,9 @@ export class Question
         this.allowNotifyValueChanged
       );
     }
+  }
+  protected canSetValueToSurvey(): boolean {
+    return true;
   }
   protected valueFromData(val: any): any {
     return val;
@@ -1692,6 +1718,13 @@ export class Question
       ? this.survey.getSurveyMarkdownHtml(this, text, name)
       : this.locOwner
       ? this.locOwner.getMarkdownHtml(text, name)
+      : null;
+  }
+  public getRenderer(name: string): string {
+    return this.survey && typeof this.survey.getRendererForString === "function"
+      ? this.survey.getRendererForString(this, name)
+      : this.locOwner && typeof this.locOwner.getRenderer === "function"
+      ? this.locOwner.getRenderer(name)
       : null;
   }
   public getProcessedText(text: string): string {

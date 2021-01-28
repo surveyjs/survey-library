@@ -469,6 +469,17 @@ export class SurveyModel
     any
   > = new Event<(sender: SurveyModel, options: any) => any, any>();
   /**
+   * Use this event to specity render component name used for text rendering.
+   * <br/> `sender` - the survey object that fires the event.
+   * <br/> `options.element` - SurveyJS element (a question, panel, page, or survey) where the string is going to be rendered.
+   * <br/> `options.name` - a property name is going to be rendered.
+   * <br/> `options.renderAs` - a component name used for text rendering.
+   */
+  public onTextRenderAs: Event<
+    (sender: SurveyModel, options: any) => any,
+    any
+  > = new Event<(sender: SurveyModel, options: any) => any, any>();
+  /**
    * The event fires when it gets response from the [api.surveyjs.io](https://api.surveyjs.io) service on saving survey results. Use it to find out if the results have been saved successfully.
    * <br/> `sender` - the survey object that fires the event.
    * <br/> `options.success` - it is `true` if the results has been sent to the service successfully.
@@ -910,6 +921,17 @@ export class SurveyModel
   > = new Event<(sender: SurveyModel, options: any) => any, any>();
 
   public onGetPanelTitleActions: Event<
+    (sender: SurveyModel, options: any) => any,
+    any
+  > = new Event<(sender: SurveyModel, options: any) => any, any>();
+
+  /**
+   * The event is fired after the survey element content was collapsed or expanded.
+   * <br/> `sender` - the survey object that fires the event.
+   * <br/> `options.element` - Specifies which survey element content was collapsed or expanded.
+   * @see onElementContentVisibilityChanged
+   */
+  public onElementContentVisibilityChanged: Event<
     (sender: SurveyModel, options: any) => any,
     any
   > = new Event<(sender: SurveyModel, options: any) => any, any>();
@@ -1539,6 +1561,19 @@ export class SurveyModel
   }
   public getMarkdownHtml(text: string, name: string): string {
     return this.getSurveyMarkdownHtml(this, text, name);
+  }
+  public getRenderer(name: string): string {
+    return this.getRendererForString(this, name);
+  }
+  public getRendererForString(element: Base, name: string): string {
+    const renderAs = this.getBuiltInRendererForString(element, name);
+    var options = { element: element, name: name, renderAs: renderAs };
+    this.onTextRenderAs.fire(this, options);
+    return options.renderAs;
+  }
+  private getBuiltInRendererForString(element: Base, name: string): string {
+    if (this.isDesignMode) return LocalizableString.editableRenderer;
+    return undefined;
   }
   public getProcessedText(text: string) {
     return this.processText(text, true);
@@ -2658,10 +2693,14 @@ export class SurveyModel
     return options.allowChanging;
   }
   protected currentPageChanged(newValue: PageModel, oldValue: PageModel) {
+    const isNextPage: boolean = this.isNextPage(newValue, oldValue);
+    if (isNextPage) {
+      oldValue.passed = true;
+    }
     this.onCurrentPageChanged.fire(this, {
       oldCurrentPage: oldValue,
       newCurrentPage: newValue,
-      isNextPage: this.isNextPage(newValue, oldValue),
+      isNextPage: isNextPage,
       isPrevPage: this.isPrevPage(newValue, oldValue),
     });
   }
@@ -3145,8 +3184,8 @@ export class SurveyModel
   }
   private doCurrentPageCompleteCore(doComplete: boolean): boolean {
     if (this.doServerValidation(doComplete)) return false;
-    this.currentPage.passed = true;
     if (doComplete) {
+      this.currentPage.passed = true;
       this.doComplete();
     } else {
       this.doNextPage();
@@ -3797,6 +3836,12 @@ export class SurveyModel
     if (element.isPanel) return !this.onGetPanelTitleActions.isEmpty;
     else return !this.onGetQuestionTitleActions.isEmpty;
   }
+  elementContentVisibilityChanged(element: ISurveyElement): void {
+    if (this.currentPageValue) {
+      this.currentPageValue.ensureRowsVisibility();
+    }
+    this.onElementContentVisibilityChanged.fire(this, { element });
+  }
 
   getUpdatedQuestionTitleActions(
     question: IQuestion,
@@ -4229,7 +4274,9 @@ export class SurveyModel
   }
   private checkQuestionErrorOnValueChangedCore(question: Question): boolean {
     var oldErrorCount = question.errors.length;
-    var res = question.hasErrors(true, { isOnValueChanged: true });
+    var res = question.hasErrors(true, {
+      isOnValueChanged: !this.isValidateOnValueChanging,
+    });
     if (!!question.page && (oldErrorCount > 0 || question.errors.length > 0)) {
       this.fireValidatedErrorsOnPage(<PageModel>question.page);
     }
@@ -4245,7 +4292,7 @@ export class SurveyModel
     var res = false;
     for (var i: number = 0; i < questions.length; i++) {
       var q = questions[i];
-      if (!this.isTwoValueEquals(q.value, newValue)) {
+      if (!this.isTwoValueEquals(q.valueForSurvey, newValue)) {
         q.value = newValue;
       }
       if (this.checkQuestionErrorOnValueChangedCore(q)) res = true;
@@ -4820,7 +4867,7 @@ export class SurveyModel
       newValue = this.questionOnValueChanging(name, newQuestionValue);
     }
     if (
-      this.checkErrorsMode === "onValueChanging" &&
+      this.isValidateOnValueChanging &&
       this.checkErrorsOnValueChanging(name, newValue)
     )
       return;

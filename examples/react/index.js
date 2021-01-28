@@ -970,6 +970,7 @@ function init() {
 
   Survey.StylesManager.applyTheme("default");
   var model = new Survey.Model(json);
+  //model.setDesignMode(true);
   window.survey = model;
 
   ReactDOM.render(

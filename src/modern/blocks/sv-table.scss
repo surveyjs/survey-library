@@ -18,12 +18,14 @@
     }
   }
 
-  td, th {
+  td,
+  th {
     &:first-child {
       padding-left: 1.875em;
     }
   }
-  td, th {
+  td,
+  th {
     &:last-child {
       padding-right: 1.875em;
     }
@@ -83,4 +85,11 @@
   outline: none;
   cursor: pointer;
   background: transparent;
+}
+.sv-table__empty--rows--section {
+  text-align: center;
+  vertical-align: middle;
+}
+.sv-table__empty--rows--text {
+  padding: 20px;
 }

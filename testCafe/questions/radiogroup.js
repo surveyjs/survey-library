@@ -1,4 +1,4 @@
-import { frameworks, url, setOptions, initSurvey, getSurveyResult } from "../settings";
+import { frameworks, url, setOptions, initSurvey, getSurveyResult, getQuestionValue, getQuestionJson } from "../settings";
 import { Selector, ClientFunction } from "testcafe";
 const assert = require("assert");
 const title = `radiogroup`;
@@ -29,7 +29,7 @@ const json = {
 };
 
 frameworks.forEach(framework => {
-  fixture`${framework} ${title}`.page`${url}${framework}`.beforeEach(
+  fixture`${framework} ${title}`.page`${url}${framework}.html`.beforeEach(
     async t => {
       await initSurvey(framework, json);
     }
@@ -246,5 +246,52 @@ frameworks.forEach(framework => {
 
     assert.equal(await isCheckedClassExistsByIndex(2), false);
     assert.equal(await isCheckedClassExistsByIndex(3), true);
+  });
+});
+
+frameworks.forEach((framework) => {
+  fixture`${framework} ${title}`.page`${url}${framework}.html`.beforeEach(
+    async (t) => {
+      await initSurvey(framework, json, undefined, true);
+    }
+  );
+
+  test(`click on question title state editable`, async (t) => {
+    var newTitle = 'MyText';
+    var json = JSON.parse(await getQuestionJson());
+    var questionValue = await getQuestionValue();
+    assert.equal(questionValue, undefined);
+  
+    var outerSelector = `.sv_q_title`;
+    var innerSelector = `.sv-string-editor`
+    await t
+      .click(outerSelector)
+      .selectEditableContent(outerSelector + ` ` + innerSelector)
+      .typeText(outerSelector + ` ` + innerSelector, newTitle)
+      .click(`body`, { offsetX: 0, offsetY: 0 });
+
+    questionValue = await getQuestionValue();
+    assert.equal(questionValue, undefined);
+    var json = JSON.parse(await getQuestionJson());
+    assert.equal(json.title, newTitle);
+  });
+
+  test(`click on radio title state editable`, async (t) => {
+    var newTitle = 'MyText';
+    var json = JSON.parse(await getQuestionJson());
+    var questionValue = await getQuestionValue();
+    assert.equal(questionValue, undefined);
+  
+    var selector = `.sv_q_radiogroup_label .sv-string-editor`
+    await t
+      .click(selector)
+      .selectEditableContent(selector)
+      .typeText(selector, newTitle)
+      .click(`body`, { offsetX: 0, offsetY: 0 });
+
+    questionValue = await getQuestionValue();
+    assert.equal(questionValue, undefined);
+    var json = JSON.parse(await getQuestionJson());
+    assert.equal(json.choices[0].text, newTitle);
   });
 });

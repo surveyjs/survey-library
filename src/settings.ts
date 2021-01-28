@@ -132,4 +132,12 @@ export var settings = {
     text: ["numeric", "text", "regex", "email"],
     checkbox: ["answercount"],
   },
+  /**
+   * Set the value as string "yyyy-mm-dd". text questions with inputType "date" will not allow to set to survey date that less than this value
+   */
+  minDate: "",
+  /**
+   * Set the value as string "yyyy-mm-dd". text questions with inputType "date" will not allow to set to survey date that greater than this value
+   */
+  maxDate: "",
 };

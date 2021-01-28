@@ -49,7 +49,10 @@ export class QuestionRow extends QuestionRowModel {
       model.startLazyRendering(rowContainerDiv);
       ko.utils.domNodeDisposal.addDisposeCallback(
         rowContainerDiv,
-        () => (model.isNeedRender = !settings.lazyRowsRendering)
+        () => {
+          model.stopLazyRendering();
+          model.isNeedRender = !settings.lazyRowsRendering;
+        }
       );
     }
   }

@@ -78,6 +78,7 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner {
   questionCountByValueName(valueName: string): number;
   processHtml(html: string): string;
   getSurveyMarkdownHtml(element: Base, text: string, name: string): string;
+  getRendererForString(element: Base, name: string): string;
   isDisplayMode: boolean;
   isDesignMode: boolean;
   areInvisibleElementsShowing: boolean;
@@ -186,6 +187,7 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner {
   ): any;
   runExpression(expression: string): any;
   renderTitleActions(element: ISurveyElement): boolean;
+  elementContentVisibilityChanged(element: ISurveyElement): void;
 }
 export interface ISurveyImpl {
   geSurveyData(): ISurveyData;
@@ -273,6 +275,7 @@ export interface IPanel extends ISurveyElement, IParentElement {
   elementWidthChanged(el: IElement): any;
   indexOf(el: IElement): number;
   elements: Array<IElement>;
+  ensureRowsVisibility(): void;
 }
 export interface IPage extends IPanel, IConditionRunner {
   isStarted: boolean;
@@ -1153,6 +1156,12 @@ export class SurveyElement extends Base implements ISurveyElement {
   }
   public set state(val: string) {
     this.setPropertyValue("state", val);
+    this.notifyStateChanged();
+  }
+  private notifyStateChanged() {
+    if (this.survey) {
+      this.survey.elementContentVisibilityChanged(this);
+    }
   }
   /**
    * Returns true if the Element is in the collapsed state
@@ -1204,7 +1213,6 @@ export class SurveyElement extends Base implements ISurveyElement {
   }
 
   public getTitleActions(): Array<any> {
-    this.titleActions = [];
     this.titleActions.push({
       title: "",
       action: () => {
@@ -1475,62 +1483,4 @@ export class Event<T extends Function, Options> {
       this.onCallbacksChanged();
     }
   }
-}
-export interface IActionBarItem {
-  /**
-   * Unique string id
-   */
-  id: string;
-  /**
-   * Set this property to false to make the toolbar item invisible.
-   */
-  visible?: any;
-  /**
-   * Toolbar item title
-   */
-  title: any;
-  /**
-   * Toolbar item tooltip
-   */
-  tooltip?: any;
-  /**
-   * Set this property to false to disable the toolbar item.
-   */
-  enabled?: any;
-  /**
-   * Set this property to false to hide the toolbar item title.
-   */
-  showTitle?: any;
-  /**
-   * A callback that calls on toolbar item click.
-   */
-  action?: () => void;
-  /**
-   * Toolbar item css class
-   */
-  css?: any;
-  /**
-   * Toolbar inner element css class
-   */
-  innerCss?: any;
-  /**
-   * Toolbar item data object. Used as data for custom template or component rendering
-   */
-  data?: any;
-  /**
-   * Toolbar item template name
-   */
-  template?: string;
-  /**
-   * Toolbar item component name
-   */
-  component?: any;
-  /**
-   * Toolbar item icon name
-   */
-  iconName?: string;
-  /**
-   * Toolbar item child items. Can be used as contianer for options
-   */
-  items?: any;
 }

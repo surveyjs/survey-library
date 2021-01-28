@@ -1,23 +1,58 @@
 <template>
-  <div :style="{overflowX: question.horizontalScroll? 'scroll': ''}">
-    <div v-if="question.isAddRowOnTop" :class="question.cssClasses.footer">
+  <div :style="{ overflowX: question.horizontalScroll ? 'scroll' : '' }">
+    <div
+      v-if="question.renderedTable.showAddRowOnTop"
+      :class="question.cssClasses.footer"
+    >
       <button
         type="button"
-        :class="question.cssClasses.button + ' ' + question.cssClasses.buttonAdd"
+        :class="
+          question.cssClasses.button + ' ' + question.cssClasses.buttonAdd
+        "
         @click="addRowClick"
       >
-        <span>{{question.addRowText}}</span>
+        <span>{{ question.addRowText }}</span>
         <span :class="question.cssClasses.iconAdd"></span>
       </button>
     </div>
-      <survey-matrixtable :question="question" />
-    <div v-if="question.isAddRowOnBottom" :class="question.cssClasses.footer">
+    <survey-matrixtable
+      v-if="question.renderedTable.showTable"
+      :question="question"
+    />
+    <div
+      v-if="!question.renderedTable.showTable"
+      :class="question.cssClasses.emptyRowsSection"
+    >
+      <div :class="question.cssClasses.emptyRowsText">
+        <survey-string :locString="question.locEmptyRowsText" />
+      </div>
       <button
         type="button"
-        :class="question.cssClasses.button + ' ' + question.cssClasses.buttonAdd"
+        :class="
+          question.cssClasses.button +
+          ' ' +
+          question.cssClasses.buttonAdd +
+          ' ' +
+          question.cssClasses.emptyRowsButton
+        "
         @click="addRowClick"
       >
-        <span>{{question.addRowText}}</span>
+        <span>{{ question.addRowText }}</span>
+        <span :class="question.cssClasses.iconAdd"></span>
+      </button>
+    </div>
+    <div
+      v-if="question.renderedTable.showAddRowOnBottom"
+      :class="question.cssClasses.footer"
+    >
+      <button
+        type="button"
+        :class="
+          question.cssClasses.button + ' ' + question.cssClasses.buttonAdd
+        "
+        @click="addRowClick"
+      >
+        <span>{{ question.addRowText }}</span>
         <span :class="question.cssClasses.iconAdd"></span>
       </button>
     </div>

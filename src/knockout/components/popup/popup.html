@@ -12,14 +12,7 @@
 
     <div class="sv-popup__header"></div>
 
-    <div class="sv-popup__content">
-      <!-- ko if: contentComponentName  -->
-      <!-- ko component: { name: contentComponentName, params: contentComponentData } --><!-- /ko -->
-      <!-- /ko -->
-
-      <!-- ko if: contentTemplateName  -->
-      <!-- ko template: { name: contentTemplateName, data: contentComponentData } --><!-- /ko -->
-      <!-- /ko -->
+    <div class="sv-popup__content" data-bind="component: { name: contentComponentName, params: contentComponentData }">
     </div>
 
     <div class="sv-popup__footer">

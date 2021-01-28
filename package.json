@@ -2,9 +2,10 @@
   "scripts": {
     "start": "npm run build_dev && live-server --port=7777",
     "serve": "live-server --port=7777",
+    "serve_ci": "http-server",
     "test": "karma start",
     "testsingle": "karma start --single-run",
-    "testcafe": "concurrently \"http-server\" \"testcafe chrome testCafe/ --selector-timeout 1500\"",
+    "testcafe": "concurrently \"http-server --silent\" \"testcafe -c 4 chrome testCafe/ --selector-timeout 1500 --reporter minimal\"",
     "testcafe_ci": "http-server --silent & testcafe chrome:headless testCafe/ --reporter minimal",
     "testcafe_sauce": "testcafe \"saucelabs:Chrome@56.0:Windows 10\" testCafe/",
     "release": "standard-version --message \"Release: %s [skip ci]\" ",
@@ -22,6 +23,7 @@
     "build_core_prod": "webpack --env.buildType prod --env.platform core",
     "build_vue_prod": "webpack --env.buildType prod --env.platform vue",
     "build_prod": "npm run build_dev && concurrently \"npm run build_knockout_prod\" \"npm run build_react_prod\" \"npm run build_angular_prod\" \"npm run build_jquery_prod\" \"npm run build_vue_prod\" \"npm run build_core_prod\"",
+    "build_knockout": "npm run build_knockout_dev && npm run build_knockout_prod && copy_artifacts_to_creatorV2.cmd",
     "doc_gen": "node doc_generator/lib_docgenerator.js src/entries/chunks/model.ts",
     "doc_update": "chmod +x ./docupdate_npm.sh && ./docupdate_npm.sh",
     "lint": "tslint ./src/**/*.ts -t verbose",
@@ -32,7 +34,7 @@
     "watch_vue_dev": "webpack --env.buildType dev --env.platform vue --watch",
     "watch_core_dev": "webpack --env.buildType dev --env.platform core --watch"
   },
-  "version": "1.8.25",
+  "version": "1.8.27",
   "name": "survey-library",
   "private": true,
   "devDependencies": {
@@ -44,6 +46,7 @@
     "@types/react": "16.9.19",
     "@types/react-dom": "16.9.5",
     "@types/signature_pad": "^2.3.0",
+    "@types/sortablejs": "^1.10.6",
     "ajv": "4.11.2",
     "concurrently": "3.1.0",
     "css-loader": "0.26.1",
@@ -100,6 +103,7 @@
     }
   },
   "dependencies": {
-    "signature_pad": "^2.3.2"
+    "signature_pad": "^2.3.2",
+    "sortablejs": "1.13.0"
   }
 }

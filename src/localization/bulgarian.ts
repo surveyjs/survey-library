@@ -15,8 +15,7 @@ export var bulgarianStrings = {
   questionsProgressText: "Отговорени на {0} / {1} въпроса",
   emptySurvey: "Анкетата не съдържа видими страници или въпроси.",
   completingSurvey: "Благодарим ви за участието в анкетата!",
-  completingSurveyBefore:
-    "Изглежда, че вие вече сте попълнили анкетата.",
+  completingSurveyBefore: "Изглежда, че вие вече сте попълнили анкетата.",
   loadingSurvey: "Зареждане на анкетата...",
   optionsCaption: "Изберете...",
   value: "value",
@@ -26,7 +25,8 @@ export var bulgarianStrings = {
   numericError: "Стойността следва да бъде число.",
   textMinLength: "Моля, използвайте поне {0} символа.",
   textMaxLength: "Моля, използвайте не повече от {0} символа.",
-  textMinMaxLength: "Моля, използвайте повече от {0} и по-малко от {1} символа.",
+  textMinMaxLength:
+    "Моля, използвайте повече от {0} и по-малко от {1} символа.",
   minRowCountError: "Моля, попълнете поне {0} реда.",
   minSelectError: "Моля, изберете поне {0} варианта.",
   maxSelectError: "Моля, изберете не повече от {0} варианта.",
@@ -57,7 +57,8 @@ export var bulgarianStrings = {
   matrix_column: "Колона",
   matrix_row: "Ред",
   savingData: "Резултатите се запазват на сървъра...",
-  savingDataError: "Поради възникнала грешка резултатите не можаха да бъдат запазени.",
+  savingDataError:
+    "Поради възникнала грешка резултатите не можаха да бъдат запазени.",
   savingDataSuccess: "Резултатите бяха запазени успешно!",
   saveAgainButton: "Нов опит",
   timerMin: "мин",
@@ -81,4 +82,4 @@ export var bulgarianStrings = {
 };
 
 surveyLocalization.locales["bg"] = bulgarianStrings;
-surveyLocalization.localeNames["bg"] = "Bulgarian";
+surveyLocalization.localeNames["bg"] = "български";

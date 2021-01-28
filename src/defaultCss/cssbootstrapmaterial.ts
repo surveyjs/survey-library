@@ -33,8 +33,8 @@ export var defaultBootstrapMaterialCss = {
   progressButtonsListContainer: "sv_progress-buttons__list-container",
   progressButtonsList: "sv_progress-buttons__list",
   progressButtonsListElementPassed: "sv_progress-buttons__list-element--passed",
-  progressButtonsListElementCurrent:
-    "sv_progress-buttons__list-element--current",
+  progressButtonsListElementCurrent: "sv_progress-buttons__list-element--current",
+  progressButtonsListElementNonClickable: "sv_progress-buttons__list-element--nonclickable",
   progressButtonsPageTitle: "sv_progress-buttons__page-title",
   progressButtonsPageDescription: "sv_progress-buttons__page-description",
   page: {
@@ -119,6 +119,22 @@ export var defaultBootstrapMaterialCss = {
     other: "sv_q_checkbox_other form-control",
     column: "sv_q_select_column",
   },
+  ranking: {
+    root: "sv-ranking",
+    rootMobileMod: "sv-ranking--mobile",
+    rootDragMod: "sv-ranking--drag",
+    item: "sv-ranking-item",
+    itemContent: "sv-ranking-item__content",
+    itemIndex: "sv-ranking-item__index",
+    itemText: "sv-ranking-item__text",
+    itemGhostNode: "sv-ranking-item__ghost",
+    itemIconContainer: "sv-ranking-item__icon-container",
+    itemIcon: "sv-ranking-item__icon",
+    itemIconHoverMod: "sv-ranking-item__icon--hover",
+    itemIconFocusMod: "sv-ranking-item__icon--focus",
+    itemGhostMod: "sv-ranking-item--ghost",
+    itemDragMod: "sv-ranking-item--drag",
+  },
   comment: "form-control",
   dropdown: {
     root: "",
@@ -172,6 +188,9 @@ export var defaultBootstrapMaterialCss = {
     detailIcon: "sv_detail_panel_icon",
     detailIconExpanded: "sv_detail_expanded",
     detailPanelCell: "sv_matrix_cell_detail_panel",
+    emptyRowsSection: "sv_matrix_empty_rows_section",
+    emptyRowsText: "sv_matrix_empty_rows_text",
+    emptyRowsButton: "",
   },
   paneldynamic: {
     root: "",

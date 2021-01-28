@@ -87,6 +87,9 @@ export class StylesManager {
       "content: ''; background-repeat: no-repeat; background-position: center; width: 14px; height: 14px; display: block; transform: rotate(270deg); background-image: url(\"data:image/svg+xml,%3C%3Fxml version='1.0' encoding='utf-8'%3F%3E%3C!-- Generator: Adobe Illustrator 21.1.0, SVG Export Plug-In . SVG Version: 6.00 Build 0) --%3E%3Csvg version='1.1' id='Layer_1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' x='0px' y='0px' viewBox='0 0 15 15' style='enable-background:new 0 0 15 15;' xml:space='preserve'%3E%3Cstyle type='text/css'%3E .st0%7Bfill:%23FFFFFF;%7D%0A%3C/style%3E%3Cpolygon class='st0' points='14,5.5 12.6,4.1 7.5,9.1 2.4,4.1 1,5.5 7.5,12 '/%3E%3C/svg%3E%0A\");",
     ".sv_detail_panel_icon.sv_detail_expanded::before":
       "transform: rotate(0deg)",
+    ".sv_matrix_empty_rows_section":
+      "text-align: center; vertical-align: middle;",
+    ".sv_matrix_empty_rows_text": "padding:20px",
 
     ".sv_q_file > input[type=file], .sv_q_file > button":
       "display: inline-block;",
@@ -170,6 +173,42 @@ export class StylesManager {
       "border-color: #1ab394; background-color: white;",
     ".sv_progress-buttons__list li.sv_progress-buttons__list-element--passed.sv_progress-buttons__list-element--current:before":
       "border-color: #1ab394; background-color: white;",
+    ".sv_progress-buttons__list li.sv_progress-buttons__list-element--nonclickable:before":
+      "cursor: not-allowed;",
+
+    // ranking
+    ".sv-ranking": "outline: none;",
+    ".sv-ranking--mobile .sv-ranking-item__icon--hover":
+      "visibility:visible; fill:#9f9f9f;",
+    ".sv-ranking-item": "margin-bottom: 5px;position: relative;",
+    ".sv-ranking-item:focus .sv-ranking-item__icon--hover":
+      "visibility: hidden;",
+    ".sv-ranking-item:hover .sv-ranking-item__icon--hover":
+      "visibility: visible;",
+    ".sv-ranking-item:focus": "outline: none;",
+    ".sv-ranking-item:focus .sv-ranking-item__icon--focus":
+      "visibility: visible; top: 15px;",
+    ".sv-ranking-item:focus .sv-ranking-item__index":
+      "background: white; border: 2px solid #19b394;",
+    ".sv-ranking-item__content":
+      "display: inline-block;background-color: white;padding-top: 5px;padding-bottom: 5px;padding-left: 35px;padding-right: 10px;",
+    ".sv-ranking-item__icon-container":
+      "cursor: pointer;position: absolute;left: 0;top: 0;bottom: 0;width: 35px;",
+    ".sv-ranking-item__icon":
+      "visibility: hidden;left:10px;top:20px;fill:#19b394;position: absolute;",
+    ".sv-ranking-item__index":
+      "display: inline-block;padding: 10px 16px;background: rgba(25, 179, 148, 0.1);border-radius: 100px;border: 2px solid transparent;",
+    ".sv-ranking-item__text": "display: inline-block;",
+    ".sv-ranking-item__ghost":
+      "display: none;background: #f3f3f3;border-radius: 100px;width: 200px;height: 55px;z-index: 1;position: absolute;left: 35px;",
+    ".sv-ranking-item--ghost .sv-ranking-item__ghost": "display: block;",
+    ".sv-ranking-item--ghost .sv-ranking-item__content": "visibility: hidden;",
+    ".sv-ranking-item--drag .sv-ranking-item__content":
+      "box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.1);border-radius: 100px;",
+    ".sv-ranking--drag .sv-ranking-item:hover .sv-ranking-item__icon":
+      "visibility: hidden !important;",
+    ".sv-ranking-item--drag .sv-ranking-item__icon--hover":
+      "visibility: visible;",
 
     ".sv_qstn .sv_q_select_column":
       "display: inline-block; vertical-align: top; min-width: 10%;",
@@ -625,6 +664,7 @@ export class StylesManager {
       "$background-dim": "#f3f3f3",
     },
   };
+
   public static ThemeCss: { [key: string]: string } = {
     ".sv_default_css": "background-color: $body-container-background-color;",
 
@@ -732,10 +772,11 @@ export class StylesManager {
     ".sv_main .sv_matrix_detail_row":
       "background-color: #ededed; border-top: 1px solid $header-background-color; border-bottom: 1px solid $header-background-color;",
 
-    ".sv_main .sv-action-bar-item": "color: $text-color",
-    ".sv_main .sv-action-bar-item__icon use": "fill: $foreground-light",
-    ".sv_main .sv-action-bar-item:hover": "background-color: $background-dim",
+    ".sv_main .sv-action-bar-item": "color: $text-color;",
+    ".sv_main .sv-action-bar-item__icon use": "fill: $foreground-light;",
+    ".sv_main .sv-action-bar-item:hover": "background-color: $background-dim;",
   };
+
   public static modernThemeCss: { [key: string]: string } = {
     // ".sv-paneldynamic__add-btn": "background-color: $add-button-color;",
     // ".sv-paneldynamic__remove-btn": "background-color: $remove-button-color;",
@@ -850,6 +891,7 @@ export class StylesManager {
     ".sv-text:-ms-placeholder": "color: $text-input-color;",
     ".sv-table__row--detail": "background-color: $header-background-color;",
   };
+
   public static bootstrapThemeCss: { [key: string]: string } = {
     ".sv_main .sv_q_imgsel.checked label>div": "background-color: $main-color",
     ".sv_main .sv_p_description": "padding-left: 1.66em;",
@@ -886,9 +928,9 @@ export class StylesManager {
     ".sv_main .sv_matrix_detail_row":
       "background-color: #ededed; border-top: 1px solid $header-background-color; border-bottom: 1px solid $header-background-color;",
 
-    ".sv_main .sv-action-bar-item": "color: $text-color",
+    ".sv_main .sv-action-bar-item": "color: $text-color;",
     ".sv_main .sv-action-bar-item__icon use": "fill: $foreground-light;",
-    ".sv_main .sv-action-bar-item:hover": "background-color: $background-dim",
+    ".sv_main .sv-action-bar-item:hover": "background-color: $background-dim;",
   };
 
   public static bootstrapmaterialThemeCss: { [key: string]: string } = {
@@ -968,9 +1010,9 @@ export class StylesManager {
     ".sv_main .sv_matrix_detail_row":
       "background-color: #ededed; border-top: 1px solid $header-background-color; border-bottom: 1px solid $header-background-color;",
 
-    ".sv_main .sv-action-bar-item": "color: $text-color",
+    ".sv_main .sv-action-bar-item": "color: $text-color;",
     ".sv_main .sv-action-bar-item__icon use": "fill: $foreground-light;",
-    ".sv_main .sv-action-bar-item:hover": "background-color: $background-dim",
+    ".sv_main .sv-action-bar-item:hover": "background-color: $background-dim;",
   };
 
   private sheet: CSSStyleSheet = null;

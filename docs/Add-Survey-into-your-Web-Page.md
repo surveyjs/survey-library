@@ -15,7 +15,7 @@ Finally you may select one of our npm packages, based on your JavaScript platfor
 
 | Platform | npm command |
 |---|---|
-| [Angular2+](https://angular.io/) | `npm install survey-angular` |
+| [Angular](https://angular.io/) | `npm install survey-angular` |
 | [jQuery](https://jquery.com/) |  `npm install survey-jquery` |
 | [Knockout.js](http://knockoutjs.com) |  `npm install survey-knockout` |
 | [React](https://facebook.github.io/react/) |  `npm install survey-react` |
@@ -25,7 +25,7 @@ Finally you may select one of our npm packages, based on your JavaScript platfor
 
 | Platform |  |
 |---|---|
-| [Angular2+](https://angular.io/) | `import { Component } from '@@angular/core';` |
+| [Angular](https://angular.io/) | `import { Component } from '@@angular/core';` |
 | [jQuery](https://jquery.com/) |  `<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>` |
 | [Knockout.js](http://knockoutjs.com) |  `<script src="https://unpkg.com/knockout@3.5.1/build/output/knockout-latest.js"></script>` |
 | [React](https://facebook.github.io/react/) |  `import React from 'react';` and  `import ReactDOM from 'react-dom';` |
@@ -35,7 +35,7 @@ Finally you may select one of our npm packages, based on your JavaScript platfor
 
 | Platform | JavaScript section  |
 |---|---|
-| [Angular2+](https://angular.io/) | `<script src="https://unpkg.com/survey-angular"></script>` |
+| [Angular](https://angular.io/) | `<script src="https://unpkg.com/survey-angular"></script>` |
 | [jQuery](https://jquery.com/) |  `<script src="https://unpkg.com/survey-jquery"></script>` |
 | [Knockout.js](http://knockoutjs.com) |  `<script src="https://unpkg.com/survey-knockout"></script>` |
 | [React](https://facebook.github.io/react/) |  `<script src="https://unpkg.com/survey-react"></script>` |
@@ -43,7 +43,7 @@ Finally you may select one of our npm packages, based on your JavaScript platfor
 
 | Platform | css section  |
 |---|---|
-| [Angular2+](https://angular.io/) | `<link href="https://unpkg.com/survey-angular/survey.min.css" type="text/css" rel="stylesheet"/>` |
+| [Angular](https://angular.io/) | `<link href="https://unpkg.com/survey-angular/survey.min.css" type="text/css" rel="stylesheet"/>` |
 | [jQuery](https://jquery.com/) |  `<link href="https://unpkg.com/survey-jquery/survey.min.css" type="text/css" rel="stylesheet"/>` |
 | [Knockout.js](http://knockoutjs.com) |  `<link href="https://unpkg.com/survey-knockout/survey.min.css" type="text/css" rel="stylesheet"/>` |
 | [React](https://facebook.github.io/react/) |  `<link href="https://unpkg.com/survey-react/survey.min.css" type="text/css" rel="stylesheet"/>` |
@@ -77,7 +77,7 @@ Survey.StylesManager.applyTheme("bootstrap");
 ```
 -----
 
-#### [Angular2+](https://angular.io/) - As Survey Window.
+#### [Angular](https://angular.io/) - As Survey Window.
 ```
 <ng-app></ng-app>
 ```
@@ -96,7 +96,7 @@ export class AppComponent  {
 ```
 -----
 
-#### [Angular2+](https://angular.io/) - Inside your web page.
+#### [Angular](https://angular.io/) - Inside your web page.
 ```
 <ng-app></ng-app>
 ```

@@ -27,16 +27,13 @@
 import { Component, Prop } from "vue-property-decorator";
 import Vue from "vue";
 import { ObjectWrapper } from "../../../utils/objectwrapper";
-import { ResponsibilityManager } from "../../../utils/resonsibilitymanager";
-import { computed } from "knockout";
-import { IActionBarItem } from "../../../base";
+import { IActionBarItem } from "../../../action-bar";
 
 export * from "./action-bar-item.vue";
 export * from "./action-bar-separator.vue";
 
 @Component
 export class ActionBar extends Vue {
-  private updateVisibleItems: any;
   @Prop items: Array<IActionBarItem>;
 
   constructor() {

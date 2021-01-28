@@ -18,7 +18,10 @@ export class SurveyQuestionMatrixDynamic extends SurveyQuestionMatrixDropdownBas
   }
   protected renderElement(): JSX.Element {
     var cssClasses = this.question.cssClasses;
-    var mainDiv = this.renderTableDiv();
+    var showTable = this.question.renderedTable.showTable;
+    var mainDiv = showTable
+      ? this.renderTableDiv()
+      : this.renderNoRowsContent(cssClasses);
     return (
       <div>
         {this.renderAddRowButtonOnTop(cssClasses)}
@@ -28,14 +31,33 @@ export class SurveyQuestionMatrixDynamic extends SurveyQuestionMatrixDropdownBas
     );
   }
   protected renderAddRowButtonOnTop(cssClasses: any): JSX.Element {
-    if (!this.matrix.isAddRowOnTop) return null;
+    if (!this.matrix.renderedTable.showAddRowOnTop) return null;
     return this.renderAddRowButton(cssClasses);
   }
   protected renderAddRowButtonOnBottom(cssClasses: any): JSX.Element {
-    if (!this.matrix.isAddRowOnBottom) return null;
+    if (!this.matrix.renderedTable.showAddRowOnBottom) return null;
     return this.renderAddRowButton(cssClasses);
   }
-  protected renderAddRowButton(cssClasses: any): JSX.Element {
+  protected renderNoRowsContent(cssClasses: any): JSX.Element {
+    var text = this.renderLocString(this.matrix.locEmptyRowsText);
+    var textDiv = <div className={cssClasses.emptyRowsText}>{text}</div>;
+    var btn = this.renderAddRowButton(cssClasses, true);
+    return (
+      <div className={cssClasses.emptyRowsSection}>
+        {textDiv}
+        {btn}
+      </div>
+    );
+  }
+  protected renderAddRowButton(
+    cssClasses: any,
+    isEmptySection: boolean = false
+  ): JSX.Element {
+    var btnCss =
+      cssClasses.button +
+      " " +
+      cssClasses.buttonAdd +
+      (isEmptySection ? " " + cssClasses.emptyRowsButton : "");
     return (
       <div className={cssClasses.footer}>
         <button

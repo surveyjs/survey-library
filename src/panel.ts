@@ -40,24 +40,34 @@ export class QuestionRowModel extends Base {
   private static getRowId(): string {
     return "pr_" + QuestionRowModel.rowCounter++;
   }
-  private _scrollableParent: any = undefined;
-  private _updateVisibility: any = undefined;
-  public startLazyRendering(rowContainerDiv: HTMLElement) {
-    this._scrollableParent = findScrollableParent(rowContainerDiv);
-    this._updateVisibility = () => {
-      var isRowContainerDivVisible = isElementVisible(rowContainerDiv, 50);
-      if (!this.isNeedRender && isRowContainerDivVisible) {
-        this.isNeedRender = true;
-        this.stopLazyRendering();
-      }
-    };
-    setTimeout(() => {
-      this._scrollableParent.addEventListener("scroll", this._updateVisibility);
+  protected _scrollableParent: any = undefined;
+  protected _updateVisibility: any = undefined;
+  public startLazyRendering(rowContainerDiv: HTMLElement, findScrollableContainer = findScrollableParent) {
+    this._scrollableParent = findScrollableContainer(rowContainerDiv);
+    this.isNeedRender = !(this._scrollableParent.scrollHeight > this._scrollableParent.clientHeight);
+    if (!this.isNeedRender) {
+      this._updateVisibility = () => {
+        var isRowContainerDivVisible = isElementVisible(rowContainerDiv, 50);
+        if (!this.isNeedRender && isRowContainerDivVisible) {
+          this.isNeedRender = true;
+          this.stopLazyRendering();
+        }
+      };
+      setTimeout(() => {
+        if (!!this._scrollableParent && !!this._scrollableParent.addEventListener) {
+          this._scrollableParent.addEventListener("scroll", this._updateVisibility);
+        }
+        this.ensureVisibility();
+      }, 10);
+    }
+  }
+  public ensureVisibility() {
+    if (!!this._updateVisibility) {
       this._updateVisibility();
-    }, 10);
+    }
   }
   public stopLazyRendering() {
-    if (!!this._scrollableParent && !!this._updateVisibility) {
+    if (!!this._scrollableParent && !!this._updateVisibility && !!this._scrollableParent.removeEventListener) {
       this._scrollableParent.removeEventListener(
         "scroll",
         this._updateVisibility
@@ -327,6 +337,11 @@ export class PanelModelBase
   getMarkdownHtml(text: string, name: string) {
     return this.survey
       ? this.survey.getSurveyMarkdownHtml(this, text, name)
+      : null;
+  }
+  getRenderer(name: string): string {
+    return this.survey
+      ? this.survey.getRendererForString(this, name)
       : null;
   }
   getProcessedText(text: string): string {
@@ -853,6 +868,12 @@ export class PanelModelBase
   }
   get rows(): Array<QuestionRowModel> {
     return this.getPropertyValue("rows");
+  }
+
+  public ensureRowsVisibility() {
+    this.rows.forEach((row) => {
+      row.ensureVisibility();
+    });
   }
 
   protected onRowsChanged() {

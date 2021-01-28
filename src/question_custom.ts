@@ -328,6 +328,9 @@ export abstract class QuestionCustomModelBase
   indexOf(el: IElement): number {
     return -1;
   }
+  ensureRowsVisibility(): void {
+    // do nothing
+  }
 }
 
 export class QuestionCustomModel extends QuestionCustomModelBase {

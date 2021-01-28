@@ -4,6 +4,10 @@ import { Question } from "./question";
 import { LocalizableString, LocalizableStrings } from "./localizablestring";
 import { Helpers } from "./helpers";
 import { EmailValidator, SurveyValidator } from "./validator";
+import { SurveyError } from "./base";
+import { surveyLocalization } from "./surveyStrings";
+import { CustomError } from "./error";
+import { settings } from "./settings";
 
 /**
  * A Model for an input text question.
@@ -13,6 +17,8 @@ export class QuestionTextModel extends Question {
   constructor(public name: string) {
     super(name);
     this.createLocalizableString("placeHolder", this);
+    this.createLocalizableString("minErrorText", this, true);
+    this.createLocalizableString("maxErrorText", this, true);
     this.locDataListValue = new LocalizableStrings(this);
     this.registerFunctionOnPropertiesValueChanged(
       ["min", "max", "inputType", "minValueExpression", "maxValueExpression"],
@@ -140,12 +146,18 @@ export class QuestionTextModel extends Question {
     }
     this.setPropertyValue("max", val);
   }
+  /**
+   * The minimum value that you can setup as expression, for example today(-1) = yesterday;
+   */
   public get minValueExpression(): string {
     return this.getPropertyValue("minValueExpression", "");
   }
   public set minValueExpression(val: string) {
     this.setPropertyValue("minValueExpression", val);
   }
+  /**
+   * The maximum value that you can setup as expression, for example today(1) = tomorrow;
+   */
   public get maxValueExpression(): string {
     return this.getPropertyValue("maxValueExpression", "");
   }
@@ -158,20 +170,125 @@ export class QuestionTextModel extends Question {
   public get renderedMax(): any {
     return this.getPropertyValue("renderedMax");
   }
-  private setRenderedMinMax() {
-    this.setPropertyValue(
-      "renderedMin",
-      this.getValueAndRunExpression(this.min, this.minValueExpression)
+  /**
+   * The text that shows when value is less than min property.
+   * @see min
+   * @see maxErrorText
+   */
+  public get minErrorText(): string {
+    return this.getLocalizableStringText(
+      "minErrorText",
+      surveyLocalization.getString("minError")
     );
-    var val = this.getValueAndRunExpression(this.max, this.maxValueExpression);
-    if (
-      !val &&
-      (this.inputType === "date" || this.inputType === "datetime-local")
-    ) {
-      val = "2999-12-31";
-    }
-    this.setPropertyValue("renderedMax", val);
   }
+  public set minErrorText(val: string) {
+    this.setLocalizableStringText("minErrorText", val);
+  }
+  get locMinErrorText(): LocalizableString {
+    return this.getLocalizableString("minErrorText");
+  }
+  /**
+   * The text that shows when value is greater than man property.
+   * @see max
+   * @see minErrorText
+   */
+  public get maxErrorText(): string {
+    return this.getLocalizableStringText(
+      "maxErrorText",
+      surveyLocalization.getString("maxError")
+    );
+  }
+  public set maxErrorText(val: string) {
+    this.setLocalizableStringText("maxErrorText", val);
+  }
+  get locMaxErrorText(): LocalizableString {
+    return this.getLocalizableString("maxErrorText");
+  }
+
+  /**
+   * Readonly property that returns true if the current inputType allows to set min and max properties
+   * @see inputType
+   * @see min
+   * @see max
+   */
+  public get isMinMaxType(): boolean {
+    return minMaxTypes.indexOf(this.inputType) > -1;
+  }
+  protected onCheckForErrors(
+    errors: Array<SurveyError>,
+    isOnValueChanged: boolean
+  ) {
+    super.onCheckForErrors(errors, isOnValueChanged);
+    if (isOnValueChanged || this.canSetValueToSurvey()) return;
+    if (this.isValueLessMin) {
+      errors.push(
+        new CustomError(
+          this.getMinMaxErrorText(
+            this.minErrorText,
+            this.getCalculatedMinMax(this.renderedMin)
+          ),
+          this
+        )
+      );
+    }
+    if (this.isValueGreaterMax) {
+      errors.push(
+        new CustomError(
+          this.getMinMaxErrorText(
+            this.maxErrorText,
+            this.getCalculatedMinMax(this.renderedMax)
+          ),
+          this
+        )
+      );
+    }
+  }
+  protected canSetValueToSurvey(): boolean {
+    if (!this.isMinMaxType) return true;
+    if (this.isValueLessMin) return false;
+    if (this.isValueGreaterMax) return false;
+    return true;
+  }
+  private getMinMaxErrorText(errorText: string, value: any): string {
+    if (!value) return errorText;
+    return errorText.replace("{0}", value.toString());
+  }
+  private get isValueLessMin(): boolean {
+    return (
+      !!this.renderedMin &&
+      this.getCalculatedMinMax(this.value) <
+        this.getCalculatedMinMax(this.renderedMin)
+    );
+  }
+  private get isValueGreaterMax(): boolean {
+    return (
+      !!this.renderedMax &&
+      this.getCalculatedMinMax(this.value) >
+        this.getCalculatedMinMax(this.renderedMax)
+    );
+  }
+  private get isDateInputType(): boolean {
+    return this.inputType === "date" || this.inputType === "datetime-local";
+  }
+  private getCalculatedMinMax(minMax: any): any {
+    if (!minMax) return minMax;
+    return this.isDateInputType ? new Date(minMax) : minMax;
+  }
+  private setRenderedMinMax() {
+    this.setValueAndRunExpression(this.minValueExpression, this.min, (val) => {
+      if (!val && this.isDateInputType && !!settings.minDate) {
+        val = settings.minDate;
+      }
+      this.setPropertyValue("renderedMin", val);
+    });
+    this.setValueAndRunExpression(this.maxValueExpression, this.max, (val) => {
+      if (!val && this.isDateInputType) {
+        val = !!settings.maxDate ? settings.maxDate : "2999-12-31";
+      }
+      this.setPropertyValue("renderedMax", val);
+    });
+  }
+
   /**
    * The step value
    */
@@ -346,8 +463,7 @@ Serializer.addClass(
       name: "min",
       dependsOn: "inputType",
       visibleIf: function (obj: any) {
-        if (!obj) return false;
-        return minMaxTypes.indexOf(obj.inputType) !== -1;
+        return !!obj && obj.isMinMaxType;
       },
       onPropertyEditorUpdate: function (obj: any, propertyEditor: any) {
         propertyEditor.inputType = obj.inputType;
@@ -357,8 +473,7 @@ Serializer.addClass(
       name: "max",
       dependsOn: "inputType",
       visibleIf: function (obj: any) {
-        if (!obj) return false;
-        return minMaxTypes.indexOf(obj.inputType) !== -1;
+        return !!obj && obj.isMinMaxType;
       },
       onPropertyEditorUpdate: function (obj: any, propertyEditor: any) {
         propertyEditor.inputType = obj.inputType;
@@ -369,8 +484,7 @@ Serializer.addClass(
       category: "logic",
       dependsOn: "inputType",
       visibleIf: function (obj: any) {
-        if (!obj) return false;
-        return minMaxTypes.indexOf(obj.inputType) !== -1;
+        return !!obj && obj.isMinMaxType;
       },
     },
     {
@@ -378,8 +492,23 @@ Serializer.addClass(
       category: "logic",
       dependsOn: "inputType",
       visibleIf: function (obj: any) {
-        if (!obj) return false;
-        return minMaxTypes.indexOf(obj.inputType) !== -1;
+        return !!obj && obj.isMinMaxType;
+      },
+    },
+    {
+      name: "minErrorText",
+      serializationProperty: "locMinErrorText",
+      dependsOn: "inputType",
+      visibleIf: function (obj: any) {
+        return !!obj && obj.isMinMaxType;
+      },
+    },
+    {
+      name: "maxErrorText",
+      serializationProperty: "locMaxErrorText",
+      dependsOn: "inputType",
+      visibleIf: function (obj: any) {
+        return !!obj && obj.isMinMaxType;
       },
     },
     {

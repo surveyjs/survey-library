@@ -141,7 +141,7 @@ frameworks.forEach((framework) => {
     assert.ok(!(await Selector("h5 .sv-action").visible));
   });
 
-  test.skip("check expand/collapse action", async (t) => {
+  test("check expand/collapse action", async (t) => {
     var getQuestionState = ClientFunction(() => {
       return survey.getAllQuestions()[0].state;
     });

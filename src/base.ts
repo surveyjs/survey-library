@@ -1214,20 +1214,28 @@ export class SurveyElement extends Base implements ISurveyElement {
 
   public getTitleActions(): Array<any> {
     this.titleActions = [];
-    this.titleActions.push({
+    var expandAction: any = {
       title: "",
       action: () => {
         this.toggleState();
       },
-      innerCss: () => {
-        var css = "sv-expand-action";
-        if (this.isExpanded) css += " sv-expand-action--expanded";
-        return css;
+    };
+    Object.defineProperties(expandAction, {
+      innerCss: {
+        get: () => {
+          var css = "sv-expand-action";
+          if (this.isExpanded) css += " sv-expand-action--expanded";
+          return css;
+        },
       },
-      visible: () => {
-        return this.isExpanded || this.isCollapsed;
+      visible: {
+        get: () => {
+          return this.isExpanded || this.isCollapsed;
+        },
       },
     });
+
+    this.titleActions.push(expandAction);
     return this.titleActions;
   }
 

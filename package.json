@@ -34,7 +34,7 @@
     "watch_vue_dev": "webpack --env.buildType dev --env.platform vue --watch",
     "watch_core_dev": "webpack --env.buildType dev --env.platform core --watch"
   },
-  "version": "1.8.26",
+  "version": "1.8.27",
   "name": "survey-library",
   "private": true,
   "devDependencies": {

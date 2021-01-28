@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.8.27](https://github.com/surveyjs/survey-library/compare/v1.8.26...v1.8.27) (2021-01-28)
+
+
+### Bug Fixes
+
+* Allows to enter empty value into required question when survey.checkErrorsMode equals 'onValueChanging' [#2627](https://github.com/surveyjs/survey-library/issues/2627) ([3ecfd74](https://github.com/surveyjs/survey-library/commit/3ecfd748d8e38e01e46bcab775a635eb6033b46d))
+
 ### [1.8.26](https://github.com/surveyjs/survey-library/compare/v1.8.25...v1.8.26) (2021-01-19)
 
 

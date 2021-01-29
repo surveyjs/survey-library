@@ -1,7 +1,10 @@
-<div class="sv-popup" data-bind="visible: isVisible, click: clickOutside">
+<div
+  class="sv-popup"
+  data-bind="visible: isVisible, click: clickOutside, class: styleClass"
+>
   <div
     class="sv-popup__container"
-    data-bind="style: { left: left, top: top }, class: styleClass, click: function() { return true; }, clickBubble: false"
+    data-bind="style: { left: left, top: top },  click: function() { return true; }, clickBubble: false"
   >
     <!-- ko if: showPointer  -->
     <span
@@ -12,13 +15,25 @@
 
     <div class="sv-popup__header"></div>
 
-    <div class="sv-popup__content" data-bind="component: { name: contentComponentName, params: contentComponentData }">
-    </div>
+    <div
+      class="sv-popup__content"
+      data-bind="component: { name: contentComponentName, params: contentComponentData }"
+    ></div>
 
     <div class="sv-popup__footer">
       <!-- ko if: isModal  -->
-      <button data-bind="click: cancel, text: cancelButtonText">Cancel</button>
-      <button data-bind="click: apply, text: applyButtonText">Apply</button>
+      <button
+        class="sv-popup__footer-item sv-popup__button sv-popup__button--cancel"
+        data-bind="click: cancel, text: cancelButtonText"
+      >
+        Cancel
+      </button>
+      <button
+        class="sv-popup__footer-item sv-popup__button sv-popup__button--apply"
+        data-bind="click: apply, text: applyButtonText"
+      >
+        Apply
+      </button>
       <!-- /ko -->
     </div>
   </div>

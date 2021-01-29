@@ -1,3 +1,11 @@
+$primary: var(--primary, #19b394);
+$primary-foreground: var(--primary-foreground, #fff);
+
+$background: var(--background, #fff);
+$background-dim: var(--background-dim, #f3f3f3);
+//todo: discuss this variable
+$foreground-disabled: var(--foreground-disabled, rgba(#161616, 0.16));
+
 $base-unit: var(--base-unit, 8px);
 @function calcSize($multiplier) {
   $result: calc(#{$multiplier} * #{$base-unit});
@@ -24,12 +32,12 @@ sv-popup {
   filter: drop-shadow(0px calcSize(1) calcSize(2) rgba(0, 0, 0, 0.1));
   max-width: 100%;
   max-height: 100%;
-}
-
-.sv-popup__content {
   padding: calcSize(1) 0;
   background: $body-background-color;
   border-radius: 4px;
+}
+
+.sv-popup__content {
   min-width: 100%;
 }
 
@@ -74,4 +82,63 @@ sv-popup {
     border-bottom: calcSize(1) solid $body-background-color;
     align-self: center;
   }
+}
+
+.sv-popup--modal {
+  .sv-popup__container {
+    filter: none;
+    padding: calcSize(4);
+  }
+}
+
+.sv-popup__footer {
+  display: flex;
+  margin-top: calcSize(4);
+}
+
+.sv-popup__footer-item:first-child {
+  margin-left: auto;
+}
+
+.sv-popup__footer-item + .sv-popup__footer-item {
+  margin-left: calcSize(1);
+}
+
+.sv-popup__button {
+  padding: calcSize(2) calcSize(6);
+  background: $background;
+  box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.15);
+  border-radius: 4px;
+  cursor: pointer;
+
+  font-family: $font-family;
+  font-style: normal;
+  font-weight: 600;
+  font-size: calcSize(2);
+  line-height: calcSize(3);
+  text-align: center;
+  color: $primary;
+
+  border: none;
+  &:hover {
+    box-shadow: 0 0 0 2px $primary;
+  }
+  outline: none;
+}
+
+.sv-popup__button:disabled {
+  color: $foreground-disabled;
+  cursor: default;
+  &:hover {
+    box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.15);
+  }
+}
+
+.sv-popup__button--apply {
+  background-color: $primary;
+  color: $primary-foreground;
+}
+
+.sv-popup__button--apply:disabled {
+  background-color: $background-dim;
 }

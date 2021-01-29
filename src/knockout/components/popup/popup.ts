@@ -16,9 +16,7 @@ export class PopupModel {
     public onHide = () => {},
     public onShow = () => {},
     public cssClass: string = ""
-  ) {
-
-  }
+  ) {}
 
   public toggleVisibility() {
     this.onToggleVisibility && this.onToggleVisibility();
@@ -36,10 +34,7 @@ export class PopupViewModel {
   protected container: HTMLElement;
   protected showSubscription: ko.Subscription;
 
-  constructor(
-   public model: PopupModel,
-   private targetElement: HTMLElement    
-  ) {
+  constructor(public model: PopupModel, private targetElement: HTMLElement) {
     this.container = document.createElement("div");
     document.body.appendChild(this.container);
     this.container.innerHTML = template;
@@ -93,6 +88,8 @@ export class PopupViewModel {
     if (this.showPointer) {
       css += " sv-popup--show-pointer";
       css += ` sv-popup--${this.popupDirection()}`;
+    } else if (this.isModal) {
+      css += " sv-popup--modal";
     }
 
     return css;
@@ -110,8 +107,7 @@ export class PopupViewModel {
   private setupPopup() {
     if (this.isModal) {
       this.setupModalPopup();
-    }
-    else {
+    } else {
       this.setupModelessPopup();
     }
   }
@@ -134,30 +130,30 @@ export class PopupViewModel {
     );
     //AM: hang up: page selector inside 'test survey' page causes infinite loop here
     //do {
-      var height = popupContainer.offsetHeight;
-      var width = popupContainer.offsetWidth;
-      const pos = PopupUtils.calculatePosition(
-        rect,
-        height,
-        width,
-        this.verticalPosition,
-        this.horizontalPosition,
-        this.showPointer
-      );
-      this.left(pos.left);
-      this.top(pos.top);
+    var height = popupContainer.offsetHeight;
+    var width = popupContainer.offsetWidth;
+    const pos = PopupUtils.calculatePosition(
+      rect,
+      height,
+      width,
+      this.verticalPosition,
+      this.horizontalPosition,
+      this.showPointer
+    );
+    this.left(pos.left);
+    this.top(pos.top);
 
-      if (this.showPointer) {
-        this.pointerTarget(
-          PopupUtils.calculatePointerTarget(
-            rect,
-            pos.top,
-            pos.left,
-            this.verticalPosition,
-            this.horizontalPosition
-          )
-        );
-      }
+    if (this.showPointer) {
+      this.pointerTarget(
+        PopupUtils.calculatePointerTarget(
+          rect,
+          pos.top,
+          pos.left,
+          this.verticalPosition,
+          this.horizontalPosition
+        )
+      );
+    }
     //} while (
     //  popupContainer.offsetWidth != width ||
     //  popupContainer.offsetHeight != height
@@ -198,7 +194,12 @@ export class PopupViewModel {
     this.container = undefined;
   }
 
-  public static showModal(componentName: string, data: any, onApply: () => void, onCancel?: () => void) {
+  public static showModal(
+    componentName: string,
+    data: any,
+    onApply: () => void,
+    onCancel?: () => void
+  ) {
     const popupModel = new PopupModel(
       componentName,
       data,
@@ -210,7 +211,10 @@ export class PopupViewModel {
       onApply
     );
 
-    const popupViewModel: PopupViewModel = new PopupViewModel(popupModel, undefined);    
+    const popupViewModel: PopupViewModel = new PopupViewModel(
+      popupModel,
+      undefined
+    );
     popupViewModel.isVisible(true);
   }
 }

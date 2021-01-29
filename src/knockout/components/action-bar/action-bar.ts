@@ -3,6 +3,7 @@ import { IActionBarItem } from "../../../action-bar";
 import { Base } from "../../../base";
 import { property } from "../../../jsonobject";
 import { ResponsibilityManager } from "../../../utils/resonsibilitymanager";
+import { ImplementorBase } from "../../kobase";
 import { PopupModel } from "../popup/popup";
 
 const template = require("./action-bar.html");
@@ -20,7 +21,7 @@ export class ActionBarItem extends Base implements IActionBarItem {
   @property() title?: string;
   @property() tooltip?: string;
   @property() enabled?: boolean;
-  @property() showTitle?: boolean | (() => boolean);
+  @property() showTitle?: boolean;
   @property() action?: (context?: any) => void;
   @property() css?: string;
   @property() innerCss?: string;
@@ -36,13 +37,16 @@ export class ActionBarItem extends Base implements IActionBarItem {
 /**
  * The toolbar item description.
  */
-export abstract class AdaptiveElement {
+export abstract class AdaptiveElement extends Base {
   public items: ko.ObservableArray<any> = ko.observableArray();
   public invisibleItems: ko.ObservableArray<any> = ko.observableArray();
-  public showTitles = ko.observable(true);
+
+  @property({ defaultValue: true }) showTitles: boolean;
+
   protected dotsItem: AdaptiveActionBarItemWrapper; // (...) button
 
   constructor() {
+    super();
     this.dotsItem = new AdaptiveActionBarItemWrapper(
       this,
       new ActionBarItem({
@@ -80,7 +84,7 @@ export abstract class AdaptiveElement {
     this.invisibleItems([]);
     ko.unwrap(this.items).forEach((item: any) => {
       if (item === this.dotsItem) return;
-      item.isVisible(leftItemsToShow > 0);
+      item.isVisible = leftItemsToShow > 0;
       if (leftItemsToShow <= 0) {
         this.invisibleItems.push(item);
       }
@@ -96,8 +100,45 @@ export abstract class AdaptiveElement {
   }
 }
 
-export class AdaptiveActionBarItemWrapper implements IActionBarItem {
-  constructor(private owner: AdaptiveElement, private item: IActionBarItem) {}
+export class ActionBarViewModel extends AdaptiveElement {
+  public itemsSubscription: ko.Computed;
+
+  constructor(_items: ko.MaybeObservableArray<IActionBarItem>) {
+    super();
+    this.itemsSubscription = ko.computed(() => {
+      var items = ko.unwrap(_items);
+      items.forEach((item) => {
+        this.items.push(new AdaptiveActionBarItemWrapper(this, item));
+      });
+    });
+  }
+
+  get hasItems() {
+    return (ko.unwrap(this.items) || []).length > 0;
+  }
+
+  public get canShrink() {
+    return this.showTitles;
+  }
+  public readonly canGrow = true;
+  public shrink() {
+    this.showTitles = false;
+  }
+  public grow() {
+    this.showTitles = true;
+  }
+
+  dispose() {
+    this.itemsSubscription.dispose();
+  }
+}
+
+export class AdaptiveActionBarItemWrapper
+  extends Base
+  implements IActionBarItem {
+  constructor(private owner: AdaptiveElement, private item: IActionBarItem) {
+    super();
+  }
 
   public get id(): string {
     return this.item.id;
@@ -114,13 +155,12 @@ export class AdaptiveActionBarItemWrapper implements IActionBarItem {
   public get enabled(): boolean {
     return ko.unwrap(this.item.enabled);
   }
-  //public get showTitle(): any { return ko.unwrap(this.item.showTitle); }
-  public showTitle = <() => boolean>ko.computed(() => {
+  public get showTitle(): boolean {
     return (
-      this.owner.showTitles() &&
-      (ko.unwrap(this.item.showTitle) || this.item.showTitle === undefined)
+      this.owner.showTitles &&
+      (this.item.showTitle || this.item.showTitle === undefined)
     );
-  });
+  }
 
   public action() {
     this.item.action && this.item.action();
@@ -155,39 +195,16 @@ export class AdaptiveActionBarItemWrapper implements IActionBarItem {
   public get items(): any {
     return ko.unwrap(this.item.items);
   }
-  public isVisible = ko.observable(true);
+  @property({ defaultValue: true }) isVisible: boolean;
 }
 
-export class ActionBarViewModel extends AdaptiveElement {
-  public itemsSubscription: ko.Computed;
+export class ActionBaseViewModelImplementor extends ImplementorBase {
+  constructor(model: ActionBarViewModel) {
+    super(model);
 
-  constructor(_items: ko.MaybeObservableArray<IActionBarItem>) {
-    super();
-    this.itemsSubscription = ko.computed(() => {
-      var items = ko.unwrap(_items);
-      items.forEach((item) => {
-        this.items.push(new AdaptiveActionBarItemWrapper(this, item));
-      });
+    model.items().forEach((item) => {
+      new ImplementorBase(item);
     });
-  }
-
-  get hasItems() {
-    return (ko.unwrap(this.items) || []).length > 0;
-  }
-
-  public get canShrink() {
-    return this.showTitles();
-  }
-  public readonly canGrow = true;
-  public shrink() {
-    this.showTitles(false);
-  }
-  public grow() {
-    this.showTitles(true);
-  }
-
-  dispose() {
-    this.itemsSubscription.dispose();
   }
 }
 
@@ -195,6 +212,8 @@ ko.components.register("sv-action-bar", {
   viewModel: {
     createViewModel: (params: any, componentInfo: any) => {
       const model = new ActionBarViewModel(params.items);
+      new ActionBaseViewModelImplementor(model);
+
       var container: HTMLDivElement = componentInfo.element;
       var manager = new ResponsibilityManager(container, model);
       manager.getItemSizes = () => {

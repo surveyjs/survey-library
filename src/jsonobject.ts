@@ -30,12 +30,13 @@ export function property(options?: IPropertyDecoratorOptions) {
     if (!options || !options.localizable) {
       Object.defineProperty(target, key, {
         get: function () {
-          return (
-            this.getPropertyValue(key) ||
-            (!!options
-              ? options.defaultValue || this[options.defaultSource]
-              : undefined)
-          );
+          const value = this.getPropertyValue(key);
+          if (value !== undefined) {
+            return value;
+          }
+          return !!options
+            ? options.defaultValue || this[options.defaultSource]
+            : undefined;
         },
         set: function (val: any) {
           this.setPropertyValue(key, val);

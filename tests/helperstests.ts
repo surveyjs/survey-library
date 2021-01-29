@@ -2,6 +2,8 @@ import { Helpers } from "../src/helpers";
 import { EmailValidator } from "../src/validator";
 import { SurveyModel } from "../src/survey";
 import { ProcessValue } from "../src/conditionProcessValue";
+import { Base } from "../src/base";
+import { property } from "../src/jsonobject";
 
 export default QUnit.module("Helpers");
 
@@ -175,25 +177,26 @@ QUnit.test("isConvertibleToNumber", function (assert) {
   );
 });
 
-QUnit.test("isTwoValueEquals, undefined, null and empty string", function (
-  assert
-) {
-  assert.equal(
-    Helpers.isTwoValueEquals(undefined, null),
-    true,
-    "null and undefined are equals"
-  );
-  assert.equal(
-    Helpers.isTwoValueEquals(undefined, ""),
-    true,
-    "undefined and empty string are equals"
-  );
-  assert.equal(
-    Helpers.isTwoValueEquals(null, ""),
-    true,
-    "null and empty string are equals"
-  );
-});
+QUnit.test(
+  "isTwoValueEquals, undefined, null and empty string",
+  function (assert) {
+    assert.equal(
+      Helpers.isTwoValueEquals(undefined, null),
+      true,
+      "null and undefined are equals"
+    );
+    assert.equal(
+      Helpers.isTwoValueEquals(undefined, ""),
+      true,
+      "undefined and empty string are equals"
+    );
+    assert.equal(
+      Helpers.isTwoValueEquals(null, ""),
+      true,
+      "null and empty string are equals"
+    );
+  }
+);
 QUnit.test("isTwoValueEquals, 0 and '0'", function (assert) {
   assert.equal(
     Helpers.isTwoValueEquals(0, "0"),
@@ -254,15 +257,16 @@ QUnit.test(
     );
   }
 );
-QUnit.test("isTwoValueEquals, undefined vs 'undefined', Bug# ", function (
-  assert
-) {
-  assert.equal(
-    Helpers.isTwoValueEquals(undefined, "undefined"),
-    false,
-    "undefined not equals 'undefined'"
-  );
-});
+QUnit.test(
+  "isTwoValueEquals, undefined vs 'undefined', Bug# ",
+  function (assert) {
+    assert.equal(
+      Helpers.isTwoValueEquals(undefined, "undefined"),
+      false,
+      "undefined not equals 'undefined'"
+    );
+  }
+);
 QUnit.test("Helpers.isNumber", function (assert) {
   assert.equal(Helpers.isNumber("1"), true, "1 is a number");
   assert.equal(Helpers.isNumber("0xabcd"), true, "0xabcd is a number");
@@ -286,4 +290,49 @@ QUnit.test("Helpers.getNumberByIndex", function (assert) {
   assert.equal(Helpers.getNumberByIndex(2, "1.2."), "1.4.", "2/1.2.");
   assert.equal(Helpers.getNumberByIndex(2, "1.2.11"), "1.2.13", "2/1.2.11");
   assert.equal(Helpers.getNumberByIndex(2, "1.2.11."), "1.2.13.", "2/1.2.11.");
+});
+
+class ObjectWithDecoratedProperties extends Base {
+  @property({ defaultValue: true }) boolPropertyWithDefault: boolean;
+  @property() boolPropertyNoDefault: boolean;
+  @property({ defaultValue: "test" }) stringPropertyWithDefault: string;
+  @property() stringPropertyNoDefault: string;
+}
+
+QUnit.test("boolPropertyWithDefault", function (assert) {
+  const instance: ObjectWithDecoratedProperties = new ObjectWithDecoratedProperties();
+  assert.equal(instance.boolPropertyNoDefault, undefined);
+  assert.equal(instance.boolPropertyWithDefault, true);
+  assert.equal(instance.stringPropertyNoDefault, undefined);
+  assert.equal(instance.stringPropertyWithDefault, "test");
+
+  instance.boolPropertyNoDefault = false;
+  instance.boolPropertyWithDefault = false;
+  instance.stringPropertyNoDefault = "no default";
+  instance.stringPropertyWithDefault = "";
+
+  assert.equal(instance.boolPropertyNoDefault, false);
+  assert.equal(instance.boolPropertyWithDefault, false);
+  assert.equal(instance.stringPropertyNoDefault, "no default");
+  assert.equal(instance.stringPropertyWithDefault, "");
+
+  instance.boolPropertyNoDefault = null;
+  instance.boolPropertyWithDefault = true;
+  instance.stringPropertyNoDefault = null;
+  instance.stringPropertyWithDefault = "text";
+
+  assert.equal(instance.boolPropertyNoDefault, null);
+  assert.equal(instance.boolPropertyWithDefault, true);
+  assert.equal(instance.stringPropertyNoDefault, null);
+  assert.equal(instance.stringPropertyWithDefault, "text");
+
+  instance.boolPropertyNoDefault = true;
+  instance.boolPropertyWithDefault = null;
+  instance.stringPropertyNoDefault = "hole";
+  instance.stringPropertyWithDefault = null;
+
+  assert.equal(instance.boolPropertyNoDefault, true);
+  assert.equal(instance.boolPropertyWithDefault, null);
+  assert.equal(instance.stringPropertyNoDefault, "hole");
+  assert.equal(instance.stringPropertyWithDefault, null);
 });

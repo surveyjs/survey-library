@@ -1,4 +1,3 @@
-import { assign } from "lodash";
 import { ResponsibilityManager } from "../../src/utils/resonsibilitymanager";
 
 export default QUnit.module("ResponsibilityManager");
@@ -189,3 +188,21 @@ QUnit.test("Check on element with parent's changing width", function (assert) {
 
   assert.ok(model.canGrow, "process grew container");
 });
+
+QUnit.test(
+  "Check on element when last item with bigger of equal size than dots item's",
+  function (assert) {
+    var container = new SimpleContainer({ offsetWidth: 5, scrollWidth: 11 });
+    var model = new TestModel();
+    var manager = new ResponsibilityManager(<any>container, model, 5);
+    manager.getComputedStyle = () => {
+      return { boxSizing: "content-box" };
+    };
+
+    manager.getItemSizes = () => {
+      return [5];
+    };
+    manager.process();
+    assert.equal(model.visibleElementsCount, 1);
+  }
+);

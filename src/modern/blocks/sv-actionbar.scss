@@ -17,16 +17,18 @@ $base-unit: var(--base-unit, 8px);
 sv-action-bar,
 .sv-action-bar {
   display: flex;
+  box-sizing: content-box;
   position: relative;
   align-items: center;
   margin-left: auto;
-  padding: 0 0 0 calcSize(2);
+  padding: 0 calcSize(2);
   overflow: hidden;
   white-space: nowrap;
 }
 
 sv-action-bar .sv-action-bar {
   overflow: visible;
+  padding: 0;
 }
 
 .sv-action--first {
@@ -57,7 +59,6 @@ sv-action-bar .sv-action-bar {
   height: calcSize(5);
   padding: calcSize(1);
   box-sizing: border-box;
-  margin-right: calcSize(2);
   border: none;
   border-radius: 2px;
   background-color: transparent;
@@ -127,7 +128,6 @@ sv-action-bar .sv-action-bar {
   height: calcSize(5);
   padding: calcSize(1);
   box-sizing: border-box;
-  margin-right: calcSize(2);
   border: none;
   border-radius: 2px;
   background-color: transparent;
@@ -181,6 +181,11 @@ sv-action-bar .sv-action-bar {
 .sv-action {
   display: flex;
   align-items: center;
+}
+
+.sv-action:not(:last-of-type) {
+  box-sizing: content-box;
+  padding-right: calcSize(2);
 }
 
 .sv-action--hidden {

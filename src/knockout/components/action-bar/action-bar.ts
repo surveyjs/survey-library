@@ -26,7 +26,7 @@ export class ActionBarItem extends Base implements IActionBarItem {
   @property() innerCss?: string;
   @property() data?: any;
   @property() popupModel?: any;
-  @property() isActive?: boolean;
+  @property() active?: boolean | (() => boolean);
   @property() needSeparator?: boolean;
   @property() template?: string;
   @property() component?: string;
@@ -137,8 +137,8 @@ export class AdaptiveActionBarItemWrapper implements IActionBarItem {
   public get popupModel(): any {
     return ko.unwrap(this.item.popupModel);
   }
-  public get isActive(): boolean {
-    return ko.unwrap(this.item.isActive);
+  public get active(): boolean {
+    return <boolean>ko.unwrap(this.item.active);
   }
   public get needSeparator(): boolean {
     return ko.unwrap(this.item.needSeparator);

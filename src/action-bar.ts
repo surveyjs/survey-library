@@ -40,7 +40,10 @@ export interface IActionBarItem {
    */
   data?: any;
   popupModel?: any; //TODO: temp, use data instead
-  isActive?: boolean; //TODO: temp
+  /**
+   * Set this property to true to activate the toolbar item (page)
+   */
+  active?: (() => boolean) | boolean;
   needSeparator?: boolean; //TODO: temp
   /**
    * Toolbar item template name

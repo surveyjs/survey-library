@@ -25,6 +25,10 @@ sv-action-bar,
   white-space: nowrap;
 }
 
+sv-action-bar .sv-action-bar {
+  overflow: visible;
+}
+
 .sv-action--first {
   flex: 1;
   .sv-action-bar-item {

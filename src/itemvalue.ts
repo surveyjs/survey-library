@@ -394,7 +394,7 @@ JsonObjectProperty.getItemValuesDefaultValue = function (val: any): any {
 Serializer.addClass(
   "itemvalue",
   [
-    "value",
+    "!value",
     {
       name: "text",
       serializationProperty: "locText",

@@ -82,7 +82,7 @@ export interface IObject {
  * @see removeProperty
  * @see [Add Properties](https://surveyjs.io/Documentation/Survey-Creator#addproperties)
  * @see [Remove Properties](https://surveyjs.io/Documentation/Survey-Creator#removeproperties)
-*/
+ */
 export class JsonObjectProperty implements IObject {
   public static getItemValuesDefaultValue: (val: any) => any;
   [key: string]: any;
@@ -1217,11 +1217,9 @@ export class JsonObject {
   }
   public toObject(jsonObj: any, obj: any) {
     this.toObjectCore(jsonObj, obj);
-    if (!!obj.getType) {
-      var error = this.getRequiredError(jsonObj, obj.getType());
-      if (!!error) {
-        this.addNewError(error, jsonObj);
-      }
+    var error = this.getRequiredError(obj, jsonObj);
+    if (!!error) {
+      this.addNewError(error, jsonObj);
     }
   }
   public toObjectCore(jsonObj: any, obj: any) {
@@ -1421,7 +1419,7 @@ export class JsonObject {
   ): JsonError {
     var error = null;
     if (newObj) {
-      error = this.getRequiredError(value, className);
+      error = this.getRequiredError(newObj, value);
     } else {
       if (property.baseClassName) {
         if (!className) {
@@ -1442,13 +1440,15 @@ export class JsonObject {
     }
     return error;
   }
-  private getRequiredError(value: any, className: string): JsonError {
+  private getRequiredError(obj: any, jsonValue: any): JsonError {
+    if (!obj.getType || typeof obj.getData === "function") return null;
+    var className = obj.getType();
     var requiredProperties = JsonObject.metaData.getRequiredProperties(
       className
     );
     if (!requiredProperties) return null;
     for (var i = 0; i < requiredProperties.length; i++) {
-      if (!value[requiredProperties[i]]) {
+      if (!jsonValue[requiredProperties[i]]) {
         return new JsonRequiredPropertyError(requiredProperties[i], className);
       }
     }

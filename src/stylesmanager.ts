@@ -180,7 +180,8 @@ export class StylesManager {
     ".sv-ranking": "outline: none;",
     ".sv-ranking--mobile .sv-ranking-item__icon--hover":
       "visibility:visible; fill:#9f9f9f;",
-    ".sv-ranking-item": "margin-bottom: 5px;position: relative;",
+    ".sv-ranking-item":
+      "cursor: pointer; margin-bottom: 5px;position: relative;",
     ".sv-ranking-item:focus .sv-ranking-item__icon--hover":
       "visibility: hidden;",
     ".sv-ranking-item:hover .sv-ranking-item__icon--hover":
@@ -193,7 +194,7 @@ export class StylesManager {
     ".sv-ranking-item__content":
       "display: inline-block;background-color: white;padding-top: 5px;padding-bottom: 5px;padding-left: 35px;padding-right: 10px;",
     ".sv-ranking-item__icon-container":
-      "cursor: pointer;position: absolute;left: 0;top: 0;bottom: 0;width: 35px;",
+      "position: absolute;left: 0;top: 0;bottom: 0;width: 35px;",
     ".sv-ranking-item__icon":
       "visibility: hidden;left:10px;top:20px;fill:#19b394;position: absolute;",
     ".sv-ranking-item__index":

@@ -168,7 +168,10 @@ export class QuestionMatrixDynamicModel
       this.initialRowCount = val;
       return;
     }
-    if (this.generatedVisibleRows) {
+    if (this.generatedVisibleRows || prevValue == 0) {
+      if (!this.generatedVisibleRows) {
+        this.generatedVisibleRows = [];
+      }
       this.generatedVisibleRows.splice(val);
       for (var i = prevValue; i < val; i++) {
         var newRow = this.createMatrixRow(this.getValueForNewRow());

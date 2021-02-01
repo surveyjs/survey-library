@@ -141,5 +141,13 @@ export {
 
 export { StylesManager } from "../../stylesmanager";
 
+export {
+  ActionBarItem,
+  IActionBarItem,
+  AdaptiveActionBarItemWrapper,
+  AdaptiveElement,
+} from "../../action-bar";
+export { PopupModel } from "../../popup";
+
 //Uncomment to include the "date" question type.
 //export {default as QuestionDateModel} from "../../plugins/question_date";

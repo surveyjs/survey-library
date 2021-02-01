@@ -1261,7 +1261,7 @@ export class JsonObject {
       obj.endLoadingFromJson();
     }
   }
-  protected toJsonObjectCore(
+  public toJsonObjectCore(
     obj: any,
     property: JsonObjectProperty,
     storeDefaults = false
@@ -1351,7 +1351,7 @@ export class JsonObject {
       result[property.name] = value;
     }
   }
-  protected valueToObj(value: any, obj: any, property: JsonObjectProperty) {
+  public valueToObj(value: any, obj: any, property: JsonObjectProperty) {
     if (value == null) return;
     this.removePos(property, value);
     if (property != null && property.hasToUseSetValue) {

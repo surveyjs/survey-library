@@ -1,3 +1,4 @@
+import { throws } from "assert";
 import SortableLib from "sortablejs";
 import { Serializer } from "./jsonobject";
 import { QuestionFactory } from "./questionfactory";
@@ -11,6 +12,7 @@ const Sortable = <any>SortableLib;
 export class QuestionRankingModel extends QuestionCheckboxModel {
   domNode: HTMLElement = null;
   sortableInst: any = null;
+  isIndeterminate: boolean = true;
 
   public getType(): string {
     return "ranking";
@@ -34,7 +36,9 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
     this.domNode = domNode;
     const syncNumbers = this.syncNumbers;
     const setValue = this.setValue;
+    const setGhostText = this.setGhostText;
     const cssClasses = this.cssClasses;
+    let isIndeterminate = this.isIndeterminate;
 
     this.sortableInst = new Sortable(domNode, {
       animation: 100,
@@ -42,22 +46,27 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
       handle: "." + cssClasses.item,
       ghostClass: cssClasses.itemGhostMod,
       dragClass: cssClasses.itemDragMod,
-      onStart() {
+      onStart(evt: any) {
         (<any>Sortable.ghost.style.opacity) = 1;
         domNode.className += " " + cssClasses.rootDragMod;
+        if (isIndeterminate) {
+          setGhostText(evt.oldIndex + 1);
+        }
       },
       onEnd() {
         domNode.className = domNode.className.replace(
           " " + cssClasses.rootDragMod,
           ""
         );
+        if (isIndeterminate) {
+          isIndeterminate = false;
+          syncNumbers();
+        }
         setValue();
       },
       onChange(evt: any) {
-        const indexNodes = domNode.querySelectorAll("." + cssClasses.itemIndex);
-        const ghostNode = indexNodes[indexNodes.length - 1];
-        syncNumbers();
-        (<any>ghostNode).innerText = evt.newIndex + 1;
+        if (!isIndeterminate) syncNumbers();
+        setGhostText(evt.newIndex + 1);
       },
     });
   }
@@ -155,6 +164,14 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
       value.push(textNode.innerText);
     });
     this.value = value;
+  };
+
+  setGhostText = (text: string) => {
+    const indexNodes = this.domNode.querySelectorAll(
+      "." + this.cssClasses.itemIndex
+    );
+    const ghostNode = indexNodes[indexNodes.length - 1];
+    (<any>ghostNode).innerText = text;
   };
 }
 

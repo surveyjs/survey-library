@@ -30,12 +30,13 @@ export function property(options?: IPropertyDecoratorOptions) {
     if (!options || !options.localizable) {
       Object.defineProperty(target, key, {
         get: function () {
-          return (
-            this.getPropertyValue(key) ||
-            (!!options
-              ? options.defaultValue || this[options.defaultSource]
-              : undefined)
-          );
+          const value = this.getPropertyValue(key);
+          if (value !== undefined) {
+            return value;
+          }
+          return !!options
+            ? options.defaultValue || this[options.defaultSource]
+            : undefined;
         },
         set: function (val: any) {
           this.setPropertyValue(key, val);
@@ -1260,7 +1261,7 @@ export class JsonObject {
       obj.endLoadingFromJson();
     }
   }
-  protected toJsonObjectCore(
+  public toJsonObjectCore(
     obj: any,
     property: JsonObjectProperty,
     storeDefaults = false
@@ -1350,7 +1351,7 @@ export class JsonObject {
       result[property.name] = value;
     }
   }
-  protected valueToObj(value: any, obj: any, property: JsonObjectProperty) {
+  public valueToObj(value: any, obj: any, property: JsonObjectProperty) {
     if (value == null) return;
     this.removePos(property, value);
     if (property != null && property.hasToUseSetValue) {

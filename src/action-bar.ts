@@ -22,7 +22,7 @@ export interface IActionBarItem {
   /**
    * Set this property to false to hide the toolbar item title.
    */
-  showTitle?: (() => boolean) | boolean;
+  showTitle?: boolean;
   /**
    * A callback that calls on toolbar item click.
    */

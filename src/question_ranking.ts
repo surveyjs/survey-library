@@ -39,9 +39,7 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
     this.sortableInst = new Sortable(domNode, {
       animation: 100,
       forceFallback: true,
-      handle: this.mobileCheck()
-        ? "." + cssClasses.item
-        : "." + cssClasses.itemIconContainer,
+      handle: "." + cssClasses.item,
       ghostClass: cssClasses.itemGhostMod,
       dragClass: cssClasses.itemDragMod,
       onStart() {

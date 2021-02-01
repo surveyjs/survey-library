@@ -37,6 +37,10 @@
           "Title": "Checkbox"
         },
         {
+          "Name": "questionrankingmodel",
+          "Title": "Ranking"
+        },
+        {
           "Name": "questionradiogroupmodel",
           "Title": "Radiogroup"
         },

@@ -178,8 +178,6 @@ export class StylesManager {
 
     // ranking
     ".sv-ranking": "outline: none;",
-    ".sv-ranking--mobile .sv-ranking-item__icon--hover":
-      "visibility:visible; fill:#9f9f9f;",
     ".sv-ranking-item":
       "cursor: pointer; margin-bottom: 5px;position: relative;",
     ".sv-ranking-item:focus .sv-ranking-item__icon--hover":
@@ -207,9 +205,13 @@ export class StylesManager {
     ".sv-ranking-item--drag .sv-ranking-item__content":
       "box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.1);border-radius: 100px;",
     ".sv-ranking--drag .sv-ranking-item:hover .sv-ranking-item__icon":
-      "visibility: hidden !important;",
+      "visibility: hidden;",
     ".sv-ranking-item--drag .sv-ranking-item__icon--hover":
       "visibility: visible;",
+    ".sv-ranking--mobile .sv-ranking-item__icon--hover":
+      "visibility:visible; fill:#9f9f9f;",
+    ".sv-ranking--mobile.sv-ranking--drag .sv-ranking-item--ghost .sv-ranking-item__icon.sv-ranking-item__icon--hover":
+      "visibility:hidden;",
 
     ".sv_qstn .sv_q_select_column":
       "display: inline-block; vertical-align: top; min-width: 10%;",

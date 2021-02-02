@@ -15,6 +15,11 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
   sortableInst: any = null;
   isIndeterminate: boolean = true;
 
+  public update = () => {
+    if (this.isIndeterminate) return;
+    this.syncNumbers();
+  };
+
   public getType(): string {
     return "ranking";
   }
@@ -34,40 +39,38 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
 
   public initSortable(domNode: HTMLElement) {
     if (!domNode) return;
-    this.domNode = domNode;
-    const syncNumbers = this.syncNumbers;
-    const setValue = this.setValue;
-    const setGhostText = this.setGhostText;
-    const cssClasses = this.cssClasses;
-    let isIndeterminate = this.isIndeterminate;
+    const self = this;
+    self.domNode = domNode;
 
-    this.sortableInst = new Sortable(domNode, {
+    self.sortableInst = new Sortable(domNode, {
       animation: 100,
       forceFallback: true,
-      handle: "." + cssClasses.item,
-      ghostClass: cssClasses.itemGhostMod,
-      dragClass: cssClasses.itemDragMod,
+      handle: IsMobile
+        ? "." + self.cssClasses.itemIconContainer
+        : "." + self.cssClasses.itemContent,
+      ghostClass: self.cssClasses.itemGhostMod,
+      dragClass: self.cssClasses.itemDragMod,
       onStart(evt: any) {
         (<any>Sortable.ghost.style.opacity) = 1;
-        domNode.className += " " + cssClasses.rootDragMod;
-        if (isIndeterminate) {
-          setGhostText(evt.oldIndex + 1);
+        domNode.className += " " + self.cssClasses.rootDragMod;
+        if (self.isIndeterminate) {
+          self.setGhostText(evt.oldIndex + 1);
         }
       },
       onEnd() {
         domNode.className = domNode.className.replace(
-          " " + cssClasses.rootDragMod,
+          " " + self.cssClasses.rootDragMod,
           ""
         );
-        if (isIndeterminate) {
-          isIndeterminate = false;
-          syncNumbers();
+        if (self.isIndeterminate) {
+          self.isIndeterminate = false;
+          self.syncNumbers();
         }
-        setValue();
+        self.setValue();
       },
       onChange(evt: any) {
-        if (!isIndeterminate) syncNumbers();
-        setGhostText(evt.newIndex + 1);
+        if (!self.isIndeterminate) self.syncNumbers();
+        self.setGhostText(evt.newIndex + 1);
       },
     });
   }

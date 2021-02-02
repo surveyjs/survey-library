@@ -214,6 +214,43 @@ QUnit.test("Edit choices in matrix with custom property", function (assert) {
   Serializer.removeProperty("itemvalue", "imageLink");
 });
 QUnit.test(
+  "Edit choices in matrix + detailPanel + hasError",
+  function (assert) {
+    var question = new QuestionMatrixDynamicModel("q1");
+    var survey = new SurveyModel({
+      elements: [
+        {
+          type: "matrixdynamic",
+          name: "choices",
+          rowCount: 0,
+          columns: [
+            { cellType: "text", name: "value", isRequired: true },
+            { cellType: "text", name: "text" },
+          ],
+          detailPanelMode: "underRowSingle",
+          detailElements: [{ type: "text", name: "value", isRequired: true }],
+        },
+      ],
+    });
+    var matrix = <QuestionMatrixDynamicModel>(
+      survey.getQuestionByName("choices")
+    );
+    matrix.onGetValueForNewRowCallBack = (
+      sender: QuestionMatrixDynamicModel
+    ): any => {
+      var item = new ItemValue("val");
+      matrix.value.push(item);
+      return item;
+    };
+    survey.editingObj = question;
+    question.choices.push(new ItemValue(null));
+    assert.equal(matrix.hasErrors(), true, "value is null");
+    var rows = matrix.visibleRows;
+    rows[0].cells[0].value = "item1";
+    assert.equal(matrix.hasErrors(), false, "value is not null");
+  }
+);
+QUnit.test(
   "Edit custom choices in matrix with custom property",
   function (assert) {
     Serializer.addClass("itemvalues_ex", [], null, "itemvalue");

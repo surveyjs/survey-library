@@ -98,7 +98,7 @@ QUnit.test("PopupViewModel defaults", (assert) => {
   const container: HTMLElement = viewModel["container"];
   assert.equal(!!container, true);
   assert.equal(container.tagName, "DIV");
-  assert.equal(container.innerHTML.indexOf("<div class=\"sv-popup\""), 0);
+  assert.equal(container.innerHTML.indexOf("<div class=\"sv-popup"), 0);
   assert.equal(container.parentElement.tagName, "BODY");
   
   const showSubscription: ko.Subscription = viewModel["showSubscription"];
@@ -371,7 +371,7 @@ QUnit.test("PopupViewModel dispose", (assert) => {
 
   assert.equal(!!viewModel["container"], false);
   assert.equal(container.tagName, "DIV");
-  assert.equal(container.innerHTML.indexOf("<div class=\"sv-popup\""), 0);
+  assert.equal(container.innerHTML.indexOf("<div class=\"sv-popup"), 0);
   assert.equal(container.parentElement, undefined);
 });
 

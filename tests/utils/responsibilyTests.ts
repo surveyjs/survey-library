@@ -38,7 +38,7 @@ QUnit.test("Check on element with box-sizing: content-box", function (assert) {
     scrollWidth: 30,
   });
   var model = new TestModel();
-  var manager = new ResponsibilityManager(<any>container, model, 5);
+  var manager = new ResponsibilityManager(<any>container, <any>model, 5);
   manager.getItemSizes = getItemSizes;
   manager.getComputedStyle = () => {
     return {
@@ -81,7 +81,7 @@ QUnit.test("Check on element with box-sizing: border-box", function (assert) {
     scrollWidth: 30,
   });
   var model = new TestModel();
-  var manager = new ResponsibilityManager(<any>container, model, 5);
+  var manager = new ResponsibilityManager(<any>container, <any>model, 5);
   manager.getItemSizes = getItemSizes;
   manager.getComputedStyle = () => {
     return {
@@ -113,7 +113,7 @@ QUnit.test("Check on model which can shrink and grow", function (assert) {
   });
   var model = new TestModel();
   model.canGrow = true;
-  var manager = new ResponsibilityManager(<any>container, model, 5);
+  var manager = new ResponsibilityManager(<any>container, <any>model, 5);
   manager.getItemSizes = getItemSizes;
   manager.getComputedStyle = () => {
     return { boxSizing: "content-box" };
@@ -158,7 +158,7 @@ QUnit.test("Check on element with parent's changing width", function (assert) {
   container.parentElement = parentElement;
   var model = new TestModel();
   model.canGrow = true;
-  var manager = new ResponsibilityManager(<any>container, model, 5);
+  var manager = new ResponsibilityManager(<any>container, <any>model, 5);
   manager.getItemSizes = getItemSizes;
   manager.getComputedStyle = () => {
     return { boxSizing: "content-box" };
@@ -194,7 +194,7 @@ QUnit.test(
   function (assert) {
     var container = new SimpleContainer({ offsetWidth: 5, scrollWidth: 11 });
     var model = new TestModel();
-    var manager = new ResponsibilityManager(<any>container, model, 5);
+    var manager = new ResponsibilityManager(<any>container, <any>model, 5);
     manager.getComputedStyle = () => {
       return { boxSizing: "content-box" };
     };

@@ -48,7 +48,6 @@ export interface IActionBarItem {
    * Set this property to true to activate the toolbar item (page)
    */
   active?: (() => boolean) | boolean;
-  needSeparator?: boolean; //TODO: temp
   /**
    * Toolbar item template name
    */
@@ -84,7 +83,6 @@ export class ActionBarItem extends Base implements IActionBarItem {
   @property() data?: any;
   @property() popupModel?: any;
   @property() active?: boolean | (() => boolean);
-  @property() needSeparator?: boolean;
   @property() template?: string;
   @property() component?: string;
   @property() iconName?: string;
@@ -96,6 +94,10 @@ export class AdaptiveActionBarItemWrapper
   implements IActionBarItem {
   constructor(private owner: AdaptiveElement, private item: IActionBarItem) {
     super();
+  }
+
+  public get wrappedItem(): IActionBarItem {
+    return this.item;
   }
 
   private unwrap<T>(value: T | (() => T)): T {
@@ -145,9 +147,6 @@ export class AdaptiveActionBarItemWrapper
   public get active(): boolean {
     return this.unwrap(this.item.active);
   }
-  public get needSeparator(): boolean {
-    return this.unwrap(this.item.needSeparator);
-  }
   public get template(): string {
     return this.item.template;
   }
@@ -161,6 +160,7 @@ export class AdaptiveActionBarItemWrapper
     return this.unwrap(this.item.items);
   }
   @property({ defaultValue: true }) isVisible: boolean;
+  @property() needSeparator: boolean;
 }
 
 export abstract class AdaptiveElement extends Base {
@@ -190,6 +190,10 @@ export abstract class AdaptiveElement extends Base {
     );
   }
 
+  public get hasItems(): boolean {
+    return (this.items || []).length > 0;
+  }
+
   public get items(): Array<AdaptiveActionBarItemWrapper> {
     return this.getPropertyValue("items");
   }
@@ -203,14 +207,14 @@ export abstract class AdaptiveElement extends Base {
     this.invisibleItems.splice(0, this.invisibleItems.length, ...(value || []));
   }
 
-  public invisibleItemSelected(item: any): void {
+  public invisibleItemSelected(item: AdaptiveActionBarItemWrapper): void {
     if (!!item && typeof item.action === "function") {
       item.action();
     }
   }
 
   protected dotsItemPopupModel: PopupModel = new PopupModel("sv-list", {
-    onItemSelect: (item: any) => {
+    onItemSelect: (item: AdaptiveActionBarItemWrapper) => {
       this.invisibleItemSelected(item);
       this.dotsItemPopupModel.toggleVisibility();
     },
@@ -238,5 +242,16 @@ export abstract class AdaptiveElement extends Base {
     if (visibleItemsCount < this.items.length) {
       this.items.splice(visibleItemsCount, 0, this.dotsItem);
     }
+  }
+
+  public get canShrink(): boolean {
+    return this.showTitles;
+  }
+  public readonly canGrow = true;
+  public shrink() {
+    this.showTitles = false;
+  }
+  public grow() {
+    this.showTitles = true;
   }
 }

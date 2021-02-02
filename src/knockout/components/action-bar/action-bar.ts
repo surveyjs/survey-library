@@ -18,26 +18,13 @@ export class ActionBarViewModel extends AdaptiveElement {
   constructor(_items: ko.MaybeObservableArray<IActionBarItem>) {
     super();
     this.itemsSubscription = ko.computed(() => {
-      var items = ko.unwrap(_items);
-      items.forEach((item) => {
-        this.items.push(new AdaptiveActionBarItemWrapper(this, item));
+      const wrappers: AdaptiveActionBarItemWrapper[] = [];
+      ko.unwrap(_items).forEach((item) => {
+        const wrapper = new AdaptiveActionBarItemWrapper(this, item);
+        wrappers.push(wrapper);
       });
+      this.items = wrappers;
     });
-  }
-
-  get hasItems() {
-    return (ko.unwrap(this.items) || []).length > 0;
-  }
-
-  public get canShrink() {
-    return this.showTitles;
-  }
-  public readonly canGrow = true;
-  public shrink() {
-    this.showTitles = false;
-  }
-  public grow() {
-    this.showTitles = true;
   }
 
   dispose() {

@@ -9,6 +9,8 @@ import {
   ComponentCollection,
 } from "../src/question_custom";
 import { QuestionDropdownModel } from "../src/question_dropdown";
+import { Serializer } from "../src/jsonobject";
+import { ItemValue } from "../src/itemvalue";
 
 export default QUnit.module("Survey.editingObj Tests");
 
@@ -169,6 +171,102 @@ QUnit.test(
     assert.equal(question.columns[0].title, "title1", "Edit title correctly");
   }
 );
+QUnit.test("Edit choices in matrix with custom property", function (assert) {
+  Serializer.addProperty("itemvalue", "imageLink");
+  var question = new QuestionMatrixDynamicModel("q1");
+  var survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdynamic",
+        name: "choices",
+        rowCount: 0,
+        columns: [
+          { cellType: "text", name: "value" },
+          { cellType: "text", name: "text" },
+          { cellType: "text", name: "imageLink" },
+        ],
+      },
+    ],
+  });
+  var matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("choices");
+  matrix.onGetValueForNewRowCallBack = (
+    sender: QuestionMatrixDynamicModel
+  ): any => {
+    var item = new ItemValue("val");
+    matrix.value.push(item);
+    return item;
+  };
+  survey.editingObj = question;
+  matrix.addRow();
+  assert.equal(matrix.visibleRows.length, 1, "one choice");
+  matrix.visibleRows[0].cells[2].value = "imageVal";
+  assert.equal(
+    question.choices[0].imageLink,
+    "imageVal",
+    "set custom property from matrix"
+  );
+  question.choices[0].imageLink = "imageVal1";
+  assert.equal(
+    matrix.visibleRows[0].cells[2].value,
+    "imageVal1",
+    "set custom property from question"
+  );
+  Serializer.removeProperty("itemvalue", "imageLink");
+});
+QUnit.test(
+  "Edit custom choices in matrix with custom property",
+  function (assert) {
+    Serializer.addClass("itemvalues_ex", [], null, "itemvalue");
+    Serializer.addProperty("itemvalues_ex", "imageLink");
+    Serializer.addProperty("text", { name: "test:itemvalues_ex[]" });
+    var property = Serializer.findProperty("text", "test");
+    property.type = "itemvalues_ex[]";
+
+    var question = new QuestionTextModel("q1");
+    var survey = new SurveyModel({
+      elements: [
+        {
+          type: "matrixdynamic",
+          name: "test",
+          rowCount: 0,
+          columns: [
+            { cellType: "text", name: "value" },
+            { cellType: "text", name: "text" },
+            { cellType: "text", name: "imageLink" },
+          ],
+        },
+      ],
+    });
+    var matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("test");
+    matrix.onGetValueForNewRowCallBack = (
+      sender: QuestionMatrixDynamicModel
+    ): any => {
+      var item = Serializer.createClass("itemvalues_ex");
+      item.owner = matrix.value;
+      matrix.value.push(item);
+      return item;
+    };
+    survey.editingObj = question;
+    matrix.addRow();
+    assert.equal(matrix.visibleRows.length, 1, "one choice");
+    matrix.visibleRows[0].cells[2].value = "imageVal";
+    assert.equal(
+      question.test[0].imageLink,
+      "imageVal",
+      "set custom property from matrix"
+    );
+    question.test[0].imageLink = "imageVal1";
+    assert.equal(
+      matrix.visibleRows[0].cells[2].value,
+      "imageVal1",
+      "set custom property from question"
+    );
+    Serializer.removeProperty("text", "test");
+    Serializer.removeProperty("itemvalues_ex", "imageLink");
+    Serializer.removeClass("itemvalues_ex");
+  }
+);
+
 QUnit.test("Edit validators in matrix", function (assert) {
   var question = new QuestionTextModel("q1");
   //question.validators.push(new ExpressionValidator());

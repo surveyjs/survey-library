@@ -1,4 +1,4 @@
-import { HtmlConditionItem } from "../expressionItems";
+import { AdaptiveElement } from "../action-bar";
 
 export class ResponsibilityManager {
   private previousSpace = 0;
@@ -7,7 +7,7 @@ export class ResponsibilityManager {
   public getItemSizes: () => Array<number>;
   constructor(
     protected container: HTMLDivElement,
-    private model: any,
+    private model: AdaptiveElement,
     private dotsItemSize: number = 48
   ) {}
   getComputedStyle: any = window.getComputedStyle.bind(window);

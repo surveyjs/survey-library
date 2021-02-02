@@ -1,29 +1,8 @@
 import * as ko from "knockout";
 import { PopupUtils } from "./popup-utils";
 import { surveyLocalization } from "../../../surveyStrings";
+import { PopupModel } from "../../../popup";
 const template = require("html-loader?interpolate!val-loader!./popup.html");
-
-export class PopupModel {
-  constructor(
-    public contentComponentName: string,
-    public contentComponentData: any,
-    public verticalPosition: "top" | "bottom" | "middle" = "bottom",
-    public horizontalPosition: "left" | "right" | "center" = "left",
-    public showPointer: boolean = true,
-    public isModal: boolean = false,
-    public onCancel = () => {},
-    public onApply = () => {},
-    public onHide = () => {},
-    public onShow = () => {},
-    public cssClass: string = ""
-  ) {}
-
-  public toggleVisibility() {
-    this.onToggleVisibility && this.onToggleVisibility();
-  }
-  public onToggleVisibility: () => void;
-}
-
 export class PopupViewModel {
   public top = ko.observable();
   public left = ko.observable();
@@ -214,6 +193,20 @@ export class PopupViewModel {
     const popupViewModel: PopupViewModel = new PopupViewModel(
       popupModel,
       undefined
+    );
+
+    popupViewModel.isVisible(true);
+  }
+
+  public static showDropDownMenu(items: any[], target: HTMLElement) {
+    const popupModel = new PopupModel(
+      "sv-list",
+      items /*, "top", "left", true*/
+    );
+
+    const popupViewModel: PopupViewModel = new PopupViewModel(
+      popupModel,
+      target
     );
     popupViewModel.isVisible(true);
   }

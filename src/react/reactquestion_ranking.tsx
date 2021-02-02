@@ -93,7 +93,7 @@ export class SurveyQuestionRankingItem extends ReactSurveyElement {
               </svg>
             </div>
             
-            <div className={this.cssClasses.itemIndex} style={{marginRight: "4px"}}>{this.index + 1}</div>
+            <div className={this.cssClasses.itemIndex} style={{marginRight: "4px"}}>&ndash;</div>
             <div className={this.cssClasses.itemText}>{this.text}</div>
           </div>
         </div>

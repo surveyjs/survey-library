@@ -7,7 +7,7 @@ export class ListViewModel {
   public selectedItem: ko.Observable<ListItem> = ko.observable();
 
   constructor(
-    public items: ko.MaybeObservableArray<ListItem>,
+    private _items: ko.MaybeObservableArray<ListItem>,
     public onItemSelect: (item: ListItem) => void,
     public allowSelection: ko.MaybeObservable<boolean>,
     selectedItem?: ko.Observable<ListItem>
@@ -16,6 +16,11 @@ export class ListViewModel {
       if (ko.isObservable(selectedItem)) this.selectedItem = selectedItem;
       else this.selectedItem(selectedItem);
     }
+  }
+
+  public get items(): ListItem[] {
+    if (typeof this._items === "function") return this._items();
+    else return this._items;
   }
 
   public selectItem = (itemValue: ListItem) => {

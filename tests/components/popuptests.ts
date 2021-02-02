@@ -1,5 +1,6 @@
 import { PopupUtils } from "../../src/knockout/components/popup/popup-utils";
-import { PopupModel, PopupViewModel } from "../../src/knockout/components/popup/popup";
+import { PopupModel } from "../../src/popup";
+import { PopupViewModel } from "../../src/knockout/components/popup/popup";
 import { ListViewModel } from "../../src/knockout/components/list/list";
 import ko from "knockout";
 

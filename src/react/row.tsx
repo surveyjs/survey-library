@@ -50,7 +50,9 @@ export class SurveyRow extends SurveyElementBase {
     if (!!el) {
       if (!this.row.isNeedRender) {
         var rowContainerDiv = el;
-        this.row.startLazyRendering(rowContainerDiv);
+        setTimeout(() => {
+          this.row.startLazyRendering(rowContainerDiv);
+        }, 10);
       }
     }
   }

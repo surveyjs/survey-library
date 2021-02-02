@@ -1,5 +1,17 @@
 let _isMobile = false;
-(function (a) {
+let vendor = null;
+
+if (
+  typeof navigator !== "undefined" &&
+  typeof window !== "undefined" &&
+  navigator &&
+  window
+) {
+  vendor = navigator.userAgent || navigator.vendor || (<any>window).opera;
+}
+
+(function (a: any) {
+  if (!a) return;
   if (
     /(android|bb\d+|meego).+mobile|avantgo|bada\/|blackberry|blazer|compal|elaine|fennec|hiptop|iemobile|ip(hone|od)|iris|kindle|lge |maemo|midp|mmp|mobile.+firefox|netfront|opera m(ob|in)i|palm( os)?|phone|p(ixi|re)\/|plucker|pocket|psp|series(4|6)0|symbian|treo|up\.(browser|link)|vodafone|wap|windows ce|xda|xiino/i.test(
       a
@@ -9,6 +21,6 @@ let _isMobile = false;
     )
   )
     _isMobile = true;
-})(navigator.userAgent || navigator.vendor || (<any>window).opera);
+})(vendor);
 
 export const IsMobile = _isMobile;

@@ -44,6 +44,7 @@ export interface IActionBarItem {
    */
   data?: any;
   popupModel?: any; //TODO: temp, use data instead
+  needSeparator?: boolean; //TODO: temp
   /**
    * Set this property to true to activate the toolbar item (page)
    */
@@ -82,6 +83,7 @@ export class ActionBarItem extends Base implements IActionBarItem {
   @property() innerCss?: string;
   @property() data?: any;
   @property() popupModel?: any;
+  @property() needSeparator?: boolean;
   @property() active?: boolean | (() => boolean);
   @property() template?: string;
   @property() component?: string;
@@ -94,6 +96,8 @@ export class AdaptiveActionBarItemWrapper
   implements IActionBarItem {
   constructor(private owner: AdaptiveElement, private item: IActionBarItem) {
     super();
+
+    this.needSeparator = item.needSeparator;
   }
 
   public get wrappedItem(): IActionBarItem {

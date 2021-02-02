@@ -148,6 +148,8 @@ export {
   AdaptiveElement,
 } from "../../action-bar";
 export { PopupModel } from "../../popup";
+export { IsMobile } from "../../utils/is-mobile";
+  
 
 //Uncomment to include the "date" question type.
 //export {default as QuestionDateModel} from "../../plugins/question_date";

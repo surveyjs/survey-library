@@ -128,6 +128,47 @@ QUnit.test("Edit columns in matrix", function (assert) {
     "column added with correct type"
   );
 });
+QUnit.test(
+  "Edit columns in matrix, where there is no columns from the beginning",
+  function (assert) {
+    var question = new QuestionMatrixDynamicModel("q1");
+    var survey = new SurveyModel({
+      elements: [
+        {
+          type: "matrixdynamic",
+          name: "columns",
+          rowCount: 0,
+          columns: [
+            { cellType: "text", name: "name" },
+            { cellType: "text", name: "title" },
+          ],
+        },
+      ],
+    });
+    var matrix = <QuestionMatrixDynamicModel>(
+      survey.getQuestionByName("columns")
+    );
+    matrix.onGetValueForNewRowCallBack = (
+      sender: QuestionMatrixDynamicModel
+    ): any => {
+      var item = new MatrixDropdownColumn("col1");
+      matrix.value.push(item);
+      return item;
+    };
+    survey.editingObj = question;
+    matrix.addRow();
+    assert.equal(matrix.visibleRows.length, 1, "Two columns");
+    assert.equal(
+      matrix.visibleRows[0].cells[0].value,
+      "col1",
+      "Name set correctly"
+    );
+    matrix.visibleRows[0].cells[1].value = "title1";
+    assert.equal(question.columns.length, 1, "We have one column now");
+    assert.equal(question.columns[0].name, "col1", "Edit name correctly");
+    assert.equal(question.columns[0].title, "title1", "Edit title correctly");
+  }
+);
 QUnit.test("Edit validators in matrix", function (assert) {
   var question = new QuestionTextModel("q1");
   //question.validators.push(new ExpressionValidator());

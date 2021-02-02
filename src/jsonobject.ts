@@ -1,3 +1,4 @@
+import { timeStamp } from "console";
 import { Helpers, HashTable } from "./helpers";
 
 export interface IPropertyDecoratorOptions {

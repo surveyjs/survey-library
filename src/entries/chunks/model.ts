@@ -28,7 +28,12 @@ export {
   RequreNumericError,
   ExceedSizeError,
 } from "../../error";
-export { ILocalizableOwner, LocalizableString } from "../../localizablestring";
+export {
+  ILocalizableOwner,
+  ILocalizableString,
+  LocalizableString,
+  LocalizableStrings,
+} from "../../localizablestring";
 export { HtmlConditionItem, UrlConditionItem } from "../../expressionItems";
 export { ChoicesRestfull } from "../../choicesRestfull";
 export { FunctionFactory, registerFunction } from "../../functionsfactory";
@@ -149,7 +154,6 @@ export {
 } from "../../action-bar";
 export { PopupModel } from "../../popup";
 export { IsMobile } from "../../utils/is-mobile";
-  
 
 //Uncomment to include the "date" question type.
 //export {default as QuestionDateModel} from "../../plugins/question_date";

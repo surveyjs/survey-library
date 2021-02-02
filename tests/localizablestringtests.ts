@@ -479,6 +479,30 @@ QUnit.test("Localizable strings get/set tests", function (assert) {
     "get value via text property"
   );
 });
+QUnit.test(
+  "Localizable strings getLocaleText/setLocaleText tests",
+  function (assert) {
+    var owner = new LocalizableOwnerTester("");
+    var locStrings = new LocalizableStrings(owner);
+    assert.deepEqual(locStrings.value, [], "Empty by default");
+    owner.locale = "en";
+    locStrings.setLocaleText("", "val1\nval2");
+    assert.deepEqual(locStrings.value, ["val1", "val2"], "value is set");
+    assert.deepEqual(locStrings.getLocaleText("de"), "", "de text is emtpy");
+
+    locStrings.setLocaleText("de", "de-val1\nde-val2");
+    assert.deepEqual(
+      locStrings.getLocaleText("de"),
+      "de-val1\nde-val2",
+      "get de values"
+    );
+    assert.deepEqual(
+      locStrings.getLocaleText("en"),
+      "val1\nval2",
+      "get default/en values"
+    );
+  }
+);
 QUnit.test("Localizable strings getJson/setJson", function (assert) {
   var owner = new LocalizableOwnerTester("");
   var locStrings = new LocalizableStrings(owner);

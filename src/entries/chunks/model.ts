@@ -152,6 +152,7 @@ export {
   AdaptiveActionBarItemWrapper,
   AdaptiveElement,
 } from "../../action-bar";
+export { ListModel } from "../../list";
 export { PopupModel } from "../../popup";
 export { IsMobile } from "../../utils/is-mobile";
 

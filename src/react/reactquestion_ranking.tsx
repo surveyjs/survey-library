@@ -8,11 +8,6 @@ export class SurveyQuestionRanking extends SurveyQuestionElementBase {
     return this.questionBase as QuestionRankingModel;
   }
 
-  public componentDidUpdate(prevProps: any, prevState: any) {
-    super.componentDidUpdate(prevProps, prevState);
-    this.question.update();
-  }
-
   protected renderElement(): JSX.Element {
     return (
       <div className={this.question.rootClass} ref={(root) => (this.control = root)}>
@@ -23,12 +18,13 @@ export class SurveyQuestionRanking extends SurveyQuestionElementBase {
 
   protected getItems(): Array<any> {
     var items = [];
-    for (var i = 0; i < this.question.visibleChoices.length; i++) {
-      var item = this.question.visibleChoices[i];
+    for (var i = 0; i < this.question.rankingChoices.length; i++) {
+      var item = this.question.rankingChoices[i];
       var key = item.value + "-" + i + "-item";
       var text = this.renderLocString(item.locText);
+      var index = this.question.isIndeterminate ? 	"\u2013" : i+1+"";
       items.push(
-        this.renderItem(key, text, i, this.question.handleKeydown, this.question.cssClasses, this.question.getItemClass(item))
+        this.renderItem(key, text, index, this.question.handleKeydown, this.question.cssClasses, this.question.getItemClass(item))
       );
     }
     return items;
@@ -37,7 +33,7 @@ export class SurveyQuestionRanking extends SurveyQuestionElementBase {
   protected renderItem(
     key: string,
     text: JSX.Element,
-    index: number,
+    index: string,
     handleKeydown: (event:any)=>void,
     cssClasses: any,
     itemClass: string,
@@ -59,7 +55,7 @@ export class SurveyQuestionRankingItem extends ReactSurveyElement {
   protected get text(): string {
     return this.props.text;
   }
-  protected get index(): number {
+  protected get index(): string {
     return this.props.index;
   }
   protected get handleKeydown(): (event:any)=>void {
@@ -99,7 +95,7 @@ export class SurveyQuestionRankingItem extends ReactSurveyElement {
               </svg>
             </div>
             
-            <div className={this.cssClasses.itemIndex} style={{marginRight: "4px"}}>&ndash;</div>
+            <div className={this.cssClasses.itemIndex} style={{marginRight: "4px"}}>{this.index}</div>
             <div className={this.cssClasses.itemText}>{this.text}</div>
           </div>
         </div>

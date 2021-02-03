@@ -1,7 +1,9 @@
 import { throws } from "assert";
 import SortableLib from "sortablejs";
+import { ItemValue } from "./itemvalue";
 import { Serializer } from "./jsonobject";
 import { QuestionFactory } from "./questionfactory";
+import { QuestionSelectBase } from "./question_baseselect";
 import { QuestionCheckboxModel } from "./question_checkbox";
 import { IsMobile } from "./utils/is-mobile";
 
@@ -14,11 +16,46 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
   domNode: HTMLElement = null;
   sortableInst: any = null;
   isIndeterminate: boolean = true;
+  _rankingChoices: Array<ItemValue> = [];
 
-  public update = () => {
-    if (this.isIndeterminate) return;
-    this.syncNumbers();
-  };
+  constructor(public name: string) {
+    super(name);
+  }
+
+  public get rankingChoices() {
+    return this._rankingChoices;
+  }
+
+  protected onVisibleChoicesChanged() {
+    super.onVisibleChoicesChanged();
+
+    const value = this.value;
+    const unrankedChoices = this.visibleChoices;
+    let rankedChoices: Array<ItemValue> = [];
+
+    if (!value || value.length === 0) {
+      this._rankingChoices = this.visibleChoices;
+      return;
+    }
+
+    rankedChoices.length = unrankedChoices.length;
+
+    for (var i = 0; i < unrankedChoices.length; i++) {
+      const choice = unrankedChoices[i];
+      const index = value.indexOf(choice.text);
+
+      if (index !== -1) {
+        rankedChoices.splice(index, 1, choice);
+      } else {
+        rankedChoices.splice(rankedChoices.length - 1, 1, choice);
+      }
+    }
+
+    rankedChoices = rankedChoices.filter((choice) => !!choice);
+
+    this._rankingChoices = rankedChoices;
+    this.value = rankedChoices.map((choice) => choice.text);
+  }
 
   public getType(): string {
     return "ranking";

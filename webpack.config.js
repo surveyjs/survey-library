@@ -151,6 +151,20 @@ module.exports = function(options) {
         fs
           .createReadStream("./README.md")
           .pipe(fs.createWriteStream(packagePath + "README.md"));
+
+        if (options.platform !== "knockout") {
+          var typingsPath = packagePath + "survey." + options.platform + ".d.ts";
+          var typingsContent = fs.readFileSync(typingsPath);
+          if(typingsContent.indexOf("knockout") !== -1) {
+            var koPanic = "Panic! KnockoutJS has leaked in other libraries!";
+            // FgBlack = "\x1b[30m"
+            // FgRed = "\x1b[31m"
+            // BgBlack = "\x1b[40m"
+            // BgRed = "\x1b[41m"
+            console.error("\x1b[41m" + koPanic + "\x1b[0m");
+            throw new Error(koPanic);
+          }
+        }
       }
     }
   };

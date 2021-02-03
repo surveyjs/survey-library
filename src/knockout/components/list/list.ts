@@ -3,14 +3,14 @@ import * as ko from "knockout";
 const template = require("./list.html");
 
 export class ListViewModel {
-  public isExpanded: ko.Observable<boolean> = ko.observable(false);
-  public selectedItem: ko.Observable<ListItem> = ko.observable();
+  public isExpanded: any /*ko.Observable<boolean>*/ = ko.observable(false);
+  public selectedItem: any /*ko.Observable<ListItem>*/ = ko.observable();
 
   constructor(
-    private _items: ko.MaybeObservableArray<ListItem>,
+    private _items: any, // ko.MaybeObservableArray<ListItem>,
     public onItemSelect: (item: ListItem) => void,
-    public allowSelection: ko.MaybeObservable<boolean>,
-    selectedItem?: ko.Observable<ListItem>
+    public allowSelection: any, // ko.MaybeObservable<boolean>,
+    selectedItem?: any // ko.Observable<ListItem>
   ) {
     if (selectedItem !== undefined) {
       if (ko.isObservable(selectedItem)) this.selectedItem = selectedItem;
@@ -39,8 +39,8 @@ export class ListViewModel {
 }
 
 export interface ListItem {
-  title: ko.MaybeObservable<string>;
-  iconName: ko.MaybeObservable<string>;
+  title: any; // ko.MaybeObservable<string>;
+  iconName: any; // ko.MaybeObservable<string>;
   isEnabled?: boolean;
 }
 

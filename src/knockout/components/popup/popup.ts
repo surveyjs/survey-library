@@ -5,14 +5,14 @@ import { PopupModel } from "../../../popup";
 const template = require("html-loader?interpolate!val-loader!./popup.html");
 
 export class PopupViewModel {
-  public top = ko.observable();
-  public left = ko.observable();
-  public popupDirection = ko.observable<string>();
-  public pointerTarget = ko.observable<object>({});
-  public isVisible = ko.observable(false);
+  public top: any = ko.observable();
+  public left: any = ko.observable();
+  public popupDirection: any = ko.observable<string>();
+  public pointerTarget: any = ko.observable<object>({});
+  public isVisible: any = ko.observable(false);
 
   protected container: HTMLElement;
-  protected showSubscription: ko.Subscription;
+  protected showSubscription: any; // ko.Subscription;
 
   constructor(public model: PopupModel, private targetElement: HTMLElement) {
     this.container = document.createElement("div");

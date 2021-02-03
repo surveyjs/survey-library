@@ -35,6 +35,7 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
 
     if (!value || value.length === 0) {
       this._rankingChoices = this.visibleChoices;
+      this.isIndeterminate = true;
       return;
     }
 
@@ -168,7 +169,7 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
       "." + this.cssClasses.itemIndex
     );
     indexNodes.forEach((indexNode: any, index) => {
-      indexNode.innerText = index + 1;
+      indexNode.innerText = this.isIndeterminate ? "\u2013" : index + 1;
     });
   };
 

@@ -5,7 +5,7 @@ import { PopupUtils } from "./utils/popup";
 
 export class PopupModel extends Base {
   @property() contentComponentName: string;
-  @property() contentComponentData: string;
+  @property() contentComponentData: any;
   @property({ defaultValue: "bottom" }) verticalPosition:
     | "top"
     | "bottom"

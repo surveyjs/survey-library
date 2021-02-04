@@ -21,45 +21,12 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
   constructor(public name: string) {
     super(name);
   }
-
-  public get rankingChoices() {
-    return this._rankingChoices;
-  }
-
-  protected onVisibleChoicesChanged() {
-    super.onVisibleChoicesChanged();
-
-    const value = this.value;
-    const unrankedChoices = this.visibleChoices;
-    let rankedChoices: Array<ItemValue> = [];
-
-    if (!value || value.length === 0) {
-      this._rankingChoices = this.visibleChoices;
-      this.isIndeterminate = true;
-      return;
-    }
-
-    rankedChoices.length = unrankedChoices.length;
-
-    for (var i = 0; i < unrankedChoices.length; i++) {
-      const choice = unrankedChoices[i];
-      const index = value.indexOf(choice.text);
-
-      if (index !== -1) {
-        rankedChoices.splice(index, 1, choice);
-      } else {
-        rankedChoices.splice(rankedChoices.length - 1, 1, choice);
-      }
-    }
-
-    rankedChoices = rankedChoices.filter((choice) => !!choice);
-
-    this._rankingChoices = rankedChoices;
-    this.value = rankedChoices.map((choice) => choice.text);
-  }
-
   public getType(): string {
     return "ranking";
+  }
+
+  public afterRender() {
+    this.syncChoices();
   }
 
   //cross framework initialization
@@ -73,6 +40,45 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
   public beforeDestroyQuestionElement(el: any) {
     if (this.sortableInst) this.sortableInst.destroy();
     super.beforeDestroyQuestionElement(el);
+  }
+
+  public get rankingChoices() {
+    return this._rankingChoices;
+  }
+
+  protected onVisibleChoicesChanged() {
+    super.onVisibleChoicesChanged();
+    this.syncChoices();
+  }
+
+  public syncChoices() {
+    const value = this.value;
+    const unrankedChoices = this.visibleChoices;
+    let rankedChoices: Array<ItemValue> = [];
+
+    if (!value || value.length === 0) {
+      this._rankingChoices = this.visibleChoices;
+      this.isIndeterminate = true;
+      return;
+    }
+    this.isIndeterminate = false;
+    rankedChoices.length = unrankedChoices.length;
+
+    for (var i = 0; i < unrankedChoices.length; i++) {
+      const choice = unrankedChoices[i];
+      const index = value.indexOf(choice.text);
+
+      if (index !== -1) {
+        rankedChoices.splice(index, 1, choice);
+      } else {
+        rankedChoices.splice(rankedChoices.length - 1, 0, choice);
+      }
+    }
+
+    rankedChoices = rankedChoices.filter((choice) => !!choice);
+
+    this._rankingChoices = rankedChoices;
+    this.value = rankedChoices.map((choice) => choice.text);
   }
 
   public initSortable(domNode: HTMLElement) {
@@ -133,6 +139,7 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
   };
 
   handleArrowUp = (index: number) => {
+    this.isIndeterminate = false;
     const array = this.sortableInst.toArray();
     this.moveArrayItemBack(array, index);
     this.sortableInst.sort(array);
@@ -143,6 +150,7 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
   };
 
   handleArrowDown = (index: number) => {
+    this.isIndeterminate = false;
     const array = this.sortableInst.toArray();
     this.moveArrayItemForward(array, index);
     this.sortableInst.sort(array);

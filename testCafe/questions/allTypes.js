@@ -307,27 +307,26 @@ const applyTheme = ClientFunction((theme) => {
       await t.click("input[value=Complete]");
 
       let surveyResult = await getSurveyResult();
-      assert.deepEqual(surveyResult, {
-        text_question: "test text",
-        checkbox_question: ["item1"],
-        radiogroup_question: "item1",
-        dropdown_question: "item1",
-        comment_question: "test comment",
-        rating_question: 3,
-        imagepicker_question: "item1",
-        boolean_question: true,
-        expression_question: 1,
-        matrix_question: {
-          "Row 1": "Column 1",
-        },
-        matrixdropdown_question: {
-          "Row 1": {
-            "Column 1": 1,
-          },
-        },
-        multipletext_question: { text1: "test multiple text" },
-        ranking_question: ["item2", "item1"],
+     
+      assert.deepEqual(surveyResult.text_question, "test text");
+      assert.deepEqual(surveyResult.checkbox_question, ["item1"]);
+      assert.deepEqual(surveyResult.radiogroup_question, "item1");
+      assert.deepEqual(surveyResult.dropdown_question, "item1");
+      assert.deepEqual(surveyResult.comment_question, "test comment");
+      assert.deepEqual(surveyResult.rating_question, 3);
+      assert.deepEqual(surveyResult.imagepicker_question, "item1");
+      assert.deepEqual(surveyResult.boolean_question, true);
+      assert.deepEqual(surveyResult.expression_question, 1);
+      assert.deepEqual(surveyResult.matrix_question, {
+        "Row 1": "Column 1",
       });
+      assert.deepEqual(surveyResult.matrixdropdown_question, {
+        "Row 1": {
+          "Column 1": 1,
+        },
+      });
+      assert.deepEqual(surveyResult.multipletext_question, { text1: "test multiple text" });
+      assert.deepEqual(surveyResult.ranking_question, ["item2", "item1"]);
     });
   });
 });

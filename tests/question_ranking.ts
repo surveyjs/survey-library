@@ -20,74 +20,55 @@ QUnit.test("Ranking: Base ", function (assert) {
   );
 });
 
-// TODO need fix https://github.com/surveyjs/survey-library/issues/2648
-// QUnit.test("Ranking: Survey data", function (assert) {
-//   var survey = new SurveyModel({
-//     elements: [
-//       {
-//         type: "ranking",
-//         name: "q1",
-//         choices: ["a", "b", "c"],
-//       },
-//     ],
-//   });
-//   survey.data = { q1: ["b", "a"] };
-//   var q1 = <QuestionRankingModel>survey.getQuestionByName("q1");
-//   assert.deepEqual(q1.value, ["b", "a"]);
-//   assert.deepEqual(q1.isIndeterminate, false);
-//   assert.deepEqual(
-//     q1.rankingChoices.map((item) => item.text),
-//     ["b", "a", "c"]
-//   );
-// });
+//TODO need fix https://github.com/surveyjs/survey-library/issues/2648
+QUnit.test("Ranking: Survey data", function (assert) {
+  var survey = new SurveyModel({
+    elements: [
+      {
+        type: "ranking",
+        name: "q1",
+        choices: ["a", "b", "c"],
+      },
+    ],
+  });
+  survey.data = { q1: ["b", "a"] };
+  var q1 = <QuestionRankingModel>survey.getQuestionByName("q1");
+  q1.syncChoices(); //ui render imitation
+  assert.deepEqual(q1.value, ["b", "a", "c"]);
+  assert.deepEqual(q1.isIndeterminate, false);
+  assert.deepEqual(
+    q1.rankingChoices.map((item) => item.text),
+    ["b", "a", "c"]
+  );
+});
 
-// QUnit.test("Ranking: Carry Forward", function (assert) {
-//   var survey = new SurveyModel({
-//     elements: [
-//       { type: "checkbox", name: "q1", choices: [1, 2, 3, 4, 5] },
-//       {
-//         type: "ranking",
-//         name: "q2",
-//         choicesFromQuestion: "q1",
-//         choicesFromQuestionMode: "selected",
-//       },
-//     ],
-//   });
-//   var q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
-//   var q2 = <QuestionRankingModel>survey.getQuestionByName("q2");
+QUnit.test("Ranking: Carry Forward", function (assert) {
+  var survey = new SurveyModel({
+    elements: [
+      { type: "checkbox", name: "q1", choices: [1, 2, 3, 4, 5] },
+      {
+        type: "ranking",
+        name: "q2",
+        choicesFromQuestion: "q1",
+        choicesFromQuestionMode: "selected",
+      },
+    ],
+  });
+  var q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+  var q2 = <QuestionRankingModel>survey.getQuestionByName("q2");
 
-//   assert.deepEqual(q2.rankingChoices, []);
+  assert.deepEqual(q2.rankingChoices, []);
 
-//   q1.value = ["2", "3"];
-//   q2.isIndeterminate = false;
-//   assert.deepEqual(
-//     q2.rankingChoices.map((item) => item.text),
-//     ["2", "3"]
-//   );
-//   q2.value = ["2", "3"]; //d&d imitation
-
-//   q2.value = ["3", "2"]; //d&d imitation
-//   q1.value = ["1", "2", "3"];
-//   assert.deepEqual(
-//     q2.rankingChoices.map((item) => item.text),
-//     ["3", "2", "1"]
-//   );
-
-//   q1.value = ["2", "3"];
-//   assert.deepEqual(
-//     q2.rankingChoices.map((item) => item.text),
-//     ["3", "2"]
-//   );
-
-//   q1.value = ["1", "2", "3", "4"];
-//   assert.deepEqual(
-//     q2.rankingChoices.map((item) => item.text),
-//     ["3", "2", "1", "4"]
-//   );
-
-//   q1.value = [];
-//   assert.deepEqual(
-//     q2.rankingChoices.map((item) => item.text),
-//     []
-//   );
-// });
+  q1.value = ["2", "3"];
+  q2.isIndeterminate = false;
+  q2.syncChoices(); //ui render imitation
+  assert.deepEqual(
+    q2.rankingChoices.map((item) => item.text),
+    ["2", "3"]
+  );
+  q1.value = [];
+  assert.deepEqual(
+    q2.rankingChoices.map((item) => item.text),
+    []
+  );
+});

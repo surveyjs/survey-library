@@ -4715,6 +4715,23 @@ QUnit.test(
     assert.equal(q2.visibleChoices.length, 3, "Get choices from q2");
   }
 );
+QUnit.test("choicesFromQuestion predefined data, Bug#2648", function (assert) {
+  var survey = new SurveyModel({
+    elements: [
+      { type: "checkbox", name: "q1", choices: [1, 2, 3, 4, 5] },
+      {
+        type: "checkbox",
+        name: "q2",
+        choicesFromQuestion: "q1",
+        choicesFromQuestionMode: "selected",
+      },
+    ],
+  });
+  survey.data = { q1: [1, 3, 5] };
+  var q2 = <QuestionCheckboxModel>survey.getQuestionByName("q2");
+  assert.ok(q2.choicesFromQuestion, "choicesFromQuestion is here");
+  assert.equal(q2.visibleChoices.length, 3, "Get choices from q1.value");
+});
 QUnit.test("text question dataList", function (assert) {
   var survey = new SurveyModel({
     elements: [

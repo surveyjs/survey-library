@@ -852,6 +852,11 @@ export class QuestionSelectBase extends Question {
     }
     this.isUpdatingChoicesDependedQuestions = false;
   }
+  onSurveyValueChanged(newValue: any) {
+    super.onSurveyValueChanged(newValue);
+    if (this.isLoadingFromJson) return;
+    this.updateChoicesDependedQuestions();
+  }
   protected onVisibleChoicesChanged() {
     if (this.isLoadingFromJson) return;
     this.updateVisibleChoices();

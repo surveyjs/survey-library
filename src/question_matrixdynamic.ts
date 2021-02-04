@@ -44,9 +44,6 @@ export class QuestionMatrixDynamicModel
     void (<LocalizableString>(
       this.createLocalizableString("confirmDeleteText", this)
     ));
-    void (<LocalizableString>(
-      this.createLocalizableString("keyDuplicationError", this)
-    ));
     void (<LocalizableString>this.createLocalizableString("addRowText", this));
     void (<LocalizableString>(
       this.createLocalizableString("removeRowText", this)
@@ -453,23 +450,6 @@ export class QuestionMatrixDynamicModel
   get locConfirmDeleteText() {
     return this.getLocalizableString("confirmDeleteText");
   }
-
-  /**
-   * The duplication value error text. Set it to show the text different from the default.
-   * @see keyName
-   */
-  public get keyDuplicationError() {
-    return this.getLocalizableStringText(
-      "keyDuplicationError",
-      surveyLocalization.getString("keyDuplicationError")
-    );
-  }
-  public set keyDuplicationError(val: string) {
-    this.setLocalizableStringText("keyDuplicationError", val);
-  }
-  get locKeyDuplicationError() {
-    return this.getLocalizableString("keyDuplicationError");
-  }
   /**
    * Use this property to change the default value of add row button text.
    */
@@ -603,11 +583,6 @@ export class QuestionMatrixDynamicModel
       errors.push(new MinRowCountError(this.minRowCount, this));
     }
   }
-  public hasErrors(fireCallback: boolean = true, rec: any = null): boolean {
-    var prevValue = super.hasErrors(fireCallback, rec);
-    var isDuplicated = this.isValueDuplicated();
-    return isDuplicated || prevValue;
-  }
   private hasErrorInMinRows(): boolean {
     if (this.minRowCount <= 0 || !this.isRequired || !this.generatedVisibleRows)
       return false;
@@ -622,40 +597,15 @@ export class QuestionMatrixDynamicModel
     }
     return setRowCount < this.minRowCount;
   }
-  private isValueDuplicated(): boolean {
-    if (!this.keyName || !this.generatedVisibleRows) return false;
-    var column = this.getColumnByName(this.keyName);
-    if (!column) return false;
-    var keyValues = <Array<any>>[];
-    var res = false;
-    for (var i = 0; i < this.generatedVisibleRows.length; i++) {
-      res =
-        this.isValueDuplicatedInRow(
-          this.generatedVisibleRows[i],
-          column,
-          keyValues
-        ) || res;
-    }
-    return res;
-  }
-  private isValueDuplicatedInRow(
-    row: MatrixDropdownRowModelBase,
-    column: MatrixDropdownColumn,
-    keyValues: Array<any>
-  ): boolean {
-    var question = row.getQuestionByColumn(column);
-    if (!question || question.isEmpty()) return false;
-    var value = question.value;
-    for (var i = 0; i < keyValues.length; i++) {
-      if (value == keyValues[i]) {
-        question.addError(
-          new KeyDuplicationError(this.keyDuplicationError, this)
-        );
-        return true;
+  protected getUniqueColumns(): Array<MatrixDropdownColumn> {
+    var res = super.getUniqueColumns();
+    if (!!this.keyName) {
+      let column = this.getColumnByName(this.keyName);
+      if (!!column && res.indexOf(column) < 0) {
+        res.push(column);
       }
     }
-    keyValues.push(value);
-    return false;
+    return res;
   }
   protected generateRows(): Array<MatrixDynamicRowModel> {
     var result = new Array<MatrixDynamicRowModel>();
@@ -746,10 +696,6 @@ Serializer.addClass(
       default: settings.matrixMaximumRowCount,
     },
     { name: "keyName" },
-    {
-      name: "keyDuplicationError",
-      serializationProperty: "locKeyDuplicationError",
-    },
     "defaultRowValue:rowvalue",
     "defaultValueFromLastRow:boolean",
     { name: "confirmDelete:boolean" },

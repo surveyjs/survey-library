@@ -34,6 +34,7 @@ import { getCurrecyCodes } from "./question_expression";
 import { FunctionFactory } from "./functionsfactory";
 import { PanelModel } from "./panel";
 import { settings } from "./settings";
+import { KeyDuplicationError } from "./error";
 
 export interface IMatrixDropdownData {
   value: any;
@@ -374,6 +375,12 @@ export class MatrixDropdownColumn extends Base implements ILocalizableOwner {
   }
   public set requiredIf(val: string) {
     this.templateQuestion.requiredIf = val;
+  }
+  public get isUnique(): boolean {
+    return this.getPropertyValue("isUnique");
+  }
+  public set isUnique(val: boolean) {
+    this.setPropertyValue("isUnique", val);
   }
   public get showInMultipleColumns(): boolean {
     return this.getPropertyValue("showInMultipleColumns", false);
@@ -1848,6 +1855,7 @@ export class QuestionMatrixDropdownModelBase
     var self = this;
     this.createItemValues("choices");
     this.createLocalizableString("optionsCaption", this);
+    this.createLocalizableString("keyDuplicationError", this);
     this.detailPanelValue = this.createNewDetailPanel();
     this.detailPanel.selectedElementInDesign = this;
     this.detailPanel.renderWidth = "100%";
@@ -2342,6 +2350,22 @@ export class QuestionMatrixDropdownModelBase
   public get locOptionsCaption() {
     return this.getLocalizableString("optionsCaption");
   }
+  /**
+   * The duplication value error text. Set it to show the text different from the default.
+   * @see MatrixDropdownColumn.isUnique
+   */
+  public get keyDuplicationError() {
+    return this.getLocalizableStringText(
+      "keyDuplicationError",
+      surveyLocalization.getString("keyDuplicationError")
+    );
+  }
+  public set keyDuplicationError(val: string) {
+    this.setLocalizableStringText("keyDuplicationError", val);
+  }
+  get locKeyDuplicationError() {
+    return this.getLocalizableString("keyDuplicationError");
+  }
   public get storeOthersAsComment(): boolean {
     return !!this.survey ? this.survey.storeOthersAsComment : false;
   }
@@ -2623,7 +2647,8 @@ export class QuestionMatrixDropdownModelBase
   }
   public hasErrors(fireCallback: boolean = true, rec: any = null): boolean {
     var errosInRows = this.hasErrorInRows(fireCallback, rec);
-    return super.hasErrors(fireCallback, rec) || errosInRows;
+    var isDuplicated = this.isValueDuplicated();
+    return super.hasErrors(fireCallback, rec) || errosInRows || isDuplicated;
   }
   protected getIsRunningValidators(): boolean {
     if (super.getIsRunningValidators()) return true;
@@ -2668,6 +2693,56 @@ export class QuestionMatrixDropdownModelBase
         }) || res;
     }
     return res;
+  }
+  private isValueDuplicated(): boolean {
+    if (!this.generatedVisibleRows) return false;
+    var columns = this.getUniqueColumns();
+    var res = false;
+    for (var i = 0; i < columns.length; i++) {
+      res = this.isValueInColumnDuplicated(columns[i]) || res;
+    }
+    return res;
+  }
+  private isValueInColumnDuplicated(column: MatrixDropdownColumn): boolean {
+    var keyValues = <Array<any>>[];
+    var res = false;
+    for (var i = 0; i < this.generatedVisibleRows.length; i++) {
+      res =
+        this.isValueDuplicatedInRow(
+          this.generatedVisibleRows[i],
+          column,
+          keyValues
+        ) || res;
+    }
+    return res;
+  }
+  protected getUniqueColumns(): Array<MatrixDropdownColumn> {
+    var res = new Array<MatrixDropdownColumn>();
+    for (var i = 0; i < this.columns.length; i++) {
+      if (this.columns[i].isUnique) {
+        res.push(this.columns[i]);
+      }
+    }
+    return res;
+  }
+  private isValueDuplicatedInRow(
+    row: MatrixDropdownRowModelBase,
+    column: MatrixDropdownColumn,
+    keyValues: Array<any>
+  ): boolean {
+    var question = row.getQuestionByColumn(column);
+    if (!question || question.isEmpty()) return false;
+    var value = question.value;
+    for (var i = 0; i < keyValues.length; i++) {
+      if (value == keyValues[i]) {
+        question.addError(
+          new KeyDuplicationError(this.keyDuplicationError, this)
+        );
+        return true;
+      }
+    }
+    keyValues.push(value);
+    return false;
   }
   protected getFirstInputElementId(): string {
     var question = this.getFirstCellQuestion(false);
@@ -3032,6 +3107,7 @@ Serializer.addClass(
     },
     { name: "colCount", default: -1, choices: [-1, 0, 1, 2, 3, 4] },
     "isRequired:boolean",
+    "isUnique:boolean",
     {
       name: "requiredErrorText:text",
       serializationProperty: "locRequiredErrorText",
@@ -3111,6 +3187,10 @@ Serializer.addClass(
       name: "choices:itemvalue[]",
     },
     { name: "optionsCaption", serializationProperty: "locOptionsCaption" },
+    {
+      name: "keyDuplicationError",
+      serializationProperty: "locKeyDuplicationError",
+    },
     {
       name: "cellType",
       default: "dropdown",

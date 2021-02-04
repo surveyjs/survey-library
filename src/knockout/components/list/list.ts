@@ -1,59 +1,16 @@
 import * as ko from "knockout";
+import { ListModel } from "../../../list";
+import { ImplementorBase } from "../../kobase";
 
 const template = require("./list.html");
 
-export class ListViewModel {
-  public isExpanded: ko.Observable<boolean> = ko.observable(false);
-  public selectedItem: ko.Observable<ListItem> = ko.observable();
-
-  constructor(
-    private _items: ko.MaybeObservableArray<ListItem>,
-    public onItemSelect: (item: ListItem) => void,
-    public allowSelection: ko.MaybeObservable<boolean>,
-    selectedItem?: ko.Observable<ListItem>
-  ) {
-    if (selectedItem !== undefined) {
-      if (ko.isObservable(selectedItem)) this.selectedItem = selectedItem;
-      else this.selectedItem(selectedItem);
-    }
-  }
-
-  public get items(): ListItem[] {
-    if (typeof this._items === "function") return this._items();
-    else return this._items;
-  }
-
-  public selectItem = (itemValue: ListItem) => {
-    this.isExpanded(false);
-    if (ko.unwrap(this.allowSelection)) {
-      this.selectedItem(itemValue);
-    }
-    if (!!this.onItemSelect) {
-      this.onItemSelect(itemValue);
-    }
-  };
-
-  public isItemDisabled = (itemValue: ListItem) => {
-    return itemValue.isEnabled !== undefined && !ko.unwrap(itemValue.isEnabled);
-  };
-}
-
-export interface ListItem {
-  title: ko.MaybeObservable<string>;
-  iconName: ko.MaybeObservable<string>;
-  isEnabled?: boolean;
-}
+export var ListViewComponent: any;
 
 ko.components.register("sv-list", {
   viewModel: {
-    createViewModel: (params: any, componentInfo: any) => {
-      const viewModel = new ListViewModel(
-        params.items,
-        params.onItemSelect,
-        params.allowSelection,
-        params.selectedItem
-      );
-      return viewModel;
+    createViewModel: (params: ListModel, componentInfo: any) => {
+      new ImplementorBase(params);
+      return params;
     },
   },
   template: template,

@@ -1001,6 +1001,16 @@ export class MatrixDropdownRowModelBase
     if (!!res) return res;
     return !!this.detailPanel ? this.detailPanel.getQuestionByName(name) : null;
   }
+  public getQuestionsByName(name: string): Array<Question> {
+    let res = [];
+    let q = this.getQuestionByColumnName(name);
+    if (!!q) res.push(q);
+    if (!!this.detailPanel) {
+      q = this.detailPanel.getQuestionByName(name);
+      if (!!q) res.push(q);
+    }
+    return res;
+  }
   protected getSharedQuestionByName(columnName: string): Question {
     return !!this.data
       ? this.data.getSharedQuestionByName(columnName, this)
@@ -1160,9 +1170,9 @@ export class MatrixDropdownRowModelBase
   }
   private updateOnSetValue(name: string, newValue: any) {
     this.isSettingValue = true;
-    var question = this.getQuestionByName(name);
-    if (!!question) {
-      question.value = newValue;
+    let questions = this.getQuestionsByName(name);
+    for (let i = 0; i < questions.length; i++) {
+      questions[i].value = newValue;
     }
     this.isSettingValue = false;
   }

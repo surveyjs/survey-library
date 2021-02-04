@@ -1,73 +1,55 @@
 import * as ko from "knockout";
-
-import { PopupBase, PopupModel } from "../../../popup";
+import { PopupModel, PopupViewModel } from "../../../popup";
 import { ImplementorBase } from "../../kobase";
+import { settings } from "../../../settings";
 const template = require("html-loader?interpolate!val-loader!./popup.html");
-export class PopupViewModel {
-  private container: HTMLElement;
-  private popupBase: PopupBase;
-  constructor(public model: PopupModel, targetElement: HTMLElement) {
-    this.container = document.createElement("div");
-    document.body.appendChild(this.container);
-    this.container.innerHTML = template;
-    ko.applyBindings(this, this.container);
 
-    this.popupBase = new PopupBase(model, targetElement);
-    this.popupBase.container = this.container;
-    new ImplementorBase(this.popupBase);
+export function showModal(
+  componentName: string,
+  data: any,
+  onApply: () => void,
+  onCancel?: () => void
+) {
+  const popupModel = new PopupModel(
+    componentName,
+    data,
+    "top",
+    "left",
+    false,
+    true,
+    onCancel,
+    onApply
+  );
 
-    ko.applyBindings(this.popupBase, this.container);
-  }
+  const popupViewModel: PopupViewModel = new PopupViewModel(
+    popupModel,
+    undefined
+  );
+  popupModel.onHide = () => {
+    ko.cleanNode(popupViewModel.container);
+    popupViewModel.destroyPopupContainer();
+  };
+  popupViewModel.initializePopupContainer();
+  popupViewModel.container.innerHTML = template;
 
-  set isVisible(val: boolean) {
-    this.popupBase.isVisible = val;
-  }
+  // <ko specific>
+  new ImplementorBase(popupViewModel);
+  new ImplementorBase(popupViewModel.model);
+  ko.applyBindings(popupViewModel, popupViewModel.container);
+  // </ko specific>
 
-  public dispose() {
-    this.model.onToggleVisibility = undefined;
-    ko.cleanNode(this.container);
-    this.container.remove();
-    this.container = undefined;
-  }
-
-  public static showModal(
-    componentName: string,
-    data: any,
-    onApply: () => void,
-    onCancel?: () => void
-  ) {
-    const popupModel = new PopupModel(
-      componentName,
-      data,
-      "top",
-      "left",
-      false,
-      true,
-      onCancel,
-      onApply
-    );
-
-    const popupViewModel: PopupViewModel = new PopupViewModel(
-      popupModel,
-      undefined
-    );
-
-    popupViewModel.isVisible = true;
-  }
-
-  public static showDropDownMenu(items: any[], target: HTMLElement) {
-    const popupModel = new PopupModel(
-      "sv-list",
-      items /*, "top", "left", true*/
-    );
-
-    const popupViewModel: PopupViewModel = new PopupViewModel(
-      popupModel,
-      target
-    );
-    popupViewModel.isVisible = true;
-  }
+  popupViewModel.model.isVisible = true;
 }
+// function showDropDownMenu(items: any[], target: HTMLElement) {
+//   const popupModel = new PopupModel(
+//     "sv-list",
+//     new ListModel(items, undefined, false) /*, "top", "left", true*/
+//   );
+//   const popupViewModel: PopupViewModel = new PopupViewModel(popupModel, target);
+//   popupViewModel.model.isVisible = true;
+// }
+
+settings.showModal = showModal;
 
 ko.components.register("sv-popup", {
   viewModel: {
@@ -76,6 +58,21 @@ ko.components.register("sv-popup", {
         params.model,
         componentInfo.element.parentElement
       );
+
+      viewModel.initializePopupContainer();
+      viewModel.container.innerHTML = template;
+
+      // <ko specific>
+      new ImplementorBase(viewModel);
+      new ImplementorBase(params.model);
+      ko.applyBindings(viewModel, viewModel.container);
+      // </ko specific>
+
+      ko.utils.domNodeDisposal.addDisposeCallback(componentInfo.element, () => {
+        ko.cleanNode(viewModel.container);
+        viewModel.destroyPopupContainer();
+      });
+
       return viewModel;
     },
   },

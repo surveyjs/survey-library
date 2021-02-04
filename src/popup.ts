@@ -1,63 +1,107 @@
 import { Base } from "./base";
 import { property } from "./jsonobject";
-import { PopupUtils } from "./knockout/components/popup/popup-utils";
 import { surveyLocalization } from "./surveyStrings";
-export class PopupModel {
+import { PopupUtils } from "./utils/popup";
+
+export class PopupModel extends Base {
+  @property() contentComponentName: string;
+  @property() contentComponentData: string;
+  @property({ defaultValue: "bottom" }) verticalPosition:
+    | "top"
+    | "bottom"
+    | "middle";
+  @property({ defaultValue: "left" }) horizontalPosition:
+    | "left"
+    | "right"
+    | "center";
+  @property({ defaultValue: false }) showPointer: boolean;
+  @property({ defaultValue: false }) isModal: boolean;
+  @property({ defaultValue: () => {} }) onCancel: () => void;
+  @property({ defaultValue: () => {} }) onApply: () => void;
+  @property({ defaultValue: () => {} }) onHide: () => void;
+  @property({ defaultValue: () => {} }) onShow: () => void;
+  @property({ defaultValue: "" }) cssClass: string;
+
   constructor(
-    public contentComponentName: string,
-    public contentComponentData: any,
-    public verticalPosition: "top" | "bottom" | "middle" = "bottom",
-    public horizontalPosition: "left" | "right" | "center" = "left",
-    public showPointer: boolean = true,
-    public isModal: boolean = false,
-    public onCancel = () => {},
-    public onApply = () => {},
-    public onHide = () => {},
-    public onShow = () => {},
-    public cssClass: string = ""
-  ) {}
-
-  public toggleVisibility() {
-    this.onToggleVisibility && this.onToggleVisibility();
-  }
-  public onToggleVisibility: () => void;
-}
-
-export class PopupBase extends Base {
-  @property() top: string | number = 0;
-  @property() left: string | number = 0;
-  @property() popupDirection: string = "left";
-  @property() pointerTarget: { top: string | number; left: string | number } = {
-    left: "0px",
-    top: "0px",
-  };
-  @property() isVisible: boolean = false;
-
-  public container: HTMLElement;
-
-  constructor(public model: PopupModel, public targetElement?: HTMLElement) {
+    contentComponentName: string,
+    contentComponentData: any,
+    verticalPosition: "top" | "bottom" | "middle" = "bottom",
+    horizontalPosition: "left" | "right" | "center" = "left",
+    showPointer: boolean = true,
+    isModal: boolean = false,
+    onCancel = () => {},
+    onApply = () => {},
+    onHide = () => {},
+    onShow = () => {},
+    cssClass: string = ""
+  ) {
     super();
 
-    this.registerFunctionOnPropertyValueChanged("isVisible", () => {
-      this.onIsVisibleChanged(this.isVisible);
-    });
+    this.contentComponentName = contentComponentName;
+    this.contentComponentData = contentComponentData;
+    this.verticalPosition = verticalPosition;
+    this.horizontalPosition = horizontalPosition;
+    this.showPointer = showPointer;
+    this.isModal = isModal;
+    this.onCancel = onCancel;
+    this.onApply = onApply;
+    this.onHide = onHide;
+    this.onShow = onShow;
+    this.cssClass = cssClass;
+  }
 
-    this.model.onToggleVisibility = () => {
-      this.isVisible = !this.isVisible;
+  //@property({ defaultValue: false }) isVisible: boolean;
+  public get isVisible(): boolean {
+    return this.getPropertyValue("isVisible", false);
+  }
+  public set isVisible(value: boolean) {
+    if (this.isVisible === value) {
+      return;
+    }
+
+    this.setPropertyValue("isVisible", value);
+
+    this.onVisibilityChanged && this.onVisibilityChanged();
+
+    if (this.isVisible) {
+      this.onShow();
+    } else {
+      this.onHide();
+    }
+  }
+
+  public toggleVisibility() {
+    this.isVisible = !this.isVisible;
+  }
+  public onVisibilityChanged: () => void;
+}
+
+export class PopupViewModel extends Base {
+  // PopupBase
+  @property({ defaultValue: 0 }) top: string | number;
+  @property({ defaultValue: 0 }) left: string | number;
+  @property({ defaultValue: "left" }) popupDirection: string;
+  @property({ defaultValue: { left: "0px", top: "0px" } }) pointerTarget: {
+    top: string | number;
+    left: string | number;
+  };
+  public container: HTMLElement;
+
+  constructor(public model: PopupModel, private targetElement: HTMLElement) {
+    super();
+    this.model.onVisibilityChanged = () => {
+      this.onIsVisibleChanged(this.isVisible);
     };
   }
   //
+  public get isVisible(): boolean {
+    return this.model.isVisible;
+  }
   public get contentComponentName(): string {
     return this.model.contentComponentName;
   }
   public get contentComponentData(): any {
     return this.model.contentComponentData;
-  }
-  public get verticalPosition(): "top" | "bottom" | "middle" {
-    return this.model.verticalPosition;
-  }
-  public get horizontalPosition(): "left" | "right" | "center" {
-    return this.model.horizontalPosition;
   }
   public get showPointer(): boolean {
     return this.model.showPointer;
@@ -65,24 +109,8 @@ export class PopupBase extends Base {
   public get isModal(): boolean {
     return this.model.isModal;
   }
-  public get onCancel() {
-    return this.model.onCancel;
-  }
-  public get onApply() {
-    return this.model.onApply;
-  }
-  public get onHide() {
-    return this.model.onHide;
-  }
-  public get onShow() {
-    return this.model.onShow;
-  }
-  public get cssClass(): string {
-    return this.model.cssClass;
-  }
-  //
   public get styleClass(): string {
-    var css = this.cssClass;
+    var css = this.model.cssClass;
     if (this.showPointer) {
       css += " sv-popup--show-pointer";
       css += ` sv-popup--${this.popupDirection}`;
@@ -93,36 +121,31 @@ export class PopupBase extends Base {
 
   private onIsVisibleChanged(isVisible: boolean) {
     if (isVisible) {
-      this.setupPopup();
-      this.onShow();
-    } else {
-      this.onHide();
+      if (this.isModal) {
+        //setTimeout(() => {
+        this.setupModalPopup();
+        //}, 1);
+      } else {
+        //setTimeout(() => {
+        this.setupModelessPopup();
+        //}, 1);
+      }
     }
   }
 
-  private setupPopup() {
-    if (this.isModal) {
-      setTimeout(() => {
-        this.setupModalPopup();
-      }, 1);
-    } else {
-      setTimeout(() => {
-        this.setupModelessPopup();
-      }, 1);
-    }
-  }
   private setupModalPopup() {
     const background = <HTMLElement>this.container.children[0];
-    const container = <HTMLElement>this.container.children[0].children[0];
+    const container = <HTMLElement>background.children[0];
     this.left = (background.offsetWidth - container.offsetWidth) / 2 + "px";
     this.top = (background.offsetHeight - container.offsetHeight) / 2 + "px";
   }
   private setupModelessPopup() {
     const rect = this.targetElement.getBoundingClientRect();
-    const popupContainer = <HTMLElement>this.container.children[0].children[0];
+    const background = <HTMLElement>this.container.children[0];
+    const popupContainer = <HTMLElement>background.children[0];
     this.popupDirection = PopupUtils.calculatePopupDirection(
-      this.verticalPosition,
-      this.horizontalPosition
+      this.model.verticalPosition,
+      this.model.horizontalPosition
     );
     //AM: hang up: page selector inside 'test survey' page causes infinite loop here
     //do {
@@ -132,8 +155,8 @@ export class PopupBase extends Base {
       rect,
       height,
       width,
-      this.verticalPosition,
-      this.horizontalPosition,
+      this.model.verticalPosition,
+      this.model.horizontalPosition,
       this.showPointer
     );
     this.left = pos.left + "px";
@@ -144,13 +167,12 @@ export class PopupBase extends Base {
         rect,
         pos.top,
         pos.left,
-        this.verticalPosition,
-        this.horizontalPosition
+        this.model.verticalPosition,
+        this.model.horizontalPosition
       );
     }
-    this.pointerTarget.top = this.pointerTarget.top + "px";
-    this.pointerTarget.left = this.pointerTarget.left + "px";
-
+    this.pointerTarget.top += "px";
+    this.pointerTarget.left += "px";
     //} while (
     //  popupContainer.offsetWidth != width ||
     //  popupContainer.offsetHeight != height
@@ -161,17 +183,17 @@ export class PopupBase extends Base {
     if (this.isModal) {
       return;
     }
-    this.isVisible = false;
+    this.model.isVisible = false;
   }
 
   public cancel() {
-    this.onCancel();
-    this.isVisible = false;
+    this.model.onCancel();
+    this.model.isVisible = false;
   }
 
   public apply() {
-    this.onApply();
-    this.isVisible = false;
+    this.model.onApply();
+    this.model.isVisible = false;
   }
 
   public get cancelButtonText() {
@@ -180,5 +202,19 @@ export class PopupBase extends Base {
 
   public get applyButtonText() {
     return surveyLocalization.getString("modalApplyButtonText");
+  }
+
+  public dispose() {
+    this.model.onVisibilityChanged = undefined;
+  }
+
+  public initializePopupContainer() {
+    const container: HTMLElement = document.createElement("div");
+    this.container = container;
+    document.body.appendChild(this.container);
+  }
+  public destroyPopupContainer() {
+    this.container.remove();
+    this.container = undefined;
   }
 }

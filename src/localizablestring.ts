@@ -8,11 +8,16 @@ export interface ILocalizableOwner {
   getProcessedText(text: string): string;
   getRenderer(name: string): string;
 }
+export interface ILocalizableString {
+  getLocaleText(loc: string): string;
+  setLocaleText(loc: string, newValue: string): any;
+  getLocales(): Array<string>;
+}
 /**
  * The class represents the string that supports multi-languages and markdown.
  * It uses in all objects where support for multi-languages and markdown is required.
  */
-export class LocalizableString {
+export class LocalizableString implements ILocalizableString {
   public static SerializeAsObject: boolean = false;
   public static get defaultLocale(): string {
     return settings.defaultLocaleName;
@@ -245,7 +250,7 @@ export class LocalizableString {
 /**
  * The class represents the list of strings that supports multi-languages.
  */
-export class LocalizableStrings {
+export class LocalizableStrings implements ILocalizableString {
   private values: any = {};
   constructor(public owner: ILocalizableOwner) {}
   public get locale() {
@@ -263,11 +268,25 @@ export class LocalizableStrings {
   public set text(val: string) {
     this.value = !!val ? val.split("\n") : [];
   }
-  public getValue(loc: string) {
+  public getLocaleText(loc: string): string {
+    var res = this.getValueCore(loc, !loc || loc === this.locale);
+    if (!res || !Array.isArray(res) || res.length == 0) return "";
+    return res.join("\n");
+  }
+  public setLocaleText(loc: string, newValue: string): any {
+    var val = !!newValue ? newValue.split("\n") : null;
+    this.setValue(loc, val);
+  }
+  public getValue(loc: string): Array<string> {
+    return this.getValueCore(loc);
+  }
+  private getValueCore(loc: string, useDefault: boolean = true): Array<string> {
     loc = this.getLocale(loc);
     if (this.values[loc]) return this.values[loc];
-    var defLoc = settings.defaultLocaleName;
-    if (loc !== defLoc) return this.values[defLoc];
+    if (useDefault) {
+      var defLoc = settings.defaultLocaleName;
+      if (loc !== defLoc) return this.values[defLoc];
+    }
     return [];
   }
   public setValue(loc: string, val: Array<string>) {
@@ -285,6 +304,11 @@ export class LocalizableStrings {
     if (!!loc) return loc;
     loc = this.locale;
     return !!loc ? loc : settings.defaultLocaleName;
+  }
+  public getLocales(): Array<string> {
+    var keys = this.getValuesKeys();
+    if (keys.length == 0) return [];
+    return keys;
   }
   public getJson(): any {
     var keys = this.getValuesKeys();

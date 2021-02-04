@@ -1,24 +1,25 @@
+import { AdaptiveElement } from "../../src/action-bar";
 import { ResponsibilityManager } from "../../src/utils/resonsibilitymanager";
 
 export default QUnit.module("ResponsibilityManager");
 
-class TestModel {
+class TestModel extends AdaptiveElement {
   public visibleElementsCount: number = 0;
   public isShrank = false;
   public isGrown = false;
-  public canShrink = false;
-  public canGrow = false;
+  public canShrinkValue = false;
+  public canGrowValue = false;
   showFirstN(count: number) {
     this.visibleElementsCount = count;
   }
   public shrink() {
-    this.canShrink = false;
-    this.canGrow = true;
+    this.canShrinkValue = false;
+    this.canGrowValue = true;
   }
 
   public grow() {
-    this.canGrow = false;
-    this.canShrink = true;
+    this.canGrowValue = false;
+    this.canShrinkValue = true;
   }
 }
 
@@ -112,14 +113,14 @@ QUnit.test("Check on model which can shrink and grow", function (assert) {
     scrollWidth: 30,
   });
   var model = new TestModel();
-  model.canGrow = true;
-  var manager = new ResponsibilityManager(<any>container, <any>model, 5);
+  model.canGrowValue = true;
+  var manager = new ResponsibilityManager(<any>container, model, 5);
   manager.getItemSizes = getItemSizes;
   manager.getComputedStyle = () => {
     return { boxSizing: "content-box" };
   };
   manager.process();
-  assert.notOk(model.canGrow, "process method grew model at first");
+  assert.notOk(model.canGrowValue, "process method grew model at first");
   assert.equal(
     model.visibleElementsCount,
     Number.MAX_VALUE,
@@ -128,7 +129,7 @@ QUnit.test("Check on model which can shrink and grow", function (assert) {
 
   container.offsetWidth = 24;
   manager.process();
-  assert.notOk(model.canShrink, "process shrank model");
+  assert.notOk(model.canShrinkValue, "process shrank model");
   assert.equal(
     model.visibleElementsCount,
     3,
@@ -144,7 +145,7 @@ QUnit.test("Check on model which can shrink and grow", function (assert) {
 
   container.offsetWidth = 41;
   manager.process();
-  assert.notOk(model.canGrow, "process grew model");
+  assert.notOk(model.canGrowValue, "process grew model");
   assert.equal(
     model.visibleElementsCount,
     Number.MAX_VALUE,
@@ -157,8 +158,8 @@ QUnit.test("Check on element with parent's changing width", function (assert) {
   var parentElement: any = { offsetWidth: 30, scrollWidth: 30 };
   container.parentElement = parentElement;
   var model = new TestModel();
-  model.canGrow = true;
-  var manager = new ResponsibilityManager(<any>container, <any>model, 5);
+  model.canGrowValue = true;
+  var manager = new ResponsibilityManager(<any>container, model, 5);
   manager.getItemSizes = getItemSizes;
   manager.getComputedStyle = () => {
     return { boxSizing: "content-box" };
@@ -167,7 +168,7 @@ QUnit.test("Check on element with parent's changing width", function (assert) {
   container.offsetWidth = container.parentElement.offsetWidth = 24;
 
   manager.process();
-  assert.ok(model.canGrow);
+  assert.ok(model.canGrowValue);
   assert.equal(
     model.visibleElementsCount,
     3,
@@ -177,7 +178,7 @@ QUnit.test("Check on element with parent's changing width", function (assert) {
   container.offsetWidth = container.parentElement.offsetWidth = 29;
   manager.process();
 
-  assert.ok(model.canGrow, "process can't grew");
+  assert.ok(model.canGrowValue, "process can't grew");
   assert.equal(
     model.visibleElementsCount,
     Number.MAX_VALUE,
@@ -186,7 +187,7 @@ QUnit.test("Check on element with parent's changing width", function (assert) {
   container.parentElement.offsetWidth = 36;
   manager.process();
 
-  assert.ok(model.canGrow, "process grew container");
+  assert.ok(model.canGrowValue, "process grew container");
 });
 
 QUnit.test(

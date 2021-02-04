@@ -7,6 +7,12 @@ export class SurveyQuestionRanking extends SurveyQuestionElementBase {
   protected get question(): QuestionRankingModel {
     return this.questionBase as QuestionRankingModel;
   }
+
+  public componentDidUpdate(prevProps: any, prevState: any) {
+    super.componentDidUpdate(prevProps, prevState);
+    this.question.update();
+  }
+
   protected renderElement(): JSX.Element {
     return (
       <div className={this.question.rootClass} ref={(root) => (this.control = root)}>

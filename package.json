@@ -24,6 +24,7 @@
     "build_vue_prod": "webpack --env.buildType prod --env.platform vue",
     "build_prod": "npm run build_dev && concurrently \"npm run build_knockout_prod\" \"npm run build_react_prod\" \"npm run build_angular_prod\" \"npm run build_jquery_prod\" \"npm run build_vue_prod\" \"npm run build_core_prod\"",
     "build_knockout": "npm run build_knockout_dev && npm run build_knockout_prod && copy_artifacts_to_creatorV2.cmd",
+    "build_angular": "npm run build_angular_dev && npm run build_angular_prod",
     "doc_gen": "node doc_generator/lib_docgenerator.js src/entries/chunks/model.ts",
     "doc_update": "chmod +x ./docupdate_npm.sh && ./docupdate_npm.sh",
     "lint": "tslint ./src/**/*.ts -t verbose",
@@ -34,7 +35,7 @@
     "watch_vue_dev": "webpack --env.buildType dev --env.platform vue --watch",
     "watch_core_dev": "webpack --env.buildType dev --env.platform core --watch"
   },
-  "version": "1.8.28",
+  "version": "1.8.29",
   "name": "survey-library",
   "private": true,
   "devDependencies": {

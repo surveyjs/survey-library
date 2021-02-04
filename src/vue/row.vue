@@ -8,7 +8,17 @@
       :role="element.ariaRole"
       :aria-labelledby="element.hasTitle ? element.ariaTitleId : null"
       :name="element.name"
-      :style="{ paddingLeft: element.paddingLeft, paddingRight: element.paddingRight, flexBasis: element.renderWidth, flexGrow: 1, flexShrink: 1, width: element.renderWidth, minWidth: element.minWidth, maxWidth: element.maxWidth, display: 'inline-block' }"
+      :style="{
+        paddingLeft: element.paddingLeft,
+        paddingRight: element.paddingRight,
+        flexBasis: element.renderWidth,
+        flexGrow: 1,
+        flexShrink: 1,
+        width: element.renderWidth,
+        minWidth: element.minWidth,
+        maxWidth: element.maxWidth,
+        display: 'inline-block',
+      }"
       :element="element"
       :survey="survey"
       :css="css"
@@ -24,7 +34,7 @@ import { PanelModelBase, PanelModel, QuestionRowModel } from "../panel";
 import { VueSurveyModel } from "./surveyModel";
 import { settings } from "../settings";
 import { BaseVue } from "./base";
-import {Base} from "../base";
+import { Base } from "../base";
 
 @Component
 export class Row extends BaseVue {
@@ -32,12 +42,16 @@ export class Row extends BaseVue {
   @Prop css: any;
   @Prop survey: SurveyModel;
 
-  protected getModel(): Base { return this.row; }
+  protected getModel(): Base {
+    return this.row;
+  }
   protected onMounted() {
     if (!!this.row) {
       if (!this.row.isNeedRender) {
         var rowContainerDiv = this.$el;
-        this.row.startLazyRendering(rowContainerDiv);
+        setTimeout(() => {
+          this.row.startLazyRendering(rowContainerDiv);
+        }, 10);
       }
     }
   }

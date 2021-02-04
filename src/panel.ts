@@ -42,9 +42,18 @@ export class QuestionRowModel extends Base {
   }
   protected _scrollableParent: any = undefined;
   protected _updateVisibility: any = undefined;
-  public startLazyRendering(rowContainerDiv: HTMLElement, findScrollableContainer = findScrollableParent) {
+  public startLazyRendering(
+    rowContainerDiv: HTMLElement,
+    findScrollableContainer = findScrollableParent
+  ) {
     this._scrollableParent = findScrollableContainer(rowContainerDiv);
-    this.isNeedRender = !(this._scrollableParent.scrollHeight > this._scrollableParent.clientHeight);
+    this.isNeedRender = !(
+      this._scrollableParent.scrollHeight > this._scrollableParent.clientHeight
+    );
+    // if  this._scrollableParent is html the scroll event isn't fired, so we should use window
+    if (this._scrollableParent === document.documentElement) {
+      this._scrollableParent = window;
+    }
     if (!this.isNeedRender) {
       this._updateVisibility = () => {
         var isRowContainerDivVisible = isElementVisible(rowContainerDiv, 50);
@@ -54,8 +63,14 @@ export class QuestionRowModel extends Base {
         }
       };
       setTimeout(() => {
-        if (!!this._scrollableParent && !!this._scrollableParent.addEventListener) {
-          this._scrollableParent.addEventListener("scroll", this._updateVisibility);
+        if (
+          !!this._scrollableParent &&
+          !!this._scrollableParent.addEventListener
+        ) {
+          this._scrollableParent.addEventListener(
+            "scroll",
+            this._updateVisibility
+          );
         }
         this.ensureVisibility();
       }, 10);
@@ -67,7 +82,11 @@ export class QuestionRowModel extends Base {
     }
   }
   public stopLazyRendering() {
-    if (!!this._scrollableParent && !!this._updateVisibility && !!this._scrollableParent.removeEventListener) {
+    if (
+      !!this._scrollableParent &&
+      !!this._updateVisibility &&
+      !!this._scrollableParent.removeEventListener
+    ) {
       this._scrollableParent.removeEventListener(
         "scroll",
         this._updateVisibility
@@ -261,7 +280,7 @@ export class PanelModelBase
   }
 
   public getTitleActions(): Array<any> {
-    var titleActions = super.getTitleActions()
+    var titleActions = super.getTitleActions();
     this.titleActions = this.survey.getUpdatedPanelTitleActions(
       this,
       titleActions
@@ -340,9 +359,7 @@ export class PanelModelBase
       : null;
   }
   getRenderer(name: string): string {
-    return this.survey
-      ? this.survey.getRendererForString(this, name)
-      : null;
+    return this.survey ? this.survey.getRendererForString(this, name) : null;
   }
   getProcessedText(text: string): string {
     return this.textProcessor

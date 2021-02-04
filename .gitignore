@@ -7,7 +7,6 @@ docs/classes.json
 docs/pmes.json
 tmp/*
 .vscode/*
-*.cmd
 *.map
 .tsdrc
 .idea

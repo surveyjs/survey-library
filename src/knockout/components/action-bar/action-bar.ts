@@ -12,10 +12,10 @@ const template = require("./action-bar.html");
 export * from "./action-bar-item";
 export * from "./action-bar-separator";
 export * from "./action-bar-item-dropdown";
-export class ActionBarViewModel extends AdaptiveElement {
-  public itemsSubscription: any; //ko.Computed;
+class ActionBarViewModel extends AdaptiveElement {
+  public itemsSubscription: ko.Computed;
 
-  constructor(_items: any[]/*ko.MaybeObservableArray<IActionBarItem>*/) {
+  constructor(_items: ko.MaybeObservableArray<IActionBarItem>) {
     super();
     this.itemsSubscription = ko.computed(() => {
       const wrappers: AdaptiveActionBarItemWrapper[] = [];

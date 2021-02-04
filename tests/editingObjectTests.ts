@@ -171,6 +171,72 @@ QUnit.test(
     assert.equal(question.columns[0].title, "title1", "Edit title correctly");
   }
 );
+QUnit.test(
+  "Edit columns in matrix, column isRequired and isUnique",
+  function (assert) {
+    var question = new QuestionMatrixDynamicModel("q1");
+    question.addColumn("col1");
+    question.addColumn("col2");
+    var survey = new SurveyModel({
+      checkErrorsMode: "onValueChanging",
+      elements: [
+        {
+          type: "matrixdynamic",
+          name: "columns",
+          columns: [
+            {
+              cellType: "text",
+              name: "name",
+              isRequired: true,
+              isUnique: true,
+            },
+            { cellType: "text", name: "title" },
+          ],
+        },
+      ],
+    });
+    var matrix = <QuestionMatrixDynamicModel>(
+      survey.getQuestionByName("columns")
+    );
+    survey.editingObj = question;
+    assert.equal(matrix.visibleRows.length, 2, "Two columns");
+    assert.equal(
+      matrix.visibleRows[0].cells[0].value,
+      "col1",
+      "Name set correctly"
+    );
+    var rows = matrix.visibleRows;
+    var nameQuestion = rows[0].cells[0].question;
+    assert.equal(nameQuestion.isRequired, true, "cell question is required");
+    nameQuestion.value = "";
+    assert.equal(nameQuestion.isEmpty(), true, "reset name in editing matrix");
+    assert.equal(nameQuestion.errors.length, 1, "required error");
+    assert.equal(
+      question.columns[0].name,
+      "col1",
+      "do not set empty value into column"
+    );
+    nameQuestion.value = "col2";
+    assert.equal(
+      nameQuestion.value,
+      "col2",
+      "set duplicated name in editing matrix"
+    );
+    assert.equal(nameQuestion.errors.length, 1, "duplicate error");
+    assert.equal(
+      question.columns[0].name,
+      "col1",
+      "do not set duplcated value into column"
+    );
+    nameQuestion.value = "col3";
+    assert.equal(nameQuestion.errors.length, 0, "no errors");
+    assert.equal(
+      question.columns[0].name,
+      "col3",
+      "set name property into column"
+    );
+  }
+);
 QUnit.test("Edit choices in matrix with custom property", function (assert) {
   Serializer.addProperty("itemvalue", "imageLink");
   var question = new QuestionMatrixDynamicModel("q1");

@@ -34,6 +34,9 @@ export class ResponsibilityManager {
     for (var i = 0; i < itemSizes.length && size >= sum; i++) {
       sum += itemSizes[i];
     }
+    if (i == this.itemSizes.length && this.dotsItemSize >= this.itemSizes[0]) {
+      return i;
+    }
     return i - 1;
   }
 

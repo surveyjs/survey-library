@@ -353,6 +353,104 @@ QUnit.test("Matrixdynamic duplicationError", function (assert) {
     "There is no errors, row[0].column1=val1 and row[1].column2=val2"
   );
 });
+QUnit.test("Matrixdynamic column.isUnique, matrixdynamic", function (assert) {
+  var question = new QuestionMatrixDynamicModel("q1");
+  question.rowCount = 2;
+  question.addColumn("column1").isUnique = true;
+  question.addColumn("column2");
+  question.addColumn("column3").isUnique = true;
+  var rows = question.visibleRows;
+  assert.equal(question.hasErrors(), false, "No errors");
+  question.value = [{ column1: "val1" }, {}];
+  assert.equal(
+    question.hasErrors(),
+    false,
+    "There is no errors, row[0].column1=val1"
+  );
+  question.value = [{ column1: "val1" }, { column1: "val1" }];
+  assert.equal(
+    question.hasErrors(),
+    true,
+    "There is the error, row[0].column1=val1 and row[1].column2=val1"
+  );
+  assert.equal(
+    question.visibleRows[0].getQuestionByColumnName("column1").errors.length,
+    0,
+    "There is no errors in the first row"
+  );
+  assert.equal(
+    question.visibleRows[1].getQuestionByColumnName("column1").errors.length,
+    1,
+    "There is one error in the second row"
+  );
+  question.value = [{ column1: "val1" }, { column1: "val2" }];
+  assert.equal(
+    question.hasErrors(),
+    false,
+    "There is no errors, row[0].column1=val1 and row[1].column2=val2"
+  );
+
+  question.value = [
+    { column1: "val1", column2: "val1", column3: "val1" },
+    { column1: "val2", column2: "val1", column3: "val1" },
+  ];
+  assert.equal(
+    question.hasErrors(),
+    true,
+    "There is the error, row[0].column3=val1 and row[1].column3=val1"
+  );
+  assert.equal(
+    question.visibleRows[0].getQuestionByColumnName("column3").errors.length,
+    0,
+    "There is no errors in the first row"
+  );
+  assert.equal(
+    question.visibleRows[1].getQuestionByColumnName("column3").errors.length,
+    1,
+    "There is one error in the second row"
+  );
+  question.value = [
+    { column1: "val1", column2: "val1", column3: "val1" },
+    { column1: "val2", column2: "val1", column3: "val3" },
+  ];
+  assert.equal(question.hasErrors(), false, "There is no errors");
+});
+QUnit.test("Matrixdynamic column.isUnique, matrixdropdown", function (assert) {
+  var question = new QuestionMatrixDropdownModel("q1");
+  question.rows = ["row1", "row2"];
+  question.addColumn("column1").isUnique = true;
+  question.addColumn("column2");
+  var rows = question.visibleRows;
+  assert.equal(question.hasErrors(), false, "No errors");
+  question.value = { row1: { column1: "val1" } };
+  assert.equal(
+    question.hasErrors(),
+    false,
+    "There is no errors, row[0].column1=val1"
+  );
+  question.value = { row1: { column1: "val1" }, row2: { column1: "val1" } };
+  assert.equal(
+    question.hasErrors(),
+    true,
+    "There is the error, row[0].column1=val1 and row[1].column2=val1"
+  );
+  assert.equal(
+    question.visibleRows[0].getQuestionByColumnName("column1").errors.length,
+    0,
+    "There is no errors in the first row"
+  );
+  assert.equal(
+    question.visibleRows[1].getQuestionByColumnName("column1").errors.length,
+    1,
+    "There is one error in the second row"
+  );
+  question.value = { row1: { column1: "val1" }, row2: { column1: "val2" } };
+  assert.equal(
+    question.hasErrors(),
+    false,
+    "There is no errors, row[0].column1=val1 and row[1].column2=val2"
+  );
+});
 QUnit.test("Matrixdynamic hasOther column", function (assert) {
   var question = new QuestionMatrixDynamicModel("matrixDymanic");
   question.choices = [1, 2, 3];
@@ -4508,6 +4606,57 @@ QUnit.test("Survey.checkErrorsMode=onValueChanging", function (assert) {
     "set value into survey"
   );
 });
+
+QUnit.test(
+  "Survey.checkErrorsMode=onValueChanging and column.isUnique",
+  function (assert) {
+    var survey = new SurveyModel({
+      elements: [
+        {
+          type: "matrixdynamic",
+          name: "question1",
+          rowCount: 2,
+          columns: [
+            {
+              name: "col1",
+              cellType: "text",
+              isUnique: true,
+            },
+            {
+              name: "col2",
+              cellType: "text",
+            },
+          ],
+        },
+      ],
+      checkErrorsMode: "onValueChanging",
+    });
+    var matrix = <QuestionMatrixDynamicModel>(
+      survey.getQuestionByName("question1")
+    );
+    var rows = matrix.visibleRows;
+    rows[0].cells[0].value = "val1";
+    assert.equal(
+      rows[0].cells[0].question.errors.length,
+      0,
+      "There is no error"
+    );
+    assert.deepEqual(matrix.value, [{ col1: "val1" }, {}]);
+    rows[1].cells[0].value = "val1";
+    assert.equal(
+      rows[1].cells[0].question.errors.length,
+      1,
+      "There is a duplication error, second row, first column"
+    );
+    assert.deepEqual(matrix.value, [{ col1: "val1" }, {}]);
+    rows[1].cells[0].value = "val2";
+    assert.equal(
+      rows[1].cells[0].question.errors.length,
+      0,
+      "There is no errors yet in the cell, second row, first column"
+    );
+  }
+);
 
 QUnit.test(
   "column should call property changed on custom property",

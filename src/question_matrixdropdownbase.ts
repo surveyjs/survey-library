@@ -52,6 +52,10 @@ export interface IMatrixDropdownData {
   isValidateOnValueChanging: boolean;
   getRowIndex(row: MatrixDropdownRowModelBase): number;
   getRowValue(rowIndex: number): any;
+  checkIfValueInRowDuplicated(
+    checkedRow: MatrixDropdownRowModelBase,
+    cellQuestion: Question
+  ): boolean;
   hasDetailPanel(row: MatrixDropdownRowModelBase): boolean;
   getIsDetailPanelShowing(row: MatrixDropdownRowModelBase): boolean;
   setIsDetailPanelShowing(row: MatrixDropdownRowModelBase, val: boolean): void;
@@ -957,9 +961,8 @@ export class MatrixDropdownRowModelBase
       }
     } else {
       if (
-        !!changedQuestion &&
         this.data.isValidateOnValueChanging &&
-        changedQuestion.hasErrors(true, { isOnValueChanged: true })
+        this.hasQuestonError(changedQuestion)
       )
         return;
       this.data.onRowChanged(
@@ -970,6 +973,15 @@ export class MatrixDropdownRowModelBase
       );
       this.onAnyValueChanged(MatrixDropdownRowModelBase.RowVariableName);
     }
+  }
+  private hasQuestonError(question: Question): boolean {
+    if (!question) return false;
+    if (question.hasErrors(true, { isOnValueChanged: !this.editingObj }))
+      return true;
+    if (question.isEmpty()) return false;
+    var cell = this.getCellByColumnName(question.name);
+    if (!cell || !cell.column || !cell.column.isUnique) return false;
+    return this.data.checkIfValueInRowDuplicated(this, question);
   }
   public get isEmpty() {
     var val = this.value;
@@ -985,12 +997,15 @@ export class MatrixDropdownRowModelBase
     }
     return null;
   }
-  public getQuestionByColumnName(columnName: string): Question {
+  private getCellByColumnName(columnName: string): MatrixDropdownCell {
     for (var i = 0; i < this.cells.length; i++) {
-      if (this.cells[i].column.name == columnName)
-        return this.cells[i].question;
+      if (this.cells[i].column.name == columnName) return this.cells[i];
     }
     return null;
+  }
+  public getQuestionByColumnName(columnName: string): Question {
+    var cell = this.getCellByColumnName(columnName);
+    return !!cell ? cell.question : null;
   }
   public get questions(): Array<Question> {
     var res: Array<Question> = [];
@@ -2447,6 +2462,27 @@ export class QuestionMatrixDropdownModelBase
     var newValue = this.createNewValue();
     return this.getRowValueCore(visRows[rowIndex], newValue);
   }
+  public checkIfValueInRowDuplicated(
+    checkedRow: MatrixDropdownRowModelBase,
+    cellQuestion: Question
+  ): boolean {
+    if (!this.generatedVisibleRows) return false;
+    var res = false;
+    for (var i = 0; i < this.generatedVisibleRows.length; i++) {
+      var row = this.generatedVisibleRows[i];
+      if (checkedRow === row) continue;
+      if (row.getValue(cellQuestion.name) == cellQuestion.value) {
+        res = true;
+        break;
+      }
+    }
+    if (res) {
+      this.addDuplicationError(cellQuestion);
+    } else {
+      cellQuestion.clearErrors();
+    }
+    return res;
+  }
   /**
    * Set the row value.
    * @param rowIndex row index from 0 to visible row count - 1.
@@ -2735,14 +2771,15 @@ export class QuestionMatrixDropdownModelBase
     var value = question.value;
     for (var i = 0; i < keyValues.length; i++) {
       if (value == keyValues[i]) {
-        question.addError(
-          new KeyDuplicationError(this.keyDuplicationError, this)
-        );
+        this.addDuplicationError(question);
         return true;
       }
     }
     keyValues.push(value);
     return false;
+  }
+  private addDuplicationError(question: Question) {
+    question.addError(new KeyDuplicationError(this.keyDuplicationError, this));
   }
   protected getFirstInputElementId(): string {
     var question = this.getFirstCellQuestion(false);

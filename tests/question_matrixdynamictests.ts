@@ -4608,6 +4608,57 @@ QUnit.test("Survey.checkErrorsMode=onValueChanging", function (assert) {
 });
 
 QUnit.test(
+  "Survey.checkErrorsMode=onValueChanging and column.isUnique",
+  function (assert) {
+    var survey = new SurveyModel({
+      elements: [
+        {
+          type: "matrixdynamic",
+          name: "question1",
+          rowCount: 2,
+          columns: [
+            {
+              name: "col1",
+              cellType: "text",
+              isUnique: true,
+            },
+            {
+              name: "col2",
+              cellType: "text",
+            },
+          ],
+        },
+      ],
+      checkErrorsMode: "onValueChanging",
+    });
+    var matrix = <QuestionMatrixDynamicModel>(
+      survey.getQuestionByName("question1")
+    );
+    var rows = matrix.visibleRows;
+    rows[0].cells[0].value = "val1";
+    assert.equal(
+      rows[0].cells[0].question.errors.length,
+      0,
+      "There is no error"
+    );
+    assert.deepEqual(matrix.value, [{ col1: "val1" }, {}]);
+    rows[1].cells[0].value = "val1";
+    assert.equal(
+      rows[1].cells[0].question.errors.length,
+      1,
+      "There is a duplication error, second row, first column"
+    );
+    assert.deepEqual(matrix.value, [{ col1: "val1" }, {}]);
+    rows[1].cells[0].value = "val2";
+    assert.equal(
+      rows[1].cells[0].question.errors.length,
+      0,
+      "There is no errors yet in the cell, second row, first column"
+    );
+  }
+);
+
+QUnit.test(
   "column should call property changed on custom property",
   function (assert) {
     Serializer.addProperty("text", "prop1");

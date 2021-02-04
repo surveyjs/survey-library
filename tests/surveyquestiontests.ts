@@ -4411,6 +4411,32 @@ QUnit.test(
     assert.equal(question.max, 100, "max value is set");
   }
 );
+QUnit.test(
+  "min/max properties and checkErrorsMode equals to 'onValueChanging', Bug#2647",
+  function (assert) {
+    var survey = new SurveyModel({
+      checkErrorsMode: "onValueChanging",
+      elements: [
+        {
+          type: "text",
+          name: "q1",
+          min: 0,
+          max: 100,
+          inputType: "number",
+        },
+      ],
+    });
+    var question = <QuestionTextModel>survey.getQuestionByName("q1");
+    question.value = 10;
+    assert.equal(survey.getValue("q1"), 10, "Set 10 to survey");
+    question.value = -5;
+    assert.equal(survey.getValue("q1"), 10, "Could not set -5 to survey");
+    question.value = 500;
+    assert.equal(survey.getValue("q1"), 10, "Could not set 500 to survey");
+    question.value = 50;
+    assert.equal(survey.getValue("q1"), 50, "Set 50 to survey");
+  }
+);
 
 QUnit.test(
   "setvalue trigger dosen't work for question name with '.', Bug#2420",

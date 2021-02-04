@@ -255,14 +255,14 @@ export class QuestionTextModel extends Question {
   }
   private get isValueLessMin(): boolean {
     return (
-      !!this.renderedMin &&
+      !Helpers.isValueEmpty(this.renderedMin) &&
       this.getCalculatedMinMax(this.value) <
         this.getCalculatedMinMax(this.renderedMin)
     );
   }
   private get isValueGreaterMax(): boolean {
     return (
-      !!this.renderedMax &&
+      !Helpers.isValueEmpty(this.renderedMax) &&
       this.getCalculatedMinMax(this.value) >
         this.getCalculatedMinMax(this.renderedMax)
     );
@@ -271,7 +271,7 @@ export class QuestionTextModel extends Question {
     return this.inputType === "date" || this.inputType === "datetime-local";
   }
   private getCalculatedMinMax(minMax: any): any {
-    if (!minMax) return minMax;
+    if (Helpers.isValueEmpty(minMax)) return minMax;
     return this.isDateInputType ? new Date(minMax) : minMax;
   }
   private setRenderedMinMax() {

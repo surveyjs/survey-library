@@ -1,4 +1,3 @@
-import { assign } from "lodash";
 import { AdaptiveElement } from "../../src/action-bar";
 import { ResponsibilityManager } from "../../src/utils/resonsibilitymanager";
 
@@ -40,7 +39,7 @@ QUnit.test("Check on element with box-sizing: content-box", function (assert) {
     scrollWidth: 30,
   });
   var model = new TestModel();
-  var manager = new ResponsibilityManager(<any>container, model, 5);
+  var manager = new ResponsibilityManager(<any>container, <any>model, 5);
   manager.getItemSizes = getItemSizes;
   manager.getComputedStyle = () => {
     return {
@@ -83,7 +82,7 @@ QUnit.test("Check on element with box-sizing: border-box", function (assert) {
     scrollWidth: 30,
   });
   var model = new TestModel();
-  var manager = new ResponsibilityManager(<any>container, model, 5);
+  var manager = new ResponsibilityManager(<any>container, <any>model, 5);
   manager.getItemSizes = getItemSizes;
   manager.getComputedStyle = () => {
     return {
@@ -190,3 +189,21 @@ QUnit.test("Check on element with parent's changing width", function (assert) {
 
   assert.ok(model.canGrowValue, "process grew container");
 });
+
+QUnit.test(
+  "Check on element when last item with bigger of equal size than dots item's",
+  function (assert) {
+    var container = new SimpleContainer({ offsetWidth: 5, scrollWidth: 11 });
+    var model = new TestModel();
+    var manager = new ResponsibilityManager(<any>container, <any>model, 5);
+    manager.getComputedStyle = () => {
+      return { boxSizing: "content-box" };
+    };
+
+    manager.getItemSizes = () => {
+      return [5];
+    };
+    manager.process();
+    assert.equal(model.visibleElementsCount, 1);
+  }
+);

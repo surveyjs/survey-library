@@ -45,7 +45,6 @@ export function showModal(
 //     "sv-list",
 //     new ListModel(items, undefined, false) /*, "top", "left", true*/
 //   );
-
 //   const popupViewModel: PopupViewModel = new PopupViewModel(popupModel, target);
 //   popupViewModel.model.isVisible = true;
 // }

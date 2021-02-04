@@ -79,9 +79,9 @@ QUnit.test("PopupViewModel defaults", (assert) => {
   //assert.equal(ko.isWritableObservable(viewModel.left), true);
   assert.equal(viewModel.left, undefined);
   //assert.equal(ko.isWritableObservable(viewModel.popupDirection), true);
-  assert.equal(viewModel.popupDirection, undefined);
+  assert.equal(viewModel.popupDirection, "left");
   //assert.equal(ko.isWritableObservable(viewModel.pointerTarget), true);
-  assert.deepEqual(viewModel.pointerTarget, {});
+  assert.deepEqual(viewModel.pointerTarget, { left: "0px", top: "0px" });
   //assert.equal(ko.isWritableObservable(viewModel.isVisible), true);
   assert.equal(viewModel.isVisible, false);
 
@@ -102,14 +102,11 @@ QUnit.test("PopupViewModel styleClass", (assert) => {
   viewModel.initializePopupContainer();
   viewModel.container.innerHTML = popupTemplate;
 
-  assert.equal(
-    viewModel.styleClass,
-    " sv-popup--show-pointer sv-popup--undefined"
-  );
+  assert.equal(viewModel.styleClass, " sv-popup--show-pointer sv-popup--left");
   model.cssClass = "my-css-class";
   assert.equal(
     viewModel.styleClass,
-    "my-css-class sv-popup--show-pointer sv-popup--undefined"
+    "my-css-class sv-popup--show-pointer sv-popup--left"
   );
 
   viewModel.popupDirection = "down";
@@ -132,8 +129,8 @@ QUnit.test("PopupViewModel isVisible", (assert) => {
   assert.equal(viewModel.isVisible, false);
   assert.equal(viewModel.top, undefined);
   assert.equal(viewModel.left, undefined);
-  assert.equal(viewModel.popupDirection, undefined);
-  assert.deepEqual(viewModel.pointerTarget, {});
+  assert.equal(viewModel.popupDirection, "left");
+  assert.deepEqual(viewModel.pointerTarget, { left: "0px", top: "0px" });
 
   let trace: String = "";
   model.onHide = () => {
@@ -147,22 +144,22 @@ QUnit.test("PopupViewModel isVisible", (assert) => {
   //viewModel.isVisible(!viewModel.isVisible());
   assert.equal(trace, "->onShow");
   assert.equal(viewModel.isVisible, true);
-  assert.equal(viewModel.top, 0);
-  assert.equal(viewModel.left === 0, false);
+  assert.equal(viewModel.top, "0px");
+  assert.equal(viewModel.left === "0px", false);
   assert.equal(viewModel.popupDirection, "left");
-  assert.equal(viewModel.pointerTarget["left"] === 0, false);
-  assert.equal(viewModel.pointerTarget["top"] === 0, true);
+  assert.equal(viewModel.pointerTarget["left"] === "0px", false);
+  assert.equal(viewModel.pointerTarget["top"] === "0px", true);
   trace = "";
 
   model.toggleVisibility();
   //viewModel.isVisible(!viewModel.isVisible());
   assert.equal(trace, "->onHide");
   assert.equal(viewModel.isVisible, false);
-  assert.equal(viewModel.top, 0);
-  assert.equal(viewModel.left === 0, false);
+  assert.equal(viewModel.top, "0px");
+  assert.equal(viewModel.left === "0px", false);
   assert.equal(viewModel.popupDirection, "left");
-  assert.equal(viewModel.pointerTarget["left"] === 0, false);
-  assert.equal(viewModel.pointerTarget["top"] === 0, true);
+  assert.equal(viewModel.pointerTarget["left"] === "0px", false);
+  assert.equal(viewModel.pointerTarget["top"] === "0px", true);
 });
 
 QUnit.test("PopupModel toggleVisibility", (assert) => {
@@ -175,8 +172,8 @@ QUnit.test("PopupModel toggleVisibility", (assert) => {
   assert.equal(viewModel.isVisible, false);
   assert.equal(viewModel.top, undefined);
   assert.equal(viewModel.left, undefined);
-  assert.equal(viewModel.popupDirection, undefined);
-  assert.deepEqual(viewModel.pointerTarget, {});
+  assert.equal(viewModel.popupDirection, "left");
+  assert.deepEqual(viewModel.pointerTarget, { left: "0px", top: "0px" });
 
   let trace: String = "";
   model.onHide = () => {
@@ -190,22 +187,22 @@ QUnit.test("PopupModel toggleVisibility", (assert) => {
   //viewModel.isVisible(!viewModel.isVisible());
   assert.equal(trace, "->onShow");
   assert.equal(viewModel.isVisible, true);
-  assert.equal(viewModel.top, 0);
-  assert.equal(viewModel.left === 0, false);
+  assert.equal(viewModel.top, "0px");
+  assert.equal(viewModel.left === "0px", false);
   assert.equal(viewModel.popupDirection, "left");
-  assert.equal(viewModel.pointerTarget["left"] === 0, false);
-  assert.equal(viewModel.pointerTarget["top"] === 0, true);
+  assert.equal(viewModel.pointerTarget["left"] === "0px", false);
+  assert.equal(viewModel.pointerTarget["top"] === "0px", true);
   trace = "";
 
   model.toggleVisibility();
   //viewModel.isVisible(!viewModel.isVisible());
   assert.equal(trace, "->onHide");
   assert.equal(viewModel.isVisible, false);
-  assert.equal(viewModel.top, 0);
-  assert.equal(viewModel.left === 0, false);
+  assert.equal(viewModel.top, "0px");
+  assert.equal(viewModel.left === "0px", false);
   assert.equal(viewModel.popupDirection, "left");
-  assert.equal(viewModel.pointerTarget["left"] === 0, false);
-  assert.equal(viewModel.pointerTarget["top"] === 0, true);
+  assert.equal(viewModel.pointerTarget["left"] === "0px", false);
+  assert.equal(viewModel.pointerTarget["top"] === "0px", true);
 });
 
 QUnit.test("PopupModel clickOutside", (assert) => {
@@ -218,8 +215,8 @@ QUnit.test("PopupModel clickOutside", (assert) => {
   assert.equal(viewModel.isVisible, false);
   assert.equal(viewModel.top, undefined);
   assert.equal(viewModel.left, undefined);
-  assert.equal(viewModel.popupDirection, undefined);
-  assert.deepEqual(viewModel.pointerTarget, {});
+  assert.equal(viewModel.popupDirection, "left");
+  assert.deepEqual(viewModel.pointerTarget, { left: "0px", top: "0px" });
 
   let trace: String = "";
   model.onHide = () => {
@@ -234,8 +231,8 @@ QUnit.test("PopupModel clickOutside", (assert) => {
   assert.equal(viewModel.isVisible, false);
   assert.equal(viewModel.top, undefined);
   assert.equal(viewModel.left, undefined);
-  assert.equal(viewModel.popupDirection, undefined);
-  assert.deepEqual(viewModel.pointerTarget, {});
+  assert.equal(viewModel.popupDirection, "left");
+  assert.deepEqual(viewModel.pointerTarget, { left: "0px", top: "0px" });
   trace = "";
 
   model.toggleVisibility();
@@ -243,11 +240,11 @@ QUnit.test("PopupModel clickOutside", (assert) => {
   viewModel.clickOutside();
   assert.equal(trace, "->onHide");
   assert.equal(viewModel.isVisible, false);
-  assert.equal(viewModel.top, 0);
-  assert.equal(viewModel.left === 0, false);
+  assert.equal(viewModel.top, "0px");
+  assert.equal(viewModel.left === "0px", false);
   assert.equal(viewModel.popupDirection, "left");
-  assert.equal(viewModel.pointerTarget["left"] === 0, false);
-  assert.equal(viewModel.pointerTarget["top"] === 0, true);
+  assert.equal(viewModel.pointerTarget["left"] === "0px", false);
+  assert.equal(viewModel.pointerTarget["top"] === "0px", true);
   trace = "";
 
   model.isModal = true;
@@ -257,10 +254,10 @@ QUnit.test("PopupModel clickOutside", (assert) => {
   assert.equal(trace, "");
   assert.equal(viewModel.isVisible, true);
   assert.equal(viewModel.top, "0px");
-  assert.equal(viewModel.left === 0, false);
+  assert.equal(viewModel.left, "0px");
   assert.equal(viewModel.popupDirection, "left");
-  assert.equal(viewModel.pointerTarget["left"] === 0, false);
-  assert.equal(viewModel.pointerTarget["top"] === 0, true);
+  assert.equal(viewModel.pointerTarget["left"] === "0px", false);
+  assert.equal(viewModel.pointerTarget["top"] === "0px", true);
   trace = "";
 });
 

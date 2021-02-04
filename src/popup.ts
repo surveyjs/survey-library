@@ -77,10 +77,14 @@ export class PopupModel extends Base {
 }
 
 export class PopupViewModel extends Base {
-  @property() top: any;
-  @property() left: any;
-  @property() popupDirection: string;
-  @property({ defaultValue: {} }) pointerTarget: object;
+  // PopupBase
+  @property({ defaultValue: 0 }) top: string | number;
+  @property({ defaultValue: 0 }) left: string | number;
+  @property({ defaultValue: "left" }) popupDirection: string;
+  @property({ defaultValue: { left: "0px", top: "0px" } }) pointerTarget: {
+    top: string | number;
+    left: string | number;
+  };
   public container: HTMLElement;
 
   constructor(public model: PopupModel, private targetElement: HTMLElement) {
@@ -118,9 +122,13 @@ export class PopupViewModel extends Base {
   private onIsVisibleChanged(isVisible: boolean) {
     if (isVisible) {
       if (this.isModal) {
+        //setTimeout(() => {
         this.setupModalPopup();
+        //}, 1);
       } else {
+        //setTimeout(() => {
         this.setupModelessPopup();
+        //}, 1);
       }
     }
   }
@@ -151,8 +159,8 @@ export class PopupViewModel extends Base {
       this.model.horizontalPosition,
       this.showPointer
     );
-    this.left = pos.left;
-    this.top = pos.top;
+    this.left = pos.left + "px";
+    this.top = pos.top + "px";
 
     if (this.showPointer) {
       this.pointerTarget = PopupUtils.calculatePointerTarget(
@@ -163,6 +171,8 @@ export class PopupViewModel extends Base {
         this.model.horizontalPosition
       );
     }
+    this.pointerTarget.top += "px";
+    this.pointerTarget.left += "px";
     //} while (
     //  popupContainer.offsetWidth != width ||
     //  popupContainer.offsetHeight != height

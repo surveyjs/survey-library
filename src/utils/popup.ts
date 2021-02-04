@@ -27,7 +27,7 @@ export class PopupUtils {
       }
     }
 
-    return { left: left, top: top };
+    return { left: Math.round(left), top: Math.round(top) };
   }
 
   public static calculatePopupDirection(
@@ -59,8 +59,8 @@ export class PopupUtils {
       targetPos.top = (<any>targetRect)[verticalPosition];
       targetPos.left = targetRect.left + targetRect.width / 2;
     }
-    targetPos.left = targetPos.left - left;
-    targetPos.top = targetPos.top - top;
+    targetPos.left = Math.round(targetPos.left - left);
+    targetPos.top = Math.round(targetPos.top - top);
     return targetPos;
   }
 }

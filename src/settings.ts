@@ -140,4 +140,12 @@ export var settings = {
    * Set the value as string "yyyy-mm-dd". text questions with inputType "date" will not allow to set to survey date that greater than this value
    */
   maxDate: "",
+  showModal: <
+    (
+      componentName: string,
+      data: any,
+      onApply: () => void,
+      onCancel?: () => void
+    ) => void
+  >undefined,
 };

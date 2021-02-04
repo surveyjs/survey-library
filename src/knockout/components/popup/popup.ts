@@ -1,213 +1,56 @@
 import * as ko from "knockout";
-import { PopupUtils } from "./popup-utils";
-import { surveyLocalization } from "../../../surveyStrings";
-import { PopupModel } from "../../../popup";
+import { PopupModel, PopupViewModel } from "../../../popup";
+import { ImplementorBase } from "../../kobase";
+import { settings } from "../../../settings";
 const template = require("html-loader?interpolate!val-loader!./popup.html");
 
-export class PopupViewModel {
-  public top: any = ko.observable();
-  public left: any = ko.observable();
-  public popupDirection: any = ko.observable<string>();
-  public pointerTarget: any = ko.observable<object>({});
-  public isVisible: any = ko.observable(false);
+export function showModal(
+  componentName: string,
+  data: any,
+  onApply: () => void,
+  onCancel?: () => void
+) {
+  const popupModel = new PopupModel(
+    componentName,
+    data,
+    "top",
+    "left",
+    false,
+    true,
+    onCancel,
+    onApply
+  );
 
-  protected container: HTMLElement;
-  protected showSubscription: any; // ko.Subscription;
+  const popupViewModel: PopupViewModel = new PopupViewModel(
+    popupModel,
+    undefined
+  );
+  popupModel.onHide = () => {
+    ko.cleanNode(popupViewModel.container);
+    popupViewModel.destroyPopupContainer();
+  };
+  popupViewModel.initializePopupContainer();
+  popupViewModel.container.innerHTML = template;
 
-  constructor(public model: PopupModel, private targetElement: HTMLElement) {
-    this.container = document.createElement("div");
-    document.body.appendChild(this.container);
-    this.container.innerHTML = template;
-    ko.applyBindings(this, this.container);
+  // <ko specific>
+  new ImplementorBase(popupViewModel);
+  new ImplementorBase(popupViewModel.model);
+  ko.applyBindings(popupViewModel, popupViewModel.container);
+  // </ko specific>
 
-    this.showSubscription = this.isVisible.subscribe((isVisible: any) => {
-      this.onIsVisibleChanged(isVisible);
-    });
-
-    this.model.onToggleVisibility = () => {
-      this.isVisible(!this.isVisible());
-    };
-  }
-  //
-  public get contentComponentName(): string {
-    return this.model.contentComponentName;
-  }
-  public get contentComponentData(): any {
-    return this.model.contentComponentData;
-  }
-  public get verticalPosition(): "top" | "bottom" | "middle" {
-    return this.model.verticalPosition;
-  }
-  public get horizontalPosition(): "left" | "right" | "center" {
-    return this.model.horizontalPosition;
-  }
-  public get showPointer(): boolean {
-    return this.model.showPointer;
-  }
-  public get isModal(): boolean {
-    return this.model.isModal;
-  }
-  public get onCancel() {
-    return this.model.onCancel;
-  }
-  public get onApply() {
-    return this.model.onApply;
-  }
-  public get onHide() {
-    return this.model.onHide;
-  }
-  public get onShow() {
-    return this.model.onShow;
-  }
-  public get cssClass(): string {
-    return this.model.cssClass;
-  }
-  //
-  public get styleClass(): string {
-    var css = this.cssClass;
-    if (this.showPointer) {
-      css += " sv-popup--show-pointer";
-      css += ` sv-popup--${this.popupDirection()}`;
-    }
-
-    return css;
-  }
-
-  private onIsVisibleChanged(isVisible: boolean) {
-    if (isVisible) {
-      this.setupPopup();
-      this.onShow();
-    } else {
-      this.onHide();
-    }
-  }
-
-  private setupPopup() {
-    if (this.isModal) {
-      this.setupModalPopup();
-    } else {
-      this.setupModelessPopup();
-    }
-  }
-  private setupModalPopup() {
-    setTimeout(() => {
-      const background = <HTMLElement>this.container.children[0];
-      const container = <HTMLElement>this.container.children[0].children[0];
-      this.left((background.offsetWidth - container.offsetWidth) / 2 + "px");
-      this.top((background.offsetHeight - container.offsetHeight) / 2 + "px");
-    }, 1);
-  }
-  private setupModelessPopup() {
-    const rect = this.targetElement.getBoundingClientRect();
-    const popupContainer = <HTMLElement>this.container.children[0].children[0];
-    this.popupDirection(
-      PopupUtils.calculatePopupDirection(
-        this.verticalPosition,
-        this.horizontalPosition
-      )
-    );
-    //AM: hang up: page selector inside 'test survey' page causes infinite loop here
-    //do {
-    var height = popupContainer.offsetHeight;
-    var width = popupContainer.offsetWidth;
-    const pos = PopupUtils.calculatePosition(
-      rect,
-      height,
-      width,
-      this.verticalPosition,
-      this.horizontalPosition,
-      this.showPointer
-    );
-    this.left(pos.left);
-    this.top(pos.top);
-
-    if (this.showPointer) {
-      this.pointerTarget(
-        PopupUtils.calculatePointerTarget(
-          rect,
-          pos.top,
-          pos.left,
-          this.verticalPosition,
-          this.horizontalPosition
-        )
-      );
-    }
-    //} while (
-    //  popupContainer.offsetWidth != width ||
-    //  popupContainer.offsetHeight != height
-    //);
-  }
-
-  public clickOutside() {
-    if (this.isModal) {
-      return;
-    }
-    this.isVisible(false);
-  }
-
-  public cancel() {
-    this.onCancel();
-    this.isVisible(false);
-  }
-
-  public apply() {
-    this.onApply();
-    this.isVisible(false);
-  }
-
-  public get cancelButtonText() {
-    return surveyLocalization.getString("modalCancelButtonText");
-  }
-
-  public get applyButtonText() {
-    return surveyLocalization.getString("modalApplyButtonText");
-  }
-
-  public dispose() {
-    this.model.onToggleVisibility = undefined;
-    this.showSubscription.dispose();
-    this.showSubscription = undefined;
-    ko.cleanNode(this.container);
-    this.container.remove();
-    this.container = undefined;
-  }
-
-  public static showModal(
-    componentName: string,
-    data: any,
-    onApply: () => void,
-    onCancel?: () => void
-  ) {
-    const popupModel = new PopupModel(
-      componentName,
-      data,
-      "top",
-      "left",
-      false,
-      true,
-      onCancel,
-      onApply
-    );
-
-    const popupViewModel: PopupViewModel = new PopupViewModel(
-      popupModel,
-      undefined
-    );
-    popupViewModel.isVisible(true);
-  }
-  public static showDropDownMenu(items: any[], target: HTMLElement) {
-    const popupModel = new PopupModel(
-      "sv-list",
-      items /*, "top", "left", true*/
-    );
-
-    const popupViewModel: PopupViewModel = new PopupViewModel(
-      popupModel,
-      target
-    );
-    popupViewModel.isVisible(true);
-  }
+  popupViewModel.model.isVisible = true;
 }
+// function showDropDownMenu(items: any[], target: HTMLElement) {
+//   const popupModel = new PopupModel(
+//     "sv-list",
+//     new ListModel(items, undefined, false) /*, "top", "left", true*/
+//   );
+
+//   const popupViewModel: PopupViewModel = new PopupViewModel(popupModel, target);
+//   popupViewModel.model.isVisible = true;
+// }
+
+settings.showModal = showModal;
 
 ko.components.register("sv-popup", {
   viewModel: {
@@ -216,6 +59,21 @@ ko.components.register("sv-popup", {
         params.model,
         componentInfo.element.parentElement
       );
+
+      viewModel.initializePopupContainer();
+      viewModel.container.innerHTML = template;
+
+      // <ko specific>
+      new ImplementorBase(viewModel);
+      new ImplementorBase(params.model);
+      ko.applyBindings(viewModel, viewModel.container);
+      // </ko specific>
+
+      ko.utils.domNodeDisposal.addDisposeCallback(componentInfo.element, () => {
+        ko.cleanNode(viewModel.container);
+        viewModel.destroyPopupContainer();
+      });
+
       return viewModel;
     },
   },

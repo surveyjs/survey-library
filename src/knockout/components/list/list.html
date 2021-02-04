@@ -5,7 +5,7 @@
   <!--ko foreach: items-->
   <li
     class="sv-list__item"
-    data-bind="css: { 'sv-list__item--disabled': $parent.isItemDisabled($data), 'sv-list__item--selected': $parent.selectedItem() == $data }, click: $parent.selectItem"
+    data-bind="css: { 'sv-list__item--disabled': $parent.isItemDisabled($data), 'sv-list__item--selected': $parent.isItemSelected($data) }, click: $parent.selectItem"
   >
     <!-- ko if: $data.iconName -->
     <sv-svg-icon

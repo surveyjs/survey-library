@@ -12,7 +12,11 @@ export class ImplementorBase {
       hash[key] = ko.observable(val);
     }
   }
+  readonly implementedMark = "__surveyImplementedKo";
   constructor(public element: Base) {
+    if ((<any>element)[this.implementedMark]) {
+      return;
+    }
     element.iteratePropertiesHash((hash, key) => {
       ImplementorBase.doIterateProperties(hash, key);
     });
@@ -36,6 +40,7 @@ export class ImplementorBase {
       hash[key] !== undefined
         ? hash[key](val)
         : (hash[key] = ko.observable(val));
+    (<any>element)[this.implementedMark] = true;
   }
   public dispose() {
     this.element.iteratePropertiesHash((hash, key) => {
@@ -44,5 +49,6 @@ export class ImplementorBase {
     this.element.createArrayCoreHandler = undefined;
     this.element.getPropertyValueCoreHandler = undefined;
     this.element.setPropertyValueCoreHandler = undefined;
+    delete (<any>this.element)[this.implementedMark];
   }
 }

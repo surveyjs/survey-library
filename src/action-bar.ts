@@ -1,5 +1,6 @@
 import { Base } from "./base";
 import { property } from "./jsonobject";
+import { ListModel } from "./list";
 import { PopupModel } from "./popup";
 
 export interface IActionBarItem {
@@ -201,14 +202,16 @@ export abstract class AdaptiveElement extends Base {
   public get items(): Array<AdaptiveActionBarItemWrapper> {
     return this.getPropertyValue("items");
   }
-  public set items(value: AdaptiveActionBarItemWrapper[]) {
+  public set items(value: Array<AdaptiveActionBarItemWrapper>) {
     this.items.splice(0, this.items.length, ...(value || []));
   }
   public get invisibleItems(): AdaptiveActionBarItemWrapper[] {
     return this.getPropertyValue("invisibleItems");
   }
-  public set invisibleItems(value: AdaptiveActionBarItemWrapper[]) {
+  public set invisibleItems(value: Array<AdaptiveActionBarItemWrapper>) {
     this.invisibleItems.splice(0, this.invisibleItems.length, ...(value || []));
+
+    this.invisibleItemsListModel.items = this.invisibleItems;
   }
 
   public invisibleItemSelected(item: AdaptiveActionBarItemWrapper): void {
@@ -217,13 +220,18 @@ export abstract class AdaptiveElement extends Base {
     }
   }
 
-  protected dotsItemPopupModel: PopupModel = new PopupModel("sv-list", {
-    onItemSelect: (item: AdaptiveActionBarItemWrapper) => {
+  protected invisibleItemsListModel: ListModel = new ListModel(
+    [],
+    (item: AdaptiveActionBarItemWrapper) => {
       this.invisibleItemSelected(item);
       this.dotsItemPopupModel.toggleVisibility();
     },
-    items: () => this.invisibleItems,
-  });
+    false
+  );
+  protected dotsItemPopupModel: PopupModel = new PopupModel(
+    "sv-list",
+    this.invisibleItemsListModel
+  );
 
   public showFirstN(visibleItemsCount: number) {
     let leftItemsToShow = visibleItemsCount;

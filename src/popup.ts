@@ -1,20 +1,210 @@
-export class PopupModel {
+import { Base } from "./base";
+import { property } from "./jsonobject";
+import { surveyLocalization } from "./surveyStrings";
+import { PopupUtils } from "./utils/popup";
+
+export class PopupModel extends Base {
+  @property() contentComponentName: string;
+  @property() contentComponentData: string;
+  @property({ defaultValue: "bottom" }) verticalPosition:
+    | "top"
+    | "bottom"
+    | "middle";
+  @property({ defaultValue: "left" }) horizontalPosition:
+    | "left"
+    | "right"
+    | "center";
+  @property({ defaultValue: false }) showPointer: boolean;
+  @property({ defaultValue: false }) isModal: boolean;
+  @property({ defaultValue: () => {} }) onCancel: () => void;
+  @property({ defaultValue: () => {} }) onApply: () => void;
+  @property({ defaultValue: () => {} }) onHide: () => void;
+  @property({ defaultValue: () => {} }) onShow: () => void;
+  @property({ defaultValue: "" }) cssClass: string;
+
   constructor(
-    public contentComponentName: string,
-    public contentComponentData: any,
-    public verticalPosition: "top" | "bottom" | "middle" = "bottom",
-    public horizontalPosition: "left" | "right" | "center" = "left",
-    public showPointer: boolean = true,
-    public isModal: boolean = false,
-    public onCancel = () => {},
-    public onApply = () => {},
-    public onHide = () => {},
-    public onShow = () => {},
-    public cssClass: string = ""
-  ) {}
+    contentComponentName: string,
+    contentComponentData: any,
+    verticalPosition: "top" | "bottom" | "middle" = "bottom",
+    horizontalPosition: "left" | "right" | "center" = "left",
+    showPointer: boolean = true,
+    isModal: boolean = false,
+    onCancel = () => {},
+    onApply = () => {},
+    onHide = () => {},
+    onShow = () => {},
+    cssClass: string = ""
+  ) {
+    super();
+
+    this.contentComponentName = contentComponentName;
+    this.contentComponentData = contentComponentData;
+    this.verticalPosition = verticalPosition;
+    this.horizontalPosition = horizontalPosition;
+    this.showPointer = showPointer;
+    this.isModal = isModal;
+    this.onCancel = onCancel;
+    this.onApply = onApply;
+    this.onHide = onHide;
+    this.onShow = onShow;
+    this.cssClass = cssClass;
+  }
+
+  //@property({ defaultValue: false }) isVisible: boolean;
+  public get isVisible(): boolean {
+    return this.getPropertyValue("isVisible", false);
+  }
+  public set isVisible(value: boolean) {
+    if (this.isVisible === value) {
+      return;
+    }
+
+    this.setPropertyValue("isVisible", value);
+
+    this.onVisibilityChanged && this.onVisibilityChanged();
+
+    if (this.isVisible) {
+      this.onShow();
+    } else {
+      this.onHide();
+    }
+  }
 
   public toggleVisibility() {
-    this.onToggleVisibility && this.onToggleVisibility();
+    this.isVisible = !this.isVisible;
   }
-  public onToggleVisibility: () => void;
+  public onVisibilityChanged: () => void;
+}
+
+export class PopupViewModel extends Base {
+  @property() top: any;
+  @property() left: any;
+  @property() popupDirection: string;
+  @property({ defaultValue: {} }) pointerTarget: object;
+  public container: HTMLElement;
+
+  constructor(public model: PopupModel, private targetElement: HTMLElement) {
+    super();
+    this.model.onVisibilityChanged = () => {
+      this.onIsVisibleChanged(this.isVisible);
+    };
+  }
+  //
+  public get isVisible(): boolean {
+    return this.model.isVisible;
+  }
+  public get contentComponentName(): string {
+    return this.model.contentComponentName;
+  }
+  public get contentComponentData(): any {
+    return this.model.contentComponentData;
+  }
+  public get showPointer(): boolean {
+    return this.model.showPointer;
+  }
+  public get isModal(): boolean {
+    return this.model.isModal;
+  }
+  public get styleClass(): string {
+    var css = this.model.cssClass;
+    if (this.showPointer) {
+      css += " sv-popup--show-pointer";
+      css += ` sv-popup--${this.popupDirection}`;
+    }
+
+    return css;
+  }
+
+  private onIsVisibleChanged(isVisible: boolean) {
+    if (isVisible) {
+      if (this.isModal) {
+        this.setupModalPopup();
+      } else {
+        this.setupModelessPopup();
+      }
+    }
+  }
+
+  private setupModalPopup() {
+    const background = <HTMLElement>this.container.children[0];
+    const container = <HTMLElement>background.children[0];
+    this.left = (background.offsetWidth - container.offsetWidth) / 2 + "px";
+    this.top = (background.offsetHeight - container.offsetHeight) / 2 + "px";
+  }
+  private setupModelessPopup() {
+    const rect = this.targetElement.getBoundingClientRect();
+    const background = <HTMLElement>this.container.children[0];
+    const popupContainer = <HTMLElement>background.children[0];
+    this.popupDirection = PopupUtils.calculatePopupDirection(
+      this.model.verticalPosition,
+      this.model.horizontalPosition
+    );
+    //AM: hang up: page selector inside 'test survey' page causes infinite loop here
+    //do {
+    var height = popupContainer.offsetHeight;
+    var width = popupContainer.offsetWidth;
+    const pos = PopupUtils.calculatePosition(
+      rect,
+      height,
+      width,
+      this.model.verticalPosition,
+      this.model.horizontalPosition,
+      this.showPointer
+    );
+    this.left = pos.left;
+    this.top = pos.top;
+
+    if (this.showPointer) {
+      this.pointerTarget = PopupUtils.calculatePointerTarget(
+        rect,
+        pos.top,
+        pos.left,
+        this.model.verticalPosition,
+        this.model.horizontalPosition
+      );
+    }
+    //} while (
+    //  popupContainer.offsetWidth != width ||
+    //  popupContainer.offsetHeight != height
+    //);
+  }
+
+  public clickOutside() {
+    if (this.isModal) {
+      return;
+    }
+    this.model.isVisible = false;
+  }
+
+  public cancel() {
+    this.model.onCancel();
+    this.model.isVisible = false;
+  }
+
+  public apply() {
+    this.model.onApply();
+    this.model.isVisible = false;
+  }
+
+  public get cancelButtonText() {
+    return surveyLocalization.getString("modalCancelButtonText");
+  }
+
+  public get applyButtonText() {
+    return surveyLocalization.getString("modalApplyButtonText");
+  }
+
+  public dispose() {
+    this.model.onVisibilityChanged = undefined;
+  }
+
+  public initializePopupContainer() {
+    const container: HTMLElement = document.createElement("div");
+    this.container = container;
+    document.body.appendChild(this.container);
+  }
+  public destroyPopupContainer() {
+    this.container.remove();
+    this.container = undefined;
+  }
 }

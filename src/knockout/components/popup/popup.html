@@ -5,15 +5,17 @@
   >
     <!-- ko if: showPointer  -->
     <span
-      data-bind="style: {left: pointerTarget().left, top: pointerTarget().top }"
+      data-bind="style: {left: pointerTarget.left, top: pointerTarget.top }"
       class="sv-popup__pointer"
     ></span>
     <!-- /ko -->
 
     <div class="sv-popup__header"></div>
 
-    <div class="sv-popup__content" data-bind="component: { name: contentComponentName, params: contentComponentData }">
-    </div>
+    <div
+      class="sv-popup__content"
+      data-bind="component: { name: contentComponentName, params: contentComponentData }"
+    ></div>
 
     <div class="sv-popup__footer">
       <!-- ko if: isModal  -->

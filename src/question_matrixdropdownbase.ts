@@ -976,7 +976,11 @@ export class MatrixDropdownRowModelBase
   }
   private hasQuestonError(question: Question): boolean {
     if (!question) return false;
-    if (question.hasErrors(true, { isOnValueChanged: !this.editingObj }))
+    if (
+      question.hasErrors(true, {
+        isOnValueChanged: !this.data.isValidateOnValueChanging,
+      })
+    )
       return true;
     if (question.isEmpty()) return false;
     var cell = this.getCellByColumnName(question.name);

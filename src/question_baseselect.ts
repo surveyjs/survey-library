@@ -629,7 +629,7 @@ export class QuestionSelectBase extends Question {
     var res: any = this.survey.getQuestionByName(this.choicesFromQuestion);
     return !!res && !!res.visibleChoices && res !== this ? res : null;
   }
-  private getChoicesFromQuestion(
+  protected getChoicesFromQuestion(
     question: QuestionSelectBase
   ): Array<ItemValue> {
     if (
@@ -851,6 +851,11 @@ export class QuestionSelectBase extends Question {
       this.dependedQuestions[i].updateChoicesDependedQuestions();
     }
     this.isUpdatingChoicesDependedQuestions = false;
+  }
+  onSurveyValueChanged(newValue: any) {
+    super.onSurveyValueChanged(newValue);
+    if (this.isLoadingFromJson) return;
+    this.updateChoicesDependedQuestions();
   }
   protected onVisibleChoicesChanged() {
     if (this.isLoadingFromJson) return;

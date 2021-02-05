@@ -5712,3 +5712,14 @@ QUnit.test("MatrixDynamic, ", function (assert) {
   matrix.hideColumnsIfEmpty = true;
   assert.equal(matrix.renderedTable.showTable, true, "survey in design mode");
 });
+QUnit.test("Matrixdynamic change column.readOnly property", function (assert) {
+  var question = new QuestionMatrixDynamicModel("matrixDynamic");
+  question.rowCount = 2;
+  question.columns.push(new MatrixDropdownColumn("column1"));
+  question.columns[0].readOnly = true;
+  assert.equal(
+    question.columns[0].templateQuestion.isReadOnly,
+    true,
+    "set correctly"
+  );
+});

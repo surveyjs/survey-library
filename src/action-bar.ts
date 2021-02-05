@@ -168,7 +168,7 @@ export class AdaptiveActionBarItemWrapper
   @property() needSeparator: boolean;
 }
 
-export abstract class AdaptiveElement extends Base {
+export class AdaptiveElement extends Base {
   @property({ defaultValue: true }) showTitles: boolean;
 
   protected dotsItem: AdaptiveActionBarItemWrapper; // (...) button
@@ -185,7 +185,8 @@ export abstract class AdaptiveElement extends Base {
         css: "sv-dots",
         innerCss: "sv-dots__item",
         iconName: "icon-dots",
-        showTitle: false,
+        // showTitle: true,
+        // title: "...",
         action: (item: any) => {
           this.dotsItemPopupModel.toggleVisibility();
         },

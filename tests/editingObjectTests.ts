@@ -562,3 +562,48 @@ QUnit.test("Edit question string[] property type", function (assert) {
   assert.equal(question.dataList.length, 3, "There are three items now");
   assert.equal(question.dataList[2], "item3", "The third item is 'item3'");
 });
+QUnit.test(
+  "Edit custom array that returns values onGetValue",
+  function (assert) {
+    Serializer.addProperty("page", {
+      name: "pages:surveypages",
+      className: "page",
+      category: "general",
+      displayName: "Page order",
+      onGetValue: function (obj) {
+        return !!obj && !!obj.survey ? obj.survey.pages : [];
+      },
+      onSetValue: function (obj) {
+        //Do nothing
+      },
+      isSerializable: false,
+    });
+    var survey = new SurveyModel();
+    survey.addNewPage("page1");
+    survey.addNewPage("page2");
+    survey.addNewPage("page3");
+    survey.currentPage = survey.pages[0];
+
+    var editSurvey = new SurveyModel({
+      checkErrorsMode: "onValueChanging",
+      elements: [
+        {
+          type: "matrixdynamic",
+          name: "pages",
+          columns: [{ cellType: "text", name: "name" }],
+          rowCount: 0,
+        },
+      ],
+    });
+    var matrix = <QuestionMatrixDynamicModel>(
+      editSurvey.getQuestionByName("pages")
+    );
+    editSurvey.editingObj = survey.pages[0];
+    var pages = editSurvey.getValue("pages");
+    assert.ok(pages);
+    assert.equal(pages.length, 3);
+    var rows = matrix.visibleRows;
+    assert.equal(rows.length, 3, "There are 3 pages");
+    Serializer.removeProperty("page", "pages");
+  }
+);

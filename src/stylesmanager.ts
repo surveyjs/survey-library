@@ -906,6 +906,8 @@ export class StylesManager {
     ".sv_main f-panel .sv_qstn": "padding: 0; vertical-align: middle;",
 
     ".sv_main .sv_q_image": "display: inline-block;",
+    ".sv_main .sv_row .sv_qstn:first-child:last-child":
+      "flex: none !important;",
 
     //progress bar
     ".sv_main .sv-progress": "background-color: $header-background-color;",
@@ -944,6 +946,8 @@ export class StylesManager {
       "height: 100%;",
 
     ".sv_main.sv_bootstrapmaterial_css .sv_q_image": "display: inline-block;",
+    ".sv_main .sv_row .sv_qstn:first-child:last-child":
+      "flex: none !important;",
 
     ".sv_main.sv_bootstrapmaterial_css .checkbox input[type=checkbox]:checked + .checkbox-material .check":
       "border-color: $main-color;",

@@ -565,6 +565,7 @@ export class Base {
         )
           return prop.defaultValue;
         if (prop.type == "boolean" || prop.type == "switch") return false;
+        if (prop.isCustom && !!prop.onGetValue) return prop.onGetValue(this);
       }
     }
     return res;

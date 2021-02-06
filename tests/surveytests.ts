@@ -12453,3 +12453,50 @@ QUnit.test("onElementContentVisibilityChanged event", function (assert) {
   panel.state = "expanded";
   assert.equal(stateChangedCounter, 7);
 });
+
+QUnit.test("base.survey property", function (assert) {
+  var survey = new SurveyModel();
+  var page = survey.addNewPage("page1");
+  var panel = page.addNewPanel("panel1");
+  var question = page.addNewQuestion("text", "q1");
+  survey.calculatedValues.push(new CalculatedValue("var1"));
+  survey.triggers.push(new SurveyTriggerComplete());
+  question.validators.push(new ExpressionValidator(""));
+  var matrixDynamic = new QuestionMatrixDynamicModel("matrixdynamic1");
+  matrixDynamic.addColumn("col1");
+  matrixDynamic.columns[0].choices = [1, 2];
+  panel.addElement(matrixDynamic);
+  var matrix = new QuestionMatrixModel("matrix1");
+  matrix.rows = [1, 2];
+  matrix.columns = [1, 2];
+  page.addElement(matrix);
+  var matrixDropdown = new QuestionMatrixDropdownModel("matrixDropdown1");
+  matrixDropdown.rows = [1, 2];
+  page.addElement(matrixDropdown);
+  var mutlipleText = new QuestionMultipleTextModel("multipletext1");
+  mutlipleText.addItem("item1");
+  page.addElement(mutlipleText);
+  var dropdown = new QuestionDropdownModel("dropdown1");
+  page.addElement(dropdown);
+
+  assert.equal(page.survey.state, "running");
+  assert.equal(panel.survey.state, "running");
+  assert.equal(question.survey.state, "running");
+  assert.equal(survey.calculatedValues[0].getSurvey().state, "running");
+  assert.equal(survey.triggers[0].getSurvey().state, "running");
+  assert.equal(question.validators[0].getSurvey().state, "running");
+  assert.equal(matrixDynamic.columns[0].getSurvey().state, "running");
+  assert.equal(matrix.rows[0].getSurvey().state, "running");
+  assert.equal(matrix.columns[0].getSurvey().state, "running");
+  assert.equal(matrixDropdown.rows[0].getSurvey().state, "running");
+  assert.equal(
+    matrixDynamic.columns[0].templateQuestion.survey.state,
+    "running"
+  );
+  assert.equal(
+    matrixDynamic.columns[0].choices[0].getSurvey().state,
+    "running"
+  );
+  assert.equal(mutlipleText.items[0].getSurvey().state, "running");
+  assert.equal(dropdown.choicesByUrl.getSurvey().state, "running");
+});

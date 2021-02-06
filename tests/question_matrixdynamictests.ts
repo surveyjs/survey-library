@@ -4385,7 +4385,17 @@ QUnit.test(
       ],
     });
     var matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
-
+    assert.equal(matrix.columns[0].choices.length, 2, "There are two choices");
+    assert.equal(
+      matrix.columns[0].templateQuestion.choices.length,
+      2,
+      "There are two choices in question"
+    );
+    assert.equal(
+      matrix.columns[0].templateQuestion.visibleChoices.length,
+      3,
+      "There are two visible choices in question + hasOther"
+    );
     assert.equal(
       matrix.renderedTable.rows.length,
       3,

@@ -1,5 +1,5 @@
 import { HashTable, Helpers } from "./helpers";
-import { Base } from "./base";
+import { Base, ISurvey } from "./base";
 import { Serializer } from "./jsonobject";
 import { ConditionRunner, ExpressionRunner } from "./conditions";
 import { OperandMaker } from "./expressions/expressions";
@@ -231,6 +231,11 @@ export class SurveyTrigger extends Trigger {
   }
   public setOwner(owner: ISurveyTriggerOwner) {
     this.ownerValue = owner;
+  }
+  public getSurvey(): ISurvey {
+    return !!this.owner && !!(<any>this.owner)["getSurvey"]
+      ? (<any>this.owner).getSurvey()
+      : null;
   }
   public get isOnNextPage() {
     return false;

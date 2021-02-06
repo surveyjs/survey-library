@@ -1,4 +1,4 @@
-import { Base, SurveyError, ISurveyErrorOwner } from "./base";
+import { Base, SurveyError, ISurveyErrorOwner, ISurvey } from "./base";
 import { CustomError, RequreNumericError } from "./error";
 import { surveyLocalization } from "./surveyStrings";
 import { ILocalizableOwner, LocalizableString } from "./localizablestring";
@@ -18,6 +18,11 @@ export class SurveyValidator extends Base {
   constructor() {
     super();
     this.createLocalizableString("text", this, true);
+  }
+  public getSurvey(): ISurvey {
+    return !!this.errorOwner && !!(<any>this.errorOwner)["getSurvey"]
+      ? (<any>this.errorOwner).getSurvey()
+      : null;
   }
   public get text(): string {
     return this.getLocalizableStringText("text");
@@ -56,7 +61,9 @@ export class SurveyValidator extends Base {
     return !!this.errorOwner ? this.errorOwner.getLocale() : "";
   }
   getMarkdownHtml(text: string, name: string): string {
-    return !!this.errorOwner ? this.errorOwner.getMarkdownHtml(text, name) : null;
+    return !!this.errorOwner
+      ? this.errorOwner.getMarkdownHtml(text, name)
+      : null;
   }
   getRenderer(name: string): string {
     return !!this.errorOwner ? this.errorOwner.getRenderer(name) : null;
@@ -447,7 +454,7 @@ export class ExpressionValidator extends SurveyValidator {
     properties: any = null
   ): ValidatorResult {
     if (!this.ensureConditionRunner()) return null;
-    this.conditionRunner.onRunComplete = res => {
+    this.conditionRunner.onRunComplete = (res) => {
       this.isRunningValue = false;
       if (!!this.onAsyncCompleted) {
         this.onAsyncCompleted(this.generateError(res, value));
@@ -491,12 +498,12 @@ export class ExpressionValidator extends SurveyValidator {
 }
 
 Serializer.addClass("surveyvalidator", [
-  { name: "text", serializationProperty: "locText" }
+  { name: "text", serializationProperty: "locText" },
 ]);
 Serializer.addClass(
   "numericvalidator",
   ["minValue:number", "maxValue:number"],
-  function() {
+  function () {
     return new NumericValidator();
   },
   "surveyvalidator"
@@ -504,7 +511,7 @@ Serializer.addClass(
 Serializer.addClass(
   "textvalidator",
   ["minLength:number", "maxLength:number", "allowDigits:boolean"],
-  function() {
+  function () {
     return new TextValidator();
   },
   "surveyvalidator"
@@ -512,7 +519,7 @@ Serializer.addClass(
 Serializer.addClass(
   "answercountvalidator",
   ["minCount:number", "maxCount:number"],
-  function() {
+  function () {
     return new AnswerCountValidator();
   },
   "surveyvalidator"
@@ -520,7 +527,7 @@ Serializer.addClass(
 Serializer.addClass(
   "regexvalidator",
   ["regex"],
-  function() {
+  function () {
     return new RegexValidator();
   },
   "surveyvalidator"
@@ -528,7 +535,7 @@ Serializer.addClass(
 Serializer.addClass(
   "emailvalidator",
   [],
-  function() {
+  function () {
     return new EmailValidator();
   },
   "surveyvalidator"
@@ -537,7 +544,7 @@ Serializer.addClass(
 Serializer.addClass(
   "expressionvalidator",
   ["expression:condition"],
-  function() {
+  function () {
     return new ExpressionValidator();
   },
   "surveyvalidator"

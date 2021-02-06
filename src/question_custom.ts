@@ -248,9 +248,6 @@ export abstract class QuestionCustomModelBase
   geSurveyData(): ISurveyData {
     return this;
   }
-  getSurvey(): ISurvey {
-    return this.survey;
-  }
   getTextProcessor(): ITextProcessor {
     return this.textProcessor;
   }

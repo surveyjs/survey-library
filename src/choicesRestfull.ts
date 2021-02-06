@@ -1,4 +1,4 @@
-import { Base, SurveyError, ITextProcessor, IQuestion } from "./base";
+import { Base, SurveyError, ITextProcessor, IQuestion, ISurvey } from "./base";
 import { ItemValue } from "./itemvalue";
 import { Serializer, JsonObjectProperty } from "./jsonobject";
 import { WebRequestError, WebRequestEmptyError } from "./error";
@@ -114,6 +114,9 @@ export class ChoicesRestfull extends Base {
   public owner: IQuestion;
   constructor() {
     super();
+  }
+  public getSurvey(): ISurvey {
+    return !!this.owner ? this.owner.survey : null;
   }
   public run(textProcessor: ITextProcessor = null) {
     if (!this.url || !this.getResultCallback) return;

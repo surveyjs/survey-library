@@ -1534,9 +1534,6 @@ export class QuestionPanelDynamicModel
       this.survey.dynamicPanelItemValueChanged(this, options);
     }
   }
-  getSurvey(): ISurvey {
-    return this.survey;
-  }
   getRootData(): ISurveyData {
     return this.data;
   }

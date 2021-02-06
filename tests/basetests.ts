@@ -2,6 +2,7 @@ import { Base, Event, ArrayChanges } from "../src/base";
 import { ItemValue } from "../src/itemvalue";
 import { ILocalizableOwner, LocalizableString } from "../src/localizablestring";
 import { Serializer } from "../src/jsonobject";
+import { SurveyModel } from "../src/survey";
 
 export default QUnit.module("Base");
 
@@ -290,27 +291,28 @@ QUnit.test("Base simple propety value", function (assert) {
   assert.equal(newValue, 5, "newValue is 5");
 });
 
-QUnit.test("Base hash values - get/set PropertyValueCoreHandler", function (
-  assert
-) {
-  var base = new BaseTester();
-  var counter = 0;
-  var val;
-  base.setPropertyValueCoreHandler = (h, k, v) => {
-    counter++;
-    val = v;
-  };
-  base.getPropertyValueCoreHandler = (h, k) => {
-    counter++;
-    return val;
-  };
+QUnit.test(
+  "Base hash values - get/set PropertyValueCoreHandler",
+  function (assert) {
+    var base = new BaseTester();
+    var counter = 0;
+    var val;
+    base.setPropertyValueCoreHandler = (h, k, v) => {
+      counter++;
+      val = v;
+    };
+    base.getPropertyValueCoreHandler = (h, k) => {
+      counter++;
+      return val;
+    };
 
-  base.value1 = 5;
-  assert.equal(counter, 2);
-  assert.equal(val, 5);
-  assert.equal(base.value1, 5);
-  assert.equal(counter, 3);
-});
+    base.value1 = 5;
+    assert.equal(counter, 2);
+    assert.equal(val, 5);
+    assert.equal(base.value1, 5);
+    assert.equal(counter, 3);
+  }
+);
 
 QUnit.test("Base localizable string", function (assert) {
   var base = new BaseTester();
@@ -429,43 +431,44 @@ QUnit.test("Base propertyValueChanged itemValue", function (assert) {
   assert.equal(counter, 1, "callback called");
 });
 
-QUnit.test("Base propertyValueChanged colOwner - column undo/redo", function (
-  assert
-) {
-  var counter1 = 0;
-  var counter2 = 0;
-  var baseObj: any = new Base();
-
-  baseObj.colOwner = {
-    doPropertyValueChangedCallback: (
+QUnit.test(
+  "Base propertyValueChanged colOwner - column undo/redo",
+  function (assert) {
+    var survey = new SurveyModel({
+      elements: [
+        {
+          type: "matrixdropdown",
+          name: "q1",
+          columns: [{ name: "col1" }],
+          rows: [1, 2],
+        },
+      ],
+    });
+    var matrix = <any>survey.getQuestionByName("q1");
+    var counter1 = 0;
+    var counter2 = 0;
+    survey.onPropertyValueChangedCallback = (
       name: string,
       oldValue: any,
       newValue: any,
       sender: Base,
       arrayChanges: ArrayChanges
     ) => {
-      counter1++;
-    },
-  };
-  baseObj.locOwner = {
-    doPropertyValueChangedCallback: (
-      name: string,
-      oldValue: any,
-      newValue: any,
-      sender: Base,
-      arrayChanges: ArrayChanges
-    ) => {
-      counter2++;
-    },
-  };
+      if (name == "name" && oldValue == "col1" && newValue == "col2")
+        counter1++;
+      if (name == "value") counter2++;
+    };
 
-  assert.equal(counter1, 0, "initial");
-  assert.equal(counter2, 0, "initial");
-
-  baseObj.setPropertyValue("some", 1);
-  assert.equal(counter1, 1, "callback colOwner called");
-  assert.equal(counter2, 0, "callback locOwner not called");
-});
+    assert.equal(counter1, 0, "initial");
+    assert.equal(counter2, 0, "initial");
+    matrix.columns[0].name = "col2";
+    assert.equal(counter1, 1, "callback colOwner called");
+    assert.equal(counter2, 0, "callback locOwner not called");
+    matrix.rows[0].value = 3;
+    assert.equal(counter1, 1, "callback colOwner is the same");
+    assert.equal(counter2, 1, "callback locOwner called");
+  }
+);
 QUnit.test("Base onArrayChanged", function (assert) {
   var base = new BaseTester();
   var counter = 0;

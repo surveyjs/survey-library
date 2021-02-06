@@ -251,9 +251,15 @@ export class MatrixDropdownColumn extends Base implements ILocalizableOwner {
     this.name = name;
     if (title) this.title = title;
   }
+  public getSurvey(): ISurvey {
+    return !!this.colOwner ? (<any>this.colOwner).survey : null;
+  }
   endLoadingFromJson() {
     super.endLoadingFromJson();
     this.templateQuestion.endLoadingFromJson();
+    this.templateQuestion.onGetSurvey = () => {
+      return this.getSurvey();
+    };
   }
   getDynamicPropertyName(): string {
     return "cellType";
@@ -542,10 +548,16 @@ export class MatrixDropdownColumn extends Base implements ILocalizableOwner {
     this.templateQuestion.onPropertyChanged.add(function (sender, options) {
       self.propertyValueChanged(
         options.name,
-        options.oldvalue,
+        options.oldValue,
         options.newValue
       );
     });
+    this.templateQuestion.isContentElement = true;
+    if (!this.isLoadingFromJson) {
+      this.templateQuestion.onGetSurvey = () => {
+        return this.getSurvey();
+      };
+    }
   }
   protected createNewQuestion(cellType: string): Question {
     var question = <Question>Serializer.createClass(cellType);
@@ -1767,7 +1779,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     var choices = column.templateQuestion.choices;
     if (!!choices && Array.isArray(choices) && choices.length == 0)
       return this.matrix.choices;
-    var choices = column.templateQuestion.visibleChoices;
+    choices = column.templateQuestion.visibleChoices;
     if (!choices || !Array.isArray(choices)) return null;
     return choices;
   }
@@ -3126,9 +3138,6 @@ export class QuestionMatrixDropdownModelBase
       return true;
     }
     return Object.keys(val).length == 0;
-  }
-  getSurvey(): ISurvey {
-    return this.survey;
   }
 }
 

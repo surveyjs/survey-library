@@ -470,6 +470,9 @@ export class Base {
   public getType(): string {
     return "base";
   }
+  public getSurvey(): ISurvey {
+    return null;
+  }
   public get bindings(): Bindings {
     return this.bindingsValue;
   }
@@ -660,14 +663,13 @@ export class Base {
       newValue: newValue,
     });
 
-    this.doPropertyValueChangedCallback &&
-      this.doPropertyValueChangedCallback(
-        name,
-        oldValue,
-        newValue,
-        arrayChanges,
-        this
-      );
+    this.doPropertyValueChangedCallback(
+      name,
+      oldValue,
+      newValue,
+      arrayChanges,
+      this
+    );
 
     if (!this.onPropChangeFunctions) return;
     for (var i = 0; i < this.onPropChangeFunctions.length; i++) {
@@ -675,7 +677,9 @@ export class Base {
         this.onPropChangeFunctions[i].func(newValue);
     }
   }
-
+  protected get isInternal(): boolean {
+    return false;
+  }
   private doPropertyValueChangedCallback(
     name: string,
     oldValue: any,
@@ -683,18 +687,12 @@ export class Base {
     arrayChanges?: ArrayChanges,
     target?: Base
   ) {
+    if (this.isInternal) return;
     if (!target) target = this;
-    let parentBase = this.getOwnerForPropertyChanged();
-    if (!!parentBase) {
-      parentBase.doPropertyValueChangedCallback(
-        name,
-        oldValue,
-        newValue,
-        arrayChanges,
-        target
-      );
-    } else {
-      this.onPropertyValueChangedCallback(
+    var notifier: any = this.getSurvey();
+    if (!notifier) notifier = this;
+    if (!!notifier.doPropertyValueChangedCallback) {
+      notifier.onPropertyValueChangedCallback(
         name,
         oldValue,
         newValue,
@@ -703,16 +701,6 @@ export class Base {
       );
     }
   }
-  private getOwnerForPropertyChanged(): Base {
-    var testProps = ["colOwner", "locOwner", "survey", "owner", "errorOwner"];
-    for (var i = 0; i < testProps.length; i++) {
-      var prop = testProps[i];
-      var testObj = (<any>this)[prop];
-      if (!!testObj && !!testObj.doPropertyValueChangedCallback) return testObj;
-    }
-    return null;
-  }
-
   /**
    * Register a function that will be called on a property value changed.
    * @param name the property name
@@ -1272,6 +1260,9 @@ export class SurveyElement extends Base implements ISurveyElement {
    * Returns the survey object.
    */
   public get survey(): ISurvey {
+    return this.getSurvey();
+  }
+  public getSurvey(): ISurvey {
     if (!!this.surveyValue) return this.surveyValue;
     if (!!this.surveyImplValue) {
       this.surveyValue = this.surveyImplValue.getSurvey();
@@ -1285,6 +1276,9 @@ export class SurveyElement extends Base implements ISurveyElement {
     return !!this.survey && this.survey.isDesignMode;
   }
   public isContentElement: boolean = false;
+  protected get isInternal(): boolean {
+    return this.isContentElement;
+  }
   public get areInvisibleElementsShowing(): boolean {
     return (
       !!this.survey &&

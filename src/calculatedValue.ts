@@ -1,5 +1,5 @@
 import { HashTable, Helpers } from "./helpers";
-import { Base, ISurveyData } from "./base";
+import { Base, ISurvey, ISurveyData } from "./base";
 import { ExpressionRunner } from "./conditions";
 import { Serializer } from "./jsonobject";
 
@@ -29,6 +29,11 @@ export class CalculatedValue extends Base {
   }
   public getType(): string {
     return "calculatedvalue";
+  }
+  public getSurvey(): ISurvey {
+    return !!this.data && !!(<any>this.data)["getSurvey"]
+      ? (<any>this.data).getSurvey()
+      : null;
   }
   public get owner(): ISurveyData {
     return this.data;

@@ -13,6 +13,7 @@ import {
   ITitleOwner,
   IProgressInfo,
   Base,
+  ISurvey,
 } from "./base";
 import { surveyLocalization } from "./surveyStrings";
 import { AnswerRequiredError, CustomError } from "./error";
@@ -70,6 +71,7 @@ export class Question
   afterRenderQuestionCallback: (question: Question, element: any) => any;
   valueFromDataCallback: (val: any) => any;
   valueToDataCallback: (val: any) => any;
+  onGetSurvey: () => ISurvey;
   private locProcessedTitle: LocalizableString;
   protected isReadyValue: boolean = true;
 
@@ -135,6 +137,10 @@ export class Question
         self.initCommentFromSurvey();
       }
     );
+  }
+  public getSurvey(): ISurvey {
+    if (!!this.onGetSurvey) return this.onGetSurvey();
+    return super.getSurvey();
   }
   public getValueName(): string {
     if (!!this.valueName) return this.valueName.toString();

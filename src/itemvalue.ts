@@ -7,7 +7,7 @@ import {
 } from "./jsonobject";
 import { Helpers } from "./helpers";
 import { ConditionRunner } from "./conditions";
-import { Base } from "./base";
+import { Base, ISurvey } from "./base";
 import { settings } from "./settings";
 
 /**
@@ -225,9 +225,15 @@ export class ItemValue extends Base {
     }
     this.onCreating();
   }
+
   public onCreating(): any {}
   public getType(): string {
     return !!this.typeName ? this.typeName : "itemvalue";
+  }
+  public getSurvey(): ISurvey {
+    return !!this.locOwner && !!(<any>this.locOwner)["getSurvey"]
+      ? (<any>this.locOwner).getSurvey()
+      : null;
   }
   public getLocale(): string {
     return this.locText.locale;

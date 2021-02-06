@@ -513,9 +513,6 @@ export class QuestionMultipleTextModel
   getItemDefaultValue(name: string): any {
     return !!this.defaultValue ? this.defaultValue[name] : null;
   }
-  getSurvey(): ISurvey {
-    return this.survey;
-  }
   getTextProcessor(): ITextProcessor {
     return this.textProcessor;
   }

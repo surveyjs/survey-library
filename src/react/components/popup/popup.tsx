@@ -1,24 +1,34 @@
 import React from "react";
 import ReactDOM from "react-dom";
-import { PopupBase } from "../../../popup";
+import { PopupViewModel } from "../../../popup";
 import { ReactElementFactory } from "../../element-factory";
 import { SurveyElementBase } from "../../reactquestion_element";
 
-export class Popup extends React.Component<any, any> {
+export class Popup extends SurveyElementBase {
   private container: any;
-  private popup: PopupBase;
+  private popup: PopupViewModel;
   private containerRef: React.RefObject<HTMLDivElement>;
   constructor(props: any) {
     super(props);
     this.containerRef = React.createRef();
+    this.popup = new PopupViewModel(this.props.model);
+  }
+
+
+  get model(): PopupViewModel {
+    return this.props.model;
+  }
+
+  protected getStateElement() {
+    return this.model;
   }
 
   componentDidMount() {
+    super.componentDidMount();
     this.popup.targetElement = this.containerRef.current.parentElement;
   }
 
   render() {
-    this.popup = new PopupBase(this.props.model);
     return (
       <div ref={this.containerRef}>
         <PopupContainer model={this.popup}></PopupContainer>
@@ -28,6 +38,7 @@ export class Popup extends React.Component<any, any> {
   componentWillUnmount() {
     this.container.remove();
     this.container = undefined;
+    super.componentWillUnmount();
   }
 }
 
@@ -40,7 +51,7 @@ export class PopupContainer extends SurveyElementBase {
     document.body.appendChild(this.container);
     this.model.container = this.container;
   }
-  get model(): PopupBase {
+  get model(): PopupViewModel {
     return this.props.model;
   }
 
@@ -62,8 +73,8 @@ export class PopupContainer extends SurveyElementBase {
       <div
         className="sv-popup__container"
         style={{ left: this.model.left, top: this.model.top }}
-        onClick={() => {
-          this.clickInside;
+        onClick={(ev: any) => {
+          this.clickInside(ev);
         }}
       >
         {pointer}
@@ -95,15 +106,29 @@ export class PopupContainer extends SurveyElementBase {
       this.model.contentComponentName,
       this.model.contentComponentData
     );
-    return <div className="sv-popup__content">{contentComponent}</div>;
+    return (
+      <div className="sv-popup__content">
+        {contentComponent}
+      </div>
+    );
   }
   renderFooter() {
     return (
       <div className="sv-popup__footer">
-        <button onClick={this.model.cancel}>
+        <button
+          onClick={() => {
+            this.model.cancel();
+          }}
+        >
           {this.model.cancelButtonText}
         </button>
-        <button onClick={this.model.apply}>{this.model.applyButtonText}</button>
+        <button
+          onClick={() => {
+            this.model.apply();
+          }}
+        >
+          {this.model.applyButtonText}
+        </button>
       </div>
     );
   }
@@ -118,7 +143,10 @@ export class PopupContainer extends SurveyElementBase {
       <div
         className={className}
         style={style}
-        onClick={this.model.clickOutside}
+        onClick={(e: any) => {
+          this.model.clickOutside();
+          e.stopPropagation();
+        }}
       >
         {container}
       </div>

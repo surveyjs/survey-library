@@ -5,24 +5,30 @@
 import Vue from "vue";
 import { Prop, Component } from "vue-property-decorator";
 
-import { PopupBase, PopupModel } from "../../../popup";
+import { PopupViewModel, PopupModel } from "../../../popup";
 import { PopupContainer } from "./popup-container.vue";
+import { BaseVue } from "../../base";
 
 @Component
-export class Popup extends Vue {
+export class Popup extends BaseVue {
   private container: HTMLElement;
   @Prop model: PopupModel;
   @Prop targetElement: HTMLElement;
 
-  mounted() {
+  protected getModel() {
+    return this.model;
+  }
+
+  onMounted() {
     this.container = document.createElement("div");
     document.body.appendChild(this.container);
-    const popup = new PopupBase(this.model, this.$el.parentElement);
+    const popup = new PopupViewModel(this.model, this.$el.parentElement);
     new PopupContainer({
       el: this.container,
       propsData: { model: popup },
     });
   }
+
   beforeDestroy() {
     this.container.remove();
     this.container = undefined;

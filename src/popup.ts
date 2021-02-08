@@ -87,7 +87,7 @@ export class PopupViewModel extends Base {
   };
   public container: HTMLElement;
 
-  constructor(public model: PopupModel, private targetElement: HTMLElement) {
+  constructor(public model: PopupModel, public targetElement?: HTMLElement) {
     super();
     this.model.onVisibilityChanged = () => {
       this.onIsVisibleChanged(this.isVisible);
@@ -122,13 +122,13 @@ export class PopupViewModel extends Base {
   private onIsVisibleChanged(isVisible: boolean) {
     if (isVisible) {
       if (this.isModal) {
-        //setTimeout(() => {
+        setTimeout(() => {
         this.setupModalPopup();
-        //}, 1);
+        }, 1);
       } else {
-        //setTimeout(() => {
+        setTimeout(() => {
         this.setupModelessPopup();
-        //}, 1);
+        }, 1);
       }
     }
   }

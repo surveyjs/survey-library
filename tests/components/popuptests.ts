@@ -17,6 +17,18 @@ const targetRect = {
   bottom: 70,
 };
 
+//TODO: disable setTimeout when testing
+const toggleVisibility = PopupModel.prototype.toggleVisibility;
+PopupModel.prototype.toggleVisibility = function () {
+  var prevSetTimeout = window.setTimeout;
+  (<any>window).setTimeout = function (callback: any) {
+    callback();
+  };
+  toggleVisibility.apply(this, arguments);
+  window.setTimeout = prevSetTimeout;
+};
+//
+
 QUnit.test("PopupModel defaults", (assert) => {
   const data = {};
   const model: PopupModel = new PopupModel("sv-list", data);
@@ -141,6 +153,7 @@ QUnit.test("PopupViewModel isVisible", (assert) => {
   };
 
   model.toggleVisibility();
+
   //viewModel.isVisible(!viewModel.isVisible());
   assert.equal(trace, "->onShow");
   assert.equal(viewModel.isVisible, true);

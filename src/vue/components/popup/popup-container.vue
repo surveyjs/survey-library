@@ -49,12 +49,12 @@
 <script lang="ts">
 import Vue from "vue";
 import { Prop, Component } from "vue-property-decorator";
-import { PopupBase } from "../../../popup";
+import { PopupViewModel } from "../../../popup";
 import { BaseVue } from "../../base";
 
 @Component
 export class PopupContainer extends BaseVue {
-  @Prop model: PopupBase;
+  @Prop model: PopupViewModel;
 
   protected getModel() {
     return this.model;

@@ -7,16 +7,6 @@ import { QuestionRankingModel } from "../question_ranking";
 import { ReactQuestionFactory } from "./reactquestion_factory";
 
 export class SurveyQuestionRanking extends SurveyQuestionElementBase {
-  componentDidUpdate(prevProps: any, prevState: any) {
-    super.componentDidUpdate(prevProps, prevState);
-    this.question.syncNumbers();
-  }
-
-  componentDidMount() {
-    super.componentDidMount();
-    this.question.syncNumbers();
-  }
-
   protected get question(): QuestionRankingModel {
     return this.questionBase as QuestionRankingModel;
   }
@@ -34,16 +24,16 @@ export class SurveyQuestionRanking extends SurveyQuestionElementBase {
 
   protected getItems(): Array<any> {
     var items = [];
-    this.question.syncChoices();
     for (var i = 0; i < this.question.rankingChoices.length; i++) {
       var item = this.question.rankingChoices[i];
       var key = item.value + "-" + i + "-item";
       var text = this.renderLocString(item.locText);
+      var index = this.question.isIndeterminate ? "\u2013" : i + 1 + "";
       items.push(
         this.renderItem(
           key,
           text,
-          i,
+          index,
           this.question.handleKeydown,
           this.question.cssClasses,
           this.question.getItemClass(item)
@@ -56,7 +46,7 @@ export class SurveyQuestionRanking extends SurveyQuestionElementBase {
   protected renderItem(
     key: string,
     text: JSX.Element,
-    index: number,
+    index: string,
     handleKeydown: (event: any) => void,
     cssClasses: any,
     itemClass: string
@@ -78,7 +68,7 @@ export class SurveyQuestionRankingItem extends ReactSurveyElement {
   protected get text(): string {
     return this.props.text;
   }
-  protected get index(): number {
+  protected get index(): string {
     return this.props.index;
   }
   protected get handleKeydown(): (event: any) => void {
@@ -135,7 +125,7 @@ export class SurveyQuestionRankingItem extends ReactSurveyElement {
               className={this.cssClasses.itemIndex}
               style={{ marginRight: "4px" }}
             >
-              &ndash;
+              {this.index}
             </div>
             <div className={this.cssClasses.itemText}>{this.text}</div>
           </div>

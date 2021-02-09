@@ -15,27 +15,21 @@ const Sortable = <any>SortableLib;
 export class QuestionRankingModel extends QuestionCheckboxModel {
   domNode: HTMLElement = null;
   sortableInst: any = null;
-  isIndeterminate: boolean = true;
 
   constructor(name: string) {
     super(name);
-    this.createNewArray("rankingChoices");
   }
 
   public get rankingChoices() {
-    return this.getPropertyValue("rankingChoices", []);
+    return this.syncChoices();
   }
-  public set rankingChoices(newVal: any) {
-    this.setPropertyValue("rankingChoices", newVal);
-    this.syncNumbers();
+
+  public get isIndeterminate() {
+    return !this.value || this.value.length === 0;
   }
 
   public getType(): string {
     return "ranking";
-  }
-
-  public afterRender() {
-    this.syncChoices();
   }
 
   //cross framework initialization
@@ -51,22 +45,14 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
     super.beforeDestroyQuestionElement(el);
   }
 
-  protected onVisibleChoicesChanged() {
-    super.onVisibleChoicesChanged();
-    this.syncChoices();
-  }
-
   public syncChoices() {
     const value = this.value;
     const unrankedChoices = this.visibleChoices;
     let rankedChoices: Array<ItemValue> = [];
 
     if (!value || value.length === 0) {
-      this.rankingChoices = this.visibleChoices;
-      this.isIndeterminate = true;
-      return;
+      return this.visibleChoices;
     }
-    this.isIndeterminate = false;
     rankedChoices.length = unrankedChoices.length;
 
     for (var i = 0; i < unrankedChoices.length; i++) {
@@ -82,8 +68,8 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
 
     rankedChoices = rankedChoices.filter((choice) => !!choice);
 
-    this.rankingChoices = rankedChoices;
     this.value = rankedChoices.map((choice) => choice.text);
+    return rankedChoices;
   }
 
   public initSortable(domNode: HTMLElement) {
@@ -111,14 +97,9 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
           " " + self.cssClasses.rootDragMod,
           ""
         );
-        if (self.isIndeterminate) {
-          self.isIndeterminate = false;
-          self.syncNumbers();
-        }
         self.setValue();
       },
       onChange(evt: any) {
-        if (!self.isIndeterminate) self.syncNumbers();
         self.setGhostText(evt.newIndex + 1);
       },
     });
@@ -144,23 +125,17 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
   };
 
   handleArrowUp = (index: number) => {
-    this.isIndeterminate = false;
     const array = this.sortableInst.toArray();
     this.moveArrayItemBack(array, index);
     this.sortableInst.sort(array);
-
-    this.syncNumbers();
     this.setValue();
     this.focusItem(index - 1);
   };
 
   handleArrowDown = (index: number) => {
-    this.isIndeterminate = false;
     const array = this.sortableInst.toArray();
     this.moveArrayItemForward(array, index);
     this.sortableInst.sort(array);
-
-    this.syncNumbers();
     this.setValue();
     this.focusItem(index + 1);
   };
@@ -175,16 +150,6 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
     const temp = array[index];
     array[index] = array[index + 1];
     array[index + 1] = temp;
-  };
-
-  syncNumbers = () => {
-    if (!this.domNode) return;
-    const indexNodes = this.domNode.querySelectorAll(
-      "." + this.cssClasses.itemIndex
-    );
-    indexNodes.forEach((indexNode: any, index) => {
-      indexNode.innerText = this.isIndeterminate ? "\u2013" : index + 1;
-    });
   };
 
   focusItem = (index: number) => {

@@ -506,10 +506,14 @@ export class SurveyModel
    * The event is fired on uploading the file in QuestionFile when `storeDataAsText` is set to `false`. Use this event to change the uploaded file name or to prevent a particular file from being uploaded.
    * <br/> `sender` - the survey object that fires the event.
    * <br/> `options.question` - the file question instance.
-   * <br/> `options.name` - the file question name.
+   * <br/> `options.name` - the question name.
    * <br/> `options.files` - the Javascript File objects array to upload.
+   * <br/> `options.callback` - a callback function to get the file upload status and the updloaded file content.
    * @see uploadFiles
    * @see QuestionFileModel.storeDataAsText
+   * @see onDownloadFile
+   * @see onClearFiles
+   * @see [View Examples](https://www.google.com/search?q=site%3Ahttps%3A%2F%2Fsurveyjs.io%2FExamples%2F+%22onUploadFiles%22)
    */
   public onUploadFiles: Event<
     (sender: SurveyModel, options: any) => any,
@@ -521,8 +525,11 @@ export class SurveyModel
    * <br/> `options.name` - the question name.
    * <br/> `options.content` - the file content.
    * <br/> `options.fileValue` - single file question value.
-   * <br/> `options.callback` - a call back function to get the status on downloading the file and the downloaded file content.
+   * <br/> `options.callback` - a callback function to get the file downloading status and the downloaded file content.
    * @see downloadFile
+   * @see onClearFiles
+   * @see onUploadFiles
+   * @see [View Examples](https://www.google.com/search?q=site%3Ahttps%3A%2F%2Fsurveyjs.io%2FExamples%2F+%22onDownloadFile%22)
    */
   public onDownloadFile: Event<
     (sender: SurveyModel, options: any) => any,
@@ -535,8 +542,11 @@ export class SurveyModel
    * <br/> `options.name` - the question name.
    * <br/> `options.value` - the question value.
    * <br/> `options.fileName` - a removed file's name, set it to `null` to clear all files.
-   * <br/> `options.callback` - a call back function to get the status on clearing the files operation.
+   * <br/> `options.callback` - a callback function to get the operation status.
    * @see clearFiles
+   * @see onDownloadFile
+   * @see onUploadFiles
+   * @see [View Examples](https://www.google.com/search?q=site%3Ahttps%3A%2F%2Fsurveyjs.io%2FExamples%2F+%22onClearFiles%22)
    */
   public onClearFiles: Event<
     (sender: SurveyModel, options: any) => any,

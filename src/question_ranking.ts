@@ -16,11 +16,20 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
   domNode: HTMLElement = null;
   sortableInst: any = null;
   isIndeterminate: boolean = true;
-  _rankingChoices: Array<ItemValue> = [];
 
   constructor(name: string) {
     super(name);
+    this.createNewArray("rankingChoices");
   }
+
+  public get rankingChoices() {
+    return this.getPropertyValue("rankingChoices", []);
+  }
+  public set rankingChoices(newVal: any) {
+    this.setPropertyValue("rankingChoices", newVal);
+    this.syncNumbers();
+  }
+
   public getType(): string {
     return "ranking";
   }
@@ -42,10 +51,6 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
     super.beforeDestroyQuestionElement(el);
   }
 
-  public get rankingChoices() {
-    return this._rankingChoices;
-  }
-
   protected onVisibleChoicesChanged() {
     super.onVisibleChoicesChanged();
     this.syncChoices();
@@ -57,7 +62,7 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
     let rankedChoices: Array<ItemValue> = [];
 
     if (!value || value.length === 0) {
-      this._rankingChoices = this.visibleChoices;
+      this.rankingChoices = this.visibleChoices;
       this.isIndeterminate = true;
       return;
     }
@@ -77,7 +82,7 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
 
     rankedChoices = rankedChoices.filter((choice) => !!choice);
 
-    this._rankingChoices = rankedChoices;
+    this.rankingChoices = rankedChoices;
     this.value = rankedChoices.map((choice) => choice.text);
   }
 
@@ -173,6 +178,7 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
   };
 
   syncNumbers = () => {
+    if (!this.domNode) return;
     const indexNodes = this.domNode.querySelectorAll(
       "." + this.cssClasses.itemIndex
     );

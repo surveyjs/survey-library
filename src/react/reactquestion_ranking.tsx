@@ -34,6 +34,7 @@ export class SurveyQuestionRanking extends SurveyQuestionElementBase {
 
   protected getItems(): Array<any> {
     var items = [];
+    this.question.syncChoices();
     for (var i = 0; i < this.question.rankingChoices.length; i++) {
       var item = this.question.rankingChoices[i];
       var key = item.value + "-" + i + "-item";

@@ -227,7 +227,7 @@ export class PanelModelBase
   removeElementCallback: (element: IElement) => void;
   onGetQuestionTitleLocation: () => string;
 
-  constructor(public name: string = "") {
+  constructor(name: string = "") {
     super(name);
     this.createNewArray("rows");
     this.elementsValue = this.createNewArray(
@@ -1486,7 +1486,7 @@ export class PanelModel
   implements IElement, ITitleOwner {
   public minWidth?: string;
   public maxWidth?: string;
-  constructor(public name: string = "") {
+  constructor(name: string = "") {
     super(name);
     var self = this;
     this.registerFunctionOnPropertyValueChanged("width", function () {

@@ -7,7 +7,7 @@ import { LocalizableString } from "./localizablestring";
  * A Model for image question. This question hasn't any functionality and can be used to improve the appearance of the survey.
  */
 export class QuestionImageModel extends QuestionNonValue {
-  constructor(public name: string) {
+  constructor(name: string) {
     super(name);
     this.createLocalizableString("imageLink", this, false);
     this.createLocalizableString("text", this, false);

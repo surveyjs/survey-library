@@ -82,6 +82,7 @@ export {
 
 export { DefaultTitle } from "../react/components/default-title/default-title";
 export { TitleActions } from "../react/components/title-actions/title-actions";
+export { ActionBar } from "../react/components/action-bar/action-bar";
 
 export { SurveyLocStringViewer } from "../react/string-viewer";
 export { SurveyLocStringEditor } from "../react/string-editor";

@@ -9,7 +9,7 @@ import { ItemValue } from "./itemvalue";
  * A Model for a dropdown question
  */
 export class QuestionDropdownModel extends QuestionSelectBase {
-  constructor(public name: string) {
+  constructor(name: string) {
     super(name);
     this.createLocalizableString("optionsCaption", this);
     var self = this;

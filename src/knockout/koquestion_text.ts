@@ -11,7 +11,7 @@ class QuestionTextImplementor extends QuestionImplementor {
   }
 }
 export class QuestionText extends QuestionTextModel {
-  constructor(public name: string) {
+  constructor(name: string) {
     super(name);
   }
   protected onBaseCreating() {

@@ -51,7 +51,7 @@ export class QuestionSignaturePadModel extends Question {
     }
   }
 
-  constructor(public name: string) {
+  constructor(name: string) {
     super(name);
   }
   public getType(): string {

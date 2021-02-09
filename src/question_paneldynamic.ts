@@ -161,7 +161,7 @@ export class QuestionPanelDynamicItem implements ISurveyData, ISurveyImpl {
       return this.data.getRootData().getFilteredProperties();
     return { survey: this.getSurvey() };
   }
-  geSurveyData(): ISurveyData {
+  getSurveyData(): ISurveyData {
     return this;
   }
   getSurvey(): ISurvey {
@@ -174,7 +174,7 @@ export class QuestionPanelDynamicItem implements ISurveyData, ISurveyImpl {
 
 export class QuestionPanelDynamicTemplateSurveyImpl implements ISurveyImpl {
   constructor(public data: IQuestionPanelDynamicData) {}
-  geSurveyData(): ISurveyData {
+  getSurveyData(): ISurveyData {
     return null;
   }
   getSurvey(): ISurvey {
@@ -202,7 +202,7 @@ export class QuestionPanelDynamicModel
   panelCountChangedCallback: () => void;
   currentIndexChangedCallback: () => void;
 
-  constructor(public name: string) {
+  constructor(name: string) {
     super(name);
     this.createNewArray("panels");
     this.templateValue = this.createAndSetupNewPanelObject();

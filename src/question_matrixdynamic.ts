@@ -39,7 +39,7 @@ export class QuestionMatrixDynamicModel
   private initialRowCount: number = 2;
   private setRowCountValueFromData: boolean = false;
 
-  constructor(public name: string) {
+  constructor(name: string) {
     super(name);
     void (<LocalizableString>(
       this.createLocalizableString("confirmDeleteText", this)

@@ -13,7 +13,7 @@ export default class QuestionDateModel extends Question {
   public numberOfMonths: number = 1;
   public minDate: string = "";
   public maxDate: string = "";
-  constructor(public name: string) {
+  constructor(name: string) {
     super(name);
   }
   //"date" - identificator that will json serializer what question to create.
@@ -57,10 +57,10 @@ Serializer.addClass(
     "changeYear:boolean",
     { name: "numberOfMonths", default: 1, choices: [1, 2, 3, 4, 5] },
     "minDate",
-    "maxDate"
+    "maxDate",
   ],
   //json deserializer will call this function to create the object
-  function() {
+  function () {
     return new QuestionDateModel("");
   },
   //tell json serializer that we are inherited from 'question' class and we want to use all 'question' properties as well.
@@ -68,6 +68,6 @@ Serializer.addClass(
 );
 
 //Register the class as a question. Survey editor will know it is a question and it will show it in question toolbox.
-QuestionFactory.Instance.registerQuestion("date", name => {
+QuestionFactory.Instance.registerQuestion("date", (name) => {
   return new QuestionDateModel(name);
 });

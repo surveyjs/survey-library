@@ -42,7 +42,7 @@ class QuestionRatingImplementor extends QuestionImplementor {
 }
 
 export class QuestionRating extends QuestionRatingModel {
-  constructor(public name: string) {
+  constructor(name: string) {
     super(name);
   }
   protected onBaseCreating() {

@@ -35,7 +35,7 @@ export interface IActionBarItem {
   /**
    * Toolbar item css class
    */
-  css?: string;
+  css?: (() => string) | string;
   /**
    * Toolbar inner element css class
    */
@@ -80,7 +80,7 @@ export class ActionBarItem extends Base implements IActionBarItem {
   @property() enabled?: boolean;
   @property() showTitle?: boolean;
   @property() action?: (context?: any) => void;
-  @property() css?: string;
+  @property() css?: (() => string) | string;
   @property() innerCss?: string;
   @property() data?: any;
   @property() popupModel?: any;
@@ -137,7 +137,7 @@ export class AdaptiveActionBarItemWrapper
   public action(context?: any) {
     this.item.action && this.item.action(context);
   }
-  public get css(): string {
+  public get css(): (() => string) | string {
     return this.unwrap(this.item.css);
   }
   public get innerCss(): string {
@@ -172,11 +172,16 @@ export class AdaptiveElement extends Base {
   @property({ defaultValue: true }) showTitles: boolean;
 
   protected dotsItem: AdaptiveActionBarItemWrapper; // (...) button
+  protected dotsItemPopupModel: PopupModel;
 
   constructor() {
     super();
     this.createNewArray("items");
     this.createNewArray("invisibleItems");
+    this.dotsItemPopupModel = new PopupModel(
+      "sv-list",
+      this.invisibleItemsListModel
+    );
     this.dotsItem = new AdaptiveActionBarItemWrapper(
       this,
       new ActionBarItem({
@@ -228,10 +233,6 @@ export class AdaptiveElement extends Base {
       this.dotsItemPopupModel.toggleVisibility();
     },
     false
-  );
-  protected dotsItemPopupModel: PopupModel = new PopupModel(
-    "sv-list",
-    this.invisibleItemsListModel
   );
 
   public showFirstN(visibleItemsCount: number) {

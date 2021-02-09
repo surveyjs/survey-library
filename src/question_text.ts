@@ -14,7 +14,7 @@ import { settings } from "./settings";
  */
 export class QuestionTextModel extends Question {
   private locDataListValue: LocalizableStrings;
-  constructor(public name: string) {
+  constructor(name: string) {
     super(name);
     this.createLocalizableString("placeHolder", this);
     this.createLocalizableString("minErrorText", this, true);

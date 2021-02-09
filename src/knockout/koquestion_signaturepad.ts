@@ -5,7 +5,7 @@ import { QuestionImplementor } from "./koquestion";
 import { Question } from "../question";
 
 export class QuestionSignaturePad extends QuestionSignaturePadModel {
-  constructor(public name: string) {
+  constructor(name: string) {
     super(name);
   }
   protected onBaseCreating() {
@@ -14,6 +14,6 @@ export class QuestionSignaturePad extends QuestionSignaturePadModel {
   }
 }
 
-Serializer.overrideClassCreator("signaturepad", function() {
+Serializer.overrideClassCreator("signaturepad", function () {
   return new QuestionSignaturePad("");
 });

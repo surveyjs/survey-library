@@ -8,7 +8,7 @@ import { ItemValue } from "./itemvalue";
  * A Model for a radiogroup question.
  */
 export class QuestionRadiogroupModel extends QuestionCheckboxBase {
-  constructor(public name: string) {
+  constructor(name: string) {
     super(name);
   }
   public getType(): string {

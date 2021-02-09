@@ -7,11 +7,11 @@ import { LocalizableString } from "./localizablestring";
  * A Model for html question. Unlike other questions it doesn't have value and title.
  */
 export class QuestionHtmlModel extends QuestionNonValue {
-  constructor(public name: string) {
+  constructor(name: string) {
     super(name);
     var locHtml = this.createLocalizableString("html", this);
     var self = this;
-    locHtml.onGetTextCallback = function(str: string): string {
+    locHtml.onGetTextCallback = function (str: string): string {
       return !!self.survey ? self.survey.processHtml(str) : str;
     };
   }
@@ -40,11 +40,11 @@ export class QuestionHtmlModel extends QuestionNonValue {
 Serializer.addClass(
   "html",
   [{ name: "html:html", serializationProperty: "locHtml" }],
-  function() {
+  function () {
     return new QuestionHtmlModel("");
   },
   "nonvalue"
 );
-QuestionFactory.Instance.registerQuestion("html", name => {
+QuestionFactory.Instance.registerQuestion("html", (name) => {
   return new QuestionHtmlModel(name);
 });

@@ -5543,7 +5543,7 @@ export class SurveyModel
     }
   }
   //ISurveyImplementor
-  geSurveyData(): ISurveyData {
+  getSurveyData(): ISurveyData {
     return this;
   }
   getSurvey(): ISurvey {
@@ -5590,7 +5590,7 @@ export class SurveyModel
   focusQuestion(name: string): boolean {
     var question = this.getQuestionByName(name, true);
     if (!question || !question.isVisible || !question.page) return false;
-    this.currentPage = question.page;
+    this.currentPage = <PageModel>question.page;
     setTimeout(function () {
       question.focus(), 1;
     });

@@ -19,7 +19,7 @@ export class QuestionMatrixBaseModel<TRow, TColumn> extends Question {
     return this.createItemValues("columns");
   }
 
-  constructor(public name: string) {
+  constructor(name: string) {
     super(name);
     this.filteredRows = null;
     this.filteredColumns = null;

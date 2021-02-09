@@ -13,7 +13,7 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
   private noneItemValue: ItemValue = new ItemValue("none");
   private selectAllItemValue: ItemValue = new ItemValue("selectall");
   private invisibleOldValues: any = {};
-  constructor(public name: string) {
+  constructor(name: string) {
     super(name);
     var noneItemText = this.createLocalizableString("noneText", this, true);
     noneItemText.onGetTextCallback = function (text) {

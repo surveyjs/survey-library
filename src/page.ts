@@ -1,6 +1,6 @@
 import { Serializer } from "./jsonobject";
 import { Helpers } from "./helpers";
-import { IPage, IPanel, IElement, ISurveyElement, IQuestion, } from "./base";
+import { IPage, IPanel, IElement, ISurveyElement, IQuestion } from "./base";
 import { DragDropInfo, PanelModelBase, QuestionRowModel } from "./panel";
 import { LocalizableString } from "./localizablestring";
 
@@ -9,10 +9,10 @@ import { LocalizableString } from "./localizablestring";
  */
 export class PageModel extends PanelModelBase implements IPage {
   private hasShownValue: boolean = false;
-  constructor(public name: string = "") {
+  constructor(name: string = "") {
     super(name);
     var self = this;
-    this.locTitle.onGetTextCallback = function(text) {
+    this.locTitle.onGetTextCallback = function (text) {
       if (self.num > 0) return self.num + ". " + text;
       return text;
     };
@@ -295,7 +295,7 @@ export class PageModel extends PanelModelBase implements IPage {
       source: this.dragDropInfo.source,
       parent: parent,
       insertAfter: insertAfter,
-      insertBefore: insertBefore
+      insertBefore: insertBefore,
     };
     return this.survey.dragAndDropAllow(options);
   }
@@ -394,7 +394,7 @@ export class PageModel extends PanelModelBase implements IPage {
   }
   public ensureRowsVisibility() {
     super.ensureRowsVisibility();
-    this.getPanels().forEach(panel => panel.ensureRowsVisibility() );
+    this.getPanels().forEach((panel) => panel.ensureRowsVisibility());
   }
 }
 
@@ -404,12 +404,12 @@ Serializer.addClass(
     {
       name: "navigationButtonsVisibility",
       default: "inherit",
-      choices: ["inherit", "show", "hide"]
+      choices: ["inherit", "show", "hide"],
     },
     {
       name: "questionsOrder",
       default: "default",
-      choices: ["default", "initial", "random"]
+      choices: ["default", "initial", "random"],
     },
     { name: "maxTimeToFinish:number", default: 0, minValue: 0 },
     {
@@ -417,17 +417,17 @@ Serializer.addClass(
       visibleIf: function (obj: any) {
         return !!obj.survey && obj.survey.progressBarType === "buttons";
       },
-      serializationProperty: "locNavigationTitle"
+      serializationProperty: "locNavigationTitle",
     },
     {
       name: "navigationDescription",
       visibleIf: function (obj: any) {
         return !!obj.survey && obj.survey.progressBarType === "buttons";
       },
-      serializationProperty: "locNavigationDescription"
-    }
+      serializationProperty: "locNavigationDescription",
+    },
   ],
-  function() {
+  function () {
     return new PageModel();
   },
   "panelbase"

@@ -457,16 +457,16 @@ export class ExpressionValidator extends SurveyValidator {
     this.conditionRunner.onRunComplete = (res) => {
       this.isRunningValue = false;
       if (!!this.onAsyncCompleted) {
-        this.onAsyncCompleted(this.generateError(res, value));
+        this.onAsyncCompleted(this.generateError(res, value, name));
       }
     };
     this.isRunningValue = true;
     var res = this.conditionRunner.run(values, properties);
     if (this.conditionRunner.isAsync) return null;
     this.isRunningValue = false;
-    return this.generateError(res, value);
+    return this.generateError(res, value, name);
   }
-  protected generateError(res: boolean, value: any) {
+  protected generateError(res: boolean, value: any, name: string) {
     if (!res) {
       return new ValidatorResult(value, this.createCustomError(name));
     }

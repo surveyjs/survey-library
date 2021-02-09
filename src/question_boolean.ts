@@ -8,7 +8,7 @@ import { surveyLocalization } from "./surveyStrings";
  * A Model for a boolean question.
  */
 export class QuestionBooleanModel extends Question {
-  constructor(public name: string) {
+  constructor(name: string) {
     super(name);
     this.createLocalizableString("labelFalse", this, true);
     this.createLocalizableString("labelTrue", this, true);

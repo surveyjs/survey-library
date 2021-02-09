@@ -1172,7 +1172,7 @@ export class MatrixDropdownRowModelBase
   protected createCell(column: MatrixDropdownColumn): MatrixDropdownCell {
     return new MatrixDropdownCell(column, this, this.data);
   }
-  geSurveyData(): ISurveyData {
+  getSurveyData(): ISurveyData {
     return this;
   }
   getSurvey(): ISurvey {
@@ -1881,7 +1881,7 @@ export class QuestionMatrixDropdownModelBase
     });
   }
 
-  constructor(public name: string) {
+  constructor(name: string) {
     super(name);
     var self = this;
     this.createItemValues("choices");

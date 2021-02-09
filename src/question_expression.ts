@@ -12,7 +12,7 @@ import { SurveyError } from "./base";
 export class QuestionExpressionModel extends Question {
   private expressionIsRunning: boolean;
   private expressionRunner: ExpressionRunner;
-  constructor(public name: string) {
+  constructor(name: string) {
     super(name);
     this.createLocalizableString("format", this);
     var self = this;

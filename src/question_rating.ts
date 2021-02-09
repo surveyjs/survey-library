@@ -11,7 +11,7 @@ import { settings } from "./settings";
 export class QuestionRatingModel extends Question {
   rateValuesChangedCallback: () => void;
 
-  constructor(public name: string) {
+  constructor(name: string) {
     super(name);
     this.createItemValues("rates");
     var self = this;

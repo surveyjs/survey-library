@@ -21,7 +21,7 @@ class QuestionDropdownImplementor extends QuestionSelectBaseImplementor {
 }
 
 export class QuestionDropdown extends QuestionDropdownModel {
-  constructor(public name: string) {
+  constructor(name: string) {
     super(name);
   }
   protected onBaseCreating() {
@@ -29,10 +29,10 @@ export class QuestionDropdown extends QuestionDropdownModel {
     new QuestionDropdownImplementor(this);
   }
 }
-Serializer.overrideClassCreator("dropdown", function() {
+Serializer.overrideClassCreator("dropdown", function () {
   return new QuestionDropdown("");
 });
-QuestionFactory.Instance.registerQuestion("dropdown", name => {
+QuestionFactory.Instance.registerQuestion("dropdown", (name) => {
   var q = new QuestionDropdown(name);
   q.choices = QuestionFactory.DefaultChoices;
   return q;

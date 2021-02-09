@@ -5,7 +5,7 @@ import { Question } from "./question";
  * A Model for an question that renders empty "div" tag. It used as a base class for some custom widgets
  */
 export class QuestionEmptyModel extends Question {
-  constructor(public name: string) {
+  constructor(name: string) {
     super(name);
   }
   public getType(): string {
@@ -16,7 +16,7 @@ export class QuestionEmptyModel extends Question {
 Serializer.addClass(
   "empty",
   [],
-  function() {
+  function () {
     return new QuestionEmptyModel("");
   },
   "question"

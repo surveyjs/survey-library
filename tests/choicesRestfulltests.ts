@@ -195,7 +195,7 @@ class QuestionMatrixDynamicModelTester extends QuestionMatrixDynamicModel {
   ): Question {
     var question = super.createQuestionCore(row, column);
     if (column.cellType == "dropdown") {
-      var newQuestion = new QuestionDropdownModelTester(name);
+      var newQuestion = new QuestionDropdownModelTester(this.name);
       var json = new JsonObject().toJsonObject(question);
       new JsonObject().toObject(json, newQuestion);
       newQuestion.setSurveyImpl(row);

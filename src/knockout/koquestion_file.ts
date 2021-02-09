@@ -26,7 +26,7 @@ export class QuestionFile extends QuestionFileModel {
       (this.isReadOnly ? " " + this.koCss().disabled : "")
     );
   });
-  constructor(public name: string) {
+  constructor(name: string) {
     super(name);
     var self = this;
     var updateState = (state: any) => {

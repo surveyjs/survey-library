@@ -9,7 +9,7 @@ import {
 import { QuestionImplementor } from "./koquestion";
 
 export class QuestionCustom extends QuestionCustomModel {
-  constructor(public name: string, questionJSON: ComponentQuestionJSON) {
+  constructor(name: string, questionJSON: ComponentQuestionJSON) {
     super(name, questionJSON);
   }
   protected onBaseCreating() {
@@ -19,7 +19,7 @@ export class QuestionCustom extends QuestionCustomModel {
 }
 
 export class QuestionComposite extends QuestionCompositeModel {
-  constructor(public name: string, questionJSON: ComponentQuestionJSON) {
+  constructor(name: string, questionJSON: ComponentQuestionJSON) {
     super(name, questionJSON);
   }
   protected onBaseCreating() {

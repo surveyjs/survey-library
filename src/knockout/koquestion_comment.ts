@@ -5,7 +5,7 @@ import { QuestionCommentModel } from "../question_comment";
 import { QuestionImplementor } from "./koquestion";
 
 export class QuestionComment extends QuestionCommentModel {
-  constructor(public name: string) {
+  constructor(name: string) {
     super(name);
   }
   protected onBaseCreating() {

@@ -163,10 +163,7 @@ export class ComponentCollection {
 export abstract class QuestionCustomModelBase
   extends Question
   implements ISurveyImpl, ISurveyData, IPanel {
-  constructor(
-    public name: string,
-    public customQuestion: ComponentQuestionJSON
-  ) {
+  constructor(name: string, public customQuestion: ComponentQuestionJSON) {
     super(name);
     CustomPropertiesCollection.createProperties(this);
     SurveyElement.CreateDisabledDesignElements = true;
@@ -245,9 +242,12 @@ export abstract class QuestionCustomModelBase
     this.updateElementCss();
   }
   //ISurveyImpl
-  geSurveyData(): ISurveyData {
+  getSurveyData(): ISurveyData {
     return this;
   }
+  // getSurvey(): ISurvey {
+  //   return this.survey;
+  // }
   getTextProcessor(): ITextProcessor {
     return this.textProcessor;
   }
@@ -479,10 +479,7 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
   public static ItemVariableName = "composite";
   private panelWrapper: PanelModel;
   private textProcessing: QuestionCompositeTextProcessor;
-  constructor(
-    public name: string,
-    public customQuestion: ComponentQuestionJSON
-  ) {
+  constructor(name: string, public customQuestion: ComponentQuestionJSON) {
     super(name, customQuestion);
     this.textProcessing = new QuestionCompositeTextProcessor(
       this,

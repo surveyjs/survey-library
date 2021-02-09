@@ -90,7 +90,7 @@ export class Question
     return this.isReadOnly && settings.readOnlyCommentRenderMode === "div";
   }
 
-  constructor(public name: string) {
+  constructor(name: string) {
     super(name);
     this.id = Question.getQuestionId();
     this.onCreating();

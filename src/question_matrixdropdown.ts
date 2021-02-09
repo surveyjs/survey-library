@@ -34,9 +34,10 @@ export class MatrixDropdownRowModel extends MatrixDropdownRowModelBase {
 /**
  * A Model for a matrix dropdown question. You may use a dropdown, checkbox, radiogroup, text and comment questions as a cell editors.
  */
-export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
+export class QuestionMatrixDropdownModel
+  extends QuestionMatrixDropdownModelBase
   implements IMatrixDropdownData {
-  constructor(public name: string) {
+  constructor(name: string) {
     super(name);
     this.createLocalizableString("totalText", this, true);
     var self = this;

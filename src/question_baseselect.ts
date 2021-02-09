@@ -1015,7 +1015,7 @@ export class QuestionSelectBase extends Question {
  */
 export class QuestionCheckboxBase extends QuestionSelectBase {
   colCountChangedCallback: () => void;
-  constructor(public name: string) {
+  constructor(name: string) {
     super(name);
   }
   /**

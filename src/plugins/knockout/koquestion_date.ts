@@ -18,16 +18,16 @@ export class QuestionDateImplementor extends QuestionImplementor {
 }
 
 export class QuestionDate extends QuestionDateModel {
-  constructor(public name: string) {
+  constructor(name: string) {
     super(name);
     new QuestionDateImplementor(this);
   }
 }
 
 //Tell json serializer and survey editor to create exactly this class. Override it from the model that doesn't have any rendering functionality.
-Serializer.overrideClassCreator("date", function() {
+Serializer.overrideClassCreator("date", function () {
   return new QuestionDate("");
 });
-QuestionFactory.Instance.registerQuestion("date", name => {
+QuestionFactory.Instance.registerQuestion("date", (name) => {
   return new QuestionDate(name);
 });

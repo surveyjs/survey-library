@@ -1,7 +1,7 @@
 import * as ko from "knockout";
 import {
   QuestionMultipleTextModel,
-  MultipleTextItemModel
+  MultipleTextItemModel,
 } from "../question_multipletext";
 import { QuestionTextModel } from "../question_text";
 import { QuestionImplementor } from "./koquestion";
@@ -11,7 +11,7 @@ import { Serializer } from "../jsonobject";
 import { QuestionFactory } from "../questionfactory";
 
 export class MultipleTextItem extends MultipleTextItemModel {
-  constructor(public name: any = null, title: string = null) {
+  constructor(name: any = null, title: string = null) {
     super(name, title);
   }
   protected createEditor(name: string): QuestionTextModel {
@@ -21,7 +21,7 @@ export class MultipleTextItem extends MultipleTextItemModel {
 
 export class QuestionMultipleText extends QuestionMultipleTextModel {
   koRows: any;
-  constructor(public name: string) {
+  constructor(name: string) {
     super(name);
     this.koRows = ko.observableArray(this.getRows());
     this.colCountChangedCallback = () => {
@@ -41,15 +41,15 @@ export class QuestionMultipleText extends QuestionMultipleTextModel {
   }
 }
 
-Serializer.overrideClassCreator("multipletextitem", function() {
+Serializer.overrideClassCreator("multipletextitem", function () {
   return new MultipleTextItem("");
 });
 
-Serializer.overrideClassCreator("multipletext", function() {
+Serializer.overrideClassCreator("multipletext", function () {
   return new QuestionMultipleText("");
 });
 
-QuestionFactory.Instance.registerQuestion("multipletext", name => {
+QuestionFactory.Instance.registerQuestion("multipletext", (name) => {
   var q = new QuestionMultipleText(name);
   q.addItem("text1");
   q.addItem("text2");

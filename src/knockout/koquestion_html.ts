@@ -4,7 +4,7 @@ import { QuestionImplementor } from "./koquestion";
 import { QuestionHtmlModel } from "../question_html";
 
 export class QuestionHtml extends QuestionHtmlModel {
-  constructor(public name: string) {
+  constructor(name: string) {
     super(name);
   }
   protected onBaseCreating() {
@@ -13,9 +13,9 @@ export class QuestionHtml extends QuestionHtmlModel {
   }
 }
 
-Serializer.overrideClassCreator("html", function() {
+Serializer.overrideClassCreator("html", function () {
   return new QuestionHtml("");
 });
-QuestionFactory.Instance.registerQuestion("html", name => {
+QuestionFactory.Instance.registerQuestion("html", (name) => {
   return new QuestionHtml(name);
 });

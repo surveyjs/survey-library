@@ -12,7 +12,7 @@ export class QuestionExpressionImplementor extends QuestionImplementor {
 }
 
 export class QuestionExpression extends QuestionExpressionModel {
-  constructor(public name: string) {
+  constructor(name: string) {
     super(name);
   }
   protected onBaseCreating() {
@@ -21,9 +21,9 @@ export class QuestionExpression extends QuestionExpressionModel {
   }
 }
 
-Serializer.overrideClassCreator("expression", function() {
+Serializer.overrideClassCreator("expression", function () {
   return new QuestionExpression("");
 });
-QuestionFactory.Instance.registerQuestion("expression", name => {
+QuestionFactory.Instance.registerQuestion("expression", (name) => {
   return new QuestionExpression(name);
 });

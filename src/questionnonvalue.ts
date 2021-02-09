@@ -6,7 +6,7 @@ import { SurveyError } from "./base";
  * A Model for non value question. This question doesn't add any new functionality. It hides some properties, including the value.
  */
 export class QuestionNonValue extends Question {
-  constructor(public name: string) {
+  constructor(name: string) {
     super(name);
   }
   public getType(): string {

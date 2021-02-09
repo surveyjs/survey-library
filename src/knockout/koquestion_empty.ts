@@ -5,7 +5,7 @@ import { QuestionImplementor } from "./koquestion";
 import { Question } from "../question";
 
 export class QuestionEmpty extends QuestionEmptyModel {
-  constructor(public name: string) {
+  constructor(name: string) {
     super(name);
   }
   protected onBaseCreating() {
@@ -14,6 +14,6 @@ export class QuestionEmpty extends QuestionEmptyModel {
   }
 }
 
-Serializer.overrideClassCreator("empty", function() {
+Serializer.overrideClassCreator("empty", function () {
   return new QuestionEmpty("");
 });

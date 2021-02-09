@@ -21,7 +21,7 @@ export class QuestionFileModel extends Question {
   > = new Event<(sender: QuestionFileModel, options: any) => any, any>();
   public previewValue: any[] = [];
   public currentState = "empty";
-  constructor(public name: string) {
+  constructor(name: string) {
     super(name);
   }
   public getType(): string {

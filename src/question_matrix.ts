@@ -199,7 +199,7 @@ export class QuestionMatrixModel
   private isRowChanging = false;
   private cellsValue: MartrixCells;
 
-  constructor(public name: string) {
+  constructor(name: string) {
     super(name);
     this.cellsValue = new MartrixCells(this);
     var self = this;

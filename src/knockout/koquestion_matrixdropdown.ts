@@ -126,7 +126,7 @@ export class QuestionMatrixBaseImplementor extends QuestionImplementor {
 
 export class QuestionMatrixDropdown extends QuestionMatrixDropdownModel {
   private _implementor: QuestionImplementor;
-  constructor(public name: string) {
+  constructor(name: string) {
     super(name);
   }
   protected onBaseCreating() {

@@ -8,7 +8,7 @@ import { Helpers } from "./helpers";
  * A Model for a comment question
  */
 export class QuestionCommentModel extends Question {
-  constructor(public name: string) {
+  constructor(name: string) {
     super(name);
     this.createLocalizableString("placeHolder", this);
   }

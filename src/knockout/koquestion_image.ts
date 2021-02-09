@@ -4,7 +4,7 @@ import { QuestionImplementor } from "./koquestion";
 import { QuestionImageModel } from "../question_image";
 
 export class QuestionImage extends QuestionImageModel {
-  constructor(public name: string) {
+  constructor(name: string) {
     super(name);
   }
   protected onBaseCreating() {
@@ -13,9 +13,9 @@ export class QuestionImage extends QuestionImageModel {
   }
 }
 
-Serializer.overrideClassCreator("image", function() {
+Serializer.overrideClassCreator("image", function () {
   return new QuestionImage("");
 });
-QuestionFactory.Instance.registerQuestion("image", name => {
+QuestionFactory.Instance.registerQuestion("image", (name) => {
   return new QuestionImage(name);
 });

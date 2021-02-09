@@ -47,7 +47,7 @@ export class ImageItemValue extends ItemValue implements ILocalizableOwner {
  * A Model for a select image question.
  */
 export class QuestionImagePickerModel extends QuestionCheckboxBase {
-  constructor(public name: string) {
+  constructor(name: string) {
     super(name);
     this.colCount = 0;
   }

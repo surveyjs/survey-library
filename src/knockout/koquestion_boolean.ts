@@ -5,7 +5,7 @@ import { QuestionFactory } from "../questionfactory";
 import { QuestionImplementor } from "./koquestion";
 
 export class QuestionBoolean extends QuestionBooleanModel {
-  constructor(public name: string) {
+  constructor(name: string) {
     super(name);
   }
   protected onBaseCreating() {

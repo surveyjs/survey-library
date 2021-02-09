@@ -18,7 +18,7 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
   isIndeterminate: boolean = true;
   _rankingChoices: Array<ItemValue> = [];
 
-  constructor(public name: string) {
+  constructor(name: string) {
     super(name);
   }
   public getType(): string {

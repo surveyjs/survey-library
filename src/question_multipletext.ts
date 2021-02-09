@@ -197,7 +197,7 @@ export class MultipleTextItemModel
     if (this.valueChangedCallback) this.valueChangedCallback(newValue);
   }
   //ISurveyImpl
-  geSurveyData(): ISurveyData {
+  getSurveyData(): ISurveyData {
     return this;
   }
   getSurvey(): ISurvey {
@@ -259,7 +259,7 @@ export class QuestionMultipleTextModel
   extends Question
   implements IMultipleTextData, IPanel {
   colCountChangedCallback: () => void;
-  constructor(public name: string) {
+  constructor(name: string) {
     super(name);
     var self = this;
     this.createNewArray("items", function (item: any) {

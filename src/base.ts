@@ -190,7 +190,7 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner {
   elementContentVisibilityChanged(element: ISurveyElement): void;
 }
 export interface ISurveyImpl {
-  geSurveyData(): ISurveyData;
+  getSurveyData(): ISurveyData;
   getSurvey(): ISurvey;
   getTextProcessor(): ITextProcessor;
 }
@@ -1245,7 +1245,7 @@ export class SurveyElement extends Base implements ISurveyElement {
   public setSurveyImpl(value: ISurveyImpl) {
     this.surveyImplValue = value;
     if (!this.surveyImplValue) return;
-    this.surveyDataValue = this.surveyImplValue.geSurveyData();
+    this.surveyDataValue = this.surveyImplValue.getSurveyData();
     this.surveyValue = this.surveyImplValue.getSurvey();
     this.textProcessorValue = this.surveyImplValue.getTextProcessor();
     this.onSetData();
@@ -1449,7 +1449,7 @@ export class SurveyElement extends Base implements ISurveyElement {
 
 export class Event<T extends Function, Options> {
   public onCallbacksChanged: () => void;
-  protected callbacks: Array<T>;
+  private callbacks: Array<T>;
   public get isEmpty(): boolean {
     return this.callbacks == null || this.callbacks.length == 0;
   }

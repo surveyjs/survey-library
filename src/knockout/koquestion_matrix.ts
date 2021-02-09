@@ -12,7 +12,7 @@ import { QuestionFactory } from "../questionfactory";
 export class QuestionMatrix extends QuestionMatrixModel {
   koVisibleRows: any = <any>ko.observableArray<MatrixRowModel>();
   koVisibleColumns: any = <any>ko.observableArray<any>();
-  constructor(public name: string) {
+  constructor(name: string) {
     super(name);
     this.koVisibleRows(this.visibleRows);
     this.koVisibleColumns(this.visibleColumns);

@@ -47,16 +47,16 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
 
   public syncChoices() {
     const value = this.value;
-    const unrankedChoices = this.visibleChoices;
+    const visibleChoices = this.visibleChoices;
     let rankedChoices: Array<ItemValue> = [];
 
-    if (!value || value.length === 0) {
-      return this.visibleChoices;
+    if (this.isIndeterminate) {
+      return visibleChoices;
     }
-    rankedChoices.length = unrankedChoices.length;
+    rankedChoices.length = visibleChoices.length;
 
-    for (var i = 0; i < unrankedChoices.length; i++) {
-      const choice = unrankedChoices[i];
+    for (var i = 0; i < visibleChoices.length; i++) {
+      const choice = visibleChoices[i];
       const index = value.indexOf(choice.text);
 
       if (index !== -1) {
@@ -100,6 +100,7 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
         self.setValue();
       },
       onChange(evt: any) {
+        if (!self.isIndeterminate) self.syncNumbers();
         self.setGhostText(evt.newIndex + 1);
       },
     });
@@ -128,6 +129,7 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
     const array = this.sortableInst.toArray();
     this.moveArrayItemBack(array, index);
     this.sortableInst.sort(array);
+    this.syncNumbers();
     this.setValue();
     this.focusItem(index - 1);
   };
@@ -136,6 +138,7 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
     const array = this.sortableInst.toArray();
     this.moveArrayItemForward(array, index);
     this.sortableInst.sort(array);
+    this.syncNumbers();
     this.setValue();
     this.focusItem(index + 1);
   };
@@ -168,6 +171,16 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
       value.push(textNode.innerText);
     });
     this.value = value;
+  };
+
+  syncNumbers = () => {
+    if (!this.domNode) return;
+    const indexNodes = this.domNode.querySelectorAll(
+      "." + this.cssClasses.itemIndex
+    );
+    indexNodes.forEach((indexNode: any, index) => {
+      indexNode.innerText = this.isIndeterminate ? "\u2013" : index + 1;
+    });
   };
 
   setGhostText = (text: string) => {

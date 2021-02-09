@@ -24,8 +24,9 @@ export class SurveyQuestionRanking extends SurveyQuestionElementBase {
 
   protected getItems(): Array<any> {
     var items = [];
-    for (var i = 0; i < this.question.rankingChoices.length; i++) {
-      var item = this.question.rankingChoices[i];
+    var rankingChoices = this.question.rankingChoices;
+    for (var i = 0; i < rankingChoices.length; i++) {
+      var item = rankingChoices[i];
       var key = item.value + "-" + i + "-item";
       var text = this.renderLocString(item.locText);
       var index = this.question.isIndeterminate ? "\u2013" : i + 1 + "";

@@ -60,7 +60,6 @@ QUnit.test("Ranking: Carry Forward", function (assert) {
   assert.deepEqual(q2.rankingChoices, []);
 
   q1.value = ["2", "3"];
-  q2.isIndeterminate = false;
   q2.syncChoices(); //ui render imitation
   assert.deepEqual(
     q2.rankingChoices.map((item) => item.text),

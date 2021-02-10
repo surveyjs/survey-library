@@ -196,7 +196,7 @@ export class StylesManager {
     ".sv-ranking-item__icon":
       "visibility: hidden;left:10px;top:20px;fill:#19b394;position: absolute;",
     ".sv-ranking-item__index":
-      "display: inline-block;padding: 10px 16px;background: rgba(25, 179, 148, 0.1);border-radius: 100px;border: 2px solid transparent;",
+      "display: inline-block;padding: 10px 16px;background: rgba(25, 179, 148, 0.1);border-radius: 100px;border: 2px solid transparent; margin-right: 10px;",
     ".sv-ranking-item__text": "display: inline-block;",
     ".sv-ranking-item__ghost":
       "display: none;background: #f3f3f3;border-radius: 100px;width: 200px;height: 55px;z-index: 1;position: absolute;left: 35px;",

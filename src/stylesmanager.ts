@@ -190,7 +190,7 @@ export class StylesManager {
     ".sv-ranking-item:focus .sv-ranking-item__index":
       "background: white; border: 2px solid #19b394;",
     ".sv-ranking-item__content":
-      "display: inline-block;background-color: white;padding-top: 5px;padding-bottom: 5px;padding-left: 35px;padding-right: 10px;",
+      "display: inline-block;background-color: white;padding-top: 5px;padding-bottom: 5px;padding-left: 35px;padding-right: 10px; border-radius: 100px;",
     ".sv-ranking-item__icon-container":
       "position: absolute;left: 0;top: 0;bottom: 0;width: 35px;",
     ".sv-ranking-item__icon":

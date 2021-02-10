@@ -20,6 +20,7 @@ import "../../localization/japanese";
 import "../../localization/korean";
 import "../../localization/latvian";
 import "../../localization/lithuanian";
+import "../../localization/macedonian";
 import "../../localization/norwegian";
 import "../../localization/persian";
 import "../../localization/polish";

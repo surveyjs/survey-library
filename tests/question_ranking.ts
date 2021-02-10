@@ -9,18 +9,44 @@ QUnit.test("Ranking: Base ", function (assert) {
   const items = ["one", "two", "three"];
   const model = new QuestionRankingModel("test");
 
-  model.moveArrayItemBack(items, 1);
+  model["moveArrayItemBack"](items, 1);
   assert.deepEqual(items, ["two", "one", "three"], "moveArrayItemBack is ok");
 
-  model.moveArrayItemForward(items, 0);
+  model["moveArrayItemForward"](items, 0);
   assert.deepEqual(
     items,
     ["one", "two", "three"],
     "moveArrayItemForward is ok"
   );
+
+  let value = [];
+  let visibleChoices: any = [
+    { text: "one" },
+    { text: "two" },
+    { text: "three" },
+  ];
+  let rankingChoices = [];
+
+  rankingChoices = model["mergeValueAndVisibleChoices"](value, visibleChoices);
+  assert.deepEqual(
+    rankingChoices,
+    visibleChoices,
+    "mergeValueAndVisibleChoices returns visibleChoices if empty value"
+  );
+
+  value = ["two", "one", "three"];
+  rankingChoices = model["mergeValueAndVisibleChoices"](value, visibleChoices);
+  assert.deepEqual(
+    rankingChoices,
+    [
+      { text: "two" },
+      { text: "one" },
+      { text: "three" },
+    ],
+    "mergeValueAndVisibleChoices returns correct value"
+  );
 });
 
-//TODO need fix https://github.com/surveyjs/survey-library/issues/2648
 QUnit.test("Ranking: Survey data", function (assert) {
   var survey = new SurveyModel({
     elements: [
@@ -64,6 +90,7 @@ QUnit.test("Ranking: Carry Forward", function (assert) {
     ["2", "3"]
   );
   q1.value = [];
+  assert.deepEqual(q2.isIndeterminate, true);
   assert.deepEqual(
     q2.rankingChoices.map((item) => item.text),
     []

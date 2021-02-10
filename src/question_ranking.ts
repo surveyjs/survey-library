@@ -13,12 +13,67 @@ const Sortable = <any>SortableLib;
  * A Model for a ranking question
  */
 export class QuestionRankingModel extends QuestionCheckboxModel {
-  domNode: HTMLElement = null;
-  sortableInst: any = null;
+  private domNode: HTMLElement = null;
+  private sortableInst: any = null;
 
   constructor(name: string) {
     super(name);
   }
+
+  public getType(): string {
+    return "ranking";
+  }
+
+  public get isIndeterminate() {
+    return !this.value || this.value.length === 0;
+  }
+
+  public get rootClass() {
+    const css = this.cssClasses;
+    if (IsMobile) return css.root + " " + css.rootMobileMod;
+    return css.root;
+  }
+
+  public getNumberByIndex(index: number) {
+    return this.isIndeterminate ? "\u2013" : index + 1 + "";
+  }
+
+  public get rankingChoices() {
+    const value = this.value;
+    const visibleChoices = this.visibleChoices;
+
+    if (this.isIndeterminate) {
+      return visibleChoices;
+    }
+
+    return this.mergeValueAndVisibleChoices(value, visibleChoices);
+  }
+
+  //cross framework initialization
+  public afterRenderQuestionElement(el: any) {
+    if (!!el) {
+      this.initSortable(el);
+    }
+    super.afterRenderQuestionElement(el);
+  }
+  //cross framework destroy
+  public beforeDestroyQuestionElement(el: any) {
+    if (this.sortableInst) this.sortableInst.destroy();
+    super.beforeDestroyQuestionElement(el);
+  }
+
+  public handleKeydown = (event: any) => {
+    const key = event.key;
+    const array = this.domNode.querySelectorAll("." + this.cssClasses.item);
+    const index = [].indexOf.call(array, event.target);
+
+    if (key === "ArrowUp" && index) {
+      this.handleArrowUp(index);
+    }
+    if (key === "ArrowDown" && index !== array.length - 1) {
+      this.handleArrowDown(index);
+    }
+  };
 
   // to make "carry forward" feature work properly with ranking
   protected onVisibleChoicesChanged() {
@@ -35,23 +90,9 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
     }
   }
 
-  public getType(): string {
-    return "ranking";
-  }
-
-  public get isIndeterminate() {
-    return !this.value || this.value.length === 0;
-  }
-
-  public get rankingChoices() {
-    const value = this.value;
-    const visibleChoices = this.visibleChoices;
+  private mergeValueAndVisibleChoices(value: any, visibleChoices: Array<ItemValue>) {
     const length = visibleChoices.length;
     let result: Array<ItemValue> = [];
-
-    if (this.isIndeterminate) {
-      return visibleChoices;
-    }
 
     result.length = length;
 
@@ -71,24 +112,7 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
     return result;
   }
 
-  public getNumberByIndex(index: number) {
-    return this.isIndeterminate ? "\u2013" : index + 1 + "";
-  }
-
-  //cross framework initialization
-  public afterRenderQuestionElement(el: any) {
-    if (!!el) {
-      this.initSortable(el);
-    }
-    super.afterRenderQuestionElement(el);
-  }
-  //cross framework destroy
-  public beforeDestroyQuestionElement(el: any) {
-    if (this.sortableInst) this.sortableInst.destroy();
-    super.beforeDestroyQuestionElement(el);
-  }
-
-  public initSortable(domNode: HTMLElement) {
+  private initSortable(domNode: HTMLElement) {
     if (!domNode) return;
     const self = this;
     self.domNode = domNode;
@@ -122,26 +146,7 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
     });
   }
 
-  get rootClass() {
-    const css = this.cssClasses;
-    if (IsMobile) return css.root + " " + css.rootMobileMod;
-    return css.root;
-  }
-
-  handleKeydown = (event: any) => {
-    const key = event.key;
-    const array = this.domNode.querySelectorAll("." + this.cssClasses.item);
-    const index = [].indexOf.call(array, event.target);
-
-    if (key === "ArrowUp" && index) {
-      this.handleArrowUp(index);
-    }
-    if (key === "ArrowDown" && index !== array.length - 1) {
-      this.handleArrowDown(index);
-    }
-  };
-
-  handleArrowUp = (index: number) => {
+  private handleArrowUp = (index: number) => {
     const array = this.sortableInst.toArray();
     this.moveArrayItemBack(array, index);
     this.sortableInst.sort(array);
@@ -150,7 +155,7 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
     this.focusItem(index - 1);
   };
 
-  handleArrowDown = (index: number) => {
+  private handleArrowDown = (index: number) => {
     const array = this.sortableInst.toArray();
     this.moveArrayItemForward(array, index);
     this.sortableInst.sort(array);
@@ -159,26 +164,26 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
     this.focusItem(index + 1);
   };
 
-  moveArrayItemBack = (array: string[], index: number) => {
+  private moveArrayItemBack = (array: string[], index: number) => {
     const temp = array[index];
     array[index] = array[index - 1];
     array[index - 1] = temp;
   };
 
-  moveArrayItemForward = (array: string[], index: number) => {
+  private moveArrayItemForward = (array: string[], index: number) => {
     const temp = array[index];
     array[index] = array[index + 1];
     array[index + 1] = temp;
   };
 
-  focusItem = (index: number) => {
+  private focusItem = (index: number) => {
     const itemsNodes: any = this.domNode.querySelectorAll(
       "." + this.cssClasses.item
     );
     itemsNodes[index].focus();
   };
 
-  setValue = () => {
+  private setValue = () => {
     let value: string[] = [];
     const textNodes = this.domNode.querySelectorAll(
       "." + this.cssClasses.itemText
@@ -189,7 +194,7 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
     this.value = value;
   };
 
-  syncNumbers = () => {
+  private syncNumbers = () => {
     if (!this.domNode) return;
     const indexNodes = this.domNode.querySelectorAll(
       "." + this.cssClasses.itemIndex
@@ -199,7 +204,7 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
     });
   };
 
-  setGhostText = (text: string) => {
+  private setGhostText = (text: string) => {
     const indexNodes = this.domNode.querySelectorAll(
       "." + this.cssClasses.itemIndex
     );

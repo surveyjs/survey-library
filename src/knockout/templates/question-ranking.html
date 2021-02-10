@@ -38,14 +38,9 @@
             <path d="M6 19V15H4V19H0L5 24L10 19H6Z" />
           </svg>
         </div>
-        <!-- ko if: question.isIndeterminate -->
-        <div data-bind="css: question.cssClasses.itemIndex">&ndash;</div>
-        <!-- /ko -->
-        <!-- ko ifnot: question.isIndeterminate -->
         <div
-          data-bind="css: question.cssClasses.itemIndex, text: $index()+1"
+          data-bind="css: question.cssClasses.itemIndex, text: question.getNumberByIndex($index())"
         ></div>
-        <!-- /ko -->
         <div data-bind="css: question.cssClasses.itemText">
           <!-- ko template: { name: 'survey-string', data: $data.locText } -->
           <!-- /ko -->

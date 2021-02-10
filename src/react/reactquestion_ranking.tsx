@@ -29,7 +29,7 @@ export class SurveyQuestionRanking extends SurveyQuestionElementBase {
       var item = rankingChoices[i];
       var key = item.value + "-" + i + "-item";
       var text = this.renderLocString(item.locText);
-      var index = this.question.isIndeterminate ? "\u2013" : i + 1 + "";
+      var index = this.question.getNumberByIndex(i);
       items.push(
         this.renderItem(
           key,

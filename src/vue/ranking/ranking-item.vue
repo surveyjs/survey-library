@@ -24,7 +24,7 @@
           </svg>
         </div>
 
-        <div :class="cssClasses.itemIndex">&ndash;</div>
+        <div :class="cssClasses.itemIndex">{{index}}</div>
         <div :class="cssClasses.itemText">
           <survey-string :locString="text" />
         </div>

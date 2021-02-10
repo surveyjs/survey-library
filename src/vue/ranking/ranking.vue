@@ -5,7 +5,7 @@
       :key="item.value + '-' + index + '-item'"
       :class="question.getItemClass(item)"
       :text="item.locText"
-      :index="index"
+      :index="question.getNumberByIndex(index)"
       :handleKeydown="question.handleKeydown"
       :cssClasses="question.cssClasses"
     ></survey-ranking-item>
@@ -20,15 +20,6 @@ import { QuestionRankingModel } from "../../question_ranking";
 
 @Component
 export class Ranking extends QuestionVue<QuestionRankingModel> {
-  onMounted() {
-    if (this.question) {
-      this.question.afterRenderQuestionElement(this.$el);
-    }
-    this.question.syncNumbers();
-  }
-  updated() {
-    this.question.syncNumbers();
-  }
 }
 
 Vue.component("survey-ranking", Ranking);

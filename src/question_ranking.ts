@@ -20,16 +20,59 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
     super(name);
   }
 
-  public get rankingChoices() {
-    return this.syncChoices();
+  // to make "carry forward" feature work properly with ranking
+  protected onVisibleChoicesChanged() {
+    super.onVisibleChoicesChanged();
+
+    const otherQuestionActiveChoices = (<any>this).otherQuestionActiveChoices;
+
+    if (this.isIndeterminate || !otherQuestionActiveChoices) return;
+
+    if (otherQuestionActiveChoices.length === 0) {
+      this.value = [];
+    } else {
+      this.value = this.rankingChoices.map((choice) => choice.text);
+    }
+  }
+
+  public getType(): string {
+    return "ranking";
   }
 
   public get isIndeterminate() {
     return !this.value || this.value.length === 0;
   }
 
-  public getType(): string {
-    return "ranking";
+  public get rankingChoices() {
+    const value = this.value;
+    const visibleChoices = this.visibleChoices;
+    const length = visibleChoices.length;
+    let result: Array<ItemValue> = [];
+
+    if (this.isIndeterminate) {
+      return visibleChoices;
+    }
+
+    result.length = length;
+
+    for (var i = 0; i < length; i++) {
+      const choice = visibleChoices[i];
+      const index = value.indexOf(choice.text);
+
+      if (index !== -1) {
+        result.splice(index, 1, choice);
+      } else {
+        result.splice(result.length - 1, 0, choice);
+      }
+    }
+
+    result = result.filter((choice) => !!choice);
+
+    return result;
+  }
+
+  public getNumberByIndex(index: number) {
+    return this.isIndeterminate ? "\u2013" : index + 1 + "";
   }
 
   //cross framework initialization
@@ -43,33 +86,6 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
   public beforeDestroyQuestionElement(el: any) {
     if (this.sortableInst) this.sortableInst.destroy();
     super.beforeDestroyQuestionElement(el);
-  }
-
-  public syncChoices() {
-    const value = this.value;
-    const visibleChoices = this.visibleChoices;
-    let rankedChoices: Array<ItemValue> = [];
-
-    if (this.isIndeterminate) {
-      return visibleChoices;
-    }
-    rankedChoices.length = visibleChoices.length;
-
-    for (var i = 0; i < visibleChoices.length; i++) {
-      const choice = visibleChoices[i];
-      const index = value.indexOf(choice.text);
-
-      if (index !== -1) {
-        rankedChoices.splice(index, 1, choice);
-      } else {
-        rankedChoices.splice(rankedChoices.length - 1, 0, choice);
-      }
-    }
-
-    rankedChoices = rankedChoices.filter((choice) => !!choice);
-
-    this.value = rankedChoices.map((choice) => choice.text);
-    return rankedChoices;
   }
 
   public initSortable(domNode: HTMLElement) {
@@ -179,7 +195,7 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
       "." + this.cssClasses.itemIndex
     );
     indexNodes.forEach((indexNode: any, index) => {
-      indexNode.innerText = this.isIndeterminate ? "\u2013" : index + 1;
+      indexNode.innerText = this.getNumberByIndex(index);
     });
   };
 

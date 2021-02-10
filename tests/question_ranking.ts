@@ -31,9 +31,8 @@ QUnit.test("Ranking: Survey data", function (assert) {
       },
     ],
   });
-  survey.data = { q1: ["b", "a"] };
+  survey.data = { q1: ["b", "a", "c"] };
   var q1 = <QuestionRankingModel>survey.getQuestionByName("q1");
-  q1.syncChoices(); //ui render imitation
   assert.deepEqual(q1.value, ["b", "a", "c"]);
   assert.deepEqual(q1.isIndeterminate, false);
   assert.deepEqual(
@@ -60,7 +59,6 @@ QUnit.test("Ranking: Carry Forward", function (assert) {
   assert.deepEqual(q2.rankingChoices, []);
 
   q1.value = ["2", "3"];
-  q2.syncChoices(); //ui render imitation
   assert.deepEqual(
     q2.rankingChoices.map((item) => item.text),
     ["2", "3"]

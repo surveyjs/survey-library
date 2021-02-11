@@ -3,6 +3,7 @@ import {
   url,
   initSurvey,
   getSurveyResult,
+  getData,
   setData,
 } from "../settings";
 import { Selector } from "testcafe";
@@ -92,8 +93,8 @@ frameworks.forEach((framework) => {
       offsetY: 8,
     });
 
-    let surveyResult = await getSurveyResult();
-    assert.deepEqual(surveyResult.ranking_question, [
+    let data = await getData();
+    assert.deepEqual(data["smartphone-features"], [
       "Price",
       "Battery life",
       "Screen size",
@@ -111,9 +112,7 @@ frameworks.forEach((framework) => {
       .parent("[aria-labelledby]")
       .find("span")
       .withText("Price");
-    let surveyResult = await getSurveyResult();
-
-    await t.debug();
+      
     await setData({
       "smartphone-features": [
         "Price",
@@ -125,22 +124,21 @@ frameworks.forEach((framework) => {
         "Processor power",
       ],
     });
-    await t.debug();
     await t.hover(PriceItem);
-    await t.debug();
-    await t.drag(PriceItem, 0, 50, {
+    await t.drag(PriceItem, 0, 70, {
       offsetX: 7,
       offsetY: 8,
     });
 
-    surveyResult = await getSurveyResult();
-    assert.deepEqual(surveyResult.ranking_question, [
-      "Durability",
+    let data = await getData();
+    await t.debug();
+    assert.deepEqual(data["smartphone-features"], [
       "Battery life",
       "Price",
       "Screen size",
       "Storage space",
       "Camera quality",
+      "Durability",
       "Processor power",
     ]);
 
@@ -150,9 +148,8 @@ frameworks.forEach((framework) => {
       offsetX: 7,
       offsetY: 8,
     });
-
-    surveyResult = await getSurveyResult();
-    assert.deepEqual(surveyResult.ranking_question, [
+    data = await getData();
+    assert.deepEqual(data["smartphone-features"], [
       "Price",
       "Battery life",
       "Screen size",

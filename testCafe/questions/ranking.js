@@ -112,7 +112,7 @@ frameworks.forEach((framework) => {
       .parent("[aria-labelledby]")
       .find("span")
       .withText("Price");
-      
+
     await setData({
       "smartphone-features": [
         "Price",
@@ -157,5 +157,80 @@ frameworks.forEach((framework) => {
       "Durability",
       "Processor power",
     ]);
+  });
+
+  test(`ranking: carry forward`, async (t) => {
+    const rankPriceItem = Selector(
+      "[aria-label='Please rank the following smartphone features in order of importance:']"
+    )
+      .parent("[aria-labelledby]")
+      .find("span")
+      .withText("Price");
+    await t.hover(rankPriceItem);
+    await t.drag(rankPriceItem, 0, -350, {
+      offsetX: 7,
+      offsetY: 8,
+    });
+    const rankAudiItem = Selector(
+      "[aria-label='What car did you enjoy the most?']"
+    )
+      .parent("[aria-labelledby]")
+      .find("span")
+      .withText("Audi");
+
+    const checkboxAudiItem = Selector(
+      "[aria-label='What cars have you being drived?']"
+    )
+      .parent("[aria-labelledby]")
+      .find("span")
+      .withText("Audi");
+    const checkboxMerscedesItem = Selector(
+      "[aria-label='What cars have you being drived?']"
+    )
+      .parent("[aria-labelledby]")
+      .find("span")
+      .withText("Mercedes-Benz");
+    const checkboxToyotaItem = Selector(
+      "[aria-label='What cars have you being drived?']"
+    )
+      .parent("[aria-labelledby]")
+      .find("span")
+      .withText("Toyota");
+
+    await t.click(Selector("input[value='Next']"));
+    await t
+      .click(checkboxAudiItem)
+      .click(checkboxMerscedesItem)
+      .click(checkboxToyotaItem);
+
+    let data = await getData();
+    assert.deepEqual(typeof data.bestcar, "undefined");
+
+    await t.hover(rankAudiItem);
+    await t.drag(rankAudiItem, 0, 5, {
+      offsetX: 7,
+      offsetY: 8,
+    });
+    data = await getData();
+    assert.deepEqual(data.bestcar, ["Audi", "Mercedes-Benz", "Toyota"]);
+
+    //TODO the rest actions doesn't work without await t.debug(); and I don't know why.
+    // await t.debug();
+    // await t.click(checkboxMerscedesItem);
+
+    // data = await getData();
+    // assert.deepEqual(data.bestcar, ["Audi", "Toyota"]);
+
+    // await t.click(checkboxMerscedesItem);
+    // data = await getData();
+    // assert.deepEqual(data.bestcar, ["Audi", "Toyota", "Mercedes-Benz"]);
+
+    // await t
+    //   .click(checkboxAudiItem)
+    //   .click(checkboxMerscedesItem)
+    //   .click(checkboxToyotaItem);
+
+    // data = await getData();
+    // assert.deepEqual(typeof data.bestcar, "undefined");
   });
 });

@@ -127,6 +127,11 @@ export class AdaptiveActionBarItemWrapper
   public get enabled(): boolean {
     return this.unwrap(this.item.enabled);
   }
+  public get disabled(): boolean {
+    const isEnabled = this.enabled;
+    if (isEnabled === undefined) return false;
+    return isEnabled;
+  }
   public get showTitle(): boolean {
     return (
       this.owner.showTitles &&
@@ -179,7 +184,7 @@ export class AdaptiveElement extends Base {
   invisibleItems: Array<AdaptiveActionBarItemWrapper>;
 
   protected dotsItem: AdaptiveActionBarItemWrapper; // (...) button
-  protected dotsItemPopupModel: PopupModel;
+  public dotsItemPopupModel: PopupModel;
 
   constructor() {
     super();

@@ -6,6 +6,7 @@ export interface IPropertyDecoratorOptions {
   localizable?:
     | { name: string; onGetTextCallback?: (str: string) => string }
     | boolean;
+  onSet?: (val: any, target: any) => void;
 }
 
 function ensureLocString(
@@ -40,6 +41,9 @@ export function property(options?: IPropertyDecoratorOptions) {
         },
         set: function (val: any) {
           this.setPropertyValue(key, val);
+          if (!!options && options.onSet) {
+            options.onSet(val, this);
+          }
         },
       });
     } else {
@@ -55,6 +59,9 @@ export function property(options?: IPropertyDecoratorOptions) {
         set: function (val: any) {
           ensureLocString(this, options, key);
           this.setLocalizableStringText(key, val);
+          if (!!options && options.onSet) {
+            options.onSet(val, this);
+          }
         },
       });
       Object.defineProperty(

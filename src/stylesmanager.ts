@@ -190,13 +190,13 @@ export class StylesManager {
     ".sv-ranking-item:focus .sv-ranking-item__index":
       "background: white; border: 2px solid #19b394;",
     ".sv-ranking-item__content":
-      "display: inline-block;background-color: white;padding-top: 5px;padding-bottom: 5px;padding-left: 35px;padding-right: 10px;",
+      "display: inline-block;background-color: white;padding-top: 5px;padding-bottom: 5px;padding-left: 35px;padding-right: 10px; border-radius: 100px;",
     ".sv-ranking-item__icon-container":
       "position: absolute;left: 0;top: 0;bottom: 0;width: 35px;",
     ".sv-ranking-item__icon":
       "visibility: hidden;left:10px;top:20px;fill:#19b394;position: absolute;",
     ".sv-ranking-item__index":
-      "display: inline-block;padding: 10px 16px;background: rgba(25, 179, 148, 0.1);border-radius: 100px;border: 2px solid transparent;",
+      "display: inline-block;padding: 10px 16px;background: rgba(25, 179, 148, 0.1);border-radius: 100px;border: 2px solid transparent; margin-right: 10px;",
     ".sv-ranking-item__text": "display: inline-block;",
     ".sv-ranking-item__ghost":
       "display: none;background: #f3f3f3;border-radius: 100px;width: 200px;height: 55px;z-index: 1;position: absolute;left: 35px;",

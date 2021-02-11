@@ -124,7 +124,6 @@ export class SurveyQuestionRankingItem extends ReactSurveyElement {
 
             <div
               className={this.cssClasses.itemIndex}
-              style={{ marginRight: "4px" }}
             >
               {this.index}
             </div>

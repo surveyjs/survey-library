@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.8.30](https://github.com/surveyjs/survey-library/compare/v1.8.29...v1.8.30) (2021-02-11)
+
+
+### Bug Fixes
+
+* Carry forward doesn't work properly with the predefined survey.data [#2648](https://github.com/surveyjs/survey-library/issues/2648) ([785527f](https://github.com/surveyjs/survey-library/commit/785527f54271db0abd982815cd4fb9419ae74891))
+
 ### [1.8.29](https://github.com/surveyjs/survey-library/compare/v1.8.28...v1.8.29) (2021-02-03)
 
 ### [1.8.28](https://github.com/surveyjs/survey-library/compare/v1.8.27...v1.8.28) (2021-01-28)

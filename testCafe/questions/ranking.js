@@ -214,23 +214,23 @@ frameworks.forEach((framework) => {
     data = await getData();
     assert.deepEqual(data.bestcar, ["Audi", "Mercedes-Benz", "Toyota"]);
 
-    //TODO the rest actions doesn't work without await t.debug(); and I don't know why.
-    // await t.debug();
-    // await t.click(checkboxMerscedesItem);
+    //TODO click doesn't work after the d&d above without the "click('body')" hack 
+    await t.click("body");
+    await t.click(checkboxMerscedesItem);
 
-    // data = await getData();
-    // assert.deepEqual(data.bestcar, ["Audi", "Toyota"]);
+    data = await getData();
+    assert.deepEqual(data.bestcar, ["Audi", "Toyota"]);
 
-    // await t.click(checkboxMerscedesItem);
-    // data = await getData();
-    // assert.deepEqual(data.bestcar, ["Audi", "Toyota", "Mercedes-Benz"]);
+    await t.click(checkboxMerscedesItem);
+    data = await getData();
+    assert.deepEqual(data.bestcar, ["Audi", "Toyota", "Mercedes-Benz"]);
 
-    // await t
-    //   .click(checkboxAudiItem)
-    //   .click(checkboxMerscedesItem)
-    //   .click(checkboxToyotaItem);
+    await t
+      .click(checkboxAudiItem)
+      .click(checkboxMerscedesItem)
+      .click(checkboxToyotaItem);
 
-    // data = await getData();
-    // assert.deepEqual(typeof data.bestcar, "undefined");
+    data = await getData();
+    assert.deepEqual(typeof data.bestcar, "undefined");
   });
 });

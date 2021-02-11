@@ -60,6 +60,15 @@ export const getSurveyResult = ClientFunction(() => {
   return JSON.parse(JSON.stringify(result));
 });
 
+export const getData = ClientFunction(() => {
+  return survey.data;
+});
+
+export const setData = ClientFunction((newData) => {
+  survey.data = newData;
+  survey.render();
+});
+
 export const setOptions = ClientFunction((questionName, modValue) => {
   var mergeOptions = function (obj1, obj2) {
     for (var attrname in obj2) {

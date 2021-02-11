@@ -3,6 +3,7 @@ import {
   url,
   initSurvey,
   getSurveyResult,
+  getData,
   setData,
 } from "../settings";
 import { Selector } from "testcafe";
@@ -92,8 +93,8 @@ frameworks.forEach((framework) => {
       offsetY: 8,
     });
 
-    let surveyResult = await getSurveyResult();
-    assert.deepEqual(surveyResult.ranking_question, [
+    let data = await getData();
+    assert.deepEqual(data["smartphone-features"], [
       "Price",
       "Battery life",
       "Screen size",
@@ -111,9 +112,7 @@ frameworks.forEach((framework) => {
       .parent("[aria-labelledby]")
       .find("span")
       .withText("Price");
-    let surveyResult = await getSurveyResult();
 
-    await t.debug();
     await setData({
       "smartphone-features": [
         "Price",
@@ -125,22 +124,20 @@ frameworks.forEach((framework) => {
         "Processor power",
       ],
     });
-    await t.debug();
     await t.hover(PriceItem);
-    await t.debug();
-    await t.drag(PriceItem, 0, 50, {
+    await t.drag(PriceItem, 0, 70, {
       offsetX: 7,
       offsetY: 8,
     });
 
-    surveyResult = await getSurveyResult();
-    assert.deepEqual(surveyResult.ranking_question, [
-      "Durability",
+    let data = await getData();
+    assert.deepEqual(data["smartphone-features"], [
       "Battery life",
       "Price",
       "Screen size",
       "Storage space",
       "Camera quality",
+      "Durability",
       "Processor power",
     ]);
 
@@ -150,9 +147,8 @@ frameworks.forEach((framework) => {
       offsetX: 7,
       offsetY: 8,
     });
-
-    surveyResult = await getSurveyResult();
-    assert.deepEqual(surveyResult.ranking_question, [
+    data = await getData();
+    assert.deepEqual(data["smartphone-features"], [
       "Price",
       "Battery life",
       "Screen size",
@@ -161,5 +157,80 @@ frameworks.forEach((framework) => {
       "Durability",
       "Processor power",
     ]);
+  });
+
+  test(`ranking: carry forward`, async (t) => {
+    const rankPriceItem = Selector(
+      "[aria-label='Please rank the following smartphone features in order of importance:']"
+    )
+      .parent("[aria-labelledby]")
+      .find("span")
+      .withText("Price");
+    await t.hover(rankPriceItem);
+    await t.drag(rankPriceItem, 0, -350, {
+      offsetX: 7,
+      offsetY: 8,
+    });
+    const rankAudiItem = Selector(
+      "[aria-label='What car did you enjoy the most?']"
+    )
+      .parent("[aria-labelledby]")
+      .find("span")
+      .withText("Audi");
+
+    const checkboxAudiItem = Selector(
+      "[aria-label='What cars have you being drived?']"
+    )
+      .parent("[aria-labelledby]")
+      .find("span")
+      .withText("Audi");
+    const checkboxMerscedesItem = Selector(
+      "[aria-label='What cars have you being drived?']"
+    )
+      .parent("[aria-labelledby]")
+      .find("span")
+      .withText("Mercedes-Benz");
+    const checkboxToyotaItem = Selector(
+      "[aria-label='What cars have you being drived?']"
+    )
+      .parent("[aria-labelledby]")
+      .find("span")
+      .withText("Toyota");
+
+    await t.click(Selector("input[value='Next']"));
+    await t
+      .click(checkboxAudiItem)
+      .click(checkboxMerscedesItem)
+      .click(checkboxToyotaItem);
+
+    let data = await getData();
+    assert.deepEqual(typeof data.bestcar, "undefined");
+
+    await t.hover(rankAudiItem);
+    await t.drag(rankAudiItem, 0, 5, {
+      offsetX: 7,
+      offsetY: 8,
+    });
+    data = await getData();
+    assert.deepEqual(data.bestcar, ["Audi", "Mercedes-Benz", "Toyota"]);
+
+    //TODO click doesn't work after the d&d above without the "click('body')" hack 
+    await t.click("body");
+    await t.click(checkboxMerscedesItem);
+
+    data = await getData();
+    assert.deepEqual(data.bestcar, ["Audi", "Toyota"]);
+
+    await t.click(checkboxMerscedesItem);
+    data = await getData();
+    assert.deepEqual(data.bestcar, ["Audi", "Toyota", "Mercedes-Benz"]);
+
+    await t
+      .click(checkboxAudiItem)
+      .click(checkboxMerscedesItem)
+      .click(checkboxToyotaItem);
+
+    data = await getData();
+    assert.deepEqual(typeof data.bestcar, "undefined");
   });
 });

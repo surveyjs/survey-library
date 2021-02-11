@@ -131,7 +131,6 @@ frameworks.forEach((framework) => {
     });
 
     let data = await getData();
-    await t.debug();
     assert.deepEqual(data["smartphone-features"], [
       "Battery life",
       "Price",

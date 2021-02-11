@@ -1,5 +1,5 @@
 import { Base } from "./base";
-import { property } from "./jsonobject";
+import { property, propertyArray } from "./jsonobject";
 import { ListModel } from "./list";
 import { PopupModel } from "./popup";
 
@@ -170,14 +170,19 @@ export class AdaptiveActionBarItemWrapper
 
 export class AdaptiveElement extends Base {
   @property({ defaultValue: true }) showTitles: boolean;
+  @propertyArray() items: Array<AdaptiveActionBarItemWrapper>;
+  @propertyArray({
+    onSet: (val: any, target: AdaptiveElement) => {
+      target.invisibleItemsListModel.items = target.invisibleItems;
+    },
+  })
+  invisibleItems: Array<AdaptiveActionBarItemWrapper>;
 
   protected dotsItem: AdaptiveActionBarItemWrapper; // (...) button
   protected dotsItemPopupModel: PopupModel;
 
   constructor() {
     super();
-    this.createNewArray("items");
-    this.createNewArray("invisibleItems");
     this.dotsItemPopupModel = new PopupModel(
       "sv-list",
       this.invisibleItemsListModel
@@ -203,21 +208,6 @@ export class AdaptiveElement extends Base {
 
   public get hasItems(): boolean {
     return (this.items || []).length > 0;
-  }
-
-  public get items(): Array<AdaptiveActionBarItemWrapper> {
-    return this.getPropertyValue("items");
-  }
-  public set items(value: Array<AdaptiveActionBarItemWrapper>) {
-    this.items.splice(0, this.items.length, ...(value || []));
-  }
-  public get invisibleItems(): AdaptiveActionBarItemWrapper[] {
-    return this.getPropertyValue("invisibleItems");
-  }
-  public set invisibleItems(value: Array<AdaptiveActionBarItemWrapper>) {
-    this.invisibleItems.splice(0, this.invisibleItems.length, ...(value || []));
-
-    this.invisibleItemsListModel.items = this.invisibleItems;
   }
 
   public invisibleItemSelected(item: AdaptiveActionBarItemWrapper): void {

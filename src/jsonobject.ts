@@ -1,4 +1,3 @@
-import { timeStamp } from "console";
 import { Helpers, HashTable } from "./helpers";
 
 export interface IPropertyDecoratorOptions {
@@ -71,6 +70,50 @@ export function property(options?: IPropertyDecoratorOptions) {
         }
       );
     }
+  };
+}
+
+export interface IArrayPropertyDecoratorOptions {
+  onPush?: any;
+  onRemove?: any;
+  onSet?: (val: any, target: any) => void;
+}
+
+function ensureArray(
+  target: any,
+  options: IArrayPropertyDecoratorOptions,
+  key: string
+) {
+  target.ensureArray(
+    key,
+    !!options ? options.onPush : null,
+    !!options ? options.onRemove : null
+  );
+}
+
+export function propertyArray(options?: IArrayPropertyDecoratorOptions) {
+  return function (target: any, key: string) {
+    Object.defineProperty(target, key, {
+      get: function () {
+        ensureArray(this, options, key);
+        return this.getPropertyValue(key);
+      },
+      set: function (val: any) {
+        ensureArray(this, options, key);
+        const arr = this.getPropertyValue(key);
+        if (val === arr) {
+          return;
+        }
+        if (arr) {
+          arr.splice(0, arr.length, ...(val || []));
+        } else {
+          this.setPropertyValue(key, val);
+        }
+        if (!!options && options.onSet) {
+          options.onSet(val, this);
+        }
+      },
+    });
   };
 }
 

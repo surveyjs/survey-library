@@ -863,6 +863,18 @@ export class Base {
     }
     return res;
   }
+  protected ensureArray(
+    name: string,
+    onPush: any = null,
+    onRemove: any = null
+  ) {
+    if (this.arraysInfo && this.arraysInfo[name]) {
+      return;
+    }
+
+    return this.createNewArray(name, onPush, onRemove);
+  }
+
   protected createNewArray(
     name: string,
     onPush: any = null,

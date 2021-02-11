@@ -61,6 +61,7 @@ export {
   JsonUnknownPropertyError,
   Serializer,
   property,
+  propertyArray,
 } from "../../jsonobject";
 export {
   MatrixDropdownCell,

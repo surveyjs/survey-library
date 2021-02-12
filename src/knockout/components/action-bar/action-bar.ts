@@ -14,9 +14,9 @@ export * from "./action-bar-separator";
 export * from "./action-bar-item-dropdown";
 
 export class ActionBarViewModel extends AdaptiveElement {
-  public itemsSubscription: ko.Computed;
+  public itemsSubscription: any;
 
-  constructor(_items: ko.MaybeObservableArray<IActionBarItem>) {
+  constructor(_items: Array<IActionBarItem>) {
     super();
     this.itemsSubscription = ko.computed(() => {
       const wrappers: AdaptiveActionBarItemWrapper[] = [];

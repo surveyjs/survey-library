@@ -83,9 +83,11 @@ export {
 export { DefaultTitle } from "../react/components/default-title/default-title";
 export { TitleActions } from "../react/components/title-actions/title-actions";
 export { ActionBar } from "../react/components/action-bar/action-bar";
+export { SvgIcon } from "../react/components/svg-icon/svg-icon";
 
 export { SurveyLocStringViewer } from "../react/string-viewer";
 export { SurveyLocStringEditor } from "../react/string-editor";
+export * from "../utils/resonsibilitymanager";
 
 //Uncomment to include the "date" question type.
 //export {default as SurveyQuestionDate} from "../plugins/react/reactquestiondate";

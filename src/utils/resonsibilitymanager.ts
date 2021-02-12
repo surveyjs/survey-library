@@ -84,6 +84,14 @@ export class ResponsibilityManager {
 }
 
 export class VerticalResponsibilityManager extends ResponsibilityManager {
+  constructor(
+    container: HTMLDivElement,
+    model: AdaptiveElement,
+    dotsItemSize?: number
+  ) {
+    super(container, model, dotsItemSize);
+  }
+
   protected getAvailableSpace() {
     var style = this.getComputedStyle(this.container);
     var width = this.container.offsetHeight;

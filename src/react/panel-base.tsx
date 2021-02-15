@@ -6,7 +6,7 @@ import { SurveyElementBase } from "./reactquestion_element";
 import { Base } from "../base";
 import { SurveyRow } from "./row";
 
-export class SurveyPanelBase extends SurveyElementBase {
+export class SurveyPanelBase extends SurveyElementBase<any, any> {
   protected rootRef: React.RefObject<HTMLDivElement>;
   constructor(props: any) {
     super(props);

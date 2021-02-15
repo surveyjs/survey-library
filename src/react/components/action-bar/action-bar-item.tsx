@@ -6,7 +6,11 @@ import { SurveyElementBase } from "../../reactquestion_element";
 import { SvgIcon } from "../svg-icon/svg-icon";
 import { ActionBarSeparator } from "./action-bar-separator";
 
-export class ActionBarItem extends SurveyElementBase {
+interface IActionBarItemProps {
+  item: AdaptiveActionBarItemWrapper;
+}
+
+export class ActionBarItem extends SurveyElementBase<IActionBarItemProps, any> {
   get item(): AdaptiveActionBarItemWrapper {
     return this.props.item;
   }

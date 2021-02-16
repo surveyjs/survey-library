@@ -526,7 +526,11 @@ Serializer.addClass(
       dependsOn: "inputType",
       visibleIf: function (obj: any) {
         if (!obj) return false;
-        return obj.inputType === "text";
+        return (
+          ["email", "number", "password", "tel", "text", "url"].indexOf(
+            obj.inputType
+          ) > -1
+        );
       },
     },
     {

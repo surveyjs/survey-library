@@ -42,4 +42,15 @@ export class ListModel extends Base {
   public isItemSelected = (itemValue: IActionBarItem) => {
     return this.allowSelection && this.selectedItem == itemValue;
   };
+
+  public getItemClass = (itemValue: IActionBarItem) => {
+    var className = "sv-list__item";
+    if (this.isItemDisabled(itemValue)) {
+      className += " sv-list__item--disabled";
+    }
+    if (this.isItemSelected(itemValue)) {
+      className += " sv-list__item--selected";
+    }
+    return className;
+  };
 }

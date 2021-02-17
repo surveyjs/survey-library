@@ -11,7 +11,7 @@ export var portugueseSurveyStrings = {
   noneItemText: "Nenhum",
   selectAllItemText: "Selecionar Todos",
   progressText: "Página {0} de {1}",
-  panelDynamicProgressText: "Registo {0} de {1}",
+  panelDynamicProgressText: "Registro {0} de {1}",
   questionsProgressText: "Respostas {0}/{1} perguntas",
   emptySurvey: "Não há página visível ou pergunta na pesquisa.",
   completingSurvey: "Obrigado por finalizar a pesquisa!",
@@ -22,7 +22,8 @@ export var portugueseSurveyStrings = {
   value: "valor",
   requiredError: "Por favor, responda a pergunta.",
   requiredErrorInPanel: "Por favor, responda pelo menos uma pergunta.",
-  requiredInAllRowsError: "Por favor, responda as perguntas em todas as linhas.",
+  requiredInAllRowsError:
+    "Por favor, responda as perguntas em todas as linhas.",
   numericError: "O valor deve ser numérico.",
   textMinLength: "Por favor, insira pelo menos {0} caracteres.",
   textMaxLength: "Por favor, insira menos de {0} caracteres.",
@@ -65,8 +66,7 @@ export var portugueseSurveyStrings = {
   timerSpentAll: "Você gastou {0} nesta página e {1} no total.",
   timerSpentPage: "Você gastou {0} nesta página.",
   timerSpentSurvey: "Você gastou {0} no total.",
-  timerLimitAll:
-    "Você gastou {0} de {1} nesta página e {2} de {3} no total.",
+  timerLimitAll: "Você gastou {0} de {1} nesta página e {2} de {3} no total.",
   timerLimitPage: "Você gastou {0} de {1} nesta página.",
   timerLimitSurvey: "Você gastou {0} de {1} no total.",
   cleanCaption: "Limpar",

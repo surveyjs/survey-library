@@ -564,18 +564,18 @@ export class Question
   public get isCompositeQuestion(): boolean {
     return false;
   }
-  public afterRenderQuestionElement(el: any) {
+  public afterRenderQuestionElement(el: HTMLElement) {
     if (!this.survey || !this.hasSingleInput) return;
     this.survey.afterRenderQuestionInput(this, el);
   }
-  public afterRender(el: any) {
+  public afterRender(el: HTMLElement) {
     if (!this.survey) return;
     this.survey.afterRenderQuestion(this, el);
     if (!!this.afterRenderQuestionCallback) {
       this.afterRenderQuestionCallback(this, el);
     }
   }
-  public beforeDestroyQuestionElement(el: any) {}
+  public beforeDestroyQuestionElement(el: HTMLElement) {}
   /**
    * Returns the rendred question title.
    */

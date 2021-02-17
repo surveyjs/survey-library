@@ -908,7 +908,7 @@ QUnit.test(
       5,
       "onAfterRender, htmlElement parameter is correct"
     );
-    q.contentQuestion.afterRender(7);
+    q.contentQuestion.afterRender(<any>7);
     assert.equal(
       afterRenderContentElementQuestion.name,
       "q1",
@@ -974,7 +974,7 @@ QUnit.test(
       5,
       "onAfterRender, htmlElement parameter is correct"
     );
-    (<Question>q.contentPanel.elements[0]).afterRender(7);
+    (<Question>q.contentPanel.elements[0]).afterRender(<any>7);
     assert.equal(
       afterRenderContentElementQuestion.name,
       "q1",

@@ -5,8 +5,10 @@ import { ReactQuestionFactory } from "./reactquestion_factory";
 
 export class SurveyQuestionText extends SurveyQuestionUncontrolledElement<QuestionTextModel> {
   private _isWaitingForEnter = false;
+  //controlRef: React.RefObject<HTMLInputElement>;
   constructor(props: any) {
     super(props);
+    //this.controlRef = React.createRef();
   }
   protected renderElement(): JSX.Element {
     var cssClasses = this.question.cssClasses;
@@ -36,6 +38,7 @@ export class SurveyQuestionText extends SurveyQuestionUncontrolledElement<Questi
           disabled={this.isDisplayMode}
           className={cssClasses.root}
           type={this.question.inputType}
+          //ref={this.controlRef}
           ref={(input) => (this.control = input)}
           maxLength={this.question.getMaxLength()}
           min={this.question.renderedMin}
@@ -72,6 +75,10 @@ export class SurveyQuestionText extends SurveyQuestionUncontrolledElement<Questi
     }
     return <datalist id={this.question.dataListId}>{options}</datalist>;
   }
+  // protected updateDomElement() {
+  //   this.control = this.controlRef.current;
+  //   super.updateDomElement();
+  // }
 }
 
 ReactQuestionFactory.Instance.registerQuestion("text", (props) => {

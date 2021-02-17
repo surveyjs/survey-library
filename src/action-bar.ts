@@ -61,7 +61,7 @@ export interface IActionBarItem {
   /**
    * Toolbar item icon name
    */
-  iconName?: string;
+  iconName?: (() => string) | string;
   /**
    * Toolbar item child items. Can be used as contianer for options
    */
@@ -88,7 +88,7 @@ export class ActionBarItem extends Base implements IActionBarItem {
   @property() active?: boolean | (() => boolean);
   @property() template?: string;
   @property() component?: string;
-  @property() iconName?: string;
+  @property() iconName?: (() => string) | string;
   @property() items?: any;
 }
 

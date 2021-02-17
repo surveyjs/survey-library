@@ -57,13 +57,13 @@ export class QuestionSignaturePadModel extends Question {
   public getType(): string {
     return "signaturepad";
   }
-  public afterRenderQuestionElement(el: any) {
+  public afterRenderQuestionElement(el: HTMLElement) {
     if (!!el) {
       this.initSignaturePad(el);
     }
     super.afterRenderQuestionElement(el);
   }
-  public beforeDestroyQuestionElement(el: any) {
+  public beforeDestroyQuestionElement(el: HTMLElement) {
     if (!!el) {
       this.destroySignaturePad(el);
     }

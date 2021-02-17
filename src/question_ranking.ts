@@ -50,14 +50,14 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
   }
 
   //cross framework initialization
-  public afterRenderQuestionElement(el: any) {
+  public afterRenderQuestionElement(el: HTMLElement) {
     if (!!el) {
       this.initSortable(el);
     }
     super.afterRenderQuestionElement(el);
   }
   //cross framework destroy
-  public beforeDestroyQuestionElement(el: any) {
+  public beforeDestroyQuestionElement(el: HTMLElement) {
     if (this.sortableInst) this.sortableInst.destroy();
     super.beforeDestroyQuestionElement(el);
   }
@@ -90,7 +90,10 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
     }
   }
 
-  private mergeValueAndVisibleChoices(value: any, visibleChoices: Array<ItemValue>) {
+  private mergeValueAndVisibleChoices(
+    value: any,
+    visibleChoices: Array<ItemValue>
+  ) {
     const length = visibleChoices.length;
     let result: Array<ItemValue> = [];
 

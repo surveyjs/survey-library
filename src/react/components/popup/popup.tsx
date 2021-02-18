@@ -18,7 +18,7 @@ export class Popup extends SurveyElementBase<IPopupProps, any> {
     this.popup = new PopupViewModel(this.props.model);
   }
 
-  get model(): PopupViewModel {
+  get model(): PopupModel {
     return this.props.model;
   }
 
@@ -44,6 +44,10 @@ export class Popup extends SurveyElementBase<IPopupProps, any> {
     super.componentWillUnmount();
   }
 }
+
+ReactElementFactory.Instance.registerElement("sv-popup", (props) => {
+  return React.createElement(Popup, (props as any) as IPopupProps);
+});
 
 export class PopupContainer extends SurveyElementBase<any, any> {
   private container: HTMLElement;

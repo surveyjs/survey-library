@@ -81,6 +81,8 @@ export {
 } from "../react/reactquestion_custom";
 
 export { DefaultTitle } from "../react/components/default-title/default-title";
+export { Popup } from "../react/components/popup/popup";
+export { List } from "../react/components/list/list";
 export { TitleActions } from "../react/components/title-actions/title-actions";
 export { ActionBar } from "../react/components/action-bar/action-bar";
 export { SvgIcon } from "../react/components/svg-icon/svg-icon";

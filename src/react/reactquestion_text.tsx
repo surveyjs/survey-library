@@ -17,6 +17,7 @@ export class SurveyQuestionText extends SurveyQuestionUncontrolledElement<Questi
       : null;
     var onKeyDown = null;
     var onKeyUp = null;
+    var onCompositionUpdate = null;
     if (this.question.isInputTextUpdate) {
       onKeyDown = (e: any) => (this._isWaitingForEnter = e.keyCode === 229);
       onKeyUp = (e: any) => {
@@ -25,6 +26,12 @@ export class SurveyQuestionText extends SurveyQuestionUncontrolledElement<Questi
           this._isWaitingForEnter = false;
         }
       };
+      onCompositionUpdate = (e: any) => {
+        e.persist();
+        setTimeout(() => {
+          this.updateValueOnEvent(e);
+        }, 1);
+      }
     }
     var placeHolder =
       this.question.inputType === "range" || this.question.isReadOnly
@@ -52,6 +59,7 @@ export class SurveyQuestionText extends SurveyQuestionUncontrolledElement<Questi
           // onChange={this.updateValueOnEvent}
           onKeyUp={onKeyUp}
           onKeyDown={onKeyDown}
+          onCompositionUpdate={onCompositionUpdate}
           aria-required={this.question.isRequired}
           aria-label={this.question.locTitle.renderedHtml}
           aria-invalid={this.question.errors.length > 0}

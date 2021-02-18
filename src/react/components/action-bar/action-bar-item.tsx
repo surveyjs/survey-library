@@ -32,13 +32,7 @@ export class ActionBarItem extends SurveyElementBase<IActionBarItemProps, any> {
     );
   }
 
-  renderInnerButton() {
-    const className =
-      "sv-action-bar-item " +
-      this.item.innerCss +
-      (this.item.active ? " sv-action-bar-item--active" : "");
-    const title = this.item.tooltip || this.item.title;
-    const isDisabled = this.item.enabled !== undefined && !this.item.enabled;
+  renderButtonContent() {
     const text = this.renderText();
     const svgIcon = !!this.item.iconName ? (
       <SvgIcon
@@ -47,6 +41,22 @@ export class ActionBarItem extends SurveyElementBase<IActionBarItemProps, any> {
         iconName={this.item.iconName}
       ></SvgIcon>
     ) : null;
+    return (
+      <>
+        {svgIcon}
+        {text}
+      </>
+    );
+  }
+
+  renderInnerButton() {
+    const className =
+      "sv-action-bar-item " +
+      this.item.innerCss +
+      (this.item.active ? " sv-action-bar-item--active" : "");
+    const title = this.item.tooltip || this.item.title;
+    const isDisabled = this.item.enabled !== undefined && !this.item.enabled;
+    const buttonContent = this.renderButtonContent();
     const button = (
       <button
         className={className}
@@ -54,8 +64,7 @@ export class ActionBarItem extends SurveyElementBase<IActionBarItemProps, any> {
         onClick={() => this.item.action(this.item)}
         title={title}
       >
-        {svgIcon}
-        {text}
+        {buttonContent}
       </button>
     );
 

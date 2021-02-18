@@ -5,12 +5,13 @@ import {
   IActionBarItem,
 } from "../../../action-bar";
 import { ReactElementFactory } from "../../element-factory";
-import { ActionBarSeparator } from "./action-bar-separator";
 import { SurveyElementBase } from "../../reactquestion_element";
 import { Base } from "../../../base";
 import { ResponsibilityManager } from "../../../utils/resonsibilitymanager";
-export { ActionBarItem } from "./action-bar-item";
-// export * from "./action-bar-separator";
+
+export * from "./action-bar-item";
+export * from "./action-bar-item-dropdown";
+export * from "./action-bar-separator";
 
 interface IActionBarProps {
   items: Array<IActionBarItem>;

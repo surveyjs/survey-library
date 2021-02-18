@@ -6,13 +6,17 @@ import { ISurveyCreator } from "./reactquestion";
 import { Base, ITitleOwner, ArrayChanges } from "../base";
 import { ReactElementFactory } from "./element-factory";
 
-export class SurveyElementBase extends React.Component<any, any> {
+export class SurveyElementBase<P, S> extends React.Component<P, S> {
   public static renderLocString(
     locStr: LocalizableString,
     style: any = null,
     key?: string
   ): JSX.Element {
-    return ReactElementFactory.Instance.createElement(locStr.renderAs, { locStr: locStr, style: style, key: key } );
+    return ReactElementFactory.Instance.createElement(locStr.renderAs, {
+      locStr: locStr,
+      style: style,
+      key: key,
+    });
   }
   private isRenderingValue: boolean;
   private changedStatePropNameValue: string;
@@ -71,7 +75,8 @@ export class SurveyElementBase extends React.Component<any, any> {
     return null;
   }
   protected get isDisplayMode(): boolean {
-    return this.props.isDisplayMode || false;
+    const props: any = this.props;
+    return props.isDisplayMode || false;
   }
   protected renderLocString(
     locStr: LocalizableString,
@@ -93,7 +98,7 @@ export class SurveyElementBase extends React.Component<any, any> {
           this.setState((state: any) => {
             var newState: { [index: string]: any } = {};
             newState[key] = val;
-            return newState;
+            return newState as S;
           });
         };
       }
@@ -110,7 +115,7 @@ export class SurveyElementBase extends React.Component<any, any> {
         this.setState((state: any) => {
           var newState: { [index: string]: any } = {};
           newState[key] = val;
-          return newState;
+          return newState as S;
         });
       }
     };
@@ -128,7 +133,7 @@ export class SurveyElementBase extends React.Component<any, any> {
   }
 }
 
-export class ReactSurveyElement extends SurveyElementBase {
+export class ReactSurveyElement extends SurveyElementBase<any, any> {
   constructor(props: any) {
     super(props);
   }
@@ -137,8 +142,8 @@ export class ReactSurveyElement extends SurveyElementBase {
   }
 }
 
-export class SurveyQuestionElementBase extends SurveyElementBase {
-  control: any;
+export class SurveyQuestionElementBase extends SurveyElementBase<any, any> {
+  control: HTMLElement;
   constructor(props: any) {
     super(props);
   }
@@ -156,7 +161,7 @@ export class SurveyQuestionElementBase extends SurveyElementBase {
     }
   }
   protected updateDomElement() {
-    var el = this.control;
+    const el: HTMLElement = this.control;
     if (!!el) {
       if (el.getAttribute("data-rendered") !== "r") {
         el.setAttribute("data-rendered", "r");
@@ -202,7 +207,8 @@ export class SurveyQuestionUncontrolledElement<
   };
   protected updateDomElement() {
     if (!!this.control) {
-      this.control.value = this.getValue(this.questionBase.value);
+      const control: any = this.control;
+      control.value = this.getValue(this.questionBase.value);
     }
     super.updateDomElement();
   }

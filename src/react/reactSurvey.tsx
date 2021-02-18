@@ -15,7 +15,9 @@ import { StylesManager } from "../stylesmanager";
 import { Helpers } from "../helpers";
 import { ReactElementFactory } from "./element-factory";
 
-export class Survey extends SurveyElementBase implements ISurveyCreator {
+export class Survey
+  extends SurveyElementBase<any, any>
+  implements ISurveyCreator {
   private previousJSON = {};
   private rootRef: React.RefObject<HTMLDivElement>;
   public static get cssType(): string {

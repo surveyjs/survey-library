@@ -1,21 +1,24 @@
 import React from "react";
 import ReactDOM from "react-dom";
-import { PopupViewModel } from "../../../popup";
+import { PopupModel, PopupViewModel } from "../../../popup";
 import { ReactElementFactory } from "../../element-factory";
 import { SurveyElementBase } from "../../reactquestion_element";
 
-export class Popup extends SurveyElementBase {
+interface IPopupProps {
+  model: PopupModel;
+}
+
+export class Popup extends SurveyElementBase<IPopupProps, any> {
   private container: any;
   private popup: PopupViewModel;
   private containerRef: React.RefObject<HTMLDivElement>;
-  constructor(props: any) {
+  constructor(props: IPopupProps) {
     super(props);
     this.containerRef = React.createRef();
     this.popup = new PopupViewModel(this.props.model);
   }
 
-
-  get model(): PopupViewModel {
+  get model(): PopupModel {
     return this.props.model;
   }
 
@@ -42,7 +45,11 @@ export class Popup extends SurveyElementBase {
   }
 }
 
-export class PopupContainer extends SurveyElementBase {
+ReactElementFactory.Instance.registerElement("sv-popup", (props) => {
+  return React.createElement(Popup, (props as any) as IPopupProps);
+});
+
+export class PopupContainer extends SurveyElementBase<any, any> {
   private container: HTMLElement;
 
   constructor(props: any) {
@@ -106,11 +113,7 @@ export class PopupContainer extends SurveyElementBase {
       this.model.contentComponentName,
       this.model.contentComponentData
     );
-    return (
-      <div className="sv-popup__content">
-        {contentComponent}
-      </div>
-    );
+    return <div className="sv-popup__content">{contentComponent}</div>;
   }
   renderFooter() {
     return (

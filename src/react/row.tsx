@@ -7,7 +7,7 @@ import { IElement, Base } from "../base";
 import { ReactElementFactory } from "./element-factory";
 import { settings } from "../settings";
 
-export class SurveyRow extends SurveyElementBase {
+export class SurveyRow extends SurveyElementBase<any, any> {
   private rootRef: React.RefObject<HTMLDivElement>;
   constructor(props: any) {
     super(props);

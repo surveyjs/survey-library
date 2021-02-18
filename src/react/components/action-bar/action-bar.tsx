@@ -5,20 +5,25 @@ import {
   IActionBarItem,
 } from "../../../action-bar";
 import { ReactElementFactory } from "../../element-factory";
-import { ActionBarSeparator } from "./action-bar-separator";
 import { SurveyElementBase } from "../../reactquestion_element";
 import { Base } from "../../../base";
 import { ResponsibilityManager } from "../../../utils/resonsibilitymanager";
-export { ActionBarItem } from "./action-bar-item";
-// export * from "./action-bar-separator";
 
-export class ActionBar extends SurveyElementBase {
+export * from "./action-bar-item";
+export * from "./action-bar-item-dropdown";
+export * from "./action-bar-separator";
+
+interface IActionBarProps {
+  items: Array<IActionBarItem>;
+}
+
+export class ActionBar extends SurveyElementBase<IActionBarProps, any> {
   private adaptiveElement = new AdaptiveElement();
   private manager: ResponsibilityManager;
   private rootRef: React.RefObject<HTMLDivElement>;
   private updateVisibleItems: any;
 
-  constructor(props: any) {
+  constructor(props: IActionBarProps) {
     super(props);
 
     const sourceItems: Array<IActionBarItem> = this.props.items;
@@ -100,5 +105,5 @@ export class ActionBar extends SurveyElementBase {
 }
 
 ReactElementFactory.Instance.registerElement("sv-action-bar", (props) => {
-  return React.createElement(ActionBar, props);
+  return React.createElement(ActionBar, (props as any) as IActionBarProps);
 });

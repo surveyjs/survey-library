@@ -13,7 +13,7 @@ export interface ISurveyCreator {
   questionErrorLocation(): string;
 }
 
-export class SurveyQuestion extends SurveyElementBase {
+export class SurveyQuestion extends SurveyElementBase<any, any> {
   private isNeedFocus = false;
   public static renderQuestionBody(
     creator: ISurveyCreator,

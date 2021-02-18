@@ -120,6 +120,8 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
     self.sortableInst = new Sortable(domNode, {
       animation: 100,
       forceFallback: true,
+      delay: 200,
+      delayOnTouchOnly: true,
       handle: IsMobile
         ? "." + self.cssClasses.itemIconContainer
         : "." + self.cssClasses.itemContent,

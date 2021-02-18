@@ -52,6 +52,12 @@ export class SurveyQuestionText extends SurveyQuestionUncontrolledElement<Questi
           // onChange={this.updateValueOnEvent}
           onKeyUp={onKeyUp}
           onKeyDown={onKeyDown}
+          onCompositionUpdate={(e) => {
+            e.persist();
+            setTimeout(() => {
+              this.updateValueOnEvent(e);
+            }, 1);
+          }}
           aria-required={this.question.isRequired}
           aria-label={this.question.locTitle.renderedHtml}
           aria-invalid={this.question.errors.length > 0}

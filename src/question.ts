@@ -1330,7 +1330,9 @@ export class Question
   protected setValueAndRunExpression(
     expression: string,
     defaultValue: any,
-    setFunc: (val: any) => void
+    setFunc: (val: any) => void,
+    values: HashTable<any> = null,
+    properties: HashTable<any> = null
   ) {
     var func = (val: any) => {
       if (val instanceof Date) {
@@ -1339,16 +1341,15 @@ export class Question
       setFunc(val);
     };
     if (!!expression && !!this.data) {
+      if (!values) values = this.data.getFilteredValues();
+      if (!properties) properties = this.data.getFilteredProperties();
       var runner = new ExpressionRunner(expression);
       if (runner.canRun) {
         runner.onRunComplete = (res) => {
           if (res == undefined) res = this.defaultValue;
           func(res);
         };
-        runner.run(
-          this.data.getFilteredValues(),
-          this.data.getFilteredProperties()
-        );
+        runner.run(values, properties);
       }
     } else {
       func(defaultValue);

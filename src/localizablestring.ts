@@ -29,9 +29,9 @@ export class LocalizableString implements ILocalizableString {
   public static editableRenderer = "sv-string-editor";
   private values = {};
   private htmlValues = {};
-  private renderedText: string = null;
-  private calculatedTextValue: string = null;
-  public onGetTextCallback: (str: string) => string = null;
+  private renderedText: string;
+  private calculatedTextValue: string;
+  public onGetTextCallback: (str: string) => string;
   public onStrChanged: () => void;
   public sharedData: LocalizableString;
   constructor(
@@ -45,11 +45,11 @@ export class LocalizableString implements ILocalizableString {
     return this.owner && this.owner.getLocale ? this.owner.getLocale() : "";
   }
   public strChanged() {
-    if (this.renderedText === null) return;
+    if (this.renderedText === undefined) return;
     this.calculatedTextValue = this.calText();
     if (this.renderedText !== this.calculatedTextValue) {
-      this.renderedText = null;
-      this.calculatedTextValue = null;
+      this.renderedText = undefined;
+      this.calculatedTextValue = undefined;
       this.onChanged();
     }
   }
@@ -58,10 +58,10 @@ export class LocalizableString implements ILocalizableString {
   }
   public get calculatedText(): string {
     this.renderedText =
-      this.calculatedTextValue !== null
+      this.calculatedTextValue !== undefined
         ? this.calculatedTextValue
         : this.calText();
-    this.calculatedTextValue = null;
+    this.calculatedTextValue = undefined;
     return this.renderedText;
   }
   private calText(): string {

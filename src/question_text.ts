@@ -2,7 +2,7 @@ import { QuestionFactory } from "./questionfactory";
 import { Serializer } from "./jsonobject";
 import { Question } from "./question";
 import { LocalizableString, LocalizableStrings } from "./localizablestring";
-import { Helpers } from "./helpers";
+import { Helpers, HashTable } from "./helpers";
 import { EmailValidator, SurveyValidator } from "./validator";
 import { SurveyError } from "./base";
 import { surveyLocalization } from "./surveyStrings";
@@ -51,6 +51,12 @@ export class QuestionTextModel extends Question {
       this.min = undefined;
       this.max = undefined;
       this.step = undefined;
+    }
+  }
+  public runCondition(values: HashTable<any>, properties: HashTable<any>) {
+    super.runCondition(values, properties);
+    if (!!this.minValueExpression || !!this.maxValueExpression) {
+      this.setRenderedMinMax(values, properties);
     }
   }
   /**
@@ -274,19 +280,34 @@ export class QuestionTextModel extends Question {
     if (Helpers.isValueEmpty(minMax)) return minMax;
     return this.isDateInputType ? new Date(minMax) : minMax;
   }
-  private setRenderedMinMax() {
-    this.setValueAndRunExpression(this.minValueExpression, this.min, (val) => {
-      if (!val && this.isDateInputType && !!settings.minDate) {
-        val = settings.minDate;
-      }
-      this.setPropertyValue("renderedMin", val);
-    });
-    this.setValueAndRunExpression(this.maxValueExpression, this.max, (val) => {
-      if (!val && this.isDateInputType) {
-        val = !!settings.maxDate ? settings.maxDate : "2999-12-31";
-      }
-      this.setPropertyValue("renderedMax", val);
-    });
+  private setRenderedMinMax(
+    values: HashTable<any> = null,
+    properties: HashTable<any> = null
+  ) {
+    this.setValueAndRunExpression(
+      this.minValueExpression,
+      this.min,
+      (val) => {
+        if (!val && this.isDateInputType && !!settings.minDate) {
+          val = settings.minDate;
+        }
+        this.setPropertyValue("renderedMin", val);
+      },
+      values,
+      properties
+    );
+    this.setValueAndRunExpression(
+      this.maxValueExpression,
+      this.max,
+      (val) => {
+        if (!val && this.isDateInputType) {
+          val = !!settings.maxDate ? settings.maxDate : "2999-12-31";
+        }
+        this.setPropertyValue("renderedMax", val);
+      },
+      values,
+      properties
+    );
   }
 
   /**
@@ -526,7 +547,11 @@ Serializer.addClass(
       dependsOn: "inputType",
       visibleIf: function (obj: any) {
         if (!obj) return false;
-        return obj.inputType === "text";
+        return (
+          ["email", "number", "password", "tel", "text", "url"].indexOf(
+            obj.inputType
+          ) > -1
+        );
       },
     },
     {

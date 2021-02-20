@@ -143,7 +143,7 @@ export class ReactSurveyElement extends SurveyElementBase<any, any> {
 }
 
 export class SurveyQuestionElementBase extends SurveyElementBase<any, any> {
-  control: any;
+  control: HTMLElement;
   constructor(props: any) {
     super(props);
   }
@@ -161,7 +161,7 @@ export class SurveyQuestionElementBase extends SurveyElementBase<any, any> {
     }
   }
   protected updateDomElement() {
-    var el = this.control;
+    const el: HTMLElement = this.control;
     if (!!el) {
       if (el.getAttribute("data-rendered") !== "r") {
         el.setAttribute("data-rendered", "r");
@@ -207,7 +207,8 @@ export class SurveyQuestionUncontrolledElement<
   };
   protected updateDomElement() {
     if (!!this.control) {
-      this.control.value = this.getValue(this.questionBase.value);
+      const control: any = this.control;
+      control.value = this.getValue(this.questionBase.value);
     }
     super.updateDomElement();
   }

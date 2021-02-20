@@ -6,7 +6,7 @@ export class ReactElementFactory {
 
   public registerElement(
     elementType: string,
-    elementCreator: (name: string) => JSX.Element
+    elementCreator: (props: any) => JSX.Element
   ) {
     this.creatorHash[elementType] = elementCreator;
   }

@@ -224,7 +224,7 @@ export abstract class QuestionCustomModelBase
       this.customQuestion.onLoaded(this);
     }
   }
-  public afterRenderQuestionElement(el: any) {
+  public afterRenderQuestionElement(el: HTMLElement) {
     //Do nothing
   }
   public afterRender(el: any) {

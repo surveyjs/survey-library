@@ -26,26 +26,17 @@
       v-bind:class="{ 'sv-action-bar-item__title--with-icon': !!item.iconName }"
       >{{ item.title }}</span
     >
+    <sv-popup :model="item.popupModel"></sv-popup>
   </button>
 </template>
 
 <script lang="ts">
+import { Component } from "vue-property-decorator";
 import Vue from "vue";
-import { Prop, Component } from "vue-property-decorator";
-import { AdaptiveActionBarItemWrapper } from "../../../action-bar";
-import { Base } from "../../../base";
-import BaseVue from "../../base";
+import ActionBarItem from "./action-bar-item.vue";
 
 @Component
-export class ActionBarItem extends BaseVue {
-  @Prop
-  public item: AdaptiveActionBarItemWrapper;
-
-  getModel(): Base {
-    return this.item;
-  }
-}
-
-Vue.component("sv-action-bar-item", ActionBarItem);
-export default ActionBarItem;
+export class ActionBarItemDropdown extends ActionBarItem {}
+Vue.component("sv-action-bar-item-dropdown", ActionBarItemDropdown);
+export default ActionBarItemDropdown;
 </script>

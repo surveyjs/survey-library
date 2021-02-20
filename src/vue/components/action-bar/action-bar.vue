@@ -26,28 +26,33 @@
 <script lang="ts">
 import { Component, Prop } from "vue-property-decorator";
 import Vue from "vue";
-import { ObjectWrapper } from "../../../utils/objectwrapper";
-import { IActionBarItem } from "../../../action-bar";
+import {
+  AdaptiveActionBarItemWrapper,
+  AdaptiveElement,
+  IActionBarItem,
+} from "../../../action-bar";
 
 export * from "./action-bar-item.vue";
+export * from "./action-bar-item-dropdown.vue";
 export * from "./action-bar-separator.vue";
 
 @Component
 export class ActionBar extends Vue {
   @Prop items: Array<IActionBarItem>;
+  private adaptiveElement = new AdaptiveElement();
 
   constructor() {
     super();
+    const sourceItems: Array<IActionBarItem> = this.items;
+    this.adaptiveElement.items = sourceItems.map(
+      (item: IActionBarItem, itemIndex: number) => {
+        return new AdaptiveActionBarItemWrapper(this.adaptiveElement, item);
+      }
+    );
   }
 
   get wrappedItems() {
-    var items: any[] = [];
-    this.items.forEach((item) => {
-      (<any>item).isVisible = true;
-      var wrappedItem: any = new ObjectWrapper(item, ["action", "showTitle"]);
-      items.push(wrappedItem);
-    });
-    return items;
+    return this.adaptiveElement.items;
   }
 
   getComponentName(item: any) {
@@ -55,7 +60,7 @@ export class ActionBar extends Vue {
   }
 
   get hasItems() {
-    return (this.items || []).length > 0;
+    return (this.adaptiveElement.items || []).length > 0;
   }
 }
 

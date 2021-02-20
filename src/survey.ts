@@ -3721,26 +3721,26 @@ export class SurveyModel
       cssClasses: cssClasses,
     });
   }
-  afterRenderPage(htmlElement: any) {
+  afterRenderPage(htmlElement: HTMLElement) {
     if (this.onAfterRenderPage.isEmpty) return;
     this.onAfterRenderPage.fire(this, {
       page: this.currentPage,
       htmlElement: htmlElement,
     });
   }
-  afterRenderHeader(htmlElement: any) {
+  afterRenderHeader(htmlElement: HTMLElement) {
     if (this.onAfterRenderHeader.isEmpty) return;
     this.onAfterRenderHeader.fire(this, {
       htmlElement: htmlElement,
     });
   }
-  afterRenderQuestion(question: IQuestion, htmlElement: any) {
+  afterRenderQuestion(question: IQuestion, htmlElement: HTMLElement) {
     this.onAfterRenderQuestion.fire(this, {
       question: question,
       htmlElement: htmlElement,
     });
   }
-  afterRenderQuestionInput(question: IQuestion, htmlElement: any) {
+  afterRenderQuestionInput(question: IQuestion, htmlElement: HTMLElement) {
     if (this.onAfterRenderQuestionInput.isEmpty) return;
     let id = (<Question>question).inputId;
     if (!!id && htmlElement.id !== id && typeof document !== "undefined") {
@@ -3754,7 +3754,7 @@ export class SurveyModel
       htmlElement: htmlElement,
     });
   }
-  afterRenderPanel(panel: IElement, htmlElement: any) {
+  afterRenderPanel(panel: IElement, htmlElement: HTMLElement) {
     this.onAfterRenderPanel.fire(this, {
       panel: panel,
       htmlElement: htmlElement,

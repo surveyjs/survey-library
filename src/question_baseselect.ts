@@ -15,16 +15,16 @@ import { settings } from "./settings";
  */
 export class QuestionSelectBase extends Question {
   public visibleChoicesChangedCallback: () => void;
-  private filteredChoicesValue: Array<ItemValue> = null;
+  private filteredChoicesValue: Array<ItemValue>;
   private conditionChoicesVisibleIfRunner: ConditionRunner;
   private conditionChoicesEnableIfRunner: ConditionRunner;
   private commentValue: string;
   private prevCommentValue: string;
   private otherItemValue: ItemValue = new ItemValue("other");
-  private choicesFromUrl: Array<ItemValue> = null;
-  private cachedValueForUrlRequests: any = null;
-  private isChoicesLoaded: boolean = false;
-  private enableOnLoadingChoices: boolean = false;
+  private choicesFromUrl: Array<ItemValue>;
+  private cachedValueForUrlRequests: any;
+  private isChoicesLoaded: boolean;
+  private enableOnLoadingChoices: boolean;
   private dependedQuestions: Array<QuestionSelectBase> = [];
   constructor(name: string) {
     super(name);
@@ -177,7 +177,7 @@ export class QuestionSelectBase extends Question {
       !!this.filteredChoicesValue &&
       this.filteredChoicesValue.length === this.activeChoices.length
     ) {
-      this.filteredChoicesValue = null;
+      this.filteredChoicesValue = undefined;
     }
     if (hasChanges) {
       this.onVisibleChoicesChanged();
@@ -239,7 +239,7 @@ export class QuestionSelectBase extends Question {
     this.filteredChoicesValue = [];
     return ItemValue.runConditionsForItems(
       this.activeChoices,
-      this.filteredChoices,
+      this.getFilteredChoices(),
       this.areInvisibleElementsShowing
         ? null
         : this.conditionChoicesVisibleIfRunner,
@@ -347,10 +347,10 @@ export class QuestionSelectBase extends Question {
   protected hasUnknownValue(val: any, includeOther: boolean = false): boolean {
     if (Helpers.isValueEmpty(val)) return false;
     if (includeOther && val == this.otherItem.value) return false;
-    return ItemValue.getItemByValue(this.filteredChoices, val) == null;
+    return ItemValue.getItemByValue(this.getFilteredChoices(), val) == null;
   }
   protected isValueDisabled(val: any): boolean {
-    var itemValue = ItemValue.getItemByValue(this.filteredChoices, val);
+    var itemValue = ItemValue.getItemByValue(this.getFilteredChoices(), val);
     return !!itemValue && !itemValue.isEnabled;
   }
   /**
@@ -534,8 +534,8 @@ export class QuestionSelectBase extends Question {
     this.setPropertyValue("visibleChoices", newValue);
   }
   private calcVisibleChoices(): Array<ItemValue> {
-    if (this.canUseFilteredChoices()) return this.filteredChoices;
-    var res = this.sortVisibleChoices(this.filteredChoices.slice());
+    if (this.canUseFilteredChoices()) return this.getFilteredChoices();
+    var res = this.sortVisibleChoices(this.getFilteredChoices().slice());
     this.addToVisibleChoices(res);
     return res;
   }
@@ -607,12 +607,12 @@ export class QuestionSelectBase extends Question {
     var str = ItemValue.getTextOrHtmlByValue(items, val);
     return str == "" && val ? val : str;
   }
-  private get filteredChoices(): Array<ItemValue> {
+  private getFilteredChoices(): Array<ItemValue> {
     return this.filteredChoicesValue
       ? this.filteredChoicesValue
       : this.activeChoices;
   }
-  private otherQuestionActiveChoices: Array<ItemValue> = null;
+  private otherQuestionActiveChoices: Array<ItemValue>;
   protected get activeChoices(): Array<ItemValue> {
     var question = this.getQuestionWithChoices();
     if (!!question) {
@@ -868,7 +868,8 @@ export class QuestionSelectBase extends Question {
   }
   private updateVisibilityBasedOnChoices() {
     if (this.hideIfChoicesEmpty) {
-      this.visible = !this.filteredChoices || this.filteredChoices.length > 0;
+      var filteredChoices = this.getFilteredChoices();
+      this.visible = !filteredChoices || filteredChoices.length > 0;
     }
   }
   private sortVisibleChoices(array: Array<ItemValue>): Array<ItemValue> {

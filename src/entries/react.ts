@@ -81,6 +81,8 @@ export {
 } from "../react/reactquestion_custom";
 
 export { DefaultTitle } from "../react/components/default-title/default-title";
+export { Popup } from "../react/components/popup/popup";
+export { List } from "../react/components/list/list";
 export { TitleActions } from "../react/components/title-actions/title-actions";
 export { ActionBar } from "../react/components/action-bar/action-bar";
 export { SvgIcon } from "../react/components/svg-icon/svg-icon";
@@ -88,6 +90,7 @@ export { SvgIcon } from "../react/components/svg-icon/svg-icon";
 export { SurveyLocStringViewer } from "../react/string-viewer";
 export { SurveyLocStringEditor } from "../react/string-editor";
 export * from "../utils/resonsibilitymanager";
+export { unwrap } from "../utils/utils";
 
 //Uncomment to include the "date" question type.
 //export {default as SurveyQuestionDate} from "../plugins/react/reactquestiondate";

@@ -5,8 +5,10 @@ import { ReactQuestionFactory } from "./reactquestion_factory";
 
 export class SurveyQuestionText extends SurveyQuestionUncontrolledElement<QuestionTextModel> {
   private _isWaitingForEnter = false;
+  //controlRef: React.RefObject<HTMLInputElement>;
   constructor(props: any) {
     super(props);
+    //this.controlRef = React.createRef();
   }
   protected renderElement(): JSX.Element {
     var cssClasses = this.question.cssClasses;
@@ -15,6 +17,7 @@ export class SurveyQuestionText extends SurveyQuestionUncontrolledElement<Questi
       : null;
     var onKeyDown = null;
     var onKeyUp = null;
+    var onCompositionUpdate = null;
     if (this.question.isInputTextUpdate) {
       onKeyDown = (e: any) => (this._isWaitingForEnter = e.keyCode === 229);
       onKeyUp = (e: any) => {
@@ -23,6 +26,12 @@ export class SurveyQuestionText extends SurveyQuestionUncontrolledElement<Questi
           this._isWaitingForEnter = false;
         }
       };
+      onCompositionUpdate = (e: any) => {
+        e.persist();
+        setTimeout(() => {
+          this.updateValueOnEvent(e);
+        }, 1);
+      }
     }
     var placeHolder =
       this.question.inputType === "range" || this.question.isReadOnly
@@ -36,6 +45,7 @@ export class SurveyQuestionText extends SurveyQuestionUncontrolledElement<Questi
           disabled={this.isDisplayMode}
           className={cssClasses.root}
           type={this.question.inputType}
+          //ref={this.controlRef}
           ref={(input) => (this.control = input)}
           maxLength={this.question.getMaxLength()}
           min={this.question.renderedMin}
@@ -49,6 +59,7 @@ export class SurveyQuestionText extends SurveyQuestionUncontrolledElement<Questi
           // onChange={this.updateValueOnEvent}
           onKeyUp={onKeyUp}
           onKeyDown={onKeyDown}
+          onCompositionUpdate={onCompositionUpdate}
           aria-required={this.question.isRequired}
           aria-label={this.question.locTitle.renderedHtml}
           aria-invalid={this.question.errors.length > 0}
@@ -72,6 +83,10 @@ export class SurveyQuestionText extends SurveyQuestionUncontrolledElement<Questi
     }
     return <datalist id={this.question.dataListId}>{options}</datalist>;
   }
+  // protected updateDomElement() {
+  //   this.control = this.controlRef.current;
+  //   super.updateDomElement();
+  // }
 }
 
 ReactQuestionFactory.Instance.registerQuestion("text", (props) => {

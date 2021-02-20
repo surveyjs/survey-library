@@ -2,6 +2,7 @@ import { Base } from "./base";
 import { property, propertyArray } from "./jsonobject";
 import { ListModel } from "./list";
 import { PopupModel } from "./popup";
+import { unwrap } from "./utils/utils";
 
 export interface IActionBarItem {
   /**
@@ -61,7 +62,7 @@ export interface IActionBarItem {
   /**
    * Toolbar item icon name
    */
-  iconName?: string;
+  iconName?: (() => string) | string;
   /**
    * Toolbar item child items. Can be used as contianer for options
    */
@@ -88,7 +89,7 @@ export class ActionBarItem extends Base implements IActionBarItem {
   @property() active?: boolean | (() => boolean);
   @property() template?: string;
   @property() component?: string;
-  @property() iconName?: string;
+  @property() iconName?: (() => string) | string;
   @property() items?: any;
 }
 
@@ -105,27 +106,20 @@ export class AdaptiveActionBarItemWrapper
     return this.item;
   }
 
-  private unwrap<T>(value: T | (() => T)): T {
-    if (typeof value !== "function") {
-      return value;
-    } else {
-      return (<() => T>value)();
-    }
-  }
   public get id(): string {
     return this.item.id;
   }
   public get visible(): boolean {
-    return this.unwrap(this.item.visible);
+    return unwrap(this.item.visible);
   }
   public get title(): string {
-    return this.unwrap(this.item.title);
+    return unwrap(this.item.title);
   }
   public get tooltip(): string {
-    return this.unwrap(this.item.tooltip);
+    return unwrap(this.item.tooltip);
   }
   public get enabled(): boolean {
-    return this.unwrap(this.item.enabled);
+    return unwrap(this.item.enabled);
   }
   public get disabled(): boolean {
     const isEnabled = this.enabled;
@@ -143,31 +137,31 @@ export class AdaptiveActionBarItemWrapper
     this.item.action && this.item.action(context);
   }
   public get css(): (() => string) | string {
-    return this.unwrap(this.item.css);
+    return unwrap(this.item.css);
   }
   public get innerCss(): string {
-    return this.unwrap(this.item.innerCss);
+    return unwrap(this.item.innerCss);
   }
   public get data(): any {
-    return this.unwrap(this.item.data);
+    return unwrap(this.item.data);
   }
   public get popupModel(): any {
-    return this.unwrap(this.item.popupModel);
+    return unwrap(this.item.popupModel);
   }
   public get active(): boolean {
-    return this.unwrap(this.item.active);
+    return unwrap(this.item.active);
   }
   public get template(): string {
     return this.item.template;
   }
   public get component(): string {
-    return this.unwrap(this.item.component);
+    return unwrap(this.item.component);
   }
   public get iconName(): string {
-    return this.unwrap(this.item.iconName);
+    return unwrap(this.item.iconName);
   }
   public get items(): any {
-    return this.unwrap(this.item.items);
+    return unwrap(this.item.items);
   }
   @property({ defaultValue: true }) isVisible: boolean;
   @property() needSeparator: boolean;

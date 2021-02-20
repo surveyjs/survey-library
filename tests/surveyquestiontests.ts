@@ -3763,6 +3763,23 @@ QUnit.test("QuestionText min/maxValueExpression, today()", function (assert) {
     "renderedMin: today in format yyyy-mm-dd"
   );
 });
+QUnit.test("QuestionText min/maxValueExpression, today()", function (assert) {
+  var survey = new SurveyModel({
+    questions: [
+      { type: "text", inputType: "date", name: "q1" },
+      {
+        type: "text",
+        inputType: "date",
+        name: "q2",
+        minValueExpression: "{q1}",
+      },
+    ],
+  });
+  var question = <QuestionTextModel>survey.getQuestionByName("q2");
+  assert.notOk(question.renderedMin, "renderedMin is empty");
+  survey.setValue("q1", "2021-02-18");
+  assert.equal(question.renderedMin, "2021-02-18", "renderedMin: gets from q1");
+});
 QUnit.test(
   "QuestionText min/max do not allow to set value to survey if values are not in the range",
   function (assert) {

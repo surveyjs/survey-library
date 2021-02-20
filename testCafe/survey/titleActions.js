@@ -161,4 +161,42 @@ frameworks.forEach((framework) => {
     );
     assert.equal(await getQuestionState(), "collapsed");
   });
+
+  test("check page title actions do not appear", async (t) => {
+    const json = {
+      pages: [
+        {
+          title: "Page title with actions",
+          questions: [
+            {
+              type: "text",
+              name: "simple question",
+            },
+          ],
+        },
+      ],
+    };
+    await initSurvey(framework, json);
+    assert.ok(!(await Selector("h4 .sv-title-actions").exists));
+  });
+  test("check page title actions appear", async (t) => {
+    const json = {
+      pages: [
+        {
+          title: "Page title with actions",
+          questions: [
+            {
+              type: "text",
+              name: "simple question",
+            },
+          ],
+        },
+      ],
+    };
+    await initSurvey(framework, json, {
+      onGetPageTitleActions: (_, opt) => {},
+    });
+
+    assert.ok(await Selector("h4 .sv-title-actions").exists);
+  });
 });

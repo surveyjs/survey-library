@@ -1,5 +1,5 @@
 import React from "react";
-import { ReactElementFactory } from "../../../entries/react";
+import { ReactElementFactory } from "../../element-factory";
 import { createSvg } from "../../../utils/utils";
 
 export class SvgIcon extends React.Component<any, any> {

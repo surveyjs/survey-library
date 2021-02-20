@@ -1,18 +1,24 @@
 ﻿<script type="text/html" id="survey-page">
   <div data-bind="css: cssClasses.page.root">
-      <!-- ko if: _showTitle -->
-      <h4 data-bind="css: cssClasses.page.title">
-          <!-- ko template: { name: 'survey-string', data: locTitle } -->
-          <!-- /ko -->
-      </h4>
+    <!-- ko if: _showTitle -->
+    <h4 data-bind="css: cssClasses.page.title">
+      <!-- ko if: !renderTitleActions -->
+      <!-- ko template: { name: 'survey-string', data: locTitle } --><!-- /ko -->
       <!-- /ko -->
-      <!-- ko if: _showDescription-->
-      <div data-bind="visible: data.showPageTitles, css: cssClasses.page.description">
-          <!-- ko template: { name: 'survey-string', data: locDescription } -->
-          <!-- /ko -->
-      </div>
+      <!-- ko if: renderTitleActions -->
+      <!-- ko component: { name: 'sv-title-actions', params: { element: $data } } --><!-- /ko -->
       <!-- /ko -->
-      <!-- ko template: { name: 'survey-rows', data: $data} -->
+    </h4>
+    <!-- /ko -->
+    <!-- ko if: _showDescription-->
+    <div
+      data-bind="visible: data.showPageTitles, css: cssClasses.page.description"
+    >
+      <!-- ko template: { name: 'survey-string', data: locDescription } -->
       <!-- /ko -->
+    </div>
+    <!-- /ko -->
+    <!-- ko template: { name: 'survey-rows', data: $data} -->
+    <!-- /ko -->
   </div>
 </script>

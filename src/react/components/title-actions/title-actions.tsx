@@ -2,6 +2,7 @@ import React from "react";
 import { ISurveyElement } from "../../../base";
 import { RendererFactory } from "../../../rendererFactory";
 import { ReactElementFactory } from "../../element-factory";
+import { SurveyElementBase } from "../../reactquestion_element";
 import { ActionBar } from "../action-bar/action-bar";
 
 import { TitleContent } from "../title-content/title-content";
@@ -15,14 +16,17 @@ export class TitleActions extends React.Component<any, any> {
   }
 
   render() {
+    var titleContent = !this.element.isPage ? (
+      <TitleContent
+        element={this.element}
+        cssClasses={this.cssClasses}
+      ></TitleContent>
+    ) : (
+      <>{SurveyElementBase.renderLocString((this.element as any).locTitle)}</>
+    );
     return (
       <div className="sv-title-actions">
-        <span className="sv-title-actions__title">
-          <TitleContent
-            element={this.element}
-            cssClasses={this.cssClasses}
-          ></TitleContent>
-        </span>
+        <span className="sv-title-actions__title">{titleContent}</span>
         <ActionBar items={this.element.getTitleActions()}></ActionBar>
       </div>
     );

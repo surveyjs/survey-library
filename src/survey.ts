@@ -39,6 +39,7 @@ import {
 } from "./expressionItems";
 import { ExpressionRunner, ConditionRunner } from "./conditions";
 import { settings } from "./settings";
+import { IActionBarItem } from "./action-bar";
 
 /**
  * The `Survey` object contains information about the survey, Pages, Questions, flow logic and etc.
@@ -931,6 +932,11 @@ export class SurveyModel
   > = new Event<(sender: SurveyModel, options: any) => any, any>();
 
   public onGetPanelTitleActions: Event<
+    (sender: SurveyModel, options: any) => any,
+    any
+  > = new Event<(sender: SurveyModel, options: any) => any, any>();
+
+  public onGetPageTitleActions: Event<
     (sender: SurveyModel, options: any) => any,
     any
   > = new Event<(sender: SurveyModel, options: any) => any, any>();
@@ -3844,6 +3850,7 @@ export class SurveyModel
 
   renderTitleActions(element: ISurveyElement): boolean {
     if (element.isPanel) return !this.onGetPanelTitleActions.isEmpty;
+    else if (element.isPage) return !this.onGetPageTitleActions.isEmpty;
     else return !this.onGetQuestionTitleActions.isEmpty;
   }
   elementContentVisibilityChanged(element: ISurveyElement): void {
@@ -3855,7 +3862,7 @@ export class SurveyModel
 
   getUpdatedQuestionTitleActions(
     question: IQuestion,
-    titleActions: Array<any>
+    titleActions: Array<IActionBarItem>
   ) {
     var options = {
       question: question,
@@ -3865,12 +3872,24 @@ export class SurveyModel
     return options.titleActions;
   }
 
-  getUpdatedPanelTitleActions(panel: IPanel, titleActions: Array<any>) {
+  getUpdatedPanelTitleActions(
+    panel: IPanel,
+    titleActions: Array<IActionBarItem>
+  ) {
     var options = {
       panel: panel,
       titleActions: titleActions,
     };
     this.onGetPanelTitleActions.fire(this, options);
+    return options.titleActions;
+  }
+
+  getUpdatedPageTitleActions(page: IPage, titleActions: Array<IActionBarItem>) {
+    var options = {
+      page: page,
+      titleActions: titleActions,
+    };
+    this.onGetPageTitleActions.fire(this, options);
     return options.titleActions;
   }
 

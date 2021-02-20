@@ -3,7 +3,6 @@ import { Helpers } from "./helpers";
 import { IPage, IPanel, IElement, ISurveyElement, IQuestion } from "./base";
 import { DragDropInfo, PanelModelBase, QuestionRowModel } from "./panel";
 import { LocalizableString } from "./localizablestring";
-
 /**
  * The page object. It has elements collection, that contains questions and panels.
  */
@@ -251,6 +250,14 @@ export class PageModel extends PanelModelBase implements IPage {
     }
     this.dragDropAddTarget(this.dragDropInfo);
     return true;
+  }
+  public getTitleActions(): Array<any> {
+    var titleActions: Array<any> = [];
+    this.titleActions = this.survey.getUpdatedPageTitleActions(
+      this,
+      titleActions
+    );
+    return this.titleActions;
   }
   private correctDragDropInfo(dragDropInfo: DragDropInfo) {
     if (!dragDropInfo.destination) return;

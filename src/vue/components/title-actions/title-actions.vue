@@ -1,7 +1,9 @@
 <template>
   <div class="sv-title-actions">
     <span class="sv-title-actions__title">
+      <survey-string v-if="element.isPage" :locString="element.locTitle"><survey-string>
       <survey-question-title-content
+        v-if="!element.isPage" 
         :element="element"
         :css="css"
       ></survey-question-title-content>

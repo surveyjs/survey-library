@@ -33,7 +33,14 @@ export class List extends SurveyElementBase<IListProps, any> {
   }
 
   renderItems() {
-    return this.model.items.map((item: IActionBarItem, itemIndex: number) => {
+    if (!this.model) {
+      return null;
+    }
+    const items = this.model.items;
+    if (!items) {
+      return null;
+    }
+    return items.map((item: IActionBarItem, itemIndex: number) => {
       const className = this.model.getItemClass(item);
       const icon = item.iconName ? (
         <SvgIcon
@@ -44,6 +51,7 @@ export class List extends SurveyElementBase<IListProps, any> {
       ) : null;
       return (
         <li
+          key={itemIndex}
           className={className}
           onClick={() => {
             this.model.selectItem(item);
@@ -58,5 +66,9 @@ export class List extends SurveyElementBase<IListProps, any> {
 }
 
 ReactElementFactory.Instance.registerElement("sv-list", (props) => {
-  return React.createElement(List, (props as any) as IListProps);
+  const model: ListModel = props;
+  const listProps: IListProps = {
+    model: model,
+  };
+  return React.createElement(List, listProps);
 });

@@ -11,7 +11,10 @@ export class SvgIcon extends React.Component<any, any> {
 
   render() {
     return (
-      <svg className={this.props.cssClasses} ref={this.svgIconRef}>
+      <svg
+        className={"sv-svg-icon " + this.props.className}
+        ref={this.svgIconRef}
+      >
         <use></use>
       </svg>
     );

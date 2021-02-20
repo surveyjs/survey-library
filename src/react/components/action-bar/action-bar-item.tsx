@@ -36,7 +36,7 @@ export class ActionBarItem extends SurveyElementBase<IActionBarItemProps, any> {
     const text = this.renderText();
     const svgIcon = !!this.item.iconName ? (
       <SvgIcon
-        cssClasses="sv-action-bar-item__icon"
+        className="sv-action-bar-item__icon"
         size={24}
         iconName={this.item.iconName}
       ></SvgIcon>

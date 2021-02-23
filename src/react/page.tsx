@@ -3,6 +3,7 @@ import { PageModel } from "../page";
 import { SurveyElementBase } from "./reactquestion_element";
 import { PanelModelBase } from "../panel";
 import { SurveyPanelBase } from "./panel-base";
+import { TitleActions } from "./components/title-actions/title-actions";
 
 export class SurveyPage extends SurveyPanelBase {
   constructor(props: any) {
@@ -28,8 +29,20 @@ export class SurveyPage extends SurveyPanelBase {
   }
   protected renderTitle(): JSX.Element {
     if (!this.page._showTitle) return null;
-    var text = SurveyElementBase.renderLocString(this.page.locTitle);
-    return <h4 className={this.panelBase.cssClasses.page.title}>{text}</h4>;
+    var titleContent = null;
+    if (!this.survey.renderTitleActions(this.page)) {
+      var text = SurveyElementBase.renderLocString(this.page.locTitle);
+      titleContent = <>{text}</>;
+    } else {
+      titleContent = (
+        <>
+          <TitleActions element={this.page}></TitleActions>
+        </>
+      );
+    }
+    return (
+      <h4 className={this.panelBase.cssClasses.page.title}>{titleContent}</h4>
+    );
   }
   protected renderDescription(): JSX.Element {
     if (!this.page._showDescription) return null;

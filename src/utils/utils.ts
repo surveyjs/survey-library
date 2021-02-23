@@ -122,6 +122,14 @@ function createSvg(
   );
 }
 
+export function unwrap<T>(value: T | (() => T)): T {
+  if (typeof value !== "function") {
+    return value;
+  } else {
+    return (<() => T>value)();
+  }
+}
+
 export {
   compareVersions,
   confirmAction,

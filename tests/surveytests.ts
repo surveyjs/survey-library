@@ -12324,6 +12324,18 @@ QUnit.test("Check onGetQuestionTitleActions event", (assert) => {
   });
   assert.deepEqual(panel.getTitleActions(), testActions);
 });
+
+QUnit.test("Check onGetPageTitleActions event", (assert) => {
+  var survey = new SurveyModel({
+    pages: [{ title: "Page Title" }],
+  });
+  var page = <PageModel>survey.pages[0];
+  var testActions = [{ name: "simple" }, { name: "simple2" }];
+  survey.onGetPageTitleActions.add((sender, options) => {
+    options.titleActions = testActions;
+  });
+  assert.deepEqual(page.getTitleActions(), testActions);
+});
 QUnit.test(
   "Stackoverflow error, https://surveyjs.answerdesk.io//ticket/details/T6023, Bug#2598",
   (assert) => {

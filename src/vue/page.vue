@@ -1,7 +1,8 @@
 <template>
   <div :class="page.cssClasses.page.root">
     <h4 v-if="showHeader" :class="page.cssClasses.page.title">
-      <survey-string :locString="page.locTitle" />
+      <survey-string v-if="!renderTitleActions" :locString="page.locTitle" />
+      <sv-title-actions v-if="renderTitleActions" :element="page" />
     </h4>
     <div v-if="showDescription" :class="page.cssClasses.page.description">
       <survey-string :locString="page.locDescription" />
@@ -24,7 +25,7 @@ import { SurveyModel } from "../survey";
 import { PageModel } from "../page";
 import { Base } from "../base";
 import { PanelModelBase, PanelModel, QuestionRowModel } from "../panel";
-import {BaseVue} from "./base";
+import { BaseVue } from "./base";
 
 @Component
 export class Page extends BaseVue {
@@ -33,7 +34,9 @@ export class Page extends BaseVue {
   @Prop css: Object;
 
   isCurrentPageChanged: boolean = false;
-  protected getModel(): Base { return this.page; }
+  protected getModel(): Base {
+    return this.page;
+  }
   protected onMounted() {
     if (this.survey) {
       this.survey.afterRenderPage(this.$el);
@@ -46,7 +49,7 @@ export class Page extends BaseVue {
   protected onUpdated() {
     var self = this;
     self.survey.afterRenderPage(this.$el);
-    this.$nextTick(function() {
+    this.$nextTick(function () {
       if (this.isCurrentPageChanged) {
         this.isCurrentPageChanged = false;
         self.survey.scrollToTopOnPageChange();
@@ -64,6 +67,9 @@ export class Page extends BaseVue {
   }
   get rows() {
     return this.page.rows;
+  }
+  get renderTitleActions() {
+    return this.survey.renderTitleActions(this.page);
   }
 }
 Vue.component("survey-page", Page);

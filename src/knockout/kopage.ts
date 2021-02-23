@@ -43,17 +43,15 @@ export class QuestionRow extends QuestionRowModel {
       (<Question>element).afterRender(el);
     }
   }
+
   rowAfterRender(elements: HTMLElement[], model: QuestionRow) {
     if (!model.isNeedRender) {
       var rowContainerDiv = elements[0].parentElement;
       model.startLazyRendering(rowContainerDiv);
-      ko.utils.domNodeDisposal.addDisposeCallback(
-        rowContainerDiv,
-        () => {
-          model.stopLazyRendering();
-          model.isNeedRender = !settings.lazyRowsRendering;
-        }
-      );
+      ko.utils.domNodeDisposal.addDisposeCallback(rowContainerDiv, () => {
+        model.stopLazyRendering();
+        model.isNeedRender = !settings.lazyRowsRendering;
+      });
     }
   }
 }
@@ -85,7 +83,7 @@ export class Panel extends PanelModel {
     this.stateChangedCallback = function () {
       self.onStateChanged();
     };
-    this.toggleStateByKeyUp = function(_: any, event: any) {
+    this.toggleStateByKeyUp = function (_: any, event: any) {
       if (event.which === 13) self.toggleState();
     };
     this.koErrorClass = ko.pureComputed(function () {
@@ -135,6 +133,9 @@ export class Page extends PageModel {
   constructor(name: string = "") {
     super(name);
     this.onCreating();
+  }
+  get renderTitleActions() {
+    return this.survey.renderTitleActions(this);
   }
   protected onBaseCreating() {
     super.onBaseCreating();

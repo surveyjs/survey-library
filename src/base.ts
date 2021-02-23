@@ -105,6 +105,10 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner {
     question: IPanel,
     titleActions: Array<any>
   ): Array<any>;
+  getUpdatedPageTitleActions(
+    question: IPage,
+    titleActions: Array<any>
+  ): Array<any>;
 
   questionStartIndex: string;
   questionTitleLocation: string;

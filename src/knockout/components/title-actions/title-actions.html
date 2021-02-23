@@ -1,6 +1,12 @@
 <div class="sv-title-actions">
   <span class="sv-title-actions__title">
+    <!-- ko if: element.isPage -->
+    <!-- ko template: { name: 'survey-string', data: element.locTitle } -->
+    <!-- /ko -->
+    <!-- /ko-->
+    <!-- ko if: !element.isPage -->
     <!-- ko template: { name: 'survey-question-title-content', data: element } --><!-- /ko -->
+    <!-- /ko-->
   </span>
   <sv-action-bar
     class="sv-title-actions__bar"

@@ -1,5 +1,5 @@
 import React from "react";
-import { ReactElementFactory } from "../../../entries/react";
+import { ReactElementFactory } from "../../element-factory";
 import { createSvg } from "../../../utils/utils";
 
 export class SvgIcon extends React.Component<any, any> {
@@ -11,7 +11,10 @@ export class SvgIcon extends React.Component<any, any> {
 
   render() {
     return (
-      <svg className={this.props.cssClasses} ref={this.svgIconRef}>
+      <svg
+        className={"sv-svg-icon " + this.props.className}
+        ref={this.svgIconRef}
+      >
         <use></use>
       </svg>
     );

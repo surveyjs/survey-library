@@ -3326,6 +3326,7 @@ export class SurveyModel
       newPages[i].setSurveyImpl(this);
     }
     this.doElementsOnLoad();
+    this.runConditions();
   }
   private createPagesForQuestionOnPageMode(
     isSinglePage: boolean,

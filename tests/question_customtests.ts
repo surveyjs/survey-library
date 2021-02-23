@@ -1237,3 +1237,47 @@ QUnit.test("Composite: addConditionObjectsByContext", function (assert) {
   );
   ComponentCollection.Instance.clear();
 });
+QUnit.test("Composite: visibleIf and showPreview, Bug#2674", function (assert) {
+  ComponentCollection.Instance.add({
+    name: "fullname",
+    title: "Full Name",
+    elementsJSON: [
+      {
+        type: "text",
+        name: "firstName",
+        isRequired: true,
+      },
+      {
+        type: "text",
+        name: "lastName",
+        visibleIf: "{composite.firstName} notempty",
+        isRequired: true,
+      },
+    ],
+  });
+  var survey = new SurveyModel({
+    showPreviewBeforeComplete: "showAllQuestions",
+    elements: [{ type: "fullname", name: "name" }],
+  });
+  var q = <QuestionCompositeModel>survey.getAllQuestions()[0];
+  assert.equal(
+    q.contentPanel.getQuestionByName("lastName").isVisible,
+    false,
+    "The second question is invisible"
+  );
+  q.contentPanel.getQuestionByName("firstName").value = "Jon";
+  assert.equal(
+    q.contentPanel.getQuestionByName("lastName").isVisible,
+    true,
+    "The second question is visible"
+  );
+  q.contentPanel.getQuestionByName("lastName").value = "Snow";
+  survey.showPreview();
+  q = <QuestionCompositeModel>survey.getAllQuestions()[0];
+  assert.equal(
+    q.contentPanel.getQuestionByName("lastName").isVisible,
+    true,
+    "The second question is still visible"
+  );
+  ComponentCollection.Instance.clear();
+});

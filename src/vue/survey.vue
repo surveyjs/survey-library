@@ -130,7 +130,7 @@
 
 <script lang="ts">
 import Vue from "vue";
-import { Component, Prop } from "vue-property-decorator";
+import { Component, Prop, Watch } from "vue-property-decorator";
 import { surveyCss } from "../defaultCss/cssstandard";
 import { VueSurveyModel as SurveyModel } from "./surveyModel";
 import { StylesManager } from "../stylesmanager";
@@ -152,12 +152,19 @@ export class Survey extends BaseVue {
   protected getModel(): Base {
     return this.survey;
   }
+  @Watch("survey")
+  onPropertyChanged(value: string, oldValue: string) {
+    this.onCreated();
+    this.surveyOnMounted();
+  }
   protected onMounted() {
-    if (!!this.survey) {
-      Vue.set(this.survey, "currentPage", this.survey.currentPage);
-    }
+    this.surveyOnMounted();
+  }
+  private surveyOnMounted() {
+    if (!this.survey) return;
+    Vue.set(this.survey, "currentPage", this.survey.currentPage);
     var el = this.$el;
-    if (el && this.survey) this.survey.doAfterRenderSurvey(el);
+    if (el) this.survey.doAfterRenderSurvey(el);
     this.survey.renderCallback = this.forceUpdate;
     this.survey.startTimerFromUI();
   }

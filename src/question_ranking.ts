@@ -194,7 +194,12 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
       "." + this.cssClasses.itemText
     );
     textNodes.forEach((textNode: any, index) => {
-      value.push(textNode.innerText);
+      let innerText = textNode.innerText;
+      this.visibleChoices.forEach((visibleChoice: ItemValue) => {
+        if (innerText === visibleChoice.text) {
+          value.push(visibleChoice.value);
+        }
+      });
     });
     this.value = value;
   };

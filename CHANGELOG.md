@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.8.32](https://github.com/surveyjs/survey-library/compare/v1.8.31...v1.8.32) (2021-02-24)
+
+
+### Bug Fixes
+
+* visibleIf doesn't work in composite component when rendering in show preview model [#2674](https://github.com/surveyjs/survey-library/issues/2674) ([69368ad](https://github.com/surveyjs/survey-library/commit/69368ad7a2479e73130bd1c4939e5d3adae30336))
+
 ### [1.8.31](https://github.com/surveyjs/survey-library/compare/v1.8.30...v1.8.31) (2021-02-16)
 
 ### [1.8.30](https://github.com/surveyjs/survey-library/compare/v1.8.29...v1.8.30) (2021-02-11)

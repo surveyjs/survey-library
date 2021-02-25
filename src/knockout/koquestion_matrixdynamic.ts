@@ -1,16 +1,16 @@
 import * as ko from "knockout";
-import { Serializer } from "../jsonobject";
-import { QuestionFactory } from "../questionfactory";
+import { Serializer } from "survey-core";
+import { QuestionFactory } from "survey-core";
 import { QuestionImplementor } from "./koquestion";
 import { QuestionMatrixBaseImplementor } from "./koquestion_matrixdropdown";
-import { QuestionMatrixDynamicModel } from "../question_matrixdynamic";
-import { Question } from "../question";
+import { QuestionMatrixDynamicModel } from "survey-core";
+import { Question } from "survey-core";
 import {
   MatrixDropdownRowModelBase,
   QuestionMatrixDropdownModelBase,
-} from "../question_matrixdropdownbase";
-import { MatrixDynamicRowModel } from "../question_matrixdynamic";
-import { PanelModel } from "../panel";
+} from "survey-core";
+import { MatrixDynamicRowModel } from "survey-core";
+import { PanelModel } from "survey-core";
 import { Panel } from "./kopage";
 
 export class QuestionMatrixDynamicImplementor extends QuestionMatrixBaseImplementor {

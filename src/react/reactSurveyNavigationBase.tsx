@@ -1,5 +1,5 @@
 import * as React from "react";
-import { SurveyModel } from "../survey";
+import { SurveyModel } from "survey-core";
 
 export class SurveyNavigationBase extends React.Component<any, any> {
   constructor(props: any) {
@@ -16,7 +16,7 @@ export class SurveyNavigationBase extends React.Component<any, any> {
   componentDidMount() {
     if (this.survey) {
       var self = this;
-      this.updateStateFunction = function() {
+      this.updateStateFunction = function () {
         self.setState({ update: self.state.update + 1 });
       };
       this.survey.onPageVisibleChanged.add(this.updateStateFunction);

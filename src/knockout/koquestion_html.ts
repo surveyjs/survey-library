@@ -1,7 +1,7 @@
-import { Serializer } from "../jsonobject";
-import { QuestionFactory } from "../questionfactory";
+import { Serializer } from "survey-core";
+import { QuestionFactory } from "survey-core";
 import { QuestionImplementor } from "./koquestion";
-import { QuestionHtmlModel } from "../question_html";
+import { QuestionHtmlModel } from "survey-core";
 
 export class QuestionHtml extends QuestionHtmlModel {
   constructor(name: string) {

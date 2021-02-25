@@ -1,6 +1,7 @@
 .git/*
 .vs/*
-node_modules/*
+node_modules
+build
 src/**/*.js
 doc_generator/**/*.json
 docs/classes.json

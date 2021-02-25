@@ -1,9 +1,9 @@
 import * as ko from "knockout";
-import { QuestionDropdownModel } from "../question_dropdown";
-import { Serializer } from "../jsonobject";
-import { QuestionFactory } from "../questionfactory";
+import { QuestionDropdownModel } from "survey-core";
+import { Serializer } from "survey-core";
+import { QuestionFactory } from "survey-core";
 import { QuestionSelectBaseImplementor } from "./koquestion_baseselect";
-import { Question } from "../question";
+import { Question } from "survey-core";
 
 class QuestionDropdownImplementor extends QuestionSelectBaseImplementor {
   koControlClass = ko.pureComputed(() => {

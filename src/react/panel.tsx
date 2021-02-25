@@ -4,7 +4,7 @@ import { SurveyElementBase } from "./reactquestion_element";
 import { ReactElementFactory } from "./element-factory";
 
 import { SurveyPanelBase } from "./panel-base";
-import { PanelModel } from "../panel";
+import { PanelModel } from "survey-core";
 
 export class SurveyPanel extends SurveyPanelBase {
   private hasBeenExpanded: boolean = false;

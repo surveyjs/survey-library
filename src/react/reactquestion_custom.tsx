@@ -1,13 +1,11 @@
 import * as React from "react";
 import { SurveyQuestionUncontrolledElement } from "./reactquestion_element";
 import { SurveyQuestion } from "./reactquestion";
-import { QuestionCustomModel, QuestionCompositeModel } from "../question_custom";
+import { QuestionCustomModel, QuestionCompositeModel } from "survey-core";
 import { ReactQuestionFactory } from "./reactquestion_factory";
 import { SurveyPanel } from "./panel";
 
-export class SurveyQuestionCustom extends SurveyQuestionUncontrolledElement<
-  QuestionCustomModel
-> {
+export class SurveyQuestionCustom extends SurveyQuestionUncontrolledElement<QuestionCustomModel> {
   constructor(props: any) {
     super(props);
   }
@@ -19,9 +17,7 @@ export class SurveyQuestionCustom extends SurveyQuestionUncontrolledElement<
   }
 }
 
-export class SurveyQuestionComposite extends SurveyQuestionUncontrolledElement<
-  QuestionCompositeModel
-> {
+export class SurveyQuestionComposite extends SurveyQuestionUncontrolledElement<QuestionCompositeModel> {
   constructor(props: any) {
     super(props);
   }

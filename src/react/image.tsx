@@ -1,6 +1,6 @@
 import * as React from "react";
 import { SurveyQuestionElementBase } from "./reactquestion_element";
-import { QuestionImageModel } from "../question_image";
+import { QuestionImageModel } from "survey-core";
 import { ReactQuestionFactory } from "./reactquestion_factory";
 
 export class SurveyQuestionImage extends SurveyQuestionElementBase {

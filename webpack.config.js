@@ -9,6 +9,7 @@ var GenerateJsonPlugin = require("generate-json-webpack-plugin");
 var packageJson = require("./package.json");
 var fs = require("fs");
 var replace = require("replace-in-file");
+var TsconfigPathsPlugin = require('tsconfig-paths-webpack-plugin');
 
 var banner = [
   "surveyjs - Survey JavaScript library v" + packageJson.version,
@@ -213,6 +214,7 @@ module.exports = function(options) {
     entry: {},
     resolve: {
       extensions: [".ts", ".js", ".tsx", ".scss"],
+      plugins: [new TsconfigPathsPlugin(/*{ configFile: "./tsconfig.json" }*/)],
       alias: {
         tslib: path.join(__dirname, "./src/entries/chunks/helpers.ts")
       }

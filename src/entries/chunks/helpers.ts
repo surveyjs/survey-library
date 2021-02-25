@@ -53,3 +53,9 @@ export var __spreadArrays = function () {
           r[k] = a[j];
   return r;
 };
+
+export var __spreadArray = function(to: any, from: any) {
+    for (var i = 0, il = from.length, j = to.length; i < il; i++, j++)
+        to[j] = from[i];
+    return to;
+}

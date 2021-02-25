@@ -3,7 +3,7 @@ import {
   ReactSurveyElement,
   SurveyQuestionElementBase,
 } from "./reactquestion_element";
-import { QuestionRankingModel } from "../question_ranking";
+import { QuestionRankingModel } from "survey-core";
 import { ReactQuestionFactory } from "./reactquestion_factory";
 
 export class SurveyQuestionRanking extends SurveyQuestionElementBase {
@@ -122,11 +122,7 @@ export class SurveyQuestionRankingItem extends ReactSurveyElement {
               </svg>
             </div>
 
-            <div
-              className={this.cssClasses.itemIndex}
-            >
-              {this.index}
-            </div>
+            <div className={this.cssClasses.itemIndex}>{this.index}</div>
             <div className={this.cssClasses.itemText}>{this.text}</div>
           </div>
         </div>

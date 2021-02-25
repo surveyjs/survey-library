@@ -1,9 +1,9 @@
 import * as ko from "knockout";
-import { QuestionImagePickerModel } from "../question_imagepicker";
-import { Serializer } from "../jsonobject";
-import { QuestionFactory } from "../questionfactory";
+import { QuestionImagePickerModel } from "survey-core";
+import { Serializer } from "survey-core";
+import { QuestionFactory } from "survey-core";
 import { QuestionCheckboxBaseImplementor } from "./koquestion_baseselect";
-import { Question } from "../question";
+import { Question } from "survey-core";
 
 class QuestionImagePickerImplementor extends QuestionCheckboxBaseImplementor {
   constructor(question: Question) {

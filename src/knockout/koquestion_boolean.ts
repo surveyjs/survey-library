@@ -1,7 +1,7 @@
 import * as ko from "knockout";
-import { QuestionBooleanModel } from "../question_boolean";
-import { Serializer } from "../jsonobject";
-import { QuestionFactory } from "../questionfactory";
+import { QuestionBooleanModel } from "survey-core";
+import { Serializer } from "survey-core";
+import { QuestionFactory } from "survey-core";
 import { QuestionImplementor } from "./koquestion";
 
 export class QuestionBoolean extends QuestionBooleanModel {

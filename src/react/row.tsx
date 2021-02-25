@@ -1,11 +1,11 @@
 import * as React from "react";
 import { ISurveyCreator } from "./reactquestion";
-import { SurveyModel } from "../survey";
-import { QuestionRowModel } from "../panel";
+import { SurveyModel } from "survey-core";
+import { QuestionRowModel } from "survey-core";
 import { SurveyElementBase } from "./reactquestion_element";
-import { IElement, Base } from "../base";
+import { IElement, Base } from "survey-core";
 import { ReactElementFactory } from "./element-factory";
-import { settings } from "../settings";
+import { settings } from "survey-core";
 
 export class SurveyRow extends SurveyElementBase<any, any> {
   private rootRef: React.RefObject<HTMLDivElement>;

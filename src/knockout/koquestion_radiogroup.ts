@@ -1,6 +1,6 @@
-import { QuestionRadiogroupModel } from "../question_radiogroup";
-import { Serializer } from "../jsonobject";
-import { QuestionFactory } from "../questionfactory";
+import { QuestionRadiogroupModel } from "survey-core";
+import { Serializer } from "survey-core";
+import { QuestionFactory } from "survey-core";
 import { QuestionCheckboxBaseImplementor } from "./koquestion_baseselect";
 
 export class QuestionRadiogroup extends QuestionRadiogroupModel {

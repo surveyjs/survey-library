@@ -1,6 +1,6 @@
 import * as ko from "knockout";
-import { SurveyWindowModel } from "../surveyWindow";
-import { SurveyModel } from "../survey";
+import { SurveyWindowModel } from "survey-core";
+import { SurveyModel } from "survey-core";
 import { Survey } from "./kosurvey";
 var koTemplate = require("html-loader?interpolate!val-loader!./templates/window/window.html");
 
@@ -13,14 +13,14 @@ export class SurveyWindow extends SurveyWindowModel {
     this.koExpanded = ko.observable(false);
     this.koExpandedCss = ko.observable(this.getButtonCss());
     var self = this;
-    this.expandedChangedCallback = function() {
+    this.expandedChangedCallback = function () {
       self.koExpanded(self.isExpanded);
       self.koExpandedCss(self.getButtonCss());
     };
-    this.showingChangedCallback = function() {
+    this.showingChangedCallback = function () {
       self.doShowingChanged();
     };
-    this.doExpand = function() {
+    this.doExpand = function () {
       self.changeExpanded();
     };
   }

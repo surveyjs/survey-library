@@ -1,12 +1,12 @@
 import * as ko from "knockout";
-import { PageModel } from "../page";
-import { PanelModelBase, PanelModel, QuestionRowModel } from "../panel";
-import { Serializer } from "../jsonobject";
-import { SurveyElement, IElement } from "../base";
-import { ElementFactory } from "../questionfactory";
+import { PageModel } from "survey-core";
+import { PanelModelBase, PanelModel, QuestionRowModel } from "survey-core";
+import { Serializer } from "survey-core";
+import { SurveyElement, IElement } from "survey-core";
+import { ElementFactory } from "survey-core";
 import { ImplementorBase } from "./kobase";
-import { Question } from "../question";
-import { settings } from "../settings";
+import { Question } from "survey-core";
+import { settings } from "survey-core";
 
 export class QuestionRow extends QuestionRowModel {
   koGetType: any;

@@ -1,9 +1,9 @@
 import * as ko from "knockout";
 import { QuestionCheckboxBaseImplementor } from "./koquestion_baseselect";
-import { Serializer } from "../jsonobject";
-import { QuestionFactory } from "../questionfactory";
-import { QuestionCheckboxModel } from "../question_checkbox";
-import { Question } from "../question";
+import { Serializer } from "survey-core";
+import { QuestionFactory } from "survey-core";
+import { QuestionCheckboxModel } from "survey-core";
+import { Question } from "survey-core";
 
 export class QuestionCheckboxImplementor extends QuestionCheckboxBaseImplementor {
   constructor(question: Question) {

@@ -1,5 +1,5 @@
 import * as ko from "knockout";
-import { Base } from "../base";
+import { Base } from "survey-core";
 
 export class ImplementorBase {
   private static doIterateProperties(hash: any, key: any): any {

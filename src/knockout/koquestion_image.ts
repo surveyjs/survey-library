@@ -1,7 +1,7 @@
-import { Serializer } from "../jsonobject";
-import { QuestionFactory } from "../questionfactory";
+import { Serializer } from "survey-core";
+import { QuestionFactory } from "survey-core";
 import { QuestionImplementor } from "./koquestion";
-import { QuestionImageModel } from "../question_image";
+import { QuestionImageModel } from "survey-core";
 
 export class QuestionImage extends QuestionImageModel {
   constructor(name: string) {

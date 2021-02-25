@@ -1,9 +1,9 @@
 import * as React from "react";
 import { ISurveyCreator } from "./reactquestion";
-import { SurveyModel } from "../survey";
-import { QuestionRowModel, PanelModel, PanelModelBase } from "../panel";
+import { SurveyModel } from "survey-core";
+import { QuestionRowModel, PanelModel, PanelModelBase } from "survey-core";
 import { SurveyElementBase } from "./reactquestion_element";
-import { Base } from "../base";
+import { Base } from "survey-core";
 import { SurveyRow } from "./row";
 
 export class SurveyPanelBase extends SurveyElementBase<any, any> {

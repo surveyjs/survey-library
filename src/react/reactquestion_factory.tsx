@@ -1,4 +1,4 @@
-import { HashTable } from "../helpers";
+import { HashTable } from "survey-core";
 
 export class ReactQuestionFactory {
   public static Instance: ReactQuestionFactory = new ReactQuestionFactory();

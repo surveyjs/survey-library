@@ -1,7 +1,7 @@
 import * as React from "react";
-import { PageModel } from "../page";
+import { PageModel } from "survey-core";
 import { SurveyElementBase } from "./reactquestion_element";
-import { PanelModelBase } from "../panel";
+import { PanelModelBase } from "survey-core";
 import { SurveyPanelBase } from "./panel-base";
 import { TitleActions } from "./components/title-actions/title-actions";
 

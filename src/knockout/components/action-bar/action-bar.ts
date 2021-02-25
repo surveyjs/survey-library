@@ -3,8 +3,8 @@ import {
   AdaptiveActionBarItemWrapper,
   AdaptiveElement,
   IActionBarItem,
-} from "../../../action-bar";
-import { ResponsibilityManager } from "../../../utils/resonsibilitymanager";
+} from "survey-core";
+import { ResponsibilityManager } from "survey-core";
 import { ImplementorBase } from "../../kobase";
 
 const template = require("./action-bar.html");

@@ -2,17 +2,17 @@ import * as React from "react";
 import { ReactSurveyModel } from "./reactsurveymodel";
 import { SurveyPage } from "./page";
 import { SurveyNavigation } from "./reactSurveyNavigation";
-import { SurveyError, Base } from "../base";
-import { Question } from "../question";
+import { SurveyError, Base } from "survey-core";
+import { Question } from "survey-core";
 import { ISurveyCreator } from "./reactquestion";
 import { ReactQuestionFactory } from "./reactquestion_factory";
-import { surveyCss } from "../defaultCss/cssstandard";
+import { surveyCss } from "survey-core";
 import { SurveyTimerPanel } from "./reacttimerpanel";
 import { SurveyElementBase } from "./reactquestion_element";
 import { SurveyLocStringViewer } from "./string-viewer";
-import { PageModel } from "../page";
-import { StylesManager } from "../stylesmanager";
-import { Helpers } from "../helpers";
+import { PageModel } from "survey-core";
+import { StylesManager } from "survey-core";
+import { Helpers } from "survey-core";
 import { ReactElementFactory } from "./element-factory";
 
 export class Survey

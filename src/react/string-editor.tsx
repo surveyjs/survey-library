@@ -1,5 +1,5 @@
 import React from "react";
-import { LocalizableString } from "../localizablestring";
+import { LocalizableString } from "survey-core";
 import { ReactElementFactory } from "./element-factory";
 
 export class SurveyLocStringEditor extends React.Component<any, any> {

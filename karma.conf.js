@@ -11,7 +11,7 @@ process.env.CHROME_BIN = require("puppeteer").executablePath();
 /*setup ts config file for tests ("noImplicitAny": false)*/
 webpackConfig.module.rules[0].use.options.configFile = path.join(
   __dirname,
-  "tsconfigForTests.json"
+  "tsconfig.tests.json"
 );
 
 module.exports = function(config) {

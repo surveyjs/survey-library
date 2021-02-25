@@ -464,6 +464,8 @@ QUnit.test(
 QUnit.test(
   "Next, Prev, IsFirst and IsLast Page and progressText",
   function (assert) {
+    surveyLocalization.defaultLocale = "en";
+    surveyLocalization.currentLocale = "";
     var survey = new SurveyModel();
     assert.equal(survey.progressText, "", "there is pages");
     survey.addPage(createPageWithQuestion("Page 1"));

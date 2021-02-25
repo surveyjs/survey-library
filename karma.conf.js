@@ -34,12 +34,12 @@ module.exports = function(config) {
     webpack: {
       module: webpackConfig.module,
       resolve: webpackConfig.resolve,
-      plugins: [
+      plugins: webpackConfig.plugins.concat([
         new webpack.SourceMapDevToolPlugin({
           filename: null, // if no value is provided the sourcemap is inlined
           test: /\.(ts|js)($|\?)/i // process .js and .ts files only
         })
-      ]
+      ])
     },
     reporters: ["progress", "dots", "junit"],
     browsers: ["ChromeHeadless"],

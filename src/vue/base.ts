@@ -20,7 +20,7 @@ export class BaseVue extends Vue {
   protected onMounted() {}
   protected onUpdated() {}
   protected onDestroyed() {}
-  created() {
+  protected onCreated() {
     var model = this.getModel();
     if (!model) return;
     model.iteratePropertiesHash((hash: any, key: any) => {
@@ -35,6 +35,9 @@ export class BaseVue extends Vue {
         Vue.set(propertiesHash, name, val);
       else propertiesHash[name] = val;
     };
+  }
+  created() {
+    this.onCreated();
   }
   beforeMount() {
     this.setIsRendering(true);

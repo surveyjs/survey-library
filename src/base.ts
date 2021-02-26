@@ -94,6 +94,7 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner {
     question: IQuestion,
     errors: Array<SurveyError>
   ): void;
+  beforeSettingPanelErrors(question: IPanel, errors: Array<SurveyError>): void;
   questionTitlePattern: string;
   getUpdatedQuestionTitle(question: IQuestion, title: string): string;
   getUpdatedQuestionNo(question: IQuestion, no: string): string;
@@ -1369,6 +1370,14 @@ export class SurveyElement extends Base implements ISurveyElement {
   }
   public set errors(val: Array<SurveyError>) {
     this.setPropertyValue("errors", val);
+  }
+  @property({ defaultValue: false }) hasVisibleErrors: boolean;
+  protected updateVisibleErrors() {
+    var counter = 0;
+    for (var i = 0; i < this.errors.length; i++) {
+      if (this.errors[i].visible) counter++;
+    }
+    this.hasVisibleErrors = counter > 0;
   }
   /**
    * Returns true if a question or a container (panel/page) or their chidren have an error.

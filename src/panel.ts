@@ -1,4 +1,4 @@
-import { Serializer } from "./jsonobject";
+import { Serializer, property } from "./jsonobject";
 import { HashTable, Helpers } from "./helpers";
 import {
   Base,
@@ -648,8 +648,12 @@ export class PanelModelBase
       }
     }
     if (!!rec.fireCallback) {
+      if (!!this.survey) {
+        this.survey.beforeSettingPanelErrors(this, errors);
+      }
       this.errors = errors;
     }
+    this.updateVisibleErrors();
   }
   //ISurveyErrorOwner
   getErrorCustomText(text: string, error: SurveyError): string {

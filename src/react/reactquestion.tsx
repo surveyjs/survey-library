@@ -249,7 +249,7 @@ export class SurveyElementErrors extends ReactSurveyElement {
     return !prevState ? { error: 0 } : { error: prevState.error + 1 };
   }
   protected canRender(): boolean {
-    return !!this.element && this.element.errors.length > 0;
+    return !!this.element && this.element.hasVisibleErrors;
   }
   protected renderElement(): JSX.Element {
     var errors = [];

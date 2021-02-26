@@ -10226,14 +10226,20 @@ QUnit.test("Expression validators with async functions", function (assert) {
   FunctionFactory.Instance.unregister("asyncFunc2");
 });
 
-QUnit.test("Hide required errors", function (assert) {
+QUnit.test("Hide required errors, add tests for Bug#2679", function (assert) {
   var survey = twoPageSimplestSurvey();
   var q1 = survey.getQuestionByName("question1");
   q1.isRequired = true;
+  survey.nextPage();
+  assert.equal(q1.errors.length, 1, "There is one error");
+  assert.equal(q1.errors[0].visible, true, "It is visible");
+  assert.equal(q1.hasVisibleErrors, true, "There is a visible error");
+  survey.clear(true, true);
   survey.hideRequiredErrors = true;
   survey.nextPage();
   assert.equal(q1.errors.length, 1, "There is one error");
   assert.equal(q1.errors[0].visible, false, "It is invisible");
+  assert.equal(q1.hasVisibleErrors, false, "There is no visible Errors");
 });
 QUnit.test("survey.onSettingQuestionErrors", function (assert) {
   var survey = twoPageSimplestSurvey();

@@ -301,32 +301,22 @@ export class QuestionMatrixBaseModel<TRow, TColumn> extends Question {
       delayOnTouchOnly: true,
       handle: "tr",
       onEnd(evt: any) {
-        evt.newDraggableIndex;
-        evt.oldDraggableIndex;
-        self.setValueFromUI();
+        self.moveRowByIndex(
+          self.rows,
+          evt.oldDraggableIndex,
+          evt.newDraggableIndex
+        );
       },
     });
   }
-  private setValueFromUI = () => {
-    const trNodes = this.domNode.querySelectorAll("tr");
-    const result: any = [];
-
-    trNodes.forEach((trNode: any) => {
-      let innerText = trNode.querySelectorAll("td")[1].innerText;
-      this.rows.forEach((row: any) => {
-        if (innerText === row.text) {
-          result.push(row);
-        }
-      });
-    });
-
-    // var index = this.originalValue.indexOf(obj);
-    // if (index > -1) {
-    //   this.originalValue.splice(index, 1);
-    //   this.onItemDeleted(obj, index);
-    // } + push
-
-    this.rows = result;
+  private moveRowByIndex = (
+    rows: Array<any>,
+    fromIndex: number,
+    toIndex: number
+  ) => {
+    const movableRow = rows[fromIndex];
+    rows.splice(fromIndex, 1);
+    rows.splice(toIndex, 0, movableRow);
   };
 }
 

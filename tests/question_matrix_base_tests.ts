@@ -12,6 +12,13 @@ QUnit.test("allowRowsDragAndDrop test", function (assert) {
   assert.equal(matrix.allowRowsDragAndDrop, true);
 });
 
+QUnit.test("moveRowByIndex test", function (assert) {
+  var matrixBase = new QuestionMatrixBaseModel("q1");
+  var rows = ["row1", "row2", "row3"];
+  matrixBase["moveRowByIndex"](rows, 2, 0);
+  assert.deepEqual(rows, ["row3", "row1", "row2"]);
+});
+
 var json = {
   questions: [
     {

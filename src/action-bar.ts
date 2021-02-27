@@ -12,11 +12,11 @@ export interface IActionBarItem {
   /**
    * Set this property to false to make the toolbar item invisible.
    */
-  visible?: boolean;
+  visible?: (() => boolean) | boolean;
   /**
    * Toolbar item title
    */
-  title?: string;
+  title?: (() => string) | string;
   /**
    * Toolbar item tooltip
    */
@@ -24,7 +24,7 @@ export interface IActionBarItem {
   /**
    * Set this property to false to disable the toolbar item.
    */
-  enabled?: boolean;
+  enabled?: (() => boolean) | boolean;
   /**
    * Set this property to false to hide the toolbar item title.
    */
@@ -75,10 +75,10 @@ export class ActionBarItem extends Base implements IActionBarItem {
     Object.assign(this, item);
   }
   @property() id: string;
-  @property() visible?: boolean;
-  @property() title?: string;
+  @property() visible?: (() => boolean) | boolean;
+  @property() title?: (() => string) | string;
   @property() tooltip?: string;
-  @property() enabled?: boolean;
+  @property() enabled?: (() => boolean) | boolean;
   @property() showTitle?: boolean;
   @property() action?: (context?: any) => void;
   @property() css?: (() => string) | string;

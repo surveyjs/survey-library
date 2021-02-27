@@ -3291,6 +3291,7 @@ export class SurveyModel
       }
       this.runningPages = null;
     }
+    this.runConditions();
     this.updateAllElementsVisibility(this.pages);
     this.updateVisibleIndexes();
     this.currentPageNo = 0;
@@ -3309,7 +3310,7 @@ export class SurveyModel
       }
       this.setupPagesForPageModes(this.isSinglePage);
     }
-
+    this.runConditions();
     this.updateVisibleIndexes();
   }
   private restoreOrigionalPages(originalPages: Array<PageModel>) {
@@ -3338,7 +3339,6 @@ export class SurveyModel
       newPages[i].setSurveyImpl(this);
     }
     this.doElementsOnLoad();
-    this.runConditions();
   }
   private createPagesForQuestionOnPageMode(
     isSinglePage: boolean,

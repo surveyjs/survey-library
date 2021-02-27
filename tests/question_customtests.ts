@@ -1279,6 +1279,13 @@ QUnit.test("Composite: visibleIf and showPreview, Bug#2674", function (assert) {
     true,
     "The second question is still visible"
   );
+  survey.cancelPreview();
+  q = <QuestionCompositeModel>survey.getAllQuestions()[0];
+  assert.equal(
+    q.contentPanel.getQuestionByName("lastName").isVisible,
+    true,
+    "The second question is still visible"
+  );
   ComponentCollection.Instance.clear();
 });
 QUnit.test("Single: displayValue function, Bug#2678", function (assert) {

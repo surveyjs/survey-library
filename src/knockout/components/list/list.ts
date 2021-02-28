@@ -1,5 +1,5 @@
 import * as ko from "knockout";
-import { ListModel } from "../../../list";
+import { ListModel } from "survey-core";
 import { ImplementorBase } from "../../kobase";
 
 const template = require("./list.html");

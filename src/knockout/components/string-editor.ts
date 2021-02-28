@@ -1,5 +1,5 @@
 import * as ko from "knockout";
-import { LocalizableString } from "../../localizablestring";
+import { LocalizableString } from "survey-core";
 
 const template = require("./string-editor.html");
 
@@ -29,4 +29,3 @@ ko.components.register(LocalizableString.editableRenderer, {
   viewModel: StringEditorViewModel,
   template: template,
 });
-

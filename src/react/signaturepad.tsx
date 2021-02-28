@@ -1,6 +1,6 @@
 import * as React from "react";
 import { SurveyQuestionElementBase } from "./reactquestion_element";
-import { QuestionSignaturePadModel } from "../question_signaturepad";
+import { QuestionSignaturePadModel } from "survey-core";
 import { ReactQuestionFactory } from "./reactquestion_factory";
 
 export class SurveyQuestionSignaturePad extends SurveyQuestionElementBase {

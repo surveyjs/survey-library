@@ -1,8 +1,8 @@
 import * as React from "react";
 import { SurveyNavigationBase } from "./reactSurveyNavigationBase";
 import { ReactElementFactory } from "./element-factory";
-import { PageModel } from "../page";
-import { SurveyProgressButtonsModel } from '../surveyProgressButtons';
+import { PageModel } from "survey-core";
+import { SurveyProgressButtonsModel } from "survey-core";
 
 export class SurveyProgressButtons extends SurveyNavigationBase {
   private progressButtonsModel: SurveyProgressButtonsModel;
@@ -17,15 +17,28 @@ export class SurveyProgressButtons extends SurveyNavigationBase {
     return (
       <div className={this.css.progressButtonsContainerCenter}>
         <div className={this.css.progressButtonsContainer}>
-          <div className={this.getScrollButtonCss(true)} role="button"
-            onClick={() => this.clickScrollButton(this.listContainerRef.current, true)}></div>
-          <div className={this.css.progressButtonsListContainer} ref={this.listContainerRef}>
+          <div
+            className={this.getScrollButtonCss(true)}
+            role="button"
+            onClick={() =>
+              this.clickScrollButton(this.listContainerRef.current, true)
+            }
+          ></div>
+          <div
+            className={this.css.progressButtonsListContainer}
+            ref={this.listContainerRef}
+          >
             <ul className={this.css.progressButtonsList}>
               {this.getListElements()}
             </ul>
           </div>
-          <div className={this.getScrollButtonCss(false)} role="button"
-            onClick={() => this.clickScrollButton(this.listContainerRef.current, false)}></div>
+          <div
+            className={this.getScrollButtonCss(false)}
+            role="button"
+            onClick={() =>
+              this.clickScrollButton(this.listContainerRef.current, false)
+            }
+          ></div>
         </div>
       </div>
     );
@@ -39,12 +52,25 @@ export class SurveyProgressButtons extends SurveyNavigationBase {
   }
   protected renderListElement(page: PageModel, index: number): JSX.Element {
     return (
-      <li key={"listelement" + index} className={this.getListElementCss(index)}
-        onClick={this.isListElementClickable(index) ? () => this.clickListElement(index) : undefined}>
-        <div className={this.css.progressButtonsPageTitle} title={page.navigationTitle || page.name}>
+      <li
+        key={"listelement" + index}
+        className={this.getListElementCss(index)}
+        onClick={
+          this.isListElementClickable(index)
+            ? () => this.clickListElement(index)
+            : undefined
+        }
+      >
+        <div
+          className={this.css.progressButtonsPageTitle}
+          title={page.navigationTitle || page.name}
+        >
           {page.navigationTitle || page.name}
         </div>
-        <div className={this.css.progressButtonsPageDescription} title={page.navigationDescription}>
+        <div
+          className={this.css.progressButtonsPageDescription}
+          title={page.navigationDescription}
+        >
           {page.navigationDescription}
         </div>
       </li>
@@ -60,19 +86,26 @@ export class SurveyProgressButtons extends SurveyNavigationBase {
     this.progressButtonsModel.clickListElement(index);
   }
   protected getScrollButtonCss(isLeftScroll: boolean): string {
-    let scrollCss: string = isLeftScroll ?
-      this.survey.css.progressButtonsImageButtonLeft :
-      this.survey.css.progressButtonsImageButtonRight;
-    if (!this.state.hasScroller) scrollCss += " " + this.survey.css.progressButtonsImageButtonHidden;
+    let scrollCss: string = isLeftScroll
+      ? this.survey.css.progressButtonsImageButtonLeft
+      : this.survey.css.progressButtonsImageButtonRight;
+    if (!this.state.hasScroller)
+      scrollCss += " " + this.survey.css.progressButtonsImageButtonHidden;
     return scrollCss;
   }
-  protected clickScrollButton(listContainerElement: Element, isLeftScroll: boolean): void {
+  protected clickScrollButton(
+    listContainerElement: Element,
+    isLeftScroll: boolean
+  ): void {
     listContainerElement.scrollLeft += (isLeftScroll ? -1 : 1) * 70;
   }
   componentDidMount() {
     this.updateScroller = setInterval(() => {
-      this.setState({ hasScroller: this.listContainerRef.current.scrollWidth >
-        this.listContainerRef.current.offsetWidth});
+      this.setState({
+        hasScroller:
+          this.listContainerRef.current.scrollWidth >
+          this.listContainerRef.current.offsetWidth,
+      });
     }, 100);
   }
   componentWillUnmount() {

@@ -1,6 +1,6 @@
 import React from "react";
-import { IActionBarItem } from "../../../action-bar";
-import { ListModel } from "../../../list";
+import { IActionBarItem } from "survey-core";
+import { ListModel } from "survey-core";
 import { ReactElementFactory } from "../../element-factory";
 import { SurveyElementBase } from "../../reactquestion_element";
 import { SvgIcon } from "../svg-icon/svg-icon";

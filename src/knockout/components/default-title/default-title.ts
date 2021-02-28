@@ -1,6 +1,6 @@
 import * as ko from "knockout";
-import { Question } from "../../../question";
-import { RendererFactory } from "../../../rendererFactory";
+import { Question } from "survey-core";
+import { RendererFactory } from "survey-core";
 import { Panel } from "../../kopage";
 
 const template = require("./default-title.html");
@@ -23,7 +23,7 @@ export class DefaultTitleViewModel {
 ko.components.register("sv-default-title", {
   viewModel: {
     createViewModel: (params: any, componentInfo: any) => {
-        return new DefaultTitleViewModel(params.element);
+      return new DefaultTitleViewModel(params.element);
     },
   },
   template: template,

@@ -1,6 +1,6 @@
 import * as React from "react";
-import { Question } from "../question";
-import { SurveyElement, SurveyError, Base } from "../base";
+import { Question } from "survey-core";
+import { SurveyElement, SurveyError, Base } from "survey-core";
 import { SurveyQuestionCommentItem } from "./reactquestion_comment";
 import { SurveyElementBase, ReactSurveyElement } from "./reactquestion_element";
 import { SurveyCustomWidget } from "./custom-widget";
@@ -249,7 +249,7 @@ export class SurveyElementErrors extends ReactSurveyElement {
     return !prevState ? { error: 0 } : { error: prevState.error + 1 };
   }
   protected canRender(): boolean {
-    return !!this.element && this.element.errors.length > 0;
+    return !!this.element && this.element.hasVisibleErrors;
   }
   protected renderElement(): JSX.Element {
     var errors = [];

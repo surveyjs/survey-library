@@ -1,6 +1,6 @@
 import React from "react";
-import { AdaptiveActionBarItemWrapper } from "../../../action-bar";
-import { Base } from "../../../base";
+import { AdaptiveActionBarItemWrapper } from "survey-core";
+import { Base } from "survey-core";
 import { ReactElementFactory } from "../../element-factory";
 import { SurveyElementBase } from "../../reactquestion_element";
 import { SvgIcon } from "../svg-icon/svg-icon";

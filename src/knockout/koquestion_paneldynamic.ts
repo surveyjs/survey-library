@@ -1,14 +1,14 @@
 import * as ko from "knockout";
-import { SurveyElement } from "../base";
-import { Serializer } from "../jsonobject";
-import { QuestionFactory } from "../questionfactory";
+import { SurveyElement } from "survey-core";
+import { Serializer } from "survey-core";
+import { QuestionFactory } from "survey-core";
 import { QuestionImplementor } from "./koquestion";
 import {
   QuestionPanelDynamicModel,
   QuestionPanelDynamicItem,
-} from "../question_paneldynamic";
-import { Question } from "../question";
-import { PanelModel } from "../panel";
+} from "survey-core";
+import { Question } from "survey-core";
+import { PanelModel } from "survey-core";
 import { Panel } from "./kopage";
 
 export class QuestionPanelDynamicImplementor extends QuestionImplementor {

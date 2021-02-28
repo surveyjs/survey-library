@@ -1,4 +1,4 @@
-import { HashTable } from "../helpers";
+import { HashTable } from "survey-core";
 
 export class ReactElementFactory {
   public static Instance: ReactElementFactory = new ReactElementFactory();

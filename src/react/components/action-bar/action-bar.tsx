@@ -3,11 +3,11 @@ import {
   AdaptiveActionBarItemWrapper,
   AdaptiveElement,
   IActionBarItem,
-} from "../../../action-bar";
+} from "survey-core";
 import { ReactElementFactory } from "../../element-factory";
 import { SurveyElementBase } from "../../reactquestion_element";
-import { Base } from "../../../base";
-import { ResponsibilityManager } from "../../../utils/resonsibilitymanager";
+import { Base } from "survey-core";
+import { ResponsibilityManager } from "survey-core";
 
 export * from "./action-bar-item";
 export * from "./action-bar-item-dropdown";

@@ -1,6 +1,6 @@
 import React from "react";
-import { ISurveyElement } from "../../../base";
-import { RendererFactory } from "../../../rendererFactory";
+import { ISurveyElement } from "survey-core";
+import { RendererFactory } from "survey-core";
 import { ReactElementFactory } from "../../element-factory";
 import { SurveyElementBase } from "../../reactquestion_element";
 import { ActionBar } from "../action-bar/action-bar";

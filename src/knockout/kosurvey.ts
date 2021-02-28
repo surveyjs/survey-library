@@ -1,15 +1,15 @@
 import * as ko from "knockout";
-import { SurveyModel } from "../survey";
-import { IPage, SurveyElement } from "../base";
+import { SurveyModel } from "survey-core";
+import { IPage, SurveyElement } from "survey-core";
 import { Page } from "./kopage";
-import { PageModel } from "../page";
-import { surveyCss } from "../defaultCss/cssstandard";
+import { PageModel } from "survey-core";
+import { surveyCss } from "survey-core";
 import { koTemplate, SurveyTemplateText } from "./templateText";
-import { CustomWidgetCollection } from "../questionCustomWidgets";
-import { LocalizableString } from "../localizablestring";
-import { ItemValue } from "../itemvalue";
+import { CustomWidgetCollection } from "survey-core";
+import { LocalizableString } from "survey-core";
+import { ItemValue } from "survey-core";
 import { ImplementorBase } from "./kobase";
-import { StylesManager } from "../stylesmanager";
+import { StylesManager } from "survey-core";
 
 CustomWidgetCollection.Instance.onCustomWidgetAdded.add((customWidget) => {
   if (customWidget.widgetJson.isDefaultRender) return;
@@ -48,14 +48,14 @@ export class Survey extends SurveyModel {
   koTitleTemplate: any = <any>ko.observable("survey-header");
 
   public getDataValueCore(valuesHash: any, key: string) {
-    if(!!this.editingObj) return super.getDataValueCore(valuesHash, key);
+    if (!!this.editingObj) return super.getDataValueCore(valuesHash, key);
     if (valuesHash[key] === undefined) {
       valuesHash[key] = ko.observable();
     }
     return ko.unwrap(valuesHash[key]);
   }
   public setDataValueCore(valuesHash: any, key: string, value: any) {
-    if(!!this.editingObj) {
+    if (!!this.editingObj) {
       super.setDataValueCore(valuesHash, key, value);
       return;
     }
@@ -73,7 +73,7 @@ export class Survey extends SurveyModel {
     }
   }
   public deleteDataValueCore(valuesHash: any, key: string) {
-    if(!!this.editingObj) {
+    if (!!this.editingObj) {
       super.deleteDataValueCore(valuesHash, key);
       return;
     }

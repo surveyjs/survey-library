@@ -1,6 +1,6 @@
 import * as React from "react";
 import { SurveyQuestionUncontrolledElement } from "./reactquestion_element";
-import { QuestionTextModel } from "../question_text";
+import { QuestionTextModel } from "survey-core";
 import { ReactQuestionFactory } from "./reactquestion_factory";
 
 export class SurveyQuestionText extends SurveyQuestionUncontrolledElement<QuestionTextModel> {
@@ -31,7 +31,7 @@ export class SurveyQuestionText extends SurveyQuestionUncontrolledElement<Questi
         setTimeout(() => {
           this.updateValueOnEvent(e);
         }, 1);
-      }
+      };
     }
     var placeHolder =
       this.question.inputType === "range" || this.question.isReadOnly

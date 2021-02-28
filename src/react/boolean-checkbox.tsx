@@ -1,7 +1,7 @@
 import * as React from "react";
 import { ReactQuestionFactory } from "./reactquestion_factory";
 import { SurveyQuestionBoolean } from "./boolean";
-import { RendererFactory } from "../rendererFactory";
+import { RendererFactory } from "survey-core";
 
 export class SurveyQuestionBooleanCheckbox extends SurveyQuestionBoolean {
   constructor(props: any) {
@@ -54,8 +54,10 @@ export class SurveyQuestionBooleanCheckbox extends SurveyQuestionBoolean {
             </svg>
             <span className="check" />
           </span>
-          {(this.question.titleLocation === "hidden") && (
-            <span className={cssClasses.label}>{this.question.locDisplayLabel.text}</span>
+          {this.question.titleLocation === "hidden" && (
+            <span className={cssClasses.label}>
+              {this.question.locDisplayLabel.text}
+            </span>
           )}
         </label>
       </div>
@@ -63,9 +65,12 @@ export class SurveyQuestionBooleanCheckbox extends SurveyQuestionBoolean {
   }
 }
 
-ReactQuestionFactory.Instance.registerQuestion("sv-boolean-checkbox", (props) => {
-  return React.createElement(SurveyQuestionBooleanCheckbox, props);
-});
+ReactQuestionFactory.Instance.registerQuestion(
+  "sv-boolean-checkbox",
+  (props) => {
+    return React.createElement(SurveyQuestionBooleanCheckbox, props);
+  }
+);
 
 RendererFactory.Instance.registerRenderer(
   "boolean",

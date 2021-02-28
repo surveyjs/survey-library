@@ -1,10 +1,13 @@
 import * as React from "react";
-import { ReactSurveyElement, SurveyQuestionElementBase } from "./reactquestion_element";
+import {
+  ReactSurveyElement,
+  SurveyQuestionElementBase,
+} from "./reactquestion_element";
 import { SurveyQuestionCommentItem } from "./reactquestion_comment";
-import { QuestionCheckboxModel } from "../question_checkbox";
-import { ItemValue } from "../itemvalue";
+import { QuestionCheckboxModel } from "survey-core";
+import { ItemValue } from "survey-core";
 import { ReactQuestionFactory } from "./reactquestion_factory";
-import { Base } from "../base";
+import { Base } from "survey-core";
 
 export class SurveyQuestionCheckbox extends SurveyQuestionElementBase {
   constructor(props: any) {
@@ -186,10 +189,7 @@ export class SurveyQuestionCheckboxItem extends ReactSurveyElement {
             </svg>
             <span className="check" />
           </span>
-          <span
-            className={this.cssClasses.controlLabel}
-            title={locText.text}
-          >
+          <span className={this.cssClasses.controlLabel} title={locText.text}>
             {text}
           </span>
         </label>

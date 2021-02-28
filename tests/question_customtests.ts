@@ -1279,5 +1279,70 @@ QUnit.test("Composite: visibleIf and showPreview, Bug#2674", function (assert) {
     true,
     "The second question is still visible"
   );
+  survey.cancelPreview();
+  q = <QuestionCompositeModel>survey.getAllQuestions()[0];
+  assert.equal(
+    q.contentPanel.getQuestionByName("lastName").isVisible,
+    true,
+    "The second question is still visible"
+  );
+  ComponentCollection.Instance.clear();
+});
+QUnit.test("Single: displayValue function, Bug#2678", function (assert) {
+  var json = {
+    name: "newquestion",
+    questionJSON: {
+      type: "checkbox",
+      choices: [
+        { value: 1, text: "text 1" },
+        { value: 2, text: "text 2" },
+        { value: 3, text: "text 3" },
+      ],
+    },
+  };
+  ComponentCollection.Instance.add(json);
+  var survey = new SurveyModel({
+    elements: [{ type: "newquestion", name: "q1" }],
+  });
+  var q = <QuestionCustomModel>survey.getAllQuestions()[0];
+  q.value = [1, 3];
+  assert.equal(q.displayValue, "text 1, text 3");
+  ComponentCollection.Instance.clear();
+});
+QUnit.test("Composite: displayValue function, Bug#2678", function (assert) {
+  ComponentCollection.Instance.add({
+    name: "newquestion",
+    elementsJSON: [
+      {
+        type: "checkbox",
+        name: "q1",
+        title: "question 1",
+        choices: [
+          { value: 1, text: "text 1" },
+          { value: 2, text: "text 2" },
+          { value: 3, text: "text 3" },
+        ],
+      },
+      {
+        type: "dropdown",
+        name: "q2",
+        title: "question 2",
+        choices: [
+          { value: 1, text: "text 1" },
+          { value: 2, text: "text 2" },
+          { value: 3, text: "text 3" },
+        ],
+      },
+    ],
+  });
+  var survey = new SurveyModel({
+    elements: [{ type: "newquestion", name: "q1" }],
+  });
+  var q = <QuestionCustomModel>survey.getAllQuestions()[0];
+  q.value = { q1: [1, 3], q2: 2 };
+  assert.deepEqual(q.displayValue, {
+    "question 1": "text 1, text 3",
+    "question 2": "text 2",
+  });
   ComponentCollection.Instance.clear();
 });

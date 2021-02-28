@@ -1,10 +1,10 @@
 import * as ko from "knockout";
-import { FlowPanelModel } from "../flowpanel";
-import { Question } from "../question";
-import { Serializer } from "../jsonobject";
-import { ElementFactory } from "../questionfactory";
+import { FlowPanelModel } from "survey-core";
+import { Question } from "survey-core";
+import { Serializer } from "survey-core";
+import { ElementFactory } from "survey-core";
 import { ImplementorBase } from "./kobase";
-import { SurveyElement, IElement } from "../base";
+import { SurveyElement, IElement } from "survey-core";
 
 export class FlowPanel extends FlowPanelModel {
   koElementType: any;

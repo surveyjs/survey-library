@@ -1,14 +1,15 @@
 import * as React from "react";
-import { SurveyQuestionUncontrolledElement, ReactSurveyElement } from "./reactquestion_element";
-import { QuestionDropdownModel } from "../question_dropdown";
+import {
+  SurveyQuestionUncontrolledElement,
+  ReactSurveyElement,
+} from "./reactquestion_element";
+import { QuestionDropdownModel } from "survey-core";
 import { SurveyQuestionCommentItem } from "./reactquestion_comment";
 import { ReactQuestionFactory } from "./reactquestion_factory";
-import { ItemValue } from "../itemvalue";
-import { Base } from "../base";
+import { ItemValue } from "survey-core";
+import { Base } from "survey-core";
 
-export class SurveyQuestionDropdown extends SurveyQuestionUncontrolledElement<
-  QuestionDropdownModel
-> {
+export class SurveyQuestionDropdown extends SurveyQuestionUncontrolledElement<QuestionDropdownModel> {
   constructor(props: any) {
     super(props);
   }

@@ -1,9 +1,9 @@
 import * as ko from "knockout";
-import { QuestionTextModel } from "../question_text";
-import { Serializer } from "../jsonobject";
-import { QuestionFactory } from "../questionfactory";
+import { QuestionTextModel } from "survey-core";
+import { Serializer } from "survey-core";
+import { QuestionFactory } from "survey-core";
 import { QuestionImplementor } from "./koquestion";
-import { Question } from "../question";
+import { Question } from "survey-core";
 
 class QuestionTextImplementor extends QuestionImplementor {
   constructor(public question: Question) {

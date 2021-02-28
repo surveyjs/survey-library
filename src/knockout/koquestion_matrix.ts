@@ -1,13 +1,9 @@
 import * as ko from "knockout";
-import {
-  QuestionMatrixModel,
-  MatrixRowModel,
-  IMatrixData,
-} from "../question_matrix";
+import { QuestionMatrixModel, MatrixRowModel, IMatrixData } from "survey-core";
 import { QuestionImplementor } from "./koquestion";
 import { ImplementorBase } from "./kobase";
-import { Serializer } from "../jsonobject";
-import { QuestionFactory } from "../questionfactory";
+import { Serializer } from "survey-core";
+import { QuestionFactory } from "survey-core";
 
 export class QuestionMatrix extends QuestionMatrixModel {
   koVisibleRows: any = <any>ko.observableArray<MatrixRowModel>();

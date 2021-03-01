@@ -31,9 +31,9 @@
         type="button"
         :class="question.cssClasses.clearButton"
         v-on:click="
-          (function () {
+          () => {
             question.clearValue();
-          })
+          }
         "
         :value="question.clearButtonCaption"
       />

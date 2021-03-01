@@ -1,39 +1,42 @@
 <template>
   <div>
     <div :class="getRootClass(question)">
-      <label
-        v-for="(item, index) in question.visibleRateValues"
-        :key="item.value"
-        :class="getCss(question, item)"
-      >
-        <input
-          type="radio"
-          class="sv-visuallyhidden"
-          :name="question.name"
-          :id="question.inputId + '_' + index"
-          :value="item.value"
-          :disabled="question.isReadOnly"
-          @change="change"
-          v-bind:aria-required="question.isRequired"
-          :aria-label="item.locText.text"
-          :aria-invalid="question.errors.length > 0"
-          :aria-describedby="
-            question.errors.length > 0 ? question.id + '_errors' : null
-          "
-        />
-        <span v-if="index === 0" :class="question.cssClasses.minText">
-          <survey-string :locString="question.locMinRateDescription" />
-        </span>
-        <span :class="question.cssClasses.itemText">
-          <survey-string :locString="item.locText" />
-        </span>
-        <span
-          v-if="index === question.visibleRateValues.length - 1"
-          :class="question.cssClasses.maxText"
+      <fieldset role="radiogroup">
+        <legend v-bind:aria-label="question.locTitle.renderedHtml"></legend>
+        <label
+          v-for="(item, index) in question.visibleRateValues"
+          :key="item.value"
+          :class="getCss(question, item)"
         >
-          <survey-string :locString="question.locMaxRateDescription" />
-        </span>
-      </label>
+          <input
+            type="radio"
+            class="sv-visuallyhidden"
+            :name="question.name"
+            :id="question.inputId + '_' + index"
+            :value="item.value"
+            :disabled="question.isReadOnly"
+            @change="change"
+            v-bind:aria-required="question.isRequired"
+            :aria-label="item.locText.text"
+            :aria-invalid="question.errors.length > 0"
+            :aria-describedby="
+              question.errors.length > 0 ? question.id + '_errors' : null
+            "
+          />
+          <span v-if="index === 0" :class="question.cssClasses.minText">
+            <survey-string :locString="question.locMinRateDescription" />
+          </span>
+          <span :class="question.cssClasses.itemText">
+            <survey-string :locString="item.locText" />
+          </span>
+          <span
+            v-if="index === question.visibleRateValues.length - 1"
+            :class="question.cssClasses.maxText"
+          >
+            <survey-string :locString="question.locMaxRateDescription" />
+          </span>
+        </label>
+      </fieldset>
     </div>
     <survey-other-choice
       v-show="question.hasOther"

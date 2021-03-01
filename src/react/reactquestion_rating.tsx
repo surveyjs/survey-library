@@ -44,7 +44,10 @@ export class SurveyQuestionRating extends SurveyQuestionElementBase {
     var comment = this.question.hasOther ? this.renderOther(cssClasses) : null;
     return (
       <div className={cssClasses.root} ref={(div) => (this.control = div)}>
-        {values}
+        <fieldset role="radiogroup">
+          <legend aria-label={this.question.locTitle.renderedHtml} />
+          {values}
+        </fieldset>
         {comment}
       </div>
     );

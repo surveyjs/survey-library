@@ -12,22 +12,26 @@
       v-bind:aria-label="question.locTitle.renderedHtml"
       :rows="question.rows"
       :placeholder="question.isReadOnly ? '' : question.placeHolder"
-      :class="question.cssClasses ? question.cssClasses.root : 'panel-comment-root'"
+      :class="
+        question.cssClasses ? question.cssClasses.root : 'panel-comment-root'
+      "
       @change="change"
       @keyup="keyup"
       v-bind:aria-required="question.isRequired"
       :aria-invalid="question.errors.length > 0"
-      :aria-describedby="question.errors.length > 0 ? question.id + '_errors' : null"  
+      :aria-describedby="
+        question.errors.length > 0 ? question.id + '_errors' : null
+      "
     ></textarea>
-    <div>
-  <div v-if="question.isReadOnlyRenderDiv()">{{question.value}}</div>
+    <div v-if="question.isReadOnlyRenderDiv()">{{ question.value }}</div>
+  </div>
 </template>
 
 <script lang="ts">
 import Vue from "vue";
 import { Component, Prop } from "vue-property-decorator";
 import { default as QuestionVue } from "./question";
-import { QuestionCommentModel } from "../question_comment";
+import { QuestionCommentModel } from "survey-core";
 
 @Component
 export class Comment extends QuestionVue<QuestionCommentModel> {

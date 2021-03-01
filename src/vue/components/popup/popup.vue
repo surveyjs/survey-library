@@ -5,7 +5,7 @@
 import Vue from "vue";
 import { Prop, Component } from "vue-property-decorator";
 
-import { PopupViewModel, PopupModel } from "../../../popup";
+import { PopupViewModel, PopupModel } from "survey-core";
 import { PopupContainer } from "./popup-container.vue";
 import { BaseVue } from "../../base";
 

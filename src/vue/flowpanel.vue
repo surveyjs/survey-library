@@ -1,5 +1,9 @@
 <template>
-  <div v-if="question.isVisible" :class="question.cssClasses.panel.container" :style="rootStyle">
+  <div
+    v-if="question.isVisible"
+    :class="question.cssClasses.panel.container"
+    :style="rootStyle"
+  >
     <h4 v-show="hasTitle" :class="getTitleStyle()" v-on:click="changeExpanded">
       <survey-string :locString="question.locTitle" />
       <span v-show="showIcon" :class="iconCss"></span>
@@ -8,7 +12,10 @@
       <survey-string :locString="question.locDescription" />
     </div>
     <survey-errors :question="question" />
-    <f-panel :style="{ paddingLeft: question.innerPaddingLeft }" v-show="!isCollapsed">
+    <f-panel
+      :style="{ paddingLeft: question.innerPaddingLeft }"
+      v-show="!isCollapsed"
+    >
       <survey-flowpanelelement :node="rootNode" :panel="question" css="css" />
     </f-panel>
   </div>
@@ -17,10 +24,10 @@
 <script lang="ts">
 import Vue from "vue";
 import { Component, Prop } from "vue-property-decorator";
-import { PanelModelBase, PanelModel, QuestionRowModel } from "../panel";
-import { ISurvey } from "../base";
-import { Question } from "../question";
-import { FlowPanelModel } from "../flowpanel";
+import { PanelModelBase, PanelModel, QuestionRowModel } from "survey-core";
+import { ISurvey } from "survey-core";
+import { Question } from "survey-core";
+import { FlowPanelModel } from "survey-core";
 
 @Component
 export class FlowPanel extends Vue {
@@ -36,7 +43,7 @@ export class FlowPanel extends Vue {
   beforeMount() {
     if (!this.question) return;
     var self = this;
-    this.question.onCustomHtmlProducing = function() {
+    this.question.onCustomHtmlProducing = function () {
       return "";
     };
     this.question.onGetHtmlForQuestion = self.renderQuestion;
@@ -57,11 +64,12 @@ export class FlowPanel extends Vue {
     }
     this.isCollapsed = this.question.isCollapsed;
     var self = this;
-    this.question.registerFunctionOnPropertyValueChanged("state", function(
-      val: any
-    ) {
-      self.isCollapsed = self.question.isCollapsed;
-    });
+    this.question.registerFunctionOnPropertyValueChanged(
+      "state",
+      function (val: any) {
+        self.isCollapsed = self.question.isCollapsed;
+      }
+    );
   }
   get rootStyle() {
     var result = {};

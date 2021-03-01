@@ -8,13 +8,20 @@
         :panel="panel"
         css="css"
       />
-      {{text}}
+      {{ text }}
     </component>
     <span v-if="!!question">
       <survey-element
         :key="question.idValue"
         :id="question.id"
-        :style="{ flexBasis: question.renderWidth, flexGrow: 1, flexShrink: 1, width: question.renderWidth, minWidth: question.minWidth, maxWidth: question.maxWidth,}"
+        :style="{
+          flexBasis: question.renderWidth,
+          flexGrow: 1,
+          flexShrink: 1,
+          width: question.renderWidth,
+          minWidth: question.minWidth,
+          maxWidth: question.maxWidth,
+        }"
         :element="question"
         :survey="survey"
         :css="css"
@@ -26,9 +33,9 @@
 <script lang="ts">
 import Vue from "vue";
 import { Component, Prop } from "vue-property-decorator";
-import { Question } from "../question";
-import { SurveyModel } from "../survey";
-import { FlowPanelModel } from "../flowpanel";
+import { Question } from "survey-core";
+import { SurveyModel } from "survey-core";
+import { FlowPanelModel } from "survey-core";
 
 @Component
 export class FlowPanelElement extends Vue {

@@ -6,7 +6,7 @@
 import Vue from "vue";
 import { Component, Prop } from "vue-property-decorator";
 import { default as QuestionVue } from "./question";
-import { QuestionCompositeModel } from "../question_custom";
+import { QuestionCompositeModel } from "survey-core";
 import { PanelModel } from "../panel";
 
 @Component

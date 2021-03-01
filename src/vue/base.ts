@@ -1,5 +1,5 @@
 import Vue from "vue";
-import { Base } from "../base";
+import { Base } from "survey-core";
 import { Component, Prop, Watch } from "vue-property-decorator";
 
 @Component

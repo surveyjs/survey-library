@@ -66,8 +66,8 @@
 <script lang="ts">
 import Vue from "vue";
 import { Component, Prop } from "vue-property-decorator";
-import { PanelModelBase, PanelModel, QuestionRowModel } from "../panel";
-import { ISurvey, Base } from "../base";
+import { PanelModelBase, PanelModel, QuestionRowModel } from "survey-core";
+import { ISurvey, Base } from "survey-core";
 import { BaseVue } from "./base";
 
 @Component
@@ -75,7 +75,7 @@ export class Panel extends BaseVue {
   @Prop question: PanelModel;
   @Prop isEditMode: Boolean;
   @Prop css: any;
-  
+
   private isCollapsed: boolean = false;
 
   protected getModel(): Base {
@@ -89,7 +89,7 @@ export class Panel extends BaseVue {
 
     this.question.stateChangedCallback = () => {
       this.isCollapsed = this.question.isCollapsed;
-    }
+    };
   }
   beforeDestroy() {
     this.question.stateChangedCallback = null;
@@ -107,9 +107,7 @@ export class Panel extends BaseVue {
     return result;
   }
   get showIcon() {
-    return (
-      this.question.isExpanded || this.question.isCollapsed
-    );
+    return this.question.isExpanded || this.question.isCollapsed;
   }
   get rows() {
     return this.question.rows;

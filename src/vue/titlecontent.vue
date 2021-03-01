@@ -32,7 +32,7 @@
 <script lang="ts">
 import { Component, Prop } from "vue-property-decorator";
 import Vue from "vue";
-import { IElement } from "../base";
+import { IElement } from "survey-core";
 
 @Component
 export class TitleContent extends Vue {

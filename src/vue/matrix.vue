@@ -31,7 +31,9 @@
               :class="question.getItemClass(row, column)"
               v-on:click="cellClick(row, column)"
             >
-              <survey-string :locString="question.getCellDisplayLocText(row.name, column)"></survey-string>
+              <survey-string
+                :locString="question.getCellDisplayLocText(row.name, column)"
+              ></survey-string>
             </td>
             <td
               v-if="!question.hasCellText"
@@ -79,7 +81,7 @@
 import Vue from "vue";
 import { Component, Prop } from "vue-property-decorator";
 import { default as QuestionVue } from "./question";
-import { QuestionMatrixModel } from "../question_matrix";
+import { QuestionMatrixModel } from "survey-core";
 
 @Component
 export class Matrix extends QuestionVue<QuestionMatrixModel> {

@@ -1,18 +1,30 @@
 <template>
-  <div style="clear:both;" :class="this.cssClass">
+  <div style="clear: both" :class="this.cssClass">
     <div :class="question.cssClasses.progressContainer">
       <div :title="question.panelPrevText">
-        <svg viewBox="0 0 10 10" :class="getButtonPrevCss(question)" @click="prevPanelClick">
+        <svg
+          viewBox="0 0 10 10"
+          :class="getButtonPrevCss(question)"
+          @click="prevPanelClick"
+        >
           <polygon points="2,2 0,4 5,9 10,4 8,2 5,5 " />
         </svg>
       </div>
 
       <div :class="question.cssClasses.progress" v-if="question.isRangeShowing">
-        <div :class="question.cssClasses.progressBar" :style="{width: progress}" role="progressbar"></div>
+        <div
+          :class="question.cssClasses.progressBar"
+          :style="{ width: progress }"
+          role="progressbar"
+        ></div>
       </div>
 
       <div :title="question.panelNextText">
-        <svg viewBox="0 0 10 10" @click="nextPanelClick" :class="getButtonNextCss(question)">
+        <svg
+          viewBox="0 0 10 10"
+          @click="nextPanelClick"
+          :class="getButtonNextCss(question)"
+        >
           <polygon points="2,2 0,4 5,9 10,4 8,2 5,5 " />
         </svg>
       </div>
@@ -22,29 +34,31 @@
       type="button"
       v-if="question.canAddPanel"
       :value="question.panelAddText"
-      :class="question.cssClasses.button  + ' ' + question.cssClasses.buttonAdd"
+      :class="question.cssClasses.button + ' ' + question.cssClasses.buttonAdd"
       @click="addPanelClick"
     />
 
-    <div :class="question.cssClasses.progressText">{{question.progressText}}</div>
+    <div :class="question.cssClasses.progressText">
+      {{ question.progressText }}
+    </div>
   </div>
 </template>
 
 <script lang="ts">
 import Vue from "vue";
 import { Component, Prop } from "vue-property-decorator";
-import { PanelModel } from "../panel";
-import { QuestionPanelDynamicModel } from "../question_paneldynamic";
-import { Question } from "../question";
-import { QuestionRow } from "../knockout/kopage";
+import { PanelModel } from "survey-core";
+import { QuestionPanelDynamicModel } from "survey-core";
+import { Question } from "survey-core";
 
 @Component
 export class PanelDynamicProgress extends Vue {
   @Prop question: QuestionPanelDynamicModel;
 
   get cssClass() {
-    return this.question.isProgressTopShowing ? 
-          this.question.cssClasses.progressTop: this.question.cssClasses.progressBottom;
+    return this.question.isProgressTopShowing
+      ? this.question.cssClasses.progressTop
+      : this.question.cssClasses.progressBottom;
   }
   get rangeMax() {
     return this.question.panelCount - 1;
@@ -82,7 +96,7 @@ export class PanelDynamicProgress extends Vue {
   }
 
   get progress() {
-    return this.question.currentIndex / this.rangeMax * 100 + "%";
+    return (this.question.currentIndex / this.rangeMax) * 100 + "%";
   }
 }
 

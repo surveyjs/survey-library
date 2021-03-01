@@ -63,8 +63,8 @@
 import Vue from "vue";
 import { Component, Prop } from "vue-property-decorator";
 import { default as QuestionVue } from "./question";
-import { QuestionMatrixDynamicModel } from "../question_matrixdynamic";
-import { MatrixDropdownRowModelBase } from "../question_matrixdropdownbase";
+import { QuestionMatrixDynamicModel } from "survey-core";
+import { MatrixDropdownRowModelBase } from "survey-core";
 
 @Component
 export class MatrixDynamic extends QuestionVue<QuestionMatrixDynamicModel> {

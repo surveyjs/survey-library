@@ -291,6 +291,7 @@ export class QuestionMatrixBaseModel<TRow, TColumn> extends Question {
 
   private initSortable(domNode: HTMLElement) {
     if (!domNode) return;
+    if (this.isReadOnly) return;
     const self = this;
     self.domNode = domNode;
 
@@ -315,6 +316,9 @@ export class QuestionMatrixBaseModel<TRow, TColumn> extends Question {
     toIndex: number
   ) => {
     const movableRow = rows[fromIndex];
+
+    if (!movableRow) return;
+
     rows.splice(fromIndex, 1);
     rows.splice(toIndex, 0, movableRow);
   };

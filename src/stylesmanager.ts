@@ -184,6 +184,8 @@ export class StylesManager {
       "visibility: hidden;",
     ".sv-ranking-item:hover .sv-ranking-item__icon--hover":
       "visibility: visible;",
+    ".sv-question--disabled .sv-ranking-item:hover .sv-ranking-item__icon--hover":
+      "visibility: hidden;",
     ".sv-ranking-item:focus": "outline: none;",
     ".sv-ranking-item:focus .sv-ranking-item__icon--focus":
       "visibility: visible; top: 15px;",

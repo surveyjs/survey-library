@@ -117,6 +117,8 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
 
   private initSortable(domNode: HTMLElement) {
     if (!domNode) return;
+    if (this.isReadOnly) return;
+
     const self = this;
     self.domNode = domNode;
 

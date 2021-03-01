@@ -12,9 +12,6 @@ export class SurveyQuestionText extends SurveyQuestionUncontrolledElement<Questi
   }
   protected renderElement(): JSX.Element {
     var cssClasses = this.question.cssClasses;
-    var onBlur = !this.question.isInputTextUpdate
-      ? this.updateValueOnEvent
-      : null;
     var onKeyDown = null;
     var onKeyUp = null;
     var onCompositionUpdate = null;
@@ -55,7 +52,7 @@ export class SurveyQuestionText extends SurveyQuestionUncontrolledElement<Questi
           placeholder={placeHolder}
           list={this.question.dataListId}
           autoComplete={this.question.autoComplete}
-          onBlur={onBlur}
+          onBlur={this.updateValueOnEvent}
           // onChange={this.updateValueOnEvent}
           onKeyUp={onKeyUp}
           onKeyDown={onKeyDown}

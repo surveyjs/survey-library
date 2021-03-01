@@ -1,30 +1,43 @@
 ﻿<script type="text/html" id="survey-question-rating">
-  <div data-bind="css: question.koCss().root">
-      <!-- ko foreach: question.koVisibleRateValues -->
-      <label data-bind="css: question.koGetCss($data)">
-          <input type="radio" class="sv-visuallyhidden" data-bind="attr: { name: question.name, id: question.inputId + '_' + $index(), value: $data.value, 'aria-required': question.isRequired, 'aria-label': $data.locText.text, 'aria-invalid': question.errors.length > 0, 'aria-describedby': question.errors.length > 0 ? question.id + '_errors' : null }, checkedValue: $data.value, checked: question.value, enable: !question.isReadOnly"/>
-          <!-- ko if: $index() == 0 -->
-          <span data-bind="css: question.koCss().minText">
-              <!-- ko template: { name: 'survey-string', data: question.locMinRateDescription } -->
-              <!-- /ko -->
-          </span>
-          <!-- /ko -->
+    <div data-bind="css: question.koCss().root">
+        <fieldset role="radiogroup">
+            <legend
+            data-bind="attr: { 'aria-label': question.locTitle.renderedHtml }"
+            ></legend>
+            <!-- ko foreach: question.koVisibleRateValues -->
+            <label data-bind="css: question.koGetCss($data)">
+                <input
+                type="radio"
+                class="sv-visuallyhidden"
+                data-bind="attr: { name: question.name, id: question.inputId + '_' + $index(), value: $data.value, 'aria-required': question.isRequired, 'aria-label': $data.locText.text, 'aria-invalid': question.errors.length > 0, 'aria-describedby': question.errors.length > 0 ? question.id + '_errors' : null }, checkedValue: $data.value, checked: question.value, enable: !question.isReadOnly"
+                />
+                <!-- ko if: $index() == 0 -->
+                <span data-bind="css: question.koCss().minText">
+                <!-- ko template: { name: 'survey-string', data: question.locMinRateDescription } -->
+                <!-- /ko -->
+                </span>
+                <!-- /ko -->
 
-          <span data-bind="css: question.koCss().itemText">
-              <!-- ko template: { name: 'survey-string', data: $data.locText } -->
-              <!-- /ko -->
-          </span>
+                <span data-bind="css: question.koCss().itemText">
+                <!-- ko template: { name: 'survey-string', data: $data.locText } -->
+                <!-- /ko -->
+                </span>
 
-          <!-- ko if: $index() == (question.koVisibleRateValues().length-1) -->
-          <span data-bind="css: question.koCss().maxText">
-              <!-- ko template: { name: 'survey-string', data: question.locMaxRateDescription } -->
-              <!-- /ko -->
-          </span>
-          <!-- /ko -->
-      </label>
-      <!-- /ko -->
-  </div>
-  <div data-bind="visible: question.hasOther">
-      <div data-bind="template: { name: 'survey-comment', data: { 'question': question } }"></div>
-  </div>
+                <!-- ko if: $index() == (question.koVisibleRateValues().length-1) -->
+                <span data-bind="css: question.koCss().maxText">
+                <!-- ko template: { name: 'survey-string', data: question.locMaxRateDescription } -->
+                <!-- /ko -->
+                </span>
+                <!-- /ko -->
+            </label>
+            <!-- /ko -->
+        </fieldset>
+    </div>
+
+    <div data-bind="visible: question.hasOther">
+      <div
+        data-bind="template: { name: 'survey-comment', data: { 'question': question } }"
+      ></div>
+    </div>
+  </fieldset>
 </script>

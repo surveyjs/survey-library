@@ -35,7 +35,8 @@ export class SurveyQuestionMatrix extends SurveyQuestionElementBase {
 
   protected renderElement(): JSX.Element {
     var cssClasses = this.question.cssClasses;
-    var firstTH = this.question.hasRows ? <td /> : null;
+    var dragDropTH = this.question.allowRowsDragAndDrop ? <td /> : null;
+    var rowsTH = this.question.hasRows ? <td /> : null;
     var headers = [];
     for (var i = 0; i < this.question.visibleColumns.length; i++) {
       var column = this.question.visibleColumns[i];
@@ -66,7 +67,8 @@ export class SurveyQuestionMatrix extends SurveyQuestionElementBase {
     var header = !this.question.showHeader ? null : (
       <thead>
         <tr>
-          {firstTH}
+          {dragDropTH}
+          {rowsTH}
           {headers}
         </tr>
       </thead>
@@ -107,15 +109,21 @@ export class SurveyQuestionMatrixRow extends ReactSurveyElement {
     return !!this.row;
   }
   protected renderElement(): JSX.Element {
+    var dragDropTD = null;
     var rowsTD = null;
+
+    if (this.question.allowRowsDragAndDrop) {
+      dragDropTD = generateDragDropTD(this.question);
+    };
     if (this.question.hasRows) {
       var rowText = this.renderLocString(this.row.locText);
       rowsTD = <td className={this.question.cssClasses.cell}>{rowText}</td>;
     }
+
     var tds = this.generateTds();
     return (
       <tr className={this.row.rowClasses}>
-        {generateDragDropTD(this.question)}
+        {dragDropTD}
         {rowsTD}
         {tds}
       </tr>

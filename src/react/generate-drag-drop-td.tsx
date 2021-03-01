@@ -1,8 +1,6 @@
 import * as React from "react";
 
 export const generateDragDropTD = (question:any) => {
-    if (!question.allowRowsDragAndDrop) return null;
-
     return (
       <td key={question.name + "-td-d&d"} className={question.cssClasses.cell}>
         <svg

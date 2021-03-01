@@ -2,9 +2,9 @@
   <ul
     class="sv-list"
     @mousedown="
-      (function (data, e) {
+      (data, e) => {
         e.preventDefault();
-      })
+      }
     "
   >
     <li

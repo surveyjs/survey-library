@@ -4,9 +4,9 @@
     ref="container"
     class="sv-action-bar"
     v-on:click="
-      (function (event) {
+      (event) => {
         event.stopPropagation();
-      })
+      }
     "
   >
     <span

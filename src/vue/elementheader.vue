@@ -2,10 +2,10 @@
   <div
     :class="getHeaderClass(element)"
     @click="
-      (function () {
+      () => {
         if (element.hasInput) element.focus();
         return true;
-      })
+      }
     "
   >
     <h5
@@ -14,9 +14,9 @@
       v-bind:aria-label="element.locTitle.renderedHtml"
       v-bind:id="element.ariaTitleId"
       v-on:click="
-        (function () {
+        () => {
           element.toggleState();
-        })
+        }
       "
     >
       <component

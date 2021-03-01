@@ -14,6 +14,8 @@ import { Question } from "../question";
 import { SurveyQuestionCheckboxItem } from "./reactquestion_checkbox";
 import { SurveyQuestionRadioItem } from "./reactquestion_radiogroup";
 import { SurveyPanel } from "./panel";
+import { ActionBar } from "./components/action-bar/action-bar";
+import { IActionBarItem } from "../action-bar";
 
 export class SurveyQuestionMatrixDropdownBase extends SurveyQuestionElementBase {
   constructor(props: any) {
@@ -185,6 +187,13 @@ export class SurveyQuestionMatrixDropdownBase extends SurveyQuestionElementBase 
         />
       );
     }
+    if (cell.isActionsCell) {
+      cellContent = (
+        <SurveyQuestionMatrixActionsCell
+          items={cell.item.getData()}
+        ></SurveyQuestionMatrixActionsCell>
+      );
+    }
     if (cell.hasPanel) {
       cellContent = (
         <SurveyPanel
@@ -244,6 +253,19 @@ export class SurveyQuestionMatrixDetailButton extends ReactSurveyElement {
         <span className={this.question.getDetailPanelIconCss(this.row)} />
       </button>
     );
+  }
+}
+
+class SurveyQuestionMatrixActionsCell extends ReactSurveyElement {
+  constructor(props: any) {
+    super(props);
+  }
+
+  get items(): Array<IActionBarItem> {
+    return this.props.items;
+  }
+  protected renderElement(): JSX.Element {
+    return <ActionBar items={this.items}></ActionBar>;
   }
 }
 

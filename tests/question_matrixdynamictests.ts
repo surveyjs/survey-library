@@ -5733,3 +5733,99 @@ QUnit.test("Matrixdynamic change column.readOnly property", function (assert) {
     "set correctly"
   );
 });
+
+QUnit.test("Row actions, check onGetMatrixRowActions Event", function (assert) {
+  var survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdropdown",
+        name: "matrix",
+        columns: [{ name: "col1" }],
+        rows: ["row1"],
+      },
+    ],
+  });
+  var options;
+  var surveyFromEvent;
+  survey.onGetMatrixRowActions.add((s, opt) => {
+    options = opt;
+    surveyFromEvent = s;
+  });
+  const matrix = survey.getQuestionByName("matrix");
+  (<QuestionMatrixDynamicModel>matrix).renderedTable.rows;
+  assert.ok(surveyFromEvent == survey);
+  assert.ok(options.question == matrix);
+  assert.ok(options.row == matrix.visibleRows[0]);
+  assert.deepEqual(options.actions, []);
+});
+
+QUnit.test("Row actions, check getUpdatedMatrixRowActions", function (assert) {
+  var survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdropdown",
+        name: "matrix",
+        columns: [{ name: "col1" }],
+        rows: ["row1"],
+      },
+    ],
+  });
+  var expectedActions = [{ title: "Action 1" }, { title: "Action 2" }];
+  survey.onGetMatrixRowActions.add((survey, opt) => {
+    opt.actions = expectedActions;
+  });
+  var matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+  var actions = [];
+  assert.deepEqual(
+    survey.getUpdatedMatrixRowActions(matrix, matrix.visibleRows[0], actions),
+    expectedActions
+  );
+});
+
+QUnit.test("Row actions, rendered table and className", function (assert) {
+  var survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdropdown",
+        name: "matrix",
+        columns: [{ name: "col1" }],
+        rows: ["row1"],
+      },
+    ],
+  });
+  survey.onGetMatrixRowActions.add((_, opt) => {
+    opt.actions = [
+      { title: "Action 1" },
+      { title: "Action 2", location: "right" },
+    ];
+  });
+  var matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+  assert.equal(
+    matrix.renderedTable.headerRow.cells.length,
+    4,
+    "Actions headers should appear"
+  );
+  var rows = matrix.renderedTable.rows;
+  assert.equal(
+    rows[0].cells[0].className,
+    "sv_matrix_cell sv_matrix_cell_actions",
+    "Actions cell css"
+  );
+  assert.deepEqual(
+    rows[0].cells[0].item.getData(),
+    [{ title: "Action 1", location: "left" }],
+    "location: left row actions"
+  );
+  assert.equal(rows[0].cells[1].className, "sv_matrix_cell", "text cell");
+  assert.equal(rows[0].cells[1].className, "sv_matrix_cell", "ordinary cell");
+  assert.equal(
+    rows[0].cells[3].className,
+    "sv_matrix_cell sv_matrix_cell_actions",
+    "Actions cell css"
+  );
+  assert.deepEqual(
+    rows[0].cells[3].item.getData(),
+    [{ title: "Action 2", location: "right" }],
+    "location: right row actions"
+  );
+});

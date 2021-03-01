@@ -10,6 +10,8 @@ import {
 import { settings } from "./settings";
 import { ItemValue } from "./itemvalue";
 import { RendererFactory } from "./rendererFactory";
+import { IActionBarItem } from "./action-bar";
+import { MatrixDropdownRowModelBase, QuestionMatrixDropdownModelBase } from "./question_matrixdropdownbase";
 
 export interface ISurveyData {
   getValue(name: string): any;
@@ -99,17 +101,21 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner {
   getUpdatedQuestionNo(question: IQuestion, no: string): string;
   getUpdatedQuestionTitleActions(
     question: IQuestion,
-    titleActions: Array<any>
-  ): Array<any>;
+    titleActions: Array<IActionBarItem>
+  ): Array<IActionBarItem>;
   getUpdatedPanelTitleActions(
     question: IPanel,
-    titleActions: Array<any>
-  ): Array<any>;
+    titleActions: Array<IActionBarItem>
+  ): Array<IActionBarItem>;
   getUpdatedPageTitleActions(
     question: IPage,
-    titleActions: Array<any>
-  ): Array<any>;
-
+    titleActions: Array<IActionBarItem>
+  ): Array<IActionBarItem>;
+  getUpdatedMatrixRowActions(
+    question: QuestionMatrixDropdownModelBase,
+    row: MatrixDropdownRowModelBase,
+    actions: Array<IActionBarItem>
+  ): Array<IActionBarItem>
   questionStartIndex: string;
   questionTitleLocation: string;
   questionDescriptionLocation: string;

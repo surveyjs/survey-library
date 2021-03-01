@@ -5,6 +5,7 @@
     :style="getCellStyle()"
     :colspan="cell.colSpans"
   >
+    <sv-action-bar v-if="cell.isActionsCell" :items="cell.item.getData()"></sv-action-bar>
     <button
       v-if="cell.isShowHideDetail"
       type="button"

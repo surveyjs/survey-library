@@ -50,6 +50,11 @@
             <!-- /ko -->
           </td>
           <!-- /ko -->
+           <!-- ko if: $data.isActionsCell -->
+           <td data-bind="css:$data.className, attr: {colspan: $data.colSpans}">
+            <sv-action-bar params="items: $data.item.getData()"></sv-action-bar>
+          </td>
+          <!-- /ko -->
           <!-- ko if: $data.isEmpty -->
           <td data-bind="attr: { colspan: $data.colSpans }"></td>
           <!-- /ko -->

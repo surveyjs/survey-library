@@ -40,6 +40,7 @@ import {
 import { ExpressionRunner, ConditionRunner } from "./conditions";
 import { settings } from "./settings";
 import { IActionBarItem } from "./action-bar";
+import { MatrixDropdownRowModelBase, QuestionMatrixDropdownModelBase } from "./question_matrixdropdownbase";
 
 /**
  * The `Survey` object contains information about the survey, Pages, Questions, flow logic and etc.
@@ -937,6 +938,12 @@ export class SurveyModel
   > = new Event<(sender: SurveyModel, options: any) => any, any>();
 
   public onGetPageTitleActions: Event<
+    (sender: SurveyModel, options: any) => any,
+    any
+  > = new Event<(sender: SurveyModel, options: any) => any, any>();
+
+
+  public onGetMatrixRowActions: Event<
     (sender: SurveyModel, options: any) => any,
     any
   > = new Event<(sender: SurveyModel, options: any) => any, any>();
@@ -3891,6 +3898,20 @@ export class SurveyModel
     };
     this.onGetPageTitleActions.fire(this, options);
     return options.titleActions;
+  }
+
+  getUpdatedMatrixRowActions(
+    question: QuestionMatrixDropdownModelBase,
+    row: MatrixDropdownRowModelBase,
+    actions: Array<IActionBarItem>
+  ) {
+    var options = {
+      question: question,
+      actions: actions,
+      row: row
+    };
+    this.onGetMatrixRowActions.fire(this, options);
+    return options.actions;
   }
 
   scrollElementToTop(

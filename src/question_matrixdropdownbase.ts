@@ -35,6 +35,7 @@ import { FunctionFactory } from "./functionsfactory";
 import { PanelModel } from "./panel";
 import { settings } from "./settings";
 import { KeyDuplicationError } from "./error";
+import { IActionBarItem } from "./action-bar";
 
 export interface IMatrixDropdownData {
   value: any;
@@ -1264,6 +1265,7 @@ export class QuestionMatrixDropdownRenderedCell {
   public colSpans: number = 1;
   public panel: PanelModel;
   public isShowHideDetail: boolean;
+  public isActionsCell: boolean = false;
   public className: string = "";
   public constructor() {
     this.idValue = QuestionMatrixDropdownRenderedCell.counter++;
@@ -1478,6 +1480,9 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     if (this.getHasDetailPanelInRows()) {
       this.headerRow.cells.push(this.createHeaderCell(null));
     }
+    if (this.hasActionCellInRows("left")) {
+      this.headerRow.cells.push(this.createHeaderCell(null));
+    }
     if (this.matrix.hasRowText && this.matrix.showHeader) {
       this.headerRow.cells.push(this.createHeaderCell(null));
     }
@@ -1501,6 +1506,9 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
           this.createTextCell(this.matrix.getFooterText())
         );
       }
+    }
+    if (this.hasActionCellInRows("right")) {
+      this.headerRow.cells.push(this.createHeaderCell(null));
     }
     if (this.hasRemoveRows) {
       this.headerRow.cells.push(this.createHeaderCell(null));
@@ -1545,6 +1553,14 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     }
     return false;
   }
+  private hasActionCellInRows(location: string): boolean {
+    var rows = this.matrix.visibleRows;
+    return (
+      rows.filter(
+        (row) => !this.isValueEmpty(this.getRowActions(row, location))
+      ).length != 0
+    );
+  }
   private canRemoveRow(row: MatrixDropdownRowModelBase): boolean {
     return this.matrix.canRemoveRow(row);
   }
@@ -1572,17 +1588,50 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
       renderedRows.push(this.createDetailPanelRow(row, renderedRow));
     }
   }
+
+  private getRowActions(row: MatrixDropdownRowModelBase, location: string) {
+    var actions: Array<IActionBarItem> = [];
+    if (!!this.matrix.survey)
+      actions = this.matrix.survey.getUpdatedMatrixRowActions(this.matrix, row, actions);
+
+    return actions.filter((action) => {
+      if (!(<any>action).location) {
+        (<any>action).location = "left";
+      }
+      return (<any>action).location === location;
+    });
+  }
+
+  private getRowActionsCell(row: MatrixDropdownRowModelBase, location: string) {
+    const rowActions = this.getRowActions(row, location);
+    if (!this.isValueEmpty(rowActions)) {
+      var cell = new QuestionMatrixDropdownRenderedCell();
+      var itemValue = new ItemValue(rowActions);
+      cell.item = itemValue;
+      cell.isActionsCell = true;
+      cell.className = this.cssClasses.actionsCell;
+      cell.row = row;
+      return cell;
+    }
+    return null;
+  }
+
   private createHorizontalRow(
     row: MatrixDropdownRowModelBase,
     useAsHeader: boolean
   ): QuestionMatrixDropdownRenderedRow {
     var res = new QuestionMatrixDropdownRenderedRow();
+    const leftRowActionsCell = this.getRowActionsCell(row, "left");
+    const rightRowActionsCell = this.getRowActionsCell(row, "right");
     if (row.hasPanel) {
       let cell = new QuestionMatrixDropdownRenderedCell();
       cell.isShowHideDetail = true;
       cell.className = this.cssClasses.detailCell;
       cell.row = row;
       res.cells.push(cell);
+    }
+    if (!!leftRowActionsCell) {
+      res.cells.push(leftRowActionsCell);
     }
     if (this.matrix.hasRowText) {
       var renderedCell = this.createTextCell(row.locText);
@@ -1607,6 +1656,9 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
           this.setHeaderCellWidth(cell.column, renderedCell);
         }
       }
+    }
+    if (!!rightRowActionsCell) {
+      res.cells.push(rightRowActionsCell);
     }
     if (this.hasRemoveRows) {
       res.cells.push(this.createRemoveRowCell(row));

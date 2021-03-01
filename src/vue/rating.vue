@@ -17,7 +17,9 @@
           v-bind:aria-required="question.isRequired"
           :aria-label="item.locText.text"
           :aria-invalid="question.errors.length > 0"
-          :aria-describedby="question.errors.length > 0 ? question.id + '_errors' : null"  
+          :aria-describedby="
+            question.errors.length > 0 ? question.id + '_errors' : null
+          "
         />
         <span v-if="index === 0" :class="question.cssClasses.minText">
           <survey-string :locString="question.locMinRateDescription" />
@@ -26,7 +28,7 @@
           <survey-string :locString="item.locText" />
         </span>
         <span
-          v-if="index === question.visibleRateValues.length-1"
+          v-if="index === question.visibleRateValues.length - 1"
           :class="question.cssClasses.maxText"
         >
           <survey-string :locString="question.locMaxRateDescription" />
@@ -45,7 +47,7 @@
 import Vue from "vue";
 import { Component, Prop } from "vue-property-decorator";
 import { default as QuestionVue } from "./question";
-import { QuestionRatingModel } from "../question_rating";
+import { QuestionRatingModel } from "survey-core";
 
 @Component
 export class Rating extends QuestionVue<QuestionRatingModel> {

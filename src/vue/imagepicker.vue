@@ -9,7 +9,7 @@
       <label :class="question.cssClasses.label">
         <input
           v-if="question.multiSelect"
-          style="display: none;"
+          style="display: none"
           type="checkbox"
           :name="question.name + '_' + question.id"
           :value="item.value"
@@ -19,12 +19,14 @@
           v-bind:aria-required="question.isRequired"
           :aria-label="question.locTitle.renderedHtml"
           :aria-invalid="question.errors.length > 0"
-          :aria-describedby="question.errors.length > 0 ? question.id + '_errors' : null"
+          :aria-describedby="
+            question.errors.length > 0 ? question.id + '_errors' : null
+          "
           :class="question.cssClasses.itemControl"
         />
         <input
           v-else
-          style="display: none;"
+          style="display: none"
           type="radio"
           :name="question.name + '_' + question.id"
           :value="item.value"
@@ -34,7 +36,9 @@
           v-bind:aria-required="question.isRequired"
           :aria-label="question.locTitle.renderedHtml"
           :aria-invalid="question.errors.length > 0"
-          :aria-describedby="question.errors.length > 0 ? question.id + '_errors' : null"
+          :aria-describedby="
+            question.errors.length > 0 ? question.id + '_errors' : null
+          "
           :class="question.cssClasses.itemControl"
         />
         <div>
@@ -42,8 +46,12 @@
             v-if="question.contentMode === 'image'"
             :class="question.cssClasses.image"
             :src="item.imageLink"
-            :width="question.imageWidth ? question.imageWidth + 'px' : undefined"
-            :height="question.imageHeight ? question.imageHeight + 'px' : undefined"
+            :width="
+              question.imageWidth ? question.imageWidth + 'px' : undefined
+            "
+            :height="
+              question.imageHeight ? question.imageHeight + 'px' : undefined
+            "
             v-bind:style="{ objectFit: question.imageFit }"
             :alt="item.text || item.value"
           />
@@ -51,15 +59,20 @@
             v-if="question.contentMode === 'video'"
             :class="question.cssClasses.image"
             :src="item.imageLink"
-            :width="question.imageWidth ? question.imageWidth + 'px' : undefined"
-            :height="question.imageHeight ? question.imageHeight + 'px' : undefined"
+            :width="
+              question.imageWidth ? question.imageWidth + 'px' : undefined
+            "
+            :height="
+              question.imageHeight ? question.imageHeight + 'px' : undefined
+            "
             v-bind:style="{ objectFit: question.imageFit }"
           />
           <span
             v-if="question.showLabel"
             :title="item.text || item.value"
             :class="question.cssClasses.itemText"
-          >{{item.text || item.value}}</span>
+            >{{ item.text || item.value }}</span
+          >
         </div>
       </label>
     </div>
@@ -70,7 +83,7 @@
 import Vue from "vue";
 import { Component } from "vue-property-decorator";
 import { default as QuestionVue } from "./question";
-import { QuestionImagePickerModel } from "../question_imagepicker";
+import { QuestionImagePickerModel } from "survey-core";
 
 @Component
 export class ImagePicker extends QuestionVue<QuestionImagePickerModel> {

@@ -1,9 +1,12 @@
 <template>
   <div class="sv-title-actions">
     <span class="sv-title-actions__title">
-      <survey-string v-if="element.isPage" :locString="element.locTitle"><survey-string>
+      <survey-string
+        v-if="element.isPage"
+        :locString="element.locTitle"
+      ></survey-string>
       <survey-question-title-content
-        v-if="!element.isPage" 
+        v-if="!element.isPage"
         :element="element"
         :css="css"
       ></survey-question-title-content>
@@ -15,8 +18,8 @@
 <script lang="ts">
 import Vue from "vue";
 import { Component, Prop } from "vue-property-decorator";
-import { ISurveyElement } from "../../../base";
-import { RendererFactory } from "../../../rendererFactory";
+import { ISurveyElement } from "survey-core";
+import { RendererFactory } from "survey-core";
 
 @Component
 export class TitleActions extends Vue {

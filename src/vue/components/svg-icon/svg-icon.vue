@@ -5,7 +5,7 @@
 <script lang="ts">
 import Vue from "vue";
 import { Component, Prop } from "vue-property-decorator";
-import { createSvg } from "../../../utils/utils";
+import { createSvg } from "survey-core";
 
 @Component
 export class SvgIcon extends Vue {

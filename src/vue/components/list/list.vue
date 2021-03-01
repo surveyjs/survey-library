@@ -1,9 +1,10 @@
 <template>
   <ul
     class="sv-list"
-    @mousedown="function (data, e) {
+    @mousedown="
+      (function (data, e) {
         e.preventDefault();
-      }
+      })
     "
   >
     <li
@@ -27,7 +28,7 @@
 <script lang="ts">
 import Vue from "vue";
 import { Component, Prop } from "vue-property-decorator";
-import { ListModel } from "../../../list";
+import { ListModel } from "survey-core";
 import { BaseVue } from "../../base";
 
 @Component

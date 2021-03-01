@@ -1,13 +1,17 @@
 <template>
-  <component :is="getComponentName(contentQuestion)" :question="contentQuestion" :css="css" />
+  <component
+    :is="getComponentName(contentQuestion)"
+    :question="contentQuestion"
+    :css="css"
+  />
 </template>
 
 <script lang="ts">
 import Vue from "vue";
 import { Component, Prop } from "vue-property-decorator";
 import { default as QuestionVue } from "./question";
-import { Question } from "../question";
-import { QuestionCustomModel } from "../question_custom";
+import { Question } from "survey-core";
+import { QuestionCustomModel } from "survey-core";
 
 @Component
 export class Custom extends QuestionVue<QuestionCustomModel> {

@@ -12,14 +12,14 @@
       @change="change"
       @keyup="keyup"
     />
-    <div v-if="question.isReadOnlyRenderDiv()">{{question.comment}}</div>
+    <div v-if="question.isReadOnlyRenderDiv()">{{ question.comment }}</div>
   </div>
 </template>
 
 <script lang="ts">
 import Vue from "vue";
 import { Component, Prop } from "vue-property-decorator";
-import { Question } from "../question";
+import { Question } from "survey-core";
 
 @Component
 export class OtherChoice extends Vue {

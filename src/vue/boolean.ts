@@ -1,7 +1,7 @@
 import Vue from "vue";
 import { Component, Prop, Watch } from "vue-property-decorator";
 import { default as QuestionVue } from "./question";
-import { QuestionBooleanModel } from '../question_boolean';
+import { QuestionBooleanModel } from "survey-core";
 
 @Component
 export class Boolean extends QuestionVue<QuestionBooleanModel> {
@@ -39,12 +39,12 @@ export class Boolean extends QuestionVue<QuestionBooleanModel> {
       var isRtl =
         document.defaultView.getComputedStyle(event.target).direction == "rtl";
       this.question.checkedValue = isRtl ? !isRightClick : isRightClick;
-     }
+    }
   }
-  public onLabelClick(event: any, value: boolean){
-    if(this.question.isIndeterminate){
-      this.preventDefaults(event)
-      this.question.checkedValue = value; 
+  public onLabelClick(event: any, value: boolean) {
+    if (this.question.isIndeterminate) {
+      this.preventDefaults(event);
+      this.question.checkedValue = value;
     }
   }
 }

@@ -131,11 +131,11 @@
 <script lang="ts">
 import Vue from "vue";
 import { Component, Prop, Watch } from "vue-property-decorator";
-import { surveyCss } from "../defaultCss/cssstandard";
+import { surveyCss } from "survey-core";
 import { VueSurveyModel as SurveyModel } from "./surveyModel";
-import { StylesManager } from "../stylesmanager";
+import { StylesManager } from "survey-core";
 import { BaseVue } from "./base";
-import { Base } from "../base";
+import { Base } from "survey-core";
 
 @Component
 export class Survey extends BaseVue {

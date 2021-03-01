@@ -37,7 +37,7 @@
 import Vue from "vue";
 import { Component, Prop } from "vue-property-decorator";
 import { default as QuestionVue } from "./question";
-import { QuestionTextModel } from "../question_text";
+import { QuestionTextModel } from "survey-core";
 
 @Component
 export class Text extends QuestionVue<QuestionTextModel> {

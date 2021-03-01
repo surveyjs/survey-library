@@ -9,7 +9,9 @@
       v-bind:aria-required="question.isRequired"
       :aria-label="question.locTitle.renderedHtml"
       :aria-invalid="question.errors.length > 0"
-      :aria-describedby="question.errors.length > 0 ? question.id + '_errors' : null"  
+      :aria-describedby="
+        question.errors.length > 0 ? question.id + '_errors' : null
+      "
       :multiple="question.allowMultiple ? 'multiple' : undefined"
       v-bind:title="question.inputTitle"
       v-bind:accept="question.acceptedTypes"
@@ -20,20 +22,29 @@
       disabled
       :class="getPlaceholderClass()"
       :placeholder="question.title"
-      style="color: transparent;"
+      style="color: transparent"
     />
-    <div :class="question.cssClasses.fileDecorator" @drop="onDrop" @dragover="onDragOver">
+    <div
+      :class="question.cssClasses.fileDecorator"
+      @drop="onDrop"
+      @dragover="onDragOver"
+    >
       <div :class="question.cssClasses.wrapper">
         <label
           role="button"
-          :class="question.cssClasses.chooseFile + (question.isReadOnly ? ' ' + question.cssClasses.disabled : '')"
+          :class="
+            question.cssClasses.chooseFile +
+            (question.isReadOnly ? ' ' + question.cssClasses.disabled : '')
+          "
           :for="question.inputId"
           v-bind:aria-label="question.chooseButtonCaption"
-        >{{question.chooseButtonCaption}}</label>
+          >{{ question.chooseButtonCaption }}</label
+        >
         <span
           :class="question.cssClasses.noFileChosen"
           v-if="question.isEmpty()"
-        >{{question.noFileChosenCaption}}</span>
+          >{{ question.noFileChosenCaption }}</span
+        >
       </div>
     </div>
     <button
@@ -41,7 +52,9 @@
       v-if="!question.isReadOnly && !question.isEmpty()"
       :class="question.cssClasses.removeButton"
       @click="doClean"
-    >{{question.cleanButtonCaption}}</button>
+    >
+      {{ question.cleanButtonCaption }}
+    </button>
     <div v-if="!question.isEmpty()">
       <span
         v-for="(val, index) in question.previewValue"
@@ -56,7 +69,8 @@
             :title="val.name"
             :download="val.name"
             :width="question.imageWidth"
-          >{{val.name}}</a>
+            >{{ val.name }}</a
+          >
         </div>
         <img
           v-if="question.canPreviewImage(val)"
@@ -69,7 +83,8 @@
           <span
             @click="doRemoveFile(val)"
             :class="question.cssClasses.removeFile"
-          >{{question.removeFileCaption}}</span>
+            >{{ question.removeFileCaption }}</span
+          >
           <svg
             :class="question.cssClasses.removeFileSvg"
             @click="doRemoveFile(val)"
@@ -87,7 +102,8 @@
             :title="val.name"
             :download="val.name"
             :width="question.imageWidth"
-          >{{val.name}}</a>
+            >{{ val.name }}</a
+          >
         </div>
       </span>
     </div>
@@ -96,7 +112,9 @@
       v-if="!question.isReadOnly && !question.isEmpty()"
       :class="question.cssClasses.removeButtonBottom"
       @click="doClean"
-    >{{question.cleanButtonCaption}}</button>
+    >
+      {{ question.cleanButtonCaption }}
+    </button>
   </div>
 </template>
 
@@ -104,12 +122,8 @@
 import Vue from "vue";
 import { Component, Prop, Watch } from "vue-property-decorator";
 import { default as QuestionVue } from "./question";
-import { QuestionFileModel } from "../question_file";
-import {
-  confirmAction,
-  detectIEOrEdge,
-  loadFileFromBase64,
-} from "../utils/utils";
+import { QuestionFileModel } from "survey-core";
+import { confirmAction, detectIEOrEdge, loadFileFromBase64 } from "survey-core";
 @Component
 export class File extends QuestionVue<QuestionFileModel> {
   onDragOver = (event: any) => {

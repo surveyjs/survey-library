@@ -30,7 +30,11 @@
       <input
         type="button"
         :class="question.cssClasses.clearButton"
-        v-on:click="function() { question.clearValue(); }"
+        v-on:click="
+          (function () {
+            question.clearValue();
+          })
+        "
         :value="question.clearButtonCaption"
       />
     </div>
@@ -41,7 +45,7 @@
 import Vue from "vue";
 import { Component } from "vue-property-decorator";
 import { default as QuestionVue } from "./question";
-import { QuestionRadiogroupModel } from "../question_radiogroup";
+import { QuestionRadiogroupModel } from "survey-core";
 
 @Component
 export class Radiogroup extends QuestionVue<QuestionRadiogroupModel> {

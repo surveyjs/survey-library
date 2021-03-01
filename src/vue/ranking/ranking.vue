@@ -16,11 +16,10 @@
 import Vue from "vue";
 import { Component, Prop, Watch } from "vue-property-decorator";
 import { default as QuestionVue } from "../question";
-import { QuestionRankingModel } from "../../question_ranking";
+import { QuestionRankingModel } from "survey-core";
 
 @Component
-export class Ranking extends QuestionVue<QuestionRankingModel> {
-}
+export class Ranking extends QuestionVue<QuestionRankingModel> {}
 
 Vue.component("survey-ranking", Ranking);
 export default Ranking;

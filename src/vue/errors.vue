@@ -30,8 +30,8 @@
 <script lang="ts">
 import Vue from "vue";
 import { Component, Prop } from "vue-property-decorator";
-import { Question } from "../question";
-import { SurveyError } from "../base";
+import { Question } from "survey-core";
+import { SurveyError } from "survey-core";
 
 @Component
 export class Errors extends Vue {

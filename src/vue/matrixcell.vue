@@ -88,11 +88,11 @@
 <script lang="ts">
 import Vue from "vue";
 import { Component, Prop } from "vue-property-decorator";
-import { Question } from "../question";
+import { Question } from "survey-core";
 import {
   MatrixDropdownCell,
   QuestionMatrixDropdownRenderedCell,
-} from "../question_matrixdropdownbase";
+} from "survey-core";
 
 @Component
 export class MatrixCell extends Vue {

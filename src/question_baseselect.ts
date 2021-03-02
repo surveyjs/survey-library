@@ -358,8 +358,11 @@ export class QuestionSelectBase extends Question {
    */
   public clearIncorrectValuesCallback: () => void;
   /**
-   * Use this property to fill the choices from a restful service.
+   * Use this property to fill the choices from a RESTful service.
    * @see choices
+   * @see ChoicesRestfull
+   * @see [Example: RESTful Dropdown](https://surveyjs.io/Examples/Library/?id=questiontype-dropdownrestfull)
+   * @see [Docs: Fill Choices from a RESTful Service](https://surveyjs.io/Documentation/Library/?id=LibraryOverview#fill-the-choices-from-a-restful-service)   
    */
   public get choicesByUrl(): ChoicesRestfull {
     return this.getPropertyValue("choicesByUrl");

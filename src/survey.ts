@@ -40,7 +40,6 @@ import {
 import { ExpressionRunner, ConditionRunner } from "./conditions";
 import { settings } from "./settings";
 import { IActionBarItem } from "./action-bar";
-import { MatrixDropdownRowModelBase, QuestionMatrixDropdownModelBase } from "./question_matrixdropdownbase";
 
 /**
  * The `Survey` object contains information about the survey, Pages, Questions, flow logic and etc.
@@ -3901,8 +3900,8 @@ export class SurveyModel
   }
 
   getUpdatedMatrixRowActions(
-    question: QuestionMatrixDropdownModelBase,
-    row: MatrixDropdownRowModelBase,
+    question: IQuestion,
+    row: any,
     actions: Array<IActionBarItem>
   ) {
     var options = {

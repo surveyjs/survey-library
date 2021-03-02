@@ -8,6 +8,7 @@ import { ReactElementFactory } from "../../element-factory";
 import { SurveyElementBase } from "../../reactquestion_element";
 import { Base } from "../../../base";
 import { ResponsibilityManager } from "../../../utils/resonsibilitymanager";
+import { Action } from "./action-bar-item";
 
 export * from "./action-bar-item";
 export * from "./action-bar-item-dropdown";
@@ -90,15 +91,7 @@ export class ActionBar extends SurveyElementBase<IActionBarProps, any> {
         if (!item.visible && item.visible !== undefined) {
           return null;
         }
-
-        const itemComponent = ReactElementFactory.Instance.createElement(
-          item.component || "sv-action-bar-item",
-          {
-            item: item,
-            key: "item" + itemIndex,
-          }
-        );
-        return itemComponent;
+        return <Action item={item} key={"item" + itemIndex}></Action>;
       }
     );
   }

@@ -15,7 +15,8 @@ import { SurveyQuestionCheckboxItem } from "./reactquestion_checkbox";
 import { SurveyQuestionRadioItem } from "./reactquestion_radiogroup";
 import { SurveyPanel } from "./panel";
 import { ActionBar } from "./components/action-bar/action-bar";
-import { IActionBarItem } from "../action-bar";
+import { ActionBarItem, IActionBarItem } from "../action-bar";
+import { ReactElementFactory } from "./element-factory";
 
 export class SurveyQuestionMatrixDropdownBase extends SurveyQuestionElementBase {
   constructor(props: any) {
@@ -175,18 +176,6 @@ export class SurveyQuestionMatrixDropdownBase extends SurveyQuestionElementBase 
         requiredText = <span>{cell.requiredText}</span>;
       }
     }
-    if (cell.isRemoveRow) {
-      cellContent = this.renderRemoveButton(cell.row);
-    }
-    if (cell.isShowHideDetail) {
-      cellContent = (
-        <SurveyQuestionMatrixDetailButton
-          question={this.question}
-          row={cell.row}
-          cssClasses={cssClasses}
-        />
-      );
-    }
     if (cell.isActionsCell) {
       cellContent = (
         <SurveyQuestionMatrixActionsCell
@@ -229,11 +218,17 @@ export class SurveyQuestionMatrixDetailButton extends ReactSurveyElement {
     super(props);
     this.handleOnShowHideClick = this.handleOnShowHideClick.bind(this);
   }
-  private get question(): QuestionMatrixDropdownModelBase {
-    return this.props.question;
+  protected getStateElement() {
+    return this.props.item;
   }
-  private get row(): MatrixDropdownRowModelBase {
-    return this.props.row;
+  get item(): ActionBarItem {
+    return this.props.item;
+  }
+  get row() {
+    return this.item.data.row;
+  }
+  get question() {
+    return this.item.data.question;
   }
   handleOnShowHideClick(event: any) {
     this.row.showHideDetailPanelClick();
@@ -255,6 +250,13 @@ export class SurveyQuestionMatrixDetailButton extends ReactSurveyElement {
     );
   }
 }
+
+ReactElementFactory.Instance.registerElement(
+  "sv-matrix-detail-button",
+  (props) => {
+    return React.createElement(SurveyQuestionMatrixDetailButton, props);
+  }
+);
 
 class SurveyQuestionMatrixActionsCell extends ReactSurveyElement {
   constructor(props: any) {

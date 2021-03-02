@@ -10,6 +10,36 @@ interface IActionBarItemProps {
   item: AdaptiveActionBarItemWrapper;
 }
 
+export class Action extends SurveyElementBase<IActionBarItemProps, any> {
+  get item() {
+    return this.props.item;
+  }
+  protected getStateElement(): Base {
+    return this.item;
+  }
+
+  render() {
+    const itemClass =
+      "sv-action " + (!this.item.isVisible ? "sv-action--hidden" : "");
+    const separator = this.item.needSeparator ? (
+      <ActionBarSeparator></ActionBarSeparator>
+    ) : null;
+
+    const itemComponent = ReactElementFactory.Instance.createElement(
+      this.item.component || "sv-action-bar-item",
+      {
+        item: this.item,
+      }
+    );
+    return (
+      <span className={itemClass}>
+        {separator}
+        {itemComponent}
+      </span>
+    );
+  }
+}
+
 export class ActionBarItem extends SurveyElementBase<IActionBarItemProps, any> {
   get item(): AdaptiveActionBarItemWrapper {
     return this.props.item;
@@ -25,10 +55,10 @@ export class ActionBarItem extends SurveyElementBase<IActionBarItemProps, any> {
       <ActionBarSeparator></ActionBarSeparator>
     ) : null;
     return (
-      <span className={itemClass}>
+      <>
         {separator}
         {this.renderInnerButton()}
-      </span>
+      </>
     );
   }
 

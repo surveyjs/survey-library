@@ -35,7 +35,7 @@ import { FunctionFactory } from "./functionsfactory";
 import { PanelModel } from "./panel";
 import { settings } from "./settings";
 import { KeyDuplicationError } from "./error";
-import { IActionBarItem } from "./action-bar";
+import { ActionBarItem, IActionBarItem } from "./action-bar";
 
 export interface IMatrixDropdownData {
   value: any;
@@ -778,6 +778,7 @@ export class MatrixDropdownRowModelBase
 
   public cells: Array<MatrixDropdownCell> = [];
   public showHideDetailPanelClick: any;
+  public actions: Array<IActionBarItem> = null;
 
   constructor(data: IMatrixDropdownData, value: any) {
     this.data = data;
@@ -1477,9 +1478,6 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     this.setPropertyValue("showHeader", isShown);
     if (!isShown) return;
     this.headerRowValue = new QuestionMatrixDropdownRenderedRow();
-    if (this.getHasDetailPanelInRows()) {
-      this.headerRow.cells.push(this.createHeaderCell(null));
-    }
     if (this.hasActionCellInRows("left")) {
       this.headerRow.cells.push(this.createHeaderCell(null));
     }
@@ -1508,9 +1506,6 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
       }
     }
     if (this.hasActionCellInRows("right")) {
-      this.headerRow.cells.push(this.createHeaderCell(null));
-    }
-    if (this.hasRemoveRows) {
       this.headerRow.cells.push(this.createHeaderCell(null));
     }
   }
@@ -1553,7 +1548,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     }
     return false;
   }
-  private hasActionCellInRows(location: string): boolean {
+  private hasActionCellInRows(location: "left" | "right"): boolean {
     var rows = this.matrix.visibleRows;
     return (
       rows.filter(
@@ -1589,20 +1584,59 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     }
   }
 
-  private getRowActions(row: MatrixDropdownRowModelBase, location: string) {
-    var actions: Array<IActionBarItem> = [];
-    if (!!this.matrix.survey)
-      actions = this.matrix.survey.getUpdatedMatrixRowActions(this.matrix, row, actions);
-
-    return actions.filter((action) => {
-      if (!(<any>action).location) {
-        (<any>action).location = "left";
+  private getRowActions(
+    row: MatrixDropdownRowModelBase,
+    location: "left" | "right"
+  ) {
+    if (!row.actions) {
+      var actions: Array<IActionBarItem> = [];
+      if (this.hasRemoveRows) {
+        actions.push(
+          new ActionBarItem({
+            id: "",
+            title: this.matrix.removeRowText,
+            location: "right",
+            innerCss:
+              this.cssClasses.button + " " + this.cssClasses.buttonRemove,
+            action: () => {
+              this.matrix.removeRowUI(row);
+            },
+          })
+        );
       }
-      return (<any>action).location === location;
+      if (row.hasPanel) {
+        actions.push(
+          new ActionBarItem({
+            id: "",
+            location: "left",
+            component: "sv-matrix-detail-button",
+            data: { row: row, question: this.matrix },
+            action: () => {
+              row.showHideDetailPanelClick();
+            },
+          })
+        );
+      }
+      if (!!this.matrix.survey)
+        actions = this.matrix.survey.getUpdatedMatrixRowActions(
+          this.matrix,
+          row,
+          actions
+        );
+      row.actions = actions;
+    }
+    return row.actions.filter((action) => {
+      if (!action.location) {
+        action.location = "left";
+      }
+      return action.location === location;
     });
   }
 
-  private getRowActionsCell(row: MatrixDropdownRowModelBase, location: string) {
+  private getRowActionsCell(
+    row: MatrixDropdownRowModelBase,
+    location: "left" | "right"
+  ) {
     const rowActions = this.getRowActions(row, location);
     if (!this.isValueEmpty(rowActions)) {
       var cell = new QuestionMatrixDropdownRenderedCell();
@@ -1623,13 +1657,6 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     var res = new QuestionMatrixDropdownRenderedRow();
     const leftRowActionsCell = this.getRowActionsCell(row, "left");
     const rightRowActionsCell = this.getRowActionsCell(row, "right");
-    if (row.hasPanel) {
-      let cell = new QuestionMatrixDropdownRenderedCell();
-      cell.isShowHideDetail = true;
-      cell.className = this.cssClasses.detailCell;
-      cell.row = row;
-      res.cells.push(cell);
-    }
     if (!!leftRowActionsCell) {
       res.cells.push(leftRowActionsCell);
     }
@@ -1659,9 +1686,6 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     }
     if (!!rightRowActionsCell) {
       res.cells.push(rightRowActionsCell);
-    }
-    if (this.hasRemoveRows) {
-      res.cells.push(this.createRemoveRowCell(row));
     }
     return res;
   }

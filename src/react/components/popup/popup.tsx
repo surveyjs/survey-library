@@ -39,8 +39,10 @@ export class Popup extends SurveyElementBase<IPopupProps, any> {
     );
   }
   componentWillUnmount() {
-    this.container.remove();
-    this.container = undefined;
+    if (this.container) {
+      this.container.remove();
+      this.container = undefined;
+    }
     super.componentWillUnmount();
   }
 }

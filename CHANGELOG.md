@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.8.33](https://github.com/surveyjs/survey-library/compare/v1.8.32...v1.8.33) (2021-03-02)
+
+
+### Bug Fixes
+
+* displayValue property doesn't work correctly for components (single and composite) [#2678](https://github.com/surveyjs/survey-library/issues/2678) ([fb43a3a](https://github.com/surveyjs/survey-library/commit/fb43a3a2fc6675a1ac97c8e132a6600aacc2a46c))
+* visibleIf doesn't work in composite component on calling showPreview()/cancelPreview() ([008cb6b](https://github.com/surveyjs/survey-library/commit/008cb6b399b133859d65452194fb4768b73161af)), closes [#2674](https://github.com/surveyjs/survey-library/issues/2674)
+
 ### [1.8.32](https://github.com/surveyjs/survey-library/compare/v1.8.31...v1.8.32) (2021-02-24)
 
 

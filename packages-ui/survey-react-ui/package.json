@@ -27,7 +27,7 @@
   "scripts": {
     "test": "karma start",
     "release": "standard-version --message \"Release: %s [skip ci]\" ",
-    "build": "webpack --env.buildType dev --env.platform knockout && webpack --env.buildType prod --env.platform knockout"
+    "build": "webpack --env.buildType dev --env.platform react && webpack --env.buildType prod --env.platform react"
   },
   "dependencies": {
     "survey-core": "../survey-core",

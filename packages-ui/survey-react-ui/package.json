@@ -1,6 +1,6 @@
 {
   "name": "survey-react-ui",
-  "version": "1.8.31",
+  "version": "2.0.0",
   "description": "survey.js is a JavaScript Survey Library. It is a modern way to add a survey to your website. It uses JSON for survey metadata and results.",
   "keywords": [
     "Survey",
@@ -27,7 +27,7 @@
   "scripts": {
     "test": "karma start",
     "release": "standard-version --message \"Release: %s [skip ci]\" ",
-    "build": "webpack --env.buildType dev --env.platform react && webpack --env.buildType prod --env.platform react"
+    "build": "webpack --env.buildType dev && webpack --env.buildType prod"
   },
   "dependencies": {
     "survey-core": "../survey-core",

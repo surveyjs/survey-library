@@ -3,6 +3,7 @@
 var webpack = require("webpack");
 var path = require("path");
 var MiniCssExtractPlugin = require("mini-css-extract-plugin");
+var RemoveCoreFromName = require("../webpack-remove-core-from-name");
 //var TsconfigPathsPlugin = require('tsconfig-paths-webpack-plugin');
 var dts = require("dts-bundle");
 var rimraf = require("rimraf");
@@ -20,7 +21,7 @@ module.exports = function (options, packageJson) {
   var banner = [
     "surveyjs - Survey JavaScript library v" + packageJson.version,
     "Copyright (c) 2015-" + year + " Devsoft Baltic OÜ  - http://surveyjs.io/",
-    "License: MIT (http://www.opensource.org/licenses/mit-license.php)"
+    "License: MIT (http://www.opensource.org/licenses/mit-license.php)",
   ].join("\n");
 
   // TODO add to dts_bundler
@@ -28,7 +29,7 @@ module.exports = function (options, packageJson) {
     "Type definitions for Survey JavaScript library v" + packageJson.version,
     "Copyright (c) 2015-" + year + " Devsoft Baltic OÜ  - http://surveyjs.io/",
     "Definitions by: Devsoft Baltic OÜ <https://github.com/surveyjs/>",
-    ""
+    "",
   ].join("\n");
 
   var buildPath = __dirname + "/build/";
@@ -59,7 +60,7 @@ module.exports = function (options, packageJson) {
       {
         files: fileName,
         from: regex,
-        to: ""
+        to: "",
       },
       (error, changes) => {
         if (error) {
@@ -86,11 +87,14 @@ module.exports = function (options, packageJson) {
 
         var fileName = buildPath + packageJson.name + ".d.ts";
 
-        removeLines(fileName, /^import\s+.*("|')survey-core("|');\s*(\n|\r)?/gm);
+        //removeLines(
+        //  fileName,
+        //  /^import\s+.*("|')survey-core("|');\s*(\n|\r)?/gm
+        //);
         removeLines(fileName, /^import\s+.*("|')\..*("|');\s*(\n|\r)?/gm);
         removeLines(fileName, /export let\s+\w+:\s+\w+;/g);
         removeLines(fileName, /export default\s+\w+;/g);
-        
+
         rimraf.sync(buildPath + "typings");
       }
     }
@@ -99,7 +103,10 @@ module.exports = function (options, packageJson) {
   var config = {
     mode: isProductionBuild ? "production" : "development",
     entry: {
-      [packageJson.name]: path.resolve(__dirname, "../../src/entries/" + options.platform + ".ts"),
+      [packageJson.name]: path.resolve(
+        __dirname,
+        "../../src/entries/" + options.platform + ".ts"
+      ),
     },
     resolve: {
       extensions: [".ts", ".js", ".tsx", ".scss"],
@@ -122,7 +129,7 @@ module.exports = function (options, packageJson) {
               outDir: buildPath + "typings/",
             },
             //transpileOnly: options.buildType !== "prod",
-            appendTsSuffixTo: [/\.vue$/]
+            appendTsSuffixTo: [/\.vue$/],
           },
         },
         {
@@ -182,12 +189,13 @@ module.exports = function (options, packageJson) {
         "process.env.VERSION": JSON.stringify(packageJson.version),
       }),
       new MiniCssExtractPlugin({
-        filename: isProductionBuild ? "[name].min.css" : "[name].css",
+        filename: isProductionBuild ? "[rc-name].min.css" : "[rc-name].css",
       }),
       new webpack.WatchIgnorePlugin([/svgbundle\.html/]),
       new webpack.BannerPlugin({
         banner: banner,
       }),
+      new RemoveCoreFromName(),
     ],
   };
 

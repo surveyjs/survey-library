@@ -1,6 +1,6 @@
 {
   "name": "survey-core",
-  "version": "1.8.31",
+  "version": "2.0.0",
   "description": "survey.js is a JavaScript Survey Library. It is a modern way to add a survey to your website. It uses JSON for survey metadata and results.",
   "keywords": [
     "Survey",
@@ -13,8 +13,10 @@
   "homepage": "https://surveyjs.io/",
   "license": "MIT",
   "files": [
-    "build/survey-core.css",
-    "build/survey-core.min.css",
+    "build/modern.css",
+    "build/modern.min.css",
+    "build/survey.css",
+    "build/survey.min.css",
     "build/survey-core.d.ts",
     "build/survey-core.js",
     "build/survey-core.min.js"
@@ -77,6 +79,7 @@
     "webpack": "^4.43.0",
     "webpack-cli": "^3.3.12",
     "webpack-dev-server": "^3.11.0",
+    "webpack-fix-style-only-entries": "^0.6.1",
     "webpack-merge": "^5.7.3",
     "webpack-svgstore-plugin": "4.0.1"
   }

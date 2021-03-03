@@ -7,6 +7,7 @@ import {
 } from "../src/question_custom";
 import { Serializer } from "../src/jsonobject";
 import { QuestionDropdownModel } from "../src/question_dropdown";
+import { QuestionMatrixDynamicModel } from "../src/question_matrixdynamic";
 import { QuestionTextModel } from "../src/question_text";
 import { QuestionMatrixDropdownModel } from "../src/question_matrixdropdown";
 import { QuestionPanelDynamicModel } from "../src/question_paneldynamic";
@@ -1344,5 +1345,41 @@ QUnit.test("Composite: displayValue function, Bug#2678", function (assert) {
     "question 1": "text 1, text 3",
     "question 2": "text 2",
   });
+  ComponentCollection.Instance.clear();
+});
+QUnit.test("Single: in matrix dynamic question, Bug#2695", function (assert) {
+  var json = {
+    name: "newquestion",
+    questionJSON: {
+      type: "dropdown",
+      choices: ["a", "b", "c"],
+    },
+  };
+  ComponentCollection.Instance.add(json);
+  var survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdynamic",
+        name: "matrix",
+        columns: [{ name: "col1", cellType: "newquestion" }],
+        rowCount: 1,
+      },
+    ],
+  });
+  var matrix = <QuestionMatrixDynamicModel>survey.getAllQuestions()[0];
+  var rows = matrix.visibleRows;
+  assert.equal(
+    rows[0].cells[0].question.getType(),
+    "newquestion",
+    "cell question has correct type"
+  );
+  rows[0].cells[0].question.contentQuestion.value = "b";
+  assert.equal(
+    rows[0].cells[0].question.value,
+    "b",
+    "set value into cell question"
+  );
+  assert.equal(rows[0].cells[0].value, "b", "set value into cell");
+  assert.deepEqual(matrix.value, [{ col1: "b" }], "set value into matrix");
   ComponentCollection.Instance.clear();
 });

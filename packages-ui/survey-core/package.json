@@ -28,7 +28,7 @@
   "scripts": {
     "test": "karma start",
     "release": "standard-version --message \"Release: %s [skip ci]\" ",
-    "build": "webpack --env.buildType dev --env.platform core && webpack --env.buildType prod --env.platform core"
+    "build": "webpack --env.buildType dev && webpack --env.buildType prod"
   },
   "dependencies": {
     "signature_pad": "^2.3.2",
@@ -77,6 +77,7 @@
     "webpack": "^4.43.0",
     "webpack-cli": "^3.3.12",
     "webpack-dev-server": "^3.11.0",
+    "webpack-merge": "^5.7.3",
     "webpack-svgstore-plugin": "4.0.1"
   }
 }

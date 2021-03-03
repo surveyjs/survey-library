@@ -112,6 +112,23 @@ module.exports = function(options) {
     filename:
       packagePath + (options.buildType === "prod" ? "modern.min.css" : "modern.css")
   });
+  
+  function removeLines(fileName, regex) {
+    replace.sync(
+      {
+        files: fileName,
+        from: regex,
+        to: ""
+      },
+      (error, changes) => {
+        if (error) {
+          return console.error("Error occurred:", error);
+        }
+        console.log("check me :     " + fileName);
+        console.log("Modified files:", changes.join(", "));
+      }
+    );
+  }
 
   var percentage_handler = function handler(percentage, msg) {
     if (0 === percentage) {
@@ -124,28 +141,18 @@ module.exports = function(options) {
           outputAsModuleFolder: true,
           headerText: dts_banner
         });
+        
+        var fileName = packagePath + "survey." + options.platformPrefix + ".d.ts";
 
+        removeLines(fileName, /^import\s+.*("|')survey-core("|');\s*(\n|\r)?/gm);
+        removeLines(fileName, /^import\s+.*("|')\..*("|');\s*(\n|\r)?/gm);
+        
         if (options.platform === "vue") {
-          replace(
-            {
-              files: packagePath + "survey.vue.d.ts",
-              from: /export default\s+\w+;/g,
-              to: ""
-            },
-            (error, changes) => {
-              if (error) {
-                return console.error("Error occurred:", error);
-              }
-              console.log("Modified files:", changes.join(", "));
-            }
-          );
-
-          fs
-            .createReadStream(packagePath + "survey.vue.js")
-            .pipe(fs.createWriteStream(packagePath + "survey-vue.js"));
-          fs
-            .createReadStream(packagePath + "survey.vue.min.js")
-            .pipe(fs.createWriteStream(packagePath + "survey-vue.min.js"));
+          removeLines(fileName, /export default\s+\w+;/g);
+          if (fs.existsSync(packagePath + "survey.vue.js"))
+            fs.copyFileSync(packagePath + "survey.vue.js", packagePath + "survey-vue.js");
+          if (fs.existsSync(packagePath + "survey.vue.min.js"))
+            fs.copyFileSync(packagePath + "survey.vue.min.js", packagePath + "survey-vue.min.js");
         }
 
         rimraf.sync(packagePath + "typings");

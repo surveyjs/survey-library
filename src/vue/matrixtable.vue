@@ -20,7 +20,7 @@
         :class="row.className"
         :key="question.inputId + '_' + row.id"
       >
-        <drag-drop-td :question="question" v-show="question.allowRowsDragAndDrop" />
+        <drag-drop-td :question="question" v-if="question.allowRowsDragAndDrop" />
         <survey-matrixcell
           :cell="cell"
           :question="question"

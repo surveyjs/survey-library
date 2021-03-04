@@ -22,7 +22,10 @@
             :key="'row-' + row.name + '-' + rowIndex"
             :class="row.rowClasses"
           >
-            <drag-drop-td :question="question" v-show="question.allowRowsDragAndDrop" />
+            <drag-drop-td
+              :question="question"
+              v-if="question.allowRowsDragAndDrop"
+            />
             <td :class="question.cssClasses.cell" v-show="question.hasRows">
               <survey-string :locString="row.locText" />
             </td>

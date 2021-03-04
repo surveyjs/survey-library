@@ -7,7 +7,7 @@ import { QuestionMatrixModel } from "survey-core";
 import { MatrixRowModel } from "survey-core";
 import { ReactQuestionFactory } from "./reactquestion_factory";
 import { Helpers } from "survey-core";
-import { generateDragDropTD } from "./generate-drag-drop-td";
+import {dragDropTD as getDragDropTD} from "./drag-drop-td"
 
 export class SurveyQuestionMatrix extends SurveyQuestionElementBase {
   constructor(props: any) {
@@ -52,7 +52,7 @@ export class SurveyQuestionMatrix extends SurveyQuestionElementBase {
     var visibleRows = this.question.visibleRows;
     for (var i = 0; i < visibleRows.length; i++) {
       var row = visibleRows[i];
-      var key = "row" + i;
+      var key = "row-" + row.name + "-" + i;
       rows.push(
         <SurveyQuestionMatrixRow
           key={key}
@@ -113,8 +113,8 @@ export class SurveyQuestionMatrixRow extends ReactSurveyElement {
     var rowsTD = null;
 
     if (this.question.allowRowsDragAndDrop) {
-      dragDropTD = generateDragDropTD(this.question);
-    }
+      dragDropTD = getDragDropTD(this.question);
+    };
     if (this.question.hasRows) {
       var rowText = this.renderLocString(this.row.locText);
       rowsTD = <td className={this.question.cssClasses.cell}>{rowText}</td>;

@@ -5,6 +5,7 @@
       <table :class="question.cssClasses.root">
         <thead v-if="question.showHeader">
           <tr>
+            <td v-if="question.allowRowsDragAndDrop"></td>
             <td v-show="question.hasRows"></td>
             <th
               v-for="(column, columnIndex) in question.visibleColumns"
@@ -18,9 +19,10 @@
         <tbody>
           <tr
             v-for="(row, rowIndex) in question.visibleRows"
-            :key="rowIndex"
+            :key="'row-' + row.name + '-' + rowIndex"
             :class="row.rowClasses"
           >
+            <drag-drop-td :question="question" v-show="question.allowRowsDragAndDrop" />
             <td :class="question.cssClasses.cell" v-show="question.hasRows">
               <survey-string :locString="row.locText" />
             </td>

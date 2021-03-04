@@ -64,8 +64,10 @@ export var modernCss = {
   progressButtonsListContainer: "sv_progress-buttons__list-container",
   progressButtonsList: "sv_progress-buttons__list",
   progressButtonsListElementPassed: "sv_progress-buttons__list-element--passed",
-  progressButtonsListElementCurrent: "sv_progress-buttons__list-element--current",
-  progressButtonsListElementNonClickable: "sv_progress-buttons__list-element--nonclickable",
+  progressButtonsListElementCurrent:
+    "sv_progress-buttons__list-element--current",
+  progressButtonsListElementNonClickable:
+    "sv_progress-buttons__list-element--nonclickable",
   progressButtonsPageTitle: "sv_progress-buttons__page-title",
   progressButtonsPageDescription: "sv_progress-buttons__page-description",
   page: {
@@ -242,6 +244,7 @@ export var modernCss = {
     detailRow: "sv-table__row sv-table__row--detail",
     detailRowText: "sv-table__cell--detail-rowtext",
     detailCell: "sv-table__cell--detail",
+    choiceCell: "sv-table__cell--choice",
     detailButton: "sv-table__cell--detail-button",
     detailButtonExpanded: "sv-table__cell--detail-button--expanded",
     detailIcon: "sv-detail-panel__icon",
@@ -260,6 +263,7 @@ export var modernCss = {
     row: "sv-table__row",
     detailRow: "sv-table__row sv-table__row--detail",
     detailCell: "sv-table__cell--detail",
+    choiceCell: "sv-table__cell--choice",
     detailButton: "sv-table__cell--detail-button",
     detailButtonExpanded: "sv-table__cell--detail-button--expanded",
     detailIcon: "sv-detail-panel__icon",

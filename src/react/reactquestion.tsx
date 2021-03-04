@@ -336,7 +336,7 @@ export class SurveyQuestionAndErrorsCell extends ReactSurveyElement {
       <td
         ref={this.cellRef}
         className={this.getCellClass() + " " + this.cssClasses.cell}
-        headers={this.question.isVisible ? this.getHeaderText() : ""}
+        headers={this.getHeaderText()}
         style={style}
       >
         {errorsTop}
@@ -355,6 +355,6 @@ export class SurveyQuestionAndErrorsCell extends ReactSurveyElement {
     return SurveyQuestion.renderQuestionBody(this.creator, this.question);
   }
   protected getHeaderText(): string {
-    return !!this["cell"] ? this["cell"].column.locTitle.renderedHtml : "";
+    return "";
   }
 }

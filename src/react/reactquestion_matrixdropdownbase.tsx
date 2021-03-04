@@ -14,7 +14,7 @@ import { Question } from "survey-core";
 import { SurveyQuestionCheckboxItem } from "./reactquestion_checkbox";
 import { SurveyQuestionRadioItem } from "./reactquestion_radiogroup";
 import { SurveyPanel } from "./panel";
-import {generateDragDropTD} from "./generate-drag-drop-td"
+import { generateDragDropTD } from "./generate-drag-drop-td";
 
 export class SurveyQuestionMatrixDropdownBase extends SurveyQuestionElementBase {
   constructor(props: any) {
@@ -104,7 +104,7 @@ export class SurveyQuestionMatrixDropdownBase extends SurveyQuestionElementBase 
         <tr>
           {dragDropTH}
           {headers}
-          </tr>
+        </tr>
       </thead>
     );
   }
@@ -137,7 +137,11 @@ export class SurveyQuestionMatrixDropdownBase extends SurveyQuestionElementBase 
     var matrixrow = [];
     var cells = row.cells;
 
-    matrixrow.push(this.question.allowRowsDragAndDrop ? generateDragDropTD(this.question): null);
+    matrixrow.push(
+      this.question.allowRowsDragAndDrop
+        ? generateDragDropTD(this.question)
+        : null
+    );
 
     for (var i = 0; i < cells.length; i++) {
       matrixrow.push(this.renderCell(cells[i], i, cssClasses));
@@ -295,29 +299,21 @@ export class SurveyQuestionMatrixDropdownCell extends SurveyQuestionAndErrorsCel
     );
   }
   protected getCellClass(): any {
-    var question = this.cell.question;
-    var cellClass = this.cell.className;
-    if (question.errors.length !== 0)
-      cellClass += " " + question.cssClasses.hasError;
-    return cellClass;
+    return this.cell.className;
   }
   protected getCellStyle(): any {
-    if (!this.cell.isChoice) {
-      var res: any = super.getCellStyle();
-      if (!!this.cell.width || !!this.cell.minWidth) {
-        if (!res) res = {};
-        if (!!this.cell.width) res.width = this.cell.width;
-        if (!!this.cell.minWidth) res.minWidth = this.cell.minWidth;
-      }
-
-      return res;
+    var res: any = super.getCellStyle();
+    if (!!this.cell.width || !!this.cell.minWidth) {
+      if (!res) res = {};
+      if (!!this.cell.width) res.width = this.cell.width;
+      if (!!this.cell.minWidth) res.minWidth = this.cell.minWidth;
     }
-    return { textAlign: "center" };
+
+    return res;
   }
 
   protected getHeaderText(): string {
-    var column = this.cell.cell && this.cell.cell.column;
-    return !!(column && column.locTitle) ? column.locTitle.renderedHtml : "";
+    return this.cell.headers;
   }
   protected renderQuestion(): JSX.Element {
     if (!this.cell.isChoice)

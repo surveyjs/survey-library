@@ -1316,6 +1316,53 @@ export class QuestionMatrixDropdownRenderedCell {
   public get isFirstChoice(): boolean {
     return this.choiceIndex === 0;
   }
+  public get css(): string {
+    return (
+      this.className +
+      (this.question.errors.length > 0
+        ? " " + this.question.koCss().hasError
+        : "")
+    );
+  }
+  public get headers(): string {
+    if (
+      this.cell &&
+      this.cell.column &&
+      this.cell.column.isShowInMultipleColumns
+    ) {
+      return this.item.locText.renderedHtml;
+    }
+    if (this.question && this.question.isVisible) {
+      return this.question.locTitle.renderedHtml;
+    }
+    return this.locTitle.renderedHtml || "";
+  }
+
+  public calculateFinalClassName(matrixCssClasses: any): string {
+    const questionCss = this.cell.question.cssClasses;
+    let className = "";
+    if (!!questionCss) {
+      className = "";
+      if (!!questionCss.itemValue) {
+        className += " " + questionCss.itemValue;
+      }
+      if (!!questionCss.asCell) {
+        if (!!className) className += "";
+        className += questionCss.asCell;
+      }
+    }
+    if (!className && !!matrixCssClasses) {
+      className = matrixCssClasses.cell;
+    }
+    className +=
+      this.question.errors.length > 0 ? " " + questionCss.hasError : "";
+
+    if (this.isChoice) {
+      className += " " + matrixCssClasses.choiceCell;
+    }
+    //'text-align': $data.isChoice ? 'center': ''
+    return className;
+  }
 }
 
 export class QuestionMatrixDropdownRenderedRow {
@@ -1692,7 +1739,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     }
     var rows = this.matrix.visibleRows;
     for (var i = 0; i < rows.length; i++) {
-      var rCell = this.createEditCell(rows[i].cells[index]);
+      var rCell = this.createEditCell(rows[i].cells[index], choice);
       rCell.item = choice;
       rCell.choiceIndex = choiceIndex >= 0 ? choiceIndex : i;
       res.cells.push(rCell);
@@ -1726,38 +1773,44 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     var choices = this.getMultipleColumnChoices(cell.column);
     if (!choices) return;
     for (var i = 0; i < choices.length; i++) {
-      var rCell = this.createEditCell(cell);
+      var rCell = this.createEditCell(cell, !isFooter ? choices[i] : undefined);
       if (!isFooter) {
-        rCell.item = choices[i];
+        //rCell.item = choices[i];
         rCell.choiceIndex = i;
       }
       rRow.cells.push(rCell);
     }
   }
   private createEditCell(
-    cell: MatrixDropdownCell
+    cell: MatrixDropdownCell,
+    choiceItem: any = undefined
   ): QuestionMatrixDropdownRenderedCell {
     var res = new QuestionMatrixDropdownRenderedCell();
     res.cell = cell;
     res.row = cell.row;
     res.question = cell.question;
     res.matrix = this.matrix;
-    var questionCss = cell.question.cssClasses;
-    var className = "";
-    if (!!questionCss) {
-      className = "";
-      if (!!questionCss.itemValue) {
-        className += " " + questionCss.itemValue;
-      }
-      if (!!questionCss.asCell) {
-        if (!!className) className += "";
-        className += questionCss.asCell;
-      }
-    }
-    if (!className && !!this.cssClasses.cell) {
-      className = this.cssClasses.cell;
-    }
-    res.className = className;
+    res.item = choiceItem;
+
+    res.className = res.calculateFinalClassName(this.cssClasses);
+    //res.css = res.calcCss(this.cssClasses.cell);
+
+    // var questionCss = cell.question.cssClasses;
+    // var className = "";
+    // if (!!questionCss) {
+    //   className = "";
+    //   if (!!questionCss.itemValue) {
+    //     className += " " + questionCss.itemValue;
+    //   }
+    //   if (!!questionCss.asCell) {
+    //     if (!!className) className += "";
+    //     className += questionCss.asCell;
+    //   }
+    // }
+    // if (!className && !!this.cssClasses.cell) {
+    //   className = this.cssClasses.cell;
+    // }
+    //res.className = className;
     return res;
   }
   private createMutlipleColumnsFooter(

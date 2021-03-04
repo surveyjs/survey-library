@@ -112,13 +112,10 @@ export class MatrixCell extends Vue {
   get hasErrorsOnBottom() {
     return this.cell.showErrorOnBottom;
   }
-  getHeaders() {
-    var element = this.cell.question;
-    if (!element) return "";
-    return element.isVisible ? this.cell.cell.column.locTitle.renderedHtml : "";
+  getHeaders(): string {
+    return this.cell.headers;
   }
   getCellStyle() {
-    if (this.cell.isChoice) return { "text-align": "center" };
     if (!!this.cell.width || !!this.cell.minWidth)
       return { width: this.cell.width, minWidth: this.cell.minWidth };
     return null;

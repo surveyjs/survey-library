@@ -434,6 +434,10 @@ export class QuestionCustomModel extends QuestionCustomModelBase {
       this.contentQuestion.onSurveyValueChanged(newValue);
     }
   }
+  protected getValueCore() {
+    if (!!this.contentQuestion) return this.contentQuestion.value;
+    return super.getValueCore();
+  }
   protected initElement(el: SurveyElement) {
     super.initElement(el);
     if (!!el) {

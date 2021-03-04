@@ -2,7 +2,7 @@
   <table :class="question.cssClasses.root">
     <thead v-if="table.showHeader">
       <tr>
-        <th v-show="question.allowRowsDragAndDrop"></th>
+        <th v-if="question.allowRowsDragAndDrop"></th>
         <th
           :class="question.cssClasses.headerCell"
           v-for="cell in table.headerRow.cells"

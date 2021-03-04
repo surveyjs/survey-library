@@ -14,7 +14,7 @@ import { Question } from "survey-core";
 import { SurveyQuestionCheckboxItem } from "./reactquestion_checkbox";
 import { SurveyQuestionRadioItem } from "./reactquestion_radiogroup";
 import { SurveyPanel } from "./panel";
-import {generateDragDropTD} from "./generate-drag-drop-td"
+import {dragDropTD} from "./drag-drop-td"
 
 export class SurveyQuestionMatrixDropdownBase extends SurveyQuestionElementBase {
   constructor(props: any) {
@@ -137,7 +137,7 @@ export class SurveyQuestionMatrixDropdownBase extends SurveyQuestionElementBase 
     var matrixrow = [];
     var cells = row.cells;
 
-    matrixrow.push(this.question.allowRowsDragAndDrop ? generateDragDropTD(this.question): null);
+    matrixrow.push(this.question.allowRowsDragAndDrop ? dragDropTD(this.question): null);
 
     for (var i = 0; i < cells.length; i++) {
       matrixrow.push(this.renderCell(cells[i], i, cssClasses));

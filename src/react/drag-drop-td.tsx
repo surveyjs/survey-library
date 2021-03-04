@@ -1,6 +1,6 @@
 import * as React from "react";
 
-export const generateDragDropTD = (question:any) => {
+export const dragDropTD = (question:any) => {
     return (
       <td key={question.name + "-td-d&d"} className={question.cssClasses.cell}>
         <svg

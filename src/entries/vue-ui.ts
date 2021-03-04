@@ -53,6 +53,7 @@ export { SignaturePad } from "../vue/signaturepad.vue";
 export { SurveyHeader } from "../vue/header.vue";
 export { Custom } from "../vue/custom.vue";
 export { Composite } from "../vue/composite.vue";
+export { DragDropTD } from "../vue/drag-drop-td.vue";
 
 export { TitleContent } from "../vue/titlecontent.vue";
 export { TitleActions } from "../vue/components/title-actions/title-actions.vue";

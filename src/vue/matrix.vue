@@ -5,8 +5,8 @@
       <table :class="question.cssClasses.root">
         <thead v-if="question.showHeader">
           <tr>
-            <th v-show="question.allowRowsDragAndDrop"></th>
-            <th v-show="question.hasRows"></th>
+            <td v-show="question.allowRowsDragAndDrop"></td>
+            <td v-show="question.hasRows"></td>
             <th
               v-for="(column, columnIndex) in question.visibleColumns"
               :key="columnIndex"

@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.8.34](https://github.com/surveyjs/survey-library/compare/v1.8.33...v1.8.34) (2021-03-05)
+
+
+### Bug Fixes
+
+* Simple custom component doesn't work in matrixdynamic [#2695](https://github.com/surveyjs/survey-library/issues/2695) ([08cfe92](https://github.com/surveyjs/survey-library/commit/08cfe92f8a32d813e25f078fba1c4e4229a9958c))
+
 ### [1.8.33](https://github.com/surveyjs/survey-library/compare/v1.8.32...v1.8.33) (2021-03-02)
 
 

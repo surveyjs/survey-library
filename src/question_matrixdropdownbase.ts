@@ -1335,7 +1335,10 @@ export class QuestionMatrixDropdownRenderedCell {
     if (this.question && this.question.isVisible) {
       return this.question.locTitle.renderedHtml;
     }
-    return this.locTitle.renderedHtml || "";
+    if (this.hasTitle) {
+      return this.locTitle.renderedHtml || "";
+    }
+    return "";
   }
 
   public calculateFinalClassName(matrixCssClasses: any): string {

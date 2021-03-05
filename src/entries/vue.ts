@@ -79,3 +79,5 @@ export { ActionBar } from "../vue/components/action-bar/action-bar.vue";
 export { SvgIcon } from "../vue/components/svg-icon/svg-icon.vue";
 export { Popup } from "../vue/components/popup/popup.vue";
 export { List } from "../vue/components/list/list.vue";
+export { DetailButton } from "../vue/components/matrix-actions/detail-button/detail-button.vue";
+export { RemoveButton } from "../vue/components/matrix-actions/remove-button/remove-button.vue";

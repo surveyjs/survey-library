@@ -1,0 +1,13 @@
+<button
+type="button"
+data-bind="css:question.getDetailPanelButtonCss(row), click:row.showHideDetailPanelClick, attr:{ 'aria-expanded': question.getIsDetailPanelShowing($data.row) ? 'true': 'false', 'aria-controls': question.getIsDetailPanelShowing($data.row) ? row.detailPanelId: false}"
+>
+<span
+  data-bind="css: question.getDetailPanelIconCss(row)"
+></span>
+</button>
+<!-- ko if: question.detailPanelMode === "popup" && question.getKoPopupIsVisible(row) -->
+<sv-popup
+params="contentComponentName: 'sv-panel', contentComponentData: { question: row.detailPanel, onItemSelect: function(){debugger;} }, isVisible: question.getKoPopupIsVisible(row), isModal: true, onHide: function() { row.hideDetailPanel() }, verticalPosition: 'top', horizontalPosition: 'right'"
+></sv-popup>
+<!-- /ko -->

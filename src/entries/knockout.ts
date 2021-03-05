@@ -64,6 +64,9 @@ export * from "../knockout/components/progress/progress";
 export * from "../knockout/components/title-actions/title-actions";
 export * from "../knockout/components/string-editor";
 export * from "../knockout/components/string-viewer";
+export * from "../knockout/components/matrix-actions/detail-button/detail-button"
+export * from "../knockout/components/matrix-actions/remove-button/remove-button"
+
 
 export * from "../knockout/components/default-title/default-title";
 export * from "../knockout/components/list/list";

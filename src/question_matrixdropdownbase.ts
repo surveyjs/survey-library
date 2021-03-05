@@ -778,7 +778,6 @@ export class MatrixDropdownRowModelBase
 
   public cells: Array<MatrixDropdownCell> = [];
   public showHideDetailPanelClick: any;
-  public actions: Array<IActionBarItem> = null;
 
   constructor(data: IMatrixDropdownData, value: any) {
     this.data = data;
@@ -1478,7 +1477,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     this.setPropertyValue("showHeader", isShown);
     if (!isShown) return;
     this.headerRowValue = new QuestionMatrixDropdownRenderedRow();
-    if (this.hasActionCellInRows("left")) {
+    if (this.hasActionCellInRows("start")) {
       this.headerRow.cells.push(this.createHeaderCell(null));
     }
     if (this.matrix.hasRowText && this.matrix.showHeader) {
@@ -1505,14 +1504,14 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
         );
       }
     }
-    if (this.hasActionCellInRows("right")) {
+    if (this.hasActionCellInRows("end")) {
       this.headerRow.cells.push(this.createHeaderCell(null));
     }
   }
   protected buildFooter() {
     if (!this.showFooter) return;
     this.footerRowValue = new QuestionMatrixDropdownRenderedRow();
-    if (this.getHasDetailPanelInRows()) {
+    if (this.hasActionCellInRows("start")) {
       this.footerRow.cells.push(this.createHeaderCell(null));
     }
     if (this.matrix.hasRowText) {
@@ -1530,7 +1529,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
         this.footerRow.cells.push(this.createEditCell(cell));
       }
     }
-    if (this.hasRemoveRows) {
+    if (this.hasActionCellInRows("end")) {
       this.footerRow.cells.push(this.createHeaderCell(null));
     }
   }
@@ -1540,15 +1539,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
       : this.buildVerticalRows();
     this.setPropertyValue("rows", rows);
   }
-  private getHasDetailPanelInRows(): boolean {
-    if (!this.matrix.isColumnLayoutHorizontal) return false;
-    var rows = this.matrix.visibleRows;
-    for (var i = 0; i < rows.length; i++) {
-      if (rows[i].hasPanel) return true;
-    }
-    return false;
-  }
-  private hasActionCellInRows(location: "left" | "right"): boolean {
+  private hasActionCellInRows(location: "start" | "end"): boolean {
     var rows = this.matrix.visibleRows;
     return (
       rows.filter(
@@ -1583,59 +1574,9 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
       renderedRows.push(this.createDetailPanelRow(row, renderedRow));
     }
   }
-
-  private getRowActions(
-    row: MatrixDropdownRowModelBase,
-    location: "left" | "right"
-  ) {
-    if (!row.actions) {
-      var actions: Array<IActionBarItem> = [];
-      if (this.hasRemoveRows) {
-        actions.push(
-          new ActionBarItem({
-            id: "",
-            title: this.matrix.removeRowText,
-            location: "right",
-            innerCss:
-              this.cssClasses.button + " " + this.cssClasses.buttonRemove,
-            action: () => {
-              this.matrix.removeRowUI(row);
-            },
-          })
-        );
-      }
-      if (row.hasPanel) {
-        actions.push(
-          new ActionBarItem({
-            id: "",
-            location: "left",
-            component: "sv-matrix-detail-button",
-            data: { row: row, question: this.matrix },
-            action: () => {
-              row.showHideDetailPanelClick();
-            },
-          })
-        );
-      }
-      if (!!this.matrix.survey)
-        actions = this.matrix.survey.getUpdatedMatrixRowActions(
-          this.matrix,
-          row,
-          actions
-        );
-      row.actions = actions;
-    }
-    return row.actions.filter((action) => {
-      if (!action.location) {
-        action.location = "left";
-      }
-      return action.location === location;
-    });
-  }
-
   private getRowActionsCell(
     row: MatrixDropdownRowModelBase,
-    location: "left" | "right"
+    location: "start" | "end"
   ) {
     const rowActions = this.getRowActions(row, location);
     if (!this.isValueEmpty(rowActions)) {
@@ -1649,17 +1590,56 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     }
     return null;
   }
-
+  private getRowActions(
+    row: MatrixDropdownRowModelBase,
+    location: "start" | "end"
+  ) {
+    var actions: Array<IActionBarItem> = [];
+    this.setDefaultRowActions(row, actions);
+    if (!!this.matrix.survey)
+      actions = this.matrix.survey.getUpdatedMatrixRowActions(
+        this.matrix,
+        row,
+        actions
+      );
+    return actions.filter((action) => {
+      if (!action.location) {
+        action.location = "start";
+      }
+      return action.location === location;
+    });
+  }
+  private setDefaultRowActions(
+    row: MatrixDropdownRowModelBase,
+    actions: Array<IActionBarItem>
+  ) {
+    if (this.hasRemoveRows && this.canRemoveRow(row)) {
+      actions.push(
+        new ActionBarItem({
+          id: "",
+          location: "end",
+          component: "sv-matrix-remove-button",
+          data: { row: row, question: this.matrix },
+        })
+      );
+    }
+    if (row.hasPanel) {
+      actions.push(
+        new ActionBarItem({
+          id: "",
+          location: "start",
+          component: "sv-matrix-detail-button",
+          data: { row: row, question: this.matrix },
+        })
+      );
+    }
+  }
   private createHorizontalRow(
     row: MatrixDropdownRowModelBase,
     useAsHeader: boolean
   ): QuestionMatrixDropdownRenderedRow {
     var res = new QuestionMatrixDropdownRenderedRow();
-    const leftRowActionsCell = this.getRowActionsCell(row, "left");
-    const rightRowActionsCell = this.getRowActionsCell(row, "right");
-    if (!!leftRowActionsCell) {
-      res.cells.push(leftRowActionsCell);
-    }
+    this.addRowActionsCell(row, res, "start");
     if (this.matrix.hasRowText) {
       var renderedCell = this.createTextCell(row.locText);
       res.cells.push(renderedCell);
@@ -1684,10 +1664,23 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
         }
       }
     }
-    if (!!rightRowActionsCell) {
-      res.cells.push(rightRowActionsCell);
-    }
+    this.addRowActionsCell(row, res, "end");
     return res;
+  }
+  private addRowActionsCell(
+    row: MatrixDropdownRowModelBase,
+    renderedRow: QuestionMatrixDropdownRenderedRow,
+    location: "start" | "end"
+  ) {
+    const actions = this.getRowActionsCell(row, location);
+    if (this.hasActionCellInRows(location)) {
+      if (!!actions) renderedRow.cells.push(actions);
+      else {
+        var cell = new QuestionMatrixDropdownRenderedCell();
+        cell.isEmpty = true;
+        renderedRow.cells.push(cell);
+      }
+    }
   }
   private createDetailPanelRow(
     row: MatrixDropdownRowModelBase,
@@ -1703,21 +1696,21 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     }
     buttonCell.isEmpty = true;
     res.cells.push(buttonCell);
-    var deleteCell = null;
-    if (this.hasRemoveRows) {
-      deleteCell = new QuestionMatrixDropdownRenderedCell();
-      deleteCell.isEmpty = true;
+    var actionsCell = null;
+    if (this.hasActionCellInRows("end")) {
+      actionsCell = new QuestionMatrixDropdownRenderedCell();
+      actionsCell.isEmpty = true;
     }
     var cell = new QuestionMatrixDropdownRenderedCell();
     cell.panel = row.detailPanel;
     cell.colSpans =
       renderedRow.cells.length -
       buttonCell.colSpans -
-      (!!deleteCell ? deleteCell.colSpans : 0);
+      (!!actionsCell ? actionsCell.colSpans : 0);
     cell.className = this.cssClasses.detailPanelCell;
     res.cells.push(cell);
-    if (!!deleteCell) {
-      res.cells.push(deleteCell);
+    if (!!actionsCell) {
+      res.cells.push(actionsCell);
     }
     return res;
   }
@@ -1735,8 +1728,8 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
         }
       }
     }
-    if (this.hasRemoveRows) {
-      renderedRows.push(this.createVerticalRemoveRow());
+    if (this.hasActionCellInRows("end")) {
+      renderedRows.push(this.createEndVerticalActionRow());
     }
     return renderedRows;
   }
@@ -1778,16 +1771,17 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
         this.createEditCell(this.matrix.visibleTotalRow.cells[index])
       );
     }
+
     return res;
   }
-  private createVerticalRemoveRow(): QuestionMatrixDropdownRenderedRow {
+  private createEndVerticalActionRow(): QuestionMatrixDropdownRenderedRow {
     var res = new QuestionMatrixDropdownRenderedRow();
     if (this.matrix.showHeader) {
       res.cells.push(this.createTextCell(null));
     }
     var rows = this.matrix.visibleRows;
     for (var i = 0; i < rows.length; i++) {
-      res.cells.push(this.createRemoveRowCell(rows[i]));
+      res.cells.push(this.getRowActionsCell(rows[i], "end"));
     }
     if (this.matrix.hasTotal) {
       res.cells.push(this.createTextCell(null));

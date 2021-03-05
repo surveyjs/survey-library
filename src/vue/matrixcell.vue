@@ -5,23 +5,10 @@
     :style="getCellStyle()"
     :colspan="cell.colSpans"
   >
-    <sv-action-bar v-if="cell.isActionsCell" :items="cell.item.getData()"></sv-action-bar>
-    <button
-      v-if="cell.isShowHideDetail"
-      type="button"
-      :class="question.getDetailPanelButtonCss(cell.row)"
-      @click="showHideDetailPanelClick()"
-      v-bind:aria-expanded="
-        question.getIsDetailPanelShowing(cell.row) ? 'true' : 'false'
-      "
-      :aria-controls="
-        question.getIsDetailPanelShowing(cell.row)
-          ? cell.row.detailPanelId
-          : null
-      "
-    >
-      <span :class="question.getDetailPanelIconCss(cell.row)"></span>
-    </button>
+    <sv-action-bar
+      v-if="cell.isActionsCell"
+      :items="cell.item.getData()"
+    ></sv-action-bar>
     <component
       v-if="cell.hasPanel"
       :is="getComponentName(cell.panel)"
@@ -70,17 +57,6 @@
         :location="'bottom'"
       />
     </div>
-    <button
-      v-if="cell.isRemoveRow"
-      type="button"
-      :class="
-        question.cssClasses.button + ' ' + question.cssClasses.buttonRemove
-      "
-      @click="removeRowClick()"
-    >
-      <span>{{ question.removeRowText }}</span>
-      <span :class="question.cssClasses.iconRemove"></span>
-    </button>
     <survey-string v-if="cell.hasTitle" :locString="cell.locTitle" />
     <span v-if="!!cell.requiredText">{{ cell.requiredText }}</span>
   </td>
@@ -134,12 +110,6 @@ export class MatrixCell extends Vue {
     if (isChecked) itemClass += " " + cssClasses.itemChecked;
     if (allowHover) itemClass += " " + cssClasses.itemHover;
     return itemClass;
-  }
-  removeRowClick() {
-    this.question.removeRowUI(this.cell.row);
-  }
-  showHideDetailPanelClick() {
-    this.cell.row.showHideDetailPanelClick();
   }
   mounted() {
     if (!this.cell.hasQuestion || !this.question || !this.question.survey)

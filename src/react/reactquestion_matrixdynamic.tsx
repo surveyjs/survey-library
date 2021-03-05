@@ -1,6 +1,4 @@
 import * as React from "react";
-import { ReactSurveyElement } from "./reactquestion_element";
-import { MatrixDropdownRowModelBase } from "../question_matrixdropdownbase";
 import { QuestionMatrixDynamicModel } from "../question_matrixdynamic";
 import { ReactQuestionFactory } from "./reactquestion_factory";
 import { SurveyQuestionMatrixDropdownBase } from "./reactquestion_matrixdropdownbase";
@@ -69,43 +67,6 @@ export class SurveyQuestionMatrixDynamic extends SurveyQuestionMatrixDropdownBas
           <span className={cssClasses.iconAdd} />
         </button>
       </div>
-    );
-  }
-  renderRemoveButton(row: MatrixDropdownRowModelBase): JSX.Element {
-    return (
-      <SurveyQuestionMatrixDynamicRemoveButton
-        question={this.question}
-        row={row}
-        cssClasses={this.question.cssClasses}
-      />
-    );
-  }
-}
-
-export class SurveyQuestionMatrixDynamicRemoveButton extends ReactSurveyElement {
-  constructor(props: any) {
-    super(props);
-    this.handleOnRowRemoveClick = this.handleOnRowRemoveClick.bind(this);
-  }
-  private get question(): QuestionMatrixDynamicModel {
-    return this.props.question;
-  }
-  private get row(): MatrixDropdownRowModelBase {
-    return this.props.row;
-  }
-  handleOnRowRemoveClick(event: any) {
-    this.question.removeRowUI(this.row);
-  }
-  protected renderElement(): JSX.Element {
-    return (
-      <button
-        className={this.cssClasses.button + " " + this.cssClasses.buttonRemove}
-        type="button"
-        onClick={this.handleOnRowRemoveClick}
-      >
-        <span>{this.question.removeRowText}</span>
-        <span className={this.cssClasses.iconRemove} />
-      </button>
     );
   }
 }

@@ -33,24 +33,7 @@
         <!-- ko ifnot: $parent.detailPanelMode === "popup" && $data.isDetailRow -->
         <tr data-bind="css:$data.className">
           <!-- ko foreach: $data.cells -->
-          <!-- ko if: $data.isShowHideDetail -->
-          <td data-bind="css:$data.className">
-            <button
-              type="button"
-              data-bind="css:question.getDetailPanelButtonCss($data.row), click:row.showHideDetailPanelClick, attr:{ 'aria-expanded': question.getIsDetailPanelShowing($data.row) ? 'true': 'false', 'aria-controls': question.getIsDetailPanelShowing($data.row) ? row.detailPanelId: false}"
-            >
-              <span
-                data-bind="css: question.getDetailPanelIconCss($data.row)"
-              ></span>
-            </button>
-            <!-- ko if: question.detailPanelMode === "popup" && question.getKoPopupIsVisible($parent.row) -->
-            <sv-popup
-              params="contentComponentName: 'sv-panel', contentComponentData: { question: $parent.row.detailPanel, onItemSelect: function(){debugger;} }, isVisible: question.getKoPopupIsVisible($parent.row), isModal: true, onHide: function() { row.hideDetailPanel() }, verticalPosition: 'top', horizontalPosition: 'right'"
-            ></sv-popup>
-            <!-- /ko -->
-          </td>
-          <!-- /ko -->
-           <!-- ko if: $data.isActionsCell -->
+          <!-- ko if: $data.isActionsCell -->
            <td data-bind="css:$data.className, attr: {colspan: $data.colSpans}">
             <sv-action-bar params="items: $data.item.getData()"></sv-action-bar>
           </td>
@@ -75,17 +58,6 @@
             <!-- ko if: $data.requiredText -->
             <span data-bind="text: $data.requiredText"></span>
             <!-- /ko -->
-          </td>
-          <!-- /ko -->
-          <!-- ko if: $data.isRemoveRow -->
-          <td data-bind="css: $data.className">
-            <button
-              type="button"
-              data-bind="click:question.koRemoveRowClick, css: question.koCss().button + ' ' + question.koCss().buttonRemove"
-            >
-              <span data-bind="text: question.removeRowText"></span>
-              <span data-bind="css: question.koCss().iconRemove"></span>
-            </button>
           </td>
           <!-- /ko -->
           <!-- /ko -->

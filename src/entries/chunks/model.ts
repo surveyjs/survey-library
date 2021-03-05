@@ -80,7 +80,7 @@ export {
 } from "../../question_matrixdynamic";
 export {
   MatrixRowModel,
-  MartrixCells,
+  MatrixCells,
   QuestionMatrixModel,
 } from "../../question_matrix";
 export {

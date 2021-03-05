@@ -3197,23 +3197,23 @@ QUnit.test("matrix dynamic + renderedTable.rows", function (assert) {
   assert.equal(cells[0].hasTitle, false, "col1");
   assert.equal(cells[0].hasQuestion, true, "col1 question");
   assert.equal(cells[0].question.getType(), "text", "col1.cellType");
-  assert.notOk(cells[0].isRemoveRow, "col1 do not have remove row");
+  assert.notOk(cells[0].isActionsCell, "col1 do not have remove row (in actions cell)");
   assert.ok(cells[0].row, "col1 has row property set");
 
   assert.equal(cells[1].hasTitle, false, "col2");
   assert.equal(cells[1].hasQuestion, true, "col2 question");
   assert.equal(cells[1].question.getType(), "dropdown", "col2.cellType");
-  assert.notOk(cells[1].isRemoveRow, "col2 do not have remove row");
+  assert.notOk(cells[1].isActionsCell, "col2 do not have remove row (in actions cell)");
 
   assert.equal(cells[2].hasTitle, false, "remove row");
   assert.equal(cells[2].hasQuestion, false, "col2 question");
-  assert.equal(cells[2].isRemoveRow, true, "is Remove row");
+  assert.equal(cells[2].isActionsCell, true, "is Remove row (in actions cell)");
   assert.ok(!!cells[2].row, "is Remove has row property");
 
   cells = rows[2].cells;
   assert.equal(cells[0].question.getType(), "text", "col1.cellType");
   assert.equal(cells[1].question.getType(), "dropdown", "col2.cellType");
-  assert.equal(cells[2].isRemoveRow, true, "is Remove row");
+  assert.equal(cells[2].isActionsCell, true, "is Remove row (in actions cell)");
 
   matrix.minRowCount = 3;
   cells = matrix.renderedTable.rows[0].cells;
@@ -3252,10 +3252,10 @@ QUnit.test("matrix dynamic + renderedTable.rows", function (assert) {
   cells = rows[2].cells;
   assert.equal(cells.length, 4, "column + 3 rows");
   assert.equal(cells[0].locTitle.renderedHtml, "", "for column header");
-  assert.notOk(cells[0].isRemoveRow, "not a remove button");
-  assert.equal(cells[1].isRemoveRow, true, "row1: it is a remove row");
+  assert.notOk(cells[0].isActionsCell, "not a remove button (in actions cell)");
+  assert.equal(cells[1].isActionsCell, true, "row1: it is a remove row (in actions cell)");
   assert.ok(cells[1].row, "row1: it has a row");
-  assert.equal(cells[3].isRemoveRow, true, "row3: it is a remove row");
+  assert.equal(cells[3].isActionsCell, true, "row3: it is a remove row (in actions cell)");
   assert.ok(cells[3].row, "row3: it has a row");
 
   matrix.minRowCount = 3;
@@ -3370,10 +3370,10 @@ QUnit.test("matrix dynamic + renderedTable + totals", function (assert) {
   cells = rows[2].cells;
   assert.equal(cells.length, 5, "column + 3 rows + total");
   assert.equal(cells[0].locTitle.renderedHtml, "", "for column header");
-  assert.notOk(cells[0].isRemoveRow, "not a remove button");
-  assert.equal(cells[1].isRemoveRow, true, "row1: it is a remove row");
+  assert.notOk(cells[0].isActionsCell, "not a remove button (in actions cell)");
+  assert.equal(cells[1].isActionsCell, true, "row1: it is a remove row (in actions cell)");
   assert.ok(cells[1].row, "row1: it has a row");
-  assert.equal(cells[3].isRemoveRow, true, "row3: it is a remove row");
+  assert.equal(cells[3].isActionsCell, true, "row3: it is a remove row (in actions cell)");
   assert.ok(cells[3].row, "row3: it has a row");
   assert.equal(cells[4].locTitle.renderedHtml, "", "for total");
 });
@@ -3627,19 +3627,19 @@ QUnit.test("survey.onMatrixAllowRemoveRow", function (assert) {
   assert.equal(matrix.canRemoveRows, true, "The row can be removed");
   var table = matrix.renderedTable;
   assert.equal(
-    table.rows[0].cells[2].isRemoveRow,
+    table.rows[0].cells[2].isActionsCell,
     true,
-    "The first row can be removed"
+    "The first row can be removed (in actions cell)"
   );
   assert.equal(
-    table.rows[1].cells[2].isRemoveRow,
+    table.rows[1].cells[2].isActionsCell,
     false,
-    "The second row can't be removed"
+    "The second row can't be removed (in actions cell)"
   );
   assert.equal(
-    table.rows[2].cells[2].isRemoveRow,
+    table.rows[2].cells[2].isActionsCell,
     true,
-    "The third row can be removed"
+    "The third row can be removed (in actions cell)"
   );
 });
 
@@ -5252,7 +5252,7 @@ QUnit.test("Detail panel, rendered table", function (assert) {
     5,
     "Header has for detail button space two"
   );
-  assert.equal(rows[0].cells[0].isShowHideDetail, true, "it is a detail cell");
+  assert.equal(rows[0].cells[0].isActionsCell, true, "it is a detail cell (in actions cell)");
   var lastrowId = rows[1].id;
   matrix.visibleRows[0].showDetailPanel();
   assert.equal(rows.length, 3, "detail row is added");
@@ -5566,9 +5566,10 @@ QUnit.test("Detail panel, rendered table and className", function (assert) {
   var rows = matrix.renderedTable.rows;
   assert.equal(
     rows[0].cells[0].className,
-    "sv_matrix_cell_detail",
-    "Detail button css"
+    "sv_matrix_cell sv_matrix_cell_actions",
+    "Detail button css (in actions cell)"
   );
+  
   assert.equal(
     rows[0].cells[1].className,
     "sv_matrix_cell sv_matrix_cell_detail_rowtext",
@@ -5796,7 +5797,7 @@ QUnit.test("Row actions, rendered table and className", function (assert) {
   survey.onGetMatrixRowActions.add((_, opt) => {
     opt.actions = [
       { title: "Action 1" },
-      { title: "Action 2", location: "right" },
+      { title: "Action 2", location: "end" },
     ];
   });
   var matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
@@ -5813,7 +5814,7 @@ QUnit.test("Row actions, rendered table and className", function (assert) {
   );
   assert.deepEqual(
     rows[0].cells[0].item.getData(),
-    [{ title: "Action 1", location: "left" }],
+    [{ title: "Action 1", location: "start" }],
     "location: left row actions"
   );
   assert.equal(rows[0].cells[1].className, "sv_matrix_cell", "text cell");
@@ -5825,7 +5826,26 @@ QUnit.test("Row actions, rendered table and className", function (assert) {
   );
   assert.deepEqual(
     rows[0].cells[3].item.getData(),
-    [{ title: "Action 2", location: "right" }],
+    [{ title: "Action 2", location: "end" }],
     "location: right row actions"
   );
+});
+QUnit.skip("onGetMatrixRowActions should be called 1 time", function (assert) {
+  var survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdropdown",
+        name: "matrix",
+        columns: [{ name: "col1" }],
+        rows: ["row1"],
+      },
+    ],
+  });
+  var count = 0;
+  survey.onGetMatrixRowActions.add((_, opt) => {
+    count++;
+  });
+  var matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+  matrix.renderedTable;
+  assert.equal(count, 1);
 });

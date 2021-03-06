@@ -17,6 +17,9 @@
       <!-- ko if: question.koTable().showHeader -->
       <thead>
         <tr>
+          <!-- ko if: question.allowRowsDragAndDrop -->
+          <th></th>
+          <!-- /ko -->
           <!-- ko foreach: question.koTable().headerRow.cells -->
           <th
             data-bind="style: { minWidth: $data.minWidth, width: $data.width }, css: question.koCss().headerCell"
@@ -34,6 +37,10 @@
         <!-- ko foreach: question.koTable().rows -->
         <!-- ko ifnot: $parent.detailPanelMode === "popup" && $data.isDetailRow -->
         <tr data-bind="css:$data.className">
+          <!-- ko if: question.allowRowsDragAndDrop -->
+          <!-- ko component: { name: 'sv-drag-drop-td', params: { question: question } } -->
+          <!-- /ko -->
+          <!-- /ko -->
           <!-- ko foreach: $data.cells -->
           <!-- ko if: $data.isShowHideDetail -->
           <td data-bind="css:$data.className">

@@ -69,6 +69,7 @@ export * from "../knockout/components/string-viewer";
 export * from "../knockout/components/default-title/default-title";
 export * from "../knockout/components/list/list";
 export * from "../knockout/components/svg-icon/svg-icon";
+export * from "../knockout/components/drag-drop-td/drag-drop-td";
 //export * from "../utils/resonsibilitymanager";
 //export { unwrap } from "../utils/utils";
 //Uncomment to include the "date" question type.

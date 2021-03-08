@@ -1,4 +1,4 @@
-import { Serializer } from "./jsonobject";
+import { Serializer, property } from "./jsonobject";
 import { HashTable, Helpers } from "./helpers";
 import {
   Base,
@@ -495,20 +495,36 @@ export class PanelModelBase
    * Returns question values on the current page
    */
   public getValue(): any {
-    var data = {};
+    var data: any = {};
     var questions = this.questions;
 
     for (var i = 0; i < questions.length; i++) {
       var q = questions[i];
       if (q.isEmpty()) continue;
       var valueName = q.getValueName();
-      (<any>data)[valueName] = q.value;
+      data[valueName] = q.value;
       if (!!this.data) {
         var comment = this.data.getComment(valueName);
         if (!!comment) {
-          (<any>data)[valueName + settings.commentPrefix] = comment;
+          data[valueName + settings.commentPrefix] = comment;
         }
       }
+    }
+    return data;
+  }
+  /**
+   * Return questions values as a JSON object with display text. For example, for dropdown, it would return the item text instead of item value.
+   * @param keysAsText Set this value to true, to return key (in matrices questions) as display text as well.
+   */
+  public getDisplayValue(keysAsText: boolean): any {
+    var data: any = {};
+    var questions = this.questions;
+
+    for (var i = 0; i < questions.length; i++) {
+      var q = questions[i];
+      if (q.isEmpty()) continue;
+      var valueName = keysAsText ? q.title : q.getValueName();
+      data[valueName] = q.getDisplayValue(keysAsText);
     }
     return data;
   }
@@ -632,8 +648,12 @@ export class PanelModelBase
       }
     }
     if (!!rec.fireCallback) {
+      if (!!this.survey) {
+        this.survey.beforeSettingPanelErrors(this, errors);
+      }
       this.errors = errors;
     }
+    this.updateVisibleErrors();
   }
   //ISurveyErrorOwner
   getErrorCustomText(text: string, error: SurveyError): string {

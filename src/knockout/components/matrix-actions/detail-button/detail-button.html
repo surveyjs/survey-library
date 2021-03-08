@@ -8,6 +8,6 @@ data-bind="css:question.getDetailPanelButtonCss(row), click:row.showHideDetailPa
 </button>
 <!-- ko if: question.detailPanelMode === "popup" && question.getKoPopupIsVisible(row) -->
 <sv-popup
-params="contentComponentName: 'sv-panel', contentComponentData: { question: row.detailPanel, onItemSelect: function(){debugger;} }, isVisible: question.getKoPopupIsVisible(row), isModal: true, onHide: function() { row.hideDetailPanel() }, verticalPosition: 'top', horizontalPosition: 'right'"
+params="contentComponentName: 'sv-panel', contentComponentData: { question: row.detailPanel, onItemSelect: function(){} }, isVisible: question.getKoPopupIsVisible(row), isModal: true, onHide: function() { row.hideDetailPanel() }, verticalPosition: 'top', horizontalPosition: 'right'"
 ></sv-popup>
 <!-- /ko -->

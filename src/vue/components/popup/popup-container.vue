@@ -49,7 +49,7 @@
 <script lang="ts">
 import Vue from "vue";
 import { Prop, Component } from "vue-property-decorator";
-import { PopupViewModel } from "../../../popup";
+import { PopupViewModel } from "survey-core";
 import { BaseVue } from "../../base";
 
 @Component

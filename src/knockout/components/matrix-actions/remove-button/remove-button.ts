@@ -2,7 +2,7 @@ import * as ko from "knockout";
 
 const template = require("./remove-button.html");
 
-export var MatrixRemoveButton: any;
+export var SurveyQuestionMatrixDynamicRemoveButton: any;
 
 ko.components.register("sv-matrix-remove-button", {
   viewModel: {

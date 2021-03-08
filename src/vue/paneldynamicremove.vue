@@ -3,7 +3,9 @@
     <input
       type="button"
       v-if="question.canRemovePanel && !question.isReadOnly"
-      :class="question.cssClasses.button + ' ' + question.cssClasses.buttonRemove"
+      :class="
+        question.cssClasses.button + ' ' + question.cssClasses.buttonRemove
+      "
       :value="question.panelRemoveText"
       @click="removePanelClick(panel)"
     />
@@ -13,9 +15,9 @@
 <script lang="ts">
 import Vue from "vue";
 import { Component, Prop } from "vue-property-decorator";
-import { QuestionPanelDynamicModel } from "../question_paneldynamic";
-import { PanelModel } from "../panel";
-import { ISurvey } from "../base";
+import { QuestionPanelDynamicModel } from "survey-core";
+import { PanelModel } from "survey-core";
+import { ISurvey } from "survey-core";
 
 @Component
 export class PanelDynamicRemove extends Vue {
@@ -28,7 +30,7 @@ export class PanelDynamicRemove extends Vue {
     var self = this;
     this.panel.registerFunctionOnPropertyValueChanged(
       "state",
-      function(val: any) {
+      function (val: any) {
         self.isCollapsed = self.panel.isCollapsed;
       },
       "button"

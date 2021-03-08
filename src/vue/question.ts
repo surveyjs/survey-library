@@ -1,8 +1,8 @@
 import Vue from "vue";
-import { Base } from "../base";
-import { Question } from "../question";
+import { Base } from "survey-core";
+import { Question } from "survey-core";
 import { Component, Prop, Watch } from "vue-property-decorator";
-import {BaseVue} from "./base";
+import { BaseVue } from "./base";
 
 @Component
 export class QuestionVue<T extends Question> extends BaseVue {
@@ -16,7 +16,9 @@ export class QuestionVue<T extends Question> extends BaseVue {
   changeQuestion(new_val: T, old_val: T) {
     this.innerValue = null;
   }
-  protected getModel(): Base { return this.question; }
+  protected getModel(): Base {
+    return this.question;
+  }
   protected onMounted() {
     if (this.question) {
       this.question.afterRenderQuestionElement(this.$el);
@@ -27,7 +29,6 @@ export class QuestionVue<T extends Question> extends BaseVue {
       this.question.beforeDestroyQuestionElement(this.$el);
     }
   }
-
 }
 
 export default QuestionVue;

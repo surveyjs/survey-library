@@ -1,12 +1,12 @@
 // styles
 import "../../main.scss";
-import "../../modern.scss";
+//import "../../modern.scss";
 
 export let Version: string;
 Version = `${process.env.VERSION}`;
 
 export { settings } from "../../settings";
-export { Helpers } from "../../helpers";
+export { Helpers, HashTable } from "../../helpers";
 export {
   AnswerCountValidator,
   EmailValidator,
@@ -19,7 +19,18 @@ export {
   ValidatorRunner,
 } from "../../validator";
 export { ItemValue } from "../../itemvalue";
-export { Base, Event, SurveyError, ISurvey, SurveyElement } from "../../base";
+export {
+  Base,
+  Event,
+  SurveyError,
+  ISurvey,
+  SurveyElement,
+  ISurveyElement,
+  IElement,
+  IPage,
+  ITitleOwner,
+  ArrayChanges,
+} from "../../base";
 export { CalculatedValue } from "../../calculatedValue";
 export {
   CustomError,
@@ -69,6 +80,9 @@ export {
   matrixDropdownColumnTypes,
   MatrixDropdownRowModelBase,
   QuestionMatrixDropdownModelBase,
+  QuestionMatrixDropdownRenderedCell,
+  QuestionMatrixDropdownRenderedRow,
+  QuestionMatrixDropdownRenderedTable,
 } from "../../question_matrixdropdownbase";
 export {
   MatrixDropdownRowModel,
@@ -82,6 +96,7 @@ export {
   MatrixRowModel,
   MatrixCells,
   QuestionMatrixModel,
+  IMatrixData,
 } from "../../question_matrix";
 export {
   MultipleTextItemModel,
@@ -155,8 +170,15 @@ export {
   AdaptiveElement,
 } from "../../action-bar";
 export { ListModel } from "../../list";
-export { PopupModel } from "../../popup";
+export { PopupModel, PopupViewModel } from "../../popup";
 export { IsMobile } from "../../utils/is-mobile";
+export {
+  confirmAction,
+  detectIEOrEdge,
+  loadFileFromBase64,
+  createSvg,
+} from "../../utils/utils";
 
+export { surveyCss } from "../../defaultCss/cssstandard";
 //Uncomment to include the "date" question type.
 //export {default as QuestionDateModel} from "../../plugins/question_date";

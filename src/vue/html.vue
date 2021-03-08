@@ -1,11 +1,14 @@
 <template>
-  <div :class="question.cssClasses.root" v-html="question.locHtml.renderedHtml"></div>
+  <div
+    :class="question.cssClasses.root"
+    v-html="question.locHtml.renderedHtml"
+  ></div>
 </template>
 
 <script lang="ts">
 import Vue from "vue";
 import { Component, Prop } from "vue-property-decorator";
-import { QuestionHtmlModel } from "../question_html";
+import { QuestionHtmlModel } from "survey-core";
 
 @Component
 export class Html extends Vue {

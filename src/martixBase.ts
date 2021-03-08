@@ -4,7 +4,9 @@ import { Question } from "./question";
 import { Serializer } from "./jsonobject";
 import { ConditionRunner } from "./conditions";
 import { Helpers } from "./helpers";
+import SortableLib from "sortablejs";
 
+const Sortable = <any>SortableLib;
 /**
  * A Model for a matrix base question.
  */
@@ -40,6 +42,27 @@ export class QuestionMatrixBaseModel<TRow, TColumn> extends Question {
   }
   public set showHeader(val: boolean) {
     this.setPropertyValue("showHeader", val);
+  }
+  /**
+   * Set this property to true, to allow rows drag and drop.
+   */
+  public get allowRowsDragAndDrop(): boolean {
+    return this.getPropertyValue("allowRowsDragAndDrop");
+  }
+  public set allowRowsDragAndDrop(val: boolean) {
+    this.setPropertyValue("allowRowsDragAndDrop", val);
+  }
+  //cross framework initialization
+  public afterRenderQuestionElement(el: HTMLElement) {
+    if (!!el && this.allowRowsDragAndDrop) {
+      this.initSortable(el.querySelector("tbody"));
+    }
+    super.afterRenderQuestionElement(el);
+  }
+  //cross framework destroy
+  public beforeDestroyQuestionElement(el: HTMLElement) {
+    if (this.sortableInst) this.sortableInst.destroy();
+    super.beforeDestroyQuestionElement(el);
   }
   /**
    * The list of columns. A column has a value and an optional text
@@ -265,6 +288,40 @@ export class QuestionMatrixBaseModel<TRow, TColumn> extends Question {
       this.value = newValue;
     }
   }
+
+  private initSortable(domNode: HTMLElement) {
+    if (!domNode) return;
+    if (this.isReadOnly) return;
+    const self = this;
+    self.domNode = domNode;
+
+    self.sortableInst = new Sortable(domNode, {
+      animation: 100,
+      forceFallback: true,
+      delay: 200,
+      delayOnTouchOnly: true,
+      handle: "tr",
+      onEnd(evt: any) {
+        self.moveRowByIndex(
+          self.rows,
+          evt.oldDraggableIndex,
+          evt.newDraggableIndex
+        );
+      },
+    });
+  }
+  private moveRowByIndex = (
+    rows: Array<any>,
+    fromIndex: number,
+    toIndex: number
+  ) => {
+    const movableRow = rows[fromIndex];
+
+    if (!movableRow) return;
+
+    rows.splice(fromIndex, 1);
+    rows.splice(toIndex, 0, movableRow);
+  };
 }
 
 Serializer.addClass(
@@ -273,6 +330,7 @@ Serializer.addClass(
     "columnsVisibleIf:condition",
     "rowsVisibleIf:condition",
     { name: "showHeader:boolean", default: true },
+    { name: "allowRowsDragAndDrop", default: false },
   ],
   undefined,
   "question"

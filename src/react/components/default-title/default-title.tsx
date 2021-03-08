@@ -1,5 +1,5 @@
 import React from "react";
-import { Question } from "../../../question";
+import { Question } from "survey-core";
 import { ReactElementFactory } from "../../element-factory";
 
 import { TitleContent } from "../title-content/title-content";

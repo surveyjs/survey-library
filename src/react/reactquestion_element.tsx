@@ -1,9 +1,9 @@
 import * as React from "react";
-import { Helpers } from "../helpers";
-import { LocalizableString } from "../localizablestring";
-import { Question } from "../question";
+import { Helpers } from "survey-core";
+import { LocalizableString } from "survey-core";
+import { Question } from "survey-core";
 import { ISurveyCreator } from "./reactquestion";
-import { Base, ITitleOwner, ArrayChanges } from "../base";
+import { Base, ITitleOwner, ArrayChanges } from "survey-core";
 import { ReactElementFactory } from "./element-factory";
 
 export class SurveyElementBase<P, S> extends React.Component<P, S> {
@@ -208,7 +208,10 @@ export class SurveyQuestionUncontrolledElement<
   protected updateDomElement() {
     if (!!this.control) {
       const control: any = this.control;
-      control.value = this.getValue(this.questionBase.value);
+      const newValue = this.questionBase.value;
+      if (!Helpers.isTwoValueEquals(newValue, control.value)) {
+        control.value = this.getValue(newValue);
+      }
     }
     super.updateDomElement();
   }

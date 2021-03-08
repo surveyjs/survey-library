@@ -1,18 +1,24 @@
 <template>
   <div
     v-show="surveyWindow.isShowing"
-    style="position: fixed; bottom: 3px; right: 10px; max-width: 60%;"
+    style="position: fixed; bottom: 3px; right: 10px; max-width: 60%"
     :class="css.window.root"
   >
     <div :class="css.window.header.root">
-      <span @click="doExpand" style="width: 100%; cursor: pointer;">
-        <span style="padding-right:10px" :class="css.window.header.title">
+      <span @click="doExpand" style="width: 100%; cursor: pointer">
+        <span style="padding-right: 10px" :class="css.window.header.title">
           <survey-string :locString="windowSurvey.locTitle" />
         </span>
         <span aria-hidden="true" :class="expandedCss"></span>
       </span>
-      <span v-if="isExpandedSurvey" @click="doExpand" style="float: right; cursor: pointer;">
-        <span style="padding-right:10px" :class="css.window.header.title">X</span>
+      <span
+        v-if="isExpandedSurvey"
+        @click="doExpand"
+        style="float: right; cursor: pointer"
+      >
+        <span style="padding-right: 10px" :class="css.window.header.title"
+          >X</span
+        >
       </span>
     </div>
     <div v-show="isExpandedSurvey" :class="css.window.body">
@@ -24,8 +30,8 @@
 <script lang="ts">
 import Vue from "vue";
 import { Component, Prop, Watch } from "vue-property-decorator";
-import { SurveyModel } from "../survey";
-import { SurveyWindowModel } from "../surveyWindow";
+import { SurveyModel } from "survey-core";
+import { SurveyWindowModel } from "survey-core";
 import { VueSurveyWindowModel } from "./surveyModel";
 
 @Component
@@ -55,7 +61,7 @@ export class Window extends Vue {
     }
     this.surveyWindow.isShowing = true;
     var self = this;
-    this.surveyWindow.closeWindowOnCompleteCallback = function() {
+    this.surveyWindow.closeWindowOnCompleteCallback = function () {
       self.doHide();
     };
   }

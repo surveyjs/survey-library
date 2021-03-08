@@ -1,10 +1,7 @@
 import * as ko from "knockout";
 import { QuestionImplementor } from "./koquestion";
-import { Question } from "../question";
-import {
-  QuestionSelectBase,
-  QuestionCheckboxBase,
-} from "../question_baseselect";
+import { Question } from "survey-core";
+import { QuestionSelectBase, QuestionCheckboxBase } from "survey-core";
 
 export class QuestionSelectBaseImplementor extends QuestionImplementor {
   protected onCreated() {}

@@ -1,7 +1,7 @@
 import * as ko from "knockout";
-import { PopupModel, PopupViewModel } from "../../../popup";
+import { PopupModel, PopupViewModel } from "survey-core";
 import { ImplementorBase } from "../../kobase";
-import { settings } from "../../../settings";
+import { settings } from "survey-core";
 const template = require("html-loader?interpolate!val-loader!./popup.html");
 
 export function showModal(

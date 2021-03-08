@@ -303,6 +303,16 @@ export class ChoicesRestfull extends Base {
     }
     return res;
   }
+  /**
+  * Gets or sets a link to a web service. You can use text preprocessing here.
+  * For example, the following url: _https://restcountries.eu/rest/v2/region/{region}_ is changed based on the _region_ question's value. 
+  * SurveyJS automatically gets data from the web service when the value of the _region_ question changes.
+  * @see path
+  * @see valueName
+  * @see titleName
+  * @see [Example: RESTful Dropdown](https://surveyjs.io/Examples/Library/?id=questiontype-dropdownrestfull)
+  * @see [Docs: Fill Choices from a RESTful Service](https://surveyjs.io/Documentation/Library/?id=LibraryOverview#fill-the-choices-from-a-restful-service)
+  */
   public get url(): string {
     return this.getPropertyValue("url", "");
   }
@@ -318,18 +328,44 @@ export class ChoicesRestfull extends Base {
       }
     }
   }
+  /**
+  * Use this property, if a web service returns a lot of information and you need only a part of it. 
+  * For example, a web service returns a list of countries and a list of capitals. 
+  * If you need a list of countries, set a correct path from which SurveyJS obtains the data, like: _DataList1\DataList2_
+  * @see url
+  * @see valueName
+  * @see titleName
+  * @see [Example: RESTful Dropdown](https://surveyjs.io/Examples/Library/?id=questiontype-dropdownrestfull)
+  * @see [Docs: Fill Choices from a RESTful Service](https://surveyjs.io/Documentation/Library/?id=LibraryOverview#fill-the-choices-from-a-restful-service)
+  */  
   public get path(): string {
     return this.getPropertyValue("path", "");
   }
   public set path(val: string) {
     this.setPropertyValue("path", val);
   }
+  /**
+  * Gets or sets the name of a property (in the obtained data object) to which SurveyJS binds to provide values for choice items.
+  * @see url
+  * @see path
+  * @see titleName
+  * @see [Example: RESTful Dropdown](https://surveyjs.io/Examples/Library/?id=questiontype-dropdownrestfull)
+  * @see [Docs: Fill Choices from a RESTful Service](https://surveyjs.io/Documentation/Library/?id=LibraryOverview#fill-the-choices-from-a-restful-service)
+  */    
   public get valueName(): string {
     return this.getPropertyValue("valueName", "");
   }
   public set valueName(val: string) {
     this.setPropertyValue("valueName", val);
   }
+  /**
+  * Gets or sets the name of a property (in the obtained data object) to which SurveyJS binds to provide display texts for choice items.
+  * @see url
+  * @see path
+  * @see valueeName
+  * @see [Example: RESTful Dropdown](https://surveyjs.io/Examples/Library/?id=questiontype-dropdownrestfull)
+  * @see [Docs: Fill Choices from a RESTful Service](https://surveyjs.io/Documentation/Library/?id=LibraryOverview#fill-the-choices-from-a-restful-service)
+  */  
   public get titleName(): string {
     return this.getPropertyValue("titleName", "");
   }

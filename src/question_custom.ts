@@ -434,6 +434,10 @@ export class QuestionCustomModel extends QuestionCustomModelBase {
       this.contentQuestion.onSurveyValueChanged(newValue);
     }
   }
+  protected getValueCore() {
+    if (!!this.contentQuestion) return this.contentQuestion.value;
+    return super.getValueCore();
+  }
   protected initElement(el: SurveyElement) {
     super.initElement(el);
     if (!!el) {
@@ -457,6 +461,11 @@ export class QuestionCustomModel extends QuestionCustomModelBase {
       cssClasses = this.contentQuestion.cssClasses;
     }
     super.updateElementCssCore(cssClasses);
+  }
+  protected getDisplayValueCore(keyAsText: boolean, value: any): any {
+    return !!this.contentQuestion
+      ? this.contentQuestion.getDisplayValue(keyAsText, value)
+      : super.getDisplayValueCore(keyAsText, value);
   }
 }
 
@@ -647,6 +656,11 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
       questions[i].value = !!newValue ? newValue[key] : undefined;
     }
     this.settingNewValue = false;
+  }
+  protected getDisplayValueCore(keyAsText: boolean, value: any): any {
+    return !!this.contentPanel
+      ? this.contentPanel.getDisplayValue(keyAsText)
+      : super.getDisplayValueCore(keyAsText, value);
   }
   private setAfterRenderCallbacks(panel: PanelModel) {
     if (!panel || !this.customQuestion) return;

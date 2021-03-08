@@ -7,6 +7,7 @@ import {
 } from "../src/question_custom";
 import { Serializer } from "../src/jsonobject";
 import { QuestionDropdownModel } from "../src/question_dropdown";
+import { QuestionMatrixDynamicModel } from "../src/question_matrixdynamic";
 import { QuestionTextModel } from "../src/question_text";
 import { QuestionMatrixDropdownModel } from "../src/question_matrixdropdown";
 import { QuestionPanelDynamicModel } from "../src/question_paneldynamic";
@@ -1235,5 +1236,150 @@ QUnit.test("Composite: addConditionObjectsByContext", function (assert) {
     ],
     "addConditionObjectsByContext work correctly for composite question"
   );
+  ComponentCollection.Instance.clear();
+});
+QUnit.test("Composite: visibleIf and showPreview, Bug#2674", function (assert) {
+  ComponentCollection.Instance.add({
+    name: "fullname",
+    title: "Full Name",
+    elementsJSON: [
+      {
+        type: "text",
+        name: "firstName",
+        isRequired: true,
+      },
+      {
+        type: "text",
+        name: "lastName",
+        visibleIf: "{composite.firstName} notempty",
+        isRequired: true,
+      },
+    ],
+  });
+  var survey = new SurveyModel({
+    showPreviewBeforeComplete: "showAllQuestions",
+    elements: [{ type: "fullname", name: "name" }],
+  });
+  var q = <QuestionCompositeModel>survey.getAllQuestions()[0];
+  assert.equal(
+    q.contentPanel.getQuestionByName("lastName").isVisible,
+    false,
+    "The second question is invisible"
+  );
+  q.contentPanel.getQuestionByName("firstName").value = "Jon";
+  assert.equal(
+    q.contentPanel.getQuestionByName("lastName").isVisible,
+    true,
+    "The second question is visible"
+  );
+  q.contentPanel.getQuestionByName("lastName").value = "Snow";
+  survey.showPreview();
+  q = <QuestionCompositeModel>survey.getAllQuestions()[0];
+  assert.equal(
+    q.contentPanel.getQuestionByName("lastName").isVisible,
+    true,
+    "The second question is still visible"
+  );
+  survey.cancelPreview();
+  q = <QuestionCompositeModel>survey.getAllQuestions()[0];
+  assert.equal(
+    q.contentPanel.getQuestionByName("lastName").isVisible,
+    true,
+    "The second question is still visible"
+  );
+  ComponentCollection.Instance.clear();
+});
+QUnit.test("Single: displayValue function, Bug#2678", function (assert) {
+  var json = {
+    name: "newquestion",
+    questionJSON: {
+      type: "checkbox",
+      choices: [
+        { value: 1, text: "text 1" },
+        { value: 2, text: "text 2" },
+        { value: 3, text: "text 3" },
+      ],
+    },
+  };
+  ComponentCollection.Instance.add(json);
+  var survey = new SurveyModel({
+    elements: [{ type: "newquestion", name: "q1" }],
+  });
+  var q = <QuestionCustomModel>survey.getAllQuestions()[0];
+  q.value = [1, 3];
+  assert.equal(q.displayValue, "text 1, text 3");
+  ComponentCollection.Instance.clear();
+});
+QUnit.test("Composite: displayValue function, Bug#2678", function (assert) {
+  ComponentCollection.Instance.add({
+    name: "newquestion",
+    elementsJSON: [
+      {
+        type: "checkbox",
+        name: "q1",
+        title: "question 1",
+        choices: [
+          { value: 1, text: "text 1" },
+          { value: 2, text: "text 2" },
+          { value: 3, text: "text 3" },
+        ],
+      },
+      {
+        type: "dropdown",
+        name: "q2",
+        title: "question 2",
+        choices: [
+          { value: 1, text: "text 1" },
+          { value: 2, text: "text 2" },
+          { value: 3, text: "text 3" },
+        ],
+      },
+    ],
+  });
+  var survey = new SurveyModel({
+    elements: [{ type: "newquestion", name: "q1" }],
+  });
+  var q = <QuestionCustomModel>survey.getAllQuestions()[0];
+  q.value = { q1: [1, 3], q2: 2 };
+  assert.deepEqual(q.displayValue, {
+    "question 1": "text 1, text 3",
+    "question 2": "text 2",
+  });
+  ComponentCollection.Instance.clear();
+});
+QUnit.test("Single: in matrix dynamic question, Bug#2695", function (assert) {
+  var json = {
+    name: "newquestion",
+    questionJSON: {
+      type: "dropdown",
+      choices: ["a", "b", "c"],
+    },
+  };
+  ComponentCollection.Instance.add(json);
+  var survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdynamic",
+        name: "matrix",
+        columns: [{ name: "col1", cellType: "newquestion" }],
+        rowCount: 1,
+      },
+    ],
+  });
+  var matrix = <QuestionMatrixDynamicModel>survey.getAllQuestions()[0];
+  var rows = matrix.visibleRows;
+  assert.equal(
+    rows[0].cells[0].question.getType(),
+    "newquestion",
+    "cell question has correct type"
+  );
+  rows[0].cells[0].question.contentQuestion.value = "b";
+  assert.equal(
+    rows[0].cells[0].question.value,
+    "b",
+    "set value into cell question"
+  );
+  assert.equal(rows[0].cells[0].value, "b", "set value into cell");
+  assert.deepEqual(matrix.value, [{ col1: "b" }], "set value into matrix");
   ComponentCollection.Instance.clear();
 });

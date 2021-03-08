@@ -40,8 +40,8 @@
 <script lang="ts">
 import Vue from "vue";
 import { Component, Prop } from "vue-property-decorator";
-import { SurveyModel } from "../survey";
-import { PageModel } from "../page";
+import { SurveyModel } from "survey-core";
+import { PageModel } from "survey-core";
 
 @Component
 export class Navigation extends Vue {

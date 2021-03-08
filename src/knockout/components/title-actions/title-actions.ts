@@ -1,6 +1,6 @@
 import * as ko from "knockout";
-import { ISurveyElement } from '../../../base';
-import { RendererFactory } from "../../../rendererFactory";
+import { ISurveyElement } from "survey-core";
+import { RendererFactory } from "survey-core";
 
 const template = require("./title-actions.html");
 
@@ -24,4 +24,3 @@ RendererFactory.Instance.registerRenderer(
   "title-actions",
   "sv-title-actions"
 );
-

@@ -1,6 +1,6 @@
 import React from "react";
 import ReactDOM from "react-dom";
-import { PopupModel, PopupViewModel } from "../../../popup";
+import { PopupModel, PopupViewModel } from "survey-core";
 import { ReactElementFactory } from "../../element-factory";
 import { SurveyElementBase } from "../../reactquestion_element";
 
@@ -39,8 +39,10 @@ export class Popup extends SurveyElementBase<IPopupProps, any> {
     );
   }
   componentWillUnmount() {
-    this.container.remove();
-    this.container = undefined;
+    if (this.container) {
+      this.container.remove();
+      this.container = undefined;
+    }
     super.componentWillUnmount();
   }
 }

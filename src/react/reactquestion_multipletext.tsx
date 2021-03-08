@@ -1,8 +1,8 @@
 import * as React from "react";
 import { SurveyQuestionElementBase } from "./reactquestion_element";
 import { SurveyQuestionAndErrorsCell } from "./reactquestion";
-import { QuestionMultipleTextModel } from "../question_multipletext";
-import { MultipleTextItemModel } from "../question_multipletext";
+import { QuestionMultipleTextModel } from "survey-core";
+import { MultipleTextItemModel } from "survey-core";
 import { ReactQuestionFactory } from "./reactquestion_factory";
 
 export class SurveyQuestionMultipleText extends SurveyQuestionElementBase {
@@ -39,15 +39,29 @@ export class SurveyQuestionMultipleText extends SurveyQuestionElementBase {
       var ed = item.editor;
       if (!!ed.isRequireTextOnStart || ed.isRequireTextBeforeTitle) {
         spans.push(
-          <span key={"requiredTextBefore" + i} className={cssClasses.requiredText}>{ed.requiredText}</span>
+          <span
+            key={"requiredTextBefore" + i}
+            className={cssClasses.requiredText}
+          >
+            {ed.requiredText}
+          </span>
         );
         spans.push(<span key={"spaceBefore" + i}>&nbsp;</span>);
       }
-      spans.push(<span key={"itemTitle" + i} className={cssClasses.itemTitle}>{itemTitle}</span>);
+      spans.push(
+        <span key={"itemTitle" + i} className={cssClasses.itemTitle}>
+          {itemTitle}
+        </span>
+      );
       if (!!ed.isRequireTextAfterTitle) {
         spans.push(<span key={"spaceB" + i}>&nbsp;</span>);
         spans.push(
-          <span key={"requiredTextAfter" + i} className={cssClasses.requiredText}>{ed.requiredText}</span>
+          <span
+            key={"requiredTextAfter" + i}
+            className={cssClasses.requiredText}
+          >
+            {ed.requiredText}
+          </span>
         );
       }
       tds.push(

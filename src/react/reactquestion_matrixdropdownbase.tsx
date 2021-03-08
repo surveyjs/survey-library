@@ -9,14 +9,16 @@ import {
   QuestionMatrixDropdownModelBase,
   QuestionMatrixDropdownRenderedRow,
   QuestionMatrixDropdownRenderedCell,
-} from "../question_matrixdropdownbase";
-import { Question } from "../question";
+} from "survey-core";
+import { Question } from "survey-core";
 import { SurveyQuestionCheckboxItem } from "./reactquestion_checkbox";
 import { SurveyQuestionRadioItem } from "./reactquestion_radiogroup";
 import { SurveyPanel } from "./panel";
+
 import { ActionBar } from "./components/action-bar/action-bar";
-import { ActionBarItem, IActionBarItem } from "../action-bar";
-import { ReactElementFactory } from "./element-factory";
+import { IActionBarItem } from "survey-core";
+import {dragDropTD} from "./drag-drop-td"
+
 
 export class SurveyQuestionMatrixDropdownBase extends SurveyQuestionElementBase {
   constructor(props: any) {
@@ -59,7 +61,7 @@ export class SurveyQuestionMatrixDropdownBase extends SurveyQuestionElementBase 
       ? ({ overflowX: "scroll" } as React.CSSProperties)
       : ({} as React.CSSProperties);
     return (
-      <div style={divStyle}>
+      <div style={divStyle} ref={(root) => (this.control = root)}>
         <table className={this.question.cssClasses.root}>
           {header}
           {rows}
@@ -72,6 +74,7 @@ export class SurveyQuestionMatrixDropdownBase extends SurveyQuestionElementBase 
     var table = this.question.renderedTable;
     if (!table.showHeader) return null;
     var headers: any[] = [];
+    var dragDropTH = this.question.allowRowsDragAndDrop ? <td /> : null;
     var cells = table.headerRow.cells;
     for (var i = 0; i < cells.length; i++) {
       var cell = cells[i];
@@ -102,7 +105,10 @@ export class SurveyQuestionMatrixDropdownBase extends SurveyQuestionElementBase 
     }
     return (
       <thead>
-        <tr>{headers}</tr>
+        <tr>
+          {dragDropTH}
+          {headers}
+        </tr>
       </thead>
     );
   }
@@ -134,6 +140,9 @@ export class SurveyQuestionMatrixDropdownBase extends SurveyQuestionElementBase 
   ): JSX.Element {
     var matrixrow = [];
     var cells = row.cells;
+
+    matrixrow.push(this.question.allowRowsDragAndDrop ? dragDropTD(this.question): null);
+
     for (var i = 0; i < cells.length; i++) {
       matrixrow.push(this.renderCell(cells[i], i, cssClasses));
     }
@@ -144,6 +153,7 @@ export class SurveyQuestionMatrixDropdownBase extends SurveyQuestionElementBase 
       </tr>
     );
   }
+
   renderCell(
     cell: QuestionMatrixDropdownRenderedCell,
     index: number,
@@ -262,29 +272,21 @@ export class SurveyQuestionMatrixDropdownCell extends SurveyQuestionAndErrorsCel
     );
   }
   protected getCellClass(): any {
-    var question = this.cell.question;
-    var cellClass = this.cell.className;
-    if (question.errors.length !== 0)
-      cellClass += " " + question.cssClasses.hasError;
-    return cellClass;
+    return this.cell.className;
   }
   protected getCellStyle(): any {
-    if (!this.cell.isChoice) {
-      var res: any = super.getCellStyle();
-      if (!!this.cell.width || !!this.cell.minWidth) {
-        if (!res) res = {};
-        if (!!this.cell.width) res.width = this.cell.width;
-        if (!!this.cell.minWidth) res.minWidth = this.cell.minWidth;
-      }
-
-      return res;
+    var res: any = super.getCellStyle();
+    if (!!this.cell.width || !!this.cell.minWidth) {
+      if (!res) res = {};
+      if (!!this.cell.width) res.width = this.cell.width;
+      if (!!this.cell.minWidth) res.minWidth = this.cell.minWidth;
     }
-    return { textAlign: "center" };
+
+    return res;
   }
 
   protected getHeaderText(): string {
-    var column = this.cell.cell && this.cell.cell.column;
-    return !!(column && column.locTitle) ? column.locTitle.renderedHtml : "";
+    return this.cell.headers;
   }
   protected renderQuestion(): JSX.Element {
     if (!this.cell.isChoice)

@@ -1,8 +1,8 @@
 import * as ko from "knockout";
 import { QuestionImplementor } from "./koquestion";
-import { QuestionRatingModel } from "../question_rating";
-import { Serializer } from "../jsonobject";
-import { QuestionFactory } from "../questionfactory";
+import { QuestionRatingModel } from "survey-core";
+import { Serializer } from "survey-core";
+import { QuestionFactory } from "survey-core";
 import { Question } from "../question";
 
 class QuestionRatingImplementor extends QuestionImplementor {

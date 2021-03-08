@@ -1,5 +1,9 @@
 import * as React from "react";
-import { QuestionMatrixDynamicModel } from "../question_matrixdynamic";
+
+import { ReactSurveyElement } from "./reactquestion_element";
+import { MatrixDropdownRowModelBase } from "survey-core";
+import { QuestionMatrixDynamicModel } from "survey-core";
+
 import { ReactQuestionFactory } from "./reactquestion_factory";
 import { SurveyQuestionMatrixDropdownBase } from "./reactquestion_matrixdropdownbase";
 

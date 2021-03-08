@@ -3,7 +3,8 @@
     v-if="hasItems"
     ref="container"
     class="sv-action-bar"
-    v-on:click="function (event) {
+    v-on:click="
+      (event) => {
         event.stopPropagation();
       }
     "
@@ -30,7 +31,7 @@ import {
   AdaptiveActionBarItemWrapper,
   AdaptiveElement,
   IActionBarItem,
-} from "../../../action-bar";
+} from "survey-core";
 
 export * from "./action-bar-item.vue";
 export * from "./action-bar-item-dropdown.vue";

@@ -21,10 +21,10 @@
 <script lang="ts">
 import Vue from "vue";
 import { Component, Prop } from "vue-property-decorator";
-import { SurveyModel } from "../survey";
-import { PageModel } from "../page";
-import { Base } from "../base";
-import { PanelModelBase, PanelModel, QuestionRowModel } from "../panel";
+import { SurveyModel } from "survey-core";
+import { PageModel } from "survey-core";
+import { Base } from "survey-core";
+import { PanelModelBase, PanelModel, QuestionRowModel } from "survey-core";
 import { BaseVue } from "./base";
 
 @Component

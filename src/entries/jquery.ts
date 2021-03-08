@@ -3,6 +3,7 @@ import jQuery from "jquery";
 
 // model
 export * from "./chunks/model";
+import "../modern.scss";
 
 // localization
 import "./chunks/localization";

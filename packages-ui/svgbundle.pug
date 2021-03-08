@@ -1,0 +1,16 @@
+svg(style={display: 'none'})&attributes(svg)
+  
+  mixin parseObject(obj)
+    each child in obj
+      if child !== null && child.type === 'text'
+        | <![CDATA[#{child.data}]]>
+      else if child !== null && typeof child.children === 'object'
+        | #[#{child.name}&attributes(child.attribs) #[+parseObject(child.children)]]
+
+  if defs.length
+    defs
+      each def in defs
+        | #[#{def.name}&attributes(def.attribs)  #[+parseObject(def.children)]]
+
+  each symbol in symbols
+    | #[#{symbol.name}&attributes(symbol.attribs) #[+parseObject(symbol.children)]]

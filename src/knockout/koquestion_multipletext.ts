@@ -1,14 +1,11 @@
 import * as ko from "knockout";
-import {
-  QuestionMultipleTextModel,
-  MultipleTextItemModel,
-} from "../question_multipletext";
-import { QuestionTextModel } from "../question_text";
+import { QuestionMultipleTextModel, MultipleTextItemModel } from "survey-core";
+import { QuestionTextModel } from "survey-core";
 import { QuestionImplementor } from "./koquestion";
 import { QuestionText } from "./koquestion_text";
-import { Question } from "../question";
-import { Serializer } from "../jsonobject";
-import { QuestionFactory } from "../questionfactory";
+import { Question } from "survey-core";
+import { Serializer } from "survey-core";
+import { QuestionFactory } from "survey-core";
 
 export class MultipleTextItem extends MultipleTextItemModel {
   constructor(name: any = null, title: string = null) {

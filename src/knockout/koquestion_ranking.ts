@@ -1,7 +1,7 @@
 import * as ko from "knockout";
-import { Serializer } from "../jsonobject";
-import { QuestionFactory } from "../questionfactory";
-import { QuestionRankingModel } from "../question_ranking";
+import { Serializer } from "survey-core";
+import { QuestionFactory } from "survey-core";
+import { QuestionRankingModel } from "survey-core";
 import { QuestionImplementor } from "./koquestion";
 
 export class QuestionRanking extends QuestionRankingModel {

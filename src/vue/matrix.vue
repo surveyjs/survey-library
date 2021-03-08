@@ -5,6 +5,7 @@
       <table :class="question.cssClasses.root">
         <thead v-if="question.showHeader">
           <tr>
+            <td v-if="question.allowRowsDragAndDrop"></td>
             <td v-show="question.hasRows"></td>
             <th
               v-for="(column, columnIndex) in question.visibleColumns"
@@ -18,9 +19,13 @@
         <tbody>
           <tr
             v-for="(row, rowIndex) in question.visibleRows"
-            :key="rowIndex"
+            :key="'row-' + row.name + '-' + rowIndex"
             :class="row.rowClasses"
           >
+            <drag-drop-td
+              :question="question"
+              v-if="question.allowRowsDragAndDrop"
+            />
             <td :class="question.cssClasses.cell" v-show="question.hasRows">
               <survey-string :locString="row.locText" />
             </td>
@@ -31,7 +36,9 @@
               :class="question.getItemClass(row, column)"
               v-on:click="cellClick(row, column)"
             >
-              <survey-string :locString="question.getCellDisplayLocText(row.name, column)"></survey-string>
+              <survey-string
+                :locString="question.getCellDisplayLocText(row.name, column)"
+              ></survey-string>
             </td>
             <td
               v-if="!question.hasCellText"
@@ -79,7 +86,7 @@
 import Vue from "vue";
 import { Component, Prop } from "vue-property-decorator";
 import { default as QuestionVue } from "./question";
-import { QuestionMatrixModel } from "../question_matrix";
+import { QuestionMatrixModel } from "survey-core";
 
 @Component
 export class Matrix extends QuestionVue<QuestionMatrixModel> {

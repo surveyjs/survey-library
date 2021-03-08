@@ -1,7 +1,7 @@
 import * as ko from "knockout";
-import { Question } from "../question";
-import { SurveyElement } from "../base";
-import { Helpers } from "../helpers";
+import { Question } from "survey-core";
+import { SurveyElement } from "survey-core";
+import { Helpers } from "survey-core";
 import { ImplementorBase } from "./kobase";
 
 export class QuestionImplementor extends ImplementorBase {

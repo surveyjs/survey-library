@@ -1,4 +1,12 @@
-import { frameworks, url, setOptions, initSurvey, getSurveyResult, getQuestionValue, getQuestionJson } from "../settings";
+import {
+  frameworks,
+  url,
+  setOptions,
+  initSurvey,
+  getSurveyResult,
+  getQuestionValue,
+  getQuestionJson,
+} from "../settings";
 import { Selector, ClientFunction } from "testcafe";
 const assert = require("assert");
 const title = `dropdown`;
@@ -22,20 +30,20 @@ const json = {
         "BMW",
         "Peugeot",
         "Toyota",
-        "Citroen"
-      ]
-    }
-  ]
+        "Citroen",
+      ],
+    },
+  ],
 };
 
-frameworks.forEach(framework => {
+frameworks.forEach((framework) => {
   fixture`${framework} ${title}`.page`${url}${framework}.html`.beforeEach(
-    async t => {
+    async (t) => {
       await initSurvey(framework, json);
     }
   );
 
-  test(`choose empty`, async t => {
+  test(`choose empty`, async (t) => {
     const getPosition = ClientFunction(() =>
       document.documentElement.innerHTML.indexOf("Please answer the question")
     );
@@ -51,7 +59,7 @@ frameworks.forEach(framework => {
     assert.equal(typeof surveyResult, `undefined`);
   });
 
-  test(`choose value`, async t => {
+  test(`choose value`, async (t) => {
     let surveyResult;
 
     await t
@@ -63,7 +71,7 @@ frameworks.forEach(framework => {
     assert.equal(surveyResult.car, "Nissan");
   });
 
-  test(`change choices order`, async t => {
+  test(`change choices order`, async (t) => {
     const getChoicesCount = ClientFunction(
       () => document.querySelectorAll(`select option`).length
     );
@@ -78,15 +86,15 @@ frameworks.forEach(framework => {
     first = await getFirst();
     second = await getSecond();
 
-    assert.equal(first.textContent, "Audi");
-    assert.equal(second.textContent, "BMW");
+    assert.equal(first.textContent.trim(), "Audi");
+    assert.equal(second.textContent.trim(), "BMW");
 
     // desc
     await setOptions("car", { choicesOrder: "desc" });
     first = await getFirst();
     second = await getSecond();
-    assert.equal(first.textContent, "Volkswagen");
-    assert.equal(second.textContent, "Vauxhall");
+    assert.equal(first.textContent.trim(), "Volkswagen");
+    assert.equal(second.textContent.trim(), "Vauxhall");
 
     // rnd
     if (choicesCount === 1) {
@@ -98,7 +106,7 @@ frameworks.forEach(framework => {
       await setOptions("car", { choicesOrder: "random" });
       first_2 = await getFirst();
 
-      if (first.textContent !== first_2.textContent) {
+      if (first.textContent.trim() !== first_2.textContent.trim()) {
         rnd_count++;
       }
 
@@ -112,7 +120,7 @@ frameworks.forEach(framework => {
     assert(rnd_count >= 4); // because of 'none', 'asc', 'desc' and if 4 it is really rnd
   });
 
-  test(`check integrity`, async t => {
+  test(`check integrity`, async (t) => {
     const choices = [
       "None",
       "Ford",
@@ -124,7 +132,7 @@ frameworks.forEach(framework => {
       "BMW",
       "Peugeot",
       "Toyota",
-      "Citroen"
+      "Citroen",
     ];
     let i;
     const getChoicesCount = ClientFunction(
@@ -149,7 +157,7 @@ frameworks.forEach(framework => {
     await checkIntegrity();
   });
 
-  test(`show "other" choice`, async t => {
+  test(`show "other" choice`, async (t) => {
     const getPosition = ClientFunction(() =>
       document.documentElement.innerHTML.indexOf("Other")
     );
@@ -160,7 +168,7 @@ frameworks.forEach(framework => {
     assert.notEqual(position, -1);
   });
 
-  test(`check "other" choice doesn't change order`, async t => {
+  test(`check "other" choice doesn't change order`, async (t) => {
     const getOtherChoice = Selector(
       () => document.querySelectorAll(`select option`)[12]
     );
@@ -170,10 +178,10 @@ frameworks.forEach(framework => {
     await setOptions("car", { choicesOrder: "desc" });
 
     otherChoice = await getOtherChoice();
-    assert.equal(otherChoice.textContent, "Other");
+    assert.equal(otherChoice.textContent.trim(), "Other");
   });
 
-  test(`choose other`, async t => {
+  test(`choose other`, async (t) => {
     const getOtherInput = Selector(
       () => document.querySelectorAll("textarea")[0]
     );
@@ -199,13 +207,13 @@ frameworks.forEach((framework) => {
   );
 
   test(`click on question title state editable`, async (t) => {
-    var newTitle = 'MyText';
+    var newTitle = "MyText";
     var json = JSON.parse(await getQuestionJson());
     var questionValue = await getQuestionValue();
     assert.equal(questionValue, undefined);
-  
+
     var outerSelector = `.sv_q_title`;
-    var innerSelector = `.sv-string-editor`
+    var innerSelector = `.sv-string-editor`;
     await t
       .click(outerSelector)
       .selectEditableContent(outerSelector + ` ` + innerSelector)

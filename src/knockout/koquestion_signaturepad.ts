@@ -1,8 +1,8 @@
 import * as ko from "knockout";
-import { QuestionSignaturePadModel } from "../question_signaturepad";
-import { Serializer } from "../jsonobject";
+import { QuestionSignaturePadModel } from "survey-core";
+import { Serializer } from "survey-core";
 import { QuestionImplementor } from "./koquestion";
-import { Question } from "../question";
+import { Question } from "survey-core";
 
 export class QuestionSignaturePad extends QuestionSignaturePadModel {
   constructor(name: string) {

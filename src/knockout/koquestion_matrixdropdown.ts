@@ -1,18 +1,18 @@
 import * as ko from "knockout";
-import { SurveyElement } from "../base";
-import { QuestionMatrixDropdownModel } from "../question_matrixdropdown";
+import { SurveyElement } from "survey-core";
+import { QuestionMatrixDropdownModel } from "survey-core";
 import {
   QuestionMatrixDropdownModelBase,
   MatrixDropdownRowModelBase,
   QuestionMatrixDropdownRenderedTable,
   QuestionMatrixDropdownRenderedCell,
-} from "../question_matrixdropdownbase";
-import { Serializer } from "../jsonobject";
-import { QuestionFactory } from "../questionfactory";
-import { Question } from "../question";
+} from "survey-core";
+import { Serializer } from "survey-core";
+import { QuestionFactory } from "survey-core";
+import { Question } from "survey-core";
 import { QuestionImplementor } from "./koquestion";
 import { ImplementorBase } from "./kobase";
-import { PanelModel } from "../panel";
+import { PanelModel } from "survey-core";
 import { Panel } from "./kopage";
 
 export class QuestionMatrixBaseImplementor extends QuestionImplementor {

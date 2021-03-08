@@ -2,7 +2,7 @@ import * as React from "react";
 import { Survey } from "./reactSurvey";
 import { ReactWindowModel } from "./reactsurveymodel";
 import { SurveyElementBase } from "./reactquestion_element";
-import { Base } from "../base";
+import { Base } from "survey-core";
 
 export class SurveyWindow extends Survey {
   protected window: ReactWindowModel;

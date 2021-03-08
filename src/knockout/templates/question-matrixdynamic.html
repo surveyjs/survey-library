@@ -10,11 +10,16 @@
       <span data-bind="css: question.koCss().iconAdd"></span>
     </button>
   </div>
-  <div data-bind="visible: question.koTable().showTable, style: {overflowX: question.horizontalScroll? 'scroll': ''}">
+  <div
+    data-bind="visible: question.koTable().showTable, style: {overflowX: question.horizontalScroll? 'scroll': ''}"
+  >
     <table data-bind="css: question.koCss().root">
       <!-- ko if: question.koTable().showHeader -->
       <thead>
         <tr>
+          <!-- ko if: question.allowRowsDragAndDrop -->
+          <th></th>
+          <!-- /ko -->
           <!-- ko foreach: question.koTable().headerRow.cells -->
           <th
             data-bind="style: { minWidth: $data.minWidth, width: $data.width }, css: question.koCss().headerCell"
@@ -32,6 +37,10 @@
         <!-- ko foreach: question.koTable().rows -->
         <!-- ko ifnot: $parent.detailPanelMode === "popup" && $data.isDetailRow -->
         <tr data-bind="css:$data.className">
+          <!-- ko if: question.allowRowsDragAndDrop -->
+          <!-- ko component: { name: 'sv-drag-drop-td', params: { question: question } } -->
+          <!-- /ko -->
+          <!-- /ko -->
           <!-- ko foreach: $data.cells -->
           <!-- ko if: $data.isActionsCell -->
            <td data-bind="css:$data.className, attr: {colspan: $data.colSpans}">
@@ -83,7 +92,9 @@
   </div>
   <!-- ko ifnot: question.koTable().showTable -->
   <div data-bind="css: question.koCss().emptyRowsSection">
-    <div  data-bind="css: question.koCss().emptyRowsText"><!-- ko template: { name: 'survey-string', data: question.locEmptyRowsText } --><!-- /ko --></div>
+    <div data-bind="css: question.koCss().emptyRowsText">
+      <!-- ko template: { name: 'survey-string', data: question.locEmptyRowsText } --><!-- /ko -->
+    </div>
     <button
       type="button"
       data-bind="click:question.koAddRowClick, css: question.koCss().button + ' ' + question.koCss().buttonAdd + '' + question.koCss().emptyRowsButton"
@@ -107,7 +118,7 @@
 </script>
 <script type="text/html" id="survey-matrixcell">
   <td
-    data-bind="css: $data.className + (question.errors.length > 0 ? ' ' + question.koCss().hasError : ''), style: {'text-align': $data.isChoice ? 'center': '', minWidth: $data.minWidth, width: $data.width}, attr: { headers: question.isVisible ? question.locTitle.renderedHtml : '' }"
+    data-bind="css: $data.className, style: {minWidth: $data.minWidth, width: $data.width}, attr: { headers: headers }"
   >
     <div data-bind="visible: question.isVisible">
       <!-- ko if: $data.showErrorOnTop -->

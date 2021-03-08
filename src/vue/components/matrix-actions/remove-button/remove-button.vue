@@ -17,7 +17,7 @@ import { Base } from "../../../../base";
 import BaseVue from "../../../base";
 
 @Component
-export class RemoveButton extends BaseVue {
+export class SurveyQuestionMatrixDynamicRemoveButton extends BaseVue {
   @Prop
   public item: AdaptiveActionBarItemWrapper;
 
@@ -34,6 +34,6 @@ export class RemoveButton extends BaseVue {
   }
 }
 
-Vue.component("sv-matrix-remove-button", RemoveButton);
-export default RemoveButton;
+Vue.component("sv-matrix-remove-button", SurveyQuestionMatrixDynamicRemoveButton);
+export default SurveyQuestionMatrixDynamicRemoveButton;
 </script>

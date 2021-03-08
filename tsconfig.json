@@ -9,7 +9,11 @@
     "experimentalDecorators": true,
     "moduleResolution": "node",
     "allowSyntheticDefaultImports": true,
-    "jsx": "react"
+    "jsx": "react",
+    "baseUrl": ".",
+    "paths": {
+      "survey-core": ["./src/entries/core.ts"],
+    }    
   },
   "exclude": ["src/entries/**/*.ts"],
   "include": ["src/**/*.ts"]

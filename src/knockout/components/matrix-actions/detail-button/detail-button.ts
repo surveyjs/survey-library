@@ -2,7 +2,7 @@ import * as ko from "knockout";
 
 const template = require("./detail-button.html");
 
-export var MatrixDetailButton: any;
+export var SurveyQuestionMatrixDetailButton: any;
 
 ko.components.register("sv-matrix-detail-button", {
   viewModel: {

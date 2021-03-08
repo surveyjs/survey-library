@@ -22,7 +22,7 @@ import { Base } from "../../../../base";
 import BaseVue from "../../../base";
 
 @Component
-export class DetailButton extends BaseVue {
+export class SurveyQuestionMatrixDetailButton extends BaseVue {
   @Prop
   public item: AdaptiveActionBarItemWrapper;
 
@@ -39,6 +39,6 @@ export class DetailButton extends BaseVue {
   }
 }
 
-Vue.component("sv-matrix-detail-button", DetailButton);
-export default DetailButton;
+Vue.component("sv-matrix-detail-button", SurveyQuestionMatrixDetailButton);
+export default SurveyQuestionMatrixDetailButton;
 </script>

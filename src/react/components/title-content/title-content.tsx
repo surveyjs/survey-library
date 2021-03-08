@@ -1,8 +1,8 @@
 import React from "react";
 
-import { Question } from "../../../question";
+import { Question } from "survey-core";
 import { SurveyElementBase } from "../../reactquestion_element";
-import { ITitleOwner } from "../../../base";
+import { ITitleOwner } from "survey-core";
 
 export class TitleContent extends React.Component<any, any> {
   constructor(props: any) {

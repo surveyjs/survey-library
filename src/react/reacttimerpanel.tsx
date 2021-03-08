@@ -1,5 +1,5 @@
 import * as React from "react";
-import { SurveyModel } from "../survey";
+import { SurveyModel } from "survey-core";
 
 export class SurveyTimerPanel extends React.Component<any, any> {
   constructor(props: any) {

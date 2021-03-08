@@ -23,7 +23,7 @@
 <script lang="ts">
 import Vue from "vue";
 import { Component, Prop } from "vue-property-decorator";
-import { QuestionImageModel } from "../question_image";
+import { QuestionImageModel } from "survey-core";
 
 @Component
 export class Image extends Vue {

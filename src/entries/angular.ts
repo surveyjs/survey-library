@@ -2,6 +2,7 @@ import * as ko from "knockout";
 
 // model
 export * from "./chunks/model";
+import "../modern.scss";
 
 // localization
 import "./chunks/localization";

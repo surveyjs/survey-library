@@ -1,12 +1,13 @@
 .git/*
 .vs/*
-node_modules/*
+node_modules
+build
 src/**/*.js
 doc_generator/**/*.json
 docs/classes.json
 docs/pmes.json
 tmp/*
-.vscode/*
+.vscode
 *.map
 .tsdrc
 .idea
@@ -32,3 +33,4 @@ Gemfile.lock
 /doc_generator/*.json
 *.env
 package-lock.json
+svgbundle.html

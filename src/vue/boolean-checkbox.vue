@@ -13,11 +13,19 @@
         v-bind:aria-required="question.isRequired"
         :aria-label="question.locTitle.renderedHtml"
         :aria-invalid="question.errors.length > 0"
-        :aria-describedby="question.errors.length > 0 ? question.id + '_errors' : null"  
+        :aria-describedby="
+          question.errors.length > 0 ? question.id + '_errors' : null
+        "
       />
       <span :class="question.cssClasses.materialDecorator">
         <svg viewBox="0 0 24 24" :class="question.cssClasses.itemDecorator">
-          <rect :class="question.cssClasses.uncheckedPath" x="5" y="10" width="14" height="4" />
+          <rect
+            :class="question.cssClasses.uncheckedPath"
+            x="5"
+            y="10"
+            width="14"
+            height="4"
+          />
           <polygon
             :class="question.cssClasses.checkedPath"
             points="19,10 14,10 14,5 10,5 10,10 5,10 5,14 10,14 10,19 14,19 14,14 19,14 "
@@ -29,7 +37,10 @@
         </svg>
         <span class="check"></span>
       </span>
-      <span v-if="question.titleLocation === 'hidden'" :class="question.cssClasses.label">
+      <span
+        v-if="question.titleLocation === 'hidden'"
+        :class="question.cssClasses.label"
+      >
         <survey-string :locString="question.locDisplayLabel" />
       </span>
     </label>
@@ -40,13 +51,12 @@
 import Vue from "vue";
 import { Component, Prop, Watch } from "vue-property-decorator";
 import { default as QuestionVue } from "./question";
-import { QuestionBooleanModel } from "../question_boolean";
+import { QuestionBooleanModel } from "survey-core";
 import { Boolean } from "./boolean";
-import { RendererFactory } from '../rendererFactory';
+import { RendererFactory } from "survey-core";
 
 @Component
-export class BooleanCheckbox extends Boolean {
-}
+export class BooleanCheckbox extends Boolean {}
 
 Vue.component("sv-boolean-checkbox", BooleanCheckbox);
 

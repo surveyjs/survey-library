@@ -1,5 +1,5 @@
-import { SurveyModel } from "../survey";
-import { SurveyWindowModel } from "../surveyWindow";
+import { SurveyModel } from "survey-core";
+import { SurveyWindowModel } from "survey-core";
 
 export class ReactSurveyModel extends SurveyModel {
   renderCallback: () => void;

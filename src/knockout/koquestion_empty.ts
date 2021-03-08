@@ -1,8 +1,8 @@
 import * as ko from "knockout";
-import { QuestionEmptyModel } from "../question_empty";
-import { Serializer } from "../jsonobject";
+import { QuestionEmptyModel } from "survey-core";
+import { Serializer } from "survey-core";
 import { QuestionImplementor } from "./koquestion";
-import { Question } from "../question";
+import { Question } from "survey-core";
 
 export class QuestionEmpty extends QuestionEmptyModel {
   constructor(name: string) {

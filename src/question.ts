@@ -1459,6 +1459,7 @@ export class Question
     if (this.isCollapsed && rec && fireCallback && errors.length > 0) {
       this.expand();
     }
+    this.updateVisibleErrors();
     return errors.length > 0;
   }
   /**

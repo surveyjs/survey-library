@@ -1,14 +1,10 @@
 import * as ko from "knockout";
-import { Serializer } from "../jsonobject";
-import { QuestionFactory } from "../questionfactory";
-import { QuestionFileModel } from "../question_file";
+import { Serializer } from "survey-core";
+import { QuestionFactory } from "survey-core";
+import { QuestionFileModel } from "survey-core";
 import { QuestionImplementor } from "./koquestion";
-import { Question } from "../question";
-import {
-  confirmAction,
-  detectIEOrEdge,
-  loadFileFromBase64,
-} from "../utils/utils";
+import { Question } from "survey-core";
+import { confirmAction, detectIEOrEdge, loadFileFromBase64 } from "survey-core";
 
 export class QuestionFile extends QuestionFileModel {
   koState: any = ko.observable<string>("empty");

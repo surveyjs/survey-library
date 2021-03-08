@@ -1,11 +1,12 @@
 import * as React from "react";
-import { ReactSurveyElement, SurveyQuestionUncontrolledElement } from "./reactquestion_element";
-import { QuestionCommentModel } from "../question_comment";
+import {
+  ReactSurveyElement,
+  SurveyQuestionUncontrolledElement,
+} from "./reactquestion_element";
+import { QuestionCommentModel } from "survey-core";
 import { ReactQuestionFactory } from "./reactquestion_factory";
 
-export class SurveyQuestionComment extends SurveyQuestionUncontrolledElement<
-  QuestionCommentModel
-> {
+export class SurveyQuestionComment extends SurveyQuestionUncontrolledElement<QuestionCommentModel> {
   constructor(props: any) {
     super(props);
   }

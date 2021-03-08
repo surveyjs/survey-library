@@ -1341,17 +1341,23 @@ export class SurveyModel
     question: IQuestion,
     errors: Array<SurveyError>
   ): void {
-    if (this.hideRequiredErrors) {
-      for (var i = 0; i < errors.length; i++) {
-        if (errors[i].getErrorType() == "required") {
-          errors[i].visible = false;
-        }
-      }
-    }
+    this.maakeRequiredErrorsInvisibgle(errors);
     this.onSettingQuestionErrors.fire(this, {
       question: question,
       errors: errors,
     });
+  }
+  beforeSettingPanelErrors(question: IPanel, errors: Array<SurveyError>): void {
+    this.maakeRequiredErrorsInvisibgle(errors);
+  }
+  private maakeRequiredErrorsInvisibgle(errors: Array<SurveyError>) {
+    if (!this.hideRequiredErrors) return;
+    for (var i = 0; i < errors.length; i++) {
+      var erType = errors[i].getErrorType();
+      if (erType == "required" || erType == "requireoneanswer") {
+        errors[i].visible = false;
+      }
+    }
   }
   /**
    * Gets or sets the first question index. The first question index is '1' by default. You may start it from '100' or from 'A', by setting '100' or 'A' to this property.
@@ -3291,6 +3297,7 @@ export class SurveyModel
       }
       this.runningPages = null;
     }
+    this.runConditions();
     this.updateAllElementsVisibility(this.pages);
     this.updateVisibleIndexes();
     this.currentPageNo = 0;
@@ -3309,7 +3316,7 @@ export class SurveyModel
       }
       this.setupPagesForPageModes(this.isSinglePage);
     }
-
+    this.runConditions();
     this.updateVisibleIndexes();
   }
   private restoreOrigionalPages(originalPages: Array<PageModel>) {

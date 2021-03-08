@@ -1,6 +1,6 @@
 ﻿<script type="text/html" id="survey-question-errors">
-        <div role="alert" data-bind="visible: errors.length > 0, foreach: { data: errors, as: 'error' }, css: koErrorClass(), attr: { id: question.id + '_errors' }">
-            <div>   
+        <div role="alert" data-bind="visible: hasVisibleErrors, foreach: { data: errors, as: 'error' }, css: koErrorClass(), attr: { id: question.id + '_errors' }">
+            <div data-bind="visible: error.visible">   
                 <span aria-hidden="true" data-bind="css: question.koCss().error.icon"></span>
                 <span data-bind="css: question.koCss().error.item">
                     <!-- ko template: { name: 'survey-string', data: error.locText } --><!-- /ko -->

@@ -1,7 +1,8 @@
 <template>
   <div
     :class="getHeaderClass(element)"
-    @click="function () {
+    @click="
+      () => {
         if (element.hasInput) element.focus();
         return true;
       }
@@ -12,12 +13,17 @@
       :class="getTitleClass(element)"
       v-bind:aria-label="element.locTitle.renderedHtml"
       v-bind:id="element.ariaTitleId"
-      v-on:click="function () {
+      v-on:click="
+        () => {
           element.toggleState();
         }
       "
     >
-      <component :is="element.getTitleComponentName()" :element="element" :css="css"></component>
+      <component
+        :is="element.getTitleComponentName()"
+        :element="element"
+        :css="css"
+      ></component>
     </h5>
     <div
       v-if="element.hasDescriptionUnderTitle"
@@ -31,9 +37,9 @@
 <script lang="ts">
 import Vue from "vue";
 import { Component, Prop } from "vue-property-decorator";
-import { SurveyModel } from "../survey";
-import { IElement, IQuestion } from "../base";
-import { Question } from "../question";
+import { SurveyModel } from "survey-core";
+import { IElement } from "survey-core";
+import { Question } from "survey-core";
 
 @Component
 export class ElementHeader extends Vue {

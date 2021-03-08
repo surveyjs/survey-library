@@ -1,7 +1,7 @@
 import Vue from "vue";
-import { SurveyModel } from "../survey";
-import { SurveyWindowModel } from "../surveyWindow";
-import { surveyCss } from "../defaultCss/cssstandard";
+import { SurveyModel } from "survey-core";
+import { SurveyWindowModel } from "survey-core";
+import { surveyCss } from "survey-core";
 
 export class VueSurveyModel extends SurveyModel {
   renderCallback: () => void;

@@ -1,11 +1,11 @@
 import * as ko from "knockout";
-import { Question } from "../question";
+import { Question } from "survey-core";
 import {
   QuestionCustomModel,
   QuestionCompositeModel,
   ComponentQuestionJSON,
   ComponentCollection,
-} from "../question_custom";
+} from "survey-core";
 import { QuestionImplementor } from "./koquestion";
 
 export class QuestionCustom extends QuestionCustomModel {

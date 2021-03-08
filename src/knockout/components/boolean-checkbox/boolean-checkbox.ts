@@ -1,5 +1,5 @@
 import * as ko from "knockout";
-import { RendererFactory } from "../../../rendererFactory";
+import { RendererFactory } from "survey-core";
 
 const template = require("./boolean-checkbox.html");
 

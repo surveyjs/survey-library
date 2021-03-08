@@ -117,6 +117,8 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
 
   private initSortable(domNode: HTMLElement) {
     if (!domNode) return;
+    if (this.isReadOnly) return;
+
     const self = this;
     self.domNode = domNode;
 
@@ -142,7 +144,7 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
           " " + self.cssClasses.rootDragMod,
           ""
         );
-        self.setValue();
+        self.setValueFromUI();
       },
       onChange(evt: any) {
         if (!self.isIndeterminate) self.syncNumbers();
@@ -156,7 +158,7 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
     this.moveArrayItemBack(array, index);
     this.sortableInst.sort(array);
     this.syncNumbers();
-    this.setValue();
+    this.setValueFromUI();
     this.focusItem(index - 1);
   };
 
@@ -165,7 +167,7 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
     this.moveArrayItemForward(array, index);
     this.sortableInst.sort(array);
     this.syncNumbers();
-    this.setValue();
+    this.setValueFromUI();
     this.focusItem(index + 1);
   };
 
@@ -188,13 +190,18 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
     itemsNodes[index].focus();
   };
 
-  private setValue = () => {
+  private setValueFromUI = () => {
     let value: string[] = [];
     const textNodes = this.domNode.querySelectorAll(
       "." + this.cssClasses.itemText
     );
     textNodes.forEach((textNode: any, index) => {
-      value.push(textNode.innerText);
+      let innerText = textNode.innerText;
+      this.visibleChoices.forEach((visibleChoice: ItemValue) => {
+        if (innerText === visibleChoice.text) {
+          value.push(visibleChoice.value);
+        }
+      });
     });
     this.value = value;
   };

@@ -93,3 +93,10 @@
 .sv-table__empty--rows--text {
   padding: 20px;
 }
+.sv-table__cell--actions {
+  sv-action-bar,
+  .sv-action-bar {
+    margin-left: 0;
+    padding-left: 0;
+  }
+}

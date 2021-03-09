@@ -38,7 +38,7 @@ export * from "./action-bar-item-dropdown.vue";
 export * from "./action-bar-separator.vue";
 
 @Component
-export class ActionBar extends Vue {
+export class ActionBarViewModel extends Vue {
   @Prop() items: Array<IActionBarItem>;
   private adaptiveElement = new AdaptiveElement();
 
@@ -65,6 +65,6 @@ export class ActionBar extends Vue {
   }
 }
 
-Vue.component("sv-action-bar", ActionBar);
-export default ActionBar;
+Vue.component("sv-action-bar", ActionBarViewModel);
+export default ActionBarViewModel;
 </script>

@@ -8,6 +8,9 @@
         <!-- ko if: question.showHeader -->
         <thead>
           <tr>
+            <!-- ko if: question.allowRowsDragAndDrop -->
+            <td></td>
+            <!-- /ko -->
             <td data-bind="visible: question.hasRows"></td>
             <!-- ko foreach: question.koVisibleColumns -->
             <th data-bind="css: question.koCss().headerCell">
@@ -21,6 +24,10 @@
         <tbody>
           <!-- ko foreach: { data: question.koVisibleRows, as: 'row' } -->
           <tr data-bind="css: row.rowClasses">
+            <!-- ko if: question.allowRowsDragAndDrop -->
+            <!-- ko component: { name: 'sv-drag-drop-td', params: { question: question } } -->
+            <!-- /ko -->
+            <!-- /ko -->
             <td
               data-bind="visible: question.hasRows, css: question.koCss().cell"
             >

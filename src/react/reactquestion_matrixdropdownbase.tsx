@@ -14,7 +14,11 @@ import { Question } from "survey-core";
 import { SurveyQuestionCheckboxItem } from "./reactquestion_checkbox";
 import { SurveyQuestionRadioItem } from "./reactquestion_radiogroup";
 import { SurveyPanel } from "./panel";
+
+import { SurveyActionBar } from "./components/action-bar/action-bar";
+import { IActionBarItem } from "survey-core";
 import {dragDropTD} from "./drag-drop-td"
+
 
 export class SurveyQuestionMatrixDropdownBase extends SurveyQuestionElementBase {
   constructor(props: any) {
@@ -182,16 +186,11 @@ export class SurveyQuestionMatrixDropdownBase extends SurveyQuestionElementBase 
         requiredText = <span>{cell.requiredText}</span>;
       }
     }
-    if (cell.isRemoveRow) {
-      cellContent = this.renderRemoveButton(cell.row);
-    }
-    if (cell.isShowHideDetail) {
+    if (cell.isActionsCell) {
       cellContent = (
-        <SurveyQuestionMatrixDetailButton
-          question={this.question}
-          row={cell.row}
-          cssClasses={cssClasses}
-        />
+        <SurveyQuestionMatrixActionsCell
+          items={cell.item.getData()}
+        ></SurveyQuestionMatrixActionsCell>
       );
     }
     if (cell.hasPanel) {
@@ -219,40 +218,18 @@ export class SurveyQuestionMatrixDropdownBase extends SurveyQuestionElementBase 
       </td>
     );
   }
-  renderRemoveButton(row: MatrixDropdownRowModelBase): JSX.Element {
-    return null;
-  }
 }
 
-export class SurveyQuestionMatrixDetailButton extends ReactSurveyElement {
+class SurveyQuestionMatrixActionsCell extends ReactSurveyElement {
   constructor(props: any) {
     super(props);
-    this.handleOnShowHideClick = this.handleOnShowHideClick.bind(this);
   }
-  private get question(): QuestionMatrixDropdownModelBase {
-    return this.props.question;
-  }
-  private get row(): MatrixDropdownRowModelBase {
-    return this.props.row;
-  }
-  handleOnShowHideClick(event: any) {
-    this.row.showHideDetailPanelClick();
+
+  get items(): Array<IActionBarItem> {
+    return this.props.items;
   }
   protected renderElement(): JSX.Element {
-    var isExpanded = this.row.isDetailPanelShowing;
-    var ariaExpanded = isExpanded;
-    var ariaControls = isExpanded ? this.row.detailPanelId : null;
-    return (
-      <button
-        type="button"
-        onClick={this.handleOnShowHideClick}
-        className={this.question.getDetailPanelButtonCss(this.row)}
-        aria-expanded={ariaExpanded}
-        aria-controls={ariaControls}
-      >
-        <span className={this.question.getDetailPanelIconCss(this.row)} />
-      </button>
-    );
+    return <SurveyActionBar items={this.items}></SurveyActionBar>;
   }
 }
 

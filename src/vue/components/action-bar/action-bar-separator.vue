@@ -7,7 +7,7 @@ import Vue from "vue";
 import { Prop, Component } from "vue-property-decorator";
 
 @Component
-export class ActionBarSeparator extends Vue {
+export class ActionBarSeparatorViewModel extends Vue {
   @Prop() item: any;
 
   public get innerCss(): string {
@@ -15,6 +15,6 @@ export class ActionBarSeparator extends Vue {
   }
 }
 
-Vue.component("sv-action-bar-separator", ActionBarSeparator);
-export default ActionBarSeparator;
+Vue.component("sv-action-bar-separator", ActionBarSeparatorViewModel);
+export default ActionBarSeparatorViewModel;
 </script>

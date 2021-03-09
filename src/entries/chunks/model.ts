@@ -94,7 +94,7 @@ export {
 } from "../../question_matrixdynamic";
 export {
   MatrixRowModel,
-  MartrixCells,
+  MatrixCells,
   QuestionMatrixModel,
   IMatrixData,
 } from "../../question_matrix";

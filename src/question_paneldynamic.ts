@@ -1496,7 +1496,10 @@ export class QuestionPanelDynamicModel
     if (!qValue || !Array.isArray(qValue) || qValue.length <= index) return {};
     return qValue[index];
   }
+  private isSetPanelItemData: boolean;
   setPanelItemData(item: ISurveyData, name: string, val: any) {
+    if(this.isSetPanelItemData) return;
+    this.isSetPanelItemData = true;
     var items = this.items;
     var index = items.indexOf(item);
     if (index < 0) index = items.length;
@@ -1533,6 +1536,7 @@ export class QuestionPanelDynamicModel
       };
       this.survey.dynamicPanelItemValueChanged(this, options);
     }
+    this.isSetPanelItemData = undefined;
   }
   getRootData(): ISurveyData {
     return this.data;

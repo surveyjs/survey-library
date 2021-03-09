@@ -37,7 +37,7 @@ import { Base } from "survey-core";
 import BaseVue from "../../base";
 
 @Component
-export class ActionBarItem extends BaseVue {
+export class ActionBarItemViewModel extends BaseVue {
   @Prop
   public item: AdaptiveActionBarItemWrapper;
 
@@ -46,6 +46,6 @@ export class ActionBarItem extends BaseVue {
   }
 }
 
-Vue.component("sv-action-bar-item", ActionBarItem);
-export default ActionBarItem;
+Vue.component("sv-action-bar-item", ActionBarItemViewModel);
+export default ActionBarItemViewModel;
 </script>

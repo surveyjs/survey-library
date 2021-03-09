@@ -58,7 +58,7 @@ export { DragDropTD } from "../vue/drag-drop-td.vue";
 export { TitleContent } from "../vue/titlecontent.vue";
 export { TitleActions } from "../vue/components/title-actions/title-actions.vue";
 export { DefaultTitle } from "../vue/components/default-title/default-title.vue";
-export { ActionBar } from "../vue/components/action-bar/action-bar.vue";
+export { ActionBarViewModel } from "../vue/components/action-bar/action-bar.vue";
 export { SvgIcon } from "../vue/components/svg-icon/svg-icon.vue";
 export { Popup } from "../vue/components/popup/popup.vue";
 export { List } from "../vue/components/list/list.vue";

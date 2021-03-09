@@ -23,8 +23,8 @@ import { Question } from "survey-core";
 
 @Component
 export class OtherChoice extends Vue {
-  @Prop question: Question;
-  @Prop commentClass: any;
+  @Prop() question: Question;
+  @Prop() commentClass: any;
   change(event: any) {
     this.question.comment = event.target.value;
   }

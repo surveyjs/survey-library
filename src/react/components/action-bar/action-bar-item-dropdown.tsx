@@ -1,9 +1,9 @@
 import React from "react";
 import { ReactElementFactory } from "../../element-factory";
 import { Popup } from "../popup/popup";
-import { ActionBarItem } from "./action-bar-item";
+import { SurveyActionBarItem } from "./action-bar-item";
 
-export class ActionBarItemDropdown extends ActionBarItem {
+export class SurveyActionBarItemDropdown extends SurveyActionBarItem {
   renderButtonContent() {
     const buttonContent = super.renderButtonContent();
     return (
@@ -16,5 +16,5 @@ export class ActionBarItemDropdown extends ActionBarItem {
 }
 
 ReactElementFactory.Instance.registerElement("sv-action-bar-item-dropdown", (props) => {
-  return React.createElement(ActionBarItemDropdown, props);
+  return React.createElement(SurveyActionBarItemDropdown, props);
 });

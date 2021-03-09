@@ -8,9 +8,9 @@ import { BaseVue } from "./base";
 export class QuestionVue<T extends Question> extends BaseVue {
   public innerValue: any = null;
 
-  @Prop question: T;
+  @Prop() question: T;
   // css prop need only for panel. When panel will have cssClasses property this prop will need to remove
-  @Prop css: any;
+  @Prop() css: any;
 
   @Watch("question")
   changeQuestion(new_val: T, old_val: T) {
@@ -21,12 +21,12 @@ export class QuestionVue<T extends Question> extends BaseVue {
   }
   protected onMounted() {
     if (this.question) {
-      this.question.afterRenderQuestionElement(this.$el);
+      this.question.afterRenderQuestionElement(this.$el as HTMLElement);
     }
   }
   beforeDestroy() {
     if (this.question) {
-      this.question.beforeDestroyQuestionElement(this.$el);
+      this.question.beforeDestroyQuestionElement(this.$el as HTMLElement);
     }
   }
 }

@@ -9,10 +9,8 @@ import { SurveyModel } from "survey-core";
 
 @Component
 export class TimerPanel extends Vue {
-  @Prop
-  survey: SurveyModel;
-  @Prop
-  css: any;
+  @Prop() survey: SurveyModel;
+  @Prop() css: any;
   get text() {
     return this.survey.timerInfoText;
   }

@@ -31,9 +31,9 @@ import { FlowPanelModel } from "survey-core";
 
 @Component
 export class FlowPanel extends Vue {
-  @Prop question: FlowPanelModel;
-  @Prop isEditMode: Boolean;
-  @Prop css: any;
+  @Prop() question: FlowPanelModel;
+  @Prop() isEditMode: Boolean;
+  @Prop() css: any;
   private isCollapsedValue: boolean = false;
   private rootNodeValue: Node;
 
@@ -60,7 +60,7 @@ export class FlowPanel extends Vue {
   }
   mounted() {
     if (this.question.survey) {
-      this.question.survey.afterRenderPanel(this.question, this.$el);
+      this.question.survey.afterRenderPanel(this.question, this.$el as HTMLElement);
     }
     this.isCollapsed = this.question.isCollapsed;
     var self = this;

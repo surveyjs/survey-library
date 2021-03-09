@@ -40,9 +40,9 @@ import { FlowPanelModel } from "survey-core";
 @Component
 export class FlowPanelElement extends Vue {
   static idValue: number;
-  @Prop node: Node;
-  @Prop panel: FlowPanelModel;
-  @Prop css: any;
+  @Prop() node: Node;
+  @Prop() panel: FlowPanelModel;
+  @Prop() css: any;
   private elementIdValue: string;
   public question: Question = null;
   public tagName: string = "span";

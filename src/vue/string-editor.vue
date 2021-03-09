@@ -28,8 +28,7 @@ import { LocalizableString } from "survey-core";
 
 @Component
 export class SurveyStringEditor extends Vue {
-  @Prop
-  locString: LocalizableString;
+  @Prop() locString: LocalizableString;
 
   onInput = (event: any) => {
     this.locString.text = event.target.innerText;

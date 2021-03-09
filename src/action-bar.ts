@@ -67,6 +67,7 @@ export interface IActionBarItem {
    * Toolbar item child items. Can be used as contianer for options
    */
   items?: any;
+  location?: string;
 }
 
 export class ActionBarItem extends Base implements IActionBarItem {

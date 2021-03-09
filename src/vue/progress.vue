@@ -24,8 +24,8 @@ import { SurveyModel } from "survey-core";
 
 @Component
 export class Progress extends Vue {
-  @Prop survey: SurveyModel;
-  @Prop css: any;
+  @Prop() survey: SurveyModel;
+  @Prop() css: any;
   get progress() {
     return this.survey.progressValue + "%";
   }

@@ -54,7 +54,7 @@ import { BaseVue } from "../../base";
 
 @Component
 export class PopupContainer extends BaseVue {
-  @Prop model: PopupViewModel;
+  @Prop() model: PopupViewModel;
 
   protected getModel() {
     return this.model;

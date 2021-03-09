@@ -36,11 +36,11 @@ import { VueSurveyWindowModel } from "./surveyModel";
 
 @Component
 export class Window extends Vue {
-  @Prop window: SurveyWindowModel;
-  @Prop survey: SurveyModel;
-  @Prop isExpanded: boolean;
-  @Prop isexpanded: boolean;
-  @Prop closeOnCompleteTimeout: number;
+  @Prop() window: SurveyWindowModel;
+  @Prop() survey: SurveyModel;
+  @Prop() isExpanded: boolean;
+  @Prop() isexpanded: boolean;
+  @Prop() closeOnCompleteTimeout: number;
 
   surveyWindow: SurveyWindowModel;
   constructor() {

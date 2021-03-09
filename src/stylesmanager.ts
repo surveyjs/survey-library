@@ -318,6 +318,8 @@ export class StylesManager {
     ".sv_main .sv-title-actions__title":
       "flex-wrap: wrap; max-width: 90%; min-width: 50%;",
     ".sv_main .sv-title-actions__bar": "min-width: 56px;",
+    ".sv_main .sv_matrix_cell_actions .sv-action-bar, .sv_main .sv_matrix_cell_actions sv-action-bar":
+      "margin-left: 0; padding-left: 0;",
   };
 
   public static Media: { [key: string]: { media: string; style: string } } = {

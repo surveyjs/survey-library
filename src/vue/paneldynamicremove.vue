@@ -21,8 +21,8 @@ import { ISurvey } from "survey-core";
 
 @Component
 export class PanelDynamicRemove extends Vue {
-  @Prop question: QuestionPanelDynamicModel;
-  @Prop panel: PanelModel;
+  @Prop() question: QuestionPanelDynamicModel;
+  @Prop() panel: PanelModel;
   private isCollapsedValue: boolean = false;
 
   mounted() {

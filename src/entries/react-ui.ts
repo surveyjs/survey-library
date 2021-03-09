@@ -67,8 +67,10 @@ export { DefaultTitle } from "../react/components/default-title/default-title";
 export { Popup } from "../react/components/popup/popup";
 export { List } from "../react/components/list/list";
 export { TitleActions } from "../react/components/title-actions/title-actions";
-export { ActionBar } from "../react/components/action-bar/action-bar";
+export { SurveyActionBar } from "../react/components/action-bar/action-bar";
 export { SvgIcon } from "../react/components/svg-icon/svg-icon";
+export { SurveyQuestionMatrixDynamicRemoveButton } from "../react/components/matrix-actions/remove-button/remove-button";
+export { SurveyQuestionMatrixDetailButton } from "../react/components/matrix-actions/detail-button/detail-button";
 
 export { SurveyLocStringViewer } from "../react/string-viewer";
 export { SurveyLocStringEditor } from "../react/string-editor";

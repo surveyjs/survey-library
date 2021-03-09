@@ -108,7 +108,7 @@ steps:
 
 - task: CopyFiles@2
   inputs:
-    SourceFolder: '$(Build.SourcesDirectory)/survey-library/packages'
+    SourceFolder: '$(Build.SourcesDirectory)/survey-library/build'
     TargetFolder: '$(Build.ArtifactStagingDirectory)/SurveyJSLibraryBuild/packages'
 
 #trigger next build via the artifact file 'version.txt'

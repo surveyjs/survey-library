@@ -250,6 +250,7 @@ export var modernCss = {
     detailIcon: "sv-detail-panel__icon",
     detailIconExpanded: "sv-detail-panel__icon--expanded",
     detailPanelCell: "sv-table__cell--detail-panel",
+    actionsCell: "sv-table__cell sv-table__cell--actions",
   },
   matrixdynamic: {
     root: "sv-table sv-matrixdynamic",
@@ -269,6 +270,7 @@ export var modernCss = {
     detailIcon: "sv-detail-panel__icon",
     detailIconExpanded: "sv-detail-panel__icon--expanded",
     detailPanelCell: "sv-table__cell--detail-panel",
+    actionsCell: "sv-table__cell sv-table__cell--actions",
     emptyRowsSection: "sv-table__empty--rows--section",
     emptyRowsText: "sv-table__empty--rows--text",
     emptyRowsButton: "",

@@ -43,8 +43,8 @@ import { Question } from "survey-core";
 
 @Component
 export class ElementHeader extends Vue {
-  @Prop element: IElement;
-  @Prop css: any;
+  @Prop() element: IElement;
+  @Prop() css: any;
 
   beforeDestroy() {
     this.element.stateChangedCallback = null;

@@ -53,7 +53,7 @@ import { Question } from "survey-core";
 
 @Component
 export class PanelDynamicProgress extends Vue {
-  @Prop question: QuestionPanelDynamicModel;
+  @Prop() question: QuestionPanelDynamicModel;
 
   get cssClass() {
     return this.question.isProgressTopShowing

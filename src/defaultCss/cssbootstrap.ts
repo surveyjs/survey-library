@@ -33,8 +33,10 @@ export var defaultBootstrapCss = {
   progressButtonsListContainer: "sv_progress-buttons__list-container",
   progressButtonsList: "sv_progress-buttons__list",
   progressButtonsListElementPassed: "sv_progress-buttons__list-element--passed",
-  progressButtonsListElementCurrent: "sv_progress-buttons__list-element--current",
-  progressButtonsListElementNonClickable: "sv_progress-buttons__list-element--nonclickable",
+  progressButtonsListElementCurrent:
+    "sv_progress-buttons__list-element--current",
+  progressButtonsListElementNonClickable:
+    "sv_progress-buttons__list-element--nonclickable",
   progressButtonsPageTitle: "sv_progress-buttons__page-title",
   progressButtonsPageDescription: "sv_progress-buttons__page-description",
   page: {
@@ -164,6 +166,7 @@ export var defaultBootstrapCss = {
     detailIcon: "sv_detail_panel_icon",
     detailIconExpanded: "sv_detail_expanded",
     detailPanelCell: "sv_matrix_cell_detail_panel",
+    actionsCell: "sv_matrix_cell sv_matrix_cell_actions",
   },
   matrixdynamic: {
     root: "table",
@@ -181,6 +184,7 @@ export var defaultBootstrapCss = {
     detailIcon: "sv_detail_panel_icon",
     detailIconExpanded: "sv_detail_expanded",
     detailPanelCell: "sv_matrix_cell_detail_panel",
+    actionsCell: "sv_matrix_cell sv_matrix_cell_actions",
     emptyRowsSection: "sv_matrix_empty_rows_section",
     emptyRowsText: "sv_matrix_empty_rows_text",
     emptyRowsButton: "",

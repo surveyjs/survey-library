@@ -1,15 +1,18 @@
 ﻿var path = require("path");
 var webpack = require("webpack");
-var webpackConfigCreator = require("./webpack.config");
+var webpackConfigCreator = require("./build-scripts/webpack.common");
+var packageJson = require("./package.json");
 var webpackConfig = webpackConfigCreator({
-  platform: "knockout",
-  buildType: "dev"
-});
+    platform: "knockout",
+    buildType: "dev",
+  },
+  packageJson
+);
 
 process.env.CHROME_BIN = require("puppeteer").executablePath();
 
 /*setup ts config file for tests ("noImplicitAny": false)*/
-webpackConfig.module.rules[0].use.options.configFile = path.join(
+webpackConfig.module.rules[0].options.configFile = path.join(
   __dirname,
   "tsconfig.tests.json"
 );

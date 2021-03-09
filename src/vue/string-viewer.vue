@@ -16,8 +16,7 @@ import { LocalizableString } from "survey-core";
 
 @Component
 export class SurveyStringViewer extends Vue {
-  @Prop
-  locString: LocalizableString;
+  @Prop() locString: LocalizableString;
 }
 
 Vue.component(LocalizableString.defaultRenderer, SurveyStringViewer);

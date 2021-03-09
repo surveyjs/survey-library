@@ -180,6 +180,7 @@ export var defaultStandardCss = {
     detailIcon: "sv_detail_panel_icon",
     detailIconExpanded: "sv_detail_expanded",
     detailPanelCell: "sv_matrix_cell_detail_panel",
+    actionsCell: "sv_matrix_cell sv_matrix_cell_actions"
   },
   matrixdynamic: {
     root: "sv_q_matrix_dynamic",
@@ -199,6 +200,7 @@ export var defaultStandardCss = {
     detailIcon: "sv_detail_panel_icon",
     detailIconExpanded: "sv_detail_expanded",
     detailPanelCell: "sv_matrix_cell_detail_panel",
+    actionsCell: "sv_matrix_cell sv_matrix_cell_actions",
     emptyRowsSection: "sv_matrix_empty_rows_section",
     emptyRowsText: "sv_matrix_empty_rows_text",
     emptyRowsButton: "",

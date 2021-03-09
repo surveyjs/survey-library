@@ -941,6 +941,12 @@ export class SurveyModel
     any
   > = new Event<(sender: SurveyModel, options: any) => any, any>();
 
+
+  public onGetMatrixRowActions: Event<
+    (sender: SurveyModel, options: any) => any,
+    any
+  > = new Event<(sender: SurveyModel, options: any) => any, any>();
+
   /**
    * The event is fired after the survey element content was collapsed or expanded.
    * <br/> `sender` - the survey object that fires the event.
@@ -3898,6 +3904,20 @@ export class SurveyModel
     };
     this.onGetPageTitleActions.fire(this, options);
     return options.titleActions;
+  }
+
+  getUpdatedMatrixRowActions(
+    question: IQuestion,
+    row: any,
+    actions: Array<IActionBarItem>
+  ) {
+    var options = {
+      question: question,
+      actions: actions,
+      row: row
+    };
+    this.onGetMatrixRowActions.fire(this, options);
+    return options.actions;
   }
 
   scrollElementToTop(

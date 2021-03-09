@@ -74,7 +74,7 @@ export interface IMatrixCellsOwner extends ILocalizableOwner {
   getColumns(): Array<any>;
 }
 
-export class MartrixCells {
+export class MatrixCells {
   private values: { [index: string]: any } = {};
   public constructor(public cellsOwner: IMatrixCellsOwner) {}
   public get isEmpty(): boolean {
@@ -197,11 +197,11 @@ export class QuestionMatrixModel
   extends QuestionMatrixBaseModel<MatrixRowModel, ItemValue>
   implements IMatrixData, IMatrixCellsOwner {
   private isRowChanging = false;
-  private cellsValue: MartrixCells;
+  private cellsValue: MatrixCells;
 
   constructor(name: string) {
     super(name);
-    this.cellsValue = new MartrixCells(this);
+    this.cellsValue = new MatrixCells(this);
     var self = this;
     this.registerFunctionOnPropertyValueChanged("columns", function () {
       self.onColumnsChanged();
@@ -366,10 +366,10 @@ export class QuestionMatrixModel
   public get visibleRows(): Array<MatrixRowModel> {
     return this.getVisibleRows();
   }
-  public get cells(): MartrixCells {
+  public get cells(): MatrixCells {
     return this.cellsValue;
   }
-  public set cells(value: MartrixCells) {
+  public set cells(value: MatrixCells) {
     this.cells.setJson(value && value.getJson ? value.getJson() : null);
   }
   public get hasCellText(): boolean {

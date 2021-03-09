@@ -49,9 +49,7 @@ import { VueSurveyModel as SurveyModel } from "./surveyModel";
 
 @Component
 export class SurveyHeader extends Vue {
-  @Prop
-  @Prop
-  survey: SurveyModel;
+  @Prop() survey: SurveyModel;
 
   mounted() {
     var el = this.$el;

@@ -1,4 +1,4 @@
-cd packages
+cd build
 cd survey-angular
 printf "//registry.npmjs.org/:_authToken=${NPM_TOKEN}\n" >> ./.npmrc
 npm publish .

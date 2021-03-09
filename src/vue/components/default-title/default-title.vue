@@ -22,8 +22,8 @@ import { Prop } from "vue-property-decorator";
 
 @Component
 export class DefaultTitle extends Vue {
-  @Prop element: any;
-  @Prop css: any;
+  @Prop() element: any;
+  @Prop() css: any;
   get showIcon() {
     return this.element.isExpanded || this.element.isCollapsed;
   }

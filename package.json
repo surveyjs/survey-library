@@ -30,12 +30,12 @@
     "doc_update": "chmod +x ./docupdate_npm.sh && ./docupdate_npm.sh",
     "lint": "tslint ./src/**/*.ts -t verbose",
     
-    "watch_knockout_dev": "webpack --env.buildType dev --env.platform knockout --watch",
-    "watch_react_dev": "webpack --env.buildType dev --env.platform react --watch",
-    "watch_angular_dev": "webpack --env.buildType dev --env.platform angular --watch",
-    "watch_jquery_dev": "webpack --env.buildType dev --env.platform jquery --watch",
-    "watch_vue_dev": "webpack --env.buildType dev --env.platform vue --watch",
-    "watch_core_dev": "webpack --env.buildType dev --env.platform core --watch",
+    "watch_knockout_dev": "webpack --config ./build-scripts/survey-knockout/webpack.config.js --env.buildType dev --watch",
+    "watch_react_dev": "webpack --config ./build-scripts/survey-react/webpack.config.js --env.buildType dev --watch",
+    "watch_angular_dev": "webpack --config ./build-scripts/survey-angular/webpack.config.js --env.buildType dev --watch",
+    "watch_jquery_dev": "webpack --config ./build-scripts/survey-jquery/webpack.config.js --env.buildType dev --watch",
+    "watch_vue_dev": "webpack --config ./build-scripts/survey-vue/webpack.config.js --env.buildType dev --watch",
+    "watch_core_dev": "webpack --config ./build-scripts/survey-core/webpack.config.js --env.buildType dev --watch",
     
     "build_knockout": "npm run build_knockout_dev && npm run build_knockout_prod",
     "build_knockout_ui": "webpack --config ./build-scripts/survey-knockout-ui/webpack.config.js --env.buildType dev && webpack --config ./build-scripts/survey-knockout-ui/webpack.config.js --env.buildType prod",

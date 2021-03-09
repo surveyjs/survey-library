@@ -23,8 +23,7 @@ import BaseVue from "../../../base";
 
 @Component
 export class SurveyQuestionMatrixDetailButton extends BaseVue {
-  @Prop
-  public item: AdaptiveActionBarItemWrapper;
+  @Prop() public item: AdaptiveActionBarItemWrapper;
 
   get question() {
     return this.item.data.question;

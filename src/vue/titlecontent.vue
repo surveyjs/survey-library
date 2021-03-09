@@ -36,8 +36,8 @@ import { IElement } from "survey-core";
 
 @Component
 export class TitleContent extends Vue {
-  @Prop element: IElement;
-  @Prop css: any;
+  @Prop() element: IElement;
+  @Prop() css: any;
 }
 Vue.component("survey-question-title-content", TitleContent);
 export default TitleContent;

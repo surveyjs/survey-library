@@ -84,7 +84,7 @@ steps:
 - task: Npm@1
   inputs:
     command: 'publish'
-    workingDir: 'packages/survey-angular'
+    workingDir: 'build/survey-angular'
     publishEndpoint: 'NPM Registry'
     verbose: true
   displayName: 'npm publish survey-angular'
@@ -92,7 +92,7 @@ steps:
 - task: Npm@1
   inputs:
     command: 'publish'
-    workingDir: 'packages/survey-react'
+    workingDir: 'build/survey-react'
     publishEndpoint: 'NPM Registry'
     verbose: true
   displayName: 'npm publish survey-react'
@@ -100,7 +100,7 @@ steps:
 - task: Npm@1
   inputs:
     command: 'publish'
-    workingDir: 'packages/survey-vue'
+    workingDir: 'build/survey-vue'
     publishEndpoint: 'NPM Registry'
     verbose: true
   displayName: 'npm publish survey-vue'
@@ -108,7 +108,7 @@ steps:
 - task: Npm@1
   inputs:
     command: 'publish'
-    workingDir: 'packages/survey-knockout'
+    workingDir: 'build/survey-knockout'
     publishEndpoint: 'NPM Registry'
     verbose: true
   displayName: 'npm publish survey-knockout'
@@ -116,7 +116,7 @@ steps:
 - task: Npm@1
   inputs:
     command: 'publish'
-    workingDir: 'packages/survey-jquery'
+    workingDir: 'build/survey-jquery'
     publishEndpoint: 'NPM Registry'
     verbose: true
   displayName: 'npm publish survey-jquery'
@@ -124,7 +124,7 @@ steps:
 - task: Npm@1
   inputs:
     command: 'publish'
-    workingDir: 'packages/survey-core'
+    workingDir: 'build/survey-core'
     publishEndpoint: 'NPM Registry'
     verbose: true
   displayName: 'npm publish survey-core'

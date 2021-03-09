@@ -12,8 +12,8 @@ import { BaseVue } from "../../base";
 @Component
 export class Popup extends BaseVue {
   private container: HTMLElement;
-  @Prop model: PopupModel;
-  @Prop targetElement: HTMLElement;
+  @Prop() model: PopupModel;
+  @Prop() targetElement: HTMLElement;
 
   protected getModel() {
     return this.model;

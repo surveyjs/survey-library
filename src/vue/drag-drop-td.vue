@@ -18,7 +18,7 @@ import { Component, Prop } from "vue-property-decorator";
 
 @Component
 export class DragDropTD extends Vue {
-  @Prop question: any;
+  @Prop() question: any;
 }
 Vue.component("drag-drop-td", DragDropTD);
 export default DragDropTD;

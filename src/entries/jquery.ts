@@ -1,9 +1,11 @@
 import * as ko from "knockout";
 import jQuery from "jquery";
 
+export * from "./core";
+/*
 // model
 export * from "./chunks/model";
-import "../modern.scss";
+//import "../modern.scss";
 
 // localization
 import "./chunks/localization";
@@ -18,7 +20,7 @@ export { defaultBootstrapCss } from "../defaultCss/cssbootstrap";
 // css bootstrap + material
 export { defaultBootstrapMaterialCss } from "../defaultCss/cssbootstrapmaterial";
 export { modernCss } from "../defaultCss/cssmodern";
-
+*/
 import { Survey, SurveyWindow } from "./knockout";
 export { Survey as Model };
 

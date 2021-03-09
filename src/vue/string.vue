@@ -9,8 +9,7 @@ import { LocalizableString } from "survey-core";
 
 @Component
 export class SurveyString extends Vue {
-  @Prop
-  locString: LocalizableString;
+  @Prop() locString: LocalizableString;
 }
 
 Vue.component("survey-string", SurveyString);

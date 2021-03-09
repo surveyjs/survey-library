@@ -8,7 +8,7 @@ import { Prop, Component } from "vue-property-decorator";
 
 @Component
 export class ActionBarSeparator extends Vue {
-  @Prop item: any;
+  @Prop() item: any;
 
   public get innerCss(): string {
     return this.item && this.item.innerCss;

@@ -139,7 +139,7 @@ import { Base } from "survey-core";
 
 @Component
 export class Survey extends BaseVue {
-  @Prop survey: SurveyModel;
+  @Prop() survey: SurveyModel;
   processedCompletedHtmlValue: string;
 
   forceUpdate() {

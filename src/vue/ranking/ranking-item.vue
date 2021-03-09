@@ -39,10 +39,10 @@ import { Component, Prop } from "vue-property-decorator";
 
 @Component
 export class RankingItem extends Vue {
-  @Prop index: number;
-  @Prop text: string;
-  @Prop handleKeydown: ()=>{};
-  @Prop cssClasses: any
+  @Prop() index: number;
+  @Prop() text: string;
+  @Prop() handleKeydown: ()=>{};
+  @Prop() cssClasses: any
 }
 Vue.component("survey-ranking-item", RankingItem);
 export default RankingItem;

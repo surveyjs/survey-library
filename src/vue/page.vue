@@ -29,9 +29,9 @@ import { BaseVue } from "./base";
 
 @Component
 export class Page extends BaseVue {
-  @Prop survey: SurveyModel;
-  @Prop page: PageModel;
-  @Prop css: Object;
+  @Prop() survey: SurveyModel;
+  @Prop() page: PageModel;
+  @Prop() css: Object;
 
   isCurrentPageChanged: boolean = false;
   protected getModel(): Base {
@@ -39,7 +39,7 @@ export class Page extends BaseVue {
   }
   protected onMounted() {
     if (this.survey) {
-      this.survey.afterRenderPage(this.$el);
+      this.survey.afterRenderPage(this.$el as HTMLElement);
 
       this.survey.onCurrentPageChanged.add((sender, options) => {
         this.isCurrentPageChanged = true;
@@ -48,7 +48,7 @@ export class Page extends BaseVue {
   }
   protected onUpdated() {
     var self = this;
-    self.survey.afterRenderPage(this.$el);
+    self.survey.afterRenderPage(this.$el as HTMLElement);
     this.$nextTick(function () {
       if (this.isCurrentPageChanged) {
         this.isCurrentPageChanged = false;

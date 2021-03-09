@@ -51,8 +51,8 @@ import { SurveyProgressButtonsModel } from "survey-core";
 
 @Component
 export class ProgressButtons extends Vue {
-  @Prop survey: SurveyModel;
-  @Prop css: any;
+  @Prop() survey: SurveyModel;
+  @Prop() css: any;
   public hasScroller: boolean = false;
   private progressButtonsModel: SurveyProgressButtonsModel;
   private updateScroller: any = undefined;

@@ -51,9 +51,9 @@ import { IElement } from "survey-core";
 import { Question } from "survey-core";
 @Component
 export class SurveyElementVue extends Vue {
-  @Prop css: any;
-  @Prop survey: SurveyModel;
-  @Prop element: IElement;
+  @Prop() css: any;
+  @Prop() survey: SurveyModel;
+  @Prop() element: IElement;
   getComponentName(element: Question) {
     if (element.customWidget) return "survey-customwidget";
     if (element.getType() === "panel" || element.isDefaultRendering()) {
@@ -82,7 +82,7 @@ export class SurveyElementVue extends Vue {
   }
   mounted() {
     if (!this.element.isPanel) {
-      (<Question>this.element).afterRender(this.$el);
+      (<Question>this.element).afterRender(this.$el as HTMLElement);
     }
   }
 }

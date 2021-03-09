@@ -38,8 +38,7 @@ import BaseVue from "../../base";
 
 @Component
 export class ActionBarItem extends BaseVue {
-  @Prop
-  public item: AdaptiveActionBarItemWrapper;
+  @Prop() public item: AdaptiveActionBarItemWrapper;
 
   getModel(): Base {
     return this.item;

@@ -72,9 +72,9 @@ import { BaseVue } from "./base";
 
 @Component
 export class Panel extends BaseVue {
-  @Prop question: PanelModel;
-  @Prop isEditMode: Boolean;
-  @Prop css: any;
+  @Prop() question: PanelModel;
+  @Prop() isEditMode: Boolean;
+  @Prop() css: any;
 
   private isCollapsed: boolean = false;
 
@@ -83,7 +83,7 @@ export class Panel extends BaseVue {
   }
   protected onMounted() {
     if (this.question.survey) {
-      this.question.survey.afterRenderPanel(this.question, this.$el);
+      this.question.survey.afterRenderPanel(this.question, this.$el as HTMLElement);
     }
     this.isCollapsed = this.question.isCollapsed;
 

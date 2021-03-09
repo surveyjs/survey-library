@@ -55,7 +55,7 @@ import { Base } from "survey-core";
 
 @Component
 export class MatrixTable extends BaseVue {
-  @Prop question: QuestionMatrixDropdownModelBase;
+  @Prop() question: QuestionMatrixDropdownModelBase;
   get table(): QuestionMatrixDropdownRenderedTable {
     return this.question.renderedTable;
   }

@@ -35,8 +35,8 @@ import { SurveyError } from "survey-core";
 
 @Component
 export class Errors extends Vue {
-  @Prop question: Question;
-  @Prop location: String;
+  @Prop() question: Question;
+  @Prop() location: String;
 
   get isShow() {
     return this.question.hasVisibleErrors;

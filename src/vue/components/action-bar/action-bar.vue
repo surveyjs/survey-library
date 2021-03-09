@@ -39,7 +39,7 @@ export * from "./action-bar-separator.vue";
 
 @Component
 export class ActionBar extends Vue {
-  @Prop items: Array<IActionBarItem>;
+  @Prop() items: Array<IActionBarItem>;
   private adaptiveElement = new AdaptiveElement();
 
   constructor() {

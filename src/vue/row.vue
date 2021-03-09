@@ -38,9 +38,9 @@ import { Base } from "survey-core";
 
 @Component
 export class Row extends BaseVue {
-  @Prop row: QuestionRowModel;
-  @Prop css: any;
-  @Prop survey: SurveyModel;
+  @Prop() row: QuestionRowModel;
+  @Prop() css: any;
+  @Prop() survey: SurveyModel;
 
   protected getModel(): Base {
     return this.row;
@@ -50,7 +50,7 @@ export class Row extends BaseVue {
       if (!this.row.isNeedRender) {
         var rowContainerDiv = this.$el;
         setTimeout(() => {
-          this.row.startLazyRendering(rowContainerDiv);
+          this.row.startLazyRendering(rowContainerDiv as HTMLElement);
         }, 10);
       }
     }

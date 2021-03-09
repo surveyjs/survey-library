@@ -12,8 +12,8 @@ import { QuestionHtmlModel } from "survey-core";
 
 @Component
 export class Html extends Vue {
-  @Prop question: QuestionHtmlModel;
-  @Prop css: any;
+  @Prop() question: QuestionHtmlModel;
+  @Prop() css: any;
 }
 Vue.component("survey-html", Html);
 export default Html;

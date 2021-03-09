@@ -27,8 +27,8 @@ import { QuestionImageModel } from "survey-core";
 
 @Component
 export class Image extends Vue {
-  @Prop question: QuestionImageModel;
-  @Prop css: any;
+  @Prop() question: QuestionImageModel;
+  @Prop() css: any;
 }
 Vue.component("survey-image", Image);
 export default Image;

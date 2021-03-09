@@ -23,8 +23,8 @@ import { RendererFactory } from "survey-core";
 
 @Component
 export class TitleActions extends Vue {
-  @Prop element: ISurveyElement;
-  @Prop css: any;
+  @Prop() element: ISurveyElement;
+  @Prop() css: any;
   constructor() {
     super();
   }

@@ -46,8 +46,8 @@ import { PageModel } from "survey-core";
 @Component
 export class Navigation extends Vue {
   private mouseDownPage: PageModel;
-  @Prop survey: SurveyModel;
-  @Prop css: any;
+  @Prop() survey: SurveyModel;
+  @Prop() css: any;
   nextButtonMouseDown() {
     this.mouseDownPage = this.survey.currentPage;
     return this.survey.navigationMouseDown();

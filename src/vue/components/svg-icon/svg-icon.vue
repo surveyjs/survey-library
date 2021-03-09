@@ -9,10 +9,10 @@ import { createSvg } from "survey-core";
 
 @Component
 export class SvgIcon extends Vue {
-  @Prop size: any;
-  @Prop width: number;
-  @Prop height: number;
-  @Prop iconName: string;
+  @Prop() size: any;
+  @Prop() width: number;
+  @Prop() height: number;
+  @Prop() iconName: string;
 
   constructor() {
     super();

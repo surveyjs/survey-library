@@ -3391,6 +3391,24 @@ QUnit.test(
   }
 );
 
+QUnit.test("other's comment value is properly set from data", function (assert) {
+  var json = {
+    questions: [
+      {
+        type: "checkbox",
+        name: "q1",
+        hasOther: true
+      },
+    ],
+  };
+  var survey = new SurveyModel(json);
+  var question = <QuestionSelectBase>survey.getAllQuestions()[0];
+  survey.data = { "q1": [ "other" ], "q1-Comment": "comment" }
+  survey.data = { "q1": [] }
+  survey.data = { "q1": [ "other" ], "q1-Comment": "comment1" }
+  assert.equal(question.comment, "comment1");
+});
+
 QUnit.test("QuestionImagePicker.isItemSelected function", function (assert) {
   var question = new QuestionImagePickerModel("q1");
   new JsonObject().toObject(

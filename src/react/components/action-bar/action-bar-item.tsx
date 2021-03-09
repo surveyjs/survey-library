@@ -4,13 +4,13 @@ import { Base } from "survey-core";
 import { ReactElementFactory } from "../../element-factory";
 import { SurveyElementBase } from "../../reactquestion_element";
 import { SvgIcon } from "../svg-icon/svg-icon";
-import { ActionBarSeparator } from "./action-bar-separator";
+import { SurveyActionBarSeparator } from "./action-bar-separator";
 
 interface IActionBarItemProps {
   item: AdaptiveActionBarItemWrapper;
 }
 
-export class Action extends SurveyElementBase<IActionBarItemProps, any> {
+export class SurveyAction extends SurveyElementBase<IActionBarItemProps, any> {
   get item() {
     return this.props.item;
   }
@@ -22,7 +22,7 @@ export class Action extends SurveyElementBase<IActionBarItemProps, any> {
     const itemClass =
       "sv-action " + (!this.item.isVisible ? "sv-action--hidden" : "");
     const separator = this.item.needSeparator ? (
-      <ActionBarSeparator></ActionBarSeparator>
+      <SurveyActionBarSeparator></SurveyActionBarSeparator>
     ) : null;
 
     const itemComponent = ReactElementFactory.Instance.createElement(
@@ -40,7 +40,7 @@ export class Action extends SurveyElementBase<IActionBarItemProps, any> {
   }
 }
 
-export class ActionBarItem extends SurveyElementBase<IActionBarItemProps, any> {
+export class SurveyActionBarItem extends SurveyElementBase<IActionBarItemProps, any> {
   get item(): AdaptiveActionBarItemWrapper {
     return this.props.item;
   }
@@ -54,7 +54,7 @@ export class ActionBarItem extends SurveyElementBase<IActionBarItemProps, any> {
       this.item.css +
       (!this.item.isVisible ? " sv-action--hidden" : "");
     const separator = this.item.needSeparator ? (
-      <ActionBarSeparator></ActionBarSeparator>
+      <SurveyActionBarSeparator></SurveyActionBarSeparator>
     ) : null;
     return (
       <>
@@ -118,5 +118,5 @@ export class ActionBarItem extends SurveyElementBase<IActionBarItemProps, any> {
 }
 
 ReactElementFactory.Instance.registerElement("sv-action-bar-item", (props) => {
-  return React.createElement(ActionBarItem, props);
+  return React.createElement(SurveyActionBarItem, props);
 });

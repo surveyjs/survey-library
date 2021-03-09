@@ -6,7 +6,7 @@ import {
 } from "survey-core";
 import { ReactElementFactory } from "../../element-factory";
 import { SurveyElementBase } from "../../reactquestion_element";
-import { Action } from "./action-bar-item";
+import { SurveyAction } from "./action-bar-item";
 
 import { Base } from "survey-core";
 import { ResponsibilityManager } from "survey-core";
@@ -19,7 +19,7 @@ interface IActionBarProps {
   items: Array<IActionBarItem>;
 }
 
-export class ActionBar extends SurveyElementBase<IActionBarProps, any> {
+export class SurveyActionBar extends SurveyElementBase<IActionBarProps, any> {
   private adaptiveElement = new AdaptiveElement();
   private manager: ResponsibilityManager;
   private rootRef: React.RefObject<HTMLDivElement>;
@@ -92,12 +92,12 @@ export class ActionBar extends SurveyElementBase<IActionBarProps, any> {
         if (!item.visible && item.visible !== undefined) {
           return null;
         }
-        return <Action item={item} key={"item" + itemIndex}></Action>;
+        return <SurveyAction item={item} key={"item" + itemIndex}></SurveyAction>;
       }
     );
   }
 }
 
 ReactElementFactory.Instance.registerElement("sv-action-bar", (props) => {
-  return React.createElement(ActionBar, (props as any) as IActionBarProps);
+  return React.createElement(SurveyActionBar, (props as any) as IActionBarProps);
 });

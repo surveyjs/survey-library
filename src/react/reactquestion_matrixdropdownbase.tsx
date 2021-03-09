@@ -15,7 +15,7 @@ import { SurveyQuestionCheckboxItem } from "./reactquestion_checkbox";
 import { SurveyQuestionRadioItem } from "./reactquestion_radiogroup";
 import { SurveyPanel } from "./panel";
 
-import { ActionBar } from "./components/action-bar/action-bar";
+import { SurveyActionBar } from "./components/action-bar/action-bar";
 import { IActionBarItem } from "survey-core";
 import {dragDropTD} from "./drag-drop-td"
 
@@ -229,7 +229,7 @@ class SurveyQuestionMatrixActionsCell extends ReactSurveyElement {
     return this.props.items;
   }
   protected renderElement(): JSX.Element {
-    return <ActionBar items={this.items}></ActionBar>;
+    return <SurveyActionBar items={this.items}></SurveyActionBar>;
   }
 }
 

@@ -925,23 +925,47 @@ export class SurveyModel
     (sender: SurveyModel, value: string) => any,
     any
   > = new Event<(sender: SurveyModel) => any, any>();
-
+  /**
+   * Use this event to change actions in question's title.
+   * <br/> `sender` - the survey object that fires the event.
+   * <br/> `options.question` - a question object for which the event is fired.
+   * <br/> `options.actions` - the actions bound to the question object
+   * @see IActionBarItem
+   */
   public onGetQuestionTitleActions: Event<
     (sender: SurveyModel, options: any) => any,
     any
   > = new Event<(sender: SurveyModel, options: any) => any, any>();
-
+  /**
+   * Use this event to change actions in panel's title.
+   * <br/> `sender` - the survey object that fires the event.
+   * <br/> `options.panel` - a panel object for which the event is fired.
+   * <br/> `options.actions` - the actions bound to the panel object
+   * @see IActionBarItem
+   */
   public onGetPanelTitleActions: Event<
     (sender: SurveyModel, options: any) => any,
     any
   > = new Event<(sender: SurveyModel, options: any) => any, any>();
-
+  /**
+   * Use this event to change actions in page's title.
+   * <br/> `sender` - the survey object that fires the event.
+   * <br/> `options.page` - a page object for which the event is fired.
+   * <br/> `options.actions` - the actions bound to the page object
+   * @see IActionBarItem
+   */
   public onGetPageTitleActions: Event<
     (sender: SurveyModel, options: any) => any,
     any
   > = new Event<(sender: SurveyModel, options: any) => any, any>();
-
-
+  /**
+   * Use this event to change actions in matrix's rows.
+   * <br/> `sender` - the survey object that fires the event.
+   * <br/> `options.question` - a matrix object for which the event is fired.
+   * <br/> `options.row` - a matrix row object for which the event is fired.
+   * <br/> `options.actions` - the actions bound to the matrix row object.
+   * @see IActionBarItem
+   */
   public onGetMatrixRowActions: Event<
     (sender: SurveyModel, options: any) => any,
     any

@@ -67,6 +67,9 @@ export interface IActionBarItem {
    * Toolbar item child items. Can be used as contianer for options
    */
   items?: any;
+  /**
+   * Set this property to "start" or "end" to change action's location in matrix's row
+   */
   location?: string;
 }
 

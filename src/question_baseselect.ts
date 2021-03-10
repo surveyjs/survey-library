@@ -697,14 +697,13 @@ export class QuestionSelectBase extends Question {
   }
   updateValueFromSurvey(newValue: any) {
     var newComment = "";
-    if (
-      this.hasOther &&
-      this.getStoreOthersAsComment() &&
-      this.hasUnknownValue(newValue) &&
-      !this.getHasOther(newValue)
-    ) {
-      newComment = this.getCommentFromValue(newValue);
-      newValue = this.setOtherValueIntoValue(newValue);
+    if (this.hasOther && this.getStoreOthersAsComment()) {
+      if (this.hasUnknownValue(newValue) && !this.getHasOther(newValue)) {
+        newComment = this.getCommentFromValue(newValue);
+        newValue = this.setOtherValueIntoValue(newValue);
+      } else {
+        newComment = this.data.getComment(this.getValueName());
+      }
     }
     super.updateValueFromSurvey(newValue);
     if (!!newComment) {

@@ -27,6 +27,10 @@ export class PageModel extends PanelModelBase implements IPage {
   public get isPage() {
     return true;
   }
+  /**
+   * Use this property to show title in navigation buttons. If the value is empty then page name is used.
+   * @see survey.progressBarType
+   */
   public get navigationTitle(): string {
     return this.getLocalizableStringText("navigationTitle");
   }

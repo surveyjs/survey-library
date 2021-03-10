@@ -202,13 +202,19 @@ export class SurveyQuestionUncontrolledElement<
     if (
       !Helpers.isTwoValueEquals(this.questionBase.value, event.target.value)
     ) {
-      this.questionBase.value = event.target.value;
+      this.setValueCore(event.target.value);
     }
   };
+  protected setValueCore(newValue: any) {
+    this.questionBase.value = newValue;
+  }
+  protected getValueCore(): any {
+    return this.questionBase.value;
+  }
   protected updateDomElement() {
     if (!!this.control) {
       const control: any = this.control;
-      const newValue = this.questionBase.value;
+      const newValue = this.getValueCore();
       if (!Helpers.isTwoValueEquals(newValue, control.value)) {
         control.value = this.getValue(newValue);
       }

@@ -77,8 +77,6 @@ export { SurveyQuestionMatrixDetailButton } from "../knockout/components/matrix-
 //Uncomment to include the "date" question type.
 //export {QuestionDate} from "../plugins/knockout/koquestion_date";
 
-export * from "../rendererFactory";
-
 import * as ko from "knockout";
 import { SurveyModel } from "survey-core";
 import { registerTemplateEngine } from "../knockout/kosurvey";

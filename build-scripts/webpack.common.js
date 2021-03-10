@@ -251,7 +251,7 @@ module.exports = function(options, packageJson, chunkName) {
         packageJson,
         undefined,
         2
-      ),
+      )
     );
   } else {
     config.devtool = "inline-source-map";

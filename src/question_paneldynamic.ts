@@ -189,8 +189,7 @@ export class QuestionPanelDynamicTemplateSurveyImpl implements ISurveyImpl {
  * A Model for a panel dymanic question. You setup the template panel, but adding elements (any question or a panel) and assign a text to it's title, and this panel will be used as a template on creating dynamic panels. The number of panels is defined by panelCount property.
  * An end-user may dynamically add/remove panels, unless you forbidden this.
  */
-export class QuestionPanelDynamicModel
-  extends Question
+export class QuestionPanelDynamicModel extends Question
   implements IQuestionPanelDynamicData {
   private templateValue: PanelModel;
   private loadingPanelCount: number = 0;
@@ -210,11 +209,11 @@ export class QuestionPanelDynamicModel
     this.template.selectedElementInDesign = this;
 
     var self = this;
-    this.template.addElementCallback = function (element) {
+    this.template.addElementCallback = function(element) {
       self.addOnPropertyChangedCallback(element);
       self.rebuildPanels();
     };
-    this.template.removeElementCallback = function (element) {
+    this.template.removeElementCallback = function(element) {
       self.rebuildPanels();
     };
 
@@ -224,7 +223,7 @@ export class QuestionPanelDynamicModel
     this.createLocalizableString("panelRemoveText", this);
     this.createLocalizableString("panelPrevText", this);
     this.createLocalizableString("panelNextText", this);
-    this.registerFunctionOnPropertyValueChanged("panelsState", function () {
+    this.registerFunctionOnPropertyValueChanged("panelsState", function() {
       self.setPanelsState();
     });
   }
@@ -244,11 +243,11 @@ export class QuestionPanelDynamicModel
   }
   private addOnPropertyChangedCallback(element: IElement) {
     var self = this;
-    (<Base>(<any>element)).onPropertyChanged.add(function (element, options) {
+    (<Base>(<any>element)).onPropertyChanged.add(function(element, options) {
       self.onTemplateElementPropertyChanged(element, options);
     });
     if (element.isPanel) {
-      (<PanelModel>(<any>element)).addElementCallback = function (element) {
+      (<PanelModel>(<any>element)).addElementCallback = function(element) {
         self.addOnPropertyChangedCallback(element);
       };
     }
@@ -273,7 +272,7 @@ export class QuestionPanelDynamicModel
     return true;
   }
   public clearOnDeletingContainer() {
-    this.panels.forEach((panel) => {
+    this.panels.forEach(panel => {
       panel.clearOnDeletingContainer();
     });
   }
@@ -1416,7 +1415,7 @@ export class QuestionPanelDynamicModel
   protected createAndSetupNewPanelObject(): PanelModel {
     var panel = this.createNewPanelObject();
     var self = this;
-    panel.onGetQuestionTitleLocation = function () {
+    panel.onGetQuestionTitleLocation = function() {
       return self.getTemplateQuestionTitleLocation();
     };
     return panel;
@@ -1496,10 +1495,12 @@ export class QuestionPanelDynamicModel
     if (!qValue || !Array.isArray(qValue) || qValue.length <= index) return {};
     return qValue[index];
   }
-  private isSetPanelItemData: boolean;
+  private isSetPanelItemData: Array<string>;
   setPanelItemData(item: ISurveyData, name: string, val: any) {
-    if(this.isSetPanelItemData) return;
-    this.isSetPanelItemData = true;
+    if (this.isSetPanelItemData && this.isSetPanelItemData.indexOf(name) > -1)
+      return;
+    if (!this.isSetPanelItemData) this.isSetPanelItemData = [];
+    this.isSetPanelItemData.push(name);
     var items = this.items;
     var index = items.indexOf(item);
     if (index < 0) index = items.length;
@@ -1536,7 +1537,10 @@ export class QuestionPanelDynamicModel
       };
       this.survey.dynamicPanelItemValueChanged(this, options);
     }
-    this.isSetPanelItemData = undefined;
+    var index = this.isSetPanelItemData.indexOf(name);
+    if (index > -1) {
+      this.isSetPanelItemData.splice(index, 1);
+    }
   }
   getRootData(): ISurveyData {
     return this.data;
@@ -1568,7 +1572,7 @@ export class QuestionPanelDynamicModel
               .map((question: Question) => question.getPlainData(options))
               .filter((d: any) => !!d),
           };
-          (options.calculations || []).forEach((calculation) => {
+          (options.calculations || []).forEach(calculation => {
             panelDataItem[calculation.propertyName] = (<any>panel)[
               calculation.propertyName
             ];
@@ -1659,11 +1663,11 @@ Serializer.addClass(
       choices: ["default", "top", "bottom", "left"],
     },
   ],
-  function () {
+  function() {
     return new QuestionPanelDynamicModel("");
   },
   "question"
 );
-QuestionFactory.Instance.registerQuestion("paneldynamic", (name) => {
+QuestionFactory.Instance.registerQuestion("paneldynamic", name => {
   return new QuestionPanelDynamicModel(name);
 });

@@ -2,9 +2,22 @@ import { frameworks, url, initSurvey, getSurveyResult } from "../settings";
 import { Selector, ClientFunction } from "testcafe";
 const assert = require("assert");
 const title = `customValidators`;
+
+export function __extends(thisClass, baseClass) {
+  for (var p in baseClass)
+    if (baseClass.hasOwnProperty(p)) thisClass[p] = baseClass[p];
+  function __() {
+    this.constructor = thisClass;
+  }
+  thisClass.prototype =
+    baseClass === null
+      ? Object.create(baseClass)
+      : ((__.prototype = baseClass.prototype), new __());
+}
+
 const setupSurvey = ClientFunction(() => {
   var MyTextValidator = (function(_super) {
-    Survey.__extends(MyTextValidator, _super);
+    __extends(MyTextValidator, _super);
     function MyTextValidator() {
       _super.call(this);
     }

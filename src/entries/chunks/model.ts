@@ -2,7 +2,7 @@
 import "../../main.scss";
 //import "../../modern.scss";
 
-export let Version: string;
+export var Version: string;
 Version = `${process.env.VERSION}`;
 
 export { settings } from "../../settings";

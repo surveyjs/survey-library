@@ -14,9 +14,9 @@ const config = {
       },
       "survey-core": {
         root: "Survey",
-        commonjs2: "Survey",
-        commonjs: "Survey",
-        amd: "Survey"
+        commonjs2: "survey-core",
+        commonjs: "survey-core",
+        amd: "survey-core"
       }
   }
 };

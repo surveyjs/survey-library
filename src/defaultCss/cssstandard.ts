@@ -1,6 +1,6 @@
 export var surveyCss: any = {
   currentType: "",
-  getCss: function () {
+  getCss: function() {
     var loc = this.currentType ? this[this.currentType] : defaultStandardCss;
     if (!loc) loc = defaultStandardCss;
     return loc;
@@ -162,6 +162,7 @@ export var defaultStandardCss = {
     label: "sv_q_m_label",
     itemChecked: "checked",
     itemDecorator: "sv-hidden",
+    cell: "sv_q_m_cell",
     cellText: "sv_q_m_cell_text",
     cellTextSelected: "sv_q_m_cell_selected",
     cellLabel: "sv_q_m_cell_label",
@@ -180,7 +181,7 @@ export var defaultStandardCss = {
     detailIcon: "sv_detail_panel_icon",
     detailIconExpanded: "sv_detail_expanded",
     detailPanelCell: "sv_matrix_cell_detail_panel",
-    actionsCell: "sv_matrix_cell sv_matrix_cell_actions"
+    actionsCell: "sv_matrix_cell sv_matrix_cell_actions",
   },
   matrixdynamic: {
     root: "sv_q_matrix_dynamic",

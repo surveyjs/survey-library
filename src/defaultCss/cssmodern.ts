@@ -221,7 +221,7 @@ export var modernCss = {
   },
   matrix: {
     tableWrapper: "sv-matrix",
-    root: "sv-table",
+    root: "sv-table sv-matrix-root",
     rowError: "sv-matrix__row--error",
     cell: "sv-table__cell sv-matrix__cell",
     headerCell: "sv-table__cell sv-table__cell--header",
@@ -237,7 +237,7 @@ export var modernCss = {
     cellTextDisabled: "sv-matrix__text--disabled",
   },
   matrixdropdown: {
-    root: "sv-table",
+    root: "sv-table sv-matrixdropdown",
     cell: "sv-table__cell",
     headerCell: "sv-table__cell sv-table__cell--header",
     row: "sv-table__row",

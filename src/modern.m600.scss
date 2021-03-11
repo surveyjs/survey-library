@@ -1,24 +1,21 @@
 ﻿@media (max-width: 600px) {
-  .sv_main {
-    .sv_container {
-      .sv_body {
-        .sv_p_root {
-          .sv_row {
-            .sv_q,
-            .sv_qstn {
+  .sv-root-modern {
+    .sv-container-modern {
+      .sv-body {
+        .sv-page {
+          .sv-row {
+            .sv-question,
+            .sv-row__question {
               display: block;
               width: 100% !important;
-              .title-left {
+              .sv-question__header--location--left {
                 float: none;
               }
-              .sv_q_radiogroup_inline,
-              .sv_q_checkbox_inline,
-              .sv_q_imagepicker_inline {
+              .sv-selectbase__item--inline,
+              .sv-imagepicker__item--inline {
                 display: block;
               }
-              table.sv_q_matrix,
-              table.sv_q_matrix_dropdown,
-              table.sv_q_matrix_dynamic {
+              table.sv-table {
                 display: block;
                 thead {
                   display: none;
@@ -32,24 +29,24 @@
                   display: block;
                 }
               }
-              table.sv_q_matrix_dropdown,
-              table.sv_q_matrix_dynamic {
+              table.sv-matrixdropdown,
+              table.sv-matrixdynamic {
                 td {
                   &:before {
                     content: attr(headers);
                   }
                 }
               }
-              table.sv_q_matrix {
+              table.sv-matrix-root {
                 td {
-                  label.sv_q_m_label {
+                  label.sv-matrix__label {
                     display: inline;
                   }
                   &:after {
                     content: attr(headers);
                   }
                 }
-                .sv_q_m_cell {
+                .sv-matrix__cell {
                   text-align: initial;
                 }
               }

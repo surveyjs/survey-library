@@ -5,7 +5,7 @@
     "lib": ["DOM", "ES5", "ES6", "ES2015.Promise"],
     "sourceMap": true,
     "noImplicitAny": true,
-    "importHelpers": true,
+    "importHelpers": false,
     "experimentalDecorators": true,
     "moduleResolution": "node",
     "allowSyntheticDefaultImports": true,

@@ -4,20 +4,16 @@ export * from "./chunks/model";
 // localization
 import "./chunks/localization";
 
-// helpers
-export * from "./chunks/helpers";
-
-// css standard
+// css standard classes
 export { defaultStandardCss } from "../defaultCss/cssstandard";
-// css bootstrap
+// css bootstrap classes
 export { defaultBootstrapCss } from "../defaultCss/cssbootstrap";
-// css bootstrap + material
+// css bootstrap + material classes
 export { defaultBootstrapMaterialCss } from "../defaultCss/cssbootstrapmaterial";
+// css modern classes
 export { modernCss } from "../defaultCss/cssmodern";
 
+// utils
+export * from "../rendererFactory";
 export * from "../utils/resonsibilitymanager";
 export { unwrap } from "../utils/utils";
-//Uncomment to include the "date" question type.
-//export {QuestionDate} from "../plugins/knockout/koquestion_date";
-
-export * from "../rendererFactory";

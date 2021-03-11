@@ -145,9 +145,6 @@ module.exports = function(options, packageJson, chunkName) {
     resolve: {
       extensions: [".ts", ".js", ".tsx", ".scss"],
       plugins: [new TsconfigPathsPlugin({ configFile: "./tsconfig.json" })],
-      alias: {
-        tslib: path.join(__dirname, "../src/entries/chunks/helpers.ts"),
-      },
     },
     optimization: {
       minimize: isProductionBuild,

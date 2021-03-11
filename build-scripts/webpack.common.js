@@ -226,6 +226,7 @@ module.exports = function(options, packageJson, chunkName) {
         commonjs: '[dashedname]',
       },
       libraryTarget: "umd",
+      globalObject: 'this',
       umdNamedDefine: true,
     },
     plugins: [

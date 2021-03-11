@@ -6,7 +6,7 @@ src/**/*.js
 doc_generator/**/*.json
 docs/classes.json
 docs/pmes.json
-tmp/*
+tmp
 .vscode
 *.map
 .tsdrc

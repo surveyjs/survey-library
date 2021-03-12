@@ -5,7 +5,7 @@ export var frenchSurveyStrings = {
   pageNextText: "Suivant",
   completeText: "Terminer",
   previewText: "Aperçu",
-  editText: "Éditer",
+  editText: "Modifier",
   startSurveyText: "Commencer",
   otherItemText: "Autre (préciser)",
   noneItemText: "Aucun",

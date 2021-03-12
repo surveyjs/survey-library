@@ -38,3 +38,4 @@ import "../../localization/ukrainian";
 import "../../localization/tajik";
 import "../../localization/swahili";
 import "../../localization/welsh";
+import "../../localization/hindi";

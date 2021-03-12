@@ -1147,6 +1147,8 @@ QUnit.test("ExpressionRunner: diffsDays", function(assert) {
   var d2 = new Date("2021-02-02");
   var values = { d1: d1, d2: d2 };
   assert.equal(runner.run(values), 32, "32 days");
+  values.d1 = undefined;
+  assert.equal(runner.run(values), 0, "a value is undefined");
 });
 
 QUnit.test("parse({val} == '000')", function(assert) {

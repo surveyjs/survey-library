@@ -265,6 +265,7 @@ FunctionFactory.Instance.register("today", today);
 
 function diffDays(params: any[]) {
   if (!Array.isArray(params) || params.length !== 2) return 0;
+  if (!params[0] || !params[1]) return 0;
   const date1: any = new Date(params[0]);
   const date2: any = new Date(params[1]);
   const diffTime = Math.abs(date2 - date1);

@@ -27,7 +27,7 @@ export class QuestionTextModel extends Question {
       }
     );
     this.registerFunctionOnPropertiesValueChanged(["inputType", "size"], () => {
-      this.calcInputSizeAndWidth();
+      this.updateInputSize();
     });
   }
   protected isTextValue(): boolean {
@@ -39,7 +39,7 @@ export class QuestionTextModel extends Question {
   public onSurveyLoad() {
     super.onSurveyLoad();
     this.setRenderedMinMax();
-    this.calcInputSizeAndWidth();
+    this.updateInputSize();
   }
   /**
    * Use this property to change the default input type.
@@ -132,13 +132,21 @@ export class QuestionTextModel extends Question {
     );
   }
   public get inputSize(): number {
-    return this.getPropertyValue("inputSize");
+    return this.getPropertyValue("inputSize", 0);
   }
   public get inputWidth(): string {
     return this.getPropertyValue("inputWidth");
   }
-  private calcInputSizeAndWidth() {
+  public updateInputSize() {
     var size = this.isTextInput && this.size > 0 ? this.size : 0;
+    if (
+      this.isTextInput &&
+      size < 1 &&
+      this.parent &&
+      !!(<any>this.parent)["itemSize"]
+    ) {
+      size = (<any>this.parent)["itemSize"];
+    }
     this.setPropertyValue("inputSize", size);
     this.setPropertyValue("inputWidth", size > 0 ? "auto" : "");
   }
@@ -438,6 +446,7 @@ Serializer.addClass(
     },
     {
       name: "size:number",
+      minValue: 0,
       dependsOn: "inputType",
       visibleIf: function(obj: any) {
         if (!obj) return false;

@@ -29,8 +29,7 @@ export interface IMultipleTextData extends ILocalizableOwner, IPanel {
   getIsRequiredText(): string;
 }
 
-export class MultipleTextItemModel
-  extends Base
+export class MultipleTextItemModel extends Base
   implements IValidatorOwner, ISurveyData, ISurveyImpl {
   private editorValue: QuestionTextModel;
   private data: IMultipleTextData;
@@ -40,7 +39,7 @@ export class MultipleTextItemModel
   constructor(name: any = null, title: string = null) {
     super();
     this.editorValue = this.createEditor(name);
-    this.editor.questionTitleTemplateCallback = function () {
+    this.editor.questionTitleTemplateCallback = function() {
       return "";
     };
     this.editor.titleLocation = "left";
@@ -168,6 +167,15 @@ export class MultipleTextItemModel
     return this.editor.locRequiredErrorText;
   }
   /**
+   * The input size.
+   */
+  public get size(): number {
+    return this.editor.size;
+  }
+  public set size(val: number) {
+    this.editor.size = val;
+  }
+  /**
    * The list of question validators.
    */
   public get validators(): Array<SurveyValidator> {
@@ -255,21 +263,22 @@ export class MultipleTextItemModel
 /**
  * A Model for a multiple text question.
  */
-export class QuestionMultipleTextModel
-  extends Question
+export class QuestionMultipleTextModel extends Question
   implements IMultipleTextData, IPanel {
   colCountChangedCallback: () => void;
   constructor(name: string) {
     super(name);
-    var self = this;
-    this.createNewArray("items", function (item: any) {
-      item.setData(self);
+    this.createNewArray("items", (item: any) => {
+      item.setData(this);
     });
-    this.registerFunctionOnPropertyValueChanged("items", function () {
-      self.fireCallback(self.colCountChangedCallback);
+    this.registerFunctionOnPropertyValueChanged("items", () => {
+      this.fireCallback(this.colCountChangedCallback);
     });
-    this.registerFunctionOnPropertyValueChanged("colCount", function () {
-      self.fireCallback(self.colCountChangedCallback);
+    this.registerFunctionOnPropertyValueChanged("colCount", () => {
+      this.fireCallback(this.colCountChangedCallback);
+    });
+    this.registerFunctionOnPropertyValueChanged("itemSize", () => {
+      this.updateItemsSize();
     });
   }
   public getType(): string {
@@ -294,24 +303,32 @@ export class QuestionMultipleTextModel
   }
   setQuestionValue(newValue: any, updateIsAnswered: boolean = true) {
     super.setQuestionValue(newValue, updateIsAnswered);
-    for (var i = 0; i < this.items.length; i++) {
-      var item = this.items[i];
-      if (item.editor) item.editor.updateValueFromSurvey(item.value);
-    }
+    this.performForEveryEditor((item: MultipleTextItemModel): void => {
+      item.editor.updateValueFromSurvey(item.value);
+    });
     this.updateIsAnswered();
   }
   onSurveyValueChanged(newValue: any) {
     super.onSurveyValueChanged(newValue);
-    for (var i = 0; i < this.items.length; i++) {
-      var item = this.items[i];
-      if (item.editor) item.editor.onSurveyValueChanged(item.value);
-    }
+    this.performForEveryEditor((item: MultipleTextItemModel): void => {
+      item.editor.onSurveyValueChanged(item.value);
+    });
+  }
+  private updateItemsSize() {
+    this.performForEveryEditor((item: MultipleTextItemModel): void => {
+      item.editor.updateInputSize();
+    });
   }
   private editorsOnSurveyLoad() {
+    this.performForEveryEditor((item: MultipleTextItemModel): void => {
+      item.editor.onSurveyLoad();
+    });
+  }
+  private performForEveryEditor(func: (item: MultipleTextItemModel) => void) {
     for (var i = 0; i < this.items.length; i++) {
       var item = this.items[i];
       if (item.editor) {
-        (<any>item).editor.onSurveyLoad();
+        func(item);
       }
     }
   }
@@ -576,6 +593,7 @@ Serializer.addClass(
     },
     { name: "title", serializationProperty: "locTitle" },
     { name: "maxLength:number", default: -1 },
+    { name: "size:number", minValue: 0 },
     {
       name: "requiredErrorText:text",
       serializationProperty: "locRequiredErrorText",
@@ -586,7 +604,7 @@ Serializer.addClass(
       classNamePart: "validator",
     },
   ],
-  function () {
+  function() {
     return new MultipleTextItemModel("");
   }
 );
@@ -595,16 +613,16 @@ Serializer.addClass(
   "multipletext",
   [
     { name: "!items:textitems", className: "multipletextitem" },
-    { name: "itemSize:number", default: 25, minValue: 0 },
+    { name: "itemSize:number", minValue: 0 },
     { name: "colCount:number", default: 1, choices: [1, 2, 3, 4, 5] },
   ],
-  function () {
+  function() {
     return new QuestionMultipleTextModel("");
   },
   "question"
 );
 
-QuestionFactory.Instance.registerQuestion("multipletext", (name) => {
+QuestionFactory.Instance.registerQuestion("multipletext", name => {
   var q = new QuestionMultipleTextModel(name);
   q.addItem("text1");
   q.addItem("text2");

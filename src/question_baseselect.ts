@@ -582,11 +582,11 @@ export class QuestionSelectBase extends Question {
     return !this.hasNone && !this.hasOther && this.choicesOrder == "none";
   }
   protected addToVisibleChoices(items: Array<ItemValue>) {
-    if (this.hasNone) {
-      items.push(this.noneItem);
-    }
     if (this.hasOther) {
       items.push(this.otherItem);
+    }
+    if (this.hasNone) {
+      items.push(this.noneItem);
     }
   }
   public getPlainData(

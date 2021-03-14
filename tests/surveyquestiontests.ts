@@ -4735,3 +4735,24 @@ QUnit.test("text question renderedStep", function(assert) {
   assert.equal(q1.renderedStep, "any", "Default value is 'any'");
   assert.equal(q2.renderedStep, 0.2, "get value from step");
 });
+QUnit.test("text question inputSize and inputWidth", function(assert) {
+  var survey = new SurveyModel({
+    elements: [
+      { type: "text", inputType: "text", name: "q1", size: 10 },
+      { type: "text", inputType: "number", name: "q2", size: 10 },
+      { type: "text", inputType: "text", name: "q3" },
+    ],
+  });
+  var q1 = <QuestionTextModel>survey.getQuestionByName("q1");
+  var q2 = <QuestionTextModel>survey.getQuestionByName("q2");
+  var q3 = <QuestionTextModel>survey.getQuestionByName("q2");
+  assert.equal(q1.inputSize, 10, "q1 rendered size is 10");
+  assert.equal(q2.inputSize, 0, "q2 rendered size is empty");
+  assert.equal(q3.inputSize, 0, "q2 rendered size is empty");
+  q1.size = 12;
+  assert.equal(q1.inputSize, "12", "q1 rendered size is 12");
+
+  assert.equal(q1.inputWidth, "auto", "q1 inputWidth is auto");
+  assert.equal(q2.inputWidth, "", "q2 inputWidth is empty");
+  assert.equal(q3.inputWidth, "", "q2 inputWidth is empty");
+});

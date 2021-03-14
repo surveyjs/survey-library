@@ -26,6 +26,9 @@ export class QuestionTextModel extends Question {
         this.setRenderedMinMax();
       }
     );
+    this.registerFunctionOnPropertiesValueChanged(["inputType", "size"], () => {
+      this.calcInputSizeAndWidth();
+    });
   }
   protected isTextValue(): boolean {
     return ["text", "number", "password"].indexOf(this.inputType) > -1;
@@ -36,6 +39,7 @@ export class QuestionTextModel extends Question {
   public onSurveyLoad() {
     super.onSurveyLoad();
     this.setRenderedMinMax();
+    this.calcInputSizeAndWidth();
   }
   /**
    * Use this property to change the default input type.
@@ -85,7 +89,7 @@ export class QuestionTextModel extends Question {
     var validators = super.getValidators();
     if (
       this.inputType === "email" &&
-      !this.validators.some((v) => v.getType() === "emailvalidator")
+      !this.validators.some(v => v.getType() === "emailvalidator")
     ) {
       validators.push(new EmailValidator());
     }
@@ -120,6 +124,27 @@ export class QuestionTextModel extends Question {
   public set size(val: number) {
     this.setPropertyValue("size", val);
   }
+  public get isTextInput() {
+    return (
+      ["text", "search", "tel", "url", "email", "password"].indexOf(
+        this.inputType
+      ) > -1
+    );
+  }
+  public get inputSize(): number {
+    return this.getPropertyValue("inputSize");
+  }
+  public get inputWidth(): string {
+    return this.getPropertyValue("inputWidth");
+  }
+  private calcInputSizeAndWidth() {
+    var size = this.isTextInput && this.size > 0 ? this.size : 0;
+    this.setPropertyValue("inputSize", size);
+    this.setPropertyValue("inputWidth", size > 0 ? "auto" : "");
+  }
+  /**
+   * Text auto complete
+   */
   public get autoComplete(): string {
     return this.getPropertyValue("autoComplete", "");
   }
@@ -287,7 +312,7 @@ export class QuestionTextModel extends Question {
     this.setValueAndRunExpression(
       this.minValueExpression,
       this.min,
-      (val) => {
+      val => {
         if (!val && this.isDateInputType && !!settings.minDate) {
           val = settings.minDate;
         }
@@ -299,7 +324,7 @@ export class QuestionTextModel extends Question {
     this.setValueAndRunExpression(
       this.maxValueExpression,
       this.max,
-      (val) => {
+      val => {
         if (!val && this.isDateInputType) {
           val = !!settings.maxDate ? settings.maxDate : "2999-12-31";
         }
@@ -411,13 +436,20 @@ Serializer.addClass(
         "week",
       ],
     },
-    { name: "size:number", default: 25 },
+    {
+      name: "size:number",
+      dependsOn: "inputType",
+      visibleIf: function(obj: any) {
+        if (!obj) return false;
+        return obj.isTextInput;
+      },
+    },
     {
       name: "textUpdateMode",
       default: "default",
       choices: ["default", "onBlur", "onTyping"],
       dependsOn: "inputType",
-      visibleIf: function (obj: any) {
+      visibleIf: function(obj: any) {
         if (!obj) return false;
         return obj.inputType == "text";
       },
@@ -483,20 +515,20 @@ Serializer.addClass(
     {
       name: "min",
       dependsOn: "inputType",
-      visibleIf: function (obj: any) {
+      visibleIf: function(obj: any) {
         return !!obj && obj.isMinMaxType;
       },
-      onPropertyEditorUpdate: function (obj: any, propertyEditor: any) {
+      onPropertyEditorUpdate: function(obj: any, propertyEditor: any) {
         propertyEditor.inputType = obj.inputType;
       },
     },
     {
       name: "max",
       dependsOn: "inputType",
-      visibleIf: function (obj: any) {
+      visibleIf: function(obj: any) {
         return !!obj && obj.isMinMaxType;
       },
-      onPropertyEditorUpdate: function (obj: any, propertyEditor: any) {
+      onPropertyEditorUpdate: function(obj: any, propertyEditor: any) {
         propertyEditor.inputType = obj.inputType;
       },
     },
@@ -504,7 +536,7 @@ Serializer.addClass(
       name: "minValueExpression:expression",
       category: "logic",
       dependsOn: "inputType",
-      visibleIf: function (obj: any) {
+      visibleIf: function(obj: any) {
         return !!obj && obj.isMinMaxType;
       },
     },
@@ -512,7 +544,7 @@ Serializer.addClass(
       name: "maxValueExpression:expression",
       category: "logic",
       dependsOn: "inputType",
-      visibleIf: function (obj: any) {
+      visibleIf: function(obj: any) {
         return !!obj && obj.isMinMaxType;
       },
     },
@@ -520,7 +552,7 @@ Serializer.addClass(
       name: "minErrorText",
       serializationProperty: "locMinErrorText",
       dependsOn: "inputType",
-      visibleIf: function (obj: any) {
+      visibleIf: function(obj: any) {
         return !!obj && obj.isMinMaxType;
       },
     },
@@ -528,14 +560,14 @@ Serializer.addClass(
       name: "maxErrorText",
       serializationProperty: "locMaxErrorText",
       dependsOn: "inputType",
-      visibleIf: function (obj: any) {
+      visibleIf: function(obj: any) {
         return !!obj && obj.isMinMaxType;
       },
     },
     {
       name: "step:number",
       dependsOn: "inputType",
-      visibleIf: function (obj: any) {
+      visibleIf: function(obj: any) {
         if (!obj) return false;
         return obj.inputType === "number";
       },
@@ -545,31 +577,27 @@ Serializer.addClass(
       name: "placeHolder",
       serializationProperty: "locPlaceHolder",
       dependsOn: "inputType",
-      visibleIf: function (obj: any) {
+      visibleIf: function(obj: any) {
         if (!obj) return false;
-        return (
-          ["email", "number", "password", "tel", "text", "url"].indexOf(
-            obj.inputType
-          ) > -1
-        );
+        return obj.isTextInput;
       },
     },
     {
       name: "dataList:string[]",
       serializationProperty: "locDataList",
       dependsOn: "inputType",
-      visibleIf: function (obj: any) {
+      visibleIf: function(obj: any) {
         if (!obj) return false;
         return obj.inputType === "text";
       },
     },
   ],
-  function () {
+  function() {
     return new QuestionTextModel("");
   },
   "question"
 );
 
-QuestionFactory.Instance.registerQuestion("text", (name) => {
+QuestionFactory.Instance.registerQuestion("text", name => {
   return new QuestionTextModel(name);
 });

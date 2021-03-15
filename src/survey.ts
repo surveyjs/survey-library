@@ -926,45 +926,49 @@ export class SurveyModel
     any
   > = new Event<(sender: SurveyModel) => any, any>();
   /**
-   * Use this event to change actions in question's title.
-   * <br/> `sender` - the survey object that fires the event.
-   * <br/> `options.question` - a question object for which the event is fired.
-   * <br/> `options.actions` - the actions bound to the question object
+   * Use this event to create/customize actions to be displayed in a question's title.
+   * <br/> `sender` - A [Survey](https://surveyjs.io/Documentation/Library?id=SurveyModel) object that fires the event.
+   * <br/> `options.question` - A [Question](https://surveyjs.io/Documentation/Library?id=Question) object for which the event is fired.
+   * <br/> `options.actions` - A list of actions ([IActionBarItem](https://surveyjs.io/Documentation/Library?id=IActionBarItem) objects) associated with the processed question.
    * @see IActionBarItem
+   * @see Question
    */
   public onGetQuestionTitleActions: Event<
     (sender: SurveyModel, options: any) => any,
     any
   > = new Event<(sender: SurveyModel, options: any) => any, any>();
   /**
-   * Use this event to change actions in panel's title.
-   * <br/> `sender` - the survey object that fires the event.
-   * <br/> `options.panel` - a panel object for which the event is fired.
-   * <br/> `options.actions` - the actions bound to the panel object
+   * Use this event to create/customize actions to be displayed in a panel's title.
+   * <br/> `sender` - A survey object that fires the event.
+   * <br/> `options.panel` - A panel ([PanelModel](https://surveyjs.io/Documentation/Library?id=panelmodel) object) for which the event is fired.
+   * <br/> `options.actions` - A list of actions ([IActionBarItem](https://surveyjs.io/Documentation/Library?id=IActionBarItem) objects) associated with the processed panel.
    * @see IActionBarItem
+   * @see PanelModel
    */
   public onGetPanelTitleActions: Event<
     (sender: SurveyModel, options: any) => any,
     any
   > = new Event<(sender: SurveyModel, options: any) => any, any>();
   /**
-   * Use this event to change actions in page's title.
-   * <br/> `sender` - the survey object that fires the event.
-   * <br/> `options.page` - a page object for which the event is fired.
-   * <br/> `options.actions` - the actions bound to the page object
+   * Use this event to create/customize actions to be displayed in a page's title.
+   * <br/> `sender` - A survey object that fires the event.
+   * <br/> `options.page` - A page ([PageModel](https://surveyjs.io/Documentation/Library?id=pagemodel) object) for which the event is fired.
+   * <br/> `options.actions` - A list of actions ([IActionBarItem](https://surveyjs.io/Documentation/Library?id=IActionBarItem) objects) associated with the processed page.
    * @see IActionBarItem
+   * @see PageModel
    */
   public onGetPageTitleActions: Event<
     (sender: SurveyModel, options: any) => any,
     any
   > = new Event<(sender: SurveyModel, options: any) => any, any>();
   /**
-   * Use this event to change actions in matrix's rows.
-   * <br/> `sender` - the survey object that fires the event.
-   * <br/> `options.question` - a matrix object for which the event is fired.
-   * <br/> `options.row` - a matrix row object for which the event is fired.
-   * <br/> `options.actions` - the actions bound to the matrix row object.
+   * Use this event to create/customize actions to be displayed in a matrix question's row.
+   * <br/> `sender` - A survey object that fires the event.
+   * <br/> `options.question` - A matrix question ([QuestionMatrixBaseModel](https://surveyjs.io/Documentation/Library?id=questionmatrixbasemodel) object) for which the event is fired.
+   * <br/> `options.row` - A matrix row for which the event is fired.
+   * <br/> `options.actions` - A list of actions ([IActionBarItem](https://surveyjs.io/Documentation/Library?id=IActionBarItem) objects) associated with the processed matrix question and row.
    * @see IActionBarItem
+   * @see QuestionMatrixDropdownModelBase
    */
   public onGetMatrixRowActions: Event<
     (sender: SurveyModel, options: any) => any,
@@ -1009,42 +1013,42 @@ export class SurveyModel
     this.createLocalizableString("questionTitleTemplate", this, true);
 
     this.textPreProcessor = new TextPreProcessor();
-    this.textPreProcessor.onProcess = function (
+    this.textPreProcessor.onProcess = function(
       textValue: TextPreProcessorValue
     ) {
       self.getProcessedTextValue(textValue);
     };
     this.createNewArray(
       "pages",
-      function (value: any) {
+      function(value: any) {
         self.doOnPageAdded(value);
       },
-      function (value: any) {
+      function(value: any) {
         self.doOnPageRemoved(value);
       }
     );
-    this.createNewArray("triggers", function (value: any) {
+    this.createNewArray("triggers", function(value: any) {
       value.setOwner(self);
     });
-    this.createNewArray("calculatedValues", function (value: any) {
+    this.createNewArray("calculatedValues", function(value: any) {
       value.setOwner(self);
     });
-    this.createNewArray("completedHtmlOnCondition", function (value: any) {
+    this.createNewArray("completedHtmlOnCondition", function(value: any) {
       value.locOwner = self;
     });
-    this.createNewArray("navigateToUrlOnCondition", function (value: any) {
+    this.createNewArray("navigateToUrlOnCondition", function(value: any) {
       value.locOwner = self;
     });
     this.registerFunctionOnPropertyValueChanged(
       "firstPageIsStarted",
-      function () {
+      function() {
         self.onFirstPageIsStartedChanged();
       }
     );
-    this.registerFunctionOnPropertyValueChanged("mode", function () {
+    this.registerFunctionOnPropertyValueChanged("mode", function() {
       self.onModeChanged();
     });
-    this.registerFunctionOnPropertyValueChanged("progressBarType", function () {
+    this.registerFunctionOnPropertyValueChanged("progressBarType", function() {
       self.updateProgressText();
     });
     this.onProgressText.onCallbacksChanged = () => {

@@ -10,34 +10,25 @@ import { LocalizableString } from "./localizablestring";
  * A Model for a checkbox question
  */
 export class QuestionCheckboxModel extends QuestionCheckboxBase {
-  private noneItemValue: ItemValue = new ItemValue("none");
   private selectAllItemValue: ItemValue = new ItemValue("selectall");
   private invisibleOldValues: any = {};
   constructor(name: string) {
     super(name);
-    var noneItemText = this.createLocalizableString("noneText", this, true);
-    noneItemText.onGetTextCallback = function (text) {
-      return !!text ? text : surveyLocalization.getString("noneItemText");
-    };
-    this.noneItemValue.locOwner = this;
-    this.noneItemValue.setLocText(noneItemText);
-
     var selectAllItemText = this.createLocalizableString(
       "selectAllText",
       this,
       true
     );
-    selectAllItemText.onGetTextCallback = function (text) {
+    selectAllItemText.onGetTextCallback = function(text) {
       return !!text ? text : surveyLocalization.getString("selectAllItemText");
     };
     this.selectAllItem.locOwner = this;
     this.selectAllItem.setLocText(selectAllItemText);
 
-    var self = this;
     this.registerFunctionOnPropertiesValueChanged(
-      ["hasNone", "noneText", "hasSelectAll", "selectAllText"],
-      function () {
-        self.onVisibleChoicesChanged();
+      ["hasSelectAll", "selectAllText"],
+      () => {
+        this.onVisibleChoicesChanged();
       }
     );
   }
@@ -61,28 +52,6 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
    */
   public get selectAllItem(): ItemValue {
     return this.selectAllItemValue;
-  }
-  /**
-   * Returns the none item. By using this property, you may change programmatically it's value and text.
-   * @see hasNone
-   */
-  public get noneItem(): ItemValue {
-    return this.noneItemValue;
-  }
-  /**
-   * Use this property to set the different text for none item.
-   */
-  public get noneText(): string {
-    return this.getLocalizableStringText(
-      "noneText",
-      surveyLocalization.getString("noneItemText")
-    );
-  }
-  public set noneText(val: string) {
-    this.setLocalizableStringText("noneText", val);
-  }
-  get locNoneText(): LocalizableString {
-    return this.getLocalizableString("noneText");
   }
   /**
    * Use this property to set the different text for Select All item.
@@ -155,15 +124,6 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
       val.push(item.value);
     }
     this.value = val;
-  }
-  /**
-   * Set this property to true, to show the "None" item on the bottom. If end-user checks this item, all other items would be unchecked.
-   */
-  public get hasNone(): boolean {
-    return this.getPropertyValue("hasNone", false);
-  }
-  public set hasNone(val: boolean) {
-    this.setPropertyValue("hasNone", val);
   }
   /**
    * Returns true if item is checked
@@ -292,16 +252,13 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     return -1;
   }
   protected canUseFilteredChoices(): boolean {
-    return !this.hasNone && !this.hasSelectAll && super.canUseFilteredChoices();
+    return !this.hasSelectAll && super.canUseFilteredChoices();
   }
   protected addToVisibleChoices(items: Array<ItemValue>) {
     if (this.hasSelectAll) {
       items.unshift(this.selectAllItem);
     }
     super.addToVisibleChoices(items);
-    if (this.hasNone) {
-      items.push(this.noneItem);
-    }
   }
   protected getDisplayValueCore(keysAsText: boolean, value: any): any {
     if (!Array.isArray(value))
@@ -439,26 +396,20 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     }
     return val;
   }
-  protected hasUnknownValue(val: any, includeOther: boolean = false): boolean {
-    if (this.hasNone && val == this.noneItemValue.value) return false;
-    return super.hasUnknownValue(val, includeOther);
-  }
 }
 Serializer.addClass(
   "checkbox",
   [
     "hasSelectAll:boolean",
-    "hasNone:boolean",
     { name: "maxSelectedChoices", default: 0 },
-    { name: "noneText", serializationProperty: "locNoneText" },
     { name: "selectAllText", serializationProperty: "locSelectAllText" },
   ],
-  function () {
+  function() {
     return new QuestionCheckboxModel("");
   },
   "checkboxbase"
 );
-QuestionFactory.Instance.registerQuestion("checkbox", (name) => {
+QuestionFactory.Instance.registerQuestion("checkbox", name => {
   var q = new QuestionCheckboxModel(name);
   q.choices = QuestionFactory.DefaultChoices;
   return q;

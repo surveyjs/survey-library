@@ -162,7 +162,7 @@ function calcInArray(
 }
 
 function sumInArray(params: any[]): any {
-  var res = calcInArray(params, function (res: number, val: number): number {
+  var res = calcInArray(params, function(res: number, val: number): number {
     if (res == undefined) res = 0;
     return +res + +val;
   });
@@ -171,7 +171,7 @@ function sumInArray(params: any[]): any {
 FunctionFactory.Instance.register("sumInArray", sumInArray);
 
 function minInArray(params: any[]): any {
-  return calcInArray(params, function (res: number, val: number): number {
+  return calcInArray(params, function(res: number, val: number): number {
     if (res == undefined) return val;
     return res < val ? res : val;
   });
@@ -179,7 +179,7 @@ function minInArray(params: any[]): any {
 FunctionFactory.Instance.register("minInArray", minInArray);
 
 function maxInArray(params: any[]): any {
-  return calcInArray(params, function (res: number, val: number): number {
+  return calcInArray(params, function(res: number, val: number): number {
     if (res == undefined) return val;
     return res > val ? res : val;
   });
@@ -187,7 +187,7 @@ function maxInArray(params: any[]): any {
 FunctionFactory.Instance.register("maxInArray", maxInArray);
 
 function countInArray(params: any[]): any {
-  var res = calcInArray(params, function (res: number, val: number): number {
+  var res = calcInArray(params, function(res: number, val: number): number {
     if (res == undefined) res = 0;
     return res + 1;
   });
@@ -262,3 +262,13 @@ function today(params: any[]) {
   return res;
 }
 FunctionFactory.Instance.register("today", today);
+
+function diffDays(params: any[]) {
+  if (!Array.isArray(params) || params.length !== 2) return 0;
+  if (!params[0] || !params[1]) return 0;
+  const date1: any = new Date(params[0]);
+  const date2: any = new Date(params[1]);
+  const diffTime = Math.abs(date2 - date1);
+  return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+}
+FunctionFactory.Instance.register("diffDays", diffDays);

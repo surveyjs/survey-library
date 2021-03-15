@@ -11,7 +11,10 @@ import { settings } from "./settings";
 import { ItemValue } from "./itemvalue";
 import { RendererFactory } from "./rendererFactory";
 import { IActionBarItem } from "./action-bar";
-import { MatrixDropdownRowModelBase, QuestionMatrixDropdownModelBase } from "./question_matrixdropdownbase";
+import {
+  MatrixDropdownRowModelBase,
+  QuestionMatrixDropdownModelBase,
+} from "./question_matrixdropdownbase";
 
 export interface ISurveyData {
   getValue(name: string): any;
@@ -116,7 +119,7 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner {
     question: QuestionMatrixDropdownModelBase,
     row: MatrixDropdownRowModelBase,
     actions: Array<IActionBarItem>
-  ): Array<IActionBarItem>
+  ): Array<IActionBarItem>;
   questionStartIndex: string;
   questionTitleLocation: string;
   questionDescriptionLocation: string;
@@ -305,6 +308,10 @@ export interface IProgressInfo {
   answeredQuestionCount: number;
   requiredQuestionCount: number;
   requiredAnsweredQuestionCount: number;
+}
+
+export interface IWrapperObject {
+  getOriginalObj(): Base;
 }
 
 export class Bindings {
@@ -602,7 +609,7 @@ export class Base {
     for (var key in this.propertyHash) {
       keys.push(key);
     }
-    keys.forEach((key) => func(this.propertyHash, key));
+    keys.forEach(key => func(this.propertyHash, key));
   }
   /**
    * set property value
@@ -853,7 +860,7 @@ export class Base {
   }
   protected createItemValues(name: string): Array<any> {
     var self = this;
-    var result = this.createNewArray(name, function (item: any) {
+    var result = this.createNewArray(name, function(item: any) {
       item.locOwner = self;
       item.ownerPropertyName = name;
     });
@@ -897,7 +904,7 @@ export class Base {
     }
     this.arraysInfo[name] = { onPush: onPush, isItemValues: false };
     var self = this;
-    newArray.push = function (value): number {
+    newArray.push = function(value): number {
       var result = Object.getPrototypeOf(newArray).push.call(newArray, value);
       if (onPush) onPush(value, newArray.length - 1);
       const arrayChanges = new ArrayChanges(
@@ -910,7 +917,7 @@ export class Base {
       self.notifyArrayChanged(newArray, arrayChanges);
       return result;
     };
-    newArray.unshift = function (value): number {
+    newArray.unshift = function(value): number {
       var result = Object.getPrototypeOf(newArray).unshift.call(
         newArray,
         value
@@ -921,7 +928,7 @@ export class Base {
       self.notifyArrayChanged(newArray, arrayChanges);
       return result;
     };
-    newArray.pop = function (): number {
+    newArray.pop = function(): number {
       var result = Object.getPrototypeOf(newArray).pop.call(newArray);
       if (onRemove) onRemove(result);
       const arrayChanges = new ArrayChanges(newArray.length - 1, 1, [], []);
@@ -929,7 +936,7 @@ export class Base {
       self.notifyArrayChanged(newArray, arrayChanges);
       return result;
     };
-    newArray.splice = function (
+    newArray.splice = function(
       start?: number,
       deleteCount?: number,
       ...items: any[]
@@ -1153,10 +1160,10 @@ export class SurveyElement extends Base implements ISurveyElement {
     this.name = name;
     this.createNewArray("errors");
     var self = this;
-    this.registerFunctionOnPropertyValueChanged("isReadOnly", function () {
+    this.registerFunctionOnPropertyValueChanged("isReadOnly", function() {
       self.onReadOnlyChanged();
     });
-    this.registerFunctionOnPropertyValueChanged("state", function () {
+    this.registerFunctionOnPropertyValueChanged("state", function() {
       if (self.stateChangedCallback) self.stateChangedCallback();
     });
   }

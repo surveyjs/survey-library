@@ -46,6 +46,7 @@ export class QuestionRadiogroupModel extends QuestionCheckboxBase {
       item.value === this.value ||
       (this.isOtherSelected && this.otherItem.value === item.value);
     var allowHover = !isDisabled && !isChecked;
+    var isNone = item === this.noneItem;
     if (!this.hasColumns) {
       itemClass +=
         this.colCount === 0
@@ -58,6 +59,8 @@ export class QuestionRadiogroupModel extends QuestionCheckboxBase {
       itemClass += " " + this.cssClasses.itemChecked;
     if (allowHover && !!this.cssClasses.itemHover)
       itemClass += " " + this.cssClasses.itemHover;
+    if (isNone && !!this.cssClasses.itemNone)
+      itemClass += " " + this.cssClasses.itemNone;
     return itemClass;
   }
 }
@@ -65,13 +68,13 @@ export class QuestionRadiogroupModel extends QuestionCheckboxBase {
 Serializer.addClass(
   "radiogroup",
   [{ name: "showClearButton:boolean", default: false }],
-  function () {
+  function() {
     return new QuestionRadiogroupModel("");
   },
   "checkboxbase"
 );
 
-QuestionFactory.Instance.registerQuestion("radiogroup", (name) => {
+QuestionFactory.Instance.registerQuestion("radiogroup", name => {
   var q = new QuestionRadiogroupModel(name);
   q.choices = QuestionFactory.DefaultChoices;
   return q;

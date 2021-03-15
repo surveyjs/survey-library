@@ -42,7 +42,7 @@
     "build_jquery": "npm run build_jquery_dev && npm run build_jquery_prod",
     "build_angular": "npm run build_angular_dev && npm run build_angular_prod"
   },
-  "version": "1.8.35",
+  "version": "1.8.36",
   "name": "survey-library",
   "private": true,
   "devDependencies": {

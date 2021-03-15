@@ -26,27 +26,31 @@ export class QuestionSelectBase extends Question {
   private isChoicesLoaded: boolean;
   private enableOnLoadingChoices: boolean;
   private dependedQuestions: Array<QuestionSelectBase> = [];
+  private noneItemValue: ItemValue = new ItemValue("none");
   constructor(name: string) {
     super(name);
-    var self = this;
+    var noneItemText = this.createLocalizableString("noneText", this, true);
+    noneItemText.onGetTextCallback = function(text) {
+      return !!text ? text : surveyLocalization.getString("noneItemText");
+    };
+    this.noneItemValue.locOwner = this;
+    this.noneItemValue.setLocText(noneItemText);
+
     this.createItemValues("choices");
-    this.registerFunctionOnPropertyValueChanged("choices", function () {
-      if (!self.filterItems()) {
-        self.onVisibleChoicesChanged();
+    this.registerFunctionOnPropertyValueChanged("choices", () => {
+      if (!this.filterItems()) {
+        this.onVisibleChoicesChanged();
       }
     });
     this.registerFunctionOnPropertiesValueChanged(
-      ["choicesFromQuestion", "choicesFromQuestionMode"],
-      function () {
-        self.onVisibleChoicesChanged();
+      ["choicesFromQuestion", "choicesFromQuestionMode", "hasNone"],
+      () => {
+        this.onVisibleChoicesChanged();
       }
     );
-    this.registerFunctionOnPropertyValueChanged(
-      "hideIfChoicesEmpty",
-      function () {
-        self.updateVisibilityBasedOnChoices();
-      }
-    );
+    this.registerFunctionOnPropertyValueChanged("hideIfChoicesEmpty", () => {
+      this.updateVisibilityBasedOnChoices();
+    });
     this.createNewArray("visibleChoices");
     this.setPropertyValue("choicesByUrl", this.createRestfull());
     this.choicesByUrl.owner = this;
@@ -55,21 +59,21 @@ export class QuestionSelectBase extends Question {
     this.createLocalizableString("otherErrorText", this, true);
     this.otherItemValue.locOwner = this;
     this.otherItemValue.setLocText(locOtherText);
-    locOtherText.onGetTextCallback = function (text) {
+    locOtherText.onGetTextCallback = function(text) {
       return !!text ? text : surveyLocalization.getString("otherItemText");
     };
-    this.choicesByUrl.beforeSendRequestCallback = function () {
-      self.onBeforeSendRequest();
+    this.choicesByUrl.beforeSendRequestCallback = (): void => {
+      this.onBeforeSendRequest();
     };
-    this.choicesByUrl.getResultCallback = function (items: Array<ItemValue>) {
-      self.onLoadChoicesFromUrl(items);
+    this.choicesByUrl.getResultCallback = (items: Array<ItemValue>): void => {
+      this.onLoadChoicesFromUrl(items);
     };
-    this.choicesByUrl.updateResultCallback = function (
+    this.choicesByUrl.updateResultCallback = (
       items: Array<ItemValue>,
       serverResult: any
-    ): Array<ItemValue> {
-      if (self.survey) {
-        return self.survey.updateChoicesFromServer(self, items, serverResult);
+    ): Array<ItemValue> => {
+      if (this.survey) {
+        return this.survey.updateChoicesFromServer(this, items, serverResult);
       }
       return items;
     };
@@ -103,6 +107,37 @@ export class QuestionSelectBase extends Question {
    */
   public get isOtherSelected(): boolean {
     return this.hasOther && this.getHasOther(this.renderedValue);
+  }
+  /**
+   * Set this property to true, to show the "None" item on the bottom. If end-user checks this item, all other items would be unchecked.
+   */
+  public get hasNone(): boolean {
+    return this.getPropertyValue("hasNone", false);
+  }
+  public set hasNone(val: boolean) {
+    this.setPropertyValue("hasNone", val);
+  }
+  /**
+   * Returns the none item. By using this property, you may change programmatically it's value and text.
+   * @see hasNone
+   */
+  public get noneItem(): ItemValue {
+    return this.noneItemValue;
+  }
+  /**
+   * Use this property to set the different text for none item.
+   */
+  public get noneText(): string {
+    return this.getLocalizableStringText(
+      "noneText",
+      surveyLocalization.getString("noneItemText")
+    );
+  }
+  public set noneText(val: string) {
+    this.setLocalizableStringText("noneText", val);
+  }
+  get locNoneText(): LocalizableString {
+    return this.getLocalizableString("noneText");
   }
   /**
    * An expression that returns true or false. It runs against each choices item and if for this item it returns true, then the item is visible otherwise the item becomes invisible. Please use {item} to get the current item value in the expression.
@@ -347,6 +382,7 @@ export class QuestionSelectBase extends Question {
   protected hasUnknownValue(val: any, includeOther: boolean = false): boolean {
     if (Helpers.isValueEmpty(val)) return false;
     if (includeOther && val == this.otherItem.value) return false;
+    if (this.hasNone && val == this.noneItem.value) return false;
     return ItemValue.getItemByValue(this.getFilteredChoices(), val) == null;
   }
   protected isValueDisabled(val: any): boolean {
@@ -362,7 +398,7 @@ export class QuestionSelectBase extends Question {
    * @see choices
    * @see ChoicesRestfull
    * @see [Example: RESTful Dropdown](https://surveyjs.io/Examples/Library/?id=questiontype-dropdownrestfull)
-   * @see [Docs: Fill Choices from a RESTful Service](https://surveyjs.io/Documentation/Library/?id=LibraryOverview#fill-the-choices-from-a-restful-service)   
+   * @see [Docs: Fill Choices from a RESTful Service](https://surveyjs.io/Documentation/Library/?id=LibraryOverview#fill-the-choices-from-a-restful-service)
    */
   public get choicesByUrl(): ChoicesRestfull {
     return this.getPropertyValue("choicesByUrl");
@@ -543,11 +579,14 @@ export class QuestionSelectBase extends Question {
     return res;
   }
   protected canUseFilteredChoices(): boolean {
-    return !this.hasOther && this.choicesOrder == "none";
+    return !this.hasNone && !this.hasOther && this.choicesOrder == "none";
   }
   protected addToVisibleChoices(items: Array<ItemValue>) {
     if (this.hasOther) {
       items.push(this.otherItem);
+    }
+    if (this.hasNone) {
+      items.push(this.noneItem);
     }
   }
   public getPlainData(
@@ -582,7 +621,7 @@ export class QuestionSelectBase extends Question {
             isNode: false,
           };
           if (!!choice) {
-            (options.calculations || []).forEach((calculation) => {
+            (options.calculations || []).forEach(calculation => {
               choiceDataItem[calculation.propertyName] =
                 choice[calculation.propertyName];
             });
@@ -882,7 +921,7 @@ export class QuestionSelectBase extends Question {
     return array;
   }
   private sortArray(array: Array<ItemValue>, mult: number): Array<ItemValue> {
-    return array.sort(function (a, b) {
+    return array.sort(function(a, b) {
       if (a.calculatedText < b.calculatedText) return -1 * mult;
       if (a.calculatedText > b.calculatedText) return 1 * mult;
       return 0;
@@ -1049,7 +1088,7 @@ Serializer.addClass(
     {
       name: "commentText",
       dependsOn: "hasComment",
-      visibleIf: function (obj: any) {
+      visibleIf: function(obj: any) {
         return obj.hasComment;
       },
       serializationProperty: "locCommentText",
@@ -1058,7 +1097,7 @@ Serializer.addClass(
     "choicesFromQuestion:question_selectbase",
     {
       name: "choices:itemvalue[]",
-      baseValue: function () {
+      baseValue: function() {
         return surveyLocalization.getString("choices_Item");
       },
       dependsOn: "choicesFromQuestion",
@@ -1087,10 +1126,10 @@ Serializer.addClass(
     {
       name: "choicesByUrl:restfull",
       className: "ChoicesRestfull",
-      onGetValue: function (obj: any) {
+      onGetValue: function(obj: any) {
         return obj.choicesByUrl.getData();
       },
-      onSetValue: function (obj: any, value: any) {
+      onSetValue: function(obj: any, value: any) {
         obj.choicesByUrl.setData(value);
       },
     },
@@ -1110,19 +1149,28 @@ Serializer.addClass(
       },
     },
     "hasOther:boolean",
+    "hasNone:boolean",
     {
       name: "otherPlaceHolder",
       serializationProperty: "locOtherPlaceHolder",
       dependsOn: "hasOther",
-      visibleIf: function (obj: any) {
+      visibleIf: function(obj: any) {
         return obj.hasOther;
+      },
+    },
+    {
+      name: "noneText",
+      serializationProperty: "locNoneText",
+      dependsOn: "hasNone",
+      visibleIf: function(obj: any) {
+        return obj.hasNone;
       },
     },
     {
       name: "otherText",
       serializationProperty: "locOtherText",
       dependsOn: "hasOther",
-      visibleIf: function (obj: any) {
+      visibleIf: function(obj: any) {
         return obj.hasOther;
       },
     },
@@ -1130,7 +1178,7 @@ Serializer.addClass(
       name: "otherErrorText",
       serializationProperty: "locOtherErrorText",
       dependsOn: "hasOther",
-      visibleIf: function (obj: any) {
+      visibleIf: function(obj: any) {
         return obj.hasOther;
       },
     },

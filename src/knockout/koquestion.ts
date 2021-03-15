@@ -14,7 +14,7 @@ export class QuestionImplementor extends ImplementorBase {
   constructor(public question: Question) {
     super(question);
     var isSynchronizing = false;
-    this._koValue.subscribe((newValue) => {
+    this._koValue.subscribe(newValue => {
       if (!isSynchronizing) {
         this.question.value = newValue;
       }
@@ -45,22 +45,22 @@ export class QuestionImplementor extends ImplementorBase {
       configurable: true,
     });
     var self = this;
-    question.surveyLoadCallback = function () {
+    question.surveyLoadCallback = function() {
       self.onSurveyLoad();
     };
-    this.koTemplateName = ko.pureComputed(function () {
+    this.koTemplateName = ko.pureComputed(function() {
       return self.getTemplateName();
     });
     this.koElementType = ko.observable("survey-question");
     (<any>this.question)["koElementType"] = this.koElementType;
     (<any>this.question)["koTemplateName"] = this.koTemplateName;
-    (<any>this.question)["updateQuestion"] = function () {
+    (<any>this.question)["updateQuestion"] = function() {
       self.updateQuestion();
     };
-    (<any>this.question)["koCss"] = ko.pureComputed(function () {
+    (<any>this.question)["koCss"] = ko.pureComputed(function() {
       return self.question.cssClasses;
     });
-    (<any>this.question)["koRootCss"] = ko.pureComputed(function () {
+    (<any>this.question)["koRootCss"] = ko.pureComputed(function() {
       var cssRoot = self.question.cssRoot;
       if (self.question.isReadOnly)
         cssRoot += " " + self.question.cssClasses.disabled;
@@ -69,17 +69,14 @@ export class QuestionImplementor extends ImplementorBase {
     (<any>this.question)["toggleStateByClick"] = this.toggleStateByClick;
     (<any>this.question)["toggleStateByKeyUp"] = this.toggleStateByKeyUp;
 
-    (<any>this.question)["koErrorClass"] = ko.pureComputed(function () {
+    (<any>this.question)["koErrorClass"] = ko.pureComputed(function() {
       return self.question.cssError;
     });
-    question.registerFunctionOnPropertyValueChanged(
-      "visibleIndex",
-      function () {
-        self.onVisibleIndexChanged();
-      }
-    );
+    question.registerFunctionOnPropertyValueChanged("visibleIndex", function() {
+      self.onVisibleIndexChanged();
+    });
     this.koDummy = ko.observable(0);
-    (<any>this.question)["koQuestionAfterRender"] = function (
+    (<any>this.question)["koQuestionAfterRender"] = function(
       el: any,
       con: any
     ) {

@@ -3,9 +3,9 @@ import { Helpers } from "survey-core";
 import { LocalizableString } from "survey-core";
 import { Question } from "survey-core";
 import { ISurveyCreator } from "./reactquestion";
-import { Base, ITitleOwner, ArrayChanges } from "survey-core";
+import { Survey } from "./reactSurvey";
+import { Base, ITitleOwner, ArrayChanges, ISurvey } from "survey-core";
 import { ReactElementFactory } from "./element-factory";
-
 export class SurveyElementBase<P, S> extends React.Component<P, S> {
   public static renderLocString(
     locStr: LocalizableString,
@@ -35,12 +35,21 @@ export class SurveyElementBase<P, S> extends React.Component<P, S> {
     this.makeBaseElementsReact();
   }
   render(): JSX.Element {
-    if (!this.canRender()) return null;
+    if (!this.canRender()) {
+      return null;
+    }
+
     this.isRenderingValue = true;
     var res = this.renderElement();
     this.isRenderingValue = false;
+
+    res = this.wrapElement(res);
+
     this.changedStatePropNameValue = undefined;
     return res;
+  }
+  protected wrapElement(element: JSX.Element): JSX.Element {
+    return element;
   }
   protected get isRendering(): boolean {
     return this.isRenderingValue;

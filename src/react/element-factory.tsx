@@ -17,7 +17,7 @@ export class ReactElementFactory {
     }
     return result.sort();
   }
-  public isElementRegisgered(elementType: string) {
+  public isElementRegistered(elementType: string) {
     return !!this.creatorHash[elementType];
   }
   public createElement(elementType: string, params: any): JSX.Element {

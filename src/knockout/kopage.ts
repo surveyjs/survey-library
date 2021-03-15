@@ -7,18 +7,15 @@ import { ElementFactory } from "survey-core";
 import { ImplementorBase } from "./kobase";
 import { Question } from "survey-core";
 import { settings } from "survey-core";
+import { Survey } from "./kosurvey";
 
 export class QuestionRow extends QuestionRowModel {
-  koGetType: any;
   koElementAfterRender: any;
   constructor(public panel: PanelModelBase) {
     super(panel);
     new ImplementorBase(this);
     var self = this;
-    this.koGetType = function (el: any) {
-      return self.getElementType(el);
-    };
-    this.koElementAfterRender = function (el: any, con: any) {
+    this.koElementAfterRender = function(el: any, con: any) {
       return self.elementAfterRender(el, con);
     };
   }
@@ -32,6 +29,16 @@ export class QuestionRow extends QuestionRowModel {
       if (nName == "#text") tEl.data = "";
     }
   }
+
+  public getElementWrapperComponentName(el: SurveyElement): string {
+    const survey: Survey = el.survey as Survey;
+    return survey.getElementWrapperComponentName(el);
+  }
+  public getElementWrapperComponentData(el: SurveyElement): any {
+    const survey: Survey = el.survey as Survey;
+    return survey.getElementWrapperComponentData(el);
+  }
+
   private elementAfterRender(elements: any, con: any) {
     if (!this.panel || !this.panel.survey) return;
     var el = SurveyElement.GetFirstNonTextElement(elements);
@@ -75,18 +82,18 @@ export class Panel extends PanelModel {
     this.onCreating();
     var self = this;
     this.koElementType = ko.observable("survey-panel");
-    this.koCss = ko.pureComputed(function () {
+    this.koCss = ko.pureComputed(function() {
       return self.cssClasses;
     });
     this.koIsCollapsed = ko.observable(this.isCollapsed);
     this.koIsExpanded = ko.observable(this.isExpanded);
-    this.stateChangedCallback = function () {
+    this.stateChangedCallback = function() {
       self.onStateChanged();
     };
-    this.toggleStateByKeyUp = function (_: any, event: any) {
+    this.toggleStateByKeyUp = function(_: any, event: any) {
       if (event.which === 13) self.toggleState();
     };
-    this.koErrorClass = ko.pureComputed(function () {
+    this.koErrorClass = ko.pureComputed(function() {
       var rootClass = self.cssClasses.error.root;
       return rootClass ? rootClass : "panel-error-root";
     });
@@ -158,13 +165,13 @@ export class Page extends PageModel {
   }
 }
 
-Serializer.overrideClassCreator("panel", function () {
+Serializer.overrideClassCreator("panel", function() {
   return new Panel();
 });
-Serializer.overrideClassCreator("page", function () {
+Serializer.overrideClassCreator("page", function() {
   return new Page();
 });
 
-ElementFactory.Instance.registerElement("panel", (name) => {
+ElementFactory.Instance.registerElement("panel", name => {
   return new Panel(name);
 });

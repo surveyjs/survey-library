@@ -8,15 +8,17 @@ import { ISurveyCreator } from "./reactquestion";
 import { ReactQuestionFactory } from "./reactquestion_factory";
 import { surveyCss } from "survey-core";
 import { SurveyTimerPanel } from "./reacttimerpanel";
-import { SurveyElementBase } from "./reactquestion_element";
+import {
+  SurveyElementBase,
+  SurveyQuestionElementBase,
+} from "./reactquestion_element";
 import { SurveyLocStringViewer } from "./string-viewer";
 import { PageModel } from "survey-core";
 import { StylesManager } from "survey-core";
 import { Helpers } from "survey-core";
 import { ReactElementFactory } from "./element-factory";
 
-export class Survey
-  extends SurveyElementBase<any, any>
+export class Survey extends SurveyElementBase<any, any>
   implements ISurveyCreator {
   private previousJSON = {};
   private rootRef: React.RefObject<HTMLDivElement>;
@@ -88,7 +90,7 @@ export class Survey
       renderResult = this.renderSurvey();
     }
     var header = this.renderHeader();
-    var onSubmit = function (event: React.FormEvent<HTMLFormElement>) {
+    var onSubmit = function(event: React.FormEvent<HTMLFormElement>) {
       event.preventDefault();
     };
     var customHeader = <div className="sv_custom_header" />;
@@ -377,12 +379,12 @@ export class Survey
   protected setSurveyEvents() {
     var self = this;
 
-    this.survey.renderCallback = function () {
+    this.survey.renderCallback = function() {
       var counter =
         !!self.state && !!self.state.modelChanged ? self.state.modelChanged : 0;
       self.setState({ modelChanged: counter + 1 });
     };
-    this.survey.onPartialSend.add((sender) => {
+    this.survey.onPartialSend.add(sender => {
       if (!!self.state) {
         self.setState(self.state);
       }

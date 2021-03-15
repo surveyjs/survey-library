@@ -1,6 +1,5 @@
 import { SurveyModel } from "survey-core";
-import { SurveyWindowModel } from "survey-core";
-
+import { SurveyWindowModel, Question } from "survey-core";
 export class ReactSurveyModel extends SurveyModel {
   renderCallback: () => void;
   constructor(jsonObj: any = null) {
@@ -35,6 +34,9 @@ export class ReactSurveyModel extends SurveyModel {
     var res = super.start();
     this.render();
     return res;
+  }
+  public wrapQuestion(element: JSX.Element, question: Question): JSX.Element {
+    return null;
   }
 }
 

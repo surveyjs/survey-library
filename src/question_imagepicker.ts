@@ -234,6 +234,8 @@ Serializer.addClass(
   [
     { name: "hasOther", visible: false },
     { name: "otherText", visible: false },
+    { name: "hasNone", visible: false },
+    { name: "noneText", visible: false },
     { name: "optionsCaption", visible: false },
     { name: "otherErrorText", visible: false },
     { name: "storeOthersAsComment", visible: false },
@@ -250,7 +252,7 @@ Serializer.addClass(
     { name: "imageHeight:number", default: 150, minValue: 0 },
     { name: "imageWidth:number", default: 200, minValue: 0 },
   ],
-  function () {
+  function() {
     return new QuestionImagePickerModel("");
   },
   "checkboxbase"
@@ -272,7 +274,7 @@ Serializer.addProperty("imagepicker", {
   name: "choices:imageitemvalue[]",
 });
 
-QuestionFactory.Instance.registerQuestion("imagepicker", (name) => {
+QuestionFactory.Instance.registerQuestion("imagepicker", name => {
   var q = new QuestionImagePickerModel(name);
   //q.choices = QuestionFactory.DefaultChoices;
   return q;

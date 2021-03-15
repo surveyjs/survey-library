@@ -44,8 +44,7 @@ import { IActionBarItem } from "./action-bar";
 /**
  * The `Survey` object contains information about the survey, Pages, Questions, flow logic and etc.
  */
-export class SurveyModel
-  extends Base
+export class SurveyModel extends Base
   implements
     ISurvey,
     ISurveyData,
@@ -941,7 +940,6 @@ export class SurveyModel
     any
   > = new Event<(sender: SurveyModel, options: any) => any, any>();
 
-
   public onGetMatrixRowActions: Event<
     (sender: SurveyModel, options: any) => any,
     any
@@ -985,42 +983,42 @@ export class SurveyModel
     this.createLocalizableString("questionTitleTemplate", this, true);
 
     this.textPreProcessor = new TextPreProcessor();
-    this.textPreProcessor.onProcess = function (
+    this.textPreProcessor.onProcess = function(
       textValue: TextPreProcessorValue
     ) {
       self.getProcessedTextValue(textValue);
     };
     this.createNewArray(
       "pages",
-      function (value: any) {
+      function(value: any) {
         self.doOnPageAdded(value);
       },
-      function (value: any) {
+      function(value: any) {
         self.doOnPageRemoved(value);
       }
     );
-    this.createNewArray("triggers", function (value: any) {
+    this.createNewArray("triggers", function(value: any) {
       value.setOwner(self);
     });
-    this.createNewArray("calculatedValues", function (value: any) {
+    this.createNewArray("calculatedValues", function(value: any) {
       value.setOwner(self);
     });
-    this.createNewArray("completedHtmlOnCondition", function (value: any) {
+    this.createNewArray("completedHtmlOnCondition", function(value: any) {
       value.locOwner = self;
     });
-    this.createNewArray("navigateToUrlOnCondition", function (value: any) {
+    this.createNewArray("navigateToUrlOnCondition", function(value: any) {
       value.locOwner = self;
     });
     this.registerFunctionOnPropertyValueChanged(
       "firstPageIsStarted",
-      function () {
+      function() {
         self.onFirstPageIsStartedChanged();
       }
     );
-    this.registerFunctionOnPropertyValueChanged("mode", function () {
+    this.registerFunctionOnPropertyValueChanged("mode", function() {
       self.onModeChanged();
     });
-    this.registerFunctionOnPropertyValueChanged("progressBarType", function () {
+    this.registerFunctionOnPropertyValueChanged("progressBarType", function() {
       self.updateProgressText();
     });
     this.onProgressText.onCallbacksChanged = () => {
@@ -2347,7 +2345,7 @@ export class SurveyModel
     }
   ) {
     var result: Array<any> = [];
-    this.getAllQuestions().forEach((question) => {
+    this.getAllQuestions().forEach(question => {
       var resultItem = (<Question>question).getPlainData(options);
       if (!!resultItem) {
         result.push(resultItem);
@@ -2388,16 +2386,22 @@ export class SurveyModel
   public getDataValueCore(valuesHash: any, key: string) {
     if (!!this.editingObj) {
       var prop = Serializer.findProperty(this.editingObj.getType(), key);
-      if (!!prop && prop.isLocalizable && prop.isArray)
+      if (
+        !!prop &&
+        ((prop.isLocalizable && prop.isArray) || this.isEditableObjWrapper())
+      )
         return (<any>this.editingObj)[key];
       return this.editingObj.getPropertyValue(key);
     }
     return valuesHash[key];
   }
+  private isEditableObjWrapper(): boolean {
+    return !!(<any>this.editingObj)["getOriginalObj"];
+  }
   public setDataValueCore(valuesHash: any, key: string, value: any) {
     if (!!this.editingObj) {
       var prop = Serializer.findProperty(this.editingObj.getType(), key);
-      if (!!prop && prop.isLocalizable) {
+      if (!!prop && (prop.isLocalizable || this.isEditableObjWrapper())) {
         (<any>this.editingObj)[key] = value;
       } else {
         this.editingObj.setPropertyValue(key, value);
@@ -3459,18 +3463,18 @@ export class SurveyModel
     var savingDataStarted = false;
     var onCompleteOptions = {
       isCompleteOnTrigger: isCompleteOnTrigger,
-      showDataSaving: function (text: string) {
+      showDataSaving: function(text: string) {
         savingDataStarted = true;
         self.setCompletedState("saving", text);
       },
-      showDataSavingError: function (text: string) {
+      showDataSavingError: function(text: string) {
         self.setCompletedState("error", text);
       },
-      showDataSavingSuccess: function (text: string) {
+      showDataSavingSuccess: function(text: string) {
         self.setCompletedState("success", text);
         self.navigateTo();
       },
-      showDataSavingClear: function (text: string) {
+      showDataSavingClear: function(text: string) {
         self.setCompletedState("", "");
       },
     };
@@ -3522,7 +3526,7 @@ export class SurveyModel
       data: <{ [index: string]: any }>{},
       errors: {},
       survey: this,
-      complete: function () {
+      complete: function() {
         self.completeServerValidation(options, isPreview);
       },
     };
@@ -3914,7 +3918,7 @@ export class SurveyModel
     var options = {
       question: question,
       actions: actions,
-      row: row
+      row: row,
     };
     this.onGetMatrixRowActions.fire(this, options);
     return options.actions;
@@ -4035,7 +4039,7 @@ export class SurveyModel
     uploadingCallback: (status: string, data: any) => any
   ) {
     var responses: Array<any> = [];
-    files.forEach((file) => {
+    files.forEach(file => {
       if (uploadingCallback) uploadingCallback("uploading", file);
       this.createSurveyService().sendFile(
         this.surveyPostId,
@@ -4580,7 +4584,7 @@ export class SurveyModel
     this.createSurveyService().sendResult(
       postId,
       this.data,
-      function (success: boolean, response: any, request: any) {
+      function(success: boolean, response: any, request: any) {
         if (self.surveyShowDataSaving) {
           if (success) {
             self.setCompletedState("success", "");
@@ -4606,18 +4610,19 @@ export class SurveyModel
    */
   public getResult(resultId: string, name: string) {
     var self = this;
-    this.createSurveyService().getResult(
-      resultId,
-      name,
-      function (success: boolean, data: any, dataList: any[], response: any) {
-        self.onGetResult.fire(self, {
-          success: success,
-          data: data,
-          dataList: dataList,
-          response: response,
-        });
-      }
-    );
+    this.createSurveyService().getResult(resultId, name, function(
+      success: boolean,
+      data: any,
+      dataList: any[],
+      response: any
+    ) {
+      self.onGetResult.fire(self, {
+        success: success,
+        data: data,
+        dataList: dataList,
+        response: response,
+      });
+    });
   }
   /**
    * Loads the survey JSON from the [api.surveyjs.io](https://api.surveyjs.io) service.
@@ -4644,7 +4649,7 @@ export class SurveyModel
       this.createSurveyService().getSurveyJsonAndIsCompleted(
         this.surveyId,
         this.clientId,
-        function (
+        function(
           success: boolean,
           json: string,
           isCompleted: string,
@@ -4658,15 +4663,16 @@ export class SurveyModel
         }
       );
     } else {
-      this.createSurveyService().loadSurvey(
-        this.surveyId,
-        function (success: boolean, result: string, response: any) {
-          self.isLoading = false;
-          if (success) {
-            self.loadSurveyFromServiceJson(result);
-          }
+      this.createSurveyService().loadSurvey(this.surveyId, function(
+        success: boolean,
+        result: string,
+        response: any
+      ) {
+        self.isLoading = false;
+        if (success) {
+          self.loadSurveyFromServiceJson(result);
         }
-      );
+      });
     }
   }
   private loadSurveyFromServiceJson(json: any) {
@@ -5519,7 +5525,7 @@ export class SurveyModel
   public startTimer() {
     if (this.isTimerStarted || this.isDesignMode) return;
     var self = this;
-    this.timerFunc = function () {
+    this.timerFunc = function() {
       self.doTimer();
     };
     this.isTimerStarted = true;
@@ -5647,7 +5653,7 @@ export class SurveyModel
     var question = this.getQuestionByName(name, true);
     if (!question || !question.isVisible || !question.page) return false;
     this.currentPage = <PageModel>question.page;
-    setTimeout(function () {
+    setTimeout(function() {
       question.focus(), 1;
     });
     return true;
@@ -5707,10 +5713,10 @@ Serializer.addClass("survey", [
     baseClassName: "question",
     visible: false,
     isLightSerializable: false,
-    onGetValue: function (obj: any): any {
+    onGetValue: function(obj: any): any {
       return null;
     },
-    onSetValue: function (obj: any, value: any, jsonConverter: any) {
+    onSetValue: function(obj: any, value: any, jsonConverter: any) {
       var page = obj.addNewPage("");
       jsonConverter.toObject({ questions: value }, page);
     },
@@ -5811,7 +5817,7 @@ Serializer.addClass("survey", [
   {
     name: "questionStartIndex",
     dependsOn: ["showQuestionNumbers"],
-    visibleIf: function (survey: any) {
+    visibleIf: function(survey: any) {
       return !survey || survey.showQuestionNumbers !== "off";
     },
   },

@@ -1730,7 +1730,7 @@ export class SurveyModel
     this._isMobile = true;
   }
   private get isMobile() {
-    return isMobile || (this.isDesignMode && this._isMobile);
+    return isMobile() || (this.isDesignMode && this._isMobile);
   }
   public get titleMaxWidth(): string {
     if (!this.isMobile && !this.isValueEmpty(this.logo)) {

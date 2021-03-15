@@ -1,5 +1,6 @@
 import { SurveyModel } from "survey-core";
 import { SurveyWindowModel, Question } from "survey-core";
+import { ReactElementFactory } from "./element-factory";
 export class ReactSurveyModel extends SurveyModel {
   renderCallback: () => void;
   constructor(jsonObj: any = null) {
@@ -36,7 +37,13 @@ export class ReactSurveyModel extends SurveyModel {
     return res;
   }
   public wrapQuestion(element: JSX.Element, question: Question): JSX.Element {
-    return null;
+    const componentName = this.getElementWrapperComponentName(question);
+    const componentData = this.getElementWrapperComponentData(question);
+    return ReactElementFactory.Instance.createElement(componentName, {
+      element,
+      question,
+      componentData,
+    });
   }
 }
 

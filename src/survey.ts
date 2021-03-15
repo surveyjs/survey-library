@@ -1610,7 +1610,11 @@ export class SurveyModel extends Base
   }
   //ISurveyErrorOwner
   getErrorCustomText(text: string, error: SurveyError): string {
-    var options = { text: text, name: error.getErrorType(), error: error };
+    var options = {
+      text: text,
+      name: error.getErrorType(),
+      error: error,
+    };
     this.onErrorCustomText.fire(this, options);
     return options.text;
   }
@@ -4060,7 +4064,10 @@ export class SurveyModel extends Base
             }
           } else {
             if (uploadingCallback)
-              uploadingCallback("error", { response: response, file: file });
+              uploadingCallback("error", {
+                response: response,
+                file: file,
+              });
           }
         }
       );
@@ -5129,11 +5136,17 @@ export class SurveyModel extends Base
       this.currentPageValue = this.currentPage;
     }
     this.updateVisibleIndexes();
-    this.onPageVisibleChanged.fire(this, { page: page, visible: newValue });
+    this.onPageVisibleChanged.fire(this, {
+      page: page,
+      visible: newValue,
+    });
   }
   panelVisibilityChanged(panel: IPanel, newValue: boolean) {
     this.updateVisibleIndexes();
-    this.onPanelVisibleChanged.fire(this, { panel: panel, visible: newValue });
+    this.onPanelVisibleChanged.fire(this, {
+      panel: panel,
+      visible: newValue,
+    });
   }
   questionCreated(question: IQuestion): any {
     this.onQuestionCreated.fire(this, { question: question });
@@ -5342,7 +5355,12 @@ export class SurveyModel extends Base
     return this.textPreProcessor.process(text, returnDisplayValue, doEncoding);
   }
   getSurveyMarkdownHtml(element: Base, text: string, name: string): string {
-    var options = { element: element, text: text, name: name, html: <any>null };
+    var options = {
+      element: element,
+      text: text,
+      name: name,
+      html: <any>null,
+    };
     this.onTextMarkdown.fire(this, options);
     return options.html;
   }
@@ -5665,6 +5683,12 @@ export class SurveyModel extends Base
       question.focus(), 1;
     });
     return true;
+  }
+  public getElementWrapperComponentName(element: SurveyElement): string {
+    return "survey-element-component";
+  }
+  public getElementWrapperComponentData(element: SurveyElement): any {
+    return element;
   }
   /**
    * Use this method to dispose survey model properly.

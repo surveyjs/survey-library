@@ -1727,7 +1727,7 @@ export class SurveyModel
   }
   private _isMobile = false;
   public setIsMobile(newVal = true) {
-    this._isMobile = true;
+    this._isMobile = newVal;
   }
   private get isMobile() {
     return isMobile() || (this.isDesignMode && this._isMobile);

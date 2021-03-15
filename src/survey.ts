@@ -40,6 +40,7 @@ import {
 import { ExpressionRunner, ConditionRunner } from "./conditions";
 import { settings } from "./settings";
 import { IActionBarItem } from "./action-bar";
+import { isMobile } from "./utils/utils";
 
 /**
  * The `Survey` object contains information about the survey, Pages, Questions, flow logic and etc.
@@ -1722,8 +1723,15 @@ export class SurveyModel extends Base
   public set logoFit(val: string) {
     this.setPropertyValue("logoFit", val);
   }
+  private _isMobile = false;
+  public setIsMobile(newVal = true) {
+    this._isMobile = newVal;
+  }
+  private get isMobile() {
+    return isMobile() || this._isMobile;
+  }
   public get titleMaxWidth(): string {
-    if (!this.isValueEmpty(this.logo)) {
+    if (!this.isMobile && !this.isValueEmpty(this.logo)) {
       var logoWidth = this.logoWidth;
       if (this.logoPosition === "left" || this.logoPosition === "right") {
         return "calc(100% - 5px - 2em - " + logoWidth + "px)";

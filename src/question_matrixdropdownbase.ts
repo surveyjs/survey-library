@@ -1995,7 +1995,6 @@ export class QuestionMatrixDropdownModelBase
   private detailPanelValue: PanelModel;
   protected isRowChanging = false;
   columnsChangedCallback: () => void;
-  updateCellsCallback: () => void;
   onRenderedTableResetCallback: () => void;
   onRenderedTableCreatedCallback: (
     table: QuestionMatrixDropdownRenderedTable
@@ -2016,28 +2015,28 @@ export class QuestionMatrixDropdownModelBase
 
   constructor(name: string) {
     super(name);
-    var self = this;
     this.createItemValues("choices");
     this.createLocalizableString("optionsCaption", this);
     this.createLocalizableString("keyDuplicationError", this);
     this.detailPanelValue = this.createNewDetailPanel();
     this.detailPanel.selectedElementInDesign = this;
     this.detailPanel.renderWidth = "100%";
-    this.registerFunctionOnPropertyValueChanged("columns", function(
-      newColumns: any
-    ) {
-      self.updateColumnsIndexes(newColumns);
-      self.clearGeneratedRows();
-      self.generatedTotalRow = null;
-      self.resetRenderedTable();
-      self.fireCallback(self.columnsChangedCallback);
+    this.registerFunctionOnPropertyValueChanged(
+      "columns",
+      (newColumns: any) => {
+        this.updateColumnsIndexes(newColumns);
+        this.generatedTotalRow = null;
+        this.clearRowsAndResetRenderedTable();
+      }
+    );
+    this.registerFunctionOnPropertyValueChanged("cellType", () => {
+      this.updateColumnsCellType();
+      this.clearRowsAndResetRenderedTable();
     });
     this.registerFunctionOnPropertiesValueChanged(
-      ["cellType", "optionsCaption", "columnColCount", "rowTitleWidth"],
-      function() {
-        self.clearGeneratedRows();
-        self.resetRenderedTable();
-        self.fireCallback(self.columnsChangedCallback);
+      ["optionsCaption", "columnColCount", "rowTitleWidth"],
+      () => {
+        this.clearRowsAndResetRenderedTable();
       }
     );
     this.registerFunctionOnPropertiesValueChanged(
@@ -2052,8 +2051,8 @@ export class QuestionMatrixDropdownModelBase
         "hasFooter",
         "detailPanelMode",
       ],
-      function() {
-        self.resetRenderedTable();
+      () => {
+        this.resetRenderedTable();
       }
     );
   }
@@ -2169,6 +2168,11 @@ export class QuestionMatrixDropdownModelBase
   private set renderedTableValue(val: QuestionMatrixDropdownRenderedTable) {
     this.setPropertyValue("renderedTable", val);
   }
+  private clearRowsAndResetRenderedTable() {
+    this.clearGeneratedRows();
+    this.resetRenderedTable();
+    this.fireCallback(this.columnsChangedCallback);
+  }
   protected resetRenderedTable() {
     if (this.lockResetRenderedTable || this.isLoadingFromJson) return;
     this.renderedTableValue = null;
@@ -2226,10 +2230,7 @@ export class QuestionMatrixDropdownModelBase
   }
   public set cellType(val: string) {
     val = val.toLowerCase();
-    if (this.cellType == val) return;
     this.setPropertyValue("cellType", val);
-    this.updateColumnsCellType();
-    this.fireCallback(this.updateCellsCallback);
   }
   private updateColumnsCellType() {
     for (var i = 0; i < this.columns.length; i++) {
@@ -2250,7 +2251,6 @@ export class QuestionMatrixDropdownModelBase
   public set columnColCount(value: number) {
     if (value < 0 || value > 4) return;
     this.setPropertyValue("columnColCount", value);
-    this.fireCallback(this.updateCellsCallback);
   }
   /**
    * Use this property to set the minimum column width.

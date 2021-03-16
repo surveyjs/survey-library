@@ -5855,12 +5855,47 @@ QUnit.test(
     assert.equal(
       rows[0].cells[0].question.choices.length,
       3,
-      "There are 5 items in col1 question "
+      "There are 3 items in col1 question "
     );
     assert.equal(
       rows[0].cells[1].question.choices.length,
       3,
-      "There are 5 items in col1 question "
+      "There are 3 items in col2 question "
+    );
+    question.choices.push(new ItemValue("item4"));
+    rows = question.visibleRows;
+    assert.equal(
+      rows[0].cells[0].question.choices.length,
+      4,
+      "There are 4 items in col1 question "
+    );
+    assert.equal(
+      rows[0].cells[1].question.choices.length,
+      4,
+      "There are 4 items in col2 question "
+    );
+    question.choices[0].value = "item11";
+    question.choices[3].text = "text4";
+    rows = question.visibleRows;
+    assert.equal(
+      rows[0].cells[0].question.choices[0].value,
+      "item11",
+      "value item in col1 question changed"
+    );
+    assert.equal(
+      rows[0].cells[1].question.choices[0].value,
+      "item11",
+      "value item in col2 question changed"
+    );
+    assert.equal(
+      rows[0].cells[0].question.choices[3].text,
+      "text4",
+      "text item in col1 question changed"
+    );
+    assert.equal(
+      rows[0].cells[1].question.choices[3].text,
+      "text4",
+      "text item in col2 question changed"
     );
   }
 );

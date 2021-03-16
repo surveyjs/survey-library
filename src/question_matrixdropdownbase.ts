@@ -2034,7 +2034,7 @@ export class QuestionMatrixDropdownModelBase
       this.clearRowsAndResetRenderedTable();
     });
     this.registerFunctionOnPropertiesValueChanged(
-      ["optionsCaption", "columnColCount", "rowTitleWidth"],
+      ["optionsCaption", "columnColCount", "rowTitleWidth", "choices"],
       () => {
         this.clearRowsAndResetRenderedTable();
       }
@@ -2064,6 +2064,17 @@ export class QuestionMatrixDropdownModelBase
   }
   public get isRowsDynamic(): boolean {
     return false;
+  }
+  public itemValuePropertyChanged(
+    item: ItemValue,
+    name: string,
+    oldValue: any,
+    newValue: any
+  ) {
+    super.itemValuePropertyChanged(item, name, oldValue, newValue);
+    if (item.ownerPropertyName === "choices") {
+      this.clearRowsAndResetRenderedTable();
+    }
   }
   /**
    * Set columnLayout to 'vertical' to place columns vertically and rows horizontally. It makes sense when we have many columns and few rows.

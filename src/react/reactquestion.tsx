@@ -5,6 +5,7 @@ import { SurveyQuestionCommentItem } from "./reactquestion_comment";
 import { SurveyElementBase, ReactSurveyElement } from "./reactquestion_element";
 import { SurveyCustomWidget } from "./custom-widget";
 import { ReactElementFactory } from "./element-factory";
+import { ReactSurveyModel } from "./reactsurveymodel";
 
 export interface ISurveyCreator {
   createQuestionElement(question: Question): JSX.Element;
@@ -147,6 +148,14 @@ export class SurveyQuestion extends SurveyElementBase<any, any> {
       </div>
     );
   }
+  protected wrapElement(element: JSX.Element): JSX.Element {
+    const survey: ReactSurveyModel = this.question.survey as ReactSurveyModel;
+    let wrapper: JSX.Element;
+    if (survey) {
+      wrapper = survey.wrapQuestion(element, this.question);
+    }
+    return wrapper ?? element;
+  }
   protected renderQuestion(): JSX.Element {
     return SurveyQuestion.renderQuestionBody(this.creator, this.question);
   }
@@ -223,7 +232,7 @@ export class SurveyQuestion extends SurveyElementBase<any, any> {
   }
 }
 
-ReactElementFactory.Instance.registerElement("question", (props) => {
+ReactElementFactory.Instance.registerElement("question", props => {
   return React.createElement(SurveyQuestion, props);
 });
 

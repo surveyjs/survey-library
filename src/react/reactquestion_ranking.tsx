@@ -123,7 +123,7 @@ export class SurveyQuestionRankingItem extends ReactSurveyElement {
             </div>
 
             <div className={this.cssClasses.itemIndex}>{this.index}</div>
-            <div className={this.cssClasses.itemText}>{this.text}</div>
+            <div className={this.cssClasses.controlLabel}>{this.text}</div>
           </div>
         </div>
       </div>

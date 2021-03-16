@@ -25,7 +25,7 @@
         </div>
 
         <div :class="cssClasses.itemIndex">{{index}}</div>
-        <div :class="cssClasses.itemText">
+        <div :class="cssClasses.controlLabel">
           <survey-string :locString="text" />
         </div>
       </div>

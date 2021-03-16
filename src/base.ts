@@ -312,6 +312,7 @@ export interface IProgressInfo {
 
 export interface IWrapperObject {
   getOriginalObj(): Base;
+  getClassNameProperty(): string;
 }
 
 export class Bindings {

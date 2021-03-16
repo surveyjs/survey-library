@@ -257,6 +257,9 @@ export class MatrixDropdownColumn extends Base
   public getOriginalObj(): Base {
     return this.templateQuestion;
   }
+  getClassNameProperty(): string {
+    return "cellType";
+  }
   public getSurvey(): ISurvey {
     return !!this.colOwner ? (<any>this.colOwner).survey : null;
   }

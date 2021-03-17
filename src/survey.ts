@@ -5120,7 +5120,9 @@ export class SurveyModel extends Base
     );
   }
   get isClearValueOnHiddenContainer(): boolean {
-    return this.clearInvisibleValues == "onHiddenContainer";
+    return (
+      this.clearInvisibleValues == "onHiddenContainer" && !this.isShowingPreview
+    );
   }
   questionVisibilityChanged(question: IQuestion, newValue: boolean) {
     this.updateVisibleIndexes();

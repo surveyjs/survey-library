@@ -15,7 +15,7 @@ import { ItemValue } from "../src/itemvalue";
 
 export default QUnit.module("custom questions");
 
-QUnit.test("Single: Register and load from json", function (assert) {
+QUnit.test("Single: Register and load from json", function(assert) {
   var json = {
     name: "newquestion",
     questionJSON: { type: "dropdown", choices: [1, 2, 3, 4, 5] },
@@ -46,7 +46,7 @@ QUnit.test("Single: Register and load from json", function (assert) {
   ComponentCollection.Instance.clear();
 });
 
-QUnit.test("Composite: Register and load from json", function (assert) {
+QUnit.test("Composite: Register and load from json", function(assert) {
   var json = {
     name: "customerinfo",
     elementsJSON: [
@@ -70,32 +70,31 @@ QUnit.test("Composite: Register and load from json", function (assert) {
   ComponentCollection.Instance.clear();
 });
 
-QUnit.test(
-  "Single: Create the wrapper question and sync the value",
-  function (assert) {
-    var json = {
-      name: "newquestion",
-      questionJSON: { type: "dropdown", choices: [1, 2, 3, 4, 5] },
-    };
-    ComponentCollection.Instance.add(json);
-    var survey = new SurveyModel({
-      elements: [{ type: "newquestion", name: "q1" }],
-    });
-    var q = <QuestionCustomModel>survey.getAllQuestions()[0];
-    assert.equal(
-      q.contentQuestion.getType(),
-      "dropdown",
-      "Question the type was created"
-    );
-    q.value = 1;
-    assert.equal(q.contentQuestion.value, 1, "Set value to wrapper value");
-    q.contentQuestion.value = 2;
-    assert.equal(q.value, 2, "Set value to custom question");
-    ComponentCollection.Instance.clear();
-  }
-);
+QUnit.test("Single: Create the wrapper question and sync the value", function(
+  assert
+) {
+  var json = {
+    name: "newquestion",
+    questionJSON: { type: "dropdown", choices: [1, 2, 3, 4, 5] },
+  };
+  ComponentCollection.Instance.add(json);
+  var survey = new SurveyModel({
+    elements: [{ type: "newquestion", name: "q1" }],
+  });
+  var q = <QuestionCustomModel>survey.getAllQuestions()[0];
+  assert.equal(
+    q.contentQuestion.getType(),
+    "dropdown",
+    "Question the type was created"
+  );
+  q.value = 1;
+  assert.equal(q.contentQuestion.value, 1, "Set value to wrapper value");
+  q.contentQuestion.value = 2;
+  assert.equal(q.value, 2, "Set value to custom question");
+  ComponentCollection.Instance.clear();
+});
 
-QUnit.test("Composite: sync values", function (assert) {
+QUnit.test("Composite: sync values", function(assert) {
   var json = {
     name: "customerinfo",
     elementsJSON: [
@@ -117,7 +116,7 @@ QUnit.test("Composite: sync values", function (assert) {
   assert.equal(lastName.value, "Telnov", "question value is set");
   ComponentCollection.Instance.clear();
 });
-QUnit.test("Single: disableDesignActions property", function (assert) {
+QUnit.test("Single: disableDesignActions property", function(assert) {
   var json = {
     name: "newquestion",
     questionJSON: { type: "dropdown", choices: [1, 2, 3, 4, 5] },
@@ -139,7 +138,7 @@ QUnit.test("Single: disableDesignActions property", function (assert) {
   );
   ComponentCollection.Instance.clear();
 });
-QUnit.test("Composite: disableDesignActions property", function (assert) {
+QUnit.test("Composite: disableDesignActions property", function(assert) {
   var json = {
     name: "customerinfo",
     elementsJSON: [
@@ -170,7 +169,7 @@ QUnit.test("Composite: disableDesignActions property", function (assert) {
   );
   ComponentCollection.Instance.clear();
 });
-QUnit.test("Single: read-only", function (assert) {
+QUnit.test("Single: read-only", function(assert) {
   var json = {
     name: "newquestion",
     questionJSON: { type: "dropdown", choices: [1, 2, 3, 4, 5] },
@@ -200,7 +199,7 @@ QUnit.test("Single: read-only", function (assert) {
   );
   ComponentCollection.Instance.clear();
 });
-QUnit.test("Composite: read only", function (assert) {
+QUnit.test("Composite: read only", function(assert) {
   var json = {
     name: "customerinfo",
     elementsJSON: [
@@ -233,7 +232,7 @@ QUnit.test("Composite: read only", function (assert) {
   assert.equal(firstName.isReadOnly, true, "firstName is read Only again");
   ComponentCollection.Instance.clear();
 });
-QUnit.test("Single: hasError", function (assert) {
+QUnit.test("Single: hasError", function(assert) {
   var json = {
     name: "newquestion",
     questionJSON: {
@@ -253,7 +252,7 @@ QUnit.test("Single: hasError", function (assert) {
   assert.equal(q.hasErrors(), false, "contentQuestion has value");
   ComponentCollection.Instance.clear();
 });
-QUnit.test("Single: hasError/isRequired", function (assert) {
+QUnit.test("Single: hasError/isRequired", function(assert) {
   var json = {
     name: "newquestion",
     questionJSON: {
@@ -272,7 +271,7 @@ QUnit.test("Single: hasError/isRequired", function (assert) {
   assert.equal(q.hasErrors(), false, "contentQuestion has value");
   ComponentCollection.Instance.clear();
 });
-QUnit.test("Composite: hasErrors", function (assert) {
+QUnit.test("Composite: hasErrors", function(assert) {
   var json = {
     name: "customerinfo",
     elementsJSON: [
@@ -291,7 +290,7 @@ QUnit.test("Composite: hasErrors", function (assert) {
   assert.equal(q.hasErrors(), false, "firstName has value");
   ComponentCollection.Instance.clear();
 });
-QUnit.test("Composite: hasErrors/isRequired", function (assert) {
+QUnit.test("Composite: hasErrors/isRequired", function(assert) {
   var json = {
     name: "customerinfo",
     elementsJSON: [
@@ -311,7 +310,7 @@ QUnit.test("Composite: hasErrors/isRequired", function (assert) {
   ComponentCollection.Instance.clear();
 });
 
-QUnit.test("Composite: onPropertyChanged", function (assert) {
+QUnit.test("Composite: onPropertyChanged", function(assert) {
   var json = {
     name: "customerInfo",
     elementsJSON: [
@@ -324,7 +323,7 @@ QUnit.test("Composite: onPropertyChanged", function (assert) {
         default: true,
       });
     },
-    onPropertyChanged: function (question, propertyName, newValue) {
+    onPropertyChanged: function(question, propertyName, newValue) {
       if (propertyName == "showLastName") {
         question.contentPanel.getQuestionByName("lastName").visible = newValue;
       }
@@ -343,10 +342,10 @@ QUnit.test("Composite: onPropertyChanged", function (assert) {
   assert.equal(lastName.visible, true, "showLastName is true");
   ComponentCollection.Instance.clear();
 });
-QUnit.test("Single: create from code", function (assert) {
+QUnit.test("Single: create from code", function(assert) {
   var json = {
     name: "newquestion",
-    createQuestion: function () {
+    createQuestion: function() {
       var res = new QuestionDropdownModel("question");
       res.choices = [1, 2, 3, 4, 5];
       return res;
@@ -369,10 +368,10 @@ QUnit.test("Single: create from code", function (assert) {
   );
   ComponentCollection.Instance.clear();
 });
-QUnit.test("Composite: create from code", function (assert) {
+QUnit.test("Composite: create from code", function(assert) {
   var json = {
     name: "customerinfo",
-    createElements: function (panel) {
+    createElements: function(panel) {
       panel.addNewQuestion("text", "firstName");
       panel.addNewQuestion("text", "lastName");
       panel.questions[0].isRequired = true;
@@ -390,14 +389,14 @@ QUnit.test("Composite: create from code", function (assert) {
   assert.equal(firstName.isRequired, true, "first name is required");
   ComponentCollection.Instance.clear();
 });
-QUnit.test("Composite: onPropertyChanged", function (assert) {
+QUnit.test("Composite: onPropertyChanged", function(assert) {
   var json = {
     name: "customerinfo",
     elementsJSON: [
       { type: "text", name: "firstName", isRequired: true },
       { type: "text", name: "lastName" },
     ],
-    onCreated: function (question) {
+    onCreated: function(question) {
       question.contentPanel.getQuestionByName(
         "lastName"
       ).startWithNewLine = false;
@@ -424,14 +423,14 @@ QUnit.test("Composite: onPropertyChanged", function (assert) {
   assert.equal(lastName.no, "b.", "second question, no is 'b.'");
   ComponentCollection.Instance.clear();
 });
-QUnit.test("Custom, get css from contentQuestion", function (assert) {
+QUnit.test("Custom, get css from contentQuestion", function(assert) {
   var survey = new SurveyModel();
   survey.css.dropdown.small = "small";
   survey.css.dropdown.title = "title";
   survey.css.question.titleOnAnswer = "onAnswer";
   var json = {
     name: "newquestion",
-    createQuestion: function () {
+    createQuestion: function() {
       var res = new QuestionDropdownModel("question");
       res.choices = [1, 2, 3, 4, 5];
       return res;
@@ -471,7 +470,7 @@ QUnit.test("Custom, get css from contentQuestion", function (assert) {
   );
   ComponentCollection.Instance.clear();
 });
-QUnit.test("Composite, update panel css", function (assert) {
+QUnit.test("Composite, update panel css", function(assert) {
   var survey = new SurveyModel();
   survey.css.question.small = "small";
   survey.css.question.title = "title";
@@ -482,7 +481,7 @@ QUnit.test("Composite, update panel css", function (assert) {
       { type: "text", name: "firstName", isRequired: true },
       { type: "text", name: "lastName" },
     ],
-    onCreated: function (question) {
+    onCreated: function(question) {
       question.contentPanel.getQuestionByName(
         "lastName"
       ).startWithNewLine = false;
@@ -514,7 +513,7 @@ QUnit.test("Composite, update panel css", function (assert) {
   );
   ComponentCollection.Instance.clear();
 });
-QUnit.test("Single: defaultValue", function (assert) {
+QUnit.test("Single: defaultValue", function(assert) {
   var json = {
     name: "newquestion",
     questionJSON: {
@@ -536,7 +535,7 @@ QUnit.test("Single: defaultValue", function (assert) {
   );
   ComponentCollection.Instance.clear();
 });
-QUnit.test("Composite: defaultValue", function (assert) {
+QUnit.test("Composite: defaultValue", function(assert) {
   var json = {
     name: "customerinfo",
     elementsJSON: [
@@ -589,7 +588,7 @@ var orderJSON = {
   },
 };
 
-QUnit.test("Single: matrixdropdown.defaultValue", function (assert) {
+QUnit.test("Single: matrixdropdown.defaultValue", function(assert) {
   var json = {
     name: "order",
     questionJSON: orderJSON,
@@ -612,7 +611,7 @@ QUnit.test("Single: matrixdropdown.defaultValue", function (assert) {
   );
   ComponentCollection.Instance.clear();
 });
-QUnit.test("Single: matrixdropdown expressions", function (assert) {
+QUnit.test("Single: matrixdropdown expressions", function(assert) {
   var json = {
     name: "order",
     questionJSON: orderJSON,
@@ -643,7 +642,7 @@ QUnit.test("Single: matrixdropdown expressions", function (assert) {
   );
   ComponentCollection.Instance.clear();
 });
-QUnit.test("Composite: expression, {composite} prefix", function (assert) {
+QUnit.test("Composite: expression, {composite} prefix", function(assert) {
   var json = {
     name: "customerinfo",
     elementsJSON: [
@@ -667,7 +666,7 @@ QUnit.test("Composite: expression, {composite} prefix", function (assert) {
   assert.equal(lastName.isVisible, true, "lastName is showing now");
   ComponentCollection.Instance.clear();
 });
-QUnit.test("Composite: remove invisible values", function (assert) {
+QUnit.test("Composite: remove invisible values", function(assert) {
   var json = {
     name: "customerinfo",
     elementsJSON: [
@@ -698,116 +697,115 @@ QUnit.test("Composite: remove invisible values", function (assert) {
   );
   ComponentCollection.Instance.clear();
 });
-QUnit.test(
-  "Single: matrixdropdown onCreated after load properties",
-  function (assert) {
-    var json = {
-      name: "order",
-      questionJSON: {
-        type: "matrixdropdown",
-        columns: [
-          {
-            name: "price",
-            title: "Price",
-            cellType: "expression",
-            displayStyle: "currency",
-          },
-          {
-            name: "qty",
-            title: "Qty",
-            cellType: "dropdown",
-            optionsCaption: "0",
-            choices: [1, 2, 3, 4, 5],
-          },
-          {
-            name: "total",
-            title: "Total",
-            cellType: "expression",
-            displayStyle: "currency",
-            expression: "{row.qty} * {row.price}",
-            totalType: "sum",
-            totalDisplayStyle: "currency",
-          },
-        ],
-      },
-      onInit() {
-        Serializer.addClass(
-          "itemorder",
-          [
-            { name: "text", visible: false },
-            { name: "visibleIf", visible: false },
-            { name: "enableIf", visible: false },
-          ],
-          function () {
-            return new ItemValue(null, null, "itemorder");
-          },
-          "itemvalue"
-        );
-        Serializer.addProperty("itemorder", {
-          name: "price:number",
-          default: 0,
-        });
-        Serializer.addProperty("order", {
-          name: "orders:itemorder[]",
-          category: "general",
-        });
-      },
-      onLoaded(question) {
-        this.buildRows(question);
-        this.setDefaultValues(question);
-      },
-      buildRows(question) {
-        var rows = [];
-        for (var i = 0; i < question.orders.length; i++) {
-          var item = question.orders[i];
-          if (!!item.value) {
-            rows.push(question.orders[i].value);
-          }
-        }
-        question.contentQuestion.rows = rows;
-      },
-      setDefaultValues(question) {
-        var defaultValue = {};
-        for (var i = 0; i < question.orders.length; i++) {
-          var item = question.orders[i];
-          if (!!item.value && !!item.price) {
-            defaultValue[item.value] = { price: item.price };
-          }
-        }
-        question.contentQuestion.defaultValue = defaultValue;
-      },
-    };
-    ComponentCollection.Instance.add(json);
-    var survey = new SurveyModel({
-      elements: [
+QUnit.test("Single: matrixdropdown onCreated after load properties", function(
+  assert
+) {
+  var json = {
+    name: "order",
+    questionJSON: {
+      type: "matrixdropdown",
+      columns: [
         {
-          type: "order",
-          name: "q1",
-          orders: [
-            { value: "Steak", price: 25 },
-            { value: "Salmon", price: 22 },
-          ],
+          name: "price",
+          title: "Price",
+          cellType: "expression",
+          displayStyle: "currency",
+        },
+        {
+          name: "qty",
+          title: "Qty",
+          cellType: "dropdown",
+          optionsCaption: "0",
+          choices: [1, 2, 3, 4, 5],
+        },
+        {
+          name: "total",
+          title: "Total",
+          cellType: "expression",
+          displayStyle: "currency",
+          expression: "{row.qty} * {row.price}",
+          totalType: "sum",
+          totalDisplayStyle: "currency",
         },
       ],
-    });
-    var q = <QuestionCustomModel>survey.getAllQuestions()[0];
-    var value = {
-      Steak: { price: 25, total: 0 },
-      Salmon: { price: 22, total: 0 },
-    };
-    var matrix = <QuestionMatrixDropdownModel>q.contentQuestion;
-    assert.equal(matrix.rows.length, 2, "There are two rows");
-    assert.deepEqual(
-      matrix.defaultValue,
-      { Steak: { price: 25 }, Salmon: { price: 22 } },
-      "Default value set correctly"
-    );
-    Serializer.removeClass("itemorder");
-    ComponentCollection.Instance.clear();
-  }
-);
+    },
+    onInit() {
+      Serializer.addClass(
+        "itemorder",
+        [
+          { name: "text", visible: false },
+          { name: "visibleIf", visible: false },
+          { name: "enableIf", visible: false },
+        ],
+        function() {
+          return new ItemValue(null, null, "itemorder");
+        },
+        "itemvalue"
+      );
+      Serializer.addProperty("itemorder", {
+        name: "price:number",
+        default: 0,
+      });
+      Serializer.addProperty("order", {
+        name: "orders:itemorder[]",
+        category: "general",
+      });
+    },
+    onLoaded(question) {
+      this.buildRows(question);
+      this.setDefaultValues(question);
+    },
+    buildRows(question) {
+      var rows = [];
+      for (var i = 0; i < question.orders.length; i++) {
+        var item = question.orders[i];
+        if (!!item.value) {
+          rows.push(question.orders[i].value);
+        }
+      }
+      question.contentQuestion.rows = rows;
+    },
+    setDefaultValues(question) {
+      var defaultValue = {};
+      for (var i = 0; i < question.orders.length; i++) {
+        var item = question.orders[i];
+        if (!!item.value && !!item.price) {
+          defaultValue[item.value] = { price: item.price };
+        }
+      }
+      question.contentQuestion.defaultValue = defaultValue;
+    },
+  };
+  ComponentCollection.Instance.add(json);
+  var survey = new SurveyModel({
+    elements: [
+      {
+        type: "order",
+        name: "q1",
+        orders: [
+          { value: "Steak", price: 25 },
+          { value: "Salmon", price: 22 },
+        ],
+      },
+    ],
+  });
+  var q = <QuestionCustomModel>survey.getAllQuestions()[0];
+  var value = {
+    Steak: { price: 25, total: 0 },
+    Salmon: { price: 22, total: 0 },
+  };
+  var matrix = <QuestionMatrixDropdownModel>q.contentQuestion;
+  assert.equal(matrix.rows.length, 2, "There are two rows");
+  assert.deepEqual(
+    matrix.defaultValue,
+    { Steak: { price: 25 }, Salmon: { price: 22 } },
+    "Default value set correctly"
+  );
+  Serializer.removeClass("itemorder");
+  ComponentCollection.Instance.clear();
+});
 
-QUnit.test("Complex: hide content question in designMode", function (assert) {
+QUnit.test("Complex: hide content question in designMode", function(assert) {
   ComponentCollection.Instance.add({
     name: "fullname",
     elementsJSON: [
@@ -869,132 +867,130 @@ QUnit.test("Complex: hide content question in designMode", function (assert) {
   assert.equal(middleName.isVisible, false, "showMiddleName is false");
   ComponentCollection.Instance.clear();
 });
-QUnit.test(
-  "Single: onAfterRender and onAfterRenderContentElement",
-  function (assert) {
-    var afterRenderQuestion = null;
-    var afterRenderHtmlElement = 0;
-    var afterRenderContentElementQuestion = null;
-    var afterRenderContentElement = null;
-    var afterRenderContentElementHtml = 0;
-    var json = {
-      name: "newquestion",
-      onAfterRender(question, htmlElement) {
-        afterRenderQuestion = question;
-        afterRenderHtmlElement = htmlElement;
-      },
-      onAfterRenderContentElement(question, element, htmlElement) {
-        afterRenderContentElementQuestion = question;
-        afterRenderContentElement = element;
-        afterRenderContentElementHtml = htmlElement;
-      },
-      questionJSON: {
-        type: "dropdown",
-        choices: [1, 2, 3, 4, 5],
-      },
-    };
-    ComponentCollection.Instance.add(json);
-    var survey = new SurveyModel({
-      elements: [{ type: "newquestion", name: "q1" }],
-    });
-    var q = <QuestionCustomModel>survey.getAllQuestions()[0];
-    q.afterRender(5);
-    assert.equal(
-      afterRenderQuestion.name,
-      "q1",
-      "onAfterRender, question parameter is correct"
-    );
-    assert.equal(
-      afterRenderHtmlElement,
-      5,
-      "onAfterRender, htmlElement parameter is correct"
-    );
-    q.contentQuestion.afterRender(<any>7);
-    assert.equal(
-      afterRenderContentElementQuestion.name,
-      "q1",
-      "afterRenderContentElement, question parameter is correct"
-    );
-    assert.equal(
-      afterRenderContentElement.getType(),
-      "dropdown",
-      "afterRenderContentElement, element parameter is correct"
-    );
-    assert.equal(
-      afterRenderContentElementHtml,
-      7,
-      "afterRenderContentElement, htmlElement parameter is correct"
-    );
-    ComponentCollection.Instance.clear();
-  }
-);
+QUnit.test("Single: onAfterRender and onAfterRenderContentElement", function(
+  assert
+) {
+  var afterRenderQuestion = null;
+  var afterRenderHtmlElement = 0;
+  var afterRenderContentElementQuestion = null;
+  var afterRenderContentElement = null;
+  var afterRenderContentElementHtml = 0;
+  var json = {
+    name: "newquestion",
+    onAfterRender(question, htmlElement) {
+      afterRenderQuestion = question;
+      afterRenderHtmlElement = htmlElement;
+    },
+    onAfterRenderContentElement(question, element, htmlElement) {
+      afterRenderContentElementQuestion = question;
+      afterRenderContentElement = element;
+      afterRenderContentElementHtml = htmlElement;
+    },
+    questionJSON: {
+      type: "dropdown",
+      choices: [1, 2, 3, 4, 5],
+    },
+  };
+  ComponentCollection.Instance.add(json);
+  var survey = new SurveyModel({
+    elements: [{ type: "newquestion", name: "q1" }],
+  });
+  var q = <QuestionCustomModel>survey.getAllQuestions()[0];
+  q.afterRender(5);
+  assert.equal(
+    afterRenderQuestion.name,
+    "q1",
+    "onAfterRender, question parameter is correct"
+  );
+  assert.equal(
+    afterRenderHtmlElement,
+    5,
+    "onAfterRender, htmlElement parameter is correct"
+  );
+  q.contentQuestion.afterRender(<any>7);
+  assert.equal(
+    afterRenderContentElementQuestion.name,
+    "q1",
+    "afterRenderContentElement, question parameter is correct"
+  );
+  assert.equal(
+    afterRenderContentElement.getType(),
+    "dropdown",
+    "afterRenderContentElement, element parameter is correct"
+  );
+  assert.equal(
+    afterRenderContentElementHtml,
+    7,
+    "afterRenderContentElement, htmlElement parameter is correct"
+  );
+  ComponentCollection.Instance.clear();
+});
 
-QUnit.test(
-  "Composite: onAfterRender and onAfterRenderContentElement",
-  function (assert) {
-    var afterRenderQuestion = null;
-    var afterRenderHtmlElement = 0;
-    var afterRenderContentElementQuestion = null;
-    var afterRenderContentElement = null;
-    var afterRenderContentElementHtml = 0;
-    var json = {
-      name: "fullname",
-      elementsJSON: [
-        {
-          type: "text",
-          name: "firstName",
-        },
-        {
-          type: "text",
-          name: "lastName",
-        },
-      ],
-      onAfterRender(question, htmlElement) {
-        afterRenderQuestion = question;
-        afterRenderHtmlElement = htmlElement;
+QUnit.test("Composite: onAfterRender and onAfterRenderContentElement", function(
+  assert
+) {
+  var afterRenderQuestion = null;
+  var afterRenderHtmlElement = 0;
+  var afterRenderContentElementQuestion = null;
+  var afterRenderContentElement = null;
+  var afterRenderContentElementHtml = 0;
+  var json = {
+    name: "fullname",
+    elementsJSON: [
+      {
+        type: "text",
+        name: "firstName",
       },
-      onAfterRenderContentElement(question, element, htmlElement) {
-        afterRenderContentElementQuestion = question;
-        afterRenderContentElement = element;
-        afterRenderContentElementHtml = htmlElement;
+      {
+        type: "text",
+        name: "lastName",
       },
-    };
-    ComponentCollection.Instance.add(json);
-    var survey = new SurveyModel({
-      elements: [{ type: "fullname", name: "q1" }],
-    });
-    var q = <QuestionCompositeModel>survey.getAllQuestions()[0];
-    q.afterRender(5);
-    assert.equal(
-      afterRenderQuestion.name,
-      "q1",
-      "onAfterRender, question parameter is correct"
-    );
-    assert.equal(
-      afterRenderHtmlElement,
-      5,
-      "onAfterRender, htmlElement parameter is correct"
-    );
-    (<Question>q.contentPanel.elements[0]).afterRender(<any>7);
-    assert.equal(
-      afterRenderContentElementQuestion.name,
-      "q1",
-      "afterRenderContentElement, question parameter is correct"
-    );
-    assert.equal(
-      afterRenderContentElement.name,
-      "firstName",
-      "afterRenderContentElement, element parameter is correct"
-    );
-    assert.equal(
-      afterRenderContentElementHtml,
-      7,
-      "afterRenderContentElement, htmlElement parameter is correct"
-    );
-    ComponentCollection.Instance.clear();
-  }
-);
-QUnit.test("Composite: update url, {composite} prefix", function (assert) {
+    ],
+    onAfterRender(question, htmlElement) {
+      afterRenderQuestion = question;
+      afterRenderHtmlElement = htmlElement;
+    },
+    onAfterRenderContentElement(question, element, htmlElement) {
+      afterRenderContentElementQuestion = question;
+      afterRenderContentElement = element;
+      afterRenderContentElementHtml = htmlElement;
+    },
+  };
+  ComponentCollection.Instance.add(json);
+  var survey = new SurveyModel({
+    elements: [{ type: "fullname", name: "q1" }],
+  });
+  var q = <QuestionCompositeModel>survey.getAllQuestions()[0];
+  q.afterRender(5);
+  assert.equal(
+    afterRenderQuestion.name,
+    "q1",
+    "onAfterRender, question parameter is correct"
+  );
+  assert.equal(
+    afterRenderHtmlElement,
+    5,
+    "onAfterRender, htmlElement parameter is correct"
+  );
+  (<Question>q.contentPanel.elements[0]).afterRender(<any>7);
+  assert.equal(
+    afterRenderContentElementQuestion.name,
+    "q1",
+    "afterRenderContentElement, question parameter is correct"
+  );
+  assert.equal(
+    afterRenderContentElement.name,
+    "firstName",
+    "afterRenderContentElement, element parameter is correct"
+  );
+  assert.equal(
+    afterRenderContentElementHtml,
+    7,
+    "afterRenderContentElement, htmlElement parameter is correct"
+  );
+  ComponentCollection.Instance.clear();
+});
+QUnit.test("Composite: update url, {composite} prefix", function(assert) {
   var json = {
     name: "urltest",
     elementsJSON: [
@@ -1023,47 +1019,43 @@ QUnit.test("Composite: update url, {composite} prefix", function (assert) {
   assert.equal(processedUrl, "an_url/newValue", "Url proccessed correctly");
   ComponentCollection.Instance.clear();
 });
-QUnit.test(
-  "Composite: update url, {composite} prefix on loaded",
-  function (assert) {
-    var processedUrl = "";
-    var json = {
-      name: "urltest",
-      elementsJSON: [
-        { type: "text", name: "name" },
-        {
-          type: "dropdown",
-          name: "url",
-          choicesByUrl: {
-            url: "an_url/{composite.name}",
-          },
+QUnit.test("Composite: update url, {composite} prefix on loaded", function(
+  assert
+) {
+  var processedUrl = "";
+  var json = {
+    name: "urltest",
+    elementsJSON: [
+      { type: "text", name: "name" },
+      {
+        type: "dropdown",
+        name: "url",
+        choicesByUrl: {
+          url: "an_url/{composite.name}",
         },
-      ],
-      onLoaded(question) {
-        let name = question.contentPanel.getQuestionByName("name");
-        name.value = "newValue";
-        let url = question.contentPanel.getQuestionByName("url");
-        url.choicesByUrl.onProcessedUrlCallback = (
-          url: string,
-          path: string
-        ) => {
-          processedUrl = url;
-        };
       },
-    };
-    ComponentCollection.Instance.add(json);
-    var survey = new SurveyModel({
-      elements: [{ type: "urltest", name: "q1", isRequired: true }],
-    });
-    assert.equal(
-      processedUrl,
-      "an_url/newValue",
-      "Url proccessed correctly on load"
-    );
-    ComponentCollection.Instance.clear();
-  }
-);
-QUnit.test("Composite: onValueChanged function", function (assert) {
+    ],
+    onLoaded(question) {
+      let name = question.contentPanel.getQuestionByName("name");
+      name.value = "newValue";
+      let url = question.contentPanel.getQuestionByName("url");
+      url.choicesByUrl.onProcessedUrlCallback = (url: string, path: string) => {
+        processedUrl = url;
+      };
+    },
+  };
+  ComponentCollection.Instance.add(json);
+  var survey = new SurveyModel({
+    elements: [{ type: "urltest", name: "q1", isRequired: true }],
+  });
+  assert.equal(
+    processedUrl,
+    "an_url/newValue",
+    "Url proccessed correctly on load"
+  );
+  ComponentCollection.Instance.clear();
+});
+QUnit.test("Composite: onValueChanged function", function(assert) {
   var json = {
     name: "testquestion",
     elementsJSON: [
@@ -1093,7 +1085,7 @@ QUnit.test("Composite: onValueChanged function", function (assert) {
   );
   ComponentCollection.Instance.clear();
 });
-QUnit.test("Composite: checkErrorsMode=onValueChanging", function (assert) {
+QUnit.test("Composite: checkErrorsMode=onValueChanging", function(assert) {
   var json = {
     name: "testquestion",
     elementsJSON: [
@@ -1130,7 +1122,7 @@ QUnit.test("Composite: checkErrorsMode=onValueChanging", function (assert) {
   );
   ComponentCollection.Instance.clear();
 });
-QUnit.test("Composite: set value from survey.data", function (assert) {
+QUnit.test("Composite: set value from survey.data", function(assert) {
   var json = {
     name: "testquestion",
     elementsJSON: [
@@ -1159,10 +1151,10 @@ QUnit.test("Composite: set value from survey.data", function (assert) {
     "set value into the second question in composite"
   );
 });
-QUnit.test("Use components in dynamic panel", function (assert) {
+QUnit.test("Use components in dynamic panel", function(assert) {
   ComponentCollection.Instance.add({
     name: "singlequestion",
-    createQuestion: function () {
+    createQuestion: function() {
       var res = new QuestionDropdownModel("question");
       res.choices = [1, 2, 3, 4, 5];
       return res;
@@ -1201,7 +1193,7 @@ QUnit.test("Use components in dynamic panel", function (assert) {
   ComponentCollection.Instance.clear();
 });
 
-QUnit.test("Composite: addConditionObjectsByContext", function (assert) {
+QUnit.test("Composite: addConditionObjectsByContext", function(assert) {
   var json = {
     name: "testquestion",
     elementsJSON: [
@@ -1238,7 +1230,7 @@ QUnit.test("Composite: addConditionObjectsByContext", function (assert) {
   );
   ComponentCollection.Instance.clear();
 });
-QUnit.test("Composite: visibleIf and showPreview, Bug#2674", function (assert) {
+QUnit.test("Composite: visibleIf and showPreview, Bug#2674", function(assert) {
   ComponentCollection.Instance.add({
     name: "fullname",
     title: "Full Name",
@@ -1289,7 +1281,61 @@ QUnit.test("Composite: visibleIf and showPreview, Bug#2674", function (assert) {
   );
   ComponentCollection.Instance.clear();
 });
-QUnit.test("Single: displayValue function, Bug#2678", function (assert) {
+QUnit.test(
+  "Composite: visibleIf and showPreview and clearInvisibleValues = 'onHiddenContainer', Bug#",
+  function(assert) {
+    ComponentCollection.Instance.add({
+      name: "fullname",
+      title: "Full Name",
+      elementsJSON: [
+        {
+          type: "text",
+          name: "firstName",
+          isRequired: true,
+        },
+        {
+          type: "text",
+          name: "lastName",
+          visibleIf: "{composite.firstName} notempty",
+          isRequired: true,
+        },
+      ],
+    });
+    var survey = new SurveyModel({
+      showPreviewBeforeComplete: "showAllQuestions",
+      clearInvisibleValues: "onHiddenContainer",
+      elements: [{ type: "fullname", name: "name" }],
+    });
+    var q = <QuestionCompositeModel>survey.getAllQuestions()[0];
+    assert.equal(
+      q.contentPanel.getQuestionByName("lastName").isVisible,
+      false,
+      "The second question is invisible"
+    );
+    q.contentPanel.getQuestionByName("firstName").value = "Jon";
+    assert.equal(
+      q.contentPanel.getQuestionByName("lastName").isVisible,
+      true,
+      "The second question is visible"
+    );
+    q.contentPanel.getQuestionByName("lastName").value = "Snow";
+    survey.showPreview();
+    q = <QuestionCompositeModel>survey.getAllQuestions()[0];
+    assert.equal(
+      q.contentPanel.getQuestionByName("lastName").isVisible,
+      true,
+      "The second question is still visible"
+    );
+    assert.equal(
+      q.contentPanel.getQuestionByName("lastName").value,
+      "Snow",
+      "The value is still the same"
+    );
+    ComponentCollection.Instance.clear();
+  }
+);
+
+QUnit.test("Single: displayValue function, Bug#2678", function(assert) {
   var json = {
     name: "newquestion",
     questionJSON: {
@@ -1310,7 +1356,7 @@ QUnit.test("Single: displayValue function, Bug#2678", function (assert) {
   assert.equal(q.displayValue, "text 1, text 3");
   ComponentCollection.Instance.clear();
 });
-QUnit.test("Composite: displayValue function, Bug#2678", function (assert) {
+QUnit.test("Composite: displayValue function, Bug#2678", function(assert) {
   ComponentCollection.Instance.add({
     name: "newquestion",
     elementsJSON: [
@@ -1347,7 +1393,7 @@ QUnit.test("Composite: displayValue function, Bug#2678", function (assert) {
   });
   ComponentCollection.Instance.clear();
 });
-QUnit.test("Single: in matrix dynamic question, Bug#2695", function (assert) {
+QUnit.test("Single: in matrix dynamic question, Bug#2695", function(assert) {
   var json = {
     name: "newquestion",
     questionJSON: {

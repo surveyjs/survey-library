@@ -1282,7 +1282,7 @@ QUnit.test("Composite: visibleIf and showPreview, Bug#2674", function(assert) {
   ComponentCollection.Instance.clear();
 });
 QUnit.test(
-  "Composite: visibleIf and showPreview and clearInvisibleValues = 'onHiddenContainer', Bug#",
+  "Composite: visibleIf and showPreview and clearInvisibleValues = 'onHiddenContainer', Bug#2718",
   function(assert) {
     ComponentCollection.Instance.add({
       name: "fullname",

@@ -2399,8 +2399,9 @@ export class SurveyModel extends Base
     if (!!this.editingObj) {
       var prop = Serializer.findProperty(this.editingObj.getType(), key);
       if (
-        !!prop &&
-        ((prop.isLocalizable && prop.isArray) || this.isEditableObjWrapper())
+        !prop ||
+        (!!prop &&
+          ((prop.isLocalizable && prop.isArray) || this.isEditableObjWrapper()))
       )
         return (<any>this.editingObj)[key];
       return this.editingObj.getPropertyValue(key);
@@ -2413,7 +2414,10 @@ export class SurveyModel extends Base
   public setDataValueCore(valuesHash: any, key: string, value: any) {
     if (!!this.editingObj) {
       var prop = Serializer.findProperty(this.editingObj.getType(), key);
-      if (!!prop && (prop.isLocalizable || this.isEditableObjWrapper())) {
+      if (
+        !prop ||
+        (!!prop && (prop.isLocalizable || this.isEditableObjWrapper()))
+      ) {
         (<any>this.editingObj)[key] = value;
       } else {
         this.editingObj.setPropertyValue(key, value);

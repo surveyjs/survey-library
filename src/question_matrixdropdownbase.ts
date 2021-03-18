@@ -260,7 +260,7 @@ export class MatrixDropdownColumn extends Base
   getClassNameProperty(): string {
     return "cellType";
   }
-  public getSurvey(): ISurvey {
+  public getSurvey(live: boolean = false): ISurvey {
     return !!this.colOwner ? (<any>this.colOwner).survey : null;
   }
   endLoadingFromJson() {
@@ -281,7 +281,9 @@ export class MatrixDropdownColumn extends Base
   }
   public set colOwner(value: IMatrixColumnOwner) {
     this.colOwnerValue = value;
-    this.updateTemplateQuestion();
+    if (!!value) {
+      this.updateTemplateQuestion();
+    }
   }
   public locStrsChanged() {
     super.locStrsChanged();
@@ -2008,9 +2010,15 @@ export class QuestionMatrixDropdownModelBase
   ) => void;
 
   protected createColumnValues() {
-    return this.createNewArray("columns", (item: any) => {
-      item.colOwner = this;
-    });
+    return this.createNewArray(
+      "columns",
+      (item: any) => {
+        item.colOwner = this;
+      },
+      (item: any) => {
+        item.colOwner = null;
+      }
+    );
   }
 
   constructor(name: string) {

@@ -37,8 +37,7 @@ export interface IConditionObject {
 /**
  * A base class for all questions.
  */
-export class Question
-  extends SurveyElement
+export class Question extends SurveyElement
   implements
     IQuestion,
     IConditionRunner,
@@ -95,11 +94,11 @@ export class Question
     this.id = Question.getQuestionId();
     this.onCreating();
     var self = this;
-    this.createNewArray("validators", function (validator: any) {
+    this.createNewArray("validators", function(validator: any) {
       validator.errorOwner = self;
     });
     var locTitleValue = this.createLocalizableString("title", this, true);
-    locTitleValue.onGetTextCallback = function (text) {
+    locTitleValue.onGetTextCallback = function(text) {
       if (!text) {
         text = self.name;
       }
@@ -113,12 +112,12 @@ export class Question
       this,
       true
     );
-    locCommentText.onGetTextCallback = function (text) {
+    locCommentText.onGetTextCallback = function(text) {
       return !!text ? text : surveyLocalization.getString("otherItemText");
     };
 
     this.createLocalizableString("requiredErrorText", this);
-    this.registerFunctionOnPropertyValueChanged("width", function () {
+    this.registerFunctionOnPropertyValueChanged("width", function() {
       self.updateElementCss();
       if (!!self.parent) {
         self.parent.elementWidthChanged(self);
@@ -126,19 +125,22 @@ export class Question
     });
     this.registerFunctionOnPropertiesValueChanged(
       ["indent", "rightIndent"],
-      function () {
+      function() {
         self.onIndentChanged();
       }
     );
 
     this.registerFunctionOnPropertiesValueChanged(
       ["hasComment", "hasOther"],
-      function () {
+      function() {
         self.initCommentFromSurvey();
       }
     );
   }
-  public getSurvey(): ISurvey {
+  public getSurvey(live: boolean = false): ISurvey {
+    if (live) {
+      return !!this.parent ? (<Base>(<any>this.parent)).getSurvey(live) : null;
+    }
     if (!!this.onGetSurvey) return this.onGetSurvey();
     return super.getSurvey();
   }
@@ -499,7 +501,7 @@ export class Question
   public get clickTitleFunction(): any {
     if (this.hasInput) {
       var self = this;
-      return function () {
+      return function() {
         self.focus();
         return true;
       };
@@ -1228,7 +1230,7 @@ export class Question
       if (options.includeQuestionTypes === true) {
         questionPlainData.questionType = this.getType();
       }
-      (options.calculations || []).forEach((calculation) => {
+      (options.calculations || []).forEach(calculation => {
         questionPlainData[calculation.propertyName] = this[
           calculation.propertyName
         ];
@@ -1319,7 +1321,7 @@ export class Question
     this.setValueAndRunExpression(
       this.defaultValueExpression,
       this.getUnbindValue(this.defaultValue),
-      (val) => {
+      val => {
         this.value = val;
       }
     );
@@ -1345,7 +1347,7 @@ export class Question
       if (!properties) properties = this.data.getFilteredProperties();
       var runner = new ExpressionRunner(expression);
       if (runner.canRun) {
-        runner.onRunComplete = (res) => {
+        runner.onRunComplete = res => {
           if (res == undefined) res = this.defaultValue;
           func(res);
         };
@@ -1803,11 +1805,11 @@ Serializer.addClass("question", [
   {
     name: "page",
     isSerializable: false,
-    visibleIf: function (obj: any) {
+    visibleIf: function(obj: any) {
       var survey = obj ? obj.survey : null;
       return !survey || survey.pages.length > 1;
     },
-    choices: function (obj: any) {
+    choices: function(obj: any) {
       var survey = obj ? obj.survey : null;
       return survey
         ? survey.pages.map((p: any) => {
@@ -1836,7 +1838,7 @@ Serializer.addClass("question", [
   {
     name: "hideNumber:boolean",
     dependsOn: "titleLocation",
-    visibleIf: function (obj: any) {
+    visibleIf: function(obj: any) {
       if (!obj) {
         return true;
       }
@@ -1880,7 +1882,7 @@ Serializer.addClass("question", [
   {
     name: "bindings:bindings",
     serializationProperty: "bindings",
-    visibleIf: function (obj: any) {
+    visibleIf: function(obj: any) {
       return obj.bindings.getNames().length > 0;
     },
   },

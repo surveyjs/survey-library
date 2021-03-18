@@ -965,7 +965,6 @@ export class SurveyModel extends Base
 
   constructor(jsonObj: any = null) {
     super();
-    var self = this;
     if (typeof document !== "undefined") {
       SurveyModel.stylesManager = new StylesManager();
     }
@@ -984,43 +983,38 @@ export class SurveyModel extends Base
     this.createLocalizableString("questionTitleTemplate", this, true);
 
     this.textPreProcessor = new TextPreProcessor();
-    this.textPreProcessor.onProcess = function(
-      textValue: TextPreProcessorValue
-    ) {
-      self.getProcessedTextValue(textValue);
+    this.textPreProcessor.onProcess = (textValue: TextPreProcessorValue) => {
+      this.getProcessedTextValue(textValue);
     };
     this.createNewArray(
       "pages",
-      function(value: any) {
-        self.doOnPageAdded(value);
+      (value: any) => {
+        this.doOnPageAdded(value);
       },
-      function(value: any) {
-        self.doOnPageRemoved(value);
+      (value: any) => {
+        this.doOnPageRemoved(value);
       }
     );
-    this.createNewArray("triggers", function(value: any) {
-      value.setOwner(self);
+    this.createNewArray("triggers", (value: any) => {
+      value.setOwner(this);
     });
-    this.createNewArray("calculatedValues", function(value: any) {
-      value.setOwner(self);
+    this.createNewArray("calculatedValues", (value: any) => {
+      value.setOwner(this);
     });
-    this.createNewArray("completedHtmlOnCondition", function(value: any) {
-      value.locOwner = self;
+    this.createNewArray("completedHtmlOnCondition", (value: any) => {
+      value.locOwner = this;
     });
-    this.createNewArray("navigateToUrlOnCondition", function(value: any) {
-      value.locOwner = self;
+    this.createNewArray("navigateToUrlOnCondition", (value: any) => {
+      value.locOwner = this;
     });
-    this.registerFunctionOnPropertyValueChanged(
-      "firstPageIsStarted",
-      function() {
-        self.onFirstPageIsStartedChanged();
-      }
-    );
-    this.registerFunctionOnPropertyValueChanged("mode", function() {
-      self.onModeChanged();
+    this.registerFunctionOnPropertyValueChanged("firstPageIsStarted", () => {
+      this.onFirstPageIsStartedChanged();
     });
-    this.registerFunctionOnPropertyValueChanged("progressBarType", function() {
-      self.updateProgressText();
+    this.registerFunctionOnPropertyValueChanged("mode", () => {
+      this.onModeChanged();
+    });
+    this.registerFunctionOnPropertyValueChanged("progressBarType", () => {
+      this.updateProgressText();
     });
     this.onProgressText.onCallbacksChanged = () => {
       this.updateProgressText();
@@ -5009,6 +5003,7 @@ export class SurveyModel extends Base
     this.onPageAdded.fire(this, options);
   }
   protected doOnPageRemoved(page: PageModel) {
+    page.setSurveyImpl(null);
     this.updateVisibleIndexes();
   }
   private generateNewName(elements: Array<any>, baseName: string): string {
@@ -5635,6 +5630,9 @@ export class SurveyModel extends Base
         }
       }
     }
+  }
+  public get inSurvey(): boolean {
+    return true;
   }
   //ISurveyImplementor
   getSurveyData(): ISurveyData {

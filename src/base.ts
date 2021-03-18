@@ -489,8 +489,14 @@ export class Base {
   public getType(): string {
     return "base";
   }
-  public getSurvey(): ISurvey {
+  public getSurvey(isLive: boolean = false): ISurvey {
     return null;
+  }
+  /**
+   * Returns true if the object is inluded into survey, otherwise returns false.
+   */
+  public get inSurvey(): boolean {
+    return !!this.getSurvey(true);
   }
   public get bindings(): Bindings {
     return this.bindingsValue;
@@ -1275,11 +1281,14 @@ export class SurveyElement extends Base implements ISurveyElement {
 
   public setSurveyImpl(value: ISurveyImpl) {
     this.surveyImplValue = value;
-    if (!this.surveyImplValue) return;
-    this.surveyDataValue = this.surveyImplValue.getSurveyData();
-    this.surveyValue = this.surveyImplValue.getSurvey();
-    this.textProcessorValue = this.surveyImplValue.getTextProcessor();
-    this.onSetData();
+    if (!this.surveyImplValue) {
+      this.surveyValue = null;
+    } else {
+      this.surveyDataValue = this.surveyImplValue.getSurveyData();
+      this.surveyValue = this.surveyImplValue.getSurvey();
+      this.textProcessorValue = this.surveyImplValue.getTextProcessor();
+      this.onSetData();
+    }
   }
   protected get surveyImpl() {
     return this.surveyImplValue;
@@ -1293,7 +1302,7 @@ export class SurveyElement extends Base implements ISurveyElement {
   public get survey(): ISurvey {
     return this.getSurvey();
   }
-  public getSurvey(): ISurvey {
+  public getSurvey(live: boolean = false): ISurvey {
     if (!!this.surveyValue) return this.surveyValue;
     if (!!this.surveyImplValue) {
       this.surveyValue = this.surveyImplValue.getSurvey();

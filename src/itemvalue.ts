@@ -32,17 +32,17 @@ export class ItemValue extends Base {
     items: Array<ItemValue>,
     locOwner: ILocalizableOwner
   ) {
-    items.push = function (value): number {
+    items.push = function(value): number {
       var result = Array.prototype.push.call(this, value);
       value.locOwner = locOwner;
       return result;
     };
-    items.unshift = function (value): number {
+    items.unshift = function(value): number {
       var result = Array.prototype.unshift.call(this, value);
       value.locOwner = locOwner;
       return result;
     };
-    items.splice = function (
+    items.splice = function(
       start?: number,
       deleteCount?: number,
       ...items: ItemValue[]
@@ -211,7 +211,7 @@ export class ItemValue extends Base {
   ) {
     super();
     this.locTextValue = new LocalizableString(null, true);
-    this.locTextValue.onGetTextCallback = (txt) => {
+    this.locTextValue.onGetTextCallback = txt => {
       return txt ? txt : !this.isValueItemEmpty ? this.value.toString() : null;
     };
     if (text) this.locText.text = text;
@@ -230,7 +230,7 @@ export class ItemValue extends Base {
   public getType(): string {
     return !!this.typeName ? this.typeName : "itemvalue";
   }
-  public getSurvey(): ISurvey {
+  public getSurvey(live: boolean = false): ISurvey {
     return !!this.locOwner && !!(<any>this.locOwner)["getSurvey"]
       ? (<any>this.locOwner).getSurvey()
       : null;
@@ -376,7 +376,7 @@ export class ItemValue extends Base {
   public originalItem: any;
 }
 
-Base.createItemValue = function (source: any, type?: string): any {
+Base.createItemValue = function(source: any, type?: string): any {
   var item = null;
   if (!!type) {
     item = JsonObject.metaData.createClass(type, {});
@@ -388,10 +388,10 @@ Base.createItemValue = function (source: any, type?: string): any {
   item.setData(source);
   return item;
 };
-Base.itemValueLocStrChanged = function (arr: Array<any>): void {
+Base.itemValueLocStrChanged = function(arr: Array<any>): void {
   ItemValue.locStrsChanged(arr);
 };
-JsonObjectProperty.getItemValuesDefaultValue = function (val: any): any {
+JsonObjectProperty.getItemValuesDefaultValue = function(val: any): any {
   var res = new Array<ItemValue>();
   ItemValue.setData(res, val || []);
   return res;

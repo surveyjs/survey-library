@@ -1,6 +1,6 @@
 var doc = require("surveyjs-doc-generator");
 var ts = require("typescript");
-var Survey = require("../packages/survey-knockout/survey.ko");
+var Survey = require("../build/survey-knockout/survey.ko");
 
 doc.setJsonObj(Survey.Serializer);
 

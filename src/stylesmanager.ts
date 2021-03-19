@@ -239,7 +239,9 @@ export class StylesManager {
     ".sv_main .sv-paneldynamic__add-btn": "float: right;",
     ".sv_main .sv-paneldynamic__add-btn--list-mode":
       "float: none; margin-top: 0;",
-    ".sv_main .sv-paneldynamic__remove-btn ": "margin-top: 1.25em;",
+    ".sv_main .sv-paneldynamic__remove-btn": "margin-top: 1.25em;",
+    ".sv_main .sv-paneldynamic__remove-btn--right":
+      "margin-top: 0; margin-left: 1.25em;",
     ".sv_main .sv-paneldynamic__prev-btn, .sv_main .sv-paneldynamic__next-btn":
       "box-sizing: border-box; display: inline-block; cursor: pointer; width: 0.7em; top: -0.28em; position: absolute;",
     ".sv_main .sv-paneldynamic__prev-btn":
@@ -320,6 +322,9 @@ export class StylesManager {
     ".sv_main .sv-title-actions__bar": "min-width: 56px;",
     ".sv_main .sv_matrix_cell_actions .sv-action-bar, .sv_main .sv_matrix_cell_actions sv-action-bar":
       "margin-left: 0; padding-left: 0;",
+    ".sv_main .sv_p_wrapper_in_row":
+      "display: flex; flex-direction: row; align-items: center;",
+    ".sv_main  .sv_p_remove_btn_right": "margin-left: 1em;",
   };
 
   public static Media: { [key: string]: { media: string; style: string } } = {
@@ -1082,10 +1087,10 @@ export class StylesManager {
           StylesManager.ThemeColors[themeName] ||
           StylesManager.ThemeColors["default"];
 
-        Object.keys(ThemeCss).forEach((selector) => {
+        Object.keys(ThemeCss).forEach(selector => {
           let cssRuleText = ThemeCss[selector];
           Object.keys(theme).forEach(
-            (colorVariableName) =>
+            colorVariableName =>
               (cssRuleText = cssRuleText.replace(
                 new RegExp("\\" + colorVariableName, "g"),
                 theme[colorVariableName]
@@ -1118,7 +1123,7 @@ export class StylesManager {
 
   public initializeStyles(sheet: CSSStyleSheet) {
     if (StylesManager.Enabled) {
-      Object.keys(StylesManager.Styles).forEach((selector) => {
+      Object.keys(StylesManager.Styles).forEach(selector => {
         try {
           sheet.insertRule(
             selector + " { " + StylesManager.Styles[selector] + " }",
@@ -1126,7 +1131,7 @@ export class StylesManager {
           );
         } catch (e) {}
       });
-      Object.keys(StylesManager.Media).forEach((selector) => {
+      Object.keys(StylesManager.Media).forEach(selector => {
         try {
           sheet.insertRule(
             StylesManager.Media[selector].media +

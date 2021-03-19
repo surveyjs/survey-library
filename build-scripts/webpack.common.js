@@ -8,6 +8,8 @@ var RemoveCoreFromName = require("./webpack-remove-core-from-name");
 var TsconfigPathsPlugin = require("tsconfig-paths-webpack-plugin");
 const VueLoaderPlugin = require("vue-loader/lib/plugin");
 var GenerateJsonPlugin = require("generate-json-webpack-plugin");
+var DashedNamePlugin = require("./webpack-dashed-name");
+
 var dts = require("dts-bundle");
 var rimraf = require("rimraf");
 var packageJsonWithVersion = require("../package.json");
@@ -145,9 +147,6 @@ module.exports = function(options, packageJson, chunkName) {
     resolve: {
       extensions: [".ts", ".js", ".tsx", ".scss"],
       plugins: [new TsconfigPathsPlugin({ configFile: "./tsconfig.json" })],
-      alias: {
-        tslib: path.join(__dirname, "../src/entries/chunks/helpers.ts"),
-      },
     },
     optimization: {
       minimize: isProductionBuild,
@@ -221,8 +220,13 @@ module.exports = function(options, packageJson, chunkName) {
     output: {
       path: buildPath,
       filename: "[name]" + (isProductionBuild ? ".min" : "") + ".js",
-      library: options.libraryName,
+      library: {
+        root: options.libraryName,
+        amd: '[dashedname]',
+        commonjs: '[dashedname]',
+      },
       libraryTarget: "umd",
+      globalObject: 'this',
       umdNamedDefine: true,
     },
     plugins: [
@@ -241,6 +245,7 @@ module.exports = function(options, packageJson, chunkName) {
       }),
       new RemoveCoreFromName(),
       new FixStyleOnlyEntriesPlugin(),
+      new DashedNamePlugin()
     ],
   };
 
@@ -251,7 +256,7 @@ module.exports = function(options, packageJson, chunkName) {
         packageJson,
         undefined,
         2
-      ),
+      )
     );
   } else {
     config.devtool = "inline-source-map";

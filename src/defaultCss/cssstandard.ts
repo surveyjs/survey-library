@@ -1,6 +1,6 @@
 export var surveyCss: any = {
   currentType: "",
-  getCss: function () {
+  getCss: function() {
     var loc = this.currentType ? this[this.currentType] : defaultStandardCss;
     if (!loc) loc = defaultStandardCss;
     return loc;
@@ -139,7 +139,8 @@ export var defaultStandardCss = {
     item: "sv-ranking-item",
     itemContent: "sv-ranking-item__content",
     itemIndex: "sv-ranking-item__index",
-    itemText: "sv-ranking-item__text",
+    // itemText: "sv-ranking-item__text",
+    controlLabel: "sv-ranking-item__text",
     itemGhostNode: "sv-ranking-item__ghost",
     itemIconContainer: "sv-ranking-item__icon-container",
     itemIcon: "sv-ranking-item__icon",
@@ -162,6 +163,7 @@ export var defaultStandardCss = {
     label: "sv_q_m_label",
     itemChecked: "checked",
     itemDecorator: "sv-hidden",
+    cell: "sv_q_m_cell",
     cellText: "sv_q_m_cell_text",
     cellTextSelected: "sv_q_m_cell_selected",
     cellLabel: "sv_q_m_cell_label",
@@ -180,7 +182,7 @@ export var defaultStandardCss = {
     detailIcon: "sv_detail_panel_icon",
     detailIconExpanded: "sv_detail_expanded",
     detailPanelCell: "sv_matrix_cell_detail_panel",
-    actionsCell: "sv_matrix_cell sv_matrix_cell_actions"
+    actionsCell: "sv_matrix_cell sv_matrix_cell_actions",
   },
   matrixdynamic: {
     root: "sv_q_matrix_dynamic",
@@ -210,13 +212,16 @@ export var defaultStandardCss = {
     title: "sv_p_title",
     button: "",
     buttonAdd: "sv-paneldynamic__add-btn",
-    buttonRemove: "",
+    buttonRemove: "sv_p_remove_btn",
+    buttonRemoveRight: "sv_p_remove_btn_right",
     buttonPrev: "sv-paneldynamic__prev-btn",
     buttonNext: "sv-paneldynamic__next-btn",
     progressContainer: "sv-paneldynamic__progress-container",
     progress: "sv-progress",
     progressBar: "sv-progress__bar",
     progressText: "sv-paneldynamic__progress-text",
+    panelWrapper: "sv_p_wrapper",
+    panelWrapperInRow: "sv_p_wrapper_in_row",
   },
   multipletext: {
     root: "sv_q_mt",

@@ -65,6 +65,7 @@ export * from "../knockout/components/progress/progress";
 export * from "../knockout/components/title-actions/title-actions";
 export * from "../knockout/components/string-editor";
 export * from "../knockout/components/string-viewer";
+export * from "../knockout/components/question-row";
 
 export * from "../knockout/components/default-title/default-title";
 export * from "../knockout/components/list/list";
@@ -76,8 +77,6 @@ export { SurveyQuestionMatrixDetailButton } from "../knockout/components/matrix-
 //export { unwrap } from "../utils/utils";
 //Uncomment to include the "date" question type.
 //export {QuestionDate} from "../plugins/knockout/koquestion_date";
-
-export * from "../rendererFactory";
 
 import * as ko from "knockout";
 import { SurveyModel } from "survey-core";

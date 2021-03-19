@@ -4,11 +4,16 @@
       v-if="question.isProgressTopShowing"
       :question="question"
     />
-    <div v-for="panel in renderedPanels" :key="panel.id">
-      <survey-panel :question="panel" :css="css" />
-      <survey-paneldynamicremove :question="question" :panel="panel" />
-      <hr :class="question.cssClasses.separator" />
-    </div>
+    <template v-for="panel in renderedPanels">
+      <div :class="question.getPanelWrapperCss()" :key="panel.id">
+        <survey-panel :question="panel" :css="css" />
+        <survey-paneldynamicremove :question="question" :panel="panel" />
+      </div>
+      <hr
+        :class="question.cssClasses.separator"
+        :key="'separator' + panel.id"
+      />
+    </template>
     <survey-paneldynamicprogress
       v-if="question.isProgressBottomShowing"
       :question="question"

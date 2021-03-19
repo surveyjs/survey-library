@@ -1,7 +1,7 @@
 ﻿var path = require("path");
 var webpack = require("webpack");
-var webpackConfigCreator = require("./build-scripts/webpack.common");
-var packageJson = require("./package.json");
+var webpackConfigCreator = require("./webpack.common");
+var packageJson = require("../package.json");
 var webpackConfig = webpackConfigCreator({
     platform: "knockout",
     buildType: "dev",
@@ -12,14 +12,11 @@ var webpackConfig = webpackConfigCreator({
 process.env.CHROME_BIN = require("puppeteer").executablePath();
 
 /*setup ts config file for tests ("noImplicitAny": false)*/
-webpackConfig.module.rules[0].options.configFile = path.join(
-  __dirname,
-  "tsconfig.tests.json"
-);
+webpackConfig.module.rules[0].options.configFile = "build-scripts/tsconfig.tests.json";
 
 module.exports = function(config) {
   config.set({
-    basePath: "",
+    basePath: "../",
     frameworks: ["qunit"],
     files: ["tests/entries/*.ts"],
     exclude: [],

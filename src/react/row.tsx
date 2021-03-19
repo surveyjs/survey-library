@@ -34,9 +34,7 @@ export class SurveyRow extends SurveyElementBase<any, any> {
   protected renderElement(): JSX.Element {
     var elements = null;
     if (this.row.isNeedRender) {
-      elements = this.row.elements.map((element) =>
-        this.createElement(element)
-      );
+      elements = this.row.elements.map(element => this.createElement(element));
     }
     return (
       <div ref={this.rootRef} className={this.css.row}>
@@ -74,7 +72,7 @@ export class SurveyRow extends SurveyElementBase<any, any> {
 
   protected createElement(element: IElement): JSX.Element {
     var elementType = element.getType();
-    if (!ReactElementFactory.Instance.isElementRegisgered(elementType)) {
+    if (!ReactElementFactory.Instance.isElementRegistered(elementType)) {
       elementType = "question";
     }
     return ReactElementFactory.Instance.createElement(elementType, {

@@ -117,10 +117,10 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
 
   private initSortable(domNode: HTMLElement) {
     if (!domNode) return;
-    if (this.isReadOnly) return;
-
     const self = this;
     self.domNode = domNode;
+    if (this.isReadOnly) return;
+    if (this.isDesignMode) return;
 
     self.sortableInst = new Sortable(domNode, {
       animation: 100,
@@ -193,7 +193,7 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
   private setValueFromUI = () => {
     let value: string[] = [];
     const textNodes = this.domNode.querySelectorAll(
-      "." + this.cssClasses.itemText
+      "." + this.cssClasses.controlLabel
     );
     textNodes.forEach((textNode: any, index) => {
       let innerText = textNode.innerText;

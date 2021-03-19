@@ -1,9 +1,9 @@
 import React from "react";
-import { ActionBarItem } from "../../../../action-bar";
+import { ActionBarItem } from "survey-core";
 import {
   MatrixDropdownRowModelBase,
   QuestionMatrixDropdownModelBase,
-} from "../../../../question_matrixdropdownbase";
+} from "survey-core";
 import { ReactElementFactory } from "../../../element-factory";
 import { ReactSurveyElement } from "../../../reactquestion_element";
 
@@ -47,7 +47,7 @@ export class SurveyQuestionMatrixDetailButton extends ReactSurveyElement {
 
 ReactElementFactory.Instance.registerElement(
   "sv-matrix-detail-button",
-  (props) => {
+  props => {
     return React.createElement(SurveyQuestionMatrixDetailButton, props);
   }
 );

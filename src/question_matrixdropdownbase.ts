@@ -19,6 +19,7 @@ import {
   IProgressInfo,
   SurveyElement,
   IPanel,
+  IWrapperObject,
 } from "./base";
 import {
   TextPreProcessorValue,
@@ -224,7 +225,8 @@ export var matrixDropdownColumnTypes = {
   },
 };
 
-export class MatrixDropdownColumn extends Base implements ILocalizableOwner {
+export class MatrixDropdownColumn extends Base
+  implements ILocalizableOwner, IWrapperObject {
   public static getColumnTypes(): Array<string> {
     var res = [];
     for (var key in matrixDropdownColumnTypes) {
@@ -244,7 +246,7 @@ export class MatrixDropdownColumn extends Base implements ILocalizableOwner {
     this.createLocalizableString("totalFormat", this);
     this.registerFunctionOnPropertyValueChanged(
       "showInMultipleColumns",
-      function () {
+      function() {
         self.doShowInMultipleColumnsChanged();
       }
     );
@@ -252,7 +254,13 @@ export class MatrixDropdownColumn extends Base implements ILocalizableOwner {
     this.name = name;
     if (title) this.title = title;
   }
-  public getSurvey(): ISurvey {
+  public getOriginalObj(): Base {
+    return this.templateQuestion;
+  }
+  getClassNameProperty(): string {
+    return "cellType";
+  }
+  public getSurvey(live: boolean = false): ISurvey {
     return !!this.colOwner ? (<any>this.colOwner).survey : null;
   }
   endLoadingFromJson() {
@@ -273,7 +281,9 @@ export class MatrixDropdownColumn extends Base implements ILocalizableOwner {
   }
   public set colOwner(value: IMatrixColumnOwner) {
     this.colOwnerValue = value;
-    this.updateTemplateQuestion();
+    if (!!value) {
+      this.updateTemplateQuestion();
+    }
   }
   public locStrsChanged() {
     super.locStrsChanged();
@@ -546,7 +556,7 @@ export class MatrixDropdownColumn extends Base implements ILocalizableOwner {
     this.templateQuestion.locOwner = this;
     this.addProperties(curCellType);
     var self = this;
-    this.templateQuestion.onPropertyChanged.add(function (sender, options) {
+    this.templateQuestion.onPropertyChanged.add(function(sender, options) {
       self.propertyValueChanged(
         options.name,
         options.oldValue,
@@ -625,12 +635,12 @@ export class MatrixDropdownColumn extends Base implements ILocalizableOwner {
   ) {
     var desc = {
       configurable: true,
-      get: function () {
+      get: function() {
         return (<any>question)[propName];
       },
     };
     if (!isReadOnly) {
-      (<any>desc)["set"] = function (v: any) {
+      (<any>desc)["set"] = function(v: any) {
         (<any>question)[propName] = v;
       };
     }
@@ -657,11 +667,11 @@ export class MatrixDropdownCell {
     data: IMatrixDropdownData
   ): Question {
     var res = data.createQuestion(this.row, this.column);
-    res.validateValueCallback = function () {
+    res.validateValueCallback = function() {
       return data.validateCell(row, column.name, row.value);
     };
     CustomPropertiesCollection.getProperties(column.getType()).forEach(
-      (property) => {
+      property => {
         let propertyName = property.name;
         if ((<any>column)[propertyName] !== undefined) {
           res[propertyName] = (<any>column)[propertyName];
@@ -708,7 +718,7 @@ export class MatrixDropdownTotalCell extends MatrixDropdownCell {
   }
   public updateCellQuestion() {
     this.question.locCalculation();
-    this.column.updateCellQuestion(this.question, null, function (json) {
+    this.column.updateCellQuestion(this.question, null, function(json) {
       delete json["defaultValue"];
     });
     this.question.expression = this.getTotalExpression();
@@ -1592,9 +1602,8 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
   private hasActionCellInRows(location: "start" | "end"): boolean {
     var rows = this.matrix.visibleRows;
     return (
-      rows.filter(
-        (row) => !this.isValueEmpty(this.getRowActions(row, location))
-      ).length != 0
+      rows.filter(row => !this.isValueEmpty(this.getRowActions(row, location)))
+        .length != 0
     );
   }
   private canRemoveRow(row: MatrixDropdownRowModelBase): boolean {
@@ -1652,7 +1661,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
         row,
         actions
       );
-    return actions.filter((action) => {
+    return actions.filter(action => {
       if (!action.location) {
         action.location = "start";
       }
@@ -1988,7 +1997,6 @@ export class QuestionMatrixDropdownModelBase
   private detailPanelValue: PanelModel;
   protected isRowChanging = false;
   columnsChangedCallback: () => void;
-  updateCellsCallback: () => void;
   onRenderedTableResetCallback: () => void;
   onRenderedTableCreatedCallback: (
     table: QuestionMatrixDropdownRenderedTable
@@ -2002,14 +2010,19 @@ export class QuestionMatrixDropdownModelBase
   ) => void;
 
   protected createColumnValues() {
-    return this.createNewArray("columns", (item: any) => {
-      item.colOwner = this;
-    });
+    return this.createNewArray(
+      "columns",
+      (item: any) => {
+        item.colOwner = this;
+      },
+      (item: any) => {
+        item.colOwner = null;
+      }
+    );
   }
 
   constructor(name: string) {
     super(name);
-    var self = this;
     this.createItemValues("choices");
     this.createLocalizableString("optionsCaption", this);
     this.createLocalizableString("keyDuplicationError", this);
@@ -2018,20 +2031,20 @@ export class QuestionMatrixDropdownModelBase
     this.detailPanel.renderWidth = "100%";
     this.registerFunctionOnPropertyValueChanged(
       "columns",
-      function (newColumns: any) {
-        self.updateColumnsIndexes(newColumns);
-        self.clearGeneratedRows();
-        self.generatedTotalRow = null;
-        self.resetRenderedTable();
-        self.fireCallback(self.columnsChangedCallback);
+      (newColumns: any) => {
+        this.updateColumnsIndexes(newColumns);
+        this.generatedTotalRow = null;
+        this.clearRowsAndResetRenderedTable();
       }
     );
+    this.registerFunctionOnPropertyValueChanged("cellType", () => {
+      this.updateColumnsCellType();
+      this.clearRowsAndResetRenderedTable();
+    });
     this.registerFunctionOnPropertiesValueChanged(
-      ["cellType", "optionsCaption", "columnColCount", "rowTitleWidth"],
-      function () {
-        self.clearGeneratedRows();
-        self.resetRenderedTable();
-        self.fireCallback(self.columnsChangedCallback);
+      ["optionsCaption", "columnColCount", "rowTitleWidth", "choices"],
+      () => {
+        this.clearRowsAndResetRenderedTable();
       }
     );
     this.registerFunctionOnPropertiesValueChanged(
@@ -2046,8 +2059,8 @@ export class QuestionMatrixDropdownModelBase
         "hasFooter",
         "detailPanelMode",
       ],
-      function () {
-        self.resetRenderedTable();
+      () => {
+        this.resetRenderedTable();
       }
     );
   }
@@ -2059,6 +2072,17 @@ export class QuestionMatrixDropdownModelBase
   }
   public get isRowsDynamic(): boolean {
     return false;
+  }
+  public itemValuePropertyChanged(
+    item: ItemValue,
+    name: string,
+    oldValue: any,
+    newValue: any
+  ) {
+    super.itemValuePropertyChanged(item, name, oldValue, newValue);
+    if (item.ownerPropertyName === "choices") {
+      this.clearRowsAndResetRenderedTable();
+    }
   }
   /**
    * Set columnLayout to 'vertical' to place columns vertically and rows horizontally. It makes sense when we have many columns and few rows.
@@ -2163,6 +2187,11 @@ export class QuestionMatrixDropdownModelBase
   private set renderedTableValue(val: QuestionMatrixDropdownRenderedTable) {
     this.setPropertyValue("renderedTable", val);
   }
+  private clearRowsAndResetRenderedTable() {
+    this.clearGeneratedRows();
+    this.resetRenderedTable();
+    this.fireCallback(this.columnsChangedCallback);
+  }
   protected resetRenderedTable() {
     if (this.lockResetRenderedTable || this.isLoadingFromJson) return;
     this.renderedTableValue = null;
@@ -2220,10 +2249,7 @@ export class QuestionMatrixDropdownModelBase
   }
   public set cellType(val: string) {
     val = val.toLowerCase();
-    if (this.cellType == val) return;
     this.setPropertyValue("cellType", val);
-    this.updateColumnsCellType();
-    this.fireCallback(this.updateCellsCallback);
   }
   private updateColumnsCellType() {
     for (var i = 0; i < this.columns.length; i++) {
@@ -2244,7 +2270,6 @@ export class QuestionMatrixDropdownModelBase
   public set columnColCount(value: number) {
     if (value < 0 || value > 4) return;
     this.setPropertyValue("columnColCount", value);
-    this.fireCallback(this.updateCellsCallback);
   }
   /**
    * Use this property to set the minimum column width.
@@ -2535,7 +2560,7 @@ export class QuestionMatrixDropdownModelBase
     if (this.isLoadingFromJson) return null;
     if (!this.generatedVisibleRows) {
       this.generatedVisibleRows = this.generateRows();
-      this.generatedVisibleRows.forEach((row) => this.onMatrixRowCreated(row));
+      this.generatedVisibleRows.forEach(row => this.onMatrixRowCreated(row));
       if (this.data) {
         this.runCellsCondition(
           this.data.getFilteredValues(),
@@ -2716,7 +2741,7 @@ export class QuestionMatrixDropdownModelBase
               )
               .filter((d: any) => !!d),
           };
-          (options.calculations || []).forEach((calculation) => {
+          (options.calculations || []).forEach(calculation => {
             rowDataItem[calculation.propertyName] = (<any>row)[
               calculation.propertyName
             ];
@@ -3008,7 +3033,7 @@ export class QuestionMatrixDropdownModelBase
     rowValue: any
   ): any {
     var self = this;
-    var getQuestion = function (colName: any) {
+    var getQuestion = function(colName: any) {
       for (var i = 0; self.columns.length; i++) {
         if (self.columns[i].name === colName) {
           return row.cells[i].question;
@@ -3043,7 +3068,7 @@ export class QuestionMatrixDropdownModelBase
   ): SurveyError {
     if (!this.survey) return;
     var self = this;
-    var getQuestion = function (colName: any) {
+    var getQuestion = function(colName: any) {
       for (var i = 0; self.columns.length; i++) {
         if (self.columns[i].name === colName) {
           return row.cells[i].question;
@@ -3297,7 +3322,7 @@ Serializer.addClass(
     {
       name: "showInMultipleColumns:boolean",
       dependsOn: "cellType",
-      visibleIf: function (obj: any) {
+      visibleIf: function(obj: any) {
         if (!obj) return false;
         return obj.isSupportMultipleColumns;
       },
@@ -3330,7 +3355,7 @@ Serializer.addClass(
     { name: "totalMinimumFractionDigits:number", default: -1 },
     { name: "renderAs", default: "default", visible: false },
   ],
-  function () {
+  function() {
     return new MatrixDropdownColumn("");
   }
 );
@@ -3377,7 +3402,7 @@ Serializer.addClass(
     { name: "columnColCount", default: 0, choices: [0, 1, 2, 3, 4] },
     "columnMinWidth",
   ],
-  function () {
+  function() {
     return new QuestionMatrixDropdownModelBase("");
   },
   "matrixbase"

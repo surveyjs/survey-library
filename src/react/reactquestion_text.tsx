@@ -3,7 +3,9 @@ import { SurveyQuestionUncontrolledElement } from "./reactquestion_element";
 import { QuestionTextModel } from "survey-core";
 import { ReactQuestionFactory } from "./reactquestion_factory";
 
-export class SurveyQuestionText extends SurveyQuestionUncontrolledElement<QuestionTextModel> {
+export class SurveyQuestionText extends SurveyQuestionUncontrolledElement<
+  QuestionTextModel
+> {
   private _isWaitingForEnter = false;
   //controlRef: React.RefObject<HTMLInputElement>;
   constructor(props: any) {
@@ -12,6 +14,10 @@ export class SurveyQuestionText extends SurveyQuestionUncontrolledElement<Questi
   }
   protected renderElement(): JSX.Element {
     var cssClasses = this.question.cssClasses;
+    var style: any = {};
+    if (!!this.question.inputWidth) {
+      style.width = this.question.inputWidth;
+    }
     var onKeyDown = null;
     var onKeyUp = null;
     var onCompositionUpdate = null;
@@ -43,12 +49,13 @@ export class SurveyQuestionText extends SurveyQuestionUncontrolledElement<Questi
           className={cssClasses.root}
           type={this.question.inputType}
           //ref={this.controlRef}
-          ref={(input) => (this.control = input)}
+          ref={input => (this.control = input)}
+          style={style}
           maxLength={this.question.getMaxLength()}
           min={this.question.renderedMin}
           max={this.question.renderedMax}
           step={this.question.renderedStep}
-          size={this.question.size}
+          size={this.question.inputSize}
           placeholder={placeHolder}
           list={this.question.dataListId}
           autoComplete={this.question.autoComplete}
@@ -86,6 +93,6 @@ export class SurveyQuestionText extends SurveyQuestionUncontrolledElement<Questi
   // }
 }
 
-ReactQuestionFactory.Instance.registerQuestion("text", (props) => {
+ReactQuestionFactory.Instance.registerQuestion("text", props => {
   return React.createElement(SurveyQuestionText, props);
 });

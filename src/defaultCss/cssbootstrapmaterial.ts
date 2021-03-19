@@ -33,8 +33,10 @@ export var defaultBootstrapMaterialCss = {
   progressButtonsListContainer: "sv_progress-buttons__list-container",
   progressButtonsList: "sv_progress-buttons__list",
   progressButtonsListElementPassed: "sv_progress-buttons__list-element--passed",
-  progressButtonsListElementCurrent: "sv_progress-buttons__list-element--current",
-  progressButtonsListElementNonClickable: "sv_progress-buttons__list-element--nonclickable",
+  progressButtonsListElementCurrent:
+    "sv_progress-buttons__list-element--current",
+  progressButtonsListElementNonClickable:
+    "sv_progress-buttons__list-element--nonclickable",
   progressButtonsPageTitle: "sv_progress-buttons__page-title",
   progressButtonsPageDescription: "sv_progress-buttons__page-description",
   page: {
@@ -126,7 +128,8 @@ export var defaultBootstrapMaterialCss = {
     item: "sv-ranking-item",
     itemContent: "sv-ranking-item__content",
     itemIndex: "sv-ranking-item__index",
-    itemText: "sv-ranking-item__text",
+    // itemText: "sv-ranking-item__text",
+    controlLabel: "sv-ranking-item__text",
     itemGhostNode: "sv-ranking-item__ghost",
     itemIconContainer: "sv-ranking-item__icon-container",
     itemIcon: "sv-ranking-item__icon",
@@ -204,12 +207,15 @@ export var defaultBootstrapMaterialCss = {
     button: "button",
     buttonAdd: "button sv-paneldynamic__add-btn btn btn-primary",
     buttonRemove: "button sv-paneldynamic__remove-btn btn btn-primary",
+    buttonRemoveRight: "sv-paneldynamic__remove-btn--right",
     buttonPrev: "sv-paneldynamic__prev-btn",
     buttonNext: "sv-paneldynamic__next-btn",
     progressContainer: "sv-paneldynamic__progress-container",
     progress: "sv-progress",
     progressBar: "sv-progress__bar",
     progressText: "sv-paneldynamic__progress-text",
+    panelWrapper: "sv_p_wrapper",
+    panelWrapperInRow: "sv_p_wrapper_in_row",
   },
   multipletext: {
     root: "table",

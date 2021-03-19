@@ -8,7 +8,8 @@
       :min="question.renderedMin"
       :max="question.renderedMax"
       :step="question.renderedStep"
-      :size="question.size"
+      :size="question.inputSize"
+      :style="inputStyle"
       :id="question.inputId"
       :list="question.dataListId"
       :placeholder="
@@ -47,6 +48,13 @@ export class Text extends QuestionVue<QuestionTextModel> {
   keyup(event: any) {
     if (!this.question.isInputTextUpdate) return;
     this.question.value = event.target.value;
+  }
+  get inputStyle(): any {
+    var style: any = {};
+    if (!!this.question.inputWidth) {
+      style.width = this.question.inputWidth;
+    }
+    return style;
   }
 }
 Vue.component("survey-text", Text);

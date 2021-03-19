@@ -14,6 +14,7 @@ import {
   ISurveyErrorOwner,
   ITitleOwner,
   IProgressInfo,
+  ISurvey,
 } from "./base";
 import { Question } from "./question";
 import { ConditionRunner } from "./conditions";
@@ -122,7 +123,7 @@ export class QuestionRowModel extends Base {
     this.setPropertyValue("isneedrender", val);
   }
   public get visibleElements(): Array<IElement> {
-    return this.elements.filter((e) => e.isVisible);
+    return this.elements.filter(e => e.isVisible);
   }
   public updateVisible() {
     this.visible = this.calcVisible();
@@ -212,8 +213,7 @@ export class QuestionRowModel extends Base {
 /**
  * A base class for a Panel and Page objects.
  */
-export class PanelModelBase
-  extends SurveyElement
+export class PanelModelBase extends SurveyElement
   implements IPanel, IConditionRunner, ILocalizableOwner, ISurveyErrorOwner {
   private static panelCounter = 100;
   private static getPanelId(): string {
@@ -908,7 +908,7 @@ export class PanelModelBase
   }
 
   public ensureRowsVisibility() {
-    this.rows.forEach((row) => {
+    this.rows.forEach(row => {
       row.ensureVisibility();
     });
   }
@@ -937,14 +937,14 @@ export class PanelModelBase
     var self = this;
     (<Base>(<any>element)).registerFunctionOnPropertiesValueChanged(
       ["visible", "isVisible"],
-      function () {
+      function() {
         self.onElementVisibilityChanged(element);
       },
       this.id
     );
     (<Base>(<any>element)).registerFunctionOnPropertyValueChanged(
       "startWithNewLine",
-      function () {
+      function() {
         self.onElementStartWithNewLineChanged(element);
       },
       this.id
@@ -1501,22 +1501,21 @@ export class PanelModelBase
  * A container element, similar to the Page objects. However, unlike the Page, Panel can't be a root.
  * It may contain questions and other panels.
  */
-export class PanelModel
-  extends PanelModelBase
+export class PanelModel extends PanelModelBase
   implements IElement, ITitleOwner {
   public minWidth?: string;
   public maxWidth?: string;
   constructor(name: string = "") {
     super(name);
     var self = this;
-    this.registerFunctionOnPropertyValueChanged("width", function () {
+    this.registerFunctionOnPropertyValueChanged("width", function() {
       if (!!self.parent) {
         self.parent.elementWidthChanged(self);
       }
     });
     this.registerFunctionOnPropertiesValueChanged(
       ["indent", "innerIndent", "rightIndent"],
-      function () {
+      function() {
         self.onIndentChanged();
       }
     );
@@ -1526,6 +1525,12 @@ export class PanelModel
   }
   public get contentId(): string {
     return this.id + "_content";
+  }
+  public getSurvey(live: boolean = false): ISurvey {
+    if (live) {
+      return !!this.parent ? this.parent.getSurvey(live) : null;
+    }
+    return super.getSurvey(live);
   }
   onSurveyLoad() {
     super.onSurveyLoad();
@@ -1742,7 +1747,7 @@ export class PanelModel
     return indent * css.question.indent + "px";
   }
   public clearOnDeletingContainer() {
-    this.elements.forEach((element) => {
+    this.elements.forEach(element => {
       if (element instanceof Question || element instanceof PanelModel) {
         element.clearOnDeletingContainer();
       }
@@ -1786,7 +1791,7 @@ Serializer.addClass(
     { name: "title", serializationProperty: "locTitle" },
     { name: "description:text", serializationProperty: "locDescription" },
   ],
-  function () {
+  function() {
     return new PanelModelBase();
   }
 );
@@ -1811,11 +1816,11 @@ Serializer.addClass(
     {
       name: "page",
       isSerializable: false,
-      visibleIf: function (obj: any) {
+      visibleIf: function(obj: any) {
         var survey = obj ? obj.survey : null;
         return !survey || survey.pages.length > 1;
       },
-      choices: function (obj: any) {
+      choices: function(obj: any) {
         var survey = obj ? obj.survey : null;
         return survey
           ? survey.pages.map((p: any) => {
@@ -1832,7 +1837,7 @@ Serializer.addClass(
     },
     "questionStartIndex",
   ],
-  function () {
+  function() {
     return new PanelModel();
   },
   "panelbase"

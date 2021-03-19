@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.8.36](https://github.com/surveyjs/survey-library/compare/v1.8.35...v1.8.36) (2021-03-15)
+
+
+### Bug Fixes
+
+* itemSize property doesn't work for multipleText question [#2712](https://github.com/surveyjs/survey-library/issues/2712) ([3af7003](https://github.com/surveyjs/survey-library/commit/3af7003f37b85ae753832ad60c261ad3b4c2a91c))
+* size property in text question doesn't work [#2711](https://github.com/surveyjs/survey-library/issues/2711) ([24db0bf](https://github.com/surveyjs/survey-library/commit/24db0bf6b062bdefe5d8c7dd3cebd769704bdef0))
+
+### [1.8.35](https://github.com/surveyjs/survey-library/compare/v1.8.34...v1.8.35) (2021-03-11)
+
 ### [1.8.34](https://github.com/surveyjs/survey-library/compare/v1.8.33...v1.8.34) (2021-03-05)
 
 

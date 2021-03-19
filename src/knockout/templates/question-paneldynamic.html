@@ -1,11 +1,13 @@
 <script type="text/html" id="survey-question-paneldynamic">
   <div data-bind="css: question.koCss().root">
       <!-- ko if: question.koIsList() -->
-        <!-- ko foreach: { data: question.panels } -->
+      <!-- ko foreach: { data: question.panels } -->
+      <div data-bind="css: question.getPanelWrapperCss()">
         <!-- ko template: { name: 'survey-panel', data: $data, as: 'question', afterRender: question.koPanelAfterRender } -->
         <!-- /ko -->
-        <input type="button" data-bind="visible: question.koCanRemovePanel() && !$data.koIsCollapsed(), click:question.koRemovePanelClick, css: question.koCss().button + ' ' + question.koCss().buttonRemove, value: question.panelRemoveText"
+        <input type="button" data-bind="visible: question.koCanRemovePanel() && !$data.koIsCollapsed(), click:question.koRemovePanelClick, css: question.getPanelRemoveButtonCss(), value: question.panelRemoveText"
         />
+      </div>
         <hr data-bind="css: question.koCss().separator"/>
         <!-- /ko -->
         <input type="button" data-bind="visible:question.koCanAddPanel, click:question.koAddPanelClick, css: question.koButtonAddCss, value: question.panelAddText"

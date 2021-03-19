@@ -20,7 +20,7 @@ import {
 } from "./textPreProcessor";
 import { Question, IConditionObject } from "./question";
 import { PanelModel } from "./panel";
-import { JsonObject, Serializer } from "./jsonobject";
+import { JsonObject, property, Serializer } from "./jsonobject";
 import { QuestionFactory } from "./questionfactory";
 import { KeyDuplicationError } from "./error";
 import { settings } from "./settings";
@@ -751,6 +751,16 @@ export class QuestionPanelDynamicModel extends Question
     if (!this.isLoadingFromJson && this.survey) {
       this.survey.questionVisibilityChanged(this, this.visible);
     }
+  }
+  /**
+   * Use this property to change the location of the remove button relative to the panel.
+   * By default the value is "bottom". You may set it to "right" and remove button will appear to the right of the panel.
+   */
+  public get panelRemoveButtonLocation(): string {
+    return this.getPropertyValue("panelRemoveButtonLocation");
+  }
+  public set panelRemoveButtonLocation(val: string) {
+    this.setPropertyValue("panelRemoveButtonLocation", val);
   }
   /**
    * Shows the range from 1 to panelCount when renderMode doesn't equal to "list". Set to false to hide this element.
@@ -1596,6 +1606,21 @@ export class QuestionPanelDynamicModel extends Question
       .getString("panelDynamicProgressText")
       ["format"](this.currentIndex + 1, rangeMax);
   }
+  public getPanelWrapperCss(): string {
+    let cssClasses = this.cssClasses.panelWrapper;
+    if (this.panelRemoveButtonLocation === "right") {
+      cssClasses += " " + this.cssClasses.panelWrapperInRow;
+    }
+    return cssClasses;
+  }
+  public getPanelRemoveButtonCss(): string {
+    let cssClasses =
+      this.cssClasses.button + " " + this.cssClasses.buttonRemove;
+    if (this.panelRemoveButtonLocation === "right") {
+      cssClasses += " " + this.cssClasses.buttonRemoveRight;
+    }
+    return cssClasses;
+  }
 }
 
 Serializer.addClass(
@@ -1661,6 +1686,11 @@ Serializer.addClass(
       name: "templateTitleLocation",
       default: "default",
       choices: ["default", "top", "bottom", "left"],
+    },
+    {
+      name: "panelRemoveButtonLocation",
+      default: "left",
+      choices: ["bottom", "right"],
     },
   ],
   function() {

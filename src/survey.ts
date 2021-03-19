@@ -926,21 +926,51 @@ export class SurveyModel extends Base
     any
   > = new Event<(sender: SurveyModel) => any, any>();
 
+  /**
+   * Use this event to create/customize actions to be displayed in a question's title.
+   * <br/> `sender` - A [Survey](https://surveyjs.io/Documentation/Library?id=SurveyModel) object that fires the event.
+   * <br/> `options.question` - A [Question](https://surveyjs.io/Documentation/Library?id=Question) object for which the event is fired.
+   * <br/> `options.actions` - A list of actions ([IActionBarItem](https://surveyjs.io/Documentation/Library?id=IActionBarItem) objects) associated with the processed question.
+   * @see IActionBarItem
+   * @see Question
+   */
   public onGetQuestionTitleActions: Event<
     (sender: SurveyModel, options: any) => any,
     any
   > = new Event<(sender: SurveyModel, options: any) => any, any>();
-
+  /**
+   * Use this event to create/customize actions to be displayed in a panel's title.
+   * <br/> `sender` - A survey object that fires the event.
+   * <br/> `options.panel` - A panel ([PanelModel](https://surveyjs.io/Documentation/Library?id=panelmodel) object) for which the event is fired.
+   * <br/> `options.actions` - A list of actions ([IActionBarItem](https://surveyjs.io/Documentation/Library?id=IActionBarItem) objects) associated with the processed panel.
+   * @see IActionBarItem
+   * @see PanelModel
+   */
   public onGetPanelTitleActions: Event<
     (sender: SurveyModel, options: any) => any,
     any
   > = new Event<(sender: SurveyModel, options: any) => any, any>();
-
+  /**
+   * Use this event to create/customize actions to be displayed in a page's title.
+   * <br/> `sender` - A survey object that fires the event.
+   * <br/> `options.page` - A page ([PageModel](https://surveyjs.io/Documentation/Library?id=pagemodel) object) for which the event is fired.
+   * <br/> `options.actions` - A list of actions ([IActionBarItem](https://surveyjs.io/Documentation/Library?id=IActionBarItem) objects) associated with the processed page.
+   * @see IActionBarItem
+   * @see PageModel
+   */
   public onGetPageTitleActions: Event<
     (sender: SurveyModel, options: any) => any,
     any
   > = new Event<(sender: SurveyModel, options: any) => any, any>();
-
+  /**
+   * Use this event to create/customize actions to be displayed in a matrix question's row.
+   * <br/> `sender` - A survey object that fires the event.
+   * <br/> `options.question` - A matrix question ([QuestionMatrixBaseModel](https://surveyjs.io/Documentation/Library?id=questionmatrixbasemodel) object) for which the event is fired.
+   * <br/> `options.row` - A matrix row for which the event is fired.
+   * <br/> `options.actions` - A list of actions ([IActionBarItem](https://surveyjs.io/Documentation/Library?id=IActionBarItem) objects) associated with the processed matrix question and row.
+   * @see IActionBarItem
+   * @see QuestionMatrixDropdownModelBase
+   */
   public onGetMatrixRowActions: Event<
     (sender: SurveyModel, options: any) => any,
     any

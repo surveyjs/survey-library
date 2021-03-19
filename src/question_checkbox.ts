@@ -401,7 +401,7 @@ Serializer.addClass(
   "checkbox",
   [
     "hasSelectAll:boolean",
-    { name: "maxSelectedChoices", default: 0 },
+    { name: "maxSelectedChoices:number", default: 0 },
     { name: "selectAllText", serializationProperty: "locSelectAllText" },
   ],
   function() {

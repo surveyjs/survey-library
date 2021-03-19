@@ -1,7 +1,7 @@
 import { frameworks, url, initSurvey, getSurveyResult } from "../settings";
 import { ClientFunction } from "testcafe";
 const assert = require("assert");
-const title = `dropdownRestfull`;
+const title = `dropdownRestful`;
 
 const json = {
   questions: [
@@ -14,10 +14,10 @@ const json = {
         //url: "http://services.groupkt.com/country/get/all",
         url: "http://127.0.0.1:8080/testCafe/countriesMock.json",
         path: "RestResponse;result",
-        valueName: "name"
-      }
-    }
-  ]
+        valueName: "name",
+      },
+    },
+  ],
 };
 
 export const changeValue = ClientFunction(() => {

@@ -46,7 +46,7 @@ export {
   LocalizableStrings,
 } from "../../localizablestring";
 export { HtmlConditionItem, UrlConditionItem } from "../../expressionItems";
-export { ChoicesRestfull } from "../../choicesRestfull";
+export { ChoicesRestful, ChoicesRestfull } from "../../choicesRestful";
 export { FunctionFactory, registerFunction } from "../../functionsfactory";
 export { ConditionRunner, ExpressionRunner } from "../../conditions";
 export {

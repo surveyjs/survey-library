@@ -417,7 +417,7 @@ QUnit.test("Edit validators in matrix", function(assert) {
 
 QUnit.test("Composite: create from code", function(assert) {
   var json = {
-    name: "propertygrid_restfull",
+    name: "propertygrid_restful",
     createElements: function(panel, question) {
       panel.fromJSON({
         elements: [
@@ -428,7 +428,7 @@ QUnit.test("Composite: create from code", function(assert) {
   };
   ComponentCollection.Instance.add(json);
   var survey = new SurveyModel({
-    elements: [{ type: "propertygrid_restfull", name: "choicesByUrl" }],
+    elements: [{ type: "propertygrid_restful", name: "choicesByUrl" }],
   });
   var counter = 0;
   survey.onValueChanging.add(function(sender, options) {

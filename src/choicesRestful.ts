@@ -43,9 +43,9 @@ class XmlParser {
 
 /**
  * A definition for filling choices for checkbox, dropdown and radiogroup questions from resfull services.
- * The run method call a restfull service and results can be get on getResultCallback.
+ * The run method call a restful service and results can be get on getResultCallback.
  */
-export class ChoicesRestfull extends Base {
+export class ChoicesRestful extends Base {
   private static cacheText = "{CACHE}";
   private static noCacheText = "{NOCACHE}";
   public static get EncodeParameters(): boolean {
@@ -55,28 +55,28 @@ export class ChoicesRestfull extends Base {
     settings.webserviceEncodeParameters = val;
   }
   public static clearCache() {
-    ChoicesRestfull.itemsResult = {};
-    ChoicesRestfull.sendingSameRequests = {};
+    ChoicesRestful.itemsResult = {};
+    ChoicesRestful.sendingSameRequests = {};
   }
   private static itemsResult: { [index: string]: any } = {};
   private static sendingSameRequests: {
-    [index: string]: Array<ChoicesRestfull>;
+    [index: string]: Array<ChoicesRestful>;
   } = {};
-  private static addSameRequest(obj: ChoicesRestfull): boolean {
+  private static addSameRequest(obj: ChoicesRestful): boolean {
     if (!obj.isUsingCache) return false;
     var hash = obj.objHash;
-    var res = ChoicesRestfull.sendingSameRequests[hash];
+    var res = ChoicesRestful.sendingSameRequests[hash];
     if (!res) {
-      ChoicesRestfull.sendingSameRequests[obj.objHash] = [];
+      ChoicesRestful.sendingSameRequests[obj.objHash] = [];
       return false;
     }
     res.push(obj);
     return true;
   }
-  private static unregisterSameRequests(obj: ChoicesRestfull, items: any) {
+  private static unregisterSameRequests(obj: ChoicesRestful, items: any) {
     if (!obj.isUsingCache) return;
-    var res = ChoicesRestfull.sendingSameRequests[obj.objHash];
-    delete ChoicesRestfull.sendingSameRequests[obj.objHash];
+    var res = ChoicesRestful.sendingSameRequests[obj.objHash];
+    delete ChoicesRestful.sendingSameRequests[obj.objHash];
     if (!res) return;
     for (var i = 0; i < res.length; i++) {
       if (!!res[i].getResultCallback) {
@@ -85,12 +85,12 @@ export class ChoicesRestfull extends Base {
     }
   }
   public static onBeforeSendRequest: (
-    sender: ChoicesRestfull,
+    sender: ChoicesRestful,
     options: { request: XMLHttpRequest }
   ) => void;
-  private static getCachedItemsResult(obj: ChoicesRestfull): boolean {
+  private static getCachedItemsResult(obj: ChoicesRestful): boolean {
     var hash = obj.objHash;
-    var res = ChoicesRestfull.itemsResult[hash];
+    var res = ChoicesRestful.itemsResult[hash];
     if (!res) return false;
     if (obj.getResultCallback) {
       obj.getResultCallback(res);
@@ -130,13 +130,13 @@ export class ChoicesRestfull extends Base {
     this.lastObjHash = this.objHash;
     this.error = null;
     if (this.useChangedItemsResults()) return;
-    if (ChoicesRestfull.addSameRequest(this)) return;
+    if (ChoicesRestful.addSameRequest(this)) return;
     this.sendRequest();
   }
   public get isUsingCache(): boolean {
     if (this.isUsingCacheFromUrl === true) return true;
     if (this.isUsingCacheFromUrl === false) return false;
-    return settings.useCachingForChoicesRestfull;
+    return settings.useCachingForChoicesRestful;
   }
   public get isRunning() {
     return this.isRunningValue;
@@ -145,7 +145,7 @@ export class ChoicesRestfull extends Base {
     return this.url && !this.processedUrl;
   }
   protected useChangedItemsResults(): boolean {
-    return ChoicesRestfull.getCachedItemsResult(this);
+    return ChoicesRestful.getCachedItemsResult(this);
   }
   private doEmptyResultCallback(serverResult: any) {
     var items: Array<any> = [];
@@ -158,8 +158,8 @@ export class ChoicesRestfull extends Base {
     var urlText = this.url;
     if (!!urlText) {
       urlText = urlText
-        .replace(ChoicesRestfull.cacheText, "")
-        .replace(ChoicesRestfull.noCacheText, "");
+        .replace(ChoicesRestful.cacheText, "")
+        .replace(ChoicesRestful.noCacheText, "");
     }
     if (textProcessor) {
       var pUrl = textProcessor.processTextEx(
@@ -224,8 +224,8 @@ export class ChoicesRestfull extends Base {
       }
     };
     var options = { request: xhr };
-    if (!!ChoicesRestfull.onBeforeSendRequest) {
-      ChoicesRestfull.onBeforeSendRequest(this, options);
+    if (!!ChoicesRestful.onBeforeSendRequest) {
+      ChoicesRestful.onBeforeSendRequest(this, options);
     }
     this.beforeSendRequest();
     options.request.send();
@@ -320,10 +320,10 @@ export class ChoicesRestfull extends Base {
     this.setPropertyValue("url", val);
     this.isUsingCacheFromUrl = undefined;
     if (!val) return;
-    if (val.indexOf(ChoicesRestfull.cacheText) > -1) {
+    if (val.indexOf(ChoicesRestful.cacheText) > -1) {
       this.isUsingCacheFromUrl = true;
     } else {
-      if (val.indexOf(ChoicesRestfull.noCacheText) > -1) {
+      if (val.indexOf(ChoicesRestful.noCacheText) > -1) {
         this.isUsingCacheFromUrl = false;
       }
     }
@@ -450,10 +450,10 @@ export class ChoicesRestfull extends Base {
       items = this.updateResultCallback(items, result);
     }
     if (this.isUsingCache) {
-      ChoicesRestfull.itemsResult[loadingObjHash] = items;
+      ChoicesRestful.itemsResult[loadingObjHash] = items;
     }
     this.callResultCallback(items, loadingObjHash);
-    ChoicesRestfull.unregisterSameRequests(this, items);
+    ChoicesRestful.unregisterSameRequests(this, items);
   }
   protected callResultCallback(
     items: Array<ItemValue>,
@@ -484,7 +484,7 @@ export class ChoicesRestfull extends Base {
   private onError(status: string, response: string) {
     this.error = new WebRequestError(status, response, this.owner);
     this.doEmptyResultCallback(response);
-    ChoicesRestfull.unregisterSameRequests(this, []);
+    ChoicesRestful.unregisterSameRequests(this, []);
   }
   private getResultAfterPath(result: any) {
     if (!result) return result;
@@ -547,6 +547,21 @@ export class ChoicesRestfull extends Base {
   }
 }
 
+/**
+ * Obsolete, please use ChoicesRestful
+ */
+export class ChoicesRestfull extends ChoicesRestful {
+  public static get EncodeParameters(): boolean {
+    return ChoicesRestful.EncodeParameters;
+  }
+  public static set EncodeParameters(val: boolean) {
+    ChoicesRestful.EncodeParameters = val;
+  }
+  public static clearCache() {
+    ChoicesRestful.clearCache();
+  }
+}
+
 Serializer.addClass(
   "choicesByUrl",
   [
@@ -564,6 +579,6 @@ Serializer.addClass(
     { name: "attachOriginalItems:boolean", default: false, visible: false },
   ],
   function() {
-    return new ChoicesRestfull();
+    return new ChoicesRestful();
   }
 );

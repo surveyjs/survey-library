@@ -8,13 +8,19 @@ export var settings = {
    */
   commentPrefix: "-Comment",
   /**
-   * Encode parameter on calling restfull web API
+   * Encode parameter on calling restful web API
    */
   webserviceEncodeParameters: true,
   /**
    * Cache the result for choices getting from web services. Set this property to false, to disable the caching.
    */
-  useCachingForChoicesRestfull: true,
+  useCachingForChoicesRestful: true,
+  get useCachingForChoicesRestfull() {
+    return settings.useCachingForChoicesRestful;
+  },
+  set useCachingForChoicesRestfull(val: boolean) {
+    settings.useCachingForChoicesRestful = val;
+  },
   /**
    * SurveyJS web service API url
    */
@@ -87,7 +93,7 @@ export var settings = {
    * Override this function, set your function, if you want to show your own dialog confirm window instead of standard browser window.
    * @param message
    */
-  confirmActionFunc: function (message: string): boolean {
+  confirmActionFunc: function(message: string): boolean {
     return confirm(message);
   },
   /**

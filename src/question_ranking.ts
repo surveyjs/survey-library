@@ -208,9 +208,17 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
 
   private syncNumbers = () => {
     if (!this.domNode) return;
-    const indexNodes = this.domNode.querySelectorAll(
-      "." + this.cssClasses.itemIndex
-    );
+
+    var selector =
+      "." +
+      this.cssClasses.item +
+      ":not(." +
+      this.cssClasses.itemDragMod +
+      ")" +
+      " ." +
+      this.cssClasses.itemIndex;
+
+    const indexNodes = this.domNode.querySelectorAll(selector);
     indexNodes.forEach((indexNode: any, index) => {
       indexNode.innerText = this.getNumberByIndex(index);
     });

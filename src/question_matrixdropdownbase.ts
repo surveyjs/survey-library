@@ -2466,7 +2466,7 @@ export class QuestionMatrixDropdownModelBase
     }
     */
     var totalRow = {};
-    if (!Helpers.isValueEmpty(this.totalValue)) {
+    if (!this.isValueEmpty(this.totalValue)) {
       totalRow = JSON.parse(JSON.stringify(this.totalValue));
     }
     newValues["row"] = {};

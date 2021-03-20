@@ -162,7 +162,7 @@ export class NumericValidator extends SurveyValidator {
     values: any = null,
     properties: any = null
   ): ValidatorResult {
-    if (Helpers.isValueEmpty(value)) return null;
+    if (this.isValueEmpty(value)) return null;
     if (!Helpers.isNumber(value)) {
       return new ValidatorResult(
         null,
@@ -239,7 +239,7 @@ export class TextValidator extends SurveyValidator {
     values: any = null,
     properties: any = null
   ): ValidatorResult {
-    if (value !== "" && Helpers.isValueEmpty(value)) return null;
+    if (value !== "" && this.isValueEmpty(value)) return null;
     if (!this.allowDigits) {
       var reg = /^[A-Za-z\s]*$/;
       if (!reg.test(value)) {
@@ -374,7 +374,7 @@ export class RegexValidator extends SurveyValidator {
     values: any = null,
     properties: any = null
   ): ValidatorResult {
-    if (!this.regex || Helpers.isValueEmpty(value)) return null;
+    if (!this.regex || this.isValueEmpty(value)) return null;
     var re = new RegExp(this.regex);
     if (Array.isArray(value)) {
       for (var i = 0; i < value.length; i++) {

@@ -158,7 +158,7 @@ export class Trigger extends Base {
   }
   public buildExpression(): string {
     if (!this.name) return "";
-    if (Helpers.isValueEmpty(this.value) && this.isRequireValue) return "";
+    if (this.isValueEmpty(this.value) && this.isRequireValue) return "";
     return (
       "{" +
       this.name +

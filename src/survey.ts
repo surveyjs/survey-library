@@ -3208,7 +3208,7 @@ export class SurveyModel extends Base
   public cancelPreview(curPage: any = null) {
     if (!this.isShowingPreview) return;
     this.isShowingPreview = false;
-    if (Helpers.isValueEmpty(curPage) && this.visiblePageCount > 0) {
+    if (this.isValueEmpty(curPage) && this.visiblePageCount > 0) {
       curPage = this.visiblePageCount - 1;
     }
     if (curPage !== null) {
@@ -4871,7 +4871,7 @@ export class SurveyModel extends Base
     if (!name) return null;
     name = name.toLowerCase();
     var res = this.variablesHash[name];
-    if (!Helpers.isValueEmpty(res)) return res;
+    if (!this.isValueEmpty(res)) return res;
     if (name.indexOf(".") > -1 || name.indexOf("[") > -1) {
       if (new ProcessValue().hasValue(name, this.variablesHash))
         return new ProcessValue().getValue(name, this.variablesHash);
@@ -5070,7 +5070,7 @@ export class SurveyModel extends Base
     if (!newValue) newValue = "";
     if (Helpers.isTwoValueEquals(newValue, this.getComment(name))) return;
     var commentName = name + this.commentPrefix;
-    if (Helpers.isValueEmpty(newValue)) {
+    if (this.isValueEmpty(newValue)) {
       this.deleteDataValueCore(this.valuesHash, commentName);
     } else {
       this.setDataValueCore(this.valuesHash, commentName, newValue);

@@ -15,9 +15,6 @@ export class Helpers {
       }
       return true;
     }
-    if (!!value && (typeof value === "string" || value instanceof String)) {
-      value = value.trim();
-    }
     return !value && value !== 0 && value !== false;
   }
   public static isArrayContainsEqual(x: any, y: any): boolean {

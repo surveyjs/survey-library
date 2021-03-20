@@ -199,7 +199,7 @@ export class MultipleTextItemModel extends Base
     }
   }
   public isEmpty() {
-    return Helpers.isValueEmpty(this.value);
+    return this.isValueEmpty(this.value);
   }
   public onValueChanged(newValue: any) {
     if (this.valueChangedCallback) this.valueChangedCallback(newValue);

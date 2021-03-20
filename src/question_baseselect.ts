@@ -380,7 +380,7 @@ export class QuestionSelectBase extends Question {
     return val;
   }
   protected hasUnknownValue(val: any, includeOther: boolean = false): boolean {
-    if (Helpers.isValueEmpty(val)) return false;
+    if (this.isValueEmpty(val)) return false;
     if (includeOther && val == this.otherItem.value) return false;
     if (this.hasNone && val == this.noneItem.value) return false;
     return ItemValue.getItemByValue(this.getFilteredChoices(), val) == null;
@@ -820,7 +820,7 @@ export class QuestionSelectBase extends Question {
       if (!!newValue && !this.isReadOnly) {
         var hasChanged = !Helpers.isTwoValueEquals(this.value, newValue.value);
         try {
-          if (!Helpers.isValueEmpty(newValue.value)) {
+          if (!this.isValueEmpty(newValue.value)) {
             this.allowNotifyValueChanged = false;
             this.setQuestionValue(undefined);
           }

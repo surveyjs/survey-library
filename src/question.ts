@@ -1172,7 +1172,7 @@ export class Question extends SurveyElement
       if (res) return res;
     }
     value = value == undefined ? this.createValueCopy() : value;
-    if (Helpers.isValueEmpty(value)) return "";
+    if (this.isValueEmpty(value)) return "";
     return this.getDisplayValueCore(keysAsText, value);
   }
   protected getDisplayValueCore(keyAsText: boolean, value: any): any {
@@ -1277,7 +1277,7 @@ export class Question extends SurveyElement
     if (
       this.isVisible &&
       this.hasInput &&
-      !Helpers.isValueEmpty(this.correctAnswer)
+      !this.isValueEmpty(this.correctAnswer)
     )
       return this.getQuizQuestionCount();
     return 0;

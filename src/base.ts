@@ -419,10 +419,15 @@ export class Base {
   public static createItemValue: (item: any, type?: string) => any;
   public static itemValueLocStrChanged: (arr: Array<any>) => void;
   /**
-   * A static methods that returns true if a value underfined, null, empty string or empty array.
+   * Returns true if a value underfined, null, empty string or empty array.
+   * 
    * @param value
+   * @param trimString a boolean parameter, default value true. If true then it trims the string and functions returns true for a string that contains white spaces only.
    */
-  public isValueEmpty(value: any): boolean {
+  public isValueEmpty(value: any, trimString: boolean = true): boolean {
+    if (trimString && !!value && (typeof value === "string" || value instanceof String)) {
+      value = value.trim();
+    }
     return Helpers.isValueEmpty(value);
   }
   protected IsPropertyEmpty(value: any): boolean {

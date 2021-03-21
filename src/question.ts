@@ -1291,7 +1291,7 @@ export class Question extends SurveyElement
     return 1;
   }
   protected getCorrectAnswerCount(): number {
-    return this.isTwoValueEquals(this.value, this.correctAnswer, true) ? 1 : 0;
+    return this.isTwoValueEquals(this.value, this.correctAnswer, true, true) ? 1 : 0;
   }
   public isAnswerCorrect(): boolean {
     return this.correctAnswerCount == this.quizQuestionCount;

@@ -6659,6 +6659,27 @@ QUnit.test(
   }
 );
 QUnit.test(
+  "Quiz, correct, trim value on checking correct answers, https://surveyjs.answerdesk.io/ticket/details/T6569",
+  function(assert) {
+    var survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "q1", correctAnswer: "val1 " },
+        { type: "text", name: "q2", correctAnswer: " val2" },
+        { type: "text", name: "q3", correctAnswer: "val3" },
+      ],
+    });
+    assert.equal(
+      survey.getCorrectedAnswers(),
+      0,
+      "There is no correct answers yet"
+    );
+    survey.setValue("q1", "val1");
+    survey.setValue("q2", "val2 ");
+    survey.setValue("q3", " val3 ");
+    assert.equal(survey.getCorrectedAnswers(), 3, "trim values");
+  }
+);
+QUnit.test(
   "survey.onGetQuestionTitle event. Update unit test for bug: #2298",
   function(assert) {
     var survey = new SurveyModel();

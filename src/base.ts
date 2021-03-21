@@ -425,10 +425,15 @@ export class Base {
    * @param trimString a boolean parameter, default value true. If true then it trims the string and functions returns true for a string that contains white spaces only.
    */
   public isValueEmpty(value: any, trimString: boolean = true): boolean {
-    if (trimString && !!value && (typeof value === "string" || value instanceof String)) {
-      value = value.trim();
+    if (trimString) {
+      value = this.trimValue(value);
     }
     return Helpers.isValueEmpty(value);
+  }
+  protected trimValue(value: any): any {
+    if (!!value && (typeof value === "string" || value instanceof String))
+      return value.trim();
+    return value;
   }
   protected IsPropertyEmpty(value: any): boolean {
     return value !== "" && this.isValueEmpty(value);
@@ -1017,11 +1022,16 @@ export class Base {
   protected isTwoValueEquals(
     x: any,
     y: any,
-    caseInSensitive: boolean = false
+    caseInSensitive: boolean = false,
+    trimString: boolean = false
   ): boolean {
     if (caseInSensitive) {
       x = this.getValueInLowCase(x);
       y = this.getValueInLowCase(y);
+    }
+    if(trimString) {
+      x = this.trimValue(x);
+      y = this.trimValue(y);
     }
     return Helpers.isTwoValueEquals(x, y);
   }

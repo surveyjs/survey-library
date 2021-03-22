@@ -21,7 +21,7 @@ export class ComponentQuestionJSON {
     Serializer.addClass(
       name,
       [],
-      function (json: any) {
+      function(json: any) {
         return ComponentCollection.Instance.createQuestion(
           !!json ? json.name : "",
           self
@@ -107,9 +107,9 @@ export class ComponentCollection {
     }
     name = name.toLowerCase();
     if (!!this.getCustomQuestionByName(name)) {
-      throw (
-        "There is already registered custom question with name '" + name + "'"
-      );
+      throw "There is already registered custom question with name '" +
+        name +
+        "'";
     }
     if (!!Serializer.findClass(name)) {
       throw "There is already class with name '" + name + "'";
@@ -160,8 +160,7 @@ export class ComponentCollection {
   }
 }
 
-export abstract class QuestionCustomModelBase
-  extends Question
+export abstract class QuestionCustomModelBase extends Question
   implements ISurveyImpl, ISurveyData, IPanel {
   constructor(name: string, public customQuestion: ComponentQuestionJSON) {
     super(name);
@@ -175,6 +174,12 @@ export abstract class QuestionCustomModelBase
   }
   public getType(): string {
     return !!this.customQuestion ? this.customQuestion.name : "custom";
+  }
+  public locStrsChanged() {
+    super.locStrsChanged();
+    if (!!this.getElement()) {
+      this.getElement().locStrsChanged();
+    }
   }
   protected createWrapper() {}
   protected onPropertyValueChanged(name: string, oldValue: any, newValue: any) {

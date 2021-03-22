@@ -40,6 +40,7 @@ export var modernCss = {
     title: "sv-title sv-question__title",
     button: "sv-btn",
     buttonRemove: "sv-paneldynamic__remove-btn",
+    buttonRemoveRight: "sv-paneldynamic__remove-btn--right",
     buttonAdd: "sv-paneldynamic__add-btn",
     progressTop: "sv-paneldynamic__progress sv-paneldynamic__progress--top",
     progressBottom:
@@ -51,6 +52,8 @@ export var modernCss = {
     progressBar: "sv-progress__bar",
     progressText: "sv-paneldynamic__progress-text",
     separator: "sv-paneldynamic__separator",
+    panelWrapper: "sv-paneldynamic__panel-wrapper",
+    panelWrapperInRow: "sv-paneldynamic__panel-wrapper--in-row",
   },
   progress: "sv-progress sv-body__progress",
   progressBar: "sv-progress__bar",

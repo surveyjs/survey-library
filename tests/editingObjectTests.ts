@@ -417,7 +417,7 @@ QUnit.test("Edit validators in matrix", function(assert) {
 
 QUnit.test("Composite: create from code", function(assert) {
   var json = {
-    name: "propertygrid_restfull",
+    name: "propertygrid_restful",
     createElements: function(panel, question) {
       panel.fromJSON({
         elements: [
@@ -428,7 +428,7 @@ QUnit.test("Composite: create from code", function(assert) {
   };
   ComponentCollection.Instance.add(json);
   var survey = new SurveyModel({
-    elements: [{ type: "propertygrid_restfull", name: "choicesByUrl" }],
+    elements: [{ type: "propertygrid_restful", name: "choicesByUrl" }],
   });
   var counter = 0;
   survey.onValueChanging.add(function(sender, options) {
@@ -591,7 +591,9 @@ QUnit.test("Edit custom array that returns values onGetValue", function(
 });
 QUnit.test("Edit matrix dynamic column", function(assert) {
   var question = new QuestionMatrixDynamicModel("q1");
-  question.addColumn("col1", "Column 1");
+  var column = question.addColumn("col1", "Column 1");
+  column.cellType = "checkbox";
+  column["hasSelectAll"] = true;
   var survey = new SurveyModel({
     elements: [
       {
@@ -603,9 +605,13 @@ QUnit.test("Edit matrix dynamic column", function(assert) {
         type: "comment",
         name: "title",
       },
+      {
+        type: "boolean",
+        name: "hasSelectAll",
+      },
     ],
   });
-  survey.editingObj = question.columns[0];
+  survey.editingObj = column;
   assert.equal(
     survey.getQuestionByName("name").value,
     "col1",
@@ -616,16 +622,45 @@ QUnit.test("Edit matrix dynamic column", function(assert) {
     "Column 1",
     "column title value is set correctly"
   );
+  assert.equal(
+    survey.getQuestionByName("hasSelectAll").value,
+    true,
+    "column hasSelectAll value is set correctly"
+  );
   survey.getQuestionByName("name").value = "col2";
   survey.getQuestionByName("title").value = "Column 2";
+  survey.getQuestionByName("hasSelectAll").value = false;
+  assert.equal(column.name, "col2", "column name changed correctly");
+  assert.equal(column.title, "Column 2", "column title changed correctly");
   assert.equal(
-    question.columns[0].name,
-    "col2",
-    "column name changed correctly"
+    column["hasSelectAll"],
+    false,
+    "column hasSelectAll changed correctly"
   );
-  assert.equal(
-    question.columns[0].title,
-    "Column 2",
-    "column title changed correctly"
-  );
+});
+QUnit.test("Edit choices in matrix dynamic column", function(assert) {
+  var question = new QuestionMatrixDynamicModel("q1");
+  var column = question.addColumn("col1", "Column 1");
+  column.cellType = "checkbox";
+  column["choices"] = [1, 2, 3, 4, 5];
+  var survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdynamic",
+        name: "choices",
+        rowCount: 0,
+        columns: [
+          { cellType: "text", name: "value" },
+          { cellType: "text", name: "text" },
+        ],
+      },
+    ],
+  });
+  survey.editingObj = column;
+  var matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("choices");
+  assert.equal(matrix.rowCount, 5, "There are 5 items");
+  column["choices"].push(new ItemValue(6));
+  assert.equal(matrix.rowCount, 6, "There are 6 items now");
+  matrix.visibleRows[0].cells[0].value = "Item 1";
+  assert.equal(column["choices"][0].value, "Item 1", "value changed in matrix");
 });

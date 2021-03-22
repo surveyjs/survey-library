@@ -11,7 +11,8 @@
   margin-top: -18px;
 }
 
-[dir="rtl"], [style*="direction:rtl"] {
+[dir="rtl"],
+[style*="direction:rtl"] {
   .sv-paneldynamic__add-btn {
     float: left;
   }
@@ -25,6 +26,10 @@
 .sv-paneldynamic__remove-btn {
   background-color: $remove-button-color;
   margin-top: 1.25em;
+}
+.sv-paneldynamic__remove-btn--right {
+  margin-top: 0;
+  margin-left: 1.25em;
 }
 
 .sv-paneldynamic__prev-btn,
@@ -66,12 +71,18 @@
   border: none;
   margin: 0;
 }
-.sv-paneldynamic .sv-panel ~ .sv-panel {
-  padding-top: 2.5em
-}
 .sv-paneldynamic__progress--top {
   margin-bottom: 1em;
 }
 .sv-paneldynamic__progress--bottom {
   margin-top: 1em;
 }
+.sv-paneldynamic__panel-wrapper ~ .sv-paneldynamic__panel-wrapper {
+  padding-top: 2.5em;
+}
+.sv-paneldynamic__panel-wrapper--in-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+

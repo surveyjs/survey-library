@@ -61,7 +61,7 @@ export class MatrixRowModel extends Base {
     var hasError = !!(<any>this.data).getErrorByType("requiredinallrowserror");
 
     var classes = rowClass;
-    if (!!rowErrorClass && hasError && Helpers.isValueEmpty(this.value)) {
+    if (!!rowErrorClass && hasError && this.isValueEmpty(this.value)) {
       if (!!classes) classes += " ";
       classes += rowErrorClass;
     }
@@ -306,7 +306,7 @@ export class QuestionMatrixModel
     for (var i = 0; i < this.rows.length; i++) {
       var row = this.rows[i].value;
       if (
-        !Helpers.isValueEmpty(value[row]) &&
+        !this.isValueEmpty(value[row]) &&
         Helpers.isTwoValueEquals(this.correctAnswer[row], value[row])
       )
         res++;
@@ -419,7 +419,7 @@ export class QuestionMatrixModel
     if (!rows) rows = this.visibleRows;
     if (!rows) return true;
     for (var i = 0; i < rows.length; i++) {
-      if (Helpers.isValueEmpty(rows[i].value)) return false;
+      if (this.isValueEmpty(rows[i].value)) return false;
     }
     return true;
   }
@@ -449,7 +449,7 @@ export class QuestionMatrixModel
       for (var i = 0; i < this.generatedVisibleRows.length; i++) {
         var row = this.generatedVisibleRows[i];
         var rowVal = val[row.name];
-        if (Helpers.isValueEmpty(rowVal)) rowVal = null;
+        if (this.isValueEmpty(rowVal)) rowVal = null;
         this.generatedVisibleRows[i].value = rowVal;
       }
     }

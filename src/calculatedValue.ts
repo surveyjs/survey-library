@@ -30,7 +30,7 @@ export class CalculatedValue extends Base {
   public getType(): string {
     return "calculatedvalue";
   }
-  public getSurvey(): ISurvey {
+  public getSurvey(live: boolean = false): ISurvey {
     return !!this.data && !!(<any>this.data)["getSurvey"]
       ? (<any>this.data).getSurvey()
       : null;
@@ -143,7 +143,7 @@ export class CalculatedValue extends Base {
   private ensureExpression(values: HashTable<any>) {
     if (!!this.expressionRunner) return;
     this.expressionRunner = new ExpressionRunner(this.expression);
-    this.expressionRunner.onRunComplete = (newValue) => {
+    this.expressionRunner.onRunComplete = newValue => {
       if (!Helpers.isTwoValueEquals(newValue, this.value)) {
         this.setValue(newValue);
       }
@@ -159,7 +159,7 @@ Serializer.addClass(
     "expression:expression",
     "includeIntoResult:boolean",
   ],
-  function () {
+  function() {
     return new CalculatedValue();
   },
   "base"

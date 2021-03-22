@@ -106,6 +106,8 @@ ConstValue
   = value:LogicValue  { return value; }
   / value:ArithmeticValue  { return value; }
   / value:LettersAndDigits  { return value; }
+  / "''" {return ""; }
+  / "\"\"" {return ""; }
   / "'" value:AnyInput "'" { return "'" + value + "'"; }
   / "\"" value:AnyInput "\"" { return "'" + value + "'"; }
 

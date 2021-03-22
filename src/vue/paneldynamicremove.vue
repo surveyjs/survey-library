@@ -1,15 +1,12 @@
 <template>
-  <div v-show="!isCollapsed">
-    <input
-      type="button"
-      v-if="question.canRemovePanel && !question.isReadOnly"
-      :class="
-        question.cssClasses.button + ' ' + question.cssClasses.buttonRemove
-      "
-      :value="question.panelRemoveText"
-      @click="removePanelClick(panel)"
-    />
-  </div>
+  <input
+    type="button"
+    v-show="!isCollapsed"
+    v-if="question.canRemovePanel && !question.isReadOnly"
+    :class="question.getPanelRemoveButtonCss()"
+    :value="question.panelRemoveText"
+    @click="removePanelClick(panel)"
+  />
 </template>
 
 <script lang="ts">
@@ -30,7 +27,7 @@ export class PanelDynamicRemove extends Vue {
     var self = this;
     this.panel.registerFunctionOnPropertyValueChanged(
       "state",
-      function (val: any) {
+      function(val: any) {
         self.isCollapsed = self.panel.isCollapsed;
       },
       "button"

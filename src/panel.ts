@@ -14,6 +14,7 @@ import {
   ISurveyErrorOwner,
   ITitleOwner,
   IProgressInfo,
+  ISurvey,
 } from "./base";
 import { Question } from "./question";
 import { ConditionRunner } from "./conditions";
@@ -1534,6 +1535,12 @@ export class PanelModel extends PanelModelBase
   }
   public get contentId(): string {
     return this.id + "_content";
+  }
+  public getSurvey(live: boolean = false): ISurvey {
+    if (live) {
+      return !!this.parent ? this.parent.getSurvey(live) : null;
+    }
+    return super.getSurvey(live);
   }
   onSurveyLoad() {
     super.onSurveyLoad();

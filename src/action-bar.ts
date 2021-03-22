@@ -4,6 +4,9 @@ import { ListModel } from "./list";
 import { PopupModel } from "./popup";
 import { unwrap } from "./utils/utils";
 
+/**
+ * Defines an individual action. Action items can be displayed in certain survey elements - in Toolbar (or action bar), in titles (of pages, panels, questions), in matrix rows (as 'expand details' or 'remove row' buttons), and etc.
+ */
 export interface IActionBarItem {
   /**
    * Unique string id
@@ -67,6 +70,14 @@ export interface IActionBarItem {
    * Toolbar item child items. Can be used as contianer for options
    */
   items?: any;
+  /**
+   * Gets or sets an action's location in a matrix question's row.
+   *
+   * The following options are available:
+   *
+   * - `start` - An action is located at the beginning of a row.
+   * - `end` - An action is located at the end of a row.
+   */
   location?: string;
 }
 
@@ -94,8 +105,7 @@ export class ActionBarItem extends Base implements IActionBarItem {
   @property() items?: any;
 }
 
-export class AdaptiveActionBarItemWrapper
-  extends Base
+export class AdaptiveActionBarItemWrapper extends Base
   implements IActionBarItem {
   constructor(private owner: AdaptiveElement, private item: IActionBarItem) {
     super();
@@ -228,7 +238,7 @@ export class AdaptiveElement extends Base {
   public showFirstN(visibleItemsCount: number) {
     let leftItemsToShow = visibleItemsCount;
     const invisibleItems: AdaptiveActionBarItemWrapper[] = [];
-    this.items.forEach((item) => {
+    this.items.forEach(item => {
       if (item === this.dotsItem) {
         return;
       }

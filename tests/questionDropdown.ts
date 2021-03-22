@@ -4,7 +4,7 @@ import { Question } from "../src/question";
 import { QuestionDropdownModel } from "../src/question_dropdown";
 import { QuestionPanelDynamicModel } from "../src/question_paneldynamic";
 
-export default QUnit.module("choicesRestfull");
+export default QUnit.module("choicesRestful");
 
 QUnit.test("Test dropdown choicesMax choicesMin properties", function(assert) {
   var json = {
@@ -13,9 +13,9 @@ QUnit.test("Test dropdown choicesMax choicesMin properties", function(assert) {
         name: "liveage",
         type: "dropdown",
         choicesMin: 1,
-        choicesMax: 115
-      }
-    ]
+        choicesMax: 115,
+      },
+    ],
   };
   var survey = new SurveyModel(json);
 

@@ -170,7 +170,6 @@ export class SurveyQuestionRadioItem extends ReactSurveyElement {
                 ? this.question.id + "_errors"
                 : null
             }
-            role="radio"
           />
           <span className={this.cssClasses.materialDecorator}>
             <svg

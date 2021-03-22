@@ -95,6 +95,13 @@ export class QuestionSelectBase extends Question {
   isLayoutTypeSupported(layoutType: string): boolean {
     return true;
   }
+  public locStrsChanged() {
+    super.locStrsChanged();
+    if (!!this.choicesFromUrl) {
+      ItemValue.locStrsChanged(this.choicesFromUrl);
+      ItemValue.locStrsChanged(this.visibleChoices);
+    }
+  }
   /**
    * Returns the other item. By using this property, you may change programmatically it's value and text.
    * @see hasOther
@@ -808,6 +815,11 @@ export class QuestionSelectBase extends Question {
     if (array && array.length > 0) {
       newChoices = new Array<ItemValue>();
       ItemValue.setData(newChoices, array);
+    }
+    if (!!newChoices) {
+      for (var i = 0; i < newChoices.length; i++) {
+        newChoices[i].locOwner = this;
+      }
     }
     this.choicesFromUrl = newChoices;
     this.filterItems();

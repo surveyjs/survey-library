@@ -1316,6 +1316,37 @@ QUnit.test(
   }
 );
 
+QUnit.test("Load localized itemvalue text, bug#", function(assert) {
+  var survey = new SurveyModel();
+  survey.addNewPage("1");
+  var question = new QuestionDropdownModelTester("q1");
+  question.choicesByUrl.url = "{state}";
+  survey.onLoadChoicesFromServer.add(function(survey, options) {
+    if (options.question.name != "q1") return;
+    var item = new ItemValue(1);
+    item.locText.setJson({ default: "item en", de: "item de" });
+    options.choices = [item];
+  });
+  survey.pages[0].addQuestion(question);
+  survey.currentPageNo = 0;
+  question.onSurveyLoad();
+  assert.equal(
+    question.visibleChoices.length,
+    1,
+    "We have loaded visible choices"
+  );
+  var loctText = question.visibleChoices[0].locText;
+  var hasChanged = false;
+  loctText.onChanged = () => {
+    hasChanged = true;
+  };
+  assert.equal(loctText.renderedHtml, "item en", "Default locale");
+  survey.locale = "de";
+  assert.equal(hasChanged, true, "localized string is changed");
+  assert.equal(loctText.renderedHtml, "item de", "de locale");
+  survey.locale = "";
+});
+
 function getCACities() {
   return ["Los Angeles", "San Francisco"];
 }

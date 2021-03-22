@@ -12,6 +12,7 @@ import { QuestionTextModel } from "../src/question_text";
 import { QuestionMatrixDropdownModel } from "../src/question_matrixdropdown";
 import { QuestionPanelDynamicModel } from "../src/question_paneldynamic";
 import { ItemValue } from "../src/itemvalue";
+import { LocalizableString } from "../src/localizablestring";
 
 export default QUnit.module("custom questions");
 
@@ -1427,5 +1428,65 @@ QUnit.test("Single: in matrix dynamic question, Bug#2695", function(assert) {
   );
   assert.equal(rows[0].cells[0].value, "b", "set value into cell");
   assert.deepEqual(matrix.value, [{ col1: "b" }], "set value into matrix");
+  ComponentCollection.Instance.clear();
+});
+QUnit.test("Single: change locale, Bug#", function(assert) {
+  var json = {
+    name: "newquestion",
+    questionJSON: {
+      type: "dropdown",
+    },
+    onLoaded: question => {
+      var item = new ItemValue(1);
+      item.locText.setJson({ default: "item en", de: "item de" });
+      question.contentQuestion.choices = [item];
+    },
+  };
+  ComponentCollection.Instance.add(json);
+  var survey = new SurveyModel({
+    elements: [{ type: "newquestion", name: "q1" }],
+  });
+  survey.currentPageNo = 0;
+  var q = <QuestionCustomModel>survey.getAllQuestions()[0];
+  var locText = <LocalizableString>q.contentQuestion.choices[0].locText;
+  assert.equal(locText.renderedHtml, "item en", "en locale");
+  var hasChanged = false;
+  locText.onChanged = () => {
+    hasChanged = true;
+  };
+  survey.locale = "de";
+  assert.equal(hasChanged, true, "Call notification about changing locale");
+  assert.equal(locText.renderedHtml, "item de", "de locale");
+  survey.locale = "";
+  ComponentCollection.Instance.clear();
+});
+QUnit.test("Composite: change locale, Bug#", function(assert) {
+  var json = {
+    name: "newquestion",
+    elementsJSON: [
+      {
+        type: "dropdown",
+        choices: [{ value: 1, text: { default: "item en", de: "item de" } }],
+      },
+    ],
+  };
+  ComponentCollection.Instance.add(json);
+  var survey = new SurveyModel({
+    elements: [{ type: "newquestion", name: "q1" }],
+  });
+  survey.currentPageNo = 0;
+  var q = <QuestionCompositeModel>survey.getAllQuestions()[0];
+  var dropdown = <QuestionDropdownModel>q.contentPanel.questions[0];
+  assert.ok(dropdown, "Question is here");
+  var locText = <LocalizableString>dropdown.choices[0].locText;
+  assert.equal(locText.renderedHtml, "item en", "en locale");
+  var hasChanged = false;
+  locText.onChanged = () => {
+    hasChanged = true;
+  };
+  survey.locale = "de";
+  assert.equal(hasChanged, true, "Call notification about changing locale");
+  assert.equal(locText.renderedHtml, "item de", "de locale");
+  survey.locale = "";
   ComponentCollection.Instance.clear();
 });

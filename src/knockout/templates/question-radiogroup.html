@@ -1,8 +1,8 @@
 <script type="text/html" id="survey-question-radiogroup">
   <fieldset data-bind="css: question.koCss().root" role="radiogroup">
-    <legend
-      data-bind="attr: { 'aria-label': question.locTitle.renderedHtml }"
-    ></legend>
+    <!-- ko ifnot: question.hasTitle -->
+    <legend data-bind="attr: { 'aria-label': question.locTitle.renderedHtml }"></legend>
+    <!-- /ko -->
     <!-- ko ifnot: question.hasColumns -->
     <!-- ko foreach: { data: question.visibleChoices, as: 'item', afterRender: question.koAfterRender } -->
     <!-- ko template: 'survey-radiogroup-item' -->

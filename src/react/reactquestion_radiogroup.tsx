@@ -1,8 +1,5 @@
 import * as React from "react";
-import {
-  SurveyQuestionElementBase,
-  ReactSurveyElement,
-} from "./reactquestion_element";
+import { SurveyQuestionElementBase, ReactSurveyElement } from "./reactquestion_element";
 import { QuestionRadiogroupModel } from "survey-core";
 import { ItemValue } from "survey-core";
 import { SurveyQuestionCommentItem } from "./reactquestion_comment";
@@ -37,7 +34,8 @@ export class SurveyQuestionRadiogroup extends SurveyQuestionElementBase {
         ref={(fieldset) => (this.control = fieldset)}
         role="radiogroup"
       >
-        <legend aria-label={this.question.locTitle.renderedHtml} />
+        {this.question.hasTitle ? null
+            : <legend aria-label={this.question.locTitle.renderedHtml}/>}
         {this.question.hasColumns
           ? this.getColumns(cssClasses)
           : this.getItems(cssClasses)}

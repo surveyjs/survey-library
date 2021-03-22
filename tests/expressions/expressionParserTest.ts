@@ -639,13 +639,22 @@ QUnit.test("ConditionRunner, iif nested using 2", function(assert) {
   assert.equal(runner.run(values), 1, "1 + 5 < 10");
 });
 
-function avg(params: any[]): any {
-  var res = 0;
-  for (var i = 0; i < params.length; i++) {
-    res += params[i];
-  }
-  return params.length > 0 ? res / params.length : 0;
-}
+QUnit.test("ConditionRunner, iif with empty parameter, Bug#2732", function(
+  assert
+) {
+  var runner = new ExpressionRunner("iif({a}, 'yes', '')");
+  var values = { a: true };
+  assert.equal(runner.run(values), "yes", "true");
+  values.a = false;
+  assert.equal(runner.run(values), "", "false");
+});
+
+QUnit.test("parse iif with empty parameter, Bug#2732", function(assert) {
+  var expression = parse("iif(1, 'yes', '')");
+  assert.ok(expression, "Expression parse correctly");
+  expression = parse('iif(1, "yes", "")');
+  assert.ok(expression, "Expression parse correctly, #2");
+});
 
 QUnit.test(
   "ConditionRunner, iif nested using with function, Bug T1302, (https://surveyjs.answerdesk.io/ticket/details/T1302)",

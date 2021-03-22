@@ -5,7 +5,7 @@ import { ItemValue } from "./itemvalue";
 import { Helpers, HashTable } from "./helpers";
 import { surveyLocalization } from "./surveyStrings";
 import { OtherEmptyError } from "./error";
-import { ChoicesRestfull } from "./choicesRestfull";
+import { ChoicesRestful } from "./choicesRestful";
 import { LocalizableString } from "./localizablestring";
 import { ConditionRunner } from "./conditions";
 import { settings } from "./settings";
@@ -52,7 +52,7 @@ export class QuestionSelectBase extends Question {
       this.updateVisibilityBasedOnChoices();
     });
     this.createNewArray("visibleChoices");
-    this.setPropertyValue("choicesByUrl", this.createRestfull());
+    this.setPropertyValue("choicesByUrl", this.createRestful());
     this.choicesByUrl.owner = this;
     this.choicesByUrl.loadingOwner = this;
     var locOtherText = this.createLocalizableString("otherText", this, true);
@@ -289,8 +289,8 @@ export class QuestionSelectBase extends Question {
   get validatedValue(): any {
     return this.rendredValueToDataCore(this.value);
   }
-  protected createRestfull(): ChoicesRestfull {
-    return new ChoicesRestfull();
+  protected createRestful(): ChoicesRestful {
+    return new ChoicesRestful();
   }
   protected getQuestionComment(): string {
     if (!!this.commentValue) return this.commentValue;
@@ -380,7 +380,7 @@ export class QuestionSelectBase extends Question {
     return val;
   }
   protected hasUnknownValue(val: any, includeOther: boolean = false): boolean {
-    if (Helpers.isValueEmpty(val)) return false;
+    if (this.isValueEmpty(val)) return false;
     if (includeOther && val == this.otherItem.value) return false;
     if (this.hasNone && val == this.noneItem.value) return false;
     return ItemValue.getItemByValue(this.getFilteredChoices(), val) == null;
@@ -396,11 +396,11 @@ export class QuestionSelectBase extends Question {
   /**
    * Use this property to fill the choices from a RESTful service.
    * @see choices
-   * @see ChoicesRestfull
+   * @see ChoicesRestful
    * @see [Example: RESTful Dropdown](https://surveyjs.io/Examples/Library/?id=questiontype-dropdownrestfull)
    * @see [Docs: Fill Choices from a RESTful Service](https://surveyjs.io/Documentation/Library/?id=LibraryOverview#fill-the-choices-from-a-restful-service)
    */
-  public get choicesByUrl(): ChoicesRestfull {
+  public get choicesByUrl(): ChoicesRestful {
     return this.getPropertyValue("choicesByUrl");
   }
   /**
@@ -820,7 +820,7 @@ export class QuestionSelectBase extends Question {
       if (!!newValue && !this.isReadOnly) {
         var hasChanged = !Helpers.isTwoValueEquals(this.value, newValue.value);
         try {
-          if (!Helpers.isValueEmpty(newValue.value)) {
+          if (!this.isValueEmpty(newValue.value)) {
             this.allowNotifyValueChanged = false;
             this.setQuestionValue(undefined);
           }
@@ -1125,7 +1125,7 @@ Serializer.addClass(
     },
     {
       name: "choicesByUrl:restfull",
-      className: "ChoicesRestfull",
+      className: "ChoicesRestful",
       onGetValue: function(obj: any) {
         return obj.choicesByUrl.getData();
       },

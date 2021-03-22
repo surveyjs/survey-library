@@ -46,7 +46,7 @@ export {
   LocalizableStrings,
 } from "../../localizablestring";
 export { HtmlConditionItem, UrlConditionItem } from "../../expressionItems";
-export { ChoicesRestfull } from "../../choicesRestfull";
+export { ChoicesRestful, ChoicesRestfull } from "../../choicesRestful";
 export { FunctionFactory, registerFunction } from "../../functionsfactory";
 export { ConditionRunner, ExpressionRunner } from "../../conditions";
 export {
@@ -105,6 +105,7 @@ export {
 export { PanelModel, PanelModelBase, QuestionRowModel } from "../../panel";
 export { FlowPanelModel } from "../../flowpanel";
 export { PageModel } from "../../page";
+export * from "../../question-row";
 export { Question } from "../../question";
 export { QuestionNonValue } from "../../questionnonvalue";
 export { QuestionEmptyModel } from "../../question_empty";

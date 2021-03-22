@@ -1,19 +1,8 @@
 import * as ko from "knockout";
-import { SurveyElement } from "survey-core";
+import { SurveyElementViewModel } from "survey-core";
 const template = require("./question-row.html");
 
-export var SurveyQuestionComponent: any;
-
-export interface SurveyElementTemplateData {
-  name: string;
-  data: SurveyElement;
-  afterRender: (el: HTMLElement, context: SurveyElement) => void;
-}
-
-export interface SurveyElementViewModel {
-  componentData: any;
-  templateData: SurveyElementTemplateData;
-}
+export var SurveyElementComponent: any;
 
 ko.components.register("survey-element-component", {
   viewModel: {

@@ -293,13 +293,6 @@ export class Survey extends SurveyModel {
     });
     this.koCurrentPage(undefined);
   }
-
-  public getElementWrapperComponentName(element: SurveyElement): string {
-    return "survey-element-component";
-  }
-  public getElementWrapperComponentData(element: SurveyElement): any {
-    return element;
-  }
 }
 
 LocalizableString.prototype["onCreating"] = function() {

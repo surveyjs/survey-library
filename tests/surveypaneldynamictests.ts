@@ -3472,3 +3472,53 @@ QUnit.test("Avoid stack-overflow", function(assert) {
     "Value set and there is no stack-overflow"
   );
 });
+
+QUnit.test("getPanelWrapperCss", function(assert) {
+  var survey = new SurveyModel({
+    elements: [
+      {
+        type: "paneldynamic",
+        name: "panel",
+        templateElements: [{ type: "text", name: "q1" }],
+      },
+    ],
+  });
+
+  var question = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+  assert.equal(
+    question.getPanelWrapperCss(),
+    "sv_p_wrapper",
+    "Default rendering: remove button in the bottom of the panel"
+  );
+  question.panelRemoveButtonLocation = "right";
+  assert.equal(
+    question.getPanelWrapperCss(),
+    "sv_p_wrapper sv_p_wrapper_in_row",
+    "Non-default rendering: remove button in the right of the panel"
+  );
+});
+
+QUnit.test("getPanelRemoveButtonCss", function(assert) {
+  var survey = new SurveyModel({
+    elements: [
+      {
+        type: "paneldynamic",
+        name: "panel",
+        templateElements: [{ type: "text", name: "q1" }],
+      },
+    ],
+  });
+
+  var question = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+  assert.equal(
+    question.getPanelRemoveButtonCss(),
+    " sv_p_remove_btn",
+    "Default rendering: remove button in the bottom of the panel"
+  );
+  question.panelRemoveButtonLocation = "right";
+  assert.equal(
+    question.getPanelRemoveButtonCss(),
+    " sv_p_remove_btn sv_p_remove_btn_right",
+    "Non-default rendering: remove button in the right of the panel"
+  );
+});

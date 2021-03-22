@@ -43,9 +43,9 @@ class XmlParser {
 
 /**
  * A definition for filling choices for checkbox, dropdown and radiogroup questions from resfull services.
- * The run method call a restfull service and results can be get on getResultCallback.
+ * The run method call a restful service and results can be get on getResultCallback.
  */
-export class ChoicesRestfull extends Base {
+export class ChoicesRestful extends Base {
   private static cacheText = "{CACHE}";
   private static noCacheText = "{NOCACHE}";
   public static get EncodeParameters(): boolean {
@@ -55,28 +55,28 @@ export class ChoicesRestfull extends Base {
     settings.webserviceEncodeParameters = val;
   }
   public static clearCache() {
-    ChoicesRestfull.itemsResult = {};
-    ChoicesRestfull.sendingSameRequests = {};
+    ChoicesRestful.itemsResult = {};
+    ChoicesRestful.sendingSameRequests = {};
   }
   private static itemsResult: { [index: string]: any } = {};
   private static sendingSameRequests: {
-    [index: string]: Array<ChoicesRestfull>;
+    [index: string]: Array<ChoicesRestful>;
   } = {};
-  private static addSameRequest(obj: ChoicesRestfull): boolean {
+  private static addSameRequest(obj: ChoicesRestful): boolean {
     if (!obj.isUsingCache) return false;
     var hash = obj.objHash;
-    var res = ChoicesRestfull.sendingSameRequests[hash];
+    var res = ChoicesRestful.sendingSameRequests[hash];
     if (!res) {
-      ChoicesRestfull.sendingSameRequests[obj.objHash] = [];
+      ChoicesRestful.sendingSameRequests[obj.objHash] = [];
       return false;
     }
     res.push(obj);
     return true;
   }
-  private static unregisterSameRequests(obj: ChoicesRestfull, items: any) {
+  private static unregisterSameRequests(obj: ChoicesRestful, items: any) {
     if (!obj.isUsingCache) return;
-    var res = ChoicesRestfull.sendingSameRequests[obj.objHash];
-    delete ChoicesRestfull.sendingSameRequests[obj.objHash];
+    var res = ChoicesRestful.sendingSameRequests[obj.objHash];
+    delete ChoicesRestful.sendingSameRequests[obj.objHash];
     if (!res) return;
     for (var i = 0; i < res.length; i++) {
       if (!!res[i].getResultCallback) {
@@ -85,12 +85,12 @@ export class ChoicesRestfull extends Base {
     }
   }
   public static onBeforeSendRequest: (
-    sender: ChoicesRestfull,
+    sender: ChoicesRestful,
     options: { request: XMLHttpRequest }
   ) => void;
-  private static getCachedItemsResult(obj: ChoicesRestfull): boolean {
+  private static getCachedItemsResult(obj: ChoicesRestful): boolean {
     var hash = obj.objHash;
-    var res = ChoicesRestfull.itemsResult[hash];
+    var res = ChoicesRestful.itemsResult[hash];
     if (!res) return false;
     if (obj.getResultCallback) {
       obj.getResultCallback(res);
@@ -115,7 +115,7 @@ export class ChoicesRestfull extends Base {
   constructor() {
     super();
   }
-  public getSurvey(): ISurvey {
+  public getSurvey(live: boolean = false): ISurvey {
     return !!this.owner ? this.owner.survey : null;
   }
   public run(textProcessor: ITextProcessor = null) {
@@ -130,13 +130,13 @@ export class ChoicesRestfull extends Base {
     this.lastObjHash = this.objHash;
     this.error = null;
     if (this.useChangedItemsResults()) return;
-    if (ChoicesRestfull.addSameRequest(this)) return;
+    if (ChoicesRestful.addSameRequest(this)) return;
     this.sendRequest();
   }
   public get isUsingCache(): boolean {
     if (this.isUsingCacheFromUrl === true) return true;
     if (this.isUsingCacheFromUrl === false) return false;
-    return settings.useCachingForChoicesRestfull;
+    return settings.useCachingForChoicesRestful;
   }
   public get isRunning() {
     return this.isRunningValue;
@@ -145,7 +145,7 @@ export class ChoicesRestfull extends Base {
     return this.url && !this.processedUrl;
   }
   protected useChangedItemsResults(): boolean {
-    return ChoicesRestfull.getCachedItemsResult(this);
+    return ChoicesRestful.getCachedItemsResult(this);
   }
   private doEmptyResultCallback(serverResult: any) {
     var items: Array<any> = [];
@@ -158,8 +158,8 @@ export class ChoicesRestfull extends Base {
     var urlText = this.url;
     if (!!urlText) {
       urlText = urlText
-        .replace(ChoicesRestfull.cacheText, "")
-        .replace(ChoicesRestfull.noCacheText, "");
+        .replace(ChoicesRestful.cacheText, "")
+        .replace(ChoicesRestful.noCacheText, "");
     }
     if (textProcessor) {
       var pUrl = textProcessor.processTextEx(
@@ -215,7 +215,7 @@ export class ChoicesRestfull extends Base {
     xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
     var self = this;
     var loadingObjHash = this.objHash;
-    xhr.onload = function () {
+    xhr.onload = function() {
       self.isRunningValue = false;
       if (xhr.status === 200) {
         self.onLoad(self.parseResponse(xhr.response), loadingObjHash);
@@ -224,8 +224,8 @@ export class ChoicesRestfull extends Base {
       }
     };
     var options = { request: xhr };
-    if (!!ChoicesRestfull.onBeforeSendRequest) {
-      ChoicesRestfull.onBeforeSendRequest(this, options);
+    if (!!ChoicesRestful.onBeforeSendRequest) {
+      ChoicesRestful.onBeforeSendRequest(this, options);
     }
     this.beforeSendRequest();
     options.request.send();
@@ -304,15 +304,15 @@ export class ChoicesRestfull extends Base {
     return res;
   }
   /**
-  * Gets or sets a link to a web service. You can use text preprocessing here.
-  * For example, the following url: _https://restcountries.eu/rest/v2/region/{region}_ is changed based on the _region_ question's value. 
-  * SurveyJS automatically gets data from the web service when the value of the _region_ question changes.
-  * @see path
-  * @see valueName
-  * @see titleName
-  * @see [Example: RESTful Dropdown](https://surveyjs.io/Examples/Library/?id=questiontype-dropdownrestfull)
-  * @see [Docs: Fill Choices from a RESTful Service](https://surveyjs.io/Documentation/Library/?id=LibraryOverview#fill-the-choices-from-a-restful-service)
-  */
+   * Gets or sets a link to a web service. You can use text preprocessing here.
+   * For example, the following url: _https://restcountries.eu/rest/v2/region/{region}_ is changed based on the _region_ question's value.
+   * SurveyJS automatically gets data from the web service when the value of the _region_ question changes.
+   * @see path
+   * @see valueName
+   * @see titleName
+   * @see [Example: RESTful Dropdown](https://surveyjs.io/Examples/Library/?id=questiontype-dropdownrestfull)
+   * @see [Docs: Fill Choices from a RESTful Service](https://surveyjs.io/Documentation/Library/?id=LibraryOverview#fill-the-choices-from-a-restful-service)
+   */
   public get url(): string {
     return this.getPropertyValue("url", "");
   }
@@ -320,24 +320,25 @@ export class ChoicesRestfull extends Base {
     this.setPropertyValue("url", val);
     this.isUsingCacheFromUrl = undefined;
     if (!val) return;
-    if (val.indexOf(ChoicesRestfull.cacheText) > -1) {
+    if (val.indexOf(ChoicesRestful.cacheText) > -1) {
       this.isUsingCacheFromUrl = true;
     } else {
-      if (val.indexOf(ChoicesRestfull.noCacheText) > -1) {
+      if (val.indexOf(ChoicesRestful.noCacheText) > -1) {
         this.isUsingCacheFromUrl = false;
       }
     }
   }
   /**
-  * Use this property, if a web service returns a lot of information and you need only a part of it. 
-  * For example, a web service returns a list of countries and a list of capitals. 
-  * If you need a list of countries, set a correct path from which SurveyJS obtains the data, like: _DataList1\DataList2_
-  * @see url
-  * @see valueName
-  * @see titleName
-  * @see [Example: RESTful Dropdown](https://surveyjs.io/Examples/Library/?id=questiontype-dropdownrestfull)
-  * @see [Docs: Fill Choices from a RESTful Service](https://surveyjs.io/Documentation/Library/?id=LibraryOverview#fill-the-choices-from-a-restful-service)
-  */  
+   * Use this property, if a web service returns a lot of information and you need only a part of it.
+   * For example, a web service returns a list of countries and a list of capitals.
+   * If you need a list of countries, set a correct path from which SurveyJS obtains the data, like: _DataList1\DataList2_
+   * @see url
+   * @see valueName
+   * @see titleName
+   * @see [Example: RESTful Dropdown](https://surveyjs.io/Examples/Library/?id=questiontype-dropdownrestfull)
+   * @see [Docs: Fill Choices from a RESTful Service](https://surveyjs.io/Documentation/Library/?id=LibraryOverview#fill-the-choices-from-a-restful-service)
+   */
+
   public get path(): string {
     return this.getPropertyValue("path", "");
   }
@@ -345,13 +346,14 @@ export class ChoicesRestfull extends Base {
     this.setPropertyValue("path", val);
   }
   /**
-  * Gets or sets the name of a property (in the obtained data object) to which SurveyJS binds to provide values for choice items.
-  * @see url
-  * @see path
-  * @see titleName
-  * @see [Example: RESTful Dropdown](https://surveyjs.io/Examples/Library/?id=questiontype-dropdownrestfull)
-  * @see [Docs: Fill Choices from a RESTful Service](https://surveyjs.io/Documentation/Library/?id=LibraryOverview#fill-the-choices-from-a-restful-service)
-  */    
+   * Gets or sets the name of a property (in the obtained data object) to which SurveyJS binds to provide values for choice items.
+   * @see url
+   * @see path
+   * @see titleName
+   * @see [Example: RESTful Dropdown](https://surveyjs.io/Examples/Library/?id=questiontype-dropdownrestfull)
+   * @see [Docs: Fill Choices from a RESTful Service](https://surveyjs.io/Documentation/Library/?id=LibraryOverview#fill-the-choices-from-a-restful-service)
+   */
+
   public get valueName(): string {
     return this.getPropertyValue("valueName", "");
   }
@@ -359,13 +361,14 @@ export class ChoicesRestfull extends Base {
     this.setPropertyValue("valueName", val);
   }
   /**
-  * Gets or sets the name of a property (in the obtained data object) to which SurveyJS binds to provide display texts for choice items.
-  * @see url
-  * @see path
-  * @see valueeName
-  * @see [Example: RESTful Dropdown](https://surveyjs.io/Examples/Library/?id=questiontype-dropdownrestfull)
-  * @see [Docs: Fill Choices from a RESTful Service](https://surveyjs.io/Documentation/Library/?id=LibraryOverview#fill-the-choices-from-a-restful-service)
-  */  
+   * Gets or sets the name of a property (in the obtained data object) to which SurveyJS binds to provide display texts for choice items.
+   * @see url
+   * @see path
+   * @see valueeName
+   * @see [Example: RESTful Dropdown](https://surveyjs.io/Examples/Library/?id=questiontype-dropdownrestfull)
+   * @see [Docs: Fill Choices from a RESTful Service](https://surveyjs.io/Documentation/Library/?id=LibraryOverview#fill-the-choices-from-a-restful-service)
+   */
+
   public get titleName(): string {
     return this.getPropertyValue("titleName", "");
   }
@@ -447,10 +450,10 @@ export class ChoicesRestfull extends Base {
       items = this.updateResultCallback(items, result);
     }
     if (this.isUsingCache) {
-      ChoicesRestfull.itemsResult[loadingObjHash] = items;
+      ChoicesRestful.itemsResult[loadingObjHash] = items;
     }
     this.callResultCallback(items, loadingObjHash);
-    ChoicesRestfull.unregisterSameRequests(this, items);
+    ChoicesRestful.unregisterSameRequests(this, items);
   }
   protected callResultCallback(
     items: Array<ItemValue>,
@@ -481,7 +484,7 @@ export class ChoicesRestfull extends Base {
   private onError(status: string, response: string) {
     this.error = new WebRequestError(status, response, this.owner);
     this.doEmptyResultCallback(response);
-    ChoicesRestfull.unregisterSameRequests(this, []);
+    ChoicesRestful.unregisterSameRequests(this, []);
   }
   private getResultAfterPath(result: any) {
     if (!result) return result;
@@ -544,6 +547,21 @@ export class ChoicesRestfull extends Base {
   }
 }
 
+/**
+ * Obsolete, please use ChoicesRestful
+ */
+export class ChoicesRestfull extends ChoicesRestful {
+  public static get EncodeParameters(): boolean {
+    return ChoicesRestful.EncodeParameters;
+  }
+  public static set EncodeParameters(val: boolean) {
+    ChoicesRestful.EncodeParameters = val;
+  }
+  public static clearCache() {
+    ChoicesRestful.clearCache();
+  }
+}
+
 Serializer.addClass(
   "choicesByUrl",
   [
@@ -553,14 +571,14 @@ Serializer.addClass(
     "titleName",
     {
       name: "imageLinkName",
-      visibleIf: function (obj: any) {
+      visibleIf: function(obj: any) {
         return !!obj && !!obj.owner && obj.owner.getType() == "imagepicker";
       },
     },
     { name: "allowEmptyResponse:boolean", default: false },
     { name: "attachOriginalItems:boolean", default: false, visible: false },
   ],
-  function () {
-    return new ChoicesRestfull();
+  function() {
+    return new ChoicesRestful();
   }
 );

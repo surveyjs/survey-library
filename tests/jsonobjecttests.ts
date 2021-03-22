@@ -2392,3 +2392,10 @@ QUnit.test("always return false for a boolean property", function (assert) {
   );
   Serializer.removeProperty("truck", "boolProp");
 });
+QUnit.test("Serialize title with whitespace, Bug#2725", function (assert) {
+  var question = new Question("q1");
+  question.title = " ";
+  assert.equal(question.title, " ", "White space is set");
+  assert.equal(question.locTitle.isEmpty, false, "Value is not empty");
+  assert.deepEqual(question.toJSON(), {name: "q1", title: " "}, "Serialize white space");
+});

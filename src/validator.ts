@@ -19,7 +19,7 @@ export class SurveyValidator extends Base {
     super();
     this.createLocalizableString("text", this, true);
   }
-  public getSurvey(): ISurvey {
+  public getSurvey(live: boolean = false): ISurvey {
     return !!this.errorOwner && !!(<any>this.errorOwner)["getSurvey"]
       ? (<any>this.errorOwner).getSurvey()
       : null;
@@ -162,7 +162,7 @@ export class NumericValidator extends SurveyValidator {
     values: any = null,
     properties: any = null
   ): ValidatorResult {
-    if (Helpers.isValueEmpty(value)) return null;
+    if (this.isValueEmpty(value)) return null;
     if (!Helpers.isNumber(value)) {
       return new ValidatorResult(
         null,
@@ -239,7 +239,7 @@ export class TextValidator extends SurveyValidator {
     values: any = null,
     properties: any = null
   ): ValidatorResult {
-    if (value !== "" && Helpers.isValueEmpty(value)) return null;
+    if (value !== "" && this.isValueEmpty(value)) return null;
     if (!this.allowDigits) {
       var reg = /^[A-Za-z\s]*$/;
       if (!reg.test(value)) {
@@ -374,7 +374,7 @@ export class RegexValidator extends SurveyValidator {
     values: any = null,
     properties: any = null
   ): ValidatorResult {
-    if (!this.regex || Helpers.isValueEmpty(value)) return null;
+    if (!this.regex || this.isValueEmpty(value)) return null;
     var re = new RegExp(this.regex);
     if (Array.isArray(value)) {
       for (var i = 0; i < value.length; i++) {
@@ -454,7 +454,7 @@ export class ExpressionValidator extends SurveyValidator {
     properties: any = null
   ): ValidatorResult {
     if (!this.ensureConditionRunner()) return null;
-    this.conditionRunner.onRunComplete = (res) => {
+    this.conditionRunner.onRunComplete = res => {
       this.isRunningValue = false;
       if (!!this.onAsyncCompleted) {
         this.onAsyncCompleted(this.generateError(res, value, name));
@@ -503,7 +503,7 @@ Serializer.addClass("surveyvalidator", [
 Serializer.addClass(
   "numericvalidator",
   ["minValue:number", "maxValue:number"],
-  function () {
+  function() {
     return new NumericValidator();
   },
   "surveyvalidator"
@@ -511,7 +511,7 @@ Serializer.addClass(
 Serializer.addClass(
   "textvalidator",
   ["minLength:number", "maxLength:number", "allowDigits:boolean"],
-  function () {
+  function() {
     return new TextValidator();
   },
   "surveyvalidator"
@@ -519,7 +519,7 @@ Serializer.addClass(
 Serializer.addClass(
   "answercountvalidator",
   ["minCount:number", "maxCount:number"],
-  function () {
+  function() {
     return new AnswerCountValidator();
   },
   "surveyvalidator"
@@ -527,7 +527,7 @@ Serializer.addClass(
 Serializer.addClass(
   "regexvalidator",
   ["regex"],
-  function () {
+  function() {
     return new RegexValidator();
   },
   "surveyvalidator"
@@ -535,7 +535,7 @@ Serializer.addClass(
 Serializer.addClass(
   "emailvalidator",
   [],
-  function () {
+  function() {
     return new EmailValidator();
   },
   "surveyvalidator"
@@ -544,7 +544,7 @@ Serializer.addClass(
 Serializer.addClass(
   "expressionvalidator",
   ["expression:condition"],
-  function () {
+  function() {
     return new ExpressionValidator();
   },
   "surveyvalidator"

@@ -257,7 +257,10 @@ export class MatrixDropdownColumn extends Base
   public getOriginalObj(): Base {
     return this.templateQuestion;
   }
-  public getSurvey(): ISurvey {
+  getClassNameProperty(): string {
+    return "cellType";
+  }
+  public getSurvey(live: boolean = false): ISurvey {
     return !!this.colOwner ? (<any>this.colOwner).survey : null;
   }
   endLoadingFromJson() {
@@ -278,7 +281,9 @@ export class MatrixDropdownColumn extends Base
   }
   public set colOwner(value: IMatrixColumnOwner) {
     this.colOwnerValue = value;
-    this.updateTemplateQuestion();
+    if (!!value) {
+      this.updateTemplateQuestion();
+    }
   }
   public locStrsChanged() {
     super.locStrsChanged();
@@ -1992,7 +1997,6 @@ export class QuestionMatrixDropdownModelBase
   private detailPanelValue: PanelModel;
   protected isRowChanging = false;
   columnsChangedCallback: () => void;
-  updateCellsCallback: () => void;
   onRenderedTableResetCallback: () => void;
   onRenderedTableCreatedCallback: (
     table: QuestionMatrixDropdownRenderedTable
@@ -2006,35 +2010,41 @@ export class QuestionMatrixDropdownModelBase
   ) => void;
 
   protected createColumnValues() {
-    return this.createNewArray("columns", (item: any) => {
-      item.colOwner = this;
-    });
+    return this.createNewArray(
+      "columns",
+      (item: any) => {
+        item.colOwner = this;
+      },
+      (item: any) => {
+        item.colOwner = null;
+      }
+    );
   }
 
   constructor(name: string) {
     super(name);
-    var self = this;
     this.createItemValues("choices");
     this.createLocalizableString("optionsCaption", this);
     this.createLocalizableString("keyDuplicationError", this);
     this.detailPanelValue = this.createNewDetailPanel();
     this.detailPanel.selectedElementInDesign = this;
     this.detailPanel.renderWidth = "100%";
-    this.registerFunctionOnPropertyValueChanged("columns", function(
-      newColumns: any
-    ) {
-      self.updateColumnsIndexes(newColumns);
-      self.clearGeneratedRows();
-      self.generatedTotalRow = null;
-      self.resetRenderedTable();
-      self.fireCallback(self.columnsChangedCallback);
+    this.registerFunctionOnPropertyValueChanged(
+      "columns",
+      (newColumns: any) => {
+        this.updateColumnsIndexes(newColumns);
+        this.generatedTotalRow = null;
+        this.clearRowsAndResetRenderedTable();
+      }
+    );
+    this.registerFunctionOnPropertyValueChanged("cellType", () => {
+      this.updateColumnsCellType();
+      this.clearRowsAndResetRenderedTable();
     });
     this.registerFunctionOnPropertiesValueChanged(
-      ["cellType", "optionsCaption", "columnColCount", "rowTitleWidth"],
-      function() {
-        self.clearGeneratedRows();
-        self.resetRenderedTable();
-        self.fireCallback(self.columnsChangedCallback);
+      ["optionsCaption", "columnColCount", "rowTitleWidth", "choices"],
+      () => {
+        this.clearRowsAndResetRenderedTable();
       }
     );
     this.registerFunctionOnPropertiesValueChanged(
@@ -2049,8 +2059,8 @@ export class QuestionMatrixDropdownModelBase
         "hasFooter",
         "detailPanelMode",
       ],
-      function() {
-        self.resetRenderedTable();
+      () => {
+        this.resetRenderedTable();
       }
     );
   }
@@ -2062,6 +2072,17 @@ export class QuestionMatrixDropdownModelBase
   }
   public get isRowsDynamic(): boolean {
     return false;
+  }
+  public itemValuePropertyChanged(
+    item: ItemValue,
+    name: string,
+    oldValue: any,
+    newValue: any
+  ) {
+    super.itemValuePropertyChanged(item, name, oldValue, newValue);
+    if (item.ownerPropertyName === "choices") {
+      this.clearRowsAndResetRenderedTable();
+    }
   }
   /**
    * Set columnLayout to 'vertical' to place columns vertically and rows horizontally. It makes sense when we have many columns and few rows.
@@ -2166,6 +2187,11 @@ export class QuestionMatrixDropdownModelBase
   private set renderedTableValue(val: QuestionMatrixDropdownRenderedTable) {
     this.setPropertyValue("renderedTable", val);
   }
+  private clearRowsAndResetRenderedTable() {
+    this.clearGeneratedRows();
+    this.resetRenderedTable();
+    this.fireCallback(this.columnsChangedCallback);
+  }
   protected resetRenderedTable() {
     if (this.lockResetRenderedTable || this.isLoadingFromJson) return;
     this.renderedTableValue = null;
@@ -2223,10 +2249,7 @@ export class QuestionMatrixDropdownModelBase
   }
   public set cellType(val: string) {
     val = val.toLowerCase();
-    if (this.cellType == val) return;
     this.setPropertyValue("cellType", val);
-    this.updateColumnsCellType();
-    this.fireCallback(this.updateCellsCallback);
   }
   private updateColumnsCellType() {
     for (var i = 0; i < this.columns.length; i++) {
@@ -2247,7 +2270,6 @@ export class QuestionMatrixDropdownModelBase
   public set columnColCount(value: number) {
     if (value < 0 || value > 4) return;
     this.setPropertyValue("columnColCount", value);
-    this.fireCallback(this.updateCellsCallback);
   }
   /**
    * Use this property to set the minimum column width.
@@ -2444,7 +2466,7 @@ export class QuestionMatrixDropdownModelBase
     }
     */
     var totalRow = {};
-    if (!Helpers.isValueEmpty(this.totalValue)) {
+    if (!this.isValueEmpty(this.totalValue)) {
       totalRow = JSON.parse(JSON.stringify(this.totalValue));
     }
     newValues["row"] = {};

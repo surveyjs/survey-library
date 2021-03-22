@@ -294,14 +294,14 @@ export class QuestionTextModel extends Question {
   }
   private get isValueLessMin(): boolean {
     return (
-      !Helpers.isValueEmpty(this.renderedMin) &&
+      !this.isValueEmpty(this.renderedMin) &&
       this.getCalculatedMinMax(this.value) <
         this.getCalculatedMinMax(this.renderedMin)
     );
   }
   private get isValueGreaterMax(): boolean {
     return (
-      !Helpers.isValueEmpty(this.renderedMax) &&
+      !this.isValueEmpty(this.renderedMax) &&
       this.getCalculatedMinMax(this.value) >
         this.getCalculatedMinMax(this.renderedMax)
     );
@@ -310,7 +310,7 @@ export class QuestionTextModel extends Question {
     return this.inputType === "date" || this.inputType === "datetime-local";
   }
   private getCalculatedMinMax(minMax: any): any {
-    if (Helpers.isValueEmpty(minMax)) return minMax;
+    if (this.isValueEmpty(minMax)) return minMax;
     return this.isDateInputType ? new Date(minMax) : minMax;
   }
   private setRenderedMinMax(
@@ -353,7 +353,7 @@ export class QuestionTextModel extends Question {
     this.setPropertyValue("step", val);
   }
   public get renderedStep(): string {
-    return Helpers.isValueEmpty(this.step) ? "any" : this.step;
+    return this.isValueEmpty(this.step) ? "any" : this.step;
   }
   isEmpty(): boolean {
     return super.isEmpty() || this.value === "";

@@ -312,6 +312,7 @@ export interface IProgressInfo {
 
 export interface IWrapperObject {
   getOriginalObj(): Base;
+  getClassNameProperty(): string;
 }
 
 export class Bindings {
@@ -418,11 +419,21 @@ export class Base {
   public static createItemValue: (item: any, type?: string) => any;
   public static itemValueLocStrChanged: (arr: Array<any>) => void;
   /**
-   * A static methods that returns true if a value underfined, null, empty string or empty array.
+   * Returns true if a value underfined, null, empty string or empty array.
+   * 
    * @param value
+   * @param trimString a boolean parameter, default value true. If true then it trims the string and functions returns true for a string that contains white spaces only.
    */
-  public isValueEmpty(value: any): boolean {
+  public isValueEmpty(value: any, trimString: boolean = true): boolean {
+    if (trimString) {
+      value = this.trimValue(value);
+    }
     return Helpers.isValueEmpty(value);
+  }
+  protected trimValue(value: any): any {
+    if (!!value && (typeof value === "string" || value instanceof String))
+      return value.trim();
+    return value;
   }
   protected IsPropertyEmpty(value: any): boolean {
     return value !== "" && this.isValueEmpty(value);
@@ -488,8 +499,14 @@ export class Base {
   public getType(): string {
     return "base";
   }
-  public getSurvey(): ISurvey {
+  public getSurvey(isLive: boolean = false): ISurvey {
     return null;
+  }
+  /**
+   * Returns true if the object is inluded into survey, otherwise returns false.
+   */
+  public get inSurvey(): boolean {
+    return !!this.getSurvey(true);
   }
   public get bindings(): Bindings {
     return this.bindingsValue;
@@ -1005,11 +1022,16 @@ export class Base {
   protected isTwoValueEquals(
     x: any,
     y: any,
-    caseInSensitive: boolean = false
+    caseInSensitive: boolean = false,
+    trimString: boolean = false
   ): boolean {
     if (caseInSensitive) {
       x = this.getValueInLowCase(x);
       y = this.getValueInLowCase(y);
+    }
+    if(trimString) {
+      x = this.trimValue(x);
+      y = this.trimValue(y);
     }
     return Helpers.isTwoValueEquals(x, y);
   }
@@ -1274,11 +1296,14 @@ export class SurveyElement extends Base implements ISurveyElement {
 
   public setSurveyImpl(value: ISurveyImpl) {
     this.surveyImplValue = value;
-    if (!this.surveyImplValue) return;
-    this.surveyDataValue = this.surveyImplValue.getSurveyData();
-    this.surveyValue = this.surveyImplValue.getSurvey();
-    this.textProcessorValue = this.surveyImplValue.getTextProcessor();
-    this.onSetData();
+    if (!this.surveyImplValue) {
+      this.surveyValue = null;
+    } else {
+      this.surveyDataValue = this.surveyImplValue.getSurveyData();
+      this.surveyValue = this.surveyImplValue.getSurvey();
+      this.textProcessorValue = this.surveyImplValue.getTextProcessor();
+      this.onSetData();
+    }
   }
   protected get surveyImpl() {
     return this.surveyImplValue;
@@ -1292,7 +1317,7 @@ export class SurveyElement extends Base implements ISurveyElement {
   public get survey(): ISurvey {
     return this.getSurvey();
   }
-  public getSurvey(): ISurvey {
+  public getSurvey(live: boolean = false): ISurvey {
     if (!!this.surveyValue) return this.surveyValue;
     if (!!this.surveyImplValue) {
       this.surveyValue = this.surveyImplValue.getSurvey();

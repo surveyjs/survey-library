@@ -926,21 +926,51 @@ export class SurveyModel extends Base
     any
   > = new Event<(sender: SurveyModel) => any, any>();
 
+  /**
+   * Use this event to create/customize actions to be displayed in a question's title.
+   * <br/> `sender` - A [Survey](https://surveyjs.io/Documentation/Library?id=SurveyModel) object that fires the event.
+   * <br/> `options.question` - A [Question](https://surveyjs.io/Documentation/Library?id=Question) object for which the event is fired.
+   * <br/> `options.actions` - A list of actions ([IActionBarItem](https://surveyjs.io/Documentation/Library?id=IActionBarItem) objects) associated with the processed question.
+   * @see IActionBarItem
+   * @see Question
+   */
   public onGetQuestionTitleActions: Event<
     (sender: SurveyModel, options: any) => any,
     any
   > = new Event<(sender: SurveyModel, options: any) => any, any>();
-
+  /**
+   * Use this event to create/customize actions to be displayed in a panel's title.
+   * <br/> `sender` - A survey object that fires the event.
+   * <br/> `options.panel` - A panel ([PanelModel](https://surveyjs.io/Documentation/Library?id=panelmodel) object) for which the event is fired.
+   * <br/> `options.actions` - A list of actions ([IActionBarItem](https://surveyjs.io/Documentation/Library?id=IActionBarItem) objects) associated with the processed panel.
+   * @see IActionBarItem
+   * @see PanelModel
+   */
   public onGetPanelTitleActions: Event<
     (sender: SurveyModel, options: any) => any,
     any
   > = new Event<(sender: SurveyModel, options: any) => any, any>();
-
+  /**
+   * Use this event to create/customize actions to be displayed in a page's title.
+   * <br/> `sender` - A survey object that fires the event.
+   * <br/> `options.page` - A page ([PageModel](https://surveyjs.io/Documentation/Library?id=pagemodel) object) for which the event is fired.
+   * <br/> `options.actions` - A list of actions ([IActionBarItem](https://surveyjs.io/Documentation/Library?id=IActionBarItem) objects) associated with the processed page.
+   * @see IActionBarItem
+   * @see PageModel
+   */
   public onGetPageTitleActions: Event<
     (sender: SurveyModel, options: any) => any,
     any
   > = new Event<(sender: SurveyModel, options: any) => any, any>();
-
+  /**
+   * Use this event to create/customize actions to be displayed in a matrix question's row.
+   * <br/> `sender` - A survey object that fires the event.
+   * <br/> `options.question` - A matrix question ([QuestionMatrixBaseModel](https://surveyjs.io/Documentation/Library?id=questionmatrixbasemodel) object) for which the event is fired.
+   * <br/> `options.row` - A matrix row for which the event is fired.
+   * <br/> `options.actions` - A list of actions ([IActionBarItem](https://surveyjs.io/Documentation/Library?id=IActionBarItem) objects) associated with the processed matrix question and row.
+   * @see IActionBarItem
+   * @see QuestionMatrixDropdownModelBase
+   */
   public onGetMatrixRowActions: Event<
     (sender: SurveyModel, options: any) => any,
     any
@@ -965,7 +995,6 @@ export class SurveyModel extends Base
 
   constructor(jsonObj: any = null) {
     super();
-    var self = this;
     if (typeof document !== "undefined") {
       SurveyModel.stylesManager = new StylesManager();
     }
@@ -984,43 +1013,38 @@ export class SurveyModel extends Base
     this.createLocalizableString("questionTitleTemplate", this, true);
 
     this.textPreProcessor = new TextPreProcessor();
-    this.textPreProcessor.onProcess = function(
-      textValue: TextPreProcessorValue
-    ) {
-      self.getProcessedTextValue(textValue);
+    this.textPreProcessor.onProcess = (textValue: TextPreProcessorValue) => {
+      this.getProcessedTextValue(textValue);
     };
     this.createNewArray(
       "pages",
-      function(value: any) {
-        self.doOnPageAdded(value);
+      (value: any) => {
+        this.doOnPageAdded(value);
       },
-      function(value: any) {
-        self.doOnPageRemoved(value);
+      (value: any) => {
+        this.doOnPageRemoved(value);
       }
     );
-    this.createNewArray("triggers", function(value: any) {
-      value.setOwner(self);
+    this.createNewArray("triggers", (value: any) => {
+      value.setOwner(this);
     });
-    this.createNewArray("calculatedValues", function(value: any) {
-      value.setOwner(self);
+    this.createNewArray("calculatedValues", (value: any) => {
+      value.setOwner(this);
     });
-    this.createNewArray("completedHtmlOnCondition", function(value: any) {
-      value.locOwner = self;
+    this.createNewArray("completedHtmlOnCondition", (value: any) => {
+      value.locOwner = this;
     });
-    this.createNewArray("navigateToUrlOnCondition", function(value: any) {
-      value.locOwner = self;
+    this.createNewArray("navigateToUrlOnCondition", (value: any) => {
+      value.locOwner = this;
     });
-    this.registerFunctionOnPropertyValueChanged(
-      "firstPageIsStarted",
-      function() {
-        self.onFirstPageIsStartedChanged();
-      }
-    );
-    this.registerFunctionOnPropertyValueChanged("mode", function() {
-      self.onModeChanged();
+    this.registerFunctionOnPropertyValueChanged("firstPageIsStarted", () => {
+      this.onFirstPageIsStartedChanged();
     });
-    this.registerFunctionOnPropertyValueChanged("progressBarType", function() {
-      self.updateProgressText();
+    this.registerFunctionOnPropertyValueChanged("mode", () => {
+      this.onModeChanged();
+    });
+    this.registerFunctionOnPropertyValueChanged("progressBarType", () => {
+      this.updateProgressText();
     });
     this.onProgressText.onCallbacksChanged = () => {
       this.updateProgressText();
@@ -1610,7 +1634,11 @@ export class SurveyModel extends Base
   }
   //ISurveyErrorOwner
   getErrorCustomText(text: string, error: SurveyError): string {
-    var options = { text: text, name: error.getErrorType(), error: error };
+    var options = {
+      text: text,
+      name: error.getErrorType(),
+      error: error,
+    };
     this.onErrorCustomText.fire(this, options);
     return options.text;
   }
@@ -2395,8 +2423,9 @@ export class SurveyModel extends Base
     if (!!this.editingObj) {
       var prop = Serializer.findProperty(this.editingObj.getType(), key);
       if (
-        !!prop &&
-        ((prop.isLocalizable && prop.isArray) || this.isEditableObjWrapper())
+        !prop ||
+        (!!prop &&
+          ((prop.isLocalizable && prop.isArray) || this.isEditableObjWrapper()))
       )
         return (<any>this.editingObj)[key];
       return this.editingObj.getPropertyValue(key);
@@ -2409,7 +2438,10 @@ export class SurveyModel extends Base
   public setDataValueCore(valuesHash: any, key: string, value: any) {
     if (!!this.editingObj) {
       var prop = Serializer.findProperty(this.editingObj.getType(), key);
-      if (!!prop && (prop.isLocalizable || this.isEditableObjWrapper())) {
+      if (
+        !prop ||
+        (!!prop && (prop.isLocalizable || this.isEditableObjWrapper()))
+      ) {
         (<any>this.editingObj)[key] = value;
       } else {
         this.editingObj.setPropertyValue(key, value);
@@ -4060,7 +4092,10 @@ export class SurveyModel extends Base
             }
           } else {
             if (uploadingCallback)
-              uploadingCallback("error", { response: response, file: file });
+              uploadingCallback("error", {
+                response: response,
+                file: file,
+              });
           }
         }
       );
@@ -4866,7 +4901,7 @@ export class SurveyModel extends Base
     if (!name) return null;
     name = name.toLowerCase();
     var res = this.variablesHash[name];
-    if (!Helpers.isValueEmpty(res)) return res;
+    if (!this.isValueEmpty(res)) return res;
     if (name.indexOf(".") > -1 || name.indexOf("[") > -1) {
       if (new ProcessValue().hasValue(name, this.variablesHash))
         return new ProcessValue().getValue(name, this.variablesHash);
@@ -4998,6 +5033,7 @@ export class SurveyModel extends Base
     this.onPageAdded.fire(this, options);
   }
   protected doOnPageRemoved(page: PageModel) {
+    page.setSurveyImpl(null);
     this.updateVisibleIndexes();
   }
   private generateNewName(elements: Array<any>, baseName: string): string {
@@ -5064,7 +5100,7 @@ export class SurveyModel extends Base
     if (!newValue) newValue = "";
     if (Helpers.isTwoValueEquals(newValue, this.getComment(name))) return;
     var commentName = name + this.commentPrefix;
-    if (Helpers.isValueEmpty(newValue)) {
+    if (this.isValueEmpty(newValue)) {
       this.deleteDataValueCore(this.valuesHash, commentName);
     } else {
       this.setDataValueCore(this.valuesHash, commentName, newValue);
@@ -5113,7 +5149,9 @@ export class SurveyModel extends Base
     );
   }
   get isClearValueOnHiddenContainer(): boolean {
-    return this.clearInvisibleValues == "onHiddenContainer";
+    return (
+      this.clearInvisibleValues == "onHiddenContainer" && !this.isShowingPreview
+    );
   }
   questionVisibilityChanged(question: IQuestion, newValue: boolean) {
     this.updateVisibleIndexes();
@@ -5129,11 +5167,17 @@ export class SurveyModel extends Base
       this.currentPageValue = this.currentPage;
     }
     this.updateVisibleIndexes();
-    this.onPageVisibleChanged.fire(this, { page: page, visible: newValue });
+    this.onPageVisibleChanged.fire(this, {
+      page: page,
+      visible: newValue,
+    });
   }
   panelVisibilityChanged(panel: IPanel, newValue: boolean) {
     this.updateVisibleIndexes();
-    this.onPanelVisibleChanged.fire(this, { panel: panel, visible: newValue });
+    this.onPanelVisibleChanged.fire(this, {
+      panel: panel,
+      visible: newValue,
+    });
   }
   questionCreated(question: IQuestion): any {
     this.onQuestionCreated.fire(this, { question: question });
@@ -5342,7 +5386,12 @@ export class SurveyModel extends Base
     return this.textPreProcessor.process(text, returnDisplayValue, doEncoding);
   }
   getSurveyMarkdownHtml(element: Base, text: string, name: string): string {
-    var options = { element: element, text: text, name: name, html: <any>null };
+    var options = {
+      element: element,
+      text: text,
+      name: name,
+      html: <any>null,
+    };
     this.onTextMarkdown.fire(this, options);
     return options.html;
   }
@@ -5612,6 +5661,9 @@ export class SurveyModel extends Base
       }
     }
   }
+  public get inSurvey(): boolean {
+    return true;
+  }
   //ISurveyImplementor
   getSurveyData(): ISurveyData {
     return this;
@@ -5665,6 +5717,12 @@ export class SurveyModel extends Base
       question.focus(), 1;
     });
     return true;
+  }
+  public getElementWrapperComponentName(element: SurveyElement): string {
+    return "survey-element-component";
+  }
+  public getElementWrapperComponentData(element: SurveyElement): any {
+    return element;
   }
   /**
    * Use this method to dispose survey model properly.

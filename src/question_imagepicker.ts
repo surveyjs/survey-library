@@ -84,7 +84,7 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
    */
   public isItemSelected(item: ItemValue): boolean {
     var val = this.value;
-    if (Helpers.isValueEmpty(val)) return false;
+    if (this.isValueEmpty(val)) return false;
     if (!this.multiSelect) return Helpers.isTwoValueEquals(val, item.value);
     if (!Array.isArray(val)) return false;
     for (var i = 0; i < val.length; i++) {
@@ -145,7 +145,7 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
   }
   private convertValToArrayForMultSelect(val: any): any {
     if (!this.multiSelect) return val;
-    if (Helpers.isValueEmpty(val) || Array.isArray(val)) return val;
+    if (this.isValueEmpty(val) || Array.isArray(val)) return val;
     return [val];
   }
   protected renderedValueFromDataCore(val: any): any {

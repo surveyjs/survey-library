@@ -4,6 +4,9 @@ import { ListModel } from "./list";
 import { PopupModel } from "./popup";
 import { unwrap } from "./utils/utils";
 
+/**
+ * Defines an individual action. Action items can be displayed in certain survey elements - in Toolbar (or action bar), in titles (of pages, panels, questions), in matrix rows (as 'expand details' or 'remove row' buttons), and etc.
+ */
 export interface IActionBarItem {
   /**
    * Unique string id

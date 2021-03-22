@@ -1316,7 +1316,7 @@ QUnit.test(
   }
 );
 
-QUnit.test("Load localized itemvalue text, bug#", function(assert) {
+QUnit.test("Load localized itemvalue text, bug#2735", function(assert) {
   var survey = new SurveyModel();
   survey.addNewPage("1");
   var question = new QuestionDropdownModelTester("q1");

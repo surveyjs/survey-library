@@ -1430,7 +1430,7 @@ QUnit.test("Single: in matrix dynamic question, Bug#2695", function(assert) {
   assert.deepEqual(matrix.value, [{ col1: "b" }], "set value into matrix");
   ComponentCollection.Instance.clear();
 });
-QUnit.test("Single: change locale, Bug#", function(assert) {
+QUnit.test("Single: change locale, Bug#2730", function(assert) {
   var json = {
     name: "newquestion",
     questionJSON: {
@@ -1460,7 +1460,7 @@ QUnit.test("Single: change locale, Bug#", function(assert) {
   survey.locale = "";
   ComponentCollection.Instance.clear();
 });
-QUnit.test("Composite: change locale, Bug#", function(assert) {
+QUnit.test("Composite: change locale, Bug#2730", function(assert) {
   var json = {
     name: "newquestion",
     elementsJSON: [

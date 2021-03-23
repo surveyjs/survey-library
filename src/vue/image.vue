@@ -26,10 +26,10 @@ import { Component, Prop } from "vue-property-decorator";
 import { QuestionImageModel } from "survey-core";
 
 @Component
-export class Image extends Vue {
+export class QuestionImage extends Vue {
   @Prop() question: QuestionImageModel;
   @Prop() css: any;
 }
-Vue.component("survey-image", Image);
-export default Image;
+Vue.component("survey-image", QuestionImage);
+export default QuestionImage;
 </script>

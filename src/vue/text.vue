@@ -41,7 +41,7 @@ import { default as QuestionVue } from "./question";
 import { QuestionTextModel } from "survey-core";
 
 @Component
-export class Text extends QuestionVue<QuestionTextModel> {
+export class QuestionText extends QuestionVue<QuestionTextModel> {
   change(event: any) {
     this.question.value = event.target.value;
   }
@@ -57,6 +57,6 @@ export class Text extends QuestionVue<QuestionTextModel> {
     return style;
   }
 }
-Vue.component("survey-text", Text);
-export default Text;
+Vue.component("survey-text", QuestionText);
+export default QuestionText;
 </script>

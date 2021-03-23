@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.8.37](https://github.com/surveyjs/survey-library/compare/v1.8.36...v1.8.37) (2021-03-23)
+
+
+### Bug Fixes
+
+* [Vue warn]: Do not use built-in or reserved HTML elements as component id: Text/Image [#2733](https://github.com/surveyjs/survey-library/issues/2733) ([63c2ea6](https://github.com/surveyjs/survey-library/commit/63c2ea60fb2041b7df1dd15d9ff417bb49decee7))
+* changing matrix dropdown/dynamic cellType stops unpdate DOM on changing column properties [#2714](https://github.com/surveyjs/survey-library/issues/2714) ([28849ae](https://github.com/surveyjs/survey-library/commit/28849aeb22ae9ba3b7c415b2dc79f82c7e3848c9))
+* Changing matrix dropdown/dynamic choices doesn't change choices in columns [#2715](https://github.com/surveyjs/survey-library/issues/2715) ([5b1062a](https://github.com/surveyjs/survey-library/commit/5b1062a5bc3307b912a340cf92c7f1f23c153f0f))
+* Expression parser doesn't parse correctly empty strings [#2732](https://github.com/surveyjs/survey-library/issues/2732) ([1768989](https://github.com/surveyjs/survey-library/commit/1768989b6de9abde2198411caea25f6c5d381ece))
+* Invalid loops in matrix dynamic/dropdown events [#2737](https://github.com/surveyjs/survey-library/issues/2737) ([c669d85](https://github.com/surveyjs/survey-library/commit/c669d856246b7f69d76d3e2bae85559b58f5b733))
+
 ### [1.8.36](https://github.com/surveyjs/survey-library/compare/v1.8.35...v1.8.36) (2021-03-15)
 
 

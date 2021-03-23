@@ -641,10 +641,12 @@ QUnit.test(
     survey.onMatrixCellCreated.add(function(survey, options) {
       cellQuestions.push(options.cellQuestion);
     });
+    var col1Question = undefined;
     survey.onMatrixCellValidate.add(function(survey, options) {
       if (options.value == "notallow") {
         options.error = "This cell is not allow";
       }
+      col1Question = options.getCellQuestion("col1");
     });
     var rows = matrix.visibleRows;
     assert.equal(
@@ -658,6 +660,11 @@ QUnit.test(
     cellQuestions[0].value = "allow";
     matrix.hasErrors(true);
     assert.equal(cellQuestions[0].errors.length, 0, "There is no errors");
+    assert.equal(
+      col1Question.name,
+      "col1",
+      "options.getQuestion works correctly"
+    );
   }
 );
 

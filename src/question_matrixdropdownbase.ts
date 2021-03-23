@@ -3032,10 +3032,10 @@ export class QuestionMatrixDropdownModelBase
     columnName: string,
     rowValue: any
   ): any {
-    var self = this;
-    var getQuestion = function(colName: any) {
-      for (var i = 0; i < self.columns.length; i++) {
-        if (self.columns[i].name === colName) {
+    var getQuestion = (colName: any) => {
+      for (var i = 0; i < row.cells.length; i++) {
+        var col = row.cells[i].column;
+        if (!!col && col.name === colName) {
           return row.cells[i].question;
         }
       }

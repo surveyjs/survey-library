@@ -3034,7 +3034,7 @@ export class QuestionMatrixDropdownModelBase
   ): any {
     var self = this;
     var getQuestion = function(colName: any) {
-      for (var i = 0; self.columns.length; i++) {
+      for (var i = 0; i < self.columns.length; i++) {
         if (self.columns[i].name === colName) {
           return row.cells[i].question;
         }
@@ -3067,22 +3067,7 @@ export class QuestionMatrixDropdownModelBase
     rowValue: any
   ): SurveyError {
     if (!this.survey) return;
-    var self = this;
-    var getQuestion = function(colName: any) {
-      for (var i = 0; self.columns.length; i++) {
-        if (self.columns[i].name === colName) {
-          return row.cells[i].question;
-        }
-      }
-      return null;
-    };
-    var options = {
-      row: row,
-      columnName: columnName,
-      rowValue: rowValue,
-      value: rowValue[columnName],
-      getCellQuestion: getQuestion,
-    };
+    var options = this.getOnCellValueChangedOptions(row, columnName, rowValue);
     return this.survey.matrixCellValidate(this, options);
   }
   get isValidateOnValueChanging(): boolean {

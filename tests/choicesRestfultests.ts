@@ -45,8 +45,12 @@ class ChoicesRestfulTester extends ChoicesRestful {
     this.sentRequestCounter++;
     this.lastProcesedUrl = this.processedUrl;
     if (this.processedUrl.indexOf("empty") > -1) this.onLoad([]);
-    if (this.processedUrl.indexOf("countries") > -1)
+    if (this.processedUrl.indexOf("countries") > -1) {
       this.onLoad(getCountries());
+    }
+    if (this.processedUrl.indexOf("localizedstrings") > -1) {
+      this.onLoad(getLocalized());
+    }
     if (!!this.items) {
       this.onLoad(this.items);
       return;
@@ -1347,6 +1351,27 @@ QUnit.test("Load localized itemvalue text, bug#2735", function(assert) {
   survey.locale = "";
 });
 
+QUnit.test("Load localized strings", function(assert) {
+  var survey = new SurveyModel();
+  survey.addNewPage("1");
+  var question = new QuestionDropdownModelTester("q1");
+  question.choicesByUrl.url = "localizedstrings";
+  question.choicesByUrl.path = "RestResponse;result";
+  survey.pages[0].addQuestion(question);
+  survey.currentPageNo = 0;
+  question.onSurveyLoad();
+  assert.equal(
+    question.visibleChoices.length,
+    1,
+    "We have loaded visible choices"
+  );
+  var loctText = question.visibleChoices[0].locText;
+  assert.equal(loctText.renderedHtml, "item1 en", "Default locale");
+  survey.locale = "de";
+  assert.equal(loctText.renderedHtml, "item1 de", "de locale");
+  survey.locale = "";
+});
+
 function getCACities() {
   return ["Los Angeles", "San Francisco"];
 }
@@ -1391,6 +1416,19 @@ function getCountries(): any {
           locName: { en: "American Samoa" },
           alpha2_code: "AS",
           alpha3_code: "ASM",
+        },
+      ],
+    },
+  };
+}
+
+function getLocalized(): any {
+  return {
+    RestResponse: {
+      result: [
+        {
+          value: 1,
+          title: { en: "item1 en", de: "item1 de" },
         },
       ],
     },

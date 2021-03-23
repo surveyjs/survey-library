@@ -429,8 +429,8 @@ export class ChoicesRestful extends Base {
         var value = !!this.getItemValueCallback
           ? this.getItemValueCallback(itemValue)
           : this.getValue(itemValue);
-        var title = this.getTitle(itemValue);
-        var item = new ItemValue(value, title);
+        var item = new ItemValue(value);
+        this.setTitle(item, itemValue);
         this.setCustomProperties(item, itemValue);
         if (this.attachOriginalItems) {
           item.originalItem = itemValue;
@@ -514,9 +514,15 @@ export class ChoicesRestful extends Base {
     if (len < 1) return null;
     return item[Object.keys(item)[0]];
   }
-  private getTitle(item: any): any {
+  private setTitle(item: ItemValue, itemValue: any): any {
     var title = this.titleName ? this.titleName : "title";
-    return this.getValueCore(item, title);
+    var val = this.getValueCore(itemValue, title);
+    if (!val) return;
+    if (typeof val === "string") {
+      item.text = val;
+    } else {
+      item.locText.setJson(val);
+    }
   }
   private getImageLink(item: any): any {
     var imageLink = this.imageLinkName ? this.imageLinkName : "imageLink";

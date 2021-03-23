@@ -39,24 +39,19 @@ frameworks.forEach(framework => {
     const getPosition = ClientFunction(() =>
       document.documentElement.innerHTML.indexOf("Please answer the question")
     );
-    let position;
-    let surveyResult;
-
     await t.click(`input[value=Complete]`);
 
-    position = await getPosition();
+    const position = await getPosition();
     assert.notEqual(position, -1);
 
-    surveyResult = await getSurveyResult();
+    const surveyResult = await getSurveyResult();
     assert.equal(typeof surveyResult, `undefined`);
   });
 
   test(`choose value`, async t => {
-    let surveyResult;
-
     await t.click(`input[value=Nissan]`).click(`input[value=Complete]`);
 
-    surveyResult = await getSurveyResult();
+    const surveyResult = await getSurveyResult();
     assert.equal(surveyResult.car, "Nissan");
   });
 
@@ -79,65 +74,49 @@ frameworks.forEach(framework => {
   });
 
   test(`change choices order`, async t => {
-    const getChoicesCount = ClientFunction(
-      () =>
-        document.querySelectorAll(
-          `div[id*=sq_1] fieldset .sv_q_checkbox_control_item`
-        ).length
-    );
+    const getChoicesCount = ClientFunction(() => document.querySelectorAll(
+      `div[id*=sq_1] fieldset .sv_q_checkbox_control_item`).length);
     const getFirst = Selector(
-      "div[id*=sq_1] fieldset > div:nth-child(2) > div",
-      {
-        index: 0
-      }
-    );
+      "div[id*=sq_1] fieldset > .sv_q_select_column:nth-child(1) > div", { index: 0 });
     const getSecond = Selector(
-      "div[id*=sq_1] fieldset > div:nth-child(3) > div",
-      {
-        index: 0
-      }
-    );
-    let rnd_count = 0;
-    let first, second, first_2;
-    let choicesCount = await getChoicesCount();
+      "div[id*=sq_1] fieldset > .sv_q_select_column:nth-child(2) > div", { index: 0 });
 
-    // asc
+    //asc
     await setOptions("car", { choicesOrder: "asc" });
-    first = await getFirst();
-    second = await getSecond();
+    let first = await getFirst();
+    let second = await getSecond();
 
     assert.equal(first.textContent.trim(), "Audi");
     assert.equal(second.textContent.trim(), "BMW");
 
-    // desc
+    //desc
     await setOptions("car", { choicesOrder: "desc" });
     first = await getFirst();
     second = await getSecond();
     assert.equal(first.textContent.trim(), "Volkswagen");
     assert.equal(second.textContent.trim(), "Vauxhall");
 
-    // rnd
+    //random
+    const choicesCount = await getChoicesCount();
     if (choicesCount === 1) {
       assert(false, `need to more than one choices`);
     }
 
+    let random_count = 0;
     for (let i = 0; i < 15; i++) {
       await setOptions("car", { choicesOrder: "asc" });
       await setOptions("car", { choicesOrder: "random" });
-      first_2 = await getFirst();
+      const first_2 = await getFirst();
 
       if (first.textContent.trim() !== first_2.textContent.trim()) {
-        rnd_count++;
+        random_count++;
       }
-
       first = first_2;
-
-      if (rnd_count >= 4) {
-        break;
-      }
+      if (random_count >= 4) break;
     }
 
-    assert(rnd_count >= 4); // because of 'none', 'asc', 'desc' and if 4 it is really rnd
+    //because of 'none', 'asc', 'desc' and if 4 it is really random
+    assert(random_count >= 4);
   });
 
   test(`check integrity`, async t => {
@@ -154,15 +133,13 @@ frameworks.forEach(framework => {
       "Toyota",
       "Citroen"
     ];
-    let i;
     const getChoicesCount = ClientFunction(
       () => document.querySelectorAll("div input[type=radio]").length
     );
-    let choicesCount;
     let checkIntegrity = async () => {
-      choicesCount = await getChoicesCount();
+      const choicesCount = await getChoicesCount();
       assert.equal(choicesCount, choices.length);
-      for (i = 0; i < choices.length; i++) {
+      for (let i = 0; i < choices.length; i++) {
         await t.click(`input[value=${choices[i]}]`);
       }
     };
@@ -181,42 +158,34 @@ frameworks.forEach(framework => {
     const getPosition = ClientFunction(() =>
       document.documentElement.innerHTML.indexOf("Other")
     );
-    let position;
 
     await setOptions("car", { hasOther: true, otherText: "Other" });
-    position = await getPosition();
+    const position = await getPosition();
     assert.notEqual(position, -1);
   });
 
   test(`check "other" choice doesn't change order`, async t => {
-    const getOtherChoice = Selector(
-      () =>
-        document.querySelectorAll(
-          `div[id*=sq_1] fieldset .sv_q_select_column:nth-child(5) div:nth-child(3)`
-        )[0]
-    );
-    let otherChoice;
+    const getOtherChoice = Selector(() => document.querySelectorAll(
+      `div[id*=sq_1] fieldset .sv_q_select_column:nth-child(4) div:nth-child(3)`)[0]);
 
     await setOptions("car", { hasOther: true, otherText: "Other" });
     await setOptions("car", { choicesOrder: "desc" });
 
-    otherChoice = await getOtherChoice();
+    const otherChoice = await getOtherChoice();
     assert.equal(otherChoice.textContent.trim(), "Other");
   });
 
   test(`choose other`, async t => {
     const getOtherInput = Selector(
-      () => document.querySelectorAll("textarea")[0]
-    );
-    let surveyResult;
+      () => document.querySelectorAll("textarea")[0]);
 
     await setOptions("car", { hasOther: true });
     await t
-      .click(`.sv_q_select_column:nth-child(5) div:nth-child(3) label input`)
+      .click(`.sv_q_select_column:nth-child(4) div:nth-child(3) label input`)
       .typeText(getOtherInput, "Zaporozec")
       .click(`input[value=Complete]`);
 
-    surveyResult = await getSurveyResult();
+    const surveyResult = await getSurveyResult();
     assert.equal(surveyResult.car, "other");
     assert.equal(surveyResult["car-Comment"], "Zaporozec");
   });
@@ -257,13 +226,12 @@ frameworks.forEach((framework) => {
   );
 
   test(`click on question title state editable`, async (t) => {
-    var newTitle = 'MyText';
-    var json = JSON.parse(await getQuestionJson());
-    var questionValue = await getQuestionValue();
+    const newTitle = 'MyText';
+    let questionValue = await getQuestionValue();
     assert.equal(questionValue, undefined);
   
-    var outerSelector = `.sv_q_title`;
-    var innerSelector = `.sv-string-editor`
+    const outerSelector = `.sv_q_title`;
+    const innerSelector = `.sv-string-editor`
     await t
       .click(outerSelector)
       .selectEditableContent(outerSelector + ` ` + innerSelector)
@@ -272,17 +240,16 @@ frameworks.forEach((framework) => {
 
     questionValue = await getQuestionValue();
     assert.equal(questionValue, undefined);
-    var json = JSON.parse(await getQuestionJson());
+    const json = JSON.parse(await getQuestionJson());
     assert.equal(json.title, newTitle);
   });
 
   test(`click on radio title state editable`, async (t) => {
-    var newTitle = 'MyText';
-    var json = JSON.parse(await getQuestionJson());
-    var questionValue = await getQuestionValue();
+    const newTitle = 'MyText';
+    let questionValue = await getQuestionValue();
     assert.equal(questionValue, undefined);
   
-    var selector = `.sv_q_radiogroup_label .sv-string-editor`
+    const selector = `.sv_q_radiogroup_label .sv-string-editor`
     await t
       .click(selector)
       .selectEditableContent(selector)
@@ -291,7 +258,7 @@ frameworks.forEach((framework) => {
 
     questionValue = await getQuestionValue();
     assert.equal(questionValue, undefined);
-    var json = JSON.parse(await getQuestionJson());
+    const json = JSON.parse(await getQuestionJson());
     assert.equal(json.choices[0].text, newTitle);
   });
 });

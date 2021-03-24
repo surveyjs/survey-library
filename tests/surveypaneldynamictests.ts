@@ -856,6 +856,11 @@ QUnit.test("PanelDynamic, keyName + hasError + getAllErrors", function(assert) {
     "There is the error panel[0].q1 = val1 and panel[1].q1 = val1"
   );
   assert.equal(
+    (<Question>panel.panels[1].questions[0]).hasVisibleErrors,
+    true,
+    "We have visible errors now"
+  );
+  assert.equal(
     panel.errors.length,
     0,
     "There is no errors in the panel question itself"
@@ -870,6 +875,11 @@ QUnit.test("PanelDynamic, keyName + hasError + getAllErrors", function(assert) {
     panel.hasErrors(true),
     false,
     "There is no error panel[0].q1 = val1 and panel[1].q1 = val2"
+  );
+  assert.equal(
+    (<Question>panel.panels[1].questions[0]).hasVisibleErrors,
+    false,
+    "We do not have visible errors"
   );
   assert.equal(
     panel.getAllErrors().length,

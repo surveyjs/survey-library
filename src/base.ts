@@ -420,7 +420,7 @@ export class Base {
   public static itemValueLocStrChanged: (arr: Array<any>) => void;
   /**
    * Returns true if a value underfined, null, empty string or empty array.
-   * 
+   *
    * @param value
    * @param trimString a boolean parameter, default value true. If true then it trims the string and functions returns true for a string that contains white spaces only.
    */
@@ -1029,7 +1029,7 @@ export class Base {
       x = this.getValueInLowCase(x);
       y = this.getValueInLowCase(y);
     }
-    if(trimString) {
+    if (trimString) {
       x = this.trimValue(x);
       y = this.trimValue(y);
     }
@@ -1181,12 +1181,14 @@ export class SurveyElement extends Base implements ISurveyElement {
     super();
     this.name = name;
     this.createNewArray("errors");
-    var self = this;
-    this.registerFunctionOnPropertyValueChanged("isReadOnly", function() {
-      self.onReadOnlyChanged();
+    this.registerFunctionOnPropertyValueChanged("isReadOnly", () => {
+      this.onReadOnlyChanged();
     });
-    this.registerFunctionOnPropertyValueChanged("state", function() {
-      if (self.stateChangedCallback) self.stateChangedCallback();
+    this.registerFunctionOnPropertyValueChanged("state", () => {
+      if (this.stateChangedCallback) this.stateChangedCallback();
+    });
+    this.registerFunctionOnPropertyValueChanged("errors", () => {
+      this.updateVisibleErrors();
     });
   }
   /**
@@ -1410,7 +1412,7 @@ export class SurveyElement extends Base implements ISurveyElement {
     this.setPropertyValue("errors", val);
   }
   @property({ defaultValue: false }) hasVisibleErrors: boolean;
-  protected updateVisibleErrors() {
+  private updateVisibleErrors() {
     var counter = 0;
     for (var i = 0; i < this.errors.length; i++) {
       if (this.errors[i].visible) counter++;

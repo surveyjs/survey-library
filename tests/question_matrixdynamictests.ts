@@ -333,12 +333,28 @@ QUnit.test("Matrixdynamic duplicationError", function(assert) {
   assert.equal(
     question.visibleRows[0].getQuestionByColumnName("column1").errors.length,
     0,
-    "There is no errors in the first row"
+    "There is no errors in the first row: errors.length"
+  );
+  assert.equal(
+    question.visibleRows[0].getQuestionByColumnName("column1").hasVisibleErrors,
+    false,
+    "There is no errors in the first row: hasVisibleErrors"
   );
   assert.equal(
     question.visibleRows[1].getQuestionByColumnName("column1").errors.length,
     1,
-    "There is one error in the second row"
+    "There is one error in the second row: errors.length"
+  );
+  assert.equal(
+    question.visibleRows[1].getQuestionByColumnName("column1").errors[0]
+      .visible,
+    true,
+    "There is one error in the second row: error is visible"
+  );
+  assert.equal(
+    question.visibleRows[1].getQuestionByColumnName("column1").hasVisibleErrors,
+    true,
+    "There is one error in the second row: hasVisibleErrors"
   );
   question.value = [{ column1: "val1" }, { column1: "val2" }];
   assert.equal(

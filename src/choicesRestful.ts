@@ -566,6 +566,17 @@ export class ChoicesRestfull extends ChoicesRestful {
   public static clearCache() {
     ChoicesRestful.clearCache();
   }
+  public static get onBeforeSendRequest(): (
+    sender: ChoicesRestful,
+    options: { request: XMLHttpRequest }
+  ) => void {
+    return ChoicesRestful.onBeforeSendRequest;
+  }
+  public static set onBeforeSendRequest(
+    val: (sender: ChoicesRestful, options: { request: XMLHttpRequest }) => void
+  ) {
+    ChoicesRestful.onBeforeSendRequest = val;
+  }
 }
 
 Serializer.addClass(

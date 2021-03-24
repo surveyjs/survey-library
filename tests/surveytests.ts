@@ -3174,6 +3174,9 @@ QUnit.test("merge values", function(assert) {
 
   survey.doMergeValues({ val2: { val2: 2 } }, dest);
   assert.deepEqual({ val: 1, val2: { val1: "str", val2: 2 } }, dest);
+  var a = "test";
+  survey.doMergeValues({ val: 1 }, a);
+  assert.equal(a, "test", "Do nothing if dest is string");
 });
 function percentageToNum(width: string): Number {
   width = width.replace("%", "");

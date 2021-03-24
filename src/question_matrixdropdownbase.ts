@@ -3032,10 +3032,10 @@ export class QuestionMatrixDropdownModelBase
     columnName: string,
     rowValue: any
   ): any {
-    var self = this;
-    var getQuestion = function(colName: any) {
-      for (var i = 0; self.columns.length; i++) {
-        if (self.columns[i].name === colName) {
+    var getQuestion = (colName: any) => {
+      for (var i = 0; i < row.cells.length; i++) {
+        var col = row.cells[i].column;
+        if (!!col && col.name === colName) {
           return row.cells[i].question;
         }
       }
@@ -3067,22 +3067,7 @@ export class QuestionMatrixDropdownModelBase
     rowValue: any
   ): SurveyError {
     if (!this.survey) return;
-    var self = this;
-    var getQuestion = function(colName: any) {
-      for (var i = 0; self.columns.length; i++) {
-        if (self.columns[i].name === colName) {
-          return row.cells[i].question;
-        }
-      }
-      return null;
-    };
-    var options = {
-      row: row,
-      columnName: columnName,
-      rowValue: rowValue,
-      value: rowValue[columnName],
-      getCellQuestion: getQuestion,
-    };
+    var options = this.getOnCellValueChangedOptions(row, columnName, rowValue);
     return this.survey.matrixCellValidate(this, options);
   }
   get isValidateOnValueChanging(): boolean {

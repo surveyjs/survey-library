@@ -9,7 +9,7 @@
             <div
               v-if="
                 survey.isNavigationButtonsShowing === 'top' ||
-                survey.isNavigationButtonsShowing === 'both'
+                  survey.isNavigationButtonsShowing === 'both'
               "
               :class="css.footer"
             >
@@ -29,7 +29,7 @@
             <div
               v-if="
                 survey.isNavigationButtonsShowing === 'bottom' ||
-                survey.isNavigationButtonsShowing === 'both'
+                  survey.isNavigationButtonsShowing === 'both'
               "
               :class="css.footer"
             >
@@ -60,13 +60,13 @@
             <survey-navigation
               v-if="
                 survey.isNavigationButtonsShowing === 'top' ||
-                survey.isNavigationButtonsShowing === 'both'
+                  survey.isNavigationButtonsShowing === 'both'
               "
               :survey="survey"
               :css="css"
             />
             <survey-page
-              :id="survey.currentPage.id"
+              :id="currentPageId"
               :survey="survey"
               :page="survey.currentPage"
               :css="css"
@@ -85,7 +85,7 @@
             <survey-navigation
               v-if="
                 survey.isNavigationButtonsShowing === 'bottom' ||
-                survey.isNavigationButtonsShowing === 'both'
+                  survey.isNavigationButtonsShowing === 'both'
               "
               :survey="survey"
               :css="css"
@@ -133,14 +133,14 @@ import Vue from "vue";
 import { Component, Prop, Watch } from "vue-property-decorator";
 import { surveyCss } from "survey-core";
 import { VueSurveyModel as SurveyModel } from "./surveyModel";
-import { StylesManager } from "survey-core";
+import { StylesManager, Base } from "survey-core";
 import { BaseVue } from "./base";
-import { Base } from "survey-core";
 
 @Component
 export class Survey extends BaseVue {
   @Prop() survey: SurveyModel;
   processedCompletedHtmlValue: string;
+  currentPageId: number = 1;
 
   forceUpdate() {
     this.$forceUpdate();
@@ -163,6 +163,9 @@ export class Survey extends BaseVue {
   private surveyOnMounted() {
     if (!this.survey) return;
     Vue.set(this.survey, "currentPage", this.survey.currentPage);
+    this.survey.onCurrentPageChanged.add((sender, options) => {
+      this.currentPageId++;
+    });
     var el = this.$el;
     if (el) this.survey.doAfterRenderSurvey(el);
     this.survey.renderCallback = this.forceUpdate;
@@ -206,10 +209,10 @@ export class Survey extends BaseVue {
 
 // TODO: make this functionality available via surveyCss in all examples
 Object.defineProperty(Survey, "cssType", {
-  get: function () {
+  get: function() {
     return surveyCss.currentType;
   },
-  set: function (newType) {
+  set: function(newType) {
     StylesManager.applyTheme(newType);
   },
   enumerable: true,

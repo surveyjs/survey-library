@@ -20,11 +20,10 @@
 
 <script lang="ts">
 import Vue from "vue";
-import { Component, Prop } from "vue-property-decorator";
+import { Component, Prop, Watch } from "vue-property-decorator";
 import { SurveyModel } from "survey-core";
 import { PageModel } from "survey-core";
 import { Base } from "survey-core";
-import { PanelModelBase, PanelModel, QuestionRowModel } from "survey-core";
 import { BaseVue } from "./base";
 
 @Component
@@ -34,22 +33,22 @@ export class Page extends BaseVue {
   @Prop() css: Object;
 
   isCurrentPageChanged: boolean = false;
+  @Watch("page")
+  onPagePropertyChanged(value: string, oldValue: string) {
+    this.isCurrentPageChanged = true;
+  }
   protected getModel(): Base {
     return this.page;
   }
   protected onMounted() {
     if (this.survey) {
       this.survey.afterRenderPage(this.$el as HTMLElement);
-
-      this.survey.onCurrentPageChanged.add((sender, options) => {
-        this.isCurrentPageChanged = true;
-      });
     }
   }
   protected onUpdated() {
     var self = this;
     self.survey.afterRenderPage(this.$el as HTMLElement);
-    this.$nextTick(function () {
+    this.$nextTick(function() {
       if (this.isCurrentPageChanged) {
         this.isCurrentPageChanged = false;
         self.survey.scrollToTopOnPageChange();

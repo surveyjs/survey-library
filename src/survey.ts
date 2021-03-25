@@ -41,6 +41,7 @@ import { ExpressionRunner, ConditionRunner } from "./conditions";
 import { settings } from "./settings";
 import { IActionBarItem } from "./action-bar";
 import { isMobile } from "./utils/utils";
+import { QuestionRow } from "./knockout/kopage";
 
 /**
  * The `Survey` object contains information about the survey, Pages, Questions, flow logic and etc.
@@ -5602,6 +5603,14 @@ export class SurveyModel extends Base
   public getElementWrapperComponentData(element: SurveyElement): any {
     return element;
   }
+
+  public getSurveyRowComponentName(row: QuestionRow): string {
+    return "survey-row-component";
+  }
+  public getSurveyRowComponentData(row: QuestionRow): any {
+    return row;
+  }
+  
   /**
    * Use this method to dispose survey model properly.
    */

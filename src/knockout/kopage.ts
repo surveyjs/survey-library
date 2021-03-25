@@ -30,6 +30,10 @@ export class QuestionRow extends QuestionRowModel {
     }
   }
 
+  public get survey() {
+    return this.panel.survey;
+  }
+
   public getElementWrapperComponentName(el: SurveyElement): string {
     const survey: Survey = el.survey as Survey;
     return survey.getElementWrapperComponentName(el);

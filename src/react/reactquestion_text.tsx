@@ -36,6 +36,15 @@ export class SurveyQuestionText extends SurveyQuestionUncontrolledElement<
         }, 1);
       };
     }
+    var onChange = (e: any) => {
+      if(e.target === document.activeElement) {
+        if (this.question.isInputTextUpdate) {
+          this.updateValueOnEvent(e);
+        }
+      } else {
+          this.updateValueOnEvent(e);
+      }
+    }
     var placeHolder =
       this.question.inputType === "range" || this.question.isReadOnly
         ? ""
@@ -60,7 +69,7 @@ export class SurveyQuestionText extends SurveyQuestionUncontrolledElement<
           list={this.question.dataListId}
           autoComplete={this.question.autoComplete}
           onBlur={this.updateValueOnEvent}
-          // onChange={this.updateValueOnEvent}
+          onChange={onChange}
           onKeyUp={onKeyUp}
           onKeyDown={onKeyDown}
           onCompositionUpdate={onCompositionUpdate}

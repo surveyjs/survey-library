@@ -40,7 +40,8 @@
     "build_vue_ui": "webpack --config ./build-scripts/survey-vue-ui/webpack.config.js --env.buildType dev && webpack --config ./build-scripts/survey-vue-ui/webpack.config.js --env.buildType prod",
     "build_core": "npm run build_core_dev && npm run build_core_prod",
     "build_jquery": "npm run build_jquery_dev && npm run build_jquery_prod",
-    "build_angular": "npm run build_angular_dev && npm run build_angular_prod"
+    "build_angular": "npm run build_angular_dev && npm run build_angular_prod",
+    "watch_knockout_ui": "webpack --config ./build-scripts/survey-knockout-ui/webpack.config.js --env.buildType dev --watch"
   },
   "version": "1.8.37",
   "name": "survey-library",

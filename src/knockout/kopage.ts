@@ -128,6 +128,7 @@ export class Panel extends PanelModel {
     this.onStateChanged();
   }
   public dispose() {
+    super.dispose();
     this.koCss.dispose();
     this.koErrorClass.dispose();
     this._implementor.dispose();
@@ -160,6 +161,7 @@ export class Page extends PageModel {
     this.locTitle.onChanged();
   }
   public dispose() {
+    super.dispose();
     this._implementor.dispose();
     this._implementor = undefined;
   }

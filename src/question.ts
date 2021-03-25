@@ -9,7 +9,7 @@ import {
   IConditionRunner,
   ISurveyImpl,
   IPage,
-  Event,
+  EventBase,
   ITitleOwner,
   IProgressInfo,
   Base,
@@ -80,10 +80,7 @@ export class Question extends SurveyElement
    * <br/> options.isReady - current value of isReady
    * <br/> options.oldIsReady - old value of isReady
    */
-  public onReadyChanged: Event<
-    (sender: Question, options: any) => any,
-    any
-  > = new Event<(sender: Question, options: any) => any, any>();
+  public onReadyChanged: EventBase<Question> = this.addEvent<Question>();
 
   public isReadOnlyRenderDiv() {
     return this.isReadOnly && settings.readOnlyCommentRenderMode === "div";
@@ -1786,7 +1783,6 @@ export class Question extends SurveyElement
   getAllValues(): any {
     return !!this.data ? this.data.getAllValues() : null;
   }
-  public dispose() {}
 }
 Serializer.addClass("question", [
   "!name",

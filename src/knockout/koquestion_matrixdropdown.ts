@@ -25,33 +25,33 @@ export class QuestionMatrixBaseImplementor extends QuestionImplementor {
   constructor(question: Question) {
     super(question);
     var self = this;
-    this.koCellAfterRender = function (el: any, con: any) {
+    this.koCellAfterRender = function(el: any, con: any) {
       return self.cellAfterRender(el, con);
     };
-    this.koCellQuestionAfterRender = function (el: any, con: any) {
+    this.koCellQuestionAfterRender = function(el: any, con: any) {
       return self.cellQuestionAfterRender(el, con);
     };
     this.koRecalc = ko.observable(0);
-    this.koTable = ko.pureComputed(function () {
+    this.koTable = ko.pureComputed(function() {
       self.koRecalc();
       return (<QuestionMatrixDropdownModel>self.question).renderedTable;
     });
     (<QuestionMatrixDropdownModel>(
       this.question
-    )).onRenderedTableCreatedCallback = function (
+    )).onRenderedTableCreatedCallback = function(
       table: QuestionMatrixDropdownRenderedTable
     ) {
       new ImplementorBase(table);
     };
     (<QuestionMatrixDropdownModel>(
       this.question
-    )).onRenderedTableResetCallback = function () {
+    )).onRenderedTableResetCallback = function() {
       self.koRecalc(self.koRecalc() + 1);
     };
-    this.koAddRowClick = function () {
+    this.koAddRowClick = function() {
       self.addRow();
     };
-    this.koRemoveRowClick = function (data: any) {
+    this.koRemoveRowClick = function(data: any) {
       self.removeRow(data.row);
     };
     (<any>this.question)["koTable"] = this.koTable;
@@ -61,7 +61,7 @@ export class QuestionMatrixBaseImplementor extends QuestionImplementor {
     ] = this.koCellQuestionAfterRender;
     (<any>this.question)["koAddRowClick"] = this.koAddRowClick;
     (<any>this.question)["koRemoveRowClick"] = this.koRemoveRowClick;
-    (<any>this.question)["koPanelAfterRender"] = function (el: any, con: any) {
+    (<any>this.question)["koPanelAfterRender"] = function(el: any, con: any) {
       self.panelAfterRender(el, con);
     };
   }
@@ -137,16 +137,17 @@ export class QuestionMatrixDropdown extends QuestionMatrixDropdownModel {
     return new Panel();
   }
   public dispose() {
+    super.dispose();
     this._implementor.dispose();
     this._implementor = undefined;
   }
 }
 
-Serializer.overrideClassCreator("matrixdropdown", function () {
+Serializer.overrideClassCreator("matrixdropdown", function() {
   return new QuestionMatrixDropdown("");
 });
 
-QuestionFactory.Instance.registerQuestion("matrixdropdown", (name) => {
+QuestionFactory.Instance.registerQuestion("matrixdropdown", name => {
   var q = new QuestionMatrixDropdown(name);
   q.choices = [1, 2, 3, 4, 5];
   q.rows = QuestionFactory.DefaultRows;

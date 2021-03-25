@@ -442,6 +442,7 @@ export class Base {
   private propertyHash: { [index: string]: any } = {};
   private localizableStrings: { [index: string]: LocalizableString };
   private arraysInfo: { [index: string]: any };
+  private eventList: Array<EventBase<any>> = [];
   private bindingsValue: Bindings;
   private onPropChangeFunctions: Array<{
     name: string;
@@ -457,10 +458,7 @@ export class Base {
    * options.oldValue - old value. Please note, it equals to options.newValue if property is an array
    * options.newValue - new value.
    */
-  public onPropertyChanged: Event<
-    (sender: Base, options: any) => any,
-    any
-  > = new Event<(sender: Base, options: any) => any, any>();
+  public onPropertyChanged: EventBase<Base> = this.addEvent<Base>();
   /**
    * Event that raised on changing property of the ItemValue object.
    * sender - the object that owns the property
@@ -473,7 +471,7 @@ export class Base {
   public onItemValuePropertyChanged: Event<
     (sender: Base, options: any) => any,
     any
-  > = new Event<(sender: Base, options: any) => any, any>();
+  > = this.addEvent<Base>();
 
   getPropertyValueCoreHandler: (propertiesHash: any, name: string) => any;
 
@@ -491,6 +489,16 @@ export class Base {
     CustomPropertiesCollection.createProperties(this);
     this.onBaseCreating();
     this.isCreating = false;
+  }
+  public dispose() {
+    for (var i = 0; i < this.eventList.length; i++) {
+      this.eventList[i].clear();
+    }
+  }
+  protected addEvent<T>(): EventBase<T> {
+    var res = new EventBase<T>();
+    this.eventList.push(res);
+    return res;
   }
   protected onBaseCreating() {}
   /**
@@ -1516,21 +1524,20 @@ export class Event<T extends Function, Options> {
   public onCallbacksChanged: () => void;
   protected callbacks: Array<T>;
   public get isEmpty(): boolean {
-    return this.callbacks == null || this.callbacks.length == 0;
+    return !this.callbacks || this.callbacks.length == 0;
   }
   public fire(sender: any, options: Options) {
-    if (this.callbacks == null) return;
+    if (!this.callbacks) return;
     for (var i = 0; i < this.callbacks.length; i++) {
       this.callbacks[i](sender, options);
     }
   }
   public clear() {
-    this.callbacks = [];
-    this.fireCallbackChanged();
+    this.callbacks = undefined;
   }
   public add(func: T) {
     if (this.hasFunc(func)) return;
-    if (this.callbacks == null) {
+    if (!this.callbacks) {
       this.callbacks = new Array<T>();
     }
     this.callbacks.push(func);
@@ -1553,3 +1560,8 @@ export class Event<T extends Function, Options> {
     }
   }
 }
+
+export class EventBase<T> extends Event<
+  (sender: T, options: any) => any,
+  any
+> {}

@@ -123,11 +123,11 @@ export class PopupViewModel extends Base {
     if (isVisible) {
       if (this.isModal) {
         setTimeout(() => {
-        this.setupModalPopup();
+          this.setupModalPopup();
         }, 1);
       } else {
         setTimeout(() => {
-        this.setupModelessPopup();
+          this.setupModelessPopup();
         }, 1);
       }
     }
@@ -205,6 +205,7 @@ export class PopupViewModel extends Base {
   }
 
   public dispose() {
+    super.dispose();
     this.model.onVisibilityChanged = undefined;
   }
 

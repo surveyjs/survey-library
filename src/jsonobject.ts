@@ -27,19 +27,20 @@ function ensureLocString(
 }
 
 export function property(options?: IPropertyDecoratorOptions) {
-  return function (target: any, key: string) {
+  return function(target: any, key: string) {
     if (!options || !options.localizable) {
       Object.defineProperty(target, key, {
-        get: function () {
+        get: function() {
           const value = this.getPropertyValue(key);
           if (value !== undefined) {
             return value;
           }
+          if (!!options && options.defaultValue === false) return false;
           return !!options
             ? options.defaultValue || this[options.defaultSource]
             : undefined;
         },
-        set: function (val: any) {
+        set: function(val: any) {
           this.setPropertyValue(key, val);
           if (!!options && options.onSet) {
             options.onSet(val, this);
@@ -48,7 +49,7 @@ export function property(options?: IPropertyDecoratorOptions) {
       });
     } else {
       Object.defineProperty(target, key, {
-        get: function () {
+        get: function() {
           ensureLocString(this, options, key);
           return (
             this.getLocalizableStringText(key) ||
@@ -56,7 +57,7 @@ export function property(options?: IPropertyDecoratorOptions) {
             this[options.defaultSource]
           );
         },
-        set: function (val: any) {
+        set: function(val: any) {
           ensureLocString(this, options, key);
           this.setLocalizableStringText(key, val);
           if (!!options && options.onSet) {
@@ -70,7 +71,7 @@ export function property(options?: IPropertyDecoratorOptions) {
           ? "loc" + key.charAt(0).toUpperCase() + key.slice(1)
           : options.localizable.name,
         {
-          get: function () {
+          get: function() {
             ensureLocString(this, options, key);
             return this.getLocalizableString(key);
           },
@@ -99,13 +100,13 @@ function ensureArray(
 }
 
 export function propertyArray(options?: IArrayPropertyDecoratorOptions) {
-  return function (target: any, key: string) {
+  return function(target: any, key: string) {
     Object.defineProperty(target, key, {
-      get: function () {
+      get: function() {
         ensureArray(this, options, key);
         return this.getPropertyValue(key);
       },
-      set: function (val: any) {
+      set: function(val: any) {
         ensureArray(this, options, key);
         const arr = this.getPropertyValue(key);
         if (val === arr) {
@@ -488,16 +489,16 @@ export class CustomPropertiesCollection {
     ) {
       obj.createCustomLocalizableObj(prop.name);
       var locDesc = {
-        get: function () {
+        get: function() {
           return obj.getLocalizableString(prop.name);
         },
       };
       Object.defineProperty(obj, prop.serializationProperty, locDesc);
       var desc = {
-        get: function () {
+        get: function() {
           return obj.getLocalizableStringText(prop.name, prop.defaultValue);
         },
-        set: function (v: any) {
+        set: function(v: any) {
           obj.setLocalizableStringText(prop.name, v);
         },
       };
@@ -507,7 +508,7 @@ export class CustomPropertiesCollection {
       var isArrayProp = false;
       if (typeof obj.createNewArray === "function") {
         if (JsonObject.metaData.isDescendantOf(prop.className, "itemvalue")) {
-          obj.createNewArray(prop.name, function (item: any) {
+          obj.createNewArray(prop.name, function(item: any) {
             item.locOwner = obj;
             item.ownerPropertyName = prop.name;
           });
@@ -533,7 +534,7 @@ export class CustomPropertiesCollection {
             }
             return obj.getPropertyValue(prop.name, defaultValue);
           },
-          set: function (v: any) {
+          set: function(v: any) {
             if (!!prop.onSetValue) {
               prop.onSetValue(obj, v, null);
             } else {
@@ -833,7 +834,7 @@ export class JsonMetadata {
         res[dProp.name] = dProp;
       }
     }
-    return Object.keys(res).map((key) => res[key]);
+    return Object.keys(res).map(key => res[key]);
   }
   public getDynamicPropertiesByObj(
     obj: any,
@@ -930,10 +931,10 @@ export class JsonMetadata {
     var customTemplateName = res.getTemplate
       ? res.getTemplate()
       : res.getType();
-    res.getType = function () {
+    res.getType = function() {
       return customTypeName;
     };
-    res.getTemplate = function () {
+    res.getTemplate = function() {
       return customTemplateName;
     };
     CustomPropertiesCollection.createProperties(res);

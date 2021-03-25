@@ -653,7 +653,6 @@ export class PanelModelBase extends SurveyElement
       }
       this.errors = errors;
     }
-    this.updateVisibleErrors();
   }
   //ISurveyErrorOwner
   getErrorCustomText(text: string, error: SurveyError): string {

@@ -2731,6 +2731,7 @@ export class SurveyModel extends Base
   }
   public mergeValues(src: any, dest: any) {
     if (!dest || !src) return;
+    if (typeof dest !== "object") return;
     for (var key in src) {
       var value = src[key];
       if (value && typeof value === "object") {

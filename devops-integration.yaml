@@ -63,6 +63,10 @@ steps:
       npm install
       npm run release -- --release-as $(SurveyJSVersion)
       npm run build_prod
+      npm run build_core
+      npm run build_knockout_ui
+      npm run build_react_ui
+      npm run build_vue_ui
     displayName: "npm install and build"
 
   - script: |

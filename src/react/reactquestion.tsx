@@ -72,7 +72,9 @@ export class SurveyQuestion extends SurveyElementBase<any, any> {
       if (el && el.getAttribute("data-rendered") !== "r") {
         el.setAttribute("data-rendered", "r");
         el.setAttribute("name", this.question.name);
-        this.question.afterRender(el);
+        if (this.question.afterRender) {
+          this.question.afterRender(el);
+        }
       }
     }
   }

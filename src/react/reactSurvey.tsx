@@ -395,7 +395,7 @@ export class Survey extends SurveyElementBase<any, any>
   //ISurveyCreator
   public createQuestionElement(question: Question): JSX.Element {
     return ReactQuestionFactory.Instance.createQuestion(
-      question.isDefaultRendering()
+      !question.isDefaultRendering || question.isDefaultRendering()
         ? question.getTemplate()
         : question.getComponentName(),
       {

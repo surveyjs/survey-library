@@ -5,6 +5,7 @@ import { FlowPanelModel } from "survey-core";
 import { ReactElementFactory } from "./element-factory";
 
 import { SurveyPanel } from "./panel";
+import { ReactQuestionFactory } from "./reactquestion_factory";
 
 export class SurveyFlowPanel extends SurveyPanel {
   constructor(props: any) {
@@ -17,7 +18,7 @@ export class SurveyFlowPanel extends SurveyPanel {
     super.componentDidMount();
     if (!!this.flowPanel) {
       var self = this;
-      this.flowPanel.onCustomHtmlProducing = function () {
+      this.flowPanel.onCustomHtmlProducing = function() {
         return "";
       };
       this.flowPanel.onGetHtmlForQuestion = self.renderQuestion;
@@ -131,6 +132,6 @@ export class SurveyFlowPanel extends SurveyPanel {
   }
 }
 
-ReactElementFactory.Instance.registerElement("flowpanel", (props) => {
+ReactQuestionFactory.Instance.registerQuestion("flowpanel", props => {
   return React.createElement(SurveyFlowPanel, props);
 });

@@ -5,6 +5,7 @@ import { ReactElementFactory } from "./element-factory";
 
 import { SurveyPanelBase } from "./panel-base";
 import { PanelModel } from "survey-core";
+import { ReactQuestionFactory } from "./reactquestion_factory";
 
 export class SurveyPanel extends SurveyPanelBase {
   private hasBeenExpanded: boolean = false;
@@ -122,6 +123,6 @@ export class SurveyPanel extends SurveyPanelBase {
   }
 }
 
-ReactElementFactory.Instance.registerElement("panel", (props) => {
+ReactQuestionFactory.Instance.registerQuestion("panel", props => {
   return React.createElement(SurveyPanel, props);
 });

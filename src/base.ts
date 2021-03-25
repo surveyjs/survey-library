@@ -218,6 +218,7 @@ export interface ISurveyElement {
   isPage: boolean;
   isPanel: boolean;
   containsErrors: boolean;
+  parent: IPanel;
   setSurveyImpl(value: ISurveyImpl): any;
   onSurveyLoad(): any;
   onFirstRendering(): any;
@@ -231,7 +232,6 @@ export interface ISurveyElement {
 }
 export interface IElement extends IConditionRunner, ISurveyElement {
   visible: boolean;
-  parent: IPanel;
   renderWidth: string;
   width: string;
   minWidth?: string;
@@ -1479,6 +1479,13 @@ export class SurveyElement extends Base implements ISurveyElement {
     return this.textProcessor.processText(html, true);
   }
   protected onSetData() {}
+  public get parent(): IPanel {
+    return this.getPropertyValue("parent", null);
+  }
+  public set parent(val: IPanel) {
+    this.setPropertyValue("parent", val);
+  }
+
   protected getPage(parent: IPanel): IPage {
     while (parent && parent.parent) parent = parent.parent;
     if (parent && parent.getType() == "page") return <IPage>(<any>parent);

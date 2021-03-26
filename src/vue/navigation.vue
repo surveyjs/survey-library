@@ -3,7 +3,7 @@
     <input
       type="button"
       :value="survey.pagePrevText"
-      v-show="!survey.isFirstPage && survey.isShowPrevButton"
+      v-show="showPrevBtn"
       :class="survey.cssNavigationPrev"
       @mousedown="buttonMouseDown"
       @click="prevPage"
@@ -11,7 +11,7 @@
     <input
       type="button"
       :value="survey.pageNextText"
-      v-show="!survey.isLastPage"
+      v-show="showNextBtn"
       :class="survey.cssNavigationNext"
       @mousedown="nextButtonMouseDown"
       @click="nextPage"
@@ -46,6 +46,9 @@ import { BaseVue } from "./base";
 @Component
 export class Navigation extends BaseVue {
   private mouseDownPage: PageModel;
+  showPrevBtn: boolean = true;
+  showNextBtn: boolean = true;
+  showCompleteBtn: boolean = true;
   @Prop() survey: SurveyModel;
   @Prop() css: any;
   protected getModel(): Base {
@@ -54,6 +57,18 @@ export class Navigation extends BaseVue {
   @Watch("survey")
   onPropertyChanged(value: string, oldValue: string) {
     this.onCreated();
+    this.updateShowButtons();
+  }
+  protected onMounted() {
+    this.survey.onCurrentPageChanged.add((sender, options) => {
+      this.updateShowButtons();
+    });
+    this.updateShowButtons();
+  }
+  private updateShowButtons() {
+    this.showPrevBtn = !this.survey.isFirstPage && this.survey.isShowPrevButton;
+    this.showNextBtn = !this.survey.isLastPage;
+    this.showCompleteBtn = this.survey.isLastPage;
   }
   nextButtonMouseDown() {
     this.mouseDownPage = this.survey.currentPage;

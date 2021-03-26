@@ -132,6 +132,6 @@ export class SurveyFlowPanel extends SurveyPanel {
   }
 }
 
-ReactQuestionFactory.Instance.registerQuestion("flowpanel", props => {
+ReactElementFactory.Instance.registerElement("flowpanel", props => {
   return React.createElement(SurveyFlowPanel, props);
 });

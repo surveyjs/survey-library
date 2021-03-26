@@ -123,6 +123,6 @@ export class SurveyPanel extends SurveyPanelBase {
   }
 }
 
-ReactQuestionFactory.Instance.registerQuestion("panel", props => {
+ReactElementFactory.Instance.registerElement("panel", props => {
   return React.createElement(SurveyPanel, props);
 });

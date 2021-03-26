@@ -1,7 +1,7 @@
 import { Question } from "./question";
 import { Serializer } from "./jsonobject";
 import { QuestionFactory } from "./questionfactory";
-import { SurveyError, Event } from "./base";
+import { SurveyError, EventBase } from "./base";
 import { UploadingFileError, ExceedSizeError } from "./error";
 import { surveyLocalization } from "./surveyStrings";
 
@@ -15,10 +15,9 @@ export class QuestionFileModel extends Question {
    * <br/> sender the question object that fires the event
    * <br/> options.state new question state value.
    */
-  public onStateChanged: Event<
-    (sender: QuestionFileModel, options: any) => any,
-    any
-  > = new Event<(sender: QuestionFileModel, options: any) => any, any>();
+  public onStateChanged: EventBase<QuestionFileModel> = this.addEvent<
+    QuestionFileModel
+  >();
   public previewValue: any[] = [];
   public currentState = "empty";
   constructor(name: string) {
@@ -199,7 +198,7 @@ export class QuestionFileModel extends Question {
         if (status === "success") {
           var oldValue = this.value;
           if (Array.isArray(oldValue)) {
-            this.value = oldValue.filter((f) => f.name !== content.name);
+            this.value = oldValue.filter(f => f.name !== content.name);
           } else {
             this.value = undefined;
           }
@@ -225,9 +224,9 @@ export class QuestionFileModel extends Question {
     var loadFilesProc = () => {
       var content = <Array<any>>[];
       if (this.storeDataAsText) {
-        files.forEach((file) => {
+        files.forEach(file => {
           let fileReader = new FileReader();
-          fileReader.onload = (e) => {
+          fileReader.onload = e => {
             content = content.concat([
               { name: file.name, type: file.type, content: fileReader.result },
             ]);
@@ -284,7 +283,7 @@ export class QuestionFileModel extends Question {
       : [];
 
     if (this.storeDataAsText) {
-      newValues.forEach((value) => {
+      newValues.forEach(value => {
         var content = value.content || value;
         this.previewValue = this.previewValue.concat([
           {
@@ -296,7 +295,7 @@ export class QuestionFileModel extends Question {
       });
       if (state === "loading") this.stateChanged("loaded");
     } else {
-      newValues.forEach((value) => {
+      newValues.forEach(value => {
         var content = value.content || value;
         this.survey.downloadFile(this.name, value, (status, data) => {
           if (status === "success") {
@@ -346,7 +345,7 @@ export class QuestionFileModel extends Question {
   }
   private allFilesOk(files: File[]): boolean {
     var errorLength = this.errors ? this.errors.length : 0;
-    (files || []).forEach((file) => {
+    (files || []).forEach(file => {
       if (this.maxSize > 0 && file.size > this.maxSize) {
         this.errors.push(new ExceedSizeError(this.maxSize, this));
       }
@@ -406,7 +405,7 @@ Serializer.addClass(
     {
       name: "commentText",
       dependsOn: "hasComment",
-      visibleIf: function (obj: any) {
+      visibleIf: function(obj: any) {
         return obj.hasComment;
       },
       serializationProperty: "locCommentText",
@@ -426,11 +425,11 @@ Serializer.addClass(
     { name: "validators", visible: false },
     { name: "needConfirmRemoveFile:boolean", visible: true, default: false },
   ],
-  function () {
+  function() {
     return new QuestionFileModel("");
   },
   "question"
 );
-QuestionFactory.Instance.registerQuestion("file", (name) => {
+QuestionFactory.Instance.registerQuestion("file", name => {
   return new QuestionFileModel(name);
 });

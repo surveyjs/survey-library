@@ -20,7 +20,7 @@ export class ActionBarViewModel extends AdaptiveElement {
     super();
     this.itemsSubscription = ko.computed(() => {
       const wrappers: AdaptiveActionBarItemWrapper[] = [];
-      ko.unwrap(_items).forEach((item) => {
+      ko.unwrap(_items).forEach(item => {
         const wrapper = new AdaptiveActionBarItemWrapper(this, item);
         wrappers.push(wrapper);
       });
@@ -29,6 +29,7 @@ export class ActionBarViewModel extends AdaptiveElement {
   }
 
   dispose() {
+    super.dispose();
     this.itemsSubscription.dispose();
   }
 }
@@ -37,7 +38,7 @@ export class AdaptiveElementImplementor extends ImplementorBase {
   constructor(model: AdaptiveElement) {
     super(model);
 
-    model.items.forEach((item) => {
+    model.items.forEach(item => {
       new ImplementorBase(item);
     });
   }
@@ -55,7 +56,7 @@ ko.components.register("sv-action-bar", {
         var widths: number[] = [];
         container
           .querySelectorAll("span.sv-action")
-          .forEach((actionContainer) => {
+          .forEach(actionContainer => {
             widths.push((<HTMLDivElement>actionContainer).offsetWidth);
           });
         return widths;

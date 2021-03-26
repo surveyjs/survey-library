@@ -1499,6 +1499,7 @@ export class PanelModelBase extends SurveyElement
     this.addElement(target, targetIndex);
   }
   public dispose() {
+    super.dispose();
     for (var i = 0; i < this.elements.length; i++) {
       this.elements[i].dispose();
     }

@@ -62,12 +62,12 @@
                 survey.isNavigationButtonsShowing === 'top' ||
                   survey.isNavigationButtonsShowing === 'both'
               "
-              :key="currentPageId"
+              :key="navId"
               :survey="survey"
               :css="css"
             />
             <survey-page
-              :key="currentPageId"
+              :key="pageId"
               :survey="survey"
               :page="survey.currentPage"
               :css="css"
@@ -88,7 +88,7 @@
                 survey.isNavigationButtonsShowing === 'bottom' ||
                   survey.isNavigationButtonsShowing === 'both'
               "
-              :key="currentPageId"
+              :key="navId"
               :survey="survey"
               :css="css"
             />
@@ -143,6 +143,12 @@ export class Survey extends BaseVue {
   @Prop() survey: SurveyModel;
   processedCompletedHtmlValue: string;
   currentPageId: number = 1;
+  get pageId() {
+    return "page" + this.currentPageId.toString();
+  }
+  get navId() {
+    return "nav" + this.currentPageId.toString();
+  }
 
   forceUpdate() {
     this.$forceUpdate();

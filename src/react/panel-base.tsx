@@ -32,10 +32,12 @@ export class SurveyPanelBase extends SurveyElementBase<any, any> {
     return this.getPanelBase();
   }
   protected getPanelBase(): PanelModelBase {
-    return this.props.element;
+    return this.props.element || this.props.question;
   }
   protected getSurvey(): SurveyModel {
-    return this.props.survey;
+    return (
+      this.props.survey || (!!this.panelBase ? this.panelBase.survey : null)
+    );
   }
   protected getCss(): any {
     return this.props.css;

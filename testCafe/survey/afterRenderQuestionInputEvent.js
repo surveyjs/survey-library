@@ -5,7 +5,7 @@ import {
   setOptions,
   initSurvey,
   getSurveyResult
-} from "../settings";
+} from "../helper";
 import { Selector, ClientFunction } from "testcafe";
 const assert = require("assert");
 const title = `afterRenderQuestionEvent`;

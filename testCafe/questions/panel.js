@@ -1,4 +1,4 @@
-import { frameworks, url, initSurvey, getQuestionValue, getPanelJson } from "../settings";
+import { frameworks, url, initSurvey, getQuestionValue, getPanelJson } from "../helper";
 import { Selector, ClientFunction } from "testcafe";
 const assert = require("assert");
 const title = `panel`;

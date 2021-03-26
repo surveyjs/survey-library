@@ -1,4 +1,4 @@
-import { frameworks, url, initSurvey, getSurveyResult } from "../settings";
+import { frameworks, url, initSurvey, getSurveyResult } from "../helper";
 const assert = require("assert");
 const title = `visibleTrigger`;
 

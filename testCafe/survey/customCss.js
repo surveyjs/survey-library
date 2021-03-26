@@ -1,4 +1,4 @@
-import { frameworks, url } from "../settings";
+import { frameworks, url } from "../helper";
 import { ClientFunction } from "testcafe";
 const assert = require("assert");
 const title = `customCss`;

@@ -1,4 +1,4 @@
-import { frameworks, url, initSurvey, getSurveyResult, getQuestionValue, getQuestionJson } from "../settings";
+import { frameworks, url, initSurvey, getSurveyResult, getQuestionValue, getQuestionJson } from "../helper";
 import { Selector } from "testcafe";
 const assert = require("assert");
 const title = `text`;

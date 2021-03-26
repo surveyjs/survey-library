@@ -1,11 +1,4 @@
-import {
-  frameworks,
-  url,
-  initSurvey,
-  getSurveyResult,
-  getData,
-  setData,
-} from "../settings";
+import { frameworks, url, initSurvey, getData, setData } from "../helper";
 import { Selector } from "testcafe";
 const assert = require("assert");
 const title = `rating`;

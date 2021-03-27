@@ -40,7 +40,7 @@ export class QuestionMultipleText extends QuestionMultipleTextModel {
   public dispose() {
     this._implementor.dispose();
     this._implementor = undefined;
-    this.koRows().dispose();
+    this.koRows = undefined;
     super.dispose();
   }
 }

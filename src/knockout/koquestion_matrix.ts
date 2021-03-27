@@ -41,8 +41,8 @@ export class QuestionMatrix extends QuestionMatrixModel {
   public dispose() {
     this._implementor.dispose();
     this._implementor = undefined;
-    this.koVisibleRows.dispose();
-    this.koVisibleColumns.dispose();
+    this.koVisibleRows = undefined;
+    this.koVisibleColumns = undefined;
     super.dispose();
   }
 }

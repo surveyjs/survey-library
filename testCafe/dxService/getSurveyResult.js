@@ -1,4 +1,4 @@
-import { frameworks, url, initSurvey } from "../settings";
+import { frameworks, url, initSurvey } from "../helper";
 import { Selector, ClientFunction } from "testcafe";
 const setupSurvey = ClientFunction(() => {
   window.survey.onSendResult.add(function(s, options) {

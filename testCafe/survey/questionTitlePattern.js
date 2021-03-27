@@ -1,4 +1,4 @@
-import { frameworks, url, joinElementInnerText, initSurvey } from "../settings";
+import { frameworks, url, joinElementInnerText, initSurvey } from "../helper";
 import { Selector, ClientFunction } from "testcafe";
 const title = `questionTitlePattern`;
 

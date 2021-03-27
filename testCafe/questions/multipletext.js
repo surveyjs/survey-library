@@ -1,5 +1,4 @@
-import { Selector } from "testcafe";
-import { frameworks, url, initSurvey, getSurveyResult, getQuestionValue, getQuestionJson } from "../settings";
+import { frameworks, url, initSurvey, getSurveyResult, getQuestionValue, getQuestionJson } from "../helper";
 
 const assert = require("assert");
 const title = `multipletext`;

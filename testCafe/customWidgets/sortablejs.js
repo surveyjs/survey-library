@@ -1,9 +1,4 @@
-import {
-  frameworks,
-  url_widgets,
-  initSurvey,
-  getSurveyResult,
-} from "../settings";
+import { frameworks, url_widgets, initSurvey, getSurveyResult } from "../helper";
 import { ClientFunction } from "testcafe";
 const assert = require("assert");
 const title = `sortablejs`;

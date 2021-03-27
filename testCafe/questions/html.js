@@ -1,4 +1,4 @@
-import { frameworks, url, setOptions, initSurvey } from "../settings";
+import { frameworks, url, setOptions, initSurvey } from "../helper";
 import { ClientFunction } from "testcafe";
 const assert = require("assert");
 const title = `html`;

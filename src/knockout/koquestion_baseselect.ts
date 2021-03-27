@@ -16,7 +16,7 @@ export class QuestionSelectBaseImplementor extends QuestionImplementor {
 export class QuestionCheckboxBaseImplementor extends QuestionSelectBaseImplementor {
   constructor(question: Question) {
     super(question);
-    (<any>this.question)["koAfterRender"] = this.koAfterRender;
+    this.setCallbackFunc("koAfterRender", this.koAfterRender);
   }
   private koAfterRender(el: any, con: any) {
     var tEl = el[0];

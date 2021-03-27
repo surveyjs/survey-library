@@ -5,25 +5,26 @@ import { QuestionFactory } from "survey-core";
 import { QuestionImplementor } from "./koquestion";
 import { Question } from "survey-core";
 
-class QuestionTextImplementor extends QuestionImplementor {
-  constructor(public question: Question) {
-    super(question);
-  }
-}
 export class QuestionText extends QuestionTextModel {
+  private _implementor: QuestionImplementor;
   constructor(name: string) {
     super(name);
   }
   protected onBaseCreating() {
     super.onBaseCreating();
-    new QuestionTextImplementor(this);
+    this._implementor = new QuestionImplementor(this);
+  }
+  public dispose() {
+    this._implementor.dispose();
+    this._implementor = undefined;
+    super.dispose();
   }
 }
 
-Serializer.overrideClassCreator("text", function () {
+Serializer.overrideClassCreator("text", function() {
   return new QuestionText("");
 });
 
-QuestionFactory.Instance.registerQuestion("text", (name) => {
+QuestionFactory.Instance.registerQuestion("text", name => {
   return new QuestionText(name);
 });

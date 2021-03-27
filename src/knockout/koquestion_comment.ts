@@ -5,18 +5,24 @@ import { QuestionCommentModel } from "survey-core";
 import { QuestionImplementor } from "./koquestion";
 
 export class QuestionComment extends QuestionCommentModel {
+  private _implementor: QuestionImplementor;
   constructor(name: string) {
     super(name);
   }
   protected onBaseCreating() {
     super.onBaseCreating();
-    new QuestionImplementor(this);
+    this._implementor = new QuestionImplementor(this);
+  }
+  public dispose() {
+    this._implementor.dispose();
+    this._implementor = undefined;
+    super.dispose();
   }
 }
 
-Serializer.overrideClassCreator("comment", function () {
+Serializer.overrideClassCreator("comment", function() {
   return new QuestionComment("");
 });
-QuestionFactory.Instance.registerQuestion("comment", (name) => {
+QuestionFactory.Instance.registerQuestion("comment", name => {
   return new QuestionComment(name);
 });

@@ -17,6 +17,7 @@ export class MultipleTextItem extends MultipleTextItemModel {
 }
 
 export class QuestionMultipleText extends QuestionMultipleTextModel {
+  private _implementor: QuestionImplementor;
   koRows: any;
   constructor(name: string) {
     super(name);
@@ -28,7 +29,7 @@ export class QuestionMultipleText extends QuestionMultipleTextModel {
   }
   protected onBaseCreating() {
     super.onBaseCreating();
-    new QuestionImplementor(this);
+    this._implementor = new QuestionImplementor(this);
   }
   protected onColCountChanged() {
     this.koRows(this.getRows());
@@ -36,17 +37,23 @@ export class QuestionMultipleText extends QuestionMultipleTextModel {
   protected createTextItem(name: string, title: string): MultipleTextItemModel {
     return new MultipleTextItem(name, title);
   }
+  public dispose() {
+    this._implementor.dispose();
+    this._implementor = undefined;
+    this.koRows().dispose();
+    super.dispose();
+  }
 }
 
-Serializer.overrideClassCreator("multipletextitem", function () {
+Serializer.overrideClassCreator("multipletextitem", function() {
   return new MultipleTextItem("");
 });
 
-Serializer.overrideClassCreator("multipletext", function () {
+Serializer.overrideClassCreator("multipletext", function() {
   return new QuestionMultipleText("");
 });
 
-QuestionFactory.Instance.registerQuestion("multipletext", (name) => {
+QuestionFactory.Instance.registerQuestion("multipletext", name => {
   var q = new QuestionMultipleText(name);
   q.addItem("text1");
   q.addItem("text2");

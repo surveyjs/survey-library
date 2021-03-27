@@ -63,13 +63,6 @@ export class Survey extends SurveyModel {
       valuesHash[key](value);
     } else {
       valuesHash[key] = ko.observable(value);
-      // if (Array.isArray(value)) {
-      //   valuesHash[key] = ko.observableArray(value);
-      //   (<any>value)["onArrayChanged"] = () =>
-      //     valuesHash[key].notifySubscribers();
-      // } else {
-      //   valuesHash[key] = ko.observable(value);
-      // }
     }
   }
   public deleteDataValueCore(valuesHash: any, key: string) {
@@ -165,7 +158,6 @@ export class Survey extends SurveyModel {
     return koTemplate;
   }
   protected onBeforeCreating() {
-    var self = this;
     this.dummyObservable = ko.observable(0);
     this.koCurrentPage = ko.observable(this.currentPage);
     this.isCurrentPageEmpty = ko.computed(
@@ -186,13 +178,13 @@ export class Survey extends SurveyModel {
     this.koCompletedStateText = ko.observable("");
     this.koCompletedStateCss = ko.observable("");
     this.koTimerInfoText = ko.observable(this.timerInfoText);
-    this.koAfterRenderPage = function(elements: any, con: any) {
+    this.koAfterRenderPage = (elements: any, con: any) => {
       var el = SurveyElement.GetFirstNonTextElement(elements);
-      if (el) self.afterRenderPage(el);
+      if (el) this.afterRenderPage(el);
     };
-    this.koAfterRenderHeader = function(elements: any, con: any) {
+    this.koAfterRenderHeader = (elements: any, con: any) => {
       var el = SurveyElement.GetFirstNonTextElement(elements);
-      if (el) self.afterRenderHeader(el);
+      if (el) this.afterRenderHeader(el);
     };
   }
   protected currentPageChanged(newValue: PageModel, oldValue: PageModel) {
@@ -238,7 +230,7 @@ export class Survey extends SurveyModel {
     );
   }
   private updateKoCurrentPage() {
-    if (this.isLoadingFromJson) return;
+    if (this.isLoadingFromJson || this.isDisposed) return;
     this.dummyObservable(this.dummyObservable() + 1);
     if (this.currentPage !== this.koCurrentPage()) {
       this.koCurrentPage(this.currentPage);
@@ -249,6 +241,7 @@ export class Survey extends SurveyModel {
     return !!pnl["koRows"] ? pnl["koRows"]() : pnl.rows;
   }
   private updateCurrentPageQuestions() {
+    if (this.isDisposed) return;
     var questions = this.currentPage ? this.currentPage.questions : [];
     for (var i = 0; i < questions.length; i++) {
       var q = questions[i];
@@ -285,6 +278,8 @@ export class Survey extends SurveyModel {
       ko.cleanNode(this.renderedElement);
       this.renderedElement.innerHTML = "";
     }
+    this.koAfterRenderPage = undefined;
+    this.koAfterRenderHeader = undefined;
     this.isCurrentPageEmpty.dispose();
     this.koIsFirstPage.dispose();
     this.koIsLastPage.dispose();

@@ -17,19 +17,19 @@ export class QuestionCheckboxImplementor extends QuestionCheckboxBaseImplementor
 export class QuestionCheckbox extends QuestionCheckboxModel {
   koAllSelected: any;
   private isAllSelectedUpdating = false;
+  private _implementor: QuestionCheckboxImplementor;
   constructor(name: string) {
     super(name);
     this.koAllSelected = ko.observable(this.isAllSelected);
-    var self = this;
-    this.koAllSelected.subscribe(function (newValue: any) {
-      if (self.isAllSelectedUpdating) return;
-      if (newValue) self.selectAll();
-      else self.clearValue();
+    this.koAllSelected.subscribe((newValue: any) => {
+      if (this.isAllSelectedUpdating) return;
+      if (newValue) this.selectAll();
+      else this.clearValue();
     });
   }
   protected onBaseCreating() {
     super.onBaseCreating();
-    new QuestionCheckboxImplementor(this);
+    this._implementor = new QuestionCheckboxImplementor(this);
   }
   public onSurveyValueChanged(newValue: any) {
     super.onSurveyValueChanged(newValue);
@@ -44,12 +44,18 @@ export class QuestionCheckbox extends QuestionCheckboxModel {
     this.koAllSelected(this.isAllSelected);
     this.isAllSelectedUpdating = false;
   }
+  public dispose() {
+    this._implementor.dispose();
+    this._implementor = undefined;
+    this.koAllSelected = undefined;
+    super.dispose();
+  }
 }
 
-Serializer.overrideClassCreator("checkbox", function () {
+Serializer.overrideClassCreator("checkbox", function() {
   return new QuestionCheckbox("");
 });
-QuestionFactory.Instance.registerQuestion("checkbox", (name) => {
+QuestionFactory.Instance.registerQuestion("checkbox", name => {
   var q = new QuestionCheckbox(name);
   q.choices = QuestionFactory.DefaultChoices;
   return q;

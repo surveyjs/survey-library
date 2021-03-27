@@ -6,6 +6,7 @@ import { Serializer } from "survey-core";
 import { QuestionFactory } from "survey-core";
 
 export class QuestionMatrix extends QuestionMatrixModel {
+  private _implementor: QuestionImplementor;
   koVisibleRows: any = <any>ko.observableArray<MatrixRowModel>();
   koVisibleColumns: any = <any>ko.observableArray<any>();
   constructor(name: string) {
@@ -15,7 +16,7 @@ export class QuestionMatrix extends QuestionMatrixModel {
   }
   protected onBaseCreating() {
     super.onBaseCreating();
-    new QuestionImplementor(this);
+    this._implementor = new QuestionImplementor(this);
   }
   protected onColumnsChanged() {
     super.onColumnsChanged();
@@ -37,12 +38,19 @@ export class QuestionMatrix extends QuestionMatrixModel {
     this.koVisibleRows(rows);
     return rows;
   }
+  public dispose() {
+    this._implementor.dispose();
+    this._implementor = undefined;
+    this.koVisibleRows.dispose();
+    this.koVisibleColumns.dispose();
+    super.dispose();
+  }
 }
 
-Serializer.overrideClassCreator("matrix", function () {
+Serializer.overrideClassCreator("matrix", function() {
   return new QuestionMatrix("");
 });
-QuestionFactory.Instance.registerQuestion("matrix", (name) => {
+QuestionFactory.Instance.registerQuestion("matrix", name => {
   var q = new QuestionMatrix(name);
   q.rows = QuestionFactory.DefaultRows;
   q.columns = QuestionFactory.DefaultColums;

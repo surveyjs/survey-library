@@ -13,154 +13,151 @@ import { Panel } from "./kopage";
 
 export class QuestionPanelDynamicImplementor extends QuestionImplementor {
   koRecalc: any;
-  koAddPanelClick: any;
-  koRemovePanelClick: any;
-  koButtonAddCss: any;
-  koButtonPrevCss: any;
-  koButtonNextCss: any;
-  koPrevPanelClick: any;
-  koNextPanelClick: any;
-  koCanAddPanel: any;
-  koCanRemovePanel: any;
-  koProgressText: any;
-  koProgress: any;
-  koPanel: any;
-  koIsList: any;
-  koIsProgressTop: any;
-  koIsProgressBottom: any;
-  koIsNextButton: any;
-  koIsPrevButton: any;
-  koIsRange: any;
-  koRangeValue: any;
-  koRangeMax: any;
   constructor(question: Question) {
     super(question);
     this.koRecalc = ko.observable(0);
     var self = this;
-    this.koAddPanelClick = function () {
-      self.addPanel();
-    };
-    this.koRemovePanelClick = function (data: any) {
-      self.removePanel(data);
-    };
-    this.koPrevPanelClick = function () {
-      (<QuestionPanelDynamic>self.question).goToPrevPanel();
-    };
-    this.koNextPanelClick = function () {
-      (<QuestionPanelDynamic>self.question).goToNextPanel();
-    };
-
-    this.koCanAddPanel = ko.pureComputed(function () {
-      self.koRecalc();
-      return (<QuestionPanelDynamic>self.question).canAddPanel;
+    this.setCallbackFunc("koAddPanelClick", () => {
+      this.addPanel();
     });
-    this.koCanRemovePanel = ko.pureComputed(function () {
-      self.koRecalc();
-      return (<QuestionPanelDynamic>self.question).canRemovePanel;
+    this.setCallbackFunc("koRemovePanelClick", (data: any) => {
+      this.removePanel(data);
     });
-    this.koIsPrevButton = ko.pureComputed(function () {
-      self.koRecalc();
-      return (<QuestionPanelDynamic>self.question).isPrevButtonShowing;
+    this.setCallbackFunc("koPrevPanelClick", () => {
+      (<QuestionPanelDynamic>this.question).goToPrevPanel();
     });
-    this.koIsNextButton = ko.pureComputed(function () {
-      self.koRecalc();
-      return (<QuestionPanelDynamic>self.question).isNextButtonShowing;
+    this.setCallbackFunc("koNextPanelClick", () => {
+      (<QuestionPanelDynamic>this.question).goToNextPanel();
     });
-    this.koIsRange = ko.pureComputed(function () {
-      self.koRecalc();
-      return (<QuestionPanelDynamic>self.question).isRangeShowing;
-    });
-    this.koPanel = ko.pureComputed(function () {
-      self.koRecalc();
-      return (<QuestionPanelDynamic>self.question).currentPanel;
-    });
-    this.koIsList = ko.pureComputed(function () {
-      self.koRecalc();
-      return (<QuestionPanelDynamic>self.question).isRenderModeList;
-    });
-    this.koIsProgressTop = ko.pureComputed(function () {
-      self.koRecalc();
-      return (<QuestionPanelDynamic>self.question).isProgressTopShowing;
-    });
-    this.koIsProgressBottom = ko.pureComputed(function () {
-      self.koRecalc();
-      return (<QuestionPanelDynamic>self.question).isProgressBottomShowing;
-    });
-
-    this.koRangeValue = ko.observable(
-      (<QuestionPanelDynamic>self.question).currentIndex
+    this.setObservaleObj(
+      "koCanAddPanel",
+      ko.pureComputed(() => {
+        this.koRecalc();
+        return (<QuestionPanelDynamic>this.question).canAddPanel;
+      })
     );
-    this.koRangeValue.subscribe(function (newValue: any) {
-      (<QuestionPanelDynamic>self.question).currentIndex = newValue;
-    });
-    this.koRangeMax = ko.pureComputed(function () {
-      self.koRecalc();
-      return (<QuestionPanelDynamic>self.question).panelCount - 1;
-    });
+    this.setObservaleObj(
+      "koCanRemovePanel",
+      ko.pureComputed(() => {
+        this.koRecalc();
+        return (<QuestionPanelDynamic>this.question).canRemovePanel;
+      })
+    );
+    this.setObservaleObj(
+      "koIsPrevButton",
+      ko.pureComputed(() => {
+        this.koRecalc();
+        return (<QuestionPanelDynamic>this.question).isPrevButtonShowing;
+      })
+    );
+    this.setObservaleObj(
+      "koIsNextButton",
+      ko.pureComputed(() => {
+        this.koRecalc();
+        return (<QuestionPanelDynamic>this.question).isNextButtonShowing;
+      })
+    );
+    this.setObservaleObj(
+      "koIsRange",
+      ko.pureComputed(() => {
+        this.koRecalc();
+        return (<QuestionPanelDynamic>this.question).isRangeShowing;
+      })
+    );
+    this.setObservaleObj(
+      "koPanel",
+      ko.pureComputed(() => {
+        this.koRecalc();
+        return (<QuestionPanelDynamic>this.question).currentPanel;
+      })
+    );
+    this.setObservaleObj(
+      "koIsList",
+      ko.pureComputed(() => {
+        this.koRecalc();
+        return (<QuestionPanelDynamic>this.question).isRenderModeList;
+      })
+    );
+    this.setObservaleObj(
+      "koIsProgressTop",
+      ko.pureComputed(() => {
+        this.koRecalc();
+        return (<QuestionPanelDynamic>this.question).isProgressTopShowing;
+      })
+    );
+    this.setObservaleObj(
+      "koIsProgressBottom",
+      ko.pureComputed(() => {
+        this.koRecalc();
+        return (<QuestionPanelDynamic>this.question).isProgressBottomShowing;
+      })
+    );
 
-    this.koButtonAddCss = ko.pureComputed(function () {
-      self.koRecalc();
-      return self.buttonAddCss;
+    let koRangeValue = ko.observable(
+      (<QuestionPanelDynamic>this.question).currentIndex
+    );
+    koRangeValue.subscribe((newValue: any) => {
+      (<QuestionPanelDynamic>this.question).currentIndex = newValue;
     });
+    this.setObservaleObj("koRangeValue", koRangeValue);
+    this.setObservaleObj(
+      "koRangeMax",
+      ko.pureComputed(() => {
+        this.koRecalc();
+        return (<QuestionPanelDynamic>this.question).panelCount - 1;
+      })
+    );
 
-    this.koButtonNextCss = ko.pureComputed(function () {
-      self.koRecalc();
-      return self.buttonNextCss;
+    this.setObservaleObj(
+      "koButtonAddCss",
+      ko.pureComputed(() => {
+        this.koRecalc();
+        return this.buttonAddCss;
+      })
+    );
+
+    this.setObservaleObj(
+      "koButtonNextCss",
+      ko.pureComputed(() => {
+        this.koRecalc();
+        return this.buttonNextCss;
+      })
+    );
+
+    this.setObservaleObj(
+      "koButtonPrevCss",
+      ko.pureComputed(() => {
+        this.koRecalc();
+        return this.buttonPrevCss;
+      })
+    );
+
+    this.setObservaleObj(
+      "koProgressText",
+      ko.pureComputed(() => {
+        this.koRecalc();
+        return (<QuestionPanelDynamic>this.question).progressText;
+      })
+    );
+
+    this.setObservaleObj(
+      "koProgress",
+      ko.pureComputed(() => {
+        this.koRecalc();
+        return this.progress;
+      })
+    );
+    this.setCallbackFunc("koPanelAfterRender", (el: any, con: any) => {
+      this.panelAfterRender(el, con);
     });
-
-    this.koButtonPrevCss = ko.pureComputed(function () {
-      self.koRecalc();
-      return self.buttonPrevCss;
-    });
-
-    this.koProgressText = ko.pureComputed(function () {
-      self.koRecalc();
-      return (<QuestionPanelDynamic>self.question).progressText;
-    });
-
-    this.koProgress = ko.pureComputed(function () {
-      self.koRecalc();
-      return self.progress;
-    });
-
-    (<any>this.question)["koAddPanelClick"] = this.koAddPanelClick;
-    (<any>this.question)["koRemovePanelClick"] = this.koRemovePanelClick;
-    (<any>this.question)["koPrevPanelClick"] = this.koPrevPanelClick;
-    (<any>this.question)["koNextPanelClick"] = this.koNextPanelClick;
-    (<any>this.question)["koCanAddPanel"] = this.koCanAddPanel;
-    (<any>this.question)["koCanRemovePanel"] = this.koCanRemovePanel;
-    (<any>this.question)["koProgressText"] = this.koProgressText;
-    (<any>this.question)["koProgress"] = this.koProgress;
-    (<any>this.question)["koPanel"] = this.koPanel;
-    (<any>this.question)["koIsList"] = this.koIsList;
-    (<any>this.question)["koIsProgressTop"] = this.koIsProgressTop;
-    (<any>this.question)["koIsProgressBottom"] = this.koIsProgressBottom;
-    (<any>this.question)["koIsPrevButton"] = this.koIsPrevButton;
-    (<any>this.question)["koIsNextButton"] = this.koIsNextButton;
-    (<any>this.question)["koIsRange"] = this.koIsRange;
-    (<any>this.question)["koRangeValue"] = this.koRangeValue;
-    (<any>this.question)["koRangeMax"] = this.koRangeMax;
-    (<any>this.question)["koButtonAddCss"] = this.koButtonAddCss;
-    (<any>this.question)["koButtonNextCss"] = this.koButtonNextCss;
-    (<any>this.question)["koButtonPrevCss"] = this.koButtonPrevCss;
-
-    (<any>this.question)["koPanelAfterRender"] = function (el: any, con: any) {
-      self.panelAfterRender(el, con);
+    (<QuestionPanelDynamic>this.question).panelCountChangedCallback = () => {
+      this.onPanelCountChanged();
     };
-    (<QuestionPanelDynamic>(
-      this.question
-    )).panelCountChangedCallback = function () {
-      self.onPanelCountChanged();
+    (<QuestionPanelDynamic>this.question).renderModeChangedCallback = () => {
+      this.onRenderModeChanged();
     };
-    (<QuestionPanelDynamic>(
-      this.question
-    )).renderModeChangedCallback = function () {
-      self.onRenderModeChanged();
-    };
-    (<QuestionPanelDynamic>(
-      this.question
-    )).currentIndexChangedCallback = function () {
-      self.onCurrentIndexChanged();
+    (<QuestionPanelDynamic>this.question).currentIndexChangedCallback = () => {
+      this.onCurrentIndexChanged();
     };
   }
   protected onPanelCountChanged() {
@@ -170,8 +167,11 @@ export class QuestionPanelDynamicImplementor extends QuestionImplementor {
     this.onCurrentIndexChanged();
   }
   protected onCurrentIndexChanged() {
+    if (this.question.isDisposed) return;
     this.koRecalc(this.koRecalc() + 1);
-    this.koRangeValue((<QuestionPanelDynamic>this.question).currentIndex);
+    this.question.koRangeValue(
+      (<QuestionPanelDynamic>this.question).currentIndex
+    );
   }
   protected addPanel() {
     (<QuestionPanelDynamic>this.question).addPanelUI();
@@ -223,25 +223,39 @@ export class QuestionPanelDynamicImplementor extends QuestionImplementor {
     var rangeMax = this.question.panelCount - 1;
     return (this.question.currentIndex / rangeMax) * 100 + "%";
   }
+  public dispose() {
+    (<QuestionPanelDynamic>this.question).panelCountChangedCallback = undefined;
+    (<QuestionPanelDynamic>this.question).renderModeChangedCallback = undefined;
+    (<QuestionPanelDynamic>(
+      this.question
+    )).currentIndexChangedCallback = undefined;
+    super.dispose();
+  }
 }
 
 export class QuestionPanelDynamic extends QuestionPanelDynamicModel {
+  private _implementor: QuestionPanelDynamicImplementor;
   constructor(name: string) {
     super(name);
   }
   protected onBaseCreating() {
     super.onBaseCreating();
-    new QuestionPanelDynamicImplementor(this);
+    this._implementor = new QuestionPanelDynamicImplementor(this);
   }
   protected createNewPanelObject(): PanelModel {
     return new Panel();
   }
+  public dispose() {
+    this._implementor.dispose();
+    this._implementor = undefined;
+    super.dispose();
+  }
 }
 
-Serializer.overrideClassCreator("paneldynamic", function () {
+Serializer.overrideClassCreator("paneldynamic", function() {
   return new QuestionPanelDynamic("");
 });
 
-QuestionFactory.Instance.registerQuestion("paneldynamic", (name) => {
+QuestionFactory.Instance.registerQuestion("paneldynamic", name => {
   return new QuestionPanelDynamic(name);
 });

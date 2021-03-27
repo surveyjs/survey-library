@@ -9,33 +9,45 @@ import {
 import { QuestionImplementor } from "./koquestion";
 
 export class QuestionCustom extends QuestionCustomModel {
+  private _implementor: QuestionImplementor;
   constructor(name: string, questionJSON: ComponentQuestionJSON) {
     super(name, questionJSON);
   }
   protected onBaseCreating() {
     super.onBaseCreating();
-    new QuestionImplementor(this);
+    this._implementor = new QuestionImplementor(this);
+  }
+  public dispose() {
+    this._implementor.dispose();
+    this._implementor = undefined;
+    super.dispose();
   }
 }
 
 export class QuestionComposite extends QuestionCompositeModel {
+  private _implementor: QuestionImplementor;
   constructor(name: string, questionJSON: ComponentQuestionJSON) {
     super(name, questionJSON);
   }
   protected onBaseCreating() {
     super.onBaseCreating();
-    new QuestionImplementor(this);
+    this._implementor = new QuestionImplementor(this);
+  }
+  public dispose() {
+    this._implementor.dispose();
+    this._implementor = undefined;
+    super.dispose();
   }
 }
 
-ComponentCollection.Instance.onCreateCustom = function (
+ComponentCollection.Instance.onCreateCustom = function(
   name: string,
   questionJSON: ComponentQuestionJSON
 ) {
   return new QuestionCustom(name, questionJSON);
 };
 
-ComponentCollection.Instance.onCreateComposite = function (
+ComponentCollection.Instance.onCreateComposite = function(
   name: string,
   questionJSON: ComponentQuestionJSON
 ) {

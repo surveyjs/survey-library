@@ -33,26 +33,36 @@ export class QuestionMatrixDynamicImplementor extends QuestionMatrixBaseImplemen
   public getKoPopupIsVisible(row: MatrixDropdownRowModelBase) {
     return <any>ko.observable(row.isDetailPanelShowing);
   }
+  public dispose() {
+    super.dispose();
+    (<any>this.question)["getKoPopupIsVisible"] = undefined;
+  }
 }
 
 export class QuestionMatrixDynamic extends QuestionMatrixDynamicModel {
+  private _implementor: QuestionMatrixDynamicImplementor;
   constructor(name: string) {
     super(name);
   }
   protected onBaseCreating() {
     super.onBaseCreating();
-    new QuestionMatrixDynamicImplementor(this);
+    this._implementor = new QuestionMatrixDynamicImplementor(this);
   }
   protected createNewDetailPanel(): PanelModel {
     return new Panel();
   }
+  public dispose() {
+    this._implementor.dispose();
+    this._implementor = undefined;
+    super.dispose();
+  }
 }
 
-Serializer.overrideClassCreator("matrixdynamic", function () {
+Serializer.overrideClassCreator("matrixdynamic", function() {
   return new QuestionMatrixDynamic("");
 });
 
-QuestionFactory.Instance.registerQuestion("matrixdynamic", (name) => {
+QuestionFactory.Instance.registerQuestion("matrixdynamic", name => {
   var q = new QuestionMatrixDynamic(name);
   q.choices = [1, 2, 3, 4, 5];
   q.rowCount = 2;

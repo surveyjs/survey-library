@@ -4,18 +4,24 @@ import { QuestionImplementor } from "./koquestion";
 import { QuestionHtmlModel } from "survey-core";
 
 export class QuestionHtml extends QuestionHtmlModel {
+  private _implementor: QuestionImplementor;
   constructor(name: string) {
     super(name);
   }
   protected onBaseCreating() {
     super.onBaseCreating();
-    new QuestionImplementor(this);
+    this._implementor = new QuestionImplementor(this);
+  }
+  public dispose() {
+    this._implementor.dispose();
+    this._implementor = undefined;
+    super.dispose();
   }
 }
 
-Serializer.overrideClassCreator("html", function () {
+Serializer.overrideClassCreator("html", function() {
   return new QuestionHtml("");
 });
-QuestionFactory.Instance.registerQuestion("html", (name) => {
+QuestionFactory.Instance.registerQuestion("html", name => {
   return new QuestionHtml(name);
 });

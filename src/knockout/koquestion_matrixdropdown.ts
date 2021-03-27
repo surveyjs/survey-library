@@ -16,54 +16,49 @@ import { PanelModel } from "survey-core";
 import { Panel } from "./kopage";
 
 export class QuestionMatrixBaseImplementor extends QuestionImplementor {
-  koCellAfterRender: any;
-  koCellQuestionAfterRender: any;
+  private _tableImplementor: ImplementorBase;
   koRecalc: any;
-  koAddRowClick: any;
-  koRemoveRowClick: any;
-  koTable: any;
   constructor(question: Question) {
     super(question);
-    var self = this;
-    this.koCellAfterRender = function(el: any, con: any) {
-      return self.cellAfterRender(el, con);
-    };
-    this.koCellQuestionAfterRender = function(el: any, con: any) {
-      return self.cellQuestionAfterRender(el, con);
-    };
     this.koRecalc = ko.observable(0);
-    this.koTable = ko.pureComputed(function() {
-      self.koRecalc();
-      return (<QuestionMatrixDropdownModel>self.question).renderedTable;
-    });
     (<QuestionMatrixDropdownModel>(
       this.question
-    )).onRenderedTableCreatedCallback = function(
+    )).onRenderedTableCreatedCallback = (
       table: QuestionMatrixDropdownRenderedTable
-    ) {
-      new ImplementorBase(table);
+    ) => {
+      if (!!this._tableImplementor) {
+        this._tableImplementor.dispose();
+      }
+      this._tableImplementor = new ImplementorBase(table);
     };
     (<QuestionMatrixDropdownModel>(
       this.question
-    )).onRenderedTableResetCallback = function() {
-      self.koRecalc(self.koRecalc() + 1);
+    )).onRenderedTableResetCallback = () => {
+      if (this.question.isDisposed) return;
+      this.koRecalc(this.koRecalc() + 1);
     };
-    this.koAddRowClick = function() {
-      self.addRow();
-    };
-    this.koRemoveRowClick = function(data: any) {
-      self.removeRow(data.row);
-    };
-    (<any>this.question)["koTable"] = this.koTable;
-    (<any>this.question)["koCellAfterRender"] = this.koCellAfterRender;
-    (<any>this.question)[
-      "koCellQuestionAfterRender"
-    ] = this.koCellQuestionAfterRender;
-    (<any>this.question)["koAddRowClick"] = this.koAddRowClick;
-    (<any>this.question)["koRemoveRowClick"] = this.koRemoveRowClick;
-    (<any>this.question)["koPanelAfterRender"] = function(el: any, con: any) {
-      self.panelAfterRender(el, con);
-    };
+    this.setObservaleObj(
+      "koTable",
+      ko.pureComputed(() => {
+        this.koRecalc();
+        return (<QuestionMatrixDropdownModel>this.question).renderedTable;
+      })
+    );
+    this.setCallbackFunc("koCellAfterRender", (el: any, con: any) => {
+      return this.cellAfterRender(el, con);
+    });
+    this.setCallbackFunc("koCellQuestionAfterRender", (el: any, con: any) => {
+      return this.cellQuestionAfterRender(el, con);
+    });
+    this.setCallbackFunc("koAddRowClick", () => {
+      this.addRow();
+    });
+    this.setCallbackFunc("koRemoveRowClick", (data: any) => {
+      this.removeRow(data.row);
+    });
+    this.setCallbackFunc("koPanelAfterRender", (el: any, con: any) => {
+      this.panelAfterRender(el, con);
+    });
   }
   protected getQuestionTemplate(): string {
     return "matrixdynamic";
@@ -112,15 +107,16 @@ export class QuestionMatrixBaseImplementor extends QuestionImplementor {
     this.question.survey.afterRenderPanel(con, el);
   }
   public dispose() {
-    super.dispose();
-    this.koTemplateName.dispose();
-    this.koTable.dispose();
+    if (!!this._tableImplementor) {
+      this._tableImplementor.dispose();
+    }
     (<QuestionMatrixDropdownModel>(
       this.question
     )).onRenderedTableCreatedCallback = undefined;
     (<QuestionMatrixDropdownModel>(
       this.question
     )).onRenderedTableResetCallback = undefined;
+    super.dispose();
   }
 }
 

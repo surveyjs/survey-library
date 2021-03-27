@@ -5610,7 +5610,7 @@ export class SurveyModel extends Base
   public getSurveyRowComponentData(row: QuestionRow): any {
     return row;
   }
-  
+
   /**
    * Use this method to dispose survey model properly.
    */
@@ -5620,6 +5620,7 @@ export class SurveyModel extends Base
       this.pages[i].dispose();
     }
     this.pages.splice(0, this.pages.length);
+    this.currentPage = null;
   }
 }
 

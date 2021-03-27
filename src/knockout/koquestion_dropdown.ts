@@ -6,33 +6,41 @@ import { QuestionSelectBaseImplementor } from "./koquestion_baseselect";
 import { Question } from "survey-core";
 
 class QuestionDropdownImplementor extends QuestionSelectBaseImplementor {
-  koControlClass = ko.pureComputed(() => {
-    return (
-      this.question.koCss().control +
-      (this.question.errors.length > 0
-        ? " " + this.question.koCss().onError
-        : "")
-    );
-  });
   constructor(question: Question) {
     super(question);
-    (<any>this.question)["koControlClass"] = this.koControlClass;
+    this.setObservaleObj(
+      "koControlClass",
+      ko.pureComputed(() => {
+        return (
+          this.question.koCss().control +
+          (this.question.errors.length > 0
+            ? " " + this.question.koCss().onError
+            : "")
+        );
+      })
+    );
   }
 }
 
 export class QuestionDropdown extends QuestionDropdownModel {
+  private _implementor: QuestionDropdownImplementor;
   constructor(name: string) {
     super(name);
   }
   protected onBaseCreating() {
     super.onBaseCreating();
-    new QuestionDropdownImplementor(this);
+    this._implementor = new QuestionDropdownImplementor(this);
+  }
+  public dispose() {
+    this._implementor.dispose();
+    this._implementor = undefined;
+    super.dispose();
   }
 }
-Serializer.overrideClassCreator("dropdown", function () {
+Serializer.overrideClassCreator("dropdown", function() {
   return new QuestionDropdown("");
 });
-QuestionFactory.Instance.registerQuestion("dropdown", (name) => {
+QuestionFactory.Instance.registerQuestion("dropdown", name => {
   var q = new QuestionDropdown(name);
   q.choices = QuestionFactory.DefaultChoices;
   return q;

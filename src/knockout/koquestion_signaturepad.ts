@@ -5,15 +5,21 @@ import { QuestionImplementor } from "./koquestion";
 import { Question } from "survey-core";
 
 export class QuestionSignaturePad extends QuestionSignaturePadModel {
+  private _implementor: QuestionImplementor;
   constructor(name: string) {
     super(name);
   }
   protected onBaseCreating() {
     super.onBaseCreating();
-    new QuestionImplementor(this);
+    this._implementor = new QuestionImplementor(this);
+  }
+  public dispose() {
+    this._implementor.dispose();
+    this._implementor = undefined;
+    super.dispose();
   }
 }
 
-Serializer.overrideClassCreator("signaturepad", function () {
+Serializer.overrideClassCreator("signaturepad", function() {
   return new QuestionSignaturePad("");
 });

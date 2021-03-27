@@ -65,6 +65,10 @@ export class QuestionRow extends QuestionRowModel {
       });
     }
   }
+  public dispose() {
+    super.dispose();
+    this.koElementAfterRender = undefined;
+  }
 }
 
 export class PanelImplementorBase extends ImplementorBase {
@@ -132,11 +136,11 @@ export class Panel extends PanelModel {
     this.onStateChanged();
   }
   public dispose() {
-    super.dispose();
     this.koCss.dispose();
     this.koErrorClass.dispose();
     this._implementor.dispose();
     this._implementor = undefined;
+    super.dispose();
   }
 }
 

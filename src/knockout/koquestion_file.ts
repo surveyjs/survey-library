@@ -6,25 +6,97 @@ import { QuestionImplementor } from "./koquestion";
 import { Question } from "survey-core";
 import { confirmAction, detectIEOrEdge, loadFileFromBase64 } from "survey-core";
 
-export class QuestionFile extends QuestionFileModel {
-  koState: any = ko.observable<string>("empty");
-  koHasValue: any = ko.computed(() => this.koState() === "loaded");
-  koData: any = ko.computed(() => {
-    if (this.koHasValue()) {
-      return this.previewValue;
-    }
-    return [];
-  });
-  koInputTitle: any = ko.observable<string>();
-  koChooseFileClass: any = ko.pureComputed(() => {
-    return (
-      this.koCss().chooseFile +
-      (this.isReadOnly ? " " + this.koCss().disabled : "")
+class QuestionFileImplementor extends QuestionImplementor {
+  constructor(question: Question) {
+    super(question);
+    this.setObservaleObj("koState", ko.observable<string>("empty"));
+    this.setObservaleObj(
+      "koHasValue",
+      ko.computed(() => this.question.koState() === "loaded")
     );
-  });
+    this.setObservaleObj(
+      "koData",
+      ko.computed(() => {
+        if (this.question.koHasValue()) {
+          return this.question.previewValue;
+        }
+        return [];
+      })
+    );
+    this.setObservaleObj("koInputTitle", ko.observable<string>());
+    this.setObservaleObj(
+      "koChooseFileClass",
+      ko.pureComputed(() => {
+        return (
+          this.question.koCss().chooseFile +
+          (this.question.isReadOnly ? " " + this.question.koCss().disabled : "")
+        );
+      })
+    );
+    this.setCallbackFunc("ondrop", (data: any, event: any) => {
+      if (this.question.isReadOnly) return false;
+      event.preventDefault();
+      let src = event.originalEvent
+        ? event.originalEvent.dataTransfer
+        : event.dataTransfer;
+      this.onChange(src);
+    });
+    this.setCallbackFunc("ondragover", (data: any, event: any) => {
+      if (this.question.isReadOnly) {
+        event.returnValue = false;
+        return false;
+      }
+      event.dataTransfer.dropEffect = "copy";
+      event.preventDefault();
+    });
+    this.setCallbackFunc("dochange", (data: any, event: any) => {
+      var src = event.target || event.srcElement;
+      this.onChange(src);
+    });
+    this.setCallbackFunc("doclean", (data: any, event: any) => {
+      var src = event.target || event.srcElement;
+      if (this.question.needConfirmRemoveFile) {
+        var isConfirmed = confirmAction(this.question.confirmRemoveAllMessage);
+        if (!isConfirmed) return;
+      }
+      var input = src.parentElement.querySelectorAll("input")[0];
+      this.question.clear();
+      input.value = "";
+    });
+    this.setCallbackFunc("doremovefile", (data: any, event: any) => {
+      if (this.question.needConfirmRemoveFile) {
+        var isConfirmed = confirmAction(
+          this.question.getConfirmRemoveMessage(data.name)
+        );
+        if (!isConfirmed) return;
+      }
+      this.question.removeFile(data);
+    });
+    this.setCallbackFunc("dodownload", (data: any, event: any) => {
+      if (detectIEOrEdge()) {
+        loadFileFromBase64(data.content, data.name);
+      } else {
+        return true;
+      }
+    });
+  }
+  private onChange(src: any) {
+    if (!(<any>window)["FileReader"]) return;
+    if (!src || !src.files || src.files.length < 1) return;
+    let files = [];
+    let allowCount = this.question.allowMultiple ? src.files.length : 1;
+    for (let i = 0; i < allowCount; i++) {
+      files.push(src.files[i]);
+    }
+    src.value = "";
+    this.question.loadFiles(files);
+  }
+}
+
+export class QuestionFile extends QuestionFileModel {
+  private _implementor: QuestionFileImplementor;
   constructor(name: string) {
     super(name);
-    var self = this;
     var updateState = (state: any) => {
       this.koState(state);
       this.koInputTitle(this.inputTitle);
@@ -32,73 +104,21 @@ export class QuestionFile extends QuestionFileModel {
     this.onStateChanged.add((sender, options) => {
       updateState(options.state);
     });
-    (<any>this)["ondrop"] = (data: any, event: any) => {
-      if (this.isReadOnly) return false;
-      event.preventDefault();
-      let src = event.originalEvent
-        ? event.originalEvent.dataTransfer
-        : event.dataTransfer;
-      this.onChange(src);
-    };
-    (<any>this)["ondragover"] = (data: any, event: any) => {
-      if (this.isReadOnly) {
-        event.returnValue = false;
-        return false;
-      }
-      event.dataTransfer.dropEffect = "copy";
-      event.preventDefault();
-    };
-    (<any>this)["dochange"] = (data: any, event: any) => {
-      var src = event.target || event.srcElement;
-      self.onChange(src);
-    };
-    (<any>this)["doclean"] = (data: any, event: any) => {
-      var src = event.target || event.srcElement;
-      if (this.needConfirmRemoveFile) {
-        var isConfirmed = confirmAction(this.confirmRemoveAllMessage);
-        if (!isConfirmed) return;
-      }
-      var input = src.parentElement.querySelectorAll("input")[0];
-      this.clear();
-      input.value = "";
-    };
-    (<any>this)["doremovefile"] = (data: any, event: any) => {
-      if (this.needConfirmRemoveFile) {
-        var isConfirmed = confirmAction(
-          this.getConfirmRemoveMessage(data.name)
-        );
-        if (!isConfirmed) return;
-      }
-      this.removeFile(data);
-    };
-    (<any>this)["dodownload"] = (data: any, event: any) => {
-      if (detectIEOrEdge()) {
-        loadFileFromBase64(data.content, data.name);
-      } else {
-        return true;
-      }
-    };
   }
   protected onBaseCreating() {
     super.onBaseCreating();
-    new QuestionImplementor(this);
+    this._implementor = new QuestionFileImplementor(this);
   }
-  private onChange(src: any) {
-    if (!(<any>window)["FileReader"]) return;
-    if (!src || !src.files || src.files.length < 1) return;
-    let files = [];
-    let allowCount = this.allowMultiple ? src.files.length : 1;
-    for (let i = 0; i < allowCount; i++) {
-      files.push(src.files[i]);
-    }
-    src.value = "";
-    this.loadFiles(files);
+  public dispose() {
+    this._implementor.dispose();
+    this._implementor = undefined;
+    super.dispose();
   }
 }
 
-Serializer.overrideClassCreator("file", function () {
+Serializer.overrideClassCreator("file", function() {
   return new QuestionFile("");
 });
-QuestionFactory.Instance.registerQuestion("file", (name) => {
+QuestionFactory.Instance.registerQuestion("file", name => {
   return new QuestionFile(name);
 });

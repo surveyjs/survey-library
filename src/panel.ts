@@ -208,6 +208,10 @@ export class QuestionRowModel extends Base {
   private calcVisible(): boolean {
     return this.visibleElements.length > 0;
   }
+  public dispose() {
+    super.dispose();
+    this.stopLazyRendering();
+  }
 }
 
 /**
@@ -1504,6 +1508,10 @@ export class PanelModelBase extends SurveyElement
       this.elements[i].dispose();
     }
     this.elements.splice(0, this.elements.length);
+    for (var i = 0; i < this.rows.length; i++) {
+      this.rows[i].dispose();
+    }
+    this.elements.splice(0, this.rows.length);
   }
 }
 

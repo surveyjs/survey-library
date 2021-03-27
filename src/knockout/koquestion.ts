@@ -5,14 +5,17 @@ import { Helpers } from "survey-core";
 import { ImplementorBase } from "./kobase";
 
 export class QuestionImplementor extends ImplementorBase {
+  private disposedObjects: Array<string>;
+  private callBackFunctions: Array<string>;
   private koDummy: any;
-  koTemplateName: any;
   koElementType: any;
   toggleStateByClick: any;
   toggleStateByKeyUp: any;
   private _koValue = ko.observableArray<any>();
   constructor(public question: Question) {
     super(question);
+    this.disposedObjects = [];
+    this.callBackFunctions = [];
     var isSynchronizing = false;
     this._koValue.subscribe(newValue => {
       if (!isSynchronizing) {
@@ -44,44 +47,65 @@ export class QuestionImplementor extends ImplementorBase {
       enumerable: true,
       configurable: true,
     });
-    var self = this;
-    question.surveyLoadCallback = function() {
-      self.onSurveyLoad();
+    question.surveyLoadCallback = () => {
+      this.onSurveyLoad();
     };
-    this.koTemplateName = ko.pureComputed(function() {
-      return self.getTemplateName();
+    this.setObservaleObj(
+      "koTemplateName",
+      ko.pureComputed(() => {
+        return this.getTemplateName();
+      })
+    );
+    this.setObservaleObj("koElementType", ko.observable("survey-question"));
+    this.setCallbackFunc("updateQuestion", () => {
+      this.updateQuestion();
     });
-    this.koElementType = ko.observable("survey-question");
-    (<any>this.question)["koElementType"] = this.koElementType;
-    (<any>this.question)["koTemplateName"] = this.koTemplateName;
-    (<any>this.question)["updateQuestion"] = function() {
-      self.updateQuestion();
-    };
-    (<any>this.question)["koCss"] = ko.pureComputed(function() {
-      return self.question.cssClasses;
-    });
-    (<any>this.question)["koRootCss"] = ko.pureComputed(function() {
-      var cssRoot = self.question.cssRoot;
-      if (self.question.isReadOnly)
-        cssRoot += " " + self.question.cssClasses.disabled;
-      return cssRoot;
-    });
-    (<any>this.question)["toggleStateByClick"] = this.toggleStateByClick;
-    (<any>this.question)["toggleStateByKeyUp"] = this.toggleStateByKeyUp;
+    this.setObservaleObj(
+      "koCss",
+      ko.pureComputed(() => {
+        return this.question.cssClasses;
+      })
+    );
+    this.setObservaleObj(
+      "koRootCss",
+      ko.pureComputed(() => {
+        var cssRoot = this.question.cssRoot;
+        if (this.question.isReadOnly)
+          cssRoot += " " + this.question.cssClasses.disabled;
+        return cssRoot;
+      })
+    );
+    this.setCallbackFunc("toggleStateByClick", this.toggleStateByClick);
+    this.setCallbackFunc("toggleStateByKeyUp", this.toggleStateByKeyUp);
 
-    (<any>this.question)["koErrorClass"] = ko.pureComputed(function() {
-      return self.question.cssError;
-    });
-    question.registerFunctionOnPropertyValueChanged("visibleIndex", function() {
-      self.onVisibleIndexChanged();
+    this.setObservaleObj(
+      "koErrorClass",
+      ko.pureComputed(() => {
+        return this.question.cssError;
+      })
+    );
+    question.registerFunctionOnPropertyValueChanged("visibleIndex", () => {
+      this.onVisibleIndexChanged();
     });
     this.koDummy = ko.observable(0);
-    (<any>this.question)["koQuestionAfterRender"] = function(
-      el: any,
-      con: any
-    ) {
-      self.koQuestionAfterRender(el, con);
-    };
+    this.setCallbackFunc("koQuestionAfterRender", (el: any, con: any) => {
+      this.koQuestionAfterRender(el, con);
+    });
+  }
+  protected setObservaleObj(
+    name: string,
+    obj: any,
+    addToQuestion: boolean = true
+  ) {
+    this.disposedObjects.push(name);
+    if (addToQuestion) {
+      this.question[name] = obj;
+    }
+    return obj;
+  }
+  protected setCallbackFunc(name: string, func: any) {
+    this.callBackFunctions.push(name);
+    this.question[name] = func;
   }
   protected getKoValue() {
     return this.question.value;
@@ -110,6 +134,7 @@ export class QuestionImplementor extends ImplementorBase {
       : "";
   }
   protected updateKoDummy() {
+    if (this.question.isDisposed) return;
     this.koDummy(this.koDummy() + 1);
     this.question.locTitle.onChanged();
   }
@@ -132,25 +157,21 @@ export class QuestionImplementor extends ImplementorBase {
       });
     }
   }
-
-  private changeExpanded() {
-    if (!this.question.isCollapsed && !this.question.isExpanded) return;
-    if (this.question.isCollapsed) {
-      this.question.expand();
-    } else {
-      this.question.collapse();
-      return false;
-    }
-    return true;
-  }
-
   public dispose() {
     super.dispose();
-    this.koTemplateName.dispose();
-    (<any>this.question)["koCss"].dispose();
-    (<any>this.question)["koErrorClass"].dispose();
+    for (var i = 0; i < this.disposedObjects.length; i++) {
+      var name = this.disposedObjects[i];
+      var obj = (<any>this)[name] || this.question[name];
+      if (!obj) continue;
+      if ((<any>this)[name]) (<any>this)[name] = undefined;
+      if (this.question[name]) this.question[name] = undefined;
+      if (obj["dispose"]) obj.dispose();
+    }
+    this.disposedObjects = [];
+    for (var i = 0; i < this.callBackFunctions.length; i++) {
+      this.question[this.callBackFunctions[i]] = undefined;
+    }
+    this.callBackFunctions = [];
     this.question.unRegisterFunctionOnPropertyValueChanged("visibleIndex");
-    (<any>this.question)["updateQuestion"] = undefined;
-    (<any>this.question)["koQuestionAfterRender"] = undefined;
   }
 }

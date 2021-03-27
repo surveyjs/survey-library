@@ -2,12 +2,15 @@ import * as ko from "knockout";
 import { Base } from "survey-core";
 
 export class ImplementorBase {
-  private static doIterateProperties(hash: any, key: any): any {
+  private static doIterateProperties(element: Base, hash: any, key: any): any {
     var val = hash[key];
     if (val === "function") return;
     if (Array.isArray(val)) {
       hash[key] = ko.observableArray(val);
-      (<any>val)["onArrayChanged"] = () => hash[key].notifySubscribers();
+      (<any>val)["onArrayChanged"] = () => {
+        if (element.isLoadingFromJson || element.isDisposed) return;
+        hash[key].notifySubscribers();
+      };
     } else {
       hash[key] = ko.observable(val);
     }
@@ -18,12 +21,12 @@ export class ImplementorBase {
       return;
     }
     element.iteratePropertiesHash((hash, key) => {
-      ImplementorBase.doIterateProperties(hash, key);
+      ImplementorBase.doIterateProperties(element, hash, key);
     });
     element.createArrayCoreHandler = (hash, key: string): Array<any> => {
       var res = ko.observableArray();
       (<any>res())["onArrayChanged"] = () => {
-        if (element.isLoadingFromJson) return;
+        if (element.isLoadingFromJson || element.isDisposed) return;
         res.notifySubscribers();
       };
       hash[key] = res;

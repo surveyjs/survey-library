@@ -5,12 +5,13 @@ import { QuestionFactory } from "survey-core";
 import { QuestionImplementor } from "./koquestion";
 
 export class QuestionBoolean extends QuestionBooleanModel {
+  private _implementor: QuestionImplementor;
   constructor(name: string) {
     super(name);
   }
   protected onBaseCreating() {
     super.onBaseCreating();
-    new QuestionImplementor(this);
+    this._implementor = new QuestionImplementor(this);
   }
   public getItemCss(row: any, column: any) {
     let isChecked = this.checkedValue;
@@ -65,11 +66,16 @@ export class QuestionBoolean extends QuestionBooleanModel {
   public onFalseLabelClick(data: any, event: any) {
     return this.onLabelClick(event, false);
   }
+  public dispose() {
+    this._implementor.dispose();
+    this._implementor = undefined;
+    super.dispose();
+  }
 }
-Serializer.overrideClassCreator("boolean", function () {
+Serializer.overrideClassCreator("boolean", function() {
   return new QuestionBoolean("");
 });
 
-QuestionFactory.Instance.registerQuestion("boolean", (name) => {
+QuestionFactory.Instance.registerQuestion("boolean", name => {
   return new QuestionBoolean(name);
 });

@@ -4,18 +4,24 @@ import { QuestionImplementor } from "./koquestion";
 import { QuestionImageModel } from "survey-core";
 
 export class QuestionImage extends QuestionImageModel {
+  private _implementor: QuestionImplementor;
   constructor(name: string) {
     super(name);
   }
   protected onBaseCreating() {
     super.onBaseCreating();
-    new QuestionImplementor(this);
+    this._implementor = new QuestionImplementor(this);
+  }
+  public dispose() {
+    this._implementor.dispose();
+    this._implementor = undefined;
+    super.dispose();
   }
 }
 
-Serializer.overrideClassCreator("image", function () {
+Serializer.overrideClassCreator("image", function() {
   return new QuestionImage("");
 });
-QuestionFactory.Instance.registerQuestion("image", (name) => {
+QuestionFactory.Instance.registerQuestion("image", name => {
   return new QuestionImage(name);
 });

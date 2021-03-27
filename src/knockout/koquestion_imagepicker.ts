@@ -15,20 +15,26 @@ class QuestionImagePickerImplementor extends QuestionCheckboxBaseImplementor {
 }
 
 export class QuestionImagePicker extends QuestionImagePickerModel {
+  private _implementor: QuestionImagePickerImplementor;
   constructor(name: string) {
     super(name);
   }
   protected onBaseCreating() {
     super.onBaseCreating();
-    new QuestionImagePickerImplementor(this);
+    this._implementor = new QuestionImagePickerImplementor(this);
+  }
+  public dispose() {
+    this._implementor.dispose();
+    this._implementor = undefined;
+    super.dispose();
   }
 }
 
-Serializer.overrideClassCreator("imagepicker", function () {
+Serializer.overrideClassCreator("imagepicker", function() {
   return new QuestionImagePicker("");
 });
 
-QuestionFactory.Instance.registerQuestion("imagepicker", (name) => {
+QuestionFactory.Instance.registerQuestion("imagepicker", name => {
   var q = new QuestionImagePicker(name);
   //q.choices = QuestionFactory.DefaultChoices;
   return q;

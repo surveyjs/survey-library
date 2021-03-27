@@ -444,6 +444,7 @@ export class Base {
   private arraysInfo: { [index: string]: any };
   private eventList: Array<EventBase<any>> = [];
   private bindingsValue: Bindings;
+  private isDisposedValue: boolean;
   private onPropChangeFunctions: Array<{
     name: string;
     func: (...args: any[]) => void;
@@ -494,6 +495,10 @@ export class Base {
     for (var i = 0; i < this.eventList.length; i++) {
       this.eventList[i].clear();
     }
+    this.isDisposedValue = true;
+  }
+  public get isDisposed() {
+    return this.isDisposedValue === true;
   }
   protected addEvent<T>(): EventBase<T> {
     var res = new EventBase<T>();
@@ -625,7 +630,7 @@ export class Base {
     return this.propertyHash["value"];
   }
   protected setPropertyValueCore(propertiesHash: any, name: string, val: any) {
-    if (this.setPropertyValueCoreHandler)
+    if (this.setPropertyValueCoreHandler && !this.isDisposedValue)
       this.setPropertyValueCoreHandler(propertiesHash, name, val);
     else propertiesHash[name] = val;
   }
@@ -655,7 +660,7 @@ export class Base {
       );
     } else {
       this.setPropertyValueCore(this.propertyHash, name, val);
-      if (!this.isTwoValueEquals(oldValue, val)) {
+      if (!this.isDisposedValue && !this.isTwoValueEquals(oldValue, val)) {
         this.propertyValueChanged(name, oldValue, val);
       }
     }
@@ -931,15 +936,17 @@ export class Base {
     var self = this;
     newArray.push = function(value): number {
       var result = Object.getPrototypeOf(newArray).push.call(newArray, value);
-      if (onPush) onPush(value, newArray.length - 1);
-      const arrayChanges = new ArrayChanges(
-        newArray.length - 1,
-        0,
-        [value],
-        []
-      );
-      self.propertyValueChanged(name, newArray, newArray, arrayChanges);
-      self.notifyArrayChanged(newArray, arrayChanges);
+      if (!self.isDisposedValue) {
+        if (onPush) onPush(value, newArray.length - 1);
+        const arrayChanges = new ArrayChanges(
+          newArray.length - 1,
+          0,
+          [value],
+          []
+        );
+        self.propertyValueChanged(name, newArray, newArray, arrayChanges);
+        self.notifyArrayChanged(newArray, arrayChanges);
+      }
       return result;
     };
     newArray.unshift = function(value): number {
@@ -947,18 +954,22 @@ export class Base {
         newArray,
         value
       );
-      if (onPush) onPush(value, newArray.length - 1);
-      const arrayChanges = new ArrayChanges(0, 0, [value], []);
-      self.propertyValueChanged(name, newArray, newArray, arrayChanges);
-      self.notifyArrayChanged(newArray, arrayChanges);
+      if (!self.isDisposedValue) {
+        if (onPush) onPush(value, newArray.length - 1);
+        const arrayChanges = new ArrayChanges(0, 0, [value], []);
+        self.propertyValueChanged(name, newArray, newArray, arrayChanges);
+        self.notifyArrayChanged(newArray, arrayChanges);
+      }
       return result;
     };
     newArray.pop = function(): number {
       var result = Object.getPrototypeOf(newArray).pop.call(newArray);
-      if (onRemove) onRemove(result);
-      const arrayChanges = new ArrayChanges(newArray.length - 1, 1, [], []);
-      self.propertyValueChanged(name, newArray, newArray, arrayChanges);
-      self.notifyArrayChanged(newArray, arrayChanges);
+      if (!self.isDisposedValue) {
+        if (onRemove) onRemove(result);
+        const arrayChanges = new ArrayChanges(newArray.length - 1, 1, [], []);
+        self.propertyValueChanged(name, newArray, newArray, arrayChanges);
+        self.notifyArrayChanged(newArray, arrayChanges);
+      }
       return result;
     };
     newArray.splice = function(
@@ -975,20 +986,26 @@ export class Base {
         ...items
       );
       if (!items) items = [];
-      if (onRemove && result) {
-        for (var i = 0; i < result.length; i++) {
-          onRemove(result[i]);
+      if (!self.isDisposedValue) {
+        if (onRemove && result) {
+          for (var i = 0; i < result.length; i++) {
+            onRemove(result[i]);
+          }
         }
-      }
-      if (onPush) {
-        for (var i = 0; i < items.length; i++) {
-          onPush(items[i], start + i);
+        if (onPush) {
+          for (var i = 0; i < items.length; i++) {
+            onPush(items[i], start + i);
+          }
         }
+        const arrayChanges = new ArrayChanges(
+          start,
+          deleteCount,
+          items,
+          result
+        );
+        self.propertyValueChanged(name, newArray, newArray, arrayChanges);
+        self.notifyArrayChanged(newArray, arrayChanges);
       }
-
-      const arrayChanges = new ArrayChanges(start, deleteCount, items, result);
-      self.propertyValueChanged(name, newArray, newArray, arrayChanges);
-      self.notifyArrayChanged(newArray, arrayChanges);
       return result;
     };
 

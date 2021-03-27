@@ -5,13 +5,13 @@ export const url_test = "http://127.0.0.1:8080/examples_test/";
 export const url_widgets = "http://127.0.0.1:8080/examples/";
 
 export const initSurvey = ClientFunction((framework, json, events, isDesignMode) => {
-  console.error = msg => {throw new Error(msg)};
-  console.warn = msg => {throw new Error(msg)};
+  console.error = msg => { throw new Error(msg) };
+  console.warn = msg => { throw new Error(msg) };
   console.log("surveyjs console.error and console.warn override");
   
-  var model = new Survey.Model(json);
+  const model = new Survey.Model(json);
   model.setDesignMode(isDesignMode);
-  var surveyComplete = function (model) {
+  const surveyComplete = function (model) {
     window.SurveyResult = model.data;
     document.getElementById("surveyResultElement").innerHTML = JSON.stringify(
       model.data
@@ -70,24 +70,24 @@ export const setData = ClientFunction((newData) => {
 });
 
 export const setOptions = ClientFunction((questionName, modValue) => {
-  var mergeOptions = function (obj1, obj2) {
-    for (var attrname in obj2) {
+  const mergeOptions = function (obj1, obj2) {
+    for (const attrname in obj2) {
       obj1[attrname] = obj2[attrname];
     }
   };
-  var q = survey.getQuestionByName(questionName || "car");
+  const q = survey.getQuestionByName(questionName || "car");
   mergeOptions(q, modValue);
   survey.render();
 });
 
 export const joinElementInnerText = ClientFunction((tagName, index) => {
-  let el = document.getElementsByTagName(tagName)[index];
+  const el = document.getElementsByTagName(tagName)[index];
   const spans = el.querySelectorAll("span");
   let res = "";
   for (let i = 0; i < spans.length; i++) {
-    var sp = spans[i];
+    const sp = spans[i];
     if (!sp.innerHTML || sp.innerHTML == "&nbsp;") continue;
-    let childs = sp.getElementsByTagName("span");
+    const childs = sp.getElementsByTagName("span");
     if (childs.length > 0) continue;
     if (!!res) res += " ";
     res += sp.innerHTML;

@@ -1504,14 +1504,16 @@ export class PanelModelBase extends SurveyElement
   }
   public dispose() {
     super.dispose();
+    if (this.rows) {
+      for (var i = 0; i < this.rows.length; i++) {
+        this.rows[i].dispose();
+      }
+      this.rows.splice(0, this.rows.length);
+    }
     for (var i = 0; i < this.elements.length; i++) {
       this.elements[i].dispose();
     }
     this.elements.splice(0, this.elements.length);
-    for (var i = 0; i < this.rows.length; i++) {
-      this.rows[i].dispose();
-    }
-    this.elements.splice(0, this.rows.length);
   }
 }
 

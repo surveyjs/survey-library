@@ -2298,39 +2298,13 @@ export class SurveyModel extends Base
     return res;
   }
   public getDataValueCore(valuesHash: any, key: string) {
-    if (!!this.editingObj) {
-      var prop = Serializer.findProperty(this.editingObj.getType(), key);
-      if (
-        !prop ||
-        (!!prop &&
-          ((prop.isLocalizable && prop.isArray) || this.isEditableObjWrapper()))
-      )
-        return (<any>this.editingObj)[key];
-      if (
-        !!prop &&
-        prop.isLocalizable &&
-        !prop.isArray &&
-        !!prop.serializationProperty
-      )
-        return (<any>this.editingObj)[prop.serializationProperty].text;
-      return this.editingObj.getPropertyValue(key);
-    }
+    if (!!this.editingObj)
+      return Serializer.getObjPropertyValue(this.editingObj, key);
     return valuesHash[key];
-  }
-  private isEditableObjWrapper(): boolean {
-    return !!(<any>this.editingObj)["getOriginalObj"];
   }
   public setDataValueCore(valuesHash: any, key: string, value: any) {
     if (!!this.editingObj) {
-      var prop = Serializer.findProperty(this.editingObj.getType(), key);
-      if (
-        !prop ||
-        (!!prop && (prop.isLocalizable || this.isEditableObjWrapper()))
-      ) {
-        (<any>this.editingObj)[key] = value;
-      } else {
-        this.editingObj.setPropertyValue(key, value);
-      }
+      Serializer.setObjPropertyValue(this.editingObj, key, value);
     } else {
       valuesHash[key] = value;
     }

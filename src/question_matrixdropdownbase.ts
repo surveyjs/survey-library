@@ -1170,15 +1170,21 @@ export class MatrixDropdownRowModelBase
       if (!column.isVisible) continue;
       var cell = this.createCell(column);
       this.cells.push(cell);
-      if (!!value && !Helpers.isValueEmpty(value[column.name])) {
-        cell.question.value = value[column.name];
+      var cellValue = this.getCellValue(value, column.name);
+      if (!Helpers.isValueEmpty(cellValue)) {
+        cell.question.value = cellValue;
         var commentKey = column.name + settings.commentPrefix;
-        if (!Helpers.isValueEmpty(value[commentKey])) {
+        if (!!value && !Helpers.isValueEmpty(value[commentKey])) {
           cell.question.comment = value[commentKey];
         }
       }
     }
     this.isSettingValue = false;
+  }
+  private getCellValue(value: any, name: string): any {
+    if (!!this.editingObj)
+      return Serializer.getObjPropertyValue(this.editingObj, name);
+    return !!value ? value[name] : undefined;
   }
   protected createCell(column: MatrixDropdownColumn): MatrixDropdownCell {
     return new MatrixDropdownCell(column, this, this.data);

@@ -749,6 +749,35 @@ export class JsonMetadata {
   private childrenClasses: HashTable<Array<JsonMetadataClass>> = {};
   private classProperties: HashTable<Array<JsonObjectProperty>> = {};
   private classHashProperties: HashTable<HashTable<JsonObjectProperty>> = {};
+  public getObjPropertyValue(obj: any, name: string): any {
+    if (this.isObjWrapper(obj)) {
+      var orignalObj = obj.getOriginalObj();
+      var prop = Serializer.findProperty(orignalObj.getType(), name);
+      if (!!prop) return this.getObjPropertyValueCore(orignalObj, prop);
+    }
+    var prop = Serializer.findProperty(obj.getType(), name);
+    if (!prop) return obj[name];
+    return this.getObjPropertyValueCore(obj, prop);
+  }
+  public setObjPropertyValue(obj: any, name: string, val: any) {
+    var prop = Serializer.findProperty(obj.getType(), name);
+    if (!prop || this.isObjWrapper(obj) || prop.isLocalizable) {
+      obj[name] = val;
+    } else {
+      obj.setPropertyValue(name, val);
+    }
+  }
+  private getObjPropertyValueCore(obj: any, prop: JsonObjectProperty): any {
+    if (prop.isLocalizable) {
+      if (prop.isArray) return obj[prop.name];
+      if (!!prop.serializationProperty)
+        return obj[prop.serializationProperty].text;
+    }
+    return obj.getPropertyValue(prop.name);
+  }
+  private isObjWrapper(obj: any): boolean {
+    return !!obj.getOriginalObj && !!obj.getOriginalObj();
+  }
   public addClass(
     name: string,
     properties: Array<any>,

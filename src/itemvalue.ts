@@ -198,7 +198,7 @@ export class ItemValue extends Base {
     return hasChanded;
   }
   public ownerPropertyName: string = "";
-  private itemValue: any;
+  //private itemValue: any;
   private locTextValue: LocalizableString;
   private isVisibleValue: boolean = true;
   private visibleConditionRunner: ConditionRunner;
@@ -212,7 +212,11 @@ export class ItemValue extends Base {
     super();
     this.locTextValue = new LocalizableString(null, true);
     this.locTextValue.onGetTextCallback = txt => {
-      return txt ? txt : !this.isValueItemEmpty ? this.value.toString() : null;
+      return txt
+        ? txt
+        : !Helpers.isValueEmpty(this.value)
+        ? this.value.toString()
+        : null;
     };
     if (text) this.locText.text = text;
     if (!!value && typeof value === "object") {
@@ -251,20 +255,21 @@ export class ItemValue extends Base {
     this.locText.owner = value;
   }
   public get value(): any {
-    return this.itemValue;
+    return this.getPropertyValue("value");
   }
   public set value(newValue: any) {
-    var oldValue = this.itemValue;
-    this.itemValue = newValue;
-    this.propertyValueChanged("value", oldValue, this.itemValue);
-    if (!this.itemValue) return;
-    var str: string = this.itemValue.toString();
-    var index = str.indexOf(settings.itemValueSeparator);
-    if (index > -1) {
-      this.itemValue = str.slice(0, index);
-      this.text = str.slice(index + 1);
-    } else if (!this.hasText) {
-      this.locText.onChanged();
+    var text: string = undefined;
+    if (!Helpers.isValueEmpty(newValue)) {
+      var str: string = newValue.toString();
+      var index = str.indexOf(settings.itemValueSeparator);
+      if (index > -1) {
+        newValue = str.slice(0, index);
+        text = str.slice(index + 1);
+      }
+    }
+    this.setPropertyValue("value", newValue);
+    if (!!text) {
+      this.text = text;
     }
   }
   public get hasText(): boolean {
@@ -348,6 +353,9 @@ export class ItemValue extends Base {
     this.AddLocStringToUsedLocales(this.locTextValue, locales);
   }
   protected onPropertyValueChanged(name: string, oldValue: any, newValue: any) {
+    if (name === "value" && !this.hasText) {
+      this.locText.onChanged();
+    }
     var funcName = "itemValuePropertyChanged";
     if (!this.locOwner || !(<any>this.locOwner)[funcName]) return;
     (<any>this.locOwner)[funcName](this, name, oldValue, newValue);
@@ -369,9 +377,6 @@ export class ItemValue extends Base {
       this.enableConditionRunner = new ConditionRunner(this.enableIf);
     this.enableConditionRunner.expression = this.enableIf;
     return this.enableConditionRunner;
-  }
-  private get isValueItemEmpty() {
-    return !this.itemValue && this.itemValue !== 0 && this.itemValue !== false;
   }
   public originalItem: any;
 }

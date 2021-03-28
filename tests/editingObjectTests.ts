@@ -14,6 +14,52 @@ import { ItemValue } from "../src/itemvalue";
 
 export default QUnit.module("Survey.editingObj Tests");
 
+QUnit.test("Serializer.getObjPropertyValue/setObjPropertyValue", function(
+  assert
+) {
+  var question = new QuestionTextModel("q1");
+  question.title = "My title";
+  assert.equal(
+    Serializer.getObjPropertyValue(question, "name"),
+    "q1",
+    "Get question name correctly"
+  );
+  assert.equal(
+    Serializer.getObjPropertyValue(question, "title"),
+    "My title",
+    "Get question title correctly"
+  );
+  Serializer.setObjPropertyValue(question, "name", "q2");
+  Serializer.setObjPropertyValue(question, "title", "My title 2");
+  assert.equal(
+    Serializer.getObjPropertyValue(question, "name"),
+    "q2",
+    "Set question name correctly"
+  );
+  assert.equal(
+    Serializer.getObjPropertyValue(question, "title"),
+    "My title 2",
+    "Set question title correctly"
+  );
+  var item = new ItemValue("item1");
+  assert.equal(item.value, "item1", "property value set correctly");
+  assert.equal(
+    Serializer.getObjPropertyValue(item, "value"),
+    "item1",
+    "Get item value correctly"
+  );
+  assert.notOk(
+    Serializer.getObjPropertyValue(item, "text"),
+    "item text is empty"
+  );
+  item.text = "Item 1";
+  assert.equal(
+    Serializer.getObjPropertyValue(item, "text"),
+    "Item 1",
+    "Get item text correctly"
+  );
+});
+
 QUnit.test("Edit object property using the survey", function(assert) {
   var question = new QuestionTextModel("q1");
   var survey = new SurveyModel();
@@ -107,7 +153,7 @@ QUnit.test("Edit question title property, setup initial value", function(
 QUnit.test("Edit columns in matrix", function(assert) {
   var question = new QuestionMatrixDynamicModel("q1");
   question.addColumn("col1");
-  question.addColumn("col2");
+  question.addColumn("col2", "Column 2");
   var survey = new SurveyModel({
     elements: [
       {
@@ -134,6 +180,12 @@ QUnit.test("Edit columns in matrix", function(assert) {
     matrix.visibleRows[0].cells[0].value,
     "col1",
     "Name set correctly"
+  );
+  assert.notOk(matrix.visibleRows[0].cells[1].value, "Title is empty");
+  assert.equal(
+    matrix.visibleRows[1].cells[1].value,
+    "Column 2",
+    "Set title correctly"
   );
   matrix.visibleRows[0].cells[1].value = "title1";
   assert.equal(question.columns[0].title, "title1", "Edit title correctly");
@@ -250,6 +302,47 @@ QUnit.test("Edit columns in matrix, column isRequired and isUnique", function(
     "set name property into column"
   );
 });
+QUnit.test("Edit choices in matrix", function(assert) {
+  var question = new QuestionDropdownModel("q1");
+  question.choices = [{ value: "item1" }, { value: "item2", text: "Item 2" }];
+  var survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdynamic",
+        name: "choices",
+        rowCount: 0,
+        columns: [
+          { cellType: "text", name: "value" },
+          { cellType: "text", name: "text" },
+        ],
+      },
+    ],
+  });
+  survey.editingObj = question;
+  var matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("choices");
+  assert.equal(matrix.visibleRows.length, 2, "two choice");
+  assert.equal(
+    matrix.visibleRows[0].cells[0].value,
+    "item1",
+    "set value property from choice"
+  );
+  assert.notOk(
+    matrix.visibleRows[0].cells[1].value,
+    "text property is empty in the first choice"
+  );
+  assert.equal(
+    matrix.visibleRows[1].cells[1].value,
+    "Item 2",
+    "set text property from choice"
+  );
+  matrix.visibleRows[0].cells[1].value = "Item 1";
+  assert.equal(
+    question.choices[0].text,
+    "Item 1",
+    "set text property from matrix"
+  );
+});
+
 QUnit.test("Edit choices in matrix with custom property", function(assert) {
   Serializer.addProperty("itemvalue", "imageLink");
   var question = new QuestionMatrixDynamicModel("q1");

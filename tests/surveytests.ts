@@ -12542,3 +12542,15 @@ QUnit.test("base.getSurvey(live) on removing/adding", function(assert) {
   assert.ok(hasSurvey(question2), "question2 is not deleted again");
   assert.ok(hasSurvey(column2), "column2 is not deleted again");
 });
+QUnit.test("Dispose object during event", function(assert) {
+  var survey = new SurveyModel();
+  survey.onValueChanged.add(() => {
+    survey.dispose();
+  });
+  var a = 1;
+  survey.onValueChanged.add(() => {
+    a = 2;
+  });
+  survey.setValue("b", 1);
+  assert.equal(a, 1, "Do not call an event that is after diposing");
+});

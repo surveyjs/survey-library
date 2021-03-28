@@ -1554,6 +1554,7 @@ export class Event<T extends Function, Options> {
     if (!this.callbacks) return;
     for (var i = 0; i < this.callbacks.length; i++) {
       this.callbacks[i](sender, options);
+      if (!this.callbacks) return;
     }
   }
   public clear() {

@@ -2306,6 +2306,13 @@ export class SurveyModel extends Base
           ((prop.isLocalizable && prop.isArray) || this.isEditableObjWrapper()))
       )
         return (<any>this.editingObj)[key];
+      if (
+        !!prop &&
+        prop.isLocalizable &&
+        !prop.isArray &&
+        !!prop.serializationProperty
+      )
+        return (<any>this.editingObj)[prop.serializationProperty].text;
       return this.editingObj.getPropertyValue(key);
     }
     return valuesHash[key];

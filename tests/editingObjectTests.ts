@@ -82,11 +82,27 @@ QUnit.test("Edit question title property", function(assert) {
   });
   survey.editingObj = question;
   assert.equal(question.title, "q1", "the default title value");
-  assert.equal(survey.getValue("title"), undefined, "The value is empty");
+  assert.notOk(survey.getValue("title"), "The value is empty");
   survey.setValue("title", "q1 title");
   assert.equal(question.title, "q1 title", "set title property correctly");
   survey.setValue("title", "");
   assert.equal(question.title, "q1", "get title property from name");
+});
+QUnit.test("Edit question title property, setup initial value", function(
+  assert
+) {
+  var question = new QuestionTextModel("q1");
+  question.title = "My title";
+  var survey = new SurveyModel({
+    elements: [
+      { type: "text", name: "name" },
+      { type: "comment", name: "title" },
+    ],
+  });
+  survey.editingObj = question;
+  assert.equal(survey.getValue("title"), "My title", "The title set correctly");
+  survey.clearValue("title");
+  assert.equal(question.title, "q1", "Reset question title");
 });
 QUnit.test("Edit columns in matrix", function(assert) {
   var question = new QuestionMatrixDynamicModel("q1");

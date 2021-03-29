@@ -43,7 +43,7 @@
     "build_angular": "npm run build_angular_dev && npm run build_angular_prod",
     "watch_knockout_ui": "webpack --config ./build-scripts/survey-knockout-ui/webpack.config.js --env.buildType dev --watch"
   },
-  "version": "1.8.37",
+  "version": "1.8.38",
   "name": "survey-library",
   "private": true,
   "devDependencies": {

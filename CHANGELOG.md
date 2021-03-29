@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.8.38](https://github.com/surveyjs/survey-library/compare/v1.8.37...v1.8.38) (2021-03-29)
+
+
+### Bug Fixes
+
+* key duplication errors does not come up in matrix/panel dynamic [#2742](https://github.com/surveyjs/survey-library/issues/2742) ([2344c89](https://github.com/surveyjs/survey-library/commit/2344c8946c1e387ad0b1cc8373dda94681883b99))
+* knockout: template error on changing from edit to preview mode for boolean required question in component [#2749](https://github.com/surveyjs/survey-library/issues/2749) ([976752c](https://github.com/surveyjs/survey-library/commit/976752cce232439692f50830f4fd018df701e4ee))
+* Navigation becomes unresponsive after required error is corrected [#2740](https://github.com/surveyjs/survey-library/issues/2740) ([2251513](https://github.com/surveyjs/survey-library/commit/22515133a1c3f0c75a3403c5702d53fd91a6bdba))
+
 ### [1.8.37](https://github.com/surveyjs/survey-library/compare/v1.8.36...v1.8.37) (2021-03-23)
 
 

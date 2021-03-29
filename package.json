@@ -1,7 +1,7 @@
 {
   "scripts": {
-    "start": "npm run build_dev && live-server --port=7777 --watch=packages",
-    "serve": "live-server --port=7777 --watch=packages",
+    "start": "npm run build_dev && live-server --port=7777 --watch=build",
+    "serve": "live-server --port=7777 --watch=build",
     "serve_ci": "http-server",
     "test": "karma start ./build-scripts/karma.conf.js",
     "testsingle": "karma start ./build-scripts/karma.conf.js --single-run",

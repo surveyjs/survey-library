@@ -112,6 +112,8 @@ module.exports = function(options, packageJson, chunkName) {
           );
         }
         removeLines(fileName, /^import\s+.*("|')\..*("|');\s*(\n|\r)?/gm);
+        removeLines(fileName, /^import\s+\*\s+as\s+React\s+from\s+\"react\"\s*;(\n|\r)?/gm);
+        removeLines(fileName, /^import\s+React\s+from\s+\"react\"\s*;(\n|\r)?/gm);
         removeLines(fileName, /export let\s+\w+:\s+\w+;/g);
         removeLines(fileName, /export default\s+\w+;/g);
 

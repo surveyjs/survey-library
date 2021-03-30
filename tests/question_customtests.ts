@@ -1332,6 +1332,19 @@ QUnit.test(
       "Snow",
       "The value is still the same"
     );
+    survey.cancelPreview();
+    q = <QuestionCompositeModel>survey.getAllQuestions()[0];
+    assert.equal(
+      q.contentPanel.getQuestionByName("lastName").isVisible,
+      true,
+      "The second question is visible after canceling Preview"
+    );
+    assert.equal(
+      q.contentPanel.getQuestionByName("lastName").value,
+      "Snow",
+      "The value is still the same after canceling Preview"
+    );
+
     ComponentCollection.Instance.clear();
   }
 );

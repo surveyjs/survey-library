@@ -3189,7 +3189,7 @@ export class SurveyModel extends Base
     this.isStartedState = this.firstPageIsStarted;
     this.pageVisibilityChanged(this.pages[0], !this.firstPageIsStarted);
   }
-  runningPages: any = null;
+  private runningPages: any;
   private onShowingPreviewChanged() {
     if (this.isDesignMode) return;
     if (this.isShowingPreview) {
@@ -3199,21 +3199,21 @@ export class SurveyModel extends Base
       if (this.runningPages) {
         this.restoreOrigionalPages(this.runningPages);
       }
-      this.runningPages = null;
+      this.runningPages = undefined;
     }
     this.runConditions();
     this.updateAllElementsVisibility(this.pages);
     this.updateVisibleIndexes();
     this.currentPageNo = 0;
   }
-  origionalPages: any = null;
+  private origionalPages: any;
   protected onQuestionsOnPageModeChanged(oldValue: string) {
     if (this.isShowingPreview) return;
     if (this.questionsOnPageMode == "standard" || this.isDesignMode) {
       if (this.origionalPages) {
         this.restoreOrigionalPages(this.origionalPages);
       }
-      this.origionalPages = null;
+      this.origionalPages = undefined;
     } else {
       if (!oldValue || oldValue == "standard") {
         this.origionalPages = this.pages.slice(0, this.pages.length);
@@ -5010,7 +5010,9 @@ export class SurveyModel extends Base
   }
   get isClearValueOnHiddenContainer(): boolean {
     return (
-      this.clearInvisibleValues == "onHiddenContainer" && !this.isShowingPreview
+      this.clearInvisibleValues == "onHiddenContainer" &&
+      !this.isShowingPreview &&
+      !this.runningPages
     );
   }
   questionVisibilityChanged(question: IQuestion, newValue: boolean) {

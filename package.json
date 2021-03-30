@@ -1,7 +1,7 @@
 {
   "scripts": {
-    "start": "npm run build_dev && live-server --port=7777 --watch=packages",
-    "serve": "live-server --port=7777 --watch=packages",
+    "start": "npm run build_dev && live-server --port=7777 --watch=build",
+    "serve": "live-server --port=7777 --watch=build",
     "serve_ci": "http-server",
     "test": "karma start ./build-scripts/karma.conf.js",
     "testsingle": "karma start ./build-scripts/karma.conf.js --single-run",
@@ -43,7 +43,7 @@
     "build_angular": "npm run build_angular_dev && npm run build_angular_prod",
     "watch_knockout_ui": "webpack --config ./build-scripts/survey-knockout-ui/webpack.config.js --env.buildType dev --watch"
   },
-  "version": "1.8.37",
+  "version": "1.8.38",
   "name": "survey-library",
   "private": true,
   "devDependencies": {

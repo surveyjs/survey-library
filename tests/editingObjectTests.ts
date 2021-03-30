@@ -773,3 +773,30 @@ QUnit.test("Edit choices in matrix dynamic column", function(assert) {
   matrix.visibleRows[0].cells[0].value = "Item 1";
   assert.equal(column["choices"][0].value, "Item 1", "value changed in matrix");
 });
+QUnit.test("Edit question.page property", function(assert) {
+  var questionSurvey = new SurveyModel();
+  questionSurvey.addNewPage("page1");
+  questionSurvey.addNewPage("page2");
+  var question = questionSurvey.pages[0].addNewQuestion("text", "q1");
+  var survey = new SurveyModel({
+    elements: [
+      {
+        type: "dropdown",
+        name: "page",
+        choices: ["page1", "page2"],
+      },
+    ],
+  });
+  var pageQuestion = survey.getQuestionByName("page");
+  pageQuestion.valueFromDataCallback = (val: any): any => {
+    return !!val ? val.name : "";
+  };
+  pageQuestion.valueToDataCallback = (val: any): any => {
+    if (!val) return undefined;
+    return questionSurvey.getPageByName(val);
+  };
+  survey.editingObj = question;
+  assert.equal(pageQuestion.value, "page1", "Set page from question correctly");
+  pageQuestion.value = "page2";
+  assert.equal(question.page.name, "page2", "Set question.page from survey");
+});

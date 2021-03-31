@@ -800,3 +800,43 @@ QUnit.test("Edit question.page property", function(assert) {
   pageQuestion.value = "page2";
   assert.equal(question.page.name, "page2", "Set question.page from survey");
 });
+QUnit.test("Dispose editing survey correctly", function(assert) {
+  var questionSurvey = new SurveyModel();
+  questionSurvey.addNewPage("page1");
+  var question = questionSurvey.pages[0].addNewQuestion("text", "q1");
+  var json = {
+    elements: [
+      {
+        type: "text",
+        name: "name",
+      },
+    ],
+  };
+  var survey1 = new SurveyModel(json);
+  var survey2 = new SurveyModel(json);
+  survey1.editingObj = question;
+  survey2.editingObj = question;
+  question.name = "q2";
+  assert.equal(
+    survey1.getQuestionByName("name").value,
+    "q2",
+    "react on changing in survey1"
+  );
+  assert.equal(
+    survey2.getQuestionByName("name").value,
+    "q2",
+    "react on changing in survey2"
+  );
+  survey1.dispose();
+  question.name = "q3";
+  assert.equal(
+    survey1.getQuestionByName("name").isEmpty(),
+    true,
+    "do not react on changing in survey1"
+  );
+  assert.equal(
+    survey2.getQuestionByName("name").value,
+    "q3",
+    "react on changing in survey2"
+  );
+});

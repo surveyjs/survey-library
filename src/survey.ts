@@ -2207,6 +2207,7 @@ export class SurveyModel extends Base
       );
     }
     this.editingObjValue = val;
+    if (this.isDisposed) return;
     if (!val) {
       var questions = this.getAllQuestions();
       for (var i = 0; i < questions.length; i++) {
@@ -5599,6 +5600,7 @@ export class SurveyModel extends Base
    */
   public dispose() {
     super.dispose();
+    this.editingObj = null;
     for (var i = 0; i < this.pages.length; i++) {
       this.pages[i].dispose();
     }

@@ -7,7 +7,7 @@ import { property } from "../src/jsonobject";
 
 export default QUnit.module("Helpers");
 
-QUnit.test("Event hasEvents property", function (assert) {
+QUnit.test("Event hasEvents property", function(assert) {
   assert.ok(Helpers.isArrayContainsEqual([1], [1]), "Arrays are equal");
   assert.notOk(Helpers.isArrayContainsEqual([1], [1, 2]), "Different length");
   assert.notOk(
@@ -27,7 +27,7 @@ QUnit.test("Event hasEvents property", function (assert) {
     "Ignore Order = false: We believe it is not the same arrays"
   );
 });
-QUnit.test("Helpers.isValueEmpty function", function (assert) {
+QUnit.test("Helpers.isValueEmpty function", function(assert) {
   assert.equal(Helpers.isValueEmpty(false), false, "false is not empty value");
   assert.equal(Helpers.isValueEmpty(0), false, "0 is not empty value");
   assert.equal(Helpers.isValueEmpty(null), true, "null is empty value");
@@ -55,7 +55,7 @@ QUnit.test("Helpers.isValueEmpty function", function (assert) {
     "the object is empty, empty string"
   );
 });
-QUnit.test("isTwoValueEquals with validators", function (assert) {
+QUnit.test("isTwoValueEquals with validators", function(assert) {
   var survey = new SurveyModel();
   var validators1 = [];
   var validator1 = new EmailValidator();
@@ -78,7 +78,7 @@ QUnit.test("isTwoValueEquals with validators", function (assert) {
   survey.locale = "";
 });
 
-QUnit.test("isTwoValueEquals, undefined", function (assert) {
+QUnit.test("isTwoValueEquals, undefined", function(assert) {
   assert.equal(
     Helpers.isTwoValueEquals([], undefined),
     true,
@@ -107,7 +107,7 @@ QUnit.test("isTwoValueEquals, undefined", function (assert) {
   );
 });
 
-QUnit.test("Return correct value for array.length", function (assert) {
+QUnit.test("Return correct value for array.length", function(assert) {
   var process = new ProcessValue();
   assert.equal(
     process.getValue("ar.length", { ar: [1, 2] }),
@@ -139,7 +139,7 @@ QUnit.test("Return correct value for array.length", function (assert) {
   );
 });
 
-QUnit.test("isConvertibleToNumber", function (assert) {
+QUnit.test("isConvertibleToNumber", function(assert) {
   assert.equal(
     Helpers.isConvertibleToNumber("0"),
     true,
@@ -177,27 +177,26 @@ QUnit.test("isConvertibleToNumber", function (assert) {
   );
 });
 
-QUnit.test(
-  "isTwoValueEquals, undefined, null and empty string",
-  function (assert) {
-    assert.equal(
-      Helpers.isTwoValueEquals(undefined, null),
-      true,
-      "null and undefined are equals"
-    );
-    assert.equal(
-      Helpers.isTwoValueEquals(undefined, ""),
-      true,
-      "undefined and empty string are equals"
-    );
-    assert.equal(
-      Helpers.isTwoValueEquals(null, ""),
-      true,
-      "null and empty string are equals"
-    );
-  }
-);
-QUnit.test("isTwoValueEquals, 0 and '0'", function (assert) {
+QUnit.test("isTwoValueEquals, undefined, null and empty string", function(
+  assert
+) {
+  assert.equal(
+    Helpers.isTwoValueEquals(undefined, null),
+    true,
+    "null and undefined are equals"
+  );
+  assert.equal(
+    Helpers.isTwoValueEquals(undefined, ""),
+    true,
+    "undefined and empty string are equals"
+  );
+  assert.equal(
+    Helpers.isTwoValueEquals(null, ""),
+    true,
+    "null and empty string are equals"
+  );
+});
+QUnit.test("isTwoValueEquals, 0 and '0'", function(assert) {
   assert.equal(
     Helpers.isTwoValueEquals(0, "0"),
     true,
@@ -247,7 +246,7 @@ QUnit.test("isTwoValueEquals, 0 and '0'", function (assert) {
 
 QUnit.test(
   "isTwoValueEquals, numbers and string + string and string, Bug# 2000",
-  function (assert) {
+  function(assert) {
     assert.equal(Helpers.isTwoValueEquals(10, "10"), true, "10 equals '10'");
     assert.equal(Helpers.isTwoValueEquals(10, "010"), true, "10 equals '010'");
     assert.equal(
@@ -257,17 +256,16 @@ QUnit.test(
     );
   }
 );
-QUnit.test(
-  "isTwoValueEquals, undefined vs 'undefined', Bug# ",
-  function (assert) {
-    assert.equal(
-      Helpers.isTwoValueEquals(undefined, "undefined"),
-      false,
-      "undefined not equals 'undefined'"
-    );
-  }
-);
-QUnit.test("Helpers.isNumber", function (assert) {
+QUnit.test("isTwoValueEquals, undefined vs 'undefined', Bug# ", function(
+  assert
+) {
+  assert.equal(
+    Helpers.isTwoValueEquals(undefined, "undefined"),
+    false,
+    "undefined not equals 'undefined'"
+  );
+});
+QUnit.test("Helpers.isNumber", function(assert) {
   assert.equal(Helpers.isNumber("1"), true, "1 is a number");
   assert.equal(Helpers.isNumber("0xabcd"), true, "0xabcd is a number");
   assert.equal(Helpers.isNumber("23.3"), true, "23.3 is a number");
@@ -278,7 +276,7 @@ QUnit.test("Helpers.isNumber", function (assert) {
     "0xbe0eb53f46cd790cd13851d5eff43d12404d33e8 is not a number"
   );
 });
-QUnit.test("Helpers.getNumberByIndex", function (assert) {
+QUnit.test("Helpers.getNumberByIndex", function(assert) {
   assert.equal(Helpers.getNumberByIndex(0, "1."), "1.", "0/1.");
   assert.equal(Helpers.getNumberByIndex(2, "1."), "3.", "2/3.");
   assert.equal(Helpers.getNumberByIndex(2, "a)"), "c)", "2/a)");
@@ -299,7 +297,7 @@ class ObjectWithDecoratedProperties extends Base {
   @property() stringPropertyNoDefault: string;
 }
 
-QUnit.test("boolPropertyWithDefault", function (assert) {
+QUnit.test("boolPropertyWithDefault", function(assert) {
   const instance: ObjectWithDecoratedProperties = new ObjectWithDecoratedProperties();
   assert.equal(instance.boolPropertyNoDefault, undefined);
   assert.equal(instance.boolPropertyWithDefault, true);
@@ -335,4 +333,45 @@ QUnit.test("boolPropertyWithDefault", function (assert) {
   assert.equal(instance.boolPropertyWithDefault, null);
   assert.equal(instance.stringPropertyNoDefault, "hole");
   assert.equal(instance.stringPropertyWithDefault, null);
+});
+QUnit.test("isTwoValueEquals compare Base objects", function(assert) {
+  var json = {
+    elements: [{ type: "text", name: "q1" }],
+  };
+  var survey1 = new SurveyModel(json);
+  var survey2 = new SurveyModel(json);
+  assert.equal(
+    Helpers.isTwoValueEquals(survey1, survey2),
+    true,
+    "Two surveys use the same JSON"
+  );
+  survey1.dispose();
+  assert.equal(
+    Helpers.isTwoValueEquals(survey1, survey2),
+    false,
+    "The first survey is disposed"
+  );
+  survey1 = new SurveyModel(json);
+  assert.equal(
+    Helpers.isTwoValueEquals(
+      survey1.getAllQuestions()[0],
+      survey2.getAllQuestions()[0]
+    ),
+    true,
+    "The first survey is disposed"
+  );
+  survey1.getAllQuestions()[0].name = "q2";
+  assert.equal(
+    Helpers.isTwoValueEquals(
+      survey1.getAllQuestions()[0],
+      survey2.getAllQuestions()[0]
+    ),
+    false,
+    "The first survey is disposed"
+  );
+  assert.equal(
+    Helpers.isTwoValueEquals(survey1.pages[0], survey2.getAllQuestions()[0]),
+    false,
+    "The first survey is disposed"
+  );
 });

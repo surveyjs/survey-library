@@ -154,6 +154,11 @@ export class QuestionPanelDynamicItem implements ISurveyData, ISurveyImpl {
       values[key] = surveyValues[key];
     }
     values[QuestionPanelDynamicItem.ItemVariableName] = this.getAllValues();
+    if (!!this.data) {
+      values[
+        QuestionPanelDynamicItem.IndexVariableName.toLowerCase()
+      ] = this.data.getItemIndex(this);
+    }
     return values;
   }
   getFilteredProperties(): any {
@@ -1492,7 +1497,8 @@ export class QuestionPanelDynamicModel extends Question
   }
   //IQuestionPanelDynamicData
   getItemIndex(item: ISurveyData): number {
-    return this.items.indexOf(item);
+    var res = this.items.indexOf(item);
+    return res > -1 ? res : this.items.length;
   }
   getPanelItemData(item: ISurveyData): any {
     var items = this.items;

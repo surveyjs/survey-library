@@ -3532,3 +3532,26 @@ QUnit.test("getPanelRemoveButtonCss", function(assert) {
     "Non-default rendering: remove button in the right of the panel"
   );
 });
+QUnit.test(
+  "PanelDynamic, support panelIndex in expressions, Issue#2760",
+  function(assert) {
+    var survey = new SurveyModel();
+    var page = survey.addNewPage("p");
+    var panel = <QuestionPanelDynamicModel>(
+      page.addNewQuestion("paneldynamic", "panel")
+    );
+    var q1 = panel.template.addNewQuestion("text", "q1");
+    q1.defaultValueExpression = "{panelIndex} + 1";
+    panel.panelCount = 2;
+    assert.equal(
+      panel.panels[0].questions[0].value,
+      1,
+      "Set 1 from defaultValueExpression"
+    );
+    assert.equal(
+      panel.panels[1].questions[0].value,
+      2,
+      "Set 2 from defaultValueExpression"
+    );
+  }
+);

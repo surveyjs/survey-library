@@ -30,7 +30,7 @@ export class QuestionRow extends QuestionRowModel {
     }
   }
 
-  public get survey() {
+  public get survey(): any {
     return this.panel.survey;
   }
 

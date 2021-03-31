@@ -89,7 +89,10 @@ export class Helpers {
     if (!(x instanceof Object) && !(y instanceof Object)) return x == y;
     if (!(x instanceof Object) || !(y instanceof Object)) return false;
     if (x["equals"]) return x.equals(y);
-    if (!!x.toJSON && !!y.toJSON) {
+    if (!!x.toJSON && !!y.toJSON && !!x.getType && !!y.getType) {
+      if (x.isDiposed || y.isDiposed) return false;
+      if (x.getType() !== y.getType()) return false;
+      if (!!x.name && x.name !== y.name) return false;
       return this.isTwoValueEquals(x.toJSON(), y.toJSON());
     }
     if (Array.isArray(x) && Array.isArray(y))
@@ -107,7 +110,6 @@ export class Helpers {
     }
     return true;
   }
-
   public static randomizeArray<T>(array: Array<T>): Array<T> {
     for (var i = array.length - 1; i > 0; i--) {
       var j = Math.floor(Math.random() * (i + 1));
@@ -174,7 +176,7 @@ export class Helpers {
           break;
         }
       }
-      var checkLetter = function () {
+      var checkLetter = function() {
         return (
           (hasDigit && !Helpers.isCharDigit(str[ind])) ||
           Helpers.isCharNotLetterAndDigit(str[ind])
@@ -213,9 +215,9 @@ export class Helpers {
   }
 }
 if (!(<any>String.prototype)["format"]) {
-  (<any>String.prototype)["format"] = function () {
+  (<any>String.prototype)["format"] = function() {
     var args = arguments;
-    return this.replace(/{(\d+)}/g, function (match: any, number: any) {
+    return this.replace(/{(\d+)}/g, function(match: any, number: any) {
       return typeof args[number] != "undefined" ? args[number] : match;
     });
   };

@@ -2073,6 +2073,10 @@ export class QuestionMatrixDropdownModelBase
   public getType(): string {
     return "matrixdropdownbase";
   }
+  public dispose() {
+    super.dispose();
+    this.clearGeneratedRows();
+  }
   public get hasSingleInput(): boolean {
     return false;
   }

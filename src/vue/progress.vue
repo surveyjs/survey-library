@@ -32,6 +32,7 @@ export class Progress extends Vue {
 }
 Vue.component("sv-progress-pages", Progress);
 Vue.component("sv-progress-questions", Progress);
-Vue.component("sv-progress-correctquestions", Progress);
+Vue.component("sv-progress-correctQuestions", Progress);
+Vue.component("sv-progress-requiredQuestions", Progress);
 export default Progress;
 </script>

@@ -2049,6 +2049,8 @@ export class SurveyModel extends Base
     return this.getPropertyValue("progressBarType");
   }
   public set progressBarType(newValue: string) {
+    if (newValue === "correctquestion") newValue = "correctQuestion";
+    if (newValue === "requiredquestion") newValue = "requiredQuestion";
     this.setPropertyValue("progressBarType", newValue);
   }
   public get isShowProgressBarOnTop(): boolean {

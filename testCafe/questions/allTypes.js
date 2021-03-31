@@ -161,9 +161,8 @@ const applyTheme = ClientFunction(theme => {
       await initSurvey(framework, json);
     });
     test("check survey will all types", async t => {
-      var editable = Selector(".sv-string-editor");
       await t
-        .expect(editable.exists)
+        .expect(Selector(".sv-string-editor").exists)
         .notOk("There should not be any editable elements outside design mode");
 
       await t.typeText(
@@ -188,8 +187,7 @@ const applyTheme = ClientFunction(theme => {
       );
 
       const dropdownSelector = Selector(
-        "select[aria-label='dropdown_question']"
-      );
+        "select[aria-label='dropdown_question']");
       await t.click(dropdownSelector);
       await t.click(
         dropdownSelector
@@ -306,8 +304,7 @@ const applyTheme = ClientFunction(theme => {
 
       await t.click("input[value=Complete]");
 
-      let surveyResult = await getSurveyResult();
-
+      const surveyResult = await getSurveyResult();
       assert.deepEqual(surveyResult.text_question, "test text");
       assert.deepEqual(surveyResult.checkbox_question, ["item1"]);
       assert.deepEqual(surveyResult.radiogroup_question, "item1");

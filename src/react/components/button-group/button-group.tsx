@@ -25,12 +25,13 @@ export class SurveyButtonGroup extends SurveyElementBase<any, any> {
   }
   renderItems() {
     return this.question.visibleChoices.map(
-      (itemValue: ItemValue, index: number) => {
-        const item = new ButtonGroupItemModel(this.question, itemValue, index);
+      (item: ItemValue, index: number) => {
         return (
           <SurveyButtonGroupItem
-            key={item.id}
-            model={item}
+            key={this.question.inputId + "_" + index}
+            item={item}
+            question={this.question}
+            index={index}
           ></SurveyButtonGroupItem>
         );
       }

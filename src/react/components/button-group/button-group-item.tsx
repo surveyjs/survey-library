@@ -2,14 +2,29 @@ import React from "react";
 import { ReactElementFactory } from "../../element-factory";
 import { SurveyElementBase } from "../../reactquestion_element";
 import { SvgIcon } from "../svg-icon/svg-icon";
-import { ButtonGroupItemModel } from "survey-core";
+import {
+  ButtonGroupItemModel,
+  QuestionSelectBase,
+  ItemValue,
+} from "survey-core";
 
 export class SurveyButtonGroupItem extends SurveyElementBase<any, any> {
+  public model: ButtonGroupItemModel;
   constructor(props: any) {
     super(props);
+    this.model = new ButtonGroupItemModel(this.question, this.item, this.index);
   }
-  protected get model(): ButtonGroupItemModel {
-    return this.props.model;
+  get index(): number {
+    return this.props.index;
+  }
+  get question(): QuestionSelectBase {
+    return this.props.question;
+  }
+  get item(): ItemValue {
+    return this.props.item;
+  }
+  getStateElement() {
+    return this.item;
   }
   public render() {
     const icon = this.renderIcon();

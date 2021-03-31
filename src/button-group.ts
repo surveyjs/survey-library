@@ -2,14 +2,12 @@ import { Base } from "./base";
 import { ItemValue } from "./itemvalue";
 import { QuestionSelectBase } from "./question_baseselect";
 //model from Question and ItemValue
-export class ButtonGroupItemModel extends Base {
+export class ButtonGroupItemModel {
   constructor(
     public question: QuestionSelectBase,
     public item: ItemValue,
     public index: number
-  ) {
-    super();
-  }
+  ) {}
   public get value() {
     return this.item.value;
   }
@@ -35,7 +33,7 @@ export class ButtonGroupItemModel extends Base {
     return !this.item.isEnabled || this.question.isReadOnly;
   }
   public get name() {
-    return this.question.name + '_' + this.question.id
+    return this.question.name + "_" + this.question.id;
   }
   public get id() {
     return this.question.inputId + "_" + this.index;
@@ -64,7 +62,7 @@ export class ButtonGroupItemModel extends Base {
       icon: this.question.cssClasses.buttonGroupItemIcon,
       control: this.question.cssClasses.buttonGroupItemControl,
       caption: this.question.cssClasses.buttonGroupItemCaption,
-      decorator: this.question.cssClasses.buttonGroupItemDecorator
+      decorator: this.question.cssClasses.buttonGroupItemDecorator,
     };
   }
   public onChange() {

@@ -1,7 +1,12 @@
 <template>
   <div role="group" :class="question.cssClasses.buttonGroup">
-    <template v-for="item in wrappedItems">
-      <sv-button-group-item :model="item" :key="item.id"></sv-button-group-item>
+    <template v-for="(item, index) in question.visibleChoices">
+      <sv-button-group-item
+        :item="item"
+        :question="question"
+        :index="index"
+        :key="question.inputId + '_' + index"
+      ></sv-button-group-item>
     </template>
   </div>
 </template>
@@ -24,12 +29,6 @@ export class ButtonGroupViewModel extends BaseVue {
 
   getModel(): QuestionSelectBase {
     return this.question;
-  }
-  get wrappedItems() {
-    return this.question.visibleChoices.map(
-      (itemValue: ItemValue, index: number) =>
-        new ButtonGroupItemModel(this.question, itemValue, index)
-    );
   }
 }
 

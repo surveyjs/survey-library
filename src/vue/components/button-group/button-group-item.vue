@@ -31,14 +31,25 @@
 <script lang="ts">
 import { Component, Prop } from "vue-property-decorator";
 import Vue from "vue";
-import { ButtonGroupItemModel } from "survey-core";
+import {
+  ButtonGroupItemModel,
+  ItemValue,
+  QuestionSelectBase,
+} from "survey-core";
 import { BaseVue } from "src/vue/base";
 @Component
 export class ButtonGroupItemViewModel extends BaseVue {
-  @Prop() model: ButtonGroupItemModel;
+  @Prop() item: ItemValue;
+  @Prop() question: QuestionSelectBase;
+  @Prop() index: number;
+  public model: ButtonGroupItemModel;
 
-  getModel(): ButtonGroupItemModel {
-    return this.model;
+  constructor(props: any) {
+    super(props);
+    this.model = new ButtonGroupItemModel(this.question, this.item, this.index);
+  }
+  getModel(): ItemValue {
+    return this.item;
   }
 }
 

@@ -419,8 +419,8 @@ Serializer.addClass(
     },
     { name: "visibleIf:condition", showMode: "form" },
     { name: "enableIf:condition", showMode: "form" },
-    { name: "iconName" },
-    { name: "iconSize"},
+    { name: "iconName:text" },
+    { name: "iconSize:number"},
     { name: "showCaption:boolean", default: true }
   ],
   (value: any) => new ItemValue(value)

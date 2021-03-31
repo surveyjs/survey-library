@@ -71,6 +71,7 @@ export { SurveyActionBar } from "../react/components/action-bar/action-bar";
 export { SvgIcon } from "../react/components/svg-icon/svg-icon";
 export { SurveyQuestionMatrixDynamicRemoveButton } from "../react/components/matrix-actions/remove-button/remove-button";
 export { SurveyQuestionMatrixDetailButton } from "../react/components/matrix-actions/detail-button/detail-button";
+export { SurveyButtonGroup } from "../react/components/button-group/button-group";
 
 export { SurveyLocStringViewer } from "../react/string-viewer";
 export { SurveyLocStringEditor } from "../react/string-editor";

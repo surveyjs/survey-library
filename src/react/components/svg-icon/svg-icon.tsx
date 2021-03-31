@@ -9,6 +9,18 @@ export class SvgIcon extends React.Component<any, any> {
     this.svgIconRef = React.createRef();
   }
 
+  updateSvg() {
+    createSvg(
+      this.props.size,
+      this.props.width,
+      this.props.height,
+      this.props.iconName,
+      this.svgIconRef.current
+    );
+  }
+  componentDidUpdate() {
+    this.updateSvg();
+  }
   render() {
     return (
       <svg
@@ -20,13 +32,7 @@ export class SvgIcon extends React.Component<any, any> {
     );
   }
   componentDidMount() {
-    createSvg(
-      this.props.size,
-      this.props.width,
-      this.props.height,
-      this.props.iconName,
-      this.svgIconRef.current
-    );
+    this.updateSvg();
   }
 }
 

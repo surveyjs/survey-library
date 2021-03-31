@@ -64,3 +64,4 @@ export { Popup } from "../vue/components/popup/popup.vue";
 export { List } from "../vue/components/list/list.vue";
 export { SurveyQuestionMatrixDynamicRemoveButton } from "../vue/components/matrix-actions/remove-button/remove-button.vue";
 export { SurveyQuestionMatrixDetailButton } from "../vue/components/matrix-actions/detail-button/detail-button.vue";
+export { ButtonGroupViewModel } from "../vue/components/button-group/button-group.vue"

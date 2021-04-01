@@ -594,7 +594,12 @@ export class MatrixDropdownColumn extends Base
   }
   protected propertyValueChanged(name: string, oldValue: any, newValue: any) {
     super.propertyValueChanged(name, oldValue, newValue);
-    if (name === "visibleChoices" || name === "isReadOnly") return; //TODO descriptor doesn't return that it is a read-only property
+    if (
+      name === "visibleChoices" ||
+      name === "isReadOnly" ||
+      name === "cssRoot"
+    )
+      return; //TODO descriptor doesn't return that it is a read-only property
     if (this.colOwner != null && !this.isLoadingFromJson) {
       this.colOwner.onColumnPropertyChanged(this, name, newValue);
     }

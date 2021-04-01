@@ -3555,3 +3555,36 @@ QUnit.test(
     );
   }
 );
+QUnit.test(
+  "Unable to Preview a Matrix Dynamic inside of a Panel Dynamic , Bug#2761",
+  function(assert) {
+    var survey = new SurveyModel({
+      elements: [
+        {
+          type: "paneldynamic",
+          name: "panel",
+          templateElements: [
+            {
+              type: "matrixdynamic",
+              name: "matrix",
+              columns: [
+                {
+                  name: "col1",
+                },
+              ],
+              choices: [1],
+              rowCount: 1,
+            },
+          ],
+        },
+      ],
+      showPreviewBeforeComplete: "showAnsweredQuestions",
+    });
+    var panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+    panel.addPanel();
+    panel.panels[0].questions[0].visibleRows[0].cells[0].question.value = 1;
+    survey.showPreview();
+    assert.equal(survey.state, "preview", "We show preview");
+    assert.deepEqual(survey.data, { panel: [{ matrix: [{ col1: 1 }] }] });
+  }
+);

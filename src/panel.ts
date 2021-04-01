@@ -1288,7 +1288,7 @@ export class PanelModelBase extends SurveyElement
     this.removeElement(question);
   }
   runCondition(values: HashTable<any>, properties: HashTable<any>) {
-    if (this.isDesignMode) return;
+    if (this.isDesignMode || this.isLoadingFromJson) return;
     var elements = this.elements.slice();
     for (var i = 0; i < elements.length; i++) {
       elements[i].runCondition(values, properties);

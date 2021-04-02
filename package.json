@@ -31,7 +31,6 @@
     "watch_angular_dev": "webpack --config ./build-scripts/survey-angular/webpack.config.js --env.buildType dev --watch",
     "watch_jquery_dev": "webpack --config ./build-scripts/survey-jquery/webpack.config.js --env.buildType dev --watch",
     "watch_vue_dev": "webpack --config ./build-scripts/survey-vue/webpack.config.js --env.buildType dev --watch",
-    "watch_core_dev": "webpack --config ./build-scripts/survey-core/webpack.config.js --env.buildType dev --watch",
     "build_knockout": "npm run build_knockout_dev && npm run build_knockout_prod",
     "build_knockout_ui": "webpack --config ./build-scripts/survey-knockout-ui/webpack.config.js --env.buildType dev && webpack --config ./build-scripts/survey-knockout-ui/webpack.config.js --env.buildType prod",
     "build_react": "npm run build_react_dev && npm run build_react_prod",
@@ -41,7 +40,10 @@
     "build_core": "npm run build_core_dev && npm run build_core_prod",
     "build_jquery": "npm run build_jquery_dev && npm run build_jquery_prod",
     "build_angular": "npm run build_angular_dev && npm run build_angular_prod",
-    "watch_knockout_ui": "webpack --config ./build-scripts/survey-knockout-ui/webpack.config.js --env.buildType dev --watch"
+    "watch_core_dev": "webpack --config ./build-scripts/survey-core/webpack.config.js --env.buildType dev --watch",
+    "watch_core_prod": "webpack --config ./build-scripts/survey-core/webpack.config.js --env.buildType prod --watch",
+    "watch_knockout_ui": "webpack --config ./build-scripts/survey-knockout-ui/webpack.config.js --env.buildType dev --watch",
+    "watch_react_ui": "webpack --config ./build-scripts/survey-react-ui/webpack.config.js --env.buildType dev --watch"
   },
   "version": "1.8.39",
   "name": "survey-library",

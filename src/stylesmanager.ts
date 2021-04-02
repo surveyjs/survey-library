@@ -325,6 +325,21 @@ export class StylesManager {
     ".sv_main .sv_p_wrapper_in_row":
       "display: flex; flex-direction: row; align-items: center;",
     ".sv_main  .sv_p_remove_btn_right": "margin-left: 1em;",
+
+    //button-group
+    ".sv_main .sv-button-group":
+      "display: flex; align-items: center; flex-direction: row; font-size: 16px; height: 48px; overflow: auto;",
+    ".sv_main .sv-button-group__item":
+      "display: flex; box-sizing: border-box; flex-direction: row; justify-content: center; align-items: center; width: 100%; padding: 11px 16px; line-height: 24px; border-width: 1px; border-style: solid; outline: none; font-size: 16px; font-weight: 400; cursor: pointer; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;",
+    ".sv_main .sv-button-group__item:not(:first-of-type)": "margin-left: -1px;",
+    ".sv_main .sv-button-group__item-icon": "display: block; height: 24px;",
+    ".sv_main .sv-button-group__item--selected": "font-weight: 600;",
+    ".sv_main .sv-button-group__item-decorator":
+      "display: flex; align-items: center;",
+    ".sv_main  .sv-button-group__item-icon + .sv-button-group__item-caption":
+      "margin-left: 8px;",
+    ".sv_main .sv-button-group__item--disabled": "color: cursor: default;",
+    //eo button-group
   };
 
   public static Media: { [key: string]: { media: string; style: string } } = {
@@ -458,7 +473,8 @@ export class StylesManager {
       "$slider-color": "white",
       "$disabled-switch-color": "#9f9f9f",
       "$disabled-slider-color": "#cfcfcf",
-      "$foreground-light": "909090",
+      "$foreground-light": "#909090",
+      "$foreground-disabled": "#161616",
       "$background-dim": "#f3f3f3",
     },
     orange: {
@@ -483,7 +499,8 @@ export class StylesManager {
       "$slider-color": "white",
       "$disabled-switch-color": "#9f9f9f",
       "$disabled-slider-color": "#cfcfcf",
-      "$foreground-light": "909090",
+      "$foreground-light": "#909090",
+      "$foreground-disabled": "#161616",
       "$background-dim": "#f3f3f3",
     },
     darkblue: {
@@ -508,7 +525,8 @@ export class StylesManager {
       "$slider-color": "white",
       "$disabled-switch-color": "#9f9f9f",
       "$disabled-slider-color": "#cfcfcf",
-      "$foreground-light": "909090",
+      "$foreground-light": "#909090",
+      "$foreground-disabled": "#161616",
       "$background-dim": "#f3f3f3",
     },
     darkrose: {
@@ -533,7 +551,8 @@ export class StylesManager {
       "$slider-color": "white",
       "$disabled-switch-color": "#9f9f9f",
       "$disabled-slider-color": "#cfcfcf",
-      "$foreground-light": "909090",
+      "$foreground-light": "#909090",
+      "$foreground-disabled": "#161616",
       "$background-dim": "#f3f3f3",
     },
     stone: {
@@ -558,7 +577,8 @@ export class StylesManager {
       "$slider-color": "white",
       "$disabled-switch-color": "#9f9f9f",
       "$disabled-slider-color": "#cfcfcf",
-      "$foreground-light": "909090",
+      "$foreground-light": "#909090",
+      "$foreground-disabled": "#161616",
       "$background-dim": "#f3f3f3",
     },
     winter: {
@@ -583,7 +603,8 @@ export class StylesManager {
       "$slider-color": "white",
       "$disabled-switch-color": "#9f9f9f",
       "$disabled-slider-color": "#cfcfcf",
-      "$foreground-light": "909090",
+      "$foreground-light": "#909090",
+      "$foreground-disabled": "#161616",
       "$background-dim": "#f3f3f3",
     },
     winterstone: {
@@ -608,7 +629,8 @@ export class StylesManager {
       "$slider-color": "white",
       "$disabled-switch-color": "#9f9f9f",
       "$disabled-slider-color": "#cfcfcf",
-      "$foreground-light": "909090",
+      "$foreground-light": "#909090",
+      "$foreground-disabled": "#161616",
       "$background-dim": "#f3f3f3",
     },
     modern: {
@@ -642,7 +664,8 @@ export class StylesManager {
       "$radio-checked-color": "#404040",
       "$clean-button-color": "#1948b3",
       "$body-background-color": "#ffffff",
-      "$foreground-light": "909090",
+      "$foreground-light": "#909090",
+      "$foreground-disabled": "#161616",
       "$background-dim": "#f3f3f3",
     },
     bootstrap: {
@@ -656,7 +679,8 @@ export class StylesManager {
       "$slider-color": "white",
       "$disabled-switch-color": "#9f9f9f",
       "$disabled-slider-color": "#cfcfcf",
-      "$foreground-light": "909090",
+      "$foreground-light": "#909090",
+      "$foreground-disabled": "#161616",
       "$background-dim": "#f3f3f3",
     },
     bootstrapmaterial: {
@@ -672,7 +696,8 @@ export class StylesManager {
       "$disabled-switch-color": "#9f9f9f",
       "$disabled-slider-color": "#cfcfcf",
       "$body-background-color": "#ffffff",
-      "$foreground-light": "909090",
+      "$foreground-light": "#909090",
+      "$foreground-disabled": "#161616",
       "$background-dim": "#f3f3f3",
     },
   };
@@ -784,9 +809,26 @@ export class StylesManager {
     ".sv_main .sv_matrix_detail_row":
       "background-color: #ededed; border-top: 1px solid $header-background-color; border-bottom: 1px solid $header-background-color;",
 
+    //action-bar
     ".sv_main .sv-action-bar-item": "color: $text-color;",
     ".sv_main .sv-action-bar-item__icon use": "fill: $foreground-light;",
     ".sv_main .sv-action-bar-item:hover": "background-color: $background-dim;",
+    //eo action-bar
+
+    //button-group
+    ".sv_main .sv-button-group__item:hover:not(.sv-button-group__item--selected):not(not(.sv-button-group__item--disabled)":
+      "background-color: $background-dim;",
+    ".sv_main .sv-button-group__item-icon use": "fill: $foreground-light;",
+    ".sv_main .sv-button-group__item--selected": "color: $main-color;",
+    ".sv_main .sv-button-group__item--selected .sv-button-group__item-icon use":
+      "fill: $main-color;",
+    ".sv_main .sv-button-group__item--disabled": "color: $foreground-disabled;",
+    ".sv_main .sv-button-group__item--disabled .sv-button-group__item-icon use":
+      "fill: $foreground-disabled;",
+    ".sv_main .sv-button-group__item":
+      "background: $body-background-color; border-color: $border-color;",
+
+    //eo button-group
   };
 
   public static modernThemeCss: { [key: string]: string } = {
@@ -1087,10 +1129,10 @@ export class StylesManager {
           StylesManager.ThemeColors[themeName] ||
           StylesManager.ThemeColors["default"];
 
-        Object.keys(ThemeCss).forEach(selector => {
+        Object.keys(ThemeCss).forEach((selector) => {
           let cssRuleText = ThemeCss[selector];
           Object.keys(theme).forEach(
-            colorVariableName =>
+            (colorVariableName) =>
               (cssRuleText = cssRuleText.replace(
                 new RegExp("\\" + colorVariableName, "g"),
                 theme[colorVariableName]
@@ -1123,7 +1165,7 @@ export class StylesManager {
 
   public initializeStyles(sheet: CSSStyleSheet) {
     if (StylesManager.Enabled) {
-      Object.keys(StylesManager.Styles).forEach(selector => {
+      Object.keys(StylesManager.Styles).forEach((selector) => {
         try {
           sheet.insertRule(
             selector + " { " + StylesManager.Styles[selector] + " }",
@@ -1131,7 +1173,7 @@ export class StylesManager {
           );
         } catch (e) {}
       });
-      Object.keys(StylesManager.Media).forEach(selector => {
+      Object.keys(StylesManager.Media).forEach((selector) => {
         try {
           sheet.insertRule(
             StylesManager.Media[selector].media +

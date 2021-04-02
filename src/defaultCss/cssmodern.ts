@@ -170,6 +170,14 @@ export var modernCss = {
     other: "sv-comment sv-question__other",
     clearButton: "sv-btn sv-selectbase__clear-btn",
     column: "sv-selectbase__column",
+    buttonGroup: "sv-button-group",
+    buttonGroupItem: "sv-button-group__item",
+    buttonGroupItemIcon: "sv-button-group__item-icon",
+    buttonGroupItemDecorator: "sv-button-group__item-decorator",
+    buttonGroupItemCaption: "sv-button-group__item-caption",
+    buttonGroupItemSelected: "sv-button-group__item--selected",
+    buttonGroupItemDisabled: "sv-button-group__item--disabled",
+    buttonGroupItemControl: "sv-visuallyhidden",
   },
   boolean: {
     root: "sv_qbln",
@@ -215,7 +223,7 @@ export var modernCss = {
     buttonGroupItemCaption: "sv-button-group__item-caption",
     buttonGroupItemSelected: "sv-button-group__item--selected",
     buttonGroupItemDisabled: "sv-button-group__item--disabled",
-    buttonGroupItemControl: "sv-visuallyhidden"
+    buttonGroupItemControl: "sv-visuallyhidden",
   },
   imagepicker: {
     root: "sv-imagepicker",

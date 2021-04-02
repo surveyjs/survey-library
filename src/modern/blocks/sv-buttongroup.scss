@@ -33,7 +33,7 @@ $background: var(--background, #fff);
   outline: none;
   font-size: calcSize(2);
   font-weight: 400;
-  background: #fff;
+  background: $background;
   cursor: pointer;
   overflow: hidden;
   text-overflow: ellipsis;

@@ -604,6 +604,7 @@ QUnit.test("Single: matrixdropdown.defaultValue", function(assert) {
     Salmon: { price: 19, total: 0 },
     Beer: { price: 5, total: 0 },
   };
+  var rows = q.contentQuestion.visibleRows;
   assert.deepEqual(q.value, value, "defaultValue is set");
   assert.deepEqual(
     q.contentQuestion.value,

@@ -412,8 +412,8 @@ QUnit.test("Edit choices in matrix + detailPanel + hasError", function(assert) {
   };
   survey.editingObj = question;
   question.choices.push(new ItemValue(null));
-  assert.equal(matrix.hasErrors(), true, "value is null");
   var rows = matrix.visibleRows;
+  assert.equal(matrix.hasErrors(), true, "value is null");
   rows[0].cells[0].value = "item1";
   assert.equal(matrix.hasErrors(), false, "value is not null");
 });

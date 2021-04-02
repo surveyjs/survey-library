@@ -2269,8 +2269,8 @@ QUnit.test("Expression with two columns doesn't work, bug#1199", function(
   var survey = new SurveyModel(json);
   var question = <QuestionMatrixDropdownModel>survey.getQuestionByName("q1");
   question.value = { B: { bldg: 4, cont: 6 } };
-  var val = question.value;
   var rows = question.visibleRows;
+  var val = question.value;
   assert.equal(val.B.tot, 10, "Expression equals 10");
 });
 
@@ -2930,6 +2930,7 @@ QUnit.test("Test totals, different value types", function(assert) {
     { col1: 3, col2: 40 },
   ];
   matrix.value = value;
+  var rows = matrix.visibleRows;
   var row = matrix.visibleTotalRow;
   var question = row.cells[0].question;
   assert.equal(question.value, 3, "There are 3 values");

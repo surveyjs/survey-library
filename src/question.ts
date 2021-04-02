@@ -1054,7 +1054,6 @@ export class Question extends SurveyElement
   public onSurveyLoad() {
     this.fireCallback(this.surveyLoadCallback);
     this.updateValueWithDefaults();
-    this.updateDisplayValue();
     this.updateElementCss();
   }
   protected onSetData() {
@@ -1152,12 +1151,8 @@ export class Question extends SurveyElement
     }
   }
   public get displayValue(): any {
-    this.updateDisplayValue();
-    return this.getPropertyValue("displayValue", "");
-  }
-  protected updateDisplayValue(): any {
-    if (this.isLoadingFromJson) return;
-    this.setPropertyValue("displayValue", this.getDisplayValue(true));
+    if (this.isLoadingFromJson) return "";
+    return this.getDisplayValue(true);
   }
   /**
    * Return the question value as a display text. For example, for dropdown, it would return the item text instead of item value.
@@ -1664,10 +1659,7 @@ export class Question extends SurveyElement
       this.fireCallback(this.valueChangedCallback);
     if (updateIsAnswered) this.updateIsAnswered();
   }
-  onSurveyValueChanged(newValue: any) {
-    if (this.isLoadingFromJson) return;
-    this.updateDisplayValue();
-  }
+  onSurveyValueChanged(newValue: any) {}
   public setVisibleIndex(val: number): number {
     if (
       !this.isVisible ||

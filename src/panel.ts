@@ -1556,6 +1556,10 @@ export class PanelModel extends PanelModelBase
     super.onSurveyLoad();
     this.onIndentChanged();
   }
+  protected onSetData() {
+    super.onSetData();
+    this.onIndentChanged();
+  }
   public get isPanel(): boolean {
     return true;
   }
@@ -1755,13 +1759,13 @@ export class PanelModel extends PanelModelBase
     this.setPropertyValue("paddingRight", val);
   }
   private onIndentChanged() {
+    if (!this.getSurvey()) return;
     this.innerPaddingLeft = this.getIndentSize(this.innerIndent);
     this.paddingLeft = this.getIndentSize(this.indent);
     this.paddingRight = this.getIndentSize(this.rightIndent);
   }
   private getIndentSize(indent: number): string {
     if (indent < 1) return "";
-    if (!this.data) return "";
     var css = (<any>this).survey["css"];
     if (!css) return "";
     return indent * css.question.indent + "px";

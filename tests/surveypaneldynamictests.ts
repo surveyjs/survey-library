@@ -3588,3 +3588,55 @@ QUnit.test(
     assert.deepEqual(survey.data, { panel: [{ matrix: [{ col1: 1 }] }] });
   }
 );
+
+QUnit.test(
+  "question.indent property doesn't work inside Panel Dynamic , Bug#2764",
+  function(assert) {
+    var survey = new SurveyModel({
+      elements: [
+        {
+          type: "paneldynamic",
+          name: "panel",
+          templateElements: [
+            {
+              type: "text",
+              name: "question1",
+              indent: 1,
+            },
+            {
+              type: "panel",
+              name: "nestedPanel",
+              indent: 2,
+              elements: [
+                {
+                  type: "text",
+                  name: "question2",
+                  indent: 3,
+                },
+              ],
+            },
+          ],
+          panelCount: 1,
+        },
+      ],
+    });
+    var panel = <QuestionPanelDynamicModel>(
+      survey.getQuestionByName("panel").panels[0]
+    );
+    assert.equal(
+      panel.questions[0].paddingLeft,
+      "20px",
+      "set padding for the first question"
+    );
+    assert.equal(
+      panel.elements[1].paddingLeft,
+      "40px",
+      "set padding for the nested panel"
+    );
+    assert.equal(
+      panel.elements[1].questions[0].paddingLeft,
+      "60px",
+      "set padding for a question in the nested panel"
+    );
+  }
+);

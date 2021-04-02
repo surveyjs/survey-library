@@ -837,7 +837,7 @@ export class Question extends SurveyElement
     this.paddingRight = this.getIndentSize(this.rightIndent);
   }
   private getIndentSize(indent: number): string {
-    if (indent < 1) return "";
+    if (indent < 1 || !this.getSurvey() || !this.cssClasses) return "";
     return indent * this.cssClasses.indent + "px";
   }
   /**
@@ -1062,6 +1062,7 @@ export class Question extends SurveyElement
     this.initDataFromSurvey();
     this.onSurveyValueChanged(this.value);
     this.updateValueWithDefaults();
+    this.onIndentChanged();
     this.updateElementCss();
   }
   protected initDataFromSurvey() {

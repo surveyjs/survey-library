@@ -1610,12 +1610,19 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
       : this.buildVerticalRows();
     this.setPropertyValue("rows", rows);
   }
+  private hasActionCellInRowsValues: any = {};
   private hasActionCellInRows(location: "start" | "end"): boolean {
-    var rows = this.matrix.visibleRows;
-    return (
-      rows.filter(row => !this.isValueEmpty(this.getRowActions(row, location)))
-        .length != 0
-    );
+    if (this.hasActionCellInRowsValues[location] === undefined) {
+      var rows = this.matrix.visibleRows;
+      this.hasActionCellInRowsValues[location] = false;
+      for (var i = 0; i < rows.length; i++) {
+        if (!this.isValueEmpty(this.getRowActions(rows[i], location))) {
+          this.hasActionCellInRowsValues[location] = true;
+          break;
+        }
+      }
+    }
+    return this.hasActionCellInRowsValues[location];
   }
   private canRemoveRow(row: MatrixDropdownRowModelBase): boolean {
     return this.matrix.canRemoveRow(row);

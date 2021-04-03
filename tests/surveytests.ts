@@ -5401,24 +5401,25 @@ QUnit.test("Survey Elements css", function(assert) {
 });
 
 QUnit.test("Question cssRoot", function(assert) {
-  var survey = new SurveyModel();
-  var page = survey.addNewPage("page1");
-  var textQuestion = page.addNewQuestion("text", "q1");
-  var checkQuestion = page.addNewQuestion("checkbox", "q2");
-
-  textQuestion.cssClasses;
+  var json = {
+    elements: [
+      { type: "text", name: "q1" },
+      { type: "checkbox", name: "q2" },
+    ],
+  };
+  var survey = new SurveyModel(json);
   assert.equal(
-    textQuestion.cssRoot,
+    survey.getQuestionByName("q1").cssRoot,
     "sv_q sv_qstn",
     "text question root class - original"
   );
-  checkQuestion.cssClasses;
   assert.equal(
-    checkQuestion.cssRoot,
+    survey.getQuestionByName("q2").cssRoot,
     "sv_q sv_qstn",
     "checkbox question root class - original"
   );
 
+  survey = new SurveyModel(json);
   survey.onUpdateQuestionCssClasses.add(function(survey, options) {
     if (options.question.getType() == "checkbox") {
       options.cssClasses.mainRoot = "testMainRoot";
@@ -5426,15 +5427,13 @@ QUnit.test("Question cssRoot", function(assert) {
     }
   });
 
-  textQuestion.cssClasses;
   assert.equal(
-    textQuestion.cssRoot,
+    survey.getQuestionByName("q1").cssRoot,
     "sv_q sv_qstn",
     "text question root class"
   );
-  checkQuestion.cssClasses;
   assert.equal(
-    checkQuestion.cssRoot,
+    survey.getQuestionByName("q2").cssRoot,
     "testMainRoot",
     "checkbox question root class"
   );

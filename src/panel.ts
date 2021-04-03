@@ -393,7 +393,14 @@ export class PanelModelBase extends SurveyElement
   public set visibleIf(val: string) {
     this.setPropertyValue("visibleIf", val);
   }
+  private cssClassesValue: any;
   public get cssClasses(): any {
+    if (!this.cssClassesValue) {
+      this.cssClassesValue = this.calcCssClasses();
+    }
+    return this.cssClassesValue;
+  }
+  protected calcCssClasses(): any {
     var classes = { panel: {}, error: {}, row: "" };
     this.copyCssClasses(classes.panel, this.css.panel);
     this.copyCssClasses(classes.error, this.css.error);
@@ -1164,6 +1171,7 @@ export class PanelModelBase extends SurveyElement
     super.onReadOnlyChanged();
   }
   public updateElementCss() {
+    this.cssClassesValue = undefined;
     for (var i = 0; i < this.elements.length; i++) {
       var el = <SurveyElement>(<any>this.elements[i]);
       el.updateElementCss();

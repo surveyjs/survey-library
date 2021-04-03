@@ -1342,9 +1342,7 @@ export class QuestionMatrixDropdownRenderedCell {
   public get css(): string {
     return (
       this.className +
-      (this.question.errors.length > 0
-        ? " " + this.question.koCss().hasError
-        : "")
+      (this.question.errors.length > 0 ? " " + this.question.cssError : "")
     );
   }
   public get headers(): string {

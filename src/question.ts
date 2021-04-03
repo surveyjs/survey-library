@@ -90,17 +90,16 @@ export class Question extends SurveyElement
     super(name);
     this.id = Question.getQuestionId();
     this.onCreating();
-    var self = this;
-    this.createNewArray("validators", function(validator: any) {
-      validator.errorOwner = self;
+    this.createNewArray("validators", (validator: any) => {
+      validator.errorOwner = this;
     });
     var locTitleValue = this.createLocalizableString("title", this, true);
-    locTitleValue.onGetTextCallback = function(text) {
+    locTitleValue.onGetTextCallback = (text: string): string => {
       if (!text) {
-        text = self.name;
+        text = this.name;
       }
-      if (!self.survey) return text;
-      return self.survey.getUpdatedQuestionTitle(self, text);
+      if (!this.survey) return text;
+      return this.survey.getUpdatedQuestionTitle(this, text);
     };
     this.locProcessedTitle = new LocalizableString(this, true);
     this.locProcessedTitle.sharedData = locTitleValue;
@@ -109,28 +108,32 @@ export class Question extends SurveyElement
       this,
       true
     );
-    locCommentText.onGetTextCallback = function(text) {
+    locCommentText.onGetTextCallback = (text: string): string => {
       return !!text ? text : surveyLocalization.getString("otherItemText");
     };
 
     this.createLocalizableString("requiredErrorText", this);
-    this.registerFunctionOnPropertyValueChanged("width", function() {
-      self.updateElementCss();
-      if (!!self.parent) {
-        self.parent.elementWidthChanged(self);
+    this.registerFunctionOnPropertyValueChanged("width", () => {
+      this.updateQuestionCss();
+      if (!!this.parent) {
+        this.parent.elementWidthChanged(this);
       }
+    });
+    this.registerFunctionOnPropertyValueChanged("isRequired", () => {
+      this.locTitle.onChanged();
+      this.cssClassesValue = undefined;
     });
     this.registerFunctionOnPropertiesValueChanged(
       ["indent", "rightIndent"],
-      function() {
-        self.onIndentChanged();
+      () => {
+        this.onIndentChanged();
       }
     );
 
     this.registerFunctionOnPropertiesValueChanged(
       ["hasComment", "hasOther"],
-      function() {
-        self.initCommentFromSurvey();
+      () => {
+        this.initCommentFromSurvey();
       }
     );
   }
@@ -351,7 +354,7 @@ export class Question extends SurveyElement
     if (this.parent === val) return;
     this.delete();
     this.setPropertyValue("parent", val);
-    this.updateElementCss();
+    this.updateQuestionCss();
     this.onParentChanged();
   }
   private parentQuestionValue: Question = null;
@@ -385,9 +388,7 @@ export class Question extends SurveyElement
     var isVisibilityChanged =
       this.titleLocation == "hidden" || value == "hidden";
     this.setPropertyValue("titleLocation", value.toLowerCase());
-    if (!this.isLoadingFromJson) {
-      this.updateElementCss();
-    }
+    this.updateQuestionCss();
     if (isVisibilityChanged) {
       this.notifySurveyVisibilityChanged();
     }
@@ -611,11 +612,20 @@ export class Question extends SurveyElement
     if (this.startWithNewLine == val) return;
     this.setPropertyValue("startWithNewLine", val);
   }
+  private cssClassesValue: any;
   /**
    * Returns all css classes that used for rendering the question. You may use survey.updateQuestionCssClasses event to override css classes for a question.
    * @see SurveyModel.updateQuestionCssClasses
    */
   public get cssClasses(): any {
+    if (!this.survey) return this.calcCssClasses();
+    if (!this.cssClassesValue) {
+      this.cssClassesValue = this.calcCssClasses();
+      this.updateElementCssCore(this.cssClassesValue);
+    }
+    return this.cssClassesValue;
+  }
+  private calcCssClasses(): any {
     var css = this.css;
     var classes = { error: {} };
     this.copyCssClasses(classes, css.question);
@@ -624,10 +634,10 @@ export class Question extends SurveyElement
     if (this.survey) {
       this.survey.updateQuestionCssClasses(this, classes);
     }
-    this.updateElementCssCore(classes);
     return classes;
   }
   public get cssRoot(): string {
+    this.ensureElementCss();
     return this.getPropertyValue("cssRoot", "");
   }
   protected setCssRoot(val: string) {
@@ -655,6 +665,7 @@ export class Question extends SurveyElement
     return res;
   }
   public get cssHeader(): string {
+    this.ensureElementCss();
     return this.getPropertyValue("cssHeader", "");
   }
   protected setCssHeader(val: string) {
@@ -674,6 +685,7 @@ export class Question extends SurveyElement
     return res;
   }
   public get cssContent(): string {
+    this.ensureElementCss();
     return this.getPropertyValue("cssContent", "");
   }
   protected setCssContent(val: string) {
@@ -687,6 +699,7 @@ export class Question extends SurveyElement
     return res;
   }
   public get cssTitle(): string {
+    this.ensureElementCss();
     return this.getPropertyValue("cssTitle", "");
   }
   protected setCssTitle(val: string) {
@@ -709,6 +722,7 @@ export class Question extends SurveyElement
     return result;
   }
   public get cssError(): string {
+    this.ensureElementCss();
     return this.getPropertyValue("cssError", "");
   }
   protected setCssError(val: string) {
@@ -730,8 +744,24 @@ export class Question extends SurveyElement
     return res;
   }
   public updateElementCss() {
-    if (this.isLoadingFromJson) return;
+    this.cssClassesValue = undefined;
+  }
+  protected updateQuestionCss(reNew?: boolean) {
+    if (
+      this.isLoadingFromJson ||
+      !this.survey ||
+      (reNew !== true && !this.cssClassesValue)
+    )
+      return;
+    if (!this.cssClassesValue) {
+      this.cssClassesValue = this.calcCssClasses();
+    }
     this.updateElementCssCore(this.cssClasses);
+  }
+  private ensureElementCss() {
+    if (!this.cssClassesValue) {
+      this.updateQuestionCss(true);
+    }
   }
   protected updateElementCssCore(cssClasses: any) {
     this.setCssRoot(this.getCssRoot(cssClasses));
@@ -894,11 +924,7 @@ export class Question extends SurveyElement
     return this.getPropertyValue("isRequired", false);
   }
   public set isRequired(val: boolean) {
-    if (this.isRequired == val) return;
     this.setPropertyValue("isRequired", val);
-    if (!this.isLoadingFromJson) {
-      this.locTitle.onChanged();
-    }
   }
   /**
    * An expression that returns true or false. If it returns true the Question becomes required and an end-user has to answer it.
@@ -1054,7 +1080,6 @@ export class Question extends SurveyElement
   public onSurveyLoad() {
     this.fireCallback(this.surveyLoadCallback);
     this.updateValueWithDefaults();
-    this.updateElementCss();
   }
   protected onSetData() {
     super.onSetData();
@@ -1062,7 +1087,7 @@ export class Question extends SurveyElement
     this.onSurveyValueChanged(this.value);
     this.updateValueWithDefaults();
     this.onIndentChanged();
-    this.updateElementCss();
+    this.updateQuestionCss();
   }
   protected initDataFromSurvey() {
     if (!!this.data) {
@@ -1451,7 +1476,7 @@ export class Question extends SurveyElement
     }
     this.updateContainsErrors();
     if (oldHasErrors != errors.length > 0) {
-      this.updateElementCss();
+      this.updateQuestionCss();
     }
     if (this.isCollapsed && rec && fireCallback && errors.length > 0) {
       this.expand();
@@ -1582,7 +1607,7 @@ export class Question extends SurveyElement
     this.setNewValueInData(newValue);
     this.allowNotifyValueChanged && this.onValueChanged();
     if (this.isAnswered != oldAnswered) {
-      this.updateElementCss();
+      this.updateQuestionCss();
     }
   }
   protected isTextValue(): boolean {

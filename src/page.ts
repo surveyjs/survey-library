@@ -11,7 +11,7 @@ export class PageModel extends PanelModelBase implements IPage {
   constructor(name: string = "") {
     super(name);
     var self = this;
-    this.locTitle.onGetTextCallback = function (text) {
+    this.locTitle.onGetTextCallback = function(text) {
       if (self.num > 0) return self.num + ". " + text;
       return text;
     };
@@ -81,7 +81,7 @@ export class PageModel extends PanelModelBase implements IPage {
   public get isStarted(): boolean {
     return this.survey && this.survey.isPageStarted(this);
   }
-  public get cssClasses(): any {
+  protected calcCssClasses(): any {
     var css = this.css;
     var classes = { page: {}, pageTitle: "", pageDescription: "", row: "" };
     this.copyCssClasses(classes.page, css.page);
@@ -405,7 +405,7 @@ export class PageModel extends PanelModelBase implements IPage {
   }
   public ensureRowsVisibility() {
     super.ensureRowsVisibility();
-    this.getPanels().forEach((panel) => panel.ensureRowsVisibility());
+    this.getPanels().forEach(panel => panel.ensureRowsVisibility());
   }
 }
 
@@ -425,20 +425,20 @@ Serializer.addClass(
     { name: "maxTimeToFinish:number", default: 0, minValue: 0 },
     {
       name: "navigationTitle",
-      visibleIf: function (obj: any) {
+      visibleIf: function(obj: any) {
         return !!obj.survey && obj.survey.progressBarType === "buttons";
       },
       serializationProperty: "locNavigationTitle",
     },
     {
       name: "navigationDescription",
-      visibleIf: function (obj: any) {
+      visibleIf: function(obj: any) {
         return !!obj.survey && obj.survey.progressBarType === "buttons";
       },
       serializationProperty: "locNavigationDescription",
     },
   ],
-  function () {
+  function() {
     return new PageModel();
   },
   "panelbase"

@@ -3004,6 +3004,20 @@ QUnit.test("QuestionHtml + Survey.onProcessHtml event, bug#1294", function(
   assert.equal(question.locHtml.renderedHtml, "text-add-", "process html");
 });
 
+QUnit.test("QuestionHtmlignoreHtmlProgressing = true", function(assert) {
+  var survey = new SurveyModel();
+  var page = survey.addNewPage("p1");
+  survey.onProcessHtml.add(function(survey, options) {
+    options.html = options.html + "-add-";
+  });
+  var question = <QuestionHtmlModel>page.addNewQuestion("html", "q1");
+  question.html = "text1";
+  assert.equal(question.locHtml.renderedHtml, "text1-add-", "proccess html");
+  question.ignoreHtmlProgressing = true;
+  question.html = "text2";
+  assert.equal(question.locHtml.renderedHtml, "text2", "do not proccess html");
+});
+
 QUnit.test("question.paddingLeft and question.paddingRight", function(assert) {
   var survey = new SurveyModel({
     elements: [{ type: "dropdown", name: "q1" }],

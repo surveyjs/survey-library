@@ -7,12 +7,14 @@ import { LocalizableString } from "./localizablestring";
  * A Model for html question. Unlike other questions it doesn't have value and title.
  */
 export class QuestionHtmlModel extends QuestionNonValue {
+  public ignoreHtmlProgressing: boolean;
   constructor(name: string) {
     super(name);
     var locHtml = this.createLocalizableString("html", this);
-    var self = this;
-    locHtml.onGetTextCallback = function (str: string): string {
-      return !!self.survey ? self.survey.processHtml(str) : str;
+    locHtml.onGetTextCallback = (str: string): string => {
+      return !!this.survey && !this.ignoreHtmlProgressing
+        ? this.survey.processHtml(str)
+        : str;
     };
   }
   public getType(): string {
@@ -20,6 +22,10 @@ export class QuestionHtmlModel extends QuestionNonValue {
   }
   public get isCompositeQuestion(): boolean {
     return true;
+  }
+  public getProcessedText(text: string): string {
+    if (this.ignoreHtmlProgressing) return text;
+    return super.getProcessedText(text);
   }
   /**
    * Set html to display it
@@ -40,11 +46,11 @@ export class QuestionHtmlModel extends QuestionNonValue {
 Serializer.addClass(
   "html",
   [{ name: "html:html", serializationProperty: "locHtml" }],
-  function () {
+  function() {
     return new QuestionHtmlModel("");
   },
   "nonvalue"
 );
-QuestionFactory.Instance.registerQuestion("html", (name) => {
+QuestionFactory.Instance.registerQuestion("html", name => {
   return new QuestionHtmlModel(name);
 });

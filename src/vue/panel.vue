@@ -37,7 +37,7 @@
     <div
       :id="question.contentId"
       :style="{ paddingLeft: question.innerPaddingLeft }"
-      v-show="!isCollapsed"
+      v-if="!isCollapsed"
       :class="question.cssClasses.panel.content"
     >
       <div
@@ -83,7 +83,10 @@ export class Panel extends BaseVue {
   }
   protected onMounted() {
     if (this.question.survey) {
-      this.question.survey.afterRenderPanel(this.question, this.$el as HTMLElement);
+      this.question.survey.afterRenderPanel(
+        this.question,
+        this.$el as HTMLElement
+      );
     }
     this.isCollapsed = this.question.isCollapsed;
 

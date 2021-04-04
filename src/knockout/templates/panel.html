@@ -13,17 +13,21 @@
     </div>
     <!-- ko template: { name: 'survey-question-errors', data: $data } -->
     <!-- /ko -->
+    <!-- ko if: !koIsCollapsed() -->
     <div
-      data-bind="visible: !koIsCollapsed(), style: { paddingLeft: innerPaddingLeft }, css: cssClasses.panel.content, attr: {id:contentId}"
+      data-bind="style: { paddingLeft: innerPaddingLeft }, css: cssClasses.panel.content, attr: {id:contentId}"
     >
       <!-- ko template: { name: 'survey-rows', data: $data} -->
       <!-- /ko -->
-      <div data-bind="visible: hasEditButton, css: cssClasses.panel.footer">
+      <!-- ko if: hasEditButton -->
+      <div data-bind="css: cssClasses.panel.footer">
         <input
           type="button"
           data-bind="value: survey.editText, click: cancelPreview, css: survey.cssNavigationEdit"
         />
       </div>
+      <!-- /ko -->
     </div>
+    <!-- /ko -->
   </div>
 </script>

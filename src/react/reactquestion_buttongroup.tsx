@@ -1,12 +1,44 @@
+import { SurveyQuestionElementBase } from "./reactquestion_element";
 import React from "react";
-import { ReactElementFactory } from "../../element-factory";
-import { SurveyElementBase } from "../../reactquestion_element";
-import { SvgIcon } from "../svg-icon/svg-icon";
+import { ReactElementFactory } from "./element-factory";
+import { SurveyElementBase } from "./reactquestion_element";
+import { SvgIcon } from "./components/svg-icon/svg-icon";
 import {
+  QuestionButtonGroupModel,
+  ButtonGroupItemValue,
   ButtonGroupItemModel,
-  QuestionSelectBase,
-  ItemValue,
 } from "survey-core";
+import { ReactQuestionFactory } from "./reactquestion_factory";
+
+export class SurveyQuestionButtonGroup extends SurveyQuestionElementBase {
+  constructor(props: any) {
+    super(props);
+  }
+  protected get question(): QuestionButtonGroupModel {
+    return this.questionBase as QuestionButtonGroupModel;
+  }
+  getStateElement() {
+    return this.question;
+  }
+  render() {
+    const items = this.renderItems();
+    return <div className={this.question.cssClasses.root}>{items}</div>;
+  }
+  renderItems() {
+    return this.question.visibleChoices.map(
+      (item: ButtonGroupItemValue, index: number) => {
+        return (
+          <SurveyButtonGroupItem
+            key={this.question.inputId + "_" + index}
+            item={item}
+            question={this.question}
+            index={index}
+          ></SurveyButtonGroupItem>
+        );
+      }
+    );
+  }
+}
 
 export class SurveyButtonGroupItem extends SurveyElementBase<any, any> {
   public model: ButtonGroupItemModel;
@@ -17,10 +49,10 @@ export class SurveyButtonGroupItem extends SurveyElementBase<any, any> {
   get index(): number {
     return this.props.index;
   }
-  get question(): QuestionSelectBase {
+  get question(): QuestionButtonGroupModel {
     return this.props.question;
   }
-  get item(): ItemValue {
+  get item(): ButtonGroupItemValue {
     return this.props.item;
   }
   getStateElement() {
@@ -90,9 +122,6 @@ export class SurveyButtonGroupItem extends SurveyElementBase<any, any> {
   }
 }
 
-ReactElementFactory.Instance.registerElement(
-  "sv-button-group-item",
-  (props) => {
-    return React.createElement(SurveyButtonGroupItem, props);
-  }
-);
+ReactQuestionFactory.Instance.registerQuestion("buttongroup", props => {
+  return React.createElement(SurveyQuestionButtonGroup, props);
+});

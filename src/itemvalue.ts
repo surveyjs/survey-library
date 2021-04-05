@@ -4,7 +4,6 @@ import {
   JsonObjectProperty,
   Serializer,
   CustomPropertiesCollection,
-  property,
 } from "./jsonobject";
 import { Helpers } from "./helpers";
 import { ConditionRunner } from "./conditions";
@@ -341,12 +340,6 @@ export class ItemValue extends Base {
   public get isVisible() {
     return this.isVisibleValue;
   }
-  @property()
-  iconName: string;
-  @property()
-  iconSize: number;
-  @property()
-  showCaption: boolean;
   public setIsVisible(val: boolean) {
     this.isVisibleValue = val;
   }
@@ -419,9 +412,6 @@ Serializer.addClass(
     },
     { name: "visibleIf:condition", showMode: "form" },
     { name: "enableIf:condition", showMode: "form" },
-    { name: "iconName:text" },
-    { name: "iconSize:number"},
-    { name: "showCaption:boolean", default: true }
   ],
   (value: any) => new ItemValue(value)
 );

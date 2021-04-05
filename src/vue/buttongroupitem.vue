@@ -34,13 +34,13 @@ import Vue from "vue";
 import {
   ButtonGroupItemModel,
   ItemValue,
-  QuestionSelectBase,
+  QuestionButtonGroupModel,
 } from "survey-core";
 import { BaseVue } from "src/vue/base";
 @Component
-export class ButtonGroupItemViewModel extends BaseVue {
+export class ButtonGroupItem extends BaseVue {
   @Prop() item: ItemValue;
-  @Prop() question: QuestionSelectBase;
+  @Prop() question: QuestionButtonGroupModel;
   @Prop() index: number;
   public model: ButtonGroupItemModel;
 
@@ -53,6 +53,6 @@ export class ButtonGroupItemViewModel extends BaseVue {
   }
 }
 
-Vue.component("sv-button-group-item", ButtonGroupItemViewModel);
-export default ButtonGroupItemViewModel;
+Vue.component("sv-button-group-item", ButtonGroupItem);
+export default ButtonGroupItem;
 </script>

@@ -1,6 +1,6 @@
 export var surveyCss: any = {
   currentType: "",
-  getCss: function () {
+  getCss: function() {
     var loc = this.currentType ? this[this.currentType] : defaultStandardCss;
     if (!loc) loc = defaultStandardCss;
     return loc;
@@ -155,14 +155,6 @@ export var defaultStandardCss = {
     control: "sv_q_dropdown_control",
     selectWrapper: "sv_select_wrapper",
     other: "sv_q_dd_other",
-    buttonGroup: "sv-button-group",
-    buttonGroupItem: "sv-button-group__item",
-    buttonGroupItemIcon: "sv-button-group__item-icon",
-    buttonGroupItemDecorator: "sv-button-group__item-decorator",
-    buttonGroupItemCaption: "sv-button-group__item-caption",
-    buttonGroupItemSelected: "sv-button-group__item--selected",
-    buttonGroupItemDisabled: "sv-button-group__item--disabled",
-    buttonGroupItemControl: "sv-visuallyhidden",
   },
   html: { root: "" },
   image: { root: "sv_q_image", image: "sv_image_image" },
@@ -251,14 +243,16 @@ export var defaultStandardCss = {
     other: "sv_q_other sv_q_radiogroup_other",
     clearButton: "sv_q_radiogroup_clear",
     column: "sv_q_select_column",
-    buttonGroup: "sv-button-group",
-    buttonGroupItem: "sv-button-group__item",
-    buttonGroupItemIcon: "sv-button-group__item-icon",
-    buttonGroupItemDecorator: "sv-button-group__item-decorator",
-    buttonGroupItemCaption: "sv-button-group__item-caption",
-    buttonGroupItemSelected: "sv-button-group__item--selected",
-    buttonGroupItemDisabled: "sv-button-group__item--disabled",
-    buttonGroupItemControl: "sv-visuallyhidden",
+  },
+  buttongroup: {
+    root: "sv-button-group",
+    item: "sv-button-group__item",
+    itemIcon: "sv-button-group__item-icon",
+    itemDecorator: "sv-button-group__item-decorator",
+    itemCaption: "sv-button-group__item-caption",
+    itemSelected: "sv-button-group__item--selected",
+    itemDisabled: "sv-button-group__item--disabled",
+    itemControl: "sv-visuallyhidden",
   },
   imagepicker: {
     root: "sv_imgsel",

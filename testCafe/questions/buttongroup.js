@@ -6,7 +6,7 @@ const title = `button-group`;
 var json = {
   questions: [
     {
-      type: "radiogroup",
+      type: "buttongroup",
       name: "radio",
       title: "Question with Button Group",
       renderAs: "button-group",
@@ -23,14 +23,14 @@ const getQuestionProperty = ClientFunction((questionName, properyName) => {
   return survey.getQuestionByName(questionName)[properyName];
 });
 
-frameworks.forEach((framework) => {
+frameworks.forEach(framework => {
   fixture`${framework} ${title}`.page`${url}${framework}.html`.beforeEach(
-    async (t) => {
+    async t => {
       await initSurvey(framework, json);
     }
   );
 
-  test(`selected class`, async (t) => {
+  test(`selected class`, async t => {
     assert.ok(
       !(await Selector("label.sv-button-group__item--selected").exists)
     );
@@ -54,7 +54,7 @@ frameworks.forEach((framework) => {
     );
   });
 
-  test(`readOnly items`, async (t) => {
+  test(`readOnly items`, async t => {
     assert.ok(
       !(await Selector("label.sv-button-group__item--disabled").exists)
     );
@@ -71,7 +71,7 @@ frameworks.forEach((framework) => {
     );
   });
 
-  test("hide caption", async (t) => {
+  test("hide caption", async t => {
     const hideFirstItemCaption = ClientFunction(() => {
       window.survey.getQuestionByName(
         "radio"
@@ -90,23 +90,26 @@ frameworks.forEach((framework) => {
     );
   });
 
-  test("show icon", async (t) => {
-    const setFirtItemIcon = ClientFunction((iconName) => {
+  test("show icon", async t => {
+    const setFirtItemIcon = ClientFunction(iconName => {
       window.survey.getQuestionByName(
         "radio"
       ).visibleChoices[0].iconName = iconName;
     });
     assert.ok(
-      !await Selector(
-        "label[title='Choice 1'] .sv-button-group__item-icon"
-      ).exists
-    ); 
+      !(await Selector("label[title='Choice 1'] .sv-button-group__item-icon")
+        .exists)
+    );
     await setFirtItemIcon("icon");
     assert.ok(
+      await Selector("label[title='Choice 1'] .sv-button-group__item-icon")
+        .exists
+    );
+    assert.equal(
       await Selector(
-        "label[title='Choice 1'] .sv-button-group__item-icon"
-      ).exists
-    ); 
-    assert.equal(await Selector("label[title='Choice 1'] .sv-button-group__item-icon use").getAttribute("xlink:href"), "#icon")
+        "label[title='Choice 1'] .sv-button-group__item-icon use"
+      ).getAttribute("xlink:href"),
+      "#icon"
+    );
   });
 });

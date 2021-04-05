@@ -54,6 +54,7 @@ export { SurveyTemplateText } from "../knockout/templateText";
 export { QuestionImage } from "../knockout/koquestion_image";
 export { QuestionSignaturePad } from "../knockout/koquestion_signaturepad";
 export { QuestionCustom } from "../knockout/koquestion_custom";
+export { QuestionButtonGroup } from "../knockout/koquestion_buttongroup";
 
 export * from "../knockout/components/action-bar/action-bar";
 export * from "../knockout/components/boolean-checkbox/boolean-checkbox";
@@ -74,7 +75,7 @@ export * from "../knockout/components/svg-icon/svg-icon";
 export * from "../knockout/components/drag-drop-td/drag-drop-td";
 export { SurveyQuestionMatrixDynamicRemoveButton } from "../knockout/components/matrix-actions/remove-button/remove-button";
 export { SurveyQuestionMatrixDetailButton } from "../knockout/components/matrix-actions/detail-button/detail-button";
-export { ButtonGroupViewModel } from "../knockout/components/button-group/button-group";
+export { ButtonGroupItemViewModel } from "../knockout/components/button-group/button-group-item";
 //export * from "../utils/resonsibilitymanager";
 //export { unwrap } from "../utils/utils";
 //Uncomment to include the "date" question type.

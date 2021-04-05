@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.8.40](https://github.com/surveyjs/survey-library/compare/v1.8.39...v1.8.40) (2021-04-05)
+
+
+### Bug Fixes
+
+* question.indent and panel.indent doesn't work when they are inside dynamic panel. [#2764](https://github.com/surveyjs/survey-library/issues/2764) ([6bb1f4d](https://github.com/surveyjs/survey-library/commit/6bb1f4d1c002f0a6db730f8264eabfca867d209f))
+* Unable to Preview a Matrix Dynamic inside of a Panel Dynamic [#2761](https://github.com/surveyjs/survey-library/issues/2761) ([cd9a111](https://github.com/surveyjs/survey-library/commit/cd9a111ace99a0833e4045f5ec021a728a30ef50))
+
 ### [1.8.39](https://github.com/surveyjs/survey-library/compare/v1.8.38...v1.8.39) (2021-03-31)
 
 ### [1.8.38](https://github.com/surveyjs/survey-library/compare/v1.8.37...v1.8.38) (2021-03-29)

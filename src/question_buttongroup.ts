@@ -2,6 +2,7 @@ import { Serializer, property } from "./jsonobject";
 import { QuestionFactory } from "./questionfactory";
 import { ItemValue } from "./itemvalue";
 import { QuestionCheckboxBase } from "./question_baseselect";
+import { LocalizableString } from "./localizablestring";
 
 export class ButtonGroupItemValue extends ItemValue {
   constructor(
@@ -11,10 +12,21 @@ export class ButtonGroupItemValue extends ItemValue {
   ) {
     super(value, text, typeName);
   }
+  /*
+    Item icon property
+  */
   @property()
   iconName: string;
+  /*
+    By default icon size is 24.
+    Use this property to change item icon size.  
+  */
   @property()
   iconSize: number;
+  /**
+   * By default item caption is visible.
+   * Set it 'false' to hide item caption.
+   */
   @property()
   showCaption: boolean;
   public getType(): string {
@@ -85,7 +97,7 @@ export class ButtonGroupItemModel {
   public get iconSize() {
     return this.item.iconSize || 24;
   }
-  public get caption() {
+  public get caption(): LocalizableString {
     return this.item.locText;
   }
   public get showCaption() {

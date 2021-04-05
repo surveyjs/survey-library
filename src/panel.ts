@@ -100,9 +100,14 @@ export class QuestionRowModel extends Base {
   constructor(public panel: PanelModelBase) {
     super();
     this.idValue = QuestionRowModel.getRowId();
-    this.isNeedRender = !settings.lazyRowsRendering;
+    this.isNeedRender = !this.isLazyRendering;
     this.visible = panel.areInvisibleElementsShowing;
     this.createNewArray("elements");
+  }
+  public get isLazyRendering() {
+    return (
+      !!this.panel && !!this.panel.survey && this.panel.survey.isLazyRendering
+    );
   }
   public get id(): string {
     return this.idValue;

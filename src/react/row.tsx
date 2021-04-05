@@ -63,7 +63,7 @@ export class SurveyRow extends SurveyElementBase<any, any> {
   }
   private stopLazyRendering() {
     this.row.stopLazyRendering();
-    this.row.isNeedRender = !settings.lazyRowsRendering;
+    this.row.isNeedRender = !this.row.isLazyRendering;
   }
   componentWillUnmount() {
     super.componentWillUnmount();

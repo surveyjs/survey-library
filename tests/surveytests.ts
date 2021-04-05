@@ -12553,3 +12553,13 @@ QUnit.test("Dispose object during event", function(assert) {
   survey.setValue("b", 1);
   assert.equal(a, 1, "Do not call an event that is after diposing");
 });
+QUnit.test("survey.isLazyRendering", function(assert) {
+  var survey = new SurveyModel();
+  assert.equal(survey.isLazyRendering, false, "Not set");
+  settings.lazyRowsRendering = true;
+  assert.equal(survey.isLazyRendering, true, "set in settings");
+  settings.lazyRowsRendering = false;
+  assert.equal(survey.isLazyRendering, false, "Not set 2");
+  survey.lazyRendering = true;
+  assert.equal(survey.isLazyRendering, true, "set in survey");
+});

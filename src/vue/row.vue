@@ -57,7 +57,7 @@ export class Row extends BaseVue {
   }
   beforeDestroy() {
     if (!!this.row) {
-      this.row.isNeedRender = !settings.lazyRowsRendering;
+      this.row.isNeedRender = !this.row.isLazyRendering;
     }
   }
 }

@@ -1018,6 +1018,21 @@ export class SurveyModel extends Base
     if (btn) res += " " + btn;
     return res;
   }
+  private lazyRenderingValue: boolean;
+  /**
+   * By default all rows are rendered no matters if they are visible or not.
+   * Set it true, and survey markup rows will be rendered only if they are visible in viewport.
+   * This feature is experimantal and might do not support all the use cases.
+   */
+  public get lazyRendering(): boolean {
+    return this.lazyRenderingValue === true;
+  }
+  public set lazyRendering(val: boolean) {
+    this.lazyRenderingValue = val;
+  }
+  public get isLazyRendering(): boolean {
+    return this.lazyRendering || settings.lazyRowsRendering;
+  }
   /**
    * Gets or sets a list of triggers in the survey.
    * @see SurveyTrigger

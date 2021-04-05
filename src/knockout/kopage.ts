@@ -38,7 +38,6 @@ export class QuestionRow extends QuestionRowModel {
     const survey: Survey = el.survey as Survey;
     return survey.getElementWrapperComponentData(el);
   }
-
   private elementAfterRender(elements: any, con: any) {
     if (!this.panel || !this.panel.survey) return;
     var el = SurveyElement.GetFirstNonTextElement(elements);
@@ -57,7 +56,7 @@ export class QuestionRow extends QuestionRowModel {
       model.startLazyRendering(rowContainerDiv);
       ko.utils.domNodeDisposal.addDisposeCallback(rowContainerDiv, () => {
         model.stopLazyRendering();
-        model.isNeedRender = !settings.lazyRowsRendering;
+        model.isNeedRender = !model.isLazyRendering;
       });
     }
   }

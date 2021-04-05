@@ -11,7 +11,7 @@ export class QuestionFactory {
     return [
       surveyLocalization.getString("choices_Item") + "1",
       surveyLocalization.getString("choices_Item") + "2",
-      surveyLocalization.getString("choices_Item") + "3"
+      surveyLocalization.getString("choices_Item") + "3",
     ];
   }
   public static get DefaultColums(): string[] {
@@ -21,6 +21,10 @@ export class QuestionFactory {
   public static get DefaultRows(): string[] {
     var rowName = surveyLocalization.getString("matrix_row") + " ";
     return [rowName + "1", rowName + "2"];
+  }
+  public static get DefaultMutlipleTextItems(): string[] {
+    var itemName = surveyLocalization.getString("multipletext_itemname");
+    return [itemName + "1", itemName + "2"];
   }
   private creatorHash: HashTable<(name: string) => Question> = {};
 

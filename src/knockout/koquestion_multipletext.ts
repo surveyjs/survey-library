@@ -55,7 +55,6 @@ Serializer.overrideClassCreator("multipletext", function() {
 
 QuestionFactory.Instance.registerQuestion("multipletext", name => {
   var q = new QuestionMultipleText(name);
-  q.addItem("text1");
-  q.addItem("text2");
+  QuestionMultipleTextModel.addDefaultItems(q);
   return q;
 });

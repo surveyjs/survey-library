@@ -265,6 +265,11 @@ export class MultipleTextItemModel extends Base
  */
 export class QuestionMultipleTextModel extends Question
   implements IMultipleTextData, IPanel {
+  public static addDefaultItems(question: QuestionMultipleTextModel) {
+    var names = QuestionFactory.DefaultMutlipleTextItems;
+    for (var i = 0; i < names.length; i++) question.addItem(names[i]);
+  }
+
   colCountChangedCallback: () => void;
   constructor(name: string) {
     super(name);
@@ -624,7 +629,6 @@ Serializer.addClass(
 
 QuestionFactory.Instance.registerQuestion("multipletext", name => {
   var q = new QuestionMultipleTextModel(name);
-  q.addItem("text1");
-  q.addItem("text2");
+  QuestionMultipleTextModel.addDefaultItems(q);
   return q;
 });

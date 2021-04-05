@@ -29,12 +29,12 @@ export var englishStrings = {
   maxError: "The value should not be greater than {0}",
   textMinLength: "Please enter at least {0} character(s).",
   textMaxLength: "Please enter no more than {0} character(s).",
-  textMinMaxLength: "Please enter at least {0} and no more than {1} characters.",
+  textMinMaxLength:
+    "Please enter at least {0} and no more than {1} characters.",
   minRowCountError: "Please fill in at least {0} row(s).",
   minSelectError: "Please select at least {0} variant(s).",
   maxSelectError: "Please select no more than {0} variant(s).",
-  numericMinMax:
-    "The '{0}' should be at least {1} and at most {2}",
+  numericMinMax: "The '{0}' should be at least {1} and at most {2}",
   numericMin: "The '{0}' should be at least {1}",
   numericMax: "The '{0}' should be at most {1}",
   invalidEmail: "Please enter a valid e-mail address.",
@@ -60,6 +60,7 @@ export var englishStrings = {
   choices_Item: "item",
   matrix_column: "Column",
   matrix_row: "Row",
+  multipletext_itemname: "text",
   savingData: "The results are being saved on the server...",
   savingDataError: "An error occurred and we could not save the results.",
   savingDataSuccess: "The results were saved successfully!",

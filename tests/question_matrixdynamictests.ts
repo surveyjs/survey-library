@@ -5846,7 +5846,7 @@ QUnit.test("Row actions, rendered table and className", function(assert) {
     "location: right row actions"
   );
 });
-QUnit.skip("onGetMatrixRowActions should be called 1 time", function(assert) {
+QUnit.test("onGetMatrixRowActions should be called 1 time", function(assert) {
   var survey = new SurveyModel({
     elements: [
       {

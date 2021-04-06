@@ -1408,6 +1408,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
   private headerRowValue: QuestionMatrixDropdownRenderedRow;
   private footerRowValue: QuestionMatrixDropdownRenderedRow;
   private hasRemoveRowsValue: boolean;
+  private rowsActions: Array<Array<IActionBarItem>>;
   private cssClasses: any;
   public constructor(public matrix: QuestionMatrixDropdownModelBase) {
     super();
@@ -1455,6 +1456,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     //build rows now
     var rows = this.matrix.visibleRows;
     this.cssClasses = this.matrix.cssClasses;
+    this.buildRowsActions();
     this.buildHeader();
     this.buildRows();
     this.buildFooter();
@@ -1537,6 +1539,13 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     }
     return -1;
   }
+  protected buildRowsActions() {
+    this.rowsActions = [];
+    var rows = this.matrix.visibleRows;
+    for (var i = 0; i < rows.length; i++) {
+      this.rowsActions.push(this.buildRowActions(rows[i]));
+    }
+  }
   protected buildHeader() {
     var colHeaders =
       this.matrix.isColumnLayoutHorizontal && this.matrix.showHeader;
@@ -1614,7 +1623,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
       var rows = this.matrix.visibleRows;
       this.hasActionCellInRowsValues[location] = false;
       for (var i = 0; i < rows.length; i++) {
-        if (!this.isValueEmpty(this.getRowActions(rows[i], location))) {
+        if (!this.isValueEmpty(this.getRowActions(i, location))) {
           this.hasActionCellInRowsValues[location] = true;
           break;
         }
@@ -1649,40 +1658,42 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
       renderedRows.push(this.createDetailPanelRow(row, renderedRow));
     }
   }
-  private getRowActionsCell(
-    row: MatrixDropdownRowModelBase,
-    location: "start" | "end"
-  ) {
-    const rowActions = this.getRowActions(row, location);
+  private getRowActionsCell(rowIndex: number, location: "start" | "end") {
+    const rowActions = this.getRowActions(rowIndex, location);
     if (!this.isValueEmpty(rowActions)) {
       var cell = new QuestionMatrixDropdownRenderedCell();
       var itemValue = new ItemValue(rowActions);
       cell.item = itemValue;
       cell.isActionsCell = true;
       cell.className = this.cssClasses.actionsCell;
-      cell.row = row;
+      cell.row = this.matrix.visibleRows[rowIndex];
       return cell;
     }
     return null;
   }
-  private getRowActions(
-    row: MatrixDropdownRowModelBase,
-    location: "start" | "end"
-  ) {
-    var actions: Array<IActionBarItem> = [];
-    this.setDefaultRowActions(row, actions);
-    if (!!this.matrix.survey)
-      actions = this.matrix.survey.getUpdatedMatrixRowActions(
-        this.matrix,
-        row,
-        actions
-      );
+  private getRowActions(rowIndex: number, location: "start" | "end") {
+    var actions = this.rowsActions[rowIndex];
+    if (!Array.isArray(actions)) return [];
     return actions.filter(action => {
       if (!action.location) {
         action.location = "start";
       }
       return action.location === location;
     });
+  }
+  private buildRowActions(
+    row: MatrixDropdownRowModelBase
+  ): Array<IActionBarItem> {
+    var actions: Array<IActionBarItem> = [];
+    this.setDefaultRowActions(row, actions);
+    if (!!this.matrix.survey) {
+      actions = this.matrix.survey.getUpdatedMatrixRowActions(
+        this.matrix,
+        row,
+        actions
+      );
+    }
+    return actions;
   }
   private setDefaultRowActions(
     row: MatrixDropdownRowModelBase,
@@ -1747,7 +1758,8 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     renderedRow: QuestionMatrixDropdownRenderedRow,
     location: "start" | "end"
   ) {
-    const actions = this.getRowActionsCell(row, location);
+    var rowIndex = this.matrix.visibleRows.indexOf(row);
+    const actions = this.getRowActionsCell(rowIndex, location);
     if (this.hasActionCellInRows(location)) {
       if (!!actions) renderedRow.cells.push(actions);
       else {
@@ -1856,7 +1868,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     }
     var rows = this.matrix.visibleRows;
     for (var i = 0; i < rows.length; i++) {
-      res.cells.push(this.getRowActionsCell(rows[i], "end"));
+      res.cells.push(this.getRowActionsCell(i, "end"));
     }
     if (this.matrix.hasTotal) {
       res.cells.push(this.createTextCell(null));

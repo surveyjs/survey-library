@@ -171,6 +171,16 @@ export var modernCss = {
     clearButton: "sv-btn sv-selectbase__clear-btn",
     column: "sv-selectbase__column",
   },
+  buttongroup: {
+    root: "sv-button-group",
+    item: "sv-button-group__item",
+    itemIcon: "sv-button-group__item-icon",
+    itemDecorator: "sv-button-group__item-decorator",
+    itemCaption: "sv-button-group__item-caption",
+    itemSelected: "sv-button-group__item--selected",
+    itemDisabled: "sv-button-group__item--disabled",
+    itemControl: "sv-visuallyhidden",
+  },
   boolean: {
     root: "sv_qbln",
     small: "sv-row__question--small",

@@ -19,6 +19,8 @@ export { Ranking } from "../vue/ranking/ranking.vue";
 export { RankingItem } from "../vue/ranking/ranking-item.vue";
 export { Checkbox } from "../vue/checkbox.vue";
 export { CheckboxItem } from "../vue/checkboxitem.vue";
+export { ButtonGroup } from "../vue/buttongroup.vue";
+export { ButtonGroupItem } from "../vue/buttongroupitem.vue";
 export { QuestionText } from "../vue/text.vue";
 export { Boolean } from "../vue/boolean";
 export { BooleanSwitch } from "../vue/boolean-switch.vue";

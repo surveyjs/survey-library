@@ -244,6 +244,16 @@ export var defaultStandardCss = {
     clearButton: "sv_q_radiogroup_clear",
     column: "sv_q_select_column",
   },
+  buttongroup: {
+    root: "sv-button-group",
+    item: "sv-button-group__item",
+    itemIcon: "sv-button-group__item-icon",
+    itemDecorator: "sv-button-group__item-decorator",
+    itemCaption: "sv-button-group__item-caption",
+    itemSelected: "sv-button-group__item--selected",
+    itemDisabled: "sv-button-group__item--disabled",
+    itemControl: "sv-visuallyhidden",
+  },
   imagepicker: {
     root: "sv_imgsel",
     item: "sv_q_imgsel",

@@ -511,9 +511,13 @@ export class OperandMaker {
       return true;
     },
     containsCore: function(left: any, right: any, isContains: any): boolean {
-      if (!left) return false;
+      if (!left && left !== 0 && left !== false) return false;
       if (!left.length) {
         left = left.toString();
+        if (typeof right === "string" || right instanceof String) {
+          left = left.toUpperCase();
+          right = right.toUpperCase();
+        }
       }
       if (typeof left === "string" || left instanceof String) {
         if (!right) return false;

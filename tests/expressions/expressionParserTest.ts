@@ -1194,3 +1194,14 @@ QUnit.test("000 == '000', '00' != '000', '0' != '000', 0 != '000'", function(
   values.val = 0;
   assert.equal(runner.run(values), true, "0 != '000', convert '000' to number");
 });
+QUnit.test("True and False as strings'", function(assert) {
+  var runner = new ConditionRunner("{val} = 'TRUE'");
+  var values: any = { val: "TRUE" };
+  assert.equal(runner.run(values), true, "TRUE == 'TRUE'");
+  runner = new ConditionRunner("{val} contains 'TRU'");
+  assert.equal(runner.run(values), true, "TRUE contains TRU");
+  runner = new ConditionRunner("{val} contains 'FALSE'");
+  assert.equal(runner.run(values), false, "TRUE contains FALSE");
+  values.val = "FALSE";
+  assert.equal(runner.run(values), true, "FALSE contains FALSE");
+});

@@ -1,6 +1,6 @@
 <template>
   <div :class="question.cssClasses.tableWrapper">
-    <fieldset v-if="question.layout !== 'vertical'">
+    <fieldset v-show="!verticalMode()">
       <legend v-bind:aria-label="question.locTitle.renderedHtml"></legend>
       <table :class="question.cssClasses.root">
         <thead v-if="question.showHeader">
@@ -59,7 +59,7 @@
                   :id="question.inputId + '_' + row.name + '_' + columnIndex"
                   v-bind:aria-required="question.isRequired"
                   :aria-label="question.locTitle.renderedHtml"
-                /> 
+                />
                 <span :class="question.cssClasses.materialDecorator">
                   <svg
                     :class="question.cssClasses.itemDecorator"
@@ -80,7 +80,7 @@
       </table>
     </fieldset>
 
-      <fieldset v-if="question.layout === 'vertical'">
+    <fieldset v-show="verticalMode()">
       <legend v-bind:aria-label="question.locTitle.renderedHtml"></legend>
       <table :class="question.cssClasses.root">
         <!--
@@ -104,7 +104,7 @@
             every row is a choices, every column is a subject
           -->
           <tr
-            v-for="(row, rowIndex) in question.visibleColumns" 
+            v-for="(row, rowIndex) in question.visibleColumns"
             :key="'row-' + row.name + '-' + rowIndex"
             :class="row.rowClasses"
           >
@@ -148,7 +148,7 @@
                   :id="question.inputId + '_' + column.name + '_' + rowIndex"
                   v-bind:aria-required="question.isRequired"
                   :aria-label="question.locTitle.renderedHtml"
-                /> 
+                />
                 <span :class="question.cssClasses.materialDecorator">
                   <svg
                     :class="question.cssClasses.itemDecorator"
@@ -179,11 +179,28 @@ import { QuestionMatrixModel } from "survey-core";
 
 @Component
 export class Matrix extends QuestionVue<QuestionMatrixModel> {
+  wide = window.innerWidth > 600
+
+  mounted() {
+    window.addEventListener("resize", this.onResize);
+  }
+
+  beforeDestroy() {
+    window.removeEventListener("resize", this.onResize);
+  }
+
   cellClick(row: any, column: any) {
     if (this.question.isReadOnly) return;
     row.value = column.value;
   }
+  onResize() {
+    this.wide = window.innerWidth > 600
+  }
+  verticalMode() {
+    return this.wide && this.question.layout == "vertical";
+  }
 }
+
 Vue.component("survey-matrix", Matrix);
 export default Matrix;
 </script>

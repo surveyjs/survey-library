@@ -34,3 +34,7 @@ Gemfile.lock
 *.env
 package-lock.json
 svgbundle.html
+
+
+
+.DS_Store

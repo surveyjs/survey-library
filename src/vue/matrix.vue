@@ -1,6 +1,6 @@
 <template>
   <div :class="question.cssClasses.tableWrapper">
-    <fieldset>
+    <fieldset v-if="question.layout !== 'vertical'">
       <legend v-bind:aria-label="question.locTitle.renderedHtml"></legend>
       <table :class="question.cssClasses.root">
         <thead v-if="question.showHeader">
@@ -59,7 +59,96 @@
                   :id="question.inputId + '_' + row.name + '_' + columnIndex"
                   v-bind:aria-required="question.isRequired"
                   :aria-label="question.locTitle.renderedHtml"
-                />
+                /> 
+                <span :class="question.cssClasses.materialDecorator">
+                  <svg
+                    :class="question.cssClasses.itemDecorator"
+                    viewBox="-12 -12 24 24"
+                  >
+                    <circle r="6" cx="0" cy="0" />
+                  </svg>
+                </span>
+                <span class="circle"></span>
+                <span class="check"></span>
+                <span :style="{ display: 'none' }">{{
+                  question.locTitle.renderedHtml
+                }}</span>
+              </label>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </fieldset>
+
+      <fieldset v-if="question.layout === 'vertical'">
+      <legend v-bind:aria-label="question.locTitle.renderedHtml"></legend>
+      <table :class="question.cssClasses.root">
+        <!--
+            header column
+        --->
+        <thead v-if="question.showHeader">
+          <tr>
+            <td v-if="question.allowRowsDragAndDrop"></td>
+            <td v-show="question.hasRows"></td>
+            <th
+              v-for="(row, rowIndex) in question.visibleRows"
+              :key="rowIndex"
+              :class="question.cssClasses.headerCell"
+            >
+              <survey-string :locString="row.locText" />
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- 
+            every row is a choices, every column is a subject
+          -->
+          <tr
+            v-for="(row, rowIndex) in question.visibleColumns" 
+            :key="'row-' + row.name + '-' + rowIndex"
+            :class="row.rowClasses"
+          >
+            <drag-drop-td
+              :question="question"
+              v-if="question.allowRowsDragAndDrop"
+            />
+            <td :class="question.cssClasses.cell" v-show="question.hasRows">
+              <survey-string :locString="row.locText" />
+            </td>
+            <!--
+                do not care about hasCellCase
+            --->
+            <td
+              v-if="question.hasCellText"
+              v-for="(column, columnIndex) in question.visibleColumns"
+              :key="columnIndex"
+              :class="question.getItemClass(row, column)"
+              v-on:click="cellClick(row, column)"
+            >
+              <survey-string
+                :locString="question.getCellDisplayLocText(row.name, column)"
+              ></survey-string>
+            </td>
+            <td
+              v-if="!question.hasCellText"
+              v-for="(column, columnIndex) in question.visibleRows"
+              :key="columnIndex"
+              :headers="column.locText.renderedHtml"
+              :class="question.cssClasses.cell"
+              v-on:click="cellClick(column, row)"
+            >
+              <label :class="question.getItemClass(row, column)">
+                <input
+                  type="radio"
+                  :class="question.cssClasses.itemValue"
+                  :name="row.fullName"
+                  v-model="column.value"
+                  :value="row.value"
+                  :disabled="question.isReadOnly"
+                  :id="question.inputId + '_' + column.name + '_' + rowIndex"
+                  v-bind:aria-required="question.isRequired"
+                  :aria-label="question.locTitle.renderedHtml"
+                /> 
                 <span :class="question.cssClasses.materialDecorator">
                   <svg
                     :class="question.cssClasses.itemDecorator"

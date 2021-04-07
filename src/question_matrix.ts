@@ -594,6 +594,11 @@ Serializer.addClass(
   "matrix",
   [
     {
+      name: "layout",
+      default: "horizontal",
+      choices: ["horizontal", "vertical"],
+    },
+    {
       name: "columns:itemvalue[]",
       baseValue: function () {
         return surveyLocalization.getString("matrix_column");

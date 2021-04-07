@@ -1,0 +1,15 @@
+<label data-bind="css: model.css.label, attr: { title: model.caption.koRenderedHtml }">
+  <input type="radio"
+    data-bind="attr: { name: model.name, id: model.id, 'aria-required': model.isRequired, 'aria-label': model.caption.koRenderedHtml, role: 'radio', 'aria-invalid': model.hasErrors, 'aria-describedby': model.describeBy}, checkedValue: model.value, checked: model.question.renderedValue, disable: model.readOnly, css: model.css.control" />
+  <div data-bind="css: model.css.decorator">
+    <!-- ko if: !!model.iconName-->
+    <sv-svg-icon data-bind="css: model.css.icon" params="iconName: model.iconName, size: model.iconSize"></sv-svg-icon>
+    <!-- /ko -->
+    <!-- ko if: model.showCaption -->
+    <span data-bind="css: model.css.caption, attr: { title: model.caption.koRenderedHtml }">
+      <!-- ko template: { name: 'survey-string', data: model.caption } -->
+      <!-- /ko -->
+    </span>
+    <!-- /ko -->
+  </div>
+</label>

@@ -20,8 +20,8 @@
       data-bind="component: { name: contentComponentName, params: contentComponentData }"
     ></div>
 
+    <!-- ko if: isModal  -->
     <div class="sv-popup__footer">
-      <!-- ko if: isModal  -->
       <button
         class="sv-popup__footer-item sv-popup__button sv-popup__button--cancel"
         data-bind="click: cancel, text: cancelButtonText"
@@ -34,7 +34,7 @@
       >
         Apply
       </button>
-      <!-- /ko -->
     </div>
+    <!-- /ko -->
   </div>
 </div>

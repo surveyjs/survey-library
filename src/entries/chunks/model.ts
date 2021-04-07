@@ -172,6 +172,11 @@ export {
 } from "../../action-bar";
 export { ListModel } from "../../list";
 export { PopupModel, PopupViewModel } from "../../popup";
+export {
+  QuestionButtonGroupModel,
+  ButtonGroupItemModel,
+  ButtonGroupItemValue,
+} from "../../question_buttongroup";
 export { IsMobile } from "../../utils/is-mobile";
 export {
   confirmAction,

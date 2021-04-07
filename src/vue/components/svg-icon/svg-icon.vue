@@ -4,29 +4,54 @@
 
 <script lang="ts">
 import Vue from "vue";
-import { Component, Prop } from "vue-property-decorator";
+import { Component, Prop, Watch } from "vue-property-decorator";
 import { createSvg } from "survey-core";
+import { BaseVue } from "src/vue/base";
 
 @Component
-export class SvgIcon extends Vue {
-  @Prop() size: any;
-  @Prop() width: number;
-  @Prop() height: number;
+export class SvgIcon extends BaseVue {
+  @Prop()
+  size: number;
+  @Prop()
+  width: number;
+  @Prop()
+  height: number;
   @Prop() iconName: string;
+  svgIconElement: any;
 
   constructor() {
     super();
   }
+  @Watch("size")
+  onSizePropertyChanged() {
+    this.onUpdated();
+  }
+  @Watch("width")
+  onWidthPropertyChanged() {
+    this.onUpdated();
+  }
+  @Watch("height")
+  onHeightPropertyChanged() {
+    this.onUpdated();
+  }
+  @Watch("iconName")
+  onIconNamePropertyChanged() {
+    this.onUpdated();
+  }
 
-  mounted() {
-    let svgIconElement: any = this.$refs["svgIcon"];
+  onUpdated() {
     createSvg(
       this.size,
       this.width,
       this.height,
       this.iconName,
-      svgIconElement
+      this.svgIconElement
     );
+  }
+
+  onMounted() {
+    this.svgIconElement = this.$refs["svgIcon"];
+    this.onUpdated();
   }
 }
 

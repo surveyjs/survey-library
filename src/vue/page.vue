@@ -64,7 +64,7 @@ export class Page extends BaseVue {
   get num() {
     return this.page.num > 0 ? this.page.num + ". " : "";
   }
-  get rows() {
+  get rows(): Array<any> {
     return this.page.rows;
   }
   get renderTitleActions() {

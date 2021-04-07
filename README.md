@@ -201,7 +201,7 @@ To build library yourself:
 
 5.  **Run unit tests**
     ```
-    npm test
+    npm run test
     ```
     This command will run unit tests using [Karma](https://karma-runner.github.io/0.13/index.html)
 

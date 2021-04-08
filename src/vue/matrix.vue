@@ -1,6 +1,6 @@
 <template>
   <div :class="question.cssClasses.tableWrapper">
-    <fieldset v-show="!verticalMode()">
+    <fieldset v-if="!verticalMode()">
       <legend v-bind:aria-label="question.locTitle.renderedHtml"></legend>
       <table :class="question.cssClasses.root">
         <thead v-if="question.showHeader">
@@ -80,7 +80,7 @@
       </table>
     </fieldset>
 
-    <fieldset v-show="verticalMode()">
+    <fieldset v-if="verticalMode()">
       <legend v-bind:aria-label="question.locTitle.renderedHtml"></legend>
       <table :class="question.cssClasses.root">
         <!--

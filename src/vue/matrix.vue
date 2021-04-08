@@ -46,7 +46,7 @@
               :key="columnIndex"
               :title="column.locText.renderedHtml"
               :class="question.cssClasses.cell"
-              v-on:click="cellClick(row, column)"
+              v-on:click.self="cellClick(row, column)"
             >
               <label :class="question.getItemClass(row, column)">
                 <input
@@ -210,7 +210,6 @@ export class Matrix extends QuestionVue<QuestionMatrixModel> {
   }
 
   checkboxCellClick(row: any, column: any) {
-    if (this.question.isReadOnly) return;
     if (row.value) {
       if (row.value.includes(column.value)) {
         // try to remove value from row.value

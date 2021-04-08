@@ -548,7 +548,7 @@ $label-disabled-color: rgba(64, 64, 64, 0.5);
 
             td {
               @media (min-width: 768px) {
-                min-width: 10em;
+                // min-width: 10em;
               }
               .sv_q_m_label {
                 position: static;

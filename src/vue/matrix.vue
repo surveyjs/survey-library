@@ -72,7 +72,7 @@
                     <circle r="6" cx="0" cy="0" />
                   </svg>
                 </span>
-                <span class="circle"></span>
+                <span v-if="question.cellType != 'checkbox'" class="circle"></span>
 
                 <span v-if="question.cellType == 'checkbox'" :class="question.cssClasses.materialDecorator + itemDecoratorClass()">
                   <svg

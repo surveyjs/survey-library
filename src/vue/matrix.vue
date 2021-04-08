@@ -60,20 +60,16 @@
                   v-bind:aria-required="question.isRequired"
                   :aria-label="question.locTitle.renderedHtml"
                 />
-                <span v-if="question.cellType != 'checkbox'"
-                  :class="
-                    question.cssClasses.materialDecorator + itemDecoratorClass()
-                  "
-                >
+                <span v-if="question.cellType != 'checkbox'" :class="question.cssClasses.materialDecorator + itemDecoratorClass()">
                   <svg v-if="question.cellType != 'checkbox'"
                     :class="question.cssClasses.itemDecorator + itemSvgClass()"
                     viewBox="-12 -12 24 24"
                   >
                     <circle r="6" cx="0" cy="0" />
                   </svg>
+                <span  class="circle"></span>
+                <span  class="check"></span>
                 </span>
-                <span v-if="question.cellType != 'checkbox'" class="circle"></span>
-                <span v-if="question.cellType != 'checkbox'" class="check"></span>
 
                 <span v-if="question.cellType == 'checkbox'" :class="question.cssClasses.materialDecorator + itemDecoratorClass()">
                   <svg

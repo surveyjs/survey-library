@@ -61,7 +61,7 @@ function init() {
 
       {
         type: "matrix",
-        name: "Quality",
+        name: "Quality2",
         title: "Matrix",
          columns: [
           {

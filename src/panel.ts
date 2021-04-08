@@ -18,7 +18,7 @@ import {
 } from "./base";
 import { Question } from "./question";
 import { ConditionRunner } from "./conditions";
-import { QuestionFactory } from "./questionfactory";
+import { ElementFactory, QuestionFactory } from "./questionfactory";
 import { ILocalizableOwner, LocalizableString } from "./localizablestring";
 import { OneAnswerRequiredError } from "./error";
 import { PageModel } from "./page";
@@ -1879,3 +1879,7 @@ Serializer.addClass(
   },
   "panelbase"
 );
+
+ElementFactory.Instance.registerElement("panel", name => {
+  return new PanelModel(name);
+});

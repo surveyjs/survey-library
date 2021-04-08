@@ -146,9 +146,9 @@
               :key="columnIndex"
               :headers="column.locText.renderedHtml"
               :class="question.cssClasses.cell"
-              v-on:click="cellClick(column, row)"
+              v-on:click.self="cellClick(column, row)"
             >
-              <label :class="question.getItemClass(row, column)">
+              <label :class="question.getItemClass(column, row)">
                 <input
                   :type="question.cellType ? 'checkbox' : 'radio'"
                   :class="question.cssClasses.itemValue + ' ' + itemClass()"
@@ -160,16 +160,27 @@
                   v-bind:aria-required="question.isRequired"
                   :aria-label="question.locTitle.renderedHtml"
                 />
-                <span :class="question.cssClasses.materialDecorator">
-                  <svg
-                    :class="question.cssClasses.itemDecorator"
+
+                  <span v-if="question.cellType != 'checkbox'" :class="question.cssClasses.materialDecorator + itemDecoratorClass()">
+                  <svg 
+                    :class="question.cssClasses.itemDecorator + itemSvgClass()"
                     viewBox="-12 -12 24 24"
                   >
                     <circle r="6" cx="0" cy="0" />
                   </svg>
+                <span  class="circle"></span>
+                <span  class="check"></span>
                 </span>
-                <span class="circle"></span>
-                <span class="check"></span>
+
+                <span v-if="question.cellType == 'checkbox'" :class="question.cssClasses.materialDecorator + itemDecoratorClass()">
+                  <svg
+                    viewBox="0 0 24 24"
+                    :class="question.cssClasses.itemDecorator + itemSvgClass()"
+                  >
+                    <path d="M5,13l2-2l3,3l7-7l2,2l-9,9L5,13z" />
+                  </svg>
+                  <span class="check"></span>
+                </span>
                 <span :style="{ display: 'none' }">{{
                   question.locTitle.renderedHtml
                 }}</span>

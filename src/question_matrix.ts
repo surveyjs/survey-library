@@ -265,7 +265,7 @@ export class QuestionMatrixModel
   }
   public getItemClass(row: any, column: any) {
     let cellType = this.cellType
-    var isChecked = cellType == 'checkbox' ?  row.value && row.value.includes(column.value)  :   row.value == column.value
+    var isChecked = cellType == 'checkbox' ?  row.value && column.value &&  row.value.includes(column.value)  :   row.value == column.value
     var isDisabled = this.isReadOnly;
     var allowHover = !isChecked && !isDisabled;
     var cellDisabledClass = this.hasCellText

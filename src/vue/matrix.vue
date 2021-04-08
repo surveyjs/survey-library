@@ -51,7 +51,7 @@
               <label :class="question.getItemClass(row, column)">
                 <input
                   :type="question.cellType ? 'checkbox' : 'radio'"
-                  :class="question.cssClasses.itemValue"
+                  :class="question.cssClasses.itemValue + ' ' + itemClass()"
                   :name="row.fullName"
                   v-model="row.value"
                   :value="column.value"
@@ -60,15 +60,29 @@
                   v-bind:aria-required="question.isRequired"
                   :aria-label="question.locTitle.renderedHtml"
                 />
-                <span :class="question.cssClasses.materialDecorator">
-                  <svg
-                    :class="question.cssClasses.itemDecorator"
+                <span v-if="question.cellType != 'checkbox'"
+                  :class="
+                    question.cssClasses.materialDecorator + itemDecoratorClass()
+                  "
+                >
+                  <svg v-if="question.cellType != 'checkbox'"
+                    :class="question.cssClasses.itemDecorator + itemSvgClass()"
                     viewBox="-12 -12 24 24"
                   >
                     <circle r="6" cx="0" cy="0" />
                   </svg>
                 </span>
                 <span class="circle"></span>
+
+                <span v-if="question.cellType == 'checkbox'" :class="question.cssClasses.materialDecorator + itemDecoratorClass()">
+                  <svg
+                    viewBox="0 0 24 24"
+                    :class="question.cssClasses.itemDecorator + itemSvgClass()"
+                  >
+                    <path d="M5,13l2-2l3,3l7-7l2,2l-9,9L5,13z" />
+                  </svg>
+                </span>
+
                 <span class="check"></span>
                 <span :style="{ display: 'none' }">{{
                   question.locTitle.renderedHtml
@@ -140,7 +154,7 @@
               <label :class="question.getItemClass(row, column)">
                 <input
                   :type="question.cellType ? 'checkbox' : 'radio'"
-                  :class="question.cssClasses.itemValue"
+                  :class="question.cssClasses.itemValue + ' ' + itemClass()"
                   :name="row.fullName"
                   v-model="column.value"
                   :value="row.value"
@@ -191,10 +205,10 @@ export class Matrix extends QuestionVue<QuestionMatrixModel> {
 
   cellClick(row: any, column: any) {
     if (this.question.isReadOnly) return;
-    if (this.question.cellType == 'checkbox') {
-      this.checkboxCellClick(row, column) 
+    if (this.question.cellType == "checkbox") {
+      this.checkboxCellClick(row, column);
     } else {
-     row.value = column.value;
+      row.value = column.value;
     }
   }
 
@@ -203,7 +217,7 @@ export class Matrix extends QuestionVue<QuestionMatrixModel> {
     if (row.value) {
       if (row.value.includes(column.value)) {
         // try to remove value from row.value
-        row.value = row.value.filter((item:any) => item != column.value);
+        row.value = row.value.filter((item: any) => item != column.value);
       } else {
         row.value = row.value.concat([column.value]);
       }
@@ -216,6 +230,23 @@ export class Matrix extends QuestionVue<QuestionMatrixModel> {
   }
   verticalMode() {
     return this.wide && this.question.layout == "vertical";
+  }
+
+  itemClass() {
+    return this.question.cellType == "checkbox"
+      ? " sv-checkbox__control"
+      : " sv-radio__control";
+  }
+
+  itemDecoratorClass() {
+    return this.question.cellType == "checkbox"
+      ? " sv-checkbox__decorator"
+      : " sv-radio__decorator";
+  }
+  itemSvgClass() {
+    return this.question.cellType == "checkbox"
+      ? " sv-checkbox__svg"
+      : " sv-radio__svg";
   }
 }
 

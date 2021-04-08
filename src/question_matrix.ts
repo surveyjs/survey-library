@@ -264,22 +264,23 @@ export class QuestionMatrixModel
     return this.visibleColumns;
   }
   public getItemClass(row: any, column: any) {
-    var isChecked = row.value == column.value;
+    let cellType = this.cellType
+    var isChecked = cellType == 'checkbox' ?  row.value && row.value.includes(column.value)  :   row.value == column.value
     var isDisabled = this.isReadOnly;
     var allowHover = !isChecked && !isDisabled;
     var cellDisabledClass = this.hasCellText
       ? this.cssClasses.cellTextDisabled
-      : this.cssClasses.itemDisabled;
+      : (cellType == 'checkbox' ? this.cssClasses.itemCheckboxDisabled : this.cssClasses.itemRadioDisabled);
 
     var cellSelectedClass = this.hasCellText
       ? this.cssClasses.cellTextSelected
-      : this.cssClasses.itemChecked;
+      : (cellType == 'checkbox' ? this.cssClasses.itemCheckboxChecked : this.cssClasses.itemRadioChecked);
 
-    var itemHoverClass = !this.hasCellText ? this.cssClasses.itemHover : "";
+    var itemHoverClass = !this.hasCellText ? (cellType == 'checkbox' ? this.cssClasses.itemCheckboxHover : this.cssClasses.itemRadioHover): "";
 
     var cellClass = this.hasCellText
       ? this.cssClasses.cellText
-      : this.cssClasses.label;
+      : (cellType == 'checkbox' ? this.cssClasses.labelCheckbox : this.cssClasses.labelRadio);
 
     let itemClass =
       this.hasCellText && !!this.cssClasses.cell

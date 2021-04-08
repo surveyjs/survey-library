@@ -617,6 +617,7 @@ Serializer.addClass(
     },
     "isAllRowRequired:boolean",
     "hideIfRowsEmpty:boolean",
+    "cellType:string",
   ],
   function () {
     return new QuestionMatrixModel("");

@@ -651,7 +651,7 @@ export class Base {
     var oldValue = this.getPropertyValue(name);
     if (oldValue && Array.isArray(oldValue)) {
       if (this.isTwoValueEquals(oldValue, val)) return;
-      var arrayInfo = this.arraysInfo[name];
+      var arrayInfo = this.arraysInfo && this.arraysInfo[name]
       this.setArray(
         name,
         oldValue,

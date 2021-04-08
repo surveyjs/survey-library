@@ -50,7 +50,7 @@
             >
               <label :class="question.getItemClass(row, column)">
                 <input
-                  type="radio"
+                  :type="question.cellType ? 'checkbox' : 'radio'"
                   :class="question.cssClasses.itemValue"
                   :name="row.fullName"
                   v-model="row.value"
@@ -139,7 +139,7 @@
             >
               <label :class="question.getItemClass(row, column)">
                 <input
-                  type="radio"
+                  :type="question.cellType ? 'checkbox' : 'radio'"
                   :class="question.cssClasses.itemValue"
                   :name="row.fullName"
                   v-model="column.value"
@@ -173,13 +173,13 @@
 
 <script lang="ts">
 import Vue from "vue";
-import { Component, Prop } from "vue-property-decorator";
+import { Component } from "vue-property-decorator";
 import { default as QuestionVue } from "./question";
 import { QuestionMatrixModel } from "survey-core";
 
 @Component
 export class Matrix extends QuestionVue<QuestionMatrixModel> {
-  wide = window.innerWidth > 600
+  wide = window.innerWidth > 600;
 
   mounted() {
     window.addEventListener("resize", this.onResize);
@@ -191,10 +191,28 @@ export class Matrix extends QuestionVue<QuestionMatrixModel> {
 
   cellClick(row: any, column: any) {
     if (this.question.isReadOnly) return;
-    row.value = column.value;
+    if (this.question.cellType == 'checkbox') {
+      this.checkboxCellClick(row, column) 
+    } else {
+     row.value = column.value;
+    }
+  }
+
+  checkboxCellClick(row: any, column: any) {
+    if (this.question.isReadOnly) return;
+    if (row.value) {
+      if (row.value.includes(column.value)) {
+        // try to remove value from row.value
+        row.value = row.value.filter((item:any) => item != column.value);
+      } else {
+        row.value = row.value.concat([column.value]);
+      }
+    } else {
+      row.value = [column.value];
+    }
   }
   onResize() {
-    this.wide = window.innerWidth > 600
+    this.wide = window.innerWidth > 600;
   }
   verticalMode() {
     return this.wide && this.question.layout == "vertical";

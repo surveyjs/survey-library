@@ -73,6 +73,7 @@
                   </svg>
                 </span>
                 <span v-if="question.cellType != 'checkbox'" class="circle"></span>
+                <span v-if="question.cellType != 'checkbox'" class="check"></span>
 
                 <span v-if="question.cellType == 'checkbox'" :class="question.cssClasses.materialDecorator + itemDecoratorClass()">
                   <svg
@@ -81,9 +82,9 @@
                   >
                     <path d="M5,13l2-2l3,3l7-7l2,2l-9,9L5,13z" />
                   </svg>
+                  <span class="check"></span>
                 </span>
 
-                <span class="check"></span>
                 <span :style="{ display: 'none' }">{{
                   question.locTitle.renderedHtml
                 }}</span>

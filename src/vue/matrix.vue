@@ -61,7 +61,7 @@
                   :aria-label="question.locTitle.renderedHtml"
                 />
                 <span v-if="question.cellType != 'checkbox'" :class="question.cssClasses.materialDecorator + itemDecoratorClass()">
-                  <svg v-if="question.cellType != 'checkbox'"
+                  <svg 
                     :class="question.cssClasses.itemDecorator + itemSvgClass()"
                     viewBox="-12 -12 24 24"
                   >

@@ -595,7 +595,6 @@ Serializer.addClass(
   [
     {
       name: "layout",
-      default: "horizontal",
       choices: ["horizontal", "vertical"],
     },
     {

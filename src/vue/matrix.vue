@@ -152,9 +152,9 @@
                 <input
                   :type="question.cellType ? 'checkbox' : 'radio'"
                   :class="question.cssClasses.itemValue + itemClass()"
-                  :name="row.fullName"
+                  :name="column.fullName"
                   :value="row.value"
-                  v-on:input.prevent="cellClick(row, column)"
+                  v-on:input.prevent="cellClick(column, row)"
                   :disabled="question.isReadOnly"
                   :id="question.inputId + '_' + column.name + '_' + rowIndex"
                   v-bind:aria-required="question.isRequired"

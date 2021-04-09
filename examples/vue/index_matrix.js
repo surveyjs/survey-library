@@ -6,6 +6,7 @@ function init() {
         name: "Quality",
         title: "Matrix",
         cellType: "checkbox",
+        layout: "vertical",
         columns: [
           {
             value: 1,
@@ -44,6 +45,7 @@ function init() {
         type: "matrix",
         name: "Quality2",
         title: "Matrix",
+        layout: "vertical",
          columns: [
           {
             value: 1,

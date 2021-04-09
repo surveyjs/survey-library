@@ -263,6 +263,11 @@ export class QuestionMatrixModel
   getColumns(): Array<any> {
     return this.visibleColumns;
   }
+  public isItemChecked(row:any, column: any) {
+    let cellType = this.cellType
+    var isChecked = cellType == 'checkbox' ?  row.value && column.value &&  ( row.value == column.value || ( Array.isArray(row.value) && row.value.includes(column.value)))  :  row.value == column.value
+    return isChecked 
+  }
   public getItemClass(row: any, column: any) {
     let cellType = this.cellType
     var isChecked = cellType == 'checkbox' ?  row.value && column.value &&  ( row.value == column.value || ( Array.isArray(row.value) && row.value.includes(column.value)))  :  row.value == column.value

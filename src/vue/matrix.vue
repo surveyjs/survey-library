@@ -54,6 +54,7 @@
                   :class="question.cssClasses.itemValue + itemClass()"
                   :name="row.fullName"
                   :value="column.value"
+                  :checked="question.isItemChecked(row, column)"
                   v-on:input.prevent="cellClick(row, column)"
                   :disabled="question.isReadOnly"
                   :id="question.inputId + '_' + row.name + '_' + columnIndex"

@@ -265,7 +265,7 @@ export class QuestionMatrixModel
   }
   public getItemClass(row: any, column: any) {
     let cellType = this.cellType
-    var isChecked = cellType == 'checkbox' ?  row.value && column.value &&  row.value.includes(column.value)  :   row.value == column.value
+    var isChecked = cellType == 'checkbox' ?  row.value && column.value &&  ( row.value == column.value || ( Array.isArray(row.value) && row.value.includes(column.value)))  :  row.value == column.value
     var isDisabled = this.isReadOnly;
     var allowHover = !isChecked && !isDisabled;
     var cellDisabledClass = this.hasCellText
@@ -425,7 +425,13 @@ export class QuestionMatrixModel
     return true;
   }
   protected getIsAnswered(): boolean {
-    return super.getIsAnswered() && this.hasValuesInAllRows();
+    let cellType = this.cellType
+    if (cellType != 'checkbox') {
+      return super.getIsAnswered() && this.hasValuesInAllRows();
+    } else {
+      return false
+    }
+
   }
   private createMatrixRow(
     item: ItemValue,

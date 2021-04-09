@@ -255,7 +255,7 @@ export var modernCss = {
     materialDecorator: "sv-item__decorator  sv-radio__decorator",
     checkboxMaterialDecorator: "sv-item__decorator  sv-checkbox__decorator",
     itemDecorator: "sv-item__svg sv-radio__svg",
-    itemcheckboxDecorator: "sv-item__svg sv-checkbox__svg",
+    itemCheckboxDecorator: "sv-item__svg sv-checkbox__svg",
     cellText: "sv-matrix__text",
     cellTextSelected: "sv-matrix__text--checked",
     cellTextDisabled: "sv-matrix__text--disabled",

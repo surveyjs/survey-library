@@ -25,7 +25,6 @@ function init() {
         name: "Quality",
         title: "Matrix",
         cellType: "checkbox",
-        layout: "vertical",
         columns: [
           {
             value: 1,

@@ -51,7 +51,7 @@
               <label :class="question.getItemClass(row, column)">
                 <input
                   :type="question.cellType ? 'checkbox' : 'radio'"
-                  :class="question.cssClasses.itemValue + ' ' + itemClass()"
+                  :class="question.cssClasses.itemValue + itemClass()"
                   :name="row.fullName"
                   v-model="row.value"
                   :value="column.value"
@@ -60,9 +60,9 @@
                   v-bind:aria-required="question.isRequired"
                   :aria-label="question.locTitle.renderedHtml"
                 />
-                <span v-if="question.cellType != 'checkbox'" :class="question.cssClasses.materialDecorator + itemDecoratorClass()">
+                <span v-if="question.cellType != 'checkbox'" :class="question.cssClasses.materialDecorator">
                   <svg 
-                    :class="question.cssClasses.itemDecorator + itemSvgClass()"
+                    :class="question.cssClasses.itemDecorator"
                     viewBox="-12 -12 24 24"
                   >
                     <circle r="6" cx="0" cy="0" />
@@ -71,10 +71,10 @@
                 <span  class="check"></span>
                 </span>
 
-                <span v-if="question.cellType == 'checkbox'" :class="question.cssClasses.materialDecorator + itemDecoratorClass()">
+                <span v-if="question.cellType == 'checkbox'" :class="question.cssClasses.checkboxMaterialDecorator">
                   <svg
                     viewBox="0 0 24 24"
-                    :class="question.cssClasses.itemDecorator + itemSvgClass()"
+                    :class="question.cssClasses.itemCheckboxDecorator"
                   >
                     <path d="M5,13l2-2l3,3l7-7l2,2l-9,9L5,13z" />
                   </svg>
@@ -151,7 +151,7 @@
               <label :class="question.getItemClass(column, row)">
                 <input
                   :type="question.cellType ? 'checkbox' : 'radio'"
-                  :class="question.cssClasses.itemValue + ' ' + itemClass()"
+                  :class="question.cssClasses.itemValue + itemClass()"
                   :name="row.fullName"
                   v-model="column.value"
                   :value="row.value"
@@ -161,9 +161,9 @@
                   :aria-label="question.locTitle.renderedHtml"
                 />
 
-                  <span v-if="question.cellType != 'checkbox'" :class="question.cssClasses.materialDecorator + itemDecoratorClass()">
+                  <span v-if="question.cellType != 'checkbox'" :class="question.cssClasses.materialDecorator">
                   <svg 
-                    :class="question.cssClasses.itemDecorator + itemSvgClass()"
+                    :class="question.cssClasses.itemDecorator"
                     viewBox="-12 -12 24 24"
                   >
                     <circle r="6" cx="0" cy="0" />
@@ -172,10 +172,10 @@
                 <span  class="check"></span>
                 </span>
 
-                <span v-if="question.cellType == 'checkbox'" :class="question.cssClasses.materialDecorator + itemDecoratorClass()">
+                <span v-if="question.cellType == 'checkbox'" :class="question.cssClasses.checkboxMaterialDecorator">
                   <svg
                     viewBox="0 0 24 24"
-                    :class="question.cssClasses.itemDecorator + itemSvgClass()"
+                    :class="question.cssClasses.itemCheckboxDecorator"
                   >
                     <path d="M5,13l2-2l3,3l7-7l2,2l-9,9L5,13z" />
                   </svg>
@@ -245,16 +245,6 @@ export class Matrix extends QuestionVue<QuestionMatrixModel> {
       : " sv-radio__control";
   }
 
-  itemDecoratorClass() {
-    return this.question.cellType == "checkbox"
-      ? " sv-checkbox__decorator"
-      : " sv-radio__decorator";
-  }
-  itemSvgClass() {
-    return this.question.cellType == "checkbox"
-      ? " sv-checkbox__svg"
-      : " sv-radio__svg";
-  }
 }
 
 Vue.component("survey-matrix", Matrix);

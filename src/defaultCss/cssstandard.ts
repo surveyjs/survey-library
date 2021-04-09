@@ -161,8 +161,13 @@ export var defaultStandardCss = {
   matrix: {
     root: "sv_q_matrix",
     label: "sv_q_m_label",
+    labelRadio: "sv_q_m_label",
+    labelCheckbox: "sv_q_m_label",
     itemChecked: "checked",
+    itemRadioChecked: "checked",
+    itemCheckboxChecked: "checked",
     itemDecorator: "sv-hidden",
+    itemRadioDecorator: "sv-hidden",
     itemCheckboxDecorator: "sv-hidden",
     cell: "sv_q_m_cell",
     cellText: "sv_q_m_cell_text",

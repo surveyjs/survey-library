@@ -53,7 +53,6 @@
                   type="radio"
                   :class="question.cssClasses.itemValue"
                   :name="row.fullName"
-                  v-model="row.value"
                   :value="column.value"
                   :disabled="question.isReadOnly"
                   :id="question.inputId + '_' + row.name + '_' + columnIndex"

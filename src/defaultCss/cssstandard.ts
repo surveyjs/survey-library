@@ -163,6 +163,7 @@ export var defaultStandardCss = {
     label: "sv_q_m_label",
     itemChecked: "checked",
     itemDecorator: "sv-hidden",
+    itemCheckboxDecorator: "sv-hidden",
     cell: "sv_q_m_cell",
     cellText: "sv_q_m_cell_text",
     cellTextSelected: "sv_q_m_cell_selected",

@@ -1,7 +1,7 @@
 <template>
   <div class="sv-vue-row-additional-div">
     <survey-element
-      v-if="row.isNeedRender && element.visible"
+      v-if="row.isNeedRender && element.isVisible"
       v-for="element in row.elements"
       :key="element.idValue"
       :id="element.id"

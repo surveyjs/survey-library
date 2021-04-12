@@ -6,6 +6,7 @@ import { ReactElementFactory } from "./element-factory";
 import { SurveyPanelBase } from "./panel-base";
 import { PanelModel } from "survey-core";
 import { ReactQuestionFactory } from "./reactquestion_factory";
+import { ReactSurveyModel } from "./reactsurveymodel";
 
 export class SurveyPanel extends SurveyPanelBase {
   private hasBeenExpanded: boolean = false;
@@ -63,6 +64,14 @@ export class SurveyPanel extends SurveyPanelBase {
         {bottom}
       </div>
     );
+  }
+  protected wrapElement(element: JSX.Element): JSX.Element {
+    const survey: ReactSurveyModel = this.panel.survey as ReactSurveyModel;
+    let wrapper: JSX.Element;
+    if (survey) {
+      wrapper = survey.wrapElement(element, this.panel);
+    }
+    return wrapper ?? element;
   }
   protected renderContent(
     style: any,

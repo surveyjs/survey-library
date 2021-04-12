@@ -829,6 +829,8 @@ export class StylesManager {
       "background: $body-background-color; border-color: $border-color;",
 
     //eo button-group
+
+    ".sv_main .sv_qstn textarea": "max-width: 100%",
   };
 
   public static modernThemeCss: { [key: string]: string } = {
@@ -851,7 +853,7 @@ export class StylesManager {
     ".sv-checkbox--checked.sv-checkbox--disabled .sv-checkbox__svg":
       "background-color: $disable-color; fill: $checkmark-color;",
     ".sv-checkbox--disabled .sv-checkbox__svg": "border-color: $disable-color;",
-    ".sv-comment": "border-color: $text-border-color;",
+    ".sv-comment": "border-color: $text-border-color; max-width: 100%;",
     ".sv-comment:focus": "border-color: $main-color;",
     ".sv-completedpage":
       "color: $text-color; background-color: $body-container-background-color;",

@@ -41,6 +41,7 @@ import { ExpressionRunner, ConditionRunner } from "./conditions";
 import { settings } from "./settings";
 import { IActionBarItem } from "./action-bar";
 import { isMobile } from "./utils/utils";
+import { QuestionSelectBase } from "survey-core";
 
 /**
  * The `Survey` object contains information about the survey, Pages, Questions, flow logic and etc.
@@ -5606,6 +5607,12 @@ export class SurveyModel extends Base
   }
   public getElementWrapperComponentData(element: SurveyElement): any {
     return element;
+  }
+  public getItemValueWrapperComponentName(item: ItemValue, question: QuestionSelectBase): string {
+    return "survey-item-value-component";
+  }
+  public getItemValueWrapperComponentData(item: ItemValue, question: QuestionSelectBase): any {
+    return item;
   }
 
   /**

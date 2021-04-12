@@ -8,6 +8,7 @@ import { QuestionCheckboxModel } from "survey-core";
 import { ItemValue } from "survey-core";
 import { ReactQuestionFactory } from "./reactquestion_factory";
 import { Base } from "survey-core";
+import { ReactSurveyModel } from "./reactsurveymodel";
 
 export class SurveyQuestionCheckbox extends SurveyQuestionElementBase {
   constructor(props: any) {
@@ -49,13 +50,19 @@ export class SurveyQuestionCheckbox extends SurveyQuestionElementBase {
     });
   }
   protected getItems(cssClasses: any): Array<any> {
-    var items = [];
+    var survey = this.question.survey as ReactSurveyModel;
+    var renderedItems = [];
     for (var i = 0; i < this.question.visibleChoices.length; i++) {
       var item = this.question.visibleChoices[i];
       var key = "item" + i;
-      items.push(this.renderItem(key, item, i == 0, cssClasses, "" + i));
+      var renderedItem = this.renderItem(key, item, i == 0, cssClasses, "" + i);
+      var wrappedItem = null;
+      if(!!survey) {
+        wrappedItem = survey.wrapItemValue(renderedItem, this.question, item)
+      };
+      renderedItems.push(wrappedItem ?? renderedItem);
     }
-    return items;
+    return renderedItems;
   }
   protected get textStyle(): any {
     return null;

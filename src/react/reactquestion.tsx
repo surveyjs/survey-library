@@ -154,7 +154,7 @@ export class SurveyQuestion extends SurveyElementBase<any, any> {
     const survey: ReactSurveyModel = this.question.survey as ReactSurveyModel;
     let wrapper: JSX.Element;
     if (survey) {
-      wrapper = survey.wrapQuestion(element, this.question);
+      wrapper = survey.wrapElement(element, this.question);
     }
     return wrapper ?? element;
   }

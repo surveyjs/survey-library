@@ -6,6 +6,8 @@ import { ISurveyCreator } from "./reactquestion";
 import { Survey } from "./reactSurvey";
 import { Base, ITitleOwner, ArrayChanges, ISurvey } from "survey-core";
 import { ReactElementFactory } from "./element-factory";
+import { ItemValue } from "../itemvalue";
+import { QuestionSelectBase } from "../question_baseselect";
 export class SurveyElementBase<P, S> extends React.Component<P, S> {
   public static renderLocString(
     locStr: LocalizableString,

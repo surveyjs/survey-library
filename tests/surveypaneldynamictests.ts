@@ -1169,6 +1169,10 @@ QUnit.test("PanelDynamic, survey.onDanamicPanelAdd/Remove", function(assert) {
   var panelIndex = -1;
   survey.onDynamicPanelAdded.add(function(survey, options) {
     questionName = options.question.name;
+    assert.ok(
+      options.panel.getQuestionByName("panelq1"),
+      "Panel added correctly"
+    );
     panelAddedCounter++;
   });
   survey.onDynamicPanelRemoved.add(function(survey, options) {

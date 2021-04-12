@@ -720,6 +720,7 @@ export class SurveyModel extends Base
    * The event is fired on adding a new panel in Panel Dynamic question.
    * <br/> `sender` - the survey object that fires the event.
    * <br/> `options.question` - a panel question.
+   * <br/> `options.panel` - an added panel.
    * @see QuestionPanelDynamicModel
    * @see QuestionPanelDynamicModel.panels
    */
@@ -3759,7 +3760,10 @@ export class SurveyModel extends Base
     return options.error ? new CustomError(options.error, this) : null;
   }
   dynamicPanelAdded(question: IQuestion) {
-    this.onDynamicPanelAdded.fire(this, { question: question });
+    if (this.onDynamicPanelAdded.isEmpty) return;
+    var panels = (<any>question).panels;
+    var panel = panels[panels.length - 1];
+    this.onDynamicPanelAdded.fire(this, { question: question, panel: panel });
   }
   dynamicPanelRemoved(question: IQuestion, panelIndex: number, panel: IPanel) {
     var questions = !!panel ? (<PanelModelBase>panel).questions : [];

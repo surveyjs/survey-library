@@ -175,6 +175,9 @@ export class Survey extends BaseVue {
     this.survey.onCurrentPageChanged.add((sender, options) => {
       this.currentPageId++;
     });
+    this.survey.onPageVisibleChanged.add((sender, options) => {
+      this.currentPageId++;
+    });
     var el = this.$el;
     if (el) this.survey.doAfterRenderSurvey(el);
     this.survey.renderCallback = this.forceUpdate;

@@ -177,7 +177,7 @@ export class SurveyQuestionElementBase extends SurveyElementBase {
 
 export class SurveyQuestionUncontrolledElement<
   T extends Question
-  > extends SurveyQuestionElementBase {
+> extends SurveyQuestionElementBase {
   constructor(props: any) {
     super(props);
     this.updateValueOnEvent = this.updateValueOnEvent.bind(this);
@@ -186,11 +186,25 @@ export class SurveyQuestionUncontrolledElement<
     return this.questionBase as T;
   }
   updateValueOnEvent = (event: any) => {
-    this.questionBase.value = event.target.value;
+    if (
+      !Helpers.isTwoValueEquals(this.questionBase.value, event.target.value)
+    ) {
+      this.setValueCore(event.target.value);
+    }
   };
+  protected setValueCore(newValue: any) {
+    this.questionBase.value = newValue;
+  }
+  protected getValueCore(): any {
+    return this.questionBase.value;
+  }
   protected updateDomElement() {
     if (!!this.control) {
-      this.control.value = this.getValue(this.questionBase.value);
+      const control: any = this.control;
+      const newValue = this.getValueCore();
+      if (!Helpers.isTwoValueEquals(newValue, control.value)) {
+        control.value = this.getValue(newValue);
+      }
     }
     super.updateDomElement();
   }

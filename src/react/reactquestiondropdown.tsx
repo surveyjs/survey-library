@@ -14,6 +14,12 @@ export class SurveyQuestionDropdown extends SurveyQuestionUncontrolledElement<Qu
   constructor(props: any) {
     super(props);
   }
+  protected setValueCore(newValue: any) {
+    this.questionBase.renderedValue = newValue;
+  }
+  protected getValueCore(): any {
+    return this.questionBase.renderedValue;
+  }  
   render(): JSX.Element {
     if (!this.question) return null;
     var cssClasses = this.question.cssClasses;

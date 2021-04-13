@@ -61,6 +61,7 @@ export class SurveyQuestionDropdown extends SurveyQuestionUncontrolledElement<Qu
           id={this.question.inputId}
           className={cssClasses.control}
           ref={(select) => (this.control = select)}
+          autoComplete={this.question.autoComplete}
           onChange={this.updateValueOnEvent}
           onInput={this.updateValueOnEvent}
           aria-label={this.question.locTitle.renderedHtml}

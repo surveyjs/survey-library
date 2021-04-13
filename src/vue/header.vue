@@ -10,8 +10,8 @@
       <img
         :class="survey.css.logoImage"
         :src="survey.locLogo.renderedHtml"
-        :width="survey.logoWidth ? survey.logoWidth + 'px' : undefined"
-        :height="survey.logoHeight ? survey.logoHeight + 'px' : undefined"
+        :width="survey.logoWidth ? survey.logoWidth : undefined"
+        :height="survey.logoHeight ? survey.logoHeight : undefined"
         v-bind:style="{ objectFit: survey.logoFit }"
       />
     </div>
@@ -33,8 +33,8 @@
       <img
         :class="survey.css.logoImage"
         :src="survey.locLogo.renderedHtml"
-        :width="survey.logoWidth ? survey.logoWidth + 'px' : undefined"
-        :height="survey.logoHeight ? survey.logoHeight + 'px' : undefined"
+        :width="survey.logoWidth ? survey.logoWidth : undefined"
+        :height="survey.logoHeight ? survey.logoHeight : undefined"
         v-bind:style="{ objectFit: survey.logoFit }"
       />
     </div>

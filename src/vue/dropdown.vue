@@ -4,6 +4,7 @@
       <select
         :id="question.inputId"
         v-model="question.renderedValue"
+        :autocomplete="question.autoComplete"
         :class="question.cssClasses.control"
         v-bind:aria-label="question.locTitle.renderedHtml"
         :aria-invalid="question.errors.length > 0"

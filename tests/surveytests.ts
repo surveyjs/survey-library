@@ -12563,3 +12563,16 @@ QUnit.test("survey.isLazyRendering", function(assert) {
   survey.lazyRendering = true;
   assert.equal(survey.isLazyRendering, true, "set in survey");
 });
+QUnit.test("survey.getSize", function(assert) {
+  var survey = new SurveyModel();
+  assert.equal(survey.getSize(300), "300px", "300px");
+  assert.equal(survey.getSize("100%"), "100%", "100%");
+  assert.equal(survey.getSize("100"), "100px", "100px");
+});
+QUnit.test("survey logo size", function(assert) {
+  var survey = new SurveyModel();
+  assert.equal(survey.logoWidth, "300px", "300px");
+  assert.equal(survey.logoHeight, "200px", "200px");
+  survey.logoWidth = "100%";
+  assert.equal(survey.logoWidth, "100%", "100%");
+});

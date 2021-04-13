@@ -162,7 +162,7 @@ export class SurveyQuestionMatrixRow extends ReactSurveyElement {
         td = (
           <td
             key={key}
-            headers={column.locText.renderedHtml}
+            title={column.locText.renderedHtml}
             className={this.question.cssClasses.cell}
           >
             <label className={itemClass}>

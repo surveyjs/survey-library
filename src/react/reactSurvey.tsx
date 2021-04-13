@@ -245,6 +245,7 @@ export class Survey extends SurveyElementBase<any, any>
             <img
               className={this.survey.css.logoImage}
               src={this.survey.locLogo.renderedHtml}
+              alt={this.survey.locTitle.renderedHtml}
               width={
                 this.survey.logoWidth ? this.survey.logoWidth : undefined
               }
@@ -264,6 +265,7 @@ export class Survey extends SurveyElementBase<any, any>
             <img
               className={this.survey.css.logoImage}
               src={this.survey.locLogo.renderedHtml}
+              alt={this.survey.locTitle.renderedHtml}
               width={
                 this.survey.logoWidth ? this.survey.logoWidth : undefined
               }

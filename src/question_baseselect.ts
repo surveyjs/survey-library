@@ -53,9 +53,7 @@ export class QuestionSelectBase extends Question {
       this.updateVisibilityBasedOnChoices();
     });
     this.createNewArray("visibleChoices");
-    this.setPropertyValue("choicesByUrl", this.createRestful());
-    this.choicesByUrl.owner = this;
-    this.choicesByUrl.loadingOwner = this;
+    this.setNewRestfulProperty();
     var locOtherText = this.createLocalizableString("otherText", this, true);
     this.createLocalizableString("otherErrorText", this, true);
     this.otherItemValue.locOwner = this;
@@ -183,6 +181,7 @@ export class QuestionSelectBase extends Question {
     this.isSettingDefaultValue =
       !this.isValueEmpty(this.defaultValue) &&
       this.hasUnknownValue(this.defaultValue);
+    this.prevCommentValue = undefined;
     super.setDefaultValue();
     this.isSettingDefaultValue = false;
   }
@@ -300,6 +299,11 @@ export class QuestionSelectBase extends Question {
   protected createRestful(): ChoicesRestful {
     return new ChoicesRestful();
   }
+  private setNewRestfulProperty() {
+    this.setPropertyValue("choicesByUrl", this.createRestful());
+    this.choicesByUrl.owner = this;
+    this.choicesByUrl.loadingOwner = this;
+  }
   protected getQuestionComment(): string {
     if (!!this.commentValue) return this.commentValue;
     if (this.hasComment || this.getStoreOthersAsComment())
@@ -321,6 +325,10 @@ export class QuestionSelectBase extends Question {
       }
     }
   }
+  public clearValue() {
+    super.clearValue();
+    this.prevCommentValue = undefined;
+  }
   public get renderedValue(): any {
     return this.getPropertyValue("renderedValue", null);
   }
@@ -340,7 +348,7 @@ export class QuestionSelectBase extends Question {
     var isOtherSel = this.isOtherSelected;
     if (isOtherSel && !!this.prevCommentValue) {
       var oldComment = this.prevCommentValue;
-      this.prevCommentValue = "";
+      this.prevCommentValue = undefined;
       this.comment = oldComment;
     }
     if (!isOtherSel && !!this.comment) {
@@ -410,6 +418,11 @@ export class QuestionSelectBase extends Question {
    */
   public get choicesByUrl(): ChoicesRestful {
     return this.getPropertyValue("choicesByUrl");
+  }
+  public set choicesByUrl(val: ChoicesRestful) {
+    if (!val) return;
+    this.setNewRestfulProperty();
+    this.choicesByUrl.fromJSON(val.toJSON());
   }
   /**
    * The list of items. Every item has value and text. If text is empty, the value is rendered. The item text supports markdown.

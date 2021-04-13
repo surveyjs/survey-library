@@ -5641,6 +5641,46 @@ QUnit.test("defaultValue + survey.clear()", function(assert) {
   );
 });
 
+QUnit.test("defaultValue + survey.clear() + 'other'", function(assert) {
+  var json = {
+    elements: [
+      {
+        type: "radiogroup",
+        name: "q1",
+        defaultValue: "other",
+        choices: [1],
+        hasOther: true,
+      },
+      {
+        type: "checkbox",
+        name: "q2",
+        defaultValue: ["other"],
+        choices: [1],
+        hasOther: true,
+      },
+    ],
+  };
+  var survey = new SurveyModel(json);
+  assert.deepEqual(
+    survey.data,
+    { q1: "other", q2: ["other"] },
+    "check initial state"
+  );
+  survey.getQuestionByName("q1").comment = "comment1";
+  survey.getQuestionByName("q2").comment = "comment2";
+  assert.equal(
+    survey.getQuestionByName("q1").getPropertyValue("comment"),
+    "comment1"
+  );
+  survey.clear();
+  assert.equal(survey.getQuestionByName("q1").getPropertyValue("comment"), "");
+  assert.deepEqual(
+    survey.data,
+    { q1: "other", q2: ["other"] },
+    "clear comments"
+  );
+});
+
 QUnit.test("Dublicate errors", function(assert) {
   var survey = new SurveyModel();
   survey.addNewPage("p1");

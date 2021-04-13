@@ -12,6 +12,7 @@
         :src="survey.locLogo.renderedHtml"
         :width="survey.logoWidth ? survey.logoWidth : undefined"
         :height="survey.logoHeight ? survey.logoHeight : undefined"
+        :alt="survey.locTitle.renderedHtml"
         v-bind:style="{ objectFit: survey.logoFit }"
       />
     </div>
@@ -35,6 +36,7 @@
         :src="survey.locLogo.renderedHtml"
         :width="survey.logoWidth ? survey.logoWidth : undefined"
         :height="survey.logoHeight ? survey.logoHeight : undefined"
+        :alt="survey.locTitle.renderedHtml"
         v-bind:style="{ objectFit: survey.logoFit }"
       />
     </div>

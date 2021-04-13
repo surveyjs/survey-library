@@ -70,7 +70,7 @@
   <td data-bind="css: question.koCss().asCell + ' ' + question.koCss().itemValue + (question.errors.length > 0 ? ' ' + question.koCss().hasError : ''), style: {'text-align': $data.isChoice ? 'center': '', minWidth: $data.minWidth, width: $data.width}, attr: { headers: question.isVisible ? question.locTitle.renderedHtml : '' }">
       <div data-bind="visible: question.isVisible">
           <!-- ko if: $data.showErrorOnTop -->
-            <!-- ko template: { name: 'survey-question-errors', data: question } -->
+            <!-- ko template: { name: 'survey-question-errors', data: question, as: 'question' } -->
             <!-- /ko -->
           <!-- /ko -->
           <!-- ko if: $data.isChoice -->
@@ -85,7 +85,7 @@
             <!-- ko template: { name: question.koTemplateName(), data: question, as: 'question', afterRender: function(el) { $data.matrix.koCellQuestionAfterRender(el, $data); } } --><!-- /ko -->
           <!-- /ko -->
           <!-- ko if: $data.showErrorOnBottom -->
-            <!-- ko template: { name: 'survey-question-errors', data: question } -->
+            <!-- ko template: { name: 'survey-question-errors', data: question, as: 'question' } -->
             <!-- /ko -->
           <!-- /ko -->
       </div>

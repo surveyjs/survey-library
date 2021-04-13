@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.8.42](https://github.com/surveyjs/survey-library/compare/v1.8.41...v1.8.42) (2021-04-13)
+
+
+### Bug Fixes
+
+* showInvisibleElements prop show only empty divs with class "sv-vue-row-additional-div" [#2719](https://github.com/surveyjs/survey-library/issues/2719) ([afa0f40](https://github.com/surveyjs/survey-library/commit/afa0f4033db2f8e8bb839446353f5f0683eb9461))
+* survey.clear() doesn't clear other text if defaultValue is "other" [#2793](https://github.com/surveyjs/survey-library/issues/2793) ([55ef94f](https://github.com/surveyjs/survey-library/commit/55ef94fa3de1abfb5eb4a62058e14c94348ac564))
+* visibleIf does not work on subsequent pages for Vue implementation only. [#2783](https://github.com/surveyjs/survey-library/issues/2783) ([bdfd3df](https://github.com/surveyjs/survey-library/commit/bdfd3dfdf5e4398f0f1c08bcb3da69a44446f5d6))
+
 ### [1.8.41](https://github.com/surveyjs/survey-library/compare/v1.8.40...v1.8.41) (2021-04-06)
 
 ### [1.8.40](https://github.com/surveyjs/survey-library/compare/v1.8.39...v1.8.40) (2021-04-05)

@@ -120,7 +120,7 @@
 </script>
 <script type="text/html" id="survey-matrixcell">
   <td
-    data-bind="css: $data.className, style: {minWidth: $data.minWidth, width: $data.width}, attr: { headers: headers }"
+    data-bind="css: $data.className, style: {minWidth: $data.minWidth, width: $data.width}, attr: { title: headers }"
   >
     <div data-bind="visible: question.isVisible">
       <!-- ko if: $data.showErrorOnTop -->

@@ -181,6 +181,7 @@ export class QuestionSelectBase extends Question {
     this.isSettingDefaultValue =
       !this.isValueEmpty(this.defaultValue) &&
       this.hasUnknownValue(this.defaultValue);
+    this.prevCommentValue = undefined;
     super.setDefaultValue();
     this.isSettingDefaultValue = false;
   }
@@ -324,6 +325,10 @@ export class QuestionSelectBase extends Question {
       }
     }
   }
+  public clearValue() {
+    super.clearValue();
+    this.prevCommentValue = undefined;
+  }
   public get renderedValue(): any {
     return this.getPropertyValue("renderedValue", null);
   }
@@ -343,7 +348,7 @@ export class QuestionSelectBase extends Question {
     var isOtherSel = this.isOtherSelected;
     if (isOtherSel && !!this.prevCommentValue) {
       var oldComment = this.prevCommentValue;
-      this.prevCommentValue = "";
+      this.prevCommentValue = undefined;
       this.comment = oldComment;
     }
     if (!isOtherSel && !!this.comment) {

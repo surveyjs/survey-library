@@ -44,7 +44,7 @@
               v-if="!question.hasCellText"
               v-for="(column, columnIndex) in question.visibleColumns"
               :key="columnIndex"
-              :headers="column.locText.renderedHtml"
+              :title="column.locText.renderedHtml"
               :class="question.cssClasses.cell"
               v-on:click="cellClick(row, column)"
             >

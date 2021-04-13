@@ -1,7 +1,7 @@
 <template>
   <td
     :class="cell.className"
-    :headers="getHeaders()"
+    :title="getHeaders()"
     :style="getCellStyle()"
     :colspan="cell.colSpans"
   >

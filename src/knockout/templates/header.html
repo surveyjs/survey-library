@@ -4,7 +4,7 @@
 
       <!-- ko if: isLogoBefore -->
       <div data-bind="css: logoClassNames">
-          <img data-bind="css: css.logoImage, attr: { src: locLogo.koRenderedHtml, width: logoWidth ? logoWidth : undefined, height: logoHeight ? logoHeight : undefined }, style: { objectFit: logoFit }">
+          <img data-bind="css: css.logoImage, attr: { src: locLogo.koRenderedHtml, width: logoWidth ? logoWidth : undefined, height: logoHeight ? logoHeight : undefined, alt: locTitle.renderedHtml }, style: { objectFit: logoFit }">
       </div>
       <!-- /ko -->
 
@@ -17,7 +17,7 @@
 
       <!-- ko if: isLogoAfter -->
       <div data-bind="css: logoClassNames">
-        <img data-bind="css: css.logoImage, attr: { src: locLogo.koRenderedHtml, width: logoWidth ? logoWidth : undefined, height: logoHeight ? logoHeight : undefined }, style: { objectFit: logoFit }">
+        <img data-bind="css: css.logoImage, attr: { src: locLogo.koRenderedHtml, width: logoWidth ? logoWidth : undefined, height: logoHeight ? logoHeight : undefined, alt: locTitle.renderedHtml }, style: { objectFit: logoFit }">
       </div>
       <div class="sv-logo--right-tail"></div>
       <!-- /ko -->

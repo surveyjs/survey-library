@@ -41,7 +41,7 @@ QUnit.test("Check on element with box-sizing: content-box", function (assert) {
   var model = new TestModel();
   var manager = new ResponsivityManager(<any>container, <any>model, 5);
   manager.getItemSizes = getItemSizes;
-  manager.getComputedStyle = () => {
+  (<any>manager.getComputedStyle) = () => {
     return {
       boxSizing: "content-box",
     };
@@ -84,7 +84,7 @@ QUnit.test("Check on element with box-sizing: border-box", function (assert) {
   var model = new TestModel();
   var manager = new ResponsivityManager(<any>container, <any>model, 5);
   manager.getItemSizes = getItemSizes;
-  manager.getComputedStyle = () => {
+  (<any>manager.getComputedStyle) = () => {
     return {
       boxSizing: "border-box",
       paddingLeft: "4px",
@@ -116,7 +116,7 @@ QUnit.test("Check on model which can shrink and grow", function (assert) {
   model.canGrowValue = true;
   var manager = new ResponsivityManager(<any>container, model, 5);
   manager.getItemSizes = getItemSizes;
-  manager.getComputedStyle = () => {
+  (<any>manager.getComputedStyle) = () => {
     return { boxSizing: "content-box" };
   };
   manager.process();
@@ -161,7 +161,7 @@ QUnit.test("Check on element with parent's changing width", function (assert) {
   model.canGrowValue = true;
   var manager = new ResponsivityManager(<any>container, model, 5);
   manager.getItemSizes = getItemSizes;
-  manager.getComputedStyle = () => {
+  (<any>manager.getComputedStyle) = () => {
     return { boxSizing: "content-box" };
   };
 
@@ -193,15 +193,14 @@ QUnit.test("Check on element with parent's changing width", function (assert) {
 QUnit.test(
   "Check on element when last item with bigger of equal size than dots item's",
   function (assert) {
-    var container = new SimpleContainer({ offsetWidth: 5, scrollWidth: 11 });
-    var model = new TestModel();
-    var manager = new ResponsivityManager(<any>container, <any>model, 5);
-    manager.getComputedStyle = () => {
+    const container: SimpleContainer = new SimpleContainer({ offsetWidth: 5, scrollWidth: 11 });
+    const model: TestModel = new TestModel();
+    const manager: ResponsivityManager = new ResponsivityManager(<any>container, <any>model, 11);
+    (<any>manager.getComputedStyle) = () => {
       return { boxSizing: "content-box" };
     };
-
     manager.getItemSizes = () => {
-      return [5];
+      return [11];
     };
     manager.process();
     assert.equal(model.visibleElementsCount, 1);

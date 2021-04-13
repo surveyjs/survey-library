@@ -15,5 +15,5 @@ export { modernCss } from "../defaultCss/cssmodern";
 
 // utils
 export * from "../rendererFactory";
-export * from "../utils/resonsibilitymanager";
+export * from "../utils/responsivitymanager";
 export { unwrap } from "../utils/utils";

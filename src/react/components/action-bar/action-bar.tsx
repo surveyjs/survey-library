@@ -3,13 +3,12 @@ import {
   AdaptiveActionBarItemWrapper,
   AdaptiveElement,
   IActionBarItem,
+  Base,
+  ResponsivityManager
 } from "survey-core";
 import { ReactElementFactory } from "../../element-factory";
 import { SurveyElementBase } from "../../reactquestion_element";
 import { SurveyAction } from "./action-bar-item";
-
-import { Base } from "survey-core";
-import { ResponsibilityManager } from "survey-core";
 
 export * from "./action-bar-item";
 export * from "./action-bar-item-dropdown";
@@ -21,7 +20,7 @@ interface IActionBarProps {
 
 export class SurveyActionBar extends SurveyElementBase<IActionBarProps, any> {
   private adaptiveElement = new AdaptiveElement();
-  private manager: ResponsibilityManager;
+  private manager: ResponsivityManager;
   private rootRef: React.RefObject<HTMLDivElement>;
   private updateVisibleItems: any;
 
@@ -40,7 +39,7 @@ export class SurveyActionBar extends SurveyElementBase<IActionBarProps, any> {
     super.componentDidMount();
 
     const container = this.rootRef.current;
-    this.manager = new ResponsibilityManager(container, this.adaptiveElement);
+    this.manager = new ResponsivityManager(container, this.adaptiveElement);
     this.manager.getItemSizes = () => {
       const widths: number[] = [];
       container

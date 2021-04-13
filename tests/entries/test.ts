@@ -39,7 +39,7 @@ export * from "../question_matrix_base_tests";
 
 export * from "../renderFactoryTests";
 export * from "../components/popuptests";
-export * from "../utils/responsibilyTests";
+export * from "../utils/responsivityTests";
 
 // localization
 import "../../src/localization/russian";

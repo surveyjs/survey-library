@@ -1,6 +1,6 @@
 import { AdaptiveElement } from "../action-bar";
 
-export class ResponsibilityManager {
+export class ResponsivityManager {
   private previousSpace = 0;
   private previousItemCount = Number.MAX_VALUE;
   private _itemSizes: Array<number> = undefined;
@@ -83,7 +83,7 @@ export class ResponsibilityManager {
   }
 }
 
-export class VerticalResponsibilityManager extends ResponsibilityManager {
+export class VerticalResponsivityManager extends ResponsivityManager {
   constructor(
     container: HTMLDivElement,
     model: AdaptiveElement,

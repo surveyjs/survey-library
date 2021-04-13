@@ -4,7 +4,7 @@ import {
   AdaptiveElement,
   IActionBarItem,
 } from "survey-core";
-import { ResponsibilityManager } from "survey-core";
+import { ResponsivityManager } from "survey-core";
 import { ImplementorBase } from "../../kobase";
 
 const template = require("./action-bar.html");
@@ -51,7 +51,7 @@ ko.components.register("sv-action-bar", {
       new AdaptiveElementImplementor(model);
 
       var container: HTMLDivElement = componentInfo.element;
-      var manager = new ResponsibilityManager(container, model);
+      var manager = new ResponsivityManager(container, model);
       manager.getItemSizes = () => {
         var widths: number[] = [];
         container

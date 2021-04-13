@@ -75,7 +75,7 @@ export { SurveyQuestionMatrixDetailButton } from "../react/components/matrix-act
 
 export { SurveyLocStringViewer } from "../react/string-viewer";
 export { SurveyLocStringEditor } from "../react/string-editor";
-export * from "../utils/resonsibilitymanager";
+export * from "../utils/responsivitymanager";
 export { unwrap } from "../utils/utils";
 
 //Uncomment to include the "date" question type.

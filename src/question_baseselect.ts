@@ -9,6 +9,7 @@ import { ChoicesRestful } from "./choicesRestful";
 import { LocalizableString } from "./localizablestring";
 import { ConditionRunner } from "./conditions";
 import { settings } from "./settings";
+import { SurveyModel } from "survey-core";
 
 /**
  * It is a base class for checkbox, dropdown and radiogroup questions.
@@ -1062,6 +1063,20 @@ export class QuestionSelectBase extends Question {
         isReady: true,
         oldIsReady: oldIsReady,
       });
+  }
+  public getItemValueWrapperComponentName(item: ItemValue): string {
+    const survey: SurveyModel = this.survey as SurveyModel;
+    if (survey) {
+      return survey.getItemValueWrapperComponentName(item, this);
+    }
+    return "survey-item-value-component";
+  }
+  public getItemValueWrapperComponentData(item: ItemValue): any {
+    const survey: SurveyModel = this.survey as SurveyModel;
+    if (survey) {
+      return survey.getItemValueWrapperComponentData(item, this);
+    }
+    return item;
   }
 }
 /**

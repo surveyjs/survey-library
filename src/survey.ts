@@ -41,6 +41,7 @@ import { ExpressionRunner, ConditionRunner } from "./conditions";
 import { settings } from "./settings";
 import { IActionBarItem } from "./action-bar";
 import { isMobile } from "./utils/utils";
+import { QuestionSelectBase } from "survey-core";
 
 /**
  * The `Survey` object contains information about the survey, Pages, Questions, flow logic and etc.
@@ -720,6 +721,7 @@ export class SurveyModel extends Base
    * The event is fired on adding a new panel in Panel Dynamic question.
    * <br/> `sender` - the survey object that fires the event.
    * <br/> `options.question` - a panel question.
+   * <br/> `options.panel` - an added panel.
    * @see QuestionPanelDynamicModel
    * @see QuestionPanelDynamicModel.panels
    */
@@ -3778,7 +3780,10 @@ export class SurveyModel extends Base
     return options.error ? new CustomError(options.error, this) : null;
   }
   dynamicPanelAdded(question: IQuestion) {
-    this.onDynamicPanelAdded.fire(this, { question: question });
+    if (this.onDynamicPanelAdded.isEmpty) return;
+    var panels = (<any>question).panels;
+    var panel = panels[panels.length - 1];
+    this.onDynamicPanelAdded.fire(this, { question: question, panel: panel });
   }
   dynamicPanelRemoved(question: IQuestion, panelIndex: number, panel: IPanel) {
     var questions = !!panel ? (<PanelModelBase>panel).questions : [];
@@ -5621,6 +5626,12 @@ export class SurveyModel extends Base
   }
   public getElementWrapperComponentData(element: SurveyElement): any {
     return element;
+  }
+  public getItemValueWrapperComponentName(item: ItemValue, question: QuestionSelectBase): string {
+    return "survey-item-value-component";
+  }
+  public getItemValueWrapperComponentData(item: ItemValue, question: QuestionSelectBase): any {
+    return item;
   }
 
   /**

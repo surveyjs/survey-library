@@ -30,7 +30,7 @@ frameworks.forEach(framework => {
     }
   );
 
-  test(`selected class`, async t => {
+  test.skip(`selected class`, async t => {
     assert.ok(
       !(await Selector("label.sv-button-group__item--selected").exists)
     );
@@ -54,7 +54,7 @@ frameworks.forEach(framework => {
     );
   });
 
-  test(`readOnly items`, async t => {
+  test.skip(`readOnly items`, async t => {
     assert.ok(
       !(await Selector("label.sv-button-group__item--disabled").exists)
     );
@@ -71,7 +71,7 @@ frameworks.forEach(framework => {
     );
   });
 
-  test("hide caption", async t => {
+  test.skip("hide caption", async t => {
     const hideFirstItemCaption = ClientFunction(() => {
       window.survey.getQuestionByName(
         "radio"
@@ -90,7 +90,7 @@ frameworks.forEach(framework => {
     );
   });
 
-  test("show icon", async t => {
+  test.skip("show icon", async t => {
     const setFirtItemIcon = ClientFunction(iconName => {
       window.survey.getQuestionByName(
         "radio"

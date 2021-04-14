@@ -3445,6 +3445,34 @@ QUnit.test("matrix dynamic + renderedTable + add/remove rows", function(
     "Do not recreate row3 Id on remove"
   );
 });
+QUnit.test("matrix dynamic + renderedTable + remove buttons", function(assert) {
+  var matrix = new QuestionMatrixDynamicModel("q1");
+  matrix.addColumn("col1");
+  matrix.rowCount = 0;
+
+  assert.equal(matrix.renderedTable.rows.length, 0, "There are no rows");
+  matrix.addRow();
+  matrix.addRow();
+  matrix.addRow();
+  var rows = matrix.renderedTable.rows;
+  assert.equal(rows.length, 3, "There are 3 rows");
+  assert.equal(rows[0].cells.length, 2, "column + delete button");
+  assert.equal(
+    rows[0].cells[1].isActionsCell,
+    true,
+    "it is an action cell, row0"
+  );
+  assert.equal(
+    rows[1].cells[1].isActionsCell,
+    true,
+    "it is an action cell, row1"
+  );
+  assert.equal(
+    rows[2].cells[1].isActionsCell,
+    true,
+    "it is an action cell, row2"
+  );
+});
 
 QUnit.test(
   "matrix dynamic + renderedTable + optionsCaption and columnColCount",

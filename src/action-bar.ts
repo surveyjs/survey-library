@@ -210,7 +210,6 @@ export class AdaptiveElement extends Base {
         action: (item: any) => {
           this.dotsItemPopupModel.toggleVisibility();
         },
-
         popupModel: this.dotsItemPopupModel,
       })
     );

@@ -1,84 +1,84 @@
 import { AdaptiveElement } from "../action-bar";
 
+interface IScrollOffset {
+    scroll: number,
+    offset: number
+}
+
 export class ResponsivityManager {
-  private previousSpace = 0;
-  private previousItemCount = Number.MAX_VALUE;
+  private IGNORE_SHRINK_LIMIT_PX: number = 1;
+  private previousParentOffset = 0;
+  private previousVisibleItemsCount: number = Number.MAX_VALUE;
   private _itemSizes: Array<number> = undefined;
   public getItemSizes: () => Array<number>;
+  public getComputedStyle: (elt: Element) => CSSStyleDeclaration = window.getComputedStyle.bind(window);
+
   constructor(
     protected container: HTMLDivElement,
     private model: AdaptiveElement,
     private dotsItemSize: number = 48
   ) {}
-  getComputedStyle: any = window.getComputedStyle.bind(window);
 
   protected getAvailableSpace() {
-    var style = this.getComputedStyle(this.container);
-    var width = this.container.offsetWidth - this.dotsItemSize;
-    if (style.boxSizing == "border-box") {
+    const style: CSSStyleDeclaration = this.getComputedStyle(this.container);
+    let width = this.container.offsetWidth - this.dotsItemSize;
+    if (style.boxSizing === "border-box") {
       width -= parseFloat(style.paddingLeft) + parseFloat(style.paddingRight);
     }
     return width;
   }
 
-  protected getDimensions(element: HTMLElement) {
+  protected getScrollOffset(element: HTMLElement): IScrollOffset {
     return {
-      scrollDimension: element.scrollWidth,
-      offsetDimension: element.offsetWidth,
+      scroll: element.scrollWidth,
+      offset: element.offsetWidth
     };
   }
 
-  private getItemsCount(size: number) {
-    var sum = 0;
-    var itemSizes = this.itemSizes;
-    for (var i = 0; i < itemSizes.length && size >= sum; i++) {
-      sum += itemSizes[i];
+  private getVisibleItemsCount(size: number) {
+    const itemSizes: number[] = this.itemSizes;
+    let currSize = this.itemSizes[0];
+    let i = 1;
+    for (; i < itemSizes.length; i++) {
+      if (currSize + itemSizes[i] > size) return i;
+      currSize += itemSizes[i];
     }
-    if (i == this.itemSizes.length && this.dotsItemSize >= this.itemSizes[0]) {
-      return i;
-    }
-    return i - 1;
+    return i;
   }
 
-  get itemSizes() {
+  private get itemSizes() {
     if (!this._itemSizes) {
       this._itemSizes = this.getItemSizes();
     }
     return this._itemSizes;
   }
 
-  process() {
+  public process() {
     if (!!this.container) {
-      var dimensions = this.getDimensions(this.container);
-      var delta = dimensions.scrollDimension - dimensions.offsetDimension;
-      if (this.previousItemCount < Number.MAX_VALUE) {
-        delta -= this.dotsItemSize;
+      const scrollOffset: IScrollOffset = this.getScrollOffset(this.container);
+      let hiddenWidth: number = scrollOffset.scroll - scrollOffset.offset;
+      if (this.previousVisibleItemsCount < Number.MAX_VALUE) {
+        hiddenWidth -= this.dotsItemSize;
       }
-      var parentSpace = this.getDimensions(this.container.parentElement)
-        .offsetDimension;
-      if (parentSpace != this.previousSpace) {
-        if (delta > 5) {
-          if (this.model.canShrink) {
-            this.model.shrink();
-          }
-          var count = this.getItemsCount(this.getAvailableSpace());
-          if (this.previousItemCount != count) {
-            this.model.showFirstN(count);
-            this.previousItemCount = count;
-          }
-        } else {
-          if (
-            this.model.canGrow &&
-            delta <= 0 &&
-            parentSpace - this.previousSpace > this.dotsItemSize
-          ) {
-            this.model.grow();
-          }
-          this.model.showFirstN(Number.MAX_VALUE);
-          this.previousItemCount = Number.MAX_VALUE;
+      const parentOffsetWidth: number = this.getScrollOffset(this.container.parentElement).offset;
+      if (parentOffsetWidth === this.previousParentOffset) return;
+      if (hiddenWidth > this.IGNORE_SHRINK_LIMIT_PX) {
+        if (this.model.canShrink) this.model.shrink();
+        const count: number = this.getVisibleItemsCount(this.getAvailableSpace());
+        if (this.previousVisibleItemsCount !== count) {
+          this.model.showFirstN(count);
+          this.previousVisibleItemsCount = count;
         }
-        this.previousSpace = parentSpace;
+      } else {
+        if (this.model.canGrow && hiddenWidth <= 0.0 &&
+          parentOffsetWidth - this.previousParentOffset > this.dotsItemSize
+        ) {
+          this.model.grow();
+        }
+        this.model.showFirstN(Number.MAX_VALUE);
+        this.previousVisibleItemsCount = Number.MAX_VALUE;
       }
+      this.previousParentOffset = parentOffsetWidth;
     }
   }
 }
@@ -93,18 +93,18 @@ export class VerticalResponsivityManager extends ResponsivityManager {
   }
 
   protected getAvailableSpace() {
-    var style = this.getComputedStyle(this.container);
-    var width = this.container.offsetHeight;
-    if (style.boxSizing == "border-box") {
+    const style: CSSStyleDeclaration = this.getComputedStyle(this.container);
+    let width: number = this.container.offsetHeight;
+    if (style.boxSizing === "border-box") {
       width -= parseFloat(style.paddingTop) + parseFloat(style.paddingBottom);
     }
     return width;
   }
 
-  protected getDimensions() {
+  protected getScrollOffset() {
     return {
-      scrollDimension: this.container.scrollHeight,
-      offsetDimension: this.container.offsetHeight,
+      scroll: this.container.scrollHeight,
+      offset: this.container.offsetHeight,
     };
   }
 }

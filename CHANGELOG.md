@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.8.43](https://github.com/surveyjs/survey-library/compare/v1.8.42...v1.8.43) (2021-04-14)
+
+
+### Bug Fixes
+
+* rateValues property in Rating question has "rates" name in property hash [#2795](https://github.com/surveyjs/survey-library/issues/2795) ([6024e06](https://github.com/surveyjs/survey-library/commit/6024e06a9eb2907d1919678a55b46b69e106b497))
+
 ### [1.8.42](https://github.com/surveyjs/survey-library/compare/v1.8.41...v1.8.42) (2021-04-13)
 
 

@@ -1,6 +1,6 @@
 import { AdaptiveElement } from "../action-bar";
 
-interface IScrollOffset {
+interface IDimensions {
     scroll: number,
     offset: number
 }
@@ -19,7 +19,7 @@ export class ResponsivityManager {
     private dotsItemSize: number = 48
   ) {}
 
-  protected getAvailableSpace() {
+  protected getAvailableSpace(): number {
     const style: CSSStyleDeclaration = this.getComputedStyle(this.container);
     let width = this.container.offsetWidth - this.dotsItemSize;
     if (style.boxSizing === "border-box") {
@@ -28,16 +28,16 @@ export class ResponsivityManager {
     return width;
   }
 
-  protected getScrollOffset(element: HTMLElement): IScrollOffset {
+  protected getDimensions(element: HTMLElement): IDimensions {
     return {
       scroll: element.scrollWidth,
       offset: element.offsetWidth
     };
   }
 
-  private getVisibleItemsCount(size: number) {
+  private getVisibleItemsCount(size: number): number {
     const itemSizes: number[] = this.itemSizes;
-    let currSize = this.itemSizes[0];
+    let currSize: number = this.itemSizes[0];
     let i = 1;
     for (; i < itemSizes.length; i++) {
       if (currSize + itemSizes[i] > size) return i;
@@ -55,12 +55,12 @@ export class ResponsivityManager {
 
   public process() {
     if (!!this.container) {
-      const scrollOffset: IScrollOffset = this.getScrollOffset(this.container);
+      const scrollOffset: IDimensions = this.getDimensions(this.container);
       let hiddenWidth: number = scrollOffset.scroll - scrollOffset.offset;
       if (this.previousVisibleItemsCount < Number.MAX_VALUE) {
         hiddenWidth -= this.dotsItemSize;
       }
-      const parentOffsetWidth: number = this.getScrollOffset(this.container.parentElement).offset;
+      const parentOffsetWidth: number = this.getDimensions(this.container.parentElement).offset;
       if (parentOffsetWidth === this.previousParentOffset) return;
       if (hiddenWidth > this.IGNORE_SHRINK_LIMIT_PX) {
         if (this.model.canShrink) this.model.shrink();
@@ -92,7 +92,7 @@ export class VerticalResponsivityManager extends ResponsivityManager {
     super(container, model, dotsItemSize);
   }
 
-  protected getAvailableSpace() {
+  protected getAvailableSpace(): number {
     const style: CSSStyleDeclaration = this.getComputedStyle(this.container);
     let width: number = this.container.offsetHeight;
     if (style.boxSizing === "border-box") {
@@ -101,7 +101,7 @@ export class VerticalResponsivityManager extends ResponsivityManager {
     return width;
   }
 
-  protected getScrollOffset() {
+  protected getDimensions(): IDimensions {
     return {
       scroll: this.container.scrollHeight,
       offset: this.container.offsetHeight,

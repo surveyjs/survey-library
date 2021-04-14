@@ -49,19 +49,22 @@ export class SurveyActionBarItem extends SurveyElementBase<IActionBarItemProps, 
   }
 
   render() {
-    const itemClass =
-      "sv-action " +
-      this.item.css +
-      (!this.item.isVisible ? " sv-action--hidden" : "");
-    const separator = this.item.needSeparator ? (
-      <SurveyActionBarSeparator></SurveyActionBarSeparator>
-    ) : null;
     return (
-      <>
-        {separator}
-        {this.renderInnerButton()}
-      </>
+      <>{this.renderInnerButton()}</>
     );
+  }
+
+  renderText() {
+    if (
+      this.item.showTitle === undefined ||
+      this.item.showTitle ||
+      !this.item.iconName
+    ) {
+      var titleClass =
+        "sv-action-bar-item__title " +
+        (!!this.item.iconName ? "sv-action-bar-item__title--with-icon" : "");
+      return <span className={titleClass}> {this.item.title}</span>;
+    } else return null;
   }
 
   renderButtonContent() {
@@ -101,19 +104,6 @@ export class SurveyActionBarItem extends SurveyElementBase<IActionBarItemProps, 
     );
 
     return button;
-  }
-
-  renderText() {
-    if (
-      this.item.showTitle === undefined ||
-      this.item.showTitle ||
-      !this.item.iconName
-    ) {
-      var titleClass =
-        "sv-action-bar-item__title " +
-        (!!this.item.iconName ? "sv-action-bar-item__title--with-icon" : "");
-      return <span className={titleClass}> {this.item.title}</span>;
-    } else return null;
   }
 }
 

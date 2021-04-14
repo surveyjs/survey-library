@@ -1487,9 +1487,11 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
   public onAddedRow() {
     if (this.getRenderedDataRowCount() >= this.matrix.visibleRows.length)
       return;
+    var row = this.matrix.visibleRows[this.matrix.visibleRows.length - 1];
+    this.rowsActions.push(this.buildRowActions(row));
     this.addHorizontalRow(
       this.rows,
-      this.matrix.visibleRows[this.matrix.visibleRows.length - 1],
+      row,
       this.matrix.visibleRows.length == 1 && !this.matrix.showHeader
     );
     this.updateShowTableAndAddRow();
@@ -1504,6 +1506,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
   public onRemovedRow(row: MatrixDropdownRowModelBase) {
     var rowIndex = this.getRenderedRowIndex(row);
     if (rowIndex < 0) return;
+    this.rowsActions.splice(rowIndex, 1);
     var removeCount = 1;
     if (
       rowIndex < this.rows.length - 1 &&

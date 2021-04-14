@@ -76,11 +76,11 @@ Serializer.addClass(
   "itemvalue"
 );
 
-QuestionFactory.Instance.registerQuestion("buttongroup", name => {
-  var q = new QuestionButtonGroupModel(name);
-  q.choices = QuestionFactory.DefaultChoices;
-  return q;
-});
+// QuestionFactory.Instance.registerQuestion("buttongroup", name => {
+//   var q = new QuestionButtonGroupModel(name);
+//   q.choices = QuestionFactory.DefaultChoices;
+//   return q;
+// });
 
 export class ButtonGroupItemModel {
   constructor(

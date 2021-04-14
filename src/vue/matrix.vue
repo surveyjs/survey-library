@@ -140,7 +140,7 @@
               v-if="!question.hasCellText"
               v-for="(column, columnIndex) in question.visibleRows"
               :key="columnIndex"
-              :headers="column.locText.renderedHtml"
+              :title="column.locText.renderedHtml"
               :class="question.cssClasses.cell"
               v-on:click.self="cellClick(column, row)"
             >

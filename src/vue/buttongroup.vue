@@ -24,6 +24,6 @@ export class ButtonGroup extends QuestionVue<QuestionButtonGroupModel> {
     return this.question;
   }
 }
-Vue.component("survey-buttongroup", ButtonGroup);
+// Vue.component("survey-buttongroup", ButtonGroup);
 export default ButtonGroup;
 </script>

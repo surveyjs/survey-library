@@ -13,12 +13,12 @@ export class QuestionRatingModel extends Question {
 
   constructor(name: string) {
     super(name);
-    this.createItemValues("rates");
+    this.createItemValues("rateValues");
     var self = this;
-    this.registerFunctionOnPropertyValueChanged("rates", function () {
+    this.registerFunctionOnPropertyValueChanged("rateValues", function() {
       self.fireCallback(self.rateValuesChangedCallback);
     });
-    this.onPropertyChanged.add(function (sender: any, options: any) {
+    this.onPropertyChanged.add(function(sender: any, options: any) {
       if (
         options.name == "rateMin" ||
         options.name == "rateMax" ||
@@ -38,10 +38,10 @@ export class QuestionRatingModel extends Question {
       this,
       true
     );
-    locMinRateDescriptionValue.onGetTextCallback = function (text) {
+    locMinRateDescriptionValue.onGetTextCallback = function(text) {
       return text ? text + " " : text;
     };
-    locMaxRateDescriptionValue.onGetTextCallback = function (text) {
+    locMaxRateDescriptionValue.onGetTextCallback = function(text) {
       return text ? " " + text : text;
     };
   }
@@ -56,10 +56,10 @@ export class QuestionRatingModel extends Question {
    * @see rateStep
    */
   public get rateValues(): Array<any> {
-    return this.getPropertyValue("rates");
+    return this.getPropertyValue("rateValues");
   }
   public set rateValues(val: Array<any>) {
-    this.setPropertyValue("rates", val);
+    this.setPropertyValue("rateValues", val);
   }
   /**
    * This property is used to generate rate values if rateValues array is empty. It is the first value in the rating. The default value is 1.
@@ -186,7 +186,7 @@ Serializer.addClass(
     {
       name: "commentText",
       dependsOn: "hasComment",
-      visibleIf: function (obj: any) {
+      visibleIf: function(obj: any) {
         return obj.hasComment;
       },
       serializationProperty: "locCommentText",
@@ -209,11 +209,11 @@ Serializer.addClass(
       serializationProperty: "locMaxRateDescription",
     },
   ],
-  function () {
+  function() {
     return new QuestionRatingModel("");
   },
   "question"
 );
-QuestionFactory.Instance.registerQuestion("rating", (name) => {
+QuestionFactory.Instance.registerQuestion("rating", name => {
   return new QuestionRatingModel(name);
 });

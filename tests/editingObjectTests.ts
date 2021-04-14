@@ -9,6 +9,7 @@ import {
   ComponentCollection,
 } from "../src/question_custom";
 import { QuestionDropdownModel } from "../src/question_dropdown";
+import { QuestionRatingModel } from "../src/question_rating";
 import { Serializer } from "../src/jsonobject";
 import { ItemValue } from "../src/itemvalue";
 
@@ -468,6 +469,48 @@ QUnit.test("Edit custom choices in matrix with custom property", function(
   Serializer.removeProperty("text", "test");
   Serializer.removeProperty("itemvalues_ex", "imageLink");
   Serializer.removeClass("itemvalues_ex");
+});
+
+QUnit.test("Edit rateValues in matrix", function(assert) {
+  var question = new QuestionRatingModel("q1");
+  var survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdynamic",
+        name: "rateValues",
+        rowCount: 0,
+        columns: [
+          { cellType: "text", name: "value" },
+          { cellType: "text", name: "text" },
+        ],
+      },
+    ],
+  });
+  var matrix = <QuestionMatrixDynamicModel>(
+    survey.getQuestionByName("rateValues")
+  );
+  matrix.onGetValueForNewRowCallBack = (
+    sender: QuestionMatrixDynamicModel
+  ): any => {
+    var item = new ItemValue("item1");
+    matrix.value.push(item);
+    return item;
+  };
+
+  survey.editingObj = question;
+  assert.equal(matrix.visibleRows.length, 0, "They are empty by default");
+  matrix.addRow();
+  assert.equal(matrix.visibleRows.length, 1, "New value is added into matrix");
+  assert.equal(
+    question.rateValues.length,
+    1,
+    "New value is added into property"
+  );
+  assert.equal(
+    question.rateValues[0].value,
+    "item1",
+    "The value added correctly"
+  );
 });
 
 QUnit.test("Edit validators in matrix", function(assert) {

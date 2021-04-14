@@ -1695,7 +1695,7 @@ Serializer.addClass(
     },
     {
       name: "panelRemoveButtonLocation",
-      default: "left",
+      default: "bottom",
       choices: ["bottom", "right"],
     },
   ],

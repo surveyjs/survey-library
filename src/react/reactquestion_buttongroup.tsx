@@ -122,6 +122,6 @@ export class SurveyButtonGroupItem extends SurveyElementBase<any, any> {
   }
 }
 
-ReactQuestionFactory.Instance.registerQuestion("buttongroup", props => {
-  return React.createElement(SurveyQuestionButtonGroup, props);
-});
+// ReactQuestionFactory.Instance.registerQuestion("buttongroup", props => {
+//   return React.createElement(SurveyQuestionButtonGroup, props);
+// });

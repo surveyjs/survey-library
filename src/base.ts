@@ -376,7 +376,7 @@ export class Base {
       (!val || Array.isArray(val))
     ) {
       if (this.isTwoValueEquals(oldValue, val)) return;
-      var arrayInfo = this.arraysInfo[name];
+      var arrayInfo = this.arraysInfo && this.arraysInfo[name]
       this.setArray(
         name,
         oldValue,

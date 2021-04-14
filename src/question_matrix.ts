@@ -78,7 +78,7 @@ export interface IMatrixCellsOwner extends ILocalizableOwner {
 
 export class MatrixCells {
   private values: { [index: string]: any } = {};
-  public constructor(public cellsOwner: IMatrixCellsOwner) {}
+  public constructor(public cellsOwner: IMatrixCellsOwner) { }
   public get isEmpty(): boolean {
     return Object.keys(this.values).length == 0;
   }
@@ -205,15 +205,15 @@ export class QuestionMatrixModel
     super(name);
     this.cellsValue = new MatrixCells(this);
     var self = this;
-    this.registerFunctionOnPropertyValueChanged("columns", function() {
+    this.registerFunctionOnPropertyValueChanged("columns", function () {
       self.onColumnsChanged();
     });
-    this.registerFunctionOnPropertyValueChanged("rows", function() {
+    this.registerFunctionOnPropertyValueChanged("rows", function () {
       if (!self.filterItems()) {
         self.onRowsChanged();
       }
     });
-    this.registerFunctionOnPropertyValueChanged("hideIfRowsEmpty", function() {
+    this.registerFunctionOnPropertyValueChanged("hideIfRowsEmpty", function () {
       self.updateVisibilityBasedOnRows();
     });
   }
@@ -265,28 +265,36 @@ export class QuestionMatrixModel
   getColumns(): Array<any> {
     return this.visibleColumns;
   }
+
   public addColumn(value: any, text?: string): ItemValue {
     var col = new ItemValue(value, text);
     this.columns.push(col);
     return col;
   }
+
+  public isItemChecked(row: any, column: any) {
+    let cellType = this.cellType
+    var isChecked = cellType == 'checkbox' ? row.value && column.value && (row.value == column.value || (Array.isArray(row.value) && row.value.includes(column.value))) : row.value == column.value
+    return isChecked
+  }
   public getItemClass(row: any, column: any) {
-    var isChecked = row.value == column.value;
+    let cellType = this.cellType
+    var isChecked = cellType == 'checkbox' ? row.value && column.value && (row.value == column.value || (Array.isArray(row.value) && row.value.includes(column.value))) : row.value == column.value
     var isDisabled = this.isReadOnly;
     var allowHover = !isChecked && !isDisabled;
     var cellDisabledClass = this.hasCellText
       ? this.cssClasses.cellTextDisabled
-      : this.cssClasses.itemDisabled;
+      : (cellType == 'checkbox' ? this.cssClasses.itemCheckboxDisabled : this.cssClasses.itemRadioDisabled);
 
     var cellSelectedClass = this.hasCellText
       ? this.cssClasses.cellTextSelected
-      : this.cssClasses.itemChecked;
+      : (cellType == 'checkbox' ? this.cssClasses.itemCheckboxChecked : this.cssClasses.itemRadioChecked);
 
-    var itemHoverClass = !this.hasCellText ? this.cssClasses.itemHover : "";
+    var itemHoverClass = !this.hasCellText ? (cellType == 'checkbox' ? this.cssClasses.itemCheckboxHover : this.cssClasses.itemRadioHover) : "";
 
     var cellClass = this.hasCellText
       ? this.cssClasses.cellText
-      : this.cssClasses.label;
+      : (cellType == 'checkbox' ? this.cssClasses.labelCheckbox : this.cssClasses.labelRadio);
 
     let itemClass =
       this.hasCellText && !!this.cssClasses.cell
@@ -431,7 +439,13 @@ export class QuestionMatrixModel
     return true;
   }
   protected getIsAnswered(): boolean {
-    return super.getIsAnswered() && this.hasValuesInAllRows();
+    let cellType = this.cellType
+    if (cellType != 'checkbox') {
+      return super.getIsAnswered() && this.hasValuesInAllRows();
+    } else {
+      return false
+    }
+
   }
   private createMatrixRow(
     item: ItemValue,
@@ -442,7 +456,7 @@ export class QuestionMatrixModel
     this.onMatrixRowCreated(row);
     return row;
   }
-  protected onMatrixRowCreated(row: MatrixRowModel) {}
+  protected onMatrixRowCreated(row: MatrixRowModel) { }
   protected setQuestionValue(newValue: any, updateIsAnswered: boolean = true) {
     super.setQuestionValue(newValue, this.isRowChanging || updateIsAnswered);
     if (!this.generatedVisibleRows || this.generatedVisibleRows.length == 0)
@@ -483,8 +497,8 @@ export class QuestionMatrixModel
         propertyName: string;
       }>;
     } = {
-      includeEmpty: true,
-    }
+        includeEmpty: true,
+      }
   ) {
     var questionPlainData = super.getPlainData(options);
     if (!!questionPlainData) {
@@ -633,14 +647,18 @@ Serializer.addClass(
   "matrix",
   [
     {
+      name: "layout",
+      choices: ["horizontal", "vertical"],
+    },
+    {
       name: "columns:itemvalue[]",
-      baseValue: function() {
+      baseValue: function () {
         return surveyLocalization.getString("matrix_column");
       },
     },
     {
       name: "rows:itemvalue[]",
-      baseValue: function() {
+      baseValue: function () {
         return surveyLocalization.getString("matrix_row");
       },
     },
@@ -652,8 +670,9 @@ Serializer.addClass(
     },
     "isAllRowRequired:boolean",
     "hideIfRowsEmpty:boolean",
+    "cellType:string",
   ],
-  function() {
+  function () {
     return new QuestionMatrixModel("");
   },
   "matrixbase"

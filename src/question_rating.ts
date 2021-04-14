@@ -4,6 +4,7 @@ import { Serializer } from "./jsonobject";
 import { QuestionFactory } from "./questionfactory";
 import { LocalizableString } from "./localizablestring";
 import { settings } from "./settings";
+import { surveyLocalization } from "./surveyStrings";
 
 /**
  * A Model for a rating question.
@@ -194,6 +195,9 @@ Serializer.addClass(
     },
     {
       name: "rateValues:itemvalue[]",
+      baseValue: function() {
+        return surveyLocalization.getString("choices_Item");
+      },
     },
     { name: "rateMin:number", default: 1 },
     { name: "rateMax:number", default: 5 },

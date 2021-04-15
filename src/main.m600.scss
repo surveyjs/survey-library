@@ -33,7 +33,7 @@
               table.sv_q_matrix_dynamic {
                 td {
                   &:before {
-                    content: attr(headers);
+                    content: attr(title);
                   }
                 }
               }
@@ -43,7 +43,7 @@
                     display: inline;
                   }
                   &:after {
-                    content: attr(headers);
+                    content: attr(title);
                   }
                 }
               }

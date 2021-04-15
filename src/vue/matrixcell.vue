@@ -1,5 +1,5 @@
 <template>
-  <td :class="getCellClass()" :headers="getHeaders()" :style="getCellStyle()">
+  <td :class="getCellClass()" :title="getHeaders()" :style="getCellStyle()">
     <div v-if="cell.hasQuestion">
       <survey-errors v-if="hasErrorsOnTop" :question="cell.question" :location="'top'" />
       <component

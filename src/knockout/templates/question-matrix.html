@@ -31,7 +31,7 @@
                         </td>
                         <!-- /ko -->
                         <!-- ko if: !question.hasCellText -->
-                        <td data-bind="attr: { headers: question.getAriaMatrixHeaderId($index()) }, css: question.koCss().cell">
+                        <td data-bind="attr: { title: question.getAriaMatrixHeaderId($index()) }, css: question.koCss().cell">
                             <label data-bind="css: question.getItemCss(row, $data)">
                                 <input type="radio" data-bind="css: question.koCss().itemValue, attr: { name: row.fullName, 'aria-required': question.isRequired, 'aria-label': question.locTitle.renderedHtml, value: '' + $data.value, id: question.inputId + '_' + row.name + '_' + $index() }, checked: row.value, enable: !question.isReadOnly"
                                 />

@@ -29,7 +29,7 @@
               v-if="!question.hasCellText"
               v-for="(column, columnIndex) in question.visibleColumns"
               :key="columnIndex"
-              :headers="question.getAriaMatrixHeaderId(columnIndex)"
+              :title="question.getAriaMatrixHeaderId(columnIndex)"
               :class="question.cssClasses.cell"
               v-on:click="function() { cellClick(row, column); }"
             >

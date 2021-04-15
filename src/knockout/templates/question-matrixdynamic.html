@@ -67,7 +67,7 @@
   </div>
 </script>
 <script type="text/html" id="survey-matrixcell">
-  <td data-bind="css: question.koCss().asCell + ' ' + question.koCss().itemValue + (question.errors.length > 0 ? ' ' + question.koCss().hasError : ''), style: {'text-align': $data.isChoice ? 'center': '', minWidth: $data.minWidth, width: $data.width}, attr: { headers: question.isVisible ? question.locTitle.renderedHtml : '' }">
+  <td data-bind="css: question.koCss().asCell + ' ' + question.koCss().itemValue + (question.errors.length > 0 ? ' ' + question.koCss().hasError : ''), style: {'text-align': $data.isChoice ? 'center': '', minWidth: $data.minWidth, width: $data.width}, attr: { title: question.isVisible ? question.locTitle.renderedHtml : '' }">
       <div data-bind="visible: question.isVisible">
           <!-- ko if: $data.showErrorOnTop -->
             <!-- ko template: { name: 'survey-question-errors', data: question, as: 'question' } -->

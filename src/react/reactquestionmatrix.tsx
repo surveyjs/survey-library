@@ -142,7 +142,7 @@ export class SurveyQuestionMatrixRow extends ReactSurveyElement {
         td = (
           <td
             key={key}
-            headers={this.question.getAriaMatrixHeaderId(i)}
+            title={this.question.getAriaMatrixHeaderId(i)}
             className={this.question.cssClasses.cell}
           >
             <label className={itemClass}>

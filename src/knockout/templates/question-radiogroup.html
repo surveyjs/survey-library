@@ -5,16 +5,16 @@
     <!-- /ko -->
     <!-- ko ifnot: question.hasColumns -->
     <!-- ko foreach: { data: question.visibleChoices, as: 'item', afterRender: question.koAfterRender } -->
-    <!-- ko template: 'survey-radiogroup-item' -->
-    <!-- /ko -->
+      <!-- ko component: { name: question.getItemValueWrapperComponentName(item), params: { componentData:  question.getItemValueWrapperComponentData(item), templateData: { name: 'survey-radiogroup-item', data: item } } } -->
+      <!-- /ko -->
     <!-- /ko -->
     <!-- /ko -->
     <!-- ko if: question.hasColumns -->
     <!-- ko foreach: question.columns -->
     <div data-bind="css: question.getColumnClass()">
       <!-- ko foreach: { data: $data, as: 'item', afterRender: question.koAfterRender } -->
-      <!-- ko template: 'survey-radiogroup-item' -->
-      <!-- /ko -->
+        <!-- ko component: { name: question.getItemValueWrapperComponentName(item), params: { componentData:  question.getItemValueWrapperComponentData(item), templateData: { name: 'survey-radiogroup-item', data: item } } } -->
+        <!-- /ko -->
       <!-- /ko -->
     </div>
     <!-- /ko -->

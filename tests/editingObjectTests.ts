@@ -321,6 +321,13 @@ QUnit.test("Edit choices in matrix", function(assert) {
   });
   survey.editingObj = question;
   var matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("choices");
+  matrix.onGetValueForNewRowCallBack = (
+    sender: QuestionMatrixDynamicModel
+  ): any => {
+    var item = new ItemValue("val");
+    matrix.value.push(item);
+    return item;
+  };
   assert.equal(matrix.visibleRows.length, 2, "two choice");
   assert.equal(
     matrix.visibleRows[0].cells[0].value,
@@ -330,6 +337,11 @@ QUnit.test("Edit choices in matrix", function(assert) {
   assert.notOk(
     matrix.visibleRows[0].cells[1].value,
     "text property is empty in the first choice"
+  );
+  matrix.addRow();
+  assert.notOk(
+    matrix.visibleRows[0].cells[1].value,
+    "text property is empty in the first choice is still empty"
   );
   assert.equal(
     matrix.visibleRows[1].cells[1].value,

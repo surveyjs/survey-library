@@ -37,7 +37,7 @@ export class ResponsivityManager {
 
   private getVisibleItemsCount(size: number): number {
     const itemSizes: number[] = this.itemSizes;
-    let currSize = this.itemSizes[0];
+    let currSize: number = this.itemSizes[0];
     let i = 1;
     for (; i < itemSizes.length; i++) {
       if (currSize + itemSizes[i] > size) return i;

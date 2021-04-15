@@ -925,7 +925,7 @@ export class MatrixDropdownRowModelBase
     var questions = this.questions;
     for (var i = 0; i < questions.length; i++) {
       var question = questions[i];
-      var val = !!value ? value[question.getValueName()] : null;
+      var val = this.getCellValue(value, question.getValueName());
       var oldComment = question.comment;
       var comment = !!value
         ? value[question.getValueName() + settings.commentPrefix]

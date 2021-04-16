@@ -33,7 +33,10 @@ export class LocalizableString implements ILocalizableString {
   private calculatedTextValue: string;
   public onGetTextCallback: (str: string) => string;
   public onStrChanged: () => void;
+  public onSearchChanged: () => void;
   public sharedData: LocalizableString;
+  public searchText: string;
+  public searchIndex: number;
   constructor(
     public owner: ILocalizableOwner,
     public useMarkdown: boolean = false,
@@ -199,6 +202,20 @@ export class LocalizableString implements ILocalizableString {
     if (!!this.sharedData) return this.sharedData.equals(obj);
     if (!obj || !obj.values) return false;
     return Helpers.isTwoValueEquals(this.values, obj.values);
+  }
+  public setFindText(text: string): boolean {
+    if (this.searchText == text) return;
+    this.searchText = text;
+    var str = this.textOrHtml;
+    var index = !!str && !!text ? str.indexOf(text) : undefined;
+    if (index < 0) index = undefined;
+    if (index != undefined || this.searchIndex != index) {
+      this.searchIndex = index;
+      if (!!this.onSearchChanged) {
+        this.onSearchChanged();
+      }
+    }
+    return this.searchIndex != undefined;
   }
   public onChanged() {
     if (this.onStrChanged) this.onStrChanged();

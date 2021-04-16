@@ -12616,3 +12616,46 @@ QUnit.test("survey logo size", function(assert) {
   survey.logoWidth = "100%";
   assert.equal(survey.logoWidth, "100%", "100%");
 });
+QUnit.test("element.findText()", function(assert) {
+  var survey = new SurveyModel({
+    pages: [
+      {
+        name: "page1",
+        title: "My Page 1",
+        elements: [
+          {
+            type: "text",
+            name: "question1",
+          },
+          {
+            type: "checkbox",
+            name: "question2",
+            title: "My checkbox",
+            choices: ["item1", { value: "item2", text: "Item2" }],
+          },
+          {
+            type: "matrixdropdown",
+            name: "question3",
+            columns: [{ name: "col1" }, { name: "col2", title: "Column 1" }],
+            rows: ["row1", { value: "row2", text: "Row 2" }],
+          },
+          {
+            type: "panel",
+            name: "panel1",
+            title: "My panel",
+            elements: [{ type: "text", name: "question3" }],
+          },
+        ],
+      },
+      {
+        name: "page2",
+      },
+    ],
+  });
+  var findRes = survey.findText("ques");
+  assert.equal(findRes.length, 3, "Find by question title/name");
+  findRes = survey.findText("My");
+  assert.equal(findRes.length, 3, "Find by element title");
+  findRes = survey.findText("");
+  assert.equal(findRes.length, 0, "Empty string returns nothing");
+});

@@ -316,6 +316,11 @@ export interface IWrapperObject {
   getClassNameProperty(): string;
 }
 
+export interface IFindElement {
+  element: Base;
+  str: LocalizableString;
+}
+
 export class Bindings {
   private properties: Array<JsonObjectProperty> = null;
   private values: any = null;
@@ -875,6 +880,33 @@ export class Base {
             item.addUsedLocales(locales);
           }
         }
+      }
+    }
+  }
+  public findText(text: string, founded: Array<IFindElement>) {
+    var strs: Array<LocalizableString> = [];
+    this.getAllLocalizedStrings(strs);
+    for (var i = 0; i < strs.length; i++) {
+      if (strs[i].setFindText(text)) {
+        founded.push({ element: this, str: strs[i] });
+      }
+    }
+  }
+  protected getAllLocalizedStrings(arr: Array<LocalizableString>) {
+    if (!!this.localizableStrings) {
+      for (let key in this.localizableStrings) {
+        let item = this.getLocalizableString(key);
+        if (item) arr.push(item);
+      }
+    }
+    if (!this.arraysInfo) return;
+    for (let key in this.arraysInfo) {
+      let item = this.arraysInfo[key];
+      if (!item || !item.isItemValues) continue;
+      var items = this.getPropertyValue(key);
+      if (!items) continue;
+      for (var i = 0; i < items.length; i++) {
+        arr.push(items[i].locText);
       }
     }
   }

@@ -16,6 +16,7 @@ import {
   ISurveyElement,
   SurveyElement,
   IProgressInfo,
+  IFindElement,
 } from "./base";
 import { surveyCss } from "./defaultCss/cssstandard";
 import { ISurveyTriggerOwner, SurveyTrigger } from "./trigger";
@@ -1582,18 +1583,16 @@ export class SurveyModel extends Base
     return this.getLocalizableString("logo");
   }
   public getSize(value: any) {
-    if(typeof value === "number") {
+    if (typeof value === "number") {
       return "" + value + "px";
     }
-    if(!!value && typeof value === "string" && value.length > 0) {
-      var lastSymbol = value[value.length-1];
-      if (lastSymbol >= '0' && lastSymbol <= '9' || lastSymbol == ".") {
+    if (!!value && typeof value === "string" && value.length > 0) {
+      var lastSymbol = value[value.length - 1];
+      if ((lastSymbol >= "0" && lastSymbol <= "9") || lastSymbol == ".") {
         try {
           var num = parseFloat(value);
           return "" + num + "px";
-        }
-        catch {
-        }
+        } catch {}
       }
     }
     return value;
@@ -5627,13 +5626,25 @@ export class SurveyModel extends Base
   public getElementWrapperComponentData(element: SurveyElement): any {
     return element;
   }
-  public getItemValueWrapperComponentName(item: ItemValue, question: QuestionSelectBase): string {
+  public getItemValueWrapperComponentName(
+    item: ItemValue,
+    question: QuestionSelectBase
+  ): string {
     return "survey-item-value-component";
   }
-  public getItemValueWrapperComponentData(item: ItemValue, question: QuestionSelectBase): any {
+  public getItemValueWrapperComponentData(
+    item: ItemValue,
+    question: QuestionSelectBase
+  ): any {
     return item;
   }
-
+  public findText(text: string): Array<IFindElement> {
+    var res: Array<IFindElement> = [];
+    for (var i = 0; i < this.pages.length; i++) {
+      this.pages[i].findText(text, res);
+    }
+    return res;
+  }
   /**
    * Use this method to dispose survey model properly.
    */

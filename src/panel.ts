@@ -15,6 +15,7 @@ import {
   ITitleOwner,
   IProgressInfo,
   ISurvey,
+  IFindElement,
 } from "./base";
 import { Question } from "./question";
 import { ConditionRunner } from "./conditions";
@@ -628,6 +629,12 @@ export class PanelModelBase extends SurveyElement
   }
   public set requiredIf(val: string) {
     this.setPropertyValue("requiredIf", val);
+  }
+  public findText(text: string, founded: Array<IFindElement>) {
+    super.findText(text, founded);
+    for (var i = 0; i < this.elements.length; i++) {
+      (<Base>(<any>this.elements[i])).findText(text, founded);
+    }
   }
   /**
    * Returns true, if there is an error on this Page or inside the current Panel

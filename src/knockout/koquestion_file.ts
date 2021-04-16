@@ -46,7 +46,10 @@ class QuestionFileImplementor extends QuestionImplementor {
         event.returnValue = false;
         return false;
       }
-      event.dataTransfer.dropEffect = "copy";
+      let dataTransfer = event.originalEvent
+        ? event.originalEvent.dataTransfer
+        : event.dataTransfer;
+      dataTransfer.dropEffect = "copy";
       event.preventDefault();
     });
     this.setCallbackFunc("dochange", (data: any, event: any) => {

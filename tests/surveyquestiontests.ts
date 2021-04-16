@@ -4788,3 +4788,32 @@ QUnit.test("Multiple Text Question: itemSize", function(assert) {
   assert.equal(q2.inputSize, 0, "q2 rendered size is still empty");
   assert.equal(q3.inputSize, 15, "q3 rendered size is 15, from parent");
 });
+QUnit.test(
+  "multipletext question: empty string should return isEmpty(), bug #",
+  function(assert) {
+    var json = {
+      questionTitleTemplate: "{no}. {title} {require}",
+      elements: [
+        {
+          type: "multipletext",
+          name: "question1",
+          items: [
+            {
+              name: "text1",
+            },
+            {
+              name: "text2",
+            },
+          ],
+        },
+      ],
+    };
+    var survey = new SurveyModel(json);
+    var q = <QuestionMultipleTextModel>survey.getQuestionByName("question1");
+    q.items[0].value = "1";
+    q.items[1].value = "";
+    assert.deepEqual(q.value, { text1: "1" }, "There is no item2");
+    q.items[1].value = 0;
+    assert.deepEqual(q.value, { text1: "1", text2: 0 }, "Include item2");
+  }
+);

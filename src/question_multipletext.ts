@@ -199,7 +199,7 @@ export class MultipleTextItemModel extends Base
     }
   }
   public isEmpty() {
-    return this.isValueEmpty(this.value);
+    return this.editor.isEmpty();
   }
   public onValueChanged(newValue: any) {
     if (this.valueChangedCallback) this.valueChangedCallback(newValue);
@@ -524,6 +524,9 @@ export class QuestionMultipleTextModel extends Question
   }
   setMultipleTextValue(name: string, value: any) {
     this.isMultipleItemValueChanging = true;
+    if (this.isValueEmpty(value)) {
+      value = undefined;
+    }
     var newValue = this.value;
     if (!newValue) {
       newValue = {};

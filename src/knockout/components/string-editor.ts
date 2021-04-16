@@ -41,7 +41,7 @@ function resetLocalizationSpan(element: any, locStr: any) {
   while (element.childNodes.length > 1) {
     element.removeChild(element.childNodes[1]);
   }
-  element.childNodes[0].textContent = locStr.text;
+  element.childNodes[0].textContent = locStr.renderedHtml;
 }
 
 function applyLocStrOnSearchChanged(element: any, locStr: any) {

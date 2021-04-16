@@ -1372,6 +1372,26 @@ QUnit.test("Load localized strings", function(assert) {
   survey.locale = "";
 });
 
+QUnit.test("choicesByUrl + clear invsible values", function(assert) {
+  var survey = new SurveyModel();
+  survey.addNewPage("p1");
+  var question = new QuestionDropdownModelTester("q1");
+  survey.pages[0].addQuestion(question);
+  question.value = "Unknown";
+  question.choicesByUrl.url = "allcountries";
+  question.choicesByUrl.path = "RestResponse;result";
+  question.onSurveyLoad();
+  var question2 = new QuestionDropdownModel("q2");
+  survey.pages[0].addQuestion(question2);
+  question2.value = "Unknown";
+  question2.choices = ["item1", "item2"];
+  assert.equal(question.value, "Unknown", "Value is here, choices from web");
+  assert.equal(question.value, "Unknown", "Value is here, locale choices");
+  survey.doComplete();
+  assert.equal(question.isEmpty(), true, "Value is empty, choices from web");
+  assert.equal(question2.isEmpty(), true, "Value is empty, locale choices");
+});
+
 function getCACities() {
   return ["Los Angeles", "San Francisco"];
 }

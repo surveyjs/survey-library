@@ -36,7 +36,7 @@ import {
   ItemValue,
   QuestionButtonGroupModel,
 } from "survey-core";
-import { BaseVue } from "src/vue/base";
+import { BaseVue } from "./base";
 @Component
 export class ButtonGroupItem extends BaseVue {
   @Prop() item: ItemValue;

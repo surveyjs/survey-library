@@ -5,6 +5,7 @@ import { ItemValue } from "survey-core";
 import { SurveyQuestionCommentItem } from "./reactquestion_comment";
 import { ReactQuestionFactory } from "./reactquestion_factory";
 import { Base } from "survey-core";
+import { ReactSurveyModel } from "./reactsurveymodel";
 
 export class SurveyQuestionRadiogroup extends SurveyQuestionElementBase {
   constructor(props: any) {
@@ -57,11 +58,17 @@ export class SurveyQuestionRadiogroup extends SurveyQuestionElementBase {
     });
   }
   protected getItems(cssClasses: any): Array<any> {
+    var survey = this.question.survey as ReactSurveyModel;
     var items = [];
     var value = this.getStateValue();
     for (var i = 0; i < this.question.visibleChoices.length; i++) {
       var item = this.question.visibleChoices[i];
-      items.push(this.renderItem(item, value, cssClasses, "" + i));
+      var renderedItem = this.renderItem(item, value, cssClasses, "" + i)
+      var wrappedItem = null;
+      if(!!survey) {
+        wrappedItem = survey.wrapItemValue(renderedItem, this.question, item);
+      };
+      items.push(wrappedItem ?? renderedItem);
     }
     return items;
   }

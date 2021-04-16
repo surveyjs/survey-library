@@ -11,8 +11,8 @@
         <!-- ko foreach: question.columns -->
             <div data-bind="css: question.getColumnClass()">
             <!-- ko foreach: { data: $data, as: 'item', afterRender: question.koAfterRender }  -->
-                <!-- ko template: 'survey-checkbox-item' -->
-                <!-- /ko -->
+              <!-- ko component: { name: question.getItemValueWrapperComponentName(item), params: { componentData:  question.getItemValueWrapperComponentData(item), templateData: { name: 'survey-checkbox-item', data: item } } } -->
+              <!-- /ko -->
             <!-- /ko -->
             </div>
         <!-- /ko -->

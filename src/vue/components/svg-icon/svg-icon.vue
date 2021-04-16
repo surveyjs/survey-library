@@ -6,7 +6,7 @@
 import Vue from "vue";
 import { Component, Prop, Watch } from "vue-property-decorator";
 import { createSvg } from "survey-core";
-import { BaseVue } from "src/vue/base";
+import { BaseVue } from "../../base";
 
 @Component
 export class SvgIcon extends BaseVue {

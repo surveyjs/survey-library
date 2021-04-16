@@ -248,6 +248,7 @@ Serializer.addClass(
     { name: "hasSelectAll", visible: false, isSerializable: false },
     { name: "selectAllText", visible: false, isSerializable: false },
     { name: "colCount:number", visible: false, isSerializable: false },
+    { name: "maxSelectedChoices", visible: false, isSerializable: false },
   ],
   function() {
     return new QuestionRankingModel("");

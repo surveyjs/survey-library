@@ -58,7 +58,7 @@ export class SurveyQuestionCheckbox extends SurveyQuestionElementBase {
       var renderedItem = this.renderItem(key, item, i == 0, cssClasses, "" + i);
       var wrappedItem = null;
       if(!!survey) {
-        wrappedItem = survey.wrapItemValue(renderedItem, this.question, item)
+        wrappedItem = survey.wrapItemValue(renderedItem, this.question, item);
       };
       renderedItems.push(wrappedItem ?? renderedItem);
     }

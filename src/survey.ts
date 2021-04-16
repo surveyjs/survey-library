@@ -609,6 +609,20 @@ export class SurveyModel extends Base
     SurveyModel
   >();
   /**
+   * The event is fired before removing a row from Matrix Dynamic question. You can disable removing and clear the data instead.
+   * <br/> `sender` - the survey object that fires the event
+   * <br/> `options.question` - a matrix question.
+   * <br/> `options.rowIndex` - a row index.
+   * <br/> `options.row` - a row object.
+   * <br/> `options.allow` - a boolean property. Set it to `false` to disable the row removing.
+   * @see QuestionMatrixDynamicModel
+   * @see onMatrixRowRemoved
+   * @see onMatrixAllowRemoveRow
+   */
+  public onMatrixRowRemoving: EventBase<SurveyModel> = this.addEvent<
+    SurveyModel
+  >();
+  /**
    * The event is fired on removing a row from Matrix Dynamic question.
    * <br/> `sender` - the survey object that fires the event
    * <br/> `options.question` - a matrix question
@@ -616,6 +630,8 @@ export class SurveyModel extends Base
    * <br/> `options.row` - a removed row object
    * @see QuestionMatrixDynamicModel
    * @see QuestionMatrixDynamicModel.visibleRows
+   * @see onMatrixRowRemoving
+   * @see onMatrixAllowRemoveRow
    */
   public onMatrixRowRemoved: EventBase<SurveyModel> = this.addEvent<
     SurveyModel
@@ -628,6 +644,8 @@ export class SurveyModel extends Base
    * <br/> `options.row` - a row object.
    * <br/> `options.allow` - a boolean property. Set it to `false` to disable the row removing.
    * @see QuestionMatrixDynamicModel
+   * @see onMatrixRowRemoving
+   * @see onMatrixRowRemoved
    */
   public onMatrixAllowRemoveRow: EventBase<SurveyModel> = this.addEvent<
     SurveyModel
@@ -3739,6 +3757,16 @@ export class SurveyModel extends Base
       rowIndex: rowIndex,
       row: row,
     });
+  }
+  matrixRowRemoving(question: IQuestion, rowIndex: number, row: any): boolean {
+    var options = {
+      question: question,
+      rowIndex: rowIndex,
+      row: row,
+      allow: true,
+    };
+    this.onMatrixRowRemoving.fire(this, options);
+    return options.allow;
   }
   matrixAllowRemoveRow(
     question: IQuestion,

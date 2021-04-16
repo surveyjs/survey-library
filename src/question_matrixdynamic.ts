@@ -29,8 +29,7 @@ export class MatrixDynamicRowModel extends MatrixDropdownRowModelBase {
  * A Model for a matrix dymanic question. You may use a dropdown, checkbox, radiogroup, text and comment questions as a cell editors.
  * An end-user may dynamically add/remove rows, unlike in matrix dropdown question.
  */
-export class QuestionMatrixDynamicModel
-  extends QuestionMatrixDropdownModelBase
+export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   implements IMatrixDropdownData {
   public onGetValueForNewRowCallBack: (
     sender: QuestionMatrixDynamicModel
@@ -405,6 +404,12 @@ export class QuestionMatrixDynamicModel
       !!this.visibleRows && index < this.visibleRows.length
         ? this.visibleRows[index]
         : null;
+    if (
+      !!row &&
+      !!this.survey &&
+      !this.survey.matrixRowRemoving(this, index, row)
+    )
+      return;
     this.onStartRowAddingRemoving();
     this.removeRowCore(index);
     this.onEndRowRemoving(row);
@@ -702,7 +707,7 @@ Serializer.addClass(
     {
       name: "confirmDeleteText",
       dependsOn: "confirmDelete",
-      visibleIf: function (obj: any): boolean {
+      visibleIf: function(obj: any): boolean {
         return !obj || obj.confirmDelete;
       },
       serializationProperty: "locConfirmDeleteText",
@@ -719,18 +724,18 @@ Serializer.addClass(
       name: "emptyRowsText:text",
       serializationProperty: "locEmptyRowsText",
       dependsOn: "hideColumnsIfEmpty",
-      visibleIf: function (obj: any): boolean {
+      visibleIf: function(obj: any): boolean {
         return !obj || obj.hideColumnsIfEmpty;
       },
     },
   ],
-  function () {
+  function() {
     return new QuestionMatrixDynamicModel("");
   },
   "matrixdropdownbase"
 );
 
-QuestionFactory.Instance.registerQuestion("matrixdynamic", (name) => {
+QuestionFactory.Instance.registerQuestion("matrixdynamic", name => {
   var q = new QuestionMatrixDynamicModel(name);
   q.choices = [1, 2, 3, 4, 5];
   QuestionMatrixDropdownModelBase.addDefaultColumns(q);

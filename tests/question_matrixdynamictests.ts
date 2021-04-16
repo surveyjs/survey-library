@@ -5951,3 +5951,44 @@ QUnit.test(
     );
   }
 );
+QUnit.test(
+  "survey.onMatrixRowRemoving. Clear the row if it is the last one",
+  function(assert) {
+    var survey = new SurveyModel();
+    var removedRowIndex = -1;
+    var visibleRowsCount = -1;
+    survey.onMatrixRowRemoving.add(function(survey, options) {
+      removedRowIndex = options.rowIndex;
+      visibleRowsCount = options.question.visibleRows.length;
+      options.allow = options.question.rowCount > 1;
+      if (!options.allow) {
+        options.row.clearValue();
+      }
+    });
+    var page = survey.addNewPage("Page 1");
+    var q1 = new QuestionMatrixDynamicModel("matrixdynamic");
+    page.addElement(q1);
+    q1.addColumn("col1");
+    q1.rowCount = 3;
+    q1.value = [{ col1: 1 }, { col1: 2 }, { col1: 3 }];
+    assert.equal(q1.rowCount, 3, "there are three rows");
+    q1.removeRow(1);
+    assert.equal(q1.rowCount, 2, "there are two rows");
+    assert.equal(
+      removedRowIndex,
+      1,
+      "onMatrixRowRemoved event has been fired correctly"
+    );
+    assert.equal(
+      visibleRowsCount,
+      3,
+      "There should be three visible rows in event"
+    );
+    q1.removeRow(1);
+    assert.equal(q1.rowCount, 1, "there is one row now");
+    assert.deepEqual(q1.value, [{ col1: 1 }], "We have value in the cell");
+    q1.removeRow(0);
+    assert.equal(q1.rowCount, 1, "We do not allow to remove the row");
+    assert.deepEqual(q1.value, [], "We clear value in the row");
+  }
+);

@@ -173,6 +173,7 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner {
     canAddRow: boolean;
   }): any;
   matrixRowRemoved(question: IQuestion, rowIndex: number, row: any): any;
+  matrixRowRemoving(question: IQuestion, rowIndex: number, row: any): boolean;
   matrixAllowRemoveRow(
     question: IQuestion,
     rowIndex: number,

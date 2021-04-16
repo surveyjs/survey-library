@@ -919,6 +919,12 @@ export class MatrixDropdownRowModelBase
       this.detailPanel.runCondition(values, properties);
     }
   }
+  public clearValue() {
+    var questions = this.questions;
+    for (var i = 0; i < questions.length; i++) {
+      questions[i].clearValue();
+    }
+  }
   public set value(value: any) {
     this.isSettingValue = true;
     this.subscribeToChanges(value);

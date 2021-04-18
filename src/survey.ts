@@ -2945,7 +2945,7 @@ export class SurveyModel extends Base
     return this.checkIsCurrentPageHasErrors();
   }
   /**
-   * Returns `true`, if any of the survey pages contains errors.
+   * Returns `true`, if any of the survey pages contains errors. Please note, this function ignores validators if they are using async functions in their expressions, since this function is not async.
    * @param fireCallback set it to `true`, to show errors in UI.
    * @param focusOnFirstError set it to `true` to focus on the first question that doesn't pass the validation and make the page, where the question is located, the current.
    */

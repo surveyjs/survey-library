@@ -3644,3 +3644,45 @@ QUnit.test(
     );
   }
 );
+QUnit.test("templateTitle test + survey.onValueChanged", function(assert) {
+  var survey = new SurveyModel({
+    questions: [
+      {
+        name: "question1",
+        type: "paneldynamic",
+        allowAddPanel: false,
+        allowRemovePanel: false,
+        templateTitle: "{panel.sameVariable}",
+      },
+      {
+        type: "radiogroup",
+        name: "question2",
+        choices: ["sample title 1", "sample title 2"],
+      },
+    ],
+  });
+  survey.onValueChanged.add((sender, options) => {
+    if (options.name == "question2") {
+      sender.getQuestionByName("question1").value = [
+        { sameVariable: options.value },
+      ];
+    }
+  });
+  var panel = <QuestionPanelDynamicModel>survey.getQuestionByName("question1");
+  assert.equal(panel.panelCount, 0, "There is no any panel");
+  var question2 = survey.getQuestionByName("question2");
+  question2.value = question2.choices[0].value;
+  assert.equal(panel.panelCount, 1, "One panel is added");
+  assert.equal(
+    panel.panels[0].locTitle.textOrHtml,
+    "sample title 1",
+    "the first panel title set correctly"
+  );
+  question2.value = question2.choices[1].value;
+  assert.equal(panel.panelCount, 1, "We still have one panel");
+  assert.equal(
+    panel.panels[0].locTitle.textOrHtml,
+    "sample title 2",
+    "the first panel title set correctly again"
+  );
+});

@@ -10228,6 +10228,99 @@ QUnit.test("Expression validators with async functions", function(assert) {
   FunctionFactory.Instance.unregister("asyncFunc2");
 });
 
+QUnit.test("hasCurrentPageErrors with async", function(assert) {
+  var returnResult1: (res: any) => void;
+  var returnResult2: (res: any) => void;
+  function asyncFunc1(params: any): any {
+    returnResult1 = this.returnResult;
+    return false;
+  }
+  function asyncFunc2(params: any): any {
+    returnResult2 = this.returnResult;
+    return false;
+  }
+  FunctionFactory.Instance.register("asyncFunc1", asyncFunc1, true);
+  FunctionFactory.Instance.register("asyncFunc2", asyncFunc2, true);
+  var survey = twoPageSimplestSurvey();
+  var q1 = survey.getQuestionByName("question1");
+  var q2 = survey.getQuestionByName("question2");
+  var validator1 = new ExpressionValidator();
+  validator1.expression = "asyncFunc1() = 1";
+  var validator2 = new ExpressionValidator();
+  validator2.expression = "asyncFunc2() = 2";
+  q1.validators.push(validator1);
+  q2.validators.push(validator2);
+
+  var asyncHasErrors = undefined;
+  var func = (hasErrors: boolean) => {
+    asyncHasErrors = hasErrors;
+  };
+  assert.equal(
+    survey.hasCurrentPageErrors(func),
+    undefined,
+    "We don't know, we return undefined"
+  );
+  assert.equal(asyncHasErrors, undefined, "It is not executed yet");
+  returnResult1(0);
+  assert.equal(asyncHasErrors, true, "Has errors");
+  asyncHasErrors = undefined;
+  survey.hasCurrentPageErrors(func);
+  assert.equal(asyncHasErrors, undefined, "It is not executed yet, #2");
+  returnResult1(1);
+  assert.equal(asyncHasErrors, undefined, "Not all executed, #2");
+  returnResult2(2);
+  assert.equal(asyncHasErrors, false, "Has no errors");
+
+  FunctionFactory.Instance.unregister("asyncFunc1");
+  FunctionFactory.Instance.unregister("asyncFunc2");
+});
+QUnit.test("hasErrors with async", function(assert) {
+  var returnResult1: (res: any) => void;
+  var returnResult2: (res: any) => void;
+  function asyncFunc1(params: any): any {
+    returnResult1 = this.returnResult;
+    return false;
+  }
+  function asyncFunc2(params: any): any {
+    returnResult2 = this.returnResult;
+    return false;
+  }
+  FunctionFactory.Instance.register("asyncFunc1", asyncFunc1, true);
+  FunctionFactory.Instance.register("asyncFunc2", asyncFunc2, true);
+  var survey = twoPageSimplestSurvey();
+  var q1 = survey.getQuestionByName("question1");
+  var q3 = survey.getQuestionByName("question3");
+  var validator1 = new ExpressionValidator();
+  validator1.expression = "asyncFunc1() = 1";
+  var validator2 = new ExpressionValidator();
+  validator2.expression = "asyncFunc2() = 2";
+  q1.validators.push(validator1);
+  q3.validators.push(validator2);
+
+  var asyncHasErrors = undefined;
+  var func = (hasErrors: boolean) => {
+    asyncHasErrors = hasErrors;
+  };
+  assert.equal(
+    survey.hasErrors(false, false, func),
+    undefined,
+    "We don't know, we return undefined"
+  );
+  assert.equal(asyncHasErrors, undefined, "It is not executed yet");
+  returnResult1(0);
+  assert.equal(asyncHasErrors, true, "Has errors");
+  asyncHasErrors = undefined;
+  survey.hasErrors(false, false, func);
+  assert.equal(asyncHasErrors, undefined, "It is not executed yet, #2");
+  returnResult1(1);
+  assert.equal(asyncHasErrors, undefined, "Not all executed, #2");
+  returnResult2(2);
+  assert.equal(asyncHasErrors, false, "Has no errors");
+
+  FunctionFactory.Instance.unregister("asyncFunc1");
+  FunctionFactory.Instance.unregister("asyncFunc2");
+});
+
 QUnit.test("Hide required errors, add tests for Bug#2679", function(assert) {
   var survey = twoPageSimplestSurvey();
   var q1 = survey.getQuestionByName("question1");

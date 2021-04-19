@@ -2892,22 +2892,27 @@ export class SurveyModel extends Base
   }
   private hasErrorsOnNavigate(doComplete: boolean): boolean {
     if (this.ignoreValidation || !this.isEditMode) return false;
+    var func = (hasErrors: boolean) => {
+      if (!hasErrors) {
+        this.doCurrentPageCompleteCore(doComplete);
+      }
+    };
     if (this.checkErrorsMode === "onComplete") {
       if (!this.isLastPage) return false;
-      if (this.hasErrors(true, true)) return true;
-    } else {
-      if (this.isCurrentPageHasErrors) return true;
+      return this.hasErrors(true, true, func) !== false;
     }
-    return this.checkForAsyncQuestionValidation(doComplete);
+    return this.hasCurrentPageErrors(func) !== false;
   }
   private asyncValidationQuesitons: Array<Question>;
-  private checkForAsyncQuestionValidation(doComplete: boolean): boolean {
+  private checkForAsyncQuestionValidation(
+    questions: Array<Question>,
+    func: (hasErrors: boolean) => void
+  ): boolean {
     this.clearAsyncValidationQuesitons();
-    var questions: Array<Question> = this.currentPage.questions;
     for (var i = 0; i < questions.length; i++) {
       if (questions[i].isRunningValidators) {
         questions[i].onCompletedAsyncValidators = (hasErrors: boolean) => {
-          this.onCompletedAsyncQuestionValidators(doComplete, hasErrors);
+          this.onCompletedAsyncQuestionValidators(func, hasErrors);
         };
         this.asyncValidationQuesitons.push(questions[i]);
       }
@@ -2924,18 +2929,19 @@ export class SurveyModel extends Base
     this.asyncValidationQuesitons = [];
   }
   private onCompletedAsyncQuestionValidators(
-    doComplete: boolean,
+    func: (hasErrors: boolean) => void,
     hasErrors: boolean
   ) {
     if (hasErrors) {
       this.clearAsyncValidationQuesitons();
+      func(true);
       return;
     }
     var asynQuestions = this.asyncValidationQuesitons;
     for (var i = 0; i < asynQuestions.length; i++) {
       if (asynQuestions[i].isRunningValidators) return;
     }
-    this.doCurrentPageCompleteCore(doComplete);
+    func(false);
   }
   /**
    * Returns `true`, if the current page contains errors, for example, the required question is empty or a question validation is failed.
@@ -2945,14 +2951,61 @@ export class SurveyModel extends Base
     return this.checkIsCurrentPageHasErrors();
   }
   /**
-   * Returns `true`, if any of the survey pages contains errors. Please note, this function ignores validators if they are using async functions in their expressions, since this function is not async.
+   * Returns `true`, if the current page contains any error. If there is an async function in an expression, then the function will return `undefined` value.
+   * In this case, you should use `onAsyncValidation` parameter, which is a callback function: (hasErrors: boolean) => void
+   * @param onAsyncValidation use this parameter if you use async functions in your expressions. This callback function will be called with hasErrors value equals to `true` or `false`.
+   * @see hasPageErrors
+   * @see hasErrors
+   * @see currentPage
+   */
+  public hasCurrentPageErrors(
+    onAsyncValidation?: (hasErrors: boolean) => void
+  ): boolean {
+    return this.hasPageErrors(undefined, onAsyncValidation);
+  }
+  /**
+   * Returns `true`, if a page contains an error. If there is an async function in an expression, then the function will return `undefined` value.
+   * In this case, you should use the second `onAsyncValidation` parameter,  which is a callback function: (hasErrors: boolean) => void
+   * @param page the page that you want to validate. If the parameter is undefined then the `currentPage` is using
+   * @param onAsyncValidation use this parameter if you use async functions in your expressions. This callback function will be called with hasErrors value equals to `true` or `false`.
+   * @see hasCurrentPageErrors
+   * @see hasErrors
+   * @see currentPage
+   */
+  public hasPageErrors(
+    page?: PageModel,
+    onAsyncValidation?: (hasErrors: boolean) => void
+  ): boolean {
+    if (!page) {
+      page = this.currentPage;
+    }
+    if (!page) return false;
+    if (this.checkIsPageHasErrors(page)) return true;
+    if (!onAsyncValidation) return false;
+    return this.checkForAsyncQuestionValidation(
+      page.questions,
+      (hasErrors: boolean) => onAsyncValidation(hasErrors)
+    )
+      ? undefined
+      : false;
+  }
+  /**
+   * Returns `true`, if any of the survey pages contains errors. If there is an async function in an expression, then the function will return `undefined` value.
+   * In this case, you should use  the third `onAsyncValidation` parameter, which is a callback function: (hasErrors: boolean) => void
    * @param fireCallback set it to `true`, to show errors in UI.
    * @param focusOnFirstError set it to `true` to focus on the first question that doesn't pass the validation and make the page, where the question is located, the current.
+   * @param onAsyncValidation use this parameter if you use async functions in your expressions. This callback function will be called with hasErrors value equals to `true` or `false`.
+   * @see hasCurrentPageErrors
+   * @see hasPageErrors
    */
   public hasErrors(
     fireCallback: boolean = true,
-    focusOnFirstError: boolean = false
+    focusOnFirstError: boolean = false,
+    onAsyncValidation?: (hasErrors: boolean) => void
   ): boolean {
+    if (!!onAsyncValidation) {
+      fireCallback = true;
+    }
     var visPages = this.visiblePages;
     var firstErrorPage = null;
     var res = false;
@@ -2972,7 +3025,13 @@ export class SurveyModel extends Base
         }
       }
     }
-    return res;
+    if (res || !onAsyncValidation) return res;
+    return this.checkForAsyncQuestionValidation(
+      this.getAllQuestions(),
+      (hasErrors: boolean) => onAsyncValidation(hasErrors)
+    )
+      ? undefined
+      : false;
   }
   /**
    * Checks whether survey elements (pages, panels, and questions) have unique question names.

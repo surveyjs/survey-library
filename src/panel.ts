@@ -1832,7 +1832,7 @@ Serializer.addClass(
       default: "default",
       choices: ["default", "top", "bottom", "left", "hidden"],
     },
-    { name: "title", serializationProperty: "locTitle" },
+    { name: "title:text", serializationProperty: "locTitle" },
     { name: "description:text", serializationProperty: "locDescription" },
   ],
   function() {

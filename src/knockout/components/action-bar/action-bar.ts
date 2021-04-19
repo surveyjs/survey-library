@@ -50,10 +50,11 @@ ko.components.register("sv-action-bar", {
       const model = new ActionBarViewModel(params.items);
       new AdaptiveElementImplementor(model);
 
-      var container: HTMLDivElement = componentInfo.element;
-      var manager = new ResponsivityManager(container, model);
+      const container: HTMLDivElement =
+        componentInfo.element.nextElementSibling;
+      const manager = new ResponsivityManager(container, model);
       manager.getItemSizes = () => {
-        var widths: number[] = [];
+        const widths: number[] = [];
         container
           .querySelectorAll("span.sv-action")
           .forEach(actionContainer => {
@@ -65,7 +66,7 @@ ko.components.register("sv-action-bar", {
         manager.process();
         ko.tasks.runEarly();
       }, 100);
-      ko.utils.domNodeDisposal.addDisposeCallback(componentInfo.element, () => {
+      ko.utils.domNodeDisposal.addDisposeCallback(container, () => {
         clearInterval(updateVisibleItems);
       });
       return model;

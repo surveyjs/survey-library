@@ -14,7 +14,6 @@ $base-unit: var(--base-unit, 8px);
   @return $result;
 }
 
-sv-action-bar,
 .sv-action-bar {
   display: flex;
   box-sizing: content-box;
@@ -24,11 +23,6 @@ sv-action-bar,
   padding: 0 calcSize(2);
   overflow: hidden;
   white-space: nowrap;
-}
-
-sv-action-bar .sv-action-bar {
-  overflow: visible;
-  padding: 0;
 }
 
 .sv-action--first {

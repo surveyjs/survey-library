@@ -1,19 +1,18 @@
 import { Base } from "./base";
 import { property } from "./jsonobject";
 import { surveyLocalization } from "./surveyStrings";
-import { PopupUtils } from "./utils/popup";
+import {
+  PopupUtils,
+  VerticalPosition,
+  HorizontalPosition,
+  IPosition,
+} from "./utils/popup";
 
 export class PopupModel extends Base {
   @property() contentComponentName: string;
   @property() contentComponentData: any;
-  @property({ defaultValue: "bottom" }) verticalPosition:
-    | "top"
-    | "bottom"
-    | "middle";
-  @property({ defaultValue: "left" }) horizontalPosition:
-    | "left"
-    | "right"
-    | "center";
+  @property({ defaultValue: "bottom" }) verticalPosition: VerticalPosition;
+  @property({ defaultValue: "left" }) horizontalPosition: HorizontalPosition;
   @property({ defaultValue: false }) showPointer: boolean;
   @property({ defaultValue: false }) isModal: boolean;
   @property({ defaultValue: () => {} }) onCancel: () => void;
@@ -25,8 +24,8 @@ export class PopupModel extends Base {
   constructor(
     contentComponentName: string,
     contentComponentData: any,
-    verticalPosition: "top" | "bottom" | "middle" = "bottom",
-    horizontalPosition: "left" | "right" | "center" = "left",
+    verticalPosition: VerticalPosition = "bottom",
+    horizontalPosition: HorizontalPosition = "left",
     showPointer: boolean = true,
     isModal: boolean = false,
     onCancel = () => {},
@@ -81,10 +80,8 @@ export class PopupViewModel extends Base {
   @property({ defaultValue: 0 }) top: string | number;
   @property({ defaultValue: 0 }) left: string | number;
   @property({ defaultValue: "left" }) popupDirection: string;
-  @property({ defaultValue: { left: "0px", top: "0px" } }) pointerTarget: {
-    top: string | number;
-    left: string | number;
-  };
+  @property({ defaultValue: { left: "0px", top: "0px" } })
+  pointerTarget: IPosition;
   public container: HTMLElement;
 
   constructor(public model: PopupModel, public targetElement?: HTMLElement) {

@@ -47,7 +47,7 @@ export class Popup extends SurveyElementBase<IPopupProps, any> {
   }
 }
 
-ReactElementFactory.Instance.registerElement("sv-popup", (props) => {
+ReactElementFactory.Instance.registerElement("sv-popup", props => {
   return React.createElement(Popup, (props as any) as IPopupProps);
 });
 
@@ -87,9 +87,11 @@ export class PopupContainer extends SurveyElementBase<any, any> {
         }}
       >
         {pointer}
-        {header}
-        {content}
-        {footer}
+        <div className="sv-popup__scrolling-content">
+          {header}
+          {content}
+          {footer}
+        </div>
       </div>
     );
   }

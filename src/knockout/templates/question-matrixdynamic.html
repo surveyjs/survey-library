@@ -44,8 +44,9 @@
           <!-- /ko -->
           <!-- ko foreach: $data.cells -->
           <!-- ko if: $data.isActionsCell -->
-           <td data-bind="css:$data.className, attr: {colspan: $data.colSpans}">
-            <sv-action-bar params="items: $data.item.getData()"></sv-action-bar>
+          <td data-bind="css:$data.className, attr: {colspan: $data.colSpans}">
+            <!-- ko component: { name: 'sv-action-bar', params: { items: $data.item.getData() }} -->
+            <!-- /ko -->
           </td>
           <!-- /ko -->
           <!-- ko if: $data.isEmpty -->

@@ -8,8 +8,6 @@
     <!-- ko template: { name: 'survey-question-title-content', data: element } --><!-- /ko -->
     <!-- /ko-->
   </span>
-  <sv-action-bar
-    class="sv-title-actions__bar"
-    params="items: items"
-  ></sv-action-bar>
+  <!-- ko component: { name: 'sv-action-bar', params: { items: items } } -->
+  <!-- /ko -->
 </div>

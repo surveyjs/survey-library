@@ -305,7 +305,7 @@ export class StylesManager {
 
     ".sv_main .sv-expand-action--expanded:before": `transform: rotate(180deg);`,
 
-    ".sv_main sv-action-bar, .sv_main .sv-action-bar": `display: flex; position: relative; align-items: center; margin-left: auto; padding: 0 0 0 16px; overflow: hidden; white-space: nowrap;`,
+    ".sv_main .sv-action-bar": `display: flex; position: relative; align-items: center; margin-left: auto; padding: 0 0 0 16px; overflow: hidden; white-space: nowrap;`,
     ".sv_main .sv-action-bar-separator": `display: inline-block; width: 1px; height: 24px; vertical-align: middle; margin-right: 16px; background-color: #d6d6d6;`,
     ".sv_main .sv-action-bar-item": `-webkit-appearance: none; -moz-appearance: none; appearance: none; display: flex; height: 40px; padding: 8px; box-sizing: border-box; margin-right: 16px; border: none; border-radius: 2px; background-color: transparent; cursor: pointer; line-height: 24px; font-size: 16px; overflow-x: hidden; white-space: nowrap; min-width: auto; font-weight: normal`,
     ".sv_main .sv-action-bar-item__title": `vertical-align: middle; white-space: nowrap;`,
@@ -320,7 +320,7 @@ export class StylesManager {
     ".sv_main .sv-title-actions__title":
       "flex-wrap: wrap; max-width: 90%; min-width: 50%;",
     ".sv_main .sv-title-actions__bar": "min-width: 56px;",
-    ".sv_main .sv_matrix_cell_actions .sv-action-bar, .sv_main .sv_matrix_cell_actions sv-action-bar":
+    ".sv_main .sv_matrix_cell_actions .sv-action-bar":
       "margin-left: 0; padding-left: 0;",
     ".sv_main .sv_p_wrapper_in_row":
       "display: flex; flex-direction: row; align-items: center;",
@@ -1131,10 +1131,10 @@ export class StylesManager {
           StylesManager.ThemeColors[themeName] ||
           StylesManager.ThemeColors["default"];
 
-        Object.keys(ThemeCss).forEach((selector) => {
+        Object.keys(ThemeCss).forEach(selector => {
           let cssRuleText = ThemeCss[selector];
           Object.keys(theme).forEach(
-            (colorVariableName) =>
+            colorVariableName =>
               (cssRuleText = cssRuleText.replace(
                 new RegExp("\\" + colorVariableName, "g"),
                 theme[colorVariableName]
@@ -1167,7 +1167,7 @@ export class StylesManager {
 
   public initializeStyles(sheet: CSSStyleSheet) {
     if (StylesManager.Enabled) {
-      Object.keys(StylesManager.Styles).forEach((selector) => {
+      Object.keys(StylesManager.Styles).forEach(selector => {
         try {
           sheet.insertRule(
             selector + " { " + StylesManager.Styles[selector] + " }",
@@ -1175,7 +1175,7 @@ export class StylesManager {
           );
         } catch (e) {}
       });
-      Object.keys(StylesManager.Media).forEach((selector) => {
+      Object.keys(StylesManager.Media).forEach(selector => {
         try {
           sheet.insertRule(
             StylesManager.Media[selector].media +

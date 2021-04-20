@@ -460,7 +460,7 @@ Serializer.addClass(
       dependsOn: "inputType",
       visibleIf: function(obj: any) {
         if (!obj) return false;
-        return obj.inputType == "text";
+        return obj.isTextInput;
       },
     },
     {
@@ -581,7 +581,15 @@ Serializer.addClass(
         return obj.inputType === "number";
       },
     },
-    { name: "maxLength:number", default: -1 },
+    {
+      name: "maxLength:number",
+      default: -1,
+      dependsOn: "inputType",
+      visibleIf: function(obj: any) {
+        if (!obj) return false;
+        return obj.isTextInput;
+      },
+    },
     {
       name: "placeHolder",
       serializationProperty: "locPlaceHolder",

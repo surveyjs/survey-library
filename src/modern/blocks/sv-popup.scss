@@ -1,5 +1,6 @@
 $primary: var(--primary, #19b394);
 $primary-foreground: var(--primary-foreground, #fff);
+$primary-light: var(--primary-light, rgba(25, 179, 148, 0.1));
 
 $background: var(--background, #fff);
 $background-dim: var(--background-dim, #f3f3f3);
@@ -30,11 +31,23 @@ sv-popup {
   position: absolute;
   z-index: 1000;
   filter: drop-shadow(0px calcSize(1) calcSize(2) rgba(0, 0, 0, 0.1));
-  max-width: 100%;
-  max-height: 100%;
   padding: calcSize(1) 0;
   background: $body-background-color;
   border-radius: 4px;
+}
+
+.sv-popup__scrolling-content {
+  max-width: 90vh;
+  max-height: 90vh;
+  overflow: auto;
+  &::-webkit-scrollbar {
+    height: 6px;
+    width: 6px;
+    background-color: $background-dim;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: $primary-light;
+  }
 }
 
 .sv-popup__content {

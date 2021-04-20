@@ -23,24 +23,27 @@
           }"
           class="sv-popup__pointer"
         ></span>
+        <div class="sv-popup__scrolling-content ">
+          <div class="sv-popup__header"></div>
 
-        <div class="sv-popup__header"></div>
+          <div
+            class="sv-popup__content"
+            data-bind="component: { name: contentComponentName, params: contentComponentData }"
+          >
+            <component
+              :is="model.contentComponentName"
+              v-bind="model.contentComponentData"
+            ></component>
+          </div>
 
-        <div
-          class="sv-popup__content"
-          data-bind="component: { name: contentComponentName, params: contentComponentData }"
-        >
-          <component
-            :is="model.contentComponentName"
-            v-bind="model.contentComponentData"
-          ></component>
-        </div>
-
-        <div v-show="model.isModal" class="sv-popup__footer">
-          <button v-on:click="model.cancel">
-            {{ model.cancelButtonText }}
-          </button>
-          <button v-on:click="model.apply">{{ model.applyButtonText }}</button>
+          <div v-show="model.isModal" class="sv-popup__footer">
+            <button v-on:click="model.cancel">
+              {{ model.cancelButtonText }}
+            </button>
+            <button v-on:click="model.apply">
+              {{ model.applyButtonText }}
+            </button>
+          </div>
         </div>
       </div>
     </div>

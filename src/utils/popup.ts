@@ -1,12 +1,24 @@
+export type VerticalPosition = "top" | "bottom" | "middle";
+export type HorizontalPosition = "left" | "right" | "center";
+export interface IPosition {
+  left?: number | string;
+  top?: number | string;
+}
+
+export interface INumberPosition extends IPosition {
+  left?: number;
+  top?: number;
+}
+
 export class PopupUtils {
   public static calculatePosition(
     targetRect: ClientRect,
     height: number,
     width: number,
-    verticalPosition: string,
-    horizontalPosition: string,
+    verticalPosition: VerticalPosition,
+    horizontalPosition: HorizontalPosition,
     showPointer: boolean
-  ) {
+  ): INumberPosition {
     if (horizontalPosition == "center")
       var left = (targetRect.left + targetRect.right - width) / 2;
     else if (horizontalPosition == "left") left = targetRect.left - width;
@@ -31,8 +43,8 @@ export class PopupUtils {
   }
 
   public static calculatePopupDirection(
-    verticalPosition: string,
-    horizontalPosition: string
+    verticalPosition: VerticalPosition,
+    horizontalPosition: HorizontalPosition
   ) {
     var popupDirection: string;
     if (horizontalPosition == "center" && verticalPosition != "middle") {
@@ -48,15 +60,15 @@ export class PopupUtils {
     targetRect: ClientRect,
     top: number,
     left: number,
-    verticalPosition: string,
-    horizontalPosition: string
+    verticalPosition: VerticalPosition,
+    horizontalPosition: HorizontalPosition
   ) {
-    var targetPos: any = {};
+    var targetPos: INumberPosition = {};
     if (horizontalPosition != "center") {
       targetPos.top = targetRect.top + targetRect.height / 2;
-      targetPos.left = (<any>targetRect)[horizontalPosition];
+      targetPos.left = targetRect[horizontalPosition];
     } else if (verticalPosition != "middle") {
-      targetPos.top = (<any>targetRect)[verticalPosition];
+      targetPos.top = targetRect[verticalPosition];
       targetPos.left = targetRect.left + targetRect.width / 2;
     }
     targetPos.left = Math.round(targetPos.left - left);

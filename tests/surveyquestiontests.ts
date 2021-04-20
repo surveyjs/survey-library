@@ -3444,6 +3444,12 @@ QUnit.test("QuestionImagePicker 0 item value test", function(assert) {
   assert.equal(question.isEmpty(), false, "Question is not empty");
 });
 
+QUnit.test("QuestionImagePicker create item value for choices restful test", function(assert) {
+  var question = new QuestionImagePickerModel("q1");
+  const itemValue = question.choicesByUrl.createItemValue("val");
+  assert.equal(itemValue.getType(), "imageitemvalue", "imageitemvalue created");
+});
+
 QUnit.test(
   "question visibleIf, enableIf and requiredIf with async functions in expression",
   function(assert) {

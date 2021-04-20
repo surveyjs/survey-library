@@ -28,6 +28,7 @@ export class QuestionSelectBase extends Question {
   private enableOnLoadingChoices: boolean;
   private dependedQuestions: Array<QuestionSelectBase> = [];
   private noneItemValue: ItemValue = new ItemValue("none");
+  private newItemValue: ItemValue;
   constructor(name: string) {
     super(name);
     var noneItemText = this.createLocalizableString("noneText", this, true);
@@ -596,19 +597,42 @@ export class QuestionSelectBase extends Question {
   private calcVisibleChoices(): Array<ItemValue> {
     if (this.canUseFilteredChoices()) return this.getFilteredChoices();
     var res = this.sortVisibleChoices(this.getFilteredChoices().slice());
-    this.addToVisibleChoices(res);
+    this.addToVisibleChoices(res, this.isAddDefaultItems);
     return res;
   }
   protected canUseFilteredChoices(): boolean {
-    return !this.hasNone && !this.hasOther && this.choicesOrder == "none";
+    return (
+      !this.isAddDefaultItems &&
+      !this.hasNone &&
+      !this.hasOther &&
+      this.choicesOrder == "none"
+    );
   }
-  protected addToVisibleChoices(items: Array<ItemValue>) {
-    if (this.hasOther) {
+  protected addToVisibleChoices(items: Array<ItemValue>, isAddAll: boolean) {
+    if (isAddAll || this.hasOther) {
       items.push(this.otherItem);
     }
-    if (this.hasNone) {
+    if (isAddAll || this.hasNone) {
       items.push(this.noneItem);
     }
+    if (isAddAll) {
+      if (!this.newItemValue) {
+        this.newItemValue = new ItemValue("newitem"); //TODO
+      }
+      items.push(this.newItemValue);
+    }
+  }
+  /**
+   * For internal use in SurveyJS Creator V2.
+   */
+  public isItemInList(item: ItemValue): boolean {
+    if (item === this.otherItem) return this.hasOther;
+    if (item === this.noneItem) return this.hasNone;
+    if (item === this.newItemValue) return false;
+    return true;
+  }
+  protected get isAddDefaultItems() {
+    return settings.supportCreatorV2 && this.isDesignMode;
   }
   public getPlainData(
     options: {

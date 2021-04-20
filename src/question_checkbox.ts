@@ -254,11 +254,18 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
   protected canUseFilteredChoices(): boolean {
     return !this.hasSelectAll && super.canUseFilteredChoices();
   }
-  protected addToVisibleChoices(items: Array<ItemValue>) {
-    if (this.hasSelectAll) {
+  protected addToVisibleChoices(items: Array<ItemValue>, isAddAll: boolean) {
+    if (isAddAll || this.hasSelectAll) {
       items.unshift(this.selectAllItem);
     }
-    super.addToVisibleChoices(items);
+    super.addToVisibleChoices(items, isAddAll);
+  }
+  /**
+   * For internal use in SurveyJS Creator V2.
+   */
+  public isItemInList(item: ItemValue): boolean {
+    if (item == this.selectAllItem) return this.hasSelectAll;
+    return super.isItemInList(item);
   }
   protected getDisplayValueCore(keysAsText: boolean, value: any): any {
     if (!Array.isArray(value))

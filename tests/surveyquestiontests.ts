@@ -4789,7 +4789,7 @@ QUnit.test("Multiple Text Question: itemSize", function(assert) {
   assert.equal(q3.inputSize, 15, "q3 rendered size is 15, from parent");
 });
 QUnit.test(
-  "multipletext question: empty string should return isEmpty(), bug #",
+  "multipletext question: empty string should return isEmpty(), bug #2803",
   function(assert) {
     var json = {
       questionTitleTemplate: "{no}. {title} {require}",
@@ -4815,5 +4815,36 @@ QUnit.test(
     assert.deepEqual(q.value, { text1: "1" }, "There is no item2");
     q.items[1].value = 0;
     assert.deepEqual(q.value, { text1: "1", text2: 0 }, "Include item2");
+  }
+);
+QUnit.test(
+  "Expression question: should not calculate value when survey in display mode, bug #2808",
+  function(assert) {
+    var json = {
+      questionTitleTemplate: "{no}. {title} {require}",
+      elements: [
+        {
+          type: "text",
+          name: "q1",
+        },
+        {
+          type: "text",
+          name: "q2",
+        },
+        {
+          type: "expression",
+          name: "q3",
+          expression: "{q1}+{q2}",
+        },
+      ],
+    };
+    var survey = new SurveyModel(json);
+    survey.mode = "display";
+    survey.data = { q1: 1, q2: 2, q3: 5 };
+    assert.equal(
+      survey.getValue("q3"),
+      5,
+      "We do not run expressions in display mode"
+    );
   }
 );

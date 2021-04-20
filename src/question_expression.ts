@@ -16,7 +16,7 @@ export class QuestionExpressionModel extends Question {
     super(name);
     this.createLocalizableString("format", this);
     var self = this;
-    this.registerFunctionOnPropertyValueChanged("expression", function () {
+    this.registerFunctionOnPropertyValueChanged("expression", function() {
       if (self.expressionRunner) {
         self.expressionRunner = new ExpressionRunner(self.expression);
       }
@@ -58,12 +58,17 @@ export class QuestionExpressionModel extends Question {
   }
   public runCondition(values: HashTable<any>, properties: HashTable<any>) {
     super.runCondition(values, properties);
-    if (!this.expression || this.expressionIsRunning) return;
+    if (
+      !this.expression ||
+      this.expressionIsRunning ||
+      (this.survey && this.survey.isDisplayMode)
+    )
+      return;
     this.locCalculation();
     if (!this.expressionRunner) {
       this.expressionRunner = new ExpressionRunner(this.expression);
     }
-    this.expressionRunner.onRunComplete = (newValue) => {
+    this.expressionRunner.onRunComplete = newValue => {
       if (!Helpers.isTwoValueEquals(newValue, this.value)) {
         this.value = newValue;
       }
@@ -371,11 +376,11 @@ Serializer.addClass(
     { name: "correctAnswer", visible: false },
     { name: "requiredIf", visible: false },
   ],
-  function () {
+  function() {
     return new QuestionExpressionModel("");
   },
   "question"
 );
-QuestionFactory.Instance.registerQuestion("expression", (name) => {
+QuestionFactory.Instance.registerQuestion("expression", name => {
   return new QuestionExpressionModel(name);
 });

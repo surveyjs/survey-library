@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.8.44](https://github.com/surveyjs/survey-library/compare/v1.8.43...v1.8.44) (2021-04-20)
+
+
+### Bug Fixes
+
+* Bug on clean answers on complete on choices from web property [#2776](https://github.com/surveyjs/survey-library/issues/2776) ([2f87b86](https://github.com/surveyjs/survey-library/commit/2f87b867689953f71ae9600be3622b0bb8222f0c))
+* Creator V2: Localizable properties may show default values from another properties in matrix dynamic [#2798](https://github.com/surveyjs/survey-library/issues/2798) ([faefc53](https://github.com/surveyjs/survey-library/commit/faefc53a7ec75ed5380309a503c356574b1f00bd))
+* Do not modify expression questions if survey in display mode [#2808](https://github.com/surveyjs/survey-library/issues/2808) ([19587ca](https://github.com/surveyjs/survey-library/commit/19587ca86c977deb94cc2996e8171219641d94e7))
+* Incorrect default value for panelRemoveButtonLocation property [#2797](https://github.com/surveyjs/survey-library/issues/2797) ([23861c0](https://github.com/surveyjs/survey-library/commit/23861c0017bf6f31005629dd25726fcb96b2d1c7))
+* MultipleText question set empty string as value for their items [#2803](https://github.com/surveyjs/survey-library/issues/2803) ([12e5255](https://github.com/surveyjs/survey-library/commit/12e52551f5bc7c91fb8be16038fbab6fa0a62521))
+* Vue (radiogroup and checkbox questions): enableIf in choices property doesn't work correctly [#2807](https://github.com/surveyjs/survey-library/issues/2807) ([c5e90a7](https://github.com/surveyjs/survey-library/commit/c5e90a748c175e43b9a1cf3c0d51755650685ef0))
+
 ### [1.8.43](https://github.com/surveyjs/survey-library/compare/v1.8.42...v1.8.43) (2021-04-14)
 
 

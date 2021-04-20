@@ -45,7 +45,7 @@
     "watch_knockout_ui": "webpack --config ./build-scripts/survey-knockout-ui/webpack.config.js --env.buildType dev --watch",
     "watch_react_ui": "webpack --config ./build-scripts/survey-react-ui/webpack.config.js --env.buildType dev --watch"
   },
-  "version": "1.8.43",
+  "version": "1.8.44",
   "name": "survey-library",
   "private": true,
   "devDependencies": {

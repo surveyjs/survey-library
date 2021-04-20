@@ -34,14 +34,13 @@ export class MatrixDropdownRowModel extends MatrixDropdownRowModelBase {
 /**
  * A Model for a matrix dropdown question. You may use a dropdown, checkbox, radiogroup, text and comment questions as a cell editors.
  */
-export class QuestionMatrixDropdownModel
-  extends QuestionMatrixDropdownModelBase
+export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
   implements IMatrixDropdownData {
   constructor(name: string) {
     super(name);
     this.createLocalizableString("totalText", this, true);
     var self = this;
-    this.registerFunctionOnPropertyValueChanged("rows", function () {
+    this.registerFunctionOnPropertyValueChanged("rows", function() {
       self.clearGeneratedRows();
       self.resetRenderedTable();
       self.filterItems();
@@ -171,6 +170,9 @@ export class QuestionMatrixDropdownModel
   ): MatrixDropdownRowModel {
     return new MatrixDropdownRowModel(item.value, item, this, value);
   }
+  protected getSearchableItemValueKeys(keys: Array<string>) {
+    keys.push("rows");
+  }
 }
 
 Serializer.addClass(
@@ -183,13 +185,13 @@ Serializer.addClass(
     "rowTitleWidth",
     { name: "totalText", serializationProperty: "locTotalText" },
   ],
-  function () {
+  function() {
     return new QuestionMatrixDropdownModel("");
   },
   "matrixdropdownbase"
 );
 
-QuestionFactory.Instance.registerQuestion("matrixdropdown", (name) => {
+QuestionFactory.Instance.registerQuestion("matrixdropdown", name => {
   var q = new QuestionMatrixDropdownModel(name);
   q.choices = [1, 2, 3, 4, 5];
   q.rows = QuestionFactory.DefaultColums;

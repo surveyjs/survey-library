@@ -630,10 +630,10 @@ export class PanelModelBase extends SurveyElement
   public set requiredIf(val: string) {
     this.setPropertyValue("requiredIf", val);
   }
-  public findText(text: string, founded: Array<IFindElement>) {
-    super.findText(text, founded);
+  public searchText(text: string, founded: Array<IFindElement>) {
+    super.searchText(text, founded);
     for (var i = 0; i < this.elements.length; i++) {
-      (<Base>(<any>this.elements[i])).findText(text, founded);
+      (<Base>(<any>this.elements[i])).searchText(text, founded);
     }
   }
   /**

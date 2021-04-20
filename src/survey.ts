@@ -5725,10 +5725,11 @@ export class SurveyModel extends Base
   ): any {
     return item;
   }
-  public findText(text: string): Array<IFindElement> {
+  public searchText(text: string): Array<IFindElement> {
+    if (!!text) text = text.toLowerCase();
     var res: Array<IFindElement> = [];
     for (var i = 0; i < this.pages.length; i++) {
-      this.pages[i].findText(text, res);
+      this.pages[i].searchText(text, res);
     }
     return res;
   }

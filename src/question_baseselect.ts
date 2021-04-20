@@ -1125,6 +1125,9 @@ export class QuestionCheckboxBase extends QuestionSelectBase {
       this.setPropertyValue("colCount", null);
     }
   }
+  protected getSearchableItemValueKeys(keys: Array<string>) {
+    keys.push("choices");
+  }
 }
 Serializer.addClass(
   "selectbase",

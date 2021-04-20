@@ -884,33 +884,37 @@ export class Base {
       }
     }
   }
-  public findText(text: string, founded: Array<IFindElement>) {
+  public searchText(text: string, founded: Array<IFindElement>) {
     var strs: Array<LocalizableString> = [];
-    this.getAllLocalizedStrings(strs);
+    this.getSearchableLocalizedStrings(strs);
     for (var i = 0; i < strs.length; i++) {
       if (strs[i].setFindText(text)) {
         founded.push({ element: this, str: strs[i] });
       }
     }
   }
-  protected getAllLocalizedStrings(arr: Array<LocalizableString>) {
+  private getSearchableLocalizedStrings(arr: Array<LocalizableString>) {
     if (!!this.localizableStrings) {
-      for (let key in this.localizableStrings) {
-        let item = this.getLocalizableString(key);
+      let keys: Array<string> = [];
+      this.getSearchableLocKeys(keys);
+      for (var i = 0; i < keys.length; i++) {
+        let item = this.getLocalizableString(keys[i]);
         if (item) arr.push(item);
       }
     }
     if (!this.arraysInfo) return;
-    for (let key in this.arraysInfo) {
-      let item = this.arraysInfo[key];
-      if (!item || !item.isItemValues) continue;
-      var items = this.getPropertyValue(key);
+    let keys: Array<string> = [];
+    this.getSearchableItemValueKeys(keys);
+    for (var i = 0; i < keys.length; i++) {
+      var items = this.getPropertyValue(keys[i]);
       if (!items) continue;
-      for (var i = 0; i < items.length; i++) {
-        arr.push(items[i].locText);
+      for (var j = 0; j < items.length; j++) {
+        arr.push(items[j].locText);
       }
     }
   }
+  protected getSearchableLocKeys(keys: Array<string>) {}
+  protected getSearchableItemValueKeys(keys: Array<string>) {}
   protected AddLocStringToUsedLocales(
     locStr: LocalizableString,
     locales: Array<string>
@@ -1575,6 +1579,10 @@ export class SurveyElement extends Base implements ISurveyElement {
     if (val) {
       val.addElement(<IElement>(<any>this), -1);
     }
+  }
+  protected getSearchableLocKeys(keys: Array<string>) {
+    keys.push("title");
+    keys.push("description");
   }
 }
 

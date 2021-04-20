@@ -48,6 +48,7 @@ export class LocalizableString implements ILocalizableString {
     return this.owner && this.owner.getLocale ? this.owner.getLocale() : "";
   }
   public strChanged() {
+    this.searchableText = undefined;
     if (this.renderedText === undefined) return;
     this.calculatedTextValue = this.calText();
     if (this.renderedText !== this.calculatedTextValue) {
@@ -203,10 +204,15 @@ export class LocalizableString implements ILocalizableString {
     if (!obj || !obj.values) return false;
     return Helpers.isTwoValueEquals(this.values, obj.values);
   }
+  private searchableText: string;
   public setFindText(text: string): boolean {
     if (this.searchText == text) return;
     this.searchText = text;
-    var str = this.textOrHtml;
+    if (!this.searchableText) {
+      let textOrHtml = this.textOrHtml;
+      this.searchableText = !!textOrHtml ? textOrHtml.toLowerCase() : "";
+    }
+    var str = this.searchableText;
     var index = !!str && !!text ? str.indexOf(text) : undefined;
     if (index < 0) index = undefined;
     if (index != undefined || this.searchIndex != index) {

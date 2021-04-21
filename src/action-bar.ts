@@ -112,7 +112,6 @@ export class AdaptiveActionBarItemWrapper extends Base
   implements IActionBarItem {
   constructor(private owner: AdaptiveElement, private item: IActionBarItem) {
     super();
-
     this.needSeparator = item.needSeparator;
   }
 

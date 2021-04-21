@@ -154,4 +154,5 @@ export var settings = {
       onCancel?: () => void
     ) => void
   >undefined,
+  supportCreatorV2: false,
 };

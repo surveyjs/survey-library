@@ -12709,7 +12709,7 @@ QUnit.test("survey logo size", function(assert) {
   survey.logoWidth = "100%";
   assert.equal(survey.logoWidth, "100%", "100%");
 });
-QUnit.test("element.findText()", function(assert) {
+QUnit.test("element.searchText()", function(assert) {
   var survey = new SurveyModel({
     pages: [
       {
@@ -12727,8 +12727,14 @@ QUnit.test("element.findText()", function(assert) {
             choices: ["item1", { value: "item2", text: "Item2" }],
           },
           {
-            type: "matrixdropdown",
+            type: "dropdown",
             name: "question3",
+            title: "Dropdown",
+            choices: ["item1", { value: "item2", text: "Item2" }],
+          },
+          {
+            type: "matrixdropdown",
+            name: "question4",
             columns: [{ name: "col1" }, { name: "col2", title: "Column 1" }],
             rows: ["row1", { value: "row2", text: "Row 2" }],
           },
@@ -12736,7 +12742,7 @@ QUnit.test("element.findText()", function(assert) {
             type: "panel",
             name: "panel1",
             title: "My panel",
-            elements: [{ type: "text", name: "question3" }],
+            elements: [{ type: "text", name: "question5" }],
           },
         ],
       },
@@ -12745,10 +12751,15 @@ QUnit.test("element.findText()", function(assert) {
       },
     ],
   });
-  var findRes = survey.findText("ques");
+  var findRes = survey.searchText("ques");
   assert.equal(findRes.length, 3, "Find by question title/name");
-  findRes = survey.findText("My");
+  findRes = survey.searchText("My");
   assert.equal(findRes.length, 3, "Find by element title");
-  findRes = survey.findText("");
+  findRes = survey.searchText("");
   assert.equal(findRes.length, 0, "Empty string returns nothing");
+  findRes = survey.searchText("my");
+  assert.equal(findRes.length, 3, "Find by element title, we ignore cases");
+  findRes = survey.searchText("item");
+  assert.equal(findRes.length, 2, "Find choices");
+  assert.equal(findRes[1].element["name"], "question2", "Find choices");
 });

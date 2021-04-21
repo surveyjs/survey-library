@@ -241,7 +241,7 @@ export class ItemValue extends Base {
       : null;
   }
   public getLocale(): string {
-    return this.locText.locale;
+    return this.locText && this.locText.locale || "";
   }
   public get locText(): LocalizableString {
     return this.locTextValue;

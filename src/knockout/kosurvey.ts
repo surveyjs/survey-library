@@ -291,18 +291,20 @@ export class Survey extends SurveyModel {
 }
 
 LocalizableString.prototype["onCreating"] = function() {
-  var self = this;
-  this.koReRender = ko.observable(0);
-  Object.defineProperty(self, "koHasHtml", {
-    get: () => {
-      self.koReRender();
-      return self.hasHtml;
-    },
-  });
-  this.koRenderedHtml = ko.pureComputed(function() {
-    self.koReRender();
-    return self.renderedHtml;
-  });
+  // var self = this;
+  // this.koReRender = ko.observable(0);
+  this.koHasHtml = ko.observable(this.hasHtml);
+  this.koRenderedHtml = ko.observable(this.renderedHtml);
+  // Object.defineProperty(self, "koHasHtml", {
+  //   get: () => {
+  //     self.koReRender();
+  //     return self.hasHtml;
+  //   },
+  // });
+  // this.koRenderedHtml = ko.pureComputed(function() {
+  //   self.koReRender();
+  //   return self.renderedHtml;
+  // });
 };
 
 ItemValue.prototype["onCreating"] = function() {
@@ -310,7 +312,10 @@ ItemValue.prototype["onCreating"] = function() {
 };
 
 LocalizableString.prototype["onChanged"] = function() {
-  this.koReRender(this.koReRender() + 1);
+  // this.koReRender(this.koReRender() + 1);
+  const hasHtml = this.hasHtml;
+  this.koHasHtml(hasHtml);
+  this.koRenderedHtml(hasHtml ? this.getHtmlValue() : this.calculatedText);
 };
 
 ko.components.register("survey", {

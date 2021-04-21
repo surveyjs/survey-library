@@ -478,7 +478,7 @@ QUnit.test("Search text", function(assert) {
     "Search text index is keep equals to 1"
   );
   locString.setFindText("bcde");
-  assert.equal(counter, 3, "callback: 2");
+  assert.equal(counter, 3, "callback: 3");
   assert.equal(
     locString.searchIndex,
     undefined,

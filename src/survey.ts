@@ -2464,6 +2464,7 @@ export class SurveyModel extends Base
     return this.currentPageValue;
   }
   public set currentPage(value: any) {
+    if(this.isLoadingFromJson) return;
     var newPage = this.getPageByObject(value);
     if (!!value && !newPage) return;
     var vPages = this.visiblePages;
@@ -5725,10 +5726,11 @@ export class SurveyModel extends Base
   ): any {
     return item;
   }
-  public findText(text: string): Array<IFindElement> {
+  public searchText(text: string): Array<IFindElement> {
+    if (!!text) text = text.toLowerCase();
     var res: Array<IFindElement> = [];
     for (var i = 0; i < this.pages.length; i++) {
-      this.pages[i].findText(text, res);
+      this.pages[i].searchText(text, res);
     }
     return res;
   }

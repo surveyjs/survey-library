@@ -203,15 +203,15 @@ export class QuestionMatrixModel
     super(name);
     this.cellsValue = new MatrixCells(this);
     var self = this;
-    this.registerFunctionOnPropertyValueChanged("columns", function () {
+    this.registerFunctionOnPropertyValueChanged("columns", function() {
       self.onColumnsChanged();
     });
-    this.registerFunctionOnPropertyValueChanged("rows", function () {
+    this.registerFunctionOnPropertyValueChanged("rows", function() {
       if (!self.filterItems()) {
         self.onRowsChanged();
       }
     });
-    this.registerFunctionOnPropertyValueChanged("hideIfRowsEmpty", function () {
+    this.registerFunctionOnPropertyValueChanged("hideIfRowsEmpty", function() {
       self.updateVisibilityBasedOnRows();
     });
   }
@@ -483,7 +483,7 @@ export class QuestionMatrixModel
     if (!!questionPlainData) {
       var values = this.createValueCopy();
       questionPlainData.isNode = true;
-      questionPlainData.data = Object.keys(values || {}).map((rowName) => {
+      questionPlainData.data = Object.keys(values || {}).map(rowName => {
         var row = this.rows.filter(
           (r: MatrixRowModel) => r.value === rowName
         )[0];
@@ -504,7 +504,7 @@ export class QuestionMatrixModel
           values[rowName]
         );
         if (!!item) {
-          (options.calculations || []).forEach((calculation) => {
+          (options.calculations || []).forEach(calculation => {
             rowDataItem[calculation.propertyName] =
               item[calculation.propertyName];
           });
@@ -588,6 +588,10 @@ export class QuestionMatrixModel
     }
     return value;
   }
+  protected getSearchableItemValueKeys(keys: Array<string>) {
+    keys.push("columns");
+    keys.push("rows");
+  }
 }
 
 Serializer.addClass(
@@ -595,13 +599,13 @@ Serializer.addClass(
   [
     {
       name: "columns:itemvalue[]",
-      baseValue: function () {
+      baseValue: function() {
         return surveyLocalization.getString("matrix_column");
       },
     },
     {
       name: "rows:itemvalue[]",
-      baseValue: function () {
+      baseValue: function() {
         return surveyLocalization.getString("matrix_row");
       },
     },
@@ -614,13 +618,13 @@ Serializer.addClass(
     "isAllRowRequired:boolean",
     "hideIfRowsEmpty:boolean",
   ],
-  function () {
+  function() {
     return new QuestionMatrixModel("");
   },
   "matrixbase"
 );
 
-QuestionFactory.Instance.registerQuestion("matrix", (name) => {
+QuestionFactory.Instance.registerQuestion("matrix", name => {
   var q = new QuestionMatrixModel(name);
   q.rows = QuestionFactory.DefaultRows;
   q.columns = QuestionFactory.DefaultColums;

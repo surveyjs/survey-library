@@ -112,6 +112,9 @@ export class ChoicesRestful extends Base {
   public getItemValueCallback: (item: any) => any;
   public error: SurveyError = null;
   public owner: IQuestion;
+  public createItemValue = (value: any) => {
+    return new ItemValue(value);
+  }
   constructor() {
     super();
   }
@@ -429,7 +432,7 @@ export class ChoicesRestful extends Base {
         var value = !!this.getItemValueCallback
           ? this.getItemValueCallback(itemValue)
           : this.getValue(itemValue);
-        var item = new ItemValue(value);
+        var item = this.createItemValue(value);
         this.setTitle(item, itemValue);
         this.setCustomProperties(item, itemValue);
         if (this.attachOriginalItems) {

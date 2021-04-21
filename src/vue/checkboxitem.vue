@@ -12,7 +12,9 @@
         v-bind:aria-required="question.isRequired"
         :aria-label="item.locText.renderedHtml"
         :aria-invalid="question.errors.length > 0"
-        :aria-describedby="question.errors.length > 0 ? question.id + '_errors' : null"
+        :aria-describedby="
+          question.errors.length > 0 ? question.id + '_errors' : null
+        "
         :class="question.cssClasses.itemControl"
       />
       <input
@@ -26,7 +28,9 @@
         v-bind:aria-required="question.isRequired"
         :aria-label="item.locText.renderedHtml"
         :aria-invalid="question.errors.length > 0"
-        :aria-describedby="question.errors.length > 0 ? question.id + '_errors' : null"
+        :aria-describedby="
+          question.errors.length > 0 ? question.id + '_errors' : null
+        "
         :class="question.cssClasses.itemControl"
       />
       <span :class="question.cssClasses.materialDecorator">
@@ -44,7 +48,9 @@
       </span>
     </label>
     <survey-other-choice
-      v-show="question.hasOther && question.renderedValue && question.isOtherSelected"
+      v-show="
+        question.hasOther && question.renderedValue && question.isOtherSelected
+      "
       v-if="item.value == question.otherItem.value"
       :question="question"
     />
@@ -52,15 +58,20 @@
 </template>
 
 <script lang="ts">
+import { ItemValue, Base } from "survey-core";
 import Vue from "vue";
 import { Component, Prop } from "vue-property-decorator";
+import { BaseVue } from "./base";
 
 @Component
-export class CheckboxItem extends Vue {
+export class CheckboxItem extends BaseVue {
   @Prop() question: any;
-  @Prop() item: any;
+  @Prop() item: ItemValue;
   @Prop() index: any;
   @Prop() hideLabel: boolean;
+  protected getModel(): Base {
+    return this.item;
+  }
   get isAllSelected() {
     return this.question.isAllSelected;
   }

@@ -6,7 +6,7 @@ const template = require("./string-editor.html");
 export class StringEditorViewModel {
   constructor(public locString: any) {}
   get koHasHtml() {
-    return this.locString.koHasHtml;
+    return this.locString.koHasHtml();
   }
   get editValue() {
     return this.locString.koRenderedHtml();

@@ -9,15 +9,22 @@ export class ResponsivityManager {
   private IGNORE_SHRINK_LIMIT_PX: number = 1;
   private previousParentOffset = 0;
   private previousVisibleItemsCount: number = Number.MAX_VALUE;
-  private _itemSizes: Array<number> = undefined;
-  public getItemSizes: () => Array<number>;
+  private _itemsSizes: number[] = undefined;
   public getComputedStyle: (elt: Element) => CSSStyleDeclaration = window.getComputedStyle.bind(window);
 
   constructor(
     protected container: HTMLDivElement,
     private model: AdaptiveElement,
+    private itemsSelector: string,
     private dotsItemSize: number = 48
   ) {}
+
+  protected getDimensions(element: HTMLElement): IDimensions {
+    return {
+      scroll: element.scrollWidth,
+      offset: element.offsetWidth
+    };
+  }
 
   protected getAvailableSpace(): number {
     const style: CSSStyleDeclaration = this.getComputedStyle(this.container);
@@ -28,29 +35,35 @@ export class ResponsivityManager {
     return width;
   }
 
-  protected getDimensions(element: HTMLElement): IDimensions {
-    return {
-      scroll: element.scrollWidth,
-      offset: element.offsetWidth
-    };
+  protected calcItemSize(item: HTMLDivElement): number {
+    return item.offsetWidth;
+  }
+
+  private calcItemsSizes(): number[] {
+    const sizes: number[] = [];
+    this.container.querySelectorAll(this.itemsSelector)
+      .forEach((item: HTMLDivElement) => {
+        sizes.push(this.calcItemSize(item));
+      });
+    return sizes;
+  }
+
+  public get itemsSizes(): number[]  {
+    if (typeof this._itemsSizes === 'undefined') {
+      this._itemsSizes = this.calcItemsSizes();
+    }
+    return this._itemsSizes;
   }
 
   private getVisibleItemsCount(size: number): number {
-    const itemSizes: number[] = this.itemSizes;
-    let currSize: number = this.itemSizes[0];
+    const itemsSizes: number[] = this.itemsSizes;
+    let currSize: number = itemsSizes[0];
     let i = 1;
-    for (; i < itemSizes.length; i++) {
-      if (currSize + itemSizes[i] > size) return i;
-      currSize += itemSizes[i];
+    for (; i < itemsSizes.length; i++) {
+      if (currSize + itemsSizes[i] > size) return i;
+      currSize += itemsSizes[i];
     }
     return i;
-  }
-
-  private get itemSizes() {
-    if (!this._itemSizes) {
-      this._itemSizes = this.getItemSizes();
-    }
-    return this._itemSizes;
   }
 
   public process() {
@@ -63,7 +76,10 @@ export class ResponsivityManager {
       const parentOffsetWidth: number = this.getDimensions(this.container.parentElement).offset;
       if (parentOffsetWidth === this.previousParentOffset) return;
       if (hiddenWidth > this.IGNORE_SHRINK_LIMIT_PX) {
-        if (this.model.canShrink) this.model.shrink();
+        if (this.model.canShrink) {
+          this._itemsSizes = undefined;
+          this.model.shrink();
+        }
         const count: number = this.getVisibleItemsCount(this.getAvailableSpace());
         if (this.previousVisibleItemsCount !== count) {
           this.model.showFirstN(count);
@@ -73,6 +89,7 @@ export class ResponsivityManager {
         if (this.model.canGrow && hiddenWidth <= 0.0 &&
           parentOffsetWidth - this.previousParentOffset > this.dotsItemSize
         ) {
+          this._itemsSizes = undefined;
           this.model.grow();
         }
         this.model.showFirstN(Number.MAX_VALUE);
@@ -87,9 +104,17 @@ export class VerticalResponsivityManager extends ResponsivityManager {
   constructor(
     container: HTMLDivElement,
     model: AdaptiveElement,
+    itemsSelector: string,
     dotsItemSize?: number
   ) {
-    super(container, model, dotsItemSize);
+    super(container, model, itemsSelector, dotsItemSize);
+  }
+
+  protected getDimensions(): IDimensions {
+    return {
+      scroll: this.container.scrollHeight,
+      offset: this.container.offsetHeight,
+    };
   }
 
   protected getAvailableSpace(): number {
@@ -101,10 +126,7 @@ export class VerticalResponsivityManager extends ResponsivityManager {
     return width;
   }
 
-  protected getDimensions(): IDimensions {
-    return {
-      scroll: this.container.scrollHeight,
-      offset: this.container.offsetHeight,
-    };
+  protected calcItemSize(item: HTMLDivElement): number {
+    return item.offsetHeight;
   }
 }

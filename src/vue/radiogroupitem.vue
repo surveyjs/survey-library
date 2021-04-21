@@ -41,15 +41,20 @@
 </template>
 
 <script lang="ts">
+import { ItemValue, Base } from "survey-core";
 import Vue from "vue";
 import { Component, Prop } from "vue-property-decorator";
+import { BaseVue } from "./base";
 
 @Component
-export class RadiogroupItem extends Vue {
+export class RadiogroupItem extends BaseVue {
   @Prop() question: any;
-  @Prop() item: any;
+  @Prop() item: ItemValue;
   @Prop() index: any;
   @Prop() hideLabel: boolean;
+  protected getModel(): Base {
+    return this.item;
+  }
   getLabelClass(item: any) {
     return this.question.getLabelClass(item);
   }

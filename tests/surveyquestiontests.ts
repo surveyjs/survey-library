@@ -3445,6 +3445,19 @@ QUnit.test("QuestionImagePicker 0 item value test", function(assert) {
 });
 
 QUnit.test(
+  "QuestionImagePicker create item value for choices restful test",
+  function(assert) {
+    var question = new QuestionImagePickerModel("q1");
+    const itemValue = question.choicesByUrl.createItemValue("val");
+    assert.equal(
+      itemValue.getType(),
+      "imageitemvalue",
+      "imageitemvalue created"
+    );
+  }
+);
+
+QUnit.test(
   "question visibleIf, enableIf and requiredIf with async functions in expression",
   function(assert) {
     var returnResult1: (res: any) => void;
@@ -4846,5 +4859,112 @@ QUnit.test(
       5,
       "We do not run expressions in display mode"
     );
+  }
+);
+QUnit.test(
+  "Creator V2: add into visibleChoices others/hasOther items in design mode",
+  function(assert) {
+    var json = {
+      elements: [
+        {
+          type: "radiogroup",
+          name: "q1",
+          choices: ["item1", "item2", "item3"],
+        },
+        {
+          type: "checkbox",
+          name: "q2",
+          choices: ["item1", "item2", "item3"],
+        },
+      ],
+    };
+    settings.supportCreatorV2 = true;
+    var survey = new SurveyModel();
+    survey.setDesignMode(true);
+    survey.fromJSON(json);
+    var q1 = <QuestionRadiogroupModel>survey.getQuestionByName("q1");
+    var q2 = <QuestionCheckboxModel>survey.getQuestionByName("q2");
+    assert.equal(q1.visibleChoices.length, 6, "Show None+hasOther+new: 3+3");
+    assert.equal(
+      q2.visibleChoices.length,
+      7,
+      "Show SelectAll+None+hasOther+new: 3+4"
+    );
+
+    assert.equal(q1.visibleChoices[0].value, "item1", "item1 is the first");
+    assert.equal(
+      q1.isItemInList(q1.visibleChoices[0]),
+      true,
+      "item1 is in list"
+    );
+    assert.equal(q1.visibleChoices[5].value, "newitem", "the last is new item");
+
+    assert.equal(
+      q1.isItemInList(q1.visibleChoices[5]),
+      false,
+      "new item is never in the list"
+    );
+
+    assert.equal(q1.visibleChoices[4].value, "none", "index=4, none");
+    assert.equal(
+      q1.isItemInList(q1.visibleChoices[4]),
+      false,
+      "none not in list"
+    );
+    q1.hasNone = true;
+    assert.equal(q1.isItemInList(q1.visibleChoices[4]), true, "none in list");
+
+    assert.equal(q1.visibleChoices[3].value, "other", "index=3, other");
+    assert.equal(
+      q1.isItemInList(q1.visibleChoices[3]),
+      false,
+      "other not in list"
+    );
+    q1.hasOther = true;
+    assert.equal(q1.isItemInList(q1.visibleChoices[3]), true, "other in list");
+
+    assert.equal(q2.visibleChoices[0].value, "selectall", "index=0, selectall");
+    assert.equal(
+      q2.isItemInList(q2.visibleChoices[0]),
+      false,
+      "selectall not in list"
+    );
+    q2.hasSelectAll = true;
+    assert.equal(
+      q2.isItemInList(q2.visibleChoices[0]),
+      true,
+      "selectall in list"
+    );
+
+    settings.supportCreatorV2 = false;
+  }
+);
+QUnit.test(
+  "Creator V2: add into visibleChoices others/hasOther items in design mode, add new question",
+  function(assert) {
+    var json = {
+      elements: [
+        {
+          type: "radiogroup",
+          name: "q1",
+        },
+      ],
+    };
+    settings.supportCreatorV2 = true;
+    var survey = new SurveyModel();
+    survey.setDesignMode(true);
+    survey.fromJSON(json);
+    var q2 = new QuestionCheckboxModel("q2");
+    q2.choices = ["item1", "item2", "item3"];
+    survey.pages[0].addQuestion(q2);
+    var q1 = <QuestionRadiogroupModel>survey.getQuestionByName("q1");
+    (q1.choices = ["item1", "item2", "item3"]),
+      assert.equal(q1.visibleChoices.length, 6, "Show None+hasOther+new: 3+3");
+    assert.equal(
+      q2.visibleChoices.length,
+      7,
+      "Show SelectAll+None+hasOther+new: 3+4"
+    );
+    settings.supportCreatorV2 = false;
   }
 );

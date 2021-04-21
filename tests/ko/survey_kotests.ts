@@ -854,6 +854,7 @@ QUnit.test(
       ],
     };
     var survey = new Survey(json);
+    survey.locStrsChanged();
     var question = <QuestionPanelDynamic>survey.getAllQuestions()[0];
     var panel = <Panel>question.panels[0];
     var pLocTitle = (<Panel>panel.elements[1]).locTitle;
@@ -870,6 +871,41 @@ QUnit.test(
       pLocTitle["koRenderedHtml"](),
       "val1",
       "np1 title is q1.value"
+    );
+  }
+);
+
+QUnit.test(
+  "loc strings changed only once on data assignment",
+  function (assert) {
+    var json = {
+      questions: [
+        { type: "text", name: "q1" },
+        { type: "text", name: "q2", title: "{q1}" },
+      ],
+    };
+    var survey = new Survey(json);
+
+    let callCount = 0;
+    let calls = "";
+    survey.onTextMarkdown.add(function(survey, options) {
+      callCount++;
+      calls += "->" + options.element.name + "." + options.name;
+    });
+  
+    survey.data = {
+      q1: "initial"
+    }
+
+    assert.equal(
+      calls,
+      "->q1.title->q1.commentText->q2.title->q2.commentText",
+      "strings recalculated one time for each string"
+    );
+    assert.equal(
+      callCount,
+      4,
+      "strings recalculated 4 times"
     );
   }
 );
@@ -1609,6 +1645,8 @@ QUnit.test(
     var commentQuestion = <Question>survey.getQuestionByName("comment");
 
     survey.setValue("name", "a");
+    survey.nextPage();
+    
     assert.equal(
       commentQuestion.locTitle["koRenderedHtml"](),
       "a, text",
@@ -1616,7 +1654,6 @@ QUnit.test(
     );
 
     survey.setValue("name", "b");
-    survey.nextPage();
     assert.equal(
       commentQuestion.locTitle["koRenderedHtml"](),
       "b, text",

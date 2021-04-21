@@ -4939,3 +4939,32 @@ QUnit.test(
     settings.supportCreatorV2 = false;
   }
 );
+QUnit.test(
+  "Creator V2: add into visibleChoices others/hasOther items in design mode, add new question",
+  function(assert) {
+    var json = {
+      elements: [
+        {
+          type: "radiogroup",
+          name: "q1",
+        },
+      ],
+    };
+    settings.supportCreatorV2 = true;
+    var survey = new SurveyModel();
+    survey.setDesignMode(true);
+    survey.fromJSON(json);
+    var q2 = new QuestionCheckboxModel("q2");
+    q2.choices = ["item1", "item2", "item3"];
+    survey.pages[0].addQuestion(q2);
+    var q1 = <QuestionRadiogroupModel>survey.getQuestionByName("q1");
+    (q1.choices = ["item1", "item2", "item3"]),
+      assert.equal(q1.visibleChoices.length, 6, "Show None+hasOther+new: 3+3");
+    assert.equal(
+      q2.visibleChoices.length,
+      7,
+      "Show SelectAll+None+hasOther+new: 3+4"
+    );
+    settings.supportCreatorV2 = false;
+  }
+);

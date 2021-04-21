@@ -1711,7 +1711,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     if (this.hasRemoveRows && this.canRemoveRow(row)) {
       actions.push(
         new ActionBarItem({
-          id: "",
+          id: "remove-row",
           location: "end",
           component: "sv-matrix-remove-button",
           data: { row: row, question: this.matrix },
@@ -1721,7 +1721,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     if (row.hasPanel) {
       actions.push(
         new ActionBarItem({
-          id: "",
+          id: "show-detail",
           location: "start",
           component: "sv-matrix-detail-button",
           data: { row: row, question: this.matrix },
@@ -1784,7 +1784,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
   ): QuestionMatrixDropdownRenderedRow {
     var res = new QuestionMatrixDropdownRenderedRow();
     res.row = row;
-    res.className = this.cssClasses.detailRow;
+    res.className += this.cssClasses.detailRow;
     res.isDetailRow = true;
     var buttonCell = new QuestionMatrixDropdownRenderedCell();
     if (this.matrix.hasRowText) {
@@ -1807,6 +1807,11 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     res.cells.push(cell);
     if (!!actionsCell) {
       res.cells.push(actionsCell);
+    }
+    if (
+      typeof this.matrix.onCreateDetailPanelRenderedRowCallback === "function"
+    ) {
+      this.matrix.onCreateDetailPanelRenderedRowCallback(res);
     }
     return res;
   }
@@ -2044,6 +2049,9 @@ export class QuestionMatrixDropdownModelBase
   onCreateDetailPanelCallback: (
     row: MatrixDropdownRowModelBase,
     panel: PanelModel
+  ) => void;
+  onCreateDetailPanelRenderedRowCallback: (
+    renderedRow: QuestionMatrixDropdownRenderedRow
   ) => void;
 
   protected createColumnValues() {

@@ -875,6 +875,41 @@ QUnit.test(
   }
 );
 
+QUnit.test(
+  "loc strings changed only once on data assignment",
+  function (assert) {
+    var json = {
+      questions: [
+        { type: "text", name: "q1" },
+        { type: "text", name: "q2", title: "{q1}" },
+      ],
+    };
+    var survey = new Survey(json);
+
+    let callCount = 0;
+    let calls = "";
+    survey.onTextMarkdown.add(function(survey, options) {
+      callCount++;
+      calls += "->" + options.element.name + "." + options.name;
+    });
+  
+    survey.data = {
+      q1: "initial"
+    }
+
+    assert.equal(
+      calls,
+      "->q1.title->q1.commentText->q2.title->q2.commentText",
+      "strings recalculated one time for each string"
+    );
+    assert.equal(
+      callCount,
+      4,
+      "strings recalculated 4 times"
+    );
+  }
+);
+
 QUnit.test("koSurvey matrix.rowsVisibleIf", function (assert) {
   var survey = new Survey();
   var page = survey.addNewPage("p1");

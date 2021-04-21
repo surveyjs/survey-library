@@ -1,30 +1,26 @@
 import * as ko from "knockout";
 import {
+  ActionBar,
   AdaptiveActionBarItemWrapper,
   AdaptiveElement,
   IActionBarItem,
+  ResponsivityManager,
 } from "survey-core";
-import { ResponsivityManager } from "survey-core";
 import { ImplementorBase } from "../../kobase";
 
 const template = require("./action-bar.html");
 
 export * from "./action-bar-item";
-export * from "./action-bar-separator";
 export * from "./action-bar-item-dropdown";
+export * from "./action-bar-separator";
 
-export class ActionBarViewModel extends AdaptiveElement {
+export class ActionBarViewModel extends ActionBar {
   public itemsSubscription: any;
 
   constructor(_items: Array<IActionBarItem>) {
     super();
     this.itemsSubscription = ko.computed(() => {
-      const wrappers: AdaptiveActionBarItemWrapper[] = [];
-      ko.unwrap(_items).forEach(item => {
-        const wrapper = new AdaptiveActionBarItemWrapper(this, item);
-        wrappers.push(wrapper);
-      });
-      this.items = wrappers;
+      this.setItems(ko.unwrap(_items));
     });
   }
 

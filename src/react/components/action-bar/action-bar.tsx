@@ -1,10 +1,9 @@
 import React from "react";
 import {
-  AdaptiveActionBarItemWrapper,
-  AdaptiveElement,
+  ActionBar,
   IActionBarItem,
   Base,
-  ResponsivityManager
+  ResponsivityManager,
 } from "survey-core";
 import { ReactElementFactory } from "../../element-factory";
 import { SurveyElementBase } from "../../reactquestion_element";
@@ -19,34 +18,26 @@ interface IActionBarProps {
 }
 
 export class SurveyActionBar extends SurveyElementBase<IActionBarProps, any> {
-  private adaptiveElement = new AdaptiveElement();
+  private model = new ActionBar();
   private manager: ResponsivityManager;
   private rootRef: React.RefObject<HTMLDivElement>;
   private updateVisibleItems: any;
 
   constructor(props: IActionBarProps) {
     super(props);
-
-    const sourceItems: Array<IActionBarItem> = this.props.items;
-    this.adaptiveElement.items = sourceItems.map(
-      (item: IActionBarItem, itemIndex: number) => {
-        return new AdaptiveActionBarItemWrapper(this.adaptiveElement, item);
-      }
-    );
+    this.model.setItems(this.props.items);
     this.rootRef = React.createRef();
   }
   componentDidMount() {
     super.componentDidMount();
 
     const container = this.rootRef.current;
-    this.manager = new ResponsivityManager(container, this.adaptiveElement);
+    this.manager = new ResponsivityManager(container, this.model);
     this.manager.getItemSizes = () => {
       const widths: number[] = [];
-      container
-        .querySelectorAll("span.sv-action")
-        .forEach((actionContainer) => {
-          widths.push((actionContainer as HTMLDivElement).offsetWidth);
-        });
+      container.querySelectorAll("span.sv-action").forEach(actionContainer => {
+        widths.push((actionContainer as HTMLDivElement).offsetWidth);
+      });
       return widths;
     };
 
@@ -60,7 +51,7 @@ export class SurveyActionBar extends SurveyElementBase<IActionBarProps, any> {
   }
 
   protected getStateElement(): Base {
-    return this.adaptiveElement;
+    return this.model;
   }
   render(): any {
     if (!this.hasItems) {
@@ -72,7 +63,7 @@ export class SurveyActionBar extends SurveyElementBase<IActionBarProps, any> {
       <div
         ref={this.rootRef}
         className="sv-action-bar"
-        onClick={function (event) {
+        onClick={function(event) {
           event.stopPropagation();
         }}
       >
@@ -82,21 +73,22 @@ export class SurveyActionBar extends SurveyElementBase<IActionBarProps, any> {
   }
 
   get hasItems(): boolean {
-    return (this.adaptiveElement.items || []).length > 0;
+    return (this.model.items || []).length > 0;
   }
 
   renderItems() {
-    return this.adaptiveElement.items.map(
-      (item: AdaptiveActionBarItemWrapper, itemIndex: number) => {
-        if (!item.visible && item.visible !== undefined) {
-          return null;
-        }
-        return <SurveyAction item={item} key={"item" + itemIndex}></SurveyAction>;
+    return this.model.items.map((item: IActionBarItem, itemIndex: number) => {
+      if (!item.visible && item.visible !== undefined) {
+        return null;
       }
-    );
+      return <SurveyAction item={item} key={"item" + itemIndex}></SurveyAction>;
+    });
   }
 }
 
-ReactElementFactory.Instance.registerElement("sv-action-bar", (props) => {
-  return React.createElement(SurveyActionBar, (props as any) as IActionBarProps);
+ReactElementFactory.Instance.registerElement("sv-action-bar", props => {
+  return React.createElement(
+    SurveyActionBar,
+    (props as any) as IActionBarProps
+  );
 });

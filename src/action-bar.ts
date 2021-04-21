@@ -79,6 +79,7 @@ export interface IActionBarItem {
    * - `end` - An action is located at the end of a row.
    */
   location?: string;
+  visibleIndex?: number;
 }
 
 export class ActionBarItem extends Base implements IActionBarItem {
@@ -86,6 +87,7 @@ export class ActionBarItem extends Base implements IActionBarItem {
     super();
     Object.assign(this, item);
   }
+  location?: string;
   @property() id: string;
   @property() visible?: (() => boolean) | boolean;
   @property() title?: (() => string) | string;
@@ -103,6 +105,7 @@ export class ActionBarItem extends Base implements IActionBarItem {
   @property() component?: string;
   @property() iconName?: (() => string) | string;
   @property() items?: any;
+  @property() visibleIndex?: number;
 }
 
 export class AdaptiveActionBarItemWrapper extends Base
@@ -111,6 +114,10 @@ export class AdaptiveActionBarItemWrapper extends Base
     super();
 
     this.needSeparator = item.needSeparator;
+  }
+
+  public get visibleIndex(): number {
+    return this.item.visibleIndex;
   }
 
   public get wrappedItem(): IActionBarItem {
@@ -266,5 +273,34 @@ export class AdaptiveElement extends Base {
   }
   public grow() {
     this.showTitles = true;
+  }
+}
+
+export class ActionBar extends AdaptiveElement {
+  constructor() {
+    super();
+  }
+  public setItems(items: Array<IActionBarItem>) {
+    var setItems = this.wrapItems(items);
+    setItems = this.sortItems(items);
+    this.items = setItems;
+  }
+  private wrapItems(
+    items: Array<IActionBarItem>
+  ): Array<AdaptiveActionBarItemWrapper> {
+    return items.map((item: IActionBarItem) => {
+      return new AdaptiveActionBarItemWrapper(this, item);
+    });
+  }
+  private sortItems(items: Array<IActionBarItem>) {
+    return []
+      .concat(
+        items.filter(
+          item => item.visibleIndex >= 0 || item.visibleIndex === undefined
+        )
+      )
+      .sort((firstItem, secondItem) => {
+        return firstItem.visibleIndex - secondItem.visibleIndex;
+      });
   }
 }

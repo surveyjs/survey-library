@@ -2464,6 +2464,7 @@ export class SurveyModel extends Base
     return this.currentPageValue;
   }
   public set currentPage(value: any) {
+    if(this.isLoadingFromJson) return;
     var newPage = this.getPageByObject(value);
     if (!!value && !newPage) return;
     var vPages = this.visiblePages;

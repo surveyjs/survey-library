@@ -39,17 +39,7 @@ export class SurveyActionBar extends SurveyElementBase<IActionBarProps, any> {
     super.componentDidMount();
 
     const container = this.rootRef.current;
-    this.manager = new ResponsivityManager(container, this.adaptiveElement);
-    this.manager.getItemSizes = () => {
-      const widths: number[] = [];
-      container
-        .querySelectorAll("span.sv-action")
-        .forEach((actionContainer) => {
-          widths.push((actionContainer as HTMLDivElement).offsetWidth);
-        });
-      return widths;
-    };
-
+    this.manager = new ResponsivityManager(container, this.adaptiveElement, 'span.sv-action');
     this.updateVisibleItems = setInterval(() => {
       this.manager.process();
     }, 100);

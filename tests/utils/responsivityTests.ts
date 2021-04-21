@@ -31,16 +31,17 @@ class SimpleContainer {
   }
 }
 
-var getItemSizes = () => [5, 5, 5, 5, 5, 5, 5];
+const querySelectorAll: () => { offsetWidth: number }[] = () => Array(7).fill({ offsetWidth: 5 });
 
 QUnit.test("Check on element with box-sizing: content-box", function (assert) {
-  var container: any = new SimpleContainer({
+  const container: any = new SimpleContainer({
     offsetWidth: 30,
     scrollWidth: 30,
+    querySelectorAll: querySelectorAll
   });
-  var model = new TestModel();
-  var manager = new ResponsivityManager(<any>container, <any>model, 5);
-  manager.getItemSizes = getItemSizes;
+  const model: TestModel = new TestModel();
+  const manager: ResponsivityManager =
+    new ResponsivityManager(<any>container, <any>model, '', 5);
   (<any>manager.getComputedStyle) = () => {
     return {
       boxSizing: "content-box",
@@ -77,13 +78,14 @@ QUnit.test("Check on element with box-sizing: content-box", function (assert) {
 });
 
 QUnit.test("Check on element with box-sizing: border-box", function (assert) {
-  var container: any = new SimpleContainer({
+  const container: any = new SimpleContainer({
     offsetWidth: 30,
     scrollWidth: 30,
+    querySelectorAll: querySelectorAll
   });
-  var model = new TestModel();
-  var manager = new ResponsivityManager(<any>container, <any>model, 5);
-  manager.getItemSizes = getItemSizes;
+  const model: TestModel = new TestModel();
+  const manager: ResponsivityManager =
+    new ResponsivityManager(<any>container, <any>model, '', 5);
   (<any>manager.getComputedStyle) = () => {
     return {
       boxSizing: "border-box",
@@ -108,14 +110,15 @@ QUnit.test("Check on element with box-sizing: border-box", function (assert) {
 });
 
 QUnit.test("Check on model which can shrink and grow", function (assert) {
-  var container: any = new SimpleContainer({
+  const container: any = new SimpleContainer({
     offsetWidth: 30,
     scrollWidth: 30,
+    querySelectorAll: querySelectorAll
   });
-  var model = new TestModel();
+  const model: TestModel = new TestModel();
   model.canGrowValue = true;
-  var manager = new ResponsivityManager(<any>container, model, 5);
-  manager.getItemSizes = getItemSizes;
+  const manager: ResponsivityManager =
+    new ResponsivityManager(<any>container, model, '', 5);
   (<any>manager.getComputedStyle) = () => {
     return { boxSizing: "content-box" };
   };
@@ -154,13 +157,11 @@ QUnit.test("Check on model which can shrink and grow", function (assert) {
 });
 
 QUnit.test("Check on element with parent's changing width", function (assert) {
-  var container: any = { offsetWidth: 30, scrollWidth: 30 };
-  var parentElement: any = { offsetWidth: 30, scrollWidth: 30 };
-  container.parentElement = parentElement;
-  var model = new TestModel();
+  const container: any = new SimpleContainer({ offsetWidth: 30, scrollWidth: 30, querySelectorAll: querySelectorAll });
+  container.parentElement = { offsetWidth: 30, scrollWidth: 30 };
+  const model: TestModel = new TestModel();
   model.canGrowValue = true;
-  var manager = new ResponsivityManager(<any>container, model, 5);
-  manager.getItemSizes = getItemSizes;
+  const manager: ResponsivityManager = new ResponsivityManager(<any>container, model, '', 5);
   (<any>manager.getComputedStyle) = () => {
     return { boxSizing: "content-box" };
   };
@@ -193,14 +194,14 @@ QUnit.test("Check on element with parent's changing width", function (assert) {
 QUnit.test(
   "Check on element when last item with bigger of equal size than dots item's",
   function (assert) {
-    const container: SimpleContainer = new SimpleContainer({ offsetWidth: 5, scrollWidth: 11 });
+    const container: SimpleContainer =
+      new SimpleContainer({ offsetWidth: 5, scrollWidth: 11,
+        querySelectorAll: () => [ { offsetWidth: 11 } ]});
     const model: TestModel = new TestModel();
-    const manager: ResponsivityManager = new ResponsivityManager(<any>container, <any>model, 11);
+    const manager: ResponsivityManager =
+      new ResponsivityManager(<any>container, <any>model, '', 11);
     (<any>manager.getComputedStyle) = () => {
       return { boxSizing: "content-box" };
-    };
-    manager.getItemSizes = () => {
-      return [11];
     };
     manager.process();
     assert.equal(model.visibleElementsCount, 1);

@@ -50,18 +50,8 @@ ko.components.register("sv-action-bar", {
       const model = new ActionBarViewModel(params.items);
       new AdaptiveElementImplementor(model);
 
-      const container: HTMLDivElement =
-        componentInfo.element.nextElementSibling;
-      const manager = new ResponsivityManager(container, model);
-      manager.getItemSizes = () => {
-        const widths: number[] = [];
-        container
-          .querySelectorAll("span.sv-action")
-          .forEach(actionContainer => {
-            widths.push((<HTMLDivElement>actionContainer).offsetWidth);
-          });
-        return widths;
-      };
+      const container: HTMLDivElement = componentInfo.element.nextElementSibling;
+      const manager: ResponsivityManager = new ResponsivityManager(container, model, 'span.sv-action');
       const updateVisibleItems = setInterval(() => {
         manager.process();
         ko.tasks.runEarly();

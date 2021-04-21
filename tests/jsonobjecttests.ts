@@ -1840,6 +1840,7 @@ QUnit.test("itemvalues (array) save localized text", function (assert) {
   question.locOwner = <any>{
     getLocale: () => "de",
     doPropertyValueChangedCallback: () => {},
+    getMarkdownHtml: text => text
   };
   question["customArray"][0].text = "text de";
 

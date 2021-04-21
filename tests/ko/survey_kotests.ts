@@ -854,6 +854,7 @@ QUnit.test(
       ],
     };
     var survey = new Survey(json);
+    survey.locStrsChanged();
     var question = <QuestionPanelDynamic>survey.getAllQuestions()[0];
     var panel = <Panel>question.panels[0];
     var pLocTitle = (<Panel>panel.elements[1]).locTitle;
@@ -1609,6 +1610,8 @@ QUnit.test(
     var commentQuestion = <Question>survey.getQuestionByName("comment");
 
     survey.setValue("name", "a");
+    survey.nextPage();
+    
     assert.equal(
       commentQuestion.locTitle["koRenderedHtml"](),
       "a, text",
@@ -1616,7 +1619,6 @@ QUnit.test(
     );
 
     survey.setValue("name", "b");
-    survey.nextPage();
     assert.equal(
       commentQuestion.locTitle["koRenderedHtml"](),
       "b, text",

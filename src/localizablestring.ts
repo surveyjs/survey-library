@@ -54,8 +54,8 @@ export class LocalizableString implements ILocalizableString {
     if (this.renderedText !== this.calculatedTextValue) {
       this.renderedText = undefined;
       this.calculatedTextValue = undefined;
-      this.onChanged();
     }
+    this.onChanged();
   }
   public get text(): string {
     return this.pureText;
@@ -239,7 +239,7 @@ export class LocalizableString implements ILocalizableString {
     );
     return (<any>this).htmlValues[loc] ? true : false;
   }
-  private getHtmlValue(): string {
+  public getHtmlValue(): string {
     var loc = this.locale;
     if (!loc) loc = settings.defaultLocaleName;
     return (<any>this).htmlValues[loc];

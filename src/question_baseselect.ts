@@ -755,6 +755,9 @@ export class QuestionSelectBase extends Question {
   public setSurveyImpl(value: ISurveyImpl) {
     super.setSurveyImpl(value);
     this.runChoicesByUrl();
+    if (this.isAddDefaultItems) {
+      this.updateVisibleChoices();
+    }
   }
   protected getStoreOthersAsComment() {
     if (this.isSettingDefaultValue) return false;

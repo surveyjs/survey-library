@@ -4,7 +4,7 @@
     ref="container"
     class="sv-action-bar"
     v-on:click="
-      event => {
+      (event) => {
         event.stopPropagation();
       }
     "
@@ -27,7 +27,11 @@
 <script lang="ts">
 import { Component, Prop } from "vue-property-decorator";
 import Vue from "vue";
-import { ActionBar, IActionBarItem } from "survey-core";
+import {
+  AdaptiveActionBarItemWrapper,
+  AdaptiveElement,
+  IActionBarItem,
+} from "survey-core";
 
 export * from "./action-bar-item.vue";
 export * from "./action-bar-item-dropdown.vue";
@@ -36,15 +40,20 @@ export * from "./action-bar-separator.vue";
 @Component
 export class ActionBarViewModel extends Vue {
   @Prop() items: Array<IActionBarItem>;
-  private model = new ActionBar();
+  private adaptiveElement = new AdaptiveElement();
 
   constructor() {
     super();
-    this.model.setItems(this.items);
+    const sourceItems: Array<IActionBarItem> = this.items;
+    this.adaptiveElement.items = sourceItems.map(
+      (item: IActionBarItem, itemIndex: number) => {
+        return new AdaptiveActionBarItemWrapper(this.adaptiveElement, item);
+      }
+    );
   }
 
   get wrappedItems() {
-    return this.model.items;
+    return this.adaptiveElement.items;
   }
 
   getComponentName(item: any) {
@@ -52,7 +61,7 @@ export class ActionBarViewModel extends Vue {
   }
 
   get hasItems() {
-    return (this.model.items || []).length > 0;
+    return (this.adaptiveElement.items || []).length > 0;
   }
 }
 

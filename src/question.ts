@@ -174,6 +174,7 @@ export class Question extends SurveyElement
     this.initDataFromSurvey();
   }
   protected onNameChanged(oldValue: string) {
+    this.locTitle.onChanged();
     if (!this.survey) return;
     this.survey.questionRenamed(
       this,
@@ -318,11 +319,13 @@ export class Question extends SurveyElement
     };
   }
   private runConditions() {
-    if (this.data && !this.isLoadingFromJson && !this.isDesignMode) {
-      this.runCondition(
-        this.getDataFilteredValues(),
-        this.getDataFilteredProperties()
-      );
+    if (this.data && !this.isLoadingFromJson) {
+      if(!this.isDesignMode) {
+        this.runCondition(
+          this.getDataFilteredValues(),
+          this.getDataFilteredProperties()
+        );
+      }
       this.locStrsChanged();
     }
   }

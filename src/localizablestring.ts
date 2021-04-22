@@ -32,7 +32,7 @@ export class LocalizableString implements ILocalizableString {
   private renderedText: string;
   private calculatedTextValue: string;
   public onGetTextCallback: (str: string) => string;
-  public onStrChanged: () => void;
+  public onStrChanged: (oldValue: string, newValue: string) => void;
   public onSearchChanged: () => void;
   public sharedData: LocalizableString;
   public searchText: string;
@@ -111,7 +111,12 @@ export class LocalizableString implements ILocalizableString {
     return this.textOrHtml;
   }
   public set text(value: string) {
+    var hasOnStrChanged = this.onStrChanged;
+    var oldValue = hasOnStrChanged ? this.pureText : undefined;
     this.setLocaleText(this.locale, value);
+    if (hasOnStrChanged) {
+      this.onStrChanged(oldValue, value);
+    }
   }
   public getLocaleText(loc: string): string {
     if (!loc) loc = settings.defaultLocaleName;
@@ -223,9 +228,7 @@ export class LocalizableString implements ILocalizableString {
     }
     return this.searchIndex != undefined;
   }
-  public onChanged() {
-    if (this.onStrChanged) this.onStrChanged();
-  }
+  public onChanged() {}
   protected onCreating() {}
   private hasHtmlValue(): boolean {
     if (!this.owner || !this.useMarkdown) return false;

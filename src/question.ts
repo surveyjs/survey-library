@@ -174,6 +174,7 @@ export class Question extends SurveyElement
     this.initDataFromSurvey();
   }
   protected onNameChanged(oldValue: string) {
+    this.locTitle.onChanged();
     if (!this.survey) return;
     this.survey.questionRenamed(
       this,

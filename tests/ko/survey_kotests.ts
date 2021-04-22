@@ -2054,3 +2054,35 @@ QUnit.test(
     );
   }
 );
+
+QUnit.test(
+  "Question KO title changed on name",
+  function(assert) {
+    var survey = new Survey();
+    survey.locale = "";
+    survey.addNewPage();
+    var q2 = new QuestionCheckbox("q2");
+    survey.pages[0].addQuestion(q2);
+    assert.equal(
+      q2.locTitle.renderedHtml,
+      "q2",
+      "question default title"
+    );
+    assert.equal(
+      q2.locTitle["koRenderedHtml"](),
+      "q2",
+      "question default title KO"
+    );
+    q2.name = "q3";
+    assert.equal(
+      q2.locTitle.renderedHtml,
+      "q3",
+      "question changed title"
+    );
+    assert.equal(
+      q2.locTitle["koRenderedHtml"](),
+      "q3",
+      "question changed title KO"
+    );
+  }
+);

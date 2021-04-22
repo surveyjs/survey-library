@@ -4730,6 +4730,38 @@ QUnit.test("choicesFromQuestion predefined data, Bug#2648", function(assert) {
   assert.ok(q2.choicesFromQuestion, "choicesFromQuestion is here");
   assert.equal(q2.visibleChoices.length, 3, "Get choices from q1.value");
 });
+QUnit.test(
+  "choicesFromQuestion hasSelectAll, hasNone, hasOther properties, Bug#",
+  function(assert) {
+    var survey = new SurveyModel({
+      elements: [
+        {
+          type: "checkbox",
+          name: "q1",
+          choices: [1, 2, 3],
+          hasSelectAll: true,
+          hasNone: true,
+          hasOther: true,
+        },
+        {
+          type: "checkbox",
+          name: "q2",
+          choicesFromQuestion: "q1",
+          hasSelectAll: true,
+          hasNone: true,
+          hasOther: true,
+        },
+      ],
+    });
+    var q2 = <QuestionCheckboxModel>survey.getQuestionByName("q2");
+    assert.ok(q2.choicesFromQuestion, "choicesFromQuestion is here");
+    assert.equal(
+      q2.visibleChoices.length,
+      6,
+      "We do not duplicate selectedAll, none and other"
+    );
+  }
+);
 QUnit.test("text question dataList", function(assert) {
   var survey = new SurveyModel({
     elements: [

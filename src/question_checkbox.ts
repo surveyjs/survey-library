@@ -1,6 +1,9 @@
 import { Serializer } from "./jsonobject";
 import { QuestionFactory } from "./questionfactory";
-import { QuestionCheckboxBase } from "./question_baseselect";
+import {
+  QuestionCheckboxBase,
+  QuestionSelectBase,
+} from "./question_baseselect";
 import { Helpers } from "./helpers";
 import { ItemValue } from "./itemvalue";
 import { surveyLocalization } from "./surveyStrings";
@@ -259,6 +262,15 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
       items.unshift(this.selectAllItem);
     }
     super.addToVisibleChoices(items, isAddAll);
+  }
+  protected isBuiltInChoice(
+    item: ItemValue,
+    question: QuestionSelectBase
+  ): boolean {
+    return (
+      item === (<QuestionCheckboxBase>question).selectAllItem ||
+      super.isBuiltInChoice(item, question)
+    );
   }
   /**
    * For internal use in SurveyJS Creator V2.

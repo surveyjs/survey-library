@@ -699,15 +699,11 @@ export class QuestionSelectBase extends Question {
       ? this.filteredChoicesValue
       : this.activeChoices;
   }
-  private otherQuestionActiveChoices: Array<ItemValue>;
   protected get activeChoices(): Array<ItemValue> {
     var question = this.getQuestionWithChoices();
     if (!!question) {
       this.addIntoDependedQuestion(question);
-      this.otherQuestionActiveChoices = this.getChoicesFromQuestion(question);
-      return !!this.otherQuestionActiveChoices
-        ? this.otherQuestionActiveChoices
-        : question.visibleChoices;
+      return this.getChoicesFromQuestion(question);
     }
     return this.choicesFromUrl ? this.choicesFromUrl : this.getChoices();
   }
@@ -719,21 +715,36 @@ export class QuestionSelectBase extends Question {
   protected getChoicesFromQuestion(
     question: QuestionSelectBase
   ): Array<ItemValue> {
-    if (
-      this.choicesFromQuestionMode !== "selected" &&
-      this.choicesFromQuestionMode !== "unselected"
-    )
-      return null;
     var res: Array<ItemValue> = [];
-    var isSelected = this.choicesFromQuestionMode == "selected";
+    var isSelected =
+      this.choicesFromQuestionMode == "selected"
+        ? true
+        : this.choicesFromQuestionMode == "unselected"
+        ? false
+        : undefined;
     var choices = question.visibleChoices;
     for (var i = 0; i < choices.length; i++) {
+      if (this.isBuiltInChoice(choices[i], question)) continue;
+      if (isSelected === undefined) {
+        res.push(choices[i]);
+        continue;
+      }
       var itemsSelected = question.isItemSelected(choices[i]);
       if ((itemsSelected && isSelected) || (!itemsSelected && !isSelected)) {
         res.push(choices[i]);
       }
     }
     return res;
+  }
+  protected isBuiltInChoice(
+    item: ItemValue,
+    question: QuestionSelectBase
+  ): boolean {
+    return (
+      item === question.noneItem ||
+      item === question.otherItem ||
+      item === question.newItemValue
+    );
   }
   protected getChoices(): Array<ItemValue> {
     return this.choices;

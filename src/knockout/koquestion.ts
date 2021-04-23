@@ -139,6 +139,7 @@ export class QuestionImplementor extends ImplementorBase {
     this.question.locTitle.onChanged();
   }
   protected koQuestionAfterRender(elements: any, con: any) {
+    ko.tasks.runEarly();
     var el = SurveyElement.GetFirstNonTextElement(elements, true);
     if (!!el) {
       this.question.afterRenderQuestionElement(el);

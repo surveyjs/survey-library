@@ -1620,7 +1620,7 @@ export class SurveyModel extends Base
    * @see logo
    */
   public get logoWidth(): any {
-    var width = this.getPropertyValue("logoWidth", 300);
+    var width = this.getPropertyValue("logoWidth");
     return this.getSize(width);
   }
   public set logoWidth(value: any) {
@@ -1631,7 +1631,7 @@ export class SurveyModel extends Base
    * @see logo
    */
   public get logoHeight(): any {
-    var height = this.getPropertyValue("logoHeight", 200);
+    var height = this.getPropertyValue("logoHeight");
     return this.getSize(height);
   }
   public set logoHeight(value: any) {

@@ -838,6 +838,9 @@ export class Base {
     useMarkDown: boolean = false
   ): LocalizableString {
     var locStr = new LocalizableString(owner, useMarkDown, name);
+    locStr.onStrChanged = (oldValue: string, newValue: string) => {
+      this.propertyValueChanged(name, oldValue, newValue);
+    };
     if (!this.localizableStrings) {
       this.localizableStrings = {};
     }
@@ -859,10 +862,7 @@ export class Base {
   public setLocalizableStringText(name: string, value: string) {
     var locStr = this.getLocalizableString(name);
     if (!locStr) return;
-    var oldValue = locStr.text;
-    if (oldValue === value) return;
     locStr.text = value;
-    this.propertyValueChanged(name, oldValue, value);
   }
   public addUsedLocales(locales: Array<string>) {
     if (!!this.localizableStrings) {

@@ -134,6 +134,12 @@ QUnit.test("Edit question title property", function(assert) {
   assert.equal(question.title, "q1 title", "set title property correctly");
   survey.setValue("title", "");
   assert.equal(question.title, "q1", "get title property from name");
+  question.locTitle.text = "Question 1";
+  assert.equal(
+    survey.getQuestionByName("title").value,
+    "Question 1",
+    "Update text on changing locTitle.text"
+  );
 });
 QUnit.test("Edit question title property, setup initial value", function(
   assert
@@ -353,6 +359,43 @@ QUnit.test("Edit choices in matrix", function(assert) {
     question.choices[0].text,
     "Item 1",
     "set text property from matrix"
+  );
+});
+QUnit.test("Edit choices in matrix", function(assert) {
+  var question = new QuestionDropdownModel("q1");
+  question.choices = [{ value: "item1" }, { value: "item2", text: "Item 2" }];
+  var survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdynamic",
+        name: "choices",
+        rowCount: 0,
+        columns: [
+          { cellType: "text", name: "value" },
+          { cellType: "text", name: "text" },
+        ],
+      },
+    ],
+  });
+  survey.editingObj = question;
+  var matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("choices");
+  assert.equal(matrix.visibleRows.length, 2, "two choice");
+  assert.equal(
+    matrix.visibleRows[0].cells[1].question.isEmpty(),
+    true,
+    "by default value is empty"
+  );
+  question.choices[0].locText.text = "My Text";
+  assert.equal(
+    matrix.visibleRows[0].cells[1].question.value,
+    "My Text",
+    "Update text accordingly"
+  );
+  question.choices[0].locText.text = "item1";
+  assert.equal(
+    matrix.visibleRows[0].cells[1].question.isEmpty(),
+    true,
+    "text is equal to value"
   );
 });
 

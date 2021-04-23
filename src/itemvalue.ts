@@ -212,6 +212,12 @@ export class ItemValue extends Base {
   ) {
     super();
     this.locTextValue = new LocalizableString(null, true);
+    this.locTextValue.onStrChanged = (oldValue: string, newValue: string) => {
+      if (newValue == this.value) {
+        newValue = undefined;
+      }
+      this.propertyValueChanged("text", oldValue, newValue);
+    };
     this.locTextValue.onGetTextCallback = txt => {
       return txt
         ? txt
@@ -241,7 +247,7 @@ export class ItemValue extends Base {
       : null;
   }
   public getLocale(): string {
-    return this.locText && this.locText.locale || "";
+    return (this.locText && this.locText.locale) || "";
   }
   public get locText(): LocalizableString {
     return this.locTextValue;
@@ -286,9 +292,7 @@ export class ItemValue extends Base {
     return this.locText.calculatedText; //TODO: it will be correct to use this.locText.text, however it would require a lot of rewriting in Creator
   }
   public set text(newText: string) {
-    const oldText = this.locText.text;
     this.locText.text = newText;
-    this.propertyValueChanged("text", oldText, newText);
   }
   public get calculatedText() {
     return this.locText.calculatedText;

@@ -2166,7 +2166,7 @@ export class SurveyModel extends Base
     this.setPropertyValue("questionErrorLocation", value.toLowerCase());
   }
   /**
-   * Gets or sets the question description position.
+   * Gets or sets the question description position. The default value is `underTitle`.
    *
    * The following options are available:
    *
@@ -2464,7 +2464,7 @@ export class SurveyModel extends Base
     return this.currentPageValue;
   }
   public set currentPage(value: any) {
-    if(this.isLoadingFromJson) return;
+    if (this.isLoadingFromJson) return;
     var newPage = this.getPageByObject(value);
     if (!!value && !newPage) return;
     var vPages = this.visiblePages;

@@ -393,7 +393,7 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     if (!val || !Array.isArray(val)) val = [];
     for (var i = 0; i < val.length; i++) {
       if (val[i] == this.otherItem.value) return val;
-      if (this.hasUnknownValue(val[i])) {
+      if (this.hasUnknownValue(val[i], true, false)) {
         this.comment = val[i];
         var newVal = val.slice();
         newVal[i] = this.otherItem.value;

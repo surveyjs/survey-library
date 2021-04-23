@@ -2,6 +2,7 @@ import React from "react";
 import {
   ActionBar,
   IActionBarItem,
+  AdaptiveActionBarItemWrapper,
   Base,
   ResponsivityManager,
 } from "survey-core";
@@ -73,12 +74,16 @@ export class SurveyActionBar extends SurveyElementBase<IActionBarProps, any> {
   }
 
   renderItems() {
-    return this.model.items.map((item: IActionBarItem, itemIndex: number) => {
-      if (!item.visible && item.visible !== undefined) {
-        return null;
+    return this.model.items.map(
+      (item: AdaptiveActionBarItemWrapper, itemIndex: number) => {
+        if (!item.visible && item.visible !== undefined) {
+          return null;
+        }
+        return (
+          <SurveyAction item={item} key={"item" + itemIndex}></SurveyAction>
+        );
       }
-      return <SurveyAction item={item} key={"item" + itemIndex}></SurveyAction>;
-    });
+    );
   }
 }
 

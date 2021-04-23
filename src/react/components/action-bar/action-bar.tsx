@@ -1,7 +1,6 @@
 import React from "react";
 import {
-  AdaptiveActionBarItemWrapper,
-  AdaptiveElement,
+  ActionBar,
   IActionBarItem,
   Base,
   ResponsivityManager,
@@ -19,20 +18,14 @@ interface IActionBarProps {
 }
 
 export class SurveyActionBar extends SurveyElementBase<IActionBarProps, any> {
-  private adaptiveElement = new AdaptiveElement();
+  private model = new ActionBar();
   private manager: ResponsivityManager;
   private rootRef: React.RefObject<HTMLDivElement>;
   private updateVisibleItems: any;
 
   constructor(props: IActionBarProps) {
     super(props);
-
-    const sourceItems: Array<IActionBarItem> = this.props.items;
-    this.adaptiveElement.items = sourceItems.map(
-      (item: IActionBarItem, itemIndex: number) => {
-        return new AdaptiveActionBarItemWrapper(this.adaptiveElement, item);
-      }
-    );
+    this.model.setItems(this.props.items);
     this.rootRef = React.createRef();
   }
   componentDidMount() {
@@ -41,7 +34,7 @@ export class SurveyActionBar extends SurveyElementBase<IActionBarProps, any> {
     const container = this.rootRef.current;
     this.manager = new ResponsivityManager(
       container,
-      this.adaptiveElement,
+      this.model,
       "span.sv-action"
     );
     this.updateVisibleItems = setInterval(() => {
@@ -54,7 +47,7 @@ export class SurveyActionBar extends SurveyElementBase<IActionBarProps, any> {
   }
 
   protected getStateElement(): Base {
-    return this.adaptiveElement;
+    return this.model;
   }
   render(): any {
     if (!this.hasItems) {
@@ -76,20 +69,16 @@ export class SurveyActionBar extends SurveyElementBase<IActionBarProps, any> {
   }
 
   get hasItems(): boolean {
-    return (this.adaptiveElement.items || []).length > 0;
+    return (this.model.items || []).length > 0;
   }
 
   renderItems() {
-    return this.adaptiveElement.items.map(
-      (item: AdaptiveActionBarItemWrapper, itemIndex: number) => {
-        if (!item.visible && item.visible !== undefined) {
-          return null;
-        }
-        return (
-          <SurveyAction item={item} key={"item" + itemIndex}></SurveyAction>
-        );
+    return this.model.items.map((item: IActionBarItem, itemIndex: number) => {
+      if (!item.visible && item.visible !== undefined) {
+        return null;
       }
-    );
+      return <SurveyAction item={item} key={"item" + itemIndex}></SurveyAction>;
+    });
   }
 }
 

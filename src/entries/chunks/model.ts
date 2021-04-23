@@ -168,6 +168,7 @@ export { StylesManager } from "../../stylesmanager";
 export {
   ActionBarItem,
   IActionBarItem,
+  ActionBar,
   AdaptiveActionBarItemWrapper,
   AdaptiveElement,
 } from "../../action-bar";

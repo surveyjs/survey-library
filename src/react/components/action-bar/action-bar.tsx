@@ -1,11 +1,6 @@
 import React from "react";
-import {
-  AdaptiveActionBarItemWrapper,
-  AdaptiveElement,
-  IActionBarItem,
-  Base,
-  ResponsivityManager,
-} from "survey-core";
+import { AdaptiveActionBarItemWrapper, AdaptiveElement,
+  IActionBarItem, Base, ResponsivityManager } from "survey-core";
 import { ReactElementFactory } from "../../element-factory";
 import { SurveyElementBase } from "../../reactquestion_element";
 import { SurveyAction } from "./action-bar-item";
@@ -22,7 +17,6 @@ export class SurveyActionBar extends SurveyElementBase<IActionBarProps, any> {
   private adaptiveElement = new AdaptiveElement();
   private manager: ResponsivityManager;
   private rootRef: React.RefObject<HTMLDivElement>;
-  private updateVisibleItems: any;
 
   constructor(props: IActionBarProps) {
     super(props);
@@ -37,19 +31,12 @@ export class SurveyActionBar extends SurveyElementBase<IActionBarProps, any> {
   }
   componentDidMount() {
     super.componentDidMount();
-
-    const container = this.rootRef.current;
-    this.manager = new ResponsivityManager(
-      container,
-      this.adaptiveElement,
-      "span.sv-action"
-    );
-    this.updateVisibleItems = setInterval(() => {
-      this.manager.process();
-    }, 100);
+    const container: HTMLDivElement = this.rootRef.current;
+    this.manager = new ResponsivityManager(container,
+      this.adaptiveElement, 'span.sv-action');
   }
   componentWillUnmount() {
-    clearInterval(this.updateVisibleItems);
+    this.manager.dispose();
     super.componentWillUnmount();
   }
 

@@ -20,7 +20,9 @@ export class ResponsivityManager {
     private dotsItemSize: number = 48
   ) {
     this.resizeObserver = new ResizeObserver(_ => this.process());
-    this.resizeObserver.observe(this.container.parentElement);
+    if(this.container) { // TODO: remove this temporary check
+      this.resizeObserver.observe(this.container.parentElement);
+    }
   }
 
   protected getDimensions(element: HTMLElement): IDimensions {

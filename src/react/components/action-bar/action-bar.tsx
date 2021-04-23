@@ -31,6 +31,7 @@ export class SurveyActionBar extends SurveyElementBase<IActionBarProps, any> {
   }
   componentDidMount() {
     super.componentDidMount();
+    if (!this.hasItems) return null;
     const container: HTMLDivElement = this.rootRef.current;
     this.manager = new ResponsivityManager(container,
       this.adaptiveElement, 'span.sv-action');
@@ -44,10 +45,7 @@ export class SurveyActionBar extends SurveyElementBase<IActionBarProps, any> {
     return this.adaptiveElement;
   }
   render(): any {
-    if (!this.hasItems) {
-      return null;
-    }
-
+    if (!this.hasItems) return null;
     const items = this.renderItems();
     return (
       <div

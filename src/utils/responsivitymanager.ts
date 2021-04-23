@@ -10,6 +10,7 @@ export class ResponsivityManager {
   private previousParentOffset = 0;
   private previousVisibleItemsCount: number = Number.MAX_VALUE;
   private _itemsSizes: number[] = undefined;
+  private resizeObserver: ResizeObserver = undefined;
   public getComputedStyle: (elt: Element) => CSSStyleDeclaration = window.getComputedStyle.bind(window);
 
   constructor(
@@ -17,7 +18,10 @@ export class ResponsivityManager {
     private model: AdaptiveElement,
     private itemsSelector: string,
     private dotsItemSize: number = 48
-  ) {}
+  ) {
+    this.resizeObserver = new ResizeObserver(_ => this.process());
+    this.resizeObserver.observe(this.container.parentElement);
+  }
 
   protected getDimensions(element: HTMLElement): IDimensions {
     return {
@@ -28,11 +32,11 @@ export class ResponsivityManager {
 
   protected getAvailableSpace(): number {
     const style: CSSStyleDeclaration = this.getComputedStyle(this.container);
-    let width = this.container.offsetWidth - this.dotsItemSize;
-    if (style.boxSizing === "border-box") {
-      width -= parseFloat(style.paddingLeft) + parseFloat(style.paddingRight);
+    let space = this.container.offsetWidth - this.dotsItemSize;
+    if (style.boxSizing === 'border-box') {
+      space -= parseFloat(style.paddingLeft) + parseFloat(style.paddingRight);
     }
-    return width;
+    return space;
   }
 
   protected calcItemSize(item: HTMLDivElement): number {
@@ -66,47 +70,45 @@ export class ResponsivityManager {
     return i;
   }
 
-  public process() {
-    if (!!this.container) {
-      const scrollOffset: IDimensions = this.getDimensions(this.container);
-      let hiddenWidth: number = scrollOffset.scroll - scrollOffset.offset;
-      if (this.previousVisibleItemsCount < Number.MAX_VALUE) {
-        hiddenWidth -= this.dotsItemSize;
-      }
-      const parentOffsetWidth: number = this.getDimensions(this.container.parentElement).offset;
-      if (parentOffsetWidth === this.previousParentOffset) return;
-      if (hiddenWidth > this.IGNORE_SHRINK_LIMIT_PX) {
-        if (this.model.canShrink) {
-          this._itemsSizes = undefined;
-          this.model.shrink();
-        }
-        const count: number = this.getVisibleItemsCount(this.getAvailableSpace());
-        if (this.previousVisibleItemsCount !== count) {
-          this.model.showFirstN(count);
-          this.previousVisibleItemsCount = count;
-        }
-      } else {
-        if (this.model.canGrow && hiddenWidth <= 0.0 &&
-          parentOffsetWidth - this.previousParentOffset > this.dotsItemSize
-        ) {
-          this._itemsSizes = undefined;
-          this.model.grow();
-        }
-        this.model.showFirstN(Number.MAX_VALUE);
-        this.previousVisibleItemsCount = Number.MAX_VALUE;
-      }
-      this.previousParentOffset = parentOffsetWidth;
+  private process(): void {
+    const scrollOffset: IDimensions = this.getDimensions(this.container);
+    let hiddenWidth: number = scrollOffset.scroll - scrollOffset.offset;
+    if (this.previousVisibleItemsCount < Number.MAX_VALUE) {
+      hiddenWidth -= this.dotsItemSize;
     }
+    const parentOffsetWidth: number = this.getDimensions(this.container.parentElement).offset;
+    if (parentOffsetWidth === this.previousParentOffset) return;
+    if (hiddenWidth > this.IGNORE_SHRINK_LIMIT_PX) {
+      if (this.model.canShrink) {
+        this._itemsSizes = undefined;
+        this.model.shrink();
+      }
+      const count: number = this.getVisibleItemsCount(this.getAvailableSpace());
+      if (this.previousVisibleItemsCount !== count) {
+        this.model.showFirstN(count);
+        this.previousVisibleItemsCount = count;
+      }
+    } else {
+      if (this.model.canGrow && hiddenWidth <= 0.0 &&
+        parentOffsetWidth - this.previousParentOffset > this.dotsItemSize
+      ) {
+        this._itemsSizes = undefined;
+        this.model.grow();
+      }
+      this.model.showFirstN(Number.MAX_VALUE);
+      this.previousVisibleItemsCount = Number.MAX_VALUE;
+    }
+    this.previousParentOffset = parentOffsetWidth;
+  }
+
+  public dispose(): void {
+    this.resizeObserver.disconnect();
   }
 }
 
 export class VerticalResponsivityManager extends ResponsivityManager {
-  constructor(
-    container: HTMLDivElement,
-    model: AdaptiveElement,
-    itemsSelector: string,
-    dotsItemSize?: number
-  ) {
+  constructor(container: HTMLDivElement, model: AdaptiveElement,
+    itemsSelector: string, dotsItemSize?: number) {
     super(container, model, itemsSelector, dotsItemSize);
   }
 
@@ -119,11 +121,11 @@ export class VerticalResponsivityManager extends ResponsivityManager {
 
   protected getAvailableSpace(): number {
     const style: CSSStyleDeclaration = this.getComputedStyle(this.container);
-    let width: number = this.container.offsetHeight;
-    if (style.boxSizing === "border-box") {
-      width -= parseFloat(style.paddingTop) + parseFloat(style.paddingBottom);
+    let space: number = this.container.offsetHeight;
+    if (style.boxSizing === 'border-box') {
+      space -= parseFloat(style.paddingTop) + parseFloat(style.paddingBottom);
     }
-    return width;
+    return space;
   }
 
   protected calcItemSize(item: HTMLDivElement): number {

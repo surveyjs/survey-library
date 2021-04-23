@@ -1642,7 +1642,7 @@ export class SurveyModel extends Base
    * @see logo
    */
   public get logoPosition(): string {
-    return this.getPropertyValue("logoPosition", "left");
+    return this.getPropertyValue("logoPosition");
   }
   public set logoPosition(value: string) {
     this.setPropertyValue("logoPosition", value);

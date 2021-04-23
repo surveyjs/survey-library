@@ -6372,6 +6372,55 @@ QUnit.test(
   }
 );
 
+QUnit.test(
+  "survey.questionsOnPageMode=singlePage, defualt value and visibleIf",
+  function(assert) {
+    var survey = new SurveyModel({
+      pages: [
+        {
+          name: "page1",
+          elements: [
+            {
+              type: "checkbox",
+              name: "question1",
+              choices: ["item1", "item2", "item3"],
+            },
+            {
+              type: "checkbox",
+              name: "question2",
+              visibleIf: "{question1} contains ['item2']",
+              titleLocation: "hidden",
+              defaultValue: ["item1"],
+              isRequired: true,
+              readOnly: true,
+              choices: [
+                {
+                  value: "item1",
+                  visibleIf: "{question1} contains ['item1']",
+                },
+                "item2",
+                "item3",
+              ],
+            },
+          ],
+        },
+      ],
+    });
+
+    survey.questionsOnPageMode = "singlePage";
+    var q1 = survey.getQuestionByName("question1");
+    var q2 = survey.getQuestionByName("question2");
+    q1.value = ["item1"];
+    q1.value = ["item1", "item2"];
+    assert.deepEqual(q2.value, ["item1"], "Set default value");
+    assert.deepEqual(
+      q2.renderedValue,
+      ["item1"],
+      "Set default value into rendered value"
+    );
+  }
+);
+
 QUnit.test("Survey page hasShown", function(assert) {
   var survey = twoPageSimplestSurvey();
   assert.equal(survey.pages[0].hasShown, false, "The first page was not shown");

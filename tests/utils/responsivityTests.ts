@@ -31,6 +31,8 @@ class SimpleContainer {
   }
 }
 
+class ResizeObserver { observe() {} }
+window.ResizeObserver = <any>ResizeObserver;
 const querySelectorAll: () => { offsetWidth: number }[] = () => Array(7).fill({ offsetWidth: 5 });
 
 QUnit.test("Check on element with box-sizing: content-box", function (assert) {
@@ -47,21 +49,21 @@ QUnit.test("Check on element with box-sizing: content-box", function (assert) {
       boxSizing: "content-box",
     };
   };
-  manager.process();
+  manager['process']();
   assert.equal(
     model.visibleElementsCount,
     Number.MAX_VALUE,
     "trying show all items at first"
   );
   container.offsetWidth = 24;
-  manager.process();
+  manager['process']();
   assert.equal(
     model.visibleElementsCount,
     3,
     "process method set number of visible items 3"
   );
   container.offsetWidth = 18;
-  manager.process();
+  manager['process']();
   assert.equal(
     model.visibleElementsCount,
     2,
@@ -69,7 +71,7 @@ QUnit.test("Check on element with box-sizing: content-box", function (assert) {
   );
 
   container.offsetWidth = 41;
-  manager.process();
+  manager['process']();
   assert.equal(
     model.visibleElementsCount,
     Number.MAX_VALUE,
@@ -94,14 +96,14 @@ QUnit.test("Check on element with box-sizing: border-box", function (assert) {
     };
   };
   container.offsetWidth = 24;
-  manager.process();
+  manager['process']();
   assert.equal(
     model.visibleElementsCount,
     2,
     "process method set number of visible items 3"
   );
   container.offsetWidth = 18;
-  manager.process();
+  manager['process']();
   assert.equal(
     model.visibleElementsCount,
     1,
@@ -122,7 +124,7 @@ QUnit.test("Check on model which can shrink and grow", function (assert) {
   (<any>manager.getComputedStyle) = () => {
     return { boxSizing: "content-box" };
   };
-  manager.process();
+  manager['process']();
   assert.notOk(model.canGrowValue, "process method grew model at first");
   assert.equal(
     model.visibleElementsCount,
@@ -131,7 +133,7 @@ QUnit.test("Check on model which can shrink and grow", function (assert) {
   );
 
   container.offsetWidth = 24;
-  manager.process();
+  manager['process']();
   assert.notOk(model.canShrinkValue, "process shrank model");
   assert.equal(
     model.visibleElementsCount,
@@ -139,7 +141,7 @@ QUnit.test("Check on model which can shrink and grow", function (assert) {
     "process changed visible items count"
   );
   container.offsetWidth = 18;
-  manager.process();
+  manager['process']();
   assert.equal(
     model.visibleElementsCount,
     2,
@@ -147,7 +149,7 @@ QUnit.test("Check on model which can shrink and grow", function (assert) {
   );
 
   container.offsetWidth = 41;
-  manager.process();
+  manager['process']();
   assert.notOk(model.canGrowValue, "process grew model");
   assert.equal(
     model.visibleElementsCount,
@@ -168,7 +170,7 @@ QUnit.test("Check on element with parent's changing width", function (assert) {
 
   container.offsetWidth = container.parentElement.offsetWidth = 24;
 
-  manager.process();
+  manager['process']();
   assert.ok(model.canGrowValue);
   assert.equal(
     model.visibleElementsCount,
@@ -177,7 +179,7 @@ QUnit.test("Check on element with parent's changing width", function (assert) {
   );
 
   container.offsetWidth = container.parentElement.offsetWidth = 29;
-  manager.process();
+  manager['process']();
 
   assert.ok(model.canGrowValue, "process can't grew");
   assert.equal(
@@ -186,7 +188,7 @@ QUnit.test("Check on element with parent's changing width", function (assert) {
     "process method tries to show all items"
   );
   container.parentElement.offsetWidth = 36;
-  manager.process();
+  manager['process']();
 
   assert.ok(model.canGrowValue, "process grew container");
 });
@@ -203,7 +205,7 @@ QUnit.test(
     (<any>manager.getComputedStyle) = () => {
       return { boxSizing: "content-box" };
     };
-    manager.process();
+    manager['process']();
     assert.equal(model.visibleElementsCount, 1);
   }
 );

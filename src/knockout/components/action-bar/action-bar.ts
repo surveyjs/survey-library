@@ -1,11 +1,6 @@
 import * as ko from "knockout";
-import {
-  ActionBar,
-  AdaptiveActionBarItemWrapper,
-  AdaptiveElement,
-  IActionBarItem,
-  ResponsivityManager,
-} from "survey-core";
+import { ActionBar, AdaptiveElement, IActionBarItem } from "survey-core";
+import { ResponsivityManager } from "survey-core";
 import { ImplementorBase } from "../../kobase";
 
 const template = require("./action-bar.html");
@@ -43,18 +38,18 @@ export class AdaptiveElementImplementor extends ImplementorBase {
 ko.components.register("sv-action-bar", {
   viewModel: {
     createViewModel: (params: any, componentInfo: any) => {
-      const model = new ActionBarViewModel(params.items);
+      const model: ActionBarViewModel = new ActionBarViewModel(params.items);
       new AdaptiveElementImplementor(model);
-
-      const container: HTMLDivElement = componentInfo.element.nextElementSibling;
-      const manager: ResponsivityManager = new ResponsivityManager(container, model, 'span.sv-action');
-      const updateVisibleItems = setInterval(() => {
-        manager.process();
-        ko.tasks.runEarly();
-      }, 100);
-      ko.utils.domNodeDisposal.addDisposeCallback(container, () => {
-        clearInterval(updateVisibleItems);
-      });
+      const container: HTMLDivElement =
+        componentInfo.element.nextElementSibling;
+      const manager: ResponsivityManager = new ResponsivityManager(
+        container,
+        model,
+        "span.sv-action"
+      );
+      ko.utils.domNodeDisposal.addDisposeCallback(container, () =>
+        manager.dispose()
+      );
       return model;
     },
   },

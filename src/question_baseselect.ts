@@ -386,7 +386,7 @@ export class QuestionSelectBase extends Question {
     return this.rendredValueToDataCore(val);
   }
   protected renderedValueFromDataCore(val: any): any {
-    if (!this.hasUnknownValue(val, true)) return this.valueFromData(val);
+    if (!this.hasUnknownValue(val, true, false)) return this.valueFromData(val);
     this.comment = val;
     return this.otherItem.value;
   }
@@ -396,11 +396,18 @@ export class QuestionSelectBase extends Question {
     }
     return val;
   }
-  protected hasUnknownValue(val: any, includeOther: boolean = false): boolean {
+  protected hasUnknownValue(
+    val: any,
+    includeOther: boolean = false,
+    isFilteredChoices: boolean = true
+  ): boolean {
     if (this.isValueEmpty(val)) return false;
     if (includeOther && val == this.otherItem.value) return false;
     if (this.hasNone && val == this.noneItem.value) return false;
-    return ItemValue.getItemByValue(this.getFilteredChoices(), val) == null;
+    var choices = isFilteredChoices
+      ? this.getFilteredChoices()
+      : this.activeChoices;
+    return ItemValue.getItemByValue(choices, val) == null;
   }
   protected isValueDisabled(val: any): boolean {
     var itemValue = ItemValue.getItemByValue(this.getFilteredChoices(), val);

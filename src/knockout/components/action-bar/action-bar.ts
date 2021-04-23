@@ -54,7 +54,7 @@ ko.components.register("sv-action-bar", {
       const manager: ResponsivityManager = new ResponsivityManager(container, model, 'span.sv-action');
       const updateVisibleItems = setInterval(() => {
         manager.process();
-        ko.tasks.runEarly();
+        !!ko.tasks && ko.tasks.runEarly();
       }, 100);
       ko.utils.domNodeDisposal.addDisposeCallback(container, () => {
         clearInterval(updateVisibleItems);

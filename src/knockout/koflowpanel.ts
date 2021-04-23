@@ -62,7 +62,7 @@ ko.components.register("f-panel", {
         ko.cleanNode(self.element);
         self.element.innerHTML = question.html;
         ko.applyBindings({ question }, self.element);
-        ko.tasks.runEarly();
+        !!ko.tasks && ko.tasks.runEarly();
       };
       self.element.onfocus = function () {
         self.isOnFocus = true;

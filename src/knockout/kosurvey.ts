@@ -327,7 +327,7 @@ ko.components.register("survey", {
         componentInfo.element.appendChild(surveyRoot);
         survey.render(surveyRoot);
       }, 1);
-      // ko.tasks.runEarly();
+      // !!ko.tasks && ko.tasks.runEarly();
       return params.survey;
     },
   },

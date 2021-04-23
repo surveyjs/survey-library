@@ -281,7 +281,7 @@ export class ActionBar extends AdaptiveElement {
   }
   public setItems(items: Array<IActionBarItem>) {
     var setItems = this.wrapItems(items);
-    setItems = this.sortItems(setItems);
+    setItems = this.sortItems(items);
     this.items = setItems;
   }
   private wrapItems(

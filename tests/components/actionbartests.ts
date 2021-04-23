@@ -1,13 +1,7 @@
-import { ActionBar, AdaptiveActionBarItemWrapper } from "../../src/action-bar";
-
-QUnit.test("Check that items are wrapped after set", assert => {
-  const model: ActionBar = new ActionBar();
-  model.setItems([{ id: "first" }, { id: "second" }]);
-  assert.ok(model.items[0] instanceof AdaptiveActionBarItemWrapper);
-  assert.ok(model.items[1] instanceof AdaptiveActionBarItemWrapper);
-});
+import { ActionBar } from "../../src/action-bar";
 
 QUnit.test("Check action sort items", assert => {
+  const data = {};
   const model: ActionBar = new ActionBar();
   model.setItems([
     { id: "invisible", visibleIndex: -1 },

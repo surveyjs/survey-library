@@ -102,16 +102,35 @@ QUnit.test("Ranking: Carry Forward", function(assert) {
   var q2 = <QuestionRankingModel>survey.getQuestionByName("q2");
 
   assert.deepEqual(q2.rankingChoices, []);
+  assert.deepEqual(q2.isIndeterminate, true);
 
-  q1.value = ["2", "3"];
-  assert.deepEqual(
-    q2.rankingChoices.map(item => item.text),
-    ["2", "3"]
-  );
+  q1.value = [2, 3];
+  q2.value = q2.rankingChoices.map(choice => choice.text); //imitate user's drag drop from the ui
+  assert.deepEqual(q2.isIndeterminate, false);
+  assert.deepEqual(survey.data, {
+    q1: [2, 3],
+    q2: [2, 3],
+  });
+
+  // ranking question with only one choice doesn't make sense
+  q1.value = ["2"];
+  assert.deepEqual(q2.isIndeterminate, true);
+  assert.deepEqual(survey.data, {
+    q1: [2],
+  });
+
   q1.value = [];
   assert.deepEqual(q2.isIndeterminate, true);
   assert.deepEqual(
     q2.rankingChoices.map(item => item.text),
     []
   );
+
+  q1.value = [2, 3];
+  q2.value = q2.rankingChoices.map(choice => choice.text); //imitate user's drag drop from the ui
+  assert.deepEqual(q2.isIndeterminate, false);
+  assert.deepEqual(survey.data, {
+    q1: [2, 3],
+    q2: [2, 3],
+  });
 });

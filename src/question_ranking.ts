@@ -37,15 +37,22 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
   }
 
   public get rankingChoices() {
+    let result: ItemValue[] = [];
     const value: any = this.value;
     const visibleChoices: ItemValue[] = this.removeOtherChoiceFromChoices(
       this.visibleChoices
     );
 
     if (this.isIndeterminate) {
-      return visibleChoices;
+      result =  visibleChoices;
+    } else {
+      result = this.mergeValueAndVisibleChoices(value, visibleChoices);
     }
-    return this.mergeValueAndVisibleChoices(value, visibleChoices);
+    
+    // ranking question with only one choice doesn't make sense
+    if (result.length === 1) result = [];
+
+    return result;
   }
 
   private removeOtherChoiceFromChoices(choices: ItemValue[]) {
@@ -89,15 +96,9 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
   // to make "carry forward" feature work properly with ranking
   protected onVisibleChoicesChanged() {
     super.onVisibleChoicesChanged();
-    const otherQuestionActiveChoices: any = (<any>this)
-      .otherQuestionActiveChoices;
 
-    if (this.isIndeterminate || !otherQuestionActiveChoices) return;
-    if (otherQuestionActiveChoices.length === 0) {
-      this.value = [];
-    } else {
-      this.value = this.rankingChoices.map(choice => choice.text);
-    }
+    if (this.isIndeterminate) return;
+    this.value = this.rankingChoices.map(choice => choice.text);
   }
 
   private mergeValueAndVisibleChoices(

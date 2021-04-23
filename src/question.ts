@@ -615,7 +615,7 @@ export class Question extends SurveyElement
     if (this.startWithNewLine == val) return;
     this.setPropertyValue("startWithNewLine", val);
   }
-  private cssClassesValue: any;
+  @property() cssClassesValue: any;
   /**
    * Returns all css classes that used for rendering the question. You may use survey.updateQuestionCssClasses event to override css classes for a question.
    * @see SurveyModel.updateQuestionCssClasses

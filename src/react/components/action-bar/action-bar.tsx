@@ -30,7 +30,7 @@ export class SurveyActionBar extends SurveyElementBase<IActionBarProps, any> {
   }
   componentDidMount() {
     super.componentDidMount();
-    if (!this.hasItems) return null;
+    if (!this.hasItems) return;
     const container: HTMLDivElement = this.rootRef.current;
     this.manager = new ResponsivityManager(
       container,

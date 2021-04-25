@@ -152,6 +152,7 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
           ""
         );
         self.setValueFromUI();
+        self.syncNumbers();
       },
       onChange(evt: any) {
         if (!self.isIndeterminate) self.syncNumbers();

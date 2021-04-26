@@ -84,9 +84,6 @@ export class QuestionImplementor extends ImplementorBase {
         return this.question.cssError;
       })
     );
-    question.registerFunctionOnPropertyValueChanged("visibleIndex", () => {
-      this.onVisibleIndexChanged();
-    });
     this.koDummy = ko.observable(0);
     this.setCallbackFunc("koQuestionAfterRender", (el: any, con: any) => {
       this.koQuestionAfterRender(el, con);
@@ -111,9 +108,6 @@ export class QuestionImplementor extends ImplementorBase {
     return this.question.value;
   }
   protected updateQuestion() {
-    this.updateKoDummy();
-  }
-  protected onVisibleIndexChanged() {
     this.updateKoDummy();
   }
   protected onSurveyLoad() {}

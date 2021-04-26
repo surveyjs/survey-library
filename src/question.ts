@@ -320,7 +320,7 @@ export class Question extends SurveyElement
   }
   private runConditions() {
     if (this.data && !this.isLoadingFromJson) {
-      if(!this.isDesignMode) {
+      if (!this.isDesignMode) {
         this.runCondition(
           this.getDataFilteredValues(),
           this.getDataFilteredProperties()
@@ -1068,6 +1068,9 @@ export class Question extends SurveyElement
    * @see SurveyModel.questionStartIndex
    */
   public get no(): string {
+    return this.getPropertyValue("no");
+  }
+  private calcNo(): string {
     if (!this.hasTitle || this.hideNumber) return "";
     var no = Helpers.getNumberByIndex(this.visibleIndex, this.getStartIndex());
     if (!!this.survey) {
@@ -1697,6 +1700,7 @@ export class Question extends SurveyElement
       val = -1;
     }
     this.setPropertyValue("visibleIndex", val);
+    this.setPropertyValue("no", this.calcNo());
     return val < 0 ? 0 : 1;
   }
   public removeElement(element: IElement): boolean {
@@ -1757,6 +1761,7 @@ export class Question extends SurveyElement
       : null;
   }
   public getProcessedText(text: string): string {
+    if (this.isLoadingFromJson) return text;
     if (this.textProcessor)
       return this.textProcessor.processText(text, this.useDisplayValuesInTitle);
     if (this.locOwner) return this.locOwner.getProcessedText(text);

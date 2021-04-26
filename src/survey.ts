@@ -944,6 +944,13 @@ export class SurveyModel extends Base
     this.registerFunctionOnPropertyValueChanged("progressBarType", () => {
       this.updateProgressText();
     });
+    this.registerFunctionOnPropertyValueChanged("questionStartIndex", () => {
+      this.resetVisibleIndexes();
+    });
+    this.onGetQuestionNo.onCallbacksChanged = () => {
+      this.resetVisibleIndexes();
+    };
+
     this.onProgressText.onCallbacksChanged = () => {
       this.updateProgressText();
     };
@@ -4715,6 +4722,13 @@ export class SurveyModel extends Base
   }
   protected onLoadingSurveyFromService() {}
   protected onLoadSurveyFromService() {}
+  private resetVisibleIndexes() {
+    var questions = this.getAllQuestions(true);
+    for (var i = 0; i < questions.length; i++) {
+      questions[i].setVisibleIndex(-1);
+    }
+    this.updateVisibleIndexes();
+  }
   private updateVisibleIndexes() {
     if (this.isLoadingFromJson || !!this.isEndLoadingFromJson) return;
     if (
@@ -4827,18 +4841,17 @@ export class SurveyModel extends Base
       textValue.value = this.getQuizQuestionCount();
       return;
     }
-    var firstName = new ProcessValue().getFirstName(name, this.data);
     var variable = this.getVariable(name);
     if (variable !== undefined) {
       textValue.isExists = true;
       textValue.value = variable;
       return;
     }
-    if (!!firstName) firstName = firstName.toLowerCase();
-    var question = this.getQuestionByValueName(firstName, true);
+    var question = this.getFirstName(name);
     if (question) {
       textValue.isExists = true;
-      name = question.getValueName() + name.substr(firstName.length);
+      var firstName = question.getValueName().toLowerCase();
+      name = firstName + name.substr(firstName.length);
       name = name.toLocaleLowerCase();
       var values: { [index: string]: any } = {};
       values[firstName] = textValue.returnDisplayValue
@@ -4852,6 +4865,22 @@ export class SurveyModel extends Base
       textValue.isExists = true;
       textValue.value = value;
     }
+  }
+  private getFirstName(name: string): IQuestion {
+    name = name.toLowerCase();
+    var question;
+    do {
+      question = this.getQuestionByValueName(name, true);
+      name = this.reduceFirstName(name);
+    } while (!question && !!name);
+    return question;
+  }
+  private reduceFirstName(name: string): string {
+    var pos1 = name.lastIndexOf(".");
+    var pos2 = name.lastIndexOf("[");
+    if (pos1 < 0 && pos2 < 0) return "";
+    var pos = Math.max(pos1, pos2);
+    return name.substr(0, pos);
   }
   private clearUnusedValues() {
     var questions = this.getAllQuestions();

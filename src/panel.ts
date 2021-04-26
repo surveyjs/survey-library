@@ -245,14 +245,20 @@ export class PanelModelBase extends SurveyElement
       this.onAddElement.bind(this),
       this.onRemoveElement.bind(this)
     );
-    this.registerFunctionOnPropertyValueChanged(
-      "questionTitleLocation",
-      this.onVisibleChanged.bind(this)
-    );
     this.id = PanelModelBase.getPanelId();
     this.createLocalizableString("title", this, true);
     this.createLocalizableString("description", this, true);
     this.createLocalizableString("requiredErrorText", this);
+    this.registerFunctionOnPropertyValueChanged(
+      "questionTitleLocation",
+      this.onVisibleChanged.bind(this)
+    );
+    this.registerFunctionOnPropertiesValueChanged(
+      ["questionStartIndex", "showQuestionNumbers"],
+      () => {
+        this.updateVisibleIndexes();
+      }
+    );
   }
   public getType(): string {
     return "panelbase";
@@ -1137,13 +1143,13 @@ export class PanelModelBase extends SurveyElement
     }
     return false;
   }
+  private lastVisibleIndex: number;
   public setVisibleIndex(index: number): number {
     if (!this.isVisible || index < 0) {
-      for (var i = 0; i < this.elements.length; i++) {
-        this.elements[i].setVisibleIndex(-1);
-      }
+      this.resetVisibleIndexes();
       return 0;
     }
+    this.lastVisibleIndex = index;
     var startIndex = index;
     index += this.beforeSetVisibleIndex(index);
     var panelStartIndex = this.getPanelStartIndex(index);
@@ -1155,6 +1161,16 @@ export class PanelModelBase extends SurveyElement
       index += panelIndex - panelStartIndex;
     }
     return index - startIndex;
+  }
+  private updateVisibleIndexes() {
+    if (this.lastVisibleIndex === undefined) return;
+    this.resetVisibleIndexes();
+    this.setVisibleIndex(this.lastVisibleIndex);
+  }
+  private resetVisibleIndexes() {
+    for (var i = 0; i < this.elements.length; i++) {
+      this.elements[i].setVisibleIndex(-1);
+    }
   }
   protected beforeSetVisibleIndex(index: number): number {
     return 0;

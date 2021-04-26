@@ -39,7 +39,7 @@ export class SurveyActionBar extends SurveyElementBase<IActionBarProps, any> {
     );
   }
   componentWillUnmount() {
-    this.manager.dispose();
+    this.manager && this.manager.dispose();
     super.componentWillUnmount();
   }
 

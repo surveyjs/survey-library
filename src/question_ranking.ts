@@ -98,7 +98,7 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
     super.onVisibleChoicesChanged();
 
     if (this.isIndeterminate) return;
-    this.value = this.rankingChoices.map(choice => choice.text);
+    this.value = this.rankingChoices.map(choice => choice.value);
   }
 
   private mergeValueAndVisibleChoices(
@@ -110,7 +110,7 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
     result.length = length;
     for (let i = 0; i < length; i++) {
       const choice = visibleChoices[i];
-      const index = value.indexOf(choice.text);
+      const index = value.indexOf(choice.value);
 
       if (index !== -1) {
         result.splice(index, 1, choice);
@@ -152,7 +152,6 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
           ""
         );
         self.setValueFromUI();
-        self.syncNumbers();
       },
       onChange(evt: any) {
         if (!self.isIndeterminate) self.syncNumbers();

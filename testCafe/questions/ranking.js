@@ -1,7 +1,7 @@
 import { frameworks, url, initSurvey, getData, setData } from "../helper";
 import { Selector } from "testcafe";
 const assert = require("assert");
-const title = `rating`;
+const title = `ranking`;
 
 const json = {
   pages: [

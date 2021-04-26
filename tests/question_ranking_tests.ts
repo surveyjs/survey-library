@@ -21,9 +21,9 @@ QUnit.test("Ranking: Base ", function(assert) {
 
   let value = [];
   let visibleChoices: any = [
-    { text: "one" },
-    { text: "two" },
-    { text: "three" },
+    { text: "one", value: 1 },
+    { text: "two", value: 2 },
+    { text: "three", value: 3 },
   ];
   let rankingChoices = [];
 
@@ -34,16 +34,20 @@ QUnit.test("Ranking: Base ", function(assert) {
     "mergeValueAndVisibleChoices returns visibleChoices if empty value"
   );
 
-  value = ["two", "one", "three"];
+  value = [2, 1, 3];
   rankingChoices = model["mergeValueAndVisibleChoices"](value, visibleChoices);
   assert.deepEqual(
     rankingChoices,
-    [{ text: "two" }, { text: "one" }, { text: "three" }],
+    [
+      { text: "two", value: 2 },
+      { text: "one", value: 1 },
+      { text: "three", value: 3 },
+    ],
     "mergeValueAndVisibleChoices returns correct value"
   );
 });
 
-QUnit.test("Ranking: Survey data", function(assert) {
+QUnit.test("Ranking: predefined Survey data", function(assert) {
   var survey = new SurveyModel({
     elements: [
       {
@@ -58,8 +62,43 @@ QUnit.test("Ranking: Survey data", function(assert) {
   assert.deepEqual(q1.value, ["b", "a", "c"]);
   assert.deepEqual(q1.isIndeterminate, false);
   assert.deepEqual(
-    q1.rankingChoices.map(item => item.text),
+    q1.rankingChoices.map(item => item.value),
     ["b", "a", "c"]
+  );
+
+  var survey = new SurveyModel({
+    elements: [
+      {
+        type: "ranking",
+        name: "q1",
+        choices: [
+          {
+            value: "1",
+            text: "a",
+          },
+          {
+            value: "2",
+            text: "b",
+          },
+          {
+            value: "3",
+            text: "c",
+          },
+        ],
+      },
+    ],
+  });
+  survey.data = { q1: ["3", "2", "1"] };
+  var q1 = <QuestionRankingModel>survey.getQuestionByName("q1");
+  assert.deepEqual(q1.value, ["3", "2", "1"]);
+  assert.deepEqual(q1.isIndeterminate, false);
+  assert.deepEqual(
+    q1.rankingChoices.map(item => item.text),
+    ["c", "b", "a"]
+  );
+  assert.deepEqual(
+    q1.rankingChoices.map(item => item.value),
+    ["3", "2", "1"]
   );
 });
 

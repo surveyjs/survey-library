@@ -7,12 +7,12 @@
               <!-- /ko -->
               <!-- ko if: koState() == "starting" -->
               <div data-bind="css: css.body">
-                  <!-- ko if: isNavigationButtonsShowing === 'top' || isNavigationButtonsShowing === 'both' -->
+                  <!-- ko if: isNavigationButtonsShowingOnTop -->
                   <!-- ko template: { name: 'survey-navigation-start' } -->
                   <!-- /ko -->
                   <!-- /ko -->
                   <div data-bind="attr: { id: startedPage.id }, template: { name: 'survey-page', data: startedPage, afterRender: koAfterRenderPage }"></div>
-                  <!-- ko if: isNavigationButtonsShowing === 'bottom' || isNavigationButtonsShowing === 'both' -->
+                  <!-- ko if: isNavigationButtonsShowingOnBottom -->
                   <!-- ko template: { name: 'survey-navigation-start' } -->
                   <!-- /ko -->
                   <!-- /ko -->
@@ -28,7 +28,7 @@
                   <!-- ko component: { name: 'sv-progress-' + progressBarType, params: { model: $data } } -->
                   <!-- /ko -->
                   <!-- /ko -->
-                  <!-- ko if: isNavigationButtonsShowing === 'top' || isNavigationButtonsShowing === 'both' -->
+                  <!-- ko if: isNavigationButtonsShowingOnTop -->
                   <!-- ko template: { name: 'survey-navigation' } -->
                   <!-- /ko -->
                   <!-- /ko -->
@@ -47,7 +47,7 @@
                   <!-- ko template: { name: 'survey-timerpanel' } -->
                   <!-- /ko -->
                   <!-- /ko -->
-                  <!-- ko if: isNavigationButtonsShowing === 'bottom' || isNavigationButtonsShowing === 'both' -->
+                  <!-- ko if: isNavigationButtonsShowingOnBottom -->
                   <!-- ko template: { name: 'survey-navigation' } -->
                   <!-- /ko -->
                   <!-- /ko -->

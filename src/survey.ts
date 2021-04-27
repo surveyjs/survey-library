@@ -2741,7 +2741,7 @@ export class SurveyModel extends Base
     return this.getPropertyValue("progressValue", 0);
   }
   /**
-   * Returns the navigation buttons (i.e., 'Prev', 'Next', or 'Complete') position.
+   * Returns the navigation buttons (i.e., 'Prev', 'Next', or 'Complete' and 'Preview') position.
    */
   public get isNavigationButtonsShowing(): string {
     if (this.isDesignMode) return "none";
@@ -2754,6 +2754,22 @@ export class SurveyModel extends Base
       return "none";
     }
     return this.showNavigationButtons;
+  }
+  /**
+   * Returns true if the navigation buttons (i.e., 'Prev', 'Next', or 'Complete' and 'Preview') are shows on top.
+   */
+  public get isNavigationButtonsShowingOnTop(): boolean {
+    return this.getIsNavigationButtonsShowingOn("top");
+  }
+  /**
+   * Returns true if the navigation buttons (i.e., 'Prev', 'Next', or 'Complete' and 'Preview') are shows on bottom.
+   */
+  public get isNavigationButtonsShowingOnBottom(): boolean {
+    return this.getIsNavigationButtonsShowingOn("bottom");
+  }
+  private getIsNavigationButtonsShowingOn(buttonPosition: string): boolean {
+    var res = this.isNavigationButtonsShowing;
+    return res == "both" || res == buttonPosition;
   }
   /**
    * Returns `true` if the survey is in edit mode.

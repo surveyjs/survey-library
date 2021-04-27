@@ -7,10 +7,7 @@
         <template v-if="survey.state === 'starting'">
           <div :class="css.body">
             <div
-              v-if="
-                survey.isNavigationButtonsShowing === 'top' ||
-                  survey.isNavigationButtonsShowing === 'both'
-              "
+              v-if="survey.isNavigationButtonsShowingOnTop"
               :class="css.footer"
             >
               <input
@@ -27,10 +24,7 @@
               :css="css"
             />
             <div
-              v-if="
-                survey.isNavigationButtonsShowing === 'bottom' ||
-                  survey.isNavigationButtonsShowing === 'both'
-              "
+              v-if="survey.isNavigationButtonsShowingOnBottom"
               :class="css.footer"
             >
               <input
@@ -58,10 +52,7 @@
               :css="css"
             />
             <survey-navigation
-              v-if="
-                survey.isNavigationButtonsShowing === 'top' ||
-                  survey.isNavigationButtonsShowing === 'both'
-              "
+              v-if="survey.isNavigationButtonsShowingOnTop"
               :key="navId"
               :survey="survey"
               :css="css"
@@ -84,10 +75,7 @@
               :css="css"
             />
             <survey-navigation
-              v-if="
-                survey.isNavigationButtonsShowing === 'bottom' ||
-                  survey.isNavigationButtonsShowing === 'both'
-              "
+              v-if="survey.isNavigationButtonsShowingOnBottom"
               :key="navId"
               :survey="survey"
               :css="css"

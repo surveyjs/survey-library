@@ -3600,11 +3600,31 @@ QUnit.test("isNavigationButtonsShowing", function(assert) {
     "bottom",
     "by default buttons are shown"
   );
+  assert.equal(
+    survey.isNavigationButtonsShowingOnBottom,
+    true,
+    "by default buttons are shown, #bottom"
+  );
+  assert.equal(
+    survey.isNavigationButtonsShowingOnTop,
+    false,
+    "by default buttons are shown, #top"
+  );
   survey.setDesignMode(true);
   assert.equal(
     survey.isNavigationButtonsShowing,
     "none",
     "do not show buttons at design time"
+  );
+  assert.equal(
+    survey.isNavigationButtonsShowingOnBottom,
+    false,
+    "do not show buttons at design time, #bottom"
+  );
+  assert.equal(
+    survey.isNavigationButtonsShowingOnTop,
+    false,
+    "do not show buttons at design time, #top"
   );
   survey.setDesignMode(false);
   assert.equal(
@@ -3612,17 +3632,47 @@ QUnit.test("isNavigationButtonsShowing", function(assert) {
     "bottom",
     "by default buttons are shown"
   );
+  assert.equal(
+    survey.isNavigationButtonsShowingOnBottom,
+    true,
+    "by default buttons are shown, #bottom"
+  );
+  assert.equal(
+    survey.isNavigationButtonsShowingOnTop,
+    false,
+    "by default buttons are shown, #top"
+  );
   survey.showNavigationButtons = false;
   assert.equal(
     survey.isNavigationButtonsShowing,
     "none",
     "showNavigationButtons = none"
   );
+  assert.equal(
+    survey.isNavigationButtonsShowingOnBottom,
+    false,
+    "showNavigationButtons = none, #bottom"
+  );
+  assert.equal(
+    survey.isNavigationButtonsShowingOnTop,
+    false,
+    "showNavigationButtons = none, #top"
+  );
   survey.pages[0].navigationButtonsVisibility = "show";
   assert.equal(
     survey.isNavigationButtonsShowing,
     "bottom",
     "navigationButtonsVisibility = 'show' && showNavigationButtons = false"
+  );
+  assert.equal(
+    survey.isNavigationButtonsShowingOnBottom,
+    true,
+    "navigationButtonsVisibility = 'show' && showNavigationButtons = false, #bottom"
+  );
+  assert.equal(
+    survey.isNavigationButtonsShowingOnTop,
+    false,
+    "navigationButtonsVisibility = 'show' && showNavigationButtons = false, #top"
   );
   survey.showNavigationButtons = true;
   survey.pages[0].navigationButtonsVisibility = "hide";
@@ -3631,12 +3681,56 @@ QUnit.test("isNavigationButtonsShowing", function(assert) {
     "none",
     "navigationButtonsVisibility = 'hide' && showNavigationButtons = true"
   );
+  assert.equal(
+    survey.isNavigationButtonsShowingOnBottom,
+    false,
+    "navigationButtonsVisibility = 'hide' && showNavigationButtons = true, #bottom"
+  );
   survey.showNavigationButtons = true;
   survey.pages[0].navigationButtonsVisibility = "inherit";
   assert.equal(
     survey.isNavigationButtonsShowing,
     "bottom",
     "navigationButtonsVisibility = 'inherit' && showNavigationButtons = true"
+  );
+  assert.equal(
+    survey.isNavigationButtonsShowingOnBottom,
+    true,
+    "navigationButtonsVisibility = 'inherit' && showNavigationButtons = true, #bottom"
+  );
+
+  survey.showNavigationButtons = "both";
+  assert.equal(
+    survey.isNavigationButtonsShowing,
+    "both",
+    "navigationButtonsVisibility = 'inherit' && showNavigationButtons = both"
+  );
+  assert.equal(
+    survey.isNavigationButtonsShowingOnBottom,
+    true,
+    "navigationButtonsVisibility = 'inherit' && showNavigationButtons = both, #bottom"
+  );
+  assert.equal(
+    survey.isNavigationButtonsShowingOnTop,
+    true,
+    "navigationButtonsVisibility = 'inherit' && showNavigationButtons = both, #top"
+  );
+
+  survey.showNavigationButtons = "top";
+  assert.equal(
+    survey.isNavigationButtonsShowing,
+    "top",
+    "navigationButtonsVisibility = 'inherit' && showNavigationButtons = top"
+  );
+  assert.equal(
+    survey.isNavigationButtonsShowingOnBottom,
+    false,
+    "navigationButtonsVisibility = 'inherit' && showNavigationButtons = top, #bottom"
+  );
+  assert.equal(
+    survey.isNavigationButtonsShowingOnTop,
+    true,
+    "navigationButtonsVisibility = 'inherit' && showNavigationButtons = top, #top"
   );
 });
 

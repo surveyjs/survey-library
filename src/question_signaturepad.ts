@@ -92,6 +92,7 @@ export class QuestionSignaturePadModel extends Question {
     };
 
     signaturePad.penColor = this.penColor;
+    signaturePad.backgroundColor = this.backgroundColor;
     signaturePad.onBegin = () => {
       canvas.focus();
     };
@@ -178,6 +179,15 @@ export class QuestionSignaturePadModel extends Question {
     this.setPropertyValue("penColor", val);
   }
   /**
+   * Use it to set background color for the signature pad.
+   */
+   public get backgroundColor(): string {
+    return this.getPropertyValue("backgroundColor", "#ffffff");
+  }
+  public set backgroundColor(val: string) {
+    this.setPropertyValue("backgroundColor", val);
+  }
+  /**
    * The clear signature button caption.
    */
   get clearButtonCaption(): string {
@@ -207,6 +217,11 @@ Serializer.addClass(
       name: "penColor:color",
       category: "general",
       default: "#1ab394",
+    },
+    {
+      name: "backgroundColor:color",
+      category: "general",
+      default: "#ffffff",
     },
     {
       name: "dataFormat",

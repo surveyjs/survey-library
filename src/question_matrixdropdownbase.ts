@@ -2524,12 +2524,12 @@ export class QuestionMatrixDropdownModelBase
   }
   public locStrsChanged() {
     super.locStrsChanged();
-    var rows = this.generatedVisibleRows;
-    if (!rows) return;
     var columns = this.columns;
     for (var i = 0; i < columns.length; i++) {
       columns[i].locStrsChanged();
     }
+    var rows = this.generatedVisibleRows;
+    if (!rows) return;
     for (var i = 0; i < rows.length; i++) {
       rows[i].locStrsChanged();
     }

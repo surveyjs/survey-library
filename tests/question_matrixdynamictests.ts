@@ -5992,3 +5992,55 @@ QUnit.test(
     assert.deepEqual(q1.value, [], "We clear value in the row");
   }
 );
+QUnit.test("Text processing in rows and columns, rendered table", function(
+  assert
+) {
+  var survey = new SurveyModel({
+    elements: [
+      {
+        type: "text",
+        name: "q1",
+        defaultValue: "value1",
+      },
+      {
+        type: "matrixdropdown",
+        name: "matrix",
+        columns: [{ name: "col1", title: "Col:{q1}" }],
+        rows: [{ value: "row1", text: "Row:{q1}" }],
+      },
+    ],
+  });
+  var matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+  assert.equal(
+    matrix.renderedTable.headerRow.cells.length,
+    2,
+    "Row column + column"
+  );
+  assert.equal(
+    matrix.renderedTable.headerRow.cells.length,
+    2,
+    "Row column + column"
+  );
+
+  assert.equal(
+    matrix.renderedTable.headerRow.cells[1].locTitle.textOrHtml,
+    "Col:value1",
+    "column text"
+  );
+  assert.equal(
+    matrix.renderedTable.rows[0].cells[0].locTitle.textOrHtml,
+    "Row:value1",
+    "row text"
+  );
+  survey.setValue("q1", "val2");
+  assert.equal(
+    matrix.renderedTable.headerRow.cells[1].locTitle.textOrHtml,
+    "Col:val2",
+    "column text, #2"
+  );
+  assert.equal(
+    matrix.renderedTable.rows[0].cells[0].locTitle.textOrHtml,
+    "Row:val2",
+    "row text, #2"
+  );
+});

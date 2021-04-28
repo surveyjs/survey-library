@@ -589,6 +589,7 @@ export class Base {
   public getProgressInfo(): IProgressInfo {
     return SurveyElement.createProgressInfo();
   }
+  public localeChanged() {}
   public locStrsChanged() {
     if (!!this.arraysInfo) {
       for (let key in this.arraysInfo) {

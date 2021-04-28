@@ -5000,3 +5000,45 @@ QUnit.test(
     settings.supportCreatorV2 = false;
   }
 );
+QUnit.test("Update choices order on changing locale, bug #2832", function(
+  assert
+) {
+  var json = {
+    elements: [
+      {
+        type: "checkbox",
+        name: "q1",
+        choices: [
+          {
+            value: "item1",
+            text: {
+              default: "Aaa",
+              fr: "ccc",
+            },
+          },
+          {
+            value: "item2",
+            text: {
+              default: "Bbb",
+              fr: "aaa",
+            },
+          },
+          {
+            value: "item3",
+            text: {
+              default: "Cccc",
+              fr: "bbb",
+            },
+          },
+        ],
+        choicesOrder: "asc",
+      },
+    ],
+  };
+  var survey = new SurveyModel(json);
+  survey.locale = "fr";
+  var q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+  assert.equal(q1.visibleChoices[0].value, "item2", "aaa in fr locale");
+  assert.equal(q1.visibleChoices[1].value, "item3", "bbb in fr locale");
+  assert.equal(q1.visibleChoices[2].value, "item1", "ccc in fr locale");
+});

@@ -95,6 +95,12 @@ export class QuestionSelectBase extends Question {
   isLayoutTypeSupported(layoutType: string): boolean {
     return true;
   }
+  public localeChanged() {
+    super.localeChanged();
+    if (this.choicesOrder !== "none") {
+      this.updateVisibleChoices();
+    }
+  }
   public locStrsChanged() {
     super.locStrsChanged();
     if (!!this.choicesFromUrl) {

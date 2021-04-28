@@ -1490,7 +1490,7 @@ export class SurveyModel extends Base
     this.setPropertyValue("locale", this.localeValue);
     if (this.isLoadingFromJson) return;
     this.locStrsChanged();
-    this.onLocaleChanged();
+    this.localeChanged();
     this.onLocaleChangedEvent.fire(this, value);
   }
   /**
@@ -1513,7 +1513,11 @@ export class SurveyModel extends Base
     }
     return locs;
   }
-  protected onLocaleChanged() {}
+  public localeChanged() {
+    for (var i = 0; i < this.pages.length; i++) {
+      this.pages[i].localeChanged();
+    }
+  }
   //ILocalizableOwner
   getLocale() {
     return this.locale;
@@ -1532,6 +1536,7 @@ export class SurveyModel extends Base
       this.currentPage.locStrsChanged();
     }
   }
+
   public getMarkdownHtml(text: string, name: string): string {
     return this.getSurveyMarkdownHtml(this, text, name);
   }

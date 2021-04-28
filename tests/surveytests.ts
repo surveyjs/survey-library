@@ -12661,6 +12661,34 @@ QUnit.test("onTextRenderAs event", function(assert) {
   assert.equal(renderAs, customRendererView);
 });
 
+QUnit.test("Make inputs read-only in design-mode for V2", function(assert) {
+  settings.supportCreatorV2 = true;
+  var survey = new SurveyModel();
+  survey.setDesignMode(true);
+  survey.fromJSON({
+    elements: [
+      { type: "text", name: "q1" },
+      {
+        type: "panel",
+        name: "panel1",
+        elements: [{ type: "text", name: "q2" }],
+      },
+    ],
+  });
+  assert.equal(survey.getQuestionByName("q1").isReadOnly, true, "q1");
+  assert.equal(survey.getQuestionByName("q2").isReadOnly, true, "q2");
+  assert.equal(survey.getPanelByName("panel1").isReadOnly, true, "panel1");
+  settings.supportCreatorV2 = false;
+  survey = new SurveyModel();
+  survey.setDesignMode(true);
+  survey.fromJSON({ elements: [{ type: "text", name: "q1" }] });
+  assert.equal(
+    survey.getAllQuestions()[0].isReadOnly,
+    false,
+    "supportCreatorV2 is false"
+  );
+});
+
 QUnit.test("onElementContentVisibilityChanged event", function(assert) {
   var json = {
     pages: [

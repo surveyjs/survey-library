@@ -23,12 +23,11 @@ export class SvgIcon extends React.Component<any, any> {
   }
   render() {
     return (
-      <svg
-        className={"sv-svg-icon " + this.props.className}
-        ref={this.svgIconRef}
-      >
-        <use></use>
-      </svg>
+      <span className={this.props.className} onClick={this.props.onClick}>
+        <svg className={"sv-svg-icon"} ref={this.svgIconRef}>
+          <use></use>
+        </svg>
+      </span>
     );
   }
   componentDidMount() {

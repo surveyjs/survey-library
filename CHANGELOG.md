@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.8.45](https://github.com/surveyjs/survey-library/compare/v1.8.44...v1.8.45) (2021-04-28)
+
+
+### Bug Fixes
+
+* Do not get "Select All", "None" and "Others" choices when copy them from choicesFromQuestion [#2815](https://github.com/surveyjs/survey-library/issues/2815) ([61371b4](https://github.com/surveyjs/survey-library/commit/61371b4cd08695757a7cd689486411d4639b5fa6))
+* Issue on combination between default value on question + single page survey + visibleif on choice [#2816](https://github.com/surveyjs/survey-library/issues/2816) ([9877db2](https://github.com/surveyjs/survey-library/commit/9877db2e5fab621e35920d1e049c768a416b9205))
+* Peformance improvements on loading and value changing for very large surveys [#2825](https://github.com/surveyjs/survey-library/issues/2825) ([3ff6511](https://github.com/surveyjs/survey-library/commit/3ff6511971da7eb1a7cabc63eaf72bc749a4bdea))
+* Text processing doesn't work correctly in matrix dropdown/dynamic columns in knockout [#2829](https://github.com/surveyjs/survey-library/issues/2829) ([67b58f6](https://github.com/surveyjs/survey-library/commit/67b58f6a77407170bf9bd78da4ac4587a9f85f3e))
+
 ### [1.8.44](https://github.com/surveyjs/survey-library/compare/v1.8.43...v1.8.44) (2021-04-20)
 
 

@@ -866,7 +866,7 @@ QUnit.test("loc strings changed only once on data assignment", function(
 ) {
   var json = {
     questions: [
-      { type: "text", name: "q1" },
+      { type: "text", name: "q1", title: "Question 1" },
       { type: "text", name: "q2", title: "{q1}" },
     ],
   };
@@ -874,21 +874,35 @@ QUnit.test("loc strings changed only once on data assignment", function(
 
   let callCount = 0;
   let calls = "";
+
   survey.onTextMarkdown.add(function(survey, options) {
     callCount++;
     calls += "->" + options.element.name + "." + options.name;
   });
-
+  callCount = 0;
+  calls = "";
   survey.data = {
     q1: "initial",
   };
-
   assert.equal(
     calls,
     "->q1.title->q1.commentText->q2.title->q2.commentText",
     "strings recalculated one time for each string"
   );
   assert.equal(callCount, 4, "strings recalculated 4 times");
+  var q1 = survey.getQuestionByName("q1");
+  var q2 = survey.getQuestionByName("q2");
+  q1.value = "initial";
+  assert.equal(
+    q2.locTitle["koRenderedHtml"](),
+    "initial",
+    "calculate the string correctly, ko"
+  );
+  assert.equal(
+    q2.locTitle.renderedHtml,
+    "initial",
+    "calculate the string correctly, model"
+  );
 });
 
 QUnit.test("koSurvey matrix.rowsVisibleIf", function(assert) {
@@ -2115,5 +2129,45 @@ QUnit.test("Change title koRenderedHtml on chaning name", function(assert) {
     question.locTitle["koRenderedHtml"](),
     "q2",
     "The  value is changed"
+  );
+});
+QUnit.test("Survey Markdown, Bug:#2831", function(assert) {
+  var survey = new Survey({
+    elements: [{ type: "text", name: "q1", title: "Hellomarkdown" }],
+  });
+  survey.onTextMarkdown.add(function(survey, options) {
+    if (options.text.indexOf("markdown") > -1)
+      options.html = options.text.replace("markdown", "!");
+  });
+  var q1 = survey.getQuestionByName("q1");
+  assert.equal(
+    q1.locTitle["koRenderedHtml"](),
+    "Hello!",
+    "Process markdown correctly"
+  );
+});
+QUnit.test("loc strings changed on data assignment", function(assert) {
+  var json = {
+    questions: [
+      { type: "text", name: "q1", title: "Question 1" },
+      { type: "text", name: "q2", title: "{q1}" },
+    ],
+  };
+  var survey = new Survey();
+  survey.fromJSON(json);
+  survey.currentPage = survey.pages[0];
+  survey.data = {
+    q1: "initial",
+  };
+  var q2 = survey.getQuestionByName("q2");
+  assert.equal(
+    q2.locTitle["koRenderedHtml"](),
+    "initial",
+    "calculate the string correctly, ko"
+  );
+  assert.equal(
+    q2.locTitle.renderedHtml,
+    "initial",
+    "calculate the string correctly, model"
   );
 });

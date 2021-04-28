@@ -950,9 +950,11 @@ export class SurveyModel extends Base
     this.onGetQuestionNo.onCallbacksChanged = () => {
       this.resetVisibleIndexes();
     };
-
     this.onProgressText.onCallbacksChanged = () => {
       this.updateProgressText();
+    };
+    this.onTextMarkdown.onCallbacksChanged = () => {
+      this.locStrsChanged();
     };
     this.onBeforeCreating();
     if (jsonObj) {

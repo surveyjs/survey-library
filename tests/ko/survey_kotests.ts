@@ -2095,3 +2095,25 @@ QUnit.test(
     );
   }
 );
+QUnit.test("Change title koRenderedHtml on chaning name", function(assert) {
+  var survey = new Survey({
+    elements: [
+      {
+        type: "text",
+        name: "q1",
+      },
+    ],
+  });
+  var question = <Question>survey.getQuestionByName("q1");
+  assert.equal(
+    question.locTitle["koRenderedHtml"](),
+    "q1",
+    "The default value is here"
+  );
+  question.name = "q2";
+  assert.equal(
+    question.locTitle["koRenderedHtml"](),
+    "q2",
+    "The  value is changed"
+  );
+});

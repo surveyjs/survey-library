@@ -11403,6 +11403,11 @@ QUnit.test(
     );
     question1.items[0].editor.value = "value1_1";
     assert.equal(
+      question1.items[0].editor.errors.length,
+      0,
+      "There is no errors in the first editor"
+    );
+    assert.equal(
       question1.items[1].editor.errors.length,
       1,
       "The error is not fixed"
@@ -11415,6 +11420,110 @@ QUnit.test(
     );
   }
 );
+QUnit.test("Remove errors on settings correct values, multipletext", function(
+  assert
+) {
+  var survey = new SurveyModel({
+    elements: [
+      {
+        type: "multipletext",
+        name: "question1",
+        items: [
+          { name: "item1", isRequired: true },
+          { name: "item2", isRequired: true },
+        ],
+      },
+    ],
+  });
+  var question1 = <QuestionMultipleTextModel>(
+    survey.getQuestionByName("question1")
+  );
+  survey.completeLastPage();
+  assert.equal(
+    question1.items[0].editor.errors.length,
+    1,
+    "There is required error in item1"
+  );
+  assert.equal(
+    question1.items[0].editor.errors.length,
+    1,
+    "There is required error in item2"
+  );
+  question1.items[0].editor.value = "val1";
+  assert.equal(
+    question1.items[0].editor.errors.length,
+    0,
+    "There is no errors in item1"
+  );
+  assert.equal(
+    question1.items[1].editor.errors.length,
+    1,
+    "There is still required error in item2"
+  );
+  question1.items[1].editor.value = "val2";
+  assert.equal(
+    question1.items[1].editor.errors.length,
+    0,
+    "There is no errors in item2"
+  );
+});
+QUnit.test("Remove errors on settings correct values, paneldynamic", function(
+  assert
+) {
+  var survey = new SurveyModel({
+    elements: [
+      {
+        type: "paneldynamic",
+        name: "panel1",
+        panelCount: 1,
+        templateElements: [
+          {
+            type: "text",
+            name: "q1",
+            isRequired: true,
+          },
+        ],
+      },
+    ],
+  });
+  var panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
+  survey.completeLastPage();
+  assert.equal(
+    panel.panels[0].questions[0].errors.length,
+    1,
+    "There is required error in question"
+  );
+  panel.panels[0].questions[0].value = "val1";
+  assert.equal(
+    panel.panels[0].questions[0].errors.length,
+    0,
+    "There is no errors in question"
+  );
+});
+QUnit.test("Remove errors on settings correct values, matrtixdynamic", function(
+  assert
+) {
+  var survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdynamic",
+        name: "matrix",
+        rowCount: 1,
+        columns: [{ name: "col1", isRequired: true, cellType: "text" }],
+      },
+    ],
+  });
+  var matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+  var question = matrix.visibleRows[0].cells[0].question;
+  survey.completeLastPage();
+  assert.equal(
+    question.errors.length,
+    1,
+    "There is required error in question"
+  );
+  question.value = "val1";
+  assert.equal(question.errors.length, 0, "There is no errors in question");
+});
 QUnit.test(
   "Survey.checkErrorsMode=onValueChanged, check input date error onNextpage, Bug #2141",
   function(assert) {

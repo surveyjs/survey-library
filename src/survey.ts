@@ -4388,17 +4388,21 @@ export class SurveyModel extends Base
   private checkQuestionErrorOnValueChanged(question: Question) {
     if (
       !this.isNavigationButtonPressed &&
-      (this.checkErrorsMode === "onValueChanged" || question.errors.length > 0)
+      (this.checkErrorsMode === "onValueChanged" ||
+        question.getAllErrors().length > 0)
     ) {
       this.checkQuestionErrorOnValueChangedCore(question);
     }
   }
   private checkQuestionErrorOnValueChangedCore(question: Question): boolean {
-    var oldErrorCount = question.errors.length;
+    var oldErrorCount = question.getAllErrors().length;
     var res = question.hasErrors(true, {
       isOnValueChanged: !this.isValidateOnValueChanging,
     });
-    if (!!question.page && (oldErrorCount > 0 || question.errors.length > 0)) {
+    if (
+      !!question.page &&
+      (oldErrorCount > 0 || question.getAllErrors().length > 0)
+    ) {
       this.fireValidatedErrorsOnPage(<PageModel>question.page);
     }
     return res;

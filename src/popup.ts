@@ -108,7 +108,9 @@ export class PopupViewModel extends Base {
   }
   public get styleClass(): string {
     var css = this.model.cssClass;
-    if (this.showPointer) {
+    if (this.isModal) {
+      css += " sv-popup--modal";
+    } else if (this.showPointer) {
       css += " sv-popup--show-pointer";
       css += ` sv-popup--${this.popupDirection}`;
     }

@@ -25,8 +25,8 @@ export class QuestionImplementor extends ImplementorBase {
 
     this.toggleStateByClick = () => {
       this.question.toggleState();
-      if (this.question.isExpanded) return true;
       if (this.question.isCollapsed) return false;
+      return true;
     };
     this.toggleStateByKeyUp = (_: any, event: any) => {
       if (event.which !== 13) return;

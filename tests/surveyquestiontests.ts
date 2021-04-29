@@ -5042,3 +5042,29 @@ QUnit.test("Update choices order on changing locale, bug #2832", function(
   assert.equal(q1.visibleChoices[1].value, "item3", "bbb in fr locale");
   assert.equal(q1.visibleChoices[2].value, "item1", "ccc in fr locale");
 });
+QUnit.test(
+  "boolean question default value is not assign into readOnly question, bug #",
+  function(assert) {
+    var json = {
+      elements: [
+        {
+          type: "boolean",
+          name: "q1",
+          defaultValue: true,
+          readOnly: true,
+        },
+        {
+          type: "text",
+          name: "q2",
+          defaultValue: "abc",
+          readOnly: true,
+        },
+      ],
+    };
+    var survey = new SurveyModel(json);
+    var q1 = survey.getQuestionByName("q1");
+    var q2 = survey.getQuestionByName("q2");
+    assert.equal(q1.value, true, "default value is set, boolean");
+    assert.equal(q2.value, "abc", "default value is set, text");
+  }
+);

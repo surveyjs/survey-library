@@ -51,6 +51,9 @@ export class QuestionBooleanModel extends Question {
     if (this.isReadOnly) {
       return;
     }
+    this.setCheckedValue(val);
+  }
+  private setCheckedValue(val: any) {
     if (this.isValueEmpty(val)) {
       this.value = null;
     } else {
@@ -144,9 +147,9 @@ export class QuestionBooleanModel extends Question {
     return this.valueFalse ? this.valueFalse : false;
   }
   protected setDefaultValue() {
-    if (this.defaultValue == "true") this.checkedValue = true;
-    if (this.defaultValue == "false") this.checkedValue = false;
-    if (this.defaultValue == "indeterminate") this.value = null;
+    if (this.defaultValue == "true") this.setCheckedValue(true);
+    if (this.defaultValue == "false") this.setCheckedValue(false);
+    if (this.defaultValue == "indeterminate") this.setCheckedValue(null);
   }
 }
 
@@ -167,11 +170,11 @@ Serializer.addClass(
     "valueFalse",
     { name: "renderAs", default: "default", visible: false },
   ],
-  function () {
+  function() {
     return new QuestionBooleanModel("");
   },
   "question"
 );
-QuestionFactory.Instance.registerQuestion("boolean", (name) => {
+QuestionFactory.Instance.registerQuestion("boolean", name => {
   return new QuestionBooleanModel(name);
 });

@@ -1,9 +1,6 @@
 import * as ko from "knockout";
 import { QuestionImplementor } from "./koquestion";
-import { QuestionRatingModel } from "survey-core";
-import { Serializer } from "survey-core";
-import { QuestionFactory } from "survey-core";
-import { Question } from "../question";
+import { QuestionRatingModel, Serializer, QuestionFactory, Question } from "survey-core";
 
 export class QuestionRatingImplementor extends QuestionImplementor {
   koVisibleRateValues: any;

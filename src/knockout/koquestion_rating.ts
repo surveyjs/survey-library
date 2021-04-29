@@ -5,10 +5,12 @@ import { Serializer } from "survey-core";
 import { QuestionFactory } from "survey-core";
 import { Question } from "../question";
 
-class QuestionRatingImplementor extends QuestionImplementor {
+export class QuestionRatingImplementor extends QuestionImplementor {
   koVisibleRateValues: any;
+  protected onCreated() {}
   constructor(question: Question) {
     super(question);
+    this.onCreated();
     this.koVisibleRateValues = this.setObservaleObj(
       "koVisibleRateValues",
       ko.observableArray()

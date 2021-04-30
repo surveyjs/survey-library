@@ -133,24 +133,26 @@ export class QuestionImplementor extends ImplementorBase {
     this.question.locTitle.onChanged();
   }
   protected koQuestionAfterRender(elements: any, con: any) {
-    !!ko.tasks && ko.tasks.runEarly();
-    var el = SurveyElement.GetFirstNonTextElement(elements, true);
-    if (!!el) {
-      this.question.afterRenderQuestionElement(el);
-      if (!!this.question.customWidget) {
-        this.question.customWidget.afterRender(this.question, el);
-      }
-      ko.utils.domNodeDisposal.addDisposeCallback(el, () => {
-        this.question.beforeDestroyQuestionElement(el);
+    setTimeout(() => {
+      !!ko.tasks && ko.tasks.runEarly();
+      var el = SurveyElement.GetFirstNonTextElement(elements, true);
+      if (!!el) {
+        this.question.afterRenderQuestionElement(el);
         if (!!this.question.customWidget) {
-          try {
-            this.question.customWidget.willUnmount(this.question, el);
-          } catch {
-            console.warn("Custom widget will unmount failed");
-          }
+          this.question.customWidget.afterRender(this.question, el);
         }
-      });
-    }
+        ko.utils.domNodeDisposal.addDisposeCallback(el, () => {
+          this.question.beforeDestroyQuestionElement(el);
+          if (!!this.question.customWidget) {
+            try {
+              this.question.customWidget.willUnmount(this.question, el);
+            } catch {
+              console.warn("Custom widget will unmount failed");
+            }
+          }
+        });
+      }
+    }, 0);
   }
   public dispose() {
     super.dispose();

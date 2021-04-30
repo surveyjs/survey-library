@@ -478,7 +478,7 @@ SurveyJS provides access to survey results. This can be helpful in the following
 
 - make predefined answers to particular questions before the survey starts
 - review survey results
-- restore the answered questions if an end user leaves a survey incompleted
+- restore the answered questions if an end user leaves a survey uncompleted
 - clear data for invisible questions
 - depending on question's answer, modify other question answers.
 
@@ -645,7 +645,7 @@ On the first page, you have a matrix dynamic question, with ability to add/delet
 The page is visible if:
 
 - the **visible** property equals to `true` (the default value),
-- the **visibleIf** property is empty (for more information about **visibileIf** expression, refer to the [Conditions](#conditions) section),
+- the **visibleIf** property is empty (for more information about **visibleIf** expression, refer to the [Conditions](#conditions) section),
 - its expression returns `true` and the page has at least one visible question.
 
 SurveyJS doesn't show pages that have no visible questions, it skips them automatically.
@@ -738,13 +738,13 @@ SurveyJS has a powerful and flexible expression engine powered by [PEG.js](https
 
 ### Boolean Expressions
 
-Questions, panels and pages have [visibleIf](https://surveyjs.io/Documentation/Library/?id=Question#visibleIf), [enableIf](https://surveyjs.io/Documentation/Library/?id=Question#enableIf) and [requriedIf](https://surveyjs.io/Documentation/Library/?id=Question#requiredIf) properties.
+Questions, panels and pages have [visibleIf](https://surveyjs.io/Documentation/Library/?id=Question#visibleIf), [enableIf](https://surveyjs.io/Documentation/Library/?id=Question#enableIf) and [requiredIf](https://surveyjs.io/Documentation/Library/?id=Question#requiredIf) properties.
 
 These properties are empty by default. Each element's behavior depends on the **isVisible**, **isReadOnly** and **isRequired** properties. The question containers (panel and page) become invisible if they have no visible questions.
 
-Before rendering the first page, SurveyJS parses all boolean expressions (**visibleIf**, **enableIf**, and **requriedIf**), creates the expression trees, and run all expressions. Later, SurveyJS runs all expressions after any value change. If the expression returns `false`, the element becomes invisible (or read-only or non required), if it returns `true` – visible (enabled, required). The question values should be in braces: `{yourQuestionValueName}`.
+Before rendering the first page, SurveyJS parses all Boolean expressions (**visibleIf**, **enableIf**, and **requiredIf**), creates the expression trees, and run all expressions. Later, SurveyJS runs all expressions after any value change. If the expression returns `false`, the element becomes invisible (or read-only or non required), if it returns `true` – visible (enabled, required). The question values should be in braces: `{yourQuestionValueName}`.
 
-Here are some examples of boolean expressions.
+Here are some examples of Boolean expressions.
 
 | Expression | Description |
 | --- | --- |

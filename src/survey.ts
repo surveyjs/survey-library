@@ -5814,8 +5814,12 @@ Serializer.addClass("survey", [
       return obj.locale == surveyLocalization.defaultLocale ? null : obj.locale;
     },
   },
-  { name: "title", serializationProperty: "locTitle" },
-  { name: "description:text", serializationProperty: "locDescription" },
+  { name: "title", serializationProperty: "locTitle", dependsOn: "locale" },
+  {
+    name: "description:text",
+    serializationProperty: "locDescription",
+    dependsOn: "locale",
+  },
   { name: "logo", serializationProperty: "locLogo" },
   { name: "logoWidth", default: "300px", minValue: 0 },
   { name: "logoHeight", default: "200px", minValue: 0 },

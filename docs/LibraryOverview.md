@@ -777,87 +777,345 @@ You can use the same approach in dynamic panels. To access questions value on th
 
 ### Use Functions in Expressions
 
-SurveyJS expressions support functions with unlimited parameter number. SurveyJS library implements a set of built-in functions, like `age` or `iif`: `age({birthdate}) >= 21`
+You can use functions in expressions to perform additional calculations.
+Functions support an arbitrary number of parameters and share the following general syntax:
 
-The code sample below illustrates how to use the `age` function:
+`functionName(arg1, arg2, ...argN)`
+
+The following rules apply:
+
+* **functionName**   
+A valid function name in lower camel case.
+* **()**  
+The function name is followed by an open and close parentheses, even if the function takes no arguments.
+* **,**  
+The comma is the only allowed delimiter to separate the function arguments. Arguments may be optional.
+
+An expression can contain more than one function calls, including calls to **[built-in functions](#builtin-functions)** and **[custom functions](#custom-functions)** that you can create.  
+
+ A function parameter can accept a question value pointer variable - a specific expression that points to a question whose value to obtain and use as a function argument. Such an expression specifies the question by its name in curly brackets, for instance as `{question1}`.
+
+As an example, the following expression uses two built-in functions (`age` and `iif`) to find out whether the value of the "birthdate" question is greater than or equal to 21 and to return `"yes"` or `"no"` correspondingly.
+ ```
+ "expression": "iif(age({birthdate}) >= 21, 'yes', 'no')"
+```
+
+For illustrative purposes, the code sample below shows how the built-in `age` function is implemented in SurveyJS sources (see [source code](https://github.com/surveyjs/survey-library/blob/68eb0054dc83d2f45a6daa1042bf7440c8faf007/src/functionsfactory.ts#L218-L230) for more details).
+
 
 ```javascript
-// The age() function accepts a birth date
-// and returns a number of full years
-function age(params) {
-  if (!params && params.length < 1) return -1;
-  var birthDay = new Date(params[0]);
-  var ageDifMs = Date.now() - birthDay.getTime();
-  var ageDate = new Date(ageDifMs); // milliseconds from epoch
-  return Math.abs(ageDate.getUTCFullYear() - 1970);
+// The age function accepts the birth date
+// and returns the current age as the number of full years.
+function age(params: any[]): any {
+  if (!params && params.length < 1) return null;
+  if (!params[0]) return null;
+  var birthDate = new Date(params[0]);
+  var today = new Date();
+  var age = today.getFullYear() - birthDate.getFullYear();
+  var m = today.getMonth() - birthDate.getMonth();
+  if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+    age -= age > 0 ? 1 : 0;
+  }
+  return age;
 }
-// Register the function for use in SurveyJS expressions
-Survey.FunctionFactory.Instance.register("age", age);
+// The function is registered for use in SurveyJS expressions.
+FunctionFactory.Instance.register("age", age);
 ```
 
-You may write, register, and use your own functions.
+<div id="builtin-functions"></div>  
 
-1. function name have to be camelCase. 
-2. arguments object are passed to function as single parameter during run.
+#### **Built-in Functions**
 
-in expression, if   `debugFunc({Q1}, {Q2})` are called, the `debugFunc` should have a shape of 
-
-```
-function debugFunc(params) {
-   let q1_value = params[0];
-   let q1_value = params[1];
-   ...
-}
-```
-instead of: 
-```
-function debugFunc(q1_value, q2_value) {
-}
-```
-
-The second form does not work.
+A list of built-in functions which are already implemented and registered within SurveyJS Library is given below.
 
 
 
-Starting with v1.0.21, you can access to your survey object as `this.survey` inside a custom function.
 
-As result you may, for example, pass a question name to your function: `myFunc('myQuestionName')` and then get it as:
+<div id="builtin-functions-iif"></div>  
 
-```javascript
-questionInstance = this.survey.getQuestionByName(params[0]);
-```
+**_iif_**  
+_iif(condition: expression, valueIfTrue: any, valueIfFalse: any): any_  
+[View source](https://github.com/surveyjs/survey-library/blob/68eb0054dc83d2f45a6daa1042bf7440c8faf007/src/functionsfactory.ts#L205-L209)  
+Returns the value specified by _valueIfTrue_ if the given _condition_ is truthly and the value specified by _valueIfFalse_ if the _condition_ is falsy. The condition is an expression that can contain typical operands/operators and references to question values (as question names in curly brackets).  
+Example:  
+`expression: "iif({question1} + {question2} > 20, 'high', 'low')"`
 
-The table below demonstrates a list of built-in functions:
 
-| Function name | Description |
-| --- | --- |
-| `age({birthdate})` | Returns the age by birth date. |
-| `iif("expression", trueValue, falseValue)` | Returns trueValue if expression returns `true` and _falseValue_ if expression returns `false`. <br /> `iif({question1} + {question2} > 20, 'high', 'low')` |
-| `isContainerReady("panelname/pagename")` | Returns `true`, if all questions in container (panel or page) are answered correctly. It validates (silently) all questions recursively in the container. If there is an error it returns `false`, otherwise `true`. If a question value is empty, but it does not have validators and it is not required then validation would pass successful. |
-| `isDisplayMode()` | Returns `true` if the survey is in display mode. Here is the example of usage: `isDisplayMode() <> true` |
-| `sum(par1, par2, ...)` | Returns the summary of passed parameters. |
-| `max(par1, par2, ...)` | Returns the maximum of passed parameters. [from v1.5.19](https://surveyjs.io/whatsnew#v1.5.19) |
-| `min(par1, par2, ...)` | Returns the minimum of passed parameters. [from v1.5.19](https://surveyjs.io/whatsnew#v1.5.19) |
-| `avg(par1, par2, ...)` | Returns the average value for passed parameters. |
-| `sumInArray({questionName}, 'propertyName')` | Returns the summary for array of objects {questionName} by property 'propertyName'. `sumInArray('matrixdynamic', 'total') > 1000` |
-| `avgInArray({questionName}, 'propertyName')` | Returns the average value for array of objects {questionName} by property 'propertyName'. `avgInArray('matrixdynamic', 'quantity') > 4` |
-| `minInArray({questionName}, 'propertyName')` | Returns the minimum value for array of objects {questionName} by property 'propertyName'. `minInArray('matrixdynamic', 'quantity') > 1` |
-| `maxInArray({questionName}, 'propertyName')` | Returns the maximum value for array of objects {questionName} by property 'propertyName'. `maxInArray('matrixdynamic', 'quantity') > 10` |
+<div id="builtin-functions-isContainerReady"></div>  
+
+**_isContainerReady_**  
+_isContainerReady(nameOfPanelOrPage: string): Boolean_  
+[View source](https://github.com/surveyjs/survey-library/blob/68eb0054dc83d2f45a6daa1042bf7440c8faf007/src/functionsfactory.ts#L232-L245)  
+Returns `true`, if all questions in the specified container (panel or page) are answered correctly (a respondent provided a valid input). This function recursively validates all questions in the container. If there is an error, the function returns `false`, otherwise `true`. In case a question's value is empty and neither validators no required status are defined for the editor, validation would pass successfully.  
+Example:  
+`expression: "isContainerReady('page1')"`
+
+
+<div id="builtin-functions-isDisplayMode"></div>  
+
+**_isDisplayMode_**  
+_isDisplayMode(): Boolean_  
+[View source](https://github.com/surveyjs/survey-library/blob/68eb0054dc83d2f45a6daa1042bf7440c8faf007/src/functionsfactory.ts#L247-L250)  
+Returns `true` if a survey is in display mode.  
+Example:  
+`expression: "isDisplayMode()"` 
+
+
+
+<div id="builtin-functions-age"></div>  
+
+**_age_**  
+_age(birthDate: any): number_  
+[View source](https://github.com/surveyjs/survey-library/blob/68eb0054dc83d2f45a6daa1042bf7440c8faf007/src/functionsfactory.ts#L218-L230)  
+Returns the age according to the date of birth passed. The passed date value (which is typically taken from the referenced question) should be defined as a valid [JavaScript Date](https://www.w3schools.com/jsref/jsref_obj_date.asp).  
+Example:  
+`expression: "age({birthdate})"`
+
+
+
+<div id="builtin-functions-currentDate"></div>  
+
+**_currentDate_**  
+_currentDate(): Date_  
+[View source](https://github.com/surveyjs/survey-library/blob/68eb0054dc83d2f45a6daa1042bf7440c8faf007/src/functionsfactory.ts#L252-L255)  
+Returns the current date.  
+Example:  
+`expression: "currentDate()"`
+
+
+
+<div id="builtin-functions-today"></div>  
+
+**_today_**  
+_today(daysToAdd?: number): Date_  
+[View source](https://github.com/surveyjs/survey-library/blob/68eb0054dc83d2f45a6daa1042bf7440c8faf007/src/functionsfactory.ts#L257-L264)  
+Returns the current date or a date calculated using an optional parameter. The parameter specifies the number of days to be added to the current date. For example, "today()" returns the current date 0 hours, 0 minutes, "today(-1) returns yesterday's date, "today(1)" returns tomorrow's date, "today(2) returns day after tomorrow date, and so on.  
+Examples:  
+`expression: "today()"`  
+`expression: "today(2)"`
+
+
+
+
+<div id="builtin-functions-getDate"></div>  
+
+**_getDate_**  
+_getDate(questionName: expression): Date_  
+[View source](https://github.com/surveyjs/survey-library/blob/68eb0054dc83d2f45a6daa1042bf7440c8faf007/src/functionsfactory.ts#L211-L216)  
+Returns the specified question's date value.  
+Example:  
+`expression: "getDate({dateQuestionForBirthday})"`
+
+
+
+<div id="builtin-functions-diffDays"></div>  
+
+**_diffDays_**  
+_diffDays(dateFrom: any, dateTo: any): number_  
+[View source](https://github.com/surveyjs/survey-library/blob/68eb0054dc83d2f45a6daa1042bf7440c8faf007/src/functionsfactory.ts#L266-L274)   
+Returns the number of days between two dates. Dates are typically specified by expressions that correspond to questions (by their names in curly brackets) containing date values.  
+Example:  
+`expression: "diffDays({startDate}, {endDate}) < 7"`
+
+
+
+
+
+
+
+
+<div id="builtin-functions-sum"></div>  
+
+**_sum_**  
+_sum(par1: number, par2: number, ...): number_  
+[View source](https://github.com/surveyjs/survey-library/blob/68eb0054dc83d2f45a6daa1042bf7440c8faf007/src/functionsfactory.ts#L247-L250)  
+Returns the sum of the passed arguments.  
+Example:  
+`expression: "sum({total1}, {total2})"`
+
+
+<div id="builtin-functions-max"></div>  
+
+**_max_**  
+_max(par1: number, par2: number, ...): number_  
+[View source](https://github.com/surveyjs/survey-library/blob/68eb0054dc83d2f45a6daa1042bf7440c8faf007/src/functionsfactory.ts#L106-L109)  
+Returns the largest value from a list of the passed arguments. [From v1.5.19.](https://surveyjs.io/whatsnew#v1.5.19)  
+Example:  
+`expression: "max({total1}, {total2})"`
+
+<div id="builtin-functions-min"></div>  
+
+**_min_**  
+min(par1: number, par2: number, ...): number_  
+[View source](https://github.com/surveyjs/survey-library/blob/68eb0054dc83d2f45a6daa1042bf7440c8faf007/src/functionsfactory.ts#L101-L104)  
+Returns the largest value from a list of the passed arguments. [From v1.5.19.](https://surveyjs.io/whatsnew#v1.5.19)  
+Example:  
+`expression: "min({total1}, {total2})"`
+
+
+<div id="builtin-functions-avg"></div>  
+
+**_avg_**  
+_avg(par1: number, par2: number, ...): number_  
+[View source](https://github.com/surveyjs/survey-library/blob/68eb0054dc83d2f45a6daa1042bf7440c8faf007/src/functionsfactory.ts#L118-L127)  
+Returns the average value of the passed arguments.  
+Example:  
+`expression: "avg({total1}, {total2}, {total3})"`
+
+
+<div id="builtin-functions-sumInArray"></div>  
+
+**_sumInArray_**  
+_sumInArray(questionName: expression, propertyName: string): number_  
+[View source](https://github.com/surveyjs/survey-library/blob/68eb0054dc83d2f45a6daa1042bf7440c8faf007/src/functionsfactory.ts#L164-L171)  
+Returns the sum of values in a array taken from the specified question property (both - the question and its property - are referenced by their names).  
+`expression: "sumInArray({matrixdynamic1}, 'total') > 1000"`
+
+
+
+<div id="builtin-functions-maxInArray"></div>  
+
+**_maxInArray_**  
+_maxInArray(questionName: expression, propertyName: string): number_  
+[View source](https://github.com/surveyjs/survey-library/blob/68eb0054dc83d2f45a6daa1042bf7440c8faf007/src/functionsfactory.ts#L181-L187)  
+Returns the maximum of all values in an array specified by a property (_propertyName_) of a matrix question (_questionName_ specified as the question name in curly brackets).  
+Example:  
+`expression: "maxInArray({matrixdynamic4}, 'quantity') > 20"`
+
+
+
+<div id="builtin-functions-minInArray"></div>  
+
+**_minInArray_**  
+_minInArray(questionName: expression, propertyName: string): number_  
+[View source](https://github.com/surveyjs/survey-library/blob/68eb0054dc83d2f45a6daa1042bf7440c8faf007/src/functionsfactory.ts#L173-L179)  
+Returns the minimum of all values in an array referenced by a property (_propertyName_) of a matrix question (_questionName_ specified as question name in curly brackets).  
+Example:  
+`expression: "minInArray({matrixdynamic3}, 'quantity') > 5"`
+
+
+
+<div id="builtin-functions-avgInArray"></div>  
+
+**_avgInArray_**  
+_avgInArray(questionName: expression, propertyName: string): number_  
+[View source](https://github.com/surveyjs/survey-library/blob/68eb0054dc83d2f45a6daa1042bf7440c8faf007/src/functionsfactory.ts#L198-L203)  
+Returns the average of all values in an array referenced by a property (_propertyName_) of a matrix  question (_questionName_ specified as question name in curly brackets).  
+Example:  
+`expression: "avgInArray({matrixdynamic2}, 'quantity') > 10"`
+
+
+
+<div id="builtin-functions-countInArray"></div>  
+
+**_countInArray_**  
+_countInArray(questionName: expression, propertyName: string): number_  
+[View source](https://github.com/surveyjs/survey-library/blob/68eb0054dc83d2f45a6daa1042bf7440c8faf007/src/functionsfactory.ts#L189-L196)  
+Returns the total number of items in an array referenced by a property (_propertyName_) of a matrix question (_questionName_ specified as the question name in curly brackets).  
+Example:  
+`expression: "countInArray({matrixdynamic5}) > 10"`
+
+
+
+
 
 If you feel there is a need in a particular function, then [write us](https://github.com/surveyjs/surveyjs/issues) about it.
 
 <div id="conditions-asyncfunctions"></div>
 
-### Using Asynchronous Functions in Expressions
 
-You may need to make some calculation or return a result from a server. SurveyJS has to make a request to a web service, wait until it gets the result, and continue evaluate the expression. Calling and getting the result from a web service is an asynchronous operation. If there is one asynchronous operation in your flow, then all operations that use it should be asynchronous too.
+<div id="custom-functions"></div>
 
-The current version of SurveyJS allows you to register an asynchronous custom function. SurveyJS uses a callback approach to support ECMA Script 5 (IE).
+#### **Custom Functions**
 
-The code sample below illustrates an asynchronous function example:
+You can write, register, and use your own functions in expressions. 
+
+**Implementation rules**
+
+The following basic rules exist: 
+
+1. Use a valid function name  
+A function's name should be in lower camel case (e.g. `myCustomFunction`).   
+
+2. Use a single array-like parameter for arguments  
+A function's argument objects should be passed and processed within the function as a single parameter - an array-like object containing the values of the passed arguments.  
+
+    As an example, consider a custom function that accepts more than one parameter and is called with the following syntax in an expression.  
+    `expression: "myFunc({question1}, {question2})"`  
+
+    The function should be implemented in the following manner:
+    ```
+    function myFunc(params) {
+       let q1_value = params[0];
+       let q1_value = params[1];
+       ...
+    }
+    ```
+    instead of: 
+    ```
+    function myFunc(q1_value, q2_value) {
+    }
+    ```
+    Otherwise, the function will not work.  
+
+3. Register your custom function  
+You should register your custom function to make it usable within SurveyJS expressions. Use the `FunctionFactory.Instance.register` method to register a function.  
+This method has the following signature:  
+`FunctionFactory.Instance.register(funcName: string, func: any, isAsync?: boolean = false);`
+   * _funcName_ - the function name,
+   * _func_ - a reference to the function,
+   * _isAsync_ - whether the function is asynchronous.
+
+    Usage example:  
+    ```javascript
+    function myFunc(params: any[]): any {
+        ...
+    }
+    // Function registration
+    FunctionFactory.Instance.register("myFunc", myFunc); 
+
+    function myAsyncFunc(params: any[]): any {
+        ...
+    }
+    // Registration of async function 
+    FunctionFactory.Instance.register("myAsyncFunc", myAsyncFunc, true);  
+    ```
+
+
+**Access survey element instances inside a custom function**
+
+Inside a custom function's implementation, you have access to the entire [survey object](https://surveyjs.io/Documentation/Library/?id=surveymodel) through `this.survey` (available from v1.0.21).
+
+As a result, you are able to access any element (and its values) within a survey.
+
+You can design your custom function so that it accepts the name of a survey element (e.g. a question, panel, or page) as a parameter and then, inside the function, you can use this name to get an instance of the corresponding element.
+
+For example, a question's name can be passed as a function parameter:  
+`myFunc('myQuestionName')`  
+And you can obtain the question's instance inside the function in the following manner:  
+`questionInstance = this.survey.getQuestionByName(params[0]);`
+
+
+
+
+
+
+### Use Asynchronous Functions in Expressions
+
+In SurveyJS expressions, you may require to perform some external and time-consuming calculations, and/or return a result from a server. In such cases, SurveyJS has to perform the following sequence of actions:  
+ * make a request to a web service, 
+ * wait until the service returns the result, 
+ * continue to evaluate the expression based on the result returned.  
+ 
+ Calling a web service and getting the result from it is an asynchronous operation. If there is one asynchronous operation in your flow, then all operations that relies on such an asynchronous operation should also be asynchronous.
+
+To manage asynchronous behavior and flow control, SurveyJS allows you to implement and register asynchronous custom functions. 
+Note that to support IE browsers, SurveyJS uses a ES5 ([ECMAScript 5](https://kangax.github.io/compat-table/es5/) asynchronous callback technique (not promises).
+
+The code sample below illustrates the key points in asynchronous function implementation:
 
 ```javascript
- function asyncFunc(params: any): any {
+ function asyncFunc(params: any[]): any {
    var self = this; // Store the context for this.returnResult callback
    setTimeout(function() {
        // Return the value via a callback
@@ -869,7 +1127,7 @@ The code sample below illustrates an asynchronous function example:
   FunctionFactory.Instance.register("asyncFunc", asyncFunc, true);
 ```
 
-The code sample below demonstrates how to add and register a custom asynchronous function (_isCountryExist_). This function is used in an expression validator.
+The following code example demonstrates how to implement and register a custom asynchronous function (_isCountryExist_). In the example, this function is used in a text question's validator of the expression type.
 
 ```javascript
 async function isCountryExist(params) {
@@ -900,7 +1158,7 @@ Survey.FunctionFactory.Instance.register(
   true
 );
 
-// Example of using
+// The isCoutryExist function is used in the question validator's expressions.
 var json = {
   questions: [
     {
@@ -910,7 +1168,7 @@ var json = {
       validators: [
         {
           type: "expression",
-          expression: "isCountryExist({country}) = true",
+          expression: "isCountryExist({country})", // Function usage 
           text: "Please type the country correctly!"
         }
       ]
@@ -920,9 +1178,10 @@ var json = {
 var survey = new Survey.Survey(json);
 ```
 
-> **Example**
->
-> [Async Function in Expression](https://surveyjs.io/Examples/Library/?id=questiontype-expression-async).
+> **Example**  
+> See the example's full code:  
+> [Async Function in Expression](https://surveyjs.io/Examples/Library/?id=questiontype-expression-async)
+
 
 <div id="conditions-cascading"></div>
 

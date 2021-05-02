@@ -197,6 +197,13 @@ export class SurveyQuestionElementBase extends SurveyElementBase<any, any> {
       !!this.questionBase.customWidget.widgetJson.render
     );
   }
+  protected get isDisplayMode(): boolean {
+    const props: any = this.props;
+    return (
+      props.isDisplayMode ||
+      (!!this.questionBase && this.questionBase.isInputReadOnly)
+    );
+  }
 }
 
 export class SurveyQuestionUncontrolledElement<

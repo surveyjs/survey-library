@@ -1,7 +1,7 @@
 <template>
   <div>
     <input
-      :disabled="question.isReadOnly"
+      :disabled="question.isInputReadOnly"
       :class="question.cssClasses.root"
       :type="question.inputType"
       :maxlength="question.getMaxLength()"

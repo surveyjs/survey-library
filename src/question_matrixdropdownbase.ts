@@ -597,6 +597,7 @@ export class MatrixDropdownColumn extends Base
     if (
       name === "visibleChoices" ||
       name === "isReadOnly" ||
+      name === "isInputReadOnly" ||
       name === "cssRoot"
     )
       return; //TODO descriptor doesn't return that it is a read-only property

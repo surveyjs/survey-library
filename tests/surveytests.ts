@@ -12784,15 +12784,14 @@ QUnit.test("Make inputs read-only in design-mode for V2", function(assert) {
       },
     ],
   });
-  assert.equal(survey.getQuestionByName("q1").isReadOnly, true, "q1");
-  assert.equal(survey.getQuestionByName("q2").isReadOnly, true, "q2");
-  assert.equal(survey.getPanelByName("panel1").isReadOnly, true, "panel1");
+  assert.equal(survey.getQuestionByName("q1").isInputReadOnly, true, "q1");
+  assert.equal(survey.getQuestionByName("q2").isInputReadOnly, true, "q2");
   settings.supportCreatorV2 = false;
   survey = new SurveyModel();
   survey.setDesignMode(true);
   survey.fromJSON({ elements: [{ type: "text", name: "q1" }] });
   assert.equal(
-    survey.getAllQuestions()[0].isReadOnly,
+    survey.getAllQuestions()[0].isInputReadOnly,
     false,
     "supportCreatorV2 is false"
   );

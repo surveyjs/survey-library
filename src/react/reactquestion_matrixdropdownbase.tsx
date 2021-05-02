@@ -17,8 +17,7 @@ import { SurveyPanel } from "./panel";
 
 import { SurveyActionBar } from "./components/action-bar/action-bar";
 import { IActionBarItem } from "survey-core";
-import {dragDropTD} from "./drag-drop-td"
-
+import { dragDropTD } from "./drag-drop-td";
 
 export class SurveyQuestionMatrixDropdownBase extends SurveyQuestionElementBase {
   constructor(props: any) {
@@ -61,7 +60,7 @@ export class SurveyQuestionMatrixDropdownBase extends SurveyQuestionElementBase 
       ? ({ overflowX: "scroll" } as React.CSSProperties)
       : ({} as React.CSSProperties);
     return (
-      <div style={divStyle} ref={(root) => (this.control = root)}>
+      <div style={divStyle} ref={root => (this.control = root)}>
         <table className={this.question.cssClasses.root}>
           {header}
           {rows}
@@ -141,7 +140,9 @@ export class SurveyQuestionMatrixDropdownBase extends SurveyQuestionElementBase 
     var matrixrow = [];
     var cells = row.cells;
 
-    matrixrow.push(this.question.allowRowsDragAndDrop ? dragDropTD(this.question): null);
+    matrixrow.push(
+      this.question.allowRowsDragAndDrop ? dragDropTD(this.question) : null
+    );
 
     for (var i = 0; i < cells.length; i++) {
       matrixrow.push(this.renderCell(cells[i], i, cssClasses));
@@ -301,7 +302,7 @@ export class SurveyQuestionMatrixDropdownCell extends SurveyQuestionAndErrorsCel
         key={key}
         question={this.cell.question}
         cssClasses={this.cell.question.cssClasses}
-        isDisplayMode={this.cell.question.isReadOnly}
+        isDisplayMode={this.cell.question.isInputReadOnly}
         item={this.cell.item}
         isFirst={this.cell.isFirstChoice}
         index={this.cell.choiceIndex.toString()}
@@ -316,7 +317,7 @@ export class SurveyQuestionMatrixDropdownCell extends SurveyQuestionAndErrorsCel
         key={key}
         question={this.cell.question}
         cssClasses={this.cell.question.cssClasses}
-        isDisplayMode={this.cell.question.isReadOnly}
+        isDisplayMode={this.cell.question.isInputReadOnly}
         item={this.cell.item}
         index={this.cell.choiceIndex.toString()}
         isChecked={this.cell.question.value === this.cell.item.value}

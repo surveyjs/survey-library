@@ -14,7 +14,7 @@
             :name="question.name"
             :id="question.inputId + '_' + index"
             :value="item.value"
-            :disabled="question.isReadOnly"
+            :disabled="question.isInputReadOnly"
             @change="change"
             v-bind:aria-required="question.isRequired"
             :aria-label="item.locText.text"

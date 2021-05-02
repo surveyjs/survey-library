@@ -34,7 +34,7 @@
     <label data-bind="css: question.getLabelClass(item)">
       <input
         type="radio"
-        data-bind="attr: { name: question.name + '_' + question.id, id: question.inputId + '_' + question.getItemIndex(item), 'aria-required': question.isRequired, 'aria-label': item.locText.renderedHtml, 'aria-invalid': question.errors.length > 0, 'aria-describedby': question.errors.length > 0 ? question.id + '_errors' : null}, checkedValue: item.value, checked: question.renderedValue, enable: !question.isReadOnly && item.isEnabled, css: question.koCss().itemControl"
+        data-bind="attr: { name: question.name + '_' + question.id, id: question.inputId + '_' + question.getItemIndex(item), 'aria-required': question.isRequired, 'aria-label': item.locText.renderedHtml, 'aria-invalid': question.errors.length > 0, 'aria-describedby': question.errors.length > 0 ? question.id + '_errors' : null}, checkedValue: item.value, checked: question.renderedValue, enable: !question.isInputReadOnly && item.isEnabled, css: question.koCss().itemControl"
       />
       <span data-bind="css: question.koCss().materialDecorator">
         <svg

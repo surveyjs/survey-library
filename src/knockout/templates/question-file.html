@@ -1,6 +1,6 @@
 ﻿<script type="text/html" id="survey-question-file">
   <div data-bind="css: question.koCss().root">
-      <!-- ko ifnot: question.isReadOnly -->
+      <!-- ko ifnot: question.isInputReadOnly -->
       <input type="file" data-bind="css: question.cssClasses.fileInput, attr: {id: question.inputId, 'aria-required': question.isRequired, 'aria-label': question.locTitle.renderedHtml, 'aria-invalid': question.errors.length > 0, 'aria-describedby': question.errors.length > 0 ? question.id + '_errors' : null, multiple: question.allowMultiple ? 'multiple' : undefined, title: koInputTitle, accept: question.acceptedTypes }, event: {change: question.dochange}">
       <!-- /ko -->
       <!-- ko if: question.isReadOnly -->
@@ -13,7 +13,7 @@
         </div>
       </div>
       <!-- ko if: question.koHasValue() && !question.isReadOnly -->
-      <button type="button" data-bind="css: question.cssClasses.removeButton, click: question.doclean, text: question.cleanButtonCaption"></button>
+      <button type="button" data-bind="css: question.cssClasses.removeButton, disabled: question.isInputReadOnly, click: question.doclean, text: question.cleanButtonCaption"></button>
       <!-- /ko -->
       <div data-bind="foreach: question.koData, visible: question.koHasValue">
           <span data-bind="visible: question.showPreview, css: question.cssClasses.preview">
@@ -44,7 +44,7 @@
           </span>
       </div>
       <!-- ko if: question.koHasValue() && !question.isReadOnly -->
-      <button type="button" data-bind="css: question.cssClasses.removeButtonBottom, click: question.doclean, text: question.cleanButtonCaption"></button>
+      <button type="button" data-bind="css: question.cssClasses.removeButtonBottom, disabled: question.isInputReadOnly, click: question.doclean, text: question.cleanButtonCaption"></button>
       <!-- /ko -->
   </div>
 </script>

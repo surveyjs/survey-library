@@ -4446,6 +4446,7 @@ export class SurveyModel extends Base
         value: newValue,
       });
     }
+    if (this.isDisposed) return;
     for (var i = 0; i < this.pages.length; i++) {
       this.pages[i].checkBindings(valueName, newValue);
     }
@@ -5049,7 +5050,7 @@ export class SurveyModel extends Base
     allowNotifyValueChanged: boolean = true
   ) {
     this.updateQuestionValue(name, newValue);
-    if (locNotification === true) return;
+    if (locNotification === true || this.isDisposed) return;
     var triggerKeys: { [index: string]: any } = {};
     triggerKeys[name] = { newValue: newValue, oldValue: oldValue };
     this.runConditionOnValueChanged(name, newValue);

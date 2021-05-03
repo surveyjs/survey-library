@@ -61,6 +61,21 @@ QUnit.test("Serializer.getObjPropertyValue/setObjPropertyValue", function(
   );
 });
 
+QUnit.test(
+  "Serializer.getObjPropertyValue/setObjPropertyValue for bindings",
+  function(assert) {
+    var question = new QuestionMatrixDynamicModel("q1");
+    Serializer.setObjPropertyValue(question, "bindings", {
+      rowCount: "q2",
+    });
+    assert.equal(
+      question.bindings.getValueNameByPropertyName("rowCount"),
+      "q2",
+      "set correctly"
+    );
+  }
+);
+
 QUnit.test("Edit object property using the survey", function(assert) {
   var question = new QuestionTextModel("q1");
   var survey = new SurveyModel();
@@ -937,4 +952,20 @@ QUnit.test("Dispose editing survey correctly", function(assert) {
     "q3",
     "react on changing in survey2"
   );
+});
+QUnit.test("Change locale", function(assert) {
+  var localeSurvey = new SurveyModel();
+  var json = {
+    elements: [
+      {
+        type: "text",
+        name: "locale",
+      },
+    ],
+  };
+  var survey = new SurveyModel(json);
+  survey.editingObj = localeSurvey;
+  survey.getQuestionByName("locale").value = "de";
+  assert.equal(localeSurvey.locale, "de", "Locale has been changed");
+  localeSurvey.locale = "";
 });

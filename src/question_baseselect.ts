@@ -622,17 +622,17 @@ export class QuestionSelectBase extends Question {
     );
   }
   protected addToVisibleChoices(items: Array<ItemValue>, isAddAll: boolean) {
-    if (isAddAll || this.hasOther) {
-      items.push(this.otherItem);
-    }
-    if (isAddAll || this.hasNone) {
-      items.push(this.noneItem);
-    }
     if (isAddAll) {
       if (!this.newItemValue) {
         this.newItemValue = new ItemValue("newitem"); //TODO
       }
       items.push(this.newItemValue);
+    }
+    if (isAddAll || this.hasOther) {
+      items.push(this.otherItem);
+    }
+    if (isAddAll || this.hasNone) {
+      items.push(this.noneItem);
     }
   }
   /**

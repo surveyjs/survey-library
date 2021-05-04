@@ -5363,6 +5363,14 @@ export class SurveyModel extends Base
     valueNames: {},
     valueNamesInsensitive: {},
   };
+
+  public getAllQuestionNames () {
+    let questionNames= Object.keys(
+      this.questionHashes.names
+    )
+    return questionNames
+  }
+
   private questionHashesClear() {
     this.questionHashes.names = {};
     this.questionHashes.namesInsensitive = {};

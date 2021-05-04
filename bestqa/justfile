@@ -5,3 +5,9 @@ copy:
     mkdir -p ~/dev/surveyresearch/static/css/{{version}}/
     cp -rf ~/dev/survey-library/build/survey-vue/*.min.js ~/dev/surveyresearch/static/js/{{version}}/
     cp -rf ~/dev/survey-library/build/survey-vue/*.min.css ~/dev/surveyresearch/static/css/{{version}}/
+
+# upstream is the master branch of original repo
+sync_upstream:
+    git co master
+    git fetch upstream 
+    git pull upstream master

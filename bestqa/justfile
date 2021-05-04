@@ -1,0 +1,7 @@
+version:="1.8.46a"
+copy:
+    cd .. && npm run build_vue_prod
+    mkdir -p ~/dev/surveyresearch/static/js/{{version}}/
+    mkdir -p ~/dev/surveyresearch/static/css/{{version}}/
+    cp -rf ~/dev/survey-library/build/survey-vue/*.min.js ~/dev/surveyresearch/static/js/{{version}}/
+    cp -rf ~/dev/survey-library/build/survey-vue/*.min.css ~/dev/surveyresearch/static/css/{{version}}/

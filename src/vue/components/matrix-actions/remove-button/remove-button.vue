@@ -2,6 +2,7 @@
   <button
     type="button"
     :class="question.cssClasses.button + ' ' + question.cssClasses.buttonRemove"
+    :disabled="question.isInputReadOnly"
     @click="() => question.removeRowUI(row)"
   >
     <span>{{ question.removeRowText }}</span>

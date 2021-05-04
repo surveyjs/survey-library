@@ -141,7 +141,7 @@ export class AdaptiveActionBarItemWrapper extends Base
   public get disabled(): boolean {
     const isEnabled = this.enabled;
     if (isEnabled === undefined) return false;
-    return isEnabled;
+    return !isEnabled;
   }
   public get showTitle(): boolean {
     return (

@@ -65,6 +65,7 @@ export class SurveyQuestionMatrixDynamic extends SurveyQuestionMatrixDropdownBas
         <button
           className={cssClasses.button + " " + cssClasses.buttonAdd}
           type="button"
+          disabled={this.question.isInputReadOnly}
           onClick={this.handleOnRowAddClick}
         >
           <span>{this.matrix.addRowText}</span>
@@ -75,6 +76,6 @@ export class SurveyQuestionMatrixDynamic extends SurveyQuestionMatrixDropdownBas
   }
 }
 
-ReactQuestionFactory.Instance.registerQuestion("matrixdynamic", (props) => {
+ReactQuestionFactory.Instance.registerQuestion("matrixdynamic", props => {
   return React.createElement(SurveyQuestionMatrixDynamic, props);
 });

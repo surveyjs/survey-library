@@ -30,6 +30,7 @@ export class SurveyQuestionMatrixDynamicRemoveButton extends ReactSurveyElement 
         }
         type="button"
         onClick={this.handleOnRowRemoveClick}
+        disabled={this.question.isInputReadOnly}
       >
         <span>{this.question.removeRowText}</span>
         <span className={this.question.cssClasses.iconRemove} />

@@ -1,7 +1,7 @@
 <template>
   <div
     role="alert"
-    v-show="isShow"
+    v-show="question.hasVisibleErrors"
     :class="classes"
     :id="question.id + '_errors'"
   >
@@ -37,10 +37,6 @@ import { SurveyError } from "survey-core";
 export class Errors extends Vue {
   @Prop() question: Question;
   @Prop() location: String;
-
-  get isShow() {
-    return this.question.hasVisibleErrors;
-  }
 
   get classes() {
     var question = this.question;

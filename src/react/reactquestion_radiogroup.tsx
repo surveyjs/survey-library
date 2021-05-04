@@ -58,17 +58,12 @@ export class SurveyQuestionRadiogroup extends SurveyQuestionElementBase {
     });
   }
   protected getItems(cssClasses: any): Array<any> {
-    var survey = this.question.survey as ReactSurveyModel;
     var items = [];
     var value = this.getStateValue();
     for (var i = 0; i < this.question.visibleChoices.length; i++) {
       var item = this.question.visibleChoices[i];
       var renderedItem = this.renderItem(item, value, cssClasses, "" + i)
-      var wrappedItem = null;
-      if(!!survey) {
-        wrappedItem = survey.wrapItemValue(renderedItem, this.question, item);
-      };
-      items.push(wrappedItem ?? renderedItem);
+      items.push(renderedItem);
     }
     return items;
   }
@@ -82,7 +77,7 @@ export class SurveyQuestionRadiogroup extends SurveyQuestionElementBase {
     index: string
   ): JSX.Element {
     var key = "item" + index;
-    return (
+    const renderedItem = (
       <SurveyQuestionRadioItem
         key={key}
         question={this.question}
@@ -94,6 +89,12 @@ export class SurveyQuestionRadiogroup extends SurveyQuestionElementBase {
         isChecked={value === item.value}
       />
     );
+    const survey = this.question.survey as ReactSurveyModel;
+    let wrappedItem = null;
+    if(!!survey) {
+      wrappedItem = survey.wrapItemValue(renderedItem, this.question, item);
+    };
+    return wrappedItem ?? renderedItem;
   }
   private getStateValue(): any {
     return !this.question.isEmpty() ? this.question.renderedValue : "";

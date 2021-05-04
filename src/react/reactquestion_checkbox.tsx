@@ -50,17 +50,12 @@ export class SurveyQuestionCheckbox extends SurveyQuestionElementBase {
     });
   }
   protected getItems(cssClasses: any): Array<any> {
-    var survey = this.question.survey as ReactSurveyModel;
     var renderedItems = [];
     for (var i = 0; i < this.question.visibleChoices.length; i++) {
       var item = this.question.visibleChoices[i];
       var key = "item" + i;
       var renderedItem = this.renderItem(key, item, i == 0, cssClasses, "" + i);
-      var wrappedItem = null;
-      if(!!survey) {
-        wrappedItem = survey.wrapItemValue(renderedItem, this.question, item);
-      };
-      renderedItems.push(wrappedItem ?? renderedItem);
+      renderedItems.push(renderedItem);
     }
     return renderedItems;
   }
@@ -74,7 +69,7 @@ export class SurveyQuestionCheckbox extends SurveyQuestionElementBase {
     cssClasses: any,
     index: string
   ): JSX.Element {
-    return (
+    const renderedItem = (
       <SurveyQuestionCheckboxItem
         key={key}
         question={this.question}
@@ -86,6 +81,12 @@ export class SurveyQuestionCheckbox extends SurveyQuestionElementBase {
         index={index}
       />
     );
+    const survey = this.question.survey as ReactSurveyModel;
+    let wrappedItem = null;
+    if(!!survey) {
+      wrappedItem = survey.wrapItemValue(renderedItem, this.question, item);
+    };
+    return wrappedItem ?? renderedItem;
   }
 }
 export class SurveyQuestionCheckboxItem extends ReactSurveyElement {

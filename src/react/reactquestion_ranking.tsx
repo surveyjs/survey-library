@@ -5,6 +5,8 @@ import {
 } from "./reactquestion_element";
 import { QuestionRankingModel } from "survey-core";
 import { ReactQuestionFactory } from "./reactquestion_factory";
+import { ReactSurveyModel } from "./reactsurveymodel";
+import { ItemValue } from "../itemvalue";
 
 export class SurveyQuestionRanking extends SurveyQuestionElementBase {
   protected get question(): QuestionRankingModel {
@@ -27,14 +29,10 @@ export class SurveyQuestionRanking extends SurveyQuestionElementBase {
     var rankingChoices = this.question.rankingChoices;
     for (var i = 0; i < rankingChoices.length; i++) {
       var item = rankingChoices[i];
-      var key = item.value + "-" + i + "-item";
-      var text = this.renderLocString(item.locText);
-      var index = this.question.getNumberByIndex(i);
       items.push(
         this.renderItem(
-          key,
-          text,
-          index,
+          item,
+          i,
           this.question.handleKeydown,
           this.question.cssClasses,
           this.question.getItemClass(item)
@@ -45,14 +43,16 @@ export class SurveyQuestionRanking extends SurveyQuestionElementBase {
   }
 
   protected renderItem(
-    key: string,
-    text: JSX.Element,
-    index: string,
+    item: ItemValue,
+    i: number,
     handleKeydown: (event: any) => void,
     cssClasses: any,
     itemClass: string
   ): JSX.Element {
-    return (
+    var key = item.value + "-" + i + "-item";
+    var text = this.renderLocString(item.locText);
+    var index = this.question.getNumberByIndex(i);
+    const renderedItem = (
       <SurveyQuestionRankingItem
         key={key}
         text={text}
@@ -62,6 +62,12 @@ export class SurveyQuestionRanking extends SurveyQuestionElementBase {
         itemClass={itemClass}
       />
     );
+    const survey = this.question.survey as ReactSurveyModel;
+    let wrappedItem = null;
+    if(!!survey) {
+      wrappedItem = survey.wrapItemValue(renderedItem, this.question, item);
+    };
+    return wrappedItem ?? renderedItem;
   }
 }
 

@@ -1714,7 +1714,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
         new ActionBarItem({
           id: "remove-row",
           location: "end",
-          enabled: this.matrix.isInputReadOnly,
+          enabled: !this.matrix.isInputReadOnly,
           component: "sv-matrix-remove-button",
           data: { row: row, question: this.matrix },
         })

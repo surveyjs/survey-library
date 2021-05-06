@@ -11,6 +11,7 @@ import { QuestionMatrixDynamicModel } from "../src/question_matrixdynamic";
 import { FunctionFactory } from "../src/functionsfactory";
 import { ExpressionValidator } from "../src/validator";
 import { QuestionFileModel } from "../src/question_file";
+import { QuestionDropdownModel } from "../src/question_dropdown";
 
 export default QUnit.module("Survey_QuestionPanelDynamic");
 
@@ -3686,3 +3687,38 @@ QUnit.test("templateTitle test + survey.onValueChanged", function(assert) {
     "the first panel title set correctly again"
   );
 });
+QUnit.test(
+  "Dependend choices not working properly in PanelDynamic Bug #2851",
+  function(assert) {
+    var survey = new SurveyModel({
+      elements: [
+        {
+          type: "checkbox",
+          name: "q1",
+          choices: ["A", "B", "C", "D", "E"],
+        },
+        {
+          type: "paneldynamic",
+          name: "panel",
+          templateElements: [
+            {
+              type: "dropdown",
+              name: "q2",
+              choicesFromQuestion: "q1",
+              choicesFromQuestionMode: "selected",
+            },
+          ],
+        },
+      ],
+    });
+    survey.getQuestionByName("q1").value = ["A", "B", "C"];
+    var panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+    panel.panelCount = 1;
+    var q2 = <QuestionDropdownModel>panel.panels[0].getQuestionByName("q2");
+    assert.equal(q2.visibleChoices.length, 3, "has 3 items from q1");
+    assert.equal(q2.visibleChoices[1].value, "B", "the second value is B");
+    survey.getQuestionByName("q1").value = ["C"];
+    assert.equal(q2.visibleChoices.length, 1, "has one item from q1");
+    assert.equal(q2.visibleChoices[0].value, "C", "the only item is C");
+  }
+);

@@ -1363,10 +1363,10 @@ export class SurveyElement extends Base implements ISurveyElement {
   public setSurveyImpl(value: ISurveyImpl) {
     this.surveyImplValue = value;
     if (!this.surveyImplValue) {
-      this.surveyValue = null;
+      this.setSurveyCore(null);
     } else {
       this.surveyDataValue = this.surveyImplValue.getSurveyData();
-      this.surveyValue = this.surveyImplValue.getSurvey();
+      this.setSurveyCore(this.surveyImplValue.getSurvey());
       this.textProcessorValue = this.surveyImplValue.getTextProcessor();
       this.onSetData();
     }
@@ -1386,9 +1386,12 @@ export class SurveyElement extends Base implements ISurveyElement {
   public getSurvey(live: boolean = false): ISurvey {
     if (!!this.surveyValue) return this.surveyValue;
     if (!!this.surveyImplValue) {
-      this.surveyValue = this.surveyImplValue.getSurvey();
+      this.setSurveyCore(this.surveyImplValue.getSurvey());
     }
     return this.surveyValue;
+  }
+  protected setSurveyCore(value: ISurvey) {
+    this.surveyValue = value;
   }
   /**
    * Returns true if the question in design mode right now.

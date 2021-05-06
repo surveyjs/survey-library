@@ -1,6 +1,6 @@
 import { Serializer } from "./jsonobject";
 import { Question } from "./question";
-import { Base, SurveyError, ISurveyImpl } from "./base";
+import { Base, SurveyError, ISurveyImpl, ISurvey } from "./base";
 import { ItemValue } from "./itemvalue";
 import { Helpers, HashTable } from "./helpers";
 import { surveyLocalization } from "./surveyStrings";
@@ -784,6 +784,12 @@ export class QuestionSelectBase extends Question {
     this.runChoicesByUrl();
     if (this.isAddDefaultItems) {
       this.updateVisibleChoices();
+    }
+  }
+  protected setSurveyCore(value: ISurvey) {
+    super.setSurveyCore(value);
+    if (!!value && !!this.choicesFromQuestion) {
+      this.onVisibleChoicesChanged();
     }
   }
   protected getStoreOthersAsComment() {

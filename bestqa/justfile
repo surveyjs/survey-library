@@ -1,4 +1,4 @@
-version:="1.8.46a"
+version:="1.8.46b"
 copy:
     cd .. && npm run build_vue_prod
     mkdir -p ~/dev/surveyresearch/static/js/{{version}}/

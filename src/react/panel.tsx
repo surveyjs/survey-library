@@ -41,21 +41,11 @@ export class SurveyPanel extends SurveyPanelBase {
       var className = this.panelBase.cssClasses.panel.content;
       content = this.renderContent(style, rows, className);
     }
-    var rootStyle: { [index: string]: any } = {};
-    if (this.panel.renderWidth) {
-      rootStyle["width"] = this.panel.renderWidth;
-      rootStyle["flexGrow"] = 1;
-      rootStyle["flexShrink"] = 1;
-      rootStyle["flexBasis"] = this.panel.renderWidth;
-      rootStyle["minWidth"] = this.panel["minWidth"];
-      rootStyle["maxWidth"] = this.panel["maxWidth"];
-    }
     var bottom = this.renderBottom();
     return (
       <div
         ref={this.rootRef}
         className={this.panelBase.cssClasses.panel.container}
-        style={rootStyle}
       >
         {title}
         {description}

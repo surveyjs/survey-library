@@ -1195,10 +1195,7 @@ export class PanelModelBase extends SurveyElement
   public get isReadOnly(): boolean {
     var isParentReadOnly = !!this.parent && this.parent.isReadOnly;
     var isSurveyReadOnly = !!this.survey && this.survey.isDisplayMode;
-    var isDesignModeV2 = settings.supportCreatorV2 && this.isDesignMode;
-    return (
-      this.readOnly || isParentReadOnly || isSurveyReadOnly || isDesignModeV2
-    );
+    return this.readOnly || isParentReadOnly || isSurveyReadOnly;
   }
   protected onReadOnlyChanged() {
     for (var i = 0; i < this.elements.length; i++) {

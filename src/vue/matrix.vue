@@ -55,7 +55,7 @@
                   :name="row.fullName"
                   v-model="row.value"
                   :value="column.value"
-                  :disabled="question.isReadOnly"
+                  :disabled="question.isInputReadOnly"
                   :id="question.inputId + '_' + row.name + '_' + columnIndex"
                   v-bind:aria-required="question.isRequired"
                   :aria-label="question.locTitle.renderedHtml"
@@ -91,7 +91,7 @@ import { QuestionMatrixModel } from "survey-core";
 @Component
 export class Matrix extends QuestionVue<QuestionMatrixModel> {
   cellClick(row: any, column: any) {
-    if (this.question.isReadOnly) return;
+    if (this.question.isInputReadOnly) return;
     row.value = column.value;
   }
 }

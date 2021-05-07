@@ -246,13 +246,9 @@ export class Survey extends SurveyElementBase<any, any>
               className={this.survey.css.logoImage}
               src={this.survey.locLogo.renderedHtml}
               alt={this.survey.locTitle.renderedHtml}
-              width={
-                this.survey.logoWidth ? this.survey.logoWidth : undefined
-              }
+              width={this.survey.logoWidth ? this.survey.logoWidth : undefined}
               height={
-                this.survey.logoHeight
-                  ? this.survey.logoHeight
-                  : undefined
+                this.survey.logoHeight ? this.survey.logoHeight : undefined
               }
               style={style}
             />
@@ -266,13 +262,9 @@ export class Survey extends SurveyElementBase<any, any>
               className={this.survey.css.logoImage}
               src={this.survey.locLogo.renderedHtml}
               alt={this.survey.locTitle.renderedHtml}
-              width={
-                this.survey.logoWidth ? this.survey.logoWidth : undefined
-              }
+              width={this.survey.logoWidth ? this.survey.logoWidth : undefined}
               height={
-                this.survey.logoHeight
-                  ? this.survey.logoHeight
-                  : undefined
+                this.survey.logoHeight ? this.survey.logoHeight : undefined
               }
               style={style}
             />
@@ -402,7 +394,7 @@ export class Survey extends SurveyElementBase<any, any>
         : question.getComponentName(),
       {
         question: question,
-        isDisplayMode: question.isReadOnly,
+        isDisplayMode: question.isInputReadOnly,
         creator: this,
       }
     );

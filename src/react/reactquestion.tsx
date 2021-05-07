@@ -203,7 +203,7 @@ export class SurveyQuestion extends SurveyElementBase<any, any> {
           question={this.question}
           cssClasses={cssClasses}
           otherCss={cssClasses.other}
-          isDisplayMode={this.question.isReadOnly}
+          isDisplayMode={this.question.isInputReadOnly}
         />
       </div>
     );

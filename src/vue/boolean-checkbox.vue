@@ -9,7 +9,7 @@
         :class="question.cssClasses.control"
         :id="question.inputId"
         :indeterminate.prop="question.isIndeterminate"
-        :disabled="question.isReadOnly"
+        :disabled="question.isInputReadOnly"
         v-bind:aria-required="question.isRequired"
         :aria-label="question.locTitle.renderedHtml"
         :aria-invalid="question.errors.length > 0"

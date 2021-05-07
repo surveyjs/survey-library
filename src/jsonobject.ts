@@ -760,16 +760,10 @@ export class JsonMetadata {
     return this.getObjPropertyValueCore(obj, prop);
   }
   public setObjPropertyValue(obj: any, name: string, val: any) {
-    var prop = Serializer.findProperty(obj.getType(), name);
-    if (
-      !prop ||
-      !prop.isSerializable ||
-      this.isObjWrapper(obj) ||
-      prop.isLocalizable
-    ) {
-      obj[name] = val;
+    if (!!obj[name] && !!obj[name].setJson) {
+      obj[name].setJson(val);
     } else {
-      obj.setPropertyValue(name, val);
+      obj[name] = val;
     }
   }
   private getObjPropertyValueCore(obj: any, prop: JsonObjectProperty): any {

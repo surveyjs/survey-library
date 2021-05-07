@@ -96,9 +96,6 @@ export class QuestionMatrixBaseImplementor extends QuestionImplementor {
   protected isAddRowBottom(): boolean {
     return false;
   }
-  protected canRemoveRows(): boolean {
-    return false;
-  }
   protected addRow() {}
   protected removeRow(row: MatrixDropdownRowModelBase) {}
   private panelAfterRender(elements: any, con: any) {

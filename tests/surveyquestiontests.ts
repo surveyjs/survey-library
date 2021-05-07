@@ -4929,31 +4929,35 @@ QUnit.test(
       true,
       "item1 is in list"
     );
-    assert.equal(q1.visibleChoices[5].value, "newitem", "the last is new item");
+    assert.equal(
+      q1.visibleChoices[3].value,
+      "newitem",
+      "new item is next after real items"
+    );
 
     assert.equal(
-      q1.isItemInList(q1.visibleChoices[5]),
+      q1.isItemInList(q1.visibleChoices[3]),
       false,
       "new item is never in the list"
     );
 
-    assert.equal(q1.visibleChoices[4].value, "none", "index=4, none");
+    assert.equal(q1.visibleChoices[5].value, "none", "index=5, none");
     assert.equal(
-      q1.isItemInList(q1.visibleChoices[4]),
+      q1.isItemInList(q1.visibleChoices[5]),
       false,
       "none not in list"
     );
     q1.hasNone = true;
-    assert.equal(q1.isItemInList(q1.visibleChoices[4]), true, "none in list");
+    assert.equal(q1.isItemInList(q1.visibleChoices[5]), true, "none in list");
 
-    assert.equal(q1.visibleChoices[3].value, "other", "index=3, other");
+    assert.equal(q1.visibleChoices[4].value, "other", "index=4, other");
     assert.equal(
-      q1.isItemInList(q1.visibleChoices[3]),
+      q1.isItemInList(q1.visibleChoices[4]),
       false,
       "other not in list"
     );
     q1.hasOther = true;
-    assert.equal(q1.isItemInList(q1.visibleChoices[3]), true, "other in list");
+    assert.equal(q1.isItemInList(q1.visibleChoices[4]), true, "other in list");
 
     assert.equal(q2.visibleChoices[0].value, "selectall", "index=0, selectall");
     assert.equal(

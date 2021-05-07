@@ -9,7 +9,7 @@
                 <input
                 type="radio"
                 class="sv-visuallyhidden"
-                data-bind="attr: { name: question.name, id: question.inputId + '_' + $index(), value: $data.value, 'aria-required': question.isRequired, 'aria-label': $data.locText.text, 'aria-invalid': question.errors.length > 0, 'aria-describedby': question.errors.length > 0 ? question.id + '_errors' : null }, checkedValue: $data.value, checked: question.value, enable: !question.isReadOnly"
+                data-bind="attr: { name: question.name, id: question.inputId + '_' + $index(), value: $data.value, 'aria-required': question.isRequired, 'aria-label': $data.locText.text, 'aria-invalid': question.errors.length > 0, 'aria-describedby': question.errors.length > 0 ? question.id + '_errors' : null }, checkedValue: $data.value, checked: question.value, enable: !question.isInputReadOnly"
                 />
                 <!-- ko if: $index() == 0 -->
                 <span data-bind="css: question.koCss().minText">

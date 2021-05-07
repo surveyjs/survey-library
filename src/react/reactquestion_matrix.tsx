@@ -7,7 +7,7 @@ import { QuestionMatrixModel } from "survey-core";
 import { MatrixRowModel } from "survey-core";
 import { ReactQuestionFactory } from "./reactquestion_factory";
 import { Helpers } from "survey-core";
-import {dragDropTD as getDragDropTD} from "./drag-drop-td"
+import { dragDropTD as getDragDropTD } from "./drag-drop-td";
 
 export class SurveyQuestionMatrix extends SurveyQuestionElementBase {
   constructor(props: any) {
@@ -21,7 +21,7 @@ export class SurveyQuestionMatrix extends SurveyQuestionElementBase {
     super.componentDidMount();
     if (this.question) {
       var self = this;
-      this.question.visibleRowsChangedCallback = function () {
+      this.question.visibleRowsChangedCallback = function() {
         self.setState({ rowsChanged: self.state.rowsChanged + 1 });
       };
     }
@@ -76,7 +76,7 @@ export class SurveyQuestionMatrix extends SurveyQuestionElementBase {
     return (
       <div
         className={cssClasses.tableWrapper}
-        ref={(root) => (this.control = root)}
+        ref={root => (this.control = root)}
       >
         <fieldset>
           <legend aria-label={this.question.locTitle.renderedHtml} />
@@ -114,7 +114,7 @@ export class SurveyQuestionMatrixRow extends ReactSurveyElement {
 
     if (this.question.allowRowsDragAndDrop) {
       dragDropTD = getDragDropTD(this.question);
-    };
+    }
     if (this.question.hasRows) {
       var rowText = this.renderLocString(this.row.locText);
       rowsTD = <td className={this.question.cssClasses.cell}>{rowText}</td>;
@@ -144,7 +144,7 @@ export class SurveyQuestionMatrixRow extends ReactSurveyElement {
       let itemClass = this.question.getItemClass(row, column);
       var inputId = this.question.inputId + "_" + row.name + "_" + i;
       if (this.question.hasCellText) {
-        var getHandler = !this.question.isReadOnly
+        var getHandler = !this.question.isInputReadOnly
           ? (column: any) => () => this.cellClick(row, column)
           : null;
         td = (
@@ -205,6 +205,6 @@ export class SurveyQuestionMatrixRow extends ReactSurveyElement {
   }
 }
 
-ReactQuestionFactory.Instance.registerQuestion("matrix", (props) => {
+ReactQuestionFactory.Instance.registerQuestion("matrix", props => {
   return React.createElement(SurveyQuestionMatrix, props);
 });

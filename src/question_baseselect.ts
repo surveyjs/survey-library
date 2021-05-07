@@ -1,6 +1,6 @@
 import { Serializer } from "./jsonobject";
 import { Question } from "./question";
-import { Base, SurveyError, ISurveyImpl } from "./base";
+import { Base, SurveyError, ISurveyImpl, ISurvey } from "./base";
 import { ItemValue } from "./itemvalue";
 import { Helpers, HashTable } from "./helpers";
 import { surveyLocalization } from "./surveyStrings";
@@ -622,17 +622,17 @@ export class QuestionSelectBase extends Question {
     );
   }
   protected addToVisibleChoices(items: Array<ItemValue>, isAddAll: boolean) {
-    if (isAddAll || this.hasOther) {
-      items.push(this.otherItem);
-    }
-    if (isAddAll || this.hasNone) {
-      items.push(this.noneItem);
-    }
     if (isAddAll) {
       if (!this.newItemValue) {
         this.newItemValue = new ItemValue("newitem"); //TODO
       }
       items.push(this.newItemValue);
+    }
+    if (this.supportOther() && (isAddAll || this.hasOther)) {
+      items.push(this.otherItem);
+    }
+    if (this.supportNone() && (isAddAll || this.hasNone)) {
+      items.push(this.noneItem);
     }
   }
   /**
@@ -768,6 +768,9 @@ export class QuestionSelectBase extends Question {
   public supportOther(): boolean {
     return true;
   }
+  public supportNone(): boolean {
+    return true;
+  }
   protected onCheckForErrors(
     errors: Array<SurveyError>,
     isOnValueChanged: boolean
@@ -781,6 +784,12 @@ export class QuestionSelectBase extends Question {
     this.runChoicesByUrl();
     if (this.isAddDefaultItems) {
       this.updateVisibleChoices();
+    }
+  }
+  protected setSurveyCore(value: ISurvey) {
+    super.setSurveyCore(value);
+    if (!!value && !!this.choicesFromQuestion) {
+      this.onVisibleChoicesChanged();
     }
   }
   protected getStoreOthersAsComment() {

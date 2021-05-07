@@ -73,7 +73,7 @@ export class QuestionSignaturePadModel extends Question {
     var canvas: any = el.getElementsByTagName("canvas")[0];
     var buttonEl = el.getElementsByTagName("button")[0];
     var signaturePad = new SignaturePad(canvas, { backgroundColor: "#ffffff" });
-    if (this.isReadOnly) {
+    if (this.isInputReadOnly) {
       signaturePad.off();
     }
 
@@ -82,7 +82,7 @@ export class QuestionSignaturePadModel extends Question {
     };
 
     this.readOnlyChangedCallback = () => {
-      if (!this.allowClear || this.isReadOnly) {
+      if (!this.allowClear || this.isInputReadOnly) {
         signaturePad.off();
         buttonEl.style.display = "none";
       } else {
@@ -181,7 +181,7 @@ export class QuestionSignaturePadModel extends Question {
   /**
    * Use it to set background color for the signature pad.
    */
-   public get backgroundColor(): string {
+  public get backgroundColor(): string {
     return this.getPropertyValue("backgroundColor", "#ffffff");
   }
   public set backgroundColor(val: string) {
@@ -236,11 +236,11 @@ Serializer.addClass(
     { name: "defaultValue", visible: false },
     { name: "correctAnswer", visible: false },
   ],
-  function () {
+  function() {
     return new QuestionSignaturePadModel("");
   },
   "question"
 );
-QuestionFactory.Instance.registerQuestion("signaturepad", (name) => {
+QuestionFactory.Instance.registerQuestion("signaturepad", name => {
   return new QuestionSignaturePadModel(name);
 });

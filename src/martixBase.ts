@@ -330,7 +330,12 @@ Serializer.addClass(
     "columnsVisibleIf:condition",
     "rowsVisibleIf:condition",
     { name: "showHeader:boolean", default: true },
-    { name: "allowRowsDragAndDrop", default: false },
+    {
+      name: "allowRowsDragAndDrop",
+      default: false,
+      visible: false,
+      isSerializable: false,
+    },
   ],
   undefined,
   "question"

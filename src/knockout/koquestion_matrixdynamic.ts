@@ -18,12 +18,6 @@ export class QuestionMatrixDynamicImplementor extends QuestionMatrixBaseImplemen
     super(question);
     (<any>this.question)["getKoPopupIsVisible"] = this.getKoPopupIsVisible;
   }
-  protected canRemoveRows(): boolean {
-    return (
-      !this.question.isReadOnly &&
-      (<QuestionMatrixDynamic>this.question).canRemoveRows
-    );
-  }
   protected addRow() {
     (<QuestionMatrixDynamic>this.question).addRow();
   }

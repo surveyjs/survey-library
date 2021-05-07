@@ -11,7 +11,7 @@ ko.components.register("sv-button-group-item", {
       const model = new ButtonGroupItemModel(
         params.question,
         params.item,
-        params.index
+        params.index()
       );
       const viewModel = new ButtonGroupItemViewModel(model);
       return viewModel;

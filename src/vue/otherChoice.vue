@@ -2,8 +2,8 @@
   <div class="form-group">
     <textarea
       v-if="!question.isReadOnlyRenderDiv()"
-      :readonly="question.isReadOnly"
-      :disabled="question.isReadOnly"
+      :readonly="question.isInputReadOnly"
+      :disabled="question.isInputReadOnly"
       :class="question.cssClasses.other || commentClass"
       :value="question.comment"
       :maxlength="question.getOthersMaxLength()"

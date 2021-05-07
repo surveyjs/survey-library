@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.8.46](https://github.com/surveyjs/survey-library/compare/v1.8.45...v1.8.46) (2021-04-30)
+
+
+### Bug Fixes
+
+* choices are not sorted correctly on changing locale in the code [#2832](https://github.com/surveyjs/survey-library/issues/2832) ([b61dfad](https://github.com/surveyjs/survey-library/commit/b61dfad7c5707b34006b4e2cd6fd8ebb8e2aa50d))
+* defaultValue doesn't set into read-only boolean question [#2836](https://github.com/surveyjs/survey-library/issues/2836) ([3047976](https://github.com/surveyjs/survey-library/commit/3047976dfc34a1dbd6c5b776cb9e8abcf8189759))
+* Markdown not working anymore with 1.8.45 [#2831](https://github.com/surveyjs/survey-library/issues/2831) ([a120c0c](https://github.com/surveyjs/survey-library/commit/a120c0c235e44d1b12024920d9f6bdda0ba1286d))
+
 ### [1.8.45](https://github.com/surveyjs/survey-library/compare/v1.8.44...v1.8.45) (2021-04-28)
 
 

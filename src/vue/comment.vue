@@ -3,8 +3,8 @@
     <textarea
       v-if="!question.isReadOnlyRenderDiv()"
       type="text"
-      :readonly="question.isReadOnly"
-      :disabled="question.isReadOnly"
+      :readonly="question.isInputReadOnly"
+      :disabled="question.isInputReadOnly"
       :value="question.value"
       :id="question.inputId"
       :maxlength="question.getMaxLength()"

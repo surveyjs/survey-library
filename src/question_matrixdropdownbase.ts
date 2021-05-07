@@ -2810,12 +2810,12 @@ export class QuestionMatrixDropdownModelBase
     );
   }
   private getCellQuestions(): Array<Question> {
-    var rows = this.visibleRows;
+    const rows = this.visibleRows;
     if (!rows) return [];
-    var questions = [];
-    for (var i = 0; i < rows.length; i++) {
-      var row = rows[i];
-      for (var j = 0; j < row.cells.length; j++) {
+    const questions = [];
+    for (let i = 0; i < rows.length; i++) {
+      const row = rows[i];
+      for (let j = 0; j < row.cells.length; j++) {
         questions.push(row.cells[j].question);
       }
     }

@@ -2,7 +2,7 @@ import { Serializer } from "./jsonobject";
 import { QuestionFactory } from "./questionfactory";
 import {
   QuestionCheckboxBase,
-  QuestionSelectBase,
+  QuestionSelectBase
 } from "./question_baseselect";
 import { Helpers } from "./helpers";
 import { ItemValue } from "./itemvalue";

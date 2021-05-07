@@ -37,8 +37,10 @@ Please visit our [what's new page](https://surveyjs.io/WhatsNew) to see what we 
   - [Navigation](#navigation)
 - [Questions and Containers Conditional Visibility, Read-Only and Required Questions](#conditions)
   - [Boolean Expressions](#conditions-expressions)
-  - [Use Functions in Expressions](#conditions-functions)
-  - [Using Asynchronous Functions in Expressions](#conditions-asyncfunctions)
+  - [Functions in Expressions](#conditions-functions)
+    - [Built-in Functions](#builtin-functions)
+    - [Custom Functions](#custom-functions)
+  - [Asynchronous Functions in Expressions](#conditions-asyncfunctions)
   - [Cascade Conditions](#conditions-cascading)
 - [Dynamically Filter Choices, Columns, and Rows](#itemvaluesfiltering)
   - [Method #1: Specify Visibility Conditions for Individual Options](#method-1-specify-visibility-conditions-for-individual-options)
@@ -969,8 +971,9 @@ Example:
 _sumInArray(questionName: expression, propertyName: string): number_  
 [View source](https://github.com/surveyjs/survey-library/blob/68eb0054dc83d2f45a6daa1042bf7440c8faf007/src/functionsfactory.ts#L164-L171)  
 Returns the sum of values in a array taken from the specified question property (both - the question and its property - are referenced by their names).  
-`expression: "sumInArray({matrixdynamic1}, 'total') > 1000"`
-
+Example:  
+`expression: "sumInArray({matrixdynamic1}, 'total') > 1000"`  
+[View code sample](https://www.surveyjs.io/Examples/Library?id=questiontype-expression#content-js)
 
 
 <div id="builtin-functions-maxInArray"></div>  

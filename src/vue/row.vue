@@ -1,16 +1,10 @@
 <template>
   <div class="sv-vue-row-additional-div">
-    <survey-element
+    <div
       v-if="row.isNeedRender && element.isVisible"
       v-for="element in row.elements"
       :key="element.idValue"
-      :id="element.id"
-      :role="element.ariaRole"
-      :aria-labelledby="element.hasTitle ? element.ariaTitleId : null"
-      :name="element.name"
       :style="{
-        paddingLeft: element.paddingLeft,
-        paddingRight: element.paddingRight,
         flexBasis: element.renderWidth,
         flexGrow: 1,
         flexShrink: 1,
@@ -19,10 +13,22 @@
         maxWidth: element.maxWidth,
         display: 'inline-block',
       }"
-      :element="element"
-      :survey="survey"
-      :css="css"
-    />
+    >
+      <survey-element
+        :id="element.id"
+        :role="element.ariaRole"
+        :aria-labelledby="element.hasTitle ? element.ariaTitleId : null"
+        :name="element.name"
+        :style="{
+          paddingLeft: element.paddingLeft,
+          paddingRight: element.paddingRight,
+          display: 'inline-block',
+        }"
+        :element="element"
+        :survey="survey"
+        :css="css"
+      />
+    </div>
   </div>
 </template>
 

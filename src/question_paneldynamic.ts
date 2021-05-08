@@ -277,7 +277,7 @@ export class QuestionPanelDynamicModel extends Question
     return true;
   }
   public clearOnDeletingContainer() {
-    this.panels.forEach(panel => {
+    this.panels.forEach((panel) => {
       panel.clearOnDeletingContainer();
     });
   }
@@ -1588,7 +1588,7 @@ export class QuestionPanelDynamicModel extends Question
               .map((question: Question) => question.getPlainData(options))
               .filter((d: any) => !!d),
           };
-          (options.calculations || []).forEach(calculation => {
+          (options.calculations || []).forEach((calculation) => {
             panelDataItem[calculation.propertyName] = (<any>panel)[
               calculation.propertyName
             ];
@@ -1704,6 +1704,6 @@ Serializer.addClass(
   },
   "question"
 );
-QuestionFactory.Instance.registerQuestion("paneldynamic", name => {
+QuestionFactory.Instance.registerQuestion("paneldynamic", (name) => {
   return new QuestionPanelDynamicModel(name);
 });

@@ -2,11 +2,11 @@ import {
   JsonObject,
   CustomPropertiesCollection,
   JsonObjectProperty,
-  Serializer
-} from './jsonobject';
-import { QuestionMatrixBaseModel } from './martixBase';
-import { Question } from './question';
-import { HashTable, Helpers } from './helpers';
+  Serializer,
+} from "./jsonobject";
+import { QuestionMatrixBaseModel } from "./martixBase";
+import { Question } from "./question";
+import { HashTable, Helpers } from "./helpers";
 import {
   Base,
   IElement,
@@ -19,24 +19,24 @@ import {
   IProgressInfo,
   SurveyElement,
   IPanel,
-  IWrapperObject
-} from './base';
+  IWrapperObject,
+} from "./base";
 import {
   TextPreProcessorValue,
-  QuestionTextProcessor
-} from './textPreProcessor';
-import { ItemValue } from './itemvalue';
-import { surveyLocalization } from './surveyStrings';
-import { QuestionSelectBase } from './question_baseselect';
-import { QuestionFactory } from './questionfactory';
-import { ILocalizableOwner, LocalizableString } from './localizablestring';
-import { SurveyValidator } from './validator';
-import { getCurrecyCodes } from './question_expression';
-import { FunctionFactory } from './functionsfactory';
-import { PanelModel } from './panel';
-import { settings } from './settings';
-import { KeyDuplicationError } from './error';
-import { ActionBarItem, IActionBarItem } from './action-bar';
+  QuestionTextProcessor,
+} from "./textPreProcessor";
+import { ItemValue } from "./itemvalue";
+import { surveyLocalization } from "./surveyStrings";
+import { QuestionSelectBase } from "./question_baseselect";
+import { QuestionFactory } from "./questionfactory";
+import { ILocalizableOwner, LocalizableString } from "./localizablestring";
+import { SurveyValidator } from "./validator";
+import { getCurrecyCodes } from "./question_expression";
+import { FunctionFactory } from "./functionsfactory";
+import { PanelModel } from "./panel";
+import { settings } from "./settings";
+import { KeyDuplicationError } from "./error";
+import { ActionBarItem, IActionBarItem } from "./action-bar";
 
 export interface IMatrixDropdownData {
   value: any;
@@ -118,12 +118,12 @@ function onUpdateSelectBaseCellQuestion(
 export var matrixDropdownColumnTypes = {
   dropdown: {
     properties: [
-      'choices',
-      'choicesOrder',
-      'choicesByUrl',
-      'optionsCaption',
-      'otherText',
-      'choicesVisibleIf'
+      "choices",
+      "choicesOrder",
+      "choicesByUrl",
+      "optionsCaption",
+      "otherText",
+      "choicesVisibleIf",
     ],
     onCellQuestionUpdate: (
       cellQuestion: any,
@@ -139,17 +139,17 @@ export var matrixDropdownColumnTypes = {
       ) {
         cellQuestion.optionsCaption = question.optionsCaption;
       }
-    }
+    },
   },
   checkbox: {
     properties: [
-      'choices',
-      'choicesOrder',
-      'choicesByUrl',
-      'otherText',
-      'choicesVisibleIf',
-      'hasSelectAll',
-      'hasNone'
+      "choices",
+      "choicesOrder",
+      "choicesByUrl",
+      "otherText",
+      "choicesVisibleIf",
+      "hasSelectAll",
+      "hasNone",
     ],
     onCellQuestionUpdate: (
       cellQuestion: any,
@@ -160,15 +160,15 @@ export var matrixDropdownColumnTypes = {
       onUpdateSelectBaseCellQuestion(cellQuestion, column, question, data);
       cellQuestion.colCount =
         column.colCount > -1 ? column.colCount : question.columnColCount;
-    }
+    },
   },
   radiogroup: {
     properties: [
-      'choices',
-      'choicesOrder',
-      'choicesByUrl',
-      'otherText',
-      'choicesVisibleIf'
+      "choices",
+      "choicesOrder",
+      "choicesByUrl",
+      "otherText",
+      "choicesVisibleIf",
     ],
     onCellQuestionUpdate: (
       cellQuestion: any,
@@ -179,28 +179,28 @@ export var matrixDropdownColumnTypes = {
       onUpdateSelectBaseCellQuestion(cellQuestion, column, question, data);
       cellQuestion.colCount =
         column.colCount > -1 ? column.colCount : question.columnColCount;
-    }
+    },
   },
   text: {
-    properties: ['placeHolder', 'inputType', 'maxLength', 'min', 'max', 'step'],
+    properties: ["placeHolder", "inputType", "maxLength", "min", "max", "step"],
     onCellQuestionUpdate: (
       cellQuestion: any,
       column: any,
       question: any,
       data: any
-    ) => {}
+    ) => {},
   },
   comment: {
-    properties: ['placeHolder', 'rows', 'maxLength'],
+    properties: ["placeHolder", "rows", "maxLength"],
     onCellQuestionUpdate: (
       cellQuestion: any,
       column: any,
       question: any,
       data: any
-    ) => {}
+    ) => {},
   },
   boolean: {
-    properties: ['renderAs', 'defaultValue'],
+    properties: ["renderAs", "defaultValue"],
     onCellQuestionUpdate: (
       cellQuestion: any,
       column: any,
@@ -209,20 +209,20 @@ export var matrixDropdownColumnTypes = {
     ) => {
       cellQuestion.showTitle = true;
       cellQuestion.renderAs = column.renderAs;
-    }
+    },
   },
   expression: {
-    properties: ['expression', 'displayStyle', 'currency'],
+    properties: ["expression", "displayStyle", "currency"],
     onCellQuestionUpdate: (
       cellQuestion: any,
       column: any,
       question: any,
       data: any
-    ) => {}
+    ) => {},
   },
   rating: {
-    properties: ['rateValues']
-  }
+    properties: ["rateValues"],
+  },
 };
 
 export class MatrixDropdownColumn extends Base
@@ -243,9 +243,9 @@ export class MatrixDropdownColumn extends Base
   constructor(name: string, title: string = null) {
     super();
     var self = this;
-    this.createLocalizableString('totalFormat', this);
+    this.createLocalizableString("totalFormat", this);
     this.registerFunctionOnPropertyValueChanged(
-      'showInMultipleColumns',
+      "showInMultipleColumns",
       function() {
         self.doShowInMultipleColumnsChanged();
       }
@@ -258,7 +258,7 @@ export class MatrixDropdownColumn extends Base
     return this.templateQuestion;
   }
   getClassNameProperty(): string {
-    return 'cellType';
+    return "cellType";
   }
   public getSurvey(live: boolean = false): ISurvey {
     return !!this.colOwner ? (<any>this.colOwner).survey : null;
@@ -271,7 +271,7 @@ export class MatrixDropdownColumn extends Base
     };
   }
   getDynamicPropertyName(): string {
-    return 'cellType';
+    return "cellType";
   }
   getDynamicType(): string {
     return this.calcCellQuestionType();
@@ -300,14 +300,14 @@ export class MatrixDropdownColumn extends Base
     this.indexValue = val;
   }
   public getType() {
-    return 'matrixdropdowncolumn';
+    return "matrixdropdowncolumn";
   }
   public get cellType(): string {
-    return this.getPropertyValue('cellType');
+    return this.getPropertyValue("cellType");
   }
   public set cellType(val: string) {
     val = val.toLocaleLowerCase();
-    this.setPropertyValue('cellType', val);
+    this.setPropertyValue("cellType", val);
     this.updateTemplateQuestion();
     if (!!this.colOwner) {
       this.colOwner.onColumnCellTypeChanged(this);
@@ -398,19 +398,19 @@ export class MatrixDropdownColumn extends Base
     this.templateQuestion.requiredIf = val;
   }
   public get isUnique(): boolean {
-    return this.getPropertyValue('isUnique');
+    return this.getPropertyValue("isUnique");
   }
   public set isUnique(val: boolean) {
-    this.setPropertyValue('isUnique', val);
+    this.setPropertyValue("isUnique", val);
   }
   public get showInMultipleColumns(): boolean {
-    return this.getPropertyValue('showInMultipleColumns', false);
+    return this.getPropertyValue("showInMultipleColumns", false);
   }
   public set showInMultipleColumns(val: boolean) {
-    this.setPropertyValue('showInMultipleColumns', val);
+    this.setPropertyValue("showInMultipleColumns", val);
   }
   public get isSupportMultipleColumns(): boolean {
-    return ['checkbox', 'radiogroup'].indexOf(this.cellType) > -1;
+    return ["checkbox", "radiogroup"].indexOf(this.cellType) > -1;
   }
   public get isShowInMultipleColumns(): boolean {
     return this.showInMultipleColumns && this.isSupportMultipleColumns;
@@ -422,83 +422,83 @@ export class MatrixDropdownColumn extends Base
     this.templateQuestion.validators = val;
   }
   public get totalType(): string {
-    return this.getPropertyValue('totalType', 'none');
+    return this.getPropertyValue("totalType", "none");
   }
   public set totalType(val: string) {
-    this.setPropertyValue('totalType', val);
+    this.setPropertyValue("totalType", val);
   }
   public get totalExpression(): string {
-    return this.getPropertyValue('totalExpression');
+    return this.getPropertyValue("totalExpression");
   }
   public set totalExpression(val: string) {
-    this.setPropertyValue('totalExpression', val);
+    this.setPropertyValue("totalExpression", val);
   }
   public get hasTotal(): boolean {
-    return this.totalType != 'none' || !!this.totalExpression;
+    return this.totalType != "none" || !!this.totalExpression;
   }
   public get totalFormat(): string {
-    return this.getLocalizableStringText('totalFormat', '');
+    return this.getLocalizableStringText("totalFormat", "");
   }
   public set totalFormat(val: string) {
-    this.setLocalizableStringText('totalFormat', val);
+    this.setLocalizableStringText("totalFormat", val);
   }
   get locTotalFormat(): LocalizableString {
-    return this.getLocalizableString('totalFormat');
+    return this.getLocalizableString("totalFormat");
   }
   public get renderAs(): string {
-    return this.getPropertyValue('renderAs');
+    return this.getPropertyValue("renderAs");
   }
   public set renderAs(val: string) {
-    this.setPropertyValue('renderAs', val);
+    this.setPropertyValue("renderAs", val);
   }
   public get totalMaximumFractionDigits(): number {
-    return this.getPropertyValue('totalMaximumFractionDigits', -1);
+    return this.getPropertyValue("totalMaximumFractionDigits", -1);
   }
   public set totalMaximumFractionDigits(val: number) {
     if (val < -1 || val > 20) return;
-    this.setPropertyValue('totalMaximumFractionDigits', val);
+    this.setPropertyValue("totalMaximumFractionDigits", val);
   }
   public get totalMinimumFractionDigits(): number {
-    return this.getPropertyValue('totalMinimumFractionDigits', -1);
+    return this.getPropertyValue("totalMinimumFractionDigits", -1);
   }
   public set totalMinimumFractionDigits(val: number) {
     if (val < -1 || val > 20) return;
-    this.setPropertyValue('totalMinimumFractionDigits', val);
+    this.setPropertyValue("totalMinimumFractionDigits", val);
   }
   public get totalDisplayStyle(): string {
-    return this.getPropertyValue('totalDisplayStyle');
+    return this.getPropertyValue("totalDisplayStyle");
   }
   public set totalDisplayStyle(val: string) {
-    this.setPropertyValue('totalDisplayStyle', val);
+    this.setPropertyValue("totalDisplayStyle", val);
   }
   public get totalCurrency(): string {
-    return this.getPropertyValue('totalCurrency');
+    return this.getPropertyValue("totalCurrency");
   }
   public set totalCurrency(val: string) {
     if (getCurrecyCodes().indexOf(val) < 0) return;
-    this.setPropertyValue('totalCurrency', val);
+    this.setPropertyValue("totalCurrency", val);
   }
   public get minWidth(): string {
-    return this.getPropertyValue('minWidth', '');
+    return this.getPropertyValue("minWidth", "");
   }
   public set minWidth(val: string) {
-    this.setPropertyValue('minWidth', val);
+    this.setPropertyValue("minWidth", val);
   }
   public get width(): string {
-    return this.getPropertyValue('width', '');
+    return this.getPropertyValue("width", "");
   }
   public set width(val: string) {
-    this.setPropertyValue('width', val);
+    this.setPropertyValue("width", val);
   }
   public get colCount(): number {
-    return this.getPropertyValue('colCount', -1);
+    return this.getPropertyValue("colCount", -1);
   }
   public set colCount(val: number) {
     if (val < -1 || val > 4) return;
-    this.setPropertyValue('colCount', val);
+    this.setPropertyValue("colCount", val);
   }
   public getLocale(): string {
-    return this.colOwner ? this.colOwner.getLocale() : '';
+    return this.colOwner ? this.colOwner.getLocale() : "";
   }
   public getMarkdownHtml(text: string, name: string): string {
     return this.colOwner ? this.colOwner.getMarkdownHtml(text, name) : null;
@@ -526,8 +526,8 @@ export class MatrixDropdownColumn extends Base
   private callOnCellQuestionUpdate(cellQuestion: Question, data: any) {
     var qType = cellQuestion.getType();
     var qDefinition = (<any>matrixDropdownColumnTypes)[qType];
-    if (qDefinition && qDefinition['onCellQuestionUpdate']) {
-      qDefinition['onCellQuestionUpdate'](
+    if (qDefinition && qDefinition["onCellQuestionUpdate"]) {
+      qDefinition["onCellQuestionUpdate"](
         cellQuestion,
         this,
         this.colOwner,
@@ -539,14 +539,14 @@ export class MatrixDropdownColumn extends Base
     this.updateTemplateQuestion();
   }
   protected calcCellQuestionType(): string {
-    if (this.cellType !== 'default') return this.cellType;
+    if (this.cellType !== "default") return this.cellType;
     if (this.colOwner) return this.colOwner.getCellType();
     return settings.matrixDefaultCellType;
   }
   protected updateTemplateQuestion() {
     var prevCellType = this.templateQuestion
       ? this.templateQuestion.getType()
-      : '';
+      : "";
     var curCellType = this.calcCellQuestionType();
     if (curCellType === prevCellType) return;
     if (this.templateQuestion) {
@@ -573,7 +573,7 @@ export class MatrixDropdownColumn extends Base
   protected createNewQuestion(cellType: string): Question {
     var question = <Question>Serializer.createClass(cellType);
     if (!question) {
-      question = <Question>Serializer.createClass('text');
+      question = <Question>Serializer.createClass("text");
     }
     question.loadingOwner = this;
     this.setQuestionProperties(question);
@@ -595,10 +595,10 @@ export class MatrixDropdownColumn extends Base
   protected propertyValueChanged(name: string, oldValue: any, newValue: any) {
     super.propertyValueChanged(name, oldValue, newValue);
     if (
-      name === 'visibleChoices' ||
-      name === 'isReadOnly' ||
-      name === 'isInputReadOnly' ||
-      name === 'cssRoot'
+      name === "visibleChoices" ||
+      name === "isReadOnly" ||
+      name === "isInputReadOnly" ||
+      name === "cssRoot"
     )
       return; //TODO descriptor doesn't return that it is a read-only property
     if (this.colOwner != null && !this.isLoadingFromJson) {
@@ -643,10 +643,10 @@ export class MatrixDropdownColumn extends Base
       configurable: true,
       get: function() {
         return (<any>question)[propName];
-      }
+      },
     };
     if (!isReadOnly) {
-      (<any>desc)['set'] = function(v: any) {
+      (<any>desc)["set"] = function(v: any) {
         (<any>question)[propName] = v;
       };
     }
@@ -677,7 +677,7 @@ export class MatrixDropdownCell {
       return data.validateCell(row, column.name, row.value);
     };
     CustomPropertiesCollection.getProperties(column.getType()).forEach(
-      property => {
+      (property) => {
         let propertyName = property.name;
         if ((<any>column)[propertyName] !== undefined) {
           res[propertyName] = (<any>column)[propertyName];
@@ -714,7 +714,7 @@ export class MatrixDropdownTotalCell extends MatrixDropdownCell {
     row: MatrixDropdownRowModelBase,
     data: IMatrixDropdownData
   ): Question {
-    var res = <Question>Serializer.createClass('expression');
+    var res = <Question>Serializer.createClass("expression");
     res.setSurveyImpl(row);
     return res;
   }
@@ -725,7 +725,7 @@ export class MatrixDropdownTotalCell extends MatrixDropdownCell {
   public updateCellQuestion() {
     this.question.locCalculation();
     this.column.updateCellQuestion(this.question, null, function(json) {
-      delete json['defaultValue'];
+      delete json["defaultValue"];
     });
     this.question.expression = this.getTotalExpression();
     this.question.format = this.column.totalFormat;
@@ -737,9 +737,9 @@ export class MatrixDropdownTotalCell extends MatrixDropdownCell {
   }
   public getTotalExpression(): string {
     if (!!this.column.totalExpression) return this.column.totalExpression;
-    if (this.column.totalType == 'none') return '';
-    var funName = this.column.totalType + 'InArray';
-    if (!FunctionFactory.Instance.hasFunction(funName)) return '';
+    if (this.column.totalType == "none") return "";
+    var funName = this.column.totalType + "InArray";
+    if (!FunctionFactory.Instance.hasFunction(funName)) return "";
     return funName + "({self}, '" + this.column.name + "')";
   }
 }
@@ -777,14 +777,14 @@ class MatrixDropdownRowTextProcessor extends QuestionTextProcessor {
 
 export class MatrixDropdownRowModelBase
   implements ISurveyData, ISurveyImpl, ILocalizableOwner {
-  public static RowVariableName = 'row';
-  public static OwnerVariableName = 'self';
-  public static IndexVariableName = 'rowIndex';
-  public static RowValueVariableName = 'rowValue';
+  public static RowVariableName = "row";
+  public static OwnerVariableName = "self";
+  public static IndexVariableName = "rowIndex";
+  public static RowValueVariableName = "rowValue";
 
   private static idCounter: number = 1;
   private static getId(): string {
-    return 'srow_' + MatrixDropdownRowModelBase.idCounter++;
+    return "srow_" + MatrixDropdownRowModelBase.idCounter++;
   }
   protected data: IMatrixDropdownData;
   protected isSettingValue: boolean = false;
@@ -843,7 +843,7 @@ export class MatrixDropdownRowModelBase
     return this.detailPanelValue;
   }
   public get detailPanelId(): string {
-    return !!this.detailPanel ? this.detailPanel.id : '';
+    return !!this.detailPanel ? this.detailPanel.id : "";
   }
   public get isDetailPanelShowing(): boolean {
     return !!this.data ? this.data.getIsDetailPanelShowing(this) : false;
@@ -936,8 +936,8 @@ export class MatrixDropdownRowModelBase
       var oldComment = question.comment;
       var comment = !!value
         ? value[question.getValueName() + settings.commentPrefix]
-        : '';
-      if (comment == undefined) comment = '';
+        : "";
+      if (comment == undefined) comment = "";
       question.updateValueFromSurvey(val);
       if (!!comment || Helpers.isTwoValueEquals(oldComment, question.comment)) {
         question.updateCommentFromSurvey(comment);
@@ -973,7 +973,7 @@ export class MatrixDropdownRowModelBase
   setVariable(name: string, newValue: any) {}
   public getComment(name: string): string {
     var question = this.getQuestionByName(name);
-    return !!question ? question.comment : '';
+    return !!question ? question.comment : "";
   }
   public setComment(name: string, newValue: string, locNotification: any) {
     this.setValueCore(name, newValue, true);
@@ -1013,7 +1013,7 @@ export class MatrixDropdownRowModelBase
     if (!question) return false;
     if (
       question.hasErrors(true, {
-        isOnValueChanged: !this.data.isValidateOnValueChanging
+        isOnValueChanged: !this.data.isValidateOnValueChanging,
       })
     )
       return true;
@@ -1097,7 +1097,7 @@ export class MatrixDropdownRowModelBase
     }
   }
   public getLocale(): string {
-    return this.data ? this.data.getLocale() : '';
+    return this.data ? this.data.getLocale() : "";
   }
   public getMarkdownHtml(text: string, name: string): string {
     return this.data ? this.data.getMarkdownHtml(text, name) : null;
@@ -1279,8 +1279,8 @@ export class QuestionMatrixDropdownRenderedCell {
   private static counter = 1;
   private idValue: number;
   private itemValue: ItemValue;
-  public minWidth: string = '';
-  public width: string = '';
+  public minWidth: string = "";
+  public width: string = "";
   public locTitle: LocalizableString;
   public cell: MatrixDropdownCell;
   public row: MatrixDropdownRowModelBase;
@@ -1294,7 +1294,7 @@ export class QuestionMatrixDropdownRenderedCell {
   public panel: PanelModel;
   public isShowHideDetail: boolean;
   public isActionsCell: boolean = false;
-  public className: string = '';
+  public className: string = "";
   public constructor() {
     this.idValue = QuestionMatrixDropdownRenderedCell.counter++;
   }
@@ -1311,10 +1311,10 @@ export class QuestionMatrixDropdownRenderedCell {
     return this.idValue;
   }
   public get showErrorOnTop(): boolean {
-    return this.showErrorOnCore('top');
+    return this.showErrorOnCore("top");
   }
   public get showErrorOnBottom(): boolean {
-    return this.showErrorOnCore('bottom');
+    return this.showErrorOnCore("bottom");
   }
   private showErrorOnCore(location: string): boolean {
     return (
@@ -1323,7 +1323,7 @@ export class QuestionMatrixDropdownRenderedCell {
     );
   }
   private getShowErrorLocation(): string {
-    return this.hasQuestion ? this.question.survey.questionErrorLocation : '';
+    return this.hasQuestion ? this.question.survey.questionErrorLocation : "";
   }
   public get item(): ItemValue {
     return this.itemValue;
@@ -1341,7 +1341,7 @@ export class QuestionMatrixDropdownRenderedCell {
     return this.isChoice ? this.item.value : null;
   }
   public get isCheckbox(): boolean {
-    return this.isChoice && this.question.getType() == 'checkbox';
+    return this.isChoice && this.question.getType() == "checkbox";
   }
   public get isFirstChoice(): boolean {
     return this.choiceIndex === 0;
@@ -1349,7 +1349,7 @@ export class QuestionMatrixDropdownRenderedCell {
   public get css(): string {
     return (
       this.className +
-      (this.question.errors.length > 0 ? ' ' + this.question.cssError : '')
+      (this.question.errors.length > 0 ? " " + this.question.cssError : "")
     );
   }
   public get headers(): string {
@@ -1364,21 +1364,21 @@ export class QuestionMatrixDropdownRenderedCell {
       return this.question.locTitle.renderedHtml;
     }
     if (this.hasTitle) {
-      return this.locTitle.renderedHtml || '';
+      return this.locTitle.renderedHtml || "";
     }
-    return '';
+    return "";
   }
 
   public calculateFinalClassName(matrixCssClasses: any): string {
     const questionCss = this.cell.question.cssClasses;
-    let className = '';
+    let className = "";
     if (!!questionCss) {
-      className = '';
+      className = "";
       if (!!questionCss.itemValue) {
-        className += ' ' + questionCss.itemValue;
+        className += " " + questionCss.itemValue;
       }
       if (!!questionCss.asCell) {
-        if (!!className) className += '';
+        if (!!className) className += "";
         className += questionCss.asCell;
       }
     }
@@ -1386,10 +1386,10 @@ export class QuestionMatrixDropdownRenderedCell {
       className = matrixCssClasses.cell;
     }
     className +=
-      this.question.errors.length > 0 ? ' ' + questionCss.hasError : '';
+      this.question.errors.length > 0 ? " " + questionCss.hasError : "";
 
     if (this.isChoice) {
-      className += ' ' + matrixCssClasses.choiceCell;
+      className += " " + matrixCssClasses.choiceCell;
     }
     //'text-align': $data.isChoice ? 'center': ''
     return className;
@@ -1402,7 +1402,7 @@ export class QuestionMatrixDropdownRenderedRow {
   private static counter = 1;
   private idValue: number;
   public cells: Array<QuestionMatrixDropdownRenderedCell> = [];
-  public className: string = '';
+  public className: string = "";
   public constructor() {
     this.idValue = QuestionMatrixDropdownRenderedRow.counter++;
   }
@@ -1419,20 +1419,20 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
   private cssClasses: any;
   public constructor(public matrix: QuestionMatrixDropdownModelBase) {
     super();
-    this.createNewArray('rows');
+    this.createNewArray("rows");
     this.build();
   }
   public get showTable(): boolean {
-    return this.getPropertyValue('showTable', true);
+    return this.getPropertyValue("showTable", true);
   }
   public get showHeader(): boolean {
-    return this.getPropertyValue('showHeader');
+    return this.getPropertyValue("showHeader");
   }
   public get showAddRowOnTop(): boolean {
-    return this.getPropertyValue('showAddRowOnTop', false);
+    return this.getPropertyValue("showAddRowOnTop", false);
   }
   public get showAddRowOnBottom(): boolean {
-    return this.getPropertyValue('showAddRowOnBottom', false);
+    return this.getPropertyValue("showAddRowOnBottom", false);
   }
   public get showFooter(): boolean {
     return this.matrix.hasFooter && this.matrix.isColumnLayoutHorizontal;
@@ -1456,7 +1456,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     return this.footerRowValue;
   }
   public get rows(): Array<QuestionMatrixDropdownRenderedRow> {
-    return this.getPropertyValue('rows');
+    return this.getPropertyValue("rows");
   }
   protected build() {
     this.hasRemoveRowsValue = this.matrix.canRemoveRows;
@@ -1474,22 +1474,22 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
       this.rows.length > 0 ||
       this.matrix.isDesignMode ||
       !this.matrix.getShowColumnsIfEmpty();
-    this.setPropertyValue('showTable', showTable);
+    this.setPropertyValue("showTable", showTable);
     var showAddRow = this.matrix.canAddRow && showTable;
     var showAddRowOnTop = showAddRow;
     var showAddRowOnBottom = showAddRow;
     if (showAddRowOnTop) {
-      if (this.matrix.getAddRowLocation() === 'default') {
-        showAddRowOnTop = this.matrix.columnLayout === 'vertical';
+      if (this.matrix.getAddRowLocation() === "default") {
+        showAddRowOnTop = this.matrix.columnLayout === "vertical";
       } else {
-        showAddRowOnTop = this.matrix.getAddRowLocation() !== 'bottom';
+        showAddRowOnTop = this.matrix.getAddRowLocation() !== "bottom";
       }
     }
-    if (showAddRowOnBottom && this.matrix.getAddRowLocation() !== 'topBottom') {
+    if (showAddRowOnBottom && this.matrix.getAddRowLocation() !== "topBottom") {
       showAddRowOnBottom = !showAddRowOnTop;
     }
-    this.setPropertyValue('showAddRowOnTop', showAddRowOnTop);
-    this.setPropertyValue('showAddRowOnBottom', showAddRowOnBottom);
+    this.setPropertyValue("showAddRowOnTop", showAddRowOnTop);
+    this.setPropertyValue("showAddRowOnBottom", showAddRowOnBottom);
   }
   public onAddedRow() {
     if (this.getRenderedDataRowCount() >= this.matrix.visibleRows.length)
@@ -1562,10 +1562,10 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     var isShown =
       colHeaders ||
       (this.matrix.hasRowText && !this.matrix.isColumnLayoutHorizontal);
-    this.setPropertyValue('showHeader', isShown);
+    this.setPropertyValue("showHeader", isShown);
     if (!isShown) return;
     this.headerRowValue = new QuestionMatrixDropdownRenderedRow();
-    if (this.hasActionCellInRows('start')) {
+    if (this.hasActionCellInRows("start")) {
       this.headerRow.cells.push(this.createHeaderCell(null));
     }
     if (this.matrix.hasRowText && this.matrix.showHeader) {
@@ -1592,14 +1592,14 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
         );
       }
     }
-    if (this.hasActionCellInRows('end')) {
+    if (this.hasActionCellInRows("end")) {
       this.headerRow.cells.push(this.createHeaderCell(null));
     }
   }
   protected buildFooter() {
     if (!this.showFooter) return;
     this.footerRowValue = new QuestionMatrixDropdownRenderedRow();
-    if (this.hasActionCellInRows('start')) {
+    if (this.hasActionCellInRows("start")) {
       this.footerRow.cells.push(this.createHeaderCell(null));
     }
     if (this.matrix.hasRowText) {
@@ -1617,7 +1617,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
         this.footerRow.cells.push(this.createEditCell(cell));
       }
     }
-    if (this.hasActionCellInRows('end')) {
+    if (this.hasActionCellInRows("end")) {
       this.footerRow.cells.push(this.createHeaderCell(null));
     }
   }
@@ -1625,10 +1625,10 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     var rows = this.matrix.isColumnLayoutHorizontal
       ? this.buildHorizontalRows()
       : this.buildVerticalRows();
-    this.setPropertyValue('rows', rows);
+    this.setPropertyValue("rows", rows);
   }
   private hasActionCellInRowsValues: any = {};
-  private hasActionCellInRows(location: 'start' | 'end'): boolean {
+  private hasActionCellInRows(location: "start" | "end"): boolean {
     if (this.hasActionCellInRowsValues[location] === undefined) {
       var rows = this.matrix.visibleRows;
       this.hasActionCellInRowsValues[location] = false;
@@ -1668,7 +1668,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
       renderedRows.push(this.createDetailPanelRow(row, renderedRow));
     }
   }
-  private getRowActionsCell(rowIndex: number, location: 'start' | 'end') {
+  private getRowActionsCell(rowIndex: number, location: "start" | "end") {
     const rowActions = this.getRowActions(rowIndex, location);
     if (!this.isValueEmpty(rowActions)) {
       var cell = new QuestionMatrixDropdownRenderedCell();
@@ -1681,12 +1681,12 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     }
     return null;
   }
-  private getRowActions(rowIndex: number, location: 'start' | 'end') {
+  private getRowActions(rowIndex: number, location: "start" | "end") {
     var actions = this.rowsActions[rowIndex];
     if (!Array.isArray(actions)) return [];
-    return actions.filter(action => {
+    return actions.filter((action) => {
       if (!action.location) {
-        action.location = 'start';
+        action.location = "start";
       }
       return action.location === location;
     });
@@ -1712,21 +1712,21 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     if (this.hasRemoveRows && this.canRemoveRow(row)) {
       actions.push(
         new ActionBarItem({
-          id: 'remove-row',
-          location: 'end',
+          id: "remove-row",
+          location: "end",
           enabled: !this.matrix.isInputReadOnly,
-          component: 'sv-matrix-remove-button',
-          data: { row: row, question: this.matrix }
+          component: "sv-matrix-remove-button",
+          data: { row: row, question: this.matrix },
         })
       );
     }
     if (row.hasPanel) {
       actions.push(
         new ActionBarItem({
-          id: 'show-detail',
-          location: 'start',
-          component: 'sv-matrix-detail-button',
-          data: { row: row, question: this.matrix }
+          id: "show-detail",
+          location: "start",
+          component: "sv-matrix-detail-button",
+          data: { row: row, question: this.matrix },
         })
       );
     }
@@ -1736,7 +1736,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     useAsHeader: boolean
   ): QuestionMatrixDropdownRenderedRow {
     var res = new QuestionMatrixDropdownRenderedRow();
-    this.addRowActionsCell(row, res, 'start');
+    this.addRowActionsCell(row, res, "start");
     if (this.matrix.hasRowText) {
       var renderedCell = this.createTextCell(row.locText);
       res.cells.push(renderedCell);
@@ -1744,7 +1744,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
         this.setHeaderCellWidth(null, renderedCell);
       }
       if (row.hasPanel && !!this.cssClasses.detailRowText) {
-        if (!!renderedCell.className) renderedCell.className += ' ';
+        if (!!renderedCell.className) renderedCell.className += " ";
         renderedCell.className += this.cssClasses.detailRowText;
       }
     }
@@ -1761,13 +1761,13 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
         }
       }
     }
-    this.addRowActionsCell(row, res, 'end');
+    this.addRowActionsCell(row, res, "end");
     return res;
   }
   private addRowActionsCell(
     row: MatrixDropdownRowModelBase,
     renderedRow: QuestionMatrixDropdownRenderedRow,
-    location: 'start' | 'end'
+    location: "start" | "end"
   ) {
     var rowIndex = this.matrix.visibleRows.indexOf(row);
     const actions = this.getRowActionsCell(rowIndex, location);
@@ -1795,7 +1795,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     buttonCell.isEmpty = true;
     res.cells.push(buttonCell);
     var actionsCell = null;
-    if (this.hasActionCellInRows('end')) {
+    if (this.hasActionCellInRows("end")) {
       actionsCell = new QuestionMatrixDropdownRenderedCell();
       actionsCell.isEmpty = true;
     }
@@ -1811,7 +1811,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
       res.cells.push(actionsCell);
     }
     if (
-      typeof this.matrix.onCreateDetailPanelRenderedRowCallback === 'function'
+      typeof this.matrix.onCreateDetailPanelRenderedRowCallback === "function"
     ) {
       this.matrix.onCreateDetailPanelRenderedRowCallback(res);
     }
@@ -1831,7 +1831,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
         }
       }
     }
-    if (this.hasActionCellInRows('end')) {
+    if (this.hasActionCellInRows("end")) {
       renderedRows.push(this.createEndVerticalActionRow());
     }
     return renderedRows;
@@ -1884,7 +1884,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     }
     var rows = this.matrix.visibleRows;
     for (var i = 0; i < rows.length; i++) {
-      res.cells.push(this.getRowActionsCell(i, 'end'));
+      res.cells.push(this.getRowActionsCell(i, "end"));
     }
     if (this.matrix.hasTotal) {
       res.cells.push(this.createTextCell(null));
@@ -1983,7 +1983,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     column: MatrixDropdownColumn,
     cell: QuestionMatrixDropdownRenderedCell
   ) {
-    cell.minWidth = column != null ? this.matrix.getColumnWidth(column) : '';
+    cell.minWidth = column != null ? this.matrix.getColumnWidth(column) : "";
     cell.width = column != null ? column.width : this.matrix.getRowTitleWidth();
   }
   private setRequriedToHeaderCell(
@@ -2058,7 +2058,7 @@ export class QuestionMatrixDropdownModelBase
 
   protected createColumnValues() {
     return this.createNewArray(
-      'columns',
+      "columns",
       (item: any) => {
         item.colOwner = this;
       },
@@ -2070,41 +2070,41 @@ export class QuestionMatrixDropdownModelBase
 
   constructor(name: string) {
     super(name);
-    this.createItemValues('choices');
-    this.createLocalizableString('optionsCaption', this);
-    this.createLocalizableString('keyDuplicationError', this);
+    this.createItemValues("choices");
+    this.createLocalizableString("optionsCaption", this);
+    this.createLocalizableString("keyDuplicationError", this);
     this.detailPanelValue = this.createNewDetailPanel();
     this.detailPanel.selectedElementInDesign = this;
-    this.detailPanel.renderWidth = '100%';
+    this.detailPanel.renderWidth = "100%";
     this.registerFunctionOnPropertyValueChanged(
-      'columns',
+      "columns",
       (newColumns: any) => {
         this.updateColumnsIndexes(newColumns);
         this.generatedTotalRow = null;
         this.clearRowsAndResetRenderedTable();
       }
     );
-    this.registerFunctionOnPropertyValueChanged('cellType', () => {
+    this.registerFunctionOnPropertyValueChanged("cellType", () => {
       this.updateColumnsCellType();
       this.clearRowsAndResetRenderedTable();
     });
     this.registerFunctionOnPropertiesValueChanged(
-      ['optionsCaption', 'columnColCount', 'rowTitleWidth', 'choices'],
+      ["optionsCaption", "columnColCount", "rowTitleWidth", "choices"],
       () => {
         this.clearRowsAndResetRenderedTable();
       }
     );
     this.registerFunctionOnPropertiesValueChanged(
       [
-        'columnLayout',
-        'addRowLocation',
-        'hideColumnsIfEmpty',
-        'showHeader',
-        'minRowCount',
-        'isReadOnly',
-        'rowCount',
-        'hasFooter',
-        'detailPanelMode'
+        "columnLayout",
+        "addRowLocation",
+        "hideColumnsIfEmpty",
+        "showHeader",
+        "minRowCount",
+        "isReadOnly",
+        "rowCount",
+        "hasFooter",
+        "detailPanelMode",
       ],
       () => {
         this.resetRenderedTable();
@@ -2112,7 +2112,7 @@ export class QuestionMatrixDropdownModelBase
     );
   }
   public getType(): string {
-    return 'matrixdropdownbase';
+    return "matrixdropdownbase";
   }
   public dispose() {
     super.dispose();
@@ -2131,7 +2131,7 @@ export class QuestionMatrixDropdownModelBase
     newValue: any
   ) {
     super.itemValuePropertyChanged(item, name, oldValue, newValue);
-    if (item.ownerPropertyName === 'choices') {
+    if (item.ownerPropertyName === "choices") {
       this.clearRowsAndResetRenderedTable();
     }
   }
@@ -2141,10 +2141,10 @@ export class QuestionMatrixDropdownModelBase
    * @see rowCount
    */
   public get columnLayout(): string {
-    return this.getPropertyValue('columnLayout');
+    return this.getPropertyValue("columnLayout");
   }
   public set columnLayout(val: string) {
-    this.setPropertyValue('columnLayout', val);
+    this.setPropertyValue("columnLayout", val);
   }
   get columnsLocation(): string {
     return this.columnLayout;
@@ -2157,16 +2157,16 @@ export class QuestionMatrixDropdownModelBase
    * @see columnLayout
    */
   public get isColumnLayoutHorizontal() {
-    return this.columnLayout != 'vertical';
+    return this.columnLayout != "vertical";
   }
   /**
    * Set the value to "underRow" to show the detailPanel under the row.
    */
   public get detailPanelMode(): string {
-    return this.getPropertyValue('detailPanelMode', 'none');
+    return this.getPropertyValue("detailPanelMode", "none");
   }
   public set detailPanelMode(val: string) {
-    this.setPropertyValue('detailPanelMode', val);
+    this.setPropertyValue("detailPanelMode", val);
   }
   /**
    * The detail template Panel. This panel is used as a template on creating detail panel for a row.
@@ -2233,10 +2233,10 @@ export class QuestionMatrixDropdownModelBase
     }
   }
   private get renderedTableValue(): QuestionMatrixDropdownRenderedTable {
-    return this.getPropertyValue('renderedTable', null);
+    return this.getPropertyValue("renderedTable", null);
   }
   private set renderedTableValue(val: QuestionMatrixDropdownRenderedTable) {
-    this.setPropertyValue('renderedTable', val);
+    this.setPropertyValue("renderedTable", val);
   }
   private clearRowsAndResetRenderedTable() {
     this.clearGeneratedRows();
@@ -2277,7 +2277,7 @@ export class QuestionMatrixDropdownModelBase
       columnName: <any>null,
       cell: <any>null,
       cellQuestion: <any>null,
-      value: <any>null
+      value: <any>null,
     };
     for (var i = 0; i < this.visibleColumns.length; i++) {
       options.column = this.visibleColumns[i];
@@ -2296,11 +2296,11 @@ export class QuestionMatrixDropdownModelBase
    * Use this property to change the default cell type.
    */
   public get cellType(): string {
-    return this.getPropertyValue('cellType', settings.matrixDefaultCellType);
+    return this.getPropertyValue("cellType", settings.matrixDefaultCellType);
   }
   public set cellType(val: string) {
     val = val.toLowerCase();
-    this.setPropertyValue('cellType', val);
+    this.setPropertyValue("cellType", val);
   }
   private updateColumnsCellType() {
     for (var i = 0; i < this.columns.length; i++) {
@@ -2316,32 +2316,32 @@ export class QuestionMatrixDropdownModelBase
    * The default column count for radiogroup and checkbox  cell types.
    */
   public get columnColCount(): number {
-    return this.getPropertyValue('columnColCount', 0);
+    return this.getPropertyValue("columnColCount", 0);
   }
   public set columnColCount(value: number) {
     if (value < 0 || value > 4) return;
-    this.setPropertyValue('columnColCount', value);
+    this.setPropertyValue("columnColCount", value);
   }
   /**
    * Use this property to set the minimum column width.
    */
   public get columnMinWidth(): string {
-    return this.getPropertyValue('columnMinWidth', '');
+    return this.getPropertyValue("columnMinWidth", "");
   }
   public set columnMinWidth(val: string) {
-    this.setPropertyValue('columnMinWidth', val);
+    this.setPropertyValue("columnMinWidth", val);
   }
   /**
    * Set this property to true to show the horizontal scroll.
    */
   public get horizontalScroll(): boolean {
-    return this.getPropertyValue('horizontalScroll', false);
+    return this.getPropertyValue("horizontalScroll", false);
   }
   public set horizontalScroll(val: boolean) {
-    this.setPropertyValue('horizontalScroll', val);
+    this.setPropertyValue("horizontalScroll", val);
   }
   public getRequiredText(): string {
-    return this.survey ? this.survey.requiredText : '';
+    return this.survey ? this.survey.requiredText : "";
   }
   onColumnPropertyChanged(
     column: MatrixDropdownColumn,
@@ -2365,7 +2365,7 @@ export class QuestionMatrixDropdownModelBase
       );
     }
     this.onColumnsChanged();
-    if (name == 'isRequired') {
+    if (name == "isRequired") {
       this.resetRenderedTable();
     }
     if (column.isShowInMultipleColumns) {
@@ -2381,13 +2381,13 @@ export class QuestionMatrixDropdownModelBase
     this.resetRenderedTable();
   }
   public getRowTitleWidth(): string {
-    return '';
+    return "";
   }
   public get hasFooter(): boolean {
-    return this.getPropertyValue('hasFooter', false);
+    return this.getPropertyValue("hasFooter", false);
   }
   public getAddRowLocation(): string {
-    return 'default';
+    return "default";
   }
   public getShowColumnsIfEmpty(): boolean {
     return false;
@@ -2398,7 +2398,7 @@ export class QuestionMatrixDropdownModelBase
     }
   }
   protected updateHasFooter() {
-    this.setPropertyValue('hasFooter', this.hasTotal);
+    this.setPropertyValue("hasFooter", this.hasTotal);
   }
   public get hasTotal(): boolean {
     for (var i = 0; i < this.columns.length; i++) {
@@ -2411,9 +2411,9 @@ export class QuestionMatrixDropdownModelBase
   }
   public getConditionJson(operator: string = null, path: string = null): any {
     if (!path) return super.getConditionJson();
-    var columnName = '';
+    var columnName = "";
     for (var i = path.length - 1; i >= 0; i--) {
-      if (path[i] == '.') break;
+      if (path[i] == ".") break;
       columnName = path[i] + columnName;
     }
     var column = this.getColumnByName(columnName);
@@ -2520,8 +2520,8 @@ export class QuestionMatrixDropdownModelBase
     if (!this.isValueEmpty(this.totalValue)) {
       totalRow = JSON.parse(JSON.stringify(this.totalValue));
     }
-    newValues['row'] = {};
-    newValues['totalRow'] = totalRow;
+    newValues["row"] = {};
+    newValues["totalRow"] = totalRow;
     return newValues;
   }
   public locStrsChanged() {
@@ -2563,25 +2563,25 @@ export class QuestionMatrixDropdownModelBase
    * The default choices for dropdown, checkbox and radiogroup cell types.
    */
   public get choices(): Array<any> {
-    return this.getPropertyValue('choices');
+    return this.getPropertyValue("choices");
   }
   public set choices(val: Array<any>) {
-    this.setPropertyValue('choices', val);
+    this.setPropertyValue("choices", val);
   }
   /**
    * The default options caption for dropdown cell type.
    */
   public get optionsCaption() {
     return this.getLocalizableStringText(
-      'optionsCaption',
-      surveyLocalization.getString('optionsCaption')
+      "optionsCaption",
+      surveyLocalization.getString("optionsCaption")
     );
   }
   public set optionsCaption(val: string) {
-    this.setLocalizableStringText('optionsCaption', val);
+    this.setLocalizableStringText("optionsCaption", val);
   }
   public get locOptionsCaption() {
-    return this.getLocalizableString('optionsCaption');
+    return this.getLocalizableString("optionsCaption");
   }
   /**
    * The duplication value error text. Set it to show the text different from the default.
@@ -2589,15 +2589,15 @@ export class QuestionMatrixDropdownModelBase
    */
   public get keyDuplicationError() {
     return this.getLocalizableStringText(
-      'keyDuplicationError',
-      surveyLocalization.getString('keyDuplicationError')
+      "keyDuplicationError",
+      surveyLocalization.getString("keyDuplicationError")
     );
   }
   public set keyDuplicationError(val: string) {
-    this.setLocalizableStringText('keyDuplicationError', val);
+    this.setLocalizableStringText("keyDuplicationError", val);
   }
   get locKeyDuplicationError() {
-    return this.getLocalizableString('keyDuplicationError');
+    return this.getLocalizableString("keyDuplicationError");
   }
   public get storeOthersAsComment(): boolean {
     return !!this.survey ? this.survey.storeOthersAsComment : false;
@@ -2611,7 +2611,7 @@ export class QuestionMatrixDropdownModelBase
     if (this.isLoadingFromJson) return null;
     if (!this.generatedVisibleRows) {
       this.generatedVisibleRows = this.generateRows();
-      this.generatedVisibleRows.forEach(row => this.onMatrixRowCreated(row));
+      this.generatedVisibleRows.forEach((row) => this.onMatrixRowCreated(row));
       if (this.data) {
         this.runCellsCondition(
           this.data.getFilteredValues(),
@@ -2632,7 +2632,7 @@ export class QuestionMatrixDropdownModelBase
       var rowValue = this.getRowValue(i);
       var rValue = row.value;
       if (this.isTwoValueEquals(rowValue, rValue)) continue;
-      newValue = this.getNewValueOnRowChanged(row, '', rValue, false, newValue)
+      newValue = this.getNewValueOnRowChanged(row, "", rValue, false, newValue)
         .value;
     }
     if (this.isTwoValueEquals(oldValue, newValue)) return;
@@ -2711,7 +2711,7 @@ export class QuestionMatrixDropdownModelBase
     var visRows = this.visibleRows;
     if (rowIndex >= visRows.length) return null;
     visRows[rowIndex].value = rowValue;
-    this.onRowChanged(visRows[rowIndex], '', rowValue, false);
+    this.onRowChanged(visRows[rowIndex], "", rowValue, false);
   }
   protected generateRows(): Array<MatrixDropdownRowModelBase> {
     return null;
@@ -2778,7 +2778,7 @@ export class QuestionMatrixDropdownModelBase
         propertyName: string;
       }>;
     } = {
-      includeEmpty: true
+      includeEmpty: true,
     }
   ) {
     var questionPlainData = super.getPlainData(options);
@@ -2792,15 +2792,15 @@ export class QuestionMatrixDropdownModelBase
             value: row.value,
             displayValue: this.getRowDisplayValue(false, row, row.value),
             getString: (val: any) =>
-              typeof val === 'object' ? JSON.stringify(val) : val,
+              typeof val === "object" ? JSON.stringify(val) : val,
             isNode: true,
             data: row.cells
               .map((cell: MatrixDropdownCell) =>
                 cell.question.getPlainData(options)
               )
-              .filter((d: any) => !!d)
+              .filter((d: any) => !!d),
           };
-          (options.calculations || []).forEach(calculation => {
+          (options.calculations || []).forEach((calculation) => {
             rowDataItem[calculation.propertyName] = (<any>row)[
               calculation.propertyName
             ];
@@ -2947,7 +2947,7 @@ export class QuestionMatrixDropdownModelBase
     if (!this.generatedVisibleRows) return false;
     var res = false;
     if (!rec) rec = {};
-    rec.isSingleDetailPanel = this.detailPanelMode === 'underRowSingle';
+    rec.isSingleDetailPanel = this.detailPanelMode === "underRowSingle";
     for (var i = 0; i < this.generatedVisibleRows.length; i++) {
       res =
         this.generatedVisibleRows[i].hasErrors(fireCallback, rec, () => {
@@ -3084,7 +3084,7 @@ export class QuestionMatrixDropdownModelBase
     this.isDoingonAnyValueChanged = false;
   }
   protected isObject(value: any) {
-    return value !== null && typeof value === 'object';
+    return value !== null && typeof value === "object";
   }
   private getOnCellValueChangedOptions(
     row: MatrixDropdownRowModelBase,
@@ -3105,7 +3105,7 @@ export class QuestionMatrixDropdownModelBase
       columnName: columnName,
       rowValue: rowValue,
       value: !!rowValue ? rowValue[columnName] : null,
-      getCellQuestion: getQuestion
+      getCellQuestion: getQuestion,
     };
   }
   protected onCellValueChanged(
@@ -3211,19 +3211,19 @@ export class QuestionMatrixDropdownModelBase
     return this.visibleRows.indexOf(row);
   }
   public getElementsInDesign(includeHidden: boolean = false): Array<IElement> {
-    if (this.detailPanelMode == 'none')
+    if (this.detailPanelMode == "none")
       return super.getElementsInDesign(includeHidden);
     return includeHidden ? [this.detailPanel] : this.detailElements;
   }
   hasDetailPanel(row: MatrixDropdownRowModelBase): boolean {
-    if (this.detailPanelMode == 'none') return false;
+    if (this.detailPanelMode == "none") return false;
     if (this.isDesignMode) return true;
     if (!!this.onHasDetailPanelCallback)
       return this.onHasDetailPanelCallback(row);
     return this.detailElements.length > 0;
   }
   getIsDetailPanelShowing(row: MatrixDropdownRowModelBase): boolean {
-    if (this.detailPanelMode == 'none') return false;
+    if (this.detailPanelMode == "none") return false;
     if (this.isDesignMode) {
       var res = this.visibleRows.indexOf(row) == 0;
       if (res) {
@@ -3233,16 +3233,16 @@ export class QuestionMatrixDropdownModelBase
       }
       return res;
     }
-    return this.getPropertyValue('isRowShowing' + row.id, false);
+    return this.getPropertyValue("isRowShowing" + row.id, false);
   }
   setIsDetailPanelShowing(row: MatrixDropdownRowModelBase, val: boolean): void {
     if (val == this.getIsDetailPanelShowing(row)) return;
-    this.setPropertyValue('isRowShowing' + row.id, val);
+    this.setPropertyValue("isRowShowing" + row.id, val);
     this.updateDetailPanelButtonCss(row);
     if (!!this.renderedTable) {
       this.renderedTable.onDetailPanelChangeVisibility(row, val);
     }
-    if (val && this.detailPanelMode === 'underRowSingle') {
+    if (val && this.detailPanelMode === "underRowSingle") {
       var rows = this.visibleRows;
       for (var i = 0; i < rows.length; i++) {
         if (rows[i].id !== row.id && rows[i].isDetailPanelShowing) {
@@ -3252,38 +3252,38 @@ export class QuestionMatrixDropdownModelBase
     }
   }
   public getDetailPanelButtonCss(row: MatrixDropdownRowModelBase): string {
-    var res = this.getPropertyValue('detailButtonCss' + row.id);
+    var res = this.getPropertyValue("detailButtonCss" + row.id);
     if (!!res) return res;
     var res = this.cssClasses.detailButton;
-    return !!res ? res : '';
+    return !!res ? res : "";
   }
   public getDetailPanelIconCss(row: MatrixDropdownRowModelBase): string {
-    var res = this.getPropertyValue('detailIconCss' + row.id);
+    var res = this.getPropertyValue("detailIconCss" + row.id);
     if (!!res) return res;
     var res = this.cssClasses.detailIcon;
-    return !!res ? res : '';
+    return !!res ? res : "";
   }
   private updateDetailPanelButtonCss(row: MatrixDropdownRowModelBase) {
     var classes = this.cssClasses;
     var icon = classes.detailIcon;
-    if (!icon) icon = '';
+    if (!icon) icon = "";
     var button = classes.detailButton;
-    if (!button) button = '';
+    if (!button) button = "";
     if (this.getIsDetailPanelShowing(row)) {
       if (!!classes.detailIconExpanded)
-        icon += ' ' + classes.detailIconExpanded;
+        icon += " " + classes.detailIconExpanded;
       if (!!classes.detailButtonExpanded)
-        button += ' ' + classes.detailButtonExpanded;
+        button += " " + classes.detailButtonExpanded;
     }
-    this.setPropertyValue('detailIconCss' + row.id, icon);
-    this.setPropertyValue('detailButtonCss' + row.id, button);
+    this.setPropertyValue("detailIconCss" + row.id, icon);
+    this.setPropertyValue("detailButtonCss" + row.id, button);
   }
   createRowDetailPanel(row: MatrixDropdownRowModelBase): PanelModel {
     if (this.isDesignMode) return this.detailPanel;
     var panel = this.createNewDetailPanel();
     var json = this.detailPanel.toJSON();
     new JsonObject().toObject(json, panel);
-    panel.renderWidth = '100%';
+    panel.renderWidth = "100%";
     panel.updateCustomWidgets();
     if (!!this.onCreateDetailPanelCallback) {
       this.onCreateDetailPanelCallback(row, panel);
@@ -3337,117 +3337,117 @@ export class QuestionMatrixDropdownModelBase
 }
 
 Serializer.addClass(
-  'matrixdropdowncolumn',
+  "matrixdropdowncolumn",
   [
-    { name: '!name', isUnique: true },
-    { name: 'title', serializationProperty: 'locTitle' },
+    { name: "!name", isUnique: true },
+    { name: "title", serializationProperty: "locTitle" },
     {
-      name: 'cellType',
-      default: 'default',
+      name: "cellType",
+      default: "default",
       choices: () => {
         var res = MatrixDropdownColumn.getColumnTypes();
-        res.splice(0, 0, 'default');
+        res.splice(0, 0, "default");
         return res;
-      }
+      },
     },
-    { name: 'colCount', default: -1, choices: [-1, 0, 1, 2, 3, 4] },
-    'isRequired:boolean',
-    'isUnique:boolean',
+    { name: "colCount", default: -1, choices: [-1, 0, 1, 2, 3, 4] },
+    "isRequired:boolean",
+    "isUnique:boolean",
     {
-      name: 'requiredErrorText:text',
-      serializationProperty: 'locRequiredErrorText'
+      name: "requiredErrorText:text",
+      serializationProperty: "locRequiredErrorText",
     },
-    'readOnly:boolean',
-    'minWidth',
-    'width',
-    'visibleIf:condition',
-    'enableIf:condition',
-    'requiredIf:condition',
+    "readOnly:boolean",
+    "minWidth",
+    "width",
+    "visibleIf:condition",
+    "enableIf:condition",
+    "requiredIf:condition",
     {
-      name: 'showInMultipleColumns:boolean',
-      dependsOn: 'cellType',
+      name: "showInMultipleColumns:boolean",
+      dependsOn: "cellType",
       visibleIf: function(obj: any) {
         if (!obj) return false;
         return obj.isSupportMultipleColumns;
-      }
+      },
     },
     {
-      name: 'validators:validators',
-      baseClassName: 'surveyvalidator',
-      classNamePart: 'validator'
+      name: "validators:validators",
+      baseClassName: "surveyvalidator",
+      classNamePart: "validator",
     },
     {
-      name: 'totalType',
-      default: 'none',
-      choices: ['none', 'sum', 'count', 'min', 'max', 'avg']
+      name: "totalType",
+      default: "none",
+      choices: ["none", "sum", "count", "min", "max", "avg"],
     },
-    'totalExpression:expression',
-    { name: 'totalFormat', serializationProperty: 'locTotalFormat' },
+    "totalExpression:expression",
+    { name: "totalFormat", serializationProperty: "locTotalFormat" },
     {
-      name: 'totalDisplayStyle',
-      default: 'none',
-      choices: ['none', 'decimal', 'currency', 'percent']
+      name: "totalDisplayStyle",
+      default: "none",
+      choices: ["none", "decimal", "currency", "percent"],
     },
     {
-      name: 'totalCurrency',
+      name: "totalCurrency",
       choices: () => {
         return getCurrecyCodes();
       },
-      default: 'USD'
+      default: "USD",
     },
-    { name: 'totalMaximumFractionDigits:number', default: -1 },
-    { name: 'totalMinimumFractionDigits:number', default: -1 },
-    { name: 'renderAs', default: 'default', visible: false }
+    { name: "totalMaximumFractionDigits:number", default: -1 },
+    { name: "totalMinimumFractionDigits:number", default: -1 },
+    { name: "renderAs", default: "default", visible: false },
   ],
   function() {
-    return new MatrixDropdownColumn('');
+    return new MatrixDropdownColumn("");
   }
 );
 
 Serializer.addClass(
-  'matrixdropdownbase',
+  "matrixdropdownbase",
   [
     {
-      name: 'columns:matrixdropdowncolumns',
-      className: 'matrixdropdowncolumn'
+      name: "columns:matrixdropdowncolumns",
+      className: "matrixdropdowncolumn",
     },
     {
-      name: 'columnLayout',
-      alternativeName: 'columnsLocation',
-      default: 'horizontal',
-      choices: ['horizontal', 'vertical']
+      name: "columnLayout",
+      alternativeName: "columnsLocation",
+      default: "horizontal",
+      choices: ["horizontal", "vertical"],
     },
     {
-      name: 'detailElements',
+      name: "detailElements",
       visible: false,
-      isLightSerializable: false
+      isLightSerializable: false,
     },
     {
-      name: 'detailPanelMode',
-      choices: ['none', 'underRow', 'underRowSingle'],
-      default: 'none'
+      name: "detailPanelMode",
+      choices: ["none", "underRow", "underRowSingle"],
+      default: "none",
     },
-    'horizontalScroll:boolean',
+    "horizontalScroll:boolean",
     {
-      name: 'choices:itemvalue[]'
+      name: "choices:itemvalue[]",
     },
-    { name: 'optionsCaption', serializationProperty: 'locOptionsCaption' },
+    { name: "optionsCaption", serializationProperty: "locOptionsCaption" },
     {
-      name: 'keyDuplicationError',
-      serializationProperty: 'locKeyDuplicationError'
+      name: "keyDuplicationError",
+      serializationProperty: "locKeyDuplicationError",
     },
     {
-      name: 'cellType',
-      default: 'dropdown',
+      name: "cellType",
+      default: "dropdown",
       choices: () => {
         return MatrixDropdownColumn.getColumnTypes();
-      }
+      },
     },
-    { name: 'columnColCount', default: 0, choices: [0, 1, 2, 3, 4] },
-    'columnMinWidth'
+    { name: "columnColCount", default: 0, choices: [0, 1, 2, 3, 4] },
+    "columnMinWidth",
   ],
   function() {
-    return new QuestionMatrixDropdownModelBase('');
+    return new QuestionMatrixDropdownModelBase("");
   },
-  'matrixbase'
+  "matrixbase"
 );

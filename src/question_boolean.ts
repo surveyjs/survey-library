@@ -1,8 +1,8 @@
-import { QuestionFactory } from './questionfactory';
-import { property, Serializer } from './jsonobject';
-import { Question } from './question';
-import { LocalizableString } from './localizablestring';
-import { surveyLocalization } from './surveyStrings';
+import { QuestionFactory } from "./questionfactory";
+import { property, Serializer } from "./jsonobject";
+import { Question } from "./question";
+import { LocalizableString } from "./localizablestring";
+import { surveyLocalization } from "./surveyStrings";
 
 /**
  * A Model for a boolean question.
@@ -10,21 +10,21 @@ import { surveyLocalization } from './surveyStrings';
 export class QuestionBooleanModel extends Question {
   constructor(name: string) {
     super(name);
-    this.createLocalizableString('labelFalse', this, true);
-    this.createLocalizableString('labelTrue', this, true);
+    this.createLocalizableString("labelFalse", this, true);
+    this.createLocalizableString("labelTrue", this, true);
     this.locLabelFalse.onGetTextCallback = (text: string): string => {
       return !!text
         ? text
-        : surveyLocalization.getString('booleanUncheckedLabel');
+        : surveyLocalization.getString("booleanUncheckedLabel");
     };
     this.locLabelTrue.onGetTextCallback = (text: string): string => {
       return !!text
         ? text
-        : surveyLocalization.getString('booleanCheckedLabel');
+        : surveyLocalization.getString("booleanCheckedLabel");
     };
   }
   public getType(): string {
-    return 'boolean';
+    return "boolean";
   }
   isLayoutTypeSupported(layoutType: string): boolean {
     return true;
@@ -64,24 +64,24 @@ export class QuestionBooleanModel extends Question {
    * Set the default state of the check: "indeterminate" - default (value is empty/null), "true" - value equals valueTrue or true, "false" - value equals valueFalse or false.
    */
   public get defaultValue(): any {
-    return this.getPropertyValue('defaultValue');
+    return this.getPropertyValue("defaultValue");
   }
   public set defaultValue(val: any) {
-    if (val === true) val = 'true';
-    if (val === false) val = 'false';
-    this.setPropertyValue('defaultValue', val);
+    if (val === true) val = "true";
+    if (val === false) val = "false";
+    this.setPropertyValue("defaultValue", val);
     this.updateValueWithDefaults();
   }
   public getDefaultValue(): any {
-    if (this.defaultValue == 'indeterminate') return null;
+    if (this.defaultValue == "indeterminate") return null;
     if (this.defaultValue === undefined) return null;
-    return this.defaultValue == 'true'
+    return this.defaultValue == "true"
       ? this.getValueTrue()
       : this.getValueFalse();
   }
   public get locTitle(): LocalizableString {
     return this.showTitle || this.isValueEmpty(this.locLabel.text)
-      ? this.getLocalizableString('title')
+      ? this.getLocalizableString("title")
       : this.locLabel;
   }
   /**
@@ -101,26 +101,26 @@ export class QuestionBooleanModel extends Question {
    * Set this property, if you want to have a different label for state when check is set.
    */
   public get labelTrue(): any {
-    return this.getLocalizableStringText('labelTrue');
+    return this.getLocalizableStringText("labelTrue");
   }
   public set labelTrue(val: any) {
-    this.setLocalizableStringText('labelTrue', val);
+    this.setLocalizableStringText("labelTrue", val);
   }
   get locLabelTrue(): LocalizableString {
-    return this.getLocalizableString('labelTrue');
+    return this.getLocalizableString("labelTrue");
   }
 
   /**
    * Set this property, if you want to have a different label for state when check is unset.
    */
   public get labelFalse(): any {
-    return this.getLocalizableStringText('labelFalse');
+    return this.getLocalizableStringText("labelFalse");
   }
   public set labelFalse(val: any) {
-    this.setLocalizableStringText('labelFalse', val);
+    this.setLocalizableStringText("labelFalse", val);
   }
   get locLabelFalse(): LocalizableString {
-    return this.getLocalizableString('labelFalse');
+    return this.getLocalizableString("labelFalse");
   }
 
   /**
@@ -147,9 +147,9 @@ export class QuestionBooleanModel extends Question {
     return this.valueFalse ? this.valueFalse : false;
   }
   protected setDefaultValue() {
-    if (this.defaultValue == 'true') this.setCheckedValue(true);
-    if (this.defaultValue == 'false') this.setCheckedValue(false);
-    if (this.defaultValue == 'indeterminate') this.setCheckedValue(null);
+    if (this.defaultValue == "true") this.setCheckedValue(true);
+    if (this.defaultValue == "false") this.setCheckedValue(false);
+    if (this.defaultValue == "indeterminate") this.setCheckedValue(null);
   }
   protected getDisplayValueCore(keysAsText: boolean, value: any): any {
     if (value == this.getValueTrue()) return this.locLabelTrue.textOrHtml;
@@ -158,27 +158,27 @@ export class QuestionBooleanModel extends Question {
 }
 
 Serializer.addClass(
-  'boolean',
+  "boolean",
   [
-    { name: 'label:text', serializationProperty: 'locLabel' },
+    { name: "label:text", serializationProperty: "locLabel" },
     {
-      name: 'labelTrue:text',
-      serializationProperty: 'locLabelTrue'
+      name: "labelTrue:text",
+      serializationProperty: "locLabelTrue",
     },
     {
-      name: 'labelFalse:text',
-      serializationProperty: 'locLabelFalse'
+      name: "labelFalse:text",
+      serializationProperty: "locLabelFalse",
     },
-    'showTitle:boolean',
-    'valueTrue',
-    'valueFalse',
-    { name: 'renderAs', default: 'default', visible: false }
+    "showTitle:boolean",
+    "valueTrue",
+    "valueFalse",
+    { name: "renderAs", default: "default", visible: false },
   ],
   function() {
-    return new QuestionBooleanModel('');
+    return new QuestionBooleanModel("");
   },
-  'question'
+  "question"
 );
-QuestionFactory.Instance.registerQuestion('boolean', name => {
+QuestionFactory.Instance.registerQuestion("boolean", (name) => {
   return new QuestionBooleanModel(name);
 });

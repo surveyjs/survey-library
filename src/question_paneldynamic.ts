@@ -1326,7 +1326,7 @@ export class QuestionPanelDynamicModel extends Question
     return result;
   }
   protected getDisplayValueCore(keysAsText: boolean, value: any): any {
-    var values = this.createValueCopy();
+    var values = this.getUnbindValue(value);
     if (!values || !Array.isArray(values)) return values;
     for (var i = 0; i < this.panels.length && i < values.length; i++) {
       var val = values[i];
@@ -1343,13 +1343,20 @@ export class QuestionPanelDynamicModel extends Question
   ): any {
     if (!val) return val;
     var panel = this.panels[panelIndex];
-    for (var key in val) {
+    var keys = Object.keys(val);
+    for (var i = 0; i < keys.length; i++) {
+      var key = keys[i];
       var question = panel.getQuestionByValueName(key);
       if (!question) {
         question = this.getSharedQuestionFromArray(key, panelIndex);
       }
       if (!!question) {
-        val[key] = question.getDisplayValue(keysAsText);
+        var qValue = question.getDisplayValue(keysAsText, val[key]);
+        val[key] = qValue;
+        if (keysAsText && !!question.title && question.title !== key) {
+          val[question.title] = qValue;
+          delete val[key];
+        }
       }
     }
     return val;

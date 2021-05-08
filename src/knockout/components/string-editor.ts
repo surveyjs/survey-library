@@ -1,6 +1,5 @@
 import * as ko from "knockout";
 import { LocalizableString } from "survey-core";
-
 const template = require("./string-editor.html");
 
 export class StringEditorViewModel {
@@ -50,14 +49,14 @@ function applyLocStrOnSearchChanged(element: any, locStr: any) {
       locStr.searchElement = getSearchElement(element);
     }
     if (locStr.searchElement == null) return;
-    var el = locStr.searchElement;
+    const el = locStr.searchElement;
     if (!locStr.highlightDiv) {
       locStr.highlightDiv = document.createElement("span");
       locStr.highlightDiv.style.backgroundColor = "lightgray";
     }
     if (locStr.searchIndex != undefined) {
       resetLocalizationSpan(el, locStr);
-      var rng = document.createRange();
+      const rng: Range = document.createRange();
       rng.setStart(el.childNodes[0], locStr.searchIndex);
       rng.setEnd(
         el.childNodes[0],

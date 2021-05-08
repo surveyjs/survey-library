@@ -1,6 +1,6 @@
 import { Serializer } from "./jsonobject";
 import { Question } from "./question";
-import { Base, SurveyError, ISurveyImpl, ISurvey } from "./base";
+import { SurveyError, ISurveyImpl, ISurvey } from "./base";
 import { ItemValue } from "./itemvalue";
 import { Helpers, HashTable } from "./helpers";
 import { surveyLocalization } from "./surveyStrings";
@@ -632,10 +632,10 @@ export class QuestionSelectBase extends Question {
       }
       items.push(this.newItemValue);
     }
-    if (isAddAll || this.hasOther) {
+    if (this.supportOther() && (isAddAll || this.hasOther)) {
       items.push(this.otherItem);
     }
-    if (isAddAll || this.hasNone) {
+    if (this.supportNone() && (isAddAll || this.hasNone)) {
       items.push(this.noneItem);
     }
   }
@@ -770,6 +770,9 @@ export class QuestionSelectBase extends Question {
     return true;
   }
   public supportOther(): boolean {
+    return true;
+  }
+  public supportNone(): boolean {
     return true;
   }
   protected onCheckForErrors(

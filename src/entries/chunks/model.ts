@@ -72,7 +72,7 @@ export {
   JsonUnknownPropertyError,
   Serializer,
   property,
-  propertyArray,
+  propertyArray
 } from "../../jsonobject";
 export {
   MatrixDropdownCell,
@@ -96,11 +96,11 @@ export {
   MatrixRowModel,
   MatrixCells,
   QuestionMatrixModel,
-  IMatrixData,
+  IMatrixData
 } from "../../question_matrix";
 export {
   MultipleTextItemModel,
-  QuestionMultipleTextModel,
+  QuestionMultipleTextModel
 } from "../../question_multipletext";
 export { PanelModel, PanelModelBase, QuestionRowModel } from "../../panel";
 export { FlowPanelModel } from "../../flowpanel";
@@ -112,7 +112,7 @@ export { QuestionNonValue } from "../../questionnonvalue";
 export { QuestionEmptyModel } from "../../question_empty";
 export {
   QuestionCheckboxBase,
-  QuestionSelectBase,
+  QuestionSelectBase
 } from "../../question_baseselect";
 export { QuestionCheckboxModel } from "../../question_checkbox";
 export { QuestionRankingModel } from "../../question_ranking";

@@ -53,6 +53,9 @@ export class MultipleTextItemModel extends Base
   public get id(): string {
     return this.editor.id;
   }
+  public getOriginalObj(): Base {
+    return this.editor;
+  }
   /**
    * The item name.
    */

@@ -12,6 +12,7 @@ import { QuestionDropdownModel } from "../src/question_dropdown";
 import { QuestionRatingModel } from "../src/question_rating";
 import { Serializer } from "../src/jsonobject";
 import { ItemValue } from "../src/itemvalue";
+import { QuestionMultipleTextModel } from "../src/question_multipletext";
 
 export default QUnit.module("Survey.editingObj Tests");
 
@@ -72,6 +73,30 @@ QUnit.test(
       question.bindings.getValueNameByPropertyName("rowCount"),
       "q2",
       "set correctly"
+    );
+  }
+);
+QUnit.test(
+  "Serializer.getObjPropertyValue doesn't work correctly for multipletext item",
+  function(assert) {
+    var question = new QuestionMultipleTextModel("q1");
+    question.addItem("item1");
+    assert.equal(
+      Serializer.getObjPropertyValue(question.items[0], "name"),
+      "item1",
+      "Get item name correctly"
+    );
+  }
+);
+QUnit.test(
+  "Serializer.getObjPropertyValue  for matrix dynamic columns",
+  function(assert) {
+    var question = new QuestionMatrixDynamicModel("q1");
+    question.addColumn("column1");
+    assert.equal(
+      Serializer.getObjPropertyValue(question.columns[0], "name"),
+      "column1",
+      "Get column name correctly"
     );
   }
 );

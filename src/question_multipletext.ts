@@ -7,17 +7,17 @@ import {
   IElement,
   SurveyElement,
   ITextProcessor,
-  IProgressInfo,
-} from "./base";
-import { SurveyValidator, IValidatorOwner } from "./validator";
-import { Question, IConditionObject } from "./question";
-import { QuestionTextModel } from "./question_text";
-import { JsonObject, Serializer } from "./jsonobject";
-import { QuestionFactory } from "./questionfactory";
-import { SurveyError } from "./base";
-import { AnswerRequiredError } from "./error";
-import { ILocalizableOwner, LocalizableString } from "./localizablestring";
-import { Helpers } from "./helpers";
+  IProgressInfo
+} from './base';
+import { SurveyValidator, IValidatorOwner } from './validator';
+import { Question, IConditionObject } from './question';
+import { QuestionTextModel } from './question_text';
+import { JsonObject, Serializer } from './jsonobject';
+import { QuestionFactory } from './questionfactory';
+import { SurveyError } from './base';
+import { AnswerRequiredError } from './error';
+import { ILocalizableOwner, LocalizableString } from './localizablestring';
+import { Helpers } from './helpers';
 
 export interface IMultipleTextData extends ILocalizableOwner, IPanel {
   getSurvey(): ISurvey;
@@ -40,15 +40,15 @@ export class MultipleTextItemModel extends Base
     super();
     this.editorValue = this.createEditor(name);
     this.editor.questionTitleTemplateCallback = function() {
-      return "";
+      return '';
     };
-    this.editor.titleLocation = "left";
+    this.editor.titleLocation = 'left';
     if (title) {
       this.title = title;
     }
   }
   public getType(): string {
-    return "multipletextitem";
+    return 'multipletextitem';
   }
   public get id(): string {
     return this.editor.id;
@@ -273,21 +273,21 @@ export class QuestionMultipleTextModel extends Question
   colCountChangedCallback: () => void;
   constructor(name: string) {
     super(name);
-    this.createNewArray("items", (item: any) => {
+    this.createNewArray('items', (item: any) => {
       item.setData(this);
     });
-    this.registerFunctionOnPropertyValueChanged("items", () => {
+    this.registerFunctionOnPropertyValueChanged('items', () => {
       this.fireCallback(this.colCountChangedCallback);
     });
-    this.registerFunctionOnPropertyValueChanged("colCount", () => {
+    this.registerFunctionOnPropertyValueChanged('colCount', () => {
       this.fireCallback(this.colCountChangedCallback);
     });
-    this.registerFunctionOnPropertyValueChanged("itemSize", () => {
+    this.registerFunctionOnPropertyValueChanged('itemSize', () => {
       this.updateItemsSize();
     });
   }
   public getType(): string {
-    return "multipletext";
+    return 'multipletext';
   }
   public setSurveyImpl(value: ISurveyImpl) {
     super.setSurveyImpl(value);
@@ -341,10 +341,10 @@ export class QuestionMultipleTextModel extends Question
    * The list of input items.
    */
   public get items(): Array<MultipleTextItemModel> {
-    return this.getPropertyValue("items");
+    return this.getPropertyValue('items');
   }
   public set items(val: Array<MultipleTextItemModel>) {
-    this.setPropertyValue("items", val);
+    this.setPropertyValue('items', val);
   }
   /**
    * Add a new text item.
@@ -369,9 +369,9 @@ export class QuestionMultipleTextModel extends Question
     for (var i = 0; i < this.items.length; i++) {
       var item = this.items[i];
       objects.push({
-        name: this.getValueName() + "." + item.name,
-        text: this.processedTitle + "." + item.fullTitle,
-        question: this,
+        name: this.getValueName() + '.' + item.name,
+        text: this.processedTitle + '.' + item.fullTitle,
+        question: this
       });
     }
   }
@@ -380,7 +380,7 @@ export class QuestionMultipleTextModel extends Question
     var item = this.getItemByName(path);
     if (!item) return null;
     var json = new JsonObject().toJsonObject(item);
-    json["type"] = "text";
+    json['type'] = 'text';
     return json;
   }
   public locStrsChanged() {
@@ -399,20 +399,20 @@ export class QuestionMultipleTextModel extends Question
    * The number of columns. Items are rendred in one line if the value is 0.
    */
   public get colCount(): number {
-    return this.getPropertyValue("colCount");
+    return this.getPropertyValue('colCount');
   }
   public set colCount(val: number) {
     if (val < 1 || val > 5) return;
-    this.setPropertyValue("colCount", val);
+    this.setPropertyValue('colCount', val);
   }
   /**
    * The default text input size.
    */
   public get itemSize(): number {
-    return this.getPropertyValue("itemSize");
+    return this.getPropertyValue('itemSize');
   }
   public set itemSize(val: number) {
-    this.setPropertyValue("itemSize", val);
+    this.setPropertyValue('itemSize', val);
   }
   /**
    * Returns the list of rendered rows.
@@ -517,6 +517,21 @@ export class QuestionMultipleTextModel extends Question
     }
     return SurveyElement.getProgressInfoByElements(elements, this.isRequired);
   }
+  protected getDisplayValueCore(keysAsText: boolean, value: any): any {
+    if (!value) return value;
+    var res = {};
+    for (var i = 0; i < this.items.length; i++) {
+      var item = this.items[i];
+      var val = value[item.name];
+      if (Helpers.isValueEmpty(val)) continue;
+      var itemName = item.name;
+      if (keysAsText && !!item.title) {
+        itemName = item.title;
+      }
+      (<any>res)[itemName] = item.editor.getDisplayValue(keysAsText, val);
+    }
+    return res;
+  }
   //IMultipleTextData
   getMultipleTextValue(name: string) {
     if (!this.value) return null;
@@ -545,7 +560,7 @@ export class QuestionMultipleTextModel extends Question
     return this.data ? this.data.getAllValues() : null;
   }
   getIsRequiredText(): string {
-    return this.survey ? this.survey.requiredText : "";
+    return this.survey ? this.survey.requiredText : '';
   }
   //IPanel
   addElement(element: IElement, index: number) {}
@@ -553,13 +568,13 @@ export class QuestionMultipleTextModel extends Question
     return false;
   }
   getQuestionTitleLocation(): string {
-    return "left";
+    return 'left';
   }
   getQuestionStartIndex(): string {
     return this.getStartIndex();
   }
   getChildrenLayoutType(): string {
-    return "row";
+    return 'row';
   }
   elementWidthChanged(el: IElement) {}
   get elements(): Array<IElement> {
@@ -574,63 +589,63 @@ export class QuestionMultipleTextModel extends Question
 }
 
 Serializer.addClass(
-  "multipletextitem",
+  'multipletextitem',
   [
-    "name",
-    "isRequired:boolean",
-    { name: "placeHolder", serializationProperty: "locPlaceHolder" },
+    'name',
+    'isRequired:boolean',
+    { name: 'placeHolder', serializationProperty: 'locPlaceHolder' },
     {
-      name: "inputType",
-      default: "text",
+      name: 'inputType',
+      default: 'text',
       choices: [
-        "color",
-        "date",
-        "datetime",
-        "datetime-local",
-        "email",
-        "month",
-        "number",
-        "password",
-        "range",
-        "tel",
-        "text",
-        "time",
-        "url",
-        "week",
-      ],
+        'color',
+        'date',
+        'datetime',
+        'datetime-local',
+        'email',
+        'month',
+        'number',
+        'password',
+        'range',
+        'tel',
+        'text',
+        'time',
+        'url',
+        'week'
+      ]
     },
-    { name: "title", serializationProperty: "locTitle" },
-    { name: "maxLength:number", default: -1 },
-    { name: "size:number", minValue: 0 },
+    { name: 'title', serializationProperty: 'locTitle' },
+    { name: 'maxLength:number', default: -1 },
+    { name: 'size:number', minValue: 0 },
     {
-      name: "requiredErrorText:text",
-      serializationProperty: "locRequiredErrorText",
+      name: 'requiredErrorText:text',
+      serializationProperty: 'locRequiredErrorText'
     },
     {
-      name: "validators:validators",
-      baseClassName: "surveyvalidator",
-      classNamePart: "validator",
-    },
+      name: 'validators:validators',
+      baseClassName: 'surveyvalidator',
+      classNamePart: 'validator'
+    }
   ],
   function() {
-    return new MultipleTextItemModel("");
+    return new MultipleTextItemModel('');
   }
 );
 
 Serializer.addClass(
-  "multipletext",
+  'multipletext',
   [
-    { name: "!items:textitems", className: "multipletextitem" },
-    { name: "itemSize:number", minValue: 0 },
-    { name: "colCount:number", default: 1, choices: [1, 2, 3, 4, 5] },
+    { name: '!items:textitems', className: 'multipletextitem' },
+    { name: 'itemSize:number', minValue: 0 },
+    { name: 'colCount:number', default: 1, choices: [1, 2, 3, 4, 5] }
   ],
   function() {
-    return new QuestionMultipleTextModel("");
+    return new QuestionMultipleTextModel('');
   },
-  "question"
+  'question'
 );
 
-QuestionFactory.Instance.registerQuestion("multipletext", name => {
+QuestionFactory.Instance.registerQuestion('multipletext', name => {
   var q = new QuestionMultipleTextModel(name);
   QuestionMultipleTextModel.addDefaultItems(q);
   return q;

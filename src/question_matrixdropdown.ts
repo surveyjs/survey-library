@@ -94,7 +94,7 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
           rowValue = displayRowValue;
         }
       }
-      (<any>res)[rowValue] = this.getRowDisplayValue(rows[i], val);
+      (<any>res)[rowValue] = this.getRowDisplayValue(keysAsText, rows[i], val);
     }
     return values;
   }

@@ -2745,20 +2745,28 @@ export class QuestionMatrixDropdownModelBase
     var obj = this.getRowValueCore(row, this.value);
     return !!obj && !!obj.getType ? obj : null;
   }
-
   protected getRowDisplayValue(
+    keysAsText: boolean,
     row: MatrixDropdownRowModelBase,
     rowValue: any
   ): any {
     if (!rowValue) return rowValue;
     if (!!row.editingObj) return rowValue;
-    for (var key in rowValue) {
+    var keys = Object.keys(rowValue);
+    for (var i = 0; i < keys.length; i++) {
+      var key = keys[i];
       var question = row.getQuestionByName(key);
       if (!question) {
         question = this.getSharedQuestionByName(key, row);
       }
       if (!!question) {
-        rowValue[key] = question.displayValue;
+        var displayvalue = question.displayValue;
+        if (keysAsText && !!question.title && question.title !== key) {
+          rowValue[question.title] = displayvalue;
+          delete rowValue[key];
+        } else {
+          rowValue[key] = displayvalue;
+        }
       }
     }
     return rowValue;
@@ -2782,7 +2790,7 @@ export class QuestionMatrixDropdownModelBase
             name: row.rowName,
             title: row.rowName,
             value: row.value,
-            displayValue: this.getRowDisplayValue(row, row.value),
+            displayValue: this.getRowDisplayValue(false, row, row.value),
             getString: (val: any) =>
               typeof val === "object" ? JSON.stringify(val) : val,
             isNode: true,

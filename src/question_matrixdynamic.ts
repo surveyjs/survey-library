@@ -528,13 +528,22 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     return this.getLocalizableString("emptyRowsText");
   }
   protected getDisplayValueCore(keysAsText: boolean, value: any): any {
+    if (!value || !Array.isArray(value)) return value;
+    var oldValues = this.createValueCopy();
+    if (!this.isTwoValueEquals(this.value, value)) {
+      this.isRowChanging = true;
+      this.setQuestionValue(value);
+    }
     var values = this.createValueCopy();
-    if (!values || !Array.isArray(values)) return values;
     var rows = this.visibleRows;
     for (var i = 0; i < rows.length && i < values.length; i++) {
       var val = values[i];
       if (!val) continue;
-      values[i] = this.getRowDisplayValue(rows[i], val);
+      values[i] = this.getRowDisplayValue(keysAsText, rows[i], val);
+    }
+    if (this.isRowChanging) {
+      this.setQuestionValue(oldValues);
+      this.isRowChanging = false;
     }
     return values;
   }

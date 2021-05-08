@@ -1,13 +1,13 @@
 import {
   QuestionMatrixDropdownModelBase,
   MatrixDropdownRowModelBase,
-  IMatrixDropdownData,
-} from "./question_matrixdropdownbase";
-import { Serializer } from "./jsonobject";
-import { ItemValue } from "./itemvalue";
-import { QuestionFactory } from "./questionfactory";
-import { LocalizableString } from "./localizablestring";
-import { IConditionObject } from "./question";
+  IMatrixDropdownData
+} from './question_matrixdropdownbase';
+import { Serializer } from './jsonobject';
+import { ItemValue } from './itemvalue';
+import { QuestionFactory } from './questionfactory';
+import { LocalizableString } from './localizablestring';
+import { IConditionObject } from './question';
 
 export class MatrixDropdownRowModel extends MatrixDropdownRowModelBase {
   private item: ItemValue;
@@ -38,28 +38,28 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
   implements IMatrixDropdownData {
   constructor(name: string) {
     super(name);
-    this.createLocalizableString("totalText", this, true);
+    this.createLocalizableString('totalText', this, true);
     var self = this;
-    this.registerFunctionOnPropertyValueChanged("rows", function() {
+    this.registerFunctionOnPropertyValueChanged('rows', function() {
       self.clearGeneratedRows();
       self.resetRenderedTable();
       self.filterItems();
     });
   }
   public getType(): string {
-    return "matrixdropdown";
+    return 'matrixdropdown';
   }
   /**
    * Set this property to show it on the first column for the total row.
    */
   public get totalText() {
-    return this.getLocalizableStringText("totalText", "");
+    return this.getLocalizableStringText('totalText', '');
   }
   public set totalText(val: string) {
-    this.setLocalizableStringText("totalText", val);
+    this.setLocalizableStringText('totalText', val);
   }
   public get locTotalText(): LocalizableString {
-    return this.getLocalizableString("totalText");
+    return this.getLocalizableString('totalText');
   }
   public getFooterText(): LocalizableString {
     return this.locTotalText;
@@ -68,22 +68,21 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
    * The column width for the first column, row title column.
    */
   public get rowTitleWidth(): string {
-    return this.getPropertyValue("rowTitleWidth", "");
+    return this.getPropertyValue('rowTitleWidth', '');
   }
   public set rowTitleWidth(val: string) {
-    this.setPropertyValue("rowTitleWidth", val);
+    this.setPropertyValue('rowTitleWidth', val);
   }
   public getRowTitleWidth(): string {
     return this.rowTitleWidth;
   }
   protected getDisplayValueCore(keysAsText: boolean, value: any): any {
-    var values = this.createValueCopy();
-    if (!values) return values;
+    if (!value) return value;
     var rows = this.visibleRows;
     var res = {};
     for (var i = 0; i < rows.length; i++) {
       var rowValue = this.rows[i].value;
-      var val = values[rowValue];
+      var val = value[rowValue];
       if (!val) continue;
       if (keysAsText) {
         var displayRowValue = ItemValue.getTextOrHtmlByValue(
@@ -96,7 +95,7 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
       }
       (<any>res)[rowValue] = this.getRowDisplayValue(keysAsText, rows[i], val);
     }
-    return values;
+    return res;
   }
   public addConditionObjectsByContext(
     objects: Array<IConditionObject>,
@@ -106,14 +105,14 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
     for (var i = 0; i < this.rows.length; i++) {
       var row = this.rows[i];
       if (!row.value) continue;
-      var prefixName = this.getValueName() + "." + row.value + ".";
-      var prefixTitle = this.processedTitle + "." + row.calculatedText + ".";
+      var prefixName = this.getValueName() + '.' + row.value + '.';
+      var prefixTitle = this.processedTitle + '.' + row.calculatedText + '.';
       for (var j = 0; j < this.columns.length; j++) {
         var column = this.columns[j];
         objects.push({
           name: prefixName + column.name,
           text: prefixTitle + column.fullTitle,
-          question: this,
+          question: this
         });
       }
     }
@@ -122,9 +121,9 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
         var column = this.columns[i];
         if (column == context) continue;
         objects.push({
-          name: "row." + column.name,
-          text: "row." + column.fullTitle,
-          question: this,
+          name: 'row.' + column.name,
+          text: 'row.' + column.fullTitle,
+          question: this
         });
       }
     }
@@ -171,27 +170,27 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
     return new MatrixDropdownRowModel(item.value, item, this, value);
   }
   protected getSearchableItemValueKeys(keys: Array<string>) {
-    keys.push("rows");
+    keys.push('rows');
   }
 }
 
 Serializer.addClass(
-  "matrixdropdown",
+  'matrixdropdown',
   [
     {
-      name: "rows:itemvalue[]",
+      name: 'rows:itemvalue[]'
     },
-    "rowsVisibleIf:condition",
-    "rowTitleWidth",
-    { name: "totalText", serializationProperty: "locTotalText" },
+    'rowsVisibleIf:condition',
+    'rowTitleWidth',
+    { name: 'totalText', serializationProperty: 'locTotalText' }
   ],
   function() {
-    return new QuestionMatrixDropdownModel("");
+    return new QuestionMatrixDropdownModel('');
   },
-  "matrixdropdownbase"
+  'matrixdropdownbase'
 );
 
-QuestionFactory.Instance.registerQuestion("matrixdropdown", name => {
+QuestionFactory.Instance.registerQuestion('matrixdropdown', name => {
   var q = new QuestionMatrixDropdownModel(name);
   q.choices = [1, 2, 3, 4, 5];
   q.rows = QuestionFactory.DefaultColums;

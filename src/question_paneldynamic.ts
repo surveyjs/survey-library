@@ -277,7 +277,7 @@ export class QuestionPanelDynamicModel extends Question
     return true;
   }
   public clearOnDeletingContainer() {
-    this.panels.forEach(panel => {
+    this.panels.forEach((panel) => {
       panel.clearOnDeletingContainer();
     });
   }
@@ -1326,7 +1326,7 @@ export class QuestionPanelDynamicModel extends Question
     return result;
   }
   protected getDisplayValueCore(keysAsText: boolean, value: any): any {
-    var values = this.createValueCopy();
+    var values = this.getUnbindValue(value);
     if (!values || !Array.isArray(values)) return values;
     for (var i = 0; i < this.panels.length && i < values.length; i++) {
       var val = values[i];
@@ -1343,13 +1343,20 @@ export class QuestionPanelDynamicModel extends Question
   ): any {
     if (!val) return val;
     var panel = this.panels[panelIndex];
-    for (var key in val) {
+    var keys = Object.keys(val);
+    for (var i = 0; i < keys.length; i++) {
+      var key = keys[i];
       var question = panel.getQuestionByValueName(key);
       if (!question) {
         question = this.getSharedQuestionFromArray(key, panelIndex);
       }
       if (!!question) {
-        val[key] = question.getDisplayValue(keysAsText);
+        var qValue = question.getDisplayValue(keysAsText, val[key]);
+        val[key] = qValue;
+        if (keysAsText && !!question.title && question.title !== key) {
+          val[question.title] = qValue;
+          delete val[key];
+        }
       }
     }
     return val;
@@ -1588,7 +1595,7 @@ export class QuestionPanelDynamicModel extends Question
               .map((question: Question) => question.getPlainData(options))
               .filter((d: any) => !!d),
           };
-          (options.calculations || []).forEach(calculation => {
+          (options.calculations || []).forEach((calculation) => {
             panelDataItem[calculation.propertyName] = (<any>panel)[
               calculation.propertyName
             ];
@@ -1704,6 +1711,6 @@ Serializer.addClass(
   },
   "question"
 );
-QuestionFactory.Instance.registerQuestion("paneldynamic", name => {
+QuestionFactory.Instance.registerQuestion("paneldynamic", (name) => {
   return new QuestionPanelDynamicModel(name);
 });

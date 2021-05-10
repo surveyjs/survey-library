@@ -197,15 +197,15 @@ class QuestionMatrixDynamicModelTester extends QuestionMatrixDynamicModel {
     row: MatrixDropdownRowModelBase,
     column: MatrixDropdownColumn
   ): Question {
-    var question = super.createQuestionCore(row, column);
     if (column.cellType == "dropdown") {
       var newQuestion = new QuestionDropdownModelTester(this.name);
-      var json = new JsonObject().toJsonObject(question);
+      newQuestion.hasItemsCallbackDelay = true;
+      var json = column.templateQuestion.toJSON();
       new JsonObject().toObject(json, newQuestion);
       newQuestion.setSurveyImpl(row);
       return newQuestion;
     }
-    return question;
+    return super.createQuestionCore(row, column);
   }
 
   processor: ITextProcessor;
@@ -1390,6 +1390,40 @@ QUnit.test("choicesByUrl + clear invsible values", function(assert) {
   survey.doComplete();
   assert.equal(question.isEmpty(), true, "Value is empty, choices from web");
   assert.equal(question2.isEmpty(), true, "Value is empty, locale choices");
+});
+
+QUnit.test("matrix dynamic and has other, Bug #2854", function(assert) {
+  var survey = new SurveyModel();
+  survey.addNewPage("1");
+  var question = new QuestionMatrixDynamicModelTester("q1");
+  question.rowCount = 1;
+  var column = question.addColumn("country");
+  column.cellType = "dropdown";
+  column.hasOther = true;
+  column["choicesByUrl"].url = "allcountries";
+  column["choicesByUrl"].path = "RestResponse;result";
+  survey.pages[0].addQuestion(question);
+  var data = {
+    q1: [{ country: "Afghanistan", "country-Comment": "Comment" }],
+  };
+  survey.data = data;
+  question.onSurveyLoad();
+  var rows = question.visibleRows;
+  var cellDropdown = <QuestionDropdownModelTester>rows[0].cells[0].question;
+  assert.equal(
+    cellDropdown.visibleChoices.length,
+    1,
+    "Choices are not loaded yet, 0 + other"
+  );
+  cellDropdown.doResultsCallback();
+  assert.equal(
+    cellDropdown.visibleChoices.length,
+    5 + 1,
+    "Choices are loaded, + hasOther"
+  );
+  assert.equal(cellDropdown.value, "Afghanistan");
+  survey.doComplete();
+  assert.deepEqual(survey.data, data, "value is not changed");
 });
 
 function getCACities() {

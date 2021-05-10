@@ -1,6 +1,6 @@
 import { Serializer } from "./jsonobject";
 import { Question } from "./question";
-import { Base, SurveyError, ISurveyImpl, ISurvey } from "./base";
+import { SurveyError, ISurveyImpl, ISurvey } from "./base";
 import { ItemValue } from "./itemvalue";
 import { Helpers, HashTable } from "./helpers";
 import { surveyLocalization } from "./surveyStrings";
@@ -343,7 +343,11 @@ export class QuestionSelectBase extends Question {
     this.setPropertyValue("renderedValue", val);
     this.value = this.rendredValueToData(val);
   }
-  protected setQuestionValue(newValue: any, updateIsAnswered: boolean = true) {
+  protected setQuestionValue(
+    newValue: any,
+    updateIsAnswered: boolean = true,
+    updateComment: boolean = true
+  ) {
     if (
       this.isLoadingFromJson ||
       Helpers.isTwoValueEquals(this.value, newValue)
@@ -351,7 +355,7 @@ export class QuestionSelectBase extends Question {
       return;
     super.setQuestionValue(newValue, updateIsAnswered);
     this.setPropertyValue("renderedValue", this.rendredValueFromData(newValue));
-    if (this.hasComment) return;
+    if (this.hasComment || !updateComment) return;
     var isOtherSel = this.isOtherSelected;
     if (isOtherSel && !!this.prevCommentValue) {
       var oldComment = this.prevCommentValue;
@@ -908,7 +912,7 @@ export class QuestionSelectBase extends Question {
         try {
           if (!this.isValueEmpty(newValue.value)) {
             this.allowNotifyValueChanged = false;
-            this.setQuestionValue(undefined);
+            this.setQuestionValue(undefined, true, false);
           }
           this.allowNotifyValueChanged = hasChanged;
           if (hasChanged) {

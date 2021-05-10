@@ -2781,7 +2781,7 @@ QUnit.test(
     CustomWidgetCollection.Instance.clear();
     CustomWidgetCollection.Instance.addCustomWidget({
       name: "customWidget",
-      isFit: question => {
+      isFit: (question) => {
         var res = question.getType() == "text";
         if (res) {
           isFitValue = true;
@@ -6043,4 +6043,85 @@ QUnit.test("Text processing in rows and columns, rendered table", function(
     "Row:val2",
     "row text, #2"
   );
+});
+QUnit.test("getDisplayValue() function in matrix dynamic, Bug#", function(
+  assert
+) {
+  var survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdynamic",
+        name: "matrix",
+        rowCount: 2,
+        columns: [
+          {
+            name: "col1",
+            title: "Column 1",
+            choices: [
+              { value: 1, text: "A" },
+              { value: 2, text: "B" },
+              { value: 3, text: "C" },
+            ],
+          },
+        ],
+      },
+    ],
+  });
+  var matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+  matrix.value = [{ col1: 1 }, { col1: 3 }];
+  var counter = 0;
+  survey.onValueChanged.add((sender, options) => {
+    counter++;
+  });
+  var displayValue = matrix.getDisplayValue(true, [{ col1: 2 }]);
+  assert.deepEqual(displayValue, [{ "Column 1": "B" }], "Do not use value");
+  assert.deepEqual(
+    matrix.value,
+    [{ col1: 1 }, { col1: 3 }],
+    "Value is still the same"
+  );
+  assert.equal(counter, 0, "We do not change the value during processing");
+});
+
+QUnit.test("getDisplayValue() function in matrix Dropdown, Bug#", function(
+  assert
+) {
+  var survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdropdown",
+        name: "matrix",
+        columns: [
+          {
+            name: "col1",
+            title: "Column 1",
+            choices: [
+              { value: 1, text: "A" },
+              { value: 2, text: "B" },
+              { value: 3, text: "C" },
+            ],
+          },
+        ],
+        rows: [{ value: "row1", text: "Row 1" }],
+      },
+    ],
+  });
+  var matrix = <QuestionMatrixDropdownModel>survey.getQuestionByName("matrix");
+  matrix.value = { row1: { col1: 1 } };
+  var counter = 0;
+  survey.onValueChanged.add((sender, options) => {
+    counter++;
+  });
+  var displayValue = matrix.getDisplayValue(true, { row1: { col1: 2 } });
+  assert.deepEqual(
+    displayValue,
+    { "Row 1": { "Column 1": "B" } },
+    "Do not use value"
+  );
+  assert.deepEqual(
+    matrix.value,
+    { row1: { col1: 1 } },
+    "Value is still the same"
+  );
+  assert.equal(counter, 0, "We do not change the value during processing");
 });

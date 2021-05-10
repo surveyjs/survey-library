@@ -931,7 +931,7 @@ QUnit.test("assign customWidgets to questions in dynamic panel", function(
   CustomWidgetCollection.Instance.clear();
   CustomWidgetCollection.Instance.addCustomWidget({
     name: "customWidget",
-    isFit: question => {
+    isFit: (question) => {
       return question.name == "panelq2";
     },
   });
@@ -3722,3 +3722,37 @@ QUnit.test(
     assert.equal(q2.visibleChoices[0].value, "C", "the only item is C");
   }
 );
+QUnit.test("Dynamic Panel, getDisplayValue(), Bug#2855", function(assert) {
+  var json = {
+    questions: [
+      {
+        type: "paneldynamic",
+        name: "panel",
+        panelCount: 3,
+        templateElements: [
+          {
+            type: "text",
+            name: "q1",
+            title: "Question 1",
+          },
+          {
+            type: "dropdown",
+            name: "q2",
+            title: "Question 2",
+            choices: [
+              { value: 1, text: "A" },
+              { value: 2, text: "B" },
+            ],
+          },
+        ],
+      },
+    ],
+  };
+  var survey = new SurveyModel(json);
+  var panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+  assert.deepEqual(
+    panel.getDisplayValue(true, [{ q1: "a", q2: 1 }, { q2: 2 }]),
+    [{ "Question 1": "a", "Question 2": "A" }, { "Question 2": "B" }],
+    "Do not use value"
+  );
+});

@@ -77,13 +77,12 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
     return this.rowTitleWidth;
   }
   protected getDisplayValueCore(keysAsText: boolean, value: any): any {
-    var values = this.createValueCopy();
-    if (!values) return values;
+    if (!value) return value;
     var rows = this.visibleRows;
     var res = {};
     for (var i = 0; i < rows.length; i++) {
       var rowValue = this.rows[i].value;
-      var val = values[rowValue];
+      var val = value[rowValue];
       if (!val) continue;
       if (keysAsText) {
         var displayRowValue = ItemValue.getTextOrHtmlByValue(
@@ -94,9 +93,9 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
           rowValue = displayRowValue;
         }
       }
-      (<any>res)[rowValue] = this.getRowDisplayValue(rows[i], val);
+      (<any>res)[rowValue] = this.getRowDisplayValue(keysAsText, rows[i], val);
     }
-    return values;
+    return res;
   }
   public addConditionObjectsByContext(
     objects: Array<IConditionObject>,
@@ -191,7 +190,7 @@ Serializer.addClass(
   "matrixdropdownbase"
 );
 
-QuestionFactory.Instance.registerQuestion("matrixdropdown", name => {
+QuestionFactory.Instance.registerQuestion("matrixdropdown", (name) => {
   var q = new QuestionMatrixDropdownModel(name);
   q.choices = [1, 2, 3, 4, 5];
   q.rows = QuestionFactory.DefaultColums;

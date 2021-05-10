@@ -16,7 +16,7 @@ import {
   ISurveyElement,
   SurveyElement,
   IProgressInfo,
-  IFindElement,
+  IFindElement
 } from "./base";
 import { surveyCss } from "./defaultCss/cssstandard";
 import { ISurveyTriggerOwner, SurveyTrigger } from "./trigger";

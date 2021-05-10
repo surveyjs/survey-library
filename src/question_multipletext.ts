@@ -53,6 +53,9 @@ export class MultipleTextItemModel extends Base
   public get id(): string {
     return this.editor.id;
   }
+  public getOriginalObj(): Base {
+    return this.editor;
+  }
   /**
    * The item name.
    */
@@ -517,6 +520,21 @@ export class QuestionMultipleTextModel extends Question
     }
     return SurveyElement.getProgressInfoByElements(elements, this.isRequired);
   }
+  protected getDisplayValueCore(keysAsText: boolean, value: any): any {
+    if (!value) return value;
+    var res = {};
+    for (var i = 0; i < this.items.length; i++) {
+      var item = this.items[i];
+      var val = value[item.name];
+      if (Helpers.isValueEmpty(val)) continue;
+      var itemName = item.name;
+      if (keysAsText && !!item.title) {
+        itemName = item.title;
+      }
+      (<any>res)[itemName] = item.editor.getDisplayValue(keysAsText, val);
+    }
+    return res;
+  }
   //IMultipleTextData
   getMultipleTextValue(name: string) {
     if (!this.value) return null;
@@ -630,7 +648,7 @@ Serializer.addClass(
   "question"
 );
 
-QuestionFactory.Instance.registerQuestion("multipletext", name => {
+QuestionFactory.Instance.registerQuestion("multipletext", (name) => {
   var q = new QuestionMultipleTextModel(name);
   QuestionMultipleTextModel.addDefaultItems(q);
   return q;

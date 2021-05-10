@@ -151,6 +151,10 @@ export class QuestionBooleanModel extends Question {
     if (this.defaultValue == "false") this.setCheckedValue(false);
     if (this.defaultValue == "indeterminate") this.setCheckedValue(null);
   }
+  protected getDisplayValueCore(keysAsText: boolean, value: any): any {
+    if (value == this.getValueTrue()) return this.locLabelTrue.textOrHtml;
+    return this.locLabelFalse.textOrHtml;
+  }
 }
 
 Serializer.addClass(
@@ -175,6 +179,6 @@ Serializer.addClass(
   },
   "question"
 );
-QuestionFactory.Instance.registerQuestion("boolean", name => {
+QuestionFactory.Instance.registerQuestion("boolean", (name) => {
   return new QuestionBooleanModel(name);
 });

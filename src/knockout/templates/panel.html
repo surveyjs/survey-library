@@ -1,6 +1,6 @@
 <script type="text/html" id="survey-panel">
   <div
-    data-bind="style: { flexBasis: renderWidth, flexGrow: 1, flexShrink: 1, width: renderWidth, minWidth: $data.minWidth, maxWidth: $data.maxWidth }, attr: { id: id }, css: cssClasses.panel.container"
+    data-bind="attr: { id: id }, css: cssClasses.panel.container"
   >
     <h4
       data-bind="visible: !!locTitle.koRenderedHtml(), css: $data.getTitleStyle(), click: toggleState"

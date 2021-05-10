@@ -3546,11 +3546,26 @@ QUnit.test("test question.getDisplayValue(key, value)", function(assert) {
           { value: 3, text: "three" },
         ],
       },
+      {
+        type: "boolean",
+        name: "q3",
+      },
+      {
+        type: "multipletext",
+        name: "q4",
+        items: [
+          { name: "item1", title: "Item 1" },
+          { name: "item2", title: "Item 2" },
+          { name: "item3", title: "Item 3" },
+        ],
+      },
     ],
   });
   survey.data = { q1: 1, q2: [1, 2] };
   var q1 = survey.getQuestionByName("q1");
   var q2 = survey.getQuestionByName("q2");
+  var q3 = survey.getQuestionByName("q3");
+  var q4 = survey.getQuestionByName("q4");
   assert.equal(q1.getDisplayValue(true), "one", "radigroup displayvalue works");
   assert.equal(
     q1.getDisplayValue(true, 2),
@@ -3571,6 +3586,21 @@ QUnit.test("test question.getDisplayValue(key, value)", function(assert) {
     q2.getDisplayValue(true, 2),
     "two",
     "checkbox displayvalue for non array value as a param works"
+  );
+  assert.equal(
+    q3.getDisplayValue(true, true),
+    "Yes",
+    "boolean displayvalue for true"
+  );
+  assert.equal(
+    q3.getDisplayValue(true, false),
+    "No",
+    "boolean displayvalue for false"
+  );
+  assert.deepEqual(
+    q4.getDisplayValue(true, { item1: "value1", item3: "value3" }),
+    { "Item 1": "value1", "Item 3": "value3" },
+    "multiple text displayvalue"
   );
 });
 

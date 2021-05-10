@@ -1488,55 +1488,110 @@ survey.onServerValidateQuestions.add(function(sender, options) {
 });
 ```
 
+
 <div id="localization"></div>
 
 ## Localization and Multilanguage Support
 
-At the current moment, the SurveyJS strings are translated to 34 languages.
+At the current moment, strings of SurveyJS UI elements are translated into more than 30 languages. The localization is supported by the community. 
 
-Use the [survey.locale](https://surveyjs.io/Documentation/Library/?id=surveymodel#locale) property in runtime to change the survey locale.
+
+### Available Translations
+To see a list of all available translations, open the [SurveyJS Creator](https://surveyjs.io/create-survey), click on the "Survey Settings" button, and then, within the PROPERTIES window's **General** tab, open the **Default language** property's dropdown window.
+
+Each translation is implemented in a separate locale-specific file. You can view translation files in the [localization](https://github.com/surveyjs/survey-library/tree/master/src/localization) folder in our sources. To localize SurveyJS to your own language, read the instruction in the folder's [readme](https://github.com/surveyjs/surveyjs/tree/master/src/localization) file.
+
+
+
+### Switch Locales
+Use the [survey.locale](https://surveyjs.io/Documentation/Library/?id=surveymodel#locale) property at runtime to change the survey locale.
 
 ```js
 // Sets Spanish locale
 survey.locale="es";
 ```
 
-To see the list of all available translations, open the [SurveyJS Creator](https://surveyjs.io/create-survey), click on Survey Settings button, and open the Default Language drop down.
 
-The localization is supported by the community. If any strings are not translated to your language, or you want to translate them in a different way, you can change the translation locally:
+### Translate Individual Strings
+If any strings are not translated into your language, or you want to translate them in a different way, you can change the translation on-the-fly using the following approach:
 
 ```javascript
-var myloc = Survey.surveyLocalization.locales["localename"];
-myloc.stringName = "My New Localized string";
+var mylocalization = Survey.surveyLocalization.locales["localename"];
+mylocalization.stringName = "My new localized string";
 ```
 
-You can find the list of all the localized strings in the default [English localization](https://github.com/surveyjs/surveyjs/blob/master/src/localization/english.ts).
+You can find a list of all localizable strings in the default [English localization](https://github.com/surveyjs/surveyjs/blob/master/src/localization/english.ts).
 
-To localize SurveyJS to your own language, read the instruction in the [Localization](https://github.com/surveyjs/surveyjs/tree/master/src/localization) file.
+
+For an example, the following code sample shows how to modify texts of the "Previous Page" and "Next Page" navigation buttons for the English locale.
+
+```javascript
+//Modify strings for the 'en' locale.
+var myloc = Survey.surveyLocalization.locales["en"];
+myloc.pagePrevText = "My Page Prev";
+myloc.pageNextText = "My Page Next";
+```
+
+The sample code below demonstrates how to define and add to the library a custom locale with the modified texts of the "Previous Page" and "Next Page" navigation buttons and the "Complete" button.
+
+```javascript
+//Add a new locale into the library.
+var mycustomSurveyStrings = {
+    pagePrevText: "My Page Prev",
+    pageNextText: "My Page Next",
+    completeText: "OK - Press to Complete"
+};
+Survey
+    .surveyLocalization
+    .locales["my"] = mycustomSurveyStrings;
+```
+
+> **See Example:**  [Localization](https://surveyjs.io/Examples/Library/survey-localization#content-js)
+
+
 
 ### Create a Multilanguage Survey
+SurveyJS allows you to create a single survey for multiple languages at the same time. To switch between locales, change the [survey.locale](https://surveyjs.io/Documentation/Library/?id=surveymodel#locale) property.
 
-SurveyJS allows you to create a single survey for multiple languages at a same time. To switch between locales, change the [survey.locale](https://surveyjs.io/Documentation/Library/?id=surveymodel#locale) property.
-
-All strings in JSON have the following declaration:
+All strings in a survey JSON have the following declaration:
 
 ```js
 text: "Some text"
 ```
 
-Most of strings in SurveyJS are localizable and you may write in JSON. In the following example, This localizable string will return "Dog" for all languages, except German. For German (de) locale it returns "Der Hund":
+Most of strings in SurveyJS are localizable and you are able to write multiple localizations directly into a JSON. In JSON, localizations of string properties can be defined as key/value pairs, where the key is a locale and the value is a required translation.
 
-```js
+The following code sample demonstrates how to define the `text` property's localization in a JSON to return "Dog" for all languages except German, and to return "Der Hund" for the German locale ("de").
+
+```JavaScript
 text: { "default": "Dog", "de": "Der Hund" }
 ```
 
-Note, that `text: {"default: "Dog"}` is the same as: `text: "Dog"`.
+Note that the definition `text: {"default: "Dog"}` has the same result as `text: "Dog"`.  
+If there is no translation for the selected locale, the default value is used, or the first one, if "default" does not exist.
 
-If you want to get/set strings into default locale (in code, or in Survey Creator), then set [survey.locale](https://surveyjs.io/Documentation/Library/?id=surveymodel#locale) to empty string. For example, if you want to get/set strings into Spanish locale, then set survey [survey.locale](https://surveyjs.io/Documentation/Library/?id=surveymodel#locale) into "es" (Spanish).
+To work with strings of the default locale (in code, or in Survey Creator) set the [survey.locale](https://surveyjs.io/Documentation/Library/?id=surveymodel#locale) property to an empty string. 
 
-> **Example**
->
-> [Multilanguages demo](https://surveyjs.io/Examples/Library/?id=survey-multilanguages).
+> **See Example:** [Multiple Languages in a Survey](https://surveyjs.io/Examples/Library/?id=survey-multilanguages)
+
+
+
+### choicesByUrl Localization
+When choices for a [QuestionSelectBase](https://surveyjs.io/Documentation/Library?id=QuestionSelectBase)-derived question (a [checkbox](https://surveyjs.io/Documentation/Library?id=questioncheckboxmodel), [dropdown](https://surveyjs.io/Documentation/Library?id=questiondropdownmodel) or [radiogroup](https://surveyjs.io/Documentation/Library?id=questionradiogroupmodel) question) are loaded from a RESTful service (specified via a question's [choicesByUrl](https://surveyjs.io/Documentation/Library?id=QuestionSelectBase#choicesByUrl) property), SurveyJS is able to recognize and apply text localizations of choices if choice items are defined in the following format within the obtained JSON:
+
+```JSON
+{ 
+    value: "item", 
+    title: {
+        en: "item in English", 
+        de: "item in Deutch"
+    }
+}
+```
+
+> **See Plunker Sample:** [choicesByUrl Localization](https://plnkr.co/edit/YFQCdVpqVyXtPAzY)
+
+
 
 <div id="addproperties"></div>
 

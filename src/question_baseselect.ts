@@ -1,15 +1,15 @@
 import { Serializer } from "./jsonobject";
-import { Question } from "./question";
 import { SurveyError, ISurveyImpl, ISurvey } from "./base";
+import { SurveyModel } from "./survey";
+import { Question } from "./question";
 import { ItemValue } from "./itemvalue";
-import { Helpers, HashTable } from "./helpers";
 import { surveyLocalization } from "./surveyStrings";
 import { OtherEmptyError } from "./error";
 import { ChoicesRestful } from "./choicesRestful";
 import { LocalizableString } from "./localizablestring";
 import { ConditionRunner } from "./conditions";
+import { Helpers, HashTable } from "./helpers";
 import { settings } from "./settings";
-import { SurveyModel } from "survey-core";
 
 /**
  * It is a base class for checkbox, dropdown and radiogroup questions.
@@ -1151,7 +1151,7 @@ export class QuestionSelectBase extends Question {
     if (survey) {
       return survey.getItemValueWrapperComponentName(item, this);
     }
-    return "survey-item-value-component";
+    return SurveyModel.TEMPLATE_RENDERER_COMPONENT_NAME;
   }
   public getItemValueWrapperComponentData(item: ItemValue): any {
     const survey: SurveyModel = this.survey as SurveyModel;

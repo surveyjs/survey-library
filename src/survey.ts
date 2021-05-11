@@ -31,6 +31,7 @@ import { ILocalizableOwner, LocalizableString } from "./localizablestring";
 import { StylesManager } from "./stylesmanager";
 import { SurveyTimer } from "./surveytimer";
 import { Question } from "./question";
+import { QuestionSelectBase } from "./question_baseselect";
 import { ItemValue } from "./itemvalue";
 import { PanelModelBase } from "./panel";
 import {
@@ -42,7 +43,6 @@ import { ExpressionRunner, ConditionRunner } from "./conditions";
 import { settings } from "./settings";
 import { IActionBarItem } from "./action-bar";
 import { isMobile } from "./utils/utils";
-import { QuestionSelectBase } from "survey-core";
 
 /**
  * The `Survey` object contains information about the survey, Pages, Questions, flow logic and etc.
@@ -55,6 +55,7 @@ export class SurveyModel extends Base
     ISurveyTriggerOwner,
     ISurveyErrorOwner,
     ILocalizableOwner {
+  public static readonly TEMPLATE_RENDERER_COMPONENT_NAME: string = "sv-template-renderer";
   [index: string]: any;
   private static stylesManager: StylesManager = null;
   public static platform: string = "unknown";
@@ -5766,7 +5767,7 @@ export class SurveyModel extends Base
     return true;
   }
   public getElementWrapperComponentName(element: SurveyElement): string {
-    return "survey-element-component";
+    return SurveyModel.TEMPLATE_RENDERER_COMPONENT_NAME;
   }
   public getElementWrapperComponentData(element: SurveyElement): any {
     return element;
@@ -5775,7 +5776,7 @@ export class SurveyModel extends Base
     item: ItemValue,
     question: QuestionSelectBase
   ): string {
-    return "survey-item-value-component";
+    return SurveyModel.TEMPLATE_RENDERER_COMPONENT_NAME;
   }
   public getItemValueWrapperComponentData(
     item: ItemValue,

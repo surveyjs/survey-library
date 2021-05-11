@@ -1,5 +1,4 @@
 import * as ko from "knockout";
-import { Question } from "survey-core";
 import {
   QuestionCustomModel,
   QuestionCompositeModel,

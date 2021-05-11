@@ -6,7 +6,6 @@ import { SurveyElement, IElement } from "survey-core";
 import { ElementFactory } from "survey-core";
 import { ImplementorBase } from "./kobase";
 import { Question } from "survey-core";
-import { settings } from "survey-core";
 import { Survey } from "./kosurvey";
 
 export class QuestionRow extends QuestionRowModel {

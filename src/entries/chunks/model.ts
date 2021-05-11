@@ -105,8 +105,7 @@ export {
 export { PanelModel, PanelModelBase, QuestionRowModel } from "../../panel";
 export { FlowPanelModel } from "../../flowpanel";
 export { PageModel } from "../../page";
-export * from "../../survey-element";
-export * from "../../survey-item-value";
+export * from "../../template-renderer";
 export { Question } from "../../question";
 export { QuestionNonValue } from "../../questionnonvalue";
 export { QuestionEmptyModel } from "../../question_empty";

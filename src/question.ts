@@ -746,8 +746,11 @@ export class Question extends SurveyElement
     }
     return res;
   }
-  public updateElementCss() {
+  public updateElementCss(reNew?: boolean) {
     this.cssClassesValue = undefined;
+    if (reNew) {
+      this.updateQuestionCss(true);
+    }
   }
   protected updateQuestionCss(reNew?: boolean) {
     if (
@@ -1262,7 +1265,7 @@ export class Question extends SurveyElement
       if (options.includeQuestionTypes === true) {
         questionPlainData.questionType = this.getType();
       }
-      (options.calculations || []).forEach(calculation => {
+      (options.calculations || []).forEach((calculation) => {
         questionPlainData[calculation.propertyName] = this[
           calculation.propertyName
         ];
@@ -1355,7 +1358,7 @@ export class Question extends SurveyElement
     this.setValueAndRunExpression(
       this.defaultValueExpression,
       this.getUnbindValue(this.defaultValue),
-      val => {
+      (val) => {
         this.value = val;
       }
     );
@@ -1381,7 +1384,7 @@ export class Question extends SurveyElement
       if (!properties) properties = this.data.getFilteredProperties();
       var runner = new ExpressionRunner(expression);
       if (runner.canRun) {
-        runner.onRunComplete = res => {
+        runner.onRunComplete = (res) => {
           if (res == undefined) res = this.defaultValue;
           func(res);
         };

@@ -4298,13 +4298,13 @@ QUnit.test("assign customWidgets to questions", function(assert) {
   CustomWidgetCollection.Instance.clear();
   CustomWidgetCollection.Instance.addCustomWidget({
     name: "first",
-    isFit: question => {
+    isFit: (question) => {
       return question.name == "question2";
     },
   });
   CustomWidgetCollection.Instance.addCustomWidget({
     name: "second",
-    isFit: question => {
+    isFit: (question) => {
       return (<Question>question).getType() == "checkbox";
     },
   });
@@ -4333,10 +4333,10 @@ QUnit.test("customWidgets activation types changed", function(assert) {
   var lastActivatedBy = "";
   var customWidgetJSON = {
     name: "widget1",
-    isFit: question => {
+    isFit: (question) => {
       return question.name == "question2";
     },
-    activatedByChanged: activatedBy => {
+    activatedByChanged: (activatedBy) => {
       lastActivatedBy = activatedBy;
     },
   };
@@ -4363,7 +4363,7 @@ QUnit.test("assign customWidgets to matrix dynamic cell question", function(
   CustomWidgetCollection.Instance.clear();
   CustomWidgetCollection.Instance.addCustomWidget({
     name: "first",
-    isFit: question => {
+    isFit: (question) => {
       return question["renderAs"] === "testwidget";
     },
   });
@@ -4408,7 +4408,7 @@ QUnit.test("customWidgets support displayValue", function(assert) {
   CustomWidgetCollection.Instance.clear();
   CustomWidgetCollection.Instance.addCustomWidget({
     name: "first",
-    isFit: question => {
+    isFit: (question) => {
       return question.getType() == "text";
     },
     getDisplayValue: (question: Question): string => {
@@ -4437,7 +4437,7 @@ QUnit.test("customWidgets camel name", function(assert) {
   CustomWidgetCollection.Instance.clear();
   CustomWidgetCollection.Instance.addCustomWidget({
     name: "camelName",
-    isFit: question => {
+    isFit: (question) => {
       return question.getType() == "camelname";
     },
   });
@@ -4467,7 +4467,7 @@ QUnit.test("readOnlyCallback, bug #1818", function(assert) {
   var readOnlyCounter = 0;
   CustomWidgetCollection.Instance.addCustomWidget({
     name: "first",
-    isFit: question => {
+    isFit: (question) => {
       var res = question.name == "question1";
       if (res) {
         question.readOnlyChangedCallback = () => {
@@ -11764,6 +11764,24 @@ QUnit.test(
   }
 );
 QUnit.test(
+  "Update question title css on changing page.questionTitleLocation",
+  function(assert) {
+    var survey = new SurveyModel({
+      elements: [
+        {
+          type: "panel",
+          name: "p1",
+          elements: [{ type: "text", name: "q1" }],
+        },
+      ],
+    });
+    var q1 = survey.getQuestionByName("q1");
+    survey.pages[0].questionTitleLocation = "left";
+    assert.equal(q1.getPropertyValue("cssHeader", "").trim(), "title-left");
+  }
+);
+
+QUnit.test(
   "Pages visibleIndex doesn't set correctly, https://surveyjs.answerdesk.io/ticket/details/T4506, Bug#2248",
   function(assert) {
     var survey = new SurveyModel({
@@ -12636,7 +12654,7 @@ QUnit.test("Expand question on validation error", function(assert) {
   assert.equal(q1.isExpanded, true, "Question1 is expanded");
 });
 
-QUnit.test("Check onGetPanelTitleActions event", assert => {
+QUnit.test("Check onGetPanelTitleActions event", (assert) => {
   var survey = new SurveyModel({
     elements: [
       {
@@ -12653,7 +12671,7 @@ QUnit.test("Check onGetPanelTitleActions event", assert => {
   assert.deepEqual(panel.getTitleActions(), testActions);
 });
 
-QUnit.test("Check onGetQuestionTitleActions event", assert => {
+QUnit.test("Check onGetQuestionTitleActions event", (assert) => {
   var survey = new SurveyModel({
     elements: [
       {
@@ -12670,7 +12688,7 @@ QUnit.test("Check onGetQuestionTitleActions event", assert => {
   assert.deepEqual(panel.getTitleActions(), testActions);
 });
 
-QUnit.test("Check onGetPageTitleActions event", assert => {
+QUnit.test("Check onGetPageTitleActions event", (assert) => {
   var survey = new SurveyModel({
     pages: [{ title: "Page Title" }],
   });
@@ -12683,7 +12701,7 @@ QUnit.test("Check onGetPageTitleActions event", assert => {
 });
 QUnit.test(
   "Stackoverflow error, https://surveyjs.answerdesk.io//ticket/details/T6023, Bug#2598",
-  assert => {
+  (assert) => {
     var survey = new SurveyModel({
       elements: [
         {
@@ -12709,7 +12727,7 @@ QUnit.test(
 );
 QUnit.test(
   "Do not create otherItem in image picker on loading it from JSON, even if hasOther is true, Bug#2603",
-  assert => {
+  (assert) => {
     var survey = new SurveyModel({
       elements: [
         {

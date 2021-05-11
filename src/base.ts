@@ -647,7 +647,7 @@ export class Base {
     for (var key in this.propertyHash) {
       keys.push(key);
     }
-    keys.forEach(key => func(this.propertyHash, key));
+    keys.forEach((key) => func(this.propertyHash, key));
   }
   /**
    * set property value
@@ -1437,7 +1437,7 @@ export class SurveyElement extends Base implements ISurveyElement {
       this.readOnlyChangedCallback();
     }
   }
-  public updateElementCss() {}
+  public updateElementCss(reNew?: boolean) {}
   protected getIsLoadingFromJson(): boolean {
     if (super.getIsLoadingFromJson()) return true;
     return this.survey ? this.survey.isLoadingFromJson : false;

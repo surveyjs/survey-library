@@ -1606,11 +1606,11 @@ export class QuestionPanelDynamicModel extends Question
     }
     return questionPlainData;
   }
-  public updateElementCss() {
-    super.updateElementCss();
+  public updateElementCss(reNew?: boolean) {
+    super.updateElementCss(reNew);
     for (var i = 0; i < this.panels.length; i++) {
       var el = this.panels[i];
-      el.updateElementCss();
+      el.updateElementCss(reNew);
     }
   }
   public get progressText(): string {

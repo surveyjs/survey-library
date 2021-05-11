@@ -129,7 +129,7 @@ export class QuestionRowModel extends Base {
     this.setPropertyValue("isneedrender", val);
   }
   public get visibleElements(): Array<IElement> {
-    return this.elements.filter(e => e.isVisible);
+    return this.elements.filter((e) => e.isVisible);
   }
   public updateVisible() {
     this.visible = this.calcVisible();
@@ -249,10 +249,10 @@ export class PanelModelBase extends SurveyElement
     this.createLocalizableString("title", this, true);
     this.createLocalizableString("description", this, true);
     this.createLocalizableString("requiredErrorText", this);
-    this.registerFunctionOnPropertyValueChanged(
-      "questionTitleLocation",
-      this.onVisibleChanged.bind(this)
-    );
+    this.registerFunctionOnPropertyValueChanged("questionTitleLocation", () => {
+      this.onVisibleChanged.bind(this);
+      this.updateElementCss(true);
+    });
     this.registerFunctionOnPropertiesValueChanged(
       ["questionStartIndex", "showQuestionNumbers"],
       () => {
@@ -942,7 +942,7 @@ export class PanelModelBase extends SurveyElement
   }
 
   public ensureRowsVisibility() {
-    this.rows.forEach(row => {
+    this.rows.forEach((row) => {
       row.ensureVisibility();
     });
   }
@@ -1204,13 +1204,13 @@ export class PanelModelBase extends SurveyElement
     }
     super.onReadOnlyChanged();
   }
-  public updateElementCss() {
+  public updateElementCss(reNew?: boolean) {
     this.cssClassesValue = undefined;
     for (var i = 0; i < this.elements.length; i++) {
       var el = <SurveyElement>(<any>this.elements[i]);
-      el.updateElementCss();
+      el.updateElementCss(reNew);
     }
-    super.updateElementCss();
+    super.updateElementCss(reNew);
   }
 
   /**
@@ -1813,7 +1813,7 @@ export class PanelModel extends PanelModelBase
     return indent * css.question.indent + "px";
   }
   public clearOnDeletingContainer() {
-    this.elements.forEach(element => {
+    this.elements.forEach((element) => {
       if (element instanceof Question || element instanceof PanelModel) {
         element.clearOnDeletingContainer();
       }
@@ -1909,6 +1909,6 @@ Serializer.addClass(
   "panelbase"
 );
 
-ElementFactory.Instance.registerElement("panel", name => {
+ElementFactory.Instance.registerElement("panel", (name) => {
   return new PanelModel(name);
 });

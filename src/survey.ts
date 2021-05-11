@@ -16,7 +16,7 @@ import {
   ISurveyElement,
   SurveyElement,
   IProgressInfo,
-  IFindElement
+  IFindElement,
 } from "./base";
 import { surveyCss } from "./defaultCss/cssstandard";
 import { ISurveyTriggerOwner, SurveyTrigger } from "./trigger";
@@ -2156,13 +2156,13 @@ export class SurveyModel extends Base
   public set questionTitleLocation(value: string) {
     this.setPropertyValue("questionTitleLocation", value.toLowerCase());
     if (!this.isLoadingFromJson) {
-      this.updateElementCss();
+      this.updateElementCss(true);
     }
   }
-  protected updateElementCss() {
+  protected updateElementCss(reNew?: boolean) {
     var pages = this.visiblePages;
     for (var i = 0; i < pages.length; i++) {
-      pages[i].updateElementCss();
+      pages[i].updateElementCss(reNew);
     }
   }
   /**
@@ -2328,7 +2328,7 @@ export class SurveyModel extends Base
     }
   ) {
     var result: Array<any> = [];
-    this.getAllQuestions().forEach(question => {
+    this.getAllQuestions().forEach((question) => {
       var resultItem = (<Question>question).getPlainData(options);
       if (!!resultItem) {
         result.push(resultItem);
@@ -4097,7 +4097,7 @@ export class SurveyModel extends Base
     uploadingCallback: (status: string, data: any) => any
   ) {
     var responses: Array<any> = [];
-    files.forEach(file => {
+    files.forEach((file) => {
       if (uploadingCallback) uploadingCallback("uploading", file);
       this.createSurveyService().sendFile(
         this.surveyPostId,

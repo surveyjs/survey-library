@@ -89,6 +89,19 @@ QUnit.test(
   }
 );
 QUnit.test(
+  "Serializer.getObjPropertyValue doesn't work correctly for multipletext item + validators",
+  function(assert) {
+    var question = new QuestionMultipleTextModel("q1");
+    var item = question.addItem("item1");
+    item.validators.push(new ExpressionValidator());
+    assert.equal(
+      Serializer.getObjPropertyValue(item, "validators")[0].getType(),
+      "expressionvalidator",
+      "validators returns correctly"
+    );
+  }
+);
+QUnit.test(
   "Serializer.getObjPropertyValue  for matrix dynamic columns",
   function(assert) {
     var question = new QuestionMatrixDynamicModel("q1");

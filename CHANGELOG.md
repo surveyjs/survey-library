@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.8.47](https://github.com/surveyjs/survey-library/compare/v1.8.46...v1.8.47) (2021-05-11)
+
+
+### Bug Fixes
+
+* Bug in using resfull service in dropdown in matrix dynamic + using hasOther and setting old data [#2854](https://github.com/surveyjs/survey-library/issues/2854) ([8301de7](https://github.com/surveyjs/survey-library/commit/8301de73a7f7fb75b73e780c16f55d799c6c1554))
+* Bug with custom widget and error validation in vue [#2848](https://github.com/surveyjs/survey-library/issues/2848) ([b192d3b](https://github.com/surveyjs/survey-library/commit/b192d3bde2fb5cfd1d12b3b266abafae00c9a959))
+* Dependend choices not working properly in PanelDynamic [#2851](https://github.com/surveyjs/survey-library/issues/2851) ([3654d55](https://github.com/surveyjs/survey-library/commit/3654d55b567336fa1b31cdf96caf07021c7455d7))
+* Multiple text items property editor doesn't work correctly, Creator V2, https://github.com/surveyjs/survey-creator/issues/1186 ([ff862cc](https://github.com/surveyjs/survey-library/commit/ff862cca1c076e3a50502b31c3a9ee646585a070))
+
 ### [1.8.46](https://github.com/surveyjs/survey-library/compare/v1.8.45...v1.8.46) (2021-04-30)
 
 

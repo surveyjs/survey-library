@@ -104,7 +104,7 @@ steps:
       git fetch --tags --force
       git add surveyjs.io/App_Data/DocsLibrary
       git reset -- surveyjs.io/App_Data/DocsLibrary/images
-      git commit -m "[skip ci] Updated survey-library docs"
+      git commit -m "updated survey-library docs"
       git pull origin master
       git push origin master
     displayName: "git surveyjs/service push updated docs"

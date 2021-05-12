@@ -18,6 +18,7 @@ import {
   ExpressionValidator,
 } from "../src/validator";
 import { QuestionRadiogroupModel } from "../src/question_radiogroup";
+import { QuestionRankingModel } from "../src/question_ranking";
 import { QuestionDropdownModel } from "../src/question_dropdown";
 import { QuestionRatingModel } from "../src/question_rating";
 import { QuestionBooleanModel } from "../src/question_boolean";
@@ -5031,6 +5032,28 @@ QUnit.test(
       7,
       "Show SelectAll+None+hasOther+new: 3+4"
     );
+    settings.supportCreatorV2 = false;
+  }
+);
+QUnit.test(
+  "Creator V2: add into visibleChoices None item for ranking question and don't add Select All",
+  function(assert) {
+    var json = {
+      elements: [
+        {
+          type: "ranking",
+          name: "q1",
+        },
+      ],
+    };
+    settings.supportCreatorV2 = true;
+    var survey = new SurveyModel();
+    survey.setDesignMode(true);
+    survey.fromJSON(json);
+    var q1 = <QuestionRankingModel>survey.getQuestionByName("q1");
+    q1.choices = ["item1", "item2", "item3"];
+    assert.notOk(q1["supportSelectAll"]());
+    assert.equal(q1.visibleChoices.length, 4, "Show new: 3+1");
     settings.supportCreatorV2 = false;
   }
 );

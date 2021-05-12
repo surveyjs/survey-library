@@ -93,6 +93,16 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
     }
   };
 
+  protected supportSelectAll() {
+    return false;
+  }
+  public supportOther() {
+    return false;
+  }
+  public supportNone() {
+    return false;
+  }
+
   // to make "carry forward" feature work properly with ranking
   protected onVisibleChoicesChanged() {
     super.onVisibleChoicesChanged();

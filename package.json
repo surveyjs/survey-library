@@ -103,7 +103,7 @@
     "standard-version": "^8.0.1",
     "style-loader": "^1.2.1",
     "surveyjs-doc-generator": "git+https://github.com/surveyjs/surveyjs-doc-generator.git",
-    "testcafe": "^1.9.2",
+    "testcafe": "1.14.0",
     "ts-jest": "^26.1.1",
     "ts-loader": "^8.0.15",
     "ts-node": "3.3.0",

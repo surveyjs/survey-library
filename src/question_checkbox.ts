@@ -257,8 +257,11 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
   protected canUseFilteredChoices(): boolean {
     return !this.hasSelectAll && super.canUseFilteredChoices();
   }
+  protected supportSelectAll() {
+    return true;
+  }
   protected addToVisibleChoices(items: Array<ItemValue>, isAddAll: boolean) {
-    if (isAddAll || this.hasSelectAll) {
+    if (this.supportSelectAll() && (isAddAll || this.hasSelectAll)) {
       items.unshift(this.selectAllItem);
     }
     super.addToVisibleChoices(items, isAddAll);

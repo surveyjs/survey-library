@@ -5053,8 +5053,7 @@ QUnit.test(
     var q1 = <QuestionRankingModel>survey.getQuestionByName("q1");
     q1.choices = ["item1", "item2", "item3"];
     assert.notOk(q1["supportSelectAll"]());
-    assert.equal(q1.visibleChoices.length, 5, "Show Other+new: 3+2");
-    assert.equal(q1.visibleChoices[4].value, "other", "Show Other+new: 3+2");
+    assert.equal(q1.visibleChoices.length, 4, "Show new: 3+1");
     settings.supportCreatorV2 = false;
   }
 );

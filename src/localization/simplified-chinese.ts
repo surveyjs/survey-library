@@ -23,6 +23,8 @@ export var simplifiedChineseSurveyStrings = {
   requiredErrorInPanel: "至少回答一题.",
   requiredInAllRowsError: "请填写所有行中问题",
   numericError: "答案必须是个数字",
+  minError: "该值不能小于 {0}",
+  maxError: "该值不能大于 {0}",
   textMinLength: "答案长度至少 {0} 个字符",
   textMaxLength: "答案长度不能超过 {0} 个字符",
   textMinMaxLength: "答案长度必须在 {0} - {1} 个字符之间",
@@ -47,11 +49,13 @@ export var simplifiedChineseSurveyStrings = {
   addColumn: "添加列",
   addRow: "添加行",
   removeRow: "删除答案",
+  emptyRowsText: "无内容",
   addPanel: "新添",
   removePanel: "删除",
   choices_Item: "选项",
   matrix_column: "列",
   matrix_row: "行",
+  multipletext_itemname: "文本",
   savingData: "正在将结果保存到服务器...",
   savingDataError: "在保存结果过程中发生了错误，结果未能保存",
   savingDataSuccess: "结果保存成功!",
@@ -74,6 +78,8 @@ export var simplifiedChineseSurveyStrings = {
   confirmRemoveFile: "删除文件: {0}?",
   confirmRemoveAllFiles: "删除所有文件?",
   questionTitlePatternText: "标题",
+  modalCancelButtonText: "取消",
+  modalApplyButtonText: "确定",
 };
 
 surveyLocalization.locales["zh-cn"] = simplifiedChineseSurveyStrings;

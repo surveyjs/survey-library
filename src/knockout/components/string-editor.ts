@@ -73,10 +73,10 @@ function applyLocStrOnSearchChanged(element: any, locStr: any) {
 ko.components.register(LocalizableString.editableRenderer, {
   viewModel: {
     createViewModel: (params: any, componentInfo: any) => {
-      var locStr = params.locString;
+      const locStr = params.locString;
       applyLocStrOnSearchChanged(componentInfo.element, locStr);
       return new StringEditorViewModel(locStr);
     },
   },
-  template: template,
+  template: template
 });

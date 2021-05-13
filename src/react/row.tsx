@@ -34,7 +34,9 @@ export class SurveyRow extends SurveyElementBase<any, any> {
   protected renderElement(): JSX.Element {
     var elements = null;
     if (this.row.isNeedRender) {
-      elements = this.row.elements.map(element => {
+      elements = this.row.elements
+        .filter(element => element.isVisible)
+        .map(element => {
         const innerElement = this.createElement(element);
         var rootStyle: { [index: string]: any } = {};
         if (element.renderWidth) {

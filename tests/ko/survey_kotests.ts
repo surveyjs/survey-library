@@ -427,7 +427,7 @@ QUnit.test("add customwidget item", function(assert) {
   CustomWidgetCollection.Instance.addCustomWidget({
     name: "first",
     htmlTemplate: "<input type='text' />",
-    isFit: question => {
+    isFit: (question) => {
       return false;
     },
   });
@@ -1839,7 +1839,7 @@ QUnit.test(
       storeOthersAsComment: false,
       choices: [1, 2],
     });
-    q1["copyCssClasses"] = classes => {
+    q1["copyCssClasses"] = (classes) => {
       classes.item = "item";
       classes.itemChecked = "checked";
     };
@@ -2171,3 +2171,43 @@ QUnit.test("loc strings changed on data assignment", function(assert) {
     "calculate the string correctly, model"
   );
 });
+QUnit.test(
+  "Create correct Panel object when creating in code, Bug#2866",
+  function(assert) {
+    var survey = new Survey();
+    var page = survey.addNewPage("page1");
+    var panel = <Panel>page.addNewPanel("panel1");
+    assert.ok(panel.koCss, "correct panel is created");
+    var nestedPanel = <Panel>panel.addNewPanel("panel2");
+    assert.ok(nestedPanel.koCss, "correct nested panel is created");
+
+    //Dynamic panel question
+    var dynamicPanel = <QuestionPanelDynamic>(
+      page.addNewQuestion("paneldynamic", "q1")
+    );
+    dynamicPanel.panelCount = 2;
+    assert.ok(
+      (<Panel>dynamicPanel.panels[0]).koCss,
+      "correct dynamic panel is created"
+    );
+
+    //Detail panel in matrix dynamic
+    var matrix = <QuestionMatrixDynamic>(
+      page.addNewQuestion("matrixdynamic", "q2")
+    );
+    var column = matrix.addColumn("col1");
+    column.cellType = "text";
+    matrix.detailPanel.addNewQuestion("text", "q3");
+    matrix.detailPanelMode = "underRow";
+    assert.equal(
+      matrix.visibleRows[0].hasPanel,
+      true,
+      "The panel has been created"
+    );
+    matrix.visibleRows[0].showDetailPanel();
+    assert.ok(
+      (<Panel>matrix.visibleRows[0].detailPanel).koCss,
+      "correct detail panel is created"
+    );
+  }
+);

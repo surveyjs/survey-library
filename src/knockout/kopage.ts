@@ -154,10 +154,6 @@ export class Page extends PageModel {
   protected createRow(): QuestionRowModel {
     return new QuestionRow(this);
   }
-  protected createNewPanel(name: string): PanelModel {
-    return new Panel(name);
-  }
-
   protected onCreating() {}
   protected onNumChanged(value: number) {
     this.locTitle.onChanged();
@@ -176,6 +172,6 @@ Serializer.overrideClassCreator("page", function() {
   return new Page();
 });
 
-ElementFactory.Instance.registerElement("panel", name => {
+ElementFactory.Instance.registerElement("panel", (name) => {
   return new Panel(name);
 });

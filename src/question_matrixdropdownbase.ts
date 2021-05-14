@@ -2188,7 +2188,7 @@ export class QuestionMatrixDropdownModelBase
     return this.detailPanel.elements;
   }
   protected createNewDetailPanel(): PanelModel {
-    return new PanelModel();
+    return Serializer.createClass("panel");
   }
   public get hasRowText(): boolean {
     return true;

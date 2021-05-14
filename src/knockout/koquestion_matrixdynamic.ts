@@ -42,9 +42,6 @@ export class QuestionMatrixDynamic extends QuestionMatrixDynamicModel {
     super.onBaseCreating();
     this._implementor = new QuestionMatrixDynamicImplementor(this);
   }
-  protected createNewDetailPanel(): PanelModel {
-    return new Panel();
-  }
   public dispose() {
     this._implementor.dispose();
     this._implementor = undefined;
@@ -56,7 +53,7 @@ Serializer.overrideClassCreator("matrixdynamic", function() {
   return new QuestionMatrixDynamic("");
 });
 
-QuestionFactory.Instance.registerQuestion("matrixdynamic", name => {
+QuestionFactory.Instance.registerQuestion("matrixdynamic", (name) => {
   var q = new QuestionMatrixDynamic(name);
   q.choices = [1, 2, 3, 4, 5];
   q.rowCount = 2;

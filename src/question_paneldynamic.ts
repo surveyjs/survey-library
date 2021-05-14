@@ -1448,7 +1448,7 @@ export class QuestionPanelDynamicModel extends Question
       : this.getTitleLocationCore();
   }
   protected createNewPanelObject(): PanelModel {
-    return new PanelModel();
+    return Serializer.createClass("panel");
   }
   private setPanelCountBasedOnValue() {
     if (this.isValueChangingInternally || this.isDesignMode) return;

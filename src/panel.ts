@@ -1302,7 +1302,9 @@ export class PanelModelBase extends SurveyElement
     return this.elements.indexOf(element);
   }
   protected createNewPanel(name: string): PanelModel {
-    return new PanelModel(name);
+    var res = Serializer.createClass("panel");
+    res.name = name;
+    return res;
   }
   /**
    * Remove an element (Panel or Question) from the elements list.

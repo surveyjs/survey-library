@@ -18,7 +18,7 @@ export class SurveyHeader extends React.Component<ISurveyHeaderProps, any> {
   private renderTitle(): JSX.Element {
     let title: JSX.Element = null;
     let description: JSX.Element = null;
-    if (this.survey.title && this.survey.showTitle) {
+    if (this.survey.title && this.survey.showTitle || this.survey.isDesignMode) {
       title = SurveyElementBase.renderLocString(this.survey.locTitle);
       description = SurveyElementBase.renderLocString(this.survey.locDescription);
     }
@@ -31,7 +31,8 @@ export class SurveyHeader extends React.Component<ISurveyHeaderProps, any> {
   }
 
   public render(): JSX.Element {
-    if ((!this.survey.title || !this.survey.showTitle) && !this.survey.hasLogo) {
+    if ((!this.survey.title || !this.survey.showTitle) &&
+      !this.survey.hasLogo && !this.survey.isDesignMode) {
       return null;
     }
     const title: JSX.Element = this.renderTitle();

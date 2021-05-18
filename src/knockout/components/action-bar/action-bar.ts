@@ -1,5 +1,5 @@
 import * as ko from "knockout";
-import { ActionBar, AdaptiveElement, IActionBarItem } from "survey-core";
+import { ActionBar, AdaptiveElement, IActionBarItem, Base } from "survey-core";
 import { ResponsivityManager } from "survey-core";
 import { ImplementorBase } from "../../kobase";
 
@@ -29,8 +29,8 @@ export class AdaptiveElementImplementor extends ImplementorBase {
   constructor(model: AdaptiveElement) {
     super(model);
 
-    model.items.forEach(item => {
-      new ImplementorBase(item);
+    model.items.forEach((item) => {
+      new ImplementorBase(item.stateItem);
     });
   }
 }

@@ -18,24 +18,31 @@ sv-popup {
   position: absolute;
   z-index: -1;
 }
-
 .sv-popup {
   position: fixed;
   left: 0;
   top: 0;
-  width: 100%;
-  height: 100%;
+  z-index: 1000;
+  width: 100vw;
+  height: 100vh;
 }
-
+.sv-popup--modal {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  .sv-popup__container {
+    position: static;
+    filter: none;
+    padding: calcSize(4);
+  }
+}
 .sv-popup__container {
   position: absolute;
-  z-index: 1000;
   filter: drop-shadow(0px calcSize(1) calcSize(2) rgba(0, 0, 0, 0.1));
   padding: calcSize(1) 0;
   background: $body-background-color;
   border-radius: 4px;
 }
-
 .sv-popup__scrolling-content {
   max-width: 90vh;
   max-height: 90vh;
@@ -49,39 +56,33 @@ sv-popup {
     background: $primary-light;
   }
 }
-
 .sv-popup__content {
   min-width: 100%;
 }
-
 .sv-popup--show-pointer.sv-popup--top {
   transform: translateY(calcSize(-1));
   .sv-popup__pointer {
     transform: translate(calcSize(-1)) rotate(180deg);
   }
 }
-
 .sv-popup--show-pointer.sv-popup--bottom {
   transform: translateY(calcSize(1));
   .sv-popup__pointer {
     transform: translate(calcSize(-1), calcSize(-1));
   }
 }
-
 .sv-popup--show-pointer.sv-popup--right {
   transform: translate(calcSize(1));
   .sv-popup__pointer {
     transform: translate(-12px, -4px) rotate(-90deg);
   }
 }
-
 .sv-popup--show-pointer.sv-popup--left {
   transform: translate(calcSize(-1));
   .sv-popup__pointer {
     transform: translate(-4px, -4px) rotate(90deg);
   }
 }
-
 .sv-popup__pointer {
   display: block;
   position: absolute;
@@ -96,32 +97,22 @@ sv-popup {
     align-self: center;
   }
 }
-
-.sv-popup--modal {
-  .sv-popup__container {
-    filter: none;
-    padding: calcSize(4);
-  }
-}
-
 .sv-popup__footer {
   display: flex;
   margin-top: calcSize(4);
 }
-
 .sv-popup__footer-item:first-child {
   margin-left: auto;
 }
-
 .sv-popup__footer-item + .sv-popup__footer-item {
   margin-left: calcSize(1);
 }
-
 .sv-popup__button {
   padding: calcSize(2) calcSize(6);
   background: $background;
   box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.15);
   border-radius: 4px;
+  margin: 2px;
   cursor: pointer;
 
   font-family: $font-family;
@@ -138,7 +129,6 @@ sv-popup {
   }
   outline: none;
 }
-
 .sv-popup__button:disabled {
   color: $foreground-disabled;
   cursor: default;
@@ -146,12 +136,10 @@ sv-popup {
     box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.15);
   }
 }
-
 .sv-popup__button--apply {
   background-color: $primary;
   color: $primary-foreground;
 }
-
 .sv-popup__button--apply:disabled {
   background-color: $background-dim;
 }

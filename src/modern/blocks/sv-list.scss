@@ -18,14 +18,11 @@ $base-unit: var(--base-unit, 8px);
 
 .sv-list {
   display: flex;
-  // position: absolute;
   flex-direction: column;
   align-items: flex-start;
   padding: 0;
   margin: 0;
-  // border: 1px solid $border;
   background: #ffffff;
-  // box-shadow: 0px 2px 6px $shadow-medium;
   font-family: $font-family;
   list-style-type: none;
 }
@@ -36,7 +33,6 @@ $base-unit: var(--base-unit, 8px);
   align-items: center;
   box-sizing: border-box;
   padding: calcSize(1) calcSize(2);
-
   cursor: pointer;
 }
 
@@ -52,7 +48,6 @@ $base-unit: var(--base-unit, 8px);
   }
   margin-right: calcSize(2);
 }
-
 .sv-list__item:hover {
   background-color: $background-dim;
 }
@@ -60,18 +55,19 @@ $base-unit: var(--base-unit, 8px);
 .sv-list__item--selected {
   background-color: $primary;
   color: $background;
-
   &:hover {
     background-color: $primary;
   }
-
   .sv-list__item-icon use {
     fill: $background;
   }
 }
-
 .sv-list__item--disabled {
   color: $foreground-disabled;
   cursor: default;
   pointer-events: none;
+}
+
+.sv-list__item span {
+  white-space: nowrap;
 }

@@ -1,8 +1,28 @@
 import * as ko from "knockout";
-import { PopupModel, PopupViewModel } from "survey-core";
+import { PopupModel, PopupBaseViewModel } from "survey-core";
 import { ImplementorBase } from "../../kobase";
 import { settings } from "survey-core";
 const template = require("html-loader?interpolate!val-loader!./popup.html");
+
+export class PopupViewModel {
+  constructor(public popupViewModel: PopupBaseViewModel) {
+    popupViewModel.initializePopupContainer();
+    new ImplementorBase(popupViewModel.model);
+    new ImplementorBase(popupViewModel);
+    popupViewModel.container.innerHTML = template;
+    popupViewModel.model.onVisibilityChanged = (isVisible: boolean) => {
+      if (isVisible && !popupViewModel.isModal) {
+        ko.tasks.runEarly();
+        popupViewModel.updatePosition();
+      }
+    };
+    ko.applyBindings(popupViewModel, popupViewModel.container);
+  }
+  dispose() {
+    ko.cleanNode(this.popupViewModel.container);
+    this.popupViewModel.destroyPopupContainer();
+  }
+}
 
 export function showModal(
   componentName: string,
@@ -20,60 +40,27 @@ export function showModal(
     onCancel,
     onApply
   );
-
-  const popupViewModel: PopupViewModel = new PopupViewModel(
+  const popupViewModel: PopupBaseViewModel = new PopupBaseViewModel(
     popupModel,
     undefined
   );
+  var viewModel = new PopupViewModel(popupViewModel);
   popupModel.onHide = () => {
-    ko.cleanNode(popupViewModel.container);
-    popupViewModel.destroyPopupContainer();
+    viewModel.dispose();
   };
-  popupViewModel.initializePopupContainer();
-  popupViewModel.container.innerHTML = template;
-
-  // <ko specific>
-  new ImplementorBase(popupViewModel);
-  new ImplementorBase(popupViewModel.model);
-  ko.applyBindings(popupViewModel, popupViewModel.container);
-  // </ko specific>
-
   popupViewModel.model.isVisible = true;
 }
-// function showDropDownMenu(items: any[], target: HTMLElement) {
-//   const popupModel = new PopupModel(
-//     "sv-list",
-//     new ListModel(items, undefined, false) /*, "top", "left", true*/
-//   );
-//   const popupViewModel: PopupViewModel = new PopupViewModel(popupModel, target);
-//   popupViewModel.model.isVisible = true;
-// }
 
 settings.showModal = showModal;
 
 ko.components.register("sv-popup", {
   viewModel: {
     createViewModel: (params: any, componentInfo: any) => {
-      const viewModel = new PopupViewModel(
+      const viewModel = new PopupBaseViewModel(
         params.model,
         componentInfo.element.parentElement
       );
-
-      viewModel.initializePopupContainer();
-      viewModel.container.innerHTML = template;
-
-      // <ko specific>
-      new ImplementorBase(viewModel);
-      new ImplementorBase(params.model);
-      ko.applyBindings(viewModel, viewModel.container);
-      // </ko specific>
-
-      ko.utils.domNodeDisposal.addDisposeCallback(componentInfo.element, () => {
-        ko.cleanNode(viewModel.container);
-        viewModel.destroyPopupContainer();
-      });
-
-      return viewModel;
+      return new PopupViewModel(viewModel);
     },
   },
   template: "<div></div>",

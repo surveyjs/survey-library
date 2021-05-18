@@ -1,8 +1,6 @@
 import { PopupUtils } from "../../src/utils/popup";
 import { PopupModel } from "../../src/popup";
-import { PopupViewModel } from "../../src/popup";
-import { ListModel } from "../../src/list";
-import ko from "knockout";
+import { PopupBaseViewModel } from "../../src/popup";
 
 const popupTemplate = require("html-loader?interpolate!val-loader!../../src/knockout/components/popup/popup.html");
 
@@ -19,9 +17,9 @@ const targetRect = {
 
 //TODO: disable setTimeout when testing
 const toggleVisibility = PopupModel.prototype.toggleVisibility;
-PopupModel.prototype.toggleVisibility = function () {
+PopupModel.prototype.toggleVisibility = function() {
   var prevSetTimeout = window.setTimeout;
-  (<any>window).setTimeout = function (callback: any) {
+  (<any>window).setTimeout = function(callback: any) {
     callback();
   };
   toggleVisibility.apply(this, arguments);
@@ -65,12 +63,14 @@ QUnit.test("PopupModel toggleVisibility", (assert) => {
 });
 
 QUnit.test("PopupViewModel defaults", (assert) => {
-  const listModel: ListModel = new ListModel([], () => {}, false);
   const data = {};
   const model: PopupModel = new PopupModel("sv-list", data);
 
   const targetElement: HTMLElement = document.createElement("div");
-  const viewModel: PopupViewModel = new PopupViewModel(model, targetElement);
+  const viewModel: PopupBaseViewModel = new PopupBaseViewModel(
+    model,
+    targetElement
+  );
   viewModel.initializePopupContainer();
   viewModel.container.innerHTML = popupTemplate;
 
@@ -87,14 +87,14 @@ QUnit.test("PopupViewModel defaults", (assert) => {
   assert.equal(viewModel.model.cssClass, "");
 
   //assert.equal(ko.isWritableObservable(viewModel.top), true);
-  assert.equal(viewModel.top, undefined);
+  assert.equal(viewModel.top, "0px");
   //assert.equal(ko.isWritableObservable(viewModel.left), true);
-  assert.equal(viewModel.left, undefined);
+  assert.equal(viewModel.left, "0px");
   //assert.equal(ko.isWritableObservable(viewModel.popupDirection), true);
   assert.equal(viewModel.popupDirection, "left");
   //assert.equal(ko.isWritableObservable(viewModel.pointerTarget), true);
   assert.deepEqual(viewModel.pointerTarget, { left: "0px", top: "0px" });
-  //assert.equal(ko.isWritableObservable(viewModel.isVisible), true);
+  // assert.equal(ko.isWritableObservable(viewModel.isVisible), true);
   assert.equal(viewModel.isVisible, false);
 
   const container: HTMLElement = viewModel.container;
@@ -110,7 +110,10 @@ QUnit.test("PopupViewModel defaults", (assert) => {
 QUnit.test("PopupViewModel styleClass", (assert) => {
   const model: PopupModel = new PopupModel("sv-list", {});
   const targetElement: HTMLElement = document.createElement("div");
-  const viewModel: PopupViewModel = new PopupViewModel(model, targetElement);
+  const viewModel: PopupBaseViewModel = new PopupBaseViewModel(
+    model,
+    targetElement
+  );
   viewModel.initializePopupContainer();
   viewModel.container.innerHTML = popupTemplate;
 
@@ -134,13 +137,16 @@ QUnit.test("PopupViewModel styleClass", (assert) => {
 QUnit.test("PopupViewModel isVisible", (assert) => {
   const model: PopupModel = new PopupModel("sv-list", {});
   const targetElement: HTMLElement = document.createElement("div");
-  const viewModel: PopupViewModel = new PopupViewModel(model, targetElement);
+  const viewModel: PopupBaseViewModel = new PopupBaseViewModel(
+    model,
+    targetElement
+  );
   viewModel.initializePopupContainer();
   viewModel.container.innerHTML = popupTemplate;
 
   assert.equal(viewModel.isVisible, false);
-  assert.equal(viewModel.top, undefined);
-  assert.equal(viewModel.left, undefined);
+  assert.equal(viewModel.top, "0px");
+  assert.equal(viewModel.left, "0px");
   assert.equal(viewModel.popupDirection, "left");
   assert.deepEqual(viewModel.pointerTarget, { left: "0px", top: "0px" });
 
@@ -158,10 +164,10 @@ QUnit.test("PopupViewModel isVisible", (assert) => {
   assert.equal(trace, "->onShow");
   assert.equal(viewModel.isVisible, true);
   assert.equal(viewModel.top, "0px");
-  assert.equal(viewModel.left === "0px", false);
+  assert.equal(viewModel.left, "0px");
   assert.equal(viewModel.popupDirection, "left");
-  assert.equal(viewModel.pointerTarget["left"] === "0px", false);
-  assert.equal(viewModel.pointerTarget["top"] === "0px", true);
+  assert.equal(viewModel.pointerTarget.left, "0px");
+  assert.equal(viewModel.pointerTarget.top, "0px");
   trace = "";
 
   model.toggleVisibility();
@@ -169,22 +175,25 @@ QUnit.test("PopupViewModel isVisible", (assert) => {
   assert.equal(trace, "->onHide");
   assert.equal(viewModel.isVisible, false);
   assert.equal(viewModel.top, "0px");
-  assert.equal(viewModel.left === "0px", false);
+  assert.equal(viewModel.left, "0px");
   assert.equal(viewModel.popupDirection, "left");
-  assert.equal(viewModel.pointerTarget["left"] === "0px", false);
-  assert.equal(viewModel.pointerTarget["top"] === "0px", true);
+  assert.equal(viewModel.pointerTarget.left, "0px");
+  assert.equal(viewModel.pointerTarget.top, "0px");
 });
 
 QUnit.test("PopupModel toggleVisibility", (assert) => {
   const model: PopupModel = new PopupModel("sv-list", {});
   const targetElement: HTMLElement = document.createElement("div");
-  const viewModel: PopupViewModel = new PopupViewModel(model, targetElement);
+  const viewModel: PopupBaseViewModel = new PopupBaseViewModel(
+    model,
+    targetElement
+  );
   viewModel.initializePopupContainer();
   viewModel.container.innerHTML = popupTemplate;
 
   assert.equal(viewModel.isVisible, false);
-  assert.equal(viewModel.top, undefined);
-  assert.equal(viewModel.left, undefined);
+  assert.equal(viewModel.top, "0px");
+  assert.equal(viewModel.left, "0px");
   assert.equal(viewModel.popupDirection, "left");
   assert.deepEqual(viewModel.pointerTarget, { left: "0px", top: "0px" });
 
@@ -201,10 +210,10 @@ QUnit.test("PopupModel toggleVisibility", (assert) => {
   assert.equal(trace, "->onShow");
   assert.equal(viewModel.isVisible, true);
   assert.equal(viewModel.top, "0px");
-  assert.equal(viewModel.left === "0px", false);
+  assert.equal(viewModel.left, "0px");
   assert.equal(viewModel.popupDirection, "left");
-  assert.equal(viewModel.pointerTarget["left"] === "0px", false);
-  assert.equal(viewModel.pointerTarget["top"] === "0px", true);
+  assert.equal(viewModel.pointerTarget.left, "0px");
+  assert.equal(viewModel.pointerTarget.top, "0px");
   trace = "";
 
   model.toggleVisibility();
@@ -212,22 +221,25 @@ QUnit.test("PopupModel toggleVisibility", (assert) => {
   assert.equal(trace, "->onHide");
   assert.equal(viewModel.isVisible, false);
   assert.equal(viewModel.top, "0px");
-  assert.equal(viewModel.left === "0px", false);
+  assert.equal(viewModel.left, "0px");
   assert.equal(viewModel.popupDirection, "left");
-  assert.equal(viewModel.pointerTarget["left"] === "0px", false);
-  assert.equal(viewModel.pointerTarget["top"] === "0px", true);
+  assert.equal(viewModel.pointerTarget.left, "0px");
+  assert.equal(viewModel.pointerTarget.top, "0px");
 });
 
 QUnit.test("PopupModel clickOutside", (assert) => {
   const model: PopupModel = new PopupModel("sv-list", {});
   const targetElement: HTMLElement = document.createElement("div");
-  const viewModel: PopupViewModel = new PopupViewModel(model, targetElement);
+  const viewModel: PopupBaseViewModel = new PopupBaseViewModel(
+    model,
+    targetElement
+  );
   viewModel.initializePopupContainer();
   viewModel.container.innerHTML = popupTemplate;
 
   assert.equal(viewModel.isVisible, false);
-  assert.equal(viewModel.top, undefined);
-  assert.equal(viewModel.left, undefined);
+  assert.equal(viewModel.top, "0px");
+  assert.equal(viewModel.left, "0px");
   assert.equal(viewModel.popupDirection, "left");
   assert.deepEqual(viewModel.pointerTarget, { left: "0px", top: "0px" });
 
@@ -242,8 +254,8 @@ QUnit.test("PopupModel clickOutside", (assert) => {
   viewModel.clickOutside();
   assert.equal(trace, "");
   assert.equal(viewModel.isVisible, false);
-  assert.equal(viewModel.top, undefined);
-  assert.equal(viewModel.left, undefined);
+  assert.equal(viewModel.top, "0px");
+  assert.equal(viewModel.left, "0px");
   assert.equal(viewModel.popupDirection, "left");
   assert.deepEqual(viewModel.pointerTarget, { left: "0px", top: "0px" });
   trace = "";
@@ -254,10 +266,10 @@ QUnit.test("PopupModel clickOutside", (assert) => {
   assert.equal(trace, "->onHide");
   assert.equal(viewModel.isVisible, false);
   assert.equal(viewModel.top, "0px");
-  assert.equal(viewModel.left === "0px", false);
+  assert.equal(viewModel.left, "0px");
   assert.equal(viewModel.popupDirection, "left");
-  assert.equal(viewModel.pointerTarget["left"] === "0px", false);
-  assert.equal(viewModel.pointerTarget["top"] === "0px", true);
+  assert.equal(viewModel.pointerTarget.left, "0px");
+  assert.equal(viewModel.pointerTarget.top, "0px");
   trace = "";
 
   model.isModal = true;
@@ -269,15 +281,18 @@ QUnit.test("PopupModel clickOutside", (assert) => {
   assert.equal(viewModel.top, "0px");
   assert.equal(viewModel.left, "0px");
   assert.equal(viewModel.popupDirection, "left");
-  assert.equal(viewModel.pointerTarget["left"] === "0px", false);
-  assert.equal(viewModel.pointerTarget["top"] === "0px", true);
+  assert.equal(viewModel.pointerTarget.left, "0px");
+  assert.equal(viewModel.pointerTarget.top, "0px");
   trace = "";
 });
 
 QUnit.test("PopupModel cancel", (assert) => {
   const model: PopupModel = new PopupModel("sv-list", {});
   const targetElement: HTMLElement = document.createElement("div");
-  const viewModel: PopupViewModel = new PopupViewModel(model, targetElement);
+  const viewModel: PopupBaseViewModel = new PopupBaseViewModel(
+    model,
+    targetElement
+  );
   viewModel.initializePopupContainer();
   viewModel.container.innerHTML = popupTemplate;
 
@@ -318,7 +333,10 @@ QUnit.test("PopupModel cancel", (assert) => {
 QUnit.test("PopupModel apply", (assert) => {
   const model: PopupModel = new PopupModel("sv-list", {});
   const targetElement: HTMLElement = document.createElement("div");
-  const viewModel: PopupViewModel = new PopupViewModel(model, targetElement);
+  const viewModel: PopupBaseViewModel = new PopupBaseViewModel(
+    model,
+    targetElement
+  );
   viewModel.initializePopupContainer();
   viewModel.container.innerHTML = popupTemplate;
 
@@ -357,12 +375,14 @@ QUnit.test("PopupModel apply", (assert) => {
 });
 
 QUnit.test("PopupViewModel dispose", (assert) => {
-  const listModel: ListModel = new ListModel([], () => {}, false);
   const data = {};
   const model: PopupModel = new PopupModel("sv-list", data);
 
   const targetElement: HTMLElement = document.createElement("div");
-  const viewModel: PopupViewModel = new PopupViewModel(model, targetElement);
+  const viewModel: PopupBaseViewModel = new PopupBaseViewModel(
+    model,
+    targetElement
+  );
   viewModel.initializePopupContainer();
   viewModel.container.innerHTML = popupTemplate;
 

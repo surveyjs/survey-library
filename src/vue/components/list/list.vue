@@ -33,12 +33,10 @@ import { BaseVue } from "../../base";
 
 @Component
 export class List extends BaseVue {
-  @Prop() public model: ListModel;
-
+  @Prop() model: ListModel;
   constructor() {
     super();
   }
-
   getModel() {
     return this.model;
   }

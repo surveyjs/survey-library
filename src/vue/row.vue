@@ -11,7 +11,6 @@
         width: element.renderWidth,
         minWidth: element.minWidth,
         maxWidth: element.maxWidth,
-        display: 'inline-block',
       }"
     >
       <survey-element
@@ -21,8 +20,7 @@
         :name="element.name"
         :style="{
           paddingLeft: element.paddingLeft,
-          paddingRight: element.paddingRight,
-          display: 'inline-block',
+          paddingRight: element.paddingRight
         }"
         :element="element"
         :survey="survey"

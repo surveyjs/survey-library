@@ -79,7 +79,8 @@ export class SurveyPanelBase extends SurveyElementBase<any, any> {
       super.canRender() &&
       !!this.survey &&
       !!this.panelBase &&
-      this.panelBase.visible
+      this.panelBase.visible &&
+      !!this.panelBase.survey
     );
   }
   private renderedRowsCache: any = {};

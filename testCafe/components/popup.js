@@ -12,28 +12,31 @@ const json = {
   ],
 };
 
-const disposeSurvey = ClientFunction(framework => {
+const disposeSurvey = ClientFunction((framework) => {
   survey.dispose();
   if (framework === "react") {
     ReactDOM.unmountComponentAtNode(document.getElementById("surveyElement"));
   }
 });
 
-const getPopupPosition = ClientFunction(() => {
-  const clientRect = document
-    .querySelector(".sv-popup__container")
-    .getBoundingClientRect();
-  return { left: clientRect.left, top: clientRect.top };
+const getElementClientRect = ClientFunction((selector) => {
+  const clientRect = document.querySelector(selector).getBoundingClientRect();
+  return {
+    left: clientRect.left,
+    top: clientRect.top,
+    width: clientRect.width,
+    height: clientRect.height,
+  };
 });
 
-frameworks.forEach(framework => {
+frameworks.forEach((framework) => {
   fixture`${framework} ${title}`.page`${url}${framework}`.beforeEach(
-    async t => {
+    async (t) => {
       await t.resizeWindow(800, 600);
     }
   );
 
-  test("check ordinary popup behavior", async t => {
+  test("check ordinary popup behavior", async (t) => {
     await initSurvey(framework, json, {
       onGetQuestionTitleActions: (_, opt) => {
         const itemPopupModel = new Survey.PopupModel("sv-list", {
@@ -60,14 +63,20 @@ frameworks.forEach(framework => {
     await t.click(itemSelector);
     assert.ok(await popupSelector.visible);
     assert.ok(await Selector(".sv-popup span").withText("Item 1").visible);
-    assert.deepEqual(await getPopupPosition(), { left: 616, top: 38 });
+    const popupClientRect = await getElementClientRect(".sv-popup__container");
+    const itemClientRect = await getElementClientRect(".sv-action-bar-item");
+    assert.equal(
+      itemClientRect.left - 8 - popupClientRect.width,
+      popupClientRect.left
+    );
+    assert.equal(itemClientRect.top, popupClientRect.top);
     await t.click(itemSelector);
     assert.ok(await popupSelector.exists);
     assert.ok(!(await popupSelector.visible));
     await disposeSurvey(framework);
     assert.ok(!(await popupSelector.exists));
   });
-  test(`check survey in showModal`, async t => {
+  test(`check survey in showModal`, async (t) => {
     await initSurvey(framework, json, {
       onGetQuestionTitleActions: (survey, opt) => {
         const json = {
@@ -100,7 +109,15 @@ frameworks.forEach(framework => {
     assert.ok(
       await Selector(".sv-popup span").withText("modal_question").visible
     );
-    assert.deepEqual(await getPopupPosition(), { left: 204, top: 129 });
+    const popupClientRect = await getElementClientRect(".sv-popup__container");
+    assert.equal(
+      popupClientRect.left,
+      Math.round((800 / 2 - popupClientRect.width / 2) * 10) / 10
+    );
+    assert.equal(
+      popupClientRect.top,
+      Math.round((600 / 2 - popupClientRect.height / 2) * 10) / 10
+    );
     await t.click(Selector(".sv-action-bar-item"));
     assert.ok(await popupSelector.visible);
     await t.click(Selector(".sv-popup__button").withText("Cancel"));

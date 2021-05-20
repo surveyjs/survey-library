@@ -55,7 +55,7 @@ export class SurveyModel extends Base
     ISurveyTriggerOwner,
     ISurveyErrorOwner,
     ILocalizableOwner {
-  public static readonly TEMPLATE_RENDERER_COMPONENT_NAME: string = "sv-template-renderer";
+  public static readonly TemplateRendererComponentName: string = "sv-template-renderer";
   [index: string]: any;
   private static stylesManager: StylesManager = null;
   public static platform: string = "unknown";
@@ -5767,7 +5767,7 @@ export class SurveyModel extends Base
     return true;
   }
   public getElementWrapperComponentName(element: SurveyElement): string {
-    return SurveyModel.TEMPLATE_RENDERER_COMPONENT_NAME;
+    return SurveyModel.TemplateRendererComponentName;
   }
   public getElementWrapperComponentData(element: SurveyElement): any {
     return element;
@@ -5776,7 +5776,7 @@ export class SurveyModel extends Base
     item: ItemValue,
     question: QuestionSelectBase
   ): string {
-    return SurveyModel.TEMPLATE_RENDERER_COMPONENT_NAME;
+    return SurveyModel.TemplateRendererComponentName;
   }
   public getItemValueWrapperComponentData(
     item: ItemValue,

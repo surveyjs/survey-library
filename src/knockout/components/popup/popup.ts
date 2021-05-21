@@ -57,7 +57,7 @@ ko.components.register("sv-popup", {
   viewModel: {
     createViewModel: (params: any, componentInfo: any) => {
       const viewModel = new PopupBaseViewModel(
-        params.model,
+        ko.unwrap(params.model),
         componentInfo.element.parentElement
       );
       return new PopupViewModel(viewModel);

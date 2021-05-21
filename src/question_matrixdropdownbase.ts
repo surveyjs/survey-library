@@ -2392,7 +2392,7 @@ export class QuestionMatrixDropdownModelBase
   public getShowColumnsIfEmpty(): boolean {
     return false;
   }
-  protected setShowColumnsIfEmpty() {
+  protected updateShowTableAndAddRow() {
     if (!!this.renderedTable) {
       this.renderedTable.updateShowTableAndAddRow();
     }

@@ -5767,6 +5767,54 @@ QUnit.test("MatrixDynamic, ", function(assert) {
   matrix.hideColumnsIfEmpty = true;
   assert.equal(matrix.renderedTable.showTable, true, "survey in design mode");
 });
+QUnit.test(
+  "MatrixDynamic, Hide/show add row button on changing allowAddRows",
+  function(assert) {
+    var survey = new SurveyModel({
+      elements: [
+        {
+          type: "matrixdynamic",
+          name: "matrix",
+          rowCount: 2,
+          maxRowCount: 3,
+          hideColumnsIfEmpty: true,
+          columns: [{ name: "col1" }],
+        },
+      ],
+    });
+    var matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+    assert.equal(
+      matrix.renderedTable.showAddRowOnBottom,
+      true,
+      "We have a row here"
+    );
+    matrix.allowAddRows = false;
+    assert.equal(
+      matrix.renderedTable.showAddRowOnBottom,
+      false,
+      "We do not allow add rows"
+    );
+    matrix.allowAddRows = true;
+    assert.equal(
+      matrix.renderedTable.showAddRowOnBottom,
+      true,
+      "We have a row here again"
+    );
+    matrix.addRow();
+    assert.equal(
+      matrix.renderedTable.showAddRowOnBottom,
+      false,
+      "max row count is 3"
+    );
+    matrix.rowCount = 1;
+    assert.equal(
+      matrix.renderedTable.showAddRowOnBottom,
+      true,
+      "row count is 1"
+    );
+  }
+);
+
 QUnit.test("Matrixdynamic change column.readOnly property", function(assert) {
   var question = new QuestionMatrixDynamicModel("matrixDynamic");
   question.rowCount = 2;

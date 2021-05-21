@@ -53,9 +53,12 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     locEmptyRowsText.onGetTextCallback = (text: string): string => {
       return !!text ? text : surveyLocalization.getString("emptyRowsText");
     };
-    this.registerFunctionOnPropertyValueChanged("hideColumnsIfEmpty", () => {
-      this.setShowColumnsIfEmpty();
-    });
+    this.registerFunctionOnPropertiesValueChanged(
+      ["hideColumnsIfEmpty", "allowAddRows"],
+      () => {
+        this.updateShowTableAndAddRow();
+      }
+    );
   }
   public getType(): string {
     return "matrixdynamic";

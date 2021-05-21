@@ -15,12 +15,14 @@ export class SurveyAction extends SurveyElementBase<IActionBarItemProps, any> {
     return this.props.item;
   }
   protected getStateElement(): Base {
-    return this.item;
+    return this.item.stateItem;
   }
 
   render() {
     const itemClass =
-      "sv-action " + this.item.css + (!this.item.isVisible ? " sv-action--hidden" : "");
+      "sv-action " +
+      this.item.css +
+      (!this.item.isVisible ? " sv-action--hidden" : "");
     const separator = this.item.needSeparator ? (
       <SurveyActionBarSeparator></SurveyActionBarSeparator>
     ) : null;
@@ -40,18 +42,19 @@ export class SurveyAction extends SurveyElementBase<IActionBarItemProps, any> {
   }
 }
 
-export class SurveyActionBarItem extends SurveyElementBase<IActionBarItemProps, any> {
+export class SurveyActionBarItem extends SurveyElementBase<
+  IActionBarItemProps,
+  any
+> {
   get item(): AdaptiveActionBarItemWrapper {
     return this.props.item;
   }
   protected getStateElement(): Base {
-    return this.item;
+    return this.item.stateItem;
   }
 
   render() {
-    return (
-      <>{this.renderInnerButton()}</>
-    );
+    return <>{this.renderInnerButton()}</>;
   }
 
   renderText() {

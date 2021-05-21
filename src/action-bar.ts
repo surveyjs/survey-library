@@ -122,6 +122,10 @@ export class AdaptiveActionBarItemWrapper extends Base
   public get wrappedItem(): IActionBarItem {
     return this.item;
   }
+  public get stateItem(): Base {
+    var item: any = this.item;
+    return !!item && item["getType"] ? item : this;
+  }
 
   public get id(): string {
     return this.item.id;
@@ -242,7 +246,7 @@ export class AdaptiveElement extends Base {
   public showFirstN(visibleItemsCount: number) {
     let leftItemsToShow = visibleItemsCount;
     const invisibleItems: AdaptiveActionBarItemWrapper[] = [];
-    this.items.forEach(item => {
+    this.items.forEach((item) => {
       if (item === this.dotsItem) {
         return;
       }
@@ -294,7 +298,7 @@ export class ActionBar extends AdaptiveElement {
     return []
       .concat(
         items.filter(
-          item => item.visibleIndex >= 0 || item.visibleIndex === undefined
+          (item) => item.visibleIndex >= 0 || item.visibleIndex === undefined
         )
       )
       .sort((firstItem, secondItem) => {

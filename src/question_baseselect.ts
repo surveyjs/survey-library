@@ -1151,7 +1151,7 @@ export class QuestionSelectBase extends Question {
     if (survey) {
       return survey.getItemValueWrapperComponentName(item, this);
     }
-    return SurveyModel.TEMPLATE_RENDERER_COMPONENT_NAME;
+    return SurveyModel.TemplateRendererComponentName;
   }
   public getItemValueWrapperComponentData(item: ItemValue): any {
     const survey: SurveyModel = this.survey as SurveyModel;

@@ -1,49 +1,58 @@
 <template>
-  <div ref="container">
+  <div
+    class="sv-popup"
+    v-bind:class="model.styleClass"
+    v-show="model.isVisible"
+    v-on:click="
+      () => {
+        model.clickOutside();
+      }
+    "
+  >
     <div
-      class="sv-popup"
-      v-bind:class="model.styleClass"
-      v-show="model.isVisible"
-      v-on:click="
-        () => {
-          model.clickOutside();
-        }
-      "
+      class="sv-popup__container"
+      v-bind:style="{ left: model.left, top: model.top }"
+      v-on:click="clickInside"
     >
-      <div
-        class="sv-popup__container"
-        v-bind:style="{ left: model.left, top: model.top }"
-        v-on:click="clickInside"
-      >
-        <span
-          v-show="model.showPointer"
-          v-bind:style="{
-            left: model.pointerTarget.left,
-            top: model.pointerTarget.top,
-          }"
-          class="sv-popup__pointer"
-        ></span>
-        <div class="sv-popup__scrolling-content ">
-          <div class="sv-popup__header"></div>
+      <span
+        v-show="model.showPointer"
+        v-bind:style="{
+          left: model.pointerTarget.left,
+          top: model.pointerTarget.top,
+        }"
+        class="sv-popup__pointer"
+      ></span>
+      <div class="sv-popup__scrolling-content">
+        <div class="sv-popup__header"></div>
 
-          <div
-            class="sv-popup__content"
-            data-bind="component: { name: contentComponentName, params: contentComponentData }"
+        <div class="sv-popup__content">
+          <component
+            :is="model.contentComponentName"
+            v-bind="model.contentComponentData"
+          ></component>
+        </div>
+
+        <div v-show="model.isModal" class="sv-popup__footer">
+          <button
+            v-on:click="
+              () => {
+                model.cancel();
+              }
+            "
+            class="sv-popup__footer-item sv-popup__button sv-popup__button--cancel"
           >
-            <component
-              :is="model.contentComponentName"
-              v-bind="model.contentComponentData"
-            ></component>
-          </div>
-
-          <div v-show="model.isModal" class="sv-popup__footer">
-            <button v-on:click="model.cancel">
-              {{ model.cancelButtonText }}
-            </button>
-            <button v-on:click="model.apply">
-              {{ model.applyButtonText }}
-            </button>
-          </div>
+            {{ model.cancelButtonText }}
+          </button>
+          <button
+            v-on:click="
+              () => {
+                model.apply();
+              }
+            "
+            class="sv-popup__footer-item sv-popup__button sv-popup__button--cancel"
+          >
+            {{ model.applyButtonText }}
+          </button>
         </div>
       </div>
     </div>
@@ -52,25 +61,57 @@
 <script lang="ts">
 import Vue from "vue";
 import { Prop, Component } from "vue-property-decorator";
-import { PopupViewModel } from "survey-core";
+import { PopupBaseViewModel, PopupModel, settings } from "survey-core";
 import { BaseVue } from "../../base";
-
 @Component
 export class PopupContainer extends BaseVue {
-  @Prop() model: PopupViewModel;
-
+  @Prop() model: PopupBaseViewModel;
+  private prevIsVisible: boolean;
   protected getModel() {
     return this.model;
   }
-
   clickInside(event: any) {
     event.stopPropagation();
   }
-
-  onMounted() {
-    this.model.container = <HTMLElement>this.$refs["container"];
+  onUpdated() {
+    if (!this.prevIsVisible && this.model.isVisible && !this.model.isModal) {
+      this.model.updatePosition();
+    }
+    this.prevIsVisible = this.model.isVisible;
   }
 }
+export function showModal(
+  componentName: string,
+  data: any,
+  onApply: () => void,
+  onCancel?: () => void
+) {
+  const popupModel = new PopupModel(
+    componentName,
+    data,
+    "top",
+    "left",
+    false,
+    true,
+    onCancel,
+    onApply
+  );
+  const popupViewModel: PopupBaseViewModel = new PopupBaseViewModel(
+    popupModel,
+    undefined
+  );
+  popupViewModel.initializePopupContainer();
+  const popup = new PopupContainer({
+    el: popupViewModel.container.appendChild(document.createElement("div")),
+    propsData: { model: popupViewModel },
+  });
+  popupModel.onHide = () => {
+    popup.$destroy();
+    popupViewModel.destroyPopupContainer();
+  };
+  popupViewModel.model.isVisible = true;
+}
+settings.showModal = showModal;
 Vue.component("sv-popup-container", PopupContainer);
 export default PopupContainer;
 </script>

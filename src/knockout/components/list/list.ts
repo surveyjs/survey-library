@@ -8,9 +8,10 @@ export var ListViewComponent: any;
 
 ko.components.register("sv-list", {
   viewModel: {
-    createViewModel: (params: ListModel, componentInfo: any) => {
-      new ImplementorBase(params);
-      return params;
+    createViewModel: (params: any, componentInfo: any) => {
+      const model: ListModel = params.model;
+      new ImplementorBase(model);
+      return model;
     },
   },
   template: template,

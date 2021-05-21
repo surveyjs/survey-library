@@ -420,3 +420,7 @@ export class Survey extends SurveyElementBase<any, any>
     return this.survey.questionErrorLocation;
   }
 }
+
+ReactElementFactory.Instance.registerElement("survey", props => {
+  return React.createElement(Survey, props);
+});

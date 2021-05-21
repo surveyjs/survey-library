@@ -172,7 +172,7 @@ export {
   AdaptiveElement,
 } from "../../action-bar";
 export { ListModel } from "../../list";
-export { PopupModel, PopupViewModel } from "../../popup";
+export { PopupModel, PopupBaseViewModel } from "../../popup";
 export {
   QuestionButtonGroupModel,
   ButtonGroupItemModel,

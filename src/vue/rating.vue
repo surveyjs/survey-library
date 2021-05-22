@@ -15,7 +15,7 @@
             :id="question.inputId + '_' + index"
             :value="item.value"
             :disabled="question.isInputReadOnly"
-            @change="change"
+            @click="click"
             v-bind:aria-required="question.isRequired"
             :aria-label="item.locText.text"
             :aria-invalid="question.errors.length > 0"
@@ -61,8 +61,12 @@ export class Rating extends QuestionVue<QuestionRatingModel> {
     }
     return css;
   }
-  change(e: any) {
-    this.question.value = e.target.value;
+  click(e: any) {
+    if (this.question.value === parseFloat(e.target.value)) {
+      this.question.clearValue();
+    } else {
+      this.question.value = e.target.value;
+    }
   }
   getRootClass(question: QuestionRatingModel) {
     const classes = question.cssClasses;

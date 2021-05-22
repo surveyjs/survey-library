@@ -8,14 +8,18 @@ import { ReactQuestionFactory } from "./reactquestion_factory";
 export class SurveyQuestionRating extends SurveyQuestionElementBase {
   constructor(props: any) {
     super(props);
-    this.handleOnChange = this.handleOnChange.bind(this);
+    this.handleOnClick = this.handleOnClick.bind(this);
   }
   protected get question(): QuestionRatingModel {
     return this.questionBase as QuestionRatingModel;
   }
-  handleOnChange(event: any) {
-    this.question.value = event.target.value;
-    this.setState({ value: this.question.value });
+  handleOnClick(event: any) {
+    if (this.question.value === parseFloat(event.target.value)) {
+      this.question.clearValue();
+    } else {
+      this.question.value = event.target.value;
+      this.setState({ value: this.question.value });
+    }
   }
   protected renderElement(): JSX.Element {
     var cssClasses = this.question.cssClasses;
@@ -82,7 +86,8 @@ export class SurveyQuestionRating extends SurveyQuestionElementBase {
           value={item.value}
           disabled={this.isDisplayMode}
           checked={this.question.value == item.value}
-          onChange={this.handleOnChange}
+          readOnly
+          onClick={this.handleOnClick}
           aria-required={this.question.isRequired}
           aria-label={item.locText.text}
           aria-invalid={this.question.errors.length > 0}

@@ -5770,6 +5770,12 @@ export class SurveyModel extends Base
     });
     return true;
   }
+  public getRowWrapperComponentName(row: SurveyRow): string {
+    return SurveyModel.TemplateRendererComponentName;
+  }
+  public getRowWrapperComponentData(element: SurveyElement): any {
+    return element;
+  }
   public getElementWrapperComponentName(element: SurveyElement): string {
     return SurveyModel.TemplateRendererComponentName;
   }

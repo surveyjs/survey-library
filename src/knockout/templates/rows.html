@@ -1,6 +1,8 @@
 <script type="text/html" id="survey-rows">
   <!-- ko foreach: { data: rows, as: 'row'} -->
   <!-- ko if: row.visible -->
+  <!-- ko component: { name: $parent.getElementWrapperComponentName(question), params: { componentData:  $parent.getElementWrapperComponentData(question), templateData: { name: question.koElementType, data: question, afterRender: $parent.koElementAfterRender } } } -->
+  <!-- /ko -->
   <div data-bind="css: panel.cssClasses.row">
     <!-- ko template: { name: "survey-row-content", afterRender: rowAfterRender } -->
     <!-- /ko -->

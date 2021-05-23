@@ -39,6 +39,17 @@ export class ReactSurveyModel extends SurveyModel {
     this.render();
     return res;
   }
+
+  public wrapRow(element: JSX.Element, question: SurveyElement): JSX.Element {
+    const componentName = this.getRowWrapperComponentName(question);
+    const componentData = this.getRowWrapperComponentData(question);
+    return ReactElementFactory.Instance.createElement(componentName, {
+      element,
+      question,
+      componentData,
+    });
+  }
+
   public wrapElement(element: JSX.Element, question: SurveyElement): JSX.Element {
     const componentName = this.getElementWrapperComponentName(question);
     const componentData = this.getElementWrapperComponentData(question);

@@ -1,3 +1,4 @@
+import { Base } from "survey-core";
 import { Helpers, HashTable } from "./helpers";
 
 export interface IPropertyDecoratorOptions {
@@ -863,7 +864,7 @@ export class JsonMetadata {
         res[dProp.name] = dProp;
       }
     }
-    return Object.keys(res).map(key => res[key]);
+    return Object.keys(res).map((key) => res[key]);
   }
   public getDynamicPropertiesByObj(
     obj: any,
@@ -888,6 +889,16 @@ export class JsonMetadata {
       }
     }
     return res;
+  }
+  public hasOriginalProperty(obj: Base, propName: string): boolean {
+    return !!this.getOriginalProperty(obj, propName);
+  }
+  public getOriginalProperty(obj: Base, propName: string): JsonObjectProperty {
+    var res = this.findProperty(obj.getType(), propName);
+    if (!!res) return res;
+    if (this.isObjWrapper(obj))
+      return this.findProperty((<any>obj).getOriginalObj().getType(), propName);
+    return null;
   }
   public findProperty(
     className: string,

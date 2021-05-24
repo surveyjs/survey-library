@@ -7,7 +7,7 @@
         type="button"
         data-bind="click:question.koAddRowClick, css: question.koCss().button + ' ' + question.koCss().buttonAdd, disable: question.isInputReadOnly"
       >
-        <span data-bind="text: question.addRowText"></span>
+        <!-- ko template: { name: 'survey-string', data: question.locAddRowText } --><!-- /ko -->
         <span data-bind="css: question.koCss().iconAdd"></span>
       </button>
     </div>
@@ -101,7 +101,7 @@
         type="button"
         data-bind="click:question.koAddRowClick, css: question.koCss().button + ' ' + question.koCss().buttonAdd + '' + question.koCss().emptyRowsButton, disable: question.isInputReadOnly"
       >
-        <span data-bind="text: question.addRowText"></span>
+        <!-- ko template: { name: 'survey-string', data: question.locAddRowText } --><!-- /ko -->
         <span data-bind="css: question.koCss().iconAdd"></span>
       </button>
     </div>
@@ -113,7 +113,7 @@
         type="button"
         data-bind="click:question.koAddRowClick, css: question.koCss().button + ' ' + question.koCss().buttonAdd, disable: question.isInputReadOnly"
       >
-        <span data-bind="text: question.addRowText"></span>
+        <!-- ko template: { name: 'survey-string', data: question.locAddRowText } --><!-- /ko -->
         <span data-bind="css: question.koCss().iconAdd"></span>
       </button>
     </div>

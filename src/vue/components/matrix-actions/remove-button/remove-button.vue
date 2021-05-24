@@ -5,7 +5,7 @@
     :disabled="question.isInputReadOnly"
     @click="() => question.removeRowUI(row)"
   >
-    <span>{{ question.removeRowText }}</span>
+    <survey-string :locString="question.locRemoveRowText" />
     <span :class="question.cssClasses.iconRemove"></span>
   </button>
 </template>

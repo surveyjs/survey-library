@@ -21,6 +21,7 @@ export class SurveyQuestionMatrixDynamicRemoveButton extends ReactSurveyElement 
     this.question.removeRowUI(this.row);
   }
   protected renderElement(): JSX.Element {
+    var removeRowText = this.renderLocString(this.question.locRemoveRowText);
     return (
       <button
         className={
@@ -32,7 +33,7 @@ export class SurveyQuestionMatrixDynamicRemoveButton extends ReactSurveyElement 
         onClick={this.handleOnRowRemoveClick}
         disabled={this.question.isInputReadOnly}
       >
-        <span>{this.question.removeRowText}</span>
+        {removeRowText}
         <span className={this.question.cssClasses.iconRemove} />
       </button>
     );
@@ -41,7 +42,7 @@ export class SurveyQuestionMatrixDynamicRemoveButton extends ReactSurveyElement 
 
 ReactElementFactory.Instance.registerElement(
   "sv-matrix-remove-button",
-  props => {
+  (props) => {
     return React.createElement(SurveyQuestionMatrixDynamicRemoveButton, props);
   }
 );

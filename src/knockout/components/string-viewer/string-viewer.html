@@ -1,0 +1,6 @@
+<!-- ko ifnot: koHasHtml -->
+<span style="position: static;" data-bind="text: koRenderedHtml"></span>
+<!-- /ko -->
+<!-- ko if: koHasHtml -->
+<span style="position: static;" data-bind="html: koRenderedHtml"></span>
+<!-- /ko -->

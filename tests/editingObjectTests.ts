@@ -1007,3 +1007,29 @@ QUnit.test("Change locale", function(assert) {
   assert.equal(localeSurvey.locale, "de", "Locale has been changed");
   localeSurvey.locale = "";
 });
+QUnit.test(
+  "Do not call notification on changing properties that are not exists in Serialization",
+  function(assert) {
+    var questionSurvey = new SurveyModel({
+      elements: [{ type: "text", name: "q1" }],
+    });
+    var json = {
+      elements: [
+        {
+          type: "text",
+          name: "name",
+        },
+      ],
+    };
+    var q1 = questionSurvey.getQuestionByName("q1");
+    var survey = new SurveyModel(json);
+    var counter = 0;
+    survey.onValueChanged.add((sender: Base, options: any) => {
+      counter++;
+    });
+    survey.editingObj = q1;
+    //change cssClasses value
+    var cssClasses = q1.cssClasses;
+    assert.equal(counter, 0, "Do not send any notifications");
+  }
+);

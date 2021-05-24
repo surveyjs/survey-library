@@ -2290,6 +2290,8 @@ export class SurveyModel extends Base
     if (!!this.editingObj) {
       this.setDataCore({});
       this.onEditingObjPropertyChanged = (sender: Base, options: any) => {
+        if (!Serializer.hasOriginalProperty(this.editingObj, options.name))
+          return;
         this.updateOnSetValue(options.name, options.newValue, options.oldValue);
       };
       this.editingObj.onPropertyChanged.add(this.onEditingObjPropertyChanged);

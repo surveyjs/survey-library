@@ -60,6 +60,7 @@ export class SurveyQuestionMatrixDynamic extends SurveyQuestionMatrixDropdownBas
       " " +
       cssClasses.buttonAdd +
       (isEmptySection ? " " + cssClasses.emptyRowsButton : "");
+    var addRowText = this.renderLocString(this.matrix.locAddRowText);
     return (
       <div className={cssClasses.footer}>
         <button
@@ -68,7 +69,7 @@ export class SurveyQuestionMatrixDynamic extends SurveyQuestionMatrixDropdownBas
           disabled={this.question.isInputReadOnly}
           onClick={this.handleOnRowAddClick}
         >
-          <span>{this.matrix.addRowText}</span>
+          {addRowText}
           <span className={cssClasses.iconAdd} />
         </button>
       </div>
@@ -76,6 +77,6 @@ export class SurveyQuestionMatrixDynamic extends SurveyQuestionMatrixDropdownBas
   }
 }
 
-ReactQuestionFactory.Instance.registerQuestion("matrixdynamic", props => {
+ReactQuestionFactory.Instance.registerQuestion("matrixdynamic", (props) => {
   return React.createElement(SurveyQuestionMatrixDynamic, props);
 });

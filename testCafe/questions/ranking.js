@@ -85,7 +85,8 @@ frameworks.forEach((framework) => {
     await t.drag(PriceItem, 0, -350, {
       offsetX: 7,
       offsetY: 8,
-    }, { speed: 0.5 });
+      speed: 0.5,
+    });
 
     let data = await getData();
     assert.deepEqual(data["smartphone-features"], [
@@ -122,7 +123,8 @@ frameworks.forEach((framework) => {
     await t.drag(PriceItem, 0, 70, {
       offsetX: 7,
       offsetY: 8,
-    }, { speed: 0.5 });
+      speed: 0.5,
+    });
 
     let data = await getData();
     assert.deepEqual(data["smartphone-features"], [
@@ -140,7 +142,8 @@ frameworks.forEach((framework) => {
     await t.drag(PriceItem, 0, -350, {
       offsetX: 7,
       offsetY: 8,
-    }, { speed: 0.5 });
+      speed: 0.5,
+    });
     data = await getData();
     assert.deepEqual(data["smartphone-features"], [
       "Price",
@@ -164,7 +167,8 @@ frameworks.forEach((framework) => {
     await t.drag(rankPriceItem, 0, -350, {
       offsetX: 7,
       offsetY: 8,
-    }, { speed: 0.5 });
+      speed: 0.5,
+    });
     const rankAudiItem = Selector(
       "[aria-label='What car did you enjoy the most?']"
     )
@@ -204,11 +208,12 @@ frameworks.forEach((framework) => {
     await t.drag(rankAudiItem, 0, 5, {
       offsetX: 7,
       offsetY: 8,
-    }, { speed: 0.5 });
+      speed: 0.5,
+    });
     data = await getData();
     assert.deepEqual(data.bestcar, ["Audi", "Mercedes-Benz", "Toyota"]);
 
-    //TODO click doesn't work after the d&d above without the "click('body')" hack 
+    //TODO click doesn't work after the d&d above without the "click('body')" hack
     await t.click("body");
     await t.click(checkboxMerscedesItem, { speed: 0.5 });
 

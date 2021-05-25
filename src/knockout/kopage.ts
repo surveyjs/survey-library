@@ -28,22 +28,6 @@ export class QuestionRow extends QuestionRowModel {
       if (nName == "#text") tEl.data = "";
     }
   }
-  public getRowWrapperComponentName(element: SurveyElement): string {
-    const survey: Survey = element.survey as Survey;
-    return survey.getRowWrapperComponentName(element);
-  }
-  public getRowWrapperComponentData(element: SurveyElement): any {
-    const survey: Survey = element.survey as Survey;
-    return survey.getRowWrapperComponentData(element);
-  }
-  public getElementWrapperComponentName(element: SurveyElement): string {
-    const survey: Survey = element.survey as Survey;
-    return survey.getElementWrapperComponentName(element);
-  }
-  public getElementWrapperComponentData(element: SurveyElement): any {
-    const survey: Survey = element.survey as Survey;
-    return survey.getElementWrapperComponentData(element);
-  }
   private elementAfterRender(elements: any, con: any) {
     if (!this.panel || !this.panel.survey) return;
     var el = SurveyElement.GetFirstNonTextElement(elements);

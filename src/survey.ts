@@ -33,7 +33,7 @@ import { SurveyTimer } from "./surveytimer";
 import { Question } from "./question";
 import { QuestionSelectBase } from "./question_baseselect";
 import { ItemValue } from "./itemvalue";
-import { PanelModelBase } from "./panel";
+import { PanelModelBase, QuestionRowModel } from "./panel";
 import {
   HtmlConditionItem,
   UrlConditionItem,
@@ -5772,11 +5772,11 @@ export class SurveyModel extends Base
     });
     return true;
   }
-  public getRowWrapperComponentName(row: SurveyRow): string {
+  public getRowWrapperComponentName(row: QuestionRowModel): string {
     return SurveyModel.TemplateRendererComponentName;
   }
-  public getRowWrapperComponentData(element: SurveyElement): any {
-    return element;
+  public getRowWrapperComponentData(row: QuestionRowModel): any {
+    return row;
   }
   public getElementWrapperComponentName(element: SurveyElement): string {
     return SurveyModel.TemplateRendererComponentName;

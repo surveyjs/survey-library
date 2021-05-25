@@ -202,9 +202,6 @@ frameworks.forEach((framework) => {
     await t.click(".sv-paneldynamic__prev-btn");
 
     var addRowSelector = Selector(`button`);
-    if (framework !== "react" && framework != "vue") {
-      addRowSelector = addRowSelector.nth(1);
-    }
 
     await t.click(addRowSelector.find("span").withText("Add row"));
     const relativeillnessSelect = Selector(

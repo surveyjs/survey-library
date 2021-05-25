@@ -5769,6 +5769,9 @@ export class SurveyModel extends Base
   public getElementWrapperComponentName(element: SurveyElement): string {
     return SurveyModel.TEMPLATE_RENDERER_COMPONENT_NAME;
   }
+  public getElementWrapperComponentNameByName(element: string): string {
+    return element;
+  }
   public getElementWrapperComponentData(element: SurveyElement): any {
     return element;
   }

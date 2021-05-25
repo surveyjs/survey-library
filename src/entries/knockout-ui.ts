@@ -67,6 +67,7 @@ export * from "../knockout/components/template-renderer/template-renderer";
 export * from "../knockout/components/title-actions/title-actions";
 export * from "../knockout/components/string-editor/string-editor";
 export * from "../knockout/components/string-viewer/string-viewer";
+export * from "../knockout/components/logo-image/logo-image";
 
 export * from "../knockout/components/default-title/default-title";
 export * from "../knockout/components/list/list";

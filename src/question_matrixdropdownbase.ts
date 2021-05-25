@@ -37,6 +37,7 @@ import { PanelModel } from "./panel";
 import { settings } from "./settings";
 import { KeyDuplicationError } from "./error";
 import { ActionBarItem, IActionBarItem } from "./action-bar";
+import { SurveyModel } from "./survey";
 
 export interface IMatrixDropdownData {
   value: any;
@@ -1283,6 +1284,7 @@ export class QuestionMatrixDropdownRenderedCell {
   public width: string = "";
   public locTitle: LocalizableString;
   public cell: MatrixDropdownCell;
+  public column: MatrixDropdownColumn;
   public row: MatrixDropdownRowModelBase;
   public question: Question;
   public isRemoveRow: boolean;
@@ -1739,6 +1741,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     this.addRowActionsCell(row, res, "start");
     if (this.matrix.hasRowText) {
       var renderedCell = this.createTextCell(row.locText);
+      renderedCell.row = row;
       res.cells.push(renderedCell);
       if (useAsHeader) {
         this.setHeaderCellWidth(null, renderedCell);
@@ -1857,6 +1860,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     if (this.matrix.showHeader) {
       var lTitle = !!choice ? choice.locText : column.locTitle;
       var hCell = this.createTextCell(lTitle);
+      hCell.column = column;
       if (!choice) {
         this.setRequriedToHeaderCell(column, hCell);
       }
@@ -1966,6 +1970,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     column: MatrixDropdownColumn
   ): QuestionMatrixDropdownRenderedCell {
     var cell = this.createTextCell(!!column ? column.locTitle : null);
+    cell.column = column;
     this.setHeaderCell(column, cell);
     if (this.cssClasses.headerCell) {
       cell.className = this.cssClasses.headerCell;
@@ -3333,6 +3338,36 @@ export class QuestionMatrixDropdownModelBase
       return true;
     }
     return Object.keys(val).length == 0;
+  }
+
+  public getCellTemplateData(cell: QuestionMatrixDropdownRenderedCell) {
+    // return cell.cell.column.templateQuestion;
+    const survey: SurveyModel = this.survey as SurveyModel;
+    return survey.getMatrixCellTemplateData(cell);
+  }
+  public getCellWrapperComponentName(cell: MatrixDropdownCell) {
+    const survey: SurveyModel = this.survey as SurveyModel;
+    return survey.getElementWrapperComponentName(cell.question);
+  }
+  public getCellWrapperComponentData(cell: MatrixDropdownCell) {
+    const survey: SurveyModel = this.survey as SurveyModel;
+    return survey.getElementWrapperComponentData(cell.question);
+  }
+  public getColumnHeaderWrapperComponentName(cell: MatrixDropdownCell) {
+    const survey: SurveyModel = this.survey as SurveyModel;
+    return survey.getElementWrapperComponentName(cell.question, "column-header");
+  }
+  public getColumnHeaderWrapperComponentData(cell: MatrixDropdownCell) {
+    const survey: SurveyModel = this.survey as SurveyModel;
+    return survey.getElementWrapperComponentData(cell.question, "column-header");
+  }
+  public getRowHeaderWrapperComponentName(cell: MatrixDropdownCell) {
+    const survey: SurveyModel = this.survey as SurveyModel;
+    return survey.getElementWrapperComponentName(cell.question, "row-header");
+  }
+  public getRowHeaderWrapperComponentData(cell: MatrixDropdownCell) {
+    const survey: SurveyModel = this.survey as SurveyModel;
+    return survey.getElementWrapperComponentData(cell.question, "row-header");
   }
 }
 

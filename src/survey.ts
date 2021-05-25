@@ -5772,10 +5772,10 @@ export class SurveyModel extends Base
     });
     return true;
   }
-  public getElementWrapperComponentName(element: SurveyElement): string {
+  public getElementWrapperComponentName(element: SurveyElement, reason?: string): string {
     return SurveyModel.TemplateRendererComponentName;
   }
-  public getElementWrapperComponentData(element: SurveyElement): any {
+  public getElementWrapperComponentData(element: SurveyElement, reason?: string): any {
     return element;
   }
   public getItemValueWrapperComponentName(
@@ -5789,6 +5789,9 @@ export class SurveyModel extends Base
     question: QuestionSelectBase
   ): any {
     return item;
+  }
+  public getMatrixCellTemplateData(cell: any) {
+    return cell.question;
   }
   public searchText(text: string): Array<IFindElement> {
     if (!!text) text = text.toLowerCase();

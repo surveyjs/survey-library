@@ -1,4 +1,4 @@
-﻿<script type="text/html" id="survey-question-matrixdynamic">
+﻿﻿<script type="text/html" id="survey-question-matrixdynamic">
     <div>
     <div
       data-bind="visible: question.koTable().showAddRowOnTop, css: question.koCss().footer"
@@ -25,9 +25,11 @@
             <th
               data-bind="style: { minWidth: $data.minWidth, width: $data.width }, css: question.koCss().headerCell"
             >
-              <!-- ko template: { name: 'survey-string', data: $data.locTitle } --><!-- /ko -->
-              <!-- ko if: $data.requiredText -->
-              <span data-bind="text: $data.requiredText"></span>
+              <!-- ko component: { name: question.getColumnHeaderWrapperComponentName($data), params: { componentData:  question.getColumnHeaderWrapperComponentData($data), templateData: { data: $data } } } -->
+                <!-- ko template: { name: 'survey-string', data: $data.locTitle } --><!-- /ko -->
+                <!-- ko if: $data.requiredText -->
+                <span data-bind="text: $data.requiredText"></span>
+                <!-- /ko -->
               <!-- /ko -->
             </th>
             <!-- /ko -->
@@ -65,9 +67,11 @@
             <td
               data-bind="css: $data.className, style: { minWidth: $data.minWidth, width: $data.width }"
             >
+              <!-- ko component: { name: question.getRowHeaderWrapperComponentName($data), params: { componentData:  question.getRowHeaderWrapperComponentData($data), templateData: { data: $data } } } -->
               <!-- ko template: { name: 'survey-string', data: $data.locTitle } --><!-- /ko -->
               <!-- ko if: $data.requiredText -->
               <span data-bind="text: $data.requiredText"></span>
+              <!-- /ko -->
               <!-- /ko -->
             </td>
             <!-- /ko -->
@@ -130,19 +134,22 @@
       <!-- /ko -->
       <!-- ko if: $data.isChoice -->
       <!-- ko if: $data.isCheckbox -->
-      <!-- ko template: {name: 'survey-checkbox-item', templateOptions: {hideCaption: true} }  --><!-- /ko -->
+        <!-- ko template: {name: 'survey-checkbox-item', templateOptions: {hideCaption: true} }  --><!-- /ko -->
       <!-- /ko -->
       <!-- ko ifnot: $data.isCheckbox -->
-      <!-- ko template: {name: 'survey-radiogroup-item', templateOptions: {hideCaption: true} }  --><!-- /ko -->
+        <!-- ko template: {name: 'survey-radiogroup-item', templateOptions: {hideCaption: true} }  --><!-- /ko -->
       <!-- /ko -->
       <!-- /ko -->
       <!-- ko ifnot: $data.isChoice -->
       <!-- ko if: question.isDefaultRendering() -->
-      <!-- ko template: { name: question.koTemplateName(), data: question, as: 'question', afterRender: function(el) { $data.matrix.koCellQuestionAfterRender(el, $data); } } --><!-- /ko -->
+        <!-- ko let: { question: $data.matrix.getCellTemplateData($data) } -->
+        <!-- ko component: { name: $data.matrix.getCellWrapperComponentName($data), params: { componentData:  $data.matrix.getCellWrapperComponentData($data), templateData: { name: question.koTemplateName(), data: question, afterRender: function(el) { $data.matrix.koCellQuestionAfterRender(el, $data); } } } } -->
+        <!-- /ko -->
+        <!-- /ko -->
       <!-- /ko -->
       <!-- ko ifnot: question.isDefaultRendering() -->
-      <!-- ko component: { name: question.getComponentName(), params: { question: question } } -->
-      <!-- /ko -->
+        <!-- ko component: { name: question.getComponentName(), params: { question: question } } -->
+        <!-- /ko -->
       <!-- /ko -->
       <!-- /ko -->
       <!-- ko if: $data.showErrorOnBottom -->

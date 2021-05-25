@@ -3686,7 +3686,8 @@ export class SurveyModel extends Base
     return "<h3>" + this.getLocString("loadingSurvey") + "</h3>";
   }
   public getProgressInfo(): IProgressInfo {
-    return SurveyElement.getProgressInfoByElements(this.visiblePages, false);
+    var pages = this.isDesignMode ? this.pages : this.visiblePages;
+    return SurveyElement.getProgressInfoByElements(pages, false);
   }
   /**
    * Returns the text for the current progress.
@@ -3701,7 +3702,7 @@ export class SurveyModel extends Base
   }
   private isCalculatingProgressText = false;
   public updateProgressText(onValueChanged: boolean = false) {
-    if (this.isDesignMode || this.isCalculatingProgressText) return;
+    if (this.isCalculatingProgressText) return;
     if (
       onValueChanged &&
       this.progressBarType == "pages" &&
@@ -3714,7 +3715,7 @@ export class SurveyModel extends Base
     this.isCalculatingProgressText = false;
   }
   public getProgressText(): string {
-    if (this.isDesignMode || this.currentPage == null) return "";
+    if (!this.isDesignMode && this.currentPage == null) return "";
     var options = {
       questionCount: 0,
       answeredQuestionCount: 0,
@@ -3762,8 +3763,8 @@ export class SurveyModel extends Base
         info.questionCount
       );
     }
-    var vPages = this.visiblePages;
-    var index = vPages.indexOf(this.currentPage) + 1;
+    var vPages = this.isDesignMode ? this.pages : this.visiblePages;
+    var index = this.isDesignMode ? 1 : vPages.indexOf(this.currentPage) + 1;
     return this.getLocString("progressText")["format"](index, vPages.length);
   }
   protected afterRenderSurvey(htmlElement: any) {
@@ -5081,12 +5082,18 @@ export class SurveyModel extends Base
     if (!page.name) page.name = this.generateNewName(this.pages, "page");
     this.questionHashesPanelAdded(page);
     this.updateVisibleIndexes();
+    if (this.isDesignMode) {
+      this.updateProgressText();
+    }
     var options = { page: page };
     this.onPageAdded.fire(this, options);
   }
   protected doOnPageRemoved(page: PageModel) {
     page.setSurveyImpl(null);
     this.updateVisibleIndexes();
+    if (this.isDesignMode) {
+      this.updateProgressText();
+    }
   }
   private generateNewName(elements: Array<any>, baseName: string): string {
     var keys: { [index: string]: any } = {};

@@ -3347,11 +3347,11 @@ export class QuestionMatrixDropdownModelBase
   }
   public getCellWrapperComponentName(cell: MatrixDropdownCell) {
     const survey: SurveyModel = this.survey as SurveyModel;
-    return survey.getElementWrapperComponentName(cell.question);
+    return survey.getElementWrapperComponentName(cell.question, "cell");
   }
   public getCellWrapperComponentData(cell: MatrixDropdownCell) {
     const survey: SurveyModel = this.survey as SurveyModel;
-    return survey.getElementWrapperComponentData(cell.question);
+    return survey.getElementWrapperComponentData(cell.question, "cell");
   }
   public getColumnHeaderWrapperComponentName(cell: MatrixDropdownCell) {
     const survey: SurveyModel = this.survey as SurveyModel;

@@ -1,9 +1,7 @@
-import { SurveyModel } from "survey-core";
-import { SurveyWindowModel, Question, SurveyElement } from "survey-core";
-import { ItemValue } from "../itemvalue";
-import { QuestionSelectBase } from "../question_baseselect";
+import { SurveyModel, MatrixDropdownCell, QuestionMatrixDropdownRenderedCell, SurveyWindowModel, Question, SurveyElement, ItemValue, QuestionSelectBase } from "survey-core";
 import { ReactElementFactory } from "./element-factory";
 import { SurveyElementBase } from "./reactquestion_element";
+
 export class ReactSurveyModel extends SurveyModel {
   renderCallback: () => void;
   constructor(jsonObj: any = null) {
@@ -57,6 +55,17 @@ export class ReactSurveyModel extends SurveyModel {
       element,
       question,
       item,
+      componentData,
+    });
+  }
+
+  public wrapMatrixCell(element: JSX.Element, cell: QuestionMatrixDropdownRenderedCell, reason: string = "cell"): JSX.Element {
+    const context: any = cell.column || cell.row;
+    const componentName = this.getElementWrapperComponentName(context, reason);
+    const componentData = this.getElementWrapperComponentData(context, reason);
+    return ReactElementFactory.Instance.createElement(componentName, {
+      element,
+      question: cell.question,
       componentData,
     });
   }

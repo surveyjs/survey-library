@@ -1,5 +1,5 @@
 import { SurveyModel } from "survey-core";
-import { SurveyWindowModel, Question, SurveyElement } from "survey-core";
+import { SurveyWindowModel, Question, SurveyElement, QuestionRowModel } from "survey-core";
 import { ItemValue } from "../itemvalue";
 import { QuestionSelectBase } from "../question_baseselect";
 import { ReactElementFactory } from "./element-factory";
@@ -39,6 +39,17 @@ export class ReactSurveyModel extends SurveyModel {
     this.render();
     return res;
   }
+
+  public wrapRow(element: JSX.Element, row: QuestionRowModel): JSX.Element {
+    const componentName = this.getRowWrapperComponentName(row);
+    const componentData = this.getRowWrapperComponentData(row);
+    return ReactElementFactory.Instance.createElement(componentName, {
+      element,
+      row,
+      componentData,
+    });
+  }
+
   public wrapElement(element: JSX.Element, question: SurveyElement): JSX.Element {
     const componentName = this.getElementWrapperComponentName(question);
     const componentData = this.getElementWrapperComponentData(question);

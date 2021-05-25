@@ -51,7 +51,7 @@ For the purpose of this tutorial, the web page will use [jQuery](https://jquery.
 
 To quickly find out a particular link to add, you can open the [Add a link to your platform scripts](https://surveyjs.io/Documentation/Library?id=Add-Survey-into-your-Web-Page#step-1.add-a-link-to-your-platform) documentation section and search for the related platform link in the section's table. 
 
-![](https://hackmd.devexpress.devx/uploads/upload_f377254dd79ce62189c2ff496d537144.png)
+![](images/gs0-add-link-to-platform.png)
 
 The table suggests using the following link for the jQuery platform:    
 `<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>`
@@ -83,7 +83,7 @@ To add SurveyJS-related resources, open the [Add links to SurveyJS files](https:
  - a CSS link:  
 `<link href="https://unpkg.com/survey-jquery/survey.min.css" type="text/css" rel="stylesheet"/>`
 
-![](https://hackmd.devexpress.devx/uploads/upload_91f96a6743a4c00c9b661f28e9b1cd0f.png)
+![](images/gs0-add-link-to-surveyjs-files.png)
 
 Copy these links and paste them into the web page's header section.
 
@@ -107,7 +107,7 @@ Copy these links and paste them into the web page's header section.
 
 If you run the web page at this time, you see that it does not contain any content and displays as an empty page. This is because no content is defined within the page.
 
-![](https://hackmd.devexpress.devx/uploads/upload_58b9af578056fc735d412929a9f88235.png)
+![](images/gs0-blank-page.png)
 
 
 ## Add a survey instance to the page
@@ -172,7 +172,7 @@ If you open this HTML page in a browser at this time, you still see an empty pag
 
 You can find the reason in the browser's Developer Tools (F12) - it indicates an error: the `surveyJSON` variable is undefined.  
 
-![](https://hackmd.devexpress.devx/uploads/upload_dd1c7f50548b35e786c3d34ad6418664.png)
+![](images/gs0-blank-page-error1.png)
 
 Let us define this variable and temporarily set it to null to find out whether the page will be rendered without errors.  
 `var surveyJSON = null;`  
@@ -202,7 +202,7 @@ Let us define this variable and temporarily set it to null to find out whether t
 
 Open the page. Now a browser still displays an empty page and the Developer Tools shows another error - the sendDataToServer method is not defined at this time.  
 
-![](https://hackmd.devexpress.devx/uploads/upload_f69b7b0b2fa25d3030d035702aeb105a.png)
+![](images/gs0-blank-page-error2.png)
 
 A simple workaround that comes to mind to get rid of this error is to comment the following code line:  
 `onComplete:sendDataToServer` 
@@ -234,7 +234,7 @@ After that, open the page once again. See that now the page is rendered without 
 
 `There is no visible page or question within the survey.`
 
-![](https://hackmd.devexpress.devx/uploads/upload_c6475e63cf470afbd0c9e8e121f59844.png)
+![](images/gs0-page-with-empty-survey.png)
 
 This means that a survey instance is created successfully but does not yet have any definition of its content (such as pages and/or questions). It is logical to assume that this is due to the surveyJSON variable which you previously set to null (instead of declaring the necessary content). As a result, SurveyJS renders the above "no content" text into the DIV ("surveyContainer") specified as a container for the survey markup.
 
@@ -337,7 +337,7 @@ In this stage, your web page's entire code looks like as follows.
 ```
 If you open the web page in a browser, you can now see a functional survey with a single text question (to collect a response from a user) and a 'Complete' button (to submit user responses).
 
-![](https://hackmd.devexpress.devx/uploads/upload_f454b0eb5bf3df6053fd6922dc7eee5a.png)
+![](images/gs0-page-with-survey.png)
 
 As you can see, the text question displays a textbox editor with an automatically generated title. The title text - "question1" - is by default formed based upon the value of the element's [name](https://surveyjs.io/Documentation/Library?id=SurveyElement#name) property (for it, `question` is used by default, combined with the element's position within the survey - `1`).
 
@@ -368,7 +368,7 @@ var surveyJSON = {
 ```
 See how the question title changes in a browser. Now it indicates the question purpose and helps users provide correct answers.
 
-![](https://hackmd.devexpress.devx/uploads/upload_d72e95478fd50c4f2a35794a3be37653.png)
+![](images/gs0-page-with-survey-question-title.png)
 
 
 ## Get user answers
@@ -393,7 +393,7 @@ For this purpose, you can do the following.
 
 Open the [Save survey data on the web server](https://surveyjs.io/Documentation/Library?id=Add-Survey-into-your-Web-Page#step-5.save-survey-data-on-the-web-server) documentation section and copy the code from its "Your web server" part. 
 
-![](https://hackmd.devexpress.devx/uploads/upload_b83df97869799de57c9b028043f8a21e.png)
+![](images/gs0-doc-with-event-handler.png)
 
 ```js
 function sendDataToServer(sender) {
@@ -488,7 +488,7 @@ The result code of the web page is given below.
 
 Open the page, answer the question, and click the **Complete** button. You will see the collected data in the opened alert message box.
 
-![](https://hackmd.devexpress.devx/uploads/upload_a033cdaad7d72abcca3922dd63379043.png)
+![](images/gs0-survey-response-in-alert.png)
 
 Pay attention to the data format - it is a JSON containing an array with a single item - a key/value pair that represents a user answer to the question. In this item, the key is the [name](https://surveyjs.io/Documentation/Library?id=SurveyElement#name) that identifies the question and the value is the text "John" entered into the question's textbox.
 

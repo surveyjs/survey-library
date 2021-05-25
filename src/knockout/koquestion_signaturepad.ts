@@ -1,5 +1,5 @@
 import * as ko from "knockout";
-import { QuestionSignaturePadModel } from "survey-core";
+import { QuestionFactory, QuestionSignaturePadModel } from "survey-core";
 import { Serializer } from "survey-core";
 import { QuestionImplementor } from "./koquestion";
 import { Question } from "survey-core";
@@ -22,4 +22,8 @@ export class QuestionSignaturePad extends QuestionSignaturePadModel {
 
 Serializer.overrideClassCreator("signaturepad", function() {
   return new QuestionSignaturePad("");
+});
+
+QuestionFactory.Instance.registerQuestion("signaturepad", (name) => {
+  return new QuestionSignaturePad(name);
 });

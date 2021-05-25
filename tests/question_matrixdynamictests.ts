@@ -6173,3 +6173,33 @@ QUnit.test("getDisplayValue() function in matrix Dropdown, Bug#", function(
   );
   assert.equal(counter, 0, "We do not change the value during processing");
 });
+QUnit.test(
+  "Error on setting properties into column cellType:'text', Bug#2897",
+  function(assert) {
+    var survey = new SurveyModel({
+      elements: [
+        {
+          type: "matrixdropdown",
+          name: "matrix",
+          columns: [
+            {
+              name: "col1",
+              cellType: "text",
+            },
+          ],
+          rows: [{ value: "row1", text: "Row 1" }],
+        },
+      ],
+    });
+    var matrix = <QuestionMatrixDropdownModel>(
+      survey.getQuestionByName("matrix")
+    );
+    var rows = matrix.visibleRows;
+    matrix.columns[0].inputType = "date";
+    assert.equal(
+      rows[0].cells[0].question.inputType,
+      "date",
+      "Set the property correctly"
+    );
+  }
+);

@@ -574,6 +574,24 @@ QUnit.test(
     assert.equal(survey.progressText, "Answered: 50%");
   }
 );
+QUnit.test("progressText, 'requiredQuestions' type and design mode", function(
+  assert
+) {
+  var survey = new SurveyModel();
+  survey.setDesignMode(true);
+  survey.addPage(createPageWithQuestion("Page 1", "q1"));
+  survey.addPage(createPageWithQuestion("Second page", "q2"));
+  survey.addPage(createPageWithQuestion("Third page", "q3"));
+  survey.addPage(createPageWithQuestion("Forth page", "q4"));
+  survey.getQuestionByName("q1").isRequired = true;
+  survey.getQuestionByName("q3").isRequired = true;
+
+  assert.equal(survey.progressText, "Page 1 of 4");
+  survey.progressBarType = "questions";
+  assert.equal(survey.progressText, "Answered 0/4 questions");
+  survey.progressBarType = "requiredQuestions";
+  assert.equal(survey.progressText, "Answered 0/2 questions");
+});
 QUnit.test(
   "survey.progressBarType = 'questions' and non input question, Bug #2108, Bug #2460",
   function(assert) {

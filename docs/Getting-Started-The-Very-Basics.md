@@ -500,3 +500,12 @@ In a real application, you will need to process the obtained response data by pa
 From this tutorial, you have learned how to create a simple survey, display it on a web page and get access to user responses.
 
 In the next lessons you will know how to define more complex survey scenarios.
+
+Spoiler test:
+    <details>
+      <summary>Example</summary>
+
+      ```
+      Example code
+      ```
+    </details>

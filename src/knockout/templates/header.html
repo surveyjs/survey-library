@@ -2,7 +2,7 @@
   <!-- ko if: (locTitle.koRenderedHtml().length > 0) && showTitle || hasLogo || isDesignMode -->
   <div data-bind="css: css.header">
       <!-- ko if: isLogoBefore -->
-      <!-- ko component: { name: getElementWrapperComponentNameByName('logo-image'), params: $data } --> <!-- /ko -->
+      <!-- ko component: { name: getElementWrapperComponentNameByName('sv-logo-image'), params: $data } --> <!-- /ko -->
       <!-- /ko -->
 
       <!-- ko if: (locTitle.koRenderedHtml().length > 0) && showTitle || isDesignMode -->
@@ -13,7 +13,7 @@
       <!-- /ko -->
       
       <!-- ko if: isLogoAfter -->
-      <!-- ko component: { name: getElementWrapperComponentNameByName('logo-image'), params: $data } --><!-- /ko -->
+      <!-- ko component: { name: getElementWrapperComponentNameByName('sv-logo-image'), params: $data } --><!-- /ko -->
       <!-- /ko -->
   </div>
   <!-- /ko -->

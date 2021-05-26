@@ -683,7 +683,7 @@ export class QuestionSelectBase extends Question {
             isNode: false,
           };
           if (!!choice) {
-            (options.calculations || []).forEach(calculation => {
+            (options.calculations || []).forEach((calculation) => {
               choiceDataItem[calculation.propertyName] =
                 choice[calculation.propertyName];
             });
@@ -821,7 +821,12 @@ export class QuestionSelectBase extends Question {
   }
   updateValueFromSurvey(newValue: any) {
     var newComment = "";
-    if (this.hasOther && this.getStoreOthersAsComment()) {
+    if (
+      this.hasOther &&
+      !this.isRunningChoices &&
+      !this.choicesByUrl.isRunning &&
+      this.getStoreOthersAsComment()
+    ) {
       if (this.hasUnknownValue(newValue) && !this.getHasOther(newValue)) {
         newComment = this.getCommentFromValue(newValue);
         newValue = this.setOtherValueIntoValue(newValue);

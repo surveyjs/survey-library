@@ -1307,6 +1307,31 @@ QUnit.test("Checkbox store others value not in comment", function(assert) {
   assert.equal(question.isOtherSelected, false, "Others is not selected");
   assert.deepEqual(survey.data, { q: ["A", "B"] }, "'B' is set");
 });
+QUnit.test("Checkbox store others value not in comment", function(assert) {
+  var survey = new SurveyModel({
+    elements: [
+      {
+        type: "checkbox",
+        name: "q1",
+        defaultValue: ["A", "B"],
+        hasOther: true,
+      },
+    ],
+  });
+  var question = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+  survey.mode = "display";
+  assert.deepEqual(
+    question.renderedValue,
+    ["A", "B"],
+    "do not convert value into others"
+  );
+  question.choices = ["A", "B", "C"];
+  assert.deepEqual(
+    question.renderedValue,
+    ["A", "B"],
+    "do not convert value into others, #2"
+  );
+});
 
 QUnit.test(
   "Checkbox store others value not in comment after select another items - https://github.com/surveyjs/survey-library/issues/2221",

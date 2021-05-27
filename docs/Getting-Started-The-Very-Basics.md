@@ -1,8 +1,61 @@
 # Getting Started with SurveyJS - The Very Basics
 
-This section will help you get started using the SurveyJS Library. You will learn how to create a simple web page with a working instance of a SurveyJS-powered survey.
+This tutorial will help you get started using the SurveyJS Library. You will learn how to create a simple web page with a working instance of a SurveyJS-powered survey.
+
+The topic contains the following sections.
+
+* [Create an empty web page based on HTML5 template](#Create-an-empty-web-page-based-on-HTML5-template)
+* [Get required scripts and stylesheets](#Get-required-scripts-and-stylesheets)
+* [Add a survey instance to the page](#Add-a-survey-instance-to-the-page)
+* [Define survey content through JSON](#Define-survey-content-through-JSON)
+* [Get user answers](#Get-user-answers)
 
 
+ At the end you will have a webpage with the following code. 
+<details>
+    <summary>View the resulting code</summary>  
+
+```html
+<!DOCTYPE html>
+<html>
+<head>
+    <title>My first SurveyJS survey</title>
+    <meta charset="utf-8">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+    <script src="https://unpkg.com/survey-jquery"></script>
+    <link href="https://unpkg.com/survey-jquery/survey.min.css" type="text/css" rel="stylesheet"/>
+</head>
+<body>
+    <div id="surveyContainer"></div>
+    <script>
+        function onCompleteHandler(sender) {
+            var resultAsString = JSON.stringify(survey.data);
+            alert(resultAsString); 
+        }    
+        var surveyJSON = { 
+            pages: [
+                { 
+                    elements: [
+                        {
+                            title: "What is your name?",
+                            type: "text"
+                        }
+                    ] 
+                }
+            ] 
+        };
+        var survey = new Survey.Model(surveyJSON);
+        survey.onComplete.add(onCompleteHandler);
+        $("#surveyContainer").Survey({model:survey});
+    </script>
+</body>
+</html>
+```
+</details>  
+
+
+
+<a id="Create-an-empty-web-page-based-on-HTML5-template"></a>
 ## Create an empty web page based on HTML5 template
 Begin with an empty HTML document, such as `index.html`. You can create and edit it using any text editor, even Notepad. 
 
@@ -45,7 +98,7 @@ Now you have a simple web page ready to incorporate a SurveyJS survey into it.
 </details>  
   
 
-
+<a id="Get-required-scripts-and-stylesheets"></a>
 ## Get required scripts and stylesheets
 
 In order to use SurveyJS, you must attach the required resources - JavaScript and CSS files - to your webpage. Referencing them from CDNs (content delivery networks) is the simplest and fastest way to load the resources.
@@ -56,7 +109,7 @@ This tutorial will use the [jQuery](https://jquery.com/) framework to create a s
 
 To quickly find a particular link to insert into the page, open the SurveyJS documentation's [Add a link to your platform scripts](https://surveyjs.io/Documentation/Library?id=Add-Survey-into-your-Web-Page#step-1.add-a-link-to-your-platform) section and search for the related platform reference in the section's table. 
 
-![](images/gs0-add-link-to-platform.png)
+![link to platform-related resources](images/gs0-add-link-to-platform.png)
 
 For the jQuery platform, use the following link:    
 `<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>`
@@ -88,7 +141,7 @@ Insert it to the `<script>` tag within the page's `<head>` section.
 
 To find out which SurveyJS-related resources to attach, open the documentation's [Add links to SurveyJS files](https://surveyjs.io/Documentation/Library?id=Add-Survey-into-your-Web-Page#step-2.add-link-to-surveyjs-files) section and find the jQuery-related links in both tables within the section.
 
-![](images/gs0-add-link-to-surveyjs-files.png)
+![links to SurveyJS resources](images/gs0-add-link-to-surveyjs-files.png)
 
 The tables suggest using the following links:
  - a script link:  
@@ -124,9 +177,10 @@ Copy these links and paste them into the webpage's `<head>` section.
 
 Open the webpage in a browser and see that currently the page is empty. This is because no content is defined within the page so far.
 
-![](images/gs0-blank-page.png)
+![survey as blank page](images/gs0-blank-page.png)
 
 
+<a id="Add-a-survey-instance-to-the-page"></a>
 ## Add a survey instance to the page
 
 After you attach all required resources, you can modify the page body to add a survey to the page. 
@@ -194,9 +248,9 @@ Insert the above code pieces (DIV and script) into the page's `<body>`.
 
 If you open the webpage in a browser, you still see an empty page without any content. 
 
-You can find the reason in the browser's Developer Tools (F12) - its Console indicates an error: the `survey` variable is not defined.  
+You can find the reason in the browser's Developer Tools (F12) - its Console indicates an error: the `surveyJSON` variable is not defined.  
 
-![](images/gs0-blank-page-error1.png)
+![surveyJSON is not defined error](images/gs0-blank-page-error1.png)
 
 The cause of this error might be the `surveyJSON` variable which is passed as a parameter in the following code line but has not been defined anywhere within code.  
 `var survey = new Survey.Model(surveyJSON);`  
@@ -235,7 +289,7 @@ Let us define this variable and temporarily set it to null to find out whether t
 
 Open the page once again. Now a browser still displays an empty page and the Developer Tools' Console shows another error - the `sendDataToServer` method is not defined at this time.  
 
-![](images/gs0-blank-page-error2.png)
+![sendDataToServer is not defined error](images/gs0-blank-page-error2.png)
 
 A simple workaround that comes to mind to get rid of this error is to comment the following code line:  
 `onComplete:sendDataToServer` 
@@ -273,13 +327,14 @@ When you open the webpage, you see that now errors are gone and the page is not 
 
 `There is no visible page or question within the survey.`
 
-![](images/gs0-page-with-empty-survey.png)
+![page with empty survey](images/gs0-page-with-empty-survey.png)
 
 This means that a survey instance is created successfully but does not yet have any definition of its content, such as pages and/or questions. It is logical to assume that this is due to the `surveyJSON` variable which you previously set to null (instead of declaring the necessary content). As a result, SurveyJS renders the above "no content" text into the DIV specified as a container for the survey markup.
 
 Now you are ready to define the survey content to create your first survey and make it functional within a browser's page.
 
 
+<a id="Define-survey-content-through-JSON"></a>
 ## Define survey content through JSON
 
 To structure a survey, form a proper JSON survey definition. 
@@ -381,7 +436,7 @@ var surveyJSON = {
 
 Open the webpage in a browser and see a functional survey that contains a single text question (to collect a response from a user) and a 'Complete' button (to submit user responses).
 
-![](images/gs0-page-with-survey.png)
+![page with survey](images/gs0-page-with-survey.png)
 
 As you can see, the text question displays a textbox editor with an automatically generated title. The title text - "question1" - is by default taken from the element's [name](https://surveyjs.io/Documentation/Library?id=SurveyElement#name) property value. The `name` property is used to uniquely identify elements. If not defined explicitly, its value is formed automatically by combining the text `question` with the element's position within the survey - `1` in the current case).
 
@@ -410,11 +465,51 @@ var surveyJSON = {
     ] 
 };
 ```
+
+<details>
+    <summary>View page code</summary>  
+
+```html
+<!DOCTYPE html>
+<html>
+<head>
+    <title>My first SurveyJS survey</title>
+    <meta charset="utf-8">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+    <script src="https://unpkg.com/survey-jquery"></script>
+    <link href="https://unpkg.com/survey-jquery/survey.min.css" type="text/css" rel="stylesheet"/>
+</head>
+<body>
+    <div id="surveyContainer"></div>
+    <script>
+        var surveyJSON = { 
+            pages: [
+                { 
+                    elements: [
+                        {
+                            //Specify the question's title:
+                            title: "What is your name?",
+                            type: "text"
+                        }
+                    ] 
+                }
+            ] 
+        };
+        var survey = new Survey.Model(surveyJSON);
+        //survey.onComplete.add(sendDataToServer);
+        $("#surveyContainer").Survey({model:survey});
+    </script>
+</body>
+</html>
+```
+</details>  
+
 Now the title indicates the question purpose and helps users provide correct answers.
 
-![](images/gs0-page-with-survey-question-title.png)
+![question title in survey](images/gs0-page-with-survey-question-title.png)
 
 
+<a id="Get-user-answers"></a>
 ## Get user answers
 
 In response to a click on the 'Complete' button, SurveyJS forms a JSON object (survey response) with collected user answers. This JSON typically contains an array of key/value pairs where the key is a question's identifier (name) and the value is the user answer to the question.
@@ -425,7 +520,7 @@ For this purpose, you can do the following.
 
 Open the [Save survey data on the web server](https://surveyjs.io/Documentation/Library?id=Add-Survey-into-your-Web-Page#step-5.save-survey-data-on-the-web-server) documentation section and copy the code from its "Your web server" part. 
 
-![](images/gs0-doc-with-event-handler.png)
+![documentation section with event handler](images/gs0-doc-with-event-handler.png)
 
 ```js
 function sendDataToServer(sender) {
@@ -464,6 +559,7 @@ Insert the code into your page's `<body>`, into the `<script>` section, right be
                 { 
                     elements: [
                         {
+                            title: "What is your name?",
                             type: "text"
                         }
                     ] 
@@ -480,14 +576,11 @@ Insert the code into your page's `<body>`, into the `<script>` section, right be
 </details>  
 
 
-
-
-
 Uncomment the following (previously commented) code line that assigns an `onComplete` event handler:  
 `//survey.onComplete.add(sendDataToServer);`
 
 
-Finally, you can find it useful to change the handling function name from 'sendDataToServer' to 'onCompleteHandler' since in the context of this tutorial, you do not send data to any server but just preview them in an alert message.
+Finally, you can find it useful to change the handling function name from 'sendDataToServer' to 'onCompleteHandler' since in the context of this tutorial, you do not send any data to a server but just preview them in an alert message.
 
 The webpage's result code looks as follows.
 
@@ -495,7 +588,7 @@ The webpage's result code looks as follows.
 <!DOCTYPE html>
 <html>
 <head>
-    <title>SurveyJS Getting Started</title>
+    <title>My first SurveyJS survey</title>
     <meta charset="utf-8">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
     <script src="https://unpkg.com/survey-jquery"></script>
@@ -513,6 +606,7 @@ The webpage's result code looks as follows.
                 { 
                     elements: [
                         {
+                            title: "What is your name?",
                             type: "text"
                         }
                     ] 
@@ -529,13 +623,14 @@ The webpage's result code looks as follows.
 
 Open the page, answer the question, and click the 'Complete' button. You see the collected data in the alert message box.
 
-![](images/gs0-survey-response-in-alert.png)
+![survey response in alert](images/gs0-survey-response-in-alert.png)
 
 Pay attention to the data format. It is a JSON containing an array with a single item - a key/value pair that represents a user answer to the question. In this item, the key is the [name](https://surveyjs.io/Documentation/Library?id=SurveyElement#name) ("question1") that identifies the question and the value is the text ("John") entered into the question's textbox.
 
 In a real application, you will need to process the obtained response data by passing a survey response JSON to a server and saving to a store of survey data. 
 
 
+<a id="Conclusion"></a>
 ## Conclusion
 
 From this tutorial, you have learned how to create a simple survey, display it on a web page and get access to its user responses.

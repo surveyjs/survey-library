@@ -5775,6 +5775,9 @@ export class SurveyModel extends Base
   public getElementWrapperComponentData(element: SurveyElement): any {
     return element;
   }
+  public getElementWrapperComponentDataByName(element: string): any {
+    return this;
+  }
   public getItemValueWrapperComponentName(
     item: ItemValue,
     question: QuestionSelectBase

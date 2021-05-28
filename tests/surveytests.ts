@@ -13078,3 +13078,15 @@ QUnit.test("element.searchText()", function(assert) {
   assert.equal(findRes.length, 2, "Find choices");
   assert.equal(findRes[1].element["name"], "question2", "Find choices");
 });
+QUnit.test("send notification on setLocale change for survey.title", function(
+  assert
+) {
+  var survey = new SurveyModel();
+  var newValue;
+  survey.onPropertyChanged.add((sender, options) => {
+    newValue = options.newValue;
+  });
+  survey.locTitle.setLocaleText("", "new title");
+  assert.equal(survey.title, "new title", "survey title is correct");
+  assert.equal(newValue, "new title", "we send notification");
+});

@@ -1534,11 +1534,9 @@ export class SurveyModel extends Base
     //More information here: https://github.com/surveyjs/survey-library/issues/2599
     if (!this.currentPageValue) return;
     this.updateProgressText();
-    if (this.isStartedState && this.startedPage) {
-      this.startedPage.locStrsChanged();
-    }
-    if (this.currentPage) {
-      this.currentPage.locStrsChanged();
+    var page = this.activePage;
+    if (!!page) {
+      page.locStrsChanged();
     }
   }
 
@@ -2502,6 +2500,17 @@ export class SurveyModel extends Base
     this.locStrsChanged();
     this.currentPageChanged(newPage, oldValue);
   }
+  /**
+   * Returns the currentPage, unless the started page is showing. In this case returns the started page.
+   * @see currentPage
+   * @see firstPageIsStarted
+   * @see startedPage
+   */
+  public get activePage(): any {
+    return this.isStartedState && this.startedPage
+      ? this.startedPage
+      : this.currentPage;
+  }
   private getPageByObject(value: any): PageModel {
     if (!value) return null;
     if (value.getType && value.getType() == "page") return value;
@@ -2546,14 +2555,14 @@ export class SurveyModel extends Base
    * Sets the input focus to the first question with the input field.
    */
   public focusFirstQuestion() {
-    var page = this.currentPage;
+    var page = this.activePage;
     if (page) {
       page.scrollToTop();
       page.focusFirstQuestion();
     }
   }
   scrollToTopOnPageChange() {
-    var page = this.currentPage;
+    var page = this.activePage;
     if (!page) return;
     page.scrollToTop();
     if (this.focusFirstQuestionAutomatic) {
@@ -3004,10 +3013,11 @@ export class SurveyModel extends Base
   /**
    * Returns `true`, if a page contains an error. If there is an async function in an expression, then the function will return `undefined` value.
    * In this case, you should use the second `onAsyncValidation` parameter,  which is a callback function: (hasErrors: boolean) => void
-   * @param page the page that you want to validate. If the parameter is undefined then the `currentPage` is using
+   * @param page the page that you want to validate. If the parameter is undefined then the `activePage` is using
    * @param onAsyncValidation use this parameter if you use async functions in your expressions. This callback function will be called with hasErrors value equals to `true` or `false`.
    * @see hasCurrentPageErrors
    * @see hasErrors
+   * @see activePage
    * @see currentPage
    */
   public hasPageErrors(
@@ -3015,7 +3025,7 @@ export class SurveyModel extends Base
     onAsyncValidation?: (hasErrors: boolean) => void
   ): boolean {
     if (!page) {
-      page = this.currentPage;
+      page = this.activePage;
     }
     if (!page) return false;
     if (this.checkIsPageHasErrors(page)) return true;
@@ -3154,7 +3164,7 @@ export class SurveyModel extends Base
   private checkIsCurrentPageHasErrors(
     isFocuseOnFirstError: boolean = undefined
   ): boolean {
-    return this.checkIsPageHasErrors(this.currentPage, isFocuseOnFirstError);
+    return this.checkIsPageHasErrors(this.activePage, isFocuseOnFirstError);
   }
   private checkIsPageHasErrors(
     page: PageModel,
@@ -3585,8 +3595,9 @@ export class SurveyModel extends Base
     if (doComplete && this.checkErrorsMode === "onComplete") {
       options.data = this.data;
     } else {
-      for (var i = 0; i < this.currentPage.questions.length; i++) {
-        var question = this.currentPage.questions[i];
+      var questions = this.activePage.questions;
+      for (var i = 0; i < questions.length; i++) {
+        var question = questions[i];
         if (!question.visible) continue;
         var value = this.getValue(question.getValueName());
         if (!this.isValueEmpty(value))
@@ -3794,7 +3805,7 @@ export class SurveyModel extends Base
   afterRenderPage(htmlElement: HTMLElement) {
     if (this.onAfterRenderPage.isEmpty) return;
     this.onAfterRenderPage.fire(this, {
-      page: this.currentPage,
+      page: this.activePage,
       htmlElement: htmlElement,
     });
   }

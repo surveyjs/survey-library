@@ -13090,3 +13090,41 @@ QUnit.test("send notification on setLocale change for survey.title", function(
   assert.equal(survey.title, "new title", "survey title is correct");
   assert.equal(newValue, "new title", "we send notification");
 });
+
+QUnit.test(
+  "onAfterRenderPage calls incorrect for the first page when there is the started page, Bug #",
+  function(assert) {
+    var survey = new SurveyModel({
+      firstPageIsStarted: true,
+      pages: [
+        {
+          name: "Start Page",
+          questions: [
+            {
+              type: "html",
+              html: "1",
+            },
+          ],
+        },
+        {
+          name: "First Page",
+          questions: [
+            {
+              type: "text",
+              name: "q1",
+            },
+          ],
+        },
+      ],
+    });
+    var pageName;
+    survey.onAfterRenderPage.add((sender, options) => {
+      pageName = options.page.name;
+    });
+    survey.afterRenderPage(undefined);
+    assert.equal(pageName, "Start Page", "We render the started page");
+    survey.start();
+    survey.afterRenderPage(undefined);
+    assert.equal(pageName, "First Page", "We render the first page");
+  }
+);

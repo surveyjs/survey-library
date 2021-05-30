@@ -29,7 +29,7 @@ The topic contains the following sections.
     <div id="surveyContainer"></div>
     <script>
         function onCompleteHandler(sender) {
-            var resultAsString = JSON.stringify(survey.data);
+            var resultAsString = JSON.stringify(sender.data);
             alert(resultAsString); 
         }    
         var surveyJSON = { 
@@ -523,8 +523,8 @@ Open the [Save survey data on the web server](https://surveyjs.io/Documentation/
 ![documentation section with event handler](images/gs0-doc-with-event-handler.png)
 
 ```js
-function sendDataToServer(survey) {
-    var resultAsString = JSON.stringify(survey.data);
+function sendDataToServer(sender) {
+    var resultAsString = JSON.stringify(sender.data);
     alert(resultAsString); //Send an AJAX request to your web server here...
 }
 ```
@@ -550,8 +550,8 @@ Insert the code into your page's `<body>`, into the `<script>` section, right be
     <div id="surveyContainer"></div>
     <script>
         // Insert the handling function implementation.
-        function sendDataToServer(survey) {
-            var resultAsString = JSON.stringify(survey.data);
+        function sendDataToServer(sender) {
+            var resultAsString = JSON.stringify(sender.data);
             alert(resultAsString); //In a real app, send data to your web server here...
         }    
         var surveyJSON = { 

@@ -523,9 +523,9 @@ Open the [Save survey data on the web server](https://surveyjs.io/Documentation/
 ![documentation section with event handler](images/gs0-doc-with-event-handler.png)
 
 ```js
-function sendDataToServer(sender) {
-    var resultAsString = JSON.stringify(sender.data);
-    alert(resultAsString); //send Ajax request to your web server.
+function sendDataToServer(survey) {
+    var resultAsString = JSON.stringify(survey.data);
+    alert(resultAsString); //Send an AJAX request to your web server here...
 }
 ```
 
@@ -550,9 +550,9 @@ Insert the code into your page's `<body>`, into the `<script>` section, right be
     <div id="surveyContainer"></div>
     <script>
         // Insert the handling function implementation.
-        function sendDataToServer(sender) {
+        function sendDataToServer(survey) {
             var resultAsString = JSON.stringify(survey.data);
-            alert(resultAsString); //Send data to your web server instead.
+            alert(resultAsString); //In a real app, send data to your web server here...
         }    
         var surveyJSON = { 
             pages: [

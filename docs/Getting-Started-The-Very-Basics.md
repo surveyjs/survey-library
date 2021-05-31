@@ -13,9 +13,7 @@ The topic contains the following sections.
 
  At the end you will have a webpage with the following code. 
  
- https://github.com/surveyjs/code-examples/blob/37080bb92f63d0a58ceaafb6a01c166a378b7a38/getting-started-the-very-basics/index.html#L1-L34
- 
-<details>
+ <details>
     <summary>View the resulting code</summary>  
 
 ```html
@@ -54,6 +52,9 @@ The topic contains the following sections.
 </body>
 </html>
 ```
+ 
+Check this code on GitHub:  
+[index.html](https://github.com/surveyjs/code-examples/tree/main/getting-started-the-very-basics) 
 </details>  
 
 

@@ -197,26 +197,6 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
       this.showLabel = true;
     }
   }
-  getItemClass(item: any) {
-    var itemClass =
-      this.cssClasses.item +
-      (this.colCount === 0
-        ? " " + this.cssClasses.itemInline
-        : " sv-q-col-" + this.colCount);
-    var isChecked = this.isItemSelected(item);
-    var isDisabled = this.isReadOnly || !item.isEnabled;
-    var allowHover = !isChecked && !isDisabled;
-    if (isChecked && !!this.cssClasses.itemChecked) {
-      itemClass += " " + this.cssClasses.itemChecked;
-    }
-    if (isDisabled && !!this.cssClasses.itemDisabled) {
-      itemClass += " " + this.cssClasses.itemDisabled;
-    }
-    if (allowHover && !!this.cssClasses.itemHover) {
-      itemClass += " " + this.cssClasses.itemHover;
-    }
-    return itemClass;
-  }
   protected convertDefaultValue(val: any): any {
     return val;
   }

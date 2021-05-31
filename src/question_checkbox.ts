@@ -175,29 +175,11 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     return len >= this.maxSelectedChoices;
   }
   getItemClass(item: any) {
-    var val = this.value; //trigger dependencies from koValue for knockout
-    var isChecked = this.isItemSelected(item);
-    var isDisabled = this.isReadOnly || !item.isEnabled;
-    var allowHover = !isChecked && !isDisabled;
-    var isSelectAll = item === this.selectAllItem;
-    var isNone = item === this.noneItem;
-    var itemClass = this.cssClasses.item;
-    if (!this.hasColumns) {
-      itemClass +=
-        this.colCount === 0
-          ? " " + this.cssClasses.itemInline
-          : " sv-q-col-" + this.colCount;
-    }
-    if (isDisabled && !!this.cssClasses.itemDisabled)
-      itemClass += " " + this.cssClasses.itemDisabled;
-    if (isChecked && !!this.cssClasses.itemChecked)
-      itemClass += " " + this.cssClasses.itemChecked;
-    if (allowHover && !!this.cssClasses.itemHover)
-      itemClass += " " + this.cssClasses.itemHover;
+    let val = this.value; //trigger dependencies from koValue for knockout
+    let itemClass = super.getItemClass(item);
+    const isSelectAll = item === this.selectAllItem;
     if (isSelectAll && !!this.cssClasses.itemSelectAll)
       itemClass += " " + this.cssClasses.itemSelectAll;
-    if (isNone && !!this.cssClasses.itemNone)
-      itemClass += " " + this.cssClasses.itemNone;
     return itemClass;
   }
   protected setNewValue(newValue: any) {

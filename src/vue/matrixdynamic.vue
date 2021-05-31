@@ -11,7 +11,7 @@
         "
         @click="addRowClick"
       >
-        <span>{{ question.addRowText }}</span>
+        <survey-string :locString="question.locAddRowText" />
         <span :class="question.cssClasses.iconAdd"></span>
       </button>
     </div>
@@ -30,14 +30,14 @@
         type="button"
         :class="
           question.cssClasses.button +
-          ' ' +
-          question.cssClasses.buttonAdd +
-          ' ' +
-          question.cssClasses.emptyRowsButton
+            ' ' +
+            question.cssClasses.buttonAdd +
+            ' ' +
+            question.cssClasses.emptyRowsButton
         "
         @click="addRowClick"
       >
-        <span>{{ question.addRowText }}</span>
+        <survey-string :locString="question.locAddRowText" />
         <span :class="question.cssClasses.iconAdd"></span>
       </button>
     </div>
@@ -52,7 +52,7 @@
         "
         @click="addRowClick"
       >
-        <span>{{ question.addRowText }}</span>
+        <survey-string :locString="question.locAddRowText" />
         <span :class="question.cssClasses.iconAdd"></span>
       </button>
     </div>

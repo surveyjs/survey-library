@@ -2,7 +2,7 @@ import { Serializer } from "./jsonobject";
 import { QuestionFactory } from "./questionfactory";
 import {
   QuestionCheckboxBase,
-  QuestionSelectBase
+  QuestionSelectBase,
 } from "./question_baseselect";
 import { Helpers } from "./helpers";
 import { ItemValue } from "./itemvalue";
@@ -394,6 +394,7 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
   }
   protected renderedValueFromDataCore(val: any): any {
     if (!val || !Array.isArray(val)) val = [];
+    if (!this.hasActiveChoices) return val;
     for (var i = 0; i < val.length; i++) {
       if (val[i] == this.otherItem.value) return val;
       if (this.hasUnknownValue(val[i], true, false)) {
@@ -431,7 +432,7 @@ Serializer.addClass(
   },
   "checkboxbase"
 );
-QuestionFactory.Instance.registerQuestion("checkbox", name => {
+QuestionFactory.Instance.registerQuestion("checkbox", (name) => {
   var q = new QuestionCheckboxModel(name);
   q.choices = QuestionFactory.DefaultChoices;
   return q;

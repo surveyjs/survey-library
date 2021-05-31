@@ -1,17 +1,22 @@
 # Add Survey into your Web Page
 
-The easiest way to add the survey into your web page, is to go to our [Survey Builder page](https://surveyjs.io/Survey/Builder/), construct your survey and click on the **Embed Survey** tab. 
+## Use Survey Creator
+The easiest way to add a SurveyJS-powered survey into your web page is to go to our [Survey Creator](https://surveyjs.io/create-survey/) page, construct your survey in a WYSIWYG manner, and click on the **Embed Survey** tab within the Creator. 
 
-There are three sections inside **Embed Survey** tab: _head_, _html_, _javascript_, from where you may copy the code into your web page.
+There are three sections inside the **Embed Survey** tab - _Scripts and styles_, _HTML_, _JavaScript_ - from which you can copy the code and paste it into your web page.
 
-Another easy way, is to go to  [one of our examples](https://surveyjs.io/Examples/Library/), click on plunker button and copy the code from plunker editors into your web application.
+## Use Plunker from examples
+Another easy way is to go to one of our [online examples](https://surveyjs.io/Examples/Library/), select 'Plunker' in the 'Edit in...' combobox, and copy the code from Plunker file editors into your web application.
 
-If you do not want to use our Azure CDN, you may download our script files from GitHub: [Survey library](https://github.com/surveyjs/survey-library/releases), or go to our [cdn repository](https://github.com/surveyjs/builds). It contains all versions since 0.12.0 (early 2017).
+## Get resource files
 
+### Download from GitHub
+If you do not want to use our CDN, you can download our script and stylesheet files from GitHub: [Survey Library Releases](https://github.com/surveyjs/survey-library/releases).
 
-Finally you may select one of our npm packages, based on your JavaScript platform, and install it.
+### Install as npm
+As an alternative to downloading resource files, you can select one of our npm packages (based on your JavaScript platform) and install it.
 
-**Please note**: If you do not use any of this framework and do not use jQuery, then the right choice is [knockout](http://knockoutjs.com). It is a small library that helps creating UI with Model-View-View-Model pattern. You can include knockout script (~25k min+gz) just for SurveyJS and forget about this library existing in your application. 
+**Please note**: If you do not use any of these frameworks and do not use jQuery, then the right choice is to go with [knockout](http://knockoutjs.com). It is a small library that helps creating UI with Model-View-View-Model pattern. You can include knockout script (~25k min+gz) just for SurveyJS and forget about the presence of this library in your application. 
 
 | Platform | npm command |
 |---|---|
@@ -21,7 +26,8 @@ Finally you may select one of our npm packages, based on your JavaScript platfor
 | [React](https://facebook.github.io/react/) |  `npm install survey-react` |
 | [Vue.js](https://vuejs.org/) |  `npm install survey-vue` |
 
-## Step 1. Add a link to your platform
+<a id="step-1.add-a-link-to-your-platform"></a>
+## Step 1. Add a link to platform resources
 
 | Platform |  |
 |---|---|
@@ -31,8 +37,10 @@ Finally you may select one of our npm packages, based on your JavaScript platfor
 | [React](https://facebook.github.io/react/) |  `import React from 'react';` and  `import ReactDOM from 'react-dom';` |
 | [Vue.js](https://vuejs.org/) |  `<script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.1.10/vue.min.js"></script>` |
 
-## Step 2. Add link to SurveyJS files.
+<a id="step-2.add-link-to-surveyjs-files"></a>
+## Step 2. Add links to SurveyJS resources
 
+### JavaScript
 | Platform | JavaScript section  |
 |---|---|
 | [Angular](https://angular.io/) | `<script src="https://unpkg.com/survey-angular"></script>` |
@@ -41,7 +49,8 @@ Finally you may select one of our npm packages, based on your JavaScript platfor
 | [React](https://facebook.github.io/react/) |  `<script src="https://unpkg.com/survey-react"></script>` |
 | [Vue.js](https://vuejs.org/) |  `<script src="https://unpkg.com/survey-vue"></script>` |
 
-| Platform | css section  |
+### CSS
+| Platform | CSS section  |
 |---|---|
 | [Angular](https://angular.io/) | `<link href="https://unpkg.com/survey-angular/survey.min.css" type="text/css" rel="stylesheet"/>` |
 | [jQuery](https://jquery.com/) |  `<link href="https://unpkg.com/survey-jquery/survey.min.css" type="text/css" rel="stylesheet"/>` |
@@ -49,11 +58,12 @@ Finally you may select one of our npm packages, based on your JavaScript platfor
 | [React](https://facebook.github.io/react/) |  `<link href="https://unpkg.com/survey-react/survey.min.css" type="text/css" rel="stylesheet"/>` |
 | [Vue.js](https://vuejs.org/) |  `<link href="https://unpkg.com/survey-vue/survey.min.css" type="text/css" rel="stylesheet"/>` |
 
-## Step 3. Build Survey JSON
+<a id="step-3.build-survey-json"></a>
+## Step 3. Build a survey JSON
                     
-Build JSON using [Visual Survey Builder](https://surveyjs.io/Survey/Builder/)
+Build a survey definition in JSON format. Use the visual [Survey Creator](https://surveyjs.io/create-survey/) or define a JSON in code.
 
-Here is the JSON example
+Here is an example of a typical survey definition JSON.
 
 ```javascript
 var surveyJSON = { title: "Tell us, what technologies do you use?", pages: [
@@ -69,15 +79,21 @@ var surveyJSON = { title: "Tell us, what technologies do you use?", pages: [
  ]
 }
 ```
-## Step 4. Show Survey on the page
 
-#### If you are using Bootstrap, tell the library to use the bootstrap css classes
+<a id="step-4.show-survey-on-the-page"></a>
+## Step 4. Show a survey on the page
+
+
+<a id="if-you-are-using-bootstrap-tell-the-library-to-use-the-bootstrap-css-classes"></a>  
+### Bootstrap
+If you are using Bootstrap, tell the SurveyJS Library to use the bootstrap CSS classes.
 ```javascript
 Survey.StylesManager.applyTheme("bootstrap");
 ```
 -----
 
-#### [Angular](https://angular.io/) - As Survey Window.
+<a id="angular-as-survey-window"></a>
+### [Angular](https://angular.io/) - As a survey window
 ```
 <ng-app></ng-app>
 ```
@@ -96,7 +112,8 @@ export class AppComponent  {
 ```
 -----
 
-#### [Angular](https://angular.io/) - Inside your web page.
+<a id="angular-inside-your-web-page"></a>
+### [Angular](https://angular.io/) - Inside your web page
 ```
 <ng-app></ng-app>
 ```
@@ -115,30 +132,31 @@ export class AppComponent  {
 ```
 -----
 
-#### [jQuery](https://jquery.com/) - As Survey Window.
+
+<a id="jquery-as-survey-window"></a>
+### [jQuery](https://jquery.com/) - As a survey window
 ```javascript
 var survey = new Survey.Model(surveyJSON);
-$("#surveyContainer").SurveyWindow({
-    model:survey,
-    onComplete:sendDataToServer
-});
+survey.onComplete.add(sendDataToServer);
+$("#surveyContainer").SurveyWindow({model:survey});
 ```
 -----
 
-#### [jQuery](https://jquery.com/)  - Inside your web page.
+<a id="jquery-inside-your-web-page"></a>
+### [jQuery](https://jquery.com/)  - Inside your web page
 ```
 <div id="surveyContainer"></div>
 ```
 ```javascript
 var survey = new Survey.Model(surveyJSON);
-$("#surveyContainer").Survey({
-    model:survey,
-    onComplete:sendDataToServer
-});
+survey.onComplete.add(sendDataToServer);
+$("#surveyContainer").Survey({model:survey});
 ```
 -----
 
-#### [Knockout.js](http://knockoutjs.com) - As Survey Window.
+
+<a id="knockout.js-as-survey-window"></a>
+### [Knockout.js](http://knockoutjs.com) - As a survey window
 ```javascript
 var surveyWindow = new Survey.SurveyWindow(surveyJSON);
 surveyWindow.show();
@@ -147,7 +165,8 @@ surveyWindow.survey.onComplete.add(sendDataToServer);
 ```
 -----
 
-#### [Knockout.js](http://knockoutjs.com)  - Inside your web page.
+<a id="knockout.js-inside-your-web-page"></a>
+### [Knockout.js](http://knockoutjs.com)  - Inside your web page
 ```
 <div id="surveyContainer"></div>
 ```
@@ -158,7 +177,8 @@ survey.onComplete.add(sendDataToServer);
 ```
 -----
 
-#### [React](https://facebook.github.io/react/) - As Survey Window.
+<a id="react-as-survey-window"></a>
+### [React](https://facebook.github.io/react/) - As a survey window
 ```
 <div id="surveyContainer"></div>
 ```
@@ -169,7 +189,8 @@ ReactDOM.render(
 ```
 -----
 
-#### [React](https://facebook.github.io/react/)  - Inside your web page.
+<a id="react-inside-your-web-page"></a>
+### [React](https://facebook.github.io/react/)  - Inside your web page
 ```
 <div id="surveyContainer"></div>
 ```
@@ -180,7 +201,8 @@ ReactDOM.render(
 ```
 -----
 
-#### [Vue.js](https://vuejs.org/) - As Survey Window.
+<a id="vue.js-as-survey-window"></a>
+### [Vue.js](https://vuejs.org/) - As a survey window
 ```
 <div id="surveyContainer"><survey-window :survey="survey"></survey-window></div>
 ```
@@ -190,7 +212,8 @@ new Vue({ el: '#surveyContainer', data: { survey: survey } });
 ```
 -----
 
-#### [Vue.js](https://vuejs.org/)  - Inside your web page.
+<a id="vue.js-inside-your-web-page"></a>
+### [Vue.js](https://vuejs.org/)  - Inside your web page
 ```
 <div id="surveyContainer"><survey :survey="survey"></survey></div>
 ```
@@ -200,26 +223,31 @@ new Vue({ el: '#surveyContainer', data: { survey: survey } });
 ```
 -----
 
-## Step 5. Save survey data on the web server.
 
-#### Your web server
+<a id="step-5.save-survey-data-on-the-web-server"></a>
+## Step 5. Save survey data on a web server
+
+<a id="your-web-server"></a>
+### Your web server
 ```javascript
-function sendDataToServer(survey) {
-  var resultAsString = JSON.stringify(survey.data);
-  alert(resultAsString); //send Ajax request to your web server.
+function sendDataToServer(sender) {
+  var resultAsString = JSON.stringify(sender.data);
+  alert(resultAsString); //Send an AJAX request to your web server here...
 }
 ```
 
-#### SurveyJS service
+<a id="surveyjs-service"></a>
+### SurveyJS web service
 ```javascript
 //You should get the Guid for storing survey data in surveyjs.io service storage
 survey.surveyPostId = 'e544a02f-7fff-4ffb-b62d-6a9aa16efd7c';
 //You may call survey.sendResult function as another option.
-function sendDataToServer(survey) {
-  survey.sendResult('e544a02f-7fff-4ffb-b62d-6a9aa16efd7c');
+function sendDataToServer(sender) {
+  sender.sendResult('e544a02f-7fff-4ffb-b62d-6a9aa16efd7c');
 }
 ```
 
+<a id="surveyjs-examples"></a>
 ## SurveyJS Examples
 
-Please visit [our examples](https://surveyjs.io/Examples/Library/) to find out more about the library. Select any of supported platforms and review html and JavaScript code. Click on "Edit in Plunker" button to load the example in the Plunker, so you may be able to modify it and see the results.
+Refer to [online examples](https://surveyjs.io/Examples/Library/) to find more information about SurveyJS Library use cases and to see them in action. Select any of the supported platforms and review its HTML and JavaScript code. Click on "Edit in Plunker" button to load the example in the Plunker to be able to modify it and see the results.

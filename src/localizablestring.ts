@@ -111,12 +111,7 @@ export class LocalizableString implements ILocalizableString {
     return this.textOrHtml;
   }
   public set text(value: string) {
-    var hasOnStrChanged = this.onStrChanged;
-    var oldValue = hasOnStrChanged ? this.pureText : undefined;
     this.setLocaleText(this.locale, value);
-    if (hasOnStrChanged) {
-      this.onStrChanged(oldValue, value);
-    }
   }
   public getLocaleText(loc: string): string {
     if (!loc) loc = settings.defaultLocaleName;
@@ -133,7 +128,12 @@ export class LocalizableString implements ILocalizableString {
       value == this.getLocaleText(settings.defaultLocaleName)
     )
       return;
+    var curLoc = this.locale;
     if (!loc) loc = settings.defaultLocaleName;
+    if (!curLoc) curLoc = settings.defaultLocaleName;
+    var hasOnStrChanged = this.onStrChanged && loc === curLoc;
+    var oldValue = hasOnStrChanged ? this.pureText : undefined;
+
     delete (<any>this).htmlValues[loc];
     if (!value) {
       if (this.getValue(loc)) this.deleteValue(loc);
@@ -153,6 +153,9 @@ export class LocalizableString implements ILocalizableString {
       }
     }
     this.strChanged();
+    if (hasOnStrChanged) {
+      this.onStrChanged(oldValue, value);
+    }
   }
   public hasNonDefaultText(): boolean {
     var keys = this.getValuesKeys();

@@ -1,16 +1,18 @@
 ﻿﻿<script type="text/html" id="survey-question-matrixdynamic">
     <div>
+    <!-- ko if: question.koTable().showAddRowOnTop -->
     <div
-      data-bind="visible: question.koTable().showAddRowOnTop, css: question.koCss().footer"
+      data-bind="css: question.koCss().footer"
     >
       <button
         type="button"
         data-bind="click:question.koAddRowClick, css: question.koCss().button + ' ' + question.koCss().buttonAdd, disable: question.isInputReadOnly"
       >
-        <span data-bind="text: question.addRowText"></span>
+        <!-- ko template: { name: 'survey-string', data: question.locAddRowText } --><!-- /ko -->
         <span data-bind="css: question.koCss().iconAdd"></span>
       </button>
     </div>
+    <!-- /ko -->
     <div
       data-bind="visible: question.koTable().showTable, style: {overflowX: question.horizontalScroll? 'scroll': ''}"
     >
@@ -105,22 +107,24 @@
         type="button"
         data-bind="click:question.koAddRowClick, css: question.koCss().button + ' ' + question.koCss().buttonAdd + '' + question.koCss().emptyRowsButton, disable: question.isInputReadOnly"
       >
-        <span data-bind="text: question.addRowText"></span>
+        <!-- ko template: { name: 'survey-string', data: question.locAddRowText } --><!-- /ko -->
         <span data-bind="css: question.koCss().iconAdd"></span>
       </button>
     </div>
     <!-- /ko -->
+    <!-- ko if: question.koTable().showAddRowOnBottom -->
     <div
-      data-bind="visible: question.koTable().showAddRowOnBottom, css: question.koCss().footer"
+      data-bind="css: question.koCss().footer"
     >
       <button
         type="button"
         data-bind="click:question.koAddRowClick, css: question.koCss().button + ' ' + question.koCss().buttonAdd, disable: question.isInputReadOnly"
       >
-        <span data-bind="text: question.addRowText"></span>
+        <!-- ko template: { name: 'survey-string', data: question.locAddRowText } --><!-- /ko -->
         <span data-bind="css: question.koCss().iconAdd"></span>
       </button>
     </div>
+    <!-- /ko -->
   </div>
 </script>
 <script type="text/html" id="survey-matrixcell">

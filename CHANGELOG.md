@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.8.49](https://github.com/surveyjs/survey-library/compare/v1.8.47...v1.8.49) (2021-05-26)
+
+
+### Bug Fixes
+
+* ActionBarItem properties are not reactive/observable [#2872](https://github.com/surveyjs/survey-library/issues/2872) ([b48a571](https://github.com/surveyjs/survey-library/commit/b48a5711bd48d5e8b3913049dd055315bbc5df82))
+* Error on setting inputType to "date" for "text" column in matrix dynamic [#2897](https://github.com/surveyjs/survey-library/issues/2897) ([256c9f2](https://github.com/surveyjs/survey-library/commit/256c9f2f82a541c5e919ae9c91d5470200973266))
+* On changing allowAddRows property in matrix dynamic nothing happens [#2884](https://github.com/surveyjs/survey-library/issues/2884) ([ad178f4](https://github.com/surveyjs/survey-library/commit/ad178f4c59c00aa3dbfc0b28553dfbbd894710ad))
+* panel.addNewPanel will create incorrect object in knockout [#2866](https://github.com/surveyjs/survey-library/issues/2866) ([6d130cb](https://github.com/surveyjs/survey-library/commit/6d130cb1c4595e708322b01ab8e47461d8f9cea4))
+
 ### [1.8.48](https://github.com/surveyjs/survey-library/compare/v1.8.47...v1.8.48) (2021-05-19)
 
 

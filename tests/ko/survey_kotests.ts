@@ -1895,6 +1895,9 @@ QUnit.test("survey.firstPageIsStarted=true + multiple-language", function(
   var prevLocale = survey.locale;
   survey.locale = "de";
   assert.equal(q1.locTitle["koRenderedHtml"](), "q1-de", "de locale, q1");
+  survey.locale = prevLocale;
+  survey.start();
+  survey.locale = "de";
   assert.equal(q2.locTitle["koRenderedHtml"](), "q2-de", "de locale, q2");
   survey.locale = prevLocale;
 });

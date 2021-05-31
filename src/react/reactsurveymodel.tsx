@@ -1,4 +1,4 @@
-import { SurveyModel, MatrixDropdownCell, QuestionMatrixDropdownRenderedCell, SurveyWindowModel, Question, SurveyElement, ItemValue, QuestionSelectBase } from "survey-core";
+import { SurveyModel, MatrixDropdownCell, QuestionMatrixDropdownRenderedCell, SurveyWindowModel, Question, SurveyElement, QuestionRowModel, ItemValue, QuestionSelectBase } from "survey-core";
 import { ReactElementFactory } from "./element-factory";
 import { SurveyElementBase } from "./reactquestion_element";
 
@@ -37,6 +37,17 @@ export class ReactSurveyModel extends SurveyModel {
     this.render();
     return res;
   }
+
+  public wrapRow(element: JSX.Element, row: QuestionRowModel): JSX.Element {
+    const componentName = this.getRowWrapperComponentName(row);
+    const componentData = this.getRowWrapperComponentData(row);
+    return ReactElementFactory.Instance.createElement(componentName, {
+      element,
+      row,
+      componentData,
+    });
+  }
+
   public wrapElement(element: JSX.Element, question: SurveyElement): JSX.Element {
     const componentName = this.getElementWrapperComponentName(question);
     const componentData = this.getElementWrapperComponentData(question);

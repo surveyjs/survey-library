@@ -80,11 +80,12 @@ frameworks.forEach((framework) => {
       .find("span")
       .withText("Price");
 
-    await t.hover(PriceItem);
+    await t.hover(PriceItem, { speed: 0.5 });
 
     await t.drag(PriceItem, 0, -350, {
       offsetX: 7,
       offsetY: 8,
+      speed: 0.5,
     });
 
     let data = await getData();
@@ -118,10 +119,11 @@ frameworks.forEach((framework) => {
         "Processor power",
       ],
     });
-    await t.hover(PriceItem);
+    await t.hover(PriceItem, { speed: 0.5 });
     await t.drag(PriceItem, 0, 70, {
       offsetX: 7,
       offsetY: 8,
+      speed: 0.5,
     });
 
     let data = await getData();
@@ -136,10 +138,11 @@ frameworks.forEach((framework) => {
     ]);
 
     await setData(null);
-    await t.hover(PriceItem);
+    await t.hover(PriceItem, { speed: 0.5 });
     await t.drag(PriceItem, 0, -350, {
       offsetX: 7,
       offsetY: 8,
+      speed: 0.5,
     });
     data = await getData();
     assert.deepEqual(data["smartphone-features"], [
@@ -160,10 +163,11 @@ frameworks.forEach((framework) => {
       .parent("[aria-labelledby]")
       .find("span")
       .withText("Price");
-    await t.hover(rankPriceItem);
+    await t.hover(rankPriceItem, { speed: 0.5 });
     await t.drag(rankPriceItem, 0, -350, {
       offsetX: 7,
       offsetY: 8,
+      speed: 0.5,
     });
     const rankAudiItem = Selector(
       "[aria-label='What car did you enjoy the most?']"
@@ -193,24 +197,25 @@ frameworks.forEach((framework) => {
 
     await t.click(Selector("input[value='Next']"));
     await t
-      .click(checkboxAudiItem)
-      .click(checkboxMerscedesItem)
-      .click(checkboxToyotaItem);
+      .click(checkboxAudiItem, { speed: 0.5 })
+      .click(checkboxMerscedesItem, { speed: 0.5 })
+      .click(checkboxToyotaItem, { speed: 0.5 });
 
     let data = await getData();
     assert.deepEqual(typeof data.bestcar, "undefined");
 
-    await t.hover(rankAudiItem);
+    await t.hover(rankAudiItem, { speed: 0.5 });
     await t.drag(rankAudiItem, 0, 5, {
       offsetX: 7,
       offsetY: 8,
+      speed: 0.5,
     });
     data = await getData();
     assert.deepEqual(data.bestcar, ["Audi", "Mercedes-Benz", "Toyota"]);
 
-    //TODO click doesn't work after the d&d above without the "click('body')" hack 
+    //TODO click doesn't work after the d&d above without the "click('body')" hack
     await t.click("body");
-    await t.click(checkboxMerscedesItem);
+    await t.click(checkboxMerscedesItem, { speed: 0.5 });
 
     data = await getData();
     assert.deepEqual(data.bestcar, ["Audi", "Toyota"]);
@@ -220,9 +225,9 @@ frameworks.forEach((framework) => {
     assert.deepEqual(data.bestcar, ["Audi", "Toyota", "Mercedes-Benz"]);
 
     await t
-      .click(checkboxAudiItem)
-      .click(checkboxMerscedesItem)
-      .click(checkboxToyotaItem);
+      .click(checkboxAudiItem, { speed: 0.5 })
+      .click(checkboxMerscedesItem, { speed: 0.5 })
+      .click(checkboxToyotaItem, { speed: 0.5 });
 
     data = await getData();
     assert.deepEqual(typeof data.bestcar, "undefined");

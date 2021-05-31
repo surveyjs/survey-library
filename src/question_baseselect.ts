@@ -683,7 +683,7 @@ export class QuestionSelectBase extends Question {
             isNode: false,
           };
           if (!!choice) {
-            (options.calculations || []).forEach(calculation => {
+            (options.calculations || []).forEach((calculation) => {
               choiceDataItem[calculation.propertyName] =
                 choice[calculation.propertyName];
             });
@@ -753,6 +753,17 @@ export class QuestionSelectBase extends Question {
     }
     return res;
   }
+  protected get hasActiveChoices(): boolean {
+    var choices = this.visibleChoices;
+    if (!choices || choices.length == 0) {
+      this.onVisibleChoicesChanged();
+      choices = this.visibleChoices;
+    }
+    for (var i = 0; i < choices.length; i++) {
+      if (!this.isBuiltInChoice(choices[i], this)) return true;
+    }
+    return false;
+  }
   protected isBuiltInChoice(
     item: ItemValue,
     question: QuestionSelectBase
@@ -806,9 +817,9 @@ export class QuestionSelectBase extends Question {
     );
   }
   onSurveyLoad() {
-    super.onSurveyLoad();
     this.runChoicesByUrl();
     this.onVisibleChoicesChanged();
+    super.onSurveyLoad();
   }
   onAnyValueChanged(name: string) {
     super.onAnyValueChanged(name);
@@ -821,7 +832,12 @@ export class QuestionSelectBase extends Question {
   }
   updateValueFromSurvey(newValue: any) {
     var newComment = "";
-    if (this.hasOther && this.getStoreOthersAsComment()) {
+    if (
+      this.hasOther &&
+      !this.isRunningChoices &&
+      !this.choicesByUrl.isRunning &&
+      this.getStoreOthersAsComment()
+    ) {
       if (this.hasUnknownValue(newValue) && !this.getHasOther(newValue)) {
         newComment = this.getCommentFromValue(newValue);
         newValue = this.setOtherValueIntoValue(newValue);

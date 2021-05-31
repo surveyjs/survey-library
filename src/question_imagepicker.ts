@@ -50,7 +50,8 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
   constructor(name: string) {
     super(name);
     this.colCount = 0;
-    this.choicesByUrl.createItemValue = (value: any) => new ImageItemValue(value);
+    this.choicesByUrl.createItemValue = (value: any) =>
+      new ImageItemValue(value);
   }
   public getType(): string {
     return "imagepicker";
@@ -200,6 +201,9 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
   protected convertDefaultValue(val: any): any {
     return val;
   }
+  public get hasColumns(): boolean {
+    return false;
+  }
 }
 
 Serializer.addClass(
@@ -258,7 +262,7 @@ Serializer.addProperty("imagepicker", {
   name: "choices:imageitemvalue[]",
 });
 
-QuestionFactory.Instance.registerQuestion("imagepicker", name => {
+QuestionFactory.Instance.registerQuestion("imagepicker", (name) => {
   var q = new QuestionImagePickerModel(name);
   //q.choices = QuestionFactory.DefaultChoices;
   return q;

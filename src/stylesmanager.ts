@@ -108,13 +108,13 @@ export class StylesManager {
     ".sv_qstn .sv-q-col-1, .sv-question .sv-q-col-1":
       "width: 100%; display: inline-block; padding-right: 1em; box-sizing: border-box; word-break: break-word;",
     ".sv_qstn .sv-q-col-2, .sv-question .sv-q-col-2":
-      "width: 50%; display: inline-block; padding-right: 1em; box-sizing: border-box; word-break: break-word;",
+      "width: calc(50% - 1em); display: inline-block; padding-right: 1em; box-sizing: border-box; word-break: break-word;",
     ".sv_qstn .sv-q-col-3, .sv-question .sv-q-col-3":
-      "width: 33.33333%; display: inline-block; padding-right: 1em; box-sizing: border-box; word-break: break-word;",
+      "width: calc(33.33333% - 1em); display: inline-block; padding-right: 1em; box-sizing: border-box; word-break: break-word;",
     ".sv_qstn .sv-q-col-4, .sv-question .sv-q-col-4":
-      "width: 25%; display: inline-block; padding-right: 1em; box-sizing: border-box; word-break: break-word;",
+      "width: calc(25% - 1em); display: inline-block; padding-right: 1em; box-sizing: border-box; word-break: break-word;",
     ".sv_qstn .sv-q-col-5, .sv-question .sv-q-col-5":
-      "width: 20%; display: inline-block; padding-right: 1em; box-sizing: border-box; word-break: break-word;",
+      "width: calc(20% - 1em); display: inline-block; padding-right: 1em; box-sizing: border-box; word-break: break-word;",
 
     ".sv_qstn .sv-q-column-1, .sv-question .sv-q-column-1":
       "width: 100%; max-width: 100%; display: inline-block; padding-right: 1em; box-sizing: border-box; word-break: break-word;",

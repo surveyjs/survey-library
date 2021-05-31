@@ -376,6 +376,7 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
   }
   protected renderedValueFromDataCore(val: any): any {
     if (!val || !Array.isArray(val)) val = [];
+    if (!this.hasActiveChoices) return val;
     for (var i = 0; i < val.length; i++) {
       if (val[i] == this.otherItem.value) return val;
       if (this.hasUnknownValue(val[i], true, false)) {

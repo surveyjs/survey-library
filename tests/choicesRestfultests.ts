@@ -40,6 +40,11 @@ class ChoicesRestfulTester extends ChoicesRestful {
       this.nonProceedUrls = {};
     }
   }
+  public isRequestRunning: boolean;
+  public getIsRunning(): boolean {
+    if (this.isRequestRunning !== undefined) return this.isRequestRunning;
+    return super.getIsRunning();
+  }
   protected sendRequest() {
     this.beforeSendRequest();
     this.sentRequestCounter++;
@@ -737,7 +742,7 @@ QUnit.test(
       { identity: { id: 1022 }, localizedData: { id: "A2" } },
       { identity: { id: 1023 }, localizedData: { id: "A3" } },
       { identity: { id: 1024 }, localizedData: { id: "A4" } },
-    ].map(i => new ItemValue(i.identity, i.localizedData.id));
+    ].map((i) => new ItemValue(i.identity, i.localizedData.id));
     question["onLoadChoicesFromUrl"](loadedItems);
     assert.equal(
       question.value,
@@ -788,7 +793,7 @@ QUnit.test(
     };
     var survey = new SurveyModel(json);
     var question = <QuestionRadiogroupModel>survey.getQuestionByName("test");
-    var loadedItems = ["A", "B", "C"].map(i => new ItemValue(i));
+    var loadedItems = ["A", "B", "C"].map((i) => new ItemValue(i));
 
     var changedCount = 0;
     survey.onValueChanging.add(() => {
@@ -885,6 +890,30 @@ QUnit.test("Do not run conditions on resetting the value", function(assert) {
   question.doResultsCallback();
   assert.deepEqual(question.value, [1], "Value is still here");
   assert.equal(survey.currentPageNo, 1, "The current page doesn't chagned");
+});
+
+QUnit.test("Do not set comments on running values", function(assert) {
+  var survey = new SurveyModel();
+  survey.addNewPage("1");
+  var question = new QuestionCheckboxModelTester("q1");
+  question.hasOther = true;
+  question.hasItemsCallbackDelay = true;
+  question.choicesByUrl.url = "something";
+  question.choicesByUrl.valueName = "id";
+  question.restFulTest.items = [{ id: "id1" }, { id: "id2" }, { id: "id3" }];
+  survey.pages[0].addQuestion(question);
+  question.restFulTest.isRequestRunning = true;
+  question.onSurveyLoad();
+  assert.equal(
+    question.visibleChoices.length,
+    1,
+    "Choices are not loaded yet, we have other"
+  );
+  survey.data = { q1: ["id2", "id3"] };
+  question.restFulTest.isRequestRunning = false;
+  question.doResultsCallback();
+  assert.deepEqual(question.value, ["id2", "id3"], "Value is set correctly");
+  assert.notOk(question.comment, "Comment is empty");
 });
 
 QUnit.test("Use values and not text, Bug #627", function(assert) {

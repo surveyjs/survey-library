@@ -1,4 +1,10 @@
-import { frameworks, url, initSurvey, getSurveyResult, getQuestionJson } from "../helper";
+import {
+  frameworks,
+  url,
+  initSurvey,
+  getSurveyResult,
+  getQuestionJson,
+} from "../helper";
 import { Selector } from "testcafe";
 const assert = require("assert");
 const title = `paneldynamic`;
@@ -15,11 +21,11 @@ const json = {
           renderMode: "progressTop",
           defaultValue: [
             {
-              relativeType: "father"
+              relativeType: "father",
             },
             {
-              relativeType: "mother"
-            }
+              relativeType: "mother",
+            },
           ],
           templateTitle: "Information about: {panel.relativeType}",
           templateElements: [
@@ -33,9 +39,9 @@ const json = {
                 "brother",
                 "sister",
                 "son",
-                "daughter"
+                "daughter",
               ],
-              isRequired: true
+              isRequired: true,
             },
             {
               name: "isalive",
@@ -44,7 +50,7 @@ const json = {
               startWithNewLine: false,
               isRequired: true,
               colCount: 0,
-              choices: ["Yes", "No"]
+              choices: ["Yes", "No"],
             },
             {
               name: "liveage",
@@ -54,7 +60,7 @@ const json = {
               startWithNewLine: false,
               visibleIf: "{panel.isalive} = 'Yes'",
               choicesMin: 1,
-              choicesMax: 115
+              choicesMax: 115,
             },
             {
               name: "deceasedage",
@@ -66,11 +72,11 @@ const json = {
               choices: [
                 {
                   value: -1,
-                  text: "Unknown"
-                }
+                  text: "Unknown",
+                },
               ],
               choicesMin: 1,
-              choicesMax: 115
+              choicesMax: 115,
             },
             {
               name: "causeofdeathknown",
@@ -80,7 +86,7 @@ const json = {
               colCount: 0,
               startWithNewLine: false,
               visibleIf: "{panel.isalive} = 'No'",
-              choices: ["Yes", "No"]
+              choices: ["Yes", "No"],
             },
             {
               name: "causeofdeath",
@@ -89,7 +95,7 @@ const json = {
               isRequired: true,
               startWithNewLine: false,
               visibleIf:
-                "{panel.isalive} = 'No' and {panel.causeofdeathknown} = 'Yes'"
+                "{panel.isalive} = 'No' and {panel.causeofdeathknown} = 'Yes'",
             },
             {
               type: "panel",
@@ -120,38 +126,38 @@ const json = {
                         "Tuberculosis",
                         "Anesthesia Complications",
                         "Genetic Disorder",
-                        "Other – describe"
+                        "Other – describe",
                       ],
-                      isRequired: true
+                      isRequired: true,
                     },
                     {
                       name: "description",
                       cellType: "text",
                       title: "Describe",
-                      isRequired: true
-                    }
-                  ]
-                }
-              ]
-            }
+                      isRequired: true,
+                    },
+                  ],
+                },
+              ],
+            },
           ],
           panelAddText: "Add a blood relative",
-          panelRemoveText: "Remove the relative"
-        }
-      ]
-    }
-  ]
+          panelRemoveText: "Remove the relative",
+        },
+      ],
+    },
+  ],
 };
 
 //var frameworks_ = ["knockout"];
-frameworks.forEach(framework => {
+frameworks.forEach((framework) => {
   fixture`${framework} ${title}`.page`${url}${framework}.html`.beforeEach(
-    async t => {
+    async (t) => {
       await initSurvey(framework, json);
     }
   );
 
-  test(`fill panel dynamic and add new panel`, async t => {
+  test(`fill panel dynamic and add new panel`, async (t) => {
     const addRowFunc = function(strings, ...values) {
       return `tbody > tr:nth-child(${values[0]}) > td:nth-child(${values[1]})`;
     };
@@ -196,9 +202,6 @@ frameworks.forEach(framework => {
     await t.click(".sv-paneldynamic__prev-btn");
 
     var addRowSelector = Selector(`button`);
-    if (framework !== "react" && framework != "vue") {
-      addRowSelector = addRowSelector.nth(1);
-    }
 
     await t.click(addRowSelector.find("span").withText("Add row"));
     const relativeillnessSelect = Selector(
@@ -229,17 +232,17 @@ frameworks.forEach(framework => {
           relativeillness: [
             {
               illness: "Diabetes",
-              description: "Type 2"
-            }
-          ]
+              description: "Type 2",
+            },
+          ],
         },
         {
           relativeType: "sister",
           isalive: "No",
           causeofdeathknown: "No",
-          deceasedage: "42"
-        }
-      ]
+          deceasedage: "42",
+        },
+      ],
     });
   });
 });
@@ -252,10 +255,10 @@ frameworks.forEach((framework) => {
   );
 
   test(`click on panel title state editable`, async (t) => {
-    var newTitle = 'MyText';
-  
+    var newTitle = "MyText";
+
     var outerSelector = `.sv_p_title`;
-    var innerSelector = `.sv-string-editor`
+    var innerSelector = `.sv-string-editor`;
     await t
       .click(outerSelector)
       .selectEditableContent(outerSelector + ` ` + innerSelector)

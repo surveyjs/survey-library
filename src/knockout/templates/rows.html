@@ -1,22 +1,10 @@
 <script type="text/html" id="survey-rows">
   <!-- ko foreach: { data: rows, as: 'row'} -->
   <!-- ko if: row.visible -->
-  <div data-bind="css: panel.cssClasses.row">
-    <!-- ko template: { name: "survey-row-content", afterRender: rowAfterRender } -->
-    <!-- /ko -->
-  </div>
+
+  <!-- ko component: { name: $parent.survey.getRowWrapperComponentName(row), params: { componentData:  $parent.survey.getRowWrapperComponentData(row), templateData: { name: 'survey-row', data: row } } } -->
   <!-- /ko -->
-  <!-- /ko -->
-</script>
-<script type="text/html" id="survey-row-content">
-  <!-- ko if: row.isNeedRender -->
-  <!-- ko foreach: { data: row.elements, as: 'question' , afterRender: row.koAfterRender } -->
-  <!-- ko if: question.isVisible -->
-  <div data-bind="style: { flexBasis: renderWidth, flexGrow: 1, flexShrink: 1, width: renderWidth, minWidth: $data.minWidth, maxWidth: $data.maxWidth }">
-    <!-- ko component: { name: $parent.getElementWrapperComponentName(question), params: { componentData:  $parent.getElementWrapperComponentData(question), templateData: { name: question.koElementType, data: question, afterRender: $parent.koElementAfterRender } } } -->
-    <!-- /ko -->
-  </div>
-  <!-- /ko -->
+
   <!-- /ko -->
   <!-- /ko -->
 </script>

@@ -54,7 +54,7 @@ The topic contains the following sections.
 ```
  
 Check this code on GitHub:  
-[index.html](https://github.com/surveyjs/code-examples/tree/main/getting-started-the-very-basics) 
+[index.html](https://github.com/surveyjs/code-examples/blob/main/getting-started-the-very-basics/index.html) 
 </details>  
 
 

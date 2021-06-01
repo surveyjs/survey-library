@@ -3334,34 +3334,30 @@ export class QuestionMatrixDropdownModelBase
     return Object.keys(val).length == 0;
   }
 
+  private get SurveyModel() {
+    return this.survey as SurveyModel;
+  }
   public getCellTemplateData(cell: QuestionMatrixDropdownRenderedCell) {
     // return cell.cell.column.templateQuestion;
-    const survey: SurveyModel = this.survey as SurveyModel;
-    return survey.getMatrixCellTemplateData(cell);
+    return this.SurveyModel.getMatrixCellTemplateData(cell);
   }
   public getCellWrapperComponentName(cell: MatrixDropdownCell) {
-    const survey: SurveyModel = this.survey as SurveyModel;
-    return survey.getElementWrapperComponentName(cell.question, "cell");
+    return this.SurveyModel.getElementWrapperComponentName(cell, "cell");
   }
   public getCellWrapperComponentData(cell: MatrixDropdownCell) {
-    const survey: SurveyModel = this.survey as SurveyModel;
-    return survey.getElementWrapperComponentData(cell.question, "cell");
+    return this.SurveyModel.getElementWrapperComponentData(cell, "cell");
   }
   public getColumnHeaderWrapperComponentName(cell: MatrixDropdownCell) {
-    const survey: SurveyModel = this.survey as SurveyModel;
-    return survey.getElementWrapperComponentName(cell.question, "column-header");
+    return this.SurveyModel.getElementWrapperComponentName(cell, "column-header");
   }
   public getColumnHeaderWrapperComponentData(cell: MatrixDropdownCell) {
-    const survey: SurveyModel = this.survey as SurveyModel;
-    return survey.getElementWrapperComponentData(cell.question, "column-header");
+    return this.SurveyModel.getElementWrapperComponentData(cell, "column-header");
   }
   public getRowHeaderWrapperComponentName(cell: MatrixDropdownCell) {
-    const survey: SurveyModel = this.survey as SurveyModel;
-    return survey.getElementWrapperComponentName(cell.question, "row-header");
+    return this.SurveyModel.getElementWrapperComponentName(cell, "row-header");
   }
   public getRowHeaderWrapperComponentData(cell: MatrixDropdownCell) {
-    const survey: SurveyModel = this.survey as SurveyModel;
-    return survey.getElementWrapperComponentData(cell.question, "row-header");
+    return this.SurveyModel.getElementWrapperComponentData(cell, "row-header");
   }
 }
 

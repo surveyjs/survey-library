@@ -71,9 +71,8 @@ export class ReactSurveyModel extends SurveyModel {
   }
 
   public wrapMatrixCell(element: JSX.Element, cell: QuestionMatrixDropdownRenderedCell, reason: string = "cell"): JSX.Element {
-    const context: any = cell.column || cell.row;
-    const componentName = this.getElementWrapperComponentName(context, reason);
-    const componentData = this.getElementWrapperComponentData(context, reason);
+    const componentName = this.getElementWrapperComponentName(cell, reason);
+    const componentData = this.getElementWrapperComponentData(cell, reason);
     return ReactElementFactory.Instance.createElement(componentName, {
       element,
       question: cell.question,

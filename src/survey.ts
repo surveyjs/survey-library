@@ -5796,10 +5796,10 @@ export class SurveyModel extends Base
   public getRowWrapperComponentData(row: QuestionRowModel): any {
     return row;
   }
-  public getElementWrapperComponentName(element: SurveyElement, reason?: string): string {
+  public getElementWrapperComponentName(element: any, reason?: string): string {
     return SurveyModel.TemplateRendererComponentName;
   }
-  public getElementWrapperComponentData(element: SurveyElement, reason?: string): any {
+  public getElementWrapperComponentData(element: any, reason?: string): any {
     return element;
   }
   public getItemValueWrapperComponentName(

@@ -75,7 +75,7 @@ export class ReactSurveyModel extends SurveyModel {
     const componentData = this.getElementWrapperComponentData(cell, reason);
     return ReactElementFactory.Instance.createElement(componentName, {
       element,
-      question: cell.question,
+      cell,
       componentData,
     });
   }

@@ -53,8 +53,8 @@ The topic contains the following sections.
 </html>
 ```
  
-Check this code on GitHub:  
-[index.html](https://github.com/surveyjs/code-examples/blob/main/getting-started-the-very-basics/index.html) 
+Check this code on GitHub: [index.html](https://github.com/surveyjs/code-examples/blob/main/getting-started-the-very-basics/index.html)  
+See the code [in action](https://surveyjs.github.io/code-examples/getting-started-the-very-basics).
 </details>  
 
 

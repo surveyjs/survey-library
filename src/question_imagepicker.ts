@@ -50,7 +50,8 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
   constructor(name: string) {
     super(name);
     this.colCount = 0;
-    this.choicesByUrl.createItemValue = (value: any) => new ImageItemValue(value);
+    this.choicesByUrl.createItemValue = (value: any) =>
+      new ImageItemValue(value);
   }
   public getType(): string {
     return "imagepicker";
@@ -197,28 +198,11 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
       this.showLabel = true;
     }
   }
-  getItemClass(item: any) {
-    var itemClass =
-      this.cssClasses.item +
-      (this.colCount === 0
-        ? " " + this.cssClasses.itemInline
-        : " sv-q-col-" + this.colCount);
-    var isChecked = this.isItemSelected(item);
-    var isDisabled = this.isReadOnly || !item.isEnabled;
-    var allowHover = !isChecked && !isDisabled;
-    if (isChecked && !!this.cssClasses.itemChecked) {
-      itemClass += " " + this.cssClasses.itemChecked;
-    }
-    if (isDisabled && !!this.cssClasses.itemDisabled) {
-      itemClass += " " + this.cssClasses.itemDisabled;
-    }
-    if (allowHover && !!this.cssClasses.itemHover) {
-      itemClass += " " + this.cssClasses.itemHover;
-    }
-    return itemClass;
-  }
   protected convertDefaultValue(val: any): any {
     return val;
+  }
+  public get hasColumns(): boolean {
+    return false;
   }
 }
 
@@ -278,7 +262,7 @@ Serializer.addProperty("imagepicker", {
   name: "choices:imageitemvalue[]",
 });
 
-QuestionFactory.Instance.registerQuestion("imagepicker", name => {
+QuestionFactory.Instance.registerQuestion("imagepicker", (name) => {
   var q = new QuestionImagePickerModel(name);
   //q.choices = QuestionFactory.DefaultChoices;
   return q;

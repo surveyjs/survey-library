@@ -6,6 +6,7 @@ import { SurveyQuestionCommentItem } from "./reactquestion_comment";
 import { ReactQuestionFactory } from "./reactquestion_factory";
 import { Base } from "survey-core";
 import { ReactSurveyModel } from "./reactsurveymodel";
+import { ReactElementFactory } from "./element-factory";
 
 export class SurveyQuestionRadiogroup extends SurveyQuestionElementBase {
   constructor(props: any) {
@@ -207,6 +208,10 @@ export class SurveyQuestionRadioItem extends ReactSurveyElement {
     );
   }
 }
+
+ReactElementFactory.Instance.registerElement("survey-radiogroup-item", (props: any)=>{
+  return React.createElement(SurveyQuestionRadioItem, props);
+})
 
 ReactQuestionFactory.Instance.registerQuestion("radiogroup", (props) => {
   return React.createElement(SurveyQuestionRadiogroup, props);

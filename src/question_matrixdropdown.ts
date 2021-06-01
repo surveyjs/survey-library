@@ -193,7 +193,7 @@ Serializer.addClass(
 QuestionFactory.Instance.registerQuestion("matrixdropdown", (name) => {
   var q = new QuestionMatrixDropdownModel(name);
   q.choices = [1, 2, 3, 4, 5];
-  q.rows = QuestionFactory.DefaultColums;
+  q.rows = QuestionFactory.DefaultRows;
   QuestionMatrixDropdownModelBase.addDefaultColumns(q);
   return q;
 });

@@ -1862,9 +1862,16 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     }
     var rows = this.matrix.visibleRows;
     for (var i = 0; i < rows.length; i++) {
-      var rCell = this.createEditCell(rows[i].cells[index], choice);
-      rCell.item = choice;
-      rCell.choiceIndex = choiceIndex >= 0 ? choiceIndex : i;
+      var rChoice = choice;
+      var rChoiceIndex = choiceIndex >= 0 ? choiceIndex : i;
+      var cell = rows[i].cells[index];
+      var visChoices = !!choice ? cell.question.visibleChoices : undefined;
+      if (!!visChoices && rChoiceIndex < visChoices.length) {
+        rChoice = visChoices[rChoiceIndex];
+      }
+      var rCell = this.createEditCell(cell, rChoice);
+      rCell.item = rChoice;
+      rCell.choiceIndex = rChoiceIndex;
       res.cells.push(rCell);
     }
     if (this.matrix.hasTotal) {
@@ -1894,7 +1901,9 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     cell: MatrixDropdownCell,
     isFooter: boolean = false
   ) {
-    var choices = this.getMultipleColumnChoices(cell.column);
+    var choices = isFooter
+      ? this.getMultipleColumnChoices(cell.column)
+      : cell.question.visibleChoices;
     if (!choices) return;
     for (var i = 0; i < choices.length; i++) {
       var rCell = this.createEditCell(cell, !isFooter ? choices[i] : undefined);

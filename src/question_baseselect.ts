@@ -1098,6 +1098,33 @@ export class QuestionSelectBase extends Question {
     }
     return columnClass;
   }
+  getItemIndex(item: any) {
+    return this.visibleChoices.indexOf(item);
+  }
+  getItemClass(item: any) {
+    let itemClass = this.cssClasses.item;
+    const isDisabled = this.isReadOnly || !item.isEnabled;
+    const isChecked =
+      this.isItemSelected(item) ||
+      (this.isOtherSelected && this.otherItem.value === item.value);
+    const allowHover = !isDisabled && !isChecked;
+    const isNone = item === this.noneItem;
+    if (!this.hasColumns) {
+      itemClass +=
+        this.colCount === 0
+          ? " " + this.cssClasses.itemInline
+          : " sv-q-col-" + this.colCount;
+    }
+    if (isDisabled && !!this.cssClasses.itemDisabled)
+      itemClass += " " + this.cssClasses.itemDisabled;
+    if (isChecked && !!this.cssClasses.itemChecked)
+      itemClass += " " + this.cssClasses.itemChecked;
+    if (allowHover && !!this.cssClasses.itemHover)
+      itemClass += " " + this.cssClasses.itemHover;
+    if (isNone && !!this.cssClasses.itemNone)
+      itemClass += " " + this.cssClasses.itemNone;
+    return itemClass;
+  }
   getLabelClass(item: ItemValue) {
     var labelClass = this.cssClasses.label;
     if (this.isItemSelected(item)) {
@@ -1195,9 +1222,6 @@ export class QuestionCheckboxBase extends QuestionSelectBase {
     if (value < 0 || value > 5 || this.isFlowLayout) return;
     this.setPropertyValue("colCount", value);
     this.fireCallback(this.colCountChangedCallback);
-  }
-  getItemIndex(item: any) {
-    return this.visibleChoices.indexOf(item);
   }
   protected onParentChanged() {
     super.onParentChanged();

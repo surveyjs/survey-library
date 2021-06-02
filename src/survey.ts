@@ -5796,10 +5796,10 @@ export class SurveyModel extends Base
   public getRowWrapperComponentData(row: QuestionRowModel): any {
     return row;
   }
-  public getElementWrapperComponentName(element: SurveyElement): string {
+  public getElementWrapperComponentName(element: any, reason?: string): string {
     return SurveyModel.TemplateRendererComponentName;
   }
-  public getElementWrapperComponentData(element: SurveyElement): any {
+  public getElementWrapperComponentData(element: any, reason?: string): any {
     return element;
   }
   public getItemValueWrapperComponentName(
@@ -5813,6 +5813,9 @@ export class SurveyModel extends Base
     question: QuestionSelectBase
   ): any {
     return item;
+  }
+  public getMatrixCellTemplateData(cell: any) {
+    return cell.question;
   }
   public searchText(text: string): Array<IFindElement> {
     if (!!text) text = text.toLowerCase();

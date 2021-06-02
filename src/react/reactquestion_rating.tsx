@@ -14,12 +14,8 @@ export class SurveyQuestionRating extends SurveyQuestionElementBase {
     return this.questionBase as QuestionRatingModel;
   }
   handleOnClick(event: any) {
-    if (this.question.value === parseFloat(event.target.value)) {
-      this.question.clearValue();
-    } else {
-      this.question.value = event.target.value;
-      this.setState({ value: this.question.value });
-    }
+    this.question.setValueFromClick(event.target.value);
+    this.setState({ value: this.question.value });
   }
   protected renderElement(): JSX.Element {
     var cssClasses = this.question.cssClasses;

@@ -15,7 +15,7 @@
             :id="question.inputId + '_' + index"
             :value="item.value"
             :disabled="question.isInputReadOnly"
-            @click="click"
+            @click="(e) => question.setValueFromClick(e.target.value)"
             v-bind:aria-required="question.isRequired"
             :aria-label="item.locText.text"
             :aria-invalid="question.errors.length > 0"
@@ -60,13 +60,6 @@ export class Rating extends QuestionVue<QuestionRatingModel> {
       css = css + " " + question.cssClasses.selected;
     }
     return css;
-  }
-  click(e: any) {
-    if (this.question.value === parseFloat(e.target.value)) {
-      this.question.clearValue();
-    } else {
-      this.question.value = e.target.value;
-    }
   }
   getRootClass(question: QuestionRatingModel) {
     const classes = question.cssClasses;

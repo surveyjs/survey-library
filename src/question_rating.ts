@@ -179,6 +179,16 @@ export class QuestionRatingModel extends Question {
     }
     return !isNaN(val) ? parseFloat(val) : val;
   }
+  /**
+   * Click value again to clear.
+   */
+  public setValueFromClick(value: any) {
+    if (this.value === parseFloat(value)) {
+      this.clearValue();
+    } else {
+      this.value = value;
+    }
+  }
 }
 Serializer.addClass(
   "rating",

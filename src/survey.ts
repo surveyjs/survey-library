@@ -1005,6 +1005,7 @@ export class SurveyModel extends Base
     return this.cssValue;
   }
   public set css(value: any) {
+    this.updateElementCss(false);
     this.mergeValues(value, this.css);
   }
   public get cssNavigationComplete() {

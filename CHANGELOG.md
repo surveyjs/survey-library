@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.8.50](https://github.com/surveyjs/survey-library/compare/v1.8.49...v1.8.50) (2021-06-04)
+
+
+### Bug Fixes
+
+* Checkbox doens't work correctly with choicesByUrl, hasOther, defaultValue and survey display mode [#2910](https://github.com/surveyjs/survey-library/issues/2910) ([99fc127](https://github.com/surveyjs/survey-library/commit/99fc1270bb8f3351bfc08b2aaedf46b143b0f52c))
+* Checkbox doesn't work correctly with choicesByUrl and hasOther [#2909](https://github.com/surveyjs/survey-library/issues/2909) ([1f818f9](https://github.com/surveyjs/survey-library/commit/1f818f9d5156114aad5f2da48935dc60b6080120))
+* ItemValue enableIf doesn't work in matricex dropdown/dynamic if showInMultipleColumns is true [#2926](https://github.com/surveyjs/survey-library/issues/2926) ([#2927](https://github.com/surveyjs/survey-library/issues/2927)) ([717ec0d](https://github.com/surveyjs/survey-library/commit/717ec0d25aeb219c31e757bcdc1e48ab76cc5694))
+* Matrix - Custom cell types doesn't work (jQuery, Knockout, Angular) [#2935](https://github.com/surveyjs/survey-library/issues/2935) ([#2937](https://github.com/surveyjs/survey-library/issues/2937)) ([fbec3d9](https://github.com/surveyjs/survey-library/commit/fbec3d92c4c3abb61da6fe18a00679451b4ddea3))
+* on calling setLocale function for localization string the object doesn't get notification [#2915](https://github.com/surveyjs/survey-library/issues/2915) ([24bf570](https://github.com/surveyjs/survey-library/commit/24bf570c2f59ef3a65a1a509744c8c1dbb63ecc0))
+* React: toolbar actions doesn't render on adding new item [#2939](https://github.com/surveyjs/survey-library/issues/2939) ([#2940](https://github.com/surveyjs/survey-library/issues/2940)) ([8a33672](https://github.com/surveyjs/survey-library/commit/8a336726a1b3d3058d3b6b5e1d174c69c9b84b26))
+* survey.onAfterRenderPage has incorrect page if firstPageIsStarted is turn-on [#2917](https://github.com/surveyjs/survey-library/issues/2917) ([716183e](https://github.com/surveyjs/survey-library/commit/716183e3939684f3b23f9bb81a6e3142b90bc412))
+
 ### [1.8.49](https://github.com/surveyjs/survey-library/compare/v1.8.47...v1.8.49) (2021-05-26)
 
 

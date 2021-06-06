@@ -7632,6 +7632,11 @@ QUnit.test("survey.showInvisibleElements property", function(assert) {
     "question2 is invisible"
   );
   assert.equal(
+    survey.getQuestionByName("question2").getPropertyValue("isVisible"),
+    false,
+    "question2 is invisible, property value"
+  );
+  assert.equal(
     survey.getQuestionByName("question4").visibleChoices.length,
     0,
     "There is zero visible choices"
@@ -7642,6 +7647,11 @@ QUnit.test("survey.showInvisibleElements property", function(assert) {
     survey.getQuestionByName("question2").isVisible,
     true,
     "question2 is visible"
+  );
+  assert.equal(
+    survey.getQuestionByName("question2").getPropertyValue("isVisible"),
+    true,
+    "question2 is visible, propertyValue"
   );
   assert.equal(
     survey.getQuestionByName("question4").visibleChoices.length,

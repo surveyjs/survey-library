@@ -21,7 +21,7 @@ export class SurveyQuestion extends SurveyElementBase<any, any> {
     creator: ISurveyCreator,
     question: Question
   ): JSX.Element {
-    if (!question.visible) return null;
+    if (!question.isVisible) return null;
     var customWidget = question.customWidget;
     if (!customWidget) {
       return creator.createQuestionElement(question);
@@ -227,7 +227,7 @@ export class SurveyQuestion extends SurveyElementBase<any, any> {
   }
 }
 
-ReactElementFactory.Instance.registerElement("question", props => {
+ReactElementFactory.Instance.registerElement("question", (props) => {
   return React.createElement(SurveyQuestion, props);
 });
 
@@ -336,11 +336,13 @@ export class SurveyQuestionAndErrorsCell extends ReactSurveyElement {
     var errorsBottom = errorsLocation === "bottom" ? errors : null;
     var renderedCell = this.renderQuestion();
     var style = this.getCellStyle();
-    const readyCell = <>
+    const readyCell = (
+      <>
         {errorsTop}
         {renderedCell}
         {errorsBottom}
-    </>;
+      </>
+    );
     return (
       <td
         ref={this.cellRef}
@@ -364,8 +366,11 @@ export class SurveyQuestionAndErrorsCell extends ReactSurveyElement {
   protected getHeaderText(): string {
     return "";
   }
-  protected wrapCell(cell: QuestionMatrixDropdownRenderedCell, element: JSX.Element): JSX.Element {
-    if(!cell) {
+  protected wrapCell(
+    cell: QuestionMatrixDropdownRenderedCell,
+    element: JSX.Element
+  ): JSX.Element {
+    if (!cell) {
       return element;
     }
     const survey: ReactSurveyModel = this.question.survey as ReactSurveyModel;
@@ -375,5 +380,4 @@ export class SurveyQuestionAndErrorsCell extends ReactSurveyElement {
     }
     return wrapper ?? element;
   }
-
 }

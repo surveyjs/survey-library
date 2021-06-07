@@ -22,6 +22,7 @@ import { QuestionImagePicker } from "../../src/knockout/koquestion_imagepicker";
 import { ProgressButtonsViewModel } from "../../src/knockout/components/progress/buttons";
 import { JsonObject, Serializer } from "../../src/jsonobject";
 import { SurveyTimer } from "../../src/surveytimer";
+import { QuestionBoolean } from "../../src/knockout/koquestion_boolean";
 import * as ko from "knockout";
 
 export default QUnit.module("koTests");
@@ -2211,6 +2212,46 @@ QUnit.test(
     assert.ok(
       (<Panel>matrix.visibleRows[0].detailPanel).koCss,
       "correct detail panel is created"
+    );
+  }
+);
+QUnit.test(
+  "start page and boolean question, check that locLabelTrue/False set correctly, Bug#2947",
+  function(assert) {
+    var survey = new Survey({
+      firstPageIsStarted: true,
+      pages: [
+        {
+          name: "Start Page",
+          questions: [
+            {
+              type: "html",
+              html: "1",
+            },
+          ],
+        },
+        {
+          name: "First Page",
+          questions: [
+            {
+              type: "boolean",
+              name: "q1",
+            },
+          ],
+        },
+      ],
+    });
+    survey.start();
+    var q = <QuestionBoolean>survey.getQuestionByName("q1");
+    assert.equal(
+      (<any>q.locLabelFalse).koRenderedHtml(),
+      "No",
+      "label false set correctly"
+    );
+    assert.equal(
+      (<any>q.locLabelTrue).koRenderedHtml(),
+      "Yes",
+      "label true set correctly"
     );
   }
 );

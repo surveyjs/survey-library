@@ -228,7 +228,7 @@ export class StylesManager {
 
     // paneldynamic progress
     ".sv_main .sv-progress":
-      "height: 0.19em; background-color: $header-background-color;",
+      "height: 0.19em; background-color: $header-background-color; position: relative;",
     ".sv_main .sv-progress__bar":
       "background-color: $main-color; height: 100%; position: relative;",
     // EO paneldynamic progress

@@ -3559,6 +3559,9 @@ export class SurveyModel extends Base
     this.isStartedState = false;
     this.startTimerFromUI();
     this.onStarted.fire(this, {});
+    if (!!this.currentPage) {
+      this.currentPage.locStrsChanged();
+    }
     return true;
   }
   /**

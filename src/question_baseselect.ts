@@ -649,7 +649,7 @@ export class QuestionSelectBase extends Question {
     return true;
   }
   protected get isAddDefaultItems() {
-    return settings.supportCreatorV2 && this.isDesignMode;
+    return settings.supportCreatorV2 && this.isDesignMode && !this.parentQuestion;
   }
   public getPlainData(
     options: {
@@ -1228,6 +1228,9 @@ export class QuestionCheckboxBase extends QuestionSelectBase {
     if (this.isFlowLayout) {
       this.setPropertyValue("colCount", null);
     }
+  }
+  protected onParentQuestionChanged() {
+    this.onVisibleChoicesChanged();
   }
   protected getSearchableItemValueKeys(keys: Array<string>) {
     keys.push("choices");

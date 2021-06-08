@@ -1307,6 +1307,31 @@ QUnit.test("Checkbox store others value not in comment", function(assert) {
   assert.equal(question.isOtherSelected, false, "Others is not selected");
   assert.deepEqual(survey.data, { q: ["A", "B"] }, "'B' is set");
 });
+QUnit.test("Checkbox store others value not in comment", function(assert) {
+  var survey = new SurveyModel({
+    elements: [
+      {
+        type: "checkbox",
+        name: "q1",
+        defaultValue: ["A", "B"],
+        hasOther: true,
+      },
+    ],
+  });
+  var question = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+  survey.mode = "display";
+  assert.deepEqual(
+    question.renderedValue,
+    ["A", "B"],
+    "do not convert value into others"
+  );
+  question.choices = ["A", "B", "C"];
+  assert.deepEqual(
+    question.renderedValue,
+    ["A", "B"],
+    "do not convert value into others, #2"
+  );
+});
 
 QUnit.test(
   "Checkbox store others value not in comment after select another items - https://github.com/surveyjs/survey-library/issues/2221",
@@ -3861,7 +3886,7 @@ QUnit.test(
 
     q2.value = "2019-01-01";
     assert.equal(
-      new Date(q2.value).getFullYear(),
+      new Date(q2.value).getUTCFullYear(),
       2019,
       "Value new Date('2019-01-01') is set into question"
     );
@@ -3872,45 +3897,45 @@ QUnit.test(
     );
     q2.value = "2022-01-01";
     assert.equal(
-      new Date(q2.value).getFullYear(),
+      new Date(q2.value).getUTCFullYear(),
       2022,
       "Value new Date('2022-01-01') is set into question"
     );
     assert.equal(
-      new Date(survey.getValue("q2")).getFullYear(),
+      new Date(survey.getValue("q2")).getUTCFullYear(),
       2022,
       "Value new Date('2022-01-01') is set into survey"
     );
     q2.value = "2020-01-01";
     assert.equal(
-      new Date(q2.value).getFullYear(),
+      new Date(q2.value).getUTCFullYear(),
       2020,
       "Value new Date('2020-01-01') is set into question"
     );
     assert.equal(
-      new Date(survey.getValue("q2")).getFullYear(),
+      new Date(survey.getValue("q2")).getUTCFullYear(),
       2020,
       "Value new Date('2020-01-01') is set into survey"
     );
     q2.value = "2031-01-01";
     assert.equal(
-      new Date(q2.value).getFullYear(),
+      new Date(q2.value).getUTCFullYear(),
       2031,
       "Value new Date('2031-01-01') is set into question"
     );
     assert.equal(
-      new Date(survey.getValue("q2")).getFullYear(),
+      new Date(survey.getValue("q2")).getUTCFullYear(),
       2020,
       "Value new Date('2031-01-01') is not set into survey"
     );
     q2.value = "2030-01-01";
     assert.equal(
-      new Date(q2.value).getFullYear(),
+      new Date(q2.value).getUTCFullYear(),
       2030,
       "Value Date('2030-01-01') is set into question"
     );
     assert.equal(
-      new Date(survey.getValue("q2")).getFullYear(),
+      new Date(survey.getValue("q2")).getUTCFullYear(),
       2030,
       "Value new Date('2030-01-01') is set into survey"
     );
@@ -4014,6 +4039,20 @@ QUnit.test(
     assert.strictEqual(question.value, 1, "Convert to item.value, 1");
     question.value = undefined;
     assert.strictEqual(question.value, undefined, "undefined 2");
+  }
+);
+
+QUnit.test(
+  "QuestionRating value is reset when clicked again, Issue#2886",
+  function(assert) {
+    var question = new QuestionRatingModel("q");
+    question.setValueFromClick("1");
+    assert.strictEqual(question.value, 1, "Set to 1");
+    question.setValueFromClick("2");
+    assert.strictEqual(question.value, 2, "Set to 2");
+    question.setValueFromClick("2");
+    assert.notStrictEqual(question.value, 2, "No longer 2");
+    assert.strictEqual(isNaN(question.value), true, "Value is reset");
   }
 );
 

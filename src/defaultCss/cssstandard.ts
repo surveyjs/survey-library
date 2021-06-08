@@ -272,7 +272,6 @@ export var defaultStandardCss = {
     minText: "sv_q_rating_min_text",
     itemText: "sv_q_rating_item_text",
     maxText: "sv_q_rating_max_text",
-    disabled: "",
   },
   text: "sv_q_text_root",
   expression: "",

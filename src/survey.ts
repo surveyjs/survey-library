@@ -33,7 +33,7 @@ import { SurveyTimer } from "./surveytimer";
 import { Question } from "./question";
 import { QuestionSelectBase } from "./question_baseselect";
 import { ItemValue } from "./itemvalue";
-import { PanelModelBase } from "./panel";
+import { PanelModelBase, QuestionRowModel } from "./panel";
 import {
   HtmlConditionItem,
   UrlConditionItem,
@@ -1005,6 +1005,7 @@ export class SurveyModel extends Base
     return this.cssValue;
   }
   public set css(value: any) {
+    this.updateElementCss(false);
     this.mergeValues(value, this.css);
   }
   public get cssNavigationComplete() {
@@ -1534,11 +1535,9 @@ export class SurveyModel extends Base
     //More information here: https://github.com/surveyjs/survey-library/issues/2599
     if (!this.currentPageValue) return;
     this.updateProgressText();
-    if (this.isStartedState && this.startedPage) {
-      this.startedPage.locStrsChanged();
-    }
-    if (this.currentPage) {
-      this.currentPage.locStrsChanged();
+    var page = this.activePage;
+    if (!!page) {
+      page.locStrsChanged();
     }
   }
 
@@ -2502,6 +2501,17 @@ export class SurveyModel extends Base
     this.locStrsChanged();
     this.currentPageChanged(newPage, oldValue);
   }
+  /**
+   * Returns the currentPage, unless the started page is showing. In this case returns the started page.
+   * @see currentPage
+   * @see firstPageIsStarted
+   * @see startedPage
+   */
+  public get activePage(): any {
+    return this.isStartedState && this.startedPage
+      ? this.startedPage
+      : this.currentPage;
+  }
   private getPageByObject(value: any): PageModel {
     if (!value) return null;
     if (value.getType && value.getType() == "page") return value;
@@ -2546,14 +2556,14 @@ export class SurveyModel extends Base
    * Sets the input focus to the first question with the input field.
    */
   public focusFirstQuestion() {
-    var page = this.currentPage;
+    var page = this.activePage;
     if (page) {
       page.scrollToTop();
       page.focusFirstQuestion();
     }
   }
   scrollToTopOnPageChange() {
-    var page = this.currentPage;
+    var page = this.activePage;
     if (!page) return;
     page.scrollToTop();
     if (this.focusFirstQuestionAutomatic) {
@@ -3004,10 +3014,11 @@ export class SurveyModel extends Base
   /**
    * Returns `true`, if a page contains an error. If there is an async function in an expression, then the function will return `undefined` value.
    * In this case, you should use the second `onAsyncValidation` parameter,  which is a callback function: (hasErrors: boolean) => void
-   * @param page the page that you want to validate. If the parameter is undefined then the `currentPage` is using
+   * @param page the page that you want to validate. If the parameter is undefined then the `activePage` is using
    * @param onAsyncValidation use this parameter if you use async functions in your expressions. This callback function will be called with hasErrors value equals to `true` or `false`.
    * @see hasCurrentPageErrors
    * @see hasErrors
+   * @see activePage
    * @see currentPage
    */
   public hasPageErrors(
@@ -3015,7 +3026,7 @@ export class SurveyModel extends Base
     onAsyncValidation?: (hasErrors: boolean) => void
   ): boolean {
     if (!page) {
-      page = this.currentPage;
+      page = this.activePage;
     }
     if (!page) return false;
     if (this.checkIsPageHasErrors(page)) return true;
@@ -3154,7 +3165,7 @@ export class SurveyModel extends Base
   private checkIsCurrentPageHasErrors(
     isFocuseOnFirstError: boolean = undefined
   ): boolean {
-    return this.checkIsPageHasErrors(this.currentPage, isFocuseOnFirstError);
+    return this.checkIsPageHasErrors(this.activePage, isFocuseOnFirstError);
   }
   private checkIsPageHasErrors(
     page: PageModel,
@@ -3548,6 +3559,9 @@ export class SurveyModel extends Base
     this.isStartedState = false;
     this.startTimerFromUI();
     this.onStarted.fire(this, {});
+    if (!!this.currentPage) {
+      this.currentPage.locStrsChanged();
+    }
     return true;
   }
   /**
@@ -3585,8 +3599,9 @@ export class SurveyModel extends Base
     if (doComplete && this.checkErrorsMode === "onComplete") {
       options.data = this.data;
     } else {
-      for (var i = 0; i < this.currentPage.questions.length; i++) {
-        var question = this.currentPage.questions[i];
+      var questions = this.activePage.questions;
+      for (var i = 0; i < questions.length; i++) {
+        var question = questions[i];
         if (!question.visible) continue;
         var value = this.getValue(question.getValueName());
         if (!this.isValueEmpty(value))
@@ -3794,7 +3809,7 @@ export class SurveyModel extends Base
   afterRenderPage(htmlElement: HTMLElement) {
     if (this.onAfterRenderPage.isEmpty) return;
     this.onAfterRenderPage.fire(this, {
-      page: this.currentPage,
+      page: this.activePage,
       htmlElement: htmlElement,
     });
   }
@@ -5779,10 +5794,16 @@ export class SurveyModel extends Base
     });
     return true;
   }
-  public getElementWrapperComponentName(element: SurveyElement): string {
+  public getRowWrapperComponentName(row: QuestionRowModel): string {
     return SurveyModel.TemplateRendererComponentName;
   }
-  public getElementWrapperComponentData(element: SurveyElement): any {
+  public getRowWrapperComponentData(row: QuestionRowModel): any {
+    return row;
+  }
+  public getElementWrapperComponentName(element: any, reason?: string): string {
+    return SurveyModel.TemplateRendererComponentName;
+  }
+  public getElementWrapperComponentData(element: any, reason?: string): any {
     return element;
   }
   public getItemValueWrapperComponentName(
@@ -5796,6 +5817,9 @@ export class SurveyModel extends Base
     question: QuestionSelectBase
   ): any {
     return item;
+  }
+  public getMatrixCellTemplateData(cell: any) {
+    return cell.question;
   }
   public searchText(text: string): Array<IFindElement> {
     if (!!text) text = text.toLowerCase();

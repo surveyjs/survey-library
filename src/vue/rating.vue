@@ -15,7 +15,7 @@
             :id="question.inputId + '_' + index"
             :value="item.value"
             :disabled="question.isInputReadOnly"
-            @change="change"
+            @click="(e) => question.setValueFromClick(e.target.value)"
             v-bind:aria-required="question.isRequired"
             :aria-label="item.locText.text"
             :aria-invalid="question.errors.length > 0"
@@ -56,13 +56,14 @@ import { QuestionRatingModel } from "survey-core";
 export class Rating extends QuestionVue<QuestionRatingModel> {
   getCss(question: QuestionRatingModel, item: any) {
     let css = question.cssClasses.item;
+    var disabled = this.question.cssClasses.itemDisabled;
     if (question.value == item.value) {
       css = css + " " + question.cssClasses.selected;
     }
+    if (this.question.isReadOnly) {
+      css = css + " " + disabled;
+    }
     return css;
-  }
-  change(e: any) {
-    this.question.value = e.target.value;
   }
   getRootClass(question: QuestionRatingModel) {
     const classes = question.cssClasses;

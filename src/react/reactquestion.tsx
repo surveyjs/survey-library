@@ -6,6 +6,7 @@ import { SurveyElementBase, ReactSurveyElement } from "./reactquestion_element";
 import { SurveyCustomWidget } from "./custom-widget";
 import { ReactElementFactory } from "./element-factory";
 import { ReactSurveyModel } from "./reactsurveymodel";
+import { QuestionMatrixDropdownRenderedCell } from "../question_matrixdropdownbase";
 
 export interface ISurveyCreator {
   createQuestionElement(question: Question): JSX.Element;
@@ -20,7 +21,7 @@ export class SurveyQuestion extends SurveyElementBase<any, any> {
     creator: ISurveyCreator,
     question: Question
   ): JSX.Element {
-    if (!question.visible) return null;
+    if (!question.isVisible) return null;
     var customWidget = question.customWidget;
     if (!customWidget) {
       return creator.createQuestionElement(question);
@@ -226,7 +227,7 @@ export class SurveyQuestion extends SurveyElementBase<any, any> {
   }
 }
 
-ReactElementFactory.Instance.registerElement("question", props => {
+ReactElementFactory.Instance.registerElement("question", (props) => {
   return React.createElement(SurveyQuestion, props);
 });
 
@@ -335,6 +336,13 @@ export class SurveyQuestionAndErrorsCell extends ReactSurveyElement {
     var errorsBottom = errorsLocation === "bottom" ? errors : null;
     var renderedCell = this.renderQuestion();
     var style = this.getCellStyle();
+    const readyCell = (
+      <>
+        {errorsTop}
+        {renderedCell}
+        {errorsBottom}
+      </>
+    );
     return (
       <td
         ref={this.cellRef}
@@ -342,9 +350,7 @@ export class SurveyQuestionAndErrorsCell extends ReactSurveyElement {
         title={this.getHeaderText()}
         style={style}
       >
-        {errorsTop}
-        {renderedCell}
-        {errorsBottom}
+        {this.wrapCell(this.props.cell, readyCell)}
       </td>
     );
   }
@@ -359,5 +365,19 @@ export class SurveyQuestionAndErrorsCell extends ReactSurveyElement {
   }
   protected getHeaderText(): string {
     return "";
+  }
+  protected wrapCell(
+    cell: QuestionMatrixDropdownRenderedCell,
+    element: JSX.Element
+  ): JSX.Element {
+    if (!cell) {
+      return element;
+    }
+    const survey: ReactSurveyModel = this.question.survey as ReactSurveyModel;
+    let wrapper: JSX.Element;
+    if (survey) {
+      wrapper = survey.wrapMatrixCell(element, cell);
+    }
+    return wrapper ?? element;
   }
 }

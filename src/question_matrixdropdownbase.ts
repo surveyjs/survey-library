@@ -37,6 +37,7 @@ import { PanelModel } from "./panel";
 import { settings } from "./settings";
 import { KeyDuplicationError } from "./error";
 import { ActionBarItem, IActionBarItem } from "./action-bar";
+import { SurveyModel } from "./survey";
 
 export interface IMatrixDropdownData {
   value: any;
@@ -1277,6 +1278,7 @@ export class QuestionMatrixDropdownRenderedCell {
   public width: string = "";
   public locTitle: LocalizableString;
   public cell: MatrixDropdownCell;
+  public column: MatrixDropdownColumn;
   public row: MatrixDropdownRowModelBase;
   public question: Question;
   public isRemoveRow: boolean;
@@ -1733,6 +1735,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     this.addRowActionsCell(row, res, "start");
     if (this.matrix.hasRowText) {
       var renderedCell = this.createTextCell(row.locText);
+      renderedCell.row = row;
       res.cells.push(renderedCell);
       if (useAsHeader) {
         this.setHeaderCellWidth(null, renderedCell);
@@ -1851,6 +1854,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     if (this.matrix.showHeader) {
       var lTitle = !!choice ? choice.locText : column.locTitle;
       var hCell = this.createTextCell(lTitle);
+      hCell.column = column;
       if (!choice) {
         this.setRequriedToHeaderCell(column, hCell);
       }
@@ -1858,9 +1862,16 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     }
     var rows = this.matrix.visibleRows;
     for (var i = 0; i < rows.length; i++) {
-      var rCell = this.createEditCell(rows[i].cells[index], choice);
-      rCell.item = choice;
-      rCell.choiceIndex = choiceIndex >= 0 ? choiceIndex : i;
+      var rChoice = choice;
+      var rChoiceIndex = choiceIndex >= 0 ? choiceIndex : i;
+      var cell = rows[i].cells[index];
+      var visChoices = !!choice ? cell.question.visibleChoices : undefined;
+      if (!!visChoices && rChoiceIndex < visChoices.length) {
+        rChoice = visChoices[rChoiceIndex];
+      }
+      var rCell = this.createEditCell(cell, rChoice);
+      rCell.item = rChoice;
+      rCell.choiceIndex = rChoiceIndex;
       res.cells.push(rCell);
     }
     if (this.matrix.hasTotal) {
@@ -1890,7 +1901,9 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     cell: MatrixDropdownCell,
     isFooter: boolean = false
   ) {
-    var choices = this.getMultipleColumnChoices(cell.column);
+    var choices = isFooter
+      ? this.getMultipleColumnChoices(cell.column)
+      : cell.question.visibleChoices;
     if (!choices) return;
     for (var i = 0; i < choices.length; i++) {
       var rCell = this.createEditCell(cell, !isFooter ? choices[i] : undefined);
@@ -1960,6 +1973,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     column: MatrixDropdownColumn
   ): QuestionMatrixDropdownRenderedCell {
     var cell = this.createTextCell(!!column ? column.locTitle : null);
+    cell.column = column;
     this.setHeaderCell(column, cell);
     if (this.cssClasses.headerCell) {
       cell.className = this.cssClasses.headerCell;
@@ -3327,6 +3341,32 @@ export class QuestionMatrixDropdownModelBase
       return true;
     }
     return Object.keys(val).length == 0;
+  }
+
+  private get SurveyModel() {
+    return this.survey as SurveyModel;
+  }
+  public getCellTemplateData(cell: QuestionMatrixDropdownRenderedCell) {
+    // return cell.cell.column.templateQuestion;
+    return this.SurveyModel.getMatrixCellTemplateData(cell);
+  }
+  public getCellWrapperComponentName(cell: MatrixDropdownCell) {
+    return this.SurveyModel.getElementWrapperComponentName(cell, "cell");
+  }
+  public getCellWrapperComponentData(cell: MatrixDropdownCell) {
+    return this.SurveyModel.getElementWrapperComponentData(cell, "cell");
+  }
+  public getColumnHeaderWrapperComponentName(cell: MatrixDropdownCell) {
+    return this.SurveyModel.getElementWrapperComponentName(cell, "column-header");
+  }
+  public getColumnHeaderWrapperComponentData(cell: MatrixDropdownCell) {
+    return this.SurveyModel.getElementWrapperComponentData(cell, "column-header");
+  }
+  public getRowHeaderWrapperComponentName(cell: MatrixDropdownCell) {
+    return this.SurveyModel.getElementWrapperComponentName(cell, "row-header");
+  }
+  public getRowHeaderWrapperComponentData(cell: MatrixDropdownCell) {
+    return this.SurveyModel.getElementWrapperComponentData(cell, "row-header");
   }
 }
 

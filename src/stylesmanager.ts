@@ -350,7 +350,7 @@ export class StylesManager {
     ".sv-popup__container":
       "position: absolute; filter: drop-shadow(0px calc(1 * 8px) calc(2 * 8px) rgba(0, 0, 0, 0.1)); padding: calc(1 * 8px) 0; background: white; border-radius: 4px;",
     ".sv-popup__scrolling-content":
-      "max-width: 90vh; max-height: 90vh; overflow: auto;",
+      "max-width: 90vw; max-height: 90vh; overflow: auto;",
     ".sv-popup__scrolling-content::-webkit-scrollbar":
       "height: 6px; width: 6px; background-color: #f3f3f3;",
     ".sv-popup__scrolling-content::-webkit-scrollbar-thumb":
@@ -934,7 +934,7 @@ export class StylesManager {
     ".sv-file__decorator":
       "background-color: $body-container-background-color;",
     ".sv-file__clean-btn": "background-color: $remove-button-color;",
-    ".sv-file__choose-btn": "background-color: $add-button-color;",
+    ".sv-file__choose-btn:not(.sv-file__choose-btn--disabled)": "background-color: $add-button-color;",
     ".sv-file__choose-btn--disabled": "background-color: $disable-color;",
     ".sv-file__remove-svg": "fill: #ff1800;",
     ".sv-file__sign a": "color: $text-color;",

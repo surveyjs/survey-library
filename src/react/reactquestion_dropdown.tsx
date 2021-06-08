@@ -37,7 +37,7 @@ export class SurveyQuestionDropdown extends SurveyQuestionUncontrolledElement<Qu
       var isOtherSelected = this.question.isOtherSelected;
       return (
         // @ts-ignore
-        <div id={this.question.inputId} className={cssClasses.control} disabled>
+        <div id={this.question.inputId} className={this.question.getControlClass()} disabled>
           {isOtherSelected
             ? this.question.otherText
             : this.question.displayValue}
@@ -59,7 +59,7 @@ export class SurveyQuestionDropdown extends SurveyQuestionUncontrolledElement<Qu
       <div className={cssClasses.selectWrapper}>
         <select
           id={this.question.inputId}
-          className={cssClasses.control}
+          className={this.question.getControlClass()}
           ref={(select) => (this.control = select)}
           autoComplete={this.question.autoComplete}
           onChange={this.updateValueOnEvent}

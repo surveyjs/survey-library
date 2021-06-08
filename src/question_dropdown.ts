@@ -15,7 +15,7 @@ export class QuestionDropdownModel extends QuestionSelectBase {
     var self = this;
     this.registerFunctionOnPropertiesValueChanged(
       ["choicesMin", "choicesMax", "choicesStep"],
-      function () {
+      function() {
         self.onVisibleChoicesChanged();
       }
     );
@@ -117,11 +117,21 @@ export class QuestionDropdownModel extends QuestionSelectBase {
   /**
    * Dropdown auto complete
    */
-   public get autoComplete(): string {
+  public get autoComplete(): string {
     return this.getPropertyValue("autoComplete", "");
   }
   public set autoComplete(val: string) {
     this.setPropertyValue("autoComplete", val);
+  }
+  public getControlClass(): string {
+    const cssClasses = this.cssClasses;
+    let result =
+      cssClasses.control +
+      (this.errors.length > 0 ? " " + cssClasses.onError : "");
+    if (this.isReadOnly) {
+      result += " " + cssClasses.controlDisabled;
+    }
+    return result;
   }
 }
 Serializer.addClass(
@@ -189,9 +199,9 @@ Serializer.addClass(
         "email",
         "impp",
       ],
-    },    
+    },
   ],
-  function () {
+  function() {
     return new QuestionDropdownModel("");
   },
   "selectbase"

@@ -2,7 +2,7 @@
   <div>
     <input
       :disabled="question.isInputReadOnly"
-      :class="question.cssClasses.root"
+      :class="question.getControlClass()"
       :type="question.inputType"
       :maxlength="question.getMaxLength()"
       :min="question.renderedMin"

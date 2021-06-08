@@ -13138,3 +13138,42 @@ QUnit.test(
     assert.equal(pageName, "First Page", "We render the first page");
   }
 );
+QUnit.test("Custom widget, test canShowInToolbox read-only property", function(
+  assert
+) {
+  CustomWidgetCollection.Instance.clear();
+
+  var readOnlyCounter = 0;
+  var widget = CustomWidgetCollection.Instance.addCustomWidget({
+    name: "first",
+  });
+  assert.equal(
+    widget.canShowInToolbox,
+    false,
+    "widget is activated by property"
+  );
+  widget = CustomWidgetCollection.Instance.addCustomWidget(
+    {
+      name: "second",
+    },
+    "customtype"
+  );
+  assert.equal(
+    widget.canShowInToolbox,
+    true,
+    "widget is activated by customtype"
+  );
+  var isLoaded = false;
+  widget.widgetJson.widgetIsLoaded = (): boolean => {
+    return isLoaded;
+  };
+  assert.equal(widget.canShowInToolbox, false, "widget is not loaded");
+  isLoaded = true;
+  assert.equal(widget.canShowInToolbox, true, "widget is loaded");
+  widget.showInToolbox = false;
+  assert.equal(widget.canShowInToolbox, false, "widget is not show in toolbox");
+  widget.showInToolbox = true;
+  assert.equal(widget.canShowInToolbox, true, "widget is show in toolbox");
+
+  CustomWidgetCollection.Instance.clear();
+});

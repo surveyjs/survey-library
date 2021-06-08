@@ -31,6 +31,20 @@ export class QuestionCustomWidget {
       return this.widgetJson.isFit(question);
     return false;
   }
+  public get canShowInToolbox(): boolean {
+    if (this.widgetJson.showInToolbox === false) return false;
+    if (
+      CustomWidgetCollection.Instance.getActivatedBy(this.name) != "customtype"
+    )
+      return false;
+    return !this.widgetJson.widgetIsLoaded || this.widgetJson.widgetIsLoaded();
+  }
+  public get showInToolbox(): boolean {
+    return this.widgetJson.showInToolbox !== false;
+  }
+  public set showInToolbox(val: boolean) {
+    this.widgetJson.showInToolbox = val;
+  }
   public init() {
     if (this.widgetJson.init) {
       this.widgetJson.init();
@@ -73,7 +87,10 @@ export class CustomWidgetCollection {
   public add(widgetJson: any, activatedBy: string = "property") {
     this.addCustomWidget(widgetJson, activatedBy);
   }
-  public addCustomWidget(widgetJson: any, activatedBy: string = "property") {
+  public addCustomWidget(
+    widgetJson: any,
+    activatedBy: string = "property"
+  ): QuestionCustomWidget {
     var name = widgetJson.name;
     if (!name) {
       name = "widget_" + this.widgets.length + 1;
@@ -84,6 +101,7 @@ export class CustomWidgetCollection {
     (<any>this).widgetsActivatedBy[name] = activatedBy;
     customWidget.activatedByChanged(activatedBy);
     this.onCustomWidgetAdded.fire(customWidget, null);
+    return customWidget;
   }
   /**
    * Returns the way the custom wiget is activated. It can be activated by a property ("property"), question type ("type") or by new/custom question type ("customtype").

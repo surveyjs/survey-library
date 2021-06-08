@@ -60,11 +60,7 @@ export class SurveyQuestionRating extends SurveyQuestionElementBase {
     maxText: JSX.Element,
     cssClasses: any
   ): JSX.Element {
-    var isChecked = this.question.value == item.value;
-    var className = cssClasses.item;
-    if (isChecked) className += " " + cssClasses.selected;
-    if (this.isDisplayMode) className += " " + cssClasses.itemDisabled;
-
+    const className = this.question.getItemClass(item);
     var itemText = this.renderLocString(item.locText);
     var minTextBlock = !!minText ? (
       <span className={cssClasses.minText}>{minText}</span>

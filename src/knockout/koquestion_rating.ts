@@ -1,6 +1,11 @@
 import * as ko from "knockout";
 import { QuestionImplementor } from "./koquestion";
-import { QuestionRatingModel, Serializer, QuestionFactory, Question } from "survey-core";
+import {
+  QuestionRatingModel,
+  Serializer,
+  QuestionFactory,
+  Question,
+} from "survey-core";
 
 export class QuestionRatingImplementor extends QuestionImplementor {
   koVisibleRateValues: any;
@@ -15,19 +20,6 @@ export class QuestionRatingImplementor extends QuestionImplementor {
     (<QuestionRating>this.question).rateValuesChangedCallback = () => {
       this.onRateValuesChanged();
     };
-    this.setObservaleObj("koGetCss", (val: any) => {
-      var itemCss = this.question.cssClasses.item;
-      var selected = this.question.cssClasses.selected;
-      var disabled = this.question.cssClasses.itemDisabled;
-      var result = itemCss;
-      if (this.question.value == val.value) {
-        result = result + " " + selected;
-      }
-      if (this.question.isReadOnly) {
-        result = result + " " + disabled;
-      }
-      return result;
-    });
   }
   protected onRateValuesChanged() {
     this.koVisibleRateValues(this.getValues());
@@ -61,6 +53,6 @@ Serializer.overrideClassCreator("rating", function() {
   return new QuestionRating("");
 });
 
-QuestionFactory.Instance.registerQuestion("rating", name => {
+QuestionFactory.Instance.registerQuestion("rating", (name) => {
   return new QuestionRating(name);
 });

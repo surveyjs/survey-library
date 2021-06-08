@@ -6,7 +6,7 @@
         <label
           v-for="(item, index) in question.visibleRateValues"
           :key="item.value"
-          :class="getCss(question, item)"
+          :class="question.getItemClass(item)"
         >
           <input
             type="radio"
@@ -54,17 +54,6 @@ import { QuestionRatingModel } from "survey-core";
 
 @Component
 export class Rating extends QuestionVue<QuestionRatingModel> {
-  getCss(question: QuestionRatingModel, item: any) {
-    let css = question.cssClasses.item;
-    var disabled = this.question.cssClasses.itemDisabled;
-    if (question.value == item.value) {
-      css = css + " " + question.cssClasses.selected;
-    }
-    if (this.question.isReadOnly) {
-      css = css + " " + disabled;
-    }
-    return css;
-  }
   getRootClass(question: QuestionRatingModel) {
     const classes = question.cssClasses;
     if (question.isReadOnly) return classes.root + " " + classes.disabled;

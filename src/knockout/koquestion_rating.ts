@@ -18,7 +18,7 @@ export class QuestionRatingImplementor extends QuestionImplementor {
     this.setObservaleObj("koGetCss", (val: any) => {
       var itemCss = this.question.cssClasses.item;
       var selected = this.question.cssClasses.selected;
-      var disabled = this.question.cssClasses.disabled;
+      var disabled = this.question.cssClasses.itemDisabled;
       var result = itemCss;
       if (this.question.value == val.value) {
         result = result + " " + selected;

@@ -9,11 +9,11 @@
   background-color: $remove-button-color;
   margin-top: 1.25em;
 }
-.sv-file__choose-btn {
+.sv-file__choose-btn:not(.sv-file__choose-btn--disabled) {
   background-color: $add-button-color;
   display: inline-block;
 }
-.sv-file__choose-btn.sv-question--disabled {
+.sv-file__choose-btn--disabled {
   cursor: default;
   background-color: $disable-color;
   display: inline-block;

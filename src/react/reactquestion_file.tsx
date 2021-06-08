@@ -120,7 +120,7 @@ export class SurveyQuestionFile extends SurveyQuestionElementBase {
     let chooseFile = null;
     let chooseFileCss =
       this.question.cssClasses.chooseFile +
-      (this.isDisplayMode ? " " + this.question.cssClasses.disabled : "");
+      (this.isDisplayMode ? " " + this.question.cssClasses.controlDisabled : "");
     chooseFile = (
       <label
         role="button"

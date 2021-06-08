@@ -63,7 +63,7 @@ export class SurveyQuestionRating extends SurveyQuestionElementBase {
     var isChecked = this.question.value == item.value;
     var className = cssClasses.item;
     if (isChecked) className += " " + cssClasses.selected;
-    if (this.isDisplayMode) className += " " + cssClasses.disabled;
+    if (this.isDisplayMode) className += " " + cssClasses.itemDisabled;
 
     var itemText = this.renderLocString(item.locText);
     var minTextBlock = !!minText ? (

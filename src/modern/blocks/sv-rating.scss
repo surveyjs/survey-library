@@ -28,8 +28,8 @@
   margin: 3px 0;
   margin-right: 0.26em;
   box-sizing: border-box;
-  
-  &> span {
+
+  & > span {
     margin-top: 0.44em;
     display: inline-block;
   }
@@ -64,7 +64,7 @@
   cursor: pointer;
 }
 
-.sv-rating--disabled {
+.sv-question--disabled {
   .sv-rating__item-text {
     cursor: default;
     color: $disable-color;

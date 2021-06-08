@@ -934,7 +934,7 @@ export class StylesManager {
     ".sv-file__decorator":
       "background-color: $body-container-background-color;",
     ".sv-file__clean-btn": "background-color: $remove-button-color;",
-    ".sv-file__choose-btn": "background-color: $add-button-color;",
+    ".sv-file__choose-btn:not(.sv-file__choose-btn--disabled)": "background-color: $add-button-color;",
     ".sv-file__choose-btn--disabled": "background-color: $disable-color;",
     ".sv-file__remove-svg": "fill: #ff1800;",
     ".sv-file__sign a": "color: $text-color;",

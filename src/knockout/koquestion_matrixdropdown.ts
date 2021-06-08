@@ -126,9 +126,6 @@ export class QuestionMatrixDropdown extends QuestionMatrixDropdownModel {
     super.onBaseCreating();
     this._implementor = new QuestionMatrixBaseImplementor(this);
   }
-  protected createNewDetailPanel(): PanelModel {
-    return new Panel();
-  }
   public dispose() {
     super.dispose();
     this._implementor.dispose();
@@ -140,7 +137,7 @@ Serializer.overrideClassCreator("matrixdropdown", function() {
   return new QuestionMatrixDropdown("");
 });
 
-QuestionFactory.Instance.registerQuestion("matrixdropdown", name => {
+QuestionFactory.Instance.registerQuestion("matrixdropdown", (name) => {
   var q = new QuestionMatrixDropdown(name);
   q.choices = [1, 2, 3, 4, 5];
   q.rows = QuestionFactory.DefaultRows;

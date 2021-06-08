@@ -489,6 +489,7 @@ export class Base {
     val: any
   ) => void;
   createArrayCoreHandler: (propertiesHash: any, name: string) => Array<any>;
+  surveyChangedCallback: () => void;
 
   private isCreating = true;
 
@@ -1392,6 +1393,9 @@ export class SurveyElement extends Base implements ISurveyElement {
   }
   protected setSurveyCore(value: ISurvey) {
     this.surveyValue = value;
+    if (!!this.surveyChangedCallback) {
+      this.surveyChangedCallback();
+    }
   }
   /**
    * Returns true if the question in design mode right now.

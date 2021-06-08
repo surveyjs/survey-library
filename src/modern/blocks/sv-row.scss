@@ -29,7 +29,7 @@
       float: right;
     }
   }
-  
+
   .sv-row__question--small:only-child {
     @media only screen and (max-width: 6000px) {
       max-width: 3000px;
@@ -60,7 +60,6 @@
 .sv-row__question {
   vertical-align: top;
   white-space: normal;
-  min-width: 300px;
 }
 
 // https://github.com/surveyjs/survey-library/issues/2559

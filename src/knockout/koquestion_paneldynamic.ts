@@ -242,9 +242,6 @@ export class QuestionPanelDynamic extends QuestionPanelDynamicModel {
     super.onBaseCreating();
     this._implementor = new QuestionPanelDynamicImplementor(this);
   }
-  protected createNewPanelObject(): PanelModel {
-    return new Panel();
-  }
   public dispose() {
     this._implementor.dispose();
     this._implementor = undefined;
@@ -256,6 +253,6 @@ Serializer.overrideClassCreator("paneldynamic", function() {
   return new QuestionPanelDynamic("");
 });
 
-QuestionFactory.Instance.registerQuestion("paneldynamic", name => {
+QuestionFactory.Instance.registerQuestion("paneldynamic", (name) => {
   return new QuestionPanelDynamic(name);
 });

@@ -41,7 +41,7 @@ export class ActionBarItemViewModel extends BaseVue {
   @Prop() public item: AdaptiveActionBarItemWrapper;
 
   getModel(): Base {
-    return this.item;
+    return this.item.stateItem;
   }
 }
 

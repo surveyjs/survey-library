@@ -1107,7 +1107,8 @@ export class QuestionSelectBase extends Question {
     const isChecked =
       this.isItemSelected(item) ||
       (this.isOtherSelected && this.otherItem.value === item.value);
-    const allowHover = !isDisabled && !isChecked;
+    const allowHover =
+      !isDisabled && !isChecked && !(!!this.survey && this.survey.isDesignMode);
     const isNone = item === this.noneItem;
     if (!this.hasColumns) {
       itemClass +=

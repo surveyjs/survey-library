@@ -296,7 +296,6 @@ export var modernCss = {
     minText: "sv-rating__min-text",
     itemText: "sv-rating__item-text",
     maxText: "sv-rating__max-text",
-    disabled: "sv-rating--disabled",
   },
   comment: {
     root: "sv-comment",
@@ -314,7 +313,6 @@ export var modernCss = {
     fileInput: "sv-visuallyhidden",
     noFileChosen: "sv-description sv-file__no-file-chosen",
     chooseFile: "sv-btn sv-file__choose-btn",
-    disabled: "sv-file__choose-btn--disabled",
     removeButton: "sv-hidden",
     removeButtonBottom: "sv-btn sv-file__clean-btn",
     removeFile: "sv-hidden",

@@ -935,7 +935,7 @@ export class StylesManager {
       "background-color: $body-container-background-color;",
     ".sv-file__clean-btn": "background-color: $remove-button-color;",
     ".sv-file__choose-btn": "background-color: $add-button-color;",
-    ".sv-file__choose-btn--disabled": "background-color: $disable-color;",
+    ".sv-file__choose-btn.sv-question--disabled": "background-color: $disable-color;",
     ".sv-file__remove-svg": "fill: #ff1800;",
     ".sv-file__sign a": "color: $text-color;",
     ".sv-footer__complete-btn": "background-color: $main-color;",
@@ -989,11 +989,11 @@ export class StylesManager {
       "background-color: $main-hover-color; color: $body-background-color;",
     ".sv-rating__item--selected .sv-rating__item-text":
       "background-color: $main-color; color: $body-background-color; border-color: $main-color;",
-    ".sv-rating--disabled .sv-rating__item-text":
+    ".sv-question--disabled .sv-rating__item-text":
       "color: $disable-color; border-color: $disable-color;",
-    ".sv-rating--disabled .sv-rating__item-text:hover":
+    ".sv-question--disabled .sv-rating__item-text:hover":
       "background-color: transparent;",
-    ".sv-rating--disabled .sv-rating__item-text:hover .sv-rating__item--selected .sv-rating__item-text":
+    ".sv-question--disabled .sv-rating__item-text:hover .sv-rating__item--selected .sv-rating__item-text":
       "background-color: $disable-color; color: $body-background-color;",
     "::-webkit-scrollbar": "background-color: $main-hover-color;",
     "::-webkit-scrollbar-thumb": "background: $main-color;",

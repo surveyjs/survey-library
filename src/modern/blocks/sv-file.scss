@@ -13,7 +13,7 @@
   background-color: $add-button-color;
   display: inline-block;
 }
-.sv-file__choose-btn--disabled {
+.sv-file__choose-btn.sv-question--disabled {
   cursor: default;
   background-color: $disable-color;
   display: inline-block;

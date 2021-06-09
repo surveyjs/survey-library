@@ -32,6 +32,7 @@ import { FunctionFactory } from "../src/functionsfactory";
 import { ArrayChanges } from "../src/base";
 import { RequreNumericError } from "../src/error";
 import { QuestionSignaturePadModel } from "../src/question_signaturepad";
+import { QuestionMatrixDropdownModelBase } from "../src/question_matrixdropdownbase";
 
 export default QUnit.module("Survey_Questions");
 
@@ -5093,6 +5094,34 @@ QUnit.test(
     q1.choices = ["item1", "item2", "item3"];
     assert.notOk(q1["supportSelectAll"]());
     assert.equal(q1.visibleChoices.length, 4, "Show new: 3+1");
+    settings.supportCreatorV2 = false;
+  }
+);
+QUnit.test(
+  "Creator V2: do not add into visibleChoices items for inner matrix questions",
+  function(assert) {
+    var json = {
+      elements: [
+        {
+          "type": "matrixdynamic",
+          "name": "question1",
+          "columns": [
+          { "name": "Column 1" },
+          { "name": "Column 2" },
+          { "name": "Column 3" }
+          ],
+          "choices": [ 1, 2, 3 ],
+          "cellType": "checkbox"
+        },
+      ],
+    };
+    settings.supportCreatorV2 = true;
+    var survey = new SurveyModel();
+    survey.setDesignMode(true);
+    survey.fromJSON(json);
+    var q1 = <QuestionMatrixDropdownModelBase>survey.getQuestionByName("question1");
+    var innerQuestion = q1.visibleRows[0].cells[0].question;
+    assert.equal(innerQuestion.visibleChoices.length, 3, "Show only 3 choice items");
     settings.supportCreatorV2 = false;
   }
 );

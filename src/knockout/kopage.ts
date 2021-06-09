@@ -30,14 +30,18 @@ export class QuestionRow extends QuestionRowModel {
   }
   private elementAfterRender(elements: any, con: any) {
     if (!this.panel || !this.panel.survey) return;
-    var el = SurveyElement.GetFirstNonTextElement(elements);
-    if (!el) return;
-    var element = <IElement>con;
-    if (element.isPanel) {
-      this.panel.survey.afterRenderPanel(con, el);
-    } else {
-      (<Question>element).afterRender(el);
-    }
+
+    setTimeout(() => {
+      !!ko.tasks && ko.tasks.runEarly();
+      var el = SurveyElement.GetFirstNonTextElement(elements);
+      if (!el) return;
+      var element = <IElement>con;
+      if (element.isPanel) {
+        this.panel.survey.afterRenderPanel(con, el);
+      } else {
+        (<Question>element).afterRender(el);
+      }
+    }, 0);
   }
 
   rowAfterRender(elements: HTMLElement[], model: QuestionRow) {

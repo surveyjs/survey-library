@@ -14,13 +14,13 @@ const json = {
           choices: [
             {
               text: "Yes",
-              value: "valueYes"
+              value: "valueYes",
             },
             {
               text: "No",
-              value: "valueNo"
-            }
-          ]
+              value: "valueNo",
+            },
+          ],
         },
         {
           name: "question4b",
@@ -30,35 +30,43 @@ const json = {
           choices: [
             {
               text: "Yes",
-              value: "BA17018_02_01"
+              value: "BA17018_02_01",
             },
             {
               text: "No",
-              value: "BA17018_02_02"
-            }
-          ]
-        }
+              value: "BA17018_02_02",
+            },
+          ],
+        },
       ],
-      name: "sectionTest"
-    }
+      name: "sectionTest",
+    },
   ],
-  title: "Test Sample"
+  title: "Test Sample",
 };
 
-frameworks.forEach(framework => {
+frameworks.forEach((framework) => {
   fixture`${framework} ${title}`.page`${url}${framework}`.beforeEach(
-    async t => {
+    async (t) => {
       var f = function(survey, options) {
+        if (options.question.name == "question4a") {
+          var title = options.htmlElement.querySelector("[title='Yes']");
+          title.style.color = "tomato";
+        }
         if (options.question.name == "question4b") {
           options.htmlElement.style.border = "1px solid #CCC";
         }
       };
       var events = { onAfterRenderQuestion: f };
+
       await initSurvey(framework, json, events);
     }
   );
 
-  test(`afterRenderQuestion fires for initially hidden questions`, async t => {
+  test(`afterRenderQuestion fires for initially hidden questions`, async (t) => {
+    const isTitleOk = ClientFunction(
+      () => document.querySelector("[title='Yes']").style.color === "tomato"
+    );
     const getQuestionCount = ClientFunction(
       () => document.querySelectorAll(".sv_q.sv_qstn").length
     );
@@ -72,5 +80,6 @@ frameworks.forEach(framework => {
     await t.click(`input[value=valueYes]`);
     assert.equal(await getQuestionCount(), 2);
     assert.ok(await isBorderOk());
+    assert.ok(await isTitleOk());
   });
 });

@@ -6,7 +6,7 @@
     >
       <button
         type="button"
-        data-bind="click:question.koAddRowClick, css: question.koCss().button + ' ' + question.koCss().buttonAdd, disable: question.isInputReadOnly"
+        data-bind="click: question.isDesignMode ? undefined : question.koAddRowClick, css: question.koCss().button + ' ' + question.koCss().buttonAdd, disable: question.isInputReadOnly"
       >
         <!-- ko template: { name: 'survey-string', data: question.locAddRowText } --><!-- /ko -->
         <span data-bind="css: question.koCss().iconAdd"></span>
@@ -49,7 +49,7 @@
             <!-- ko foreach: $data.cells -->
             <!-- ko if: $data.isActionsCell -->
             <td data-bind="css:$data.className, attr: {colspan: $data.colSpans}">
-              <!-- ko component: { name: 'sv-action-bar', params: { items: $data.item.getData() }} -->
+              <!-- ko component: { name: 'sv-action-bar', params: { items: $data.item.getData(), handleClick: false }} -->
               <!-- /ko -->
             </td>
             <!-- /ko -->

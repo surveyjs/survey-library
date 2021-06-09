@@ -47,7 +47,7 @@
     "watch_react_ui": "webpack --config ./build-scripts/survey-react-ui/webpack.config.js --env.buildType dev --watch",
     "madge": "madge --circular --extensions ts ./src/"
   },
-  "version": "1.8.50",
+  "version": "1.8.51",
   "name": "survey-library",
   "private": true,
   "devDependencies": {

@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.8.51](https://github.com/surveyjs/survey-library/compare/v1.8.50...v1.8.51) (2021-06-09)
+
+
+### Bug Fixes
+
+* Show invisible elements doesn't work in react [#2942](https://github.com/surveyjs/survey-library/issues/2942) ([5d76292](https://github.com/surveyjs/survey-library/commit/5d762922c8820a6a95da9dd0dc954ba1c6afc627))
+
 ### [1.8.50](https://github.com/surveyjs/survey-library/compare/v1.8.49...v1.8.50) (2021-06-04)
 
 

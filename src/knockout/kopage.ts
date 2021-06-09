@@ -28,25 +28,20 @@ export class QuestionRow extends QuestionRowModel {
       if (nName == "#text") tEl.data = "";
     }
   }
-
-  public getElementWrapperComponentName(el: SurveyElement): string {
-    const survey: Survey = el.survey as Survey;
-    return survey.getElementWrapperComponentName(el);
-  }
-  public getElementWrapperComponentData(el: SurveyElement): any {
-    const survey: Survey = el.survey as Survey;
-    return survey.getElementWrapperComponentData(el);
-  }
   private elementAfterRender(elements: any, con: any) {
     if (!this.panel || !this.panel.survey) return;
-    var el = SurveyElement.GetFirstNonTextElement(elements);
-    if (!el) return;
-    var element = <IElement>con;
-    if (element.isPanel) {
-      this.panel.survey.afterRenderPanel(con, el);
-    } else {
-      (<Question>element).afterRender(el);
-    }
+
+    setTimeout(() => {
+      !!ko.tasks && ko.tasks.runEarly();
+      var el = SurveyElement.GetFirstNonTextElement(elements);
+      if (!el) return;
+      var element = <IElement>con;
+      if (element.isPanel) {
+        this.panel.survey.afterRenderPanel(con, el);
+      } else {
+        (<Question>element).afterRender(el);
+      }
+    }, 0);
   }
 
   rowAfterRender(elements: HTMLElement[], model: QuestionRow) {

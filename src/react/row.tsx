@@ -6,6 +6,7 @@ import { SurveyElementBase } from "./reactquestion_element";
 import { IElement, Base } from "survey-core";
 import { ReactElementFactory } from "./element-factory";
 import { settings } from "survey-core";
+import { ReactSurveyModel } from "./reactsurveymodel";
 
 export class SurveyRow extends SurveyElementBase<any, any> {
   private rootRef: React.RefObject<HTMLDivElement>;
@@ -31,34 +32,41 @@ export class SurveyRow extends SurveyElementBase<any, any> {
   protected canRender(): boolean {
     return !!this.row && !!this.survey && !!this.creator && this.row.visible;
   }
-  protected renderElement(): JSX.Element {
+  protected renderElementContent(): JSX.Element {
     var elements = null;
     if (this.row.isNeedRender) {
       elements = this.row.elements
-        .filter(element => element.isVisible)
-        .map(element => {
-        const innerElement = this.createElement(element);
-        var rootStyle: { [index: string]: any } = {};
-        if (element.renderWidth) {
-          rootStyle["width"] = element.renderWidth;
-          rootStyle["flexGrow"] = 1;
-          rootStyle["flexShrink"] = 1;
-          rootStyle["flexBasis"] = element.renderWidth;
-          rootStyle["minWidth"] = element.minWidth;
-          rootStyle["maxWidth"] = element.maxWidth;
-        }
-        return (
-          <div style={rootStyle} key={innerElement.key}>
-            {innerElement}
-          </div>
-        );
-      });
+        .filter((element) => element.isVisible)
+        .map((element) => {
+          const innerElement = this.createElement(element);
+          var rootStyle: { [index: string]: any } = {};
+          if (element.renderWidth) {
+            rootStyle["width"] = element.renderWidth;
+            rootStyle["flexGrow"] = 1;
+            rootStyle["flexShrink"] = 1;
+            rootStyle["flexBasis"] = element.renderWidth;
+            rootStyle["minWidth"] = element.minWidth;
+            rootStyle["maxWidth"] = element.maxWidth;
+          }
+          return (
+            <div style={rootStyle} key={innerElement.key}>
+              {innerElement}
+            </div>
+          );
+        });
     }
+
     return (
       <div ref={this.rootRef} className={this.css.row}>
         {elements}
       </div>
     );
+  }
+  protected renderElement(): JSX.Element {
+    const survey: ReactSurveyModel = this.survey as ReactSurveyModel;
+    const content = this.renderElementContent();
+    const wrapper = survey.wrapRow(content, this.row);
+    return wrapper || content;
   }
   componentDidMount() {
     super.componentDidMount();

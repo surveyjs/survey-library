@@ -43,19 +43,26 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     void (<LocalizableString>(
       this.createLocalizableString("confirmDeleteText", this)
     ));
-    void (<LocalizableString>this.createLocalizableString("addRowText", this));
-    void (<LocalizableString>(
-      this.createLocalizableString("removeRowText", this)
-    ));
+    var locAddRowText = this.createLocalizableString("addRowText", this);
+    locAddRowText.onGetTextCallback = (text: string): string => {
+      return !!text ? text : this.defaultAddRowText;
+    };
+    var locRemoveRowText = this.createLocalizableString("removeRowText", this);
+    locRemoveRowText.onGetTextCallback = (text: string): string => {
+      return !!text ? text : surveyLocalization.getString("removeRow");
+    };
     var locEmptyRowsText = <LocalizableString>(
       this.createLocalizableString("emptyRowsText", this)
     );
     locEmptyRowsText.onGetTextCallback = (text: string): string => {
       return !!text ? text : surveyLocalization.getString("emptyRowsText");
     };
-    this.registerFunctionOnPropertyValueChanged("hideColumnsIfEmpty", () => {
-      this.setShowColumnsIfEmpty();
-    });
+    this.registerFunctionOnPropertiesValueChanged(
+      ["hideColumnsIfEmpty", "allowAddRows"],
+      () => {
+        this.updateShowTableAndAddRow();
+      }
+    );
   }
   public getType(): string {
     return "matrixdynamic";
@@ -459,17 +466,18 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
    * Use this property to change the default value of add row button text.
    */
   public get addRowText() {
-    var defaultLocName = this.isColumnLayoutHorizontal ? "addRow" : "addColumn";
-    return this.getLocalizableStringText(
-      "addRowText",
-      surveyLocalization.getString(defaultLocName)
-    );
+    return this.getLocalizableStringText("addRowText", this.defaultAddRowText);
   }
   public set addRowText(val: string) {
     this.setLocalizableStringText("addRowText", val);
   }
   get locAddRowText() {
     return this.getLocalizableString("addRowText");
+  }
+  private get defaultAddRowText(): string {
+    return surveyLocalization.getString(
+      this.isColumnLayoutHorizontal ? "addRow" : "addColumn"
+    );
   }
   /**
    * By default the 'Add Row' button is shown on bottom if columnLayout is horizontal and on top if columnLayout is vertical. <br/>

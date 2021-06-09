@@ -4497,6 +4497,136 @@ QUnit.test(
   }
 );
 QUnit.test(
+  "showInMultipleColumns property, and enabledIf in item, Bug #2926",
+  function(assert) {
+    var survey = new SurveyModel({
+      elements: [
+        {
+          type: "matrixdropdown",
+          name: "matrix",
+          columns: [
+            {
+              name: "col1",
+              cellType: "radiogroup",
+              showInMultipleColumns: true,
+            },
+          ],
+          choices: [
+            { value: 1, enableIf: "{row.col1}<>1" },
+            { value: 2, enableIf: "{row.col1}=1" },
+          ],
+          rows: ["row1", "row2"],
+        },
+      ],
+    });
+    var matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+    matrix.value = { row1: { col1: 1 }, row2: { col1: 2 } };
+    assert.equal(matrix.renderedTable.rows.length, 2, "There are two rows");
+    assert.equal(
+      matrix.renderedTable.rows[0].cells.length,
+      3,
+      "There are two cells and one row name"
+    );
+    assert.equal(
+      matrix.renderedTable.rows[0].cells[1].item.isEnabled,
+      false,
+      "cell[0, 0] is disabled"
+    );
+    assert.equal(
+      matrix.renderedTable.rows[0].cells[2].item.isEnabled,
+      true,
+      "cell[0, 1] is enabled"
+    );
+    assert.equal(
+      matrix.renderedTable.rows[1].cells[1].item.isEnabled,
+      true,
+      "cell[1, 0] is enabled"
+    );
+    assert.equal(
+      matrix.renderedTable.rows[1].cells[2].item.isEnabled,
+      false,
+      "cell[1, 1] is disabled"
+    );
+    matrix.value = { row1: { col1: 2 }, row2: { col1: 2 } };
+    assert.equal(
+      matrix.renderedTable.rows[0].cells[1].item.isEnabled,
+      true,
+      "cell[0, 0] is disabled, #2"
+    );
+    assert.equal(
+      matrix.renderedTable.rows[0].cells[2].item.isEnabled,
+      false,
+      "cell[0, 1] is enabled, #2"
+    );
+  }
+);
+QUnit.test(
+  "showInMultipleColumns property, columnLayout: 'vertical'  and enabledIf in item, Bug #2926",
+  function(assert) {
+    var survey = new SurveyModel({
+      elements: [
+        {
+          type: "matrixdropdown",
+          name: "matrix",
+          columnLayout: "vertical",
+          columns: [
+            {
+              name: "col1",
+              cellType: "radiogroup",
+              showInMultipleColumns: true,
+            },
+          ],
+          choices: [
+            { value: 1, enableIf: "{row.col1}<>1" },
+            { value: 2, enableIf: "{row.col1}=1" },
+          ],
+          rows: ["row1", "row2"],
+        },
+      ],
+    });
+    var matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+    matrix.value = { row1: { col1: 1 }, row2: { col1: 2 } };
+    assert.equal(matrix.renderedTable.rows.length, 2, "There are two rows");
+    assert.equal(
+      matrix.renderedTable.rows[0].cells.length,
+      3,
+      "There are two cells and one row name"
+    );
+    assert.equal(
+      matrix.renderedTable.rows[0].cells[1].item.isEnabled,
+      false,
+      "cell[0, 0] is disabled"
+    );
+    assert.equal(
+      matrix.renderedTable.rows[1].cells[1].item.isEnabled,
+      true,
+      "cell[1, 0] is enabled"
+    );
+    assert.equal(
+      matrix.renderedTable.rows[0].cells[2].item.isEnabled,
+      true,
+      "cell[0, 1] is enabled"
+    );
+    assert.equal(
+      matrix.renderedTable.rows[1].cells[2].item.isEnabled,
+      false,
+      "cell[1, 1] is disabled"
+    );
+    matrix.value = { row1: { col1: 2 }, row2: { col1: 2 } };
+    assert.equal(
+      matrix.renderedTable.rows[0].cells[1].item.isEnabled,
+      true,
+      "cell[0, 0] is disabled, #2"
+    );
+    assert.equal(
+      matrix.renderedTable.rows[1].cells[1].item.isEnabled,
+      false,
+      "cell[1, 0] is enabled, #2"
+    );
+  }
+);
+
+QUnit.test(
   "Filter choices on value change in the next column, Bug #2182",
   function(assert) {
     var survey = new SurveyModel({
@@ -5767,6 +5897,54 @@ QUnit.test("MatrixDynamic, ", function(assert) {
   matrix.hideColumnsIfEmpty = true;
   assert.equal(matrix.renderedTable.showTable, true, "survey in design mode");
 });
+QUnit.test(
+  "MatrixDynamic, Hide/show add row button on changing allowAddRows",
+  function(assert) {
+    var survey = new SurveyModel({
+      elements: [
+        {
+          type: "matrixdynamic",
+          name: "matrix",
+          rowCount: 2,
+          maxRowCount: 3,
+          hideColumnsIfEmpty: true,
+          columns: [{ name: "col1" }],
+        },
+      ],
+    });
+    var matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+    assert.equal(
+      matrix.renderedTable.showAddRowOnBottom,
+      true,
+      "We have a row here"
+    );
+    matrix.allowAddRows = false;
+    assert.equal(
+      matrix.renderedTable.showAddRowOnBottom,
+      false,
+      "We do not allow add rows"
+    );
+    matrix.allowAddRows = true;
+    assert.equal(
+      matrix.renderedTable.showAddRowOnBottom,
+      true,
+      "We have a row here again"
+    );
+    matrix.addRow();
+    assert.equal(
+      matrix.renderedTable.showAddRowOnBottom,
+      false,
+      "max row count is 3"
+    );
+    matrix.rowCount = 1;
+    assert.equal(
+      matrix.renderedTable.showAddRowOnBottom,
+      true,
+      "row count is 1"
+    );
+  }
+);
+
 QUnit.test("Matrixdynamic change column.readOnly property", function(assert) {
   var question = new QuestionMatrixDynamicModel("matrixDynamic");
   question.rowCount = 2;
@@ -6125,3 +6303,33 @@ QUnit.test("getDisplayValue() function in matrix Dropdown, Bug#", function(
   );
   assert.equal(counter, 0, "We do not change the value during processing");
 });
+QUnit.test(
+  "Error on setting properties into column cellType:'text', Bug#2897",
+  function(assert) {
+    var survey = new SurveyModel({
+      elements: [
+        {
+          type: "matrixdropdown",
+          name: "matrix",
+          columns: [
+            {
+              name: "col1",
+              cellType: "text",
+            },
+          ],
+          rows: [{ value: "row1", text: "Row 1" }],
+        },
+      ],
+    });
+    var matrix = <QuestionMatrixDropdownModel>(
+      survey.getQuestionByName("matrix")
+    );
+    var rows = matrix.visibleRows;
+    matrix.columns[0].inputType = "date";
+    assert.equal(
+      rows[0].cells[0].question.inputType,
+      "date",
+      "Set the property correctly"
+    );
+  }
+);

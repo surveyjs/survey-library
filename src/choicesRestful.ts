@@ -114,7 +114,7 @@ export class ChoicesRestful extends Base {
   public owner: IQuestion;
   public createItemValue = (value: any) => {
     return new ItemValue(value);
-  }
+  };
   constructor() {
     super();
   }
@@ -141,9 +141,13 @@ export class ChoicesRestful extends Base {
     if (this.isUsingCacheFromUrl === false) return false;
     return settings.useCachingForChoicesRestful;
   }
-  public get isRunning() {
+  public get isRunning(): boolean {
+    return this.getIsRunning();
+  }
+  protected getIsRunning(): boolean {
     return this.isRunningValue;
   }
+
   public get isWaitingForParameters() {
     return this.url && !this.processedUrl;
   }

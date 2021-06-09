@@ -370,7 +370,9 @@ export class Question extends SurveyElement
   }
   setParentQuestion(val: Question) {
     this.parentQuestionValue = val;
+    this.onParentQuestionChanged();
   }
+  protected onParentQuestionChanged() {}
   protected onParentChanged() {}
   /**
    * Returns false if the question doesn't have a title property, for example: QuestionHtmlModel, or titleLocation property equals to "hidden"

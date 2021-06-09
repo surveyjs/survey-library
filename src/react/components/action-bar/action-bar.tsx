@@ -25,7 +25,6 @@ export class SurveyActionBar extends SurveyElementBase<IActionBarProps, any> {
 
   constructor(props: IActionBarProps) {
     super(props);
-    this.model.setItems(this.props.items);
     this.rootRef = React.createRef();
   }
   componentDidMount() {
@@ -46,7 +45,8 @@ export class SurveyActionBar extends SurveyElementBase<IActionBarProps, any> {
   protected getStateElement(): Base {
     return this.model;
   }
-  render(): any {
+  renderElement(): any {
+    this.model.setItems(this.props.items);
     if (!this.hasItems) return null;
     const items = this.renderItems();
     return (
@@ -80,7 +80,7 @@ export class SurveyActionBar extends SurveyElementBase<IActionBarProps, any> {
   }
 }
 
-ReactElementFactory.Instance.registerElement("sv-action-bar", props => {
+ReactElementFactory.Instance.registerElement("sv-action-bar", (props) => {
   return React.createElement(
     SurveyActionBar,
     (props as any) as IActionBarProps

@@ -4,37 +4,36 @@
 <script lang="ts">
 import Vue from "vue";
 import { Prop, Component } from "vue-property-decorator";
-
-import { PopupViewModel, PopupModel } from "survey-core";
+import { PopupBaseViewModel, PopupModel } from "survey-core";
 import { PopupContainer } from "./popup-container.vue";
 import { BaseVue } from "../../base";
-
 @Component
 export class Popup extends BaseVue {
-  private container: HTMLElement;
   @Prop() model: PopupModel;
   @Prop() targetElement: HTMLElement;
-
+  private popupContainer: any;
+  private popupViewModel: PopupBaseViewModel;
   protected getModel() {
     return this.model;
   }
-
   onMounted() {
-    this.container = document.createElement("div");
-    document.body.appendChild(this.container);
-    const popup = new PopupViewModel(this.model, this.$el.parentElement);
-    new PopupContainer({
-      el: this.container,
-      propsData: { model: popup },
+    this.popupViewModel = new PopupBaseViewModel(
+      this.model,
+      this.$el.parentElement
+    );
+    this.popupViewModel.initializePopupContainer();
+    this.popupContainer = new PopupContainer({
+      el: this.popupViewModel.container.appendChild(
+        document.createElement("div")
+      ),
+      propsData: { model: this.popupViewModel },
     });
   }
-
-  beforeDestroy() {
-    this.container.remove();
-    this.container = undefined;
+  destroyed() {
+    this.popupContainer.$destroy();
+    this.popupViewModel.destroyPopupContainer();
   }
 }
-
 Vue.component("sv-popup", Popup);
 export default Popup;
 </script>

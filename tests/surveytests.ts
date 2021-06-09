@@ -574,6 +574,24 @@ QUnit.test(
     assert.equal(survey.progressText, "Answered: 50%");
   }
 );
+QUnit.test("progressText, 'requiredQuestions' type and design mode", function(
+  assert
+) {
+  var survey = new SurveyModel();
+  survey.setDesignMode(true);
+  survey.addPage(createPageWithQuestion("Page 1", "q1"));
+  survey.addPage(createPageWithQuestion("Second page", "q2"));
+  survey.addPage(createPageWithQuestion("Third page", "q3"));
+  survey.addPage(createPageWithQuestion("Forth page", "q4"));
+  survey.getQuestionByName("q1").isRequired = true;
+  survey.getQuestionByName("q3").isRequired = true;
+
+  assert.equal(survey.progressText, "Page 1 of 4");
+  survey.progressBarType = "questions";
+  assert.equal(survey.progressText, "Answered 0/4 questions");
+  survey.progressBarType = "requiredQuestions";
+  assert.equal(survey.progressText, "Answered 0/2 questions");
+});
 QUnit.test(
   "survey.progressBarType = 'questions' and non input question, Bug #2108, Bug #2460",
   function(assert) {
@@ -7614,6 +7632,11 @@ QUnit.test("survey.showInvisibleElements property", function(assert) {
     "question2 is invisible"
   );
   assert.equal(
+    survey.getQuestionByName("question2").getPropertyValue("isVisible"),
+    false,
+    "question2 is invisible, property value"
+  );
+  assert.equal(
     survey.getQuestionByName("question4").visibleChoices.length,
     0,
     "There is zero visible choices"
@@ -7624,6 +7647,11 @@ QUnit.test("survey.showInvisibleElements property", function(assert) {
     survey.getQuestionByName("question2").isVisible,
     true,
     "question2 is visible"
+  );
+  assert.equal(
+    survey.getQuestionByName("question2").getPropertyValue("isVisible"),
+    true,
+    "question2 is visible, propertyValue"
   );
   assert.equal(
     survey.getQuestionByName("question4").visibleChoices.length,
@@ -13059,4 +13087,93 @@ QUnit.test("element.searchText()", function(assert) {
   findRes = survey.searchText("item");
   assert.equal(findRes.length, 2, "Find choices");
   assert.equal(findRes[1].element["name"], "question2", "Find choices");
+});
+QUnit.test("send notification on setLocale change for survey.title", function(
+  assert
+) {
+  var survey = new SurveyModel();
+  var newValue;
+  survey.onPropertyChanged.add((sender, options) => {
+    newValue = options.newValue;
+  });
+  survey.locTitle.setLocaleText("", "new title");
+  assert.equal(survey.title, "new title", "survey title is correct");
+  assert.equal(newValue, "new title", "we send notification");
+});
+
+QUnit.test(
+  "onAfterRenderPage calls incorrect for the first page when there is the started page, Bug #",
+  function(assert) {
+    var survey = new SurveyModel({
+      firstPageIsStarted: true,
+      pages: [
+        {
+          name: "Start Page",
+          questions: [
+            {
+              type: "html",
+              html: "1",
+            },
+          ],
+        },
+        {
+          name: "First Page",
+          questions: [
+            {
+              type: "text",
+              name: "q1",
+            },
+          ],
+        },
+      ],
+    });
+    var pageName;
+    survey.onAfterRenderPage.add((sender, options) => {
+      pageName = options.page.name;
+    });
+    survey.afterRenderPage(undefined);
+    assert.equal(pageName, "Start Page", "We render the started page");
+    survey.start();
+    survey.afterRenderPage(undefined);
+    assert.equal(pageName, "First Page", "We render the first page");
+  }
+);
+QUnit.test("Custom widget, test canShowInToolbox read-only property", function(
+  assert
+) {
+  CustomWidgetCollection.Instance.clear();
+
+  var readOnlyCounter = 0;
+  var widget = CustomWidgetCollection.Instance.addCustomWidget({
+    name: "first",
+  });
+  assert.equal(
+    widget.canShowInToolbox,
+    false,
+    "widget is activated by property"
+  );
+  widget = CustomWidgetCollection.Instance.addCustomWidget(
+    {
+      name: "second",
+    },
+    "customtype"
+  );
+  assert.equal(
+    widget.canShowInToolbox,
+    true,
+    "widget is activated by customtype"
+  );
+  var isLoaded = false;
+  widget.widgetJson.widgetIsLoaded = (): boolean => {
+    return isLoaded;
+  };
+  assert.equal(widget.canShowInToolbox, false, "widget is not loaded");
+  isLoaded = true;
+  assert.equal(widget.canShowInToolbox, true, "widget is loaded");
+  widget.showInToolbox = false;
+  assert.equal(widget.canShowInToolbox, false, "widget is not show in toolbox");
+  widget.showInToolbox = true;
+  assert.equal(widget.canShowInToolbox, true, "widget is show in toolbox");
+
+  CustomWidgetCollection.Instance.clear();
 });

@@ -8,13 +8,13 @@ import { ReactQuestionFactory } from "./reactquestion_factory";
 export class SurveyQuestionRating extends SurveyQuestionElementBase {
   constructor(props: any) {
     super(props);
-    this.handleOnChange = this.handleOnChange.bind(this);
+    this.handleOnClick = this.handleOnClick.bind(this);
   }
   protected get question(): QuestionRatingModel {
     return this.questionBase as QuestionRatingModel;
   }
-  handleOnChange(event: any) {
-    this.question.value = event.target.value;
+  handleOnClick(event: any) {
+    this.question.setValueFromClick(event.target.value);
     this.setState({ value: this.question.value });
   }
   protected renderElement(): JSX.Element {
@@ -63,7 +63,7 @@ export class SurveyQuestionRating extends SurveyQuestionElementBase {
     var isChecked = this.question.value == item.value;
     var className = cssClasses.item;
     if (isChecked) className += " " + cssClasses.selected;
-    if (this.isDisplayMode) className += " " + cssClasses.disabled;
+    if (this.isDisplayMode) className += " " + cssClasses.itemDisabled;
 
     var itemText = this.renderLocString(item.locText);
     var minTextBlock = !!minText ? (
@@ -82,7 +82,8 @@ export class SurveyQuestionRating extends SurveyQuestionElementBase {
           value={item.value}
           disabled={this.isDisplayMode}
           checked={this.question.value == item.value}
-          onChange={this.handleOnChange}
+          readOnly
+          onClick={this.handleOnClick}
           aria-required={this.question.isRequired}
           aria-label={item.locText.text}
           aria-invalid={this.question.errors.length > 0}

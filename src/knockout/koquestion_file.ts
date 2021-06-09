@@ -29,7 +29,7 @@ class QuestionFileImplementor extends QuestionImplementor {
       ko.pureComputed(() => {
         return (
           this.question.koCss().chooseFile +
-          (this.question.isReadOnly ? " " + this.question.koCss().disabled : "")
+          (this.question.isReadOnly ? " " + this.question.koCss().controlDisabled : "")
         );
       })
     );

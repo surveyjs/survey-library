@@ -108,13 +108,13 @@ export class StylesManager {
     ".sv_qstn .sv-q-col-1, .sv-question .sv-q-col-1":
       "width: 100%; display: inline-block; padding-right: 1em; box-sizing: border-box; word-break: break-word;",
     ".sv_qstn .sv-q-col-2, .sv-question .sv-q-col-2":
-      "width: 50%; display: inline-block; padding-right: 1em; box-sizing: border-box; word-break: break-word;",
+      "width: calc(50% - 1em); display: inline-block; padding-right: 1em; box-sizing: border-box; word-break: break-word;",
     ".sv_qstn .sv-q-col-3, .sv-question .sv-q-col-3":
-      "width: 33.33333%; display: inline-block; padding-right: 1em; box-sizing: border-box; word-break: break-word;",
+      "width: calc(33.33333% - 1em); display: inline-block; padding-right: 1em; box-sizing: border-box; word-break: break-word;",
     ".sv_qstn .sv-q-col-4, .sv-question .sv-q-col-4":
-      "width: 25%; display: inline-block; padding-right: 1em; box-sizing: border-box; word-break: break-word;",
+      "width: calc(25% - 1em); display: inline-block; padding-right: 1em; box-sizing: border-box; word-break: break-word;",
     ".sv_qstn .sv-q-col-5, .sv-question .sv-q-col-5":
-      "width: 20%; display: inline-block; padding-right: 1em; box-sizing: border-box; word-break: break-word;",
+      "width: calc(20% - 1em); display: inline-block; padding-right: 1em; box-sizing: border-box; word-break: break-word;",
 
     ".sv_qstn .sv-q-column-1, .sv-question .sv-q-column-1":
       "width: 100%; max-width: 100%; display: inline-block; padding-right: 1em; box-sizing: border-box; word-break: break-word;",
@@ -228,7 +228,7 @@ export class StylesManager {
 
     // paneldynamic progress
     ".sv_main .sv-progress":
-      "height: 0.19em; background-color: $header-background-color;",
+      "height: 0.19em; background-color: $header-background-color; position: relative;",
     ".sv_main .sv-progress__bar":
       "background-color: $main-color; height: 100%; position: relative;",
     // EO paneldynamic progress
@@ -325,7 +325,6 @@ export class StylesManager {
     ".sv_main .sv_p_wrapper_in_row":
       "display: flex; flex-direction: row; align-items: center;",
     ".sv_main  .sv_p_remove_btn_right": "margin-left: 1em;",
-
     //button-group
     ".sv_main .sv-button-group":
       "display: flex; align-items: center; flex-direction: row; font-size: 16px; height: 48px; overflow: auto;",
@@ -340,6 +339,73 @@ export class StylesManager {
       "margin-left: 8px;",
     ".sv_main .sv-button-group__item--disabled": "color: cursor: default;",
     //eo button-group
+    //popup
+    "sv-popup": "display: block; position: absolute; z-index: -1;",
+    ".sv-popup":
+      "position: fixed; left: 0; top: 0; z-index: 1000; width: 100vw; height: 100vh;",
+    ".sv-popup--modal":
+      "display: flex; align-items: center; justify-content: center;",
+    ".sv-popup--modal .sv-popup__container":
+      "position: static; filter: none; padding: calc(4 * 8px);",
+    ".sv-popup__container":
+      "position: absolute; filter: drop-shadow(0px calc(1 * 8px) calc(2 * 8px) rgba(0, 0, 0, 0.1)); padding: calc(1 * 8px) 0; background: white; border-radius: 4px;",
+    ".sv-popup__scrolling-content":
+      "max-width: 90vw; max-height: 90vh; overflow: auto;",
+    ".sv-popup__scrolling-content::-webkit-scrollbar":
+      "height: 6px; width: 6px; background-color: #f3f3f3;",
+    ".sv-popup__scrolling-content::-webkit-scrollbar-thumb":
+      "background: rgba(25, 179, 148, 0.1);",
+    ".sv-popup__content": "min-width: 100%;",
+    ".sv-popup--show-pointer.sv-popup--top":
+      "transform: translateY(calc(-1 * 8px));",
+    ".sv-popup--show-pointer.sv-popup--top .sv-popup__pointer":
+      "transform: translate(calc(-1 * 8px)) rotate(180deg);",
+    ".sv-popup--show-pointer.sv-popup--bottom":
+      "transform: translateY(calc(1 * 8px));",
+    ".sv-popup--show-pointer.sv-popup--bottom .sv-popup__pointer":
+      "transform: translate(calc(-1 * 8px), calc(-1 * 8px));",
+    ".sv-popup--show-pointer.sv-popup--right":
+      "transform: translate(calc(1 * 8px));",
+    ".sv-popup--show-pointer.sv-popup--right .sv-popup__pointer":
+      "transform: translate(-12px, -4px) rotate(-90deg);",
+    ".sv-popup--show-pointer.sv-popup--left":
+      "transform: translate(calc(-1 * 8px));",
+    ".sv-popup--show-pointer.sv-popup--left .sv-popup__pointer":
+      "transform: translate(-4px, -4px) rotate(90deg);",
+    ".sv-popup__pointer": "display: block; position: absolute;",
+    ".sv-popup__pointer:after":
+      "content: ' '; display: block; width: 0; height: 0; border-left: calc(1 * 8px) solid transparent; border-right: calc(1 * 8px) solid transparent; border-bottom: calc(1 * 8px) solid white; align-self: center;",
+    ".sv-popup__footer": "display: flex; margin-top: calc(4 * 8px);",
+    ".sv-popup__footer-item:first-child": "margin-left: auto;",
+    ".sv-popup__footer-item + .sv-popup__footer-item":
+      "margin-left: calc(1 * 8px);",
+    ".sv-popup__button":
+      "padding: calc(2 * 8px) calc(6 * 8px); background: #fff; box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.15); border-radius: 4px; cursor: pointer; margin: 2px; font-family: 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif; font-style: normal; font-weight: 600; font-size: calc(2 * 8px); line-height: calc(3 * 8px); text-align: center; color: #19b394; border: none; outline: none;",
+    ".sv-popup__button:hover": "box-shadow: 0 0 0 2px #19b394;",
+    ".sv-popup__button:disabled":
+      "color: rgba(22, 22, 22, 0.16); cursor: default;",
+    ".sv-popup__button:disabled:hover":
+      "box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.15);",
+    ".sv-popup__button--apply": "background-color: #19b394; color: #fff;",
+    ".sv-popup__button--apply:disabled": "background-color: #f3f3f3;",
+    //eo popup
+    //list
+    ".sv-list":
+      "display: flex; flex-direction: column; align-items: flex-start; padding: 0; margin: 0; background: #ffffff; font-family: 'Open Sans'; list-style-type: none;",
+    ".sv-list__item":
+      "width: 100%; display: flex; align-items: center; box-sizing: border-box; padding: calc(1 * 8px) calc(2 * 8px); cursor: pointer;",
+    ".sv-list__item-icon":
+      "float: left; width: calc(3 * 8px); height: calc(3 * 8px); margin-right: calc(2 * 8px);",
+    ".sv-list__item-icon svg": "display: block;",
+    ".sv-list__item-icon use": "fill: #909090;",
+    ".sv-list__item:hover": "background-color: #f3f3f3;",
+    ".sv-list__item--selected": "background-color: #19b394; color: #fff;",
+    ".sv-list__item--selected:hover": "background-color: #19b394;",
+    ".sv-list__item--selected .sv-list__item-icon use": "fill: #fff;",
+    ".sv-list__item--disabled":
+      "color: rgba(22, 22, 22, 0.16); cursor: default; pointer-events: none;",
+    ".sv-list__item span": "white-space: nowrap;",
+    //eo list
   };
 
   public static Media: { [key: string]: { media: string; style: string } } = {
@@ -868,7 +934,7 @@ export class StylesManager {
     ".sv-file__decorator":
       "background-color: $body-container-background-color;",
     ".sv-file__clean-btn": "background-color: $remove-button-color;",
-    ".sv-file__choose-btn": "background-color: $add-button-color;",
+    ".sv-file__choose-btn:not(.sv-file__choose-btn--disabled)": "background-color: $add-button-color;",
     ".sv-file__choose-btn--disabled": "background-color: $disable-color;",
     ".sv-file__remove-svg": "fill: #ff1800;",
     ".sv-file__sign a": "color: $text-color;",

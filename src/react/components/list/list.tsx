@@ -13,17 +13,15 @@ export class List extends SurveyElementBase<IListProps, any> {
   get model(): ListModel {
     return this.props.model;
   }
-
   getStateElement() {
     return this.model;
   }
-
   render() {
     const items = this.renderItems();
     return (
       <ul
         className="sv-list"
-        onMouseDown={(e) => {
+        onMouseDown={e => {
           e.preventDefault();
         }}
       >
@@ -31,7 +29,6 @@ export class List extends SurveyElementBase<IListProps, any> {
       </ul>
     );
   }
-
   renderItems() {
     if (!this.model) {
       return null;
@@ -65,10 +62,6 @@ export class List extends SurveyElementBase<IListProps, any> {
   }
 }
 
-ReactElementFactory.Instance.registerElement("sv-list", (props) => {
-  const model: ListModel = props;
-  const listProps: IListProps = {
-    model: model,
-  };
-  return React.createElement(List, listProps);
+ReactElementFactory.Instance.registerElement("sv-list", props => {
+  return React.createElement(List, props);
 });

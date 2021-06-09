@@ -34,7 +34,7 @@
           role="button"
           :class="
             question.cssClasses.chooseFile +
-            (question.isReadOnly ? ' ' + question.cssClasses.disabled : '')
+            (question.isReadOnly ? ' ' + question.cssClasses.controlDisabled : '')
           "
           :for="question.inputId"
           v-bind:aria-label="question.chooseButtonCaption"

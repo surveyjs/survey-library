@@ -143,13 +143,13 @@ export class Survey extends SurveyElementBase<any, any>
     }
     var htmlValue = { __html: this.survey.processedCompletedHtml };
     return (
-      <div>
+      <React.Fragment>
         <div
           dangerouslySetInnerHTML={htmlValue}
           className={[this.css.body, this.css.completedPage].join(" ")}
         />
         {completedState}
-      </div>
+      </React.Fragment>
     );
   }
   protected renderCompletedBefore(): JSX.Element {
@@ -170,13 +170,13 @@ export class Survey extends SurveyElementBase<any, any>
       : null;
     var pageId = this.survey.startedPage ? this.survey.startedPage.id : "";
     return (
-      <div>
+      <React.Fragment>
         <div id={pageId} className={this.css.body}>
           {this.renderNavigation("top")}
           {startedPage}
           {this.renderNavigation("bottom")}
         </div>
-      </div>
+      </React.Fragment>
     );
   }
   protected renderSurvey(): JSX.Element {
@@ -304,7 +304,7 @@ export class Survey extends SurveyElementBase<any, any>
         !!self.state && !!self.state.modelChanged ? self.state.modelChanged : 0;
       self.setState({ modelChanged: counter + 1 });
     };
-    this.survey.onPartialSend.add(sender => {
+    this.survey.onPartialSend.add((sender) => {
       if (!!self.state) {
         self.setState(self.state);
       }
@@ -346,3 +346,7 @@ export class Survey extends SurveyElementBase<any, any>
     return this.survey.questionErrorLocation;
   }
 }
+
+ReactElementFactory.Instance.registerElement("survey", (props) => {
+  return React.createElement(Survey, props);
+});

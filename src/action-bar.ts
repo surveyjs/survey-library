@@ -203,10 +203,9 @@ export class AdaptiveElement extends Base {
 
   constructor() {
     super();
-    this.dotsItemPopupModel = new PopupModel(
-      "sv-list",
-      this.invisibleItemsListModel
-    );
+    this.dotsItemPopupModel = new PopupModel("sv-list", {
+      model: this.invisibleItemsListModel,
+    });
     this.dotsItem = new AdaptiveActionBarItemWrapper(
       this,
       new ActionBarItem({

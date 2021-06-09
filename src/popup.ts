@@ -1,4 +1,4 @@
-import { Base } from "./base";
+import { Base, EventBase } from "./base";
 import { property } from "./jsonobject";
 import { surveyLocalization } from "./surveyStrings";
 import {
@@ -20,7 +20,6 @@ export class PopupModel extends Base {
   @property({ defaultValue: () => {} }) onHide: () => void;
   @property({ defaultValue: () => {} }) onShow: () => void;
   @property({ defaultValue: "" }) cssClass: string;
-
   constructor(
     contentComponentName: string,
     contentComponentData: any,
@@ -35,7 +34,6 @@ export class PopupModel extends Base {
     cssClass: string = ""
   ) {
     super();
-
     this.contentComponentName = contentComponentName;
     this.contentComponentData = contentComponentData;
     this.verticalPosition = verticalPosition;
@@ -48,8 +46,6 @@ export class PopupModel extends Base {
     this.onShow = onShow;
     this.cssClass = cssClass;
   }
-
-  //@property({ defaultValue: false }) isVisible: boolean;
   public get isVisible(): boolean {
     return this.getPropertyValue("isVisible", false);
   }
@@ -57,42 +53,33 @@ export class PopupModel extends Base {
     if (this.isVisible === value) {
       return;
     }
-
     this.setPropertyValue("isVisible", value);
-
-    this.onVisibilityChanged && this.onVisibilityChanged();
-
+    this.onVisibilityChanged && this.onVisibilityChanged(value);
     if (this.isVisible) {
       this.onShow();
     } else {
       this.onHide();
     }
   }
-
   public toggleVisibility() {
     this.isVisible = !this.isVisible;
   }
-  public onVisibilityChanged: () => void;
+  public onVisibilityChanged: (isVisible: boolean) => void;
 }
 
-export class PopupViewModel extends Base {
-  // PopupBase
-  @property({ defaultValue: 0 }) top: string | number;
-  @property({ defaultValue: 0 }) left: string | number;
+export class PopupBaseViewModel extends Base {
+  @property({ defaultValue: "0px" }) top: string;
+  @property({ defaultValue: "0px" }) left: string;
+  @property({ defaultValue: false }) isVisible: boolean;
   @property({ defaultValue: "left" }) popupDirection: string;
   @property({ defaultValue: { left: "0px", top: "0px" } })
   pointerTarget: IPosition;
   public container: HTMLElement;
-
   constructor(public model: PopupModel, public targetElement?: HTMLElement) {
     super();
-    this.model.onVisibilityChanged = () => {
-      this.onIsVisibleChanged(this.isVisible);
-    };
-  }
-  //
-  public get isVisible(): boolean {
-    return this.model.isVisible;
+    this.model.registerFunctionOnPropertyValueChanged("isVisible", () => {
+      this.isVisible = this.model.isVisible;
+    });
   }
   public get contentComponentName(): string {
     return this.model.contentComponentName;
@@ -107,7 +94,7 @@ export class PopupViewModel extends Base {
     return this.model.isModal;
   }
   public get styleClass(): string {
-    var css = this.model.cssClass;
+    let css = this.model.cssClass;
     if (this.isModal) {
       css += " sv-popup--modal";
     } else if (this.showPointer) {
@@ -117,28 +104,7 @@ export class PopupViewModel extends Base {
 
     return css;
   }
-
-  private onIsVisibleChanged(isVisible: boolean) {
-    if (isVisible) {
-      if (this.isModal) {
-        setTimeout(() => {
-          this.setupModalPopup();
-        }, 1);
-      } else {
-        setTimeout(() => {
-          this.setupModelessPopup();
-        }, 1);
-      }
-    }
-  }
-
-  private setupModalPopup() {
-    const background = <HTMLElement>this.container.children[0];
-    const container = <HTMLElement>background.children[0];
-    this.left = (background.offsetWidth - container.offsetWidth) / 2 + "px";
-    this.top = (background.offsetHeight - container.offsetHeight) / 2 + "px";
-  }
-  private setupModelessPopup() {
+  public updatePosition() {
     const rect = this.targetElement.getBoundingClientRect();
     const background = <HTMLElement>this.container.children[0];
     const popupContainer = <HTMLElement>background.children[0];
@@ -146,10 +112,8 @@ export class PopupViewModel extends Base {
       this.model.verticalPosition,
       this.model.horizontalPosition
     );
-    //AM: hang up: page selector inside 'test survey' page causes infinite loop here
-    //do {
-    var height = popupContainer.offsetHeight;
-    var width = popupContainer.offsetWidth;
+    const height = popupContainer.offsetHeight;
+    const width = popupContainer.offsetWidth;
     const pos = PopupUtils.calculatePosition(
       rect,
       height,
@@ -172,42 +136,31 @@ export class PopupViewModel extends Base {
     }
     this.pointerTarget.top += "px";
     this.pointerTarget.left += "px";
-    //} while (
-    //  popupContainer.offsetWidth != width ||
-    //  popupContainer.offsetHeight != height
-    //);
   }
-
   public clickOutside() {
     if (this.isModal) {
       return;
     }
     this.model.isVisible = false;
   }
-
   public cancel() {
     this.model.onCancel();
     this.model.isVisible = false;
   }
-
   public apply() {
     this.model.onApply();
     this.model.isVisible = false;
   }
-
   public get cancelButtonText() {
     return surveyLocalization.getString("modalCancelButtonText");
   }
-
   public get applyButtonText() {
     return surveyLocalization.getString("modalApplyButtonText");
   }
-
   public dispose() {
     super.dispose();
     this.model.onVisibilityChanged = undefined;
   }
-
   public initializePopupContainer() {
     const container: HTMLElement = document.createElement("div");
     this.container = container;

@@ -33,7 +33,7 @@ import { SurveyTimer } from "./surveytimer";
 import { Question } from "./question";
 import { QuestionSelectBase } from "./question_baseselect";
 import { ItemValue } from "./itemvalue";
-import { PanelModelBase } from "./panel";
+import { PanelModelBase, QuestionRowModel } from "./panel";
 import {
   HtmlConditionItem,
   UrlConditionItem,
@@ -55,7 +55,8 @@ export class SurveyModel extends Base
     ISurveyTriggerOwner,
     ISurveyErrorOwner,
     ILocalizableOwner {
-  public static readonly TEMPLATE_RENDERER_COMPONENT_NAME: string = "sv-template-renderer";
+  public static readonly TemplateRendererComponentName: string =
+    "sv-template-renderer";
   [index: string]: any;
   private static stylesManager: StylesManager = null;
   public static platform: string = "unknown";
@@ -945,9 +946,12 @@ export class SurveyModel extends Base
     this.registerFunctionOnPropertyValueChanged("progressBarType", () => {
       this.updateProgressText();
     });
-    this.registerFunctionOnPropertyValueChanged("questionStartIndex", () => {
-      this.resetVisibleIndexes();
-    });
+    this.registerFunctionOnPropertiesValueChanged(
+      ["questionStartIndex", "requiredText", "questionTitlePattern"],
+      () => {
+        this.resetVisibleIndexes();
+      }
+    );
     this.onGetQuestionNo.onCallbacksChanged = () => {
       this.resetVisibleIndexes();
     };
@@ -1001,6 +1005,7 @@ export class SurveyModel extends Base
     return this.cssValue;
   }
   public set css(value: any) {
+    this.updateElementCss(false);
     this.mergeValues(value, this.css);
   }
   public get cssNavigationComplete() {
@@ -1530,11 +1535,9 @@ export class SurveyModel extends Base
     //More information here: https://github.com/surveyjs/survey-library/issues/2599
     if (!this.currentPageValue) return;
     this.updateProgressText();
-    if (this.isStartedState && this.startedPage) {
-      this.startedPage.locStrsChanged();
-    }
-    if (this.currentPage) {
-      this.currentPage.locStrsChanged();
+    var page = this.activePage;
+    if (!!page) {
+      page.locStrsChanged();
     }
   }
 
@@ -2286,6 +2289,8 @@ export class SurveyModel extends Base
     if (!!this.editingObj) {
       this.setDataCore({});
       this.onEditingObjPropertyChanged = (sender: Base, options: any) => {
+        if (!Serializer.hasOriginalProperty(this.editingObj, options.name))
+          return;
         this.updateOnSetValue(options.name, options.newValue, options.oldValue);
       };
       this.editingObj.onPropertyChanged.add(this.onEditingObjPropertyChanged);
@@ -2496,6 +2501,17 @@ export class SurveyModel extends Base
     this.locStrsChanged();
     this.currentPageChanged(newPage, oldValue);
   }
+  /**
+   * Returns the currentPage, unless the started page is showing. In this case returns the started page.
+   * @see currentPage
+   * @see firstPageIsStarted
+   * @see startedPage
+   */
+  public get activePage(): any {
+    return this.isStartedState && this.startedPage
+      ? this.startedPage
+      : this.currentPage;
+  }
   private getPageByObject(value: any): PageModel {
     if (!value) return null;
     if (value.getType && value.getType() == "page") return value;
@@ -2540,14 +2556,14 @@ export class SurveyModel extends Base
    * Sets the input focus to the first question with the input field.
    */
   public focusFirstQuestion() {
-    var page = this.currentPage;
+    var page = this.activePage;
     if (page) {
       page.scrollToTop();
       page.focusFirstQuestion();
     }
   }
   scrollToTopOnPageChange() {
-    var page = this.currentPage;
+    var page = this.activePage;
     if (!page) return;
     page.scrollToTop();
     if (this.focusFirstQuestionAutomatic) {
@@ -2998,10 +3014,11 @@ export class SurveyModel extends Base
   /**
    * Returns `true`, if a page contains an error. If there is an async function in an expression, then the function will return `undefined` value.
    * In this case, you should use the second `onAsyncValidation` parameter,  which is a callback function: (hasErrors: boolean) => void
-   * @param page the page that you want to validate. If the parameter is undefined then the `currentPage` is using
+   * @param page the page that you want to validate. If the parameter is undefined then the `activePage` is using
    * @param onAsyncValidation use this parameter if you use async functions in your expressions. This callback function will be called with hasErrors value equals to `true` or `false`.
    * @see hasCurrentPageErrors
    * @see hasErrors
+   * @see activePage
    * @see currentPage
    */
   public hasPageErrors(
@@ -3009,7 +3026,7 @@ export class SurveyModel extends Base
     onAsyncValidation?: (hasErrors: boolean) => void
   ): boolean {
     if (!page) {
-      page = this.currentPage;
+      page = this.activePage;
     }
     if (!page) return false;
     if (this.checkIsPageHasErrors(page)) return true;
@@ -3148,7 +3165,7 @@ export class SurveyModel extends Base
   private checkIsCurrentPageHasErrors(
     isFocuseOnFirstError: boolean = undefined
   ): boolean {
-    return this.checkIsPageHasErrors(this.currentPage, isFocuseOnFirstError);
+    return this.checkIsPageHasErrors(this.activePage, isFocuseOnFirstError);
   }
   private checkIsPageHasErrors(
     page: PageModel,
@@ -3542,6 +3559,9 @@ export class SurveyModel extends Base
     this.isStartedState = false;
     this.startTimerFromUI();
     this.onStarted.fire(this, {});
+    if (!!this.currentPage) {
+      this.currentPage.locStrsChanged();
+    }
     return true;
   }
   /**
@@ -3579,8 +3599,9 @@ export class SurveyModel extends Base
     if (doComplete && this.checkErrorsMode === "onComplete") {
       options.data = this.data;
     } else {
-      for (var i = 0; i < this.currentPage.questions.length; i++) {
-        var question = this.currentPage.questions[i];
+      var questions = this.activePage.questions;
+      for (var i = 0; i < questions.length; i++) {
+        var question = questions[i];
         if (!question.visible) continue;
         var value = this.getValue(question.getValueName());
         if (!this.isValueEmpty(value))
@@ -3680,7 +3701,8 @@ export class SurveyModel extends Base
     return "<h3>" + this.getLocString("loadingSurvey") + "</h3>";
   }
   public getProgressInfo(): IProgressInfo {
-    return SurveyElement.getProgressInfoByElements(this.visiblePages, false);
+    var pages = this.isDesignMode ? this.pages : this.visiblePages;
+    return SurveyElement.getProgressInfoByElements(pages, false);
   }
   /**
    * Returns the text for the current progress.
@@ -3695,7 +3717,7 @@ export class SurveyModel extends Base
   }
   private isCalculatingProgressText = false;
   public updateProgressText(onValueChanged: boolean = false) {
-    if (this.isDesignMode || this.isCalculatingProgressText) return;
+    if (this.isCalculatingProgressText) return;
     if (
       onValueChanged &&
       this.progressBarType == "pages" &&
@@ -3708,7 +3730,7 @@ export class SurveyModel extends Base
     this.isCalculatingProgressText = false;
   }
   public getProgressText(): string {
-    if (this.isDesignMode || this.currentPage == null) return "";
+    if (!this.isDesignMode && this.currentPage == null) return "";
     var options = {
       questionCount: 0,
       answeredQuestionCount: 0,
@@ -3756,8 +3778,8 @@ export class SurveyModel extends Base
         info.questionCount
       );
     }
-    var vPages = this.visiblePages;
-    var index = vPages.indexOf(this.currentPage) + 1;
+    var vPages = this.isDesignMode ? this.pages : this.visiblePages;
+    var index = this.isDesignMode ? 1 : vPages.indexOf(this.currentPage) + 1;
     return this.getLocString("progressText")["format"](index, vPages.length);
   }
   protected afterRenderSurvey(htmlElement: any) {
@@ -3787,7 +3809,7 @@ export class SurveyModel extends Base
   afterRenderPage(htmlElement: HTMLElement) {
     if (this.onAfterRenderPage.isEmpty) return;
     this.onAfterRenderPage.fire(this, {
-      page: this.currentPage,
+      page: this.activePage,
       htmlElement: htmlElement,
     });
   }
@@ -5075,12 +5097,18 @@ export class SurveyModel extends Base
     if (!page.name) page.name = this.generateNewName(this.pages, "page");
     this.questionHashesPanelAdded(page);
     this.updateVisibleIndexes();
+    if (this.isDesignMode) {
+      this.updateProgressText();
+    }
     var options = { page: page };
     this.onPageAdded.fire(this, options);
   }
   protected doOnPageRemoved(page: PageModel) {
     page.setSurveyImpl(null);
     this.updateVisibleIndexes();
+    if (this.isDesignMode) {
+      this.updateProgressText();
+    }
   }
   private generateNewName(elements: Array<any>, baseName: string): string {
     var keys: { [index: string]: any } = {};
@@ -5766,29 +5794,38 @@ export class SurveyModel extends Base
     });
     return true;
   }
-  public getElementWrapperComponentName(element: SurveyElement): string {
-    return SurveyModel.TEMPLATE_RENDERER_COMPONENT_NAME;
+  public getElementWrapperComponentName(element: any, reason?: string): string {
+    return SurveyModel.TemplateRendererComponentName;
   }
   public getElementWrapperComponentNameByName(element: string): string {
     return element;
   }
-  public getElementWrapperComponentData(element: SurveyElement): any {
+  public getRowWrapperComponentName(row: QuestionRowModel): string {
+    return SurveyModel.TemplateRendererComponentName;
+  }
+  public getElementWrapperComponentData(element: any, reason?: string): any {
     return element;
   }
   public getElementWrapperComponentDataByName(element: string): any {
     return this;
   }
+  public getRowWrapperComponentData(row: QuestionRowModel): any {
+    return row;
+  }
   public getItemValueWrapperComponentName(
     item: ItemValue,
     question: QuestionSelectBase
   ): string {
-    return SurveyModel.TEMPLATE_RENDERER_COMPONENT_NAME;
+    return SurveyModel.TemplateRendererComponentName;
   }
   public getItemValueWrapperComponentData(
     item: ItemValue,
     question: QuestionSelectBase
   ): any {
     return item;
+  }
+  public getMatrixCellTemplateData(cell: any) {
+    return cell.question;
   }
   public searchText(text: string): Array<IFindElement> {
     if (!!text) text = text.toLowerCase();

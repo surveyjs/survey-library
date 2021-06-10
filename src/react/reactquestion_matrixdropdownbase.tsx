@@ -257,7 +257,7 @@ class SurveyQuestionMatrixActionsCell extends ReactSurveyElement {
     return this.props.items;
   }
   protected renderElement(): JSX.Element {
-    return <SurveyActionBar items={this.items}></SurveyActionBar>;
+    return <SurveyActionBar items={this.items} handleClick={false}></SurveyActionBar>;
   }
 }
 

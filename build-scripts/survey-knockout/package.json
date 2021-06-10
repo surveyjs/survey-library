@@ -27,6 +27,6 @@
   },
   "typings": "survey.ko.d.ts",
   "dependencies": {
-    "knockout": "^3.5.0"
+    "knockout": "^3.5.1"
   }
 }

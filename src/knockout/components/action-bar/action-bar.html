@@ -1,7 +1,7 @@
 <!-- ko if: hasItems-->
 <div
   class="sv-action-bar"
-  data-bind="click: function() { return true; }, clickBubble: false"
+  data-bind="click: handleClick ? function() { return true; } : undefined, clickBubble: handleClick ? false : undefined"
 >
   <!-- ko foreach: items-->
   <span

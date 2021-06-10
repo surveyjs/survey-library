@@ -36,6 +36,7 @@ export * from "./action-bar-separator.vue";
 @Component
 export class ActionBarViewModel extends Vue {
   @Prop() items: Array<IActionBarItem>;
+  @Prop() handleClick: boolean;
   private model = new ActionBar();
 
   constructor() {

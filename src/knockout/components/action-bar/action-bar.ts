@@ -12,7 +12,7 @@ export * from "./action-bar-separator";
 export class ActionBarViewModel extends ActionBar {
   public itemsSubscription: any;
 
-  constructor(_items: Array<IActionBarItem>) {
+  constructor(_items: Array<IActionBarItem>, public handleClick = true) {
     super();
     this.itemsSubscription = ko.computed(() => {
       this.setItems(ko.unwrap(_items));
@@ -38,7 +38,7 @@ export class AdaptiveElementImplementor extends ImplementorBase {
 ko.components.register("sv-action-bar", {
   viewModel: {
     createViewModel: (params: any, componentInfo: any) => {
-      const model: ActionBarViewModel = new ActionBarViewModel(params.items);
+      const model: ActionBarViewModel = new ActionBarViewModel(params.items, params.handleClick);
       new AdaptiveElementImplementor(model);
       const container: HTMLDivElement =
         componentInfo.element.nextElementSibling;

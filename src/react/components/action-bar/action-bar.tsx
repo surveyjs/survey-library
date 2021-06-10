@@ -16,6 +16,7 @@ export * from "./action-bar-separator";
 
 interface IActionBarProps {
   items: Array<IActionBarItem>;
+  handleClick?: boolean;
 }
 
 export class SurveyActionBar extends SurveyElementBase<IActionBarProps, any> {
@@ -27,6 +28,11 @@ export class SurveyActionBar extends SurveyElementBase<IActionBarProps, any> {
     super(props);
     this.rootRef = React.createRef();
   }
+
+  private get handleClick() {
+    return this.props.handleClick !== undefined ? this.props.handleClick : true;
+  }
+
   componentDidMount() {
     super.componentDidMount();
     if (!this.hasItems) return;
@@ -53,9 +59,9 @@ export class SurveyActionBar extends SurveyElementBase<IActionBarProps, any> {
       <div
         ref={this.rootRef}
         className="sv-action-bar"
-        onClick={function(event) {
+        onClick={this.handleClick ? function(event) {
           event.stopPropagation();
-        }}
+        } : undefined}
       >
         {items}
       </div>

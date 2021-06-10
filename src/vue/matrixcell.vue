@@ -8,6 +8,7 @@
     <sv-action-bar
       v-if="cell.isActionsCell"
       :items="cell.item.getData()"
+      :handleClick="false"
     ></sv-action-bar>
     <component
       v-if="cell.hasPanel"

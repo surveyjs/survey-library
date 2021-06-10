@@ -67,7 +67,7 @@ export class SurveyQuestionMatrixDynamic extends SurveyQuestionMatrixDropdownBas
           className={cssClasses.button + " " + cssClasses.buttonAdd}
           type="button"
           disabled={this.question.isInputReadOnly}
-          onClick={this.handleOnRowAddClick}
+          onClick={this.question.isDesignMode ? undefined : this.handleOnRowAddClick}
         >
           {addRowText}
           <span className={cssClasses.iconAdd} />

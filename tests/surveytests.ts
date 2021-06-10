@@ -2052,7 +2052,7 @@ QUnit.test("onValidatePanel test", function(assert) {
   assert.equal(
     survey.isCurrentPageHasErrors,
     true,
-    "failed, values are underfined : 10 < q1.value + q2.value < 100"
+    "failed, values are undefined : 10 < q1.value + q2.value < 100"
   );
   q1.value = 5;
   q2.value = 50;

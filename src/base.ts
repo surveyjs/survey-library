@@ -426,7 +426,7 @@ export class Base {
   public static createItemValue: (item: any, type?: string) => any;
   public static itemValueLocStrChanged: (arr: Array<any>) => void;
   /**
-   * Returns true if a value underfined, null, empty string or empty array.
+   * Returns true if a value undefined, null, empty string or empty array.
    *
    * @param value
    * @param trimString a boolean parameter, default value true. If true then it trims the string and functions returns true for a string that contains white spaces only.

@@ -724,27 +724,27 @@ QUnit.test("contain and noncontain for null arrays", function(assert) {
   assert.equal(
     runner.run(values),
     false,
-    "underfined doesn't contain 1 - false"
+    "undefined doesn't contain 1 - false"
   );
   runner = new ConditionRunner("{val} notcontain 1");
   values = {};
-  assert.equal(runner.run(values), true, "underfined doesn't contain 1 - true");
+  assert.equal(runner.run(values), true, "undefined doesn't contain 1 - true");
 });
 
 QUnit.test("length for undefined arrays", function(assert) {
   var runner = new ConditionRunner("{val.length} = 0");
   assert.equal(runner.run({ val: [] }), true, "empty array length returns 0");
-  assert.equal(runner.run({}), true, "underfined length returns 0");
+  assert.equal(runner.run({}), true, "undefined length returns 0");
   assert.equal(
     runner.run({ val: undefined }),
     true,
-    "underfined length returns 0"
+    "undefined length returns 0"
   );
   assert.equal(runner.run({ val: null }), true, "null length returns 0");
   runner = new ConditionRunner("{val.length} < 4");
   assert.equal(runner.run({ val: [] }), true, "empty array length < 4");
-  assert.equal(runner.run({}), true, "underfined length < 4");
-  assert.equal(runner.run({ val: undefined }), true, "underfined length  < 4");
+  assert.equal(runner.run({}), true, "undefined length < 4");
+  assert.equal(runner.run({ val: undefined }), true, "undefined length  < 4");
   assert.equal(runner.run({ val: null }), true, "null length  < 4");
 });
 
@@ -765,7 +765,7 @@ QUnit.test("contain and noncontain for strings", function(assert) {
   assert.equal(
     runner.run(values),
     false,
-    "contains: underfined doesn't contain 'ab' - false"
+    "contains: undefined doesn't contain 'ab' - false"
   );
   values = { val: "ba" };
   assert.equal(
@@ -785,7 +785,7 @@ QUnit.test("contain and noncontain for strings", function(assert) {
   assert.equal(
     runner.run(values),
     true,
-    "notcontains: underfined doesn't contain 'ab' - true"
+    "notcontains: undefined doesn't contain 'ab' - true"
   );
   values = { val: "ba" };
   assert.equal(
@@ -878,7 +878,7 @@ QUnit.test("Compare undefined object with string", function(assert) {
   assert.equal(runner.run(values), true, "undefined = 'undefined'");
 });
 
-QUnit.test("Compare two underfined variables", function(assert) {
+QUnit.test("Compare two undefined variables", function(assert) {
   var values: any = { v1: undefined, v2: undefined };
   assert.equal(
     new ConditionRunner("{v1} = {v2}").run(values),

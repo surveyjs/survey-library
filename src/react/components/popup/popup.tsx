@@ -39,7 +39,7 @@ export class Popup extends SurveyElementBase<IPopupProps, any> {
   }
 }
 
-ReactElementFactory.Instance.registerElement("sv-popup", props => {
+ReactElementFactory.Instance.registerElement("sv-popup", (props) => {
   return React.createElement(Popup, (props as any) as IPopupProps);
 });
 
@@ -59,8 +59,8 @@ export class PopupContainer extends SurveyElementBase<any, any> {
   };
   componentDidUpdate(prevProps: any, prevState: any) {
     super.componentDidUpdate(prevProps, prevState);
-    if (!this.prevIsVisible && this.model.isVisible && !this.model.isModal) {
-      this.model.updatePosition();
+    if (!this.prevIsVisible && this.model.isVisible) {
+      this.model.updateOnShowing();
     }
     this.prevIsVisible = this.model.isVisible;
   }

@@ -74,8 +74,8 @@ export class PopupContainer extends BaseVue {
     event.stopPropagation();
   }
   onUpdated() {
-    if (!this.prevIsVisible && this.model.isVisible && !this.model.isModal) {
-      this.model.updatePosition();
+    if (!this.prevIsVisible && this.model.isVisible) {
+      this.model.updateOnShowing();
     }
     this.prevIsVisible = this.model.isVisible;
   }

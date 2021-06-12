@@ -104,7 +104,13 @@ export class PopupBaseViewModel extends Base {
 
     return css;
   }
-  public updatePosition() {
+  public updateOnShowing() {
+    if (!this.isModal) {
+      this.updatePosition();
+    }
+    this.focusFirstInput();
+  }
+  private updatePosition() {
     const rect = this.targetElement.getBoundingClientRect();
     const background = <HTMLElement>this.container.children[0];
     const popupContainer = <HTMLElement>background.children[0];
@@ -136,6 +142,14 @@ export class PopupBaseViewModel extends Base {
     }
     this.pointerTarget.top += "px";
     this.pointerTarget.left += "px";
+  }
+  private focusFirstInput() {
+    setTimeout(() => {
+      var el = this.container.querySelector(
+        "input:not(:disabled):not([readonly]):not([type=hidden]),select:not(:disabled):not([readonly]),textarea:not(:disabled):not([readonly])"
+      );
+      if (!!el) (<HTMLElement>el).focus();
+    }, 100);
   }
   public clickOutside() {
     if (this.isModal) {

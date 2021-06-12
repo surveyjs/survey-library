@@ -11,9 +11,9 @@ export class PopupViewModel {
     new ImplementorBase(popupViewModel);
     popupViewModel.container.innerHTML = template;
     popupViewModel.model.onVisibilityChanged = (isVisible: boolean) => {
-      if (isVisible && !popupViewModel.isModal) {
+      if (isVisible) {
         ko.tasks.runEarly();
-        popupViewModel.updatePosition();
+        popupViewModel.updateOnShowing();
       }
     };
     ko.applyBindings(popupViewModel, popupViewModel.container);

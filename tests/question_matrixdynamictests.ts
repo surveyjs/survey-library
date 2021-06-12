@@ -210,7 +210,7 @@ QUnit.test("Matrixdynamic add/remove rows", function(assert) {
   assert.equal(
     survey.getValue("q1"),
     null,
-    "survey value is underfined or null"
+    "survey value is undefined or null"
   );
   question.addRow();
   assert.equal(question.rowCount, 3, "one row is added");

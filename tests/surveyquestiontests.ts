@@ -2323,7 +2323,7 @@ QUnit.test("questiontext.maxLength", function(assert) {
   survey.maxTextLength = 10;
   assert.equal(qText.getMaxLength(), 10, "get from survey");
   qText.maxLength = 0;
-  assert.equal(qText.getMaxLength(), null, "makes it underfined");
+  assert.equal(qText.getMaxLength(), null, "makes it undefined");
   qText.maxLength = 5;
   assert.equal(qText.getMaxLength(), 5, "gets 5 from question");
 });
@@ -5103,15 +5103,15 @@ QUnit.test(
     var json = {
       elements: [
         {
-          "type": "matrixdynamic",
-          "name": "question1",
-          "columns": [
-          { "name": "Column 1" },
-          { "name": "Column 2" },
-          { "name": "Column 3" }
+          type: "matrixdynamic",
+          name: "question1",
+          columns: [
+            { name: "Column 1" },
+            { name: "Column 2" },
+            { name: "Column 3" },
           ],
-          "choices": [ 1, 2, 3 ],
-          "cellType": "checkbox"
+          choices: [1, 2, 3],
+          cellType: "checkbox",
         },
       ],
     };
@@ -5119,9 +5119,15 @@ QUnit.test(
     var survey = new SurveyModel();
     survey.setDesignMode(true);
     survey.fromJSON(json);
-    var q1 = <QuestionMatrixDropdownModelBase>survey.getQuestionByName("question1");
+    var q1 = <QuestionMatrixDropdownModelBase>(
+      survey.getQuestionByName("question1")
+    );
     var innerQuestion = q1.visibleRows[0].cells[0].question;
-    assert.equal(innerQuestion.visibleChoices.length, 3, "Show only 3 choice items");
+    assert.equal(
+      innerQuestion.visibleChoices.length,
+      3,
+      "Show only 3 choice items"
+    );
     settings.supportCreatorV2 = false;
   }
 );

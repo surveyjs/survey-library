@@ -4,7 +4,7 @@ export interface HashTable<T> {
 
 export class Helpers {
   /**
-   * A static methods that returns true if a value underfined, null, empty string or empty array.
+   * A static methods that returns true if a value undefined, null, empty string or empty array.
    * @param value
    */
   public static isValueEmpty(value: any) {

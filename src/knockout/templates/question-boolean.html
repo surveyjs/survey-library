@@ -10,7 +10,16 @@
         ><!-- ko template: { name: 'survey-string', data: locLabelFalse } --><!-- /ko --></span
       >
       <div data-bind="css: question.koCss().switch, click: onSwitchClick">
-        <span data-bind="css: question.koCss().slider"></span>
+        <span data-bind="css: question.koCss().slider">
+          <span data-bind="css: question.koCss().sliderText">
+            <!-- ko if: question.checkedValue === false -->
+              <!-- ko template: { name: 'survey-string', data: locLabelFalse } --><!-- /ko -->
+            <!-- /ko -->
+            <!-- ko if: question.checkedValue === true -->
+              <!-- ko template: { name: 'survey-string', data: locLabelTrue } --><!-- /ko -->
+            <!-- /ko -->
+          </span>
+        </span>
       </div>
       <span
         data-bind="css: question.getCheckedLabelCss(), click: onTrueLabelClick"

@@ -4,7 +4,7 @@ import { PanelModel } from "../src/panel";
 
 export default QUnit.module("SurveyShowPreviewTests");
 
-QUnit.test("Complete and Preview button visibility", function (assert) {
+QUnit.test("Complete and Preview button visibility", function(assert) {
   var survey = new SurveyModel({ elements: [{ type: "text", name: "q1" }] });
   assert.equal(survey.isShowPreviewBeforeComplete, false, "no preview");
   assert.equal(
@@ -75,7 +75,7 @@ QUnit.test("Complete and Preview button visibility", function (assert) {
 
 QUnit.test(
   "showPreviewBeforeComplete = 'showAllQuestions', do not show preview if there is an error",
-  function (assert) {
+  function(assert) {
     var survey = new SurveyModel({
       pages: [
         { elements: [{ type: "text", name: "q1" }] },
@@ -112,7 +112,7 @@ QUnit.test(
 
 QUnit.test(
   "showPreviewBeforeComplete = 'showAllQuestions', check currentPage on showing preview",
-  function (assert) {
+  function(assert) {
     var survey = new SurveyModel({
       pages: [
         { elements: [{ type: "text", name: "q1" }] },
@@ -158,7 +158,7 @@ QUnit.test(
 );
 QUnit.test(
   "showPreviewBeforeComplete = 'showAllQuestions', restore pages before onComplete",
-  function (assert) {
+  function(assert) {
     var survey = new SurveyModel({
       pages: [
         { elements: [{ type: "text", name: "q1" }] },
@@ -176,7 +176,7 @@ QUnit.test(
 
 QUnit.test(
   "showPreviewBeforeComplete = 'showAllQuestions', questionsOnPageMode = 'singlePage'",
-  function (assert) {
+  function(assert) {
     var survey = new SurveyModel({
       pages: [
         { elements: [{ type: "text", name: "q1" }] },
@@ -200,7 +200,7 @@ QUnit.test(
 );
 QUnit.test(
   "showPreviewBeforeComplete = 'showAllQuestions', questionsOnPageMode = 'questionPerPage'",
-  function (assert) {
+  function(assert) {
     var survey = new SurveyModel({
       pages: [
         {
@@ -252,7 +252,7 @@ QUnit.test(
     );
   }
 );
-QUnit.test("showPreviewBeforeComplete = 'showAnsweredQuestions'", function (
+QUnit.test("showPreviewBeforeComplete = 'showAnsweredQuestions'", function(
   assert
 ) {
   var survey = new SurveyModel({
@@ -291,7 +291,7 @@ QUnit.test("showPreviewBeforeComplete = 'showAnsweredQuestions'", function (
 });
 QUnit.test(
   "showPreviewBeforeComplete = 'showAllQuestions', edit page",
-  function (assert) {
+  function(assert) {
     var survey = new SurveyModel({
       pages: [
         { elements: [{ type: "text", name: "q1" }] },
@@ -337,7 +337,7 @@ QUnit.test(
 );
 QUnit.test(
   "showPreviewBeforeComplete = 'showAnsweredQuestions', edit page",
-  function (assert) {
+  function(assert) {
     var survey = new SurveyModel({
       pages: [
         { name: "p1", elements: [{ type: "text", name: "q1" }] },
@@ -363,7 +363,7 @@ QUnit.test(
 );
 QUnit.test(
   "showPreviewBeforeComplete = 'showAnsweredQuestions', do not hide questions on running state",
-  function (assert) {
+  function(assert) {
     var survey = new SurveyModel({
       pages: [
         { elements: [{ type: "text", name: "q1" }] },
@@ -377,7 +377,7 @@ QUnit.test(
 );
 QUnit.test(
   "showPreviewBeforeComplete = 'showAnsweredQuestions', Bug#2190",
-  function (assert) {
+  function(assert) {
     var survey = new SurveyModel({
       pages: [
         {
@@ -404,7 +404,7 @@ QUnit.test(
 );
 QUnit.test(
   "showPreviewBeforeComplete = 'showAllQuestions' invisible Page, Bug#2385",
-  function (assert) {
+  function(assert) {
     var survey = new SurveyModel({
       pages: [
         {
@@ -458,5 +458,27 @@ QUnit.test(
       "page_visible_always",
       "Go to correct page"
     );
+  }
+);
+QUnit.test(
+  "showPreviewBeforeComplete = 'showAllQuestions' onShowingPreview event",
+  function(assert) {
+    var survey = new SurveyModel({
+      elements: [
+        {
+          type: "text",
+          name: "q1",
+        },
+      ],
+    });
+    var allowShowPreview = false;
+    survey.onShowingPreview.add((sender, options) => {
+      options.allowShowPreview = allowShowPreview;
+    });
+    survey.showPreview();
+    assert.equal(survey.state, "running", "We do not allow to show preview");
+    allowShowPreview = true;
+    survey.showPreview();
+    assert.equal(survey.state, "preview", "We allow to show preview");
   }
 );

@@ -117,6 +117,16 @@ export class SurveyModel extends Base
    */
   public onComplete: EventBase<SurveyModel> = this.addEvent<SurveyModel>();
   /**
+   * The event is fired before the survey is going to preview mode, state equals to `preview`. It happens when a user click on "Preview" button. It shows when "showPreviewBeforeComplete" proeprty equals to "showAllQuestions" or "showAnsweredQuestions".
+   * You can prevent showing it by setting allowShowPreview to `false`.
+   * <br/> `sender` - the survey object that fires the event.
+   * <br/> `options.allowShowPreview` - Specifies whether a user can see a preview. Set this property to `false` to prevent from showing the preview. The default value is `true`.
+   * @see showPreviewBeforeComplete
+   */
+  public onShowingPreview: EventBase<SurveyModel> = this.addEvent<
+    SurveyModel
+  >();
+  /**
    * The event is fired after a user clicks the 'Complete' button. The event allows you to specify the URL opened after completing a survey.
    * Specify the `navigateToUrl` property to make survey navigate to another url.
    * <br/> `sender` - the survey object that fires the event.
@@ -3246,7 +3256,9 @@ export class SurveyModel extends Base
     this.resetNavigationButton();
     if (this.hasErrorsOnNavigate(true)) return false;
     if (this.doServerValidation(true, true)) return false;
-    this.isShowingPreview = true;
+    var options = { allowShowPreview: true };
+    this.onShowingPreview.fire(this, options);
+    this.isShowingPreview = options.allowShowPreview;
     return true;
   }
   /**

@@ -151,6 +151,18 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     if (val < 0) val = 0;
     this.setPropertyValue("maxSelectedChoices", val);
   }
+  /**
+   * Return the selected items in the checkbox. Returns empty array if the value is empty
+   */
+  public get selectedItems(): Array<ItemValue> {
+    if (this.isEmpty()) return [];
+    var val = this.value;
+    var res = [];
+    for (var i = 0; i < val.length; i++) {
+      res.push(ItemValue.getItemByValue(this.visibleChoices, val[i]));
+    }
+    return res;
+  }
   protected onEnableItemCallBack(item: ItemValue): boolean {
     if (!this.shouldCheckMaxSelectedChoices()) return true;
     return this.isItemSelected(item);

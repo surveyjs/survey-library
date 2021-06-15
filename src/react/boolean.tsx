@@ -83,6 +83,13 @@ export class SurveyQuestionBoolean extends SurveyQuestionElementBase {
         : "")
     );
   }
+  private getCheckedLabel() {
+    if (this.question.checkedValue === true) {
+      return this.question.locLabelTrue;
+    } else if (this.question.checkedValue === false) {
+      return this.question.locLabelFalse;
+    }
+  }
   protected renderElement(): JSX.Element {
     var cssClasses = this.question.cssClasses;
     var itemClass = this.getItemClass();
@@ -117,7 +124,13 @@ export class SurveyQuestionBoolean extends SurveyQuestionElementBase {
             {this.renderLocString(this.question.locLabelFalse)}
           </span>
           <div className={cssClasses.switch} onClick={this.handleOnSwitchClick}>
-            <span className={cssClasses.slider} />
+            <span className={cssClasses.slider}>
+              <span className={cssClasses.sliderText}>
+                {this.question.checkedValue !== null
+                  ? this.renderLocString(this.getCheckedLabel())
+                  : null}
+              </span>
+            </span>
           </div>
           <span
             className={this.getLabelClass(true)}

@@ -16,6 +16,9 @@ export class SurveyQuestionBoolean extends SurveyQuestionElementBase {
   protected get question(): QuestionBooleanModel {
     return this.questionBase as QuestionBooleanModel;
   }
+  private get allowClick() {
+    return this.question.isIndeterminate && !this.isDisplayMode;
+  }
   private preventDefaults(event: any) {
     event.preventDefault();
     event.stopPropagation();
@@ -28,14 +31,14 @@ export class SurveyQuestionBoolean extends SurveyQuestionElementBase {
     this.doCheck(event.target.checked);
   }
   handleOnClick(event: any) {
-    if (this.question.isIndeterminate) {
+    if (this.allowClick) {
       this.preventDefaults(event);
       this.question.checkedValue = true;
       this.setState({ value: this.question.checkedValue });
     }
   }
   handleOnSwitchClick(event: any) {
-    if (this.question.isIndeterminate) {
+    if (this.allowClick) {
       this.preventDefaults(event);
       var isRightClick =
         event.nativeEvent.offsetX / event.target.offsetWidth > 0.5;
@@ -46,7 +49,7 @@ export class SurveyQuestionBoolean extends SurveyQuestionElementBase {
     }
   }
   handleOnLabelClick(event: any, value: boolean) {
-    if (this.question.isIndeterminate) {
+    if (this.allowClick) {
       this.preventDefaults(event);
       this.doCheck(value);
     }

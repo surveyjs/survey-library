@@ -13,6 +13,9 @@ export class QuestionBoolean extends QuestionBooleanModel {
     super.onBaseCreating();
     this._implementor = new QuestionImplementor(this);
   }
+  private get allowClick() {
+    return this.isIndeterminate && !this.isInputReadOnly;
+  }
   public getItemCss(row: any, column: any) {
     let isChecked = this.checkedValue;
     let isDisabled = this.isReadOnly;
@@ -42,14 +45,14 @@ export class QuestionBoolean extends QuestionBooleanModel {
     event.stopPropagation();
   }
   private onLabelClick(event: any, value: boolean) {
-    if (this.isIndeterminate) {
+    if (this.allowClick) {
       this.preventDefaults(event);
       this.checkedValue = value;
     }
     return true;
   }
   public onSwitchClick(data: any, event: any) {
-    if (this.isIndeterminate) {
+    if (this.allowClick) {
       this.preventDefaults(event);
       var isRightClick = event.offsetX / event.target.offsetWidth > 0.5;
       var isRtl =
@@ -76,6 +79,6 @@ Serializer.overrideClassCreator("boolean", function() {
   return new QuestionBoolean("");
 });
 
-QuestionFactory.Instance.registerQuestion("boolean", name => {
+QuestionFactory.Instance.registerQuestion("boolean", (name) => {
   return new QuestionBoolean(name);
 });

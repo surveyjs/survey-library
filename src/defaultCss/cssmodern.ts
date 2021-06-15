@@ -178,6 +178,7 @@ export var modernCss = {
     itemDecorator: "sv-button-group__item-decorator",
     itemCaption: "sv-button-group__item-caption",
     itemSelected: "sv-button-group__item--selected",
+    itemHover: "sv-button-group__item--hover",
     itemDisabled: "sv-button-group__item--disabled",
     itemControl: "sv-visuallyhidden",
   },

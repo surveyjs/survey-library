@@ -110,7 +110,7 @@ export class ButtonGroupItemModel {
     return this.question.isItemSelected(this.item);
   }
   public get readOnly() {
-    return !this.item.isEnabled || this.question.isReadOnly;
+    return this.question.isInputReadOnly || !this.item.isEnabled;
   }
   public get name() {
     return this.question.name + "_" + this.question.id;
@@ -131,7 +131,10 @@ export class ButtonGroupItemModel {
     if (this.selected) {
       css += " " + this.question.cssClasses.itemSelected;
     }
-    if (this.readOnly) {
+    if (!this.readOnly && !this.selected) {
+      css += " " + this.question.cssClasses.itemHover;
+    }
+    if (this.question.isReadOnly || !this.item.isEnabled) {
       css += " " + this.question.cssClasses.itemDisabled;
     }
     return css;

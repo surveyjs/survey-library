@@ -35,8 +35,7 @@ export class StylesManager {
     ".sv_row .sv_qstn:last-child": "float: none",
     ".sv_qstn":
       "display: vertical-align: top; overflow: auto; min-width:300px;",
-    ".sv_p_container":
-      "display: vertical-align: top; min-width:300px;",
+    ".sv_p_container": "display: vertical-align: top; min-width:300px;",
 
     ".sv_q_title .sv_question_icon": "float: right; margin-right: 1em;",
     ".sv_q_title .sv_question_icon::before":
@@ -882,7 +881,7 @@ export class StylesManager {
     //eo action-bar
 
     //button-group
-    ".sv_main .sv-button-group__item:hover:not(.sv-button-group__item--selected):not(not(.sv-button-group__item--disabled)":
+    ".sv_main .sv-button-group__item--hover:hover":
       "background-color: $background-dim;",
     ".sv_main .sv-button-group__item-icon use": "fill: $foreground-light;",
     ".sv_main .sv-button-group__item--selected": "color: $main-color;",
@@ -934,7 +933,8 @@ export class StylesManager {
     ".sv-file__decorator":
       "background-color: $body-container-background-color;",
     ".sv-file__clean-btn": "background-color: $remove-button-color;",
-    ".sv-file__choose-btn:not(.sv-file__choose-btn--disabled)": "background-color: $add-button-color;",
+    ".sv-file__choose-btn:not(.sv-file__choose-btn--disabled)":
+      "background-color: $add-button-color;",
     ".sv-file__choose-btn--disabled": "background-color: $disable-color;",
     ".sv-file__remove-svg": "fill: #ff1800;",
     ".sv-file__sign a": "color: $text-color;",
@@ -1197,10 +1197,10 @@ export class StylesManager {
           StylesManager.ThemeColors[themeName] ||
           StylesManager.ThemeColors["default"];
 
-        Object.keys(ThemeCss).forEach(selector => {
+        Object.keys(ThemeCss).forEach((selector) => {
           let cssRuleText = ThemeCss[selector];
           Object.keys(theme).forEach(
-            colorVariableName =>
+            (colorVariableName) =>
               (cssRuleText = cssRuleText.replace(
                 new RegExp("\\" + colorVariableName, "g"),
                 theme[colorVariableName]
@@ -1233,7 +1233,7 @@ export class StylesManager {
 
   public initializeStyles(sheet: CSSStyleSheet) {
     if (StylesManager.Enabled) {
-      Object.keys(StylesManager.Styles).forEach(selector => {
+      Object.keys(StylesManager.Styles).forEach((selector) => {
         try {
           sheet.insertRule(
             selector + " { " + StylesManager.Styles[selector] + " }",
@@ -1241,7 +1241,7 @@ export class StylesManager {
           );
         } catch (e) {}
       });
-      Object.keys(StylesManager.Media).forEach(selector => {
+      Object.keys(StylesManager.Media).forEach((selector) => {
         try {
           sheet.insertRule(
             StylesManager.Media[selector].media +

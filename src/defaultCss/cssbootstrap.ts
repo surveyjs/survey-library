@@ -237,6 +237,7 @@ export var defaultBootstrapCss = {
     itemIcon: "sv-button-group__item-icon",
     itemDecorator: "sv-button-group__item-decorator",
     itemCaption: "sv-button-group__item-caption",
+    itemHover: "sv-button-group__item--hover",
     itemSelected: "sv-button-group__item--selected",
     itemDisabled: "sv-button-group__item--disabled",
     itemControl: "sv-visuallyhidden",

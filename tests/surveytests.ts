@@ -57,6 +57,7 @@ import { ArrayChanges } from "../src/base";
 import { settings } from "../src/settings";
 import { CalculatedValue } from "../src/calculatedValue";
 import { LocalizableString } from "../src/localizablestring";
+import { getSize } from "../src/utils/utils";
 
 export default QUnit.module("Survey");
 
@@ -13021,11 +13022,10 @@ QUnit.test("survey.isLazyRendering", function(assert) {
   survey.lazyRendering = true;
   assert.equal(survey.isLazyRendering, true, "set in survey");
 });
-QUnit.test("survey.getSize", function(assert) {
-  var survey = new SurveyModel();
-  assert.equal(survey.getSize(300), "300px", "300px");
-  assert.equal(survey.getSize("100%"), "100%", "100%");
-  assert.equal(survey.getSize("100"), "100px", "100px");
+QUnit.test("getSize", function(assert) {
+  assert.equal(getSize(300), "300px", "300px");
+  assert.equal(getSize("100%"), "100%", "100%");
+  assert.equal(getSize("100"), "100px", "100px");
 });
 QUnit.test("survey logo size", function(assert) {
   var survey = new SurveyModel();

@@ -130,6 +130,22 @@ export function unwrap<T>(value: T | (() => T)): T {
   }
 }
 
+export function getSize(value: any) {
+  if (typeof value === "number") {
+    return "" + value + "px";
+  }
+  if (!!value && typeof value === "string" && value.length > 0) {
+    var lastSymbol = value[value.length - 1];
+    if ((lastSymbol >= "0" && lastSymbol <= "9") || lastSymbol == ".") {
+      try {
+        var num = parseFloat(value);
+        return "" + num + "px";
+      } catch {}
+    }
+  }
+  return value;
+}
+
 export {
   compareVersions,
   confirmAction,

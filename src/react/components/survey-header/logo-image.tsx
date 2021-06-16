@@ -13,9 +13,9 @@ export class LogoImage extends React.Component<ILogoImageProps, any> {
   private get survey(): SurveyModel {
     return this.props.data;
   }
-  render() {
-    const image: JSX.Element[] = [];
-    image.push(
+  public render() {
+    const content: JSX.Element[] = [];
+    content.push(
       <div key={"logo-image"} className={this.survey.logoClassNames}>
         <img
           className={this.survey.css.logoImage}
@@ -28,9 +28,9 @@ export class LogoImage extends React.Component<ILogoImageProps, any> {
       </div>
     );
     if (this.survey.isLogoAfter) {
-      image.push(<div key={"logo-image-tail"} className="sv-logo--right-tail"></div>);
+      content.push(<div key={"logo-image-tail"} className="sv-logo--right-tail"></div>);
     }
-    return image;
+    return <>{content}</>;
   }
 }
 

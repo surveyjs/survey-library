@@ -1,5 +1,5 @@
 import { HashTable, Helpers } from "./helpers";
-import { JsonObject, JsonError, Serializer } from "./jsonobject";
+import { JsonObject, JsonError, Serializer, property } from "./jsonobject";
 import {
   Base,
   ISurvey,
@@ -42,7 +42,7 @@ import {
 import { ExpressionRunner, ConditionRunner } from "./conditions";
 import { settings } from "./settings";
 import { IActionBarItem } from "./action-bar";
-import { isMobile } from "./utils/utils";
+import { getSize, isMobile } from "./utils/utils";
 
 /**
  * The `Survey` object contains information about the survey, Pages, Questions, flow logic and etc.
@@ -94,6 +94,9 @@ export class SurveyModel extends Base
   private completedStateTextValue: string = "";
 
   private isTimerStarted: boolean = false;
+
+  //#region Event declarations
+
   /**
    * The event is fired before the survey is completed and the `onComplete` event is fired. You can prevent the survey from completing by setting `options.allowComplete` to `false`
    * <br/> `sender` - the survey object that fires the event.
@@ -887,11 +890,8 @@ export class SurveyModel extends Base
   public onElementContentVisibilityChanged: EventBase<
     SurveyModel
   > = this.addEvent<SurveyModel>();
-  /**
-   * The list of errors on loading survey JSON. If the list is empty after loading a JSON, then the JSON is correct and has no errors.
-   * @see JsonError
-   */
-  public jsonErrors: Array<JsonError> = null;
+
+  //#endregion
 
   constructor(jsonObj: any = null) {
     super();
@@ -976,6 +976,13 @@ export class SurveyModel extends Base
     }
     this.onCreating();
   }
+
+  /**
+   * The list of errors on loading survey JSON. If the list is empty after loading a JSON, then the JSON is correct and has no errors.
+   * @see JsonError
+   */
+   public jsonErrors: Array<JsonError> = null;
+  
   public getType(): string {
     return "survey";
   }
@@ -1579,6 +1586,8 @@ export class SurveyModel extends Base
   public get emptySurveyText(): string {
     return this.getLocString("emptySurvey");
   }
+
+  //#region Title/Header options
   /**
    * Gets or sets a survey title.
    * @see description
@@ -1618,28 +1627,13 @@ export class SurveyModel extends Base
   get locLogo(): LocalizableString {
     return this.getLocalizableString("logo");
   }
-  public getSize(value: any) {
-    if (typeof value === "number") {
-      return "" + value + "px";
-    }
-    if (!!value && typeof value === "string" && value.length > 0) {
-      var lastSymbol = value[value.length - 1];
-      if ((lastSymbol >= "0" && lastSymbol <= "9") || lastSymbol == ".") {
-        try {
-          var num = parseFloat(value);
-          return "" + num + "px";
-        } catch {}
-      }
-    }
-    return value;
-  }
   /**
    * Gets or sets a survey logo width.
    * @see logo
    */
   public get logoWidth(): any {
     var width = this.getPropertyValue("logoWidth");
-    return this.getSize(width);
+    return getSize(width);
   }
   public set logoWidth(value: any) {
     this.setPropertyValue("logoWidth", value);
@@ -1650,7 +1644,7 @@ export class SurveyModel extends Base
    */
   public get logoHeight(): any {
     var height = this.getPropertyValue("logoHeight");
-    return this.getSize(height);
+    return getSize(height);
   }
   public set logoHeight(value: any) {
     this.setPropertyValue("logoHeight", value);
@@ -1699,6 +1693,8 @@ export class SurveyModel extends Base
   public set logoFit(val: string) {
     this.setPropertyValue("logoFit", val);
   }
+  //#endregion
+
   private _isMobile = false;
   public setIsMobile(newVal = true) {
     this._isMobile = newVal;

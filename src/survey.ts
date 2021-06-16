@@ -1713,7 +1713,7 @@ export class SurveyModel extends Base
     return isMobile() || this._isMobile;
   }
   public get titleMaxWidth(): string {
-    if (!this.isMobile && !this.isValueEmpty(this.logo)) {
+    if (!this.isMobile && !this.isValueEmpty(this.logo) && !settings.supportCreatorV2) {
       var logoWidth = this.logoWidth;
       if (this.logoPosition === "left" || this.logoPosition === "right") {
         return "calc(100% - 5px - 2em - " + logoWidth + ")";

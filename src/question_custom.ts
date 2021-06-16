@@ -430,7 +430,7 @@ export class QuestionCustomModel extends QuestionCustomModelBase {
       !!this.contentQuestion &&
       !Helpers.isTwoValueEquals(this.contentQuestion.value, newValue)
     ) {
-      this.contentQuestion.value = newValue;
+      this.contentQuestion.value = this.getUnbindValue(newValue);
     }
   }
   onSurveyValueChanged(newValue: any) {

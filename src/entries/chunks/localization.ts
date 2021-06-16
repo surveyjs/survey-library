@@ -18,6 +18,7 @@ import "../../localization/icelandic";
 import "../../localization/indonesian";
 import "../../localization/italian";
 import "../../localization/japanese";
+import "../../localization/kazakh";
 import "../../localization/korean";
 import "../../localization/latvian";
 import "../../localization/lithuanian";

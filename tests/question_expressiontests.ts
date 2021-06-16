@@ -6,7 +6,7 @@ export default QUnit.module("QuestionExpression");
 //Dummy, to include expression question model into tests
 new QuestionExpressionModel("q1");
 
-QUnit.test("Expression question is created", function (assert) {
+QUnit.test("Expression question is created", function(assert) {
   var survey = createSurveyWith3Questions();
   var expression = <QuestionExpressionModel>(
     survey.pages[0].addNewQuestion("expression", "exp")
@@ -14,21 +14,21 @@ QUnit.test("Expression question is created", function (assert) {
   assert.ok(expression, "expression question is created");
 });
 
-QUnit.test("Simple calculation", function (assert) {
+QUnit.test("Simple calculation", function(assert) {
   var survey = createSurveyWith3Questions();
   var expression = <QuestionExpressionModel>(
     survey.pages[0].addNewQuestion("expression", "exp")
   );
   assert.notOk(expression.value, "expression is empty");
   expression.expression = "{q1} + {q2}";
-  assert.notOk(expression.value, "q1 and q2 is underfined");
+  assert.notOk(expression.value, "q1 and q2 is undefined");
   survey.setValue("q1", 1);
   assert.equal(expression.value, 1, "q1 = 1");
   survey.setValue("q2", 2);
   assert.equal(expression.value, 3, "q1 = 1 and q2 = 2");
 });
 
-QUnit.test("Display text + format", function (assert) {
+QUnit.test("Display text + format", function(assert) {
   var survey = createSurveyWith3Questions();
   var expression = <QuestionExpressionModel>(
     survey.pages[0].addNewQuestion("expression", "exp")
@@ -41,7 +41,7 @@ QUnit.test("Display text + format", function (assert) {
   expression.format = "{0} $";
   assert.equal(expression.displayValue, "4 $", "format is {0} $");
 });
-QUnit.test("Display text + defaltValue", function (assert) {
+QUnit.test("Display text + defaltValue", function(assert) {
   var survey = createSurveyWith3Questions();
   var expression = <QuestionExpressionModel>(
     survey.pages[0].addNewQuestion("expression", "exp")
@@ -53,7 +53,7 @@ QUnit.test("Display text + defaltValue", function (assert) {
   survey.data = { q1: 1, q2: 3 };
   assert.equal(expression.value, 4, "do not use default value");
 });
-QUnit.test("Display text + displayStyle", function (assert) {
+QUnit.test("Display text + displayStyle", function(assert) {
   var survey = createSurveyWith3Questions();
   var expression = <QuestionExpressionModel>(
     survey.pages[0].addNewQuestion("expression", "exp")
@@ -64,7 +64,7 @@ QUnit.test("Display text + displayStyle", function (assert) {
   expression.displayStyle = "currency";
   assert.equal(expression.displayValue, "$4.00", "format is empty");
 });
-QUnit.test("Display text + fraction digitals", function (assert) {
+QUnit.test("Display text + fraction digitals", function(assert) {
   var survey = createSurveyWith3Questions();
   var expression = <QuestionExpressionModel>(
     survey.pages[0].addNewQuestion("expression", "exp")

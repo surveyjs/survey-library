@@ -494,7 +494,7 @@ export class StylesManager {
     },
 
     ".sv-vue-row-additional-div": {
-      style: " display: flex; flex-wrap: wrap; flex-basis: 100%;",
+      style: " display: flex; flex-wrap: wrap; flex-basis: 100%; width: 100%;",
       media: "@supports (display: flex)",
     },
 

@@ -17,6 +17,9 @@ export class QuestionRadiogroupModel extends QuestionCheckboxBase {
   protected getFirstInputElementId(): string {
     return this.inputId + "_0";
   }
+  /**
+   * Return the selected item in the radio group. Returns null if the value is empty
+   */
   public get selectedItem(): ItemValue {
     if (this.isEmpty()) return null;
     return ItemValue.getItemByValue(this.visibleChoices, this.value);

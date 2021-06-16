@@ -3,7 +3,7 @@ import { CalculatedValue } from "../src/calculatedValue";
 
 export default QUnit.module("CalculatedValues");
 
-QUnit.test("Use calculated value in expression", function (assert) {
+QUnit.test("Use calculated value in expression", function(assert) {
   var survey = new SurveyModel({
     elements: [
       { type: "text", name: "q1", defaultValue: 1 },
@@ -31,7 +31,7 @@ QUnit.test("Use calculated value in expression", function (assert) {
     "It is invisible again, var1 equals 2"
   );
 });
-QUnit.test("Deserialize/serialize calculated values", function (assert) {
+QUnit.test("Deserialize/serialize calculated values", function(assert) {
   var json = {
     pages: [
       {
@@ -54,7 +54,7 @@ QUnit.test("Deserialize/serialize calculated values", function (assert) {
   );
   assert.deepEqual(survey.toJSON(), json, "Serialized correctly");
 });
-QUnit.test("Include into result", function (assert) {
+QUnit.test("Include into result", function(assert) {
   var survey = new SurveyModel({
     elements: [
       { type: "text", name: "q1", defaultValue: 1 },
@@ -68,7 +68,7 @@ QUnit.test("Include into result", function (assert) {
   assert.deepEqual(survey.data, { q1: 1, q2: 2, var1: 3 });
 });
 
-QUnit.test("Use complex values in variables, Bug#T2705", function (assert) {
+QUnit.test("Use complex values in variables, Bug#T2705", function(assert) {
   var survey = new SurveyModel({});
   survey.setVariable("obj", { state: "CA" });
   survey.setVariable("arr", [{ state: "CA" }, { state: "TX" }]);
@@ -83,7 +83,7 @@ QUnit.test("Use complex values in variables, Bug#T2705", function (assert) {
 
 QUnit.test(
   "Error with calculated values on setting survey.data, Bug #1973",
-  function (assert) {
+  function(assert) {
     var json = {
       pages: [
         {
@@ -143,7 +143,7 @@ QUnit.test(
 
 QUnit.test(
   "Survey.data doesn't contain the calculatedValue change, if it exists before, Bug #2133",
-  function (assert) {
+  function(assert) {
     var json = {
       pages: [
         {
@@ -178,7 +178,7 @@ QUnit.test(
 );
 QUnit.test(
   "defaultValue and survey.clearInvisibleValues='onHidden', Bug#2428",
-  function (assert) {
+  function(assert) {
     var survey = new SurveyModel({
       clearInvisibleValues: "onHidden",
       elements: [
@@ -213,7 +213,7 @@ QUnit.test(
 
 QUnit.test(
   "survey.clearIncorrectValues with parameter removeNonExisingRootKeys",
-  function (assert) {
+  function(assert) {
     var json = {
       elements: [
         {
@@ -250,7 +250,7 @@ QUnit.test(
   }
 );
 
-QUnit.test("Compete trigger and calculatedValues, Bug#2595", function (assert) {
+QUnit.test("Compete trigger and calculatedValues, Bug#2595", function(assert) {
   var json = {
     pages: [
       {
@@ -297,7 +297,7 @@ QUnit.test("Compete trigger and calculatedValues, Bug#2595", function (assert) {
   var calcValue: CalculatedValue = survey.calculatedValues[0];
   assert.equal(calcValue.name, "result", "calcValue is here");
   var isCompleteOnTrigger = false;
-  survey.onComplete.add(function (sender, options) {
+  survey.onComplete.add(function(sender, options) {
     isCompleteOnTrigger = options.isCompleteOnTrigger;
   });
   survey.setValue("q1", "val1");
@@ -308,7 +308,7 @@ QUnit.test("Compete trigger and calculatedValues, Bug#2595", function (assert) {
 
 QUnit.test(
   "Survey.onPropertyValueChangedCallback for calculatedValues, Bug#2604",
-  function (assert) {
+  function(assert) {
     var json = {
       questions: [
         {
@@ -374,3 +374,23 @@ QUnit.test(
     );
   }
 );
+QUnit.test("Use calculated value in text processing", function(assert) {
+  var json = {
+    questions: [
+      {
+        type: "text",
+        title: "title: {var1}",
+        name: "q1",
+      },
+    ],
+    calculatedValues: [
+      {
+        name: "var1",
+        expression: "1+2",
+      },
+    ],
+  };
+  var survey = new SurveyModel(json);
+  var question = survey.getQuestionByName("q1");
+  assert.equal(question.locTitle.renderedHtml, "title: 3");
+});

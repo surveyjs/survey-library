@@ -3,14 +3,6 @@
     display: flex;
     flex-wrap: wrap;
   }
-
-  //TODO need for vuejs because it contains additional div in the row
-  .sv-vue-row-additional-div {
-    display: flex;
-    flex-wrap: wrap;
-    flex-basis: 100%;
-    width: 100%;
-  }
 }
 
 // styles only for IE https://stackoverflow.com/questions/11173106/apply-style-only-on-ie

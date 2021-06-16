@@ -3,6 +3,7 @@ import { SurveyQuestionElementBase } from "./reactquestion_element";
 import { QuestionFileModel } from "survey-core";
 import { ReactQuestionFactory } from "./reactquestion_factory";
 import { confirmAction, detectIEOrEdge, loadFileFromBase64 } from "survey-core";
+
 export class SurveyQuestionFile extends SurveyQuestionElementBase {
   constructor(props: any) {
     super(props);

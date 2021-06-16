@@ -1,21 +1,15 @@
 import * as React from "react";
+import { Base, Question, PageModel, SurveyError, StylesManager,
+  surveyCss, Helpers } from "survey-core";
 import { ReactSurveyModel } from "./reactsurveymodel";
 import { SurveyPage } from "./page";
-import { SurveyNavigation } from "./reactSurveyNavigation";
-import { SurveyError, Base } from "survey-core";
-import { Question } from "survey-core";
 import { ISurveyCreator } from "./reactquestion";
-import { ReactQuestionFactory } from "./reactquestion_factory";
-import { surveyCss } from "survey-core";
-import { SurveyTimerPanel } from "./reacttimerpanel";
-import {
-  SurveyElementBase,
-  SurveyQuestionElementBase,
-} from "./reactquestion_element";
+import { SurveyElementBase } from "./reactquestion_element";
 import { SurveyLocStringViewer } from "./string-viewer";
-import { PageModel } from "survey-core";
-import { StylesManager } from "survey-core";
-import { Helpers } from "survey-core";
+import { SurveyHeader } from "./components/survey-header/survey-header";
+import { SurveyTimerPanel } from "./reacttimerpanel";
+import { SurveyNavigation } from "./reactSurveyNavigation";
+import { ReactQuestionFactory } from "./reactquestion_factory";
 import { ReactElementFactory } from "./element-factory";
 
 export class Survey extends SurveyElementBase<any, any>
@@ -40,7 +34,7 @@ export class Survey extends SurveyElementBase<any, any>
     this.createSurvey(props);
     this.updateSurvey(props, {});
     //set the first page
-    var dummy = this.survey.currentPage;
+    const dummy = this.survey.currentPage;
     this.rootRef = React.createRef();
   }
   protected getStateElement(): Base {
@@ -77,7 +71,7 @@ export class Survey extends SurveyElementBase<any, any>
     }
   }
   doRender(): JSX.Element {
-    var renderResult;
+    let renderResult: JSX.Element;
     if (this.survey.state == "completed") {
       renderResult = this.renderCompleted();
     } else if (this.survey.state == "completedbefore") {
@@ -89,11 +83,11 @@ export class Survey extends SurveyElementBase<any, any>
     } else {
       renderResult = this.renderSurvey();
     }
-    var header = this.renderHeader();
-    var onSubmit = function(event: React.FormEvent<HTMLFormElement>) {
+    const header: JSX.Element = <SurveyHeader survey={this.survey}></SurveyHeader>;
+    const onSubmit = function(event: React.FormEvent<HTMLFormElement>) {
       event.preventDefault();
     };
-    var customHeader = <div className="sv_custom_header" />;
+    let customHeader: JSX.Element = <div className="sv_custom_header" />;
     if (this.survey.hasLogo) {
       customHeader = null;
     }
@@ -213,74 +207,6 @@ export class Survey extends SurveyElementBase<any, any>
         {this.renderNavigation("bottom")}
       </div>
     );
-  }
-  protected renderTitle(): JSX.Element {
-    let title = null;
-    let description = null;
-    if (this.survey.title && this.survey.showTitle) {
-      title = SurveyElementBase.renderLocString(this.survey.locTitle);
-      description = SurveyElementBase.renderLocString(
-        this.survey.locDescription
-      );
-    }
-    return title ? (
-      <div
-        className={this.css.headerText}
-        style={{ maxWidth: this.survey.titleMaxWidth }}
-      >
-        <h3 className={this.css.title}>{title}</h3>
-        <h5 className={this.css.description}>{description}</h5>
-      </div>
-    ) : null;
-  }
-  protected renderHeader(): JSX.Element {
-    if ((this.survey.title && this.survey.showTitle) || this.survey.hasLogo) {
-      let title = this.renderTitle();
-      let style: any = { objectFit: this.survey.logoFit };
-      let imageBefore = null;
-      let imageAfter = [];
-      if (this.survey.isLogoBefore) {
-        imageBefore = (
-          <div className={this.survey.logoClassNames}>
-            <img
-              className={this.survey.css.logoImage}
-              src={this.survey.locLogo.renderedHtml}
-              alt={this.survey.locTitle.renderedHtml}
-              width={this.survey.logoWidth ? this.survey.logoWidth : undefined}
-              height={
-                this.survey.logoHeight ? this.survey.logoHeight : undefined
-              }
-              style={style}
-            />
-          </div>
-        );
-      }
-      if (this.survey.isLogoAfter) {
-        imageAfter.push(
-          <div className={this.survey.logoClassNames}>
-            <img
-              className={this.survey.css.logoImage}
-              src={this.survey.locLogo.renderedHtml}
-              alt={this.survey.locTitle.renderedHtml}
-              width={this.survey.logoWidth ? this.survey.logoWidth : undefined}
-              height={
-                this.survey.logoHeight ? this.survey.logoHeight : undefined
-              }
-              style={style}
-            />
-          </div>
-        );
-        imageAfter.push(<div className="sv-logo--right-tail"></div>);
-      }
-      return (
-        <div className={this.css.header}>
-          {imageBefore}
-          {title}
-          {imageAfter}
-        </div>
-      );
-    }
-    return null;
   }
   protected renderTimerPanel(location: string) {
     if (location === "top" && !this.survey.isTimerPanelShowingOnTop)

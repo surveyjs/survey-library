@@ -1,10 +1,8 @@
 import React from "react";
-import { ISurveyElement } from "survey-core";
-import { RendererFactory } from "survey-core";
+import { ISurveyElement, RendererFactory } from "survey-core";
 import { ReactElementFactory } from "../../element-factory";
 import { SurveyElementBase } from "../../reactquestion_element";
 import { SurveyActionBar } from "../action-bar/action-bar";
-
 import { TitleContent } from "../title-content/title-content";
 
 export class TitleActions extends React.Component<any, any> {
@@ -16,7 +14,7 @@ export class TitleActions extends React.Component<any, any> {
   }
 
   render() {
-    var titleContent = !this.element.isPage ? (
+    const titleContent: JSX.Element = !this.element.isPage ? (
       <TitleContent
         element={this.element}
         cssClasses={this.cssClasses}

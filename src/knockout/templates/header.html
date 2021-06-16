@@ -1,11 +1,9 @@
 ﻿<script type="text/html" id="survey-header">
-  <!-- ko if: (locTitle.koRenderedHtml().length > 0) && showTitle || hasLogo -->
+  <!-- ko if: (locTitle.koRenderedHtml().length > 0) && showTitle || hasLogo || isDesignMode -->
   <div data-bind="css: css.header">
-
       <!-- ko if: isLogoBefore -->
-      <div data-bind="css: logoClassNames">
-          <img data-bind="css: css.logoImage, attr: { src: locLogo.koRenderedHtml, width: logoWidth ? logoWidth : undefined, height: logoHeight ? logoHeight : undefined, alt: locTitle.renderedHtml }, style: { objectFit: logoFit }">
-      </div>
+      <!-- ko component: { name: getElementWrapperComponentNameByName('sv-logo-image'), params: getElementWrapperComponentDataByName('sv-logo-image') } -->
+      <!-- /ko -->
       <!-- /ko -->
 
       <!-- ko if: (locTitle.koRenderedHtml().length > 0) && showTitle || isDesignMode -->
@@ -14,14 +12,11 @@
           <h5 data-bind="css: css.description"><!-- ko template: { name: 'survey-string', data: locDescription } --><!-- /ko --></h5>
       </div>
       <!-- /ko -->
-
+      
       <!-- ko if: isLogoAfter -->
-      <div data-bind="css: logoClassNames">
-        <img data-bind="css: css.logoImage, attr: { src: locLogo.koRenderedHtml, width: logoWidth ? logoWidth : undefined, height: logoHeight ? logoHeight : undefined, alt: locTitle.renderedHtml }, style: { objectFit: logoFit }">
-      </div>
-      <div class="sv-logo--right-tail"></div>
+      <!-- ko component: { name: getElementWrapperComponentNameByName('sv-logo-image'), params: getElementWrapperComponentDataByName('sv-logo-image') } -->
       <!-- /ko -->
-
+      <!-- /ko -->
   </div>
   <!-- /ko -->
 </script>

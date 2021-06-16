@@ -1,5 +1,4 @@
 import React from "react";
-
 import { Question } from "survey-core";
 import { SurveyElementBase } from "../../reactquestion_element";
 import { ITitleOwner } from "survey-core";

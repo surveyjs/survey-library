@@ -1,10 +1,8 @@
 <script type="text/html" id="survey-rows">
   <!-- ko foreach: { data: rows, as: 'row'} -->
-  <!-- ko if: row.visible -->
-
-  <!-- ko component: { name: $parent.survey.getRowWrapperComponentName(row), params: { componentData:  $parent.survey.getRowWrapperComponentData(row), templateData: { name: 'survey-row', data: row } } } -->
-  <!-- /ko -->
-
-  <!-- /ko -->
+    <!-- ko if: row.visible -->
+      <!-- ko component: { name: $parent.survey.getRowWrapperComponentName(row), params: { componentData:  $parent.survey.getRowWrapperComponentData(row), templateData: { name: 'survey-row', data: row } } } -->
+      <!-- /ko -->
+    <!-- /ko -->
   <!-- /ko -->
 </script>

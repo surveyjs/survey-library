@@ -59,16 +59,15 @@ export { SurveyQuestionImagePicker } from "../react/imagepicker";
 export { SurveyQuestionImage } from "../react/image";
 export { SurveyQuestionSignaturePad } from "../react/signaturepad";
 export { SurveyQuestionButtonGroup } from "../react/reactquestion_buttongroup";
-export {
-  SurveyQuestionCustom,
-  SurveyQuestionComposite,
-} from "../react/reactquestion_custom";
+export { SurveyQuestionCustom, SurveyQuestionComposite } from "../react/reactquestion_custom";
 
 export { DefaultTitle } from "../react/components/default-title/default-title";
 export { Popup } from "../react/components/popup/popup";
 export { List } from "../react/components/list/list";
 export { TitleActions } from "../react/components/title-actions/title-actions";
 export { SurveyActionBar } from "../react/components/action-bar/action-bar";
+export { LogoImage } from "../react/components/survey-header/logo-image";
+export { SurveyHeader } from "../react/components/survey-header/survey-header";
 export { SvgIcon } from "../react/components/svg-icon/svg-icon";
 export { SurveyQuestionMatrixDynamicRemoveButton } from "../react/components/matrix-actions/remove-button/remove-button";
 export { SurveyQuestionMatrixDetailButton } from "../react/components/matrix-actions/detail-button/detail-button";

@@ -1087,6 +1087,34 @@ QUnit.test("Composite: onValueChanged function", function(assert) {
   );
   ComponentCollection.Instance.clear();
 });
+QUnit.test("Single: onValueChanged function, value is array", function(assert) {
+  var json = {
+    name: "testquestion",
+    questionJSON: {
+      type: "html",
+    },
+    onValueChanged: (question: Question, name: string, value: any) => {
+      if (!value) value = [];
+      var res = "";
+      for (var i = 0; i < value.length; i++) {
+        res += value[i];
+      }
+      question.contentQuestion.html = res;
+    },
+  };
+  ComponentCollection.Instance.add(json);
+  var survey = new SurveyModel({
+    elements: [{ type: "testquestion", name: "q1" }],
+  });
+  var q = <QuestionCustomModel>survey.getAllQuestions()[0];
+  q.value = ["A", "B"];
+  assert.equal(q.contentQuestion.html, "AB", "onValueChanged works #1");
+  q.value = ["A", "B", "C"];
+  assert.equal(q.contentQuestion.html, "ABC", "onValueChanged works #2");
+  q.value = undefined;
+  assert.equal(q.contentQuestion.html, "", "onValueChanged works #3");
+  ComponentCollection.Instance.clear();
+});
 QUnit.test("Composite: checkErrorsMode=onValueChanging", function(assert) {
   var json = {
     name: "testquestion",
@@ -1450,7 +1478,7 @@ QUnit.test("Single: change locale, Bug#2730", function(assert) {
     questionJSON: {
       type: "dropdown",
     },
-    onLoaded: question => {
+    onLoaded: (question) => {
       var item = new ItemValue(1);
       item.locText.setJson({ default: "item en", de: "item de" });
       question.contentQuestion.choices = [item];

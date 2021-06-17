@@ -1674,6 +1674,61 @@ QUnit.test(
   }
 );
 
+QUnit.test("Set totals correctly for read-only question", function(assert) {
+  var json = {
+    elements: [
+      {
+        type: "matrixdynamic",
+        name: "question1",
+        rowCount: 1,
+        columns: [
+          {
+            name: "Column1",
+          },
+          {
+            name: "Column2",
+          },
+          {
+            name: "Column3",
+            cellType: "expression",
+            totalType: "sum",
+            expression: "{row.Column1}+{row.Column2}",
+          },
+        ],
+        cellType: "text",
+      },
+    ],
+  };
+
+  var survey = new SurveyModel(json);
+  survey.mode = "display";
+  var data = {
+    "question1-total": { Column3: 3 },
+    question1: [{ Column1: "1", Column2: "2", Column3: 3 }],
+  };
+  survey.data = data;
+  var question = <QuestionMatrixDynamicModel>(
+    survey.getQuestionByName("question1")
+  );
+  var renderedTable = question.renderedTable;
+  assert.equal(
+    renderedTable.rows[0].cells[2].question.value,
+    3,
+    "Value for cell expression set correctly"
+  );
+  assert.equal(
+    renderedTable.footerRow.cells[2].question.value,
+    3,
+    "Value for total row expression set correctly, #rendered table"
+  );
+  assert.equal(
+    question.visibleTotalRow.cells[2].question.value,
+    3,
+    "Value for total row expression set correctly, #visibleTotalRow"
+  );
+  assert.deepEqual(survey.data, data, "values should be the same");
+});
+
 QUnit.test(
   "matrixDynamic.clearInvisibleValues do not call it on changing condition if clearInvisibleValues doesn't eaqual to 'onHidden'",
   function(assert) {

@@ -729,6 +729,7 @@ export class MatrixDropdownTotalCell extends MatrixDropdownCell {
     this.question.maximumFractionDigits = this.column.totalMaximumFractionDigits;
     this.question.minimumFractionDigits = this.column.totalMinimumFractionDigits;
     this.question.unlocCalculation();
+    this.question.runIfReadOnly = true;
   }
   public getTotalExpression(): string {
     if (!!this.column.totalExpression) return this.column.totalExpression;
@@ -3318,7 +3319,8 @@ export class QuestionMatrixDropdownModelBase
       !!this.data &&
       !!this.visibleTotalRow &&
       !this.isLoadingFromJson &&
-      !this.isSett
+      !this.isSett &&
+      !this.isReadOnly
     ) {
       this.data.setValue(
         this.getValueName() + settings.matrixTotalValuePostFix,
@@ -3357,10 +3359,16 @@ export class QuestionMatrixDropdownModelBase
     return this.SurveyModel.getElementWrapperComponentData(cell, "cell");
   }
   public getColumnHeaderWrapperComponentName(cell: MatrixDropdownCell) {
-    return this.SurveyModel.getElementWrapperComponentName(cell, "column-header");
+    return this.SurveyModel.getElementWrapperComponentName(
+      cell,
+      "column-header"
+    );
   }
   public getColumnHeaderWrapperComponentData(cell: MatrixDropdownCell) {
-    return this.SurveyModel.getElementWrapperComponentData(cell, "column-header");
+    return this.SurveyModel.getElementWrapperComponentData(
+      cell,
+      "column-header"
+    );
   }
   public getRowHeaderWrapperComponentName(cell: MatrixDropdownCell) {
     return this.SurveyModel.getElementWrapperComponentName(cell, "row-header");

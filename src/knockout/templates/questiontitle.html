@@ -23,14 +23,17 @@
     style="position: static;"
     data-bind="css: koCss().number, text: no, attr: { 'aria-hidden': true }"
   ></span>
+  <span>&nbsp</span>
   <!-- /ko -->
   <!-- ko if: $data.isRequireTextBeforeTitle -->
   <span
     data-bind="css: koCss().requiredText || (koCss().panel && koCss().panel.requiredText), text: $data.requiredText, attr: { 'aria-hidden': true }"
   ></span>
+  <span>&nbsp</span>
   <!-- /ko -->
   <!-- ko template: { name: 'survey-string', data: locTitle } --><!-- /ko -->
   <!-- ko if: $data.isRequireTextAfterTitle -->
+  <span>&nbsp</span>
   <span
     data-bind="css: koCss().requiredText || (koCss().panel && koCss().panel.requiredText), text: $data.requiredText, attr: { 'aria-hidden': true }"
   ></span>

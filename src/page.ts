@@ -405,7 +405,7 @@ export class PageModel extends PanelModelBase implements IPage {
   }
   public ensureRowsVisibility() {
     super.ensureRowsVisibility();
-    this.getPanels().forEach(panel => panel.ensureRowsVisibility());
+    this.getPanels().forEach((panel) => panel.ensureRowsVisibility());
   }
 }
 
@@ -437,6 +437,8 @@ Serializer.addClass(
       },
       serializationProperty: "locNavigationDescription",
     },
+    { name: "title:text", serializationProperty: "locTitle" },
+    { name: "description:text", serializationProperty: "locDescription" },
   ],
   function() {
     return new PageModel();

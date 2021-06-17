@@ -652,7 +652,7 @@ QUnit.test("Check calculatePointer target method", (assert) => {
   );
 });
 
-QUnit.test("Check calculatePosition with body rect method", (assert) => {
+QUnit.test("Check calculatePosition with window size method", (assert) => {
   let targetRect = {
     left: 50,
     top: 250,
@@ -661,7 +661,7 @@ QUnit.test("Check calculatePosition with body rect method", (assert) => {
     right: 100,
     bottom: 270,
   };
-  let bodyRect = {
+  let windowSize = {
     width: 50,
     height: 300,
   };
@@ -674,7 +674,7 @@ QUnit.test("Check calculatePosition with body rect method", (assert) => {
       "bottom",
       "center",
       false,
-      <any>bodyRect
+      <any>windowSize
     ),
     { left: 50, top: 150 },
     "bottom center"
@@ -690,7 +690,7 @@ QUnit.test("Check calculatePosition with body rect method", (assert) => {
       "top",
       "center",
       false,
-      <any>bodyRect
+      <any>windowSize
     ),
     { left: 50, top: 70 },
     "top center"
@@ -706,7 +706,7 @@ QUnit.test("Check calculatePosition with body rect method", (assert) => {
       "top",
       "center",
       false,
-      <any>bodyRect
+      <any>windowSize
     ),
     { left: 50, top: -100 },
     "both directions do not fit: result top"
@@ -722,7 +722,7 @@ QUnit.test("Check calculatePosition with body rect method", (assert) => {
       "top",
       "center",
       false,
-      <any>bodyRect
+      <any>windowSize
     ),
     { left: 50, top: 120 },
     "both directions do not fit: result bottom"
@@ -738,7 +738,7 @@ QUnit.test("Check calculatePosition with body rect method", (assert) => {
       "top",
       "left",
       true,
-      <any>bodyRect
+      <any>windowSize
     ),
     { left: 0, top: 10 },
     "top left with showPointer 1"
@@ -752,7 +752,7 @@ QUnit.test("Check calculatePosition with body rect method", (assert) => {
       "top",
       "left",
       true,
-      <any>bodyRect
+      <any>windowSize
     ),
     { left: 0, top: 50 },
     "top left with showPointer 2"
@@ -768,7 +768,7 @@ QUnit.test("Check calculatePosition with body rect method", (assert) => {
       "bottom",
       "left",
       true,
-      <any>bodyRect
+      <any>windowSize
     ),
     { left: 0, top: 250 },
     "bottom left with showPointer 1"
@@ -782,7 +782,7 @@ QUnit.test("Check calculatePosition with body rect method", (assert) => {
       "bottom",
       "left",
       true,
-      <any>bodyRect
+      <any>windowSize
     ),
     { left: 0, top: 170 },
     "bottom left with showPointer"
@@ -798,12 +798,12 @@ QUnit.test("Check calculatePosition with body rect method", (assert) => {
       "top",
       "left",
       true,
-      <any>bodyRect
+      <any>windowSize
     ),
     { left: 0, top: -80 },
     "both directions do not fit: result top, with showPointer"
   );
-  
+
   targetRect.top = 100;
   targetRect.bottom = 120;
   assert.deepEqual(
@@ -814,7 +814,7 @@ QUnit.test("Check calculatePosition with body rect method", (assert) => {
       "top",
       "left",
       true,
-      <any>bodyRect
+      <any>windowSize
     ),
     { left: 0, top: 100 },
     "both directions do not fit: result bottom, with showPointer"

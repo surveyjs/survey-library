@@ -6,6 +6,7 @@ import {
   VerticalPosition,
   HorizontalPosition,
   IPosition,
+  ISize,
 } from "./utils/popup";
 
 export class PopupModel extends Base {
@@ -127,7 +128,7 @@ export class PopupBaseViewModel extends Base {
       this.model.verticalPosition,
       this.model.horizontalPosition,
       this.showPointer,
-      document && document.body && document.body.getBoundingClientRect()
+      window && ({ width: window.innerWidth, height: window.innerHeight})
     );
     this.left = pos.left + "px";
     this.top = pos.top + "px";

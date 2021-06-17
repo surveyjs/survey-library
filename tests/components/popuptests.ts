@@ -651,3 +651,172 @@ QUnit.test("Check calculatePointer target method", (assert) => {
     { left: 60, top: 35 }
   );
 });
+
+QUnit.test("Check calculatePosition with window size method", (assert) => {
+  let targetRect = {
+    left: 50,
+    top: 250,
+    width: 50,
+    height: 20,
+    right: 100,
+    bottom: 270,
+  };
+  let windowSize = {
+    width: 50,
+    height: 300,
+  };
+
+  assert.deepEqual(
+    PopupUtils.calculatePosition(
+      <any>targetRect,
+      100,
+      50,
+      "bottom",
+      "center",
+      false,
+      <any>windowSize
+    ),
+    { left: 50, top: 150 },
+    "bottom center"
+  );
+
+  targetRect.top = 50;
+  targetRect.bottom = 70;
+  assert.deepEqual(
+    PopupUtils.calculatePosition(
+      <any>targetRect,
+      100,
+      50,
+      "top",
+      "center",
+      false,
+      <any>windowSize
+    ),
+    { left: 50, top: 70 },
+    "top center"
+  );
+
+  targetRect.top = 200;
+  targetRect.bottom = 220;
+  assert.deepEqual(
+    PopupUtils.calculatePosition(
+      <any>targetRect,
+      300,
+      50,
+      "top",
+      "center",
+      false,
+      <any>windowSize
+    ),
+    { left: 50, top: -100 },
+    "both directions do not fit: result top"
+  );
+
+  targetRect.top = 100;
+  targetRect.bottom = 120;
+  assert.deepEqual(
+    PopupUtils.calculatePosition(
+      <any>targetRect,
+      300,
+      50,
+      "top",
+      "center",
+      false,
+      <any>windowSize
+    ),
+    { left: 50, top: 120 },
+    "both directions do not fit: result bottom"
+  );
+
+  targetRect.top = 50;
+  targetRect.bottom = 70;
+  assert.deepEqual(
+    PopupUtils.calculatePosition(
+      <any>targetRect,
+      60,
+      50,
+      "top",
+      "left",
+      true,
+      <any>windowSize
+    ),
+    { left: 0, top: 10 },
+    "top left with showPointer 1"
+  );
+
+  assert.deepEqual(
+    PopupUtils.calculatePosition(
+      <any>targetRect,
+      100,
+      50,
+      "top",
+      "left",
+      true,
+      <any>windowSize
+    ),
+    { left: 0, top: 50 },
+    "top left with showPointer 2"
+  );
+
+  targetRect.top = 250;
+  targetRect.bottom = 270;
+  assert.deepEqual(
+    PopupUtils.calculatePosition(
+      <any>targetRect,
+      40,
+      50,
+      "bottom",
+      "left",
+      true,
+      <any>windowSize
+    ),
+    { left: 0, top: 250 },
+    "bottom left with showPointer 1"
+  );
+
+  assert.deepEqual(
+    PopupUtils.calculatePosition(
+      <any>targetRect,
+      100,
+      50,
+      "bottom",
+      "left",
+      true,
+      <any>windowSize
+    ),
+    { left: 0, top: 170 },
+    "bottom left with showPointer"
+  );
+
+  targetRect.top = 200;
+  targetRect.bottom = 220;
+  assert.deepEqual(
+    PopupUtils.calculatePosition(
+      <any>targetRect,
+      300,
+      50,
+      "top",
+      "left",
+      true,
+      <any>windowSize
+    ),
+    { left: 0, top: -80 },
+    "both directions do not fit: result top, with showPointer"
+  );
+
+  targetRect.top = 100;
+  targetRect.bottom = 120;
+  assert.deepEqual(
+    PopupUtils.calculatePosition(
+      <any>targetRect,
+      300,
+      50,
+      "top",
+      "left",
+      true,
+      <any>windowSize
+    ),
+    { left: 0, top: 100 },
+    "both directions do not fit: result bottom, with showPointer"
+  );
+});

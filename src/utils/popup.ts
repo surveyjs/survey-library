@@ -10,6 +10,11 @@ export interface INumberPosition extends IPosition {
   top?: number;
 }
 
+export interface ISize {
+  width: number;
+  height: number;
+}
+
 export class PopupUtils {
   public static calculatePosition(
     targetRect: ClientRect,
@@ -17,12 +22,34 @@ export class PopupUtils {
     width: number,
     verticalPosition: VerticalPosition,
     horizontalPosition: HorizontalPosition,
-    showPointer: boolean
+    showPointer: boolean,
+    windowSize?: ISize
   ): INumberPosition {
     if (horizontalPosition == "center")
       var left = (targetRect.left + targetRect.right - width) / 2;
     else if (horizontalPosition == "left") left = targetRect.left - width;
     else left = targetRect.right;
+
+    if (!!windowSize) {
+      let deltaTop =
+        height - (targetRect.top + (showPointer ? targetRect.height : 0));
+      let deltaBottom =
+        height +
+        targetRect.bottom -
+        (showPointer ? targetRect.height : 0) -
+        windowSize.height;
+      if (deltaTop > 0 && deltaBottom <= 0 && verticalPosition == "top") {
+        verticalPosition = "bottom";
+      } else if (
+        deltaBottom > 0 &&
+        deltaTop <= 0 &&
+        verticalPosition == "bottom"
+      ) {
+        verticalPosition = "top";
+      } else if (deltaBottom > 0 && deltaTop > 0) {
+        verticalPosition = deltaTop < deltaBottom ? "top" : "bottom";
+      }
+    }
 
     if (verticalPosition == "middle")
       var top = (targetRect.top + targetRect.bottom - height) / 2;

@@ -295,6 +295,19 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     this.onStartRowAddingRemoving();
     this.addRowCore();
     this.onEndRowAdding();
+    if (this.detailPanelShowOnAdding && this.visibleRows.length > 0) {
+      this.visibleRows[this.visibleRows.length - 1].showDetailPanel();
+    }
+  }
+  /**
+   * Set this property to true to show detail panel immediately on adding a new row.
+   * @see detailPanelMode
+   */
+  public get detailPanelShowOnAdding(): boolean {
+    return this.getPropertyValue("detailPanelShowOnAdding");
+  }
+  public set detailPanelShowOnAdding(val: boolean) {
+    this.setPropertyValue("detailPanelShowOnAdding", val);
   }
   protected hasRowsAsItems(): boolean {
     return false;
@@ -734,6 +747,13 @@ Serializer.addClass(
       dependsOn: "hideColumnsIfEmpty",
       visibleIf: function(obj: any): boolean {
         return !obj || obj.hideColumnsIfEmpty;
+      },
+    },
+    {
+      name: "detailPanelShowOnAdding:boolean",
+      dependsOn: "detailPanelMode",
+      visibleIf: function(obj: any): boolean {
+        return obj.detailPanelMode !== "none";
       },
     },
   ],

@@ -2327,8 +2327,8 @@ QUnit.test("Serializer.getAllPropertiesByName() function", function (assert) {
   var properties = Serializer.getAllPropertiesByName("description");
   assert.equal(
     properties.length,
-    5,
-    "survey, panelbase, question, customtruck, nonvalue"
+    6,
+    "survey, panelbase, page, question, customtruck, nonvalue"
   );
   assert.equal(
     properties[0].name,

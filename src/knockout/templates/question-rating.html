@@ -5,7 +5,7 @@
             data-bind="attr: { 'aria-label': question.locTitle.renderedHtml }"
             ></legend>
             <!-- ko foreach: question.koVisibleRateValues -->
-            <label data-bind="css: question.koGetCss($data)">
+            <label data-bind="css: question.getItemClass($data)">
                 <input
                 type="checkbox"
                 class="sv-visuallyhidden"

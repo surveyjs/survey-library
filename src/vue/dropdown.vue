@@ -5,7 +5,7 @@
         :id="question.inputId"
         v-model="question.renderedValue"
         :autocomplete="question.autoComplete"
-        :class="question.cssClasses.control"
+        :class="question.getControlClass()"
         v-bind:aria-label="question.locTitle.renderedHtml"
         :aria-invalid="question.errors.length > 0"
         :aria-describedby="
@@ -28,7 +28,7 @@
       disabled
       v-else
       :id="question.inputId"
-      :class="question.cssClasses.control"
+      :class="question.getControlClass()"
     >
       {{ isOtherSelected ? question.otherText : question.displayValue }}
     </div>

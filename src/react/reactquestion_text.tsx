@@ -13,7 +13,7 @@ export class SurveyQuestionText extends SurveyQuestionUncontrolledElement<
     //this.controlRef = React.createRef();
   }
   protected renderElement(): JSX.Element {
-    var cssClasses = this.question.cssClasses;
+    const inputClass = (this.question as QuestionTextModel).getControlClass();
     var style: any = {};
     if (!!this.question.inputWidth) {
       style.width = this.question.inputWidth;
@@ -37,14 +37,14 @@ export class SurveyQuestionText extends SurveyQuestionUncontrolledElement<
       };
     }
     var onChange = (e: any) => {
-      if(e.target === document.activeElement) {
+      if (e.target === document.activeElement) {
         if (this.question.isInputTextUpdate) {
           this.updateValueOnEvent(e);
         }
       } else {
-          this.updateValueOnEvent(e);
+        this.updateValueOnEvent(e);
       }
-    }
+    };
     var placeHolder =
       this.question.inputType === "range" || this.question.isReadOnly
         ? ""
@@ -55,10 +55,10 @@ export class SurveyQuestionText extends SurveyQuestionUncontrolledElement<
         <input
           id={this.question.inputId}
           disabled={this.isDisplayMode}
-          className={cssClasses.root}
+          className={inputClass}
           type={this.question.inputType}
           //ref={this.controlRef}
-          ref={input => (this.control = input)}
+          ref={(input) => (this.control = input)}
           style={style}
           maxLength={this.question.getMaxLength()}
           min={this.question.renderedMin}
@@ -102,6 +102,6 @@ export class SurveyQuestionText extends SurveyQuestionUncontrolledElement<
   // }
 }
 
-ReactQuestionFactory.Instance.registerQuestion("text", props => {
+ReactQuestionFactory.Instance.registerQuestion("text", (props) => {
   return React.createElement(SurveyQuestionText, props);
 });

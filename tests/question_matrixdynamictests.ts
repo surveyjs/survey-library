@@ -5581,6 +5581,41 @@ QUnit.test("Detail panel, create elements in code", function(assert) {
     "We have 3 questions now"
   );
 });
+QUnit.test("Detail panel, detailPanelShowOnAdding property", function(assert) {
+  var survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdynamic",
+        name: "matrix",
+        rowCount: 2,
+        detailPanelMode: "underRow",
+        detailPanelShowOnAdding: true,
+        columns: [{ name: "col1" }, { name: "col2" }, { name: "col3" }],
+        detailElements: [{ type: "text", name: "q1" }],
+      },
+    ],
+  });
+  var matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+  assert.equal(matrix.detailPanelShowOnAdding, true, "load property correctly");
+  assert.equal(
+    matrix.visibleRows[1].isDetailPanelShowing,
+    false,
+    "We show detail panels collapsed"
+  );
+  matrix.addRow();
+  assert.equal(
+    matrix.visibleRows[2].isDetailPanelShowing,
+    true,
+    "Show detail panel on adding row"
+  );
+  matrix.detailPanelShowOnAdding = false;
+  matrix.addRow();
+  assert.equal(
+    matrix.visibleRows[3].isDetailPanelShowing,
+    false,
+    "Do not show detail panel on adding row"
+  );
+});
 QUnit.test("Do not clear all rows if minRowCount is set", function(assert) {
   var survey = new SurveyModel({
     elements: [

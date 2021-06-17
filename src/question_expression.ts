@@ -61,14 +61,14 @@ export class QuestionExpressionModel extends Question {
     if (
       !this.expression ||
       this.expressionIsRunning ||
-      (this.survey && this.survey.isDisplayMode)
+      (!this.runIfReadOnly && this.isReadOnly)
     )
       return;
     this.locCalculation();
     if (!this.expressionRunner) {
       this.expressionRunner = new ExpressionRunner(this.expression);
     }
-    this.expressionRunner.onRunComplete = newValue => {
+    this.expressionRunner.onRunComplete = (newValue) => {
       if (!Helpers.isTwoValueEquals(newValue, this.value)) {
         this.value = newValue;
       }
@@ -101,6 +101,13 @@ export class QuestionExpressionModel extends Question {
   public set minimumFractionDigits(val: number) {
     if (val < -1 || val > 20) return;
     this.setPropertyValue("minimumFractionDigits", val);
+  }
+  private runIfReadOnlyValue: boolean;
+  public get runIfReadOnly(): boolean {
+    return this.runIfReadOnlyValue === true;
+  }
+  public set runIfReadOnly(val: boolean) {
+    this.runIfReadOnlyValue = val;
   }
   protected getDisplayValueCore(keysAsText: boolean, value: any): any {
     var val = this.isValueEmpty(value) ? this.defaultValue : value;
@@ -381,6 +388,6 @@ Serializer.addClass(
   },
   "question"
 );
-QuestionFactory.Instance.registerQuestion("expression", name => {
+QuestionFactory.Instance.registerQuestion("expression", (name) => {
   return new QuestionExpressionModel(name);
 });

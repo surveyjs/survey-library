@@ -126,7 +126,8 @@ export class PopupBaseViewModel extends Base {
       width,
       this.model.verticalPosition,
       this.model.horizontalPosition,
-      this.showPointer
+      this.showPointer,
+      document && document.body && document.body.getBoundingClientRect()
     );
     this.left = pos.left + "px";
     this.top = pos.top + "px";

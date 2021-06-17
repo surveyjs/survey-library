@@ -17,12 +17,39 @@ export class PopupUtils {
     width: number,
     verticalPosition: VerticalPosition,
     horizontalPosition: HorizontalPosition,
-    showPointer: boolean
+    showPointer: boolean,
+    bodyRect?: ClientRect
   ): INumberPosition {
     if (horizontalPosition == "center")
       var left = (targetRect.left + targetRect.right - width) / 2;
     else if (horizontalPosition == "left") left = targetRect.left - width;
     else left = targetRect.right;
+
+    if (!!bodyRect) {
+      if (
+        targetRect.top + (showPointer ? targetRect.height : 0) < height &&
+        height + targetRect.bottom - (showPointer ? targetRect.height : 0) <=
+          bodyRect.height &&
+        verticalPosition == "top"
+      ) {
+        verticalPosition = "bottom";
+      } else if (
+        height + targetRect.bottom - (showPointer ? targetRect.height : 0) >
+          bodyRect.height &&
+        targetRect.top - height + (showPointer ? targetRect.height : 0) >= 0 &&
+        verticalPosition == "bottom"
+      ) {
+        verticalPosition = "top";
+      } else if (
+        height + targetRect.bottom - (showPointer ? targetRect.height : 0) >
+          bodyRect.height &&
+        targetRect.top + (showPointer ? targetRect.height : 0) < height
+      ) {
+        let deltaTop = targetRect.top;
+        let deltaBottom = bodyRect.height - targetRect.bottom;
+        verticalPosition = deltaTop > deltaBottom ? "top" : "bottom";
+      }
+    }
 
     if (verticalPosition == "middle")
       var top = (targetRect.top + targetRect.bottom - height) / 2;

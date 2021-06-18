@@ -5803,19 +5803,16 @@ export class SurveyModel extends Base
     return true;
   }
   public getElementWrapperComponentName(element: any, reason?: string): string {
+    if(reason === "logo-image") {
+      return "sv-logo-image";
+    }
     return SurveyModel.TemplateRendererComponentName;
-  }
-  public getElementWrapperComponentNameByName(element: string): string {
-    return element;
   }
   public getRowWrapperComponentName(row: QuestionRowModel): string {
     return SurveyModel.TemplateRendererComponentName;
   }
   public getElementWrapperComponentData(element: any, reason?: string): any {
     return element;
-  }
-  public getElementWrapperComponentDataByName(element: string): any {
-    return this;
   }
   public getRowWrapperComponentData(row: QuestionRowModel): any {
     return row;

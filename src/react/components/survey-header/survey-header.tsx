@@ -48,8 +48,8 @@ export class SurveyHeader extends React.Component<ISurveyHeaderProps, any> {
 
   private renderLogoImage(isRender: boolean): JSX.Element {
     if (!isRender) return null;
-    const componentName: string = this.survey.getElementWrapperComponentNameByName("sv-logo-image");
-    const componentData: any = this.survey.getElementWrapperComponentDataByName("sv-logo-image");
+    const componentName: string = this.survey.getElementWrapperComponentName(this.survey, "logo-image");
+    const componentData: any = this.survey.getElementWrapperComponentData(this.survey, "logo-image");
     return ReactElementFactory.Instance.createElement(componentName, { data: componentData });
   }
 

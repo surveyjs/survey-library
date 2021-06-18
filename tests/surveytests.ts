@@ -13177,3 +13177,8 @@ QUnit.test("Custom widget, test canShowInToolbox read-only property", function(
 
   CustomWidgetCollection.Instance.clear();
 });
+QUnit.test("getElementWrapperComponentName", function(assert) {
+  var survey = new SurveyModel();
+  assert.deepEqual(survey.getElementWrapperComponentName(null), SurveyModel.TemplateRendererComponentName, "default component");
+  assert.deepEqual(survey.getElementWrapperComponentName(null, "logo-image"), "sv-logo-image", "logo-image default component");
+});

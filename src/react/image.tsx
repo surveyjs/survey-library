@@ -7,6 +7,17 @@ export class SurveyQuestionImage extends SurveyQuestionElementBase {
   constructor(props: any) {
     super(props);
   }
+  componentDidMount() {
+    super.componentDidMount();
+    this.question.locImageLink.onChanged = () => {
+      this.forceUpdate();
+    };
+  }
+  componentWillUnmount() {
+    super.componentWillUnmount();
+    this.question.locImageLink.onChanged = () => {};
+  }
+
   protected get question(): QuestionImageModel {
     return this.questionBase as QuestionImageModel;
   }
@@ -21,7 +32,7 @@ export class SurveyQuestionImage extends SurveyQuestionElementBase {
       control = (
         <img
           className={cssClasses.image}
-          src={this.question.imageLink}
+          src={this.question.locImageLink.renderedHtml}
           alt={this.question.text || this.question.title}
           width={
             this.question.imageWidth

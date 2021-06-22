@@ -89,7 +89,7 @@ export class QuestionTextModel extends Question {
     var validators = super.getValidators();
     if (
       this.inputType === "email" &&
-      !this.validators.some(v => v.getType() === "emailvalidator")
+      !this.validators.some((v) => v.getType() === "emailvalidator")
     ) {
       validators.push(new EmailValidator());
     }
@@ -320,7 +320,7 @@ export class QuestionTextModel extends Question {
     this.setValueAndRunExpression(
       this.minValueExpression,
       this.min,
-      val => {
+      (val) => {
         if (!val && this.isDateInputType && !!settings.minDate) {
           val = settings.minDate;
         }
@@ -332,7 +332,7 @@ export class QuestionTextModel extends Question {
     this.setValueAndRunExpression(
       this.maxValueExpression,
       this.max,
-      val => {
+      (val) => {
         if (!val && this.isDateInputType) {
           val = !!settings.maxDate ? settings.maxDate : "2999-12-31";
         }
@@ -408,6 +408,16 @@ export class QuestionTextModel extends Question {
       return Helpers.isNumber(newValue) ? parseFloat(newValue) : "";
     }
     return newValue;
+  }
+  public getControlClass(): string {
+    const cssClasses = this.cssClasses;
+    let result =
+      cssClasses.root +
+      (this.errors.length > 0 ? " " + cssClasses.onError : "");
+    if (this.isReadOnly) {
+      result += " " + cssClasses.controlDisabled;
+    }
+    return result;
   }
 }
 
@@ -615,6 +625,6 @@ Serializer.addClass(
   "question"
 );
 
-QuestionFactory.Instance.registerQuestion("text", name => {
+QuestionFactory.Instance.registerQuestion("text", (name) => {
   return new QuestionTextModel(name);
 });

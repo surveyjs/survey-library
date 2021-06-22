@@ -16,6 +16,9 @@ export class SurveyQuestionBoolean extends SurveyQuestionElementBase {
   protected get question(): QuestionBooleanModel {
     return this.questionBase as QuestionBooleanModel;
   }
+  private get allowClick() {
+    return this.question.isIndeterminate && !this.isDisplayMode;
+  }
   private preventDefaults(event: any) {
     event.preventDefault();
     event.stopPropagation();
@@ -28,14 +31,14 @@ export class SurveyQuestionBoolean extends SurveyQuestionElementBase {
     this.doCheck(event.target.checked);
   }
   handleOnClick(event: any) {
-    if (this.question.isIndeterminate) {
+    if (this.allowClick) {
       this.preventDefaults(event);
       this.question.checkedValue = true;
       this.setState({ value: this.question.checkedValue });
     }
   }
   handleOnSwitchClick(event: any) {
-    if (this.question.isIndeterminate) {
+    if (this.allowClick) {
       this.preventDefaults(event);
       var isRightClick =
         event.nativeEvent.offsetX / event.target.offsetWidth > 0.5;
@@ -46,7 +49,7 @@ export class SurveyQuestionBoolean extends SurveyQuestionElementBase {
     }
   }
   handleOnLabelClick(event: any, value: boolean) {
-    if (this.question.isIndeterminate) {
+    if (this.allowClick) {
       this.preventDefaults(event);
       this.doCheck(value);
     }
@@ -83,6 +86,13 @@ export class SurveyQuestionBoolean extends SurveyQuestionElementBase {
         : "")
     );
   }
+  private getCheckedLabel() {
+    if (this.question.checkedValue === true) {
+      return this.question.locLabelTrue;
+    } else if (this.question.checkedValue === false) {
+      return this.question.locLabelFalse;
+    }
+  }
   protected renderElement(): JSX.Element {
     var cssClasses = this.question.cssClasses;
     var itemClass = this.getItemClass();
@@ -117,7 +127,13 @@ export class SurveyQuestionBoolean extends SurveyQuestionElementBase {
             {this.renderLocString(this.question.locLabelFalse)}
           </span>
           <div className={cssClasses.switch} onClick={this.handleOnSwitchClick}>
-            <span className={cssClasses.slider} />
+            <span className={cssClasses.slider}>
+              <span className={cssClasses.sliderText}>
+                {this.question.checkedValue !== null
+                  ? this.renderLocString(this.getCheckedLabel())
+                  : null}
+              </span>
+            </span>
           </div>
           <span
             className={this.getLabelClass(true)}

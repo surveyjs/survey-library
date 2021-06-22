@@ -761,6 +761,7 @@ export class JsonMetadata {
     return this.getObjPropertyValueCore(obj, prop);
   }
   public setObjPropertyValue(obj: any, name: string, val: any) {
+    if (obj[name] === val) return;
     if (!!obj[name] && !!obj[name].setJson) {
       obj[name].setJson(val);
     } else {

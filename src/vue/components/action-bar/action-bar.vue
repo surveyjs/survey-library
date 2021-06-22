@@ -27,7 +27,7 @@
 <script lang="ts">
 import { Component, Prop } from "vue-property-decorator";
 import Vue from "vue";
-import { ActionBar, IActionBarItem } from "survey-core";
+import { ActionBar, IActionBarItem, AdaptiveActionBarItemWrapper } from "survey-core";
 
 export * from "./action-bar-item.vue";
 export * from "./action-bar-item-dropdown.vue";
@@ -44,7 +44,7 @@ export class ActionBarViewModel extends Vue {
     this.model.setItems(this.items);
   }
 
-  get wrappedItems() {
+  get wrappedItems(): AdaptiveActionBarItemWrapper[] {
     return this.model.items;
   }
 

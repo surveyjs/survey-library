@@ -6,7 +6,7 @@ import { settings } from "../src/settings";
 export default QUnit.module("baseselect");
 
 function getValuesInColumns(question: QuestionSelectBase) {
-  return question.columns.map(column => column.map(choice => choice.value));
+  return question.columns.map((column) => column.map((choice) => choice.value));
 }
 
 QUnit.test("Check QuestionSelectBase columns property", function(assert) {
@@ -65,4 +65,22 @@ QUnit.test("Set ", function(assert) {
   assert.equal(q2.choicesByUrl.path, "path1", "path set correctly");
   assert.equal(q2.choicesByUrl.valueName, "val1", "valueName set correctly");
   assert.equal(q2.choicesByUrl.titleName, "", "titleName is cleard");
+});
+QUnit.test("check allowhover class in design mode", (assert) => {
+  var json = {
+    questions: [
+      {
+        type: "checkbox",
+        name: "q1",
+        choices: ["Item 1"],
+      },
+    ],
+  };
+  const survey = new SurveyModel(json);
+  const q1 = <QuestionSelectBase>survey.getQuestionByName("q1");
+  q1.cssClasses.itemHover = "sv_q_checkbox_hover";
+  const item = q1.visibleChoices[0];
+  assert.ok(q1.getItemClass(item).indexOf("sv_q_checkbox_hover") != -1);
+  survey.setDesignMode(true);
+  assert.ok(q1.getItemClass(item).indexOf("sv_q_checkbox_hover") == -1);
 });

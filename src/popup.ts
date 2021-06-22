@@ -130,7 +130,7 @@ export class PopupBaseViewModel extends Base {
       this.model.verticalPosition,
       this.model.horizontalPosition,
       this.showPointer,
-      window && { width: window.innerWidth, height: window.innerHeight }
+      window && ({ width: window.innerWidth, height: window.innerHeight})
     );
 
     if (!!window) {

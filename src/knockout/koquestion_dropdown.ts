@@ -8,17 +8,6 @@ import { Question } from "survey-core";
 class QuestionDropdownImplementor extends QuestionSelectBaseImplementor {
   constructor(question: Question) {
     super(question);
-    this.setObservaleObj(
-      "koControlClass",
-      ko.pureComputed(() => {
-        return (
-          this.question.koCss().control +
-          (this.question.errors.length > 0
-            ? " " + this.question.koCss().onError
-            : "")
-        );
-      })
-    );
   }
 }
 
@@ -40,7 +29,7 @@ export class QuestionDropdown extends QuestionDropdownModel {
 Serializer.overrideClassCreator("dropdown", function() {
   return new QuestionDropdown("");
 });
-QuestionFactory.Instance.registerQuestion("dropdown", name => {
+QuestionFactory.Instance.registerQuestion("dropdown", (name) => {
   var q = new QuestionDropdown(name);
   q.choices = QuestionFactory.DefaultChoices;
   return q;

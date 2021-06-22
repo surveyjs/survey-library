@@ -43,7 +43,7 @@ $background: var(--background, #fff);
   }
 }
 
-.sv-button-group__item:hover {
+.sv-button-group__item--hover:hover {
   background-color: $background-dim;
 }
 
@@ -69,8 +69,7 @@ $background: var(--background, #fff);
   display: flex;
   align-items: center;
 }
-.sv-button-group__item-icon +
-.sv-button-group__item-caption {
+.sv-button-group__item-icon + .sv-button-group__item-caption {
   margin-left: calcSize(1);
 }
 .sv-button-group__item--disabled {

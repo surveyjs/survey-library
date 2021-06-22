@@ -189,6 +189,28 @@ export class QuestionRatingModel extends Question {
       this.value = value;
     }
   }
+  public getItemClass(item: ItemValue) {
+    const itemCss = this.cssClasses.item;
+    const selected = this.cssClasses.selected;
+    const disabled = this.cssClasses.itemDisabled;
+    const isSelected = this.value == item.value;
+    const isDisabled = this.isReadOnly && !item.isEnabled;
+    const allowHover =
+      !isDisabled &&
+      !isSelected &&
+      !(!!this.survey && this.survey.isDesignMode);
+    let result = itemCss;
+    if (this.value == item.value) {
+      result += " " + selected;
+    }
+    if (this.isReadOnly) {
+      result += " " + disabled;
+    }
+    if (allowHover) {
+      result += " " + this.cssClasses.itemHover;
+    }
+    return result;
+  }
 }
 Serializer.addClass(
   "rating",
@@ -228,6 +250,6 @@ Serializer.addClass(
   },
   "question"
 );
-QuestionFactory.Instance.registerQuestion("rating", name => {
+QuestionFactory.Instance.registerQuestion("rating", (name) => {
   return new QuestionRatingModel(name);
 });

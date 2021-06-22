@@ -1033,3 +1033,23 @@ QUnit.test(
     assert.equal(counter, 0, "Do not send any notifications");
   }
 );
+QUnit.test("Do not set directly array objects", function(assert) {
+  var editingSurvey = new SurveyModel();
+  editingSurvey.addNewPage("page1");
+  editingSurvey.addNewPage("page2");
+  var survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdynamic",
+        name: "pages",
+        rowCount: 0,
+        columns: [{ cellType: "text", name: "name" }],
+      },
+    ],
+  });
+  survey.editingObj = editingSurvey;
+  var matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("pages");
+  assert.equal(matrix.rowCount, 2, "There are 2 pages");
+  matrix.removeRow(1);
+  assert.equal(editingSurvey.pages.length, 1, "There is one page now");
+});

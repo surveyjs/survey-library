@@ -69,6 +69,16 @@ export class PopupUtils {
     return { left: Math.round(left), top: Math.round(top) };
   }
 
+  public static updateVerticalDimensions(top: number, height: number, windowHeight: number ) {
+    let result;
+    if (top < 0) {
+      result = { height: height + top, top: 0 };
+    } else if (height + top > windowHeight) {
+      result = { height: windowHeight - top, top: top };
+    }
+    return result;
+  }
+
   public static calculatePopupDirection(
     verticalPosition: VerticalPosition,
     horizontalPosition: HorizontalPosition

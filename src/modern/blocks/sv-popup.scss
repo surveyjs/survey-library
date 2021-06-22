@@ -42,8 +42,10 @@ sv-popup {
   padding: calcSize(1) 0;
   background: $body-background-color;
   border-radius: 4px;
+  box-sizing: border-box;
 }
 .sv-popup__scrolling-content {
+  height: 100%;
   max-width: 90vw;
   max-height: 90vh;
   overflow: auto;

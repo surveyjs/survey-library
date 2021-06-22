@@ -4,7 +4,7 @@
 >
   <div
     class="sv-popup__container"
-    data-bind="style: { left: left, top: top },  click: function() { return true; }, clickBubble: false"
+    data-bind="style: { left: left, top: top, height: height },  click: function() { return true; }, clickBubble: false"
   >
     <!-- ko if: showPointer  -->
     <span
@@ -12,7 +12,7 @@
       class="sv-popup__pointer"
     ></span>
     <!-- /ko -->
-    <div class="sv-popup__scrolling-content ">
+    <div class="sv-popup__scrolling-content">
       <div class="sv-popup__header"></div>
       <div
         class="sv-popup__content"

@@ -820,3 +820,24 @@ QUnit.test("Check calculatePosition with window size method", (assert) => {
     "both directions do not fit: result bottom, with showPointer"
   );
 });
+
+QUnit.test(
+  "Check updateVerticalDimensions if both directions do not fit",
+  (assert) => {
+    let newVerticalDimensions = PopupUtils.updateVerticalDimensions(
+      -20,
+      200,
+      300
+    );
+    assert.equal(newVerticalDimensions.height, 180);
+    assert.equal(newVerticalDimensions.top, 0);
+
+    newVerticalDimensions = PopupUtils.updateVerticalDimensions(
+      150,
+      200,
+      300
+    );
+    assert.equal(newVerticalDimensions.height, 150);
+    assert.equal(newVerticalDimensions.top, 150);
+  }
+);

@@ -9,7 +9,7 @@
           :key="'header_' + cell.id"
           :style="{ minWidth: cell.minWidth, width: cell.width }"
         >
-          <survey-string :locString="cell.locTitle" />
+          <survey-string v-if="cell.hasTitle" :locString="cell.locTitle" />
           <span v-if="!!cell.requiredText">{{ cell.requiredText }}</span>
         </th>
       </tr>
@@ -20,7 +20,10 @@
         :class="row.className"
         :key="question.inputId + '_' + row.id"
       >
-        <drag-drop-td :question="question" v-if="question.allowRowsDragAndDrop" />
+        <drag-drop-td
+          :question="question"
+          v-if="question.allowRowsDragAndDrop"
+        />
         <survey-matrixcell
           :cell="cell"
           :question="question"

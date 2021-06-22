@@ -27,11 +27,13 @@
             <th
               data-bind="style: { minWidth: $data.minWidth, width: $data.width }, css: question.koCss().headerCell"
             >
+              <!-- ko if: $data.hasTitle -->
               <!-- ko component: { name: question.getColumnHeaderWrapperComponentName($data), params: { componentData:  question.getColumnHeaderWrapperComponentData($data), templateData: { data: $data } } } -->
                 <!-- ko template: { name: 'survey-string', data: $data.locTitle } --><!-- /ko -->
                 <!-- ko if: $data.requiredText -->
                 <span data-bind="text: $data.requiredText"></span>
                 <!-- /ko -->
+              <!-- /ko -->
               <!-- /ko -->
             </th>
             <!-- /ko -->

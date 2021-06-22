@@ -976,6 +976,7 @@ export class MatrixDropdownRowModelBase
   }
   private setValueCore(name: string, newColumnValue: any, isComment: boolean) {
     if (this.isSettingValue) return;
+    this.updateQuestionsValue(name, newColumnValue, isComment);
     var newValue = this.value;
     var changedName = isComment ? name + settings.commentPrefix : name;
     var changedValue = isComment ? this.getComment(name) : this.getValue(name);
@@ -1005,6 +1006,30 @@ export class MatrixDropdownRowModelBase
       this.onAnyValueChanged(MatrixDropdownRowModelBase.RowVariableName);
     }
   }
+
+  private updateQuestionsValue(
+    name: string,
+    newColumnValue: any,
+    isComment: boolean
+  ) {
+    if (!this.detailPanel) return;
+    var colQuestion = this.getQuestionByColumnName(name);
+    var detailQuestion = this.detailPanel.getQuestionByName(name);
+    if (!colQuestion || !detailQuestion) return;
+    var isColQuestion = Helpers.isTwoValueEquals(
+      newColumnValue,
+      isComment ? colQuestion.comment : colQuestion.value
+    );
+    var question = isColQuestion ? detailQuestion : colQuestion;
+    this.isSettingValue = true;
+    if (!isComment) {
+      question.value = newColumnValue;
+    } else {
+      question.comment = newColumnValue;
+    }
+    this.isSettingValue = false;
+  }
+
   private hasQuestonError(question: Question): boolean {
     if (!question) return false;
     if (

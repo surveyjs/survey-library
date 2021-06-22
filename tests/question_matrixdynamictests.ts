@@ -5374,6 +5374,61 @@ QUnit.test("Detail panel in matrix dropdown, get/set values", function(assert) {
     "The value set from the survey correctly into closed detail panel question"
   );
 });
+QUnit.test(
+  "Detail panel column and detail Panel have the same names, get/set values",
+  function(assert) {
+    var survey = new SurveyModel({
+      elements: [
+        {
+          type: "matrixdropdown",
+          name: "matrix",
+          detailPanelMode: "underRow",
+          detailElements: [{ type: "text", name: "q1" }],
+          rows: ["row1", "row2"],
+          columns: [{ cellType: "text", name: "q1" }],
+        },
+      ],
+    });
+    var matrix = <QuestionMatrixDropdownModel>(
+      survey.getQuestionByName("matrix")
+    );
+    var row = matrix.visibleRows[0];
+    row.showDetailPanel();
+    row.getQuestionByColumnName("q1").value = "val1";
+    assert.equal(
+      row.getQuestionByColumnName("q1").value,
+      "val1",
+      "Value is changed in row, #1"
+    );
+    assert.equal(
+      row.detailPanel.getQuestionByName("q1").value,
+      "val1",
+      "Value is changed in detail, #1"
+    );
+    row.detailPanel.getQuestionByName("q1").value = "val2";
+    assert.equal(
+      row.getQuestionByColumnName("q1").value,
+      "val2",
+      "Value is changed in row, #2"
+    );
+    assert.equal(
+      row.detailPanel.getQuestionByName("q1").value,
+      "val2",
+      "Value is changed in detail, #2"
+    );
+    row.getQuestionByColumnName("q1").value = "val3";
+    assert.equal(
+      row.getQuestionByColumnName("q1").value,
+      "val3",
+      "Value is changed in row, #3"
+    );
+    assert.equal(
+      row.detailPanel.getQuestionByName("q1").value,
+      "val3",
+      "Value is changed in detail, #3"
+    );
+  }
+);
 
 QUnit.test("Detail panel, run conditions", function(assert) {
   var survey = new SurveyModel({

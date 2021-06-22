@@ -5999,49 +5999,56 @@ QUnit.test("copyvalue trigger for dropdown matrix cell", function(assert) {
     "copy value for Item2"
   );
 });
-QUnit.test("MatrixDynamic, ", function(assert) {
-  var survey = new SurveyModel({
-    elements: [
-      {
-        type: "matrixdynamic",
-        name: "matrix",
-        rowCount: 0,
-        hideColumnsIfEmpty: true,
-        columns: [{ name: "col1" }],
-      },
-    ],
-  });
-  var matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
-  assert.equal(matrix.renderedTable.showTable, false, "There is no rows");
-  assert.equal(
-    matrix.renderedTable.showAddRowOnBottom,
-    false,
-    "Do not show add button"
-  );
-  matrix.addRow();
-  assert.equal(matrix.renderedTable.showTable, true, "There is a row");
-  assert.equal(
-    matrix.renderedTable.showAddRowOnBottom,
-    true,
-    "Show add button"
-  );
-  matrix.removeRow(0);
-  assert.equal(matrix.renderedTable.showTable, false, "Matrix is empty again");
-  assert.equal(
-    matrix.renderedTable.showAddRowOnBottom,
-    false,
-    "Do not show add button again"
-  );
-  matrix.hideColumnsIfEmpty = false;
-  assert.equal(
-    matrix.renderedTable.showTable,
-    true,
-    "hideColumnsIfEmpty is false"
-  );
-  survey.setDesignMode(true);
-  matrix.hideColumnsIfEmpty = true;
-  assert.equal(matrix.renderedTable.showTable, true, "survey in design mode");
-});
+QUnit.test(
+  "MatrixDynamic, test renderedTable.showTable&showAddRowOnBottom",
+  function(assert) {
+    var survey = new SurveyModel({
+      elements: [
+        {
+          type: "matrixdynamic",
+          name: "matrix",
+          rowCount: 0,
+          hideColumnsIfEmpty: true,
+          columns: [{ name: "col1" }],
+        },
+      ],
+    });
+    var matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+    assert.equal(matrix.renderedTable.showTable, false, "There is no rows");
+    assert.equal(
+      matrix.renderedTable.showAddRowOnBottom,
+      false,
+      "Do not show add button"
+    );
+    matrix.addRow();
+    assert.equal(matrix.renderedTable.showTable, true, "There is a row");
+    assert.equal(
+      matrix.renderedTable.showAddRowOnBottom,
+      true,
+      "Show add button"
+    );
+    matrix.removeRow(0);
+    assert.equal(
+      matrix.renderedTable.showTable,
+      false,
+      "Matrix is empty again"
+    );
+    assert.equal(
+      matrix.renderedTable.showAddRowOnBottom,
+      false,
+      "Do not show add button again"
+    );
+    matrix.hideColumnsIfEmpty = false;
+    assert.equal(
+      matrix.renderedTable.showTable,
+      true,
+      "hideColumnsIfEmpty is false"
+    );
+    survey.setDesignMode(true);
+    matrix.hideColumnsIfEmpty = true;
+    assert.equal(matrix.renderedTable.showTable, true, "survey in design mode");
+  }
+);
 QUnit.test(
   "MatrixDynamic, Hide/show add row button on changing allowAddRows",
   function(assert) {
@@ -6475,6 +6482,43 @@ QUnit.test(
       rows[0].cells[0].question.inputType,
       "date",
       "Set the property correctly"
+    );
+  }
+);
+QUnit.test(
+  "MatrixDynamic, test renderedTable column locString on adding new column",
+  function(assert) {
+    var survey = new SurveyModel({
+      elements: [
+        {
+          type: "matrixdynamic",
+          name: "matrix",
+          columns: [{ name: "col1" }],
+        },
+      ],
+    });
+    var matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+    assert.equal(
+      matrix.renderedTable.headerRow.cells.length,
+      1 + 1,
+      "We have one column and delete row"
+    );
+    assert.equal(
+      matrix.renderedTable.headerRow.cells[0].locTitle.renderedHtml,
+      "col1",
+      "Title rendered from JSON"
+    );
+    matrix.addColumn("col2");
+    assert.equal(
+      matrix.renderedTable.headerRow.cells[1].locTitle.renderedHtml,
+      "col2",
+      "Title rendered from addColumn"
+    );
+    matrix.columns.push(new MatrixDropdownColumn("col3"));
+    assert.equal(
+      matrix.renderedTable.headerRow.cells[2].locTitle.renderedHtml,
+      "col3",
+      "Title rendered from columns.push"
     );
   }
 );

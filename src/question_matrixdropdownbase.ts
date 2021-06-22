@@ -253,7 +253,11 @@ export class MatrixDropdownColumn extends Base
     );
     this.updateTemplateQuestion();
     this.name = name;
-    if (title) this.title = title;
+    if (title) {
+      this.title = title;
+    } else {
+      this.templateQuestion.locTitle.strChanged();
+    }
   }
   public getOriginalObj(): Base {
     return this.templateQuestion;

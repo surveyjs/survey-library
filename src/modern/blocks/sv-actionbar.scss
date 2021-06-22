@@ -164,9 +164,6 @@ $base-unit: var(--base-unit, 8px);
 
 .sv-dots__item {
   width: 100%;
-  &:hover {
-    background-color: inherit;
-  }
   .sv-action-bar-item__icon {
     margin: auto;
   }

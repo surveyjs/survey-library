@@ -71,6 +71,7 @@ export class PopupModel extends Base {
 export class PopupBaseViewModel extends Base {
   @property({ defaultValue: "0px" }) top: string;
   @property({ defaultValue: "0px" }) left: string;
+  @property({ defaultValue: "auto" }) height: string;
   @property({ defaultValue: false }) isVisible: boolean;
   @property({ defaultValue: "left" }) popupDirection: string;
   @property({ defaultValue: { left: "0px", top: "0px" } })
@@ -119,6 +120,7 @@ export class PopupBaseViewModel extends Base {
       this.model.verticalPosition,
       this.model.horizontalPosition
     );
+    this.height = "auto";
     const height = popupContainer.offsetHeight;
     const width = popupContainer.offsetWidth;
     const pos = PopupUtils.calculatePosition(
@@ -130,6 +132,18 @@ export class PopupBaseViewModel extends Base {
       this.showPointer,
       window && ({ width: window.innerWidth, height: window.innerHeight})
     );
+
+    if (!!window) {
+      const newVerticalDimensions = PopupUtils.updateVerticalDimensions(
+        pos.top,
+        height,
+        window.innerHeight
+      );
+      if (!!newVerticalDimensions) {
+        this.height = newVerticalDimensions.height + "px";
+        pos.top = newVerticalDimensions.top;
+      }
+    }
     this.left = pos.left + "px";
     this.top = pos.top + "px";
 

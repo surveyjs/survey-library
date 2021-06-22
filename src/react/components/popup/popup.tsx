@@ -72,7 +72,7 @@ export class PopupContainer extends SurveyElementBase<any, any> {
     return (
       <div
         className="sv-popup__container"
-        style={{ left: this.model.left, top: this.model.top }}
+        style={{ left: this.model.left, top: this.model.top, height: this.model.height }}
         onClick={(ev: any) => {
           this.clickInside(ev);
         }}

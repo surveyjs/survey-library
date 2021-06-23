@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.8.53](https://github.com/surveyjs/survey-library/compare/v1.8.52...v1.8.53) (2021-06-23)
+
+
+### Bug Fixes
+
+* Column header title doesn't render correctly on adding column without title in code [#3003](https://github.com/surveyjs/survey-library/issues/3003) ([#3004](https://github.com/surveyjs/survey-library/issues/3004)) ([ec8c32e](https://github.com/surveyjs/survey-library/commit/ec8c32e31f60c03b406dd70cdcddc5bc53eaa44c))
+* Editing doesn't work in matrices if there is a question with the same name in detail panel [#3001](https://github.com/surveyjs/survey-library/issues/3001) ([#3002](https://github.com/surveyjs/survey-library/issues/3002)) ([e320c81](https://github.com/surveyjs/survey-library/commit/e320c810fe7604f4868f92aa868cf977ecc735e3))
+* If choicesByUrl.allowEmptyResponse is true and we have other value on loading in question, it doesn't set [#3009](https://github.com/surveyjs/survey-library/issues/3009) ([#3010](https://github.com/surveyjs/survey-library/issues/3010)) ([42f78d6](https://github.com/surveyjs/survey-library/commit/42f78d69e1ca3a357e34e6b434e48c4bb7546089))
+
 ### [1.8.52](https://github.com/surveyjs/survey-library/compare/v1.8.51...v1.8.52) (2021-06-16)
 
 ### [1.8.51](https://github.com/surveyjs/survey-library/compare/v1.8.50...v1.8.51) (2021-06-09)

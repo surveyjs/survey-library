@@ -49,6 +49,7 @@
   },
   "version": "1.8.53",
   "name": "@sasaki-dev/survey-library",
+  "private": true,
   "devDependencies": {
     "@types/ace": "0.0.32",
     "@types/angular": "^1.6.2",

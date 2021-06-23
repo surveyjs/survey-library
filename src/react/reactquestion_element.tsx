@@ -5,6 +5,7 @@ import { Question } from "survey-core";
 import { ISurveyCreator } from "./reactquestion";
 import { Base, ArrayChanges } from "survey-core";
 import { ReactElementFactory } from "./element-factory";
+import { ReactSurveyModel } from "./reactsurveymodel";
 
 export class SurveyElementBase<P, S> extends React.Component<P, S> {
   public static renderLocString(
@@ -202,6 +203,18 @@ export class SurveyQuestionElementBase extends SurveyElementBase<any, any> {
       (!!this.questionBase && this.questionBase.isInputReadOnly)
     );
   }
+  protected wrapCell(cell: any, element: JSX.Element, reason: string): JSX.Element {
+    if(!reason) {
+      return element;
+    }
+    const survey: ReactSurveyModel = this.questionBase.survey as ReactSurveyModel;
+    let wrapper: JSX.Element;
+    if (survey) {
+      wrapper = survey.wrapMatrixCell(element, cell, reason);
+    }
+    return wrapper ?? element;
+  }
+
 }
 
 export class SurveyQuestionUncontrolledElement<

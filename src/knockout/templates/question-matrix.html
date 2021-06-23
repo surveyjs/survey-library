@@ -14,7 +14,8 @@
             <td data-bind="visible: question.hasRows"></td>
             <!-- ko foreach: question.koVisibleColumns -->
             <th data-bind="css: question.koCss().headerCell">
-              <!-- ko template: { name: 'survey-string', data: locText } -->
+              <!-- ko component: { name: question.getColumnHeaderWrapperComponentName($data), params: { componentData:  question.getColumnHeaderWrapperComponentData($data), templateData: { data: $data } } } -->
+                <!-- ko template: { name: 'survey-string', data: $data.locText } --><!-- /ko -->
               <!-- /ko -->
             </th>
             <!-- /ko -->
@@ -31,7 +32,9 @@
             <td
               data-bind="visible: question.hasRows, css: question.koCss().cell"
             >
-              <!-- ko template: { name: 'survey-string', data: row.locText } -->
+              <!-- ko component: { name: question.getRowHeaderWrapperComponentName($data), params: { componentData:  question.getRowHeaderWrapperComponentData($data), templateData: { data: $data } } } -->
+                <!-- ko template: { name: 'survey-string', data: row.locText } -->
+                <!-- /ko -->
               <!-- /ko -->
             </td>
             <!-- ko foreach: question.koVisibleColumns -->

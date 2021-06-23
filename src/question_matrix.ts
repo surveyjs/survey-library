@@ -10,6 +10,7 @@ import { LocalizableString, ILocalizableOwner } from "./localizablestring";
 import { QuestionDropdownModel } from "./question_dropdown";
 import { IConditionObject } from "./question";
 import { settings } from "./settings";
+import { SurveyModel } from "./survey";
 
 export interface IMatrixData {
   onMatrixRowChanged(row: MatrixRowModel): void;
@@ -592,6 +593,23 @@ export class QuestionMatrixModel
     keys.push("columns");
     keys.push("rows");
   }
+
+  private get SurveyModel() {
+    return this.survey as SurveyModel;
+  }
+  public getColumnHeaderWrapperComponentName(cell: ItemValue) {
+    return this.SurveyModel.getElementWrapperComponentName({ column: cell }, "column-header");
+  }
+  public getColumnHeaderWrapperComponentData(cell: ItemValue) {
+    return this.SurveyModel.getElementWrapperComponentData({ column: cell }, "column-header");
+  }
+  public getRowHeaderWrapperComponentName(cell: ItemValue) {
+    return this.SurveyModel.getElementWrapperComponentName({ row: cell }, "row-header");
+  }
+  public getRowHeaderWrapperComponentData(cell: ItemValue) {
+    return this.SurveyModel.getElementWrapperComponentData({ row: cell }, "row-header");
+  }
+
 }
 
 Serializer.addClass(

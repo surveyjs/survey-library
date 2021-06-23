@@ -233,19 +233,6 @@ export class SurveyQuestionMatrixDropdownBase extends SurveyQuestionElementBase 
       </td>
     );
   }
-
-  protected wrapCell(cell: QuestionMatrixDropdownRenderedCell, element: JSX.Element, reason: string): JSX.Element {
-    if(!reason) {
-      return element;
-    }
-    const survey: ReactSurveyModel = this.question.survey as ReactSurveyModel;
-    let wrapper: JSX.Element;
-    if (survey) {
-      wrapper = survey.wrapMatrixCell(element, cell, reason);
-    }
-    return wrapper ?? element;
-  }
-
 }
 
 class SurveyQuestionMatrixActionsCell extends ReactSurveyElement {

@@ -649,7 +649,9 @@ export class QuestionSelectBase extends Question {
     return true;
   }
   protected get isAddDefaultItems() {
-    return settings.supportCreatorV2 && this.isDesignMode && !this.parentQuestion;
+    return (
+      settings.supportCreatorV2 && this.isDesignMode && !this.parentQuestion
+    );
   }
   public getPlainData(
     options: {
@@ -906,7 +908,7 @@ export class QuestionSelectBase extends Question {
       this.cachedValueForUrlRequests,
       checkCachedValuesOnExisting
     );
-    if (array && array.length > 0) {
+    if (array && (array.length > 0 || this.choicesByUrl.allowEmptyResponse)) {
       newChoices = new Array<ItemValue>();
       ItemValue.setData(newChoices, array);
     }

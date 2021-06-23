@@ -916,6 +916,58 @@ QUnit.test("Do not set comments on running values", function(assert) {
   assert.notOk(question.comment, "Comment is empty");
 });
 
+QUnit.test("Set comment on incorrect value", function(assert) {
+  var survey = new SurveyModel();
+  survey.storeOthersAsComment = false;
+  survey.addNewPage("1");
+  var question = new QuestionDropdownModelTester("q1");
+  question.hasOther = true;
+  question.hasItemsCallbackDelay = true;
+  question.choicesByUrl.url = "something";
+  question.choicesByUrl.valueName = "id";
+  question.restFulTest.items = [{ id: "id1" }, { id: "id2" }, { id: "id3" }];
+  survey.pages[0].addQuestion(question);
+  question.restFulTest.isRequestRunning = true;
+  question.onSurveyLoad();
+  assert.equal(
+    question.visibleChoices.length,
+    1,
+    "Choices are not loaded yet, we have other"
+  );
+  survey.data = { q1: "id_unknown" };
+  question.restFulTest.isRequestRunning = false;
+  question.doResultsCallback();
+  assert.equal(question.value, "id_unknown", "Value is set correctly");
+  assert.equal(question.comment, "id_unknown");
+});
+QUnit.test("Set comment on incorrect value and empty results", function(
+  assert
+) {
+  var survey = new SurveyModel();
+  survey.storeOthersAsComment = false;
+  survey.addNewPage("1");
+  var question = new QuestionDropdownModelTester("q1");
+  question.hasOther = true;
+  question.hasItemsCallbackDelay = true;
+  question.choicesByUrl.url = "something";
+  question.choicesByUrl.valueName = "id";
+  question.choicesByUrl.allowEmptyResponse = true;
+  question.restFulTest.items = [];
+  survey.pages[0].addQuestion(question);
+  question.restFulTest.isRequestRunning = true;
+  question.onSurveyLoad();
+  assert.equal(
+    question.visibleChoices.length,
+    1,
+    "Choices are not loaded yet, we have other"
+  );
+  survey.data = { q1: "id_unknown" };
+  question.restFulTest.isRequestRunning = false;
+  question.doResultsCallback();
+  assert.equal(question.value, "id_unknown", "Value is set correctly");
+  assert.equal(question.comment, "id_unknown");
+});
+
 QUnit.test("Use values and not text, Bug #627", function(assert) {
   var survey = new SurveyModel();
   survey.addNewPage("1");

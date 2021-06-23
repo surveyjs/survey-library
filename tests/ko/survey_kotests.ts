@@ -2255,3 +2255,40 @@ QUnit.test(
     );
   }
 );
+QUnit.test(
+  "MatrixDynamic, test renderedTable column locString on adding new column",
+  function(assert) {
+    var survey = new Survey({
+      elements: [
+        {
+          type: "matrixdynamic",
+          name: "matrix",
+          columns: [{ name: "col1" }],
+        },
+      ],
+    });
+    var matrix: any = <any>survey.getQuestionByName("matrix");
+    assert.equal(
+      matrix.renderedTable.headerRow.cells.length,
+      1 + 1,
+      "We have one column and delete row"
+    );
+    assert.equal(
+      matrix.renderedTable.headerRow.cells[0].locTitle.koRenderedHtml(),
+      "col1",
+      "Title rendered from JSON"
+    );
+    matrix.addColumn("col2");
+    assert.equal(
+      matrix.renderedTable.headerRow.cells[1].locTitle.koRenderedHtml(),
+      "col2",
+      "Title rendered from addColumn"
+    );
+    matrix.columns.push(new MatrixDropdownColumn("col3"));
+    assert.equal(
+      matrix.renderedTable.headerRow.cells[2].locTitle.koRenderedHtml(),
+      "col3",
+      "Title rendered from columns.push"
+    );
+  }
+);

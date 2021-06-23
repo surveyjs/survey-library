@@ -116,21 +116,34 @@ export class PopupBaseViewModel extends Base {
     const rect = this.targetElement.getBoundingClientRect();
     const background = <HTMLElement>this.container.children[0];
     const popupContainer = <HTMLElement>background.children[0];
+    const scrollContent = <HTMLElement>background.children[0].children[1];
+    const height =
+      popupContainer.offsetHeight -
+      scrollContent.offsetHeight +
+      scrollContent.scrollHeight;
+    const width = popupContainer.offsetWidth;
+    this.height = "auto";
+    let verticalPosition = this.model.verticalPosition;
+    if (!!window) {
+      verticalPosition = PopupUtils.updateVerticalPosition(
+        rect,
+        height,
+        this.model.verticalPosition,
+        this.model.showPointer,
+        window.innerHeight
+      );
+    }
     this.popupDirection = PopupUtils.calculatePopupDirection(
-      this.model.verticalPosition,
+      verticalPosition,
       this.model.horizontalPosition
     );
-    this.height = "auto";
-    const height = popupContainer.offsetHeight;
-    const width = popupContainer.offsetWidth;
     const pos = PopupUtils.calculatePosition(
       rect,
       height,
       width,
-      this.model.verticalPosition,
+      verticalPosition,
       this.model.horizontalPosition,
-      this.showPointer,
-      window && ({ width: window.innerWidth, height: window.innerHeight})
+      this.showPointer
     );
 
     if (!!window) {
@@ -152,7 +165,7 @@ export class PopupBaseViewModel extends Base {
         rect,
         pos.top,
         pos.left,
-        this.model.verticalPosition,
+        verticalPosition,
         this.model.horizontalPosition
       );
     }

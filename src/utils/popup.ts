@@ -22,34 +22,12 @@ export class PopupUtils {
     width: number,
     verticalPosition: VerticalPosition,
     horizontalPosition: HorizontalPosition,
-    showPointer: boolean,
-    windowSize?: ISize
+    showPointer: boolean
   ): INumberPosition {
     if (horizontalPosition == "center")
       var left = (targetRect.left + targetRect.right - width) / 2;
     else if (horizontalPosition == "left") left = targetRect.left - width;
     else left = targetRect.right;
-
-    if (!!windowSize) {
-      let deltaTop =
-        height - (targetRect.top + (showPointer ? targetRect.height : 0));
-      let deltaBottom =
-        height +
-        targetRect.bottom -
-        (showPointer ? targetRect.height : 0) -
-        windowSize.height;
-      if (deltaTop > 0 && deltaBottom <= 0 && verticalPosition == "top") {
-        verticalPosition = "bottom";
-      } else if (
-        deltaBottom > 0 &&
-        deltaTop <= 0 &&
-        verticalPosition == "bottom"
-      ) {
-        verticalPosition = "top";
-      } else if (deltaBottom > 0 && deltaTop > 0) {
-        verticalPosition = deltaTop < deltaBottom ? "top" : "bottom";
-      }
-    }
 
     if (verticalPosition == "middle")
       var top = (targetRect.top + targetRect.bottom - height) / 2;
@@ -69,7 +47,11 @@ export class PopupUtils {
     return { left: Math.round(left), top: Math.round(top) };
   }
 
-  public static updateVerticalDimensions(top: number, height: number, windowHeight: number ) {
+  public static updateVerticalDimensions(
+    top: number,
+    height: number,
+    windowHeight: number
+  ) {
     let result;
     if (top < 0) {
       result = { height: height + top, top: 0 };
@@ -77,6 +59,34 @@ export class PopupUtils {
       result = { height: windowHeight - top, top: top };
     }
     return result;
+  }
+
+  public static updateVerticalPosition(
+    targetRect: ClientRect,
+    height: number,
+    verticalPosition: VerticalPosition,
+    showPointer: boolean,
+    windowHeight: number
+  ): VerticalPosition {
+    let deltaTop =
+      height - (targetRect.top + (showPointer ? targetRect.height : 0));
+    let deltaBottom =
+      height +
+      targetRect.bottom -
+      (showPointer ? targetRect.height : 0) -
+      windowHeight;
+    if (deltaTop > 0 && deltaBottom <= 0 && verticalPosition == "top") {
+      verticalPosition = "bottom";
+    } else if (
+      deltaBottom > 0 &&
+      deltaTop <= 0 &&
+      verticalPosition == "bottom"
+    ) {
+      verticalPosition = "top";
+    } else if (deltaBottom > 0 && deltaTop > 0) {
+      verticalPosition = deltaTop < deltaBottom ? "top" : "bottom";
+    }
+    return verticalPosition;
   }
 
   public static calculatePopupDirection(

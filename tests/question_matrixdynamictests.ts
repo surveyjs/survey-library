@@ -3094,8 +3094,7 @@ QUnit.test("matrix dropdown + renderedTable.headerRow", function(assert) {
   assert.equal(matrix.renderedTable.showHeader, true, "Header is shown");
   var cells = matrix.renderedTable.headerRow.cells;
   assert.equal(cells.length, 3, "rows + 2 column");
-  assert.equal(cells[0].hasTitle, true, "header rows");
-  assert.equal(cells[0].locTitle.renderedHtml, "", "Nothing to render");
+  assert.equal(cells[0].hasTitle, false, "header rows, nothing to render");
   assert.equal(cells[0].minWidth, "", "minWidth is empty for row header");
   assert.equal(cells[0].width, "", "width is empty for row header");
   assert.equal(cells[1].hasTitle, true, "col1");
@@ -3136,7 +3135,7 @@ QUnit.test("matrix dropdown + renderedTable.headerRow", function(assert) {
   matrix.showHeader = true;
   cells = matrix.renderedTable.headerRow.cells;
   assert.equal(cells.length, 4, "3 rows + columns");
-  assert.equal(cells[0].locTitle.renderedHtml, "", "empty for header");
+  assert.equal(cells[0].hasTitle, false, "empty for header");
   assert.equal(cells[1].locTitle.renderedHtml, "row1", "row1");
   assert.equal(cells[3].locTitle.renderedHtml, "row3", "row1");
 });
@@ -3156,8 +3155,7 @@ QUnit.test("matrix dynamic + renderedTable.headerRow", function(assert) {
   assert.equal(cells[0].locTitle.renderedHtml, "col1", "col1");
   assert.notOk(cells[0].isRemoveRow, "do not have remove row");
   assert.equal(cells[1].locTitle.renderedHtml, "col2", "col2");
-  assert.equal(cells[2].locTitle.renderedHtml, "", "remove row");
-  assert.equal(cells[2].hasTitle, true, "remove row");
+  assert.equal(cells[2].hasTitle, false, "remove row");
   matrix.minRowCount = 3;
   cells = matrix.renderedTable.headerRow.cells;
   assert.equal(cells.length, 2, "2 column");
@@ -3314,7 +3312,7 @@ QUnit.test("matrix dynamic + renderedTable.rows", function(assert) {
 
   cells = rows[2].cells;
   assert.equal(cells.length, 4, "column + 3 rows");
-  assert.equal(cells[0].locTitle.renderedHtml, "", "for column header");
+  assert.equal(cells[0].hasTitle, false, "for column header");
   assert.notOk(cells[0].isActionsCell, "not a remove button (in actions cell)");
   assert.equal(
     cells[1].isActionsCell,
@@ -3428,19 +3426,14 @@ QUnit.test("matrix dynamic + renderedTable + totals", function(assert) {
   assert.equal(cells[0].hasTitle, true, "header, col1");
   assert.equal(cells[0].locTitle.renderedHtml, "col1", "header, col1");
   assert.equal(cells[1].locTitle.renderedHtml, "col2", "header, col2");
-  assert.equal(cells[2].hasTitle, true, "header total");
-  assert.equal(
-    cells[2].locTitle.renderedHtml,
-    "",
-    "header total, empty string"
-  );
+  assert.equal(cells[2].hasTitle, false, "header total, there is no title");
 
   matrix.columnLayout = "vertical";
   var rows = matrix.renderedTable.rows;
   assert.equal(rows.length, 3, "2 columns + remove");
   cells = rows[2].cells;
   assert.equal(cells.length, 5, "column + 3 rows + total");
-  assert.equal(cells[0].locTitle.renderedHtml, "", "for column header");
+  assert.equal(cells[0].hasTitle, false, "for column header");
   assert.notOk(cells[0].isActionsCell, "not a remove button (in actions cell)");
   assert.equal(
     cells[1].isActionsCell,
@@ -3454,7 +3447,7 @@ QUnit.test("matrix dynamic + renderedTable + totals", function(assert) {
     "row3: it is a remove row (in actions cell)"
   );
   assert.ok(cells[3].row, "row3: it has a row");
-  assert.equal(cells[4].locTitle.renderedHtml, "", "for total");
+  assert.equal(cells[4].hasTitle, false, "for total");
 });
 
 QUnit.test("matrix dynamic + renderedTable + add/remove rows", function(
@@ -6519,6 +6512,47 @@ QUnit.test(
       matrix.renderedTable.headerRow.cells[2].locTitle.renderedHtml,
       "col3",
       "Title rendered from columns.push"
+    );
+  }
+);
+QUnit.test(
+  "MatrixDynamic, test renderedTable, do not render empty locTitle in header",
+  function(assert) {
+    var survey = new SurveyModel({
+      elements: [
+        {
+          type: "matrixdynamic",
+          name: "matrix",
+          columns: [{ name: "col1" }],
+        },
+      ],
+    });
+    var matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+    assert.equal(
+      matrix.renderedTable.headerRow.cells.length,
+      1 + 1,
+      "We have one column and delete row"
+    );
+    assert.equal(
+      matrix.renderedTable.headerRow.cells[0].hasTitle,
+      true,
+      "column header"
+    );
+    assert.equal(
+      matrix.renderedTable.headerRow.cells[1].hasTitle,
+      false,
+      "nothing"
+    );
+    matrix.columnLayout = "vertical";
+    assert.equal(
+      matrix.renderedTable.rows[0].cells[0].hasTitle,
+      true,
+      "column header, vertical"
+    );
+    assert.equal(
+      matrix.renderedTable.rows[1].cells[0].hasTitle,
+      false,
+      "nothing, vertical"
     );
   }
 );

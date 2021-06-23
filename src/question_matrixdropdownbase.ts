@@ -2047,9 +2047,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     locTitle: LocalizableString
   ): QuestionMatrixDropdownRenderedCell {
     var cell = new QuestionMatrixDropdownRenderedCell();
-    cell.locTitle = !!locTitle
-      ? locTitle
-      : new LocalizableString(this.matrix, false);
+    cell.locTitle = locTitle;
     if (!!this.cssClasses.cell) {
       cell.className = this.cssClasses.cell;
     }

@@ -40,4 +40,5 @@ import "../../localization/thai";
 import "../../localization/traditional-chinese";
 import "../../localization/turkish";
 import "../../localization/ukrainian";
+import "../../localization/vietnamese";
 import "../../localization/welsh";

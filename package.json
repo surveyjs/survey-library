@@ -47,9 +47,8 @@
     "watch_react_ui": "webpack --config ./build-scripts/survey-react-ui/webpack.config.js --env.buildType dev --watch",
     "madge": "madge --circular --extensions ts ./src/"
   },
-  "version": "1.8.52",
-  "name": "survey-library",
-  "private": true,
+  "version": "1.8.53",
+  "name": "@sasaki-dev/survey-library",
   "devDependencies": {
     "@types/ace": "0.0.32",
     "@types/angular": "^1.6.2",
@@ -132,5 +131,22 @@
   "dependencies": {
     "signature_pad": "^2.3.2",
     "sortablejs": "1.13.0"
-  }
+  },
+  "description": "**SurveyJS** is a modern way to add surveys and forms to your website. It has versions for Angular, jQuery, knockout, react and vue.",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs",
+    "example": "examples",
+    "test": "tests"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sasakiassociates/survey-library.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/sasakiassociates/survey-library/issues"
+  },
+  "homepage": "https://github.com/sasakiassociates/survey-library#readme"
 }

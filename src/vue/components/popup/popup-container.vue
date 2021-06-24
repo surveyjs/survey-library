@@ -3,6 +3,11 @@
     class="sv-popup"
     v-bind:class="model.styleClass"
     v-show="model.isVisible"
+    v-on:keydown="
+      (event) => {
+        model.trapFocus(event);
+      }
+    "
     v-on:click="
       () => {
         model.clickOutside();

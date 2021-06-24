@@ -39,15 +39,21 @@ export class Popup extends SurveyElementBase<IPopupProps, any> {
   }
 }
 
-ReactElementFactory.Instance.registerElement("sv-popup", (props: IPopupProps) => {
-  return React.createElement(Popup, props);
-});
+ReactElementFactory.Instance.registerElement(
+  "sv-popup",
+  (props: IPopupProps) => {
+    return React.createElement(Popup, props);
+  }
+);
 
 export class PopupContainer extends SurveyElementBase<any, any> {
   public prevIsVisible: boolean = false;
   constructor(props: any) {
     super(props);
   }
+  handleKeydown = (event: any) => {
+    this.model.trapFocus(event);
+  };
   get model(): PopupBaseViewModel {
     return this.props.model;
   }
@@ -72,7 +78,11 @@ export class PopupContainer extends SurveyElementBase<any, any> {
     return (
       <div
         className="sv-popup__container"
-        style={{ left: this.model.left, top: this.model.top, height: this.model.height }}
+        style={{
+          left: this.model.left,
+          top: this.model.top,
+          height: this.model.height,
+        }}
         onClick={(ev: any) => {
           this.clickInside(ev);
         }}
@@ -143,6 +153,7 @@ export class PopupContainer extends SurveyElementBase<any, any> {
           this.model.clickOutside();
           e.stopPropagation();
         }}
+        onKeyDown={this.handleKeydown}
       >
         {container}
       </div>

@@ -1,6 +1,6 @@
 <div
   class="sv-popup"
-  data-bind="visible: isVisible, click: clickOutside, class: styleClass"
+  data-bind="visible: isVisible, click: clickOutside, class: styleClass, event: { keydown: function(data, event) { trapFocus(event); return true; } }"
 >
   <div
     class="sv-popup__container"

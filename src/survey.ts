@@ -991,8 +991,8 @@ export class SurveyModel extends Base
    * The list of errors on loading survey JSON. If the list is empty after loading a JSON, then the JSON is correct and has no errors.
    * @see JsonError
    */
-   public jsonErrors: Array<JsonError> = null;
-  
+  public jsonErrors: Array<JsonError> = null;
+
   public getType(): string {
     return "survey";
   }
@@ -1713,7 +1713,11 @@ export class SurveyModel extends Base
     return isMobile() || this._isMobile;
   }
   public get titleMaxWidth(): string {
-    if (!this.isMobile && !this.isValueEmpty(this.logo) && !settings.supportCreatorV2) {
+    if (
+      !this.isMobile &&
+      !this.isValueEmpty(this.logo) &&
+      !settings.supportCreatorV2
+    ) {
       var logoWidth = this.logoWidth;
       if (this.logoPosition === "left" || this.logoPosition === "right") {
         return "calc(100% - 5px - 2em - " + logoWidth + ")";
@@ -5803,7 +5807,7 @@ export class SurveyModel extends Base
     return true;
   }
   public getElementWrapperComponentName(element: any, reason?: string): string {
-    if(reason === "logo-image") {
+    if (reason === "logo-image") {
       return "sv-logo-image";
     }
     return SurveyModel.TemplateRendererComponentName;
@@ -5846,6 +5850,7 @@ export class SurveyModel extends Base
   public dispose() {
     super.dispose();
     this.editingObj = null;
+    if (!this.pages) return;
     for (var i = 0; i < this.pages.length; i++) {
       this.pages[i].dispose();
     }

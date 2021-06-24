@@ -1266,6 +1266,16 @@ QUnit.test("MatrixDropdownColumn cell question", function(assert) {
   );
 });
 
+QUnit.test("MatrixDropdownColumn cell question isEditableTemplateElement", function(assert) {
+  var question = new QuestionMatrixDynamicModel("matrix");
+  var column = question.addColumn("col1");
+  assert.equal(
+    column.templateQuestion.isEditableTemplateElement,
+    true,
+    "The question isEditableTemplateElement"
+  );
+});
+
 QUnit.test("MatrixDropdownColumn properties are in questions", function(
   assert
 ) {

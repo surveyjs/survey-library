@@ -581,6 +581,7 @@ export class MatrixDropdownColumn extends Base
       question = <Question>Serializer.createClass("text");
     }
     question.loadingOwner = this;
+    question.isEditableTemplateElement = true;
     this.setQuestionProperties(question);
     return question;
   }

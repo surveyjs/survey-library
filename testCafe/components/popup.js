@@ -123,4 +123,45 @@ frameworks.forEach((framework) => {
     await t.click(Selector(".sv-popup__button").withText("Cancel"));
     assert.ok(!(await popupSelector.exists));
   });
+  test(`check focus trap`, async (t) => {
+    await initSurvey(framework, json, {
+      onGetQuestionTitleActions: (survey, opt) => {
+        const json = {
+          elements: [
+            {
+              type: "text",
+              name: "modal_question",
+            },
+          ],
+        };
+        const model = new Survey.Model(json);
+        const item = new Survey.ActionBarItem({
+          component: "sv-action-bar-item",
+          title: "Click",
+          showTitle: true,
+          action: () => {
+            Survey.settings.showModal("survey", {
+              model: model,
+              survey: model,
+            });
+          },
+        });
+        opt.titleActions = [item];
+      },
+    });
+    await t.click(Selector(".sv-action-bar-item"));
+    await t.expect(Selector(".sv-popup .sv_q_text_root").focused).ok({
+      timeout: 100,
+    });
+    await t.pressKey("tab");
+    assert.ok(await Selector(".sv-popup .sv_complete_btn").focused);
+    await t.pressKey("tab");
+    assert.ok(await Selector(".sv-popup__button").withText("Cancel").focused);
+    await t.pressKey("tab");
+    assert.ok(await Selector(".sv-popup__button").withText("Apply").focused);
+    await t.pressKey("tab");
+    assert.ok(await Selector(".sv-popup .sv_q_text_root").focused);
+    await t.pressKey("shift+tab");
+    assert.ok(await Selector(".sv-popup__button").withText("Apply").focused);
+  });
 });

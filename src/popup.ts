@@ -68,6 +68,9 @@ export class PopupModel extends Base {
   public onVisibilityChanged: (isVisible: boolean) => void;
 }
 
+const FOCUS_INPUT_SELECTOR =
+  "input:not(:disabled):not([readonly]):not([type=hidden]),select:not(:disabled):not([readonly]),textarea:not(:disabled):not([readonly]), button:not(:disabled):not([readonly])";
+
 export class PopupBaseViewModel extends Base {
   @property({ defaultValue: "0px" }) top: string;
   @property({ defaultValue: "0px" }) left: string;
@@ -105,6 +108,27 @@ export class PopupBaseViewModel extends Base {
     }
 
     return css;
+  }
+  public trapFocus(event: any) {
+    if (event.key === "Tab" || event.keyCode === 9) {
+      const focusableElements = this.container.querySelectorAll(
+        FOCUS_INPUT_SELECTOR
+      );
+      const firstFocusableElement = focusableElements[0];
+      const lastFocusableElement =
+        focusableElements[focusableElements.length - 1];
+      if (event.shiftKey) {
+        if (document.activeElement === firstFocusableElement) {
+          (<HTMLElement>lastFocusableElement).focus();
+          event.preventDefault();
+        }
+      } else {
+        if (document.activeElement === lastFocusableElement) {
+          (<HTMLElement>firstFocusableElement).focus();
+          event.preventDefault();
+        }
+      }
+    }
   }
   public updateOnShowing() {
     if (!this.isModal) {
@@ -174,9 +198,7 @@ export class PopupBaseViewModel extends Base {
   }
   private focusFirstInput() {
     setTimeout(() => {
-      var el = this.container.querySelector(
-        "input:not(:disabled):not([readonly]):not([type=hidden]),select:not(:disabled):not([readonly]),textarea:not(:disabled):not([readonly])"
-      );
+      var el = this.container.querySelector(FOCUS_INPUT_SELECTOR);
       if (!!el) (<HTMLElement>el).focus();
     }, 100);
   }

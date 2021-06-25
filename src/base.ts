@@ -1414,6 +1414,7 @@ export class SurveyElement extends Base implements ISurveyElement {
   }
   public isContentElement: boolean = false;
   public isEditableTemplateElement: boolean = false;
+  public isInteractiveDesignElement: boolean = true;
   protected get isInternal(): boolean {
     return this.isContentElement;
   }

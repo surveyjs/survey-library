@@ -42,7 +42,7 @@ $base-unit: var(--base-unit, 8px);
   height: 24px;
   vertical-align: middle;
   margin-right: 16px;
-  background-color: #d6d6d6;
+  background-color: $border;
 }
 
 .sv-action-bar-item {

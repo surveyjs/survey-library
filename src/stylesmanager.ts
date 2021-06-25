@@ -280,11 +280,12 @@ export class StylesManager {
     ".sv_main .sv_q_num + span": "",
 
     // SignaturePad
-    ".sv_main .sjs_sp_container": "position: relative;",
+    ".sv_main .sjs_sp_container": "position: relative; box-sizing: content-box;",
     ".sv_main .sjs_sp_controls": "position: absolute; left: 0; bottom: 0;",
     ".sv_main .sjs_sp_controls > button": "user-select: none;",
     ".sv_main .sjs_sp_container>div>canvas:focus": "outline: none;",
-
+    ".sv_main .sjs_sp_placeholder": "display: flex;  align-items: center; justify-content: center; position: absolute; z-index: 0; user-select: none; pointer-events: none; width: 100%; height: 100%;",
+  
     // logo
     // ".sv_main .sv_header": "white-space: nowrap;",
     ".sv_main .sv_logo": "",
@@ -871,6 +872,10 @@ export class StylesManager {
       "background-color: $disabled-slider-color;",
     //eo boolean
 
+    //signature pad
+    ".sv_main .sjs_sp_container": "border: 1px dashed $disable-color;",
+    ".sv_main .sjs_sp_placeholder": "color: $foreground-light;",
+
     ".sv_main .sv_matrix_detail_row":
       "background-color: #ededed; border-top: 1px solid $header-background-color; border-bottom: 1px solid $header-background-color;",
 
@@ -1012,6 +1017,10 @@ export class StylesManager {
     ".sv-text::-ms-placeholder": "color: $text-input-color;",
     ".sv-text:-ms-placeholder": "color: $text-input-color;",
     ".sv-table__row--detail": "background-color: $header-background-color;",
+    //signature pad
+    ".sv_main .sjs_sp_container": "border: 1px dashed $disable-color;",
+    ".sv_main .sjs_sp_placeholder": "color: $foreground-light;",
+
   };
 
   public static bootstrapThemeCss: { [key: string]: string } = {
@@ -1050,6 +1059,10 @@ export class StylesManager {
     ".sv_main .sv-boolean--disabled  .sv-boolean__slider":
       "background-color: $disabled-slider-color;",
     //eo boolean
+
+    //signature pad
+    ".sv_main .sjs_sp_container": "border: 1px dashed $disable-color;",
+    ".sv_main .sjs_sp_placeholder": "color: $foreground-light;",
 
     ".sv_main .sv_matrix_detail_row":
       "background-color: #ededed; border-top: 1px solid $header-background-color; border-bottom: 1px solid $header-background-color;",
@@ -1139,6 +1152,10 @@ export class StylesManager {
     //eo boolean
     ".sv_main .sv_matrix_detail_row":
       "background-color: #ededed; border-top: 1px solid $header-background-color; border-bottom: 1px solid $header-background-color;",
+
+    //signature pad
+    ".sv_main .sjs_sp_container": "border: 1px dashed $disable-color;",
+    ".sv_main .sjs_sp_placeholder": "color: $foreground-light;",
 
     ".sv_main .sv-action-bar-item": "color: $text-color;",
     ".sv_main .sv-action-bar-item__icon use": "fill: $foreground-light;",

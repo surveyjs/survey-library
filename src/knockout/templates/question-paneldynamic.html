@@ -3,7 +3,9 @@
       <!-- ko if: question.koIsList() -->
       <!-- ko foreach: { data: question.panels } -->
       <div data-bind="css: question.getPanelWrapperCss()">
-        <!-- ko template: { name: 'survey-panel', data: $data, as: 'question', afterRender: question.koPanelAfterRender } -->
+        <!-- ko let: { question: $data } -->
+        <!-- ko component: { name: survey.getElementWrapperComponentName(question), params: { componentData:  survey.getElementWrapperComponentData(question), templateData: { name: question.koElementType, data: question, afterRender: $data.koPanelAfterRender } } } -->
+        <!-- /ko -->
         <!-- /ko -->
         <input type="button" data-bind="visible: question.koCanRemovePanel() && !$data.koIsCollapsed(), click:question.koRemovePanelClick, css: question.getPanelRemoveButtonCss(), value: question.panelRemoveText"
         />
@@ -19,7 +21,9 @@
             <!-- /ko -->
         </div>
         <!-- ko if: question.koPanel() -->
-            <!-- ko template: { name: 'survey-panel', data: question.koPanel(), as: 'question', afterRender: question.koPanelAfterRender } -->
+            <!-- ko let: { question: question.koPanel() } -->
+            <!-- ko component: { name: question.survey.getElementWrapperComponentName(question), params: { componentData:  question.survey.getElementWrapperComponentData(question), templateData: { name: question.koElementType, data: question, afterRender: question.koPanelAfterRender } } } -->
+            <!-- /ko -->
             <!-- /ko -->
         <!-- /ko -->
         <input type="button" data-bind="visible: question.koCanRemovePanel, click:question.koRemovePanelClick, css: question.koCss().button + ' ' + question.koCss().buttonRemove, value: question.panelRemoveText"

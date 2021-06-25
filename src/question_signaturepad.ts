@@ -1,4 +1,4 @@
-import { Serializer } from "./jsonobject";
+import { property, Serializer } from "./jsonobject";
 import { Question } from "./question";
 import { surveyLocalization } from "./surveyStrings";
 import SignaturePad from "signature_pad";
@@ -36,6 +36,7 @@ function resizeCanvas(canvas: HTMLCanvasElement) {
  * A Model for signature pad question.
  */
 export class QuestionSignaturePadModel extends Question {
+  @property({ defaultValue: false }) isDrawingValue: boolean;
   protected getCssRoot(cssClasses: any): string {
     var classes = super.getCssRoot(cssClasses);
     if ("" + this.width === "300") {
@@ -94,9 +95,11 @@ export class QuestionSignaturePadModel extends Question {
     signaturePad.penColor = this.penColor;
     signaturePad.backgroundColor = this.backgroundColor;
     signaturePad.onBegin = () => {
+      this.isDrawingValue = true;
       canvas.focus();
     };
     signaturePad.onEnd = () => {
+      this.isDrawingValue = false;
       this.updateValue();
     };
     var updateValueHandler = () => {
@@ -135,12 +138,7 @@ export class QuestionSignaturePadModel extends Question {
    * Use it to set the specific dataFormat for the signature pad image data.
    * formats: "" (default) - png, "image/jpeg" - jpeg, "image/svg+xml" - svg
    */
-  public get dataFormat(): string {
-    return this.getPropertyValue("dataFormat", "");
-  }
-  public set dataFormat(val: string) {
-    this.setPropertyValue("dataFormat", val);
-  }
+  @property({ defaultValue: "" }) dataFormat: string;
 
   /**
    * Use it to set the specific width for the signature pad.
@@ -193,6 +191,14 @@ export class QuestionSignaturePadModel extends Question {
   get clearButtonCaption(): string {
     return surveyLocalization.getString("clearCaption");
   }
+
+  public needShowPlaceholder(): boolean {
+    return !this.isDrawingValue && this.isEmpty();
+  }
+
+  get placeHolderText(): string {
+    return surveyLocalization.getString("signaturePlaceHolder");
+  }
 }
 
 Serializer.addClass(
@@ -241,6 +247,6 @@ Serializer.addClass(
   },
   "question"
 );
-QuestionFactory.Instance.registerQuestion("signaturepad", name => {
+QuestionFactory.Instance.registerQuestion("signaturepad", (name) => {
   return new QuestionSignaturePadModel(name);
 });

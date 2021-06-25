@@ -279,6 +279,7 @@ export var defaultBootstrapCss = {
   signaturepad: {
     root: "sv_q_signaturepad sjs_sp_container",
     controls: "sjs_sp_controls",
+    placeholder: "sjs_sp_placeholder",
     clearButton: "sjs_sp_clear",
   },
   saveData: {

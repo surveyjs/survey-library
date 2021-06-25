@@ -327,6 +327,7 @@ export var modernCss = {
     root: "sv-signaturepad sjs_sp_container",
     small: "sv-row__question--small",
     controls: "sjs_sp_controls",
+    placeholder: "sjs_sp_placeholder",
     clearButton: "sjs_sp_clear",
   },
   saveData: {

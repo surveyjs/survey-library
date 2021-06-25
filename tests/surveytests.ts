@@ -13179,6 +13179,68 @@ QUnit.test("Custom widget, test canShowInToolbox read-only property", function(
 });
 QUnit.test("getElementWrapperComponentName", function(assert) {
   var survey = new SurveyModel();
-  assert.deepEqual(survey.getElementWrapperComponentName(null), SurveyModel.TemplateRendererComponentName, "default component");
-  assert.deepEqual(survey.getElementWrapperComponentName(null, "logo-image"), "sv-logo-image", "logo-image default component");
+  assert.deepEqual(
+    survey.getElementWrapperComponentName(null),
+    SurveyModel.TemplateRendererComponentName,
+    "default component"
+  );
+  assert.deepEqual(
+    survey.getElementWrapperComponentName(null, "logo-image"),
+    "sv-logo-image",
+    "logo-image default component"
+  );
 });
+QUnit.test(
+  "Skip trigger test and auto focus first question on the page",
+  function(assert) {
+    var focusedQuestions = [];
+    var oldFunc = SurveyElement.FocusElement;
+    SurveyElement.FocusElement = function(elId: string): boolean {
+      focusedQuestions.push(elId);
+      return true;
+    };
+    var survey = new SurveyModel({
+      pages: [
+        {
+          name: "page1",
+          elements: [
+            {
+              type: "radiogroup",
+              name: "q1",
+              choices: ["item1", "item2", "item3"],
+            },
+          ],
+        },
+        {
+          name: "page2",
+          elements: [
+            {
+              type: "text",
+              name: "q2",
+            },
+            {
+              type: "text",
+              name: "q3",
+            },
+          ],
+        },
+      ],
+      triggers: [
+        {
+          type: "skip",
+          expression: "{q1} = 'item2'",
+          gotoName: "q3",
+        },
+      ],
+    });
+    survey.getQuestionByName("q1").value = "item2";
+    assert.equal(survey.currentPage.name, "page2", "We moved to another page");
+    assert.equal(focusedQuestions.length, 1, "Only one question was focused");
+    assert.equal(
+      focusedQuestions[0],
+      survey.getQuestionByName("q3").inputId,
+      "The third question is focused"
+    );
+    SurveyElement.FocusElement = oldFunc;
+  }
+);

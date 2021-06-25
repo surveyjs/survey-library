@@ -2566,6 +2566,7 @@ export class SurveyModel extends Base
    * Sets the input focus to the first question with the input field.
    */
   public focusFirstQuestion() {
+    if (this.isFocusingQuestion) return;
     var page = this.activePage;
     if (page) {
       page.scrollToTop();
@@ -2576,7 +2577,7 @@ export class SurveyModel extends Base
     var page = this.activePage;
     if (!page) return;
     page.scrollToTop();
-    if (this.focusFirstQuestionAutomatic) {
+    if (this.focusFirstQuestionAutomatic && !this.isFocusingQuestion) {
       page.focusFirstQuestion();
     }
   }
@@ -5797,13 +5798,14 @@ export class SurveyModel extends Base
     var value = processor.getValue(fromName, this.getFilteredValues());
     this.setTriggerValue(name, value, false);
   }
+  private isFocusingQuestion: boolean;
   focusQuestion(name: string): boolean {
     var question = this.getQuestionByName(name, true);
     if (!question || !question.isVisible || !question.page) return false;
+    this.isFocusingQuestion = true;
     this.currentPage = <PageModel>question.page;
-    setTimeout(function() {
-      question.focus(), 1;
-    });
+    question.focus();
+    this.isFocusingQuestion = false;
     return true;
   }
   public getElementWrapperComponentName(element: any, reason?: string): string {

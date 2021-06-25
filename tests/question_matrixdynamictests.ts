@@ -22,6 +22,7 @@ import { QuestionExpressionModel } from "../src/question_expression";
 import { settings } from "../src/settings";
 import { PanelModel } from "../src/panel";
 import { QuestionTextModel } from "../src/question_text";
+import { SurveyElement } from "../src/base";
 
 export default QUnit.module("Survey_QuestionMatrixDynamic");
 
@@ -1266,15 +1267,18 @@ QUnit.test("MatrixDropdownColumn cell question", function(assert) {
   );
 });
 
-QUnit.test("MatrixDropdownColumn cell question isEditableTemplateElement", function(assert) {
-  var question = new QuestionMatrixDynamicModel("matrix");
-  var column = question.addColumn("col1");
-  assert.equal(
-    column.templateQuestion.isEditableTemplateElement,
-    true,
-    "The question isEditableTemplateElement"
-  );
-});
+QUnit.test(
+  "MatrixDropdownColumn cell question isEditableTemplateElement",
+  function(assert) {
+    var question = new QuestionMatrixDynamicModel("matrix");
+    var column = question.addColumn("col1");
+    assert.equal(
+      column.templateQuestion.isEditableTemplateElement,
+      true,
+      "The question isEditableTemplateElement"
+    );
+  }
+);
 
 QUnit.test("MatrixDropdownColumn properties are in questions", function(
   assert
@@ -6564,5 +6568,46 @@ QUnit.test(
       false,
       "nothing, vertical"
     );
+  }
+);
+QUnit.test(
+  "Focus first visible enabled cell on adding a new row from UI",
+  function(assert) {
+    var focusedQuestionId = "";
+    var oldFunc = SurveyElement.FocusElement;
+    SurveyElement.FocusElement = function(elId: string): boolean {
+      focusedQuestionId = elId;
+      return true;
+    };
+
+    var survey = new SurveyModel({
+      elements: [
+        {
+          type: "matrixdynamic",
+          name: "matrix",
+          cellType: "text",
+          minRowCount: 1,
+          maxRowCount: 2,
+          rowCount: 1,
+          columns: [
+            { name: "col1", visible: false },
+            { name: "col2", readOnly: true },
+            { name: "col3" },
+            { name: "col4" },
+          ],
+        },
+      ],
+    });
+    var matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+    matrix.addRowUI();
+    assert.equal(
+      focusedQuestionId,
+      matrix.visibleRows[1].cells[2].question.inputId,
+      "focus correct value"
+    );
+    focusedQuestionId = "";
+    matrix.addRowUI();
+    assert.equal(focusedQuestionId, "", "new row can't be added");
+    SurveyElement.FocusElement = oldFunc;
   }
 );

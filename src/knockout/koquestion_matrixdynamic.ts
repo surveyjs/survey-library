@@ -19,7 +19,7 @@ export class QuestionMatrixDynamicImplementor extends QuestionMatrixBaseImplemen
     (<any>this.question)["getKoPopupIsVisible"] = this.getKoPopupIsVisible;
   }
   protected addRow() {
-    (<QuestionMatrixDynamic>this.question).addRow();
+    (<QuestionMatrixDynamic>this.question).addRowUI();
   }
   protected removeRow(row: MatrixDynamicRowModel) {
     (<QuestionMatrixDynamic>this.question).removeRowUI(row);

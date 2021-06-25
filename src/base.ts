@@ -1232,6 +1232,15 @@ export class SurveyElement extends Base implements ISurveyElement {
   }
   public static FocusElement(elementId: string): boolean {
     if (!elementId || typeof document === "undefined") return false;
+    var res = SurveyElement.focusElementCore(elementId);
+    if (!res) {
+      setTimeout(() => {
+        SurveyElement.focusElementCore(elementId);
+      }, 10);
+    }
+    return res;
+  }
+  private static focusElementCore(elementId: string): boolean {
     var el = document.getElementById(elementId);
     if (el) {
       el.focus();

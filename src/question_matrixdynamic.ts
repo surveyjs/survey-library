@@ -7,8 +7,9 @@ import {
 import { Serializer } from "./jsonobject";
 import { QuestionFactory } from "./questionfactory";
 import { surveyLocalization } from "./surveyStrings";
-import { Base, SurveyError } from "./base";
-import { MinRowCountError, KeyDuplicationError } from "./error";
+import { SurveyError } from "./base";
+import { Question } from "./question";
+import { MinRowCountError } from "./error";
 import { IConditionObject } from "./question";
 import { Helpers } from "./helpers";
 import { settings } from "./settings";
@@ -282,7 +283,28 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
       row
     );
   }
-
+  /**
+   * Creates and add a new row and focus the cell in the first column.
+   */
+  public addRowUI() {
+    var oldRowCount = this.rowCount;
+    this.addRow();
+    if (oldRowCount === this.rowCount) return;
+    var q = this.getQuestionToFocusOnAddingRow();
+    if (!!q) {
+      q.focus();
+    }
+  }
+  private getQuestionToFocusOnAddingRow(): Question {
+    var row = this.visibleRows[this.visibleRows.length - 1];
+    for (var i = 0; i < row.cells.length; i++) {
+      var q = row.cells[i].question;
+      if (!!q && q.isVisible && !q.isReadOnly) {
+        return q;
+      }
+    }
+    return null;
+  }
   /**
    * Creates and add a new row.
    */

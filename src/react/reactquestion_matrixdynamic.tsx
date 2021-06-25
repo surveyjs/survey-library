@@ -16,7 +16,7 @@ export class SurveyQuestionMatrixDynamic extends SurveyQuestionMatrixDropdownBas
     return this.questionBase as QuestionMatrixDynamicModel;
   }
   handleOnRowAddClick(event: any) {
-    this.matrix.addRow();
+    this.matrix.addRowUI();
   }
   protected renderElement(): JSX.Element {
     var cssClasses = this.question.cssClasses;
@@ -67,7 +67,9 @@ export class SurveyQuestionMatrixDynamic extends SurveyQuestionMatrixDropdownBas
           className={cssClasses.button + " " + cssClasses.buttonAdd}
           type="button"
           disabled={this.question.isInputReadOnly}
-          onClick={this.question.isDesignMode ? undefined : this.handleOnRowAddClick}
+          onClick={
+            this.question.isDesignMode ? undefined : this.handleOnRowAddClick
+          }
         >
           {addRowText}
           <span className={cssClasses.iconAdd} />

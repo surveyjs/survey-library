@@ -69,7 +69,7 @@ import { MatrixDropdownRowModelBase } from "survey-core";
 @Component
 export class MatrixDynamic extends QuestionVue<QuestionMatrixDynamicModel> {
   addRowClick() {
-    this.question.addRow();
+    this.question.addRowUI();
   }
 }
 Vue.component("survey-matrixdynamic", MatrixDynamic);

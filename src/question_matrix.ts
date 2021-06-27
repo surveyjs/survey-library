@@ -264,6 +264,11 @@ export class QuestionMatrixModel
   getColumns(): Array<any> {
     return this.visibleColumns;
   }
+  public addColumn(value: any, text?: string): ItemValue {
+    var col = new ItemValue(value, text);
+    this.columns.push(col);
+    return col;
+  }
   public getItemClass(row: any, column: any) {
     var isChecked = row.value == column.value;
     var isDisabled = this.isReadOnly;
@@ -484,7 +489,7 @@ export class QuestionMatrixModel
     if (!!questionPlainData) {
       var values = this.createValueCopy();
       questionPlainData.isNode = true;
-      questionPlainData.data = Object.keys(values || {}).map(rowName => {
+      questionPlainData.data = Object.keys(values || {}).map((rowName) => {
         var row = this.rows.filter(
           (r: MatrixRowModel) => r.value === rowName
         )[0];
@@ -505,7 +510,7 @@ export class QuestionMatrixModel
           values[rowName]
         );
         if (!!item) {
-          (options.calculations || []).forEach(calculation => {
+          (options.calculations || []).forEach((calculation) => {
             rowDataItem[calculation.propertyName] =
               item[calculation.propertyName];
           });
@@ -598,18 +603,29 @@ export class QuestionMatrixModel
     return this.survey as SurveyModel;
   }
   public getColumnHeaderWrapperComponentName(cell: ItemValue) {
-    return this.SurveyModel.getElementWrapperComponentName({ column: cell }, "column-header");
+    return this.SurveyModel.getElementWrapperComponentName(
+      { column: cell },
+      "column-header"
+    );
   }
   public getColumnHeaderWrapperComponentData(cell: ItemValue) {
-    return this.SurveyModel.getElementWrapperComponentData({ column: cell }, "column-header");
+    return this.SurveyModel.getElementWrapperComponentData(
+      { column: cell },
+      "column-header"
+    );
   }
   public getRowHeaderWrapperComponentName(cell: ItemValue) {
-    return this.SurveyModel.getElementWrapperComponentName({ row: cell }, "row-header");
+    return this.SurveyModel.getElementWrapperComponentName(
+      { row: cell },
+      "row-header"
+    );
   }
   public getRowHeaderWrapperComponentData(cell: ItemValue) {
-    return this.SurveyModel.getElementWrapperComponentData({ row: cell }, "row-header");
+    return this.SurveyModel.getElementWrapperComponentData(
+      { row: cell },
+      "row-header"
+    );
   }
-
 }
 
 Serializer.addClass(
@@ -642,7 +658,7 @@ Serializer.addClass(
   "matrixbase"
 );
 
-QuestionFactory.Instance.registerQuestion("matrix", name => {
+QuestionFactory.Instance.registerQuestion("matrix", (name) => {
   var q = new QuestionMatrixModel(name);
   q.rows = QuestionFactory.DefaultRows;
   q.columns = QuestionFactory.DefaultColums;

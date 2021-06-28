@@ -13,6 +13,7 @@ import { QuestionRatingModel } from "../src/question_rating";
 import { Serializer } from "../src/jsonobject";
 import { ItemValue } from "../src/itemvalue";
 import { QuestionMultipleTextModel } from "../src/question_multipletext";
+import { QuestionMatrixModel } from "../src/question_matrix";
 
 export default QUnit.module("Survey.editingObj Tests");
 
@@ -1052,4 +1053,63 @@ QUnit.test("Do not set directly array objects", function(assert) {
   assert.equal(matrix.rowCount, 2, "There are 2 pages");
   matrix.removeRow(1);
   assert.equal(editingSurvey.pages.length, 1, "There is one page now");
+});
+
+QUnit.test("Do not break reactive array in original object", function(assert) {
+  var question = new QuestionMatrixModel("q1");
+  question.addColumn("col1");
+  question.addColumn("col2");
+  var colCountOnChanged = {};
+  var reactiveFunc = (hash: any, key: any): void => {
+    var val: any = hash[key];
+    if (typeof val === "function") {
+      val = val();
+    }
+    if (Array.isArray(val)) {
+      val["onArrayChanged"] = (arrayChanges: ArrayChanges) => {
+        colCountOnChanged[key] = val.length;
+      };
+    }
+  };
+  var survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdynamic",
+        name: "columns",
+        rowCount: 0,
+        columns: [
+          { cellType: "text", name: "value" },
+          { cellType: "text", name: "text" },
+        ],
+      },
+    ],
+  });
+  question.iteratePropertiesHash((hash: any, key: any) => {
+    reactiveFunc(hash, key);
+  });
+  survey.editingObj = question;
+  var matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("columns");
+  matrix.onGetValueForNewRowCallBack = (
+    sender: QuestionMatrixDynamicModel
+  ): any => {
+    var item = new ItemValue("val");
+    matrix.value.push(item);
+    return item;
+  };
+  assert.equal(matrix.rowCount, 2, "There are 2 columns");
+  assert.equal(Array.isArray(matrix.value), true, "Value is Array");
+  assert.strictEqual(matrix.value, question.columns, "Edting value is correct");
+
+  matrix.iteratePropertiesHash((hash: any, key: any) => {
+    reactiveFunc(hash, key);
+  });
+  matrix.addRow();
+  matrix.addRow();
+  assert.equal(matrix.rowCount, 4, "There are 4 columns");
+  assert.equal(
+    colCountOnChanged["columns"],
+    4,
+    "There are 4 columns in notification"
+  );
+  assert.notOk(colCountOnChanged["value"], "We do not iterate by value");
 });

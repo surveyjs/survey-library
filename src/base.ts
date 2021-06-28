@@ -412,8 +412,8 @@ export class Base {
   public static isSurveyElement(val: any): boolean {
     if (!val) return false;
     if (Array.isArray(val)) {
-      if (val.length == 0) return false;
-      return Base.isSurveyElement(val[0]);
+      if (!!(<any>val).onArrayChanged) return true;
+      return val.length > 0 && Base.isSurveyElement(val[0]);
     }
     return !!val.getType && !!val.onPropertyChanged;
   }
@@ -646,6 +646,7 @@ export class Base {
   public iteratePropertiesHash(func: (hash: any, key: any) => void) {
     var keys: any[] = [];
     for (var key in this.propertyHash) {
+      if (key === "value" && Base.isSurveyElement((<any>this).value)) continue;
       keys.push(key);
     }
     keys.forEach((key) => func(this.propertyHash, key));

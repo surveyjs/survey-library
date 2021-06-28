@@ -1168,11 +1168,8 @@ export class Question extends SurveyElement
   public createValueCopy(): any {
     return this.getUnbindValue(this.value);
   }
-  protected isEditingSurveyElement(value: any): boolean {
-    return Base.isSurveyElement(value);
-  }
   protected getUnbindValue(value: any) {
-    if (this.isEditingSurveyElement(value)) return value;
+    if (this.isEditingSurveyElement) return value;
     return Helpers.getUnbindValue(value);
   }
   private canClearValueAsInvisible(): boolean {

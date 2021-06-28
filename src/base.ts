@@ -643,10 +643,14 @@ export class Base {
       this.setPropertyValueCoreHandler(propertiesHash, name, val);
     else propertiesHash[name] = val;
   }
+  protected get isEditingSurveyElement(): boolean {
+    var survey = this.getSurvey();
+    return !!survey && survey.isEditingSurveyElement;
+  }
   public iteratePropertiesHash(func: (hash: any, key: any) => void) {
     var keys: any[] = [];
     for (var key in this.propertyHash) {
-      if (key === "value" && Base.isSurveyElement((<any>this).value)) continue;
+      if (key === "value" && this.isEditingSurveyElement) continue;
       keys.push(key);
     }
     keys.forEach((key) => func(this.propertyHash, key));

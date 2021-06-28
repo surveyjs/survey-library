@@ -140,10 +140,6 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     }
     this.value = newValue;
   }
-  protected isEditingSurveyElement(value: any): boolean {
-    if (!!this.survey && this.survey.isEditingSurveyElement) return true;
-    return super.isEditingSurveyElement(value);
-  }
   /**
    * The number of rows in the matrix.
    * @see minRowCount
@@ -363,7 +359,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
           newValue = this.createNewValue();
         }
         if (
-          !this.isEditingSurveyElement(newValue) &&
+          !this.isEditingSurveyElement &&
           !Helpers.isTwoValueEquals(newValue[newValue.length - 1], row.value)
         ) {
           newValue[newValue.length - 1] = row.value;

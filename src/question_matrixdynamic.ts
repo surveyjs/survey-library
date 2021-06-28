@@ -336,6 +336,9 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     this.rowCountValue = 0;
     super.unbindValue();
   }
+  protected isValueSurveyElement(val: any): boolean {
+    return this.isEditingSurveyElement || super.isValueSurveyElement(val);
+  }
   private addRowCore() {
     var prevRowCount = this.rowCount;
     this.rowCount = this.rowCount + 1;
@@ -359,7 +362,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
           newValue = this.createNewValue();
         }
         if (
-          !this.isEditingSurveyElement &&
+          !this.isValueSurveyElement(newValue) &&
           !Helpers.isTwoValueEquals(newValue[newValue.length - 1], row.value)
         ) {
           newValue[newValue.length - 1] = row.value;

@@ -642,7 +642,13 @@ export class Base {
   public iteratePropertiesHash(func: (hash: any, key: any) => void) {
     var keys: any[] = [];
     for (var key in this.propertyHash) {
-      if (key === "value" && this.isEditingSurveyElement) continue;
+      if (
+        key === "value" &&
+        this.isEditingSurveyElement &&
+        Array.isArray((<any>this).value)
+      )
+        continue;
+
       keys.push(key);
     }
     keys.forEach((key) => func(this.propertyHash, key));

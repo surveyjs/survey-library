@@ -14,6 +14,8 @@ import { Serializer } from "../src/jsonobject";
 import { ItemValue } from "../src/itemvalue";
 import { QuestionMultipleTextModel } from "../src/question_multipletext";
 import { QuestionMatrixModel } from "../src/question_matrix";
+import { Question } from "../src/question";
+import { QuestionCheckboxModel } from "../src/question_checkbox";
 
 export default QUnit.module("Survey.editingObj Tests");
 
@@ -1112,4 +1114,46 @@ QUnit.test("Do not break reactive array in original object", function(assert) {
     "There are 4 columns in notification"
   );
   assert.notOk(colCountOnChanged["value"], "We do not iterate by value");
+});
+
+QUnit.test("Value property editor test", function(assert) {
+  var propertyGridValueJSON = {
+    name: "propertygrid_value",
+    showInToolbox: false,
+    questionJSON: {
+      type: "html",
+      html: "empty",
+    },
+    onValueChanged: (question: Question, name: string, newValue: any) => {
+      var displayValue = question.isEmpty()
+        ? "empty"
+        : JSON.stringify(question.value);
+      question.contentQuestion.html = displayValue;
+    },
+  };
+
+  ComponentCollection.Instance.add(propertyGridValueJSON);
+  var question = new QuestionCheckboxModel("q1");
+  question.choices = [
+    { value: 1, text: "Item 1" },
+    { value: 2, text: "Item 2" },
+  ];
+  var survey = new SurveyModel({
+    elements: [
+      {
+        type: "propertygrid_value",
+        name: "defaultValue",
+      },
+    ],
+  });
+  survey.editingObj = question;
+  var editQuestion = survey.getQuestionByName("defaultValue");
+  var htmlQuestion = editQuestion.contentQuestion;
+  assert.equal(htmlQuestion.html, "empty");
+  question.defaultValue = [1, 2];
+  assert.equal(htmlQuestion.html, "[1,2]");
+  question.defaultValue = undefined;
+  assert.equal(htmlQuestion.html, "empty");
+
+  ComponentCollection.Instance.clear();
 });

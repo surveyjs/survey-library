@@ -409,14 +409,6 @@ export class Bindings {
  * The base class for SurveyJS objects.
  */
 export class Base {
-  public static isSurveyElement(val: any): boolean {
-    if (!val) return false;
-    if (Array.isArray(val)) {
-      if (!!(<any>val).onArrayChanged) return true;
-      return val.length > 0 && Base.isSurveyElement(val[0]);
-    }
-    return !!val.getType && !!val.onPropertyChanged;
-  }
   public static get commentPrefix(): string {
     return settings.commentPrefix;
   }

@@ -1,4 +1,4 @@
-import { AdaptiveElement } from "../../src/action-bar";
+import { AdaptiveActionBarItemWrapper, AdaptiveElement } from "../../src/action-bar";
 import { ResponsivityManager } from "../../src/utils/responsivitymanager";
 
 export default QUnit.module("ResponsivityManager");
@@ -207,5 +207,47 @@ QUnit.test(
     };
     manager['process']();
     assert.equal(model.visibleElementsCount, 1);
+  }
+);
+
+QUnit.test(
+  "Fit items",
+  function (assert) {
+    const itemSmallWidth = 48;
+    const container: SimpleContainer = new SimpleContainer({ offsetWidth: 5, scrollWidth: itemSmallWidth, querySelectorAll: () => [ { offsetWidth: itemSmallWidth } ]});
+    const model: AdaptiveElement = new AdaptiveElement();
+    const manager: ResponsivityManager = new ResponsivityManager(<any>container, <any>model, '', itemSmallWidth);
+    (<any>manager.getComputedStyle) = () => { return { boxSizing: "content-box" }; };
+
+    const item1 = new AdaptiveActionBarItemWrapper(model, <any>{});
+    item1.minDimension = itemSmallWidth;
+    item1.maxDimension = itemSmallWidth;
+    model.items.push(item1)
+    const item2 = new AdaptiveActionBarItemWrapper(model, <any>{});
+    item2.minDimension = itemSmallWidth;
+    item2.maxDimension = 200;
+    model.items.push(item2)
+    assert.equal(model.items.length, 2);
+
+    manager.fit(300);
+    assert.equal(model.visibleItems.length, 2, "dimension 300");
+    assert.equal(item1.mode, "large", "dimension 300");
+    assert.equal(item2.mode, "large", "dimension 300");
+
+    manager.fit(200);
+    assert.equal(model.visibleItems.length, 2, "dimension 200");
+    assert.equal(item1.mode, "large", "dimension 200");
+    assert.equal(item2.mode, "small", "dimension 200");
+
+    manager.fit(100);
+    assert.equal(model.visibleItems.length, 2, "dimension 100");
+    assert.equal(item1.mode, "large", "dimension 100");
+    assert.equal(item2.mode, "small", "dimension 100");
+
+    manager.fit(50);
+    assert.equal(model.visibleItems.length, 1, "dimension 50");
+    assert.equal(model.visibleItems[0].iconName, "icon-dots", "dimension 50");
+    assert.equal(item1.mode, "popup", "dimension 50");
+    assert.equal(item2.mode, "popup", "dimension 50");
   }
 );

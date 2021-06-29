@@ -45,7 +45,7 @@ ko.components.register("sv-action-bar", {
       const manager: ResponsivityManager = new ResponsivityManager(
         container,
         model,
-        "span.sv-action"
+        "span.sv-action:not(.sv-dots)"
       );
       ko.utils.domNodeDisposal.addDisposeCallback(container, () =>
         manager.dispose()

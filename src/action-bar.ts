@@ -149,7 +149,7 @@ export class AdaptiveActionBarItemWrapper extends Base
   }
   public get showTitle(): boolean {
     return (
-      this.owner.showTitles &&
+      this.mode != "small" &&
       (this.item.showTitle || this.item.showTitle === undefined)
     );
   }
@@ -184,22 +184,27 @@ export class AdaptiveActionBarItemWrapper extends Base
   public get items(): any {
     return unwrap(this.item.items);
   }
+  public get canShrink(): boolean {
+    return !!this.iconName;
+  }
   @property({ defaultValue: true }) isVisible: boolean;
   @property() needSeparator: boolean;
+  @property({ defaultValue: "large" }) mode: "large" | "small" | "popup";
+
+  minDimension: number;
+  maxDimension: number;
+
 }
 
 export class AdaptiveElement extends Base {
-  @property({ defaultValue: true }) showTitles: boolean;
   @propertyArray() items: Array<AdaptiveActionBarItemWrapper>;
-  @propertyArray({
-    onSet: (val: any, target: AdaptiveElement) => {
-      target.invisibleItemsListModel.items = target.invisibleItems;
-    },
-  })
-  invisibleItems: Array<AdaptiveActionBarItemWrapper>;
 
   protected dotsItem: AdaptiveActionBarItemWrapper; // (...) button
   public dotsItemPopupModel: PopupModel;
+
+  public get visibleItems(): Array<AdaptiveActionBarItemWrapper> {
+    return this.items.filter((item) => item.mode !== "popup");
+  }
 
   constructor() {
     super();
@@ -252,17 +257,25 @@ export class AdaptiveElement extends Base {
       }
       item.isVisible = leftItemsToShow > 0;
       if (leftItemsToShow <= 0) {
+        item.mode = "popup";
         invisibleItems.push(item);
       }
       leftItemsToShow--;
     });
-    this.invisibleItems = invisibleItems;
+    this.invisibleItemsListModel.items = invisibleItems;
+    this.addDotsButton(visibleItemsCount);
+  }
+
+  public removeDotsButton() {
     var index = this.items.indexOf(this.dotsItem);
     if (index !== -1) {
       this.items.splice(index, 1);
     }
-    if (visibleItemsCount < this.items.length) {
-      this.items.splice(visibleItemsCount, 0, this.dotsItem);
+  }
+
+  private addDotsButton(newIndex: number) {
+    if (newIndex < this.items.length) {
+      this.items.splice(newIndex, 0, this.dotsItem);
     }
   }
 

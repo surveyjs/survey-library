@@ -11,7 +11,6 @@
   >
     <span
       class="sv-action"
-      v-bind:class="{ 'sv-action--hidden': !item.isVisible }"
       v-for="item in wrappedItems"
       :key="item.id"
       v-show="item.visible || item.visible === undefined"
@@ -45,7 +44,7 @@ export class ActionBarViewModel extends Vue {
   }
 
   get wrappedItems(): AdaptiveActionBarItemWrapper[] {
-    return this.model.items;
+    return this.model.visibleItems;
   }
 
   getComponentName(item: any) {

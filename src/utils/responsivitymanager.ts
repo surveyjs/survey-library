@@ -1,17 +1,18 @@
 import { AdaptiveElement } from "../action-bar";
 
 interface IDimensions {
-    scroll: number,
-    offset: number
+  scroll: number;
+  offset: number;
 }
 
 export class ResponsivityManager {
-  private IGNORE_SHRINK_LIMIT_PX: number = 1;
-  private previousParentOffset = 0;
-  private previousVisibleItemsCount: number = Number.MAX_VALUE;
-  private _itemsSizes: number[] = undefined;
   private resizeObserver: ResizeObserver = undefined;
-  public getComputedStyle: (elt: Element) => CSSStyleDeclaration = window.getComputedStyle.bind(window);
+  private isInilized = false;
+  protected minDimensionConst = 56;
+
+  public getComputedStyle: (
+    elt: Element
+  ) => CSSStyleDeclaration = window.getComputedStyle.bind(window);
 
   constructor(
     protected container: HTMLDivElement,
@@ -19,21 +20,21 @@ export class ResponsivityManager {
     private itemsSelector: string,
     private dotsItemSize: number = 48
   ) {
-    this.resizeObserver = new ResizeObserver(_ => this.process());
+    this.resizeObserver = new ResizeObserver((_) => this.process());
     this.resizeObserver.observe(this.container.parentElement);
   }
 
   protected getDimensions(element: HTMLElement): IDimensions {
     return {
       scroll: element.scrollWidth,
-      offset: element.offsetWidth
+      offset: element.offsetWidth,
     };
   }
 
   protected getAvailableSpace(): number {
     const style: CSSStyleDeclaration = this.getComputedStyle(this.container);
-    let space = this.container.offsetWidth - this.dotsItemSize;
-    if (style.boxSizing === 'border-box') {
+    let space = this.container.offsetWidth;
+    if (style.boxSizing === "border-box") {
       space -= parseFloat(style.paddingLeft) + parseFloat(style.paddingRight);
     }
     return space;
@@ -43,62 +44,63 @@ export class ResponsivityManager {
     return item.offsetWidth;
   }
 
-  private calcItemsSizes(): number[] {
-    const sizes: number[] = [];
-    this.container.querySelectorAll(this.itemsSelector)
-      .forEach((item: HTMLDivElement) => {
-        sizes.push(this.calcItemSize(item));
+  private calcItemsSizes() {
+    this.container
+      .querySelectorAll(this.itemsSelector)
+      .forEach((item: HTMLDivElement, index: number) => {
+        this.model.visibleItems[index].maxDimension = this.calcItemSize(item);
+        this.model.visibleItems[index].minDimension = this.model.visibleItems[index].canShrink ? this.minDimensionConst : this.model.visibleItems[index].maxDimension;
       });
-    return sizes;
-  }
-
-  public get itemsSizes(): number[]  {
-    if (typeof this._itemsSizes === 'undefined') {
-      this._itemsSizes = this.calcItemsSizes();
-    }
-    return this._itemsSizes;
   }
 
   private getVisibleItemsCount(size: number): number {
-    const itemsSizes: number[] = this.itemsSizes;
-    let currSize: number = itemsSizes[0];
-    let i = 1;
-    for (; i < itemsSizes.length; i++) {
-      if (currSize + itemsSizes[i] > size) return i;
+    const itemsSizes: number[] = this.model.items.map((item) => item.minDimension);
+    let currSize: number = 0;
+    for (var i = 0; i < itemsSizes.length; i++) {
       currSize += itemsSizes[i];
+      if (currSize > size) return i;
     }
     return i;
   }
 
-  private process(): void {
-    const scrollOffset: IDimensions = this.getDimensions(this.container);
-    let hiddenWidth: number = scrollOffset.scroll - scrollOffset.offset;
-    if (this.previousVisibleItemsCount < Number.MAX_VALUE) {
-      hiddenWidth -= this.dotsItemSize;
+  private updateItemMode(dimension: number, minSize: number, maxSize: number) {
+    const items = this.model.items;
+    for (let index = items.length - 1; index >= 0; index--) {
+      if (minSize <= dimension && dimension < maxSize) {
+        maxSize -= (items[index].maxDimension - items[index].minDimension);
+        items[index].mode = "small";
+      } else {
+        items[index].mode = "large";
+      }
     }
-    const parentOffsetWidth: number = this.getDimensions(this.container.parentElement).offset;
-    if (parentOffsetWidth === this.previousParentOffset) return;
-    if (hiddenWidth > this.IGNORE_SHRINK_LIMIT_PX) {
-      if (this.model.canShrink) {
-        this._itemsSizes = undefined;
-        this.model.shrink();
-      }
-      const count: number = this.getVisibleItemsCount(this.getAvailableSpace());
-      if (this.previousVisibleItemsCount !== count) {
-        this.model.showFirstN(count);
-        this.previousVisibleItemsCount = count;
-      }
+  }
+
+  public fit(dimension: number) {
+    this.model.removeDotsButton();
+    let minSize = 0;
+    let maxSize = 0;
+
+    this.model.items.forEach((item) => {
+      minSize += item.minDimension;
+      maxSize += item.maxDimension;
+    });
+
+    if (dimension >= maxSize) {
+      this.model.items.forEach((item) => (item.mode = "large"));
+    } else if (dimension < minSize) {
+      this.model.items.forEach((item) => (item.mode = "small"));
+      this.model.showFirstN(this.getVisibleItemsCount(dimension - this.dotsItemSize));
     } else {
-      if (this.model.canGrow && hiddenWidth <= 0.0 &&
-        parentOffsetWidth - this.previousParentOffset > this.dotsItemSize
-      ) {
-        this._itemsSizes = undefined;
-        this.model.grow();
-      }
-      this.model.showFirstN(Number.MAX_VALUE);
-      this.previousVisibleItemsCount = Number.MAX_VALUE;
+      this.updateItemMode(dimension, minSize, maxSize);
     }
-    this.previousParentOffset = parentOffsetWidth;
+  }
+
+  private process(): void {
+    if (!this.isInilized) {
+      this.calcItemsSizes();
+      this.isInilized = true;
+    }
+    this.fit(this.getAvailableSpace());
   }
 
   public dispose(): void {
@@ -107,8 +109,14 @@ export class ResponsivityManager {
 }
 
 export class VerticalResponsivityManager extends ResponsivityManager {
-  constructor(container: HTMLDivElement, model: AdaptiveElement,
-    itemsSelector: string, dotsItemSize?: number) {
+  protected minDimensionConst = 40;
+
+  constructor(
+    container: HTMLDivElement,
+    model: AdaptiveElement,
+    itemsSelector: string,
+    dotsItemSize?: number
+  ) {
     super(container, model, itemsSelector, dotsItemSize);
   }
 
@@ -122,7 +130,7 @@ export class VerticalResponsivityManager extends ResponsivityManager {
   protected getAvailableSpace(): number {
     const style: CSSStyleDeclaration = this.getComputedStyle(this.container);
     let space: number = this.container.offsetHeight;
-    if (style.boxSizing === 'border-box') {
+    if (style.boxSizing === "border-box") {
       space -= parseFloat(style.paddingTop) + parseFloat(style.paddingBottom);
     }
     return space;

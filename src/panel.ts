@@ -104,6 +104,7 @@ export class QuestionRowModel extends Base {
     this.isNeedRender = !this.isLazyRendering;
     this.visible = panel.areInvisibleElementsShowing;
     this.createNewArray("elements");
+    this.createNewArray("visibleElements");
   }
   public get isLazyRendering() {
     return (
@@ -116,6 +117,9 @@ export class QuestionRowModel extends Base {
   public get elements(): Array<IElement> {
     return this.getPropertyValue("elements");
   }
+  public get visibleElements(): Array<IElement> {
+    return this.getPropertyValue("visibleElements");
+  }
   public get visible(): boolean {
     return this.getPropertyValue("visible", true);
   }
@@ -127,9 +131,6 @@ export class QuestionRowModel extends Base {
   }
   public set isNeedRender(val: boolean) {
     this.setPropertyValue("isneedrender", val);
-  }
-  public get visibleElements(): Array<IElement> {
-    return this.elements.filter((e) => e.isVisible);
   }
   public updateVisible() {
     this.visible = this.calcVisible();
@@ -212,7 +213,23 @@ export class QuestionRowModel extends Base {
     return Helpers.isNumber(width) ? width + "px" : width;
   }
   private calcVisible(): boolean {
-    return this.visibleElements.length > 0;
+    var visElements: Array<IElement> = [];
+    for (var i = 0; i < this.elements.length; i++) {
+      if (this.elements[i].isVisible) {
+        visElements.push(this.elements[i]);
+      }
+    }
+    if (this.needToUpdateVisibleElements(visElements)) {
+      this.setPropertyValue("visibleElements", visElements);
+    }
+    return visElements.length > 0;
+  }
+  private needToUpdateVisibleElements(visElements: Array<IElement>): boolean {
+    if (visElements.length !== this.visibleElements.length) return true;
+    for (var i = 0; i < visElements.length; i++) {
+      if (visElements[i] !== this.visibleElements[i]) return true;
+    }
+    return false;
   }
   public dispose() {
     super.dispose();

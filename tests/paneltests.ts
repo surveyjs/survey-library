@@ -749,7 +749,7 @@ QUnit.test("Panel.ensureRowsVisibility", function(assert) {
   page.onFirstRendering();
   assert.equal(panel.rows.length, 2);
 
-  panel.rows.forEach(row => {
+  panel.rows.forEach((row) => {
     assert.equal(row["_updateVisibility"], undefined);
     assert.equal(row["_scrollableParent"], undefined);
     row["_updateVisibility"] = handler;
@@ -796,7 +796,7 @@ QUnit.test("Panel.startLazyRendering isNeedRender=true", function(assert) {
     page.onFirstRendering();
     assert.equal(panel.rows.length, 2);
 
-    panel.rows.forEach(row => {
+    panel.rows.forEach((row) => {
       assert.equal(row["_scrollableParent"], undefined);
       assert.equal(row["_updateVisibility"], undefined);
       assert.equal(row.isNeedRender, false);
@@ -854,7 +854,7 @@ QUnit.test("Panel.startLazyRendering isNeedRender=false", function(assert) {
     page.onFirstRendering();
     assert.equal(panel.rows.length, 2);
 
-    panel.rows.forEach(row => {
+    panel.rows.forEach((row) => {
       assert.equal(row["_scrollableParent"], undefined);
       assert.equal(row["_updateVisibility"], undefined);
       assert.equal(row.isNeedRender, false);
@@ -874,4 +874,32 @@ QUnit.test("Panel.startLazyRendering isNeedRender=false", function(assert) {
   } finally {
     settings.lazyRowsRendering = prevLazyRowsRendering;
   }
+});
+QUnit.test("row.visibleElements make it reactive", function(assert) {
+  var page = new PageModel();
+  page.addNewQuestion("text", "q1");
+  page.addNewQuestion("text", "q2");
+  page.addNewQuestion("text", "q3");
+  page.questions[1].startWithNewLine = false;
+  page.questions[2].startWithNewLine = false;
+  assert.equal(page.rows.length, 1, "We have one row");
+  var row = page.rows[0];
+  assert.equal(row.elements.length, 3, "We have 3 elements in row");
+  assert.equal(row.visibleElements.length, 3, "All elements are visible");
+  assert.equal(
+    row.getPropertyValue("visibleElements").length,
+    3,
+    "visibleElements are reactive"
+  );
+  page.questions[1].visible = false;
+  assert.equal(row.visibleElements.length, 2, "Two elements are visible");
+  assert.equal(row.visibleElements[0].name, "q1", "First element");
+  assert.equal(row.visibleElements[1].name, "q3", "Second element");
+  page.removeElement(page.questions[2]);
+  assert.equal(row.visibleElements.length, 1, "One element is visible");
+  assert.equal(row.visibleElements[0].name, "q1", "First element, #2");
+  page.questions[1].visible = true;
+  assert.equal(row.visibleElements.length, 2, "Two elements are visible, #3");
+  assert.equal(row.visibleElements[0].name, "q1", "First element, #3");
+  assert.equal(row.visibleElements[1].name, "q2", "Second element, #3");
 });

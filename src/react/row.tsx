@@ -35,25 +35,23 @@ export class SurveyRow extends SurveyElementBase<any, any> {
   protected renderElementContent(): JSX.Element {
     var elements = null;
     if (this.row.isNeedRender) {
-      elements = this.row.elements
-        .filter((element) => element.isVisible)
-        .map((element) => {
-          const innerElement = this.createElement(element);
-          var rootStyle: { [index: string]: any } = {};
-          if (element.renderWidth) {
-            rootStyle["width"] = element.renderWidth;
-            rootStyle["flexGrow"] = 1;
-            rootStyle["flexShrink"] = 1;
-            rootStyle["flexBasis"] = element.renderWidth;
-            rootStyle["minWidth"] = element.minWidth;
-            rootStyle["maxWidth"] = element.maxWidth;
-          }
-          return (
-            <div style={rootStyle} key={innerElement.key}>
-              {innerElement}
-            </div>
-          );
-        });
+      elements = this.row.visibleElements.map((element) => {
+        const innerElement = this.createElement(element);
+        var rootStyle: { [index: string]: any } = {};
+        if (element.renderWidth) {
+          rootStyle["width"] = element.renderWidth;
+          rootStyle["flexGrow"] = 1;
+          rootStyle["flexShrink"] = 1;
+          rootStyle["flexBasis"] = element.renderWidth;
+          rootStyle["minWidth"] = element.minWidth;
+          rootStyle["maxWidth"] = element.maxWidth;
+        }
+        return (
+          <div style={rootStyle} key={innerElement.key}>
+            {innerElement}
+          </div>
+        );
+      });
     }
 
     return (

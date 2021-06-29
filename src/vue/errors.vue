@@ -1,6 +1,7 @@
 <template>
   <div
     role="alert"
+    aria-live="polite"
     v-show="question.hasVisibleErrors"
     :class="classes"
     :id="question.id + '_errors'"

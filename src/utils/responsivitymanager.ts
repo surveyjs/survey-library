@@ -76,6 +76,8 @@ export class ResponsivityManager {
   }
 
   public fit(dimension: number) {
+    if(dimension <= 0) return;
+    
     this.model.removeDotsButton();
     let minSize = 0;
     let maxSize = 0;

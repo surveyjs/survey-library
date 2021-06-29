@@ -187,7 +187,9 @@ export class AdaptiveActionBarItemWrapper extends Base
   public get canShrink(): boolean {
     return !!this.iconName;
   }
-  @property({ defaultValue: true }) isVisible: boolean;
+  public get isVisible() {
+    return this.mode !== "popup";
+  }
   @property() needSeparator: boolean;
   @property({ defaultValue: "large" }) mode: "large" | "small" | "popup";
 
@@ -255,7 +257,6 @@ export class AdaptiveElement extends Base {
       if (item === this.dotsItem) {
         return;
       }
-      item.isVisible = leftItemsToShow > 0;
       if (leftItemsToShow <= 0) {
         item.mode = "popup";
         invisibleItems.push(item);
@@ -277,17 +278,6 @@ export class AdaptiveElement extends Base {
     if (newIndex < this.items.length) {
       this.items.splice(newIndex, 0, this.dotsItem);
     }
-  }
-
-  public get canShrink(): boolean {
-    return this.showTitles;
-  }
-  public readonly canGrow = true;
-  public shrink() {
-    this.showTitles = false;
-  }
-  public grow() {
-    this.showTitles = true;
   }
 }
 

@@ -1169,8 +1169,14 @@ export class Question extends SurveyElement
     return this.getUnbindValue(this.value);
   }
   protected getUnbindValue(value: any) {
-    if (this.isEditingSurveyElement) return value;
+    if (this.isValueSurveyElement(value)) return value;
     return Helpers.getUnbindValue(value);
+  }
+  protected isValueSurveyElement(val: any): boolean {
+    if (!val) return false;
+    if (Array.isArray(val))
+      return val.length > 0 ? this.isValueSurveyElement(val[0]) : false;
+    return !!val.getType && !!val.onPropertyChanged;
   }
   private canClearValueAsInvisible(): boolean {
     if (this.isVisible && this.isParentVisible) return false;

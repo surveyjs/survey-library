@@ -3,7 +3,7 @@
   class="sv-action-bar"
   data-bind="click: handleClick ? function() { return true; } : undefined, clickBubble: handleClick ? false : undefined"
 >
-  <!-- ko foreach: items-->
+  <!-- ko foreach: items -->
   <span
     class="sv-action"
     data-bind="css: { 'sv-action--hidden': !isVisible }, class: $data.css, attr: { id: $data.id }, visible: $data.visible === undefined || $data.visible"

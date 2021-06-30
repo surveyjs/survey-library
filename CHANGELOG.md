@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.8.54](https://github.com/surveyjs/survey-library/compare/v1.8.53...v1.8.54) (2021-06-30)
+
+
+### Bug Fixes
+
+* (React) Single matrix columns are not updated on changing if matrix is editing in property grid [#3027](https://github.com/surveyjs/survey-library/issues/3027) ([#3028](https://github.com/surveyjs/survey-library/issues/3028)) ([e5a87a0](https://github.com/surveyjs/survey-library/commit/e5a87a0d4c57b8cb46c5b2b16fb488868a44cdb6))
+* Survey-React, conditional rendering is broken with inline questions [#3031](https://github.com/surveyjs/survey-library/issues/3031) ([#3033](https://github.com/surveyjs/survey-library/issues/3033)) ([66f074b](https://github.com/surveyjs/survey-library/commit/66f074b9c5c89bb766ba8f2435616d4c269a64e6))
+
 ### [1.8.53](https://github.com/surveyjs/survey-library/compare/v1.8.52...v1.8.53) (2021-06-23)
 
 

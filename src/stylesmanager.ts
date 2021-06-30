@@ -311,7 +311,7 @@ export class StylesManager {
     ".sv_main .sv-action-bar-item__title": `vertical-align: middle; white-space: nowrap;`,
     ".sv_main .sv-action-bar-item__title--with-icon": `margin-left: 8px;`,
     ".sv_main .sv-action": `display: flex; align-items: center;`,
-    ".sv_main .sv-action--hidden": "visibility: hidden",
+    ".sv_main .sv-action--hidden": "display: none;",
     ".sv_main .sv-action-bar-item__icon svg": "display: block;",
     ".sv_main .sv-action-bar-item:active": "opacity: 0.5;",
     ".sv_main .sv-action-bar-item:focus": "outline: none;",

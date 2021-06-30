@@ -9,6 +9,7 @@ export class ResponsivityManager {
   private resizeObserver: ResizeObserver = undefined;
   private isInilized = false;
   protected minDimensionConst = 56;
+  separatorSize = 17;
 
   public getComputedStyle: (
     elt: Element
@@ -48,8 +49,9 @@ export class ResponsivityManager {
     this.container
       .querySelectorAll(this.itemsSelector)
       .forEach((item: HTMLDivElement, index: number) => {
-        this.model.visibleItems[index].maxDimension = this.calcItemSize(item);
-        this.model.visibleItems[index].minDimension = this.model.visibleItems[index].canShrink ? this.minDimensionConst : this.model.visibleItems[index].maxDimension;
+        let currentItem = this.model.items[index];
+        currentItem.maxDimension = this.calcItemSize(item);
+        currentItem.minDimension = currentItem.canShrink ? this.minDimensionConst + (currentItem.needSeparator ? this.separatorSize : 0) : currentItem.maxDimension;
       });
   }
 

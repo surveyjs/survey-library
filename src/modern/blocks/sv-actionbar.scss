@@ -181,5 +181,5 @@ $base-unit: var(--base-unit, 8px);
 }
 
 .sv-action--hidden {
-  visibility: hidden;
+  display: none;
 }

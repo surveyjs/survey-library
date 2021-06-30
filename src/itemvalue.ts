@@ -218,7 +218,7 @@ export class ItemValue extends Base {
       }
       this.propertyValueChanged("text", oldValue, newValue);
     };
-    this.locTextValue.onGetTextCallback = txt => {
+    this.locTextValue.onGetTextCallback = (txt) => {
       return txt
         ? txt
         : !Helpers.isValueEmpty(this.value)
@@ -416,7 +416,13 @@ Serializer.addClass(
       serializationProperty: "locText",
     },
     { name: "visibleIf:condition", showMode: "form" },
-    { name: "enableIf:condition", showMode: "form" },
+    {
+      name: "enableIf:condition",
+      showMode: "form",
+      visibleIf: (obj: ItemValue): boolean => {
+        return !obj || obj.ownerPropertyName !== "rateValues";
+      },
+    },
   ],
   (value: any) => new ItemValue(value)
 );

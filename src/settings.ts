@@ -155,4 +155,11 @@ export var settings = {
     ) => void
   >undefined,
   supportCreatorV2: false,
+  /**
+   * Specifies a list of custom icons.
+   * Use this property to replace SurveyJS default icons (displayed in UI elements of SurveyJS Library or Creator) with your custom icons.
+   * For every default icon to replace, add a key/value object with the default icon's name as a key and the name of your custom icon as a value.
+   * For example: Survey.settings.customIcons["icon-redo"] = "my-own-redo-icon"
+   */
+  customIcons: {},
 };

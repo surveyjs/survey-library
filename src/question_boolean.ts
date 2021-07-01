@@ -29,6 +29,9 @@ export class QuestionBooleanModel extends Question {
   isLayoutTypeSupported(layoutType: string): boolean {
     return true;
   }
+  supportGoNextPageAutomatic() {
+    return this.renderAs !== "checkbox";
+  }
   /**
    * Returns true if the question check will be rendered in indeterminate mode. value is empty.
    */

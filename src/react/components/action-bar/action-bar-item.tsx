@@ -14,8 +14,8 @@ export class SurveyAction extends SurveyElementBase<IActionBarItemProps, any> {
   get item() {
     return this.props.item;
   }
-  protected getStateElement(): Base {
-    return this.item.stateItem;
+  protected getStateElements(): Base[] {
+    return [this.item, this.item.stateItem];
   }
 
   render() {
@@ -49,8 +49,8 @@ export class SurveyActionBarItem extends SurveyElementBase<
   get item(): AdaptiveActionBarItemWrapper {
     return this.props.item;
   }
-  protected getStateElement(): Base {
-    return this.item.stateItem;
+  protected getStateElements(): Base[] {
+    return [this.item, this.item.stateItem];
   }
 
   render() {

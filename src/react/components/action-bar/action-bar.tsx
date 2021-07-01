@@ -27,6 +27,7 @@ export class SurveyActionBar extends SurveyElementBase<IActionBarProps, any> {
   constructor(props: IActionBarProps) {
     super(props);
     this.rootRef = React.createRef();
+    this.model.setItems(this.props.items);
   }
 
   private get handleClick() {
@@ -40,19 +41,23 @@ export class SurveyActionBar extends SurveyElementBase<IActionBarProps, any> {
     this.manager = new ResponsivityManager(
       container,
       this.model,
-      "span.sv-action"
+      "span.sv-action:not(.sv-dots)"
     );
   }
   componentWillUnmount() {
     this.manager && this.manager.dispose();
     super.componentWillUnmount();
   }
+  componentDidUpdate(prevProps: any) {
+    if(prevProps.items !== this.props.items){
+      this.model.setItems(this.props.items);
+    }
+  }
 
   protected getStateElement(): Base {
     return this.model;
   }
   renderElement(): any {
-    this.model.setItems(this.props.items);
     if (!this.hasItems) return null;
     const items = this.renderItems();
     return (

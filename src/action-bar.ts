@@ -1,3 +1,4 @@
+import { settings } from "./settings";
 import { Base } from "./base";
 import { property, propertyArray } from "./jsonobject";
 import { ListModel } from "./list";
@@ -179,7 +180,7 @@ export class AdaptiveActionBarItemWrapper extends Base
     return unwrap(this.item.component);
   }
   public get iconName(): string {
-    return unwrap(this.item.iconName);
+    return this.getIconNameFromProxy(unwrap(this.item.iconName));
   }
   public get items(): any {
     return unwrap(this.item.items);
@@ -195,7 +196,10 @@ export class AdaptiveActionBarItemWrapper extends Base
 
   minDimension: number;
   maxDimension: number;
-
+  private getIconNameFromProxy(iconName: string): string {
+    var proxyName = (<any>settings.customIcons)[iconName];
+    return !!proxyName ? proxyName : iconName;
+  }
 }
 
 export class AdaptiveElement extends Base {

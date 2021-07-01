@@ -59,9 +59,9 @@ export class SurveyActionBarItem extends SurveyElementBase<
 
   renderText() {
     if (
-      this.item.showTitle === undefined ||
+      (this.item.showTitle === undefined ||
       this.item.showTitle ||
-      !this.item.iconName
+      !this.item.iconName) && !!this.item.title 
     ) {
       var titleClass =
         "sv-action-bar-item__title " +

@@ -305,6 +305,7 @@ QUnit.test("Load countries", function(assert) {
 QUnit.test(
   "Check isRunning for restfull class that wait request from another restfull class, Bug#3039",
   function(assert) {
+    ChoicesRestful.clearCache();
     var test = new ChoicesRestfulTester();
     var items = [];
     test.getResultCallback = function(res: Array<ItemValue>) {
@@ -326,6 +327,7 @@ QUnit.test(
     test.unblockSendRequest();
     assert.equal(test.isRunning, false, "We are done");
     assert.equal(test2.isRunning, false, "We are done, test2");
+    ChoicesRestful.clearCache();
   }
 );
 

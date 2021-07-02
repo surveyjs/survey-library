@@ -45,8 +45,14 @@ class ChoicesRestfulTester extends ChoicesRestful {
     if (this.isRequestRunning !== undefined) return this.isRequestRunning;
     return super.getIsRunning();
   }
+  public blockSendingRequest: boolean;
+  public unblockSendRequest() {
+    this.blockSendingRequest = undefined;
+    this.sendRequest();
+  }
   protected sendRequest() {
     this.beforeSendRequest();
+    if (this.blockSendingRequest === true) return;
     this.sentRequestCounter++;
     this.lastProcesedUrl = this.processedUrl;
     if (this.processedUrl.indexOf("empty") > -1) this.onLoad([]);
@@ -66,6 +72,10 @@ class ChoicesRestfulTester extends ChoicesRestful {
       this.onLoad(this.parseResponse(getXmlResponse()));
     if (this.processedUrl.indexOf("text") > -1)
       this.onLoad(this.parseResponse(getTextResponse()));
+  }
+  protected onLoad(result: any, loadingObjHash: string = null) {
+    this.beforeLoadRequest();
+    super.onLoad(result, loadingObjHash);
   }
   protected useChangedItemsResults(): boolean {
     if (this.noCaching) return false;
@@ -291,6 +301,35 @@ QUnit.test("Load countries", function(assert) {
     "the fifth country is American Samoa"
   );
 });
+
+QUnit.test(
+  "Check isRunning for restfull class that wait request from another restfull class, Bug#3039",
+  function(assert) {
+    ChoicesRestful.clearCache();
+    var test = new ChoicesRestfulTester();
+    var items = [];
+    test.getResultCallback = function(res: Array<ItemValue>) {
+      items = res;
+    };
+    test.blockSendingRequest = true;
+    test.url = "allcountries";
+    test.path = "RestResponse;result";
+    test.run();
+    assert.equal(test.isRunning, true, "We are running");
+    var test2 = new ChoicesRestfulTester();
+    test2.getResultCallback = function(res: Array<ItemValue>) {
+      items = res;
+    };
+    test2.url = "allcountries";
+    test2.path = "RestResponse;result";
+    test2.run();
+    assert.equal(test2.isRunning, true, "We are running, test2");
+    test.unblockSendRequest();
+    assert.equal(test.isRunning, false, "We are done");
+    assert.equal(test2.isRunning, false, "We are done, test2");
+    ChoicesRestful.clearCache();
+  }
+);
 
 QUnit.test("attachOriginalItems", function(assert) {
   var test = new ChoicesRestfulTester();

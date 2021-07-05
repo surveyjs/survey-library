@@ -329,6 +329,7 @@ export class ItemValue extends Base {
     } else {
       this.value = value;
     }
+    this.locText.strChanged();
   }
   public get visibleIf(): string {
     return this.getPropertyValue("visibleIf", "");

@@ -2,7 +2,6 @@
   <table :class="question.cssClasses.root">
     <thead v-if="table.showHeader">
       <tr>
-        <th v-if="question.allowRowsDragAndDrop"></th>
         <th
           :class="question.cssClasses.headerCell"
           v-for="cell in table.headerRow.cells"
@@ -20,10 +19,6 @@
         :class="row.className"
         :key="question.inputId + '_' + row.id"
       >
-        <drag-drop-td
-          :question="question"
-          v-if="question.allowRowsDragAndDrop"
-        />
         <survey-matrixcell
           :cell="cell"
           :question="question"

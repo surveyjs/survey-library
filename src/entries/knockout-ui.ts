@@ -72,7 +72,6 @@ export * from "../knockout/components/logo-image/logo-image";
 export * from "../knockout/components/default-title/default-title";
 export * from "../knockout/components/list/list";
 export * from "../knockout/components/svg-icon/svg-icon";
-export * from "../knockout/components/drag-drop-td/drag-drop-td";
 export { SurveyQuestionMatrixDynamicRemoveButton } from "../knockout/components/matrix-actions/remove-button/remove-button";
 export { SurveyQuestionMatrixDetailButton } from "../knockout/components/matrix-actions/detail-button/detail-button";
 export { ButtonGroupItemViewModel } from "../knockout/components/button-group/button-group-item";

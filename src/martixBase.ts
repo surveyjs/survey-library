@@ -310,7 +310,7 @@ export class QuestionMatrixBaseModel<TRow, TColumn> extends Question {
       },
     });
   }
-  private moveRowByIndex = (
+  protected moveRowByIndex = (
     rows: Array<any>,
     fromIndex: number,
     toIndex: number

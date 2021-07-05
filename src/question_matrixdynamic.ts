@@ -140,6 +140,22 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     }
     this.value = newValue;
   }
+  protected moveRowByIndex = (
+    rows: Array<any>,
+    fromIndex: number,
+    toIndex: number
+  ) => {
+    const value = this.value;
+
+    if (!value) return;
+
+    const movableRow = value[fromIndex];
+
+    if (!movableRow) return;
+
+    value.splice(fromIndex, 1);
+    value.splice(toIndex, 0, movableRow);
+  };
   /**
    * The number of rows in the matrix.
    * @see minRowCount

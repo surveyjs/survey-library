@@ -1,9 +1,9 @@
-<!-- ko if: hasItems-->
+<!-- ko if: true-->
 <div
   class="sv-action-bar"
-  data-bind="click: handleClick ? function() { return true; } : undefined, clickBubble: handleClick ? false : undefined"
+  data-bind="click: $data.handleClick ? function() { return true; } : undefined, clickBubble: $data.handleClick ? false : undefined"
 >
-  <!-- ko foreach: items -->
+  <!-- ko foreach: $data.items || $data.actions -->
   <span
     class="sv-action"
     data-bind="css: { 'sv-action--hidden': !isVisible }, class: $data.css, attr: { id: $data.id }, visible: $data.visible === undefined || $data.visible"

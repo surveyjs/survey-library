@@ -1,5 +1,5 @@
 import * as ko from "knockout";
-import { ActionBar, AdaptiveElement, IActionBarItem, Base } from "survey-core";
+import { ActionBar, AdaptiveElement, IActionBarItem, Base, Action, AdaptiveActionContainer } from "survey-core";
 import { ResponsivityManager } from "survey-core";
 import { ImplementorBase } from "../../kobase";
 
@@ -26,11 +26,16 @@ export class ActionBarViewModel extends ActionBar {
 }
 
 export class AdaptiveElementImplementor extends ImplementorBase {
-  constructor(model: AdaptiveElement) {
+  constructor(model: AdaptiveElement | AdaptiveActionContainer) {
     super(model);
 
-    model.items.forEach((item) => {
-      new ImplementorBase(item.stateItem);
+    ((<any>model).items || (<any>model).actions).forEach((item: any) => {
+      if(!!item.stateItem) {
+        new ImplementorBase(item.stateItem);
+      }
+      else {
+        new ImplementorBase(item);
+      }
     });
   }
 }
@@ -38,8 +43,16 @@ export class AdaptiveElementImplementor extends ImplementorBase {
 ko.components.register("sv-action-bar", {
   viewModel: {
     createViewModel: (params: any, componentInfo: any) => {
-      const model: ActionBarViewModel = new ActionBarViewModel(params.items, params.handleClick);
-      new AdaptiveElementImplementor(model);
+      let model = params.model;
+      if(!!params.items) {
+        model = new ActionBarViewModel(params.items, params.handleClick);  
+        new AdaptiveElementImplementor(model);
+      } else {
+        new AdaptiveElementImplementor(params.model);
+      }
+
+      //const model: ActionBarViewModel = new ActionBarViewModel(params.model || { actions: params.items }, params.handleClick);
+      //new AdaptiveElementImplementor(model);
       const container: HTMLDivElement =
         componentInfo.element.nextElementSibling;
       const manager: ResponsivityManager = new ResponsivityManager(

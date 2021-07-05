@@ -66,6 +66,7 @@ export { Popup } from "../react/components/popup/popup";
 export { List } from "../react/components/list/list";
 export { TitleActions } from "../react/components/title-actions/title-actions";
 export { SurveyActionBar } from "../react/components/action-bar/action-bar";
+export { SurveyActionBarV2 } from "../react/components/action-bar/action-bar-v2";
 export { LogoImage } from "../react/components/survey-header/logo-image";
 export { SurveyHeader } from "../react/components/survey-header/survey-header";
 export { SvgIcon } from "../react/components/svg-icon/svg-icon";

@@ -1,4 +1,7 @@
+import { AdaptiveActionContainer } from "../actions/adaptive-container";
+import { Action } from "../actions/action";
 import { AdaptiveElement } from "../action-bar";
+import { AdaptiveActionBarItemWrapper } from "survey-core";
 
 interface IDimensions {
   scroll: number;
@@ -17,12 +20,18 @@ export class ResponsivityManager {
 
   constructor(
     protected container: HTMLDivElement,
-    private model: AdaptiveElement,
+    private model: AdaptiveElement | AdaptiveActionContainer,
     private itemsSelector: string,
     private dotsItemSize: number = 48
   ) {
     this.resizeObserver = new ResizeObserver((_) => this.process());
     this.resizeObserver.observe(this.container.parentElement);
+  }
+
+  get items(): Array<Action | AdaptiveActionBarItemWrapper> {
+    if (this.model instanceof AdaptiveActionContainer)
+      return this.model.actions;
+    else if (this.model instanceof AdaptiveElement) return this.model.items;
   }
 
   protected getDimensions(element: HTMLElement): IDimensions {
@@ -49,14 +58,19 @@ export class ResponsivityManager {
     this.container
       .querySelectorAll(this.itemsSelector)
       .forEach((item: HTMLDivElement, index: number) => {
-        let currentItem = this.model.items[index];
+        let currentItem = this.items[index];
         currentItem.maxDimension = this.calcItemSize(item);
-        currentItem.minDimension = currentItem.canShrink ? this.minDimensionConst + (currentItem.needSeparator ? this.separatorSize : 0) : currentItem.maxDimension;
+        currentItem.minDimension = currentItem.canShrink
+          ? this.minDimensionConst +
+            (currentItem.needSeparator ? this.separatorSize : 0)
+          : currentItem.maxDimension;
       });
   }
 
   private getVisibleItemsCount(size: number): number {
-    const itemsSizes: number[] = this.model.items.map((item) => item.minDimension);
+    const itemsSizes: number[] = this.items.map(
+      (item) => item.minDimension
+    );
     let currSize: number = 0;
     for (var i = 0; i < itemsSizes.length; i++) {
       currSize += itemsSizes[i];
@@ -66,10 +80,10 @@ export class ResponsivityManager {
   }
 
   private updateItemMode(dimension: number, minSize: number, maxSize: number) {
-    const items = this.model.items;
+    const items = this.items;
     for (let index = items.length - 1; index >= 0; index--) {
       if (minSize <= dimension && dimension < maxSize) {
-        maxSize -= (items[index].maxDimension - items[index].minDimension);
+        maxSize -= items[index].maxDimension - items[index].minDimension;
         items[index].mode = "small";
       } else {
         items[index].mode = "large";
@@ -78,22 +92,24 @@ export class ResponsivityManager {
   }
 
   public fit(dimension: number) {
-    if(dimension <= 0) return;
-    
+    if (dimension <= 0) return;
+
     this.model.removeDotsButton();
     let minSize = 0;
     let maxSize = 0;
 
-    this.model.items.forEach((item) => {
+    this.items.forEach((item) => {
       minSize += item.minDimension;
       maxSize += item.maxDimension;
     });
 
     if (dimension >= maxSize) {
-      this.model.items.forEach((item) => (item.mode = "large"));
+      this.items.forEach((item) => (item.mode = "large"));
     } else if (dimension < minSize) {
-      this.model.items.forEach((item) => (item.mode = "small"));
-      this.model.showFirstN(this.getVisibleItemsCount(dimension - this.dotsItemSize));
+      this.items.forEach((item) => (item.mode = "small"));
+      this.model.showFirstN(
+        this.getVisibleItemsCount(dimension - this.dotsItemSize)
+      );
     } else {
       this.updateItemMode(dimension, minSize, maxSize);
     }

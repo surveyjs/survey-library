@@ -6164,6 +6164,58 @@ QUnit.test("Row actions, check getUpdatedMatrixRowActions", function(assert) {
   );
 });
 
+// QUnit.test("Row actions, drag action", function(assert) {
+//   var survey = new SurveyModel({
+//     elements: [
+//       {
+//         type: "matrixdynamic",
+//         allowRowsDragAndDrop: true,
+//         name: "matrix",
+//         choices: [
+//           {
+//             value: 1,
+//             text: "Yes",
+//           },
+//           {
+//             value: 0,
+//             text: "Sometimes",
+//           },
+//           {
+//             value: -1,
+//             text: "No",
+//           },
+//         ],
+//         columns: [
+//           {
+//             name: "subject",
+//             cellType: "dropdown",
+//             title: "Select a subject",
+//             isRequired: true,
+//             minWidth: "300px",
+//             choices: [
+//               "English: American Literature",
+//               "English: British and World Literature",
+//             ],
+//           },
+//           {
+//             name: "explains",
+//             title: "Clearly explains the objectives",
+//           },
+//         ],
+//         rowCount: 2,
+//       },
+//     ],
+//   });
+
+//   var matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+//   var renderedTable = matrix.renderedTable;
+
+//   assert.deepEqual(renderedTable["rowsActions"][0][1], "drag-row");
+
+//   matrix.allowRowsDragAndDrop = false;
+//   assert.deepEqual(renderedTable["rowsActions"][0].length, 1);
+// });
+
 QUnit.test("Row actions, rendered table and className", function(assert) {
   var survey = new SurveyModel({
     elements: [

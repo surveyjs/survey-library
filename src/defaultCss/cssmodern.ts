@@ -277,6 +277,7 @@ export var modernCss = {
     buttonRemove: "sv-matrixdynamic__remove-btn",
     iconAdd: "",
     iconRemove: "",
+    iconDrag: "sv-matrixdynamic__drag-icon",
     row: "sv-table__row",
     detailRow: "sv-table__row sv-table__row--detail",
     detailCell: "sv-table__cell--detail",

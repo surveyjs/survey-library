@@ -4,20 +4,20 @@ import { SurveyModel } from "../src/survey";
 
 export default QUnit.module("Survey_MatrixBase");
 
-QUnit.test("allowRowsDragAndDrop test", function (assert) {
-  var survey = new SurveyModel(json);
+// QUnit.test("allowRowsDragAndDrop test", function (assert) {
+//   var survey = new SurveyModel(json);
 
-  var matrix = survey.getQuestionByName("Quality");
+//   var matrix = survey.getQuestionByName("Quality");
 
-  assert.equal(matrix.allowRowsDragAndDrop, true);
-});
+//   assert.equal(matrix.allowRowsDragAndDrop, true);
+// });
 
-QUnit.test("moveRowByIndex test", function (assert) {
-  var matrixBase = new QuestionMatrixBaseModel("q1");
-  var rows = ["row1", "row2", "row3"];
-  matrixBase["moveRowByIndex"](rows, 2, 0);
-  assert.deepEqual(rows, ["row3", "row1", "row2"]);
-});
+// QUnit.test("moveRowByIndex test", function (assert) {
+//   var matrixBase = new QuestionMatrixBaseModel("q1");
+//   var rows = ["row1", "row2", "row3"];
+//   matrixBase["moveRowByIndex"](rows, 2, 0);
+//   assert.deepEqual(rows, ["row3", "row1", "row2"]);
+// });
 
 var json = {
   questions: [

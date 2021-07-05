@@ -280,12 +280,14 @@ export class StylesManager {
     ".sv_main .sv_q_num + span": "",
 
     // SignaturePad
-    ".sv_main .sjs_sp_container": "position: relative; box-sizing: content-box;",
+    ".sv_main .sjs_sp_container":
+      "position: relative; box-sizing: content-box;",
     ".sv_main .sjs_sp_controls": "position: absolute; left: 0; bottom: 0;",
     ".sv_main .sjs_sp_controls > button": "user-select: none;",
     ".sv_main .sjs_sp_container>div>canvas:focus": "outline: none;",
-    ".sv_main .sjs_sp_placeholder": "display: flex;  align-items: center; justify-content: center; position: absolute; z-index: 0; user-select: none; pointer-events: none; width: 100%; height: 100%;",
-  
+    ".sv_main .sjs_sp_placeholder":
+      "display: flex;  align-items: center; justify-content: center; position: absolute; z-index: 0; user-select: none; pointer-events: none; width: 100%; height: 100%;",
+
     // logo
     // ".sv_main .sv_header": "white-space: nowrap;",
     ".sv_main .sv_logo": "",
@@ -901,6 +903,10 @@ export class StylesManager {
     //eo button-group
 
     ".sv_main .sv_qstn textarea": "max-width: 100%",
+
+    ".sv_main .sv-matrixdynamic__drag-icon": "padding-top:14px",
+    ".sv_main .sv-matrixdynamic__drag-icon:after":
+      "content: ' '; display: block; height: 4px; width: 16px; border: 1px solid $border-color; box-sizing: border-box; border-radius: 10px; cursor: move;",
   };
 
   public static modernThemeCss: { [key: string]: string } = {
@@ -963,6 +969,9 @@ export class StylesManager {
       "background-color: $disable-color;",
     ".sv-matrixdynamic__add-btn": "background-color: $add-button-color;",
     ".sv-matrixdynamic__remove-btn": "background-color: $remove-button-color;",
+    ".sv-matrixdynamic__drag-icon": "padding-top:16px",
+    ".sv-matrixdynamic__drag-icon:after":
+      "content: ' '; display: block; height: 4px; width: 16px; border: 1px solid $border-color; box-sizing: border-box; border-radius: 10px; cursor: move;",
     ".sv-paneldynamic__add-btn": "background-color: $add-button-color;",
     ".sv-paneldynamic__remove-btn": "background-color: $remove-button-color;",
     ".sv-paneldynamic__prev-btn, .sv-paneldynamic__next-btn":
@@ -1020,7 +1029,6 @@ export class StylesManager {
     //signature pad
     ".sv_main .sjs_sp_container": "border: 1px dashed $disable-color;",
     ".sv_main .sjs_sp_placeholder": "color: $foreground-light;",
-
   };
 
   public static bootstrapThemeCss: { [key: string]: string } = {

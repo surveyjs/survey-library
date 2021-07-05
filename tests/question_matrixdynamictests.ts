@@ -4959,6 +4959,48 @@ QUnit.test("getProgressInfo", function(assert) {
   });
 });
 
+QUnit.test(
+  "Change item value in column/templateQuestion and change it in row questions",
+  function(assert) {
+    var matrix = new QuestionMatrixDynamicModel("q1");
+    var column = matrix.addColumn("col1");
+    column.cellType = "checkbox";
+    column.templateQuestion.choices.push(new ItemValue("item1"));
+    column.templateQuestion.choices.push(new ItemValue("item2"));
+    var cellQuestion = matrix.visibleRows[0].cells[0].question;
+    assert.equal(cellQuestion.choices.length, 2, "There are two choices");
+    assert.equal(
+      cellQuestion.choices[0].value,
+      "item1",
+      "Value is correct, choice1"
+    );
+    assert.equal(
+      cellQuestion.choices[1].value,
+      "item2",
+      "Value is correct, choice2"
+    );
+    column.templateQuestion.choices.push(new ItemValue("item3"));
+    assert.equal(cellQuestion.choices.length, 3, "There are three choices");
+    assert.equal(
+      cellQuestion.choices[2].value,
+      "item3",
+      "Value is correct, choice3"
+    );
+    column.templateQuestion.choices[0].value = "newItem1";
+    assert.equal(
+      cellQuestion.choices[0].value,
+      "newItem1",
+      "Value is correct, updated, choice1"
+    );
+    column.templateQuestion.choices[2].text = "Item3 text";
+    assert.equal(
+      cellQuestion.choices[2].text,
+      "Item3 text",
+      "Text is correct, updated, choice3"
+    );
+  }
+);
+
 QUnit.test("isAnswered on setitting from survey.setValue(), Bug#2399", function(
   assert
 ) {

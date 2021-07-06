@@ -15,9 +15,8 @@ export class SurveyPanelBase extends SurveyElementBase<any, any> {
   protected getStateElement(): Base {
     return this.panelBase;
   }
-  protected modifyNonStateProps(nonStateProps: Array<string>) {
-    super.modifyNonStateProps(nonStateProps);
-    nonStateProps.push("elements");
+  protected canUsePropInState(key: string): boolean {
+    return key !== "elements" && super.canUsePropInState(key);
   }
   protected get survey(): SurveyModel {
     return this.getSurvey();

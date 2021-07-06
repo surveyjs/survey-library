@@ -104,6 +104,10 @@ export class Action extends Base implements IAction {
   @property() items: any;
   @property() visibleIndex: number;
 
+  public get disabled(): boolean {
+    return this.enabled !== undefined && !this.enabled;
+  }
+
   public get hasTitle(): boolean {
     return (this.mode != "small" && (this.showTitle || this.showTitle === undefined) || !this.iconName) && !!this.title;
   }

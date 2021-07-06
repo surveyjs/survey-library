@@ -5,6 +5,7 @@ import { ImplementorBase } from "../../kobase";
 
 const template = require("./action-bar.html");
 
+export * from "./action";
 export * from "./action-bar-item";
 export * from "./action-bar-item-dropdown";
 export * from "./action-bar-separator";
@@ -46,9 +47,9 @@ ko.components.register("sv-action-bar", {
       let model = params.model;
       if(!!params.items) {
         model = new ActionBarViewModel(params.items, params.handleClick);  
-        new AdaptiveElementImplementor(model);
+        new ImplementorBase(model);
       } else {
-        new AdaptiveElementImplementor(params.model);
+        new ImplementorBase(params.model);
       }
 
       //const model: ActionBarViewModel = new ActionBarViewModel(params.model || { actions: params.items }, params.handleClick);

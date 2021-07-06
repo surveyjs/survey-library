@@ -92,12 +92,11 @@ export class SurveyActionBarItemV2 extends SurveyElementBase<
       this.item.innerCss +
       (this.item.active ? " sv-action-bar-item--active" : "");
     const title = this.item.tooltip || this.item.title;
-    const isDisabled = this.item.enabled !== undefined && !this.item.enabled;
     const buttonContent = this.renderButtonContent();
     const button = (
       <button
         className={className}
-        disabled={isDisabled}
+        disabled={this.item.disabled}
         onClick={() => this.item.action(this.item)}
         title={title}
       >

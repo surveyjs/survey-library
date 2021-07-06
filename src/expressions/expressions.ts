@@ -185,19 +185,19 @@ export class ArrayOperand extends Operand {
   }
 
   public setVariables(variables: Array<string>) {
-    this.values.forEach(el => {
+    this.values.forEach((el) => {
       el.setVariables(variables);
     });
   }
 
   public hasFunction(): boolean {
-    return this.values.some(operand => operand.hasFunction());
+    return this.values.some((operand) => operand.hasFunction());
   }
   public hasAsyncFunction(): boolean {
-    return this.values.some(operand => operand.hasAsyncFunction());
+    return this.values.some((operand) => operand.hasAsyncFunction());
   }
   public addToAsyncList(list: Array<FunctionOperand>) {
-    this.values.forEach(operand => operand.addToAsyncList(list));
+    this.values.forEach((operand) => operand.addToAsyncList(list));
   }
 }
 
@@ -488,8 +488,13 @@ export class OperandMaker {
       return OperandMaker.binaryFunctions.containsCore(left, right, false);
     },
     anyof: function(left: any, right: any): boolean {
-      if (!left && Helpers.isValueEmpty(right)) return true;
-      if (!left || (!Array.isArray(left) && left.length === 0)) return false;
+      if (Helpers.isValueEmpty(left) && Helpers.isValueEmpty(right))
+        return true;
+      if (
+        Helpers.isValueEmpty(left) ||
+        (!Array.isArray(left) && left.length === 0)
+      )
+        return false;
       if (Helpers.isValueEmpty(right)) return true;
       if (!Array.isArray(left))
         return OperandMaker.binaryFunctions.contains(right, left);

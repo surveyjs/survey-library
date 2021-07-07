@@ -849,6 +849,15 @@ QUnit.test("Test binary operator anyof", function(assert) {
   values = { value: null };
   assert.equal(runner.run(values), false, "null anyof ['a', 'b']");
 });
+QUnit.test("Test binary operator anyof with 0", function(assert) {
+  var runner = new ConditionRunner("{value} anyof [7, 3, 0]");
+  var values = { value: 3 };
+  assert.equal(runner.run(values), true, "3 anyof [7, 3, 0]");
+  values.value = 0;
+  assert.equal(runner.run(values), true, "0 anyof [7, 3, 0]");
+  values.value = 1;
+  assert.equal(runner.run(values), false, "1 anyof [7, 3, 0]");
+});
 QUnit.test("Test operator anyof for non-array var", function(assert) {
   var runner = new ConditionRunner("{value} anyof ['a', 'b', 'c']");
   var values = { value: "a" };

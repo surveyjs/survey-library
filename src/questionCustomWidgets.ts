@@ -1,4 +1,5 @@
-import { Base, IQuestion, Event } from "./base";
+import { Base, Event } from "./base";
+import { IQuestion } from "./baseInterfaces";
 
 export class QuestionCustomWidget {
   public htmlTemplate: string;

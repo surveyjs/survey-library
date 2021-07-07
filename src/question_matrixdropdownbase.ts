@@ -7,20 +7,19 @@ import {
 import { QuestionMatrixBaseModel } from "./martixBase";
 import { Question } from "./question";
 import { HashTable, Helpers } from "./helpers";
+import { Base } from "./base";
 import {
-  Base,
   IElement,
   IQuestion,
   ISurveyData,
   ISurvey,
   ISurveyImpl,
   ITextProcessor,
-  SurveyError,
   IProgressInfo,
-  SurveyElement,
   IPanel,
   IWrapperObject,
-} from "./base";
+} from "./baseInterfaces";
+import { SurveyElement } from "./surveyElement";
 import {
   TextPreProcessorValue,
   QuestionTextProcessor,
@@ -38,6 +37,7 @@ import { settings } from "./settings";
 import { KeyDuplicationError } from "./error";
 import { ActionBarItem, IActionBarItem } from "./action-bar";
 import { SurveyModel } from "./survey";
+import { SurveyError } from "./surveyError";
 
 export interface IMatrixDropdownData {
   value: any;

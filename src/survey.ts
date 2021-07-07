@@ -1,7 +1,7 @@
 import { HashTable, Helpers } from "./helpers";
 import { JsonObject, JsonError, Serializer, property } from "./jsonobject";
+import { Base, EventBase } from "./base";
 import {
-  Base,
   ISurvey,
   ISurveyData,
   ISurveyImpl,
@@ -10,14 +10,12 @@ import {
   IPanel,
   IElement,
   IPage,
-  SurveyError,
-  EventBase,
   ISurveyErrorOwner,
   ISurveyElement,
-  SurveyElement,
   IProgressInfo,
   IFindElement,
-} from "./base";
+} from "./baseInterfaces";
+import { SurveyElement } from "./surveyElement";
 import { surveyCss } from "./defaultCss/cssstandard";
 import { ISurveyTriggerOwner, SurveyTrigger } from "./trigger";
 import { CalculatedValue } from "./calculatedValue";
@@ -43,6 +41,7 @@ import { ExpressionRunner, ConditionRunner } from "./conditions";
 import { settings } from "./settings";
 import { IActionBarItem } from "./action-bar";
 import { getSize, isMobile } from "./utils/utils";
+import { SurveyError } from "./surveyError";
 
 /**
  * The `Survey` object contains information about the survey, Pages, Questions, flow logic and etc.

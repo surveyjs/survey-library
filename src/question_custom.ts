@@ -6,10 +6,9 @@ import {
   ISurvey,
   ITextProcessor,
   IPanel,
-  IElement,
-  SurveyElement,
-  IConditionRunner,
-} from "./base";
+  IElement
+} from "./baseInterfaces";
+import { SurveyElement } from "./surveyElement";
 import { PanelModel } from "./panel";
 import { Helpers, HashTable } from "./helpers";
 import { ItemValue } from "./itemvalue";

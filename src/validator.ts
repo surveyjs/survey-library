@@ -1,4 +1,6 @@
-import { Base, SurveyError, ISurveyErrorOwner, ISurvey } from "./base";
+import { Base } from "./base";
+import { ISurveyErrorOwner, ISurvey } from "./baseInterfaces";
+import { SurveyError } from "./surveyError";
 import { CustomError, RequreNumericError } from "./error";
 import { surveyLocalization } from "./surveyStrings";
 import { ILocalizableOwner, LocalizableString } from "./localizablestring";

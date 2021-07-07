@@ -1,8 +1,10 @@
-import { Base, SurveyError, ITextProcessor, IQuestion, ISurvey } from "./base";
+import { Base } from "./base";
+import { ITextProcessor, IQuestion, ISurvey } from "./baseInterfaces";
 import { ItemValue } from "./itemvalue";
 import { Serializer, JsonObjectProperty } from "./jsonobject";
 import { WebRequestError, WebRequestEmptyError } from "./error";
 import { settings } from "./settings";
+import { SurveyError } from "./surveyError";
 
 class XmlParser {
   private parser = new DOMParser();

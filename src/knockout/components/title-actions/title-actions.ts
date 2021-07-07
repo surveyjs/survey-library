@@ -12,7 +12,7 @@ ko.components.register("sv-title-actions", {
       const element: ISurveyElement = params.element;
       return {
         element: element,
-        items: element.getTitleActions(),
+        toolbar: element.getTitleToolbar(),
       };
     },
   },

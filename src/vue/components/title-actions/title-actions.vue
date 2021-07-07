@@ -11,7 +11,7 @@
         :css="css"
       ></survey-question-title-content>
     </span>
-    <sv-action-bar class="sv-title-actions__bar" :items="items"></sv-action-bar>
+    <sv-action-bar class="sv-title-actions__bar" :model="toolbar"></sv-action-bar>
   </div>
 </template>
 
@@ -29,8 +29,8 @@ export class TitleActions extends Vue {
     super();
   }
 
-  public get items() {
-    return this.element.getTitleActions();
+  public get toolbar() {
+    return this.element.getTitleToolbar();
   }
 }
 

@@ -27,7 +27,7 @@
 <script lang="ts">
 import { Component, Prop } from "vue-property-decorator";
 import Vue from "vue";
-import { ActionBar, IActionBarItem, AdaptiveActionBarItemWrapper } from "survey-core";
+import { ActionBar, IActionBarItem, AdaptiveActionBarItemWrapper, AdaptiveActionContainer, Action } from "survey-core";
 
 export * from "./action-bar-item.vue";
 export * from "./action-bar-item-dropdown.vue";
@@ -35,17 +35,11 @@ export * from "./action-bar-separator.vue";
 
 @Component
 export class ActionBarViewModel extends Vue {
-  @Prop() items: Array<IActionBarItem>;
+  @Prop() model: AdaptiveActionContainer;
   @Prop() handleClick: boolean;
-  private model = new ActionBar();
-
-  constructor() {
-    super();
-    this.model.setItems(this.items);
-  }
-
-  get wrappedItems(): AdaptiveActionBarItemWrapper[] {
-    return this.model.items;
+  
+  get wrappedItems(): Action[] {
+    return this.model.actions;
   }
 
   getComponentName(item: any) {
@@ -53,7 +47,7 @@ export class ActionBarViewModel extends Vue {
   }
 
   get hasItems() {
-    return (this.model.items || []).length > 0;
+    return (this.model.actions || []).length > 0;
   }
 }
 

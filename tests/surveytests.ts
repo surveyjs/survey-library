@@ -1,4 +1,5 @@
-import { SurveyElement, Base } from "../src/base";
+import { Base } from "../src/base";
+import { SurveyElement } from "../src/surveyElement";
 import { SurveyModel } from "../src/survey";
 import { PageModel } from "../src/page";
 import { PanelModel } from "../src/panel";
@@ -27,7 +28,7 @@ import {
   MultipleTextItemModel,
 } from "../src/question_multipletext";
 import { QuestionMatrixModel } from "../src/question_matrix";
-import { ISurveyData } from "../src/base";
+import { ISurveyData } from "../src/baseInterfaces";
 import { ItemValue } from "../src/itemvalue";
 import { QuestionDropdownModel } from "../src/question_dropdown";
 import { QuestionCheckboxModel } from "../src/question_checkbox";

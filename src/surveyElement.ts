@@ -50,6 +50,7 @@ export class SurveyElement extends Base implements ISurveyElement {
   private surveyValue: ISurvey;
   private textProcessorValue: ITextProcessor;
   private selectedElementInDesignValue: SurveyElement = this;
+  private expandAction: Action;
   public readOnlyChangedCallback: () => void;
 
   public static ScrollElementToTop(elementId: string): boolean {
@@ -106,6 +107,7 @@ export class SurveyElement extends Base implements ISurveyElement {
       this.onReadOnlyChanged();
     });
     this.registerFunctionOnPropertyValueChanged("state", () => {
+      this.updateExpandAction();
       if (this.stateChangedCallback) this.stateChangedCallback();
     });
     this.registerFunctionOnPropertyValueChanged("errors", () => {
@@ -189,31 +191,27 @@ export class SurveyElement extends Base implements ISurveyElement {
     });
     return this.titleToolbarValue;
   }
-
+  private updateExpandAction() {
+    if (!!this.expandAction) {
+      this.expandAction.visible = this.isExpanded || this.isCollapsed;
+      this.expandAction.innerCss =
+        "sv-expand-action" +
+        (this.isExpanded ? " sv-expand-action--expanded" : "");
+    }
+  }
   public getTitleActions(): Array<any> {
     this.titleActions = [];
-    var expandAction: any = {
-      title: "",
-      action: () => {
-        this.toggleState();
-      },
-    };
-    Object.defineProperties(expandAction, {
-      innerCss: {
-        get: () => {
-          var css = "sv-expand-action";
-          if (this.isExpanded) css += " sv-expand-action--expanded";
-          return css;
+    if (!this.expandAction) {
+      this.expandAction = new Action({
+        id: "expand-collapse-action",
+        title: "",
+        action: () => {
+          this.toggleState();
         },
-      },
-      visible: {
-        get: () => {
-          return this.isExpanded || this.isCollapsed;
-        },
-      },
-    });
-
-    this.titleActions.push(expandAction);
+      });
+    }
+    this.updateExpandAction();
+    this.titleActions.push(this.expandAction);
     return this.titleActions;
   }
 

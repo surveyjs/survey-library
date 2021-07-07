@@ -50,10 +50,13 @@ export class AdaptiveElementImplementor extends ImplementorBase {
 ko.components.register("sv-action-bar", {
   viewModel: {
     createViewModel: (params: any, componentInfo: any) => {
-      let model = { model: params.model, handleClick: params.handleClick };
+      const handleClick =
+        params.handleClick !== undefined ? params.handleClick : true;
+      let model = { model: params.model, handleClick: handleClick };
       new ImplementorBase(params.model);
 
-      const container: HTMLDivElement = componentInfo.element.nextElementSibling;
+      const container: HTMLDivElement =
+        componentInfo.element.nextElementSibling;
       const manager: ResponsivityManager = new ResponsivityManager(
         container,
         params.model,

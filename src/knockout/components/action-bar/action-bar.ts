@@ -1,5 +1,12 @@
 import * as ko from "knockout";
-import { ActionBar, AdaptiveElement, IActionBarItem, Base, Action, AdaptiveActionContainer } from "survey-core";
+import {
+  ActionBar,
+  AdaptiveElement,
+  IActionBarItem,
+  Base,
+  Action,
+  AdaptiveActionContainer,
+} from "survey-core";
 import { ResponsivityManager } from "survey-core";
 import { ImplementorBase } from "../../kobase";
 
@@ -31,10 +38,9 @@ export class AdaptiveElementImplementor extends ImplementorBase {
     super(model);
 
     ((<any>model).items || (<any>model).actions).forEach((item: any) => {
-      if(!!item.stateItem) {
+      if (!!item.stateItem) {
         new ImplementorBase(item.stateItem);
-      }
-      else {
+      } else {
         new ImplementorBase(item);
       }
     });
@@ -44,21 +50,13 @@ export class AdaptiveElementImplementor extends ImplementorBase {
 ko.components.register("sv-action-bar", {
   viewModel: {
     createViewModel: (params: any, componentInfo: any) => {
-      let model = params.model;
-      if(!!params.items) {
-        model = new ActionBarViewModel(params.items, params.handleClick);  
-        new ImplementorBase(model);
-      } else {
-        new ImplementorBase(params.model);
-      }
+      let model = { model: params.model, handleClick: params.handleClick };
+      new ImplementorBase(params.model);
 
-      //const model: ActionBarViewModel = new ActionBarViewModel(params.model || { actions: params.items }, params.handleClick);
-      //new AdaptiveElementImplementor(model);
-      const container: HTMLDivElement =
-        componentInfo.element.nextElementSibling;
+      const container: HTMLDivElement = componentInfo.element.nextElementSibling;
       const manager: ResponsivityManager = new ResponsivityManager(
         container,
-        model,
+        params.model,
         "span.sv-action:not(.sv-dots)"
       );
       ko.utils.domNodeDisposal.addDisposeCallback(container, () =>

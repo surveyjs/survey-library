@@ -1,6 +1,6 @@
 <template>
   <div
-    v-if="hasItems"
+    v-if="model.hasItems"
     ref="container"
     class="sv-action-bar"
     v-on:click="
@@ -12,7 +12,7 @@
     <span
       class="sv-action"
       v-bind:class="{ 'sv-action--hidden': !item.isVisible }"
-      v-for="item in wrappedItems"
+      v-for="item in model.actions"
       :key="item.id"
       v-show="item.visible || item.visible === undefined"
     >
@@ -27,7 +27,7 @@
 <script lang="ts">
 import { Component, Prop } from "vue-property-decorator";
 import Vue from "vue";
-import { ActionBar, IActionBarItem, AdaptiveActionBarItemWrapper, AdaptiveActionContainer, Action } from "survey-core";
+import { AdaptiveActionContainer } from "survey-core";
 
 export * from "./action-bar-item.vue";
 export * from "./action-bar-item-dropdown.vue";
@@ -38,16 +38,8 @@ export class ActionBarViewModel extends Vue {
   @Prop() model: AdaptiveActionContainer;
   @Prop() handleClick: boolean;
   
-  get wrappedItems(): Action[] {
-    return this.model.actions;
-  }
-
   getComponentName(item: any) {
     return item.component || "sv-action-bar-item";
-  }
-
-  get hasItems() {
-    return (this.model.actions || []).length > 0;
   }
 }
 

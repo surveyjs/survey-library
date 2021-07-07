@@ -58,7 +58,7 @@ export class SurveyActionBar extends SurveyElementBase<IActionBarProps, any> {
     return this.model;
   }
   renderElement(): any {
-    if (!this.hasItems) return null;
+    if (!this.model.hasItems) return null;
     const items = this.renderItems();
     return (
       <div
@@ -71,10 +71,6 @@ export class SurveyActionBar extends SurveyElementBase<IActionBarProps, any> {
         {items}
       </div>
     );
-  }
-
-  get hasItems(): boolean {
-    return (this.model.items || []).length > 0;
   }
 
   renderItems() {

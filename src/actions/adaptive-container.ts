@@ -26,16 +26,9 @@ export class AdaptiveActionContainer extends ActionContainer<Action> {
           return firstItem.visibleIndex - secondItem.visibleIndex;
         });
     }
-    /*private createArray() {
-      this.actions = this.createNewArray("items", (val: any, index: number) => {
-        if (!(val instanceof Action)) {
-          this.actions[index] = new Action(val);
-        }
-      });
-    }*/
+
     constructor() {
       super();
-      //this.createArray();
       this.dotsItemPopupModel = new PopupModel("sv-list", {
         model: this.invisibleItemsListModel,
       });

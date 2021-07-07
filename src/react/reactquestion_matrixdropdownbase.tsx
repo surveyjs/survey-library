@@ -249,7 +249,7 @@ class SurveyQuestionMatrixActionsCell extends ReactSurveyElement {
   }
   protected renderElement(): JSX.Element {
     return (
-      <SurveyActionBarV2 model={this.model} /*handleClick={false}*/></SurveyActionBarV2>
+      <SurveyActionBarV2 model={this.model} handleClick={false}></SurveyActionBarV2>
     );
   }
 }

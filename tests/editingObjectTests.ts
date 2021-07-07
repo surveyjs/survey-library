@@ -261,6 +261,39 @@ QUnit.test("Edit columns in matrix", function(assert) {
     "column added with correct type"
   );
 });
+QUnit.test("allowRowsDragAndDrop and editingObj", function(assert) {
+  var question = new QuestionMatrixDynamicModel("q1");
+  question.addColumn("col1");
+  question.addColumn("col2");
+  question.addColumn("col3");
+  var survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdynamic",
+        name: "columns",
+        allowRowsDragAndDrop: true,
+        columns: [
+          { cellType: "text", name: "name" },
+          { cellType: "text", name: "title" },
+        ],
+      },
+    ],
+  });
+  var matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("columns");
+  survey.editingObj = question;
+
+  assert.equal(matrix.value.length, 3);
+  assert.equal(matrix.value[0].name, "col1");
+  assert.equal(matrix.value[1].name, "col2");
+  assert.equal(matrix.value[2].name, "col3");
+
+  matrix["moveRowByIndex"](0, 2);
+
+  assert.equal(matrix.value.length, 3);
+  assert.equal(matrix.value[0].name, "col2");
+  assert.equal(matrix.value[1].name, "col3");
+  assert.equal(matrix.value[2].name, "col1");
+});
 QUnit.test(
   "Edit columns in matrix, where there is no columns from the beginning",
   function(assert) {

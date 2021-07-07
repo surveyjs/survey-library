@@ -18,7 +18,6 @@ import { SurveyPanel } from "./panel";
 
 import { SurveyActionBar } from "./components/action-bar/action-bar";
 import { IActionBarItem } from "survey-core";
-import { dragDropTD } from "./drag-drop-td";
 import { ReactSurveyModel } from "./reactsurveymodel";
 
 export class SurveyQuestionMatrixDropdownBase extends SurveyQuestionElementBase {
@@ -75,7 +74,6 @@ export class SurveyQuestionMatrixDropdownBase extends SurveyQuestionElementBase 
     var table = this.question.renderedTable;
     if (!table.showHeader) return null;
     var headers: any[] = [];
-    var dragDropTH = this.question.allowRowsDragAndDrop ? <td /> : null;
     var cells = table.headerRow.cells;
     for (var i = 0; i < cells.length; i++) {
       var cell = cells[i];
@@ -101,7 +99,6 @@ export class SurveyQuestionMatrixDropdownBase extends SurveyQuestionElementBase 
     return (
       <thead>
         <tr>
-          {dragDropTH}
           {headers}
         </tr>
       </thead>
@@ -135,10 +132,6 @@ export class SurveyQuestionMatrixDropdownBase extends SurveyQuestionElementBase 
   ): JSX.Element {
     var matrixrow = [];
     var cells = row.cells;
-
-    matrixrow.push(
-      this.question.allowRowsDragAndDrop ? dragDropTD(this.question) : null
-    );
 
     for (var i = 0; i < cells.length; i++) {
       matrixrow.push(this.renderCell(cells[i], i, cssClasses));

@@ -1803,7 +1803,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     }
     return actions;
   }
-  private setDefaultRowActions(
+  protected setDefaultRowActions(
     row: MatrixDropdownRowModelBase,
     actions: Array<IActionBarItem>
   ) {
@@ -1818,6 +1818,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
         })
       );
     }
+
     if (row.hasPanel) {
       actions.push(
         new ActionBarItem({
@@ -2346,7 +2347,7 @@ export class QuestionMatrixDropdownModelBase
   private set renderedTableValue(val: QuestionMatrixDropdownRenderedTable) {
     this.setPropertyValue("renderedTable", val);
   }
-  private clearRowsAndResetRenderedTable() {
+  protected clearRowsAndResetRenderedTable() {
     this.clearGeneratedRows();
     this.resetRenderedTable();
     this.fireCallback(this.columnsChangedCallback);

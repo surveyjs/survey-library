@@ -3,6 +3,7 @@ import {
   MatrixDropdownRowModelBase,
   IMatrixDropdownData,
   MatrixDropdownColumn,
+  QuestionMatrixDropdownRenderedTable,
 } from "./question_matrixdropdownbase";
 import { Serializer } from "./jsonobject";
 import { QuestionFactory } from "./questionfactory";
@@ -15,6 +16,10 @@ import { Helpers } from "./helpers";
 import { settings } from "./settings";
 import { confirmAction } from "./utils/utils";
 import { LocalizableString } from "./localizablestring";
+import { ActionBarItem, IActionBarItem } from "./action-bar";
+import SortableLib from "sortablejs";
+
+const Sortable = <any>SortableLib;
 
 export class MatrixDynamicRowModel extends MatrixDropdownRowModelBase {
   constructor(public index: number, data: IMatrixDropdownData, value: any) {
@@ -64,10 +69,27 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
         this.updateShowTableAndAddRow();
       }
     );
+    this.registerFunctionOnPropertyValueChanged("allowRowsDragAndDrop", () => {
+      this.clearRowsAndResetRenderedTable();
+    });
   }
   public getType(): string {
     return "matrixdynamic";
   }
+
+  //cross framework initialization
+  public afterRenderQuestionElement(el: HTMLElement) {
+    if (!!el && this.allowRowsDragAndDrop) {
+      this.initSortable(el.querySelector("tbody"));
+    }
+    super.afterRenderQuestionElement(el);
+  }
+  //cross framework destroy
+  public beforeDestroyQuestionElement(el: HTMLElement) {
+    if (this.sortableInst) this.sortableInst.destroy();
+    super.beforeDestroyQuestionElement(el);
+  }
+
   public get isRowsDynamic(): boolean {
     return true;
   }
@@ -140,6 +162,20 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     }
     this.value = newValue;
   }
+  protected moveRowByIndex = (fromIndex: number, toIndex: number) => {
+    const value = this.createNewValue();
+
+    if (!value) return;
+
+    const movableRow = value[fromIndex];
+
+    if (!movableRow) return;
+
+    value.splice(fromIndex, 1);
+    value.splice(toIndex, 0, movableRow);
+
+    this.value = value;
+  };
   /**
    * The number of rows in the matrix.
    * @see minRowCount
@@ -148,6 +184,37 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   public get rowCount(): number {
     return this.rowCountValue;
   }
+  /**
+   * Set this property to true, to allow rows drag and drop.
+   */
+  public get allowRowsDragAndDrop(): boolean {
+    return this.getPropertyValue("allowRowsDragAndDrop");
+  }
+  public set allowRowsDragAndDrop(val: boolean) {
+    this.setPropertyValue("allowRowsDragAndDrop", val);
+  }
+  private initSortable(domNode: HTMLElement) {
+    if (!domNode) return;
+    if (this.isReadOnly) return;
+    const self = this;
+    self.domNode = domNode;
+
+    self.sortableInst = new Sortable(domNode, {
+      animation: 100,
+      forceFallback: true,
+      delay: 200,
+      delayOnTouchOnly: true,
+      handle: "tr",
+      onEnd(evt: any) {
+        self.moveRowByIndex(evt.oldDraggableIndex, evt.newDraggableIndex);
+      },
+    });
+  }
+
+  protected createRenderedTable(): QuestionMatrixDropdownRenderedTable {
+    return new QuestionMatrixDynamicRenderedTable(this);
+  }
+
   private get rowCountValue(): number {
     return this.getPropertyValue("rowCount", 2);
   }
@@ -730,6 +797,25 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   }
 }
 
+class QuestionMatrixDynamicRenderedTable extends QuestionMatrixDropdownRenderedTable {
+  protected setDefaultRowActions(
+    row: MatrixDropdownRowModelBase,
+    actions: Array<IActionBarItem>
+  ) {
+    super.setDefaultRowActions(row, actions);
+    if (this.matrix.allowRowsDragAndDrop) {
+      actions.push(
+        new ActionBarItem({
+          id: "drag-row",
+          location: "start",
+          component: "sv-matrix-drag-drop-icon",
+          data: { row: row, question: this.matrix },
+        })
+      );
+    }
+  }
+}
+
 Serializer.addClass(
   "matrixdynamic",
   [
@@ -776,6 +862,12 @@ Serializer.addClass(
       visibleIf: function(obj: any): boolean {
         return obj.detailPanelMode !== "none";
       },
+    },
+    {
+      name: "allowRowsDragAndDrop",
+      default: false,
+      visible: true,
+      isSerializable: false,
     },
   ],
   function() {

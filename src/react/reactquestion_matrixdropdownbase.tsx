@@ -10,14 +10,14 @@ import {
   QuestionMatrixDropdownRenderedRow,
   QuestionMatrixDropdownRenderedCell,
   MatrixDropdownCell,
+  AdaptiveActionContainer,
+  Question
 } from "survey-core";
-import { Question } from "survey-core";
 import { SurveyQuestionCheckboxItem } from "./reactquestion_checkbox";
 import { SurveyQuestionRadioItem } from "./reactquestion_radiogroup";
 import { SurveyPanel } from "./panel";
 
-import { SurveyActionBar } from "./components/action-bar/action-bar";
-import { IActionBarItem } from "survey-core";
+import { SurveyActionBarV2 } from "./components/action-bar/action-bar-v2";
 import { dragDropTD } from "./drag-drop-td";
 import { ReactSurveyModel } from "./reactsurveymodel";
 
@@ -211,7 +211,7 @@ export class SurveyQuestionMatrixDropdownBase extends SurveyQuestionElementBase 
     if (cell.isActionsCell) {
       cellContent = (
         <SurveyQuestionMatrixActionsCell
-          items={cell.item.getData()}
+          model={cell.item.getData()}
         ></SurveyQuestionMatrixActionsCell>
       );
     }
@@ -244,13 +244,12 @@ class SurveyQuestionMatrixActionsCell extends ReactSurveyElement {
   constructor(props: any) {
     super(props);
   }
-
-  get items(): Array<IActionBarItem> {
-    return this.props.items;
+  get model(): AdaptiveActionContainer {
+    return this.props.model;
   }
   protected renderElement(): JSX.Element {
     return (
-      <SurveyActionBar items={this.items} handleClick={false}></SurveyActionBar>
+      <SurveyActionBarV2 model={this.model} /*handleClick={false}*/></SurveyActionBarV2>
     );
   }
 }

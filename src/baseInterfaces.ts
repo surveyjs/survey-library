@@ -1,6 +1,5 @@
 import { ILocalizableOwner, LocalizableString } from "./localizablestring";
 import { HashTable } from "./helpers";
-import { IActionBarItem } from "./action-bar";
 import {
   MatrixDropdownRowModelBase,
   QuestionMatrixDropdownModelBase,
@@ -8,6 +7,7 @@ import {
 import { AdaptiveActionContainer } from "./actions/adaptive-container";
 import { SurveyError } from "./surveyError";
 import { Base } from "./base";
+import { IAction } from "./actions/action";
 
 export interface ISurveyData {
     getValue(name: string): any;
@@ -99,21 +99,21 @@ export interface ISurveyData {
     getUpdatedQuestionNo(question: IQuestion, no: string): string;
     getUpdatedQuestionTitleActions(
       question: IQuestion,
-      titleActions: Array<IActionBarItem>
-    ): Array<IActionBarItem>;
+      titleActions: Array<IAction>
+    ): Array<IAction>;
     getUpdatedPanelTitleActions(
       question: IPanel,
-      titleActions: Array<IActionBarItem>
-    ): Array<IActionBarItem>;
+      titleActions: Array<IAction>
+    ): Array<IAction>;
     getUpdatedPageTitleActions(
       question: IPage,
-      titleActions: Array<IActionBarItem>
-    ): Array<IActionBarItem>;
+      titleActions: Array<IAction>
+    ): Array<IAction>;
     getUpdatedMatrixRowActions(
       question: QuestionMatrixDropdownModelBase,
       row: MatrixDropdownRowModelBase,
-      actions: Array<IActionBarItem>
-    ): Array<IActionBarItem>;
+      actions: Array<IAction>
+    ): Array<IAction>;
     questionStartIndex: string;
     questionTitleLocation: string;
     questionDescriptionLocation: string;
@@ -223,7 +223,6 @@ export interface ISurveyData {
     delete(): any;
     toggleState(): void;
     stateChangedCallback(): void;
-    //getTitleActions(): Array<any>;
     getTitleToolbar(): AdaptiveActionContainer;
   }
   export interface IElement extends IConditionRunner, ISurveyElement {

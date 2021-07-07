@@ -39,9 +39,9 @@ import {
 } from "./expressionItems";
 import { ExpressionRunner, ConditionRunner } from "./conditions";
 import { settings } from "./settings";
-import { IActionBarItem } from "./action-bar";
 import { getSize, isMobile } from "./utils/utils";
 import { SurveyError } from "./surveyError";
+import { IAction } from "./actions/action";
 
 /**
  * The `Survey` object contains information about the survey, Pages, Questions, flow logic and etc.
@@ -3972,7 +3972,7 @@ export class SurveyModel extends Base
 
   getUpdatedQuestionTitleActions(
     question: IQuestion,
-    titleActions: Array<IActionBarItem>
+    titleActions: Array<IAction>
   ) {
     var options = {
       question: question,
@@ -3984,7 +3984,7 @@ export class SurveyModel extends Base
 
   getUpdatedPanelTitleActions(
     panel: IPanel,
-    titleActions: Array<IActionBarItem>
+    titleActions: Array<IAction>
   ) {
     var options = {
       panel: panel,
@@ -3994,7 +3994,7 @@ export class SurveyModel extends Base
     return options.titleActions;
   }
 
-  getUpdatedPageTitleActions(page: IPage, titleActions: Array<IActionBarItem>) {
+  getUpdatedPageTitleActions(page: IPage, titleActions: Array<IAction>) {
     var options = {
       page: page,
       titleActions: titleActions,
@@ -4006,7 +4006,7 @@ export class SurveyModel extends Base
   getUpdatedMatrixRowActions(
     question: IQuestion,
     row: any,
-    actions: Array<IActionBarItem>
+    actions: Array<IAction>
   ) {
     var options = {
       question: question,

@@ -38,6 +38,8 @@ import { KeyDuplicationError } from "./error";
 import { ActionBarItem, IActionBarItem } from "./action-bar";
 import { SurveyModel } from "./survey";
 import { SurveyError } from "./surveyError";
+import { Action, IAction } from "./actions/action";
+import { AdaptiveActionContainer } from "./actions/adaptive-container";
 
 export interface IMatrixDropdownData {
   value: any;
@@ -1442,7 +1444,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
   private headerRowValue: QuestionMatrixDropdownRenderedRow;
   private footerRowValue: QuestionMatrixDropdownRenderedRow;
   private hasRemoveRowsValue: boolean;
-  private rowsActions: Array<Array<IActionBarItem>>;
+  private rowsActions: Array<Array<IAction>>;
   private cssClasses: any;
   public constructor(public matrix: QuestionMatrixDropdownModelBase) {
     super();
@@ -1698,8 +1700,13 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
   private getRowActionsCell(rowIndex: number, location: "start" | "end") {
     const rowActions = this.getRowActions(rowIndex, location);
     if (!this.isValueEmpty(rowActions)) {
-      var cell = new QuestionMatrixDropdownRenderedCell();
-      var itemValue = new ItemValue(rowActions);
+      const cell = new QuestionMatrixDropdownRenderedCell();
+      const actionContainer = new AdaptiveActionContainer();
+      actionContainer.actions = rowActions.map(action => {
+        return action instanceof Action ? action : new Action(action);
+      });
+
+      const itemValue = new ItemValue(actionContainer);
       cell.item = itemValue;
       cell.isActionsCell = true;
       cell.className = this.cssClasses.actionsCell;
@@ -1720,8 +1727,8 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
   }
   private buildRowActions(
     row: MatrixDropdownRowModelBase
-  ): Array<IActionBarItem> {
-    var actions: Array<IActionBarItem> = [];
+  ): Array<IAction> {
+    var actions: Array<IAction> = [];
     this.setDefaultRowActions(row, actions);
     if (!!this.matrix.survey) {
       actions = this.matrix.survey.getUpdatedMatrixRowActions(
@@ -1734,11 +1741,11 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
   }
   private setDefaultRowActions(
     row: MatrixDropdownRowModelBase,
-    actions: Array<IActionBarItem>
+    actions: Array<IAction>
   ) {
     if (this.hasRemoveRows && this.canRemoveRow(row)) {
       actions.push(
-        new ActionBarItem({
+        new Action({
           id: "remove-row",
           location: "end",
           enabled: !this.matrix.isInputReadOnly,
@@ -1749,7 +1756,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     }
     if (row.hasPanel) {
       actions.push(
-        new ActionBarItem({
+        new Action({
           id: "show-detail",
           location: "start",
           component: "sv-matrix-detail-button",
@@ -1798,10 +1805,11 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     location: "start" | "end"
   ) {
     var rowIndex = this.matrix.visibleRows.indexOf(row);
-    const actions = this.getRowActionsCell(rowIndex, location);
     if (this.hasActionCellInRows(location)) {
-      if (!!actions) renderedRow.cells.push(actions);
-      else {
+      const actions = this.getRowActionsCell(rowIndex, location);
+      if (!!actions) {
+        renderedRow.cells.push(actions);
+      } else {
         var cell = new QuestionMatrixDropdownRenderedCell();
         cell.isEmpty = true;
         renderedRow.cells.push(cell);

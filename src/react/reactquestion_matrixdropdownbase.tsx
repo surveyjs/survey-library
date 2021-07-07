@@ -17,7 +17,7 @@ import { SurveyQuestionCheckboxItem } from "./reactquestion_checkbox";
 import { SurveyQuestionRadioItem } from "./reactquestion_radiogroup";
 import { SurveyPanel } from "./panel";
 
-import { SurveyActionBarV2 } from "./components/action-bar/action-bar-v2";
+import { SurveyActionBar } from "./components/action-bar/action-bar";
 import { dragDropTD } from "./drag-drop-td";
 import { ReactSurveyModel } from "./reactsurveymodel";
 
@@ -249,7 +249,7 @@ class SurveyQuestionMatrixActionsCell extends ReactSurveyElement {
   }
   protected renderElement(): JSX.Element {
     return (
-      <SurveyActionBarV2 model={this.model} handleClick={false}></SurveyActionBarV2>
+      <SurveyActionBar model={this.model} handleClick={false}></SurveyActionBar>
     );
   }
 }

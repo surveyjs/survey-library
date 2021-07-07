@@ -2,7 +2,7 @@ import React from "react";
 import { ISurveyElement, RendererFactory } from "survey-core";
 import { ReactElementFactory } from "../../element-factory";
 import { SurveyElementBase } from "../../reactquestion_element";
-import { SurveyActionBarV2 } from "../action-bar/action-bar-v2";
+import { SurveyActionBar } from "../action-bar/action-bar";
 import { TitleContent } from "../title-content/title-content";
 
 export class TitleActions extends React.Component<any, any> {
@@ -25,7 +25,7 @@ export class TitleActions extends React.Component<any, any> {
     return (
       <div className="sv-title-actions">
         <span className="sv-title-actions__title">{titleContent}</span>
-        <SurveyActionBarV2 model={this.element.getTitleToolbar()}></SurveyActionBarV2>
+        <SurveyActionBar model={this.element.getTitleToolbar()}></SurveyActionBar>
       </div>
     );
   }

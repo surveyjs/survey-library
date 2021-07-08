@@ -2316,6 +2316,9 @@ QUnit.test("question.clearIncorrectValues", function(assert) {
     [],
     "clear values, there is no these items in choices"
   );
+  qcheck.value = ["", 0, undefined, null];
+  qcheck.clearIncorrectValues();
+  assert.deepEqual(qcheck.value, [], "clear values, clear empty values");
 });
 
 QUnit.test("question.clearIncorrectValues and choicesByUrl", function(assert) {

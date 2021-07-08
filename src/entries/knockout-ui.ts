@@ -43,7 +43,10 @@ export {
   QuestionMultipleText,
 } from "../knockout/koquestion_multipletext";
 export { QuestionRadiogroup } from "../knockout/koquestion_radiogroup";
-export { QuestionRating, QuestionRatingImplementor } from "../knockout/koquestion_rating";
+export {
+  QuestionRating,
+  QuestionRatingImplementor,
+} from "../knockout/koquestion_rating";
 export { QuestionText } from "../knockout/koquestion_text";
 export { QuestionBoolean } from "../knockout/koquestion_boolean";
 export { QuestionEmpty } from "../knockout/koquestion_empty";
@@ -72,9 +75,9 @@ export * from "../knockout/components/logo-image/logo-image";
 export * from "../knockout/components/default-title/default-title";
 export * from "../knockout/components/list/list";
 export * from "../knockout/components/svg-icon/svg-icon";
-export * from "../knockout/components/drag-drop-td/drag-drop-td";
 export { SurveyQuestionMatrixDynamicRemoveButton } from "../knockout/components/matrix-actions/remove-button/remove-button";
 export { SurveyQuestionMatrixDetailButton } from "../knockout/components/matrix-actions/detail-button/detail-button";
+export { SurveyQuestionMatrixDynamicDragDropIcon } from "../knockout/components/matrix-actions/drag-drop-icon/drag-drop-icon";
 export { ButtonGroupItemViewModel } from "../knockout/components/button-group/button-group-item";
 //export * from "../utils/resonsibilitymanager";
 //export { unwrap } from "../utils/utils";

@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.8.55](https://github.com/surveyjs/survey-library/compare/v1.8.54...v1.8.55) (2021-07-07)
+
+
+### Bug Fixes
+
+* Expression with "anyof" with 0 can executed incorrectly [#3052](https://github.com/surveyjs/survey-library/issues/3052) ([dcd7d1c](https://github.com/surveyjs/survey-library/commit/dcd7d1cef878ef6538cecba7dae7804dc4ee85bc))
+
 ### [1.8.54](https://github.com/surveyjs/survey-library/compare/v1.8.53...v1.8.54) (2021-06-30)
 
 

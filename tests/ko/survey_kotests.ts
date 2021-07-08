@@ -24,6 +24,7 @@ import { JsonObject, Serializer } from "../../src/jsonobject";
 import { SurveyTimer } from "../../src/surveytimer";
 import { QuestionBoolean } from "../../src/knockout/koquestion_boolean";
 import * as ko from "knockout";
+import { ItemValue } from "../../src/itemvalue";
 
 export default QUnit.module("koTests");
 
@@ -2289,6 +2290,49 @@ QUnit.test(
       matrix.renderedTable.headerRow.cells[2].locTitle.koRenderedHtml(),
       "col3",
       "Title rendered from columns.push"
+    );
+  }
+);
+QUnit.test(
+  "MatrixDynamic, test renderedTable column locString for checkbox question",
+  function(assert) {
+    var survey = new Survey({
+      elements: [
+        {
+          type: "matrixdynamic",
+          name: "matrix",
+          columns: [{ name: "col1", cellType: "checkbox" }],
+        },
+      ],
+    });
+    var matrix: any = <any>survey.getQuestionByName("matrix");
+    var templateColum = matrix.columns[0].templateQuestion;
+    templateColum.choices.push(new ItemValue("item1"));
+    templateColum.choices.push(new ItemValue("item2"));
+    var question = matrix.renderedTable.rows[0].cells[0].question;
+    assert.equal(question.visibleChoices.length, 2, "There are two items");
+    assert.equal(
+      question.visibleChoices[0].locText.koRenderedHtml(),
+      "item1",
+      "text is corrert after push, item1"
+    );
+    assert.equal(
+      question.visibleChoices[1].locText.koRenderedHtml(),
+      "item2",
+      "text is corrert after push, item2"
+    );
+    templateColum.choices.push(new ItemValue("item3"));
+    question = matrix.renderedTable.rows[0].cells[0].question;
+    assert.equal(question.visibleChoices.length, 3, "There are 3 items");
+    assert.equal(
+      question.visibleChoices[0].locText.koRenderedHtml(),
+      "item1",
+      "text is corrert after push, item1, #2"
+    );
+    assert.equal(
+      question.visibleChoices[2].locText.koRenderedHtml(),
+      "item3",
+      "text is corrert after push, item3, #2"
     );
   }
 );

@@ -4960,6 +4960,48 @@ QUnit.test("getProgressInfo", function(assert) {
   });
 });
 
+QUnit.test(
+  "Change item value in column/templateQuestion and change it in row questions",
+  function(assert) {
+    var matrix = new QuestionMatrixDynamicModel("q1");
+    var column = matrix.addColumn("col1");
+    column.cellType = "checkbox";
+    column.templateQuestion.choices.push(new ItemValue("item1"));
+    column.templateQuestion.choices.push(new ItemValue("item2"));
+    var cellQuestion = matrix.visibleRows[0].cells[0].question;
+    assert.equal(cellQuestion.choices.length, 2, "There are two choices");
+    assert.equal(
+      cellQuestion.choices[0].value,
+      "item1",
+      "Value is correct, choice1"
+    );
+    assert.equal(
+      cellQuestion.choices[1].value,
+      "item2",
+      "Value is correct, choice2"
+    );
+    column.templateQuestion.choices.push(new ItemValue("item3"));
+    assert.equal(cellQuestion.choices.length, 3, "There are three choices");
+    assert.equal(
+      cellQuestion.choices[2].value,
+      "item3",
+      "Value is correct, choice3"
+    );
+    column.templateQuestion.choices[0].value = "newItem1";
+    assert.equal(
+      cellQuestion.choices[0].value,
+      "newItem1",
+      "Value is correct, updated, choice1"
+    );
+    column.templateQuestion.choices[2].text = "Item3 text";
+    assert.equal(
+      cellQuestion.choices[2].text,
+      "Item3 text",
+      "Text is correct, updated, choice3"
+    );
+  }
+);
+
 QUnit.test("isAnswered on setitting from survey.setValue(), Bug#2399", function(
   assert
 ) {
@@ -6163,6 +6205,67 @@ QUnit.test("Row actions, check getUpdatedMatrixRowActions", function(assert) {
     survey.getUpdatedMatrixRowActions(matrix, matrix.visibleRows[0], actions),
     expectedActions
   );
+});
+
+QUnit.test("Row actions, drag action", function(assert) {
+  var survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdynamic",
+        allowRowsDragAndDrop: true,
+        name: "matrix",
+        choices: [
+          {
+            value: 1,
+            text: "Yes",
+          },
+          {
+            value: 0,
+            text: "Sometimes",
+          },
+          {
+            value: -1,
+            text: "No",
+          },
+        ],
+        columns: [
+          {
+            name: "subject",
+            cellType: "dropdown",
+            title: "Select a subject",
+            isRequired: true,
+            minWidth: "300px",
+            choices: [
+              "English: American Literature",
+              "English: British and World Literature",
+            ],
+          },
+          {
+            name: "explains",
+            title: "Clearly explains the objectives",
+          },
+        ],
+        rowCount: 2,
+      },
+    ],
+  });
+
+  var matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+
+  assert.deepEqual(matrix.renderedTable["rowsActions"][0][1].id, "drag-row");
+
+  matrix.allowRowsDragAndDrop = false;
+  assert.deepEqual(matrix.renderedTable["rowsActions"][0].length, 1);
+
+  matrix.allowRowsDragAndDrop = true;
+  assert.deepEqual(matrix.renderedTable["rowsActions"][0].length, 2);
+});
+
+QUnit.test("moveRowByIndex test", function (assert) {
+  var matrixD = new QuestionMatrixDynamicModel("q1");
+  matrixD.value = [{v1: "v1"}, {v2: "v2"}];
+  matrixD["moveRowByIndex"](1, 0);
+  assert.deepEqual(matrixD.value, [{v2: "v2"}, {v1: "v1"}]);
 });
 
 QUnit.test("Row actions, rendered table and className", function(assert) {

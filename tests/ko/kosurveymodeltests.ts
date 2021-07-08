@@ -38,11 +38,11 @@ QUnit.test("Deserialize rate widget, custom rateValues", function(assert) {
             {
               type: "rating",
               name: "question7",
-              rateValues: [{ value: "1", text: "A" }, "B", "C", "D"]
-            }
-          ]
-        }
-      ]
+              rateValues: [{ value: "1", text: "A" }, "B", "C", "D"],
+            },
+          ],
+        },
+      ],
     },
     survey
   );
@@ -60,8 +60,8 @@ QUnit.test("Create rows", function(assert) {
     {
       questions: [
         { type: "text", name: "q1" },
-        { type: "text", name: "q2" }
-      ]
+        { type: "text", name: "q2" },
+      ],
     },
     survey
   );
@@ -107,9 +107,9 @@ QUnit.test(
           type: "checkbox",
           name: "q1",
           hasNone: true,
-          choices: [1, 2, 3, 4, 5]
-        }
-      ]
+          choices: [1, 2, 3, 4, 5],
+        },
+      ],
     };
     var survey = new Survey(json);
     var q = <QuestionCheckbox>survey.getQuestionByName("q1");
@@ -136,9 +136,9 @@ QUnit.test(
           type: "checkbox",
           name: "q1",
           hasNone: true,
-          choices: [1, 2, 3, 4, 5]
-        }
-      ]
+          choices: [1, 2, 3, 4, 5],
+        },
+      ],
     };
     var survey = new Survey(json);
     var q = <QuestionCheckbox>survey.getQuestionByName("q1");
@@ -167,7 +167,7 @@ QUnit.test(
             {
               type: "html",
               name: "question5",
-              html: "Page 1"
+              html: "Page 1",
             },
             {
               type: "radiogroup",
@@ -176,16 +176,16 @@ QUnit.test(
               choices: [
                 {
                   value: "item1",
-                  text: "Goto Page 3"
+                  text: "Goto Page 3",
                 },
                 {
                   value: "item2",
-                  text: "Goto Page 2 (Hide Page 1)"
-                }
-              ]
-            }
+                  text: "Goto Page 2 (Hide Page 1)",
+                },
+              ],
+            },
           ],
-          visibleIf: "{question1} <> 'item2'"
+          visibleIf: "{question1} <> 'item2'",
         },
         {
           name: "page2",
@@ -193,10 +193,10 @@ QUnit.test(
             {
               type: "html",
               name: "question2",
-              html: "Page 2"
-            }
+              html: "Page 2",
+            },
           ],
-          visibleIf: "{question1} = 'item2'"
+          visibleIf: "{question1} = 'item2'",
         },
         {
           name: "page3",
@@ -204,11 +204,11 @@ QUnit.test(
             {
               type: "html",
               name: "question3",
-              html: "Page 3"
-            }
-          ]
-        }
-      ]
+              html: "Page 3",
+            },
+          ],
+        },
+      ],
     });
     assert.equal(survey.currentPage.name, "page1", "The first page is showing");
     survey.getQuestionByName("question1").value = "item2";

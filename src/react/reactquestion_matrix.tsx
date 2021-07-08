@@ -7,7 +7,6 @@ import { QuestionMatrixModel } from "survey-core";
 import { MatrixRowModel } from "survey-core";
 import { ReactQuestionFactory } from "./reactquestion_factory";
 import { Helpers } from "survey-core";
-import { dragDropTD as getDragDropTD } from "./drag-drop-td";
 import { ReactSurveyModel } from "./reactsurveymodel";
 
 export class SurveyQuestionMatrix extends SurveyQuestionElementBase {
@@ -36,7 +35,6 @@ export class SurveyQuestionMatrix extends SurveyQuestionElementBase {
 
   protected renderElement(): JSX.Element {
     var cssClasses = this.question.cssClasses;
-    var dragDropTH = this.question.allowRowsDragAndDrop ? <td /> : null;
     var rowsTH = this.question.hasRows ? <td /> : null;
     var headers = [];
     for (var i = 0; i < this.question.visibleColumns.length; i++) {
@@ -68,7 +66,6 @@ export class SurveyQuestionMatrix extends SurveyQuestionElementBase {
     var header = !this.question.showHeader ? null : (
       <thead>
         <tr>
-          {dragDropTH}
           {rowsTH}
           {headers}
         </tr>
@@ -121,12 +118,8 @@ export class SurveyQuestionMatrixRow extends ReactSurveyElement {
     return !!this.row;
   }
   protected renderElement(): JSX.Element {
-    var dragDropTD = null;
     var rowsTD = null;
 
-    if (this.question.allowRowsDragAndDrop) {
-      dragDropTD = getDragDropTD(this.question);
-    }
     if (this.question.hasRows) {
       var rowText = this.renderLocString(this.row.locText);
       rowsTD = <td className={this.question.cssClasses.cell}>
@@ -137,7 +130,6 @@ export class SurveyQuestionMatrixRow extends ReactSurveyElement {
     var tds = this.generateTds();
     return (
       <tr className={this.row.rowClasses}>
-        {dragDropTD}
         {rowsTD}
         {tds}
       </tr>

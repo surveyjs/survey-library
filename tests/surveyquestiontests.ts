@@ -990,6 +990,10 @@ QUnit.test("Validators for other values - checkbox, Bug #722", function(
     true,
     "There should be at least 2 values selected"
   );
+  question.value = [];
+  assert.equal(question.hasErrors(), false, "We do not check the empty array");
+  question.value = undefined;
+  assert.equal(question.hasErrors(), false, "We do not check the empty value");
 });
 QUnit.test(
   "other values in choices, hasOther=false, Bug(Editor) #242",

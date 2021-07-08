@@ -8,6 +8,7 @@
     "
   >
     <li
+      v-show="item.visible === undefined || item.visible"
       class="sv-list__item"
       v-for="item in model.items"
       :key="item.id"

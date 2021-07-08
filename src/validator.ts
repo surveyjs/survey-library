@@ -315,6 +315,7 @@ export class AnswerCountValidator extends SurveyValidator {
   ): ValidatorResult {
     if (value == null || value.constructor != Array) return null;
     var count = value.length;
+    if (count == 0) return null;
     if (this.minCount && count < this.minCount) {
       return new ValidatorResult(
         null,

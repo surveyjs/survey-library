@@ -1846,6 +1846,20 @@ export class PanelModel extends PanelModelBase
     if (!this.hasEditButton) return;
     this.survey.cancelPreviewByPage(this);
   }
+  public get cssTitle(): string {
+    var result = this.cssClasses.panel.title;
+    if (this.state !== "default") {
+      result += " " + this.cssClasses.panel.titleExpandable;
+    }
+    if (this.containsErrors) {
+      result += " " + this.cssClasses.panel.titleOnError;
+    }
+    return result;
+  }
+  public get cssError(): string {
+    var rootClass = this.cssClasses.error.root;
+    return rootClass ? rootClass : "panel-error-root";
+  }
   protected onVisibleChanged() {
     super.onVisibleChanged();
     this.notifySurveyOnVisibilityChanged();

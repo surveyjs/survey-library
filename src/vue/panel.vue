@@ -4,7 +4,11 @@
     :class="question.cssClasses.panel.container"
     :style="rootStyle"
   >
-    <h4 v-show="hasTitle" :class="getTitleStyle()" v-on:click="changeExpanded">
+    <h4
+      v-show="hasTitle"
+      :class="question.cssTitle"
+      v-on:click="changeExpanded"
+    >
       <span v-if="question.isRequireTextOnStart" :class="requiredTextCss">{{
         question.requiredText
       }}</span>
@@ -132,17 +136,6 @@ export class Panel extends BaseVue {
   cancelPreview() {
     this.question.cancelPreview();
   }
-  getTitleStyle() {
-    var result = this.css.panel.title;
-    if (this.question.isCollapsed || this.question.isExpanded) {
-      result += " " + this.css.panel.titleExpandable;
-    }
-    if (this.question.containsErrors) {
-      result += " " + this.question.cssClasses.panel.titleOnError;
-    }
-    return result;
-  }
-
   get requiredTextCss() {
     return (
       this.question.cssClasses.requiredText ||

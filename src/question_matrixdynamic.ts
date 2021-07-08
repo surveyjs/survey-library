@@ -8,7 +8,7 @@ import {
 import { Serializer } from "./jsonobject";
 import { QuestionFactory } from "./questionfactory";
 import { surveyLocalization } from "./surveyStrings";
-import { SurveyError } from "./base";
+import { SurveyError } from "./survey-error";
 import { Question } from "./question";
 import { MinRowCountError } from "./error";
 import { IConditionObject } from "./question";
@@ -16,8 +16,8 @@ import { Helpers } from "./helpers";
 import { settings } from "./settings";
 import { confirmAction } from "./utils/utils";
 import { LocalizableString } from "./localizablestring";
-import { ActionBarItem, IActionBarItem } from "./action-bar";
 import SortableLib from "sortablejs";
+import { Action, IAction } from "./actions/action";
 
 const Sortable = <any>SortableLib;
 
@@ -800,12 +800,12 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
 class QuestionMatrixDynamicRenderedTable extends QuestionMatrixDropdownRenderedTable {
   protected setDefaultRowActions(
     row: MatrixDropdownRowModelBase,
-    actions: Array<IActionBarItem>
+    actions: Array<IAction>
   ) {
     super.setDefaultRowActions(row, actions);
     if (this.matrix.allowRowsDragAndDrop) {
       actions.push(
-        new ActionBarItem({
+        new Action({
           id: "drag-row",
           location: "start",
           component: "sv-matrix-drag-drop-icon",

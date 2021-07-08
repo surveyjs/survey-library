@@ -7,7 +7,8 @@ import {
 } from "./jsonobject";
 import { Helpers } from "./helpers";
 import { ConditionRunner } from "./conditions";
-import { Base, ISurvey } from "./base";
+import { Base } from "./base";
+import { ISurvey } from "./base-interfaces";
 import { settings } from "./settings";
 
 /**

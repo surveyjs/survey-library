@@ -4,7 +4,7 @@ import { Question } from "./question";
 import { LocalizableString, LocalizableStrings } from "./localizablestring";
 import { Helpers, HashTable } from "./helpers";
 import { EmailValidator, SurveyValidator } from "./validator";
-import { SurveyError } from "./base";
+import { SurveyError } from "./survey-error";
 import { surveyLocalization } from "./surveyStrings";
 import { CustomError } from "./error";
 import { settings } from "./settings";

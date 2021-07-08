@@ -1,9 +1,10 @@
 import { Question } from "./question";
 import { Serializer } from "./jsonobject";
 import { QuestionFactory } from "./questionfactory";
-import { SurveyError, EventBase } from "./base";
+import { EventBase } from "./base";
 import { UploadingFileError, ExceedSizeError } from "./error";
 import { surveyLocalization } from "./surveyStrings";
+import { SurveyError } from "./survey-error";
 
 /**
  * A Model for a file question

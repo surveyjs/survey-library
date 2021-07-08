@@ -1,4 +1,5 @@
-import { ITextProcessor, SurveyElement, Base, ArrayChanges } from "../src/base";
+import { Base, ArrayChanges } from "../src/base";
+import { ITextProcessor } from "../src/base-interfaces";
 import { SurveyModel } from "../src/survey";
 import { Question } from "../src/question";
 import { ChoicesRestful } from "../src/choicesRestful";

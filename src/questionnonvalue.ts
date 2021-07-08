@@ -1,6 +1,6 @@
 import { Question, IConditionObject } from "./question";
 import { Serializer } from "./jsonobject";
-import { SurveyError } from "./base";
+import { SurveyError } from "./survey-error";
 
 /**
  * A Model for non value question. This question doesn't add any new functionality. It hides some properties, including the value.

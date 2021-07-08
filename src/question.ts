@@ -1,20 +1,18 @@
 import { HashTable, Helpers } from "./helpers";
 import { JsonObject, Serializer, property } from "./jsonobject";
+import { Base, EventBase } from "./base";
 import {
-  SurveyError,
-  SurveyElement,
   IElement,
   IQuestion,
   IPanel,
   IConditionRunner,
   ISurveyImpl,
   IPage,
-  EventBase,
   ITitleOwner,
   IProgressInfo,
-  Base,
   ISurvey,
-} from "./base";
+} from "./base-interfaces";
+import { SurveyElement } from "./survey-element";
 import { surveyLocalization } from "./surveyStrings";
 import { AnswerRequiredError, CustomError } from "./error";
 import { SurveyValidator, IValidatorOwner, ValidatorRunner } from "./validator";
@@ -27,6 +25,7 @@ import { settings } from "./settings";
 import { SurveyModel } from "./survey";
 import { PanelModel } from "./panel";
 import { RendererFactory } from "./rendererFactory";
+import { SurveyError } from "./survey-error";
 
 export interface IConditionObject {
   name: string;

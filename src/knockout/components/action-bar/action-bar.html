@@ -1,25 +1,11 @@
-<!-- ko if: hasItems-->
+<!-- ko if: model.hasItems -->
 <div
   class="sv-action-bar"
   data-bind="click: handleClick ? function() { return true; } : undefined, clickBubble: handleClick ? false : undefined"
 >
-  <!-- ko foreach: items -->
-  <span
-    class="sv-action"
-    data-bind="css: { 'sv-action--hidden': !isVisible }, class: $data.css, attr: { id: $data.id }, visible: $data.visible === undefined || $data.visible"
-  >
-    <!-- ko if: $data.needSeparator -->
-    <sv-action-bar-separator></sv-action-bar-separator>
-    <!-- /ko -->
-    <!-- ko ifnot: $data.template-->
-    <!-- ko component: { name: $data.component || 'sv-action-bar-item', params: { item: $data } } -->
-    <!-- /ko -->
-    <!-- /ko -->
-    <!-- ko if: $data.template  -->
-    <!-- ko template: { name: $data.template, data: $data.data || $data } -->
-    <!-- /ko -->
-    <!-- /ko -->
-  </span>
+  <!-- ko foreach: model.actions -->
+  <!-- ko component: { name: 'sv-action', params: { item: $data } } -->
+  <!-- /ko -->
   <!--/ko-->
 </div>
 <!--/ko-->

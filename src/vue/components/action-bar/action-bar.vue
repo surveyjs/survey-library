@@ -1,59 +1,42 @@
 <template>
   <div
-    v-if="hasItems"
+    v-if="model.hasItems"
     ref="container"
     class="sv-action-bar"
     v-on:click="
-      event => {
+      (event) => {
         event.stopPropagation();
       }
     "
   >
-    <span
-      class="sv-action"
-      v-bind:class="{ 'sv-action--hidden': !item.isVisible }"
-      v-for="item in wrappedItems"
-      :key="item.id"
-      v-show="item.visible || item.visible === undefined"
-    >
-      <sv-action-bar-separator
-        v-if="item.needSeparator"
-      ></sv-action-bar-separator>
-      <component :is="getComponentName(item)" :item="item"> </component>
-    </span>
+    <sv-action
+      v-for="item in model.actions"
+      v-bind:key="item.id"
+      :item="item"
+    ></sv-action>
   </div>
 </template>
 
 <script lang="ts">
 import { Component, Prop } from "vue-property-decorator";
 import Vue from "vue";
-import { ActionBar, IActionBarItem, AdaptiveActionBarItemWrapper } from "survey-core";
+import { AdaptiveActionContainer } from "survey-core";
+import { BaseVue } from "src/vue/base";
 
+export * from "./action.vue";
 export * from "./action-bar-item.vue";
 export * from "./action-bar-item-dropdown.vue";
 export * from "./action-bar-separator.vue";
 
 @Component
-export class ActionBarViewModel extends Vue {
-  @Prop() items: Array<IActionBarItem>;
+export class ActionBarViewModel extends BaseVue {
+  @Prop() model: AdaptiveActionContainer;
   @Prop() handleClick: boolean;
-  private model = new ActionBar();
-
-  constructor() {
-    super();
-    this.model.setItems(this.items);
+  constructor(props: any) {
+    super(props);
   }
-
-  get wrappedItems(): AdaptiveActionBarItemWrapper[] {
-    return this.model.items;
-  }
-
-  getComponentName(item: any) {
-    return item.component || "sv-action-bar-item";
-  }
-
-  get hasItems() {
-    return (this.model.items || []).length > 0;
+  getModel() {
+    return this.model;
   }
 }
 

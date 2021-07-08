@@ -1,17 +1,17 @@
 import { HashTable, Helpers } from "./helpers";
+import { Base } from "./base";
+
 import {
   IElement,
   IQuestion,
-  Base,
   IPanel,
-  SurveyError,
   ISurveyData,
   ISurvey,
   ISurveyImpl,
   ITextProcessor,
   IProgressInfo,
-  SurveyElement,
-} from "./base";
+} from "./base-interfaces";
+import { SurveyElement } from "./survey-element";
 import { surveyLocalization } from "./surveyStrings";
 import { LocalizableString } from "./localizablestring";
 import {
@@ -26,6 +26,7 @@ import { KeyDuplicationError } from "./error";
 import { settings } from "./settings";
 import { Panel } from "./knockout/kopage";
 import { confirmAction } from "./utils/utils";
+import { SurveyError } from "./survey-error";
 
 export interface IQuestionPanelDynamicData {
   getItemIndex(item: ISurveyData): number;

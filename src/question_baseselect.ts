@@ -1,5 +1,6 @@
 import { Serializer } from "./jsonobject";
-import { SurveyError, ISurveyImpl, ISurvey } from "./base";
+import { SurveyError } from "./survey-error";
+import { ISurveyImpl, ISurvey } from "./base-interfaces";
 import { SurveyModel } from "./survey";
 import { Question } from "./question";
 import { ItemValue } from "./itemvalue";

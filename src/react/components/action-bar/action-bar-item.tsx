@@ -1,21 +1,24 @@
 import React from "react";
 import { AdaptiveActionBarItemWrapper } from "survey-core";
-import { Base } from "survey-core";
+import { Base, Action } from "survey-core";
 import { ReactElementFactory } from "../../element-factory";
 import { SurveyElementBase } from "../../reactquestion_element";
 import { SvgIcon } from "../svg-icon/svg-icon";
 import { SurveyActionBarSeparator } from "./action-bar-separator";
 
 interface IActionBarItemProps {
-  item: AdaptiveActionBarItemWrapper;
+  item: Action;
 }
 
-export class SurveyAction extends SurveyElementBase<IActionBarItemProps, any> {
+export class SurveyAction extends SurveyElementBase<
+  IActionBarItemProps,
+  any
+> {
   get item() {
     return this.props.item;
   }
-  protected getStateElements(): Base[] {
-    return [this.item, this.item.stateItem];
+  protected getStateElement(): Base {
+    return this.item;
   }
 
   render() {
@@ -46,11 +49,11 @@ export class SurveyActionBarItem extends SurveyElementBase<
   IActionBarItemProps,
   any
 > {
-  get item(): AdaptiveActionBarItemWrapper {
+  get item(): Action {
     return this.props.item;
   }
-  protected getStateElements(): Base[] {
-    return [this.item, this.item.stateItem];
+  protected getStateElement(): Base {
+    return this.item;
   }
 
   render() {
@@ -58,11 +61,7 @@ export class SurveyActionBarItem extends SurveyElementBase<
   }
 
   renderText() {
-    if (
-      (this.item.showTitle === undefined ||
-      this.item.showTitle ||
-      !this.item.iconName) && !!this.item.title 
-    ) {
+    if (this.item.hasTitle) {
       var titleClass =
         "sv-action-bar-item__title " +
         (!!this.item.iconName ? "sv-action-bar-item__title--with-icon" : "");
@@ -93,12 +92,11 @@ export class SurveyActionBarItem extends SurveyElementBase<
       this.item.innerCss +
       (this.item.active ? " sv-action-bar-item--active" : "");
     const title = this.item.tooltip || this.item.title;
-    const isDisabled = this.item.enabled !== undefined && !this.item.enabled;
     const buttonContent = this.renderButtonContent();
     const button = (
       <button
         className={className}
-        disabled={isDisabled}
+        disabled={this.item.disabled}
         onClick={() => this.item.action(this.item)}
         title={title}
       >
@@ -110,6 +108,9 @@ export class SurveyActionBarItem extends SurveyElementBase<
   }
 }
 
-ReactElementFactory.Instance.registerElement("sv-action-bar-item", (props) => {
-  return React.createElement(SurveyActionBarItem, props);
-});
+ReactElementFactory.Instance.registerElement(
+  "sv-action-bar-item",
+  (props) => {
+    return React.createElement(SurveyActionBarItem, props);
+  }
+);

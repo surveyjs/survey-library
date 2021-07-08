@@ -1,5 +1,6 @@
 import { HashTable, Helpers } from "./helpers";
-import { Base, ISurvey, ISurveyData } from "./base";
+import { Base } from "./base";
+import { ISurvey, ISurveyData } from "./base-interfaces";
 import { ExpressionRunner } from "./conditions";
 import { Serializer } from "./jsonobject";
 

@@ -1,37 +1,37 @@
 import React from "react";
 import {
-  AdaptiveActionBarItemWrapper,
-  ActionBar,
-  IActionBarItem,
   Base,
   ResponsivityManager,
+  Action,
+  ActionContainer
 } from "survey-core";
 import { ReactElementFactory } from "../../element-factory";
 import { SurveyElementBase } from "../../reactquestion_element";
 import { SurveyAction } from "./action-bar-item";
 
-export * from "./action-bar-item";
 export * from "./action-bar-item-dropdown";
 export * from "./action-bar-separator";
 
 interface IActionBarProps {
-  items: Array<IActionBarItem>;
+  model: ActionContainer<Action>;
   handleClick?: boolean;
 }
 
 export class SurveyActionBar extends SurveyElementBase<IActionBarProps, any> {
-  private model = new ActionBar();
   private manager: ResponsivityManager;
   private rootRef: React.RefObject<HTMLDivElement>;
 
   constructor(props: IActionBarProps) {
     super(props);
     this.rootRef = React.createRef();
-    this.model.setItems(this.props.items);
   }
 
   private get handleClick() {
     return this.props.handleClick !== undefined ? this.props.handleClick : true;
+  }
+
+  get model() {
+    return this.props.model;
   }
 
   componentDidMount() {
@@ -40,18 +40,13 @@ export class SurveyActionBar extends SurveyElementBase<IActionBarProps, any> {
     const container: HTMLDivElement = this.rootRef.current;
     this.manager = new ResponsivityManager(
       container,
-      this.model,
+      (this.model as any),
       "span.sv-action:not(.sv-dots)"
     );
   }
   componentWillUnmount() {
     this.manager && this.manager.dispose();
     super.componentWillUnmount();
-  }
-  componentDidUpdate(prevProps: any) {
-    if(prevProps.items !== this.props.items){
-      this.model.setItems(this.props.items);
-    }
   }
 
   protected getStateElement(): Base {
@@ -74,12 +69,12 @@ export class SurveyActionBar extends SurveyElementBase<IActionBarProps, any> {
   }
 
   get hasItems(): boolean {
-    return (this.model.items || []).length > 0;
+    return (this.model.actions || []).length > 0;
   }
 
   renderItems() {
-    return this.model.items.map(
-      (item: AdaptiveActionBarItemWrapper, itemIndex: number) => {
+    return this.model.actions.map(
+      (item: Action, itemIndex: number) => {
         if (!item.visible && item.visible !== undefined) {
           return null;
         }

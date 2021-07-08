@@ -22,7 +22,8 @@ import { QuestionExpressionModel } from "../src/question_expression";
 import { settings } from "../src/settings";
 import { PanelModel } from "../src/panel";
 import { QuestionTextModel } from "../src/question_text";
-import { SurveyElement } from "../src/base";
+import { SurveyElement } from "../src/survey-element";
+import { Action } from "../src/actions/action";
 
 export default QUnit.module("Survey_QuestionMatrixDynamic");
 
@@ -6296,10 +6297,15 @@ QUnit.test("Row actions, rendered table and className", function(assert) {
     "sv_matrix_cell sv_matrix_cell_actions",
     "Actions cell css"
   );
-  assert.deepEqual(
-    rows[0].cells[0].item.getData(),
-    [{ title: "Action 1", location: "start" }],
-    "location: left row actions"
+  const leftActions = rows[0].cells[0].item.getData().actions;
+  assert.ok(leftActions.length === 1, "left actions count: 1");
+  assert.ok(
+    leftActions[0].title === "Action 1",
+    "action 1 in left actions cell"
+  );
+  assert.ok(
+    leftActions[0] instanceof Action,
+    "actions in cell are instances of Action"
   );
   assert.equal(rows[0].cells[1].className, "sv_matrix_cell", "text cell");
   assert.equal(rows[0].cells[1].className, "sv_matrix_cell", "ordinary cell");
@@ -6308,10 +6314,15 @@ QUnit.test("Row actions, rendered table and className", function(assert) {
     "sv_matrix_cell sv_matrix_cell_actions",
     "Actions cell css"
   );
-  assert.deepEqual(
-    rows[0].cells[3].item.getData(),
-    [{ title: "Action 2", location: "end" }],
-    "location: right row actions"
+  const rightActions = rows[0].cells[3].item.getData().actions;
+  assert.ok(rightActions.length === 1, "right actions count: 1");
+  assert.ok(
+    rightActions[0].title === "Action 2",
+    "action 2 in right actions cell"
+  );
+  assert.ok(
+    rightActions[0] instanceof Action,
+    "actions in cell are instances of Action"
   );
 });
 QUnit.test("onGetMatrixRowActions should be called 1 time", function(assert) {

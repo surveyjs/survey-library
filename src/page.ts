@@ -1,6 +1,6 @@
 import { Serializer } from "./jsonobject";
 import { Helpers } from "./helpers";
-import { IPage, IPanel, IElement, ISurveyElement, IQuestion } from "./base";
+import { IPage, IPanel, IElement, ISurveyElement, IQuestion } from "./base-interfaces";
 import { DragDropInfo, PanelModelBase, QuestionRowModel } from "./panel";
 import { LocalizableString } from "./localizablestring";
 /**

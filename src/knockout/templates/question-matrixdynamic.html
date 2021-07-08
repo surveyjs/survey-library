@@ -44,7 +44,7 @@
             <!-- ko foreach: $data.cells -->
             <!-- ko if: $data.isActionsCell -->
             <td data-bind="css:$data.className, attr: {colspan: $data.colSpans}">
-              <!-- ko component: { name: 'sv-action-bar', params: { items: $data.item.getData(), handleClick: false }} -->
+              <!-- ko component: { name: 'sv-action-bar', params: { model: $data.item.getData(), handleClick: false }} -->
               <!-- /ko -->
             </td>
             <!-- /ko -->

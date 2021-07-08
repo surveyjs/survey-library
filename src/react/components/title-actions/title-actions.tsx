@@ -25,7 +25,7 @@ export class TitleActions extends React.Component<any, any> {
     return (
       <div className="sv-title-actions">
         <span className="sv-title-actions__title">{titleContent}</span>
-        <SurveyActionBar items={this.element.getTitleActions()}></SurveyActionBar>
+        <SurveyActionBar model={this.element.getTitleToolbar()}></SurveyActionBar>
       </div>
     );
   }

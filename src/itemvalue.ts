@@ -8,7 +8,7 @@ import {
 import { Helpers } from "./helpers";
 import { ConditionRunner } from "./conditions";
 import { Base } from "./base";
-import { ISurvey } from "./baseInterfaces";
+import { ISurvey } from "./base-interfaces";
 import { settings } from "./settings";
 
 /**

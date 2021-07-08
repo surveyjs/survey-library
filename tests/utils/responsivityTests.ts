@@ -2,7 +2,7 @@ import {
   AdaptiveActionBarItemWrapper,
   AdaptiveElement,
 } from "../../src/action-bar";
-import { ResponsivityManager } from "../../src/utils/responsivitymanager";
+import { ResponsivityManager } from "../../src/utils/responsivity-manager";
 
 export default QUnit.module("ResponsivityManager");
 

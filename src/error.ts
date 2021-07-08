@@ -1,6 +1,6 @@
 import { surveyLocalization } from "./surveyStrings";
-import { SurveyError } from "./surveyError";
-import { ISurveyErrorOwner } from "./baseInterfaces";
+import { SurveyError } from "./survey-error";
+import { ISurveyErrorOwner } from "./base-interfaces";
 
 export class AnswerRequiredError extends SurveyError {
   constructor(

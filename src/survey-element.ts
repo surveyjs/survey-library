@@ -14,8 +14,8 @@ import {
   ISurveyData,
   ISurveyImpl,
   ITextProcessor,
-} from "./baseInterfaces";
-import { SurveyError } from "./surveyError";
+} from "./base-interfaces";
+import { SurveyError } from "./survey-error";
 
 /**
  * Base class of SurveyJS Elements.

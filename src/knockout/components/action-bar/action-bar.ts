@@ -34,16 +34,25 @@ export class ActionBarViewModel extends ActionBar {
 }
 
 export class AdaptiveElementImplementor extends ImplementorBase {
+  private itemsSubscription: any;
+
   constructor(model: AdaptiveElement | AdaptiveActionContainer) {
     super(model);
 
-    ((<any>model).items || (<any>model).actions).forEach((item: any) => {
-      if (!!item.stateItem) {
-        new ImplementorBase(item.stateItem);
-      } else {
-        new ImplementorBase(item);
-      }
+    this.itemsSubscription = ko.computed(() => {
+      ((<any>model).items || (<any>model).actions).forEach((item: any) => {
+        if (!!item.stateItem) {
+          new ImplementorBase(item.stateItem);
+        } else {
+          new ImplementorBase(item);
+        }
+      });
     });
+  }
+
+  dispose() {
+    super.dispose();
+    this.itemsSubscription.dispose();
   }
 }
 

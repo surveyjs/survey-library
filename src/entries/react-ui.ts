@@ -76,7 +76,7 @@ export { SurveyQuestionMatrixDynamicDragDropIcon } from "../react/components/mat
 
 export { SurveyLocStringViewer } from "../react/string-viewer";
 export { SurveyLocStringEditor } from "../react/string-editor";
-export * from "../utils/responsivitymanager";
+export * from "../utils/responsivity-manager";
 export { unwrap } from "../utils/utils";
 
 //Uncomment to include the "date" question type.

@@ -5,7 +5,7 @@ import {
   QuestionMatrixDropdownModelBase,
 } from "./question_matrixdropdownbase";
 import { AdaptiveActionContainer } from "./actions/adaptive-container";
-import { SurveyError } from "./surveyError";
+import { SurveyError } from "./survey-error";
 import { Base } from "./base";
 import { IAction } from "./actions/action";
 

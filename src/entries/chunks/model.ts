@@ -26,9 +26,9 @@ export {
   IElement,
   IPage,
   ITitleOwner,
-} from "../../baseInterfaces";
-export { SurveyError } from "../../surveyError";
-export { SurveyElement } from "../../surveyElement";
+} from "../../base-interfaces";
+export { SurveyError } from "../../survey-error";
+export { SurveyElement } from "../../survey-element";
 export { CalculatedValue } from "../../calculatedValue";
 export {
   CustomError,

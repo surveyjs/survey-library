@@ -4,7 +4,7 @@ import { QuestionFactory } from "./questionfactory";
 import { EventBase } from "./base";
 import { UploadingFileError, ExceedSizeError } from "./error";
 import { surveyLocalization } from "./surveyStrings";
-import { SurveyError } from "./surveyError";
+import { SurveyError } from "./survey-error";
 
 /**
  * A Model for a file question

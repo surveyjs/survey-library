@@ -1,5 +1,5 @@
 import { Base, Event } from "./base";
-import { IQuestion } from "./baseInterfaces";
+import { IQuestion } from "./base-interfaces";
 
 export class QuestionCustomWidget {
   public htmlTemplate: string;

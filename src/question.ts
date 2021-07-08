@@ -11,8 +11,8 @@ import {
   ITitleOwner,
   IProgressInfo,
   ISurvey,
-} from "./baseInterfaces";
-import { SurveyElement } from "./surveyElement";
+} from "./base-interfaces";
+import { SurveyElement } from "./survey-element";
 import { surveyLocalization } from "./surveyStrings";
 import { AnswerRequiredError, CustomError } from "./error";
 import { SurveyValidator, IValidatorOwner, ValidatorRunner } from "./validator";
@@ -25,7 +25,7 @@ import { settings } from "./settings";
 import { SurveyModel } from "./survey";
 import { PanelModel } from "./panel";
 import { RendererFactory } from "./rendererFactory";
-import { SurveyError } from "./surveyError";
+import { SurveyError } from "./survey-error";
 
 export interface IConditionObject {
   name: string;

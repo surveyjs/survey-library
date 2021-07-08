@@ -18,8 +18,8 @@ import {
   IProgressInfo,
   IPanel,
   IWrapperObject,
-} from "./baseInterfaces";
-import { SurveyElement } from "./surveyElement";
+} from "./base-interfaces";
+import { SurveyElement } from "./survey-element";
 import {
   TextPreProcessorValue,
   QuestionTextProcessor,
@@ -37,7 +37,7 @@ import { settings } from "./settings";
 import { KeyDuplicationError } from "./error";
 import { ActionBarItem, IActionBarItem } from "./action-bar";
 import { SurveyModel } from "./survey";
-import { SurveyError } from "./surveyError";
+import { SurveyError } from "./survey-error";
 import { Action, IAction } from "./actions/action";
 import { AdaptiveActionContainer } from "./actions/adaptive-container";
 

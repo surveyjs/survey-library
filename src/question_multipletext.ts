@@ -7,14 +7,14 @@ import {
   IElement,
   ITextProcessor,
   IProgressInfo,
-} from "./baseInterfaces";
-import { SurveyElement } from "./surveyElement";
+} from "./base-interfaces";
+import { SurveyElement } from "./survey-element";
 import { SurveyValidator, IValidatorOwner } from "./validator";
 import { Question, IConditionObject } from "./question";
 import { QuestionTextModel } from "./question_text";
 import { JsonObject, Serializer } from "./jsonobject";
 import { QuestionFactory } from "./questionfactory";
-import { SurveyError } from "./surveyError";
+import { SurveyError } from "./survey-error";
 import { ILocalizableOwner, LocalizableString } from "./localizablestring";
 import { Helpers } from "./helpers";
 

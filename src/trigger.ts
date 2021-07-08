@@ -1,6 +1,6 @@
 import { HashTable, Helpers } from "./helpers";
 import { Base } from "./base";
-import { ISurvey } from "./baseInterfaces";
+import { ISurvey } from "./base-interfaces";
 import { Serializer } from "./jsonobject";
 import { ConditionRunner, ExpressionRunner } from "./conditions";
 import { OperandMaker } from "./expressions/expressions";

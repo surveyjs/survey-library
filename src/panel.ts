@@ -14,8 +14,8 @@ import {
   IProgressInfo,
   ISurvey,
   IFindElement,
-} from "./baseInterfaces";
-import { SurveyElement } from "./surveyElement";
+} from "./base-interfaces";
+import { SurveyElement } from "./survey-element";
 import { Question } from "./question";
 import { ConditionRunner } from "./conditions";
 import { ElementFactory, QuestionFactory } from "./questionfactory";
@@ -24,7 +24,7 @@ import { OneAnswerRequiredError } from "./error";
 import { PageModel } from "./page";
 import { settings } from "./settings";
 import { findScrollableParent, isElementVisible } from "./utils/utils";
-import { SurveyError } from "./surveyError";
+import { SurveyError } from "./survey-error";
 
 export class DragDropInfo {
   constructor(

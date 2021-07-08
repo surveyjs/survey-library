@@ -8,7 +8,7 @@ import {
 } from "./jsonobject";
 import { settings } from "./settings";
 import { ItemValue } from "./itemvalue";
-import { IFindElement, IProgressInfo, ISurvey } from "./baseInterfaces";
+import { IFindElement, IProgressInfo, ISurvey } from "./base-interfaces";
 
 export class Bindings {
   private properties: Array<JsonObjectProperty> = null;

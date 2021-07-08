@@ -10,8 +10,8 @@ import {
   ISurveyImpl,
   ITextProcessor,
   IProgressInfo,
-} from "./baseInterfaces";
-import { SurveyElement } from "./surveyElement";
+} from "./base-interfaces";
+import { SurveyElement } from "./survey-element";
 import { surveyLocalization } from "./surveyStrings";
 import { LocalizableString } from "./localizablestring";
 import {
@@ -26,7 +26,7 @@ import { KeyDuplicationError } from "./error";
 import { settings } from "./settings";
 import { Panel } from "./knockout/kopage";
 import { confirmAction } from "./utils/utils";
-import { SurveyError } from "./surveyError";
+import { SurveyError } from "./survey-error";
 
 export interface IQuestionPanelDynamicData {
   getItemIndex(item: ISurveyData): number;

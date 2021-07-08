@@ -1,4 +1,4 @@
-import { ISurveyErrorOwner } from "./baseInterfaces";
+import { ISurveyErrorOwner } from "./base-interfaces";
 import { LocalizableString } from "./localizablestring";
 
 export class SurveyError {

@@ -22,7 +22,7 @@ import { QuestionExpressionModel } from "../src/question_expression";
 import { settings } from "../src/settings";
 import { PanelModel } from "../src/panel";
 import { QuestionTextModel } from "../src/question_text";
-import { SurveyElement } from "../src/surveyElement";
+import { SurveyElement } from "../src/survey-element";
 import { Action } from "../src/actions/action";
 
 export default QUnit.module("Survey_QuestionMatrixDynamic");

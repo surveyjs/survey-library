@@ -14,8 +14,8 @@ import {
   ISurveyElement,
   IProgressInfo,
   IFindElement,
-} from "./baseInterfaces";
-import { SurveyElement } from "./surveyElement";
+} from "./base-interfaces";
+import { SurveyElement } from "./survey-element";
 import { surveyCss } from "./defaultCss/cssstandard";
 import { ISurveyTriggerOwner, SurveyTrigger } from "./trigger";
 import { CalculatedValue } from "./calculatedValue";
@@ -40,7 +40,7 @@ import {
 import { ExpressionRunner, ConditionRunner } from "./conditions";
 import { settings } from "./settings";
 import { getSize, isMobile } from "./utils/utils";
-import { SurveyError } from "./surveyError";
+import { SurveyError } from "./survey-error";
 import { IAction } from "./actions/action";
 
 /**

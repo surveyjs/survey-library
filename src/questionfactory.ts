@@ -1,6 +1,6 @@
 import { HashTable } from "./helpers";
 import { Question } from "./question";
-import { IElement } from "./baseInterfaces";
+import { IElement } from "./base-interfaces";
 import { surveyLocalization } from "./surveyStrings";
 import { Serializer } from "./jsonobject";
 

@@ -17,7 +17,7 @@ import { FunctionFactory } from "../src/functionsfactory";
 
 export default QUnit.module("Validators");
 
-QUnit.test("Numeric validator", function (assert) {
+QUnit.test("Numeric validator", function(assert) {
   var validator = new NumericValidator();
   assert.notEqual(
     validator.validate("s5").error,
@@ -109,7 +109,7 @@ QUnit.test("Numeric validator", function (assert) {
   );
 });
 
-QUnit.test("Email validator", function (assert) {
+QUnit.test("Email validator", function(assert) {
   var validator = new EmailValidator();
   assert.equal(
     validator.validate("my@mail.com"),
@@ -123,12 +123,12 @@ QUnit.test("Email validator", function (assert) {
   );
 });
 
-QUnit.test("Text validator", function (assert) {
+QUnit.test("Text validator", function(assert) {
   var validator = new TextValidator();
   assert.equal(validator.validate(""), null, "Empty string");
   validator.minLength = 1;
   validator.maxLength = 5;
-  assert.notEqual(validator.validate(""), null, "Empty string");
+  assert.equal(validator.validate(""), null, "Empty string");
   assert.equal(validator.validate("a"), null, "Shorter string");
   assert.equal(validator.validate("abcde"), null, "Five letter string");
   assert.notEqual(validator.validate("abcdef"), null, "Longer string");
@@ -137,30 +137,29 @@ QUnit.test("Text validator", function (assert) {
   assert.notEqual(validator.validate("abc12"), null, "Not just text");
 });
 
-QUnit.test(
-  "Text validator calls onPropertyValueChangedCallback",
-  function (assert) {
-    var validator = new TextValidator();
-    var changes = {};
-    validator.onPropertyValueChangedCallback = (name) => {
-      changes[name] = true;
-    };
-    validator.fromJSON({
-      type: "text",
-      minLength: 11,
-      maxLength: 15,
-      allowDigits: true,
-    });
-    assert.equal(validator.minLength, 11, "minLength loaded");
-    assert.equal(validator.maxLength, 15, "maxLength loaded");
-    validator.minLength = 1;
-    assert.equal(changes["minLength"], true, "minLength changed");
-    validator.maxLength = 5;
-    assert.equal(changes["maxLength"], true, "maxLength changed");
-    validator.allowDigits = false;
-    assert.equal(changes["allowDigits"], true, "allowDigits changed");
-  }
-);
+QUnit.test("Text validator calls onPropertyValueChangedCallback", function(
+  assert
+) {
+  var validator = new TextValidator();
+  var changes = {};
+  validator.onPropertyValueChangedCallback = (name) => {
+    changes[name] = true;
+  };
+  validator.fromJSON({
+    type: "text",
+    minLength: 11,
+    maxLength: 15,
+    allowDigits: true,
+  });
+  assert.equal(validator.minLength, 11, "minLength loaded");
+  assert.equal(validator.maxLength, 15, "maxLength loaded");
+  validator.minLength = 1;
+  assert.equal(changes["minLength"], true, "minLength changed");
+  validator.maxLength = 5;
+  assert.equal(changes["maxLength"], true, "maxLength changed");
+  validator.allowDigits = false;
+  assert.equal(changes["allowDigits"], true, "allowDigits changed");
+});
 
 export class CamelCaseValidator extends SurveyValidator {
   public getType(): string {
@@ -177,13 +176,13 @@ export class CamelCaseValidator extends SurveyValidator {
 Serializer.addClass(
   "CamelCaseValidator",
   [],
-  function () {
+  function() {
     return new CamelCaseValidator();
   },
   "surveyvalidator"
 );
 
-QUnit.test("Support camel names in validators, Bug#994", function (assert) {
+QUnit.test("Support camel names in validators, Bug#994", function(assert) {
   var json = {
     elements: [
       {
@@ -214,7 +213,7 @@ QUnit.test("Support camel names in validators, Bug#994", function (assert) {
 
 QUnit.test(
   "Validators and isRequired in multipletext items, Bug#1055",
-  function (assert) {
+  function(assert) {
     var json = {
       questions: [
         {
@@ -261,7 +260,7 @@ QUnit.test(
 
 QUnit.test(
   "text validator doesn't work correctly with empty text, Bug#1241",
-  function (assert) {
+  function(assert) {
     var json = {
       questions: [
         {
@@ -297,7 +296,41 @@ QUnit.test(
   }
 );
 
-QUnit.test("Expression validator", function (assert) {
+QUnit.test(
+  "text validator doesn't work correctly with setting value to  empty text, Bug#3065",
+  function(assert) {
+    var json = {
+      questions: [
+        {
+          type: "text",
+          name: "q1",
+          validators: [
+            {
+              type: "text",
+              minLength: 5,
+            },
+          ],
+        },
+      ],
+    };
+    var survey = new SurveyModel(json);
+    var q = survey.getQuestionByName("q1");
+    assert.equal(q.isEmpty(), true, "value is empty");
+    assert.equal(q.hasErrors(), false, "There is no errors, values are empty");
+    survey.setValue("q1", "abc");
+    assert.equal(q.isEmpty(), false, "value is not empty");
+    assert.equal(q.hasErrors(), true, "There is an error");
+    survey.setValue("q1", "");
+    assert.equal(q.isEmpty(), true, "value is empty #2");
+    assert.equal(
+      q.hasErrors(),
+      false,
+      "There is no error, again value is empty #2"
+    );
+  }
+);
+
+QUnit.test("Expression validator", function(assert) {
   var json = {
     questions: [
       {
@@ -333,7 +366,7 @@ QUnit.test("Expression validator", function (assert) {
   assert.equal(question.hasErrors(), false, "5 >= 3");
 });
 
-QUnit.test("Expression validator #2", function (assert) {
+QUnit.test("Expression validator #2", function(assert) {
   var json = {
     questions: [
       {
@@ -365,19 +398,19 @@ QUnit.test("Expression validator #2", function (assert) {
   assert.equal(survey.isCurrentPageHasErrors, false, "satisfaction is low");
 });
 
-QUnit.test("ExceedSizeError", function (assert) {
+QUnit.test("ExceedSizeError", function(assert) {
   var error = new ExceedSizeError(102400);
   assert.equal(error.getText(), "The file size should not exceed 100 KB.");
   assert.equal(error.locText.text, "The file size should not exceed 100 KB.");
 });
 
-QUnit.test("MinRowCountError", function (assert) {
+QUnit.test("MinRowCountError", function(assert) {
   var error = new MinRowCountError(1);
   assert.equal(error.getText(), "Please fill in at least 1 row(s).");
   assert.equal(error.locText.text, "Please fill in at least 1 row(s).");
 });
 
-QUnit.test("Regex number validator, Bug#1775", function (assert) {
+QUnit.test("Regex number validator, Bug#1775", function(assert) {
   var validator = new RegexValidator("^0*(?:[2-9]|[1-9]dd*)$");
   validator.text = "More than 0";
   assert.equal(validator.validate(0).error.text, "More than 0", "0 give error");
@@ -385,7 +418,7 @@ QUnit.test("Regex number validator, Bug#1775", function (assert) {
   assert.equal(validator.validate(null), null, "Parse correctly null");
 });
 
-QUnit.test("validator.isAsync", function (assert) {
+QUnit.test("validator.isAsync", function(assert) {
   function asyncFunc(params: any): any {
     this.returnResult(params[0] * 3);
     return false;
@@ -411,7 +444,7 @@ QUnit.test("validator.isAsync", function (assert) {
   FunctionFactory.Instance.unregister("asyncFunc");
 });
 
-QUnit.test("question with async validators", function (assert) {
+QUnit.test("question with async validators", function(assert) {
   var returnResult1: (res: any) => void;
   var returnResult2: (res: any) => void;
   function asyncFunc1(params: any): any {

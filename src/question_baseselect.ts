@@ -410,9 +410,10 @@ export class QuestionSelectBase extends Question {
   protected hasUnknownValue(
     val: any,
     includeOther: boolean = false,
-    isFilteredChoices: boolean = true
+    isFilteredChoices: boolean = true,
+    checkEmptyValue: boolean = false
   ): boolean {
-    if (this.isValueEmpty(val)) return false;
+    if (!checkEmptyValue && this.isValueEmpty(val)) return false;
     if (includeOther && val == this.otherItem.value) return false;
     if (this.hasNone && val == this.noneItem.value) return false;
     var choices = isFilteredChoices
@@ -1081,7 +1082,7 @@ export class QuestionSelectBase extends Question {
   }
   protected canClearValueAnUnknow(val: any): boolean {
     if (!this.getStoreOthersAsComment() && this.isOtherSelected) return false;
-    return this.hasUnknownValue(val, true);
+    return this.hasUnknownValue(val, true, true, true);
   }
   protected clearDisabledValuesCore() {
     if (this.isValueDisabled(this.value)) {

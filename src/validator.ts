@@ -241,7 +241,7 @@ export class TextValidator extends SurveyValidator {
     values: any = null,
     properties: any = null
   ): ValidatorResult {
-    if (value !== "" && this.isValueEmpty(value)) return null;
+    if (this.isValueEmpty(value)) return null;
     if (!this.allowDigits) {
       var reg = /^[A-Za-z\s]*$/;
       if (!reg.test(value)) {
@@ -456,7 +456,7 @@ export class ExpressionValidator extends SurveyValidator {
     properties: any = null
   ): ValidatorResult {
     if (!this.ensureConditionRunner()) return null;
-    this.conditionRunner.onRunComplete = res => {
+    this.conditionRunner.onRunComplete = (res) => {
       this.isRunningValue = false;
       if (!!this.onAsyncCompleted) {
         this.onAsyncCompleted(this.generateError(res, value, name));

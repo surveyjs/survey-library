@@ -2336,3 +2336,34 @@ QUnit.test(
     );
   }
 );
+QUnit.test(
+  "MatrixDynamic, test renderedTable column locString after changing default cell Type",
+  function(assert) {
+    var survey = new Survey({
+      elements: [
+        {
+          type: "matrixdynamic",
+          name: "matrix",
+          columns: [{ name: "col1" }],
+        },
+      ],
+    });
+    var matrix: any = <any>survey.getQuestionByName("matrix");
+    assert.equal(
+      matrix.renderedTable.headerRow.cells.length,
+      1 + 1,
+      "We have one column and delete row"
+    );
+    assert.equal(
+      matrix.renderedTable.headerRow.cells[0].locTitle.koRenderedHtml(),
+      "col1",
+      "Title rendered from JSON"
+    );
+    matrix.cellType = "checkbox";
+    assert.equal(
+      matrix.renderedTable.headerRow.cells[0].locTitle.koRenderedHtml(),
+      "col1",
+      "Title rendered from JSON"
+    );
+  }
+);

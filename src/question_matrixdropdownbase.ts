@@ -592,6 +592,7 @@ export class MatrixDropdownColumn extends Base
         return this.getSurvey();
       };
     }
+    this.templateQuestion.locTitle.strChanged();
   }
   protected createNewQuestion(cellType: string): Question {
     var question = <Question>Serializer.createClass(cellType);
@@ -1773,7 +1774,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     if (!this.isValueEmpty(rowActions)) {
       const cell = new QuestionMatrixDropdownRenderedCell();
       const actionContainer = new AdaptiveActionContainer();
-      actionContainer.actions = rowActions.map(action => {
+      actionContainer.actions = rowActions.map((action) => {
         return action instanceof Action ? action : new Action(action);
       });
 
@@ -1796,9 +1797,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
       return action.location === location;
     });
   }
-  private buildRowActions(
-    row: MatrixDropdownRowModelBase
-  ): Array<IAction> {
+  private buildRowActions(row: MatrixDropdownRowModelBase): Array<IAction> {
     var actions: Array<IAction> = [];
     this.setDefaultRowActions(row, actions);
     if (!!this.matrix.survey) {

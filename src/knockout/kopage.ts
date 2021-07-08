@@ -70,8 +70,6 @@ export class Panel extends PanelModel {
   private _implementor: ImplementorBase;
   koElementType: any;
   koCss: any;
-  koIsExpanded: any;
-  koIsCollapsed: any;
   koErrorClass: any;
   toggleStateByKeyUp: any;
   constructor(name: string = "") {
@@ -82,17 +80,11 @@ export class Panel extends PanelModel {
     this.koCss = ko.pureComputed(function() {
       return self.cssClasses;
     });
-    this.koIsCollapsed = ko.observable(this.isCollapsed);
-    this.koIsExpanded = ko.observable(this.isExpanded);
-    this.stateChangedCallback = function() {
-      self.onStateChanged();
-    };
     this.toggleStateByKeyUp = function(_: any, event: any) {
       if (event.which === 13) self.toggleState();
     };
     this.koErrorClass = ko.pureComputed(function() {
-      var rootClass = self.cssClasses.error.root;
-      return rootClass ? rootClass : "panel-error-root";
+      return self.cssError;
     });
   }
   protected onBaseCreating() {
@@ -105,24 +97,6 @@ export class Panel extends PanelModel {
   protected onCreating() {}
   protected onNumChanged(value: number) {
     this.locTitle.onChanged();
-  }
-  private onStateChanged() {
-    this.koIsCollapsed(this.isCollapsed);
-    this.koIsExpanded(this.isExpanded);
-  }
-  getTitleStyle() {
-    var result = this.cssClasses.panel.title;
-    if (this.koIsCollapsed() || this.koIsExpanded()) {
-      result += " " + this.cssClasses.panel.titleExpandable;
-    }
-    if (this.containsErrors) {
-      result += " " + this.cssClasses.panel.titleOnError;
-    }
-    return result;
-  }
-  endLoadingFromJson() {
-    super.endLoadingFromJson();
-    this.onStateChanged();
   }
   public dispose() {
     this.koCss.dispose();

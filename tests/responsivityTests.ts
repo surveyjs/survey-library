@@ -1,8 +1,10 @@
 import {
-  AdaptiveActionBarItemWrapper,
-  AdaptiveElement,
-} from "../../src/action-bar";
-import { ResponsivityManager } from "../../src/utils/responsivity-manager";
+  Action,
+} from "../src/actions/action";
+import {
+  AdaptiveActionContainer,
+} from "../src/actions/adaptive-container";
+import { ResponsivityManager } from "../src/utils/responsivity-manager";
 
 export default QUnit.module("ResponsivityManager");
 
@@ -26,7 +28,7 @@ QUnit.test("Fit items", function(assert) {
     scrollWidth: itemSmallWidth,
     querySelectorAll: () => [{ offsetWidth: itemSmallWidth }],
   });
-  const model: AdaptiveElement = new AdaptiveElement();
+  const model: AdaptiveActionContainer = new AdaptiveActionContainer();
   const manager: ResponsivityManager = new ResponsivityManager(
     <any>container,
     <any>model,
@@ -34,15 +36,15 @@ QUnit.test("Fit items", function(assert) {
     itemSmallWidth
   );
 
-  const item1 = new AdaptiveActionBarItemWrapper(model, <any>{});
+  const item1 = new Action(<any>{});
   item1.minDimension = itemSmallWidth;
   item1.maxDimension = itemSmallWidth;
-  model.items.push(item1);
-  const item2 = new AdaptiveActionBarItemWrapper(model, <any>{});
+  model.actions.push(item1);
+  const item2 = new Action(<any>{});
   item2.minDimension = itemSmallWidth;
   item2.maxDimension = 200;
-  model.items.push(item2);
-  assert.equal(model.items.length, 2);
+  model.actions.push(item2);
+  assert.equal(model.actions.length, 2);
 
   manager.fit(300);
   assert.equal(model.visibleItems.length, 2, "dimension 300");
@@ -73,7 +75,7 @@ QUnit.test("getAvailableSpace with content-box test", function(assert) {
     scrollWidth: itemSmallWidth,
     querySelectorAll: () => [{ offsetWidth: itemSmallWidth }],
   });
-  const model: AdaptiveElement = new AdaptiveElement();
+  const model: AdaptiveActionContainer = new AdaptiveActionContainer();
   const manager: ResponsivityManager = new ResponsivityManager(
     <any>container,
     <any>model,
@@ -93,7 +95,7 @@ QUnit.test("getAvailableSpace with border-box test", function(assert) {
     scrollWidth: itemSmallWidth,
     querySelectorAll: () => [{ offsetWidth: itemSmallWidth }],
   });
-  const model: AdaptiveElement = new AdaptiveElement();
+  const model: AdaptiveActionContainer = new AdaptiveActionContainer();
   const manager: ResponsivityManager = new ResponsivityManager(
     <any>container,
     <any>model,

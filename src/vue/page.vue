@@ -1,8 +1,8 @@
 <template>
   <div :class="page.cssClasses.page.root">
     <h4 v-if="showHeader" :class="page.cssClasses.page.title">
-      <survey-string v-if="!renderTitleActions" :locString="page.locTitle" />
-      <sv-title-actions v-if="renderTitleActions" :element="page" />
+      <survey-string v-if="!page.hasTitleActions" :locString="page.locTitle" />
+      <sv-title-actions v-if="page.hasTitleActions" :element="page" />
     </h4>
     <div v-if="showDescription" :class="page.cssClasses.page.description">
       <survey-string :locString="page.locDescription" />
@@ -66,9 +66,6 @@ export class Page extends BaseVue {
   }
   get rows(): Array<any> {
     return this.page.rows;
-  }
-  get renderTitleActions() {
-    return this.survey.renderTitleActions(this.page);
   }
 }
 Vue.component("survey-page", Page);

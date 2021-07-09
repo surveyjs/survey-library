@@ -1,7 +1,5 @@
 import * as ko from "knockout";
-import { Question } from "survey-core";
-import { SurveyElement } from "survey-core";
-import { Helpers } from "survey-core";
+import { Question, SurveyElement, Helpers, doKey2Click } from "survey-core";
 import { ImplementorBase } from "./kobase";
 
 export class QuestionImplementor extends ImplementorBase {
@@ -17,20 +15,17 @@ export class QuestionImplementor extends ImplementorBase {
     this.disposedObjects = [];
     this.callBackFunctions = [];
     var isSynchronizing = false;
-    this._koValue.subscribe(newValue => {
+    this._koValue.subscribe((newValue) => {
       if (!isSynchronizing) {
         this.question.value = newValue;
       }
     });
 
     this.toggleStateByClick = () => {
-      this.question.toggleState();
-      if (this.question.isCollapsed) return false;
-      return true;
+      return this.question.toggleState();
     };
     this.toggleStateByKeyUp = (_: any, event: any) => {
-      if (event.which !== 13) return;
-      this.toggleStateByClick();
+      doKey2Click(event);
     };
     Object.defineProperty(this.question, "koValue", {
       get: () => {

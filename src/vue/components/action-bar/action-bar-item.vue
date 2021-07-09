@@ -10,7 +10,7 @@
       { 'sv-action-bar-item--active': item.isActive },
       item.innerCss,
     ]"
-    v-bind:disabled="item.enabled !== undefined && item.enabled"
+    v-bind:disabled="item.enabled !== undefined && !item.enabled"
     v-bind:title="item.tooltip || item.title"
   >
     <sv-svg-icon

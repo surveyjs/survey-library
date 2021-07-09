@@ -7,32 +7,24 @@
     <h4
       v-show="hasTitle"
       :class="question.cssTitle"
-      v-on:click="changeExpanded"
+      v-bind:tabindex="question.titleTabIndex"
+      v-bind:aria-expanded="question.titleAriaExpanded"
+      v-on:click="
+        () => {
+          return question.toggleState();
+        }
+      "
+      v-on:keyup="
+        ($event) => {
+          keyup($event);
+        }
+      "
     >
-      <span v-if="question.isRequireTextOnStart" :class="requiredTextCss">{{
-        question.requiredText
-      }}</span>
-      <span
-        v-if="question.no"
-        style="position: static"
-        :class="question.cssClasses.number"
-        >{{ question.no }}</span
-      >
-      <span v-if="question.isRequireTextBeforeTitle" :class="requiredTextCss">{{
-        question.requiredText
-      }}</span>
-      <survey-string :locString="question.locTitle" />
-      <span v-if="question.isRequireTextAfterTitle" :class="requiredTextCss">{{
-        question.requiredText
-      }}</span>
-      <span
-        v-show="showIcon"
-        :class="iconCss"
-        v-on:keyup.enter="changeExpanded"
-        tabindex="0"
-        v-bind:aria-expanded="isCollapsed ? 'false' : 'true'"
-        :aria-controls="!isCollapsed ? question.contentId : null"
-      ></span>
+      <component
+        :is="question.getTitleComponentName()"
+        :element="question"
+        :css="css"
+      ></component>
     </h4>
     <div :class="question.cssClasses.panel.description">
       <survey-string :locString="question.locDescription" />
@@ -70,7 +62,7 @@
 <script lang="ts">
 import Vue from "vue";
 import { Component, Prop } from "vue-property-decorator";
-import { PanelModelBase, PanelModel, QuestionRowModel } from "survey-core";
+import { PanelModelBase, PanelModel, doKey2Click } from "survey-core";
 import { ISurvey, Base } from "survey-core";
 import { BaseVue } from "./base";
 
@@ -130,8 +122,8 @@ export class Panel extends BaseVue {
     if (!this.isCollapsed) result += " " + this.css.panel.iconExpanded;
     return result;
   }
-  changeExpanded() {
-    this.question.toggleState();
+  keyup(evt: any) {
+    doKey2Click(evt);
   }
   cancelPreview() {
     this.question.cancelPreview();

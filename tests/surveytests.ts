@@ -59,6 +59,7 @@ import { settings } from "../src/settings";
 import { CalculatedValue } from "../src/calculatedValue";
 import { LocalizableString } from "../src/localizablestring";
 import { getSize } from "../src/utils/utils";
+import { RendererFactory } from "../src/rendererFactory";
 
 export default QUnit.module("Survey");
 
@@ -12806,6 +12807,70 @@ QUnit.test("Check onGetPanelTitleActions event", (assert) => {
     options.titleActions = testActions;
   });
   assert.deepEqual(panel.getTitleActions(), testActions);
+});
+
+QUnit.test("Panel: Add change state action into actions", (assert) => {
+  RendererFactory.Instance.registerRenderer(
+    "element",
+    "title-actions",
+    "sv-title-actions"
+  );
+  var survey = new SurveyModel({
+    elements: [
+      {
+        type: "panel",
+        name: "panel1",
+        state: "expanded",
+      },
+    ],
+  });
+  var panel = <PanelModel>survey.getPanelByName("panel1");
+  var actions = panel.getTitleActions();
+  assert.equal(actions.length, 1);
+  assert.equal(
+    panel.getTitleComponentName(),
+    "sv-title-actions",
+    "Renders with actions"
+  );
+  assert.strictEqual(actions[0].active, false, "The action is inactive");
+  survey.onGetPanelTitleActions.add((sender, options) => {
+    options.titleActions.push({ id: "id2" });
+  });
+  assert.equal(panel.getTitleActions().length, 2, "We have two actions now");
+  assert.equal(
+    panel.getTitleComponentName(),
+    "sv-title-actions",
+    "Renders with actions"
+  );
+  assert.equal(panel.titleTabIndex, 0, "We need to stop on title");
+  assert.equal(panel.titleAriaExpanded, true, "Title area expanded is true");
+  panel.state = "collapsed";
+  assert.equal(panel.titleTabIndex, 0, "We need to stop on title, #2");
+  assert.equal(
+    panel.titleAriaExpanded,
+    false,
+    "Title area expanded is false, #2"
+  );
+
+  panel.state = "default";
+  survey.onGetPanelTitleActions.clear();
+  assert.equal(panel.getTitleActions().length, 0, "There is no actions");
+  assert.equal(
+    panel.getTitleComponentName(),
+    "sv-default-title",
+    "Renders default title"
+  );
+  assert.equal(
+    panel.titleTabIndex,
+    undefined,
+    "We do not need to stop on title, #3"
+  );
+  assert.equal(
+    panel.titleAriaExpanded,
+    undefined,
+    "Title area expanded is undefined, #3"
+  );
+  RendererFactory.Instance.clear();
 });
 
 QUnit.test("Check onGetQuestionTitleActions event", (assert) => {

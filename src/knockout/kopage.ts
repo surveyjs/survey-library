@@ -1,12 +1,17 @@
 import * as ko from "knockout";
 import { PageModel } from "survey-core";
-import { PanelModelBase, PanelModel, QuestionRowModel } from "survey-core";
+import {
+  PanelModelBase,
+  PanelModel,
+  QuestionRowModel,
+  Question,
+  doKey2Click,
+} from "survey-core";
 import { Serializer } from "survey-core";
 import { SurveyElement, IElement } from "survey-core";
 import { ElementFactory } from "survey-core";
 import { ImplementorBase } from "./kobase";
-import { Question } from "survey-core";
-import { Survey } from "./kosurvey";
+import {} from "survey-core";
 
 export class QuestionRow extends QuestionRowModel {
   koElementAfterRender: any;
@@ -81,7 +86,7 @@ export class Panel extends PanelModel {
       return self.cssClasses;
     });
     this.toggleStateByKeyUp = function(_: any, event: any) {
-      if (event.which === 13) self.toggleState();
+      doKey2Click(event);
     };
     this.koErrorClass = ko.pureComputed(function() {
       return self.cssError;
@@ -112,9 +117,6 @@ export class Page extends PageModel {
   constructor(name: string = "") {
     super(name);
     this.onCreating();
-  }
-  get renderTitleActions() {
-    return this.survey.renderTitleActions(this);
   }
   protected onBaseCreating() {
     super.onBaseCreating();

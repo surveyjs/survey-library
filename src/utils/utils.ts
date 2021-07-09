@@ -5,7 +5,8 @@ function compareVersions(a: any, b: any) {
   const segmentsB: string[] = b.replace(regExStrip0, "").split(".");
   const len: number = Math.min(segmentsA.length, segmentsB.length);
   for (let i: number = 0; i < len; i++) {
-    const diff: number = parseInt(segmentsA[i], 10) - parseInt(segmentsB[i], 10);
+    const diff: number =
+      parseInt(segmentsA[i], 10) - parseInt(segmentsB[i], 10);
     if (diff) {
       return diff;
     }
@@ -40,7 +41,10 @@ function loadFileFromBase64(b64Data: string, fileName: string) {
     const byteString: string = atob(b64Data.split(",")[1]);
 
     // separate out the mime component
-    const mimeString: string = b64Data.split(",")[0].split(":")[1].split(";")[0];
+    const mimeString: string = b64Data
+      .split(",")[0]
+      .split(":")[1]
+      .split(";")[0];
 
     // write the bytes of the string to an ArrayBuffer
     const ab: ArrayBuffer = new ArrayBuffer(byteString.length);
@@ -143,6 +147,17 @@ export function getSize(value: any) {
   return value;
 }
 
+function doKey2Click(ev: any) {
+  var el: any = ev.target;
+  if (!el) return;
+  var char = ev.which || ev.keyCode;
+  if (char === 13 || char === 32) {
+    if (el.click) el.click();
+  } else if (char === 27) {
+    if (el.blur) el.blur();
+  }
+}
+
 export {
   compareVersions,
   confirmAction,
@@ -152,5 +167,6 @@ export {
   isMobile,
   isElementVisible,
   findScrollableParent,
-  createSvg
+  createSvg,
+  doKey2Click,
 };

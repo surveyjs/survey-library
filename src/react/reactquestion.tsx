@@ -1,6 +1,11 @@
 import * as React from "react";
-import { Question } from "survey-core";
-import { SurveyElement, SurveyError, Base } from "survey-core";
+import {
+  Question,
+  SurveyElement,
+  SurveyError,
+  Base,
+  doKey2Click,
+} from "survey-core";
 import { SurveyQuestionCommentItem } from "./reactquestion_comment";
 import { SurveyElementBase, ReactSurveyElement } from "./reactquestion_element";
 import { SurveyCustomWidget } from "./custom-widget";
@@ -65,7 +70,9 @@ export class SurveyQuestion extends SurveyElementBase<any, any> {
   }
   private doAfterRender() {
     if (this.isNeedFocus) {
-      this.question.clickTitleFunction();
+      if (!this.question.isCollapsed) {
+        this.question.clickTitleFunction();
+      }
       this.isNeedFocus = false;
     }
     if (this.question) {
@@ -164,8 +171,13 @@ export class SurveyQuestion extends SurveyElementBase<any, any> {
         className={this.question.cssTitle}
         aria-label={this.question.locTitle.renderedHtml}
         id={this.question.ariaTitleId}
+        tabIndex={this.question.titleTabIndex}
+        aria-expanded={this.question.titleAriaExpanded}
         onClick={() => {
-          this.question.toggleState();
+          return this.question.toggleState();
+        }}
+        onKeyUp={(evt) => {
+          doKey2Click(evt);
         }}
       >
         {titleComponent}

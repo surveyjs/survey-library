@@ -52,7 +52,7 @@ export class PopupContainer extends SurveyElementBase<any, any> {
     super(props);
   }
   handleKeydown = (event: any) => {
-    this.model.trapFocus(event);
+    this.model.onKeyDown(event);
   };
   get model(): PopupBaseViewModel {
     return this.props.model;
@@ -147,6 +147,7 @@ export class PopupContainer extends SurveyElementBase<any, any> {
     };
     return (
       <div
+        tabIndex={-1}
         className={className}
         style={style}
         onClick={(e: any) => {

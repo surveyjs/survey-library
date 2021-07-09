@@ -109,24 +109,32 @@ export class PopupBaseViewModel extends Base {
 
     return css;
   }
-  public trapFocus(event: any) {
+  public onKeyDown(event: any) {
     if (event.key === "Tab" || event.keyCode === 9) {
-      const focusableElements = this.container.querySelectorAll(
-        FOCUS_INPUT_SELECTOR
-      );
-      const firstFocusableElement = focusableElements[0];
-      const lastFocusableElement =
-        focusableElements[focusableElements.length - 1];
-      if (event.shiftKey) {
-        if (document.activeElement === firstFocusableElement) {
-          (<HTMLElement>lastFocusableElement).focus();
-          event.preventDefault();
-        }
-      } else {
-        if (document.activeElement === lastFocusableElement) {
-          (<HTMLElement>firstFocusableElement).focus();
-          event.preventDefault();
-        }
+      this.trapFocus(event);
+    } else if (event.key === "Escape" || event.keyCode === 27) {
+      if (this.isModal) {
+        this.model.onCancel();
+      }
+      this.model.isVisible = false;
+    }
+  }
+  private trapFocus(event: any) {
+    const focusableElements = this.container.querySelectorAll(
+      FOCUS_INPUT_SELECTOR
+    );
+    const firstFocusableElement = focusableElements[0];
+    const lastFocusableElement =
+      focusableElements[focusableElements.length - 1];
+    if (event.shiftKey) {
+      if (document.activeElement === firstFocusableElement) {
+        (<HTMLElement>lastFocusableElement).focus();
+        event.preventDefault();
+      }
+    } else {
+      if (document.activeElement === lastFocusableElement) {
+        (<HTMLElement>firstFocusableElement).focus();
+        event.preventDefault();
       }
     }
   }
@@ -200,6 +208,7 @@ export class PopupBaseViewModel extends Base {
     setTimeout(() => {
       var el = this.container.querySelector(FOCUS_INPUT_SELECTOR);
       if (!!el) (<HTMLElement>el).focus();
+      else (<HTMLElement>this.container.children[0]).focus();
     }, 100);
   }
   public clickOutside() {

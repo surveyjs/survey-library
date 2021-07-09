@@ -238,13 +238,6 @@ export class AdaptiveElement extends Base {
   public get hasItems(): boolean {
     return (this.items || []).length > 0;
   }
-  public getItemById(id: string): IActionBarItem {
-    if (!this.items) return null;
-    for (var i = 0; i < this.items.length; i++) {
-      if (this.items[i].id === id) return this.items[i];
-    }
-    return null;
-  }
 
   public invisibleItemSelected(item: AdaptiveActionBarItemWrapper): void {
     if (!!item && typeof item.action === "function") {

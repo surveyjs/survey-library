@@ -344,7 +344,7 @@ export class StylesManager {
     //popup
     "sv-popup": "display: block; position: absolute; z-index: -1;",
     ".sv-popup":
-      "position: fixed; left: 0; top: 0; z-index: 1000; width: 100vw; height: 100vh;",
+      "position: fixed; left: 0; top: 0; z-index: 1000; width: 100vw; height: 100vh; outline: none;",
     ".sv-popup--modal":
       "display: flex; align-items: center; justify-content: center;",
     ".sv-popup--modal .sv-popup__container":

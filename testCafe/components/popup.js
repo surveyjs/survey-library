@@ -73,6 +73,13 @@ frameworks.forEach((framework) => {
     await t.click(itemSelector);
     assert.ok(await popupSelector.exists);
     assert.ok(!(await popupSelector.visible));
+    
+    await t.click(itemSelector);
+    assert.ok(await popupSelector.visible);
+    await t.pressKey("esc");
+    assert.ok(await popupSelector.exists);
+    assert.ok(!(await popupSelector.visible));
+    
     await disposeSurvey(framework);
     assert.ok(!(await popupSelector.exists));
   });
@@ -87,12 +94,12 @@ frameworks.forEach((framework) => {
             },
           ],
         };
-        const model = new Survey.Model(json);
         const item = new Survey.ActionBarItem({
           component: "sv-action-bar-item",
           title: "Click",
           showTitle: true,
           action: () => {
+            const model = new Survey.Model(json);
             Survey.settings.showModal("survey", {
               model: model,
               survey: model,
@@ -104,6 +111,7 @@ frameworks.forEach((framework) => {
     });
     const popupSelector = Selector(".sv-popup");
     assert.ok(!(await popupSelector.exists));
+
     await t.click(Selector(".sv-action-bar-item"));
     assert.ok(await popupSelector.visible);
     assert.ok(
@@ -122,6 +130,11 @@ frameworks.forEach((framework) => {
     assert.ok(await popupSelector.visible);
     await t.click(Selector(".sv-popup__button").withText("Cancel"));
     assert.ok(!(await popupSelector.exists));
+
+    await t.click(Selector(".sv-action-bar-item"));
+    assert.ok(await popupSelector.visible);
+    await t.pressKey("esc");
+    assert.ok(!(await popupSelector.exists));
   });
   test(`check focus trap`, async (t) => {
     await initSurvey(framework, json, {
@@ -134,12 +147,12 @@ frameworks.forEach((framework) => {
             },
           ],
         };
-        const model = new Survey.Model(json);
         const item = new Survey.ActionBarItem({
           component: "sv-action-bar-item",
           title: "Click",
           showTitle: true,
           action: () => {
+            const model = new Survey.Model(json);
             Survey.settings.showModal("survey", {
               model: model,
               survey: model,

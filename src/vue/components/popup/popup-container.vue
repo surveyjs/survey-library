@@ -1,11 +1,12 @@
 <template>
   <div
+    tabindex="-1"
     class="sv-popup"
     v-bind:class="model.styleClass"
     v-show="model.isVisible"
     v-on:keydown="
       (event) => {
-        model.trapFocus(event);
+        model.onKeyDown(event);
       }
     "
     v-on:click="
@@ -37,7 +38,7 @@
           ></component>
         </div>
 
-        <div v-show="model.isModal" class="sv-popup__footer">
+        <div v-if="model.isModal" class="sv-popup__footer">
           <button
             v-on:click="
               () => {

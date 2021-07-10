@@ -13,7 +13,7 @@ const json = {
   ],
 };
 
-["vue"].forEach((framework) => {
+[frameworks].forEach((framework) => {
   fixture`${framework} ${title}`.page`${url}${framework}`;
 
   test("check action is appear and works fine", async (t) => {

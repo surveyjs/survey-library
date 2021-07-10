@@ -849,7 +849,7 @@ export class SurveyModel extends Base
    * Use this event to create/customize actions to be displayed in a question's title.
    * <br/> `sender` - A [Survey](https://surveyjs.io/Documentation/Library?id=SurveyModel) object that fires the event.
    * <br/> `options.question` - A [Question](https://surveyjs.io/Documentation/Library?id=Question) object for which the event is fired.
-   * <br/> `options.actions` - A list of actions ([IActionBarItem](https://surveyjs.io/Documentation/Library?id=IActionBarItem) objects) associated with the processed question.
+   * <br/> `options.titleActions` - A list of actions ([IActionBarItem](https://surveyjs.io/Documentation/Library?id=IActionBarItem) objects) associated with the processed question.
    * @see IActionBarItem
    * @see Question
    */
@@ -860,7 +860,7 @@ export class SurveyModel extends Base
    * Use this event to create/customize actions to be displayed in a panel's title.
    * <br/> `sender` - A survey object that fires the event.
    * <br/> `options.panel` - A panel ([PanelModel](https://surveyjs.io/Documentation/Library?id=panelmodel) object) for which the event is fired.
-   * <br/> `options.actions` - A list of actions ([IActionBarItem](https://surveyjs.io/Documentation/Library?id=IActionBarItem) objects) associated with the processed panel.
+   * <br/> `options.titleActions` - A list of actions ([IActionBarItem](https://surveyjs.io/Documentation/Library?id=IActionBarItem) objects) associated with the processed panel.
    * @see IActionBarItem
    * @see PanelModel
    */
@@ -871,7 +871,7 @@ export class SurveyModel extends Base
    * Use this event to create/customize actions to be displayed in a page's title.
    * <br/> `sender` - A survey object that fires the event.
    * <br/> `options.page` - A page ([PageModel](https://surveyjs.io/Documentation/Library?id=pagemodel) object) for which the event is fired.
-   * <br/> `options.actions` - A list of actions ([IActionBarItem](https://surveyjs.io/Documentation/Library?id=IActionBarItem) objects) associated with the processed page.
+   * <br/> `options.titleActions` - A list of actions ([IActionBarItem](https://surveyjs.io/Documentation/Library?id=IActionBarItem) objects) associated with the processed page.
    * @see IActionBarItem
    * @see PageModel
    */
@@ -3957,12 +3957,6 @@ export class SurveyModel extends Base
     this.onDragDropAllow.fire(this, options);
     return options.allow;
   }
-
-  renderTitleActions(element: ISurveyElement): boolean {
-    if (element.isPanel) return !this.onGetPanelTitleActions.isEmpty;
-    else if (element.isPage) return !this.onGetPageTitleActions.isEmpty;
-    else return !this.onGetQuestionTitleActions.isEmpty;
-  }
   elementContentVisibilityChanged(element: ISurveyElement): void {
     if (this.currentPageValue) {
       this.currentPageValue.ensureRowsVisibility();
@@ -3982,10 +3976,7 @@ export class SurveyModel extends Base
     return options.titleActions;
   }
 
-  getUpdatedPanelTitleActions(
-    panel: IPanel,
-    titleActions: Array<IAction>
-  ) {
+  getUpdatedPanelTitleActions(panel: IPanel, titleActions: Array<IAction>) {
     var options = {
       panel: panel,
       titleActions: titleActions,

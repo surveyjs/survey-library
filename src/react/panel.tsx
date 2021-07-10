@@ -4,7 +4,7 @@ import { SurveyElementBase } from "./reactquestion_element";
 import { ReactElementFactory } from "./element-factory";
 
 import { SurveyPanelBase } from "./panel-base";
-import { PanelModel } from "survey-core";
+import { PanelModel, doKey2Click } from "survey-core";
 import { ReactQuestionFactory } from "./reactquestion_factory";
 import { ReactSurveyModel } from "./reactsurveymodel";
 
@@ -83,8 +83,13 @@ export class SurveyPanel extends SurveyPanelBase {
     return (
       <h4
         className={this.panel.cssTitle}
+        tabIndex={this.panel.titleTabIndex}
+        aria-expanded={this.panel.titleAriaExpanded}
         onClick={() => {
-          this.panel.toggleState();
+          return this.panel.toggleState();
+        }}
+        onKeyUp={(evt) => {
+          doKey2Click(evt);
         }}
       >
         {titleComponent}

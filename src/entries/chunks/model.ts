@@ -183,6 +183,7 @@ export { IsMobile } from "../../utils/is-mobile";
 export {
   confirmAction,
   detectIEOrEdge,
+  doKey2Click,
   loadFileFromBase64,
   createSvg,
 } from "../../utils/utils";

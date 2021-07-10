@@ -53,7 +53,7 @@ export class Question extends SurveyElement
     return "sq_" + Question.questionCounter++;
   }
   private conditionRunner: ConditionRunner = null;
-  private isCustomWidgetRequested: boolean = false;
+  private isCustomWidgetRequested: boolean;
   private customWidgetValue: QuestionCustomWidget;
   customWidgetData = { isNeedRender: true };
   focusCallback: () => void;
@@ -504,7 +504,10 @@ export class Question extends SurveyElement
     if (this.hasInput) {
       var self = this;
       return function() {
-        self.focus();
+        if (self.isCollapsed) return;
+        setTimeout(() => {
+          self.focus();
+        }, 1);
         return true;
       };
     }

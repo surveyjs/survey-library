@@ -21,7 +21,7 @@ import { SurveyError } from "./survey-error";
  * Base class of SurveyJS Elements.
  */
 export class SurveyElement extends Base implements ISurveyElement {
-  protected titleActions: any[] = [];
+  protected titleActions: any[];
   stateChangedCallback: () => void;
 
   public static getProgressInfoByElements(
@@ -167,15 +167,19 @@ export class SurveyElement extends Base implements ISurveyElement {
    * Toggle element's state
    * @see state
    */
-  public toggleState() {
+  public toggleState(): boolean {
     if (this.isCollapsed) {
       this.expand();
-      return;
+      return true;
     }
     if (this.isExpanded) {
       this.collapse();
-      return;
+      return false;
     }
+    return true;
+  }
+  public get hasStateButton(): boolean {
+    return this.isExpanded || this.isCollapsed;
   }
   private titleToolbarValue: AdaptiveActionContainer;
   public getTitleToolbar(): AdaptiveActionContainer {
@@ -201,10 +205,13 @@ export class SurveyElement extends Base implements ISurveyElement {
   }
   public getTitleActions(): Array<any> {
     this.titleActions = [];
+    if (!this.hasStateButton) return this.titleActions;
     if (!this.expandAction) {
       this.expandAction = new Action({
         id: "expand-collapse-action",
         title: "",
+        active: false,
+        enabled: false, //TODO
         action: () => {
           this.toggleState();
         },
@@ -214,10 +221,12 @@ export class SurveyElement extends Base implements ISurveyElement {
     this.titleActions.push(this.expandAction);
     return this.titleActions;
   }
-
+  public get hasTitleActions(): boolean {
+    return this.getTitleActions().length > 0;
+  }
   public getTitleComponentName(): string {
     var componentName = "default";
-    if (this.survey.renderTitleActions(this)) {
+    if (this.hasTitleActions) {
       componentName = RendererFactory.Instance.getRenderer(
         "element",
         "title-actions"
@@ -228,7 +237,13 @@ export class SurveyElement extends Base implements ISurveyElement {
     }
     return componentName;
   }
-
+  public get titleTabIndex(): number {
+    return this.state !== "default" ? 0 : undefined;
+  }
+  public get titleAriaExpanded(): boolean {
+    if (this.state === "default") return undefined;
+    return this.state === "expanded";
+  }
   public setSurveyImpl(value: ISurveyImpl) {
     this.surveyImplValue = value;
     if (!this.surveyImplValue) {

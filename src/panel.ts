@@ -320,7 +320,6 @@ export class PanelModelBase extends SurveyElement
     );
     return this.titleActions;
   }
-
   get _showDescription(): boolean {
     return (
       ((<any>this.survey).showPageTitles && this.description.length > 0) ||

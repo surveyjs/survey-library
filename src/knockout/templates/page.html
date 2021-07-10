@@ -2,10 +2,10 @@
   <div data-bind="css: cssClasses.page.root">
     <!-- ko if: _showTitle -->
     <h4 data-bind="css: cssClasses.page.title">
-      <!-- ko if: !renderTitleActions -->
+      <!-- ko if: !hasTitleActions -->
       <!-- ko template: { name: 'survey-string', data: locTitle } --><!-- /ko -->
       <!-- /ko -->
-      <!-- ko if: renderTitleActions -->
+      <!-- ko if: hasTitleActions -->
       <!-- ko component: { name: 'sv-title-actions', params: { element: $data } } --><!-- /ko -->
       <!-- /ko -->
     </h4>

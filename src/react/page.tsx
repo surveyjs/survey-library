@@ -30,7 +30,7 @@ export class SurveyPage extends SurveyPanelBase {
   protected renderTitle(): JSX.Element {
     if (!this.page._showTitle) return null;
     var titleContent = null;
-    if (!this.survey.renderTitleActions(this.page)) {
+    if (!this.page.hasTitleActions) {
       var text = SurveyElementBase.renderLocString(this.page.locTitle);
       titleContent = <>{text}</>;
     } else {

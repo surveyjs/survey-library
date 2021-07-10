@@ -13,7 +13,7 @@ const json = {
   ],
 };
 
-frameworks.forEach((framework) => {
+["vue"].forEach((framework) => {
   fixture`${framework} ${title}`.page`${url}${framework}`;
 
   test("check action is appear and works fine", async (t) => {
@@ -140,7 +140,6 @@ frameworks.forEach((framework) => {
     });
     assert.ok(!(await Selector("h5 .sv-action").visible));
   });
-
   test("check expand/collapse action", async (t) => {
     var getQuestionState = ClientFunction(() => {
       return survey.getAllQuestions()[0].state;
@@ -148,12 +147,13 @@ frameworks.forEach((framework) => {
     await initSurvey(framework, json, {
       onGetQuestionTitleActions: (_, opt) => {},
     });
-    await t.click("h5 .sv-expand-action");
+    t.debug();
+    await t.click("h5");
     assert.ok(
       await Selector(".sv-expand-action").hasClass("sv-expand-action--expanded")
     );
     assert.equal(await getQuestionState(), "expanded");
-    await t.click("h5 .sv-expand-action");
+    await t.click("h5");
     assert.ok(
       !(await Selector(".sv-expand-action").hasClass(
         "sv-expand-action--expanded"
@@ -161,7 +161,6 @@ frameworks.forEach((framework) => {
     );
     assert.equal(await getQuestionState(), "collapsed");
   });
-
   test("check page title actions do not appear", async (t) => {
     const json = {
       pages: [
@@ -194,7 +193,9 @@ frameworks.forEach((framework) => {
       ],
     };
     await initSurvey(framework, json, {
-      onGetPageTitleActions: (_, opt) => {},
+      onGetPageTitleActions: (_, opt) => {
+        opt.titleActions.push({ id: "item1" });
+      },
     });
 
     assert.ok(await Selector("h4 .sv-title-actions").exists);

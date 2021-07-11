@@ -13,7 +13,7 @@ const json = {
   ],
 };
 
-[frameworks].forEach((framework) => {
+frameworks.forEach((framework) => {
   fixture`${framework} ${title}`.page`${url}${framework}`;
 
   test("check action is appear and works fine", async (t) => {
@@ -147,7 +147,6 @@ const json = {
     await initSurvey(framework, json, {
       onGetQuestionTitleActions: (_, opt) => {},
     });
-    t.debug();
     await t.click("h5");
     assert.ok(
       await Selector(".sv-expand-action").hasClass("sv-expand-action--expanded")

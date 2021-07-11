@@ -1789,15 +1789,6 @@ export class Question extends SurveyElement
     return RendererFactory.Instance.getRendererByQuestion(this);
   }
 
-  public getTitleActions(): Array<any> {
-    var titleActions = super.getTitleActions();
-    this.titleActions = this.survey.getUpdatedQuestionTitleActions(
-      this,
-      titleActions
-    );
-    return this.titleActions;
-  }
-
   public isDefaultRendering(): boolean {
     return (
       !!this.customWidget ||

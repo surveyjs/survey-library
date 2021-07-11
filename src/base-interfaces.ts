@@ -97,16 +97,8 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner {
   questionTitlePattern: string;
   getUpdatedQuestionTitle(question: IQuestion, title: string): string;
   getUpdatedQuestionNo(question: IQuestion, no: string): string;
-  getUpdatedQuestionTitleActions(
-    question: IQuestion,
-    titleActions: Array<IAction>
-  ): Array<IAction>;
-  getUpdatedPanelTitleActions(
-    question: IPanel,
-    titleActions: Array<IAction>
-  ): Array<IAction>;
-  getUpdatedPageTitleActions(
-    question: IPage,
+  getUpdatedElementTitleActions(
+    element: ISurveyElement,
     titleActions: Array<IAction>
   ): Array<IAction>;
   getUpdatedMatrixRowActions(

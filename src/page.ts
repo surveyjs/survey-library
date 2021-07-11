@@ -1,6 +1,12 @@
 import { Serializer } from "./jsonobject";
 import { Helpers } from "./helpers";
-import { IPage, IPanel, IElement, ISurveyElement, IQuestion } from "./base-interfaces";
+import {
+  IPage,
+  IPanel,
+  IElement,
+  ISurveyElement,
+  IQuestion,
+} from "./base-interfaces";
 import { DragDropInfo, PanelModelBase, QuestionRowModel } from "./panel";
 import { LocalizableString } from "./localizablestring";
 /**
@@ -254,14 +260,6 @@ export class PageModel extends PanelModelBase implements IPage {
     }
     this.dragDropAddTarget(this.dragDropInfo);
     return true;
-  }
-  public getTitleActions(): Array<any> {
-    var titleActions: Array<any> = [];
-    this.titleActions = this.survey.getUpdatedPageTitleActions(
-      this,
-      titleActions
-    );
-    return this.titleActions;
   }
   private correctDragDropInfo(dragDropInfo: DragDropInfo) {
     if (!dragDropInfo.destination) return;

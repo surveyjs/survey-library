@@ -12833,6 +12833,16 @@ QUnit.test("Panel: Add change state action into actions", (assert) => {
     "Renders with actions"
   );
   assert.strictEqual(actions[0].active, false, "The action is inactive");
+  survey = new SurveyModel({
+    elements: [
+      {
+        type: "panel",
+        name: "panel1",
+        state: "expanded",
+      },
+    ],
+  });
+  panel = <PanelModel>survey.getPanelByName("panel1");
   survey.onGetPanelTitleActions.add((sender, options) => {
     options.titleActions.push({ id: "id2" });
   });
@@ -12852,8 +12862,15 @@ QUnit.test("Panel: Add change state action into actions", (assert) => {
     "Title area expanded is false, #2"
   );
 
-  panel.state = "default";
-  survey.onGetPanelTitleActions.clear();
+  survey = new SurveyModel({
+    elements: [
+      {
+        type: "panel",
+        name: "panel1",
+      },
+    ],
+  });
+  panel = <PanelModel>survey.getPanelByName("panel1");
   assert.equal(panel.getTitleActions().length, 0, "There is no actions");
   assert.equal(
     panel.getTitleComponentName(),
@@ -12882,23 +12899,23 @@ QUnit.test("Check onGetQuestionTitleActions event", (assert) => {
       },
     ],
   });
-  var panel = <Question>survey.getQuestionByName("text1");
   var testActions = [{ name: "simple" }, { name: "simple2" }];
   survey.onGetQuestionTitleActions.add((sender, options) => {
     options.titleActions = testActions;
   });
-  assert.deepEqual(panel.getTitleActions(), testActions);
+  var question = <Question>survey.getQuestionByName("text1");
+  assert.deepEqual(question.getTitleActions(), testActions);
 });
 
 QUnit.test("Check onGetPageTitleActions event", (assert) => {
   var survey = new SurveyModel({
     pages: [{ title: "Page Title" }],
   });
-  var page = <PageModel>survey.pages[0];
   var testActions = [{ name: "simple" }, { name: "simple2" }];
   survey.onGetPageTitleActions.add((sender, options) => {
     options.titleActions = testActions;
   });
+  var page = <PageModel>survey.pages[0];
   assert.deepEqual(page.getTitleActions(), testActions);
 });
 QUnit.test(

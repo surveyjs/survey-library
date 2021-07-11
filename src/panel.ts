@@ -312,14 +312,6 @@ export class PanelModelBase extends SurveyElement
     );
   }
 
-  public getTitleActions(): Array<any> {
-    var titleActions = super.getTitleActions();
-    this.titleActions = this.survey.getUpdatedPanelTitleActions(
-      this,
-      titleActions
-    );
-    return this.titleActions;
-  }
   get _showDescription(): boolean {
     return (
       ((<any>this.survey).showPageTitles && this.description.length > 0) ||

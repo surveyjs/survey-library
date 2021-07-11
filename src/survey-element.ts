@@ -21,7 +21,6 @@ import { SurveyError } from "./survey-error";
  * Base class of SurveyJS Elements.
  */
 export class SurveyElement extends Base implements ISurveyElement {
-  protected titleActions: any[];
   stateChangedCallback: () => void;
 
   public static getProgressInfoByElements(
@@ -103,16 +102,24 @@ export class SurveyElement extends Base implements ISurveyElement {
     super();
     this.name = name;
     this.createNewArray("errors");
+    this.createNewArray("titleActions");
     this.registerFunctionOnPropertyValueChanged("isReadOnly", () => {
       this.onReadOnlyChanged();
-    });
-    this.registerFunctionOnPropertyValueChanged("state", () => {
-      this.updateExpandAction();
-      if (this.stateChangedCallback) this.stateChangedCallback();
     });
     this.registerFunctionOnPropertyValueChanged("errors", () => {
       this.updateVisibleErrors();
     });
+  }
+  protected onPropertyValueChanged(name: string, oldValue: any, newValue: any) {
+    super.onPropertyValueChanged(name, oldValue, newValue);
+    if (name === "state") {
+      if (oldValue === "default" || newValue === "default") {
+        this.updateTitleActions();
+      } else {
+        this.updateExpandAction();
+      }
+      if (this.stateChangedCallback) this.stateChangedCallback();
+    }
   }
   /**
    * Set this property to "collapsed" to render only Panel title and expanded button and to "expanded" to render the collapsed button in the Panel caption
@@ -203,10 +210,20 @@ export class SurveyElement extends Base implements ISurveyElement {
         (this.isExpanded ? " sv-expand-action--expanded" : "");
     }
   }
+  public get titleActions(): Array<any> {
+    return this.getPropertyValue("titleActions");
+  }
+  private isTitleActionRequested: boolean;
   public getTitleActions(): Array<any> {
-    this.titleActions = [];
-    if (!this.hasStateButton) return this.titleActions;
-    if (!this.expandAction) {
+    if (!this.isTitleActionRequested) {
+      this.updateTitleActions();
+      this.isTitleActionRequested = true;
+    }
+    return this.titleActions;
+  }
+  private updateTitleActions() {
+    var actions = [];
+    if (this.hasStateButton && !this.expandAction) {
       this.expandAction = new Action({
         id: "expand-collapse-action",
         title: "",
@@ -217,9 +234,14 @@ export class SurveyElement extends Base implements ISurveyElement {
         },
       });
     }
+    if (!!this.expandAction) {
+      actions.push(this.expandAction);
+    }
+    if (!!this.survey) {
+      actions = this.survey.getUpdatedElementTitleActions(this, actions);
+    }
     this.updateExpandAction();
-    this.titleActions.push(this.expandAction);
-    return this.titleActions;
+    this.setPropertyValue("titleActions", actions);
   }
   public get hasTitleActions(): boolean {
     return this.getTitleActions().length > 0;

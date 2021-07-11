@@ -3964,8 +3964,18 @@ export class SurveyModel extends Base
     this.onElementContentVisibilityChanged.fire(this, { element });
   }
 
-  getUpdatedQuestionTitleActions(
-    question: IQuestion,
+  getUpdatedElementTitleActions(
+    element: ISurveyElement,
+    titleActions: Array<IAction>
+  ): Array<IAction> {
+    if (element.isPage)
+      return this.getUpdatedPageTitleActions(element, titleActions);
+    if (element.isPanel)
+      return this.getUpdatedPanelTitleActions(element, titleActions);
+    return this.getUpdatedQuestionTitleActions(element, titleActions);
+  }
+  private getUpdatedQuestionTitleActions(
+    question: ISurveyElement,
     titleActions: Array<IAction>
   ) {
     var options = {
@@ -3976,7 +3986,10 @@ export class SurveyModel extends Base
     return options.titleActions;
   }
 
-  getUpdatedPanelTitleActions(panel: IPanel, titleActions: Array<IAction>) {
+  private getUpdatedPanelTitleActions(
+    panel: ISurveyElement,
+    titleActions: Array<IAction>
+  ) {
     var options = {
       panel: panel,
       titleActions: titleActions,
@@ -3985,7 +3998,10 @@ export class SurveyModel extends Base
     return options.titleActions;
   }
 
-  getUpdatedPageTitleActions(page: IPage, titleActions: Array<IAction>) {
+  private getUpdatedPageTitleActions(
+    page: ISurveyElement,
+    titleActions: Array<IAction>
+  ) {
     var options = {
       page: page,
       titleActions: titleActions,

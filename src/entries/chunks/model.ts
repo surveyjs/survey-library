@@ -164,14 +164,6 @@ export {
 } from "../../question_custom";
 
 export { StylesManager } from "../../stylesmanager";
-
-export {
-  ActionBarItem,
-  IActionBarItem,
-  ActionBar,
-  AdaptiveActionBarItemWrapper,
-  AdaptiveElement,
-} from "../../action-bar";
 export { ListModel } from "../../list";
 export { PopupModel, PopupBaseViewModel } from "../../popup";
 export {

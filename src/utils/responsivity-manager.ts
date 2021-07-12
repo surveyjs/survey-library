@@ -1,7 +1,5 @@
 import { AdaptiveActionContainer } from "../actions/adaptive-container";
 import { Action } from "../actions/action";
-import { AdaptiveElement } from "../action-bar";
-import { AdaptiveActionBarItemWrapper } from "survey-core";
 
 interface IDimensions {
   scroll: number;
@@ -20,7 +18,7 @@ export class ResponsivityManager {
 
   constructor(
     protected container: HTMLDivElement,
-    private model: AdaptiveElement | AdaptiveActionContainer,
+    private model: AdaptiveActionContainer,
     private itemsSelector: string,
     private dotsItemSize: number = 48
   ) {
@@ -28,10 +26,8 @@ export class ResponsivityManager {
     this.resizeObserver.observe(this.container.parentElement);
   }
 
-  get items(): Array<Action | AdaptiveActionBarItemWrapper> {
-    if (this.model instanceof AdaptiveActionContainer)
+  get items(): Array<Action> {
       return this.model.actions;
-    else if (this.model instanceof AdaptiveElement) return this.model.items;
   }
 
   protected getDimensions(element: HTMLElement): IDimensions {
@@ -131,12 +127,7 @@ export class ResponsivityManager {
 export class VerticalResponsivityManager extends ResponsivityManager {
   protected minDimensionConst = 40;
 
-  constructor(
-    container: HTMLDivElement,
-    model: AdaptiveElement,
-    itemsSelector: string,
-    dotsItemSize?: number
-  ) {
+  constructor(container: HTMLDivElement, model: AdaptiveActionContainer, itemsSelector: string, dotsItemSize?: number) {
     super(container, model, itemsSelector, dotsItemSize);
   }
 

@@ -1,9 +1,5 @@
 import React from "react";
-import { ActionBarItem } from "survey-core";
-import {
-  MatrixDropdownRowModelBase,
-  QuestionMatrixDropdownModelBase,
-} from "survey-core";
+import { Action, MatrixDropdownRowModelBase, QuestionMatrixDropdownModelBase } from "survey-core";
 import { ReactElementFactory } from "../../../element-factory";
 import { ReactSurveyElement } from "../../../reactquestion_element";
 
@@ -15,7 +11,7 @@ export class SurveyQuestionMatrixDetailButton extends ReactSurveyElement {
   protected getStateElement() {
     return this.props.item;
   }
-  get item(): ActionBarItem {
+  get item(): Action {
     return this.props.item;
   }
   private get question(): QuestionMatrixDropdownModelBase {

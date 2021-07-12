@@ -1,5 +1,4 @@
 import React from "react";
-import { AdaptiveActionBarItemWrapper } from "survey-core";
 import { Base, Action } from "survey-core";
 import { ReactElementFactory } from "../../element-factory";
 import { SurveyElementBase } from "../../reactquestion_element";

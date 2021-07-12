@@ -192,14 +192,14 @@ export class SurveyElement extends Base implements ISurveyElement {
   public getTitleToolbar(): AdaptiveActionContainer {
     if (!this.titleToolbarValue) {
       this.titleToolbarValue = new AdaptiveActionContainer();
+      this.titleToolbarValue.actions = this.getTitleActions().map((action) => {
+        if (action instanceof Action) {
+          return action;
+        } else {
+          return new Action(action);
+        }
+      });
     }
-    this.titleToolbarValue.actions = this.getTitleActions().map((action) => {
-      if (action instanceof Action) {
-        return action;
-      } else {
-        return new Action(action);
-      }
-    });
     return this.titleToolbarValue;
   }
   private updateExpandAction() {
@@ -247,13 +247,10 @@ export class SurveyElement extends Base implements ISurveyElement {
     return this.getTitleActions().length > 0;
   }
   public getTitleComponentName(): string {
-    var componentName = "default";
-    if (this.hasTitleActions) {
-      componentName = RendererFactory.Instance.getRenderer(
-        "element",
-        "title-actions"
-      );
-    }
+    var componentName = RendererFactory.Instance.getRenderer(
+      "element",
+      "title-actions"
+    );
     if (componentName == "default") {
       return "sv-default-title";
     }

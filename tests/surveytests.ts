@@ -12874,8 +12874,8 @@ QUnit.test("Panel: Add change state action into actions", (assert) => {
   assert.equal(panel.getTitleActions().length, 0, "There is no actions");
   assert.equal(
     panel.getTitleComponentName(),
-    "sv-default-title",
-    "Renders default title"
+    "sv-title-actions",
+    "We do not render default title any more"
   );
   assert.equal(
     panel.titleTabIndex,

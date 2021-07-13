@@ -2151,6 +2151,28 @@ QUnit.test("Survey Markdown, Bug:#2831", function(assert) {
     "Process markdown correctly"
   );
 });
+QUnit.test("Call loc str changed onGetQuestionTitle, Bug#3080", function(
+  assert
+) {
+  var survey = new Survey({
+    showQuestionNumbers: "off",
+    elements: [{ type: "text", name: "q1", title: "Question1" }],
+  });
+  var q1 = survey.getQuestionByName("q1");
+  assert.equal(
+    q1.locTitle["koRenderedHtml"](),
+    "Question1",
+    "Process markdown correctly"
+  );
+  survey.onGetQuestionTitle.add((survey, options) => {
+    options.title = options.title + "!";
+  });
+  assert.equal(
+    q1.locTitle["koRenderedHtml"](),
+    "Question1!",
+    "Process onGetQuestionTitle correctly"
+  );
+});
 QUnit.test("loc strings changed on data assignment", function(assert) {
   var json = {
     questions: [

@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.8.56](https://github.com/surveyjs/survey-library/compare/v1.8.55...v1.8.56) (2021-07-13)
+
+
+### Bug Fixes
+
+* Do not run answer count validator on empty array [#3069](https://github.com/surveyjs/survey-library/issues/3069) ([#3070](https://github.com/surveyjs/survey-library/issues/3070)) ([a2059eb](https://github.com/surveyjs/survey-library/commit/a2059ebadcbfc5b54d78120fb3b532a0ea24d4f7))
+* survey.onGetQuestionTitle event doesn't work in knockout [#3080](https://github.com/surveyjs/survey-library/issues/3080) ([#3081](https://github.com/surveyjs/survey-library/issues/3081)) ([0801b4f](https://github.com/surveyjs/survey-library/commit/0801b4fb23c88624b081f9c4c04c213afb9b3406))
+* Text validator validates empty string [#3065](https://github.com/surveyjs/survey-library/issues/3065) ([#3068](https://github.com/surveyjs/survey-library/issues/3068)) ([148125b](https://github.com/surveyjs/survey-library/commit/148125b6a3cbed7f2d8c0309af92eb429ce2e874))
+
 ### [1.8.55](https://github.com/surveyjs/survey-library/compare/v1.8.54...v1.8.55) (2021-07-07)
 
 

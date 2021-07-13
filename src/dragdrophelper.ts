@@ -1,24 +1,21 @@
-import {
-  IElement,
-  PageModel,
-  SurveyModel,
-  JsonObject,
-  Base,
-  ItemValue,
-  property,
-  QuestionSelectBase,
-  Serializer,
-  QuestionPanelDynamicModel
-} from "survey-core";
-import { CreatorBase } from "./creator-base";
+import { Base, EventBase } from "./base";
+import { IElement } from "./base-interfaces";
+import { ItemValue } from "./itemvalue";
+import { JsonObject, property, Serializer } from "./jsonobject";
+import { PageModel } from "./page";
+import { QuestionSelectBase } from "./question_baseselect";
+import { SurveyModel } from "./survey";
 
 export class DragDropHelper extends Base {
+  public onBeforeDrop: EventBase<DragDropHelper> = new EventBase();
+  public onAfterDrop: EventBase<DragDropHelper> = new EventBase();
+
   public static edgeHeight: number = 30;
   public static nestedPanelDepth: number = -1;
-  public static prevEvent = {
+  public static prevEvent: any = {
     element: null,
     x: -1,
-    y: -1
+    y: -1,
   };
   public static newGhostPage: PageModel = null;
   public static ghostSurveyElementName =
@@ -35,12 +32,11 @@ export class DragDropHelper extends Base {
   private pageOrPanel: PageModel = null;
   private itemValueParentQuestion: QuestionSelectBase = null;
 
-  private get survey(): SurveyModel {
-    return this.creator.survey;
-  }
-
   protected isItemValueBeingDragged() {
-    return Serializer.isDescendantOf(this.draggedSurveyElement.getType(), "itemvalue");
+    return Serializer.isDescendantOf(
+      this.draggedSurveyElement.getType(),
+      "itemvalue"
+    );
   }
 
   protected get dropTargetDataAttributeName() {
@@ -50,7 +46,7 @@ export class DragDropHelper extends Base {
     return "[data-svc-drop-target-element-name]";
   }
 
-  constructor(private creator: CreatorBase<SurveyModel>) {
+  constructor(private survey: SurveyModel) {
     super();
   }
 
@@ -89,7 +85,7 @@ export class DragDropHelper extends Base {
     this.draggedElementShortcut.addEventListener("pointerup", this.drop);
   }
 
-  public getItemValueGhostPosition(item) {
+  public getItemValueGhostPosition(item: any) {
     if (this.dropTargetSurveyElement !== item) return null;
     if (this.isBottom) return "bottom";
     return "top";
@@ -102,7 +98,7 @@ export class DragDropHelper extends Base {
     const json = {
       type: "html",
       name: DragDropHelper.ghostSurveyElementName,
-      html: `<div class="${className}"></div>`
+      html: `<div class="${className}"></div>`,
     };
 
     const element = this.createElementFromJson(json);
@@ -113,10 +109,11 @@ export class DragDropHelper extends Base {
 
   private createDraggedElementShortcut() {
     const draggedElementShortcut = document.createElement("div");
+    const draggedElement: any = this.draggedSurveyElement;
     draggedElementShortcut.innerText =
-      this.draggedSurveyElement["title"] ||
-      this.draggedSurveyElement["text"] ||
-      this.draggedSurveyElement["name"];
+      draggedElement["title"] ||
+      draggedElement["text"] ||
+      draggedElement["name"];
     draggedElementShortcut.className = "svc-drag-shortcut";
     return draggedElementShortcut;
   }
@@ -194,7 +191,7 @@ export class DragDropHelper extends Base {
       event.pageY - shortcutYCenter + "px";
   }
 
-  private doScroll(clientY, clientX) {
+  private doScroll(clientY: number, clientX: number) {
     clearInterval(this.scrollIntervalId);
     const startScrollBoundary = 50;
 
@@ -320,8 +317,9 @@ export class DragDropHelper extends Base {
       return { dropTargetSurveyElement: null, isEdge: true, isBottom: true };
     }
 
-    let dropTargetSurveyElement =
-      this.getDropTargetSurveyElementFromHTMLElement(dropTargetHTMLElement);
+    let dropTargetSurveyElement = this.getDropTargetSurveyElementFromHTMLElement(
+      dropTargetHTMLElement
+    );
 
     let isEdge = true;
 
@@ -358,15 +356,20 @@ export class DragDropHelper extends Base {
     return { dropTargetSurveyElement, isEdge, isBottom };
   }
 
-  private getPanelDragInfo(HTMLElement, surveyElement, event) {
+  private getPanelDragInfo(
+    HTMLElement: HTMLElement,
+    surveyElement: IElement,
+    event: PointerEvent
+  ) {
     let isEdge = this.calculateIsEdge(HTMLElement, event.clientY);
     let dropTargetSurveyElement = surveyElement;
 
     if (!isEdge) {
       HTMLElement = this.findDeepestDropTargetChild(HTMLElement);
 
-      dropTargetSurveyElement =
-        this.getDropTargetSurveyElementFromHTMLElement(HTMLElement);
+      dropTargetSurveyElement = this.getDropTargetSurveyElementFromHTMLElement(
+        HTMLElement
+      );
     }
 
     return { dropTargetSurveyElement, isEdge };
@@ -393,15 +396,20 @@ export class DragDropHelper extends Base {
   }
 
   private getDropTargetSurveyElementFromHTMLElement(element: HTMLElement) {
-    let result = undefined;;
+    let result = undefined;
     let dropTargetName = this.getDropTargetSurveyElementName(element);
     let isDragOverInnerPanel = false;
-    if(!dropTargetName) {
-      const nearestDropTargetElement = element.parentElement.closest<HTMLElement>(this.dropTargetDataAttributeName);
-      dropTargetName = this.getDropTargetSurveyElementName(nearestDropTargetElement);
-      isDragOverInnerPanel = nearestDropTargetElement !== element && !!dropTargetName;
+    if (!dropTargetName) {
+      const nearestDropTargetElement = element.parentElement.closest<
+        HTMLElement
+      >(this.dropTargetDataAttributeName);
+      dropTargetName = this.getDropTargetSurveyElementName(
+        nearestDropTargetElement
+      );
+      isDragOverInnerPanel =
+        nearestDropTargetElement !== element && !!dropTargetName;
     }
-    if(!dropTargetName) {
+    if (!dropTargetName) {
       throw new Error("Can't find drop target survey element name");
     }
 
@@ -423,9 +431,13 @@ export class DragDropHelper extends Base {
         element = page.getElementByName(dropTargetName);
         if (element) result = element;
       });
-      if(!!result && result.getType() === "paneldynamic" && isDragOverInnerPanel) {
-        const page = result.page;
-        result = (<QuestionPanelDynamicModel>result).template;
+      if (
+        !!result &&
+        result.getType() === "paneldynamic" &&
+        isDragOverInnerPanel
+      ) {
+        const page = (<any>result).page;
+        result = (<any>result).template;
         result.page = page;
       }
     }
@@ -440,17 +452,17 @@ export class DragDropHelper extends Base {
     return result;
   }
 
-  private calculateMiddleOfHTMLElement(HTMLElement) {
+  private calculateMiddleOfHTMLElement(HTMLElement: HTMLElement) {
     const rect = HTMLElement.getBoundingClientRect();
     return rect.y + rect.height / 2;
   }
 
-  private calculateIsBottom(HTMLElement, clientY) {
+  private calculateIsBottom(HTMLElement: HTMLElement, clientY: number) {
     const middle = this.calculateMiddleOfHTMLElement(HTMLElement);
     return clientY >= middle;
   }
 
-  private calculateIsEdge(HTMLElement, clientY) {
+  private calculateIsEdge(HTMLElement: HTMLElement, clientY: number) {
     const middle = this.calculateMiddleOfHTMLElement(HTMLElement);
     return Math.abs(clientY - middle) >= DragDropHelper.edgeHeight;
   }
@@ -466,7 +478,10 @@ export class DragDropHelper extends Base {
     return dropTargetHTMLElement;
   }
 
-  private findDropTargetHTMLElementFromPoint(clientX, clientY): HTMLElement {
+  private findDropTargetHTMLElementFromPoint(
+    clientX: number,
+    clientY: number
+  ): HTMLElement {
     this.draggedElementShortcut.hidden = true;
     let draggedOverNode = document.elementFromPoint(clientX, clientY);
     this.draggedElementShortcut.hidden = false;
@@ -474,7 +489,7 @@ export class DragDropHelper extends Base {
     return this.findDropTargetHTMLElement(draggedOverNode);
   }
 
-  private findDeepestDropTargetChild(parent): HTMLElement {
+  private findDeepestDropTargetChild(parent: HTMLElement): HTMLElement {
     const selector = "[data-svc-drop-target-element-name]";
 
     let result = parent;
@@ -493,7 +508,7 @@ export class DragDropHelper extends Base {
 
     this.pageOrPanel = this.dropTargetSurveyElement.isPage
       ? this.dropTargetSurveyElement
-      : this.dropTargetSurveyElement["page"];
+      : (<any>this.dropTargetSurveyElement)["page"];
 
     this.pageOrPanel.dragDropStart(
       this.draggedSurveyElement,
@@ -514,9 +529,9 @@ export class DragDropHelper extends Base {
     // ghost new page
     if (
       this.dropTargetSurveyElement.isPage &&
-      this.dropTargetSurveyElement["_isGhost"]
+      (<any>this.dropTargetSurveyElement)["_isGhost"]
     ) {
-      this.dropTargetSurveyElement["_addGhostPageViewMobel"]();
+      (<any>this.dropTargetSurveyElement)["_addGhostPageViewMobel"]();
     }
     // EO ghost new page
 
@@ -541,19 +556,18 @@ export class DragDropHelper extends Base {
       this.isBottom,
       this.isEdge
     );
-    this.creator.undoRedoManager.startTransaction("drag drop");
-    const newElement = this.pageOrPanel.dragDropFinish();
-    this.creator.undoRedoManager.stopTransaction();
 
-    this.creator.selectElement(newElement);
+    this.onBeforeDrop.fire(this, null);
+    const newElement = this.pageOrPanel.dragDropFinish();
+    this.onAfterDrop.fire(this, { draggedElement: newElement });
   }
 
   private removeGhostElementFromSurvey() {
     if (!!this.pageOrPanel) this.pageOrPanel.dragDropFinish(true);
   }
 
-  private createElementFromJson(json) {
-    const element = this.creator.createNewElement(json);
+  private createElementFromJson(json: object) {
+    const element: any = this.createNewElement(json);
     if (element["setSurveyImpl"]) {
       element["setSurveyImpl"](this.survey);
     } else {
@@ -561,6 +575,12 @@ export class DragDropHelper extends Base {
     }
     element.renderWidth = "100%";
     return element;
+  }
+
+  private createNewElement(json: any): IElement {
+    var newElement = Serializer.createClass(json["type"]);
+    new JsonObject().toObject(json, newElement);
+    return newElement;
   }
 
   private createFakeTargetElement(elementName: string, json: any): any {
@@ -606,8 +626,10 @@ export class DragDropHelper extends Base {
       newIndex++;
     }
 
+    this.onBeforeDrop.fire(this, null);
     choices.splice(oldIndex, 1);
     choices.splice(newIndex, 0, this.draggedSurveyElement);
+    this.onAfterDrop.fire(this, { draggedElement: this.draggedSurveyElement });
   };
 
   private clear = () => {

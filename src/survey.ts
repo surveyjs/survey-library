@@ -970,6 +970,9 @@ export class SurveyModel extends Base
     this.onTextMarkdown.onCallbacksChanged = () => {
       this.locStrsChanged();
     };
+    this.onGetQuestionTitle.onCallbacksChanged = () => {
+      this.locStrsChanged();
+    };
     this.onBeforeCreating();
     if (jsonObj) {
       if (typeof jsonObj === "string" || jsonObj instanceof String) {

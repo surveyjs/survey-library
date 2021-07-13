@@ -46,8 +46,12 @@ export class DragDropHelper extends Base {
     return "[data-svc-drop-target-element-name]";
   }
 
-  constructor(private survey: SurveyModel) {
+  constructor(private surveyValue?: SurveyModel, private creator?: any) {
     super();
+  }
+
+  public get survey() {
+    return this.surveyValue || this.creator.survey;
   }
 
   public startDragToolboxItem(
@@ -427,7 +431,7 @@ export class DragDropHelper extends Base {
     // drop to element (question or panel)
     if (!result) {
       let element;
-      this.survey.pages.forEach((page) => {
+      this.survey.pages.forEach((page: PageModel) => {
         element = page.getElementByName(dropTargetName);
         if (element) result = element;
       });
@@ -609,7 +613,6 @@ export class DragDropHelper extends Base {
 
   private doDropSurveyElement() {
     if (this.dropTargetSurveyElement) {
-      // console.log("drop on: " + this.draggedOverElement["title"]);
       this.insertRealElementIntoSurvey();
     }
   }
@@ -629,7 +632,7 @@ export class DragDropHelper extends Base {
     this.onBeforeDrop.fire(this, null);
     choices.splice(oldIndex, 1);
     choices.splice(newIndex, 0, this.draggedSurveyElement);
-    this.onAfterDrop.fire(this, { draggedElement: this.draggedSurveyElement });
+    this.onAfterDrop.fire(this, { draggedElement: this.itemValueParentQuestion });
   };
 
   private clear = () => {

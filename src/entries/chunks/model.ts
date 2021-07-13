@@ -1,5 +1,4 @@
 // styles
-import { fromJson } from "angular";
 import "../../main.scss";
 //import "../../modern.scss";
 

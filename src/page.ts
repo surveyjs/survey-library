@@ -387,7 +387,7 @@ export class PageModel extends PanelModelBase implements IPage {
     isBottom: boolean
   ): boolean {
     if (!destination || (destination.isPanel && !isEdge)) return true;
-    if (source.parent !== destination.parent) return true;
+    if (typeof source.parent === "undefined" || source.parent !== destination.parent) return true;
     var pnl = <PanelModelBase>source.parent;
     var srcIndex = pnl.elements.indexOf(source);
     var destIndex = pnl.elements.indexOf(destination);

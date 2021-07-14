@@ -45,6 +45,7 @@
     "watch:core:prod": "webpack --config ./build-scripts/survey-core/webpack.config.js --env.buildType prod --watch",
     "watch:ko:ui": "webpack --config ./build-scripts/survey-knockout-ui/webpack.config.js --env.buildType dev --watch",
     "watch:react:ui": "webpack --config ./build-scripts/survey-react-ui/webpack.config.js --env.buildType dev --watch",
+    "dev": "concurrently \"http-server -p 8080 --silent\" \"npm run watch:core:dev\" \"npm run watch:core:prod\" \"npm run watch:ko:ui\" \"npm run watch:react:ui\"",
     "madge": "madge --circular --extensions ts ./src/"
   },
   "version": "1.8.56",

@@ -1,6 +1,5 @@
 import React from "react";
-import { IActionBarItem } from "survey-core";
-import { ListModel } from "survey-core";
+import { ListModel, IActionBarItem } from "survey-core";
 import { ReactElementFactory } from "../../element-factory";
 import { SurveyElementBase } from "../../reactquestion_element";
 import { SvgIcon } from "../svg-icon/svg-icon";
@@ -38,14 +37,13 @@ export class List extends SurveyElementBase<IListProps, any> {
       return null;
     }
     return items.map((item: IActionBarItem, itemIndex: number) => {
-      const style = item.visible === undefined || item.visible ? null : { display: "none" };
+      const style = {
+        paddingLeft: this.model.getItemIndent(item),
+        display: item.visible === undefined || item.visible ? null : "none"
+      };
       const className = this.model.getItemClass(item);
       const icon = item.iconName ? (
-        <SvgIcon
-          className="sv-list__item-icon"
-          iconName={item.iconName}
-          size={24}
-        ></SvgIcon>
+        <SvgIcon className="sv-list__item-icon" iconName={item.iconName} size={24}></SvgIcon>
       ) : null;
       return (
         <li

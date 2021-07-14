@@ -5,6 +5,7 @@ import { property } from "./jsonobject";
 export class ListModel extends Base {
   @property({ defaultValue: false }) isExpanded: boolean;
   @property() selectedItem: IActionBarItem;
+  public static INDENT: number = 16;
 
   constructor(
     items: Array<IActionBarItem>,
@@ -52,5 +53,10 @@ export class ListModel extends Base {
       className += " sv-list__item--selected";
     }
     return className;
+  };
+
+  public getItemIndent = (itemValue: any) => {
+    const level = itemValue.level || 0;
+    return (level + 1) * ListModel.INDENT + "px";
   };
 }

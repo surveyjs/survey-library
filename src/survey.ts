@@ -900,6 +900,17 @@ export class SurveyModel extends Base
     SurveyModel
   > = this.addEvent<SurveyModel>();
 
+  /**
+   * The event is fired before expression question convert it's value into display value for rendering.
+   * <br/> `sender` - the survey object that fires the event.
+   * <br/> `options.question` - The expression question.
+   * <br/> `options.value` - The question value.
+   * <br/> `options.displayValue` - the display value that you can change before rendering.
+   */
+  public onGetExpressionDisplayValue: EventBase<SurveyModel> = this.addEvent<
+    SurveyModel
+  >();
+
   //#endregion
 
   constructor(jsonObj: any = null) {
@@ -1571,6 +1582,19 @@ export class SurveyModel extends Base
     var options = { element: element, name: name, renderAs: renderAs };
     this.onTextRenderAs.fire(this, options);
     return options.renderAs;
+  }
+  getExpressionDisplayValue(
+    question: IQuestion,
+    value: any,
+    displayValue: string
+  ): string {
+    const options = {
+      question: question,
+      value: value,
+      displayValue: displayValue,
+    };
+    this.onGetExpressionDisplayValue.fire(this, options);
+    return options.displayValue;
   }
   private getBuiltInRendererForString(element: Base, name: string): string {
     if (this.isDesignMode) return LocalizableString.editableRenderer;

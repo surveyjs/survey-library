@@ -89,8 +89,7 @@ QUnit.test("Display text + survey.onExpressionDisplayValue event", function(
   expression.expression = "10";
   survey.data = { q1: 4 };
   expression.displayStyle = "decimal";
-  expression.maximumFractionDigits = 2;
-  assert.equal(expression.displayValue, "$10.00.", "Use event");
+  assert.equal(expression.displayValue, "$10.", "Use event");
 });
 
 function createSurveyWith3Questions(): SurveyModel {

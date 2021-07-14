@@ -10,6 +10,7 @@
     <li
       v-show="item.visible === undefined || item.visible"
       class="sv-list__item"
+      :style="{ paddingLeft: model.getItemIndent(item) }"
       v-for="item in model.items"
       :key="item.id"
       v-bind:class="model.getItemClass(item)"

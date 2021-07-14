@@ -400,9 +400,8 @@ export class StylesManager {
       "float: left; width: calc(3 * 8px); height: calc(3 * 8px); margin-right: calc(2 * 8px);",
     ".sv-list__item-icon svg": "display: block;",
     ".sv-list__item-icon use": "fill: #909090;",
-    ".sv-list__item:hover": "background-color: #f3f3f3;",
+    ".sv-list__item:not(.sv-list__item--selected):hover": "background-color: #f3f3f3;",
     ".sv-list__item--selected": "background-color: #19b394; color: #fff;",
-    ".sv-list__item--selected:hover": "background-color: #19b394;",
     ".sv-list__item--selected .sv-list__item-icon use": "fill: #fff;",
     ".sv-list__item--disabled":
       "color: rgba(22, 22, 22, 0.16); cursor: default; pointer-events: none;",

@@ -3,7 +3,7 @@ import { PopupModel } from "../popup";
 import { Action, IAction } from "./action";
 import { ActionContainer } from "./container";
 
-export class AdaptiveActionContainer extends ActionContainer<Action> {
+export class AdaptiveActionContainer<T extends Action = Action, V extends IAction = IAction> extends ActionContainer<T> {
   protected dotsItem: Action; // (...) button
   public dotsItemPopupModel: PopupModel;
 
@@ -11,15 +11,16 @@ export class AdaptiveActionContainer extends ActionContainer<Action> {
     return this.actions.filter((item) => item.mode !== "popup");
   }
 
-  public setItems(items: Array<IAction>, sortByVisibleIndex = true) {
-    const actions: Array<Action> = items.map((item) => (item instanceof Action ? item : new Action(item)));
+  public setItems(items: Array<V>, sortByVisibleIndex = true) {
+    const actions: Array<T> = <any>items.map((item) => (item instanceof Action ? item : new Action(item)));
     if (sortByVisibleIndex) {
       this.actions = this.sortItems(actions);
     } else {
       this.actions = actions;
     }
+
   }
-  private sortItems(items: Array<IAction>) {
+  private sortItems(items: Array<T>) {
     return []
       .concat(items.filter((item) => item.visibleIndex >= 0 || item.visibleIndex === undefined))
       .sort((firstItem, secondItem) => {
@@ -51,7 +52,7 @@ export class AdaptiveActionContainer extends ActionContainer<Action> {
     return (this.actions || []).length > 0;
   }
 
-  public invisibleItemSelected(item: Action): void {
+  public invisibleItemSelected(item: T): void {
     if (!!item && typeof item.action === "function") {
       item.action();
     }
@@ -59,7 +60,7 @@ export class AdaptiveActionContainer extends ActionContainer<Action> {
 
   protected invisibleItemsListModel: ListModel = new ListModel(
     [],
-    (item: Action) => {
+    (item: T) => {
       this.invisibleItemSelected(item);
       this.dotsItemPopupModel.toggleVisibility();
     },
@@ -84,7 +85,7 @@ export class AdaptiveActionContainer extends ActionContainer<Action> {
   }
 
   public removeDotsButton() {
-    var index = this.actions.indexOf(this.dotsItem);
+    var index = this.actions.indexOf(<any>this.dotsItem);
     if (index !== -1) {
       this.actions.splice(index, 1);
     }
@@ -92,7 +93,7 @@ export class AdaptiveActionContainer extends ActionContainer<Action> {
 
   private addDotsButton(newIndex: number) {
     if (newIndex < this.actions.length) {
-      this.actions.splice(newIndex, 0, this.dotsItem);
+      this.actions.splice(newIndex, 0, <any>this.dotsItem);
     }
   }
 }

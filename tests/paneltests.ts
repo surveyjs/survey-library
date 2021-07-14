@@ -845,7 +845,9 @@ QUnit.test("Panel.startLazyRendering isNeedRender=false", function(assert) {
   };
 
   const prevLazyRowsRendering = settings.lazyRowsRendering;
+  const prevStartRowInLazyRendering = settings.lazyRowsRenderingStartRow;
   settings.lazyRowsRendering = true;
+  settings.lazyRowsRenderingStartRow = 0;
   try {
     var survey = new SurveyModel(json);
     var panel: PanelModel = <PanelModel>survey.getAllPanels()[0];
@@ -873,8 +875,116 @@ QUnit.test("Panel.startLazyRendering isNeedRender=false", function(assert) {
     });
   } finally {
     settings.lazyRowsRendering = prevLazyRowsRendering;
+    settings.lazyRowsRenderingStartRow = prevStartRowInLazyRendering;
   }
 });
+QUnit.test("row.isNeedRender & settings.lazyRowsRenderingStartRow", function(
+  assert
+) {
+  var json = {
+    pages: [
+      {
+        name: "page1",
+        elements: [
+          {
+            type: "text",
+            name: "q1",
+          },
+          {
+            type: "text",
+            name: "q2",
+          },
+          {
+            type: "text",
+            name: "q3",
+          },
+        ],
+      },
+    ],
+  };
+
+  const prevLazyRowsRendering = settings.lazyRowsRendering;
+  const prevStartRowInLazyRendering = settings.lazyRowsRenderingStartRow;
+  settings.lazyRowsRenderingStartRow = 2;
+  try {
+    var survey = new SurveyModel(json);
+    survey.lazyRendering = true;
+    const page: PageModel = survey.currentPage;
+    page.setWasShown(false);
+    page.onFirstRendering();
+    assert.equal(page.rows.length, 3, "There are 3 rows");
+    assert.equal(page.rows[0].isNeedRender, true, "isNeedRender rows[0]");
+    assert.equal(page.rows[1].isNeedRender, true, "isNeedRender rows[1]");
+    assert.equal(page.rows[2].isNeedRender, false, "isNeedRender rows[2]");
+  } finally {
+    settings.lazyRowsRendering = prevLazyRowsRendering;
+    settings.lazyRowsRenderingStartRow = prevStartRowInLazyRendering;
+  }
+});
+QUnit.test(
+  "row.isNeedRender & settings.lazyRowsRenderingStartRow & designMode",
+  function(assert) {
+    var json = {
+      pages: [
+        {
+          name: "page1",
+          elements: [
+            {
+              type: "text",
+              name: "q1",
+            },
+            {
+              type: "text",
+              name: "q2",
+            },
+            {
+              type: "text",
+              name: "q3",
+            },
+          ],
+        },
+        {
+          name: "page2",
+          elements: [
+            {
+              type: "text",
+              name: "q4",
+            },
+          ],
+        },
+      ],
+    };
+
+    const prevLazyRowsRendering = settings.lazyRowsRendering;
+    const prevStartRowInLazyRendering = settings.lazyRowsRenderingStartRow;
+    settings.lazyRowsRenderingStartRow = 2;
+    try {
+      var survey = new SurveyModel(json);
+      survey.lazyRendering = true;
+      survey.setDesignMode(true);
+      const page1: PageModel = survey.pages[0];
+      page1.setWasShown(false);
+      page1.onFirstRendering();
+      assert.equal(page1.rows.length, 3, "There are 3 rows");
+      assert.equal(page1.rows[0].isNeedRender, true, "isNeedRender rows[0]");
+      assert.equal(page1.rows[1].isNeedRender, true, "isNeedRender rows[1]");
+      assert.equal(page1.rows[2].isNeedRender, false, "isNeedRender rows[2]");
+
+      const page2: PageModel = survey.pages[1];
+      page2.setWasShown(false);
+      page2.onFirstRendering();
+      assert.equal(page2.rows.length, 1, "There is one row on the second page");
+      assert.equal(
+        page2.rows[0].isNeedRender,
+        false,
+        "We do lazy rendering for the second page in design mode"
+      );
+    } finally {
+      settings.lazyRowsRendering = prevLazyRowsRendering;
+      settings.lazyRowsRenderingStartRow = prevStartRowInLazyRendering;
+    }
+  }
+);
 QUnit.test("row.visibleElements make it reactive", function(assert) {
   var page = new PageModel();
   page.addNewQuestion("text", "q1");

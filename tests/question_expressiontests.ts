@@ -75,6 +75,23 @@ QUnit.test("Display text + fraction digitals", function(assert) {
   expression.maximumFractionDigits = 2;
   assert.equal(expression.displayValue, "21.33", "2 digits");
 });
+QUnit.test("Display text + survey.onExpressionDisplayValue event", function(
+  assert
+) {
+  var survey = createSurveyWith3Questions();
+  survey.onGetExpressionDisplayValue.add((sender, options) => {
+    //if (options.question.name !== "exp") return;
+    options.displayValue = "$" + options.displayValue + ".";
+  });
+  var expression = <QuestionExpressionModel>(
+    survey.pages[0].addNewQuestion("expression", "exp")
+  );
+  expression.expression = "10";
+  survey.data = { q1: 4 };
+  expression.displayStyle = "decimal";
+  assert.equal(expression.displayValue, "$10.", "Use event");
+});
+
 function createSurveyWith3Questions(): SurveyModel {
   var survey = new SurveyModel();
   var page = survey.addNewPage();

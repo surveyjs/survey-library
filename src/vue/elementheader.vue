@@ -57,8 +57,10 @@ export class ElementHeader extends Vue {
   keyup(evt: any) {
     doKey2Click(evt);
   }
-  get clickTitleFunction(): any {
-    return (<any>this.element)["clickTitleFunction"];
+  clickTitleFunction() {
+    if(typeof (<any>this.element).clickTitleFunction === "function") {
+      (<any>this.element).clickTitleFunction();
+    }
   }
 }
 Vue.component("survey-element-header", ElementHeader);

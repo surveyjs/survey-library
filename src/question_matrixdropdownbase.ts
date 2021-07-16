@@ -35,7 +35,6 @@ import { FunctionFactory } from "./functionsfactory";
 import { PanelModel } from "./panel";
 import { settings } from "./settings";
 import { KeyDuplicationError } from "./error";
-import { ActionBarItem, IActionBarItem } from "./action-bar";
 import { SurveyModel } from "./survey";
 import { SurveyError } from "./survey-error";
 import { Action, IAction } from "./actions/action";
@@ -1781,9 +1780,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     if (!this.isValueEmpty(rowActions)) {
       const cell = new QuestionMatrixDropdownRenderedCell();
       const actionContainer = new AdaptiveActionContainer();
-      actionContainer.actions = rowActions.map((action) => {
-        return action instanceof Action ? action : new Action(action);
-      });
+      actionContainer.setItems(rowActions);
 
       const itemValue = new ItemValue(actionContainer);
       cell.item = itemValue;

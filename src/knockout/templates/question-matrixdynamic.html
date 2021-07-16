@@ -19,7 +19,7 @@
       <table data-bind="css: question.koCss().root">
         <!-- ko if: question.koTable().showHeader -->
         <thead>
-          <tr data-bind="event: { pointerdown: function (model, event) { startDragItemValue(event); } }">
+          <tr>
             <!-- ko foreach: question.koTable().headerRow.cells -->
             <th
               data-bind="style: { minWidth: $data.minWidth, width: $data.width }, css: question.koCss().headerCell"
@@ -40,7 +40,7 @@
         <tbody>
           <!-- ko foreach: question.koTable().rows -->
           <!-- ko ifnot: $parent.detailPanelMode === "popup" && $data.isDetailRow -->
-          <tr data-bind="css:$data.className">
+          <tr data-bind="css:$data.className, event: { pointerdown: function (model, event) { question.startDragItemValue(event); } }">
             <!-- ko foreach: $data.cells -->
             <!-- ko if: $data.isActionsCell -->
             <td data-bind="css:$data.className, attr: {colspan: $data.colSpans}">

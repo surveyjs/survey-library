@@ -1,5 +1,5 @@
 import { Base, EventBase } from "./base";
-import { IElement } from "./base-interfaces";
+import { IElement, ISurvey } from "./base-interfaces";
 import { ItemValue } from "./itemvalue";
 import { JsonObject, property, Serializer } from "./jsonobject";
 import { PageModel } from "./page";
@@ -46,7 +46,7 @@ export class DragDropHelper extends Base {
     return "[data-svc-drop-target-element-name]";
   }
 
-  constructor(private surveyValue?: SurveyModel, private creator?: any) {
+  constructor(private surveyValue?: ISurvey, private creator?: any) {
     super();
   }
 

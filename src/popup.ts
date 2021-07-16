@@ -235,10 +235,16 @@ export class PopupBaseViewModel extends Base {
     super.dispose();
     this.model.onVisibilityChanged = undefined;
   }
-  public initializePopupContainer() {
+  public createPopupContainer() {
     const container: HTMLElement = document.createElement("div");
     this.container = container;
+  }
+  public mountPopupContainer() {
     document.body.appendChild(this.container);
+  }
+  public initializePopupContainer() {
+    this.createPopupContainer();
+    this.mountPopupContainer();
   }
   public destroyPopupContainer() {
     this.container.remove();

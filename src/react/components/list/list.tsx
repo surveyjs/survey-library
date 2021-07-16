@@ -38,7 +38,8 @@ export class List extends SurveyElementBase<IListProps, any> {
     }
     return items.map((item: IAction, itemIndex: number) => {
       const style = {
-        display: item.visible === undefined || item.visible ? null : "none"
+        paddingLeft: this.model.getItemIndent(item),
+        display: item.visible === undefined || item.visible ? null : "none",
       };
       const className = this.model.getItemClass(item);
       const icon = item.iconName ? (

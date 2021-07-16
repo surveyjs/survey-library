@@ -101,15 +101,17 @@ export class QuestionRowModel extends Base {
   constructor(public panel: PanelModelBase) {
     super();
     this.idValue = QuestionRowModel.getRowId();
-    this.isNeedRender = !this.isLazyRendering;
     this.visible = panel.areInvisibleElementsShowing;
     this.createNewArray("elements");
     this.createNewArray("visibleElements");
   }
-  public get isLazyRendering() {
-    return (
-      !!this.panel && !!this.panel.survey && this.panel.survey.isLazyRendering
-    );
+  private isLazyRenderingValue: boolean;
+  public setIsLazyRendering(val: boolean) {
+    this.isLazyRenderingValue = val;
+    this.isNeedRender = !val;
+  }
+  public isLazyRendering(): boolean {
+    return this.isLazyRenderingValue === true;
   }
   public get id(): string {
     return this.idValue;
@@ -1040,6 +1042,9 @@ export class PanelModelBase extends SurveyElement
       var el = this.elements[i];
       var isNewRow = i == 0 || el.startWithNewLine;
       var row = isNewRow ? this.createRow() : result[result.length - 1];
+      if (isNewRow) {
+        row.setIsLazyRendering(this.isLazyRenderInRow(result.length));
+      }
       if (isNewRow) result.push(row);
       row.addElement(el);
     }
@@ -1047,6 +1052,16 @@ export class PanelModelBase extends SurveyElement
       result[i].updateVisible();
     }
     return result;
+  }
+  private isLazyRenderInRow(rowIndex: number): boolean {
+    if (!this.survey || !this.survey.isLazyRendering) return false;
+    return (
+      rowIndex >= settings.lazyRowsRenderingStartRow ||
+      !this.canRenderFirstRows()
+    );
+  }
+  protected canRenderFirstRows(): boolean {
+    return this.isPage;
   }
   private updateRowsOnElementAdded(element: IElement, index: number) {
     if (!this.canBuildRows()) return;

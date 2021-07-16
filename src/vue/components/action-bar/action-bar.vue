@@ -21,7 +21,7 @@
 import { Component, Prop } from "vue-property-decorator";
 import Vue from "vue";
 import { AdaptiveActionContainer } from "survey-core";
-import { BaseVue } from "src/vue/base";
+import { BaseVue } from "../../base";
 
 export * from "./action.vue";
 export * from "./action-bar-item.vue";

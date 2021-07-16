@@ -833,6 +833,7 @@ export class MatrixDropdownRowModelBase
 
   public cells: Array<MatrixDropdownCell> = [];
   public showHideDetailPanelClick: any;
+  public onDetailPanelShowingChanged: () => void;
 
   constructor(data: IMatrixDropdownData, value: any) {
     this.data = data;
@@ -890,6 +891,9 @@ export class MatrixDropdownRowModelBase
   private setIsDetailPanelShowing(val: boolean) {
     if (!!this.data) {
       this.data.setIsDetailPanelShowing(this, val);
+    }
+    if (!!this.onDetailPanelShowingChanged) {
+      this.onDetailPanelShowingChanged();
     }
   }
   private showHideDetailPanel() {

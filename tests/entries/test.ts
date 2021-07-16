@@ -27,6 +27,7 @@ export * from "../surveytimertests";
 export * from "../question_expressiontests";
 export * from "../questionFileTests";
 export * from "../dragdroptests";
+export * from "../dragdrophelpertests";
 export * from "../expressions/expressionsTest"; //
 export * from "../expressions/expressionParserTest"; //
 export * from "../questionDropdown";

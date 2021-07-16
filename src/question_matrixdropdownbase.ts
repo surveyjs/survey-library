@@ -854,6 +854,9 @@ export class MatrixDropdownRowModelBase
   public get rowName(): any {
     return null;
   }
+  public get text(): any {
+    return this.rowName;
+  }
   public get value(): any {
     var result: any = {};
     var questions = this.questions;
@@ -2929,7 +2932,7 @@ export class QuestionMatrixDropdownModelBase
         (row: MatrixDropdownRowModelBase) => {
           var rowDataItem = <any>{
             name: row.rowName,
-            title: row.rowName,
+            title: row.text,
             value: row.value,
             displayValue: this.getRowDisplayValue(false, row, row.value),
             getString: (val: any) =>

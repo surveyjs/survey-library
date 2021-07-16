@@ -8746,7 +8746,9 @@ QUnit.test("question.getPlainData - matrix", function(assert) {
   Serializer.removeProperty("itemvalue", "score");
 });
 
-QUnit.test("question.getPlainData - matrixdropdown", function(assert) {
+QUnit.test("question.getPlainData - matrixdropdown, fixed bug#3097", function(
+  assert
+) {
   Serializer.addProperty("question", {
     name: "score:number",
   });
@@ -8791,7 +8793,7 @@ QUnit.test("question.getPlainData - matrixdropdown", function(assert) {
           score: 5,
         },
       ],
-      rows: ["Row 1", "Row 2"],
+      rows: [{ value: "Row 1", text: "Row 1 Title" }, "Row 2"],
     },
     question
   );
@@ -8810,7 +8812,7 @@ QUnit.test("question.getPlainData - matrixdropdown", function(assert) {
     "Row 2": { "Column 1": 4, "Column 2": "5", "Column 3": 4 },
   });
   assert.deepEqual(plainData.displayValue, {
-    "Row 1": {
+    "Row 1 Title": {
       "Column 1": "1",
       "Column 2": "2",
       "Column 3": "3",
@@ -8824,7 +8826,7 @@ QUnit.test("question.getPlainData - matrixdropdown", function(assert) {
   assert.equal(plainData.isNode, true);
   assert.equal(plainData.data.length, 2, "Two rows in matrix");
   assert.deepEqual(plainData.data[0].name, "Row 1");
-  assert.deepEqual(plainData.data[0].title, "Row 1");
+  assert.deepEqual(plainData.data[0].title, "Row 1 Title");
   assert.deepEqual(plainData.data[0].value, {
     "Column 1": 1,
     "Column 2": 2,

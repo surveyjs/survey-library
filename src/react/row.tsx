@@ -47,7 +47,7 @@ export class SurveyRow extends SurveyElementBase<any, any> {
           rootStyle["maxWidth"] = element.maxWidth;
         }
         return (
-          <div style={rootStyle} key={innerElement.key}>
+          <div className={element.cssClasses.questionWrapper} style={rootStyle} key={innerElement.key}>
             {innerElement}
           </div>
         );

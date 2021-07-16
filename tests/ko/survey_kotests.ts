@@ -2389,3 +2389,51 @@ QUnit.test(
     );
   }
 );
+QUnit.test("Error on running triggers", function(assert) {
+  var survey = new Survey({
+    elements: [
+      {
+        type: "text",
+        name: "q1",
+      },
+      {
+        type: "matrixdynamic",
+        name: "matrix",
+        visibleIf: "{q1} = 'yes'",
+        columns: [
+          {
+            name: "col1",
+            cellType: "text",
+          },
+        ],
+        rowCount: 1,
+      },
+      {
+        type: "radiogroup",
+        name: "radio",
+        choices: [
+          {
+            value: "yes",
+            text: "Yes",
+          },
+          {
+            value: "no",
+            text: "No",
+          },
+        ],
+      },
+    ],
+    triggers: [
+      {
+        type: "setvalue",
+        expression: "{matrix[0].col1} notcontains 'x'",
+        setToName: "radio",
+        setValue: "no",
+      },
+    ],
+  });
+  survey.runTriggers();
+  assert.equal(survey.getValue("radio"), undefined, "There is not value");
+  survey.setValue("matrix", [{ col1: "v" }]);
+  assert.equal(survey.getValue("radio"), "no", "Set value on trigger");
+});

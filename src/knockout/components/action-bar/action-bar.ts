@@ -1,12 +1,5 @@
 import * as ko from "knockout";
-import {
-  ActionBar,
-  AdaptiveElement,
-  IActionBarItem,
-  Base,
-  Action,
-  AdaptiveActionContainer,
-} from "survey-core";
+import { Base, Action, AdaptiveActionContainer, IAction, ActionContainer } from "survey-core";
 import { ResponsivityManager } from "survey-core";
 import { ImplementorBase } from "../../kobase";
 
@@ -17,10 +10,10 @@ export * from "./action-bar-item";
 export * from "./action-bar-item-dropdown";
 export * from "./action-bar-separator";
 
-export class ActionBarViewModel extends ActionBar {
+export class ActionBarViewModel extends AdaptiveActionContainer {
   public itemsSubscription: any;
 
-  constructor(_items: Array<IActionBarItem>, public handleClick = true) {
+  constructor(_items: Array<IAction>, public handleClick = true) {
     super();
     this.itemsSubscription = ko.computed(() => {
       this.setItems(ko.unwrap(_items));
@@ -36,7 +29,7 @@ export class ActionBarViewModel extends ActionBar {
 export class AdaptiveElementImplementor extends ImplementorBase {
   private itemsSubscription: any;
 
-  constructor(model: AdaptiveElement | AdaptiveActionContainer) {
+  constructor(model: AdaptiveActionContainer) {
     super(model);
 
     this.itemsSubscription = ko.computed(() => {

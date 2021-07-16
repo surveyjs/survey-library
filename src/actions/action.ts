@@ -1,3 +1,4 @@
+import { settings } from "../settings";
 import { Base } from "../base";
 import { property } from "../jsonobject";
 
@@ -100,24 +101,38 @@ export class Action extends Base implements IAction {
   @property() active: boolean;
   @property() template: string;
   @property() component: string;
-  @property() iconName: string;
+  @property() iconNameValue: string;
   @property() items: any;
   @property() visibleIndex: number;
+  @property({ defaultValue: "large" }) mode: "large" | "small" | "popup";
+
+  private getIconNameFromProxy(iconName: string): string {
+    var proxyName = (<any>settings.customIcons)[iconName];
+    return !!proxyName ? proxyName : iconName;
+  }
+
+  public get iconName(): string {
+    return this.iconNameValue;
+  }
+  public set iconName(newVal) {
+    this.iconNameValue = this.getIconNameFromProxy(newVal);
+  }
 
   public get disabled(): boolean {
     return this.enabled !== undefined && !this.enabled;
   }
 
   public get hasTitle(): boolean {
-    return (this.mode != "small" && (this.showTitle || this.showTitle === undefined) || !this.iconName) && !!this.title;
+    return (
+      ((this.mode != "small" && (this.showTitle || this.showTitle === undefined)) || !this.iconNameValue) && !!this.title
+    );
   }
   public get isVisible() {
     return this.mode !== "popup";
   }
   public get canShrink() {
-      return !!this.iconName;
+    return !!this.iconName;
   }
-  @property({ defaultValue: "large" }) mode: "large" | "small" | "popup";
 
   minDimension: number;
   maxDimension: number;

@@ -18,7 +18,6 @@ import { SurveyQuestionRadioItem } from "./reactquestion_radiogroup";
 import { SurveyPanel } from "./panel";
 
 import { SurveyActionBar } from "./components/action-bar/action-bar";
-import { IActionBarItem } from "survey-core";
 import { ReactSurveyModel } from "./reactsurveymodel";
 
 export class SurveyQuestionMatrixDropdownBase extends SurveyQuestionElementBase {

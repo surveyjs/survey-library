@@ -192,13 +192,7 @@ export class SurveyElement extends Base implements ISurveyElement {
   public getTitleToolbar(): AdaptiveActionContainer {
     if (!this.titleToolbarValue) {
       this.titleToolbarValue = new AdaptiveActionContainer();
-      this.titleToolbarValue.actions = this.getTitleActions().map((action) => {
-        if (action instanceof Action) {
-          return action;
-        } else {
-          return new Action(action);
-        }
-      });
+      this.titleToolbarValue.setItems(this.getTitleActions());
     }
     return this.titleToolbarValue;
   }

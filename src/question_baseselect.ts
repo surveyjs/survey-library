@@ -785,10 +785,16 @@ export class QuestionSelectBase extends Question {
     return true;
   }
   public supportOther(): boolean {
-    return true;
+    return this.isSupportProperty("hasOther");
   }
   public supportNone(): boolean {
-    return true;
+    return this.isSupportProperty("hasNone");
+  }
+  protected isSupportProperty(propName: string): boolean {
+    return (
+      !this.isDesignMode ||
+      Serializer.findProperty(this.getType(), propName).visible
+    );
   }
   protected onCheckForErrors(
     errors: Array<SurveyError>,

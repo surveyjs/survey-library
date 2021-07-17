@@ -692,8 +692,6 @@ export class DragDropMatrixRow extends DragDropHelper {
 
     const rows = (<QuestionMatrixModel>this.parentElement).visibleRows;
 
-
-
     if (dropTargetSurveyElement === this.draggedElement) {
       this.banDropHere();
       return true;

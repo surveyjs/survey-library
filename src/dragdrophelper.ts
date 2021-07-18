@@ -1,4 +1,4 @@
-import { MatrixRowModel, QuestionMatrixModel } from "survey-core";
+import { MatrixRowModel, QuestionMatrixDropdownRenderedRow, QuestionMatrixModel } from "survey-core";
 import { Base, EventBase } from "./base";
 import { IElement, ISurvey } from "./base-interfaces";
 import { ItemValue } from "./itemvalue";
@@ -210,9 +210,9 @@ export class DragDropHelper extends Base {
     // need to import getScrollableParent method
     // let scrollableParentElement = getScrollableParent(dropZoneElement)
     //   .parentNode;
-    let scrollableParentElement = document.querySelector(
-      ".svc-tab-designer.sd-root-modern"
-    );
+    let scrollableParentElement =
+      document.querySelector(".svc-tab-designer.sd-root-modern") ||
+      document.querySelector(".sv_container");
 
     let top = scrollableParentElement.getBoundingClientRect().top;
     let bottom = scrollableParentElement.getBoundingClientRect().bottom;
@@ -239,7 +239,6 @@ export class DragDropHelper extends Base {
   }
 
   private handleItemValueDragOver(event: PointerEvent) {
-
     const dragInfo = this.getDragInfo(event);
     let dropTargetSurveyElement = dragInfo.dropTargetSurveyElement;
     let isEdge = dragInfo.isEdge;
@@ -396,7 +395,7 @@ export class DragDropHelper extends Base {
     this.banDropHere();
   };
 
-  private getDropTargetSurveyElementName(element: HTMLElement) {
+  protected getDropTargetSurveyElementName(element: HTMLElement) {
     let dropTargetSurveyElementName = element.dataset.svcDropTargetElementName;
     if (!dropTargetSurveyElementName) {
       dropTargetSurveyElementName = element.dataset.svcDropTargetItemValue;
@@ -426,6 +425,14 @@ export class DragDropHelper extends Base {
       return this.ghostSurveyElement;
     }
 
+    result = this.getDropTargetSurveyElement(dropTargetName, isDragOverInnerPanel);
+
+
+    return result;
+  }
+
+  protected getDropTargetSurveyElement(dropTargetName: any, isDragOverInnerPanel? :boolean) {
+    let result = undefined;
     // drop to page
     if (dropTargetName === "newGhostPage") {
       result = DragDropHelper.newGhostPage;
@@ -683,14 +690,27 @@ export class DragDropMatrixRow extends DragDropHelper {
     this.startDrag(event);
   }
 
-  protected dragOver(event: PointerEvent) {
+  protected getDropTargetSurveyElementName(element: HTMLElement) {
+    return element.dataset.svcDropTargetMatrixRow;
+  }
 
+  protected getDropTargetSurveyElement(dropTargetName: any, isDragOverInnerPanel? :boolean) {
+    let result = undefined;
+
+    if (!result) {
+      result = (<QuestionMatrixModel>this.parentElement).visibleRows.filter(
+        (row) => (<any>row).id === dropTargetName
+      )[0];
+    }
+
+    return result;
+  }
+
+  protected dragOver(event: PointerEvent) {
     const dragInfo = this.getDragInfo(event);
     let dropTargetSurveyElement = dragInfo.dropTargetSurveyElement;
     let isEdge = dragInfo.isEdge;
     let isBottom = dragInfo.isBottom;
-
-    const rows = (<QuestionMatrixModel>this.parentElement).visibleRows;
 
     if (dropTargetSurveyElement === this.draggedElement) {
       this.banDropHere();

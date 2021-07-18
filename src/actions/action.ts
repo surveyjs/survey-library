@@ -77,6 +77,10 @@ export interface IAction {
    * - `end` - An action is located at the end of a row.
    */
   location?: string;
+  /**
+   * Set it to true to make the tabIndex -1 to disable keyboard navigation to this item
+   */
+  disableTabStop?: boolean;
   visibleIndex?: number;
 }
 
@@ -105,6 +109,7 @@ export class Action extends Base implements IAction {
   @property() items: any;
   @property() visibleIndex: number;
   @property({ defaultValue: "large" }) mode: "large" | "small" | "popup";
+  @property() disableTabStop: boolean;
 
   private getIconNameFromProxy(iconName: string): string {
     var proxyName = (<any>settings.customIcons)[iconName];
@@ -124,7 +129,10 @@ export class Action extends Base implements IAction {
 
   public get hasTitle(): boolean {
     return (
-      ((this.mode != "small" && (this.showTitle || this.showTitle === undefined)) || !this.iconNameValue) && !!this.title
+      ((this.mode != "small" &&
+        (this.showTitle || this.showTitle === undefined)) ||
+        !this.iconNameValue) &&
+      !!this.title
     );
   }
   public get isVisible() {

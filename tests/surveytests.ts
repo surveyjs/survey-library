@@ -12834,7 +12834,11 @@ QUnit.test("Panel: Add change state action into actions", (assert) => {
     "sv-title-actions",
     "Renders with actions"
   );
-  assert.strictEqual(actions[0].active, false, "The action is inactive");
+  assert.strictEqual(
+    actions[0].disableTabStop,
+    true,
+    "The action could not be used from keyboard"
+  );
   survey = new SurveyModel({
     elements: [
       {

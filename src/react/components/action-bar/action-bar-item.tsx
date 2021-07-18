@@ -9,10 +9,7 @@ interface IActionBarItemProps {
   item: Action;
 }
 
-export class SurveyAction extends SurveyElementBase<
-  IActionBarItemProps,
-  any
-> {
+export class SurveyAction extends SurveyElementBase<IActionBarItemProps, any> {
   get item() {
     return this.props.item;
   }
@@ -20,7 +17,7 @@ export class SurveyAction extends SurveyElementBase<
     return this.item;
   }
 
-  render() {
+  renderElement() {
     const itemClass =
       "sv-action " +
       this.item.css +
@@ -55,7 +52,7 @@ export class SurveyActionBarItem extends SurveyElementBase<
     return this.item;
   }
 
-  render() {
+  renderElement() {
     return <>{this.renderInnerButton()}</>;
   }
 
@@ -92,12 +89,14 @@ export class SurveyActionBarItem extends SurveyElementBase<
       (this.item.active ? " sv-action-bar-item--active" : "");
     const title = this.item.tooltip || this.item.title;
     const buttonContent = this.renderButtonContent();
+    const tabIndex = this.item.disableTabStop ? -1 : undefined;
     const button = (
       <button
         className={className}
         disabled={this.item.disabled}
         onClick={() => this.item.action(this.item)}
         title={title}
+        tabIndex={tabIndex}
       >
         {buttonContent}
       </button>
@@ -107,9 +106,6 @@ export class SurveyActionBarItem extends SurveyElementBase<
   }
 }
 
-ReactElementFactory.Instance.registerElement(
-  "sv-action-bar-item",
-  (props) => {
-    return React.createElement(SurveyActionBarItem, props);
-  }
-);
+ReactElementFactory.Instance.registerElement("sv-action-bar-item", (props) => {
+  return React.createElement(SurveyActionBarItem, props);
+});

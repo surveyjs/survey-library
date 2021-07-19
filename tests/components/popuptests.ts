@@ -374,6 +374,32 @@ QUnit.test("PopupModel apply", (assert) => {
   trace = "";
 });
 
+QUnit.test("PopupModel apply", (assert) => {
+  const model: PopupModel = new PopupModel("sv-list", {});
+  const targetElement: HTMLElement = document.createElement("div");
+  const viewModel: PopupBaseViewModel = new PopupBaseViewModel(
+    model,
+    targetElement
+  );
+  viewModel.initializePopupContainer();
+  viewModel.container.innerHTML = popupTemplate;
+
+  assert.equal(viewModel.isVisible, false);
+
+  let canApply = false; 
+  model.onCanApply = (): boolean => {
+      return canApply;
+  };
+
+  model.toggleVisibility();
+  assert.equal(viewModel.isVisible, true);
+  viewModel.apply();
+  assert.equal(viewModel.isVisible, true);
+  canApply = true;
+  viewModel.apply();
+  assert.equal(viewModel.isVisible, false);
+});
+
 QUnit.test("PopupViewModel dispose", (assert) => {
   const data = {};
   const model: PopupModel = new PopupModel("sv-list", data);

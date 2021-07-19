@@ -151,7 +151,7 @@ export var settings = {
     (
       componentName: string,
       data: any,
-      onApply: () => void,
+      onApply: () => boolean,
       onCancel?: () => void
     ) => void
   >undefined,

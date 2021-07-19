@@ -38,4 +38,31 @@ export class DragDropSurveyElements extends DragDropCore {
 
     return dragOverSurveyElement;
   }
+
+  protected doDragOver(event: PointerEvent, dragInfo: any) {
+    let dropTargetSurveyElement = dragInfo.dropTargetSurveyElement;
+    let isEdge = dragInfo.isEdge;
+    let isBottom = dragInfo.isBottom;
+
+    if (!dropTargetSurveyElement) {
+      this.banDropSurveyElement();
+      return;
+    }
+
+    if (dropTargetSurveyElement === this.ghostSurveyElement) {
+      return;
+    }
+
+    if (
+      dropTargetSurveyElement === this.dropTargetSurveyElement &&
+      isEdge === this.isEdge &&
+      isBottom === this.isBottom
+    )
+      return;
+
+    this.isEdge = isEdge;
+    this.isBottom = isBottom;
+    this.dropTargetSurveyElement = dropTargetSurveyElement;
+    this.insertGhostElementIntoSurvey();
+  }
 }

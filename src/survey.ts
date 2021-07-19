@@ -39,7 +39,7 @@ import {
 } from "./expressionItems";
 import { ExpressionRunner, ConditionRunner } from "./conditions";
 import { settings } from "./settings";
-import { getSize, isMobile } from "./utils/utils";
+import { getSize, isMobile, scrollElementByChildId } from "./utils/utils";
 import { SurveyError } from "./survey-error";
 import { IAction } from "./actions/action";
 
@@ -1098,6 +1098,13 @@ export class SurveyModel extends Base
   }
   public get isLazyRendering(): boolean {
     return this.lazyRendering || settings.lazyRowsRendering;
+  }
+  private updateLazyRenderingRowsOnRemovingElements() {
+    if (!this.isLazyRendering) return;
+    var page = this.currentPage;
+    if (!!page) {
+      scrollElementByChildId(page.id);
+    }
   }
   /**
    * Gets or sets a list of triggers in the survey.
@@ -5155,6 +5162,7 @@ export class SurveyModel extends Base
     if (this.isDesignMode) {
       this.updateProgressText();
     }
+    this.updateLazyRenderingRowsOnRemovingElements();
   }
   private generateNewName(elements: Array<any>, baseName: string): string {
     var keys: { [index: string]: any } = {};
@@ -5339,6 +5347,7 @@ export class SurveyModel extends Base
       question: question,
       name: question.name,
     });
+    this.updateLazyRenderingRowsOnRemovingElements();
   }
   questionRenamed(
     question: IQuestion,
@@ -5457,6 +5466,7 @@ export class SurveyModel extends Base
   panelRemoved(panel: IElement) {
     this.updateVisibleIndexes();
     this.onPanelRemoved.fire(this, { panel: panel, name: panel.name });
+    this.updateLazyRenderingRowsOnRemovingElements();
   }
   validateQuestion(question: IQuestion): SurveyError {
     if (this.onValidateQuestion.isEmpty) return null;

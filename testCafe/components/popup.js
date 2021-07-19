@@ -41,10 +41,10 @@ frameworks.forEach((framework) => {
       onGetQuestionTitleActions: (_, opt) => {
         const itemPopupModel = new Survey.PopupModel("sv-list", {
           model: new Survey.ListModel([
-            new Survey.ActionBarItem({ title: "Item 1" }),
+            new Survey.Action({ title: "Item 1" }),
           ]),
         });
-        const item = new Survey.ActionBarItem({
+        const item = new Survey.Action({
           component: "sv-action-bar-item-dropdown",
           title: "Click",
           showTitle: true,
@@ -94,7 +94,7 @@ frameworks.forEach((framework) => {
             },
           ],
         };
-        const item = new Survey.ActionBarItem({
+        const item = new Survey.Action({
           component: "sv-action-bar-item",
           title: "Click",
           showTitle: true,
@@ -147,7 +147,7 @@ frameworks.forEach((framework) => {
             },
           ],
         };
-        const item = new Survey.ActionBarItem({
+        const item = new Survey.Action({
           component: "sv-action-bar-item",
           title: "Click",
           showTitle: true,

@@ -166,7 +166,7 @@ export class PopupContainer extends SurveyElementBase<any, any> {
 export function showModal(
   componentName: string,
   data: any,
-  onApply: () => void,
+  onApply: () => boolean,
   onCancel?: () => void
 ) {
   const popupModel = new PopupModel(

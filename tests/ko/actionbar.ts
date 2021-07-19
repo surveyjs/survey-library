@@ -1,6 +1,5 @@
 import {
-  ActionBarViewModel,
-  ActionBaseViewModelImplementor,
+  ActionBarViewModel
 } from "../../src/knockout/components/action-bar/action-bar";
 import ko from "knockout";
 
@@ -20,8 +19,7 @@ QUnit.test(
       },
     ];
     const model = new ActionBarViewModel(items);
-    new ActionBaseViewModelImplementor(model);
-    const item = model.items[0];
+    const item = model.actions[0];
     assert.equal(item.isVisible, true);
     let count = 0;
     ko.computed(() => {

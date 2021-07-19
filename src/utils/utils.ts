@@ -106,6 +106,16 @@ function findScrollableParent(element: HTMLElement): HTMLElement {
   }
 }
 
+function scrollElementByChildId(id: string) {
+  if (!document) return;
+  const el = document.getElementById(id);
+  if (!el) return;
+  const scrollableEl = findScrollableParent(el);
+  if (!!scrollableEl) {
+    scrollableEl.dispatchEvent(new CustomEvent("scroll"));
+  }
+}
+
 function createSvg(
   size: number,
   width: number,
@@ -167,6 +177,7 @@ export {
   isMobile,
   isElementVisible,
   findScrollableParent,
+  scrollElementByChildId,
   createSvg,
   doKey2Click,
 };

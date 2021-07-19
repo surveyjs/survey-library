@@ -5070,6 +5070,37 @@ QUnit.test(
   }
 );
 QUnit.test(
+  "Creator V2: Hide selectAll, hasNone and hasOther if this properties are invisible",
+  function(assert) {
+    var json = {
+      elements: [
+        {
+          type: "checkbox",
+          name: "q1",
+          choices: ["item1", "item2", "item3"],
+        },
+      ],
+    };
+    settings.supportCreatorV2 = true;
+    Serializer.findProperty("selectbase", "hasOther").visible = false;
+    Serializer.findProperty("selectbase", "hasNone").visible = false;
+    Serializer.findProperty("checkbox", "hasSelectAll").visible = false;
+    var survey = new SurveyModel();
+    survey.setDesignMode(true);
+    survey.fromJSON(json);
+    var q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+    assert.equal(
+      q1.visibleChoices.length,
+      4,
+      "Hide SelectAll+None+hasOther and show only new: 3+4 - 3"
+    );
+    Serializer.findProperty("selectbase", "hasOther").visible = true;
+    Serializer.findProperty("selectbase", "hasNone").visible = true;
+    Serializer.findProperty("checkbox", "hasSelectAll").visible = true;
+    settings.supportCreatorV2 = false;
+  }
+);
+QUnit.test(
   "Creator V2: add into visibleChoices others/hasOther items in design mode, add new question",
   function(assert) {
     var json = {

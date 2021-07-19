@@ -252,7 +252,7 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     return !this.hasSelectAll && super.canUseFilteredChoices();
   }
   protected supportSelectAll() {
-    return true;
+    return this.isSupportProperty("hasSelectAll");
   }
   protected addToVisibleChoices(items: Array<ItemValue>, isAddAll: boolean) {
     if (this.supportSelectAll() && (isAddAll || this.hasSelectAll)) {

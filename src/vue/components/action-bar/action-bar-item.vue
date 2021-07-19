@@ -12,6 +12,7 @@
     ]"
     v-bind:disabled="item.enabled !== undefined && !item.enabled"
     v-bind:title="item.tooltip || item.title"
+    v-bind:tabindex="item.disableTabStop ? -1 : undefined"
   >
     <sv-svg-icon
       v-if="item.iconName"

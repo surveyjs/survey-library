@@ -463,7 +463,7 @@ Serializer.addClass(
 );
 Serializer.addClass(
   "copyvaluetrigger",
-  [{ name: "!setToName:questionvalue" }, { name: "!fromName:questionvalue" }],
+  [{ name: "!fromName:questionvalue" }, { name: "!setToName:questionvalue" }],
   function() {
     return new SurveyTriggerCopyValue();
   },

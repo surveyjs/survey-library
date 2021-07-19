@@ -30,7 +30,6 @@ export class PopupModel extends Base {
     showPointer: boolean = true,
     isModal: boolean = false,
     onCancel = () => {},
-    onCanApply = () => {return true},
     onApply = () => {},
     onHide = () => {},
     onShow = () => {},
@@ -44,7 +43,6 @@ export class PopupModel extends Base {
     this.showPointer = showPointer;
     this.isModal = isModal;
     this.onCancel = onCancel;
-    this.onCanApply = onCanApply;
     this.onApply = onApply;
     this.onHide = onHide;
     this.onShow = onShow;

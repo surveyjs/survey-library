@@ -184,4 +184,4 @@ export { surveyCss } from "../../defaultCss/cssstandard";
 //Uncomment to include the "date" question type.
 //export {default as QuestionDateModel} from "../../plugins/question_date";
 
-export { DragDropHelper } from "../../dragdrophelper";
+export { DragDropCore as DragDropHelper } from "../../dragdrop/core";

@@ -17,7 +17,7 @@ import { settings } from "./settings";
 import { confirmAction } from "./utils/utils";
 import { LocalizableString } from "./localizablestring";
 import { Action, IAction } from "./actions/action";
-import { DragDropHelper, DragDropMatrixRow } from "./dragdrophelper";
+import { DragDropMatrixRows } from "./dragdrop/matrix-rows";
 import { ISurveyImpl } from "./base-interfaces";
 import { MatrixRowModel } from "survey-core";
 
@@ -76,7 +76,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
 
   public setSurveyImpl(value: ISurveyImpl) {
     super.setSurveyImpl(value);
-    this.dragDropHelper = new DragDropMatrixRow(this.survey);
+    this.dragDropHelper = new DragDropMatrixRows(this.survey);
     this.subscribeToDragDropHelper();
   }
 
@@ -102,7 +102,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     );
   };
   public startDragMatrixRow(event: PointerEvent, row: MatrixRowModel) {
-    this.dragDropHelper.startDragMatrixRow(event, this, row);
+    this.dragDropHelper.startDrag(event, this, row);
   }
 
   public getType(): string {

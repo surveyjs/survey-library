@@ -17,7 +17,7 @@ export class PopupModel extends Base {
   @property({ defaultValue: false }) showPointer: boolean;
   @property({ defaultValue: false }) isModal: boolean;
   @property({ defaultValue: () => {} }) onCancel: () => void;
-  @property({ defaultValue: () => {} }) onCanApply: () => boolean;
+  onCanApply: () => boolean;
   @property({ defaultValue: () => {} }) onApply: () => void;
   @property({ defaultValue: () => {} }) onHide: () => void;
   @property({ defaultValue: () => {} }) onShow: () => void;
@@ -223,7 +223,7 @@ export class PopupBaseViewModel extends Base {
     this.model.isVisible = false;
   }
   public apply() {
-    if (!this.model.onCanApply()) return;
+    if (!!this.model.onCanApply && !this.model.onCanApply()) return;
     this.model.onApply();
     this.model.isVisible = false;
   }

@@ -221,8 +221,7 @@ export class SurveyElement extends Base implements ISurveyElement {
       this.expandAction = new Action({
         id: "expand-collapse-action",
         title: "",
-        active: false,
-        enabled: false, //TODO
+        disableTabStop: true,
         action: () => {
           this.toggleState();
         },

@@ -89,7 +89,7 @@ export class PopupContainer extends BaseVue {
 export function showModal(
   componentName: string,
   data: any,
-  onApply: () => void,
+  onApply: () => boolean,
   onCancel?: () => void
 ) {
   const popupModel = new PopupModel(

@@ -17,8 +17,7 @@ export class PopupModel extends Base {
   @property({ defaultValue: false }) showPointer: boolean;
   @property({ defaultValue: false }) isModal: boolean;
   @property({ defaultValue: () => {} }) onCancel: () => void;
-  onCanApply: () => boolean;
-  @property({ defaultValue: () => {} }) onApply: () => void;
+  @property({ defaultValue: () => {return true;} }) onApply: () => boolean;
   @property({ defaultValue: () => {} }) onHide: () => void;
   @property({ defaultValue: () => {} }) onShow: () => void;
   @property({ defaultValue: "" }) cssClass: string;
@@ -30,7 +29,7 @@ export class PopupModel extends Base {
     showPointer: boolean = true,
     isModal: boolean = false,
     onCancel = () => {},
-    onApply = () => {},
+    onApply = () => {return true;},
     onHide = () => {},
     onShow = () => {},
     cssClass: string = ""
@@ -223,8 +222,7 @@ export class PopupBaseViewModel extends Base {
     this.model.isVisible = false;
   }
   public apply() {
-    if (!!this.model.onCanApply && !this.model.onCanApply()) return;
-    this.model.onApply();
+    if (!!this.model.onApply && !this.model.onApply()) return;
     this.model.isVisible = false;
   }
   public get cancelButtonText() {

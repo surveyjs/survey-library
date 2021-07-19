@@ -137,11 +137,88 @@ export abstract class DragDropCore extends Base {
   };
 
   protected dragOver(event: PointerEvent) {
+    const dragInfo = this.getDragInfo(event);
+
     if (this.isItemValueBeingDragged()) {
-      this.handleItemValueDragOver(event);
+      this.handleItemValueDragOver(event, dragInfo);
     } else {
-      this.handleSurveyElementDragOver(event);
+      this.handleSurveyElementDragOver(event, dragInfo);
     }
+  }
+
+  private handleItemValueDragOver(event: PointerEvent, dragInfo: any) {
+    let dropTargetSurveyElement = dragInfo.dropTargetSurveyElement;
+    let isEdge = dragInfo.isEdge;
+    let isBottom = dragInfo.isBottom;
+
+    const choices = this.parentElement.choices;
+
+    // shouldn't allow to drop on "adorners" (selectall, none, other)
+    if (choices.indexOf(dropTargetSurveyElement) === -1) {
+      this.banDropHere();
+      return;
+    }
+
+    //drag over next item
+    if (
+      choices.indexOf(dropTargetSurveyElement) -
+        choices.indexOf(this.draggedElement) ===
+      1
+    ) {
+      isBottom = true;
+    }
+
+    //drag over prev item
+    if (
+      choices.indexOf(this.draggedElement) -
+        choices.indexOf(dropTargetSurveyElement) ===
+      1
+    ) {
+      isBottom = false;
+    }
+
+    if (dropTargetSurveyElement === this.draggedElement) {
+      this.banDropHere();
+      return true;
+    }
+
+    if (
+      dropTargetSurveyElement === this.dropTargetSurveyElement &&
+      isEdge === this.isEdge &&
+      isBottom === this.isBottom
+    )
+      return;
+
+    this.dropTargetSurveyElement = dropTargetSurveyElement;
+    this.isEdge = isEdge;
+    this.isBottom = isBottom;
+  }
+
+  private handleSurveyElementDragOver(event: PointerEvent, dragInfo: any) {
+    let dropTargetSurveyElement = dragInfo.dropTargetSurveyElement;
+    let isEdge = dragInfo.isEdge;
+    let isBottom = dragInfo.isBottom;
+
+    if (!dropTargetSurveyElement) {
+      this.banDropSurveyElement();
+      return;
+    }
+
+    if (dropTargetSurveyElement === this.ghostSurveyElement) {
+      return;
+    }
+
+    if (
+      dropTargetSurveyElement === this.dropTargetSurveyElement &&
+      isEdge === this.isEdge &&
+      isBottom === this.isBottom
+    )
+      return;
+
+    this.isEdge = isEdge;
+    this.isBottom = isBottom;
+    this.dropTargetSurveyElement = dropTargetSurveyElement;
+    this.insertGhostElementIntoSurvey();
   }
 
   private handleEscapeButton = (event: KeyboardEvent) => {
@@ -240,83 +317,6 @@ export abstract class DragDropCore extends Base {
         scrollableParentElement.scrollLeft -= 5;
       }, 10);
     }
-  }
-
-  private handleItemValueDragOver(event: PointerEvent) {
-    const dragInfo = this.getDragInfo(event);
-    let dropTargetSurveyElement = dragInfo.dropTargetSurveyElement;
-    let isEdge = dragInfo.isEdge;
-    let isBottom = dragInfo.isBottom;
-
-    const choices = this.parentElement.choices;
-
-    // shouldn't allow to drop on "adorners" (selectall, none, other)
-    if (choices.indexOf(dropTargetSurveyElement) === -1) {
-      this.banDropHere();
-      return;
-    }
-
-    //drag over next item
-    if (
-      choices.indexOf(dropTargetSurveyElement) -
-        choices.indexOf(this.draggedElement) ===
-      1
-    ) {
-      isBottom = true;
-    }
-
-    //drag over prev item
-    if (
-      choices.indexOf(this.draggedElement) -
-        choices.indexOf(dropTargetSurveyElement) ===
-      1
-    ) {
-      isBottom = false;
-    }
-
-    if (dropTargetSurveyElement === this.draggedElement) {
-      this.banDropHere();
-      return true;
-    }
-
-    if (
-      dropTargetSurveyElement === this.dropTargetSurveyElement &&
-      isEdge === this.isEdge &&
-      isBottom === this.isBottom
-    )
-      return;
-
-    this.dropTargetSurveyElement = dropTargetSurveyElement;
-    this.isEdge = isEdge;
-    this.isBottom = isBottom;
-  }
-
-  private handleSurveyElementDragOver(event: PointerEvent) {
-    const dragInfo = this.getDragInfo(event);
-    let dropTargetSurveyElement = dragInfo.dropTargetSurveyElement;
-    let isEdge = dragInfo.isEdge;
-    let isBottom = dragInfo.isBottom;
-
-    if (!dropTargetSurveyElement) {
-      this.banDropSurveyElement();
-      return;
-    }
-
-    if (dropTargetSurveyElement === this.ghostSurveyElement) {
-      return;
-    }
-
-    if (
-      dropTargetSurveyElement === this.dropTargetSurveyElement &&
-      isEdge === this.isEdge &&
-      isBottom === this.isBottom
-    )
-      return;
-
-    this.isEdge = isEdge;
-    this.isBottom = isBottom;
-    this.dropTargetSurveyElement = dropTargetSurveyElement;
-    this.insertGhostElementIntoSurvey();
   }
 
   protected getDragInfo(event: PointerEvent) {

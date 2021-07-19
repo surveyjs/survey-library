@@ -52,7 +52,7 @@ export abstract class DragDropCore extends Base {
     words.forEach((word) => {
       datasetName += this.capitalizeFirstLetter(word);
     });
-    return element.dataset.svcDropTargetMatrixRow;
+    return element.dataset[datasetName];
   }
 
   public parentElement: any;
@@ -333,6 +333,7 @@ export abstract class DragDropCore extends Base {
     let result = undefined;
     let dragOverElementName = this.getDropTargetName(element);
     let isDragOverInnerPanel = false;
+
     if (!dragOverElementName) {
       const nearestDropTargetElement = element.parentElement.closest<
         HTMLElement
@@ -398,8 +399,6 @@ export abstract class DragDropCore extends Base {
 
     return dropTargetHTMLElement;
   }
-
-
 
   private findDeepestDropTargetChild(parent: HTMLElement): HTMLElement {
     const selector = this.dropTargetDataAttributeName;

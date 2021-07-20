@@ -281,7 +281,7 @@ export class Question extends SurveyElement
    * @see titleLocation
    */
   public get hideNumber(): boolean {
-    return this.getPropertyValue("hideNumber", false);
+    return this.getPropertyValue("hideNumber");
   }
   public set hideNumber(val: boolean) {
     this.setPropertyValue("hideNumber", val);

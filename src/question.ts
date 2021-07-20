@@ -1104,6 +1104,7 @@ export class Question extends SurveyElement
   }
   protected onSetData() {
     super.onSetData();
+    if (!this.survey) return;
     this.initDataFromSurvey();
     this.onSurveyValueChanged(this.value);
     this.updateValueWithDefaults();

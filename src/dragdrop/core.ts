@@ -86,7 +86,7 @@ export abstract class DragDropCore extends Base {
     this.draggedElement = draggedElement;
     this.parentElement = parentElement;
 
-    this.ghostSurveyElement = this.createGhostSurveyElement();
+    this.doStartDrag();
     this.draggedElementShortcut = this.createDraggedElementShortcut();
 
     document.body.append(this.draggedElementShortcut);
@@ -97,26 +97,12 @@ export abstract class DragDropCore extends Base {
     this.draggedElementShortcut.addEventListener("pointerup", this.drop);
   }
 
+  protected doStartDrag() {}
+
   public getItemValueGhostPosition(item: any) {
     if (this.dropTargetSurveyElement !== item) return null;
     if (this.isBottom) return "bottom";
     return "top";
-  }
-
-  private createGhostSurveyElement(): any {
-    const startWithNewLine = this.draggedElement.startWithNewLine;
-    let className = "svc-drag-drop-ghost";
-
-    const json = {
-      type: "html",
-      name: DragDropCore.ghostSurveyElementName,
-      html: `<div class="${className}"></div>`,
-    };
-
-    const element = this.createElementFromJson(json);
-    element.startWithNewLine = startWithNewLine;
-
-    return element;
   }
 
   private createDraggedElementShortcut() {
@@ -142,7 +128,27 @@ export abstract class DragDropCore extends Base {
     let isEdge = dragInfo.isEdge;
     let isBottom = dragInfo.isBottom;
 
+    if (!dropTargetSurveyElement) {
+      this.banDropHere();
+      return;
+    }
+
+    if (dropTargetSurveyElement === this.ghostSurveyElement) {
+      return;
+    }
+
+    if (
+      dropTargetSurveyElement === this.dropTargetSurveyElement &&
+      isEdge === this.isEdge &&
+      isBottom === this.isBottom
+    )
+      return;
+
     this.doDragOver(dropTargetSurveyElement, isBottom, isEdge);
+
+    this.isEdge = isEdge;
+    this.isBottom = isBottom;
+    this.dropTargetSurveyElement = dropTargetSurveyElement;
   }
 
   protected getDragInfo(event: PointerEvent) {
@@ -318,16 +324,14 @@ export abstract class DragDropCore extends Base {
   }
 
   protected banDropHere = () => {
+    this.doBanDropHere();
     this.dropTargetSurveyElement = null;
     this.isBottom = null;
     this.isEdge = null;
     this.draggedElementShortcut.style.cursor = "not-allowed";
   };
 
-  protected banDropSurveyElement = () => {
-    this.removeGhostElementFromSurvey();
-    this.banDropHere();
-  };
+  protected doBanDropHere = () => {};
 
   private getDropTargetSurveyElementFromHTMLElement(element: HTMLElement) {
     let result = undefined;
@@ -412,72 +416,7 @@ export abstract class DragDropCore extends Base {
     return <HTMLElement>result;
   }
 
-  protected insertGhostElementIntoSurvey(): boolean {
-    this.removeGhostElementFromSurvey();
-
-    this.ghostSurveyElement.name = DragDropCore.ghostSurveyElementName; //TODO why do we need setup it manually see createGhostSurveyElement method
-
-    this.parentElement = this.dropTargetSurveyElement.isPage
-      ? this.dropTargetSurveyElement
-      : (<any>this.dropTargetSurveyElement)["page"];
-
-    this.parentElement.dragDropStart(
-      this.draggedElement,
-      this.ghostSurveyElement,
-      DragDropCore.nestedPanelDepth
-    );
-
-    return this.parentElement.dragDropMoveTo(
-      this.dropTargetSurveyElement,
-      this.isBottom,
-      this.isEdge
-    );
-  }
-
-  private insertRealElementIntoSurvey() {
-    this.removeGhostElementFromSurvey();
-
-    // ghost new page
-    if (
-      this.dropTargetSurveyElement.isPage &&
-      (<any>this.dropTargetSurveyElement)["_isGhost"]
-    ) {
-      (<any>this.dropTargetSurveyElement)["_addGhostPageViewMobel"]();
-    }
-    // EO ghost new page
-
-    // fake target element (need only for "startWithNewLine:false" feature)
-    //TODO need for dragDrop helper in library
-    const json = new JsonObject().toJsonObject(this.draggedElement);
-    json["type"] = this.draggedElement.getType();
-    const fakeTargetElement = this.createFakeTargetElement(
-      this.draggedElement.name,
-      json
-    );
-    // EO fake target element
-
-    this.parentElement.dragDropStart(
-      this.draggedElement,
-      fakeTargetElement,
-      DragDropCore.nestedPanelDepth
-    );
-
-    this.parentElement.dragDropMoveTo(
-      this.dropTargetSurveyElement,
-      this.isBottom,
-      this.isEdge
-    );
-
-    this.onBeforeDrop.fire(this, null);
-    const newElement = this.parentElement.dragDropFinish();
-    this.onAfterDrop.fire(this, { draggedElement: newElement });
-  }
-
-  private removeGhostElementFromSurvey() {
-    if (!!this.parentElement) this.parentElement.dragDropFinish(true);
-  }
-
-  private createElementFromJson(json: object) {
+  protected createElementFromJson(json: object) {
     const element: any = this.createNewElement(json);
     if (element["setSurveyImpl"]) {
       element["setSurveyImpl"](this.survey);
@@ -494,55 +433,14 @@ export abstract class DragDropCore extends Base {
     return newElement;
   }
 
-  private createFakeTargetElement(elementName: string, json: any): any {
-    if (!elementName || !json) return null;
-    var targetElement = null;
-    targetElement = Serializer.createClass(json["type"]);
-    new JsonObject().toObject(json, targetElement);
-    targetElement.name = elementName;
-    if (targetElement["setSurveyImpl"]) {
-      targetElement["setSurveyImpl"](this.survey);
-    } else {
-      targetElement["setData"](this.survey);
-    }
-    targetElement.renderWidth = "100%";
-    return targetElement;
-  }
-
   private drop = () => {
-    if (this.isItemValueBeingDragged()) {
-      this.doDropItemValue();
-    } else {
-      this.doDropSurveyElement();
-    }
+    this.onBeforeDrop.fire(this, null);
+    const newElement = this.doDrop();
+    this.onAfterDrop.fire(this, { draggedElement: newElement });
     this.clear();
   };
 
-  private doDropSurveyElement() {
-    if (this.dropTargetSurveyElement) {
-      this.insertRealElementIntoSurvey();
-    }
-  }
-
-  private doDropItemValue = () => {
-    const isTop = !this.isBottom;
-    const choices = this.parentElement.choices;
-    const oldIndex = choices.indexOf(this.draggedElement);
-    let newIndex = choices.indexOf(this.dropTargetSurveyElement);
-
-    if (oldIndex < newIndex && isTop) {
-      newIndex--;
-    } else if (oldIndex > newIndex && this.isBottom) {
-      newIndex++;
-    }
-
-    this.onBeforeDrop.fire(this, null);
-    choices.splice(oldIndex, 1);
-    choices.splice(newIndex, 0, this.draggedElement);
-    this.onAfterDrop.fire(this, {
-      draggedElement: this.parentElement,
-    });
-  };
+  protected abstract doDrop(): any;
 
   private clear = () => {
     clearInterval(this.scrollIntervalId);
@@ -552,7 +450,7 @@ export abstract class DragDropCore extends Base {
     this.draggedElementShortcut.removeEventListener("pointerup", this.drop);
     document.body.removeChild(this.draggedElementShortcut);
 
-    this.removeGhostElementFromSurvey();
+    this.doClear();
 
     const prevEvent = DragDropCore.prevEvent;
     prevEvent.element = null;
@@ -564,9 +462,10 @@ export abstract class DragDropCore extends Base {
     this.ghostSurveyElement = null;
     this.draggedElement = null;
     this.parentElement = null;
-    this.parentElement = null;
     this.isBottom = null;
     this.isEdge = null;
     this.scrollIntervalId = null;
   };
+
+  protected doClear() {}
 }

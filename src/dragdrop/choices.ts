@@ -63,4 +63,22 @@ export class DragDropChoices extends DragDropCore {
     this.isEdge = isEdge;
     this.isBottom = isBottom;
   }
+
+  protected doDrop = () => {
+    const isTop = !this.isBottom;
+    const choices = this.parentElement.choices;
+    const oldIndex = choices.indexOf(this.draggedElement);
+    let newIndex = choices.indexOf(this.dropTargetSurveyElement);
+
+    if (oldIndex < newIndex && isTop) {
+      newIndex--;
+    } else if (oldIndex > newIndex && this.isBottom) {
+      newIndex++;
+    }
+
+    choices.splice(oldIndex, 1);
+    choices.splice(newIndex, 0, this.draggedElement);
+
+    return this.parentElement;
+  };
 }

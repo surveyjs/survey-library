@@ -19,5 +19,6 @@ export class DragDropMatrixRows extends DragDropCore {
     return dragOverRow;
   }
 
-  protected doDragOver(event: PointerEvent, dragInfo: any) {}
+  protected doDrop() {}
+  protected doDragOver() {}
 }

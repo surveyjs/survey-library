@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.8.57](https://github.com/surveyjs/survey-library/compare/v1.8.56...v1.8.57) (2021-07-20)
+
+
+### Bug Fixes
+
+* Could not override defaultValue for question hideNumber property [#3111](https://github.com/surveyjs/survey-library/issues/3111) ([021aacf](https://github.com/surveyjs/survey-library/commit/021aacffe6d0ad8938f4446c6f5b53012be0005f))
+* Exception on runTriggers() function in complex scenario [#3095](https://github.com/surveyjs/survey-library/issues/3095) ([#3096](https://github.com/surveyjs/survey-library/issues/3096)) ([aaebe98](https://github.com/surveyjs/survey-library/commit/aaebe9865a13c23ac0b7f6f01f4fee5a455d8f39))
+* getPlainData() function doesn't work correctly for matrix dropdown [#3097](https://github.com/surveyjs/survey-library/issues/3097) ([#3098](https://github.com/surveyjs/survey-library/issues/3098)) ([71bfbe8](https://github.com/surveyjs/survey-library/commit/71bfbe83ad286564780bd47a69743ba4abc5e38b))
+* Questions are not rendering in lazyRendering mode on deleting elements on the top [#3104](https://github.com/surveyjs/survey-library/issues/3104) ([#3105](https://github.com/surveyjs/survey-library/issues/3105)) ([24d6a1e](https://github.com/surveyjs/survey-library/commit/24d6a1e084ee7e9884b1abb6c4fa1855e7c268f8))
+
 ### [1.8.56](https://github.com/surveyjs/survey-library/compare/v1.8.55...v1.8.56) (2021-07-13)
 
 

@@ -1,4 +1,4 @@
-import { frameworks, url_test, initSurvey, getSurveyResult } from "../helper";
+import { frameworks, url_test, initSurvey, getSurveyResult, getDynamicPanelRemoveButton } from "../helper";
 import { Selector, ClientFunction } from "testcafe";
 const assert = require("assert");
 const title = `allTypes`;
@@ -285,11 +285,8 @@ const applyTheme = ClientFunction(theme => {
 
       await t.click(Selector("span").withText("panel_title"));
 
-      await t.click(
-        Selector("[aria-label='paneldynamic']")
-          .parent("[aria-labelledby]")
-          .find("input[value='Remove']")
-      );
+
+      await t.click(getDynamicPanelRemoveButton("paneldynamic", "Remove"));
 
       await t.hover(
         Selector("[aria-label='ranking_question']")

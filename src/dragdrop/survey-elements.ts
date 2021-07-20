@@ -1,50 +1,106 @@
+import { IElement } from "src/base-interfaces";
 import { JsonObject, Serializer } from "src/jsonobject";
+import { turkishSurveyStrings } from "src/localization/turkish";
 import { PageModel } from "src/page";
 import { DragDropCore } from "./core";
 
 export class DragDropSurveyElements extends DragDropCore {
+  public static newGhostPage: PageModel = null;
+  protected isEdge: boolean = null;
+
   protected get draggedElementType(): string {
     return "survey-element";
   }
 
-  protected getDragOverElementByName(
+  protected getDropTargetByName(
     dropTargetName: string,
     isDragOverInnerPanel: boolean
   ) {
-    let dragOverSurveyElement = undefined;
+    let dropTarget = undefined;
     // drop to page
     if (dropTargetName === "newGhostPage") {
-      dragOverSurveyElement = DragDropCore.newGhostPage;
+      dropTarget = DragDropSurveyElements.newGhostPage;
     } else {
-      dragOverSurveyElement = this.survey.getPageByName(dropTargetName);
+      dropTarget = this.survey.getPageByName(dropTargetName);
     }
 
     // drop to element (question or panel)
-    if (!dragOverSurveyElement) {
+    if (!dropTarget) {
       let element;
       this.survey.pages.forEach((page: PageModel) => {
         element = page.getElementByName(dropTargetName);
-        if (element) dragOverSurveyElement = element;
+        if (element) dropTarget = element;
       });
       if (
-        !!dragOverSurveyElement &&
-        dragOverSurveyElement.getType() === "paneldynamic" &&
+        !!dropTarget &&
+        dropTarget.getType() === "paneldynamic" &&
         isDragOverInnerPanel
       ) {
-        const page = (<any>dragOverSurveyElement).page;
-        dragOverSurveyElement = (<any>dragOverSurveyElement).template;
-        dragOverSurveyElement.page = page;
+        const page = (<any>dropTarget).page;
+        dropTarget = (<any>dropTarget).template;
+        dropTarget.page = page;
       }
     }
 
-    return dragOverSurveyElement;
+    // if (dropTarget.isPanel) {
+    //   const panelDragInfo = this.getPanelDragInfo(
+    //     dropTargetNode,
+    //     dropTarget,
+    //     event
+    //   );
+    //   dropTarget = panelDragInfo.dropTarget;
+    //   isEdge = panelDragInfo.isEdge;
+    // }
+
+    return dropTarget;
   }
 
-  protected doDragOver(
-    dropTargetSurveyElement: any,
-    isBottom: boolean,
-    isEdge: boolean
+  protected doChecks(dropTarget: any, isBottom: boolean) {
+    // const isEdge = this.calculateIsEdge();
+    const isEdge = true;
+
+    if (dropTarget === this.ghostSurveyElement) return false;
+
+    if (
+      // TODO we can't drop on not empty page directly for now
+      dropTarget &&
+      dropTarget.getType() === "page" &&
+      dropTarget.elements.length !== 0
+    ) {
+      const elements = dropTarget.elements;
+      dropTarget = isBottom ? elements[elements.length - 1] : elements[0];
+    }
+
+    if (this.isEdge === isEdge) return false;
+
+    this.isEdge = isEdge;
+
+    return true;
+  }
+
+  private getPanelDragInfo(
+    HTMLElement: HTMLElement,
+    surveyElement: IElement,
+    event: PointerEvent
   ) {
+    let isEdge = this.calculateIsEdge(HTMLElement, event.clientY);
+    let dropTarget = surveyElement;
+
+    if (!isEdge) {
+      HTMLElement = this.findDeepestDropTargetChild(HTMLElement);
+
+      dropTarget = this.getDropTargetFromNode(HTMLElement);
+    }
+
+    return { dropTarget, isEdge };
+  }
+
+  private calculateIsEdge(HTMLElement: HTMLElement, clientY: number) {
+    const middle = this.calculateMiddleOfHTMLElement(HTMLElement);
+    return Math.abs(clientY - middle) >= DragDropCore.edgeHeight;
+  }
+
+  protected doDragOverAfter() {
     this.insertGhostElementIntoSurvey();
   }
 
@@ -54,10 +110,11 @@ export class DragDropSurveyElements extends DragDropCore {
 
   protected doBanDropHere = () => {
     this.removeGhostElementFromSurvey();
+    this.isEdge = null;
   };
 
   protected doDrop = () => {
-    if (this.dropTargetSurveyElement) {
+    if (this.dropTarget) {
       return this.insertRealElementIntoSurvey();
     }
 
@@ -66,6 +123,7 @@ export class DragDropSurveyElements extends DragDropCore {
 
   protected doClear = () => {
     this.removeGhostElementFromSurvey();
+    this.isEdge = null;
   };
 
   protected insertGhostElementIntoSurvey(): boolean {
@@ -73,9 +131,9 @@ export class DragDropSurveyElements extends DragDropCore {
 
     this.ghostSurveyElement.name = DragDropCore.ghostSurveyElementName; //TODO why do we need setup it manually see createGhostSurveyElement method
 
-    this.parentElement = this.dropTargetSurveyElement.isPage
-      ? this.dropTargetSurveyElement
-      : (<any>this.dropTargetSurveyElement)["page"];
+    this.parentElement = this.dropTarget.isPage
+      ? this.dropTarget
+      : (<any>this.dropTarget)["page"];
 
     this.parentElement.dragDropStart(
       this.draggedElement,
@@ -84,7 +142,7 @@ export class DragDropSurveyElements extends DragDropCore {
     );
 
     return this.parentElement.dragDropMoveTo(
-      this.dropTargetSurveyElement,
+      this.dropTarget,
       this.isBottom,
       this.isEdge
     );
@@ -98,11 +156,8 @@ export class DragDropSurveyElements extends DragDropCore {
     this.removeGhostElementFromSurvey();
 
     // ghost new page
-    if (
-      this.dropTargetSurveyElement.isPage &&
-      (<any>this.dropTargetSurveyElement)["_isGhost"]
-    ) {
-      (<any>this.dropTargetSurveyElement)["_addGhostPageViewMobel"]();
+    if (this.dropTarget.isPage && (<any>this.dropTarget)["_isGhost"]) {
+      (<any>this.dropTarget)["_addGhostPageViewMobel"]();
     }
     // EO ghost new page
 
@@ -123,7 +178,7 @@ export class DragDropSurveyElements extends DragDropCore {
     );
 
     this.parentElement.dragDropMoveTo(
-      this.dropTargetSurveyElement,
+      this.dropTarget,
       this.isBottom,
       this.isEdge
     );

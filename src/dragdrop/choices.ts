@@ -6,7 +6,7 @@ export class DragDropChoices extends DragDropCore {
     return "item-value";
   }
 
-  protected getDragOverElementByName(dragOverElementName: string) {
+  protected getDropTargetByName(dragOverElementName: string) {
     let dragOverChoice;
 
     dragOverChoice = this.parentElement.choices.filter(
@@ -16,23 +16,28 @@ export class DragDropChoices extends DragDropCore {
     return dragOverChoice;
   }
 
-  protected doDragOver(
-    dropTargetSurveyElement: any,
-    isBottom: boolean,
-    isEdge: boolean
-  ) {
+  protected doChecks(dropTarget: any, isBottom: boolean) {
     const choices = this.parentElement.choices;
 
     // shouldn't allow to drop on "adorners" (selectall, none, other)
-    if (choices.indexOf(dropTargetSurveyElement) === -1) {
+    if (choices.indexOf(dropTarget) === -1) {
       this.banDropHere();
-      return;
+      return false;
     }
 
+    return true;
+  }
+
+  protected calculateIsBottom(
+    HTMLElement: HTMLElement,
+    clientY: number,
+    dropTarget?: any
+  ) {
+    const choices = this.parentElement.choices;
+    let isBottom;
     //drag over next item
     if (
-      choices.indexOf(dropTargetSurveyElement) -
-        choices.indexOf(this.draggedElement) ===
+      choices.indexOf(dropTarget) - choices.indexOf(this.draggedElement) ===
       1
     ) {
       isBottom = true;
@@ -40,35 +45,20 @@ export class DragDropChoices extends DragDropCore {
 
     //drag over prev item
     if (
-      choices.indexOf(this.draggedElement) -
-        choices.indexOf(dropTargetSurveyElement) ===
+      choices.indexOf(this.draggedElement) - choices.indexOf(dropTarget) ===
       1
     ) {
       isBottom = false;
     }
 
-    if (dropTargetSurveyElement === this.draggedElement) {
-      this.banDropHere();
-      return true;
-    }
-
-    if (
-      dropTargetSurveyElement === this.dropTargetSurveyElement &&
-      isEdge === this.isEdge &&
-      isBottom === this.isBottom
-    )
-      return;
-
-    this.dropTargetSurveyElement = dropTargetSurveyElement;
-    this.isEdge = isEdge;
-    this.isBottom = isBottom;
+    return isBottom;
   }
 
   protected doDrop = () => {
     const isTop = !this.isBottom;
     const choices = this.parentElement.choices;
     const oldIndex = choices.indexOf(this.draggedElement);
-    let newIndex = choices.indexOf(this.dropTargetSurveyElement);
+    let newIndex = choices.indexOf(this.dropTarget);
 
     if (oldIndex < newIndex && isTop) {
       newIndex--;

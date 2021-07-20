@@ -1,15 +1,6 @@
-import {
-  MatrixRowModel,
-  QuestionMatrixDropdownRenderedRow,
-  QuestionMatrixModel,
-} from "survey-core";
 import { Base, EventBase } from "../base";
 import { IElement, ISurvey } from "../base-interfaces";
-import { ItemValue } from "../itemvalue";
 import { JsonObject, property, Serializer } from "../jsonobject";
-import { PageModel } from "../page";
-import { QuestionSelectBase } from "../question_baseselect";
-import { SurveyModel } from "../survey";
 
 export abstract class DragDropCore extends Base {
   public onBeforeDrop: EventBase<DragDropCore> = new EventBase();
@@ -22,18 +13,17 @@ export abstract class DragDropCore extends Base {
     x: -1,
     y: -1,
   };
-  public static newGhostPage: PageModel = null;
+
   public static ghostSurveyElementName =
     "svc-drag-drop-ghost-survey-element-name"; // before renaming use globa search (we have also css selectors)
 
   protected draggedElement: any = null;
-  @property() dropTargetSurveyElement: IElement = null;
+  @property() dropTarget: IElement = null;
 
   private draggedElementShortcut: HTMLElement = null;
   private scrollIntervalId: ReturnType<typeof setTimeout> = null;
   protected ghostSurveyElement: IElement = null;
   @property() isBottom: boolean = null;
-  protected isEdge: boolean = null;
 
   protected isItemValueBeingDragged() {
     return Serializer.isDescendantOf(
@@ -100,7 +90,7 @@ export abstract class DragDropCore extends Base {
   protected doStartDrag() {}
 
   public getItemValueGhostPosition(item: any) {
-    if (this.dropTargetSurveyElement !== item) return null;
+    if (this.dropTarget !== item) return null;
     if (this.isBottom) return "bottom";
     return "top";
   }
@@ -123,107 +113,44 @@ export abstract class DragDropCore extends Base {
   };
 
   protected dragOver(event: PointerEvent) {
-    const dragInfo = this.getDragInfo(event);
-    let dropTargetSurveyElement = dragInfo.dropTargetSurveyElement;
-    let isEdge = dragInfo.isEdge;
-    let isBottom = dragInfo.isBottom;
-
-    if (!dropTargetSurveyElement) {
-      this.banDropHere();
-      return;
-    }
-
-    if (dropTargetSurveyElement === this.ghostSurveyElement) {
-      return;
-    }
-
-    if (
-      dropTargetSurveyElement === this.dropTargetSurveyElement &&
-      isEdge === this.isEdge &&
-      isBottom === this.isBottom
-    )
-      return;
-
-    this.doDragOver(dropTargetSurveyElement, isBottom, isEdge);
-
-    this.isEdge = isEdge;
-    this.isBottom = isBottom;
-    this.dropTargetSurveyElement = dropTargetSurveyElement;
-  }
-
-  protected getDragInfo(event: PointerEvent) {
-    let dropTargetHTMLElement = this.findDropTargetHTMLElementFromPoint(
+    let dropTargetNode = this.findDropTargetNodeFromPoint(
       event.clientX,
       event.clientY
     );
 
-    if (!dropTargetHTMLElement) {
-      return { dropTargetSurveyElement: null, isEdge: true, isBottom: true };
+    if (!dropTargetNode) {
+      this.banDropHere();
+      return;
     }
 
-    let dropTargetSurveyElement = this.getDropTargetSurveyElementFromHTMLElement(
-      dropTargetHTMLElement
+    let dropTarget = this.getDropTargetFromNode(dropTargetNode);
+
+    if (!dropTarget || dropTarget === this.draggedElement) {
+      this.banDropHere();
+      return;
+    }
+
+    let isBottom = this.calculateIsBottom(
+      dropTargetNode,
+      event.clientY,
+      dropTarget
     );
 
-    let isEdge = true;
+    const checks = this.doChecks(dropTarget, isBottom);
 
-    if (!this.isItemValueBeingDragged()) {
-      if (dropTargetSurveyElement.isPanel) {
-        const panelDragInfo = this.getPanelDragInfo(
-          dropTargetHTMLElement,
-          dropTargetSurveyElement,
-          event
-        );
-        dropTargetSurveyElement = panelDragInfo.dropTargetSurveyElement;
-        isEdge = panelDragInfo.isEdge;
-      }
-    }
+    if (!checks && dropTarget === this.dropTarget && isBottom === this.isBottom)
+      return;
 
-    if (dropTargetSurveyElement === this.draggedElement) {
-      dropTargetSurveyElement = null;
-    }
-
-    let isBottom = this.calculateIsBottom(dropTargetHTMLElement, event.clientY);
-
-    if (
-      // TODO we can't drop on not empty page directly for now
-      dropTargetSurveyElement &&
-      dropTargetSurveyElement.getType() === "page" &&
-      dropTargetSurveyElement.elements.length !== 0
-    ) {
-      const elements = dropTargetSurveyElement.elements;
-      dropTargetSurveyElement = isBottom
-        ? elements[elements.length - 1]
-        : elements[0];
-    }
-
-    return { dropTargetSurveyElement, isEdge, isBottom };
+    this.isBottom = isBottom;
+    this.dropTarget = dropTarget;
+    this.doDragOverAfter(dropTarget, isBottom);
   }
 
-  private getPanelDragInfo(
-    HTMLElement: HTMLElement,
-    surveyElement: IElement,
-    event: PointerEvent
-  ) {
-    let isEdge = this.calculateIsEdge(HTMLElement, event.clientY);
-    let dropTargetSurveyElement = surveyElement;
+  protected doDragOverAfter(dropTarget: any, isBottom: boolean): void {}
 
-    if (!isEdge) {
-      HTMLElement = this.findDeepestDropTargetChild(HTMLElement);
-
-      dropTargetSurveyElement = this.getDropTargetSurveyElementFromHTMLElement(
-        HTMLElement
-      );
-    }
-
-    return { dropTargetSurveyElement, isEdge };
+  protected doChecks(dropTarget: any, isBottom: boolean): boolean {
+    return true;
   }
-
-  protected abstract doDragOver(
-    dropTargetSurveyElement: any,
-    isBottom: boolean,
-    isEdge: boolean
-  ): void;
 
   private handleEscapeButton = (event: KeyboardEvent) => {
     if (event.keyCode == 27) {
@@ -325,64 +252,64 @@ export abstract class DragDropCore extends Base {
 
   protected banDropHere = () => {
     this.doBanDropHere();
-    this.dropTargetSurveyElement = null;
+    this.dropTarget = null;
     this.isBottom = null;
-    this.isEdge = null;
     this.draggedElementShortcut.style.cursor = "not-allowed";
   };
 
   protected doBanDropHere = () => {};
 
-  private getDropTargetSurveyElementFromHTMLElement(element: HTMLElement) {
+  protected getDropTargetFromNode(dropTargetNode: HTMLElement) {
     let result = undefined;
-    let dragOverElementName = this.getDropTargetName(element);
+    let dropTargetName = this.getDropTargetName(dropTargetNode);
     let isDragOverInnerPanel = false;
 
-    if (!dragOverElementName) {
-      const nearestDropTargetElement = element.parentElement.closest<
+    if (!dropTargetName) {
+      const nearestDropTargetElement = dropTargetNode.parentElement.closest<
         HTMLElement
       >(this.dropTargetDataAttributeName);
-      dragOverElementName = this.getDropTargetName(nearestDropTargetElement);
+      dropTargetName = this.getDropTargetName(nearestDropTargetElement);
       isDragOverInnerPanel =
-        nearestDropTargetElement !== element && !!dragOverElementName;
+        nearestDropTargetElement !== dropTargetNode && !!dropTargetName;
     }
-    if (!dragOverElementName) {
+    if (!dropTargetName) {
       throw new Error("Can't find drop target survey element name");
     }
 
-    if (dragOverElementName === DragDropCore.ghostSurveyElementName) {
+    if (dropTargetName === DragDropCore.ghostSurveyElementName) {
       return this.ghostSurveyElement;
     }
 
-    result = this.getDragOverElementByName(
-      dragOverElementName,
-      isDragOverInnerPanel
+    result = this.getDropTargetByName(
+      dropTargetName,
+      isDragOverInnerPanel,
+      dropTargetNode
     );
 
     return result;
   }
 
-  protected abstract getDragOverElementByName(
+  protected abstract getDropTargetByName(
     dropTargetName: any,
-    isDragOverInnerPanel?: boolean
+    isDragOverInnerPanel?: boolean,
+    dropTargetNode?: HTMLElement
   ): any;
 
-  private calculateMiddleOfHTMLElement(HTMLElement: HTMLElement) {
+  protected calculateMiddleOfHTMLElement(HTMLElement: HTMLElement) {
     const rect = HTMLElement.getBoundingClientRect();
     return rect.y + rect.height / 2;
   }
 
-  private calculateIsBottom(HTMLElement: HTMLElement, clientY: number) {
+  protected calculateIsBottom(
+    HTMLElement: HTMLElement,
+    clientY: number,
+    dropTarget?: any
+  ) {
     const middle = this.calculateMiddleOfHTMLElement(HTMLElement);
     return clientY >= middle;
   }
 
-  private calculateIsEdge(HTMLElement: HTMLElement, clientY: number) {
-    const middle = this.calculateMiddleOfHTMLElement(HTMLElement);
-    return Math.abs(clientY - middle) >= DragDropCore.edgeHeight;
-  }
-
-  private findDropTargetHTMLElementFromPoint(
+  private findDropTargetNodeFromPoint(
     clientX: number,
     clientY: number
   ): HTMLElement {
@@ -397,14 +324,14 @@ export abstract class DragDropCore extends Base {
     if (!draggedOverNode) return null;
 
     const selector = this.dropTargetDataAttributeName;
-    let dropTargetHTMLElement =
+    let dropTargetNode =
       draggedOverNode.querySelector<HTMLElement>(selector) ||
       draggedOverNode.closest<HTMLElement>(selector);
 
-    return dropTargetHTMLElement;
+    return dropTargetNode;
   }
 
-  private findDeepestDropTargetChild(parent: HTMLElement): HTMLElement {
+  protected findDeepestDropTargetChild(parent: HTMLElement): HTMLElement {
     const selector = this.dropTargetDataAttributeName;
 
     let result = parent;
@@ -457,13 +384,12 @@ export abstract class DragDropCore extends Base {
     prevEvent.x = -1;
     prevEvent.y = -1;
 
-    this.dropTargetSurveyElement = null;
+    this.dropTarget = null;
     this.draggedElementShortcut = null;
     this.ghostSurveyElement = null;
     this.draggedElement = null;
     this.parentElement = null;
     this.isBottom = null;
-    this.isEdge = null;
     this.scrollIntervalId = null;
   };
 

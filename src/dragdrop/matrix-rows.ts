@@ -6,19 +6,18 @@ export class DragDropMatrixRows extends DragDropCore {
     return "matrix-row";
   }
 
-  protected getDragOverElementByName(dragOverElementName: any) {
+  protected getDropTargetByName(dragOverElementName: any) {
     const matrix = <QuestionMatrixModel>this.parentElement;
-    let dragOverRow;
+    let dropTargetRow;
 
-    if (!dragOverRow) {
-      dragOverRow = matrix.visibleRows.filter(
+    if (!dropTargetRow) {
+      dropTargetRow = matrix.visibleRows.filter(
         (row: any) => row.id === dragOverElementName
       )[0];
     }
 
-    return dragOverRow;
+    return dropTargetRow;
   }
 
   protected doDrop() {}
-  protected doDragOver() {}
 }

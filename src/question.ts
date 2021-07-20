@@ -299,6 +299,9 @@ export class Question extends SurveyElement
   public getType(): string {
     return "question";
   }
+  public get isQuestion(): boolean {
+    return true;
+  }
   /**
    * Move question to a new container Page/Panel. Add as a last element if insertBefore parameter is not used or inserted into the given index,
    * if insert parameter is number, or before the given element, if the insertBefore parameter is a question or panel

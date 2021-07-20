@@ -27,7 +27,7 @@ export class PopupViewModel {
 export function showModal(
   componentName: string,
   data: any,
-  onApply: () => void,
+  onApply: () => boolean,
   onCancel?: () => void
 ) {
   const popupModel = new PopupModel(

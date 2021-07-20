@@ -345,6 +345,7 @@ QUnit.test("PopupModel apply", (assert) => {
   let trace: String = "";
   model.onApply = () => {
     trace += "->onApply";
+    return true;
   };
   model.onHide = () => {
     trace += "->onHide";
@@ -372,6 +373,32 @@ QUnit.test("PopupModel apply", (assert) => {
   assert.equal(trace, "->onApply->onHide");
   assert.equal(viewModel.isVisible, false);
   trace = "";
+});
+
+QUnit.test("PopupModel apply when not allow", (assert) => {
+  const model: PopupModel = new PopupModel("sv-list", {});
+  const targetElement: HTMLElement = document.createElement("div");
+  const viewModel: PopupBaseViewModel = new PopupBaseViewModel(
+    model,
+    targetElement
+  );
+  viewModel.initializePopupContainer();
+  viewModel.container.innerHTML = popupTemplate;
+
+  assert.equal(viewModel.isVisible, false);
+
+  let canApply = false; 
+  model.onApply = (): boolean => {
+      return canApply;
+  };
+
+  model.toggleVisibility();
+  assert.equal(viewModel.isVisible, true);
+  viewModel.apply();
+  assert.equal(viewModel.isVisible, true);
+  canApply = true;
+  viewModel.apply();
+  assert.equal(viewModel.isVisible, false);
 });
 
 QUnit.test("PopupViewModel dispose", (assert) => {

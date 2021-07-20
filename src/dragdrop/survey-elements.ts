@@ -55,7 +55,7 @@ export class DragDropSurveyElements extends DragDropCore {
     return dropTarget;
   }
 
-  protected doChecks(dropTarget: any, isBottom: boolean) {
+  protected isDropTargetValid(dropTarget: any, isBottom: boolean) {
     // const isEdge = this.calculateIsEdge();
     const isEdge = true;
 
@@ -77,6 +77,8 @@ export class DragDropSurveyElements extends DragDropCore {
 
     return true;
   }
+
+
 
   private getPanelDragInfo(
     HTMLElement: HTMLElement,

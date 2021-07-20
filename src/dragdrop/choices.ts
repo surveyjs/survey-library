@@ -16,7 +16,7 @@ export class DragDropChoices extends DragDropCore {
     return dragOverChoice;
   }
 
-  protected doChecks(dropTarget: any, isBottom: boolean) {
+  protected isDropTargetValid(dropTarget: any, isBottom: boolean) {
     const choices = this.parentElement.choices;
 
     // shouldn't allow to drop on "adorners" (selectall, none, other)
@@ -28,16 +28,13 @@ export class DragDropChoices extends DragDropCore {
     return true;
   }
 
-  protected calculateIsBottom(
-    HTMLElement: HTMLElement,
-    clientY: number,
-    dropTarget?: any
-  ) {
+  protected calculateIsBottom(clientY: number): boolean {
     const choices = this.parentElement.choices;
     let isBottom;
     //drag over next item
     if (
-      choices.indexOf(dropTarget) - choices.indexOf(this.draggedElement) ===
+      choices.indexOf(this.dropTargetCandidate) -
+        choices.indexOf(this.draggedElement) ===
       1
     ) {
       isBottom = true;
@@ -45,7 +42,8 @@ export class DragDropChoices extends DragDropCore {
 
     //drag over prev item
     if (
-      choices.indexOf(this.draggedElement) - choices.indexOf(dropTarget) ===
+      choices.indexOf(this.draggedElement) -
+        choices.indexOf(this.dropTargetCandidate) ===
       1
     ) {
       isBottom = false;

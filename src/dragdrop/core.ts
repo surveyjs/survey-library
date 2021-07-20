@@ -19,6 +19,9 @@ export abstract class DragDropCore extends Base {
 
   protected draggedElement: any = null;
   @property() dropTarget: IElement = null;
+  protected dropTargetNode: HTMLElement = null;
+  protected dropTargetCandidate: IElement = null;
+  protected dropTargetNodeCandidate: HTMLElement = null;
 
   private draggedElementShortcut: HTMLElement = null;
   private scrollIntervalId: ReturnType<typeof setTimeout> = null;
@@ -113,42 +116,39 @@ export abstract class DragDropCore extends Base {
   };
 
   protected dragOver(event: PointerEvent) {
-    let dropTargetNode = this.findDropTargetNodeFromPoint(
+    this.dropTargetNodeCandidate = this.findDropTargetNodeFromPoint(
       event.clientX,
       event.clientY
     );
 
-    if (!dropTargetNode) {
-      this.banDropHere();
-      return;
-    }
-
-    let dropTarget = this.getDropTargetFromNode(dropTargetNode);
-
-    if (!dropTarget || dropTarget === this.draggedElement) {
-      this.banDropHere();
-      return;
-    }
-
-    let isBottom = this.calculateIsBottom(
-      dropTargetNode,
-      event.clientY,
-      dropTarget
+    this.dropTargetCandidate = this.getDropTargetFromNode(
+      this.dropTargetNodeCandidate
     );
 
-    const checks = this.doChecks(dropTarget, isBottom);
+    if (!this.dropTargetCandidate) {
+      this.banDropHere();
+      return;
+    }
 
-    if (!checks && dropTarget === this.dropTarget && isBottom === this.isBottom)
+    let isBottom = this.calculateIsBottom(event.clientY);
+
+    const isDropTargetValid = this.isDropTargetValid(this.dropTargetCandidate, isBottom);
+
+    if (
+      !isDropTargetValid &&
+      this.dropTargetCandidate === this.dropTarget &&
+      isBottom === this.isBottom
+    )
       return;
 
     this.isBottom = isBottom;
-    this.dropTarget = dropTarget;
-    this.doDragOverAfter(dropTarget, isBottom);
+    this.dropTarget = this.dropTargetCandidate;
+    this.doDragOverAfter(this.dropTarget, isBottom);
   }
 
   protected doDragOverAfter(dropTarget: any, isBottom: boolean): void {}
 
-  protected doChecks(dropTarget: any, isBottom: boolean): boolean {
+  protected isDropTargetValid(dropTarget: any, isBottom: boolean): boolean {
     return true;
   }
 
@@ -260,7 +260,8 @@ export abstract class DragDropCore extends Base {
   protected doBanDropHere = () => {};
 
   protected getDropTargetFromNode(dropTargetNode: HTMLElement) {
-    let result = undefined;
+    if (!dropTargetNode) return null;
+    let dropTarget = null;
     let dropTargetName = this.getDropTargetName(dropTargetNode);
     let isDragOverInnerPanel = false;
 
@@ -280,13 +281,15 @@ export abstract class DragDropCore extends Base {
       return this.ghostSurveyElement;
     }
 
-    result = this.getDropTargetByName(
+    dropTarget = this.getDropTargetByName(
       dropTargetName,
       isDragOverInnerPanel,
       dropTargetNode
     );
 
-    return result;
+    if (dropTarget === this.draggedElement) return null;
+
+    return dropTarget;
   }
 
   protected abstract getDropTargetByName(
@@ -300,12 +303,10 @@ export abstract class DragDropCore extends Base {
     return rect.y + rect.height / 2;
   }
 
-  protected calculateIsBottom(
-    HTMLElement: HTMLElement,
-    clientY: number,
-    dropTarget?: any
-  ) {
-    const middle = this.calculateMiddleOfHTMLElement(HTMLElement);
+  protected calculateIsBottom(clientY: number): boolean {
+    const middle = this.calculateMiddleOfHTMLElement(
+      this.dropTargetNodeCandidate
+    );
     return clientY >= middle;
   }
 
@@ -385,6 +386,10 @@ export abstract class DragDropCore extends Base {
     prevEvent.y = -1;
 
     this.dropTarget = null;
+    this.dropTargetNode = null;
+    this.dropTargetCandidate = null;
+    this.dropTargetNodeCandidate = null;
+
     this.draggedElementShortcut = null;
     this.ghostSurveyElement = null;
     this.draggedElement = null;

@@ -13440,3 +13440,34 @@ QUnit.test(
     SurveyElement.FocusElement = oldFunc;
   }
 );
+QUnit.test(
+  "Test SurveyElement isPage, isPanel and isQuestion properties",
+  function(assert) {
+    var survey = new SurveyModel({
+      elements: [
+        {
+          type: "panel",
+          name: "panel",
+          elements: [
+            {
+              type: "text",
+              name: "question",
+            },
+          ],
+        },
+      ],
+    });
+    var page = survey.currentPage;
+    var panel = <PanelModel>survey.getPanelByName("panel");
+    var question = survey.getQuestionByName("question");
+    assert.equal(page.isPage, true, "Page is page");
+    assert.equal(page.isPanel, false, "Page is not panel");
+    assert.equal(page.isQuestion, false, "Page is not question");
+    assert.equal(panel.isPage, false, "Panel is not page");
+    assert.equal(panel.isPanel, true, "Panel is panel");
+    assert.equal(panel.isQuestion, false, "Panel is not question");
+    assert.equal(question.isPage, false, "Question is not page");
+    assert.equal(question.isPanel, false, "Question is not panel");
+    assert.equal(question.isQuestion, true, "Question is question");
+  }
+);

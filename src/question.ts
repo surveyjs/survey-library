@@ -281,7 +281,7 @@ export class Question extends SurveyElement
    * @see titleLocation
    */
   public get hideNumber(): boolean {
-    return this.getPropertyValue("hideNumber", false);
+    return this.getPropertyValue("hideNumber");
   }
   public set hideNumber(val: boolean) {
     this.setPropertyValue("hideNumber", val);
@@ -298,6 +298,9 @@ export class Question extends SurveyElement
    */
   public getType(): string {
     return "question";
+  }
+  public get isQuestion(): boolean {
+    return true;
   }
   /**
    * Move question to a new container Page/Panel. Add as a last element if insertBefore parameter is not used or inserted into the given index,
@@ -1104,6 +1107,7 @@ export class Question extends SurveyElement
   }
   protected onSetData() {
     super.onSetData();
+    if (!this.survey) return;
     this.initDataFromSurvey();
     this.onSurveyValueChanged(this.value);
     this.updateValueWithDefaults();

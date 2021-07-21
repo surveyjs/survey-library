@@ -40,6 +40,7 @@ export class QuestionTextBase extends Question {
   }
   public set placeHolder(val: string) {
     this.setLocalizableStringText("placeHolder", val);
+    this.calcRenderedPlaceHolder();
   }
   get locPlaceHolder(): LocalizableString {
     return this.getLocalizableString("placeHolder");
@@ -71,6 +72,28 @@ export class QuestionTextBase extends Question {
     if (this.textUpdateMode == "default")
       return !!this.survey ? this.survey.isUpdateValueTextOnTyping : false;
     return this.textUpdateMode == "onTyping";
+  }
+  public get renderedPlaceHolder(): string {
+    return this.getPropertyValue("renderedPlaceHolder");
+  }
+  protected setRenderedPlaceHolder(val: string) {
+    this.setPropertyValue("renderedPlaceHolder", val);
+  }
+  protected onReadOnlyChanged() {
+    super.onReadOnlyChanged();
+    this.calcRenderedPlaceHolder();
+  }
+  endLoadingFromJson() {
+    super.endLoadingFromJson();
+    this.calcRenderedPlaceHolder();
+  }
+  protected calcRenderedPlaceHolder() {
+    this.setRenderedPlaceHolder(
+      this.hasPlaceHolder() ? this.placeHolder : undefined
+    );
+  }
+  protected hasPlaceHolder(): boolean {
+    return !this.isReadOnly;
   }
 }
 Serializer.addClass(

@@ -28,6 +28,7 @@ export class QuestionTextModel extends QuestionTextBase {
     );
     this.registerFunctionOnPropertiesValueChanged(["inputType", "size"], () => {
       this.updateInputSize();
+      this.calcRenderedPlaceHolder();
     });
   }
   protected isTextValue(): boolean {
@@ -364,6 +365,9 @@ export class QuestionTextModel extends QuestionTextBase {
       result += " " + cssClasses.controlDisabled;
     }
     return result;
+  }
+  protected hasPlaceHolder(): boolean {
+    return !this.isReadOnly && this.inputType !== "range";
   }
 }
 

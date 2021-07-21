@@ -709,6 +709,9 @@ export class QuestionSelectBase extends Question {
   protected getDisplayValueCore(keysAsText: boolean, value: any): any {
     return this.getChoicesDisplayValue(this.visibleChoices, value);
   }
+  protected getDisplayValueEmpty(): string {
+    return ItemValue.getTextOrHtmlByValue(this.visibleChoices, undefined);
+  }
   protected getChoicesDisplayValue(items: ItemValue[], val: any): any {
     if (val == this.otherItemValue.value)
       return this.comment ? this.comment : this.locOtherText.textOrHtml;

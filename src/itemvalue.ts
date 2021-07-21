@@ -87,7 +87,9 @@ export class ItemValue extends Base {
   }
   public static getItemByValue(items: Array<ItemValue>, val: any): ItemValue {
     if (!Array.isArray(items)) return null;
+    const valIsEmpty = Helpers.isValueEmpty(val);
     for (var i = 0; i < items.length; i++) {
+      if (valIsEmpty && Helpers.isValueEmpty(items[i].value)) return items[i];
       if (Helpers.isTwoValueEquals(items[i].value, val)) return items[i];
     }
     return null;

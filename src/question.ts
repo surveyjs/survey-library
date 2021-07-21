@@ -58,6 +58,7 @@ export class Question extends SurveyElement
   customWidgetData = { isNeedRender: true };
   focusCallback: () => void;
   surveyLoadCallback: () => void;
+  displayValueCallback: (text: string) => string;
 
   private textPreProcessor: TextPreProcessor;
   private conditionEnabelRunner: ConditionRunner;
@@ -1213,16 +1214,23 @@ export class Question extends SurveyElement
    * @param value use this parameter, if you want to get display value for this value and not question.value. It is undefined by default.
    */
   public getDisplayValue(keysAsText: boolean, value: any = undefined): any {
+    var res = this.calcDisplayValue(keysAsText, value);
+    return !!this.displayValueCallback ? this.displayValueCallback(res) : res;
+  }
+  private calcDisplayValue(keysAsText: boolean, value: any = undefined): any {
     if (this.customWidget) {
       var res = this.customWidget.getDisplayValue(this, value);
       if (res) return res;
     }
     value = value == undefined ? this.createValueCopy() : value;
-    if (this.isValueEmpty(value)) return "";
+    if (this.isValueEmpty(value)) return this.getDisplayValueEmpty();
     return this.getDisplayValueCore(keysAsText, value);
   }
   protected getDisplayValueCore(keyAsText: boolean, value: any): any {
     return value;
+  }
+  protected getDisplayValueEmpty(): string {
+    return "";
   }
   /**
    * Set the default value to the question. It will be assign to the question on loading the survey from JSON or adding a question to the survey or on setting this property of the value is empty.

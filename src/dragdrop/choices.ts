@@ -6,6 +6,10 @@ export class DragDropChoices extends DragDropCore {
     return "item-value";
   }
 
+  protected getShortcutText() {
+    return this.draggedElement.text;
+  }
+
   protected getDropTargetByName(dragOverElementName: string) {
     let dragOverChoice;
 

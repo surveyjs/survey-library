@@ -12,6 +12,10 @@ export class DragDropSurveyElements extends DragDropCore {
     return "survey-element";
   }
 
+  protected getShortcutText() {
+    return this.draggedElement["title"] || this.draggedElement["name"];
+  }
+
   protected getDropTargetByName(
     dropTargetName: string,
     isDragOverInnerPanel: boolean
@@ -77,8 +81,6 @@ export class DragDropSurveyElements extends DragDropCore {
 
     return true;
   }
-
-
 
   private getPanelDragInfo(
     HTMLElement: HTMLElement,

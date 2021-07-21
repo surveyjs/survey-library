@@ -18,7 +18,7 @@ export abstract class DragDropCore extends Base {
     "svc-drag-drop-ghost-survey-element-name"; // before renaming use globa search (we have also css selectors)
 
   protected draggedElement: any = null;
-  @property() dropTarget: IElement = null;
+  @property() dropTarget: any = null;
   protected dropTargetNode: HTMLElement = null;
   protected dropTargetCandidate: IElement = null;
   protected dropTargetNodeCandidate: HTMLElement = null;
@@ -100,14 +100,12 @@ export abstract class DragDropCore extends Base {
 
   private createDraggedElementShortcut() {
     const draggedElementShortcut = document.createElement("div");
-    const draggedElement: any = this.draggedElement;
-    draggedElementShortcut.innerText =
-      draggedElement["title"] ||
-      draggedElement["text"] ||
-      draggedElement["name"];
+    draggedElementShortcut.innerText = this.getShortcutText();
     draggedElementShortcut.className = "svc-drag-shortcut";
     return draggedElementShortcut;
   }
+
+  protected abstract getShortcutText(): string;
 
   protected moveDraggedElement = (event: PointerEvent) => {
     this.moveShortcutElement(event);
@@ -132,7 +130,10 @@ export abstract class DragDropCore extends Base {
 
     let isBottom = this.calculateIsBottom(event.clientY);
 
-    const isDropTargetValid = this.isDropTargetValid(this.dropTargetCandidate, isBottom);
+    const isDropTargetValid = this.isDropTargetValid(
+      this.dropTargetCandidate,
+      isBottom
+    );
 
     if (
       !isDropTargetValid &&

@@ -1517,7 +1517,7 @@ export class QuestionMatrixDropdownRenderedRow {
     return this.idValue;
   }
   public get attributes() {
-    return { "data-svc-drop-target-matrix-row": this.id };
+    return { "data-svc-drop-target-matrix-row": this.row.id };
   }
 }
 

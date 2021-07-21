@@ -4,6 +4,7 @@ import {
   IMatrixDropdownData,
   MatrixDropdownColumn,
   QuestionMatrixDropdownRenderedTable,
+  QuestionMatrixDropdownRenderedRow,
 } from "./question_matrixdropdownbase";
 import { property, Serializer } from "./jsonobject";
 import { QuestionFactory } from "./questionfactory";
@@ -101,8 +102,11 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
       this.handleDragDropHelperChanges
     );
   };
-  public startDragMatrixRow(event: PointerEvent, row: MatrixRowModel) {
-    this.dragDropHelper.startDrag(event, row, this);
+  public startDragMatrixRow(
+    event: PointerEvent,
+    renderedRow: QuestionMatrixDropdownRenderedRow
+  ) {
+    this.dragDropHelper.startDrag(event, renderedRow.row, this);
   }
 
   public getType(): string {

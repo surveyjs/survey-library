@@ -93,6 +93,7 @@ export class SurveyActionBarItem extends SurveyElementBase<
     const button = (
       <button
         className={className}
+        type="button"
         disabled={this.item.disabled}
         onClick={() => this.item.action(this.item)}
         title={title}

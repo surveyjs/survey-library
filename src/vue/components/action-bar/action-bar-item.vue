@@ -1,6 +1,7 @@
 <template>
   <button
     class="sv-action-bar-item"
+    type="button"
     v-on:click="
       () => {
         item.action();

@@ -6,7 +6,9 @@ import {
 import { QuestionCommentModel } from "survey-core";
 import { ReactQuestionFactory } from "./reactquestion_factory";
 
-export class SurveyQuestionComment extends SurveyQuestionUncontrolledElement<QuestionCommentModel> {
+export class SurveyQuestionComment extends SurveyQuestionUncontrolledElement<
+  QuestionCommentModel
+> {
   constructor(props: any) {
     super(props);
   }
@@ -18,7 +20,7 @@ export class SurveyQuestionComment extends SurveyQuestionUncontrolledElement<Que
     var onInput = this.question.isInputTextUpdate
       ? this.updateValueOnEvent
       : null;
-    var placeHolder = this.question.isReadOnly ? "" : this.question.placeHolder;
+    var placeHolder = this.question.renderedPlaceHolder;
     if (this.question.isReadOnlyRenderDiv()) {
       return <div>{this.question.value}</div>;
     }

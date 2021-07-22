@@ -101,7 +101,8 @@ export abstract class DragDropCore extends Base {
   private createDraggedElementShortcut() {
     const draggedElementShortcut = document.createElement("div");
     draggedElementShortcut.innerText = this.getShortcutText();
-    draggedElementShortcut.className = "svc-drag-shortcut";
+    draggedElementShortcut.style.cssText =
+      "height: 24px; min-width: 100px; border-radius: 36px; background-color: white; padding: 16px; cursor: grabbing; position: absolute; z-index: 1000; box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.1); font-family: 'Open Sans'; font-size: 16px; text-align: center; line-height: 24px;";
     return draggedElementShortcut;
   }
 
@@ -225,6 +226,7 @@ export abstract class DragDropCore extends Base {
     //   .parentNode;
     let scrollableParentElement =
       document.querySelector(".svc-tab-designer.sd-root-modern") ||
+      document.querySelector(".sv-root-modern") ||
       document.querySelector(".sv_container");
 
     let top = scrollableParentElement.getBoundingClientRect().top;

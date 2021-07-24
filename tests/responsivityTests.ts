@@ -1,9 +1,5 @@
-import {
-  Action,
-} from "../src/actions/action";
-import {
-  AdaptiveActionContainer,
-} from "../src/actions/adaptive-container";
+import { Action } from "../src/actions/action";
+import { AdaptiveActionContainer } from "../src/actions/adaptive-container";
 import { ResponsivityManager } from "../src/utils/responsivity-manager";
 
 export default QUnit.module("ResponsivityManager");
@@ -106,4 +102,29 @@ QUnit.test("getAvailableSpace with border-box test", function(assert) {
     return { boxSizing: "border-box", paddingLeft: 5, paddingRight: 5 };
   };
   assert.equal(manager["getAvailableSpace"](), 30);
+});
+QUnit.test("Ignore space for invisible items", function(assert) {
+  const itemSmallWidth = 48;
+  const container: SimpleContainer = new SimpleContainer({
+    offsetWidth: 40,
+    scrollWidth: itemSmallWidth,
+    querySelectorAll: () => [{ offsetWidth: itemSmallWidth }],
+  });
+  const model: AdaptiveActionContainer = new AdaptiveActionContainer();
+  const item1 = new Action({ id: "item1" });
+  item1.minDimension = itemSmallWidth;
+  item1.maxDimension = itemSmallWidth;
+  const item2 = new Action({ id: "item2", visible: false });
+  item2.minDimension = itemSmallWidth;
+  item2.maxDimension = itemSmallWidth;
+  model.actions.push(item1);
+  model.actions.push(item2);
+  const manager: ResponsivityManager = new ResponsivityManager(
+    <any>container,
+    <any>model,
+    "",
+    itemSmallWidth
+  );
+  manager.fit(50);
+  assert.equal(item1.mode, "large");
 });

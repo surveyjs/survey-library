@@ -51,16 +51,16 @@ export class ResponsivityManager {
   }
 
   private calcItemsSizes() {
-    const items = this.items;
+    const actions = this.model.actions;
     this.container
       .querySelectorAll(this.itemsSelector)
       .forEach((item: HTMLDivElement, index: number) => {
-        let currentItem = items[index];
-        currentItem.maxDimension = this.calcItemSize(item);
-        currentItem.minDimension = currentItem.canShrink
+        let currentAction = actions[index];
+        currentAction.maxDimension = this.calcItemSize(item);
+        currentAction.minDimension = currentAction.canShrink
           ? this.minDimensionConst +
-            (currentItem.needSeparator ? this.separatorSize : 0)
-          : currentItem.maxDimension;
+            (currentAction.needSeparator ? this.separatorSize : 0)
+          : currentAction.maxDimension;
       });
   }
 

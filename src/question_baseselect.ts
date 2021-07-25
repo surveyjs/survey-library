@@ -1050,7 +1050,7 @@ export class QuestionSelectBase extends Question {
     return Helpers.randomizeArray<ItemValue>(array);
   }
   public clearIncorrectValues() {
-    if (this.keepIncorrectValues) return;
+    if (this.keepIncorrectValues || this.isEmpty()) return;
     if (
       !!this.survey &&
       this.survey.questionCountByValueName(this.getValueName()) > 1

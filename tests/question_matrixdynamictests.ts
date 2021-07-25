@@ -6261,11 +6261,11 @@ QUnit.test("Row actions, drag action", function(assert) {
   assert.deepEqual(matrix.renderedTable["rowsActions"][0].length, 2);
 });
 
-QUnit.test("moveRowByIndex test", function (assert) {
+QUnit.test("moveRowByIndex test", function(assert) {
   var matrixD = new QuestionMatrixDynamicModel("q1");
-  matrixD.value = [{v1: "v1"}, {v2: "v2"}];
+  matrixD.value = [{ v1: "v1" }, { v2: "v2" }];
   matrixD["moveRowByIndex"](1, 0);
-  assert.deepEqual(matrixD.value, [{v2: "v2"}, {v1: "v1"}]);
+  assert.deepEqual(matrixD.value, [{ v2: "v2" }, { v1: "v1" }]);
 });
 
 QUnit.test("Row actions, rendered table and className", function(assert) {
@@ -6723,5 +6723,38 @@ QUnit.test(
     matrix.addRowUI();
     assert.equal(focusedQuestionId, "", "new row can't be added");
     SurveyElement.FocusElement = oldFunc;
+  }
+);
+QUnit.test(
+  "Matrixdynamic onMatrixValueChanging - do not call event on clear empty cell",
+  function(assert) {
+    var json = {
+      questions: [
+        {
+          type: "matrixdynamic",
+          name: "q1",
+          rowCount: 1,
+          columns: [
+            {
+              name: "col1",
+              choices: [1, 2, 3, 4, 5],
+            },
+          ],
+        },
+      ],
+    };
+    var survey = new SurveyModel(json);
+    var counter = 0;
+    survey.onMatrixCellValueChanging.add(function(sender, options) {
+      counter++;
+    });
+    var matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("q1");
+    var cellQuestion = matrix.visibleRows[0].cells[0].question;
+    cellQuestion.clearIncorrectValues();
+    assert.equal(counter, 0, "There is not value to clear");
+    cellQuestion.value = 1;
+    assert.equal(counter, 1, "value is set");
+    cellQuestion.clearIncorrectValues();
+    assert.equal(counter, 1, "value is correct");
   }
 );

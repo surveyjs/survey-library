@@ -156,7 +156,7 @@ QUnit.test("dropTargetDataAttributeName for choices", function(assert) {
   ddHelper.draggedElement = new ItemValue(null);
   assert.equal(
     ddHelper.dropTargetDataAttributeName,
-    "[data-svc-drop-target-item-value]"
+    "[data-sv-drop-target-item-value]"
   );
 });
 
@@ -166,7 +166,7 @@ QUnit.test("dropTargetDataAttributeName for questions", function(assert) {
   ddHelper.draggedElement = new Question(null);
   assert.equal(
     ddHelper.dropTargetDataAttributeName,
-    "[data-svc-drop-target-survey-element]"
+    "[data-sv-drop-target-survey-element]"
   );
 });
 

@@ -40,6 +40,13 @@
         <tbody>
           <!-- ko foreach: question.koTable().rows -->
           <!-- ko ifnot: $parent.detailPanelMode === "popup" && $data.isDetailRow -->
+
+          <tr data-bind="text: ghostPosition || 'nety'"></tr>
+
+          <!-- ko if: ghostPosition === "top" -->
+          <tr class="sv-drag-drop-ghost"></tr>
+          <!-- /ko -->
+
           <tr data-bind="css:$data.className, attr: attributes">
             <!-- ko foreach: $data.cells -->
             <!-- ko if: $data.isActionsCell -->
@@ -74,6 +81,11 @@
             <!-- /ko -->
             <!-- /ko -->
           </tr>
+
+          <!-- ko if: ghostPosition === "bottom" -->
+          <tr class="sv-drag-drop-ghost"></tr>
+          <!-- /ko -->
+
           <!-- /ko -->
           <!-- /ko -->
         </tbody>

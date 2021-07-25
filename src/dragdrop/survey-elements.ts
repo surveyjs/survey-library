@@ -208,7 +208,7 @@ export class DragDropSurveyElements extends DragDropCore {
 
   private createGhostSurveyElement(): any {
     const startWithNewLine = this.draggedElement.startWithNewLine;
-    let className = "svc-drag-drop-ghost";
+    let className = "sv-drag-drop-ghost";
 
     const json = {
       type: "html",

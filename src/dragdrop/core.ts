@@ -15,7 +15,7 @@ export abstract class DragDropCore extends Base {
   };
 
   public static ghostSurveyElementName =
-    "svc-drag-drop-ghost-survey-element-name"; // before renaming use globa search (we have also css selectors)
+    "sv-drag-drop-ghost-survey-element-name"; // before renaming use globa search (we have also css selectors)
 
   protected draggedElement: any = null;
   @property() dropTarget: any = null;
@@ -36,11 +36,11 @@ export abstract class DragDropCore extends Base {
   }
 
   protected get dropTargetDataAttributeName() {
-    return `[data-svc-drop-target-${this.draggedElementType}]`;
+    return `[data-sv-drop-target-${this.draggedElementType}]`;
   }
 
   protected getDropTargetName(element: HTMLElement) {
-    let datasetName = "svcDropTarget";
+    let datasetName = "svDropTarget";
     const words = this.draggedElementType.split("-");
     words.forEach((word) => {
       datasetName += this.capitalizeFirstLetter(word);
@@ -92,7 +92,7 @@ export abstract class DragDropCore extends Base {
 
   protected doStartDrag() {}
 
-  public getItemValueGhostPosition(item: any) {
+  public getGhostPosition(item: any) {
     if (this.dropTarget !== item) return null;
     if (this.isBottom) return "bottom";
     return "top";

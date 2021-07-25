@@ -86,11 +86,14 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     this.unsubscribeToDragDropHelper();
   }
 
-  @property({ defaultValue: null }) ghostPosition: string;
   private handleDragDropHelperChanges = (sender: any, options: any) => {
     if (options.name === "isBottom") {
-      this.ghostPosition = this.dragDropHelper.getItemValueGhostPosition(
-        this.item
+      this.renderedTable.rows.forEach(
+        (renderedRow: QuestionMatrixDropdownRenderedRow) => {
+          renderedRow.ghostPosition = this.dragDropHelper.getGhostPosition(
+            renderedRow.row
+          );
+        }
       );
     }
   };

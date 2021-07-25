@@ -400,7 +400,8 @@ export class StylesManager {
       "float: left; width: calc(3 * 8px); height: calc(3 * 8px); margin-right: calc(2 * 8px);",
     ".sv-list__item-icon svg": "display: block;",
     ".sv-list__item-icon use": "fill: #909090;",
-    ".sv-list__item:not(.sv-list__item--selected):hover": "background-color: #f3f3f3;",
+    ".sv-list__item:not(.sv-list__item--selected):hover":
+      "background-color: #f3f3f3;",
     ".sv-list__item--selected": "background-color: #19b394; color: #fff;",
     ".sv-list__item--selected .sv-list__item-icon use": "fill: #fff;",
     ".sv-list__item--disabled":
@@ -906,6 +907,9 @@ export class StylesManager {
     ".sv_main .sv-matrixdynamic__drag-icon": "padding-top:14px",
     ".sv_main .sv-matrixdynamic__drag-icon:after":
       "content: ' '; display: block; height: 4px; width: 16px; border: 1px solid $border-color; box-sizing: border-box; border-radius: 10px; cursor: move;",
+
+    ".sv_main .svc-drag-drop-ghost":
+      "top: 0; width: 100%; height: 4px; background: $secondary; position: absolute;",
   };
 
   public static modernThemeCss: { [key: string]: string } = {
@@ -1028,6 +1032,9 @@ export class StylesManager {
     //signature pad
     ".sjs_sp_container": "border: 1px dashed $disable-color;",
     ".sjs_sp_placeholder": "color: $foreground-light;",
+
+    ".svc-drag-drop-ghost":
+      "top: 0; width: 100%; height: 4px; background: $secondary; position: absolute;",
   };
 
   public static bootstrapThemeCss: { [key: string]: string } = {

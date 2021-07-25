@@ -3,6 +3,7 @@ import {
   CustomPropertiesCollection,
   JsonObjectProperty,
   Serializer,
+  property,
 } from "./jsonobject";
 import { QuestionMatrixBaseModel } from "./martixBase";
 import { Question } from "./question";
@@ -1503,7 +1504,9 @@ export class QuestionMatrixDropdownRenderedCell {
   }
 }
 
-export class QuestionMatrixDropdownRenderedRow {
+export class QuestionMatrixDropdownRenderedRow extends Base {
+  @property({ defaultValue: null }) ghostPosition: string;
+
   public isDetailRow: boolean = false;
   public row: MatrixDropdownRowModelBase;
   private static counter = 1;
@@ -1511,13 +1514,14 @@ export class QuestionMatrixDropdownRenderedRow {
   public cells: Array<QuestionMatrixDropdownRenderedCell> = [];
   public className: string = "";
   public constructor() {
+    super();
     this.idValue = QuestionMatrixDropdownRenderedRow.counter++;
   }
   public get id(): number {
     return this.idValue;
   }
   public get attributes() {
-    return { "data-svc-drop-target-matrix-row": this.row.id };
+    return { "data-sv-drop-target-matrix-row": this.row.id };
   }
 }
 

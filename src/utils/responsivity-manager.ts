@@ -27,7 +27,7 @@ export class ResponsivityManager {
   }
 
   get items(): Array<Action> {
-      return this.model.actions;
+    return this.model.actions.filter((item) => item.visible !== false);
   }
 
   protected getDimensions(element: HTMLElement): IDimensions {
@@ -51,22 +51,21 @@ export class ResponsivityManager {
   }
 
   private calcItemsSizes() {
+    const actions = this.model.actions;
     this.container
       .querySelectorAll(this.itemsSelector)
       .forEach((item: HTMLDivElement, index: number) => {
-        let currentItem = this.items[index];
-        currentItem.maxDimension = this.calcItemSize(item);
-        currentItem.minDimension = currentItem.canShrink
+        let currentAction = actions[index];
+        currentAction.maxDimension = this.calcItemSize(item);
+        currentAction.minDimension = currentAction.canShrink
           ? this.minDimensionConst +
-            (currentItem.needSeparator ? this.separatorSize : 0)
-          : currentItem.maxDimension;
+            (currentAction.needSeparator ? this.separatorSize : 0)
+          : currentAction.maxDimension;
       });
   }
 
   private getVisibleItemsCount(size: number): number {
-    const itemsSizes: number[] = this.items.map(
-      (item) => item.minDimension
-    );
+    const itemsSizes: number[] = this.items.map((item) => item.minDimension);
     let currSize: number = 0;
     for (var i = 0; i < itemsSizes.length; i++) {
       currSize += itemsSizes[i];
@@ -93,16 +92,17 @@ export class ResponsivityManager {
     this.model.removeDotsButton();
     let minSize = 0;
     let maxSize = 0;
+    const items = this.items;
 
-    this.items.forEach((item) => {
+    items.forEach((item) => {
       minSize += item.minDimension;
       maxSize += item.maxDimension;
     });
 
     if (dimension >= maxSize) {
-      this.items.forEach((item) => (item.mode = "large"));
+      items.forEach((item) => (item.mode = "large"));
     } else if (dimension < minSize) {
-      this.items.forEach((item) => (item.mode = "small"));
+      items.forEach((item) => (item.mode = "small"));
       this.model.showFirstN(
         this.getVisibleItemsCount(dimension - this.dotsItemSize)
       );
@@ -127,7 +127,12 @@ export class ResponsivityManager {
 export class VerticalResponsivityManager extends ResponsivityManager {
   protected minDimensionConst = 40;
 
-  constructor(container: HTMLDivElement, model: AdaptiveActionContainer, itemsSelector: string, dotsItemSize?: number) {
+  constructor(
+    container: HTMLDivElement,
+    model: AdaptiveActionContainer,
+    itemsSelector: string,
+    dotsItemSize?: number
+  ) {
     super(container, model, itemsSelector, dotsItemSize);
   }
 

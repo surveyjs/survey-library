@@ -1166,8 +1166,10 @@ export class Question extends SurveyElement
    * Clear the question value. It clears the question comment as well.
    */
   public clearValue() {
-    this.value = null;
-    this.comment = null;
+    if (this.value !== undefined) {
+      this.value = undefined;
+    }
+    this.comment = undefined;
   }
   public unbindValue() {
     this.clearValue();

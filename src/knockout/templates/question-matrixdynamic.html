@@ -40,10 +40,10 @@
         <tbody>
           <!-- ko foreach: question.koTable().rows -->
           <!-- ko ifnot: $parent.detailPanelMode === "popup" && $data.isDetailRow -->
-          <tr data-bind="css:$data.className, attr: attributes, event: { pointerdown: function (model, event) { question.startDragMatrixRow(event, $data); } }">
+          <tr data-bind="css:$data.className, attr: attributes">
             <!-- ko foreach: $data.cells -->
             <!-- ko if: $data.isActionsCell -->
-            <td data-bind="css:$data.className, attr: {colspan: $data.colSpans}">
+            <td data-bind="css:$data.className, attr: {colspan: $data.colSpans}, event: { pointerdown: function (model, event) { question.startDragMatrixRow(event, $data); } }">
               <!-- ko component: { name: 'sv-action-bar', params: { model: $data.item.getData(), handleClick: false }} -->
               <!-- /ko -->
             </td>

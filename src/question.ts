@@ -655,6 +655,14 @@ export class Question extends SurveyElement
     this.setPropertyValue("cssRoot", val);
   }
   protected getCssRoot(cssClasses: any): string {
+    // const res = new CssClassBuilder();
+    // res.append(!this.isDesignMode
+    //   ? cssClasses.flowRoot
+    //   : cssClasses.mainRoot, this.isFlowLayout);
+    // res.append(cssClasses.titleLeftRoot, !this.isFlowLayout && this.hasTitleOnLeft);
+    // res.append(cssClasses.hasError, this.errors.length > 0);
+    // res.append(cssClasses.small, !this.width);
+    // res.toString();
     var res =
       this.isFlowLayout && !this.isDesignMode
         ? cssClasses.flowRoot

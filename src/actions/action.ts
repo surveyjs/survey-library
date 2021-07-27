@@ -91,6 +91,7 @@ export class Action extends Base implements IAction {
   }
   location?: string;
   @property() id: string;
+  @property() iconName: string;
   @property() visible: boolean;
   @property() title: string;
   @property() tooltip: string;
@@ -105,23 +106,10 @@ export class Action extends Base implements IAction {
   @property() active: boolean;
   @property() template: string;
   @property() component: string;
-  @property() iconNameValue: string;
   @property() items: any;
   @property() visibleIndex: number;
   @property({ defaultValue: "large" }) mode: "large" | "small" | "popup";
   @property() disableTabStop: boolean;
-
-  private getIconNameFromProxy(iconName: string): string {
-    var proxyName = (<any>settings.customIcons)[iconName];
-    return !!proxyName ? proxyName : iconName;
-  }
-
-  public get iconName(): string {
-    return this.iconNameValue;
-  }
-  public set iconName(newVal) {
-    this.iconNameValue = this.getIconNameFromProxy(newVal);
-  }
 
   public get disabled(): boolean {
     return this.enabled !== undefined && !this.enabled;
@@ -131,7 +119,7 @@ export class Action extends Base implements IAction {
     return (
       ((this.mode != "small" &&
         (this.showTitle || this.showTitle === undefined)) ||
-        !this.iconNameValue) &&
+        !this.iconName) &&
       !!this.title
     );
   }

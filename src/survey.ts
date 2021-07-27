@@ -1706,14 +1706,16 @@ export class SurveyModel extends Base
     return !!this.logo && this.logoPosition !== "none";
   }
   public get isLogoBefore() {
+    if (this.isDesignMode) return false;
     return (
-      this.hasLogo &&
+      this.renderedHasLogo &&
       (this.logoPosition === "left" || this.logoPosition === "top")
     );
   }
   public get isLogoAfter() {
+    if (this.isDesignMode) return this.renderedHasLogo;
     return (
-      this.hasLogo &&
+      this.renderedHasLogo &&
       (this.logoPosition === "right" || this.logoPosition === "bottom")
     );
   }
@@ -1725,6 +1727,17 @@ export class SurveyModel extends Base
       bottom: "sv-logo--bottom",
     };
     return this.css.logo + " " + logoClasses[this.logoPosition];
+  }
+  public get renderedHasTitle(): boolean {
+    if (this.isDesignMode) return this.isPropertyVisible("title");
+    return !this.locTitle.isEmpty && this.showTitle;
+  }
+  public get renderedHasLogo(): boolean {
+    if (this.isDesignMode) return this.isPropertyVisible("logo");
+    return this.hasLogo;
+  }
+  public get renderedHasHeader(): boolean {
+    return this.renderedHasTitle || this.renderedHasLogo;
   }
   /**
    * The logo fit mode.

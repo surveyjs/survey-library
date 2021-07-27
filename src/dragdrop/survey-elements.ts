@@ -6,6 +6,7 @@ import { DragDropCore } from "./core";
 
 export class DragDropSurveyElements extends DragDropCore {
   public static newGhostPage: PageModel = null;
+  public static restrictDragQuestionBetweenPages: boolean = false;
   protected isEdge: boolean = null;
 
   protected get draggedElementType(): string {
@@ -73,6 +74,13 @@ export class DragDropSurveyElements extends DragDropCore {
     ) {
       const elements = dropTarget.elements;
       dropTarget = isBottom ? elements[elements.length - 1] : elements[0];
+    }
+
+    if (
+      DragDropSurveyElements.restrictDragQuestionBetweenPages &&
+      dropTarget["page"] !== (<any>this.draggedElement)["page"]
+    ) {
+      return false;
     }
 
     if (this.isEdge === isEdge) return false;

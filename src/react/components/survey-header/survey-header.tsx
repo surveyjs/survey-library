@@ -19,45 +19,50 @@ export class SurveyHeader extends React.Component<ISurveyHeaderProps, any> {
   private get css(): any {
     return this.survey.css;
   }
-  
+
   componentDidMount() {
     const self: SurveyHeader = this;
-    this.survey.locLogo.onChanged = function () {
+    this.survey.locLogo.onChanged = function() {
       self.setState({ changed: self.state.changed + 1 });
     };
   }
   componentWillUnmount() {
-    this.survey.locLogo.onChanged = function () {};
+    this.survey.locLogo.onChanged = function() {};
   }
 
-
   private renderTitle(): JSX.Element {
-    let title: JSX.Element = null;
-    let description: JSX.Element = null;
-    if (this.survey.title && this.survey.showTitle || this.survey.isDesignMode) {
-      title = SurveyElementBase.renderLocString(this.survey.locTitle);
-      description = SurveyElementBase.renderLocString(this.survey.locDescription);
-    }
-    return title ? (
-      <div className={this.css.headerText} style={{ maxWidth: this.survey.titleMaxWidth }}>
+    if (!this.survey.renderedHasTitle) return null;
+    let title = SurveyElementBase.renderLocString(this.survey.locTitle);
+    let description = SurveyElementBase.renderLocString(
+      this.survey.locDescription
+    );
+    return (
+      <div
+        className={this.css.headerText}
+        style={{ maxWidth: this.survey.titleMaxWidth }}
+      >
         <h3 className={this.css.title}>{title}</h3>
         <h5 className={this.css.description}>{description}</h5>
       </div>
-    ) : null;
+    );
   }
 
   private renderLogoImage(isRender: boolean): JSX.Element {
     if (!isRender) return null;
-    const componentName: string = this.survey.getElementWrapperComponentName(this.survey, "logo-image");
-    const componentData: any = this.survey.getElementWrapperComponentData(this.survey, "logo-image");
-    return ReactElementFactory.Instance.createElement(componentName, { data: componentData });
+    const componentName: string = this.survey.getElementWrapperComponentName(
+      this.survey,
+      "logo-image"
+    );
+    const componentData: any = this.survey.getElementWrapperComponentData(
+      this.survey,
+      "logo-image"
+    );
+    return ReactElementFactory.Instance.createElement(componentName, {
+      data: componentData,
+    });
   }
-
   public render(): JSX.Element {
-    if ((!this.survey.title || !this.survey.showTitle) &&
-      !this.survey.hasLogo && !this.survey.isDesignMode) {
-      return null;
-    }
+    if (!this.survey.renderedHasHeader) return null;
     return (
       <div className={this.css.header}>
         {this.renderLogoImage(this.survey.isLogoBefore)}
@@ -68,6 +73,9 @@ export class SurveyHeader extends React.Component<ISurveyHeaderProps, any> {
   }
 }
 
-ReactElementFactory.Instance.registerElement("survey-header", (props: ISurveyHeaderProps) => {
-  return React.createElement(SurveyHeader, props);
-});
+ReactElementFactory.Instance.registerElement(
+  "survey-header",
+  (props: ISurveyHeaderProps) => {
+    return React.createElement(SurveyHeader, props);
+  }
+);

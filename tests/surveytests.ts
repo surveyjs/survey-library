@@ -13471,3 +13471,69 @@ QUnit.test(
     assert.equal(question.isQuestion, true, "Question is question");
   }
 );
+QUnit.test("Test survey renderedHasTitle/renderedHasLogo properties", function(
+  assert
+) {
+  var survey = new SurveyModel();
+  assert.equal(
+    survey.renderedHasHeader,
+    false,
+    "hasHeader, title and logo are invisible"
+  );
+  assert.equal(survey.renderedHasTitle, false, "There is not title");
+  survey.title = "title";
+  assert.equal(survey.renderedHasTitle, true, "There is title");
+  assert.equal(survey.renderedHasHeader, true, "hasHeader, title is visible");
+  survey.showTitle = false;
+  assert.equal(survey.renderedHasTitle, false, "hasTitle is false");
+
+  assert.equal(survey.renderedHasLogo, false, "There is not logo");
+  survey.logo = "logo";
+  assert.equal(survey.renderedHasLogo, true, "There is logo");
+  survey.logoPosition = "none";
+  assert.equal(survey.renderedHasTitle, false, "logo position is 'none'");
+
+  survey.setDesignMode(true);
+  assert.equal(survey.renderedHasTitle, true, "There is title, design");
+  assert.equal(survey.renderedHasLogo, true, "There is logo, design");
+  assert.equal(
+    survey.isLogoBefore,
+    false,
+    "We do not render logo before at design, design"
+  );
+  assert.equal(
+    survey.isLogoAfter,
+    true,
+    "We do render logo after at design, design"
+  );
+  assert.equal(
+    survey.renderedHasHeader,
+    true,
+    "hasHeader, properties are visible"
+  );
+
+  Serializer.findProperty("survey", "title").visible = false;
+  Serializer.findProperty("survey", "logo").visible = false;
+  assert.equal(
+    survey.renderedHasTitle,
+    false,
+    "There is no title, design, property invisible"
+  );
+  assert.equal(
+    survey.renderedHasLogo,
+    false,
+    "There is no logo, design, property invisible"
+  );
+  assert.equal(
+    survey.isLogoAfter,
+    false,
+    "We do not render logo after since the property is hidden, design"
+  );
+  assert.equal(
+    survey.renderedHasHeader,
+    false,
+    "hasHeader, properties are invisible"
+  );
+  Serializer.findProperty("survey", "title").visible = true;
+  Serializer.findProperty("survey", "logo").visible = true;
+});

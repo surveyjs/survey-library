@@ -25,6 +25,7 @@ import { PageModel } from "./page";
 import { settings } from "./settings";
 import { findScrollableParent, isElementVisible } from "./utils/utils";
 import { SurveyError } from "./survey-error";
+import { CssClassBuilder } from "./utils/cssClassBuilder";
 
 export class DragDropInfo {
   constructor(
@@ -1853,14 +1854,11 @@ export class PanelModel extends PanelModelBase
     this.survey.cancelPreviewByPage(this);
   }
   public get cssTitle(): string {
-    var result = this.cssClasses.panel.title;
-    if (this.state !== "default") {
-      result += " " + this.cssClasses.panel.titleExpandable;
-    }
-    if (this.containsErrors) {
-      result += " " + this.cssClasses.panel.titleOnError;
-    }
-    return result;
+    const builder = new CssClassBuilder();
+    builder.append(this.cssClasses.panel.title);
+    builder.append(this.cssClasses.panel.titleExpandable, this.state !== "default");
+    builder.append(this.cssClasses.panel.titleOnError, this.containsErrors);
+    return builder.toString();
   }
   public get cssError(): string {
     var rootClass = this.cssClasses.error.root;

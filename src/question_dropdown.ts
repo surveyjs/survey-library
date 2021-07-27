@@ -4,6 +4,7 @@ import { QuestionSelectBase } from "./question_baseselect";
 import { surveyLocalization } from "./surveyStrings";
 import { LocalizableString } from "./localizablestring";
 import { ItemValue } from "./itemvalue";
+import { CssClassBuilder } from "./utils/cssClassBuilder";
 
 /**
  * A Model for a dropdown question
@@ -124,14 +125,11 @@ export class QuestionDropdownModel extends QuestionSelectBase {
     this.setPropertyValue("autoComplete", val);
   }
   public getControlClass(): string {
-    const cssClasses = this.cssClasses;
-    let result =
-      cssClasses.control +
-      (this.errors.length > 0 ? " " + cssClasses.onError : "");
-    if (this.isReadOnly) {
-      result += " " + cssClasses.controlDisabled;
-    }
-    return result;
+    const builder = new CssClassBuilder();
+    builder.append(this.cssClasses.control);
+    builder.append(this.cssClasses.onError, this.errors.length > 0);
+    builder.append(this.cssClasses.controlDisabled, this.isReadOnly);
+    return builder.toString();
   }
 }
 Serializer.addClass(

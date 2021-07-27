@@ -27,6 +27,7 @@ import { settings } from "./settings";
 import { Panel } from "./knockout/kopage";
 import { confirmAction } from "./utils/utils";
 import { SurveyError } from "./survey-error";
+import { CssClassBuilder } from "./utils/cssClassBuilder";
 
 export interface IQuestionPanelDynamicData {
   getItemIndex(item: ISurveyData): number;
@@ -1622,19 +1623,17 @@ export class QuestionPanelDynamicModel extends Question
       ["format"](this.currentIndex + 1, rangeMax);
   }
   public getPanelWrapperCss(): string {
-    let cssClasses = this.cssClasses.panelWrapper;
-    if (this.panelRemoveButtonLocation === "right") {
-      cssClasses += " " + this.cssClasses.panelWrapperInRow;
-    }
-    return cssClasses;
+    const builder = new CssClassBuilder();
+    builder.append(this.cssClasses.panelWrapper);
+    builder.append(this.cssClasses.panelWrapperInRow, this.panelRemoveButtonLocation === "right");
+    return builder.toString();
   }
   public getPanelRemoveButtonCss(): string {
-    let cssClasses =
-      this.cssClasses.button + " " + this.cssClasses.buttonRemove;
-    if (this.panelRemoveButtonLocation === "right") {
-      cssClasses += " " + this.cssClasses.buttonRemoveRight;
-    }
-    return cssClasses;
+    const builder = new CssClassBuilder();
+    builder.append(this.cssClasses.button);
+    builder.append(this.cssClasses.buttonRemove);
+    builder.append(this.cssClasses.buttonRemoveRight, this.panelRemoveButtonLocation === "right");
+    return builder.toString();
   }
 }
 

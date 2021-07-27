@@ -3527,13 +3527,13 @@ QUnit.test("getPanelRemoveButtonCss", function(assert) {
   var question = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
   assert.equal(
     question.getPanelRemoveButtonCss(),
-    " sv_p_remove_btn",
+    "sv_p_remove_btn",
     "Default rendering: remove button in the bottom of the panel"
   );
   question.panelRemoveButtonLocation = "right";
   assert.equal(
     question.getPanelRemoveButtonCss(),
-    " sv_p_remove_btn sv_p_remove_btn_right",
+    "sv_p_remove_btn sv_p_remove_btn_right",
     "Non-default rendering: remove button in the right of the panel"
   );
 });

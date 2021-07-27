@@ -11,6 +11,7 @@ import { LocalizableString } from "./localizablestring";
 import { ConditionRunner } from "./conditions";
 import { Helpers, HashTable } from "./helpers";
 import { settings } from "./settings";
+import { CssClassBuilder } from "./utils/cssClassBuilder";
 
 /**
  * It is a base class for checkbox, dropdown and radiogroup questions.
@@ -1115,7 +1116,11 @@ export class QuestionSelectBase extends Question {
     return this.visibleChoices.indexOf(item);
   }
   getItemClass(item: any) {
-    let itemClass = this.cssClasses.item;
+    const builder = new CssClassBuilder();
+    builder.append(this.cssClasses.item);
+    builder.append(this.cssClasses.itemInline, !this.hasColumns && this.colCount === 0);
+    builder.append("sv-q-col-" + this.colCount, !this.hasColumns && this.colCount !== 0);
+
     const isDisabled = this.isReadOnly || !item.isEnabled;
     const isChecked =
       this.isItemSelected(item) ||
@@ -1123,35 +1128,24 @@ export class QuestionSelectBase extends Question {
     const allowHover =
       !isDisabled && !isChecked && !(!!this.survey && this.survey.isDesignMode);
     const isNone = item === this.noneItem;
-    if (!this.hasColumns) {
-      itemClass +=
-        this.colCount === 0
-          ? " " + this.cssClasses.itemInline
-          : " sv-q-col-" + this.colCount;
-    }
-    if (isDisabled && !!this.cssClasses.itemDisabled)
-      itemClass += " " + this.cssClasses.itemDisabled;
-    if (isChecked && !!this.cssClasses.itemChecked)
-      itemClass += " " + this.cssClasses.itemChecked;
-    if (allowHover && !!this.cssClasses.itemHover)
-      itemClass += " " + this.cssClasses.itemHover;
-    if (isNone && !!this.cssClasses.itemNone)
-      itemClass += " " + this.cssClasses.itemNone;
-    return itemClass;
+
+    builder.append(this.cssClasses.itemDisabled, isDisabled);
+    builder.append(this.cssClasses.itemChecked, isChecked);
+    builder.append(this.cssClasses.itemHover, allowHover);
+    builder.append(this.cssClasses.itemNone, isNone);
+    return builder.toString();
   }
   getLabelClass(item: ItemValue) {
-    var labelClass = this.cssClasses.label;
-    if (this.isItemSelected(item)) {
-      labelClass += " " + this.cssClasses.labelChecked;
-    }
-    return labelClass;
+    const builder = new CssClassBuilder();
+    builder.append(this.cssClasses.label);
+    builder.append(this.cssClasses.labelChecked, this.isItemSelected(item));
+    return builder.toString();
   }
   getControlLabelClass(item: ItemValue) {
-    var controlLabelClass = this.cssClasses.controlLabel;
-    if (this.isItemSelected(item)) {
-      controlLabelClass += " " + this.cssClasses.controlLabelChecked;
-    }
-    return controlLabelClass;
+    const builder = new CssClassBuilder();
+    builder.append(this.cssClasses.controlLabel);
+    builder.append(this.cssClasses.controlLabelChecked, this.isItemSelected(item));
+    return builder.toString();
   }
   get columns() {
     var columns = [];

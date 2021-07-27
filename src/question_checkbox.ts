@@ -8,6 +8,7 @@ import { Helpers } from "./helpers";
 import { ItemValue } from "./itemvalue";
 import { surveyLocalization } from "./surveyStrings";
 import { LocalizableString } from "./localizablestring";
+import { CssClassBuilder } from "./utils/cssClassBuilder";
 
 /**
  * A Model for a checkbox question
@@ -187,12 +188,11 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     return len >= this.maxSelectedChoices;
   }
   getItemClass(item: any) {
-    let val = this.value; //trigger dependencies from koValue for knockout
-    let itemClass = super.getItemClass(item);
-    const isSelectAll = item === this.selectAllItem;
-    if (isSelectAll && !!this.cssClasses.itemSelectAll)
-      itemClass += " " + this.cssClasses.itemSelectAll;
-    return itemClass;
+    const __dummy_value = this.value; //ask Sergey what is this for
+    const builder = new CssClassBuilder();
+    builder.append(super.getItemClass(item));
+    builder.append(this.cssClasses.itemSelectAll, item === this.selectAllItem);
+    return builder.toString();
   }
   protected setNewValue(newValue: any) {
     if (!this.isChangingValueOnClearIncorrect) {

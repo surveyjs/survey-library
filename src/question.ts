@@ -26,6 +26,7 @@ import { SurveyModel } from "./survey";
 import { PanelModel } from "./panel";
 import { RendererFactory } from "./rendererFactory";
 import { SurveyError } from "./survey-error";
+import { CssClassBuilder } from "./utils/cssClassBuilder";
 
 export interface IConditionObject {
   name: string;
@@ -655,33 +656,14 @@ export class Question extends SurveyElement
     this.setPropertyValue("cssRoot", val);
   }
   protected getCssRoot(cssClasses: any): string {
-    // const res = new CssClassBuilder();
-    // res.append(!this.isDesignMode
-    //   ? cssClasses.flowRoot
-    //   : cssClasses.mainRoot, this.isFlowLayout);
-    // res.append(cssClasses.titleLeftRoot, !this.isFlowLayout && this.hasTitleOnLeft);
-    // res.append(cssClasses.hasError, this.errors.length > 0);
-    // res.append(cssClasses.small, !this.width);
-    // res.toString();
-    var res =
-      this.isFlowLayout && !this.isDesignMode
-        ? cssClasses.flowRoot
-        : cssClasses.mainRoot;
-    if (!res) res = "";
-    if (
-      !this.isFlowLayout &&
-      this.hasTitleOnLeft &&
-      !!cssClasses.titleLeftRoot
-    ) {
-      res += " " + cssClasses.titleLeftRoot;
-    }
-    if (this.errors.length > 0 && !!cssClasses.hasError) {
-      res += " " + cssClasses.hasError;
-    }
-    if (cssClasses.small && !this.width) {
-      res += " " + cssClasses.small;
-    }
-    return res;
+    const builder = new CssClassBuilder();
+    builder.append(this.isFlowLayout && !this.isDesignMode
+      ? cssClasses.flowRoot
+      : cssClasses.mainRoot);
+    builder.append(cssClasses.titleLeftRoot, !this.isFlowLayout && this.hasTitleOnLeft);
+    builder.append(cssClasses.hasError, this.errors.length > 0);
+    builder.append(cssClasses.small, !this.width);
+    return builder.toString();
   }
   public get cssHeader(): string {
     this.ensureElementCss();
@@ -691,17 +673,11 @@ export class Question extends SurveyElement
     this.setPropertyValue("cssHeader", val);
   }
   protected getCssHeader(cssClasses: any): string {
-    var res = cssClasses.header || "";
-    if (this.hasTitleOnTop && !!cssClasses.headerTop) {
-      res += " " + cssClasses.headerTop;
-    }
-    if (this.hasTitleOnLeft && !!cssClasses.headerLeft) {
-      res += " " + cssClasses.headerLeft;
-    }
-    if (this.hasTitleOnBottom && !!cssClasses.headerBottom) {
-      res += " " + cssClasses.headerBottom;
-    }
-    return res;
+    const builder = new CssClassBuilder();
+    builder.append(cssClasses.headerTop, this.hasTitleOnTop);
+    builder.append(cssClasses.headerLeft, this.hasTitleOnLeft);
+    builder.append(cssClasses.headerBottom, this.hasTitleOnBottom);
+    return builder.toString();
   }
   public get cssContent(): string {
     this.ensureElementCss();
@@ -711,11 +687,10 @@ export class Question extends SurveyElement
     this.setPropertyValue("cssContent", val);
   }
   protected getCssContent(cssClasses: any): string {
-    var res = cssClasses.content || "";
-    if (this.hasTitleOnLeft && !!cssClasses.contentLeft) {
-      res += " " + cssClasses.contentLeft;
-    }
-    return res;
+    const builder = new CssClassBuilder();
+    builder.append(cssClasses.content);
+    builder.append(cssClasses.contentLeft, this.hasTitleOnLeft);
+    return builder.toString();
   }
   public get cssTitle(): string {
     this.ensureElementCss();
@@ -725,20 +700,12 @@ export class Question extends SurveyElement
     this.setPropertyValue("cssTitle", val);
   }
   protected getCssTitle(cssClasses: any): string {
-    var result = cssClasses.title;
-
-    if (this.isCollapsed || this.isExpanded) {
-      result += " " + cssClasses.titleExpandable;
-    }
-
-    if (this.containsErrors) {
-      if (!!cssClasses.titleOnError) {
-        result += " " + cssClasses.titleOnError;
-      }
-    } else if (this.isAnswered && !!cssClasses.titleOnAnswer) {
-      result += " " + cssClasses.titleOnAnswer;
-    }
-    return result;
+    const builder = new CssClassBuilder();
+    builder.append(cssClasses.title);
+    builder.append(cssClasses.titleExpandable, this.isCollapsed || this.isExpanded);
+    builder.append(cssClasses.titleOnError, this.containsErrors);
+    builder.append(cssClasses.titleOnAnswer, this.isAnswered);
+    return builder.toString();
   }
   public get cssError(): string {
     this.ensureElementCss();
@@ -749,18 +716,11 @@ export class Question extends SurveyElement
   }
   //TODO was not removed from other places
   protected getCssError(cssClasses: any): string {
-    var res = cssClasses.error.root || "";
-    if (this.errorLocation == "top") {
-      if (!!cssClasses.error.locationTop) {
-        res += " " + cssClasses.error.locationTop;
-      }
-    } else if (
-      this.errorLocation === "bottom" &&
-      !!cssClasses.error.locationBottom
-    ) {
-      res += " " + cssClasses.error.locationBottom;
-    }
-    return res;
+    const builder = new CssClassBuilder();
+    builder.append(cssClasses.error.root);
+    builder.append(cssClasses.error.locationTop, this.errorLocation === "top");
+    builder.append(cssClasses.error.locationBottom, this.errorLocation === "bottom");
+    return builder.toString();
   }
   public updateElementCss(reNew?: boolean) {
     this.cssClassesValue = undefined;

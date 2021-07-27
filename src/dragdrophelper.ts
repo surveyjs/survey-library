@@ -10,6 +10,8 @@ export class DragDropHelper extends Base {
   public onBeforeDrop: EventBase<DragDropHelper> = new EventBase();
   public onAfterDrop: EventBase<DragDropHelper> = new EventBase();
 
+  public static restrictDragQuestionBetweenPages: boolean = false;
+
   public static edgeHeight: number = 30;
   public static nestedPanelDepth: number = -1;
   public static prevEvent: any = {
@@ -290,6 +292,15 @@ export class DragDropHelper extends Base {
     let isBottom = dragInfo.isBottom;
 
     if (!dropTargetSurveyElement) {
+      this.banDropSurveyElement();
+      return;
+    }
+
+    if (
+      DragDropHelper.restrictDragQuestionBetweenPages &&
+      dropTargetSurveyElement["page"] !==
+        (<any>this.draggedSurveyElement)["page"]
+    ) {
       this.banDropSurveyElement();
       return;
     }
@@ -632,7 +643,9 @@ export class DragDropHelper extends Base {
     this.onBeforeDrop.fire(this, null);
     choices.splice(oldIndex, 1);
     choices.splice(newIndex, 0, this.draggedSurveyElement);
-    this.onAfterDrop.fire(this, { draggedElement: this.itemValueParentQuestion });
+    this.onAfterDrop.fire(this, {
+      draggedElement: this.itemValueParentQuestion,
+    });
   };
 
   private clear = () => {

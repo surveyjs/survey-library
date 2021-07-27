@@ -267,6 +267,18 @@ export class Base {
     clonedObj.fromJSON(this.toJSON());
     return clonedObj;
   }
+  /**
+   * Returns the serializable property that belongs to this instance by property name. It returns null if the property is not exists.
+   * @param propName property name
+   * @returns
+   */
+  public getPropertyByName(propName: string): JsonObjectProperty {
+    return Serializer.findProperty(this.getType(), propName);
+  }
+  public isPropertyVisible(propName: string): boolean {
+    const prop = this.getPropertyByName(propName);
+    return !!prop ? prop.isVisible("", this) : false;
+  }
   public static createProgressInfo(): IProgressInfo {
     return {
       questionCount: 0,

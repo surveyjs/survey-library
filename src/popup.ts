@@ -17,7 +17,7 @@ export class PopupModel extends Base {
   @property({ defaultValue: false }) showPointer: boolean;
   @property({ defaultValue: false }) isModal: boolean;
   @property({ defaultValue: () => {} }) onCancel: () => void;
-  @property({ defaultValue: () => {} }) onApply: () => void;
+  @property({ defaultValue: () => {return true;} }) onApply: () => boolean;
   @property({ defaultValue: () => {} }) onHide: () => void;
   @property({ defaultValue: () => {} }) onShow: () => void;
   @property({ defaultValue: "" }) cssClass: string;
@@ -29,7 +29,7 @@ export class PopupModel extends Base {
     showPointer: boolean = true,
     isModal: boolean = false,
     onCancel = () => {},
-    onApply = () => {},
+    onApply = () => {return true;},
     onHide = () => {},
     onShow = () => {},
     cssClass: string = ""
@@ -68,9 +68,13 @@ export class PopupModel extends Base {
   public onVisibilityChanged: (isVisible: boolean) => void;
 }
 
+const FOCUS_INPUT_SELECTOR =
+  "input:not(:disabled):not([readonly]):not([type=hidden]),select:not(:disabled):not([readonly]),textarea:not(:disabled):not([readonly]), button:not(:disabled):not([readonly])";
+
 export class PopupBaseViewModel extends Base {
   @property({ defaultValue: "0px" }) top: string;
   @property({ defaultValue: "0px" }) left: string;
+  @property({ defaultValue: "auto" }) height: string;
   @property({ defaultValue: false }) isVisible: boolean;
   @property({ defaultValue: "left" }) popupDirection: string;
   @property({ defaultValue: { left: "0px", top: "0px" } })
@@ -105,6 +109,35 @@ export class PopupBaseViewModel extends Base {
 
     return css;
   }
+  public onKeyDown(event: any) {
+    if (event.key === "Tab" || event.keyCode === 9) {
+      this.trapFocus(event);
+    } else if (event.key === "Escape" || event.keyCode === 27) {
+      if (this.isModal) {
+        this.model.onCancel();
+      }
+      this.model.isVisible = false;
+    }
+  }
+  private trapFocus(event: any) {
+    const focusableElements = this.container.querySelectorAll(
+      FOCUS_INPUT_SELECTOR
+    );
+    const firstFocusableElement = focusableElements[0];
+    const lastFocusableElement =
+      focusableElements[focusableElements.length - 1];
+    if (event.shiftKey) {
+      if (document.activeElement === firstFocusableElement) {
+        (<HTMLElement>lastFocusableElement).focus();
+        event.preventDefault();
+      }
+    } else {
+      if (document.activeElement === lastFocusableElement) {
+        (<HTMLElement>firstFocusableElement).focus();
+        event.preventDefault();
+      }
+    }
+  }
   public updateOnShowing() {
     if (!this.isModal) {
       this.updatePosition();
@@ -115,21 +148,47 @@ export class PopupBaseViewModel extends Base {
     const rect = this.targetElement.getBoundingClientRect();
     const background = <HTMLElement>this.container.children[0];
     const popupContainer = <HTMLElement>background.children[0];
+    const scrollContent = <HTMLElement>background.children[0].children[1];
+    const height =
+      popupContainer.offsetHeight -
+      scrollContent.offsetHeight +
+      scrollContent.scrollHeight;
+    const width = popupContainer.offsetWidth;
+    this.height = "auto";
+    let verticalPosition = this.model.verticalPosition;
+    if (!!window) {
+      verticalPosition = PopupUtils.updateVerticalPosition(
+        rect,
+        height,
+        this.model.verticalPosition,
+        this.model.showPointer,
+        window.innerHeight
+      );
+    }
     this.popupDirection = PopupUtils.calculatePopupDirection(
-      this.model.verticalPosition,
+      verticalPosition,
       this.model.horizontalPosition
     );
-    const height = popupContainer.offsetHeight;
-    const width = popupContainer.offsetWidth;
     const pos = PopupUtils.calculatePosition(
       rect,
       height,
       width,
-      this.model.verticalPosition,
+      verticalPosition,
       this.model.horizontalPosition,
-      this.showPointer,
-      window && ({ width: window.innerWidth, height: window.innerHeight})
+      this.showPointer
     );
+
+    if (!!window) {
+      const newVerticalDimensions = PopupUtils.updateVerticalDimensions(
+        pos.top,
+        height,
+        window.innerHeight
+      );
+      if (!!newVerticalDimensions) {
+        this.height = newVerticalDimensions.height + "px";
+        pos.top = newVerticalDimensions.top;
+      }
+    }
     this.left = pos.left + "px";
     this.top = pos.top + "px";
 
@@ -138,7 +197,7 @@ export class PopupBaseViewModel extends Base {
         rect,
         pos.top,
         pos.left,
-        this.model.verticalPosition,
+        verticalPosition,
         this.model.horizontalPosition
       );
     }
@@ -147,10 +206,9 @@ export class PopupBaseViewModel extends Base {
   }
   private focusFirstInput() {
     setTimeout(() => {
-      var el = this.container.querySelector(
-        "input:not(:disabled):not([readonly]):not([type=hidden]),select:not(:disabled):not([readonly]),textarea:not(:disabled):not([readonly])"
-      );
+      var el = this.container.querySelector(FOCUS_INPUT_SELECTOR);
       if (!!el) (<HTMLElement>el).focus();
+      else (<HTMLElement>this.container.children[0]).focus();
     }, 100);
   }
   public clickOutside() {
@@ -164,7 +222,7 @@ export class PopupBaseViewModel extends Base {
     this.model.isVisible = false;
   }
   public apply() {
-    this.model.onApply();
+    if (!!this.model.onApply && !this.model.onApply()) return;
     this.model.isVisible = false;
   }
   public get cancelButtonText() {
@@ -177,10 +235,16 @@ export class PopupBaseViewModel extends Base {
     super.dispose();
     this.model.onVisibilityChanged = undefined;
   }
-  public initializePopupContainer() {
+  public createPopupContainer() {
     const container: HTMLElement = document.createElement("div");
     this.container = container;
+  }
+  public mountPopupContainer() {
     document.body.appendChild(this.container);
+  }
+  public initializePopupContainer() {
+    this.createPopupContainer();
+    this.mountPopupContainer();
   }
   public destroyPopupContainer() {
     this.container.remove();

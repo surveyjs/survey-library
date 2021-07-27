@@ -1,7 +1,7 @@
 import { HashTable, Helpers } from "./helpers";
 import { JsonObject, JsonError, Serializer, property } from "./jsonobject";
+import { Base, EventBase } from "./base";
 import {
-  Base,
   ISurvey,
   ISurveyData,
   ISurveyImpl,
@@ -10,14 +10,12 @@ import {
   IPanel,
   IElement,
   IPage,
-  SurveyError,
-  EventBase,
   ISurveyErrorOwner,
   ISurveyElement,
-  SurveyElement,
   IProgressInfo,
   IFindElement,
-} from "./base";
+} from "./base-interfaces";
+import { SurveyElement } from "./survey-element";
 import { surveyCss } from "./defaultCss/cssstandard";
 import { ISurveyTriggerOwner, SurveyTrigger } from "./trigger";
 import { CalculatedValue } from "./calculatedValue";
@@ -41,8 +39,9 @@ import {
 } from "./expressionItems";
 import { ExpressionRunner, ConditionRunner } from "./conditions";
 import { settings } from "./settings";
-import { IActionBarItem } from "./action-bar";
-import { getSize, isMobile } from "./utils/utils";
+import { getSize, isMobile, scrollElementByChildId } from "./utils/utils";
+import { SurveyError } from "./survey-error";
+import { IAction } from "./actions/action";
 
 /**
  * The `Survey` object contains information about the survey, Pages, Questions, flow logic and etc.
@@ -850,8 +849,8 @@ export class SurveyModel extends Base
    * Use this event to create/customize actions to be displayed in a question's title.
    * <br/> `sender` - A [Survey](https://surveyjs.io/Documentation/Library?id=SurveyModel) object that fires the event.
    * <br/> `options.question` - A [Question](https://surveyjs.io/Documentation/Library?id=Question) object for which the event is fired.
-   * <br/> `options.actions` - A list of actions ([IActionBarItem](https://surveyjs.io/Documentation/Library?id=IActionBarItem) objects) associated with the processed question.
-   * @see IActionBarItem
+   * <br/> `options.titleActions` - A list of actions ([IAction](https://surveyjs.io/Documentation/Library?id=IAction) objects) associated with the processed question.
+   * @see IAction
    * @see Question
    */
   public onGetQuestionTitleActions: EventBase<SurveyModel> = this.addEvent<
@@ -861,8 +860,8 @@ export class SurveyModel extends Base
    * Use this event to create/customize actions to be displayed in a panel's title.
    * <br/> `sender` - A survey object that fires the event.
    * <br/> `options.panel` - A panel ([PanelModel](https://surveyjs.io/Documentation/Library?id=panelmodel) object) for which the event is fired.
-   * <br/> `options.actions` - A list of actions ([IActionBarItem](https://surveyjs.io/Documentation/Library?id=IActionBarItem) objects) associated with the processed panel.
-   * @see IActionBarItem
+   * <br/> `options.titleActions` - A list of actions ([IAction](https://surveyjs.io/Documentation/Library?id=IAction) objects) associated with the processed panel.
+   * @see IAction
    * @see PanelModel
    */
   public onGetPanelTitleActions: EventBase<SurveyModel> = this.addEvent<
@@ -872,8 +871,8 @@ export class SurveyModel extends Base
    * Use this event to create/customize actions to be displayed in a page's title.
    * <br/> `sender` - A survey object that fires the event.
    * <br/> `options.page` - A page ([PageModel](https://surveyjs.io/Documentation/Library?id=pagemodel) object) for which the event is fired.
-   * <br/> `options.actions` - A list of actions ([IActionBarItem](https://surveyjs.io/Documentation/Library?id=IActionBarItem) objects) associated with the processed page.
-   * @see IActionBarItem
+   * <br/> `options.titleActions` - A list of actions ([IAction](https://surveyjs.io/Documentation/Library?id=IAction) objects) associated with the processed page.
+   * @see IAction
    * @see PageModel
    */
   public onGetPageTitleActions: EventBase<SurveyModel> = this.addEvent<
@@ -884,8 +883,8 @@ export class SurveyModel extends Base
    * <br/> `sender` - A survey object that fires the event.
    * <br/> `options.question` - A matrix question ([QuestionMatrixBaseModel](https://surveyjs.io/Documentation/Library?id=questionmatrixbasemodel) object) for which the event is fired.
    * <br/> `options.row` - A matrix row for which the event is fired.
-   * <br/> `options.actions` - A list of actions ([IActionBarItem](https://surveyjs.io/Documentation/Library?id=IActionBarItem) objects) associated with the processed matrix question and row.
-   * @see IActionBarItem
+   * <br/> `options.actions` - A list of actions ([IAction](https://surveyjs.io/Documentation/Library?id=IAction) objects) associated with the processed matrix question and row.
+   * @see IAction
    * @see QuestionMatrixDropdownModelBase
    */
   public onGetMatrixRowActions: EventBase<SurveyModel> = this.addEvent<
@@ -900,6 +899,17 @@ export class SurveyModel extends Base
   public onElementContentVisibilityChanged: EventBase<
     SurveyModel
   > = this.addEvent<SurveyModel>();
+
+  /**
+   * The event is fired before expression question convert it's value into display value for rendering.
+   * <br/> `sender` - the survey object that fires the event.
+   * <br/> `options.question` - The expression question.
+   * <br/> `options.value` - The question value.
+   * <br/> `options.displayValue` - the display value that you can change before rendering.
+   */
+  public onGetExpressionDisplayValue: EventBase<SurveyModel> = this.addEvent<
+    SurveyModel
+  >();
 
   //#endregion
 
@@ -971,6 +981,9 @@ export class SurveyModel extends Base
     this.onTextMarkdown.onCallbacksChanged = () => {
       this.locStrsChanged();
     };
+    this.onGetQuestionTitle.onCallbacksChanged = () => {
+      this.locStrsChanged();
+    };
     this.onBeforeCreating();
     if (jsonObj) {
       if (typeof jsonObj === "string" || jsonObj instanceof String) {
@@ -991,8 +1004,8 @@ export class SurveyModel extends Base
    * The list of errors on loading survey JSON. If the list is empty after loading a JSON, then the JSON is correct and has no errors.
    * @see JsonError
    */
-   public jsonErrors: Array<JsonError> = null;
-  
+  public jsonErrors: Array<JsonError> = null;
+
   public getType(): string {
     return "survey";
   }
@@ -1085,6 +1098,13 @@ export class SurveyModel extends Base
   }
   public get isLazyRendering(): boolean {
     return this.lazyRendering || settings.lazyRowsRendering;
+  }
+  private updateLazyRenderingRowsOnRemovingElements() {
+    if (!this.isLazyRendering) return;
+    var page = this.currentPage;
+    if (!!page) {
+      scrollElementByChildId(page.id);
+    }
   }
   /**
    * Gets or sets a list of triggers in the survey.
@@ -1570,6 +1590,19 @@ export class SurveyModel extends Base
     this.onTextRenderAs.fire(this, options);
     return options.renderAs;
   }
+  getExpressionDisplayValue(
+    question: IQuestion,
+    value: any,
+    displayValue: string
+  ): string {
+    const options = {
+      question: question,
+      value: value,
+      displayValue: displayValue,
+    };
+    this.onGetExpressionDisplayValue.fire(this, options);
+    return options.displayValue;
+  }
   private getBuiltInRendererForString(element: Base, name: string): string {
     if (this.isDesignMode) return LocalizableString.editableRenderer;
     return undefined;
@@ -1673,14 +1706,16 @@ export class SurveyModel extends Base
     return !!this.logo && this.logoPosition !== "none";
   }
   public get isLogoBefore() {
+    if (this.isDesignMode) return false;
     return (
-      this.hasLogo &&
+      this.renderedHasLogo &&
       (this.logoPosition === "left" || this.logoPosition === "top")
     );
   }
   public get isLogoAfter() {
+    if (this.isDesignMode) return this.renderedHasLogo;
     return (
-      this.hasLogo &&
+      this.renderedHasLogo &&
       (this.logoPosition === "right" || this.logoPosition === "bottom")
     );
   }
@@ -1692,6 +1727,17 @@ export class SurveyModel extends Base
       bottom: "sv-logo--bottom",
     };
     return this.css.logo + " " + logoClasses[this.logoPosition];
+  }
+  public get renderedHasTitle(): boolean {
+    if (this.isDesignMode) return this.isPropertyVisible("title");
+    return !this.locTitle.isEmpty && this.showTitle;
+  }
+  public get renderedHasLogo(): boolean {
+    if (this.isDesignMode) return this.isPropertyVisible("logo");
+    return this.hasLogo;
+  }
+  public get renderedHasHeader(): boolean {
+    return this.renderedHasTitle || this.renderedHasLogo;
   }
   /**
    * The logo fit mode.
@@ -1713,7 +1759,11 @@ export class SurveyModel extends Base
     return isMobile() || this._isMobile;
   }
   public get titleMaxWidth(): string {
-    if (!this.isMobile && !this.isValueEmpty(this.logo) && !settings.supportCreatorV2) {
+    if (
+      !this.isMobile &&
+      !this.isValueEmpty(this.logo) &&
+      !settings.supportCreatorV2
+    ) {
       var logoWidth = this.logoWidth;
       if (this.logoPosition === "left" || this.logoPosition === "right") {
         return "calc(100% - 5px - 2em - " + logoWidth + ")";
@@ -2562,6 +2612,7 @@ export class SurveyModel extends Base
    * Sets the input focus to the first question with the input field.
    */
   public focusFirstQuestion() {
+    if (this.isFocusingQuestion) return;
     var page = this.activePage;
     if (page) {
       page.scrollToTop();
@@ -2572,7 +2623,7 @@ export class SurveyModel extends Base
     var page = this.activePage;
     if (!page) return;
     page.scrollToTop();
-    if (this.focusFirstQuestionAutomatic) {
+    if (this.focusFirstQuestionAutomatic && !this.isFocusingQuestion) {
       page.focusFirstQuestion();
     }
   }
@@ -3953,12 +4004,6 @@ export class SurveyModel extends Base
     this.onDragDropAllow.fire(this, options);
     return options.allow;
   }
-
-  renderTitleActions(element: ISurveyElement): boolean {
-    if (element.isPanel) return !this.onGetPanelTitleActions.isEmpty;
-    else if (element.isPage) return !this.onGetPageTitleActions.isEmpty;
-    else return !this.onGetQuestionTitleActions.isEmpty;
-  }
   elementContentVisibilityChanged(element: ISurveyElement): void {
     if (this.currentPageValue) {
       this.currentPageValue.ensureRowsVisibility();
@@ -3966,9 +4011,19 @@ export class SurveyModel extends Base
     this.onElementContentVisibilityChanged.fire(this, { element });
   }
 
-  getUpdatedQuestionTitleActions(
-    question: IQuestion,
-    titleActions: Array<IActionBarItem>
+  getUpdatedElementTitleActions(
+    element: ISurveyElement,
+    titleActions: Array<IAction>
+  ): Array<IAction> {
+    if (element.isPage)
+      return this.getUpdatedPageTitleActions(element, titleActions);
+    if (element.isPanel)
+      return this.getUpdatedPanelTitleActions(element, titleActions);
+    return this.getUpdatedQuestionTitleActions(element, titleActions);
+  }
+  private getUpdatedQuestionTitleActions(
+    question: ISurveyElement,
+    titleActions: Array<IAction>
   ) {
     var options = {
       question: question,
@@ -3978,9 +4033,9 @@ export class SurveyModel extends Base
     return options.titleActions;
   }
 
-  getUpdatedPanelTitleActions(
-    panel: IPanel,
-    titleActions: Array<IActionBarItem>
+  private getUpdatedPanelTitleActions(
+    panel: ISurveyElement,
+    titleActions: Array<IAction>
   ) {
     var options = {
       panel: panel,
@@ -3990,7 +4045,10 @@ export class SurveyModel extends Base
     return options.titleActions;
   }
 
-  getUpdatedPageTitleActions(page: IPage, titleActions: Array<IActionBarItem>) {
+  private getUpdatedPageTitleActions(
+    page: ISurveyElement,
+    titleActions: Array<IAction>
+  ) {
     var options = {
       page: page,
       titleActions: titleActions,
@@ -4002,7 +4060,7 @@ export class SurveyModel extends Base
   getUpdatedMatrixRowActions(
     question: IQuestion,
     row: any,
-    actions: Array<IActionBarItem>
+    actions: Array<IAction>
   ) {
     var options = {
       question: question,
@@ -5117,6 +5175,7 @@ export class SurveyModel extends Base
     if (this.isDesignMode) {
       this.updateProgressText();
     }
+    this.updateLazyRenderingRowsOnRemovingElements();
   }
   private generateNewName(elements: Array<any>, baseName: string): string {
     var keys: { [index: string]: any } = {};
@@ -5301,6 +5360,7 @@ export class SurveyModel extends Base
       question: question,
       name: question.name,
     });
+    this.updateLazyRenderingRowsOnRemovingElements();
   }
   questionRenamed(
     question: IQuestion,
@@ -5419,6 +5479,7 @@ export class SurveyModel extends Base
   panelRemoved(panel: IElement) {
     this.updateVisibleIndexes();
     this.onPanelRemoved.fire(this, { panel: panel, name: panel.name });
+    this.updateLazyRenderingRowsOnRemovingElements();
   }
   validateQuestion(question: IQuestion): SurveyError {
     if (this.onValidateQuestion.isEmpty) return null;
@@ -5793,17 +5854,18 @@ export class SurveyModel extends Base
     var value = processor.getValue(fromName, this.getFilteredValues());
     this.setTriggerValue(name, value, false);
   }
+  private isFocusingQuestion: boolean;
   focusQuestion(name: string): boolean {
     var question = this.getQuestionByName(name, true);
     if (!question || !question.isVisible || !question.page) return false;
+    this.isFocusingQuestion = true;
     this.currentPage = <PageModel>question.page;
-    setTimeout(function() {
-      question.focus(), 1;
-    });
+    question.focus();
+    this.isFocusingQuestion = false;
     return true;
   }
   public getElementWrapperComponentName(element: any, reason?: string): string {
-    if(reason === "logo-image") {
+    if (reason === "logo-image") {
       return "sv-logo-image";
     }
     return SurveyModel.TemplateRendererComponentName;
@@ -5846,6 +5908,7 @@ export class SurveyModel extends Base
   public dispose() {
     super.dispose();
     this.editingObj = null;
+    if (!this.pages) return;
     for (var i = 0; i < this.pages.length; i++) {
       this.pages[i].dispose();
     }

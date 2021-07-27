@@ -1,5 +1,17 @@
 <template>
-  <div :class="question.cssClasses.root">
+  <div 
+    :class="question.cssClasses.root"
+    v-bind:style="{
+      height: question.height + 'px',
+      width: question.width + 'px',
+    }"
+  >
+    <div 
+      :class="question.cssClasses.placeholder"
+      v-show="question.needShowPlaceholder()"
+    >
+      {{question.placeHolderText}}
+    </div>
     <div>
       <canvas tabindex="0"></canvas>
     </div>

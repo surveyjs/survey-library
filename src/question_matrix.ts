@@ -2,7 +2,8 @@ import { Helpers } from "./helpers";
 import { ItemValue } from "./itemvalue";
 import { QuestionMatrixBaseModel } from "./martixBase";
 import { JsonObject, Serializer } from "./jsonobject";
-import { SurveyError, Base } from "./base";
+import { Base } from "./base";
+import { SurveyError } from "./survey-error";
 import { surveyLocalization } from "./surveyStrings";
 import { RequiredInAllRowsError } from "./error";
 import { QuestionFactory } from "./questionfactory";
@@ -10,6 +11,7 @@ import { LocalizableString, ILocalizableOwner } from "./localizablestring";
 import { QuestionDropdownModel } from "./question_dropdown";
 import { IConditionObject } from "./question";
 import { settings } from "./settings";
+import { SurveyModel } from "./survey";
 
 export interface IMatrixData {
   onMatrixRowChanged(row: MatrixRowModel): void;
@@ -263,6 +265,11 @@ export class QuestionMatrixModel
   getColumns(): Array<any> {
     return this.visibleColumns;
   }
+  public addColumn(value: any, text?: string): ItemValue {
+    var col = new ItemValue(value, text);
+    this.columns.push(col);
+    return col;
+  }
   public getItemClass(row: any, column: any) {
     var isChecked = row.value == column.value;
     var isDisabled = this.isReadOnly;
@@ -483,7 +490,7 @@ export class QuestionMatrixModel
     if (!!questionPlainData) {
       var values = this.createValueCopy();
       questionPlainData.isNode = true;
-      questionPlainData.data = Object.keys(values || {}).map(rowName => {
+      questionPlainData.data = Object.keys(values || {}).map((rowName) => {
         var row = this.rows.filter(
           (r: MatrixRowModel) => r.value === rowName
         )[0];
@@ -504,7 +511,7 @@ export class QuestionMatrixModel
           values[rowName]
         );
         if (!!item) {
-          (options.calculations || []).forEach(calculation => {
+          (options.calculations || []).forEach((calculation) => {
             rowDataItem[calculation.propertyName] =
               item[calculation.propertyName];
           });
@@ -592,6 +599,34 @@ export class QuestionMatrixModel
     keys.push("columns");
     keys.push("rows");
   }
+
+  private get SurveyModel() {
+    return this.survey as SurveyModel;
+  }
+  public getColumnHeaderWrapperComponentName(cell: ItemValue) {
+    return this.SurveyModel.getElementWrapperComponentName(
+      { column: cell },
+      "column-header"
+    );
+  }
+  public getColumnHeaderWrapperComponentData(cell: ItemValue) {
+    return this.SurveyModel.getElementWrapperComponentData(
+      { column: cell },
+      "column-header"
+    );
+  }
+  public getRowHeaderWrapperComponentName(cell: ItemValue) {
+    return this.SurveyModel.getElementWrapperComponentName(
+      { row: cell },
+      "row-header"
+    );
+  }
+  public getRowHeaderWrapperComponentData(cell: ItemValue) {
+    return this.SurveyModel.getElementWrapperComponentData(
+      { row: cell },
+      "row-header"
+    );
+  }
 }
 
 Serializer.addClass(
@@ -624,7 +659,7 @@ Serializer.addClass(
   "matrixbase"
 );
 
-QuestionFactory.Instance.registerQuestion("matrix", name => {
+QuestionFactory.Instance.registerQuestion("matrix", (name) => {
   var q = new QuestionMatrixModel(name);
   q.rows = QuestionFactory.DefaultRows;
   q.columns = QuestionFactory.DefaultColums;

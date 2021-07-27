@@ -280,10 +280,13 @@ export class StylesManager {
     ".sv_main .sv_q_num + span": "",
 
     // SignaturePad
-    ".sv_main .sjs_sp_container": "position: relative;",
+    ".sv_main .sjs_sp_container":
+      "position: relative; box-sizing: content-box;",
     ".sv_main .sjs_sp_controls": "position: absolute; left: 0; bottom: 0;",
     ".sv_main .sjs_sp_controls > button": "user-select: none;",
     ".sv_main .sjs_sp_container>div>canvas:focus": "outline: none;",
+    ".sv_main .sjs_sp_placeholder":
+      "display: flex;  align-items: center; justify-content: center; position: absolute; z-index: 0; user-select: none; pointer-events: none; width: 100%; height: 100%;",
 
     // logo
     // ".sv_main .sv_header": "white-space: nowrap;",
@@ -310,7 +313,7 @@ export class StylesManager {
     ".sv_main .sv-action-bar-item__title": `vertical-align: middle; white-space: nowrap;`,
     ".sv_main .sv-action-bar-item__title--with-icon": `margin-left: 8px;`,
     ".sv_main .sv-action": `display: flex; align-items: center;`,
-    ".sv_main .sv-action--hidden": "visibility: hidden",
+    ".sv_main .sv-action--hidden": "display: none;",
     ".sv_main .sv-action-bar-item__icon svg": "display: block;",
     ".sv_main .sv-action-bar-item:active": "opacity: 0.5;",
     ".sv_main .sv-action-bar-item:focus": "outline: none;",
@@ -341,7 +344,7 @@ export class StylesManager {
     //popup
     "sv-popup": "display: block; position: absolute; z-index: -1;",
     ".sv-popup":
-      "position: fixed; left: 0; top: 0; z-index: 1000; width: 100vw; height: 100vh;",
+      "position: fixed; left: 0; top: 0; z-index: 1000; width: 100vw; height: 100vh; outline: none;",
     ".sv-popup--modal":
       "display: flex; align-items: center; justify-content: center;",
     ".sv-popup--modal .sv-popup__container":
@@ -397,9 +400,8 @@ export class StylesManager {
       "float: left; width: calc(3 * 8px); height: calc(3 * 8px); margin-right: calc(2 * 8px);",
     ".sv-list__item-icon svg": "display: block;",
     ".sv-list__item-icon use": "fill: #909090;",
-    ".sv-list__item:hover": "background-color: #f3f3f3;",
+    ".sv-list__item:not(.sv-list__item--selected):hover": "background-color: #f3f3f3;",
     ".sv-list__item--selected": "background-color: #19b394; color: #fff;",
-    ".sv-list__item--selected:hover": "background-color: #19b394;",
     ".sv-list__item--selected .sv-list__item-icon use": "fill: #fff;",
     ".sv-list__item--disabled":
       "color: rgba(22, 22, 22, 0.16); cursor: default; pointer-events: none;",
@@ -871,6 +873,10 @@ export class StylesManager {
       "background-color: $disabled-slider-color;",
     //eo boolean
 
+    //signature pad
+    ".sv_main .sjs_sp_container": "border: 1px dashed $disable-color;",
+    ".sv_main .sjs_sp_placeholder": "color: $foreground-light;",
+
     ".sv_main .sv_matrix_detail_row":
       "background-color: #ededed; border-top: 1px solid $header-background-color; border-bottom: 1px solid $header-background-color;",
 
@@ -896,6 +902,10 @@ export class StylesManager {
     //eo button-group
 
     ".sv_main .sv_qstn textarea": "max-width: 100%",
+
+    ".sv_main .sv-matrixdynamic__drag-icon": "padding-top:14px",
+    ".sv_main .sv-matrixdynamic__drag-icon:after":
+      "content: ' '; display: block; height: 4px; width: 16px; border: 1px solid $border-color; box-sizing: border-box; border-radius: 10px; cursor: move;",
   };
 
   public static modernThemeCss: { [key: string]: string } = {
@@ -958,6 +968,9 @@ export class StylesManager {
       "background-color: $disable-color;",
     ".sv-matrixdynamic__add-btn": "background-color: $add-button-color;",
     ".sv-matrixdynamic__remove-btn": "background-color: $remove-button-color;",
+    ".sv-matrixdynamic__drag-icon": "padding-top:16px",
+    ".sv-matrixdynamic__drag-icon:after":
+      "content: ' '; display: block; height: 4px; width: 16px; border: 1px solid $border-color; box-sizing: border-box; border-radius: 10px; cursor: move;",
     ".sv-paneldynamic__add-btn": "background-color: $add-button-color;",
     ".sv-paneldynamic__remove-btn": "background-color: $remove-button-color;",
     ".sv-paneldynamic__prev-btn, .sv-paneldynamic__next-btn":
@@ -1012,6 +1025,9 @@ export class StylesManager {
     ".sv-text::-ms-placeholder": "color: $text-input-color;",
     ".sv-text:-ms-placeholder": "color: $text-input-color;",
     ".sv-table__row--detail": "background-color: $header-background-color;",
+    //signature pad
+    ".sjs_sp_container": "border: 1px dashed $disable-color;",
+    ".sjs_sp_placeholder": "color: $foreground-light;",
   };
 
   public static bootstrapThemeCss: { [key: string]: string } = {
@@ -1050,6 +1066,10 @@ export class StylesManager {
     ".sv_main .sv-boolean--disabled  .sv-boolean__slider":
       "background-color: $disabled-slider-color;",
     //eo boolean
+
+    //signature pad
+    ".sv_main .sjs_sp_container": "border: 1px dashed $disable-color;",
+    ".sv_main .sjs_sp_placeholder": "color: $foreground-light;",
 
     ".sv_main .sv_matrix_detail_row":
       "background-color: #ededed; border-top: 1px solid $header-background-color; border-bottom: 1px solid $header-background-color;",
@@ -1139,6 +1159,10 @@ export class StylesManager {
     //eo boolean
     ".sv_main .sv_matrix_detail_row":
       "background-color: #ededed; border-top: 1px solid $header-background-color; border-bottom: 1px solid $header-background-color;",
+
+    //signature pad
+    ".sv_main .sjs_sp_container": "border: 1px dashed $disable-color;",
+    ".sv_main .sjs_sp_placeholder": "color: $foreground-light;",
 
     ".sv_main .sv-action-bar-item": "color: $text-color;",
     ".sv_main .sv-action-bar-item__icon use": "fill: $foreground-light;",

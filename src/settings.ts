@@ -124,6 +124,7 @@ export var settings = {
    * This feature is experimantal and might do not support all the use cases.
    */
   lazyRowsRendering: false,
+  lazyRowsRenderingStartRow: 3,
   /**
    * By default checkbox and radiogroup items are ordered in rows.
    * Set it "column", and items will be ordered in columns.
@@ -150,9 +151,16 @@ export var settings = {
     (
       componentName: string,
       data: any,
-      onApply: () => void,
+      onApply: () => boolean,
       onCancel?: () => void
     ) => void
   >undefined,
   supportCreatorV2: false,
+  /**
+   * Specifies a list of custom icons.
+   * Use this property to replace SurveyJS default icons (displayed in UI elements of SurveyJS Library or Creator) with your custom icons.
+   * For every default icon to replace, add a key/value object with the default icon's name as a key and the name of your custom icon as a value.
+   * For example: Survey.settings.customIcons["icon-redo"] = "my-own-redo-icon"
+   */
+  customIcons: {},
 };

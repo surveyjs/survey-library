@@ -27,6 +27,7 @@ export * from "../surveytimertests";
 export * from "../question_expressiontests";
 export * from "../questionFileTests";
 export * from "../dragdroptests";
+export * from "../dragdrophelpertests";
 export * from "../expressions/expressionsTest"; //
 export * from "../expressions/expressionParserTest"; //
 export * from "../questionDropdown";
@@ -42,7 +43,7 @@ export * from "../question_matrix_base_tests";
 export * from "../renderFactoryTests";
 export * from "../components/popuptests";
 export * from "../components/actionbartests";
-export * from "../utils/responsivityTests";
+export * from "../responsivityTests";
 
 // localization
 import "../../src/localization/russian";

@@ -33,4 +33,7 @@ export class RendererFactory {
   public getRendererByQuestion(question: Question): any {
     return this.getRenderer(question.getType(), question.renderAs);
   }
+  public clear() {
+    this.renderersHash = {};
+  }
 }

@@ -224,6 +224,9 @@ QUnit.test("ItemValue.getItemByValue()", function(assert) {
   assert.equal(item["custom"], "mydata", "get custom data correctly");
   item = ItemValue.getItemByValue(items, 55);
   assert.equal(item, null, "there is no item by this value");
+  items.push(new ItemValue("", "empty"));
+  item = ItemValue.getItemByValue(items, undefined);
+  assert.equal(item.text, "empty", "returns empty value");
 });
 
 class BaseTester extends Base implements ILocalizableOwner {

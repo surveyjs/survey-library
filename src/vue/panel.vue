@@ -4,31 +4,27 @@
     :class="question.cssClasses.panel.container"
     :style="rootStyle"
   >
-    <h4 v-show="hasTitle" :class="getTitleStyle()" v-on:click="changeExpanded">
-      <span v-if="question.isRequireTextOnStart" :class="requiredTextCss">{{
-        question.requiredText
-      }}</span>
-      <span
-        v-if="question.no"
-        style="position: static"
-        :class="question.cssClasses.number"
-        >{{ question.no }}</span
-      >
-      <span v-if="question.isRequireTextBeforeTitle" :class="requiredTextCss">{{
-        question.requiredText
-      }}</span>
-      <survey-string :locString="question.locTitle" />
-      <span v-if="question.isRequireTextAfterTitle" :class="requiredTextCss">{{
-        question.requiredText
-      }}</span>
-      <span
-        v-show="showIcon"
-        :class="iconCss"
-        v-on:keyup.enter="changeExpanded"
-        tabindex="0"
-        v-bind:aria-expanded="isCollapsed ? 'false' : 'true'"
-        :aria-controls="!isCollapsed ? question.contentId : null"
-      ></span>
+    <h4
+      v-show="hasTitle"
+      :class="question.cssTitle"
+      v-bind:tabindex="question.titleTabIndex"
+      v-bind:aria-expanded="question.titleAriaExpanded"
+      v-on:click="
+        () => {
+          return question.toggleState();
+        }
+      "
+      v-on:keyup="
+        ($event) => {
+          keyup($event);
+        }
+      "
+    >
+      <component
+        :is="question.getTitleComponentName()"
+        :element="question"
+        :css="css"
+      ></component>
     </h4>
     <div :class="question.cssClasses.panel.description">
       <survey-string :locString="question.locDescription" />
@@ -66,7 +62,7 @@
 <script lang="ts">
 import Vue from "vue";
 import { Component, Prop } from "vue-property-decorator";
-import { PanelModelBase, PanelModel, QuestionRowModel } from "survey-core";
+import { PanelModelBase, PanelModel, doKey2Click } from "survey-core";
 import { ISurvey, Base } from "survey-core";
 import { BaseVue } from "./base";
 
@@ -126,23 +122,12 @@ export class Panel extends BaseVue {
     if (!this.isCollapsed) result += " " + this.css.panel.iconExpanded;
     return result;
   }
-  changeExpanded() {
-    this.question.toggleState();
+  keyup(evt: any) {
+    doKey2Click(evt);
   }
   cancelPreview() {
     this.question.cancelPreview();
   }
-  getTitleStyle() {
-    var result = this.css.panel.title;
-    if (this.question.isCollapsed || this.question.isExpanded) {
-      result += " " + this.css.panel.titleExpandable;
-    }
-    if (this.question.containsErrors) {
-      result += " " + this.question.cssClasses.panel.titleOnError;
-    }
-    return result;
-  }
-
   get requiredTextCss() {
     return (
       this.question.cssClasses.requiredText ||

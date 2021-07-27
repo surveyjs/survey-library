@@ -1,5 +1,6 @@
 import { HashTable, Helpers } from "./helpers";
-import { Base, ISurvey } from "./base";
+import { Base } from "./base";
+import { ISurvey } from "./base-interfaces";
 import { Serializer } from "./jsonobject";
 import { ConditionRunner, ExpressionRunner } from "./conditions";
 import { OperandMaker } from "./expressions/expressions";
@@ -180,6 +181,7 @@ export class Trigger extends Base {
       if (!keys.hasOwnProperty(firstName)) continue;
       if (name == firstName) return true;
       var keyValue = keys[firstName];
+      if (keyValue == undefined) continue;
       if (
         !keyValue.hasOwnProperty("oldValue") ||
         !keyValue.hasOwnProperty("newValue")
@@ -374,7 +376,7 @@ export class SurveyTriggerRunExpression extends SurveyTrigger {
     if (!this.owner || !this.runExpression) return;
     var expression = new ExpressionRunner(this.runExpression);
     if (expression.canRun) {
-      expression.onRunComplete = res => {
+      expression.onRunComplete = (res) => {
         this.onCompleteRunExpression(res);
       };
       expression.run(values, properties);

@@ -71,10 +71,12 @@ export { SurveyHeader } from "../react/components/survey-header/survey-header";
 export { SvgIcon } from "../react/components/svg-icon/svg-icon";
 export { SurveyQuestionMatrixDynamicRemoveButton } from "../react/components/matrix-actions/remove-button/remove-button";
 export { SurveyQuestionMatrixDetailButton } from "../react/components/matrix-actions/detail-button/detail-button";
+export { SurveyQuestionMatrixDynamicDragDropIcon } from "../react/components/matrix-actions/drag-drop-icon/drag-drop-icon";
+
 
 export { SurveyLocStringViewer } from "../react/string-viewer";
 export { SurveyLocStringEditor } from "../react/string-editor";
-export * from "../utils/responsivitymanager";
+export * from "../utils/responsivity-manager";
 export { unwrap } from "../utils/utils";
 
 //Uncomment to include the "date" question type.

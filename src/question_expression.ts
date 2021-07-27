@@ -4,7 +4,7 @@ import { Serializer } from "./jsonobject";
 import { QuestionFactory } from "./questionfactory";
 import { LocalizableString } from "./localizablestring";
 import { ExpressionRunner } from "./conditions";
-import { SurveyError } from "./base";
+import { SurveyError } from "./survey-error";
 
 /**
  * A Model for expression question. It is a read-only question. It calculates value based on epxression property.
@@ -111,10 +111,15 @@ export class QuestionExpressionModel extends Question {
   }
   protected getDisplayValueCore(keysAsText: boolean, value: any): any {
     var val = this.isValueEmpty(value) ? this.defaultValue : value;
-    if (this.isValueEmpty(val)) return "";
-    var str = this.getValueAsStr(val);
-    if (!this.format) return str;
-    return (<any>this.format)["format"](str);
+    var res = "";
+    if (!this.isValueEmpty(val)) {
+      var str = this.getValueAsStr(val);
+      res = !this.format ? str : (<any>this.format)["format"](str);
+    }
+    if (!!this.survey) {
+      res = this.survey.getExpressionDisplayValue(this, val, res);
+    }
+    return res;
   }
   /**
    * You may set this property to "decimal", "currency", "percent" or "date". If you set it to "currency", you may use the currency property to display the value in currency different from USD.

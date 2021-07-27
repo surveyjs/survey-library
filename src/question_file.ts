@@ -1,9 +1,10 @@
 import { Question } from "./question";
 import { Serializer } from "./jsonobject";
 import { QuestionFactory } from "./questionfactory";
-import { SurveyError, EventBase } from "./base";
+import { EventBase } from "./base";
 import { UploadingFileError, ExceedSizeError } from "./error";
 import { surveyLocalization } from "./surveyStrings";
+import { SurveyError } from "./survey-error";
 
 /**
  * A Model for a file question
@@ -27,6 +28,7 @@ export class QuestionFileModel extends Question {
     return "file";
   }
   public clearOnDeletingContainer() {
+    if (!this.survey) return;
     this.survey.clearFiles(this, this.name, this.value, null, () => {});
   }
   /**
@@ -171,6 +173,7 @@ export class QuestionFileModel extends Question {
    * Clear value programmatically.
    */
   public clear(doneCallback?: () => void) {
+    if (!this.survey) return;
     this.survey.clearFiles(
       this,
       this.name,
@@ -189,6 +192,7 @@ export class QuestionFileModel extends Question {
    * Remove file item programmatically.
    */
   public removeFile(content: { name: string }) {
+    if (!this.survey) return;
     this.survey.clearFiles(
       this,
       this.name,
@@ -198,7 +202,7 @@ export class QuestionFileModel extends Question {
         if (status === "success") {
           var oldValue = this.value;
           if (Array.isArray(oldValue)) {
-            this.value = oldValue.filter(f => f.name !== content.name);
+            this.value = oldValue.filter((f) => f.name !== content.name);
           } else {
             this.value = undefined;
           }
@@ -224,9 +228,9 @@ export class QuestionFileModel extends Question {
     var loadFilesProc = () => {
       var content = <Array<any>>[];
       if (this.storeDataAsText) {
-        files.forEach(file => {
+        files.forEach((file) => {
           let fileReader = new FileReader();
-          fileReader.onload = e => {
+          fileReader.onload = (e) => {
             content = content.concat([
               { name: file.name, type: file.type, content: fileReader.result },
             ]);
@@ -237,22 +241,24 @@ export class QuestionFileModel extends Question {
           fileReader.readAsDataURL(file);
         });
       } else {
-        this.survey.uploadFiles(this, this.name, files, (status, data) => {
-          if (status === "error") {
-            this.stateChanged("error");
-          }
-          if (status === "success") {
-            this.value = (this.value || []).concat(
-              data.map((r: any) => {
-                return {
-                  name: r.file.name,
-                  type: r.file.type,
-                  content: r.content,
-                };
-              })
-            );
-          }
-        });
+        if (this.survey) {
+          this.survey.uploadFiles(this, this.name, files, (status, data) => {
+            if (status === "error") {
+              this.stateChanged("error");
+            }
+            if (status === "success") {
+              this.value = (this.value || []).concat(
+                data.map((r: any) => {
+                  return {
+                    name: r.file.name,
+                    type: r.file.type,
+                    content: r.content,
+                  };
+                })
+              );
+            }
+          });
+        }
       }
     };
     if (this.allowMultiple) {
@@ -283,7 +289,7 @@ export class QuestionFileModel extends Question {
       : [];
 
     if (this.storeDataAsText) {
-      newValues.forEach(value => {
+      newValues.forEach((value) => {
         var content = value.content || value;
         this.previewValue = this.previewValue.concat([
           {
@@ -295,24 +301,26 @@ export class QuestionFileModel extends Question {
       });
       if (state === "loading") this.stateChanged("loaded");
     } else {
-      newValues.forEach(value => {
+      newValues.forEach((value) => {
         var content = value.content || value;
-        this.survey.downloadFile(this.name, value, (status, data) => {
-          if (status === "success") {
-            this.previewValue = this.previewValue.concat([
-              {
-                content: data,
-                name: value.name,
-                type: value.type,
-              },
-            ]);
-            if (this.previewValue.length === newValues.length) {
-              this.stateChanged("loaded");
+        if (this.survey) {
+          this.survey.downloadFile(this.name, value, (status, data) => {
+            if (status === "success") {
+              this.previewValue = this.previewValue.concat([
+                {
+                  content: data,
+                  name: value.name,
+                  type: value.type,
+                },
+              ]);
+              if (this.previewValue.length === newValues.length) {
+                this.stateChanged("loaded");
+              }
+            } else {
+              this.stateChanged("error");
             }
-          } else {
-            this.stateChanged("error");
-          }
-        });
+          });
+        }
       });
     }
   }
@@ -345,7 +353,7 @@ export class QuestionFileModel extends Question {
   }
   private allFilesOk(files: File[]): boolean {
     var errorLength = this.errors ? this.errors.length : 0;
-    (files || []).forEach(file => {
+    (files || []).forEach((file) => {
       if (this.maxSize > 0 && file.size > this.maxSize) {
         this.errors.push(new ExceedSizeError(this.maxSize, this));
       }
@@ -430,6 +438,6 @@ Serializer.addClass(
   },
   "question"
 );
-QuestionFactory.Instance.registerQuestion("file", name => {
+QuestionFactory.Instance.registerQuestion("file", (name) => {
   return new QuestionFileModel(name);
 });

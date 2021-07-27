@@ -4,7 +4,7 @@ import { SurveyElementBase } from "./reactquestion_element";
 import { ReactElementFactory } from "./element-factory";
 
 import { SurveyPanelBase } from "./panel-base";
-import { PanelModel } from "survey-core";
+import { PanelModel, doKey2Click } from "survey-core";
 import { ReactQuestionFactory } from "./reactquestion_factory";
 import { ReactSurveyModel } from "./reactsurveymodel";
 
@@ -80,20 +80,16 @@ export class SurveyPanel extends SurveyPanelBase {
       this.panel.getTitleComponentName(),
       { element: this.panel, cssClasses: this.panel.cssClasses.panel }
     );
-    var titleStyle = this.panel.cssClasses.panel.title;
-    if (this.panel.isCollapsed || this.panel.isExpanded) {
-      titleStyle += " " + this.panel.cssClasses.panel.titleExpandable;
-    }
-
-    if (this.panel.containsErrors) {
-      titleStyle += " " + this.panel.cssClasses.panel.titleOnError;
-    }
-
     return (
       <h4
-        className={titleStyle}
+        className={this.panel.cssTitle}
+        tabIndex={this.panel.titleTabIndex}
+        aria-expanded={this.panel.titleAriaExpanded}
         onClick={() => {
-          this.panel.toggleState();
+          return this.panel.toggleState();
+        }}
+        onKeyUp={(evt) => {
+          doKey2Click(evt);
         }}
       >
         {titleComponent}
@@ -122,6 +118,6 @@ export class SurveyPanel extends SurveyPanelBase {
   }
 }
 
-ReactElementFactory.Instance.registerElement("panel", props => {
+ReactElementFactory.Instance.registerElement("panel", (props) => {
   return React.createElement(SurveyPanel, props);
 });

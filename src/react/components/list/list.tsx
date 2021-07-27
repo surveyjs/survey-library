@@ -1,6 +1,5 @@
 import React from "react";
-import { IActionBarItem } from "survey-core";
-import { ListModel } from "survey-core";
+import { IAction, ListModel } from "survey-core";
 import { ReactElementFactory } from "../../element-factory";
 import { SurveyElementBase } from "../../reactquestion_element";
 import { SvgIcon } from "../svg-icon/svg-icon";
@@ -21,7 +20,7 @@ export class List extends SurveyElementBase<IListProps, any> {
     return (
       <ul
         className="sv-list"
-        onMouseDown={e => {
+        onMouseDown={(e) => {
           e.preventDefault();
         }}
       >
@@ -37,7 +36,11 @@ export class List extends SurveyElementBase<IListProps, any> {
     if (!items) {
       return null;
     }
-    return items.map((item: IActionBarItem, itemIndex: number) => {
+    return items.map((item: IAction, itemIndex: number) => {
+      const style = {
+        paddingLeft: this.model.getItemIndent(item),
+        display: item.visible === undefined || item.visible ? null : "none",
+      };
       const className = this.model.getItemClass(item);
       const icon = item.iconName ? (
         <SvgIcon
@@ -48,6 +51,7 @@ export class List extends SurveyElementBase<IListProps, any> {
       ) : null;
       return (
         <li
+          style={style}
           key={itemIndex}
           className={className}
           onClick={() => {
@@ -62,6 +66,6 @@ export class List extends SurveyElementBase<IListProps, any> {
   }
 }
 
-ReactElementFactory.Instance.registerElement("sv-list", props => {
+ReactElementFactory.Instance.registerElement("sv-list", (props) => {
   return React.createElement(List, props);
 });

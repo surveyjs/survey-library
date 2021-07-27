@@ -1,21 +1,20 @@
+import { Base } from "./base";
 import {
-  Base,
   ISurveyData,
   ISurveyImpl,
   ISurvey,
   IPanel,
   IElement,
-  SurveyElement,
   ITextProcessor,
   IProgressInfo,
-} from "./base";
+} from "./base-interfaces";
+import { SurveyElement } from "./survey-element";
 import { SurveyValidator, IValidatorOwner } from "./validator";
 import { Question, IConditionObject } from "./question";
 import { QuestionTextModel } from "./question_text";
 import { JsonObject, Serializer } from "./jsonobject";
 import { QuestionFactory } from "./questionfactory";
-import { SurveyError } from "./base";
-import { AnswerRequiredError } from "./error";
+import { SurveyError } from "./survey-error";
 import { ILocalizableOwner, LocalizableString } from "./localizablestring";
 import { Helpers } from "./helpers";
 

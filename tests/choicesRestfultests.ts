@@ -1,4 +1,5 @@
-import { ITextProcessor, SurveyElement, Base, ArrayChanges } from "../src/base";
+import { Base, ArrayChanges } from "../src/base";
+import { ITextProcessor } from "../src/base-interfaces";
 import { SurveyModel } from "../src/survey";
 import { Question } from "../src/question";
 import { ChoicesRestful } from "../src/choicesRestful";
@@ -45,8 +46,14 @@ class ChoicesRestfulTester extends ChoicesRestful {
     if (this.isRequestRunning !== undefined) return this.isRequestRunning;
     return super.getIsRunning();
   }
+  public blockSendingRequest: boolean;
+  public unblockSendRequest() {
+    this.blockSendingRequest = undefined;
+    this.sendRequest();
+  }
   protected sendRequest() {
     this.beforeSendRequest();
+    if (this.blockSendingRequest === true) return;
     this.sentRequestCounter++;
     this.lastProcesedUrl = this.processedUrl;
     if (this.processedUrl.indexOf("empty") > -1) this.onLoad([]);
@@ -66,6 +73,10 @@ class ChoicesRestfulTester extends ChoicesRestful {
       this.onLoad(this.parseResponse(getXmlResponse()));
     if (this.processedUrl.indexOf("text") > -1)
       this.onLoad(this.parseResponse(getTextResponse()));
+  }
+  protected onLoad(result: any, loadingObjHash: string = null) {
+    this.beforeLoadRequest();
+    super.onLoad(result, loadingObjHash);
   }
   protected useChangedItemsResults(): boolean {
     if (this.noCaching) return false;
@@ -291,6 +302,35 @@ QUnit.test("Load countries", function(assert) {
     "the fifth country is American Samoa"
   );
 });
+
+QUnit.test(
+  "Check isRunning for restfull class that wait request from another restfull class, Bug#3039",
+  function(assert) {
+    ChoicesRestful.clearCache();
+    var test = new ChoicesRestfulTester();
+    var items = [];
+    test.getResultCallback = function(res: Array<ItemValue>) {
+      items = res;
+    };
+    test.blockSendingRequest = true;
+    test.url = "allcountries";
+    test.path = "RestResponse;result";
+    test.run();
+    assert.equal(test.isRunning, true, "We are running");
+    var test2 = new ChoicesRestfulTester();
+    test2.getResultCallback = function(res: Array<ItemValue>) {
+      items = res;
+    };
+    test2.url = "allcountries";
+    test2.path = "RestResponse;result";
+    test2.run();
+    assert.equal(test2.isRunning, true, "We are running, test2");
+    test.unblockSendRequest();
+    assert.equal(test.isRunning, false, "We are done");
+    assert.equal(test2.isRunning, false, "We are done, test2");
+    ChoicesRestful.clearCache();
+  }
+);
 
 QUnit.test("attachOriginalItems", function(assert) {
   var test = new ChoicesRestfulTester();
@@ -914,6 +954,58 @@ QUnit.test("Do not set comments on running values", function(assert) {
   question.doResultsCallback();
   assert.deepEqual(question.value, ["id2", "id3"], "Value is set correctly");
   assert.notOk(question.comment, "Comment is empty");
+});
+
+QUnit.test("Set comment on incorrect value", function(assert) {
+  var survey = new SurveyModel();
+  survey.storeOthersAsComment = false;
+  survey.addNewPage("1");
+  var question = new QuestionDropdownModelTester("q1");
+  question.hasOther = true;
+  question.hasItemsCallbackDelay = true;
+  question.choicesByUrl.url = "something";
+  question.choicesByUrl.valueName = "id";
+  question.restFulTest.items = [{ id: "id1" }, { id: "id2" }, { id: "id3" }];
+  survey.pages[0].addQuestion(question);
+  question.restFulTest.isRequestRunning = true;
+  question.onSurveyLoad();
+  assert.equal(
+    question.visibleChoices.length,
+    1,
+    "Choices are not loaded yet, we have other"
+  );
+  survey.data = { q1: "id_unknown" };
+  question.restFulTest.isRequestRunning = false;
+  question.doResultsCallback();
+  assert.equal(question.value, "id_unknown", "Value is set correctly");
+  assert.equal(question.comment, "id_unknown");
+});
+QUnit.test("Set comment on incorrect value and empty results", function(
+  assert
+) {
+  var survey = new SurveyModel();
+  survey.storeOthersAsComment = false;
+  survey.addNewPage("1");
+  var question = new QuestionDropdownModelTester("q1");
+  question.hasOther = true;
+  question.hasItemsCallbackDelay = true;
+  question.choicesByUrl.url = "something";
+  question.choicesByUrl.valueName = "id";
+  question.choicesByUrl.allowEmptyResponse = true;
+  question.restFulTest.items = [];
+  survey.pages[0].addQuestion(question);
+  question.restFulTest.isRequestRunning = true;
+  question.onSurveyLoad();
+  assert.equal(
+    question.visibleChoices.length,
+    1,
+    "Choices are not loaded yet, we have other"
+  );
+  survey.data = { q1: "id_unknown" };
+  question.restFulTest.isRequestRunning = false;
+  question.doResultsCallback();
+  assert.equal(question.value, "id_unknown", "Value is set correctly");
+  assert.equal(question.comment, "id_unknown");
 });
 
 QUnit.test("Use values and not text, Bug #627", function(assert) {

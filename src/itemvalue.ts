@@ -7,7 +7,8 @@ import {
 } from "./jsonobject";
 import { Helpers } from "./helpers";
 import { ConditionRunner } from "./conditions";
-import { Base, ISurvey } from "./base";
+import { Base } from "./base";
+import { ISurvey } from "./base-interfaces";
 import { settings } from "./settings";
 
 /**
@@ -86,7 +87,9 @@ export class ItemValue extends Base {
   }
   public static getItemByValue(items: Array<ItemValue>, val: any): ItemValue {
     if (!Array.isArray(items)) return null;
+    const valIsEmpty = Helpers.isValueEmpty(val);
     for (var i = 0; i < items.length; i++) {
+      if (valIsEmpty && Helpers.isValueEmpty(items[i].value)) return items[i];
       if (Helpers.isTwoValueEquals(items[i].value, val)) return items[i];
     }
     return null;
@@ -218,7 +221,7 @@ export class ItemValue extends Base {
       }
       this.propertyValueChanged("text", oldValue, newValue);
     };
-    this.locTextValue.onGetTextCallback = txt => {
+    this.locTextValue.onGetTextCallback = (txt) => {
       return txt
         ? txt
         : !Helpers.isValueEmpty(this.value)
@@ -329,6 +332,7 @@ export class ItemValue extends Base {
     } else {
       this.value = value;
     }
+    this.locText.strChanged();
   }
   public get visibleIf(): string {
     return this.getPropertyValue("visibleIf", "");
@@ -416,7 +420,13 @@ Serializer.addClass(
       serializationProperty: "locText",
     },
     { name: "visibleIf:condition", showMode: "form" },
-    { name: "enableIf:condition", showMode: "form" },
+    {
+      name: "enableIf:condition",
+      showMode: "form",
+      visibleIf: (obj: ItemValue): boolean => {
+        return !obj || obj.ownerPropertyName !== "rateValues";
+      },
+    },
   ],
   (value: any) => new ItemValue(value)
 );

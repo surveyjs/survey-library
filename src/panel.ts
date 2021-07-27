@@ -1,7 +1,7 @@
 import { Serializer, property } from "./jsonobject";
 import { HashTable, Helpers } from "./helpers";
+import { Base } from "./base";
 import {
-  Base,
   ISurveyImpl,
   IPage,
   IPanel,
@@ -9,14 +9,13 @@ import {
   IElement,
   ISurveyElement,
   IQuestion,
-  SurveyElement,
-  SurveyError,
   ISurveyErrorOwner,
   ITitleOwner,
   IProgressInfo,
   ISurvey,
   IFindElement,
-} from "./base";
+} from "./base-interfaces";
+import { SurveyElement } from "./survey-element";
 import { Question } from "./question";
 import { ConditionRunner } from "./conditions";
 import { ElementFactory, QuestionFactory } from "./questionfactory";
@@ -25,6 +24,7 @@ import { OneAnswerRequiredError } from "./error";
 import { PageModel } from "./page";
 import { settings } from "./settings";
 import { findScrollableParent, isElementVisible } from "./utils/utils";
+import { SurveyError } from "./survey-error";
 
 export class DragDropInfo {
   constructor(
@@ -101,20 +101,26 @@ export class QuestionRowModel extends Base {
   constructor(public panel: PanelModelBase) {
     super();
     this.idValue = QuestionRowModel.getRowId();
-    this.isNeedRender = !this.isLazyRendering;
     this.visible = panel.areInvisibleElementsShowing;
     this.createNewArray("elements");
+    this.createNewArray("visibleElements");
   }
-  public get isLazyRendering() {
-    return (
-      !!this.panel && !!this.panel.survey && this.panel.survey.isLazyRendering
-    );
+  private isLazyRenderingValue: boolean;
+  public setIsLazyRendering(val: boolean) {
+    this.isLazyRenderingValue = val;
+    this.isNeedRender = !val;
+  }
+  public isLazyRendering(): boolean {
+    return this.isLazyRenderingValue === true;
   }
   public get id(): string {
     return this.idValue;
   }
   public get elements(): Array<IElement> {
     return this.getPropertyValue("elements");
+  }
+  public get visibleElements(): Array<IElement> {
+    return this.getPropertyValue("visibleElements");
   }
   public get visible(): boolean {
     return this.getPropertyValue("visible", true);
@@ -127,9 +133,6 @@ export class QuestionRowModel extends Base {
   }
   public set isNeedRender(val: boolean) {
     this.setPropertyValue("isneedrender", val);
-  }
-  public get visibleElements(): Array<IElement> {
-    return this.elements.filter((e) => e.isVisible);
   }
   public updateVisible() {
     this.visible = this.calcVisible();
@@ -212,7 +215,23 @@ export class QuestionRowModel extends Base {
     return Helpers.isNumber(width) ? width + "px" : width;
   }
   private calcVisible(): boolean {
-    return this.visibleElements.length > 0;
+    var visElements: Array<IElement> = [];
+    for (var i = 0; i < this.elements.length; i++) {
+      if (this.elements[i].isVisible) {
+        visElements.push(this.elements[i]);
+      }
+    }
+    if (this.needToUpdateVisibleElements(visElements)) {
+      this.setPropertyValue("visibleElements", visElements);
+    }
+    return visElements.length > 0;
+  }
+  private needToUpdateVisibleElements(visElements: Array<IElement>): boolean {
+    if (visElements.length !== this.visibleElements.length) return true;
+    for (var i = 0; i < visElements.length; i++) {
+      if (visElements[i] !== this.visibleElements[i]) return true;
+    }
+    return false;
   }
   public dispose() {
     super.dispose();
@@ -293,15 +312,6 @@ export class PanelModelBase extends SurveyElement
       ((<any>this.survey).showPageTitles && this.title.length > 0) ||
       (this.isDesignMode && settings.allowShowEmptyTitleInDesignMode)
     );
-  }
-
-  public getTitleActions(): Array<any> {
-    var titleActions = super.getTitleActions();
-    this.titleActions = this.survey.getUpdatedPanelTitleActions(
-      this,
-      titleActions
-    );
-    return this.titleActions;
   }
 
   get _showDescription(): boolean {
@@ -1032,6 +1042,9 @@ export class PanelModelBase extends SurveyElement
       var el = this.elements[i];
       var isNewRow = i == 0 || el.startWithNewLine;
       var row = isNewRow ? this.createRow() : result[result.length - 1];
+      if (isNewRow) {
+        row.setIsLazyRendering(this.isLazyRenderInRow(result.length));
+      }
       if (isNewRow) result.push(row);
       row.addElement(el);
     }
@@ -1039,6 +1052,16 @@ export class PanelModelBase extends SurveyElement
       result[i].updateVisible();
     }
     return result;
+  }
+  private isLazyRenderInRow(rowIndex: number): boolean {
+    if (!this.survey || !this.survey.isLazyRendering) return false;
+    return (
+      rowIndex >= settings.lazyRowsRenderingStartRow ||
+      !this.canRenderFirstRows()
+    );
+  }
+  protected canRenderFirstRows(): boolean {
+    return this.isPage;
   }
   private updateRowsOnElementAdded(element: IElement, index: number) {
     if (!this.canBuildRows()) return;
@@ -1828,6 +1851,20 @@ export class PanelModel extends PanelModelBase
   public cancelPreview() {
     if (!this.hasEditButton) return;
     this.survey.cancelPreviewByPage(this);
+  }
+  public get cssTitle(): string {
+    var result = this.cssClasses.panel.title;
+    if (this.state !== "default") {
+      result += " " + this.cssClasses.panel.titleExpandable;
+    }
+    if (this.containsErrors) {
+      result += " " + this.cssClasses.panel.titleOnError;
+    }
+    return result;
+  }
+  public get cssError(): string {
+    var rootClass = this.cssClasses.error.root;
+    return rootClass ? rootClass : "panel-error-root";
   }
   protected onVisibleChanged() {
     super.onVisibleChanged();

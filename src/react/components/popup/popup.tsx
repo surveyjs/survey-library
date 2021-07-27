@@ -15,7 +15,7 @@ export class Popup extends SurveyElementBase<IPopupProps, any> {
     super(props);
     this.containerRef = React.createRef();
     this.popup = new PopupBaseViewModel(this.props.model);
-    this.popup.initializePopupContainer();
+    this.popup.createPopupContainer();
   }
   get model(): PopupModel {
     return this.props.model;
@@ -25,6 +25,7 @@ export class Popup extends SurveyElementBase<IPopupProps, any> {
   }
   componentDidMount() {
     super.componentDidMount();
+    this.popup.mountPopupContainer();
     this.popup.targetElement = this.containerRef.current.parentElement;
   }
   componentWillUnmount() {
@@ -39,15 +40,21 @@ export class Popup extends SurveyElementBase<IPopupProps, any> {
   }
 }
 
-ReactElementFactory.Instance.registerElement("sv-popup", (props: IPopupProps) => {
-  return React.createElement(Popup, props);
-});
+ReactElementFactory.Instance.registerElement(
+  "sv-popup",
+  (props: IPopupProps) => {
+    return React.createElement(Popup, props);
+  }
+);
 
 export class PopupContainer extends SurveyElementBase<any, any> {
   public prevIsVisible: boolean = false;
   constructor(props: any) {
     super(props);
   }
+  handleKeydown = (event: any) => {
+    this.model.onKeyDown(event);
+  };
   get model(): PopupBaseViewModel {
     return this.props.model;
   }
@@ -72,7 +79,11 @@ export class PopupContainer extends SurveyElementBase<any, any> {
     return (
       <div
         className="sv-popup__container"
-        style={{ left: this.model.left, top: this.model.top }}
+        style={{
+          left: this.model.left,
+          top: this.model.top,
+          height: this.model.height,
+        }}
         onClick={(ev: any) => {
           this.clickInside(ev);
         }}
@@ -137,12 +148,14 @@ export class PopupContainer extends SurveyElementBase<any, any> {
     };
     return (
       <div
+        tabIndex={-1}
         className={className}
         style={style}
         onClick={(e: any) => {
           this.model.clickOutside();
           e.stopPropagation();
         }}
+        onKeyDown={this.handleKeydown}
       >
         {container}
       </div>
@@ -153,7 +166,7 @@ export class PopupContainer extends SurveyElementBase<any, any> {
 export function showModal(
   componentName: string,
   data: any,
-  onApply: () => void,
+  onApply: () => boolean,
   onCancel?: () => void
 ) {
   const popupModel = new PopupModel(

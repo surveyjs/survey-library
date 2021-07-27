@@ -78,6 +78,7 @@ export var defaultStandardCss = {
     asCell: "sv_matrix_cell",
     icon: "sv_question_icon",
     iconExpanded: "sv_expanded",
+    disabled: "sv_q--disabled",
   },
   panel: {
     title: "sv_p_title",
@@ -192,6 +193,7 @@ export var defaultStandardCss = {
     buttonRemove: "",
     iconAdd: "",
     iconRemove: "",
+    iconDrag: "sv-matrixdynamic__drag-icon",
     cell: "sv_matrix_cell",
     headerCell: "sv_matrix_cell_header",
     row: "sv_matrix_row",
@@ -294,6 +296,7 @@ export var defaultStandardCss = {
   signaturepad: {
     root: "sv_q_signaturepad sjs_sp_container",
     controls: "sjs_sp_controls",
+    placeholder: "sjs_sp_placeholder",
     clearButton: "sjs_sp_clear",
   },
   saveData: {

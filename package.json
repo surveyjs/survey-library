@@ -41,13 +41,17 @@
     "build_core": "npm run build_core_dev && npm run build_core_prod",
     "build_jquery": "npm run build_jquery_dev && npm run build_jquery_prod",
     "build_angular": "npm run build_angular_dev && npm run build_angular_prod",
-    "watch_core_dev": "webpack --config ./build-scripts/survey-core/webpack.config.js --env.buildType dev --watch",
-    "watch_core_prod": "webpack --config ./build-scripts/survey-core/webpack.config.js --env.buildType prod --watch",
-    "watch_knockout_ui": "webpack --config ./build-scripts/survey-knockout-ui/webpack.config.js --env.buildType dev --watch",
-    "watch_react_ui": "webpack --config ./build-scripts/survey-react-ui/webpack.config.js --env.buildType dev --watch",
+    "watch:core:dev": "webpack --config ./build-scripts/survey-core/webpack.config.js --env.buildType dev --watch",
+    "watch:core:prod": "webpack --config ./build-scripts/survey-core/webpack.config.js --env.buildType prod --watch",
+    "watch:ko:ui:dev": "webpack --config ./build-scripts/survey-knockout-ui/webpack.config.js --env.buildType dev --watch",
+    "watch:react:ui:dev": "webpack --config ./build-scripts/survey-react-ui/webpack.config.js --env.buildType dev --watch",
+    "watch:ko:ui:prod": "webpack --config ./build-scripts/survey-knockout-ui/webpack.config.js --env.buildType prod --watch",
+    "watch:react:ui:prod": "webpack --config ./build-scripts/survey-react-ui/webpack.config.js --env.buildType prod --watch",
+    "dev": "concurrently \"http-server -p 8080 --silent\" \"npm run watch:core:dev\" \"npm run watch:core:prod\" \"npm run watch:ko:ui:dev\" \"npm run watch:react:ui:dev\" \"npm run watch:ko:ui:prod\" \"npm run watch:react:ui:prod\"",
+    
     "madge": "madge --circular --extensions ts ./src/"
   },
-  "version": "1.8.52",
+  "version": "1.8.57",
   "name": "survey-library",
   "private": true,
   "devDependencies": {

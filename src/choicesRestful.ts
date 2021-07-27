@@ -1,8 +1,10 @@
-import { Base, SurveyError, ITextProcessor, IQuestion, ISurvey } from "./base";
+import { Base } from "./base";
+import { ITextProcessor, IQuestion, ISurvey } from "./base-interfaces";
 import { ItemValue } from "./itemvalue";
 import { Serializer, JsonObjectProperty } from "./jsonobject";
 import { WebRequestError, WebRequestEmptyError } from "./error";
 import { settings } from "./settings";
+import { SurveyError } from "./survey-error";
 
 class XmlParser {
   private parser = new DOMParser();
@@ -71,6 +73,7 @@ export class ChoicesRestful extends Base {
       return false;
     }
     res.push(obj);
+    obj.isRunningValue = true;
     return true;
   }
   private static unregisterSameRequests(obj: ChoicesRestful, items: any) {
@@ -79,6 +82,7 @@ export class ChoicesRestful extends Base {
     delete ChoicesRestful.sendingSameRequests[obj.objHash];
     if (!res) return;
     for (var i = 0; i < res.length; i++) {
+      res[i].isRunningValue = false;
       if (!!res[i].getResultCallback) {
         res[i].getResultCallback(items);
       }
@@ -216,14 +220,13 @@ export class ChoicesRestful extends Base {
     return parsedResponse;
   }
   protected sendRequest() {
-    this.isRunningValue = true;
     var xhr = new XMLHttpRequest();
     xhr.open("GET", this.processedUrl);
     xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
     var self = this;
     var loadingObjHash = this.objHash;
     xhr.onload = function() {
-      self.isRunningValue = false;
+      self.beforeLoadRequest();
       if (xhr.status === 200) {
         self.onLoad(self.parseResponse(xhr.response), loadingObjHash);
       } else {
@@ -419,9 +422,13 @@ export class ChoicesRestful extends Base {
     }
   }
   protected beforeSendRequest() {
+    this.isRunningValue = true;
     if (!!this.beforeSendRequestCallback) {
       this.beforeSendRequestCallback();
     }
+  }
+  protected beforeLoadRequest() {
+    this.isRunningValue = false;
   }
   protected onLoad(result: any, loadingObjHash: string = null) {
     if (!loadingObjHash) {

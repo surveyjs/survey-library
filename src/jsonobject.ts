@@ -36,10 +36,15 @@ export function property(options?: IPropertyDecoratorOptions) {
           if (value !== undefined) {
             return value;
           }
-          if (!!options && options.defaultValue === false) return false;
-          return !!options
-            ? options.defaultValue || this[options.defaultSource]
-            : undefined;
+          if(!!options) {
+            if(options.defaultValue !== undefined) {
+              return options.defaultValue;
+            }
+            if(options.defaultSource !== undefined) {
+              return this[options.defaultSource];
+            }
+          }
+          return undefined;
         },
         set: function(val: any) {
           this.setPropertyValue(key, val);
@@ -761,6 +766,7 @@ export class JsonMetadata {
     return this.getObjPropertyValueCore(obj, prop);
   }
   public setObjPropertyValue(obj: any, name: string, val: any) {
+    if (obj[name] === val) return;
     if (!!obj[name] && !!obj[name].setJson) {
       obj[name].setJson(val);
     } else {

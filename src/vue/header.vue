@@ -1,11 +1,5 @@
 <template>
-  <div
-    v-if="
-      (survey.locTitle.renderedHtml.length > 0 && survey.showTitle) ||
-        survey.hasLogo
-    "
-    :class="survey.css.header"
-  >
+  <div v-if="survey.renderedHasHeader" :class="survey.css.header">
     <div v-if="survey.isLogoBefore" :class="survey.logoClassNames">
       <img
         :class="survey.css.logoImage"
@@ -18,7 +12,7 @@
     </div>
 
     <div
-      v-if="survey.locTitle.renderedHtml.length > 0 && survey.showTitle"
+      v-if="survey.renderedHasTitle"
       :class="survey.css.headerText"
       v-bind:style="{ maxWidth: survey.titleMaxWidth }"
     >

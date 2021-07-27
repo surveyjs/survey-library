@@ -1,10 +1,14 @@
 <script type="text/html" id="survey-question-signaturepad">
-  <div data-bind="css: question.koCss().root">
-      <div>
-          <canvas tabindex='0'></canvas>
-      </div>
-      <div data-bind="css: question.koCss().controls, visible: !question.isInputReadOnly">
-          <button type='button' data-bind="css: question.koCss().clearButton, attr: { title: question.clearButtonCaption }">✖</button>
-      </div>
-  </div>
+    <div data-bind="css: question.koCss().root, style: { height: height, width: width }">
+        <div 
+            data-bind="text: placeHolderText, css: question.koCss().placeholder, visible: $data.needShowPlaceholder()">
+        </div>
+        <div>
+            <canvas tabindex='0'></canvas>
+        </div>
+        <div data-bind="css: question.koCss().controls, visible: !question.isInputReadOnly">
+            <button type='button'
+                data-bind="css: question.koCss().clearButton, attr: { title: question.clearButtonCaption }">✖</button>
+        </div>
+    </div>
 </script>

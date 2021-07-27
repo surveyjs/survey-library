@@ -2,6 +2,49 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.8.57](https://github.com/surveyjs/survey-library/compare/v1.8.56...v1.8.57) (2021-07-20)
+
+
+### Bug Fixes
+
+* Could not override defaultValue for question hideNumber property [#3111](https://github.com/surveyjs/survey-library/issues/3111) ([021aacf](https://github.com/surveyjs/survey-library/commit/021aacffe6d0ad8938f4446c6f5b53012be0005f))
+* Exception on runTriggers() function in complex scenario [#3095](https://github.com/surveyjs/survey-library/issues/3095) ([#3096](https://github.com/surveyjs/survey-library/issues/3096)) ([aaebe98](https://github.com/surveyjs/survey-library/commit/aaebe9865a13c23ac0b7f6f01f4fee5a455d8f39))
+* getPlainData() function doesn't work correctly for matrix dropdown [#3097](https://github.com/surveyjs/survey-library/issues/3097) ([#3098](https://github.com/surveyjs/survey-library/issues/3098)) ([71bfbe8](https://github.com/surveyjs/survey-library/commit/71bfbe83ad286564780bd47a69743ba4abc5e38b))
+* Questions are not rendering in lazyRendering mode on deleting elements on the top [#3104](https://github.com/surveyjs/survey-library/issues/3104) ([#3105](https://github.com/surveyjs/survey-library/issues/3105)) ([24d6a1e](https://github.com/surveyjs/survey-library/commit/24d6a1e084ee7e9884b1abb6c4fa1855e7c268f8))
+
+### [1.8.56](https://github.com/surveyjs/survey-library/compare/v1.8.55...v1.8.56) (2021-07-13)
+
+
+### Bug Fixes
+
+* Do not run answer count validator on empty array [#3069](https://github.com/surveyjs/survey-library/issues/3069) ([#3070](https://github.com/surveyjs/survey-library/issues/3070)) ([a2059eb](https://github.com/surveyjs/survey-library/commit/a2059ebadcbfc5b54d78120fb3b532a0ea24d4f7))
+* survey.onGetQuestionTitle event doesn't work in knockout [#3080](https://github.com/surveyjs/survey-library/issues/3080) ([#3081](https://github.com/surveyjs/survey-library/issues/3081)) ([0801b4f](https://github.com/surveyjs/survey-library/commit/0801b4fb23c88624b081f9c4c04c213afb9b3406))
+* Text validator validates empty string [#3065](https://github.com/surveyjs/survey-library/issues/3065) ([#3068](https://github.com/surveyjs/survey-library/issues/3068)) ([148125b](https://github.com/surveyjs/survey-library/commit/148125b6a3cbed7f2d8c0309af92eb429ce2e874))
+
+### [1.8.55](https://github.com/surveyjs/survey-library/compare/v1.8.54...v1.8.55) (2021-07-07)
+
+
+### Bug Fixes
+
+* Expression with "anyof" with 0 can executed incorrectly [#3052](https://github.com/surveyjs/survey-library/issues/3052) ([dcd7d1c](https://github.com/surveyjs/survey-library/commit/dcd7d1cef878ef6538cecba7dae7804dc4ee85bc))
+
+### [1.8.54](https://github.com/surveyjs/survey-library/compare/v1.8.53...v1.8.54) (2021-06-30)
+
+
+### Bug Fixes
+
+* (React) Single matrix columns are not updated on changing if matrix is editing in property grid [#3027](https://github.com/surveyjs/survey-library/issues/3027) ([#3028](https://github.com/surveyjs/survey-library/issues/3028)) ([e5a87a0](https://github.com/surveyjs/survey-library/commit/e5a87a0d4c57b8cb46c5b2b16fb488868a44cdb6))
+* Survey-React, conditional rendering is broken with inline questions [#3031](https://github.com/surveyjs/survey-library/issues/3031) ([#3033](https://github.com/surveyjs/survey-library/issues/3033)) ([66f074b](https://github.com/surveyjs/survey-library/commit/66f074b9c5c89bb766ba8f2435616d4c269a64e6))
+
+### [1.8.53](https://github.com/surveyjs/survey-library/compare/v1.8.52...v1.8.53) (2021-06-23)
+
+
+### Bug Fixes
+
+* Column header title doesn't render correctly on adding column without title in code [#3003](https://github.com/surveyjs/survey-library/issues/3003) ([#3004](https://github.com/surveyjs/survey-library/issues/3004)) ([ec8c32e](https://github.com/surveyjs/survey-library/commit/ec8c32e31f60c03b406dd70cdcddc5bc53eaa44c))
+* Editing doesn't work in matrices if there is a question with the same name in detail panel [#3001](https://github.com/surveyjs/survey-library/issues/3001) ([#3002](https://github.com/surveyjs/survey-library/issues/3002)) ([e320c81](https://github.com/surveyjs/survey-library/commit/e320c810fe7604f4868f92aa868cf977ecc735e3))
+* If choicesByUrl.allowEmptyResponse is true and we have other value on loading in question, it doesn't set [#3009](https://github.com/surveyjs/survey-library/issues/3009) ([#3010](https://github.com/surveyjs/survey-library/issues/3010)) ([42f78d6](https://github.com/surveyjs/survey-library/commit/42f78d69e1ca3a357e34e6b434e48c4bb7546089))
+
 ### [1.8.52](https://github.com/surveyjs/survey-library/compare/v1.8.51...v1.8.52) (2021-06-16)
 
 ### [1.8.51](https://github.com/surveyjs/survey-library/compare/v1.8.50...v1.8.51) (2021-06-09)

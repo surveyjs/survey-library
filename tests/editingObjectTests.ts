@@ -13,6 +13,9 @@ import { QuestionRatingModel } from "../src/question_rating";
 import { Serializer } from "../src/jsonobject";
 import { ItemValue } from "../src/itemvalue";
 import { QuestionMultipleTextModel } from "../src/question_multipletext";
+import { QuestionMatrixModel } from "../src/question_matrix";
+import { Question } from "../src/question";
+import { QuestionCheckboxModel } from "../src/question_checkbox";
 
 export default QUnit.module("Survey.editingObj Tests");
 
@@ -257,6 +260,39 @@ QUnit.test("Edit columns in matrix", function(assert) {
     "matrixdropdowncolumn",
     "column added with correct type"
   );
+});
+QUnit.test("allowRowsDragAndDrop and editingObj", function(assert) {
+  var question = new QuestionMatrixDynamicModel("q1");
+  question.addColumn("col1");
+  question.addColumn("col2");
+  question.addColumn("col3");
+  var survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdynamic",
+        name: "columns",
+        allowRowsDragAndDrop: true,
+        columns: [
+          { cellType: "text", name: "name" },
+          { cellType: "text", name: "title" },
+        ],
+      },
+    ],
+  });
+  var matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("columns");
+  survey.editingObj = question;
+
+  assert.equal(matrix.value.length, 3);
+  assert.equal(matrix.value[0].name, "col1");
+  assert.equal(matrix.value[1].name, "col2");
+  assert.equal(matrix.value[2].name, "col3");
+
+  matrix["moveRowByIndex"](0, 2);
+
+  assert.equal(matrix.value.length, 3);
+  assert.equal(matrix.value[0].name, "col2");
+  assert.equal(matrix.value[1].name, "col3");
+  assert.equal(matrix.value[2].name, "col1");
 });
 QUnit.test(
   "Edit columns in matrix, where there is no columns from the beginning",
@@ -1033,3 +1069,124 @@ QUnit.test(
     assert.equal(counter, 0, "Do not send any notifications");
   }
 );
+QUnit.test("Do not set directly array objects", function(assert) {
+  var editingSurvey = new SurveyModel();
+  editingSurvey.addNewPage("page1");
+  editingSurvey.addNewPage("page2");
+  var survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdynamic",
+        name: "pages",
+        rowCount: 0,
+        columns: [{ cellType: "text", name: "name" }],
+      },
+    ],
+  });
+  survey.editingObj = editingSurvey;
+  var matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("pages");
+  assert.equal(matrix.rowCount, 2, "There are 2 pages");
+  matrix.removeRow(1);
+  assert.equal(editingSurvey.pages.length, 1, "There is one page now");
+});
+
+QUnit.test("Do not break reactive array in original object", function(assert) {
+  var question = new QuestionMatrixModel("q1");
+  question.addColumn("col1");
+  question.addColumn("col2");
+  var colCountOnChanged = {};
+  var reactiveFunc = (hash: any, key: any): void => {
+    var val: any = hash[key];
+    if (typeof val === "function") {
+      val = val();
+    }
+    if (Array.isArray(val)) {
+      val["onArrayChanged"] = (arrayChanges: ArrayChanges) => {
+        colCountOnChanged[key] = val.length;
+      };
+    }
+  };
+  var survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdynamic",
+        name: "columns",
+        rowCount: 0,
+        columns: [
+          { cellType: "text", name: "value" },
+          { cellType: "text", name: "text" },
+        ],
+      },
+    ],
+  });
+  question.iteratePropertiesHash((hash: any, key: any) => {
+    reactiveFunc(hash, key);
+  });
+  survey.editingObj = question;
+  var matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("columns");
+  matrix.onGetValueForNewRowCallBack = (
+    sender: QuestionMatrixDynamicModel
+  ): any => {
+    var item = new ItemValue("val");
+    matrix.value.push(item);
+    return item;
+  };
+  assert.equal(matrix.rowCount, 2, "There are 2 columns");
+  assert.equal(Array.isArray(matrix.value), true, "Value is Array");
+  assert.strictEqual(matrix.value, question.columns, "Edting value is correct");
+
+  matrix.iteratePropertiesHash((hash: any, key: any) => {
+    reactiveFunc(hash, key);
+  });
+  matrix.addRow();
+  matrix.addRow();
+  assert.equal(matrix.rowCount, 4, "There are 4 columns");
+  assert.equal(
+    colCountOnChanged["columns"],
+    4,
+    "There are 4 columns in notification"
+  );
+  assert.notOk(colCountOnChanged["value"], "We do not iterate by value");
+});
+
+QUnit.test("Value property editor test", function(assert) {
+  var propertyGridValueJSON = {
+    name: "propertygrid_value",
+    showInToolbox: false,
+    questionJSON: {
+      type: "html",
+      html: "empty",
+    },
+    onValueChanged: (question: Question, name: string, newValue: any) => {
+      var displayValue = question.isEmpty()
+        ? "empty"
+        : JSON.stringify(question.value);
+      question.contentQuestion.html = displayValue;
+    },
+  };
+
+  ComponentCollection.Instance.add(propertyGridValueJSON);
+  var question = new QuestionCheckboxModel("q1");
+  question.choices = [
+    { value: 1, text: "Item 1" },
+    { value: 2, text: "Item 2" },
+  ];
+  var survey = new SurveyModel({
+    elements: [
+      {
+        type: "propertygrid_value",
+        name: "defaultValue",
+      },
+    ],
+  });
+  survey.editingObj = question;
+  var editQuestion = survey.getQuestionByName("defaultValue");
+  var htmlQuestion = editQuestion.contentQuestion;
+  assert.equal(htmlQuestion.html, "empty");
+  question.defaultValue = [1, 2];
+  assert.equal(htmlQuestion.html, "[1,2]");
+  question.defaultValue = undefined;
+  assert.equal(htmlQuestion.html, "empty");
+
+  ComponentCollection.Instance.clear();
+});

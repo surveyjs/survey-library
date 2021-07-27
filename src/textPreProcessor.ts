@@ -1,7 +1,7 @@
 import { Helpers } from "./helpers";
 import { Question } from "./question";
 import { PanelModel } from "./panel";
-import { ISurvey, ITextProcessor } from "./base";
+import { ISurvey, ITextProcessor } from "./base-interfaces";
 import { ProcessValue } from "./conditionProcessValue";
 
 export class TextPreProcessorItem {

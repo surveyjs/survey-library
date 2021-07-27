@@ -1,6 +1,7 @@
 <template>
   <button
     class="sv-action-bar-item"
+    type="button"
     v-on:click="
       () => {
         item.action();
@@ -10,8 +11,9 @@
       { 'sv-action-bar-item--active': item.isActive },
       item.innerCss,
     ]"
-    v-bind:disabled="item.enabled !== undefined && item.enabled"
+    v-bind:disabled="item.enabled !== undefined && !item.enabled"
     v-bind:title="item.tooltip || item.title"
+    v-bind:tabindex="item.disableTabStop ? -1 : undefined"
   >
     <sv-svg-icon
       v-if="item.iconName"
@@ -32,16 +34,16 @@
 <script lang="ts">
 import Vue from "vue";
 import { Prop, Component } from "vue-property-decorator";
-import { AdaptiveActionBarItemWrapper } from "survey-core";
+import { Action } from "survey-core";
 import { Base } from "survey-core";
 import BaseVue from "../../base";
 
 @Component
 export class ActionBarItemViewModel extends BaseVue {
-  @Prop() public item: AdaptiveActionBarItemWrapper;
+  @Prop() public item: Action;
 
   getModel(): Base {
-    return this.item.stateItem;
+    return this.item;
   }
 }
 

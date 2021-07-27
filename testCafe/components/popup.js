@@ -41,10 +41,10 @@ frameworks.forEach((framework) => {
       onGetQuestionTitleActions: (_, opt) => {
         const itemPopupModel = new Survey.PopupModel("sv-list", {
           model: new Survey.ListModel([
-            new Survey.ActionBarItem({ title: "Item 1" }),
+            new Survey.Action({ title: "Item 1" }),
           ]),
         });
-        const item = new Survey.ActionBarItem({
+        const item = new Survey.Action({
           component: "sv-action-bar-item-dropdown",
           title: "Click",
           showTitle: true,
@@ -73,6 +73,13 @@ frameworks.forEach((framework) => {
     await t.click(itemSelector);
     assert.ok(await popupSelector.exists);
     assert.ok(!(await popupSelector.visible));
+    
+    await t.click(itemSelector);
+    assert.ok(await popupSelector.visible);
+    await t.pressKey("esc");
+    assert.ok(await popupSelector.exists);
+    assert.ok(!(await popupSelector.visible));
+    
     await disposeSurvey(framework);
     assert.ok(!(await popupSelector.exists));
   });
@@ -87,12 +94,12 @@ frameworks.forEach((framework) => {
             },
           ],
         };
-        const model = new Survey.Model(json);
-        const item = new Survey.ActionBarItem({
+        const item = new Survey.Action({
           component: "sv-action-bar-item",
           title: "Click",
           showTitle: true,
           action: () => {
+            const model = new Survey.Model(json);
             Survey.settings.showModal("survey", {
               model: model,
               survey: model,
@@ -104,6 +111,7 @@ frameworks.forEach((framework) => {
     });
     const popupSelector = Selector(".sv-popup");
     assert.ok(!(await popupSelector.exists));
+
     await t.click(Selector(".sv-action-bar-item"));
     assert.ok(await popupSelector.visible);
     assert.ok(
@@ -122,5 +130,51 @@ frameworks.forEach((framework) => {
     assert.ok(await popupSelector.visible);
     await t.click(Selector(".sv-popup__button").withText("Cancel"));
     assert.ok(!(await popupSelector.exists));
+
+    await t.click(Selector(".sv-action-bar-item"));
+    assert.ok(await popupSelector.visible);
+    await t.pressKey("esc");
+    assert.ok(!(await popupSelector.exists));
+  });
+  test(`check focus trap`, async (t) => {
+    await initSurvey(framework, json, {
+      onGetQuestionTitleActions: (survey, opt) => {
+        const json = {
+          elements: [
+            {
+              type: "text",
+              name: "modal_question",
+            },
+          ],
+        };
+        const item = new Survey.Action({
+          component: "sv-action-bar-item",
+          title: "Click",
+          showTitle: true,
+          action: () => {
+            const model = new Survey.Model(json);
+            Survey.settings.showModal("survey", {
+              model: model,
+              survey: model,
+            });
+          },
+        });
+        opt.titleActions = [item];
+      },
+    });
+    await t.click(Selector(".sv-action-bar-item"));
+    await t.expect(Selector(".sv-popup .sv_q_text_root").focused).ok({
+      timeout: 100,
+    });
+    await t.pressKey("tab");
+    assert.ok(await Selector(".sv-popup .sv_complete_btn").focused);
+    await t.pressKey("tab");
+    assert.ok(await Selector(".sv-popup__button").withText("Cancel").focused);
+    await t.pressKey("tab");
+    assert.ok(await Selector(".sv-popup__button").withText("Apply").focused);
+    await t.pressKey("tab");
+    assert.ok(await Selector(".sv-popup .sv_q_text_root").focused);
+    await t.pressKey("shift+tab");
+    assert.ok(await Selector(".sv-popup__button").withText("Apply").focused);
   });
 });

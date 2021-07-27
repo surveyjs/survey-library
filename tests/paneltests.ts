@@ -749,7 +749,7 @@ QUnit.test("Panel.ensureRowsVisibility", function(assert) {
   page.onFirstRendering();
   assert.equal(panel.rows.length, 2);
 
-  panel.rows.forEach(row => {
+  panel.rows.forEach((row) => {
     assert.equal(row["_updateVisibility"], undefined);
     assert.equal(row["_scrollableParent"], undefined);
     row["_updateVisibility"] = handler;
@@ -796,7 +796,7 @@ QUnit.test("Panel.startLazyRendering isNeedRender=true", function(assert) {
     page.onFirstRendering();
     assert.equal(panel.rows.length, 2);
 
-    panel.rows.forEach(row => {
+    panel.rows.forEach((row) => {
       assert.equal(row["_scrollableParent"], undefined);
       assert.equal(row["_updateVisibility"], undefined);
       assert.equal(row.isNeedRender, false);
@@ -845,7 +845,9 @@ QUnit.test("Panel.startLazyRendering isNeedRender=false", function(assert) {
   };
 
   const prevLazyRowsRendering = settings.lazyRowsRendering;
+  const prevStartRowInLazyRendering = settings.lazyRowsRenderingStartRow;
   settings.lazyRowsRendering = true;
+  settings.lazyRowsRenderingStartRow = 0;
   try {
     var survey = new SurveyModel(json);
     var panel: PanelModel = <PanelModel>survey.getAllPanels()[0];
@@ -854,7 +856,7 @@ QUnit.test("Panel.startLazyRendering isNeedRender=false", function(assert) {
     page.onFirstRendering();
     assert.equal(panel.rows.length, 2);
 
-    panel.rows.forEach(row => {
+    panel.rows.forEach((row) => {
       assert.equal(row["_scrollableParent"], undefined);
       assert.equal(row["_updateVisibility"], undefined);
       assert.equal(row.isNeedRender, false);
@@ -873,5 +875,141 @@ QUnit.test("Panel.startLazyRendering isNeedRender=false", function(assert) {
     });
   } finally {
     settings.lazyRowsRendering = prevLazyRowsRendering;
+    settings.lazyRowsRenderingStartRow = prevStartRowInLazyRendering;
   }
+});
+QUnit.test("row.isNeedRender & settings.lazyRowsRenderingStartRow", function(
+  assert
+) {
+  var json = {
+    pages: [
+      {
+        name: "page1",
+        elements: [
+          {
+            type: "text",
+            name: "q1",
+          },
+          {
+            type: "text",
+            name: "q2",
+          },
+          {
+            type: "text",
+            name: "q3",
+          },
+        ],
+      },
+    ],
+  };
+
+  const prevLazyRowsRendering = settings.lazyRowsRendering;
+  const prevStartRowInLazyRendering = settings.lazyRowsRenderingStartRow;
+  settings.lazyRowsRenderingStartRow = 2;
+  try {
+    var survey = new SurveyModel(json);
+    survey.lazyRendering = true;
+    const page: PageModel = survey.currentPage;
+    page.setWasShown(false);
+    page.onFirstRendering();
+    assert.equal(page.rows.length, 3, "There are 3 rows");
+    assert.equal(page.rows[0].isNeedRender, true, "isNeedRender rows[0]");
+    assert.equal(page.rows[1].isNeedRender, true, "isNeedRender rows[1]");
+    assert.equal(page.rows[2].isNeedRender, false, "isNeedRender rows[2]");
+  } finally {
+    settings.lazyRowsRendering = prevLazyRowsRendering;
+    settings.lazyRowsRenderingStartRow = prevStartRowInLazyRendering;
+  }
+});
+QUnit.test(
+  "row.isNeedRender & settings.lazyRowsRenderingStartRow & designMode",
+  function(assert) {
+    var json = {
+      pages: [
+        {
+          name: "page1",
+          elements: [
+            {
+              type: "text",
+              name: "q1",
+            },
+            {
+              type: "text",
+              name: "q2",
+            },
+            {
+              type: "text",
+              name: "q3",
+            },
+          ],
+        },
+        {
+          name: "page2",
+          elements: [
+            {
+              type: "text",
+              name: "q4",
+            },
+          ],
+        },
+      ],
+    };
+
+    const prevLazyRowsRendering = settings.lazyRowsRendering;
+    const prevStartRowInLazyRendering = settings.lazyRowsRenderingStartRow;
+    settings.lazyRowsRenderingStartRow = 2;
+    try {
+      var survey = new SurveyModel(json);
+      survey.lazyRendering = true;
+      survey.setDesignMode(true);
+      const page1: PageModel = survey.pages[0];
+      page1.setWasShown(false);
+      page1.onFirstRendering();
+      assert.equal(page1.rows.length, 3, "There are 3 rows");
+      assert.equal(page1.rows[0].isNeedRender, true, "isNeedRender rows[0]");
+      assert.equal(page1.rows[1].isNeedRender, true, "isNeedRender rows[1]");
+      assert.equal(page1.rows[2].isNeedRender, false, "isNeedRender rows[2]");
+
+      const page2: PageModel = survey.pages[1];
+      page2.setWasShown(false);
+      page2.onFirstRendering();
+      assert.equal(page2.rows.length, 1, "There is one row on the second page");
+      assert.equal(
+        page2.rows[0].isNeedRender,
+        false,
+        "We do lazy rendering for the second page in design mode"
+      );
+    } finally {
+      settings.lazyRowsRendering = prevLazyRowsRendering;
+      settings.lazyRowsRenderingStartRow = prevStartRowInLazyRendering;
+    }
+  }
+);
+QUnit.test("row.visibleElements make it reactive", function(assert) {
+  var page = new PageModel();
+  page.addNewQuestion("text", "q1");
+  page.addNewQuestion("text", "q2");
+  page.addNewQuestion("text", "q3");
+  page.questions[1].startWithNewLine = false;
+  page.questions[2].startWithNewLine = false;
+  assert.equal(page.rows.length, 1, "We have one row");
+  var row = page.rows[0];
+  assert.equal(row.elements.length, 3, "We have 3 elements in row");
+  assert.equal(row.visibleElements.length, 3, "All elements are visible");
+  assert.equal(
+    row.getPropertyValue("visibleElements").length,
+    3,
+    "visibleElements are reactive"
+  );
+  page.questions[1].visible = false;
+  assert.equal(row.visibleElements.length, 2, "Two elements are visible");
+  assert.equal(row.visibleElements[0].name, "q1", "First element");
+  assert.equal(row.visibleElements[1].name, "q3", "Second element");
+  page.removeElement(page.questions[2]);
+  assert.equal(row.visibleElements.length, 1, "One element is visible");
+  assert.equal(row.visibleElements[0].name, "q1", "First element, #2");
+  page.questions[1].visible = true;
+  assert.equal(row.visibleElements.length, 2, "Two elements are visible, #3");
+  assert.equal(row.visibleElements[0].name, "q1", "First element, #3");
+  assert.equal(row.visibleElements[1].name, "q2", "Second element, #3");
 });

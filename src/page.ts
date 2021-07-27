@@ -1,6 +1,12 @@
 import { Serializer } from "./jsonobject";
 import { Helpers } from "./helpers";
-import { IPage, IPanel, IElement, ISurveyElement, IQuestion } from "./base";
+import {
+  IPage,
+  IPanel,
+  IElement,
+  ISurveyElement,
+  IQuestion,
+} from "./base-interfaces";
 import { DragDropInfo, PanelModelBase, QuestionRowModel } from "./panel";
 import { LocalizableString } from "./localizablestring";
 /**
@@ -74,6 +80,9 @@ export class PageModel extends PanelModelBase implements IPage {
   }
   public set visibleIndex(val: number) {
     this.setPropertyValue("visibleIndex", val);
+  }
+  protected canRenderFirstRows(): boolean {
+    return !this.isDesignMode || this.visibleIndex == 0;
   }
   /**
    * Returns true, if the page is started page in the survey. It can be shown on the start only and the end-user could not comeback to it after it passed it.
@@ -255,14 +264,6 @@ export class PageModel extends PanelModelBase implements IPage {
     this.dragDropAddTarget(this.dragDropInfo);
     return true;
   }
-  public getTitleActions(): Array<any> {
-    var titleActions: Array<any> = [];
-    this.titleActions = this.survey.getUpdatedPageTitleActions(
-      this,
-      titleActions
-    );
-    return this.titleActions;
-  }
   private correctDragDropInfo(dragDropInfo: DragDropInfo) {
     if (!dragDropInfo.destination) return;
     var panel = (<IElement>dragDropInfo.destination).isPanel
@@ -389,7 +390,7 @@ export class PageModel extends PanelModelBase implements IPage {
     isBottom: boolean
   ): boolean {
     if (!destination || (destination.isPanel && !isEdge)) return true;
-    if (source.parent !== destination.parent) return true;
+    if (typeof source.parent === "undefined" || source.parent !== destination.parent) return true;
     var pnl = <PanelModelBase>source.parent;
     var srcIndex = pnl.elements.indexOf(source);
     var destIndex = pnl.elements.indexOf(destination);

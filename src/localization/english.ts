@@ -76,6 +76,7 @@ export var englishStrings = {
   timerLimitSurvey: "You have spent {0} of {1} in total.",
   cleanCaption: "Clean",
   clearCaption: "Clear",
+  signaturePlaceHolder: "Sign here",
   chooseFileCaption: "Choose file",
   removeFileCaption: "Remove this file",
   booleanCheckedLabel: "Yes",

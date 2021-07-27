@@ -7,7 +7,7 @@ import { QuestionMatrixModel } from "survey-core";
 import { MatrixRowModel } from "survey-core";
 import { ReactQuestionFactory } from "./reactquestion_factory";
 import { Helpers } from "survey-core";
-import { dragDropTD as getDragDropTD } from "./drag-drop-td";
+import { ReactSurveyModel } from "./reactsurveymodel";
 
 export class SurveyQuestionMatrix extends SurveyQuestionElementBase {
   constructor(props: any) {
@@ -35,7 +35,6 @@ export class SurveyQuestionMatrix extends SurveyQuestionElementBase {
 
   protected renderElement(): JSX.Element {
     var cssClasses = this.question.cssClasses;
-    var dragDropTH = this.question.allowRowsDragAndDrop ? <td /> : null;
     var rowsTH = this.question.hasRows ? <td /> : null;
     var headers = [];
     for (var i = 0; i < this.question.visibleColumns.length; i++) {
@@ -44,7 +43,7 @@ export class SurveyQuestionMatrix extends SurveyQuestionElementBase {
       var columText = this.renderLocString(column.locText);
       headers.push(
         <th className={this.question.cssClasses.headerCell} key={key}>
-          {columText}
+          {this.wrapCell({column: column}, columText, "column-header")}
         </th>
       );
     }
@@ -67,7 +66,6 @@ export class SurveyQuestionMatrix extends SurveyQuestionElementBase {
     var header = !this.question.showHeader ? null : (
       <thead>
         <tr>
-          {dragDropTH}
           {rowsTH}
           {headers}
         </tr>
@@ -105,25 +103,33 @@ export class SurveyQuestionMatrixRow extends ReactSurveyElement {
     this.row.value = event.target.value;
     this.setState({ value: this.row.value });
   }
+  protected wrapCell(cell: any, element: JSX.Element, reason: string): JSX.Element {
+    if(!reason) {
+      return element;
+    }
+    const survey: ReactSurveyModel = this.question.survey as ReactSurveyModel;
+    let wrapper: JSX.Element;
+    if (survey) {
+      wrapper = survey.wrapMatrixCell(element, cell, reason);
+    }
+    return wrapper ?? element;
+  }
   protected canRender(): boolean {
     return !!this.row;
   }
   protected renderElement(): JSX.Element {
-    var dragDropTD = null;
     var rowsTD = null;
 
-    if (this.question.allowRowsDragAndDrop) {
-      dragDropTD = getDragDropTD(this.question);
-    }
     if (this.question.hasRows) {
       var rowText = this.renderLocString(this.row.locText);
-      rowsTD = <td className={this.question.cssClasses.cell}>{rowText}</td>;
+      rowsTD = <td className={this.question.cssClasses.cell}>
+        {this.wrapCell({row: this.row}, rowText, "row-header")}
+        </td>;
     }
 
     var tds = this.generateTds();
     return (
       <tr className={this.row.rowClasses}>
-        {dragDropTD}
         {rowsTD}
         {tds}
       </tr>

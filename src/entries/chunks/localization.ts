@@ -1,4 +1,5 @@
 import "../../localization/arabic";
+import "../../localization/basque";
 import "../../localization/bulgarian";
 import "../../localization/catalan";
 import "../../localization/croatian";
@@ -40,4 +41,5 @@ import "../../localization/thai";
 import "../../localization/traditional-chinese";
 import "../../localization/turkish";
 import "../../localization/ukrainian";
+import "../../localization/vietnamese";
 import "../../localization/welsh";

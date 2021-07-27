@@ -1,13 +1,12 @@
 import React from "react";
-import { AdaptiveActionBarItemWrapper } from "survey-core";
-import { Base } from "survey-core";
+import { Base, Action } from "survey-core";
 import { ReactElementFactory } from "../../element-factory";
 import { SurveyElementBase } from "../../reactquestion_element";
 import { SvgIcon } from "../svg-icon/svg-icon";
 import { SurveyActionBarSeparator } from "./action-bar-separator";
 
 interface IActionBarItemProps {
-  item: AdaptiveActionBarItemWrapper;
+  item: Action;
 }
 
 export class SurveyAction extends SurveyElementBase<IActionBarItemProps, any> {
@@ -15,10 +14,10 @@ export class SurveyAction extends SurveyElementBase<IActionBarItemProps, any> {
     return this.props.item;
   }
   protected getStateElement(): Base {
-    return this.item.stateItem;
+    return this.item;
   }
 
-  render() {
+  renderElement() {
     const itemClass =
       "sv-action " +
       this.item.css +
@@ -34,7 +33,7 @@ export class SurveyAction extends SurveyElementBase<IActionBarItemProps, any> {
       }
     );
     return (
-      <span className={itemClass}>
+      <span className={itemClass} id={this.item.id}>
         {separator}
         {itemComponent}
       </span>
@@ -46,23 +45,19 @@ export class SurveyActionBarItem extends SurveyElementBase<
   IActionBarItemProps,
   any
 > {
-  get item(): AdaptiveActionBarItemWrapper {
+  get item(): Action {
     return this.props.item;
   }
   protected getStateElement(): Base {
-    return this.item.stateItem;
+    return this.item;
   }
 
-  render() {
+  renderElement() {
     return <>{this.renderInnerButton()}</>;
   }
 
   renderText() {
-    if (
-      this.item.showTitle === undefined ||
-      this.item.showTitle ||
-      !this.item.iconName
-    ) {
+    if (this.item.hasTitle) {
       var titleClass =
         "sv-action-bar-item__title " +
         (!!this.item.iconName ? "sv-action-bar-item__title--with-icon" : "");
@@ -93,14 +88,16 @@ export class SurveyActionBarItem extends SurveyElementBase<
       this.item.innerCss +
       (this.item.active ? " sv-action-bar-item--active" : "");
     const title = this.item.tooltip || this.item.title;
-    const isDisabled = this.item.enabled !== undefined && !this.item.enabled;
     const buttonContent = this.renderButtonContent();
+    const tabIndex = this.item.disableTabStop ? -1 : undefined;
     const button = (
       <button
         className={className}
-        disabled={isDisabled}
+        type="button"
+        disabled={this.item.disabled}
         onClick={() => this.item.action(this.item)}
         title={title}
+        tabIndex={tabIndex}
       >
         {buttonContent}
       </button>

@@ -1,4 +1,5 @@
-import { SurveyElement, Base } from "../src/base";
+import { Base } from "../src/base";
+import { SurveyElement } from "../src/survey-element";
 import { SurveyModel } from "../src/survey";
 import { PageModel } from "../src/page";
 import { PanelModel } from "../src/panel";
@@ -27,7 +28,7 @@ import {
   MultipleTextItemModel,
 } from "../src/question_multipletext";
 import { QuestionMatrixModel } from "../src/question_matrix";
-import { ISurveyData } from "../src/base";
+import { ISurveyData } from "../src/base-interfaces";
 import { ItemValue } from "../src/itemvalue";
 import { QuestionDropdownModel } from "../src/question_dropdown";
 import { QuestionCheckboxModel } from "../src/question_checkbox";
@@ -58,6 +59,7 @@ import { settings } from "../src/settings";
 import { CalculatedValue } from "../src/calculatedValue";
 import { LocalizableString } from "../src/localizablestring";
 import { getSize } from "../src/utils/utils";
+import { RendererFactory } from "../src/rendererFactory";
 
 export default QUnit.module("Survey");
 
@@ -3388,6 +3390,52 @@ QUnit.test("test goNextPageAutomatic property", function(assert) {
   assert.notEqual(survey.state, "completed", "survey is still running");
   dropDownQ.comment = "other value";
   assert.equal(survey.state, "completed", "complete the survey");
+});
+QUnit.test("test goNextPageAutomatic property for boolean/switch", function(
+  assert
+) {
+  var survey = new SurveyModel({
+    goNextPageAutomatic: true,
+    pages: [
+      {
+        elements: [{ type: "boolean", name: "q1" }],
+      },
+      {
+        elements: [
+          {
+            name: "q2",
+            type: "text",
+          },
+        ],
+      },
+    ],
+  });
+
+  survey.goNextPageAutomatic = true;
+  assert.equal(
+    survey.currentPage.name,
+    survey.pages[0].name,
+    "the first page is default page"
+  );
+  survey.setValue("q1", true);
+  assert.equal(
+    survey.currentPage.name,
+    survey.pages[1].name,
+    "go to the second page automatically"
+  );
+  survey.clear();
+  survey.getQuestionByName("q1").renderAs = "checkbox";
+  assert.equal(
+    survey.currentPage.name,
+    survey.pages[0].name,
+    "the first page is default page, #2"
+  );
+  survey.setValue("q1", true);
+  assert.equal(
+    survey.currentPage.name,
+    survey.pages[0].name,
+    "we do not go to the second page automatically, #2"
+  );
 });
 QUnit.test(
   "test goNextPageAutomatic property - 'autogonext' - go next page automatically but do not submit",
@@ -8698,7 +8746,9 @@ QUnit.test("question.getPlainData - matrix", function(assert) {
   Serializer.removeProperty("itemvalue", "score");
 });
 
-QUnit.test("question.getPlainData - matrixdropdown", function(assert) {
+QUnit.test("question.getPlainData - matrixdropdown, fixed bug#3097", function(
+  assert
+) {
   Serializer.addProperty("question", {
     name: "score:number",
   });
@@ -8743,7 +8793,7 @@ QUnit.test("question.getPlainData - matrixdropdown", function(assert) {
           score: 5,
         },
       ],
-      rows: ["Row 1", "Row 2"],
+      rows: [{ value: "Row 1", text: "Row 1 Title" }, "Row 2"],
     },
     question
   );
@@ -8762,7 +8812,7 @@ QUnit.test("question.getPlainData - matrixdropdown", function(assert) {
     "Row 2": { "Column 1": 4, "Column 2": "5", "Column 3": 4 },
   });
   assert.deepEqual(plainData.displayValue, {
-    "Row 1": {
+    "Row 1 Title": {
       "Column 1": "1",
       "Column 2": "2",
       "Column 3": "3",
@@ -8776,7 +8826,7 @@ QUnit.test("question.getPlainData - matrixdropdown", function(assert) {
   assert.equal(plainData.isNode, true);
   assert.equal(plainData.data.length, 2, "Two rows in matrix");
   assert.deepEqual(plainData.data[0].name, "Row 1");
-  assert.deepEqual(plainData.data[0].title, "Row 1");
+  assert.deepEqual(plainData.data[0].title, "Row 1 Title");
   assert.deepEqual(plainData.data[0].value, {
     "Column 1": 1,
     "Column 2": 2,
@@ -10492,6 +10542,67 @@ QUnit.test("hasErrors with async", function(assert) {
   FunctionFactory.Instance.unregister("asyncFunc1");
   FunctionFactory.Instance.unregister("asyncFunc2");
 });
+
+QUnit.test("visibleIf with async functions", function(assert) {
+  var returnResult1: (res: any) => void;
+  var returnResult2: (res: any) => void;
+  function asyncFunc1(params: any): any {
+    returnResult1 = this.returnResult;
+    return false;
+  }
+  function asyncFunc2(params: any): any {
+    returnResult2 = this.returnResult;
+    return false;
+  }
+  FunctionFactory.Instance.register("asyncFunc1", asyncFunc1, true);
+  FunctionFactory.Instance.register("asyncFunc2", asyncFunc2, true);
+  var survey = twoPageSimplestSurvey();
+  var q1 = survey.getQuestionByName("question1");
+  var q2 = survey.getQuestionByName("question2");
+
+  q1.visibleIf = "asyncFunc1() = 1";
+  q2.visibleIf = "asyncFunc2() = 2";
+  returnResult1(-1);
+  returnResult2(-1);
+  assert.equal(q1.isVisible, false, "Hide initially, q1");
+  assert.equal(q2.isVisible, false, "Hide initially, q2");
+  returnResult1(0);
+  returnResult2(0);
+  assert.equal(q1.isVisible, false, "Hide, q1 = 0");
+  assert.equal(q2.isVisible, false, "Hide, q2 = 0");
+  returnResult1(1);
+  assert.equal(q1.isVisible, true, "Show, q1 = 1");
+  assert.equal(q2.isVisible, false, "Hide, q2 = 0");
+  returnResult2(2);
+  assert.equal(q1.isVisible, true, "Show, q1 = 1");
+  assert.equal(q2.isVisible, true, "Hide, q2 = 2");
+  FunctionFactory.Instance.unregister("asyncFunc1");
+  FunctionFactory.Instance.unregister("asyncFunc2");
+});
+QUnit.test(
+  "visibleIf with calculated values that uses async functions",
+  function(assert) {
+    var returnResult1: (res: any) => void;
+    function asyncFunc1(params: any): any {
+      returnResult1 = this.returnResult;
+      return false;
+    }
+    FunctionFactory.Instance.register("asyncFunc1", asyncFunc1, true);
+    var survey = twoPageSimplestSurvey();
+    var calcValue = new CalculatedValue("calc1", "asyncFunc1()");
+    survey.calculatedValues.push(calcValue);
+    var q1 = survey.getQuestionByName("question1");
+    q1.visibleIf = "{calc1} = 1";
+    assert.equal(q1.isVisible, false, "Hide initially, q1");
+    returnResult1(0);
+    assert.equal(q1.isVisible, false, "Hide, calc1 = 0");
+    returnResult1(1);
+    assert.equal(q1.isVisible, true, "Show, calc1 = 1");
+    returnResult1(2);
+    assert.equal(q1.isVisible, false, "Hide, calc1 = 2");
+    FunctionFactory.Instance.unregister("asyncFunc1");
+  }
+);
 
 QUnit.test("Hide required errors, add tests for Bug#2679", function(assert) {
   var survey = twoPageSimplestSurvey();
@@ -12700,6 +12811,91 @@ QUnit.test("Check onGetPanelTitleActions event", (assert) => {
   assert.deepEqual(panel.getTitleActions(), testActions);
 });
 
+QUnit.test("Panel: Add change state action into actions", (assert) => {
+  RendererFactory.Instance.registerRenderer(
+    "element",
+    "title-actions",
+    "sv-title-actions"
+  );
+  var survey = new SurveyModel({
+    elements: [
+      {
+        type: "panel",
+        name: "panel1",
+        state: "expanded",
+      },
+    ],
+  });
+  var panel = <PanelModel>survey.getPanelByName("panel1");
+  var actions = panel.getTitleActions();
+  assert.equal(actions.length, 1);
+  assert.equal(
+    panel.getTitleComponentName(),
+    "sv-title-actions",
+    "Renders with actions"
+  );
+  assert.strictEqual(
+    actions[0].disableTabStop,
+    true,
+    "The action could not be used from keyboard"
+  );
+  survey = new SurveyModel({
+    elements: [
+      {
+        type: "panel",
+        name: "panel1",
+        state: "expanded",
+      },
+    ],
+  });
+  panel = <PanelModel>survey.getPanelByName("panel1");
+  survey.onGetPanelTitleActions.add((sender, options) => {
+    options.titleActions.push({ id: "id2" });
+  });
+  assert.equal(panel.getTitleActions().length, 2, "We have two actions now");
+  assert.equal(
+    panel.getTitleComponentName(),
+    "sv-title-actions",
+    "Renders with actions"
+  );
+  assert.equal(panel.titleTabIndex, 0, "We need to stop on title");
+  assert.equal(panel.titleAriaExpanded, true, "Title area expanded is true");
+  panel.state = "collapsed";
+  assert.equal(panel.titleTabIndex, 0, "We need to stop on title, #2");
+  assert.equal(
+    panel.titleAriaExpanded,
+    false,
+    "Title area expanded is false, #2"
+  );
+
+  survey = new SurveyModel({
+    elements: [
+      {
+        type: "panel",
+        name: "panel1",
+      },
+    ],
+  });
+  panel = <PanelModel>survey.getPanelByName("panel1");
+  assert.equal(panel.getTitleActions().length, 0, "There is no actions");
+  assert.equal(
+    panel.getTitleComponentName(),
+    "sv-title-actions",
+    "We do not render default title any more"
+  );
+  assert.equal(
+    panel.titleTabIndex,
+    undefined,
+    "We do not need to stop on title, #3"
+  );
+  assert.equal(
+    panel.titleAriaExpanded,
+    undefined,
+    "Title area expanded is undefined, #3"
+  );
+  RendererFactory.Instance.clear();
+});
+
 QUnit.test("Check onGetQuestionTitleActions event", (assert) => {
   var survey = new SurveyModel({
     elements: [
@@ -12709,23 +12905,23 @@ QUnit.test("Check onGetQuestionTitleActions event", (assert) => {
       },
     ],
   });
-  var panel = <Question>survey.getQuestionByName("text1");
   var testActions = [{ name: "simple" }, { name: "simple2" }];
   survey.onGetQuestionTitleActions.add((sender, options) => {
     options.titleActions = testActions;
   });
-  assert.deepEqual(panel.getTitleActions(), testActions);
+  var question = <Question>survey.getQuestionByName("text1");
+  assert.deepEqual(question.getTitleActions(), testActions);
 });
 
 QUnit.test("Check onGetPageTitleActions event", (assert) => {
   var survey = new SurveyModel({
     pages: [{ title: "Page Title" }],
   });
-  var page = <PageModel>survey.pages[0];
   var testActions = [{ name: "simple" }, { name: "simple2" }];
   survey.onGetPageTitleActions.add((sender, options) => {
     options.titleActions = testActions;
   });
+  var page = <PageModel>survey.pages[0];
   assert.deepEqual(page.getTitleActions(), testActions);
 });
 QUnit.test(
@@ -13179,6 +13375,165 @@ QUnit.test("Custom widget, test canShowInToolbox read-only property", function(
 });
 QUnit.test("getElementWrapperComponentName", function(assert) {
   var survey = new SurveyModel();
-  assert.deepEqual(survey.getElementWrapperComponentName(null), SurveyModel.TemplateRendererComponentName, "default component");
-  assert.deepEqual(survey.getElementWrapperComponentName(null, "logo-image"), "sv-logo-image", "logo-image default component");
+  assert.deepEqual(
+    survey.getElementWrapperComponentName(null),
+    SurveyModel.TemplateRendererComponentName,
+    "default component"
+  );
+  assert.deepEqual(
+    survey.getElementWrapperComponentName(null, "logo-image"),
+    "sv-logo-image",
+    "logo-image default component"
+  );
+});
+QUnit.test(
+  "Skip trigger test and auto focus first question on the page",
+  function(assert) {
+    var focusedQuestions = [];
+    var oldFunc = SurveyElement.FocusElement;
+    SurveyElement.FocusElement = function(elId: string): boolean {
+      focusedQuestions.push(elId);
+      return true;
+    };
+    var survey = new SurveyModel({
+      pages: [
+        {
+          name: "page1",
+          elements: [
+            {
+              type: "radiogroup",
+              name: "q1",
+              choices: ["item1", "item2", "item3"],
+            },
+          ],
+        },
+        {
+          name: "page2",
+          elements: [
+            {
+              type: "text",
+              name: "q2",
+            },
+            {
+              type: "text",
+              name: "q3",
+            },
+          ],
+        },
+      ],
+      triggers: [
+        {
+          type: "skip",
+          expression: "{q1} = 'item2'",
+          gotoName: "q3",
+        },
+      ],
+    });
+    survey.getQuestionByName("q1").value = "item2";
+    assert.equal(survey.currentPage.name, "page2", "We moved to another page");
+    assert.equal(focusedQuestions.length, 1, "Only one question was focused");
+    assert.equal(
+      focusedQuestions[0],
+      survey.getQuestionByName("q3").inputId,
+      "The third question is focused"
+    );
+    SurveyElement.FocusElement = oldFunc;
+  }
+);
+QUnit.test(
+  "Test SurveyElement isPage, isPanel and isQuestion properties",
+  function(assert) {
+    var survey = new SurveyModel({
+      elements: [
+        {
+          type: "panel",
+          name: "panel",
+          elements: [
+            {
+              type: "text",
+              name: "question",
+            },
+          ],
+        },
+      ],
+    });
+    var page = survey.currentPage;
+    var panel = <PanelModel>survey.getPanelByName("panel");
+    var question = survey.getQuestionByName("question");
+    assert.equal(page.isPage, true, "Page is page");
+    assert.equal(page.isPanel, false, "Page is not panel");
+    assert.equal(page.isQuestion, false, "Page is not question");
+    assert.equal(panel.isPage, false, "Panel is not page");
+    assert.equal(panel.isPanel, true, "Panel is panel");
+    assert.equal(panel.isQuestion, false, "Panel is not question");
+    assert.equal(question.isPage, false, "Question is not page");
+    assert.equal(question.isPanel, false, "Question is not panel");
+    assert.equal(question.isQuestion, true, "Question is question");
+  }
+);
+QUnit.test("Test survey renderedHasTitle/renderedHasLogo properties", function(
+  assert
+) {
+  var survey = new SurveyModel();
+  assert.equal(
+    survey.renderedHasHeader,
+    false,
+    "hasHeader, title and logo are invisible"
+  );
+  assert.equal(survey.renderedHasTitle, false, "There is not title");
+  survey.title = "title";
+  assert.equal(survey.renderedHasTitle, true, "There is title");
+  assert.equal(survey.renderedHasHeader, true, "hasHeader, title is visible");
+  survey.showTitle = false;
+  assert.equal(survey.renderedHasTitle, false, "hasTitle is false");
+
+  assert.equal(survey.renderedHasLogo, false, "There is not logo");
+  survey.logo = "logo";
+  assert.equal(survey.renderedHasLogo, true, "There is logo");
+  survey.logoPosition = "none";
+  assert.equal(survey.renderedHasTitle, false, "logo position is 'none'");
+
+  survey.setDesignMode(true);
+  assert.equal(survey.renderedHasTitle, true, "There is title, design");
+  assert.equal(survey.renderedHasLogo, true, "There is logo, design");
+  assert.equal(
+    survey.isLogoBefore,
+    false,
+    "We do not render logo before at design, design"
+  );
+  assert.equal(
+    survey.isLogoAfter,
+    true,
+    "We do render logo after at design, design"
+  );
+  assert.equal(
+    survey.renderedHasHeader,
+    true,
+    "hasHeader, properties are visible"
+  );
+
+  Serializer.findProperty("survey", "title").visible = false;
+  Serializer.findProperty("survey", "logo").visible = false;
+  assert.equal(
+    survey.renderedHasTitle,
+    false,
+    "There is no title, design, property invisible"
+  );
+  assert.equal(
+    survey.renderedHasLogo,
+    false,
+    "There is no logo, design, property invisible"
+  );
+  assert.equal(
+    survey.isLogoAfter,
+    false,
+    "We do not render logo after since the property is hidden, design"
+  );
+  assert.equal(
+    survey.renderedHasHeader,
+    false,
+    "hasHeader, properties are invisible"
+  );
+  Serializer.findProperty("survey", "title").visible = true;
+  Serializer.findProperty("survey", "logo").visible = true;
 });

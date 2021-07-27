@@ -990,6 +990,10 @@ QUnit.test("Validators for other values - checkbox, Bug #722", function(
     true,
     "There should be at least 2 values selected"
   );
+  question.value = [];
+  assert.equal(question.hasErrors(), false, "We do not check the empty array");
+  question.value = undefined;
+  assert.equal(question.hasErrors(), false, "We do not check the empty value");
 });
 QUnit.test(
   "other values in choices, hasOther=false, Bug(Editor) #242",
@@ -2316,6 +2320,9 @@ QUnit.test("question.clearIncorrectValues", function(assert) {
     [],
     "clear values, there is no these items in choices"
   );
+  qcheck.value = ["", 0, undefined, null];
+  qcheck.clearIncorrectValues();
+  assert.deepEqual(qcheck.value, [], "clear values, clear empty values");
 });
 
 QUnit.test("question.clearIncorrectValues and choicesByUrl", function(assert) {
@@ -5063,6 +5070,37 @@ QUnit.test(
   }
 );
 QUnit.test(
+  "Creator V2: Hide selectAll, hasNone and hasOther if this properties are invisible",
+  function(assert) {
+    var json = {
+      elements: [
+        {
+          type: "checkbox",
+          name: "q1",
+          choices: ["item1", "item2", "item3"],
+        },
+      ],
+    };
+    settings.supportCreatorV2 = true;
+    Serializer.findProperty("selectbase", "hasOther").visible = false;
+    Serializer.findProperty("selectbase", "hasNone").visible = false;
+    Serializer.findProperty("checkbox", "hasSelectAll").visible = false;
+    var survey = new SurveyModel();
+    survey.setDesignMode(true);
+    survey.fromJSON(json);
+    var q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+    assert.equal(
+      q1.visibleChoices.length,
+      4,
+      "Hide SelectAll+None+hasOther and show only new: 3+4 - 3"
+    );
+    Serializer.findProperty("selectbase", "hasOther").visible = true;
+    Serializer.findProperty("selectbase", "hasNone").visible = true;
+    Serializer.findProperty("checkbox", "hasSelectAll").visible = true;
+    settings.supportCreatorV2 = false;
+  }
+);
+QUnit.test(
   "Creator V2: add into visibleChoices others/hasOther items in design mode, add new question",
   function(assert) {
     var json = {
@@ -5215,3 +5253,40 @@ QUnit.test(
     assert.equal(q2.value, "abc", "default value is set, text");
   }
 );
+QUnit.test("Use empty string as a valid value", function(assert) {
+  var json = {
+    elements: [
+      {
+        type: "dropdown",
+        name: "q1",
+        choices: [{ value: "", text: "empty" }, "item2", "item3"],
+      },
+    ],
+  };
+  var survey = new SurveyModel(json);
+  var q1 = <QuestionDropdownModel>survey.getQuestionByName("q1");
+  assert.equal(
+    q1.displayValue,
+    "empty",
+    "We get display Value for empty string"
+  );
+});
+QUnit.test("Use question onDisplayValueCallback", function(assert) {
+  var json = {
+    elements: [
+      {
+        type: "dropdown",
+        name: "q1",
+        optionsCaption: "Empty",
+        choices: ["item2", "item3"],
+      },
+    ],
+  };
+  var survey = new SurveyModel(json);
+  var q1 = <QuestionDropdownModel>survey.getQuestionByName("q1");
+  q1.displayValueCallback = (val: string): string => {
+    if (q1.isEmpty()) return q1.optionsCaption;
+    return val;
+  };
+  assert.equal(q1.displayValue, "Empty", "We get display Value on callback");
+});

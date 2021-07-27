@@ -1,20 +1,18 @@
 import { HashTable, Helpers } from "./helpers";
 import { JsonObject, Serializer, property } from "./jsonobject";
+import { Base, EventBase } from "./base";
 import {
-  SurveyError,
-  SurveyElement,
   IElement,
   IQuestion,
   IPanel,
   IConditionRunner,
   ISurveyImpl,
   IPage,
-  EventBase,
   ITitleOwner,
   IProgressInfo,
-  Base,
   ISurvey,
-} from "./base";
+} from "./base-interfaces";
+import { SurveyElement } from "./survey-element";
 import { surveyLocalization } from "./surveyStrings";
 import { AnswerRequiredError, CustomError } from "./error";
 import { SurveyValidator, IValidatorOwner, ValidatorRunner } from "./validator";
@@ -27,6 +25,7 @@ import { settings } from "./settings";
 import { SurveyModel } from "./survey";
 import { PanelModel } from "./panel";
 import { RendererFactory } from "./rendererFactory";
+import { SurveyError } from "./survey-error";
 
 export interface IConditionObject {
   name: string;
@@ -54,11 +53,12 @@ export class Question extends SurveyElement
     return "sq_" + Question.questionCounter++;
   }
   private conditionRunner: ConditionRunner = null;
-  private isCustomWidgetRequested: boolean = false;
+  private isCustomWidgetRequested: boolean;
   private customWidgetValue: QuestionCustomWidget;
   customWidgetData = { isNeedRender: true };
   focusCallback: () => void;
   surveyLoadCallback: () => void;
+  displayValueCallback: (text: string) => string;
 
   private textPreProcessor: TextPreProcessor;
   private conditionEnabelRunner: ConditionRunner;
@@ -282,7 +282,7 @@ export class Question extends SurveyElement
    * @see titleLocation
    */
   public get hideNumber(): boolean {
-    return this.getPropertyValue("hideNumber", false);
+    return this.getPropertyValue("hideNumber");
   }
   public set hideNumber(val: boolean) {
     this.setPropertyValue("hideNumber", val);
@@ -299,6 +299,9 @@ export class Question extends SurveyElement
    */
   public getType(): string {
     return "question";
+  }
+  public get isQuestion(): boolean {
+    return true;
   }
   /**
    * Move question to a new container Page/Panel. Add as a last element if insertBefore parameter is not used or inserted into the given index,
@@ -505,7 +508,10 @@ export class Question extends SurveyElement
     if (this.hasInput) {
       var self = this;
       return function() {
-        self.focus();
+        if (self.isCollapsed) return;
+        setTimeout(() => {
+          self.focus();
+        }, 1);
         return true;
       };
     }
@@ -1102,6 +1108,7 @@ export class Question extends SurveyElement
   }
   protected onSetData() {
     super.onSetData();
+    if (!this.survey) return;
     this.initDataFromSurvey();
     this.onSurveyValueChanged(this.value);
     this.updateValueWithDefaults();
@@ -1159,8 +1166,10 @@ export class Question extends SurveyElement
    * Clear the question value. It clears the question comment as well.
    */
   public clearValue() {
-    this.value = null;
-    this.comment = null;
+    if (this.value !== undefined) {
+      this.value = undefined;
+    }
+    this.comment = undefined;
   }
   public unbindValue() {
     this.clearValue();
@@ -1168,12 +1177,15 @@ export class Question extends SurveyElement
   public createValueCopy(): any {
     return this.getUnbindValue(this.value);
   }
-  protected isEditingSurveyElement(value: any): boolean {
-    return Base.isSurveyElement(value);
-  }
   protected getUnbindValue(value: any) {
-    if (this.isEditingSurveyElement(value)) return value;
+    if (this.isValueSurveyElement(value)) return value;
     return Helpers.getUnbindValue(value);
+  }
+  protected isValueSurveyElement(val: any): boolean {
+    if (!val) return false;
+    if (Array.isArray(val))
+      return val.length > 0 ? this.isValueSurveyElement(val[0]) : false;
+    return !!val.getType && !!val.onPropertyChanged;
   }
   private canClearValueAsInvisible(): boolean {
     if (this.isVisible && this.isParentVisible) return false;
@@ -1204,16 +1216,23 @@ export class Question extends SurveyElement
    * @param value use this parameter, if you want to get display value for this value and not question.value. It is undefined by default.
    */
   public getDisplayValue(keysAsText: boolean, value: any = undefined): any {
+    var res = this.calcDisplayValue(keysAsText, value);
+    return !!this.displayValueCallback ? this.displayValueCallback(res) : res;
+  }
+  private calcDisplayValue(keysAsText: boolean, value: any = undefined): any {
     if (this.customWidget) {
       var res = this.customWidget.getDisplayValue(this, value);
       if (res) return res;
     }
     value = value == undefined ? this.createValueCopy() : value;
-    if (this.isValueEmpty(value)) return "";
+    if (this.isValueEmpty(value)) return this.getDisplayValueEmpty();
     return this.getDisplayValueCore(keysAsText, value);
   }
   protected getDisplayValueCore(keyAsText: boolean, value: any): any {
     return value;
+  }
+  protected getDisplayValueEmpty(): string {
+    return "";
   }
   /**
    * Set the default value to the question. It will be assign to the question on loading the survey from JSON or adding a question to the survey or on setting this property of the value is empty.
@@ -1782,15 +1801,6 @@ export class Question extends SurveyElement
   }
   public getComponentName(): string {
     return RendererFactory.Instance.getRendererByQuestion(this);
-  }
-
-  public getTitleActions(): Array<any> {
-    var titleActions = super.getTitleActions();
-    this.titleActions = this.survey.getUpdatedQuestionTitleActions(
-      this,
-      titleActions
-    );
-    return this.titleActions;
   }
 
   public isDefaultRendering(): boolean {

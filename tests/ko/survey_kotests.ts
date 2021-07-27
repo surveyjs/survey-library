@@ -24,6 +24,7 @@ import { JsonObject, Serializer } from "../../src/jsonobject";
 import { SurveyTimer } from "../../src/surveytimer";
 import { QuestionBoolean } from "../../src/knockout/koquestion_boolean";
 import * as ko from "knockout";
+import { ItemValue } from "../../src/itemvalue";
 
 export default QUnit.module("koTests");
 
@@ -2150,6 +2151,28 @@ QUnit.test("Survey Markdown, Bug:#2831", function(assert) {
     "Process markdown correctly"
   );
 });
+QUnit.test("Call loc str changed onGetQuestionTitle, Bug#3080", function(
+  assert
+) {
+  var survey = new Survey({
+    showQuestionNumbers: "off",
+    elements: [{ type: "text", name: "q1", title: "Question1" }],
+  });
+  var q1 = survey.getQuestionByName("q1");
+  assert.equal(
+    q1.locTitle["koRenderedHtml"](),
+    "Question1",
+    "Process markdown correctly"
+  );
+  survey.onGetQuestionTitle.add((survey, options) => {
+    options.title = options.title + "!";
+  });
+  assert.equal(
+    q1.locTitle["koRenderedHtml"](),
+    "Question1!",
+    "Process onGetQuestionTitle correctly"
+  );
+});
 QUnit.test("loc strings changed on data assignment", function(assert) {
   var json = {
     questions: [
@@ -2255,3 +2278,162 @@ QUnit.test(
     );
   }
 );
+QUnit.test(
+  "MatrixDynamic, test renderedTable column locString on adding new column",
+  function(assert) {
+    var survey = new Survey({
+      elements: [
+        {
+          type: "matrixdynamic",
+          name: "matrix",
+          columns: [{ name: "col1" }],
+        },
+      ],
+    });
+    var matrix: any = <any>survey.getQuestionByName("matrix");
+    assert.equal(
+      matrix.renderedTable.headerRow.cells.length,
+      1 + 1,
+      "We have one column and delete row"
+    );
+    assert.equal(
+      matrix.renderedTable.headerRow.cells[0].locTitle.koRenderedHtml(),
+      "col1",
+      "Title rendered from JSON"
+    );
+    matrix.addColumn("col2");
+    assert.equal(
+      matrix.renderedTable.headerRow.cells[1].locTitle.koRenderedHtml(),
+      "col2",
+      "Title rendered from addColumn"
+    );
+    matrix.columns.push(new MatrixDropdownColumn("col3"));
+    assert.equal(
+      matrix.renderedTable.headerRow.cells[2].locTitle.koRenderedHtml(),
+      "col3",
+      "Title rendered from columns.push"
+    );
+  }
+);
+QUnit.test(
+  "MatrixDynamic, test renderedTable column locString for checkbox question",
+  function(assert) {
+    var survey = new Survey({
+      elements: [
+        {
+          type: "matrixdynamic",
+          name: "matrix",
+          columns: [{ name: "col1", cellType: "checkbox" }],
+        },
+      ],
+    });
+    var matrix: any = <any>survey.getQuestionByName("matrix");
+    var templateColum = matrix.columns[0].templateQuestion;
+    templateColum.choices.push(new ItemValue("item1"));
+    templateColum.choices.push(new ItemValue("item2"));
+    var question = matrix.renderedTable.rows[0].cells[0].question;
+    assert.equal(question.visibleChoices.length, 2, "There are two items");
+    assert.equal(
+      question.visibleChoices[0].locText.koRenderedHtml(),
+      "item1",
+      "text is corrert after push, item1"
+    );
+    assert.equal(
+      question.visibleChoices[1].locText.koRenderedHtml(),
+      "item2",
+      "text is corrert after push, item2"
+    );
+    templateColum.choices.push(new ItemValue("item3"));
+    question = matrix.renderedTable.rows[0].cells[0].question;
+    assert.equal(question.visibleChoices.length, 3, "There are 3 items");
+    assert.equal(
+      question.visibleChoices[0].locText.koRenderedHtml(),
+      "item1",
+      "text is corrert after push, item1, #2"
+    );
+    assert.equal(
+      question.visibleChoices[2].locText.koRenderedHtml(),
+      "item3",
+      "text is corrert after push, item3, #2"
+    );
+  }
+);
+QUnit.test(
+  "MatrixDynamic, test renderedTable column locString after changing default cell Type",
+  function(assert) {
+    var survey = new Survey({
+      elements: [
+        {
+          type: "matrixdynamic",
+          name: "matrix",
+          columns: [{ name: "col1" }],
+        },
+      ],
+    });
+    var matrix: any = <any>survey.getQuestionByName("matrix");
+    assert.equal(
+      matrix.renderedTable.headerRow.cells.length,
+      1 + 1,
+      "We have one column and delete row"
+    );
+    assert.equal(
+      matrix.renderedTable.headerRow.cells[0].locTitle.koRenderedHtml(),
+      "col1",
+      "Title rendered from JSON"
+    );
+    matrix.cellType = "checkbox";
+    assert.equal(
+      matrix.renderedTable.headerRow.cells[0].locTitle.koRenderedHtml(),
+      "col1",
+      "Title rendered from JSON"
+    );
+  }
+);
+QUnit.test("Error on running triggers", function(assert) {
+  var survey = new Survey({
+    elements: [
+      {
+        type: "text",
+        name: "q1",
+      },
+      {
+        type: "matrixdynamic",
+        name: "matrix",
+        visibleIf: "{q1} = 'yes'",
+        columns: [
+          {
+            name: "col1",
+            cellType: "text",
+          },
+        ],
+        rowCount: 1,
+      },
+      {
+        type: "radiogroup",
+        name: "radio",
+        choices: [
+          {
+            value: "yes",
+            text: "Yes",
+          },
+          {
+            value: "no",
+            text: "No",
+          },
+        ],
+      },
+    ],
+    triggers: [
+      {
+        type: "setvalue",
+        expression: "{matrix[0].col1} notcontains 'x'",
+        setToName: "radio",
+        setValue: "no",
+      },
+    ],
+  });
+  survey.runTriggers();
+  assert.equal(survey.getValue("radio"), undefined, "There is not value");
+  survey.setValue("matrix", [{ col1: "v" }]);
+  assert.equal(survey.getValue("radio"), "no", "Set value on trigger");
+});

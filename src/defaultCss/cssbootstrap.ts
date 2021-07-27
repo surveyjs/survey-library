@@ -177,6 +177,7 @@ export var defaultBootstrapCss = {
     buttonRemove: "",
     iconAdd: "",
     iconRemove: "",
+    iconDrag: "sv-matrixdynamic__drag-icon",
     headerCell: "sv_matrix_cell_header",
     row: "sv_matrix_row",
     detailRow: "sv_matrix_detail_row",
@@ -279,6 +280,7 @@ export var defaultBootstrapCss = {
   signaturepad: {
     root: "sv_q_signaturepad sjs_sp_container",
     controls: "sjs_sp_controls",
+    placeholder: "sjs_sp_placeholder",
     clearButton: "sjs_sp_clear",
   },
   saveData: {

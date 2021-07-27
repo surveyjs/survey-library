@@ -7,7 +7,7 @@
   >
     <sv-action-bar
       v-if="cell.isActionsCell"
-      :items="cell.item.getData()"
+      :model="cell.item.getData()"
       :handleClick="false"
     ></sv-action-bar>
     <component

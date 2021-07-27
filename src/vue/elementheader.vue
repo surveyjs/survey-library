@@ -1,21 +1,20 @@
 <template>
-  <div
-    :class="getHeaderClass(element)"
-    @click="
-      () => {
-        if (element.hasInput) element.focus();
-        return true;
-      }
-    "
-  >
+  <div :class="getHeaderClass(element)" @click="clickTitleFunction">
     <h5
       v-if="element.hasTitle"
       :class="getTitleClass(element)"
       v-bind:aria-label="element.locTitle.renderedHtml"
       v-bind:id="element.ariaTitleId"
+      v-bind:tabindex="element.titleTabIndex"
+      v-bind:aria-expanded="element.titleAriaExpanded"
       v-on:click="
         () => {
-          element.toggleState();
+          return element.toggleState();
+        }
+      "
+      v-on:keyup="
+        ($event) => {
+          keyup($event);
         }
       "
     >
@@ -38,8 +37,7 @@
 import Vue from "vue";
 import { Component, Prop } from "vue-property-decorator";
 import { SurveyModel } from "survey-core";
-import { IElement } from "survey-core";
-import { Question } from "survey-core";
+import { IElement, Question, doKey2Click } from "survey-core";
 
 @Component
 export class ElementHeader extends Vue {
@@ -55,6 +53,14 @@ export class ElementHeader extends Vue {
   }
   getHeaderClass(element: Question) {
     return element.cssHeader;
+  }
+  keyup(evt: any) {
+    doKey2Click(evt);
+  }
+  clickTitleFunction() {
+    if(typeof (<any>this.element).clickTitleFunction === "function") {
+      (<any>this.element).clickTitleFunction();
+    }
   }
 }
 Vue.component("survey-element-header", ElementHeader);

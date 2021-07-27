@@ -26,7 +26,8 @@ $base-unit: var(--base-unit, 8px);
 }
 
 .sv-action--first {
-  flex: 1;
+  margin-right: auto;
+  
   .sv-action-bar-item {
     flex-direction: row-reverse;
   }
@@ -42,7 +43,7 @@ $base-unit: var(--base-unit, 8px);
   height: 24px;
   vertical-align: middle;
   margin-right: 16px;
-  background-color: #d6d6d6;
+  background-color: $border;
 }
 
 .sv-action-bar-item {
@@ -164,9 +165,6 @@ $base-unit: var(--base-unit, 8px);
 
 .sv-dots__item {
   width: 100%;
-  &:hover {
-    background-color: inherit;
-  }
   .sv-action-bar-item__icon {
     margin: auto;
   }
@@ -183,5 +181,5 @@ $base-unit: var(--base-unit, 8px);
 }
 
 .sv-action--hidden {
-  visibility: hidden;
+  display: none;
 }

@@ -1,14 +1,17 @@
-import { ActionBar, AdaptiveActionBarItemWrapper } from "../../src/action-bar";
+import { Action } from "../../src/actions/action";
+import { AdaptiveActionContainer } from "../../src/actions/adaptive-container";
+import { settings } from "../../src/settings";
+import { getIconNameFromProxy } from "../../src/utils/utils";
 
-QUnit.test("Check that items are wrapped after set", assert => {
-  const model: ActionBar = new ActionBar();
+QUnit.test("Check that items are wrapped after set", (assert) => {
+  const model: AdaptiveActionContainer = new AdaptiveActionContainer();
   model.setItems([{ id: "first" }, { id: "second" }]);
-  assert.ok(model.items[0] instanceof AdaptiveActionBarItemWrapper);
-  assert.ok(model.items[1] instanceof AdaptiveActionBarItemWrapper);
+  assert.ok(model.actions[0] instanceof Action);
+  assert.ok(model.actions[1] instanceof Action);
 });
 
-QUnit.test("Check action sort items", assert => {
-  const model: ActionBar = new ActionBar();
+QUnit.test("Check action sort items", (assert) => {
+  const model: AdaptiveActionContainer = new AdaptiveActionContainer();
   model.setItems([
     { id: "invisible", visibleIndex: -1 },
     { id: "second", visibleIndex: 1 },
@@ -16,10 +19,19 @@ QUnit.test("Check action sort items", assert => {
     { id: "first", visibleIndex: 0 },
     { id: "undefined_index", visibleIndex: undefined },
   ]);
-  assert.equal(model.items.length, 4);
-  assert.equal(model.items[0].id, "first");
-  assert.equal(model.items[1].id, "second");
-  assert.equal(model.items[2].id, "third");
+  assert.equal(model.actions.length, 4);
+  assert.equal(model.actions[0].id, "first");
+  assert.equal(model.actions[1].id, "second");
+  assert.equal(model.actions[2].id, "third");
   //item with undefined index should be put in the end of array
-  assert.equal(model.items[3].id, "undefined_index");
+  assert.equal(model.actions[3].id, "undefined_index");
 });
+
+QUnit.test(
+  "Use proxy to get icons in svg, function getIconNameFromProxy",
+  (assert) => {
+    settings.customIcons["icon-proxy"] = "new-icon";
+    assert.equal(getIconNameFromProxy("icon-normal"), "icon-normal");
+    assert.equal(getIconNameFromProxy("icon-proxy"), "new-icon");
+  }
+);

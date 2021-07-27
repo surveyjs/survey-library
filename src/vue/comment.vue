@@ -11,7 +11,7 @@
       :cols="question.cols"
       v-bind:aria-label="question.locTitle.renderedHtml"
       :rows="question.rows"
-      :placeholder="question.isReadOnly ? '' : question.placeHolder"
+      :placeholder="question.renderedPlaceHolder"
       :class="
         question.cssClasses ? question.cssClasses.root : 'panel-comment-root'
       "

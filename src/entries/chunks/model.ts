@@ -19,18 +19,16 @@ export {
   ValidatorRunner,
 } from "../../validator";
 export { ItemValue } from "../../itemvalue";
+export { Base, Event, ArrayChanges } from "../../base";
 export {
-  Base,
-  Event,
-  SurveyError,
   ISurvey,
-  SurveyElement,
   ISurveyElement,
   IElement,
   IPage,
   ITitleOwner,
-  ArrayChanges,
-} from "../../base";
+} from "../../base-interfaces";
+export { SurveyError } from "../../survey-error";
+export { SurveyElement } from "../../survey-element";
 export { CalculatedValue } from "../../calculatedValue";
 export {
   CustomError,
@@ -72,7 +70,7 @@ export {
   JsonUnknownPropertyError,
   Serializer,
   property,
-  propertyArray
+  propertyArray,
 } from "../../jsonobject";
 export {
   MatrixDropdownCell,
@@ -96,11 +94,11 @@ export {
   MatrixRowModel,
   MatrixCells,
   QuestionMatrixModel,
-  IMatrixData
+  IMatrixData,
 } from "../../question_matrix";
 export {
   MultipleTextItemModel,
-  QuestionMultipleTextModel
+  QuestionMultipleTextModel,
 } from "../../question_multipletext";
 export { PanelModel, PanelModelBase, QuestionRowModel } from "../../panel";
 export { FlowPanelModel } from "../../flowpanel";
@@ -111,7 +109,7 @@ export { QuestionNonValue } from "../../questionnonvalue";
 export { QuestionEmptyModel } from "../../question_empty";
 export {
   QuestionCheckboxBase,
-  QuestionSelectBase
+  QuestionSelectBase,
 } from "../../question_baseselect";
 export { QuestionCheckboxModel } from "../../question_checkbox";
 export { QuestionRankingModel } from "../../question_ranking";
@@ -125,7 +123,10 @@ export { QuestionRatingModel } from "../../question_rating";
 export { QuestionExpressionModel } from "../../question_expression";
 export { QuestionTextModel } from "../../question_text";
 export { QuestionBooleanModel } from "../../question_boolean";
-export { QuestionImagePickerModel, ImageItemValue } from "../../question_imagepicker";
+export {
+  QuestionImagePickerModel,
+  ImageItemValue,
+} from "../../question_imagepicker";
 export { QuestionImageModel } from "../../question_image";
 export { QuestionSignaturePadModel } from "../../question_signaturepad";
 export {
@@ -163,14 +164,6 @@ export {
 } from "../../question_custom";
 
 export { StylesManager } from "../../stylesmanager";
-
-export {
-  ActionBarItem,
-  IActionBarItem,
-  ActionBar,
-  AdaptiveActionBarItemWrapper,
-  AdaptiveElement,
-} from "../../action-bar";
 export { ListModel } from "../../list";
 export { PopupModel, PopupBaseViewModel } from "../../popup";
 export {
@@ -182,6 +175,7 @@ export { IsMobile } from "../../utils/is-mobile";
 export {
   confirmAction,
   detectIEOrEdge,
+  doKey2Click,
   loadFileFromBase64,
   createSvg,
 } from "../../utils/utils";
@@ -189,3 +183,5 @@ export {
 export { surveyCss } from "../../defaultCss/cssstandard";
 //Uncomment to include the "date" question type.
 //export {default as QuestionDateModel} from "../../plugins/question_date";
+
+export { DragDropHelper } from "../../dragdrophelper";

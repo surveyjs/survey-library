@@ -1,4 +1,6 @@
-import { Base, SurveyError, ISurveyErrorOwner, ISurvey } from "./base";
+import { Base } from "./base";
+import { ISurveyErrorOwner, ISurvey } from "./base-interfaces";
+import { SurveyError } from "./survey-error";
 import { CustomError, RequreNumericError } from "./error";
 import { surveyLocalization } from "./surveyStrings";
 import { ILocalizableOwner, LocalizableString } from "./localizablestring";
@@ -239,7 +241,7 @@ export class TextValidator extends SurveyValidator {
     values: any = null,
     properties: any = null
   ): ValidatorResult {
-    if (value !== "" && this.isValueEmpty(value)) return null;
+    if (this.isValueEmpty(value)) return null;
     if (!this.allowDigits) {
       var reg = /^[A-Za-z\s]*$/;
       if (!reg.test(value)) {
@@ -313,6 +315,7 @@ export class AnswerCountValidator extends SurveyValidator {
   ): ValidatorResult {
     if (value == null || value.constructor != Array) return null;
     var count = value.length;
+    if (count == 0) return null;
     if (this.minCount && count < this.minCount) {
       return new ValidatorResult(
         null,
@@ -454,7 +457,7 @@ export class ExpressionValidator extends SurveyValidator {
     properties: any = null
   ): ValidatorResult {
     if (!this.ensureConditionRunner()) return null;
-    this.conditionRunner.onRunComplete = res => {
+    this.conditionRunner.onRunComplete = (res) => {
       this.isRunningValue = false;
       if (!!this.onAsyncCompleted) {
         this.onAsyncCompleted(this.generateError(res, value, name));

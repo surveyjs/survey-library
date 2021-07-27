@@ -277,6 +277,7 @@ export var modernCss = {
     buttonRemove: "sv-matrixdynamic__remove-btn",
     iconAdd: "",
     iconRemove: "",
+    iconDrag: "sv-matrixdynamic__drag-icon",
     row: "sv-table__row",
     detailRow: "sv-table__row sv-table__row--detail",
     detailCell: "sv-table__cell--detail",
@@ -327,6 +328,7 @@ export var modernCss = {
     root: "sv-signaturepad sjs_sp_container",
     small: "sv-row__question--small",
     controls: "sjs_sp_controls",
+    placeholder: "sjs_sp_placeholder",
     clearButton: "sjs_sp_clear",
   },
   saveData: {

@@ -6,10 +6,9 @@ import {
   ISurvey,
   ITextProcessor,
   IPanel,
-  IElement,
-  SurveyElement,
-  IConditionRunner,
-} from "./base";
+  IElement
+} from "./base-interfaces";
+import { SurveyElement } from "./survey-element";
 import { PanelModel } from "./panel";
 import { Helpers, HashTable } from "./helpers";
 import { ItemValue } from "./itemvalue";
@@ -645,7 +644,7 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
   protected convertDataValue(name: string, newValue: any): any {
     var val = this.value;
     if (!val) val = {};
-    if (this.isValueEmpty(newValue) && !this.isEditingSurveyElement(val)) {
+    if (this.isValueEmpty(newValue) && !this.isEditingSurveyElement) {
       delete val[name];
     } else {
       val[name] = newValue;

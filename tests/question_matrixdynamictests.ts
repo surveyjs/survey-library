@@ -22,6 +22,8 @@ import { QuestionExpressionModel } from "../src/question_expression";
 import { settings } from "../src/settings";
 import { PanelModel } from "../src/panel";
 import { QuestionTextModel } from "../src/question_text";
+import { SurveyElement } from "../src/survey-element";
+import { Action } from "../src/actions/action";
 
 export default QUnit.module("Survey_QuestionMatrixDynamic");
 
@@ -1265,6 +1267,19 @@ QUnit.test("MatrixDropdownColumn cell question", function(assert) {
     "The question type is checkbox"
   );
 });
+
+QUnit.test(
+  "MatrixDropdownColumn cell question isEditableTemplateElement",
+  function(assert) {
+    var question = new QuestionMatrixDynamicModel("matrix");
+    var column = question.addColumn("col1");
+    assert.equal(
+      column.templateQuestion.isEditableTemplateElement,
+      true,
+      "The question isEditableTemplateElement"
+    );
+  }
+);
 
 QUnit.test("MatrixDropdownColumn properties are in questions", function(
   assert
@@ -3094,8 +3109,7 @@ QUnit.test("matrix dropdown + renderedTable.headerRow", function(assert) {
   assert.equal(matrix.renderedTable.showHeader, true, "Header is shown");
   var cells = matrix.renderedTable.headerRow.cells;
   assert.equal(cells.length, 3, "rows + 2 column");
-  assert.equal(cells[0].hasTitle, true, "header rows");
-  assert.equal(cells[0].locTitle.renderedHtml, "", "Nothing to render");
+  assert.equal(cells[0].hasTitle, false, "header rows, nothing to render");
   assert.equal(cells[0].minWidth, "", "minWidth is empty for row header");
   assert.equal(cells[0].width, "", "width is empty for row header");
   assert.equal(cells[1].hasTitle, true, "col1");
@@ -3136,7 +3150,7 @@ QUnit.test("matrix dropdown + renderedTable.headerRow", function(assert) {
   matrix.showHeader = true;
   cells = matrix.renderedTable.headerRow.cells;
   assert.equal(cells.length, 4, "3 rows + columns");
-  assert.equal(cells[0].locTitle.renderedHtml, "", "empty for header");
+  assert.equal(cells[0].hasTitle, false, "empty for header");
   assert.equal(cells[1].locTitle.renderedHtml, "row1", "row1");
   assert.equal(cells[3].locTitle.renderedHtml, "row3", "row1");
 });
@@ -3156,8 +3170,7 @@ QUnit.test("matrix dynamic + renderedTable.headerRow", function(assert) {
   assert.equal(cells[0].locTitle.renderedHtml, "col1", "col1");
   assert.notOk(cells[0].isRemoveRow, "do not have remove row");
   assert.equal(cells[1].locTitle.renderedHtml, "col2", "col2");
-  assert.equal(cells[2].locTitle.renderedHtml, "", "remove row");
-  assert.equal(cells[2].hasTitle, true, "remove row");
+  assert.equal(cells[2].hasTitle, false, "remove row");
   matrix.minRowCount = 3;
   cells = matrix.renderedTable.headerRow.cells;
   assert.equal(cells.length, 2, "2 column");
@@ -3314,7 +3327,7 @@ QUnit.test("matrix dynamic + renderedTable.rows", function(assert) {
 
   cells = rows[2].cells;
   assert.equal(cells.length, 4, "column + 3 rows");
-  assert.equal(cells[0].locTitle.renderedHtml, "", "for column header");
+  assert.equal(cells[0].hasTitle, false, "for column header");
   assert.notOk(cells[0].isActionsCell, "not a remove button (in actions cell)");
   assert.equal(
     cells[1].isActionsCell,
@@ -3428,19 +3441,14 @@ QUnit.test("matrix dynamic + renderedTable + totals", function(assert) {
   assert.equal(cells[0].hasTitle, true, "header, col1");
   assert.equal(cells[0].locTitle.renderedHtml, "col1", "header, col1");
   assert.equal(cells[1].locTitle.renderedHtml, "col2", "header, col2");
-  assert.equal(cells[2].hasTitle, true, "header total");
-  assert.equal(
-    cells[2].locTitle.renderedHtml,
-    "",
-    "header total, empty string"
-  );
+  assert.equal(cells[2].hasTitle, false, "header total, there is no title");
 
   matrix.columnLayout = "vertical";
   var rows = matrix.renderedTable.rows;
   assert.equal(rows.length, 3, "2 columns + remove");
   cells = rows[2].cells;
   assert.equal(cells.length, 5, "column + 3 rows + total");
-  assert.equal(cells[0].locTitle.renderedHtml, "", "for column header");
+  assert.equal(cells[0].hasTitle, false, "for column header");
   assert.notOk(cells[0].isActionsCell, "not a remove button (in actions cell)");
   assert.equal(
     cells[1].isActionsCell,
@@ -3454,7 +3462,7 @@ QUnit.test("matrix dynamic + renderedTable + totals", function(assert) {
     "row3: it is a remove row (in actions cell)"
   );
   assert.ok(cells[3].row, "row3: it has a row");
-  assert.equal(cells[4].locTitle.renderedHtml, "", "for total");
+  assert.equal(cells[4].hasTitle, false, "for total");
 });
 
 QUnit.test("matrix dynamic + renderedTable + add/remove rows", function(
@@ -4952,6 +4960,48 @@ QUnit.test("getProgressInfo", function(assert) {
   });
 });
 
+QUnit.test(
+  "Change item value in column/templateQuestion and change it in row questions",
+  function(assert) {
+    var matrix = new QuestionMatrixDynamicModel("q1");
+    var column = matrix.addColumn("col1");
+    column.cellType = "checkbox";
+    column.templateQuestion.choices.push(new ItemValue("item1"));
+    column.templateQuestion.choices.push(new ItemValue("item2"));
+    var cellQuestion = matrix.visibleRows[0].cells[0].question;
+    assert.equal(cellQuestion.choices.length, 2, "There are two choices");
+    assert.equal(
+      cellQuestion.choices[0].value,
+      "item1",
+      "Value is correct, choice1"
+    );
+    assert.equal(
+      cellQuestion.choices[1].value,
+      "item2",
+      "Value is correct, choice2"
+    );
+    column.templateQuestion.choices.push(new ItemValue("item3"));
+    assert.equal(cellQuestion.choices.length, 3, "There are three choices");
+    assert.equal(
+      cellQuestion.choices[2].value,
+      "item3",
+      "Value is correct, choice3"
+    );
+    column.templateQuestion.choices[0].value = "newItem1";
+    assert.equal(
+      cellQuestion.choices[0].value,
+      "newItem1",
+      "Value is correct, updated, choice1"
+    );
+    column.templateQuestion.choices[2].text = "Item3 text";
+    assert.equal(
+      cellQuestion.choices[2].text,
+      "Item3 text",
+      "Text is correct, updated, choice3"
+    );
+  }
+);
+
 QUnit.test("isAnswered on setitting from survey.setValue(), Bug#2399", function(
   assert
 ) {
@@ -5374,6 +5424,61 @@ QUnit.test("Detail panel in matrix dropdown, get/set values", function(assert) {
     "The value set from the survey correctly into closed detail panel question"
   );
 });
+QUnit.test(
+  "Detail panel column and detail Panel have the same names, get/set values",
+  function(assert) {
+    var survey = new SurveyModel({
+      elements: [
+        {
+          type: "matrixdropdown",
+          name: "matrix",
+          detailPanelMode: "underRow",
+          detailElements: [{ type: "text", name: "q1" }],
+          rows: ["row1", "row2"],
+          columns: [{ cellType: "text", name: "q1" }],
+        },
+      ],
+    });
+    var matrix = <QuestionMatrixDropdownModel>(
+      survey.getQuestionByName("matrix")
+    );
+    var row = matrix.visibleRows[0];
+    row.showDetailPanel();
+    row.getQuestionByColumnName("q1").value = "val1";
+    assert.equal(
+      row.getQuestionByColumnName("q1").value,
+      "val1",
+      "Value is changed in row, #1"
+    );
+    assert.equal(
+      row.detailPanel.getQuestionByName("q1").value,
+      "val1",
+      "Value is changed in detail, #1"
+    );
+    row.detailPanel.getQuestionByName("q1").value = "val2";
+    assert.equal(
+      row.getQuestionByColumnName("q1").value,
+      "val2",
+      "Value is changed in row, #2"
+    );
+    assert.equal(
+      row.detailPanel.getQuestionByName("q1").value,
+      "val2",
+      "Value is changed in detail, #2"
+    );
+    row.getQuestionByColumnName("q1").value = "val3";
+    assert.equal(
+      row.getQuestionByColumnName("q1").value,
+      "val3",
+      "Value is changed in row, #3"
+    );
+    assert.equal(
+      row.detailPanel.getQuestionByName("q1").value,
+      "val3",
+      "Value is changed in detail, #3"
+    );
+  }
+);
 
 QUnit.test("Detail panel, run conditions", function(assert) {
   var survey = new SurveyModel({
@@ -5944,49 +6049,56 @@ QUnit.test("copyvalue trigger for dropdown matrix cell", function(assert) {
     "copy value for Item2"
   );
 });
-QUnit.test("MatrixDynamic, ", function(assert) {
-  var survey = new SurveyModel({
-    elements: [
-      {
-        type: "matrixdynamic",
-        name: "matrix",
-        rowCount: 0,
-        hideColumnsIfEmpty: true,
-        columns: [{ name: "col1" }],
-      },
-    ],
-  });
-  var matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
-  assert.equal(matrix.renderedTable.showTable, false, "There is no rows");
-  assert.equal(
-    matrix.renderedTable.showAddRowOnBottom,
-    false,
-    "Do not show add button"
-  );
-  matrix.addRow();
-  assert.equal(matrix.renderedTable.showTable, true, "There is a row");
-  assert.equal(
-    matrix.renderedTable.showAddRowOnBottom,
-    true,
-    "Show add button"
-  );
-  matrix.removeRow(0);
-  assert.equal(matrix.renderedTable.showTable, false, "Matrix is empty again");
-  assert.equal(
-    matrix.renderedTable.showAddRowOnBottom,
-    false,
-    "Do not show add button again"
-  );
-  matrix.hideColumnsIfEmpty = false;
-  assert.equal(
-    matrix.renderedTable.showTable,
-    true,
-    "hideColumnsIfEmpty is false"
-  );
-  survey.setDesignMode(true);
-  matrix.hideColumnsIfEmpty = true;
-  assert.equal(matrix.renderedTable.showTable, true, "survey in design mode");
-});
+QUnit.test(
+  "MatrixDynamic, test renderedTable.showTable&showAddRowOnBottom",
+  function(assert) {
+    var survey = new SurveyModel({
+      elements: [
+        {
+          type: "matrixdynamic",
+          name: "matrix",
+          rowCount: 0,
+          hideColumnsIfEmpty: true,
+          columns: [{ name: "col1" }],
+        },
+      ],
+    });
+    var matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+    assert.equal(matrix.renderedTable.showTable, false, "There is no rows");
+    assert.equal(
+      matrix.renderedTable.showAddRowOnBottom,
+      false,
+      "Do not show add button"
+    );
+    matrix.addRow();
+    assert.equal(matrix.renderedTable.showTable, true, "There is a row");
+    assert.equal(
+      matrix.renderedTable.showAddRowOnBottom,
+      true,
+      "Show add button"
+    );
+    matrix.removeRow(0);
+    assert.equal(
+      matrix.renderedTable.showTable,
+      false,
+      "Matrix is empty again"
+    );
+    assert.equal(
+      matrix.renderedTable.showAddRowOnBottom,
+      false,
+      "Do not show add button again"
+    );
+    matrix.hideColumnsIfEmpty = false;
+    assert.equal(
+      matrix.renderedTable.showTable,
+      true,
+      "hideColumnsIfEmpty is false"
+    );
+    survey.setDesignMode(true);
+    matrix.hideColumnsIfEmpty = true;
+    assert.equal(matrix.renderedTable.showTable, true, "survey in design mode");
+  }
+);
 QUnit.test(
   "MatrixDynamic, Hide/show add row button on changing allowAddRows",
   function(assert) {
@@ -6095,6 +6207,67 @@ QUnit.test("Row actions, check getUpdatedMatrixRowActions", function(assert) {
   );
 });
 
+QUnit.test("Row actions, drag action", function(assert) {
+  var survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdynamic",
+        allowRowsDragAndDrop: true,
+        name: "matrix",
+        choices: [
+          {
+            value: 1,
+            text: "Yes",
+          },
+          {
+            value: 0,
+            text: "Sometimes",
+          },
+          {
+            value: -1,
+            text: "No",
+          },
+        ],
+        columns: [
+          {
+            name: "subject",
+            cellType: "dropdown",
+            title: "Select a subject",
+            isRequired: true,
+            minWidth: "300px",
+            choices: [
+              "English: American Literature",
+              "English: British and World Literature",
+            ],
+          },
+          {
+            name: "explains",
+            title: "Clearly explains the objectives",
+          },
+        ],
+        rowCount: 2,
+      },
+    ],
+  });
+
+  var matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+
+  assert.deepEqual(matrix.renderedTable["rowsActions"][0][1].id, "drag-row");
+
+  matrix.allowRowsDragAndDrop = false;
+  assert.deepEqual(matrix.renderedTable["rowsActions"][0].length, 1);
+
+  matrix.allowRowsDragAndDrop = true;
+  assert.deepEqual(matrix.renderedTable["rowsActions"][0].length, 2);
+});
+
+QUnit.test("moveRowByIndex test", function(assert) {
+  var matrixD = new QuestionMatrixDynamicModel("q1");
+  matrixD.value = [{ v1: "v1" }, { v2: "v2" }];
+  matrixD["moveRowByIndex"](1, 0);
+  assert.deepEqual(matrixD.value, [{ v2: "v2" }, { v1: "v1" }]);
+});
+
 QUnit.test("Row actions, rendered table and className", function(assert) {
   var survey = new SurveyModel({
     elements: [
@@ -6124,10 +6297,15 @@ QUnit.test("Row actions, rendered table and className", function(assert) {
     "sv_matrix_cell sv_matrix_cell_actions",
     "Actions cell css"
   );
-  assert.deepEqual(
-    rows[0].cells[0].item.getData(),
-    [{ title: "Action 1", location: "start" }],
-    "location: left row actions"
+  const leftActions = rows[0].cells[0].item.getData().actions;
+  assert.ok(leftActions.length === 1, "left actions count: 1");
+  assert.ok(
+    leftActions[0].title === "Action 1",
+    "action 1 in left actions cell"
+  );
+  assert.ok(
+    leftActions[0] instanceof Action,
+    "actions in cell are instances of Action"
   );
   assert.equal(rows[0].cells[1].className, "sv_matrix_cell", "text cell");
   assert.equal(rows[0].cells[1].className, "sv_matrix_cell", "ordinary cell");
@@ -6136,10 +6314,15 @@ QUnit.test("Row actions, rendered table and className", function(assert) {
     "sv_matrix_cell sv_matrix_cell_actions",
     "Actions cell css"
   );
-  assert.deepEqual(
-    rows[0].cells[3].item.getData(),
-    [{ title: "Action 2", location: "end" }],
-    "location: right row actions"
+  const rightActions = rows[0].cells[3].item.getData().actions;
+  assert.ok(rightActions.length === 1, "right actions count: 1");
+  assert.ok(
+    rightActions[0].title === "Action 2",
+    "action 2 in right actions cell"
+  );
+  assert.ok(
+    rightActions[0] instanceof Action,
+    "actions in cell are instances of Action"
   );
 });
 QUnit.test("onGetMatrixRowActions should be called 1 time", function(assert) {
@@ -6421,5 +6604,157 @@ QUnit.test(
       "date",
       "Set the property correctly"
     );
+  }
+);
+QUnit.test(
+  "MatrixDynamic, test renderedTable column locString on adding new column",
+  function(assert) {
+    var survey = new SurveyModel({
+      elements: [
+        {
+          type: "matrixdynamic",
+          name: "matrix",
+          columns: [{ name: "col1" }],
+        },
+      ],
+    });
+    var matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+    assert.equal(
+      matrix.renderedTable.headerRow.cells.length,
+      1 + 1,
+      "We have one column and delete row"
+    );
+    assert.equal(
+      matrix.renderedTable.headerRow.cells[0].locTitle.renderedHtml,
+      "col1",
+      "Title rendered from JSON"
+    );
+    matrix.addColumn("col2");
+    assert.equal(
+      matrix.renderedTable.headerRow.cells[1].locTitle.renderedHtml,
+      "col2",
+      "Title rendered from addColumn"
+    );
+    matrix.columns.push(new MatrixDropdownColumn("col3"));
+    assert.equal(
+      matrix.renderedTable.headerRow.cells[2].locTitle.renderedHtml,
+      "col3",
+      "Title rendered from columns.push"
+    );
+  }
+);
+QUnit.test(
+  "MatrixDynamic, test renderedTable, do not render empty locTitle in header",
+  function(assert) {
+    var survey = new SurveyModel({
+      elements: [
+        {
+          type: "matrixdynamic",
+          name: "matrix",
+          columns: [{ name: "col1" }],
+        },
+      ],
+    });
+    var matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+    assert.equal(
+      matrix.renderedTable.headerRow.cells.length,
+      1 + 1,
+      "We have one column and delete row"
+    );
+    assert.equal(
+      matrix.renderedTable.headerRow.cells[0].hasTitle,
+      true,
+      "column header"
+    );
+    assert.equal(
+      matrix.renderedTable.headerRow.cells[1].hasTitle,
+      false,
+      "nothing"
+    );
+    matrix.columnLayout = "vertical";
+    assert.equal(
+      matrix.renderedTable.rows[0].cells[0].hasTitle,
+      true,
+      "column header, vertical"
+    );
+    assert.equal(
+      matrix.renderedTable.rows[1].cells[0].hasTitle,
+      false,
+      "nothing, vertical"
+    );
+  }
+);
+QUnit.test(
+  "Focus first visible enabled cell on adding a new row from UI",
+  function(assert) {
+    var focusedQuestionId = "";
+    var oldFunc = SurveyElement.FocusElement;
+    SurveyElement.FocusElement = function(elId: string): boolean {
+      focusedQuestionId = elId;
+      return true;
+    };
+
+    var survey = new SurveyModel({
+      elements: [
+        {
+          type: "matrixdynamic",
+          name: "matrix",
+          cellType: "text",
+          minRowCount: 1,
+          maxRowCount: 2,
+          rowCount: 1,
+          columns: [
+            { name: "col1", visible: false },
+            { name: "col2", readOnly: true },
+            { name: "col3" },
+            { name: "col4" },
+          ],
+        },
+      ],
+    });
+    var matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+    matrix.addRowUI();
+    assert.equal(
+      focusedQuestionId,
+      matrix.visibleRows[1].cells[2].question.inputId,
+      "focus correct value"
+    );
+    focusedQuestionId = "";
+    matrix.addRowUI();
+    assert.equal(focusedQuestionId, "", "new row can't be added");
+    SurveyElement.FocusElement = oldFunc;
+  }
+);
+QUnit.test(
+  "Matrixdynamic onMatrixValueChanging - do not call event on clear empty cell",
+  function(assert) {
+    var json = {
+      questions: [
+        {
+          type: "matrixdynamic",
+          name: "q1",
+          rowCount: 1,
+          columns: [
+            {
+              name: "col1",
+              choices: [1, 2, 3, 4, 5],
+            },
+          ],
+        },
+      ],
+    };
+    var survey = new SurveyModel(json);
+    var counter = 0;
+    survey.onMatrixCellValueChanging.add(function(sender, options) {
+      counter++;
+    });
+    var matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("q1");
+    var cellQuestion = matrix.visibleRows[0].cells[0].question;
+    cellQuestion.clearIncorrectValues();
+    assert.equal(counter, 0, "There is not value to clear");
+    cellQuestion.value = 1;
+    assert.equal(counter, 1, "value is set");
+    cellQuestion.clearIncorrectValues();
+    assert.equal(counter, 1, "value is correct");
   }
 );

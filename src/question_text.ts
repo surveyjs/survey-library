@@ -4,19 +4,19 @@ import { Question } from "./question";
 import { LocalizableString, LocalizableStrings } from "./localizablestring";
 import { Helpers, HashTable } from "./helpers";
 import { EmailValidator, SurveyValidator } from "./validator";
-import { SurveyError } from "./base";
+import { SurveyError } from "./survey-error";
 import { surveyLocalization } from "./surveyStrings";
 import { CustomError } from "./error";
 import { settings } from "./settings";
+import { QuestionTextBase } from "./question_textbase";
 
 /**
  * A Model for an input text question.
  */
-export class QuestionTextModel extends Question {
+export class QuestionTextModel extends QuestionTextBase {
   private locDataListValue: LocalizableStrings;
   constructor(name: string) {
     super(name);
-    this.createLocalizableString("placeHolder", this);
     this.createLocalizableString("minErrorText", this, true);
     this.createLocalizableString("maxErrorText", this, true);
     this.locDataListValue = new LocalizableStrings(this);
@@ -28,6 +28,7 @@ export class QuestionTextModel extends Question {
     );
     this.registerFunctionOnPropertiesValueChanged(["inputType", "size"], () => {
       this.updateInputSize();
+      this.calcRenderedPlaceHolder();
     });
   }
   protected isTextValue(): boolean {
@@ -63,28 +64,6 @@ export class QuestionTextModel extends Question {
       this.setRenderedMinMax(values, properties);
     }
   }
-  /**
-   * Gets or sets a value that specifies how the question updates it's value.
-   *
-   * The following options are available:
-   * - `default` - get the value from survey.textUpdateMode
-   * - `onBlur` - the value is updated after an input loses the focus.
-   * - `onTyping` - update the value of text questions, "text" and "comment", on every key press.
-   *
-   * Note, that setting to "onTyping" may lead to a performance degradation, in case you have many expressions in the survey.
-   * @see survey.textUpdateMode
-   */
-  public get textUpdateMode(): string {
-    return this.getPropertyValue("textUpdateMode");
-  }
-  public set textUpdateMode(val: string) {
-    this.setPropertyValue("textUpdateMode", val);
-  }
-  public get isSurveyInputTextUpdate(): boolean {
-    if (this.textUpdateMode == "default")
-      return !!this.survey ? this.survey.isUpdateValueTextOnTyping : false;
-    return this.textUpdateMode == "onTyping";
-  }
   public getValidators(): Array<SurveyValidator> {
     var validators = super.getValidators();
     if (
@@ -97,23 +76,6 @@ export class QuestionTextModel extends Question {
   }
   isLayoutTypeSupported(layoutType: string): boolean {
     return true;
-  }
-  /**
-   * The maximum text length. If it is -1, defaul value, then the survey maxTextLength property will be used.
-   * If it is 0, then the value is unlimited
-   * @see SurveyModel.maxTextLength
-   */
-  public get maxLength(): number {
-    return this.getPropertyValue("maxLength");
-  }
-  public set maxLength(val: number) {
-    this.setPropertyValue("maxLength", val);
-  }
-  public getMaxLength(): any {
-    return Helpers.getMaxLength(
-      this.maxLength,
-      this.survey ? this.survey.maxTextLength : -1
-    );
   }
   /**
    * The text input size
@@ -355,26 +317,11 @@ export class QuestionTextModel extends Question {
   public get renderedStep(): string {
     return this.isValueEmpty(this.step) ? "any" : this.step;
   }
-  isEmpty(): boolean {
-    return super.isEmpty() || this.value === "";
-  }
   supportGoNextPageAutomatic() {
     return ["date", "datetime", "datetime-local"].indexOf(this.inputType) < 0;
   }
   public supportGoNextPageError() {
     return ["date", "datetime", "datetime-local"].indexOf(this.inputType) < 0;
-  }
-  /**
-   * The input place holder.
-   */
-  public get placeHolder(): string {
-    return this.getLocalizableStringText("placeHolder");
-  }
-  public set placeHolder(val: string) {
-    this.setLocalizableStringText("placeHolder", val);
-  }
-  get locPlaceHolder(): LocalizableString {
-    return this.getLocalizableString("placeHolder");
   }
   /**
    * The list of recommended options available to choose.
@@ -418,6 +365,9 @@ export class QuestionTextModel extends Question {
       result += " " + cssClasses.controlDisabled;
     }
     return result;
+  }
+  protected hasPlaceHolder(): boolean {
+    return !this.isReadOnly && this.inputType !== "range";
   }
 }
 
@@ -622,7 +572,7 @@ Serializer.addClass(
   function() {
     return new QuestionTextModel("");
   },
-  "question"
+  "textbase"
 );
 
 QuestionFactory.Instance.registerQuestion("text", (name) => {

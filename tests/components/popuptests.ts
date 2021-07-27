@@ -345,6 +345,7 @@ QUnit.test("PopupModel apply", (assert) => {
   let trace: String = "";
   model.onApply = () => {
     trace += "->onApply";
+    return true;
   };
   model.onHide = () => {
     trace += "->onHide";
@@ -372,6 +373,32 @@ QUnit.test("PopupModel apply", (assert) => {
   assert.equal(trace, "->onApply->onHide");
   assert.equal(viewModel.isVisible, false);
   trace = "";
+});
+
+QUnit.test("PopupModel apply when not allow", (assert) => {
+  const model: PopupModel = new PopupModel("sv-list", {});
+  const targetElement: HTMLElement = document.createElement("div");
+  const viewModel: PopupBaseViewModel = new PopupBaseViewModel(
+    model,
+    targetElement
+  );
+  viewModel.initializePopupContainer();
+  viewModel.container.innerHTML = popupTemplate;
+
+  assert.equal(viewModel.isVisible, false);
+
+  let canApply = false; 
+  model.onApply = (): boolean => {
+      return canApply;
+  };
+
+  model.toggleVisibility();
+  assert.equal(viewModel.isVisible, true);
+  viewModel.apply();
+  assert.equal(viewModel.isVisible, true);
+  canApply = true;
+  viewModel.apply();
+  assert.equal(viewModel.isVisible, false);
 });
 
 QUnit.test("PopupViewModel dispose", (assert) => {
@@ -661,162 +688,157 @@ QUnit.test("Check calculatePosition with window size method", (assert) => {
     right: 100,
     bottom: 270,
   };
-  let windowSize = {
-    width: 50,
-    height: 300,
-  };
-
-  assert.deepEqual(
-    PopupUtils.calculatePosition(
-      <any>targetRect,
-      100,
-      50,
-      "bottom",
-      "center",
-      false,
-      <any>windowSize
-    ),
-    { left: 50, top: 150 },
-    "bottom center"
+  let windowHeight = 300;
+  let verticalPosition = PopupUtils.updateVerticalPosition(
+    targetRect,
+    100,
+    "bottom",
+    false,
+    windowHeight
   );
-
+  assert.deepEqual(
+    verticalPosition,
+    "top",
+    "vertical position is changed to top cause doesn't fit in bottom"
+  );
   targetRect.top = 50;
   targetRect.bottom = 70;
-  assert.deepEqual(
-    PopupUtils.calculatePosition(
-      <any>targetRect,
-      100,
-      50,
-      "top",
-      "center",
-      false,
-      <any>windowSize
-    ),
-    { left: 50, top: 70 },
-    "top center"
+  verticalPosition = PopupUtils.updateVerticalPosition(
+    targetRect,
+    100,
+    "top",
+    false,
+    windowHeight
   );
-
+  assert.deepEqual(
+    verticalPosition,
+    "bottom",
+    "vertical position is changed to bottom cause doesn't fit in top"
+  );
   targetRect.top = 200;
   targetRect.bottom = 220;
+  verticalPosition = PopupUtils.updateVerticalPosition(
+    targetRect,
+    300,
+    "top",
+    false,
+    windowHeight
+  );
   assert.deepEqual(
-    PopupUtils.calculatePosition(
-      <any>targetRect,
-      300,
-      50,
-      "top",
-      "center",
-      false,
-      <any>windowSize
-    ),
-    { left: 50, top: -100 },
+    verticalPosition,
+    "top",
     "both directions do not fit: result top"
   );
-
   targetRect.top = 100;
   targetRect.bottom = 120;
+  verticalPosition = PopupUtils.updateVerticalPosition(
+    targetRect,
+    300,
+    "top",
+    false,
+    windowHeight
+  );
   assert.deepEqual(
-    PopupUtils.calculatePosition(
-      <any>targetRect,
-      300,
-      50,
-      "top",
-      "center",
-      false,
-      <any>windowSize
-    ),
-    { left: 50, top: 120 },
+    verticalPosition,
+    "bottom",
     "both directions do not fit: result bottom"
   );
-
   targetRect.top = 50;
   targetRect.bottom = 70;
-  assert.deepEqual(
-    PopupUtils.calculatePosition(
-      <any>targetRect,
-      60,
-      50,
-      "top",
-      "left",
-      true,
-      <any>windowSize
-    ),
-    { left: 0, top: 10 },
-    "top left with showPointer 1"
+  verticalPosition = PopupUtils.updateVerticalPosition(
+    targetRect,
+    60,
+    "top",
+    true,
+    windowHeight
   );
-
   assert.deepEqual(
-    PopupUtils.calculatePosition(
-      <any>targetRect,
-      100,
-      50,
-      "top",
-      "left",
-      true,
-      <any>windowSize
-    ),
-    { left: 0, top: 50 },
-    "top left with showPointer 2"
+    verticalPosition,
+    "top",
+    "with pointer: top vertical position is not changed"
+  );
+  verticalPosition = PopupUtils.updateVerticalPosition(
+    targetRect,
+    100,
+    "top",
+    true,
+    windowHeight
+  );
+  assert.deepEqual(
+    verticalPosition,
+    "bottom",
+    "with pointer: top vertical position is changed to bottom"
   );
 
   targetRect.top = 250;
   targetRect.bottom = 270;
-  assert.deepEqual(
-    PopupUtils.calculatePosition(
-      <any>targetRect,
-      40,
-      50,
-      "bottom",
-      "left",
-      true,
-      <any>windowSize
-    ),
-    { left: 0, top: 250 },
-    "bottom left with showPointer 1"
+  verticalPosition = PopupUtils.updateVerticalPosition(
+    targetRect,
+    40,
+    "bottom",
+    true,
+    windowHeight
   );
-
   assert.deepEqual(
-    PopupUtils.calculatePosition(
-      <any>targetRect,
-      100,
-      50,
-      "bottom",
-      "left",
-      true,
-      <any>windowSize
-    ),
-    { left: 0, top: 170 },
-    "bottom left with showPointer"
+    verticalPosition,
+    "bottom",
+    "with pointer: bottom vertical position is not changed"
   );
-
+  verticalPosition = PopupUtils.updateVerticalPosition(
+    targetRect,
+    100,
+    "bottom",
+    true,
+    windowHeight
+  );
+  assert.deepEqual(
+    verticalPosition,
+    "top",
+    "with pointer: bottom vertical position is changed to top"
+  );
   targetRect.top = 200;
   targetRect.bottom = 220;
-  assert.deepEqual(
-    PopupUtils.calculatePosition(
-      <any>targetRect,
-      300,
-      50,
-      "top",
-      "left",
-      true,
-      <any>windowSize
-    ),
-    { left: 0, top: -80 },
-    "both directions do not fit: result top, with showPointer"
+  verticalPosition = PopupUtils.updateVerticalPosition(
+    targetRect,
+    300,
+    "top",
+    true,
+    windowHeight
   );
-
+  assert.deepEqual(
+    verticalPosition,
+    "top",
+    "with pointer: both directions do not fit: result top"
+  );
   targetRect.top = 100;
   targetRect.bottom = 120;
+  verticalPosition = PopupUtils.updateVerticalPosition(
+    targetRect,
+    300,
+    "top",
+    true,
+    windowHeight
+  );
   assert.deepEqual(
-    PopupUtils.calculatePosition(
-      <any>targetRect,
-      300,
-      50,
-      "top",
-      "left",
-      true,
-      <any>windowSize
-    ),
-    { left: 0, top: 100 },
-    "both directions do not fit: result bottom, with showPointer"
+    verticalPosition,
+    "bottom",
+    "with pointer: both directions do not fit: result bottom"
   );
 });
+
+QUnit.test(
+  "Check updateVerticalDimensions if both directions do not fit",
+  (assert) => {
+    let newVerticalDimensions = PopupUtils.updateVerticalDimensions(
+      -20,
+      200,
+      300
+    );
+    assert.equal(newVerticalDimensions.height, 180);
+    assert.equal(newVerticalDimensions.top, 0);
+
+    newVerticalDimensions = PopupUtils.updateVerticalDimensions(150, 200, 300);
+    assert.equal(newVerticalDimensions.height, 150);
+    assert.equal(newVerticalDimensions.top, 150);
+  }
+);

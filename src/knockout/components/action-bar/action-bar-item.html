@@ -1,6 +1,7 @@
 <button
   class="sv-action-bar-item"
-  data-bind="click: action, class: $data.innerCss, disable: $data.disabled, css: { 'sv-action-bar-item--active': !!ko.unwrap($data.active) }, attr: { title: $data.tooltip || $data.title}"
+  type="button"
+  data-bind="click: action, class: $data.innerCss, disable: $data.disabled, css: { 'sv-action-bar-item--active': !!ko.unwrap($data.active) }, attr: { title: $data.tooltip || $data.title, tabindex: $data.disableTabStop? -1 : null }"
 >
   <!-- ko if: $data.iconName -->
   <sv-svg-icon
@@ -9,7 +10,7 @@
   ></sv-svg-icon>
   <!-- /ko -->
 
-  <!-- ko if: $data.showTitle === undefined ||  ko.unwrap($data.showTitle) || !$data.iconName -->
+  <!-- ko if: $data.hasTitle -->
   <span
     class="sv-action-bar-item__title"
     data-bind="text: title, css: { 'sv-action-bar-item__title--with-icon': !!$data.iconName }"

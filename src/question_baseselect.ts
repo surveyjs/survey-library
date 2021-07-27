@@ -1,5 +1,6 @@
 import { Serializer } from "./jsonobject";
-import { SurveyError, ISurveyImpl, ISurvey } from "./base";
+import { SurveyError } from "./survey-error";
+import { ISurveyImpl, ISurvey } from "./base-interfaces";
 import { SurveyModel } from "./survey";
 import { Question } from "./question";
 import { ItemValue } from "./itemvalue";
@@ -409,9 +410,10 @@ export class QuestionSelectBase extends Question {
   protected hasUnknownValue(
     val: any,
     includeOther: boolean = false,
-    isFilteredChoices: boolean = true
+    isFilteredChoices: boolean = true,
+    checkEmptyValue: boolean = false
   ): boolean {
-    if (this.isValueEmpty(val)) return false;
+    if (!checkEmptyValue && this.isValueEmpty(val)) return false;
     if (includeOther && val == this.otherItem.value) return false;
     if (this.hasNone && val == this.noneItem.value) return false;
     var choices = isFilteredChoices
@@ -649,7 +651,9 @@ export class QuestionSelectBase extends Question {
     return true;
   }
   protected get isAddDefaultItems() {
-    return settings.supportCreatorV2 && this.isDesignMode && !this.parentQuestion;
+    return (
+      settings.supportCreatorV2 && this.isDesignMode && !this.parentQuestion
+    );
   }
   public getPlainData(
     options: {
@@ -704,6 +708,9 @@ export class QuestionSelectBase extends Question {
    */
   protected getDisplayValueCore(keysAsText: boolean, value: any): any {
     return this.getChoicesDisplayValue(this.visibleChoices, value);
+  }
+  protected getDisplayValueEmpty(): string {
+    return ItemValue.getTextOrHtmlByValue(this.visibleChoices, undefined);
   }
   protected getChoicesDisplayValue(items: ItemValue[], val: any): any {
     if (val == this.otherItemValue.value)
@@ -781,10 +788,16 @@ export class QuestionSelectBase extends Question {
     return true;
   }
   public supportOther(): boolean {
-    return true;
+    return this.isSupportProperty("hasOther");
   }
   public supportNone(): boolean {
-    return true;
+    return this.isSupportProperty("hasNone");
+  }
+  protected isSupportProperty(propName: string): boolean {
+    return (
+      !this.isDesignMode ||
+      Serializer.findProperty(this.getType(), propName).visible
+    );
   }
   protected onCheckForErrors(
     errors: Array<SurveyError>,
@@ -906,7 +919,7 @@ export class QuestionSelectBase extends Question {
       this.cachedValueForUrlRequests,
       checkCachedValuesOnExisting
     );
-    if (array && array.length > 0) {
+    if (array && (array.length > 0 || this.choicesByUrl.allowEmptyResponse)) {
       newChoices = new Array<ItemValue>();
       ItemValue.setData(newChoices, array);
     }
@@ -1037,7 +1050,7 @@ export class QuestionSelectBase extends Question {
     return Helpers.randomizeArray<ItemValue>(array);
   }
   public clearIncorrectValues() {
-    if (this.keepIncorrectValues) return;
+    if (this.keepIncorrectValues || this.isEmpty()) return;
     if (
       !!this.survey &&
       this.survey.questionCountByValueName(this.getValueName()) > 1
@@ -1078,7 +1091,7 @@ export class QuestionSelectBase extends Question {
   }
   protected canClearValueAnUnknow(val: any): boolean {
     if (!this.getStoreOthersAsComment() && this.isOtherSelected) return false;
-    return this.hasUnknownValue(val, true);
+    return this.hasUnknownValue(val, true, true, true);
   }
   protected clearDisabledValuesCore() {
     if (this.isValueDisabled(this.value)) {

@@ -1,5 +1,5 @@
 import { Serializer } from "./jsonobject";
-import { IElement, IQuestion } from "./base";
+import { IElement, IQuestion } from "./base-interfaces";
 import { PanelModel } from "./panel";
 import { LocalizableString } from "./localizablestring";
 import { Question } from "./question";

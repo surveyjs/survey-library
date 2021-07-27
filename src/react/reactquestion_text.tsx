@@ -45,10 +45,7 @@ export class SurveyQuestionText extends SurveyQuestionUncontrolledElement<
         this.updateValueOnEvent(e);
       }
     };
-    var placeHolder =
-      this.question.inputType === "range" || this.question.isReadOnly
-        ? ""
-        : this.question.placeHolder;
+    var placeHolder = this.question.renderedPlaceHolder;
     var dataList = this.renderDataList();
     return (
       <React.Fragment>

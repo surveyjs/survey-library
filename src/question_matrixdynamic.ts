@@ -334,6 +334,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
       this.allowAddRows && !this.isReadOnly && this.rowCount < this.maxRowCount
     );
   }
+  public canRemoveRowsCallback: (allow: boolean) => boolean;
   /**
    * Returns true, if row can be removed.
    * @see minRowCount
@@ -341,11 +342,11 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
    * @see rowCount
    */
   public get canRemoveRows(): boolean {
-    return (
+    var res =
       this.allowRemoveRows &&
       !this.isReadOnly &&
-      this.rowCount > this.minRowCount
-    );
+      this.rowCount > this.minRowCount;
+    return !!this.canRemoveRowsCallback ? this.canRemoveRowsCallback(res) : res;
   }
   public canRemoveRow(row: MatrixDropdownRowModelBase): boolean {
     if (!this.survey) return true;

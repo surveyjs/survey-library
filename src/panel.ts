@@ -932,6 +932,11 @@ export class PanelModelBase extends SurveyElement
       this.onVisibleChanged();
     }
   }
+  protected createRowAndSetLazy(index: number): QuestionRowModel {
+    const row = this.createRow();
+    row.setIsLazyRendering(this.isLazyRenderInRow(index));
+    return row;
+  }
   protected createRow(): QuestionRowModel {
     return new QuestionRowModel(this);
   }
@@ -1041,10 +1046,7 @@ export class PanelModelBase extends SurveyElement
     for (var i = 0; i < this.elements.length; i++) {
       var el = this.elements[i];
       var isNewRow = i == 0 || el.startWithNewLine;
-      var row = isNewRow ? this.createRow() : result[result.length - 1];
-      if (isNewRow) {
-        row.setIsLazyRendering(this.isLazyRenderInRow(result.length));
-      }
+      var row = isNewRow ? this.createRowAndSetLazy(result.length) : result[result.length - 1];
       if (isNewRow) result.push(row);
       row.addElement(el);
     }
@@ -1528,7 +1530,7 @@ export class PanelModelBase extends SurveyElement
     destRow: QuestionRowModel,
     prevRow: QuestionRowModel
   ): boolean {
-    var targetRow = destRow.panel.createRow();
+    var targetRow = destRow.panel.createRowAndSetLazy(destRow.panel.rows.length);
     targetRow.addElement(dragDropInfo.target);
     var index = destRow.index;
     if (dragDropInfo.isBottom) {

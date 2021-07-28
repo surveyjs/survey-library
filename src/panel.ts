@@ -1854,11 +1854,11 @@ export class PanelModel extends PanelModelBase
     this.survey.cancelPreviewByPage(this);
   }
   public get cssTitle(): string {
-    const builder = new CssClassBuilder();
-    builder.append(this.cssClasses.panel.title);
-    builder.append(this.cssClasses.panel.titleExpandable, this.state !== "default");
-    builder.append(this.cssClasses.panel.titleOnError, this.containsErrors);
-    return builder.toString();
+    return new CssClassBuilder()
+      .append(this.cssClasses.panel.title)
+      .append(this.cssClasses.panel.titleExpandable, this.state !== "default")
+      .append(this.cssClasses.panel.titleOnError, this.containsErrors)
+      .toString();
   }
   public get cssError(): string {
     var rootClass = this.cssClasses.error.root;

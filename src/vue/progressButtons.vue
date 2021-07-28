@@ -48,6 +48,7 @@ import Vue from "vue";
 import { Component, Prop } from "vue-property-decorator";
 import { SurveyModel } from "survey-core";
 import { SurveyProgressButtonsModel } from "survey-core";
+import { CssClassBuilder } from "src/utils/cssClassBuilder";
 
 @Component
 export class ProgressButtons extends Vue {
@@ -77,12 +78,11 @@ export class ProgressButtons extends Vue {
     this.progressButtonsModel.clickListElement(index);
   }
   public getScrollButtonCss(hasScroller: boolean, isLeftScroll: boolean): any {
-    let scrollCss: string = isLeftScroll
-      ? this.css.progressButtonsImageButtonLeft
-      : this.css.progressButtonsImageButtonRight;
-    if (!hasScroller)
-      scrollCss += " " + this.css.progressButtonsImageButtonHidden;
-    return scrollCss;
+    return new CssClassBuilder()
+      .append(this.css.progressButtonsImageButtonLeft, isLeftScroll)
+      .append(this.css.progressButtonsImageButtonRight, !isLeftScroll)
+      .append(this.css.progressButtonsImageButtonHidden, !hasScroller)
+      .toString();
   }
   public clickScrollButton(isLeftScroll: boolean): void {
     let listContainerElement: any = this.$refs["progressButtonsListContainer"];

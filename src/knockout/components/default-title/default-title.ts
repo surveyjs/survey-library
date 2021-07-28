@@ -1,4 +1,5 @@
 import * as ko from "knockout";
+import { CssClassBuilder } from "src/utils/cssClassBuilder";
 import { Question } from "survey-core";
 import { RendererFactory } from "survey-core";
 import { Panel } from "../../kopage";
@@ -9,14 +10,11 @@ export class DefaultTitleViewModel {
   constructor(public element: Question | Panel) {}
 
   getIconClass() {
-    var element = this.element;
-    var cssClasses = element.isPanel
-      ? element.cssClasses.panel
-      : element.cssClasses;
-    return (
-      cssClasses.icon +
-      (!element.isCollapsed ? " " + cssClasses.iconExpanded : "")
-    );
+    const cssClasses = this.element.isPanel ? this.element.cssClasses.panel : this.element.cssClasses;
+    return new CssClassBuilder()
+      .append(cssClasses.icon)
+      .append(cssClasses.iconExpanded, !this.element.isCollapsed)
+      .toString();
   }
 }
 

@@ -1,5 +1,6 @@
 import React from "react";
 import { Question } from "survey-core";
+import { CssClassBuilder } from "../../../utils/cssClassBuilder";
 import { ReactElementFactory } from "../../element-factory";
 
 import { TitleContent } from "../title-content/title-content";
@@ -17,9 +18,9 @@ export class DefaultTitle extends React.Component<any, any> {
   render() {
     var expandCollapse = null;
     if (this.element.isCollapsed || this.element.isExpanded) {
-      var iconCss = this.cssClasses.icon;
-      if (!this.element.isCollapsed)
-        iconCss += " " + this.cssClasses.iconExpanded;
+      const iconCss = new CssClassBuilder().append(this.cssClasses.icon)
+          .append(this.cssClasses.iconExpanded, !this.element.isCollapsed).toString();
+    
       var changeExpanded = (event: any) => {
         let question = this.element;
 

@@ -49,6 +49,7 @@ import { Component, Prop } from "vue-property-decorator";
 import { SurveyModel } from "survey-core";
 import { IElement } from "survey-core";
 import { Question } from "survey-core";
+import { CssClassBuilder } from "src/utils/cssClassBuilder";
 @Component
 export class SurveyElementVue extends Vue {
   @Prop() css: any;
@@ -62,12 +63,10 @@ export class SurveyElementVue extends Vue {
     return element.getComponentName();
   }
   getRootClass(element: Question) {
-    let cssRoot = element.cssRoot;
-    if (element.isReadOnly) {
-      cssRoot += " " + (<any>this.element).cssClasses.disabled;
-    }
-
-    return cssRoot;
+    return new CssClassBuilder()
+      .append(element.cssRoot)
+      .append((<any>this.element).cssClasses.disabled, element.isReadOnly)
+      .toString();
   }
   getContentClass(element: Question) {
     return element.cssContent;

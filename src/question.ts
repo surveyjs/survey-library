@@ -656,14 +656,14 @@ export class Question extends SurveyElement
     this.setPropertyValue("cssRoot", val);
   }
   protected getCssRoot(cssClasses: any): string {
-    const builder = new CssClassBuilder();
-    builder.append(this.isFlowLayout && !this.isDesignMode
-      ? cssClasses.flowRoot
-      : cssClasses.mainRoot);
-    builder.append(cssClasses.titleLeftRoot, !this.isFlowLayout && this.hasTitleOnLeft);
-    builder.append(cssClasses.hasError, this.errors.length > 0);
-    builder.append(cssClasses.small, !this.width);
-    return builder.toString();
+    return new CssClassBuilder()
+      .append(this.isFlowLayout && !this.isDesignMode
+        ? cssClasses.flowRoot
+        : cssClasses.mainRoot)
+      .append(cssClasses.titleLeftRoot, !this.isFlowLayout && this.hasTitleOnLeft)
+      .append(cssClasses.hasError, this.errors.length > 0)
+      .append(cssClasses.small, !this.width)
+      .toString();
   }
   public get cssHeader(): string {
     this.ensureElementCss();
@@ -673,11 +673,11 @@ export class Question extends SurveyElement
     this.setPropertyValue("cssHeader", val);
   }
   protected getCssHeader(cssClasses: any): string {
-    const builder = new CssClassBuilder();
-    builder.append(cssClasses.headerTop, this.hasTitleOnTop);
-    builder.append(cssClasses.headerLeft, this.hasTitleOnLeft);
-    builder.append(cssClasses.headerBottom, this.hasTitleOnBottom);
-    return builder.toString();
+    return new CssClassBuilder()
+      .append(cssClasses.headerTop, this.hasTitleOnTop)
+      .append(cssClasses.headerLeft, this.hasTitleOnLeft)
+      .append(cssClasses.headerBottom, this.hasTitleOnBottom)
+      .toString();
   }
   public get cssContent(): string {
     this.ensureElementCss();
@@ -687,10 +687,10 @@ export class Question extends SurveyElement
     this.setPropertyValue("cssContent", val);
   }
   protected getCssContent(cssClasses: any): string {
-    const builder = new CssClassBuilder();
-    builder.append(cssClasses.content);
-    builder.append(cssClasses.contentLeft, this.hasTitleOnLeft);
-    return builder.toString();
+    return new CssClassBuilder()
+      .append(cssClasses.content)
+      .append(cssClasses.contentLeft, this.hasTitleOnLeft)
+      .toString();
   }
   public get cssTitle(): string {
     this.ensureElementCss();
@@ -700,12 +700,12 @@ export class Question extends SurveyElement
     this.setPropertyValue("cssTitle", val);
   }
   protected getCssTitle(cssClasses: any): string {
-    const builder = new CssClassBuilder();
-    builder.append(cssClasses.title);
-    builder.append(cssClasses.titleExpandable, this.isCollapsed || this.isExpanded);
-    builder.append(cssClasses.titleOnError, this.containsErrors);
-    builder.append(cssClasses.titleOnAnswer, this.isAnswered);
-    return builder.toString();
+    return new CssClassBuilder()
+      .append(cssClasses.title)
+      .append(cssClasses.titleExpandable, this.isCollapsed || this.isExpanded)
+      .append(cssClasses.titleOnError, this.containsErrors)
+      .append(cssClasses.titleOnAnswer, this.isAnswered)
+      .toString();
   }
   public get cssError(): string {
     this.ensureElementCss();
@@ -716,11 +716,11 @@ export class Question extends SurveyElement
   }
   //TODO was not removed from other places
   protected getCssError(cssClasses: any): string {
-    const builder = new CssClassBuilder();
-    builder.append(cssClasses.error.root);
-    builder.append(cssClasses.error.locationTop, this.errorLocation === "top");
-    builder.append(cssClasses.error.locationBottom, this.errorLocation === "bottom");
-    return builder.toString();
+    return new CssClassBuilder()
+      .append(cssClasses.error.root)
+      .append(cssClasses.error.locationTop, this.errorLocation === "top")
+      .append(cssClasses.error.locationBottom, this.errorLocation === "bottom")
+      .toString();
   }
   public updateElementCss(reNew?: boolean) {
     this.cssClassesValue = undefined;
@@ -754,20 +754,21 @@ export class Question extends SurveyElement
   }
   protected updateCssClasses(res: any, css: any) {
     if (!css.question) return;
-    if (this.isRequired) {
-      if (!!css.question.required) {
-        res.root = (res.root ? res.root + " " : "") + objCss;
-      }
-      if (css.question.titleRequired) {
-        res.title += " " + css.question.titleRequired;
-      }
+    const objCss = css[this.getCssType()];
+    const titleBuilder = new CssClassBuilder().append(res.title)
+      .append(css.question.titleRequired, this.isRequired);
+    res.title = titleBuilder.toString();
+
+    const rootBuilder = new CssClassBuilder().append(res.root)
+      .append(objCss, this.isRequired && !!css.question.required);
+    if (objCss === undefined || objCss === null) {
+      res.root = rootBuilder.toString();
     }
-    var objCss = css[this.getCssType()];
-    if (objCss === undefined || objCss === null) return;
-    if (typeof objCss === "string" || objCss instanceof String) {
-      res.root = (res.root ? res.root + " " : "") + objCss;
+    else if (typeof objCss === "string" || objCss instanceof String) {
+      res.root = rootBuilder.append(objCss.toString()).toString();
     } else {
-      for (var key in objCss) {
+      res.root = rootBuilder.toString();
+      for (const key in objCss) {
         res[key] = objCss[key];
       }
     }

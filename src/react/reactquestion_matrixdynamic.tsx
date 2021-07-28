@@ -1,11 +1,8 @@
 import * as React from "react";
-
-import { ReactSurveyElement } from "./reactquestion_element";
-import { MatrixDropdownRowModelBase } from "survey-core";
 import { QuestionMatrixDynamicModel } from "survey-core";
-
 import { ReactQuestionFactory } from "./reactquestion_factory";
 import { SurveyQuestionMatrixDropdownBase } from "./reactquestion_matrixdropdownbase";
+import { CssClassBuilder } from "../utils/cssClassBuilder";
 
 export class SurveyQuestionMatrixDynamic extends SurveyQuestionMatrixDropdownBase {
   constructor(props: any) {
@@ -55,6 +52,8 @@ export class SurveyQuestionMatrixDynamic extends SurveyQuestionMatrixDropdownBas
     cssClasses: any,
     isEmptySection: boolean = false
   ): JSX.Element {
+    const builder = new CssClassBuilder().append(cssClasses.button).append(cssClasses.buttonAdd);
+
     var btnCss =
       cssClasses.button +
       " " +
@@ -64,7 +63,7 @@ export class SurveyQuestionMatrixDynamic extends SurveyQuestionMatrixDropdownBas
     return (
       <div className={cssClasses.footer}>
         <button
-          className={cssClasses.button + " " + cssClasses.buttonAdd}
+          className={builder.toString()}
           type="button"
           disabled={this.question.isInputReadOnly}
           onClick={

@@ -16,6 +16,7 @@
 </template>
 
 <script lang="ts">
+import { CssClassBuilder } from "src/utils/cssClassBuilder";
 import Vue from "vue";
 import Component from "vue-class-component";
 import { Prop } from "vue-property-decorator";
@@ -35,9 +36,10 @@ export class DefaultTitle extends Vue {
   }
 
   getIconCss(isCollapsed: boolean) {
-    var result = this.css.question.icon;
-    if (!isCollapsed) result += " " + this.css.question.iconExpanded;
-    return result;
+    return new CssClassBuilder()
+      .append(this.css.question.icon)
+      .append(this.css.question.iconExpanded, !isCollapsed)
+      .toString();
   }
 
   mounted() {

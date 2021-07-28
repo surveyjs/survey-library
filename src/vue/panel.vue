@@ -62,9 +62,10 @@
 <script lang="ts">
 import Vue from "vue";
 import { Component, Prop } from "vue-property-decorator";
-import { PanelModelBase, PanelModel, doKey2Click } from "survey-core";
-import { ISurvey, Base } from "survey-core";
+import { PanelModel, doKey2Click } from "survey-core";
+import { Base } from "survey-core";
 import { BaseVue } from "./base";
+import { CssClassBuilder } from "src/utils/cssClassBuilder";
 
 @Component
 export class Panel extends BaseVue {
@@ -118,9 +119,10 @@ export class Panel extends BaseVue {
     return this.question.survey;
   }
   get iconCss() {
-    var result = this.css.panel.icon;
-    if (!this.isCollapsed) result += " " + this.css.panel.iconExpanded;
-    return result;
+    return new CssClassBuilder()
+      .append(this.css.panel.icon)
+      .append(this.css.panel.iconExpanded, !this.isCollapsed)
+      .toString();
   }
   keyup(evt: any) {
     doKey2Click(evt);

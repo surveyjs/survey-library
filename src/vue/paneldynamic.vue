@@ -30,11 +30,11 @@
 
 <script lang="ts">
 import Vue from "vue";
-import { Component, Prop } from "vue-property-decorator";
+import { Component } from "vue-property-decorator";
 import { default as QuestionVue } from "./question";
-import { PanelModel } from "survey-core";
 import { Question } from "survey-core";
 import { QuestionPanelDynamicModel } from "survey-core";
+import { CssClassBuilder } from "src/utils/cssClassBuilder";
 
 @Component
 export class PanelDynamic extends QuestionVue<QuestionPanelDynamicModel> {
@@ -50,14 +50,11 @@ export class PanelDynamic extends QuestionVue<QuestionPanelDynamicModel> {
     this.question.addPanel();
   }
   getButtonAddCss(question: Question) {
-    var btnClasses =
-      question.cssClasses.button + " " + question.cssClasses.buttonAdd;
-
-    if (this.question.renderMode === "list") {
-      btnClasses += " " + question.cssClasses.buttonAdd + "--list-mode";
-    }
-
-    return btnClasses;
+    return new CssClassBuilder()
+      .append(question.cssClasses.button)
+      .append(question.cssClasses.buttonAdd)
+      .append(question.cssClasses.buttonAdd + "--list-mode", this.question.renderMode === "list")
+      .toString();
   }
 }
 Vue.component("survey-paneldynamic", PanelDynamic);

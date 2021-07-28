@@ -1,4 +1,5 @@
 import * as ko from "knockout";
+import { CssClassBuilder } from "src/utils/cssClassBuilder";
 import { SurveyModel } from "survey-core";
 import { SurveyProgressButtonsModel } from "survey-core";
 const template: any = require("html-loader?interpolate!val-loader!./buttons.html");
@@ -32,12 +33,11 @@ export class ProgressButtonsViewModel {
   }
   public getScrollButtonCss(isLeftScroll: boolean): any {
     this.scrollButtonCssKo = ko.computed(() => {
-      let scrollCss: string = isLeftScroll
-        ? this.model.css.progressButtonsImageButtonLeft
-        : this.model.css.progressButtonsImageButtonRight;
-      if (!this.hasScroller())
-        scrollCss += " " + this.model.css.progressButtonsImageButtonHidden;
-      return scrollCss;
+      return new CssClassBuilder()
+        .append(this.model.css.progressButtonsImageButtonLeft, isLeftScroll)
+        .append(this.model.css.progressButtonsImageButtonRight, !isLeftScroll)
+        .append(this.model.css.progressButtonsImageButtonHidden, !this.hasScroller())
+        .toString();
     }, this);
     return this.scrollButtonCssKo;
   }

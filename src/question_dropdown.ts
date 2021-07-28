@@ -125,11 +125,11 @@ export class QuestionDropdownModel extends QuestionSelectBase {
     this.setPropertyValue("autoComplete", val);
   }
   public getControlClass(): string {
-    const builder = new CssClassBuilder();
-    builder.append(this.cssClasses.control);
-    builder.append(this.cssClasses.onError, this.errors.length > 0);
-    builder.append(this.cssClasses.controlDisabled, this.isReadOnly);
-    return builder.toString();
+    return  new CssClassBuilder()
+      .append(this.cssClasses.control)
+      .append(this.cssClasses.onError, this.errors.length > 0)
+      .append(this.cssClasses.controlDisabled, this.isReadOnly)
+      .toString();
   }
 }
 Serializer.addClass(

@@ -2,6 +2,7 @@ import * as React from "react";
 import { SurveyQuestionElementBase } from "./reactquestion_element";
 import { QuestionBooleanModel } from "survey-core";
 import { ReactQuestionFactory } from "./reactquestion_factory";
+import { CssClassBuilder } from "../utils/cssClassBuilder";
 
 export class SurveyQuestionBoolean extends SurveyQuestionElementBase {
   protected checkRef: React.RefObject<HTMLInputElement>;
@@ -57,7 +58,7 @@ export class SurveyQuestionBoolean extends SurveyQuestionElementBase {
 
   protected updateDomElement() {
     if (!this.question) return;
-    var el = this.checkRef.current;
+    const el = this.checkRef.current;
     if (el) {
       el.indeterminate = this.question.isIndeterminate;
     }
@@ -65,26 +66,23 @@ export class SurveyQuestionBoolean extends SurveyQuestionElementBase {
     super.updateDomElement();
   }
   protected getItemClass(): string {
-    var cssClasses = this.question.cssClasses;
-    var isChecked = this.question.checkedValue;
-    var isDisabled = this.question.isReadOnly;
-    var itemClass = cssClasses.item;
-    if (isDisabled) itemClass += " " + cssClasses.itemDisabled;
-    if (isChecked) itemClass += " " + cssClasses.itemChecked;
-    else if (isChecked === null)
-      itemClass += " " + cssClasses.itemIndeterminate;
-    return itemClass;
+    const isChecked = this.question.checkedValue;
+    const isDisabled = this.question.isReadOnly;
+    const cssClasses = this.question.cssClasses;
+    return new CssClassBuilder()
+      .append(cssClasses.item)
+      .append(cssClasses.itemDisabled, isDisabled)
+      .append(cssClasses.itemChecked, isChecked)
+      .append(cssClasses.itemIndeterminate, isChecked === null)
+      .toString();
   }
   private getLabelClass(checked: boolean): string {
-    var question = this.question;
-    var cssClasses = this.question.cssClasses;
-    return (
-      cssClasses.label +
-      " " +
-      (question.checkedValue === !checked || question.isReadOnly
-        ? question.cssClasses.disabledLabel
-        : "")
-    );
+    const question: QuestionBooleanModel = this.question;
+    return new CssClassBuilder()
+      .append(question.cssClasses.label)
+      .append(question.cssClasses.disabledLabel,
+        question.checkedValue === !checked || question.isReadOnly)
+      .toString();
   }
   private getCheckedLabel() {
     if (this.question.checkedValue === true) {

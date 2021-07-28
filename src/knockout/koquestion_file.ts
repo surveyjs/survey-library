@@ -5,6 +5,7 @@ import { QuestionFileModel } from "survey-core";
 import { QuestionImplementor } from "./koquestion";
 import { Question } from "survey-core";
 import { confirmAction, detectIEOrEdge, loadFileFromBase64 } from "survey-core";
+import { CssClassBuilder } from "src/utils/cssClassBuilder";
 
 class QuestionFileImplementor extends QuestionImplementor {
   constructor(question: Question) {
@@ -27,10 +28,11 @@ class QuestionFileImplementor extends QuestionImplementor {
     this.setObservaleObj(
       "koChooseFileClass",
       ko.pureComputed(() => {
-        return (
-          this.question.koCss().chooseFile +
-          (this.question.isReadOnly ? " " + this.question.koCss().controlDisabled : "")
-        );
+        const questionCss = this.question.koCss();
+        return new CssClassBuilder()
+          .append(questionCss.chooseFile)
+          .append(questionCss.controlDisabled, this.question.isReadOnly)
+          .toString();
       })
     );
     this.setCallbackFunc("ondrop", (data: any, event: any) => {

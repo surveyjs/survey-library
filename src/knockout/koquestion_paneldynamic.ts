@@ -3,13 +3,9 @@ import { SurveyElement } from "survey-core";
 import { Serializer } from "survey-core";
 import { QuestionFactory } from "survey-core";
 import { QuestionImplementor } from "./koquestion";
-import {
-  QuestionPanelDynamicModel,
-  QuestionPanelDynamicItem,
-} from "survey-core";
+import { QuestionPanelDynamicModel } from "survey-core";
 import { Question } from "survey-core";
-import { PanelModel } from "survey-core";
-import { Panel } from "./kopage";
+import { CssClassBuilder } from "src/utils/cssClassBuilder";
 
 export class QuestionPanelDynamicImplementor extends QuestionImplementor {
   koRecalc: any;
@@ -190,33 +186,27 @@ export class QuestionPanelDynamicImplementor extends QuestionImplementor {
   }
 
   protected get buttonAddCss() {
-    var question = this.question;
-    var btnClasses =
-      question.cssClasses.button + " " + question.cssClasses.buttonAdd;
-
-    if (this.question.renderMode === "list") {
-      btnClasses += " " + question.cssClasses.buttonAdd + "--list-mode";
-    }
-
-    return btnClasses;
+    const cssClasses = this.question.cssClasses;
+    return new CssClassBuilder()
+      .append(cssClasses.button)
+      .append(cssClasses.buttonAdd)
+      .append(cssClasses.buttonAdd + "--list-mode", this.question.renderMode === "list")
+      .toString();
   }
 
   protected get buttonPrevCss() {
-    var question = this.question;
-    var btnClasses = question.cssClasses.buttonPrev;
-    if (!question.isPrevButtonShowing) {
-      btnClasses += " " + question.cssClasses.buttonPrev + "--disabled";
-    }
-    return btnClasses;
+    const cssClasses = this.question.cssClasses;
+    return new CssClassBuilder()
+      .append(cssClasses.buttonPrev)
+      .append(cssClasses.buttonPrev + "--disabled", !this.question.isPrevButtonShowing)
+      .toString();
   }
 
   protected get buttonNextCss() {
-    var question = this.question;
-    var btnClasses = question.cssClasses.buttonNext;
-    if (!question.isNextButtonShowing) {
-      btnClasses += " " + question.cssClasses.buttonNext + "--disabled";
-    }
-    return btnClasses;
+    return new CssClassBuilder()
+      .append(this.question.cssClasses.buttonNext)
+      .append(this.question.cssClasses.buttonNext + "--disabled", !this.question.isNextButtonShowing)
+      .toString();
   }
 
   protected get progress() {

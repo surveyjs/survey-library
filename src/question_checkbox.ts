@@ -189,10 +189,10 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
   }
   getItemClass(item: any) {
     const __dummy_value = this.value; //ask Sergey what is this for
-    const builder = new CssClassBuilder();
-    builder.append(super.getItemClass(item));
-    builder.append(this.cssClasses.itemSelectAll, item === this.selectAllItem);
-    return builder.toString();
+    return new CssClassBuilder()
+      .append(super.getItemClass(item))
+      .append(this.cssClasses.itemSelectAll, item === this.selectAllItem)
+      .toString();
   }
   protected setNewValue(newValue: any) {
     if (!this.isChangingValueOnClearIncorrect) {

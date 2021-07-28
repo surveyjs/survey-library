@@ -12,6 +12,7 @@ import { SurveyCustomWidget } from "./custom-widget";
 import { ReactElementFactory } from "./element-factory";
 import { ReactSurveyModel } from "./reactsurveymodel";
 import { QuestionMatrixDropdownRenderedCell } from "../question_matrixdropdownbase";
+import { CssClassBuilder } from "../utils/cssClassBuilder";
 
 export interface ISurveyCreator {
   createQuestionElement(question: Question): JSX.Element;
@@ -104,7 +105,6 @@ export class SurveyQuestion extends SurveyElementBase<any, any> {
     var descriptionUnderInput = question.hasDescriptionUnderInput
       ? this.renderDescription(cssClasses, true)
       : null;
-    let questionRootClass = question.cssRoot;
 
     var comment =
       question && question.hasComment ? this.renderComment(cssClasses) : null;
@@ -125,9 +125,8 @@ export class SurveyQuestion extends SurveyElementBase<any, any> {
       display: !this.question.isCollapsed ? "block" : "none",
     };
 
-    if (question.isReadOnly) {
-      questionRootClass += " " + cssClasses.disabled;
-    }
+    const questionRootClass = new CssClassBuilder().append(question.cssRoot)
+        .append(cssClasses.disabled, question.isReadOnly).toString();
 
     return (
       <div
@@ -275,13 +274,11 @@ export class SurveyElementErrors extends ReactSurveyElement {
         this.creator.renderError(key, this.element.errors[i], this.cssClasses)
       );
     }
-    var classes = this.cssClasses.error.root;
 
-    if (this.location === "top") {
-      classes += " " + this.cssClasses.error.locationTop;
-    } else if (this.location === "bottom") {
-      classes += " " + this.cssClasses.error.locationBottom;
-    }
+    const classes = new CssClassBuilder()
+        .append(this.cssClasses.error.root)
+        .append(this.cssClasses.error.locationTop, this.location === "top")
+        .append(this.cssClasses.error.locationBottom, this.location === "bottom").toString();
 
     return (
       <div role="alert" className={classes} id={this.id}>
@@ -355,10 +352,13 @@ export class SurveyQuestionAndErrorsCell extends ReactSurveyElement {
         {errorsBottom}
       </>
     );
+    const classes = new CssClassBuilder().append(this.getCellClass())
+      .append(this.cssClasses.cell).toString();
+
     return (
       <td
         ref={this.cellRef}
-        className={this.getCellClass() + " " + this.cssClasses.cell}
+        className={classes}
         title={this.getHeaderText()}
         style={style}
       >

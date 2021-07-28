@@ -47,9 +47,9 @@
 <script lang="ts">
 import Vue from "vue";
 import { Component, Prop } from "vue-property-decorator";
-import { PanelModel } from "survey-core";
 import { QuestionPanelDynamicModel } from "survey-core";
 import { Question } from "survey-core";
+import { CssClassBuilder } from "src/utils/cssClassBuilder";
 
 @Component
 export class PanelDynamicProgress extends Vue {
@@ -80,19 +80,17 @@ export class PanelDynamicProgress extends Vue {
   getButtonAddCss(question: Question) {}
 
   getButtonPrevCss(question: Question) {
-    var btnClasses = question.cssClasses.buttonPrev;
-    if (!question.isPrevButtonShowing) {
-      btnClasses += " " + question.cssClasses.buttonPrev + "--disabled";
-    }
-    return btnClasses;
+    return new CssClassBuilder()
+      .append(question.cssClasses.buttonPrev)
+      .append(question.cssClasses.buttonPrev + "--disabled", !question.isPrevButtonShowing)
+      .toString();
   }
 
   getButtonNextCss(question: Question) {
-    var btnClasses = question.cssClasses.buttonNext;
-    if (!question.isNextButtonShowing) {
-      btnClasses += " " + question.cssClasses.buttonNext + "--disabled";
-    }
-    return btnClasses;
+    return new CssClassBuilder()
+      .append(question.cssClasses.buttonNext)
+      .append(question.cssClasses.buttonNext + "--disabled", !question.isNextButtonShowing)
+      .toString();
   }
 
   get progress() {

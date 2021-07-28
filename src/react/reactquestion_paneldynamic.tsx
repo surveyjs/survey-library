@@ -5,6 +5,7 @@ import { SurveyPanel } from "./panel";
 import { ReactQuestionFactory } from "./reactquestion_factory";
 import { SurveyModel } from "survey-core";
 import { Question } from "survey-core";
+import { CssClassBuilder } from "../utils/cssClassBuilder";
 
 export class SurveyQuestionPanelDynamic extends SurveyQuestionElementBase {
   constructor(props: any) {
@@ -136,11 +137,11 @@ export class SurveyQuestionPanelDynamic extends SurveyQuestionElementBase {
 
   protected rendrerPrevButton() {
     var getButtonPrevCss = (question: Question) => {
-      var btnClasses = question.cssClasses.buttonPrev;
-      if (!question.isPrevButtonShowing) {
-        btnClasses += " " + question.cssClasses.buttonPrev + "--disabled";
-      }
-      return btnClasses;
+      const cssClasses = question.cssClasses;
+      return new CssClassBuilder()
+        .append(cssClasses.buttonPrev)
+        .append(cssClasses.buttonPrev + "--disabled", !question.isPrevButtonShowing)
+        .toString();
     };
 
     return (
@@ -157,11 +158,10 @@ export class SurveyQuestionPanelDynamic extends SurveyQuestionElementBase {
   }
   protected rendrerNextButton() {
     var getButtonNextCss = function(question: Question) {
-      var btnClasses = question.cssClasses.buttonNext;
-      if (!question.isNextButtonShowing) {
-        btnClasses += " " + question.cssClasses.buttonNext + "--disabled";
-      }
-      return btnClasses;
+      return new CssClassBuilder()
+        .append(question.cssClasses.buttonNext)
+        .append(question.cssClasses.buttonNext + "--disabled", !question.isNextButtonShowing)
+        .toString();
     };
 
     return (
@@ -195,19 +195,15 @@ export class SurveyQuestionPanelDynamic extends SurveyQuestionElementBase {
   }
   protected renderAddRowButton(): JSX.Element {
     if (!this.question.canAddPanel) return null;
-
-    var classes =
-      this.question.cssClasses.button +
-      " " +
-      this.question.cssClasses.buttonAdd;
-
-    if (this.question.renderMode === "list") {
-      classes += " " + this.question.cssClasses.buttonAdd + "--list-mode";
-    }
+    const cssClasses = this.question.cssClasses;
+    const builder = new CssClassBuilder()
+      .append(cssClasses.button)
+      .append(cssClasses.buttonAdd)
+      .append(cssClasses.buttonAdd + "--list-mode", this.question.renderMode === "list");
 
     return (
       <input
-        className={classes}
+        className={builder.toString()}
         type="button"
         onClick={this.handleOnPanelAddClick}
         value={this.question.panelAddText}

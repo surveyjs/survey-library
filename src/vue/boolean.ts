@@ -1,32 +1,27 @@
-import Vue from "vue";
-import { Component, Prop, Watch } from "vue-property-decorator";
-import { default as QuestionVue } from "./question";
+import { Component } from "vue-property-decorator";
+import { QuestionVue } from "./question";
 import { QuestionBooleanModel } from "survey-core";
+import { CssClassBuilder } from "src/utils/cssClassBuilder";
 
 @Component
 export class Boolean extends QuestionVue<QuestionBooleanModel> {
   get itemClass() {
-    var question = this.question;
-    var cssClasses = question.cssClasses;
-    let isChecked = question.checkedValue;
-    let isDisabled = question.isReadOnly;
-    let itemClass = cssClasses.item;
-    if (isDisabled) itemClass += " " + cssClasses.itemDisabled;
-    if (isChecked) itemClass += " " + cssClasses.itemChecked;
-    else if (isChecked === null)
-      itemClass += " " + cssClasses.itemIndeterminate;
-    return itemClass;
+    const isChecked = this.question.checkedValue;
+    const isDisabled = this.question.isReadOnly;
+    const cssClasses = this.question.cssClasses;
+    return new CssClassBuilder()
+      .append(cssClasses.item)
+      .append(cssClasses.itemDisabled, isDisabled)
+      .append(cssClasses.itemChecked, isChecked)
+      .append(cssClasses.itemIndeterminate, isChecked === null)
+      .toString();
   }
   getLabelClass(checked: boolean): string {
-    var question = this.question;
-    var cssClasses = this.question.cssClasses;
-    return (
-      cssClasses.label +
-      " " +
-      (question.checkedValue === !checked || question.isReadOnly
-        ? question.cssClasses.disabledLabel
-        : "")
-    );
+    const question = this.question;
+    return new CssClassBuilder()
+      .append(question.cssClasses.label)
+      .append(question.cssClasses.disabledLabel, question.checkedValue === !checked || question.isReadOnly)
+      .toString();
   }
   private preventDefaults(event: any) {
     event.preventDefault();

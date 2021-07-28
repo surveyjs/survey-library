@@ -125,6 +125,7 @@ import { surveyCss } from "survey-core";
 import { VueSurveyModel as SurveyModel } from "./surveyModel";
 import { StylesManager, Base } from "survey-core";
 import { BaseVue } from "./base";
+import { CssClassBuilder } from "src/utils/cssClassBuilder";
 
 @Component
 export class Survey extends BaseVue {
@@ -186,8 +187,10 @@ export class Survey extends BaseVue {
     return this.survey.css;
   }
   getCompletedPageClasses() {
-    var css = this.css;
-    return css.body + " " + css.completedPage;
+    return new CssClassBuilder()
+      .append(this.css)
+      .append(this.css.completedPage)
+      .toString();
   }
   getProcessedCompletedHtml() {
     if (!this.hasCompletedPage) return "";

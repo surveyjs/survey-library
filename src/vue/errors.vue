@@ -31,7 +31,7 @@
 import Vue from "vue";
 import { Component, Prop } from "vue-property-decorator";
 import { Question } from "survey-core";
-import { SurveyError } from "survey-core";
+import { CssClassBuilder } from "src/utils/cssClassBuilder";
 
 @Component
 export class Errors extends Vue {
@@ -39,22 +39,12 @@ export class Errors extends Vue {
   @Prop() location: String;
 
   get classes() {
-    var question = this.question;
-    var classes = question.cssClasses
-      ? question.cssClasses.error.root
-      : "panel-error-root";
-
-    var additionalClasses = "";
-
-    if (this.location === "top") {
-      additionalClasses = question.cssClasses.error.locationTop;
-    } else if (this.location === "bottom") {
-      additionalClasses = question.cssClasses.error.locationBottom;
-    }
-
-    if (additionalClasses) classes += " " + additionalClasses;
-
-    return classes;
+    const question = this.question;
+    return new CssClassBuilder()
+      .append(question.cssClasses ? question.cssClasses.error.root : "panel-error-root")
+      .append(question.cssClasses.error.locationTop, this.location === "top")
+      .append(question.cssClasses.error.locationBottom, this.location === "bottom")
+      .toString();
   }
 }
 Vue.component("survey-errors", Errors);

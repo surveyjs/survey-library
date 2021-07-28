@@ -24,10 +24,9 @@
 <script lang="ts">
 import Vue from "vue";
 import { Component, Prop } from "vue-property-decorator";
-import { PanelModelBase, PanelModel, QuestionRowModel } from "survey-core";
-import { ISurvey } from "survey-core";
 import { Question } from "survey-core";
 import { FlowPanelModel } from "survey-core";
+import { CssClassBuilder } from "src/utils/cssClassBuilder";
 
 @Component
 export class FlowPanel extends Vue {
@@ -118,11 +117,10 @@ export class FlowPanel extends Vue {
     }
   }
   getTitleStyle() {
-    var result = this.css.panel.title;
-    if (this.question.isCollapsed || this.question.isExpanded) {
-      result += " " + this.css.panel.titleExpandable;
-    }
-    return result;
+    return new CssClassBuilder()
+      .append(this.css.panel.title)
+      .append(this.css.panel.titleExpandable, this.question.isCollapsed || this.question.isExpanded)
+      .toString();
   }
 }
 

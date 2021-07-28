@@ -128,12 +128,12 @@ export class ButtonGroupItemModel {
       : null;
   }
   private get labelClass() {
-    const builder = new CssClassBuilder();
-    builder.append(this.question.cssClasses.item);
-    builder.append(this.question.cssClasses.itemSelected, this.selected);
-    builder.append(this.question.cssClasses.itemHover, !this.readOnly && !this.selected);
-    builder.append(this.question.cssClasses.itemDisabled, this.question.isReadOnly || !this.item.isEnabled);
-    return builder.toString();
+    return new CssClassBuilder()
+      .append(this.question.cssClasses.item)
+      .append(this.question.cssClasses.itemSelected, this.selected)
+      .append(this.question.cssClasses.itemHover, !this.readOnly && !this.selected)
+      .append(this.question.cssClasses.itemDisabled, this.question.isReadOnly || !this.item.isEnabled)
+      .toString();
   }
   public get css() {
     return {

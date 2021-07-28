@@ -1116,10 +1116,10 @@ export class QuestionSelectBase extends Question {
     return this.visibleChoices.indexOf(item);
   }
   getItemClass(item: any) {
-    const builder = new CssClassBuilder();
-    builder.append(this.cssClasses.item);
-    builder.append(this.cssClasses.itemInline, !this.hasColumns && this.colCount === 0);
-    builder.append("sv-q-col-" + this.colCount, !this.hasColumns && this.colCount !== 0);
+    const builder = new CssClassBuilder()
+      .append(this.cssClasses.item)
+      .append(this.cssClasses.itemInline, !this.hasColumns && this.colCount === 0)
+      .append("sv-q-col-" + this.colCount, !this.hasColumns && this.colCount !== 0);
 
     const isDisabled = this.isReadOnly || !item.isEnabled;
     const isChecked =
@@ -1129,23 +1129,23 @@ export class QuestionSelectBase extends Question {
       !isDisabled && !isChecked && !(!!this.survey && this.survey.isDesignMode);
     const isNone = item === this.noneItem;
 
-    builder.append(this.cssClasses.itemDisabled, isDisabled);
-    builder.append(this.cssClasses.itemChecked, isChecked);
-    builder.append(this.cssClasses.itemHover, allowHover);
-    builder.append(this.cssClasses.itemNone, isNone);
-    return builder.toString();
+    return builder.append(this.cssClasses.itemDisabled, isDisabled)
+      .append(this.cssClasses.itemChecked, isChecked)
+      .append(this.cssClasses.itemHover, allowHover)
+      .append(this.cssClasses.itemNone, isNone)
+      .toString();
   }
   getLabelClass(item: ItemValue) {
-    const builder = new CssClassBuilder();
-    builder.append(this.cssClasses.label);
-    builder.append(this.cssClasses.labelChecked, this.isItemSelected(item));
-    return builder.toString();
+    return new CssClassBuilder()
+      .append(this.cssClasses.label)
+      .append(this.cssClasses.labelChecked, this.isItemSelected(item))
+      .toString();
   }
   getControlLabelClass(item: ItemValue) {
-    const builder = new CssClassBuilder();
-    builder.append(this.cssClasses.controlLabel);
-    builder.append(this.cssClasses.controlLabelChecked, this.isItemSelected(item));
-    return builder.toString();
+    return new CssClassBuilder()
+      .append(this.cssClasses.controlLabel)
+      .append(this.cssClasses.controlLabelChecked, this.isItemSelected(item))
+      .toString();
   }
   get columns() {
     var columns = [];

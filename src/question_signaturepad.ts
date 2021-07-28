@@ -39,10 +39,10 @@ function resizeCanvas(canvas: HTMLCanvasElement) {
 export class QuestionSignaturePadModel extends Question {
   @property({ defaultValue: false }) isDrawingValue: boolean;
   protected getCssRoot(cssClasses: any): string {
-    const builder = new CssClassBuilder();
-    builder.append(super.getCssRoot(cssClasses));
-    builder.append(cssClasses.small, this.width.toString() === "300");
-    return builder.toString();
+    return new CssClassBuilder()
+      .append(super.getCssRoot(cssClasses))
+      .append(cssClasses.small, this.width.toString() === "300")
+      .toString();
   }
 
   protected updateValue() {

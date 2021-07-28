@@ -39,6 +39,7 @@ import { SurveyModel } from "./survey";
 import { SurveyError } from "./survey-error";
 import { Action, IAction } from "./actions/action";
 import { AdaptiveActionContainer } from "./actions/adaptive-container";
+import { CssClassBuilder } from "./utils/cssClassBuilder";
 
 export interface IMatrixDropdownData {
   value: any;
@@ -1454,10 +1455,10 @@ export class QuestionMatrixDropdownRenderedCell {
     return this.choiceIndex === 0;
   }
   public get css(): string {
-    return (
-      this.className +
-      (this.question.errors.length > 0 ? " " + this.question.cssError : "")
-    );
+    return new CssClassBuilder()
+      .append(this.className)
+      .append(this.question.cssError, this.question.errors.length > 0)
+      .toString();
   }
   public get headers(): string {
     if (
@@ -1478,28 +1479,14 @@ export class QuestionMatrixDropdownRenderedCell {
 
   public calculateFinalClassName(matrixCssClasses: any): string {
     const questionCss = this.cell.question.cssClasses;
-    let className = "";
-    if (!!questionCss) {
-      className = "";
-      if (!!questionCss.itemValue) {
-        className += " " + questionCss.itemValue;
-      }
-      if (!!questionCss.asCell) {
-        if (!!className) className += "";
-        className += questionCss.asCell;
-      }
-    }
-    if (!className && !!matrixCssClasses) {
-      className = matrixCssClasses.cell;
-    }
-    className +=
-      this.question.errors.length > 0 ? " " + questionCss.hasError : "";
-
-    if (this.isChoice) {
-      className += " " + matrixCssClasses.choiceCell;
-    }
-    //'text-align': $data.isChoice ? 'center': ''
-    return className;
+    // 'text-align': $data.isChoice ? 'center':
+    const builder = new CssClassBuilder()
+      .append(questionCss.itemValue, !!questionCss)
+      .append(questionCss.asCell, !!questionCss);
+    return builder.append(matrixCssClasses.cell, !builder.toString() && !!matrixCssClasses)
+      .append(questionCss.hasError, this.question.errors.length > 0)
+      .append(matrixCssClasses.choiceCell, this.isChoice)
+      .toString();
   }
 }
 
@@ -1853,11 +1840,11 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
       if (useAsHeader) {
         this.setHeaderCellWidth(null, renderedCell);
       }
-      if (row.hasPanel && !!this.cssClasses.detailRowText) {
-        if (!!renderedCell.className) renderedCell.className += " ";
-        renderedCell.className += this.cssClasses.detailRowText;
-      }
-    }
+      renderedCell.className = new CssClassBuilder()
+        .append(renderedCell.className)
+        .append(this.cssClasses.detailRowText, row.hasPanel)
+        .toString();
+    }    
     for (var i = 0; i < row.cells.length; i++) {
       let cell = row.cells[i];
       if (!cell.column.hasVisibleCell) continue;
@@ -3393,31 +3380,32 @@ export class QuestionMatrixDropdownModelBase
     }
   }
   public getDetailPanelButtonCss(row: MatrixDropdownRowModelBase): string {
-    var res = this.getPropertyValue("detailButtonCss" + row.id);
-    if (!!res) return res;
-    var res = this.cssClasses.detailButton;
-    return !!res ? res : "";
+    const builder = new CssClassBuilder().append(this.getPropertyValue("detailButtonCss" + row.id));
+    return builder.append(this.cssClasses.detailButton, builder.toString() === "").toString();
+    // var res = this.getPropertyValue("detailButtonCss" + row.id);
+    // if (!!res) return res;
+    // var res = this.cssClasses.detailButton;
+    // return !!res ? res : "";
   }
   public getDetailPanelIconCss(row: MatrixDropdownRowModelBase): string {
-    var res = this.getPropertyValue("detailIconCss" + row.id);
-    if (!!res) return res;
-    var res = this.cssClasses.detailIcon;
-    return !!res ? res : "";
+    const builder = new CssClassBuilder().append(this.getPropertyValue("detailIconCss" + row.id));
+    return builder.append(this.cssClasses.detailIcon, builder.toString() === "").toString();
+    // var res = this.getPropertyValue("detailIconCss" + row.id);
+    // if (!!res) return res;
+    // var res = this.cssClasses.detailIcon;
+    // return !!res ? res : "";
   }
   private updateDetailPanelButtonCss(row: MatrixDropdownRowModelBase) {
-    var classes = this.cssClasses;
-    var icon = classes.detailIcon;
-    if (!icon) icon = "";
-    var button = classes.detailButton;
-    if (!button) button = "";
-    if (this.getIsDetailPanelShowing(row)) {
-      if (!!classes.detailIconExpanded)
-        icon += " " + classes.detailIconExpanded;
-      if (!!classes.detailButtonExpanded)
-        button += " " + classes.detailButtonExpanded;
-    }
-    this.setPropertyValue("detailIconCss" + row.id, icon);
-    this.setPropertyValue("detailButtonCss" + row.id, button);
+    const classes = this.cssClasses;
+    const isPanelShowing = this.getIsDetailPanelShowing(row);
+    
+    const iconBuilder = new CssClassBuilder().append(classes.detailIcon)
+      .append(classes.detailIconExpanded, isPanelShowing);
+    this.setPropertyValue("detailIconCss" + row.id, iconBuilder.toString());
+
+    const buttonBuilder = new CssClassBuilder().append(classes.detailButton)
+      .append(classes.detailButtonExpanded, isPanelShowing);
+    this.setPropertyValue("detailButtonCss" + row.id, buttonBuilder.toString());
   }
   createRowDetailPanel(row: MatrixDropdownRowModelBase): PanelModel {
     if (this.isDesignMode) return this.detailPanel;

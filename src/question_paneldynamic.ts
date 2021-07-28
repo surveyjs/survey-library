@@ -1623,17 +1623,17 @@ export class QuestionPanelDynamicModel extends Question
       ["format"](this.currentIndex + 1, rangeMax);
   }
   public getPanelWrapperCss(): string {
-    const builder = new CssClassBuilder();
-    builder.append(this.cssClasses.panelWrapper);
-    builder.append(this.cssClasses.panelWrapperInRow, this.panelRemoveButtonLocation === "right");
-    return builder.toString();
+    return new CssClassBuilder()
+      .append(this.cssClasses.panelWrapper)
+      .append(this.cssClasses.panelWrapperInRow, this.panelRemoveButtonLocation === "right")
+      .toString();
   }
   public getPanelRemoveButtonCss(): string {
-    const builder = new CssClassBuilder();
-    builder.append(this.cssClasses.button);
-    builder.append(this.cssClasses.buttonRemove);
-    builder.append(this.cssClasses.buttonRemoveRight, this.panelRemoveButtonLocation === "right");
-    return builder.toString();
+    return new CssClassBuilder()
+      .append(this.cssClasses.button)
+      .append(this.cssClasses.buttonRemove)
+      .append(this.cssClasses.buttonRemoveRight, this.panelRemoveButtonLocation === "right")
+      .toString();
   }
 }
 

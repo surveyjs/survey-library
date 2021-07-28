@@ -1,4 +1,5 @@
 import * as ko from "knockout";
+import { CssClassBuilder } from "src/utils/cssClassBuilder";
 import { QuestionBooleanModel } from "survey-core";
 import { Serializer } from "survey-core";
 import { QuestionFactory } from "survey-core";
@@ -17,14 +18,15 @@ export class QuestionBoolean extends QuestionBooleanModel {
     return this.isIndeterminate && !this.isInputReadOnly;
   }
   public getItemCss(row: any, column: any) {
-    let isChecked = this.checkedValue;
-    let isDisabled = this.isReadOnly;
-    let itemClass = this.cssClasses.item;
-    if (isDisabled) itemClass += " " + this.cssClasses.itemDisabled;
-    if (isChecked) itemClass += " " + this.cssClasses.itemChecked;
-    else if (isChecked === null)
-      itemClass += " " + this.cssClasses.itemIndeterminate;
-    return itemClass;
+    const isChecked = this.checkedValue;
+    const isDisabled = this.isReadOnly;
+    const cssClasses = this.cssClasses;
+    return new CssClassBuilder()
+      .append(cssClasses.item)
+      .append(cssClasses.itemDisabled, isDisabled)
+      .append(cssClasses.itemChecked, isChecked)
+      .append(cssClasses.itemIndeterminate, isChecked === null)
+      .toString();
   }
   public getCheckedLabelCss(): string {
     return this.getLabelClass(true);
@@ -33,12 +35,12 @@ export class QuestionBoolean extends QuestionBooleanModel {
     return this.getLabelClass(false);
   }
   private getLabelClass(checked: boolean): string {
-    return (
-      this.cssClasses.label +
-      (this.checkedValue === !checked || this.isReadOnly
-        ? " " + this.cssClasses.disabledLabel
-        : "")
-    );
+    const question: QuestionBooleanModel = this;
+    return new CssClassBuilder()
+      .append(question.cssClasses.label)
+      .append(question.cssClasses.disabledLabel,
+        question.checkedValue === !checked || question.isReadOnly)
+      .toString();
   }
   private preventDefaults(event: any) {
     event.preventDefault();

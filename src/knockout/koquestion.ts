@@ -1,4 +1,5 @@
 import * as ko from "knockout";
+import { CssClassBuilder } from "src/utils/cssClassBuilder";
 import { Question, SurveyElement, Helpers, doKey2Click } from "survey-core";
 import { ImplementorBase } from "./kobase";
 
@@ -64,10 +65,11 @@ export class QuestionImplementor extends ImplementorBase {
     this.setObservaleObj(
       "koRootCss",
       ko.pureComputed(() => {
-        var cssRoot = this.question.cssRoot;
-        if (this.question.isReadOnly)
-          cssRoot += " " + this.question.cssClasses.disabled;
-        return cssRoot;
+        return new CssClassBuilder()
+          .append(this.question.cssRoot)
+          .append(this.question.cssClasses.disabled, this.question.isReadOnly)
+          .toString();
+
       })
     );
     this.setCallbackFunc("toggleStateByClick", this.toggleStateByClick);

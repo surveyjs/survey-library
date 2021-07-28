@@ -28,10 +28,10 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
   }
 
   public get rootClass() {
-    const builder = new CssClassBuilder();
-    builder.append(this.cssClasses.root);
-    builder.append(this.cssClasses.rootMobileMod, IsMobile);
-    return builder.toString();
+    return new CssClassBuilder()
+      .append(this.cssClasses.root)
+      .append(this.cssClasses.rootMobileMod, IsMobile)
+      .toString();
   }
 
   public getNumberByIndex(index: number) {

@@ -9,6 +9,7 @@ import { surveyLocalization } from "./surveyStrings";
 import { CustomError } from "./error";
 import { settings } from "./settings";
 import { QuestionTextBase } from "./question_textbase";
+import { CssClassBuilder } from "./utils/cssClassBuilder";
 
 /**
  * A Model for an input text question.
@@ -357,14 +358,11 @@ export class QuestionTextModel extends QuestionTextBase {
     return newValue;
   }
   public getControlClass(): string {
-    const cssClasses = this.cssClasses;
-    let result =
-      cssClasses.root +
-      (this.errors.length > 0 ? " " + cssClasses.onError : "");
-    if (this.isReadOnly) {
-      result += " " + cssClasses.controlDisabled;
-    }
-    return result;
+    return new CssClassBuilder()
+      .append(this.cssClasses.root)
+      .append(this.cssClasses.onError, this.errors.length > 0)
+      .append(this.cssClasses.controlDisabled, this.isReadOnly)
+      .toString();
   }
   protected hasPlaceHolder(): boolean {
     return !this.isReadOnly && this.inputType !== "range";

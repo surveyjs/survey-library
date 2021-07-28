@@ -3,6 +3,7 @@ import { SurveyQuestionElementBase } from "./reactquestion_element";
 import { QuestionFileModel } from "survey-core";
 import { ReactQuestionFactory } from "./reactquestion_factory";
 import { confirmAction, detectIEOrEdge, loadFileFromBase64 } from "survey-core";
+import { CssClassBuilder } from "../utils/cssClassBuilder";
 
 export class SurveyQuestionFile extends SurveyQuestionElementBase {
   constructor(props: any) {
@@ -117,11 +118,12 @@ export class SurveyQuestionFile extends SurveyQuestionElementBase {
     );
   }
   protected renderFileDecorator(): JSX.Element {
+    const questionCss = this.question.cssClasses;
+    const chooseFileCss = new CssClassBuilder().append(questionCss.chooseFile)
+      .append(questionCss.controlDisabled, this.isDisplayMode)
+      .toString();
     let noFileChosen = null;
     let chooseFile = null;
-    let chooseFileCss =
-      this.question.cssClasses.chooseFile +
-      (this.isDisplayMode ? " " + this.question.cssClasses.controlDisabled : "");
     chooseFile = (
       <label
         role="button"

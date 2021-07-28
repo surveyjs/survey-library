@@ -3,6 +3,7 @@ import { SurveyNavigationBase } from "./reactSurveyNavigationBase";
 import { ReactElementFactory } from "./element-factory";
 import { PageModel } from "survey-core";
 import { SurveyProgressButtonsModel } from "survey-core";
+import { CssClassBuilder } from "../utils/cssClassBuilder";
 
 export class SurveyProgressButtons extends SurveyNavigationBase {
   private progressButtonsModel: SurveyProgressButtonsModel;
@@ -86,12 +87,11 @@ export class SurveyProgressButtons extends SurveyNavigationBase {
     this.progressButtonsModel.clickListElement(index);
   }
   protected getScrollButtonCss(isLeftScroll: boolean): string {
-    let scrollCss: string = isLeftScroll
-      ? this.survey.css.progressButtonsImageButtonLeft
-      : this.survey.css.progressButtonsImageButtonRight;
-    if (!this.state.hasScroller)
-      scrollCss += " " + this.survey.css.progressButtonsImageButtonHidden;
-    return scrollCss;
+    return new CssClassBuilder()
+      .append(this.survey.css.progressButtonsImageButtonLeft, isLeftScroll)
+      .append(this.survey.css.progressButtonsImageButtonRight, !isLeftScroll)
+      .append(this.survey.css.progressButtonsImageButtonHidden, !this.state.hasScroller)
+      .toString();
   }
   protected clickScrollButton(
     listContainerElement: Element,

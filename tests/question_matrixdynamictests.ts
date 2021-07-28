@@ -1814,6 +1814,7 @@ QUnit.test("Matrixdynamic allowAddRows property", function(assert) {
 });
 QUnit.test("Matrixdynamic allowRemoveRows property", function(assert) {
   var question = new QuestionMatrixDynamicModel("matrix");
+  question.rowCount = 2;
   assert.equal(
     question.allowRemoveRows,
     true,
@@ -1822,6 +1823,12 @@ QUnit.test("Matrixdynamic allowRemoveRows property", function(assert) {
   assert.equal(question.canRemoveRows, true, "canRemoveRows is true");
   question.allowRemoveRows = false;
   assert.equal(question.canRemoveRows, false, "canRemoveRows is false");
+  question.canRemoveRowsCallback = (allow: boolean): boolean => {
+    return question.rowCount > 1;
+  };
+  assert.equal(question.canRemoveRows, true, "question.rowCount > 1");
+  question.rowCount = 1;
+  assert.equal(question.canRemoveRows, false, "not question.rowCount > 1");
 });
 QUnit.test("Matrixdynamic addRowLocation", function(assert) {
   var question = new QuestionMatrixDynamicModel("matrix");

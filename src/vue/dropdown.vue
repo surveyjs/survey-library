@@ -11,6 +11,8 @@
         :aria-describedby="
           question.errors.length > 0 ? question.id + '_errors' : null
         "
+        :aria-required="question.isRequired"
+        :required="question.isRequired"
       >
         <option v-if="question.showOptionsCaption" :value="undefined">
           {{ question.optionsCaption }}

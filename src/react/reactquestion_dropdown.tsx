@@ -71,6 +71,8 @@ export class SurveyQuestionDropdown extends SurveyQuestionUncontrolledElement<Qu
               ? this.question.id + "_errors"
               : null
           }
+          aria-required={this.question.isRequired}
+          required={this.question.isRequired}
         >
           {captionOption}
           {options}

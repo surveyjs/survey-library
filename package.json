@@ -48,10 +48,9 @@
     "watch:ko:ui:prod": "webpack --config ./build-scripts/survey-knockout-ui/webpack.config.js --env.buildType prod --watch",
     "watch:react:ui:prod": "webpack --config ./build-scripts/survey-react-ui/webpack.config.js --env.buildType prod --watch",
     "dev": "concurrently \"http-server -p 8080 --silent\" \"npm run watch:core:dev\" \"npm run watch:core:prod\" \"npm run watch:ko:ui:dev\" \"npm run watch:react:ui:dev\" \"npm run watch:ko:ui:prod\" \"npm run watch:react:ui:prod\"",
-    
     "madge": "madge --circular --extensions ts ./src/"
   },
-  "version": "1.8.57",
+  "version": "1.8.58",
   "name": "survey-library",
   "private": true,
   "devDependencies": {

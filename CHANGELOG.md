@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.8.58](https://github.com/surveyjs/survey-library/compare/v1.8.57...v1.8.58) (2021-07-28)
+
+
+### Bug Fixes
+
+* Action ResponsivityManager works incorrectly with invisible actions [#3129](https://github.com/surveyjs/survey-library/issues/3129) ([#3130](https://github.com/surveyjs/survey-library/issues/3130)) ([0f054f1](https://github.com/surveyjs/survey-library/commit/0f054f1dfc2510367f7f18bbc795a1220323034f))
+* Calling clearIncorrectValues function in matrix cell will onMatrixCellValueChanging event even for emtpy cell [#3131](https://github.com/surveyjs/survey-library/issues/3131) ([af1636f](https://github.com/surveyjs/survey-library/commit/af1636f4a82e075eaf20728707bc6f384ef3e6e0))
+* Null exception on showing preview in file question located in dynamic panel [#3115](https://github.com/surveyjs/survey-library/issues/3115) ([127d90c](https://github.com/surveyjs/survey-library/commit/127d90c269b3f1d61bcc7a1630a4c3074f768783))
+* The first title action fired on pressing enter in a text editor ([3e62c77](https://github.com/surveyjs/survey-library/commit/3e62c7709a5399227c559cb3d854aa5b37399d9a))
+
 ### [1.8.57](https://github.com/surveyjs/survey-library/compare/v1.8.56...v1.8.57) (2021-07-20)
 
 

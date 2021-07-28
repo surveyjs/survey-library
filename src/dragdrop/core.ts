@@ -93,7 +93,7 @@ export abstract class DragDropCore extends Base {
   protected doStartDrag() {}
 
   public getGhostPosition(item: any) {
-    if (this.dropTarget !== item) return null;
+    if (this.dropTargetCandidate !== item) return null;
     if (this.isBottom) return "bottom";
     return "top";
   }

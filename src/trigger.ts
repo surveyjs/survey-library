@@ -303,6 +303,14 @@ export class SurveyTriggerSetValue extends SurveyTrigger {
   public getType(): string {
     return "setvaluetrigger";
   }
+  protected onPropertyValueChanged(name: string, oldValue: any, newValue: any) {
+    super.onPropertyValueChanged(name, oldValue, newValue);
+    if (name !== "setToName") return;
+    var survey = this.getSurvey();
+    if (survey && !survey.isLoadingFromJson && survey.isDesignMode) {
+      this.setValue = undefined;
+    }
+  }
   public get setToName(): string {
     return this.getPropertyValue("setToName", "");
   }

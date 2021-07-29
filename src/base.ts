@@ -183,6 +183,7 @@ export class Base {
     for (var i = 0; i < this.eventList.length; i++) {
       this.eventList[i].clear();
     }
+    this.onPropertyValueChangedCallback = undefined;
     this.isDisposedValue = true;
   }
   public get isDisposed() {
@@ -461,6 +462,15 @@ export class Base {
     if (!notifier) notifier = this;
     if (!!notifier.doPropertyValueChangedCallback) {
       notifier.onPropertyValueChangedCallback(
+        name,
+        oldValue,
+        newValue,
+        target,
+        arrayChanges
+      );
+    }
+    if (notifier !== this && !!this.onPropertyValueChangedCallback) {
+      this.onPropertyValueChangedCallback(
         name,
         oldValue,
         newValue,

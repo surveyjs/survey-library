@@ -13537,3 +13537,38 @@ QUnit.test("Test survey renderedHasTitle/renderedHasLogo properties", function(
   Serializer.findProperty("survey", "title").visible = true;
   Serializer.findProperty("survey", "logo").visible = true;
 });
+QUnit.test("Test survey renderedHasTitle/renderedHasLogo properties", function(
+  assert
+) {
+  var survey = new SurveyModel();
+  var trigger = new SurveyTriggerSetValue();
+  survey.triggers.push(trigger);
+
+  var surveyPropertyName;
+  var triggerPropertyName;
+  survey.onPropertyValueChangedCallback = (
+    name: string,
+    oldValue: any,
+    newValue: any,
+    sender: Base,
+    arrayChanges: any
+  ) => {
+    surveyPropertyName = name;
+  };
+  trigger.onPropertyValueChangedCallback = (
+    name: string,
+    oldValue: any,
+    newValue: any,
+    sender: Base,
+    arrayChanges: any
+  ) => {
+    triggerPropertyName = name;
+  };
+  trigger.setValue = "test";
+  assert.equal(surveyPropertyName, "setValue", "get notification from survey");
+  assert.equal(
+    triggerPropertyName,
+    "setValue",
+    "get notification from trigger"
+  );
+});

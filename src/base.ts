@@ -369,7 +369,12 @@ export class Base {
    */
   public setPropertyValue(name: string, val: any) {
     var oldValue = this.getPropertyValue(name);
-    if (oldValue && Array.isArray(oldValue) && !!this.arraysInfo) {
+    if (
+      oldValue &&
+      Array.isArray(oldValue) &&
+      !!this.arraysInfo &&
+      (!val || Array.isArray(val))
+    ) {
       if (this.isTwoValueEquals(oldValue, val)) return;
       var arrayInfo = this.arraysInfo[name];
       this.setArray(

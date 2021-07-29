@@ -5,7 +5,6 @@ import { ReactElementFactory } from "./element-factory";
 
 import { SurveyPanelBase } from "./panel-base";
 import { PanelModel, doKey2Click } from "survey-core";
-import { ReactQuestionFactory } from "./reactquestion_factory";
 import { ReactSurveyModel } from "./reactsurveymodel";
 
 export class SurveyPanel extends SurveyPanelBase {

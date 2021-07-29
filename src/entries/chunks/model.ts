@@ -16,7 +16,7 @@ export {
   TextValidator,
   ValidatorResult,
   ExpressionValidator,
-  ValidatorRunner,
+  ValidatorRunner
 } from "../../validator";
 export { ItemValue } from "../../itemvalue";
 export { Base, Event, ArrayChanges } from "../../base";
@@ -25,7 +25,7 @@ export {
   ISurveyElement,
   IElement,
   IPage,
-  ITitleOwner,
+  ITitleOwner
 } from "../../base-interfaces";
 export { SurveyError } from "../../survey-error";
 export { SurveyElement } from "../../survey-element";
@@ -35,13 +35,13 @@ export {
   AnswerRequiredError,
   OneAnswerRequiredError,
   RequreNumericError,
-  ExceedSizeError,
+  ExceedSizeError
 } from "../../error";
 export {
   ILocalizableOwner,
   ILocalizableString,
   LocalizableString,
-  LocalizableStrings,
+  LocalizableStrings
 } from "../../localizablestring";
 export { HtmlConditionItem, UrlConditionItem } from "../../expressionItems";
 export { ChoicesRestful, ChoicesRestfull } from "../../choicesRestful";
@@ -53,7 +53,7 @@ export {
   BinaryOperand,
   Variable,
   FunctionOperand,
-  ArrayOperand,
+  ArrayOperand
 } from "../../expressions/expressions";
 export { ConditionsParser } from "../../conditionsParser";
 export { ProcessValue } from "../../conditionProcessValue";
@@ -70,7 +70,7 @@ export {
   JsonUnknownPropertyError,
   Serializer,
   property,
-  propertyArray,
+  propertyArray
 } from "../../jsonobject";
 export {
   MatrixDropdownCell,
@@ -80,36 +80,37 @@ export {
   QuestionMatrixDropdownModelBase,
   QuestionMatrixDropdownRenderedCell,
   QuestionMatrixDropdownRenderedRow,
-  QuestionMatrixDropdownRenderedTable,
+  QuestionMatrixDropdownRenderedTable
 } from "../../question_matrixdropdownbase";
 export {
   MatrixDropdownRowModel,
-  QuestionMatrixDropdownModel,
+  QuestionMatrixDropdownModel
 } from "../../question_matrixdropdown";
 export {
   MatrixDynamicRowModel,
-  QuestionMatrixDynamicModel,
+  QuestionMatrixDynamicModel
 } from "../../question_matrixdynamic";
 export {
   MatrixRowModel,
   MatrixCells,
   QuestionMatrixModel,
-  IMatrixData,
+  IMatrixData
 } from "../../question_matrix";
 export {
   MultipleTextItemModel,
-  QuestionMultipleTextModel,
+  QuestionMultipleTextModel
 } from "../../question_multipletext";
 export { PanelModel, PanelModelBase, QuestionRowModel } from "../../panel";
 export { FlowPanelModel } from "../../flowpanel";
 export { PageModel } from "../../page";
 export * from "../../template-renderer";
+export { DefaultTitleModel } from "../../defaultTitle";
 export { Question } from "../../question";
 export { QuestionNonValue } from "../../questionnonvalue";
 export { QuestionEmptyModel } from "../../question_empty";
 export {
   QuestionCheckboxBase,
-  QuestionSelectBase,
+  QuestionSelectBase
 } from "../../question_baseselect";
 export { QuestionCheckboxModel } from "../../question_checkbox";
 export { QuestionRankingModel } from "../../question_ranking";
@@ -125,13 +126,13 @@ export { QuestionTextModel } from "../../question_text";
 export { QuestionBooleanModel } from "../../question_boolean";
 export {
   QuestionImagePickerModel,
-  ImageItemValue,
+  ImageItemValue
 } from "../../question_imagepicker";
 export { QuestionImageModel } from "../../question_image";
 export { QuestionSignaturePadModel } from "../../question_signaturepad";
 export {
   QuestionPanelDynamicModel,
-  QuestionPanelDynamicItem,
+  QuestionPanelDynamicItem
 } from "../../question_paneldynamic";
 export { SurveyTimer } from "../../surveytimer";
 export { SurveyProgressButtonsModel } from "../../surveyProgressButtons";
@@ -143,7 +144,7 @@ export {
   SurveyTriggerVisible,
   SurveyTriggerCopyValue,
   SurveyTriggerRunExpression,
-  Trigger,
+  Trigger
 } from "../../trigger";
 export { SurveyWindowModel } from "../../surveyWindow";
 export { TextPreProcessor } from "../../textPreProcessor";
@@ -160,7 +161,7 @@ export {
   QuestionCustomModel,
   QuestionCompositeModel,
   ComponentQuestionJSON,
-  ComponentCollection,
+  ComponentCollection
 } from "../../question_custom";
 
 export { StylesManager } from "../../stylesmanager";
@@ -169,7 +170,7 @@ export { PopupModel, PopupBaseViewModel } from "../../popup";
 export {
   QuestionButtonGroupModel,
   ButtonGroupItemModel,
-  ButtonGroupItemValue,
+  ButtonGroupItemValue
 } from "../../question_buttongroup";
 export { IsMobile } from "../../utils/is-mobile";
 export {
@@ -177,8 +178,9 @@ export {
   detectIEOrEdge,
   doKey2Click,
   loadFileFromBase64,
-  createSvg,
+  createSvg
 } from "../../utils/utils";
+export * from "../../utils/cssClassBuilder";
 
 export { surveyCss } from "../../defaultCss/cssstandard";
 //Uncomment to include the "date" question type.

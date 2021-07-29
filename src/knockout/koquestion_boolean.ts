@@ -1,6 +1,5 @@
-import { Serializer, QuestionFactory, QuestionBooleanModel } from "survey-core";
+import { Serializer, QuestionFactory, QuestionBooleanModel, CssClassBuilder } from "survey-core";
 import { QuestionImplementor } from "./koquestion";
-import { CssClassBuilder } from "src/utils/cssClassBuilder";
 
 export class QuestionBoolean extends QuestionBooleanModel {
   private _implementor: QuestionImplementor;

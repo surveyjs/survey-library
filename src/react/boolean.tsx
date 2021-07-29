@@ -1,8 +1,7 @@
 import * as React from "react";
+import { QuestionBooleanModel, CssClassBuilder } from "survey-core";
 import { SurveyQuestionElementBase } from "./reactquestion_element";
-import { QuestionBooleanModel } from "survey-core";
 import { ReactQuestionFactory } from "./reactquestion_factory";
-import { CssClassBuilder } from "../utils/cssClassBuilder";
 
 export class SurveyQuestionBoolean extends SurveyQuestionElementBase {
   protected checkRef: React.RefObject<HTMLInputElement>;
@@ -82,7 +81,7 @@ export class SurveyQuestionBoolean extends SurveyQuestionElementBase {
   }
   protected renderElement(): JSX.Element {
     const cssClasses = this.question.cssClasses;
-    const itemClass: string = this.question.getItemClass();
+    const itemClass: string = this.question.getItemCss();
     return (
       <div className={cssClasses.root}>
         <label className={itemClass} onClick={this.handleOnClick}>

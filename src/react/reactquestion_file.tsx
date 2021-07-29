@@ -1,9 +1,7 @@
 import * as React from "react";
+import { QuestionFileModel, CssClassBuilder, confirmAction, detectIEOrEdge, loadFileFromBase64 } from "survey-core";
 import { SurveyQuestionElementBase } from "./reactquestion_element";
-import { QuestionFileModel } from "survey-core";
 import { ReactQuestionFactory } from "./reactquestion_factory";
-import { confirmAction, detectIEOrEdge, loadFileFromBase64 } from "survey-core";
-import { CssClassBuilder } from "../utils/cssClassBuilder";
 
 export class SurveyQuestionFile extends SurveyQuestionElementBase {
   constructor(props: any) {

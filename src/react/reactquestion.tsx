@@ -1,9 +1,10 @@
 import * as React from "react";
 import {
-  Question,
   SurveyElement,
   SurveyError,
+  Question,
   Base,
+  CssClassBuilder,
   doKey2Click,
 } from "survey-core";
 import { SurveyQuestionCommentItem } from "./reactquestion_comment";
@@ -12,7 +13,6 @@ import { SurveyCustomWidget } from "./custom-widget";
 import { ReactElementFactory } from "./element-factory";
 import { ReactSurveyModel } from "./reactsurveymodel";
 import { QuestionMatrixDropdownRenderedCell } from "../question_matrixdropdownbase";
-import { CssClassBuilder } from "../utils/cssClassBuilder";
 
 export interface ISurveyCreator {
   createQuestionElement(question: Question): JSX.Element;
@@ -60,7 +60,7 @@ export class SurveyQuestion extends SurveyElementBase<any, any> {
     if (!!this.question) {
       this.question["react"] = null;
     }
-    var el = this.rootRef.current;
+    const el = this.rootRef.current;
     if (!!el) {
       el.removeAttribute("data-rendered");
     }

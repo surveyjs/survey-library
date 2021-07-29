@@ -62,10 +62,8 @@
 <script lang="ts">
 import Vue from "vue";
 import { Component, Prop } from "vue-property-decorator";
-import { PanelModel, doKey2Click } from "survey-core";
-import { Base } from "survey-core";
+import { PanelModel, Base, CssClassBuilder, doKey2Click } from "survey-core";
 import { BaseVue } from "./base";
-import { CssClassBuilder } from "src/utils/cssClassBuilder";
 
 @Component
 export class Panel extends BaseVue {

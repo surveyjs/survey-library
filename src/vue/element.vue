@@ -46,10 +46,7 @@
 <script lang="ts">
 import Vue from "vue";
 import { Component, Prop } from "vue-property-decorator";
-import { SurveyModel } from "survey-core";
-import { IElement } from "survey-core";
-import { Question } from "survey-core";
-import { CssClassBuilder } from "src/utils/cssClassBuilder";
+import { SurveyModel, Question, IElement, CssClassBuilder } from "survey-core";
 @Component
 export class SurveyElementVue extends Vue {
   @Prop() css: any;

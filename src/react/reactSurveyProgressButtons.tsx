@@ -1,9 +1,7 @@
 import * as React from "react";
+import { SurveyProgressButtonsModel, PageModel, CssClassBuilder } from "survey-core";
 import { SurveyNavigationBase } from "./reactSurveyNavigationBase";
 import { ReactElementFactory } from "./element-factory";
-import { PageModel } from "survey-core";
-import { SurveyProgressButtonsModel } from "survey-core";
-import { CssClassBuilder } from "../utils/cssClassBuilder";
 
 export class SurveyProgressButtons extends SurveyNavigationBase {
   private progressButtonsModel: SurveyProgressButtonsModel;

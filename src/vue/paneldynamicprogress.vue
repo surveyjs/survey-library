@@ -47,9 +47,8 @@
 <script lang="ts">
 import Vue from "vue";
 import { Component, Prop } from "vue-property-decorator";
-import { QuestionPanelDynamicModel } from "survey-core";
-import { Question } from "survey-core";
-import { CssClassBuilder } from "src/utils/cssClassBuilder";
+import { Question, QuestionPanelDynamicModel, CssClassBuilder } from "survey-core";
+
 
 @Component
 export class PanelDynamicProgress extends Vue {

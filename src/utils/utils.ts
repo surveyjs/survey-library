@@ -158,9 +158,9 @@ export function getSize(value: any) {
 }
 
 function doKey2Click(ev: any) {
-  var el: any = ev.target;
+  const el: any = ev.target;
   if (!el) return;
-  var char = ev.which || ev.keyCode;
+  const char: number = ev.which || ev.keyCode;
   if (char === 13 || char === 32) {
     if (el.click) el.click();
   } else if (char === 27) {
@@ -179,5 +179,5 @@ export {
   findScrollableParent,
   scrollElementByChildId,
   createSvg,
-  doKey2Click,
+  doKey2Click
 };

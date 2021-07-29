@@ -1,8 +1,6 @@
 import React from "react";
-import { Question } from "survey-core";
-import { CssClassBuilder } from "../../../utils/cssClassBuilder";
+import { Question, DefaultTitleModel } from "survey-core";
 import { ReactElementFactory } from "../../element-factory";
-
 import { TitleContent } from "../title-content/title-content";
 
 export class DefaultTitle extends React.Component<any, any> {
@@ -18,8 +16,8 @@ export class DefaultTitle extends React.Component<any, any> {
   render() {
     var expandCollapse = null;
     if (this.element.isCollapsed || this.element.isExpanded) {
-      const iconCss = new CssClassBuilder().append(this.cssClasses.icon)
-          .append(this.cssClasses.iconExpanded, !this.element.isCollapsed).toString();
+      const iconCss: string = DefaultTitleModel.getIconCss(
+        this.cssClasses, this.element.isCollapsed);
     
       var changeExpanded = (event: any) => {
         let question = this.element;
@@ -30,7 +28,7 @@ export class DefaultTitle extends React.Component<any, any> {
         this.isNeedFocus = question.isCollapsed;
       };
       var pressExpand = (event: any) => {
-        if (event.keyCode == 13) changeExpanded(event);
+        if (event.keyCode === 13) changeExpanded(event);
       };
       var ariaExpanded = this.element.isExpanded;
       var ariaControls = this.element.isExpanded

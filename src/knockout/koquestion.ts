@@ -1,6 +1,5 @@
 import * as ko from "knockout";
-import { CssClassBuilder } from "src/utils/cssClassBuilder";
-import { Question, SurveyElement, Helpers, doKey2Click } from "survey-core";
+import { SurveyElement, Question, CssClassBuilder, Helpers, doKey2Click } from "survey-core";
 import { ImplementorBase } from "./kobase";
 
 export class QuestionImplementor extends ImplementorBase {

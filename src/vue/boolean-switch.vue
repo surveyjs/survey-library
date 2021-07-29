@@ -1,6 +1,6 @@
 <template>
   <div :class="question.cssClasses.root">
-    <label :class="question.getItemClass()">
+    <label :class="question.getItemCss()">
       <input
         type="checkbox"
         :name="question.name"

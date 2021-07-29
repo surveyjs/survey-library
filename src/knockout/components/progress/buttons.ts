@@ -1,7 +1,5 @@
 import * as ko from "knockout";
-import { CssClassBuilder } from "src/utils/cssClassBuilder";
-import { SurveyModel } from "survey-core";
-import { SurveyProgressButtonsModel } from "survey-core";
+import { SurveyModel, SurveyProgressButtonsModel, CssClassBuilder } from "survey-core";
 const template: any = require("html-loader?interpolate!val-loader!./buttons.html");
 
 export class ProgressButtonsViewModel {

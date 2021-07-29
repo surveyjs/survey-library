@@ -1,21 +1,9 @@
 import { Component } from "vue-property-decorator";
+import { QuestionBooleanModel, CssClassBuilder } from "survey-core";
 import { QuestionVue } from "./question";
-import { QuestionBooleanModel } from "survey-core";
-import { CssClassBuilder } from "src/utils/cssClassBuilder";
 
 @Component
 export class Boolean extends QuestionVue<QuestionBooleanModel> {
-  get itemClass() {
-    const isChecked = this.question.checkedValue;
-    const isDisabled = this.question.isReadOnly;
-    const cssClasses = this.question.cssClasses;
-    return new CssClassBuilder()
-      .append(cssClasses.item)
-      .append(cssClasses.itemDisabled, isDisabled)
-      .append(cssClasses.itemChecked, isChecked)
-      .append(cssClasses.itemIndeterminate, isChecked === null)
-      .toString();
-  }
   getLabelClass(checked: boolean): string {
     const question = this.question;
     return new CssClassBuilder()

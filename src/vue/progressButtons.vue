@@ -46,9 +46,7 @@
 <script lang="ts">
 import Vue from "vue";
 import { Component, Prop } from "vue-property-decorator";
-import { SurveyModel } from "survey-core";
-import { SurveyProgressButtonsModel } from "survey-core";
-import { CssClassBuilder } from "src/utils/cssClassBuilder";
+import { SurveyModel, SurveyProgressButtonsModel, CssClassBuilder } from "survey-core";
 
 @Component
 export class ProgressButtons extends Vue {

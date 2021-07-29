@@ -9,7 +9,7 @@ export class SurveyQuestionBooleanCheckbox extends SurveyQuestionBoolean {
   }
   protected renderElement(): JSX.Element {
     const cssClasses = this.question.cssClasses;
-    const itemClass = this.question.getItemClass();
+    const itemClass = this.question.getItemCss();
     return (
       <div className={cssClasses.root}>
         <label className={itemClass} onClick={this.handleOnClick}>

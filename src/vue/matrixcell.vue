@@ -66,9 +66,7 @@
 <script lang="ts">
 import Vue from "vue";
 import { Component, Prop } from "vue-property-decorator";
-import { Question } from "survey-core";
-import { QuestionMatrixDropdownRenderedCell } from "survey-core";
-import { CssClassBuilder } from "src/utils/cssClassBuilder";
+import { Question, QuestionMatrixDropdownRenderedCell, CssClassBuilder } from "survey-core";
 
 @Component
 export class MatrixCell extends Vue {

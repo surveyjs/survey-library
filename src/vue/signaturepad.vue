@@ -29,7 +29,7 @@
 
 <script lang="ts">
 import Vue from "vue";
-import { Component, Prop, Watch } from "vue-property-decorator";
+import { Component } from "vue-property-decorator";
 import { default as QuestionVue } from "./question";
 import { QuestionSignaturePadModel } from "survey-core";
 

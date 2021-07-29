@@ -1,11 +1,12 @@
 import * as ko from "knockout";
-import { SurveyElement } from "survey-core";
-import { Serializer } from "survey-core";
-import { QuestionFactory } from "survey-core";
+import { SurveyElement, 
+      Serializer, 
+      Question, 
+      QuestionFactory,
+      QuestionPanelDynamicModel,
+      CssClassBuilder
+} from "survey-core";
 import { QuestionImplementor } from "./koquestion";
-import { QuestionPanelDynamicModel } from "survey-core";
-import { Question } from "survey-core";
-import { CssClassBuilder } from "src/utils/cssClassBuilder";
 
 export class QuestionPanelDynamicImplementor extends QuestionImplementor {
   koRecalc: any;

@@ -160,7 +160,7 @@ export class QuestionBooleanModel extends Question {
     return this.locLabelFalse.textOrHtml;
   }
 
-  public getItemClass(): string {
+  public getItemCss(): string {
     return new CssClassBuilder()
       .append(this.cssClasses.item)
       .append(this.cssClasses.itemDisabled, this.isReadOnly)

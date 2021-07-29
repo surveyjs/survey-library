@@ -16,10 +16,10 @@
 </template>
 
 <script lang="ts">
-import { CssClassBuilder } from "src/utils/cssClassBuilder";
 import Vue from "vue";
 import Component from "vue-class-component";
 import { Prop } from "vue-property-decorator";
+import { DefaultTitleModel } from "survey-core";
 
 @Component
 export class DefaultTitle extends Vue {
@@ -36,10 +36,7 @@ export class DefaultTitle extends Vue {
   }
 
   getIconCss(isCollapsed: boolean) {
-    return new CssClassBuilder()
-      .append(this.css.question.icon)
-      .append(this.css.question.iconExpanded, !isCollapsed)
-      .toString();
+    return DefaultTitleModel.getIconCss(this.css.question, isCollapsed);
   }
 
   mounted() {

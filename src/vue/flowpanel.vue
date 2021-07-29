@@ -24,9 +24,7 @@
 <script lang="ts">
 import Vue from "vue";
 import { Component, Prop } from "vue-property-decorator";
-import { Question } from "survey-core";
-import { FlowPanelModel } from "survey-core";
-import { CssClassBuilder } from "src/utils/cssClassBuilder";
+import { FlowPanelModel, Question, CssClassBuilder } from "survey-core";
 
 @Component
 export class FlowPanel extends Vue {

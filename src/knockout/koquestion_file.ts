@@ -1,11 +1,14 @@
 import * as ko from "knockout";
-import { Serializer } from "survey-core";
-import { QuestionFactory } from "survey-core";
-import { QuestionFileModel } from "survey-core";
+import { Serializer,
+      Question,
+      QuestionFactory,
+      QuestionFileModel,
+      CssClassBuilder,
+      confirmAction,
+      detectIEOrEdge,
+      loadFileFromBase64
+} from "survey-core";
 import { QuestionImplementor } from "./koquestion";
-import { Question } from "survey-core";
-import { confirmAction, detectIEOrEdge, loadFileFromBase64 } from "survey-core";
-import { CssClassBuilder } from "src/utils/cssClassBuilder";
 
 class QuestionFileImplementor extends QuestionImplementor {
   constructor(question: Question) {

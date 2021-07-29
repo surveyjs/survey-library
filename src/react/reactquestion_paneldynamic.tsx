@@ -1,11 +1,8 @@
 import * as React from "react";
 import { SurveyQuestionElementBase } from "./reactquestion_element";
-import { QuestionPanelDynamicModel } from "survey-core";
+import { SurveyModel, Question, QuestionPanelDynamicModel, CssClassBuilder } from "survey-core";
 import { SurveyPanel } from "./panel";
 import { ReactQuestionFactory } from "./reactquestion_factory";
-import { SurveyModel } from "survey-core";
-import { Question } from "survey-core";
-import { CssClassBuilder } from "../utils/cssClassBuilder";
 
 export class SurveyQuestionPanelDynamic extends SurveyQuestionElementBase {
   constructor(props: any) {

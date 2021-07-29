@@ -5,11 +5,9 @@ import {
 } from "./reactquestion_element";
 import { SurveyQuestion, SurveyQuestionAndErrorsCell } from "./reactquestion";
 import {
-  MatrixDropdownRowModelBase,
   QuestionMatrixDropdownModelBase,
   QuestionMatrixDropdownRenderedRow,
   QuestionMatrixDropdownRenderedCell,
-  MatrixDropdownCell,
   AdaptiveActionContainer,
   Question
 } from "survey-core";
@@ -18,7 +16,6 @@ import { SurveyQuestionRadioItem } from "./reactquestion_radiogroup";
 import { SurveyPanel } from "./panel";
 
 import { SurveyActionBar } from "./components/action-bar/action-bar";
-import { ReactSurveyModel } from "./reactsurveymodel";
 
 export class SurveyQuestionMatrixDropdownBase extends SurveyQuestionElementBase {
   constructor(props: any) {

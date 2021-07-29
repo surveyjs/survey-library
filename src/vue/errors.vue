@@ -5,7 +5,7 @@
     :class="classes"
     :id="question.id + '_errors'"
   >
-    <div v-for="error in question.errors">
+    <div v-for="(error, index) in question.errors" :key="'error_' + index">
       <span
         :class="
           question.cssClasses
@@ -30,8 +30,7 @@
 <script lang="ts">
 import Vue from "vue";
 import { Component, Prop } from "vue-property-decorator";
-import { Question } from "survey-core";
-import { CssClassBuilder } from "src/utils/cssClassBuilder";
+import { Question, CssClassBuilder } from "survey-core";
 
 @Component
 export class Errors extends Vue {

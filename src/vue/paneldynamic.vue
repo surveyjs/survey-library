@@ -31,10 +31,8 @@
 <script lang="ts">
 import Vue from "vue";
 import { Component } from "vue-property-decorator";
+import { Question, QuestionPanelDynamicModel, CssClassBuilder } from "survey-core";
 import { default as QuestionVue } from "./question";
-import { Question } from "survey-core";
-import { QuestionPanelDynamicModel } from "survey-core";
-import { CssClassBuilder } from "src/utils/cssClassBuilder";
 
 @Component
 export class PanelDynamic extends QuestionVue<QuestionPanelDynamicModel> {

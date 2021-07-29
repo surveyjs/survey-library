@@ -1,9 +1,6 @@
-import * as ko from "knockout";
-import { CssClassBuilder } from "src/utils/cssClassBuilder";
-import { QuestionBooleanModel } from "survey-core";
-import { Serializer } from "survey-core";
-import { QuestionFactory } from "survey-core";
+import { Serializer, QuestionFactory, QuestionBooleanModel } from "survey-core";
 import { QuestionImplementor } from "./koquestion";
+import { CssClassBuilder } from "src/utils/cssClassBuilder";
 
 export class QuestionBoolean extends QuestionBooleanModel {
   private _implementor: QuestionImplementor;
@@ -16,17 +13,6 @@ export class QuestionBoolean extends QuestionBooleanModel {
   }
   private get allowClick() {
     return this.isIndeterminate && !this.isInputReadOnly;
-  }
-  public getItemCss(row: any, column: any) {
-    const isChecked = this.checkedValue;
-    const isDisabled = this.isReadOnly;
-    const cssClasses = this.cssClasses;
-    return new CssClassBuilder()
-      .append(cssClasses.item)
-      .append(cssClasses.itemDisabled, isDisabled)
-      .append(cssClasses.itemChecked, isChecked)
-      .append(cssClasses.itemIndeterminate, isChecked === null)
-      .toString();
   }
   public getCheckedLabelCss(): string {
     return this.getLabelClass(true);

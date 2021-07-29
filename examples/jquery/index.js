@@ -970,7 +970,7 @@ function init() {
 
   window.survey = new Survey.Model(json);
   survey.onComplete.add(function(result) {
-    document.querySelector("#surveyResult").innerHTML =
+    document.querySelector("#surveyResultElement").innerHTML =
       "result: " + JSON.stringify(result.data);
   });
 

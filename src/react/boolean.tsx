@@ -17,7 +17,7 @@ export class SurveyQuestionBoolean extends SurveyQuestionElementBase {
   protected get question(): QuestionBooleanModel {
     return this.questionBase as QuestionBooleanModel;
   }
-  private get allowClick() {
+  private get allowClick(): boolean {
     return this.question.isIndeterminate && !this.isDisplayMode;
   }
   private preventDefaults(event: any) {
@@ -65,17 +65,6 @@ export class SurveyQuestionBoolean extends SurveyQuestionElementBase {
     this.control = el;
     super.updateDomElement();
   }
-  protected getItemClass(): string {
-    const isChecked = this.question.checkedValue;
-    const isDisabled = this.question.isReadOnly;
-    const cssClasses = this.question.cssClasses;
-    return new CssClassBuilder()
-      .append(cssClasses.item)
-      .append(cssClasses.itemDisabled, isDisabled)
-      .append(cssClasses.itemChecked, isChecked)
-      .append(cssClasses.itemIndeterminate, isChecked === null)
-      .toString();
-  }
   private getLabelClass(checked: boolean): string {
     const question: QuestionBooleanModel = this.question;
     return new CssClassBuilder()
@@ -92,8 +81,8 @@ export class SurveyQuestionBoolean extends SurveyQuestionElementBase {
     }
   }
   protected renderElement(): JSX.Element {
-    var cssClasses = this.question.cssClasses;
-    var itemClass = this.getItemClass();
+    const cssClasses = this.question.cssClasses;
+    const itemClass: string = this.question.getItemClass();
     return (
       <div className={cssClasses.root}>
         <label className={itemClass} onClick={this.handleOnClick}>

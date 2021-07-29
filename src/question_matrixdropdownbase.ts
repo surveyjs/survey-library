@@ -3382,18 +3382,10 @@ export class QuestionMatrixDropdownModelBase
   public getDetailPanelButtonCss(row: MatrixDropdownRowModelBase): string {
     const builder = new CssClassBuilder().append(this.getPropertyValue("detailButtonCss" + row.id));
     return builder.append(this.cssClasses.detailButton, builder.toString() === "").toString();
-    // var res = this.getPropertyValue("detailButtonCss" + row.id);
-    // if (!!res) return res;
-    // var res = this.cssClasses.detailButton;
-    // return !!res ? res : "";
   }
   public getDetailPanelIconCss(row: MatrixDropdownRowModelBase): string {
     const builder = new CssClassBuilder().append(this.getPropertyValue("detailIconCss" + row.id));
     return builder.append(this.cssClasses.detailIcon, builder.toString() === "").toString();
-    // var res = this.getPropertyValue("detailIconCss" + row.id);
-    // if (!!res) return res;
-    // var res = this.cssClasses.detailIcon;
-    // return !!res ? res : "";
   }
   private updateDetailPanelButtonCss(row: MatrixDropdownRowModelBase) {
     const classes = this.cssClasses;

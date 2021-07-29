@@ -22,8 +22,10 @@ export class ResponsivityManager {
     private itemsSelector: string,
     private dotsItemSize: number = 48
   ) {
-    this.resizeObserver = new ResizeObserver((_) => this.process());
-    this.resizeObserver.observe(this.container.parentElement);
+    if (typeof ResizeObserver !== "undefined") {
+      this.resizeObserver = new ResizeObserver((_) => this.process());
+      this.resizeObserver.observe(this.container.parentElement);
+    }
   }
 
   get items(): Array<Action> {
@@ -120,7 +122,9 @@ export class ResponsivityManager {
   }
 
   public dispose(): void {
-    this.resizeObserver.disconnect();
+    if (!!this.resizeObserver) {
+      this.resizeObserver.disconnect();
+    }
   }
 }
 

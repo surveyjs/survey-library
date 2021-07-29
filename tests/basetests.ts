@@ -484,3 +484,10 @@ QUnit.test("Base onArrayChanged", function(assert) {
   assert.equal(arrayChanges.index, 0, "added into 0 index");
   assert.deepEqual(arrayChanges.itemsToAdd, [base.items[0]], "added items");
 });
+QUnit.test("Change value to array and then to undefined", function(assert) {
+  var base = new Base();
+  base.setPropertyValue("testValue", [1, 2, 3]);
+  assert.deepEqual(base.getPropertyValue("testValue"), [1, 2, 3]);
+  base.setPropertyValue("testValue", undefined);
+  assert.notOk(base.getPropertyValue("testValue"));
+});

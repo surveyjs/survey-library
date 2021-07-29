@@ -116,6 +116,12 @@ function scrollElementByChildId(id: string) {
   }
 }
 
+function getIconNameFromProxy(iconName: string): string {
+  if (!iconName) return iconName;
+  var proxyName = (<any>settings.customIcons)[iconName];
+  return !!proxyName ? proxyName : iconName;
+}
+
 function createSvg(
   size: number,
   width: number,
@@ -126,10 +132,11 @@ function createSvg(
   svgElem.style.width = (size || width || 16) + "px";
   svgElem.style.height = (size || height || 16) + "px";
   const node: any = svgElem.childNodes[0];
+  const realIconName = getIconNameFromProxy(iconName);
   node.setAttributeNS(
     "http://www.w3.org/1999/xlink",
     "xlink:href",
-    "#" + iconName
+    "#" + realIconName
   );
 }
 
@@ -179,5 +186,6 @@ export {
   findScrollableParent,
   scrollElementByChildId,
   createSvg,
-  doKey2Click
+  doKey2Click,
+  getIconNameFromProxy
 };

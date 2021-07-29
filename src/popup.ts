@@ -1,12 +1,11 @@
-import { Base, EventBase } from "./base";
+import { Base } from "./base";
 import { property } from "./jsonobject";
 import { surveyLocalization } from "./surveyStrings";
 import {
   PopupUtils,
   VerticalPosition,
   HorizontalPosition,
-  IPosition,
-  ISize,
+  IPosition
 } from "./utils/popup";
 
 export class PopupModel extends Base {

@@ -56,7 +56,7 @@ export class ListModel extends Base {
   };
 
   public getItemIndent = (itemValue: any) => {
-    const level = itemValue.level || 0;
+    const level: number = itemValue.level || 0;
     return (level + 1) * ListModel.INDENT + "px";
   };
 }

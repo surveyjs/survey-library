@@ -850,8 +850,8 @@ export class SurveyModel extends Base
    * Use this event to create/customize actions to be displayed in a question's title.
    * <br/> `sender` - A [Survey](https://surveyjs.io/Documentation/Library?id=SurveyModel) object that fires the event.
    * <br/> `options.question` - A [Question](https://surveyjs.io/Documentation/Library?id=Question) object for which the event is fired.
-   * <br/> `options.titleActions` - A list of actions ([IActionBarItem](https://surveyjs.io/Documentation/Library?id=IActionBarItem) objects) associated with the processed question.
-   * @see IActionBarItem
+   * <br/> `options.titleActions` - A list of actions ([IAction](https://surveyjs.io/Documentation/Library?id=IAction) objects) associated with the processed question.
+   * @see IAction
    * @see Question
    */
   public onGetQuestionTitleActions: EventBase<SurveyModel> = this.addEvent<
@@ -861,8 +861,8 @@ export class SurveyModel extends Base
    * Use this event to create/customize actions to be displayed in a panel's title.
    * <br/> `sender` - A survey object that fires the event.
    * <br/> `options.panel` - A panel ([PanelModel](https://surveyjs.io/Documentation/Library?id=panelmodel) object) for which the event is fired.
-   * <br/> `options.titleActions` - A list of actions ([IActionBarItem](https://surveyjs.io/Documentation/Library?id=IActionBarItem) objects) associated with the processed panel.
-   * @see IActionBarItem
+   * <br/> `options.titleActions` - A list of actions ([IAction](https://surveyjs.io/Documentation/Library?id=IAction) objects) associated with the processed panel.
+   * @see IAction
    * @see PanelModel
    */
   public onGetPanelTitleActions: EventBase<SurveyModel> = this.addEvent<
@@ -872,8 +872,8 @@ export class SurveyModel extends Base
    * Use this event to create/customize actions to be displayed in a page's title.
    * <br/> `sender` - A survey object that fires the event.
    * <br/> `options.page` - A page ([PageModel](https://surveyjs.io/Documentation/Library?id=pagemodel) object) for which the event is fired.
-   * <br/> `options.titleActions` - A list of actions ([IActionBarItem](https://surveyjs.io/Documentation/Library?id=IActionBarItem) objects) associated with the processed page.
-   * @see IActionBarItem
+   * <br/> `options.titleActions` - A list of actions ([IAction](https://surveyjs.io/Documentation/Library?id=IAction) objects) associated with the processed page.
+   * @see IAction
    * @see PageModel
    */
   public onGetPageTitleActions: EventBase<SurveyModel> = this.addEvent<
@@ -884,8 +884,8 @@ export class SurveyModel extends Base
    * <br/> `sender` - A survey object that fires the event.
    * <br/> `options.question` - A matrix question ([QuestionMatrixBaseModel](https://surveyjs.io/Documentation/Library?id=questionmatrixbasemodel) object) for which the event is fired.
    * <br/> `options.row` - A matrix row for which the event is fired.
-   * <br/> `options.actions` - A list of actions ([IActionBarItem](https://surveyjs.io/Documentation/Library?id=IActionBarItem) objects) associated with the processed matrix question and row.
-   * @see IActionBarItem
+   * <br/> `options.actions` - A list of actions ([IAction](https://surveyjs.io/Documentation/Library?id=IAction) objects) associated with the processed matrix question and row.
+   * @see IAction
    * @see QuestionMatrixDropdownModelBase
    */
   public onGetMatrixRowActions: EventBase<SurveyModel> = this.addEvent<
@@ -1705,14 +1705,16 @@ export class SurveyModel extends Base
     return !!this.logo && this.logoPosition !== "none";
   }
   public get isLogoBefore() {
+    if (this.isDesignMode) return false;
     return (
-      this.hasLogo &&
+      this.renderedHasLogo &&
       (this.logoPosition === "left" || this.logoPosition === "top")
     );
   }
   public get isLogoAfter() {
+    if (this.isDesignMode) return this.renderedHasLogo;
     return (
-      this.hasLogo &&
+      this.renderedHasLogo &&
       (this.logoPosition === "right" || this.logoPosition === "bottom")
     );
   }
@@ -1725,6 +1727,17 @@ export class SurveyModel extends Base
     };
     return new CssClassBuilder().append(this.css.logo)
       .append(logoClasses[this.logoPosition]).toString();
+  }
+  public get renderedHasTitle(): boolean {
+    if (this.isDesignMode) return this.isPropertyVisible("title");
+    return !this.locTitle.isEmpty && this.showTitle;
+  }
+  public get renderedHasLogo(): boolean {
+    if (this.isDesignMode) return this.isPropertyVisible("logo");
+    return this.hasLogo;
+  }
+  public get renderedHasHeader(): boolean {
+    return this.renderedHasTitle || this.renderedHasLogo;
   }
   /**
    * The logo fit mode.

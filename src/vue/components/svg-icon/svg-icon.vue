@@ -1,5 +1,5 @@
 <template>
-  <svg ref="svgIcon" class="sv-svg-icon"><use></use></svg>
+  <svg ref="svgIcon" class="sv-svg-icon" role="img"><use></use></svg>
 </template>
 
 <script lang="ts">

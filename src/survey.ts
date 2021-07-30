@@ -3340,10 +3340,9 @@ export class SurveyModel extends Base
     if (this.doServerValidation(doComplete)) return false;
     if (doComplete) {
       this.currentPage.passed = true;
-      this.doComplete();
-    } else {
-      this.doNextPage();
+      return this.doComplete();
     }
+    this.doNextPage();
     return true;
   }
   /**
@@ -3558,9 +3557,11 @@ export class SurveyModel extends Base
    * - calls `sendResult` function.
    *
    * Calling the `doComplete` function does not perform any validation, unlike the `completeLastPage` function.
+   * The function can return false, if you set options.allowComplete to false in onCompleting event. Otherwise it returns true.
    * It calls `navigateToUrl` after calling `onComplete` event.
    * In case calling `options.showDataSaving` callback in the `onComplete` event, `navigateToUrl` is used on calling `options.showDataSavingSuccess` callback.
    * @see completeLastPage
+   * @see onCompleting
    * @see cookieName
    * @see state
    * @see onComplete
@@ -3569,13 +3570,13 @@ export class SurveyModel extends Base
    * @see navigateToUrl
    * @see navigateToUrlOnCondition
    */
-  public doComplete(isCompleteOnTrigger: boolean = false) {
+  public doComplete(isCompleteOnTrigger: boolean = false): boolean {
     var onCompletingOptions = {
       allowComplete: true,
       isCompleteOnTrigger: isCompleteOnTrigger,
     };
     this.onCompleting.fire(this, onCompletingOptions);
-    if (!onCompletingOptions.allowComplete) return;
+    if (!onCompletingOptions.allowComplete) return false;
     let previousCookie = this.hasCookie;
     this.stopTimer();
     this.setCompleted();
@@ -3607,6 +3608,7 @@ export class SurveyModel extends Base
     if (!savingDataStarted) {
       this.navigateTo();
     }
+    return true;
   }
   /**
    * Starts the survey. Changes the survey mode from "starting" to "running". Call this function if your survey has a start page, otherwise this function does nothing.

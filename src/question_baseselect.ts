@@ -342,7 +342,10 @@ export class QuestionSelectBase extends Question {
   }
   public set renderedValue(val: any) {
     this.setPropertyValue("renderedValue", val);
-    this.value = this.rendredValueToData(val);
+    var val = this.rendredValueToData(val);
+    if (!Helpers.isTwoValueEquals(val, this.value)) {
+      this.value = val;
+    }
   }
   protected setQuestionValue(
     newValue: any,

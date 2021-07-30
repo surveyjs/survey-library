@@ -195,18 +195,12 @@ const setupSurvey = ClientFunction((framework) => {
 
     const setupAngular = function() {};
 
-    const setupJquery = function() {};
-
     if (framework === "knockout") {
         setupKnockout();
     } else if (framework === "react") {
         setupReact();
     } else if (framework === "vue") {
         setupVue();
-    } else if (framework === "angular") {
-        setupAngular();
-    } else if (framework === "jquery") {
-        setupJquery();
     }
 });
 

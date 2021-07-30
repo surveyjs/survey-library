@@ -168,6 +168,13 @@ export class QuestionBooleanModel extends Question {
       .append(this.cssClasses.itemIndeterminate, this.checkedValue === null)
       .toString();
   }
+
+  public getLabelCss(checked: boolean): string {
+    return new CssClassBuilder()
+      .append(this.cssClasses.label)
+      .append(this.cssClasses.disabledLabel, this.checkedValue === !checked || this.isReadOnly)
+      .toString();
+  }
 }
 
 Serializer.addClass(

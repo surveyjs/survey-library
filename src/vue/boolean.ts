@@ -4,13 +4,6 @@ import { QuestionVue } from "./question";
 
 @Component
 export class Boolean extends QuestionVue<QuestionBooleanModel> {
-  getLabelClass(checked: boolean): string {
-    const question = this.question;
-    return new CssClassBuilder()
-      .append(question.cssClasses.label)
-      .append(question.cssClasses.disabledLabel, question.checkedValue === !checked || question.isReadOnly)
-      .toString();
-  }
   private preventDefaults(event: any) {
     event.preventDefault();
     event.stopPropagation();
@@ -18,8 +11,8 @@ export class Boolean extends QuestionVue<QuestionBooleanModel> {
   public onSwitchClick(event: any) {
     if (this.question.isIndeterminate) {
       this.preventDefaults(event);
-      var isRightClick = event.offsetX / event.target.offsetWidth > 0.5;
-      var isRtl =
+      const isRightClick = event.offsetX / event.target.offsetWidth > 0.5;
+      const isRtl =
         document.defaultView.getComputedStyle(event.target).direction == "rtl";
       this.question.checkedValue = isRtl ? !isRightClick : isRightClick;
     }

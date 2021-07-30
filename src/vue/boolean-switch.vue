@@ -18,7 +18,7 @@
         "
       />
       <span
-        :class="getLabelClass(false)"
+        :class="question.getLabelCss(false)"
         v-on:click="onLabelClick($event, false)"
         ><survey-string :locString="question.locLabelFalse"></survey-string
       ></span>
@@ -28,7 +28,7 @@
       >
         <span :class="question.cssClasses.slider" />
       </div>
-      <span :class="getLabelClass(true)" v-on:click="onLabelClick($event, true)"
+      <span :class="question.getLabelCss(true)" v-on:click="onLabelClick($event, true)"
         ><survey-string :locString="question.locLabelTrue"></survey-string
       ></span>
     </label>

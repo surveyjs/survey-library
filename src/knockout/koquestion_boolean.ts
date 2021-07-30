@@ -13,20 +13,6 @@ export class QuestionBoolean extends QuestionBooleanModel {
   private get allowClick() {
     return this.isIndeterminate && !this.isInputReadOnly;
   }
-  public getCheckedLabelCss(): string {
-    return this.getLabelClass(true);
-  }
-  public getUncheckedLabelCss(): string {
-    return this.getLabelClass(false);
-  }
-  private getLabelClass(checked: boolean): string {
-    const question: QuestionBooleanModel = this;
-    return new CssClassBuilder()
-      .append(question.cssClasses.label)
-      .append(question.cssClasses.disabledLabel,
-        question.checkedValue === !checked || question.isReadOnly)
-      .toString();
-  }
   private preventDefaults(event: any) {
     event.preventDefault();
     event.stopPropagation();

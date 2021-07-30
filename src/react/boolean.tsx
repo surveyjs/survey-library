@@ -64,14 +64,6 @@ export class SurveyQuestionBoolean extends SurveyQuestionElementBase {
     this.control = el;
     super.updateDomElement();
   }
-  private getLabelClass(checked: boolean): string {
-    const question: QuestionBooleanModel = this.question;
-    return new CssClassBuilder()
-      .append(question.cssClasses.label)
-      .append(question.cssClasses.disabledLabel,
-        question.checkedValue === !checked || question.isReadOnly)
-      .toString();
-  }
   private getCheckedLabel() {
     if (this.question.checkedValue === true) {
       return this.question.locLabelTrue;
@@ -107,7 +99,7 @@ export class SurveyQuestionBoolean extends SurveyQuestionElementBase {
             }
           />
           <span
-            className={this.getLabelClass(false)}
+            className={this.question.getLabelCss(false)}
             onClick={(event) => this.handleOnLabelClick(event, false)}
           >
             {this.renderLocString(this.question.locLabelFalse)}
@@ -122,7 +114,7 @@ export class SurveyQuestionBoolean extends SurveyQuestionElementBase {
             </span>
           </div>
           <span
-            className={this.getLabelClass(true)}
+            className={this.question.getLabelCss(true)}
             onClick={(event) => this.handleOnLabelClick(event, true)}
           >
             {this.renderLocString(this.question.locLabelTrue)}

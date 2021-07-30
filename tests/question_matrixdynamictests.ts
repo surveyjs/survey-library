@@ -6765,3 +6765,42 @@ QUnit.test(
     assert.equal(counter, 1, "value is correct");
   }
 );
+QUnit.test(
+  "Matrixdynamic onMatrixValueChanging - do not call event on set the same renderedValue",
+  function(assert) {
+    var json = {
+      questions: [
+        {
+          type: "matrixdynamic",
+          name: "q1",
+          rowCount: 1,
+          columns: [
+            {
+              name: "col1",
+              choices: [1, 2, 3, 4, 5],
+            },
+          ],
+        },
+      ],
+    };
+    var survey = new SurveyModel(json);
+    var counter = 0;
+    survey.onMatrixCellValueChanging.add(function(sender, options) {
+      counter++;
+    });
+    var matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("q1");
+    var cellQuestion = <QuestionDropdownModel>(
+      matrix.visibleRows[0].cells[0].question
+    );
+    cellQuestion.renderedValue = undefined;
+    assert.equal(counter, 0, "There is not value to clear");
+    cellQuestion.renderedValue = 1;
+    assert.equal(counter, 1, "Call one time");
+    cellQuestion.renderedValue = 1;
+    assert.equal(counter, 1, "Do not call on the same value");
+    cellQuestion.renderedValue = undefined;
+    assert.equal(counter, 2, "Value is undefined");
+    cellQuestion.renderedValue = undefined;
+    assert.equal(counter, 2, "Value is still undefined");
+  }
+);

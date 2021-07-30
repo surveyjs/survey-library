@@ -491,3 +491,10 @@ QUnit.test("Change value to array and then to undefined", function(assert) {
   base.setPropertyValue("testValue", undefined);
   assert.notOk(base.getPropertyValue("testValue"));
 });
+QUnit.test("Change value to array and then to string", function(assert) {
+  var base = new BaseTester();
+  base.setPropertyValue("testValue", [1, 2, 3]);
+  assert.deepEqual(base.getPropertyValue("testValue"), [1, 2, 3]);
+  base.setPropertyValue("testValue", "abc");
+  assert.equal(base.getPropertyValue("testValue"), "abc");
+});

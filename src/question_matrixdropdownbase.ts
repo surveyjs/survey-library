@@ -1515,8 +1515,10 @@ export class QuestionMatrixDropdownRenderedRow extends Base {
   public className: string = "";
   public constructor() {
     super();
+    this.onCreating();
     this.idValue = QuestionMatrixDropdownRenderedRow.counter++;
   }
+  public onCreating() {}
   public get id(): number {
     return this.idValue;
   }

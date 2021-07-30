@@ -173,6 +173,30 @@ QUnit.test(
     assert.equal(survey.currentPageNo, 1, "Current page is the last one");
   }
 );
+QUnit.test(
+  "showPreviewBeforeComplete = 'showAllQuestions', and do noting onCompleting, options.allowComplete = false",
+  function(assert) {
+    var survey = new SurveyModel({
+      pages: [
+        { elements: [{ type: "text", name: "q1" }] },
+        { elements: [{ type: "text", name: "q2" }] },
+      ],
+    });
+    survey.showPreviewBeforeComplete = "showAllQuestions";
+    var allowComplete = false;
+    survey.onCompleting.add((sender, options) => {
+      options.allowComplete = allowComplete;
+    });
+    survey.currentPageNo = 1;
+    survey.showPreview();
+    assert.equal(survey.state, "preview");
+    survey.completeLastPage();
+    assert.equal(survey.state, "preview", "Keep showing preview");
+    allowComplete = true;
+    survey.completeLastPage();
+    assert.equal(survey.state, "completed");
+  }
+);
 
 QUnit.test(
   "showPreviewBeforeComplete = 'showAllQuestions', questionsOnPageMode = 'singlePage'",

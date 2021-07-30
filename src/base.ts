@@ -183,6 +183,7 @@ export class Base {
     for (var i = 0; i < this.eventList.length; i++) {
       this.eventList[i].clear();
     }
+    this.onPropertyValueChangedCallback = undefined;
     this.isDisposedValue = true;
   }
   public get isDisposed() {
@@ -368,7 +369,12 @@ export class Base {
    */
   public setPropertyValue(name: string, val: any) {
     var oldValue = this.getPropertyValue(name);
-    if (oldValue && Array.isArray(oldValue)) {
+    if (
+      oldValue &&
+      Array.isArray(oldValue) &&
+      !!this.arraysInfo &&
+      (!val || Array.isArray(val))
+    ) {
       if (this.isTwoValueEquals(oldValue, val)) return;
       var arrayInfo = this.arraysInfo[name];
       this.setArray(
@@ -461,6 +467,15 @@ export class Base {
     if (!notifier) notifier = this;
     if (!!notifier.doPropertyValueChangedCallback) {
       notifier.onPropertyValueChangedCallback(
+        name,
+        oldValue,
+        newValue,
+        target,
+        arrayChanges
+      );
+    }
+    if (notifier !== this && !!this.onPropertyValueChangedCallback) {
+      this.onPropertyValueChangedCallback(
         name,
         oldValue,
         newValue,

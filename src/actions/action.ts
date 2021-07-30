@@ -1,6 +1,6 @@
-import { settings } from "../settings";
 import { Base } from "../base";
 import { property } from "../jsonobject";
+import { Helpers } from "survey-core";
 
 /**
  * Defines an individual action. Action items can be displayed in certain survey elements - in Toolbar (or action bar), in titles (of pages, panels, questions), in matrix rows (as 'expand details' or 'remove row' buttons), and etc.
@@ -87,7 +87,12 @@ export interface IAction {
 export class Action extends Base implements IAction {
   constructor(item: IAction) {
     super();
-    Object.assign(this, item);
+    //Object.assign(this, item) to support IE11
+    if (!!item) {
+      for (var key in item) {
+        (<any>this)[key] = (<any>item)[key];
+      }
+    }
   }
   location?: string;
   @property() id: string;

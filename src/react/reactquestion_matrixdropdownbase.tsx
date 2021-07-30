@@ -11,7 +11,7 @@ import {
   QuestionMatrixDropdownRenderedCell,
   MatrixDropdownCell,
   AdaptiveActionContainer,
-  Question
+  Question,
 } from "survey-core";
 import { SurveyQuestionCheckboxItem } from "./reactquestion_checkbox";
 import { SurveyQuestionRadioItem } from "./reactquestion_radiogroup";
@@ -98,9 +98,7 @@ export class SurveyQuestionMatrixDropdownBase extends SurveyQuestionElementBase 
     }
     return (
       <thead>
-        <tr>
-          {headers}
-        </tr>
+        <tr>{headers}</tr>
       </thead>
     );
   }
@@ -137,10 +135,13 @@ export class SurveyQuestionMatrixDropdownBase extends SurveyQuestionElementBase 
       matrixrow.push(this.renderCell(cells[i], i, cssClasses));
     }
     var key = "row" + keyValue;
+
     return (
-      <tr className={row.className} key={key}>
-        {matrixrow}
-      </tr>
+      <React.Fragment key={key}>
+        <tr className={row.className + " " + row.ghostPositionCssClass} data-sv-drop-target-matrix-row={row.id}>
+          {matrixrow}
+        </tr>
+      </React.Fragment>
     );
   }
 
@@ -168,12 +169,18 @@ export class SurveyQuestionMatrixDropdownBase extends SurveyQuestionElementBase 
       if (!!cell.width) cellStyle.width = cell.width;
       if (!!cell.minWidth) cellStyle.minWidth = cell.minWidth;
     }
+    function onPointerDownHandler(event: any) {
+      if (index !== 0) return;
+      var matrixQuestion: any = cell.row["data"];
+      matrixQuestion.startDragMatrixRow(event.nativeEvent, cell.row);
+    }
     return (
       <td
         className={cell.className}
         key={key}
         style={cellStyle}
         colSpan={cell.colSpans}
+        onPointerDown={(event: any) => onPointerDownHandler(event)}
       >
         {cellContent}
       </td>

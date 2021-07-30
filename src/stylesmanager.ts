@@ -904,12 +904,17 @@ export class StylesManager {
 
     ".sv_main .sv_qstn textarea": "max-width: 100%",
 
+    //drag-drop
     ".sv_main .sv-matrixdynamic__drag-icon": "padding-top:14px",
     ".sv_main .sv-matrixdynamic__drag-icon:after":
       "content: ' '; display: block; height: 4px; width: 16px; border: 1px solid $border-color; box-sizing: border-box; border-radius: 10px; cursor: move;",
-
-    ".sv_main .svc-drag-drop-ghost":
-      "top: 0; width: 100%; height: 4px; background: $secondary; position: absolute;",
+    ".sv_main .sv-matrix__row-ghost-position-top, .sv_main .sv-matrix__row-ghost-position-bottom":
+      "position: relative;",
+    ".sv_main .sv-matrix__row-ghost-position-top::after, .sv_main .sv-matrix__row-ghost-position-bottom::after":
+      "content: ''; width: 100%; height: 4px; background-color: var(--primary, #19b394); position: absolute; left: 0;",
+    ".sv_main .sv-matrix__row-ghost-position-top::after": "top: 0;",
+    ".sv_main .sv-matrix__row-ghost-position-bottom::after": "bottom: 0;",
+    //eo drag-drop
   };
 
   public static modernThemeCss: { [key: string]: string } = {
@@ -972,9 +977,6 @@ export class StylesManager {
       "background-color: $disable-color;",
     ".sv-matrixdynamic__add-btn": "background-color: $add-button-color;",
     ".sv-matrixdynamic__remove-btn": "background-color: $remove-button-color;",
-    ".sv-matrixdynamic__drag-icon": "padding-top:16px",
-    ".sv-matrixdynamic__drag-icon:after":
-      "content: ' '; display: block; height: 4px; width: 16px; border: 1px solid $border-color; box-sizing: border-box; border-radius: 10px; cursor: move;",
     ".sv-paneldynamic__add-btn": "background-color: $add-button-color;",
     ".sv-paneldynamic__remove-btn": "background-color: $remove-button-color;",
     ".sv-paneldynamic__prev-btn, .sv-paneldynamic__next-btn":
@@ -1033,8 +1035,17 @@ export class StylesManager {
     ".sjs_sp_container": "border: 1px dashed $disable-color;",
     ".sjs_sp_placeholder": "color: $foreground-light;",
 
-    ".svc-drag-drop-ghost":
-      "top: 0; width: 100%; height: 4px; background: $secondary; position: absolute;",
+    //drag-drop
+    ".sv-matrixdynamic__drag-icon": "padding-top:16px",
+    ".sv-matrixdynamic__drag-icon:after":
+      "content: ' '; display: block; height: 4px; width: 16px; border: 1px solid $border-color; box-sizing: border-box; border-radius: 10px; cursor: move;",
+    ".sv-matrix__row-ghost-position-top, .sv-matrix__row-ghost-position-bottom":
+      "position: relative;",
+    ".sv-matrix__row-ghost-position-top::after, .sv-matrix__row-ghost-position-bottom::after":
+      "content: ''; width: 100%; height: 4px; background-color: var(--primary, #19b394); position: absolute; left: 0;",
+    ".sv-matrix__row-ghost-position-top::after": "top: 0;",
+    ".sv-matrix__row-ghost-position-bottom::after": "bottom: 0;",
+    //eo drag-drop
   };
 
   public static bootstrapThemeCss: { [key: string]: string } = {

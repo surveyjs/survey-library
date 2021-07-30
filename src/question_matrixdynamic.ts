@@ -107,9 +107,9 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   };
   public startDragMatrixRow(
     event: PointerEvent,
-    renderedRow: QuestionMatrixDropdownRenderedRow
+    row: MatrixDropdownRowModelBase
   ) {
-    this.dragDropHelper.startDrag(event, renderedRow.row, this);
+    this.dragDropHelper.startDrag(event, row, this);
   }
 
   public getType(): string {

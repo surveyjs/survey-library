@@ -19,6 +19,7 @@ import { SurveyPanel } from "./panel";
 
 import { SurveyActionBar } from "./components/action-bar/action-bar";
 import { ReactSurveyModel } from "./reactsurveymodel";
+import { MatrixRow } from "../entries/react-ui";
 
 export class SurveyQuestionMatrixDropdownBase extends SurveyQuestionElementBase {
   constructor(props: any) {
@@ -138,9 +139,7 @@ export class SurveyQuestionMatrixDropdownBase extends SurveyQuestionElementBase 
 
     return (
       <React.Fragment key={key}>
-        <tr className={row.className + " " + row.ghostPositionCssClass} data-sv-drop-target-matrix-row={row.id}>
-          {matrixrow}
-        </tr>
+        <MatrixRow model={row}>{matrixrow}</MatrixRow>
       </React.Fragment>
     );
   }
@@ -170,6 +169,7 @@ export class SurveyQuestionMatrixDropdownBase extends SurveyQuestionElementBase 
       if (!!cell.minWidth) cellStyle.minWidth = cell.minWidth;
     }
     function onPointerDownHandler(event: any) {
+      event.persist();
       if (index !== 0) return;
       var matrixQuestion: any = cell.row["data"];
       matrixQuestion.startDragMatrixRow(event.nativeEvent, cell.row);

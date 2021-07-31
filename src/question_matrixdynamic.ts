@@ -71,7 +71,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
       }
     );
     this.registerFunctionOnPropertyValueChanged("allowRowsDragAndDrop", () => {
-      this.clearRowsAndResetRenderedTable();
+      this.clearRowsAndResetRenFderedTable();
     });
   }
 
@@ -92,7 +92,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
         (renderedRow: QuestionMatrixDropdownRenderedRow) => {
           renderedRow.ghostPosition = this.dragDropHelper.getGhostPosition(
             renderedRow.row
-          );
+          );;
         }
       );
     }

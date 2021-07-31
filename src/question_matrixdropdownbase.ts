@@ -1518,7 +1518,7 @@ export class QuestionMatrixDropdownRenderedRow extends Base {
     this.onCreating();
     this.idValue = QuestionMatrixDropdownRenderedRow.counter++;
   }
-  public onCreating() {}
+  public onCreating() {} // need for knockout binding see QuestionMatrixDropdownRenderedRow.prototype["onCreating"]
   public get id(): number {
     return this.idValue;
   }

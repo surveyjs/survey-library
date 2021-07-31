@@ -1561,10 +1561,13 @@ export class Question extends SurveyElement
   }
   private checkForErrors(isOnValueChanged: boolean): Array<SurveyError> {
     var qErrors = new Array<SurveyError>();
-    if (this.isVisible && !this.isReadOnly) {
+    if (this.isVisible && this.canCollectErrors()) {
       this.collectErrors(qErrors, isOnValueChanged);
     }
     return qErrors;
+  }
+  protected canCollectErrors(): boolean {
+    return !this.isReadOnly;
   }
   private collectErrors(
     qErrors: Array<SurveyError>,

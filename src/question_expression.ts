@@ -76,11 +76,11 @@ export class QuestionExpressionModel extends Question {
     };
     this.expressionRunner.run(values, properties);
   }
-  public hasErrors(fireCallback: boolean = true, rec: any = null): boolean {
-    return false;
+  protected canCollectErrors(): boolean {
+    return true;
   }
-  public getAllErrors(): Array<SurveyError> {
-    return [];
+  protected hasRequiredError(): boolean {
+    return false;
   }
   /**
    * The maximum number of fraction digits to use if displayStyle is not "none". Possible values are from 0 to 20. The default value is -1 and it means that this property is not used.
@@ -383,7 +383,7 @@ Serializer.addClass(
     { name: "isRequired", visible: false },
     { name: "readOnly", visible: false },
     { name: "requiredErrorText", visible: false },
-    { name: "validators", visible: false },
+    { name: "defaultValueExpression", visible: false },
     { name: "defaultValue", visible: false },
     { name: "correctAnswer", visible: false },
     { name: "requiredIf", visible: false },

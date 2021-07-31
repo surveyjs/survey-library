@@ -651,7 +651,7 @@ QUnit.test(
     assert.equal(
       q2.hasErrors(),
       false,
-      "expression question doesn't have errors"
+      "expression question doesn't have isRequired errors"
     );
   }
 );

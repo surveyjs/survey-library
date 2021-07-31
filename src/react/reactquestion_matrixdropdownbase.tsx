@@ -169,7 +169,6 @@ export class SurveyQuestionMatrixDropdownBase extends SurveyQuestionElementBase 
       if (!!cell.minWidth) cellStyle.minWidth = cell.minWidth;
     }
     function onPointerDownHandler(event: any) {
-      event.persist();
       if (index !== 0) return;
       var matrixQuestion: any = cell.row["data"];
       matrixQuestion.startDragMatrixRow(event.nativeEvent, cell.row);

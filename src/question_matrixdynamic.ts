@@ -71,7 +71,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
       }
     );
     this.registerFunctionOnPropertyValueChanged("allowRowsDragAndDrop", () => {
-      this.clearRowsAndResetRenFderedTable();
+      this.clearRowsAndResetRenderedTable();
     });
   }
 

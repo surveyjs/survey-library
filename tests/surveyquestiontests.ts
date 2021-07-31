@@ -3787,7 +3787,7 @@ QUnit.test("QuestionText min/max value and renderedMin/renderedMax", function(
   assert.equal(question.min, undefined, "min not set");
   assert.equal(question.max, undefined, "max is not set");
   assert.equal(question.renderedMin, undefined, "renderedMin not set");
-  assert.equal(question.renderedMax, "2999-12-31", "renderedMax is default");
+  assert.equal(question.renderedMax, undefined, "renderedMax is not set");
   question.min = "2000-01-01";
   question.max = "2020-12-31";
   assert.equal(question.min, "2000-01-01", "min is set");

@@ -296,7 +296,7 @@ export class QuestionTextModel extends QuestionTextBase {
       this.max,
       (val) => {
         if (!val && this.isDateInputType) {
-          val = !!settings.maxDate ? settings.maxDate : "2999-12-31";
+          val = !!settings.maxDate ? settings.maxDate : undefined;
         }
         this.setPropertyValue("renderedMax", val);
       },

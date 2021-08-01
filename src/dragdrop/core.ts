@@ -28,6 +28,8 @@ export abstract class DragDropCore extends Base {
   protected ghostSurveyElement: IElement = null;
   @property() isBottom: boolean = null;
 
+  protected allowDropHere = false;
+
   protected isItemValueBeingDragged() {
     return Serializer.isDescendantOf(
       this.draggedElement.getType(),
@@ -125,9 +127,11 @@ export abstract class DragDropCore extends Base {
     );
 
     if (!this.dropTargetCandidate) {
+      this.allowDropHere = false;
       this.banDropHere();
       return;
     }
+    this.allowDropHere = true;
 
     let isBottom = this.calculateIsBottom(event.clientY);
 
@@ -365,9 +369,12 @@ export abstract class DragDropCore extends Base {
   }
 
   private drop = () => {
-    this.onBeforeDrop.fire(this, null);
-    const newElement = this.doDrop();
-    this.onAfterDrop.fire(this, { draggedElement: newElement });
+    if (this.allowDropHere) {
+      this.onBeforeDrop.fire(this, null);
+      const newElement = this.doDrop();
+      this.onAfterDrop.fire(this, { draggedElement: newElement });
+    }
+
     this.clear();
   };
 

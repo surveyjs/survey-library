@@ -332,11 +332,17 @@ export abstract class DragDropCore extends Base {
     if (!draggedOverNode) return null;
 
     const selector = this.dropTargetDataAttributeName;
-    let dropTargetNode =
-      draggedOverNode.querySelector<HTMLElement>(selector) ||
-      draggedOverNode.closest<HTMLElement>(selector);
+    let dropTargetNode = this.doFindDropTargetHTMLElement(draggedOverNode);
 
+    if (!dropTargetNode) {
+      dropTargetNode = draggedOverNode.closest<HTMLElement>(selector);
+    }
+  
     return dropTargetNode;
+  }
+
+  protected doFindDropTargetHTMLElement (draggedOverNode: Element): HTMLElement {
+    return null;
   }
 
   protected findDeepestDropTargetChild(parent: HTMLElement): HTMLElement {

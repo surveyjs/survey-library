@@ -20,6 +20,11 @@ export class DragDropChoices extends DragDropCore {
     return dragOverChoice;
   }
 
+  protected doFindDropTargetHTMLElement(draggedOverNode: Element): HTMLElement {
+    const selector = this.dropTargetDataAttributeName;
+    return draggedOverNode.querySelector<HTMLElement>(selector);
+  }
+
   protected isDropTargetValid(dropTarget: any, isBottom: boolean) {
     const choices = this.parentElement.choices;
 

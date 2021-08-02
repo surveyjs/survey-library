@@ -5290,3 +5290,24 @@ QUnit.test("Use question onDisplayValueCallback", function(assert) {
   };
   assert.equal(q1.displayValue, "Empty", "We get display Value on callback");
 });
+QUnit.test("QuestionExpression expression validator", function(assert) {
+  var survey = new SurveyModel({
+    elements: [
+      { type: "text", name: "q1" },
+      { type: "text", name: "q2" },
+      {
+        type: "expression",
+        name: "q3",
+        expression: "{q1} + {q2}",
+        validators: [{ type: "expression", expression: "{q3} = 10" }],
+      },
+    ],
+  });
+  survey.setValue("q1", 5);
+  survey.setValue("q2", 4);
+  var question = <QuestionTextModel>survey.getQuestionByName("q3");
+  assert.ok(question.hasErrors(), "There is an error");
+  survey.setValue("q2", 5);
+  assert.equal(question.value, 10);
+  assert.notOk(question.hasErrors(), "There is no errors");
+});

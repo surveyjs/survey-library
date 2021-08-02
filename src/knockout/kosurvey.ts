@@ -408,3 +408,25 @@ export var registerTemplateEngine = (ko: any, platform: string) => {
   var surveyTemplateEngineInstance = new (<any>ko).surveyTemplateEngine();
   ko.setTemplateEngine(surveyTemplateEngineInstance);
 };
+
+export function createKey2click(element: HTMLElement) {
+  return (ev: KeyboardEvent) => {
+    var char = ev.which || ev.keyCode;
+    if (char === 13 || char === 32) {
+      element.click();
+    } else if (char === 27) {
+      element.blur();
+    }
+  };
+}
+
+ko.bindingHandlers["key2click"] = {
+  init: function (element: HTMLElement, valueAccessor, allBindingsAccessor, viewModel: any) {
+    if(viewModel.disableTabStop) {
+      element.tabIndex = -1;
+      return;
+    }
+    element.tabIndex = 0;
+    element.onkeyup = createKey2click(element);
+  },
+};

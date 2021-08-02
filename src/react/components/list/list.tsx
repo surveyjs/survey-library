@@ -2,6 +2,7 @@ import React from "react";
 import { IAction, ListModel } from "survey-core";
 import { ReactElementFactory } from "../../element-factory";
 import { SurveyElementBase } from "../../reactquestion_element";
+import { attachKey2click } from "../../reactSurvey";
 import { SvgIcon } from "../svg-icon/svg-icon";
 
 interface IListProps {
@@ -49,7 +50,7 @@ export class List extends SurveyElementBase<IListProps, any> {
           size={24}
         ></SvgIcon>
       ) : null;
-      return (
+      return attachKey2click(
         <li
           style={style}
           key={itemIndex}

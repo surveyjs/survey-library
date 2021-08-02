@@ -149,8 +149,8 @@ export class DragDropSurveyElements extends DragDropCore {
     this.ghostSurveyElement.name = DragDropCore.ghostSurveyElementName; //TODO why do we need setup it manually see createGhostSurveyElement method
 
     this.parentElement = this.dropTarget.isPage
-      ? this.dropTarget
-      : (<any>this.dropTarget)["page"];
+      ? (<any>this.dropTarget)["page"]
+      : this.dropTarget;
 
     this.parentElement.dragDropStart(
       this.draggedElement,

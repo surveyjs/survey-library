@@ -1,19 +1,13 @@
 import * as ko from "knockout";
-import { SurveyElement, 
-      Serializer, 
-      Question, 
-      QuestionFactory,
-      QuestionPanelDynamicModel,
-      CssClassBuilder
-} from "survey-core";
+import { SurveyElement, Serializer, Question, QuestionFactory,
+  QuestionPanelDynamicModel, CssClassBuilder } from "survey-core";
 import { QuestionImplementor } from "./koquestion";
 
 export class QuestionPanelDynamicImplementor extends QuestionImplementor {
   koRecalc: any;
-  constructor(question: Question) {
+  constructor(question: QuestionPanelDynamic) {
     super(question);
     this.koRecalc = ko.observable(0);
-    var self = this;
     this.setCallbackFunc("koAddPanelClick", () => {
       this.addPanel();
     });
@@ -21,95 +15,93 @@ export class QuestionPanelDynamicImplementor extends QuestionImplementor {
       this.removePanel(data);
     });
     this.setCallbackFunc("koPrevPanelClick", () => {
-      (<QuestionPanelDynamic>this.question).goToPrevPanel();
+      this.question.goToPrevPanel();
     });
     this.setCallbackFunc("koNextPanelClick", () => {
-      (<QuestionPanelDynamic>this.question).goToNextPanel();
+      this.question.goToNextPanel();
     });
     this.setObservaleObj(
       "koCanAddPanel",
       ko.pureComputed(() => {
         this.koRecalc();
-        return (<QuestionPanelDynamic>this.question).canAddPanel;
+        return this.question.canAddPanel;
       })
     );
     this.setObservaleObj(
       "koCanRemovePanel",
       ko.pureComputed(() => {
         this.koRecalc();
-        return (<QuestionPanelDynamic>this.question).canRemovePanel;
+        return this.question.canRemovePanel;
       })
     );
     this.setObservaleObj(
       "koIsPrevButton",
       ko.pureComputed(() => {
         this.koRecalc();
-        return (<QuestionPanelDynamic>this.question).isPrevButtonShowing;
+        return this.question.isPrevButtonShowing;
       })
     );
     this.setObservaleObj(
       "koIsNextButton",
       ko.pureComputed(() => {
         this.koRecalc();
-        return (<QuestionPanelDynamic>this.question).isNextButtonShowing;
+        return this.question.isNextButtonShowing;
       })
     );
     this.setObservaleObj(
       "koIsRange",
       ko.pureComputed(() => {
         this.koRecalc();
-        return (<QuestionPanelDynamic>this.question).isRangeShowing;
+        return this.question.isRangeShowing;
       })
     );
     this.setObservaleObj(
       "koPanel",
       ko.pureComputed(() => {
         this.koRecalc();
-        return (<QuestionPanelDynamic>this.question).currentPanel;
+        return this.question.currentPanel;
       })
     );
     this.setObservaleObj(
       "koIsList",
       ko.pureComputed(() => {
         this.koRecalc();
-        return (<QuestionPanelDynamic>this.question).isRenderModeList;
+        return this.question.isRenderModeList;
       })
     );
     this.setObservaleObj(
       "koIsProgressTop",
       ko.pureComputed(() => {
         this.koRecalc();
-        return (<QuestionPanelDynamic>this.question).isProgressTopShowing;
+        return this.question.isProgressTopShowing;
       })
     );
     this.setObservaleObj(
       "koIsProgressBottom",
       ko.pureComputed(() => {
         this.koRecalc();
-        return (<QuestionPanelDynamic>this.question).isProgressBottomShowing;
+        return this.question.isProgressBottomShowing;
       })
     );
 
-    let koRangeValue = ko.observable(
-      (<QuestionPanelDynamic>this.question).currentIndex
-    );
+    const koRangeValue = ko.observable(this.question.currentIndex);
     koRangeValue.subscribe((newValue: any) => {
-      (<QuestionPanelDynamic>this.question).currentIndex = newValue;
+      this.question.currentIndex = newValue;
     });
     this.setObservaleObj("koRangeValue", koRangeValue);
     this.setObservaleObj(
       "koRangeMax",
       ko.pureComputed(() => {
         this.koRecalc();
-        return (<QuestionPanelDynamic>this.question).panelCount - 1;
+        return this.question.panelCount - 1;
       })
     );
 
     this.setObservaleObj(
-      "koButtonAddCss",
+      "koButtonAddRowCss",
       ko.pureComputed(() => {
         this.koRecalc();
-        return this.buttonAddCss;
+        return this.question.getButtonAddRowCss();
       })
     );
 
@@ -133,7 +125,7 @@ export class QuestionPanelDynamicImplementor extends QuestionImplementor {
       "koProgressText",
       ko.pureComputed(() => {
         this.koRecalc();
-        return (<QuestionPanelDynamic>this.question).progressText;
+        return this.question.progressText;
       })
     );
 
@@ -147,13 +139,13 @@ export class QuestionPanelDynamicImplementor extends QuestionImplementor {
     this.setCallbackFunc("koPanelAfterRender", (el: any, con: any) => {
       this.panelAfterRender(el, con);
     });
-    (<QuestionPanelDynamic>this.question).panelCountChangedCallback = () => {
+    this.question.panelCountChangedCallback = () => {
       this.onPanelCountChanged();
     };
-    (<QuestionPanelDynamic>this.question).renderModeChangedCallback = () => {
+    this.question.renderModeChangedCallback = () => {
       this.onRenderModeChanged();
     };
-    (<QuestionPanelDynamic>this.question).currentIndexChangedCallback = () => {
+    this.question.currentIndexChangedCallback = () => {
       this.onCurrentIndexChanged();
     };
   }
@@ -167,32 +159,22 @@ export class QuestionPanelDynamicImplementor extends QuestionImplementor {
     if (this.question.isDisposed) return;
     this.koRecalc(this.koRecalc() + 1);
     this.question.koRangeValue(
-      (<QuestionPanelDynamic>this.question).currentIndex
+      this.question.currentIndex
     );
   }
   protected addPanel() {
-    (<QuestionPanelDynamic>this.question).addPanelUI();
+    this.question.addPanelUI();
   }
   protected removePanel(val: any) {
-    var q = <QuestionPanelDynamic>this.question;
-    if (!q.isRenderModeList) {
-      val = q.currentPanel;
+    if (!this.question.isRenderModeList) {
+      val = this.question.currentPanel;
     }
-    q.removePanelUI(val);
+    this.question.removePanelUI(val);
   }
   private panelAfterRender(elements: any, con: any) {
     if (!this.question || !this.question.survey) return;
-    var el = SurveyElement.GetFirstNonTextElement(elements);
+    const el = SurveyElement.GetFirstNonTextElement(elements);
     this.question.survey.afterRenderPanel(con, el);
-  }
-
-  protected get buttonAddCss() {
-    const cssClasses = this.question.cssClasses;
-    return new CssClassBuilder()
-      .append(cssClasses.button)
-      .append(cssClasses.buttonAdd)
-      .append(cssClasses.buttonAdd + "--list-mode", this.question.renderMode === "list")
-      .toString();
   }
 
   protected get buttonPrevCss() {
@@ -211,15 +193,13 @@ export class QuestionPanelDynamicImplementor extends QuestionImplementor {
   }
 
   protected get progress() {
-    var rangeMax = this.question.panelCount - 1;
+    const rangeMax: number = this.question.panelCount - 1;
     return (this.question.currentIndex / rangeMax) * 100 + "%";
   }
   public dispose() {
-    (<QuestionPanelDynamic>this.question).panelCountChangedCallback = undefined;
-    (<QuestionPanelDynamic>this.question).renderModeChangedCallback = undefined;
-    (<QuestionPanelDynamic>(
-      this.question
-    )).currentIndexChangedCallback = undefined;
+    this.question.panelCountChangedCallback = undefined;
+    this.question.renderModeChangedCallback = undefined;
+    this.question.currentIndexChangedCallback = undefined;
     super.dispose();
   }
 }

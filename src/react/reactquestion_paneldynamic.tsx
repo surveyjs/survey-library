@@ -18,7 +18,7 @@ export class SurveyQuestionPanelDynamic extends SurveyQuestionElementBase {
   componentDidMount() {
     super.componentDidMount();
     this.setState({ panelCounter: 0 });
-    var self = this;
+    const self: SurveyQuestionPanelDynamic = this;
     this.question.panelCountChangedCallback = function() {
       self.updateQuestionRendering();
     };
@@ -53,10 +53,10 @@ export class SurveyQuestionPanelDynamic extends SurveyQuestionElementBase {
     this.question.currentIndex = event.target.value;
   }
   protected renderElement(): JSX.Element {
-    var panels = [];
+    const panels = [];
     if (this.question.isRenderModeList) {
-      for (var i = 0; i < this.question.panels.length; i++) {
-        var panel = this.question.panels[i];
+      for (let i = 0; i < this.question.panels.length; i++) {
+        const panel = this.question.panels[i];
         panels.push(
           <SurveyQuestionPanelDynamicItem
             key={panel.id}
@@ -71,7 +71,7 @@ export class SurveyQuestionPanelDynamic extends SurveyQuestionElementBase {
       }
     } else {
       if (this.question.currentPanel != null) {
-        var panel = this.question.currentPanel;
+        const panel = this.question.currentPanel;
         panels.push(
           <SurveyQuestionPanelDynamicItem
             key={this.question.currentIndex}
@@ -85,17 +85,17 @@ export class SurveyQuestionPanelDynamic extends SurveyQuestionElementBase {
         );
       }
     }
-    var btnAdd = this.question.isRenderModeList
+    const btnAdd: JSX.Element = this.question.isRenderModeList
       ? this.renderAddRowButton()
       : null;
-    var navTop = this.question.isProgressTopShowing
+    const navTop: JSX.Element = this.question.isProgressTopShowing
       ? this.renderNavigator()
       : null;
-    var navBottom = this.question.isProgressBottomShowing
+    const navBottom: JSX.Element = this.question.isProgressBottomShowing
       ? this.renderNavigator()
       : null;
 
-    var style: any = {};
+    const style: any = {};
     if (this.question.horizontalScroll) {
       style["overflowX"] = "scroll";
     }
@@ -110,11 +110,11 @@ export class SurveyQuestionPanelDynamic extends SurveyQuestionElementBase {
     );
   }
   protected renderNavigator(): JSX.Element {
-    var range = this.question.isRangeShowing ? this.renderRange() : null;
-    var btnPrev = this.rendrerPrevButton();
-    var btnNext = this.rendrerNextButton();
-    var btnAdd = this.renderAddRowButton();
-    var progressClass = this.question.isProgressTopShowing
+    const range: JSX.Element = this.question.isRangeShowing ? this.renderRange() : null;
+    const btnPrev: JSX.Element = this.rendrerPrevButton();
+    const btnNext: JSX.Element = this.rendrerNextButton();
+    const btnAdd: JSX.Element = this.renderAddRowButton();
+    const progressClass: string = this.question.isProgressTopShowing
       ? this.question.cssClasses.progressTop
       : this.question.cssClasses.progressBottom;
     return (
@@ -133,7 +133,7 @@ export class SurveyQuestionPanelDynamic extends SurveyQuestionElementBase {
   }
 
   protected rendrerPrevButton() {
-    var getButtonPrevCss = (question: Question) => {
+    const getButtonPrevCss = (question: Question) => {
       const cssClasses = question.cssClasses;
       return new CssClassBuilder()
         .append(cssClasses.buttonPrev)
@@ -154,7 +154,7 @@ export class SurveyQuestionPanelDynamic extends SurveyQuestionElementBase {
     );
   }
   protected rendrerNextButton() {
-    var getButtonNextCss = function(question: Question) {
+    const getButtonNextCss = function(question: Question) {
       return new CssClassBuilder()
         .append(question.cssClasses.buttonNext)
         .append(question.cssClasses.buttonNext + "--disabled", !question.isNextButtonShowing)
@@ -175,8 +175,8 @@ export class SurveyQuestionPanelDynamic extends SurveyQuestionElementBase {
   }
 
   protected renderRange(): JSX.Element {
-    var getProgress = () => {
-      var rangeMax = this.question.panelCount - 1;
+    const getProgress = () => {
+      const rangeMax: number = this.question.panelCount - 1;
       return (this.question.currentIndex / rangeMax) * 100 + "%";
     };
 
@@ -192,15 +192,9 @@ export class SurveyQuestionPanelDynamic extends SurveyQuestionElementBase {
   }
   protected renderAddRowButton(): JSX.Element {
     if (!this.question.canAddPanel) return null;
-    const cssClasses = this.question.cssClasses;
-    const builder = new CssClassBuilder()
-      .append(cssClasses.button)
-      .append(cssClasses.buttonAdd)
-      .append(cssClasses.buttonAdd + "--list-mode", this.question.renderMode === "list");
-
     return (
       <input
-        className={builder.toString()}
+        className={this.question.getButtonAddRowCss()}
         type="button"
         onClick={this.handleOnPanelAddClick}
         value={this.question.panelAddText}
@@ -224,16 +218,16 @@ export class SurveyQuestionPanelDynamicItem extends SurveyPanel {
     return !!this.question ? (this.question.survey as SurveyModel) : null;
   }
   protected getCss(): any {
-    var survey = this.getSurvey();
+    const survey = this.getSurvey();
     return !!survey ? survey.getCss() : {};
   }
   handleOnPanelRemoveClick(event: any) {
     this.question.removePanelUI(this.index);
   }
   public render() {
-    let panel = super.render();
-    let removeButton = this.renderButton();
-    var separator =
+    const panel: JSX.Element = super.render();
+    const removeButton: JSX.Element = this.renderButton();
+    const separator: JSX.Element =
       this.question.isRenderModeList &&
       this.index < this.question.panelCount - 1 ? (
         <hr className={this.question.cssClasses.separator} />

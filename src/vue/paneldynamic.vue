@@ -21,7 +21,7 @@
     <input
       type="button"
       v-if="question.isRenderModeList && question.canAddPanel"
-      :class="getButtonAddCss(question)"
+      :class="question.getButtonAddRowCss()"
       :value="question.panelAddText"
       @click="addPanelClick"
     />
@@ -31,14 +31,14 @@
 <script lang="ts">
 import Vue from "vue";
 import { Component } from "vue-property-decorator";
-import { Question, QuestionPanelDynamicModel, CssClassBuilder } from "survey-core";
+import { QuestionPanelDynamicModel } from "survey-core";
 import { default as QuestionVue } from "./question";
 
 @Component
 export class PanelDynamic extends QuestionVue<QuestionPanelDynamicModel> {
   get renderedPanels() {
     if (this.question.isRenderModeList) return this.question.panels;
-    var panels = [];
+    const panels = [];
     if (this.question.currentPanel) {
       panels.push(this.question.currentPanel);
     }
@@ -46,13 +46,6 @@ export class PanelDynamic extends QuestionVue<QuestionPanelDynamicModel> {
   }
   addPanelClick() {
     this.question.addPanel();
-  }
-  getButtonAddCss(question: Question) {
-    return new CssClassBuilder()
-      .append(question.cssClasses.button)
-      .append(question.cssClasses.buttonAdd)
-      .append(question.cssClasses.buttonAdd + "--list-mode", this.question.renderMode === "list")
-      .toString();
   }
 }
 Vue.component("survey-paneldynamic", PanelDynamic);

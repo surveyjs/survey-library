@@ -1635,6 +1635,13 @@ export class QuestionPanelDynamicModel extends Question
       .append(this.cssClasses.buttonRemoveRight, this.panelRemoveButtonLocation === "right")
       .toString();
   }
+  public getButtonAddRowCss(): string {
+    return new CssClassBuilder()
+      .append(this.cssClasses.button)
+      .append(this.cssClasses.buttonAdd)
+      .append(this.cssClasses.buttonAdd + "--list-mode", this.renderMode === "list")
+      .toString();
+  }
 }
 
 Serializer.addClass(

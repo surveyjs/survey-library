@@ -152,9 +152,9 @@ export class QuestionImplementor extends ImplementorBase {
   }
   public dispose() {
     super.dispose();
-    for (var i = 0; i < this.disposedObjects.length; i++) {
-      var name = this.disposedObjects[i];
-      var obj = (<any>this)[name] || this.question[name];
+    for (let i = 0; i < this.disposedObjects.length; i++) {
+      const name = this.disposedObjects[i];
+      const obj = (<any>this)[name] || this.question[name];
       if (!obj) continue;
       if ((<any>this)[name]) (<any>this)[name] = undefined;
       if (this.question[name]) this.question[name] = undefined;

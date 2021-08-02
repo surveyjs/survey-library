@@ -18,7 +18,7 @@ export abstract class DragDropCore extends Base {
     "sv-drag-drop-ghost-survey-element-name"; // before renaming use globa search (we have also css selectors)
 
   protected draggedElement: any = null;
-  @property() dropTarget: any = null;
+  protected dropTarget: any = null;
   protected dropTargetNode: HTMLElement = null;
   protected dropTargetCandidate: IElement = null;
   protected dropTargetNodeCandidate: HTMLElement = null;
@@ -337,11 +337,11 @@ export abstract class DragDropCore extends Base {
     if (!dropTargetNode) {
       dropTargetNode = draggedOverNode.closest<HTMLElement>(selector);
     }
-  
+
     return dropTargetNode;
   }
 
-  protected doFindDropTargetHTMLElement (draggedOverNode: Element): HTMLElement {
+  protected doFindDropTargetHTMLElement(draggedOverNode: Element): HTMLElement {
     return null;
   }
 

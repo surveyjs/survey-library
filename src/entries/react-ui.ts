@@ -1,5 +1,5 @@
 // react
-export { Survey } from "../react/reactSurvey";
+export { Survey, attachKey2click } from "../react/reactSurvey";
 import { ReactSurveyModel, ReactWindowModel } from "../react/reactsurveymodel";
 export { ReactSurveyModel as Model };
 export { ReactWindowModel as WindowModel };

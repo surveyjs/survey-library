@@ -2,6 +2,7 @@ import React from "react";
 import { Base, Action } from "survey-core";
 import { ReactElementFactory } from "../../element-factory";
 import { SurveyElementBase } from "../../reactquestion_element";
+import { attachKey2click } from "../../reactSurvey";
 import { SvgIcon } from "../svg-icon/svg-icon";
 import { SurveyActionBarSeparator } from "./action-bar-separator";
 
@@ -90,7 +91,7 @@ export class SurveyActionBarItem extends SurveyElementBase<
     const title = this.item.tooltip || this.item.title;
     const buttonContent = this.renderButtonContent();
     const tabIndex = this.item.disableTabStop ? -1 : undefined;
-    const button = (
+    const button = attachKey2click(
       <button
         className={className}
         type="button"

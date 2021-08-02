@@ -1,6 +1,6 @@
-import { settings } from "../settings";
 import { Base } from "../base";
 import { property } from "../jsonobject";
+import { Helpers } from "survey-core";
 
 /**
  * Defines an individual action. Action items can be displayed in certain survey elements - in Toolbar (or action bar), in titles (of pages, panels, questions), in matrix rows (as 'expand details' or 'remove row' buttons), and etc.
@@ -87,10 +87,16 @@ export interface IAction {
 export class Action extends Base implements IAction {
   constructor(item: IAction) {
     super();
-    Object.assign(this, item);
+    //Object.assign(this, item) to support IE11
+    if (!!item) {
+      for (var key in item) {
+        (<any>this)[key] = (<any>item)[key];
+      }
+    }
   }
   location?: string;
   @property() id: string;
+  @property() iconName: string;
   @property() visible: boolean;
   @property() title: string;
   @property() tooltip: string;
@@ -105,23 +111,10 @@ export class Action extends Base implements IAction {
   @property() active: boolean;
   @property() template: string;
   @property() component: string;
-  @property() iconNameValue: string;
   @property() items: any;
   @property() visibleIndex: number;
   @property({ defaultValue: "large" }) mode: "large" | "small" | "popup";
   @property() disableTabStop: boolean;
-
-  private getIconNameFromProxy(iconName: string): string {
-    var proxyName = (<any>settings.customIcons)[iconName];
-    return !!proxyName ? proxyName : iconName;
-  }
-
-  public get iconName(): string {
-    return this.iconNameValue;
-  }
-  public set iconName(newVal) {
-    this.iconNameValue = this.getIconNameFromProxy(newVal);
-  }
 
   public get disabled(): boolean {
     return this.enabled !== undefined && !this.enabled;
@@ -131,7 +124,7 @@ export class Action extends Base implements IAction {
     return (
       ((this.mode != "small" &&
         (this.showTitle || this.showTitle === undefined)) ||
-        !this.iconNameValue) &&
+        !this.iconName) &&
       !!this.title
     );
   }

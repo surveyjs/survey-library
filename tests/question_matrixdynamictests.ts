@@ -1814,6 +1814,7 @@ QUnit.test("Matrixdynamic allowAddRows property", function(assert) {
 });
 QUnit.test("Matrixdynamic allowRemoveRows property", function(assert) {
   var question = new QuestionMatrixDynamicModel("matrix");
+  question.rowCount = 2;
   assert.equal(
     question.allowRemoveRows,
     true,
@@ -1822,6 +1823,12 @@ QUnit.test("Matrixdynamic allowRemoveRows property", function(assert) {
   assert.equal(question.canRemoveRows, true, "canRemoveRows is true");
   question.allowRemoveRows = false;
   assert.equal(question.canRemoveRows, false, "canRemoveRows is false");
+  question.canRemoveRowsCallback = (allow: boolean): boolean => {
+    return question.rowCount > 1;
+  };
+  assert.equal(question.canRemoveRows, true, "question.rowCount > 1");
+  question.rowCount = 1;
+  assert.equal(question.canRemoveRows, false, "not question.rowCount > 1");
 });
 QUnit.test("Matrixdynamic addRowLocation", function(assert) {
   var question = new QuestionMatrixDynamicModel("matrix");
@@ -6261,11 +6268,11 @@ QUnit.test("Row actions, drag action", function(assert) {
   assert.deepEqual(matrix.renderedTable["rowsActions"][0].length, 2);
 });
 
-QUnit.test("moveRowByIndex test", function (assert) {
+QUnit.test("moveRowByIndex test", function(assert) {
   var matrixD = new QuestionMatrixDynamicModel("q1");
-  matrixD.value = [{v1: "v1"}, {v2: "v2"}];
+  matrixD.value = [{ v1: "v1" }, { v2: "v2" }];
   matrixD["moveRowByIndex"](1, 0);
-  assert.deepEqual(matrixD.value, [{v2: "v2"}, {v1: "v1"}]);
+  assert.deepEqual(matrixD.value, [{ v2: "v2" }, { v1: "v1" }]);
 });
 
 QUnit.test("Row actions, rendered table and className", function(assert) {
@@ -6723,5 +6730,77 @@ QUnit.test(
     matrix.addRowUI();
     assert.equal(focusedQuestionId, "", "new row can't be added");
     SurveyElement.FocusElement = oldFunc;
+  }
+);
+QUnit.test(
+  "Matrixdynamic onMatrixValueChanging - do not call event on clear empty cell",
+  function(assert) {
+    var json = {
+      questions: [
+        {
+          type: "matrixdynamic",
+          name: "q1",
+          rowCount: 1,
+          columns: [
+            {
+              name: "col1",
+              choices: [1, 2, 3, 4, 5],
+            },
+          ],
+        },
+      ],
+    };
+    var survey = new SurveyModel(json);
+    var counter = 0;
+    survey.onMatrixCellValueChanging.add(function(sender, options) {
+      counter++;
+    });
+    var matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("q1");
+    var cellQuestion = matrix.visibleRows[0].cells[0].question;
+    cellQuestion.clearIncorrectValues();
+    assert.equal(counter, 0, "There is not value to clear");
+    cellQuestion.value = 1;
+    assert.equal(counter, 1, "value is set");
+    cellQuestion.clearIncorrectValues();
+    assert.equal(counter, 1, "value is correct");
+  }
+);
+QUnit.test(
+  "Matrixdynamic onMatrixValueChanging - do not call event on set the same renderedValue",
+  function(assert) {
+    var json = {
+      questions: [
+        {
+          type: "matrixdynamic",
+          name: "q1",
+          rowCount: 1,
+          columns: [
+            {
+              name: "col1",
+              choices: [1, 2, 3, 4, 5],
+            },
+          ],
+        },
+      ],
+    };
+    var survey = new SurveyModel(json);
+    var counter = 0;
+    survey.onMatrixCellValueChanging.add(function(sender, options) {
+      counter++;
+    });
+    var matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("q1");
+    var cellQuestion = <QuestionDropdownModel>(
+      matrix.visibleRows[0].cells[0].question
+    );
+    cellQuestion.renderedValue = undefined;
+    assert.equal(counter, 0, "There is not value to clear");
+    cellQuestion.renderedValue = 1;
+    assert.equal(counter, 1, "Call one time");
+    cellQuestion.renderedValue = 1;
+    assert.equal(counter, 1, "Do not call on the same value");
+    cellQuestion.renderedValue = undefined;
+    assert.equal(counter, 2, "Value is undefined");
+    cellQuestion.renderedValue = undefined;
+    assert.equal(counter, 2, "Value is still undefined");
   }
 );

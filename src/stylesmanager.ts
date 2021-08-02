@@ -1026,8 +1026,8 @@ export class StylesManager {
     ".sv-text:-ms-placeholder": "color: $text-input-color;",
     ".sv-table__row--detail": "background-color: $header-background-color;",
     //signature pad
-    ".sv_main .sjs_sp_container": "border: 1px dashed $disable-color;",
-    ".sv_main .sjs_sp_placeholder": "color: $foreground-light;",
+    ".sjs_sp_container": "border: 1px dashed $disable-color;",
+    ".sjs_sp_placeholder": "color: $foreground-light;",
   };
 
   public static bootstrapThemeCss: { [key: string]: string } = {

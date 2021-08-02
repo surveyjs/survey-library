@@ -1,6 +1,7 @@
 import { Action } from "../../src/actions/action";
 import { AdaptiveActionContainer } from "../../src/actions/adaptive-container";
 import { settings } from "../../src/settings";
+import { getIconNameFromProxy } from "../../src/utils/utils";
 
 QUnit.test("Check that items are wrapped after set", (assert) => {
   const model: AdaptiveActionContainer = new AdaptiveActionContainer();
@@ -16,7 +17,7 @@ QUnit.test("Check action sort items", (assert) => {
     { id: "second", visibleIndex: 1 },
     { id: "third", visibleIndex: 2 },
     { id: "first", visibleIndex: 0 },
-    { id: "undefined_index", visibleIndex: undefined }
+    { id: "undefined_index", visibleIndex: undefined },
   ]);
   assert.equal(model.actions.length, 4);
   assert.equal(model.actions[0].id, "first");
@@ -26,14 +27,11 @@ QUnit.test("Check action sort items", (assert) => {
   assert.equal(model.actions[3].id, "undefined_index");
 });
 
-QUnit.test("Use proxy to get icons", (assert) => {
-  settings.customIcons["icon-proxy"] = "new-icon";
-  const model: AdaptiveActionContainer = new AdaptiveActionContainer();
-  model.setItems([
-    { id: "invisible", iconName: "icon-normal" },
-    { id: "second", iconName: "icon-proxy" }
-  ]);
-  assert.equal(model.actions.length, 2);
-  assert.equal(model.actions[0].iconName, "icon-normal");
-  assert.equal(model.actions[1].iconName, "new-icon");
-});
+QUnit.test(
+  "Use proxy to get icons in svg, function getIconNameFromProxy",
+  (assert) => {
+    settings.customIcons["icon-proxy"] = "new-icon";
+    assert.equal(getIconNameFromProxy("icon-normal"), "icon-normal");
+    assert.equal(getIconNameFromProxy("icon-proxy"), "new-icon");
+  }
+);

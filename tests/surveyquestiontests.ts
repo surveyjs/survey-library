@@ -5253,3 +5253,61 @@ QUnit.test(
     assert.equal(q2.value, "abc", "default value is set, text");
   }
 );
+QUnit.test("Use empty string as a valid value", function(assert) {
+  var json = {
+    elements: [
+      {
+        type: "dropdown",
+        name: "q1",
+        choices: [{ value: "", text: "empty" }, "item2", "item3"],
+      },
+    ],
+  };
+  var survey = new SurveyModel(json);
+  var q1 = <QuestionDropdownModel>survey.getQuestionByName("q1");
+  assert.equal(
+    q1.displayValue,
+    "empty",
+    "We get display Value for empty string"
+  );
+});
+QUnit.test("Use question onDisplayValueCallback", function(assert) {
+  var json = {
+    elements: [
+      {
+        type: "dropdown",
+        name: "q1",
+        optionsCaption: "Empty",
+        choices: ["item2", "item3"],
+      },
+    ],
+  };
+  var survey = new SurveyModel(json);
+  var q1 = <QuestionDropdownModel>survey.getQuestionByName("q1");
+  q1.displayValueCallback = (val: string): string => {
+    if (q1.isEmpty()) return q1.optionsCaption;
+    return val;
+  };
+  assert.equal(q1.displayValue, "Empty", "We get display Value on callback");
+});
+QUnit.test("QuestionExpression expression validator", function(assert) {
+  var survey = new SurveyModel({
+    elements: [
+      { type: "text", name: "q1" },
+      { type: "text", name: "q2" },
+      {
+        type: "expression",
+        name: "q3",
+        expression: "{q1} + {q2}",
+        validators: [{ type: "expression", expression: "{q3} = 10" }],
+      },
+    ],
+  });
+  survey.setValue("q1", 5);
+  survey.setValue("q2", 4);
+  var question = <QuestionTextModel>survey.getQuestionByName("q3");
+  assert.ok(question.hasErrors(), "There is an error");
+  survey.setValue("q2", 5);
+  assert.equal(question.value, 10);
+  assert.notOk(question.hasErrors(), "There is no errors");
+});

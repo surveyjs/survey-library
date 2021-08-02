@@ -224,6 +224,9 @@ QUnit.test("ItemValue.getItemByValue()", function(assert) {
   assert.equal(item["custom"], "mydata", "get custom data correctly");
   item = ItemValue.getItemByValue(items, 55);
   assert.equal(item, null, "there is no item by this value");
+  items.push(new ItemValue("", "empty"));
+  item = ItemValue.getItemByValue(items, undefined);
+  assert.equal(item.text, "empty", "returns empty value");
 });
 
 class BaseTester extends Base implements ILocalizableOwner {
@@ -480,4 +483,18 @@ QUnit.test("Base onArrayChanged", function(assert) {
   assert.equal(counter, 1, "onArrayChanged is changed");
   assert.equal(arrayChanges.index, 0, "added into 0 index");
   assert.deepEqual(arrayChanges.itemsToAdd, [base.items[0]], "added items");
+});
+QUnit.test("Change value to array and then to undefined", function(assert) {
+  var base = new Base();
+  base.setPropertyValue("testValue", [1, 2, 3]);
+  assert.deepEqual(base.getPropertyValue("testValue"), [1, 2, 3]);
+  base.setPropertyValue("testValue", undefined);
+  assert.notOk(base.getPropertyValue("testValue"));
+});
+QUnit.test("Change value to array and then to string", function(assert) {
+  var base = new BaseTester();
+  base.setPropertyValue("testValue", [1, 2, 3]);
+  assert.deepEqual(base.getPropertyValue("testValue"), [1, 2, 3]);
+  base.setPropertyValue("testValue", "abc");
+  assert.equal(base.getPropertyValue("testValue"), "abc");
 });

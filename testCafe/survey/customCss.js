@@ -33,34 +33,6 @@ const initSurvey = ClientFunction((framework, json) => {
         survey: model
       }
     });
-  } else if (framework === "jquery") {
-    $("#surveyElement").Survey({
-      model: model,
-      css: myCss
-    });
-  } else if (framework === "angular") {
-    function onAngularComponentInit() {
-      Survey.SurveyNG.render("surveyElement", {
-        model: model,
-        css: myCss
-      });
-    }
-    var HelloApp = ng.core
-      .Component({
-        selector: "ng-app",
-        template:
-          '<div id="surveyContainer" class="survey-container contentcontainer codecontainer">' +
-          '<div id="surveyElement"></div></div>'
-      })
-      .Class({
-        constructor: function() {},
-        ngOnInit: function() {
-          onAngularComponentInit();
-        }
-      });
-    document.addEventListener("DOMContentLoaded", function() {
-      ng.platformBrowserDynamic.bootstrap(HelloApp);
-    });
   }
 
   window.survey = model;

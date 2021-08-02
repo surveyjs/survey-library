@@ -144,27 +144,6 @@ const initSurvey = ClientFunction(framework => {
       new Vue({ el: "#surveyElement", data: { survey: survey } });
     }
     window.runSurvey = runSurvey;
-  } else if (framework === "jquery") {
-    function runSurvey() {
-      var survey = new Survey.Model({
-        surveyId: "e7866476-e901-4ab7-9f38-574416387f73",
-        surveyPostId: "df2a04fb-ce9b-44a6-a6a7-6183ac555a68",
-        clientId: document.getElementById("clientId").value
-      });
-      document.getElementById("clientIdContainer").style.display = "none";
-      survey.sendResultOnPageNext = document.getElementById(
-        "sendResultOnPageNext"
-      ).checked;
-
-      $("#surveyElement").Survey({
-        model: survey,
-        onComplete: surveyComplete,
-        onSendResult: surveySendResult
-      });
-    }
-    window.runSurvey = runSurvey;
-  } else if (framework === "angular") {
-    // TODO this feature are not supported yet
   }
 });
 

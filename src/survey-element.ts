@@ -422,13 +422,22 @@ export class SurveyElement extends Base implements ISurveyElement {
   public setVisibleIndex(index: number): number {
     return 0;
   }
+  /**
+   * Returns true if it is a page.
+   */
   public get isPage() {
     return false;
   }
   /**
-   * Return false if it is not panel.
+   * Returns true if it is a panel.
    */
   public get isPanel() {
+    return false;
+  }
+  /**
+   * Returns true if it is a question.
+   */
+  public get isQuestion() {
     return false;
   }
   public delete() {}

@@ -2,7 +2,7 @@
   <div data-bind="css: question.koCss().selectWrapper">
     <!-- ko ifnot: question.isReadOnly -->
     <select
-      data-bind="if: true, attr: {id: question.inputId, autoComplete: question.autoComplete, 'aria-label': question.locTitle.renderedHtml, 'aria-invalid': question.errors.length > 0, 'aria-describedby': question.errors.length > 0 ? question.id + '_errors' : null}, disable: question.isInputReadOnly, value: question.renderedValue, valueAllowUnset: true, css: question.getControlClass()">
+      data-bind="if: true, attr: {id: question.inputId, autoComplete: question.autoComplete, required: question.isRequired, 'aria-required': question.isRequired, 'aria-label': question.locTitle.renderedHtml, 'aria-invalid': question.errors.length > 0, 'aria-describedby': question.errors.length > 0 ? question.id + '_errors' : null}, disable: question.isInputReadOnly, value: question.renderedValue, valueAllowUnset: true, css: question.getControlClass()">
       <!-- ko if: question.showOptionsCaption -->
       <option data-bind="text:question.optionsCaption, value: null"></option>
       <!-- /ko -->

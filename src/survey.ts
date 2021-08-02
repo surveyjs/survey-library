@@ -849,8 +849,8 @@ export class SurveyModel extends Base
    * Use this event to create/customize actions to be displayed in a question's title.
    * <br/> `sender` - A [Survey](https://surveyjs.io/Documentation/Library?id=SurveyModel) object that fires the event.
    * <br/> `options.question` - A [Question](https://surveyjs.io/Documentation/Library?id=Question) object for which the event is fired.
-   * <br/> `options.titleActions` - A list of actions ([IActionBarItem](https://surveyjs.io/Documentation/Library?id=IActionBarItem) objects) associated with the processed question.
-   * @see IActionBarItem
+   * <br/> `options.titleActions` - A list of actions ([IAction](https://surveyjs.io/Documentation/Library?id=IAction) objects) associated with the processed question.
+   * @see IAction
    * @see Question
    */
   public onGetQuestionTitleActions: EventBase<SurveyModel> = this.addEvent<
@@ -860,8 +860,8 @@ export class SurveyModel extends Base
    * Use this event to create/customize actions to be displayed in a panel's title.
    * <br/> `sender` - A survey object that fires the event.
    * <br/> `options.panel` - A panel ([PanelModel](https://surveyjs.io/Documentation/Library?id=panelmodel) object) for which the event is fired.
-   * <br/> `options.titleActions` - A list of actions ([IActionBarItem](https://surveyjs.io/Documentation/Library?id=IActionBarItem) objects) associated with the processed panel.
-   * @see IActionBarItem
+   * <br/> `options.titleActions` - A list of actions ([IAction](https://surveyjs.io/Documentation/Library?id=IAction) objects) associated with the processed panel.
+   * @see IAction
    * @see PanelModel
    */
   public onGetPanelTitleActions: EventBase<SurveyModel> = this.addEvent<
@@ -871,8 +871,8 @@ export class SurveyModel extends Base
    * Use this event to create/customize actions to be displayed in a page's title.
    * <br/> `sender` - A survey object that fires the event.
    * <br/> `options.page` - A page ([PageModel](https://surveyjs.io/Documentation/Library?id=pagemodel) object) for which the event is fired.
-   * <br/> `options.titleActions` - A list of actions ([IActionBarItem](https://surveyjs.io/Documentation/Library?id=IActionBarItem) objects) associated with the processed page.
-   * @see IActionBarItem
+   * <br/> `options.titleActions` - A list of actions ([IAction](https://surveyjs.io/Documentation/Library?id=IAction) objects) associated with the processed page.
+   * @see IAction
    * @see PageModel
    */
   public onGetPageTitleActions: EventBase<SurveyModel> = this.addEvent<
@@ -883,8 +883,8 @@ export class SurveyModel extends Base
    * <br/> `sender` - A survey object that fires the event.
    * <br/> `options.question` - A matrix question ([QuestionMatrixBaseModel](https://surveyjs.io/Documentation/Library?id=questionmatrixbasemodel) object) for which the event is fired.
    * <br/> `options.row` - A matrix row for which the event is fired.
-   * <br/> `options.actions` - A list of actions ([IActionBarItem](https://surveyjs.io/Documentation/Library?id=IActionBarItem) objects) associated with the processed matrix question and row.
-   * @see IActionBarItem
+   * <br/> `options.actions` - A list of actions ([IAction](https://surveyjs.io/Documentation/Library?id=IAction) objects) associated with the processed matrix question and row.
+   * @see IAction
    * @see QuestionMatrixDropdownModelBase
    */
   public onGetMatrixRowActions: EventBase<SurveyModel> = this.addEvent<
@@ -1706,14 +1706,16 @@ export class SurveyModel extends Base
     return !!this.logo && this.logoPosition !== "none";
   }
   public get isLogoBefore() {
+    if (this.isDesignMode) return false;
     return (
-      this.hasLogo &&
+      this.renderedHasLogo &&
       (this.logoPosition === "left" || this.logoPosition === "top")
     );
   }
   public get isLogoAfter() {
+    if (this.isDesignMode) return this.renderedHasLogo;
     return (
-      this.hasLogo &&
+      this.renderedHasLogo &&
       (this.logoPosition === "right" || this.logoPosition === "bottom")
     );
   }
@@ -1725,6 +1727,17 @@ export class SurveyModel extends Base
       bottom: "sv-logo--bottom",
     };
     return this.css.logo + " " + logoClasses[this.logoPosition];
+  }
+  public get renderedHasTitle(): boolean {
+    if (this.isDesignMode) return this.isPropertyVisible("title");
+    return !this.locTitle.isEmpty && this.showTitle;
+  }
+  public get renderedHasLogo(): boolean {
+    if (this.isDesignMode) return this.isPropertyVisible("logo");
+    return this.hasLogo;
+  }
+  public get renderedHasHeader(): boolean {
+    return this.renderedHasTitle || this.renderedHasLogo;
   }
   /**
    * The logo fit mode.
@@ -3327,10 +3340,9 @@ export class SurveyModel extends Base
     if (this.doServerValidation(doComplete)) return false;
     if (doComplete) {
       this.currentPage.passed = true;
-      this.doComplete();
-    } else {
-      this.doNextPage();
+      return this.doComplete();
     }
+    this.doNextPage();
     return true;
   }
   /**
@@ -3545,9 +3557,11 @@ export class SurveyModel extends Base
    * - calls `sendResult` function.
    *
    * Calling the `doComplete` function does not perform any validation, unlike the `completeLastPage` function.
+   * The function can return false, if you set options.allowComplete to false in onCompleting event. Otherwise it returns true.
    * It calls `navigateToUrl` after calling `onComplete` event.
    * In case calling `options.showDataSaving` callback in the `onComplete` event, `navigateToUrl` is used on calling `options.showDataSavingSuccess` callback.
    * @see completeLastPage
+   * @see onCompleting
    * @see cookieName
    * @see state
    * @see onComplete
@@ -3556,13 +3570,13 @@ export class SurveyModel extends Base
    * @see navigateToUrl
    * @see navigateToUrlOnCondition
    */
-  public doComplete(isCompleteOnTrigger: boolean = false) {
+  public doComplete(isCompleteOnTrigger: boolean = false): boolean {
     var onCompletingOptions = {
       allowComplete: true,
       isCompleteOnTrigger: isCompleteOnTrigger,
     };
     this.onCompleting.fire(this, onCompletingOptions);
-    if (!onCompletingOptions.allowComplete) return;
+    if (!onCompletingOptions.allowComplete) return false;
     let previousCookie = this.hasCookie;
     this.stopTimer();
     this.setCompleted();
@@ -3594,6 +3608,7 @@ export class SurveyModel extends Base
     if (!savingDataStarted) {
       this.navigateTo();
     }
+    return true;
   }
   /**
    * Starts the survey. Changes the survey mode from "starting" to "running". Call this function if your survey has a start page, otherwise this function does nothing.

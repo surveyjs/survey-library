@@ -12,11 +12,7 @@
       :style="inputStyle"
       :id="question.inputId"
       :list="question.dataListId"
-      :placeholder="
-        question.inputType === 'range' || question.isReadOnly
-          ? ''
-          : question.placeHolder
-      "
+      :placeholder="question.renderedPlaceHolder"
       :autocomplete="question.autoComplete"
       :value="question.value"
       @change="change"

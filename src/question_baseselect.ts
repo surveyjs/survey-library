@@ -342,7 +342,10 @@ export class QuestionSelectBase extends Question {
   }
   public set renderedValue(val: any) {
     this.setPropertyValue("renderedValue", val);
-    this.value = this.rendredValueToData(val);
+    var val = this.rendredValueToData(val);
+    if (!Helpers.isTwoValueEquals(val, this.value)) {
+      this.value = val;
+    }
   }
   protected setQuestionValue(
     newValue: any,
@@ -709,6 +712,9 @@ export class QuestionSelectBase extends Question {
   protected getDisplayValueCore(keysAsText: boolean, value: any): any {
     return this.getChoicesDisplayValue(this.visibleChoices, value);
   }
+  protected getDisplayValueEmpty(): string {
+    return ItemValue.getTextOrHtmlByValue(this.visibleChoices, undefined);
+  }
   protected getChoicesDisplayValue(items: ItemValue[], val: any): any {
     if (val == this.otherItemValue.value)
       return this.comment ? this.comment : this.locOtherText.textOrHtml;
@@ -1047,7 +1053,7 @@ export class QuestionSelectBase extends Question {
     return Helpers.randomizeArray<ItemValue>(array);
   }
   public clearIncorrectValues() {
-    if (this.keepIncorrectValues) return;
+    if (this.keepIncorrectValues || this.isEmpty()) return;
     if (
       !!this.survey &&
       this.survey.questionCountByValueName(this.getValueName()) > 1

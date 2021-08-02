@@ -2,6 +2,7 @@ import {
   Trigger,
   ISurveyTriggerOwner,
   SurveyTriggerVisible,
+  SurveyTriggerSetValue,
 } from "../src/trigger";
 import { SurveyModel } from "../src/survey";
 
@@ -37,7 +38,7 @@ class SurveyTriggerVisibleOwnerTester implements ISurveyTriggerOwner {
   }
 }
 
-QUnit.test("Check trigger operations", function (assert) {
+QUnit.test("Check trigger operations", function(assert) {
   var trigger = new TriggerTester(null);
   assert.equal(trigger.operator, "equal", "The default is equal");
   trigger.operator = "eq";
@@ -45,14 +46,14 @@ QUnit.test("Check trigger operations", function (assert) {
   trigger.operator = "less";
   assert.equal(trigger.operator, "less", "It can be changed on 'less'");
 });
-QUnit.test("Simple custom trigger", function (assert) {
+QUnit.test("Simple custom trigger", function(assert) {
   var counterSuccess = 0;
   var counterFalure = 0;
   var trigger = new TriggerTester(
-    function () {
+    function() {
       counterSuccess++;
     },
-    function () {
+    function() {
       counterFalure++;
     }
   );
@@ -81,7 +82,7 @@ QUnit.test("Simple custom trigger", function (assert) {
   assert.equal(counterSuccess, 3, "2 not in []");
   assert.equal(counterFalure, 3, "2 not in [2, 3]");
 });
-QUnit.test("Visibility trigger", function (assert) {
+QUnit.test("Visibility trigger", function(assert) {
   var owner = new SurveyTriggerVisibleOwnerTester();
   var trigger = new SurveyTriggerVisible();
   trigger.setOwner(owner);
@@ -97,7 +98,7 @@ QUnit.test("Visibility trigger", function (assert) {
   assert.equal(owner.items[0].visible, false, "The trigger should failed");
 });
 
-QUnit.test("Visibility trigger", function (assert) {
+QUnit.test("Visibility trigger", function(assert) {
   var survey = new SurveyModel({
     elements: [
       {
@@ -136,4 +137,37 @@ QUnit.test("Visibility trigger", function (assert) {
     "notExec",
     "Trigger not executed correctly"
   );
+});
+QUnit.test("Clear seValue on setToName property in design mode", function(
+  assert
+) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "text",
+        name: "q1",
+      },
+      {
+        type: "text",
+        name: "q2",
+      },
+    ],
+    triggers: [
+      {
+        type: "setvalue",
+        setToName: "q1",
+        setValue: "1",
+      },
+    ],
+  });
+  const trigger = <SurveyTriggerSetValue>survey.triggers[0];
+  assert.equal(trigger.setToName, "q1");
+  assert.equal(trigger.setValue, "1");
+  trigger.setToName = "q2";
+  assert.equal(trigger.setToName, "q2");
+  assert.equal(trigger.setValue, "1");
+  survey.setDesignMode(true);
+  trigger.setToName = "q1";
+  assert.equal(trigger.setToName, "q1");
+  assert.notOk(trigger.setValue);
 });

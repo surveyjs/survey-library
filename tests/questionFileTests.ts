@@ -1,5 +1,6 @@
 import { SurveyModel } from "../src/survey";
 import { QuestionFileModel } from "../src/question_file";
+import { QuestionPanelDynamicModel } from "../src/question_paneldynamic";
 
 export default QUnit.module("Survey_QuestionFile");
 
@@ -14,7 +15,7 @@ QUnit.test("QuestionFile value initialization strings", function(assert) {
         storeDataAsText: false,
         showPreview: true,
         imageWidth: 150,
-        maxSize: 102400
+        maxSize: 102400,
       },
       {
         type: "file",
@@ -24,9 +25,9 @@ QUnit.test("QuestionFile value initialization strings", function(assert) {
         storeDataAsText: true,
         showPreview: true,
         imageWidth: 150,
-        maxSize: 102400
-      }
-    ]
+        maxSize: 102400,
+      },
+    ],
   };
 
   var survey = new SurveyModel(json);
@@ -38,7 +39,7 @@ QUnit.test("QuestionFile value initialization strings", function(assert) {
 
   survey.data = {
     image1: "someId",
-    image2: "data:image/jpeg;base64,FILECONTENT"
+    image2: "data:image/jpeg;base64,FILECONTENT",
   };
   assert.deepEqual(q1.value, survey.data.image1);
   assert.deepEqual(q2.value, survey.data.image2);
@@ -67,7 +68,7 @@ QUnit.test("QuestionFile value initialization array", function(assert) {
         storeDataAsText: false,
         showPreview: true,
         imageWidth: 150,
-        maxSize: 102400
+        maxSize: 102400,
       },
       {
         type: "file",
@@ -77,9 +78,9 @@ QUnit.test("QuestionFile value initialization array", function(assert) {
         storeDataAsText: true,
         showPreview: true,
         imageWidth: 150,
-        maxSize: 102400
-      }
-    ]
+        maxSize: 102400,
+      },
+    ],
   };
 
   var survey = new SurveyModel(json);
@@ -91,7 +92,7 @@ QUnit.test("QuestionFile value initialization array", function(assert) {
 
   survey.data = {
     image1: ["someId"],
-    image2: ["data:image/jpeg;base64,FILECONTENT"]
+    image2: ["data:image/jpeg;base64,FILECONTENT"],
   };
   assert.deepEqual(q1.value, survey.data.image1);
   assert.deepEqual(q2.value, survey.data.image2);
@@ -122,7 +123,7 @@ QUnit.test("QuestionFile value initialization array of objects", function(
         storeDataAsText: false,
         showPreview: true,
         imageWidth: 150,
-        maxSize: 102400
+        maxSize: 102400,
       },
       {
         type: "file",
@@ -132,9 +133,9 @@ QUnit.test("QuestionFile value initialization array of objects", function(
         storeDataAsText: true,
         showPreview: true,
         imageWidth: 150,
-        maxSize: 102400
-      }
-    ]
+        maxSize: 102400,
+      },
+    ],
   };
 
   var survey = new SurveyModel(json);
@@ -154,7 +155,7 @@ QUnit.test("QuestionFile value initialization array of objects", function(
   assert.equal(q2.inputTitle, "Choose file(s)...");
   survey.data = {
     image1: [{ content: "someId" }],
-    image2: [{ content: "data:image/jpeg;base64,FILECONTENT" }]
+    image2: [{ content: "data:image/jpeg;base64,FILECONTENT" }],
   };
   assert.equal(q1.inputTitle, " ");
   assert.equal(q2.inputTitle, " ");
@@ -187,7 +188,7 @@ QUnit.test(
           storeDataAsText: false,
           showPreview: true,
           imageWidth: 150,
-          maxSize: 102400
+          maxSize: 102400,
         },
         {
           type: "file",
@@ -197,9 +198,9 @@ QUnit.test(
           storeDataAsText: true,
           showPreview: true,
           imageWidth: 150,
-          maxSize: 102400
-        }
-      ]
+          maxSize: 102400,
+        },
+      ],
     };
 
     var survey = new SurveyModel(json);
@@ -208,7 +209,7 @@ QUnit.test(
 
     survey.data = {
       image1: [{ content: "someId" }],
-      image2: [{ content: "data:image/jpeg;base64,FILECONTENT" }]
+      image2: [{ content: "data:image/jpeg;base64,FILECONTENT" }],
     };
     assert.deepEqual(q1.value, survey.data.image1);
     assert.deepEqual(q2.value, survey.data.image2);
@@ -238,9 +239,9 @@ QUnit.test("QuestionFile upload files", function(assert) {
         storeDataAsText: false,
         showPreview: true,
         imageWidth: 150,
-        maxSize: 102400
-      }
-    ]
+        maxSize: 102400,
+      },
+    ],
   };
 
   var survey = new SurveyModel(json);
@@ -252,7 +253,7 @@ QUnit.test("QuestionFile upload files", function(assert) {
       () =>
         options.callback(
           "success",
-          options.files.map(file => {
+          options.files.map((file) => {
             return { file: file, content: file.name + "_url" };
           })
         ),
@@ -262,7 +263,7 @@ QUnit.test("QuestionFile upload files", function(assert) {
 
   var files: any = [
     { name: "f1", type: "t1" },
-    { name: "f2", type: "t2", size: 100000 }
+    { name: "f2", type: "t2", size: 100000 },
   ];
   q1.loadFiles(files);
 
@@ -302,20 +303,23 @@ QUnit.test("QuestionFile remove file", function(assert) {
         type: "file",
         allowMultiple: true,
         name: "image1",
-        showPreview: true
-      }
-    ]
+        showPreview: true,
+      },
+    ],
   };
 
   var survey = new SurveyModel(json);
   var q1: QuestionFileModel = <any>survey.getQuestionByName("image1");
   survey.data = {
-    image1: [{ name: "f1", content: "data" }, { name: "f2", content: "data" }]
+    image1: [
+      { name: "f1", content: "data" },
+      { name: "f2", content: "data" },
+    ],
   };
 
   q1.removeFile({ name: "f1" });
   assert.deepEqual(survey.data, {
-    image1: [{ name: "f2", content: "data" }]
+    image1: [{ name: "f2", content: "data" }],
   });
 
   q1.removeFile({ name: "f2" });
@@ -332,9 +336,9 @@ QUnit.test(
           allowMultiple: true,
           name: "image1",
           storeDataAsText: false,
-          maxSize: 10
-        }
-      ]
+          maxSize: 10,
+        },
+      ],
     };
 
     var survey = new SurveyModel(json);
@@ -344,7 +348,7 @@ QUnit.test(
     survey.onUploadFiles.add((survey, options) => {
       options.callback(
         "success",
-        options.files.map(file => {
+        options.files.map((file) => {
           return { file: file, content: file.name + "_url" };
         })
       );
@@ -353,7 +357,7 @@ QUnit.test(
 
     var files: any = [
       { name: "f1", type: "t1", size: 9 },
-      { name: "f2", type: "t2", size: 11 }
+      { name: "f2", type: "t2", size: 11 },
     ];
     q1.loadFiles(files);
     assert.equal(q1.errors.length, 1, "one error");
@@ -372,7 +376,7 @@ QUnit.test(
     var loadedFilesCount = 0;
     q1.loadFiles([
       <any>{ name: "f1", type: "t1", size: 1 },
-      <any>{ name: "f2", type: "t2", size: 2 }
+      <any>{ name: "f2", type: "t2", size: 2 },
     ]);
     assert.equal(q1.errors.length, 0, "no error");
     assert.equal(loadedFilesCount, 1, "two files loaded");
@@ -409,9 +413,9 @@ QUnit.test(
           type: "file",
           name: "image1",
           storeDataAsText: false,
-          showPreview: true
-        }
-      ]
+          showPreview: true,
+        },
+      ],
     };
 
     var survey = new SurveyModel(json);
@@ -422,7 +426,7 @@ QUnit.test(
       if (isSuccess) {
         options.callback(
           "success",
-          options.files.map(file => {
+          options.files.map((file) => {
             return { file: file, content: file.name + "_url" };
           })
         );
@@ -463,9 +467,9 @@ QUnit.test("QuestionFile replace file for single file mode", function(assert) {
       {
         type: "file",
         name: "image1",
-        storeDataAsText: false
-      }
-    ]
+        storeDataAsText: false,
+      },
+    ],
   };
 
   var survey = new SurveyModel(json);
@@ -474,7 +478,7 @@ QUnit.test("QuestionFile replace file for single file mode", function(assert) {
   survey.onUploadFiles.add((survey, options) => {
     options.callback(
       "success",
-      options.files.map(file => {
+      options.files.map((file) => {
         return { file: file, content: file.name + "_url" };
       })
     );
@@ -489,4 +493,32 @@ QUnit.test("QuestionFile replace file for single file mode", function(assert) {
   q1.loadFiles(files2);
   assert.equal(q1.value.length, 1, "the only single file");
   assert.equal(q1.value[0].name, "f2", "second file name");
+});
+QUnit.test("QuestionFile in panel dynamic in preview mode", function(assert) {
+  var json = {
+    questions: [
+      {
+        type: "paneldynamic",
+        name: "panel",
+        templateElements: [
+          {
+            type: "file",
+            name: "files",
+            storeDataAsText: false,
+            allowMultiple: true,
+            maxSize: 102400,
+          },
+        ],
+      },
+    ],
+  };
+
+  var survey = new SurveyModel(json);
+  survey.data = { panel: [{ files: ["someId"] }] };
+  survey.showPreview();
+  var panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+  var fileQuestion = <QuestionFileModel>panel.panels[0].questions[0];
+  assert.equal(panel.panelCount, 1, "One panel");
+  var fileQuestion = <QuestionFileModel>panel.panels[0].questions[0];
+  assert.equal(fileQuestion.value, "someId", "Question file name");
 });

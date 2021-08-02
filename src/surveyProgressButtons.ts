@@ -20,6 +20,13 @@ export class SurveyProgressButtonsModel {
       .append(this.survey.css.progressButtonsListElementNonClickable, !this.isListElementClickable(index))
       .toString();
   }
+  public getScrollButtonCss(hasScroller: boolean, isLeftScroll: boolean): string {
+    return new CssClassBuilder()
+      .append(this.survey.css.progressButtonsImageButtonLeft, isLeftScroll)
+      .append(this.survey.css.progressButtonsImageButtonRight, !isLeftScroll)
+      .append(this.survey.css.progressButtonsImageButtonHidden, !hasScroller)
+      .toString();
+  }
   public clickListElement(index: number): void {
     if (this.survey.isDesignMode) return;
     if (index < this.survey.currentPageNo) {

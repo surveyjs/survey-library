@@ -46,7 +46,7 @@
 <script lang="ts">
 import Vue from "vue";
 import { Component, Prop } from "vue-property-decorator";
-import { SurveyModel, SurveyProgressButtonsModel, CssClassBuilder } from "survey-core";
+import { SurveyModel, SurveyProgressButtonsModel } from "survey-core";
 
 @Component
 export class ProgressButtons extends Vue {
@@ -60,7 +60,7 @@ export class ProgressButtons extends Vue {
     this.progressButtonsModel = new SurveyProgressButtonsModel(this.survey);
   }
   mounted() {
-    let listContainerElement: any = this.$refs["progressButtonsListContainer"];
+    const listContainerElement: any = this.$refs["progressButtonsListContainer"];
     this.updateScroller = setInterval(() => {
       this.hasScroller =
         listContainerElement.scrollWidth > listContainerElement.offsetWidth;
@@ -76,11 +76,7 @@ export class ProgressButtons extends Vue {
     this.progressButtonsModel.clickListElement(index);
   }
   public getScrollButtonCss(hasScroller: boolean, isLeftScroll: boolean): any {
-    return new CssClassBuilder()
-      .append(this.css.progressButtonsImageButtonLeft, isLeftScroll)
-      .append(this.css.progressButtonsImageButtonRight, !isLeftScroll)
-      .append(this.css.progressButtonsImageButtonHidden, !hasScroller)
-      .toString();
+    return this.progressButtonsModel.getScrollButtonCss(hasScroller, isLeftScroll);
   }
   public clickScrollButton(isLeftScroll: boolean): void {
     let listContainerElement: any = this.$refs["progressButtonsListContainer"];

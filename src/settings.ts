@@ -152,7 +152,8 @@ export var settings = {
       componentName: string,
       data: any,
       onApply: () => boolean,
-      onCancel?: () => void
+      onCancel?: () => void,
+      cssClass?: string
     ) => void
   >undefined,
   supportCreatorV2: false,

@@ -109,7 +109,7 @@ export class QuestionPanelDynamicImplementor extends QuestionImplementor {
       "koButtonNextCss",
       ko.pureComputed(() => {
         this.koRecalc();
-        return this.buttonNextCss;
+        return this.question.getButtonNextCss();
       })
     );
 
@@ -176,13 +176,6 @@ export class QuestionPanelDynamicImplementor extends QuestionImplementor {
     const el = SurveyElement.GetFirstNonTextElement(elements);
     this.question.survey.afterRenderPanel(con, el);
   } 
-
-  protected get buttonNextCss() {
-    return new CssClassBuilder()
-      .append(this.question.cssClasses.buttonNext)
-      .append(this.question.cssClasses.buttonNext + "--disabled", !this.question.isNextButtonShowing)
-      .toString();
-  }
 
   protected get progress() {
     const rangeMax: number = this.question.panelCount - 1;

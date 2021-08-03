@@ -146,18 +146,12 @@ export class SurveyQuestionPanelDynamic extends SurveyQuestionElementBase {
     );
   }
   protected rendrerNextButton() {
-    const getButtonNextCss = function(question: Question) {
-      return new CssClassBuilder()
-        .append(question.cssClasses.buttonNext)
-        .append(question.cssClasses.buttonNext + "--disabled", !question.isNextButtonShowing)
-        .toString();
-    };
 
     return (
       <div title={this.question.panelNextText}>
         <svg
           viewBox="0 0 10 10"
-          className={getButtonNextCss(this.question)}
+          className={this.question.getButtonNextCss()}
           onClick={this.handleOnPanelNextClick}
         >
           <polygon points="2,2 0,4 5,9 10,4 8,2 5,5 " />

@@ -23,7 +23,7 @@
         <svg
           viewBox="0 0 10 10"
           @click="nextPanelClick"
-          :class="getButtonNextCss(question)"
+          :class="question.getButtonNextCss()"
         >
           <polygon points="2,2 0,4 5,9 10,4 8,2 5,5 " />
         </svg>
@@ -74,13 +74,6 @@ export class PanelDynamicProgress extends Vue {
 
   changeRange(event: any) {
     this.question.currentIndex = event.target.value;
-  }
-
-  getButtonNextCss(question: Question) {
-    return new CssClassBuilder()
-      .append(question.cssClasses.buttonNext)
-      .append(question.cssClasses.buttonNext + "--disabled", !question.isNextButtonShowing)
-      .toString();
   }
 
   get progress() {

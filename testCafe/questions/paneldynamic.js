@@ -3,7 +3,7 @@ import {
   url,
   initSurvey,
   getSurveyResult,
-  getQuestionJson,
+  getQuestionJson, getDynamicPanelRemoveButton
 } from "../helper";
 import { Selector } from "testcafe";
 const assert = require("assert");
@@ -219,7 +219,7 @@ frameworks.forEach((framework) => {
     );
 
     await t.click(".sv-paneldynamic__next-btn");
-    await t.click(`input[value="Remove the relative"]`);
+    await t.click(getDynamicPanelRemoveButton("Please enter all blood relatives you know", "Remove the relative"));
 
     await t.click(`input[value=Complete]`);
     let surveyResult = await getSurveyResult();

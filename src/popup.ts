@@ -68,6 +68,36 @@ export class PopupModel extends Base {
   public onVisibilityChanged: (isVisible: boolean) => void;
 }
 
+export function createPopupModalViewModel(
+    componentName: string,
+    data: any,
+    onApply: () => boolean,
+    onCancel?: () => void,
+    onHide = () => {},
+    onShow = () => {},
+    cssClass?: string
+  ) {
+    const popupModel = new PopupModel(
+      componentName,
+      data,
+      "top",
+      "left",
+      false,
+      true,
+      onCancel,
+      onApply,
+      onHide,
+      onShow,
+      cssClass
+    );
+    const popupViewModel: PopupBaseViewModel = new PopupBaseViewModel(
+      popupModel,
+      undefined
+    );
+    popupViewModel.initializePopupContainer();
+    return popupViewModel;
+}
+
 const FOCUS_INPUT_SELECTOR =
   "input:not(:disabled):not([readonly]):not([type=hidden]),select:not(:disabled):not([readonly]),textarea:not(:disabled):not([readonly]), button:not(:disabled):not([readonly])";
 

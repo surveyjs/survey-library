@@ -1,4 +1,4 @@
-import { ClientFunction } from "testcafe";
+import { ClientFunction, Selector } from "testcafe";
 export const frameworks = ["knockout", "react", "vue"];
 export const url = "http://127.0.0.1:8080/examples_test/default/";
 export const url_test = "http://127.0.0.1:8080/examples_test/";
@@ -114,3 +114,7 @@ export const getQuestionJson = ClientFunction(() => {
 export const getPanelJson = ClientFunction(() => {
   return JSON.stringify(survey.getAllPanels()[0].toJSON());
 });
+
+export function getDynamicPanelRemoveButton(questionTitle, buttonText) {
+  return Selector("[aria-label='" + questionTitle + "']").parent("[aria-labelledby]").find("span").withText(buttonText)
+}

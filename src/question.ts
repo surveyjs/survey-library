@@ -673,6 +673,9 @@ export class Question extends SurveyElement
     if (cssClasses.small && !this.width) {
       res += " " + cssClasses.small;
     }
+    if (this.isAnswered && !!cssClasses.answered) {
+      res += " " + cssClasses.answered;
+    }    
     return res;
   }
   public get cssHeader(): string {

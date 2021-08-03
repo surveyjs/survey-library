@@ -411,12 +411,15 @@ export var registerTemplateEngine = (ko: any, platform: string) => {
 
 export function createKey2click(element: HTMLElement) {
   return (ev: KeyboardEvent) => {
+    ev.preventDefault();
+    ev.stopPropagation();
     var char = ev.which || ev.keyCode;
     if (char === 13 || char === 32) {
       element.click();
     } else if (char === 27) {
       element.blur();
     }
+    return false;
   };
 }
 
@@ -428,5 +431,11 @@ ko.bindingHandlers["key2click"] = {
     }
     element.tabIndex = 0;
     element.onkeyup = createKey2click(element);
+    element.onkeydown = e => {
+      var char = e.which || e.keyCode;
+      if([13, 32, 27].indexOf(char) !== -1) {
+        e.preventDefault();
+      }
+    }
   },
 };

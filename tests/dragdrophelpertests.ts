@@ -127,12 +127,11 @@ QUnit.test("calculateIsBottom", function(assert) {
     y: 100,
     height: 100,
   });
-  ddHelper["dropTargetNode"] = testElement;
 
-  let result = ddHelper["calculateIsBottom"](150);
+  let result = ddHelper["calculateIsBottom"](150, testElement);
   assert.equal(result, true);
 
-  result = ddHelper["calculateIsBottom"](100);
+  result = ddHelper["calculateIsBottom"](100, testElement);
   assert.equal(result, false);
 });
 

@@ -723,6 +723,12 @@ export class Question extends SurveyElement
       .append(cssClasses.error.locationBottom, this.errorLocation === "bottom")
       .toString();
   }
+  public getRootCss(): string {
+    return new CssClassBuilder()
+      .append(this.cssRoot)
+      .append(this.cssClasses.disabled, this.isReadOnly)
+      .toString();
+  }
   public updateElementCss(reNew?: boolean) {
     this.cssClassesValue = undefined;
     if (reNew) {

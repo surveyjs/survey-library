@@ -125,14 +125,11 @@ export class SurveyQuestion extends SurveyElementBase<any, any> {
       display: !this.question.isCollapsed ? "" : "none",
     };
 
-    const questionRootClass = new CssClassBuilder().append(question.cssRoot)
-        .append(cssClasses.disabled, question.isReadOnly).toString();
-
     return (
       <div
         ref={this.rootRef}
         id={question.id}
-        className={questionRootClass}
+        className={question.getRootCss()}
         style={rootStyle}
         role={question.ariaRole}
         aria-labelledby={question.hasTitle ? question.ariaTitleId : null}

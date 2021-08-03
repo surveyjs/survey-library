@@ -64,11 +64,7 @@ export class QuestionImplementor extends ImplementorBase {
     this.setObservaleObj(
       "koRootCss",
       ko.pureComputed(() => {
-        return new CssClassBuilder()
-          .append(this.question.cssRoot)
-          .append(this.question.cssClasses.disabled, this.question.isReadOnly)
-          .toString();
-
+        return this.question.getRootCss();
       })
     );
     this.setCallbackFunc("toggleStateByClick", this.toggleStateByClick);

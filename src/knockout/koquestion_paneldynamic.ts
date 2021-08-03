@@ -117,7 +117,7 @@ export class QuestionPanelDynamicImplementor extends QuestionImplementor {
       "koButtonPrevCss",
       ko.pureComputed(() => {
         this.koRecalc();
-        return this.buttonPrevCss;
+        return this.question.getButtonPrevCss();
       })
     );
 
@@ -175,15 +175,7 @@ export class QuestionPanelDynamicImplementor extends QuestionImplementor {
     if (!this.question || !this.question.survey) return;
     const el = SurveyElement.GetFirstNonTextElement(elements);
     this.question.survey.afterRenderPanel(con, el);
-  }
-
-  protected get buttonPrevCss() {
-    const cssClasses = this.question.cssClasses;
-    return new CssClassBuilder()
-      .append(cssClasses.buttonPrev)
-      .append(cssClasses.buttonPrev + "--disabled", !this.question.isPrevButtonShowing)
-      .toString();
-  }
+  } 
 
   protected get buttonNextCss() {
     return new CssClassBuilder()

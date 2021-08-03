@@ -4,7 +4,7 @@
       <div :title="question.panelPrevText">
         <svg
           viewBox="0 0 10 10"
-          :class="getButtonPrevCss(question)"
+          :class="question.getButtonPrevCss()"
           @click="prevPanelClick"
         >
           <polygon points="2,2 0,4 5,9 10,4 8,2 5,5 " />
@@ -74,15 +74,6 @@ export class PanelDynamicProgress extends Vue {
 
   changeRange(event: any) {
     this.question.currentIndex = event.target.value;
-  }
-
-  getButtonAddCss(question: Question) {}
-
-  getButtonPrevCss(question: Question) {
-    return new CssClassBuilder()
-      .append(question.cssClasses.buttonPrev)
-      .append(question.cssClasses.buttonPrev + "--disabled", !question.isPrevButtonShowing)
-      .toString();
   }
 
   getButtonNextCss(question: Question) {

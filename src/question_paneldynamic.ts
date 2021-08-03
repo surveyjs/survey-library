@@ -1642,6 +1642,12 @@ export class QuestionPanelDynamicModel extends Question
       .append(this.cssClasses.buttonAdd + "--list-mode", this.renderMode === "list")
       .toString();
   }
+  public getButtonPrevCss(): string {
+    return new CssClassBuilder()
+      .append(this.cssClasses.buttonPrev)
+      .append(this.cssClasses.buttonPrev + "--disabled", !this.isPrevButtonShowing)
+      .toString();
+  }
 }
 
 Serializer.addClass(

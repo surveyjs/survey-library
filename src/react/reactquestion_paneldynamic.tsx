@@ -133,19 +133,11 @@ export class SurveyQuestionPanelDynamic extends SurveyQuestionElementBase {
   }
 
   protected rendrerPrevButton() {
-    const getButtonPrevCss = (question: Question) => {
-      const cssClasses = question.cssClasses;
-      return new CssClassBuilder()
-        .append(cssClasses.buttonPrev)
-        .append(cssClasses.buttonPrev + "--disabled", !question.isPrevButtonShowing)
-        .toString();
-    };
-
     return (
       <div title={this.question.panelPrevText}>
         <svg
           viewBox="0 0 10 10"
-          className={getButtonPrevCss(this.question)}
+          className={this.question.getButtonPrevCss()}
           onClick={this.handleOnPanelPrevClick}
         >
           <polygon points="2,2 0,4 5,9 10,4 8,2 5,5 " />

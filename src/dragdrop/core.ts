@@ -6,20 +6,11 @@ export abstract class DragDropCore extends Base {
   public onBeforeDrop: EventBase<DragDropCore> = new EventBase();
   public onAfterDrop: EventBase<DragDropCore> = new EventBase();
 
-  public static edgeHeight: number = 30;
-  public static nestedPanelDepth: number = -1;
-  public static prevEvent: any = {
-    element: null,
-    x: -1,
-    y: -1,
-  };
-
   public static ghostSurveyElementName =
     "sv-drag-drop-ghost-survey-element-name"; // before renaming use globa search (we have also css selectors)
 
   protected draggedElement: any = null;
   protected dropTarget: any = null;
-  protected dropTargetNode: HTMLElement = null;
   protected dropTargetCandidate: IElement = null;
   protected dropTargetNodeCandidate: HTMLElement = null;
 
@@ -29,13 +20,6 @@ export abstract class DragDropCore extends Base {
   @property() isBottom: boolean = null;
 
   protected allowDropHere = false;
-
-  protected isItemValueBeingDragged() {
-    return Serializer.isDescendantOf(
-      this.draggedElement.getType(),
-      "itemvalue"
-    );
-  }
 
   protected get dropTargetDataAttributeName() {
     return `[data-sv-drop-target-${this.draggedElementType}]`;
@@ -396,13 +380,7 @@ export abstract class DragDropCore extends Base {
 
     this.doClear();
 
-    const prevEvent = DragDropCore.prevEvent;
-    prevEvent.element = null;
-    prevEvent.x = -1;
-    prevEvent.y = -1;
-
     this.dropTarget = null;
-    this.dropTargetNode = null;
     this.dropTargetCandidate = null;
     this.dropTargetNodeCandidate = null;
 

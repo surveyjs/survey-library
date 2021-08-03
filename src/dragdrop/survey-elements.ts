@@ -8,6 +8,8 @@ export class DragDropSurveyElements extends DragDropCore {
   public static newGhostPage: PageModel = null;
   public static restrictDragQuestionBetweenPages: boolean = false;
   protected isEdge: boolean = null;
+  public static edgeHeight: number = 30;
+  public static nestedPanelDepth: number = -1;
 
   protected get draggedElementType(): string {
     return "survey-element";
@@ -109,7 +111,7 @@ export class DragDropSurveyElements extends DragDropCore {
 
   private calculateIsEdge(HTMLElement: HTMLElement, clientY: number) {
     const middle = this.calculateMiddleOfHTMLElement(HTMLElement);
-    return Math.abs(clientY - middle) >= DragDropCore.edgeHeight;
+    return Math.abs(clientY - middle) >= DragDropSurveyElements.edgeHeight;
   }
 
   protected doDragOverAfter() {
@@ -155,7 +157,7 @@ export class DragDropSurveyElements extends DragDropCore {
     this.parentElement.dragDropStart(
       this.draggedElement,
       this.ghostSurveyElement,
-      DragDropCore.nestedPanelDepth
+      DragDropSurveyElements.nestedPanelDepth
     );
 
     return this.parentElement.dragDropMoveTo(
@@ -191,7 +193,7 @@ export class DragDropSurveyElements extends DragDropCore {
     this.parentElement.dragDropStart(
       this.draggedElement,
       fakeTargetElement,
-      DragDropCore.nestedPanelDepth
+      DragDropSurveyElements.nestedPanelDepth
     );
 
     this.parentElement.dragDropMoveTo(

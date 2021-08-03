@@ -17,7 +17,6 @@ import { settings } from "./settings";
  */
 export class QuestionSelectBase extends Question {
   public visibleChoicesChangedCallback: () => void;
-  public canShowOptionItemCallback: (item: ItemValue) => boolean;
   private filteredChoicesValue: Array<ItemValue>;
   private conditionChoicesVisibleIfRunner: ConditionRunner;
   private conditionChoicesEnableIfRunner: ConditionRunner;
@@ -31,6 +30,7 @@ export class QuestionSelectBase extends Question {
   private dependedQuestions: Array<QuestionSelectBase> = [];
   private noneItemValue: ItemValue = new ItemValue("none");
   private newItemValue: ItemValue;
+  private canShowOptionItemCallback: (item: ItemValue) => boolean;
   constructor(name: string) {
     super(name);
     var noneItemText = this.createLocalizableString("noneText", this, true);
@@ -630,6 +630,12 @@ export class QuestionSelectBase extends Question {
       !this.hasOther &&
       this.choicesOrder == "none"
     );
+  }
+  public setCanShowOptionItemCallback(func: (item: ItemValue) => boolean) {
+    this.canShowOptionItemCallback = func;
+    if (!!func) {
+      this.onVisibleChoicesChanged();
+    }
   }
   protected addToVisibleChoices(items: Array<ItemValue>, isAddAll: boolean) {
     if (isAddAll) {

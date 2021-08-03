@@ -330,13 +330,13 @@ $label-disabled-color: rgba(64, 64, 64, 0.5);
             //background-color: $body-container-background-color;
           }
         }
-        
+
         .sv_q_title {
           font-weight: bold;
           font-size: 1em;
           margin: 0.5em 0;
         }
-        
+
         .sv_q--disabled .sv_q_title {
           color: $label-disabled-color;
         }
@@ -645,7 +645,7 @@ $label-disabled-color: rgba(64, 64, 64, 0.5);
                 //border: 1px solid $main-color;
               }
             }
-            &:not(:first-child) {
+            &:not(:nth-child(2)) {
               .sv_q_rating_item_text:not(:hover) {
                 border-left-color: transparent;
               }

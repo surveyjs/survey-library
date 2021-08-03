@@ -159,15 +159,6 @@ QUnit.test("calculateIsEdge", function(assert) {
   assert.equal(result, true);
 });
 
-QUnit.test("isItemValueBeingDragged for itemvalue and it descendants", function(
-  assert
-) {
-  let ddHelper: any = new DragDropChoices(null);
-
-  ddHelper.draggedElement = new ItemValue(null);
-  assert.equal(ddHelper.isItemValueBeingDragged(), true);
-});
-
 QUnit.test("dropTargetDataAttributeName for choices", function(assert) {
   let ddHelper: any = new DragDropChoices(null);
 

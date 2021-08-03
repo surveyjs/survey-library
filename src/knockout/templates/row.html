@@ -8,7 +8,7 @@
   <!-- ko if: row.isNeedRender -->
   <!-- ko foreach: { data: row.elements, as: 'question' , afterRender: row.koAfterRender } -->
   <!-- ko if: question.isVisible -->
-  <div data-bind="style: { flexBasis: renderWidth, flexGrow: 1, flexShrink: 1, width: renderWidth, minWidth: $data.minWidth, maxWidth: $data.maxWidth }">
+  <div data-bind="css: question.koCss().questionWrapper, style: { flexBasis: renderWidth, flexGrow: 1, flexShrink: 1, width: renderWidth, minWidth: $data.minWidth, maxWidth: $data.maxWidth }">
     <!-- ko component: { name: row.panel.survey.getElementWrapperComponentName(question), params: { componentData:  row.panel.survey.getElementWrapperComponentData(question), templateData: { name: question.koElementType, data: question, afterRender: $parent.koElementAfterRender } } } -->
     <!-- /ko -->
   </div>

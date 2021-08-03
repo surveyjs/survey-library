@@ -241,12 +241,18 @@ export class SurveyQuestionPanelDynamicItem extends SurveyPanel {
     )
       return null;
     return (
-      <input
+      <button
         className={this.question.getPanelRemoveButtonCss()}
-        type="button"
         onClick={this.handleOnPanelRemoveClick}
-        value={this.question.panelRemoveText}
-      />
+        type="button">
+        <span 
+          className={this.question.cssClasses.buttonRemoveText}
+        > {this.question.panelRemoveText}
+        </span>
+        <span 
+          className={this.question.cssClasses.iconRemove}
+        ></span>
+      </button>
     );
   }
 }

@@ -92,6 +92,7 @@ export var modernCss = {
     content: "sv-question__content",
     contentLeft: "sv-question__content--left",
     titleLeftRoot: "",
+    answered: "sv-question--answered",
     titleOnAnswer: "sv-question__title--answer",
     titleOnError: "sv-question__title--error",
     title: "sv-title sv-question__title",

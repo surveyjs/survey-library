@@ -122,7 +122,7 @@ export class SurveyQuestion extends SurveyElementBase<any, any> {
       rootStyle["paddingRight"] = question.paddingRight;
 
     var contentStyle = {
-      display: !this.question.isCollapsed ? "block" : "none",
+      display: !this.question.isCollapsed ? "" : "none",
     };
 
     const questionRootClass = new CssClassBuilder().append(question.cssRoot)

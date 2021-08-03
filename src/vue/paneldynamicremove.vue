@@ -1,12 +1,16 @@
 <template>
-  <input
+  <button
     type="button"
     v-show="!isCollapsed"
     v-if="question.canRemovePanel && !question.isReadOnly"
     :class="question.getPanelRemoveButtonCss()"
-    :value="question.panelRemoveText"
-    @click="removePanelClick(panel)"
-  />
+    @click="removePanelClick(panel)" >
+    <span 
+    :class="question.cssClasses.buttonRemoveText">
+      {{question.panelRemoveText}}
+    </span>
+    <span :class="question.cssClasses.iconRemove"></span>
+  </button>
 </template>
 
 <script lang="ts">

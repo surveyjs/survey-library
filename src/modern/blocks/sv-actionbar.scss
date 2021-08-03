@@ -27,7 +27,7 @@ $base-unit: var(--base-unit, 8px);
 
 .sv-action--first {
   margin-right: auto;
-  
+
   .sv-action-bar-item {
     flex-direction: row-reverse;
   }
@@ -63,6 +63,11 @@ $base-unit: var(--base-unit, 8px);
   font-family: $font-family;
   overflow-x: hidden;
   white-space: nowrap;
+  border: 1px solid transparent;
+}
+
+button.sv-action-bar-item {
+  overflow: hidden;
 }
 
 .sv-action-bar-item__icon {

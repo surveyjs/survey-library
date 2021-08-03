@@ -255,7 +255,11 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     return this.isSupportProperty("hasSelectAll");
   }
   protected addToVisibleChoices(items: Array<ItemValue>, isAddAll: boolean) {
-    if (this.supportSelectAll() && (isAddAll || this.hasSelectAll)) {
+    if (
+      this.supportSelectAll() &&
+      (isAddAll || this.hasSelectAll) &&
+      this.canShowOptionItem(this.selectAllItem)
+    ) {
       items.unshift(this.selectAllItem);
     }
     super.addToVisibleChoices(items, isAddAll);

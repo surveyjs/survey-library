@@ -7,6 +7,7 @@ import { IElement, Base } from "survey-core";
 import { ReactElementFactory } from "./element-factory";
 import { settings } from "survey-core";
 import { ReactSurveyModel } from "./reactsurveymodel";
+import { Question } from "../question";
 
 export class SurveyRow extends SurveyElementBase<any, any> {
   private rootRef: React.RefObject<HTMLDivElement>;
@@ -46,8 +47,9 @@ export class SurveyRow extends SurveyElementBase<any, any> {
           rootStyle["minWidth"] = element.minWidth;
           rootStyle["maxWidth"] = element.maxWidth;
         }
+        const css = (element as Question).cssClasses;
         return (
-          <div style={rootStyle} key={innerElement.key}>
+          <div className={css.questionWrapper} style={rootStyle} key={innerElement.key}>
             {innerElement}
           </div>
         );

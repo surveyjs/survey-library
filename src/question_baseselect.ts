@@ -18,6 +18,7 @@ import { CssClassBuilder } from "./utils/cssClassBuilder";
  */
 export class QuestionSelectBase extends Question {
   public visibleChoicesChangedCallback: () => void;
+  public canShowOptionItemCallback: (item: ItemValue) => boolean;
   private filteredChoicesValue: Array<ItemValue>;
   private conditionChoicesVisibleIfRunner: ConditionRunner;
   private conditionChoicesEnableIfRunner: ConditionRunner;
@@ -343,7 +344,10 @@ export class QuestionSelectBase extends Question {
   }
   public set renderedValue(val: any) {
     this.setPropertyValue("renderedValue", val);
-    this.value = this.rendredValueToData(val);
+    var val = this.rendredValueToData(val);
+    if (!Helpers.isTwoValueEquals(val, this.value)) {
+      this.value = val;
+    }
   }
   protected setQuestionValue(
     newValue: any,
@@ -633,14 +637,28 @@ export class QuestionSelectBase extends Question {
       if (!this.newItemValue) {
         this.newItemValue = new ItemValue("newitem"); //TODO
       }
-      items.push(this.newItemValue);
+      if (this.canShowOptionItem(this.newItemValue)) {
+        items.push(this.newItemValue);
+      }
     }
-    if (this.supportOther() && (isAddAll || this.hasOther)) {
+    if (
+      this.supportOther() &&
+      (isAddAll || this.hasOther) &&
+      this.canShowOptionItem(this.otherItem)
+    ) {
       items.push(this.otherItem);
     }
-    if (this.supportNone() && (isAddAll || this.hasNone)) {
+    if (
+      this.supportNone() &&
+      (isAddAll || this.hasNone) &&
+      this.canShowOptionItem(this.noneItem)
+    ) {
       items.push(this.noneItem);
     }
+  }
+  protected canShowOptionItem(item: ItemValue): boolean {
+    if (!this.canShowOptionItemCallback) return true;
+    return this.canShowOptionItemCallback(item);
   }
   /**
    * For internal use in SurveyJS Creator V2.

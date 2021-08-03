@@ -1883,7 +1883,7 @@ Serializer.addClass(
       visible: false,
       isLightSerializable: false,
     },
-    { name: "visible:boolean", default: true },
+    { name: "visible:switch", default: true },
     "visibleIf:condition",
     "enableIf:condition",
     "requiredIf:condition",
@@ -1909,7 +1909,7 @@ Serializer.addClass(
       default: "default",
       choices: ["default", "collapsed", "expanded"],
     },
-    "isRequired:boolean",
+    "isRequired:switch",
     {
       name: "requiredErrorText:text",
       serializationProperty: "locRequiredErrorText",

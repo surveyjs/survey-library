@@ -1,6 +1,6 @@
 import * as React from "react";
 import { Base, Question, PageModel, SurveyError, StylesManager,
-  surveyCss, Helpers } from "survey-core";
+  surveyCss, Helpers, doKey2Click } from "survey-core";
 import { ReactSurveyModel } from "./reactsurveymodel";
 import { SurveyPage } from "./page";
 import { ISurveyCreator } from "./reactquestion";
@@ -350,3 +350,19 @@ export class Survey extends SurveyElementBase<any, any>
 ReactElementFactory.Instance.registerElement("survey", (props) => {
   return React.createElement(Survey, props);
 });
+
+export function attachKey2click(element: JSX.Element, viewModel?: any): JSX.Element {
+  let tabIndex = 0;
+  if(!!viewModel && viewModel.disableTabStop) {
+    tabIndex = -1;
+    return;
+  }
+  return React.cloneElement(
+    element, 
+    { tabIndex: 0,
+      onKeyUp: (evt: any) => {
+        doKey2Click(evt);
+      }
+    }
+  );
+}

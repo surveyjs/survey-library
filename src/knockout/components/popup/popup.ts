@@ -1,12 +1,13 @@
 import * as ko from "knockout";
-import { PopupModel, PopupBaseViewModel } from "survey-core";
+import { createPopupModalViewModel, PopupBaseViewModel } from "survey-core";
 import { ImplementorBase } from "../../kobase";
 import { settings } from "survey-core";
 const template = require("html-loader?interpolate!val-loader!./popup.html");
 
 export class PopupViewModel {
   constructor(public popupViewModel: PopupBaseViewModel) {
-    popupViewModel.initializePopupContainer();
+    if(!popupViewModel.container)
+      popupViewModel.initializePopupContainer();
     new ImplementorBase(popupViewModel.model);
     new ImplementorBase(popupViewModel);
     popupViewModel.container.innerHTML = template;
@@ -28,26 +29,14 @@ export function showModal(
   componentName: string,
   data: any,
   onApply: () => boolean,
-  onCancel?: () => void
+  onCancel?: () => void,
+  cssClass?: string
 ) {
-  const popupModel = new PopupModel(
-    componentName,
-    data,
-    "top",
-    "left",
-    false,
-    true,
-    onCancel,
-    onApply
-  );
-  const popupViewModel: PopupBaseViewModel = new PopupBaseViewModel(
-    popupModel,
-    undefined
-  );
+  const popupViewModel: PopupBaseViewModel = createPopupModalViewModel(componentName, data, onApply, onCancel,
+    () => {
+      viewModel.dispose();
+    }, undefined, cssClass);
   var viewModel = new PopupViewModel(popupViewModel);
-  popupModel.onHide = () => {
-    viewModel.dispose();
-  };
   popupViewModel.model.isVisible = true;
 }
 

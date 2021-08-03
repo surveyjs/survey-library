@@ -1,60 +1,31 @@
 import { Base, EventBase } from "../base";
-import { IElement, ISurvey } from "../base-interfaces";
-import { JsonObject, property, Serializer } from "../jsonobject";
+import { ISurvey } from "../base-interfaces";
+import { property } from "../jsonobject";
 
 export abstract class DragDropCore extends Base {
+  @property() isBottom: boolean = null; //TODO rename isBottom to isShowGhostAtBottomOfDropTarget
+
   public onBeforeDrop: EventBase<DragDropCore> = new EventBase();
   public onAfterDrop: EventBase<DragDropCore> = new EventBase();
 
-  public static ghostSurveyElementName =
-    "sv-drag-drop-ghost-survey-element-name"; // before renaming use globa search (we have also css selectors)
-
   protected draggedElement: any = null;
+  protected abstract get draggedElementType(): string;
+  protected parentElement: any;
   protected dropTarget: any = null;
-  protected dropTargetCandidate: IElement = null;
-  protected dropTargetNodeCandidate: HTMLElement = null;
-
-  private draggedElementShortcut: HTMLElement = null;
-  private scrollIntervalId: ReturnType<typeof setTimeout> = null;
-  protected ghostSurveyElement: IElement = null;
-  @property() isBottom: boolean = null;
-
-  protected allowDropHere = false;
-
   protected get dropTargetDataAttributeName() {
     return `[data-sv-drop-target-${this.draggedElementType}]`;
   }
-
-  protected getDropTargetName(element: HTMLElement) {
-    let datasetName = "svDropTarget";
-    const words = this.draggedElementType.split("-");
-    words.forEach((word) => {
-      datasetName += this.capitalizeFirstLetter(word);
-    });
-    return element.dataset[datasetName];
-  }
-
-  public parentElement: any;
-  protected abstract get draggedElementType(): string;
-
-  constructor(private surveyValue?: ISurvey, private creator?: any) {
-    super();
-  }
-
-  private capitalizeFirstLetter(string: string) {
-    return string.charAt(0).toUpperCase() + string.slice(1);
-  }
-
-  public get survey() {
+  protected get survey() {
     return this.surveyValue || this.creator.survey;
   }
 
-  public startDragToolboxItem(
-    event: PointerEvent,
-    draggedElementJson: JsonObject
-  ) {
-    const draggedElement = this.createElementFromJson(draggedElementJson);
-    this.startDrag(event, draggedElement);
+  private prevDropTarget: any = null;
+  private draggedElementShortcut: HTMLElement = null;
+  private scrollIntervalId: ReturnType<typeof setTimeout> = null;
+  private allowDropHere = false;
+
+  constructor(private surveyValue?: ISurvey, private creator?: any) {
+    super();
   }
 
   public startDrag(
@@ -66,23 +37,58 @@ export abstract class DragDropCore extends Base {
     this.parentElement = parentElement;
 
     this.doStartDrag();
-    this.draggedElementShortcut = this.createDraggedElementShortcut();
 
+    this.draggedElementShortcut = this.createDraggedElementShortcut();
     document.body.append(this.draggedElementShortcut);
     this.moveShortcutElement(event);
 
-    document.addEventListener("pointermove", this.moveDraggedElement);
+    document.addEventListener("pointermove", this.handleDrag);
     document.addEventListener("keydown", this.handleEscapeButton);
     this.draggedElementShortcut.addEventListener("pointerup", this.drop);
   }
 
-  protected doStartDrag() {}
+  private handleDrag = (event: PointerEvent) => {
+    this.moveShortcutElement(event);
+    this.draggedElementShortcut.style.cursor = "grabbing";
+
+    const dropTargetNode = this.findDropTargetNodeFromPoint(
+      event.clientX,
+      event.clientY
+    );
+
+    this.dropTarget = this.getDropTargetByNode(dropTargetNode);
+
+    if (!this.dropTarget) {
+      this.allowDropHere = false;
+      this.banDropHere();
+      return;
+    }
+    this.allowDropHere = true;
+
+    let isBottom = this.calculateIsBottom(event.clientY, dropTargetNode);
+
+    const isDropTargetValid = this.isDropTargetValid(this.dropTarget, isBottom);
+
+    if (
+      !isDropTargetValid &&
+      this.dropTarget === this.prevDropTarget &&
+      isBottom === this.isBottom
+    )
+      return;
+
+    this.isBottom = isBottom;
+    this.prevDropTarget = this.dropTarget;
+    this.doDrag();
+  };
 
   public getGhostPosition(item: any) {
-    if (this.dropTargetCandidate !== item) return null;
+    if (this.dropTarget !== item) return null;
     if (this.isBottom) return "bottom";
     return "top";
   }
+
+  protected doStartDrag() {}
+  protected abstract getShortcutText(): string;
 
   private createDraggedElementShortcut() {
     const draggedElementShortcut = document.createElement("div");
@@ -92,51 +98,7 @@ export abstract class DragDropCore extends Base {
     return draggedElementShortcut;
   }
 
-  protected abstract getShortcutText(): string;
-
-  protected moveDraggedElement = (event: PointerEvent) => {
-    this.moveShortcutElement(event);
-    this.draggedElementShortcut.style.cursor = "grabbing";
-    this.dragOver(event);
-  };
-
-  protected dragOver(event: PointerEvent) {
-    this.dropTargetNodeCandidate = this.findDropTargetNodeFromPoint(
-      event.clientX,
-      event.clientY
-    );
-
-    this.dropTargetCandidate = this.getDropTargetFromNode(
-      this.dropTargetNodeCandidate
-    );
-
-    if (!this.dropTargetCandidate) {
-      this.allowDropHere = false;
-      this.banDropHere();
-      return;
-    }
-    this.allowDropHere = true;
-
-    let isBottom = this.calculateIsBottom(event.clientY);
-
-    const isDropTargetValid = this.isDropTargetValid(
-      this.dropTargetCandidate,
-      isBottom
-    );
-
-    if (
-      !isDropTargetValid &&
-      this.dropTargetCandidate === this.dropTarget &&
-      isBottom === this.isBottom
-    )
-      return;
-
-    this.isBottom = isBottom;
-    this.dropTarget = this.dropTargetCandidate;
-    this.doDragOverAfter(this.dropTarget, isBottom);
-  }
-
-  protected doDragOverAfter(dropTarget: any, isBottom: boolean): void {}
+  protected doDrag(): void {}
 
   protected isDropTargetValid(dropTarget: any, isBottom: boolean): boolean {
     return true;
@@ -148,7 +110,7 @@ export abstract class DragDropCore extends Base {
     }
   };
 
-  protected moveShortcutElement(event: PointerEvent) {
+  private moveShortcutElement(event: PointerEvent) {
     this.doScroll(event.clientY, event.clientX);
 
     const shortcutHeight = this.draggedElementShortcut.offsetHeight;
@@ -250,26 +212,23 @@ export abstract class DragDropCore extends Base {
 
   protected doBanDropHere = () => {};
 
-  protected getDropTargetFromNode(dropTargetNode: HTMLElement) {
+  protected getDropTargetByNode(dropTargetNode: HTMLElement) {
     if (!dropTargetNode) return null;
+    
     let dropTarget = null;
-    let dropTargetName = this.getDropTargetName(dropTargetNode);
+    let dropTargetName = this.getDropTargetNameFromNode(dropTargetNode);
     let isDragOverInnerPanel = false;
 
     if (!dropTargetName) {
       const nearestDropTargetElement = dropTargetNode.parentElement.closest<
         HTMLElement
       >(this.dropTargetDataAttributeName);
-      dropTargetName = this.getDropTargetName(nearestDropTargetElement);
+      dropTargetName = this.getDropTargetNameFromNode(nearestDropTargetElement);
       isDragOverInnerPanel =
         nearestDropTargetElement !== dropTargetNode && !!dropTargetName;
     }
     if (!dropTargetName) {
       throw new Error("Can't find drop target survey element name");
-    }
-
-    if (dropTargetName === DragDropCore.ghostSurveyElementName) {
-      return this.ghostSurveyElement;
     }
 
     dropTarget = this.getDropTargetByName(
@@ -283,6 +242,19 @@ export abstract class DragDropCore extends Base {
     return dropTarget;
   }
 
+  private getDropTargetNameFromNode(node: HTMLElement) {
+    let datasetName = "svDropTarget";
+    const words = this.draggedElementType.split("-");
+    words.forEach((word) => {
+      datasetName += this.capitalizeFirstLetter(word);
+    });
+    return node.dataset[datasetName];
+  }
+
+  private capitalizeFirstLetter(string: string) {
+    return string.charAt(0).toUpperCase() + string.slice(1);
+  }
+
   protected abstract getDropTargetByName(
     dropTargetName: any,
     isDragOverInnerPanel?: boolean,
@@ -294,10 +266,11 @@ export abstract class DragDropCore extends Base {
     return rect.y + rect.height / 2;
   }
 
-  protected calculateIsBottom(clientY: number): boolean {
-    const middle = this.calculateMiddleOfHTMLElement(
-      this.dropTargetNodeCandidate
-    );
+  protected calculateIsBottom(
+    clientY: number,
+    dropTargetNode?: HTMLElement
+  ): boolean {
+    const middle = this.calculateMiddleOfHTMLElement(dropTargetNode);
     return clientY >= middle;
   }
 
@@ -306,28 +279,14 @@ export abstract class DragDropCore extends Base {
     clientY: number
   ): HTMLElement {
     this.draggedElementShortcut.hidden = true;
-    let draggedOverNode = document.elementFromPoint(clientX, clientY);
+    let dragOverNode = document.elementFromPoint(clientX, clientY);
     this.draggedElementShortcut.hidden = false;
 
-    return this.findDropTargetHTMLElement(draggedOverNode);
+    if (!dragOverNode) return null;
+
+    return this.findDropTargetNodeByDragOverNode(dragOverNode);
   }
-
-  private findDropTargetHTMLElement(draggedOverNode: Element): HTMLElement {
-    if (!draggedOverNode) return null;
-
-    const selector = this.dropTargetDataAttributeName;
-    let dropTargetNode = this.doFindDropTargetHTMLElement(draggedOverNode);
-
-    if (!dropTargetNode) {
-      dropTargetNode = draggedOverNode.closest<HTMLElement>(selector);
-    }
-
-    return dropTargetNode;
-  }
-
-  protected doFindDropTargetHTMLElement(draggedOverNode: Element): HTMLElement {
-    return null;
-  }
+  protected abstract findDropTargetNodeByDragOverNode(dragOverNode: Element): HTMLElement;
 
   protected findDeepestDropTargetChild(parent: HTMLElement): HTMLElement {
     const selector = this.dropTargetDataAttributeName;
@@ -341,23 +300,6 @@ export abstract class DragDropCore extends Base {
     return <HTMLElement>result;
   }
 
-  protected createElementFromJson(json: object) {
-    const element: any = this.createNewElement(json);
-    if (element["setSurveyImpl"]) {
-      element["setSurveyImpl"](this.survey);
-    } else {
-      element["setData"](this.survey);
-    }
-    element.renderWidth = "100%";
-    return element;
-  }
-
-  private createNewElement(json: any): IElement {
-    var newElement = Serializer.createClass(json["type"]);
-    new JsonObject().toObject(json, newElement);
-    return newElement;
-  }
-
   private drop = () => {
     if (this.allowDropHere) {
       this.onBeforeDrop.fire(this, null);
@@ -367,13 +309,12 @@ export abstract class DragDropCore extends Base {
 
     this.clear();
   };
-
   protected abstract doDrop(): any;
 
   private clear = () => {
     clearInterval(this.scrollIntervalId);
 
-    document.removeEventListener("pointermove", this.moveDraggedElement);
+    document.removeEventListener("pointermove", this.handleDrag);
     document.removeEventListener("keydown", this.handleEscapeButton);
     this.draggedElementShortcut.removeEventListener("pointerup", this.drop);
     document.body.removeChild(this.draggedElementShortcut);
@@ -381,11 +322,9 @@ export abstract class DragDropCore extends Base {
     this.doClear();
 
     this.dropTarget = null;
-    this.dropTargetCandidate = null;
-    this.dropTargetNodeCandidate = null;
+    this.dropTarget = null;
 
     this.draggedElementShortcut = null;
-    this.ghostSurveyElement = null;
     this.draggedElement = null;
     this.parentElement = null;
     this.isBottom = null;

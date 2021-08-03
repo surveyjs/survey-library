@@ -1,18 +1,46 @@
 import { IElement } from "src/base-interfaces";
 import { JsonObject, Serializer } from "src/jsonobject";
-import { turkishSurveyStrings } from "src/localization/turkish";
 import { PageModel } from "src/page";
 import { DragDropCore } from "./core";
 
 export class DragDropSurveyElements extends DragDropCore {
   public static newGhostPage: PageModel = null;
   public static restrictDragQuestionBetweenPages: boolean = false;
-  protected isEdge: boolean = null;
   public static edgeHeight: number = 30;
   public static nestedPanelDepth: number = -1;
+  public static ghostSurveyElementName =
+    "sv-drag-drop-ghost-survey-element-name"; // before renaming use globa search (we have also css selectors)
+
+  protected isEdge: boolean = null;
+  protected ghostSurveyElement: IElement = null;
 
   protected get draggedElementType(): string {
     return "survey-element";
+  }
+
+  public startDragToolboxItem(
+    event: PointerEvent,
+    draggedElementJson: JsonObject
+  ) {
+    const draggedElement = this.createElementFromJson(draggedElementJson);
+    this.startDrag(event, draggedElement);
+  }
+
+  protected createElementFromJson(json: object) {
+    const element: any = this.createNewElement(json);
+    if (element["setSurveyImpl"]) {
+      element["setSurveyImpl"](this.survey);
+    } else {
+      element["setData"](this.survey);
+    }
+    element.renderWidth = "100%";
+    return element;
+  }
+
+  private createNewElement(json: any): IElement {
+    var newElement = Serializer.createClass(json["type"]);
+    new JsonObject().toObject(json, newElement);
+    return newElement;
   }
 
   protected getShortcutText() {
@@ -24,6 +52,11 @@ export class DragDropSurveyElements extends DragDropCore {
     isDragOverInnerPanel: boolean
   ) {
     let dropTarget = undefined;
+
+    if (dropTargetName === DragDropSurveyElements.ghostSurveyElementName) {
+      return this.ghostSurveyElement;
+    }
+
     // drop to page
     if (dropTargetName === "newGhostPage") {
       dropTarget = DragDropSurveyElements.newGhostPage;
@@ -103,7 +136,7 @@ export class DragDropSurveyElements extends DragDropCore {
     if (!isEdge) {
       HTMLElement = this.findDeepestDropTargetChild(HTMLElement);
 
-      dropTarget = this.getDropTargetFromNode(HTMLElement);
+      dropTarget = this.getDropTargetByNode(HTMLElement);
     }
 
     return { dropTarget, isEdge };
@@ -114,7 +147,7 @@ export class DragDropSurveyElements extends DragDropCore {
     return Math.abs(clientY - middle) >= DragDropSurveyElements.edgeHeight;
   }
 
-  protected doDragOverAfter() {
+  protected doDrag() {
     this.insertGhostElementIntoSurvey();
   }
 
@@ -135,20 +168,23 @@ export class DragDropSurveyElements extends DragDropCore {
     return null;
   };
 
-  protected doFindDropTargetHTMLElement(draggedOverNode: Element): HTMLElement {
-    const selector = this.dropTargetDataAttributeName;
-    return draggedOverNode.querySelector<HTMLElement>(selector);
+  protected findDropTargetNodeByDragOverNode(
+    dragOverNode: Element
+  ): HTMLElement {
+    return dragOverNode.querySelector(this.dropTargetDataAttributeName);
   }
 
   protected doClear = () => {
     this.removeGhostElementFromSurvey();
     this.isEdge = null;
+    this.ghostSurveyElement = null;
   };
 
   protected insertGhostElementIntoSurvey(): boolean {
     this.removeGhostElementFromSurvey();
 
-    this.ghostSurveyElement.name = DragDropCore.ghostSurveyElementName; //TODO why do we need setup it manually see createGhostSurveyElement method
+    this.ghostSurveyElement.name =
+      DragDropSurveyElements.ghostSurveyElementName; //TODO why do we need setup it manually see createGhostSurveyElement method
 
     this.parentElement = this.dropTarget.isPage
       ? (<any>this.dropTarget)["page"]
@@ -227,7 +263,7 @@ export class DragDropSurveyElements extends DragDropCore {
 
     const json = {
       type: "html",
-      name: DragDropCore.ghostSurveyElementName,
+      name: DragDropSurveyElements.ghostSurveyElementName,
       html: `<div class="${className}"></div>`,
     };
 

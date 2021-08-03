@@ -20,9 +20,8 @@ export class DragDropChoices extends DragDropCore {
     return dragOverChoice;
   }
 
-  protected doFindDropTargetHTMLElement(draggedOverNode: Element): HTMLElement {
-    const selector = this.dropTargetDataAttributeName;
-    return draggedOverNode.querySelector<HTMLElement>(selector);
+  protected findDropTargetNodeByDragOverNode(dragOverNode: Element): HTMLElement {
+    return dragOverNode.querySelector(this.dropTargetDataAttributeName);
   }
 
   protected isDropTargetValid(dropTarget: any, isBottom: boolean) {
@@ -42,7 +41,7 @@ export class DragDropChoices extends DragDropCore {
     let isBottom;
     //drag over next item
     if (
-      choices.indexOf(this.dropTargetCandidate) -
+      choices.indexOf(this.dropTarget) -
         choices.indexOf(this.draggedElement) ===
       1
     ) {
@@ -52,7 +51,7 @@ export class DragDropChoices extends DragDropCore {
     //drag over prev item
     if (
       choices.indexOf(this.draggedElement) -
-        choices.indexOf(this.dropTargetCandidate) ===
+        choices.indexOf(this.dropTarget) ===
       1
     ) {
       isBottom = false;

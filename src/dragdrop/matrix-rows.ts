@@ -10,6 +10,12 @@ export class DragDropMatrixRows extends DragDropCore {
     return this.draggedElement.id;
   }
 
+  protected findDropTargetNodeByDragOverNode(
+    dragOverNode: Element
+  ): HTMLElement {
+    return dragOverNode.closest(this.dropTargetDataAttributeName);
+  }
+
   protected getDropTargetByName(dragOverElementName: any) {
     const matrix = <QuestionMatrixModel>this.parentElement;
     let dropTargetRow;
@@ -31,8 +37,7 @@ export class DragDropMatrixRows extends DragDropCore {
     let isBottom;
     //drag over next item
     if (
-      rows.indexOf(this.dropTargetCandidate) -
-        rows.indexOf(this.draggedElement) ===
+      rows.indexOf(this.dropTarget) - rows.indexOf(this.draggedElement) ===
       1
     ) {
       isBottom = true;
@@ -40,8 +45,7 @@ export class DragDropMatrixRows extends DragDropCore {
 
     //drag over prev item
     if (
-      rows.indexOf(this.draggedElement) -
-        rows.indexOf(this.dropTargetCandidate) ===
+      rows.indexOf(this.draggedElement) - rows.indexOf(this.dropTarget) ===
       1
     ) {
       isBottom = false;

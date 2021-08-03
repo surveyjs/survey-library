@@ -3,7 +3,6 @@ import { Serializer,
       Question,
       QuestionFactory,
       QuestionFileModel,
-      CssClassBuilder,
       confirmAction,
       detectIEOrEdge,
       loadFileFromBase64
@@ -29,13 +28,9 @@ class QuestionFileImplementor extends QuestionImplementor {
     );
     this.setObservaleObj("koInputTitle", ko.observable<string>());
     this.setObservaleObj(
-      "koChooseFileClass",
+      "koChooseFileCss",
       ko.pureComputed(() => {
-        const questionCss = this.question.koCss();
-        return new CssClassBuilder()
-          .append(questionCss.chooseFile)
-          .append(questionCss.controlDisabled, this.question.isReadOnly)
-          .toString();
+          return this.question.getChooseFileCss();
       })
     );
     this.setCallbackFunc("ondrop", (data: any, event: any) => {

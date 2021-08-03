@@ -32,10 +32,7 @@
       <div :class="question.cssClasses.wrapper">
         <label
           role="button"
-          :class="
-            question.cssClasses.chooseFile +
-            (question.isReadOnly ? ' ' + question.cssClasses.controlDisabled : '')
-          "
+          :class="question.getChooseFileCss()"
           :for="question.inputId"
           v-bind:aria-label="question.chooseButtonCaption"
           >{{ question.chooseButtonCaption }}</label

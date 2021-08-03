@@ -1,5 +1,5 @@
 import * as React from "react";
-import { QuestionFileModel, CssClassBuilder, confirmAction, detectIEOrEdge, loadFileFromBase64 } from "survey-core";
+import { QuestionFileModel, confirmAction, detectIEOrEdge, loadFileFromBase64 } from "survey-core";
 import { SurveyQuestionElementBase } from "./reactquestion_element";
 import { ReactQuestionFactory } from "./reactquestion_factory";
 
@@ -117,15 +117,12 @@ export class SurveyQuestionFile extends SurveyQuestionElementBase {
   }
   protected renderFileDecorator(): JSX.Element {
     const questionCss = this.question.cssClasses;
-    const chooseFileCss = new CssClassBuilder().append(questionCss.chooseFile)
-      .append(questionCss.controlDisabled, this.isDisplayMode)
-      .toString();
     let noFileChosen = null;
     let chooseFile = null;
     chooseFile = (
       <label
         role="button"
-        className={chooseFileCss}
+        className={this.question.getChooseFileCss()}
         htmlFor={this.question.inputId}
         aria-label={this.question.chooseButtonCaption}
       >

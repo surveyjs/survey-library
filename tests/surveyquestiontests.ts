@@ -5070,6 +5070,49 @@ QUnit.test(
   }
 );
 QUnit.test(
+  "Creator V2: add into visibleChoices others/hasOther items in design mode and canShowOptionItemCallback",
+  function(assert) {
+    var json = {
+      elements: [
+        {
+          type: "checkbox",
+          name: "q1",
+          choices: ["item1", "item2"],
+        },
+      ],
+    };
+    settings.supportCreatorV2 = true;
+    var survey = new SurveyModel();
+    survey.setDesignMode(true);
+    survey.fromJSON(json);
+    var q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+    var isReadOnly = false;
+    q1.canShowOptionItemCallback = (item: ItemValue): boolean => {
+      return !isReadOnly && (item.value !== "newitem" || q1.choices.length < 3);
+    };
+    assert.equal(
+      q1.visibleChoices.length,
+      6,
+      "Show SelectAll+None+hasOther+new: 2+4"
+    );
+    q1.choices.push(new ItemValue("item3"));
+    assert.equal(
+      q1.visibleChoices.length,
+      6,
+      "Show SelectAll+None+hasOther-new: 3+3"
+    );
+    isReadOnly = true;
+    q1.choices.splice(2, 1);
+    assert.equal(
+      q1.visibleChoices.length,
+      2,
+      "Do not show SelectAll+None+hasOther+new: 2"
+    );
+    settings.supportCreatorV2 = false;
+  }
+);
+
+QUnit.test(
   "Creator V2: Hide selectAll, hasNone and hasOther if this properties are invisible",
   function(assert) {
     var json = {

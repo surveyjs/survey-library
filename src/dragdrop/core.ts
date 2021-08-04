@@ -215,7 +215,6 @@ export abstract class DragDropCore extends Base {
     this.doBanDropHere();
     this.allowDropHere = false;
     this.dropTarget = null;
-    this.isBottom = null;
     this.draggedElementShortcut.style.cursor = "not-allowed";
   };
 

@@ -431,10 +431,13 @@ ko.bindingHandlers["key2click"] = {
     }
     element.tabIndex = 0;
     element.onkeyup = createKey2click(element);
-    element.onkeydown = e => {
-      var char = e.which || e.keyCode;
+    element.onkeydown = (evt: any) => {
+      if(!!evt.target && evt.target.contentEditable === "true") {
+        return;
+      }
+      var char = evt.which || evt.keyCode;
       if([13, 32, 27].indexOf(char) !== -1) {
-        e.preventDefault();
+        evt.preventDefault();
       }
     }
   },

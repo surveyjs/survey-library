@@ -367,7 +367,10 @@ export function attachKey2click(element: JSX.Element, viewModel?: any): JSX.Elem
         doKey2Click(evt);
         return false;
       },
-      onKeyDown: (evt: KeyboardEvent) => {
+      onKeyDown: (evt: any) => {
+        if(!!evt.target && evt.target.contentEditable === "true") {
+          return;
+        }
         var char = evt.which || evt.keyCode;
         if([13, 32, 27].indexOf(char) !== -1) {
           evt.preventDefault();

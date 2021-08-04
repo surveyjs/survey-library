@@ -5108,6 +5108,14 @@ QUnit.test(
       2,
       "Do not show SelectAll+None+hasOther+new: 2"
     );
+    q1.hasSelectAll = true;
+    q1.hasNone = true;
+    q1.hasOther = true;
+    assert.equal(
+      q1.visibleChoices.length,
+      5,
+      "Do not show SelectAll+None+hasOther are set: 2 + 3"
+    );
     settings.supportCreatorV2 = false;
   }
 );

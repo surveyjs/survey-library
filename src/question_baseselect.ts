@@ -648,15 +648,13 @@ export class QuestionSelectBase extends Question {
     }
     if (
       this.supportOther() &&
-      (isAddAll || this.hasOther) &&
-      this.canShowOptionItem(this.otherItem)
+      ((isAddAll && this.canShowOptionItem(this.otherItem)) || this.hasOther)
     ) {
       items.push(this.otherItem);
     }
     if (
       this.supportNone() &&
-      (isAddAll || this.hasNone) &&
-      this.canShowOptionItem(this.noneItem)
+      ((isAddAll && this.canShowOptionItem(this.noneItem)) || this.hasNone)
     ) {
       items.push(this.noneItem);
     }

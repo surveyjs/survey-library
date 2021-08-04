@@ -6,15 +6,15 @@ export class DragDropChoices extends DragDropCore {
     return "item-value";
   }
 
-  protected getShortcutText() {
-    return this.draggedElement.text;
+  protected getShortcutText(draggedElement: any) {
+    return draggedElement.text;
   }
 
-  protected getDropTargetByName(dragOverElementName: string) {
+  protected getDropTargetByDataAttributeValue(dataAttributeValue: string) {
     let dragOverChoice;
 
     dragOverChoice = this.parentElement.choices.filter(
-      (choice: ItemValue) => choice.value === dragOverElementName
+      (choice: ItemValue) => choice.value === dataAttributeValue
     )[0];
 
     return dragOverChoice;
@@ -24,7 +24,7 @@ export class DragDropChoices extends DragDropCore {
     return dragOverNode.querySelector(this.dropTargetDataAttributeName);
   }
 
-  protected isDropTargetValid(dropTarget: any, isBottom: boolean) {
+  protected isDropTargetValid(dropTarget: any) {
     const choices = this.parentElement.choices;
 
     // shouldn't allow to drop on "adorners" (selectall, none, other)

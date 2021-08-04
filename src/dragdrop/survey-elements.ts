@@ -43,44 +43,53 @@ export class DragDropSurveyElements extends DragDropCore {
     return newElement;
   }
 
-  protected getShortcutText() {
-    return this.draggedElement["title"] || this.draggedElement["name"];
+  protected getShortcutText(draggedElement: any) {
+    return draggedElement["title"] || draggedElement["name"];
   }
 
-  protected getDropTargetByName(
-    dropTargetName: string,
-    isDragOverInnerPanel: boolean
-  ) {
+  protected getDropTargetByDataAttributeValue(dataAttributeValue: string) {
+    // if (!dataAttributeValue) {
+    //   const nearestDropTargetElement = dropTargetNode.parentElement.closest<
+    //     HTMLElement
+    //   >(this.dropTargetDataAttributeName);
+    //   dataAttributeValue = this.getdataAttributeValueFromNode(nearestDropTargetElement);
+    //   isDragOverInnerPanel =
+    //     nearestDropTargetElement !== dropTargetNode && !!dataAttributeValue;
+    // }
+
+    // if (!dataAttributeValue) {
+    //   throw new Error("Can't find drop target survey element name");
+    // }
     let dropTarget = undefined;
 
-    if (dropTargetName === DragDropSurveyElements.ghostSurveyElementName) {
+    if (dataAttributeValue === DragDropSurveyElements.ghostSurveyElementName) {
       return this.ghostSurveyElement;
     }
 
     // drop to page
-    if (dropTargetName === "newGhostPage") {
+    if (dataAttributeValue === "newGhostPage") {
       dropTarget = DragDropSurveyElements.newGhostPage;
     } else {
-      dropTarget = this.survey.getPageByName(dropTargetName);
+      dropTarget = this.survey.getPageByName(dataAttributeValue);
     }
 
     // drop to element (question or panel)
-    if (!dropTarget) {
-      let element;
-      this.survey.pages.forEach((page: PageModel) => {
-        element = page.getElementByName(dropTargetName);
-        if (element) dropTarget = element;
-      });
-      if (
-        !!dropTarget &&
-        dropTarget.getType() === "paneldynamic" &&
-        isDragOverInnerPanel
-      ) {
-        const page = (<any>dropTarget).page;
-        dropTarget = (<any>dropTarget).template;
-        dropTarget.page = page;
-      }
-    }
+    // if (!dropTarget) {
+    //   let element;
+    //   this.survey.pages.forEach((page: PageModel) => {
+    //     element = page.getElementByName(dataAttributeValue);
+    //     if (element) dropTarget = element;
+    //   });
+    //   if (
+    //     !!dropTarget &&
+    //     dropTarget.getType() === "paneldynamic" &&
+    //     isDragOverInnerPanel
+    //   ) {
+    //     const page = (<any>dropTarget).page;
+    //     dropTarget = (<any>dropTarget).template;
+    //     dropTarget.page = page;
+    //   }
+    // }
 
     // if (dropTarget.isPanel) {
     //   const panelDragInfo = this.getPanelDragInfo(
@@ -136,7 +145,7 @@ export class DragDropSurveyElements extends DragDropCore {
     if (!isEdge) {
       HTMLElement = this.findDeepestDropTargetChild(HTMLElement);
 
-      dropTarget = this.getDropTargetByNode(HTMLElement);
+      // dropTarget = this.getDropTargetByNode(HTMLElement);
     }
 
     return { dropTarget, isEdge };

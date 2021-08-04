@@ -6,8 +6,8 @@ export class DragDropMatrixRows extends DragDropCore {
     return "matrix-row";
   }
 
-  protected getShortcutText() {
-    return this.draggedElement.id;
+  protected getShortcutText(draggedElement: any) {
+    return draggedElement.id;
   }
 
   protected findDropTargetNodeByDragOverNode(
@@ -16,12 +16,12 @@ export class DragDropMatrixRows extends DragDropCore {
     return dragOverNode.closest(this.dropTargetDataAttributeName);
   }
 
-  protected getDropTargetByName(dragOverElementName: any) {
+  protected getDropTargetByDataAttributeValue(dataAttributeValue: any) {
     const matrix = <QuestionMatrixModel>this.parentElement;
     let dropTargetRow;
 
     dropTargetRow = matrix.visibleRows.filter(
-      (row: any) => row.id === dragOverElementName
+      (row: any) => row.id === dataAttributeValue
     )[0];
 
     return dropTargetRow;

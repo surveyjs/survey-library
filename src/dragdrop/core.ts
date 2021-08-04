@@ -278,18 +278,6 @@ export abstract class DragDropCore extends Base {
     dragOverNode: Element
   ): HTMLElement;
 
-  protected findDeepestDropTargetChild(parent: HTMLElement): HTMLElement {
-    const selector = this.dropTargetDataAttributeName;
-
-    let result = parent;
-    while (!!parent) {
-      result = parent;
-      parent = parent.querySelector(selector);
-    }
-
-    return <HTMLElement>result;
-  }
-
   protected abstract doDrop(): any;
 
   private clear = () => {

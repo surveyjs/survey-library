@@ -151,6 +151,18 @@ export class DragDropSurveyElements extends DragDropCore {
     return { dropTarget, isEdge };
   }
 
+  protected findDeepestDropTargetChild(parent: HTMLElement): HTMLElement {
+    const selector = this.dropTargetDataAttributeName;
+
+    let result = parent;
+    while (!!parent) {
+      result = parent;
+      parent = parent.querySelector(selector);
+    }
+
+    return <HTMLElement>result;
+  }
+
   private calculateIsEdge(HTMLElement: HTMLElement, clientY: number) {
     const middle = this.calculateMiddleOfHTMLElement(HTMLElement);
     return Math.abs(clientY - middle) >= DragDropSurveyElements.edgeHeight;

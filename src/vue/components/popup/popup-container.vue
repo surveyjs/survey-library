@@ -67,7 +67,7 @@
 <script lang="ts">
 import Vue from "vue";
 import { Prop, Component } from "vue-property-decorator";
-import { PopupBaseViewModel, PopupModel, settings } from "survey-core";
+import { PopupBaseViewModel, createPopupModalViewModel, settings } from "survey-core";
 import { BaseVue } from "../../base";
 @Component
 export class PopupContainer extends BaseVue {
@@ -90,31 +90,18 @@ export function showModal(
   componentName: string,
   data: any,
   onApply: () => boolean,
-  onCancel?: () => void
+  onCancel?: () => void,
+  cssClass?: string
 ) {
-  const popupModel = new PopupModel(
-    componentName,
-    data,
-    "top",
-    "left",
-    false,
-    true,
-    onCancel,
-    onApply
-  );
-  const popupViewModel: PopupBaseViewModel = new PopupBaseViewModel(
-    popupModel,
-    undefined
-  );
-  popupViewModel.initializePopupContainer();
+  const popupViewModel: PopupBaseViewModel = createPopupModalViewModel(componentName, data, onApply, onCancel,
+  () => {
+    popup.$destroy();
+    popupViewModel.destroyPopupContainer();
+  }, undefined, cssClass);
   const popup = new PopupContainer({
     el: popupViewModel.container.appendChild(document.createElement("div")),
     propsData: { model: popupViewModel },
   });
-  popupModel.onHide = () => {
-    popup.$destroy();
-    popupViewModel.destroyPopupContainer();
-  };
   popupViewModel.model.isVisible = true;
 }
 settings.showModal = showModal;

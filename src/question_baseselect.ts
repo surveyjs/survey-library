@@ -17,7 +17,6 @@ import { settings } from "./settings";
  */
 export class QuestionSelectBase extends Question {
   public visibleChoicesChangedCallback: () => void;
-  public canShowOptionItemCallback: (item: ItemValue) => boolean;
   private filteredChoicesValue: Array<ItemValue>;
   private conditionChoicesVisibleIfRunner: ConditionRunner;
   private conditionChoicesEnableIfRunner: ConditionRunner;
@@ -31,6 +30,7 @@ export class QuestionSelectBase extends Question {
   private dependedQuestions: Array<QuestionSelectBase> = [];
   private noneItemValue: ItemValue = new ItemValue("none");
   private newItemValue: ItemValue;
+  private canShowOptionItemCallback: (item: ItemValue) => boolean;
   constructor(name: string) {
     super(name);
     var noneItemText = this.createLocalizableString("noneText", this, true);
@@ -631,6 +631,12 @@ export class QuestionSelectBase extends Question {
       this.choicesOrder == "none"
     );
   }
+  public setCanShowOptionItemCallback(func: (item: ItemValue) => boolean) {
+    this.canShowOptionItemCallback = func;
+    if (!!func) {
+      this.onVisibleChoicesChanged();
+    }
+  }
   protected addToVisibleChoices(items: Array<ItemValue>, isAddAll: boolean) {
     if (isAddAll) {
       if (!this.newItemValue) {
@@ -642,15 +648,13 @@ export class QuestionSelectBase extends Question {
     }
     if (
       this.supportOther() &&
-      (isAddAll || this.hasOther) &&
-      this.canShowOptionItem(this.otherItem)
+      ((isAddAll && this.canShowOptionItem(this.otherItem)) || this.hasOther)
     ) {
       items.push(this.otherItem);
     }
     if (
       this.supportNone() &&
-      (isAddAll || this.hasNone) &&
-      this.canShowOptionItem(this.noneItem)
+      ((isAddAll && this.canShowOptionItem(this.noneItem)) || this.hasNone)
     ) {
       items.push(this.noneItem);
     }

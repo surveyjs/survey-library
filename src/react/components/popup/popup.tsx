@@ -1,6 +1,6 @@
 import React from "react";
 import ReactDOM from "react-dom";
-import { PopupModel, PopupBaseViewModel, settings } from "survey-core";
+import { PopupModel, PopupBaseViewModel, settings, createPopupModalViewModel } from "survey-core";
 import { ReactElementFactory } from "../../element-factory";
 import { SurveyElementBase } from "../../reactquestion_element";
 
@@ -167,32 +167,22 @@ export function showModal(
   componentName: string,
   data: any,
   onApply: () => boolean,
-  onCancel?: () => void
+  onCancel?: () => void,
+  cssClass?: string
 ) {
-  const popupModel = new PopupModel(
+  const popupViewModel: PopupBaseViewModel = createPopupModalViewModel(
     componentName,
     data,
-    "top",
-    "left",
-    false,
-    true,
+    onApply,
     onCancel,
-    onApply
-  );
-  const popupViewModel: PopupBaseViewModel = new PopupBaseViewModel(
-    popupModel,
-    undefined
-  );
-
-  popupViewModel.initializePopupContainer();
-  popupModel.onHide = () => {
+    () => {
     ReactDOM.unmountComponentAtNode(popupViewModel.container);
     popupViewModel.destroyPopupContainer();
-  };
-  ReactDOM.render(
-    <PopupContainer model={popupViewModel} />,
-    popupViewModel.container
+    },
+    undefined,
+    cssClass
   );
+  ReactDOM.render(<PopupContainer model={popupViewModel} />, popupViewModel.container);
 
   popupViewModel.model.isVisible = true;
 }

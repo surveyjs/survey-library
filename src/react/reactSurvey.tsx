@@ -359,9 +359,22 @@ export function attachKey2click(element: JSX.Element, viewModel?: any): JSX.Elem
   }
   return React.cloneElement(
     element, 
-    { tabIndex: 0,
-      onKeyUp: (evt: any) => {
+    {
+      tabIndex: 0,
+      onKeyUp: (evt: KeyboardEvent) => {
+        evt.preventDefault();
+        evt.stopPropagation();
         doKey2Click(evt);
+        return false;
+      },
+      onKeyDown: (evt: any) => {
+        if(!!evt.target && evt.target.contentEditable === "true") {
+          return;
+        }
+        var char = evt.which || evt.keyCode;
+        if([13, 32, 27].indexOf(char) !== -1) {
+          evt.preventDefault();
+        }
       }
     }
   );

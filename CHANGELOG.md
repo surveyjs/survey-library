@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.8.59](https://github.com/surveyjs/survey-library/compare/v1.8.58...v1.8.59) (2021-08-03)
+
+
+### Bug Fixes
+
+* Clear setValue for setvalue trigger can produce exception [#3145](https://github.com/surveyjs/survey-library/issues/3145) ([e2efee1](https://github.com/surveyjs/survey-library/commit/e2efee12c203558e793b4c0e7bb279d7c4388a52))
+* Do not call notification on setting the same value in select base renderedValue property [#3160](https://github.com/surveyjs/survey-library/issues/3160) ([#3161](https://github.com/surveyjs/survey-library/issues/3161)) ([b4c8e76](https://github.com/surveyjs/survey-library/commit/b4c8e76fcab91574313218d8937ee56d739870a5))
+* onCompleting event doesn't work correctly in preview mode. [#3157](https://github.com/surveyjs/survey-library/issues/3157) ([#3158](https://github.com/surveyjs/survey-library/issues/3158)) ([efd793f](https://github.com/surveyjs/survey-library/commit/efd793fa5416491a81c3da8608471186ea867ff4))
+* onPropertyValueChangedCallback fuction calls for survey only and not for owner [#3149](https://github.com/surveyjs/survey-library/issues/3149) ([ee9899e](https://github.com/surveyjs/survey-library/commit/ee9899eefd2043b33516ab0064e00e40833b77f4))
+* Override array value vs ordinary value in setPropertyValue [#3153](https://github.com/surveyjs/survey-library/issues/3153) ([#3154](https://github.com/surveyjs/survey-library/issues/3154)) ([75b3c0e](https://github.com/surveyjs/survey-library/commit/75b3c0e557650c87d50f902b9f9fbc7e0088680d))
+* title actions produce error in IE11 [#3143](https://github.com/surveyjs/survey-library/issues/3143) ([9502ffe](https://github.com/surveyjs/survey-library/commit/9502ffe010c9722fa6243218f16a4e478546c64a))
+
 ### [1.8.58](https://github.com/surveyjs/survey-library/compare/v1.8.57...v1.8.58) (2021-07-28)
 
 

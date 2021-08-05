@@ -122,6 +122,13 @@ export class DragDropSurveyElements extends DragDropCore {
 
     if (
       DragDropSurveyElements.restrictDragQuestionBetweenPages &&
+      this.shouldRestricDragQuestionBetweenPages(dropTarget)
+    ) {
+      return false;
+    }
+
+    if (
+      DragDropSurveyElements.restrictDragQuestionBetweenPages &&
       dropTarget["page"] !== (<any>this.draggedElement)["page"]
     ) {
       return false;
@@ -132,6 +139,14 @@ export class DragDropSurveyElements extends DragDropCore {
     this.isEdge = isEdge;
 
     return true;
+  }
+
+  private shouldRestricDragQuestionBetweenPages(dropTarget: any): boolean {
+    const oldPage = (<any>this.draggedElement)["page"];
+    const newPage = dropTarget.isPage ? dropTarget : dropTarget["page"];
+
+    // if oldPage === null then it is drom the toolbox
+    return oldPage && oldPage !== newPage;
   }
 
   private getPanelDragInfo(

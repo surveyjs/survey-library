@@ -298,8 +298,7 @@ export class DragDropHelper extends Base {
 
     if (
       DragDropHelper.restrictDragQuestionBetweenPages &&
-      dropTargetSurveyElement["page"] !==
-        (<any>this.draggedSurveyElement)["page"]
+      this.shouldRestricDragQuestionBetweenPages(dropTargetSurveyElement)
     ) {
       this.banDropSurveyElement();
       return;
@@ -320,6 +319,18 @@ export class DragDropHelper extends Base {
     this.isBottom = isBottom;
     this.dropTargetSurveyElement = dropTargetSurveyElement;
     this.insertGhostElementIntoSurvey();
+  }
+
+  private shouldRestricDragQuestionBetweenPages(
+    dropTargetSurveyElement: any
+  ): boolean {
+    const oldPage = (<any>this.draggedSurveyElement)["page"];
+    const newPage = dropTargetSurveyElement.isPage
+      ? dropTargetSurveyElement
+      : dropTargetSurveyElement["page"];
+
+    // if oldPage === null then it is drom the toolbox
+    return oldPage && oldPage !== newPage;
   }
 
   private getDragInfo(event: PointerEvent) {

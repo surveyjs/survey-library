@@ -39,7 +39,9 @@ export abstract class DragDropCore extends Base {
     this.doStartDrag();
 
     const shortcutText = this.getShortcutText(this.draggedElement);
-    this.draggedElementShortcut = this.createDraggedElementShortcut(shortcutText);
+    this.draggedElementShortcut = this.createDraggedElementShortcut(
+      shortcutText
+    );
     document.body.append(this.draggedElementShortcut);
     this.moveShortcutElement(event);
 
@@ -57,20 +59,24 @@ export abstract class DragDropCore extends Base {
       event.clientY
     );
 
+    if (!dropTargetNode) {
+      this.banDropHere();
+      return;
+    }
+
     this.dropTarget = this.getDropTargetByNode(dropTargetNode);
 
     let isBottom = this.calculateIsBottom(event.clientY, dropTargetNode);
 
     const isDropTargetValid = this.isDropTargetValid(this.dropTarget, isBottom);
 
-    if (
-      this.dropTarget === this.draggedElement ||
-      !isDropTargetValid ||
-      (this.dropTarget === this.prevDropTarget && isBottom === this.isBottom)
-    ) {
+    if (this.dropTarget === this.draggedElement || !isDropTargetValid) {
       this.banDropHere();
       return;
     }
+
+    if (this.dropTarget === this.prevDropTarget && isBottom === this.isBottom)
+      return;
 
     this.allowDropHere = true;
     this.isBottom = isBottom;
@@ -216,6 +222,7 @@ export abstract class DragDropCore extends Base {
     this.allowDropHere = false;
     this.dropTarget = null;
     this.draggedElementShortcut.style.cursor = "not-allowed";
+    this.isBottom = null;
   };
 
   protected doBanDropHere = () => {};
@@ -230,14 +237,9 @@ export abstract class DragDropCore extends Base {
   }
 
   protected getDropTargetByNode(dropTargetNode: HTMLElement) {
-    if (!dropTargetNode) return null;
-
-    let dropTarget = null;
     let dataAttributeValue = this.getDataAttributeValueByNode(dropTargetNode);
 
-    dropTarget = this.getDropTargetByDataAttributeValue(dataAttributeValue);
-
-    return dropTarget;
+    return this.getDropTargetByDataAttributeValue(dataAttributeValue);
   }
 
   private capitalizeFirstLetter(string: string) {

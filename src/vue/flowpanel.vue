@@ -11,7 +11,7 @@
     <div :class="question.cssClasses.panel.description">
       <survey-string :locString="question.locDescription" />
     </div>
-    <survey-errors :question="question" />
+    <survey-errors :element="question" />
     <f-panel
       :style="{ paddingLeft: question.innerPaddingLeft }"
       v-show="!isCollapsed"

@@ -1,4 +1,4 @@
-import { Serializer, property } from "./jsonobject";
+import { Serializer } from "./jsonobject";
 import { HashTable, Helpers } from "./helpers";
 import { Base } from "./base";
 import {
@@ -13,7 +13,7 @@ import {
   ITitleOwner,
   IProgressInfo,
   ISurvey,
-  IFindElement,
+  IFindElement
 } from "./base-interfaces";
 import { SurveyElement } from "./survey-element";
 import { Question } from "./question";
@@ -1232,8 +1232,8 @@ export class PanelModelBase extends SurveyElement
   }
   public updateElementCss(reNew?: boolean) {
     this.cssClassesValue = undefined;
-    for (var i = 0; i < this.elements.length; i++) {
-      var el = <SurveyElement>(<any>this.elements[i]);
+    for (let i = 0; i < this.elements.length; i++) {
+      const el = <SurveyElement>(<any>this.elements[i]);
       el.updateElementCss(reNew);
     }
     super.updateElementCss(reNew);
@@ -1863,8 +1863,11 @@ export class PanelModel extends PanelModelBase
       .toString();
   }
   public get cssError(): string {
-    var rootClass = this.cssClasses.error.root;
-    return rootClass ? rootClass : "panel-error-root";
+    return this.getCssError(this.cssClasses);
+  }
+  protected getCssError(cssClasses: any): string {
+    const builder = new CssClassBuilder().append(this.cssClasses.error.root);
+    return builder.append("panel-error-root", builder.isEmpty()).toString();
   }
   protected onVisibleChanged() {
     super.onVisibleChanged();

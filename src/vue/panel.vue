@@ -29,7 +29,7 @@
     <div :class="question.cssClasses.panel.description">
       <survey-string :locString="question.locDescription" />
     </div>
-    <survey-errors :question="question" />
+    <survey-errors :element="question" />
     <div
       :id="question.contentId"
       :style="{ paddingLeft: question.innerPaddingLeft }"

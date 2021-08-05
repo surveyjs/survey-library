@@ -11,7 +11,7 @@
     >
       <survey-errors
         v-if="!element.isPanel && hasErrorsOnTop"
-        :question="element"
+        :element="element"
         :location="'top'"
       />
       <component
@@ -25,7 +25,7 @@
       </div>
       <survey-errors
         v-if="!element.isPanel && hasErrorsOnBottom"
-        :question="element"
+        :element="element"
         :location="'bottom'"
       />
       <div

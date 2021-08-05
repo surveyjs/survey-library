@@ -1,18 +1,18 @@
 import * as React from "react";
 import {
+  Base,
   SurveyElement,
   SurveyError,
   Question,
-  Base,
+  QuestionMatrixDropdownRenderedCell,
   CssClassBuilder,
-  doKey2Click,
+  doKey2Click
 } from "survey-core";
-import { SurveyQuestionCommentItem } from "./reactquestion_comment";
-import { SurveyElementBase, ReactSurveyElement } from "./reactquestion_element";
-import { SurveyCustomWidget } from "./custom-widget";
-import { ReactElementFactory } from "./element-factory";
 import { ReactSurveyModel } from "./reactsurveymodel";
-import { QuestionMatrixDropdownRenderedCell } from "../question_matrixdropdownbase";
+import { ReactElementFactory } from "./element-factory";
+import { SurveyElementBase, ReactSurveyElement } from "./reactquestion_element";
+import { SurveyQuestionCommentItem } from "./reactquestion_comment";
+import { SurveyCustomWidget } from "./custom-widget";
 
 export interface ISurveyCreator {
   createQuestionElement(question: Question): JSX.Element;
@@ -248,8 +248,7 @@ export class SurveyElementErrors extends ReactSurveyElement {
     return this.props.id;
   }
   protected get element(): SurveyElement {
-    var element = this.props.element;
-    return element instanceof SurveyElement ? element : null;
+    return this.props.element;
   }
   private get creator(): ISurveyCreator {
     return this.props.creator;
@@ -264,21 +263,16 @@ export class SurveyElementErrors extends ReactSurveyElement {
     return !!this.element && this.element.hasVisibleErrors;
   }
   protected renderElement(): JSX.Element {
-    var errors = [];
-    for (var i = 0; i < this.element.errors.length; i++) {
-      var key = "error" + i;
+    const errors = [];
+    for (let i = 0; i < this.element.errors.length; i++) {
+      const key: string = "error" + i;
       errors.push(
         this.creator.renderError(key, this.element.errors[i], this.cssClasses)
       );
     }
 
-    const classes = new CssClassBuilder()
-        .append(this.cssClasses.error.root)
-        .append(this.cssClasses.error.locationTop, this.location === "top")
-        .append(this.cssClasses.error.locationBottom, this.location === "bottom").toString();
-
     return (
-      <div role="alert" aria-live="polite" className={classes} id={this.id}>
+      <div role="alert" aria-live="polite" className={this.element.cssError} id={this.id}>
         {errors}
       </div>
     );

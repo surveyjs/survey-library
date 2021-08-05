@@ -5,7 +5,7 @@
             <!-- ko template: { name: 'survey-question-title-content', data: item.editor, as: 'question' } --><!-- /ko -->
           </td>
           <td data-bind="css: question.koCss().item + ' ' + question.koCss().cell">
-            <!-- ko if: item.editor.errorLocation == 'top' -->
+            <!-- ko if: item.editor.errorLocation === 'top' -->
             <div data-bind="css: question.koCss().error.locationTop">
                 <!-- ko template: { name: 'survey-question-errors', data: item.editor } -->
                 <!-- /ko -->
@@ -13,7 +13,7 @@
             <!-- /ko -->
             <!-- ko template: { name: item.editor.koTemplateName(), data: item.editor, as: 'question', afterRender: item.editor.koQuestionAfterRender } -->
             <!-- /ko -->
-            <!-- ko if: item.editor.errorLocation == 'bottom' -->
+            <!-- ko if: item.editor.errorLocation === 'bottom' -->
               <!-- ko template: { name: 'survey-question-errors', data: item.editor } -->
               <!-- /ko -->
             <!-- /ko -->

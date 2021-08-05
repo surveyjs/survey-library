@@ -30,7 +30,7 @@
         <td :key="item.editor.id" :css="question.cssClasses.cell">
           <survey-errors
             v-if="hasErrorsOnTop"
-            :question="item.editor"
+            :element="item.editor"
             :location="'top'"
           />
           <component
@@ -39,7 +39,7 @@
           />
           <survey-errors
             v-if="hasErrorsOnBottom"
-            :question="item.editor"
+            :element="item.editor"
             :location="'bottom'"
           />
         </td>

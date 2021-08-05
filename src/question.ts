@@ -438,7 +438,7 @@ export class Question extends SurveyElement
   }
   get hasTitleOnLeftTop(): boolean {
     if (!this.hasTitle) return false;
-    var location = this.getTitleLocation();
+    const location = this.getTitleLocation();
     return location === "left" || location === "top";
   }
   public get errorLocation(): string {
@@ -715,7 +715,6 @@ export class Question extends SurveyElement
   protected setCssError(val: string) {
     this.setPropertyValue("cssError", val);
   }
-  //TODO was not removed from other places
   protected getCssError(cssClasses: any): string {
     return new CssClassBuilder()
       .append(cssClasses.error.root)

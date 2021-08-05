@@ -27,10 +27,10 @@ export class SurveyElement extends Base implements ISurveyElement {
     children: Array<SurveyElement>,
     isRequired: boolean
   ): IProgressInfo {
-    var info = Base.createProgressInfo();
-    for (var i = 0; i < children.length; i++) {
+    const info: IProgressInfo = Base.createProgressInfo();
+    for (let i = 0; i < children.length; i++) {
       if (!children[i].isVisible) continue;
-      var childInfo = children[i].getProgressInfo();
+      const childInfo: IProgressInfo = children[i].getProgressInfo();
       info.questionCount += childInfo.questionCount;
       info.answeredQuestionCount += childInfo.answeredQuestionCount;
       info.requiredQuestionCount += childInfo.requiredQuestionCount;
@@ -54,9 +54,9 @@ export class SurveyElement extends Base implements ISurveyElement {
 
   public static ScrollElementToTop(elementId: string): boolean {
     if (!elementId || typeof document === "undefined") return false;
-    var el = document.getElementById(elementId);
+    const el = document.getElementById(elementId);
     if (!el || !el.scrollIntoView) return false;
-    var elemTop = el.getBoundingClientRect().top;
+    const elemTop: number = el.getBoundingClientRect().top;
     if (elemTop < 0) el.scrollIntoView();
     return elemTop < 0;
   }
@@ -66,12 +66,12 @@ export class SurveyElement extends Base implements ISurveyElement {
   ) {
     if (!elements || !elements.length || elements.length == 0) return null;
     if (removeSpaces) {
-      var tEl = elements[0];
+      let tEl = elements[0];
       if (tEl.nodeName === "#text") tEl.data = "";
       tEl = elements[elements.length - 1];
       if (tEl.nodeName === "#text") tEl.data = "";
     }
-    for (var i = 0; i < elements.length; i++) {
+    for (let i = 0; i < elements.length; i++) {
       if (elements[i].nodeName != "#text" && elements[i].nodeName != "#comment")
         return elements[i];
     }
@@ -79,7 +79,7 @@ export class SurveyElement extends Base implements ISurveyElement {
   }
   public static FocusElement(elementId: string): boolean {
     if (!elementId || typeof document === "undefined") return false;
-    var res = SurveyElement.focusElementCore(elementId);
+    const res: boolean = SurveyElement.focusElementCore(elementId);
     if (!res) {
       setTimeout(() => {
         SurveyElement.focusElementCore(elementId);
@@ -88,7 +88,7 @@ export class SurveyElement extends Base implements ISurveyElement {
     return res;
   }
   private static focusElementCore(elementId: string): boolean {
-    var el = document.getElementById(elementId);
+    const el = document.getElementById(elementId);
     if (el) {
       el.focus();
       return true;
@@ -216,7 +216,7 @@ export class SurveyElement extends Base implements ISurveyElement {
     return this.titleActions;
   }
   private updateTitleActions() {
-    var actions = [];
+    let actions = [];
     if (this.hasStateButton && !this.expandAction) {
       this.expandAction = new Action({
         id: "expand-collapse-action",
@@ -338,6 +338,7 @@ export class SurveyElement extends Base implements ISurveyElement {
       this.readOnlyChangedCallback();
     }
   }
+  public get cssError(): string { return ""; }
   public updateElementCss(reNew?: boolean) {}
   protected getIsLoadingFromJson(): boolean {
     if (super.getIsLoadingFromJson()) return true;
@@ -443,7 +444,7 @@ export class SurveyElement extends Base implements ISurveyElement {
   public delete() {}
   protected removeSelfFromList(list: Array<any>) {
     if (!list || !Array.isArray(list)) return;
-    var index = list.indexOf(this);
+    const index: number = list.indexOf(this);
     if (index > -1) {
       list.splice(index, 1);
     }
@@ -475,7 +476,7 @@ export class SurveyElement extends Base implements ISurveyElement {
   ): boolean {
     if (!container) return false;
     parent.removeElement(<IElement>(<any>this));
-    var index = -1;
+    let index = -1;
     if (Helpers.isNumber(insertBefore)) {
       index = parseInt(insertBefore);
     }
@@ -487,7 +488,7 @@ export class SurveyElement extends Base implements ISurveyElement {
   }
 
   protected setPage(parent: IPanel, val: IPage) {
-    var oldPage = this.getPage(parent);
+    const oldPage: IPage = this.getPage(parent);
     if (oldPage === val) return;
     if (parent) parent.removeElement(<IElement>(<any>this));
     if (val) {

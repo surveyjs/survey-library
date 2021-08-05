@@ -19,7 +19,7 @@
     <div v-if="cell.hasQuestion">
       <survey-errors
         v-if="hasErrorsOnTop"
-        :question="cell.question"
+        :element="cell.question"
         :location="'top'"
       />
       <component
@@ -54,7 +54,7 @@
       ></survey-checkbox-item>
       <survey-errors
         v-if="hasErrorsOnBottom"
-        :question="cell.question"
+        :element="cell.question"
         :location="'bottom'"
       />
     </div>

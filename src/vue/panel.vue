@@ -116,12 +116,6 @@ export class Panel extends BaseVue {
   get survey() {
     return this.question.survey;
   }
-  get iconCss() {
-    return new CssClassBuilder()
-      .append(this.css.panel.icon)
-      .append(this.css.panel.iconExpanded, !this.isCollapsed)
-      .toString();
-  }
   keyup(evt: any) {
     doKey2Click(evt);
   }

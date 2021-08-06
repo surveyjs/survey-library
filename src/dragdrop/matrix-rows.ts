@@ -7,7 +7,9 @@ export class DragDropMatrixRows extends DragDropCore {
   }
 
   protected getShortcutText(draggedElement: any) {
-    return draggedElement.id;
+    const matrix = <QuestionMatrixModel>this.parentElement;
+    const index = matrix.visibleRows.indexOf(draggedElement) + 1;
+    return "" + index;
   }
 
   protected findDropTargetNodeByDragOverNode(

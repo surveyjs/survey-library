@@ -257,8 +257,8 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
   protected addToVisibleChoices(items: Array<ItemValue>, isAddAll: boolean) {
     if (
       this.supportSelectAll() &&
-      (isAddAll || this.hasSelectAll) &&
-      this.canShowOptionItem(this.selectAllItem)
+      ((isAddAll && this.canShowOptionItem(this.selectAllItem)) ||
+        this.hasSelectAll)
     ) {
       items.unshift(this.selectAllItem);
     }

@@ -5087,9 +5087,9 @@ QUnit.test(
     survey.fromJSON(json);
     var q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
     var isReadOnly = false;
-    q1.canShowOptionItemCallback = (item: ItemValue): boolean => {
+    q1.setCanShowOptionItemCallback((item: ItemValue): boolean => {
       return !isReadOnly && (item.value !== "newitem" || q1.choices.length < 3);
-    };
+    });
     assert.equal(
       q1.visibleChoices.length,
       6,
@@ -5107,6 +5107,14 @@ QUnit.test(
       q1.visibleChoices.length,
       2,
       "Do not show SelectAll+None+hasOther+new: 2"
+    );
+    q1.hasSelectAll = true;
+    q1.hasNone = true;
+    q1.hasOther = true;
+    assert.equal(
+      q1.visibleChoices.length,
+      5,
+      "Do not show SelectAll+None+hasOther are set: 2 + 3"
     );
     settings.supportCreatorV2 = false;
   }

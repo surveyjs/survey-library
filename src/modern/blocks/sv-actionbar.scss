@@ -27,6 +27,7 @@ $base-unit: var(--base-unit, 8px);
 
 .sv-action--first {
   margin-right: auto;
+  flex: 1;
 
   .sv-action-bar-item {
     flex-direction: row-reverse;

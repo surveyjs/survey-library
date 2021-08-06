@@ -9,7 +9,7 @@ import {
   QuestionMatrixDropdownRenderedRow,
   QuestionMatrixDropdownRenderedCell,
   AdaptiveActionContainer,
-  Question
+  Question,
 } from "survey-core";
 import { SurveyQuestionCheckboxItem } from "./reactquestion_checkbox";
 import { SurveyQuestionRadioItem } from "./reactquestion_radiogroup";
@@ -28,24 +28,23 @@ export class SurveyQuestionMatrixDropdownBase extends SurveyQuestionElementBase 
   private getState(prevState: any = null) {
     return { rowCounter: !prevState ? 0 : prevState.rowCounter + 1 };
   }
-  private updateVisibleRowsChangedCallback() {
-    this.question.visibleRowsChangedCallback = () => {
-      this.updateStateOnCallback();
-    };
-  }
-  private renderedTableResetCallback() {
-    this.question.onRenderedTableResetCallback = () => {
-      this.updateStateOnCallback();
-    };
-  }
   private updateStateOnCallback() {
     if (this.isRendering) return;
     this.setState(this.getState(this.state));
   }
   componentDidMount() {
     super.componentDidMount();
-    this.updateVisibleRowsChangedCallback();
-    this.renderedTableResetCallback();
+    this.question.visibleRowsChangedCallback = () => {
+      this.updateStateOnCallback();
+    };
+    this.question.onRenderedTableResetCallback = () => {
+      this.updateStateOnCallback();
+    };
+  }
+  componentWillUnmount() {
+    super.componentWillUnmount();
+    this.question.visibleRowsChangedCallback = undefined;
+    this.question.onRenderedTableResetCallback = undefined;
   }
   protected renderElement(): JSX.Element {
     return this.renderTableDiv();
@@ -95,9 +94,7 @@ export class SurveyQuestionMatrixDropdownBase extends SurveyQuestionElementBase 
     }
     return (
       <thead>
-        <tr>
-          {headers}
-        </tr>
+        <tr>{headers}</tr>
       </thead>
     );
   }

@@ -338,6 +338,10 @@ export class QuestionSelectBase extends Question {
     super.clearValue();
     this.prevCommentValue = undefined;
   }
+  updateCommentFromSurvey(newValue: any): any {
+    super.updateCommentFromSurvey(newValue);
+    this.prevCommentValue = undefined;
+  }
   public get renderedValue(): any {
     return this.getPropertyValue("renderedValue", null);
   }

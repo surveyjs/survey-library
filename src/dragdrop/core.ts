@@ -79,6 +79,7 @@ export abstract class DragDropCore extends Base {
       return;
 
     this.allowDropHere = true;
+    this.isBottom = null; //TODO need for property change trigger with guarantee but it would be better not to watch on isBottom property but reate some event like onValidTargetDragOver
     this.isBottom = isBottom;
     this.doDrag();
     this.prevDropTarget = this.dropTarget;

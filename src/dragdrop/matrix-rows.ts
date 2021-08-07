@@ -40,24 +40,9 @@ export class DragDropMatrixRows extends DragDropCore {
 
   protected calculateIsBottom(clientY: number): boolean {
     const rows = this.parentElement.visibleRows;
-    let isBottom;
-    //drag over next item
-    if (
-      rows.indexOf(this.dropTarget) - rows.indexOf(this.draggedElement) ===
-      1
-    ) {
-      isBottom = true;
-    }
-
-    //drag over prev item
-    if (
-      rows.indexOf(this.draggedElement) - rows.indexOf(this.dropTarget) ===
-      1
-    ) {
-      isBottom = false;
-    }
-
-    return isBottom;
+    return (
+      rows.indexOf(this.dropTarget) - rows.indexOf(this.draggedElement) > 0
+    );
   }
 
   protected doDrop = () => {

@@ -2437,3 +2437,16 @@ QUnit.test("Error on running triggers", function(assert) {
   survey.setValue("matrix", [{ col1: "v" }]);
   assert.equal(survey.getValue("radio"), "no", "Set value on trigger");
 });
+QUnit.test("pageNext/pagePrev... Text and koRenderedHtml", function(assert) {
+  var survey = new Survey({
+    elements: [
+      {
+        type: "text",
+        name: "q1",
+      },
+    ],
+  });
+  assert.equal((<any>survey.locCompleteText).koRenderedHtml(), "Complete");
+  survey.completeText = "Finish";
+  assert.equal((<any>survey.locCompleteText).koRenderedHtml(), "Finish");
+});

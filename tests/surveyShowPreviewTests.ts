@@ -506,3 +506,42 @@ QUnit.test(
     assert.equal(survey.state, "preview", "We allow to show preview");
   }
 );
+QUnit.test(
+  "showPreviewBeforeComplete = 'showAnsweredQuestions' and invisible matrix dropdown, Bug#3176",
+  function(assert) {
+    var survey = new SurveyModel({
+      showPreviewBeforeComplete: "showAnsweredQuestions",
+      pages: [
+        {
+          elements: [
+            { type: "text", name: "question1" },
+            {
+              type: "html",
+              name: "question4",
+              html: "{question3.item1.col1}",
+            },
+          ],
+        },
+        {
+          elements: [
+            { type: "text", name: "question2" },
+            {
+              type: "matrixdropdown",
+              name: "question3",
+              useDisplayValuesInTitle: false,
+              isRequired: true,
+              defaultValue: { item1: { col1: "val1" } },
+              columns: [{ cellType: "text", name: "col1" }],
+              rows: ["item1"],
+              visible: false,
+            },
+          ],
+        },
+      ],
+    });
+    survey.data = { question1: "q1", question2: "q2" };
+    survey.nextPage();
+    survey.showPreview();
+    assert.equal(survey.state, "preview", "There is no errors");
+  }
+);

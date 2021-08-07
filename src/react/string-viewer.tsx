@@ -28,9 +28,9 @@ export class SurveyLocStringViewer extends React.Component<any, any> {
     if (!this.locStr) return null;
     if (this.locStr.hasHtml) {
       let htmlValue = { __html: this.locStr.renderedHtml };
-      return <span style={this.style} dangerouslySetInnerHTML={htmlValue} />;
+      return <span className="sv-string-viewer" style={this.style} dangerouslySetInnerHTML={htmlValue} />;
     }
-    return <span style={this.style}>{this.locStr.renderedHtml}</span>;
+    return <span className="sv-string-viewer" style={this.style}>{this.locStr.renderedHtml}</span>;
   }
 }
 

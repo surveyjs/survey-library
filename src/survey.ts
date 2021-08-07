@@ -924,12 +924,12 @@ export class SurveyModel extends Base
     this.createLocalizableString("completedHtml", this);
     this.createLocalizableString("completedBeforeHtml", this);
     this.createLocalizableString("loadingHtml", this);
-    this.createLocalizableString("startSurveyText", this);
-    this.createLocalizableString("pagePrevText", this);
-    this.createLocalizableString("pageNextText", this);
-    this.createLocalizableString("completeText", this);
-    this.createLocalizableString("previewText", this);
-    this.createLocalizableString("editText", this);
+    this.createLocalizableString("startSurveyText", this, false, true);
+    this.createLocalizableString("pagePrevText", this, false, true);
+    this.createLocalizableString("pageNextText", this, false, true);
+    this.createLocalizableString("completeText", this, false, true);
+    this.createLocalizableString("previewText", this, false, true);
+    this.createLocalizableString("editText", this, false, true);
     this.createLocalizableString("questionTitleTemplate", this, true);
 
     this.textPreProcessor = new TextPreProcessor();
@@ -1878,10 +1878,7 @@ export class SurveyModel extends Base
    * @see locale
    */
   public get startSurveyText(): string {
-    return this.getLocalizableStringText(
-      "startSurveyText",
-      this.getLocString("startSurveyText")
-    );
+    return this.getLocalizableStringText("startSurveyText");
   }
   public set startSurveyText(newValue: string) {
     this.setLocalizableStringText("startSurveyText", newValue);
@@ -1894,10 +1891,7 @@ export class SurveyModel extends Base
    * @see locale
    */
   public get pagePrevText(): string {
-    return this.getLocalizableStringText(
-      "pagePrevText",
-      this.getLocString("pagePrevText")
-    );
+    return this.getLocalizableStringText("pagePrevText");
   }
   public set pagePrevText(newValue: string) {
     this.setLocalizableStringText("pagePrevText", newValue);
@@ -1910,10 +1904,7 @@ export class SurveyModel extends Base
    * @see locale
    */
   public get pageNextText(): string {
-    return this.getLocalizableStringText(
-      "pageNextText",
-      this.getLocString("pageNextText")
-    );
+    return this.getLocalizableStringText("pageNextText");
   }
   public set pageNextText(newValue: string) {
     this.setLocalizableStringText("pageNextText", newValue);
@@ -1926,10 +1917,7 @@ export class SurveyModel extends Base
    * @see locale
    */
   public get completeText(): string {
-    return this.getLocalizableStringText(
-      "completeText",
-      this.getLocString("completeText")
-    );
+    return this.getLocalizableStringText("completeText");
   }
   public set completeText(newValue: string) {
     this.setLocalizableStringText("completeText", newValue);
@@ -1945,10 +1933,7 @@ export class SurveyModel extends Base
    * @see showPreview
    */
   public get previewText(): string {
-    return this.getLocalizableStringText(
-      "previewText",
-      this.getLocString("previewText")
-    );
+    return this.getLocalizableStringText("previewText");
   }
   public set previewText(newValue: string) {
     this.setLocalizableStringText("previewText", newValue);
@@ -1964,10 +1949,7 @@ export class SurveyModel extends Base
    * @see cancelPreview
    */
   public get editText(): string {
-    return this.getLocalizableStringText(
-      "editText",
-      this.getLocString("editText")
-    );
+    return this.getLocalizableStringText("editText");
   }
   public set editText(newValue: string) {
     this.setLocalizableStringText("editText", newValue);

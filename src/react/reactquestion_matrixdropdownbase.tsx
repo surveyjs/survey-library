@@ -167,18 +167,13 @@ export class SurveyQuestionMatrixDropdownBase extends SurveyQuestionElementBase 
       if (!!cell.width) cellStyle.width = cell.width;
       if (!!cell.minWidth) cellStyle.minWidth = cell.minWidth;
     }
-    function onPointerDownHandler(event: any) {
-      if (index !== 0) return;
-      var matrixQuestion: any = cell.row["data"];
-      matrixQuestion.startDragMatrixRow(event.nativeEvent, cell.row);
-    }
+
     return (
       <td
         className={cell.className}
         key={key}
         style={cellStyle}
         colSpan={cell.colSpans}
-        onPointerDown={(event: any) => onPointerDownHandler(event)}
       >
         {cellContent}
       </td>

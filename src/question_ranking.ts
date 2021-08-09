@@ -247,6 +247,20 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
     const ghostNode: Element = indexNodes[indexNodes.length - 1];
     (<any>ghostNode).innerText = text;
   };
+
+  public getIconHoverCss(): string {
+    return new CssClassBuilder()
+      .append(this.cssClasses.itemIcon)
+      .append(this.cssClasses.itemIconHoverMod)
+      .toString();
+  }
+
+  public getIconFocusCss(): string {
+    return new CssClassBuilder()
+      .append(this.cssClasses.itemIcon)
+      .append(this.cssClasses.itemIconFocusMod)
+      .toString();
+  }
 }
 
 Serializer.addClass(

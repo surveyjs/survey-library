@@ -1628,27 +1628,27 @@ export class QuestionPanelDynamicModel extends Question
       .append(this.cssClasses.panelWrapperInRow, this.panelRemoveButtonLocation === "right")
       .toString();
   }
-  public getButtonAddRowCss(): string {
-    return new CssClassBuilder()
-      .append(this.cssClasses.button)
-      .append(this.cssClasses.buttonAdd)
-      .append(this.cssClasses.buttonAdd + "--list-mode", this.renderMode === "list")
-      .toString();
-  }
   public getPanelRemoveButtonCss(): string {
     return new CssClassBuilder()
       .append(this.cssClasses.button)
       .append(this.cssClasses.buttonRemove)
       .append(this.cssClasses.buttonRemoveRight, this.panelRemoveButtonLocation === "right")
       .toString();
+  }  
+  public getAddRowButtonCss(): string {
+    return new CssClassBuilder()
+      .append(this.cssClasses.button)
+      .append(this.cssClasses.buttonAdd)
+      .append(this.cssClasses.buttonAdd + "--list-mode", this.renderMode === "list")
+      .toString();
   }
-  public getButtonPrevCss(): string {
+  public getPrevButtonCss(): string {
     return new CssClassBuilder()
       .append(this.cssClasses.buttonPrev)
       .append(this.cssClasses.buttonPrev + "--disabled", !this.isPrevButtonShowing)
       .toString();
   }
-  public getButtonNextCss(): string {
+  public getNextButtonCss(): string {
     return new CssClassBuilder()
     .append(this.cssClasses.buttonNext)
     .append(this.cssClasses.buttonNext + "--disabled", !this.isNextButtonShowing)

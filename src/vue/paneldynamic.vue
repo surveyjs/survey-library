@@ -21,7 +21,7 @@
     <input
       type="button"
       v-if="question.isRenderModeList && question.canAddPanel"
-      :class="question.getButtonAddRowCss()"
+      :class="question.getAddRowButtonCss()"
       :value="question.panelAddText"
       @click="addPanelClick"
     />

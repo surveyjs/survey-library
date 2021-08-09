@@ -98,28 +98,28 @@ export class QuestionPanelDynamicImplementor extends QuestionImplementor {
     );
 
     this.setObservaleObj(
-      "koButtonAddRowCss",
+      "koAddRowButtonCss",
       ko.pureComputed(() => {
         this.koRecalc();
-        return this.question.getButtonAddRowCss();
+        return this.question.getAddRowButtonCss();
       })
     );
 
     this.setObservaleObj(
-      "koButtonNextCss",
+      "koPrevButtonCss",
       ko.pureComputed(() => {
         this.koRecalc();
-        return this.question.getButtonNextCss();
+        return this.question.getPrevButtonCss();
       })
     );
 
     this.setObservaleObj(
-      "koButtonPrevCss",
+      "koNextButtonCss",
       ko.pureComputed(() => {
         this.koRecalc();
-        return this.question.getButtonPrevCss();
+        return this.question.getNextButtonCss();
       })
-    );
+    );   
 
     this.setObservaleObj(
       "koProgressText",

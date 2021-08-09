@@ -4,7 +4,7 @@
       <div :title="question.panelPrevText">
         <svg
           viewBox="0 0 10 10"
-          :class="question.getButtonPrevCss()"
+          :class="question.getPrevButtonCss()"
           @click="prevPanelClick"
         >
           <polygon points="2,2 0,4 5,9 10,4 8,2 5,5 " />
@@ -23,7 +23,7 @@
         <svg
           viewBox="0 0 10 10"
           @click="nextPanelClick"
-          :class="question.getButtonNextCss()"
+          :class="question.getNextButtonCss()"
         >
           <polygon points="2,2 0,4 5,9 10,4 8,2 5,5 " />
         </svg>

@@ -137,7 +137,7 @@ export class SurveyQuestionPanelDynamic extends SurveyQuestionElementBase {
       <div title={this.question.panelPrevText}>
         <svg
           viewBox="0 0 10 10"
-          className={this.question.getButtonPrevCss()}
+          className={this.question.getPrevButtonCss()}
           onClick={this.handleOnPanelPrevClick}
         >
           <polygon points="2,2 0,4 5,9 10,4 8,2 5,5 " />
@@ -151,7 +151,7 @@ export class SurveyQuestionPanelDynamic extends SurveyQuestionElementBase {
       <div title={this.question.panelNextText}>
         <svg
           viewBox="0 0 10 10"
-          className={this.question.getButtonNextCss()}
+          className={this.question.getNextButtonCss()}
           onClick={this.handleOnPanelNextClick}
         >
           <polygon points="2,2 0,4 5,9 10,4 8,2 5,5 " />
@@ -180,7 +180,7 @@ export class SurveyQuestionPanelDynamic extends SurveyQuestionElementBase {
     if (!this.question.canAddPanel) return null;
     return (
       <input
-        className={this.question.getButtonAddRowCss()}
+        className={this.question.getAddRowButtonCss()}
         type="button"
         onClick={this.handleOnPanelAddClick}
         value={this.question.panelAddText}

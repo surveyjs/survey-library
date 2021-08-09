@@ -64,7 +64,7 @@ export abstract class DragDropCore extends Base {
       return;
     }
 
-    this.dropTarget = this.getDropTargetByNode(dropTargetNode);
+    this.dropTarget = this.getDropTargetByNode(dropTargetNode, event);
 
     let isBottom = this.calculateIsBottom(event.clientY, dropTargetNode);
 
@@ -237,18 +237,28 @@ export abstract class DragDropCore extends Base {
     return node.dataset[datasetName];
   }
 
-  protected getDropTargetByNode(dropTargetNode: HTMLElement) {
+  protected getDropTargetByNode(
+    dropTargetNode: HTMLElement,
+    event: PointerEvent
+  ) {
     let dataAttributeValue = this.getDataAttributeValueByNode(dropTargetNode);
 
-    return this.getDropTargetByDataAttributeValue(dataAttributeValue);
+    return this.getDropTargetByDataAttributeValue(
+      dataAttributeValue,
+      dropTargetNode,
+      event
+    );
   }
 
   private capitalizeFirstLetter(string: string) {
     return string.charAt(0).toUpperCase() + string.slice(1);
   }
 
+  //TODO adandone unrequired params (survey-elements)
   protected abstract getDropTargetByDataAttributeValue(
-    dataAttributeValue: any
+    dataAttributeValue: any,
+    dropTargetNode?: HTMLElement,
+    event?: PointerEvent
   ): any;
 
   protected calculateMiddleOfHTMLElement(HTMLElement: HTMLElement) {

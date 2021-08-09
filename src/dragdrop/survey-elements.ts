@@ -47,7 +47,11 @@ export class DragDropSurveyElements extends DragDropCore {
     return draggedElement["title"] || draggedElement["name"];
   }
 
-  protected getDropTargetByDataAttributeValue(dataAttributeValue: string) {
+  protected getDropTargetByDataAttributeValue(
+    dataAttributeValue: string,
+    dropTargetNode: HTMLElement,
+    event: PointerEvent
+  ) {
     // if (!dataAttributeValue) {
     //   const nearestDropTargetElement = dropTargetNode.parentElement.closest<
     //     HTMLElement
@@ -60,48 +64,57 @@ export class DragDropSurveyElements extends DragDropCore {
     // if (!dataAttributeValue) {
     //   throw new Error("Can't find drop target survey element name");
     // }
-    let dropTarget = undefined;
 
     if (dataAttributeValue === DragDropSurveyElements.ghostSurveyElementName) {
       return this.ghostSurveyElement;
     }
 
-    // drop to page
+    // drop to new page
     if (dataAttributeValue === "newGhostPage") {
-      dropTarget = DragDropSurveyElements.newGhostPage;
-    } else {
-      dropTarget = this.survey.getPageByName(dataAttributeValue);
+      return DragDropSurveyElements.newGhostPage;
     }
 
-    // drop to element (question or panel)
-    // if (!dropTarget) {
-    //   let element;
-    //   this.survey.pages.forEach((page: PageModel) => {
-    //     element = page.getElementByName(dataAttributeValue);
-    //     if (element) dropTarget = element;
-    //   });
-    //   if (
-    //     !!dropTarget &&
-    //     dropTarget.getType() === "paneldynamic" &&
-    //     isDragOverInnerPanel
-    //   ) {
-    //     const page = (<any>dropTarget).page;
-    //     dropTarget = (<any>dropTarget).template;
-    //     dropTarget.page = page;
-    //   }
-    // }
+    // drop to page
+    let page = this.survey.getPageByName(dataAttributeValue);
+    if (page) {
+      return page;
+    }
 
-    // if (dropTarget.isPanel) {
-    //   const panelDragInfo = this.getPanelDragInfo(
-    //     dropTargetNode,
-    //     dropTarget,
-    //     event
-    //   );
-    //   dropTarget = panelDragInfo.dropTarget;
-    //   isEdge = panelDragInfo.isEdge;
-    // }
+    // drop to question or panel
+    let dropTarget: any;
+    let question;
 
+    this.survey.pages.forEach((page: PageModel) => {
+      question = page.getElementByName(dataAttributeValue);
+      if (question) dropTarget = question;
+    });
+
+    // drop to paneldynamic
+    if (
+      dropTarget.getType() === "paneldynamic"
+      /* && isDragOverInnerPanel*/
+    ) {
+      const page = (<any>dropTarget).page;
+      dropTarget = (<any>dropTarget).template;
+      dropTarget.page = page;
+      return dropTarget;
+    }
+
+    // drop to panel
+    if (dropTarget.isPanel) {
+      const panelDragInfo = this.getPanelDragInfo(
+        dropTargetNode,
+        dropTarget,
+        event
+      );
+      dropTarget = panelDragInfo.dropTarget;
+      this.isEdge = panelDragInfo.isEdge;
+      return dropTarget;
+    }
+
+    // drop to question
     return dropTarget;
+    // EO drop to question or panel
   }
 
   protected isDropTargetValid(dropTarget: any, isBottom: boolean) {

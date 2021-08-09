@@ -204,12 +204,6 @@ export class DragDropSurveyElements extends DragDropCore {
     return null;
   };
 
-  protected findDropTargetNodeByDragOverNode(
-    dragOverNode: Element
-  ): HTMLElement {
-    return dragOverNode.querySelector(this.dropTargetDataAttributeName);
-  }
-
   protected doClear = () => {
     this.removeGhostElementFromSurvey();
     this.isEdge = null;

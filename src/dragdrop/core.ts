@@ -274,11 +274,11 @@ export abstract class DragDropCore extends Base {
 
     if (!dragOverNode) return null;
 
-    return this.findDropTargetNodeByDragOverNode(dragOverNode);
+    return (
+      dragOverNode.querySelector(this.dropTargetDataAttributeName) ||
+      dragOverNode.closest(this.dropTargetDataAttributeName)
+    );
   }
-  protected abstract findDropTargetNodeByDragOverNode(
-    dragOverNode: Element
-  ): HTMLElement;
 
   protected abstract doDrop(): any;
 

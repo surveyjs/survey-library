@@ -7,19 +7,13 @@ export class DragDropMatrixRows extends DragDropCore {
   }
 
   protected getShortcutText(draggedElement: any) {
-    // const matrix = <QuestionMatrixModel>this.parentElement;
-    // const index = matrix.visibleRows.indexOf(draggedElement) + 1;
-    // return "" + index;
+    const matrix = <QuestionMatrixModel>this.parentElement;
+    const index = matrix.visibleRows.indexOf(draggedElement) + 1;
     return (
       draggedElement.cells[1].questionValue.value ||
-      draggedElement.cells[0].questionValue.value
+      draggedElement.cells[0].questionValue.value ||
+      "" + index
     );
-  }
-
-  protected findDropTargetNodeByDragOverNode(
-    dragOverNode: Element
-  ): HTMLElement {
-    return dragOverNode.closest(this.dropTargetDataAttributeName);
   }
 
   protected getDropTargetByDataAttributeValue(dataAttributeValue: any) {

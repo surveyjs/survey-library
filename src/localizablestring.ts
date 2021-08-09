@@ -31,6 +31,7 @@ export class LocalizableString implements ILocalizableString {
   private htmlValues = {};
   private renderedText: string;
   private calculatedTextValue: string;
+  public localizationName: string;
   public onGetTextCallback: (str: string) => string;
   public onStrChanged: (oldValue: string, newValue: string) => void;
   public onSearchChanged: () => void;
@@ -90,6 +91,9 @@ export class LocalizableString implements ILocalizableString {
     }
     if (!res && loc !== settings.defaultLocaleName) {
       res = this.getValue(settings.defaultLocaleName);
+    }
+    if (!res && !!this.localizationName) {
+      res = surveyLocalization.getString(this.localizationName);
     }
     if (!res) res = "";
     return res;

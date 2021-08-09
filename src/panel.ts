@@ -1848,7 +1848,7 @@ export class PanelModel extends PanelModelBase
     });
   }
   public get hasEditButton(): boolean {
-    if (this.survey && this.survey.state == "preview") return this.depth == 1;
+    if (this.survey && this.survey.state === "preview") return this.depth === 1;
     return false;
   }
   public cancelPreview() {

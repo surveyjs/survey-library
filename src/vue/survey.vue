@@ -85,7 +85,7 @@
         <div v-if="hasCompletedPage">
           <div
             v-html="getProcessedCompletedHtml()"
-            :class="getCompletedPageClasses()"
+            :class="survey.completedCss"
           ></div>
           <div v-if="survey.completedState != ''" :class="css.saveData.root">
             <div :class="getCompletedStateClasses()">
@@ -121,7 +121,7 @@
 <script lang="ts">
 import Vue from "vue";
 import { Component, Prop, Watch } from "vue-property-decorator";
-import { Base, CssClassBuilder, StylesManager, surveyCss } from "survey-core";
+import { Base, StylesManager, surveyCss } from "survey-core";
 import { VueSurveyModel as SurveyModel } from "./surveyModel";
 import { BaseVue } from "./base";
 
@@ -183,12 +183,6 @@ export class Survey extends BaseVue {
   }
   get css() {
     return this.survey.css;
-  }
-  getCompletedPageClasses() {
-    return new CssClassBuilder()
-      .append(this.css)
-      .append(this.css.completedPage)
-      .toString();
   }
   getProcessedCompletedHtml() {
     if (!this.hasCompletedPage) return "";

@@ -3558,7 +3558,10 @@ export class SurveyModel extends Base
       isCompleteOnTrigger: isCompleteOnTrigger,
     };
     this.onCompleting.fire(this, onCompletingOptions);
-    if (!onCompletingOptions.allowComplete) return false;
+    if (!onCompletingOptions.allowComplete) {
+      this.isCompleted = false;
+      return false;
+    }
     let previousCookie = this.hasCookie;
     this.stopTimer();
     this.setCompleted();

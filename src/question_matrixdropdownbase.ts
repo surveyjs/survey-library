@@ -3,6 +3,7 @@ import {
   CustomPropertiesCollection,
   JsonObjectProperty,
   Serializer,
+  property,
 } from "./jsonobject";
 import { QuestionMatrixBaseModel } from "./martixBase";
 import { Question } from "./question";
@@ -1503,18 +1504,34 @@ export class QuestionMatrixDropdownRenderedCell {
   }
 }
 
-export class QuestionMatrixDropdownRenderedRow {
+export class QuestionMatrixDropdownRenderedRow extends Base {
+  @property({ defaultValue: null }) ghostPosition: string;
+
   public isDetailRow: boolean = false;
   public row: MatrixDropdownRowModelBase;
   private static counter = 1;
   private idValue: number;
   public cells: Array<QuestionMatrixDropdownRenderedCell> = [];
   public className: string = "";
-  public constructor() {
+
+  public constructor(public cssClasses: any) {
+    super();
+    this.onCreating();
     this.idValue = QuestionMatrixDropdownRenderedRow.counter++;
   }
+  public onCreating() {} // need for knockout binding see QuestionMatrixDropdownRenderedRow.prototype["onCreating"]
   public get id(): number {
     return this.idValue;
+  }
+  public get attributes() {
+    return { "data-sv-drop-target-matrix-row": this.row.id };
+  }
+  public get ghostPositionCssClass() {
+    if (this.ghostPosition === "top")
+      return this.cssClasses.dragDropGhostPositionTop;
+    if (this.ghostPosition === "bottom")
+      return this.cssClasses.dragDropGhostPositionBottom;
+    return "";
   }
 }
 
@@ -1671,7 +1688,9 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
       (this.matrix.hasRowText && !this.matrix.isColumnLayoutHorizontal);
     this.setPropertyValue("showHeader", isShown);
     if (!isShown) return;
-    this.headerRowValue = new QuestionMatrixDropdownRenderedRow();
+    this.headerRowValue = new QuestionMatrixDropdownRenderedRow(
+      this.cssClasses
+    );
     if (this.hasActionCellInRows("start")) {
       this.headerRow.cells.push(this.createHeaderCell(null));
     }
@@ -1705,7 +1724,9 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
   }
   protected buildFooter() {
     if (!this.showFooter) return;
-    this.footerRowValue = new QuestionMatrixDropdownRenderedRow();
+    this.footerRowValue = new QuestionMatrixDropdownRenderedRow(
+      this.cssClasses
+    );
     if (this.hasActionCellInRows("start")) {
       this.footerRow.cells.push(this.createHeaderCell(null));
     }
@@ -1846,7 +1867,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     row: MatrixDropdownRowModelBase,
     useAsHeader: boolean
   ): QuestionMatrixDropdownRenderedRow {
-    var res = new QuestionMatrixDropdownRenderedRow();
+    var res = new QuestionMatrixDropdownRenderedRow(this.cssClasses);
     this.addRowActionsCell(row, res, "start");
     if (this.matrix.hasRowText) {
       var renderedCell = this.createTextCell(row.locText);
@@ -1897,7 +1918,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     row: MatrixDropdownRowModelBase,
     renderedRow: QuestionMatrixDropdownRenderedRow
   ): QuestionMatrixDropdownRenderedRow {
-    var res = new QuestionMatrixDropdownRenderedRow();
+    var res = new QuestionMatrixDropdownRenderedRow(this.cssClasses);
     res.row = row;
     res.className += this.cssClasses.detailRow;
     res.isDetailRow = true;
@@ -1966,7 +1987,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     choice: ItemValue = null,
     choiceIndex: number = -1
   ): QuestionMatrixDropdownRenderedRow {
-    var res = new QuestionMatrixDropdownRenderedRow();
+    var res = new QuestionMatrixDropdownRenderedRow(this.cssClasses);
     if (this.matrix.showHeader) {
       var lTitle = !!choice ? choice.locText : column.locTitle;
       var hCell = this.createTextCell(lTitle);
@@ -1999,7 +2020,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     return res;
   }
   private createEndVerticalActionRow(): QuestionMatrixDropdownRenderedRow {
-    var res = new QuestionMatrixDropdownRenderedRow();
+    var res = new QuestionMatrixDropdownRenderedRow(this.cssClasses);
     if (this.matrix.showHeader) {
       res.cells.push(this.createTextCell(null));
     }

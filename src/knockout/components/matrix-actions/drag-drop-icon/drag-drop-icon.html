@@ -1,1 +1,3 @@
-<span data-bind="css: question.koCss().iconDrag"></span>
+<span
+  data-bind="css: question.koCss().iconDrag, event: { pointerdown: function (model, event) { question.startDragMatrixRow(event, row); } }"
+></span>

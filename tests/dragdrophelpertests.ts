@@ -1,14 +1,15 @@
 import { QuestionRadiogroupModel } from "../src/question_radiogroup";
-import { DragDropHelper } from "../src/dragdrophelper";
+import { DragDropSurveyElements } from "../src/dragdrop/survey-elements";
+import { DragDropChoices } from "../src/dragdrop/choices";
 import { SurveyModel } from "../src/survey";
 import { ItemValue } from "../src/itemvalue";
 import { Question } from "../src/question";
 
 export default QUnit.module("DragDropHelper Tests");
 
-QUnit.test("doDropItemValue", function(assert) {
-  let ddHelper = new DragDropHelper(null);
-  const doDropItemValue = ddHelper["doDropItemValue"];
+QUnit.test("drop", function(assert) {
+  let ddHelper = new DragDropChoices(null);
+  const drop = ddHelper["drop"];
 
   const item1 = { value: "item1" };
   const item2 = { value: "item2" };
@@ -17,10 +18,14 @@ QUnit.test("doDropItemValue", function(assert) {
 
   let question = { choices: [item1, item2, item3, item4] };
   ddHelper["isBottom"] = true;
-  ddHelper["itemValueParentQuestion"] = <any>question;
-  ddHelper["draggedSurveyElement"] = <any>item1;
-  ddHelper["dropTargetSurveyElement"] = <any>item3;
-  doDropItemValue();
+  ddHelper["parentElement"] = <any>question;
+  ddHelper["draggedElement"] = <any>item1;
+  ddHelper["dropTarget"] = <any>item3;
+  ddHelper["draggedElementShortcut"] = document.body.appendChild(
+    document.createElement("div")
+  );
+  ddHelper["allowDropHere"] = true;
+  drop();
 
   assert.deepEqual(
     question.choices.map((c) => c.value),
@@ -29,10 +34,14 @@ QUnit.test("doDropItemValue", function(assert) {
 
   question = { choices: [item1, item2, item3, item4] };
   ddHelper["isBottom"] = false;
-  ddHelper["itemValueParentQuestion"] = <any>question;
-  ddHelper["draggedSurveyElement"] = <any>item1;
-  ddHelper["dropTargetSurveyElement"] = <any>item3;
-  doDropItemValue();
+  ddHelper["parentElement"] = <any>question;
+  ddHelper["draggedElement"] = <any>item1;
+  ddHelper["dropTarget"] = <any>item3;
+  ddHelper["draggedElementShortcut"] = document.body.appendChild(
+    document.createElement("div")
+  );
+  ddHelper["allowDropHere"] = true;
+  drop();
   assert.deepEqual(
     question.choices.map((c) => c.value),
     ["item2", "item1", "item3", "item4"]
@@ -40,10 +49,14 @@ QUnit.test("doDropItemValue", function(assert) {
 
   question = { choices: [item1, item2, item3, item4] };
   ddHelper["isBottom"] = true;
-  ddHelper["itemValueParentQuestion"] = <any>question;
-  ddHelper["draggedSurveyElement"] = <any>item4;
-  ddHelper["dropTargetSurveyElement"] = <any>item3;
-  doDropItemValue();
+  ddHelper["parentElement"] = <any>question;
+  ddHelper["draggedElement"] = <any>item4;
+  ddHelper["dropTarget"] = <any>item3;
+  ddHelper["draggedElementShortcut"] = document.body.appendChild(
+    document.createElement("div")
+  );
+  ddHelper["allowDropHere"] = true;
+  drop();
   assert.deepEqual(
     question.choices.map((c) => c.value),
     ["item1", "item2", "item3", "item4"]
@@ -51,10 +64,14 @@ QUnit.test("doDropItemValue", function(assert) {
 
   question = { choices: [item1, item2, item3, item4] };
   ddHelper["isBottom"] = false;
-  ddHelper["itemValueParentQuestion"] = <any>question;
-  ddHelper["draggedSurveyElement"] = <any>item4;
-  ddHelper["dropTargetSurveyElement"] = <any>item3;
-  doDropItemValue();
+  ddHelper["parentElement"] = <any>question;
+  ddHelper["draggedElement"] = <any>item4;
+  ddHelper["dropTarget"] = <any>item3;
+  ddHelper["draggedElementShortcut"] = document.body.appendChild(
+    document.createElement("div")
+  );
+  ddHelper["allowDropHere"] = true;
+  drop();
   assert.deepEqual(
     question.choices.map((c) => c.value),
     ["item1", "item2", "item4", "item3"]
@@ -62,20 +79,28 @@ QUnit.test("doDropItemValue", function(assert) {
 
   question = { choices: [item1, item2, item3, item4] };
   ddHelper["isBottom"] = true;
-  ddHelper["itemValueParentQuestion"] = <any>question;
-  ddHelper["draggedSurveyElement"] = <any>item1;
-  ddHelper["dropTargetSurveyElement"] = <any>item2;
-  doDropItemValue();
+  ddHelper["parentElement"] = <any>question;
+  ddHelper["draggedElement"] = <any>item1;
+  ddHelper["dropTarget"] = <any>item2;
+  ddHelper["draggedElementShortcut"] = document.body.appendChild(
+    document.createElement("div")
+  );
+  ddHelper["allowDropHere"] = true;
+  drop();
   assert.deepEqual(
     question.choices.map((c) => c.value),
     ["item2", "item1", "item3", "item4"]
   );
   question = { choices: [item1, item2, item3, item4] };
   ddHelper["isBottom"] = false;
-  ddHelper["itemValueParentQuestion"] = <any>question;
-  ddHelper["draggedSurveyElement"] = <any>item1;
-  ddHelper["dropTargetSurveyElement"] = <any>item2;
-  doDropItemValue();
+  ddHelper["parentElement"] = <any>question;
+  ddHelper["draggedElement"] = <any>item1;
+  ddHelper["dropTarget"] = <any>item2;
+  ddHelper["draggedElementShortcut"] = document.body.appendChild(
+    document.createElement("div")
+  );
+  ddHelper["allowDropHere"] = true;
+  drop();
   assert.deepEqual(
     question.choices.map((c) => c.value),
     ["item1", "item2", "item3", "item4"]
@@ -83,9 +108,9 @@ QUnit.test("doDropItemValue", function(assert) {
 });
 
 QUnit.test("calculateMiddleOfHTMLElement", function(assert) {
-  let ddHelper = new DragDropHelper(null);
+  let ddHelper = new DragDropSurveyElements(null);
   const calculateMiddleOfHTMLElement = ddHelper["calculateMiddleOfHTMLElement"];
-  const testElement = document.createElement("div");
+  const testElement = document.body.appendChild(document.createElement("div"));
   (<any>testElement).getBoundingClientRect = () => ({
     y: 10,
     height: 100,
@@ -96,24 +121,24 @@ QUnit.test("calculateMiddleOfHTMLElement", function(assert) {
 });
 
 QUnit.test("calculateIsBottom", function(assert) {
-  let ddHelper = new DragDropHelper(null);
-  const testElement = document.createElement("div");
+  let ddHelper = new DragDropSurveyElements(null);
+  const testElement = document.body.appendChild(document.createElement("div"));
   (<any>testElement).getBoundingClientRect = () => ({
     y: 100,
     height: 100,
   });
 
-  let result = ddHelper["calculateIsBottom"](testElement, 150);
+  let result = ddHelper["calculateIsBottom"](150, testElement);
   assert.equal(result, true);
 
-  result = ddHelper["calculateIsBottom"](testElement, 100);
+  result = ddHelper["calculateIsBottom"](100, testElement);
   assert.equal(result, false);
 });
 
 QUnit.test("calculateIsEdge", function(assert) {
-  DragDropHelper.edgeHeight = 20;
-  let ddHelper = new DragDropHelper(null);
-  const testElement = document.createElement("div");
+  DragDropSurveyElements.edgeHeight = 20;
+  let ddHelper = new DragDropSurveyElements(null);
+  const testElement = document.body.appendChild(document.createElement("div"));
   (<any>testElement).getBoundingClientRect = () => ({
     y: 100,
     height: 100,
@@ -133,35 +158,27 @@ QUnit.test("calculateIsEdge", function(assert) {
   assert.equal(result, true);
 });
 
-QUnit.test("isItemValueBeingDragged for itemvalue and it descendants", function(
-  assert
-) {
-  let ddHelper: any = new DragDropHelper(null);
+QUnit.test("dropTargetDataAttributeName for choices", function(assert) {
+  let ddHelper: any = new DragDropChoices(null);
 
-  ddHelper.draggedSurveyElement = new ItemValue(null);
-  assert.equal(ddHelper.isItemValueBeingDragged(), true);
+  ddHelper.draggedElement = new ItemValue(null);
+  assert.equal(
+    ddHelper.dropTargetDataAttributeName,
+    "[data-sv-drop-target-item-value]"
+  );
 });
 
-QUnit.test(
-  "dropTargetDataAttributeName for itemvalue and it descendants",
-  function(assert) {
-    let ddHelper: any = new DragDropHelper(null);
+QUnit.test("dropTargetDataAttributeName for questions", function(assert) {
+  let ddHelper: any = new DragDropSurveyElements(null);
 
-    ddHelper.draggedSurveyElement = new ItemValue(null);
-    assert.equal(
-      ddHelper.dropTargetDataAttributeName,
-      "[data-svc-drop-target-item-value]"
-    );
+  ddHelper.draggedElement = new Question(null);
+  assert.equal(
+    ddHelper.dropTargetDataAttributeName,
+    "[data-sv-drop-target-survey-element]"
+  );
+});
 
-    ddHelper.draggedSurveyElement = new Question(null);
-    assert.equal(
-      ddHelper.dropTargetDataAttributeName,
-      "[data-svc-drop-target-element-name]"
-    );
-  }
-);
-
-QUnit.test("itemvalue: onBeforeDrop and onAfterDrop events", function(assert) {
+QUnit.test("choices: onBeforeDrop and onAfterDrop events", function(assert) {
   const survey = new SurveyModel({
     elements: [
       {
@@ -178,7 +195,7 @@ QUnit.test("itemvalue: onBeforeDrop and onAfterDrop events", function(assert) {
   let afterCount = 0;
   let draggedElementParent;
 
-  const ddHelper: any = new DragDropHelper(survey);
+  const ddHelper: any = new DragDropChoices(survey);
   ddHelper.onBeforeDrop.add((sender, options) => {
     beforeCount++;
   });
@@ -186,10 +203,14 @@ QUnit.test("itemvalue: onBeforeDrop and onAfterDrop events", function(assert) {
     afterCount++;
     draggedElementParent = options.draggedElement;
   });
-  ddHelper.itemValueParentQuestion = question;
-  ddHelper.draggedSurveyElement = question.choices[2];
+  ddHelper.parentElement = question;
+  ddHelper.draggedElement = question.choices[2];
 
-  ddHelper["doDropItemValue"]();
+  ddHelper["draggedElementShortcut"] = document.body.appendChild(
+    document.createElement("div")
+  );
+  ddHelper["allowDropHere"] = true;
+  ddHelper["drop"]();
   assert.equal(beforeCount, 1);
   assert.equal(afterCount, 1);
   assert.equal(draggedElementParent.name, "q");
@@ -215,7 +236,7 @@ QUnit.test("surveyelement: onBeforeDrop and onAfterDrop events", function(
   let afterCount = 0;
   let draggedElement;
 
-  const ddHelper: any = new DragDropHelper(survey);
+  const ddHelper: any = new DragDropSurveyElements(survey);
   ddHelper.onBeforeDrop.add((sender, options) => {
     beforeCount++;
   });
@@ -223,12 +244,61 @@ QUnit.test("surveyelement: onBeforeDrop and onAfterDrop events", function(
     afterCount++;
     draggedElement = options.draggedElement;
   });
-  ddHelper.pageOrPanel = survey.pages[0];
-  ddHelper.dropTargetSurveyElement = {};
-  ddHelper.draggedSurveyElement = question;
+  ddHelper.parentElement = survey.pages[0];
+  ddHelper.dropTarget = {};
+  ddHelper.draggedElement = question;
 
-  ddHelper["doDropSurveyElement"]();
+  ddHelper["draggedElementShortcut"] = document.body.appendChild(
+    document.createElement("div")
+  );
+  ddHelper["allowDropHere"] = true;
+  ddHelper["drop"]();
   assert.equal(beforeCount, 1);
   assert.equal(afterCount, 1);
   assert.equal(draggedElement.name, "q2");
+
+  ddHelper["draggedElementShortcut"] = document.body.appendChild(
+    document.createElement("div")
+  );
+  ddHelper["allowDropHere"] = false;
+  ddHelper["drop"]();
+  assert.equal(beforeCount, 1);
+  assert.equal(afterCount, 1);
+});
+
+QUnit.test("allowDropHere", function(assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "text",
+        name: "q1",
+      },
+      {
+        type: "text",
+        name: "q2",
+      },
+    ],
+  });
+  const question = survey.getQuestionByName("q2");
+  let beforeCount = 0;
+  let afterCount = 0;
+
+  const ddHelper: any = new DragDropSurveyElements(survey);
+  ddHelper.onBeforeDrop.add((sender, options) => {
+    beforeCount++;
+  });
+  ddHelper.onAfterDrop.add((sender, options) => {
+    afterCount++;
+  });
+  ddHelper.parentElement = survey.pages[0];
+  ddHelper.dropTarget = {};
+  ddHelper.draggedElement = question;
+
+  ddHelper["draggedElementShortcut"] = document.body.appendChild(
+    document.createElement("div")
+  );
+  ddHelper["allowDropHere"] = false;
+  ddHelper["drop"]();
+  assert.equal(beforeCount, 0);
+  assert.equal(afterCount, 0);
 });

@@ -1523,3 +1523,54 @@ QUnit.test(
       settings.lazyRowsRenderingStartRow = prevStartRowInLazyRendering;
     }
 });
+
+QUnit.test(
+  "row.isNeedRender for question invisible -> visible",
+  function(assert) {
+    var json = {
+      pages: [
+        {
+          name: "page1",
+          elements: [
+            {
+              type: "text",
+              name: "q1",
+            },
+            {
+              type: "text",
+              name: "q2",
+            },
+            {
+              type: "text",
+              name: "q3",
+              visibleIf: "{q1} == 'a'"
+            },
+          ],
+        }
+      ],
+    };
+
+    const prevLazyRowsRendering = settings.lazyRowsRendering;
+    const prevStartRowInLazyRendering = settings.lazyRowsRenderingStartRow;
+    settings.lazyRowsRenderingStartRow = 2;
+    try {
+      var survey = new SurveyModel(json);
+      survey.lazyRendering = true;
+      const page1: PageModel = survey.pages[0];
+      page1.setWasShown(false);
+      page1.onFirstRendering();
+      assert.equal(page1.rows.length, 3, "There are 3 rows");
+      assert.equal(page1.rows[0].isNeedRender, true, "isNeedRender rows[0]");
+      assert.equal(page1.rows[1].isNeedRender, true, "isNeedRender rows[1]");
+      assert.equal(page1.rows[2].isNeedRender, false, "isNeedRender rows[2]");
+
+      survey.data = { q1: "a" };
+
+      assert.equal(page1.rows[2].isNeedRender, true, "isNeedRender rows[2]");
+
+    } finally {
+      settings.lazyRowsRendering = prevLazyRowsRendering;
+      settings.lazyRowsRenderingStartRow = prevStartRowInLazyRendering;
+    }
+  }
+);

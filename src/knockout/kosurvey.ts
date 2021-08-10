@@ -110,8 +110,9 @@ export class Survey extends SurveyModel {
   public render(element: any = null) {
     this.updateKoCurrentPage();
     this.updateCustomWidgets(this.currentPage);
-    var self = this;
-    if (element && typeof element == "string") {
+    this.updateElementCss(false);
+    const self = this;
+    if (element && typeof element === "string") {
       element = document.getElementById(element);
     }
     if (element) {

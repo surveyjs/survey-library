@@ -11,7 +11,8 @@ export class DragDropSurveyElements extends DragDropCore {
   public static ghostSurveyElementName =
     "sv-drag-drop-ghost-survey-element-name"; // before renaming use globa search (we have also css selectors)
 
-  protected isEdge: boolean = null;
+  protected isEdge: boolean = false;
+  protected prevIsEdge: any = null;
   protected ghostSurveyElement: IElement = null;
 
   protected get draggedElementType(): string {
@@ -52,6 +53,8 @@ export class DragDropSurveyElements extends DragDropCore {
     dropTargetNode: HTMLElement,
     event: PointerEvent
   ) {
+    this.isEdge = this.calculateIsEdge(dropTargetNode, event.clientY);
+
     // if (!dataAttributeValue) {
     //   const nearestDropTargetElement = dropTargetNode.parentElement.closest<
     //     HTMLElement
@@ -66,7 +69,7 @@ export class DragDropSurveyElements extends DragDropCore {
     // }
 
     if (dataAttributeValue === DragDropSurveyElements.ghostSurveyElementName) {
-      return this.ghostSurveyElement;
+      return this.prevDropTarget;
     }
 
     // drop to new page
@@ -77,6 +80,13 @@ export class DragDropSurveyElements extends DragDropCore {
     // drop to page
     let page = this.survey.getPageByName(dataAttributeValue);
     if (page) {
+      if (
+        // TODO we can't drop on not empty page directly for now
+        page.elements.length !== 0
+      ) {
+        const elements = page.elements;
+        page = this.isBottom ? elements[elements.length - 1] : elements[0];
+      }
       return page;
     }
 
@@ -118,20 +128,7 @@ export class DragDropSurveyElements extends DragDropCore {
   }
 
   protected isDropTargetValid(dropTarget: any, isBottom: boolean) {
-    // const isEdge = this.calculateIsEdge();
-    const isEdge = true;
-
-    if (dropTarget === this.ghostSurveyElement) return false;
-
-    if (
-      // TODO we can't drop on not empty page directly for now
-      dropTarget &&
-      dropTarget.getType() === "page" &&
-      dropTarget.elements.length !== 0
-    ) {
-      const elements = dropTarget.elements;
-      dropTarget = isBottom ? elements[elements.length - 1] : elements[0];
-    }
+    if (!dropTarget) return false;
 
     if (
       DragDropSurveyElements.restrictDragQuestionBetweenPages &&
@@ -140,18 +137,14 @@ export class DragDropSurveyElements extends DragDropCore {
       return false;
     }
 
-    if (
-      DragDropSurveyElements.restrictDragQuestionBetweenPages &&
-      dropTarget["page"] !== (<any>this.draggedElement)["page"]
-    ) {
-      return false;
-    }
-
-    if (this.isEdge === isEdge) return false;
-
-    this.isEdge = isEdge;
-
     return true;
+  }
+
+  protected isDropTargetDoesntChanged(newIsBottom: boolean) {
+    return (
+      this.dropTarget === this.prevDropTarget && newIsBottom === this.isBottom
+      /*&&this.isEdge === this.prevIsEdge*/
+    );
   }
 
   private shouldRestricDragQuestionBetweenPages(dropTarget: any): boolean {
@@ -167,13 +160,13 @@ export class DragDropSurveyElements extends DragDropCore {
     surveyElement: IElement,
     event: PointerEvent
   ) {
-    let isEdge = this.calculateIsEdge(HTMLElement, event.clientY);
+    let isEdge = this.isEdge;
     let dropTarget = surveyElement;
 
     if (!isEdge) {
       HTMLElement = this.findDeepestDropTargetChild(HTMLElement);
 
-      // dropTarget = this.getDropTargetByNode(HTMLElement);
+      dropTarget = this.getDropTargetByNode(HTMLElement, event);
     }
 
     return { dropTarget, isEdge };
@@ -196,7 +189,8 @@ export class DragDropSurveyElements extends DragDropCore {
     return Math.abs(clientY - middle) >= DragDropSurveyElements.edgeHeight;
   }
 
-  protected doDrag() {
+  protected doDragOver() {
+    this.prevIsEdge = this.isEdge;
     this.insertGhostElementIntoSurvey();
   }
 

@@ -19,7 +19,7 @@ export abstract class DragDropCore extends Base {
     return this.surveyValue || this.creator.survey;
   }
 
-  private prevDropTarget: any = null;
+  protected prevDropTarget: any = null;
   private draggedElementShortcut: HTMLElement = null;
   private scrollIntervalId: ReturnType<typeof setTimeout> = null;
   private allowDropHere = false;
@@ -75,13 +75,12 @@ export abstract class DragDropCore extends Base {
       return;
     }
 
-    if (this.dropTarget === this.prevDropTarget && isBottom === this.isBottom)
-      return;
-
     this.allowDropHere = true;
+    if (this.isDropTargetDoesntChanged(isBottom)) return;
+
     this.isBottom = null; //TODO need for property change trigger with guarantee but it would be better not to watch on isBottom property but reate some event like onValidTargetDragOver
     this.isBottom = isBottom;
-    this.doDrag();
+    this.doDragOver();
     this.prevDropTarget = this.dropTarget;
   };
 
@@ -101,6 +100,12 @@ export abstract class DragDropCore extends Base {
     return "top";
   }
 
+  protected isDropTargetDoesntChanged(newIsBottom: boolean) {
+    return (
+      this.dropTarget === this.prevDropTarget && newIsBottom === this.isBottom
+    );
+  }
+
   protected doStartDrag() {}
   protected abstract getShortcutText(draggedElement: any): string;
 
@@ -112,7 +117,7 @@ export abstract class DragDropCore extends Base {
     return draggedElementShortcut;
   }
 
-  protected doDrag(): void {}
+  protected doDragOver(): void {}
 
   protected abstract isDropTargetValid(
     dropTarget: any,
@@ -187,33 +192,33 @@ export abstract class DragDropCore extends Base {
     const startScrollBoundary = 50;
 
     // need to import getScrollableParent method
-    // let scrollableParentElement = getScrollableParent(dropZoneElement)
+    // let scrollableParentNode = getScrollableParent(dropTragetNode)
     //   .parentNode;
-    let scrollableParentElement =
+    let scrollableParentNode =
       document.querySelector(".svc-tab-designer.sd-root-modern") ||
       document.querySelector(".sv-root-modern") ||
       document.querySelector(".sv_container");
 
-    let top = scrollableParentElement.getBoundingClientRect().top;
-    let bottom = scrollableParentElement.getBoundingClientRect().bottom;
-    let left = scrollableParentElement.getBoundingClientRect().left;
-    let right = scrollableParentElement.getBoundingClientRect().right;
+    let top = scrollableParentNode.getBoundingClientRect().top;
+    let bottom = scrollableParentNode.getBoundingClientRect().bottom;
+    let left = scrollableParentNode.getBoundingClientRect().left;
+    let right = scrollableParentNode.getBoundingClientRect().right;
 
     if (clientY - top <= startScrollBoundary) {
       this.scrollIntervalId = setInterval(() => {
-        scrollableParentElement.scrollTop -= 5;
+        scrollableParentNode.scrollTop -= 5;
       }, 10);
     } else if (bottom - clientY <= startScrollBoundary) {
       this.scrollIntervalId = setInterval(() => {
-        scrollableParentElement.scrollTop += 5;
+        scrollableParentNode.scrollTop += 5;
       }, 10);
     } else if (right - clientX <= startScrollBoundary) {
       this.scrollIntervalId = setInterval(() => {
-        scrollableParentElement.scrollLeft += 5;
+        scrollableParentNode.scrollLeft += 5;
       }, 10);
     } else if (clientX - left <= startScrollBoundary) {
       this.scrollIntervalId = setInterval(() => {
-        scrollableParentElement.scrollLeft -= 5;
+        scrollableParentNode.scrollLeft -= 5;
       }, 10);
     }
   }

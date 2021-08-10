@@ -7475,6 +7475,54 @@ QUnit.test("Compete trigger with invisible question, #2, Bug #2098", function(
   survey.nextPage();
   assert.equal(survey.state, "completed", "Survey is completed");
 });
+QUnit.test("Compete trigger and allowComplete false, Bug #3184", function(
+  assert
+) {
+  var json = {
+    pages: [
+      {
+        elements: [
+          {
+            type: "text",
+            name: "age",
+            inputType: "number",
+          },
+        ],
+      },
+      {
+        elements: [
+          {
+            type: "text",
+            name: "question1",
+          },
+        ],
+      },
+      {
+        elements: [
+          {
+            type: "text",
+            name: "question2",
+          },
+        ],
+      },
+    ],
+    triggers: [
+      {
+        type: "complete",
+        expression: "{age}<18",
+      },
+    ],
+  };
+  var survey = new SurveyModel(json);
+  survey.onCompleting.add((sender, options) => {
+    options.allowComplete = false;
+  });
+  survey.getQuestionByName("age").value = 10;
+  assert.equal(survey.currentPageNo, 0);
+  survey.nextPage();
+  assert.equal(survey.state, "running", "Survey is not completed");
+  assert.equal(survey.currentPageNo, 0, "stay on the same page");
+});
 
 QUnit.test("textUpdateMode=onTyping and goNextPageAutomatic option", function(
   assert

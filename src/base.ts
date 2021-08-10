@@ -563,9 +563,13 @@ export class Base {
   protected createLocalizableString(
     name: string,
     owner: ILocalizableOwner,
-    useMarkDown: boolean = false
+    useMarkDown: boolean = false,
+    hasDefaultValue: boolean = false
   ): LocalizableString {
     var locStr = new LocalizableString(owner, useMarkDown, name);
+    if (hasDefaultValue) {
+      locStr.localizationName = name;
+    }
     locStr.onStrChanged = (oldValue: string, newValue: string) => {
       this.propertyValueChanged(name, oldValue, newValue);
     };

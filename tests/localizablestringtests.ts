@@ -453,6 +453,28 @@ QUnit.test("text property should not be changed by onGetTextCallback", function(
   assert.equal(locString.renderedHtml, "*A*", "event is working");
   assert.equal(locString.text, "A", "the value is still 'A'");
 });
+QUnit.test(
+  "Can get value from localization if default value is empty",
+  function(assert) {
+    var owner = new LocalizableOwnerTester("");
+    var locString = new LocalizableString(owner, true);
+    locString.localizationName = "completeText";
+    assert.equal(
+      locString.renderedHtml,
+      "Complete",
+      "get value from localizationName, renderedHtml"
+    );
+    assert.equal(
+      locString.text,
+      "Complete",
+      "get value from localizationName, text"
+    );
+    locString.text = "A";
+    assert.equal(locString.renderedHtml, "A", "rendred html");
+    assert.equal(locString.text, "A", "text");
+  }
+);
+
 QUnit.test("Search text", function(assert) {
   var owner = new LocalizableOwnerTester("");
   var locString = new LocalizableString(owner, true);

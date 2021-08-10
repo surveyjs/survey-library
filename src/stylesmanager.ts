@@ -143,7 +143,7 @@ export class StylesManager {
     //progress buttons
     ".sv_progress-buttons__container-center": "text-align: center;",
     ".sv_progress-buttons__container":
-      "display: inline-block; font-size:0; width: 100%; max-width: 1100px; white-space: nowrap; overflow: hidden;",
+      "display: inline-block; font-size: 0; width: 100%; max-width: 1100px; white-space: nowrap; overflow: hidden;",
     ".sv_progress-buttons__image-button-left":
       "display: inline-block; vertical-align: top; margin-top: 22px; font-size: 14px; width: 16px; height: 16px; cursor: pointer; background-image: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4NCjwhLS0gR2VuZXJhdG9yOiBBZG9iZSBJbGx1c3RyYXRvciAyMi4wLjEsIFNWRyBFeHBvcnQgUGx1Zy1JbiAuIFNWRyBWZXJzaW9uOiA2LjAwIEJ1aWxkIDApICAtLT4NCjxzdmcgdmVyc2lvbj0iMS4xIiBpZD0iTGF5ZXJfMSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWxuczp4bGluaz0iaHR0cDovL3d3dy53My5vcmcvMTk5OS94bGluayIgeD0iMHB4IiB5PSIwcHgiDQoJIHZpZXdCb3g9IjAgMCAxNiAxNiIgc3R5bGU9ImVuYWJsZS1iYWNrZ3JvdW5kOm5ldyAwIDAgMTYgMTY7IiB4bWw6c3BhY2U9InByZXNlcnZlIj4NCjxwb2x5Z29uIHBvaW50cz0iMTEsMTIgOSwxNCAzLDggOSwyIDExLDQgNyw4ICIvPg0KPC9zdmc+DQo=);",
     ".sv_progress-buttons__image-button-right":
@@ -156,22 +156,14 @@ export class StylesManager {
     ".sv_progress-buttons__list li":
       "width: 138px; font-size: 14px; font-family: 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif; position: relative; text-align: center; vertical-align: top; display: inline-block;",
     ".sv_progress-buttons__list li:before":
-      "width: 24px; height: 24px; content: ''; line-height: 30px; border: 3px solid #8dd9ca; display: block; margin: 0 auto 10px auto; border-radius: 50%; box-sizing: content-box; background-color: #8dd9ca; cursor: pointer;",
+      "width: 24px; height: 24px; content: ''; line-height: 30px; display: block; margin: 0 auto 10px auto; border: 3px solid; border-radius: 50%; box-sizing: content-box; cursor: pointer;",
     ".sv_progress-buttons__list li:after":
-      "width: 73%; height: 3px; content: ''; position: absolute; background-color: #d4d4d4; top: 15px; left: -36.5%;",
+      "width: 73%; height: 3px; content: ''; position: absolute; top: 15px; left: -36.5%;",
     ".sv_progress-buttons__list li:first-child:after": "content: none;",
     ".sv_progress-buttons__list .sv_progress-buttons__page-title":
-      "width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: $text-color; font-weight: bold;",
+      "width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: bold;",
     ".sv_progress-buttons__list .sv_progress-buttons__page-description":
-      "width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: $text-color;",
-    ".sv_progress-buttons__list li.sv_progress-buttons__list-element--passed:before":
-      "border-color: #1ab394; background-color: #1ab394;",
-    ".sv_progress-buttons__list li.sv_progress-buttons__list-element--passed + li:after":
-      "background-color: #8dd9ca;",
-    ".sv_progress-buttons__list li.sv_progress-buttons__list-element--current:before":
-      "border-color: #1ab394; background-color: white;",
-    ".sv_progress-buttons__list li.sv_progress-buttons__list-element--passed.sv_progress-buttons__list-element--current:before":
-      "border-color: #1ab394; background-color: white;",
+      "width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;",
     ".sv_progress-buttons__list li.sv_progress-buttons__list-element--nonclickable:before":
       "cursor: not-allowed;",
 
@@ -543,6 +535,9 @@ export class StylesManager {
       "$foreground-light": "#909090",
       "$foreground-disabled": "#161616",
       "$background-dim": "#f3f3f3",
+
+      "$progress-buttons-color": "#8dd9ca",
+      "$progress-buttons-line-color": "#d4d4d4"
     },
     orange: {
       "$header-background-color": "#4a4a4a",
@@ -569,6 +564,9 @@ export class StylesManager {
       "$foreground-light": "#909090",
       "$foreground-disabled": "#161616",
       "$background-dim": "#f3f3f3",
+
+      "$progress-buttons-color": "#f7b781",
+      "$progress-buttons-line-color": "#d4d4d4"
     },
     darkblue: {
       "$header-background-color": "#d9d8dd",
@@ -595,6 +593,9 @@ export class StylesManager {
       "$foreground-light": "#909090",
       "$foreground-disabled": "#161616",
       "$background-dim": "#f3f3f3",
+
+      "$progress-buttons-color": "#839ec9",
+      "$progress-buttons-line-color": "#d4d4d4"
     },
     darkrose: {
       "$header-background-color": "#ddd2ce",
@@ -621,6 +622,9 @@ export class StylesManager {
       "$foreground-light": "#909090",
       "$foreground-disabled": "#161616",
       "$background-dim": "#f3f3f3",
+      
+      "$progress-buttons-color": "#c6bed4",
+      "$progress-buttons-line-color": "#d4d4d4"
     },
     stone: {
       "$header-background-color": "#cdccd2",
@@ -647,6 +651,9 @@ export class StylesManager {
       "$foreground-light": "#909090",
       "$foreground-disabled": "#161616",
       "$background-dim": "#f3f3f3",
+
+      "$progress-buttons-color": "#747491",
+      "$progress-buttons-line-color": "#d4d4d4"
     },
     winter: {
       "$header-background-color": "#82b8da",
@@ -673,6 +680,9 @@ export class StylesManager {
       "$foreground-light": "#909090",
       "$foreground-disabled": "#161616",
       "$background-dim": "#f3f3f3",
+      
+      "$progress-buttons-color": "#d1c9f5",
+      "$progress-buttons-line-color": "#d4d4d4"
     },
     winterstone: {
       "$header-background-color": "#323232",
@@ -699,6 +709,9 @@ export class StylesManager {
       "$foreground-light": "#909090",
       "$foreground-disabled": "#161616",
       "$background-dim": "#f3f3f3",
+      
+      "$progress-buttons-color": "#acdcf2",
+      "$progress-buttons-line-color": "#d4d4d4"
     },
     modern: {
       "$main-color": "#1ab394",
@@ -716,6 +729,9 @@ export class StylesManager {
       "$button-text-color": "#fff",
       "$checkmark-color": "#fff",
       "$matrix-text-checked-color": "#fff",
+
+      "$progress-buttons-color": "#8dd9ca",
+      "$progress-buttons-line-color": "#d4d4d4",
 
       "$text-input-color": "#404040",
       "$inputs-background-color": "transparent",
@@ -749,6 +765,9 @@ export class StylesManager {
       "$foreground-light": "#909090",
       "$foreground-disabled": "#161616",
       "$background-dim": "#f3f3f3",
+      
+      "$progress-buttons-color": "#8dd6c7",
+      "$progress-buttons-line-color": "#d4d4d4",
     },
     bootstrapmaterial: {
       "$main-color": "#18a689",
@@ -766,6 +785,9 @@ export class StylesManager {
       "$foreground-light": "#909090",
       "$foreground-disabled": "#161616",
       "$background-dim": "#f3f3f3",
+      
+      "$progress-buttons-color": "#8dd6c7",
+      "$progress-buttons-line-color": "#d4d4d4",
     },
   };
 
@@ -787,6 +809,20 @@ export class StylesManager {
       "background-color: $body-background-color; border-color: $main-color;",
     ".sv_default_css .sv_progress": "background-color: $border-color;",
     ".sv_default_css .sv_progress_bar": "background-color: $main-color;",
+
+    ".sv_default_css .sv_progress-buttons__list li:before":
+      "border-color: $progress-buttons-color; background-color: $progress-buttons-color;",
+    ".sv_default_css .sv_progress-buttons__list li:after": "background-color: $progress-buttons-line-color;",
+    ".sv_default_css .sv_progress-buttons__list .sv_progress-buttons__page-title": " color: $text-color;",
+    ".sv_default_css .sv_progress-buttons__list .sv_progress-buttons__page-description": " color: $text-color;",
+    ".sv_default_css .sv_progress-buttons__list li.sv_progress-buttons__list-element--passed:before":
+      "border-color: $main-color; background-color: $main-color;",
+    ".sv_default_css .sv_progress-buttons__list li.sv_progress-buttons__list-element--passed + li:after":
+      "background-color: $progress-buttons-color",
+    ".sv_default_css .sv_progress-buttons__list li.sv_progress-buttons__list-element--current:before":
+      "border-color: $main-color; background-color: white;",
+    ".sv_default_css .sv_progress-buttons__list li.sv_progress-buttons__list-element--passed.sv_progress-buttons__list-element--current:before":
+      "border-color: $main-color; background-color: white;",
 
     ".sv_default_css .sv_p_root > .sv_row": "border-color: $border-color;",
     ".sv_default_css .sv_p_root > .sv_row:nth-child(odd)":
@@ -977,10 +1013,23 @@ export class StylesManager {
       "fill: $text-color;",
     ".sv-paneldynamic__prev-btn--disabled, .sv-paneldynamic__next-btn--disabled":
       "fill: $disable-color;",
-    ".sv-paneldynamic__progress-text": "color: $progress-text-color;",
+    ".sv-paneldynamic__progress-text": "color: $progress-text-color;",    
     ".sv-progress": "background-color: $header-background-color;",
     ".sv-progress__bar": "background-color: $main-color;",
     ".sv-progress__text": "color: $progress-text-color;",
+    ".sv_progress-buttons__list li:before":
+      "border-color: $progress-buttons-color; background-color: $progress-buttons-color;",
+    ".sv_progress-buttons__list li:after": "background-color: $progress-buttons-line-color;",
+    ".sv_progress-buttons__list .sv_progress-buttons__page-title": " color: $text-color;",
+    ".sv_progress-buttons__list .sv_progress-buttons__page-description": " color: $text-color;",
+    ".sv_progress-buttons__list li.sv_progress-buttons__list-element--passed:before":
+      "border-color: $main-color; background-color: $main-color;",
+    ".sv_progress-buttons__list li.sv_progress-buttons__list-element--passed + li:after":
+      "background-color: $progress-buttons-color",
+    ".sv_progress-buttons__list li.sv_progress-buttons__list-element--current:before":
+      "border-color: $main-color; background-color: white;",
+    ".sv_progress-buttons__list li.sv_progress-buttons__list-element--passed.sv_progress-buttons__list-element--current:before":
+      "border-color: $main-color; background-color: white;",
     ".sv-question__erbox": "color: $error-color;",
     ".sv-question__title--answer":
       "background-color: $answer-background-color;",
@@ -1050,6 +1099,21 @@ export class StylesManager {
     ".sv_main .sv-progress": "background-color: $header-background-color;",
     ".sv_main .sv-progress__bar": "background-color: $main-color;",
 
+    //progress buttons
+    ".sv_main .sv_progress-buttons__list li:before":
+      "border-color: $progress-buttons-color; background-color: $progress-buttons-color;",
+    ".sv_main .sv_progress-buttons__list li:after": "background-color: $progress-buttons-line-color;",
+    ".sv_main .sv_progress-buttons__list .sv_progress-buttons__page-title": " color: $text-color;",
+    ".sv_main .sv_progress-buttons__list .sv_progress-buttons__page-description": " color: $text-color;",
+    ".sv_main .sv_progress-buttons__list li.sv_progress-buttons__list-element--passed:before":
+      "border-color: $main-color; background-color: $main-color;",
+    ".sv_main .sv_progress-buttons__list li.sv_progress-buttons__list-element--passed + li:after":
+      "background-color: $progress-buttons-color",
+    ".sv_main .sv_progress-buttons__list li.sv_progress-buttons__list-element--current:before":
+      "border-color: $main-color; background-color: white;",
+    ".sv_main .sv_progress-buttons__list li.sv_progress-buttons__list-element--passed.sv_progress-buttons__list-element--current:before":
+      "border-color: $main-color; background-color: white;",
+    
     //paneldynamic
     ".sv_main .sv-paneldynamic__prev-btn.sv-paneldynamic__prev-btn--disabled, .sv_main .sv-paneldynamic__next-btn.sv-paneldynamic__next-btn--disabled":
       "fill: $disable-color;",
@@ -1138,6 +1202,21 @@ export class StylesManager {
     ".sv_main .sv-progress": "background-color: $header-background-color;",
     ".sv_main .sv-progress__bar": "background-color: $main-color;",
 
+    //progress buttons
+    ".sv_main.sv_bootstrapmaterial_css .sv_progress-buttons__list li:before":
+      "border-color: $progress-buttons-color; background-color: $progress-buttons-color;",
+    ".sv_main.sv_bootstrapmaterial_css .sv_progress-buttons__list li:after": "background-color: $progress-buttons-line-color;",
+    ".sv_main.sv_bootstrapmaterial_css .sv_progress-buttons__list .sv_progress-buttons__page-title": " color: $text-color;",
+    ".sv_main.sv_bootstrapmaterial_css .sv_progress-buttons__list .sv_progress-buttons__page-description": " color: $text-color;",
+    ".sv_main.sv_bootstrapmaterial_css .sv_progress-buttons__list li.sv_progress-buttons__list-element--passed:before":
+      "border-color: $main-color; background-color: $main-color;",
+    ".sv_main.sv_bootstrapmaterial_css .sv_progress-buttons__list li.sv_progress-buttons__list-element--passed + li:after":
+      "background-color: $progress-buttons-color",
+    ".sv_main.sv_bootstrapmaterial_css .sv_progress-buttons__list li.sv_progress-buttons__list-element--current:before":
+      "border-color: $main-color; background-color: white;",
+    ".sv_main.sv_bootstrapmaterial_css .sv_progress-buttons__list li.sv_progress-buttons__list-element--passed.sv_progress-buttons__list-element--current:before":
+      "border-color: $main-color; background-color: white;",
+
     //paneldynamic
     ".sv_main .sv-paneldynamic__prev-btn.sv-paneldynamic__prev-btn--disabled, .sv_main .sv-paneldynamic__next-btn.sv-paneldynamic__next-btn--disabled":
       "fill: $disable-color;",
@@ -1217,8 +1296,7 @@ export class StylesManager {
       let sheet = StylesManager.findSheet(themeName + themeSelector);
       if (!sheet) {
         sheet = StylesManager.createSheet(themeName + themeSelector);
-        let theme =
-          StylesManager.ThemeColors[themeName] ||
+        const theme = StylesManager.ThemeColors[themeName] ||
           StylesManager.ThemeColors["default"];
 
         Object.keys(ThemeCss).forEach((selector) => {

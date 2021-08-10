@@ -1820,6 +1820,8 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
       actions.push(
         new Action({
           id: "show-detail",
+          title: surveyLocalization.getString("editText"),
+          showTitle: false,
           location: "start",
           component: "sv-matrix-detail-button",
           data: { row: row, question: this.matrix },

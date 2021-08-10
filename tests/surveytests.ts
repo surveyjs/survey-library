@@ -13572,3 +13572,34 @@ QUnit.test("Test survey renderedHasTitle/renderedHasLogo properties", function(
     "get notification from trigger"
   );
 });
+QUnit.test("other and survey.clear", function(assert) {
+  const survey = new SurveyModel({
+    questions: [
+      {
+        type: "dropdown",
+        name: "q1",
+        hasOther: true,
+        choices: ["item1", "item2", "item3"],
+      },
+      {
+        type: "checkbox",
+        name: "q2",
+        hasOther: true,
+        choices: ["item1", "item2", "item3"],
+      },
+    ],
+  });
+  const q1 = survey.getQuestionByName("q1");
+  const q2 = survey.getQuestionByName("q2");
+  q1.value = "other";
+  q1.comment = "q1-comment";
+  q2.value = ["item1", "other"];
+  q2.comment = "q2-comment";
+  survey.clear();
+  assert.notOk(q1.comment, "after clear - dropdown");
+  assert.notOk(q2.comment, "after clear - checkbox");
+  q1.value = "other";
+  q2.value = ["other"];
+  assert.notOk(q1.comment, "after set other - dropdown");
+  assert.notOk(q2.comment, "after set other - checkbox");
+});

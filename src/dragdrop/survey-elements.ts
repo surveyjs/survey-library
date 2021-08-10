@@ -157,15 +157,13 @@ export class DragDropSurveyElements extends DragDropCore {
 
   private getPanelDragInfo(
     HTMLElement: HTMLElement,
-    surveyElement: IElement,
+    dropTarget: any,
     event: PointerEvent
   ) {
     let isEdge = this.isEdge;
-    let dropTarget = surveyElement;
 
-    if (!isEdge) {
+    if (!isEdge && dropTarget.questions.length !== 0) {
       HTMLElement = this.findDeepestDropTargetChild(HTMLElement);
-
       dropTarget = this.getDropTargetByNode(HTMLElement, event);
     }
 

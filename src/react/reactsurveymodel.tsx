@@ -1,6 +1,5 @@
-import { SurveyModel, MatrixDropdownCell, QuestionMatrixDropdownRenderedCell, SurveyWindowModel, Question, SurveyElement, QuestionRowModel, ItemValue, QuestionSelectBase } from "survey-core";
+import { SurveyModel, QuestionMatrixDropdownRenderedCell, SurveyWindowModel, SurveyElement, QuestionRowModel, ItemValue, QuestionSelectBase } from "survey-core";
 import { ReactElementFactory } from "./element-factory";
-import { SurveyElementBase } from "./reactquestion_element";
 
 export class ReactSurveyModel extends SurveyModel {
   renderCallback: () => void;

@@ -5524,20 +5524,20 @@ QUnit.test("onUpdatePageCssClasses is raised", function(assert) {
 });
 
 QUnit.test("Survey Elements css", function(assert) {
-  var css = surveyCss.getCss();
+  const css = surveyCss.getCss();
   css.question.titleRequired = "required";
-  var survey = new SurveyModel();
+  const survey = new SurveyModel();
   survey.onUpdateQuestionCssClasses.add(function(survey, options) {
-    if (options.question.name == "q2")
+    if (options.question.name === "q2")
       options.cssClasses["newItem"] = "hereIam";
   });
-  var page = survey.addNewPage("page1");
-  var textQuestion = <QuestionTextModel>page.addNewQuestion("text", "q1");
-  var checkQuestion = <QuestionCheckboxModel>(
+  const page = survey.addNewPage("page1");
+  const textQuestion = <QuestionTextModel>page.addNewQuestion("text", "q1");
+  const checkQuestion = <QuestionCheckboxModel>(
     page.addNewQuestion("checkbox", "q2")
   );
-  var textCss = textQuestion.cssClasses;
-  var checkCss = checkQuestion.cssClasses;
+  let textCss = textQuestion.cssClasses;
+  const checkCss = checkQuestion.cssClasses;
   assert.equal(textCss.root, "sv_q_text_root", "text question root class");
   assert.equal(textCss.title, "sv_q_title", "text question title class");
   assert.equal(

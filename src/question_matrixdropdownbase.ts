@@ -1524,6 +1524,7 @@ export class QuestionMatrixDropdownRenderedRow extends Base {
     return this.idValue;
   }
   public get attributes() {
+    if (!this.row) return {};
     return { "data-sv-drop-target-matrix-row": this.row.id };
   }
   public get ghostPositionCssClass() {

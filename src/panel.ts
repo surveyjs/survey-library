@@ -1033,6 +1033,9 @@ export class PanelModelBase extends SurveyElement
       var row = rows[i];
       if (row.elements.indexOf(element) > -1) {
         row.updateVisible();
+        if(row.visible && !row.isNeedRender) {
+          row.isNeedRender = true;
+        }
         break;
       }
     }

@@ -12,6 +12,6 @@ ko.components.register("sv-action", {
         return item;
       },
     },
-    template: template,
+    template: template
   });
   

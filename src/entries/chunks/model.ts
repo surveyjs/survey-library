@@ -135,6 +135,7 @@ export {
   QuestionPanelDynamicItem
 } from "../../question_paneldynamic";
 export { SurveyTimer } from "../../surveytimer";
+export { SurveyProgressModel } from "../../surveyProgress";
 export { SurveyProgressButtonsModel } from "../../surveyProgressButtons";
 export { SurveyModel } from "../../survey";
 export {

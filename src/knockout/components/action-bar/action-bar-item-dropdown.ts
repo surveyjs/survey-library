@@ -6,7 +6,7 @@ export var ActionBarItemDropdownViewModel: any;
 
 ko.components.register("sv-action-bar-item-dropdown", {
   viewModel: {
-    createViewModel: (params: any, componentInfo: any) => params.item,
+    createViewModel: (params: any, componentInfo: any) => params.item
   },
   template: template,
 });

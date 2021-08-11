@@ -804,6 +804,12 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
       .append(this.cssClasses.emptyRowsButton, isEmptySection)
       .toString();
   }
+  public getRemoveRowButtonCss(): string {
+      return new CssClassBuilder()
+        .append(this.cssClasses.button)
+        .append(this.cssClasses.buttonRemove)
+        .toString()
+  }
 }
 
 class QuestionMatrixDynamicRenderedTable extends QuestionMatrixDropdownRenderedTable {

@@ -20,7 +20,6 @@ import { LocalizableString } from "./localizablestring";
 import { Action, IAction } from "./actions/action";
 import { DragDropMatrixRows } from "./dragdrop/matrix-rows";
 import { ISurveyImpl } from "./base-interfaces";
-import { MatrixRowModel } from "survey-core";
 
 export class MatrixDynamicRowModel extends MatrixDropdownRowModelBase {
   constructor(public index: number, data: IMatrixDropdownData, value: any) {

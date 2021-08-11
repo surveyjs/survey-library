@@ -1,4 +1,4 @@
-import { QuestionMatrixModel } from "src/question_matrix";
+import { QuestionMatrixModel, MatrixRowModel } from "../question_matrix";
 import { DragDropCore } from "./core";
 
 export class DragDropMatrixRows extends DragDropCore {
@@ -16,7 +16,9 @@ export class DragDropMatrixRows extends DragDropCore {
     );
   }
 
-  protected getDropTargetByDataAttributeValue(dataAttributeValue: any) {
+  protected getDropTargetByDataAttributeValue(
+    dataAttributeValue: any
+  ): MatrixRowModel {
     const matrix = <QuestionMatrixModel>this.parentElement;
     let dropTargetRow;
 

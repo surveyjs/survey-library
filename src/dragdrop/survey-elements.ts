@@ -1,6 +1,6 @@
-import { IElement } from "src/base-interfaces";
-import { JsonObject, Serializer } from "src/jsonobject";
-import { PageModel } from "src/page";
+import { IElement } from "../base-interfaces";
+import { JsonObject, Serializer } from "../jsonobject";
+import { PageModel } from "../page";
 import { DragDropCore } from "./core";
 
 export class DragDropSurveyElements extends DragDropCore {

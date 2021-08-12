@@ -465,7 +465,7 @@ export class Base {
     if (!target) target = this;
     var notifier: any = this.getSurvey();
     if (!notifier) notifier = this;
-    if (!!notifier.doPropertyValueChangedCallback) {
+    if (!!notifier.onPropertyValueChangedCallback) {
       notifier.onPropertyValueChangedCallback(
         name,
         oldValue,

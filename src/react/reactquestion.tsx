@@ -289,6 +289,9 @@ export class SurveyQuestionAndErrorsCell extends ReactSurveyElement {
   protected getStateElement(): Base {
     return this.question;
   }
+  protected get itemCss(): string {
+    return this.props.itemCss;
+  }
   protected get question(): Question {
     return this.getQuestion();
   }
@@ -316,9 +319,6 @@ export class SurveyQuestionAndErrorsCell extends ReactSurveyElement {
     this.doAfterRender();
   }
   protected doAfterRender() {}
-  protected getCellClass(): any {
-    return null;
-  }
   protected canRender(): boolean {
     return !!this.question;
   }
@@ -343,13 +343,11 @@ export class SurveyQuestionAndErrorsCell extends ReactSurveyElement {
         {errorsBottom}
       </>
     );
-    const classes = new CssClassBuilder().append(this.getCellClass())
-      .append(this.cssClasses.cell).toString();
 
     return (
       <td
         ref={this.cellRef}
-        className={classes}
+        className={this.itemCss}
         title={this.getHeaderText()}
         style={style}
       >

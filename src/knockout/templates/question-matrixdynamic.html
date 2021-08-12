@@ -14,7 +14,7 @@
     </div>
     <!-- /ko -->
     <div
-      data-bind="visible: question.koTable().showTable, style: {overflowX: question.horizontalScroll? 'scroll': ''}"
+      data-bind="visible: question.koTable().showTable, style: { overflowX: question.horizontalScroll ? 'scroll': '' }"
     >
       <table data-bind="css: question.koCss().root">
         <!-- ko if: question.koTable().showHeader -->
@@ -40,11 +40,11 @@
         <tbody>
           <!-- ko foreach: question.koTable().rows -->
           <!-- ko ifnot: $parent.detailPanelMode === "popup" && $data.isDetailRow -->
-          <tr data-bind="css:$data.className">
+          <tr data-bind="css: $data.className">
             <!-- ko foreach: $data.cells -->
             <!-- ko if: $data.isActionsCell -->
-            <td data-bind="css:$data.className, attr: {colspan: $data.colSpans}">
-              <!-- ko component: { name: 'sv-action-bar', params: { model: $data.item.getData(), handleClick: false }} -->
+            <td data-bind="css: $data.className, attr: { colspan: $data.colSpans }">
+              <!-- ko component: { name: 'sv-action-bar', params: { model: $data.item.getData(), handleClick: false } } -->
               <!-- /ko -->
             </td>
             <!-- /ko -->
@@ -52,7 +52,7 @@
             <td data-bind="attr: { colspan: $data.colSpans }"></td>
             <!-- /ko -->
             <!-- ko if: $data.hasPanel -->
-            <td data-bind="css:$data.className, attr: {colspan: $data.colSpans}">
+            <td data-bind="css: $data.className, attr: { colspan: $data.colSpans }">
               <!-- ko template: { name: $data.panel.koElementType, data: $data.panel, afterRender: question.koPanelAfterRender } -->
               <!-- /ko -->
             </td>
@@ -124,7 +124,7 @@
 </script>
 <script type="text/html" id="survey-matrixcell">
   <td
-    data-bind="css: $data.className, style: {minWidth: $data.minWidth, width: $data.width}, attr: { title: headers }"
+    data-bind="css: $data.className, style: { minWidth: $data.minWidth, width: $data.width }, attr: { title: headers }"
   >
     <div data-bind="visible: question.isVisible">
       <!-- ko if: $data.showErrorOnTop -->

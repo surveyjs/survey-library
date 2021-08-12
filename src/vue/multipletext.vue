@@ -8,9 +8,7 @@
       <template v-for="item in row">
         <td
           :key="'label' + item.editor.id"
-          :class="
-            question.cssClasses.itemTitle + ' ' + question.cssClasses.cell
-          "
+          :class="question.getItemTitleCss(question.cssClasses)"
         >
           <span
             v-if="
@@ -27,7 +25,7 @@
             >{{ item.editor.requiredText }}</span
           >
         </td>
-        <td :key="item.editor.id" :css="question.cssClasses.cell">
+        <td :key="item.editor.id" :css="question.getItemCss(question.cssClasses)">
           <survey-errors
             v-if="hasErrorsOnTop"
             :element="item.editor"

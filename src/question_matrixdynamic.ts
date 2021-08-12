@@ -813,16 +813,16 @@ class QuestionMatrixDynamicRenderedTable extends QuestionMatrixDropdownRenderedT
     actions: Array<IAction>
   ) {
     super.setDefaultRowActions(row, actions);
-    if (this.matrix.allowRowsDragAndDrop) {
-      actions.push(
-        new Action({
-          id: "drag-row",
-          location: "start",
-          component: "sv-matrix-drag-drop-icon",
-          data: { row: row, question: this.matrix },
-        })
-      );
-    }
+    // if (this.matrix.allowRowsDragAndDrop) {
+    //   actions.push(
+    //     new Action({
+    //       id: "drag-row",
+    //       location: "start",
+    //       component: "sv-matrix-drag-drop-icon",
+    //       data: { row: row, question: this.matrix },
+    //     })
+    //   );
+    // }
   }
 }
 

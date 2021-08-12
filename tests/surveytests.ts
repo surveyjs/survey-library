@@ -5524,20 +5524,20 @@ QUnit.test("onUpdatePageCssClasses is raised", function(assert) {
 });
 
 QUnit.test("Survey Elements css", function(assert) {
-  var css = surveyCss.getCss();
+  const css = surveyCss.getCss();
   css.question.titleRequired = "required";
-  var survey = new SurveyModel();
+  const survey = new SurveyModel();
   survey.onUpdateQuestionCssClasses.add(function(survey, options) {
-    if (options.question.name == "q2")
+    if (options.question.name === "q2")
       options.cssClasses["newItem"] = "hereIam";
   });
-  var page = survey.addNewPage("page1");
-  var textQuestion = <QuestionTextModel>page.addNewQuestion("text", "q1");
-  var checkQuestion = <QuestionCheckboxModel>(
+  const page = survey.addNewPage("page1");
+  const textQuestion = <QuestionTextModel>page.addNewQuestion("text", "q1");
+  const checkQuestion = <QuestionCheckboxModel>(
     page.addNewQuestion("checkbox", "q2")
   );
-  var textCss = textQuestion.cssClasses;
-  var checkCss = checkQuestion.cssClasses;
+  let textCss = textQuestion.cssClasses;
+  const checkCss = checkQuestion.cssClasses;
   assert.equal(textCss.root, "sv_q_text_root", "text question root class");
   assert.equal(textCss.title, "sv_q_title", "text question title class");
   assert.equal(
@@ -7474,6 +7474,54 @@ QUnit.test("Compete trigger with invisible question, #2, Bug #2098", function(
   survey.getQuestionByName("status").value = "screenout";
   survey.nextPage();
   assert.equal(survey.state, "completed", "Survey is completed");
+});
+QUnit.test("Compete trigger and allowComplete false, Bug #3184", function(
+  assert
+) {
+  var json = {
+    pages: [
+      {
+        elements: [
+          {
+            type: "text",
+            name: "age",
+            inputType: "number",
+          },
+        ],
+      },
+      {
+        elements: [
+          {
+            type: "text",
+            name: "question1",
+          },
+        ],
+      },
+      {
+        elements: [
+          {
+            type: "text",
+            name: "question2",
+          },
+        ],
+      },
+    ],
+    triggers: [
+      {
+        type: "complete",
+        expression: "{age}<18",
+      },
+    ],
+  };
+  var survey = new SurveyModel(json);
+  survey.onCompleting.add((sender, options) => {
+    options.allowComplete = false;
+  });
+  survey.getQuestionByName("age").value = 10;
+  assert.equal(survey.currentPageNo, 0);
+  survey.nextPage();
+  assert.equal(survey.state, "running", "Survey is not completed");
+  assert.equal(survey.currentPageNo, 0, "stay on the same page");
 });
 
 QUnit.test("textUpdateMode=onTyping and goNextPageAutomatic option", function(

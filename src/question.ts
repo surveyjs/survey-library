@@ -552,7 +552,7 @@ export class Question extends SurveyElement
     return this.errors.slice();
   }
   public getErrorByType(errorType: string): SurveyError {
-    for (var i = 0; i < this.errors.length; i++) {
+    for (let i = 0; i < this.errors.length; i++) {
       if (this.errors[i].getErrorType() === errorType) return this.errors[i];
     }
     return null;
@@ -637,8 +637,8 @@ export class Question extends SurveyElement
     return this.cssClassesValue;
   }
   private calcCssClasses(): any {
-    var css = this.css;
-    var classes = { error: {} };
+    const css = this.css;
+    const classes = { error: {} };
     this.copyCssClasses(classes, css.question);
     this.copyCssClasses(classes.error, css.error);
     this.updateCssClasses(classes, css);
@@ -655,7 +655,7 @@ export class Question extends SurveyElement
     this.setPropertyValue("cssRoot", val);
   }
   protected getCssRoot(cssClasses: any): string {
-    var res =
+    let res =
       this.isFlowLayout && !this.isDesignMode
         ? cssClasses.flowRoot
         : cssClasses.mainRoot;
@@ -686,7 +686,7 @@ export class Question extends SurveyElement
     this.setPropertyValue("cssHeader", val);
   }
   protected getCssHeader(cssClasses: any): string {
-    var res = cssClasses.header || "";
+    let res = cssClasses.header || "";
     if (this.hasTitleOnTop && !!cssClasses.headerTop) {
       res += " " + cssClasses.headerTop;
     }
@@ -706,7 +706,7 @@ export class Question extends SurveyElement
     this.setPropertyValue("cssContent", val);
   }
   protected getCssContent(cssClasses: any): string {
-    var res = cssClasses.content || "";
+    let res = cssClasses.content || "";
     if (this.hasTitleOnLeft && !!cssClasses.contentLeft) {
       res += " " + cssClasses.contentLeft;
     }
@@ -720,7 +720,7 @@ export class Question extends SurveyElement
     this.setPropertyValue("cssTitle", val);
   }
   protected getCssTitle(cssClasses: any): string {
-    var result = cssClasses.title;
+    let result = cssClasses.title;
 
     if (this.isCollapsed || this.isExpanded) {
       result += " " + cssClasses.titleExpandable;
@@ -744,7 +744,7 @@ export class Question extends SurveyElement
   }
   //TODO was not removed from other places
   protected getCssError(cssClasses: any): string {
-    var res = cssClasses.error.root || "";
+    let res = cssClasses.error.root || "";
     if (this.errorLocation == "top") {
       if (!!cssClasses.error.locationTop) {
         res += " " + cssClasses.error.locationTop;

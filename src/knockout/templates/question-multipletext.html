@@ -1,10 +1,10 @@
 ﻿<script type="text/html" id="survey-question-multipletext">
   <table data-bind="css: question.koCss().root, foreach: { data:  question.koRows, as: 'row' }">
       <tr data-bind="foreach: { data: row, as: 'item' }, css: question.koCss().row">
-          <td data-bind="css: question.getItemTitleCss(question.koCss())">
+          <td data-bind="css: question.koItemTitleCss">
             <!-- ko template: { name: 'survey-question-title-content', data: item.editor, as: 'question' } --><!-- /ko -->
           </td>
-          <td data-bind="css: question.getItemCss(question.koCss())">
+          <td data-bind="css: question.koItemCss">
             <!-- ko if: item.editor.errorLocation === 'top' -->
             <div data-bind="css: question.koCss().error.locationTop">
                 <!-- ko template: { name: 'survey-question-errors', data: item.editor } -->

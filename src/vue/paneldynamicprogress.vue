@@ -34,7 +34,7 @@
       type="button"
       v-if="question.canAddPanel"
       :value="question.panelAddText"
-      :class="question.cssClasses.button + ' ' + question.cssClasses.buttonAdd"
+      :class="question.getAddButtonCss()"
       @click="addPanelClick"
     />
 

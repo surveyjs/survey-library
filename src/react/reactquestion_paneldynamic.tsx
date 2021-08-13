@@ -180,7 +180,7 @@ export class SurveyQuestionPanelDynamic extends SurveyQuestionElementBase {
     if (!this.question.canAddPanel) return null;
     return (
       <input
-        className={this.question.getAddRowButtonCss()}
+        className={this.question.getAddButtonCss()}
         type="button"
         onClick={this.handleOnPanelAddClick}
         value={this.question.panelAddText}

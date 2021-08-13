@@ -16,7 +16,7 @@
       </div>
         <hr data-bind="css: question.koCss().separator"/>
         <!-- /ko -->
-        <input type="button" data-bind="visible: question.koCanAddPanel, click: question.koAddPanelClick, css: question.koAddRowButtonCss, value: question.panelAddText"/>
+        <input type="button" data-bind="visible: question.koCanAddPanel, click: question.koAddPanelClick, css: question.koAddButtonCss, value: question.panelAddText"/>
         <!-- /ko -->
       <!-- ko ifnot: question.koIsList()  -->
         <div data-bind="visible:question.koIsProgressTop, css: question.koCss().progressTop">

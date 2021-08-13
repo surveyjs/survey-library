@@ -516,18 +516,13 @@ export class QuestionPanelDynamicModel extends Question
    * Returns true when the renderMode equals to "progressTop" or "progressTopBottom"
    */
   public get isProgressTopShowing(): boolean {
-    return (
-      this.renderMode == "progressTop" || this.renderMode == "progressTopBottom"
-    );
+    return this.renderMode === "progressTop" || this.renderMode === "progressTopBottom";
   }
   /**
    * Returns true when the renderMode equals to "progressBottom" or "progressTopBottom"
    */
   public get isProgressBottomShowing(): boolean {
-    return (
-      this.renderMode == "progressBottom" ||
-      this.renderMode == "progressTopBottom"
-    );
+    return this.renderMode === "progressBottom" || this.renderMode === "progressTopBottom";
   }
   /**
    * Returns true when currentIndex is more than 0.
@@ -796,7 +791,7 @@ export class QuestionPanelDynamicModel extends Question
    * @see renderMode
    */
   public get isRenderModeList() {
-    return this.renderMode == "list";
+    return this.renderMode === "list";
   }
   public setVisibleIndex(value: number): number {
     if (!this.isVisible) return 0;
@@ -945,7 +940,7 @@ export class QuestionPanelDynamicModel extends Question
    */
   public addPanelUI(): PanelModel {
     if (!this.canAddPanel) return null;
-    var newPanel = this.addPanel();
+    const newPanel = this.addPanel();
     if (this.renderMode === "list" && this.panelsState !== "default") {
       newPanel.expand();
     }
@@ -1635,7 +1630,7 @@ export class QuestionPanelDynamicModel extends Question
       .append(this.cssClasses.buttonRemoveRight, this.panelRemoveButtonLocation === "right")
       .toString();
   }  
-  public getAddRowButtonCss(): string {
+  public getAddButtonCss(): string {
     return new CssClassBuilder()
       .append(this.cssClasses.button)
       .append(this.cssClasses.buttonAdd)

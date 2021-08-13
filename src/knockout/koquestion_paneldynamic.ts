@@ -1,6 +1,6 @@
 import * as ko from "knockout";
-import { SurveyElement, Serializer, Question, QuestionFactory,
-  QuestionPanelDynamicModel, CssClassBuilder } from "survey-core";
+import { SurveyElement, Serializer, QuestionFactory,
+  QuestionPanelDynamicModel } from "survey-core";
 import { QuestionImplementor } from "./koquestion";
 
 export class QuestionPanelDynamicImplementor extends QuestionImplementor {
@@ -98,10 +98,10 @@ export class QuestionPanelDynamicImplementor extends QuestionImplementor {
     );
 
     this.setObservaleObj(
-      "koAddRowButtonCss",
+      "koAddButtonCss",
       ko.pureComputed(() => {
         this.koRecalc();
-        return this.question.getAddRowButtonCss();
+        return this.question.getAddButtonCss();
       })
     );
 

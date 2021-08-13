@@ -943,13 +943,13 @@ export class StylesManager {
     //drag-drop
     ".sv_main .sv-matrixdynamic__drag-icon": "padding-top:14px",
     ".sv_main .sv-matrixdynamic__drag-icon:after":
-      "content: ' '; display: block; height: 4px; width: 16px; border: 1px solid $border-color; box-sizing: border-box; border-radius: 10px; cursor: move;",
+      "content: ' '; display: block; height: 6px; width: 20px; border: 1px solid $border-color; box-sizing: border-box; border-radius: 10px; cursor: move; margin-top: 12px;",
     ".sv_main .sv-matrix__drag-drop-ghost-position-top, .sv_main .sv-matrix__drag-drop-ghost-position-bottom":
       "position: relative;",
     ".sv_main .sv-matrix__drag-drop-ghost-position-top::after, .sv_main .sv-matrix__drag-drop-ghost-position-bottom::after":
       "content: ''; width: 100%; height: 4px; background-color: var(--primary, #19b394); position: absolute; left: 0;",
     ".sv_main .sv-matrix__drag-drop-ghost-position-top::after": "top: 0;",
-    ".sv_main .sv-matrix__drag-drop-ghost-position-bottom::after": "bottom: 0;",
+    ".sv_main .sv-matrix__drag-drop-ghost-position-bottom::after": "bottom: 0;"
     //eo drag-drop
   };
 
@@ -1087,7 +1087,7 @@ export class StylesManager {
     //drag-drop
     ".sv-matrixdynamic__drag-icon": "padding-top:16px",
     ".sv-matrixdynamic__drag-icon:after":
-      "content: ' '; display: block; height: 4px; width: 16px; border: 1px solid $border-color; box-sizing: border-box; border-radius: 10px; cursor: move;",
+      "content: ' '; display: block; height: 6px; width: 20px; border: 1px solid $border-color; box-sizing: border-box; border-radius: 10px; cursor: move; margin-top: 12px;",
     ".sv-matrix__drag-drop-ghost-position-top, .sv-matrix__drag-drop-ghost-position-bottom":
       "position: relative;",
     ".sv-matrix__drag-drop-ghost-position-top::after, .sv-matrix__drag-drop-ghost-position-bottom::after":

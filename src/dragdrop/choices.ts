@@ -14,7 +14,7 @@ export class DragDropChoices extends DragDropCore {
     let dragOverChoice;
 
     dragOverChoice = this.parentElement.choices.filter(
-      (choice: ItemValue) => choice.value === dataAttributeValue
+      (choice: ItemValue) => "" + choice.value == dataAttributeValue
     )[0];
 
     return dragOverChoice;

@@ -97,10 +97,10 @@ export class Action extends Base implements IAction {
   location?: string;
   @property() id: string;
   @property() iconName: string;
-  @property() visible: boolean;
+  @property({ defaultValue: true }) visible: boolean;
   @property() title: string;
   @property() tooltip: string;
-  @property() enabled: boolean;
+  @property({ defaultValue: true }) enabled: boolean;
   @property() showTitle: boolean;
   @property() action: (context?: any) => void;
   @property() css: string;
@@ -129,7 +129,7 @@ export class Action extends Base implements IAction {
     );
   }
   public get isVisible() {
-    return this.mode !== "popup";
+    return this.visible && this.mode !== "popup";
   }
   public get canShrink() {
     return !!this.iconName;

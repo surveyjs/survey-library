@@ -6750,3 +6750,43 @@ QUnit.test(
     assert.equal(counter, 2, "Value is still undefined");
   }
 );
+
+QUnit.test("Drag handler cell in rendered table", function(assert) {
+  var survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdynamic",
+        name: "matrix",
+        allowRowsDragAndDrop: true,
+        columns: ["col1"]
+      },
+    ],
+  });
+  var matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+  assert.equal(
+    matrix.renderedTable.headerRow.cells.length,
+    3,
+    "Drag handler cell + one column + actions cell"
+  );
+  var rows = matrix.renderedTable.rows;
+  assert.equal(
+    rows[0].cells[0].isDragHandlerCell,
+    true,
+    "isDragHandlerCell"
+  );
+  assert.equal(
+    rows[1].cells[0].isDragHandlerCell,
+    true,
+    "isDragHandlerCell"
+  );
+  assert.equal(
+    rows[0].cells[2].isActionsCell,
+    true,
+    "isActionsCell"
+  );
+  assert.equal(
+    rows[1].cells[2].isActionsCell,
+    true,
+    "isActionsCell"
+  );
+});

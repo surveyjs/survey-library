@@ -6214,60 +6214,6 @@ QUnit.test("Row actions, check getUpdatedMatrixRowActions", function(assert) {
   );
 });
 
-QUnit.test("Row actions, drag action", function(assert) {
-  var survey = new SurveyModel({
-    elements: [
-      {
-        type: "matrixdynamic",
-        allowRowsDragAndDrop: true,
-        name: "matrix",
-        choices: [
-          {
-            value: 1,
-            text: "Yes",
-          },
-          {
-            value: 0,
-            text: "Sometimes",
-          },
-          {
-            value: -1,
-            text: "No",
-          },
-        ],
-        columns: [
-          {
-            name: "subject",
-            cellType: "dropdown",
-            title: "Select a subject",
-            isRequired: true,
-            minWidth: "300px",
-            choices: [
-              "English: American Literature",
-              "English: British and World Literature",
-            ],
-          },
-          {
-            name: "explains",
-            title: "Clearly explains the objectives",
-          },
-        ],
-        rowCount: 2,
-      },
-    ],
-  });
-
-  var matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
-
-  assert.deepEqual(matrix.renderedTable["rowsActions"][0][1].id, "drag-row");
-
-  matrix.allowRowsDragAndDrop = false;
-  assert.deepEqual(matrix.renderedTable["rowsActions"][0].length, 1);
-
-  matrix.allowRowsDragAndDrop = true;
-  assert.deepEqual(matrix.renderedTable["rowsActions"][0].length, 2);
-});
-
 QUnit.test("moveRowByIndex test", function(assert) {
   var matrixD = new QuestionMatrixDynamicModel("q1");
   matrixD.value = [{ v1: "v1" }, { v2: "v2" }];
@@ -6804,3 +6750,43 @@ QUnit.test(
     assert.equal(counter, 2, "Value is still undefined");
   }
 );
+
+QUnit.test("Drag handler cell in rendered table", function(assert) {
+  var survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdynamic",
+        name: "matrix",
+        allowRowsDragAndDrop: true,
+        columns: ["col1"]
+      },
+    ],
+  });
+  var matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+  assert.equal(
+    matrix.renderedTable.headerRow.cells.length,
+    3,
+    "Drag handler cell + one column + actions cell"
+  );
+  var rows = matrix.renderedTable.rows;
+  assert.equal(
+    rows[0].cells[0].isDragHandlerCell,
+    true,
+    "isDragHandlerCell"
+  );
+  assert.equal(
+    rows[1].cells[0].isDragHandlerCell,
+    true,
+    "isDragHandlerCell"
+  );
+  assert.equal(
+    rows[0].cells[2].isActionsCell,
+    true,
+    "isActionsCell"
+  );
+  assert.equal(
+    rows[1].cells[2].isActionsCell,
+    true,
+    "isActionsCell"
+  );
+});

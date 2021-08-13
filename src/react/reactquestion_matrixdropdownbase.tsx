@@ -19,7 +19,8 @@ import { SurveyPanel } from "./panel";
 
 import { SurveyActionBar } from "./components/action-bar/action-bar";
 import { ReactSurveyModel } from "./reactsurveymodel";
-import { MatrixRow } from "../entries/react-ui";
+import { MatrixRow } from "./components/matrix/row";
+import { SurveyQuestionMatrixDynamicDragDropIcon } from "./components/matrix-actions/drag-drop-icon/drag-drop-icon";
 
 export class SurveyQuestionMatrixDropdownBase extends SurveyQuestionElementBase {
   constructor(props: any) {
@@ -200,6 +201,11 @@ export class SurveyQuestionMatrixDropdownBase extends SurveyQuestionElementBase 
         requiredSpace = <span>&nbsp;</span>;
         requiredText = <span>{cell.requiredText}</span>;
       }
+    }
+    if (cell.isDragHandlerCell) {
+      cellContent = (<>
+        <SurveyQuestionMatrixDynamicDragDropIcon item={{ data: { row: cell.row, question: this.question}}}/>
+      </>);
     }
     if (cell.isActionsCell) {
       cellContent = (

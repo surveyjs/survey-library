@@ -1403,6 +1403,7 @@ export class QuestionMatrixDropdownRenderedCell {
   public isShowHideDetail: boolean;
   public isActionsCell: boolean = false;
   public className: string = "";
+  public isDragHandlerCell: boolean = false;
   public constructor() {
     this.idValue = QuestionMatrixDropdownRenderedCell.counter++;
   }
@@ -1692,6 +1693,9 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     this.headerRowValue = new QuestionMatrixDropdownRenderedRow(
       this.cssClasses
     );
+    if(this.matrix.allowRowsDragAndDrop) {
+      this.headerRow.cells.push(this.createHeaderCell(null));
+    }
     if (this.hasActionCellInRows("start")) {
       this.headerRow.cells.push(this.createHeaderCell(null));
     }
@@ -1728,6 +1732,9 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     this.footerRowValue = new QuestionMatrixDropdownRenderedRow(
       this.cssClasses
     );
+    if(this.matrix.allowRowsDragAndDrop) {
+      this.footerRow.cells.push(this.createHeaderCell(null));
+    }
     if (this.hasActionCellInRows("start")) {
       this.footerRow.cells.push(this.createHeaderCell(null));
     }
@@ -1796,6 +1803,13 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     if (row.isDetailPanelShowing) {
       renderedRows.push(this.createDetailPanelRow(row, renderedRow));
     }
+  }
+  private getRowDragCell(rowIndex: number) {
+      const cell = new QuestionMatrixDropdownRenderedCell();
+      cell.isDragHandlerCell = true;
+      cell.className = this.cssClasses.actionsCell;
+      cell.row = this.matrix.visibleRows[rowIndex];
+      return cell;
   }
   private getRowActionsCell(rowIndex: number, location: "start" | "end") {
     const rowActions = this.getRowActions(rowIndex, location);
@@ -1869,6 +1883,10 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     useAsHeader: boolean
   ): QuestionMatrixDropdownRenderedRow {
     var res = new QuestionMatrixDropdownRenderedRow(this.cssClasses);
+    if(this.matrix.allowRowsDragAndDrop) {
+      var rowIndex = this.matrix.visibleRows.indexOf(row);
+      res.cells.push(this.getRowDragCell(rowIndex));
+    }
     this.addRowActionsCell(row, res, "start");
     if (this.matrix.hasRowText) {
       var renderedCell = this.createTextCell(row.locText);

@@ -100,7 +100,7 @@ export class Action extends Base implements IAction {
   @property({ defaultValue: true }) visible: boolean;
   @property() title: string;
   @property() tooltip: string;
-  @property({ defaultValue: true }) enabled: boolean;
+  @property() enabled: boolean;
   @property() showTitle: boolean;
   @property() action: (context?: any) => void;
   @property() css: string;

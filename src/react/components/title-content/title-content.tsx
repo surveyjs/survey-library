@@ -24,12 +24,9 @@ export class TitleContent extends React.Component<any, any> {
   }
 
   protected renderTitleSpans(element: ITitleOwner, cssClasses: any) {
-    var getSpaceSpan = () => {
+    var getSpaceSpan = (key: any) => {
       return (
-        <span
-          data-key={this.getTitleKey(element)}
-          key={this.getTitleKey(element)}
-        >
+        <span data-key={key} key={key}>
           &nbsp;
         </span>
       );
@@ -37,14 +34,14 @@ export class TitleContent extends React.Component<any, any> {
     var spans = [];
     if (element.isRequireTextOnStart) {
       spans.push(this.renderRequireText(element, cssClasses));
-      spans.push(getSpaceSpan());
+      spans.push(getSpaceSpan("req-sp"));
     }
     var questionNumber = element.no;
     if (questionNumber) {
       spans.push(
         <span
-          data-key={this.getTitleKey(element)}
-          key={this.getTitleKey(element)}
+          data-key={"q_num"}
+          key={"q_num"}
           className={cssClasses.number}
           style={{ position: "static" }}
           aria-hidden={true}
@@ -52,21 +49,17 @@ export class TitleContent extends React.Component<any, any> {
           {questionNumber}
         </span>
       );
-      spans.push(getSpaceSpan());
+      spans.push(getSpaceSpan("num-sp"));
     }
     if (element.isRequireTextBeforeTitle) {
       spans.push(this.renderRequireText(element, cssClasses));
-      spans.push(getSpaceSpan());
+      spans.push(getSpaceSpan("req-sp"));
     }
     spans.push(
-      SurveyElementBase.renderLocString(
-        element.locTitle,
-        null,
-        this.getTitleKey(element)
-      )
+      SurveyElementBase.renderLocString(element.locTitle, null, "q_title")
     );
     if (element.isRequireTextAfterTitle) {
-      spans.push(getSpaceSpan());
+      spans.push(getSpaceSpan("req-sp"));
       spans.push(this.renderRequireText(element, cssClasses));
     }
     return spans;
@@ -78,8 +71,8 @@ export class TitleContent extends React.Component<any, any> {
   ): JSX.Element {
     return (
       <span
-        data-key={this.getTitleKey(element)}
-        key={this.getTitleKey(element)}
+        data-key={"req-text"}
+        key={"req-text"}
         className={cssClasses.requiredText || cssClasses.panel.requiredText}
         aria-hidden={true}
       >
@@ -88,8 +81,8 @@ export class TitleContent extends React.Component<any, any> {
     );
   }
 
-  private getTitleKey = (element: ITitleOwner) => {
-    this.titleKeyIndex++;
-    return element.name + this.titleKeyPrefix + this.titleKeyIndex;
-  };
+  // private getTitleKey = (element: ITitleOwner) => {
+  //   this.titleKeyIndex++;
+  //   return element.name + this.titleKeyPrefix + this.titleKeyIndex;
+  // };
 }

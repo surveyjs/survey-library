@@ -88,11 +88,12 @@ export class SurveyQuestionFile extends SurveyQuestionElementBase {
     );
     fileInput = (
       <input
+        type="file"
         disabled={this.isDisplayMode}
-        className={this.question.cssClasses.fileInput}
+        className={!this.isDisplayMode ? this.question.cssClasses.fileInput : this.question.getReadOnlyFileCss()}
         id={this.question.inputId}
         ref={input => (this.control = input)}
-        type="file"
+        style={!this.isDisplayMode ? {} : { color: "transparent" }}
         onChange={!this.isDisplayMode ? this.handleOnChange : null}
         aria-required={this.question.isRequired}
         aria-label={this.question.locTitle.renderedHtml}

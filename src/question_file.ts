@@ -412,6 +412,12 @@ export class QuestionFileModel extends Question {
       .append(this.cssClasses.controlDisabled, this.isReadOnly)
       .toString();
   }
+  public getReadOnlyFileCss(): string {
+    return new CssClassBuilder()
+      .append("form-control")
+      .append(this.cssClasses.placeholderInput)
+      .toString();
+  }
 }
 Serializer.addClass(
   "file",

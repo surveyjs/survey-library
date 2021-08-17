@@ -20,7 +20,7 @@
       v-if="question.isReadOnly"
       type="file"
       disabled
-      :class="getPlaceholderClass()"
+      :class="question.getReadOnlyFileCss()"
       :placeholder="question.title"
       style="color: transparent"
     />
@@ -165,9 +165,6 @@ export class File extends QuestionVue<QuestionFileModel> {
       event.preventDefault();
       loadFileFromBase64(data.content, data.name);
     }
-  }
-  getPlaceholderClass() {
-    return "form-control " + this.question.cssClasses.placeholderInput;
   }
   private onChange(src: any) {
     if (!(<any>window)["FileReader"]) return;

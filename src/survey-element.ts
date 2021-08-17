@@ -144,7 +144,7 @@ export class SurveyElement extends Base implements ISurveyElement {
    */
   public get isCollapsed() {
     if (this.isDesignMode) return;
-    return this.state == "collapsed";
+    return this.state === "collapsed";
   }
   /**
    * Returns true if the Element is in the expanded state
@@ -153,7 +153,7 @@ export class SurveyElement extends Base implements ISurveyElement {
    * @see isCollapsed
    */
   public get isExpanded() {
-    return this.state == "expanded";
+    return this.state === "expanded";
   }
   /**
    * Collapse the Element

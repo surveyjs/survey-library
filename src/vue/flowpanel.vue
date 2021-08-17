@@ -4,7 +4,7 @@
     :class="question.cssClasses.panel.container"
     :style="rootStyle"
   >
-    <h4 v-show="hasTitle" :class="getTitleStyle()" v-on:click="changeExpanded">
+    <h4 v-show="hasTitle" :class="question.cssTitle" v-on:click="changeExpanded">
       <survey-string :locString="question.locTitle" />
       <span v-show="showIcon" :class="iconCss"></span>
     </h4>
@@ -95,6 +95,7 @@ export class FlowPanel extends Vue {
     return this.question.survey;
   }
   get iconCss() {
+    //refactor
     var result = "sv_panel_icon";
     if (!this.isCollapsed) result += " sv_expanded";
     return result;
@@ -113,12 +114,6 @@ export class FlowPanel extends Vue {
         this.question.collapse();
       }
     }
-  }
-  getTitleStyle() {
-    return new CssClassBuilder()
-      .append(this.css.panel.title)
-      .append(this.css.panel.titleExpandable, this.question.isCollapsed || this.question.isExpanded)
-      .toString();
   }
 }
 

@@ -1,6 +1,6 @@
 import { Base } from "../base";
 import { property } from "../jsonobject";
-import { Helpers } from "survey-core";
+import { CssClassBuilder } from "../utils/cssClassBuilder";
 
 /**
  * Defines an individual action. Action items can be displayed in certain survey elements - in Toolbar (or action bar), in titles (of pages, panels, questions), in matrix rows (as 'expand details' or 'remove row' buttons), and etc.
@@ -133,6 +133,13 @@ export class Action extends Base implements IAction {
   }
   public get canShrink() {
     return !!this.iconName;
+  }
+
+  public getActionBarItemCss(): string {
+    return new CssClassBuilder()
+      .append("sv-action-bar-item__title")
+      .append("sv-action-bar-item__title--with-icon", !!this.iconName)
+      .toString()
   }
 
   minDimension: number;

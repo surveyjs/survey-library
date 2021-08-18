@@ -85,7 +85,7 @@ export class AdaptiveActionContainer<T extends Action = Action, V extends IActio
   }
 
   public removeDotsButton() {
-    var index = this.actions.indexOf(<any>this.dotsItem);
+    const index = this.actions.indexOf(<any>this.dotsItem);
     if (index !== -1) {
       this.actions.splice(index, 1);
     }

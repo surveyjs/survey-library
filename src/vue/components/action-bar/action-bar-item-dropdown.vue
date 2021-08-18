@@ -22,8 +22,7 @@
 
     <span
       v-if="item.showTitle === undefined || item.showTitle || !item.iconName"
-      class="sv-action-bar-item__title"
-      v-bind:class="{ 'sv-action-bar-item__title--with-icon': !!item.iconName }"
+      :class="item.getActionBarItemCss()"
       >{{ item.title }}</span
     >
     <sv-popup :model="item.popupModel"></sv-popup>

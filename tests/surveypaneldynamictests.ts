@@ -508,6 +508,39 @@ QUnit.test("Text Processing and parent panel variable", function(assert) {
   );
 });
 
+QUnit.test("Initial Text Processing in panel title", function(assert) {
+  var survey = new SurveyModel({
+    elements: [
+      {
+        type: "paneldynamic",
+        name: "panel",
+        panelCount: 1,
+        templateTitle: "title:{panel.q1}",
+        templateElements: [
+          {
+            type: "text",
+            name: "q1",
+            title: "{panel.q2}",
+          },
+        ],
+      },
+    ],
+  });
+  var panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+  var q1 = panel.panels[0].getQuestionByName("q1");
+  assert.equal(
+    panel.panels[0].locTitle.renderedHtml,
+    "title:",
+    "initial text processing"
+  );
+  q1.value = "q1-title";
+  assert.equal(
+    panel.panels[0].locTitle.renderedHtml,
+    "title:q1-title",
+    "Text processing on setting value"
+  );
+});
+
 QUnit.test("Set panel value, question.valueName", function(assert) {
   var survey = new SurveyModel();
   survey.addNewPage("p");

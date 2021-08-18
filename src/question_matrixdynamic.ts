@@ -8,19 +8,19 @@ import {
   IMatrixDropdownData,
   MatrixDropdownColumn,
   QuestionMatrixDropdownRenderedTable,
+  QuestionMatrixDropdownRenderedRow,
 } from "./question_matrixdropdownbase";
 import { surveyLocalization } from "./surveyStrings";
 import { LocalizableString } from "./localizablestring";
 import { SurveyError } from "./survey-error";
 import { MinRowCountError } from "./error";
-import { Action, IAction } from "./actions/action";
-import SortableLib from "sortablejs";
+import { IAction } from "./actions/action";
 import { settings } from "./settings";
 import { Helpers } from "./helpers";
 import { confirmAction } from "./utils/utils";
+import { DragDropMatrixRows } from "./dragdrop/matrix-rows";
+import { ISurveyImpl } from "./base-interfaces";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
-
-const Sortable = <any>SortableLib;
 
 export class MatrixDynamicRowModel extends MatrixDropdownRowModelBase {
   constructor(public index: number, data: IMatrixDropdownData, value: any) {
@@ -74,21 +74,47 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
       this.clearRowsAndResetRenderedTable();
     });
   }
-  public getType(): string {
-    return "matrixdynamic";
+
+  public dragDropMatrixRows: DragDropMatrixRows;
+  public setSurveyImpl(value: ISurveyImpl) {
+    super.setSurveyImpl(value);
+    this.dragDropMatrixRows = new DragDropMatrixRows(this.survey);
+    this.subscribeToDragDropHelper();
   }
 
-  //cross framework initialization
-  public afterRenderQuestionElement(el: HTMLElement) {
-    if (!!el && this.allowRowsDragAndDrop) {
-      this.initSortable(el.querySelector("tbody"));
-    }
-    super.afterRenderQuestionElement(el);
+  public dispose() {
+    super.dispose();
+    this.unsubscribeToDragDropHelper();
   }
-  //cross framework destroy
-  public beforeDestroyQuestionElement(el: HTMLElement) {
-    if (this.sortableInst) this.sortableInst.destroy();
-    super.beforeDestroyQuestionElement(el);
+
+  private handleDragDropHelperChanges = (sender: any, options: any) => {
+    if (options.name === "isBottom") {
+      this.renderedTable.rows.forEach(
+        (renderedRow: QuestionMatrixDropdownRenderedRow) => {
+          renderedRow.ghostPosition = this.dragDropMatrixRows.getGhostPosition(
+            renderedRow.row
+          );
+        }
+      );
+    }
+  };
+  private subscribeToDragDropHelper = () => {
+    this.dragDropMatrixRows.onPropertyChanged.add(this.handleDragDropHelperChanges);
+  };
+  private unsubscribeToDragDropHelper = () => {
+    this.dragDropMatrixRows.onPropertyChanged.remove(
+      this.handleDragDropHelperChanges
+    );
+  };
+  public startDragMatrixRow(
+    event: PointerEvent,
+    row: MatrixDropdownRowModelBase
+  ) {
+    this.dragDropMatrixRows.startDrag(event, row, this);
+  }
+
+  public getType(): string {
+    return "matrixdynamic";
   }
 
   public get isRowsDynamic(): boolean {
@@ -193,23 +219,6 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   }
   public set allowRowsDragAndDrop(val: boolean) {
     this.setPropertyValue("allowRowsDragAndDrop", val);
-  }
-  private initSortable(domNode: HTMLElement) {
-    if (!domNode) return;
-    if (this.isReadOnly) return;
-    const self = this;
-    self.domNode = domNode;
-
-    self.sortableInst = new Sortable(domNode, {
-      animation: 100,
-      forceFallback: true,
-      delay: 200,
-      delayOnTouchOnly: true,
-      handle: "tr",
-      onEnd(evt: any) {
-        self.moveRowByIndex(evt.oldDraggableIndex, evt.newDraggableIndex);
-      },
-    });
   }
 
   protected createRenderedTable(): QuestionMatrixDropdownRenderedTable {
@@ -818,16 +827,16 @@ class QuestionMatrixDynamicRenderedTable extends QuestionMatrixDropdownRenderedT
     actions: Array<IAction>
   ) {
     super.setDefaultRowActions(row, actions);
-    if (this.matrix.allowRowsDragAndDrop) {
-      actions.push(
-        new Action({
-          id: "drag-row",
-          location: "start",
-          component: "sv-matrix-drag-drop-icon",
-          data: { row: row, question: this.matrix },
-        })
-      );
-    }
+    // if (this.matrix.allowRowsDragAndDrop) {
+    //   actions.push(
+    //     new Action({
+    //       id: "drag-row",
+    //       location: "start",
+    //       component: "sv-matrix-drag-drop-icon",
+    //       data: { row: row, question: this.matrix },
+    //     })
+    //   );
+    // }
   }
 }
 

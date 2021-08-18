@@ -40,8 +40,14 @@
         <tbody>
           <!-- ko foreach: question.koTable().rows -->
           <!-- ko ifnot: $parent.detailPanelMode === "popup" && $data.isDetailRow -->
-          <tr data-bind="css: $data.className">
+          <tr data-bind="css: $data.className + ' ' + $data.ghostPositionCssClass, attr: attributes">
             <!-- ko foreach: $data.cells -->
+            <!-- ko if: $data.isDragHandlerCell -->
+            <td data-bind="css:$data.className, attr: {colspan: $data.colSpans}">
+              <!-- ko component: { name: 'sv-matrix-drag-drop-icon', params: { item: { data: { row: row, question: question } } }} -->
+              <!-- /ko -->
+            </td>
+            <!-- /ko -->
             <!-- ko if: $data.isActionsCell -->
             <td data-bind="css: $data.className, attr: { colspan: $data.colSpans }">
               <!-- ko component: { name: 'sv-action-bar', params: { model: $data.item.getData(), handleClick: false } } -->
@@ -74,6 +80,7 @@
             <!-- /ko -->
             <!-- /ko -->
           </tr>
+
           <!-- /ko -->
           <!-- /ko -->
         </tbody>

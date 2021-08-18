@@ -1,7 +1,7 @@
 import * as React from "react";
 import {
   ReactSurveyElement,
-  SurveyQuestionElementBase,
+  SurveyQuestionElementBase
 } from "./reactquestion_element";
 import { SurveyQuestion, SurveyQuestionAndErrorsCell } from "./reactquestion";
 import {
@@ -9,13 +9,14 @@ import {
   QuestionMatrixDropdownRenderedRow,
   QuestionMatrixDropdownRenderedCell,
   AdaptiveActionContainer,
-  Question,
+  Question
 } from "survey-core";
 import { SurveyQuestionCheckboxItem } from "./reactquestion_checkbox";
 import { SurveyQuestionRadioItem } from "./reactquestion_radiogroup";
 import { SurveyPanel } from "./panel";
-
 import { SurveyActionBar } from "./components/action-bar/action-bar";
+import { MatrixRow } from "./components/matrix/row";
+import { SurveyQuestionMatrixDynamicDragDropIcon } from "./components/matrix-actions/drag-drop-icon/drag-drop-icon";
 
 export class SurveyQuestionMatrixDropdownBase extends SurveyQuestionElementBase {
   constructor(props: any) {
@@ -131,10 +132,11 @@ export class SurveyQuestionMatrixDropdownBase extends SurveyQuestionElementBase 
       matrixrow.push(this.renderCell(cells[i], i, cssClasses));
     }
     var key = "row" + keyValue;
+
     return (
-      <tr className={row.className} key={key}>
-        {matrixrow}
-      </tr>
+      <React.Fragment key={key}>
+        <MatrixRow model={row}>{matrixrow}</MatrixRow>
+      </React.Fragment>
     );
   }
 
@@ -163,6 +165,7 @@ export class SurveyQuestionMatrixDropdownBase extends SurveyQuestionElementBase 
       if (!!cell.width) cellStyle.width = cell.width;
       if (!!cell.minWidth) cellStyle.minWidth = cell.minWidth;
     }
+
     return (
       <td
         className={cell.className}
@@ -195,6 +198,11 @@ export class SurveyQuestionMatrixDropdownBase extends SurveyQuestionElementBase 
         requiredSpace = <span>&nbsp;</span>;
         requiredText = <span>{cell.requiredText}</span>;
       }
+    }
+    if (cell.isDragHandlerCell) {
+      cellContent = (<>
+        <SurveyQuestionMatrixDynamicDragDropIcon item={{ data: { row: cell.row, question: this.question}}}/>
+      </>);
     }
     if (cell.isActionsCell) {
       cellContent = (

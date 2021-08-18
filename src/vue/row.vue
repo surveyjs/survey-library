@@ -20,7 +20,7 @@
         :name="element.name"
         :style="{
           paddingLeft: element.paddingLeft,
-          paddingRight: element.paddingRight
+          paddingRight: element.paddingRight,
         }"
         :element="element"
         :survey="survey"
@@ -59,7 +59,7 @@ export class Row extends BaseVue {
   }
   beforeDestroy() {
     if (!!this.row) {
-      this.row.isNeedRender = !this.row.isLazyRendering;
+      this.row.isNeedRender = !this.row.isLazyRendering();
     }
   }
 }

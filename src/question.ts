@@ -553,7 +553,7 @@ export class Question extends SurveyElement
     return this.errors.slice();
   }
   public getErrorByType(errorType: string): SurveyError {
-    for (var i = 0; i < this.errors.length; i++) {
+    for (let i = 0; i < this.errors.length; i++) {
       if (this.errors[i].getErrorType() === errorType) return this.errors[i];
     }
     return null;
@@ -638,8 +638,8 @@ export class Question extends SurveyElement
     return this.cssClassesValue;
   }
   private calcCssClasses(): any {
-    var css = this.css;
-    var classes = { error: {} };
+    const css = this.css;
+    const classes = { error: {} };
     this.copyCssClasses(classes, css.question);
     this.copyCssClasses(classes.error, css.error);
     this.updateCssClasses(classes, css);
@@ -675,6 +675,7 @@ export class Question extends SurveyElement
   }
   protected getCssHeader(cssClasses: any): string {
     return new CssClassBuilder()
+      .append(cssClasses.header)
       .append(cssClasses.headerTop, this.hasTitleOnTop)
       .append(cssClasses.headerLeft, this.hasTitleOnLeft)
       .append(cssClasses.headerBottom, this.hasTitleOnBottom)
@@ -705,7 +706,7 @@ export class Question extends SurveyElement
       .append(cssClasses.title)
       .append(cssClasses.titleExpandable, this.isCollapsed || this.isExpanded)
       .append(cssClasses.titleOnError, this.containsErrors)
-      .append(cssClasses.titleOnAnswer, this.isAnswered)
+      .append(cssClasses.titleOnAnswer, !this.containsErrors && this.isAnswered)
       .toString();
   }
   public get cssError(): string {

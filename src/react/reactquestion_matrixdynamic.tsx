@@ -1,7 +1,7 @@
 import * as React from "react";
-import { QuestionMatrixDynamicModel, CssClassBuilder } from "survey-core";
 import { ReactQuestionFactory } from "./reactquestion_factory";
 import { SurveyQuestionMatrixDropdownBase } from "./reactquestion_matrixdropdownbase";
+import { QuestionMatrixDynamicModel } from "survey-core";
 
 export class SurveyQuestionMatrixDynamic extends SurveyQuestionMatrixDropdownBase {
   constructor(props: any) {

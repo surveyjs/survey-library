@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.8.60](https://github.com/surveyjs/survey-library/compare/v1.8.59...v1.8.60) (2021-08-11)
+
+
+### Bug Fixes
+
+* onCompleting event doesn't work on "complete" trigger [#3184](https://github.com/surveyjs/survey-library/issues/3184) ([#3185](https://github.com/surveyjs/survey-library/issues/3185)) ([f1065a0](https://github.com/surveyjs/survey-library/commit/f1065a017051eb98aecee25db9a0d8bc42c3fcb3))
+* React: remove subscription in matrix dynamic on row count changed [#3170](https://github.com/surveyjs/survey-library/issues/3170) ([b15f762](https://github.com/surveyjs/survey-library/commit/b15f76242864e87c1b4b48f0b89a2af46343ec67))
+* Setting properties like pageNextText does not rerender buttons [#3175](https://github.com/surveyjs/survey-library/issues/3175) ([#3179](https://github.com/surveyjs/survey-library/issues/3179)) ([0e94ad6](https://github.com/surveyjs/survey-library/commit/0e94ad640052fdd42a7d667fec4d156997651346))
+* When refreshing the page, others isn't cleared [#3172](https://github.com/surveyjs/survey-library/issues/3172) ([#3178](https://github.com/surveyjs/survey-library/issues/3178)) ([c3650da](https://github.com/surveyjs/survey-library/commit/c3650dafef12f2610e38747f764397fde979b1df))
+
 ### [1.8.59](https://github.com/surveyjs/survey-library/compare/v1.8.58...v1.8.59) (2021-08-03)
 
 

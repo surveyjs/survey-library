@@ -35,3 +35,15 @@ QUnit.test(
     assert.equal(getIconNameFromProxy("icon-proxy"), "new-icon");
   }
 );
+
+QUnit.test(
+  "isVisible",
+  (assert) => {
+    const action = new Action(<any>{});
+    assert.ok(action.visible, "default visible");
+    assert.ok(action.isVisible, "default isVisible");
+    action.visible = false;
+    assert.notOk(action.visible, "not visible");
+    assert.notOk(action.isVisible, "not isVisible due to visible=false");
+  }
+);

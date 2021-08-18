@@ -3,6 +3,7 @@ import {
   CustomPropertiesCollection,
   JsonObjectProperty,
   Serializer,
+  property,
 } from "./jsonobject";
 import { QuestionMatrixBaseModel } from "./martixBase";
 import { Question } from "./question";
@@ -1403,6 +1404,7 @@ export class QuestionMatrixDropdownRenderedCell {
   public isShowHideDetail: boolean;
   public isActionsCell: boolean = false;
   public className: string = "";
+  public isDragHandlerCell: boolean = false;
   public constructor() {
     this.idValue = QuestionMatrixDropdownRenderedCell.counter++;
   }
@@ -1490,18 +1492,35 @@ export class QuestionMatrixDropdownRenderedCell {
   }
 }
 
-export class QuestionMatrixDropdownRenderedRow {
+export class QuestionMatrixDropdownRenderedRow extends Base {
+  @property({ defaultValue: null }) ghostPosition: string;
+
   public isDetailRow: boolean = false;
   public row: MatrixDropdownRowModelBase;
   private static counter = 1;
   private idValue: number;
   public cells: Array<QuestionMatrixDropdownRenderedCell> = [];
   public className: string = "";
-  public constructor() {
+
+  public constructor(public cssClasses: any) {
+    super();
+    this.onCreating();
     this.idValue = QuestionMatrixDropdownRenderedRow.counter++;
   }
+  public onCreating() {} // need for knockout binding see QuestionMatrixDropdownRenderedRow.prototype["onCreating"]
   public get id(): number {
     return this.idValue;
+  }
+  public get attributes() {
+    if (!this.row) return {};
+    return { "data-sv-drop-target-matrix-row": this.row.id };
+  }
+  public get ghostPositionCssClass() {
+    if (this.ghostPosition === "top")
+      return this.cssClasses.dragDropGhostPositionTop;
+    if (this.ghostPosition === "bottom")
+      return this.cssClasses.dragDropGhostPositionBottom;
+    return "";
   }
 }
 
@@ -1658,7 +1677,12 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
       (this.matrix.hasRowText && !this.matrix.isColumnLayoutHorizontal);
     this.setPropertyValue("showHeader", isShown);
     if (!isShown) return;
-    this.headerRowValue = new QuestionMatrixDropdownRenderedRow();
+    this.headerRowValue = new QuestionMatrixDropdownRenderedRow(
+      this.cssClasses
+    );
+    if(this.matrix.allowRowsDragAndDrop) {
+      this.headerRow.cells.push(this.createHeaderCell(null));
+    }
     if (this.hasActionCellInRows("start")) {
       this.headerRow.cells.push(this.createHeaderCell(null));
     }
@@ -1692,7 +1716,12 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
   }
   protected buildFooter() {
     if (!this.showFooter) return;
-    this.footerRowValue = new QuestionMatrixDropdownRenderedRow();
+    this.footerRowValue = new QuestionMatrixDropdownRenderedRow(
+      this.cssClasses
+    );
+    if(this.matrix.allowRowsDragAndDrop) {
+      this.footerRow.cells.push(this.createHeaderCell(null));
+    }
     if (this.hasActionCellInRows("start")) {
       this.footerRow.cells.push(this.createHeaderCell(null));
     }
@@ -1761,6 +1790,13 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     if (row.isDetailPanelShowing) {
       renderedRows.push(this.createDetailPanelRow(row, renderedRow));
     }
+  }
+  private getRowDragCell(rowIndex: number) {
+      const cell = new QuestionMatrixDropdownRenderedCell();
+      cell.isDragHandlerCell = true;
+      cell.className = this.cssClasses.actionsCell;
+      cell.row = this.matrix.visibleRows[rowIndex];
+      return cell;
   }
   private getRowActionsCell(rowIndex: number, location: "start" | "end") {
     const rowActions = this.getRowActions(rowIndex, location);
@@ -1833,7 +1869,11 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     row: MatrixDropdownRowModelBase,
     useAsHeader: boolean
   ): QuestionMatrixDropdownRenderedRow {
-    var res = new QuestionMatrixDropdownRenderedRow();
+    var res = new QuestionMatrixDropdownRenderedRow(this.cssClasses);
+    if(this.matrix.allowRowsDragAndDrop) {
+      var rowIndex = this.matrix.visibleRows.indexOf(row);
+      res.cells.push(this.getRowDragCell(rowIndex));
+    }
     this.addRowActionsCell(row, res, "start");
     if (this.matrix.hasRowText) {
       var renderedCell = this.createTextCell(row.locText);
@@ -1884,7 +1924,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     row: MatrixDropdownRowModelBase,
     renderedRow: QuestionMatrixDropdownRenderedRow
   ): QuestionMatrixDropdownRenderedRow {
-    var res = new QuestionMatrixDropdownRenderedRow();
+    var res = new QuestionMatrixDropdownRenderedRow(this.cssClasses);
     res.row = row;
     res.className += this.cssClasses.detailRow;
     res.isDetailRow = true;
@@ -1953,7 +1993,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     choice: ItemValue = null,
     choiceIndex: number = -1
   ): QuestionMatrixDropdownRenderedRow {
-    var res = new QuestionMatrixDropdownRenderedRow();
+    var res = new QuestionMatrixDropdownRenderedRow(this.cssClasses);
     if (this.matrix.showHeader) {
       var lTitle = !!choice ? choice.locText : column.locTitle;
       var hCell = this.createTextCell(lTitle);
@@ -1986,7 +2026,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     return res;
   }
   private createEndVerticalActionRow(): QuestionMatrixDropdownRenderedRow {
-    var res = new QuestionMatrixDropdownRenderedRow();
+    var res = new QuestionMatrixDropdownRenderedRow(this.cssClasses);
     if (this.matrix.showHeader) {
       res.cells.push(this.createTextCell(null));
     }

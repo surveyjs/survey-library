@@ -292,6 +292,8 @@ export var modernCss = {
     emptyRowsSection: "sv-table__empty--rows--section",
     emptyRowsText: "sv-table__empty--rows--text",
     emptyRowsButton: "",
+    dragDropGhostPositionTop: "sv-matrix__drag-drop-ghost-position-top",
+    dragDropGhostPositionBottom: "sv-matrix__drag-drop-ghost-position-bottom",
   },
   rating: {
     root: "sv-rating",

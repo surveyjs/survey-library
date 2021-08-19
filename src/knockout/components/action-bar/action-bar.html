@@ -1,9 +1,9 @@
-<!-- ko if: model.hasItems -->
+<!-- ko if: model.hasActions -->
 <div
   class="sv-action-bar"
   data-bind="click: handleClick ? function() { return true; } : undefined, clickBubble: handleClick ? false : undefined"
 >
-  <!-- ko foreach: model.actions -->
+  <!-- ko foreach: model.renderedActions -->
   <!-- ko component: { name: 'sv-action', params: { item: $data } } -->
   <!-- /ko -->
   <!--/ko-->

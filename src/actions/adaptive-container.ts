@@ -3,77 +3,11 @@ import { PopupModel } from "../popup";
 import { Action, IAction } from "./action";
 import { ActionContainer } from "./container";
 
-export class AdaptiveActionContainer<T extends Action = Action, V extends IAction = IAction> extends ActionContainer<T> {
-  protected dotsItem: Action; // (...) button
-  public dotsItemPopupModel: PopupModel;
+export class AdaptiveActionContainer<T extends Action = Action> extends ActionContainer<T> {
+  protected dotsItem: Action;
+  protected dotsItemPopupModel: PopupModel;
 
-  public get visibleItems(): Array<Action> {
-    return this.actions.filter((item) => item.mode !== "popup");
-  }
-
-  public setItems(items: Array<V>, sortByVisibleIndex = true) {
-    const actions: Array<T> = <any>items.map((item) => (item instanceof Action ? item : new Action(item)));
-    actions.forEach(action => action.updateCallback = () => this.raiseUpdate());
-    if (sortByVisibleIndex) {
-      this.actions = this.sortItems(actions);
-    } else {
-      this.actions = actions;
-    }
-
-  }
-  private sortItems(items: Array<T>) {
-    return []
-      .concat(items.filter((item) => item.visibleIndex >= 0 || item.visibleIndex === undefined))
-      .sort((firstItem, secondItem) => {
-        return firstItem.visibleIndex - secondItem.visibleIndex;
-      });
-  }
-
-  constructor() {
-    super();
-    this.dotsItemPopupModel = new PopupModel("sv-list", {
-      model: this.invisibleItemsListModel
-    });
-    this.dotsItem = new Action({
-      id: "dotsItem-id",
-      component: "sv-action-bar-item-dropdown",
-      css: "sv-dots",
-      innerCss: "sv-dots__item",
-      iconName: "icon-dots",
-      // showTitle: true,
-      // title: "...",
-      visible: false,
-      action: (item: any) => {
-        this.dotsItemPopupModel.toggleVisibility();
-      },
-      popupModel: this.dotsItemPopupModel
-    });
-  }
-
-  public get hasItems(): boolean {
-    return (this.actions || []).length > 0;
-  }
-
-  public invisibleItemSelected(item: T): void {
-    if (!!item && typeof item.action === "function") {
-      item.action();
-    }
-  }
-
-  protected onSet() {
-    this.removeDotsButton();
-    this.actions.push(<any>this.dotsItem);
-    super.onSet();
-  }
-  protected onPush(item: T) {
-    if(item !== this.dotsItem) {
-      this.removeDotsButton();
-      this.actions.push(<any>this.dotsItem);
-    }
-    super.onPush(item);
-  }
-
-  protected invisibleItemsListModel: ListModel = new ListModel(
+  private invisibleItemsListModel: ListModel = new ListModel(
     [],
     (item: T) => {
       this.invisibleItemSelected(item);
@@ -82,7 +16,21 @@ export class AdaptiveActionContainer<T extends Action = Action, V extends IActio
     false
   );
 
-  public showFirstN(visibleItemsCount: number) {
+  private invisibleItemSelected(item: T): void {
+    if (!!item && typeof item.action === "function") {
+      item.action();
+    }
+  }
+
+  private sortItems(items: Array<T>) {
+    return []
+      .concat(items.filter((item) => item.visibleIndex >= 0 || item.visibleIndex === undefined))
+      .sort((firstItem, secondItem) => {
+        return firstItem.visibleIndex - secondItem.visibleIndex;
+      });
+  }
+
+  private showFirstN(visibleItemsCount: number) {
     let leftItemsToShow = visibleItemsCount;
     const invisibleItems: Action[] = [];
     this.actions.filter(action => action.visible).forEach((item) => {
@@ -98,16 +46,82 @@ export class AdaptiveActionContainer<T extends Action = Action, V extends IActio
     this.invisibleItemsListModel.items = invisibleItems;
   }
 
-  public removeDotsButton() {
-    var index = this.actions.indexOf(<any>this.dotsItem);
-    if (index !== -1) {
-      this.actions.splice(index, 1);
+  private getVisibleItemsCount(size: number): number {
+    const itemsSizes: number[] = this.visibleActions.map((item) => item.minDimension);
+    let currSize: number = 0;
+    for (var i = 0; i < itemsSizes.length; i++) {
+      currSize += itemsSizes[i];
+      if (currSize > size) return i;
+    }
+    return i;
+  }
+
+  private updateItemMode(availableSize: number, itemsSize: number) {
+    const items = this.visibleActions;
+    for (let index = items.length - 1; index >= 0; index--) {
+      if (itemsSize > availableSize) {
+        itemsSize -= items[index].maxDimension - items[index].minDimension;
+        items[index].mode = "small";
+      } else {
+        items[index].mode = "large";
+      }
     }
   }
-  public hideDotsButton() {
-    this.dotsItem.visible = false;
+
+  constructor() {
+    super();
+    this.dotsItemPopupModel = new PopupModel("sv-list", {
+      model: this.invisibleItemsListModel
+    });
+    this.dotsItem = new Action({
+      id: "dotsItem-id",
+      component: "sv-action-bar-item-dropdown",
+      css: "sv-dots",
+      innerCss: "sv-dots__item",
+      iconName: "icon-dots",
+      visible: false,
+      action: (item: any) => {
+        this.dotsItemPopupModel.toggleVisibility();
+      },
+      popupModel: this.dotsItemPopupModel
+    });
   }
-  public showDotsButton() {
-    this.dotsItem.visible = true;
+
+  protected getRenderedActions(): Array<T> {
+    return this.actions.concat([<T>this.dotsItem]);
+  }
+
+  public setItems(items: Array<IAction>, sortByVisibleIndex = true) {
+    const actions: Array<T> = <any>items.map((item) => (item instanceof Action ? item : new Action(item)));
+    actions.forEach(action => action.updateCallback = () => this.raiseUpdate());
+    if (sortByVisibleIndex) {
+      this.actions = this.sortItems(actions);
+    } else {
+      this.actions = actions;
+    }
+  }
+
+  public fit(dimension: number, dotsItemSize: number) {
+    if (dimension <= 0) return;
+
+    this.dotsItem.visible = false;
+    let minSize = 0;
+    let maxSize = 0;
+    const items = this.visibleActions;
+
+    items.forEach((item) => {
+      minSize += item.minDimension;
+      maxSize += item.maxDimension;
+    });
+
+    if (dimension >= maxSize) {
+      items.forEach((item) => (item.mode = "large"));
+    } else if (dimension < minSize) {
+      items.forEach((item) => (item.mode = "small"));
+      this.showFirstN(this.getVisibleItemsCount(dimension - dotsItemSize));
+      this.dotsItem.visible = true;
+    } else {
+      this.updateItemMode(dimension, maxSize);
+    }
   }
 }

@@ -16,7 +16,12 @@ export class ActionContainer<T extends Action = Action> extends Base {
     })
     actions: Array<T>;
 
-    public updateCallback: (isResetInilized: boolean) => void;
+    protected getRenderedActions(): Array<T> {
+      return this.actions;
+    }
+
+    public updateCallback: (isResetInitialized: boolean) => void;
+
     protected raiseUpdate() {
       this.updateCallback && this.updateCallback(true);
     }
@@ -24,14 +29,24 @@ export class ActionContainer<T extends Action = Action> extends Base {
     protected onSet() {
       this.raiseUpdate();
     }
+
     protected onPush(item: T) {
       this.raiseUpdate();
     }
+
     protected onRemove(item: T) {
       this.raiseUpdate();
     }
 
-    public get hasItems(): boolean {
-        return (this.actions || []).length > 0;
+    public get hasActions(): boolean {
+      return (this.actions || []).length > 0;
+    }
+
+    public get renderedActions(): Array<T> {
+      return this.getRenderedActions();
+    }
+
+    get visibleActions(): Array<T> {
+      return this.actions.filter((action) => action.visible !== false);
     }
 }

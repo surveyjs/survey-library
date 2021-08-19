@@ -1,6 +1,6 @@
 <template>
   <div
-    v-if="model.hasItems"
+    v-if="model.hasActions"
     ref="container"
     class="sv-action-bar"
     v-on:click="
@@ -10,7 +10,7 @@
     "
   >
     <sv-action
-      v-for="item in model.actions"
+      v-for="item in model.renderedActions"
       v-bind:key="item.id"
       :item="item"
     ></sv-action>

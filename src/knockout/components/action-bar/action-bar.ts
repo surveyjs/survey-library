@@ -33,7 +33,7 @@ export class AdaptiveElementImplementor extends ImplementorBase {
     super(model);
 
     this.itemsSubscription = ko.computed(() => {
-      ((<any>model).items || (<any>model).actions).forEach((item: any) => {
+      ((<any>model).renderedActions || (<any>model).items || (<any>model).actions).forEach((item: any) => {
         if (!!item.stateItem) {
           new ImplementorBase(item.stateItem);
         } else {

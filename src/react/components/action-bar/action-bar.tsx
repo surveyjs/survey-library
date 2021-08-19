@@ -36,7 +36,7 @@ export class SurveyActionBar extends SurveyElementBase<IActionBarProps, any> {
 
   componentDidMount() {
     super.componentDidMount();
-    if (!this.hasItems) return;
+    if (!this.model.hasActions) return;
     const container: HTMLDivElement = this.rootRef.current;
     this.manager = new ResponsivityManager(
       container,
@@ -52,8 +52,9 @@ export class SurveyActionBar extends SurveyElementBase<IActionBarProps, any> {
   protected getStateElement(): Base {
     return this.model;
   }
+
   renderElement(): any {
-    if (!this.hasItems) return null;
+    if (!this.model.hasActions) return null;
     const items = this.renderItems();
     return (
       <div
@@ -68,12 +69,8 @@ export class SurveyActionBar extends SurveyElementBase<IActionBarProps, any> {
     );
   }
 
-  get hasItems(): boolean {
-    return (this.model.actions || []).length > 0;
-  }
-
   renderItems() {
-    return this.model.actions.map(
+    return this.model.renderedActions.map(
       (item: Action, itemIndex: number) => {
         return (
           <SurveyAction item={item} key={"item" + itemIndex}></SurveyAction>

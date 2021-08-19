@@ -1,6 +1,7 @@
 <template>
-  <div v-if="row.isNeedRender" class="sv-vue-row-additional-div">
+  <div class="sv-vue-row-additional-div">
     <div
+      v-if="row.isNeedRender"
       v-for="element in row.visibleElements"
       :key="element.id"
       :style="{

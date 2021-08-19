@@ -117,7 +117,7 @@ QUnit.test("PopupViewModel styleClass", (assert) => {
   viewModel.initializePopupContainer();
   viewModel.container.innerHTML = popupTemplate;
 
-  assert.equal(viewModel.styleClass, " sv-popup--show-pointer sv-popup--left");
+  assert.equal(viewModel.styleClass, "sv-popup--show-pointer sv-popup--left");
   model.cssClass = "my-css-class";
   assert.equal(
     viewModel.styleClass,

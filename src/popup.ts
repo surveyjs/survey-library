@@ -7,6 +7,7 @@ import {
   HorizontalPosition,
   IPosition
 } from "./utils/popup";
+import { CssClassBuilder } from "./utils/cssClassBuilder";
 
 export class PopupModel extends Base {
   @property() contentComponentName: string;
@@ -128,15 +129,12 @@ export class PopupBaseViewModel extends Base {
     return this.model.isModal;
   }
   public get styleClass(): string {
-    let css = this.model.cssClass;
-    if (this.isModal) {
-      css += " sv-popup--modal";
-    } else if (this.showPointer) {
-      css += " sv-popup--show-pointer";
-      css += ` sv-popup--${this.popupDirection}`;
-    }
-
-    return css;
+    return new CssClassBuilder()
+      .append(this.model.cssClass)
+      .append("sv-popup--modal", this.isModal)
+      .append("sv-popup--show-pointer", !this.isModal && this.showPointer)
+      .append(`sv-popup--${this.popupDirection}`, !this.isModal && this.showPointer)
+      .toString()
   }
   public onKeyDown(event: any) {
     if (event.key === "Tab" || event.keyCode === 9) {

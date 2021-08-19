@@ -22,6 +22,11 @@ export class ResponsivityManager {
     private itemsSelector: string,
     private dotsItemSize: number = 48
   ) {
+    this.model.updateCallback = (isResetInilized: boolean) => {
+      if(isResetInilized)
+        this.isInilized = false;
+      this.process();
+    };
     if (typeof ResizeObserver !== "undefined") {
       this.resizeObserver = new ResizeObserver((_) => this.process());
       this.resizeObserver.observe(this.container.parentElement);
@@ -76,11 +81,11 @@ export class ResponsivityManager {
     return i;
   }
 
-  private updateItemMode(dimension: number, minSize: number, maxSize: number) {
+  private updateItemMode(availableSize: number, itemsSize: number) {
     const items = this.items;
     for (let index = items.length - 1; index >= 0; index--) {
-      if (minSize <= dimension && dimension < maxSize) {
-        maxSize -= items[index].maxDimension - items[index].minDimension;
+      if (itemsSize > availableSize) {
+        itemsSize -= items[index].maxDimension - items[index].minDimension;
         items[index].mode = "small";
       } else {
         items[index].mode = "large";
@@ -91,7 +96,7 @@ export class ResponsivityManager {
   public fit(dimension: number) {
     if (dimension <= 0) return;
 
-    this.model.removeDotsButton();
+    this.model.hideDotsButton();
     let minSize = 0;
     let maxSize = 0;
     const items = this.items;
@@ -108,13 +113,15 @@ export class ResponsivityManager {
       this.model.showFirstN(
         this.getVisibleItemsCount(dimension - this.dotsItemSize)
       );
+      this.model.showDotsButton();
     } else {
-      this.updateItemMode(dimension, minSize, maxSize);
+      this.updateItemMode(dimension, maxSize);
     }
   }
 
   private process(): void {
     if (!this.isInilized) {
+      this.model.actions.forEach(action => (action.mode = "large"));
       this.calcItemsSizes();
       this.isInilized = true;
     }
@@ -122,6 +129,7 @@ export class ResponsivityManager {
   }
 
   public dispose(): void {
+    this.model.updateCallback = undefined;
     if (!!this.resizeObserver) {
       this.resizeObserver.disconnect();
     }

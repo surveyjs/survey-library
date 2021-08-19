@@ -41,7 +41,7 @@ export class SurveyActionBar extends SurveyElementBase<IActionBarProps, any> {
     this.manager = new ResponsivityManager(
       container,
       (this.model as any),
-      "span.sv-action:not(.sv-dots)"
+      ".sv-action:not(.sv-dots)>.sv-action__content"
     );
   }
   componentWillUnmount() {
@@ -75,9 +75,6 @@ export class SurveyActionBar extends SurveyElementBase<IActionBarProps, any> {
   renderItems() {
     return this.model.actions.map(
       (item: Action, itemIndex: number) => {
-        if (!item.visible && item.visible !== undefined) {
-          return null;
-        }
         return (
           <SurveyAction item={item} key={"item" + itemIndex}></SurveyAction>
         );

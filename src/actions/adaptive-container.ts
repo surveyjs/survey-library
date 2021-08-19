@@ -13,6 +13,7 @@ export class AdaptiveActionContainer<T extends Action = Action, V extends IActio
 
   public setItems(items: Array<V>, sortByVisibleIndex = true) {
     const actions: Array<T> = <any>items.map((item) => (item instanceof Action ? item : new Action(item)));
+    actions.forEach(action => action.updateCallback = () => this.raiseUpdate());
     if (sortByVisibleIndex) {
       this.actions = this.sortItems(actions);
     } else {
@@ -41,6 +42,7 @@ export class AdaptiveActionContainer<T extends Action = Action, V extends IActio
       iconName: "icon-dots",
       // showTitle: true,
       // title: "...",
+      visible: false,
       action: (item: any) => {
         this.dotsItemPopupModel.toggleVisibility();
       },
@@ -58,6 +60,19 @@ export class AdaptiveActionContainer<T extends Action = Action, V extends IActio
     }
   }
 
+  protected onSet() {
+    this.removeDotsButton();
+    this.actions.push(<any>this.dotsItem);
+    super.onSet();
+  }
+  protected onPush(item: T) {
+    if(item !== this.dotsItem) {
+      this.removeDotsButton();
+      this.actions.push(<any>this.dotsItem);
+    }
+    super.onPush(item);
+  }
+
   protected invisibleItemsListModel: ListModel = new ListModel(
     [],
     (item: T) => {
@@ -70,7 +85,7 @@ export class AdaptiveActionContainer<T extends Action = Action, V extends IActio
   public showFirstN(visibleItemsCount: number) {
     let leftItemsToShow = visibleItemsCount;
     const invisibleItems: Action[] = [];
-    this.actions.forEach((item) => {
+    this.actions.filter(action => action.visible).forEach((item) => {
       if (item === this.dotsItem) {
         return;
       }
@@ -81,7 +96,6 @@ export class AdaptiveActionContainer<T extends Action = Action, V extends IActio
       leftItemsToShow--;
     });
     this.invisibleItemsListModel.items = invisibleItems;
-    this.addDotsButton(visibleItemsCount);
   }
 
   public removeDotsButton() {
@@ -90,10 +104,10 @@ export class AdaptiveActionContainer<T extends Action = Action, V extends IActio
       this.actions.splice(index, 1);
     }
   }
-
-  private addDotsButton(newIndex: number) {
-    if (newIndex < this.actions.length) {
-      this.actions.splice(newIndex, 0, <any>this.dotsItem);
-    }
+  public hideDotsButton() {
+    this.dotsItem.visible = false;
+  }
+  public showDotsButton() {
+    this.dotsItem.visible = true;
   }
 }

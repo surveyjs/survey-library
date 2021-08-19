@@ -82,11 +82,7 @@ export class SurveyActionBarItem extends SurveyElementBase<
   }
 
   renderInnerButton() {
-    //refactor
-    const className =
-      "sv-action-bar-item " +
-      this.item.innerCss +
-      (this.item.active ? " sv-action-bar-item--active" : "");
+    const className = this.item.getActionBarItemActiveCss();
     const title = this.item.tooltip || this.item.title;
     const buttonContent = this.renderButtonContent();
     const tabIndex = this.item.disableTabStop ? -1 : undefined;

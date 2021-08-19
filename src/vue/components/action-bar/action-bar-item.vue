@@ -1,16 +1,12 @@
 <template>
   <button
-    class="sv-action-bar-item"
+    :class="item.getActionBarItemActiveCss()"
     type="button"
     v-on:click="
       () => {
         item.action();
       }
     "
-    v-bind:class="[
-      { 'sv-action-bar-item--active': item.isActive },
-      item.innerCss,
-    ]"
     v-bind:disabled="item.enabled !== undefined && !item.enabled"
     v-bind:title="item.tooltip || item.title"
     v-bind:tabindex="item.disableTabStop ? -1 : undefined"

@@ -50,7 +50,7 @@
     "dev": "concurrently \"http-server -p 8080 --silent\" \"npm run watch:core:dev\" \"npm run watch:core:prod\" \"npm run watch:ko:ui:dev\" \"npm run watch:react:ui:dev\" \"npm run watch:ko:ui:prod\" \"npm run watch:react:ui:prod\"",
     "madge": "madge --circular --extensions ts ./src/"
   },
-  "version": "1.8.60",
+  "version": "1.8.61",
   "name": "survey-library",
   "private": true,
   "devDependencies": {

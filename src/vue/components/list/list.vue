@@ -2,8 +2,8 @@
   <ul
     class="sv-list"
     @mousedown="
-      (data, e) => {
-        e.preventDefault();
+      (event) => {
+        event.preventDefault();
       }
     "
   >

@@ -49,7 +49,11 @@ export class SurveyRow extends SurveyElementBase<any, any> {
         }
         const css = (element as Question).cssClasses;
         return (
-          <div className={css.questionWrapper} style={rootStyle} key={innerElement.key}>
+          <div
+            className={css.questionWrapper}
+            style={rootStyle}
+            key={innerElement.key}
+          >
             {innerElement}
           </div>
         );
@@ -71,13 +75,11 @@ export class SurveyRow extends SurveyElementBase<any, any> {
   componentDidMount() {
     super.componentDidMount();
     var el = this.rootRef.current;
-    if (!!el) {
-      if (!this.row.isNeedRender) {
-        var rowContainerDiv = el;
-        setTimeout(() => {
-          this.row.startLazyRendering(rowContainerDiv);
-        }, 10);
-      }
+    if (!!el && !this.row.isNeedRender) {
+      var rowContainerDiv = el;
+      setTimeout(() => {
+        this.row.startLazyRendering(rowContainerDiv);
+      }, 10);
     }
   }
   public shouldComponentUpdate(nextProps: any, nextState: any): boolean {
@@ -89,7 +91,7 @@ export class SurveyRow extends SurveyElementBase<any, any> {
   }
   private stopLazyRendering() {
     this.row.stopLazyRendering();
-    this.row.isNeedRender = !this.row.isLazyRendering;
+    this.row.isNeedRender = !this.row.isLazyRendering();
   }
   componentWillUnmount() {
     super.componentWillUnmount();

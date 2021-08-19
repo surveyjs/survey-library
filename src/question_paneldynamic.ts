@@ -1433,6 +1433,7 @@ export class QuestionPanelDynamicModel extends Question
     for (var i = 0; i < questions.length; i++) {
       questions[i].setParentQuestion(this);
     }
+    panel.locStrsChanged();
     return panel;
   }
   protected createAndSetupNewPanelObject(): PanelModel {

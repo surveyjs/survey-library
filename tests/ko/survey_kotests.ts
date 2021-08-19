@@ -2450,3 +2450,45 @@ QUnit.test("pageNext/pagePrev... Text and koRenderedHtml", function(assert) {
   survey.completeText = "Finish";
   assert.equal((<any>survey.locCompleteText).koRenderedHtml(), "Finish");
 });
+QUnit.test("Initial Text Processing in panel title and ko", function(assert) {
+  var survey = new Survey({
+    elements: [
+      {
+        type: "paneldynamic",
+        name: "panel",
+        panelCount: 1,
+        templateTitle: "title:{panel.q1}",
+        templateElements: [
+          {
+            type: "text",
+            name: "q1",
+            title: "{panel.q2}",
+          },
+        ],
+      },
+    ],
+  });
+  var panel = <QuestionPanelDynamic>survey.getQuestionByName("panel");
+  var q1 = panel.panels[0].getQuestionByName("q1");
+  assert.equal(
+    panel.panels[0].locTitle.renderedHtml,
+    "title:",
+    "initial text processing"
+  );
+  assert.equal(
+    panel.panels[0].locTitle["koRenderedHtml"](),
+    "title:",
+    "initial text processing, ko"
+  );
+  q1.value = "q1-title";
+  assert.equal(
+    panel.panels[0].locTitle.renderedHtml,
+    "title:q1-title",
+    "Text processing on setting value"
+  );
+  assert.equal(
+    panel.panels[0].locTitle["koRenderedHtml"](),
+    "title:q1-title",
+    "Text processing on setting value"
+  );
+});

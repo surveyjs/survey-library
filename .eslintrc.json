@@ -114,10 +114,9 @@
 		// group: ok
 		//"@typescript-eslint/consistent-type-assertions": [ "error", { "assertionStyle": "angle-bracket" }],
 
-
-	"linebreak-style": [
-		"off",
-		"windows"
-	]
+		"linebreak-style": [
+			"off",
+			"windows"
+		]
 	}
-  }
+}

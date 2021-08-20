@@ -30,28 +30,27 @@ export class AdaptiveActionContainer<T extends Action = Action> extends ActionCo
       });
   }
 
-  private showFirstN(visibleItemsCount: number) {
-    let leftItemsToShow = visibleItemsCount;
+  private hideItemsGreaterN(visibleItemsCount: number) {
     const invisibleItems: Action[] = [];
     this.actions.filter(action => action.visible).forEach((item) => {
       if (item === this.dotsItem) {
         return;
       }
-      if (leftItemsToShow <= 0) {
+      if (visibleItemsCount <= 0) {
         item.mode = "popup";
         invisibleItems.push(item);
       }
-      leftItemsToShow--;
+      visibleItemsCount--;
     });
     this.invisibleItemsListModel.items = invisibleItems;
   }
 
-  private getVisibleItemsCount(size: number): number {
+  private getVisibleItemsCount(availableSize: number): number {
     const itemsSizes: number[] = this.visibleActions.map((item) => item.minDimension);
     let currSize: number = 0;
     for (var i = 0; i < itemsSizes.length; i++) {
       currSize += itemsSizes[i];
-      if (currSize > size) return i;
+      if (currSize > availableSize) return i;
     }
     return i;
   }
@@ -118,7 +117,7 @@ export class AdaptiveActionContainer<T extends Action = Action> extends ActionCo
       items.forEach((item) => (item.mode = "large"));
     } else if (dimension < minSize) {
       items.forEach((item) => (item.mode = "small"));
-      this.showFirstN(this.getVisibleItemsCount(dimension - dotsItemSize));
+      this.hideItemsGreaterN(this.getVisibleItemsCount(dimension - dotsItemSize));
       this.dotsItem.visible = true;
     } else {
       this.updateItemMode(dimension, maxSize);

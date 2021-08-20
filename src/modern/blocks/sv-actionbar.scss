@@ -177,15 +177,20 @@ button.sv-action-bar-item {
 }
 
 .sv-action {
-  display: flex;
-  align-items: center;
-}
-
-.sv-action:not(:last-of-type) {
-  box-sizing: content-box;
-  padding-right: calcSize(2);
 }
 
 .sv-action--hidden {
-  display: none;
+  width: 0px;
+  height: 0px;
+  overflow: hidden;
+}
+
+.sv-action__content {
+  display: inline-flex;
+  align-items: center;
+}
+
+.sv-action:not(:last-child) > .sv-action__content {
+  box-sizing: content-box;
+  padding-right: calcSize(2);
 }

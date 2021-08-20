@@ -33,9 +33,8 @@ export class ReactSurveyModel extends Survey {
     css: any = null
   ) {
     super(jsonObj, renderedElement, css);
-    console.warn(
-      "ReactSurveyModel is depricated in this context. Use Survey.Model instead."
-    );
+    // eslint-disable-next-line no-console
+    console.warn("ReactSurveyModel is depricated in this context. Use Survey.Model instead.");
   }
 }
 

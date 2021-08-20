@@ -876,6 +876,26 @@ implements ISurveyData, ISurveyImpl, ILocalizableOwner {
     }
     return result;
   }
+  public set value(value: any) {
+    this.isSettingValue = true;
+    this.subscribeToChanges(value);
+    var questions = this.questions;
+    for (var i = 0; i < questions.length; i++) {
+      var question = questions[i];
+      var val = this.getCellValue(value, question.getValueName());
+      var oldComment = question.comment;
+      var comment = !!value
+        ? value[question.getValueName() + settings.commentPrefix]
+        : "";
+      if (comment == undefined) comment = "";
+      question.updateValueFromSurvey(val);
+      if (!!comment || Helpers.isTwoValueEquals(oldComment, question.comment)) {
+        question.updateCommentFromSurvey(comment);
+      }
+      question.onSurveyValueChanged(val);
+    }
+    this.isSettingValue = false;
+  }
   public get locText(): LocalizableString {
     return null;
   }
@@ -972,26 +992,6 @@ implements ISurveyData, ISurveyImpl, ILocalizableOwner {
     for (var i = 0; i < questions.length; i++) {
       questions[i].clearValue();
     }
-  }
-  public set value(value: any) {
-    this.isSettingValue = true;
-    this.subscribeToChanges(value);
-    var questions = this.questions;
-    for (var i = 0; i < questions.length; i++) {
-      var question = questions[i];
-      var val = this.getCellValue(value, question.getValueName());
-      var oldComment = question.comment;
-      var comment = !!value
-        ? value[question.getValueName() + settings.commentPrefix]
-        : "";
-      if (comment == undefined) comment = "";
-      question.updateValueFromSurvey(val);
-      if (!!comment || Helpers.isTwoValueEquals(oldComment, question.comment)) {
-        question.updateCommentFromSurvey(comment);
-      }
-      question.onSurveyValueChanged(val);
-    }
-    this.isSettingValue = false;
   }
   public onAnyValueChanged(name: string) {
     var questions = this.questions;

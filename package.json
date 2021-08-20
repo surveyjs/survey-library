@@ -26,7 +26,7 @@
     "build_prod": "npm run build_dev && concurrently \"npm run build_knockout_prod\" \"npm run build_react_prod\" \"npm run build_angular_prod\" \"npm run build_jquery_prod\" \"npm run build_vue_prod\" \"npm run build_core_prod\"",
     "doc_gen": "node doc_generator/lib_docgenerator.js src/entries/chunks/model.ts",
     "doc_update": "chmod +x ./docupdate_npm.sh && ./docupdate_npm.sh",
-    "lint": "eslint ./src --quiet",
+    "lint": "eslint ./src",
     "watch_knockout_dev": "webpack --config ./build-scripts/survey-knockout/webpack.config.js --env.buildType dev --watch",
     "watch_react_dev": "webpack --config ./build-scripts/survey-react/webpack.config.js --env.buildType dev --watch",
     "watch_angular_dev": "webpack --config ./build-scripts/survey-angular/webpack.config.js --env.buildType dev --watch",

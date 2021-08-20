@@ -2305,10 +2305,10 @@ export class SurveyModel extends Base
     this.notifyElementsOnAnyValueOrVariableChanged("");
     this.runConditions();
   }
+  private onEditingObjPropertyChanged: (sender: Base, options: any) => void;
   public get editingObj(): Base {
     return this.editingObjValue;
   }
-  private onEditingObjPropertyChanged: (sender: Base, options: any) => void;
   public set editingObj(val: Base) {
     if (this.editingObj == val) return;
     if (!!this.editingObj) {

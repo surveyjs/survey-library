@@ -478,10 +478,10 @@ export class QuestionMatrixModel
   }
   public getPlainData(
     options: {
-      includeEmpty?: boolean;
+      includeEmpty?: boolean,
       calculations?: Array<{
-        propertyName: string;
-      }>;
+        propertyName: string,
+      }>,
     } = {
       includeEmpty: true,
     }

@@ -45,50 +45,50 @@ export class SurveyNavigation extends SurveyNavigationBase {
     var prevButton =
       !isStartedPage && !this.survey.isFirstPage && this.survey.isShowPrevButton
         ? this.renderButton(
-            this.handlePrevClick,
-            this.handleMouseDown,
-            this.survey.pagePrevText,
-            this.survey.cssNavigationPrev
-          )
+          this.handlePrevClick,
+          this.handleMouseDown,
+          this.survey.pagePrevText,
+          this.survey.cssNavigationPrev
+        )
         : null;
     var nextButton =
       !isStartedPage && !this.survey.isLastPage
         ? this.renderButton(
-            this.handleNextClick,
-            this.handleNextMouseDown,
-            this.survey.pageNextText,
-            this.survey.cssNavigationNext
-          )
+          this.handleNextClick,
+          this.handleNextMouseDown,
+          this.survey.pageNextText,
+          this.survey.cssNavigationNext
+        )
         : null;
     var completeButton =
       !isStartedPage &&
       this.survey.isLastPage &&
       this.survey.isCompleteButtonVisible
         ? this.renderButton(
-            this.handleCompleteClick,
-            this.handleMouseDown,
-            this.survey.completeText,
-            this.survey.cssNavigationComplete
-          )
+          this.handleCompleteClick,
+          this.handleMouseDown,
+          this.survey.completeText,
+          this.survey.cssNavigationComplete
+        )
         : null;
     var previewButton =
       !isStartedPage &&
       this.survey.isLastPage &&
       this.survey.isPreviewButtonVisible
         ? this.renderButton(
-            this.handlePreviewClick,
-            this.handleMouseDown,
-            this.survey.previewText,
-            this.survey.cssNavigationPreview
-          )
+          this.handlePreviewClick,
+          this.handleMouseDown,
+          this.survey.previewText,
+          this.survey.cssNavigationPreview
+        )
         : null;
     var startButton = isStartedPage
       ? this.renderButton(
-          this.handleStartClick,
-          null,
-          this.survey.startSurveyText,
-          this.survey.cssNavigationStart
-        )
+        this.handleStartClick,
+        null,
+        this.survey.startSurveyText,
+        this.survey.cssNavigationStart
+      )
       : null;
     return (
       <div className={this.css.footer}>

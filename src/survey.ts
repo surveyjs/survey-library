@@ -2361,11 +2361,11 @@ export class SurveyModel extends Base
    */
   public getPlainData(
     options: {
-      includeEmpty?: boolean;
-      includeQuestionTypes?: boolean;
+      includeEmpty?: boolean,
+      includeQuestionTypes?: boolean,
       calculations?: Array<{
-        propertyName: string;
-      }>;
+        propertyName: string,
+      }>,
     } = {
       includeEmpty: true,
       includeQuestionTypes: false,
@@ -2392,7 +2392,7 @@ export class SurveyModel extends Base
     return values;
   }
   private addCalculatedValuesIntoFilteredValues(values: {
-    [index: string]: any;
+    [index: string]: any,
   }) {
     var caclValues = this.calculatedValues;
     for (var i = 0; i < caclValues.length; i++)
@@ -2783,9 +2783,9 @@ export class SurveyModel extends Base
       if (this.progressBarType === "requiredQuestions") {
         return info.requiredQuestionCount > 1
           ? Math.ceil(
-              (info.requiredAnsweredQuestionCount * 100) /
+            (info.requiredAnsweredQuestionCount * 100) /
                 info.requiredQuestionCount
-            )
+          )
           : 100;
       }
       return info.questionCount > 1
@@ -5686,13 +5686,13 @@ export class SurveyModel extends Base
   ): string {
     return this.maxTimeToFinish > 0
       ? this.getLocString("timerLimitSurvey")["format"](
-          surveySpent,
-          surveyLimit
-        )
+        surveySpent,
+        surveyLimit
+      )
       : this.getLocString("timerSpentSurvey")["format"](
-          surveySpent,
-          surveyLimit
-        );
+        surveySpent,
+        surveyLimit
+      );
   }
   private getDisplayTime(val: number): string {
     var min = Math.floor(val / 60);

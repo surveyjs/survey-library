@@ -62,7 +62,7 @@ export class ChoicesRestful extends Base {
   }
   private static itemsResult: { [index: string]: any } = {};
   private static sendingSameRequests: {
-    [index: string]: Array<ChoicesRestful>;
+    [index: string]: Array<ChoicesRestful>,
   } = {};
   private static addSameRequest(obj: ChoicesRestful): boolean {
     if (!obj.isUsingCache) return false;

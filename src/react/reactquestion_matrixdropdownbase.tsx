@@ -204,7 +204,7 @@ export class SurveyQuestionMatrixDropdownBase extends SurveyQuestionElementBase 
     }
     if (cell.isDragHandlerCell) {
       cellContent = (<>
-        <SurveyQuestionMatrixDynamicDragDropIcon item={{ data: { row: cell.row, question: this.question}}}/>
+        <SurveyQuestionMatrixDynamicDragDropIcon item={{ data: { row: cell.row, question: this.question } }}/>
       </>);
     }
     if (cell.isActionsCell) {

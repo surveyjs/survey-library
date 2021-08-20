@@ -6,6 +6,6 @@ export class ActionContainer<T extends Action> extends Base {
     @propertyArray() actions: Array<T>;
 
     public get hasItems(): boolean {
-        return (this.actions || []).length > 0;
+      return (this.actions || []).length > 0;
     }
 }

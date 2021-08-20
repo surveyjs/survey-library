@@ -133,9 +133,9 @@ export class Base {
   private bindingsValue: Bindings;
   private isDisposedValue: boolean;
   private onPropChangeFunctions: Array<{
-    name: string;
-    func: (...args: any[]) => void;
-    key: string;
+    name: string,
+    func: (...args: any[]) => void,
+    key: string,
   }>;
   protected isLoadingFromJsonValue: boolean = false;
   public loadingOwner: Base = null;

@@ -683,11 +683,11 @@ export class QuestionSelectBase extends Question {
   }
   public getPlainData(
     options: {
-      includeEmpty?: boolean;
-      includeQuestionTypes?: boolean;
+      includeEmpty?: boolean,
+      includeQuestionTypes?: boolean,
       calculations?: Array<{
-        propertyName: string;
-      }>;
+        propertyName: string,
+      }>,
     } = {
       includeEmpty: true,
       includeQuestionTypes: false,
@@ -770,8 +770,8 @@ export class QuestionSelectBase extends Question {
       this.choicesFromQuestionMode == "selected"
         ? true
         : this.choicesFromQuestionMode == "unselected"
-        ? false
-        : undefined;
+          ? false
+          : undefined;
     var choices = question.visibleChoices;
     for (var i = 0; i < choices.length; i++) {
       if (this.isBuiltInChoice(choices[i], question)) continue;

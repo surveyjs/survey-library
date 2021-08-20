@@ -44,11 +44,11 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
     );
 
     if (this.isIndeterminate) {
-      result =  visibleChoices;
+      result = visibleChoices;
     } else {
       result = this.mergeValueAndVisibleChoices(value, visibleChoices);
     }
-    
+
     // ranking question with only one choice doesn't make sense
     if (result.length === 1) result = [];
 

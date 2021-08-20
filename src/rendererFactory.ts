@@ -4,7 +4,7 @@ export class RendererFactory {
   public static Instance: RendererFactory = new RendererFactory();
 
   private renderersHash: {
-    [questionType: string]: { [renderAs: string]: any };
+    [questionType: string]: { [renderAs: string]: any },
   } = {};
 
   public unregisterRenderer(questionType: string, rendererAs: string) {

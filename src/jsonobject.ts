@@ -5,7 +5,7 @@ export interface IPropertyDecoratorOptions {
   defaultValue?: any;
   defaultSource?: string;
   localizable?:
-    | { name: string; onGetTextCallback?: (str: string) => string }
+    | { name: string, onGetTextCallback?: (str: string) => string }
     | boolean;
   onSet?: (val: any, target: any) => void;
 }

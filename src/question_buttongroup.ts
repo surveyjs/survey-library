@@ -19,7 +19,7 @@ export class ButtonGroupItemValue extends ItemValue {
   iconName: string;
   /*
     By default icon size is 24.
-    Use this property to change item icon size.  
+    Use this property to change item icon size.
   */
   @property()
   iconSize: number;

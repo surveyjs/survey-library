@@ -1,5 +1,5 @@
 import * as ko from "knockout";
-import { Base, Action, AdaptiveActionContainer, IAction, ActionContainer } from "survey-core";
+import { AdaptiveActionContainer, IAction } from "survey-core";
 import { ResponsivityManager } from "survey-core";
 import { ImplementorBase } from "../../kobase";
 
@@ -33,7 +33,7 @@ export class AdaptiveElementImplementor extends ImplementorBase {
     super(model);
 
     this.itemsSubscription = ko.computed(() => {
-      ((<any>model).items || (<any>model).actions).forEach((item: any) => {
+      ((<any>model).renderedActions || (<any>model).items || (<any>model).actions).forEach((item: any) => {
         if (!!item.stateItem) {
           new ImplementorBase(item.stateItem);
         } else {
@@ -62,7 +62,7 @@ ko.components.register("sv-action-bar", {
       const manager: ResponsivityManager = new ResponsivityManager(
         container,
         params.model,
-        "span.sv-action:not(.sv-dots)"
+        ".sv-action:not(.sv-dots)>.sv-action__content"
       );
       ko.utils.domNodeDisposal.addDisposeCallback(container, () =>
         manager.dispose()

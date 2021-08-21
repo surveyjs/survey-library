@@ -2,12 +2,13 @@
   <span
     class="sv-action"
     v-bind:class="{ 'sv-action--hidden': !item.isVisible }"
-    v-show="item.visible || item.visible === undefined"
   >
-    <sv-action-bar-separator
-      v-if="item.needSeparator"
-    ></sv-action-bar-separator>
-    <component :is="getComponentName()" :item="item"> </component>
+    <div className="sv-action__content">
+      <sv-action-bar-separator
+        v-if="item.needSeparator"
+      ></sv-action-bar-separator>
+      <component :is="getComponentName()" :item="item"> </component>
+    </div>
   </span>
 </template>
 <script lang="ts">

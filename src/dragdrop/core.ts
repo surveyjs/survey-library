@@ -204,18 +204,18 @@ export abstract class DragDropCore extends Base {
     let left = scrollableParentNode.getBoundingClientRect().left;
     let right = scrollableParentNode.getBoundingClientRect().right;
 
-    function repeat() {
+    const repeat = () => {
       if (clientY - top <= startScrollBoundary) {
-        scrollableParentNode.scrollTop -= 5;
+        scrollableParentNode.scrollTop -= 15;
       } else if (bottom - clientY <= startScrollBoundary) {
-        scrollableParentNode.scrollTop += 5;
+        scrollableParentNode.scrollTop += 15;
       } else if (right - clientX <= startScrollBoundary) {
-        scrollableParentNode.scrollLeft += 5;
+        scrollableParentNode.scrollLeft += 15;
       } else if (clientX - left <= startScrollBoundary) {
-        scrollableParentNode.scrollLeft -= 5;
+        scrollableParentNode.scrollLeft -= 15;
       }
       this.scrollIntervalId = requestAnimationFrame(repeat);
-    }
+    };
     this.scrollIntervalId = requestAnimationFrame(repeat);
   }
 

@@ -188,7 +188,7 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     return len >= this.maxSelectedChoices;
   }
   getItemClass(item: any) {
-    const __dummy_value = this.value; //ask Sergey what is this for
+    const __dummy_value = this.value; //trigger dependencies from koValue for knockout
     return new CssClassBuilder()
       .append(super.getItemClass(item))
       .append(this.cssClasses.itemSelectAll, item === this.selectAllItem)

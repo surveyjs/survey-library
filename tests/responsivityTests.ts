@@ -6,10 +6,16 @@ import { ResponsivityManager } from "../src/utils/responsivity-manager";
 export default QUnit.module("ResponsivityManager");
 
 class SimpleContainer {
+  clientRects = [{ x: 0, y: 0, height: 20, width: 20 }];
   parentElement: any;
   constructor(config: any) {
     (<any>Object).assign(this, config);
     this.parentElement = this;
+  }
+  offsetWidth = 20;
+  offsetHeight = 20;
+  getClientRects() {
+    return this.clientRects;
   }
 }
 
@@ -202,3 +208,21 @@ QUnit.test("ResponsivityManager process test", function (assert) {
   assert.equal(newAction.minDimension, 20)
   assert.equal(newAction.maxDimension, 100)
 });
+QUnit.test(
+  "ResponsivityManager process test: stop when container is invisible",
+  function(assert) {
+    const container: SimpleContainer = new SimpleContainer({});
+    const model: AdaptiveActionContainer = new AdaptiveActionContainer();
+    const manager: ResponsivityManager = new ResponsivityManager(
+      <any>container,
+      <any>model,
+      ""
+    );
+    container.offsetHeight = 0;
+    container.offsetWidth = 0;
+    container.clientRects = [];
+    assert.equal(manager["isInitialized"], false);
+    manager["process"]();
+    assert.equal(manager["isInitialized"], false);
+  }
+);

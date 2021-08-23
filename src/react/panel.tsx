@@ -5,7 +5,6 @@ import { ReactElementFactory } from "./element-factory";
 
 import { SurveyPanelBase } from "./panel-base";
 import { PanelModel, doKey2Click } from "survey-core";
-import { ReactQuestionFactory } from "./reactquestion_factory";
 import { ReactSurveyModel } from "./reactsurveymodel";
 
 export class SurveyPanel extends SurveyPanelBase {
@@ -21,27 +20,27 @@ export class SurveyPanel extends SurveyPanelBase {
     this.panel.cancelPreview();
   }
   protected renderElement(): JSX.Element {
-    var title = this.renderTitle();
-    var description = this.renderDescription();
-    var errors = (
+    const title: JSX.Element = this.renderTitle();
+    const description: JSX.Element = this.renderDescription();
+    const errors = (
       <SurveyElementErrors
         element={this.panelBase}
         cssClasses={this.panelBase.cssClasses}
         creator={this.creator}
       />
     );
-    var style = {
+    const style = {
       paddingLeft: this.panel.innerPaddingLeft,
       display: !this.panel.isCollapsed ? "block" : "none",
     };
-    var content = null;
+    let content: JSX.Element = null;
     if (!this.panel.isCollapsed || this.hasBeenExpanded) {
       this.hasBeenExpanded = true;
-      var rows = this.renderRows(this.panelBase.cssClasses);
-      var className = this.panelBase.cssClasses.panel.content;
+      const rows: JSX.Element[] = this.renderRows(this.panelBase.cssClasses);
+      const className: string = this.panelBase.cssClasses.panel.content;
       content = this.renderContent(style, rows, className);
     }
-    var bottom = this.renderBottom();
+    const bottom: JSX.Element = this.renderBottom();
     return (
       <div
         ref={this.rootRef}

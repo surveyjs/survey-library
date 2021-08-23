@@ -42,6 +42,7 @@ import { settings } from "./settings";
 import { getSize, isMobile, scrollElementByChildId } from "./utils/utils";
 import { SurveyError } from "./survey-error";
 import { IAction } from "./actions/action";
+import { CssClassBuilder } from "./utils/cssClassBuilder";
 
 /**
  * The `Survey` object contains information about the survey, Pages, Questions, flow logic and etc.
@@ -1074,15 +1075,13 @@ export class SurveyModel extends Base
       this.css.navigation.next
     );
   }
-  public get completedCss() {
-    var css = this.css;
-    return css.body + " " + css.completedPage;
+  public get completedCss(): string {
+    return new CssClassBuilder().append(this.css.body)
+      .append(this.css.completedPage).toString();
   }
   private getNavigationCss(main: string, btn: string) {
-    var res = "";
-    if (main) res = main;
-    if (btn) res += " " + btn;
-    return res;
+    return new CssClassBuilder().append(main)
+      .append(btn).toString();
   }
   private lazyRenderingValue: boolean;
   /**
@@ -1720,13 +1719,14 @@ export class SurveyModel extends Base
     );
   }
   public get logoClassNames(): string {
-    var logoClasses: { [index: string]: string } = {
+    const logoClasses: { [index: string]: string } = {
       left: "sv-logo--left",
       right: "sv-logo--right",
       top: "sv-logo--top",
       bottom: "sv-logo--bottom",
     };
-    return this.css.logo + " " + logoClasses[this.logoPosition];
+    return new CssClassBuilder().append(this.css.logo)
+      .append(logoClasses[this.logoPosition]).toString();
   }
   public get renderedHasTitle(): boolean {
     if (this.isDesignMode) return this.isPropertyVisible("title");
@@ -1979,24 +1979,24 @@ export class SurveyModel extends Base
     this.setPropertyValue("questionTitlePattern", val);
   }
   getQuestionTitlePatternOptions(): Array<any> {
-    var res = new Array<any>();
-    var title = this.getLocString("questionTitlePatternText");
-    var num = !!this.questionStartIndex ? this.questionStartIndex : "1.";
+    const res = new Array<any>();
+    const title = this.getLocString("questionTitlePatternText");
+    const num = !!this.questionStartIndex ? this.questionStartIndex : "1.";
     res.push({
       value: "numTitleRequire",
-      text: num + " " + title + " " + this.requiredText,
+      text: num + " " + title + " " + this.requiredText
     });
     res.push({
       value: "numRequireTitle",
-      text: num + " " + this.requiredText + " " + title,
+      text: num + " " + this.requiredText + " " + title
     });
     res.push({
       value: "requireNumTitle",
-      text: this.requiredText + " " + num + " " + title,
+      text: this.requiredText + " " + num + " " + title
     });
     res.push({
       value: "numTitle",
-      text: num + " " + title,
+      text: num + " " + title
     });
     return res;
   }
@@ -5695,9 +5695,9 @@ export class SurveyModel extends Base
         );
   }
   private getDisplayTime(val: number): string {
-    var min = Math.floor(val / 60);
-    var sec = val % 60;
-    var res = "";
+    const min: number = Math.floor(val / 60);
+    const sec: number = val % 60;
+    let res: string = "";
     if (min > 0) {
       res += min + " " + this.getLocString("timerMin");
     }

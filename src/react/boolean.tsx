@@ -1,6 +1,6 @@
 import * as React from "react";
+import { QuestionBooleanModel, CssClassBuilder } from "survey-core";
 import { SurveyQuestionElementBase } from "./reactquestion_element";
-import { QuestionBooleanModel } from "survey-core";
 import { ReactQuestionFactory } from "./reactquestion_factory";
 
 export class SurveyQuestionBoolean extends SurveyQuestionElementBase {
@@ -16,7 +16,7 @@ export class SurveyQuestionBoolean extends SurveyQuestionElementBase {
   protected get question(): QuestionBooleanModel {
     return this.questionBase as QuestionBooleanModel;
   }
-  private get allowClick() {
+  private get allowClick(): boolean {
     return this.question.isIndeterminate && !this.isDisplayMode;
   }
   private preventDefaults(event: any) {
@@ -57,34 +57,12 @@ export class SurveyQuestionBoolean extends SurveyQuestionElementBase {
 
   protected updateDomElement() {
     if (!this.question) return;
-    var el = this.checkRef.current;
+    const el = this.checkRef.current;
     if (el) {
       el.indeterminate = this.question.isIndeterminate;
     }
     this.control = el;
     super.updateDomElement();
-  }
-  protected getItemClass(): string {
-    var cssClasses = this.question.cssClasses;
-    var isChecked = this.question.checkedValue;
-    var isDisabled = this.question.isReadOnly;
-    var itemClass = cssClasses.item;
-    if (isDisabled) itemClass += " " + cssClasses.itemDisabled;
-    if (isChecked) itemClass += " " + cssClasses.itemChecked;
-    else if (isChecked === null)
-      itemClass += " " + cssClasses.itemIndeterminate;
-    return itemClass;
-  }
-  private getLabelClass(checked: boolean): string {
-    var question = this.question;
-    var cssClasses = this.question.cssClasses;
-    return (
-      cssClasses.label +
-      " " +
-      (question.checkedValue === !checked || question.isReadOnly
-        ? question.cssClasses.disabledLabel
-        : "")
-    );
   }
   private getCheckedLabel() {
     if (this.question.checkedValue === true) {
@@ -94,8 +72,8 @@ export class SurveyQuestionBoolean extends SurveyQuestionElementBase {
     }
   }
   protected renderElement(): JSX.Element {
-    var cssClasses = this.question.cssClasses;
-    var itemClass = this.getItemClass();
+    const cssClasses = this.question.cssClasses;
+    const itemClass: string = this.question.getItemCss();
     return (
       <div className={cssClasses.root}>
         <label className={itemClass} onClick={this.handleOnClick}>
@@ -121,7 +99,7 @@ export class SurveyQuestionBoolean extends SurveyQuestionElementBase {
             }
           />
           <span
-            className={this.getLabelClass(false)}
+            className={this.question.getLabelCss(false)}
             onClick={(event) => this.handleOnLabelClick(event, false)}
           >
             {this.renderLocString(this.question.locLabelFalse)}
@@ -136,7 +114,7 @@ export class SurveyQuestionBoolean extends SurveyQuestionElementBase {
             </span>
           </div>
           <span
-            className={this.getLabelClass(true)}
+            className={this.question.getLabelCss(true)}
             onClick={(event) => this.handleOnLabelClick(event, true)}
           >
             {this.renderLocString(this.question.locLabelTrue)}

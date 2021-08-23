@@ -6,7 +6,7 @@
     >
       <button
         type="button"
-        data-bind="click: question.isDesignMode ? undefined : question.koAddRowClick, css: question.koCss().button + ' ' + question.koCss().buttonAdd, disable: question.isInputReadOnly"
+        data-bind="click: question.isDesignMode ? undefined : question.koAddRowClick, css: question.getAddRowButtonCss(), disable: question.isInputReadOnly"
       >
         <!-- ko template: { name: 'survey-string', data: question.locAddRowText } --><!-- /ko -->
         <span data-bind="css: question.koCss().iconAdd"></span>
@@ -14,7 +14,7 @@
     </div>
     <!-- /ko -->
     <div
-      data-bind="visible: question.koTable().showTable, style: {overflowX: question.horizontalScroll? 'scroll': ''}"
+      data-bind="visible: question.koTable().showTable, style: { overflowX: question.horizontalScroll ? 'scroll': '' }"
     >
       <table data-bind="css: question.koCss().root">
         <!-- ko if: question.koTable().showHeader -->
@@ -40,8 +40,7 @@
         <tbody>
           <!-- ko foreach: question.koTable().rows -->
           <!-- ko ifnot: $parent.detailPanelMode === "popup" && $data.isDetailRow -->
-
-          <tr data-bind="css:$data.className + ' ' + $data.ghostPositionCssClass, attr: attributes">
+          <tr data-bind="css: $data.className + ' ' + $data.ghostPositionCssClass, attr: attributes">
             <!-- ko foreach: $data.cells -->
             <!-- ko if: $data.isDragHandlerCell -->
             <td data-bind="css:$data.className, attr: {colspan: $data.colSpans}">
@@ -50,8 +49,8 @@
             </td>
             <!-- /ko -->
             <!-- ko if: $data.isActionsCell -->
-            <td data-bind="css:$data.className, attr: {colspan: $data.colSpans}">
-              <!-- ko component: { name: 'sv-action-bar', params: { model: $data.item.getData(), handleClick: false }} -->
+            <td data-bind="css: $data.className, attr: { colspan: $data.colSpans }">
+              <!-- ko component: { name: 'sv-action-bar', params: { model: $data.item.getData(), handleClick: false } } -->
               <!-- /ko -->
             </td>
             <!-- /ko -->
@@ -59,7 +58,7 @@
             <td data-bind="attr: { colspan: $data.colSpans }"></td>
             <!-- /ko -->
             <!-- ko if: $data.hasPanel -->
-            <td data-bind="css:$data.className, attr: {colspan: $data.colSpans}">
+            <td data-bind="css: $data.className, attr: { colspan: $data.colSpans }">
               <!-- ko template: { name: $data.panel.koElementType, data: $data.panel, afterRender: question.koPanelAfterRender } -->
               <!-- /ko -->
             </td>
@@ -108,7 +107,7 @@
       </div>
       <button
         type="button"
-        data-bind="click:question.koAddRowClick, css: question.koCss().button + ' ' + question.koCss().buttonAdd + '' + question.koCss().emptyRowsButton, disable: question.isInputReadOnly"
+        data-bind="click:question.koAddRowClick, css: question.getAddRowButtonCss(true), disable: question.isInputReadOnly"
       >
         <!-- ko template: { name: 'survey-string', data: question.locAddRowText } --><!-- /ko -->
         <span data-bind="css: question.koCss().iconAdd"></span>
@@ -121,7 +120,7 @@
     >
       <button
         type="button"
-        data-bind="click:question.koAddRowClick, css: question.koCss().button + ' ' + question.koCss().buttonAdd, disable: question.isInputReadOnly"
+        data-bind="click: question.koAddRowClick, css: question.getAddRowButtonCss(), disable: question.isInputReadOnly"
       >
         <!-- ko template: { name: 'survey-string', data: question.locAddRowText } --><!-- /ko -->
         <span data-bind="css: question.koCss().iconAdd"></span>
@@ -132,7 +131,7 @@
 </script>
 <script type="text/html" id="survey-matrixcell">
   <td
-    data-bind="css: $data.className, style: {minWidth: $data.minWidth, width: $data.width}, attr: { title: headers }"
+    data-bind="css: $data.className, style: { minWidth: $data.minWidth, width: $data.width }, attr: { title: headers }"
   >
     <div data-bind="visible: question.isVisible">
       <!-- ko if: $data.showErrorOnTop -->

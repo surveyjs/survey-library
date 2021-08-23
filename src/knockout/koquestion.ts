@@ -1,5 +1,5 @@
 import * as ko from "knockout";
-import { Question, SurveyElement, Helpers, doKey2Click } from "survey-core";
+import { SurveyElement, Question, Helpers, doKey2Click } from "survey-core";
 import { ImplementorBase } from "./kobase";
 
 export class QuestionImplementor extends ImplementorBase {
@@ -64,10 +64,7 @@ export class QuestionImplementor extends ImplementorBase {
     this.setObservaleObj(
       "koRootCss",
       ko.pureComputed(() => {
-        var cssRoot = this.question.cssRoot;
-        if (this.question.isReadOnly)
-          cssRoot += " " + this.question.cssClasses.disabled;
-        return cssRoot;
+        return this.question.getRootCss();
       })
     );
     this.setCallbackFunc("toggleStateByClick", this.toggleStateByClick);
@@ -151,9 +148,9 @@ export class QuestionImplementor extends ImplementorBase {
   }
   public dispose() {
     super.dispose();
-    for (var i = 0; i < this.disposedObjects.length; i++) {
-      var name = this.disposedObjects[i];
-      var obj = (<any>this)[name] || this.question[name];
+    for (let i = 0; i < this.disposedObjects.length; i++) {
+      const name = this.disposedObjects[i];
+      const obj = (<any>this)[name] || this.question[name];
       if (!obj) continue;
       if ((<any>this)[name]) (<any>this)[name] = undefined;
       if (this.question[name]) this.question[name] = undefined;

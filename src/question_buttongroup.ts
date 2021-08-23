@@ -3,6 +3,7 @@ import { QuestionFactory } from "./questionfactory";
 import { ItemValue } from "./itemvalue";
 import { QuestionCheckboxBase } from "./question_baseselect";
 import { LocalizableString } from "./localizablestring";
+import { CssClassBuilder } from "./utils/cssClassBuilder";
 
 export class ButtonGroupItemValue extends ItemValue {
   constructor(
@@ -127,17 +128,12 @@ export class ButtonGroupItemModel {
       : null;
   }
   private get labelClass() {
-    let css = this.question.cssClasses.item;
-    if (this.selected) {
-      css += " " + this.question.cssClasses.itemSelected;
-    }
-    if (!this.readOnly && !this.selected) {
-      css += " " + this.question.cssClasses.itemHover;
-    }
-    if (this.question.isReadOnly || !this.item.isEnabled) {
-      css += " " + this.question.cssClasses.itemDisabled;
-    }
-    return css;
+    return new CssClassBuilder()
+      .append(this.question.cssClasses.item)
+      .append(this.question.cssClasses.itemSelected, this.selected)
+      .append(this.question.cssClasses.itemHover, !this.readOnly && !this.selected)
+      .append(this.question.cssClasses.itemDisabled, this.question.isReadOnly || !this.item.isEnabled)
+      .toString();
   }
   public get css() {
     return {

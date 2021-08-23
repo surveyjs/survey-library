@@ -3,6 +3,7 @@ import { ItemValue } from "./itemvalue";
 import { Serializer } from "./jsonobject";
 import { QuestionFactory } from "./questionfactory";
 import { QuestionCheckboxModel } from "./question_checkbox";
+import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { IsMobile } from "./utils/is-mobile";
 
 const Sortable = <any>SortableLib;
@@ -27,9 +28,10 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
   }
 
   public get rootClass() {
-    const css: any = this.cssClasses;
-    if (IsMobile) return css.root + " " + css.rootMobileMod;
-    return css.root;
+    return new CssClassBuilder()
+      .append(this.cssClasses.root)
+      .append(this.cssClasses.rootMobileMod, IsMobile)
+      .toString();
   }
 
   public getNumberByIndex(index: number) {
@@ -245,6 +247,20 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
     const ghostNode: Element = indexNodes[indexNodes.length - 1];
     (<any>ghostNode).innerText = text;
   };
+
+  public getIconHoverCss(): string {
+    return new CssClassBuilder()
+      .append(this.cssClasses.itemIcon)
+      .append(this.cssClasses.itemIconHoverMod)
+      .toString();
+  }
+
+  public getIconFocusCss(): string {
+    return new CssClassBuilder()
+      .append(this.cssClasses.itemIcon)
+      .append(this.cssClasses.itemIconFocusMod)
+      .toString();
+  }
 }
 
 Serializer.addClass(

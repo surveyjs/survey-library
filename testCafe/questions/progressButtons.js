@@ -3,7 +3,7 @@ import { Selector, ClientFunction } from "testcafe";
 const assert = require("assert");
 const title = `progressButtons`;
 
-var json = {
+const json = {
     pages: [
         {
             name: "page1",

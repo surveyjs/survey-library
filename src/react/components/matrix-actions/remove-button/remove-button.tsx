@@ -24,11 +24,7 @@ export class SurveyQuestionMatrixDynamicRemoveButton extends ReactSurveyElement 
     var removeRowText = this.renderLocString(this.question.locRemoveRowText);
     return (
       <button
-        className={
-          this.question.cssClasses.button +
-          " " +
-          this.question.cssClasses.buttonRemove
-        }
+        className={this.question.getRemoveRowButtonCss()}
         type="button"
         onClick={this.handleOnRowRemoveClick}
         disabled={this.question.isInputReadOnly}

@@ -1,7 +1,7 @@
 import * as React from "react";
-import {QuestionMatrixDynamicModel} from "../question_matrixdynamic";
 import { ReactQuestionFactory } from "./reactquestion_factory";
 import { SurveyQuestionMatrixDropdownBase } from "./reactquestion_matrixdropdownbase";
+import { QuestionMatrixDynamicModel } from "survey-core";
 
 export class SurveyQuestionMatrixDynamic extends SurveyQuestionMatrixDropdownBase {
   constructor(props: any) {
@@ -37,9 +37,9 @@ export class SurveyQuestionMatrixDynamic extends SurveyQuestionMatrixDropdownBas
     return this.renderAddRowButton(cssClasses);
   }
   protected renderNoRowsContent(cssClasses: any): JSX.Element {
-    var text = this.renderLocString(this.matrix.locEmptyRowsText);
-    var textDiv = <div className={cssClasses.emptyRowsText}>{text}</div>;
-    var btn = this.renderAddRowButton(cssClasses, true);
+    const text: JSX.Element = this.renderLocString(this.matrix.locEmptyRowsText);
+    const textDiv: JSX.Element = <div className={cssClasses.emptyRowsText}>{text}</div>;
+    const btn: JSX.Element = this.renderAddRowButton(cssClasses, true);
     return (
       <div className={cssClasses.emptyRowsSection}>
         {textDiv}
@@ -51,16 +51,11 @@ export class SurveyQuestionMatrixDynamic extends SurveyQuestionMatrixDropdownBas
     cssClasses: any,
     isEmptySection: boolean = false
   ): JSX.Element {
-    var btnCss =
-      cssClasses.button +
-      " " +
-      cssClasses.buttonAdd +
-      (isEmptySection ? " " + cssClasses.emptyRowsButton : "");
-    var addRowText = this.renderLocString(this.matrix.locAddRowText);
+    const addRowText: JSX.Element = this.renderLocString(this.matrix.locAddRowText);
     return (
       <div className={cssClasses.footer}>
         <button
-          className={cssClasses.button + " " + cssClasses.buttonAdd}
+          className={this.question.getAddRowButtonCss(isEmptySection)}
           type="button"
           disabled={this.question.isInputReadOnly}
           onClick={

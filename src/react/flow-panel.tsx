@@ -1,11 +1,8 @@
 import * as React from "react";
-import { SurveyQuestion } from "./reactquestion";
-import { Question } from "survey-core";
-import { FlowPanelModel } from "survey-core";
+import { FlowPanelModel, Question } from "survey-core";
 import { ReactElementFactory } from "./element-factory";
-
 import { SurveyPanel } from "./panel";
-import { ReactQuestionFactory } from "./reactquestion_factory";
+import { SurveyQuestion } from "./reactquestion";
 
 export class SurveyFlowPanel extends SurveyPanel {
   constructor(props: any) {
@@ -17,11 +14,10 @@ export class SurveyFlowPanel extends SurveyPanel {
   componentDidMount() {
     super.componentDidMount();
     if (!!this.flowPanel) {
-      var self = this;
       this.flowPanel.onCustomHtmlProducing = function() {
         return "";
       };
-      this.flowPanel.onGetHtmlForQuestion = self.renderQuestion;
+      this.flowPanel.onGetHtmlForQuestion = this.renderQuestion;
     }
   }
   componentWillUnmount() {
@@ -46,24 +42,24 @@ export class SurveyFlowPanel extends SurveyPanel {
   }
   protected renderHtml(): JSX.Element {
     if (!this.flowPanel) return null;
-    let html = "<span>" + this.flowPanel.produceHtml() + "</span>";
+    const html = "<span>" + this.flowPanel.produceHtml() + "</span>";
     if (!DOMParser) {
-      var htmlValue = { __html: html };
+      const htmlValue = { __html: html };
       return <div dangerouslySetInnerHTML={htmlValue} />;
     }
-    let doc = new DOMParser().parseFromString(html, "text/xml");
+    const doc = new DOMParser().parseFromString(html, "text/xml");
     this.renderedIndex = 0;
     return this.renderParentNode(doc);
   }
   protected renderNodes(domNodes: Array<Node>): Array<JSX.Element> {
-    var nodes = [];
-    for (var i = 0; i < domNodes.length; i++) {
+    const nodes = [];
+    for (let i = 0; i < domNodes.length; i++) {
       nodes.push(this.renderNode(domNodes[i]));
     }
     return nodes;
   }
   private getStyle(nodeType: string) {
-    var style: any = {};
+    const style: any = {};
     if (nodeType.toLowerCase() === "b") {
       style.fontWeight = "bold";
     }
@@ -76,9 +72,9 @@ export class SurveyFlowPanel extends SurveyPanel {
     return style;
   }
   protected renderParentNode(node: Node): JSX.Element {
-    var nodeType = node.nodeName.toLowerCase();
-    var children = this.renderNodes(this.getChildDomNodes(node));
-    if (nodeType == "div")
+    const nodeType = node.nodeName.toLowerCase();
+    const children = this.renderNodes(this.getChildDomNodes(node));
+    if (nodeType === "div")
       return <div key={this.getNodeIndex()}>{children}</div>;
     return (
       <span key={this.getNodeIndex()} style={this.getStyle(nodeType)}>
@@ -90,11 +86,11 @@ export class SurveyFlowPanel extends SurveyPanel {
     if (!this.hasTextChildNodesOnly(node)) {
       return this.renderParentNode(node);
     }
-    var nodeType = node.nodeName.toLowerCase();
+    const nodeType = node.nodeName.toLowerCase();
     if (nodeType === "question") {
-      var question = this.flowPanel.getQuestionByName(node.textContent);
+      const question = this.flowPanel.getQuestionByName(node.textContent);
       if (!question) return null;
-      var questionBody = (
+      const questionBody = (
         <SurveyQuestion
           key={question.name}
           element={question}
@@ -114,15 +110,15 @@ export class SurveyFlowPanel extends SurveyPanel {
     );
   }
   private getChildDomNodes(node: Node): Array<Node> {
-    var domNodes = [];
-    for (var i = 0; i < node.childNodes.length; i++) {
+    const domNodes = [];
+    for (let i = 0; i < node.childNodes.length; i++) {
       domNodes.push(node.childNodes[i]);
     }
     return domNodes;
   }
   private hasTextChildNodesOnly(node: Node): boolean {
-    var nodes = node.childNodes;
-    for (var i = 0; i < nodes.length; i++) {
+    const nodes = node.childNodes;
+    for (let i = 0; i < nodes.length; i++) {
       if (nodes[i].nodeName.toLowerCase() !== "#text") return false;
     }
     return true;

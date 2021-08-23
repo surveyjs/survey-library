@@ -1,4 +1,5 @@
 import * as React from "react";
+import { SurveyProgressModel } from "survey-core"
 import { SurveyNavigationBase } from "./reactSurveyNavigationBase";
 import { ReactElementFactory } from "./element-factory";
 
@@ -30,15 +31,13 @@ export class SurveyProgress extends SurveyNavigationBase {
           aria-valuemax={100}
         >
           <span
-            className={this.css.progressText + " " + this.css.progressTextInBar}
+            className={SurveyProgressModel.getProgressTextInBarCss(this.css)}
           >
             {this.progressText}
           </span>
         </div>
         <span
-          className={
-            this.css.progressText + " " + this.css.progressTextUnderBar
-          }
+          className={SurveyProgressModel.getProgressTextUnderBarCss(this.css)}
         >
           {this.progressText}
         </span>

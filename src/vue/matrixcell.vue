@@ -19,7 +19,7 @@
     <div v-if="cell.hasQuestion">
       <survey-errors
         v-if="hasErrorsOnTop"
-        :question="cell.question"
+        :element="cell.question"
         :location="'top'"
       />
       <component
@@ -54,7 +54,7 @@
       ></survey-checkbox-item>
       <survey-errors
         v-if="hasErrorsOnBottom"
-        :question="cell.question"
+        :element="cell.question"
         :location="'bottom'"
       />
     </div>
@@ -66,11 +66,7 @@
 <script lang="ts">
 import Vue from "vue";
 import { Component, Prop } from "vue-property-decorator";
-import { Question } from "survey-core";
-import {
-  MatrixDropdownCell,
-  QuestionMatrixDropdownRenderedCell,
-} from "survey-core";
+import { Question, QuestionMatrixDropdownRenderedCell, CssClassBuilder } from "survey-core";
 
 @Component
 export class MatrixCell extends Vue {
@@ -99,15 +95,17 @@ export class MatrixCell extends Vue {
     return null;
   }
   getItemClass(item: any) {
-    var cssClasses = this.cell.question.cssClasses;
-    var isDisabled = this.cell.question.isReadOnly || !item.isEnabled;
-    var isChecked = item.value === this.cell.question.renderedValue;
-    var allowHover = !isDisabled && !isChecked;
-    var itemClass = this.cell.question.cssClasses.item;
-    if (isDisabled) itemClass += " " + cssClasses.itemDisabled;
-    if (isChecked) itemClass += " " + cssClasses.itemChecked;
-    if (allowHover) itemClass += " " + cssClasses.itemHover;
-    return itemClass;
+    const cssClasses = this.cell.question.cssClasses;
+    const isDisabled = this.cell.question.isReadOnly || !item.isEnabled;
+    const isChecked = item.value === this.cell.question.renderedValue;
+    const allowHover = !isDisabled && !isChecked;
+
+    return new CssClassBuilder()
+      .append(this.cell.question.cssClasses.item)
+      .append(cssClasses.itemDisabled, isDisabled)
+      .append(cssClasses.itemChecked, isChecked)
+      .append(cssClasses.itemHover, allowHover)
+      .toString();
   }
   mounted() {
     if (!this.cell.hasQuestion || !this.question || !this.question.survey)

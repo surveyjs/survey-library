@@ -39,6 +39,7 @@ export * from "../question_texttests";
 export * from "../question_customtests";
 export * from "../question_ranking_tests";
 export * from "../question_matrix_base_tests";
+export * from "../cssClassBuilderTests";
 
 export * from "../renderFactoryTests";
 export * from "../components/popuptests";

@@ -3,7 +3,7 @@ import {
   CustomPropertiesCollection,
   JsonObjectProperty,
   Serializer,
-  property,
+  property
 } from "./jsonobject";
 import { QuestionMatrixBaseModel } from "./martixBase";
 import { Question } from "./question";
@@ -18,12 +18,12 @@ import {
   ITextProcessor,
   IProgressInfo,
   IPanel,
-  IWrapperObject,
+  IWrapperObject
 } from "./base-interfaces";
 import { SurveyElement } from "./survey-element";
 import {
   TextPreProcessorValue,
-  QuestionTextProcessor,
+  QuestionTextProcessor
 } from "./textPreProcessor";
 import { ItemValue } from "./itemvalue";
 import { surveyLocalization } from "./surveyStrings";
@@ -1792,11 +1792,11 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     }
   }
   private getRowDragCell(rowIndex: number) {
-      const cell = new QuestionMatrixDropdownRenderedCell();
-      cell.isDragHandlerCell = true;
-      cell.className = this.cssClasses.actionsCell;
-      cell.row = this.matrix.visibleRows[rowIndex];
-      return cell;
+    const cell = new QuestionMatrixDropdownRenderedCell();
+    cell.isDragHandlerCell = true;
+    cell.className = this.cssClasses.actionsCell;
+    cell.row = this.matrix.visibleRows[rowIndex];
+    return cell;
   }
   private getRowActionsCell(rowIndex: number, location: "start" | "end") {
     const rowActions = this.getRowActions(rowIndex, location);

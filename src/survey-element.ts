@@ -1,4 +1,3 @@
-import { Helpers } from "./helpers";
 import { property } from "./jsonobject";
 import { RendererFactory } from "./rendererFactory";
 import { Base } from "./base";
@@ -16,6 +15,8 @@ import {
   ITextProcessor,
 } from "./base-interfaces";
 import { SurveyError } from "./survey-error";
+import { CssClassBuilder } from "./utils/cssClassBuilder";
+import { Helpers } from "./helpers";
 
 /**
  * Base class of SurveyJS Elements.
@@ -199,9 +200,8 @@ export class SurveyElement extends Base implements ISurveyElement {
   private updateExpandAction() {
     if (!!this.expandAction) {
       this.expandAction.visible = this.isExpanded || this.isCollapsed;
-      this.expandAction.innerCss =
-        "sv-expand-action" +
-        (this.isExpanded ? " sv-expand-action--expanded" : "");
+      this.expandAction.innerCss = new CssClassBuilder()
+        .append("sv-expand-action").append("sv-expand-action--expanded", this.isExpanded).toString();
     }
   }
   public get titleActions(): Array<any> {

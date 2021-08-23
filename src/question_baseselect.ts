@@ -1132,11 +1132,10 @@ export class QuestionSelectBase extends Question {
     }
   }
   getColumnClass() {
-    var columnClass = this.cssClasses.column;
-    if (this.hasColumns) {
-      columnClass += " sv-q-column-" + this.colCount;
-    }
-    return columnClass;
+    return new CssClassBuilder()
+      .append(this.cssClasses.column)
+      .append("sv-q-column-" + this.colCount, this.hasColumns)
+      .toString()
   }
   getItemIndex(item: any) {
     return this.visibleChoices.indexOf(item);
@@ -1148,11 +1147,9 @@ export class QuestionSelectBase extends Question {
       .append("sv-q-col-" + this.colCount, !this.hasColumns && this.colCount !== 0);
 
     const isDisabled = this.isReadOnly || !item.isEnabled;
-    const isChecked =
-      this.isItemSelected(item) ||
+    const isChecked = this.isItemSelected(item) ||
       (this.isOtherSelected && this.otherItem.value === item.value);
-    const allowHover =
-      !isDisabled && !isChecked && !(!!this.survey && this.survey.isDesignMode);
+    const allowHover = !isDisabled && !isChecked && !(!!this.survey && this.survey.isDesignMode);
     const isNone = item === this.noneItem;
 
     return builder.append(this.cssClasses.itemDisabled, isDisabled)

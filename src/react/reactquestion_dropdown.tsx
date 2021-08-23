@@ -36,6 +36,8 @@ export class SurveyQuestionDropdown extends SurveyQuestionUncontrolledElement<Qu
     if (this.isDisplayMode) {
       var isOtherSelected = this.question.isOtherSelected;
       return (
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
         <div id={this.question.inputId} className={this.question.getControlClass()} disabled>
           {isOtherSelected
             ? this.question.otherText

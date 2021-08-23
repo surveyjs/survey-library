@@ -1,9 +1,9 @@
 <template>
   <div class="sv-vue-row-additional-div">
     <div
-      v-if="row.isNeedRender && element.isVisible"
-      v-for="element in row.elements"
-      :key="element.idValue"
+      v-if="row.isNeedRender"
+      v-for="element in row.visibleElements"
+      :key="element.id"
       :style="{
         flexBasis: element.renderWidth,
         flexGrow: 1,

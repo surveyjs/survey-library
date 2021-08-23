@@ -85,6 +85,10 @@ export interface IAction {
 }
 
 export class Action extends Base implements IAction {
+  public updateCallback: () => void;
+  private raiseUpdate() {
+    this.updateCallback && this.updateCallback();
+  }
   constructor(item: IAction) {
     super();
     //Object.assign(this, item) to support IE11
@@ -97,7 +101,9 @@ export class Action extends Base implements IAction {
   location?: string;
   @property() id: string;
   @property() iconName: string;
-  @property({ defaultValue: true }) visible: boolean;
+  @property({ defaultValue: true, onSet: (_, target: Action) => {
+    target.raiseUpdate();
+  } }) visible: boolean;
   @property() title: string;
   @property() tooltip: string;
   @property() enabled: boolean;

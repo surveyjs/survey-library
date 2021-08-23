@@ -9,9 +9,9 @@ import {
 } from "./utils/popup";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 
-export class PopupModel extends Base {
+export class PopupModel<T = any> extends Base {
   @property() contentComponentName: string;
-  @property() contentComponentData: any;
+  @property() contentComponentData: T;
   @property({ defaultValue: "bottom" }) verticalPosition: VerticalPosition;
   @property({ defaultValue: "left" }) horizontalPosition: HorizontalPosition;
   @property({ defaultValue: false }) showPointer: boolean;
@@ -23,7 +23,7 @@ export class PopupModel extends Base {
   @property({ defaultValue: "" }) cssClass: string;
   constructor(
     contentComponentName: string,
-    contentComponentData: any,
+    contentComponentData: T,
     verticalPosition: VerticalPosition = "bottom",
     horizontalPosition: HorizontalPosition = "left",
     showPointer: boolean = true,

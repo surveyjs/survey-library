@@ -109,7 +109,7 @@ frameworks.forEach((framework) => {
         opt.titleActions = [item];
       },
     });
-    const popupSelector = Selector(".sv-popup");
+    const popupSelector = Selector(".sv-popup.sv-popup--modal");
     assert.ok(!(await popupSelector.exists));
 
     await t.click(Selector(".sv-action-bar-item"));
@@ -117,7 +117,7 @@ frameworks.forEach((framework) => {
     assert.ok(
       await Selector(".sv-popup span").withText("modal_question").visible
     );
-    const popupClientRect = await getElementClientRect(".sv-popup__container");
+    const popupClientRect = await getElementClientRect(".sv-popup--modal .sv-popup__container");
     const acturalLeft = popupClientRect.left;
     const expectedLeft = (800 - popupClientRect.width) / 2;
     await t.expect(Math.abs(acturalLeft - expectedLeft)).lt(FLOAT_PRECISION);
@@ -160,7 +160,7 @@ frameworks.forEach((framework) => {
         opt.titleActions = [item];
       },
     });
-    await t.click(Selector(".sv-action-bar-item"));
+    await t.click(Selector(".sv-action-bar-item"))
     await t.expect(Selector(".sv-popup .sv_q_text_root").focused).ok({
       timeout: 100,
     });

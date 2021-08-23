@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.8.61](https://github.com/surveyjs/survey-library/compare/v1.8.60...v1.8.61) (2021-08-19)
+
+
+### Bug Fixes
+
+* row.isLazyRendering() is function now, [#3198](https://github.com/surveyjs/survey-library/issues/3198) ([#3200](https://github.com/surveyjs/survey-library/issues/3200)) ([f51ae0b](https://github.com/surveyjs/survey-library/commit/f51ae0b7fc24db526dc3aa6f6bdddb3967f4dde1))
+
 ### [1.8.60](https://github.com/surveyjs/survey-library/compare/v1.8.59...v1.8.60) (2021-08-11)
 
 

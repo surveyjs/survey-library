@@ -36,8 +36,10 @@ export class SurveyAction extends SurveyElementBase<IActionBarItemProps, any> {
     );
     return (
       <span className={itemClass} id={this.item.id}>
-        {separator}
-        {itemComponent}
+        <div className="sv-action__content">
+          {separator}
+          {itemComponent}
+        </div>
       </span>
     );
   }

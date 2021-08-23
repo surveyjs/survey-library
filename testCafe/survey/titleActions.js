@@ -33,19 +33,21 @@ frameworks.forEach((framework) => {
     var getQuestionState = ClientFunction(() => {
       return survey.getAllQuestions()[0].state;
     });
-    assert.equal(await Selector("h5 button").innerText, "Action");
-    assert.ok(await Selector("h5 .sv-action").visible);
-    assert.ok(!(await Selector("h5 button svg use").exists));
+
+    const visibleAction = Selector("h5 .sv-action:not(.sv-action--hidden)");
+    assert.equal(await visibleAction.find("button").innerText, "Action");
+    assert.ok(await visibleAction.visible);
+    assert.ok(!(await visibleAction.find("button svg use").exists));
     assert.ok(
-      !(await Selector("h5 .sv-action div.sv-action-bar-separator").exists)
+      !(await visibleAction.find("div.sv-action-bar-separator").exists)
     );
     assert.equal(
-      (await Selector("h5 button span").classNames).indexOf(
+      (await visibleAction.find("button span").classNames).indexOf(
         "sv-action-bar-item__title--with-icon"
       ),
       -1
     );
-    await t.click("h5 button");
+    await t.click(visibleAction.find("button"));
     assert.equal(await getQuestionState(), "expanded");
   });
 
@@ -88,7 +90,7 @@ frameworks.forEach((framework) => {
       },
     });
     assert.ok(
-      !(await Selector("h5 .sv-action span.sv-action-bar-item__title").exists)
+      !(await Selector("h5 .sv-action:not(.sv-action--hidden) span.sv-action-bar-item__title").exists)
     );
   });
 

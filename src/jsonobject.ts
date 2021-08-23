@@ -100,8 +100,14 @@ function ensureArray(
 ) {
   target.ensureArray(
     key,
-    !!options ? options.onPush : null,
-    !!options ? options.onRemove : null
+    (item: any, index: number) => {
+      const handler = !!options ? options.onPush : null;
+      handler && handler(item, index, target);
+    },
+    (item: any, index: number) => {
+      const handler = !!options ? options.onRemove : null;
+      handler && handler(item, index, target);
+    },
   );
 }
 

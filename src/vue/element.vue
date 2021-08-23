@@ -1,5 +1,5 @@
 <template>
-  <div :class="getRootClass(element)">
+  <div :class="!element.isPanel ? element.getRootCss() : null">
     <survey-element-header
       v-if="!element.isPanel && element.hasTitleOnLeftTop"
       :element="element"
@@ -11,7 +11,7 @@
     >
       <survey-errors
         v-if="!element.isPanel && hasErrorsOnTop"
-        :question="element"
+        :element="element"
         :location="'top'"
       />
       <component
@@ -25,7 +25,7 @@
       </div>
       <survey-errors
         v-if="!element.isPanel && hasErrorsOnBottom"
-        :question="element"
+        :element="element"
         :location="'bottom'"
       />
       <div
@@ -46,9 +46,7 @@
 <script lang="ts">
 import Vue from "vue";
 import { Component, Prop } from "vue-property-decorator";
-import { SurveyModel } from "survey-core";
-import { IElement } from "survey-core";
-import { Question } from "survey-core";
+import { SurveyModel, Question, IElement } from "survey-core";
 @Component
 export class SurveyElementVue extends Vue {
   @Prop() css: any;
@@ -60,14 +58,6 @@ export class SurveyElementVue extends Vue {
       return "survey-" + element.getTemplate();
     }
     return element.getComponentName();
-  }
-  getRootClass(element: Question) {
-    let cssRoot = element.cssRoot;
-    if (element.isReadOnly) {
-      cssRoot += " " + (<any>this.element).cssClasses.disabled;
-    }
-
-    return cssRoot;
   }
   getContentClass(element: Question) {
     return element.cssContent;

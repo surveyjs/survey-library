@@ -18,7 +18,7 @@
         <tbody>
           <tr
             v-for="(row, rowIndex) in question.visibleRows"
-            :key="'row-' + row.name + '-' + rowIndex"
+            :key="'row_' + row.name + '_' + rowIndex"
             :class="row.rowClasses"
           >
             <td :class="question.cssClasses.cell" v-show="question.hasRows">

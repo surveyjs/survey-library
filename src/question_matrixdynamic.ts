@@ -1,3 +1,7 @@
+
+import { Serializer } from "./jsonobject";
+import { QuestionFactory } from "./questionfactory";
+import { IConditionObject, Question } from "./question";
 import {
   QuestionMatrixDropdownModelBase,
   MatrixDropdownRowModelBase,
@@ -6,20 +10,17 @@ import {
   QuestionMatrixDropdownRenderedTable,
   QuestionMatrixDropdownRenderedRow,
 } from "./question_matrixdropdownbase";
-import { property, Serializer } from "./jsonobject";
-import { QuestionFactory } from "./questionfactory";
 import { surveyLocalization } from "./surveyStrings";
-import { SurveyError } from "./survey-error";
-import { Question } from "./question";
-import { MinRowCountError } from "./error";
-import { IConditionObject } from "./question";
-import { Helpers } from "./helpers";
-import { settings } from "./settings";
-import { confirmAction } from "./utils/utils";
 import { LocalizableString } from "./localizablestring";
-import { Action, IAction } from "./actions/action";
+import { SurveyError } from "./survey-error";
+import { MinRowCountError } from "./error";
+import { IAction } from "./actions/action";
+import { settings } from "./settings";
+import { Helpers } from "./helpers";
+import { confirmAction } from "./utils/utils";
 import { DragDropMatrixRows } from "./dragdrop/matrix-rows";
 import { ISurveyImpl } from "./base-interfaces";
+import { CssClassBuilder } from "./utils/cssClassBuilder";
 
 export class MatrixDynamicRowModel extends MatrixDropdownRowModelBase {
   constructor(public index: number, data: IMatrixDropdownData, value: any) {
@@ -804,6 +805,19 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     );
     if (!res && create) res = {};
     return res;
+  }
+  public getAddRowButtonCss(isEmptySection: boolean = false): string {
+    return new CssClassBuilder()
+      .append(this.cssClasses.button)
+      .append(this.cssClasses.buttonAdd)
+      .append(this.cssClasses.emptyRowsButton, isEmptySection)
+      .toString();
+  }
+  public getRemoveRowButtonCss(): string {
+      return new CssClassBuilder()
+        .append(this.cssClasses.button)
+        .append(this.cssClasses.buttonRemove)
+        .toString()
   }
 }
 

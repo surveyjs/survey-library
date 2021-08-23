@@ -1,7 +1,7 @@
 <script type="text/html" id="survey-question-title">
   <div data-bind="css: question.cssHeader, click: question.clickTitleFunction">
     <h5
-      data-bind="css: cssTitle, attr: { 'aria-label': question.locTitle.renderedHtml, id: ariaTitleId, tabindex: question.titleTabIndex, 'aria-expanded': question.titleAriaExpanded}, click: toggleStateByClick, event: { keyup: question.toggleStateByKeyUp }"
+      data-bind="css: cssTitle, attr: { 'aria-label': question.locTitle.renderedHtml, id: ariaTitleId, tabindex: question.titleTabIndex, 'aria-expanded': question.titleAriaExpanded }, click: toggleStateByClick, event: { keyup: question.toggleStateByKeyUp }"
     >
       <!-- ko component: { name: getTitleComponentName(), params: { element: $data } } --><!-- /ko -->
     </h5>

@@ -1,15 +1,11 @@
 <template>
   <button
-    class="sv-action-bar-item"
+    :class="item.getActionBarItemActiveCss()"
     v-on:click="
       () => {
         item.action();
       }
     "
-    v-bind:class="[
-      { 'sv-action-bar-item--active': item.isActive },
-      item.innerCss,
-    ]"
     v-bind:disabled="item.enabled !== undefined && item.enabled"
     v-bind:title="item.tooltip || item.title"
   >
@@ -22,8 +18,7 @@
 
     <span
       v-if="item.showTitle === undefined || item.showTitle || !item.iconName"
-      class="sv-action-bar-item__title"
-      v-bind:class="{ 'sv-action-bar-item__title--with-icon': !!item.iconName }"
+      :class="item.getActionBarItemCss()"
       >{{ item.title }}</span
     >
     <sv-popup :model="item.popupModel"></sv-popup>

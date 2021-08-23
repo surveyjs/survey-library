@@ -1,6 +1,7 @@
-import { IAction } from "./actions/action";
-import { Base } from "./base";
 import { property } from "./jsonobject";
+import { Base } from "./base";
+import { IAction } from "./actions/action";
+import { CssClassBuilder } from "./utils/cssClassBuilder";
 
 export class ListModel extends Base {
   @property({ defaultValue: false }) isExpanded: boolean;
@@ -45,18 +46,15 @@ export class ListModel extends Base {
   };
 
   public getItemClass = (itemValue: IAction) => {
-    var className = "sv-list__item";
-    if (this.isItemDisabled(itemValue)) {
-      className += " sv-list__item--disabled";
-    }
-    if (this.isItemSelected(itemValue)) {
-      className += " sv-list__item--selected";
-    }
-    return className;
+    return new CssClassBuilder()
+      .append("sv-list__item")
+      .append("sv-list__item--disabled", this.isItemDisabled(itemValue))
+      .append("sv-list__item--selected", this.isItemSelected(itemValue))
+      .toString()
   };
 
   public getItemIndent = (itemValue: any) => {
-    const level = itemValue.level || 0;
+    const level: number = itemValue.level || 0;
     return (level + 1) * ListModel.INDENT + "px";
   };
 }

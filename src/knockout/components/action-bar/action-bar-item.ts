@@ -1,14 +1,12 @@
 import * as ko from "knockout";
-
 const template = require("./action-bar-item.html");
-
-export var ActionBarItemViewModel: any;
+export let ActionBarItemViewModel: any;
 
 ko.components.register("sv-action-bar-item", {
   viewModel: {
-    createViewModel: (params: any, componentInfo: any) => {
+    createViewModel: (params: any) => {
       return params.item;
     },
   },
-  template: template,
+  template: template
 });

@@ -2,23 +2,23 @@
   <div
     role="alert"
     aria-live="polite"
-    v-show="question.hasVisibleErrors"
-    :class="classes"
-    :id="question.id + '_errors'"
+    v-show="element.hasVisibleErrors"
+    :class="element.cssError"
+    :id="element.id + '_errors'"
   >
-    <div v-for="error in question.errors">
+    <div v-for="(error, index) in element.errors" :key="'error_' + index">
       <span
         :class="
-          question.cssClasses
-            ? question.cssClasses.error.icon
+          element.cssClasses
+            ? element.cssClasses.error.icon
             : 'panel-error-icon'
         "
         aria-hidden="true"
       ></span>
       <span
         :class="
-          question.cssClasses
-            ? question.cssClasses.error.item
+          element.cssClasses
+            ? element.cssClasses.error.item
             : 'panel-error-item'
         "
       >
@@ -31,32 +31,12 @@
 <script lang="ts">
 import Vue from "vue";
 import { Component, Prop } from "vue-property-decorator";
-import { Question } from "survey-core";
-import { SurveyError } from "survey-core";
+import { SurveyElement } from "survey-core";
 
 @Component
 export class Errors extends Vue {
-  @Prop() question: Question;
+  @Prop() element: SurveyElement;
   @Prop() location: String;
-
-  get classes() {
-    var question = this.question;
-    var classes = question.cssClasses
-      ? question.cssClasses.error.root
-      : "panel-error-root";
-
-    var additionalClasses = "";
-
-    if (this.location === "top") {
-      additionalClasses = question.cssClasses.error.locationTop;
-    } else if (this.location === "bottom") {
-      additionalClasses = question.cssClasses.error.locationBottom;
-    }
-
-    if (additionalClasses) classes += " " + additionalClasses;
-
-    return classes;
-  }
 }
 Vue.component("survey-errors", Errors);
 export default Errors;

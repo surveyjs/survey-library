@@ -1,8 +1,9 @@
 import { property, Serializer } from "./jsonobject";
-import { Question } from "./question";
 import { surveyLocalization } from "./surveyStrings";
-import SignaturePad from "signature_pad";
 import { QuestionFactory } from "./questionfactory";
+import { Question } from "./question";
+import SignaturePad from "signature_pad";
+import { CssClassBuilder } from "./utils/cssClassBuilder";
 
 var defaultWidth = 300;
 var defaultHeight = 200;
@@ -38,11 +39,10 @@ function resizeCanvas(canvas: HTMLCanvasElement) {
 export class QuestionSignaturePadModel extends Question {
   @property({ defaultValue: false }) isDrawingValue: boolean;
   protected getCssRoot(cssClasses: any): string {
-    var classes = super.getCssRoot(cssClasses);
-    if ("" + this.width === "300") {
-      classes += " " + cssClasses.small;
-    }
-    return classes;
+    return new CssClassBuilder()
+      .append(super.getCssRoot(cssClasses))
+      .append(cssClasses.small, this.width.toString() === "300")
+      .toString();
   }
 
   protected updateValue() {

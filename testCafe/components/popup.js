@@ -1,4 +1,4 @@
-import { url, initSurvey, getSurveyResult, frameworks } from "../helper";
+import { url, initSurvey, frameworks, FLOAT_PRECISION } from "../helper";
 import { Selector, ClientFunction, t } from "testcafe";
 const assert = require("assert");
 const title = `popup`;
@@ -51,7 +51,7 @@ frameworks.forEach((framework) => {
           action: () => {
             itemPopupModel.toggleVisibility();
           },
-          popupModel: itemPopupModel,
+          popupModel: itemPopupModel
         });
         opt.titleActions = [item];
       },
@@ -118,14 +118,12 @@ frameworks.forEach((framework) => {
       await Selector(".sv-popup span").withText("modal_question").visible
     );
     const popupClientRect = await getElementClientRect(".sv-popup--modal .sv-popup__container");
-    assert.equal(
-      popupClientRect.left,
-      Math.round((800 / 2 - popupClientRect.width / 2) * 10) / 10
-    );
-    assert.equal(
-      popupClientRect.top,
-      Math.round((600 / 2 - popupClientRect.height / 2) * 10) / 10
-    );
+    const acturalLeft = popupClientRect.left;
+    const expectedLeft = (800 - popupClientRect.width) / 2;
+    await t.expect(Math.abs(acturalLeft - expectedLeft)).lt(FLOAT_PRECISION);
+    const acturalTop = popupClientRect.top;
+    const expectedTop = (600 - popupClientRect.height) / 2;
+    await t.expect(Math.abs(acturalTop - expectedTop)).lt(FLOAT_PRECISION);
     await t.click(Selector(".sv-action-bar-item"));
     assert.ok(await popupSelector.visible);
     await t.click(Selector(".sv-popup__button").withText("Cancel"));

@@ -8,9 +8,7 @@
       <template v-for="item in row">
         <td
           :key="'label' + item.editor.id"
-          :class="
-            question.cssClasses.itemTitle + ' ' + question.cssClasses.cell
-          "
+          :class="question.getItemTitleCss()"
         >
           <span
             v-if="
@@ -27,10 +25,10 @@
             >{{ item.editor.requiredText }}</span
           >
         </td>
-        <td :key="item.editor.id" :css="question.cssClasses.cell">
+        <td :key="item.editor.id" :css="question.getItemCss()">
           <survey-errors
             v-if="hasErrorsOnTop"
-            :question="item.editor"
+            :element="item.editor"
             :location="'top'"
           />
           <component
@@ -39,7 +37,7 @@
           />
           <survey-errors
             v-if="hasErrorsOnBottom"
-            :question="item.editor"
+            :element="item.editor"
             :location="'bottom'"
           />
         </td>
@@ -50,7 +48,7 @@
 
 <script lang="ts">
 import Vue from "vue";
-import { Component, Prop } from "vue-property-decorator";
+import { Component } from "vue-property-decorator";
 import { default as QuestionVue } from "./question";
 import { Question } from "survey-core";
 import { QuestionMultipleTextModel } from "survey-core";

@@ -12,6 +12,7 @@ import { QuestionDropdownModel } from "./question_dropdown";
 import { IConditionObject } from "./question";
 import { settings } from "./settings";
 import { SurveyModel } from "./survey";
+import { CssClassBuilder } from "./utils/cssClassBuilder";
 
 export interface IMatrixData {
   onMatrixRowChanged(row: MatrixRowModel): void;
@@ -57,17 +58,11 @@ export class MatrixRowModel extends Base {
     this.setPropertyValue("value", newValue);
   }
   public get rowClasses(): string {
-    var cssClasses = (<any>this.data).cssClasses;
-    var rowClass = !!cssClasses.row ? cssClasses.row : "";
-    var rowErrorClass = !!cssClasses.rowError ? cssClasses.rowError : "";
-    var hasError = !!(<any>this.data).getErrorByType("requiredinallrowserror");
-
-    var classes = rowClass;
-    if (!!rowErrorClass && hasError && this.isValueEmpty(this.value)) {
-      if (!!classes) classes += " ";
-      classes += rowErrorClass;
-    }
-    return classes;
+    const cssClasses = (<any>this.data).cssClasses;
+    const hasError = !!(<any>this.data).getErrorByType("requiredinallrowserror");
+    return new CssClassBuilder().append(cssClasses.row)
+      .append(cssClasses.rowError, hasError && this.isValueEmpty(this.value))
+      .toString()
   }
 }
 
@@ -271,33 +266,17 @@ export class QuestionMatrixModel
     return col;
   }
   public getItemClass(row: any, column: any) {
-    var isChecked = row.value == column.value;
-    var isDisabled = this.isReadOnly;
-    var allowHover = !isChecked && !isDisabled;
-    var cellDisabledClass = this.hasCellText
-      ? this.cssClasses.cellTextDisabled
-      : this.cssClasses.itemDisabled;
+    const isChecked = row.value == column.value;
+    const isDisabled = this.isReadOnly;
+    const allowHover = !isChecked && !isDisabled;
 
-    var cellSelectedClass = this.hasCellText
-      ? this.cssClasses.cellTextSelected
-      : this.cssClasses.itemChecked;
-
-    var itemHoverClass = !this.hasCellText ? this.cssClasses.itemHover : "";
-
-    var cellClass = this.hasCellText
-      ? this.cssClasses.cellText
-      : this.cssClasses.label;
-
-    let itemClass =
-      this.hasCellText && !!this.cssClasses.cell
-        ? this.cssClasses.cell + " "
-        : "";
-    itemClass +=
-      cellClass +
-      (isChecked ? " " + cellSelectedClass : "") +
-      (isDisabled ? " " + cellDisabledClass : "") +
-      (allowHover ? " " + itemHoverClass : "");
-    return itemClass;
+    return new CssClassBuilder()
+      .append(this.cssClasses.cell, this.hasCellText)
+      .append(this.hasCellText ? this.cssClasses.cellText : this.cssClasses.label)
+      .append(this.hasCellText ? this.cssClasses.cellTextSelected : this.cssClasses.itemChecked, isChecked)
+      .append(this.hasCellText ? this.cssClasses.cellTextDisabled : this.cssClasses.itemDisabled, isDisabled)
+      .append(this.cssClasses.itemHover, allowHover && !this.hasCellText)
+      .toString();
   }
 
   protected getQuizQuestionCount() {

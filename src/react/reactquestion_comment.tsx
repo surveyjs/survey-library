@@ -1,7 +1,7 @@
 import * as React from "react";
 import {
   ReactSurveyElement,
-  SurveyQuestionUncontrolledElement,
+  SurveyQuestionUncontrolledElement
 } from "./reactquestion_element";
 import { QuestionCommentModel } from "survey-core";
 import { ReactQuestionFactory } from "./reactquestion_factory";

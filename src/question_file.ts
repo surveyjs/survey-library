@@ -5,6 +5,7 @@ import { EventBase } from "./base";
 import { UploadingFileError, ExceedSizeError } from "./error";
 import { surveyLocalization } from "./surveyStrings";
 import { SurveyError } from "./survey-error";
+import { CssClassBuilder } from "survey-core";
 
 /**
  * A Model for a file question
@@ -404,6 +405,18 @@ export class QuestionFileModel extends Question {
   }
   public supportComment(): boolean {
     return true;
+  }
+  public getChooseFileCss(): string {
+    return new CssClassBuilder()
+      .append(this.cssClasses.chooseFile)
+      .append(this.cssClasses.controlDisabled, this.isReadOnly)
+      .toString();
+  }
+  public getReadOnlyFileCss(): string {
+    return new CssClassBuilder()
+      .append("form-control")
+      .append(this.cssClasses.placeholderInput)
+      .toString();
   }
 }
 Serializer.addClass(

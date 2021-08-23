@@ -1239,11 +1239,11 @@ export class Question extends SurveyElement
    */
   public getPlainData(
     options: {
-      includeEmpty?: boolean;
-      includeQuestionTypes?: boolean;
+      includeEmpty?: boolean,
+      includeQuestionTypes?: boolean,
       calculations?: Array<{
-        propertyName: string;
-      }>;
+        propertyName: string,
+      }>,
     } = {
       includeEmpty: true,
       includeQuestionTypes: false,
@@ -1754,22 +1754,22 @@ export class Question extends SurveyElement
     return this.survey
       ? (<ILocalizableOwner>(<any>this.survey)).getLocale()
       : this.locOwner
-      ? this.locOwner.getLocale()
-      : "";
+        ? this.locOwner.getLocale()
+        : "";
   }
   public getMarkdownHtml(text: string, name: string): string {
     return this.survey
       ? this.survey.getSurveyMarkdownHtml(this, text, name)
       : this.locOwner
-      ? this.locOwner.getMarkdownHtml(text, name)
-      : null;
+        ? this.locOwner.getMarkdownHtml(text, name)
+        : null;
   }
   public getRenderer(name: string): string {
     return this.survey && typeof this.survey.getRendererForString === "function"
       ? this.survey.getRendererForString(this, name)
       : this.locOwner && typeof this.locOwner.getRenderer === "function"
-      ? this.locOwner.getRenderer(name)
-      : null;
+        ? this.locOwner.getRenderer(name)
+        : null;
   }
   public getProcessedText(text: string): string {
     if (this.isLoadingFromJson) return text;
@@ -1838,8 +1838,8 @@ Serializer.addClass("question", [
       var survey = obj ? obj.survey : null;
       return survey
         ? survey.pages.map((p: any) => {
-            return { value: p.name, text: p.title };
-          })
+          return { value: p.name, text: p.title };
+        })
         : [];
     },
   },

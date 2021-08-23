@@ -18,7 +18,7 @@ export class DefaultTitle extends React.Component<any, any> {
     if (this.element.isCollapsed || this.element.isExpanded) {
       const iconCss: string = DefaultTitleModel.getIconCss(
         this.cssClasses, this.element.isCollapsed);
-    
+
       var changeExpanded = (event: any) => {
         let question = this.element;
 

@@ -1,11 +1,11 @@
 import * as ko from "knockout";
 import { Serializer,
-      Question,
-      QuestionFactory,
-      QuestionFileModel,
-      confirmAction,
-      detectIEOrEdge,
-      loadFileFromBase64
+  Question,
+  QuestionFactory,
+  QuestionFileModel,
+  confirmAction,
+  detectIEOrEdge,
+  loadFileFromBase64
 } from "survey-core";
 import { QuestionImplementor } from "./koquestion";
 
@@ -30,7 +30,7 @@ class QuestionFileImplementor extends QuestionImplementor {
     this.setObservaleObj(
       "koChooseFileCss",
       ko.pureComputed(() => {
-          return this.question.getChooseFileCss();
+        return this.question.getChooseFileCss();
       })
     );
     this.setCallbackFunc("ondrop", (data: any, event: any) => {

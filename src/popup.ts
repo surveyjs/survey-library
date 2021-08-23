@@ -134,7 +134,7 @@ export class PopupBaseViewModel extends Base {
       .append("sv-popup--modal", this.isModal)
       .append("sv-popup--show-pointer", !this.isModal && this.showPointer)
       .append(`sv-popup--${this.popupDirection}`, !this.isModal && this.showPointer)
-      .toString()
+      .toString();
   }
   public onKeyDown(event: any) {
     if (event.key === "Tab" || event.keyCode === 9) {

@@ -1,5 +1,5 @@
-import { SurveyModel } from './survey';
-import { CssClassBuilder } from './utils/cssClassBuilder';
+import { SurveyModel } from "./survey";
+import { CssClassBuilder } from "./utils/cssClassBuilder";
 
 export class SurveyProgressButtonsModel {
   constructor(private survey: SurveyModel) {
@@ -8,7 +8,7 @@ export class SurveyProgressButtonsModel {
     if (!this.survey.onServerValidateQuestions ||
       this.survey.onServerValidateQuestions.isEmpty ||
       this.survey.checkErrorsMode === "onComplete") {
-      return true;    
+      return true;
     }
     return index <= this.survey.currentPageNo + 1;
   }

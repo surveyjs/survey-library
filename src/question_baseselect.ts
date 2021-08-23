@@ -1135,7 +1135,7 @@ export class QuestionSelectBase extends Question {
     return new CssClassBuilder()
       .append(this.cssClasses.column)
       .append("sv-q-column-" + this.colCount, this.hasColumns)
-      .toString()
+      .toString();
   }
   getItemIndex(item: any) {
     return this.visibleChoices.indexOf(item);

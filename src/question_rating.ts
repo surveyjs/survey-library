@@ -200,7 +200,7 @@ export class QuestionRatingModel extends Question {
       .append(this.cssClasses.selected, this.value == item.value)
       .append(this.cssClasses.itemDisabled, this.isReadOnly)
       .append(this.cssClasses.itemHover, allowHover)
-      .toString(); 
+      .toString();
   }
 }
 Serializer.addClass(

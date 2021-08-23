@@ -1886,7 +1886,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
         .append(renderedCell.className)
         .append(this.cssClasses.detailRowText, row.hasPanel)
         .toString();
-    }    
+    }
     for (var i = 0; i < row.cells.length; i++) {
       let cell = row.cells[i];
       if (!cell.column.hasVisibleCell) continue;
@@ -3432,7 +3432,7 @@ export class QuestionMatrixDropdownModelBase
   private updateDetailPanelButtonCss(row: MatrixDropdownRowModelBase) {
     const classes = this.cssClasses;
     const isPanelShowing = this.getIsDetailPanelShowing(row);
-    
+
     const iconBuilder = new CssClassBuilder().append(classes.detailIcon)
       .append(classes.detailIconExpanded, isPanelShowing);
     this.setPropertyValue("detailIconCss" + row.id, iconBuilder.toString());

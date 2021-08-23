@@ -1630,7 +1630,7 @@ export class QuestionPanelDynamicModel extends Question
       .append(this.cssClasses.buttonRemove)
       .append(this.cssClasses.buttonRemoveRight, this.panelRemoveButtonLocation === "right")
       .toString();
-  }  
+  }
   public getAddButtonCss(): string {
     return new CssClassBuilder()
       .append(this.cssClasses.button)
@@ -1646,9 +1646,9 @@ export class QuestionPanelDynamicModel extends Question
   }
   public getNextButtonCss(): string {
     return new CssClassBuilder()
-    .append(this.cssClasses.buttonNext)
-    .append(this.cssClasses.buttonNext + "--disabled", !this.isNextButtonShowing)
-    .toString();
+      .append(this.cssClasses.buttonNext)
+      .append(this.cssClasses.buttonNext + "--disabled", !this.isNextButtonShowing)
+      .toString();
   }
 }
 

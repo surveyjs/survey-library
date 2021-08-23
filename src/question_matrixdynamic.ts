@@ -814,10 +814,10 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
       .toString();
   }
   public getRemoveRowButtonCss(): string {
-      return new CssClassBuilder()
-        .append(this.cssClasses.button)
-        .append(this.cssClasses.buttonRemove)
-        .toString()
+    return new CssClassBuilder()
+      .append(this.cssClasses.button)
+      .append(this.cssClasses.buttonRemove)
+      .toString();
   }
 }
 

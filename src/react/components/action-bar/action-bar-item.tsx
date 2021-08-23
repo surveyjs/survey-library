@@ -19,6 +19,7 @@ export class SurveyAction extends SurveyElementBase<IActionBarItemProps, any> {
   }
 
   renderElement() {
+    //refactor
     const itemClass =
       "sv-action " +
       this.item.css +
@@ -60,12 +61,9 @@ export class SurveyActionBarItem extends SurveyElementBase<
   }
 
   renderText() {
-    if (this.item.hasTitle) {
-      var titleClass =
-        "sv-action-bar-item__title " +
-        (!!this.item.iconName ? "sv-action-bar-item__title--with-icon" : "");
-      return <span className={titleClass}> {this.item.title}</span>;
-    } else return null;
+    if (!this.item.hasTitle) return null;
+    const titleClass = this.item.getActionBarItemCss();
+    return <span className={titleClass}> {this.item.title}</span>;
   }
 
   renderButtonContent() {
@@ -86,10 +84,7 @@ export class SurveyActionBarItem extends SurveyElementBase<
   }
 
   renderInnerButton() {
-    const className =
-      "sv-action-bar-item " +
-      this.item.innerCss +
-      (this.item.active ? " sv-action-bar-item--active" : "");
+    const className = this.item.getActionBarItemActiveCss();
     const title = this.item.tooltip || this.item.title;
     const buttonContent = this.renderButtonContent();
     const tabIndex = this.item.disableTabStop ? -1 : undefined;

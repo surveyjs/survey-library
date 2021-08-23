@@ -5,6 +5,7 @@ import { QuestionFactory } from "./questionfactory";
 import { LocalizableString } from "./localizablestring";
 import { settings } from "./settings";
 import { surveyLocalization } from "./surveyStrings";
+import { CssClassBuilder } from "./utils/cssClassBuilder";
 
 /**
  * A Model for a rating question.
@@ -190,26 +191,16 @@ export class QuestionRatingModel extends Question {
     }
   }
   public getItemClass(item: ItemValue) {
-    const itemCss = this.cssClasses.item;
-    const selected = this.cssClasses.selected;
-    const disabled = this.cssClasses.itemDisabled;
     const isSelected = this.value == item.value;
     const isDisabled = this.isReadOnly && !item.isEnabled;
-    const allowHover =
-      !isDisabled &&
-      !isSelected &&
-      !(!!this.survey && this.survey.isDesignMode);
-    let result = itemCss;
-    if (this.value == item.value) {
-      result += " " + selected;
-    }
-    if (this.isReadOnly) {
-      result += " " + disabled;
-    }
-    if (allowHover) {
-      result += " " + this.cssClasses.itemHover;
-    }
-    return result;
+    const allowHover = !isDisabled && !isSelected && !(!!this.survey && this.survey.isDesignMode);
+
+    return new CssClassBuilder()
+      .append(this.cssClasses.item)
+      .append(this.cssClasses.selected, this.value == item.value)
+      .append(this.cssClasses.itemDisabled, this.isReadOnly)
+      .append(this.cssClasses.itemHover, allowHover)
+      .toString(); 
   }
 }
 Serializer.addClass(

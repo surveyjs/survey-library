@@ -1,6 +1,6 @@
 import React from "react";
 import ReactDOM from "react-dom";
-import { PopupModel, PopupBaseViewModel, settings, createPopupModalViewModel } from "survey-core";
+import { PopupModel, PopupBaseViewModel, createPopupModalViewModel, CssClassBuilder, settings } from "survey-core";
 import { ReactElementFactory } from "../../element-factory";
 import { SurveyElementBase } from "../../reactquestion_element";
 
@@ -142,7 +142,8 @@ export class PopupContainer extends SurveyElementBase<any, any> {
   }
   render() {
     const container = this.renderContainer();
-    const className = "sv-popup " + this.model.styleClass;
+    const className = new CssClassBuilder()
+      .append("sv-popup").append(this.model.styleClass).toString();
     const style = {
       display: this.model.isVisible ? "" : "none",
     };

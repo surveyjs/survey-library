@@ -146,7 +146,7 @@ export class Survey extends SurveyElementBase<any, any>
       <React.Fragment>
         <div
           dangerouslySetInnerHTML={htmlValue}
-          className={[this.css.body, this.css.completedPage].join(" ")}
+          className={this.survey.completedCss}
         />
         {completedState}
       </React.Fragment>

@@ -1,10 +1,13 @@
 import * as ko from "knockout";
-import { Serializer } from "survey-core";
-import { QuestionFactory } from "survey-core";
-import { QuestionFileModel } from "survey-core";
+import { Serializer,
+      Question,
+      QuestionFactory,
+      QuestionFileModel,
+      confirmAction,
+      detectIEOrEdge,
+      loadFileFromBase64
+} from "survey-core";
 import { QuestionImplementor } from "./koquestion";
-import { Question } from "survey-core";
-import { confirmAction, detectIEOrEdge, loadFileFromBase64 } from "survey-core";
 
 class QuestionFileImplementor extends QuestionImplementor {
   constructor(question: Question) {
@@ -25,12 +28,9 @@ class QuestionFileImplementor extends QuestionImplementor {
     );
     this.setObservaleObj("koInputTitle", ko.observable<string>());
     this.setObservaleObj(
-      "koChooseFileClass",
+      "koChooseFileCss",
       ko.pureComputed(() => {
-        return (
-          this.question.koCss().chooseFile +
-          (this.question.isReadOnly ? " " + this.question.koCss().controlDisabled : "")
-        );
+          return this.question.getChooseFileCss();
       })
     );
     this.setCallbackFunc("ondrop", (data: any, event: any) => {

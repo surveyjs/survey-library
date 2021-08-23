@@ -16,8 +16,30 @@ export class MultipleTextItem extends MultipleTextItemModel {
   }
 }
 
+export class QuestionMultipleTextImplementor extends QuestionImplementor {
+    koRecalc: any;
+    constructor(question: QuestionMultipleText) {
+      super(question);
+      this.koRecalc = ko.observable(0);
+      this.setObservaleObj(
+        "koItemCss",
+        ko.pureComputed(() => {
+          this.koRecalc();
+          return this.question.getItemCss();
+        })
+      );
+      this.setObservaleObj(
+        "koItemTitleCss",
+        ko.pureComputed(() => {
+          this.koRecalc();
+          return this.question.getItemTitleCss();
+        })
+      );
+    }
+}
+
 export class QuestionMultipleText extends QuestionMultipleTextModel {
-  private _implementor: QuestionImplementor;
+  private _implementor: QuestionMultipleTextImplementor;
   koRows: any;
   constructor(name: string) {
     super(name);
@@ -29,7 +51,7 @@ export class QuestionMultipleText extends QuestionMultipleTextModel {
   }
   protected onBaseCreating() {
     super.onBaseCreating();
-    this._implementor = new QuestionImplementor(this);
+    this._implementor = new QuestionMultipleTextImplementor(this);
   }
   protected onColCountChanged() {
     this.koRows(this.getRows());

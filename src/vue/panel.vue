@@ -29,7 +29,7 @@
     <div :class="question.cssClasses.panel.description">
       <survey-string :locString="question.locDescription" />
     </div>
-    <survey-errors :question="question" />
+    <survey-errors :element="question" />
     <div
       :id="question.contentId"
       :style="{ paddingLeft: question.innerPaddingLeft }"
@@ -62,8 +62,7 @@
 <script lang="ts">
 import Vue from "vue";
 import { Component, Prop } from "vue-property-decorator";
-import { PanelModelBase, PanelModel, doKey2Click } from "survey-core";
-import { ISurvey, Base } from "survey-core";
+import { PanelModel, Base, CssClassBuilder, doKey2Click } from "survey-core";
 import { BaseVue } from "./base";
 
 @Component
@@ -116,11 +115,6 @@ export class Panel extends BaseVue {
   }
   get survey() {
     return this.question.survey;
-  }
-  get iconCss() {
-    var result = this.css.panel.icon;
-    if (!this.isCollapsed) result += " " + this.css.panel.iconExpanded;
-    return result;
   }
   keyup(evt: any) {
     doKey2Click(evt);

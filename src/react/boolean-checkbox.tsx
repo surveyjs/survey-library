@@ -1,15 +1,15 @@
 import * as React from "react";
+import { RendererFactory } from "survey-core";
 import { ReactQuestionFactory } from "./reactquestion_factory";
 import { SurveyQuestionBoolean } from "./boolean";
-import { RendererFactory } from "survey-core";
 
 export class SurveyQuestionBooleanCheckbox extends SurveyQuestionBoolean {
   constructor(props: any) {
     super(props);
   }
   protected renderElement(): JSX.Element {
-    var cssClasses = this.question.cssClasses;
-    var itemClass = this.getItemClass();
+    const cssClasses = this.question.cssClasses;
+    const itemClass = this.question.getItemCss();
     return (
       <div className={cssClasses.root}>
         <label className={itemClass} onClick={this.handleOnClick}>

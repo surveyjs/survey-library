@@ -3,6 +3,7 @@ export const frameworks = ["knockout", "react", "vue"];
 export const url = "http://127.0.0.1:8080/examples_test/default/";
 export const url_test = "http://127.0.0.1:8080/examples_test/";
 export const url_widgets = "http://127.0.0.1:8080/examples/";
+export const FLOAT_PRECISION = 0.01;
 
 export const initSurvey = ClientFunction(
   (framework, json, events, isDesignMode, props) => {

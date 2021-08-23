@@ -1,6 +1,6 @@
 <script type="text/html" id="survey-flowpanel">
-  <div data-bind="style:{ flexBasis: renderWidth, flexGrow: 1, flexShrink: 1, width: renderWidth, minWidth: $data.minWidth, maxWidth: $data.maxWidth }, attr: {id: id}, css: cssClasses.panel.container">
-      <h4 data-bind="visible: (processedTitle.length > 0), css: cssClasses.panel.title">
+  <div data-bind="style: { flexBasis: renderWidth, flexGrow: 1, flexShrink: 1, width: renderWidth, minWidth: $data.minWidth, maxWidth: $data.maxWidth }, attr: { id: id }, css: cssClasses.panel.container">
+      <h4 data-bind="visible: (processedTitle.length > 0), css: question.cssTitle">
           <!-- ko template: { name: 'survey-string', data: locTitle } -->
           <!-- /ko -->
       </h4>
@@ -8,8 +8,8 @@
           <!-- ko template: { name: 'survey-string', data: locDescription } -->
           <!-- /ko -->
       </div>
-      <div data-bind="style: { paddingLeft: innerPaddingLeft}"></div>
-      <f-panel params="question: question" data-bind="attr: {contenteditable : question.isDesignMode, placeHolder: question.placeHolder}"></f-panel>
+      <div data-bind="style: { paddingLeft: innerPaddingLeft }"></div>
+      <f-panel params="question: question" data-bind="attr: { contenteditable : question.isDesignMode, placeHolder: question.placeHolder }"></f-panel>
   </div>
 </script>
 <script type="text/html" id="survey-flowpanel-question">

@@ -1,7 +1,7 @@
 <template>
   <button
     type="button"
-    :class="question.cssClasses.button + ' ' + question.cssClasses.buttonRemove"
+    :class="question.getRemoveRowButtonCss()"
     :disabled="question.isInputReadOnly"
     @click="() => question.removeRowUI(row)"
   >
@@ -13,8 +13,7 @@
 <script lang="ts">
 import Vue from "vue";
 import { Prop, Component } from "vue-property-decorator";
-import { Action } from "survey-core";
-import { Base } from "survey-core";
+import { Action, Base } from "survey-core";
 import BaseVue from "../../../base";
 
 @Component

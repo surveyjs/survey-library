@@ -1,4 +1,4 @@
-import { Serializer, property } from "./jsonobject";
+import { Serializer } from "./jsonobject";
 import { HashTable, Helpers } from "./helpers";
 import { Base } from "./base";
 import {
@@ -13,7 +13,7 @@ import {
   ITitleOwner,
   IProgressInfo,
   ISurvey,
-  IFindElement,
+  IFindElement
 } from "./base-interfaces";
 import { SurveyElement } from "./survey-element";
 import { Question } from "./question";
@@ -25,6 +25,7 @@ import { PageModel } from "./page";
 import { settings } from "./settings";
 import { findScrollableParent, isElementVisible } from "./utils/utils";
 import { SurveyError } from "./survey-error";
+import { CssClassBuilder } from "./utils/cssClassBuilder";
 
 export class DragDropInfo {
   constructor(
@@ -1234,8 +1235,8 @@ export class PanelModelBase extends SurveyElement
   }
   public updateElementCss(reNew?: boolean) {
     this.cssClassesValue = undefined;
-    for (var i = 0; i < this.elements.length; i++) {
-      var el = <SurveyElement>(<any>this.elements[i]);
+    for (let i = 0; i < this.elements.length; i++) {
+      const el = <SurveyElement>(<any>this.elements[i]);
       el.updateElementCss(reNew);
     }
     super.updateElementCss(reNew);
@@ -1850,7 +1851,7 @@ export class PanelModel extends PanelModelBase
     });
   }
   public get hasEditButton(): boolean {
-    if (this.survey && this.survey.state == "preview") return this.depth == 1;
+    if (this.survey && this.survey.state === "preview") return this.depth === 1;
     return false;
   }
   public cancelPreview() {
@@ -1858,18 +1859,18 @@ export class PanelModel extends PanelModelBase
     this.survey.cancelPreviewByPage(this);
   }
   public get cssTitle(): string {
-    var result = this.cssClasses.panel.title;
-    if (this.state !== "default") {
-      result += " " + this.cssClasses.panel.titleExpandable;
-    }
-    if (this.containsErrors) {
-      result += " " + this.cssClasses.panel.titleOnError;
-    }
-    return result;
+    return new CssClassBuilder()
+      .append(this.cssClasses.panel.title)
+      .append(this.cssClasses.panel.titleExpandable, this.state !== "default")
+      .append(this.cssClasses.panel.titleOnError, this.containsErrors)
+      .toString();
   }
   public get cssError(): string {
-    var rootClass = this.cssClasses.error.root;
-    return rootClass ? rootClass : "panel-error-root";
+    return this.getCssError(this.cssClasses);
+  }
+  protected getCssError(cssClasses: any): string {
+    const builder = new CssClassBuilder().append(this.cssClasses.error.root);
+    return builder.append("panel-error-root", builder.isEmpty()).toString();
   }
   protected onVisibleChanged() {
     super.onVisibleChanged();

@@ -4,7 +4,7 @@
       <div :title="question.panelPrevText">
         <svg
           viewBox="0 0 10 10"
-          :class="getButtonPrevCss(question)"
+          :class="question.getPrevButtonCss()"
           @click="prevPanelClick"
         >
           <polygon points="2,2 0,4 5,9 10,4 8,2 5,5 " />
@@ -23,7 +23,7 @@
         <svg
           viewBox="0 0 10 10"
           @click="nextPanelClick"
-          :class="getButtonNextCss(question)"
+          :class="question.getNextButtonCss()"
         >
           <polygon points="2,2 0,4 5,9 10,4 8,2 5,5 " />
         </svg>
@@ -34,7 +34,7 @@
       type="button"
       v-if="question.canAddPanel"
       :value="question.panelAddText"
-      :class="question.cssClasses.button + ' ' + question.cssClasses.buttonAdd"
+      :class="question.getAddButtonCss()"
       @click="addPanelClick"
     />
 
@@ -47,9 +47,8 @@
 <script lang="ts">
 import Vue from "vue";
 import { Component, Prop } from "vue-property-decorator";
-import { PanelModel } from "survey-core";
-import { QuestionPanelDynamicModel } from "survey-core";
-import { Question } from "survey-core";
+import { Question, QuestionPanelDynamicModel, CssClassBuilder } from "survey-core";
+
 
 @Component
 export class PanelDynamicProgress extends Vue {
@@ -75,24 +74,6 @@ export class PanelDynamicProgress extends Vue {
 
   changeRange(event: any) {
     this.question.currentIndex = event.target.value;
-  }
-
-  getButtonAddCss(question: Question) {}
-
-  getButtonPrevCss(question: Question) {
-    var btnClasses = question.cssClasses.buttonPrev;
-    if (!question.isPrevButtonShowing) {
-      btnClasses += " " + question.cssClasses.buttonPrev + "--disabled";
-    }
-    return btnClasses;
-  }
-
-  getButtonNextCss(question: Question) {
-    var btnClasses = question.cssClasses.buttonNext;
-    if (!question.isNextButtonShowing) {
-      btnClasses += " " + question.cssClasses.buttonNext + "--disabled";
-    }
-    return btnClasses;
   }
 
   get progress() {

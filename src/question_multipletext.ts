@@ -6,7 +6,7 @@ import {
   IPanel,
   IElement,
   ITextProcessor,
-  IProgressInfo,
+  IProgressInfo
 } from "./base-interfaces";
 import { SurveyElement } from "./survey-element";
 import { SurveyValidator, IValidatorOwner } from "./validator";
@@ -17,6 +17,7 @@ import { QuestionFactory } from "./questionfactory";
 import { SurveyError } from "./survey-error";
 import { ILocalizableOwner, LocalizableString } from "./localizablestring";
 import { Helpers } from "./helpers";
+import { CssClassBuilder } from "./utils/cssClassBuilder";
 
 export interface IMultipleTextData extends ILocalizableOwner, IPanel {
   getSurvey(): ISurvey;
@@ -587,6 +588,14 @@ export class QuestionMultipleTextModel extends Question
   }
   ensureRowsVisibility(): void {
     // do nothing
+  }
+  public getItemCss(): string {
+    return new CssClassBuilder().append(this.cssClasses.item)
+      .append(this.cssClasses.cell).toString();
+  }
+  public getItemTitleCss(): string {
+    return new CssClassBuilder().append(this.cssClasses.itemTitle)
+      .append(this.cssClasses.cell).toString();
   }
 }
 

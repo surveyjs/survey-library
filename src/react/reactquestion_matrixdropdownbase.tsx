@@ -1,24 +1,20 @@
 import * as React from "react";
 import {
   ReactSurveyElement,
-  SurveyQuestionElementBase,
+  SurveyQuestionElementBase
 } from "./reactquestion_element";
 import { SurveyQuestion, SurveyQuestionAndErrorsCell } from "./reactquestion";
 import {
-  MatrixDropdownRowModelBase,
   QuestionMatrixDropdownModelBase,
   QuestionMatrixDropdownRenderedRow,
   QuestionMatrixDropdownRenderedCell,
-  MatrixDropdownCell,
   AdaptiveActionContainer,
-  Question,
+  Question
 } from "survey-core";
 import { SurveyQuestionCheckboxItem } from "./reactquestion_checkbox";
 import { SurveyQuestionRadioItem } from "./reactquestion_radiogroup";
 import { SurveyPanel } from "./panel";
-
 import { SurveyActionBar } from "./components/action-bar/action-bar";
-import { ReactSurveyModel } from "./reactsurveymodel";
 import { MatrixRow } from "./components/matrix/row";
 import { SurveyQuestionMatrixDynamicDragDropIcon } from "./components/matrix-actions/drag-drop-icon/drag-drop-icon";
 
@@ -154,6 +150,7 @@ export class SurveyQuestionMatrixDropdownBase extends SurveyQuestionElementBase 
       return (
         <SurveyQuestionMatrixDropdownCell
           key={key}
+          itemCss={cell.className}
           cssClasses={cssClasses}
           cell={cell}
           creator={this.creator}
@@ -290,9 +287,6 @@ export class SurveyQuestionMatrixDropdownCell extends SurveyQuestionAndErrorsCel
       this.question.isVisible &&
       (!this.cell.isChoice || this.cell.isFirstChoice)
     );
-  }
-  protected getCellClass(): any {
-    return this.cell.className;
   }
   protected getCellStyle(): any {
     var res: any = super.getCellStyle();

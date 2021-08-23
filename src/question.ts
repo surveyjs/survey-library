@@ -26,6 +26,7 @@ import { SurveyModel } from "./survey";
 import { PanelModel } from "./panel";
 import { RendererFactory } from "./rendererFactory";
 import { SurveyError } from "./survey-error";
+import { CssClassBuilder } from "./utils/cssClassBuilder";
 
 export interface IConditionObject {
   name: string;
@@ -437,7 +438,7 @@ export class Question extends SurveyElement
   }
   get hasTitleOnLeftTop(): boolean {
     if (!this.hasTitle) return false;
-    var location = this.getTitleLocation();
+    const location = this.getTitleLocation();
     return location === "left" || location === "top";
   }
   public get errorLocation(): string {
@@ -655,28 +656,15 @@ export class Question extends SurveyElement
     this.setPropertyValue("cssRoot", val);
   }
   protected getCssRoot(cssClasses: any): string {
-    let res =
-      this.isFlowLayout && !this.isDesignMode
+    return new CssClassBuilder()
+      .append(this.isFlowLayout && !this.isDesignMode
         ? cssClasses.flowRoot
-        : cssClasses.mainRoot;
-    if (!res) res = "";
-    if (
-      !this.isFlowLayout &&
-      this.hasTitleOnLeft &&
-      !!cssClasses.titleLeftRoot
-    ) {
-      res += " " + cssClasses.titleLeftRoot;
-    }
-    if (this.errors.length > 0 && !!cssClasses.hasError) {
-      res += " " + cssClasses.hasError;
-    }
-    if (cssClasses.small && !this.width) {
-      res += " " + cssClasses.small;
-    }
-    if (this.isAnswered && !!cssClasses.answered) {
-      res += " " + cssClasses.answered;
-    }
-    return res;
+        : cssClasses.mainRoot)
+      .append(cssClasses.titleLeftRoot, !this.isFlowLayout && this.hasTitleOnLeft)
+      .append(cssClasses.hasError, this.errors.length > 0)
+      .append(cssClasses.small, !this.width)
+      .append(cssClasses.answered, this.isAnswered)
+      .toString();
   }
   public get cssHeader(): string {
     this.ensureElementCss();
@@ -686,17 +674,12 @@ export class Question extends SurveyElement
     this.setPropertyValue("cssHeader", val);
   }
   protected getCssHeader(cssClasses: any): string {
-    let res = cssClasses.header || "";
-    if (this.hasTitleOnTop && !!cssClasses.headerTop) {
-      res += " " + cssClasses.headerTop;
-    }
-    if (this.hasTitleOnLeft && !!cssClasses.headerLeft) {
-      res += " " + cssClasses.headerLeft;
-    }
-    if (this.hasTitleOnBottom && !!cssClasses.headerBottom) {
-      res += " " + cssClasses.headerBottom;
-    }
-    return res;
+    return new CssClassBuilder()
+      .append(cssClasses.header)
+      .append(cssClasses.headerTop, this.hasTitleOnTop)
+      .append(cssClasses.headerLeft, this.hasTitleOnLeft)
+      .append(cssClasses.headerBottom, this.hasTitleOnBottom)
+      .toString();
   }
   public get cssContent(): string {
     this.ensureElementCss();
@@ -706,11 +689,10 @@ export class Question extends SurveyElement
     this.setPropertyValue("cssContent", val);
   }
   protected getCssContent(cssClasses: any): string {
-    let res = cssClasses.content || "";
-    if (this.hasTitleOnLeft && !!cssClasses.contentLeft) {
-      res += " " + cssClasses.contentLeft;
-    }
-    return res;
+    return new CssClassBuilder()
+      .append(cssClasses.content)
+      .append(cssClasses.contentLeft, this.hasTitleOnLeft)
+      .toString();
   }
   public get cssTitle(): string {
     this.ensureElementCss();
@@ -720,20 +702,12 @@ export class Question extends SurveyElement
     this.setPropertyValue("cssTitle", val);
   }
   protected getCssTitle(cssClasses: any): string {
-    let result = cssClasses.title;
-
-    if (this.isCollapsed || this.isExpanded) {
-      result += " " + cssClasses.titleExpandable;
-    }
-
-    if (this.containsErrors) {
-      if (!!cssClasses.titleOnError) {
-        result += " " + cssClasses.titleOnError;
-      }
-    } else if (this.isAnswered && !!cssClasses.titleOnAnswer) {
-      result += " " + cssClasses.titleOnAnswer;
-    }
-    return result;
+    return new CssClassBuilder()
+      .append(cssClasses.title)
+      .append(cssClasses.titleExpandable, this.isCollapsed || this.isExpanded)
+      .append(cssClasses.titleOnError, this.containsErrors)
+      .append(cssClasses.titleOnAnswer, !this.containsErrors && this.isAnswered)
+      .toString();
   }
   public get cssError(): string {
     this.ensureElementCss();
@@ -742,20 +716,18 @@ export class Question extends SurveyElement
   protected setCssError(val: string) {
     this.setPropertyValue("cssError", val);
   }
-  //TODO was not removed from other places
   protected getCssError(cssClasses: any): string {
-    let res = cssClasses.error.root || "";
-    if (this.errorLocation == "top") {
-      if (!!cssClasses.error.locationTop) {
-        res += " " + cssClasses.error.locationTop;
-      }
-    } else if (
-      this.errorLocation === "bottom" &&
-      !!cssClasses.error.locationBottom
-    ) {
-      res += " " + cssClasses.error.locationBottom;
-    }
-    return res;
+    return new CssClassBuilder()
+      .append(cssClasses.error.root)
+      .append(cssClasses.error.locationTop, this.errorLocation === "top")
+      .append(cssClasses.error.locationBottom, this.errorLocation === "bottom")
+      .toString();
+  }
+  public getRootCss(): string {
+    return new CssClassBuilder()
+      .append(this.cssRoot)
+      .append(this.cssClasses.disabled, this.isReadOnly)
+      .toString();
   }
   public updateElementCss(reNew?: boolean) {
     this.cssClassesValue = undefined;
@@ -789,20 +761,21 @@ export class Question extends SurveyElement
   }
   protected updateCssClasses(res: any, css: any) {
     if (!css.question) return;
-    if (this.isRequired) {
-      if (!!css.question.required) {
-        res.root = (res.root ? res.root + " " : "") + objCss;
-      }
-      if (css.question.titleRequired) {
-        res.title += " " + css.question.titleRequired;
-      }
+    const objCss = css[this.getCssType()];
+    const titleBuilder = new CssClassBuilder().append(res.title)
+      .append(css.question.titleRequired, this.isRequired);
+    res.title = titleBuilder.toString();
+
+    const rootBuilder = new CssClassBuilder().append(res.root)
+      .append(objCss, this.isRequired && !!css.question.required);
+    if (objCss === undefined || objCss === null) {
+      res.root = rootBuilder.toString();
     }
-    var objCss = css[this.getCssType()];
-    if (objCss === undefined || objCss === null) return;
-    if (typeof objCss === "string" || objCss instanceof String) {
-      res.root = (res.root ? res.root + " " : "") + objCss;
+    else if (typeof objCss === "string" || objCss instanceof String) {
+      res.root = rootBuilder.append(objCss.toString()).toString();
     } else {
-      for (var key in objCss) {
+      res.root = rootBuilder.toString();
+      for (const key in objCss) {
         res[key] = objCss[key];
       }
     }
@@ -1266,11 +1239,11 @@ export class Question extends SurveyElement
    */
   public getPlainData(
     options: {
-      includeEmpty?: boolean,
-      includeQuestionTypes?: boolean,
+      includeEmpty?: boolean;
+      includeQuestionTypes?: boolean;
       calculations?: Array<{
-        propertyName: string,
-      }>,
+        propertyName: string;
+      }>;
     } = {
       includeEmpty: true,
       includeQuestionTypes: false,
@@ -1781,22 +1754,22 @@ export class Question extends SurveyElement
     return this.survey
       ? (<ILocalizableOwner>(<any>this.survey)).getLocale()
       : this.locOwner
-        ? this.locOwner.getLocale()
-        : "";
+      ? this.locOwner.getLocale()
+      : "";
   }
   public getMarkdownHtml(text: string, name: string): string {
     return this.survey
       ? this.survey.getSurveyMarkdownHtml(this, text, name)
       : this.locOwner
-        ? this.locOwner.getMarkdownHtml(text, name)
-        : null;
+      ? this.locOwner.getMarkdownHtml(text, name)
+      : null;
   }
   public getRenderer(name: string): string {
     return this.survey && typeof this.survey.getRendererForString === "function"
       ? this.survey.getRendererForString(this, name)
       : this.locOwner && typeof this.locOwner.getRenderer === "function"
-        ? this.locOwner.getRenderer(name)
-        : null;
+      ? this.locOwner.getRenderer(name)
+      : null;
   }
   public getProcessedText(text: string): string {
     if (this.isLoadingFromJson) return text;
@@ -1865,8 +1838,8 @@ Serializer.addClass("question", [
       var survey = obj ? obj.survey : null;
       return survey
         ? survey.pages.map((p: any) => {
-          return { value: p.name, text: p.title };
-        })
+            return { value: p.name, text: p.title };
+          })
         : [];
     },
   },

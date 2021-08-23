@@ -32,10 +32,7 @@ export class AdaptiveActionContainer<T extends Action = Action> extends ActionCo
 
   private hideItemsGreaterN(visibleItemsCount: number) {
     const invisibleItems: Action[] = [];
-    this.actions.filter(action => action.visible).forEach((item) => {
-      if (item === this.dotsItem) {
-        return;
-      }
+    this.visibleActions.forEach((item) => {
       if (visibleItemsCount <= 0) {
         item.mode = "popup";
         invisibleItems.push(item);
@@ -86,13 +83,22 @@ export class AdaptiveActionContainer<T extends Action = Action> extends ActionCo
     });
   }
 
+  protected onSet() {
+    this.actions.forEach(action => action.updateCallback = () => this.raiseUpdate(false));
+    super.onSet();
+  }
+
+  protected onPush(item: T) {
+    item.updateCallback = () => this.raiseUpdate(false);
+    super.onPush(item);
+  }
+
   protected getRenderedActions(): Array<T> {
     return this.actions.concat([<T>this.dotsItem]);
   }
 
   public setItems(items: Array<IAction>, sortByVisibleIndex = true) {
     const actions: Array<T> = <any>items.map((item) => (item instanceof Action ? item : new Action(item)));
-    actions.forEach(action => action.updateCallback = () => this.raiseUpdate());
     if (sortByVisibleIndex) {
       this.actions = this.sortItems(actions);
     } else {

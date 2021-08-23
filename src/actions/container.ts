@@ -22,20 +22,20 @@ export class ActionContainer<T extends Action = Action> extends Base {
 
     public updateCallback: (isResetInitialized: boolean) => void;
 
-    protected raiseUpdate() {
-      this.updateCallback && this.updateCallback(true);
+    protected raiseUpdate(isResetInitialized: boolean) {
+      this.updateCallback && this.updateCallback(isResetInitialized);
     }
 
     protected onSet() {
-      this.raiseUpdate();
+      this.raiseUpdate(true);
     }
 
     protected onPush(item: T) {
-      this.raiseUpdate();
+      this.raiseUpdate(true);
     }
 
     protected onRemove(item: T) {
-      this.raiseUpdate();
+      this.raiseUpdate(true);
     }
 
     public get hasActions(): boolean {

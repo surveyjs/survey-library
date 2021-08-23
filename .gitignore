@@ -33,3 +33,4 @@ Gemfile.lock
 *.env
 package-lock.json
 svgbundle.html
+coverage/**/*

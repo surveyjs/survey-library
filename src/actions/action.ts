@@ -145,14 +145,14 @@ export class Action extends Base implements IAction {
     return new CssClassBuilder()
       .append("sv-action-bar-item__title")
       .append("sv-action-bar-item__title--with-icon", !!this.iconName)
-      .toString()
+      .toString();
   }
   public getActionBarItemActiveCss(): string {
     return new CssClassBuilder()
       .append("sv-action-bar-item")
       .append("ssv-action-bar-item--active", this.active)
       .append(this.innerCss)
-      .toString()
+      .toString();
   }
 
   minDimension: number;

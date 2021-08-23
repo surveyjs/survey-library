@@ -69,7 +69,7 @@ export class SurveyQuestionRanking extends SurveyQuestionElementBase {
     let wrappedItem = null;
     if (!!survey) {
       wrappedItem = survey.wrapItemValue(renderedItem, this.question, item);
-    };
+    }
     return wrappedItem ?? renderedItem;
   }
 }
@@ -91,7 +91,7 @@ export class SurveyQuestionRankingItem extends ReactSurveyElement {
     return this.props.itemClass;
   }
   protected get question(): any {
-    return this.props.question
+    return this.props.question;
   }
 
   protected renderElement(): JSX.Element {

@@ -125,7 +125,7 @@ export class QuestionDropdownModel extends QuestionSelectBase {
     this.setPropertyValue("autoComplete", val);
   }
   public getControlClass(): string {
-    return  new CssClassBuilder()
+    return new CssClassBuilder()
       .append(this.cssClasses.control)
       .append(this.cssClasses.onError, this.errors.length > 0)
       .append(this.cssClasses.controlDisabled, this.isReadOnly)

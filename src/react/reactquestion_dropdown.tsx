@@ -36,7 +36,6 @@ export class SurveyQuestionDropdown extends SurveyQuestionUncontrolledElement<Qu
     if (this.isDisplayMode) {
       var isOtherSelected = this.question.isOtherSelected;
       return (
-        // @ts-ignore
         <div id={this.question.inputId} className={this.question.getControlClass()} disabled>
           {isOtherSelected
             ? this.question.otherText

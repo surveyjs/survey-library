@@ -672,11 +672,11 @@ export class PanelModelBase extends SurveyElement
     rec = !!rec
       ? rec
       : {
-          fireCallback: fireCallback,
-          focuseOnFirstError: focusOnFirstError,
-          firstErrorQuestion: <any>null,
-          result: false,
-        };
+        fireCallback: fireCallback,
+        focuseOnFirstError: focusOnFirstError,
+        firstErrorQuestion: <any>null,
+        result: false,
+      };
     this.hasErrorsCore(rec);
     if (rec.firstErrorQuestion) {
       rec.firstErrorQuestion.focus(true);
@@ -1935,8 +1935,8 @@ Serializer.addClass(
         var survey = obj ? obj.survey : null;
         return survey
           ? survey.pages.map((p: any) => {
-              return { value: p.name, text: p.title };
-            })
+            return { value: p.name, text: p.title };
+          })
           : [];
       },
     },

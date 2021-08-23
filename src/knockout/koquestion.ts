@@ -139,6 +139,7 @@ export class QuestionImplementor extends ImplementorBase {
             try {
               this.question.customWidget.willUnmount(this.question, el);
             } catch {
+              // eslint-disable-next-line no-console
               console.warn("Custom widget will unmount failed");
             }
           }

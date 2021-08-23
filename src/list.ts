@@ -50,7 +50,7 @@ export class ListModel extends Base {
       .append("sv-list__item")
       .append("sv-list__item--disabled", this.isItemDisabled(itemValue))
       .append("sv-list__item--selected", this.isItemSelected(itemValue))
-      .toString()
+      .toString();
   };
 
   public getItemIndent = (itemValue: any) => {

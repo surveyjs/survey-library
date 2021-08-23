@@ -13,4 +13,3 @@ ko.components.register("sv-action", {
   },
   template: template
 });
-  

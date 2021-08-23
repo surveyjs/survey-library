@@ -286,8 +286,8 @@ export class QuestionFileModel extends Question {
     var newValues = Array.isArray(newValue)
       ? newValue
       : !!newValue
-      ? [newValue]
-      : [];
+        ? [newValue]
+        : [];
 
     if (this.storeDataAsText) {
       newValues.forEach((value) => {
@@ -362,9 +362,9 @@ export class QuestionFileModel extends Question {
     return errorLength === this.errors.length;
   }
   private isFileImage(file: {
-    content: string;
-    name?: string;
-    type?: string;
+    content: string,
+    name?: string,
+    type?: string,
   }): boolean {
     if (!file) return false;
     const imagePrefix = "data:image";
@@ -377,10 +377,10 @@ export class QuestionFileModel extends Question {
   }
   public getPlainData(
     options: {
-      includeEmpty?: boolean;
+      includeEmpty?: boolean,
       calculations?: Array<{
-        propertyName: string;
-      }>;
+        propertyName: string,
+      }>,
     } = {
       includeEmpty: true,
     }

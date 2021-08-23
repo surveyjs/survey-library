@@ -4,7 +4,6 @@
     "serve": "live-server --port=7777 --watch=build",
     "serve_ci": "http-server",
     "test": "karma start ./build-scripts/karma.conf.js",
-    "testsingle": "karma start ./build-scripts/karma.conf.js --single-run",
     "testcafe": "concurrently \"http-server --silent\" \"testcafe -c 4 -q chrome testCafe/ --selector-timeout 1500 --reporter minimal\"",
     "testcafe_file": "concurrently \"http-server --silent\" \"testcafe chrome testCafe/conditionsAndTriggers/completeTrigger.js --selector-timeout 1500 --reporter minimal\"",
     "testcafe_ci": "http-server --silent & testcafe -q chrome:headless testCafe/ --reporter minimal",
@@ -26,7 +25,6 @@
     "build_prod": "npm run build_dev && concurrently \"npm run build_knockout_prod\" \"npm run build_react_prod\" \"npm run build_angular_prod\" \"npm run build_jquery_prod\" \"npm run build_vue_prod\" \"npm run build_core_prod\"",
     "doc_gen": "node doc_generator/lib_docgenerator.js src/entries/chunks/model.ts",
     "doc_update": "chmod +x ./docupdate_npm.sh && ./docupdate_npm.sh",
-    "lint": "tslint ./src/**/*.ts -t verbose",
     "watch_knockout_dev": "webpack --config ./build-scripts/survey-knockout/webpack.config.js --env.buildType dev --watch",
     "watch_react_dev": "webpack --config ./build-scripts/survey-react/webpack.config.js --env.buildType dev --watch",
     "watch_angular_dev": "webpack --config ./build-scripts/survey-angular/webpack.config.js --env.buildType dev --watch",
@@ -48,7 +46,10 @@
     "watch:ko:ui:prod": "webpack --config ./build-scripts/survey-knockout-ui/webpack.config.js --env.buildType prod --watch",
     "watch:react:ui:prod": "webpack --config ./build-scripts/survey-react-ui/webpack.config.js --env.buildType prod --watch",
     "dev": "concurrently \"http-server -p 8080 --silent\" \"npm run watch:core:dev\" \"npm run watch:core:prod\" \"npm run watch:ko:ui:dev\" \"npm run watch:react:ui:dev\" \"npm run watch:ko:ui:prod\" \"npm run watch:react:ui:prod\"",
-    "madge": "madge --circular --extensions ts ./src/"
+    "madge": "madge --circular --extensions ts ./src/",
+    "pre-push-check": "npm run lint && npm run testsingle",
+    "lint": "eslint ./src",
+    "testsingle": "karma start ./build-scripts/karma.conf.js --single-run"
   },
   "version": "1.8.61",
   "name": "survey-library",
@@ -65,6 +66,8 @@
     "@types/react-dom": "17.0.1",
     "@types/signature_pad": "^2.3.0",
     "@types/sortablejs": "^1.10.6",
+    "@typescript-eslint/eslint-plugin": "^4.29.0",
+    "@typescript-eslint/parser": "^4.29.0",
     "ace-builds": "1.2.2",
     "ajv": "4.11.2",
     "babel-core": "6.22.1",
@@ -75,6 +78,9 @@
     "css-loader": "^3.6.0",
     "dotenv": "4.0.0",
     "dts-bundle": "0.7.2",
+    "eslint": "^7.32.0",
+    "eslint-plugin-react": "^7.24.0",
+    "eslint-plugin-vue": "^7.16.0",
     "file-loader": "0.10.0",
     "generate-json-webpack-plugin": "^1.0.0",
     "github-api": "^3.3.0",
@@ -129,7 +135,7 @@
   },
   "husky": {
     "hooks": {
-      "pre-push": "npm run testsingle"
+      "pre-push": "npm run pre-push-check"
     }
   },
   "dependencies": {

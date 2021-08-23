@@ -1,5 +1,5 @@
 import * as React from "react";
-import { SurveyProgressModel } from "survey-core"
+import { SurveyProgressModel } from "survey-core";
 import { SurveyNavigationBase } from "./reactSurveyNavigationBase";
 import { ReactElementFactory } from "./element-factory";
 

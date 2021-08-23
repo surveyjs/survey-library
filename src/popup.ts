@@ -17,7 +17,7 @@ export class PopupModel<T = any> extends Base {
   @property({ defaultValue: false }) showPointer: boolean;
   @property({ defaultValue: false }) isModal: boolean;
   @property({ defaultValue: () => {} }) onCancel: () => void;
-  @property({ defaultValue: () => {return true;} }) onApply: () => boolean;
+  @property({ defaultValue: () => { return true; } }) onApply: () => boolean;
   @property({ defaultValue: () => {} }) onHide: () => void;
   @property({ defaultValue: () => {} }) onShow: () => void;
   @property({ defaultValue: "" }) cssClass: string;
@@ -29,7 +29,7 @@ export class PopupModel<T = any> extends Base {
     showPointer: boolean = true,
     isModal: boolean = false,
     onCancel = () => {},
-    onApply = () => {return true;},
+    onApply = () => { return true; },
     onHide = () => {},
     onShow = () => {},
     cssClass: string = ""
@@ -69,33 +69,33 @@ export class PopupModel<T = any> extends Base {
 }
 
 export function createPopupModalViewModel(
-    componentName: string,
-    data: any,
-    onApply: () => boolean,
-    onCancel?: () => void,
-    onHide = () => {},
-    onShow = () => {},
-    cssClass?: string
-  ) {
-    const popupModel = new PopupModel(
-      componentName,
-      data,
-      "top",
-      "left",
-      false,
-      true,
-      onCancel,
-      onApply,
-      onHide,
-      onShow,
-      cssClass
-    );
-    const popupViewModel: PopupBaseViewModel = new PopupBaseViewModel(
-      popupModel,
-      undefined
-    );
-    popupViewModel.initializePopupContainer();
-    return popupViewModel;
+  componentName: string,
+  data: any,
+  onApply: () => boolean,
+  onCancel?: () => void,
+  onHide = () => {},
+  onShow = () => {},
+  cssClass?: string
+) {
+  const popupModel = new PopupModel(
+    componentName,
+    data,
+    "top",
+    "left",
+    false,
+    true,
+    onCancel,
+    onApply,
+    onHide,
+    onShow,
+    cssClass
+  );
+  const popupViewModel: PopupBaseViewModel = new PopupBaseViewModel(
+    popupModel,
+    undefined
+  );
+  popupViewModel.initializePopupContainer();
+  return popupViewModel;
 }
 
 const FOCUS_INPUT_SELECTOR =
@@ -134,7 +134,7 @@ export class PopupBaseViewModel extends Base {
       .append("sv-popup--modal", this.isModal)
       .append("sv-popup--show-pointer", !this.isModal && this.showPointer)
       .append(`sv-popup--${this.popupDirection}`, !this.isModal && this.showPointer)
-      .toString()
+      .toString();
   }
   public onKeyDown(event: any) {
     if (event.key === "Tab" || event.keyCode === 9) {

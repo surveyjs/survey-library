@@ -817,7 +817,7 @@ class MatrixDropdownRowTextProcessor extends QuestionTextProcessor {
 }
 
 export class MatrixDropdownRowModelBase
-  implements ISurveyData, ISurveyImpl, ILocalizableOwner {
+implements ISurveyData, ISurveyImpl, ILocalizableOwner {
   public static RowVariableName = "row";
   public static OwnerVariableName = "self";
   public static IndexVariableName = "rowIndex";
@@ -876,6 +876,26 @@ export class MatrixDropdownRowModelBase
       }
     }
     return result;
+  }
+  public set value(value: any) {
+    this.isSettingValue = true;
+    this.subscribeToChanges(value);
+    var questions = this.questions;
+    for (var i = 0; i < questions.length; i++) {
+      var question = questions[i];
+      var val = this.getCellValue(value, question.getValueName());
+      var oldComment = question.comment;
+      var comment = !!value
+        ? value[question.getValueName() + settings.commentPrefix]
+        : "";
+      if (comment == undefined) comment = "";
+      question.updateValueFromSurvey(val);
+      if (!!comment || Helpers.isTwoValueEquals(oldComment, question.comment)) {
+        question.updateCommentFromSurvey(comment);
+      }
+      question.onSurveyValueChanged(val);
+    }
+    this.isSettingValue = false;
   }
   public get locText(): LocalizableString {
     return null;
@@ -973,26 +993,6 @@ export class MatrixDropdownRowModelBase
     for (var i = 0; i < questions.length; i++) {
       questions[i].clearValue();
     }
-  }
-  public set value(value: any) {
-    this.isSettingValue = true;
-    this.subscribeToChanges(value);
-    var questions = this.questions;
-    for (var i = 0; i < questions.length; i++) {
-      var question = questions[i];
-      var val = this.getCellValue(value, question.getValueName());
-      var oldComment = question.comment;
-      var comment = !!value
-        ? value[question.getValueName() + settings.commentPrefix]
-        : "";
-      if (comment == undefined) comment = "";
-      question.updateValueFromSurvey(val);
-      if (!!comment || Helpers.isTwoValueEquals(oldComment, question.comment)) {
-        question.updateCommentFromSurvey(comment);
-      }
-      question.onSurveyValueChanged(val);
-    }
-    this.isSettingValue = false;
   }
   public onAnyValueChanged(name: string) {
     var questions = this.questions;
@@ -1886,7 +1886,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
         .append(renderedCell.className)
         .append(this.cssClasses.detailRowText, row.hasPanel)
         .toString();
-    }    
+    }
     for (var i = 0; i < row.cells.length; i++) {
       let cell = row.cells[i];
       if (!cell.column.hasVisibleCell) continue;
@@ -2943,10 +2943,10 @@ export class QuestionMatrixDropdownModelBase
   }
   public getPlainData(
     options: {
-      includeEmpty?: boolean;
+      includeEmpty?: boolean,
       calculations?: Array<{
-        propertyName: string;
-      }>;
+        propertyName: string,
+      }>,
     } = {
       includeEmpty: true,
     }
@@ -3432,7 +3432,7 @@ export class QuestionMatrixDropdownModelBase
   private updateDetailPanelButtonCss(row: MatrixDropdownRowModelBase) {
     const classes = this.cssClasses;
     const isPanelShowing = this.getIsDetailPanelShowing(row);
-    
+
     const iconBuilder = new CssClassBuilder().append(classes.detailIcon)
       .append(classes.detailIconExpanded, isPanelShowing);
     this.setPropertyValue("detailIconCss" + row.id, iconBuilder.toString());

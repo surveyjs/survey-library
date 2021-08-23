@@ -216,8 +216,8 @@ export class SurveyQuestionPanelDynamicItem extends SurveyPanel {
     const separator: JSX.Element =
       this.question.isRenderModeList &&
       this.index < this.question.panelCount - 1 ? (
-        <hr className={this.question.cssClasses.separator} />
-      ) : null;
+          <hr className={this.question.cssClasses.separator} />
+        ) : null;
     return (
       <>
         <div className={this.question.getPanelWrapperCss()}>
@@ -239,11 +239,11 @@ export class SurveyQuestionPanelDynamicItem extends SurveyPanel {
         className={this.question.getPanelRemoveButtonCss()}
         onClick={this.handleOnPanelRemoveClick}
         type="button">
-        <span 
+        <span
           className={this.question.cssClasses.buttonRemoveText}
         > {this.question.panelRemoveText}
         </span>
-        <span 
+        <span
           className={this.question.cssClasses.iconRemove}
         ></span>
       </button>

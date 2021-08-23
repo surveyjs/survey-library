@@ -358,7 +358,7 @@ export function attachKey2click(element: JSX.Element, viewModel?: any): JSX.Elem
     return;
   }
   return React.cloneElement(
-    element, 
+    element,
     {
       tabIndex: 0,
       onKeyUp: (evt: KeyboardEvent) => {

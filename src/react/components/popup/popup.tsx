@@ -177,8 +177,8 @@ export function showModal(
     onApply,
     onCancel,
     () => {
-    ReactDOM.unmountComponentAtNode(popupViewModel.container);
-    popupViewModel.destroyPopupContainer();
+      ReactDOM.unmountComponentAtNode(popupViewModel.container);
+      popupViewModel.destroyPopupContainer();
     },
     undefined,
     cssClass

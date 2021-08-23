@@ -159,8 +159,8 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner {
   ): IQuestion;
   matrixRowAdded(question: IQuestion, row: any): any;
   matrixBeforeRowAdded(options: {
-    question: IQuestion;
-    canAddRow: boolean;
+    question: IQuestion,
+    canAddRow: boolean,
   }): any;
   matrixRowRemoved(question: IQuestion, rowIndex: number, row: any): any;
   matrixRowRemoving(question: IQuestion, rowIndex: number, row: any): boolean;

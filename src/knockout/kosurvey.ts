@@ -440,6 +440,6 @@ ko.bindingHandlers["key2click"] = {
       if([13, 32, 27].indexOf(char) !== -1) {
         evt.preventDefault();
       }
-    }
+    };
   },
 };

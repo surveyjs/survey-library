@@ -62,7 +62,7 @@ export class MatrixRowModel extends Base {
     const hasError = !!(<any>this.data).getErrorByType("requiredinallrowserror");
     return new CssClassBuilder().append(cssClasses.row)
       .append(cssClasses.rowError, hasError && this.isValueEmpty(this.value))
-      .toString()
+      .toString();
   }
 }
 
@@ -457,10 +457,10 @@ export class QuestionMatrixModel
   }
   public getPlainData(
     options: {
-      includeEmpty?: boolean;
+      includeEmpty?: boolean,
       calculations?: Array<{
-        propertyName: string;
-      }>;
+        propertyName: string,
+      }>,
     } = {
       includeEmpty: true,
     }

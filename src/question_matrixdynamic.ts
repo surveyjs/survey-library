@@ -211,26 +211,6 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   public get rowCount(): number {
     return this.rowCountValue;
   }
-  /**
-   * Set this property to true, to allow rows drag and drop.
-   */
-  public get allowRowsDragAndDrop(): boolean {
-    return this.getPropertyValue("allowRowsDragAndDrop");
-  }
-  public set allowRowsDragAndDrop(val: boolean) {
-    this.setPropertyValue("allowRowsDragAndDrop", val);
-  }
-
-  protected createRenderedTable(): QuestionMatrixDropdownRenderedTable {
-    return new QuestionMatrixDynamicRenderedTable(this);
-  }
-
-  private get rowCountValue(): number {
-    return this.getPropertyValue("rowCount", 2);
-  }
-  private set rowCountValue(val: number) {
-    this.setPropertyValue("rowCount", val);
-  }
   public set rowCount(val: number) {
     if (val < 0 || val > settings.matrixMaximumRowCount) return;
     this.setRowCountValueFromData = false;
@@ -264,6 +244,26 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
       res = this.onGetValueForNewRowCallBack(this);
     }
     return res;
+  }
+  /**
+   * Set this property to true, to allow rows drag and drop.
+   */
+  public get allowRowsDragAndDrop(): boolean {
+    return this.getPropertyValue("allowRowsDragAndDrop");
+  }
+  public set allowRowsDragAndDrop(val: boolean) {
+    this.setPropertyValue("allowRowsDragAndDrop", val);
+  }
+
+  protected createRenderedTable(): QuestionMatrixDropdownRenderedTable {
+    return new QuestionMatrixDynamicRenderedTable(this);
+  }
+
+  private get rowCountValue(): number {
+    return this.getPropertyValue("rowCount", 2);
+  }
+  private set rowCountValue(val: number) {
+    this.setPropertyValue("rowCount", val);
   }
   /**
    * The minimum row count. A user could not delete a row if the rowCount equals to minRowCount
@@ -814,10 +814,10 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
       .toString();
   }
   public getRemoveRowButtonCss(): string {
-      return new CssClassBuilder()
-        .append(this.cssClasses.button)
-        .append(this.cssClasses.buttonRemove)
-        .toString()
+    return new CssClassBuilder()
+      .append(this.cssClasses.button)
+      .append(this.cssClasses.buttonRemove)
+      .toString();
   }
 }
 

@@ -119,7 +119,7 @@ export class QuestionPanelDynamicImplementor extends QuestionImplementor {
         this.koRecalc();
         return this.question.getNextButtonCss();
       })
-    );   
+    );
 
     this.setObservaleObj(
       "koProgressText",
@@ -175,7 +175,7 @@ export class QuestionPanelDynamicImplementor extends QuestionImplementor {
     if (!this.question || !this.question.survey) return;
     const el = SurveyElement.GetFirstNonTextElement(elements);
     this.question.survey.afterRenderPanel(con, el);
-  } 
+  }
 
   protected get progress() {
     const rangeMax: number = this.question.panelCount - 1;

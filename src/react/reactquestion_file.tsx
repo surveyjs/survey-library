@@ -1,8 +1,7 @@
 import * as React from "react";
+import { QuestionFileModel, confirmAction, detectIEOrEdge, loadFileFromBase64 } from "survey-core";
 import { SurveyQuestionElementBase } from "./reactquestion_element";
-import { QuestionFileModel } from "survey-core";
 import { ReactQuestionFactory } from "./reactquestion_factory";
-import { confirmAction, detectIEOrEdge, loadFileFromBase64 } from "survey-core";
 
 export class SurveyQuestionFile extends SurveyQuestionElementBase {
   constructor(props: any) {
@@ -89,11 +88,12 @@ export class SurveyQuestionFile extends SurveyQuestionElementBase {
     );
     fileInput = (
       <input
+        type="file"
         disabled={this.isDisplayMode}
-        className={this.question.cssClasses.fileInput}
+        className={!this.isDisplayMode ? this.question.cssClasses.fileInput : this.question.getReadOnlyFileCss()}
         id={this.question.inputId}
         ref={input => (this.control = input)}
-        type="file"
+        style={!this.isDisplayMode ? {} : { color: "transparent" }}
         onChange={!this.isDisplayMode ? this.handleOnChange : null}
         aria-required={this.question.isRequired}
         aria-label={this.question.locTitle.renderedHtml}
@@ -117,15 +117,13 @@ export class SurveyQuestionFile extends SurveyQuestionElementBase {
     );
   }
   protected renderFileDecorator(): JSX.Element {
+    const questionCss = this.question.cssClasses;
     let noFileChosen = null;
     let chooseFile = null;
-    let chooseFileCss =
-      this.question.cssClasses.chooseFile +
-      (this.isDisplayMode ? " " + this.question.cssClasses.controlDisabled : "");
     chooseFile = (
       <label
         role="button"
-        className={chooseFileCss}
+        className={this.question.getChooseFileCss()}
         htmlFor={this.question.inputId}
         aria-label={this.question.chooseButtonCaption}
       >

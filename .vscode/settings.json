@@ -1,0 +1,18 @@
+{
+    "search.exclude": {
+        "build": true,
+        "node_modules": true
+    },
+    "[typescript]": {
+        "editor.codeActionsOnSave": {
+            "source.fixAll": true,
+            //"source.organizeImports": true, // be vare of https://github.com/microsoft/vscode-typescript-tslint-plugin/issues/51
+        }
+    },
+    // "typescript.format.insertSpaceAfterFunctionKeywordForAnonymousFunctions": false,
+    // "typescript.format.insertSpaceAfterKeywordsInControlFlowStatements": false,
+    // "typescript.format.insertSpaceBeforeFunctionParenthesis": false,
+    // "javascript.format.insertSpaceAfterFunctionKeywordForAnonymousFunctions": false,
+    // "javascript.format.insertSpaceAfterKeywordsInControlFlowStatements": false,
+    "editor.tabSize": 2,
+}

@@ -43,7 +43,7 @@ export class SurveyQuestionMatrix extends SurveyQuestionElementBase {
       var columText = this.renderLocString(column.locText);
       headers.push(
         <th className={this.question.cssClasses.headerCell} key={key}>
-          {this.wrapCell({column: column}, columText, "column-header")}
+          {this.wrapCell({ column: column }, columText, "column-header")}
         </th>
       );
     }
@@ -123,8 +123,8 @@ export class SurveyQuestionMatrixRow extends ReactSurveyElement {
     if (this.question.hasRows) {
       var rowText = this.renderLocString(this.row.locText);
       rowsTD = <td className={this.question.cssClasses.cell}>
-        {this.wrapCell({row: this.row}, rowText, "row-header")}
-        </td>;
+        {this.wrapCell({ row: this.row }, rowText, "row-header")}
+      </td>;
     }
 
     var tds = this.generateTds();

@@ -6,9 +6,7 @@
     >
       <button
         type="button"
-        :class="
-          question.cssClasses.button + ' ' + question.cssClasses.buttonAdd
-        "
+        :class="question.getAddRowButtonCss()"
         @click="addRowClick"
       >
         <survey-string :locString="question.locAddRowText" />
@@ -28,13 +26,7 @@
       </div>
       <button
         type="button"
-        :class="
-          question.cssClasses.button +
-            ' ' +
-            question.cssClasses.buttonAdd +
-            ' ' +
-            question.cssClasses.emptyRowsButton
-        "
+        :class="question.getAddRowButtonCss(true)"
         @click="addRowClick"
       >
         <survey-string :locString="question.locAddRowText" />
@@ -47,9 +39,7 @@
     >
       <button
         type="button"
-        :class="
-          question.cssClasses.button + ' ' + question.cssClasses.buttonAdd
-        "
+        :class="question.getAddRowButtonCss()"
         @click="addRowClick"
       >
         <survey-string :locString="question.locAddRowText" />
@@ -61,10 +51,9 @@
 
 <script lang="ts">
 import Vue from "vue";
-import { Component, Prop } from "vue-property-decorator";
+import { Component } from "vue-property-decorator";
 import { default as QuestionVue } from "./question";
 import { QuestionMatrixDynamicModel } from "survey-core";
-import { MatrixDropdownRowModelBase } from "survey-core";
 
 @Component
 export class MatrixDynamic extends QuestionVue<QuestionMatrixDynamicModel> {

@@ -133,9 +133,9 @@ export class Base {
   private bindingsValue: Bindings;
   private isDisposedValue: boolean;
   private onPropChangeFunctions: Array<{
-    name: string;
-    func: (...args: any[]) => void;
-    key: string;
+    name: string,
+    func: (...args: any[]) => void,
+    key: string,
   }>;
   protected isLoadingFromJsonValue: boolean = false;
   public loadingOwner: Base = null;
@@ -315,10 +315,10 @@ export class Base {
    * @param name property name
    */
   public getPropertyValue(name: string, defaultValue: any = null): any {
-    var res = this.getPropertyValueCore(this.propertyHash, name);
+    const res = this.getPropertyValueCore(this.propertyHash, name);
     if (this.IsPropertyEmpty(res)) {
       if (defaultValue != null) return defaultValue;
-      var prop = Serializer.findProperty(this.getType(), name);
+      const prop = Serializer.findProperty(this.getType(), name);
       if (!!prop && (!prop.isCustom || !this.isCreating)) {
         if (
           !this.IsPropertyEmpty(prop.defaultValue) &&

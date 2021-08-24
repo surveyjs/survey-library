@@ -295,15 +295,15 @@ export class StylesManager {
     ".sv_main .sv_header__text":
       "display: inline-block; vertical-align: top; max-width: 100%",
 
-    ".sv_main .sv-expand-action:before": `content: ""; display: inline-block; background-image: url("data:image/svg+xml,%3C%3Fxml version='1.0' encoding='utf-8'%3F%3E%3C!-- Generator: Adobe Illustrator 21.1.0, SVG Export Plug-In . SVG Version: 6.00 Build 0) --%3E%3Csvg version='1.1' id='Layer_1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' x='0px' y='0px' viewBox='0 0 10 10' style='enable-background:new 0 0 10 10;' xml:space='preserve'%3E%3Cstyle type='text/css'%3E .st0%7Bfill:%23404040;%7D%0A%3C/style%3E%3Cpolygon class='st0' points='2,2 0,4 5,9 10,4 8,2 5,5 '/%3E%3C/svg%3E%0A"); background-repeat: no-repeat; background-position: center center; height: 10px; width: 12px; margin: auto 8px;`,
+    ".sv_main .sv-expand-action:before": "content: \"\"; display: inline-block; background-image: url(\"data:image/svg+xml,%3C%3Fxml version='1.0' encoding='utf-8'%3F%3E%3C!-- Generator: Adobe Illustrator 21.1.0, SVG Export Plug-In . SVG Version: 6.00 Build 0) --%3E%3Csvg version='1.1' id='Layer_1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' x='0px' y='0px' viewBox='0 0 10 10' style='enable-background:new 0 0 10 10;' xml:space='preserve'%3E%3Cstyle type='text/css'%3E .st0%7Bfill:%23404040;%7D%0A%3C/style%3E%3Cpolygon class='st0' points='2,2 0,4 5,9 10,4 8,2 5,5 '/%3E%3C/svg%3E%0A\"); background-repeat: no-repeat; background-position: center center; height: 10px; width: 12px; margin: auto 8px;",
 
-    ".sv_main .sv-expand-action--expanded:before": `transform: rotate(180deg);`,
+    ".sv_main .sv-expand-action--expanded:before": "transform: rotate(180deg);",
 
-    ".sv_main .sv-action-bar": `display: flex; position: relative; align-items: center; margin-left: auto; padding: 0 0 0 16px; overflow: hidden; white-space: nowrap;`,
-    ".sv_main .sv-action-bar-separator": `display: inline-block; width: 1px; height: 24px; vertical-align: middle; margin-right: 16px; background-color: #d6d6d6;`,
-    ".sv_main .sv-action-bar-item": `-webkit-appearance: none; -moz-appearance: none; appearance: none; display: flex; height: 40px; padding: 8px; box-sizing: border-box; margin-right: 16px; border: none; border-radius: 2px; background-color: transparent; cursor: pointer; line-height: 24px; font-size: 16px; overflow-x: hidden; white-space: nowrap; min-width: auto; font-weight: normal`,
-    ".sv_main .sv-action-bar-item__title": `vertical-align: middle; white-space: nowrap;`,
-    ".sv_main .sv-action-bar-item__title--with-icon": `margin-left: 8px;`,
+    ".sv_main .sv-action-bar": "display: flex; position: relative; align-items: center; margin-left: auto; padding: 0 0 0 16px; overflow: hidden; white-space: nowrap;",
+    ".sv_main .sv-action-bar-separator": "display: inline-block; width: 1px; height: 24px; vertical-align: middle; margin-right: 16px; background-color: #d6d6d6;",
+    ".sv_main .sv-action-bar-item": "-webkit-appearance: none; -moz-appearance: none; appearance: none; display: flex; height: 40px; padding: 8px; box-sizing: border-box; margin-right: 16px; border: none; border-radius: 2px; background-color: transparent; cursor: pointer; line-height: 24px; font-size: 16px; overflow-x: hidden; white-space: nowrap; min-width: auto; font-weight: normal",
+    ".sv_main .sv-action-bar-item__title": "vertical-align: middle; white-space: nowrap;",
+    ".sv_main .sv-action-bar-item__title--with-icon": "margin-left: 8px;",
     ".sv_main .sv-action__content": "display: inline-flex; align-items: center;",
     ".sv_main .sv-action--hidden": "width: 0px; height: 0px; overflow: hidden;",
     ".sv_main .sv-action-bar-item__icon svg": "display: block;",
@@ -402,7 +402,7 @@ export class StylesManager {
     //eo list
   };
 
-  public static Media: { [key: string]: { media: string; style: string } } = {
+  public static Media: { [key: string]: { media: string, style: string } } = {
     ".sv_qstn fieldset .sv-q-col-1": {
       style: "width: 100%;",
       media: "@media only screen and (max-width: 480px)",
@@ -623,7 +623,7 @@ export class StylesManager {
       "$foreground-light": "#909090",
       "$foreground-disabled": "#161616",
       "$background-dim": "#f3f3f3",
-      
+
       "$progress-buttons-color": "#c6bed4",
       "$progress-buttons-line-color": "#d4d4d4"
     },
@@ -681,7 +681,7 @@ export class StylesManager {
       "$foreground-light": "#909090",
       "$foreground-disabled": "#161616",
       "$background-dim": "#f3f3f3",
-      
+
       "$progress-buttons-color": "#d1c9f5",
       "$progress-buttons-line-color": "#d4d4d4"
     },
@@ -710,7 +710,7 @@ export class StylesManager {
       "$foreground-light": "#909090",
       "$foreground-disabled": "#161616",
       "$background-dim": "#f3f3f3",
-      
+
       "$progress-buttons-color": "#acdcf2",
       "$progress-buttons-line-color": "#d4d4d4"
     },
@@ -766,7 +766,7 @@ export class StylesManager {
       "$foreground-light": "#909090",
       "$foreground-disabled": "#161616",
       "$background-dim": "#f3f3f3",
-      
+
       "$progress-buttons-color": "#8dd6c7",
       "$progress-buttons-line-color": "#d4d4d4",
     },
@@ -786,7 +786,7 @@ export class StylesManager {
       "$foreground-light": "#909090",
       "$foreground-disabled": "#161616",
       "$background-dim": "#f3f3f3",
-      
+
       "$progress-buttons-color": "#8dd6c7",
       "$progress-buttons-line-color": "#d4d4d4",
     },
@@ -1019,7 +1019,7 @@ export class StylesManager {
       "fill: $text-color;",
     ".sv-paneldynamic__prev-btn--disabled, .sv-paneldynamic__next-btn--disabled":
       "fill: $disable-color;",
-    ".sv-paneldynamic__progress-text": "color: $progress-text-color;",    
+    ".sv-paneldynamic__progress-text": "color: $progress-text-color;",
     ".sv-progress": "background-color: $header-background-color;",
     ".sv-progress__bar": "background-color: $main-color;",
     ".sv-progress__text": "color: $progress-text-color;",
@@ -1131,7 +1131,7 @@ export class StylesManager {
       "border-color: $main-color; background-color: white;",
     ".sv_main .sv_progress-buttons__list li.sv_progress-buttons__list-element--passed.sv_progress-buttons__list-element--current:before":
       "border-color: $main-color; background-color: white;",
-    
+
     //paneldynamic
     ".sv_main .sv-paneldynamic__prev-btn.sv-paneldynamic__prev-btn--disabled, .sv_main .sv-paneldynamic__next-btn.sv-paneldynamic__next-btn--disabled":
       "fill: $disable-color;",

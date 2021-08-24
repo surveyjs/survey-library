@@ -79,7 +79,7 @@ export class ItemValue extends Base {
     }
   }
   public static getData(items: Array<ItemValue>): any {
-    var result = new Array();
+    var result = [];
     for (var i = 0; i < items.length; i++) {
       result.push(items[i].getData());
     }
@@ -225,8 +225,8 @@ export class ItemValue extends Base {
       return txt
         ? txt
         : !Helpers.isValueEmpty(this.value)
-        ? this.value.toString()
-        : null;
+          ? this.value.toString()
+          : null;
     };
     if (text) this.locText.text = text;
     if (!!value && typeof value === "object") {

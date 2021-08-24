@@ -5,6 +5,7 @@ import { EventBase } from "./base";
 import { UploadingFileError, ExceedSizeError } from "./error";
 import { surveyLocalization } from "./surveyStrings";
 import { SurveyError } from "./survey-error";
+import { CssClassBuilder } from "survey-core";
 
 /**
  * A Model for a file question
@@ -285,8 +286,8 @@ export class QuestionFileModel extends Question {
     var newValues = Array.isArray(newValue)
       ? newValue
       : !!newValue
-      ? [newValue]
-      : [];
+        ? [newValue]
+        : [];
 
     if (this.storeDataAsText) {
       newValues.forEach((value) => {
@@ -361,9 +362,9 @@ export class QuestionFileModel extends Question {
     return errorLength === this.errors.length;
   }
   private isFileImage(file: {
-    content: string;
-    name?: string;
-    type?: string;
+    content: string,
+    name?: string,
+    type?: string,
   }): boolean {
     if (!file) return false;
     const imagePrefix = "data:image";
@@ -376,10 +377,10 @@ export class QuestionFileModel extends Question {
   }
   public getPlainData(
     options: {
-      includeEmpty?: boolean;
+      includeEmpty?: boolean,
       calculations?: Array<{
-        propertyName: string;
-      }>;
+        propertyName: string,
+      }>,
     } = {
       includeEmpty: true,
     }
@@ -404,6 +405,18 @@ export class QuestionFileModel extends Question {
   }
   public supportComment(): boolean {
     return true;
+  }
+  public getChooseFileCss(): string {
+    return new CssClassBuilder()
+      .append(this.cssClasses.chooseFile)
+      .append(this.cssClasses.controlDisabled, this.isReadOnly)
+      .toString();
+  }
+  public getReadOnlyFileCss(): string {
+    return new CssClassBuilder()
+      .append("form-control")
+      .append(this.cssClasses.placeholderInput)
+      .toString();
   }
 }
 Serializer.addClass(

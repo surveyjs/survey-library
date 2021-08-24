@@ -1,7 +1,6 @@
 <button
-  class="sv-action-bar-item"
   type="button"
-  data-bind="click: action, key2click, class: $data.innerCss, disable: $data.disabled, css: { 'sv-action-bar-item--active': !!ko.unwrap($data.active) }, attr: { title: $data.tooltip || $data.title }"
+  data-bind="click: action, key2click, disable: $data.disabled, css: getActionBarItemActiveCss(), attr: { title: $data.tooltip || $data.title }"
 >
   <!-- ko if: $data.iconName -->
   <sv-svg-icon
@@ -12,8 +11,7 @@
 
   <!-- ko if: $data.hasTitle -->
   <span
-    class="sv-action-bar-item__title"
-    data-bind="text: title, css: { 'sv-action-bar-item__title--with-icon': !!$data.iconName }"
+    data-bind="text: title, css: getActionBarItemCss()"
   ></span>
   <!-- /ko -->
 </button>

@@ -37,7 +37,7 @@ export class SurveyQuestionRadiogroup extends SurveyQuestionElementBase {
         role="radiogroup"
       >
         {this.question.hasTitle ? null
-            : <legend aria-label={this.question.locTitle.renderedHtml}/>}
+          : <legend aria-label={this.question.locTitle.renderedHtml}/>}
         {this.question.hasColumns
           ? this.getColumns(cssClasses)
           : this.getItems(cssClasses)}
@@ -63,7 +63,7 @@ export class SurveyQuestionRadiogroup extends SurveyQuestionElementBase {
     var value = this.getStateValue();
     for (var i = 0; i < this.question.visibleChoices.length; i++) {
       var item = this.question.visibleChoices[i];
-      var renderedItem = this.renderItem(item, value, cssClasses, "" + i)
+      var renderedItem = this.renderItem(item, value, cssClasses, "" + i);
       items.push(renderedItem);
     }
     return items;
@@ -94,7 +94,7 @@ export class SurveyQuestionRadiogroup extends SurveyQuestionElementBase {
     let wrappedItem = null;
     if(!!survey) {
       wrappedItem = survey.wrapItemValue(renderedItem, this.question, item);
-    };
+    }
     return wrappedItem ?? renderedItem;
   }
   private getStateValue(): any {
@@ -211,7 +211,7 @@ export class SurveyQuestionRadioItem extends ReactSurveyElement {
 
 ReactElementFactory.Instance.registerElement("survey-radiogroup-item", (props: any)=>{
   return React.createElement(SurveyQuestionRadioItem, props);
-})
+});
 
 ReactQuestionFactory.Instance.registerQuestion("radiogroup", (props) => {
   return React.createElement(SurveyQuestionRadiogroup, props);

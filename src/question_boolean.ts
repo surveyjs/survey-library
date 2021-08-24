@@ -3,6 +3,7 @@ import { property, Serializer } from "./jsonobject";
 import { Question } from "./question";
 import { LocalizableString } from "./localizablestring";
 import { surveyLocalization } from "./surveyStrings";
+import { CssClassBuilder } from "src/utils/cssClassBuilder";
 
 /**
  * A Model for a boolean question.
@@ -157,6 +158,22 @@ export class QuestionBooleanModel extends Question {
   protected getDisplayValueCore(keysAsText: boolean, value: any): any {
     if (value == this.getValueTrue()) return this.locLabelTrue.textOrHtml;
     return this.locLabelFalse.textOrHtml;
+  }
+
+  public getItemCss(): string {
+    return new CssClassBuilder()
+      .append(this.cssClasses.item)
+      .append(this.cssClasses.itemDisabled, this.isReadOnly)
+      .append(this.cssClasses.itemChecked, this.checkedValue)
+      .append(this.cssClasses.itemIndeterminate, this.checkedValue === null)
+      .toString();
+  }
+
+  public getLabelCss(checked: boolean): string {
+    return new CssClassBuilder()
+      .append(this.cssClasses.label)
+      .append(this.cssClasses.disabledLabel, this.checkedValue === !checked || this.isReadOnly)
+      .toString();
   }
 }
 

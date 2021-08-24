@@ -11457,7 +11457,7 @@ QUnit.test("Survey logoClassNames", function(assert) {
   assert.equal(survey.logoClassNames, "sv_logo sv-logo--bottom");
 
   survey.logoPosition = "none";
-  assert.equal(survey.logoClassNames, "sv_logo undefined");
+  assert.equal(survey.logoClassNames, "sv_logo");
 });
 QUnit.test("Survey.onQuestionCreated", function(assert) {
   var survey = new SurveyModel();

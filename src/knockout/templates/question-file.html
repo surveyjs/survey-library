@@ -1,14 +1,14 @@
 ﻿<script type="text/html" id="survey-question-file">
   <div data-bind="css: question.koCss().root">
       <!-- ko ifnot: question.isInputReadOnly -->
-      <input type="file" data-bind="css: question.cssClasses.fileInput, attr: {id: question.inputId, 'aria-required': question.isRequired, 'aria-label': question.locTitle.renderedHtml, 'aria-invalid': question.errors.length > 0, 'aria-describedby': question.errors.length > 0 ? question.id + '_errors' : null, multiple: question.allowMultiple ? 'multiple' : undefined, title: koInputTitle, accept: question.acceptedTypes }, event: {change: question.dochange}">
+      <input type="file" data-bind="css: question.cssClasses.fileInput, attr: { id: question.inputId, 'aria-required': question.isRequired, 'aria-label': question.locTitle.renderedHtml, 'aria-invalid': question.errors.length > 0, 'aria-describedby': question.errors.length > 0 ? question.id + '_errors' : null, multiple: question.allowMultiple ? 'multiple' : undefined, title: koInputTitle, accept: question.acceptedTypes }, event: { change: question.dochange }">
       <!-- /ko -->
       <!-- ko if: question.isReadOnly -->
-      <input type="file" disabled data-bind="css: 'form-control ' + question.cssClasses.placeholderInput, attr: { placeholder: question.title }" style="color: transparent;"/>
+      <input type="file" disabled data-bind="css: question.getReadOnlyFileCss(), attr: { placeholder: question.title }" style="color: transparent;"/>
       <!-- /ko -->
-      <div data-bind="css:question.koCss().fileDecorator, event:{ dragover: question.ondragover, drop: question.ondrop}">
+      <div data-bind="css:question.koCss().fileDecorator, event: { dragover: question.ondragover, drop: question.ondrop}">
         <div data-bind="css: question.koCss().wrapper">
-          <label role="button" data-bind="css: question.koChooseFileClass, attr: {for: question.inputId, 'aria-label': question.chooseButtonCaption}, text: question.chooseButtonCaption"></label>
+          <label role="button" data-bind="css: question.koChooseFileCss, attr: { for: question.inputId, 'aria-label': question.chooseButtonCaption }, text: question.chooseButtonCaption"></label>
           <span data-bind="css: question.koCss().noFileChosen, visible: !question.koHasValue(), text: question.noFileChosenCaption"></span>
         </div>
       </div>

@@ -61,6 +61,9 @@ export class LocalizableString implements ILocalizableString {
   public get text(): string {
     return this.pureText;
   }
+  public set text(value: string) {
+    this.setLocaleText(this.locale, value);
+  }
   public get calculatedText(): string {
     this.renderedText =
       this.calculatedTextValue !== undefined
@@ -113,9 +116,6 @@ export class LocalizableString implements ILocalizableString {
   }
   public get renderedHtml() {
     return this.textOrHtml;
-  }
-  public set text(value: string) {
-    this.setLocaleText(this.locale, value);
   }
   public getLocaleText(loc: string): string {
     if (!loc) loc = settings.defaultLocaleName;

@@ -21,7 +21,7 @@ export abstract class DragDropCore extends Base {
 
   protected prevDropTarget: any = null;
   private draggedElementShortcut: HTMLElement = null;
-  private scrollIntervalId: ReturnType<typeof setTimeout> = null;
+  private scrollIntervalId: number = null;
   private allowDropHere = false;
 
   constructor(private surveyValue?: ISurvey, private creator?: any) {
@@ -188,7 +188,7 @@ export abstract class DragDropCore extends Base {
   }
 
   private doScroll(clientY: number, clientX: number) {
-    clearInterval(this.scrollIntervalId);
+    cancelAnimationFrame(this.scrollIntervalId);
     const startScrollBoundary = 50;
 
     // need to import getScrollableParent method
@@ -204,23 +204,19 @@ export abstract class DragDropCore extends Base {
     let left = scrollableParentNode.getBoundingClientRect().left;
     let right = scrollableParentNode.getBoundingClientRect().right;
 
-    if (clientY - top <= startScrollBoundary) {
-      this.scrollIntervalId = setInterval(() => {
-        scrollableParentNode.scrollTop -= 5;
-      }, 10);
-    } else if (bottom - clientY <= startScrollBoundary) {
-      this.scrollIntervalId = setInterval(() => {
-        scrollableParentNode.scrollTop += 5;
-      }, 10);
-    } else if (right - clientX <= startScrollBoundary) {
-      this.scrollIntervalId = setInterval(() => {
-        scrollableParentNode.scrollLeft += 5;
-      }, 10);
-    } else if (clientX - left <= startScrollBoundary) {
-      this.scrollIntervalId = setInterval(() => {
-        scrollableParentNode.scrollLeft -= 5;
-      }, 10);
-    }
+    const repeat = () => {
+      if (clientY - top <= startScrollBoundary) {
+        scrollableParentNode.scrollTop -= 15;
+      } else if (bottom - clientY <= startScrollBoundary) {
+        scrollableParentNode.scrollTop += 15;
+      } else if (right - clientX <= startScrollBoundary) {
+        scrollableParentNode.scrollLeft += 15;
+      } else if (clientX - left <= startScrollBoundary) {
+        scrollableParentNode.scrollLeft -= 15;
+      }
+      this.scrollIntervalId = requestAnimationFrame(repeat);
+    };
+    this.scrollIntervalId = requestAnimationFrame(repeat);
   }
 
   protected banDropHere = () => {
@@ -298,7 +294,7 @@ export abstract class DragDropCore extends Base {
   protected abstract doDrop(): any;
 
   private clear = () => {
-    clearInterval(this.scrollIntervalId);
+    cancelAnimationFrame(this.scrollIntervalId);
 
     document.removeEventListener("pointermove", this.dragOver);
     document.removeEventListener("keydown", this.handleEscapeButton);

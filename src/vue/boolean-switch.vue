@@ -1,6 +1,6 @@
 <template>
   <div :class="question.cssClasses.root">
-    <label :class="itemClass">
+    <label :class="question.getItemCss()">
       <input
         type="checkbox"
         :name="question.name"
@@ -18,7 +18,7 @@
         "
       />
       <span
-        :class="getLabelClass(false)"
+        :class="question.getLabelCss(false)"
         v-on:click="onLabelClick($event, false)"
         ><survey-string :locString="question.locLabelFalse"></survey-string
       ></span>
@@ -28,7 +28,7 @@
       >
         <span :class="question.cssClasses.slider" />
       </div>
-      <span :class="getLabelClass(true)" v-on:click="onLabelClick($event, true)"
+      <span :class="question.getLabelCss(true)" v-on:click="onLabelClick($event, true)"
         ><survey-string :locString="question.locLabelTrue"></survey-string
       ></span>
     </label>
@@ -37,9 +37,7 @@
 
 <script lang="ts">
 import Vue from "vue";
-import { Component, Prop, Watch } from "vue-property-decorator";
-import { default as QuestionVue } from "./question";
-import { QuestionBooleanModel } from "survey-core";
+import { Component } from "vue-property-decorator";
 import { Boolean } from "./boolean";
 
 @Component

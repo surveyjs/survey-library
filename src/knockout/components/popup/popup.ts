@@ -6,7 +6,7 @@ const template = require("html-loader?interpolate!val-loader!./popup.html");
 
 export class PopupViewModel {
   constructor(public popupViewModel: PopupBaseViewModel) {
-    if(!popupViewModel.container)
+    if (!popupViewModel.container)
       popupViewModel.initializePopupContainer();
     new ImplementorBase(popupViewModel.model);
     new ImplementorBase(popupViewModel);

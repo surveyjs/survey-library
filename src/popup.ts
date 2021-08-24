@@ -16,10 +16,10 @@ export class PopupModel<T = any> extends Base {
   @property({ defaultValue: "left" }) horizontalPosition: HorizontalPosition;
   @property({ defaultValue: false }) showPointer: boolean;
   @property({ defaultValue: false }) isModal: boolean;
-  @property({ defaultValue: () => {} }) onCancel: () => void;
+  @property({ defaultValue: () => { } }) onCancel: () => void;
   @property({ defaultValue: () => { return true; } }) onApply: () => boolean;
-  @property({ defaultValue: () => {} }) onHide: () => void;
-  @property({ defaultValue: () => {} }) onShow: () => void;
+  @property({ defaultValue: () => { } }) onHide: () => void;
+  @property({ defaultValue: () => { } }) onShow: () => void;
   @property({ defaultValue: "" }) cssClass: string;
   constructor(
     contentComponentName: string,
@@ -28,10 +28,10 @@ export class PopupModel<T = any> extends Base {
     horizontalPosition: HorizontalPosition = "left",
     showPointer: boolean = true,
     isModal: boolean = false,
-    onCancel = () => {},
+    onCancel = () => { },
     onApply = () => { return true; },
-    onHide = () => {},
-    onShow = () => {},
+    onHide = () => { },
+    onShow = () => { },
     cssClass: string = ""
   ) {
     super();
@@ -73,8 +73,8 @@ export function createPopupModalViewModel(
   data: any,
   onApply: () => boolean,
   onCancel?: () => void,
-  onHide = () => {},
-  onShow = () => {},
+  onHide = () => { },
+  onShow = () => { },
   cssClass?: string
 ) {
   const popupModel = new PopupModel(
@@ -98,10 +98,11 @@ export function createPopupModalViewModel(
   return popupViewModel;
 }
 
-const FOCUS_INPUT_SELECTOR =
-  "input:not(:disabled):not([readonly]):not([type=hidden]),select:not(:disabled):not([readonly]),textarea:not(:disabled):not([readonly]), button:not(:disabled):not([readonly])";
+const FOCUS_INPUT_SELECTOR = "input:not(:disabled):not([readonly]):not([type=hidden]),select:not(:disabled):not([readonly]),textarea:not(:disabled):not([readonly]), button:not(:disabled):not([readonly]), [tabindex]:not([tabindex^=\"-\"])";
 
 export class PopupBaseViewModel extends Base {
+  private prevActiveElement: HTMLElement;
+
   @property({ defaultValue: "0px" }) top: string;
   @property({ defaultValue: "0px" }) left: string;
   @property({ defaultValue: "auto" }) height: string;
@@ -113,6 +114,9 @@ export class PopupBaseViewModel extends Base {
   constructor(public model: PopupModel, public targetElement?: HTMLElement) {
     super();
     this.model.registerFunctionOnPropertyValueChanged("isVisible", () => {
+      if(!this.model.isVisible) {
+        this.updateOnHiding();
+      }
       this.isVisible = this.model.isVisible;
     });
   }
@@ -147,12 +151,9 @@ export class PopupBaseViewModel extends Base {
     }
   }
   private trapFocus(event: any) {
-    const focusableElements = this.container.querySelectorAll(
-      FOCUS_INPUT_SELECTOR
-    );
+    const focusableElements = this.container.querySelectorAll(FOCUS_INPUT_SELECTOR);
     const firstFocusableElement = focusableElements[0];
-    const lastFocusableElement =
-      focusableElements[focusableElements.length - 1];
+    const lastFocusableElement = focusableElements[focusableElements.length - 1];
     if (event.shiftKey) {
       if (document.activeElement === firstFocusableElement) {
         (<HTMLElement>lastFocusableElement).focus();
@@ -166,10 +167,14 @@ export class PopupBaseViewModel extends Base {
     }
   }
   public updateOnShowing() {
+    this.prevActiveElement = <HTMLElement>document.activeElement;
     if (!this.isModal) {
       this.updatePosition();
     }
     this.focusFirstInput();
+  }
+  public updateOnHiding() {
+    this.prevActiveElement && this.prevActiveElement.focus();
   }
   private updatePosition() {
     const rect = this.targetElement.getBoundingClientRect();

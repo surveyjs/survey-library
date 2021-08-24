@@ -164,14 +164,27 @@ export function getSize(value: any) {
   return value;
 }
 
-function doKey2Click(ev: any) {
-  const el: any = ev.target;
-  if (!el) return;
-  const char: number = ev.which || ev.keyCode;
+function doKey2ClickUp(evt: KeyboardEvent, options = { processEsc: true }): void {
+  const element: any = evt.target;
+  if (!element) return;
+  const char: number = evt.which || evt.keyCode;
   if (char === 13 || char === 32) {
-    if (el.click) el.click();
-  } else if (char === 27) {
-    if (el.blur) el.blur();
+    if (element.click) element.click();
+  } else if (options.processEsc && char === 27) {
+    if (element.blur) element.blur();
+  }
+}
+function doKey2ClickDown(evt: KeyboardEvent, options = { processEsc: true }): void {
+  if(!!evt.target && (<any>evt.target)["contentEditable"] === "true") {
+    return;
+  }
+  var char = evt.which || evt.keyCode;
+  const supportedCodes = [13, 32];
+  if(options.processEsc) {
+    supportedCodes.push(27);
+  }
+  if(supportedCodes.indexOf(char) !== -1) {
+    evt.preventDefault();
   }
 }
 
@@ -186,6 +199,7 @@ export {
   findScrollableParent,
   scrollElementByChildId,
   createSvg,
-  doKey2Click,
+  doKey2ClickUp,
+  doKey2ClickDown,
   getIconNameFromProxy
 };

@@ -1,13 +1,5 @@
 import * as React from "react";
-import {
-  Base,
-  SurveyElement,
-  SurveyError,
-  Question,
-  QuestionMatrixDropdownRenderedCell,
-  CssClassBuilder,
-  doKey2Click
-} from "survey-core";
+import { Base, SurveyElement, SurveyError, Question, QuestionMatrixDropdownRenderedCell, CssClassBuilder, doKey2ClickUp } from "survey-core";
 import { ReactSurveyModel } from "./reactsurveymodel";
 import { ReactElementFactory } from "./element-factory";
 import { SurveyElementBase, ReactSurveyElement } from "./reactquestion_element";
@@ -173,7 +165,7 @@ export class SurveyQuestion extends SurveyElementBase<any, any> {
           return this.question.toggleState();
         }}
         onKeyUp={(evt) => {
-          doKey2Click(evt);
+          doKey2ClickUp(evt.nativeEvent);
         }}
       >
         {titleComponent}
@@ -317,7 +309,7 @@ export class SurveyQuestionAndErrorsCell extends ReactSurveyElement {
     super.componentDidUpdate(prevProps, prevState);
     this.doAfterRender();
   }
-  protected doAfterRender() {}
+  protected doAfterRender() { }
   protected canRender(): boolean {
     return !!this.question;
   }

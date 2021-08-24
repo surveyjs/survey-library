@@ -93,11 +93,18 @@ export function showModal(
   onCancel?: () => void,
   cssClass?: string
 ) {
-  const popupViewModel: PopupBaseViewModel = createPopupModalViewModel(componentName, data, onApply, onCancel,
-  () => {
-    popup.$destroy();
-    popupViewModel.destroyPopupContainer();
-  }, undefined, cssClass);
+  const popupViewModel: PopupBaseViewModel = createPopupModalViewModel(
+    componentName,
+    data,
+    onApply,
+    onCancel,
+    () => {
+      popup.$destroy();
+      popupViewModel.destroyPopupContainer();
+    },
+    undefined,
+    cssClass
+  );
   const popup = new PopupContainer({
     el: popupViewModel.container.appendChild(document.createElement("div")),
     propsData: { model: popupViewModel },

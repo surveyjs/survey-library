@@ -62,7 +62,7 @@
 <script lang="ts">
 import Vue from "vue";
 import { Component, Prop } from "vue-property-decorator";
-import { PanelModel, Base, CssClassBuilder, doKey2Click } from "survey-core";
+import { PanelModel, Base, CssClassBuilder, doKey2ClickUp } from "survey-core";
 import { BaseVue } from "./base";
 
 @Component
@@ -117,7 +117,7 @@ export class Panel extends BaseVue {
     return this.question.survey;
   }
   keyup(evt: any) {
-    doKey2Click(evt);
+    doKey2ClickUp(evt);
   }
   cancelPreview() {
     this.question.cancelPreview();

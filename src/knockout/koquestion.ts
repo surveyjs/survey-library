@@ -1,5 +1,5 @@
 import * as ko from "knockout";
-import { SurveyElement, Question, Helpers, doKey2Click } from "survey-core";
+import { SurveyElement, Question, Helpers, doKey2ClickUp } from "survey-core";
 import { ImplementorBase } from "./kobase";
 
 export class QuestionImplementor extends ImplementorBase {
@@ -25,7 +25,7 @@ export class QuestionImplementor extends ImplementorBase {
       return this.question.toggleState();
     };
     this.toggleStateByKeyUp = (_: any, event: any) => {
-      doKey2Click(event);
+      doKey2ClickUp(event);
     };
     Object.defineProperty(this.question, "koValue", {
       get: () => {

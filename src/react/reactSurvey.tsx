@@ -1,6 +1,5 @@
 import * as React from "react";
-import { Base, Question, PageModel, SurveyError, StylesManager,
-  surveyCss, Helpers, doKey2Click } from "survey-core";
+import { Base, Question, PageModel, SurveyError, StylesManager, surveyCss, Helpers, doKey2ClickUp } from "survey-core";
 import { ReactSurveyModel } from "./reactsurveymodel";
 import { SurveyPage } from "./page";
 import { ISurveyCreator } from "./reactquestion";
@@ -11,6 +10,7 @@ import { SurveyTimerPanel } from "./reacttimerpanel";
 import { SurveyNavigation } from "./reactSurveyNavigation";
 import { ReactQuestionFactory } from "./reactquestion_factory";
 import { ReactElementFactory } from "./element-factory";
+import { doKey2ClickDown } from "../utils/utils";
 
 export class Survey extends SurveyElementBase<any, any>
   implements ISurveyCreator {
@@ -84,7 +84,7 @@ export class Survey extends SurveyElementBase<any, any>
       renderResult = this.renderSurvey();
     }
     const header: JSX.Element = <SurveyHeader survey={this.survey}></SurveyHeader>;
-    const onSubmit = function(event: React.FormEvent<HTMLFormElement>) {
+    const onSubmit = function (event: React.FormEvent<HTMLFormElement>) {
       event.preventDefault();
     };
     let customHeader: JSX.Element = <div className="sv_custom_header" />;
@@ -299,7 +299,7 @@ export class Survey extends SurveyElementBase<any, any>
   protected setSurveyEvents() {
     var self = this;
 
-    this.survey.renderCallback = function() {
+    this.survey.renderCallback = function () {
       var counter =
         !!self.state && !!self.state.modelChanged ? self.state.modelChanged : 0;
       self.setState({ modelChanged: counter + 1 });
@@ -351,9 +351,9 @@ ReactElementFactory.Instance.registerElement("survey", (props) => {
   return React.createElement(Survey, props);
 });
 
-export function attachKey2click(element: JSX.Element, viewModel?: any): JSX.Element {
+export function attachKey2click(element: JSX.Element, viewModel?: any, options = { processEsc: true }): JSX.Element {
   let tabIndex = 0;
-  if(!!viewModel && viewModel.disableTabStop) {
+  if (!!viewModel && viewModel.disableTabStop) {
     tabIndex = -1;
     return;
   }
@@ -364,18 +364,10 @@ export function attachKey2click(element: JSX.Element, viewModel?: any): JSX.Elem
       onKeyUp: (evt: KeyboardEvent) => {
         evt.preventDefault();
         evt.stopPropagation();
-        doKey2Click(evt);
+        doKey2ClickUp(evt, options);
         return false;
       },
-      onKeyDown: (evt: any) => {
-        if(!!evt.target && evt.target.contentEditable === "true") {
-          return;
-        }
-        var char = evt.which || evt.keyCode;
-        if([13, 32, 27].indexOf(char) !== -1) {
-          evt.preventDefault();
-        }
-      }
+      onKeyDown: (evt: any) => doKey2ClickDown(evt, options)
     }
   );
 }

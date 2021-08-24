@@ -6,10 +6,16 @@ import { ResponsivityManager } from "../src/utils/responsivity-manager";
 export default QUnit.module("ResponsivityManager");
 
 class SimpleContainer {
+  clientRects = [{ x: 0, y: 0, height: 20, width: 20 }];
   parentElement: any;
   constructor(config: any) {
     (<any>Object).assign(this, config);
     this.parentElement = this;
+  }
+  offsetWidth = 20;
+  offsetHeight = 20;
+  getClientRects() {
+    return this.clientRects;
   }
 }
 
@@ -149,20 +155,20 @@ QUnit.test("Action container: updateCallback test", assert => {
   model.updateCallback = (isResetInitialized) => {
     currentIsInitialized = isResetInitialized;
     isRaised = true;
-  }
+  };
 
   assert.equal(isRaised, false);
-  model.actions = [new Action({ id: "first" })]
+  model.actions = [new Action({ id: "first" })];
   assert.equal(isRaised, true, "container OnSet");
   assert.equal(currentIsInitialized, true, "container OnSet");
 
   isRaised = false;
-  model.actions.push(new Action({ id: "second" }))
+  model.actions.push(new Action({ id: "second" }));
   assert.equal(isRaised, true, "container OnPush");
   assert.equal(currentIsInitialized, true, "container OnPush");
 
   isRaised = false;
-  model.actions.splice(1, 1)
+  model.actions.splice(1, 1);
   assert.equal(isRaised, true, "container OnRemove");
   assert.equal(currentIsInitialized, true, "container OnRemove");
 
@@ -183,22 +189,41 @@ QUnit.test("ResponsivityManager process test", function (assert) {
     model.actions.forEach(action => {
       action.minDimension = 20;
       action.maxDimension = 100;
-    })
+    });
   };
 
-  assert.equal(manager["isInitialized"], false, "before start")
+  assert.equal(manager["isInitialized"], false, "before start");
   manager["process"]();
 
   const newAction = new Action({ id: "first" });
-  assert.equal(newAction.minDimension, undefined)
-  assert.equal(newAction.maxDimension, undefined)
-  assert.equal(manager["isInitialized"], true, "before push")
+  assert.equal(newAction.minDimension, undefined);
+  assert.equal(newAction.maxDimension, undefined);
+  assert.equal(manager["isInitialized"], true, "before push");
 
-  model.actions.push(newAction)
-  assert.equal(manager["isInitialized"], false, "after push")
-  
+  model.actions.push(newAction);
+  assert.equal(manager["isInitialized"], false, "after push");
+
   manager["process"]();
-  assert.equal(manager["isInitialized"], true, "after process")
-  assert.equal(newAction.minDimension, 20)
-  assert.equal(newAction.maxDimension, 100)
+  assert.equal(manager["isInitialized"], true, "after process");
+  assert.equal(newAction.minDimension, 20);
+  assert.equal(newAction.maxDimension, 100);
 });
+
+QUnit.test(
+  "ResponsivityManager process test: stop when container is invisible",
+  function(assert) {
+    const container: SimpleContainer = new SimpleContainer({});
+    const model: AdaptiveActionContainer = new AdaptiveActionContainer();
+    const manager: ResponsivityManager = new ResponsivityManager(
+      <any>container,
+      <any>model,
+      ""
+    );
+    container.offsetHeight = 0;
+    container.offsetWidth = 0;
+    container.clientRects = [];
+    assert.equal(manager["isInitialized"], false);
+    manager["process"]();
+    assert.equal(manager["isInitialized"], false);
+  }
+);

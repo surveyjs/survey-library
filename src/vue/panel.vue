@@ -44,10 +44,7 @@
       >
         <survey-row :row="row" :survey="survey" :css="css"></survey-row>
       </div>
-      <div
-        v-if="question.hasEditButton"
-        :class="question.cssClasses.panel.footer"
-      >
+      <div v-if="question.hasEditButton" :class="question.cssClasses.panel.footer">
         <input
           type="button"
           :value="survey.editText"
@@ -62,7 +59,7 @@
 <script lang="ts">
 import Vue from "vue";
 import { Component, Prop } from "vue-property-decorator";
-import { PanelModel, Base, CssClassBuilder, doKey2ClickUp } from "survey-core";
+import { PanelModel, Base, doKey2ClickUp, ISurvey, QuestionRowModel } from "survey-core";
 import { BaseVue } from "./base";
 
 @Component
@@ -78,10 +75,7 @@ export class Panel extends BaseVue {
   }
   protected onMounted() {
     if (this.question.survey) {
-      this.question.survey.afterRenderPanel(
-        this.question,
-        this.$el as HTMLElement
-      );
+      this.question.survey.afterRenderPanel(this.question, this.$el as HTMLElement);
     }
     this.isCollapsed = this.question.isCollapsed;
 
@@ -107,13 +101,13 @@ export class Panel extends BaseVue {
   get showIcon() {
     return this.question.isExpanded || this.question.isCollapsed;
   }
-  get rows() {
+  get rows(): QuestionRowModel[] {
     return this.question.rows;
   }
   get hasTitle() {
     return this.question.title.length > 0;
   }
-  get survey() {
+  get survey(): ISurvey {
     return this.question.survey;
   }
   keyup(evt: any) {
@@ -124,8 +118,7 @@ export class Panel extends BaseVue {
   }
   get requiredTextCss() {
     return (
-      this.question.cssClasses.requiredText ||
-      this.question.cssClasses.panel.requiredText
+      this.question.cssClasses.requiredText || this.question.cssClasses.panel.requiredText
     );
   }
 }

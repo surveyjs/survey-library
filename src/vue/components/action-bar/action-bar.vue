@@ -20,7 +20,7 @@
 <script lang="ts">
 import { Component, Prop } from "vue-property-decorator";
 import Vue from "vue";
-import { AdaptiveActionContainer } from "survey-core";
+import { Action, AdaptiveActionContainer } from "survey-core";
 import { BaseVue } from "../../base";
 
 export * from "./action.vue";
@@ -35,7 +35,7 @@ export class ActionBarViewModel extends BaseVue {
   constructor(props: any) {
     super(props);
   }
-  getModel() {
+  getModel(): AdaptiveActionContainer<Action> {
     return this.model;
   }
 }

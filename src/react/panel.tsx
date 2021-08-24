@@ -4,7 +4,7 @@ import { SurveyElementBase } from "./reactquestion_element";
 import { ReactElementFactory } from "./element-factory";
 
 import { SurveyPanelBase } from "./panel-base";
-import { PanelModel, doKey2Click } from "survey-core";
+import { PanelModel, doKey2ClickUp } from "survey-core";
 import { ReactSurveyModel } from "./reactsurveymodel";
 
 export class SurveyPanel extends SurveyPanelBase {
@@ -62,11 +62,7 @@ export class SurveyPanel extends SurveyPanelBase {
     }
     return wrapper ?? element;
   }
-  protected renderContent(
-    style: any,
-    rows: JSX.Element[],
-    className: string
-  ): JSX.Element {
+  protected renderContent(style: any, rows: JSX.Element[], className: string): JSX.Element {
     return (
       <div style={style} className={className} id={this.panel.contentId}>
         {rows}
@@ -88,7 +84,7 @@ export class SurveyPanel extends SurveyPanelBase {
           return this.panel.toggleState();
         }}
         onKeyUp={(evt) => {
-          doKey2Click(evt);
+          doKey2ClickUp(evt.nativeEvent);
         }}
       >
         {titleComponent}

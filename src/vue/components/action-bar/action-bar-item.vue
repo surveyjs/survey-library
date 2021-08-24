@@ -7,9 +7,14 @@
         item.action();
       }
     "
+    v-on:keyup="
+      (evt) => {
+        evt.stopPropagation();
+      }
+    "
     v-bind:disabled="item.enabled !== undefined && !item.enabled"
     v-bind:title="item.tooltip || item.title"
-    v-bind:tabindex="item.disableTabStop ? -1 : undefined"
+    v-bind:tabindex="item.disableTabStop ? -1 : 0"
   >
     <sv-svg-icon
       v-if="item.iconName"

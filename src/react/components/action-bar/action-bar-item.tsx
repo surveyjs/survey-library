@@ -98,8 +98,7 @@ export class SurveyActionBarItem extends SurveyElementBase<
         tabIndex={tabIndex}
       >
         {buttonContent}
-      </button>
-    );
+      </button>, null, { processEsc: false });
 
     return button;
   }

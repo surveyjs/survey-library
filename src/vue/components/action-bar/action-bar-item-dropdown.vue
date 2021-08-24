@@ -6,6 +6,11 @@
         item.action();
       }
     "
+    v-on:keyup="
+      (evt) => {
+        evt.stopPropagation();
+      }
+    "
     v-bind:disabled="item.enabled !== undefined && item.enabled"
     v-bind:title="item.tooltip || item.title"
   >

@@ -37,7 +37,7 @@
 import Vue from "vue";
 import { Component, Prop } from "vue-property-decorator";
 import { SurveyModel } from "survey-core";
-import { IElement, Question, doKey2Click } from "survey-core";
+import { IElement, Question, doKey2ClickUp } from "survey-core";
 
 @Component
 export class ElementHeader extends Vue {
@@ -55,7 +55,7 @@ export class ElementHeader extends Vue {
     return element.cssHeader;
   }
   keyup(evt: any) {
-    doKey2Click(evt);
+    doKey2ClickUp(evt);
   }
   clickTitleFunction() {
     if(typeof (<any>this.element).clickTitleFunction === "function") {

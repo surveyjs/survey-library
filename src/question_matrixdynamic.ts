@@ -75,42 +75,30 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     });
   }
 
-  public dragDropMatrixRows: DragDropMatrixRows;
   public setSurveyImpl(value: ISurveyImpl) {
     super.setSurveyImpl(value);
-    this.dragDropMatrixRows = new DragDropMatrixRows(this.survey);
-    this.subscribeToDragDropHelper();
+    this.initDragDrop();
   }
 
-  public dispose() {
-    super.dispose();
-    this.unsubscribeToDragDropHelper();
-  }
-
-  private handleDragDropHelperChanges = (sender: any, options: any) => {
-    if (options.name === "isBottom") {
+  public dragDropHelper: DragDropMatrixRows;
+  private initDragDrop() {
+    this.dragDropHelper = new DragDropMatrixRows(this.survey);
+    this.dragDropHelper.onGhostPositionChanged = ()=>{
       this.renderedTable.rows.forEach(
         (renderedRow: QuestionMatrixDropdownRenderedRow) => {
-          renderedRow.ghostPosition = this.dragDropMatrixRows.getGhostPosition(
+          renderedRow.ghostPosition = this.dragDropHelper.getGhostPosition(
             renderedRow.row
           );
         }
       );
-    }
-  };
-  private subscribeToDragDropHelper = () => {
-    this.dragDropMatrixRows.onPropertyChanged.add(this.handleDragDropHelperChanges);
-  };
-  private unsubscribeToDragDropHelper = () => {
-    this.dragDropMatrixRows.onPropertyChanged.remove(
-      this.handleDragDropHelperChanges
-    );
-  };
+    };
+  }
+
   public startDragMatrixRow(
     event: PointerEvent,
     row: MatrixDropdownRowModelBase
   ) {
-    this.dragDropMatrixRows.startDrag(event, row, this);
+    this.dragDropHelper.startDrag(event, row, this);
   }
 
   public getType(): string {

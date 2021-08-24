@@ -26,6 +26,12 @@ export abstract class DragDropCore extends Base {
 
   constructor(private surveyValue?: ISurvey, private creator?: any) {
     super();
+    this.onPropertyChanged.add(this.onIsBottomChanged);
+  }
+
+  dispose():void {
+    super.dispose();
+    this.onPropertyChanged.remove(this.onIsBottomChanged);
   }
 
   public startDrag(
@@ -94,11 +100,17 @@ export abstract class DragDropCore extends Base {
     this.clear();
   };
 
+  public onGhostPositionChanged() {}
   public getGhostPosition(item: any) {
     if (this.dropTarget !== item) return null;
     if (this.isBottom) return "bottom";
     return "top";
   }
+  private onIsBottomChanged = (sender: any, options: any) => {
+    if (options.name === "isBottom") {
+      this.onGhostPositionChanged();
+    }
+  };
 
   protected isDropTargetDoesntChanged(newIsBottom: boolean) {
     return (

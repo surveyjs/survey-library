@@ -29,7 +29,7 @@ export abstract class DragDropCore extends Base {
     this.onPropertyChanged.add(this.onIsBottomChanged);
   }
 
-  dispose():void {
+  dispose(): void {
     super.dispose();
     this.onPropertyChanged.remove(this.onIsBottomChanged);
   }
@@ -100,7 +100,6 @@ export abstract class DragDropCore extends Base {
     this.clear();
   };
 
-  public onGhostPositionChanged() {}
   public getGhostPosition(item: any) {
     if (this.dropTarget !== item) return null;
     if (this.isBottom) return "bottom";
@@ -108,9 +107,10 @@ export abstract class DragDropCore extends Base {
   }
   private onIsBottomChanged = (sender: any, options: any) => {
     if (options.name === "isBottom") {
-      this.onGhostPositionChanged();
+      this.onGhostPositionChanged.fire({}, {});
     }
   };
+  public onGhostPositionChanged: EventBase<Base> = new EventBase<Base>();
 
   protected isDropTargetDoesntChanged(newIsBottom: boolean) {
     return (

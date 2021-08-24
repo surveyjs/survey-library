@@ -59,7 +59,7 @@ export class SurveyActionBar extends SurveyElementBase<IActionBarProps, any> {
     return (
       <div
         ref={this.rootRef}
-        className="sv-action-bar"
+        className={this.model.css}
         onClick={this.handleClick ? function(event) {
           event.stopPropagation();
         } : undefined}

@@ -82,7 +82,6 @@ export class AdaptiveActionContainer<T extends Action = Action> extends ActionCo
       popupModel: this.dotsItemPopupModel
     });
   }
-
   protected onSet() {
     this.actions.forEach(action => action.updateCallback = () => this.raiseUpdate(false));
     super.onSet();

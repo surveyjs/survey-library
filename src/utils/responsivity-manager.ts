@@ -66,14 +66,22 @@ export class ResponsivityManager {
           : currentAction.maxDimension;
       });
   }
-
+  private get isContainerVisible(): boolean {
+    return !!(
+      this.container.offsetWidth ||
+      this.container.offsetHeight ||
+      this.container.getClientRects().length
+    );
+  }
   private process(): void {
-    if (!this.isInitialized) {
-      this.model.actions.forEach(action => (action.mode = "large"));
-      this.calcItemsSizes();
-      this.isInitialized = true;
+    if (this.isContainerVisible) {
+      if (!this.isInitialized) {
+        this.model.actions.forEach((action) => (action.mode = "large"));
+        this.calcItemsSizes();
+        this.isInitialized = true;
+      }
+      this.model.fit(this.getAvailableSpace(), this.dotsItemSize);
     }
-    this.model.fit(this.getAvailableSpace(), this.dotsItemSize);
   }
 
   public dispose(): void {

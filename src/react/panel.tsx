@@ -8,7 +8,6 @@ import { PanelModel, doKey2ClickUp } from "survey-core";
 import { ReactSurveyModel } from "./reactsurveymodel";
 import { SurveyActionBar } from "./components/action-bar/action-bar";
 
-
 export class SurveyPanel extends SurveyPanelBase {
   private hasBeenExpanded: boolean = false;
   constructor(props: any) {

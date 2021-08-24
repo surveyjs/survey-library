@@ -31,12 +31,12 @@
 <script lang="ts">
 import Vue from "vue";
 import { Component } from "vue-property-decorator";
-import { QuestionPanelDynamicModel } from "survey-core";
+import { PanelModel, QuestionPanelDynamicModel } from "survey-core";
 import { default as QuestionVue } from "./question";
 
 @Component
 export class PanelDynamic extends QuestionVue<QuestionPanelDynamicModel> {
-  get renderedPanels() {
+  get renderedPanels(): PanelModel[] {
     if (this.question.isRenderModeList) return this.question.panels;
     const panels = [];
     if (this.question.currentPanel) {

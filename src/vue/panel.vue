@@ -62,7 +62,14 @@
 <script lang="ts">
 import Vue from "vue";
 import { Component, Prop } from "vue-property-decorator";
-import { PanelModel, Base, CssClassBuilder, doKey2Click } from "survey-core";
+import {
+  PanelModel,
+  Base,
+  CssClassBuilder,
+  doKey2Click,
+  ISurvey,
+  QuestionRowModel,
+} from "survey-core";
 import { BaseVue } from "./base";
 
 @Component
@@ -107,13 +114,13 @@ export class Panel extends BaseVue {
   get showIcon() {
     return this.question.isExpanded || this.question.isCollapsed;
   }
-  get rows() {
+  get rows(): QuestionRowModel[] {
     return this.question.rows;
   }
   get hasTitle() {
     return this.question.title.length > 0;
   }
-  get survey() {
+  get survey(): ISurvey {
     return this.question.survey;
   }
   keyup(evt: any) {

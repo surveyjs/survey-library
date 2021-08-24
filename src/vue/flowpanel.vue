@@ -4,7 +4,11 @@
     :class="question.cssClasses.panel.container"
     :style="rootStyle"
   >
-    <h4 v-show="hasTitle" :class="question.cssTitle" v-on:click="changeExpanded">
+    <h4
+      v-show="hasTitle"
+      :class="question.cssTitle"
+      v-on:click="changeExpanded"
+    >
       <survey-string :locString="question.locTitle" />
       <span v-show="showIcon" :class="iconCss"></span>
     </h4>
@@ -24,7 +28,13 @@
 <script lang="ts">
 import Vue from "vue";
 import { Component, Prop } from "vue-property-decorator";
-import { FlowPanelModel, Question, CssClassBuilder } from "survey-core";
+import {
+  FlowPanelModel,
+  Question,
+  CssClassBuilder,
+  QuestionRowModel,
+  ISurvey,
+} from "survey-core";
 
 @Component
 export class FlowPanel extends Vue {
@@ -57,7 +67,10 @@ export class FlowPanel extends Vue {
   }
   mounted() {
     if (this.question.survey) {
-      this.question.survey.afterRenderPanel(this.question, this.$el as HTMLElement);
+      this.question.survey.afterRenderPanel(
+        this.question,
+        this.$el as HTMLElement
+      );
     }
     this.isCollapsed = this.question.isCollapsed;
     var self = this;
@@ -85,13 +98,13 @@ export class FlowPanel extends Vue {
       this.question && (this.question.isExpanded || this.question.isCollapsed)
     );
   }
-  get rows() {
+  get rows(): QuestionRowModel[] {
     return this.question.rows;
   }
   get hasTitle() {
     return this.question.title.length > 0;
   }
-  get survey() {
+  get survey(): ISurvey {
     return this.question.survey;
   }
   get iconCss() {

@@ -102,7 +102,7 @@ const FOCUS_INPUT_SELECTOR = "input:not(:disabled):not([readonly]):not([type=hid
 
 export class PopupBaseViewModel extends Base {
   private prevActiveElement: HTMLElement;
-  private scrollEventCallBack = () => this.clickOutside();
+  private scrollEventCallBack = () => this.hidePopup();
 
   @property({ defaultValue: "0px" }) top: string;
   @property({ defaultValue: "0px" }) left: string;
@@ -113,10 +113,14 @@ export class PopupBaseViewModel extends Base {
   pointerTarget: IPosition;
   public container: HTMLElement;
 
+  private hidePopup() {
+    this.model.isVisible = false;
+  }
+
   constructor(public model: PopupModel, public targetElement?: HTMLElement) {
     super();
     this.model.registerFunctionOnPropertyValueChanged("isVisible", () => {
-      if(!this.model.isVisible) {
+      if (!this.model.isVisible) {
         this.updateOnHiding();
       }
       this.isVisible = this.model.isVisible;
@@ -149,7 +153,7 @@ export class PopupBaseViewModel extends Base {
       if (this.isModal) {
         this.model.onCancel();
       }
-      this.model.isVisible = false;
+      this.hidePopup();
     }
   }
   private trapFocus(event: any) {
@@ -174,12 +178,15 @@ export class PopupBaseViewModel extends Base {
       this.updatePosition();
     }
     this.focusFirstInput();
-
-    window.addEventListener("scroll", this.scrollEventCallBack);
+    if (!this.isModal) {
+      window.addEventListener("scroll", this.scrollEventCallBack);
+    }
   }
   public updateOnHiding() {
     this.prevActiveElement && this.prevActiveElement.focus();
-    window.removeEventListener("scroll", this.scrollEventCallBack);
+    if (!this.isModal) {
+      window.removeEventListener("scroll", this.scrollEventCallBack);
+    }
   }
   private updatePosition() {
     const rect = this.targetElement.getBoundingClientRect();
@@ -252,15 +259,15 @@ export class PopupBaseViewModel extends Base {
     if (this.isModal) {
       return;
     }
-    this.model.isVisible = false;
+    this.hidePopup();
   }
   public cancel() {
     this.model.onCancel();
-    this.model.isVisible = false;
+    this.hidePopup();
   }
   public apply() {
     if (!!this.model.onApply && !this.model.onApply()) return;
-    this.model.isVisible = false;
+    this.hidePopup();
   }
   public get cancelButtonText() {
     return surveyLocalization.getString("modalCancelButtonText");

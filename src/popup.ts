@@ -102,6 +102,7 @@ const FOCUS_INPUT_SELECTOR = "input:not(:disabled):not([readonly]):not([type=hid
 
 export class PopupBaseViewModel extends Base {
   private prevActiveElement: HTMLElement;
+  private scrollEventCallBack = () => this.clickOutside();
 
   @property({ defaultValue: "0px" }) top: string;
   @property({ defaultValue: "0px" }) left: string;
@@ -111,6 +112,7 @@ export class PopupBaseViewModel extends Base {
   @property({ defaultValue: { left: "0px", top: "0px" } })
   pointerTarget: IPosition;
   public container: HTMLElement;
+
   constructor(public model: PopupModel, public targetElement?: HTMLElement) {
     super();
     this.model.registerFunctionOnPropertyValueChanged("isVisible", () => {
@@ -172,9 +174,12 @@ export class PopupBaseViewModel extends Base {
       this.updatePosition();
     }
     this.focusFirstInput();
+
+    window.addEventListener("scroll", this.scrollEventCallBack);
   }
   public updateOnHiding() {
     this.prevActiveElement && this.prevActiveElement.focus();
+    window.removeEventListener("scroll", this.scrollEventCallBack);
   }
   private updatePosition() {
     const rect = this.targetElement.getBoundingClientRect();

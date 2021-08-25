@@ -44,11 +44,13 @@ sv-popup {
   background: $body-background-color;
   border-radius: 4px;
   box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  max-height: 90vh;
+  max-width: 90vw;
 }
 .sv-popup__scrolling-content {
   height: 100%;
-  max-width: 90vw;
-  max-height: 90vh;
   overflow: auto;
   &::-webkit-scrollbar {
     height: 6px;
@@ -146,4 +148,3 @@ sv-popup {
 .sv-popup__button--apply:disabled {
   background-color: $background-dim;
 }
-

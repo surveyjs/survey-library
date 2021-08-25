@@ -28,34 +28,47 @@ const getElementClientRect = ClientFunction(selector => {
   };
 });
 
-async function initSurveyWithModalPopupTest(framework: string) {
-  await initSurvey(framework, json, {
-    onGetQuestionTitleActions: (survey, opt) => {
-      const json = {
-        elements: [
-          {
-            type: "text",
-            name: "modal_question"
-          }
-        ]
-      };
-      const item = new window["Survey"].Action({
-        component: "sv-action-bar-item",
-        title: "Click",
-        showTitle: true,
-        action: () => {
-          const model = new window["Survey"].Model(json);
-          model.focusFirstQuestionAutomatic = false;
-          window["Survey"].settings.showModal("survey", {
-            model: model,
-            survey: model
-          });
-        }
+function addModalPopupTitleAction(survey, opt) {
+  const json = {
+    elements: [
+      {
+        type: "text",
+        name: "modal_question"
+      }
+    ]
+  };
+  const item = new window["Survey"].Action({
+    component: "sv-action-bar-item",
+    title: "Click",
+    showTitle: true,
+    action: () => {
+      const model = new window["Survey"].Model(json);
+      model.focusFirstQuestionAutomatic = false;
+      window["Survey"].settings.showModal("survey", {
+        model: model,
+        survey: model
       });
-      opt.titleActions = [item];
     }
   });
+  opt.titleActions = [item];
+}
 
+function addDropdownTitleAction(_, opt) {
+  const itemPopupModel = new window["Survey"].PopupModel("sv-list", {
+    model: new window["Survey"].ListModel([
+      new window["Survey"].Action({ title: "Item 1" }),
+    ]),
+  });
+  const item = new window["Survey"].Action({
+    component: "sv-action-bar-item-dropdown",
+    title: "Click",
+    showTitle: true,
+    action: () => {
+      itemPopupModel.toggleVisibility();
+    },
+    popupModel: itemPopupModel
+  });
+  opt.titleActions = [item];
 }
 
 const popupSelector = Selector(".sv-popup");
@@ -63,31 +76,13 @@ const popupModalSelector = Selector(".sv-popup.sv-popup--modal");
 const clickButton = Selector(".sv-action-bar-item");
 const popupButtonSelector = Selector(".sv-popup__button");
 
-frameworks.forEach(framework => {
+frameworks.forEach(async framework => {
   fixture`${framework} ${title}`.page`${url}${framework}`.beforeEach(async t => {
     await t.resizeWindow(800, 600);
   });
 
   test("check ordinary popup behavior", async t => {
-    await initSurvey(framework, json, {
-      onGetQuestionTitleActions: (_, opt) => {
-        const itemPopupModel = new window["Survey"].PopupModel("sv-list", {
-          model: new window["Survey"].ListModel([
-            new window["Survey"].Action({ title: "Item 1" }),
-          ]),
-        });
-        const item = new window["Survey"].Action({
-          component: "sv-action-bar-item-dropdown",
-          title: "Click",
-          showTitle: true,
-          action: () => {
-            itemPopupModel.toggleVisibility();
-          },
-          popupModel: itemPopupModel
-        });
-        opt.titleActions = [item];
-      },
-    });
+    await initSurvey(framework, json, { onGetQuestionTitleActions: addDropdownTitleAction });
 
     await t
       .expect(popupSelector.exists).ok()
@@ -117,7 +112,7 @@ frameworks.forEach(framework => {
   });
 
   test("check survey in showModal", async t => {
-    await initSurveyWithModalPopupTest(framework);
+    await initSurvey(framework, json, { onGetQuestionTitleActions: addModalPopupTitleAction });
 
     await t
       .expect(popupModalSelector.exists).notOk()
@@ -144,7 +139,7 @@ frameworks.forEach(framework => {
   });
 
   test("check focus trap", async t => {
-    await initSurveyWithModalPopupTest(framework);
+    await initSurvey(framework, json, { onGetQuestionTitleActions: addModalPopupTitleAction });
 
     const inputInPopup = Selector(".sv-popup .sv_q_text_root");
 
@@ -164,7 +159,7 @@ frameworks.forEach(framework => {
   });
 
   test("check focus safekeeping", async t => {
-    await initSurveyWithModalPopupTest(framework);
+    await initSurvey(framework, json, { onGetQuestionTitleActions: addModalPopupTitleAction });
 
     const inputInPopup = Selector(".sv-popup .sv_q_text_root");
 
@@ -178,5 +173,43 @@ frameworks.forEach(framework => {
       .pressKey("esc")
       .expect(popupModalSelector.visible).notOk()
       .expect(clickButton.focused).ok({ timeout: 100 });
+  });
+
+  test("hide popup after scroll", async t => {
+    let choices = [];
+    for (let index = 0; index < 50; index++) {
+      choices[index] = "item" + index;
+    }
+
+    let currentJson = { elements: [{ type: "checkbox", name: "Checks", title: "Checks", choices: choices }] };
+    await initSurvey(framework, currentJson, { onGetQuestionTitleActions: addDropdownTitleAction });
+
+    await t
+      .expect(popupSelector.visible).notOk()
+
+      .click(clickButton)
+      .expect(popupSelector.visible).ok()
+
+      .scroll(0, 1000)
+      .expect(popupSelector.visible).notOk();
+  });
+
+  test("not hide modal popup after scroll", async t => {
+    let choices = [];
+    for (let index = 0; index < 50; index++) {
+      choices[index] = "item" + index;
+    }
+
+    let currentJson = { elements: [{ type: "checkbox", name: "Checks", title: "Checks", choices: choices }] };
+    await initSurvey(framework, currentJson, { onGetQuestionTitleActions: addModalPopupTitleAction });
+
+    await t
+      .expect(popupModalSelector.visible).notOk()
+
+      .click(clickButton)
+      .expect(popupModalSelector.visible).ok()
+
+      .scroll(0, 1000)
+      .expect(popupModalSelector.visible).ok();
   });
 });

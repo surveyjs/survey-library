@@ -1,9 +1,16 @@
+import { DragDropInfo } from "src/panel";
 import { Base, EventBase } from "../base";
 import { ISurvey } from "../base-interfaces";
 import { property } from "../jsonobject";
 
 export abstract class DragDropCore extends Base {
-  @property() isBottom: boolean = null; //TODO rename isBottom to isShowGhostAtBottomOfDropTarget
+  @property({ defaultValue: null, onSet: (val, target: DragDropCore) => {
+    target.ghostPositionChanged();
+  } }) isBottom: boolean; //TODO rename isBottom to isShowGhostAtBottomOfDropTarget
+  public onGhostPositionChanged: EventBase<Base> = new EventBase<Base>();
+  protected ghostPositionChanged() {
+    this.onGhostPositionChanged.fire({}, {});
+  }
 
   public onBeforeDrop: EventBase<DragDropCore> = new EventBase();
   public onAfterDrop: EventBase<DragDropCore> = new EventBase();
@@ -94,12 +101,6 @@ export abstract class DragDropCore extends Base {
     this.clear();
   };
 
-  public getGhostPosition(item: any) {
-    if (this.dropTarget !== item) return null;
-    if (this.isBottom) return "bottom";
-    return "top";
-  }
-
   protected isDropTargetDoesntChanged(newIsBottom: boolean) {
     return (
       this.dropTarget === this.prevDropTarget && newIsBottom === this.isBottom
@@ -118,6 +119,12 @@ export abstract class DragDropCore extends Base {
   }
 
   protected doDragOver(): void {}
+
+  public getGhostPosition(item: any) {
+    if (this.dropTarget !== item) return null;
+    if (this.isBottom) return "bottom";
+    return "top";
+  }
 
   protected abstract isDropTargetValid(
     dropTarget: any,
@@ -308,8 +315,8 @@ export abstract class DragDropCore extends Base {
 
     this.draggedElementShortcut = null;
     this.draggedElement = null;
-    this.parentElement = null;
     this.isBottom = null;
+    this.parentElement = null;
     this.scrollIntervalId = null;
   };
 

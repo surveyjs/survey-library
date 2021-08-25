@@ -1,9 +1,20 @@
+import { ISurvey, QuestionMatrixDropdownRenderedRow } from "survey-core";
 import { QuestionMatrixModel, MatrixRowModel } from "../question_matrix";
 import { DragDropCore } from "./core";
-
 export class DragDropMatrixRows extends DragDropCore {
   protected get draggedElementType(): string {
     return "matrix-row";
+  }
+
+  protected ghostPositionChanged() {
+    this.parentElement.renderedTable.rows.forEach(
+      (renderedRow: QuestionMatrixDropdownRenderedRow) => {
+        renderedRow.ghostPosition = this.getGhostPosition(
+          renderedRow.row
+        );
+      }
+    );
+    super.ghostPositionChanged();
   }
 
   protected getShortcutText(draggedElement: any) {

@@ -1,4 +1,3 @@
-
 import { Serializer } from "./jsonobject";
 import { QuestionFactory } from "./questionfactory";
 import { IConditionObject, Question } from "./question";
@@ -75,42 +74,17 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     });
   }
 
-  public dragDropMatrixRows: DragDropMatrixRows;
+  public dragDropHelper: DragDropMatrixRows;
   public setSurveyImpl(value: ISurveyImpl) {
     super.setSurveyImpl(value);
-    this.dragDropMatrixRows = new DragDropMatrixRows(this.survey);
-    this.subscribeToDragDropHelper();
+    this.dragDropHelper = new DragDropMatrixRows(this.survey);
   }
 
-  public dispose() {
-    super.dispose();
-    this.unsubscribeToDragDropHelper();
-  }
-
-  private handleDragDropHelperChanges = (sender: any, options: any) => {
-    if (options.name === "isBottom") {
-      this.renderedTable.rows.forEach(
-        (renderedRow: QuestionMatrixDropdownRenderedRow) => {
-          renderedRow.ghostPosition = this.dragDropMatrixRows.getGhostPosition(
-            renderedRow.row
-          );
-        }
-      );
-    }
-  };
-  private subscribeToDragDropHelper = () => {
-    this.dragDropMatrixRows.onPropertyChanged.add(this.handleDragDropHelperChanges);
-  };
-  private unsubscribeToDragDropHelper = () => {
-    this.dragDropMatrixRows.onPropertyChanged.remove(
-      this.handleDragDropHelperChanges
-    );
-  };
   public startDragMatrixRow(
     event: PointerEvent,
     row: MatrixDropdownRowModelBase
   ) {
-    this.dragDropMatrixRows.startDrag(event, row, this);
+    this.dragDropHelper.startDrag(event, row, this);
   }
 
   public getType(): string {

@@ -5693,6 +5693,52 @@ QUnit.test("Detail panel, create elements in code", function(assert) {
     "We have 3 questions now"
   );
 });
+QUnit.test("Detail panel created in code + custom actions, create elements in code", function(assert) {
+  var survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdynamic",
+        name: "matrix",
+        rowCount: 1,
+        detailPanelMode: "underRow",
+        columns: [{ name: "col1" }, { name: "col2" }, { name: "col3" }],
+      },
+    ],
+  });
+  var matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+  matrix.onHasDetailPanelCallback = (
+    row: MatrixDropdownRowModelBase
+  ): boolean => {
+    return true;
+  };
+  matrix.onCreateDetailPanelCallback = (
+    row: MatrixDropdownRowModelBase,
+    panel: PanelModel
+  ) => {
+    panel.addNewQuestion("text", "q1");
+    panel.getQuestionByName("q1").value = row.getValue("col1");
+    panel.footerActions.push({
+      id: "saveDetailPanel",
+      action: () => {
+        row.getQuestionByName("col1").value = panel.getQuestionByName("q1").value;
+        row.hideDetailPanel(true);
+      }
+    });
+  };
+  matrix.value = [{ col1: "value1" }];
+  assert.equal(matrix.visibleRows[0].hasPanel, true, "There is a panel");
+  matrix.visibleRows[0].showDetailPanel();
+  assert.equal(matrix.visibleRows[0].isDetailPanelShowing, true);
+  assert.equal(
+    matrix.visibleRows[0].detailPanel.questions[0].value,
+    "value1",
+    "Value is set"
+  );
+  matrix.visibleRows[0].detailPanel.questions[0].value = "value2";
+  matrix.visibleRows[0].detailPanel.footerActions[0].action();
+  assert.equal(matrix.visibleRows[0].isDetailPanelShowing, false, "We close detail panel");
+  assert.deepEqual(matrix.value, [{ col1: "value2", q1: "value2" }]);
+});
 QUnit.test("Detail panel, detailPanelShowOnAdding property", function(assert) {
   var survey = new SurveyModel({
     elements: [

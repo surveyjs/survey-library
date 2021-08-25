@@ -47,3 +47,12 @@ QUnit.test(
     assert.notOk(action.isVisible, "not isVisible due to visible=false");
   }
 );
+
+QUnit.test("AdaptiveActionContainer.css",
+  (assert) => {
+    const model: AdaptiveActionContainer = new AdaptiveActionContainer();
+    assert.equal(model.css, "sv-action-bar");
+    model.containerCss = "footer";
+    assert.equal(model.css, "sv-action-bar footer");
+  }
+);

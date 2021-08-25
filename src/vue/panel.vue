@@ -44,14 +44,9 @@
       >
         <survey-row :row="row" :survey="survey" :css="css"></survey-row>
       </div>
-      <div v-if="question.hasEditButton" :class="question.cssClasses.panel.footer">
-        <input
-          type="button"
-          :value="survey.editText"
-          :class="survey.cssNavigationEdit"
-          @click="cancelPreview"
-        />
-      </div>
+    <sv-action-bar
+      :model="question.getFooterToolbar()"
+    ></sv-action-bar>
     </div>
   </div>
 </template>

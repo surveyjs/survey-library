@@ -675,9 +675,6 @@ $label-disabled-color: rgba(64, 64, 64, 0.5);
         .sv_prev_btn {
           float: left;
         }
-        .sv_edit_btn {
-          float: left;
-        }
       }
     }
   }
@@ -685,6 +682,15 @@ $label-disabled-color: rgba(64, 64, 64, 0.5);
   .sv_q_image {
     display: inline-block;
   }
+}
+.sv_main.sv_main .sv-action-bar-item.sv_edit_btn {
+  color: $body-background-color;
+  background-color: $main-color;
+  float: left;
+  margin-bottom: 7px;
+}
+.sv_main.sv_main .sv-action-bar-item.sv_edit_btn:hover { 
+  background-color: $main-hover-color;
 }
 
 // https://github.com/surveyjs/survey-library/issues/2559

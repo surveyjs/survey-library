@@ -38,8 +38,8 @@ frameworks.forEach((framework) => {
     await showAllQuestions();
     await goLastPage();
     await t.click(`input[value=Preview]`);
-    await t.expect(Selector(`input[value=Edit]`).count).eql(4);
-    await t.click(Selector(`input[value=Edit]`).nth(1));
+    await t.expect(Selector(`button`).find("span").withText("Edit").count).eql(4);
+    await t.click(Selector(`button`).find("span").withText("Edit").nth(1));
     await t.typeText(Selector(`input[type=text]`).nth(1), "val3");
     await t
       .click(`input[value=Next]`)
@@ -57,8 +57,8 @@ frameworks.forEach((framework) => {
     await showAnsweredQuestions();
     await goLastPage();
     await t.click(`input[value=Preview]`);
-    await t.expect(Selector(`input[value=Edit]`).count).eql(2);
-    await t.click(Selector(`input[value=Edit]`).nth(0));
+    await t.expect(Selector(`button`).find("span").withText("Edit").count).eql(2);
+    await t.click(Selector(`button`).find("span").withText("Edit").nth(0));
     await t.typeText(Selector(`input[type=text]`).nth(1), "val3");
     await t
       .click(`input[value=Next]`)

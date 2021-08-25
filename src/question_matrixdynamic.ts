@@ -78,25 +78,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   public setSurveyImpl(value: ISurveyImpl) {
     super.setSurveyImpl(value);
     this.dragDropHelper = new DragDropMatrixRows(this.survey);
-    this.dragDropHelper.onGhostPositionChanged.add(
-      this.handleDragDropGhostPositionChanged
-    );
   }
-  public dispose() {
-    super.dispose();
-    this.dragDropHelper.onGhostPositionChanged.remove(
-      this.handleDragDropGhostPositionChanged
-    );
-  }
-  private handleDragDropGhostPositionChanged = () => {
-    this.renderedTable.rows.forEach(
-      (renderedRow: QuestionMatrixDropdownRenderedRow) => {
-        renderedRow.ghostPosition = this.dragDropHelper.getGhostPosition(
-          renderedRow.row
-        );
-      }
-    );
-  };
 
   public startDragMatrixRow(
     event: PointerEvent,

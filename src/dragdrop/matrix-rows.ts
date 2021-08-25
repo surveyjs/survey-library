@@ -1,9 +1,30 @@
+import { ISurvey, QuestionMatrixDropdownRenderedRow } from "survey-core";
 import { QuestionMatrixModel, MatrixRowModel } from "../question_matrix";
 import { DragDropCore } from "./core";
+
+// export interface IGhostPositionListner {
+//   handleDragDropGhostPositionChanged: (val?: boolean) => void;
+// }
 
 export class DragDropMatrixRows extends DragDropCore {
   protected get draggedElementType(): string {
     return "matrix-row";
+  }
+
+  // constructor(survey: ISurvey, private target: IGhostPositionListner) {
+  //   super(survey);
+  // }
+
+  protected ghostPositionChanged() {
+    // this.target.handleDragDropGhostPositionChanged(val);
+    this.parentElement.renderedTable.rows.forEach(
+      (renderedRow: QuestionMatrixDropdownRenderedRow) => {
+        renderedRow.ghostPosition = this.getGhostPosition(
+          renderedRow.row
+        );
+      }
+    );
+    super.ghostPositionChanged();
   }
 
   protected getShortcutText(draggedElement: any) {

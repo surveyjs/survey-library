@@ -341,10 +341,8 @@ export class StylesManager {
       "display: flex; align-items: center; justify-content: center;",
     ".sv-popup--modal .sv-popup__container":
       "position: static; filter: none; padding: calc(4 * 8px);",
-    ".sv-popup__container":
-      "position: absolute; filter: drop-shadow(0px calc(1 * 8px) calc(2 * 8px) rgba(0, 0, 0, 0.1)); padding: calc(1 * 8px) 0; background: white; border-radius: 4px;",
-    ".sv-popup__scrolling-content":
-      "max-width: 90vw; max-height: 90vh; overflow: auto;",
+    ".sv-popup__container": "position: absolute; filter: drop-shadow(0px calc(1 * 8px) calc(2 * 8px) rgba(0, 0, 0, 0.1)); padding: calc(1 * 8px) 0; background: white; border-radius: 4px; display: flex; flex-direction: column; max-height: 90vh; max-width: 90vw;",
+    ".sv-popup__scrolling-content": "overflow: auto;",
     ".sv-popup__scrolling-content::-webkit-scrollbar":
       "height: 6px; width: 6px; background-color: #f3f3f3;",
     ".sv-popup__scrolling-content::-webkit-scrollbar-thumb":
@@ -1331,7 +1329,7 @@ export class StylesManager {
               themeSelector + selector + " { " + cssRuleText + " }",
               0
             );
-          } catch (e) {}
+          } catch (e) { }
         });
       }
     }
@@ -1359,20 +1357,20 @@ export class StylesManager {
             selector + " { " + StylesManager.Styles[selector] + " }",
             0
           );
-        } catch (e) {}
+        } catch (e) { }
       });
       Object.keys(StylesManager.Media).forEach((selector) => {
         try {
           sheet.insertRule(
             StylesManager.Media[selector].media +
-              " { " +
-              selector +
-              " { " +
-              StylesManager.Media[selector].style +
-              " } }",
+            " { " +
+            selector +
+            " { " +
+            StylesManager.Media[selector].style +
+            " } }",
             0
           );
-        } catch (e) {}
+        } catch (e) { }
       });
     }
   }

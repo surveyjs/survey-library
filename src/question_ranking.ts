@@ -1,4 +1,6 @@
 import SortableLib from "sortablejs";
+import { ISurveyImpl } from "./base-interfaces";
+import { DragDropRankingChoices } from "./dragdrop/ranking-choices";
 import { ItemValue } from "./itemvalue";
 import { Serializer } from "./jsonobject";
 import { QuestionFactory } from "./questionfactory";
@@ -34,6 +36,20 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
       .toString();
   }
 
+  getItemClass(item: any) {
+    return new CssClassBuilder()
+      .append(super.getItemClass(item))
+      .append(this.ghostPositionCssClass, !this.fallbackToSortableJS)
+      .toString();
+  }
+  public get ghostPositionCssClass() {
+    if (this.ghostPosition === "top")
+      return this.cssClasses.dragDropGhostPositionTop;
+    if (this.ghostPosition === "bottom")
+      return this.cssClasses.dragDropGhostPositionBottom;
+    return "";
+  }
+
   public getNumberByIndex(index: number) {
     return this.isIndeterminate ? "\u2013" : index + 1 + "";
   }
@@ -67,9 +83,23 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
     return result;
   }
 
+  public dragDropHelper: DragDropRankingChoices;
+  public setSurveyImpl(value: ISurveyImpl) {
+    super.setSurveyImpl(value);
+    if (!this.fallbackToSortableJS) {
+      this.dragDropHelper = new DragDropRankingChoices(this.survey);
+    }
+  }
+
+  public handlePointerDown(event: PointerEvent, choice: ItemValue) {
+    if (!this.fallbackToSortableJS) {
+      this.dragDropHelper.startDrag(event, choice, this);
+    }
+  }
+
   //cross framework initialization
   public afterRenderQuestionElement(el: HTMLElement) {
-    if (!!el) {
+    if (!!el && this.fallbackToSortableJS) {
       this.initSortable(el);
     }
     super.afterRenderQuestionElement(el);
@@ -110,7 +140,7 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
     super.onVisibleChoicesChanged();
 
     if (this.isIndeterminate) return;
-    this.value = this.rankingChoices.map(choice => choice.value);
+    this.value = this.rankingChoices.map((choice) => choice.value);
   }
 
   private mergeValueAndVisibleChoices(
@@ -130,7 +160,7 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
         result.splice(result.length - 1, 0, choice);
       }
     }
-    result = result.filter(choice => !!choice);
+    result = result.filter((choice) => !!choice);
     return result;
   }
 
@@ -170,6 +200,13 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
         self.setGhostText(evt.newIndex + 1);
       },
     });
+  }
+
+  public get fallbackToSortableJS(): boolean {
+    return this.getPropertyValue("fallbackToSortableJS");
+  }
+  public set fallbackToSortableJS(val: boolean) {
+    this.setPropertyValue("fallbackToSortableJS", val);
   }
 
   private handleArrowUp = (index: number) => {
@@ -276,6 +313,12 @@ Serializer.addClass(
     { name: "selectAllText", visible: false, isSerializable: false },
     { name: "colCount:number", visible: false, isSerializable: false },
     { name: "maxSelectedChoices", visible: false, isSerializable: false },
+    {
+      name: "fallbackToSortableJS",
+      default: true,
+      visible: false,
+      isSerializable: false,
+    },
   ],
   function() {
     return new QuestionRankingModel("");
@@ -283,7 +326,7 @@ Serializer.addClass(
   "checkbox"
 );
 
-QuestionFactory.Instance.registerQuestion("ranking", name => {
+QuestionFactory.Instance.registerQuestion("ranking", (name) => {
   const q: QuestionRankingModel = new QuestionRankingModel(name);
   q.choices = QuestionFactory.DefaultChoices;
   return q;

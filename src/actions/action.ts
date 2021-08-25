@@ -150,7 +150,7 @@ export class Action extends Base implements IAction {
   public getActionBarItemActiveCss(): string {
     return new CssClassBuilder()
       .append("sv-action-bar-item")
-      .append("sv-action-bar-item--active", this.active)
+      .append("sv-action-bar-item--active", !!this.active)
       .append(this.innerCss)
       .toString();
   }

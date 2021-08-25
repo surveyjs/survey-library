@@ -164,7 +164,7 @@ export class QuestionBooleanModel extends Question {
     return new CssClassBuilder()
       .append(this.cssClasses.item)
       .append(this.cssClasses.itemDisabled, this.isReadOnly)
-      .append(this.cssClasses.itemChecked, this.checkedValue)
+      .append(this.cssClasses.itemChecked, !!this.checkedValue)
       .append(this.cssClasses.itemIndeterminate, this.checkedValue === null)
       .toString();
   }

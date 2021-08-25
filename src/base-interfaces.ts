@@ -92,6 +92,8 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner {
   state: string;
   isLazyRendering: boolean;
   cancelPreviewByPage(panel: IPanel): any;
+  editText: string;
+  cssNavigationEdit: string;
 
   requiredText: string;
   beforeSettingQuestionErrors(

@@ -21,6 +21,7 @@ export class ActionContainer<T extends Action = Action> extends Base {
     }
 
     public updateCallback: (isResetInitialized: boolean) => void;
+    public containerCss: string;
 
     protected raiseUpdate(isResetInitialized: boolean) {
       this.updateCallback && this.updateCallback(isResetInitialized);
@@ -48,5 +49,8 @@ export class ActionContainer<T extends Action = Action> extends Base {
 
     get visibleActions(): Array<T> {
       return this.actions.filter((action) => action.visible !== false);
+    }
+    public get css(): string {
+      return "sv-action-bar" + (!!this.containerCss ? " " + this.containerCss : "");
     }
 }

@@ -2,7 +2,7 @@
   <div
     v-if="model.hasActions"
     ref="container"
-    class="sv-action-bar"
+    :class="model.css"
     v-on:click="
       (event) => {
         event.stopPropagation();

@@ -19,13 +19,7 @@
     >
       <!-- ko template: { name: 'survey-rows', data: $data} -->
       <!-- /ko -->
-      <!-- ko if: hasEditButton -->
-      <div data-bind="css: cssClasses.panel.footer">
-        <input
-          type="button"
-          data-bind="value: survey.editText, click: cancelPreview, css: survey.cssNavigationEdit"
-        />
-      </div>
+      <!-- ko component: { name: 'sv-action-bar', params: { model: getFooterToolbar() } } -->
       <!-- /ko -->
     </div>
     <!-- /ko -->

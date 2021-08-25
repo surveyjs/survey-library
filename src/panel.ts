@@ -26,6 +26,8 @@ import { settings } from "./settings";
 import { findScrollableParent, isElementVisible } from "./utils/utils";
 import { SurveyError } from "./survey-error";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
+import { IAction } from "./actions/action";
+import { AdaptiveActionContainer } from "./actions/adaptive-container";
 
 export class DragDropInfo {
   constructor(
@@ -653,7 +655,7 @@ export class PanelModelBase extends SurveyElement
   public set requiredIf(val: string) {
     this.setPropertyValue("requiredIf", val);
   }
-  public searchText(text: string, founded: Array<IFindElement>) {
+  public searchText(text: string, founded: Array<IFindElement>): void {
     super.searchText(text, founded);
     for (var i = 0; i < this.elements.length; i++) {
       (<Base>(<any>this.elements[i])).searchText(text, founded);
@@ -1601,6 +1603,7 @@ export class PanelModel extends PanelModelBase
   constructor(name: string = "") {
     super(name);
     var self = this;
+    this.createNewArray("footerActions");
     this.registerFunctionOnPropertyValueChanged("width", function() {
       if (!!self.parent) {
         self.parent.elementWidthChanged(self);
@@ -1849,6 +1852,29 @@ export class PanelModel extends PanelModelBase
         element.clearOnDeletingContainer();
       }
     });
+  }
+  public get footerActions(): Array<IAction> {
+    return this.getPropertyValue("footerActions");
+  }
+  private footerToolbarValue: AdaptiveActionContainer;
+  public getFooterToolbar(): AdaptiveActionContainer {
+    if (!this.footerToolbarValue) {
+      var actions = this.footerActions;
+      if(this.hasEditButton) {
+        actions.push({
+          id: "cancel-preview",
+          title: this.survey.editText,
+          innerCss: this.survey.cssNavigationEdit,
+          action: () => { this.cancelPreview(); }
+        });
+      }
+      this.footerToolbarValue = new AdaptiveActionContainer();
+      if(!!this.cssClasses.panel) {
+        this.footerToolbarValue.containerCss = this.cssClasses.panel.footer;
+      }
+      this.footerToolbarValue.setItems(actions);
+    }
+    return this.footerToolbarValue;
   }
   public get hasEditButton(): boolean {
     if (this.survey && this.survey.state === "preview") return this.depth === 1;

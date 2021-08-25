@@ -6,18 +6,15 @@ import { ReactElementFactory } from "./element-factory";
 import { SurveyPanelBase } from "./panel-base";
 import { PanelModel, doKey2ClickUp } from "survey-core";
 import { ReactSurveyModel } from "./reactsurveymodel";
+import { SurveyActionBar } from "./components/action-bar/action-bar";
 
 export class SurveyPanel extends SurveyPanelBase {
   private hasBeenExpanded: boolean = false;
   constructor(props: any) {
     super(props);
-    this.handleEditClick = this.handleEditClick.bind(this);
   }
   public get panel(): PanelModel {
     return this.panelBase as PanelModel;
-  }
-  handleEditClick(event: any) {
-    this.panel.cancelPreview();
   }
   protected renderElement(): JSX.Element {
     const title: JSX.Element = this.renderTitle();
@@ -40,7 +37,6 @@ export class SurveyPanel extends SurveyPanelBase {
       const className: string = this.panelBase.cssClasses.panel.content;
       content = this.renderContent(style, rows, className);
     }
-    const bottom: JSX.Element = this.renderBottom();
     return (
       <div
         ref={this.rootRef}
@@ -50,7 +46,6 @@ export class SurveyPanel extends SurveyPanelBase {
         {description}
         {errors}
         {content}
-        {bottom}
       </div>
     );
   }
@@ -63,9 +58,11 @@ export class SurveyPanel extends SurveyPanelBase {
     return wrapper ?? element;
   }
   protected renderContent(style: any, rows: JSX.Element[], className: string): JSX.Element {
+    const bottom: JSX.Element = this.renderBottom();
     return (
       <div style={style} className={className} id={this.panel.contentId}>
         {rows}
+        {bottom}
       </div>
     );
   }
@@ -99,17 +96,9 @@ export class SurveyPanel extends SurveyPanelBase {
     );
   }
   protected renderBottom(): JSX.Element {
-    if (!this.panel.hasEditButton || !this.survey) return;
-    return (
-      <div className={this.panel.cssClasses.panel.footer}>
-        <input
-          className={this.survey.cssNavigationEdit}
-          type="button"
-          onClick={this.handleEditClick}
-          value={this.survey.editText}
-        />
-      </div>
-    );
+    const footerToolbar = this.panel.getFooterToolbar();
+    if(!footerToolbar.hasActions) return null;
+    return <SurveyActionBar model={footerToolbar}></SurveyActionBar>;
   }
 }
 

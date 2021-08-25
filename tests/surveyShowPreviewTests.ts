@@ -339,6 +339,11 @@ QUnit.test(
       false,
       "The panel is not editable"
     );
+    assert.equal(
+      (<PanelModel>survey.getAllPanels()[0]).getFooterToolbar().hasActions,
+      false,
+      "The panel is not editable, footerToolBar is empty"
+    );
     survey.showPreview();
     assert.equal(survey.visiblePageCount, 1, "Show preview");
     assert.equal(survey.getAllPanels().length, 4, "There are four panels");
@@ -347,13 +352,27 @@ QUnit.test(
       true,
       "The panel is editable"
     );
+    const actionContainer = (<PanelModel>survey.getAllPanels()[1]).getFooterToolbar();
+    assert.equal(
+      actionContainer.hasActions,
+      true,
+      "The panel is editable, footerToolBar is not empty"
+    );
+    assert.equal(
+      actionContainer.css,
+      "sv-action-bar sv_p_footer",
+      "The panel is editable, footerToolBar is not empty"
+    );
+    var action = actionContainer.actions[0];
+    assert.equal(action.title, "Edit");
+    assert.equal(action.innerCss, "sv_edit_btn");
     var panel = <PanelModel>survey.getAllPanels()[1].elements[0];
     assert.equal(
       panel.hasEditButton,
       false,
       "The standard panel doesn't have edit button"
     );
-    (<PanelModel>survey.getAllPanels()[1]).cancelPreview();
+    action.action();
     assert.equal(survey.state, "running", "Preview is canceled");
     assert.equal(survey.visiblePageCount, 3, "There are three visible pages");
     assert.equal(survey.currentPageNo, 1, "We are editing the second page");

@@ -74,17 +74,17 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     });
   }
 
-  public dragDropHelper: DragDropMatrixRows;
+  public dragDropMatrixRows: DragDropMatrixRows;
   public setSurveyImpl(value: ISurveyImpl) {
     super.setSurveyImpl(value);
-    this.dragDropHelper = new DragDropMatrixRows(this.survey);
+    this.dragDropMatrixRows = new DragDropMatrixRows(this.survey);
   }
 
   public startDragMatrixRow(
     event: PointerEvent,
     row: MatrixDropdownRowModelBase
   ) {
-    this.dragDropHelper.startDrag(event, row, this);
+    this.dragDropMatrixRows.startDrag(event, row, this);
   }
 
   public getType(): string {

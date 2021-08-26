@@ -1485,7 +1485,7 @@ export class QuestionMatrixDropdownRenderedCell {
     const builder = new CssClassBuilder()
       .append(questionCss.itemValue, !!questionCss)
       .append(questionCss.asCell, !!questionCss);
-    return builder.append(matrixCssClasses.cell, !builder.toString() && !!matrixCssClasses)
+    return builder.append(matrixCssClasses.cell, builder.isEmpty() && !!matrixCssClasses)
       .append(questionCss.hasError, this.question.errors.length > 0)
       .append(matrixCssClasses.choiceCell, this.isChoice)
       .toString();

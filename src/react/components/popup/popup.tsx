@@ -89,11 +89,11 @@ export class PopupContainer extends SurveyElementBase<any, any> {
         }}
       >
         {pointer}
+        {header}
         <div className="sv-popup__scrolling-content">
-          {header}
           {content}
-          {footer}
         </div>
+        {footer}
       </div>
     );
   }

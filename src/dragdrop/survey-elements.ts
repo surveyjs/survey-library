@@ -187,7 +187,7 @@ export class DragDropSurveyElements extends DragDropCore<any> {
     return Math.abs(clientY - middle) >= DragDropSurveyElements.edgeHeight;
   }
 
-  protected doDragOver() {
+  protected afterDragOver() {
     this.prevIsEdge = this.isEdge;
     this.insertGhostElementIntoSurvey();
   }

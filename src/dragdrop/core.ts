@@ -4,9 +4,13 @@ import { ISurvey } from "../base-interfaces";
 import { property } from "../jsonobject";
 
 export abstract class DragDropCore<T> extends Base {
-  @property({ defaultValue: null, onSet: (val, target: DragDropCore<T>) => {
-    target.ghostPositionChanged();
-  } }) isBottom: boolean; //TODO rename isBottom to isShowGhostAtBottomOfDropTarget
+  @property({
+    defaultValue: null,
+    onSet: (val, target: DragDropCore<T>) => {
+      target.ghostPositionChanged();
+    },
+  })
+  isBottom: boolean; //TODO rename isBottom to isShowGhostAtBottomOfDropTarget
   public onGhostPositionChanged: EventBase<Base> = new EventBase<Base>();
   protected ghostPositionChanged(): void {
     this.onGhostPositionChanged.fire({}, {});
@@ -77,6 +81,10 @@ export abstract class DragDropCore<T> extends Base {
 
     const isDropTargetValid = this.isDropTargetValid(this.dropTarget, isBottom);
 
+    if (isDropTargetValid) {
+      this.doDragOver(dropTargetNode);
+    }
+
     if (this.dropTarget === this.draggedElement || !isDropTargetValid) {
       this.banDropHere();
       return;
@@ -87,7 +95,7 @@ export abstract class DragDropCore<T> extends Base {
 
     this.isBottom = null; //TODO need for property change trigger with guarantee but it would be better not to watch on isBottom property but reate some event like onValidTargetDragOver
     this.isBottom = isBottom;
-    this.doDragOver();
+    this.afterDragOver(dropTargetNode);
     this.prevDropTarget = this.dropTarget;
   };
 
@@ -107,7 +115,7 @@ export abstract class DragDropCore<T> extends Base {
     );
   }
 
-  protected doStartDrag():void {}
+  protected doStartDrag(): void {}
   protected abstract getShortcutText(draggedElement: any): string;
 
   private createDraggedElementShortcut(text: string) {
@@ -118,7 +126,8 @@ export abstract class DragDropCore<T> extends Base {
     return draggedElementShortcut;
   }
 
-  protected doDragOver(): void {}
+  protected doDragOver(dropTargetNode?: HTMLElement): void {}
+  protected afterDragOver(dropTargetNode?: HTMLElement): void {}
 
   public getGhostPosition(item: any): string {
     if (this.dropTarget !== item) return null;
@@ -226,7 +235,7 @@ export abstract class DragDropCore<T> extends Base {
     this.scrollIntervalId = requestAnimationFrame(repeat);
   }
 
-  protected banDropHere = ():void => {
+  protected banDropHere = (): void => {
     this.doBanDropHere();
     this.allowDropHere = false;
     this.dropTarget = null;
@@ -234,7 +243,7 @@ export abstract class DragDropCore<T> extends Base {
     this.isBottom = null;
   };
 
-  protected doBanDropHere = ():void => {};
+  protected doBanDropHere = (): void => {};
 
   private getDataAttributeValueByNode(node: HTMLElement) {
     let datasetName = "svDropTarget";
@@ -320,5 +329,5 @@ export abstract class DragDropCore<T> extends Base {
     this.scrollIntervalId = null;
   };
 
-  protected doClear():void {}
+  protected doClear(): void {}
 }

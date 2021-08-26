@@ -100,6 +100,7 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
 
   //cross framework initialization
   public afterRenderQuestionElement(el: HTMLElement): void {
+    this.domNode = el;
     if (!!el && this.fallbackToSortableJS) {
       this.initSortable(el);
     }
@@ -111,18 +112,15 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
     super.beforeDestroyQuestionElement(el);
   }
 
-  public handleKeydown = (event: KeyboardEvent):void => {
+  public handleKeydown = (event: KeyboardEvent, choice: ItemValue):void => {
     const key: any = event.key;
-    const array: NodeListOf<Element> = this.domNode.querySelectorAll(
-      "." + this.cssClasses.item
-    );
-    const index: number = [].indexOf.call(array, event.target);
+    const index = this.rankingChoices.indexOf(choice);
 
     if (key === "ArrowUp" && index) {
-      this.handleArrowUp(index);
+      this.handleArrowUp(index, choice);
     }
-    if (key === "ArrowDown" && index !== array.length - 1) {
-      this.handleArrowDown(index);
+    if (key === "ArrowDown" && index !== this.rankingChoices.length - 1) {
+      this.handleArrowDown(index, choice);
     }
   };
 
@@ -168,7 +166,6 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
   private initSortable(domNode: HTMLElement) {
     if (!domNode) return;
     const self: QuestionRankingModel = this;
-    self.domNode = domNode;
     if (this.isReadOnly) return;
     if (this.isDesignMode) return;
 
@@ -210,22 +207,40 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
     this.setPropertyValue("fallbackToSortableJS", val);
   }
 
-  private handleArrowUp = (index: number) => {
-    const array: string[] = this.sortableInst.toArray();
-    this.moveArrayItemBack(array, index);
-    this.sortableInst.sort(array);
-    this.syncNumbers();
-    this.setValue();
-    this.focusItem(index - 1);
+  private handleArrowUp = (index: number, choice: ItemValue) => {
+    if (this.fallbackToSortableJS) {
+      const array: string[] = this.sortableInst.toArray();
+      this.moveArrayItemBack(array, index);
+      this.sortableInst.sort(array);
+      this.syncNumbers();
+      this.setValueFromUI();
+    } else {
+      const choices = this.choices;
+      choices.splice(index, 1);
+      choices.splice(index - 1, 0, choice);
+      this.setValue();
+    }
+    setTimeout(()=>{
+      this.focusItem(index - 1);
+    }, 1);
   };
 
-  private handleArrowDown = (index: number) => {
-    const array: string[] = this.sortableInst.toArray();
-    this.moveArrayItemForward(array, index);
-    this.sortableInst.sort(array);
-    this.syncNumbers();
-    this.setValue();
-    this.focusItem(index + 1);
+  private handleArrowDown = (index: number, choice: ItemValue) => {
+    if (this.fallbackToSortableJS) {
+      const array: string[] = this.sortableInst.toArray();
+      this.moveArrayItemForward(array, index);
+      this.sortableInst.sort(array);
+      this.syncNumbers();
+      this.setValueFromUI();
+    } else {
+      const choices = this.choices;
+      choices.splice(index, 1);
+      choices.splice(index + 1, 0, choice);
+      this.setValue();
+    }
+    setTimeout(()=>{
+      this.focusItem(index + 1);
+    }, 1);
   };
 
   private moveArrayItemBack = (array: string[], index: number) => {
@@ -244,15 +259,11 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
   };
 
   private setValue = () => {
-    if (this.fallbackToSortableJS) {
-      this.setValueFromUI();
-      return;
-    }
     const value: string[] = [];
     const visibleChoices: ItemValue[] = this.removeOtherChoiceFromChoices(
       this.visibleChoices
     );
-    this.visibleChoices.forEach((choice: ItemValue) => {
+    visibleChoices.forEach((choice: ItemValue) => {
       value.push(choice.value);
     });
     this.value = value;

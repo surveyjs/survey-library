@@ -21,9 +21,7 @@ export class DragDropRankingChoices extends DragDropChoices {
   }
 
   protected afterDragOver(dropTargetNode: HTMLElement): void {
-    const node = this.prevDropTargetNode;
-    node.className = node.className.replace(" sv-ranking-item--ghost", "");
-    this.prevDropTargetNode = null;
+    this.removeGhostClassFromTargetNode();
   }
 
   protected doDrop = (): any => {
@@ -31,4 +29,15 @@ export class DragDropRankingChoices extends DragDropChoices {
     this.parentElement.setValue();
     return this.parentElement;
   };
+
+  protected doClear(): void {
+    this.removeGhostClassFromTargetNode();
+  }
+
+  private removeGhostClassFromTargetNode() {
+    const node = this.prevDropTargetNode;
+    if (!node) return;
+    node.className = node.className.replace(" sv-ranking-item--ghost", "");
+    this.prevDropTargetNode = null;
+  }
 }

@@ -81,9 +81,7 @@ export abstract class DragDropCore<T> extends Base {
 
     const isDropTargetValid = this.isDropTargetValid(this.dropTarget, isBottom);
 
-    if (isDropTargetValid) {
-      this.doDragOver(dropTargetNode);
-    }
+    this.doDragOver(dropTargetNode);
 
     if (this.dropTarget === this.draggedElement || !isDropTargetValid) {
       this.banDropHere();

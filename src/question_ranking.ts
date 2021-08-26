@@ -84,14 +84,15 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
   }
 
   public dragDropHelper: DragDropRankingChoices;
-  public setSurveyImpl(value: ISurveyImpl) {
-    super.setSurveyImpl(value);
+
+  endLoadingFromJson() {
+    super.endLoadingFromJson();
     if (!this.fallbackToSortableJS) {
       this.dragDropHelper = new DragDropRankingChoices(this.survey);
     }
   }
 
-  public handlePointerDown(event: PointerEvent, choice: ItemValue) {
+  public handlePointerDown = (event: PointerEvent, choice: ItemValue) => {
     if (!this.fallbackToSortableJS) {
       this.dragDropHelper.startDrag(event, choice, this);
     }

@@ -34,7 +34,7 @@ export class SurveyQuestionRanking extends SurveyQuestionElementBase {
           item,
           i,
           this.question.handleKeydown,
-          this.question.handlePointerDown,
+          (event: PointerEvent)=>{ this.question.handlePointerDown.call(this.question, event, item); },
           this.question.cssClasses,
           this.question.getItemClass(item),
           this.question
@@ -48,19 +48,21 @@ export class SurveyQuestionRanking extends SurveyQuestionElementBase {
     item: ItemValue,
     i: number,
     handleKeydown: (event: any) => void,
-    handlePointerDown: (event: PointerEvent, choice: ItemValue) => void,
+    handlePointerDown: (event: PointerEvent) => void,
     cssClasses: any,
     itemClass: string,
     question: QuestionRankingModel
   ): JSX.Element {
     const key: string = item.value + "-" + i + "-item";
     const text: JSX.Element = this.renderLocString(item.locText);
-    const index: string = this.question.getNumberByIndex(i);
+    const index = i;
+    const indexText: string = this.question.getNumberByIndex(i);
     const renderedItem = (
       <SurveyQuestionRankingItem
         key={key}
         text={text}
         index={index}
+        indexText={indexText}
         handleKeydown={handleKeydown}
         handlePointerDown={handlePointerDown}
         cssClasses={cssClasses}
@@ -83,6 +85,9 @@ export class SurveyQuestionRankingItem extends ReactSurveyElement {
   }
   protected get index(): string {
     return this.props.index;
+  }
+  protected get indexText(): string {
+    return this.props.indexText;
   }
   protected get handleKeydown(): (event: any) => void {
     return this.props.handleKeydown;
@@ -134,7 +139,7 @@ export class SurveyQuestionRankingItem extends ReactSurveyElement {
               </svg>
             </div>
 
-            <div className={this.cssClasses.itemIndex}>{this.index}</div>
+            <div className={this.cssClasses.itemIndex}>{this.indexText}</div>
             <div className={this.cssClasses.controlLabel}>{this.text}</div>
           </div>
         </div>

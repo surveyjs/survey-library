@@ -25,24 +25,24 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
     return "ranking";
   }
 
-  public get isIndeterminate() {
+  public get isIndeterminate():boolean {
     return !this.value || this.value.length === 0;
   }
 
-  public get rootClass() {
+  public get rootClass():string {
     return new CssClassBuilder()
       .append(this.cssClasses.root)
       .append(this.cssClasses.rootMobileMod, IsMobile)
       .toString();
   }
 
-  getItemClass(item: any) {
+  getItemClass(item: ItemValue):string {
     return new CssClassBuilder()
       .append(super.getItemClass(item))
       .append(this.ghostPositionCssClass, !this.fallbackToSortableJS)
       .toString();
   }
-  public get ghostPositionCssClass() {
+  public get ghostPositionCssClass(): string {
     if (this.ghostPosition === "top")
       return this.cssClasses.dragDropGhostPositionTop;
     if (this.ghostPosition === "bottom")
@@ -50,11 +50,11 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
     return "";
   }
 
-  public getNumberByIndex(index: number) {
+  public getNumberByIndex(index: number): string {
     return this.isIndeterminate ? "\u2013" : index + 1 + "";
   }
 
-  public get rankingChoices() {
+  public get rankingChoices(): ItemValue[] {
     let result: ItemValue[] = [];
     const value: any = this.value;
     const visibleChoices: ItemValue[] = this.removeOtherChoiceFromChoices(
@@ -85,33 +85,33 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
 
   public dragDropHelper: DragDropRankingChoices;
 
-  endLoadingFromJson() {
+  endLoadingFromJson(): void {
     super.endLoadingFromJson();
     if (!this.fallbackToSortableJS) {
       this.dragDropHelper = new DragDropRankingChoices(this.survey);
     }
   }
 
-  public handlePointerDown = (event: PointerEvent, choice: ItemValue) => {
+  public handlePointerDown = (event: PointerEvent, choice: ItemValue): void => {
     if (!this.fallbackToSortableJS) {
       this.dragDropHelper.startDrag(event, choice, this);
     }
   }
 
   //cross framework initialization
-  public afterRenderQuestionElement(el: HTMLElement) {
+  public afterRenderQuestionElement(el: HTMLElement): void {
     if (!!el && this.fallbackToSortableJS) {
       this.initSortable(el);
     }
     super.afterRenderQuestionElement(el);
   }
   //cross framework destroy
-  public beforeDestroyQuestionElement(el: HTMLElement) {
+  public beforeDestroyQuestionElement(el: HTMLElement): void {
     if (this.sortableInst) this.sortableInst.destroy();
     super.beforeDestroyQuestionElement(el);
   }
 
-  public handleKeydown = (event: any) => {
+  public handleKeydown = (event: KeyboardEvent):void => {
     const key: any = event.key;
     const array: NodeListOf<Element> = this.domNode.querySelectorAll(
       "." + this.cssClasses.item
@@ -126,18 +126,18 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
     }
   };
 
-  protected supportSelectAll() {
+  protected supportSelectAll(): boolean {
     return false;
   }
-  public supportOther() {
+  public supportOther(): boolean {
     return false;
   }
-  public supportNone() {
+  public supportNone(): boolean {
     return false;
   }
 
   // to make "carry forward" feature work properly with ranking
-  protected onVisibleChoicesChanged() {
+  protected onVisibleChoicesChanged(): void {
     super.onVisibleChoicesChanged();
 
     if (this.isIndeterminate) return;
@@ -215,7 +215,7 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
     this.moveArrayItemBack(array, index);
     this.sortableInst.sort(array);
     this.syncNumbers();
-    this.setValueFromUI();
+    this.setValue();
     this.focusItem(index - 1);
   };
 
@@ -224,7 +224,7 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
     this.moveArrayItemForward(array, index);
     this.sortableInst.sort(array);
     this.syncNumbers();
-    this.setValueFromUI();
+    this.setValue();
     this.focusItem(index + 1);
   };
 
@@ -241,6 +241,21 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
       "." + this.cssClasses.item
     );
     itemsNodes[index].focus();
+  };
+
+  private setValue = () => {
+    if (this.fallbackToSortableJS) {
+      this.setValueFromUI();
+      return;
+    }
+    const value: string[] = [];
+    const visibleChoices: ItemValue[] = this.removeOtherChoiceFromChoices(
+      this.visibleChoices
+    );
+    this.visibleChoices.forEach((choice: ItemValue) => {
+      value.push(choice.value);
+    });
+    this.value = value;
   };
 
   private setValueFromUI = () => {

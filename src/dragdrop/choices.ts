@@ -40,7 +40,7 @@ export class DragDropChoices extends DragDropCore {
     );
   }
 
-  protected doDrop = () => {
+  protected doDrop():any {
     const isTop = !this.isBottom;
     const choices = this.parentElement.choices;
     const oldIndex = choices.indexOf(this.draggedElement);
@@ -56,5 +56,5 @@ export class DragDropChoices extends DragDropCore {
     choices.splice(newIndex, 0, this.draggedElement);
 
     return this.parentElement;
-  };
+  }
 }

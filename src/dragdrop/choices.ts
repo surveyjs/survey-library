@@ -1,16 +1,17 @@
-import { ItemValue } from "survey-core";
+import { ItemValue } from "../itemvalue";
+import { QuestionSelectBase } from "../question_baseselect";
 import { DragDropCore } from "./core";
 
-export class DragDropChoices extends DragDropCore {
+export class DragDropChoices extends DragDropCore<QuestionSelectBase> {
   protected get draggedElementType(): string {
     return "item-value";
   }
 
-  protected getShortcutText(draggedElement: any) {
+  protected getShortcutText(draggedElement: ItemValue): string {
     return draggedElement.text;
   }
 
-  protected getDropTargetByDataAttributeValue(dataAttributeValue: string) {
+  protected getDropTargetByDataAttributeValue(dataAttributeValue: string): ItemValue {
     let dragOverChoice;
 
     dragOverChoice = this.parentElement.choices.filter(
@@ -20,7 +21,7 @@ export class DragDropChoices extends DragDropCore {
     return dragOverChoice;
   }
 
-  protected isDropTargetValid(dropTarget: any) {
+  protected isDropTargetValid(dropTarget: ItemValue):boolean {
     const choices = this.parentElement.choices;
 
     // shouldn't allow to drop on "adorners" (selectall, none, other)

@@ -1,28 +1,28 @@
-import { DragDropInfo } from "src/panel";
+import { SurveyModel } from "../survey";
 import { Base, EventBase } from "../base";
 import { ISurvey } from "../base-interfaces";
 import { property } from "../jsonobject";
 
-export abstract class DragDropCore extends Base {
-  @property({ defaultValue: null, onSet: (val, target: DragDropCore) => {
+export abstract class DragDropCore<T> extends Base {
+  @property({ defaultValue: null, onSet: (val, target: DragDropCore<T>) => {
     target.ghostPositionChanged();
   } }) isBottom: boolean; //TODO rename isBottom to isShowGhostAtBottomOfDropTarget
   public onGhostPositionChanged: EventBase<Base> = new EventBase<Base>();
-  protected ghostPositionChanged() {
+  protected ghostPositionChanged(): void {
     this.onGhostPositionChanged.fire({}, {});
   }
 
-  public onBeforeDrop: EventBase<DragDropCore> = new EventBase();
-  public onAfterDrop: EventBase<DragDropCore> = new EventBase();
+  public onBeforeDrop: EventBase<DragDropCore<T>> = new EventBase();
+  public onAfterDrop: EventBase<DragDropCore<T>> = new EventBase();
 
   protected draggedElement: any = null;
   protected abstract get draggedElementType(): string;
-  protected parentElement: any;
+  protected parentElement: T;
   protected dropTarget: any = null;
-  protected get dropTargetDataAttributeName() {
+  protected get dropTargetDataAttributeName(): string {
     return `[data-sv-drop-target-${this.draggedElementType}]`;
   }
-  protected get survey() {
+  protected get survey(): SurveyModel {
     return this.surveyValue || this.creator.survey;
   }
 
@@ -39,7 +39,7 @@ export abstract class DragDropCore extends Base {
     event: PointerEvent,
     draggedElement: any,
     parentElement?: any
-  ) {
+  ): void {
     this.draggedElement = draggedElement;
     this.parentElement = parentElement;
 
@@ -101,13 +101,13 @@ export abstract class DragDropCore extends Base {
     this.clear();
   };
 
-  protected isDropTargetDoesntChanged(newIsBottom: boolean) {
+  protected isDropTargetDoesntChanged(newIsBottom: boolean): boolean {
     return (
       this.dropTarget === this.prevDropTarget && newIsBottom === this.isBottom
     );
   }
 
-  protected doStartDrag() {}
+  protected doStartDrag():void {}
   protected abstract getShortcutText(draggedElement: any): string;
 
   private createDraggedElementShortcut(text: string) {
@@ -120,7 +120,7 @@ export abstract class DragDropCore extends Base {
 
   protected doDragOver(): void {}
 
-  public getGhostPosition(item: any) {
+  public getGhostPosition(item: any): string {
     if (this.dropTarget !== item) return null;
     if (this.isBottom) return "bottom";
     return "top";
@@ -226,7 +226,7 @@ export abstract class DragDropCore extends Base {
     this.scrollIntervalId = requestAnimationFrame(repeat);
   }
 
-  protected banDropHere = () => {
+  protected banDropHere = ():void => {
     this.doBanDropHere();
     this.allowDropHere = false;
     this.dropTarget = null;
@@ -234,7 +234,7 @@ export abstract class DragDropCore extends Base {
     this.isBottom = null;
   };
 
-  protected doBanDropHere = () => {};
+  protected doBanDropHere = ():void => {};
 
   private getDataAttributeValueByNode(node: HTMLElement) {
     let datasetName = "svDropTarget";
@@ -248,7 +248,7 @@ export abstract class DragDropCore extends Base {
   protected getDropTargetByNode(
     dropTargetNode: HTMLElement,
     event: PointerEvent
-  ) {
+  ): any {
     let dataAttributeValue = this.getDataAttributeValueByNode(dropTargetNode);
 
     return this.getDropTargetByDataAttributeValue(
@@ -264,12 +264,12 @@ export abstract class DragDropCore extends Base {
 
   //TODO adandone unrequired params (survey-elements)
   protected abstract getDropTargetByDataAttributeValue(
-    dataAttributeValue: any,
+    dataAttributeValue: string,
     dropTargetNode?: HTMLElement,
     event?: PointerEvent
   ): any;
 
-  protected calculateMiddleOfHTMLElement(HTMLElement: HTMLElement) {
+  protected calculateMiddleOfHTMLElement(HTMLElement: HTMLElement): number {
     const rect = HTMLElement.getBoundingClientRect();
     return rect.y + rect.height / 2;
   }
@@ -320,5 +320,5 @@ export abstract class DragDropCore extends Base {
     this.scrollIntervalId = null;
   };
 
-  protected doClear() {}
+  protected doClear():void {}
 }

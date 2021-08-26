@@ -3,7 +3,7 @@ import { JsonObject, Serializer } from "../jsonobject";
 import { PageModel } from "../page";
 import { DragDropCore } from "./core";
 
-export class DragDropSurveyElements extends DragDropCore {
+export class DragDropSurveyElements extends DragDropCore<any> {
   public static newGhostPage: PageModel = null;
   public static restrictDragQuestionBetweenPages: boolean = false;
   public static edgeHeight: number = 30;
@@ -78,7 +78,7 @@ export class DragDropSurveyElements extends DragDropCore {
     }
 
     // drop to page
-    let page = this.survey.getPageByName(dataAttributeValue);
+    let page:any = this.survey.getPageByName(dataAttributeValue);
     if (page) {
       if (
         // TODO we can't drop on not empty page directly for now

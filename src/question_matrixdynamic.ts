@@ -163,7 +163,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     }
     this.value = newValue;
   }
-  protected moveRowByIndex = (fromIndex: number, toIndex: number) => {
+  public moveRowByIndex = (fromIndex: number, toIndex: number) => {
     const value = this.createNewValue();
 
     if (!value) return;

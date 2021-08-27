@@ -352,10 +352,8 @@ ReactElementFactory.Instance.registerElement("survey", (props) => {
 });
 
 export function attachKey2click(element: JSX.Element, viewModel?: any, options = { processEsc: true }): JSX.Element {
-  let tabIndex = 0;
   if (!!viewModel && viewModel.disableTabStop) {
-    tabIndex = -1;
-    return;
+    return React.cloneElement(element, { tabIndex: -1 });
   }
   return React.cloneElement(
     element,

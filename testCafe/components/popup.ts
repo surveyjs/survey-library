@@ -212,4 +212,47 @@ frameworks.forEach(async framework => {
       .scroll(0, 1000)
       .expect(popupModalSelector.visible).ok();
   });
+
+  test("navigate between list items", async t => {
+    const currentAddDropdownTitleAction = (_, opt) => {
+      let items = [];
+      for (let index = 0; index < 10; index++) {
+        items[index] = new window["Survey"].Action({ title: "item" + index });
+      }
+      const itemPopupModel = new window["Survey"].PopupModel("sv-list", {
+        model: new window["Survey"].ListModel(items)
+      });
+      const item = new window["Survey"].Action({
+        component: "sv-action-bar-item-dropdown",
+        title: "Click",
+        showTitle: true,
+        action: () => {
+          itemPopupModel.toggleVisibility();
+        },
+        popupModel: itemPopupModel
+      });
+      opt.titleActions = [item];
+    };
+    let listItems = popupSelector.find(".sv-list__item");
+    await initSurvey(framework, json, { onGetQuestionTitleActions: currentAddDropdownTitleAction });
+
+    await t
+      .click(clickButton)
+      .expect(popupSelector.visible).ok()
+
+      .expect(listItems.count).eql(10)
+      .expect(listItems.nth(0).focused).ok()
+
+      .pressKey("down down")
+      .expect(listItems.nth(2).focused).ok()
+
+      .pressKey("up up up")
+      .expect(listItems.nth(9).focused).ok()
+
+      .pressKey("tab tab")
+      .expect(listItems.nth(1).focused).ok()
+
+      .pressKey("shift+tab shift+tab")
+      .expect(listItems.nth(9).focused).ok();
+  });
 });

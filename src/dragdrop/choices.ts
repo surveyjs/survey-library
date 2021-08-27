@@ -14,7 +14,7 @@ export class DragDropChoices extends DragDropCore<QuestionSelectBase> {
   protected getDropTargetByDataAttributeValue(dataAttributeValue: string): ItemValue {
     let dragOverChoice;
 
-    dragOverChoice = this.parentElement.visibleChoices.filter(
+    dragOverChoice = this.parentElement.choices.filter(
       (choice: ItemValue) => "" + choice.value == dataAttributeValue
     )[0];
 
@@ -22,7 +22,7 @@ export class DragDropChoices extends DragDropCore<QuestionSelectBase> {
   }
 
   protected isDropTargetValid(dropTarget: ItemValue):boolean {
-    const choices = this.parentElement.visibleChoices;
+    const choices = this.parentElement.choices;
 
     if (this.dropTarget === this.draggedElement) return false;
 
@@ -33,7 +33,7 @@ export class DragDropChoices extends DragDropCore<QuestionSelectBase> {
   }
 
   protected calculateIsBottom(clientY: number): boolean {
-    const choices = this.parentElement.visibleChoices;
+    const choices = this.parentElement.choices;
     return (
       choices.indexOf(this.dropTarget) - choices.indexOf(this.draggedElement) >
       0
@@ -42,7 +42,7 @@ export class DragDropChoices extends DragDropCore<QuestionSelectBase> {
 
   protected doDrop():any {
     const isTop = !this.isBottom;
-    const choices = this.parentElement.visibleChoices;
+    const choices = this.parentElement.choices;
     const oldIndex = choices.indexOf(this.draggedElement);
     let newIndex = choices.indexOf(this.dropTarget);
 

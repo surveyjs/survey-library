@@ -2,7 +2,7 @@ import SortableLib from "sortablejs";
 import { ISurveyImpl } from "./base-interfaces";
 import { DragDropRankingChoices } from "./dragdrop/ranking-choices";
 import { ItemValue } from "./itemvalue";
-import { Serializer } from "./jsonobject";
+import { property, Serializer } from "./jsonobject";
 import { QuestionFactory } from "./questionfactory";
 import { QuestionCheckboxModel } from "./question_checkbox";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
@@ -36,12 +36,18 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
       .toString();
   }
 
-  getItemClass(item: ItemValue):string {
+  public getItemClass(item: ItemValue):string {
     return new CssClassBuilder()
       .append(super.getItemClass(item))
-      .append(this.ghostPositionCssClass, !this.fallbackToSortableJS)
+      .append(this.cssClasses.itemGhostMod, this.currentDragTarget === item)
       .toString();
   }
+
+  protected isItemCurrentDropTarget(item: ItemValue): boolean {
+    if (this.fallbackToSortableJS) return false;
+    return this.dragDropHelper.dropTarget === item;
+  }
+
   public get ghostPositionCssClass(): string {
     if (this.ghostPosition === "top")
       return this.cssClasses.dragDropGhostPositionTop;
@@ -84,6 +90,7 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
   }
 
   public dragDropHelper: DragDropRankingChoices;
+  @property({ defaultValue: null }) currentDragTarget: ItemValue;
 
   endLoadingFromJson(): void {
     super.endLoadingFromJson();

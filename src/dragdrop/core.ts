@@ -22,7 +22,7 @@ export abstract class DragDropCore<T> extends Base {
   protected draggedElement: any = null;
   protected abstract get draggedElementType(): string;
   protected parentElement: T;
-  protected dropTarget: any = null;
+  public dropTarget: any = null;
   protected get dropTargetDataAttributeName(): string {
     return `[data-sv-drop-target-${this.draggedElementType}]`;
   }
@@ -83,7 +83,7 @@ export abstract class DragDropCore<T> extends Base {
 
     this.doDragOver(dropTargetNode);
 
-    if (this.dropTarget === this.draggedElement || !isDropTargetValid) {
+    if (!isDropTargetValid) {
       this.banDropHere();
       return;
     }

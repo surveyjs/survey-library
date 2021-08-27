@@ -14,7 +14,7 @@ export class DragDropChoices extends DragDropCore<QuestionSelectBase> {
   protected getDropTargetByDataAttributeValue(dataAttributeValue: string): ItemValue {
     let dragOverChoice;
 
-    dragOverChoice = this.parentElement.choices.filter(
+    dragOverChoice = this.parentElement.visibleChoices.filter(
       (choice: ItemValue) => "" + choice.value == dataAttributeValue
     )[0];
 
@@ -22,19 +22,18 @@ export class DragDropChoices extends DragDropCore<QuestionSelectBase> {
   }
 
   protected isDropTargetValid(dropTarget: ItemValue):boolean {
-    const choices = this.parentElement.choices;
+    const choices = this.parentElement.visibleChoices;
+
+    if (this.dropTarget === this.draggedElement) return false;
 
     // shouldn't allow to drop on "adorners" (selectall, none, other)
-    if (choices.indexOf(dropTarget) === -1) {
-      this.banDropHere();
-      return false;
-    }
+    if (choices.indexOf(dropTarget) === -1) return false;
 
     return true;
   }
 
   protected calculateIsBottom(clientY: number): boolean {
-    const choices = this.parentElement.choices;
+    const choices = this.parentElement.visibleChoices;
     return (
       choices.indexOf(this.dropTarget) - choices.indexOf(this.draggedElement) >
       0
@@ -43,7 +42,7 @@ export class DragDropChoices extends DragDropCore<QuestionSelectBase> {
 
   protected doDrop():any {
     const isTop = !this.isBottom;
-    const choices = this.parentElement.choices;
+    const choices = this.parentElement.visibleChoices;
     const oldIndex = choices.indexOf(this.draggedElement);
     let newIndex = choices.indexOf(this.dropTarget);
 

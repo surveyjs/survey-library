@@ -10,7 +10,7 @@ import { LocalizableString } from "survey-core";
 import { ItemValue } from "survey-core";
 import { ImplementorBase } from "./kobase";
 import { StylesManager } from "survey-core";
-import { doKey2ClickDown, doKey2ClickUp } from "src/utils/utils";
+import { doKey2ClickDown, doKey2ClickUp } from "../utils/utils";
 
 CustomWidgetCollection.Instance.onCustomWidgetAdded.add(customWidget => {
   if (customWidget.widgetJson.isDefaultRender) return;

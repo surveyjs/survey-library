@@ -18,7 +18,7 @@ export class DragDropMatrixRows extends DragDropCore<QuestionMatrixDynamicModel>
   }
 
   protected getShortcutText(draggedElement: any): string {
-    const matrix = <QuestionMatrixDynamicModel>this.parentElement;
+    const matrix = this.parentElement;
     const index = matrix.visibleRows.indexOf(draggedElement) + 1;
     return (
       draggedElement.cells[1].questionValue.value ||
@@ -30,7 +30,7 @@ export class DragDropMatrixRows extends DragDropCore<QuestionMatrixDynamicModel>
   protected getDropTargetByDataAttributeValue(
     dataAttributeValue: any
   ): MatrixDropdownRowModelBase {
-    const matrix = <QuestionMatrixDynamicModel>this.parentElement;
+    const matrix = this.parentElement;
     let dropTargetRow;
 
     dropTargetRow = matrix.visibleRows.filter(
@@ -40,7 +40,8 @@ export class DragDropMatrixRows extends DragDropCore<QuestionMatrixDynamicModel>
     return dropTargetRow;
   }
 
-  protected isDropTargetValid(dropTarget: any) {
+  protected isDropTargetValid(dropTarget: any): boolean {
+    if (this.dropTarget === this.draggedElement) return false;
     const rows = this.parentElement.visibleRows;
     return rows.indexOf(dropTarget) !== -1;
   }
@@ -53,7 +54,7 @@ export class DragDropMatrixRows extends DragDropCore<QuestionMatrixDynamicModel>
   }
 
   protected doDrop = (): QuestionMatrixDynamicModel => {
-    const matrix = <QuestionMatrixDynamicModel>this.parentElement;
+    const matrix = this.parentElement;
     const fromIndex = matrix.visibleRows.indexOf(this.draggedElement);
     const toIndex = matrix.visibleRows.indexOf(this.dropTarget);
     matrix.moveRowByIndex(fromIndex, toIndex);

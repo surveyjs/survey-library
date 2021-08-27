@@ -129,6 +129,7 @@ export class DragDropSurveyElements extends DragDropCore<any> {
 
   protected isDropTargetValid(dropTarget: any, isBottom: boolean) {
     if (!dropTarget) return false;
+    if (this.dropTarget === this.draggedElement) return false;
 
     if (
       DragDropSurveyElements.restrictDragQuestionBetweenPages &&

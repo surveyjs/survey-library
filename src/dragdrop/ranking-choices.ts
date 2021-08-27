@@ -1,8 +1,6 @@
 import { ItemValue } from "../itemvalue";
 import { DragDropChoices } from "./choices";
 export class DragDropRankingChoices extends DragDropChoices {
-  private prevDropTargetNode: HTMLElement = null;
-
   protected getShortcutText(draggedElement: ItemValue): string {
     const index = this.parentElement.ran;
     return draggedElement.text;
@@ -14,14 +12,27 @@ export class DragDropRankingChoices extends DragDropChoices {
     return this.parentElement.rankingChoices[dataAttributeValue];
   }
 
-  protected doDragOver(dropTargetNode: HTMLElement): void {
-    if (this.prevDropTargetNode) return;
-    dropTargetNode.className += " sv-ranking-item--ghost";
-    this.prevDropTargetNode = dropTargetNode;
+  protected isDropTargetValid(dropTarget: ItemValue):boolean {
+    const choices = this.parentElement.visibleChoices;
+
+    // shouldn't allow to drop on "adorners" (selectall, none, other)
+    if (choices.indexOf(dropTarget) === -1) return false;
+
+    return true;
   }
 
-  protected afterDragOver(dropTargetNode: HTMLElement): void {
-    this.removeGhostClassFromTargetNode();
+  protected afterDragOver(): void {
+    const choices = this.parentElement.visibleChoices;
+    const dropTargetIndex = choices.indexOf(this.dropTarget);
+    const draggedElementIndex = choices.indexOf(this.draggedElement);
+
+    choices.splice(draggedElementIndex, 1);
+    choices.splice(dropTargetIndex, 0, this.draggedElement);
+  }
+
+  protected ghostPositionChanged(): void {
+    this.parentElement.currentDragTarget = this.dropTarget;
+    super.ghostPositionChanged();
   }
 
   protected doDrop = (): any => {
@@ -29,15 +40,4 @@ export class DragDropRankingChoices extends DragDropChoices {
     this.parentElement.setValue();
     return this.parentElement;
   };
-
-  protected doClear(): void {
-    this.removeGhostClassFromTargetNode();
-  }
-
-  private removeGhostClassFromTargetNode() {
-    const node = this.prevDropTargetNode;
-    if (!node) return;
-    node.className = node.className.replace(" sv-ranking-item--ghost", "");
-    this.prevDropTargetNode = null;
-  }
 }

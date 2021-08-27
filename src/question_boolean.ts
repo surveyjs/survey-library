@@ -3,7 +3,7 @@ import { property, Serializer } from "./jsonobject";
 import { Question } from "./question";
 import { LocalizableString } from "./localizablestring";
 import { surveyLocalization } from "./surveyStrings";
-import { CssClassBuilder } from "src/utils/cssClassBuilder";
+import { CssClassBuilder } from "./utils/cssClassBuilder";
 
 /**
  * A Model for a boolean question.

@@ -20,7 +20,7 @@ export class ComponentQuestionJSON {
     Serializer.addClass(
       name,
       [],
-      function(json: any) {
+      function (json: any) {
         return ComponentCollection.Instance.createQuestion(
           !!json ? json.name : "",
           self
@@ -81,6 +81,10 @@ export class ComponentQuestionJSON {
       newValue: newValue,
     });
   }
+  public getDisplayValue(keyAsText: boolean, value: any, question: Question) {
+    if (!this.json.getDisplayValue) return question.getDisplayValue(keyAsText, value);
+    return this.json.getDisplayValue(question);
+  }
   public get isComposite() {
     return !!this.json.elementsJSON || !!this.json.createElements;
   }
@@ -107,8 +111,8 @@ export class ComponentCollection {
     name = name.toLowerCase();
     if (!!this.getCustomQuestionByName(name)) {
       throw "There is already registered custom question with name '" +
-        name +
-        "'";
+      name +
+      "'";
     }
     if (!!Serializer.findClass(name)) {
       throw "There is already class with name '" + name + "'";
@@ -180,7 +184,7 @@ export abstract class QuestionCustomModelBase extends Question
       this.getElement().locStrsChanged();
     }
   }
-  protected createWrapper() {}
+  protected createWrapper() { }
   protected onPropertyValueChanged(name: string, oldValue: any, newValue: any) {
     super.onPropertyValueChanged(name, oldValue, newValue);
     if (!!this.customQuestion && !this.isLoadingFromJson) {
@@ -309,7 +313,7 @@ export abstract class QuestionCustomModelBase extends Question
     return !!this.data ? this.data.getFilteredProperties() : {};
   }
   //IPanel
-  addElement(element: IElement, index: number) {}
+  addElement(element: IElement, index: number) { }
   removeElement(element: IElement): boolean {
     return false;
   }
@@ -322,7 +326,7 @@ export abstract class QuestionCustomModelBase extends Question
   getChildrenLayoutType(): string {
     return "row";
   }
-  elementWidthChanged(el: IElement) {}
+  elementWidthChanged(el: IElement) { }
   get elements(): Array<IElement> {
     return [];
   }
@@ -331,6 +335,10 @@ export abstract class QuestionCustomModelBase extends Question
   }
   ensureRowsVisibility(): void {
     // do nothing
+  }
+  protected getContentDisplayValueCore(keyAsText: boolean, value: any, question: Question): any {
+    if (!question) return super.getDisplayValueCore(keyAsText, value);
+    return this.customQuestion.getDisplayValue(keyAsText, value, question);
   }
 }
 
@@ -467,9 +475,7 @@ export class QuestionCustomModel extends QuestionCustomModelBase {
     super.updateElementCssCore(cssClasses);
   }
   protected getDisplayValueCore(keyAsText: boolean, value: any): any {
-    return !!this.contentQuestion
-      ? this.contentQuestion.getDisplayValue(keyAsText, value)
-      : super.getDisplayValueCore(keyAsText, value);
+    return super.getContentDisplayValueCore(keyAsText, value, this.contentQuestion);
   }
 }
 
@@ -662,9 +668,7 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
     this.settingNewValue = false;
   }
   protected getDisplayValueCore(keyAsText: boolean, value: any): any {
-    return !!this.contentPanel
-      ? this.contentPanel.getDisplayValue(keyAsText)
-      : super.getDisplayValueCore(keyAsText, value);
+    return super.getContentDisplayValueCore(keyAsText, value, <any>this.contentPanel);
   }
   private setAfterRenderCallbacks(panel: PanelModel) {
     if (!panel || !this.customQuestion) return;

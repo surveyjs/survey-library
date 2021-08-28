@@ -242,6 +242,16 @@ QUnit.test("isTwoValueEquals, 0 and '0'", function(assert) {
     true,
     "'False' equals false"
   );
+  assert.equal(
+    Helpers.isTwoValueEquals(null, undefined),
+    true,
+    "null and undefined"
+  );
+  assert.equal(
+    Helpers.isTwoValueEquals(undefined, null),
+    true,
+    "undefined and null"
+  );
 });
 
 QUnit.test(

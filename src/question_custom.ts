@@ -576,6 +576,12 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
       this.setIsContentElement(this.contentPanel);
     }
     super.onSurveyLoad();
+    if(!!this.contentPanel) {
+      const val = this.contentPanel.getValue();
+      if(!Helpers.isValueEmpty(val)) {
+        this.value = val;
+      }
+    }
   }
   private setIsContentElement(panel: PanelModel) {
     panel.isContentElement = true;

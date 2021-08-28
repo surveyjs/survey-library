@@ -556,6 +556,38 @@ QUnit.test("Composite: defaultValue", function (assert) {
   ComponentCollection.Instance.clear();
 });
 
+QUnit.test("Composite: defaultValue and question.valueChangedCallback", function (assert) {
+  var json = {
+    name: "customerinfo",
+    elementsJSON: [
+      { type: "boolean", name: "bool", defaultValue: false },
+      { type: "text", name: "firstName", defaultValue: "Jon" },
+      { type: "text", name: "lastName" },
+    ],
+    onCreated(question: QuestionCustomModel) {
+      const boolQuestion = question.contentPanel.getQuestionByName("bool");
+      const firstQuestion = question.contentPanel.getQuestionByName("firstName");
+      const lastQuestion = question.contentPanel.getQuestionByName("lastName");
+      boolQuestion.valueChangedCallback = function() {
+        if(boolQuestion.value === false) {
+          firstQuestion.clearValue();
+          lastQuestion.clearValue();
+        }
+      };
+    }
+  };
+  ComponentCollection.Instance.add(json);
+  var survey = new SurveyModel({
+    elements: [{ type: "customerinfo", name: "q1" }],
+  });
+  var q = <QuestionCompositeModel>survey.getAllQuestions()[0];
+  assert.deepEqual(q.value, { bool: false, firstName: "Jon" });
+  q.contentPanel.getQuestionByName("bool").value = true;
+  q.contentPanel.getQuestionByName("bool").value = false;
+  assert.deepEqual(q.value, { bool: false });
+  ComponentCollection.Instance.clear();
+});
+
 var orderJSON = {
   type: "matrixdropdown",
   columns: [

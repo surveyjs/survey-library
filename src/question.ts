@@ -1090,10 +1090,14 @@ export class Question extends SurveyElement
     this.updateValueWithDefaults();
     this.onIndentChanged();
     this.updateQuestionCss();
+    this.updateIsAnswered();
   }
   protected initDataFromSurvey() {
     if (!!this.data) {
-      this.updateValueFromSurvey(this.data.getValue(this.getValueName()));
+      const val = this.data.getValue(this.getValueName());
+      if(!Helpers.isValueEmpty(val) || !this.isLoadingFromJson) {
+        this.updateValueFromSurvey(val);
+      }
       this.initCommentFromSurvey();
     }
   }
@@ -1696,8 +1700,9 @@ export class Question extends SurveyElement
     this.questionComment = newValue;
   }
   protected setQuestionValue(newValue: any, updateIsAnswered: boolean = true) {
+    const isEqual = Helpers.isTwoValueEquals(this.questionValue, newValue);
     this.questionValue = newValue;
-    this.allowNotifyValueChanged &&
+    !isEqual && this.allowNotifyValueChanged &&
       this.fireCallback(this.valueChangedCallback);
     if (updateIsAnswered) this.updateIsAnswered();
   }

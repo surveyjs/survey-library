@@ -9280,9 +9280,9 @@ QUnit.test(
 
     var calculate = (
       plainData: Array<{
-        isNode: boolean;
-        score?: number;
-        data?: Array<any>;
+        isNode: boolean,
+        score?: number,
+        data?: Array<any>,
       }> = []
     ): number => {
       return plainData.reduce((result, current) => {
@@ -11115,36 +11115,36 @@ QUnit.test(
   function(assert) {
     // prettier-ignore
     var json = {
-    "pages": [
-     {
-      "name": "page1",
-      "elements": [
-       {
-        "type": "text",
-        "name": "question3"
-       },
-       {
-        "type": "radiogroup",
-        "name": "question1",
-        "choices": [
-         {
-          "value": "item1",
-          "text": "item1"
-         },
-         "item2",
-         "item3"
-        ]
-       },
-       {
-        "type": "expression",
-        "name": "question2",
-        "expression": "{question3} + iif( {question1} = \"item2\", \"[\" + {question3} + \"]\", \"x\")",
-        "commentText": "Other (describe)"
-       }
+      "pages": [
+        {
+          "name": "page1",
+          "elements": [
+            {
+              "type": "text",
+              "name": "question3"
+            },
+            {
+              "type": "radiogroup",
+              "name": "question1",
+              "choices": [
+                {
+                  "value": "item1",
+                  "text": "item1"
+                },
+                "item2",
+                "item3"
+              ]
+            },
+            {
+              "type": "expression",
+              "name": "question2",
+              "expression": "{question3} + iif( {question1} = \"item2\", \"[\" + {question3} + \"]\", \"x\")",
+              "commentText": "Other (describe)"
+            }
+          ]
+        }
       ]
-     }
-    ]
-   };
+    };
     var survey = new SurveyModel(json);
     survey.setValue("question3", "a");
     survey.setValue("question1", "item2");
@@ -13651,3 +13651,12 @@ QUnit.test("other and survey.clear", function(assert) {
   assert.notOk(q1.comment, "after set other - dropdown");
   assert.notOk(q2.comment, "after set other - checkbox");
 });
+QUnit.test("survey.fromJSON with existing model",
+  function(assert) {
+    const survey = new SurveyModel({ elements: [{ type: "text", name: "q1" }] });
+    survey.fromJSON({ elements: [{ type: "text", name: "q2" }] });
+    assert.equal(survey.pages.length, 1);
+    assert.notOk(survey.getQuestionByName("q1"));
+    assert.ok(survey.getQuestionByName("q2"));
+  }
+);

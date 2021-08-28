@@ -5956,6 +5956,7 @@ Serializer.addClass("survey", [
       return null;
     },
     onSetValue: function(obj: any, value: any, jsonConverter: any) {
+      obj.pages.splice(0, obj.pages.length);
       var page = obj.addNewPage("");
       jsonConverter.toObject({ questions: value }, page);
     },

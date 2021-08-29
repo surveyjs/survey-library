@@ -12,7 +12,7 @@ export class DragDropRankingChoices extends DragDropChoices {
     return this.parentElement.rankingChoices[dataAttributeValue];
   }
 
-  protected isDropTargetValid(dropTarget: ItemValue):boolean {
+  protected isDropTargetValid(dropTarget: ItemValue): boolean {
     const choices = this.parentElement.visibleChoices;
 
     // shouldn't allow to drop on "adorners" (selectall, none, other)
@@ -22,16 +22,17 @@ export class DragDropRankingChoices extends DragDropChoices {
   }
 
   protected afterDragOver(): void {
-    const choices = this.parentElement.visibleChoices;
+    const choices = this.parentElement.choices;
     const dropTargetIndex = choices.indexOf(this.dropTarget);
     const draggedElementIndex = choices.indexOf(this.draggedElement);
 
     choices.splice(draggedElementIndex, 1);
     choices.splice(dropTargetIndex, 0, this.draggedElement);
+    this.parentElement.setValue();
   }
 
   protected ghostPositionChanged(): void {
-    this.parentElement.currentDragTarget = this.dropTarget;
+    this.parentElement.currentDragTarget = this.draggedElement;
     super.ghostPositionChanged();
   }
 

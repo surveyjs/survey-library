@@ -25,18 +25,18 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
     return "ranking";
   }
 
-  public get isIndeterminate():boolean {
+  public get isIndeterminate(): boolean {
     return !this.value || this.value.length === 0;
   }
 
-  public get rootClass():string {
+  public get rootClass(): string {
     return new CssClassBuilder()
       .append(this.cssClasses.root)
       .append(this.cssClasses.rootMobileMod, IsMobile)
       .toString();
   }
 
-  public getItemClass(item: ItemValue):string {
+  public getItemClass(item: ItemValue): string {
     return new CssClassBuilder()
       .append(super.getItemClass(item))
       .append(this.cssClasses.itemGhostMod, this.currentDragTarget === item)
@@ -103,7 +103,7 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
     if (!this.fallbackToSortableJS) {
       this.dragDropHelper.startDrag(event, choice, this);
     }
-  }
+  };
 
   //cross framework initialization
   public afterRenderQuestionElement(el: HTMLElement): void {
@@ -119,7 +119,7 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
     super.beforeDestroyQuestionElement(el);
   }
 
-  public handleKeydown = (event: KeyboardEvent, choice: ItemValue):void => {
+  public handleKeydown = (event: KeyboardEvent, choice: ItemValue): void => {
     const key: any = event.key;
     const index = this.rankingChoices.indexOf(choice);
 
@@ -215,37 +215,21 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
   }
 
   private handleArrowUp = (index: number, choice: ItemValue) => {
-    if (this.fallbackToSortableJS) {
-      const array: string[] = this.sortableInst.toArray();
-      this.moveArrayItemBack(array, index);
-      this.sortableInst.sort(array);
-      this.syncNumbers();
-      this.setValueFromUI();
-    } else {
-      const choices = this.choices;
-      choices.splice(index, 1);
-      choices.splice(index - 1, 0, choice);
-      this.setValue();
-    }
-    setTimeout(()=>{
+    const choices = this.choices;
+    choices.splice(index, 1);
+    choices.splice(index - 1, 0, choice);
+    this.setValue();
+    setTimeout(() => {
       this.focusItem(index - 1);
     }, 1);
   };
 
   private handleArrowDown = (index: number, choice: ItemValue) => {
-    if (this.fallbackToSortableJS) {
-      const array: string[] = this.sortableInst.toArray();
-      this.moveArrayItemForward(array, index);
-      this.sortableInst.sort(array);
-      this.syncNumbers();
-      this.setValueFromUI();
-    } else {
-      const choices = this.choices;
-      choices.splice(index, 1);
-      choices.splice(index + 1, 0, choice);
-      this.setValue();
-    }
-    setTimeout(()=>{
+    const choices = this.choices;
+    choices.splice(index, 1);
+    choices.splice(index + 1, 0, choice);
+    this.setValue();
+    setTimeout(() => {
       this.focusItem(index + 1);
     }, 1);
   };

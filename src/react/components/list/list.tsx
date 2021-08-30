@@ -13,6 +13,9 @@ export class List extends SurveyElementBase<IListProps, any> {
   get model(): ListModel {
     return this.props.model;
   }
+  handleKeydown = (event: any) => {
+    this.model.onKeyDown(event);
+  };
   getStateElement() {
     return this.model;
   }
@@ -24,6 +27,7 @@ export class List extends SurveyElementBase<IListProps, any> {
         onMouseDown={(e) => {
           e.preventDefault();
         }}
+        onKeyDown={this.handleKeydown}
       >
         {items}
       </ul>

@@ -6,8 +6,14 @@
         event.preventDefault();
       }
     "
+    v-on:keydown="
+      (event) => {
+        model.onKeyDown(event);
+      }
+    "
   >
     <li
+      tabindex="0"
       v-show="item.visible === undefined || item.visible"
       class="sv-list__item"
       :style="{ paddingLeft: model.getItemIndent(item) }"

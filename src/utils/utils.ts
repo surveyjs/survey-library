@@ -57,9 +57,9 @@ function loadFileFromBase64(b64Data: string, fileName: string) {
     if (
       typeof window !== "undefined" &&
       window.navigator &&
-      window.navigator.msSaveBlob
+      (<any>window.navigator)["msSaveBlob"]
     ) {
-      window.navigator.msSaveOrOpenBlob(bb, fileName);
+      (<any>window.navigator)["msSaveOrOpenBlob"](bb, fileName);
     }
   } catch (err) {}
 }

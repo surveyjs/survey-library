@@ -31,7 +31,7 @@ export abstract class DragDropCore<T> extends Base {
   }
 
   protected prevDropTarget: any = null;
-  private draggedElementShortcut: HTMLElement = null;
+  protected draggedElementShortcut: HTMLElement = null;
   private scrollIntervalId: number = null;
   private allowDropHere = false;
 
@@ -42,7 +42,8 @@ export abstract class DragDropCore<T> extends Base {
   public startDrag(
     event: PointerEvent,
     draggedElement: any,
-    parentElement?: any
+    parentElement?: any,
+    draggedElementNode?: HTMLElement
   ): void {
     this.draggedElement = draggedElement;
     this.parentElement = parentElement;
@@ -51,7 +52,8 @@ export abstract class DragDropCore<T> extends Base {
 
     const shortcutText = this.getShortcutText(this.draggedElement);
     this.draggedElementShortcut = this.createDraggedElementShortcut(
-      shortcutText
+      shortcutText,
+      draggedElementNode
     );
     document.body.append(this.draggedElementShortcut);
     this.moveShortcutElement(event);
@@ -116,7 +118,7 @@ export abstract class DragDropCore<T> extends Base {
   protected doStartDrag(): void {}
   protected abstract getShortcutText(draggedElement: any): string;
 
-  private createDraggedElementShortcut(text: string) {
+  protected createDraggedElementShortcut(text: string, draggedElementNode?: HTMLElement) {
     const draggedElementShortcut = document.createElement("div");
     draggedElementShortcut.innerText = text;
     draggedElementShortcut.style.cssText =

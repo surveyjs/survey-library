@@ -1,9 +1,28 @@
 import { ItemValue } from "../itemvalue";
 import { DragDropChoices } from "./choices";
 export class DragDropRankingChoices extends DragDropChoices {
-  protected getShortcutText(draggedElement: ItemValue): string {
-    const index = this.parentElement.ran;
-    return draggedElement.text;
+
+  protected createDraggedElementShortcut(text: string, draggedElementNode: HTMLElement) {
+    const draggedElementShortcut = document.createElement("div");
+    // draggedElementShortcut.innerText = text;
+    draggedElementShortcut.style.cssText =
+        ` 
+          cursor: grabbing;
+          position: absolute;
+          z-index: 1000;
+          border-radius: 36px;
+          min-width: 100px;
+          box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.1);
+          background-color: white;
+          padding-right: 16px;
+          padding-left: 20px;
+        `;
+
+    const isDeepClone = true;
+    const clone = draggedElementNode.cloneNode(isDeepClone);
+    draggedElementShortcut.appendChild(clone);
+
+    return draggedElementShortcut;
   }
 
   protected getDropTargetByDataAttributeValue(
@@ -29,6 +48,14 @@ export class DragDropRankingChoices extends DragDropChoices {
     choices.splice(draggedElementIndex, 1);
     choices.splice(dropTargetIndex, 0, this.draggedElement);
     this.parentElement.setValue();
+    this.updateDraggedElementShortcut(dropTargetIndex + 1);
+  }
+
+  private updateDraggedElementShortcut(newIndex: number) {
+    const newIndexText = newIndex + "";
+    // TODO should avoid direct DOM manipulation, do through the frameworks instead
+    const indexNode:HTMLElement = this.draggedElementShortcut.querySelector(".sv-ranking-item__index");
+    indexNode.innerText = newIndexText;
   }
 
   protected ghostPositionChanged(): void {

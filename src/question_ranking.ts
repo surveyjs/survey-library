@@ -99,9 +99,9 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
     }
   }
 
-  public handlePointerDown = (event: PointerEvent, choice: ItemValue): void => {
+  public handlePointerDown = (event: PointerEvent, choice: ItemValue, node: HTMLElement): void => {
     if (!this.fallbackToSortableJS) {
-      this.dragDropHelper.startDrag(event, choice, this);
+      this.dragDropHelper.startDrag(event, choice, this, node);
     }
   };
 

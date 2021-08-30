@@ -294,17 +294,21 @@ export abstract class DragDropCore<T> extends Base {
     clientY: number
   ): HTMLElement {
     this.draggedElementShortcut.hidden = true;
-    let dragOverNode = document.elementFromPoint(clientX, clientY);
+    let dragOverNode = <HTMLElement>document.elementFromPoint(clientX, clientY);
     this.draggedElementShortcut.hidden = false;
 
     if (!dragOverNode) return null;
 
-    return (
-      dragOverNode.querySelector(this.dropTargetDataAttributeName) ||
-      dragOverNode.closest(this.dropTargetDataAttributeName)
-    );
+    return this.findDropTargetNodeByDragOverNode(dragOverNode);
   }
 
+  protected findDropTargetNodeByDragOverNode(dragOverNode:HTMLElement):HTMLElement {
+    const result: HTMLElement =
+      dragOverNode.querySelector(this.dropTargetDataAttributeName) ||
+      dragOverNode.closest(this.dropTargetDataAttributeName);
+
+    return result;
+  }
   protected abstract doDrop(): any;
 
   private clear = () => {

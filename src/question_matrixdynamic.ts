@@ -163,7 +163,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     }
     this.value = newValue;
   }
-  protected moveRowByIndex = (fromIndex: number, toIndex: number) => {
+  public moveRowByIndex = (fromIndex: number, toIndex: number):void => {
     const value = this.createNewValue();
 
     if (!value) return;
@@ -801,16 +801,6 @@ class QuestionMatrixDynamicRenderedTable extends QuestionMatrixDropdownRenderedT
     actions: Array<IAction>
   ) {
     super.setDefaultRowActions(row, actions);
-    // if (this.matrix.allowRowsDragAndDrop) {
-    //   actions.push(
-    //     new Action({
-    //       id: "drag-row",
-    //       location: "start",
-    //       component: "sv-matrix-drag-drop-icon",
-    //       data: { row: row, question: this.matrix },
-    //     })
-    //   );
-    // }
   }
 }
 

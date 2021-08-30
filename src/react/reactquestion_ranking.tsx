@@ -33,7 +33,8 @@ export class SurveyQuestionRanking extends SurveyQuestionElementBase {
         this.renderItem(
           item,
           i,
-          this.question.handleKeydown,
+          (event: PointerEvent)=>{ this.question.handleKeydown.call(this.question, event, item); },
+          (event: PointerEvent)=>{ this.question.handlePointerDown.call(this.question, event, item); },
           this.question.cssClasses,
           this.question.getItemClass(item),
           this.question
@@ -47,19 +48,23 @@ export class SurveyQuestionRanking extends SurveyQuestionElementBase {
     item: ItemValue,
     i: number,
     handleKeydown: (event: any) => void,
+    handlePointerDown: (event: PointerEvent) => void,
     cssClasses: any,
     itemClass: string,
     question: QuestionRankingModel
   ): JSX.Element {
     const key: string = item.value + "-" + i + "-item";
     const text: JSX.Element = this.renderLocString(item.locText);
-    const index: string = this.question.getNumberByIndex(i);
+    const index = i;
+    const indexText: string = this.question.getNumberByIndex(i);
     const renderedItem = (
       <SurveyQuestionRankingItem
         key={key}
         text={text}
         index={index}
+        indexText={indexText}
         handleKeydown={handleKeydown}
+        handlePointerDown={handlePointerDown}
         cssClasses={cssClasses}
         itemClass={itemClass}
         question={question}
@@ -81,8 +86,14 @@ export class SurveyQuestionRankingItem extends ReactSurveyElement {
   protected get index(): string {
     return this.props.index;
   }
+  protected get indexText(): string {
+    return this.props.indexText;
+  }
   protected get handleKeydown(): (event: any) => void {
     return this.props.handleKeydown;
+  }
+  protected get handlePointerDown(): (event: any) => void {
+    return this.props.handlePointerDown;
   }
   protected get cssClasses(): any {
     return this.props.cssClasses;
@@ -100,6 +111,8 @@ export class SurveyQuestionRankingItem extends ReactSurveyElement {
         tabIndex={0}
         className={this.itemClass}
         onKeyDown={this.handleKeydown}
+        onPointerDown={this.handlePointerDown}
+        data-sv-drop-target-item-value={this.index}
       >
         <div tabIndex={-1} style={{ outline: "none" }}>
           <div className={this.cssClasses.itemGhostNode} />
@@ -126,7 +139,7 @@ export class SurveyQuestionRankingItem extends ReactSurveyElement {
               </svg>
             </div>
 
-            <div className={this.cssClasses.itemIndex}>{this.index}</div>
+            <div className={this.cssClasses.itemIndex}>{this.indexText}</div>
             <div className={this.cssClasses.controlLabel}>{this.text}</div>
           </div>
         </div>

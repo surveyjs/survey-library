@@ -53,10 +53,14 @@ export class PopupUtils {
     windowHeight: number
   ) {
     let result;
+    const maxHeight = windowHeight * 0.9;
     if (top < 0) {
-      result = { height: height + top, top: 0 };
+      let oldHeight = height + top;
+      let newHeight = Math.min(maxHeight, oldHeight);
+      result = { height: newHeight, top: oldHeight - newHeight };
     } else if (height + top > windowHeight) {
-      result = { height: windowHeight - top, top: top };
+      let newHeight = Math.min(maxHeight, height - top);
+      result = { height: newHeight, top: top };
     }
     return result;
   }

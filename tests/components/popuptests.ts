@@ -387,9 +387,9 @@ QUnit.test("PopupModel apply when not allow", (assert) => {
 
   assert.equal(viewModel.isVisible, false);
 
-  let canApply = false; 
+  let canApply = false;
   model.onApply = (): boolean => {
-      return canApply;
+    return canApply;
   };
 
   model.toggleVisibility();
@@ -838,7 +838,15 @@ QUnit.test(
     assert.equal(newVerticalDimensions.top, 0);
 
     newVerticalDimensions = PopupUtils.updateVerticalDimensions(150, 200, 300);
-    assert.equal(newVerticalDimensions.height, 150);
+    assert.equal(newVerticalDimensions.height, 50);
+    assert.equal(newVerticalDimensions.top, 150);
+
+    newVerticalDimensions = PopupUtils.updateVerticalDimensions(-20, 300, 300);
+    assert.equal(newVerticalDimensions.height, 270);
+    assert.equal(newVerticalDimensions.top, 10);
+
+    newVerticalDimensions = PopupUtils.updateVerticalDimensions(150, 450, 300);
+    assert.equal(newVerticalDimensions.height, 270);
     assert.equal(newVerticalDimensions.top, 150);
   }
 );

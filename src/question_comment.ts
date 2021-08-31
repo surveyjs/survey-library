@@ -26,6 +26,15 @@ export class QuestionCommentModel extends QuestionTextBase {
   public set cols(val: number) {
     this.setPropertyValue("cols", val);
   }
+  /*
+  * Gets or sets a value indicating whether the control is automatically increase height to display its entire contents.
+  */
+  public get autoGrow(): boolean {
+    return this.getPropertyValue("autoGrow") || (this.survey && this.survey.autoGrowComment);
+  }
+  public set autoGrow(val: boolean) {
+    this.setPropertyValue("autoGrow", val);
+  }
   public getType(): string {
     return "comment";
   }
@@ -42,8 +51,9 @@ Serializer.addClass(
       default: "default",
       choices: ["default", "onBlur", "onTyping"],
     },
+    { name: "autoGrow:boolean" }
   ],
-  function() {
+  function () {
     return new QuestionCommentModel("");
   },
   "textbase"

@@ -1,6 +1,6 @@
 import * as React from "react";
 import { ReactSurveyElement, SurveyQuestionUncontrolledElement } from "./reactquestion_element";
-import { QuestionCommentModel, increaseHeightByContent } from "survey-core";
+import { QuestionCommentModel } from "survey-core";
 import { ReactQuestionFactory } from "./reactquestion_factory";
 
 export class SurveyQuestionComment extends SurveyQuestionUncontrolledElement<QuestionCommentModel> {
@@ -13,8 +13,8 @@ export class SurveyQuestionComment extends SurveyQuestionUncontrolledElement<Que
     var onInput = (event: any) => {
       if (this.question.isInputTextUpdate)
         this.updateValueOnEvent(event);
-      if (this.question.autoGrow)
-        increaseHeightByContent(event.target);
+      else
+        this.question.updateElement();
     };
     var placeHolder = this.question.renderedPlaceHolder;
     if (this.question.isReadOnlyRenderDiv()) {

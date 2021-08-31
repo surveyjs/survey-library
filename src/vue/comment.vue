@@ -18,7 +18,7 @@
       v-bind:aria-required="question.isRequired"
       :aria-invalid="question.errors.length > 0"
       :aria-describedby="question.errors.length > 0 ? question.id + '_errors' : null"
-      v-bind:style="{ resize: question.autoGrow ? 'none' : 'both'}"
+      v-bind:style="{ resize: question.autoGrow ? 'none' : 'both' }"
     ></textarea>
     <div v-if="question.isReadOnlyRenderDiv()">{{ question.value }}</div>
   </div>
@@ -28,7 +28,7 @@
 import Vue from "vue";
 import { Component, Prop } from "vue-property-decorator";
 import { default as QuestionVue } from "./question";
-import { QuestionCommentModel, increaseHeightByContent } from "survey-core";
+import { QuestionCommentModel } from "survey-core";
 
 @Component
 export class Comment extends QuestionVue<QuestionCommentModel> {
@@ -37,7 +37,7 @@ export class Comment extends QuestionVue<QuestionCommentModel> {
   }
   onInput(event: any) {
     if (this.question.isInputTextUpdate) this.question.value = event.target.value;
-    if (this.question.autoGrow) increaseHeightByContent(event.target);
+    else this.question.updateElement();
   }
 }
 Vue.component("survey-comment", Comment);

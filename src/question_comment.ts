@@ -3,11 +3,13 @@ import { Serializer } from "./jsonobject";
 import { QuestionFactory } from "./questionfactory";
 import { LocalizableString } from "./localizablestring";
 import { QuestionTextBase } from "./question_textbase";
+import { increaseHeightByContent } from "./utils/utils";
 
 /**
  * A Model for a comment question
  */
 export class QuestionCommentModel extends QuestionTextBase {
+  private element: HTMLElement;
   /**
    * The html rows attribute.
    */
@@ -37,6 +39,17 @@ export class QuestionCommentModel extends QuestionTextBase {
   }
   public getType(): string {
     return "comment";
+  }
+  public afterRenderQuestionElement(el: HTMLElement) {
+    this.element = document.getElementById(this.inputId) || el;
+    this.updateElement();
+  }
+  public updateElement() {
+    if (this.element && this.autoGrow) increaseHeightByContent(this.element);
+  }
+  onValueChanged() {
+    super.onValueChanged();
+    this.updateElement();
   }
 }
 Serializer.addClass(

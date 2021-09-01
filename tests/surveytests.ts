@@ -60,6 +60,7 @@ import { CalculatedValue } from "../src/calculatedValue";
 import { LocalizableString } from "../src/localizablestring";
 import { getSize } from "../src/utils/utils";
 import { RendererFactory } from "../src/rendererFactory";
+import { Helpers } from "../src/helpers";
 
 export default QUnit.module("Survey");
 
@@ -6639,6 +6640,61 @@ QUnit.test("Questions are randomized", function(assert) {
     "page.questionsOrder = 'initial'"
   );
 });
+
+class HelpTest {
+  public static randomizeArray<T>(array: Array<T>): Array<T> {
+    if(array.length < 2) return;
+    const el0 = array[0];
+    array.splice(0, 1, array[array.length - 1]);
+    array.splice(array.length - 1, 1, el0);
+    return array;
+  }
+}
+
+QUnit.test("Randomize questions in page and panels", function(assert) {
+  const oldFunc = Helpers.randomizeArray;
+  Helpers.randomizeArray = HelpTest.randomizeArray;
+  const json = { elements: [
+    { type: "text", name: "q1" },
+    { type: "panel", name: "p1", elements: [{ type: "text", name: "p1q1" }, { type: "text", name: "p1q2" }] },
+    { type: "panel", questionsOrder: "initial", name: "p2", elements: [{ type: "text", name: "p2q1" }, { type: "text", name: "p2q2" }] },
+    { type: "panel", questionsOrder: "random", name: "p3", elements: [{ type: "text", name: "p3q1" }, { type: "text", name: "p3q2" }] },
+  ] };
+  //Page random
+  var survey = new SurveyModel(json);
+  var page = survey.pages[0];
+  page.questionsOrder = "random";
+  var p1 = survey.getPanelByName("p1");
+  var p2 = survey.getPanelByName("p2");
+  var p3 = survey.getPanelByName("p3");
+  page.setWasShown(true);
+  assert.equal(page.elements[0].name, "p3");
+  assert.equal(page.elements[3].name, "q1");
+  assert.equal(p1.elements[0].name, "p1q2");
+  assert.equal(p1.elements[1].name, "p1q1");
+  assert.equal(p2.elements[0].name, "p2q1");
+  assert.equal(p2.elements[1].name, "p2q2");
+  assert.equal(p3.elements[0].name, "p3q2");
+  assert.equal(p3.elements[1].name, "p3q1");
+
+  survey = new SurveyModel(json);
+  page = survey.pages[0];
+  p1 = survey.getPanelByName("p1");
+  p2 = survey.getPanelByName("p2");
+  p3 = survey.getPanelByName("p3");
+  page.setWasShown(true);
+  assert.equal(page.elements[0].name, "q1");
+  assert.equal(page.elements[3].name, "p3");
+  assert.equal(p1.elements[0].name, "p1q1");
+  assert.equal(p1.elements[1].name, "p1q2");
+  assert.equal(p2.elements[0].name, "p2q1");
+  assert.equal(p2.elements[1].name, "p2q2");
+  assert.equal(p3.elements[0].name, "p3q2");
+  assert.equal(p3.elements[1].name, "p3q1");
+
+  Helpers.randomizeArray = oldFunc;
+});
+
 QUnit.test("Quiz, correct, incorrect answers", function(assert) {
   var survey = new SurveyModel({
     pages: [

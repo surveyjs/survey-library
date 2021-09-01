@@ -142,26 +142,14 @@ export class PageModel extends PanelModelBase implements IPage {
   public setWasShown(val: boolean) {
     if (val == this.hasShownValue) return;
     this.hasShownValue = val;
-    if (this.isDesignMode) return;
-    if (val == true && this.areQuestionsRandomized) {
-      this.randomizeElements();
+    if (this.isDesignMode || val !== true) return;
+    var els = this.elements;
+    for(var i = 0; i < els.length; i ++) {
+      if(els[i].isPanel) {
+        (<PanelModelBase><any>els[i]).randomizeElements(this.areQuestionsRandomized);
+      }
     }
-  }
-  private isRandomizing = false;
-  private randomizeElements() {
-    if (this.isRandomizing) return;
-    this.isRandomizing = true;
-    var oldElements = [];
-    var elements = this.elements;
-    for (var i = 0; i < elements.length; i++) {
-      oldElements.push(elements[i]);
-    }
-    var newElements = Helpers.randomizeArray<IElement>(oldElements);
-    this.elements.splice(0, this.elements.length);
-    for (var i = 0; i < newElements.length; i++) {
-      this.elements.push(newElements[i]);
-    }
-    this.isRandomizing = false;
+    this.randomizeElements(this.areQuestionsRandomized);
   }
   /**
    * The property returns true, if the elements are randomized on the page
@@ -175,17 +163,6 @@ export class PageModel extends PanelModelBase implements IPage {
         ? this.survey.questionsOrder
         : this.questionsOrder;
     return order == "random";
-  }
-  /**
-   * Use this property to randomize questions. Set it to 'random' to randomize questions, 'initial' to keep them in the same order or 'default' to use the Survey questionsOrder property
-   * @see SurveyModel.questionsOrder
-   * @see areQuestionsRandomized
-   */
-  public get questionsOrder() {
-    return this.getPropertyValue("questionsOrder");
-  }
-  public set questionsOrder(val: string) {
-    this.setPropertyValue("questionsOrder", val);
   }
   /**
    * Call it to scroll to the page top.
@@ -417,11 +394,6 @@ Serializer.addClass(
       name: "navigationButtonsVisibility",
       default: "inherit",
       choices: ["inherit", "show", "hide"],
-    },
-    {
-      name: "questionsOrder",
-      default: "default",
-      choices: ["default", "initial", "random"],
     },
     { name: "maxTimeToFinish:number", default: 0, minValue: 0 },
     {

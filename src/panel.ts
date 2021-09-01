@@ -1692,7 +1692,7 @@ export class PanelModel extends PanelModelBase
    * @see showNumber
    */
   public get showQuestionNumbers(): string {
-    return this.getPropertyValue("showQuestionNumbers", "default");
+    return this.getPropertyValue("showQuestionNumbers");
   }
   public set showQuestionNumbers(value: string) {
     this.setPropertyValue("showQuestionNumbers", value);
@@ -1778,7 +1778,7 @@ export class PanelModel extends PanelModelBase
    * The left indent. Set this property to increase the panel left indent.
    */
   public get indent(): number {
-    return this.getPropertyValue("indent", 0);
+    return this.getPropertyValue("indent");
   }
   public set indent(val: number) {
     this.setPropertyValue("indent", val);
@@ -1787,7 +1787,7 @@ export class PanelModel extends PanelModelBase
    * The inner indent. Set this property to increase the panel content margin.
    */
   public get innerIndent(): number {
-    return this.getPropertyValue("innerIndent", 0);
+    return this.getPropertyValue("innerIndent");
   }
   public set innerIndent(val: number) {
     this.setPropertyValue("innerIndent", val);
@@ -1802,7 +1802,7 @@ export class PanelModel extends PanelModelBase
    * The Panel renders on the new line if the property is true. If the property is false, the panel tries to render on the same line/row with a previous question/panel.
    */
   public get startWithNewLine(): boolean {
-    return this.getPropertyValue("startWithNewLine", true);
+    return this.getPropertyValue("startWithNewLine");
   }
   public set startWithNewLine(value: boolean) {
     this.setPropertyValue("startWithNewLine", value);

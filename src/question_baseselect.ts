@@ -526,7 +526,7 @@ export class QuestionSelectBase extends Question {
    * @see SurveyModel.storeOthersAsComment
    */
   public get storeOthersAsComment(): any {
-    return this.getPropertyValue("storeOthersAsComment", "default");
+    return this.getPropertyValue("storeOthersAsComment");
   }
   public set storeOthersAsComment(val: any) {
     this.setPropertyValue("storeOthersAsComment", val);

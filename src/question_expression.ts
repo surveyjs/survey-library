@@ -86,7 +86,7 @@ export class QuestionExpressionModel extends Question {
    * The maximum number of fraction digits to use if displayStyle is not "none". Possible values are from 0 to 20. The default value is -1 and it means that this property is not used.
    */
   public get maximumFractionDigits(): number {
-    return this.getPropertyValue("maximumFractionDigits", -1);
+    return this.getPropertyValue("maximumFractionDigits");
   }
   public set maximumFractionDigits(val: number) {
     if (val < -1 || val > 20) return;
@@ -96,7 +96,7 @@ export class QuestionExpressionModel extends Question {
    * The minimum number of fraction digits to use if displayStyle is not "none". Possible values are from 0 to 20. The default value is -1 and it means that this property is not used.
    */
   public get minimumFractionDigits(): number {
-    return this.getPropertyValue("minimumFractionDigits", -1);
+    return this.getPropertyValue("minimumFractionDigits");
   }
   public set minimumFractionDigits(val: number) {
     if (val < -1 || val > 20) return;
@@ -146,7 +146,7 @@ export class QuestionExpressionModel extends Question {
    * 	Determines whether to display grouping separators. The default value is true.
    */
   public get useGrouping(): boolean {
-    return this.getPropertyValue("useGrouping", true);
+    return this.getPropertyValue("useGrouping");
   }
   public set useGrouping(val: boolean) {
     this.setPropertyValue("useGrouping", val);

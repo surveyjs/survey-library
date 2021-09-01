@@ -65,6 +65,10 @@ export interface IAction {
    */
   iconName?: string;
   /**
+   * Toolbar item icon size
+   */
+  iconSize?: number;
+  /**
    * Toolbar item child items. Can be used as contianer for options
    */
   items?: any;
@@ -101,6 +105,7 @@ export class Action extends Base implements IAction {
   location?: string;
   @property() id: string;
   @property() iconName: string;
+  @property() iconSize: number = 24;
   @property({ defaultValue: true, onSet: (_, target: Action) => {
     target.raiseUpdate();
   } }) visible: boolean;

@@ -49,12 +49,12 @@ import { CssClassBuilder } from "./utils/cssClassBuilder";
  */
 export class SurveyModel extends Base
   implements
-    ISurvey,
-    ISurveyData,
-    ISurveyImpl,
-    ISurveyTriggerOwner,
-    ISurveyErrorOwner,
-    ILocalizableOwner {
+  ISurvey,
+  ISurveyData,
+  ISurveyImpl,
+  ISurveyTriggerOwner,
+  ISurveyErrorOwner,
+  ILocalizableOwner {
   public static readonly TemplateRendererComponentName: string =
     "sv-template-renderer";
   [index: string]: any;
@@ -1440,6 +1440,15 @@ export class SurveyModel extends Base
     this.setPropertyValue("checkErrorsMode", val);
   }
   /**
+   * Gets or sets a value indicating whether comment questions are automatically increase height to display its entire contents.
+   */
+  public get autoGrowComment(): boolean {
+    return this.getPropertyValue("autoGrowComment");
+  }
+  public set autoGrowComment(val: boolean) {
+    this.setPropertyValue("autoGrowComment", val);
+  }
+  /**
    * Gets or sets a value that specifies how the survey updates its questions' text values.
    *
    * The following options are available:
@@ -2784,7 +2793,7 @@ export class SurveyModel extends Base
         return info.requiredQuestionCount > 1
           ? Math.ceil(
             (info.requiredAnsweredQuestionCount * 100) /
-                info.requiredQuestionCount
+            info.requiredQuestionCount
           )
           : 100;
       }
@@ -3571,18 +3580,18 @@ export class SurveyModel extends Base
     var savingDataStarted = false;
     var onCompleteOptions = {
       isCompleteOnTrigger: isCompleteOnTrigger,
-      showDataSaving: function(text: string) {
+      showDataSaving: function (text: string) {
         savingDataStarted = true;
         self.setCompletedState("saving", text);
       },
-      showDataSavingError: function(text: string) {
+      showDataSavingError: function (text: string) {
         self.setCompletedState("error", text);
       },
-      showDataSavingSuccess: function(text: string) {
+      showDataSavingSuccess: function (text: string) {
         self.setCompletedState("success", text);
         self.navigateTo();
       },
-      showDataSavingClear: function(text: string) {
+      showDataSavingClear: function (text: string) {
         self.setCompletedState("", "");
       },
     };
@@ -3622,7 +3631,7 @@ export class SurveyModel extends Base
     this.setPropertyValue("isValidatingOnServer", val);
     this.onIsValidatingOnServerChanged();
   }
-  protected onIsValidatingOnServerChanged() {}
+  protected onIsValidatingOnServerChanged() { }
   protected doServerValidation(
     doComplete: boolean,
     isPreview: boolean = false
@@ -3638,7 +3647,7 @@ export class SurveyModel extends Base
       data: <{ [index: string]: any }>{},
       errors: {},
       survey: this,
-      complete: function() {
+      complete: function () {
         self.completeServerValidation(options, isPreview);
       },
     };
@@ -4641,7 +4650,7 @@ export class SurveyModel extends Base
     if (
       this.isValueChangedOnRunningCondition &&
       this.conditionRunnerCounter <
-        settings.maximumConditionRunCountOnValueChanged
+      settings.maximumConditionRunCountOnValueChanged
     ) {
       this.isValueChangedOnRunningCondition = false;
       this.conditionRunnerCounter++;
@@ -4726,7 +4735,7 @@ export class SurveyModel extends Base
     this.createSurveyService().sendResult(
       postId,
       this.data,
-      function(success: boolean, response: any, request: any) {
+      function (success: boolean, response: any, request: any) {
         if (self.surveyShowDataSaving) {
           if (success) {
             self.setCompletedState("success", "");
@@ -4752,7 +4761,7 @@ export class SurveyModel extends Base
    */
   public getResult(resultId: string, name: string) {
     var self = this;
-    this.createSurveyService().getResult(resultId, name, function(
+    this.createSurveyService().getResult(resultId, name, function (
       success: boolean,
       data: any,
       dataList: any[],
@@ -4791,7 +4800,7 @@ export class SurveyModel extends Base
       this.createSurveyService().getSurveyJsonAndIsCompleted(
         this.surveyId,
         this.clientId,
-        function(
+        function (
           success: boolean,
           json: string,
           isCompleted: string,
@@ -4805,7 +4814,7 @@ export class SurveyModel extends Base
         }
       );
     } else {
-      this.createSurveyService().loadSurvey(this.surveyId, function(
+      this.createSurveyService().loadSurvey(this.surveyId, function (
         success: boolean,
         result: string,
         response: any
@@ -4824,8 +4833,8 @@ export class SurveyModel extends Base
     this.onLoadSurveyFromService();
     this.onLoadedSurveyFromService.fire(this, {});
   }
-  protected onLoadingSurveyFromService() {}
-  protected onLoadSurveyFromService() {}
+  protected onLoadingSurveyFromService() { }
+  protected onLoadSurveyFromService() { }
   private resetVisibleIndexes() {
     var questions = this.getAllQuestions(true);
     for (var i = 0; i < questions.length; i++) {
@@ -4896,8 +4905,8 @@ export class SurveyModel extends Base
     this.isEndLoadingFromJson = null;
     this.updateVisibleIndexes();
   }
-  protected onBeforeCreating() {}
-  protected onCreating() {}
+  protected onBeforeCreating() { }
+  protected onCreating() { }
   private getProcessedTextValue(textValue: TextPreProcessorValue): void {
     this.getProcessedTextValueCore(textValue);
     if (!this.onProcessTextValue.isEmpty) {
@@ -5714,7 +5723,7 @@ export class SurveyModel extends Base
   public startTimer() {
     if (this.isTimerStarted || this.isDesignMode) return;
     var self = this;
-    this.timerFunc = function() {
+    this.timerFunc = function () {
       self.doTimer();
     };
     this.isTimerStarted = true;
@@ -5952,10 +5961,10 @@ Serializer.addClass("survey", [
     baseClassName: "question",
     visible: false,
     isLightSerializable: false,
-    onGetValue: function(obj: any): any {
+    onGetValue: function (obj: any): any {
       return null;
     },
-    onSetValue: function(obj: any, value: any, jsonConverter: any) {
+    onSetValue: function (obj: any, value: any, jsonConverter: any) {
       obj.pages.splice(0, obj.pages.length);
       var page = obj.addNewPage("");
       jsonConverter.toObject({ questions: value }, page);
@@ -6047,6 +6056,7 @@ Serializer.addClass("survey", [
     default: "onBlur",
     choices: ["onBlur", "onTyping"],
   },
+  { name: "autoGrowComment:boolean", default: false },
   { name: "startSurveyText", serializationProperty: "locStartSurveyText" },
   { name: "pagePrevText", serializationProperty: "locPagePrevText" },
   { name: "pageNextText", serializationProperty: "locPageNextText" },
@@ -6057,7 +6067,7 @@ Serializer.addClass("survey", [
   {
     name: "questionStartIndex",
     dependsOn: ["showQuestionNumbers"],
-    visibleIf: function(survey: any) {
+    visibleIf: function (survey: any) {
       return !survey || survey.showQuestionNumbers !== "off";
     },
   },

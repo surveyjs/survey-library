@@ -1,25 +1,21 @@
 import * as React from "react";
-import {
-  ReactSurveyElement,
-  SurveyQuestionUncontrolledElement
-} from "./reactquestion_element";
+import { ReactSurveyElement, SurveyQuestionUncontrolledElement } from "./reactquestion_element";
 import { QuestionCommentModel } from "survey-core";
 import { ReactQuestionFactory } from "./reactquestion_factory";
 
-export class SurveyQuestionComment extends SurveyQuestionUncontrolledElement<
-  QuestionCommentModel
-> {
+export class SurveyQuestionComment extends SurveyQuestionUncontrolledElement<QuestionCommentModel> {
   constructor(props: any) {
     super(props);
   }
   protected renderElement(): JSX.Element {
     var cssClasses = this.question.cssClasses;
-    var onBlur = !this.question.isInputTextUpdate
-      ? this.updateValueOnEvent
-      : null;
-    var onInput = this.question.isInputTextUpdate
-      ? this.updateValueOnEvent
-      : null;
+    var onBlur = !this.question.isInputTextUpdate ? this.updateValueOnEvent : null;
+    var onInput = (event: any) => {
+      if (this.question.isInputTextUpdate)
+        this.updateValueOnEvent(event);
+      else
+        this.question.updateElement();
+    };
     var placeHolder = this.question.renderedPlaceHolder;
     if (this.question.isReadOnlyRenderDiv()) {
       return <div>{this.question.value}</div>;
@@ -39,9 +35,8 @@ export class SurveyQuestionComment extends SurveyQuestionUncontrolledElement<
         aria-required={this.question.isRequired}
         aria-label={this.question.locTitle.renderedHtml}
         aria-invalid={this.question.errors.length > 0}
-        aria-describedby={
-          this.question.errors.length > 0 ? this.question.id + "_errors" : null
-        }
+        aria-describedby={this.question.errors.length > 0 ? this.question.id + "_errors" : null}
+        style={{ resize: this.question.autoGrow ? "none" : "both" }}
       />
     );
   }
@@ -63,10 +58,7 @@ export class SurveyQuestionCommentItem extends ReactSurveyElement {
     var onBlur = !question.isInputTextUpdate ? updateValueOnEvent : null;
     var onInput = question.isInputTextUpdate ? updateValueOnEvent : null;
 
-    let comment =
-      !!this.state && this.state.comment !== undefined
-        ? this.state.comment
-        : question.comment || "";
+    let comment = !!this.state && this.state.comment !== undefined ? this.state.comment : question.comment || "";
     if (question.isReadOnlyRenderDiv()) {
       return <div>{comment}</div>;
     }

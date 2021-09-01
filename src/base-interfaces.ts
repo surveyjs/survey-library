@@ -88,6 +88,7 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner {
   areEmptyElementsHidden: boolean;
   isLoadingFromJson: boolean;
   isUpdateValueTextOnTyping: boolean;
+  autoGrowComment: boolean;
 
   state: string;
   isLazyRendering: boolean;

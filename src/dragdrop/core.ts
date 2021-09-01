@@ -1,28 +1,32 @@
-import { DragDropInfo } from "src/panel";
+import { SurveyModel } from "../survey";
 import { Base, EventBase } from "../base";
 import { ISurvey } from "../base-interfaces";
 import { property } from "../jsonobject";
 
-export abstract class DragDropCore extends Base {
-  @property({ defaultValue: null, onSet: (val, target: DragDropCore) => {
-    target.ghostPositionChanged();
-  } }) isBottom: boolean; //TODO rename isBottom to isShowGhostAtBottomOfDropTarget
+export abstract class DragDropCore<T> extends Base {
+  @property({
+    defaultValue: null,
+    onSet: (val, target: DragDropCore<T>) => {
+      target.ghostPositionChanged();
+    },
+  })
+  isBottom: boolean; //TODO rename isBottom to isShowGhostAtBottomOfDropTarget
   public onGhostPositionChanged: EventBase<Base> = new EventBase<Base>();
-  protected ghostPositionChanged() {
+  protected ghostPositionChanged(): void {
     this.onGhostPositionChanged.fire({}, {});
   }
 
-  public onBeforeDrop: EventBase<DragDropCore> = new EventBase();
-  public onAfterDrop: EventBase<DragDropCore> = new EventBase();
+  public onBeforeDrop: EventBase<DragDropCore<T>> = new EventBase();
+  public onAfterDrop: EventBase<DragDropCore<T>> = new EventBase();
 
   protected draggedElement: any = null;
   protected abstract get draggedElementType(): string;
-  protected parentElement: any;
-  protected dropTarget: any = null;
-  protected get dropTargetDataAttributeName() {
+  protected parentElement: T;
+  public dropTarget: any = null;
+  protected get dropTargetDataAttributeName(): string {
     return `[data-sv-drop-target-${this.draggedElementType}]`;
   }
-  protected get survey() {
+  protected get survey(): SurveyModel {
     return this.surveyValue || this.creator.survey;
   }
 
@@ -39,7 +43,7 @@ export abstract class DragDropCore extends Base {
     event: PointerEvent,
     draggedElement: any,
     parentElement?: any
-  ) {
+  ): void {
     this.draggedElement = draggedElement;
     this.parentElement = parentElement;
 
@@ -77,7 +81,9 @@ export abstract class DragDropCore extends Base {
 
     const isDropTargetValid = this.isDropTargetValid(this.dropTarget, isBottom);
 
-    if (this.dropTarget === this.draggedElement || !isDropTargetValid) {
+    this.doDragOver(dropTargetNode);
+
+    if (!isDropTargetValid) {
       this.banDropHere();
       return;
     }
@@ -85,9 +91,9 @@ export abstract class DragDropCore extends Base {
     this.allowDropHere = true;
     if (this.isDropTargetDoesntChanged(isBottom)) return;
 
-    this.isBottom = null; //TODO need for property change trigger with guarantee but it would be better not to watch on isBottom property but reate some event like onValidTargetDragOver
+    this.isBottom = null; //TODO need for property change trigger with guarantee but it would be better not to watch on isBottom property but have some event like onValidTargetDragOver
     this.isBottom = isBottom;
-    this.doDragOver();
+    this.afterDragOver(dropTargetNode);
     this.prevDropTarget = this.dropTarget;
   };
 
@@ -101,13 +107,13 @@ export abstract class DragDropCore extends Base {
     this.clear();
   };
 
-  protected isDropTargetDoesntChanged(newIsBottom: boolean) {
+  protected isDropTargetDoesntChanged(newIsBottom: boolean): boolean {
     return (
       this.dropTarget === this.prevDropTarget && newIsBottom === this.isBottom
     );
   }
 
-  protected doStartDrag() {}
+  protected doStartDrag(): void {}
   protected abstract getShortcutText(draggedElement: any): string;
 
   private createDraggedElementShortcut(text: string) {
@@ -118,9 +124,10 @@ export abstract class DragDropCore extends Base {
     return draggedElementShortcut;
   }
 
-  protected doDragOver(): void {}
+  protected doDragOver(dropTargetNode?: HTMLElement): void {}
+  protected afterDragOver(dropTargetNode?: HTMLElement): void {}
 
-  public getGhostPosition(item: any) {
+  public getGhostPosition(item: any): string {
     if (this.dropTarget !== item) return null;
     if (this.isBottom) return "bottom";
     return "top";
@@ -226,7 +233,7 @@ export abstract class DragDropCore extends Base {
     this.scrollIntervalId = requestAnimationFrame(repeat);
   }
 
-  protected banDropHere = () => {
+  protected banDropHere = (): void => {
     this.doBanDropHere();
     this.allowDropHere = false;
     this.dropTarget = null;
@@ -234,7 +241,7 @@ export abstract class DragDropCore extends Base {
     this.isBottom = null;
   };
 
-  protected doBanDropHere = () => {};
+  protected doBanDropHere = (): void => {};
 
   private getDataAttributeValueByNode(node: HTMLElement) {
     let datasetName = "svDropTarget";
@@ -248,7 +255,7 @@ export abstract class DragDropCore extends Base {
   protected getDropTargetByNode(
     dropTargetNode: HTMLElement,
     event: PointerEvent
-  ) {
+  ): any {
     let dataAttributeValue = this.getDataAttributeValueByNode(dropTargetNode);
 
     return this.getDropTargetByDataAttributeValue(
@@ -264,12 +271,12 @@ export abstract class DragDropCore extends Base {
 
   //TODO adandone unrequired params (survey-elements)
   protected abstract getDropTargetByDataAttributeValue(
-    dataAttributeValue: any,
+    dataAttributeValue: string,
     dropTargetNode?: HTMLElement,
     event?: PointerEvent
   ): any;
 
-  protected calculateMiddleOfHTMLElement(HTMLElement: HTMLElement) {
+  protected calculateMiddleOfHTMLElement(HTMLElement: HTMLElement): number {
     const rect = HTMLElement.getBoundingClientRect();
     return rect.y + rect.height / 2;
   }
@@ -287,17 +294,21 @@ export abstract class DragDropCore extends Base {
     clientY: number
   ): HTMLElement {
     this.draggedElementShortcut.hidden = true;
-    let dragOverNode = document.elementFromPoint(clientX, clientY);
+    let dragOverNode = <HTMLElement>document.elementFromPoint(clientX, clientY);
     this.draggedElementShortcut.hidden = false;
 
     if (!dragOverNode) return null;
 
-    return (
-      dragOverNode.querySelector(this.dropTargetDataAttributeName) ||
-      dragOverNode.closest(this.dropTargetDataAttributeName)
-    );
+    return this.findDropTargetNodeByDragOverNode(dragOverNode);
   }
 
+  protected findDropTargetNodeByDragOverNode(dragOverNode:HTMLElement):HTMLElement {
+    const result: HTMLElement =
+      dragOverNode.querySelector(this.dropTargetDataAttributeName) ||
+      dragOverNode.closest(this.dropTargetDataAttributeName);
+
+    return result;
+  }
   protected abstract doDrop(): any;
 
   private clear = () => {
@@ -320,5 +331,5 @@ export abstract class DragDropCore extends Base {
     this.scrollIntervalId = null;
   };
 
-  protected doClear() {}
+  protected doClear(): void {}
 }

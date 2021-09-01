@@ -1,16 +1,22 @@
-import { ItemValue } from "survey-core";
+import { ItemValue } from "../itemvalue";
+import { QuestionSelectBase } from "../question_baseselect";
 import { DragDropCore } from "./core";
 
-export class DragDropChoices extends DragDropCore {
+export class DragDropChoices extends DragDropCore<QuestionSelectBase> {
   protected get draggedElementType(): string {
     return "item-value";
   }
 
-  protected getShortcutText(draggedElement: any) {
+  protected getShortcutText(draggedElement: ItemValue): string {
     return draggedElement.text;
   }
 
-  protected getDropTargetByDataAttributeValue(dataAttributeValue: string) {
+  protected findDropTargetNodeByDragOverNode(dragOverNode:HTMLElement):HTMLElement {
+    const result: HTMLElement = dragOverNode.closest(this.dropTargetDataAttributeName);
+    return result;
+  }
+
+  protected getDropTargetByDataAttributeValue(dataAttributeValue: string): ItemValue {
     let dragOverChoice;
 
     dragOverChoice = this.parentElement.choices.filter(
@@ -20,14 +26,13 @@ export class DragDropChoices extends DragDropCore {
     return dragOverChoice;
   }
 
-  protected isDropTargetValid(dropTarget: any) {
+  protected isDropTargetValid(dropTarget: ItemValue):boolean {
     const choices = this.parentElement.choices;
 
+    if (this.dropTarget === this.draggedElement) return false;
+
     // shouldn't allow to drop on "adorners" (selectall, none, other)
-    if (choices.indexOf(dropTarget) === -1) {
-      this.banDropHere();
-      return false;
-    }
+    if (choices.indexOf(dropTarget) === -1) return false;
 
     return true;
   }
@@ -40,7 +45,7 @@ export class DragDropChoices extends DragDropCore {
     );
   }
 
-  protected doDrop = () => {
+  protected doDrop():any {
     const isTop = !this.isBottom;
     const choices = this.parentElement.choices;
     const oldIndex = choices.indexOf(this.draggedElement);
@@ -56,5 +61,5 @@ export class DragDropChoices extends DragDropCore {
     choices.splice(newIndex, 0, this.draggedElement);
 
     return this.parentElement;
-  };
+  }
 }

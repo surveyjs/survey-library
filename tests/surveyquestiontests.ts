@@ -5171,7 +5171,7 @@ QUnit.test(
     survey.pages[0].addQuestion(q2);
     var q1 = <QuestionRadiogroupModel>survey.getQuestionByName("q1");
     (q1.choices = ["item1", "item2", "item3"]),
-      assert.equal(q1.visibleChoices.length, 6, "Show None+hasOther+new: 3+3");
+    assert.equal(q1.visibleChoices.length, 6, "Show None+hasOther+new: 3+3");
     assert.equal(
       q2.visibleChoices.length,
       7,
@@ -5361,4 +5361,53 @@ QUnit.test("QuestionExpression expression validator", function(assert) {
   survey.setValue("q2", 5);
   assert.equal(question.value, 10);
   assert.notOk(question.hasErrors(), "There is no errors");
+});
+QUnit.test("Check isAnswered property", function(assert) {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "text", name: "q1" },
+      { type: "radiogroup", name: "q2", choices: [1, 2, 3] },
+      { type: "radiogroup", name: "q3", choices: [1, 2, 3], defaultValue: 2 },
+      { type: "checkbox", name: "q4", choices: [1, 2, 3] },
+      { type: "checkbox", name: "q5", choices: [1, 2, 3], defaultValue: [2] }
+    ],
+  });
+  const prevStyle = survey.css.question.titleOnAnswer;
+  survey.css.question.titleOnAnswer = "answer";
+  const q1 = survey.getQuestionByName("q1");
+  const q2 = survey.getQuestionByName("q2");
+  const q3 = survey.getQuestionByName("q3");
+  const q4 = survey.getQuestionByName("q4");
+  const q5 = survey.getQuestionByName("q5");
+  assert.notOk(q1.isAnswered);
+  assert.notOk(q2.isAnswered);
+  assert.ok(q3.isAnswered);
+  assert.notOk(q4.isAnswered);
+  assert.ok(q5.isAnswered);
+
+  assert.notOk(q1.cssTitle.indexOf("answer") > 0);
+  assert.notOk(q2.cssTitle.indexOf("answer") > 0);
+  assert.ok(q3.cssTitle.indexOf("answer") > 0);
+  assert.notOk(q4.cssTitle.indexOf("answer") > 0);
+  assert.ok(q5.cssTitle.indexOf("answer") > 0);
+
+  q1.value = "abc";
+  assert.ok(q1.cssTitle.indexOf("answer") > 0);
+  q1.value = "";
+  assert.notOk(q1.cssTitle.indexOf("answer") > 0);
+
+  q2.value = 2;
+  assert.ok(q2.cssTitle.indexOf("answer") > 0);
+  q2.value = undefined;
+  assert.notOk(q2.cssTitle.indexOf("answer") > 0);
+
+  q3.clearValue();
+  assert.notOk(q3.cssTitle.indexOf("answer") > 0);
+
+  q4.value = [1];
+  assert.ok(q4.cssTitle.indexOf("answer") > 0);
+  q4.value = [];
+  assert.notOk(q4.cssTitle.indexOf("answer") > 0);
+
+  survey.css.question.titleOnAnswer = prevStyle;
 });

@@ -57,6 +57,7 @@ frameworks.forEach((framework) => {
         opt.titleActions = [
           {
             iconName: "icon-action",
+            iconSize: 20,
             title: "Action",
             action: () => {
               opt.question.state = "expanded";
@@ -65,15 +66,10 @@ frameworks.forEach((framework) => {
         ];
       },
     });
-    assert.equal(
-      await Selector("h5 use").getAttribute("xlink:href"),
-      "#icon-action"
-    );
-    assert.ok(
-      await Selector("h5 button span.sv-action-bar-item__title").hasClass(
-        "sv-action-bar-item__title--with-icon"
-      )
-    );
+    await t
+      .expect(Selector("h5 use").getAttribute("xlink:href")).eql("#icon-action")
+      .expect(Selector("h5 button span.sv-action-bar-item__title").hasClass("sv-action-bar-item__title--with-icon")).ok()
+      .expect(Selector("h5 button .sv-action-bar-item__icon").offsetWidth).eql(20);
   });
 
   test("check item with showTitle false", async (t) => {

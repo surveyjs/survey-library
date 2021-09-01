@@ -263,6 +263,17 @@ function today(params: any[]) {
 }
 FunctionFactory.Instance.register("today", today);
 
+function getYear(params: any[]) {
+  if(params.length !== 1 || !params[0]) return undefined;
+  return new Date(params[0]).getFullYear();
+}
+FunctionFactory.Instance.register("getYear", getYear);
+
+function currentYear() {
+  return new Date().getFullYear();
+}
+FunctionFactory.Instance.register("currentYear", currentYear);
+
 function diffDays(params: any[]) {
   if (!Array.isArray(params) || params.length !== 2) return 0;
   if (!params[0] || !params[1]) return 0;

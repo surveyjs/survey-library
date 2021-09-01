@@ -187,6 +187,14 @@ function doKey2ClickDown(evt: KeyboardEvent, options = { processEsc: true }): vo
     evt.preventDefault();
   }
 }
+function increaseHeightByContent(element: HTMLElement) {
+  if(!element) return;
+
+  let rect = element.getBoundingClientRect();
+  if (element.scrollHeight > rect.height) {
+    element.style.height = (element.scrollHeight + 2) + "px";
+  }
+}
 
 export {
   compareVersions,
@@ -201,5 +209,6 @@ export {
   createSvg,
   doKey2ClickUp,
   doKey2ClickDown,
-  getIconNameFromProxy
+  getIconNameFromProxy,
+  increaseHeightByContent
 };

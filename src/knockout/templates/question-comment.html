@@ -1,16 +1,13 @@
 ﻿<script type="text/html" id="survey-question-comment">
-    <!--ko if: !question.isReadOnlyRenderDiv() -->
-  <!--ko if: !question.isInputTextUpdate -->
-  <textarea type="text"
-    data-bind="attr: {'readonly': question.isReadOnly, 'disabled': question.isInputReadOnly, maxLength: question.getMaxLength(), cols: question.cols, rows: question.rows, id: question.inputId, placeholder: question.renderedPlaceHolder, 'aria-required': question.isRequired, 'aria-label': question.locTitle.renderedHtml, 'aria-invalid': question.errors.length > 0, 'aria-describedby': question.errors.length > 0 ? question.id + '_errors' : null}, value:question.value, css: question.koCss().root"></textarea>
-  <!--/ko-->
-  <!--ko if: question.isInputTextUpdate -->
-  <textarea type="text"
-    data-bind="attr: {'readonly': question.isReadOnly, 'disabled': question.isInputReadOnly, maxLength: question.getMaxLength(), cols: question.cols, rows: question.rows, id: question.inputId, placeholder: question.renderedPlaceHolder, 'aria-required': question.isRequired, 'aria-label': question.locTitle.renderedHtml, 'aria-invalid': question.errors.length > 0, 'aria-describedby': question.errors.length > 0 ? question.id + '_errors' : null}, textInput:question.value, css: question.koCss().root"></textarea>
-  <!--/ko-->
-  <!--/ko-->
+  <!--ko if: !question.isReadOnlyRenderDiv() -->
+<textarea type="text" data-bind="attr: {'readonly': question.isReadOnly, 'disabled': question.isInputReadOnly, maxLength: question.getMaxLength(), cols: question.cols, rows: question.rows, id: question.inputId, placeholder: question.renderedPlaceHolder, 'aria-required': question.isRequired, 'aria-label': question.locTitle.renderedHtml, 'aria-invalid': question.errors.length > 0, 'aria-describedby': question.errors.length > 0 ? question.id + '_errors' : null}, 
+  event: { input: question.onInput }, 
+  value: question.value, 
+  style: { resize: question.autoGrow ? 'none' : 'both'},
+  css: question.koCss().root"></textarea>
+<!--/ko-->
 
-  <!--ko if: question.isReadOnlyRenderDiv() -->
-  <div data-bind="text: question.value"></div>
-  <!--/ko-->
+<!--ko if: question.isReadOnlyRenderDiv() -->
+<div data-bind="text: question.value"></div>
+<!--/ko-->
 </script>

@@ -1,3 +1,4 @@
+import { write } from "fs";
 import * as ko from "knockout";
 import { Serializer } from "survey-core";
 import { QuestionFactory } from "survey-core";
@@ -6,6 +7,12 @@ import { QuestionImplementor } from "./koquestion";
 
 export class QuestionComment extends QuestionCommentModel {
   private _implementor: QuestionImplementor;
+  private onInput(_: any, event: any) {
+    if (this.isInputTextUpdate)
+      this.value = event.target.value;
+    else
+      this.updateElement();
+  }
   constructor(name: string) {
     super(name);
   }
@@ -20,7 +27,7 @@ export class QuestionComment extends QuestionCommentModel {
   }
 }
 
-Serializer.overrideClassCreator("comment", function() {
+Serializer.overrideClassCreator("comment", function () {
   return new QuestionComment("");
 });
 QuestionFactory.Instance.registerQuestion("comment", name => {

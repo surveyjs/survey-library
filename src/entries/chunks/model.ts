@@ -180,6 +180,7 @@ export {
   doKey2ClickUp,
   doKey2ClickDown,
   loadFileFromBase64,
+  increaseHeightByContent,
   createSvg
 } from "../../utils/utils";
 export * from "../../utils/cssClassBuilder";

@@ -162,12 +162,9 @@ export class SurveyQuestionRadioItem extends ReactSurveyElement {
         role="radio"
         aria-checked={this.isChecked}
         aria-required={this.question.isRequired}
-        aria-invalid={this.question.errors.length > 0}
-        aria-describedby={
-          this.question.errors.length > 0
-            ? this.question.id + "_errors"
-            : null
-        }>
+        aria-invalid={this.question.ariaInvalid}
+        aria-describedby={this.question.ariaDescribedBy}
+      >
         <label className={labelClass} aria-label={locText.renderedHtml}>
           <input
             aria-hidden="true"

@@ -186,6 +186,13 @@ export class Question extends SurveyElement
   public get isReady(): boolean {
     return this.isReadyValue;
   }
+  public get ariaInvalid():boolean {
+    return this.errors.length > 0;
+  }
+  public get ariaDescribedBy(): string {
+    return this.errors.length > 0 ? this.id + "_errors" : null;
+  }
+
   /**
    * Get is question ready to use
    */

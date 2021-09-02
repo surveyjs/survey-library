@@ -71,7 +71,7 @@ export class SurveyActionBarItem extends SurveyElementBase<
     const svgIcon = !!this.item.iconName ? (
       <SvgIcon
         className="sv-action-bar-item__icon"
-        size={24}
+        size={this.item.iconSize}
         iconName={this.item.iconName}
       ></SvgIcon>
     ) : null;

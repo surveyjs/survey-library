@@ -28,7 +28,7 @@ export class QuestionRadiogroupModel extends QuestionCheckboxBase {
    * Show "clear button" flag.
    */
   public get showClearButton(): boolean {
-    return this.getPropertyValue("showClearButton", false);
+    return this.getPropertyValue("showClearButton");
   }
   public set showClearButton(val: boolean) {
     this.setPropertyValue("showClearButton", val);

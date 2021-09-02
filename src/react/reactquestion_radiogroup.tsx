@@ -36,8 +36,7 @@ export class SurveyQuestionRadiogroup extends SurveyQuestionElementBase {
         ref={(fieldset) => (this.control = fieldset)}
         role="radiogroup"
       >
-        {this.question.hasTitle ? null
-          : <legend aria-label={this.question.locTitle.renderedHtml}/>}
+        <legend className="sv-visuallyhidden">{this.question.locTitle.renderedHtml}</legend>
         {this.question.hasColumns
           ? this.getColumns(cssClasses)
           : this.getItems(cssClasses)}
@@ -158,9 +157,17 @@ export class SurveyQuestionRadioItem extends ReactSurveyElement {
     var controlLabelClass = this.question.getControlLabelClass(this.item);
 
     return (
-      <div className={itemClass}>
-        <label className={labelClass}>
+      <div
+        className={itemClass}
+        role="radio"
+        aria-checked={this.isChecked}
+        aria-required={this.question.isRequired}
+        aria-invalid={this.question.ariaInvalid}
+        aria-describedby={this.question.ariaDescribedBy}
+      >
+        <label className={labelClass} aria-label={locText.renderedHtml}>
           <input
+            aria-hidden="true"
             className={this.cssClasses.itemControl}
             id={id}
             type="radio"
@@ -169,14 +176,6 @@ export class SurveyQuestionRadioItem extends ReactSurveyElement {
             value={this.item.value}
             disabled={this.isDisplayMode || !this.item.isEnabled}
             onChange={this.handleOnChange}
-            aria-required={this.question.isRequired}
-            aria-label={locText.renderedHtml}
-            aria-invalid={this.question.errors.length > 0}
-            aria-describedby={
-              this.question.errors.length > 0
-                ? this.question.id + "_errors"
-                : null
-            }
           />
           <span className={this.cssClasses.materialDecorator}>
             <svg

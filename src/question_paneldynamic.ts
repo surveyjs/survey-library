@@ -681,7 +681,7 @@ export class QuestionPanelDynamicModel extends Question
    * @see maxPanelCount
    */
   public get minPanelCount(): number {
-    return this.getPropertyValue("minPanelCount", 0);
+    return this.getPropertyValue("minPanelCount");
   }
   public set minPanelCount(val: number) {
     if (val < 0) val = 0;
@@ -696,10 +696,7 @@ export class QuestionPanelDynamicModel extends Question
    * @see minPanelCount
    */
   public get maxPanelCount(): number {
-    return this.getPropertyValue(
-      "maxPanelCount",
-      settings.panelMaximumPanelCount
-    );
+    return this.getPropertyValue("maxPanelCount");
   }
   public set maxPanelCount(val: number) {
     if (val <= 0) return;
@@ -770,7 +767,7 @@ export class QuestionPanelDynamicModel extends Question
    * @see renderMode
    */
   public get showRangeInProgress(): boolean {
-    return this.getPropertyValue("showRangeInProgress", true);
+    return this.getPropertyValue("showRangeInProgress");
   }
   public set showRangeInProgress(val: boolean) {
     this.setPropertyValue("showRangeInProgress", val);

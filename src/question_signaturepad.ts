@@ -144,7 +144,7 @@ export class QuestionSignaturePadModel extends Question {
    * Use it to set the specific width for the signature pad.
    */
   public get width(): string {
-    return this.getPropertyValue("width", 300);
+    return this.getPropertyValue("width");
   }
   public set width(val: string) {
     this.setPropertyValue("width", val);
@@ -153,7 +153,7 @@ export class QuestionSignaturePadModel extends Question {
    * Use it to set the specific height for the signature pad.
    */
   public get height(): string {
-    return this.getPropertyValue("height", 200);
+    return this.getPropertyValue("height");
   }
   public set height(val: string) {
     this.setPropertyValue("height", val);
@@ -162,7 +162,7 @@ export class QuestionSignaturePadModel extends Question {
    * Use it to clear content of the signature pad.
    */
   public get allowClear(): boolean {
-    return this.getPropertyValue("allowClear", true);
+    return this.getPropertyValue("allowClear");
   }
   public set allowClear(val: boolean) {
     this.setPropertyValue("allowClear", val);
@@ -171,7 +171,7 @@ export class QuestionSignaturePadModel extends Question {
    * Use it to set pen color for the signature pad.
    */
   public get penColor(): string {
-    return this.getPropertyValue("penColor", "#1ab394");
+    return this.getPropertyValue("penColor");
   }
   public set penColor(val: string) {
     this.setPropertyValue("penColor", val);
@@ -180,7 +180,7 @@ export class QuestionSignaturePadModel extends Question {
    * Use it to set background color for the signature pad.
    */
   public get backgroundColor(): string {
-    return this.getPropertyValue("backgroundColor", "#ffffff");
+    return this.getPropertyValue("backgroundColor");
   }
   public set backgroundColor(val: string) {
     this.setPropertyValue("backgroundColor", val);

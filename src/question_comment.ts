@@ -3,11 +3,13 @@ import { Serializer } from "./jsonobject";
 import { QuestionFactory } from "./questionfactory";
 import { LocalizableString } from "./localizablestring";
 import { QuestionTextBase } from "./question_textbase";
+import { increaseHeightByContent } from "./utils/utils";
 
 /**
  * A Model for a comment question
  */
 export class QuestionCommentModel extends QuestionTextBase {
+  private element: HTMLElement;
   /**
    * The html rows attribute.
    */
@@ -26,8 +28,28 @@ export class QuestionCommentModel extends QuestionTextBase {
   public set cols(val: number) {
     this.setPropertyValue("cols", val);
   }
+  /*
+  * Gets or sets a value indicating whether the control is automatically increase height to display its entire contents.
+  */
+  public get autoGrow(): boolean {
+    return this.getPropertyValue("autoGrow") || (this.survey && this.survey.autoGrowComment);
+  }
+  public set autoGrow(val: boolean) {
+    this.setPropertyValue("autoGrow", val);
+  }
   public getType(): string {
     return "comment";
+  }
+  public afterRenderQuestionElement(el: HTMLElement) {
+    this.element = document.getElementById(this.inputId) || el;
+    this.updateElement();
+  }
+  public updateElement() {
+    if (this.element && this.autoGrow) increaseHeightByContent(this.element);
+  }
+  onValueChanged() {
+    super.onValueChanged();
+    this.updateElement();
   }
 }
 Serializer.addClass(
@@ -42,8 +64,9 @@ Serializer.addClass(
       default: "default",
       choices: ["default", "onBlur", "onTyping"],
     },
+    { name: "autoGrow:boolean" }
   ],
-  function() {
+  function () {
     return new QuestionCommentModel("");
   },
   "textbase"

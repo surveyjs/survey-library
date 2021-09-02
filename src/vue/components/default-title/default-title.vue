@@ -41,10 +41,12 @@ export class DefaultTitle extends Vue {
 
   mounted() {
     this.isCollapsed = this.element.isCollapsed;
-
     this.element.stateChangedCallback = () => {
       this.isCollapsed = this.element.isCollapsed;
     };
+  }
+  beforeDestroy() {
+    this.element.stateChangedCallback = null;
   }
 }
 

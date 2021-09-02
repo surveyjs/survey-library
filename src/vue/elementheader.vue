@@ -1,8 +1,8 @@
 <template>
-  <div :class="getHeaderClass(element)" @click="clickTitleFunction">
+  <div :class="element.cssHeader" @click="clickTitleFunction">
     <h5
       v-if="element.hasTitle"
-      :class="getTitleClass(element)"
+      :class="element.cssTitle"
       v-bind:aria-label="element.locTitle.renderedHtml"
       v-bind:id="element.ariaTitleId"
       v-bind:tabindex="element.titleTabIndex"
@@ -36,24 +36,13 @@
 <script lang="ts">
 import Vue from "vue";
 import { Component, Prop } from "vue-property-decorator";
-import { SurveyModel } from "survey-core";
-import { IElement, Question, doKey2ClickUp } from "survey-core";
+import { SurveyElement, doKey2ClickUp } from "survey-core";
 
 @Component
 export class ElementHeader extends Vue {
-  @Prop() element: IElement;
+  @Prop() element: SurveyElement;
   @Prop() css: any;
 
-  beforeDestroy() {
-    this.element.stateChangedCallback = null;
-  }
-
-  getTitleClass(element: Question) {
-    return element.cssTitle;
-  }
-  getHeaderClass(element: Question) {
-    return element.cssHeader;
-  }
   keyup(evt: any) {
     doKey2ClickUp(evt);
   }

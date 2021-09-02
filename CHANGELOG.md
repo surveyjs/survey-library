@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.8.64](https://github.com/surveyjs/survey-library/compare/v1.8.63...v1.8.64) (2021-08-31)
+
+
+### Bug Fixes
+
+* Default value doesn't work correctly in composite component question [#3231](https://github.com/surveyjs/survey-library/issues/3231) ([#3232](https://github.com/surveyjs/survey-library/issues/3232)) ([ecfc682](https://github.com/surveyjs/survey-library/commit/ecfc682b44af0f82a1a235463f7d5c2174d6819a))
+* question.isAnswered and question.cssTitle do not update correctly [#3237](https://github.com/surveyjs/survey-library/issues/3237) ([db3305c](https://github.com/surveyjs/survey-library/commit/db3305c7866b67cacb6defac3c661835e4d445ed))
+* survey.fromJSON() doesn't work if "pages" is missed. [#3233](https://github.com/surveyjs/survey-library/issues/3233) ([#3234](https://github.com/surveyjs/survey-library/issues/3234)) ([779e04d](https://github.com/surveyjs/survey-library/commit/779e04d99758b7deac915f30988480f200f0f145))
+
 ### [1.8.63](https://github.com/surveyjs/survey-library/compare/v1.8.62...v1.8.63) (2021-08-25)
 
 ### [1.8.62](https://github.com/surveyjs/survey-library/compare/v1.8.61...v1.8.62) (2021-08-25)

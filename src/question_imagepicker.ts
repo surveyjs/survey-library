@@ -78,7 +78,7 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
    * Multi select option. If set to true, then allows to select multiple images.
    */
   public get multiSelect(): boolean {
-    return this.getPropertyValue("multiSelect", false);
+    return this.getPropertyValue("multiSelect");
   }
   public set multiSelect(newValue: boolean) {
     this.setPropertyValue("multiSelect", newValue);
@@ -126,7 +126,7 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
    * Show label under the image.
    */
   public get showLabel(): boolean {
-    return this.getPropertyValue("showLabel", false);
+    return this.getPropertyValue("showLabel");
   }
   public set showLabel(newValue: boolean) {
     this.setPropertyValue("showLabel", newValue);

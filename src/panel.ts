@@ -383,6 +383,36 @@ export class PanelModelBase extends SurveyElement
   get locRequiredErrorText(): LocalizableString {
     return this.getLocalizableString("requiredErrorText");
   }
+  /**
+   * Use this property to randomize questions. Set it to 'random' to randomize questions, 'initial' to keep them in the same order or 'default' to use the Survey questionsOrder property
+   * @see SurveyModel.questionsOrder
+   * @see areQuestionsRandomized
+   */
+  public get questionsOrder(): string {
+    return this.getPropertyValue("questionsOrder");
+  }
+  public set questionsOrder(val: string) {
+    this.setPropertyValue("questionsOrder", val);
+  }
+  private canRandomize(isRandom: boolean): boolean {
+    return isRandom && (this.questionsOrder !== "initial") || this.questionsOrder === "random";
+  }
+  protected isRandomizing = false;
+  randomizeElements(isRandom: boolean): void {
+    if (!this.canRandomize(isRandom) || this.isRandomizing) return;
+    this.isRandomizing = true;
+    var oldElements = [];
+    var elements = this.elements;
+    for (var i = 0; i < elements.length; i++) {
+      oldElements.push(elements[i]);
+    }
+    var newElements = Helpers.randomizeArray<IElement>(oldElements);
+    this.elements.splice(0, this.elements.length);
+    for (var i = 0; i < newElements.length; i++) {
+      this.elements.push(newElements[i]);
+    }
+    this.isRandomizing = false;
+  }
   getLocale(): string {
     return this.survey
       ? (<ILocalizableOwner>(<any>this.survey)).getLocale()
@@ -1150,6 +1180,7 @@ export class PanelModelBase extends SurveyElement
     if (!this.isLoadingFromJson) this.onVisibleChanged();
   }
   protected onVisibleChanged() {
+    if (this.isRandomizing) return;
     this.setPropertyValue("isVisible", this.isVisible);
     if (
       !!this.survey &&
@@ -1692,7 +1723,7 @@ export class PanelModel extends PanelModelBase
    * @see showNumber
    */
   public get showQuestionNumbers(): string {
-    return this.getPropertyValue("showQuestionNumbers", "default");
+    return this.getPropertyValue("showQuestionNumbers");
   }
   public set showQuestionNumbers(value: string) {
     this.setPropertyValue("showQuestionNumbers", value);
@@ -1778,7 +1809,7 @@ export class PanelModel extends PanelModelBase
    * The left indent. Set this property to increase the panel left indent.
    */
   public get indent(): number {
-    return this.getPropertyValue("indent", 0);
+    return this.getPropertyValue("indent");
   }
   public set indent(val: number) {
     this.setPropertyValue("indent", val);
@@ -1787,7 +1818,7 @@ export class PanelModel extends PanelModelBase
    * The inner indent. Set this property to increase the panel content margin.
    */
   public get innerIndent(): number {
-    return this.getPropertyValue("innerIndent", 0);
+    return this.getPropertyValue("innerIndent");
   }
   public set innerIndent(val: number) {
     this.setPropertyValue("innerIndent", val);
@@ -1802,7 +1833,7 @@ export class PanelModel extends PanelModelBase
    * The Panel renders on the new line if the property is true. If the property is false, the panel tries to render on the same line/row with a previous question/panel.
    */
   public get startWithNewLine(): boolean {
-    return this.getPropertyValue("startWithNewLine", true);
+    return this.getPropertyValue("startWithNewLine");
   }
   public set startWithNewLine(value: boolean) {
     this.setPropertyValue("startWithNewLine", value);
@@ -1927,6 +1958,12 @@ Serializer.addClass(
     },
     { name: "title:text", serializationProperty: "locTitle" },
     { name: "description:text", serializationProperty: "locDescription" },
+    {
+      name: "questionsOrder",
+      default: "default",
+      choices: ["default", "initial", "random"],
+    },
+
   ],
   function() {
     return new PanelModelBase();

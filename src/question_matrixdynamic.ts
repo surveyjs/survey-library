@@ -234,7 +234,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   }
 
   private get rowCountValue(): number {
-    return this.getPropertyValue("rowCount", 2);
+    return this.getPropertyValue("rowCount");
   }
   private set rowCountValue(val: number) {
     this.setPropertyValue("rowCount", val);
@@ -246,7 +246,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
    * @see allowAddRows
    */
   public get minRowCount(): number {
-    return this.getPropertyValue("minRowCount", 0);
+    return this.getPropertyValue("minRowCount");
   }
   public set minRowCount(val: number) {
     if (val < 0) val = 0;
@@ -261,7 +261,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
    * @see allowAddRows
    */
   public get maxRowCount(): number {
-    return this.getPropertyValue("maxRowCount", settings.matrixMaximumRowCount);
+    return this.getPropertyValue("maxRowCount");
   }
   public set maxRowCount(val: number) {
     if (val <= 0) return;
@@ -278,7 +278,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
    * @see allowRemoveRows
    */
   public get allowAddRows(): boolean {
-    return this.getPropertyValue("allowAddRows", true);
+    return this.getPropertyValue("allowAddRows");
   }
   public set allowAddRows(val: boolean) {
     this.setPropertyValue("allowAddRows", val);
@@ -289,7 +289,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
    * @see allowAddRows
    */
   public get allowRemoveRows(): boolean {
-    return this.getPropertyValue("allowRemoveRows", true);
+    return this.getPropertyValue("allowRemoveRows");
   }
   public set allowRemoveRows(val: boolean) {
     this.setPropertyValue("allowRemoveRows", val);

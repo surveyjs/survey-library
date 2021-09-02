@@ -1,4 +1,5 @@
 // common
+export * from "../a11y";
 export * from "../calculatedvaluestests";
 export * from "../helperstests";
 export * from "../basetests"; //

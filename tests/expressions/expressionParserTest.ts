@@ -325,15 +325,26 @@ QUnit.test("Run age function", function(assert) {
   assert.equal(runner.run(values), false, "false, the person is 10 years old");
 });
 QUnit.test("Run age function, Bug#2562", function(assert) {
-  var runner = new ExpressionRunner("age({bithday})");
-  var values = { bithday: new Date(1974, 1, 1) };
+  var runner = new ExpressionRunner("age({birthday})");
+  var values = { birthday: new Date(1974, 1, 1) };
   var date = new Date(Date.now());
   date.setFullYear(date.getFullYear() - 90);
-  values = { bithday: date };
+  values = { birthday: date };
   assert.equal(runner.run(values), 90, "90 years old, bithday is today");
   date = new Date(date.getTime() + 60 * 60 * 24 * 1000);
-  values.bithday = date;
+  values.birthday = date;
   assert.equal(runner.run(values), 89, "one day till 90");
+});
+
+QUnit.test("Run getYear() function", function(assert) {
+  var runner = new ExpressionRunner("getYear({birthday})");
+  var values = { birthday: new Date(1974, 1, 1) };
+  assert.equal(runner.run(values), 1974);
+});
+
+QUnit.test("Run currentYear() function", function(assert) {
+  var runner = new ExpressionRunner("currentYear()");
+  assert.equal(runner.run({}), new Date().getFullYear());
 });
 
 QUnit.test("Run today function", function(assert) {

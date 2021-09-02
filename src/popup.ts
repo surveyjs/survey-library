@@ -192,8 +192,8 @@ export class PopupBaseViewModel extends Base {
     const rect = this.targetElement.getBoundingClientRect();
     const background = <HTMLElement>this.container.children[0];
     const popupContainer = <HTMLElement>background.children[0];
-    const scrollContent = <HTMLElement>background.children[0].children[1];
-    const height =
+    const scrollContent = <HTMLElement>background.children[0].children[2];
+    let height =
       popupContainer.offsetHeight -
       scrollContent.offsetHeight +
       scrollContent.scrollHeight;
@@ -201,6 +201,7 @@ export class PopupBaseViewModel extends Base {
     this.height = "auto";
     let verticalPosition = this.model.verticalPosition;
     if (!!window) {
+      height = Math.min(height, window.innerHeight * 0.9);
       verticalPosition = PopupUtils.updateVerticalPosition(
         rect,
         height,

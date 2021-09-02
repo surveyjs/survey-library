@@ -17,7 +17,7 @@
   >
     <div
       class="sv-popup__container"
-      v-bind:style="{ left: model.left, top: model.top }"
+      v-bind:style="{ left: model.left, top: model.top, height: model.height }"
       v-on:click="clickInside"
     >
       <span

@@ -244,7 +244,7 @@ export class Question extends SurveyElement
    * Please note, this property is hidden for question without input, for example html question.
    */
   public get useDisplayValuesInTitle(): boolean {
-    return this.getPropertyValue("useDisplayValuesInTitle", true);
+    return this.getPropertyValue("useDisplayValuesInTitle");
   }
   public set useDisplayValuesInTitle(val: boolean) {
     this.setPropertyValue("useDisplayValuesInTitle", val);
@@ -618,7 +618,7 @@ export class Question extends SurveyElement
    * The Question renders on the new line if the property is true. If the property is false, the question tries to render on the same line/row with a previous question/panel.
    */
   public get startWithNewLine(): boolean {
-    return this.getPropertyValue("startWithNewLine", true);
+    return this.getPropertyValue("startWithNewLine");
   }
   public set startWithNewLine(val: boolean) {
     if (this.startWithNewLine == val) return;
@@ -799,7 +799,7 @@ export class Question extends SurveyElement
    * Use it to set the specific minWidth constraint to the question like css style (%, px, em etc).
    */
   public get minWidth(): string {
-    return this.getPropertyValue("minWidth", settings.minWidth);
+    return this.getPropertyValue("minWidth");
   }
   public set minWidth(val: string) {
     this.setPropertyValue("minWidth", val);
@@ -808,7 +808,7 @@ export class Question extends SurveyElement
    * Use it to set the specific maxWidth constraint to the question like css style (%, px, em etc).
    */
   public get maxWidth(): string {
-    return this.getPropertyValue("maxWidth", settings.maxWidth);
+    return this.getPropertyValue("maxWidth");
   }
   public set maxWidth(val: string) {
     this.setPropertyValue("maxWidth", val);
@@ -826,7 +826,7 @@ export class Question extends SurveyElement
    * Set it different from 0 to increase the left padding.
    */
   public get indent(): number {
-    return this.getPropertyValue("indent", 0);
+    return this.getPropertyValue("indent");
   }
   public set indent(val: number) {
     this.setPropertyValue("indent", val);

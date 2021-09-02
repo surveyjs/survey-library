@@ -1194,7 +1194,7 @@ export class SurveyModel extends Base
    * Gets or sets whether the first input is focused on showing a next or a previous page.
    */
   public get focusFirstQuestionAutomatic(): boolean {
-    return this.getPropertyValue("focusFirstQuestionAutomatic", true);
+    return this.getPropertyValue("focusFirstQuestionAutomatic");
   }
   public set focusFirstQuestionAutomatic(val: boolean) {
     this.setPropertyValue("focusFirstQuestionAutomatic", val);
@@ -1204,7 +1204,7 @@ export class SurveyModel extends Base
    * Set this property to `false` (the default value is `true`) if you do not want to bring the focus to the first question that has error on the page.
    */
   public get focusOnFirstError(): boolean {
-    return this.getPropertyValue("focusOnFirstError", true);
+    return this.getPropertyValue("focusOnFirstError");
   }
   public set focusOnFirstError(val: boolean) {
     this.setPropertyValue("focusOnFirstError", val);
@@ -1233,7 +1233,7 @@ export class SurveyModel extends Base
    * @see showNavigationButtons
    */
   public get showPrevButton(): boolean {
-    return this.getPropertyValue("showPrevButton", true);
+    return this.getPropertyValue("showPrevButton");
   }
   public set showPrevButton(val: boolean) {
     this.setPropertyValue("showPrevButton", val);
@@ -1243,7 +1243,7 @@ export class SurveyModel extends Base
    * @see title
    */
   public get showTitle(): boolean {
-    return this.getPropertyValue("showTitle", true);
+    return this.getPropertyValue("showTitle");
   }
   public set showTitle(val: boolean) {
     this.setPropertyValue("showTitle", val);
@@ -1253,7 +1253,7 @@ export class SurveyModel extends Base
    * @see PageModel.title
    */
   public get showPageTitles(): boolean {
-    return this.getPropertyValue("showPageTitles", true);
+    return this.getPropertyValue("showPageTitles");
   }
   public set showPageTitles(val: boolean) {
     this.setPropertyValue("showPageTitles", val);
@@ -1265,7 +1265,7 @@ export class SurveyModel extends Base
    * @see navigateToUrl
    */
   public get showCompletedPage(): boolean {
-    return this.getPropertyValue("showCompletedPage", true);
+    return this.getPropertyValue("showCompletedPage");
   }
   public set showCompletedPage(val: boolean) {
     this.setPropertyValue("showCompletedPage", val);
@@ -1366,7 +1366,7 @@ export class SurveyModel extends Base
    * @see commentPrefix
    */
   public get storeOthersAsComment(): boolean {
-    return this.getPropertyValue("storeOthersAsComment", true);
+    return this.getPropertyValue("storeOthersAsComment");
   }
   public set storeOthersAsComment(val: boolean) {
     this.setPropertyValue("storeOthersAsComment", val);
@@ -1378,7 +1378,7 @@ export class SurveyModel extends Base
    * @see maxOthersLength
    */
   public get maxTextLength(): number {
-    return this.getPropertyValue("maxTextLength", 0);
+    return this.getPropertyValue("maxTextLength");
   }
   public set maxTextLength(val: number) {
     this.setPropertyValue("maxTextLength", val);
@@ -1392,7 +1392,7 @@ export class SurveyModel extends Base
    * @see maxTextLength
    */
   public get maxOthersLength(): number {
-    return this.getPropertyValue("maxOthersLength", 0);
+    return this.getPropertyValue("maxOthersLength");
   }
   public set maxOthersLength(val: number) {
     this.setPropertyValue("maxOthersLength", val);
@@ -3355,7 +3355,7 @@ export class SurveyModel extends Base
    * - `questionPerPage` - show one question per page. Survey will create a separate page for every question.
    */
   public get questionsOnPageMode(): string {
-    return this.getPropertyValue("questionsOnPageMode", "standard");
+    return this.getPropertyValue("questionsOnPageMode");
   }
   public set questionsOnPageMode(val: string) {
     this.setPropertyValue("questionsOnPageMode", val);
@@ -3387,7 +3387,7 @@ export class SurveyModel extends Base
    * @see editText
    */
   public get showPreviewBeforeComplete(): string {
-    return this.getPropertyValue("showPreviewBeforeComplete", "noPreview");
+    return this.getPropertyValue("showPreviewBeforeComplete");
   }
   public set showPreviewBeforeComplete(val: string) {
     this.setPropertyValue("showPreviewBeforeComplete", val);
@@ -5611,7 +5611,7 @@ export class SurveyModel extends Base
    * @see stopTimer
    */
   public get showTimerPanel(): string {
-    return this.getPropertyValue("showTimerPanel", "none");
+    return this.getPropertyValue("showTimerPanel");
   }
   public set showTimerPanel(val: string) {
     this.setPropertyValue("showTimerPanel", val);
@@ -5635,7 +5635,7 @@ export class SurveyModel extends Base
    * @see onTimerPanelInfoText
    */
   public get showTimerPanelMode(): string {
-    return this.getPropertyValue("showTimerPanelMode", "all");
+    return this.getPropertyValue("showTimerPanelMode");
   }
   public set showTimerPanelMode(val: string) {
     this.setPropertyValue("showTimerPanelMode", val);

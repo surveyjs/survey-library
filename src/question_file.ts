@@ -92,7 +92,7 @@ export class QuestionFileModel extends Question {
    * Set it to true if you want to wait until files will be uploaded to your server.
    */
   public get waitForUpload(): boolean {
-    return this.getPropertyValue("waitForUpload", false);
+    return this.getPropertyValue("waitForUpload");
   }
   public set waitForUpload(val: boolean) {
     this.setPropertyValue("waitForUpload", val);

@@ -25,7 +25,7 @@ export class QuestionDropdownModel extends QuestionSelectBase {
    * This flag controls whether to show options caption item ('Choose...').
    */
   public get showOptionsCaption(): boolean {
-    return this.getPropertyValue("showOptionsCaption", true);
+    return this.getPropertyValue("showOptionsCaption");
   }
   public set showOptionsCaption(val: boolean) {
     this.setPropertyValue("showOptionsCaption", val);
@@ -86,7 +86,7 @@ export class QuestionDropdownModel extends QuestionSelectBase {
    * @see choicesStep
    */
   public get choicesMin(): number {
-    return this.getPropertyValue("choicesMin", 0);
+    return this.getPropertyValue("choicesMin");
   }
   public set choicesMin(val: number) {
     this.setPropertyValue("choicesMin", val);
@@ -97,7 +97,7 @@ export class QuestionDropdownModel extends QuestionSelectBase {
    * @see choicesStep
    */
   public get choicesMax(): number {
-    return this.getPropertyValue("choicesMax", 0);
+    return this.getPropertyValue("choicesMax");
   }
   public set choicesMax(val: number) {
     this.setPropertyValue("choicesMax", val);
@@ -109,7 +109,7 @@ export class QuestionDropdownModel extends QuestionSelectBase {
    * @see choicesMax
    */
   public get choicesStep(): number {
-    return this.getPropertyValue("choicesStep", 1);
+    return this.getPropertyValue("choicesStep");
   }
   public set choicesStep(val: number) {
     if (val < 1) val = 1;

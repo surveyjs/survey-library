@@ -438,7 +438,7 @@ export class MatrixDropdownColumn extends Base
     this.templateQuestion.validators = val;
   }
   public get totalType(): string {
-    return this.getPropertyValue("totalType", "none");
+    return this.getPropertyValue("totalType");
   }
   public set totalType(val: string) {
     this.setPropertyValue("totalType", val);
@@ -468,14 +468,14 @@ export class MatrixDropdownColumn extends Base
     this.setPropertyValue("renderAs", val);
   }
   public get totalMaximumFractionDigits(): number {
-    return this.getPropertyValue("totalMaximumFractionDigits", -1);
+    return this.getPropertyValue("totalMaximumFractionDigits");
   }
   public set totalMaximumFractionDigits(val: number) {
     if (val < -1 || val > 20) return;
     this.setPropertyValue("totalMaximumFractionDigits", val);
   }
   public get totalMinimumFractionDigits(): number {
-    return this.getPropertyValue("totalMinimumFractionDigits", -1);
+    return this.getPropertyValue("totalMinimumFractionDigits");
   }
   public set totalMinimumFractionDigits(val: number) {
     if (val < -1 || val > 20) return;
@@ -507,7 +507,7 @@ export class MatrixDropdownColumn extends Base
     this.setPropertyValue("width", val);
   }
   public get colCount(): number {
-    return this.getPropertyValue("colCount", -1);
+    return this.getPropertyValue("colCount");
   }
   public set colCount(val: number) {
     if (val < -1 || val > 4) return;
@@ -2312,7 +2312,7 @@ export class QuestionMatrixDropdownModelBase
    * Set the value to "underRow" to show the detailPanel under the row.
    */
   public get detailPanelMode(): string {
-    return this.getPropertyValue("detailPanelMode", "none");
+    return this.getPropertyValue("detailPanelMode");
   }
   public set detailPanelMode(val: string) {
     this.setPropertyValue("detailPanelMode", val);
@@ -2465,7 +2465,7 @@ export class QuestionMatrixDropdownModelBase
    * The default column count for radiogroup and checkbox  cell types.
    */
   public get columnColCount(): number {
-    return this.getPropertyValue("columnColCount", 0);
+    return this.getPropertyValue("columnColCount");
   }
   public set columnColCount(value: number) {
     if (value < 0 || value > 4) return;

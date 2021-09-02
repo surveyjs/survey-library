@@ -146,7 +146,7 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
    * Set this property different to 0 to limit the number of selected choices in the checkbox.
    */
   public get maxSelectedChoices(): number {
-    return this.getPropertyValue("maxSelectedChoices", 0);
+    return this.getPropertyValue("maxSelectedChoices");
   }
   public set maxSelectedChoices(val: number) {
     if (val < 0) val = 0;

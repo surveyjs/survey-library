@@ -2,7 +2,7 @@ import { ItemValue } from "../itemvalue";
 import { DragDropChoices } from "./choices";
 export class DragDropRankingChoices extends DragDropChoices {
 
-  protected createDraggedElementShortcut(text: string, draggedElementNode: HTMLElement) {
+  protected createDraggedElementShortcut(text: string, draggedElementNode: HTMLElement):HTMLElement {
     const draggedElementShortcut = document.createElement("div");
     // draggedElementShortcut.innerText = text;
     draggedElementShortcut.style.cssText =
@@ -40,7 +40,7 @@ export class DragDropRankingChoices extends DragDropChoices {
     return true;
   }
 
-  protected afterDragOver(): void {
+  protected afterDragOver(dropTargetNode: HTMLElement): void {
     const choices = this.parentElement.choices;
     const dropTargetIndex = choices.indexOf(this.dropTarget);
     const draggedElementIndex = choices.indexOf(this.draggedElement);
@@ -49,6 +49,15 @@ export class DragDropRankingChoices extends DragDropChoices {
     choices.splice(dropTargetIndex, 0, this.draggedElement);
     this.parentElement.setValue();
     this.updateDraggedElementShortcut(dropTargetIndex + 1);
+
+    dropTargetNode.classList.remove("sv-dragdrop-moveup");
+    dropTargetNode.classList.remove("sv-dragdrop-movedown");
+
+    if (draggedElementIndex > dropTargetIndex) {
+      dropTargetNode.classList.add("sv-dragdrop-movedown");
+    } else {
+      dropTargetNode.classList.add("sv-dragdrop-moveup");
+    }
   }
 
   private updateDraggedElementShortcut(newIndex: number) {

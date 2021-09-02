@@ -118,7 +118,7 @@ export abstract class DragDropCore<T> extends Base {
   protected doStartDrag(): void {}
   protected abstract getShortcutText(draggedElement: any): string;
 
-  protected createDraggedElementShortcut(text: string, draggedElementNode?: HTMLElement) {
+  protected createDraggedElementShortcut(text: string, draggedElementNode?: HTMLElement):HTMLElement {
     const draggedElementShortcut = document.createElement("div");
     draggedElementShortcut.innerText = text;
     draggedElementShortcut.style.cssText =
@@ -207,9 +207,21 @@ export abstract class DragDropCore<T> extends Base {
     cancelAnimationFrame(this.scrollIntervalId);
     const startScrollBoundary = 50;
 
-    // need to import getScrollableParent method
-    // let scrollableParentNode = getScrollableParent(dropTragetNode)
-    //   .parentNode;
+    // this.draggedElementShortcut.hidden = true;
+    // let dragOverNode = <HTMLElement>document.elementFromPoint(clientX, clientY);
+    // this.draggedElementShortcut.hidden = false;
+
+    // function getScrollableParent(node:HTMLElement):HTMLElement {
+    //   if (node == null) {
+    //     return null;
+    //   }
+    //   if (node.scrollHeight > node.clientHeight) {
+    //     return node;
+    //   } else {
+    //     return getScrollableParent(<HTMLElement>node.parentNode);
+    //   }
+    // }
+    // let scrollableParentNode = getScrollableParent(dragOverNode);
     let scrollableParentNode =
       document.querySelector(".svc-tab-designer.sd-root-modern") ||
       document.querySelector(".sv-root-modern") ||

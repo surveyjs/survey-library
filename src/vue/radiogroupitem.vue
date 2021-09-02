@@ -1,19 +1,20 @@
 <template>
-  <div>
-    <label :class="getLabelClass(item)">
+  <div 
+    role="radio" 
+    :aria-checked="question.renderedValue === item.value ? 'true': 'false'"
+    :aria-invalid="question.ariaInvalid"
+    :aria-required="question.isRequired"
+    :aria-describedby="question.ariaDescribedBy"
+  >
+    <label :class="getLabelClass(item)" :aria-label="item.locText.renderedHtml">
       <input
         type="radio"
+        aria-hidden="true"
         :name="question.name + '_' + question.id"
         :value="item.value"
         :id="question.inputId + '_' + index"
         v-model="question.renderedValue"
         :disabled="question.isInputReadOnly || !item.isEnabled"
-        v-bind:aria-required="question.isRequired"
-        :aria-label="item.locText.renderedHtml"
-        :aria-invalid="question.errors.length > 0"
-        :aria-describedby="
-          question.errors.length > 0 ? question.id + '_errors' : null
-        "
         :class="question.cssClasses.itemControl"
       />
       <span :class="question.cssClasses.materialDecorator">

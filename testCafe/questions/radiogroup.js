@@ -261,4 +261,23 @@ frameworks.forEach((framework) => {
     const json = JSON.parse(await getQuestionJson());
     assert.equal(json.choices[0].text, newTitle);
   });
+
+  test(`accessibility checks`, async (t) => {
+    const radiogroup = Selector(`[role="radiogroup"]`);
+   
+    let hiddenLegendExists = radiogroup.find("legend.sv-visuallyhidden").withText("What car are you driving?").exists;
+    await t.expect(hiddenLegendExists).ok();
+
+    let radiosCount = radiogroup.find(`[role="radio"][aria-required="true"]`).count;
+    await t.expect(radiosCount).eql(11);
+
+    const nissanItem = radiogroup.find(`[role="radio"][aria-required="true"] [aria-label="Nissan"]`);
+    await t.click(nissanItem);
+
+    radiosCount = radiogroup.find(`[role="radio"][aria-required="true"][aria-checked="false"]`).count;
+    await t.expect(radiosCount).eql(10);
+
+    radiosCount = radiogroup.find(`[role="radio"][aria-required="true"][aria-checked="true"]`).count;
+    await t.expect(radiosCount).eql(1);
+  });
 });

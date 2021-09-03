@@ -29,8 +29,8 @@ export class QuestionCommentModel extends QuestionTextBase {
     this.setPropertyValue("cols", val);
   }
   /**
-   * Specifies whether the question's text area automatically expands its height to avoid the vertical scrollbar and to display the entire multi-line contents entered by respondents.  
-   * Default value is false.  
+   * Specifies whether the question's text area automatically expands its height to avoid the vertical scrollbar and to display the entire multi-line contents entered by respondents.
+   * Default value is false.
    * @see SurveyModel.autoGrowComment
    */
   public get autoGrow(): boolean {

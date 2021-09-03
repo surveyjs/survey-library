@@ -9,11 +9,11 @@ export class FunctionFactory {
     name: string,
     func: (params: any[]) => any,
     isAsync: boolean = false
-  ) {
+  ): void {
     this.functionHash[name] = func;
     if (isAsync) this.isAsyncHash[name] = true;
   }
-  public unregister(name: string) {
+  public unregister(name: string): void {
     delete this.functionHash[name];
     delete this.isAsyncHash[name];
   }
@@ -24,7 +24,7 @@ export class FunctionFactory {
     return !!this.isAsyncHash[name];
   }
 
-  public clear() {
+  public clear(): void {
     this.functionHash = {};
   }
   public getAll(): Array<string> {

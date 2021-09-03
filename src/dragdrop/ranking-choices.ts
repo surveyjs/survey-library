@@ -19,7 +19,9 @@ export class DragDropRankingChoices extends DragDropChoices {
         `;
 
     const isDeepClone = true;
-    const clone = draggedElementNode.cloneNode(isDeepClone);
+    const clone = <HTMLElement>draggedElementNode.cloneNode(isDeepClone);
+    clone.classList.remove("sv-dragdrop-moveup");
+    clone.classList.remove("sv-dragdrop-movedown");
     draggedElementShortcut.appendChild(clone);
 
     return draggedElementShortcut;

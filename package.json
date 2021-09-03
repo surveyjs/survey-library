@@ -48,7 +48,7 @@
     "dev": "concurrently \"http-server -p 8080 --silent\" \"npm run watch:core:dev\" \"npm run watch:core:prod\" \"npm run watch:ko:ui:dev\" \"npm run watch:react:ui:dev\" \"npm run watch:ko:ui:prod\" \"npm run watch:react:ui:prod\"",
     "madge": "madge --circular --extensions ts ./src/",
     "pre-push-check": "npm run lint && npm run testsingle",
-    "lint": "eslint ./src",
+    "lint": "eslint ./src --quiet",
     "testsingle": "karma start ./build-scripts/karma.conf.js --single-run"
   },
   "version": "1.8.64",

@@ -5411,3 +5411,19 @@ QUnit.test("Check isAnswered property", function(assert) {
 
   survey.css.question.titleOnAnswer = prevStyle;
 });
+QUnit.test("question.startWithNewLine", function(assert) {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "text", name: "q1" },
+      { type: "panel", name: "p1", elements: [{ type: "text", name: "q2" }] },
+    ],
+  });
+  assert.equal(survey.getQuestionByName("q1").startWithNewLine, true);
+  assert.equal(survey.getQuestionByName("q2").startWithNewLine, true);
+  survey.pages[0].addNewQuestion("text", "q3");
+  assert.equal(survey.getQuestionByName("q3").startWithNewLine, true);
+  const q4 = new QuestionTextModel("q4");
+  assert.equal(q4.startWithNewLine, true);
+  survey.pages[0].addQuestion(q4);
+  assert.equal(q4.startWithNewLine, true);
+});

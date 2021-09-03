@@ -1440,7 +1440,9 @@ export class SurveyModel extends Base
     this.setPropertyValue("checkErrorsMode", val);
   }
   /**
-   * Gets or sets a value indicating whether comment questions are automatically increase height to display its entire contents.
+   * Specifies whether the text area of [comment](https://surveyjs.io/Documentation/Library?id=questioncommentmodel) questions/elements automatically expands its height to avoid the vertical scrollbar and to display the entire multi-line contents entered by respondents.  
+   * Default value is false.  
+   * @see QuestionCommentModel.autoGrow
    */
   public get autoGrowComment(): boolean {
     return this.getPropertyValue("autoGrowComment");

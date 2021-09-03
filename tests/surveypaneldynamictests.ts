@@ -3789,3 +3789,49 @@ QUnit.test("Dynamic Panel, getDisplayValue(), Bug#2855", function(assert) {
     "Do not use value"
   );
 });
+QUnit.test("Support panel dynamic for isContainerReady", function (assert) {
+  var survey = new SurveyModel({
+    elements: [
+      {
+        "type": "paneldynamic",
+        "name": "panel1",
+        "templateElements": [
+          {
+            "type": "text",
+            "name": "q1",
+            "isRequired": true
+          },
+          {
+            "type": "expression",
+            "name": "exp1",
+            "expression": "isContainerReady('panel1', {panelIndex})",
+          }
+        ],
+        "panelCount": 2,
+      },
+      {
+        "type": "expression",
+        "name": "exp2",
+        "expression": "isContainerReady('panel1')",
+      }
+    ]
+  });
+  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
+  const panel1Exp = panel.panels[0].getQuestionByName("exp1");
+  const panel2Exp = panel.panels[1].getQuestionByName("exp1");
+  const exp = survey.getQuestionByName("exp2");
+  assert.equal(panel1Exp.value, false, "panel1Exp");
+  assert.equal(panel2Exp.value, false, "panel2Exp");
+  assert.equal(exp.value, false, "exp");
+
+  panel.panels[0].getQuestionByName("q1").value = "val1";
+  assert.equal(panel1Exp.value, true, "panel1Exp");
+  assert.equal(panel2Exp.value, false, "panel2Exp");
+  assert.equal(exp.value, false, "exp");
+
+  panel.panels[1].getQuestionByName("q1").value = "val1";
+  assert.equal(panel1Exp.value, true, "panel1Exp");
+  assert.equal(panel2Exp.value, true, "panel2Exp");
+  assert.equal(exp.value, true, "exp");
+});
+

@@ -72,8 +72,9 @@ export class SurveyPanel extends SurveyPanelBase {
       this.panel.getTitleComponentName(),
       { element: this.panel, cssClasses: this.panel.cssClasses.panel }
     );
+    const CustomTag = this.panel.titleTagName as keyof JSX.IntrinsicElements;
     return (
-      <h4
+      <CustomTag
         className={this.panel.cssTitle}
         tabIndex={this.panel.titleTabIndex}
         aria-expanded={this.panel.titleAriaExpanded}
@@ -85,7 +86,7 @@ export class SurveyPanel extends SurveyPanelBase {
         }}
       >
         {titleComponent}
-      </h4>
+      </CustomTag>
     );
   }
   protected renderDescription(): JSX.Element {

@@ -481,6 +481,9 @@ export class Question extends SurveyElement
   get locTitle(): LocalizableString {
     return this.getLocalizableString("title");
   }
+  protected getDefaultTitleTagName(): string {
+    return settings.titleTags.question;
+  }
   /**
    * Question description. It renders under question title by using smaller font. Unlike the title, description can be empty.
    * Please note, this property is hidden for questions without input, for example html question.

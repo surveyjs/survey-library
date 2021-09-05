@@ -13760,3 +13760,16 @@ QUnit.test("utils.increaseHeightByContent", assert => {
   increaseHeightByContent(<HTMLElement>element);
   assert.equal(element.style.height, "92px");
 });
+QUnit.test("test titleTagName property", assert => {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "panel", name: "p1",
+        elements: [{ type: "text", name: "q1" }]
+      }
+    ]
+  });
+  assert.equal(survey.getQuestionByName("q1").titleTagName, "h5");
+  assert.equal((<PanelModel>survey.getPanelByName("p1")).titleTagName, "h4");
+  assert.equal(survey.pages[0].titleTagName, "h3");
+});

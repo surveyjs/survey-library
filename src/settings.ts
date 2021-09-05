@@ -164,4 +164,10 @@ export var settings = {
    * For example: Survey.settings.customIcons["icon-redo"] = "my-own-redo-icon"
    */
   customIcons: {},
+  titleTags: {
+    survey: "h3",
+    page: "h3",
+    panel: "h4",
+    question: "h5",
+  }
 };

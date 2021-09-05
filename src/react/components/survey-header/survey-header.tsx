@@ -36,12 +36,13 @@ export class SurveyHeader extends React.Component<ISurveyHeaderProps, any> {
     let description = SurveyElementBase.renderLocString(
       this.survey.locDescription
     );
+    const CustomTag = this.survey.titleTagName as keyof JSX.IntrinsicElements;
     return (
       <div
         className={this.css.headerText}
         style={{ maxWidth: this.survey.titleMaxWidth }}
       >
-        <h3 className={this.css.title}>{title}</h3>
+        <CustomTag className={this.css.title}>{title}</CustomTag>
         <h5 className={this.css.description}>{description}</h5>
       </div>
     );

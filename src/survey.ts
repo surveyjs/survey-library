@@ -1654,6 +1654,9 @@ export class SurveyModel extends Base
   get locTitle(): LocalizableString {
     return this.getLocalizableString("title");
   }
+  public get titleTagName(): string {
+    return settings.titleTags.survey;
+  }
   /**
    * Gets or sets a survey description. The survey description is displayed under a survey title.
    * @see title

@@ -17,6 +17,7 @@ import {
 import { SurveyError } from "./survey-error";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { Helpers } from "./helpers";
+import { settings } from "./settings";
 
 /**
  * Base class of SurveyJS Elements.
@@ -214,6 +215,12 @@ export class SurveyElement extends Base implements ISurveyElement {
       this.isTitleActionRequested = true;
     }
     return this.titleActions;
+  }
+  public get titleTagName(): string {
+    return this.getDefaultTitleTagName();
+  }
+  protected getDefaultTitleTagName(): string {
+    return (<any>settings.titleTags)[this.getType()];
   }
   private updateTitleActions() {
     let actions = [];

@@ -149,13 +149,14 @@ export class SurveyQuestion extends SurveyElementBase<any, any> {
   protected renderQuestion(): JSX.Element {
     return SurveyQuestion.renderQuestionBody(this.creator, this.question);
   }
-  protected renderTitle(cssClasses: any): JSX.Element {
+  protected renderTitle(): JSX.Element {
     const titleComponent = ReactElementFactory.Instance.createElement(
       this.question.getTitleComponentName(),
       { element: this.question, cssClasses: this.question.cssClasses }
     );
+    const CustomTag = this.question.titleTagName as keyof JSX.IntrinsicElements;
     return (
-      <h5
+      <CustomTag
         className={this.question.cssTitle}
         aria-label={this.question.locTitle.renderedHtml}
         id={this.question.ariaTitleId}
@@ -164,12 +165,12 @@ export class SurveyQuestion extends SurveyElementBase<any, any> {
         onClick={() => {
           return this.question.toggleState();
         }}
-        onKeyUp={(evt) => {
+        onKeyUp={(evt: any) => {
           doKey2ClickUp(evt.nativeEvent);
         }}
       >
         {titleComponent}
-      </h5>
+      </CustomTag>
     );
   }
   protected renderDescription(

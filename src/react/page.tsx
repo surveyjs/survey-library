@@ -40,8 +40,9 @@ export class SurveyPage extends SurveyPanelBase {
         </>
       );
     }
+    const CustomTag = this.page.titleTagName as keyof JSX.IntrinsicElements;
     return (
-      <h4 className={this.panelBase.cssClasses.page.title}>{titleContent}</h4>
+      <CustomTag className={this.panelBase.cssClasses.page.title}>{titleContent}</CustomTag>
     );
   }
   protected renderDescription(): JSX.Element {

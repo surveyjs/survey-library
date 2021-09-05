@@ -19,7 +19,7 @@ import { SurveyElement } from "./survey-element";
 import { Question } from "./question";
 import { ConditionRunner } from "./conditions";
 import { ElementFactory, QuestionFactory } from "./questionfactory";
-import { ILocalizableOwner, LocalizableString } from "./localizablestring";
+import { LocalizableString } from "./localizablestring";
 import { OneAnswerRequiredError } from "./error";
 import { PageModel } from "./page";
 import { settings } from "./settings";
@@ -246,7 +246,7 @@ export class QuestionRowModel extends Base {
  * A base class for a Panel and Page objects.
  */
 export class PanelModelBase extends SurveyElement
-  implements IPanel, IConditionRunner, ILocalizableOwner, ISurveyErrorOwner {
+  implements IPanel, IConditionRunner, ISurveyErrorOwner {
   private static panelCounter = 100;
   private static getPanelId(): string {
     return "sp_" + PanelModelBase.panelCounter++;
@@ -268,8 +268,6 @@ export class PanelModelBase extends SurveyElement
       this.onRemoveElement.bind(this)
     );
     this.id = PanelModelBase.getPanelId();
-    this.createLocalizableString("title", this, true);
-    this.createLocalizableString("description", this, true);
     this.createLocalizableString("requiredErrorText", this);
     this.registerFunctionOnPropertyValueChanged("questionTitleLocation", () => {
       this.onVisibleChanged.bind(this);
@@ -297,19 +295,6 @@ export class PanelModelBase extends SurveyElement
     this.markQuestionListDirty();
     this.onRowsChanged();
   }
-  /**
-   * PanelModel or PageModel title property.
-   * @description
-   */
-  public get title(): string {
-    return this.getLocalizableStringText("title");
-  }
-  public set title(val: string) {
-    this.setLocalizableStringText("title", val);
-  }
-  get locTitle(): LocalizableString {
-    return this.getLocalizableString("title");
-  }
   get _showTitle(): boolean {
     return (
       ((<any>this.survey).showPageTitles && this.title.length > 0) ||
@@ -324,19 +309,6 @@ export class PanelModelBase extends SurveyElement
         settings.allowShowEmptyTitleInDesignMode &&
         settings.allowShowEmptyDescriptionInDesignMode)
     );
-  }
-  /**
-   * PanelModel or PageModel description property. It renders under title by using smaller font. Unlike the title, description can be empty.
-   * @see title
-   */
-  public get description(): string {
-    return this.getLocalizableStringText("description");
-  }
-  public set description(val: string) {
-    this.setLocalizableStringText("description", val);
-  }
-  get locDescription(): LocalizableString {
-    return this.getLocalizableString("description");
   }
   public localeChanged() {
     super.localeChanged();
@@ -412,24 +384,6 @@ export class PanelModelBase extends SurveyElement
       this.elements.push(newElements[i]);
     }
     this.isRandomizing = false;
-  }
-  getLocale(): string {
-    return this.survey
-      ? (<ILocalizableOwner>(<any>this.survey)).getLocale()
-      : "";
-  }
-  getMarkdownHtml(text: string, name: string) {
-    return this.survey
-      ? this.survey.getSurveyMarkdownHtml(this, text, name)
-      : null;
-  }
-  getRenderer(name: string): string {
-    return this.survey ? this.survey.getRendererForString(this, name) : null;
-  }
-  getProcessedText(text: string): string {
-    return this.textProcessor
-      ? this.textProcessor.processText(text, true)
-      : text;
   }
   /**
    * A parent element. It is always null for the Page object and always not null for the Panel object. Panel object may contain Questions and other Panels.

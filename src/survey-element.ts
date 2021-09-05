@@ -18,11 +18,12 @@ import { SurveyError } from "./survey-error";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { Helpers } from "./helpers";
 import { settings } from "./settings";
+import { ILocalizableOwner, LocalizableString } from "./localizablestring";
 
 /**
  * Base class of SurveyJS Elements.
  */
-export class SurveyElement extends Base implements ISurveyElement {
+export class SurveyElement extends Base implements ISurveyElement, ILocalizableOwner {
   stateChangedCallback: () => void;
 
   public static getProgressInfoByElements(
@@ -103,6 +104,8 @@ export class SurveyElement extends Base implements ISurveyElement {
   constructor(name: string) {
     super();
     this.name = name;
+    this.createLocTitleProperty();
+    this.createLocalizableString("description", this, true);
     this.createNewArray("errors");
     this.createNewArray("titleActions");
     this.registerFunctionOnPropertyValueChanged("isReadOnly", () => {
@@ -111,6 +114,9 @@ export class SurveyElement extends Base implements ISurveyElement {
     this.registerFunctionOnPropertyValueChanged("errors", () => {
       this.updateVisibleErrors();
     });
+  }
+  protected createLocTitleProperty(): LocalizableString {
+    return this.createLocalizableString("title", this, true);
   }
   protected onPropertyValueChanged(name: string, oldValue: any, newValue: any) {
     super.onPropertyValueChanged(name, oldValue, newValue);
@@ -205,6 +211,36 @@ export class SurveyElement extends Base implements ISurveyElement {
         .append("sv-expand-action").append("sv-expand-action--expanded", this.isExpanded).toString();
     }
   }
+  /**
+   * Question, Panel and Page title. If page and panel is empty then they are not rendered.
+   * Question renders question name if the title is empty. Use survey questionTitleTemplate property to change the title question rendering.
+   * @see SurveyModel.questionTitleTemplate
+   */
+  public get title(): string {
+    return this.getLocalizableStringText("title", this.getDefaultTitleValue());
+  }
+  public set title(val: string) {
+    this.setLocalizableStringText("title", val);
+  }
+  get locTitle(): LocalizableString {
+    return this.getLocalizableString("title");
+  }
+  protected getDefaultTitleValue(): string { return undefined; }
+  /**
+   * Question, Panel and Page description. It renders under element title by using smaller font. Unlike the question title, description can be empty.
+   * Please note, this property is hidden for questions without input, for example html question.
+   * @see title
+   */
+  public get description(): string {
+    return this.getLocalizableStringText("description");
+  }
+  public set description(val: string) {
+    this.setLocalizableStringText("description", val);
+  }
+  get locDescription(): LocalizableString {
+    return this.getLocalizableString("description");
+  }
+
   public get titleActions(): Array<any> {
     return this.getPropertyValue("titleActions");
   }
@@ -449,6 +485,41 @@ export class SurveyElement extends Base implements ISurveyElement {
     return false;
   }
   public delete() {}
+  //ILocalizableOwner
+  locOwner: ILocalizableOwner;
+  /**
+   * Returns the current survey locale
+   * @see SurveyModel.locale
+   */
+  public getLocale(): string {
+    return this.survey
+      ? (<ILocalizableOwner>(<any>this.survey)).getLocale()
+      : this.locOwner
+        ? this.locOwner.getLocale()
+        : "";
+  }
+  public getMarkdownHtml(text: string, name: string): string {
+    return this.survey
+      ? this.survey.getSurveyMarkdownHtml(this, text, name)
+      : this.locOwner
+        ? this.locOwner.getMarkdownHtml(text, name)
+        : null;
+  }
+  public getRenderer(name: string): string {
+    return this.survey && typeof this.survey.getRendererForString === "function"
+      ? this.survey.getRendererForString(this, name)
+      : this.locOwner && typeof this.locOwner.getRenderer === "function"
+        ? this.locOwner.getRenderer(name)
+        : null;
+  }
+  public getProcessedText(text: string): string {
+    if (this.isLoadingFromJson) return text;
+    if (this.textProcessor)
+      return this.textProcessor.processText(text, this.getUseDisplayValuesInTitle());
+    if (this.locOwner) return this.locOwner.getProcessedText(text);
+    return text;
+  }
+  protected getUseDisplayValuesInTitle(): boolean { return true; }
   protected removeSelfFromList(list: Array<any>) {
     if (!list || !Array.isArray(list)) return;
     const index: number = list.indexOf(this);

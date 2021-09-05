@@ -1,12 +1,13 @@
 import { ItemValue } from "../itemvalue";
 import { DragDropChoices } from "./choices";
 export class DragDropRankingChoices extends DragDropChoices {
-
-  protected createDraggedElementShortcut(text: string, draggedElementNode: HTMLElement):HTMLElement {
+  protected createDraggedElementShortcut(
+    text: string,
+    draggedElementNode: HTMLElement
+  ): HTMLElement {
     const draggedElementShortcut = document.createElement("div");
     // draggedElementShortcut.innerText = text;
-    draggedElementShortcut.style.cssText =
-        ` 
+    draggedElementShortcut.style.cssText = ` 
           cursor: grabbing;
           position: absolute;
           z-index: 1000;
@@ -47,30 +48,35 @@ export class DragDropRankingChoices extends DragDropChoices {
     const dropTargetIndex = choices.indexOf(this.dropTarget);
     const draggedElementIndex = choices.indexOf(this.draggedElement);
 
-    choices.splice(draggedElementIndex, 1);
-    choices.splice(dropTargetIndex, 0, this.draggedElement);
-    this.parentElement.setValue();
-    this.updateDraggedElementShortcut(dropTargetIndex + 1);
-
     dropTargetNode.classList.remove("sv-dragdrop-moveup");
     dropTargetNode.classList.remove("sv-dragdrop-movedown");
 
     if (draggedElementIndex > dropTargetIndex) {
-      dropTargetNode.classList.add("sv-dragdrop-movedown");
+      // dropTargetNode.classList.add("sv-dragdrop-movedown");
+      this.parentElement.dropTargetNodeMove = "down";
     } else {
-      dropTargetNode.classList.add("sv-dragdrop-moveup");
+      // dropTargetNode.classList.add("sv-dragdrop-moveup");
+      this.parentElement.dropTargetNodeMove = "up";
     }
+
+    choices.splice(draggedElementIndex, 1);
+    choices.splice(dropTargetIndex, 0, this.draggedElement);
+
+    this.parentElement.setValue();
+    this.updateDraggedElementShortcut(dropTargetIndex + 1);
   }
 
   private updateDraggedElementShortcut(newIndex: number) {
     const newIndexText = newIndex + "";
     // TODO should avoid direct DOM manipulation, do through the frameworks instead
-    const indexNode:HTMLElement = this.draggedElementShortcut.querySelector(".sv-ranking-item__index");
+    const indexNode: HTMLElement = this.draggedElementShortcut.querySelector(
+      ".sv-ranking-item__index"
+    );
     indexNode.innerText = newIndexText;
   }
 
   protected ghostPositionChanged(): void {
-    this.parentElement.currentDragTarget = this.draggedElement;
+    this.parentElement.currentDrropTarget = this.draggedElement;
     super.ghostPositionChanged();
   }
 

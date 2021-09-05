@@ -34,11 +34,33 @@ export class DragDropRankingChoices extends DragDropChoices {
     return this.parentElement.rankingChoices[dataAttributeValue];
   }
 
-  protected isDropTargetValid(dropTarget: ItemValue): boolean {
+  protected isDropTargetValid(
+    dropTarget: ItemValue,
+    isBottom: boolean,
+    dropTargetNode?: HTMLElement
+  ): boolean {
     const choices = this.parentElement.visibleChoices;
 
-    // shouldn't allow to drop on "adorners" (selectall, none, other)
-    if (choices.indexOf(dropTarget) === -1) return false;
+    if (dropTarget === this.draggedElement) return false;
+
+    const dropTargetIndex = choices.indexOf(this.dropTarget);
+    const draggedElementIndex = choices.indexOf(this.draggedElement);
+
+    if (
+      draggedElementIndex > dropTargetIndex &&
+      dropTargetNode.classList.contains("sv-dragdrop-movedown")
+    )
+      return false;
+
+    if (
+      draggedElementIndex < dropTargetIndex &&
+      dropTargetNode.classList.contains("sv-dragdrop-moveup")
+    )
+      return false;
+
+    if (choices.indexOf(dropTarget) === -1)
+      // shouldn't allow to drop on "adorners" (selectall, none, other)
+      return false;
 
     return true;
   }
@@ -50,6 +72,13 @@ export class DragDropRankingChoices extends DragDropChoices {
 
     dropTargetNode.classList.remove("sv-dragdrop-moveup");
     dropTargetNode.classList.remove("sv-dragdrop-movedown");
+    this.parentElement.dropTargetNodeMove = null;
+
+    choices.splice(draggedElementIndex, 1);
+    choices.splice(dropTargetIndex, 0, this.draggedElement);
+
+    this.parentElement.setValue();
+    this.updateDraggedElementShortcut(dropTargetIndex + 1);
 
     if (draggedElementIndex > dropTargetIndex) {
       // dropTargetNode.classList.add("sv-dragdrop-movedown");
@@ -58,12 +87,6 @@ export class DragDropRankingChoices extends DragDropChoices {
       // dropTargetNode.classList.add("sv-dragdrop-moveup");
       this.parentElement.dropTargetNodeMove = "up";
     }
-
-    choices.splice(draggedElementIndex, 1);
-    choices.splice(dropTargetIndex, 0, this.draggedElement);
-
-    this.parentElement.setValue();
-    this.updateDraggedElementShortcut(dropTargetIndex + 1);
   }
 
   private updateDraggedElementShortcut(newIndex: number) {

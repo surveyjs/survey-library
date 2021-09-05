@@ -81,7 +81,7 @@ export abstract class DragDropCore<T> extends Base {
 
     let isBottom = this.calculateIsBottom(event.clientY, dropTargetNode);
 
-    const isDropTargetValid = this.isDropTargetValid(this.dropTarget, isBottom);
+    const isDropTargetValid = this.isDropTargetValid(this.dropTarget, isBottom, dropTargetNode);
 
     this.doDragOver(dropTargetNode);
 
@@ -137,7 +137,8 @@ export abstract class DragDropCore<T> extends Base {
 
   protected abstract isDropTargetValid(
     dropTarget: any,
-    isBottom: boolean
+    isBottom: boolean,
+    dropTargetNode?: HTMLElement
   ): boolean;
 
   private handleEscapeButton = (event: KeyboardEvent) => {

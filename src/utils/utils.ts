@@ -189,7 +189,7 @@ function doKey2ClickDown(evt: KeyboardEvent, options = { processEsc: true }): vo
 }
 function increaseHeightByContent(element: HTMLElement, getComputedStyle?: (elt: Element) => any) {
   if (!element) return;
-  if (!getComputedStyle) getComputedStyle = (elt: Element) => { return window.getComputedStyle.bind(window); };
+  if (!getComputedStyle) getComputedStyle = (elt: Element) => { return window.getComputedStyle(elt); };
 
   const style = getComputedStyle(element);
   let rect = element.getBoundingClientRect();

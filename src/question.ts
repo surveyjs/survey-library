@@ -34,6 +34,28 @@ export interface IConditionObject {
   question: Question;
 }
 
+export class A11y {
+  constructor(private model: Question) {}
+
+  public get ariaInvalid(): boolean {
+    return this.model.errors.length > 0;
+  }
+  public get ariaDescribedBy(): string {
+    const model = this.model;
+    return model.errors.length > 0 ? model.id + "_errors" : null;
+  }
+  public get ariaRole(): string {
+    return null;
+  }
+  public get ariaLabelledby(): string {
+    const model = this.model;
+    return model.hasTitle ? this.ariaTitleId : null;
+  }
+  public get ariaTitleId(): string {
+    return this.model.id + "_ariaTitle";
+  }
+}
+
 /**
  * A base class for all questions.
  */
@@ -137,6 +159,8 @@ export class Question extends SurveyElement
         this.initCommentFromSurvey();
       }
     );
+
+    this._a11y = new A11y(this);
   }
   public getSurvey(live: boolean = false): ISurvey {
     if (live) {
@@ -186,11 +210,8 @@ export class Question extends SurveyElement
   public get isReady(): boolean {
     return this.isReadyValue;
   }
-  public get ariaInvalid():boolean {
-    return this.errors.length > 0;
-  }
-  public get ariaDescribedBy(): string {
-    return this.errors.length > 0 ? this.id + "_errors" : null;
+  public get a11y(): A11y {
+    return this._a11y;
   }
 
   /**
@@ -956,12 +977,6 @@ export class Question extends SurveyElement
   }
   public set id(val: string) {
     this.setPropertyValue("id", val);
-  }
-  public get ariaTitleId(): string {
-    return this.id + "_ariaTitle";
-  }
-  public get ariaRole(): string {
-    return null;
   }
   public get hasOther(): boolean {
     return this.getPropertyValue("hasOther", false);

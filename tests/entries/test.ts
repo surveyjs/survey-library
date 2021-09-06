@@ -1,5 +1,4 @@
 // common
-export * from "../a11y";
 export * from "../calculatedvaluestests";
 export * from "../helperstests";
 export * from "../basetests"; //
@@ -52,3 +51,7 @@ import "../../src/localization/russian";
 import "../../src/localization/french";
 import "../../src/localization/finnish";
 import "../../src/localization/german";
+
+// a11y
+export * from "../a11y/question";
+export * from "../a11y/checkbox";

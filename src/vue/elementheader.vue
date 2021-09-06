@@ -4,7 +4,7 @@
       v-if="element.hasTitle"
       :class="element.cssTitle"
       v-bind:aria-label="element.locTitle.renderedHtml"
-      v-bind:id="element.ariaTitleId"
+      v-bind:id="element.a11y.ariaTitleId"
       v-bind:tabindex="element.titleTabIndex"
       v-bind:aria-expanded="element.titleAriaExpanded"
       v-on:click="

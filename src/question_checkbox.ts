@@ -9,6 +9,13 @@ import { ItemValue } from "./itemvalue";
 import { surveyLocalization } from "./surveyStrings";
 import { LocalizableString } from "./localizablestring";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
+import { A11y } from "./question";
+
+export class QuestionCheckboxA11y extends A11y {
+  public get ariaRole(): string {
+    return "group";
+  }
+}
 
 /**
  * A Model for a checkbox question
@@ -35,9 +42,7 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
         this.onVisibleChoicesChanged();
       }
     );
-  }
-  public get ariaRole(): string {
-    return "group";
+    this._a11y = new QuestionCheckboxA11y(this);
   }
   public getType(): string {
     return "checkbox";

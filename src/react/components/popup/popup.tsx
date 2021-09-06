@@ -73,7 +73,7 @@ export class PopupContainer extends SurveyElementBase<any, any> {
   }
   renderContainer() {
     const pointer = this.model.showPointer ? this.renderPointer() : null;
-    const header = this.renderHeader();
+    const header = !!this.model.title ? this.renderHeader() : null;
     const content = this.renderContent();
     const footer = this.model.isModal ? this.renderFooter() : null;
     return (

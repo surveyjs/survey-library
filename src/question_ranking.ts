@@ -37,9 +37,22 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
   }
 
   public getItemClass(item: ItemValue): string {
+    const itemIndex = this.rankingChoices.indexOf(item);
+    const dropTargetIndex = this.rankingChoices.indexOf(
+      this.currentDrropTarget
+    );
+
     return new CssClassBuilder()
       .append(super.getItemClass(item))
-      .append(this.cssClasses.itemGhostMod, this.currentDragTarget === item)
+      .append(this.cssClasses.itemGhostMod, this.currentDrropTarget === item)
+      .append(
+        "sv-dragdrop-movedown",
+        itemIndex === dropTargetIndex + 1 && this.dropTargetNodeMove === "down"
+      )
+      .append(
+        "sv-dragdrop-moveup",
+        itemIndex === dropTargetIndex - 1 && this.dropTargetNodeMove === "up"
+      )
       .toString();
   }
 
@@ -90,7 +103,8 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
   }
 
   public dragDropHelper: DragDropRankingChoices;
-  @property({ defaultValue: null }) currentDragTarget: ItemValue;
+  @property({ defaultValue: null }) currentDrropTarget: ItemValue;
+  @property({ defaultValue: null }) dropTargetNodeMove: string;
 
   endLoadingFromJson(): void {
     super.endLoadingFromJson();
@@ -99,9 +113,13 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
     }
   }
 
-  public handlePointerDown = (event: PointerEvent, choice: ItemValue): void => {
+  public handlePointerDown = (
+    event: PointerEvent,
+    choice: ItemValue,
+    node: HTMLElement
+  ): void => {
     if (!this.fallbackToSortableJS) {
-      this.dragDropHelper.startDrag(event, choice, this);
+      this.dragDropHelper.startDrag(event, choice, this, node);
     }
   };
 

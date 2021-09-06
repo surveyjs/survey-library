@@ -11,12 +11,18 @@ export class DragDropChoices extends DragDropCore<QuestionSelectBase> {
     return draggedElement.text;
   }
 
-  protected findDropTargetNodeByDragOverNode(dragOverNode:HTMLElement):HTMLElement {
-    const result: HTMLElement = dragOverNode.closest(this.dropTargetDataAttributeName);
+  protected findDropTargetNodeByDragOverNode(
+    dragOverNode: HTMLElement
+  ): HTMLElement {
+    const result: HTMLElement = dragOverNode.closest(
+      this.dropTargetDataAttributeName
+    );
     return result;
   }
 
-  protected getDropTargetByDataAttributeValue(dataAttributeValue: string): ItemValue {
+  protected getDropTargetByDataAttributeValue(
+    dataAttributeValue: string
+  ): ItemValue {
     let dragOverChoice;
 
     dragOverChoice = this.parentElement.choices.filter(
@@ -26,7 +32,11 @@ export class DragDropChoices extends DragDropCore<QuestionSelectBase> {
     return dragOverChoice;
   }
 
-  protected isDropTargetValid(dropTarget: ItemValue):boolean {
+  protected isDropTargetValid(
+    dropTarget: ItemValue,
+    isBottom: boolean,
+    dropTargetNode?: HTMLElement
+  ): boolean {
     const choices = this.parentElement.choices;
 
     if (this.dropTarget === this.draggedElement) return false;
@@ -45,7 +55,7 @@ export class DragDropChoices extends DragDropCore<QuestionSelectBase> {
     );
   }
 
-  protected doDrop():any {
+  protected doDrop(): any {
     const isTop = !this.isBottom;
     const choices = this.parentElement.choices;
     const oldIndex = choices.indexOf(this.draggedElement);

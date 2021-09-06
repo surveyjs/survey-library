@@ -21,6 +21,7 @@ export class PopupModel<T = any> extends Base {
   @property({ defaultValue: () => { } }) onHide: () => void;
   @property({ defaultValue: () => { } }) onShow: () => void;
   @property({ defaultValue: "" }) cssClass: string;
+  @property({ defaultValue: "" }) title: string;
   constructor(
     contentComponentName: string,
     contentComponentData: T,
@@ -32,7 +33,8 @@ export class PopupModel<T = any> extends Base {
     onApply = () => { return true; },
     onHide = () => { },
     onShow = () => { },
-    cssClass: string = ""
+    cssClass: string = "",
+    title: string = ""
   ) {
     super();
     this.contentComponentName = contentComponentName;
@@ -46,6 +48,7 @@ export class PopupModel<T = any> extends Base {
     this.onHide = onHide;
     this.onShow = onShow;
     this.cssClass = cssClass;
+    this.title = title;
   }
   public get isVisible(): boolean {
     return this.getPropertyValue("isVisible", false);
@@ -75,7 +78,8 @@ export function createPopupModalViewModel(
   onCancel?: () => void,
   onHide = () => { },
   onShow = () => { },
-  cssClass?: string
+  cssClass?: string,
+  title?: string
 ) {
   const popupModel = new PopupModel(
     componentName,
@@ -88,7 +92,8 @@ export function createPopupModalViewModel(
     onApply,
     onHide,
     onShow,
-    cssClass
+    cssClass,
+    title
   );
   const popupViewModel: PopupBaseViewModel = new PopupBaseViewModel(
     popupModel,
@@ -125,6 +130,9 @@ export class PopupBaseViewModel extends Base {
       }
       this.isVisible = this.model.isVisible;
     });
+  }
+  public get title(): string {
+    return this.model.title;
   }
   public get contentComponentName(): string {
     return this.model.contentComponentName;
@@ -192,8 +200,8 @@ export class PopupBaseViewModel extends Base {
     const rect = this.targetElement.getBoundingClientRect();
     const background = <HTMLElement>this.container.children[0];
     const popupContainer = <HTMLElement>background.children[0];
-    const scrollContent = <HTMLElement>background.children[0].children[1];
-    const height =
+    const scrollContent = <HTMLElement>background.children[0].children[2];
+    let height =
       popupContainer.offsetHeight -
       scrollContent.offsetHeight +
       scrollContent.scrollHeight;
@@ -201,6 +209,7 @@ export class PopupBaseViewModel extends Base {
     this.height = "auto";
     let verticalPosition = this.model.verticalPosition;
     if (!!window) {
+      height = Math.min(height, window.innerHeight * 0.9);
       verticalPosition = PopupUtils.updateVerticalPosition(
         rect,
         height,

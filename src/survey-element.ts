@@ -381,8 +381,32 @@ export class SurveyElement extends Base implements ISurveyElement, ILocalizableO
       this.readOnlyChangedCallback();
     }
   }
+  private get css(): any {
+    return !!this.survey ? this.survey.getCss() : {};
+  }
+  @property() cssClassesValue: any;
+  /**
+   * Returns all css classes that used for rendering the question, panel or page.
+   * You can use survey.onUpdateQuestionCssClasses event to override css classes for a question, survey.onUpdatePanelCssClasses event for a panel and survey.onUpdatePageCssClasses for a page.
+   * @see SurveyModel.updateQuestionCssClasses
+   * @see SurveyModel.updatePanelCssClasses
+   * @see SurveyModel.updatePageCssClasses
+   */
+  public get cssClasses(): any {
+    if (!this.survey) return this.calcCssClasses(this.css);
+    if (!this.cssClassesValue) {
+      this.cssClassesValue = this.calcCssClasses(this.css);
+      this.updateElementCssCore(this.cssClassesValue);
+    }
+    return this.cssClassesValue;
+  }
+  protected calcCssClasses(css: any): any { return undefined; }
+  protected updateElementCssCore(cssClasses: any) {}
   public get cssError(): string { return ""; }
-  public updateElementCss(reNew?: boolean) {}
+  public get cssTitle(): string { return ""; }
+  public updateElementCss(reNew?: boolean) {
+    this.cssClassesValue = undefined;
+  }
   protected getIsLoadingFromJson(): boolean {
     if (super.getIsLoadingFromJson()) return true;
     return this.survey ? this.survey.isLoadingFromJson : false;

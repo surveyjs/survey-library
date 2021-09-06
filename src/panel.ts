@@ -408,27 +408,17 @@ export class PanelModelBase extends SurveyElement
   public set visibleIf(val: string) {
     this.setPropertyValue("visibleIf", val);
   }
-  private cssClassesValue: any;
-  public get cssClasses(): any {
-    if (!this.cssClassesValue) {
-      this.cssClassesValue = this.calcCssClasses();
-    }
-    return this.cssClassesValue;
-  }
-  protected calcCssClasses(): any {
+  protected calcCssClasses(css: any): any {
     var classes = { panel: {}, error: {}, row: "" };
-    this.copyCssClasses(classes.panel, this.css.panel);
-    this.copyCssClasses(classes.error, this.css.error);
-    if (!!this.css.row) {
-      classes.row = this.css.row;
+    this.copyCssClasses(classes.panel, css.panel);
+    this.copyCssClasses(classes.error, css.error);
+    if (!!css.row) {
+      classes.row = css.row;
     }
     if (this.survey) {
       this.survey.updatePanelCssClasses(this, classes);
     }
     return classes;
-  }
-  protected get css(): any {
-    return !!this.survey ? this.survey.getCss() : {};
   }
   /**
    * A unique element identificator. It is generated automatically.
@@ -1221,12 +1211,11 @@ export class PanelModelBase extends SurveyElement
     super.onReadOnlyChanged();
   }
   public updateElementCss(reNew?: boolean) {
-    this.cssClassesValue = undefined;
+    super.updateElementCss(reNew);
     for (let i = 0; i < this.elements.length; i++) {
       const el = <SurveyElement>(<any>this.elements[i]);
       el.updateElementCss(reNew);
     }
-    super.updateElementCss(reNew);
   }
 
   /**

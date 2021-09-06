@@ -90,8 +90,7 @@ export class PageModel extends PanelModelBase implements IPage {
   public get isStarted(): boolean {
     return this.survey && this.survey.isPageStarted(this);
   }
-  protected calcCssClasses(): any {
-    const css = this.css;
+  protected calcCssClasses(css: any): any {
     const classes = { page: {}, pageTitle: "", pageDescription: "", row: "" };
     this.copyCssClasses(classes.page, css.page);
     if (!!css.pageTitle) {

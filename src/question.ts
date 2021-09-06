@@ -619,21 +619,7 @@ export class Question extends SurveyElement
     if (this.startWithNewLine == val) return;
     this.setPropertyValue("startWithNewLine", val);
   }
-  @property() cssClassesValue: any;
-  /**
-   * Returns all css classes that used for rendering the question. You may use survey.updateQuestionCssClasses event to override css classes for a question.
-   * @see SurveyModel.updateQuestionCssClasses
-   */
-  public get cssClasses(): any {
-    if (!this.survey) return this.calcCssClasses();
-    if (!this.cssClassesValue) {
-      this.cssClassesValue = this.calcCssClasses();
-      this.updateElementCssCore(this.cssClassesValue);
-    }
-    return this.cssClassesValue;
-  }
-  private calcCssClasses(): any {
-    const css = this.css;
+  protected calcCssClasses(css: any): any {
     const classes = { error: {} };
     this.copyCssClasses(classes, css.question);
     this.copyCssClasses(classes.error, css.error);
@@ -725,7 +711,7 @@ export class Question extends SurveyElement
       .toString();
   }
   public updateElementCss(reNew?: boolean) {
-    this.cssClassesValue = undefined;
+    super.updateElementCss(reNew);
     if (reNew) {
       this.updateQuestionCss(true);
     }
@@ -737,9 +723,6 @@ export class Question extends SurveyElement
       (reNew !== true && !this.cssClassesValue)
     )
       return;
-    if (!this.cssClassesValue) {
-      this.cssClassesValue = this.calcCssClasses();
-    }
     this.updateElementCssCore(this.cssClasses);
   }
   private ensureElementCss() {
@@ -777,9 +760,6 @@ export class Question extends SurveyElement
   }
   protected getCssType(): string {
     return this.getType();
-  }
-  private get css(): any {
-    return !!this.survey ? this.survey.getCss() : {};
   }
   /**
    * Use it to set the specific width to the question like css style (%, px, em etc).

@@ -255,4 +255,43 @@ frameworks.forEach(async framework => {
       .pressKey("shift+tab shift+tab")
       .expect(listItems.nth(9).focused).ok();
   });
+  test("check popup on the same click", async t => {
+    const currentAddDropdownTitleAction = (_, opt) => {
+      let items = [];
+      for (let index = 0; index < 20; index++) {
+        items[index] = new window["Survey"].Action({ title: "item" + index });
+      }
+      const itemPopupModel = new window["Survey"].PopupModel("sv-list", {
+        model: new window["Survey"].ListModel(items)
+      });
+
+      const item = new window["Survey"].Action({
+        component: "sv-action-bar-item-dropdown",
+        title: "Click",
+        showTitle: true,
+        action: () => {
+          itemPopupModel.toggleVisibility();
+        },
+        popupModel: itemPopupModel
+      });
+      opt.titleActions = [item];
+    };
+    const insertContainer = ClientFunction(()=>{
+      const container = document.createElement("div");
+      container.style.height = "200px";
+      document.body.insertBefore(container, document.getElementById("surveyElement"));
+    });
+    const popupContainerSelector = Selector(".sv-popup__container");
+    await insertContainer();
+    await initSurvey(framework, json, { onGetQuestionTitleActions: currentAddDropdownTitleAction });
+    await t
+      .click(clickButton)
+      .expect(popupSelector.visible).ok()
+      .expect(popupContainerSelector.offsetHeight).eql(362)
+      .click(clickButton)
+      .expect(popupSelector.visible).notOk()
+      .click(clickButton)
+      .expect(popupSelector.visible).ok()
+      .expect(popupContainerSelector.offsetHeight).eql(362);
+  });
 });

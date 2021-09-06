@@ -28,7 +28,7 @@
         }"
         class="sv-popup__pointer"
       ></span>
-      <div class="sv-popup__header">{{ model.title }}</div>
+      <div class="sv-popup__header" v-show="!!this.model.title">{{ this.model.title }}</div>
       <div class="sv-popup__scrolling-content">
         <div class="sv-popup__content">
           <component

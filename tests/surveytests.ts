@@ -13780,5 +13780,5 @@ QUnit.test("test titleTagName property", assert => {
   });
   assert.equal(survey.getQuestionByName("q1").titleTagName, "h5");
   assert.equal((<PanelModel>survey.getPanelByName("p1")).titleTagName, "h4");
-  assert.equal(survey.pages[0].titleTagName, "h3");
+  assert.equal(survey.pages[0].titleTagName, "h4");
 });

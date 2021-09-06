@@ -200,7 +200,7 @@ export class PopupBaseViewModel extends Base {
     const rect = this.targetElement.getBoundingClientRect();
     const background = <HTMLElement>this.container.children[0];
     const popupContainer = <HTMLElement>background.children[0];
-    const scrollContent = <HTMLElement>background.children[0].children[2];
+    const scrollContent = <HTMLElement>background.children[0].querySelector(".sv-popup__scrolling-content");
     let height =
       popupContainer.offsetHeight -
       scrollContent.offsetHeight +

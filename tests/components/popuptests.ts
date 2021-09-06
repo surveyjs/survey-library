@@ -680,7 +680,7 @@ QUnit.test("Check calculatePointer target method", (assert) => {
 });
 
 QUnit.test("Check calculatePosition with window size method", (assert) => {
-  let targetRect = {
+  let targetRect: any = {
     left: 50,
     top: 250,
     width: 50,

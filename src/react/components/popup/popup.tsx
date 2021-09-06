@@ -109,7 +109,7 @@ export class PopupContainer extends SurveyElementBase<any, any> {
     );
   }
   renderHeader() {
-    return <div className="sv-popup__header"></div>;
+    return <div className="sv-popup__header">{this.model.title}</div>;
   }
   renderContent() {
     const contentComponent = ReactElementFactory.Instance.createElement(
@@ -169,7 +169,8 @@ export function showModal(
   data: any,
   onApply: () => boolean,
   onCancel?: () => void,
-  cssClass?: string
+  cssClass?: string,
+  title?: string
 ) {
   const popupViewModel: PopupBaseViewModel = createPopupModalViewModel(
     componentName,
@@ -181,7 +182,8 @@ export function showModal(
       popupViewModel.destroyPopupContainer();
     },
     undefined,
-    cssClass
+    cssClass,
+    title
   );
   ReactDOM.render(<PopupContainer model={popupViewModel} />, popupViewModel.container);
 

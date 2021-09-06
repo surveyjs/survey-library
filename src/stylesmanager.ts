@@ -367,6 +367,7 @@ export class StylesManager {
     ".sv-popup__pointer": "display: block; position: absolute;",
     ".sv-popup__pointer:after":
       "content: ' '; display: block; width: 0; height: 0; border-left: calc(1 * 8px) solid transparent; border-right: calc(1 * 8px) solid transparent; border-bottom: calc(1 * 8px) solid white; align-self: center;",
+    ".sv-popup__header": "font-family: Open Sans; font-size: calc(3 * 8px); line-height: calc(4 * 8px); font-style: normal; font-weight: 700; margin-bottom: calc(2 * 8px); color: rgb(22, 22, 22)",
     ".sv-popup__footer": "display: flex; margin-top: calc(4 * 8px);",
     ".sv-popup__footer-item:first-child": "margin-left: auto;",
     ".sv-popup__footer-item + .sv-popup__footer-item":
@@ -374,12 +375,11 @@ export class StylesManager {
     ".sv-popup__button":
       "padding: calc(2 * 8px) calc(6 * 8px); background: #fff; box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.15); border-radius: 4px; cursor: pointer; margin: 2px; font-family: 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif; font-style: normal; font-weight: 600; font-size: calc(2 * 8px); line-height: calc(3 * 8px); text-align: center; color: #19b394; border: none; outline: none;",
     ".sv-popup__button:hover": "box-shadow: 0 0 0 2px #19b394;",
-    ".sv-popup__button:disabled":
-      "color: rgba(22, 22, 22, 0.16); cursor: default;",
+    ".sv-popup__button:disabled": "color: rgba(22, 22, 22, 0.16); cursor: default;",
     ".sv-popup__button:disabled:hover":
       "box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.15);",
-    ".sv-popup__button--apply": "background-color: #19b394; color: #fff;",
-    ".sv-popup__button--apply:disabled": "background-color: #f3f3f3;",
+    ".sv-popup__button.sv-popup__button--apply": "background-color: #19b394; color: #fff;",
+    ".sv-popup__button.sv-popup__button--apply:disabled": "background-color: #f3f3f3;",
     //eo popup
     //list
     ".sv-list":

@@ -28,7 +28,7 @@
         }"
         class="sv-popup__pointer"
       ></span>
-      <div class="sv-popup__header"></div>
+      <div class="sv-popup__header">{{ model.title }}</div>
       <div class="sv-popup__scrolling-content">
         <div class="sv-popup__content">
           <component
@@ -89,7 +89,8 @@ export function showModal(
   data: any,
   onApply: () => boolean,
   onCancel?: () => void,
-  cssClass?: string
+  cssClass?: string,
+  title?: string
 ) {
   const popupViewModel: PopupBaseViewModel = createPopupModalViewModel(
     componentName,
@@ -101,7 +102,8 @@ export function showModal(
       popupViewModel.destroyPopupContainer();
     },
     undefined,
-    cssClass
+    cssClass,
+    title
   );
   const popup = new PopupContainer({
     el: popupViewModel.container.appendChild(document.createElement("div")),

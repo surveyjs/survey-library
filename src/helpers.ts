@@ -1,3 +1,5 @@
+import { settings } from "./settings";
+
 export interface HashTable<T> {
   [key: string]: T;
 }
@@ -67,7 +69,17 @@ export class Helpers {
     if ((x === undefined || x === null) && y === "") return true;
     if ((y === undefined || y === null) && x === "") return true;
 
-    if (typeof x === "string" && typeof y == "string") return x == y;
+    if(typeof x === "string" && typeof y === "string") {
+      if(settings.comparator.trimStrings) {
+        x = x.trim();
+        y = y.trim();
+      }
+      if(!settings.comparator.caseSensitive) {
+        x = x.toLowerCase();
+        y = y.toLowerCase();
+      }
+      return x === y;
+    }
 
     if (Helpers.isConvertibleToNumber(x) && Helpers.isConvertibleToNumber(y)) {
       if (parseInt(x) === parseInt(y) && parseFloat(x) === parseFloat(y)) {

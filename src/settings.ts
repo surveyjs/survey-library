@@ -153,7 +153,8 @@ export var settings = {
       data: any,
       onApply: () => boolean,
       onCancel?: () => void,
-      cssClass?: string
+      cssClass?: string,
+      title?: string
     ) => void
   >undefined,
   supportCreatorV2: false,

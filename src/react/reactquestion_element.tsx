@@ -2,6 +2,7 @@ import * as React from "react";
 import { Helpers } from "survey-core";
 import { LocalizableString } from "survey-core";
 import { Question } from "survey-core";
+import { SurveyElement, doKey2ClickUp } from "survey-core";
 import { ISurveyCreator } from "./reactquestion";
 import { Base, ArrayChanges } from "survey-core";
 import { ReactElementFactory } from "./element-factory";
@@ -100,6 +101,30 @@ export class SurveyElementBase<P, S> extends React.Component<P, S> {
     style: any = null
   ): JSX.Element {
     return SurveyElementBase.renderLocString(locStr, style);
+  }
+  protected renderElementTitle(element: SurveyElement): JSX.Element {
+    const titleComponent = ReactElementFactory.Instance.createElement(
+      element.getTitleComponentName(),
+      { element: element, cssClasses: element.cssClasses }
+    );
+    const CustomTag = element.titleTagName as keyof JSX.IntrinsicElements;
+    return (
+      <CustomTag
+        className={element.cssTitle}
+        aria-label={element.locTitle.renderedHtml}
+        id={element.ariaTitleId}
+        tabIndex={element.titleTabIndex}
+        aria-expanded={element.titleAriaExpanded}
+        onClick={() => {
+          return element.toggleState();
+        }}
+        onKeyUp={(evt: any) => {
+          doKey2ClickUp(evt.nativeEvent);
+        }}
+      >
+        {titleComponent}
+      </CustomTag>
+    );
   }
 
   private makeBaseElementReact(stateElement: Base) {

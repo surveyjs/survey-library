@@ -12962,6 +12962,9 @@ QUnit.test("Panel: Add change state action into actions", (assert) => {
     "sv-title-actions",
     "Renders with actions"
   );
+  assert.equal(survey.pages[0].titleTabIndex, undefined, "We don't need titleTabIndex for page");
+  assert.equal(survey.pages[0].titleAriaExpanded, undefined, "We don't need titleAriaExpanded for page");
+
   assert.equal(panel.titleTabIndex, 0, "We need to stop on title");
   assert.equal(panel.titleAriaExpanded, true, "Title area expanded is true");
   panel.state = "collapsed";

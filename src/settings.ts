@@ -176,7 +176,7 @@ export var settings = {
   customIcons: {},
   titleTags: {
     survey: "h3",
-    page: "h3",
+    page: "h4",
     panel: "h4",
     question: "h5",
   }

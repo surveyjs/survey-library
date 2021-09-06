@@ -13,7 +13,8 @@ export class TitleActions extends React.Component<any, any> {
     return this.props.element;
   }
 
-  render() {
+  render(): JSX.Element {
+    /*
     const titleContent: JSX.Element = !this.element.isPage ? (
       <TitleContent
         element={this.element}
@@ -22,6 +23,8 @@ export class TitleActions extends React.Component<any, any> {
     ) : (
       <>{SurveyElementBase.renderLocString((this.element as any).locTitle)}</>
     );
+    */
+    const titleContent: JSX.Element = <TitleContent element={this.element} cssClasses={this.cssClasses}></TitleContent>;
     return (
       <div className="sv-title-actions">
         <span className="sv-title-actions__title">{titleContent}</span>

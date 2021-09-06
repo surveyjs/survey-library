@@ -292,11 +292,12 @@ export class SurveyElement extends Base implements ISurveyElement, ILocalizableO
     }
     return componentName;
   }
+  public get ariaTitleId(): string { return undefined; }
   public get titleTabIndex(): number {
-    return this.state !== "default" ? 0 : undefined;
+    return !this.isPage && this.state !== "default" ? 0 : undefined;
   }
   public get titleAriaExpanded(): boolean {
-    if (this.state === "default") return undefined;
+    if (this.isPage || this.state === "default") return undefined;
     return this.state === "expanded";
   }
   public setSurveyImpl(value: ISurveyImpl) {

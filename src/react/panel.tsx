@@ -68,26 +68,7 @@ export class SurveyPanel extends SurveyPanelBase {
   }
   protected renderTitle(): JSX.Element {
     if (!this.panelBase.title) return null;
-    const titleComponent = ReactElementFactory.Instance.createElement(
-      this.panel.getTitleComponentName(),
-      { element: this.panel, cssClasses: this.panel.cssClasses.panel }
-    );
-    const CustomTag = this.panel.titleTagName as keyof JSX.IntrinsicElements;
-    return (
-      <CustomTag
-        className={this.panel.cssTitle}
-        tabIndex={this.panel.titleTabIndex}
-        aria-expanded={this.panel.titleAriaExpanded}
-        onClick={() => {
-          return this.panel.toggleState();
-        }}
-        onKeyUp={(evt) => {
-          doKey2ClickUp(evt.nativeEvent);
-        }}
-      >
-        {titleComponent}
-      </CustomTag>
-    );
+    return this.renderElementTitle(this.panelBase);
   }
   protected renderDescription(): JSX.Element {
     if (!this.panelBase.description) return null;

@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Base, SurveyElement, SurveyError, Question, QuestionMatrixDropdownRenderedCell, CssClassBuilder, doKey2ClickUp } from "survey-core";
+import { Base, SurveyElement, SurveyError, Question, QuestionMatrixDropdownRenderedCell, doKey2ClickUp } from "survey-core";
 import { ReactSurveyModel } from "./reactsurveymodel";
 import { ReactElementFactory } from "./element-factory";
 import { SurveyElementBase, ReactSurveyElement } from "./reactquestion_element";
@@ -149,30 +149,6 @@ export class SurveyQuestion extends SurveyElementBase<any, any> {
   protected renderQuestion(): JSX.Element {
     return SurveyQuestion.renderQuestionBody(this.creator, this.question);
   }
-  protected renderTitle(): JSX.Element {
-    const titleComponent = ReactElementFactory.Instance.createElement(
-      this.question.getTitleComponentName(),
-      { element: this.question, cssClasses: this.question.cssClasses }
-    );
-    const CustomTag = this.question.titleTagName as keyof JSX.IntrinsicElements;
-    return (
-      <CustomTag
-        className={this.question.cssTitle}
-        aria-label={this.question.locTitle.renderedHtml}
-        id={this.question.ariaTitleId}
-        tabIndex={this.question.titleTabIndex}
-        aria-expanded={this.question.titleAriaExpanded}
-        onClick={() => {
-          return this.question.toggleState();
-        }}
-        onKeyUp={(evt: any) => {
-          doKey2ClickUp(evt.nativeEvent);
-        }}
-      >
-        {titleComponent}
-      </CustomTag>
-    );
-  }
   protected renderDescription(
     cssClasses: any,
     isUnderInput: boolean = false
@@ -203,7 +179,7 @@ export class SurveyQuestion extends SurveyElementBase<any, any> {
   }
   protected renderHeader(question: Question): JSX.Element {
     var cssClasses = question.cssClasses;
-    var title = question.hasTitle ? this.renderTitle(cssClasses) : null;
+    var title = question.hasTitle ? this.renderElementTitle(question) : null;
     var description = question.hasDescriptionUnderTitle
       ? this.renderDescription(cssClasses)
       : null;

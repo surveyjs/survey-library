@@ -246,7 +246,7 @@ export class QuestionRowModel extends Base {
  * A base class for a Panel and Page objects.
  */
 export class PanelModelBase extends SurveyElement
-  implements IPanel, IConditionRunner, ISurveyErrorOwner {
+  implements IPanel, IConditionRunner, ISurveyErrorOwner, ITitleOwner {
   private static panelCounter = 100;
   private static getPanelId(): string {
     return "sp_" + PanelModelBase.panelCounter++;
@@ -1551,6 +1551,8 @@ export class PanelModelBase extends SurveyElement
     this.removeElement(src);
     this.addElement(target, targetIndex);
   }
+  //ITitleOwner
+  public get no(): string { return ""; }
   public dispose() {
     super.dispose();
     if (this.rows) {
@@ -1564,6 +1566,7 @@ export class PanelModelBase extends SurveyElement
     }
     this.elements.splice(0, this.elements.length);
   }
+
 }
 
 /**
@@ -1571,7 +1574,7 @@ export class PanelModelBase extends SurveyElement
  * It may contain questions and other panels.
  */
 export class PanelModel extends PanelModelBase
-  implements IElement, ITitleOwner {
+  implements IElement {
   public minWidth?: string;
   public maxWidth?: string;
   constructor(name: string = "") {

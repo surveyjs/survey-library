@@ -6,6 +6,7 @@ import { ActionContainer } from "./container";
 export class AdaptiveActionContainer<T extends Action = Action> extends ActionContainer<T> {
   protected dotsItem: Action;
   protected dotsItemPopupModel: PopupModel;
+  public createResponsivityManager: boolean = true;
 
   private invisibleItemsListModel: ListModel = new ListModel(
     [],
@@ -20,14 +21,6 @@ export class AdaptiveActionContainer<T extends Action = Action> extends ActionCo
     if (!!item && typeof item.action === "function") {
       item.action();
     }
-  }
-
-  private sortItems(items: Array<T>) {
-    return []
-      .concat(items.filter((item) => item.visibleIndex >= 0 || item.visibleIndex === undefined))
-      .sort((firstItem, secondItem) => {
-        return firstItem.visibleIndex - secondItem.visibleIndex;
-      });
   }
 
   private hideItemsGreaterN(visibleItemsCount: number) {
@@ -94,15 +87,6 @@ export class AdaptiveActionContainer<T extends Action = Action> extends ActionCo
 
   protected getRenderedActions(): Array<T> {
     return this.actions.concat([<T>this.dotsItem]);
-  }
-
-  public setItems(items: Array<IAction>, sortByVisibleIndex = true) {
-    const actions: Array<T> = <any>items.map((item) => (item instanceof Action ? item : new Action(item)));
-    if (sortByVisibleIndex) {
-      this.actions = this.sortItems(actions);
-    } else {
-      this.actions = actions;
-    }
   }
 
   public fit(dimension: number, dotsItemSize: number) {

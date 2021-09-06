@@ -59,14 +59,16 @@ ko.components.register("sv-action-bar", {
 
       const container: HTMLDivElement =
         componentInfo.element.nextElementSibling;
-      const manager: ResponsivityManager = new ResponsivityManager(
-        container,
-        params.model,
-        ".sv-action:not(.sv-dots)>.sv-action__content"
-      );
-      ko.utils.domNodeDisposal.addDisposeCallback(container, () =>
-        manager.dispose()
-      );
+      if (params.model.createResponsivityManager) {
+        const manager: ResponsivityManager = new ResponsivityManager(
+          container,
+          params.model,
+          ".sv-action:not(.sv-dots)>.sv-action__content"
+        );
+        ko.utils.domNodeDisposal.addDisposeCallback(container, () =>
+          manager.dispose()
+        );
+      }
       return model;
     },
   },

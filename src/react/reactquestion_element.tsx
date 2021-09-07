@@ -7,6 +7,7 @@ import { ISurveyCreator } from "./reactquestion";
 import { Base, ArrayChanges } from "survey-core";
 import { ReactElementFactory } from "./element-factory";
 import { ReactSurveyModel } from "./reactsurveymodel";
+import { TitleActions } from "./components/title-actions/title-actions";
 
 export class SurveyElementBase<P, S> extends React.Component<P, S> {
   public static renderLocString(
@@ -103,10 +104,24 @@ export class SurveyElementBase<P, S> extends React.Component<P, S> {
     return SurveyElementBase.renderLocString(locStr, style);
   }
   protected renderElementTitle(element: SurveyElement): JSX.Element {
-    const titleComponent = ReactElementFactory.Instance.createElement(
+    /*
+    const titleContent = ReactElementFactory.Instance.createElement(
       element.getTitleComponentName(),
       { element: element, cssClasses: element.cssClasses }
     );
+    */
+    var titleContent = null;
+    if (!element.hasTitleActions) {
+      var text = SurveyElementBase.renderLocString(element.locTitle);
+      titleContent = <>{text}</>;
+    } else {
+      titleContent = (
+        <>
+          <TitleActions element={element}></TitleActions>
+        </>
+      );
+    }
+
     const CustomTag = element.titleTagName as keyof JSX.IntrinsicElements;
     return (
       <CustomTag
@@ -122,7 +137,7 @@ export class SurveyElementBase<P, S> extends React.Component<P, S> {
           doKey2ClickUp(evt.nativeEvent);
         }}
       >
-        {titleComponent}
+        {titleContent}
       </CustomTag>
     );
   }

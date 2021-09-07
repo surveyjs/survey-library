@@ -29,6 +29,8 @@ export class SurveyPage extends SurveyPanelBase {
   }
   protected renderTitle(): JSX.Element {
     if (!this.page._showTitle) return null;
+    return this.renderElementTitle(this.page);
+    /*
     var titleContent = null;
     if (!this.page.hasTitleActions) {
       var text = SurveyElementBase.renderLocString(this.page.locTitle);
@@ -44,6 +46,7 @@ export class SurveyPage extends SurveyPanelBase {
     return (
       <CustomTag className={this.panelBase.cssTitle}>{titleContent}</CustomTag>
     );
+    */
   }
   protected renderDescription(): JSX.Element {
     if (!this.page._showDescription) return null;

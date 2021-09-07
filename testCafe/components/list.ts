@@ -38,15 +38,13 @@ function addTitleAction(_, opt) {
   }
 }
 
-frameworks.forEach(async framework => {
+["react", "knockout"].forEach(async framework => {
   fixture`${framework} ${title}`.page`${url}${framework}`.clientScripts({ content: `(${explicitErrorHandler.toString()})()` }).beforeEach(async t => {
-    //await t.resizeWindow(800, 600);
   });
 
   test("check custom markup in list behavior", async t => {
     await registerCustomToolboxComponent(framework);
     await initSurvey(framework, json, { onGetQuestionTitleActions: addTitleAction });
-    await t.debug();
     await t
       .expect(Selector(".sv-popup__content .my-custom-action-class").withText("Custom Action 29").exists).ok();
   });

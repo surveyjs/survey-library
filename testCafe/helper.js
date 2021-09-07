@@ -60,6 +60,44 @@ export const initSurvey = ClientFunction(
   }
 );
 
+export const registerCustomToolboxComponent = ClientFunction(
+  (framework, json, events, isDesignMode, props) => {
+    if (framework === "knockout") {
+      ko.components.register("svc-custom-action", {
+        viewModel: {
+          createViewModel: (params) => {
+            return params.item;
+          },
+        },
+        template: `<div class="my-custom-action-class" data-bind="click: function() { $data.action() }, text: $data.title"></div>`
+      });
+    }  else if (framework === "react") {
+      class CustomActionButton extends React.Component {
+        click = () => {
+            this.props.item.action();
+        }
+        render() {
+            return (
+              <div className="my-custom-action-class" onClick={this.click}> {this.props.item.title}</div>
+            );
+        }
+      }
+    
+      Survey.ReactElementFactory.Instance.registerElement("svc-custom-action", (props) => {
+          return React.createElement(CustomActionButton, props);
+      });
+    
+    } else if (framework === "vue") {
+      // Vue.component('svc-custom-action', {
+      //   props: {
+      //     item: {}
+      //   },
+      //   template: '<div class="my-custom-action-class" data-bind="click: function() { $data.action() }">{{ item.title }}</div>'
+      // });
+    }
+  }
+);
+
 export const getSurveyResult = ClientFunction(() => {
   var result = window.SurveyResult;
   if (typeof result === "undefined") {

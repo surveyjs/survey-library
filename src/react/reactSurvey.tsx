@@ -190,13 +190,15 @@ export class Survey extends SurveyElementBase<any, any>
     var bottomProgress = this.survey.isShowProgressBarOnBottom
       ? this.renderProgress(false)
       : null;
+    let className = this.css.body;
     if (!currentPage) {
+      className = this.css.bodyEmpty;
       currentPage = this.renderEmptySurvey();
     }
     return (
       <div
         id={pageId}
-        className={!currentPage ? this.css.bodyEmpty : this.css.body}
+        className={className}
       >
         {topProgress}
         {this.renderTimerPanel("top")}

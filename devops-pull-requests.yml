@@ -28,7 +28,6 @@ steps:
   - script: |
       cd $(Build.SourcesDirectory)/survey-library
       npm install
-      npm run release -- --release-as $(SurveyJSVersion)
       npm run build_prod
       npm run build_core
       npm run build_knockout_ui

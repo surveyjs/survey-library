@@ -96,8 +96,6 @@ export class Action extends Base implements IAction {
   constructor(item: IAction) {
     super();
     //Object.assign(this, item) to support IE11
-    this.visible = true;
-    this.mode = "large";
     if (!!item) {
       for (var key in item) {
         (<any>this)[key] = (<any>item)[key];

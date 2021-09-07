@@ -1,5 +1,5 @@
 <template>
-  <fieldset :class="question.cssClasses.root" role="radiogroup">
+  <fieldset :class="question.cssClasses.root" role="radiogroup" :aria-labelledby="question.hasTitle ? question.ariaTitleId : null">
     <legend class="sv-visuallyhidden" >{{question.locTitle.renderedHtml}}</legend>
     <survey-radiogroup-item
       v-if="!question.hasColumns"

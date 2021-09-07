@@ -16,7 +16,6 @@
       <survey-element
         :id="element.id"
         :role="element.ariaRole"
-        :aria-labelledby="element.hasTitle ? element.ariaTitleId : null"
         :name="element.name"
         :style="{
           paddingLeft: element.paddingLeft,

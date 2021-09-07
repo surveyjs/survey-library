@@ -3,6 +3,7 @@ import { IAction, ListModel } from "survey-core";
 import { ReactElementFactory } from "../../element-factory";
 import { SurveyElementBase } from "../../reactquestion_element";
 import { attachKey2click } from "../../reactSurvey";
+import { SurveyActionBarItemDropdown } from "../action-bar/action-bar-item-dropdown";
 import { SvgIcon } from "../svg-icon/svg-icon";
 
 interface IListProps {
@@ -47,13 +48,21 @@ export class List extends SurveyElementBase<IListProps, any> {
         display: item.visible === undefined || item.visible ? null : "none",
       };
       const className = this.model.getItemClass(item);
-      const icon = item.iconName ? (
-        <SvgIcon
-          className="sv-list__item-icon"
-          iconName={item.iconName}
-          size={24}
-        ></SvgIcon>
-      ) : null;
+      const content = [];
+      if(!item.component) {
+        const icon = item.iconName ? (
+          <SvgIcon
+            className="sv-list__item-icon"
+            iconName={item.iconName}
+            size={24}
+          ></SvgIcon>
+        ) : null;
+        content.push(icon);
+        content.push(<span>{item.title}</span>);
+      } else {
+        content.push(ReactElementFactory.Instance.createElement(item.component, { item: item, }));
+      }
+
       return attachKey2click(
         <li
           style={style}
@@ -63,8 +72,7 @@ export class List extends SurveyElementBase<IListProps, any> {
             this.model.selectItem(item);
           }}
         >
-          {icon}
-          <span>{item.title}</span>
+          {content}
         </li>
       );
     });

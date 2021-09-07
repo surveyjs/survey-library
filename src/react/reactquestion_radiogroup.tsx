@@ -34,8 +34,6 @@ export class SurveyQuestionRadiogroup extends SurveyQuestionElementBase {
       <fieldset
         className={cssClasses.root}
         ref={(fieldset) => (this.control = fieldset)}
-        role="radiogroup"
-        aria-labelledby={this.question.hasTitle ? this.question.ariaTitleId : null}
       >
         {this.question.hasColumns
           ? this.getColumns(cssClasses)

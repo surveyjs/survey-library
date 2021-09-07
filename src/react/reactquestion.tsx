@@ -124,6 +124,7 @@ export class SurveyQuestion extends SurveyElementBase<any, any> {
         className={question.getRootCss()}
         style={rootStyle}
         role={question.ariaRole}
+        aria-labelledby={this.question.hasTitle ? this.question.ariaTitleId : null}
       >
         {headerTop}
         <div className={question.cssContent} style={contentStyle}>

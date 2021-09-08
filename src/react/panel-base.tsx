@@ -78,7 +78,7 @@ export class SurveyPanelBase extends SurveyElementBase<any, any> {
       super.canRender() &&
       !!this.survey &&
       !!this.panelBase &&
-      this.panelBase.visible &&
+      this.panelBase.isVisible &&
       !!this.panelBase.survey
     );
   }

@@ -7,6 +7,7 @@ import { SurveyPanelBase } from "./panel-base";
 import { PanelModel, doKey2ClickUp } from "survey-core";
 import { ReactSurveyModel } from "./reactsurveymodel";
 import { SurveyActionBar } from "./components/action-bar/action-bar";
+import { TitleElement } from "./components/title/title-element";
 
 export class SurveyPanel extends SurveyPanelBase {
   private hasBeenExpanded: boolean = false;
@@ -68,7 +69,7 @@ export class SurveyPanel extends SurveyPanelBase {
   }
   protected renderTitle(): JSX.Element {
     if (!this.panelBase.title) return null;
-    return this.renderElementTitle(this.panelBase);
+    return <TitleElement element={this.panelBase}></TitleElement>;
   }
   protected renderDescription(): JSX.Element {
     if (!this.panelBase.description) return null;

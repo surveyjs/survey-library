@@ -80,9 +80,4 @@ export class TitleContent extends React.Component<any, any> {
       </span>
     );
   }
-
-  // private getTitleKey = (element: ITitleOwner) => {
-  //   this.titleKeyIndex++;
-  //   return element.name + this.titleKeyPrefix + this.titleKeyIndex;
-  // };
 }

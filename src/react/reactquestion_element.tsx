@@ -2,12 +2,11 @@ import * as React from "react";
 import { Helpers } from "survey-core";
 import { LocalizableString } from "survey-core";
 import { Question } from "survey-core";
-import { SurveyElement, doKey2ClickUp } from "survey-core";
+import { SurveyElement } from "survey-core";
 import { ISurveyCreator } from "./reactquestion";
 import { Base, ArrayChanges } from "survey-core";
 import { ReactElementFactory } from "./element-factory";
 import { ReactSurveyModel } from "./reactsurveymodel";
-import { TitleActions } from "./components/title-actions/title-actions";
 
 export class SurveyElementBase<P, S> extends React.Component<P, S> {
   public static renderLocString(
@@ -103,45 +102,6 @@ export class SurveyElementBase<P, S> extends React.Component<P, S> {
   ): JSX.Element {
     return SurveyElementBase.renderLocString(locStr, style);
   }
-  protected renderElementTitle(element: SurveyElement): JSX.Element {
-    /*
-    const titleContent = ReactElementFactory.Instance.createElement(
-      element.getTitleComponentName(),
-      { element: element, cssClasses: element.cssClasses }
-    );
-    */
-    var titleContent = null;
-    if (!element.hasTitleActions) {
-      var text = SurveyElementBase.renderLocString(element.locTitle);
-      titleContent = <>{text}</>;
-    } else {
-      titleContent = (
-        <>
-          <TitleActions element={element}></TitleActions>
-        </>
-      );
-    }
-
-    const CustomTag = element.titleTagName as keyof JSX.IntrinsicElements;
-    return (
-      <CustomTag
-        className={element.cssTitle}
-        aria-label={element.locTitle.renderedHtml}
-        id={element.ariaTitleId}
-        tabIndex={element.titleTabIndex}
-        aria-expanded={element.titleAriaExpanded}
-        onClick={() => {
-          return element.toggleState();
-        }}
-        onKeyUp={(evt: any) => {
-          doKey2ClickUp(evt.nativeEvent);
-        }}
-      >
-        {titleContent}
-      </CustomTag>
-    );
-  }
-
   private makeBaseElementReact(stateElement: Base) {
     if (!stateElement) return;
     stateElement.iteratePropertiesHash((hash, key) => {

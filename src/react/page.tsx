@@ -3,7 +3,7 @@ import { PageModel } from "survey-core";
 import { SurveyElementBase } from "./reactquestion_element";
 import { PanelModelBase } from "survey-core";
 import { SurveyPanelBase } from "./panel-base";
-import { TitleActions } from "./components/title-actions/title-actions";
+import { TitleElement } from "./components/title/title-element";
 
 export class SurveyPage extends SurveyPanelBase {
   constructor(props: any) {
@@ -29,24 +29,7 @@ export class SurveyPage extends SurveyPanelBase {
   }
   protected renderTitle(): JSX.Element {
     if (!this.page._showTitle) return null;
-    return this.renderElementTitle(this.page);
-    /*
-    var titleContent = null;
-    if (!this.page.hasTitleActions) {
-      var text = SurveyElementBase.renderLocString(this.page.locTitle);
-      titleContent = <>{text}</>;
-    } else {
-      titleContent = (
-        <>
-          <TitleActions element={this.page}></TitleActions>
-        </>
-      );
-    }
-    const CustomTag = this.page.titleTagName as keyof JSX.IntrinsicElements;
-    return (
-      <CustomTag className={this.panelBase.cssTitle}>{titleContent}</CustomTag>
-    );
-    */
+    return <TitleElement element={this.page}></TitleElement>;
   }
   protected renderDescription(): JSX.Element {
     if (!this.page._showDescription) return null;

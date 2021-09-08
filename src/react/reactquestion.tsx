@@ -5,6 +5,7 @@ import { ReactElementFactory } from "./element-factory";
 import { SurveyElementBase, ReactSurveyElement } from "./reactquestion_element";
 import { SurveyQuestionCommentItem } from "./reactquestion_comment";
 import { SurveyCustomWidget } from "./custom-widget";
+import { TitleElement } from "./components/title/title-element";
 
 export interface ISurveyCreator {
   createQuestionElement(question: Question): JSX.Element;
@@ -179,7 +180,7 @@ export class SurveyQuestion extends SurveyElementBase<any, any> {
   }
   protected renderHeader(question: Question): JSX.Element {
     var cssClasses = question.cssClasses;
-    var title = question.hasTitle ? this.renderElementTitle(question) : null;
+    var title = question.hasTitle ? <TitleElement element={question}></TitleElement> : null;
     var description = question.hasDescriptionUnderTitle
       ? this.renderDescription(cssClasses)
       : null;

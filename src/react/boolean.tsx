@@ -1,5 +1,5 @@
 import * as React from "react";
-import { QuestionBooleanModel, CssClassBuilder } from "survey-core";
+import { QuestionBooleanModel, CssClassBuilder, Base } from "survey-core";
 import { SurveyQuestionElementBase } from "./reactquestion_element";
 import { ReactQuestionFactory } from "./reactquestion_factory";
 
@@ -13,46 +13,31 @@ export class SurveyQuestionBoolean extends SurveyQuestionElementBase {
     this.handleOnSwitchClick = this.handleOnSwitchClick.bind(this);
     this.checkRef = React.createRef();
   }
+  protected getStateElement(): Base {
+    return this.question;
+  }
   protected get question(): QuestionBooleanModel {
     return this.questionBase as QuestionBooleanModel;
   }
+  /*
   private get allowClick(): boolean {
     return this.question.isIndeterminate && !this.isDisplayMode;
   }
-  private preventDefaults(event: any) {
-    event.preventDefault();
-    event.stopPropagation();
-  }
+  */
   private doCheck(value: boolean) {
     this.question.checkedValue = value;
-    this.setState({ value: this.question.checkedValue });
   }
   handleOnChange(event: any) {
     this.doCheck(event.target.checked);
   }
   handleOnClick(event: any) {
-    if (this.allowClick) {
-      this.preventDefaults(event);
-      this.question.checkedValue = true;
-      this.setState({ value: this.question.checkedValue });
-    }
+    this.question.onLabelClick(event, true);
   }
   handleOnSwitchClick(event: any) {
-    if (this.allowClick) {
-      this.preventDefaults(event);
-      var isRightClick =
-        event.nativeEvent.offsetX / event.target.offsetWidth > 0.5;
-      var isRtl =
-        document.defaultView.getComputedStyle(event.target).direction == "rtl";
-      var value = isRtl ? !isRightClick : isRightClick;
-      return this.doCheck(value);
-    }
+    this.question.onSwitchClickModel(event.nativeEvent);
   }
   handleOnLabelClick(event: any, value: boolean) {
-    if (this.allowClick) {
-      this.preventDefaults(event);
-      this.doCheck(value);
-    }
+    this.question.onLabelClick(event, value);
   }
 
   protected updateDomElement() {

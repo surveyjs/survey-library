@@ -195,6 +195,12 @@ function increaseHeightByContent(element: HTMLElement) {
     element.style.height = (element.scrollHeight + 2) + "px";
   }
 }
+function getOriginalEvent(event: any) {
+  return event.originalEvent || event;
+}
+function preventDefaults(event: any) {
+  return event.originalEvent || event;
+}
 
 export {
   compareVersions,
@@ -210,5 +216,7 @@ export {
   doKey2ClickUp,
   doKey2ClickDown,
   getIconNameFromProxy,
-  increaseHeightByContent
+  increaseHeightByContent,
+  getOriginalEvent,
+  preventDefaults
 };

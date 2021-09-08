@@ -13,11 +13,19 @@ export class TitleElement extends React.Component<any, any> {
   render(): JSX.Element {
     const element = this.element;
     if(!element) return null;
-    var titleContent = null;
+    let titleContent;
+    let onClick = null;
+    let onKeyUp = null;
     if (!element.hasTitleActions) {
-      var text = SurveyElementBase.renderLocString(element.locTitle);
+      const text = SurveyElementBase.renderLocString(element.locTitle);
       titleContent = <>{text}</>;
     } else {
+      onClick = () => {
+        return element.toggleState();
+      };
+      onKeyUp = (evt: any) => {
+        doKey2ClickUp(evt.nativeEvent);
+      };
       titleContent = (
         <>
           <TitleActions element={element} cssClasses={element.cssClasses}></TitleActions>
@@ -33,12 +41,8 @@ export class TitleElement extends React.Component<any, any> {
         id={element.ariaTitleId}
         tabIndex={element.titleTabIndex}
         aria-expanded={element.titleAriaExpanded}
-        onClick={() => {
-          return element.toggleState();
-        }}
-        onKeyUp={(evt: any) => {
-          doKey2ClickUp(evt.nativeEvent);
-        }}
+        onClick={onClick}
+        onKeyUp={onKeyUp}
       >
         {titleContent}
       </CustomTag>

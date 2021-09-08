@@ -34,9 +34,7 @@ export class SurveyQuestionRadiogroup extends SurveyQuestionElementBase {
       <fieldset
         className={cssClasses.root}
         ref={(fieldset) => (this.control = fieldset)}
-        role="radiogroup"
       >
-        <legend className="sv-visuallyhidden">{this.question.locTitle.renderedHtml}</legend>
         {this.question.hasColumns
           ? this.getColumns(cssClasses)
           : this.getItems(cssClasses)}

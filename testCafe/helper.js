@@ -155,5 +155,5 @@ export const getPanelJson = ClientFunction(() => {
 });
 
 export function getDynamicPanelRemoveButton(questionTitle, buttonText) {
-  return Selector("[aria-label='" + questionTitle + "']").parent("[aria-labelledby]").find("span").withText(buttonText)
+  return Selector("span").withText(`${questionTitle}`).parent("[aria-labelledby]").find("span").withText(buttonText)
 }

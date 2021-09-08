@@ -15,7 +15,7 @@ import {
   IProgressInfo,
   IFindElement,
 } from "./base-interfaces";
-import { SurveyElement } from "./survey-element";
+import { SurveyElementCore, SurveyElement } from "./survey-element";
 import { surveyCss } from "./defaultCss/cssstandard";
 import { ISurveyTriggerOwner, SurveyTrigger } from "./trigger";
 import { CalculatedValue } from "./calculatedValue";
@@ -47,14 +47,13 @@ import { CssClassBuilder } from "./utils/cssClassBuilder";
 /**
  * The `Survey` object contains information about the survey, Pages, Questions, flow logic and etc.
  */
-export class SurveyModel extends Base
+export class SurveyModel extends SurveyElementCore
   implements
   ISurvey,
   ISurveyData,
   ISurveyImpl,
   ISurveyTriggerOwner,
-  ISurveyErrorOwner,
-  ILocalizableOwner {
+  ISurveyErrorOwner {
   public static readonly TemplateRendererComponentName: string =
     "sv-template-renderer";
   [index: string]: any;
@@ -919,8 +918,6 @@ export class SurveyModel extends Base
     if (typeof document !== "undefined") {
       SurveyModel.stylesManager = new StylesManager();
     }
-    this.createLocalizableString("title", this, true);
-    this.createLocalizableString("description", this, true);
     this.createLocalizableString("logo", this, false);
     this.createLocalizableString("completedHtml", this);
     this.createLocalizableString("completedBeforeHtml", this);
@@ -1038,6 +1035,9 @@ export class SurveyModel extends Base
   public set css(value: any) {
     this.updateElementCss(false);
     this.mergeValues(value, this.css);
+  }
+  public get cssTitle(): string {
+    return this.css.title;
   }
   public get cssNavigationComplete() {
     return this.getNavigationCss(
@@ -1641,34 +1641,8 @@ export class SurveyModel extends Base
   }
 
   //#region Title/Header options
-  /**
-   * Gets or sets a survey title.
-   * @see description
-   */
-  public get title(): string {
-    return this.getLocalizableStringText("title");
-  }
-  public set title(value: string) {
-    this.setLocalizableStringText("title", value);
-  }
-  get locTitle(): LocalizableString {
-    return this.getLocalizableString("title");
-  }
   public get titleTagName(): string {
     return settings.titleTags.survey;
-  }
-  /**
-   * Gets or sets a survey description. The survey description is displayed under a survey title.
-   * @see title
-   */
-  public get description(): string {
-    return this.getLocalizableStringText("description");
-  }
-  public set description(value: string) {
-    this.setLocalizableStringText("description", value);
-  }
-  get locDescription(): LocalizableString {
-    return this.getLocalizableString("description");
   }
   /**
    * Gets or sets a survey logo.

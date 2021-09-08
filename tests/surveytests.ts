@@ -13769,7 +13769,7 @@ QUnit.test("utils.increaseHeightByContent", assert => {
   increaseHeightByContent(<HTMLElement>element, getComputedStyle);
   assert.equal(element.style.height, "95px");
 });
-QUnit.test("test titleTagName property", assert => {
+QUnit.test("test titleTagName, survey.cssTitle properties and getTitleOwner", assert => {
   const survey = new SurveyModel({
     elements: [
       {
@@ -13781,4 +13781,10 @@ QUnit.test("test titleTagName property", assert => {
   assert.equal(survey.getQuestionByName("q1").titleTagName, "h5");
   assert.equal((<PanelModel>survey.getPanelByName("p1")).titleTagName, "h4");
   assert.equal(survey.pages[0].titleTagName, "h4");
+  assert.equal(survey.titleTagName, "h3");
+  assert.equal(survey.cssTitle, survey.css.title, "survey css");
+  assert.ok(survey.getQuestionByName("q1").getTitleOwner());
+  assert.ok((<PanelModel>survey.getPanelByName("p1")).getTitleOwner());
+  assert.notOk(survey.pages[0].getTitleOwner());
+  assert.notOk(survey.getTitleOwner());
 });

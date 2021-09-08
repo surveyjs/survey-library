@@ -1647,6 +1647,7 @@ export class PanelModel extends PanelModelBase
   public get visibleIndex(): number {
     return this.getPropertyValue("visibleIndex", -1);
   }
+  public getTitleOwner(): ITitleOwner { return this; }
   /**
    * Set showNumber to true to start showing the number for this panel.
    * @see visibleIndex

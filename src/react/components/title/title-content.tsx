@@ -1,5 +1,5 @@
 import React from "react";
-import { Question } from "survey-core";
+import { SurveyElementCore } from "survey-core";
 import { SurveyElementBase } from "../../reactquestion_element";
 import { ITitleOwner } from "survey-core";
 
@@ -12,14 +12,17 @@ export class TitleContent extends React.Component<any, any> {
     return this.props.cssClasses;
   }
 
-  private get element(): Question {
+  private get element(): SurveyElementCore {
     return this.props.element;
   }
-  render() {
-    var spans = this.renderTitleSpans(this.element, this.cssClasses);
+  render(): JSX.Element {
+    const titleOwner = this.element.getTitleOwner();
+    if(!titleOwner)
+      return SurveyElementBase.renderLocString(this.element.locTitle);
+    var spans = this.renderTitleSpans(titleOwner, this.cssClasses);
     return <>{spans}</>;
   }
-  protected renderTitleSpans(element: ITitleOwner, cssClasses: any) {
+  protected renderTitleSpans(element: ITitleOwner, cssClasses: any): Array<JSX.Element> {
     var getSpaceSpan = (key: any) => {
       return (
         <span data-key={key} key={key}>

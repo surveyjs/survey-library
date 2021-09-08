@@ -413,6 +413,7 @@ export class Question extends SurveyElement
       this.notifySurveyVisibilityChanged();
     }
   }
+  public getTitleOwner(): ITitleOwner { return this; }
   private notifySurveyVisibilityChanged() {
     if (!this.survey || this.isLoadingFromJson) return;
     this.survey.questionVisibilityChanged(this, this.isVisible);

@@ -1,5 +1,5 @@
 import React from "react";
-import { SurveyElement, doKey2ClickUp } from "survey-core";
+import { SurveyElementCore, doKey2ClickUp } from "survey-core";
 import { SurveyElementBase } from "../../reactquestion_element";
 import { TitleActions } from "./title-actions";
 
@@ -7,7 +7,7 @@ export class TitleElement extends React.Component<any, any> {
   constructor(props: any) {
     super(props);
   }
-  private get element(): SurveyElement {
+  private get element(): SurveyElementCore {
     return this.props.element;
   }
   render(): JSX.Element {

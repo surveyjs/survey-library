@@ -13,6 +13,7 @@ import {
   ISurveyData,
   ISurveyImpl,
   ITextProcessor,
+  ITitleOwner
 } from "./base-interfaces";
 import { SurveyError } from "./survey-error";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
@@ -21,9 +22,66 @@ import { settings } from "./settings";
 import { ILocalizableOwner, LocalizableString } from "./localizablestring";
 
 /**
+ * Base class of SurveyJS Elements and Survey.
+ */
+export abstract class SurveyElementCore extends Base implements ILocalizableOwner {
+  constructor() {
+    super();
+    this.createLocTitleProperty();
+    this.createLocalizableString("description", this, true);
+  }
+  protected createLocTitleProperty(): LocalizableString {
+    return this.createLocalizableString("title", this, true);
+  }
+  public abstract get titleTagName(): string;
+  /**
+   * Question, Panel, Page and Survey title. If page and panel is empty then they are not rendered.
+   * Question renders question name if the title is empty. Use survey questionTitleTemplate property to change the title question rendering.
+   * @see SurveyModel.questionTitleTemplate
+  */
+  public get title(): string {
+    return this.getLocalizableStringText("title", this.getDefaultTitleValue());
+  }
+  public set title(val: string) {
+    this.setLocalizableStringText("title", val);
+  }
+  get locTitle(): LocalizableString {
+    return this.getLocalizableString("title");
+  }
+  protected getDefaultTitleValue(): string { return undefined; }
+  /**
+   * Question, Panel and Page description. It renders under element title by using smaller font. Unlike the question title, description can be empty.
+   * Please note, this property is hidden for questions without input, for example html question.
+   * @see title
+  */
+  public get description(): string {
+    return this.getLocalizableStringText("description");
+  }
+  public set description(val: string) {
+    this.setLocalizableStringText("description", val);
+  }
+  get locDescription(): LocalizableString {
+    return this.getLocalizableString("description");
+  }
+  public get hasTitleActions(): boolean { return false; }
+  public getTitleOwner(): ITitleOwner { return undefined; }
+  public toggleState(): boolean { return undefined; }
+  public get cssClasses(): any { return {}; }
+  public get cssTitle(): string { return ""; }
+  public get ariaTitleId(): string { return undefined; }
+  public get titleTabIndex(): number { return undefined; }
+  public get titleAriaExpanded(): boolean { return undefined; }
+  //ILocalizableOwner
+  public abstract getLocale(): string;
+  public abstract getMarkdownHtml(text: string, name: string): string;
+  public abstract getRenderer(name: string): string;
+  public abstract getProcessedText(text: string): string;
+}
+
+/**
  * Base class of SurveyJS Elements.
  */
-export class SurveyElement extends Base implements ISurveyElement, ILocalizableOwner {
+export class SurveyElement extends SurveyElementCore implements ISurveyElement {
   stateChangedCallback: () => void;
 
   public static getProgressInfoByElements(
@@ -104,8 +162,6 @@ export class SurveyElement extends Base implements ISurveyElement, ILocalizableO
   constructor(name: string) {
     super();
     this.name = name;
-    this.createLocTitleProperty();
-    this.createLocalizableString("description", this, true);
     this.createNewArray("errors");
     this.createNewArray("titleActions");
     this.registerFunctionOnPropertyValueChanged("isReadOnly", () => {
@@ -114,9 +170,6 @@ export class SurveyElement extends Base implements ISurveyElement, ILocalizableO
     this.registerFunctionOnPropertyValueChanged("errors", () => {
       this.updateVisibleErrors();
     });
-  }
-  protected createLocTitleProperty(): LocalizableString {
-    return this.createLocalizableString("title", this, true);
   }
   protected onPropertyValueChanged(name: string, oldValue: any, newValue: any) {
     super.onPropertyValueChanged(name, oldValue, newValue);
@@ -211,36 +264,6 @@ export class SurveyElement extends Base implements ISurveyElement, ILocalizableO
         .append("sv-expand-action").append("sv-expand-action--expanded", this.isExpanded).toString();
     }
   }
-  /**
-   * Question, Panel and Page title. If page and panel is empty then they are not rendered.
-   * Question renders question name if the title is empty. Use survey questionTitleTemplate property to change the title question rendering.
-   * @see SurveyModel.questionTitleTemplate
-   */
-  public get title(): string {
-    return this.getLocalizableStringText("title", this.getDefaultTitleValue());
-  }
-  public set title(val: string) {
-    this.setLocalizableStringText("title", val);
-  }
-  get locTitle(): LocalizableString {
-    return this.getLocalizableString("title");
-  }
-  protected getDefaultTitleValue(): string { return undefined; }
-  /**
-   * Question, Panel and Page description. It renders under element title by using smaller font. Unlike the question title, description can be empty.
-   * Please note, this property is hidden for questions without input, for example html question.
-   * @see title
-   */
-  public get description(): string {
-    return this.getLocalizableStringText("description");
-  }
-  public set description(val: string) {
-    this.setLocalizableStringText("description", val);
-  }
-  get locDescription(): LocalizableString {
-    return this.getLocalizableString("description");
-  }
-
   public get titleActions(): Array<any> {
     return this.getPropertyValue("titleActions");
   }
@@ -292,7 +315,6 @@ export class SurveyElement extends Base implements ISurveyElement, ILocalizableO
     }
     return componentName;
   }
-  public get ariaTitleId(): string { return undefined; }
   public get titleTabIndex(): number {
     return !this.isPage && this.state !== "default" ? 0 : undefined;
   }
@@ -404,7 +426,6 @@ export class SurveyElement extends Base implements ISurveyElement, ILocalizableO
   protected calcCssClasses(css: any): any { return undefined; }
   protected updateElementCssCore(cssClasses: any) {}
   public get cssError(): string { return ""; }
-  public get cssTitle(): string { return ""; }
   public updateElementCss(reNew?: boolean) {
     this.cssClassesValue = undefined;
   }

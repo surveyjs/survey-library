@@ -1,8 +1,6 @@
 <script type="text/html" id="survey-question-radiogroup">
-  
-  <fieldset data-bind="css: question.koCss().root" role="radiogroup">
-    <legend class="sv-visuallyhidden" data-bind="text: question.locTitle.renderedHtml"></legend>
 
+  <fieldset data-bind="css: question.koCss().root">
     <!-- ko ifnot: question.hasColumns -->
     <!-- ko foreach: { data: question.visibleChoices, as: 'item', afterRender: question.koAfterRender } -->
       <!-- ko component: { name: question.getItemValueWrapperComponentName(item), params: { componentData:  question.getItemValueWrapperComponentData(item), templateData: { name: 'survey-radiogroup-item', data: item } } } -->

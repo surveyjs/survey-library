@@ -15,14 +15,10 @@ export class TitleContent extends React.Component<any, any> {
   private get element(): Question {
     return this.props.element;
   }
-
-  private titleKeyIndex = 0;
-  private titleKeyPrefix = "-titleKey-";
   render() {
     var spans = this.renderTitleSpans(this.element, this.cssClasses);
     return <>{spans}</>;
   }
-
   protected renderTitleSpans(element: ITitleOwner, cssClasses: any) {
     var getSpaceSpan = (key: any) => {
       return (

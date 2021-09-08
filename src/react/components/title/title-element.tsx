@@ -13,24 +13,16 @@ export class TitleElement extends React.Component<any, any> {
   render(): JSX.Element {
     const element = this.element;
     if(!element) return null;
-    let titleContent;
+    const titleContent = <TitleActions element={element} cssClasses={element.cssClasses}></TitleActions>;
     let onClick = null;
     let onKeyUp = null;
-    if (!element.hasTitleActions) {
-      const text = SurveyElementBase.renderLocString(element.locTitle);
-      titleContent = <>{text}</>;
-    } else {
+    if (element.hasTitleActions) {
       onClick = () => {
         return element.toggleState();
       };
       onKeyUp = (evt: any) => {
         doKey2ClickUp(evt.nativeEvent);
       };
-      titleContent = (
-        <>
-          <TitleActions element={element} cssClasses={element.cssClasses}></TitleActions>
-        </>
-      );
     }
 
     const CustomTag = element.titleTagName as keyof JSX.IntrinsicElements;

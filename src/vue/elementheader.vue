@@ -3,6 +3,7 @@
     <h5
       v-if="element.hasTitle"
       :class="element.cssTitle"
+      v-bind:aria-label="element.locTitle.renderedHtml"
       v-bind:id="element.ariaTitleId"
       v-bind:tabindex="element.titleTabIndex"
       v-bind:aria-expanded="element.titleAriaExpanded"

@@ -1,5 +1,6 @@
 <template>
-  <fieldset :class="question.cssClasses.root">
+  <fieldset :class="question.cssClasses.root" role="radiogroup">
+    <legend class="sv-visuallyhidden" >{{question.locTitle.renderedHtml}}</legend>
     <survey-radiogroup-item
       v-if="!question.hasColumns"
       v-for="(item, index) in question.visibleChoices"

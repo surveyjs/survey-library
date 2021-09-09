@@ -19,6 +19,7 @@ import { QuestionMatrixDynamic } from "../../src/knockout/koquestion_matrixdynam
 import { surveyLocalization } from "../../src/surveyStrings";
 import { QuestionRating } from "../../src/knockout/koquestion_rating";
 import { QuestionImagePicker } from "../../src/knockout/koquestion_imagepicker";
+import { ImageItemValue } from "../../src/question_imagepicker";
 import { ProgressButtonsViewModel } from "../../src/knockout/components/progress/buttons";
 import { JsonObject, Serializer } from "../../src/jsonobject";
 import { SurveyTimer } from "../../src/surveytimer";
@@ -2114,7 +2115,36 @@ QUnit.test(
     );
   }
 );
-QUnit.test("Change title koRenderedHtml on chaning name", function(assert) {
+QUnit.test(
+  "check imageLink in imagePicker items on changing location, Bug#3287",
+  function(assert) {
+    const survey = new Survey({
+      elements: [
+        {
+          "type": "imagepicker",
+          "name": "q1",
+          "choices": [
+            {
+              "value": "1",
+              "imageLink": {
+                "default": "link-en",
+                "de": "link-de"
+              }
+            }
+          ],
+        }
+      ]
+    });
+    const question = <QuestionImagePicker>survey.getQuestionByName("q1");
+    const item = <ImageItemValue>question.choices[0];
+    assert.equal(item.locImageLink["koRenderedHtml"](), "link-en", "locale en");
+    survey.locale = "de";
+    assert.equal(item.locImageLink["koRenderedHtml"](), "link-de", "locale de");
+    survey.locale = "";
+  }
+);
+
+QUnit.test("Change title koRenderedHtml on changing name", function(assert) {
   var survey = new Survey({
     elements: [
       {

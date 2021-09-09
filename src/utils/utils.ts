@@ -199,7 +199,8 @@ function getOriginalEvent(event: any) {
   return event.originalEvent || event;
 }
 function preventDefaults(event: any) {
-  return event.originalEvent || event;
+  event.preventDefault();
+  event.stopPropagation();
 }
 
 export {

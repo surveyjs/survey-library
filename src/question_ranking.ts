@@ -351,7 +351,7 @@ Serializer.addClass(
     { name: "maxSelectedChoices", visible: false, isSerializable: false },
     {
       name: "fallbackToSortableJS",
-      default: true,
+      default: false,
       visible: false,
       isSerializable: false,
     },

@@ -1,6 +1,6 @@
 ﻿<script type="text/html" id="survey-question-comment">
   <!--ko if: !question.isReadOnlyRenderDiv() -->
-<textarea type="text" data-bind="attr: {'readonly': question.isReadOnly, 'disabled': question.isInputReadOnly, maxLength: question.getMaxLength(), cols: question.cols, rows: question.rows, id: question.inputId, placeholder: question.renderedPlaceHolder, 'aria-required': question.isRequired, 'aria-label': question.locTitle.renderedHtml, 'aria-invalid': question.errors.length > 0, 'aria-describedby': question.errors.length > 0 ? question.id + '_errors' : null}, 
+<textarea type="text" data-bind="attr: {'readonly': question.isReadOnly, 'disabled': question.isInputReadOnly, maxLength: question.getMaxLength(), cols: question.cols, rows: question.rows, id: question.inputId, placeholder: question.renderedPlaceHolder, 'aria-required': question.ariaRequired, 'aria-label': question.ariaLabel, 'aria-invalid': question.ariaInvalid, 'aria-describedby': question.ariaDescribedBy}, 
   event: { input: question.onInput }, 
   value: question.value, 
   style: { resize: question.autoGrow ? 'none' : 'both'},

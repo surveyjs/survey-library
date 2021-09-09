@@ -17,7 +17,7 @@ export class QuestionRanking extends QuestionRankingModel {
     return true;
   }
   public koHandlePointerDown = (data:ItemValue, event:PointerEvent)=>{
-    this.handlePointerDown(event, data);
+    this.handlePointerDown(event, data, <HTMLElement>event.currentTarget);
     return true;
   }
 }

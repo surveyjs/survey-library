@@ -31,7 +31,7 @@ export abstract class DragDropCore<T> extends Base {
   }
 
   protected prevDropTarget: any = null;
-  private draggedElementShortcut: HTMLElement = null;
+  protected draggedElementShortcut: HTMLElement = null;
   private scrollIntervalId: number = null;
   private allowDropHere = false;
 
@@ -42,7 +42,8 @@ export abstract class DragDropCore<T> extends Base {
   public startDrag(
     event: PointerEvent,
     draggedElement: any,
-    parentElement?: any
+    parentElement?: any,
+    draggedElementNode?: HTMLElement
   ): void {
     this.draggedElement = draggedElement;
     this.parentElement = parentElement;
@@ -51,7 +52,8 @@ export abstract class DragDropCore<T> extends Base {
 
     const shortcutText = this.getShortcutText(this.draggedElement);
     this.draggedElementShortcut = this.createDraggedElementShortcut(
-      shortcutText
+      shortcutText,
+      draggedElementNode
     );
     document.body.append(this.draggedElementShortcut);
     this.moveShortcutElement(event);
@@ -79,7 +81,7 @@ export abstract class DragDropCore<T> extends Base {
 
     let isBottom = this.calculateIsBottom(event.clientY, dropTargetNode);
 
-    const isDropTargetValid = this.isDropTargetValid(this.dropTarget, isBottom);
+    const isDropTargetValid = this.isDropTargetValid(this.dropTarget, isBottom, dropTargetNode);
 
     this.doDragOver(dropTargetNode);
 
@@ -116,7 +118,7 @@ export abstract class DragDropCore<T> extends Base {
   protected doStartDrag(): void {}
   protected abstract getShortcutText(draggedElement: any): string;
 
-  private createDraggedElementShortcut(text: string) {
+  protected createDraggedElementShortcut(text: string, draggedElementNode?: HTMLElement):HTMLElement {
     const draggedElementShortcut = document.createElement("div");
     draggedElementShortcut.innerText = text;
     draggedElementShortcut.style.cssText =
@@ -135,7 +137,8 @@ export abstract class DragDropCore<T> extends Base {
 
   protected abstract isDropTargetValid(
     dropTarget: any,
-    isBottom: boolean
+    isBottom: boolean,
+    dropTargetNode?: HTMLElement
   ): boolean;
 
   private handleEscapeButton = (event: KeyboardEvent) => {
@@ -205,9 +208,21 @@ export abstract class DragDropCore<T> extends Base {
     cancelAnimationFrame(this.scrollIntervalId);
     const startScrollBoundary = 50;
 
-    // need to import getScrollableParent method
-    // let scrollableParentNode = getScrollableParent(dropTragetNode)
-    //   .parentNode;
+    // this.draggedElementShortcut.hidden = true;
+    // let dragOverNode = <HTMLElement>document.elementFromPoint(clientX, clientY);
+    // this.draggedElementShortcut.hidden = false;
+
+    // function getScrollableParent(node:HTMLElement):HTMLElement {
+    //   if (node == null) {
+    //     return null;
+    //   }
+    //   if (node.scrollHeight > node.clientHeight) {
+    //     return node;
+    //   } else {
+    //     return getScrollableParent(<HTMLElement>node.parentNode);
+    //   }
+    // }
+    // let scrollableParentNode = getScrollableParent(dragOverNode);
     let scrollableParentNode =
       document.querySelector(".svc-tab-designer.sd-root-modern") ||
       document.querySelector(".sv-root-modern") ||

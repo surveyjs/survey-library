@@ -3,6 +3,15 @@
  */
 export var settings = {
   /**
+   * Options for SurveyJS comparator. By default we trim strings and compare them as case insensitive. To change the behavior you can use following code:
+   * settings.comparator.trimStrings = false; //"abc " will not equal to "abc". They are equal by default.
+   * settings.comparator.caseSensitive = true; //"abc " will not equal to "Abc". They are equal by default.
+   */
+  comparator: {
+    trimStrings: true,
+    caseSensitive: false
+  },
+  /**
    * The prefix that uses to store the question comment, as {questionName} + {commentPrefix}.
    * The default
    */
@@ -153,7 +162,8 @@ export var settings = {
       data: any,
       onApply: () => boolean,
       onCancel?: () => void,
-      cssClass?: string
+      cssClass?: string,
+      title?: string
     ) => void
   >undefined,
   supportCreatorV2: false,

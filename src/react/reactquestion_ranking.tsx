@@ -34,7 +34,7 @@ export class SurveyQuestionRanking extends SurveyQuestionElementBase {
           item,
           i,
           (event: PointerEvent)=>{ this.question.handleKeydown.call(this.question, event, item); },
-          (event: PointerEvent)=>{ this.question.handlePointerDown.call(this.question, event, item); },
+          (event: PointerEvent)=>{ this.question.handlePointerDown.call(this.question, event, item, event.currentTarget); },
           this.question.cssClasses,
           this.question.getItemClass(item),
           this.question

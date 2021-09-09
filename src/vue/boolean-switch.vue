@@ -10,10 +10,10 @@
         :id="question.inputId"
         :indeterminate.prop="question.isIndeterminate"
         :disabled="question.isInputReadOnly"
-        v-bind:aria-required="question.ariaRequired"
+        :aria-required="question.ariaRequired"
         :aria-label="question.ariaLabel"
         :aria-invalid="question.ariaInvalid"
-        :aria-describedby="question.ariaRequired"
+        :aria-describedby="question.ariaDescribedBy"
       />
       <span
         :class="question.getLabelCss(false)"

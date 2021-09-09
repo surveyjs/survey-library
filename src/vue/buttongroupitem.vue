@@ -7,7 +7,6 @@
       role="radio"
       v-bind:aria-required="model.isRequired"
       v-bind:aria-label="model.caption.renderedHtml"
-      role="radio"
       v-bind:aria-invalid="model.hasErrors"
       v-bind:aria-describedby="model.describeBy"
       :value="model.value"

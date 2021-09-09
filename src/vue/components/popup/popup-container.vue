@@ -17,7 +17,7 @@
   >
     <div
       class="sv-popup__container"
-      v-bind:style="{ left: model.left, top: model.top }"
+      v-bind:style="{ left: model.left, top: model.top, height: model.height }"
       v-on:click="clickInside"
     >
       <span
@@ -28,7 +28,7 @@
         }"
         class="sv-popup__pointer"
       ></span>
-      <div class="sv-popup__header">{{ model.title }}</div>
+      <div class="sv-popup__header" v-show="!!this.model.title">{{ this.model.title }}</div>
       <div class="sv-popup__scrolling-content">
         <div class="sv-popup__content">
           <component

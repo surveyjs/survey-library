@@ -49,6 +49,7 @@ sv-popup {
   flex-direction: column;
   max-height: 90vh;
   max-width: 90vw;
+  box-sizing: border-box;
 }
 .sv-popup__scrolling-content {
   height: 100%;

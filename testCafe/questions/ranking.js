@@ -73,9 +73,10 @@ frameworks.forEach((framework) => {
   );
 
   test(`ranking: simple using`, async (t) => {
-    const PriceItem = Selector(
-      "[aria-label='Please rank the following smartphone features in order of importance:']"
-    )
+    const PriceItem = Selector("span")
+      .withText(
+        "Please rank the following smartphone features in order of importance:"
+      )
       .parent("[aria-labelledby]")
       .find("span")
       .withText("Price");
@@ -101,9 +102,10 @@ frameworks.forEach((framework) => {
   });
 
   test(`ranking: predeficed data`, async (t) => {
-    const PriceItem = Selector(
-      "[aria-label='Please rank the following smartphone features in order of importance:']"
-    )
+    const PriceItem = Selector("span")
+      .withText(
+        "Please rank the following smartphone features in order of importance:"
+      )
       .parent("[aria-labelledby]")
       .find("span")
       .withText("Price");
@@ -157,9 +159,10 @@ frameworks.forEach((framework) => {
   });
 
   test(`ranking: carry forward`, async (t) => {
-    const rankPriceItem = Selector(
-      "[aria-label='Please rank the following smartphone features in order of importance:']"
-    )
+    const rankPriceItem = Selector("span")
+      .withText(
+        "Please rank the following smartphone features in order of importance:"
+      )
       .parent("[aria-labelledby]")
       .find("span")
       .withText("Price");
@@ -169,28 +172,24 @@ frameworks.forEach((framework) => {
       offsetY: 8,
       speed: 0.5,
     });
-    const rankAudiItem = Selector(
-      "[aria-label='What car did you enjoy the most?']"
-    )
+    const rankAudiItem = Selector("span")
+      .withText("What car did you enjoy the most?")
       .parent("[aria-labelledby]")
       .find("span")
       .withText("Audi");
 
-    const checkboxAudiItem = Selector(
-      "[aria-label='What cars have you being drived?']"
-    )
+    const checkboxAudiItem = Selector("span")
+      .withText("What cars have you being drived?")
       .parent("[aria-labelledby]")
       .find("span")
       .withText("Audi");
-    const checkboxMerscedesItem = Selector(
-      "[aria-label='What cars have you being drived?']"
-    )
+    const checkboxMerscedesItem = Selector("span")
+      .withText("What cars have you being drived?")
       .parent("[aria-labelledby]")
       .find("span")
       .withText("Mercedes-Benz");
-    const checkboxToyotaItem = Selector(
-      "[aria-label='What cars have you being drived?']"
-    )
+    const checkboxToyotaItem = Selector("span")
+      .withText("What cars have you being drived?")
       .parent("[aria-labelledby]")
       .find("span")
       .withText("Toyota");

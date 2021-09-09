@@ -5,7 +5,9 @@
     <!-- ko if: showPointer  -->
     <span data-bind="style: {left: pointerTarget.left, top: pointerTarget.top }" class="sv-popup__pointer"></span>
     <!-- /ko -->
+    <!-- ko if: !!title  -->
     <div class="sv-popup__header" data-bind="text: title"></div>
+    <!-- /ko -->
     <div class="sv-popup__scrolling-content">
       <div class="sv-popup__content"
         data-bind="component: { name: contentComponentName, params: contentComponentData }"></div>

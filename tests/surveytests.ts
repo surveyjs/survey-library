@@ -13753,10 +13753,16 @@ QUnit.test("utils.increaseHeightByContent", assert => {
     scrollHeight: 50,
     style: { height: "50px" }
   };
-  increaseHeightByContent(<HTMLElement>element);
+  let getComputedStyle = () => {
+    return {
+      "borderTopWidth": "2px",
+      "borderBottomWidth": "3px",
+    };
+  };
+  increaseHeightByContent(<HTMLElement>element, getComputedStyle);
   assert.equal(element.style.height, "50px");
 
   element.scrollHeight = 90;
-  increaseHeightByContent(<HTMLElement>element);
-  assert.equal(element.style.height, "92px");
+  increaseHeightByContent(<HTMLElement>element, getComputedStyle);
+  assert.equal(element.style.height, "95px");
 });

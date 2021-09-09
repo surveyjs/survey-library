@@ -53,3 +53,26 @@ QUnit.test("Test boolean labelTrue and labelFalse property", function (assert) {
     "locLabelFalse is ok"
   );
 });
+
+QUnit.test("Test boolean allowClick property", function (assert) {
+  var json = {
+    questions: [
+      {
+        type: "boolean",
+        name: "bool",
+        label: "Default label tests",
+      },
+    ],
+  };
+  var survey = new SurveyModel(json);
+  var question = <QuestionBooleanModel>survey.getAllQuestions()[0];
+
+  assert.equal(question.allowClick, true, "allowClick true is ok");
+  question.checkedValue = true;
+  assert.equal(question.allowClick, false, "allowClick false is ok");
+
+  var surveyRO = new SurveyModel(json);
+  var questionRO = <QuestionBooleanModel>surveyRO.getAllQuestions()[0];
+  questionRO.readOnly = true;
+  assert.equal(questionRO.allowClick, false, "allowClick false is ok");
+});

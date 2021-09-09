@@ -1,6 +1,6 @@
 import { Serializer, QuestionFactory, QuestionBooleanModel, CssClassBuilder } from "survey-core";
 import { QuestionImplementor } from "./koquestion";
-
+import { getOriginalEvent } from "../utils/utils";
 export class QuestionBoolean extends QuestionBooleanModel {
   private _implementor: QuestionImplementor;
   constructor(name: string) {
@@ -10,31 +10,8 @@ export class QuestionBoolean extends QuestionBooleanModel {
     super.onBaseCreating();
     this._implementor = new QuestionImplementor(this);
   }
-  private get allowClick() {
-    return this.isIndeterminate && !this.isInputReadOnly;
-  }
-  private preventDefaults(event: any) {
-    event.preventDefault();
-    event.stopPropagation();
-  }
-  private onLabelClick(event: any, value: boolean) {
-    if (this.allowClick) {
-      this.preventDefaults(event);
-      this.checkedValue = value;
-    }
-    return true;
-  }
   public onSwitchClick(data: any, event: any) {
-    if (this.allowClick) {
-      this.preventDefaults(event);
-      var isRightClick = event.offsetX / event.target.offsetWidth > 0.5;
-      var isRtl =
-        document.defaultView.getComputedStyle(event.target).direction == "rtl";
-
-      this.checkedValue = isRtl ? !isRightClick : isRightClick;
-      return;
-    }
-    return true;
+    return super.onSwitchClickModel(getOriginalEvent(event));
   }
   public onTrueLabelClick(data: any, event: any) {
     return this.onLabelClick(event, true);

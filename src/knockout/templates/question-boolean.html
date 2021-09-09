@@ -3,7 +3,7 @@
     <label data-bind="css: question.getItemCss()">
       <input
         type="checkbox"
-        data-bind="css: question.koCss().control, attr: {name: question.name, id: question.inputId, 'aria-required': question.isRequired, 'aria-label': question.locTitle.renderedHtml, 'aria-invalid': question.errors.length > 0, 'aria-describedby': question.errors.length > 0 ? question.id + '_errors' : null}, checked: question.checkedValue, surveyProp: {indeterminate: question.isIndeterminate}, enable: !question.isInputReadOnly"
+        data-bind="css: question.koCss().control, attr: {name: question.name, id: question.inputId, 'aria-required': question.ariaRequired, 'aria-label': question.ariaLabel, 'aria-invalid': question.ariaInvalid, 'aria-describedby': question.ariaDescribedBy}, checked: question.checkedValue, surveyProp: {indeterminate: question.isIndeterminate}, enable: !question.isInputReadOnly"
       />
       <span
         data-bind="css: question.getLabelCss(false), click: onFalseLabelClick"

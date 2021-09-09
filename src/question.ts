@@ -186,6 +186,16 @@ export class Question extends SurveyElement
   public get isReady(): boolean {
     return this.isReadyValue;
   }
+
+  /**
+   * A11Y properties
+   */
+  public get ariaRequired():boolean {
+    return this.isRequired;
+  }
+  public get ariaLabel():string {
+    return this.locTitle.renderedHtml;
+  }
   public get ariaInvalid():boolean {
     return this.errors.length > 0;
   }

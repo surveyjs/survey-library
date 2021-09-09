@@ -161,7 +161,7 @@ export class SurveyQuestionRadioItem extends ReactSurveyElement {
         className={itemClass}
         role="radio"
         aria-checked={this.isChecked}
-        aria-required={this.question.isRequired}
+        aria-required={this.question.ariaRequired}
         aria-invalid={this.question.ariaInvalid}
         aria-describedby={this.question.ariaDescribedBy}
       >

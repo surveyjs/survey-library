@@ -56,3 +56,28 @@ QUnit.test("Test renderedPlaceHolder", function(assert) {
   q1.inputType = "text";
   assert.equal(q1.renderedPlaceHolder, "text_1", "q1 has inputType text");
 });
+QUnit.test("Test renderedPlaceHolder on locale change", function(assert) {
+  const json = {
+    questions: [
+      {
+        type: "text",
+        name: "q1",
+        placeHolder: { en: "text_en", de: "text_de" }
+      },
+      {
+        type: "comment",
+        name: "q2",
+        placeHolder: { en: "comment_en", de: "comment_de" }
+      },
+    ],
+  };
+  const survey = new SurveyModel(json);
+  const q1 = <QuestionTextModel>survey.getAllQuestions()[0];
+  const q2 = <QuestionCommentModel>survey.getAllQuestions()[1];
+  assert.equal(q1.renderedPlaceHolder, "text_en", "text, locale en");
+  assert.equal(q2.renderedPlaceHolder, "comment_en", "text, locale en");
+  survey.locale = "de";
+  assert.equal(q1.renderedPlaceHolder, "text_de", "text, locale de");
+  assert.equal(q2.renderedPlaceHolder, "comment_de", "text, locale de");
+  survey.locale = "";
+});

@@ -87,6 +87,10 @@ export class QuestionTextBase extends Question {
     super.endLoadingFromJson();
     this.calcRenderedPlaceHolder();
   }
+  public localeChanged() {
+    super.localeChanged();
+    this.calcRenderedPlaceHolder();
+  }
   protected calcRenderedPlaceHolder() {
     this.setRenderedPlaceHolder(
       this.hasPlaceHolder() ? this.placeHolder : undefined

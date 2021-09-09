@@ -108,4 +108,8 @@ export class DragDropRankingChoices extends DragDropChoices {
     this.parentElement.setValue();
     return this.parentElement;
   };
+
+  protected doClear = ():void => {
+    this.parentElement.dropTargetNodeMove = null;
+  }
 }

@@ -214,9 +214,6 @@ frameworks.forEach(framework => {
   test(`accessibility checks`, async (t) => {
     const radiogroup = Selector(`[role="radiogroup"]`);
 
-    let hiddenLegendExists = radiogroup.find("legend.sv-visuallyhidden").withText("What car are you driving?").exists;
-    await t.expect(hiddenLegendExists).ok();
-
     let radiosCount = radiogroup.find(`[role="radio"][aria-required="true"]`).count;
     await t.expect(radiosCount).eql(11);
 

@@ -111,6 +111,7 @@ export class SurveyElement extends SurveyElementCore implements ISurveyElement {
   private textProcessorValue: ITextProcessor;
   private selectedElementInDesignValue: SurveyElement = this;
   private expandAction: Action;
+  @property({ defaultValue: false }) isDragOverMe: boolean;
   public readOnlyChangedCallback: () => void;
 
   public static ScrollElementToTop(elementId: string): boolean {

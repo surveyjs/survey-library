@@ -66,7 +66,7 @@ export class DragDropRankingChoices extends DragDropChoices {
   }
 
   protected afterDragOver(dropTargetNode: HTMLElement): void {
-    const choices = this.parentElement.choices;
+    const choices = this.parentElement.visibleChoices;
     const dropTargetIndex = choices.indexOf(this.dropTarget);
     const draggedElementIndex = choices.indexOf(this.draggedElement);
 

@@ -181,8 +181,10 @@ export class SurveyQuestionMatrixRow extends ReactSurveyElement {
                 disabled={this.isDisplayMode}
                 checked={isChecked}
                 onChange={this.handleOnChange}
-                aria-required={this.question.isRequired}
-                aria-label={this.question.locTitle.renderedHtml}
+                aria-required={this.question.ariaRequired}
+                aria-label={this.question.ariaLabel}
+                aria-invalid={this.question.ariaInvalid}
+                aria-describedby={this.question.ariaDescribedBy}
               />
               <span className={this.question.cssClasses.materialDecorator}>
                 <svg

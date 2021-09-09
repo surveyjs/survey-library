@@ -65,14 +65,10 @@ export class SurveyQuestionDropdown extends SurveyQuestionUncontrolledElement<Qu
           autoComplete={this.question.autoComplete}
           onChange={this.updateValueOnEvent}
           onInput={this.updateValueOnEvent}
-          aria-label={this.question.locTitle.renderedHtml}
-          aria-invalid={this.question.errors.length > 0}
-          aria-describedby={
-            this.question.errors.length > 0
-              ? this.question.id + "_errors"
-              : null
-          }
-          aria-required={this.question.isRequired}
+          aria-required={this.question.ariaRequired}
+          aria-label={this.question.ariaLabel}
+          aria-invalid={this.question.ariaInvalid}
+          aria-describedby={this.question.ariaDescribedBy}
           required={this.question.isRequired}
         >
           {captionOption}

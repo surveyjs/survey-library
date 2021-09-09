@@ -38,11 +38,13 @@ export class SurveyActionBar extends SurveyElementBase<IActionBarProps, any> {
     super.componentDidMount();
     if (!this.model.hasActions) return;
     const container: HTMLDivElement = this.rootRef.current;
-    this.manager = new ResponsivityManager(
-      container,
-      (this.model as any),
-      ".sv-action:not(.sv-dots)>.sv-action__content"
-    );
+    if (this.model.createResponsivityManager) {
+      this.manager = new ResponsivityManager(
+        container,
+        (this.model as any),
+        ".sv-action:not(.sv-dots)>.sv-action__content"
+      );
+    }
   }
   componentWillUnmount() {
     this.manager && this.manager.dispose();

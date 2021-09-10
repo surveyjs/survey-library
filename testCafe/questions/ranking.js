@@ -102,6 +102,7 @@ frameworks.forEach((framework) => {
   });
 
   test(`ranking: predeficed data`, async (t) => {
+
     const PriceItem = Selector("span")
       .withText(
         "Please rank the following smartphone features in order of importance:"
@@ -121,11 +122,12 @@ frameworks.forEach((framework) => {
         "Processor power",
       ],
     });
+    
     await t.hover(PriceItem, { speed: 0.5 });
     await t.drag(PriceItem, 0, 70, {
       offsetX: 7,
       offsetY: 8,
-      speed: 0.5,
+      speed: 0.1,
     });
 
     let data = await getData();
@@ -166,6 +168,7 @@ frameworks.forEach((framework) => {
       .parent("[aria-labelledby]")
       .find("span")
       .withText("Price");
+    
     await t.hover(rankPriceItem, { speed: 0.5 });
     await t.drag(rankPriceItem, 0, -350, {
       offsetX: 7,
@@ -204,10 +207,15 @@ frameworks.forEach((framework) => {
     assert.deepEqual(typeof data.bestcar, "undefined");
 
     await t.hover(rankAudiItem, { speed: 0.5 });
-    await t.drag(rankAudiItem, 0, 5, {
+    await t.drag(rankAudiItem, 0, 60, {
       offsetX: 7,
       offsetY: 8,
-      speed: 0.5,
+      speed: 0.1,
+    });
+    await t.drag(rankAudiItem, 0, -60, {
+      offsetX: 7,
+      offsetY: 8,
+      speed: 0.1,
     });
     data = await getData();
     assert.deepEqual(data.bestcar, ["Audi", "Mercedes-Benz", "Toyota"]);

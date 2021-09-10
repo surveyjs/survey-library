@@ -38,6 +38,7 @@ $background: var(--background, #fff);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  position: relative;
   &:not(:first-of-type) {
     margin-left: -1px;
   }

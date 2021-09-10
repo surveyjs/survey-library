@@ -1,6 +1,37 @@
 import { Question } from "../src/question";
+import { SurveyModel } from "../src/survey";
 
 export default QUnit.module("a11y");
+
+QUnit.test(
+  "a11y: aria-required",
+  function(assert) {
+    var question = new Question("q1");
+    question.isRequired = true;
+    assert.equal(question.ariaRequired, true, "aria-required is true");
+
+    question.isRequired = false;
+    assert.equal(question.ariaRequired, false, "aria-required is false");
+  }
+);
+
+QUnit.test(
+  "a11y: aria-label",
+  function(assert) {
+    var json = {
+      questions: [
+        {
+          type: "text",
+          title: "Title",
+          name: "q1",
+        },
+      ],
+    };
+    var survey = new SurveyModel(json);
+    var question = survey.getQuestionByName("q1");
+    assert.equal(question.ariaLabel, "Title", "aria-label is correct");
+  }
+);
 
 QUnit.test(
   "a11y: aria-invalid",

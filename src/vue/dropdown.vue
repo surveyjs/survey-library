@@ -6,12 +6,10 @@
         v-model="question.renderedValue"
         :autocomplete="question.autoComplete"
         :class="question.getControlClass()"
-        v-bind:aria-label="question.locTitle.renderedHtml"
-        :aria-invalid="question.errors.length > 0"
-        :aria-describedby="
-          question.errors.length > 0 ? question.id + '_errors' : null
-        "
-        :aria-required="question.isRequired"
+        :aria-required="question.ariaRequired"
+        :aria-label="question.ariaLabel"
+        :aria-invalid="question.ariaInvalid"
+        :aria-describedby="question.ariaDescribedBy"
         :required="question.isRequired"
       >
         <option v-if="question.showOptionsCaption" :value="undefined">

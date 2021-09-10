@@ -80,14 +80,10 @@ export class SurveyQuestionRating extends SurveyQuestionElementBase {
           checked={this.question.value == item.value}
           readOnly
           onClick={this.handleOnClick}
-          aria-required={this.question.isRequired}
-          aria-label={item.locText.text}
-          aria-invalid={this.question.errors.length > 0}
-          aria-describedby={
-            this.question.errors.length > 0
-              ? this.question.id + "_errors"
-              : null
-          }
+          aria-required={this.question.ariaRequired}
+          aria-label={this.question.ariaLabel}
+          aria-invalid={this.question.ariaInvalid}
+          aria-describedby={this.question.ariaDescribedBy}
         />
         {minTextBlock}
         <span className={cssClasses.itemText}>{itemText}</span>

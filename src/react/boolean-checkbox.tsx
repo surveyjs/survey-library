@@ -26,13 +26,10 @@ export class SurveyQuestionBooleanCheckbox extends SurveyQuestionBoolean {
             disabled={this.isDisplayMode}
             checked={this.question.checkedValue || false}
             onChange={this.handleOnChange}
-            aria-label={this.question.locTitle.renderedHtml}
-            aria-invalid={this.question.errors.length > 0}
-            aria-describedby={
-              this.question.errors.length > 0
-                ? this.question.id + "_errors"
-                : null
-            }
+            aria-required={this.question.ariaRequired}
+            aria-label={this.question.ariaLabel}
+            aria-invalid={this.question.ariaInvalid}
+            aria-describedby={this.question.ariaDescribedBy}
           />
           <span className={cssClasses.materialDecorator}>
             <svg viewBox="0 0 24 24" className={cssClasses.itemDecorator}>

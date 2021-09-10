@@ -30,7 +30,7 @@
   </fieldset>
 </script>
 <script type="text/html" id="survey-radiogroup-item">
-  <div data-bind="css: question.getItemClass(item), attr: { 'aria-checked': question.renderedValue === item.value ? 'true': 'false', 'aria-required': question.isRequired, 'aria-invalid': question.ariaInvalid, 'aria-describedby': question.ariaDescribedBy }" role="radio">
+  <div data-bind="css: question.getItemClass(item), attr: { 'aria-checked': question.renderedValue === item.value ? 'true': 'false', 'aria-required': question.ariaRequired, 'aria-label': question.ariaLabel, 'aria-invalid': question.ariaInvalid, 'aria-describedby': question.ariaDescribedBy }" role="radio">
     <label data-bind="css: question.getLabelClass(item), attr: { 'aria-label': item.locText.renderedHtml }">
       <input
         type="radio"

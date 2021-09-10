@@ -1,5 +1,5 @@
 <template>
-  <div tabindex="0" v-on:keydown="handleKeydown">
+  <div tabindex="0" :data-sv-drop-target-item-value="index" :class="question.getItemClass(item)" v-on:keydown="(event)=>{question.handleKeydown.call(question, event, item)}" v-on:pointerdown="(event)=>{question.handlePointerDown.call(question, event, item, event.currentTarget)}">
     <div tabindex="-1" style="outline: none;">
       <div :class="cssClasses.itemGhostNode" />
       <div :class="cssClasses.itemContent">
@@ -24,7 +24,7 @@
           </svg>
         </div>
 
-        <div :class="cssClasses.itemIndex">{{index}}</div>
+        <div :class="cssClasses.itemIndex">{{indexText}}</div>
         <div :class="cssClasses.controlLabel">
           <survey-string :locString="text" />
         </div>
@@ -36,15 +36,17 @@
 <script lang="ts">
 import Vue from "vue";
 import { Component, Prop } from "vue-property-decorator";
-import { QuestionRankingModel } from "survey-core"
+import { ItemValue, QuestionRankingModel } from "survey-core"
 
 @Component
 export class RankingItem extends Vue {
   @Prop() index: number;
+  @Prop() indexText: string;
   @Prop() text: string;
   @Prop() handleKeydown: ()=>{};
   @Prop() cssClasses: any
   @Prop() question: QuestionRankingModel
+  @Prop() item: ItemValue
 }
 Vue.component("survey-ranking-item", RankingItem);
 export default RankingItem;

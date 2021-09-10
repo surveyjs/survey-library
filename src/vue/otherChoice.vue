@@ -8,7 +8,7 @@
       :value="question.comment"
       :maxlength="question.getOthersMaxLength()"
       :placeholder="question.otherPlaceHolder"
-      v-bind:aria-label="question.locTitle.renderedHtml"
+      :aria-label="question.ariaLabel"
       @change="change"
       @keyup="keyup"
     />

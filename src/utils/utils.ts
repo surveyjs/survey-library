@@ -187,13 +187,22 @@ function doKey2ClickDown(evt: KeyboardEvent, options = { processEsc: true }): vo
     evt.preventDefault();
   }
 }
-function increaseHeightByContent(element: HTMLElement) {
-  if(!element) return;
+function increaseHeightByContent(element: HTMLElement, getComputedStyle?: (elt: Element) => any) {
+  if (!element) return;
+  if (!getComputedStyle) getComputedStyle = (elt: Element) => { return window.getComputedStyle(elt); };
 
+  const style = getComputedStyle(element);
   let rect = element.getBoundingClientRect();
   if (element.scrollHeight > rect.height) {
-    element.style.height = (element.scrollHeight + 2) + "px";
+    element.style.height = (element.scrollHeight + parseFloat(style.borderTopWidth) + parseFloat(style.borderBottomWidth)) + "px";
   }
+}
+function getOriginalEvent(event: any) {
+  return event.originalEvent || event;
+}
+function preventDefaults(event: any) {
+  event.preventDefault();
+  event.stopPropagation();
 }
 
 export {
@@ -210,5 +219,7 @@ export {
   doKey2ClickUp,
   doKey2ClickDown,
   getIconNameFromProxy,
-  increaseHeightByContent
+  increaseHeightByContent,
+  getOriginalEvent,
+  preventDefaults
 };

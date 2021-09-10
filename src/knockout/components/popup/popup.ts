@@ -30,12 +30,13 @@ export function showModal(
   data: any,
   onApply: () => boolean,
   onCancel?: () => void,
-  cssClass?: string
+  cssClass?: string,
+  title?: string
 ) {
   const popupViewModel: PopupBaseViewModel = createPopupModalViewModel(componentName, data, onApply, onCancel,
     () => {
       viewModel.dispose();
-    }, undefined, cssClass);
+    }, undefined, cssClass, title);
   var viewModel = new PopupViewModel(popupViewModel);
   popupViewModel.model.isVisible = true;
 }

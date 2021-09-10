@@ -39,7 +39,7 @@ export class DragDropRankingChoices extends DragDropChoices {
     isBottom: boolean,
     dropTargetNode?: HTMLElement
   ): boolean {
-    const choices = this.parentElement.visibleChoices;
+    const choices = this.parentElement.rankingChoices;
 
     if (dropTarget === this.draggedElement) return false;
 
@@ -66,7 +66,7 @@ export class DragDropRankingChoices extends DragDropChoices {
   }
 
   protected afterDragOver(dropTargetNode: HTMLElement): void {
-    const choices = this.parentElement.choices;
+    const choices = this.parentElement.rankingChoices;
     const dropTargetIndex = choices.indexOf(this.dropTarget);
     const draggedElementIndex = choices.indexOf(this.draggedElement);
 
@@ -76,8 +76,8 @@ export class DragDropRankingChoices extends DragDropChoices {
 
     choices.splice(draggedElementIndex, 1);
     choices.splice(dropTargetIndex, 0, this.draggedElement);
+    this.setPropertyValue("rankingChoices", choices);
 
-    this.parentElement.setValue();
     this.updateDraggedElementShortcut(dropTargetIndex + 1);
 
     if (draggedElementIndex > dropTargetIndex) {
@@ -108,4 +108,8 @@ export class DragDropRankingChoices extends DragDropChoices {
     this.parentElement.setValue();
     return this.parentElement;
   };
+
+  protected doClear = ():void => {
+    this.parentElement.dropTargetNodeMove = null;
+  }
 }

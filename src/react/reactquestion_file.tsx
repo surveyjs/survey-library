@@ -95,12 +95,10 @@ export class SurveyQuestionFile extends SurveyQuestionElementBase {
         ref={input => (this.control = input)}
         style={!this.isDisplayMode ? {} : { color: "transparent" }}
         onChange={!this.isDisplayMode ? this.handleOnChange : null}
-        aria-required={this.question.isRequired}
-        aria-label={this.question.locTitle.renderedHtml}
-        aria-invalid={this.question.errors.length > 0}
-        aria-describedby={
-          this.question.errors.length > 0 ? this.question.id + "_errors" : null
-        }
+        aria-required={this.question.ariaRequired}
+        aria-label={this.question.ariaLabel}
+        aria-invalid={this.question.ariaInvalid}
+        aria-describedby={this.question.ariaDescribedBy}
         multiple={this.question.allowMultiple}
         title={this.question.inputTitle}
         accept={this.question.acceptedTypes}

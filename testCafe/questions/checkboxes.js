@@ -14,7 +14,7 @@ const json = {
       hasOther: true,
       hasNone: true,
       choices: [
-        "None",
+        "Unknown",
         "Ford",
         "Vauxhall",
         "Volkswagen",
@@ -298,7 +298,7 @@ frameworks.forEach((framework) => {
     const setData = ClientFunction(() => {
       window.survey.data = {
         car: [
-          "None",
+          "Unknown",
           "Ford",
           "Vauxhall",
           "Volkswagen",

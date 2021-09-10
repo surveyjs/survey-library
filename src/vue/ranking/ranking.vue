@@ -5,10 +5,11 @@
       :key="item.value + '-' + index + '-item'"
       :class="question.getItemClass(item)"
       :text="item.locText"
-      :index="question.getNumberByIndex(index)"
-      :handleKeydown="question.handleKeydown"
+      :index="index"
+      :indexText="question.getNumberByIndex(index)"
       :cssClasses="question.cssClasses"
       :question="question"
+      :item="item"
     ></survey-ranking-item>
   </div>
 </template>

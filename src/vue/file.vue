@@ -5,7 +5,7 @@
       v-if="!question.isReadOnly"
       type="file"
       :id="question.inputId"
-      @change="doChange"
+      @change="question.doChange"
       :aria-required="question.ariaRequired"
       :aria-label="question.ariaLabel"
       :aria-invalid="question.ariaInvalid"
@@ -24,8 +24,8 @@
     />
     <div
       :class="question.cssClasses.fileDecorator"
-      @drop="onDrop"
-      @dragover="onDragOver"
+      @drop="question.onDrop"
+      @dragover="question.onDragOver"
     >
       <div :class="question.cssClasses.wrapper">
         <label
@@ -46,7 +46,7 @@
       type="button"
       v-if="!question.isReadOnly && !question.isEmpty()"
       :class="question.cssClasses.removeButton"
-      @click="doClean"
+      @click="question.doClean"
     >
       {{ question.cleanButtonCaption }}
     </button>
@@ -59,7 +59,7 @@
       >
         <div v-if="val.name" :class="question.cssClasses.fileSign">
           <a
-            @click="doDownloadFile($event, val)"
+            @click="question.doDownloadFile($event, val)"
             :href="val.content"
             :title="val.name"
             :download="val.name"
@@ -76,13 +76,13 @@
         />
         <div v-if="val.name && !question.isReadOnly">
           <span
-            @click="doRemoveFile(val)"
+            @click="question.doRemoveFile(val)"
             :class="question.cssClasses.removeFile"
             >{{ question.removeFileCaption }}</span
           >
           <svg
             :class="question.cssClasses.removeFileSvg"
-            @click="doRemoveFile(val)"
+            @click="question.doRemoveFile(val)"
             viewBox="0 0 16 16"
           >
             <path
@@ -92,7 +92,7 @@
         </div>
         <div v-if="val.name" :class="question.cssClasses.fileSignBottom">
           <a
-            @click="doDownloadFile($event, val)"
+            @click="question.doDownloadFile($event, val)"
             :href="val.content"
             :title="val.name"
             :download="val.name"
@@ -106,7 +106,7 @@
       type="button"
       v-if="!question.isReadOnly && !question.isEmpty()"
       :class="question.cssClasses.removeButtonBottom"
-      @click="doClean"
+      @click="question.doClean"
     >
       {{ question.cleanButtonCaption }}
     </button>
@@ -121,60 +121,10 @@ import { QuestionFileModel } from "survey-core";
 import { confirmAction, detectIEOrEdge, loadFileFromBase64 } from "survey-core";
 @Component
 export class File extends QuestionVue<QuestionFileModel> {
-  onDragOver = (event: any) => {
-    if (this.question.isReadOnly) {
-      event.returnValue = false;
-      return false;
-    }
-    event.dataTransfer.dropEffect = "copy";
-    event.preventDefault();
-  };
-  onDrop = (event: any) => {
-    event.preventDefault();
-    let src = event.dataTransfer;
-    this.onChange(src);
-  };
-  doChange(event: any) {
-    var src = event.target || event.srcElement;
-    this.onChange(src);
-  }
-  doClean(event: any) {
-    var question = this.question;
-    var src = event.target || event.srcElement;
-    if (question.needConfirmRemoveFile) {
-      var isConfirmed = confirmAction(question.confirmRemoveAllMessage);
-      if (!isConfirmed) return;
-    }
-    question.clear();
-    src.parentElement.querySelectorAll("input")[0].value = "";
-  }
   doRemoveFile(data: any) {
-    var question = this.question;
-    if (question.needConfirmRemoveFile) {
-      var isConfirmed = confirmAction(
-        question.getConfirmRemoveMessage(data.name)
-      );
-      if (!isConfirmed) return;
-    }
-    question.removeFile(data);
+    this.question.doRemoveFile(data);
   }
-  doDownloadFile(event: any, data: any) {
-    if (detectIEOrEdge()) {
-      event.preventDefault();
-      loadFileFromBase64(data.content, data.name);
-    }
-  }
-  private onChange(src: any) {
-    if (!(<any>window)["FileReader"]) return;
-    if (!src || !src.files || src.files.length < 1) return;
-    let files = [];
-    let allowCount = this.question.allowMultiple ? src.files.length : 1;
-    for (let i = 0; i < allowCount; i++) {
-      files.push(src.files[i]);
-    }
-    src.value = "";
-    this.question.loadFiles(files);
-  }
+
 }
 Vue.component("survey-file", File);
 export default File;

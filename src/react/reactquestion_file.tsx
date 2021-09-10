@@ -1,81 +1,15 @@
 import * as React from "react";
-import { QuestionFileModel, confirmAction, detectIEOrEdge, loadFileFromBase64 } from "survey-core";
+import { QuestionFileModel, confirmAction, detectIEOrEdge, loadFileFromBase64, Base } from "survey-core";
 import { SurveyQuestionElementBase } from "./reactquestion_element";
 import { ReactQuestionFactory } from "./reactquestion_factory";
 
 export class SurveyQuestionFile extends SurveyQuestionElementBase {
   constructor(props: any) {
     super(props);
-    this.state = {
-      fileLoaded: 0,
-      state: "empty",
-      rootClass: this.question.cssClasses.root,
-    };
-    this.handleOnChange = this.handleOnChange.bind(this);
-    this.question.onStateChanged.add((state: any) =>
-      this.setState({ fileLoaded: this.state.fileLoaded + 1, state: state })
-    );
   }
   protected get question(): QuestionFileModel {
     return this.questionBase as QuestionFileModel;
   }
-  handleOnDragOver = (event: any) => {
-    if (this.question.isInputReadOnly) {
-      event.returnValue = false;
-      return false;
-    }
-    event.dataTransfer.dropEffect = "copy";
-    event.preventDefault();
-  };
-  handleOnDrop = (event: any) => {
-    event.preventDefault();
-    let src = event.dataTransfer;
-    this.onChange(src);
-  };
-  handleOnChange = (event: any) => {
-    var src = event.target || event.srcElement;
-    this.onChange(src);
-  };
-  handleOnClean = (event: any) => {
-    var question = this.question;
-    var src = event.target || event.srcElement;
-    if (question.needConfirmRemoveFile) {
-      var isConfirmed = confirmAction(question.confirmRemoveAllMessage);
-      if (!isConfirmed) return;
-    }
-    question.clear();
-    src.parentElement.querySelectorAll("input")[0].value = "";
-    this.setState({ fileLoaded: this.state.fileLoaded + 1 });
-  };
-  handleOnRemoveFile = (event: any) => {
-    var question = this.question;
-    if (question.needConfirmRemoveFile) {
-      var isConfirmed = confirmAction(
-        question.getConfirmRemoveMessage(event.name)
-      );
-      if (!isConfirmed) return;
-    }
-    question.removeFile(event);
-    this.setState({ fileLoaded: this.state.fileLoaded + 1 });
-  };
-  handleOnDownloadFile = (event: any, data: any) => {
-    if (detectIEOrEdge()) {
-      event.preventDefault();
-      loadFileFromBase64(data.content, data.name);
-    }
-  };
-  private onChange = (src: any) => {
-    if (!(window as any)["FileReader"]) return;
-    if (!src || !src.files || src.files.length < 1) return;
-    let files = [];
-    let allowCount = this.question.allowMultiple ? src.files.length : 1;
-    for (let i = 0; i < allowCount; i++) {
-      files.push(src.files[i]);
-    }
-    src.value = "";
-    this.question.loadFiles(files);
-    this.setState({ fileLoaded: this.state.fileLoaded + 1 });
-  };
   protected renderElement(): JSX.Element {
     var preview = this.renderPreview();
     var fileInput = null;
@@ -94,7 +28,7 @@ export class SurveyQuestionFile extends SurveyQuestionElementBase {
         id={this.question.inputId}
         ref={input => (this.control = input)}
         style={!this.isDisplayMode ? {} : { color: "transparent" }}
-        onChange={!this.isDisplayMode ? this.handleOnChange : null}
+        onChange={!this.isDisplayMode ? this.question.doChange : null}
         aria-required={this.question.ariaRequired}
         aria-label={this.question.ariaLabel}
         aria-invalid={this.question.ariaInvalid}
@@ -105,7 +39,7 @@ export class SurveyQuestionFile extends SurveyQuestionElementBase {
       />
     );
     return (
-      <div className={this.state.rootClass}>
+      <div className={this.question.cssClasses.root}>
         {fileInput}
         {fileDecorator}
         {clearButton}
@@ -138,8 +72,8 @@ export class SurveyQuestionFile extends SurveyQuestionElementBase {
     return (
       <div
         className={this.question.cssClasses.fileDecorator}
-        onDrop={this.handleOnDrop}
-        onDragOver={this.handleOnDragOver}
+        onDrop={this.question.onDrop}
+        onDragOver={this.question.onDragOver}
       >
         <div className={this.question.cssClasses.wrapper}>
           {chooseFile}
@@ -150,7 +84,7 @@ export class SurveyQuestionFile extends SurveyQuestionElementBase {
   }
   protected renderClearButton(className: string): JSX.Element {
     return !this.question.isEmpty() && !this.isDisplayMode ? (
-      <button type="button" onClick={this.handleOnClean} className={className}>
+      <button type="button" onClick={this.question.doClean} className={className}>
         {this.question.cleanButtonCaption}
       </button>
     ) : null;
@@ -163,7 +97,7 @@ export class SurveyQuestionFile extends SurveyQuestionElementBase {
         <a
           href={val.content}
           onClick={event => {
-            this.handleOnDownloadFile(event, val);
+            this.question.doDownloadFile(event, val);
           }}
           title={val.name}
           download={val.name}
@@ -192,13 +126,13 @@ export class SurveyQuestionFile extends SurveyQuestionElementBase {
             <div>
               <span
                 className={this.question.cssClasses.removeFile}
-                onClick={event => this.handleOnRemoveFile(val)}
+                onClick={event => this.question.doRemoveFile(val)}
               >
                 {this.question.removeFileCaption}
               </span>
               <svg
                 className={this.question.cssClasses.removeFileSvg}
-                onClick={event => this.handleOnRemoveFile(val)}
+                onClick={event => this.question.doRemoveFile(val)}
                 viewBox="0 0 16 16"
               >
                 <path d="M8,2C4.7,2,2,4.7,2,8s2.7,6,6,6s6-2.7,6-6S11.3,2,8,2z M11,10l-1,1L8,9l-2,2l-1-1l2-2L5,6l1-1l2,2l2-2l1,1L9,8 L11,10z" />

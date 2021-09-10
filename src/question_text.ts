@@ -367,6 +367,13 @@ export class QuestionTextModel extends QuestionTextBase {
   protected hasPlaceHolder(): boolean {
     return !this.isReadOnly && this.inputType !== "range";
   }
+  get inputStyle(): any {
+    var style: any = {};
+    if (!!this.inputWidth) {
+      style.width = this.inputWidth;
+    }
+    return style;
+  }
 }
 
 const minMaxTypes = [

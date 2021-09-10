@@ -1,4 +1,3 @@
-import { ItemValue } from "../src/itemvalue";
 import { QuestionCheckboxModel } from "../src/question_checkbox";
 import { QuestionRankingModel } from "../src/question_ranking";
 import { SurveyModel } from "../src/survey";
@@ -6,44 +5,28 @@ import { SurveyModel } from "../src/survey";
 export default QUnit.module("question ranking");
 
 QUnit.test("Ranking: Base ", function(assert) {
-  const items = ["one", "two", "three"];
-  const model = new QuestionRankingModel("test");
-
-  model["moveArrayItemBack"](items, 1);
-  assert.deepEqual(items, ["two", "one", "three"], "moveArrayItemBack is ok");
-
-  model["moveArrayItemForward"](items, 0);
-  assert.deepEqual(
-    items,
-    ["one", "two", "three"],
-    "moveArrayItemForward is ok"
-  );
-
-  let value = [];
-  let visibleChoices: any = [
-    { text: "one", value: 1 },
-    { text: "two", value: 2 },
-    { text: "three", value: 3 },
-  ];
-  let rankingChoices = [];
-
-  rankingChoices = model["mergeValueAndVisibleChoices"](value, visibleChoices);
-  assert.deepEqual(
-    rankingChoices,
-    visibleChoices,
-    "mergeValueAndVisibleChoices returns visibleChoices if empty value"
-  );
-
-  value = [2, 1, 3];
-  rankingChoices = model["mergeValueAndVisibleChoices"](value, visibleChoices);
-  assert.deepEqual(
-    rankingChoices,
-    [
-      { text: "two", value: 2 },
-      { text: "one", value: 1 },
-      { text: "three", value: 3 },
+  var survey = new SurveyModel({
+    elements: [
+      {
+        type: "ranking",
+        name: "q1",
+        choices: ["a", "b", "c"],
+      },
     ],
-    "mergeValueAndVisibleChoices returns correct value"
+  });
+  var rankingQuestion = <QuestionRankingModel>survey.getQuestionByName("q1");
+
+  assert.deepEqual(
+    rankingQuestion.rankingChoices.map((c)=>c.value),
+    ["a", "b", "c"],
+    "rankingChoices returns visibleChoices if empty value"
+  );
+
+  rankingQuestion.value = ["c", "b", "a"];
+  assert.deepEqual(
+    rankingQuestion.rankingChoices.map((c)=>c.value),
+    ["c", "b", "a"],
+    "rankingChoices returns visibleChoices if empty value"
   );
 });
 

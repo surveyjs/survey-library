@@ -11,7 +11,7 @@ export class TitleElement extends React.Component<any, any> {
   }
   render(): JSX.Element {
     const element = this.element;
-    if(!element) return null;
+    if(!element || !element.hasTitle) return null;
     const titleContent = <TitleActions element={element} cssClasses={element.cssClasses}></TitleActions>;
     let onClick = null;
     let onKeyUp = null;

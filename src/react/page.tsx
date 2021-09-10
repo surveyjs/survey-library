@@ -28,7 +28,6 @@ export class SurveyPage extends SurveyPanelBase {
     );
   }
   protected renderTitle(): JSX.Element {
-    if (!this.page._showTitle) return null;
     return <TitleElement element={this.page}></TitleElement>;
   }
   protected renderDescription(): JSX.Element {

@@ -1,6 +1,6 @@
 ﻿<script type="text/html" id="survey-page">
   <div data-bind="css: cssClasses.page.root">
-    <!-- ko if: _showTitle -->
+    <!-- ko if: hasTitle -->
     <h4 data-bind="css: cssClasses.page.title">
       <!-- ko if: !hasTitleActions -->
       <!-- ko template: { name: 'survey-string', data: locTitle } --><!-- /ko -->

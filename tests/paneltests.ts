@@ -604,14 +604,14 @@ QUnit.test(
   function(assert) {
     var survey = new SurveyModel();
     var page = survey.addNewPage("page");
-    assert.notOk(page._showTitle, "Empty title is not visible at runtime");
+    assert.notOk(page.hasTitle, "Empty title is not visible at runtime");
     assert.notOk(
       page._showDescription,
       "Empty description is not visible at runtime - description"
     );
     survey.setDesignMode(true);
     assert.ok(
-      page._showTitle,
+      page.hasTitle,
       "Empty title is visible in DesignMode by default"
     );
     assert.ok(
@@ -620,7 +620,7 @@ QUnit.test(
     );
     settings.allowShowEmptyDescriptionInDesignMode = false;
     assert.ok(
-      page._showTitle,
+      page.hasTitle,
       "Empty title is visible in DesignMode after description flag"
     );
     assert.notOk(
@@ -630,7 +630,7 @@ QUnit.test(
     settings.allowShowEmptyDescriptionInDesignMode = true;
     settings.allowShowEmptyTitleInDesignMode = false;
     assert.notOk(
-      page._showTitle,
+      page.hasTitle,
       "Empty title is not visible at DesignMode after title flag"
     );
     assert.notOk(
@@ -639,7 +639,7 @@ QUnit.test(
     );
     page.title = "My title";
     page.description = "My description";
-    assert.ok(page._showTitle, "Entered title is visible in DesignMode");
+    assert.ok(page.hasTitle, "Entered title is visible in DesignMode");
     assert.ok(
       page._showDescription,
       "Entered description is visible in DesignMode"

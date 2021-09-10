@@ -44,11 +44,7 @@ export class QuestionText extends QuestionVue<QuestionTextModel> {
     this.question.value = event.target.value;
   }
   get inputStyle(): any {
-    var style: any = {};
-    if (!!this.question.inputWidth) {
-      style.width = this.question.inputWidth;
-    }
-    return style;
+    return this.question.inputStyle;
   }
 }
 Vue.component("survey-text", QuestionText);

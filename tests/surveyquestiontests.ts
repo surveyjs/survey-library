@@ -4908,6 +4908,10 @@ QUnit.test("text question inputSize and inputWidth", function(assert) {
   assert.equal(q1.inputWidth, "auto", "q1 inputWidth is auto");
   assert.equal(q2.inputWidth, "", "q2 inputWidth is empty");
   assert.equal(q3.inputWidth, "", "q3 inputWidth is empty");
+
+  assert.equal(q1.inputStyle.width, "auto", "q1 inputStyle width is auto");
+  assert.equal(q2.inputStyle.width, undefined, "q2 inputStyle width is undefined");
+  assert.equal(q3.inputStyle.width, undefined, "q3 inputStyle width is undefined");
 });
 QUnit.test("Multiple Text Question: itemSize", function(assert) {
   var mText = new QuestionMultipleTextModel("mText");

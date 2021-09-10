@@ -16,12 +16,10 @@
             :value="item.value"
             :disabled="question.isInputReadOnly"
             @click="(e) => question.setValueFromClick(e.target.value)"
-            v-bind:aria-required="question.isRequired"
-            :aria-label="item.locText.text"
-            :aria-invalid="question.errors.length > 0"
-            :aria-describedby="
-              question.errors.length > 0 ? question.id + '_errors' : null
-            "
+            :aria-required="question.ariaRequired"
+            :aria-label="question.ariaLabel"
+            :aria-invalid="question.ariaInvalid"
+            :aria-describedby="question.ariaDescribedBy"
           />
           <span v-if="index === 0" :class="question.cssClasses.minText">
             <survey-string :locString="question.locMinRateDescription" />

@@ -2,8 +2,8 @@
   <div 
     role="radio" 
     :aria-checked="question.renderedValue === item.value ? 'true': 'false'"
+    :aria-required="question.ariaRequired"
     :aria-invalid="question.ariaInvalid"
-    :aria-required="question.isRequired"
     :aria-describedby="question.ariaDescribedBy"
   >
     <label :class="getLabelClass(item)" :aria-label="item.locText.renderedHtml">

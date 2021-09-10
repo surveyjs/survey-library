@@ -32,10 +32,10 @@ export class SurveyQuestionComment extends SurveyQuestionUncontrolledElement<Que
         onInput={onInput}
         cols={this.question.cols}
         rows={this.question.rows}
-        aria-required={this.question.isRequired}
-        aria-label={this.question.locTitle.renderedHtml}
-        aria-invalid={this.question.errors.length > 0}
-        aria-describedby={this.question.errors.length > 0 ? this.question.id + "_errors" : null}
+        aria-required={this.question.ariaRequired}
+        aria-label={this.question.ariaLabel}
+        aria-invalid={this.question.ariaInvalid}
+        aria-describedby={this.question.ariaDescribedBy}
         style={{ resize: this.question.autoGrow ? "none" : "both" }}
       />
     );

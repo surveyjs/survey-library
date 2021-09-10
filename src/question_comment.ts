@@ -42,14 +42,21 @@ export class QuestionCommentModel extends QuestionTextBase {
   public getType(): string {
     return "comment";
   }
-  public afterRenderQuestionElement(el: HTMLElement) {
+  public afterRenderQuestionElement(el: HTMLElement): void {
     this.element = document.getElementById(this.inputId) || el;
     this.updateElement();
+    super.afterRenderQuestionElement(el);
   }
-  public updateElement() {
+  public updateElement(): void {
     if (this.element && this.autoGrow) increaseHeightByContent(this.element);
   }
-  onValueChanged() {
+  public onInput(event: any): void {
+    if (this.isInputTextUpdate)
+      this.value = event.target.value;
+    else
+      this.updateElement();
+  }
+  onValueChanged(): void {
     super.onValueChanged();
     this.updateElement();
   }

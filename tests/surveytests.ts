@@ -13760,7 +13760,7 @@ QUnit.test("utils.increaseHeightByContent", assert => {
     };
   };
   increaseHeightByContent(<HTMLElement>element, getComputedStyle);
-  assert.equal(element.style.height, "50px");
+  assert.equal(element.style.height, "55px");
 
   element.scrollHeight = 90;
   increaseHeightByContent(<HTMLElement>element, getComputedStyle);

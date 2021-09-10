@@ -1,10 +1,10 @@
 import React from "react";
 import {
   Base,
-  ResponsivityManager,
   Action,
   ActionContainer
 } from "survey-core";
+import { AdaptiveActionContainer } from "../../../actions/adaptive-container";
 import { ReactElementFactory } from "../../element-factory";
 import { SurveyElementBase } from "../../reactquestion_element";
 import { SurveyAction } from "./action-bar-item";
@@ -18,7 +18,6 @@ interface IActionBarProps {
 }
 
 export class SurveyActionBar extends SurveyElementBase<IActionBarProps, any> {
-  private manager: ResponsivityManager;
   private rootRef: React.RefObject<HTMLDivElement>;
 
   constructor(props: IActionBarProps) {
@@ -38,15 +37,11 @@ export class SurveyActionBar extends SurveyElementBase<IActionBarProps, any> {
     super.componentDidMount();
     if (!this.model.hasActions) return;
     const container: HTMLDivElement = this.rootRef.current;
-    this.manager = new ResponsivityManager(
-      container,
-      (this.model as any),
-      ".sv-action:not(.sv-dots)>.sv-action__content"
-    );
+    this.model.initResponsivityManager(container);
   }
   componentWillUnmount() {
-    this.manager && this.manager.dispose();
     super.componentWillUnmount();
+    this.model.dispose();
   }
 
   protected getStateElement(): Base {

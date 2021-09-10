@@ -20,7 +20,7 @@
 <script lang="ts">
 import { Component, Prop } from "vue-property-decorator";
 import Vue from "vue";
-import { Action, AdaptiveActionContainer, ResponsivityManager } from "survey-core";
+import { Action, ActionContainer } from "survey-core";
 import { BaseVue } from "../../base";
 
 export * from "./action.vue";
@@ -30,28 +30,23 @@ export * from "./action-bar-separator.vue";
 
 @Component
 export class ActionBarViewModel extends BaseVue {
-  @Prop() model: AdaptiveActionContainer;
+  @Prop() model: ActionContainer;
   @Prop() handleClick: boolean;
   constructor(props: any) {
     super(props);
   }
-  manager: ResponsivityManager;
-  getModel(): AdaptiveActionContainer<Action> {
+  getModel(): ActionContainer<Action> {
     return this.model;
   }
   
   mounted() {
     if (!this.model.hasActions) return;
-    const container = this.$el;
-    this.manager = new ResponsivityManager(
-      container as HTMLDivElement,
-      (this.model as any),
-      ".sv-action:not(.sv-dots)>.sv-action__content"
-    );
+    const container: HTMLDivElement = <HTMLDivElement>this.$el;
+    this.model.initResponsivityManager(container);
   }
 
   beforeDestroy() {
-    this.manager && this.manager.dispose();
+    this.model.dispose();
   }
 }
 

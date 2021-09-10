@@ -1,12 +1,13 @@
+import { ResponsivityManager } from "../utils/responsivity-manager";
 import { ListModel } from "../list";
 import { PopupModel } from "../popup";
-import { Action, IAction } from "./action";
+import { Action } from "./action";
 import { ActionContainer } from "./container";
 
 export class AdaptiveActionContainer<T extends Action = Action> extends ActionContainer<T> {
   protected dotsItem: Action;
   protected dotsItemPopupModel: PopupModel;
-  public createResponsivityManager: boolean = true;
+  private responsivityManager: ResponsivityManager;
 
   private invisibleItemsListModel: ListModel = new ListModel(
     [],
@@ -110,6 +111,19 @@ export class AdaptiveActionContainer<T extends Action = Action> extends ActionCo
       this.dotsItem.visible = true;
     } else {
       this.updateItemMode(dimension, maxSize);
+    }
+  }
+  public initResponsivityManager(container: HTMLDivElement): void {
+    this.responsivityManager = new ResponsivityManager(
+      container, this,
+      ".sv-action:not(.sv-dots)>.sv-action__content"
+    );
+  }
+  public dispose(): void {
+    super.dispose();
+    if(!!this.responsivityManager) {
+      this.responsivityManager.dispose();
+      this.responsivityManager = undefined;
     }
   }
 }

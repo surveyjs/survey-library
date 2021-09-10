@@ -3,8 +3,6 @@ import { Base } from "../base";
 import { IAction, Action } from "./action";
 
 export class ActionContainer<T extends Action = Action> extends Base {
-    public createResponsivityManager: boolean = false;
-
     @propertyArray({
       onSet: (_: any, target: ActionContainer<Action>) => {
         target.onSet();
@@ -71,5 +69,11 @@ export class ActionContainer<T extends Action = Action> extends Base {
       } else {
         this.actions = actions;
       }
+    }
+    public initResponsivityManager(container: HTMLDivElement): void {
+      return;
+    }
+    public dispose() {
+      super.dispose();
     }
 }

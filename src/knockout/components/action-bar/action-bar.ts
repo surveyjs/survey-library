@@ -1,6 +1,5 @@
 import * as ko from "knockout";
-import { ActionContainer, IAction } from "survey-core";
-import { ResponsivityManager } from "survey-core";
+import { ActionContainer } from "survey-core";
 import { ImplementorBase } from "../../kobase";
 
 const template = require("./action-bar.html");
@@ -11,18 +10,16 @@ export * from "./action-bar-item-dropdown";
 export * from "./action-bar-separator";
 
 export class ActionBarViewModel extends ActionContainer {
-  public itemsSubscription: any;
-
-  constructor(_items: Array<IAction>, public handleClick = true) {
+  private _implementor: ImplementorBase;
+  constructor(public model: ActionContainer, public handleClick = true) {
     super();
-    this.itemsSubscription = ko.computed(() => {
-      this.setItems(ko.unwrap(_items));
-    });
+    this._implementor = new ImplementorBase(model);
   }
 
-  dispose() {
+  dispose(): void {
     super.dispose();
-    this.itemsSubscription.dispose();
+    this._implementor.dispose();
+    this.model.dispose();
   }
 }
 
@@ -54,22 +51,11 @@ ko.components.register("sv-action-bar", {
     createViewModel: (params: any, componentInfo: any) => {
       const handleClick =
         params.handleClick !== undefined ? params.handleClick : true;
-      let model = { model: params.model, handleClick: handleClick };
-      new ImplementorBase(params.model);
-
+      const model = params.model;
       const container: HTMLDivElement =
         componentInfo.element.nextElementSibling;
-      if (params.model.createResponsivityManager) {
-        const manager: ResponsivityManager = new ResponsivityManager(
-          container,
-          params.model,
-          ".sv-action:not(.sv-dots)>.sv-action__content"
-        );
-        ko.utils.domNodeDisposal.addDisposeCallback(container, () =>
-          manager.dispose()
-        );
-      }
-      return model;
+      params.model.initResponsivityManager(container);
+      return new ActionBarViewModel(model, handleClick);
     },
   },
   template: template,

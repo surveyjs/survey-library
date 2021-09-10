@@ -25,10 +25,6 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
     return "ranking";
   }
 
-  public get isIndeterminate(): boolean {
-    return !this.value || this.value.length === 0;
-  }
-
   public get rootClass(): string {
     return new CssClassBuilder()
       .append(this.cssClasses.root)
@@ -70,17 +66,15 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
   }
 
   public getNumberByIndex(index: number): string {
-    return this.isIndeterminate ? "\u2013" : index + 1 + "";
+    return this.isEmpty() ? "\u2013" : index + 1 + "";
   }
 
   public get rankingChoices(): ItemValue[] {
     let result: ItemValue[] = [];
     const value: any = this.value;
-    const visibleChoices: ItemValue[] = this.removeOtherChoiceFromChoices(
-      this.visibleChoices
-    );
+    const visibleChoices: ItemValue[] = this.visibleChoices;
 
-    if (this.isIndeterminate) {
+    if (this.isEmpty()) {
       result = visibleChoices;
     } else {
       result = this.mergeValueAndVisibleChoices(value, visibleChoices);
@@ -89,16 +83,6 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
     // ranking question with only one choice doesn't make sense
     if (result.length === 1) result = [];
 
-    return result;
-  }
-
-  private removeOtherChoiceFromChoices(choices: ItemValue[]) {
-    const result = choices;
-    choices.forEach((choice: ItemValue, index: number) => {
-      if (choice.value === "other") {
-        result.splice(index, 1); // remove other choice
-      }
-    });
     return result;
   }
 
@@ -163,7 +147,7 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
   protected onVisibleChoicesChanged(): void {
     super.onVisibleChoicesChanged();
 
-    if (this.isIndeterminate) return;
+    if (this.isEmpty()) return;
     this.value = this.rankingChoices.map((choice) => choice.value);
   }
 
@@ -207,7 +191,7 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
       onStart(evt: any) {
         (<any>Sortable.ghost.style.opacity) = 1;
         domNode.className += " " + self.cssClasses.rootDragMod;
-        if (self.isIndeterminate) {
+        if (self.isEmpty()) {
           self.setGhostText(evt.oldIndex + 1);
         }
       },
@@ -219,7 +203,7 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
         self.setValueFromUI();
       },
       onChange(evt: any) {
-        if (!self.isIndeterminate) self.syncNumbers();
+        if (!self.isEmpty()) self.syncNumbers();
         self.setGhostText(evt.newIndex + 1);
       },
     });
@@ -269,9 +253,7 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
 
   private setValue = () => {
     const value: string[] = [];
-    const visibleChoices: ItemValue[] = this.removeOtherChoiceFromChoices(
-      this.visibleChoices
-    );
+    const visibleChoices: ItemValue[] = this.visibleChoices;
     visibleChoices.forEach((choice: ItemValue) => {
       value.push(choice.value);
     });

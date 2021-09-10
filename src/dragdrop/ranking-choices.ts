@@ -40,20 +40,28 @@ export class DragDropRankingChoices extends DragDropChoices {
     dropTargetNode?: HTMLElement
   ): boolean {
     const choices = this.parentElement.rankingChoices;
-
-    if (dropTarget === this.draggedElement) return false;
-
     const dropTargetIndex = choices.indexOf(this.dropTarget);
     const draggedElementIndex = choices.indexOf(this.draggedElement);
 
+    // if (
+    //   dropTargetNode.classList.contains("sv-dragdrop-movedown") ||
+    //   dropTargetNode.classList.contains("sv-dragdrop-moveup")
+    // ) {
+    //   setTimeout(() => {
+    //     dropTargetNode.classList.remove("sv-dragdrop-moveup");
+    //     dropTargetNode.classList.remove("sv-dragdrop-movedown");
+    //   }, 200);
+
+    //   return false;
+    // }
     if (
-      draggedElementIndex > dropTargetIndex &&
+      draggedElementIndex >= dropTargetIndex &&
       dropTargetNode.classList.contains("sv-dragdrop-movedown")
     )
       return false;
 
     if (
-      draggedElementIndex < dropTargetIndex &&
+      draggedElementIndex <= dropTargetIndex &&
       dropTargetNode.classList.contains("sv-dragdrop-moveup")
     )
       return false;
@@ -63,6 +71,14 @@ export class DragDropRankingChoices extends DragDropChoices {
       return false;
 
     return true;
+  }
+
+  protected calculateIsBottom(clientY: number): boolean {
+    const choices = this.parentElement.rankingChoices;
+    return (
+      choices.indexOf(this.dropTarget) - choices.indexOf(this.draggedElement) >
+      0
+    );
   }
 
   protected afterDragOver(dropTargetNode: HTMLElement): void {
@@ -76,14 +92,15 @@ export class DragDropRankingChoices extends DragDropChoices {
 
     choices.splice(draggedElementIndex, 1);
     choices.splice(dropTargetIndex, 0, this.draggedElement);
-    this.setPropertyValue("rankingChoices", choices);
-
+    this.parentElement.setPropertyValue("rankingChoices", choices);
     this.updateDraggedElementShortcut(dropTargetIndex + 1);
 
     if (draggedElementIndex > dropTargetIndex) {
       // dropTargetNode.classList.add("sv-dragdrop-movedown");
       this.parentElement.dropTargetNodeMove = "down";
-    } else {
+    }
+
+    if (draggedElementIndex <= dropTargetIndex) {
       // dropTargetNode.classList.add("sv-dragdrop-moveup");
       this.parentElement.dropTargetNodeMove = "up";
     }
@@ -104,12 +121,11 @@ export class DragDropRankingChoices extends DragDropChoices {
   }
 
   protected doDrop = (): any => {
-    super.doDrop();
     this.parentElement.setValue();
     return this.parentElement;
   };
 
-  protected doClear = ():void => {
+  protected doClear = (): void => {
     this.parentElement.dropTargetNodeMove = null;
-  }
+  };
 }

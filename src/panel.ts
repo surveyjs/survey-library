@@ -295,11 +295,14 @@ export class PanelModelBase extends SurveyElement
     this.markQuestionListDirty();
     this.onRowsChanged();
   }
-  get _showTitle(): boolean {
+  get hasTitle(): boolean {
     return (
       ((<any>this.survey).showPageTitles && this.title.length > 0) ||
       (this.isDesignMode && settings.allowShowEmptyTitleInDesignMode)
     );
+  }
+  get _showTitle(): boolean {
+    return this.hasTitle; //TODO remove _showTitle
   }
 
   get _showDescription(): boolean {

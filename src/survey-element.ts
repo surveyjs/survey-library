@@ -63,8 +63,10 @@ export abstract class SurveyElementCore extends Base implements ILocalizableOwne
   get locDescription(): LocalizableString {
     return this.getLocalizableString("description");
   }
+  public get hasTitle(): boolean { return this.title.length > 0; }
   public get hasTitleActions(): boolean { return false; }
   public getTitleOwner(): ITitleOwner { return undefined; }
+  public get isTitleOwner(): boolean { return !!this.getTitleOwner(); }
   public toggleState(): boolean { return undefined; }
   public get cssClasses(): any { return {}; }
   public get cssTitle(): string { return ""; }

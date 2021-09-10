@@ -4,28 +4,7 @@
     :class="question.cssClasses.panel.container"
     :style="rootStyle"
   >
-    <h4
-      v-show="hasTitle"
-      :class="question.cssTitle"
-      v-bind:tabindex="question.titleTabIndex"
-      v-bind:aria-expanded="question.titleAriaExpanded"
-      v-on:click="
-        () => {
-          return question.toggleState();
-        }
-      "
-      v-on:keyup="
-        ($event) => {
-          keyup($event);
-        }
-      "
-    >
-      <component
-        :is="question.getTitleComponentName()"
-        :element="question"
-        :css="css"
-      ></component>
-    </h4>
+    <survey-element-title :element="question" :css="css"/>
     <div :class="question.cssClasses.panel.description">
       <survey-string :locString="question.locDescription" />
     </div>
@@ -98,9 +77,6 @@ export class Panel extends BaseVue {
   }
   get rows(): QuestionRowModel[] {
     return this.question.rows;
-  }
-  get hasTitle() {
-    return this.question.title.length > 0;
   }
   get survey(): ISurvey {
     return this.question.survey;

@@ -1,5 +1,7 @@
 <template>
   <div>
+    <survey-string v-if="!element.isTitleOwner" :locString="element.locTitle" />
+    <div v-if="element.isTitleOwner"> 
     <span
       v-if="element.isRequireTextOnStart"
       :class="element.cssClasses.requiredText"
@@ -26,19 +28,20 @@
       :aria-hidden="true"
       >{{ element.requiredText }}</span
     >
+    </div>
   </div>
 </template>
 
 <script lang="ts">
 import { Component, Prop } from "vue-property-decorator";
 import Vue from "vue";
-import { IElement } from "survey-core";
+import { SurveyElementCore } from "survey-core";
 
 @Component
 export class TitleContent extends Vue {
-  @Prop() element: IElement;
+  @Prop() element: SurveyElementCore;
   @Prop() css: any;
 }
-Vue.component("survey-question-title-content", TitleContent);
+Vue.component("survey-element-title-content", TitleContent);
 export default TitleContent;
 </script>

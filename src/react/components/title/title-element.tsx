@@ -1,6 +1,5 @@
 import React from "react";
 import { SurveyElementCore, doKey2ClickUp } from "survey-core";
-import { SurveyElementBase } from "../../reactquestion_element";
 import { TitleActions } from "./title-actions";
 
 export class TitleElement extends React.Component<any, any> {

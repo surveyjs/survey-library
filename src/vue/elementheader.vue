@@ -1,29 +1,6 @@
 <template>
   <div :class="element.cssHeader" @click="clickTitleFunction">
-    <h5
-      v-if="element.hasTitle"
-      :class="element.cssTitle"
-      v-bind:aria-label="element.locTitle.renderedHtml"
-      v-bind:id="element.ariaTitleId"
-      v-bind:tabindex="element.titleTabIndex"
-      v-bind:aria-expanded="element.titleAriaExpanded"
-      v-on:click="
-        () => {
-          return element.toggleState();
-        }
-      "
-      v-on:keyup="
-        ($event) => {
-          keyup($event);
-        }
-      "
-    >
-      <component
-        :is="element.getTitleComponentName()"
-        :element="element"
-        :css="css"
-      ></component>
-    </h5>
+    <survey-element-title :element="element" :css="css"/>
     <div
       v-if="element.hasDescriptionUnderTitle"
       :class="element.cssClasses.description"

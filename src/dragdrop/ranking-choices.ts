@@ -21,8 +21,6 @@ export class DragDropRankingChoices extends DragDropChoices {
 
     const isDeepClone = true;
     const clone = <HTMLElement>draggedElementNode.cloneNode(isDeepClone);
-    clone.classList.remove("sv-dragdrop-moveup");
-    clone.classList.remove("sv-dragdrop-movedown");
     draggedElementShortcut.appendChild(clone);
 
     return draggedElementShortcut;
@@ -40,31 +38,6 @@ export class DragDropRankingChoices extends DragDropChoices {
     dropTargetNode?: HTMLElement
   ): boolean {
     const choices = this.parentElement.rankingChoices;
-    const dropTargetIndex = choices.indexOf(this.dropTarget);
-    const draggedElementIndex = choices.indexOf(this.draggedElement);
-
-    // if (
-    //   dropTargetNode.classList.contains("sv-dragdrop-movedown") ||
-    //   dropTargetNode.classList.contains("sv-dragdrop-moveup")
-    // ) {
-    //   setTimeout(() => {
-    //     dropTargetNode.classList.remove("sv-dragdrop-moveup");
-    //     dropTargetNode.classList.remove("sv-dragdrop-movedown");
-    //   }, 200);
-
-    //   return false;
-    // }
-    if (
-      draggedElementIndex >= dropTargetIndex &&
-      dropTargetNode.classList.contains("sv-dragdrop-movedown")
-    )
-      return false;
-
-    if (
-      draggedElementIndex <= dropTargetIndex &&
-      dropTargetNode.classList.contains("sv-dragdrop-moveup")
-    )
-      return false;
 
     if (choices.indexOf(dropTarget) === -1)
       // shouldn't allow to drop on "adorners" (selectall, none, other)
@@ -86,22 +59,22 @@ export class DragDropRankingChoices extends DragDropChoices {
     const dropTargetIndex = choices.indexOf(this.dropTarget);
     const draggedElementIndex = choices.indexOf(this.draggedElement);
 
-    dropTargetNode.classList.remove("sv-dragdrop-moveup");
-    dropTargetNode.classList.remove("sv-dragdrop-movedown");
-    this.parentElement.dropTargetNodeMove = null;
-
     choices.splice(draggedElementIndex, 1);
     choices.splice(dropTargetIndex, 0, this.draggedElement);
     this.parentElement.setPropertyValue("rankingChoices", choices);
     this.updateDraggedElementShortcut(dropTargetIndex + 1);
 
+    if (draggedElementIndex !== dropTargetIndex) {
+      dropTargetNode.classList.remove("sv-dragdrop-moveup");
+      dropTargetNode.classList.remove("sv-dragdrop-movedown");
+      this.parentElement.dropTargetNodeMove = null;
+    }
+
     if (draggedElementIndex > dropTargetIndex) {
-      // dropTargetNode.classList.add("sv-dragdrop-movedown");
       this.parentElement.dropTargetNodeMove = "down";
     }
 
-    if (draggedElementIndex <= dropTargetIndex) {
-      // dropTargetNode.classList.add("sv-dragdrop-moveup");
+    if (draggedElementIndex < dropTargetIndex) {
       this.parentElement.dropTargetNodeMove = "up";
     }
   }

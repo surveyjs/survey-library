@@ -64,9 +64,9 @@ const json = {
   ],
 };
 
-for (let index = 0; index < 100; index++) {
-  frameworks.push("knockout");
-}
+// for (let index = 0; index < 100; index++) {
+//   frameworks.push("knockout");
+// }
 
 frameworks.forEach((framework) => {
   fixture`${framework} ${title}`.page`${url}${framework}.html`.beforeEach(

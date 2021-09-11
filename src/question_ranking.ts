@@ -261,7 +261,7 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
   }
 
   private handleArrowUp = (index: number, choice: ItemValue) => {
-    const newValue = this.value;
+    const newValue = this.value.slice();
     newValue.splice(index, 1);
     newValue.splice(index - 1, 0, choice);
     this.value = newValue;
@@ -271,7 +271,7 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
   };
 
   private handleArrowDown = (index: number, choice: ItemValue) => {
-    const newValue = this.value;
+    const newValue = this.value.slice();
     newValue.splice(index, 1);
     newValue.splice(index + 1, 0, choice);
     this.value = newValue;

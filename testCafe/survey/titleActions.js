@@ -197,4 +197,14 @@ frameworks.forEach((framework) => {
 
     assert.ok(await Selector("h4 .sv-title-actions").exists);
   });
+  test("check responsivity manager is disposed when action bar is disposed", async (t) => {
+    const getToolbarResponsivityManager = ClientFunction(() => !!survey.getQuestionByName("actions_question").titleToolbarValue.responsivityManager);
+    const setQuestionVisibility = ClientFunction((visible) => { survey.getQuestionByName("actions_question").visible = visible });
+    await initSurvey(framework, json);
+    await t.expect(getToolbarResponsivityManager()).ok();
+    await setQuestionVisibility(false);
+    await t.expect(getToolbarResponsivityManager()).notOk();
+    await setQuestionVisibility(true);
+    await t.expect(getToolbarResponsivityManager()).ok();
+  });
 });

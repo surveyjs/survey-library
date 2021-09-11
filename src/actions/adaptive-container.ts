@@ -1,11 +1,13 @@
+import { ResponsivityManager } from "../utils/responsivity-manager";
 import { ListModel } from "../list";
 import { PopupModel } from "../popup";
-import { Action, IAction } from "./action";
+import { Action } from "./action";
 import { ActionContainer } from "./container";
 
 export class AdaptiveActionContainer<T extends Action = Action> extends ActionContainer<T> {
   protected dotsItem: Action;
   protected dotsItemPopupModel: PopupModel;
+  private responsivityManager: ResponsivityManager;
 
   private invisibleItemsListModel: ListModel = new ListModel(
     [],
@@ -20,14 +22,6 @@ export class AdaptiveActionContainer<T extends Action = Action> extends ActionCo
     if (!!item && typeof item.action === "function") {
       item.action();
     }
-  }
-
-  private sortItems(items: Array<T>) {
-    return []
-      .concat(items.filter((item) => item.visibleIndex >= 0 || item.visibleIndex === undefined))
-      .sort((firstItem, secondItem) => {
-        return firstItem.visibleIndex - secondItem.visibleIndex;
-      });
   }
 
   private hideItemsGreaterN(visibleItemsCount: number) {
@@ -96,15 +90,6 @@ export class AdaptiveActionContainer<T extends Action = Action> extends ActionCo
     return this.actions.concat([<T>this.dotsItem]);
   }
 
-  public setItems(items: Array<IAction>, sortByVisibleIndex = true) {
-    const actions: Array<T> = <any>items.map((item) => (item instanceof Action ? item : new Action(item)));
-    if (sortByVisibleIndex) {
-      this.actions = this.sortItems(actions);
-    } else {
-      this.actions = actions;
-    }
-  }
-
   public fit(dimension: number, dotsItemSize: number) {
     if (dimension <= 0) return;
 
@@ -126,6 +111,19 @@ export class AdaptiveActionContainer<T extends Action = Action> extends ActionCo
       this.dotsItem.visible = true;
     } else {
       this.updateItemMode(dimension, maxSize);
+    }
+  }
+  public initResponsivityManager(container: HTMLDivElement): void {
+    this.responsivityManager = new ResponsivityManager(
+      container, this,
+      ".sv-action:not(.sv-dots)>.sv-action__content"
+    );
+  }
+  public dispose(): void {
+    super.dispose();
+    if(!!this.responsivityManager) {
+      this.responsivityManager.dispose();
+      this.responsivityManager = undefined;
     }
   }
 }

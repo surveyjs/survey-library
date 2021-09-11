@@ -33,7 +33,6 @@ export abstract class SurveyElementCore extends Base implements ILocalizableOwne
   protected createLocTitleProperty(): LocalizableString {
     return this.createLocalizableString("title", this, true);
   }
-  public abstract get titleTagName(): string;
   /**
    * Question, Panel, Page and Survey title. If page and panel is empty then they are not rendered.
    * Question renders question name if the title is empty. Use survey questionTitleTemplate property to change the title question rendering.
@@ -62,6 +61,14 @@ export abstract class SurveyElementCore extends Base implements ILocalizableOwne
   }
   get locDescription(): LocalizableString {
     return this.getLocalizableString("description");
+  }
+  public get titleTagName(): string {
+    let titleTagName = this.getDefaultTitleTagName();
+    const survey = this.getSurvey();
+    return !!survey ? survey.getElementTitleTagName(this, titleTagName): titleTagName;
+  }
+  protected getDefaultTitleTagName(): string {
+    return (<any>settings.titleTags)[this.getType()];
   }
   public get hasTitle(): boolean { return this.title.length > 0; }
   public get hasTitleActions(): boolean { return false; }
@@ -278,12 +285,6 @@ export class SurveyElement extends SurveyElementCore implements ISurveyElement {
       this.isTitleActionRequested = true;
     }
     return this.titleActions;
-  }
-  public get titleTagName(): string {
-    return this.getDefaultTitleTagName();
-  }
-  protected getDefaultTitleTagName(): string {
-    return (<any>settings.titleTags)[this.getType()];
   }
   private updateTitleActions() {
     let actions = [];

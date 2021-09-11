@@ -102,6 +102,7 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner {
     errors: Array<SurveyError>
   ): void;
   beforeSettingPanelErrors(question: IPanel, errors: Array<SurveyError>): void;
+  getElementTitleTagName(element: Base, tagName: string): string;
   questionTitlePattern: string;
   getUpdatedQuestionTitle(question: IQuestion, title: string): string;
   getUpdatedQuestionNo(question: IQuestion, no: string): string;

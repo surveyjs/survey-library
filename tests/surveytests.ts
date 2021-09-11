@@ -13788,3 +13788,30 @@ QUnit.test("test titleTagName, survey.cssTitle properties and getTitleOwner", as
   assert.notOk(survey.pages[0].getTitleOwner());
   assert.notOk(survey.getTitleOwner());
 });
+QUnit.test("settings titleTagName and survey.onGetTitleTagName", assert => {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "panel", name: "p1",
+        elements: [{ type: "text", name: "q1" }]
+      }
+    ]
+  });
+  const savedTitleTags = Helpers.createCopy(settings.titleTags);
+  settings.titleTags.survey = "h1";
+  settings.titleTags.page = "h2";
+  settings.titleTags.panel = "h3";
+  settings.titleTags.question = "h4";
+  assert.equal(survey.getQuestionByName("q1").titleTagName, "h4");
+  assert.equal((<PanelModel>survey.getPanelByName("p1")).titleTagName, "h3");
+  assert.equal(survey.pages[0].titleTagName, "h2");
+  assert.equal(survey.titleTagName, "h1");
+  survey.onGetTitleTagName.add((sender, options) => {
+    options.tagName = options.tagName + options.element.getType()[0];
+  });
+  assert.equal(survey.getQuestionByName("q1").titleTagName, "h4t");
+  assert.equal((<PanelModel>survey.getPanelByName("p1")).titleTagName, "h3p");
+  assert.equal(survey.pages[0].titleTagName, "h2p");
+  assert.equal(survey.titleTagName, "h1s");
+  settings.titleTags = savedTitleTags;
+});

@@ -393,6 +393,17 @@ export class SurveyModel extends SurveyElementCore
     SurveyModel
   >();
   /**
+   * Use this event to change the element title tag name that renders by default.
+   * <br/> `sender` - the survey object that fires the event.
+   * <br/> `options.element` - an element (question, panel, page and survey) that SurveyJS is going to render.
+   * <br/> `options.tagName` - an element title tagName that are used to render a title. You can change it from the default value.
+   * @see showQuestionNumbers
+   * @see requiredText
+   */
+   public onGetTitleTagName: EventBase<SurveyModel> = this.addEvent<
+   SurveyModel
+ >();
+  /**
    * Use this event to change the question no in code. If you want to remove question numbering then set showQuestionNumbers to "off".
    * <br/> `sender` - the survey object that fires the event.
    * <br/> `options.no` - a calculated question no, based on question `visibleIndex`, survey `.questionStartIndex` properties. You can change it.
@@ -1641,9 +1652,6 @@ export class SurveyModel extends SurveyElementCore
   }
 
   //#region Title/Header options
-  public get titleTagName(): string {
-    return settings.titleTags.survey;
-  }
   /**
    * Gets or sets a survey logo.
    * @see title
@@ -1948,7 +1956,12 @@ export class SurveyModel extends SurveyElementCore
   get locEditText(): LocalizableString {
     return this.getLocalizableString("editText");
   }
-
+  getElementTitleTagName(element: Base, tagName: string): string {
+    if(this.onGetTitleTagName.isEmpty) return tagName;
+    const options = { element: element, tagName: tagName };
+    this.onGetTitleTagName.fire(this, options);
+    return options.tagName;
+  }
   /**
    * Set the pattern for question title. Default is "numTitleRequire", 1. What is your name? *,
    * You can set it to numRequireTitle: 1. * What is your name?

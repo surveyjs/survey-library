@@ -61,18 +61,19 @@ export { QuestionButtonGroup } from "../knockout/koquestion_buttongroup";
 
 export * from "../knockout/components/action-bar/action-bar";
 export * from "../knockout/components/boolean-checkbox/boolean-checkbox";
-export * from "../knockout/components/default-title/default-title";
 export * from "../knockout/components/panel/panel";
 export * from "../knockout/components/popup/popup";
 export * from "../knockout/components/progress/buttons";
 export * from "../knockout/components/progress/progress";
 export * from "../knockout/components/template-renderer/template-renderer";
-export * from "../knockout/components/title-actions/title-actions";
+export * from "../knockout/components/title/title-element";
+export * from "../knockout/components/title/title-content";
+export * from "../knockout/components/title/default-title";
+export * from "../knockout/components/title/title-actions";
 export * from "../knockout/components/string-editor/string-editor";
 export * from "../knockout/components/string-viewer/string-viewer";
 export * from "../knockout/components/logo-image/logo-image";
 
-export * from "../knockout/components/default-title/default-title";
 export * from "../knockout/components/list/list";
 export * from "../knockout/components/svg-icon/svg-icon";
 export { SurveyQuestionMatrixDynamicRemoveButton } from "../knockout/components/matrix-actions/remove-button/remove-button";

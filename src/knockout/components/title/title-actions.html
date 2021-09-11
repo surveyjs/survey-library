@@ -1,0 +1,12 @@
+<!-- ko ifnot: element.hasTitleActions -->
+  <!-- ko component: { name: 'survey-element-title-content', params: {element: element } } --><!-- /ko -->
+<!-- /ko -->
+<!-- ko if: element.hasTitleActions -->
+<div class="sv-title-actions">
+  <span class="sv-title-actions__title">
+    <!-- ko component: { name: 'survey-element-title-content', params: {element: element } } --><!-- /ko -->
+  </span>
+  <!-- ko component: { name: 'sv-action-bar', params: { model: toolbar } } -->
+  <!-- /ko -->
+</div>
+<!-- /ko -->

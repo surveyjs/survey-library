@@ -1720,6 +1720,9 @@ export class SurveyModel extends SurveyElementCore
     if (this.isDesignMode) return this.isPropertyVisible("title");
     return !this.locTitle.isEmpty && this.showTitle;
   }
+  public get hasTitle(): boolean {
+    return this.renderedHasTitle;
+  }
   public get renderedHasLogo(): boolean {
     if (this.isDesignMode) return this.isPropertyVisible("logo");
     return this.hasLogo;

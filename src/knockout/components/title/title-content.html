@@ -1,30 +1,30 @@
-<!-- ko ifnot: $data.isTitleOwner -->
-  <!-- ko template: { name: 'survey-string', data: locTitle } --><!-- /ko -->
+<!-- ko ifnot: element.isTitleOwner -->
+  <!-- ko template: { name: 'survey-string', data: element.locTitle } --><!-- /ko -->
 <!-- /ko -->
-<!-- ko if: $data.isTitleOwner -->
-  <!-- ko if: $data.isRequireTextOnStart -->
+<!-- ko if: element.isTitleOwner -->
+  <!-- ko if: element.isRequireTextOnStart -->
   <span
-    data-bind="css: koCss().requiredText || (koCss().panel && koCss().panel.requiredText), text: $data.requiredText, attr: { 'aria-hidden': true }"
+    data-bind="css: element.koCss().requiredText || (element.koCss().panel && element.koCss().panel.requiredText), text: element.requiredText, attr: { 'aria-hidden': true }"
   ></span>
   <!-- /ko -->
-  <!-- ko if: no -->
+  <!-- ko if: element.no -->
   <span
     style="position: static;"
-    data-bind="css: koCss().number, text: no, attr: { 'aria-hidden': true }"
+    data-bind="css: element.koCss().number, text: element.no, attr: { 'aria-hidden': true }"
   ></span>
   <span>&nbsp</span>
   <!-- /ko -->
-  <!-- ko if: $data.isRequireTextBeforeTitle -->
+  <!-- ko if: element.isRequireTextBeforeTitle -->
   <span
-    data-bind="css: koCss().requiredText || (koCss().panel && koCss().panel.requiredText), text: $data.requiredText, attr: { 'aria-hidden': true }"
+    data-bind="css: element.koCss().requiredText || (element.koCss().panel && element.koCss().panel.requiredText), text: element.requiredText, attr: { 'aria-hidden': true }"
   ></span>
   <span>&nbsp</span>
   <!-- /ko -->
-  <!-- ko template: { name: 'survey-string', data: locTitle } --><!-- /ko -->
-  <!-- ko if: $data.isRequireTextAfterTitle -->
+  <!-- ko template: { name: 'survey-string', data: element.locTitle } --><!-- /ko -->
+  <!-- ko if: element.isRequireTextAfterTitle -->
   <span>&nbsp</span>
   <span
-    data-bind="css: koCss().requiredText || (koCss().panel && koCss().panel.requiredText), text: $data.requiredText, attr: { 'aria-hidden': true }"
+    data-bind="css: element.koCss().requiredText || (element.koCss().panel && element.koCss().panel.requiredText), text: element.requiredText, attr: { 'aria-hidden': true }"
   ></span>
   <!-- /ko -->
 <!-- /ko -->

@@ -9,7 +9,7 @@ ko.components.register("survey-element-title-content", {
   viewModel: {
     createViewModel: (params: any, componentInfo: any) => {
       const element: ISurveyElement = params.element;
-      return element;
+      return { element: element };
     },
   },
   template: template,

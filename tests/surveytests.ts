@@ -13815,3 +13815,23 @@ QUnit.test("settings titleTagName and survey.onGetTitleTagName", assert => {
   assert.equal(survey.titleTagName, "h1s");
   settings.titleTags = savedTitleTags;
 });
+QUnit.test("hasTitle + designTime", assert => {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "panel", name: "p1",
+        elements: [{ type: "text", name: "q1" }]
+      }
+    ]
+  });
+  assert.ok(survey.getQuestionByName("q1").hasTitle, "question - running");
+  assert.notOk((<PanelModel>survey.getPanelByName("p1")).hasTitle, "panel - running");
+  assert.notOk(survey.pages[0].hasTitle, "page - running");
+  assert.notOk(survey.hasTitle, "survey - running");
+
+  survey.setDesignMode(true);
+  assert.ok(survey.getQuestionByName("q1").hasTitle, "question - running");
+  assert.ok((<PanelModel>survey.getPanelByName("p1")).hasTitle, "panel - running");
+  assert.ok(survey.pages[0].hasTitle, "page - running");
+  assert.ok(survey.hasTitle, "survey - running");
+});

@@ -13783,6 +13783,7 @@ QUnit.test("test titleTagName, survey.cssTitle properties and getTitleOwner", as
   assert.equal(survey.pages[0].titleTagName, "h4");
   assert.equal(survey.titleTagName, "h3");
   assert.equal(survey.cssTitle, survey.css.title, "survey css");
+  assert.equal(survey.pages[0].cssTitle, "sv_page_title", "page css");
   assert.ok(survey.getQuestionByName("q1").getTitleOwner());
   assert.ok((<PanelModel>survey.getPanelByName("p1")).getTitleOwner());
   assert.notOk(survey.pages[0].getTitleOwner());
@@ -13834,4 +13835,13 @@ QUnit.test("hasTitle + designTime", assert => {
   assert.ok((<PanelModel>survey.getPanelByName("p1")).hasTitle, "panel - running");
   assert.ok(survey.pages[0].hasTitle, "page - running");
   assert.ok(survey.hasTitle, "survey - running");
+});
+QUnit.test("question and titleTabIndex", assert => {
+  const survey = new SurveyModel({
+    elements: [{ type: "text", name: "q1" }]
+  });
+  const question = survey.getQuestionByName("q1");
+  assert.equal(question.titleTabIndex, undefined, "We do not have tabIndex");
+  question.state = "collapsed";
+  assert.equal(question.titleTabIndex, 0, "We need tabIndex now");
 });

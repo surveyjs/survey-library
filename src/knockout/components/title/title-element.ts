@@ -9,10 +9,12 @@ ko.components.register("survey-element-title", {
       const element: SurveyElementCore = params.element;
       const rootEl = componentInfo.element;
       const titleEl = document.createElement(element.titleTagName);
-      titleEl.setAttribute("data-bind", "visible: element.hasTitle, css: element.cssTitle, attr: { 'aria-label': element.locTitle.renderedHtml, id: element.ariaTitleId, tabindex: element.titleTabIndex, 'aria-expanded': element.titleAriaExpanded }, click: function() { element.toggleState()}, key2click");
+      titleEl.setAttribute("data-bind", "css: element.cssTitle, attr: { 'aria-label': element.locTitle.renderedHtml, id: element.ariaTitleId, tabindex: element.titleTabIndex, 'aria-expanded': element.titleAriaExpanded }, click: function() { element.toggleState()}, key2click}");
       titleEl.innerHTML = "<!-- ko component: { name: 'sv-title-actions', params: {element: element } } --><!-- /ko -->";
       const dummyNode = rootEl.nextSibling;
+      rootEl.parentNode.insertBefore(document.createComment(" ko if: element.hasTitle "), dummyNode);
       rootEl.parentNode.insertBefore(titleEl, dummyNode);
+      rootEl.parentNode.insertBefore(document.createComment(" /ko "), dummyNode);
       rootEl.parentNode.removeChild(dummyNode);
       return { element: element };
     },

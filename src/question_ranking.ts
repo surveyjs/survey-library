@@ -109,7 +109,7 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
   };
 
   private addToValueByVisibleChoices() {
-    const newValue = this.value;
+    const newValue = this.value.slice();
 
     this.visibleChoices.forEach((choice) => {
       if (newValue.indexOf(choice.value) === -1) {
@@ -120,7 +120,7 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
   }
 
   private removeFromValueByVisibleChoices() {
-    const newValue = this.value;
+    const newValue = this.value.slice();
 
     this.value.forEach((valueItem: string, index: number) => {
       let isValueItemToRemove = true;

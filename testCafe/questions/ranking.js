@@ -76,34 +76,34 @@ frameworks.forEach((framework) => {
     }
   );
 
-  // test(`ranking: simple using`, async (t) => {
-  //   const PriceItem = Selector("span")
-  //     .withText(
-  //       "Please rank the following smartphone features in order of importance:"
-  //     )
-  //     .parent("[aria-labelledby]")
-  //     .find("span")
-  //     .withText("Price");
+  test(`ranking: simple using`, async (t) => {
+    const PriceItem = Selector("span")
+      .withText(
+        "Please rank the following smartphone features in order of importance:"
+      )
+      .parent("[aria-labelledby]")
+      .find("span")
+      .withText("Price");
 
-  //   await t.hover(PriceItem, { speed: 0.5 });
+    await t.hover(PriceItem, { speed: 0.1 });
 
-  //   await t.drag(PriceItem, 0, -350, {
-  //     offsetX: 7,
-  //     offsetY: 8,
-  //     speed: 0.5,
-  //   });
+    await t.drag(PriceItem, 0, -350, {
+      offsetX: 7,
+      offsetY: 8,
+      speed: 0.1,
+    });
 
-  //   let data = await getData();
-  //   assert.deepEqual(data["smartphone-features"], [
-  //     "Price",
-  //     "Battery life",
-  //     "Screen size",
-  //     "Storage space",
-  //     "Camera quality",
-  //     "Durability",
-  //     "Processor power",
-  //   ]);
-  // });
+    let data = await getData();
+    assert.deepEqual(data["smartphone-features"], [
+      "Price",
+      "Battery life",
+      "Screen size",
+      "Storage space",
+      "Camera quality",
+      "Durability",
+      "Processor power",
+    ]);
+  });
 
   test(`ranking: predeficed data`, async (t) => {
     const PriceItem = Selector("span")
@@ -111,8 +111,16 @@ frameworks.forEach((framework) => {
         "Please rank the following smartphone features in order of importance:"
       )
       .parent("[aria-labelledby]")
-      .find("div[data-sv-drop-target-item-value]")
+      .find("span")
       .withText("Price");
+
+    const BatteryLifeItem = Selector("span")
+      .withText(
+        "Please rank the following smartphone features in order of importance:"
+      )
+      .parent("[aria-labelledby]")
+      .find("span")
+      .withText("Battery life");
 
     await setData({
       "smartphone-features": [
@@ -126,11 +134,7 @@ frameworks.forEach((framework) => {
       ],
     });
 
-    await t.drag(PriceItem, 0, 60, {
-      offsetX: 0,
-      offsetY: 0,
-      speed: 0.1,
-    });
+    await t.dragToElement(PriceItem, BatteryLifeItem);
 
     let data = await getData();
     assert.deepEqual(data["smartphone-features"], [
@@ -145,11 +149,8 @@ frameworks.forEach((framework) => {
 
     await setData(null);
 
-    await t.drag(PriceItem, 0, -60, {
-      offsetX: 0,
-      offsetY: 0,
-      speed: 0.1,
-    });
+    await t.dragToElement(PriceItem, BatteryLifeItem, { speed: 0.1 });
+
     data = await getData();
     assert.deepEqual(data["smartphone-features"], [
       "Price",
@@ -162,83 +163,78 @@ frameworks.forEach((framework) => {
     ]);
   });
 
-  // test(`ranking: carry forward`, async (t) => {
-  //   const rankPriceItem = Selector("span")
-  //     .withText(
-  //       "Please rank the following smartphone features in order of importance:"
-  //     )
-  //     .parent("[aria-labelledby]")
-  //     .find("span")
-  //     .withText("Price");
-    
-  //   await t.hover(rankPriceItem, { speed: 0.5 });
-  //   await t.drag(rankPriceItem, 0, -350, {
-  //     offsetX: 7,
-  //     offsetY: 8,
-  //     speed: 0.5,
-  //   });
-  //   const rankAudiItem = Selector("span")
-  //     .withText("What car did you enjoy the most?")
-  //     .parent("[aria-labelledby]")
-  //     .find("span")
-  //     .withText("Audi");
+  test(`ranking: carry forward`, async (t) => {
+    const rankPriceItem = Selector("span")
+      .withText(
+        "Please rank the following smartphone features in order of importance:"
+      )
+      .parent("[aria-labelledby]")
+      .find("span")
+      .withText("Price");
 
-  //   const checkboxAudiItem = Selector("span")
-  //     .withText("What cars have you being drived?")
-  //     .parent("[aria-labelledby]")
-  //     .find("span")
-  //     .withText("Audi");
-  //   const checkboxMerscedesItem = Selector("span")
-  //     .withText("What cars have you being drived?")
-  //     .parent("[aria-labelledby]")
-  //     .find("span")
-  //     .withText("Mercedes-Benz");
-  //   const checkboxToyotaItem = Selector("span")
-  //     .withText("What cars have you being drived?")
-  //     .parent("[aria-labelledby]")
-  //     .find("span")
-  //     .withText("Toyota");
+    await t.hover(rankPriceItem, { speed: 0.1 });
+    await t.drag(rankPriceItem, 0, -350, {
+      offsetX: 7,
+      offsetY: 8,
+      speed: 0.1,
+    });
+    const rankAudiItem = Selector("span")
+      .withText("What car did you enjoy the most?")
+      .parent("[aria-labelledby]")
+      .find("span")
+      .withText("Audi");
 
-  //   await t.click(Selector("input[value='Next']"));
-  //   await t
-  //     .click(checkboxAudiItem, { speed: 0.5 })
-  //     .click(checkboxMerscedesItem, { speed: 0.5 })
-  //     .click(checkboxToyotaItem, { speed: 0.5 });
+    const checkboxAudiItem = Selector("span")
+      .withText("What cars have you being drived?")
+      .parent("[aria-labelledby]")
+      .find("span")
+      .withText("Audi");
+    const checkboxMerscedesItem = Selector("span")
+      .withText("What cars have you being drived?")
+      .parent("[aria-labelledby]")
+      .find("span")
+      .withText("Mercedes-Benz");
+    const checkboxToyotaItem = Selector("span")
+      .withText("What cars have you being drived?")
+      .parent("[aria-labelledby]")
+      .find("span")
+      .withText("Toyota");
 
-  //   let data = await getData();
-  //   assert.deepEqual(typeof data.bestcar, "undefined");
+    await t.click(Selector("input[value='Next']"));
+    await t
+      .click(checkboxAudiItem, { speed: 0.5 })
+      .click(checkboxMerscedesItem, { speed: 0.5 })
+      .click(checkboxToyotaItem, { speed: 0.5 });
 
-  //   await t.hover(rankAudiItem, { speed: 0.5 });
-  //   await t.drag(rankAudiItem, 0, 60, {
-  //     offsetX: 7,
-  //     offsetY: 8,
-  //     speed: 0.1,
-  //   });
-  //   await t.drag(rankAudiItem, 0, -60, {
-  //     offsetX: 7,
-  //     offsetY: 8,
-  //     speed: 0.1,
-  //   });
-  //   data = await getData();
-  //   assert.deepEqual(data.bestcar, ["Audi", "Mercedes-Benz", "Toyota"]);
+    let data = await getData();
+    assert.deepEqual(typeof data.bestcar, "undefined");
 
-  //   //TODO click doesn't work after the d&d above without the "click('body')" hack
-  //   await t.click("body");
-  //   await t.click(checkboxMerscedesItem, { speed: 0.5 });
+    await t.hover(rankAudiItem, { speed: 0.1 });
+    await t.drag(rankAudiItem, 100, 0, {
+      offsetX: 7,
+      offsetY: 8,
+      speed: 0.1,
+    });
+    data = await getData();
+    assert.deepEqual(data.bestcar, ["Audi", "Mercedes-Benz", "Toyota"]);
 
-  //   data = await getData();
-  //   assert.deepEqual(data.bestcar, ["Audi", "Toyota"]);
+    //TODO click doesn't work after the d&d above without the "click('body')" hack
+    await t.click("body");
+    await t.click(checkboxMerscedesItem, { speed: 0.5 });
 
-  //   await t.click(checkboxMerscedesItem);
-  //   data = await getData();
-  //   assert.deepEqual(data.bestcar, ["Audi", "Toyota", "Mercedes-Benz"]);
+    data = await getData();
+    assert.deepEqual(data.bestcar, ["Audi", "Toyota"]);
 
-  //   await t
-  //     .click(checkboxAudiItem, { speed: 0.5 })
-  //     .click(checkboxMerscedesItem, { speed: 0.5 })
-  //     .click(checkboxToyotaItem, { speed: 0.5 });
+    await t.click(checkboxMerscedesItem);
+    data = await getData();
+    assert.deepEqual(data.bestcar, ["Audi", "Toyota", "Mercedes-Benz"]);
 
-  //   data = await getData();
-  //   assert.deepEqual(typeof data.bestcar, "undefined");
-  // });
+    await t
+      .click(checkboxAudiItem, { speed: 0.1 })
+      .click(checkboxMerscedesItem, { speed: 0.1 })
+      .click(checkboxToyotaItem, { speed: 0.1 });
+
+    data = await getData();
+    assert.deepEqual(typeof data.bestcar, "undefined");
+  });
 });

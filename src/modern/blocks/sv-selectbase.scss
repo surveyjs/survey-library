@@ -16,8 +16,12 @@
 .sv-selectbase__label {
   display: block;
   box-sizing: border-box;
-  width: 100%;
   cursor: inherit;
+  margin-left: 41px;
+}
+.sv-selectbase__decorator {
+  margin-bottom: -10px;
+  margin-left: -41px;
 }
 .sv-selectbase__clear-btn {
   margin-top: 0.9em;

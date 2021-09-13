@@ -1,11 +1,12 @@
 import { Question } from "./question";
-import { Serializer } from "./jsonobject";
+import { property, Serializer } from "./jsonobject";
 import { QuestionFactory } from "./questionfactory";
 import { EventBase } from "./base";
 import { UploadingFileError, ExceedSizeError } from "./error";
 import { surveyLocalization } from "./surveyStrings";
 import { SurveyError } from "./survey-error";
-import { CssClassBuilder } from "survey-core";
+import { CssClassBuilder } from "./utils/cssClassBuilder";
+import { confirmAction, detectIEOrEdge, loadFileFromBase64 } from "./utils/utils";
 
 /**
  * A Model for a file question
@@ -21,7 +22,7 @@ export class QuestionFileModel extends Question {
     QuestionFileModel
   >();
   public previewValue: any[] = [];
-  public currentState = "empty";
+  @property({ defaultValue: "empty" }) currentState: string;
   constructor(name: string) {
     super(name);
   }
@@ -128,46 +129,46 @@ export class QuestionFileModel extends Question {
    * The remove file confirmation message.
    */
   public getConfirmRemoveMessage(fileName: string): string {
-    return surveyLocalization
-      .getString("confirmRemoveFile")
-      ["format"](fileName);
+    return (<any>this.confirmRemoveMessage).format(fileName);
   }
+  /**
+   * The remove file confirmation message template.
+   */
+  @property({ defaultValue: surveyLocalization.getString("confirmRemoveFile") }) confirmRemoveMessage: string;
   /**
    * The remove all files confirmation message.
    */
-  get confirmRemoveAllMessage(): string {
-    return surveyLocalization.getString("confirmRemoveAllFiles");
-  }
+  @property({ defaultValue: surveyLocalization.getString("confirmRemoveAllFiles") }) confirmRemoveAllMessage: string;
   /**
    * The no file chosen caption for modern theme.
    */
-  get noFileChosenCaption(): string {
-    return surveyLocalization.getString("noFileChosen");
-  }
+  @property({ defaultValue: surveyLocalization.getString("noFileChosen") }) noFileChosenCaption: string;
   /**
    * The choose files button caption for modern theme.
    */
-  get chooseButtonCaption(): string {
-    return surveyLocalization.getString("chooseFileCaption");
-  }
+  @property({ defaultValue: surveyLocalization.getString("chooseFileCaption") }) chooseButtonCaption: string;
   /**
    * The clean files button caption.
    */
-  get cleanButtonCaption(): string {
-    return surveyLocalization.getString("cleanCaption");
-  }
+  @property({ defaultValue: surveyLocalization.getString("cleanCaption") }) cleanButtonCaption: string;
   /**
    * The remove file button caption.
    */
-  get removeFileCaption(): string {
-    return surveyLocalization.getString("removeFileCaption");
-  }
+  @property({ defaultValue: surveyLocalization.getString("removeFileCaption") }) removeFileCaption: string;
+  /**
+   * The loading file input title.
+   */
+  @property({ defaultValue: surveyLocalization.getString("loadingFile") }) loadingFileTitle: string;
+  /**
+  * The choose file input title.
+  */
+  @property({ defaultValue: surveyLocalization.getString("chooseFile") }) chooseFileTitle: string;
   /**
    * The input title value.
    */
   get inputTitle(): string {
-    if (this.isUploading) return surveyLocalization.getString("loadingFile");
-    if (this.isEmpty()) return surveyLocalization.getString("chooseFile");
+    if (this.isUploading) return this.loadingFileTitle;
+    if (this.isEmpty()) return this.chooseFileTitle;
     return " ";
   }
   /**
@@ -418,6 +419,62 @@ export class QuestionFileModel extends Question {
       .append(this.cssClasses.placeholderInput)
       .toString();
   }
+
+  private onChange(src: any) {
+    if (!(<any>window)["FileReader"]) return;
+    if (!src || !src.files || src.files.length < 1) return;
+    let files = [];
+    let allowCount = this.allowMultiple ? src.files.length : 1;
+    for (let i = 0; i < allowCount; i++) {
+      files.push(src.files[i]);
+    }
+    src.value = "";
+    this.loadFiles(files);
+  }
+  //#region
+  // web-based methods
+  onDragOver = (event: any) => {
+    if (this.isReadOnly) {
+      event.returnValue = false;
+      return false;
+    }
+    event.dataTransfer.dropEffect = "copy";
+    event.preventDefault();
+  }
+  onDrop = (event: any) => {
+    event.preventDefault();
+    let src = event.dataTransfer;
+    this.onChange(src);
+  }
+  doChange = (event: any) => {
+    var src = event.target || event.srcElement;
+    this.onChange(src);
+  }
+  doClean = (event: any) => {
+    var src = event.target || event.srcElement;
+    if (this.needConfirmRemoveFile) {
+      var isConfirmed = confirmAction(this.confirmRemoveAllMessage);
+      if (!isConfirmed) return;
+    }
+    src.parentElement.querySelectorAll("input")[0].value = "";
+    this.clear();
+  }
+  doRemoveFile(data: any) {
+    if (this.needConfirmRemoveFile) {
+      var isConfirmed = confirmAction(
+        this.getConfirmRemoveMessage(data.name)
+      );
+      if (!isConfirmed) return;
+    }
+    this.removeFile(data);
+  }
+  doDownloadFile = (event: any, data: any) => {
+    if (detectIEOrEdge()) {
+      event.preventDefault();
+      loadFileFromBase64(data.content, data.name);
+    }
+  }
+  //#endregion
 }
 Serializer.addClass(
   "file",

@@ -13,15 +13,85 @@ import {
   ISurveyData,
   ISurveyImpl,
   ITextProcessor,
+  ITitleOwner
 } from "./base-interfaces";
 import { SurveyError } from "./survey-error";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { Helpers } from "./helpers";
+import { settings } from "./settings";
+import { ILocalizableOwner, LocalizableString } from "./localizablestring";
+
+/**
+ * Base class of SurveyJS Elements and Survey.
+ */
+export abstract class SurveyElementCore extends Base implements ILocalizableOwner {
+  constructor() {
+    super();
+    this.createLocTitleProperty();
+    this.createLocalizableString("description", this, true);
+  }
+  protected createLocTitleProperty(): LocalizableString {
+    return this.createLocalizableString("title", this, true);
+  }
+  /**
+   * Question, Panel, Page and Survey title. If page and panel is empty then they are not rendered.
+   * Question renders question name if the title is empty. Use survey questionTitleTemplate property to change the title question rendering.
+   * @see SurveyModel.questionTitleTemplate
+  */
+  public get title(): string {
+    return this.getLocalizableStringText("title", this.getDefaultTitleValue());
+  }
+  public set title(val: string) {
+    this.setLocalizableStringText("title", val);
+  }
+  get locTitle(): LocalizableString {
+    return this.getLocalizableString("title");
+  }
+  protected getDefaultTitleValue(): string { return undefined; }
+  /**
+   * Question, Panel and Page description. It renders under element title by using smaller font. Unlike the question title, description can be empty.
+   * Please note, this property is hidden for questions without input, for example html question.
+   * @see title
+  */
+  public get description(): string {
+    return this.getLocalizableStringText("description");
+  }
+  public set description(val: string) {
+    this.setLocalizableStringText("description", val);
+  }
+  get locDescription(): LocalizableString {
+    return this.getLocalizableString("description");
+  }
+  public get titleTagName(): string {
+    let titleTagName = this.getDefaultTitleTagName();
+    const survey = this.getSurvey();
+    return !!survey ? survey.getElementTitleTagName(this, titleTagName): titleTagName;
+  }
+  protected getDefaultTitleTagName(): string {
+    return (<any>settings.titleTags)[this.getType()];
+  }
+  public get hasTitle(): boolean { return this.title.length > 0; }
+  public get hasTitleActions(): boolean { return false; }
+  public getTitleToolbar(): AdaptiveActionContainer { return null; }
+  public getTitleOwner(): ITitleOwner { return undefined; }
+  public get isTitleOwner(): boolean { return !!this.getTitleOwner(); }
+  public toggleState(): boolean { return undefined; }
+  public get cssClasses(): any { return {}; }
+  public get cssTitle(): string { return ""; }
+  public get ariaTitleId(): string { return undefined; }
+  public get titleTabIndex(): number { return undefined; }
+  public get titleAriaExpanded(): boolean { return undefined; }
+  //ILocalizableOwner
+  public abstract getLocale(): string;
+  public abstract getMarkdownHtml(text: string, name: string): string;
+  public abstract getRenderer(name: string): string;
+  public abstract getProcessedText(text: string): string;
+}
 
 /**
  * Base class of SurveyJS Elements.
  */
-export class SurveyElement extends Base implements ISurveyElement {
+export class SurveyElement extends SurveyElementCore implements ISurveyElement {
   stateChangedCallback: () => void;
 
   public static getProgressInfoByElements(
@@ -251,10 +321,10 @@ export class SurveyElement extends Base implements ISurveyElement {
     return componentName;
   }
   public get titleTabIndex(): number {
-    return this.state !== "default" ? 0 : undefined;
+    return !this.isPage && this.state !== "default" ? 0 : undefined;
   }
   public get titleAriaExpanded(): boolean {
-    if (this.state === "default") return undefined;
+    if (this.isPage || this.state === "default") return undefined;
     return this.state === "expanded";
   }
   public setSurveyImpl(value: ISurveyImpl) {
@@ -339,8 +409,31 @@ export class SurveyElement extends Base implements ISurveyElement {
       this.readOnlyChangedCallback();
     }
   }
+  private get css(): any {
+    return !!this.survey ? this.survey.getCss() : {};
+  }
+  @property() cssClassesValue: any;
+  /**
+   * Returns all css classes that used for rendering the question, panel or page.
+   * You can use survey.onUpdateQuestionCssClasses event to override css classes for a question, survey.onUpdatePanelCssClasses event for a panel and survey.onUpdatePageCssClasses for a page.
+   * @see SurveyModel.updateQuestionCssClasses
+   * @see SurveyModel.updatePanelCssClasses
+   * @see SurveyModel.updatePageCssClasses
+   */
+  public get cssClasses(): any {
+    if (!this.survey) return this.calcCssClasses(this.css);
+    if (!this.cssClassesValue) {
+      this.cssClassesValue = this.calcCssClasses(this.css);
+      this.updateElementCssCore(this.cssClassesValue);
+    }
+    return this.cssClassesValue;
+  }
+  protected calcCssClasses(css: any): any { return undefined; }
+  protected updateElementCssCore(cssClasses: any) {}
   public get cssError(): string { return ""; }
-  public updateElementCss(reNew?: boolean) {}
+  public updateElementCss(reNew?: boolean) {
+    this.cssClassesValue = undefined;
+  }
   protected getIsLoadingFromJson(): boolean {
     if (super.getIsLoadingFromJson()) return true;
     return this.survey ? this.survey.isLoadingFromJson : false;
@@ -443,6 +536,41 @@ export class SurveyElement extends Base implements ISurveyElement {
     return false;
   }
   public delete() {}
+  //ILocalizableOwner
+  locOwner: ILocalizableOwner;
+  /**
+   * Returns the current survey locale
+   * @see SurveyModel.locale
+   */
+  public getLocale(): string {
+    return this.survey
+      ? (<ILocalizableOwner>(<any>this.survey)).getLocale()
+      : this.locOwner
+        ? this.locOwner.getLocale()
+        : "";
+  }
+  public getMarkdownHtml(text: string, name: string): string {
+    return this.survey
+      ? this.survey.getSurveyMarkdownHtml(this, text, name)
+      : this.locOwner
+        ? this.locOwner.getMarkdownHtml(text, name)
+        : null;
+  }
+  public getRenderer(name: string): string {
+    return this.survey && typeof this.survey.getRendererForString === "function"
+      ? this.survey.getRendererForString(this, name)
+      : this.locOwner && typeof this.locOwner.getRenderer === "function"
+        ? this.locOwner.getRenderer(name)
+        : null;
+  }
+  public getProcessedText(text: string): string {
+    if (this.isLoadingFromJson) return text;
+    if (this.textProcessor)
+      return this.textProcessor.processText(text, this.getUseDisplayValuesInTitle());
+    if (this.locOwner) return this.locOwner.getProcessedText(text);
+    return text;
+  }
+  protected getUseDisplayValuesInTitle(): boolean { return true; }
   protected removeSelfFromList(list: Array<any>) {
     if (!list || !Array.isArray(list)) return;
     const index: number = list.indexOf(this);

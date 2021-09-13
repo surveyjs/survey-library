@@ -7,8 +7,6 @@ export class QuestionImplementor extends ImplementorBase {
   private callBackFunctions: Array<string>;
   private koDummy: any;
   koElementType: any;
-  toggleStateByClick: any;
-  toggleStateByKeyUp: any;
   private _koValue = ko.observableArray<any>();
   constructor(public question: Question) {
     super(question);
@@ -21,12 +19,6 @@ export class QuestionImplementor extends ImplementorBase {
       }
     });
 
-    this.toggleStateByClick = () => {
-      return this.question.toggleState();
-    };
-    this.toggleStateByKeyUp = (_: any, event: any) => {
-      doKey2ClickUp(event);
-    };
     Object.defineProperty(this.question, "koValue", {
       get: () => {
         if (!Helpers.isTwoValueEquals(this._koValue(), this.getKoValue())) {
@@ -67,9 +59,6 @@ export class QuestionImplementor extends ImplementorBase {
         return this.question.getRootCss();
       })
     );
-    this.setCallbackFunc("toggleStateByClick", this.toggleStateByClick);
-    this.setCallbackFunc("toggleStateByKeyUp", this.toggleStateByKeyUp);
-
     this.setObservaleObj(
       "koErrorClass",
       ko.pureComputed(() => {

@@ -1,10 +1,11 @@
 import * as React from "react";
-import { Base, SurveyElement, SurveyError, Question, QuestionMatrixDropdownRenderedCell, CssClassBuilder, doKey2ClickUp } from "survey-core";
+import { Base, SurveyElement, SurveyError, Question, QuestionMatrixDropdownRenderedCell, doKey2ClickUp } from "survey-core";
 import { ReactSurveyModel } from "./reactsurveymodel";
 import { ReactElementFactory } from "./element-factory";
 import { SurveyElementBase, ReactSurveyElement } from "./reactquestion_element";
 import { SurveyQuestionCommentItem } from "./reactquestion_comment";
 import { SurveyCustomWidget } from "./custom-widget";
+import { TitleElement } from "./components/title/title-element";
 
 export interface ISurveyCreator {
   createQuestionElement(question: Question): JSX.Element;
@@ -149,29 +150,6 @@ export class SurveyQuestion extends SurveyElementBase<any, any> {
   protected renderQuestion(): JSX.Element {
     return SurveyQuestion.renderQuestionBody(this.creator, this.question);
   }
-  protected renderTitle(cssClasses: any): JSX.Element {
-    const titleComponent = ReactElementFactory.Instance.createElement(
-      this.question.getTitleComponentName(),
-      { element: this.question, cssClasses: this.question.cssClasses }
-    );
-    return (
-      <h5
-        className={this.question.cssTitle}
-        aria-label={this.question.locTitle.renderedHtml}
-        id={this.question.ariaTitleId}
-        tabIndex={this.question.titleTabIndex}
-        aria-expanded={this.question.titleAriaExpanded}
-        onClick={() => {
-          return this.question.toggleState();
-        }}
-        onKeyUp={(evt) => {
-          doKey2ClickUp(evt.nativeEvent);
-        }}
-      >
-        {titleComponent}
-      </h5>
-    );
-  }
   protected renderDescription(
     cssClasses: any,
     isUnderInput: boolean = false
@@ -202,7 +180,7 @@ export class SurveyQuestion extends SurveyElementBase<any, any> {
   }
   protected renderHeader(question: Question): JSX.Element {
     var cssClasses = question.cssClasses;
-    var title = question.hasTitle ? this.renderTitle(cssClasses) : null;
+    var title = question.hasTitle ? <TitleElement element={question}></TitleElement> : null;
     var description = question.hasDescriptionUnderTitle
       ? this.renderDescription(cssClasses)
       : null;

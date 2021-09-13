@@ -2,6 +2,7 @@ import * as React from "react";
 import { Helpers } from "survey-core";
 import { LocalizableString } from "survey-core";
 import { Question } from "survey-core";
+import { SurveyElement } from "survey-core";
 import { ISurveyCreator } from "./reactquestion";
 import { Base, ArrayChanges } from "survey-core";
 import { ReactElementFactory } from "./element-factory";
@@ -101,7 +102,6 @@ export class SurveyElementBase<P, S> extends React.Component<P, S> {
   ): JSX.Element {
     return SurveyElementBase.renderLocString(locStr, style);
   }
-
   private makeBaseElementReact(stateElement: Base) {
     if (!stateElement) return;
     stateElement.iteratePropertiesHash((hash, key) => {

@@ -2,11 +2,7 @@
   <div
     data-bind="attr: { id: id }, css: cssClasses.panel.container"
   >
-    <h4
-      data-bind="visible: !!locTitle.koRenderedHtml(), attr: { 'aria-label': locTitle.renderedHtml, tabindex: titleTabIndex, 'aria-expanded': titleAriaExpanded}, css: $data.cssTitle, click: toggleState, event: { keyup: toggleStateByKeyUp }"
-    >
-      <!-- ko component: { name: getTitleComponentName(), params: { element: $data } } --><!-- /ko -->
-    </h4>
+    <!-- ko component: { name: 'survey-element-title', params: {element: $data } } --><!-- /ko -->
     <div data-bind="css: cssClasses.panel.description">
       <!-- ko template: { name: 'survey-string', data: locDescription } -->
       <!-- /ko -->

@@ -9,6 +9,8 @@ import {
 } from "./base-interfaces";
 import { DragDropInfo, PanelModelBase, QuestionRowModel } from "./panel";
 import { LocalizableString } from "./localizablestring";
+import { CssClassBuilder } from "./utils/cssClassBuilder";
+
 /**
  * The page object. It has elements collection, that contains questions and panels.
  */
@@ -90,8 +92,7 @@ export class PageModel extends PanelModelBase implements IPage {
   public get isStarted(): boolean {
     return this.survey && this.survey.isPageStarted(this);
   }
-  protected calcCssClasses(): any {
-    const css = this.css;
+  protected calcCssClasses(css: any): any {
     const classes = { page: {}, pageTitle: "", pageDescription: "", row: "" };
     this.copyCssClasses(classes.page, css.page);
     if (!!css.pageTitle) {
@@ -108,6 +109,12 @@ export class PageModel extends PanelModelBase implements IPage {
     }
     return classes;
   }
+  public get cssTitle(): string {
+    return new CssClassBuilder()
+      .append(this.cssClasses.page.title)
+      .toString();
+  }
+
   getIsPageVisible(exceptionQuestion: IQuestion): boolean {
     if (this.isStarted) return false;
     return super.getIsPageVisible(exceptionQuestion);

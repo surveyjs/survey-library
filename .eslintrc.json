@@ -7,7 +7,7 @@
         },
         "ecmaVersion": 12,
         "sourceType": "module"
-    },
+	},
 	"plugins": [
 	  "vue",
 	  "react",
@@ -22,19 +22,19 @@
 	],
 	"rules": { 
 		"no-console": 2, // Remember, this means error!
-		"indent": ["error", 2, { "SwitchCase": 1,  "MemberExpression": 1,  "CallExpression": { "arguments": 1 } }], // devextreme
-		"no-trailing-spaces": "error",// devextreme
-		"no-multi-spaces": "error", // devextreme
-		"block-spacing": "error", // devextreme
-		"comma-spacing": "error",// devextreme
-		"key-spacing": "error",// devextreme
+		"indent": ["error", 2, { "SwitchCase": 1,  "MemberExpression": 1,  "CallExpression": { "arguments": 1 } }], 
+		"no-trailing-spaces": "error",
+		"no-multi-spaces": "error", 
+		"block-spacing": "error", 
+		"comma-spacing": "error",
+		"key-spacing": "error",
 		"semi-spacing": "error",
 
-		"object-curly-spacing": ["error", "always"], // devextreme
-		"space-before-blocks": ["error", "always"], // devextreme
+		"object-curly-spacing": ["error", "always"], 
+		"space-before-blocks": ["error", "always"], 
 		"space-in-parens": ["error", "never"],
 		"array-bracket-spacing": ["error", "never"],
-		"computed-property-spacing": "error", // devextreme
+		"computed-property-spacing": "error", 
 		// "keyword-spacing": ["error", { 
 		// 	"overrides": { 
 		// 		"if": { "after": false }, 
@@ -47,10 +47,10 @@
 		// 		"catch": { "after": false }
 		// 	} 
 		// }],
-		"no-multiple-empty-lines": [ "error", { "max": 1 } ],// devextreme
-		"no-whitespace-before-property": "error", // devextreme
+		"no-multiple-empty-lines": [ "error", { "max": 1 } ],
+		"no-whitespace-before-property": "error", 
 		// sub group: semicolons
-		"semi": ["error", "always"],// devextreme  "semi": "error",
+		"semi": ["error", "always"],  "semi": "error",
 		"no-extra-semi": ["error"],
 
 		"@typescript-eslint/member-delimiter-style": ["error", 
@@ -91,23 +91,23 @@
 		"no-prototype-builtins": "off",
 		"prefer-spread": "off",
 		//sub group: var definition:
-		"no-var": "off",  // devextreme
-		"prefer-const": "off", // devextreme
+		"no-var": "off",  
+		"prefer-const": "off", 
 		"@typescript-eslint/no-use-before-define": "off",
 		"no-unsafe-finally": "off",
-		//"curly": [ "error", "multi-line", "consistent" ], // devextreme
-		//"eqeqeq": ["error", "allow-null"],// devextreme
+		//"curly": [ "error", "multi-line", "consistent" ], 
+		//"eqeqeq": ["error", "allow-null"],
 		"@typescript-eslint/no-unused-vars": "off",
 		// group: add in very far future
-		//"no-eval": "error", // devextreme
-		//"no-extend-native": "error",// devextreme 
+		//"no-eval": "error", 
+		//"no-extend-native": "error", 
 		"@typescript-eslint/interface-name-prefix": "off",
 		"prefer-rest-params": "off",
 		"@typescript-eslint/no-explicit-any": "off",
 		"@typescript-eslint/consistent-type-assertions": "off",
 		"@typescript-eslint/no-inferrable-types": "off",
 		// group: usless rules
-		"no-empty": "off", // devextreme
+		"no-empty": "off", 
 		"@typescript-eslint/no-empty-interface": "off",
 		"@typescript-eslint/no-empty-function": "off",
 		"@typescript-eslint/ban-types": "off",

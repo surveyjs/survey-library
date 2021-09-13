@@ -2,6 +2,7 @@ import React from "react";
 import { SurveyModel } from "survey-core";
 import { SurveyElementBase } from "../../reactquestion_element";
 import { ReactElementFactory } from "../../element-factory";
+import { TitleElement } from "../title/title-element";
 
 interface ISurveyHeaderProps {
   survey: SurveyModel;
@@ -32,8 +33,7 @@ export class SurveyHeader extends React.Component<ISurveyHeaderProps, any> {
 
   private renderTitle(): JSX.Element {
     if (!this.survey.renderedHasTitle) return null;
-    let title = SurveyElementBase.renderLocString(this.survey.locTitle);
-    let description = SurveyElementBase.renderLocString(
+    const description = SurveyElementBase.renderLocString(
       this.survey.locDescription
     );
     return (
@@ -41,7 +41,7 @@ export class SurveyHeader extends React.Component<ISurveyHeaderProps, any> {
         className={this.css.headerText}
         style={{ maxWidth: this.survey.titleMaxWidth }}
       >
-        <h3 className={this.css.title}>{title}</h3>
+        <TitleElement element={this.survey}></TitleElement>
         <h5 className={this.css.description}>{description}</h5>
       </div>
     );

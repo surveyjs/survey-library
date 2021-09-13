@@ -19,7 +19,7 @@ import { SurveyElement } from "./survey-element";
 import { Question } from "./question";
 import { ConditionRunner } from "./conditions";
 import { ElementFactory, QuestionFactory } from "./questionfactory";
-import { ILocalizableOwner, LocalizableString } from "./localizablestring";
+import { LocalizableString } from "./localizablestring";
 import { OneAnswerRequiredError } from "./error";
 import { PageModel } from "./page";
 import { settings } from "./settings";
@@ -246,7 +246,7 @@ export class QuestionRowModel extends Base {
  * A base class for a Panel and Page objects.
  */
 export class PanelModelBase extends SurveyElement
-  implements IPanel, IConditionRunner, ILocalizableOwner, ISurveyErrorOwner {
+  implements IPanel, IConditionRunner, ISurveyErrorOwner, ITitleOwner {
   private static panelCounter = 100;
   private static getPanelId(): string {
     return "sp_" + PanelModelBase.panelCounter++;
@@ -268,8 +268,6 @@ export class PanelModelBase extends SurveyElement
       this.onRemoveElement.bind(this)
     );
     this.id = PanelModelBase.getPanelId();
-    this.createLocalizableString("title", this, true);
-    this.createLocalizableString("description", this, true);
     this.createLocalizableString("requiredErrorText", this);
     this.registerFunctionOnPropertyValueChanged("questionTitleLocation", () => {
       this.onVisibleChanged.bind(this);
@@ -297,26 +295,12 @@ export class PanelModelBase extends SurveyElement
     this.markQuestionListDirty();
     this.onRowsChanged();
   }
-  /**
-   * PanelModel or PageModel title property.
-   * @description
-   */
-  public get title(): string {
-    return this.getLocalizableStringText("title");
-  }
-  public set title(val: string) {
-    this.setLocalizableStringText("title", val);
-  }
-  get locTitle(): LocalizableString {
-    return this.getLocalizableString("title");
-  }
-  get _showTitle(): boolean {
+  get hasTitle(): boolean {
     return (
       ((<any>this.survey).showPageTitles && this.title.length > 0) ||
       (this.isDesignMode && settings.allowShowEmptyTitleInDesignMode)
     );
   }
-
   get _showDescription(): boolean {
     return (
       ((<any>this.survey).showPageTitles && this.description.length > 0) ||
@@ -324,19 +308,6 @@ export class PanelModelBase extends SurveyElement
         settings.allowShowEmptyTitleInDesignMode &&
         settings.allowShowEmptyDescriptionInDesignMode)
     );
-  }
-  /**
-   * PanelModel or PageModel description property. It renders under title by using smaller font. Unlike the title, description can be empty.
-   * @see title
-   */
-  public get description(): string {
-    return this.getLocalizableStringText("description");
-  }
-  public set description(val: string) {
-    this.setLocalizableStringText("description", val);
-  }
-  get locDescription(): LocalizableString {
-    return this.getLocalizableString("description");
   }
   public localeChanged() {
     super.localeChanged();
@@ -413,24 +384,6 @@ export class PanelModelBase extends SurveyElement
     }
     this.isRandomizing = false;
   }
-  getLocale(): string {
-    return this.survey
-      ? (<ILocalizableOwner>(<any>this.survey)).getLocale()
-      : "";
-  }
-  getMarkdownHtml(text: string, name: string) {
-    return this.survey
-      ? this.survey.getSurveyMarkdownHtml(this, text, name)
-      : null;
-  }
-  getRenderer(name: string): string {
-    return this.survey ? this.survey.getRendererForString(this, name) : null;
-  }
-  getProcessedText(text: string): string {
-    return this.textProcessor
-      ? this.textProcessor.processText(text, true)
-      : text;
-  }
   /**
    * A parent element. It is always null for the Page object and always not null for the Panel object. Panel object may contain Questions and other Panels.
    */
@@ -454,27 +407,17 @@ export class PanelModelBase extends SurveyElement
   public set visibleIf(val: string) {
     this.setPropertyValue("visibleIf", val);
   }
-  private cssClassesValue: any;
-  public get cssClasses(): any {
-    if (!this.cssClassesValue) {
-      this.cssClassesValue = this.calcCssClasses();
-    }
-    return this.cssClassesValue;
-  }
-  protected calcCssClasses(): any {
+  protected calcCssClasses(css: any): any {
     var classes = { panel: {}, error: {}, row: "" };
-    this.copyCssClasses(classes.panel, this.css.panel);
-    this.copyCssClasses(classes.error, this.css.error);
-    if (!!this.css.row) {
-      classes.row = this.css.row;
+    this.copyCssClasses(classes.panel, css.panel);
+    this.copyCssClasses(classes.error, css.error);
+    if (!!css.row) {
+      classes.row = css.row;
     }
     if (this.survey) {
       this.survey.updatePanelCssClasses(this, classes);
     }
     return classes;
-  }
-  protected get css(): any {
-    return !!this.survey ? this.survey.getCss() : {};
   }
   /**
    * A unique element identificator. It is generated automatically.
@@ -1267,12 +1210,11 @@ export class PanelModelBase extends SurveyElement
     super.onReadOnlyChanged();
   }
   public updateElementCss(reNew?: boolean) {
-    this.cssClassesValue = undefined;
+    super.updateElementCss(reNew);
     for (let i = 0; i < this.elements.length; i++) {
       const el = <SurveyElement>(<any>this.elements[i]);
       el.updateElementCss(reNew);
     }
-    super.updateElementCss(reNew);
   }
 
   /**
@@ -1608,6 +1550,8 @@ export class PanelModelBase extends SurveyElement
     this.removeElement(src);
     this.addElement(target, targetIndex);
   }
+  //ITitleOwner
+  public get no(): string { return ""; }
   public dispose() {
     super.dispose();
     if (this.rows) {
@@ -1621,6 +1565,7 @@ export class PanelModelBase extends SurveyElement
     }
     this.elements.splice(0, this.elements.length);
   }
+
 }
 
 /**
@@ -1628,7 +1573,7 @@ export class PanelModelBase extends SurveyElement
  * It may contain questions and other panels.
  */
 export class PanelModel extends PanelModelBase
-  implements IElement, ITitleOwner {
+  implements IElement {
   public minWidth?: string;
   public maxWidth?: string;
   constructor(name: string = "") {
@@ -1701,6 +1646,7 @@ export class PanelModel extends PanelModelBase
   public get visibleIndex(): number {
     return this.getPropertyValue("visibleIndex", -1);
   }
+  public getTitleOwner(): ITitleOwner { return this; }
   /**
    * Set showNumber to true to start showing the number for this panel.
    * @see visibleIndex

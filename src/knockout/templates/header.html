@@ -8,7 +8,7 @@
 
       <!-- ko if: renderedHasTitle -->
       <div data-bind="css: css.headerText, style: { maxWidth: titleMaxWidth }">
-          <h3 data-bind="css: css.title"><!-- ko template: { name: 'survey-string', data: locTitle } --><!-- /ko --></h3>
+          <!-- ko component: { name: 'survey-element-title', params: {element: $data } } --><!-- /ko -->
           <h5 data-bind="css: css.description"><!-- ko template: { name: 'survey-string', data: locDescription } --><!-- /ko --></h5>
       </div>
       <!-- /ko -->

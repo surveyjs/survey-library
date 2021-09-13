@@ -1,9 +1,6 @@
 <template>
   <div :class="page.cssClasses.page.root">
-    <h4 v-if="showHeader" :class="page.cssClasses.page.title">
-      <survey-string v-if="!page.hasTitleActions" :locString="page.locTitle" />
-      <sv-title-actions v-if="page.hasTitleActions" :element="page" />
-    </h4>
+    <survey-element-title :element="page" :css="css"/>
     <div v-if="showDescription" :class="page.cssClasses.page.description">
       <survey-string :locString="page.locDescription" />
     </div>
@@ -54,9 +51,6 @@ export class Page extends BaseVue {
         self.survey.scrollToTopOnPageChange();
       }
     });
-  }
-  get showHeader() {
-    return this.page._showTitle;
   }
   get showDescription() {
     return this.page._showDescription;

@@ -168,7 +168,7 @@ export class StylesManager {
       "cursor: not-allowed;",
 
     // ranking
-    ".sv-ranking": "outline: none; user-select: none;",
+    ".sv-ranking": "outline: none; user-select: none; touch-action: none;",
     ".sv-ranking-item":
       "cursor: pointer; margin-bottom: 5px;position: relative;",
     ".sv-ranking-item:focus .sv-ranking-item__icon--hover":

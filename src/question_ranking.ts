@@ -1,5 +1,5 @@
 import SortableLib from "sortablejs";
-import { ISurveyImpl } from "./base-interfaces";
+import { ISurvey, ISurveyImpl } from "./base-interfaces";
 import { DragDropRankingChoices } from "./dragdrop/ranking-choices";
 import { ItemValue } from "./itemvalue";
 import { property, Serializer } from "./jsonobject";
@@ -19,14 +19,11 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
 
   constructor(name: string) {
     super(name);
+    this.createNewArray("rankingChoices");
   }
 
   public getType(): string {
     return "ranking";
-  }
-
-  public get isIndeterminate(): boolean {
-    return !this.value || this.value.length === 0;
   }
 
   public get rootClass(): string {
@@ -70,36 +67,96 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
   }
 
   public getNumberByIndex(index: number): string {
-    return this.isIndeterminate ? "\u2013" : index + 1 + "";
+    return this.isEmpty() ? "\u2013" : index + 1 + "";
   }
 
-  public get rankingChoices(): ItemValue[] {
-    let result: ItemValue[] = [];
-    const value: any = this.value;
-    const visibleChoices: ItemValue[] = this.removeOtherChoiceFromChoices(
-      this.visibleChoices
-    );
+  public setSurveyImpl = (value: ISurveyImpl) => {
+    super.setSurveyImpl(value);
+    this.updateRankingChoices();
+  };
 
-    if (this.isIndeterminate) {
-      result = visibleChoices;
-    } else {
-      result = this.mergeValueAndVisibleChoices(value, visibleChoices);
-    }
+  onSurveyValueChanged(newValue: any) {
+    super.onSurveyValueChanged(newValue);
+    if (this.isLoadingFromJson) return;
+    this.updateRankingChoices();
+  }
+
+  protected onVisibleChoicesChanged = (): void => {
+    super.onVisibleChoicesChanged();
 
     // ranking question with only one choice doesn't make sense
-    if (result.length === 1) result = [];
+    if (this.visibleChoices.length === 1) {
+      this.value = [];
+      this.updateRankingChoices();
+      return;
+    }
 
-    return result;
-  }
+    if (this.isEmpty()) {
+      this.updateRankingChoices();
+      return;
+    }
 
-  private removeOtherChoiceFromChoices(choices: ItemValue[]) {
-    const result = choices;
-    choices.forEach((choice: ItemValue, index: number) => {
-      if (choice.value === "other") {
-        result.splice(index, 1); // remove other choice
+    if (this.visibleChoices.length > this.value.length)
+      this.addToValueByVisibleChoices();
+    if (this.visibleChoices.length < this.value.length)
+      this.removeFromValueByVisibleChoices();
+    this.updateRankingChoices();
+  };
+
+  public localeChanged = (): void => {
+    super.localeChanged();
+    this.updateRankingChoices();
+  };
+
+  private addToValueByVisibleChoices() {
+    const newValue = this.value.slice();
+
+    this.visibleChoices.forEach((choice) => {
+      if (newValue.indexOf(choice.value) === -1) {
+        newValue.push(choice.value);
       }
     });
-    return result;
+    this.value = newValue;
+  }
+
+  private removeFromValueByVisibleChoices() {
+    const newValue = this.value.slice();
+
+    this.value.forEach((valueItem: string, index: number) => {
+      let isValueItemToRemove = true;
+      this.visibleChoices.forEach((choice) => {
+        if (choice.value === valueItem) isValueItemToRemove = false;
+      });
+      isValueItemToRemove && newValue.splice(index, 1);
+    });
+
+    this.value = newValue;
+  }
+
+  public get rankingChoices(): Array<ItemValue> {
+    return this.getPropertyValue("rankingChoices", []);
+  }
+
+  private updateRankingChoices(): ItemValue[] {
+    const newRankingChoices: ItemValue[] = [];
+
+    // ranking question with only one choice doesn't make sense
+    if (this.visibleChoices.length === 1) {
+      this.setPropertyValue("rankingChoices", newRankingChoices);
+      return;
+    }
+
+    if (this.isEmpty()) {
+      this.setPropertyValue("rankingChoices", this.visibleChoices);
+      return;
+    }
+
+    this.value.forEach((valueItem: string) => {
+      this.visibleChoices.forEach((choice) => {
+        if (choice.value === valueItem) newRankingChoices.push(choice);
+      });
+    });
+    this.setPropertyValue("rankingChoices", newRankingChoices);
   }
 
   public dragDropHelper: DragDropRankingChoices;
@@ -159,35 +216,6 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
     return false;
   }
 
-  // to make "carry forward" feature work properly with ranking
-  protected onVisibleChoicesChanged(): void {
-    super.onVisibleChoicesChanged();
-
-    if (this.isIndeterminate) return;
-    this.value = this.rankingChoices.map((choice) => choice.value);
-  }
-
-  private mergeValueAndVisibleChoices(
-    value: any,
-    visibleChoices: Array<ItemValue>
-  ) {
-    const length: number = visibleChoices.length;
-    let result: Array<ItemValue> = [];
-    result.length = length;
-    for (let i = 0; i < length; i++) {
-      const choice = visibleChoices[i];
-      const index = value.indexOf(choice.value);
-
-      if (index !== -1) {
-        result.splice(index, 1, choice);
-      } else {
-        result.splice(result.length - 1, 0, choice);
-      }
-    }
-    result = result.filter((choice) => !!choice);
-    return result;
-  }
-
   private initSortable(domNode: HTMLElement) {
     if (!domNode) return;
     const self: QuestionRankingModel = this;
@@ -207,7 +235,7 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
       onStart(evt: any) {
         (<any>Sortable.ghost.style.opacity) = 1;
         domNode.className += " " + self.cssClasses.rootDragMod;
-        if (self.isIndeterminate) {
+        if (self.isEmpty()) {
           self.setGhostText(evt.oldIndex + 1);
         }
       },
@@ -219,7 +247,7 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
         self.setValueFromUI();
       },
       onChange(evt: any) {
-        if (!self.isIndeterminate) self.syncNumbers();
+        if (!self.isEmpty()) self.syncNumbers();
         self.setGhostText(evt.newIndex + 1);
       },
     });
@@ -233,31 +261,23 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
   }
 
   private handleArrowUp = (index: number, choice: ItemValue) => {
-    const choices = this.choices;
-    choices.splice(index, 1);
-    choices.splice(index - 1, 0, choice);
-    this.setValue();
+    const newValue = this.value.slice();
+    newValue.splice(index, 1);
+    newValue.splice(index - 1, 0, choice);
+    this.value = newValue;
     setTimeout(() => {
       this.focusItem(index - 1);
     }, 1);
   };
 
   private handleArrowDown = (index: number, choice: ItemValue) => {
-    const choices = this.choices;
-    choices.splice(index, 1);
-    choices.splice(index + 1, 0, choice);
-    this.setValue();
+    const newValue = this.value.slice();
+    newValue.splice(index, 1);
+    newValue.splice(index + 1, 0, choice);
+    this.value = newValue;
     setTimeout(() => {
       this.focusItem(index + 1);
     }, 1);
-  };
-
-  private moveArrayItemBack = (array: string[], index: number) => {
-    [array[index], array[index - 1]] = [array[index - 1], array[index]];
-  };
-
-  private moveArrayItemForward = (array: string[], index: number) => {
-    [array[index], array[index + 1]] = [array[index + 1], array[index]];
   };
 
   private focusItem = (index: number) => {
@@ -267,12 +287,9 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
     itemsNodes[index].focus();
   };
 
-  private setValue = () => {
+  public setValue = (): void => {
     const value: string[] = [];
-    const visibleChoices: ItemValue[] = this.removeOtherChoiceFromChoices(
-      this.visibleChoices
-    );
-    visibleChoices.forEach((choice: ItemValue) => {
+    this.rankingChoices.forEach((choice: ItemValue) => {
       value.push(choice.value);
     });
     this.value = value;
@@ -351,7 +368,7 @@ Serializer.addClass(
     { name: "maxSelectedChoices", visible: false, isSerializable: false },
     {
       name: "fallbackToSortableJS",
-      default: true,
+      default: false,
       visible: false,
       isSerializable: false,
     },

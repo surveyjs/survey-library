@@ -192,10 +192,8 @@ function increaseHeightByContent(element: HTMLElement, getComputedStyle?: (elt: 
   if (!getComputedStyle) getComputedStyle = (elt: Element) => { return window.getComputedStyle(elt); };
 
   const style = getComputedStyle(element);
-  let rect = element.getBoundingClientRect();
-  if (element.scrollHeight > rect.height) {
-    element.style.height = (element.scrollHeight + parseFloat(style.borderTopWidth) + parseFloat(style.borderBottomWidth)) + "px";
-  }
+  element.style.height = "auto";
+  element.style.height = (element.scrollHeight + parseFloat(style.borderTopWidth) + parseFloat(style.borderBottomWidth)) + "px";
 }
 function getOriginalEvent(event: any) {
   return event.originalEvent || event;

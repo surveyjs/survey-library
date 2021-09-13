@@ -52,12 +52,6 @@ export class SurveyQuestionCommentItem extends ReactSurveyElement {
     let handleOnChange = (event: any) => {
       this.setState({ comment: event.target.value });
     };
-    let updateValueOnEvent = (event: any) => {
-      question.comment = event.target.value;
-    };
-    var onBlur = !question.isInputTextUpdate ? updateValueOnEvent : null;
-    var onInput = question.isInputTextUpdate ? updateValueOnEvent : null;
-
     let comment = !!this.state && this.state.comment !== undefined ? this.state.comment : question.comment || "";
     if (question.isReadOnlyRenderDiv()) {
       return <div>{comment}</div>;
@@ -70,10 +64,11 @@ export class SurveyQuestionCommentItem extends ReactSurveyElement {
         maxLength={question.getOthersMaxLength()}
         placeholder={question.otherPlaceHolder}
         onChange={handleOnChange}
-        onBlur={onBlur}
-        onInput={onInput}
+        onBlur={(e) => question.onCommentChange(e)}
+        onInput={(e) => question.onCommentInput(e)}
         aria-required={question.isRequired}
         aria-label={question.locTitle.renderedHtml}
+        style={{ resize: question.autoGrowComment ? "none" : "both" }}
       />
     );
   }

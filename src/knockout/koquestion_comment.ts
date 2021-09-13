@@ -7,20 +7,14 @@ import { QuestionImplementor } from "./koquestion";
 
 export class QuestionComment extends QuestionCommentModel {
   private _implementor: QuestionImplementor;
-  private onInput(_: any, event: any) {
-    if (this.isInputTextUpdate)
-      this.value = event.target.value;
-    else
-      this.updateElement();
-  }
   constructor(name: string) {
     super(name);
   }
-  protected onBaseCreating() {
+  protected onBaseCreating(): void {
     super.onBaseCreating();
     this._implementor = new QuestionImplementor(this);
   }
-  public dispose() {
+  public dispose(): void {
     this._implementor.dispose();
     this._implementor = undefined;
     super.dispose();

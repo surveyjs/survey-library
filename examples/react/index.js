@@ -972,7 +972,17 @@ function init() {
   var model = new Survey.Model(json);
   //model.setDesignMode(true);
   window.survey = model;
-
+  
+  model.onUploadFiles
+  .add(function (survey, options) {
+      options.callback("success", options.files.map(function (file) {
+              return {
+                  file: file,
+                  content: "https://surveyjs.io/Content/Images/design/Logo.svg"
+              };
+          }));
+  });
+  
   ReactDOM.render(
     <Survey.Survey model={model} />,
     document.getElementById("surveyElement")

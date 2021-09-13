@@ -29,7 +29,7 @@ export interface IConditionObject {
  * A base class for all questions.
  */
 export class Question extends SurveyElement
-  implements IQuestion, IConditionRunner, ILocalizableOwner, IValidatorOwner, ITitleOwner {
+  implements IQuestion, IConditionRunner, IValidatorOwner, ITitleOwner {
   [index: string]: any;
   private static TextPreprocessorValuesMap = {
     title: "processedTitle",

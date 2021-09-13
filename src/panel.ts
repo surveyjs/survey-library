@@ -297,10 +297,11 @@ export class PanelModelBase extends SurveyElement
   }
   get hasTitle(): boolean {
     return (
-      ((<any>this.survey).showPageTitles && this.title.length > 0) ||
+      (this.canShowTitle() && this.title.length > 0) ||
       (this.isDesignMode && settings.allowShowEmptyTitleInDesignMode)
     );
   }
+  protected canShowTitle(): boolean { return true; }
   get _showDescription(): boolean {
     return (
       ((<any>this.survey).showPageTitles && this.description.length > 0) ||

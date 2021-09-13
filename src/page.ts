@@ -32,8 +32,11 @@ export class PageModel extends PanelModelBase implements IPage {
   public toString(): string {
     return this.name;
   }
-  public get isPage() {
+  public get isPage(): boolean {
     return true;
+  }
+  protected canShowTitle(): boolean {
+    return (<any>this.survey).showPageTitles;
   }
   /**
    * Use this property to show title in navigation buttons. If the value is empty then page name is used.

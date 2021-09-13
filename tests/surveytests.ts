@@ -13845,3 +13845,42 @@ QUnit.test("question and titleTabIndex", assert => {
   question.state = "collapsed";
   assert.equal(question.titleTabIndex, 0, "We need tabIndex now");
 });
+QUnit.test("show panel title if survey.showPageTitles is false", assert => {
+  const survey = new SurveyModel({
+    showPageTitles: false,
+    title: "title page",
+    elements: [{
+      type: "panel",
+      name: "panel",
+      title: "title panel",
+      elements: [{ type: "text", name: "q1" }]
+    }]
+  });
+  const panel = <PanelModel>survey.getPanelByName("panel");
+  const page = survey.pages[0];
+  assert.equal(panel.hasTitle, true, "We show title for panels");
+  assert.equal(page.hasTitle, false, "We hide title for page");
+  survey.setDesignMode(true);
+  assert.equal(panel.hasTitle, true, "We show title for panels in design");
+  assert.equal(page.hasTitle, true, "We show title for page in design");
+});
+QUnit.test("Do panel click without actions, but if it has state", assert => {
+  const survey = new SurveyModel({
+    showPageTitles: false,
+    title: "title page",
+    elements: [{
+      type: "panel",
+      name: "panel",
+      title: "title panel", state: "collapsed",
+      elements: [{ type: "text", name: "q1" }]
+    }]
+  });
+  survey.onGetPanelTitleActions.add((sender, options)=>{
+    options.titleActions = [];
+  });
+  const panel = <PanelModel>survey.getPanelByName("panel");
+  assert.equal(panel.hasTitleActions, false, "Delete all actions");
+  assert.equal(panel.hasTitleEvents, true, "It has non defult state");
+  panel.state = "default";
+  assert.equal(panel.hasTitleEvents, false, "It has defult state");
+});

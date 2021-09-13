@@ -72,6 +72,9 @@ export abstract class SurveyElementCore extends Base implements ILocalizableOwne
   }
   public get hasTitle(): boolean { return this.title.length > 0; }
   public get hasTitleActions(): boolean { return false; }
+  public get hasTitleEvents(): boolean {
+    return this.hasTitleActions;
+  }
   public getTitleToolbar(): AdaptiveActionContainer { return null; }
   public getTitleOwner(): ITitleOwner { return undefined; }
   public get isTitleOwner(): boolean { return !!this.getTitleOwner(); }
@@ -309,6 +312,9 @@ export class SurveyElement extends SurveyElementCore implements ISurveyElement {
   }
   public get hasTitleActions(): boolean {
     return this.getTitleActions().length > 0;
+  }
+  public get hasTitleEvents(): boolean {
+    return this.hasTitleActions || this.state !== "default";
   }
   public getTitleComponentName(): string {
     var componentName = RendererFactory.Instance.getRenderer(

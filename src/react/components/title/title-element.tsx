@@ -15,7 +15,7 @@ export class TitleElement extends React.Component<any, any> {
     const titleContent = <TitleActions element={element} cssClasses={element.cssClasses}></TitleActions>;
     let onClick = null;
     let onKeyUp = null;
-    if (element.hasTitleActions) {
+    if (element.hasTitleEvents) {
       onClick = () => {
         return element.toggleState();
       };

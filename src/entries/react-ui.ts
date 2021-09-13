@@ -9,6 +9,7 @@ export { SurveyNavigation } from "../react/reactSurveyNavigation";
 export { SurveyPage } from "../react/page";
 export { SurveyRow } from "../react/row";
 export { SurveyPanel } from "../react/panel";
+export { SurveyPanelFooter } from "../react/panel-footer";
 export { SurveyFlowPanel } from "../react/flow-panel";
 export {
   SurveyQuestion,

@@ -46,6 +46,7 @@ export { Progress } from "../vue/progress.vue";
 export { ProgressButtons } from "../vue/progressButtons.vue";
 export { TimerPanel } from "../vue/timerpanel.vue";
 export { Panel } from "../vue/panel.vue";
+export { PanelFooter } from "../vue/panel-footer.vue";
 export { FlowPanel } from "../vue/flowpanel.vue";
 export { FlowPanelElement } from "../vue/flowpanelelement.vue";
 export { Row } from "../vue/row.vue";

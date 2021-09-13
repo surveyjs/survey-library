@@ -19,7 +19,7 @@
     >
       <!-- ko template: { name: 'survey-rows', data: $data} -->
       <!-- /ko -->
-      <!-- ko component: { name: 'sv-action-bar', params: { model: getFooterToolbar() } } -->
+      <!-- ko component: { name: getFooterComponentName(), params: { panel: $data, model: getFooterToolbar() } } -->
       <!-- /ko -->
     </div>
     <!-- /ko -->

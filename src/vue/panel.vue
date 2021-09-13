@@ -44,9 +44,8 @@
       >
         <survey-row :row="row" :survey="survey" :css="css"></survey-row>
       </div>
-    <sv-action-bar
-      :model="question.getFooterToolbar()"
-    ></sv-action-bar>
+
+      <component :is="question.getFooterComponentName()" :panel="question" :model="question.getFooterToolbar()"/>
     </div>
   </div>
 </template>
@@ -107,9 +106,6 @@ export class Panel extends BaseVue {
   }
   keyup(evt: any) {
     doKey2ClickUp(evt);
-  }
-  cancelPreview() {
-    this.question.cancelPreview();
   }
   get requiredTextCss() {
     return (

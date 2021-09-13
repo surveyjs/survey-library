@@ -1884,6 +1884,11 @@ export class PanelModel extends PanelModelBase
       }
     });
   }
+
+  public isRenderOldFooter = true;
+  public getFooterComponentName() {
+    return this.isRenderOldFooter ? "sv-panel-footer" : "sv-action-bar";
+  }
   public get footerActions(): Array<IAction> {
     return this.getPropertyValue("footerActions");
   }

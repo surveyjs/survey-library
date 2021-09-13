@@ -95,10 +95,14 @@ export class SurveyPanel extends SurveyPanelBase {
       <div className={this.panel.cssClasses.panel.description}>{text}</div>
     );
   }
+
   protected renderBottom(): JSX.Element {
     const footerToolbar = this.panel.getFooterToolbar();
-    if(!footerToolbar.hasActions) return null;
-    return <SurveyActionBar model={footerToolbar}></SurveyActionBar>;
+    const FooterComponent = ReactElementFactory.Instance.createElement(
+      this.panel.getFooterComponentName(),
+      { panel: this.panel, model: footerToolbar }
+    );
+    return FooterComponent;
   }
 }
 

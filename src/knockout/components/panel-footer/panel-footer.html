@@ -1,0 +1,8 @@
+<!-- ko if: model.hasEditButton -->
+<div data-bind="css: model.cssClasses.panel.footer">
+  <input
+    type="button"
+    data-bind="value: model.survey.editText, click: cancelPreview, css: model.survey.cssNavigationEdit"
+  />
+</div>
+<!-- /ko -->

@@ -151,3 +151,43 @@ frameworks.forEach((framework) => {
     assert.equal(json.title, newTitle);
   });
 });
+
+var json2 = {
+  "title": "Survey title",
+  "description": "Survey description",
+  "pages": [
+   {
+    "title": "Page title",
+    "description": "Page description",
+    "name": "page2",
+    "elements": [
+     {
+      "type": "text",
+      "name": "text_question",
+     },
+    ],
+   }
+  ],
+  "showPreviewBeforeComplete": "showAnsweredQuestions"
+}
+
+frameworks.forEach((framework) => {
+  fixture`${framework} ${title}`.page`${url}${framework}.html`.beforeEach(
+    async (t) => {
+      await initSurvey(framework, json2);
+    }
+  );
+
+  test(`showPreviewBeforeComplete`, async (t) => {
+    await t.typeText(
+      Selector("span").withText('text_question')
+        .parent("[aria-labelledby]")
+        .find("input"),
+        "test text"
+    );
+    
+    await t.click(Selector(`input[value="Preview"]`));
+    await t.click(Selector(`input[value="Edit"]`));
+    await t.hover(Selector(`input[value="Preview"]`));
+  });
+});

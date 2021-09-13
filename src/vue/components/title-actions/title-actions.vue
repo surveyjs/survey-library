@@ -11,15 +11,22 @@
         :css="css"
       ></survey-question-title-content>
     </span>
-    <sv-action-bar class="sv-title-actions__bar" :model="toolbar"></sv-action-bar>
+    <sv-action-bar
+      class="sv-title-actions__bar"
+      :model="toolbar"
+    ></sv-action-bar>
   </div>
 </template>
 
 <script lang="ts">
 import Vue from "vue";
 import { Component, Prop } from "vue-property-decorator";
-import { ISurveyElement } from "survey-core";
-import { RendererFactory } from "survey-core";
+import {
+  Action,
+  AdaptiveActionContainer,
+  ISurveyElement,
+  RendererFactory,
+} from "survey-core";
 
 @Component
 export class TitleActions extends Vue {
@@ -29,7 +36,7 @@ export class TitleActions extends Vue {
     super();
   }
 
-  public get toolbar() {
+  public get toolbar(): AdaptiveActionContainer<Action> {
     return this.element.getTitleToolbar();
   }
 }

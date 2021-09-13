@@ -33,19 +33,21 @@ frameworks.forEach((framework) => {
     var getQuestionState = ClientFunction(() => {
       return survey.getAllQuestions()[0].state;
     });
-    assert.equal(await Selector("h5 button").innerText, "Action");
-    assert.ok(await Selector("h5 .sv-action").visible);
-    assert.ok(!(await Selector("h5 button svg use").exists));
+
+    const visibleAction = Selector("h5 .sv-action:not(.sv-action--hidden)");
+    assert.equal(await visibleAction.find("button").innerText, "Action");
+    assert.ok(await visibleAction.visible);
+    assert.ok(!(await visibleAction.find("button svg use").exists));
     assert.ok(
-      !(await Selector("h5 .sv-action div.sv-action-bar-separator").exists)
+      !(await visibleAction.find("div.sv-action-bar-separator").exists)
     );
     assert.equal(
-      (await Selector("h5 button span").classNames).indexOf(
+      (await visibleAction.find("button span").classNames).indexOf(
         "sv-action-bar-item__title--with-icon"
       ),
       -1
     );
-    await t.click("h5 button");
+    await t.click(visibleAction.find("button"));
     assert.equal(await getQuestionState(), "expanded");
   });
 
@@ -55,6 +57,7 @@ frameworks.forEach((framework) => {
         opt.titleActions = [
           {
             iconName: "icon-action",
+            iconSize: 20,
             title: "Action",
             action: () => {
               opt.question.state = "expanded";
@@ -63,15 +66,10 @@ frameworks.forEach((framework) => {
         ];
       },
     });
-    assert.equal(
-      await Selector("h5 use").getAttribute("xlink:href"),
-      "#icon-action"
-    );
-    assert.ok(
-      await Selector("h5 button span.sv-action-bar-item__title").hasClass(
-        "sv-action-bar-item__title--with-icon"
-      )
-    );
+    await t
+      .expect(Selector("h5 use").getAttribute("xlink:href")).eql("#icon-action")
+      .expect(Selector("h5 button span.sv-action-bar-item__title").hasClass("sv-action-bar-item__title--with-icon")).ok()
+      .expect(Selector("h5 button .sv-action-bar-item__icon").offsetWidth).eql(20);
   });
 
   test("check item with showTitle false", async (t) => {
@@ -88,7 +86,7 @@ frameworks.forEach((framework) => {
       },
     });
     assert.ok(
-      !(await Selector("h5 .sv-action span.sv-action-bar-item__title").exists)
+      !(await Selector("h5 .sv-action:not(.sv-action--hidden) span.sv-action-bar-item__title").exists)
     );
   });
 
@@ -198,5 +196,15 @@ frameworks.forEach((framework) => {
     });
 
     assert.ok(await Selector("h4 .sv-title-actions").exists);
+  });
+  test("check responsivity manager is disposed when action bar is disposed", async (t) => {
+    const getToolbarResponsivityManager = ClientFunction(() => !!survey.getQuestionByName("actions_question").titleToolbarValue.responsivityManager);
+    const setQuestionVisibility = ClientFunction((visible) => { survey.getQuestionByName("actions_question").visible = visible });
+    await initSurvey(framework, json);
+    await t.expect(getToolbarResponsivityManager()).ok();
+    await setQuestionVisibility(false);
+    await t.expect(getToolbarResponsivityManager()).notOk();
+    await setQuestionVisibility(true);
+    await t.expect(getToolbarResponsivityManager()).ok();
   });
 });

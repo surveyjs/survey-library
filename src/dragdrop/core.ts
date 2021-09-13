@@ -1,27 +1,38 @@
+import { SurveyModel } from "../survey";
 import { Base, EventBase } from "../base";
 import { ISurvey } from "../base-interfaces";
 import { property } from "../jsonobject";
 
-export abstract class DragDropCore extends Base {
-  @property() isBottom: boolean = null; //TODO rename isBottom to isShowGhostAtBottomOfDropTarget
+export abstract class DragDropCore<T> extends Base {
+  @property({
+    defaultValue: null,
+    onSet: (val, target: DragDropCore<T>) => {
+      target.ghostPositionChanged();
+    },
+  })
+  isBottom: boolean; //TODO rename isBottom to isShowGhostAtBottomOfDropTarget
+  public onGhostPositionChanged: EventBase<Base> = new EventBase<Base>();
+  protected ghostPositionChanged(): void {
+    this.onGhostPositionChanged.fire({}, {});
+  }
 
-  public onBeforeDrop: EventBase<DragDropCore> = new EventBase();
-  public onAfterDrop: EventBase<DragDropCore> = new EventBase();
+  public onBeforeDrop: EventBase<DragDropCore<T>> = new EventBase();
+  public onAfterDrop: EventBase<DragDropCore<T>> = new EventBase();
 
   protected draggedElement: any = null;
   protected abstract get draggedElementType(): string;
-  protected parentElement: any;
-  protected dropTarget: any = null;
-  protected get dropTargetDataAttributeName() {
+  protected parentElement: T;
+  public dropTarget: any = null;
+  protected get dropTargetDataAttributeName(): string {
     return `[data-sv-drop-target-${this.draggedElementType}]`;
   }
-  protected get survey() {
+  protected get survey(): SurveyModel {
     return this.surveyValue || this.creator.survey;
   }
 
   protected prevDropTarget: any = null;
-  private draggedElementShortcut: HTMLElement = null;
-  private scrollIntervalId: ReturnType<typeof setTimeout> = null;
+  protected draggedElementShortcut: HTMLElement = null;
+  private scrollIntervalId: number = null;
   private allowDropHere = false;
 
   constructor(private surveyValue?: ISurvey, private creator?: any) {
@@ -31,8 +42,9 @@ export abstract class DragDropCore extends Base {
   public startDrag(
     event: PointerEvent,
     draggedElement: any,
-    parentElement?: any
-  ) {
+    parentElement?: any,
+    draggedElementNode?: HTMLElement
+  ): void {
     this.draggedElement = draggedElement;
     this.parentElement = parentElement;
 
@@ -40,13 +52,16 @@ export abstract class DragDropCore extends Base {
 
     const shortcutText = this.getShortcutText(this.draggedElement);
     this.draggedElementShortcut = this.createDraggedElementShortcut(
-      shortcutText
+      shortcutText,
+      draggedElementNode
     );
     document.body.append(this.draggedElementShortcut);
     this.moveShortcutElement(event);
 
     document.addEventListener("pointermove", this.dragOver);
+    document.addEventListener("pointercancel", this.handlePointerCancel);
     document.addEventListener("keydown", this.handleEscapeButton);
+    document.addEventListener("pointerup", this.drop);
     this.draggedElementShortcut.addEventListener("pointerup", this.drop);
   }
 
@@ -68,9 +83,11 @@ export abstract class DragDropCore extends Base {
 
     let isBottom = this.calculateIsBottom(event.clientY, dropTargetNode);
 
-    const isDropTargetValid = this.isDropTargetValid(this.dropTarget, isBottom);
+    const isDropTargetValid = this.isDropTargetValid(this.dropTarget, isBottom, dropTargetNode);
 
-    if (this.dropTarget === this.draggedElement || !isDropTargetValid) {
+    this.doDragOver(dropTargetNode);
+
+    if (!isDropTargetValid) {
       this.banDropHere();
       return;
     }
@@ -78,9 +95,9 @@ export abstract class DragDropCore extends Base {
     this.allowDropHere = true;
     if (this.isDropTargetDoesntChanged(isBottom)) return;
 
-    this.isBottom = null; //TODO need for property change trigger with guarantee but it would be better not to watch on isBottom property but reate some event like onValidTargetDragOver
+    this.isBottom = null; //TODO need for property change trigger with guarantee but it would be better not to watch on isBottom property but have some event like onValidTargetDragOver
     this.isBottom = isBottom;
-    this.doDragOver();
+    this.afterDragOver(dropTargetNode);
     this.prevDropTarget = this.dropTarget;
   };
 
@@ -94,22 +111,16 @@ export abstract class DragDropCore extends Base {
     this.clear();
   };
 
-  public getGhostPosition(item: any) {
-    if (this.dropTarget !== item) return null;
-    if (this.isBottom) return "bottom";
-    return "top";
-  }
-
-  protected isDropTargetDoesntChanged(newIsBottom: boolean) {
+  protected isDropTargetDoesntChanged(newIsBottom: boolean): boolean {
     return (
       this.dropTarget === this.prevDropTarget && newIsBottom === this.isBottom
     );
   }
 
-  protected doStartDrag() {}
+  protected doStartDrag(): void {}
   protected abstract getShortcutText(draggedElement: any): string;
 
-  private createDraggedElementShortcut(text: string) {
+  protected createDraggedElementShortcut(text: string, draggedElementNode?: HTMLElement):HTMLElement {
     const draggedElementShortcut = document.createElement("div");
     draggedElementShortcut.innerText = text;
     draggedElementShortcut.style.cssText =
@@ -117,12 +128,24 @@ export abstract class DragDropCore extends Base {
     return draggedElementShortcut;
   }
 
-  protected doDragOver(): void {}
+  protected doDragOver(dropTargetNode?: HTMLElement): void {}
+  protected afterDragOver(dropTargetNode?: HTMLElement): void {}
+
+  public getGhostPosition(item: any): string {
+    if (this.dropTarget !== item) return null;
+    if (this.isBottom) return "bottom";
+    return "top";
+  }
 
   protected abstract isDropTargetValid(
     dropTarget: any,
-    isBottom: boolean
+    isBottom: boolean,
+    dropTargetNode?: HTMLElement
   ): boolean;
+
+  private handlePointerCancel = (event: PointerEvent) => {
+    this.clear();
+  };
 
   private handleEscapeButton = (event: KeyboardEvent) => {
     if (event.keyCode == 27) {
@@ -188,12 +211,24 @@ export abstract class DragDropCore extends Base {
   }
 
   private doScroll(clientY: number, clientX: number) {
-    clearInterval(this.scrollIntervalId);
+    cancelAnimationFrame(this.scrollIntervalId);
     const startScrollBoundary = 50;
 
-    // need to import getScrollableParent method
-    // let scrollableParentNode = getScrollableParent(dropTragetNode)
-    //   .parentNode;
+    // this.draggedElementShortcut.hidden = true;
+    // let dragOverNode = <HTMLElement>document.elementFromPoint(clientX, clientY);
+    // this.draggedElementShortcut.hidden = false;
+
+    // function getScrollableParent(node:HTMLElement):HTMLElement {
+    //   if (node == null) {
+    //     return null;
+    //   }
+    //   if (node.scrollHeight > node.clientHeight) {
+    //     return node;
+    //   } else {
+    //     return getScrollableParent(<HTMLElement>node.parentNode);
+    //   }
+    // }
+    // let scrollableParentNode = getScrollableParent(dragOverNode);
     let scrollableParentNode =
       document.querySelector(".svc-tab-designer.sd-root-modern") ||
       document.querySelector(".sv-root-modern") ||
@@ -204,26 +239,22 @@ export abstract class DragDropCore extends Base {
     let left = scrollableParentNode.getBoundingClientRect().left;
     let right = scrollableParentNode.getBoundingClientRect().right;
 
-    if (clientY - top <= startScrollBoundary) {
-      this.scrollIntervalId = setInterval(() => {
-        scrollableParentNode.scrollTop -= 5;
-      }, 10);
-    } else if (bottom - clientY <= startScrollBoundary) {
-      this.scrollIntervalId = setInterval(() => {
-        scrollableParentNode.scrollTop += 5;
-      }, 10);
-    } else if (right - clientX <= startScrollBoundary) {
-      this.scrollIntervalId = setInterval(() => {
-        scrollableParentNode.scrollLeft += 5;
-      }, 10);
-    } else if (clientX - left <= startScrollBoundary) {
-      this.scrollIntervalId = setInterval(() => {
-        scrollableParentNode.scrollLeft -= 5;
-      }, 10);
-    }
+    const repeat = () => {
+      if (clientY - top <= startScrollBoundary) {
+        scrollableParentNode.scrollTop -= 15;
+      } else if (bottom - clientY <= startScrollBoundary) {
+        scrollableParentNode.scrollTop += 15;
+      } else if (right - clientX <= startScrollBoundary) {
+        scrollableParentNode.scrollLeft += 15;
+      } else if (clientX - left <= startScrollBoundary) {
+        scrollableParentNode.scrollLeft -= 15;
+      }
+      this.scrollIntervalId = requestAnimationFrame(repeat);
+    };
+    this.scrollIntervalId = requestAnimationFrame(repeat);
   }
 
-  protected banDropHere = () => {
+  protected banDropHere = (): void => {
     this.doBanDropHere();
     this.allowDropHere = false;
     this.dropTarget = null;
@@ -231,7 +262,7 @@ export abstract class DragDropCore extends Base {
     this.isBottom = null;
   };
 
-  protected doBanDropHere = () => {};
+  protected doBanDropHere = (): void => {};
 
   private getDataAttributeValueByNode(node: HTMLElement) {
     let datasetName = "svDropTarget";
@@ -245,7 +276,7 @@ export abstract class DragDropCore extends Base {
   protected getDropTargetByNode(
     dropTargetNode: HTMLElement,
     event: PointerEvent
-  ) {
+  ): any {
     let dataAttributeValue = this.getDataAttributeValueByNode(dropTargetNode);
 
     return this.getDropTargetByDataAttributeValue(
@@ -261,12 +292,12 @@ export abstract class DragDropCore extends Base {
 
   //TODO adandone unrequired params (survey-elements)
   protected abstract getDropTargetByDataAttributeValue(
-    dataAttributeValue: any,
+    dataAttributeValue: string,
     dropTargetNode?: HTMLElement,
     event?: PointerEvent
   ): any;
 
-  protected calculateMiddleOfHTMLElement(HTMLElement: HTMLElement) {
+  protected calculateMiddleOfHTMLElement(HTMLElement: HTMLElement): number {
     const rect = HTMLElement.getBoundingClientRect();
     return rect.y + rect.height / 2;
   }
@@ -284,24 +315,30 @@ export abstract class DragDropCore extends Base {
     clientY: number
   ): HTMLElement {
     this.draggedElementShortcut.hidden = true;
-    let dragOverNode = document.elementFromPoint(clientX, clientY);
+    let dragOverNode = <HTMLElement>document.elementFromPoint(clientX, clientY);
     this.draggedElementShortcut.hidden = false;
 
     if (!dragOverNode) return null;
 
-    return (
-      dragOverNode.querySelector(this.dropTargetDataAttributeName) ||
-      dragOverNode.closest(this.dropTargetDataAttributeName)
-    );
+    return this.findDropTargetNodeByDragOverNode(dragOverNode);
   }
 
+  protected findDropTargetNodeByDragOverNode(dragOverNode:HTMLElement):HTMLElement {
+    const result: HTMLElement =
+      dragOverNode.querySelector(this.dropTargetDataAttributeName) ||
+      dragOverNode.closest(this.dropTargetDataAttributeName);
+
+    return result;
+  }
   protected abstract doDrop(): any;
 
   private clear = () => {
-    clearInterval(this.scrollIntervalId);
+    cancelAnimationFrame(this.scrollIntervalId);
 
     document.removeEventListener("pointermove", this.dragOver);
+    document.removeEventListener("pointercancel", this.handlePointerCancel);
     document.removeEventListener("keydown", this.handleEscapeButton);
+    document.removeEventListener("pointerup", this.drop);
     this.draggedElementShortcut.removeEventListener("pointerup", this.drop);
     document.body.removeChild(this.draggedElementShortcut);
 
@@ -312,10 +349,10 @@ export abstract class DragDropCore extends Base {
 
     this.draggedElementShortcut = null;
     this.draggedElement = null;
-    this.parentElement = null;
     this.isBottom = null;
+    this.parentElement = null;
     this.scrollIntervalId = null;
   };
 
-  protected doClear() {}
+  protected doClear(): void {}
 }

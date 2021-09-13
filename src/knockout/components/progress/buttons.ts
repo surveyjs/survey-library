@@ -1,6 +1,5 @@
 import * as ko from "knockout";
-import { SurveyModel } from "survey-core";
-import { SurveyProgressButtonsModel } from "survey-core";
+import { SurveyModel, SurveyProgressButtonsModel } from "survey-core";
 const template: any = require("html-loader?interpolate!val-loader!./buttons.html");
 
 export class ProgressButtonsViewModel {
@@ -8,11 +7,11 @@ export class ProgressButtonsViewModel {
   private scrollButtonCssKo: any = undefined;
   private hasScroller: any = ko.observable(false);
   private updateScroller: any = undefined;
-  constructor(private model: SurveyModel, element: any) {
-    this.progressButtonsModel = new SurveyProgressButtonsModel(model);
+  constructor(private survey: SurveyModel, element: any) {
+    this.progressButtonsModel = new SurveyProgressButtonsModel(survey);
     this.updateScroller = setInterval(() => {
-      let listContainerElement: HTMLElement = element.querySelector(
-        "." + model.css.progressButtonsListContainer
+      const listContainerElement: HTMLElement = element.querySelector(
+        "." + survey.css.progressButtonsListContainer
       );
       if (!!listContainerElement) {
         this.hasScroller(
@@ -32,12 +31,7 @@ export class ProgressButtonsViewModel {
   }
   public getScrollButtonCss(isLeftScroll: boolean): any {
     this.scrollButtonCssKo = ko.computed(() => {
-      let scrollCss: string = isLeftScroll
-        ? this.model.css.progressButtonsImageButtonLeft
-        : this.model.css.progressButtonsImageButtonRight;
-      if (!this.hasScroller())
-        scrollCss += " " + this.model.css.progressButtonsImageButtonHidden;
-      return scrollCss;
+      return this.progressButtonsModel.getScrollButtonCss(this.hasScroller(), isLeftScroll);
     }, this);
     return this.scrollButtonCssKo;
   }
@@ -68,5 +62,5 @@ ko.components.register("sv-progress-buttons", {
       );
     },
   },
-  template: template,
+  template: template
 });

@@ -17,12 +17,10 @@
       :value="question.value"
       @change="change"
       @keyup="keyup"
-      v-bind:aria-required="question.isRequired"
-      v-bind:aria-label="question.locTitle.renderedHtml"
-      :aria-invalid="question.errors.length > 0"
-      :aria-describedby="
-        question.errors.length > 0 ? question.id + '_errors' : null
-      "
+      :aria-required="question.ariaRequired"
+      :aria-label="question.ariaLabel"
+      :aria-invalid="question.ariaInvalid"
+      :aria-describedby="question.ariaDescribedBy"
     />
     <datalist v-if="question.dataListId" :id="question.dataListId">
       <option v-for="item in question.dataList" :value="item"></option>
@@ -46,11 +44,7 @@ export class QuestionText extends QuestionVue<QuestionTextModel> {
     this.question.value = event.target.value;
   }
   get inputStyle(): any {
-    var style: any = {};
-    if (!!this.question.inputWidth) {
-      style.width = this.question.inputWidth;
-    }
-    return style;
+    return this.question.inputStyle;
   }
 }
 Vue.component("survey-text", QuestionText);

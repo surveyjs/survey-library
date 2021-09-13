@@ -6,8 +6,14 @@
         event.preventDefault();
       }
     "
+    v-on:keydown="
+      (event) => {
+        model.onKeyDown(event);
+      }
+    "
   >
     <li
+      tabindex="0"
       v-show="item.visible === undefined || item.visible"
       class="sv-list__item"
       :style="{ paddingLeft: model.getItemIndent(item) }"
@@ -17,12 +23,15 @@
       v-on:click="model.selectItem(item)"
     >
       <sv-svg-icon
-        v-if="item.iconName"
+        v-if="item.iconName && !item.component"
         class="sv-list__item-icon"
         :iconName="item.iconName"
         :size="24"
       ></sv-svg-icon>
-      <span>{{ item.title }}</span>
+      <span v-if="!item.component">{{ item.title }}</span>
+
+      <component v-if="item.component" :is="item.component" :item="item"> </component>
+
     </li>
   </ul>
 </template>

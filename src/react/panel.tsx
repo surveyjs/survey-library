@@ -4,44 +4,39 @@ import { SurveyElementBase } from "./reactquestion_element";
 import { ReactElementFactory } from "./element-factory";
 
 import { SurveyPanelBase } from "./panel-base";
-import { PanelModel, doKey2Click } from "survey-core";
-import { ReactQuestionFactory } from "./reactquestion_factory";
+import { PanelModel, doKey2ClickUp } from "survey-core";
 import { ReactSurveyModel } from "./reactsurveymodel";
+import { SurveyActionBar } from "./components/action-bar/action-bar";
 
 export class SurveyPanel extends SurveyPanelBase {
   private hasBeenExpanded: boolean = false;
   constructor(props: any) {
     super(props);
-    this.handleEditClick = this.handleEditClick.bind(this);
   }
   public get panel(): PanelModel {
     return this.panelBase as PanelModel;
   }
-  handleEditClick(event: any) {
-    this.panel.cancelPreview();
-  }
   protected renderElement(): JSX.Element {
-    var title = this.renderTitle();
-    var description = this.renderDescription();
-    var errors = (
+    const title: JSX.Element = this.renderTitle();
+    const description: JSX.Element = this.renderDescription();
+    const errors = (
       <SurveyElementErrors
         element={this.panelBase}
         cssClasses={this.panelBase.cssClasses}
         creator={this.creator}
       />
     );
-    var style = {
+    const style = {
       paddingLeft: this.panel.innerPaddingLeft,
       display: !this.panel.isCollapsed ? "block" : "none",
     };
-    var content = null;
+    let content: JSX.Element = null;
     if (!this.panel.isCollapsed || this.hasBeenExpanded) {
       this.hasBeenExpanded = true;
-      var rows = this.renderRows(this.panelBase.cssClasses);
-      var className = this.panelBase.cssClasses.panel.content;
+      const rows: JSX.Element[] = this.renderRows(this.panelBase.cssClasses);
+      const className: string = this.panelBase.cssClasses.panel.content;
       content = this.renderContent(style, rows, className);
     }
-    var bottom = this.renderBottom();
     return (
       <div
         ref={this.rootRef}
@@ -51,7 +46,6 @@ export class SurveyPanel extends SurveyPanelBase {
         {description}
         {errors}
         {content}
-        {bottom}
       </div>
     );
   }
@@ -63,14 +57,12 @@ export class SurveyPanel extends SurveyPanelBase {
     }
     return wrapper ?? element;
   }
-  protected renderContent(
-    style: any,
-    rows: JSX.Element[],
-    className: string
-  ): JSX.Element {
+  protected renderContent(style: any, rows: JSX.Element[], className: string): JSX.Element {
+    const bottom: JSX.Element = this.renderBottom();
     return (
       <div style={style} className={className} id={this.panel.contentId}>
         {rows}
+        {bottom}
       </div>
     );
   }
@@ -89,7 +81,7 @@ export class SurveyPanel extends SurveyPanelBase {
           return this.panel.toggleState();
         }}
         onKeyUp={(evt) => {
-          doKey2Click(evt);
+          doKey2ClickUp(evt.nativeEvent);
         }}
       >
         {titleComponent}
@@ -104,17 +96,9 @@ export class SurveyPanel extends SurveyPanelBase {
     );
   }
   protected renderBottom(): JSX.Element {
-    if (!this.panel.hasEditButton || !this.survey) return;
-    return (
-      <div className={this.panel.cssClasses.panel.footer}>
-        <input
-          className={this.survey.cssNavigationEdit}
-          type="button"
-          onClick={this.handleEditClick}
-          value={this.survey.editText}
-        />
-      </div>
-    );
+    const footerToolbar = this.panel.getFooterToolbar();
+    if(!footerToolbar.hasActions) return null;
+    return <SurveyActionBar model={footerToolbar}></SurveyActionBar>;
   }
 }
 

@@ -1,17 +1,11 @@
 import * as ko from "knockout";
 import { PageModel } from "survey-core";
-import {
-  PanelModelBase,
-  PanelModel,
-  QuestionRowModel,
-  Question,
-  doKey2Click,
-} from "survey-core";
+import { PanelModelBase, PanelModel, QuestionRowModel, Question, doKey2ClickUp } from "survey-core";
 import { Serializer } from "survey-core";
 import { SurveyElement, IElement } from "survey-core";
 import { ElementFactory } from "survey-core";
 import { ImplementorBase } from "./kobase";
-import {} from "survey-core";
+import { } from "survey-core";
 
 export class QuestionRow extends QuestionRowModel {
   koElementAfterRender: any;
@@ -19,7 +13,7 @@ export class QuestionRow extends QuestionRowModel {
     super(panel);
     new ImplementorBase(this);
     var self = this;
-    this.koElementAfterRender = function(el: any, con: any) {
+    this.koElementAfterRender = function (el: any, con: any) {
       return self.elementAfterRender(el, con);
     };
   }
@@ -82,13 +76,13 @@ export class Panel extends PanelModel {
     this.onCreating();
     var self = this;
     this.koElementType = ko.observable("survey-panel");
-    this.koCss = ko.pureComputed(function() {
+    this.koCss = ko.pureComputed(function () {
       return self.cssClasses;
     });
-    this.toggleStateByKeyUp = function(_: any, event: any) {
-      doKey2Click(event);
+    this.toggleStateByKeyUp = function (_: any, event: any) {
+      doKey2ClickUp(event);
     };
-    this.koErrorClass = ko.pureComputed(function() {
+    this.koErrorClass = ko.pureComputed(function () {
       return self.cssError;
     });
   }
@@ -99,7 +93,7 @@ export class Panel extends PanelModel {
   protected createRow(): QuestionRowModel {
     return new QuestionRow(this);
   }
-  protected onCreating() {}
+  protected onCreating() { }
   protected onNumChanged(value: number) {
     this.locTitle.onChanged();
   }
@@ -125,7 +119,7 @@ export class Page extends PageModel {
   protected createRow(): QuestionRowModel {
     return new QuestionRow(this);
   }
-  protected onCreating() {}
+  protected onCreating() { }
   protected onNumChanged(value: number) {
     this.locTitle.onChanged();
   }
@@ -136,10 +130,10 @@ export class Page extends PageModel {
   }
 }
 
-Serializer.overrideClassCreator("panel", function() {
+Serializer.overrideClassCreator("panel", function () {
   return new Panel();
 });
-Serializer.overrideClassCreator("page", function() {
+Serializer.overrideClassCreator("page", function () {
   return new Page();
 });
 

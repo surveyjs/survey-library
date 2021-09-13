@@ -56,7 +56,8 @@ export class PopupUtils {
     if (top < 0) {
       result = { height: height + top, top: 0 };
     } else if (height + top > windowHeight) {
-      result = { height: windowHeight - top, top: top };
+      let newHeight = Math.min(height, windowHeight - top);
+      result = { height: newHeight, top: top };
     }
     return result;
   }

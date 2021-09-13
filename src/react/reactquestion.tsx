@@ -1,17 +1,10 @@
 import * as React from "react";
-import {
-  Question,
-  SurveyElement,
-  SurveyError,
-  Base,
-  doKey2Click,
-} from "survey-core";
-import { SurveyQuestionCommentItem } from "./reactquestion_comment";
-import { SurveyElementBase, ReactSurveyElement } from "./reactquestion_element";
-import { SurveyCustomWidget } from "./custom-widget";
-import { ReactElementFactory } from "./element-factory";
+import { Base, SurveyElement, SurveyError, Question, QuestionMatrixDropdownRenderedCell, CssClassBuilder, doKey2ClickUp } from "survey-core";
 import { ReactSurveyModel } from "./reactsurveymodel";
-import { QuestionMatrixDropdownRenderedCell } from "../question_matrixdropdownbase";
+import { ReactElementFactory } from "./element-factory";
+import { SurveyElementBase, ReactSurveyElement } from "./reactquestion_element";
+import { SurveyQuestionCommentItem } from "./reactquestion_comment";
+import { SurveyCustomWidget } from "./custom-widget";
 
 export interface ISurveyCreator {
   createQuestionElement(question: Question): JSX.Element;
@@ -59,7 +52,7 @@ export class SurveyQuestion extends SurveyElementBase<any, any> {
     if (!!this.question) {
       this.question["react"] = null;
     }
-    var el = this.rootRef.current;
+    const el = this.rootRef.current;
     if (!!el) {
       el.removeAttribute("data-rendered");
     }
@@ -104,7 +97,6 @@ export class SurveyQuestion extends SurveyElementBase<any, any> {
     var descriptionUnderInput = question.hasDescriptionUnderInput
       ? this.renderDescription(cssClasses, true)
       : null;
-    let questionRootClass = question.cssRoot;
 
     var comment =
       question && question.hasComment ? this.renderComment(cssClasses) : null;
@@ -125,15 +117,11 @@ export class SurveyQuestion extends SurveyElementBase<any, any> {
       display: !this.question.isCollapsed ? "" : "none",
     };
 
-    if (question.isReadOnly) {
-      questionRootClass += " " + cssClasses.disabled;
-    }
-
     return (
       <div
         ref={this.rootRef}
         id={question.id}
-        className={questionRootClass}
+        className={question.getRootCss()}
         style={rootStyle}
         role={question.ariaRole}
         aria-labelledby={question.hasTitle ? question.ariaTitleId : null}
@@ -177,7 +165,7 @@ export class SurveyQuestion extends SurveyElementBase<any, any> {
           return this.question.toggleState();
         }}
         onKeyUp={(evt) => {
-          doKey2Click(evt);
+          doKey2ClickUp(evt.nativeEvent);
         }}
       >
         {titleComponent}
@@ -251,8 +239,7 @@ export class SurveyElementErrors extends ReactSurveyElement {
     return this.props.id;
   }
   protected get element(): SurveyElement {
-    var element = this.props.element;
-    return element instanceof SurveyElement ? element : null;
+    return this.props.element;
   }
   private get creator(): ISurveyCreator {
     return this.props.creator;
@@ -267,23 +254,16 @@ export class SurveyElementErrors extends ReactSurveyElement {
     return !!this.element && this.element.hasVisibleErrors;
   }
   protected renderElement(): JSX.Element {
-    var errors = [];
-    for (var i = 0; i < this.element.errors.length; i++) {
-      var key = "error" + i;
+    const errors = [];
+    for (let i = 0; i < this.element.errors.length; i++) {
+      const key: string = "error" + i;
       errors.push(
         this.creator.renderError(key, this.element.errors[i], this.cssClasses)
       );
     }
-    var classes = this.cssClasses.error.root;
-
-    if (this.location === "top") {
-      classes += " " + this.cssClasses.error.locationTop;
-    } else if (this.location === "bottom") {
-      classes += " " + this.cssClasses.error.locationBottom;
-    }
 
     return (
-      <div role="alert" aria-live="polite" className={classes} id={this.id}>
+      <div role="alert" aria-live="polite" className={this.element.cssError} id={this.id}>
         {errors}
       </div>
     );
@@ -299,6 +279,9 @@ export class SurveyQuestionAndErrorsCell extends ReactSurveyElement {
   }
   protected getStateElement(): Base {
     return this.question;
+  }
+  protected get itemCss(): string {
+    return this.props.itemCss;
   }
   protected get question(): Question {
     return this.getQuestion();
@@ -326,10 +309,7 @@ export class SurveyQuestionAndErrorsCell extends ReactSurveyElement {
     super.componentDidUpdate(prevProps, prevState);
     this.doAfterRender();
   }
-  protected doAfterRender() {}
-  protected getCellClass(): any {
-    return null;
-  }
+  protected doAfterRender() { }
   protected canRender(): boolean {
     return !!this.question;
   }
@@ -354,10 +334,11 @@ export class SurveyQuestionAndErrorsCell extends ReactSurveyElement {
         {errorsBottom}
       </>
     );
+
     return (
       <td
         ref={this.cellRef}
-        className={this.getCellClass() + " " + this.cssClasses.cell}
+        className={this.itemCss}
         title={this.getHeaderText()}
         style={style}
       >

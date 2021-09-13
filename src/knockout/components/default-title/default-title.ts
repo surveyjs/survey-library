@@ -1,6 +1,5 @@
 import * as ko from "knockout";
-import { Question } from "survey-core";
-import { RendererFactory } from "survey-core";
+import { RendererFactory, DefaultTitleModel, Question } from "survey-core";
 import { Panel } from "../../kopage";
 
 const template = require("./default-title.html");
@@ -8,15 +7,9 @@ const template = require("./default-title.html");
 export class DefaultTitleViewModel {
   constructor(public element: Question | Panel) {}
 
-  getIconClass() {
-    var element = this.element;
-    var cssClasses = element.isPanel
-      ? element.cssClasses.panel
-      : element.cssClasses;
-    return (
-      cssClasses.icon +
-      (!element.isCollapsed ? " " + cssClasses.iconExpanded : "")
-    );
+  getIconCss() {
+    const cssClasses = this.element.isPanel ? this.element.cssClasses.panel : this.element.cssClasses;
+    return DefaultTitleModel.getIconCss(cssClasses, this.element.isCollapsed);
   }
 }
 
@@ -26,7 +19,7 @@ ko.components.register("sv-default-title", {
       return new DefaultTitleViewModel(params.element);
     },
   },
-  template: template,
+  template: template
 });
 
 RendererFactory.Instance.registerRenderer(

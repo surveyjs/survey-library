@@ -19,6 +19,7 @@
 import Vue from "vue";
 import Component from "vue-class-component";
 import { Prop } from "vue-property-decorator";
+import { DefaultTitleModel } from "survey-core";
 
 @Component
 export class DefaultTitle extends Vue {
@@ -35,17 +36,17 @@ export class DefaultTitle extends Vue {
   }
 
   getIconCss(isCollapsed: boolean) {
-    var result = this.css.question.icon;
-    if (!isCollapsed) result += " " + this.css.question.iconExpanded;
-    return result;
+    return DefaultTitleModel.getIconCss(this.css.question, isCollapsed);
   }
 
   mounted() {
     this.isCollapsed = this.element.isCollapsed;
-
     this.element.stateChangedCallback = () => {
       this.isCollapsed = this.element.isCollapsed;
     };
+  }
+  beforeDestroy() {
+    this.element.stateChangedCallback = null;
   }
 }
 

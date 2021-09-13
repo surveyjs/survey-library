@@ -1,10 +1,10 @@
 import React from "react";
 import {
   Base,
-  ResponsivityManager,
   Action,
   ActionContainer
 } from "survey-core";
+import { AdaptiveActionContainer } from "../../../actions/adaptive-container";
 import { ReactElementFactory } from "../../element-factory";
 import { SurveyElementBase } from "../../reactquestion_element";
 import { SurveyAction } from "./action-bar-item";
@@ -18,7 +18,6 @@ interface IActionBarProps {
 }
 
 export class SurveyActionBar extends SurveyElementBase<IActionBarProps, any> {
-  private manager: ResponsivityManager;
   private rootRef: React.RefObject<HTMLDivElement>;
 
   constructor(props: IActionBarProps) {
@@ -36,29 +35,26 @@ export class SurveyActionBar extends SurveyElementBase<IActionBarProps, any> {
 
   componentDidMount() {
     super.componentDidMount();
-    if (!this.hasItems) return;
+    if (!this.model.hasActions) return;
     const container: HTMLDivElement = this.rootRef.current;
-    this.manager = new ResponsivityManager(
-      container,
-      (this.model as any),
-      "span.sv-action:not(.sv-dots)"
-    );
+    this.model.initResponsivityManager(container);
   }
   componentWillUnmount() {
-    this.manager && this.manager.dispose();
     super.componentWillUnmount();
+    this.model.dispose();
   }
 
   protected getStateElement(): Base {
     return this.model;
   }
+
   renderElement(): any {
-    if (!this.hasItems) return null;
+    if (!this.model.hasActions) return null;
     const items = this.renderItems();
     return (
       <div
         ref={this.rootRef}
-        className="sv-action-bar"
+        className={this.model.css}
         onClick={this.handleClick ? function(event) {
           event.stopPropagation();
         } : undefined}
@@ -68,16 +64,9 @@ export class SurveyActionBar extends SurveyElementBase<IActionBarProps, any> {
     );
   }
 
-  get hasItems(): boolean {
-    return (this.model.actions || []).length > 0;
-  }
-
   renderItems() {
-    return this.model.actions.map(
+    return this.model.renderedActions.map(
       (item: Action, itemIndex: number) => {
-        if (!item.visible && item.visible !== undefined) {
-          return null;
-        }
         return (
           <SurveyAction item={item} key={"item" + itemIndex}></SurveyAction>
         );

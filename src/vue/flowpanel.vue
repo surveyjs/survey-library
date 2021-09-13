@@ -4,14 +4,18 @@
     :class="question.cssClasses.panel.container"
     :style="rootStyle"
   >
-    <h4 v-show="hasTitle" :class="getTitleStyle()" v-on:click="changeExpanded">
+    <h4
+      v-show="hasTitle"
+      :class="question.cssTitle"
+      v-on:click="changeExpanded"
+    >
       <survey-string :locString="question.locTitle" />
       <span v-show="showIcon" :class="iconCss"></span>
     </h4>
     <div :class="question.cssClasses.panel.description">
       <survey-string :locString="question.locDescription" />
     </div>
-    <survey-errors :question="question" />
+    <survey-errors :element="question" />
     <f-panel
       :style="{ paddingLeft: question.innerPaddingLeft }"
       v-show="!isCollapsed"
@@ -24,10 +28,13 @@
 <script lang="ts">
 import Vue from "vue";
 import { Component, Prop } from "vue-property-decorator";
-import { PanelModelBase, PanelModel, QuestionRowModel } from "survey-core";
-import { ISurvey } from "survey-core";
-import { Question } from "survey-core";
-import { FlowPanelModel } from "survey-core";
+import {
+  FlowPanelModel,
+  Question,
+  CssClassBuilder,
+  QuestionRowModel,
+  ISurvey,
+} from "survey-core";
 
 @Component
 export class FlowPanel extends Vue {
@@ -60,7 +67,10 @@ export class FlowPanel extends Vue {
   }
   mounted() {
     if (this.question.survey) {
-      this.question.survey.afterRenderPanel(this.question, this.$el as HTMLElement);
+      this.question.survey.afterRenderPanel(
+        this.question,
+        this.$el as HTMLElement
+      );
     }
     this.isCollapsed = this.question.isCollapsed;
     var self = this;
@@ -88,16 +98,17 @@ export class FlowPanel extends Vue {
       this.question && (this.question.isExpanded || this.question.isCollapsed)
     );
   }
-  get rows() {
+  get rows(): QuestionRowModel[] {
     return this.question.rows;
   }
   get hasTitle() {
     return this.question.title.length > 0;
   }
-  get survey() {
+  get survey(): ISurvey {
     return this.question.survey;
   }
   get iconCss() {
+    //refactor
     var result = "sv_panel_icon";
     if (!this.isCollapsed) result += " sv_expanded";
     return result;
@@ -116,13 +127,6 @@ export class FlowPanel extends Vue {
         this.question.collapse();
       }
     }
-  }
-  getTitleStyle() {
-    var result = this.css.panel.title;
-    if (this.question.isCollapsed || this.question.isExpanded) {
-      result += " " + this.css.panel.titleExpandable;
-    }
-    return result;
   }
 }
 

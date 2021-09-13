@@ -1,15 +1,15 @@
 import * as React from "react";
+import { RendererFactory } from "survey-core";
 import { ReactQuestionFactory } from "./reactquestion_factory";
 import { SurveyQuestionBoolean } from "./boolean";
-import { RendererFactory } from "survey-core";
 
 export class SurveyQuestionBooleanCheckbox extends SurveyQuestionBoolean {
   constructor(props: any) {
     super(props);
   }
   protected renderElement(): JSX.Element {
-    var cssClasses = this.question.cssClasses;
-    var itemClass = this.getItemClass();
+    const cssClasses = this.question.cssClasses;
+    const itemClass = this.question.getItemCss();
     return (
       <div className={cssClasses.root}>
         <label className={itemClass} onClick={this.handleOnClick}>
@@ -26,13 +26,10 @@ export class SurveyQuestionBooleanCheckbox extends SurveyQuestionBoolean {
             disabled={this.isDisplayMode}
             checked={this.question.checkedValue || false}
             onChange={this.handleOnChange}
-            aria-label={this.question.locTitle.renderedHtml}
-            aria-invalid={this.question.errors.length > 0}
-            aria-describedby={
-              this.question.errors.length > 0
-                ? this.question.id + "_errors"
-                : null
-            }
+            aria-required={this.question.ariaRequired}
+            aria-label={this.question.ariaLabel}
+            aria-invalid={this.question.ariaInvalid}
+            aria-describedby={this.question.ariaDescribedBy}
           />
           <span className={cssClasses.materialDecorator}>
             <svg viewBox="0 0 24 24" className={cssClasses.itemDecorator}>

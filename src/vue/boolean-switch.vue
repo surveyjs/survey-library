@@ -1,6 +1,6 @@
 <template>
   <div :class="question.cssClasses.root">
-    <label :class="itemClass">
+    <label :class="question.getItemCss()">
       <input
         type="checkbox"
         :name="question.name"
@@ -10,15 +10,13 @@
         :id="question.inputId"
         :indeterminate.prop="question.isIndeterminate"
         :disabled="question.isInputReadOnly"
-        v-bind:aria-required="question.isRequired"
-        :aria-label="question.locTitle.renderedHtml"
-        :aria-invalid="question.errors.length > 0"
-        :aria-describedby="
-          question.errors.length > 0 ? question.id + '_errors' : null
-        "
+        :aria-required="question.ariaRequired"
+        :aria-label="question.ariaLabel"
+        :aria-invalid="question.ariaInvalid"
+        :aria-describedby="question.ariaDescribedBy"
       />
       <span
-        :class="getLabelClass(false)"
+        :class="question.getLabelCss(false)"
         v-on:click="onLabelClick($event, false)"
         ><survey-string :locString="question.locLabelFalse"></survey-string
       ></span>
@@ -28,7 +26,7 @@
       >
         <span :class="question.cssClasses.slider" />
       </div>
-      <span :class="getLabelClass(true)" v-on:click="onLabelClick($event, true)"
+      <span :class="question.getLabelCss(true)" v-on:click="onLabelClick($event, true)"
         ><survey-string :locString="question.locLabelTrue"></survey-string
       ></span>
     </label>
@@ -37,9 +35,7 @@
 
 <script lang="ts">
 import Vue from "vue";
-import { Component, Prop, Watch } from "vue-property-decorator";
-import { default as QuestionVue } from "./question";
-import { QuestionBooleanModel } from "survey-core";
+import { Component } from "vue-property-decorator";
 import { Boolean } from "./boolean";
 
 @Component

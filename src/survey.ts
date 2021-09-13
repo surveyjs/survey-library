@@ -42,18 +42,19 @@ import { settings } from "./settings";
 import { getSize, isMobile, scrollElementByChildId } from "./utils/utils";
 import { SurveyError } from "./survey-error";
 import { IAction } from "./actions/action";
+import { CssClassBuilder } from "./utils/cssClassBuilder";
 
 /**
  * The `Survey` object contains information about the survey, Pages, Questions, flow logic and etc.
  */
 export class SurveyModel extends Base
   implements
-    ISurvey,
-    ISurveyData,
-    ISurveyImpl,
-    ISurveyTriggerOwner,
-    ISurveyErrorOwner,
-    ILocalizableOwner {
+  ISurvey,
+  ISurveyData,
+  ISurveyImpl,
+  ISurveyTriggerOwner,
+  ISurveyErrorOwner,
+  ILocalizableOwner {
   public static readonly TemplateRendererComponentName: string =
     "sv-template-renderer";
   [index: string]: any;
@@ -1074,15 +1075,13 @@ export class SurveyModel extends Base
       this.css.navigation.next
     );
   }
-  public get completedCss() {
-    var css = this.css;
-    return css.body + " " + css.completedPage;
+  public get completedCss(): string {
+    return new CssClassBuilder().append(this.css.body)
+      .append(this.css.completedPage).toString();
   }
   private getNavigationCss(main: string, btn: string) {
-    var res = "";
-    if (main) res = main;
-    if (btn) res += " " + btn;
-    return res;
+    return new CssClassBuilder().append(main)
+      .append(btn).toString();
   }
   private lazyRenderingValue: boolean;
   /**
@@ -1195,7 +1194,7 @@ export class SurveyModel extends Base
    * Gets or sets whether the first input is focused on showing a next or a previous page.
    */
   public get focusFirstQuestionAutomatic(): boolean {
-    return this.getPropertyValue("focusFirstQuestionAutomatic", true);
+    return this.getPropertyValue("focusFirstQuestionAutomatic");
   }
   public set focusFirstQuestionAutomatic(val: boolean) {
     this.setPropertyValue("focusFirstQuestionAutomatic", val);
@@ -1205,7 +1204,7 @@ export class SurveyModel extends Base
    * Set this property to `false` (the default value is `true`) if you do not want to bring the focus to the first question that has error on the page.
    */
   public get focusOnFirstError(): boolean {
-    return this.getPropertyValue("focusOnFirstError", true);
+    return this.getPropertyValue("focusOnFirstError");
   }
   public set focusOnFirstError(val: boolean) {
     this.setPropertyValue("focusOnFirstError", val);
@@ -1234,7 +1233,7 @@ export class SurveyModel extends Base
    * @see showNavigationButtons
    */
   public get showPrevButton(): boolean {
-    return this.getPropertyValue("showPrevButton", true);
+    return this.getPropertyValue("showPrevButton");
   }
   public set showPrevButton(val: boolean) {
     this.setPropertyValue("showPrevButton", val);
@@ -1244,7 +1243,7 @@ export class SurveyModel extends Base
    * @see title
    */
   public get showTitle(): boolean {
-    return this.getPropertyValue("showTitle", true);
+    return this.getPropertyValue("showTitle");
   }
   public set showTitle(val: boolean) {
     this.setPropertyValue("showTitle", val);
@@ -1254,7 +1253,7 @@ export class SurveyModel extends Base
    * @see PageModel.title
    */
   public get showPageTitles(): boolean {
-    return this.getPropertyValue("showPageTitles", true);
+    return this.getPropertyValue("showPageTitles");
   }
   public set showPageTitles(val: boolean) {
     this.setPropertyValue("showPageTitles", val);
@@ -1266,7 +1265,7 @@ export class SurveyModel extends Base
    * @see navigateToUrl
    */
   public get showCompletedPage(): boolean {
-    return this.getPropertyValue("showCompletedPage", true);
+    return this.getPropertyValue("showCompletedPage");
   }
   public set showCompletedPage(val: boolean) {
     this.setPropertyValue("showCompletedPage", val);
@@ -1367,7 +1366,7 @@ export class SurveyModel extends Base
    * @see commentPrefix
    */
   public get storeOthersAsComment(): boolean {
-    return this.getPropertyValue("storeOthersAsComment", true);
+    return this.getPropertyValue("storeOthersAsComment");
   }
   public set storeOthersAsComment(val: boolean) {
     this.setPropertyValue("storeOthersAsComment", val);
@@ -1379,7 +1378,7 @@ export class SurveyModel extends Base
    * @see maxOthersLength
    */
   public get maxTextLength(): number {
-    return this.getPropertyValue("maxTextLength", 0);
+    return this.getPropertyValue("maxTextLength");
   }
   public set maxTextLength(val: number) {
     this.setPropertyValue("maxTextLength", val);
@@ -1393,7 +1392,7 @@ export class SurveyModel extends Base
    * @see maxTextLength
    */
   public get maxOthersLength(): number {
-    return this.getPropertyValue("maxOthersLength", 0);
+    return this.getPropertyValue("maxOthersLength");
   }
   public set maxOthersLength(val: number) {
     this.setPropertyValue("maxOthersLength", val);
@@ -1439,6 +1438,17 @@ export class SurveyModel extends Base
   }
   public set checkErrorsMode(val: string) {
     this.setPropertyValue("checkErrorsMode", val);
+  }
+  /**
+   * Specifies whether the text area of [comment](https://surveyjs.io/Documentation/Library?id=questioncommentmodel) questions/elements automatically expands its height to avoid the vertical scrollbar and to display the entire multi-line contents entered by respondents.
+   * Default value is false.
+   * @see QuestionCommentModel.autoGrow
+   */
+  public get autoGrowComment(): boolean {
+    return this.getPropertyValue("autoGrowComment");
+  }
+  public set autoGrowComment(val: boolean) {
+    this.setPropertyValue("autoGrowComment", val);
   }
   /**
    * Gets or sets a value that specifies how the survey updates its questions' text values.
@@ -1720,13 +1730,14 @@ export class SurveyModel extends Base
     );
   }
   public get logoClassNames(): string {
-    var logoClasses: { [index: string]: string } = {
+    const logoClasses: { [index: string]: string } = {
       left: "sv-logo--left",
       right: "sv-logo--right",
       top: "sv-logo--top",
       bottom: "sv-logo--bottom",
     };
-    return this.css.logo + " " + logoClasses[this.logoPosition];
+    return new CssClassBuilder().append(this.css.logo)
+      .append(logoClasses[this.logoPosition]).toString();
   }
   public get renderedHasTitle(): boolean {
     if (this.isDesignMode) return this.isPropertyVisible("title");
@@ -1979,24 +1990,24 @@ export class SurveyModel extends Base
     this.setPropertyValue("questionTitlePattern", val);
   }
   getQuestionTitlePatternOptions(): Array<any> {
-    var res = new Array<any>();
-    var title = this.getLocString("questionTitlePatternText");
-    var num = !!this.questionStartIndex ? this.questionStartIndex : "1.";
+    const res = new Array<any>();
+    const title = this.getLocString("questionTitlePatternText");
+    const num = !!this.questionStartIndex ? this.questionStartIndex : "1.";
     res.push({
       value: "numTitleRequire",
-      text: num + " " + title + " " + this.requiredText,
+      text: num + " " + title + " " + this.requiredText
     });
     res.push({
       value: "numRequireTitle",
-      text: num + " " + this.requiredText + " " + title,
+      text: num + " " + this.requiredText + " " + title
     });
     res.push({
       value: "requireNumTitle",
-      text: this.requiredText + " " + num + " " + title,
+      text: this.requiredText + " " + num + " " + title
     });
     res.push({
       value: "numTitle",
-      text: num + " " + title,
+      text: num + " " + title
     });
     return res;
   }
@@ -2784,7 +2795,7 @@ export class SurveyModel extends Base
         return info.requiredQuestionCount > 1
           ? Math.ceil(
             (info.requiredAnsweredQuestionCount * 100) /
-                info.requiredQuestionCount
+            info.requiredQuestionCount
           )
           : 100;
       }
@@ -3346,7 +3357,7 @@ export class SurveyModel extends Base
    * - `questionPerPage` - show one question per page. Survey will create a separate page for every question.
    */
   public get questionsOnPageMode(): string {
-    return this.getPropertyValue("questionsOnPageMode", "standard");
+    return this.getPropertyValue("questionsOnPageMode");
   }
   public set questionsOnPageMode(val: string) {
     this.setPropertyValue("questionsOnPageMode", val);
@@ -3378,7 +3389,7 @@ export class SurveyModel extends Base
    * @see editText
    */
   public get showPreviewBeforeComplete(): string {
-    return this.getPropertyValue("showPreviewBeforeComplete", "noPreview");
+    return this.getPropertyValue("showPreviewBeforeComplete");
   }
   public set showPreviewBeforeComplete(val: string) {
     this.setPropertyValue("showPreviewBeforeComplete", val);
@@ -3571,18 +3582,18 @@ export class SurveyModel extends Base
     var savingDataStarted = false;
     var onCompleteOptions = {
       isCompleteOnTrigger: isCompleteOnTrigger,
-      showDataSaving: function(text: string) {
+      showDataSaving: function (text: string) {
         savingDataStarted = true;
         self.setCompletedState("saving", text);
       },
-      showDataSavingError: function(text: string) {
+      showDataSavingError: function (text: string) {
         self.setCompletedState("error", text);
       },
-      showDataSavingSuccess: function(text: string) {
+      showDataSavingSuccess: function (text: string) {
         self.setCompletedState("success", text);
         self.navigateTo();
       },
-      showDataSavingClear: function(text: string) {
+      showDataSavingClear: function (text: string) {
         self.setCompletedState("", "");
       },
     };
@@ -3622,7 +3633,7 @@ export class SurveyModel extends Base
     this.setPropertyValue("isValidatingOnServer", val);
     this.onIsValidatingOnServerChanged();
   }
-  protected onIsValidatingOnServerChanged() {}
+  protected onIsValidatingOnServerChanged() { }
   protected doServerValidation(
     doComplete: boolean,
     isPreview: boolean = false
@@ -3638,7 +3649,7 @@ export class SurveyModel extends Base
       data: <{ [index: string]: any }>{},
       errors: {},
       survey: this,
-      complete: function() {
+      complete: function () {
         self.completeServerValidation(options, isPreview);
       },
     };
@@ -4641,7 +4652,7 @@ export class SurveyModel extends Base
     if (
       this.isValueChangedOnRunningCondition &&
       this.conditionRunnerCounter <
-        settings.maximumConditionRunCountOnValueChanged
+      settings.maximumConditionRunCountOnValueChanged
     ) {
       this.isValueChangedOnRunningCondition = false;
       this.conditionRunnerCounter++;
@@ -4726,7 +4737,7 @@ export class SurveyModel extends Base
     this.createSurveyService().sendResult(
       postId,
       this.data,
-      function(success: boolean, response: any, request: any) {
+      function (success: boolean, response: any, request: any) {
         if (self.surveyShowDataSaving) {
           if (success) {
             self.setCompletedState("success", "");
@@ -4752,7 +4763,7 @@ export class SurveyModel extends Base
    */
   public getResult(resultId: string, name: string) {
     var self = this;
-    this.createSurveyService().getResult(resultId, name, function(
+    this.createSurveyService().getResult(resultId, name, function (
       success: boolean,
       data: any,
       dataList: any[],
@@ -4791,7 +4802,7 @@ export class SurveyModel extends Base
       this.createSurveyService().getSurveyJsonAndIsCompleted(
         this.surveyId,
         this.clientId,
-        function(
+        function (
           success: boolean,
           json: string,
           isCompleted: string,
@@ -4805,7 +4816,7 @@ export class SurveyModel extends Base
         }
       );
     } else {
-      this.createSurveyService().loadSurvey(this.surveyId, function(
+      this.createSurveyService().loadSurvey(this.surveyId, function (
         success: boolean,
         result: string,
         response: any
@@ -4824,8 +4835,8 @@ export class SurveyModel extends Base
     this.onLoadSurveyFromService();
     this.onLoadedSurveyFromService.fire(this, {});
   }
-  protected onLoadingSurveyFromService() {}
-  protected onLoadSurveyFromService() {}
+  protected onLoadingSurveyFromService() { }
+  protected onLoadSurveyFromService() { }
   private resetVisibleIndexes() {
     var questions = this.getAllQuestions(true);
     for (var i = 0; i < questions.length; i++) {
@@ -4896,8 +4907,8 @@ export class SurveyModel extends Base
     this.isEndLoadingFromJson = null;
     this.updateVisibleIndexes();
   }
-  protected onBeforeCreating() {}
-  protected onCreating() {}
+  protected onBeforeCreating() { }
+  protected onCreating() { }
   private getProcessedTextValue(textValue: TextPreProcessorValue): void {
     this.getProcessedTextValueCore(textValue);
     if (!this.onProcessTextValue.isEmpty) {
@@ -5602,7 +5613,7 @@ export class SurveyModel extends Base
    * @see stopTimer
    */
   public get showTimerPanel(): string {
-    return this.getPropertyValue("showTimerPanel", "none");
+    return this.getPropertyValue("showTimerPanel");
   }
   public set showTimerPanel(val: string) {
     this.setPropertyValue("showTimerPanel", val);
@@ -5626,7 +5637,7 @@ export class SurveyModel extends Base
    * @see onTimerPanelInfoText
    */
   public get showTimerPanelMode(): string {
-    return this.getPropertyValue("showTimerPanelMode", "all");
+    return this.getPropertyValue("showTimerPanelMode");
   }
   public set showTimerPanelMode(val: string) {
     this.setPropertyValue("showTimerPanelMode", val);
@@ -5695,9 +5706,9 @@ export class SurveyModel extends Base
       );
   }
   private getDisplayTime(val: number): string {
-    var min = Math.floor(val / 60);
-    var sec = val % 60;
-    var res = "";
+    const min: number = Math.floor(val / 60);
+    const sec: number = val % 60;
+    let res: string = "";
     if (min > 0) {
       res += min + " " + this.getLocString("timerMin");
     }
@@ -5714,7 +5725,7 @@ export class SurveyModel extends Base
   public startTimer() {
     if (this.isTimerStarted || this.isDesignMode) return;
     var self = this;
-    this.timerFunc = function() {
+    this.timerFunc = function () {
       self.doTimer();
     };
     this.isTimerStarted = true;
@@ -5952,10 +5963,11 @@ Serializer.addClass("survey", [
     baseClassName: "question",
     visible: false,
     isLightSerializable: false,
-    onGetValue: function(obj: any): any {
+    onGetValue: function (obj: any): any {
       return null;
     },
-    onSetValue: function(obj: any, value: any, jsonConverter: any) {
+    onSetValue: function (obj: any, value: any, jsonConverter: any) {
+      obj.pages.splice(0, obj.pages.length);
       var page = obj.addNewPage("");
       jsonConverter.toObject({ questions: value }, page);
     },
@@ -6046,6 +6058,7 @@ Serializer.addClass("survey", [
     default: "onBlur",
     choices: ["onBlur", "onTyping"],
   },
+  { name: "autoGrowComment:boolean", default: false },
   { name: "startSurveyText", serializationProperty: "locStartSurveyText" },
   { name: "pagePrevText", serializationProperty: "locPagePrevText" },
   { name: "pageNextText", serializationProperty: "locPageNextText" },
@@ -6056,7 +6069,7 @@ Serializer.addClass("survey", [
   {
     name: "questionStartIndex",
     dependsOn: ["showQuestionNumbers"],
-    visibleIf: function(survey: any) {
+    visibleIf: function (survey: any) {
       return !survey || survey.showQuestionNumbers !== "off";
     },
   },

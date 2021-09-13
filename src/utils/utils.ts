@@ -57,9 +57,9 @@ function loadFileFromBase64(b64Data: string, fileName: string) {
     if (
       typeof window !== "undefined" &&
       window.navigator &&
-      window.navigator.msSaveBlob
+      (<any>window.navigator)["msSaveBlob"]
     ) {
-      window.navigator.msSaveOrOpenBlob(bb, fileName);
+      (<any>window.navigator)["msSaveOrOpenBlob"](bb, fileName);
     }
   } catch (err) {}
 }
@@ -164,15 +164,43 @@ export function getSize(value: any) {
   return value;
 }
 
-function doKey2Click(ev: any) {
-  var el: any = ev.target;
-  if (!el) return;
-  var char = ev.which || ev.keyCode;
+function doKey2ClickUp(evt: KeyboardEvent, options = { processEsc: true }): void {
+  const element: any = evt.target;
+  if (!element) return;
+  const char: number = evt.which || evt.keyCode;
   if (char === 13 || char === 32) {
-    if (el.click) el.click();
-  } else if (char === 27) {
-    if (el.blur) el.blur();
+    if (element.click) element.click();
+  } else if (options.processEsc && char === 27) {
+    if (element.blur) element.blur();
   }
+}
+function doKey2ClickDown(evt: KeyboardEvent, options = { processEsc: true }): void {
+  if(!!evt.target && (<any>evt.target)["contentEditable"] === "true") {
+    return;
+  }
+  var char = evt.which || evt.keyCode;
+  const supportedCodes = [13, 32];
+  if(options.processEsc) {
+    supportedCodes.push(27);
+  }
+  if(supportedCodes.indexOf(char) !== -1) {
+    evt.preventDefault();
+  }
+}
+function increaseHeightByContent(element: HTMLElement, getComputedStyle?: (elt: Element) => any) {
+  if (!element) return;
+  if (!getComputedStyle) getComputedStyle = (elt: Element) => { return window.getComputedStyle(elt); };
+
+  const style = getComputedStyle(element);
+  element.style.height = "auto";
+  element.style.height = (element.scrollHeight + parseFloat(style.borderTopWidth) + parseFloat(style.borderBottomWidth)) + "px";
+}
+function getOriginalEvent(event: any) {
+  return event.originalEvent || event;
+}
+function preventDefaults(event: any) {
+  event.preventDefault();
+  event.stopPropagation();
 }
 
 export {
@@ -186,6 +214,10 @@ export {
   findScrollableParent,
   scrollElementByChildId,
   createSvg,
-  doKey2Click,
+  doKey2ClickUp,
+  doKey2ClickDown,
   getIconNameFromProxy,
+  increaseHeightByContent,
+  getOriginalEvent,
+  preventDefaults
 };

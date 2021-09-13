@@ -1,6 +1,6 @@
 import { Base } from "../base";
 import { property } from "../jsonobject";
-import { Helpers } from "survey-core";
+import { CssClassBuilder } from "../utils/cssClassBuilder";
 
 /**
  * Defines an individual action. Action items can be displayed in certain survey elements - in Toolbar (or action bar), in titles (of pages, panels, questions), in matrix rows (as 'expand details' or 'remove row' buttons), and etc.
@@ -65,6 +65,10 @@ export interface IAction {
    */
   iconName?: string;
   /**
+   * Toolbar item icon size
+   */
+  iconSize?: number;
+  /**
    * Toolbar item child items. Can be used as contianer for options
    */
   items?: any;
@@ -85,6 +89,10 @@ export interface IAction {
 }
 
 export class Action extends Base implements IAction {
+  public updateCallback: () => void;
+  private raiseUpdate() {
+    this.updateCallback && this.updateCallback();
+  }
   constructor(item: IAction) {
     super();
     //Object.assign(this, item) to support IE11
@@ -97,7 +105,10 @@ export class Action extends Base implements IAction {
   location?: string;
   @property() id: string;
   @property() iconName: string;
-  @property({ defaultValue: true }) visible: boolean;
+  @property() iconSize: number = 24;
+  @property({ defaultValue: true, onSet: (_, target: Action) => {
+    target.raiseUpdate();
+  } }) visible: boolean;
   @property() title: string;
   @property() tooltip: string;
   @property() enabled: boolean;
@@ -133,6 +144,20 @@ export class Action extends Base implements IAction {
   }
   public get canShrink() {
     return !!this.iconName;
+  }
+
+  public getActionBarItemCss(): string {
+    return new CssClassBuilder()
+      .append("sv-action-bar-item__title")
+      .append("sv-action-bar-item__title--with-icon", !!this.iconName)
+      .toString();
+  }
+  public getActionBarItemActiveCss(): string {
+    return new CssClassBuilder()
+      .append("sv-action-bar-item")
+      .append("sv-action-bar-item--active", !!this.active)
+      .append(this.innerCss)
+      .toString();
   }
 
   minDimension: number;

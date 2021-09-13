@@ -27,6 +27,7 @@ import { settings } from "./settings";
 import { Panel } from "./knockout/kopage";
 import { confirmAction } from "./utils/utils";
 import { SurveyError } from "./survey-error";
+import { CssClassBuilder } from "./utils/cssClassBuilder";
 
 export interface IQuestionPanelDynamicData {
   getItemIndex(item: ISurveyData): number;
@@ -515,18 +516,13 @@ export class QuestionPanelDynamicModel extends Question
    * Returns true when the renderMode equals to "progressTop" or "progressTopBottom"
    */
   public get isProgressTopShowing(): boolean {
-    return (
-      this.renderMode == "progressTop" || this.renderMode == "progressTopBottom"
-    );
+    return this.renderMode === "progressTop" || this.renderMode === "progressTopBottom";
   }
   /**
    * Returns true when the renderMode equals to "progressBottom" or "progressTopBottom"
    */
   public get isProgressBottomShowing(): boolean {
-    return (
-      this.renderMode == "progressBottom" ||
-      this.renderMode == "progressTopBottom"
-    );
+    return this.renderMode === "progressBottom" || this.renderMode === "progressTopBottom";
   }
   /**
    * Returns true when currentIndex is more than 0.
@@ -685,7 +681,7 @@ export class QuestionPanelDynamicModel extends Question
    * @see maxPanelCount
    */
   public get minPanelCount(): number {
-    return this.getPropertyValue("minPanelCount", 0);
+    return this.getPropertyValue("minPanelCount");
   }
   public set minPanelCount(val: number) {
     if (val < 0) val = 0;
@@ -700,10 +696,7 @@ export class QuestionPanelDynamicModel extends Question
    * @see minPanelCount
    */
   public get maxPanelCount(): number {
-    return this.getPropertyValue(
-      "maxPanelCount",
-      settings.panelMaximumPanelCount
-    );
+    return this.getPropertyValue("maxPanelCount");
   }
   public set maxPanelCount(val: number) {
     if (val <= 0) return;
@@ -774,7 +767,7 @@ export class QuestionPanelDynamicModel extends Question
    * @see renderMode
    */
   public get showRangeInProgress(): boolean {
-    return this.getPropertyValue("showRangeInProgress", true);
+    return this.getPropertyValue("showRangeInProgress");
   }
   public set showRangeInProgress(val: boolean) {
     this.setPropertyValue("showRangeInProgress", val);
@@ -795,7 +788,7 @@ export class QuestionPanelDynamicModel extends Question
    * @see renderMode
    */
   public get isRenderModeList() {
-    return this.renderMode == "list";
+    return this.renderMode === "list";
   }
   public setVisibleIndex(value: number): number {
     if (!this.isVisible) return 0;
@@ -944,7 +937,7 @@ export class QuestionPanelDynamicModel extends Question
    */
   public addPanelUI(): PanelModel {
     if (!this.canAddPanel) return null;
-    var newPanel = this.addPanel();
+    const newPanel = this.addPanel();
     if (this.renderMode === "list" && this.panelsState !== "default") {
       newPanel.expand();
     }
@@ -1623,19 +1616,36 @@ export class QuestionPanelDynamicModel extends Question
       ["format"](this.currentIndex + 1, rangeMax);
   }
   public getPanelWrapperCss(): string {
-    let cssClasses = this.cssClasses.panelWrapper;
-    if (this.panelRemoveButtonLocation === "right") {
-      cssClasses += " " + this.cssClasses.panelWrapperInRow;
-    }
-    return cssClasses;
+    return new CssClassBuilder()
+      .append(this.cssClasses.panelWrapper)
+      .append(this.cssClasses.panelWrapperInRow, this.panelRemoveButtonLocation === "right")
+      .toString();
   }
   public getPanelRemoveButtonCss(): string {
-    let cssClasses =
-      this.cssClasses.button + " " + this.cssClasses.buttonRemove;
-    if (this.panelRemoveButtonLocation === "right") {
-      cssClasses += " " + this.cssClasses.buttonRemoveRight;
-    }
-    return cssClasses;
+    return new CssClassBuilder()
+      .append(this.cssClasses.button)
+      .append(this.cssClasses.buttonRemove)
+      .append(this.cssClasses.buttonRemoveRight, this.panelRemoveButtonLocation === "right")
+      .toString();
+  }
+  public getAddButtonCss(): string {
+    return new CssClassBuilder()
+      .append(this.cssClasses.button)
+      .append(this.cssClasses.buttonAdd)
+      .append(this.cssClasses.buttonAdd + "--list-mode", this.renderMode === "list")
+      .toString();
+  }
+  public getPrevButtonCss(): string {
+    return new CssClassBuilder()
+      .append(this.cssClasses.buttonPrev)
+      .append(this.cssClasses.buttonPrev + "--disabled", !this.isPrevButtonShowing)
+      .toString();
+  }
+  public getNextButtonCss(): string {
+    return new CssClassBuilder()
+      .append(this.cssClasses.buttonNext)
+      .append(this.cssClasses.buttonNext + "--disabled", !this.isNextButtonShowing)
+      .toString();
   }
 }
 

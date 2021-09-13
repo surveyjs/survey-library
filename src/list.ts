@@ -1,18 +1,14 @@
-import { IAction } from "./actions/action";
-import { Base } from "./base";
 import { property } from "./jsonobject";
+import { Base } from "./base";
+import { IAction } from "./actions/action";
+import { CssClassBuilder } from "./utils/cssClassBuilder";
 
 export class ListModel extends Base {
   @property({ defaultValue: false }) isExpanded: boolean;
   @property() selectedItem: IAction;
   public static INDENT: number = 16;
 
-  constructor(
-    items: Array<IAction>,
-    public onItemSelect: (item: IAction) => void,
-    public allowSelection: boolean,
-    selectedItem?: IAction
-  ) {
+  constructor(items: Array<IAction>, public onItemSelect: (item: IAction) => void, public allowSelection: boolean, selectedItem?: IAction) {
     super();
     this.createNewArray("items");
     this.items = items;
@@ -45,18 +41,34 @@ export class ListModel extends Base {
   };
 
   public getItemClass = (itemValue: IAction) => {
-    var className = "sv-list__item";
-    if (this.isItemDisabled(itemValue)) {
-      className += " sv-list__item--disabled";
-    }
-    if (this.isItemSelected(itemValue)) {
-      className += " sv-list__item--selected";
-    }
-    return className;
+    return new CssClassBuilder()
+      .append("sv-list__item")
+      .append("sv-list__item--disabled", this.isItemDisabled(itemValue))
+      .append("sv-list__item--selected", this.isItemSelected(itemValue))
+      .toString();
   };
 
   public getItemIndent = (itemValue: any) => {
-    const level = itemValue.level || 0;
+    const level: number = itemValue.level || 0;
     return (level + 1) * ListModel.INDENT + "px";
   };
+
+  public onKeyDown(event: KeyboardEvent) {
+    const currentElement = <Element>event.target;
+    if (event.key === "ArrowDown" || event.keyCode === 40) {
+      if (!!currentElement.nextElementSibling) {
+        (<HTMLElement>currentElement.nextElementSibling).focus();
+      } else {
+        currentElement.parentElement.firstElementChild && (<HTMLElement>currentElement.parentElement.firstElementChild).focus();
+      }
+      event.preventDefault();
+    } else if (event.key === "ArrowUp" || event.keyCode === 38) {
+      if (!!currentElement.previousElementSibling) {
+        (<HTMLElement>currentElement.previousElementSibling).focus();
+      } else {
+        currentElement.parentElement.lastElementChild && (<HTMLElement>currentElement.parentElement.lastElementChild).focus();
+      }
+      event.preventDefault();
+    }
+  }
 }

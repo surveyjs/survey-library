@@ -64,6 +64,10 @@ const json = {
   ],
 };
 
+// for (let index = 0; index < 100; index++) {
+//   frameworks.push("knockout");
+// }
+
 frameworks.forEach((framework) => {
   fixture`${framework} ${title}`.page`${url}${framework}.html`.beforeEach(
     async (t) => {
@@ -73,19 +77,20 @@ frameworks.forEach((framework) => {
   );
 
   test(`ranking: simple using`, async (t) => {
-    const PriceItem = Selector(
-      "[aria-label='Please rank the following smartphone features in order of importance:']"
-    )
+    const PriceItem = Selector("span")
+      .withText(
+        "Please rank the following smartphone features in order of importance:"
+      )
       .parent("[aria-labelledby]")
       .find("span")
       .withText("Price");
 
-    await t.hover(PriceItem, { speed: 0.5 });
+    await t.hover(PriceItem, { speed: 0.1 });
 
     await t.drag(PriceItem, 0, -350, {
       offsetX: 7,
       offsetY: 8,
-      speed: 0.5,
+      speed: 0.1,
     });
 
     let data = await getData();
@@ -101,12 +106,21 @@ frameworks.forEach((framework) => {
   });
 
   test(`ranking: predeficed data`, async (t) => {
-    const PriceItem = Selector(
-      "[aria-label='Please rank the following smartphone features in order of importance:']"
-    )
+    const PriceItem = Selector("span")
+      .withText(
+        "Please rank the following smartphone features in order of importance:"
+      )
       .parent("[aria-labelledby]")
       .find("span")
       .withText("Price");
+
+    const BatteryLifeItem = Selector("span")
+      .withText(
+        "Please rank the following smartphone features in order of importance:"
+      )
+      .parent("[aria-labelledby]")
+      .find("span")
+      .withText("Battery life");
 
     await setData({
       "smartphone-features": [
@@ -119,12 +133,8 @@ frameworks.forEach((framework) => {
         "Processor power",
       ],
     });
-    await t.hover(PriceItem, { speed: 0.5 });
-    await t.drag(PriceItem, 0, 70, {
-      offsetX: 7,
-      offsetY: 8,
-      speed: 0.5,
-    });
+
+    await t.dragToElement(PriceItem, BatteryLifeItem);
 
     let data = await getData();
     assert.deepEqual(data["smartphone-features"], [
@@ -138,12 +148,9 @@ frameworks.forEach((framework) => {
     ]);
 
     await setData(null);
-    await t.hover(PriceItem, { speed: 0.5 });
-    await t.drag(PriceItem, 0, -350, {
-      offsetX: 7,
-      offsetY: 8,
-      speed: 0.5,
-    });
+
+    await t.dragToElement(PriceItem, BatteryLifeItem, { speed: 0.1 });
+
     data = await getData();
     assert.deepEqual(data["smartphone-features"], [
       "Price",
@@ -157,40 +164,38 @@ frameworks.forEach((framework) => {
   });
 
   test(`ranking: carry forward`, async (t) => {
-    const rankPriceItem = Selector(
-      "[aria-label='Please rank the following smartphone features in order of importance:']"
-    )
+    const rankPriceItem = Selector("span")
+      .withText(
+        "Please rank the following smartphone features in order of importance:"
+      )
       .parent("[aria-labelledby]")
       .find("span")
       .withText("Price");
-    await t.hover(rankPriceItem, { speed: 0.5 });
+
+    await t.hover(rankPriceItem, { speed: 0.1 });
     await t.drag(rankPriceItem, 0, -350, {
       offsetX: 7,
       offsetY: 8,
-      speed: 0.5,
+      speed: 0.1,
     });
-    const rankAudiItem = Selector(
-      "[aria-label='What car did you enjoy the most?']"
-    )
+    const rankAudiItem = Selector("span")
+      .withText("What car did you enjoy the most?")
       .parent("[aria-labelledby]")
       .find("span")
       .withText("Audi");
 
-    const checkboxAudiItem = Selector(
-      "[aria-label='What cars have you being drived?']"
-    )
+    const checkboxAudiItem = Selector("span")
+      .withText("What cars have you being drived?")
       .parent("[aria-labelledby]")
       .find("span")
       .withText("Audi");
-    const checkboxMerscedesItem = Selector(
-      "[aria-label='What cars have you being drived?']"
-    )
+    const checkboxMerscedesItem = Selector("span")
+      .withText("What cars have you being drived?")
       .parent("[aria-labelledby]")
       .find("span")
       .withText("Mercedes-Benz");
-    const checkboxToyotaItem = Selector(
-      "[aria-label='What cars have you being drived?']"
-    )
+    const checkboxToyotaItem = Selector("span")
+      .withText("What cars have you being drived?")
       .parent("[aria-labelledby]")
       .find("span")
       .withText("Toyota");
@@ -204,11 +209,11 @@ frameworks.forEach((framework) => {
     let data = await getData();
     assert.deepEqual(typeof data.bestcar, "undefined");
 
-    await t.hover(rankAudiItem, { speed: 0.5 });
-    await t.drag(rankAudiItem, 0, 5, {
+    await t.hover(rankAudiItem, { speed: 0.1 });
+    await t.drag(rankAudiItem, 100, 0, {
       offsetX: 7,
       offsetY: 8,
-      speed: 0.5,
+      speed: 0.1,
     });
     data = await getData();
     assert.deepEqual(data.bestcar, ["Audi", "Mercedes-Benz", "Toyota"]);
@@ -225,9 +230,9 @@ frameworks.forEach((framework) => {
     assert.deepEqual(data.bestcar, ["Audi", "Toyota", "Mercedes-Benz"]);
 
     await t
-      .click(checkboxAudiItem, { speed: 0.5 })
-      .click(checkboxMerscedesItem, { speed: 0.5 })
-      .click(checkboxToyotaItem, { speed: 0.5 });
+      .click(checkboxAudiItem, { speed: 0.1 })
+      .click(checkboxMerscedesItem, { speed: 0.1 })
+      .click(checkboxToyotaItem, { speed: 0.1 });
 
     data = await getData();
     assert.deepEqual(typeof data.bestcar, "undefined");

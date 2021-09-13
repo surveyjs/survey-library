@@ -3,11 +3,13 @@ import { Serializer } from "./jsonobject";
 import { QuestionFactory } from "./questionfactory";
 import { LocalizableString } from "./localizablestring";
 import { QuestionTextBase } from "./question_textbase";
+import { increaseHeightByContent } from "./utils/utils";
 
 /**
  * A Model for a comment question
  */
 export class QuestionCommentModel extends QuestionTextBase {
+  private element: HTMLElement;
   /**
    * The html rows attribute.
    */
@@ -26,8 +28,37 @@ export class QuestionCommentModel extends QuestionTextBase {
   public set cols(val: number) {
     this.setPropertyValue("cols", val);
   }
+  /**
+   * Specifies whether the question's text area automatically expands its height to avoid the vertical scrollbar and to display the entire multi-line contents entered by respondents.
+   * Default value is false.
+   * @see SurveyModel.autoGrowComment
+   */
+  public get autoGrow(): boolean {
+    return this.getPropertyValue("autoGrow") || (this.survey && this.survey.autoGrowComment);
+  }
+  public set autoGrow(val: boolean) {
+    this.setPropertyValue("autoGrow", val);
+  }
   public getType(): string {
     return "comment";
+  }
+  public afterRenderQuestionElement(el: HTMLElement): void {
+    this.element = document.getElementById(this.inputId) || el;
+    this.updateElement();
+    super.afterRenderQuestionElement(el);
+  }
+  public updateElement(): void {
+    if (this.element && this.autoGrow) increaseHeightByContent(this.element);
+  }
+  public onInput(event: any): void {
+    if (this.isInputTextUpdate)
+      this.value = event.target.value;
+    else
+      this.updateElement();
+  }
+  onValueChanged(): void {
+    super.onValueChanged();
+    this.updateElement();
   }
 }
 Serializer.addClass(
@@ -42,8 +73,9 @@ Serializer.addClass(
       default: "default",
       choices: ["default", "onBlur", "onTyping"],
     },
+    { name: "autoGrow:boolean" }
   ],
-  function() {
+  function () {
     return new QuestionCommentModel("");
   },
   "textbase"

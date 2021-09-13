@@ -1,5 +1,5 @@
 <template>
-  <div :class="getRootClass(element)">
+  <div :class="!element.isPanel ? element.getRootCss() : null">
     <survey-element-header
       v-if="!element.isPanel && element.hasTitleOnLeftTop"
       :element="element"
@@ -11,7 +11,7 @@
     >
       <survey-errors
         v-if="!element.isPanel && hasErrorsOnTop"
-        :question="element"
+        :element="element"
         :location="'top'"
       />
       <component
@@ -25,7 +25,7 @@
       </div>
       <survey-errors
         v-if="!element.isPanel && hasErrorsOnBottom"
-        :question="element"
+        :element="element"
         :location="'bottom'"
       />
       <div
@@ -46,28 +46,23 @@
 <script lang="ts">
 import Vue from "vue";
 import { Component, Prop } from "vue-property-decorator";
-import { SurveyModel } from "survey-core";
-import { IElement } from "survey-core";
-import { Question } from "survey-core";
+import { Base, SurveyModel, Question, SurveyElement } from "survey-core";
+import { BaseVue } from "./base";
+
 @Component
-export class SurveyElementVue extends Vue {
+export class SurveyElementVue extends BaseVue {
   @Prop() css: any;
   @Prop() survey: SurveyModel;
-  @Prop() element: IElement;
+  @Prop() element: SurveyElement;
+  protected getModel(): Base {
+    return this.element;
+  }
   getComponentName(element: Question) {
     if (element.customWidget) return "survey-customwidget";
     if (element.getType() === "panel" || element.isDefaultRendering()) {
       return "survey-" + element.getTemplate();
     }
     return element.getComponentName();
-  }
-  getRootClass(element: Question) {
-    let cssRoot = element.cssRoot;
-    if (element.isReadOnly) {
-      cssRoot += " " + (<any>this.element).cssClasses.disabled;
-    }
-
-    return cssRoot;
   }
   getContentClass(element: Question) {
     return element.cssContent;

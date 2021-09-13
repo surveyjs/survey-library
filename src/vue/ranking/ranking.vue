@@ -5,16 +5,18 @@
       :key="item.value + '-' + index + '-item'"
       :class="question.getItemClass(item)"
       :text="item.locText"
-      :index="question.getNumberByIndex(index)"
-      :handleKeydown="question.handleKeydown"
+      :index="index"
+      :indexText="question.getNumberByIndex(index)"
       :cssClasses="question.cssClasses"
+      :question="question"
+      :item="item"
     ></survey-ranking-item>
   </div>
 </template>
 
 <script lang="ts">
 import Vue from "vue";
-import { Component, Prop, Watch } from "vue-property-decorator";
+import { Component } from "vue-property-decorator";
 import { default as QuestionVue } from "../question";
 import { QuestionRankingModel } from "survey-core";
 

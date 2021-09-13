@@ -17,7 +17,7 @@
   >
     <div
       class="sv-popup__container"
-      v-bind:style="{ left: model.left, top: model.top }"
+      v-bind:style="{ left: model.left, top: model.top, height: model.height }"
       v-on:click="clickInside"
     >
       <span
@@ -28,38 +28,36 @@
         }"
         class="sv-popup__pointer"
       ></span>
+      <div class="sv-popup__header" v-show="!!this.model.title">{{ this.model.title }}</div>
       <div class="sv-popup__scrolling-content">
-        <div class="sv-popup__header"></div>
-
         <div class="sv-popup__content">
           <component
             :is="model.contentComponentName"
             v-bind="model.contentComponentData"
           ></component>
         </div>
-
-        <div v-if="model.isModal" class="sv-popup__footer">
-          <button
-            v-on:click="
-              () => {
-                model.cancel();
-              }
-            "
-            class="sv-popup__footer-item sv-popup__button sv-popup__button--cancel"
-          >
-            {{ model.cancelButtonText }}
-          </button>
-          <button
-            v-on:click="
-              () => {
-                model.apply();
-              }
-            "
-            class="sv-popup__footer-item sv-popup__button sv-popup__button--cancel"
-          >
-            {{ model.applyButtonText }}
-          </button>
-        </div>
+      </div>
+      <div v-if="model.isModal" class="sv-popup__footer">
+        <button
+          v-on:click="
+            () => {
+              model.cancel();
+            }
+          "
+          class="sv-popup__footer-item sv-popup__button sv-popup__button--cancel"
+        >
+          {{ model.cancelButtonText }}
+        </button>
+        <button
+          v-on:click="
+            () => {
+              model.apply();
+            }
+          "
+          class="sv-popup__footer-item sv-popup__button sv-popup__button--cancel"
+        >
+          {{ model.applyButtonText }}
+        </button>
       </div>
     </div>
   </div>
@@ -91,13 +89,22 @@ export function showModal(
   data: any,
   onApply: () => boolean,
   onCancel?: () => void,
-  cssClass?: string
+  cssClass?: string,
+  title?: string
 ) {
-  const popupViewModel: PopupBaseViewModel = createPopupModalViewModel(componentName, data, onApply, onCancel,
-  () => {
-    popup.$destroy();
-    popupViewModel.destroyPopupContainer();
-  }, undefined, cssClass);
+  const popupViewModel: PopupBaseViewModel = createPopupModalViewModel(
+    componentName,
+    data,
+    onApply,
+    onCancel,
+    () => {
+      popup.$destroy();
+      popupViewModel.destroyPopupContainer();
+    },
+    undefined,
+    cssClass,
+    title
+  );
   const popup = new PopupContainer({
     el: popupViewModel.container.appendChild(document.createElement("div")),
     propsData: { model: popupViewModel },

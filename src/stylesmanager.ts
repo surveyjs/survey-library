@@ -168,7 +168,7 @@ export class StylesManager {
       "cursor: not-allowed;",
 
     // ranking
-    ".sv-ranking": "outline: none;",
+    ".sv-ranking": "outline: none; user-select: none; touch-action: none;",
     ".sv-ranking-item":
       "cursor: pointer; margin-bottom: 5px;position: relative;",
     ".sv-ranking-item:focus .sv-ranking-item__icon--hover":
@@ -304,8 +304,8 @@ export class StylesManager {
     ".sv_main .sv-action-bar-item": "-webkit-appearance: none; -moz-appearance: none; appearance: none; display: flex; height: 40px; padding: 8px; box-sizing: border-box; margin-right: 16px; border: none; border-radius: 2px; background-color: transparent; cursor: pointer; line-height: 24px; font-size: 16px; overflow-x: hidden; white-space: nowrap; min-width: auto; font-weight: normal",
     ".sv_main .sv-action-bar-item__title": "vertical-align: middle; white-space: nowrap;",
     ".sv_main .sv-action-bar-item__title--with-icon": "margin-left: 8px;",
-    ".sv_main .sv-action": "display: flex; align-items: center;",
-    ".sv_main .sv-action--hidden": "display: none;",
+    ".sv_main .sv-action__content": "display: inline-flex; align-items: center;",
+    ".sv_main .sv-action--hidden": "width: 0px; height: 0px; overflow: hidden;",
     ".sv_main .sv-action-bar-item__icon svg": "display: block;",
     ".sv_main .sv-action-bar-item:active": "opacity: 0.5;",
     ".sv_main .sv-action-bar-item:focus": "outline: none;",
@@ -341,10 +341,8 @@ export class StylesManager {
       "display: flex; align-items: center; justify-content: center;",
     ".sv-popup--modal .sv-popup__container":
       "position: static; filter: none; padding: calc(4 * 8px);",
-    ".sv-popup__container":
-      "position: absolute; filter: drop-shadow(0px calc(1 * 8px) calc(2 * 8px) rgba(0, 0, 0, 0.1)); padding: calc(1 * 8px) 0; background: white; border-radius: 4px;",
-    ".sv-popup__scrolling-content":
-      "max-width: 90vw; max-height: 90vh; overflow: auto;",
+    ".sv-popup__container": "position: absolute; filter: drop-shadow(0px calc(1 * 8px) calc(2 * 8px) rgba(0, 0, 0, 0.1)); padding: calc(1 * 8px) 0; background: white; border-radius: 4px; display: flex; flex-direction: column; max-height: 90vh; max-width: 90vw; box-sizing: border-box;",
+    ".sv-popup__scrolling-content": "overflow: auto;",
     ".sv-popup__scrolling-content::-webkit-scrollbar":
       "height: 6px; width: 6px; background-color: #f3f3f3;",
     ".sv-popup__scrolling-content::-webkit-scrollbar-thumb":
@@ -369,6 +367,7 @@ export class StylesManager {
     ".sv-popup__pointer": "display: block; position: absolute;",
     ".sv-popup__pointer:after":
       "content: ' '; display: block; width: 0; height: 0; border-left: calc(1 * 8px) solid transparent; border-right: calc(1 * 8px) solid transparent; border-bottom: calc(1 * 8px) solid white; align-self: center;",
+    ".sv-popup__header": "font-family: Open Sans; font-size: calc(3 * 8px); line-height: calc(4 * 8px); font-style: normal; font-weight: 700; margin-bottom: calc(2 * 8px); color: rgb(22, 22, 22)",
     ".sv-popup__footer": "display: flex; margin-top: calc(4 * 8px);",
     ".sv-popup__footer-item:first-child": "margin-left: auto;",
     ".sv-popup__footer-item + .sv-popup__footer-item":
@@ -376,12 +375,11 @@ export class StylesManager {
     ".sv-popup__button":
       "padding: calc(2 * 8px) calc(6 * 8px); background: #fff; box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.15); border-radius: 4px; cursor: pointer; margin: 2px; font-family: 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif; font-style: normal; font-weight: 600; font-size: calc(2 * 8px); line-height: calc(3 * 8px); text-align: center; color: #19b394; border: none; outline: none;",
     ".sv-popup__button:hover": "box-shadow: 0 0 0 2px #19b394;",
-    ".sv-popup__button:disabled":
-      "color: rgba(22, 22, 22, 0.16); cursor: default;",
+    ".sv-popup__button:disabled": "color: rgba(22, 22, 22, 0.16); cursor: default;",
     ".sv-popup__button:disabled:hover":
       "box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.15);",
-    ".sv-popup__button--apply": "background-color: #19b394; color: #fff;",
-    ".sv-popup__button--apply:disabled": "background-color: #f3f3f3;",
+    ".sv-popup__button.sv-popup__button--apply": "background-color: #19b394; color: #fff;",
+    ".sv-popup__button.sv-popup__button--apply:disabled": "background-color: #f3f3f3;",
     //eo popup
     //list
     ".sv-list":
@@ -1331,7 +1329,7 @@ export class StylesManager {
               themeSelector + selector + " { " + cssRuleText + " }",
               0
             );
-          } catch (e) {}
+          } catch (e) { }
         });
       }
     }
@@ -1359,20 +1357,20 @@ export class StylesManager {
             selector + " { " + StylesManager.Styles[selector] + " }",
             0
           );
-        } catch (e) {}
+        } catch (e) { }
       });
       Object.keys(StylesManager.Media).forEach((selector) => {
         try {
           sheet.insertRule(
             StylesManager.Media[selector].media +
-              " { " +
-              selector +
-              " { " +
-              StylesManager.Media[selector].style +
-              " } }",
+            " { " +
+            selector +
+            " { " +
+            StylesManager.Media[selector].style +
+            " } }",
             0
           );
-        } catch (e) {}
+        } catch (e) { }
       });
     }
   }

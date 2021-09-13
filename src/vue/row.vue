@@ -1,9 +1,9 @@
 <template>
   <div class="sv-vue-row-additional-div">
     <div
-      v-if="row.isNeedRender && element.isVisible"
-      v-for="element in row.elements"
-      :key="element.idValue"
+      v-if="row.isNeedRender"
+      v-for="element in row.visibleElements"
+      :key="element.id"
       :style="{
         flexBasis: element.renderWidth,
         flexGrow: 1,
@@ -34,9 +34,7 @@
 import Vue from "vue";
 import { Component, Prop } from "vue-property-decorator";
 import { SurveyModel } from "survey-core";
-import { PanelModelBase, PanelModel, QuestionRowModel } from "survey-core";
-import { VueSurveyModel } from "./surveyModel";
-import { settings } from "survey-core";
+import { QuestionRowModel } from "survey-core";
 import { BaseVue } from "./base";
 import { Base } from "survey-core";
 

@@ -3,6 +3,8 @@ import { property, Serializer } from "./jsonobject";
 import { Question } from "./question";
 import { LocalizableString } from "./localizablestring";
 import { surveyLocalization } from "./surveyStrings";
+import { CssClassBuilder } from "./utils/cssClassBuilder";
+import { preventDefaults } from "./utils/utils";
 
 /**
  * A Model for a boolean question.
@@ -158,6 +160,48 @@ export class QuestionBooleanModel extends Question {
     if (value == this.getValueTrue()) return this.locLabelTrue.textOrHtml;
     return this.locLabelFalse.textOrHtml;
   }
+
+  public getItemCss(): string {
+    return new CssClassBuilder()
+      .append(this.cssClasses.item)
+      .append(this.cssClasses.itemDisabled, this.isReadOnly)
+      .append(this.cssClasses.itemChecked, !!this.checkedValue)
+      .append(this.cssClasses.itemIndeterminate, this.checkedValue === null)
+      .toString();
+  }
+
+  public getLabelCss(checked: boolean): string {
+    return new CssClassBuilder()
+      .append(this.cssClasses.label)
+      .append(this.cssClasses.disabledLabel, this.checkedValue === !checked || this.isReadOnly)
+      .toString();
+  }
+
+  public get allowClick(): boolean {
+    return this.isIndeterminate && !this.isInputReadOnly;
+  }
+
+  /* #region web-based methods */
+  public onLabelClick(event: any, value: boolean) {
+    if (this.allowClick) {
+      preventDefaults(event);
+      this.checkedValue = value;
+    }
+    return true;
+  }
+  public onSwitchClickModel(event: any) {
+    if (this.allowClick) {
+      preventDefaults(event);
+      var isRightClick =
+        event.offsetX / event.target.offsetWidth > 0.5;
+      var isRtl =
+        document.defaultView.getComputedStyle(event.target).direction == "rtl";
+      this.checkedValue = isRtl ? !isRightClick : isRightClick;
+      return;
+    }
+    return true;
+  }
+  /* #endregion */
 }
 
 Serializer.addClass(

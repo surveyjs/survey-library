@@ -11,6 +11,7 @@ import { LocalizableString } from "./localizablestring";
 import { ConditionRunner } from "./conditions";
 import { Helpers, HashTable } from "./helpers";
 import { settings } from "./settings";
+import { CssClassBuilder } from "./utils/cssClassBuilder";
 
 /**
  * It is a base class for checkbox, dropdown and radiogroup questions.
@@ -525,7 +526,7 @@ export class QuestionSelectBase extends Question {
    * @see SurveyModel.storeOthersAsComment
    */
   public get storeOthersAsComment(): any {
-    return this.getPropertyValue("storeOthersAsComment", "default");
+    return this.getPropertyValue("storeOthersAsComment");
   }
   public set storeOthersAsComment(val: any) {
     this.setPropertyValue("storeOthersAsComment", val);
@@ -1131,53 +1132,43 @@ export class QuestionSelectBase extends Question {
     }
   }
   getColumnClass() {
-    var columnClass = this.cssClasses.column;
-    if (this.hasColumns) {
-      columnClass += " sv-q-column-" + this.colCount;
-    }
-    return columnClass;
+    return new CssClassBuilder()
+      .append(this.cssClasses.column)
+      .append("sv-q-column-" + this.colCount, this.hasColumns)
+      .toString();
   }
   getItemIndex(item: any) {
     return this.visibleChoices.indexOf(item);
   }
   getItemClass(item: any) {
-    let itemClass = this.cssClasses.item;
+    const builder = new CssClassBuilder()
+      .append(this.cssClasses.item)
+      .append(this.cssClasses.itemInline, !this.hasColumns && this.colCount === 0)
+      .append("sv-q-col-" + this.colCount, !this.hasColumns && this.colCount !== 0);
+
     const isDisabled = this.isReadOnly || !item.isEnabled;
-    const isChecked =
-      this.isItemSelected(item) ||
+    const isChecked = this.isItemSelected(item) ||
       (this.isOtherSelected && this.otherItem.value === item.value);
-    const allowHover =
-      !isDisabled && !isChecked && !(!!this.survey && this.survey.isDesignMode);
+    const allowHover = !isDisabled && !isChecked && !(!!this.survey && this.survey.isDesignMode);
     const isNone = item === this.noneItem;
-    if (!this.hasColumns) {
-      itemClass +=
-        this.colCount === 0
-          ? " " + this.cssClasses.itemInline
-          : " sv-q-col-" + this.colCount;
-    }
-    if (isDisabled && !!this.cssClasses.itemDisabled)
-      itemClass += " " + this.cssClasses.itemDisabled;
-    if (isChecked && !!this.cssClasses.itemChecked)
-      itemClass += " " + this.cssClasses.itemChecked;
-    if (allowHover && !!this.cssClasses.itemHover)
-      itemClass += " " + this.cssClasses.itemHover;
-    if (isNone && !!this.cssClasses.itemNone)
-      itemClass += " " + this.cssClasses.itemNone;
-    return itemClass;
+
+    return builder.append(this.cssClasses.itemDisabled, isDisabled)
+      .append(this.cssClasses.itemChecked, isChecked)
+      .append(this.cssClasses.itemHover, allowHover)
+      .append(this.cssClasses.itemNone, isNone)
+      .toString();
   }
   getLabelClass(item: ItemValue) {
-    var labelClass = this.cssClasses.label;
-    if (this.isItemSelected(item)) {
-      labelClass += " " + this.cssClasses.labelChecked;
-    }
-    return labelClass;
+    return new CssClassBuilder()
+      .append(this.cssClasses.label)
+      .append(this.cssClasses.labelChecked, this.isItemSelected(item))
+      .toString();
   }
   getControlLabelClass(item: ItemValue) {
-    var controlLabelClass = this.cssClasses.controlLabel;
-    if (this.isItemSelected(item)) {
-      controlLabelClass += " " + this.cssClasses.controlLabelChecked;
-    }
-    return controlLabelClass;
+    return new CssClassBuilder()
+      .append(this.cssClasses.controlLabel)
+      .append(this.cssClasses.controlLabelChecked, this.isItemSelected(item))
+      .toString();
   }
   get columns() {
     var columns = [];

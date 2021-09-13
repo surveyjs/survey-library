@@ -14,10 +14,6 @@ export class SurveyQuestionText extends SurveyQuestionUncontrolledElement<
   }
   protected renderElement(): JSX.Element {
     const inputClass = (this.question as QuestionTextModel).getControlClass();
-    var style: any = {};
-    if (!!this.question.inputWidth) {
-      style.width = this.question.inputWidth;
-    }
     var onKeyDown = null;
     var onKeyUp = null;
     var onCompositionUpdate = null;
@@ -56,7 +52,7 @@ export class SurveyQuestionText extends SurveyQuestionUncontrolledElement<
           type={this.question.inputType}
           //ref={this.controlRef}
           ref={(input) => (this.control = input)}
-          style={style}
+          style={this.question.inputStyle}
           maxLength={this.question.getMaxLength()}
           min={this.question.renderedMin}
           max={this.question.renderedMax}
@@ -70,14 +66,10 @@ export class SurveyQuestionText extends SurveyQuestionUncontrolledElement<
           onKeyUp={onKeyUp}
           onKeyDown={onKeyDown}
           onCompositionUpdate={onCompositionUpdate}
-          aria-required={this.question.isRequired}
-          aria-label={this.question.locTitle.renderedHtml}
-          aria-invalid={this.question.errors.length > 0}
-          aria-describedby={
-            this.question.errors.length > 0
-              ? this.question.id + "_errors"
-              : null
-          }
+          aria-required={this.question.ariaRequired}
+          aria-label={this.question.ariaLabel}
+          aria-invalid={this.question.ariaInvalid}
+          aria-describedby={this.question.ariaDescribedBy}
         />
         {dataList}
       </React.Fragment>

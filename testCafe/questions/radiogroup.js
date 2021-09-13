@@ -74,41 +74,32 @@ frameworks.forEach(framework => {
   });
 
   test(`change choices order`, async t => {
-    const getChoicesCount = ClientFunction(() => document.querySelectorAll(
-      `div[id*=sq_1] fieldset .sv_q_checkbox_control_item`).length);
-    const getFirst = Selector(
-      "div[id*=sq_1] fieldset > .sv_q_select_column:nth-child(1) > div", { index: 0 });
-    const getSecond = Selector(
-      "div[id*=sq_1] fieldset > .sv_q_select_column:nth-child(2) > div", { index: 0 });
+    const radiogroup = Selector(`[role="radiogroup"]`);
+    const chocies = radiogroup.find(`[role="radio"]`);
 
     //asc
     await setOptions("car", { choicesOrder: "asc" });
-    let first = await getFirst();
-    let second = await getSecond();
-
-    assert.equal(first.textContent.trim(), "Audi");
-    assert.equal(second.textContent.trim(), "BMW");
+    await t.expect(chocies.nth(0).find(`[aria-label="Audi"]`).exists).ok();
+    await t.expect(chocies.nth(3).find(`[aria-label="BMW"]`).exists).ok();
 
     //desc
     await setOptions("car", { choicesOrder: "desc" });
-    first = await getFirst();
-    second = await getSecond();
-    assert.equal(first.textContent.trim(), "Volkswagen");
-    assert.equal(second.textContent.trim(), "Vauxhall");
+    await t.expect(chocies.nth(0).find(`[aria-label="Volkswagen"]`).exists).ok();
+    await t.expect(chocies.nth(3).find(`[aria-label="Vauxhall"]`).exists).ok();
 
     //random
-    const choicesCount = await getChoicesCount();
-    if (choicesCount === 1) {
+    if (chocies.count === 1) {
       assert(false, `need to more than one choices`);
     }
 
+    let first = chocies.nth(0);
     let random_count = 0;
     for (let i = 0; i < 15; i++) {
       await setOptions("car", { choicesOrder: "asc" });
       await setOptions("car", { choicesOrder: "random" });
-      const first_2 = await getFirst();
+      const first_2 = chocies.nth(0);
 
-      if (first.textContent.trim() !== first_2.textContent.trim()) {
+      if (first.innerText !== first_2.innerText) {
         random_count++;
       }
       first = first_2;
@@ -165,14 +156,12 @@ frameworks.forEach(framework => {
   });
 
   test(`check "other" choice doesn't change order`, async t => {
-    const getOtherChoice = Selector(() => document.querySelectorAll(
-      `div[id*=sq_1] fieldset .sv_q_select_column:nth-child(4) div:nth-child(3)`)[0]);
+    const radiogroup = Selector(`[role="radiogroup"]`);
+    const chocies = radiogroup.find(`[role="radio"]`);
 
-    await setOptions("car", { hasOther: true, otherText: "Other" });
+    await setOptions("car", { hasOther: true, otherText: "Other Test" });
     await setOptions("car", { choicesOrder: "desc" });
-
-    const otherChoice = await getOtherChoice();
-    assert.equal(otherChoice.textContent.trim(), "Other");
+    await t.expect(chocies.nth(11).find(`[aria-label="Other Test"]`).exists).ok();
   });
 
   test(`choose other`, async t => {
@@ -180,8 +169,13 @@ frameworks.forEach(framework => {
       () => document.querySelectorAll("textarea")[0]);
 
     await setOptions("car", { hasOther: true });
+
+    const radiogroup = Selector(`[role="radiogroup"]`);
+    const chocies = radiogroup.find(`[role="radio"]`);
+    const otherText = chocies.nth(11).find(`[aria-label="Other (describe)"]`);
+
     await t
-      .click(`.sv_q_select_column:nth-child(4) div:nth-child(3) label input`)
+      .click(otherText)
       .typeText(getOtherInput, "Zaporozec")
       .click(`input[value=Complete]`);
 
@@ -216,6 +210,22 @@ frameworks.forEach(framework => {
     assert.equal(await isCheckedClassExistsByIndex(2), false);
     assert.equal(await isCheckedClassExistsByIndex(3), true);
   });
+
+  test(`accessibility checks`, async (t) => {
+    const radiogroup = Selector(`[role="radiogroup"]`);
+
+    let radiosCount = radiogroup.find(`[role="radio"][aria-required="true"]`).count;
+    await t.expect(radiosCount).eql(11);
+
+    const nissanItem = radiogroup.find(`[role="radio"][aria-required="true"] [aria-label="Nissan"]`);
+    await t.click(nissanItem); await t.click(nissanItem); await t.click(nissanItem);
+
+    radiosCount = radiogroup.find(`[role="radio"][aria-required="true"][aria-checked="false"]`).count;
+    await t.expect(radiosCount).eql(10);
+
+    radiosCount = radiogroup.find(`[role="radio"][aria-required="true"][aria-checked="true"]`).count;
+    await t.expect(radiosCount).eql(1);
+  });
 });
 
 frameworks.forEach((framework) => {
@@ -229,7 +239,7 @@ frameworks.forEach((framework) => {
     const newTitle = 'MyText';
     let questionValue = await getQuestionValue();
     assert.equal(questionValue, undefined);
-  
+
     const outerSelector = `.sv_q_title`;
     const innerSelector = `.sv-string-editor`
     await t
@@ -248,7 +258,7 @@ frameworks.forEach((framework) => {
     const newTitle = 'MyText';
     let questionValue = await getQuestionValue();
     assert.equal(questionValue, undefined);
-  
+
     const selector = `.sv_q_radiogroup_label .sv-string-editor`
     await t
       .click(selector)

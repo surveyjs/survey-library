@@ -4,6 +4,7 @@ import { QuestionSelectBase } from "./question_baseselect";
 import { surveyLocalization } from "./surveyStrings";
 import { LocalizableString } from "./localizablestring";
 import { ItemValue } from "./itemvalue";
+import { CssClassBuilder } from "./utils/cssClassBuilder";
 
 /**
  * A Model for a dropdown question
@@ -24,7 +25,7 @@ export class QuestionDropdownModel extends QuestionSelectBase {
    * This flag controls whether to show options caption item ('Choose...').
    */
   public get showOptionsCaption(): boolean {
-    return this.getPropertyValue("showOptionsCaption", true);
+    return this.getPropertyValue("showOptionsCaption");
   }
   public set showOptionsCaption(val: boolean) {
     this.setPropertyValue("showOptionsCaption", val);
@@ -85,7 +86,7 @@ export class QuestionDropdownModel extends QuestionSelectBase {
    * @see choicesStep
    */
   public get choicesMin(): number {
-    return this.getPropertyValue("choicesMin", 0);
+    return this.getPropertyValue("choicesMin");
   }
   public set choicesMin(val: number) {
     this.setPropertyValue("choicesMin", val);
@@ -96,7 +97,7 @@ export class QuestionDropdownModel extends QuestionSelectBase {
    * @see choicesStep
    */
   public get choicesMax(): number {
-    return this.getPropertyValue("choicesMax", 0);
+    return this.getPropertyValue("choicesMax");
   }
   public set choicesMax(val: number) {
     this.setPropertyValue("choicesMax", val);
@@ -108,7 +109,7 @@ export class QuestionDropdownModel extends QuestionSelectBase {
    * @see choicesMax
    */
   public get choicesStep(): number {
-    return this.getPropertyValue("choicesStep", 1);
+    return this.getPropertyValue("choicesStep");
   }
   public set choicesStep(val: number) {
     if (val < 1) val = 1;
@@ -124,14 +125,11 @@ export class QuestionDropdownModel extends QuestionSelectBase {
     this.setPropertyValue("autoComplete", val);
   }
   public getControlClass(): string {
-    const cssClasses = this.cssClasses;
-    let result =
-      cssClasses.control +
-      (this.errors.length > 0 ? " " + cssClasses.onError : "");
-    if (this.isReadOnly) {
-      result += " " + cssClasses.controlDisabled;
-    }
-    return result;
+    return new CssClassBuilder()
+      .append(this.cssClasses.control)
+      .append(this.cssClasses.onError, this.errors.length > 0)
+      .append(this.cssClasses.controlDisabled, this.isReadOnly)
+      .toString();
   }
 }
 Serializer.addClass(

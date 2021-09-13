@@ -4,6 +4,7 @@ import { SurveyModel } from "../src/survey";
 import { ProcessValue } from "../src/conditionProcessValue";
 import { Base } from "../src/base";
 import { property } from "../src/jsonobject";
+import { settings } from "../src/settings";
 
 export default QUnit.module("Helpers");
 
@@ -105,6 +106,23 @@ QUnit.test("isTwoValueEquals, undefined", function(assert) {
     true,
     "null vs undefined"
   );
+});
+
+QUnit.test("isTwoValueEquals, strings: trim and caseSensitive", function(assert) {
+  assert.equal(Helpers.isTwoValueEquals("abc", "abc"), true, "Two simple strings");
+  assert.equal(Helpers.isTwoValueEquals("abc ", "abc"), true, "Space case 1");
+  assert.equal(Helpers.isTwoValueEquals(" abc", "abc"), true, "Space case 2");
+  assert.equal(Helpers.isTwoValueEquals("abc", " abc "), true, "Space case 3");
+  assert.equal(Helpers.isTwoValueEquals("Abc", "abc"), true, "CaseSensitive (false) case 1");
+  assert.equal(Helpers.isTwoValueEquals("Abc", "aBc"), true, "CaseSensitive (false) case 2");
+  assert.equal(Helpers.isTwoValueEquals("abc", "ABC"), true, "CaseSensitive (false) case 3");
+  assert.equal(Helpers.isTwoValueEquals("abc ", " ABC"), true, "CaseSensitive and trim");
+  settings.comparator.trimStrings = false;
+  settings.comparator.caseSensitive = true;
+  assert.equal(Helpers.isTwoValueEquals("abc ", "abc"), false, "trimString = false");
+  assert.equal(Helpers.isTwoValueEquals("Abc", "abc"), false, "CaseSensitive (true)");
+  settings.comparator.trimStrings = true;
+  settings.comparator.caseSensitive = false;
 });
 
 QUnit.test("Return correct value for array.length", function(assert) {
@@ -241,6 +259,16 @@ QUnit.test("isTwoValueEquals, 0 and '0'", function(assert) {
     Helpers.isTwoValueEquals("False", false),
     true,
     "'False' equals false"
+  );
+  assert.equal(
+    Helpers.isTwoValueEquals(null, undefined),
+    true,
+    "null and undefined"
+  );
+  assert.equal(
+    Helpers.isTwoValueEquals(undefined, null),
+    true,
+    "undefined and null"
   );
 });
 

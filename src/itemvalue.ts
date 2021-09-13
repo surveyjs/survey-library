@@ -103,7 +103,7 @@ export class ItemValue extends Base {
   }
   public static locStrsChanged(items: Array<ItemValue>) {
     for (var i = 0; i < items.length; i++) {
-      items[i].locText.strChanged();
+      items[i].locStrsChanged();
     }
   }
   public static runConditionsForItems(
@@ -360,6 +360,10 @@ export class ItemValue extends Base {
   }
   public addUsedLocales(locales: Array<string>) {
     this.AddLocStringToUsedLocales(this.locTextValue, locales);
+  }
+  public locStrsChanged() {
+    super.locStrsChanged();
+    this.locText.strChanged();
   }
   protected onPropertyValueChanged(name: string, oldValue: any, newValue: any) {
     if (name === "value" && !this.hasText) {

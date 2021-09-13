@@ -1,6 +1,6 @@
 <template>
   <div :class="question.cssClasses.root">
-    <label :class="itemClass">
+    <label :class="question.getItemCss()">
       <input
         type="checkbox"
         :name="question.name"
@@ -10,12 +10,10 @@
         :id="question.inputId"
         :indeterminate.prop="question.isIndeterminate"
         :disabled="question.isInputReadOnly"
-        v-bind:aria-required="question.isRequired"
-        :aria-label="question.locTitle.renderedHtml"
-        :aria-invalid="question.errors.length > 0"
-        :aria-describedby="
-          question.errors.length > 0 ? question.id + '_errors' : null
-        "
+        :aria-required="question.ariaRequired"
+        :aria-label="question.ariaLabel"
+        :aria-invalid="question.ariaInvalid"
+        :aria-describedby="question.ariaDescribedBy"
       />
       <span :class="question.cssClasses.materialDecorator">
         <svg viewBox="0 0 24 24" :class="question.cssClasses.itemDecorator">
@@ -49,9 +47,7 @@
 
 <script lang="ts">
 import Vue from "vue";
-import { Component, Prop, Watch } from "vue-property-decorator";
-import { default as QuestionVue } from "./question";
-import { QuestionBooleanModel } from "survey-core";
+import { Component } from "vue-property-decorator";
 import { Boolean } from "./boolean";
 import { RendererFactory } from "survey-core";
 

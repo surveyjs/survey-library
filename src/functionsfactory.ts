@@ -9,11 +9,11 @@ export class FunctionFactory {
     name: string,
     func: (params: any[]) => any,
     isAsync: boolean = false
-  ) {
+  ): void {
     this.functionHash[name] = func;
     if (isAsync) this.isAsyncHash[name] = true;
   }
-  public unregister(name: string) {
+  public unregister(name: string): void {
     delete this.functionHash[name];
     delete this.isAsyncHash[name];
   }
@@ -24,7 +24,7 @@ export class FunctionFactory {
     return !!this.isAsyncHash[name];
   }
 
-  public clear() {
+  public clear(): void {
     this.functionHash = {};
   }
   public getAll(): Array<string> {
@@ -229,18 +229,35 @@ function age(params: any[]): any {
 }
 FunctionFactory.Instance.register("age", age);
 
-function isContainerReady(params: any[]): any {
-  if (!params && params.length < 1) return false;
-  if (!params[0] || !this.survey) return false;
-  var name = params[0];
-  var container = this.survey.getPageByName(name);
-  if (!container) container = this.survey.getPanelByName(name);
+function isContainerReadyCore(container: any): boolean {
   if (!container) return false;
   var questions = container.questions;
   for (var i = 0; i < questions.length; i++) {
     if (questions[i].hasErrors(false)) return false;
   }
   return true;
+}
+function isContainerReady(params: any[]): any {
+  if (!params && params.length < 1) return false;
+  if (!params[0] || !this.survey) return false;
+  const name = params[0];
+  let container = this.survey.getPageByName(name);
+  if (!container) container = this.survey.getPanelByName(name);
+  if(!container) {
+    const question = this.survey.getQuestionByName(name);
+    if(!question || !Array.isArray(question.panels)) return false;
+    if(params.length > 1) {
+      if(params[1] < question.panels.length) {
+        container = question.panels[params[1]];
+      }
+    } else {
+      for(let i = 0; i < question.panels.length; i ++) {
+        if(!isContainerReadyCore(question.panels[i])) return false;
+      }
+      return true;
+    }
+  }
+  return isContainerReadyCore(container);
 }
 FunctionFactory.Instance.register("isContainerReady", isContainerReady);
 
@@ -262,6 +279,17 @@ function today(params: any[]) {
   return res;
 }
 FunctionFactory.Instance.register("today", today);
+
+function getYear(params: any[]) {
+  if(params.length !== 1 || !params[0]) return undefined;
+  return new Date(params[0]).getFullYear();
+}
+FunctionFactory.Instance.register("getYear", getYear);
+
+function currentYear() {
+  return new Date().getFullYear();
+}
+FunctionFactory.Instance.register("currentYear", currentYear);
 
 function diffDays(params: any[]) {
   if (!Array.isArray(params) || params.length !== 2) return 0;

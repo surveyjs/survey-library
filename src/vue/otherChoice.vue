@@ -8,9 +8,10 @@
       :value="question.comment"
       :maxlength="question.getOthersMaxLength()"
       :placeholder="question.otherPlaceHolder"
-      v-bind:aria-label="question.locTitle.renderedHtml"
-      @change="change"
-      @keyup="keyup"
+      :aria-label="question.ariaLabel"
+      v-bind:style="{ resize: question.autoGrowComment ? 'none' : 'both' }"
+      @change="(e) => { question.onCommentChange(e) }"
+      @input="(e) => { question.onCommentInput(e) }"
     />
     <div v-if="question.isReadOnlyRenderDiv()">{{ question.comment }}</div>
   </div>
@@ -25,13 +26,6 @@ import { Question } from "survey-core";
 export class OtherChoice extends Vue {
   @Prop() question: Question;
   @Prop() commentClass: any;
-  change(event: any) {
-    this.question.comment = event.target.value;
-  }
-  keyup(event: any) {
-    if (!this.question.isSurveyInputTextUpdate) return;
-    this.question.comment = event.target.value;
-  }
 }
 Vue.component("survey-other-choice", OtherChoice);
 export default OtherChoice;

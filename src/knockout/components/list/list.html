@@ -1,11 +1,16 @@
-<ul class="sv-list" data-bind="event: { mousedown: function (data, e) { e.preventDefault(); } }">
+<ul class="sv-list" data-bind="event: { mousedown: function (data, e) { e.preventDefault(); }, keydown: function(data, e) { $data.onKeyDown(event); return true; } }">
   <!--ko foreach: items-->
-  <li class="sv-list__item" tabindex="0"
-    data-bind="style: { paddingLeft: $parent.getItemIndent($data) }, css: { 'sv-list__item--disabled': $parent.isItemDisabled($data), 'sv-list__item--selected': $parent.isItemSelected($data) }, click: $parent.selectItem, key2click, visible: $data.visible === undefined || $data.visible">
+  <li class="sv-list__item" data-bind="style: { paddingLeft: $parent.getItemIndent($data) }, css: { 'sv-list__item--disabled': $parent.isItemDisabled($data), 'sv-list__item--selected': $parent.isItemSelected($data) }, click: $parent.selectItem, key2click, visible: $data.visible === undefined || $data.visible">
+    <!-- ko ifnot: $data.component -->
     <!-- ko if: $data.iconName -->
     <sv-svg-icon class="sv-list__item-icon" params="iconName: iconName, size: 24"></sv-svg-icon>
     <!-- /ko -->
     <span data-bind="text: $data.title"></span>
+    <!-- /ko -->
+    <!-- ko if: $data.component -->
+    <!-- ko component: { name: $data.component, params: { item: $data } } -->
+    <!-- /ko -->
+    <!-- /ko -->
   </li>
   <!-- /ko -->
 </ul>

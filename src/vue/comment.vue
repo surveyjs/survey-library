@@ -9,19 +9,16 @@
       :id="question.inputId"
       :maxlength="question.getMaxLength()"
       :cols="question.cols"
-      v-bind:aria-label="question.locTitle.renderedHtml"
       :rows="question.rows"
       :placeholder="question.renderedPlaceHolder"
-      :class="
-        question.cssClasses ? question.cssClasses.root : 'panel-comment-root'
-      "
+      :class="question.cssClasses ? question.cssClasses.root : 'panel-comment-root'"
       @change="change"
-      @keyup="keyup"
-      v-bind:aria-required="question.isRequired"
-      :aria-invalid="question.errors.length > 0"
-      :aria-describedby="
-        question.errors.length > 0 ? question.id + '_errors' : null
-      "
+      @input="(e) => { question.onInput(e) }"
+      :aria-required="question.ariaRequired"
+      :aria-label="question.ariaLabel"
+      :aria-invalid="question.ariaInvalid"
+      :aria-describedby="question.ariaDescribedBy"
+      v-bind:style="{ resize: question.autoGrow ? 'none' : 'both' }"
     ></textarea>
     <div v-if="question.isReadOnlyRenderDiv()">{{ question.value }}</div>
   </div>
@@ -36,10 +33,6 @@ import { QuestionCommentModel } from "survey-core";
 @Component
 export class Comment extends QuestionVue<QuestionCommentModel> {
   change(event: any) {
-    this.question.value = event.target.value;
-  }
-  keyup(event: any) {
-    if (!this.question.isInputTextUpdate) return;
     this.question.value = event.target.value;
   }
 }

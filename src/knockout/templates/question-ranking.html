@@ -10,7 +10,7 @@
 <script type="text/html" id="survey-ranking-item">
   <div
     tabindex="0"
-    data-bind="event: { keydown: function(data, event){question.handleKeydown.call(question, event); return true;} }, css: question.getItemClass($data)"
+    data-bind="event: { keydown: question.koHandleKeydown, pointerdown: question.koHandlePointerDown}, css: question.getItemClass($data), attr: {'data-sv-drop-target-item-value': $index() }"
   >
     <div tabindex="-1" style="outline: none;">
       <div data-bind="css: question.cssClasses.itemGhostNode"></div>
@@ -20,7 +20,7 @@
             width="10"
             height="16"
             viewBox="0 0 10 16"
-            data-bind="css: question.cssClasses.itemIcon + ' ' + question.cssClasses.itemIconHoverMod"
+            data-bind="css: question.getIconHoverCss()"
             xmlns="http://www.w3.org/2000/svg"
           >
             <path
@@ -31,7 +31,7 @@
             width="10"
             height="24"
             viewBox="0 0 10 24"
-            data-bind="css: question.cssClasses.itemIcon + ' ' + question.cssClasses.itemIconFocusMod"
+            data-bind="css: question.getIconFocusCss()"
             xmlns="http://www.w3.org/2000/svg"
           >
             <path d="M10 5L5 0L0 5H4V9H6V5H10Z" />

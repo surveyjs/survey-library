@@ -1,38 +1,40 @@
-import { Base, EventBase } from "./base";
+import { Base } from "./base";
 import { property } from "./jsonobject";
 import { surveyLocalization } from "./surveyStrings";
 import {
   PopupUtils,
   VerticalPosition,
   HorizontalPosition,
-  IPosition,
-  ISize,
+  IPosition
 } from "./utils/popup";
+import { CssClassBuilder } from "./utils/cssClassBuilder";
 
-export class PopupModel extends Base {
+export class PopupModel<T = any> extends Base {
   @property() contentComponentName: string;
-  @property() contentComponentData: any;
+  @property() contentComponentData: T;
   @property({ defaultValue: "bottom" }) verticalPosition: VerticalPosition;
   @property({ defaultValue: "left" }) horizontalPosition: HorizontalPosition;
   @property({ defaultValue: false }) showPointer: boolean;
   @property({ defaultValue: false }) isModal: boolean;
-  @property({ defaultValue: () => {} }) onCancel: () => void;
+  @property({ defaultValue: () => { } }) onCancel: () => void;
   @property({ defaultValue: () => { return true; } }) onApply: () => boolean;
-  @property({ defaultValue: () => {} }) onHide: () => void;
-  @property({ defaultValue: () => {} }) onShow: () => void;
+  @property({ defaultValue: () => { } }) onHide: () => void;
+  @property({ defaultValue: () => { } }) onShow: () => void;
   @property({ defaultValue: "" }) cssClass: string;
+  @property({ defaultValue: "" }) title: string;
   constructor(
     contentComponentName: string,
-    contentComponentData: any,
+    contentComponentData: T,
     verticalPosition: VerticalPosition = "bottom",
     horizontalPosition: HorizontalPosition = "left",
     showPointer: boolean = true,
     isModal: boolean = false,
-    onCancel = () => {},
+    onCancel = () => { },
     onApply = () => { return true; },
-    onHide = () => {},
-    onShow = () => {},
-    cssClass: string = ""
+    onHide = () => { },
+    onShow = () => { },
+    cssClass: string = "",
+    title: string = ""
   ) {
     super();
     this.contentComponentName = contentComponentName;
@@ -46,6 +48,7 @@ export class PopupModel extends Base {
     this.onHide = onHide;
     this.onShow = onShow;
     this.cssClass = cssClass;
+    this.title = title;
   }
   public get isVisible(): boolean {
     return this.getPropertyValue("isVisible", false);
@@ -73,9 +76,10 @@ export function createPopupModalViewModel(
   data: any,
   onApply: () => boolean,
   onCancel?: () => void,
-  onHide = () => {},
-  onShow = () => {},
-  cssClass?: string
+  onHide = () => { },
+  onShow = () => { },
+  cssClass?: string,
+  title?: string
 ) {
   const popupModel = new PopupModel(
     componentName,
@@ -88,7 +92,8 @@ export function createPopupModalViewModel(
     onApply,
     onHide,
     onShow,
-    cssClass
+    cssClass,
+    title
   );
   const popupViewModel: PopupBaseViewModel = new PopupBaseViewModel(
     popupModel,
@@ -98,10 +103,12 @@ export function createPopupModalViewModel(
   return popupViewModel;
 }
 
-const FOCUS_INPUT_SELECTOR =
-  "input:not(:disabled):not([readonly]):not([type=hidden]),select:not(:disabled):not([readonly]),textarea:not(:disabled):not([readonly]), button:not(:disabled):not([readonly])";
+const FOCUS_INPUT_SELECTOR = "input:not(:disabled):not([readonly]):not([type=hidden]),select:not(:disabled):not([readonly]),textarea:not(:disabled):not([readonly]), button:not(:disabled):not([readonly]), [tabindex]:not([tabindex^=\"-\"])";
 
 export class PopupBaseViewModel extends Base {
+  private prevActiveElement: HTMLElement;
+  private scrollEventCallBack = () => this.hidePopup();
+
   @property({ defaultValue: "0px" }) top: string;
   @property({ defaultValue: "0px" }) left: string;
   @property({ defaultValue: "auto" }) height: string;
@@ -110,11 +117,22 @@ export class PopupBaseViewModel extends Base {
   @property({ defaultValue: { left: "0px", top: "0px" } })
   pointerTarget: IPosition;
   public container: HTMLElement;
+
+  private hidePopup() {
+    this.model.isVisible = false;
+  }
+
   constructor(public model: PopupModel, public targetElement?: HTMLElement) {
     super();
     this.model.registerFunctionOnPropertyValueChanged("isVisible", () => {
+      if (!this.model.isVisible) {
+        this.updateOnHiding();
+      }
       this.isVisible = this.model.isVisible;
     });
+  }
+  public get title(): string {
+    return this.model.title;
   }
   public get contentComponentName(): string {
     return this.model.contentComponentName;
@@ -129,15 +147,12 @@ export class PopupBaseViewModel extends Base {
     return this.model.isModal;
   }
   public get styleClass(): string {
-    let css = this.model.cssClass;
-    if (this.isModal) {
-      css += " sv-popup--modal";
-    } else if (this.showPointer) {
-      css += " sv-popup--show-pointer";
-      css += ` sv-popup--${this.popupDirection}`;
-    }
-
-    return css;
+    return new CssClassBuilder()
+      .append(this.model.cssClass)
+      .append("sv-popup--modal", this.isModal)
+      .append("sv-popup--show-pointer", !this.isModal && this.showPointer)
+      .append(`sv-popup--${this.popupDirection}`, !this.isModal && this.showPointer)
+      .toString();
   }
   public onKeyDown(event: any) {
     if (event.key === "Tab" || event.keyCode === 9) {
@@ -146,16 +161,13 @@ export class PopupBaseViewModel extends Base {
       if (this.isModal) {
         this.model.onCancel();
       }
-      this.model.isVisible = false;
+      this.hidePopup();
     }
   }
   private trapFocus(event: any) {
-    const focusableElements = this.container.querySelectorAll(
-      FOCUS_INPUT_SELECTOR
-    );
+    const focusableElements = this.container.querySelectorAll(FOCUS_INPUT_SELECTOR);
     const firstFocusableElement = focusableElements[0];
-    const lastFocusableElement =
-      focusableElements[focusableElements.length - 1];
+    const lastFocusableElement = focusableElements[focusableElements.length - 1];
     if (event.shiftKey) {
       if (document.activeElement === firstFocusableElement) {
         (<HTMLElement>lastFocusableElement).focus();
@@ -169,17 +181,27 @@ export class PopupBaseViewModel extends Base {
     }
   }
   public updateOnShowing() {
+    this.prevActiveElement = <HTMLElement>document.activeElement;
     if (!this.isModal) {
       this.updatePosition();
     }
     this.focusFirstInput();
+    if (!this.isModal) {
+      window.addEventListener("scroll", this.scrollEventCallBack);
+    }
+  }
+  public updateOnHiding() {
+    this.prevActiveElement && this.prevActiveElement.focus();
+    if (!this.isModal) {
+      window.removeEventListener("scroll", this.scrollEventCallBack);
+    }
   }
   private updatePosition() {
     const rect = this.targetElement.getBoundingClientRect();
     const background = <HTMLElement>this.container.children[0];
     const popupContainer = <HTMLElement>background.children[0];
-    const scrollContent = <HTMLElement>background.children[0].children[1];
-    const height =
+    const scrollContent = <HTMLElement>background.children[0].querySelector(".sv-popup__scrolling-content");
+    let height =
       popupContainer.offsetHeight -
       scrollContent.offsetHeight +
       scrollContent.scrollHeight;
@@ -187,6 +209,7 @@ export class PopupBaseViewModel extends Base {
     this.height = "auto";
     let verticalPosition = this.model.verticalPosition;
     if (!!window) {
+      height = Math.min(height, window.innerHeight * 0.9);
       verticalPosition = PopupUtils.updateVerticalPosition(
         rect,
         height,
@@ -245,15 +268,15 @@ export class PopupBaseViewModel extends Base {
     if (this.isModal) {
       return;
     }
-    this.model.isVisible = false;
+    this.hidePopup();
   }
   public cancel() {
     this.model.onCancel();
-    this.model.isVisible = false;
+    this.hidePopup();
   }
   public apply() {
     if (!!this.model.onApply && !this.model.onApply()) return;
-    this.model.isVisible = false;
+    this.hidePopup();
   }
   public get cancelButtonText() {
     return surveyLocalization.getString("modalCancelButtonText");

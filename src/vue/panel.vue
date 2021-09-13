@@ -29,7 +29,7 @@
     <div :class="question.cssClasses.panel.description">
       <survey-string :locString="question.locDescription" />
     </div>
-    <survey-errors :question="question" />
+    <survey-errors :element="question" />
     <div
       :id="question.contentId"
       :style="{ paddingLeft: question.innerPaddingLeft }"
@@ -44,17 +44,9 @@
       >
         <survey-row :row="row" :survey="survey" :css="css"></survey-row>
       </div>
-      <div
-        v-if="question.hasEditButton"
-        :class="question.cssClasses.panel.footer"
-      >
-        <input
-          type="button"
-          :value="survey.editText"
-          :class="survey.cssNavigationEdit"
-          @click="cancelPreview"
-        />
-      </div>
+    <sv-action-bar
+      :model="question.getFooterToolbar()"
+    ></sv-action-bar>
     </div>
   </div>
 </template>
@@ -62,8 +54,7 @@
 <script lang="ts">
 import Vue from "vue";
 import { Component, Prop } from "vue-property-decorator";
-import { PanelModelBase, PanelModel, doKey2Click } from "survey-core";
-import { ISurvey, Base } from "survey-core";
+import { PanelModel, Base, doKey2ClickUp, ISurvey, QuestionRowModel } from "survey-core";
 import { BaseVue } from "./base";
 
 @Component
@@ -79,10 +70,7 @@ export class Panel extends BaseVue {
   }
   protected onMounted() {
     if (this.question.survey) {
-      this.question.survey.afterRenderPanel(
-        this.question,
-        this.$el as HTMLElement
-      );
+      this.question.survey.afterRenderPanel(this.question, this.$el as HTMLElement);
     }
     this.isCollapsed = this.question.isCollapsed;
 
@@ -108,30 +96,24 @@ export class Panel extends BaseVue {
   get showIcon() {
     return this.question.isExpanded || this.question.isCollapsed;
   }
-  get rows() {
+  get rows(): QuestionRowModel[] {
     return this.question.rows;
   }
   get hasTitle() {
     return this.question.title.length > 0;
   }
-  get survey() {
+  get survey(): ISurvey {
     return this.question.survey;
   }
-  get iconCss() {
-    var result = this.css.panel.icon;
-    if (!this.isCollapsed) result += " " + this.css.panel.iconExpanded;
-    return result;
-  }
   keyup(evt: any) {
-    doKey2Click(evt);
+    doKey2ClickUp(evt);
   }
   cancelPreview() {
     this.question.cancelPreview();
   }
   get requiredTextCss() {
     return (
-      this.question.cssClasses.requiredText ||
-      this.question.cssClasses.panel.requiredText
+      this.question.cssClasses.requiredText || this.question.cssClasses.panel.requiredText
     );
   }
 }

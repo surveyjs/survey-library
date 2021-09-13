@@ -1,21 +1,11 @@
-<button
-  class="sv-action-bar-item sv-action-bar-item-dropdown"
-  data-bind="click: action, key2click, css: { 'sv-action-bar-item--active': !!ko.unwrap($data.active) }, class: $data.innerCss, attr: { disabled: $data.enabled !== undefined && !ko.unwrap($data.enabled), title: $data.tooltip || $data.title}"
->
+<button class="sv-action-bar-item-dropdown"
+  data-bind="click: action, key2click: { processEsc: false }, css: getActionBarItemActiveCss(), attr: { disabled: $data.enabled !== undefined && !ko.unwrap($data.enabled), title: $data.tooltip || $data.title }">
   <!-- ko if: $data.iconName -->
-  <sv-svg-icon
-    class="sv-action-bar-item__icon"
-    params="iconName: iconName, size: 24"
-  ></sv-svg-icon>
+  <sv-svg-icon class="sv-action-bar-item__icon" params="iconName: iconName, size: iconSize"></sv-svg-icon>
   <!-- /ko -->
   <!-- ko if: $data.hasTitle -->
-  <span
-    class="sv-action-bar-item__title"
-    data-bind="text: title, css: { 'sv-action-bar-item__title--with-icon': !!$data.iconName }"
-  ></span>
+  <span data-bind="text: title, css: getActionBarItemCss()"></span>
   <!-- /ko -->
-  <sv-popup
-    params="model: popupModel"
-  ></sv-popup>
+  <sv-popup params="model: popupModel"></sv-popup>
 
 </button>

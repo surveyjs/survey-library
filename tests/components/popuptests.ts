@@ -117,7 +117,7 @@ QUnit.test("PopupViewModel styleClass", (assert) => {
   viewModel.initializePopupContainer();
   viewModel.container.innerHTML = popupTemplate;
 
-  assert.equal(viewModel.styleClass, " sv-popup--show-pointer sv-popup--left");
+  assert.equal(viewModel.styleClass, "sv-popup--show-pointer sv-popup--left");
   model.cssClass = "my-css-class";
   assert.equal(
     viewModel.styleClass,
@@ -387,9 +387,9 @@ QUnit.test("PopupModel apply when not allow", (assert) => {
 
   assert.equal(viewModel.isVisible, false);
 
-  let canApply = false; 
+  let canApply = false;
   model.onApply = (): boolean => {
-      return canApply;
+    return canApply;
   };
 
   model.toggleVisibility();
@@ -680,7 +680,7 @@ QUnit.test("Check calculatePointer target method", (assert) => {
 });
 
 QUnit.test("Check calculatePosition with window size method", (assert) => {
-  let targetRect = {
+  let targetRect: any = {
     left: 50,
     top: 250,
     width: 50,
@@ -840,5 +840,10 @@ QUnit.test(
     newVerticalDimensions = PopupUtils.updateVerticalDimensions(150, 200, 300);
     assert.equal(newVerticalDimensions.height, 150);
     assert.equal(newVerticalDimensions.top, 150);
+
+    newVerticalDimensions = PopupUtils.updateVerticalDimensions(150, 450, 300);
+    assert.equal(newVerticalDimensions.height, 150);
+    assert.equal(newVerticalDimensions.top, 150);
+
   }
 );

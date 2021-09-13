@@ -1,4 +1,3 @@
-import Vue from "vue";
 import { Base } from "survey-core";
 import { Question } from "survey-core";
 import { Component, Prop, Watch } from "vue-property-decorator";

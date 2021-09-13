@@ -1,4 +1,4 @@
-import { Serializer, property } from "./jsonobject";
+import { Serializer } from "./jsonobject";
 import { HashTable, Helpers } from "./helpers";
 import { Base } from "./base";
 import {
@@ -13,7 +13,7 @@ import {
   ITitleOwner,
   IProgressInfo,
   ISurvey,
-  IFindElement,
+  IFindElement
 } from "./base-interfaces";
 import { SurveyElement } from "./survey-element";
 import { Question } from "./question";
@@ -25,6 +25,9 @@ import { PageModel } from "./page";
 import { settings } from "./settings";
 import { findScrollableParent, isElementVisible } from "./utils/utils";
 import { SurveyError } from "./survey-error";
+import { CssClassBuilder } from "./utils/cssClassBuilder";
+import { IAction } from "./actions/action";
+import { AdaptiveActionContainer } from "./actions/adaptive-container";
 
 export class DragDropInfo {
   constructor(
@@ -380,6 +383,36 @@ export class PanelModelBase extends SurveyElement
   get locRequiredErrorText(): LocalizableString {
     return this.getLocalizableString("requiredErrorText");
   }
+  /**
+   * Use this property to randomize questions. Set it to 'random' to randomize questions, 'initial' to keep them in the same order or 'default' to use the Survey questionsOrder property
+   * @see SurveyModel.questionsOrder
+   * @see areQuestionsRandomized
+   */
+  public get questionsOrder(): string {
+    return this.getPropertyValue("questionsOrder");
+  }
+  public set questionsOrder(val: string) {
+    this.setPropertyValue("questionsOrder", val);
+  }
+  private canRandomize(isRandom: boolean): boolean {
+    return isRandom && (this.questionsOrder !== "initial") || this.questionsOrder === "random";
+  }
+  protected isRandomizing = false;
+  randomizeElements(isRandom: boolean): void {
+    if (!this.canRandomize(isRandom) || this.isRandomizing) return;
+    this.isRandomizing = true;
+    var oldElements = [];
+    var elements = this.elements;
+    for (var i = 0; i < elements.length; i++) {
+      oldElements.push(elements[i]);
+    }
+    var newElements = Helpers.randomizeArray<IElement>(oldElements);
+    this.elements.splice(0, this.elements.length);
+    for (var i = 0; i < newElements.length; i++) {
+      this.elements.push(newElements[i]);
+    }
+    this.isRandomizing = false;
+  }
   getLocale(): string {
     return this.survey
       ? (<ILocalizableOwner>(<any>this.survey)).getLocale()
@@ -652,7 +685,7 @@ export class PanelModelBase extends SurveyElement
   public set requiredIf(val: string) {
     this.setPropertyValue("requiredIf", val);
   }
-  public searchText(text: string, founded: Array<IFindElement>) {
+  public searchText(text: string, founded: Array<IFindElement>): void {
     super.searchText(text, founded);
     for (var i = 0; i < this.elements.length; i++) {
       (<Base>(<any>this.elements[i])).searchText(text, founded);
@@ -1147,6 +1180,7 @@ export class PanelModelBase extends SurveyElement
     if (!this.isLoadingFromJson) this.onVisibleChanged();
   }
   protected onVisibleChanged() {
+    if (this.isRandomizing) return;
     this.setPropertyValue("isVisible", this.isVisible);
     if (
       !!this.survey &&
@@ -1234,8 +1268,8 @@ export class PanelModelBase extends SurveyElement
   }
   public updateElementCss(reNew?: boolean) {
     this.cssClassesValue = undefined;
-    for (var i = 0; i < this.elements.length; i++) {
-      var el = <SurveyElement>(<any>this.elements[i]);
+    for (let i = 0; i < this.elements.length; i++) {
+      const el = <SurveyElement>(<any>this.elements[i]);
       el.updateElementCss(reNew);
     }
     super.updateElementCss(reNew);
@@ -1600,6 +1634,7 @@ export class PanelModel extends PanelModelBase
   constructor(name: string = "") {
     super(name);
     var self = this;
+    this.createNewArray("footerActions");
     this.registerFunctionOnPropertyValueChanged("width", function() {
       if (!!self.parent) {
         self.parent.elementWidthChanged(self);
@@ -1688,7 +1723,7 @@ export class PanelModel extends PanelModelBase
    * @see showNumber
    */
   public get showQuestionNumbers(): string {
-    return this.getPropertyValue("showQuestionNumbers", "default");
+    return this.getPropertyValue("showQuestionNumbers");
   }
   public set showQuestionNumbers(value: string) {
     this.setPropertyValue("showQuestionNumbers", value);
@@ -1774,7 +1809,7 @@ export class PanelModel extends PanelModelBase
    * The left indent. Set this property to increase the panel left indent.
    */
   public get indent(): number {
-    return this.getPropertyValue("indent", 0);
+    return this.getPropertyValue("indent");
   }
   public set indent(val: number) {
     this.setPropertyValue("indent", val);
@@ -1783,7 +1818,7 @@ export class PanelModel extends PanelModelBase
    * The inner indent. Set this property to increase the panel content margin.
    */
   public get innerIndent(): number {
-    return this.getPropertyValue("innerIndent", 0);
+    return this.getPropertyValue("innerIndent");
   }
   public set innerIndent(val: number) {
     this.setPropertyValue("innerIndent", val);
@@ -1798,7 +1833,7 @@ export class PanelModel extends PanelModelBase
    * The Panel renders on the new line if the property is true. If the property is false, the panel tries to render on the same line/row with a previous question/panel.
    */
   public get startWithNewLine(): boolean {
-    return this.getPropertyValue("startWithNewLine", true);
+    return this.getPropertyValue("startWithNewLine");
   }
   public set startWithNewLine(value: boolean) {
     this.setPropertyValue("startWithNewLine", value);
@@ -1849,8 +1884,31 @@ export class PanelModel extends PanelModelBase
       }
     });
   }
+  public get footerActions(): Array<IAction> {
+    return this.getPropertyValue("footerActions");
+  }
+  private footerToolbarValue: AdaptiveActionContainer;
+  public getFooterToolbar(): AdaptiveActionContainer {
+    if (!this.footerToolbarValue) {
+      var actions = this.footerActions;
+      if(this.hasEditButton) {
+        actions.push({
+          id: "cancel-preview",
+          title: this.survey.editText,
+          innerCss: this.survey.cssNavigationEdit,
+          action: () => { this.cancelPreview(); }
+        });
+      }
+      this.footerToolbarValue = new AdaptiveActionContainer();
+      if(!!this.cssClasses.panel) {
+        this.footerToolbarValue.containerCss = this.cssClasses.panel.footer;
+      }
+      this.footerToolbarValue.setItems(actions);
+    }
+    return this.footerToolbarValue;
+  }
   public get hasEditButton(): boolean {
-    if (this.survey && this.survey.state == "preview") return this.depth == 1;
+    if (this.survey && this.survey.state === "preview") return this.depth === 1;
     return false;
   }
   public cancelPreview() {
@@ -1858,18 +1916,18 @@ export class PanelModel extends PanelModelBase
     this.survey.cancelPreviewByPage(this);
   }
   public get cssTitle(): string {
-    var result = this.cssClasses.panel.title;
-    if (this.state !== "default") {
-      result += " " + this.cssClasses.panel.titleExpandable;
-    }
-    if (this.containsErrors) {
-      result += " " + this.cssClasses.panel.titleOnError;
-    }
-    return result;
+    return new CssClassBuilder()
+      .append(this.cssClasses.panel.title)
+      .append(this.cssClasses.panel.titleExpandable, this.state !== "default")
+      .append(this.cssClasses.panel.titleOnError, this.containsErrors)
+      .toString();
   }
   public get cssError(): string {
-    var rootClass = this.cssClasses.error.root;
-    return rootClass ? rootClass : "panel-error-root";
+    return this.getCssError(this.cssClasses);
+  }
+  protected getCssError(cssClasses: any): string {
+    const builder = new CssClassBuilder().append(this.cssClasses.error.root);
+    return builder.append("panel-error-root", builder.isEmpty()).toString();
   }
   protected onVisibleChanged() {
     super.onVisibleChanged();
@@ -1900,6 +1958,12 @@ Serializer.addClass(
     },
     { name: "title:text", serializationProperty: "locTitle" },
     { name: "description:text", serializationProperty: "locDescription" },
+    {
+      name: "questionsOrder",
+      default: "default",
+      choices: ["default", "initial", "random"],
+    },
+
   ],
   function() {
     return new PanelModelBase();

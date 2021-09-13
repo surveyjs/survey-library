@@ -1,3 +1,6 @@
+import { Serializer } from "./jsonobject";
+import { QuestionFactory } from "./questionfactory";
+import { IConditionObject, Question } from "./question";
 import {
   QuestionMatrixDropdownModelBase,
   MatrixDropdownRowModelBase,
@@ -6,20 +9,17 @@ import {
   QuestionMatrixDropdownRenderedTable,
   QuestionMatrixDropdownRenderedRow,
 } from "./question_matrixdropdownbase";
-import { property, Serializer } from "./jsonobject";
-import { QuestionFactory } from "./questionfactory";
 import { surveyLocalization } from "./surveyStrings";
-import { SurveyError } from "./survey-error";
-import { Question } from "./question";
-import { MinRowCountError } from "./error";
-import { IConditionObject } from "./question";
-import { Helpers } from "./helpers";
-import { settings } from "./settings";
-import { confirmAction } from "./utils/utils";
 import { LocalizableString } from "./localizablestring";
-import { Action, IAction } from "./actions/action";
+import { SurveyError } from "./survey-error";
+import { MinRowCountError } from "./error";
+import { IAction } from "./actions/action";
+import { settings } from "./settings";
+import { Helpers } from "./helpers";
+import { confirmAction } from "./utils/utils";
 import { DragDropMatrixRows } from "./dragdrop/matrix-rows";
 import { ISurveyImpl } from "./base-interfaces";
+import { CssClassBuilder } from "./utils/cssClassBuilder";
 
 export class MatrixDynamicRowModel extends MatrixDropdownRowModelBase {
   constructor(public index: number, data: IMatrixDropdownData, value: any) {
@@ -78,33 +78,8 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   public setSurveyImpl(value: ISurveyImpl) {
     super.setSurveyImpl(value);
     this.dragDropMatrixRows = new DragDropMatrixRows(this.survey);
-    this.subscribeToDragDropHelper();
   }
 
-  public dispose() {
-    super.dispose();
-    this.unsubscribeToDragDropHelper();
-  }
-
-  private handleDragDropHelperChanges = (sender: any, options: any) => {
-    if (options.name === "isBottom") {
-      this.renderedTable.rows.forEach(
-        (renderedRow: QuestionMatrixDropdownRenderedRow) => {
-          renderedRow.ghostPosition = this.dragDropMatrixRows.getGhostPosition(
-            renderedRow.row
-          );
-        }
-      );
-    }
-  };
-  private subscribeToDragDropHelper = () => {
-    this.dragDropMatrixRows.onPropertyChanged.add(this.handleDragDropHelperChanges);
-  };
-  private unsubscribeToDragDropHelper = () => {
-    this.dragDropMatrixRows.onPropertyChanged.remove(
-      this.handleDragDropHelperChanges
-    );
-  };
   public startDragMatrixRow(
     event: PointerEvent,
     row: MatrixDropdownRowModelBase
@@ -188,7 +163,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     }
     this.value = newValue;
   }
-  protected moveRowByIndex = (fromIndex: number, toIndex: number) => {
+  public moveRowByIndex = (fromIndex: number, toIndex: number):void => {
     const value = this.createNewValue();
 
     if (!value) return;
@@ -259,7 +234,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   }
 
   private get rowCountValue(): number {
-    return this.getPropertyValue("rowCount", 2);
+    return this.getPropertyValue("rowCount");
   }
   private set rowCountValue(val: number) {
     this.setPropertyValue("rowCount", val);
@@ -271,7 +246,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
    * @see allowAddRows
    */
   public get minRowCount(): number {
-    return this.getPropertyValue("minRowCount", 0);
+    return this.getPropertyValue("minRowCount");
   }
   public set minRowCount(val: number) {
     if (val < 0) val = 0;
@@ -286,7 +261,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
    * @see allowAddRows
    */
   public get maxRowCount(): number {
-    return this.getPropertyValue("maxRowCount", settings.matrixMaximumRowCount);
+    return this.getPropertyValue("maxRowCount");
   }
   public set maxRowCount(val: number) {
     if (val <= 0) return;
@@ -303,7 +278,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
    * @see allowRemoveRows
    */
   public get allowAddRows(): boolean {
-    return this.getPropertyValue("allowAddRows", true);
+    return this.getPropertyValue("allowAddRows");
   }
   public set allowAddRows(val: boolean) {
     this.setPropertyValue("allowAddRows", val);
@@ -314,7 +289,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
    * @see allowAddRows
    */
   public get allowRemoveRows(): boolean {
-    return this.getPropertyValue("allowRemoveRows", true);
+    return this.getPropertyValue("allowRemoveRows");
   }
   public set allowRemoveRows(val: boolean) {
     this.setPropertyValue("allowRemoveRows", val);
@@ -805,6 +780,19 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     if (!res && create) res = {};
     return res;
   }
+  public getAddRowButtonCss(isEmptySection: boolean = false): string {
+    return new CssClassBuilder()
+      .append(this.cssClasses.button)
+      .append(this.cssClasses.buttonAdd)
+      .append(this.cssClasses.emptyRowsButton, isEmptySection)
+      .toString();
+  }
+  public getRemoveRowButtonCss(): string {
+    return new CssClassBuilder()
+      .append(this.cssClasses.button)
+      .append(this.cssClasses.buttonRemove)
+      .toString();
+  }
 }
 
 class QuestionMatrixDynamicRenderedTable extends QuestionMatrixDropdownRenderedTable {
@@ -813,16 +801,6 @@ class QuestionMatrixDynamicRenderedTable extends QuestionMatrixDropdownRenderedT
     actions: Array<IAction>
   ) {
     super.setDefaultRowActions(row, actions);
-    // if (this.matrix.allowRowsDragAndDrop) {
-    //   actions.push(
-    //     new Action({
-    //       id: "drag-row",
-    //       location: "start",
-    //       component: "sv-matrix-drag-drop-icon",
-    //       data: { row: row, question: this.matrix },
-    //     })
-    //   );
-    // }
   }
 }
 

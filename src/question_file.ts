@@ -1,10 +1,12 @@
 import { Question } from "./question";
-import { Serializer } from "./jsonobject";
+import { property, Serializer } from "./jsonobject";
 import { QuestionFactory } from "./questionfactory";
 import { EventBase } from "./base";
 import { UploadingFileError, ExceedSizeError } from "./error";
 import { surveyLocalization } from "./surveyStrings";
 import { SurveyError } from "./survey-error";
+import { CssClassBuilder } from "./utils/cssClassBuilder";
+import { confirmAction, detectIEOrEdge, loadFileFromBase64 } from "./utils/utils";
 
 /**
  * A Model for a file question
@@ -20,7 +22,7 @@ export class QuestionFileModel extends Question {
     QuestionFileModel
   >();
   public previewValue: any[] = [];
-  public currentState = "empty";
+  @property({ defaultValue: "empty" }) currentState: string;
   constructor(name: string) {
     super(name);
   }
@@ -91,7 +93,7 @@ export class QuestionFileModel extends Question {
    * Set it to true if you want to wait until files will be uploaded to your server.
    */
   public get waitForUpload(): boolean {
-    return this.getPropertyValue("waitForUpload", false);
+    return this.getPropertyValue("waitForUpload");
   }
   public set waitForUpload(val: boolean) {
     this.setPropertyValue("waitForUpload", val);
@@ -405,6 +407,74 @@ export class QuestionFileModel extends Question {
   public supportComment(): boolean {
     return true;
   }
+  public getChooseFileCss(): string {
+    return new CssClassBuilder()
+      .append(this.cssClasses.chooseFile)
+      .append(this.cssClasses.controlDisabled, this.isReadOnly)
+      .toString();
+  }
+  public getReadOnlyFileCss(): string {
+    return new CssClassBuilder()
+      .append("form-control")
+      .append(this.cssClasses.placeholderInput)
+      .toString();
+  }
+
+  private onChange(src: any) {
+    if (!(<any>window)["FileReader"]) return;
+    if (!src || !src.files || src.files.length < 1) return;
+    let files = [];
+    let allowCount = this.allowMultiple ? src.files.length : 1;
+    for (let i = 0; i < allowCount; i++) {
+      files.push(src.files[i]);
+    }
+    src.value = "";
+    this.loadFiles(files);
+  }
+  //#region
+  // web-based methods
+  onDragOver = (event: any) => {
+    if (this.isReadOnly) {
+      event.returnValue = false;
+      return false;
+    }
+    event.dataTransfer.dropEffect = "copy";
+    event.preventDefault();
+  }
+  onDrop = (event: any) => {
+    event.preventDefault();
+    let src = event.dataTransfer;
+    this.onChange(src);
+  }
+  doChange = (event: any) => {
+    var src = event.target || event.srcElement;
+    this.onChange(src);
+  }
+  doClean = (event: any) => {
+    var src = event.target || event.srcElement;
+    if (this.needConfirmRemoveFile) {
+      var isConfirmed = confirmAction(this.confirmRemoveAllMessage);
+      if (!isConfirmed) return;
+    }
+    src.parentElement.querySelectorAll("input")[0].value = "";
+    this.clear();
+  }
+  doRemoveFile(data: any) {
+    if (this.needConfirmRemoveFile) {
+      var isConfirmed = confirmAction(
+        this.getConfirmRemoveMessage(data.name)
+      );
+      if (!isConfirmed) return;
+    }
+    this.removeFile(data);
+  }
+  doDownloadFile = (event: any, data: any) => {
+    if (detectIEOrEdge()) {
+      event.preventDefault();
+      loadFileFromBase64(data.content, data.name);
+    }
+  }
+  //#endregion
 }
 Serializer.addClass(
   "file",

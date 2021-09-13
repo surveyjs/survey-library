@@ -19,6 +19,7 @@ export class SurveyAction extends SurveyElementBase<IActionBarItemProps, any> {
   }
 
   renderElement() {
+    //refactor
     const itemClass =
       "sv-action " +
       this.item.css +
@@ -35,8 +36,10 @@ export class SurveyAction extends SurveyElementBase<IActionBarItemProps, any> {
     );
     return (
       <span className={itemClass} id={this.item.id}>
-        {separator}
-        {itemComponent}
+        <div className="sv-action__content">
+          {separator}
+          {itemComponent}
+        </div>
       </span>
     );
   }
@@ -58,12 +61,9 @@ export class SurveyActionBarItem extends SurveyElementBase<
   }
 
   renderText() {
-    if (this.item.hasTitle) {
-      var titleClass =
-        "sv-action-bar-item__title " +
-        (!!this.item.iconName ? "sv-action-bar-item__title--with-icon" : "");
-      return <span className={titleClass}> {this.item.title}</span>;
-    } else return null;
+    if (!this.item.hasTitle) return null;
+    const titleClass = this.item.getActionBarItemCss();
+    return <span className={titleClass}> {this.item.title}</span>;
   }
 
   renderButtonContent() {
@@ -71,7 +71,7 @@ export class SurveyActionBarItem extends SurveyElementBase<
     const svgIcon = !!this.item.iconName ? (
       <SvgIcon
         className="sv-action-bar-item__icon"
-        size={24}
+        size={this.item.iconSize}
         iconName={this.item.iconName}
       ></SvgIcon>
     ) : null;
@@ -84,10 +84,7 @@ export class SurveyActionBarItem extends SurveyElementBase<
   }
 
   renderInnerButton() {
-    const className =
-      "sv-action-bar-item " +
-      this.item.innerCss +
-      (this.item.active ? " sv-action-bar-item--active" : "");
+    const className = this.item.getActionBarItemActiveCss();
     const title = this.item.tooltip || this.item.title;
     const buttonContent = this.renderButtonContent();
     const tabIndex = this.item.disableTabStop ? -1 : undefined;
@@ -101,8 +98,7 @@ export class SurveyActionBarItem extends SurveyElementBase<
         tabIndex={tabIndex}
       >
         {buttonContent}
-      </button>
-    );
+      </button>, null, { processEsc: false });
 
     return button;
   }

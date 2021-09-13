@@ -88,10 +88,13 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner {
   areEmptyElementsHidden: boolean;
   isLoadingFromJson: boolean;
   isUpdateValueTextOnTyping: boolean;
+  autoGrowComment: boolean;
 
   state: string;
   isLazyRendering: boolean;
   cancelPreviewByPage(panel: IPanel): any;
+  editText: string;
+  cssNavigationEdit: string;
 
   requiredText: string;
   beforeSettingQuestionErrors(

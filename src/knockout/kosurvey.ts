@@ -10,6 +10,7 @@ import { LocalizableString } from "survey-core";
 import { ItemValue } from "survey-core";
 import { ImplementorBase } from "./kobase";
 import { StylesManager } from "survey-core";
+import { doKey2ClickDown, doKey2ClickUp } from "../utils/utils";
 
 CustomWidgetCollection.Instance.onCustomWidgetAdded.add(customWidget => {
   if (customWidget.widgetJson.isDefaultRender) return;
@@ -260,7 +261,7 @@ export class Survey extends SurveyModel {
       }
       if (key.indexOf("on") == 0 && this[key] && this[key].add) {
         let funcBody = newProps[key];
-        let func = function(sender: any, options: any) {
+        let func = function (sender: any, options: any) {
           funcBody(sender, options);
         };
         this[key].add(func);
@@ -292,7 +293,7 @@ export class Survey extends SurveyModel {
   }
 }
 
-LocalizableString.prototype["onCreating"] = function() {
+LocalizableString.prototype["onCreating"] = function () {
   // var self = this;
   // this.koReRender = ko.observable(0);
   this.koHasHtml = ko.observable(this.hasHtml);
@@ -309,11 +310,11 @@ LocalizableString.prototype["onCreating"] = function() {
   // });
 };
 
-ItemValue.prototype["onCreating"] = function() {
+ItemValue.prototype["onCreating"] = function () {
   new ImplementorBase(this);
 };
 
-LocalizableString.prototype["onChanged"] = function() {
+LocalizableString.prototype["onChanged"] = function () {
   // this.koReRender(this.koReRender() + 1);
   const hasHtml = this.hasHtml;
   this.koHasHtml(hasHtml);
@@ -322,7 +323,7 @@ LocalizableString.prototype["onChanged"] = function() {
 
 ko.components.register("survey", {
   viewModel: {
-    createViewModel: function(params: any, componentInfo: any) {
+    createViewModel: function (params: any, componentInfo: any) {
       var survey: Survey = ko.unwrap(params.survey);
       setTimeout(() => {
         var surveyRoot = document.createElement("div");
@@ -337,7 +338,7 @@ ko.components.register("survey", {
 });
 
 ko.bindingHandlers["surveyProp"] = {
-  update: function(element: any, valueAccessor: any, allBindingsAccessor: any) {
+  update: function (element: any, valueAccessor: any, allBindingsAccessor: any) {
     var value = ko.utils.unwrapObservable(valueAccessor()) || {};
     for (var propName in value) {
       if (typeof propName == "string") {
@@ -350,11 +351,11 @@ ko.bindingHandlers["surveyProp"] = {
 SurveyModel.platform = "knockout";
 
 export var registerTemplateEngine = (ko: any, platform: string) => {
-  (<any>ko).surveyTemplateEngine = function() {};
+  (<any>ko).surveyTemplateEngine = function () { };
 
   (<any>ko).surveyTemplateEngine.prototype = new ko.nativeTemplateEngine();
 
-  (<any>ko).surveyTemplateEngine.prototype.makeTemplateSource = function(
+  (<any>ko).surveyTemplateEngine.prototype.makeTemplateSource = function (
     template: any,
     templateDocument: any
   ) {
@@ -410,36 +411,22 @@ export var registerTemplateEngine = (ko: any, platform: string) => {
   ko.setTemplateEngine(surveyTemplateEngineInstance);
 };
 
-export function createKey2click(element: HTMLElement) {
-  return (ev: KeyboardEvent) => {
-    ev.preventDefault();
-    ev.stopPropagation();
-    var char = ev.which || ev.keyCode;
-    if (char === 13 || char === 32) {
-      element.click();
-    } else if (char === 27) {
-      element.blur();
-    }
-    return false;
-  };
-}
-
 ko.bindingHandlers["key2click"] = {
   init: function (element: HTMLElement, valueAccessor, allBindingsAccessor, viewModel: any) {
-    if(viewModel.disableTabStop) {
+    const options = valueAccessor() || {
+      processEsc: true
+    };
+    if (viewModel.disableTabStop) {
       element.tabIndex = -1;
       return;
     }
     element.tabIndex = 0;
-    element.onkeyup = createKey2click(element);
-    element.onkeydown = (evt: any) => {
-      if(!!evt.target && evt.target.contentEditable === "true") {
-        return;
-      }
-      var char = evt.which || evt.keyCode;
-      if([13, 32, 27].indexOf(char) !== -1) {
-        evt.preventDefault();
-      }
+    element.onkeyup = (evt: any) => {
+      evt.preventDefault();
+      evt.stopPropagation();
+      doKey2ClickUp(evt, options);
+      return false;
     };
+    element.onkeydown = (evt: any) => doKey2ClickDown(evt, options);
   },
 };

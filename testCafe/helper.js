@@ -3,6 +3,7 @@ export const frameworks = ["knockout", "react", "vue"];
 export const url = "http://127.0.0.1:8080/examples_test/default/";
 export const url_test = "http://127.0.0.1:8080/examples_test/";
 export const url_widgets = "http://127.0.0.1:8080/examples/";
+export const FLOAT_PRECISION = 0.01;
 
 export const initSurvey = ClientFunction(
   (framework, json, events, isDesignMode, props) => {
@@ -56,6 +57,44 @@ export const initSurvey = ClientFunction(
       });
     }
     window.survey = model;
+  }
+);
+
+export const registerCustomToolboxComponent = ClientFunction(
+  (framework, json, events, isDesignMode, props) => {
+    if (framework === "knockout") {
+      ko.components.register("svc-custom-action", {
+        viewModel: {
+          createViewModel: (params) => {
+            return params.item;
+          },
+        },
+        template: `<div class="my-custom-action-class" data-bind="click: function() { $data.action() }, text: $data.title"></div>`
+      });
+    }  else if (framework === "react") {
+      class CustomActionButton extends React.Component {
+        click = () => {
+            this.props.item.action();
+        }
+        render() {
+            return (
+              <div className="my-custom-action-class" onClick={this.click}> {this.props.item.title}</div>
+            );
+        }
+      }
+    
+      Survey.ReactElementFactory.Instance.registerElement("svc-custom-action", (props) => {
+          return React.createElement(CustomActionButton, props);
+      });
+    
+    } else if (framework === "vue") {
+      // Vue.component('svc-custom-action', {
+      //   props: {
+      //     item: {}
+      //   },
+      //   template: '<div class="my-custom-action-class" data-bind="click: function() { $data.action() }">{{ item.title }}</div>'
+      // });
+    }
   }
 );
 
@@ -116,5 +155,5 @@ export const getPanelJson = ClientFunction(() => {
 });
 
 export function getDynamicPanelRemoveButton(questionTitle, buttonText) {
-  return Selector("[aria-label='" + questionTitle + "']").parent("[aria-labelledby]").find("span").withText(buttonText)
+  return Selector("span").withText(`${questionTitle}`).parent("[aria-labelledby]").find("span").withText(buttonText)
 }

@@ -6,7 +6,7 @@ const template = require("html-loader?interpolate!val-loader!./popup.html");
 
 export class PopupViewModel {
   constructor(public popupViewModel: PopupBaseViewModel) {
-    if(!popupViewModel.container)
+    if (!popupViewModel.container)
       popupViewModel.initializePopupContainer();
     new ImplementorBase(popupViewModel.model);
     new ImplementorBase(popupViewModel);
@@ -30,12 +30,13 @@ export function showModal(
   data: any,
   onApply: () => boolean,
   onCancel?: () => void,
-  cssClass?: string
+  cssClass?: string,
+  title?: string
 ) {
   const popupViewModel: PopupBaseViewModel = createPopupModalViewModel(componentName, data, onApply, onCancel,
     () => {
       viewModel.dispose();
-    }, undefined, cssClass);
+    }, undefined, cssClass, title);
   var viewModel = new PopupViewModel(popupViewModel);
   popupViewModel.model.isVisible = true;
 }

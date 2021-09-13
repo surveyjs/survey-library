@@ -18,7 +18,7 @@
         <tbody>
           <tr
             v-for="(row, rowIndex) in question.visibleRows"
-            :key="'row-' + row.name + '-' + rowIndex"
+            :key="'row_' + row.name + '_' + rowIndex"
             :class="row.rowClasses"
           >
             <td :class="question.cssClasses.cell" v-show="question.hasRows">
@@ -52,8 +52,10 @@
                   :value="column.value"
                   :disabled="question.isInputReadOnly"
                   :id="question.inputId + '_' + row.name + '_' + columnIndex"
-                  v-bind:aria-required="question.isRequired"
-                  :aria-label="question.locTitle.renderedHtml"
+                  :aria-required="question.ariaRequired"
+                  :aria-label="question.ariaLabel"
+                  :aria-invalid="question.ariaInvalid"
+                  :aria-describedby="question.ariaDescribedBy"
                 />
                 <span :class="question.cssClasses.materialDecorator">
                   <svg

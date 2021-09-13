@@ -1,10 +1,14 @@
 import * as ko from "knockout";
-import { Serializer } from "survey-core";
-import { QuestionFactory } from "survey-core";
-import { QuestionFileModel } from "survey-core";
+import { Serializer,
+  Question,
+  QuestionFactory,
+  QuestionFileModel,
+  confirmAction,
+  detectIEOrEdge,
+  loadFileFromBase64
+} from "survey-core";
 import { QuestionImplementor } from "./koquestion";
-import { Question } from "survey-core";
-import { confirmAction, detectIEOrEdge, loadFileFromBase64 } from "survey-core";
+import { getOriginalEvent } from "../utils/utils";
 
 class QuestionFileImplementor extends QuestionImplementor {
   constructor(question: Question) {
@@ -25,74 +29,29 @@ class QuestionFileImplementor extends QuestionImplementor {
     );
     this.setObservaleObj("koInputTitle", ko.observable<string>());
     this.setObservaleObj(
-      "koChooseFileClass",
+      "koChooseFileCss",
       ko.pureComputed(() => {
-        return (
-          this.question.koCss().chooseFile +
-          (this.question.isReadOnly ? " " + this.question.koCss().controlDisabled : "")
-        );
+        return this.question.getChooseFileCss();
       })
     );
     this.setCallbackFunc("ondrop", (data: any, event: any) => {
-      if (this.question.isReadOnly) return false;
-      event.preventDefault();
-      let src = event.originalEvent
-        ? event.originalEvent.dataTransfer
-        : event.dataTransfer;
-      this.onChange(src);
+      this.question.onDrop(getOriginalEvent(event));
     });
     this.setCallbackFunc("ondragover", (data: any, event: any) => {
-      if (this.question.isReadOnly) {
-        event.returnValue = false;
-        return false;
-      }
-      let dataTransfer = event.originalEvent
-        ? event.originalEvent.dataTransfer
-        : event.dataTransfer;
-      dataTransfer.dropEffect = "copy";
-      event.preventDefault();
+      this.question.onDragOver(getOriginalEvent(event));
     });
     this.setCallbackFunc("dochange", (data: any, event: any) => {
-      var src = event.target || event.srcElement;
-      this.onChange(src);
+      this.question.doChange(getOriginalEvent(event));
     });
     this.setCallbackFunc("doclean", (data: any, event: any) => {
-      var src = event.target || event.srcElement;
-      if (this.question.needConfirmRemoveFile) {
-        var isConfirmed = confirmAction(this.question.confirmRemoveAllMessage);
-        if (!isConfirmed) return;
-      }
-      var input = src.parentElement.querySelectorAll("input")[0];
-      this.question.clear();
-      input.value = "";
+      this.question.doClean(getOriginalEvent(event));
     });
     this.setCallbackFunc("doremovefile", (data: any, event: any) => {
-      if (this.question.needConfirmRemoveFile) {
-        var isConfirmed = confirmAction(
-          this.question.getConfirmRemoveMessage(data.name)
-        );
-        if (!isConfirmed) return;
-      }
-      this.question.removeFile(data);
+      this.question.doRemoveFile(data);
     });
     this.setCallbackFunc("dodownload", (data: any, event: any) => {
-      if (detectIEOrEdge()) {
-        loadFileFromBase64(data.content, data.name);
-      } else {
-        return true;
-      }
+      this.question.doDownloadFile(getOriginalEvent(event), data);
     });
-  }
-  private onChange(src: any) {
-    if (!(<any>window)["FileReader"]) return;
-    if (!src || !src.files || src.files.length < 1) return;
-    let files = [];
-    let allowCount = this.question.allowMultiple ? src.files.length : 1;
-    for (let i = 0; i < allowCount; i++) {
-      files.push(src.files[i]);
-    }
-    src.value = "";
-    this.question.loadFiles(files);
   }
 }
 

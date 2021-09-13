@@ -4,6 +4,7 @@ $primary-light: var(--primary-light, rgba(25, 179, 148, 0.1));
 
 $background: var(--background, #fff);
 $background-dim: var(--background-dim, #f3f3f3);
+$foreground: var(--foreground, #161616);
 //todo: discuss this variable
 $foreground-disabled: var(--foreground-disabled, rgba(#161616, 0.16));
 
@@ -44,11 +45,14 @@ sv-popup {
   background: $body-background-color;
   border-radius: 4px;
   box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  max-height: 90vh;
+  max-width: 90vw;
+  box-sizing: border-box;
 }
 .sv-popup__scrolling-content {
   height: 100%;
-  max-width: 90vw;
-  max-height: 90vh;
   overflow: auto;
   &::-webkit-scrollbar {
     height: 6px;
@@ -100,6 +104,16 @@ sv-popup {
     align-self: center;
   }
 }
+.sv-popup__header {
+  font-family: Open Sans;
+  font-size: calcSize(3);
+  line-height: calcSize(4);
+  font-style: normal;
+  font-weight: 700;
+  margin-bottom: calcSize(2);
+  color: $foreground;
+}
+
 .sv-popup__footer {
   display: flex;
   margin-top: calcSize(4);
@@ -146,4 +160,3 @@ sv-popup {
 .sv-popup__button--apply:disabled {
   background-color: $background-dim;
 }
-

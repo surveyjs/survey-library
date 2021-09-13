@@ -17,11 +17,10 @@
           v-model="question.value"
           :disabled="question.isInputReadOnly || !item.isEnabled"
           v-bind:aria-required="question.isRequired"
-          :aria-label="question.locTitle.renderedHtml"
-          :aria-invalid="question.errors.length > 0"
-          :aria-describedby="
-            question.errors.length > 0 ? question.id + '_errors' : null
-          "
+          :aria-required="question.ariaRequired"
+          :aria-label="question.ariaLabel"
+          :aria-invalid="question.ariaInvalid"
+          :aria-describedby="question.ariaDescribedBy"
           :class="question.cssClasses.itemControl"
         />
         <input
@@ -34,11 +33,10 @@
           v-model="question.value"
           :disabled="question.isInputReadOnly || !item.isEnabled"
           v-bind:aria-required="question.isRequired"
-          :aria-label="question.locTitle.renderedHtml"
-          :aria-invalid="question.errors.length > 0"
-          :aria-describedby="
-            question.errors.length > 0 ? question.id + '_errors' : null
-          "
+          :aria-required="question.ariaRequired"
+          :aria-label="question.ariaLabel"
+          :aria-invalid="question.ariaInvalid"
+          :aria-describedby="question.ariaDescribedBy"
           :class="question.cssClasses.itemControl"
         />
         <div>

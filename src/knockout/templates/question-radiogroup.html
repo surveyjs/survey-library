@@ -1,8 +1,8 @@
 <script type="text/html" id="survey-question-radiogroup">
+  
   <fieldset data-bind="css: question.koCss().root" role="radiogroup">
-    <!-- ko ifnot: question.hasTitle -->
-    <legend data-bind="attr: { 'aria-label': question.locTitle.renderedHtml }"></legend>
-    <!-- /ko -->
+    <legend class="sv-visuallyhidden" data-bind="text: question.locTitle.renderedHtml"></legend>
+
     <!-- ko ifnot: question.hasColumns -->
     <!-- ko foreach: { data: question.visibleChoices, as: 'item', afterRender: question.koAfterRender } -->
       <!-- ko component: { name: question.getItemValueWrapperComponentName(item), params: { componentData:  question.getItemValueWrapperComponentData(item), templateData: { name: 'survey-radiogroup-item', data: item } } } -->
@@ -30,11 +30,12 @@
   </fieldset>
 </script>
 <script type="text/html" id="survey-radiogroup-item">
-  <div data-bind="css: question.getItemClass(item)">
-    <label data-bind="css: question.getLabelClass(item)">
+  <div data-bind="css: question.getItemClass(item), attr: { 'aria-checked': question.renderedValue === item.value ? 'true': 'false', 'aria-required': question.ariaRequired, 'aria-label': question.ariaLabel, 'aria-invalid': question.ariaInvalid, 'aria-describedby': question.ariaDescribedBy }" role="radio">
+    <label data-bind="css: question.getLabelClass(item), attr: { 'aria-label': item.locText.renderedHtml }">
       <input
         type="radio"
-        data-bind="attr: { name: question.name + '_' + question.id, id: question.inputId + '_' + question.getItemIndex(item), 'aria-required': question.isRequired, 'aria-label': item.locText.renderedHtml, 'aria-invalid': question.errors.length > 0, 'aria-describedby': question.errors.length > 0 ? question.id + '_errors' : null}, checkedValue: item.value, checked: question.renderedValue, enable: !question.isInputReadOnly && item.isEnabled, css: question.koCss().itemControl"
+        aria-hidden="true"
+        data-bind="attr: { name: question.name + '_' + question.id, id: question.inputId + '_' + question.getItemIndex(item)}, checkedValue: item.value, checked: question.renderedValue, enable: !question.isInputReadOnly && item.isEnabled, css: question.koCss().itemControl"
       />
       <span data-bind="css: question.koCss().materialDecorator">
         <svg

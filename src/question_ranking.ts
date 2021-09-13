@@ -1,8 +1,11 @@
 import SortableLib from "sortablejs";
+import { ISurvey, ISurveyImpl } from "./base-interfaces";
+import { DragDropRankingChoices } from "./dragdrop/ranking-choices";
 import { ItemValue } from "./itemvalue";
-import { Serializer } from "./jsonobject";
+import { property, Serializer } from "./jsonobject";
 import { QuestionFactory } from "./questionfactory";
 import { QuestionCheckboxModel } from "./question_checkbox";
+import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { IsMobile } from "./utils/is-mobile";
 
 const Sortable = <any>SortableLib;
@@ -16,126 +19,206 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
 
   constructor(name: string) {
     super(name);
+    this.createNewArray("rankingChoices");
   }
 
   public getType(): string {
     return "ranking";
   }
 
-  public get isIndeterminate() {
-    return !this.value || this.value.length === 0;
+  public get rootClass(): string {
+    return new CssClassBuilder()
+      .append(this.cssClasses.root)
+      .append(this.cssClasses.rootMobileMod, IsMobile)
+      .toString();
   }
 
-  public get rootClass() {
-    const css: any = this.cssClasses;
-    if (IsMobile) return css.root + " " + css.rootMobileMod;
-    return css.root;
-  }
-
-  public getNumberByIndex(index: number) {
-    return this.isIndeterminate ? "\u2013" : index + 1 + "";
-  }
-
-  public get rankingChoices() {
-    let result: ItemValue[] = [];
-    const value: any = this.value;
-    const visibleChoices: ItemValue[] = this.removeOtherChoiceFromChoices(
-      this.visibleChoices
+  public getItemClass(item: ItemValue): string {
+    const itemIndex = this.rankingChoices.indexOf(item);
+    const dropTargetIndex = this.rankingChoices.indexOf(
+      this.currentDrropTarget
     );
 
-    if (this.isIndeterminate) {
-      result = visibleChoices;
-    } else {
-      result = this.mergeValueAndVisibleChoices(value, visibleChoices);
-    }
+    return new CssClassBuilder()
+      .append(super.getItemClass(item))
+      .append(this.cssClasses.itemGhostMod, this.currentDrropTarget === item)
+      .append(
+        "sv-dragdrop-movedown",
+        itemIndex === dropTargetIndex + 1 && this.dropTargetNodeMove === "down"
+      )
+      .append(
+        "sv-dragdrop-moveup",
+        itemIndex === dropTargetIndex - 1 && this.dropTargetNodeMove === "up"
+      )
+      .toString();
+  }
+
+  protected isItemCurrentDropTarget(item: ItemValue): boolean {
+    if (this.fallbackToSortableJS) return false;
+    return this.dragDropHelper.dropTarget === item;
+  }
+
+  public get ghostPositionCssClass(): string {
+    if (this.ghostPosition === "top")
+      return this.cssClasses.dragDropGhostPositionTop;
+    if (this.ghostPosition === "bottom")
+      return this.cssClasses.dragDropGhostPositionBottom;
+    return "";
+  }
+
+  public getNumberByIndex(index: number): string {
+    return this.isEmpty() ? "\u2013" : index + 1 + "";
+  }
+
+  public setSurveyImpl = (value: ISurveyImpl) => {
+    super.setSurveyImpl(value);
+    this.updateRankingChoices();
+  };
+
+  onSurveyValueChanged(newValue: any) {
+    super.onSurveyValueChanged(newValue);
+    if (this.isLoadingFromJson) return;
+    this.updateRankingChoices();
+  }
+
+  protected onVisibleChoicesChanged = (): void => {
+    super.onVisibleChoicesChanged();
 
     // ranking question with only one choice doesn't make sense
-    if (result.length === 1) result = [];
+    if (this.visibleChoices.length === 1) {
+      this.value = [];
+      this.updateRankingChoices();
+      return;
+    }
 
-    return result;
-  }
+    if (this.isEmpty()) {
+      this.updateRankingChoices();
+      return;
+    }
 
-  private removeOtherChoiceFromChoices(choices: ItemValue[]) {
-    const result = choices;
-    choices.forEach((choice: ItemValue, index: number) => {
-      if (choice.value === "other") {
-        result.splice(index, 1); // remove other choice
+    if (this.visibleChoices.length > this.value.length)
+      this.addToValueByVisibleChoices();
+    if (this.visibleChoices.length < this.value.length)
+      this.removeFromValueByVisibleChoices();
+    this.updateRankingChoices();
+  };
+
+  public localeChanged = (): void => {
+    super.localeChanged();
+    this.updateRankingChoices();
+  };
+
+  private addToValueByVisibleChoices() {
+    const newValue = this.value.slice();
+
+    this.visibleChoices.forEach((choice) => {
+      if (newValue.indexOf(choice.value) === -1) {
+        newValue.push(choice.value);
       }
     });
-    return result;
+    this.value = newValue;
   }
 
+  private removeFromValueByVisibleChoices() {
+    const newValue = this.value.slice();
+
+    this.value.forEach((valueItem: string, index: number) => {
+      let isValueItemToRemove = true;
+      this.visibleChoices.forEach((choice) => {
+        if (choice.value === valueItem) isValueItemToRemove = false;
+      });
+      isValueItemToRemove && newValue.splice(index, 1);
+    });
+
+    this.value = newValue;
+  }
+
+  public get rankingChoices(): Array<ItemValue> {
+    return this.getPropertyValue("rankingChoices", []);
+  }
+
+  private updateRankingChoices(): ItemValue[] {
+    const newRankingChoices: ItemValue[] = [];
+
+    // ranking question with only one choice doesn't make sense
+    if (this.visibleChoices.length === 1) {
+      this.setPropertyValue("rankingChoices", newRankingChoices);
+      return;
+    }
+
+    if (this.isEmpty()) {
+      this.setPropertyValue("rankingChoices", this.visibleChoices);
+      return;
+    }
+
+    this.value.forEach((valueItem: string) => {
+      this.visibleChoices.forEach((choice) => {
+        if (choice.value === valueItem) newRankingChoices.push(choice);
+      });
+    });
+    this.setPropertyValue("rankingChoices", newRankingChoices);
+  }
+
+  public dragDropHelper: DragDropRankingChoices;
+  @property({ defaultValue: null }) currentDrropTarget: ItemValue;
+  @property({ defaultValue: null }) dropTargetNodeMove: string;
+
+  endLoadingFromJson(): void {
+    super.endLoadingFromJson();
+    if (!this.fallbackToSortableJS) {
+      this.dragDropHelper = new DragDropRankingChoices(this.survey);
+    }
+  }
+
+  public handlePointerDown = (
+    event: PointerEvent,
+    choice: ItemValue,
+    node: HTMLElement
+  ): void => {
+    if (!this.fallbackToSortableJS) {
+      this.dragDropHelper.startDrag(event, choice, this, node);
+    }
+  };
+
   //cross framework initialization
-  public afterRenderQuestionElement(el: HTMLElement) {
-    if (!!el) {
+  public afterRenderQuestionElement(el: HTMLElement): void {
+    this.domNode = el;
+    if (!!el && this.fallbackToSortableJS) {
       this.initSortable(el);
     }
     super.afterRenderQuestionElement(el);
   }
   //cross framework destroy
-  public beforeDestroyQuestionElement(el: HTMLElement) {
+  public beforeDestroyQuestionElement(el: HTMLElement): void {
     if (this.sortableInst) this.sortableInst.destroy();
     super.beforeDestroyQuestionElement(el);
   }
 
-  public handleKeydown = (event: any) => {
+  public handleKeydown = (event: KeyboardEvent, choice: ItemValue): void => {
     const key: any = event.key;
-    const array: NodeListOf<Element> = this.domNode.querySelectorAll(
-      "." + this.cssClasses.item
-    );
-    const index: number = [].indexOf.call(array, event.target);
+    const index = this.rankingChoices.indexOf(choice);
 
     if (key === "ArrowUp" && index) {
-      this.handleArrowUp(index);
+      this.handleArrowUp(index, choice);
     }
-    if (key === "ArrowDown" && index !== array.length - 1) {
-      this.handleArrowDown(index);
+    if (key === "ArrowDown" && index !== this.rankingChoices.length - 1) {
+      this.handleArrowDown(index, choice);
     }
   };
 
-  protected supportSelectAll() {
+  protected supportSelectAll(): boolean {
     return false;
   }
-  public supportOther() {
+  public supportOther(): boolean {
     return false;
   }
-  public supportNone() {
+  public supportNone(): boolean {
     return false;
-  }
-
-  // to make "carry forward" feature work properly with ranking
-  protected onVisibleChoicesChanged() {
-    super.onVisibleChoicesChanged();
-
-    if (this.isIndeterminate) return;
-    this.value = this.rankingChoices.map(choice => choice.value);
-  }
-
-  private mergeValueAndVisibleChoices(
-    value: any,
-    visibleChoices: Array<ItemValue>
-  ) {
-    const length: number = visibleChoices.length;
-    let result: Array<ItemValue> = [];
-    result.length = length;
-    for (let i = 0; i < length; i++) {
-      const choice = visibleChoices[i];
-      const index = value.indexOf(choice.value);
-
-      if (index !== -1) {
-        result.splice(index, 1, choice);
-      } else {
-        result.splice(result.length - 1, 0, choice);
-      }
-    }
-    result = result.filter(choice => !!choice);
-    return result;
   }
 
   private initSortable(domNode: HTMLElement) {
     if (!domNode) return;
     const self: QuestionRankingModel = this;
-    self.domNode = domNode;
     if (this.isReadOnly) return;
     if (this.isDesignMode) return;
 
@@ -152,7 +235,7 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
       onStart(evt: any) {
         (<any>Sortable.ghost.style.opacity) = 1;
         domNode.className += " " + self.cssClasses.rootDragMod;
-        if (self.isIndeterminate) {
+        if (self.isEmpty()) {
           self.setGhostText(evt.oldIndex + 1);
         }
       },
@@ -164,36 +247,37 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
         self.setValueFromUI();
       },
       onChange(evt: any) {
-        if (!self.isIndeterminate) self.syncNumbers();
+        if (!self.isEmpty()) self.syncNumbers();
         self.setGhostText(evt.newIndex + 1);
       },
     });
   }
 
-  private handleArrowUp = (index: number) => {
-    const array: string[] = this.sortableInst.toArray();
-    this.moveArrayItemBack(array, index);
-    this.sortableInst.sort(array);
-    this.syncNumbers();
-    this.setValueFromUI();
-    this.focusItem(index - 1);
+  public get fallbackToSortableJS(): boolean {
+    return this.getPropertyValue("fallbackToSortableJS");
+  }
+  public set fallbackToSortableJS(val: boolean) {
+    this.setPropertyValue("fallbackToSortableJS", val);
+  }
+
+  private handleArrowUp = (index: number, choice: ItemValue) => {
+    const newValue = this.value.slice();
+    newValue.splice(index, 1);
+    newValue.splice(index - 1, 0, choice);
+    this.value = newValue;
+    setTimeout(() => {
+      this.focusItem(index - 1);
+    }, 1);
   };
 
-  private handleArrowDown = (index: number) => {
-    const array: string[] = this.sortableInst.toArray();
-    this.moveArrayItemForward(array, index);
-    this.sortableInst.sort(array);
-    this.syncNumbers();
-    this.setValueFromUI();
-    this.focusItem(index + 1);
-  };
-
-  private moveArrayItemBack = (array: string[], index: number) => {
-    [array[index], array[index - 1]] = [array[index - 1], array[index]];
-  };
-
-  private moveArrayItemForward = (array: string[], index: number) => {
-    [array[index], array[index + 1]] = [array[index + 1], array[index]];
+  private handleArrowDown = (index: number, choice: ItemValue) => {
+    const newValue = this.value.slice();
+    newValue.splice(index, 1);
+    newValue.splice(index + 1, 0, choice);
+    this.value = newValue;
+    setTimeout(() => {
+      this.focusItem(index + 1);
+    }, 1);
   };
 
   private focusItem = (index: number) => {
@@ -201,6 +285,14 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
       "." + this.cssClasses.item
     );
     itemsNodes[index].focus();
+  };
+
+  public setValue = (): void => {
+    const value: string[] = [];
+    this.rankingChoices.forEach((choice: ItemValue) => {
+      value.push(choice.value);
+    });
+    this.value = value;
   };
 
   private setValueFromUI = () => {
@@ -245,6 +337,20 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
     const ghostNode: Element = indexNodes[indexNodes.length - 1];
     (<any>ghostNode).innerText = text;
   };
+
+  public getIconHoverCss(): string {
+    return new CssClassBuilder()
+      .append(this.cssClasses.itemIcon)
+      .append(this.cssClasses.itemIconHoverMod)
+      .toString();
+  }
+
+  public getIconFocusCss(): string {
+    return new CssClassBuilder()
+      .append(this.cssClasses.itemIcon)
+      .append(this.cssClasses.itemIconFocusMod)
+      .toString();
+  }
 }
 
 Serializer.addClass(
@@ -260,6 +366,12 @@ Serializer.addClass(
     { name: "selectAllText", visible: false, isSerializable: false },
     { name: "colCount:number", visible: false, isSerializable: false },
     { name: "maxSelectedChoices", visible: false, isSerializable: false },
+    {
+      name: "fallbackToSortableJS",
+      default: false,
+      visible: false,
+      isSerializable: false,
+    },
   ],
   function() {
     return new QuestionRankingModel("");
@@ -267,7 +379,7 @@ Serializer.addClass(
   "checkbox"
 );
 
-QuestionFactory.Instance.registerQuestion("ranking", name => {
+QuestionFactory.Instance.registerQuestion("ranking", (name) => {
   const q: QuestionRankingModel = new QuestionRankingModel(name);
   q.choices = QuestionFactory.DefaultChoices;
   return q;

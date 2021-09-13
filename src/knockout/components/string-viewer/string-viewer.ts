@@ -8,5 +8,5 @@ ko.components.register("sv-string-viewer", {
       return params.locString;
     },
   },
-  template: template,
+  template: template
 });

@@ -15,7 +15,7 @@ import {
   IProgressInfo,
   IFindElement,
 } from "./base-interfaces";
-import { SurveyElement } from "./survey-element";
+import { SurveyElementCore, SurveyElement } from "./survey-element";
 import { surveyCss } from "./defaultCss/cssstandard";
 import { ISurveyTriggerOwner, SurveyTrigger } from "./trigger";
 import { CalculatedValue } from "./calculatedValue";
@@ -47,14 +47,13 @@ import { CssClassBuilder } from "./utils/cssClassBuilder";
 /**
  * The `Survey` object contains information about the survey, Pages, Questions, flow logic and etc.
  */
-export class SurveyModel extends Base
+export class SurveyModel extends SurveyElementCore
   implements
   ISurvey,
   ISurveyData,
   ISurveyImpl,
   ISurveyTriggerOwner,
-  ISurveyErrorOwner,
-  ILocalizableOwner {
+  ISurveyErrorOwner {
   public static readonly TemplateRendererComponentName: string =
     "sv-template-renderer";
   [index: string]: any;
@@ -393,6 +392,17 @@ export class SurveyModel extends Base
   public onGetQuestionTitle: EventBase<SurveyModel> = this.addEvent<
     SurveyModel
   >();
+  /**
+   * Use this event to change the element title tag name that renders by default.
+   * <br/> `sender` - the survey object that fires the event.
+   * <br/> `options.element` - an element (question, panel, page and survey) that SurveyJS is going to render.
+   * <br/> `options.tagName` - an element title tagName that are used to render a title. You can change it from the default value.
+   * @see showQuestionNumbers
+   * @see requiredText
+   */
+   public onGetTitleTagName: EventBase<SurveyModel> = this.addEvent<
+   SurveyModel
+ >();
   /**
    * Use this event to change the question no in code. If you want to remove question numbering then set showQuestionNumbers to "off".
    * <br/> `sender` - the survey object that fires the event.
@@ -919,8 +929,6 @@ export class SurveyModel extends Base
     if (typeof document !== "undefined") {
       SurveyModel.stylesManager = new StylesManager();
     }
-    this.createLocalizableString("title", this, true);
-    this.createLocalizableString("description", this, true);
     this.createLocalizableString("logo", this, false);
     this.createLocalizableString("completedHtml", this);
     this.createLocalizableString("completedBeforeHtml", this);
@@ -1038,6 +1046,9 @@ export class SurveyModel extends Base
   public set css(value: any) {
     this.updateElementCss(false);
     this.mergeValues(value, this.css);
+  }
+  public get cssTitle(): string {
+    return this.css.title;
   }
   public get cssNavigationComplete() {
     return this.getNavigationCss(
@@ -1642,32 +1653,6 @@ export class SurveyModel extends Base
 
   //#region Title/Header options
   /**
-   * Gets or sets a survey title.
-   * @see description
-   */
-  public get title(): string {
-    return this.getLocalizableStringText("title");
-  }
-  public set title(value: string) {
-    this.setLocalizableStringText("title", value);
-  }
-  get locTitle(): LocalizableString {
-    return this.getLocalizableString("title");
-  }
-  /**
-   * Gets or sets a survey description. The survey description is displayed under a survey title.
-   * @see title
-   */
-  public get description(): string {
-    return this.getLocalizableStringText("description");
-  }
-  public set description(value: string) {
-    this.setLocalizableStringText("description", value);
-  }
-  get locDescription(): LocalizableString {
-    return this.getLocalizableString("description");
-  }
-  /**
    * Gets or sets a survey logo.
    * @see title
    */
@@ -1742,6 +1727,9 @@ export class SurveyModel extends Base
   public get renderedHasTitle(): boolean {
     if (this.isDesignMode) return this.isPropertyVisible("title");
     return !this.locTitle.isEmpty && this.showTitle;
+  }
+  public get hasTitle(): boolean {
+    return this.renderedHasTitle;
   }
   public get renderedHasLogo(): boolean {
     if (this.isDesignMode) return this.isPropertyVisible("logo");
@@ -1968,7 +1956,12 @@ export class SurveyModel extends Base
   get locEditText(): LocalizableString {
     return this.getLocalizableString("editText");
   }
-
+  getElementTitleTagName(element: Base, tagName: string): string {
+    if(this.onGetTitleTagName.isEmpty) return tagName;
+    const options = { element: element, tagName: tagName };
+    this.onGetTitleTagName.fire(this, options);
+    return options.tagName;
+  }
   /**
    * Set the pattern for question title. Default is "numTitleRequire", 1. What is your name? *,
    * You can set it to numRequireTitle: 1. * What is your name?

@@ -16,9 +16,7 @@
       :class="survey.css.headerText"
       v-bind:style="{ maxWidth: survey.titleMaxWidth }"
     >
-      <h3 :class="survey.css.title">
-        <survey-string :locString="survey.locTitle" />
-      </h3>
+      <survey-element-title :element="survey" :css="survey.css"/>
       <h5 :class="survey.css.description">
         <survey-string :locString="survey.locDescription" />
       </h5>

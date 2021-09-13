@@ -1,7 +1,7 @@
 import React from "react";
 import { Question, DefaultTitleModel } from "survey-core";
 import { ReactElementFactory } from "../../element-factory";
-import { TitleContent } from "../title-content/title-content";
+import { TitleContent } from "./title-content";
 
 export class DefaultTitle extends React.Component<any, any> {
   private isNeedFocus = false;

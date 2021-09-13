@@ -2,7 +2,7 @@
   <table data-bind="css: question.koCss().root, foreach: { data:  question.koRows, as: 'row' }">
       <tr data-bind="foreach: { data: row, as: 'item' }, css: question.koCss().row">
           <td data-bind="css: question.koItemTitleCss">
-            <!-- ko template: { name: 'survey-question-title-content', data: item.editor, as: 'question' } --><!-- /ko -->
+            <!-- ko component: { name: 'survey-element-title-content', params: {element: item.editor} } --><!-- /ko -->
           </td>
           <td data-bind="css: question.koItemCss">
             <!-- ko if: item.editor.errorLocation === 'top' -->

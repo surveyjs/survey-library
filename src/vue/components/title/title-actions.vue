@@ -5,11 +5,11 @@
         v-if="element.isPage"
         :locString="element.locTitle"
       ></survey-string>
-      <survey-question-title-content
+      <survey-element-title-content
         v-if="!element.isPage"
         :element="element"
         :css="css"
-      ></survey-question-title-content>
+      ></survey-element-title-content>
     </span>
     <sv-action-bar
       class="sv-title-actions__bar"

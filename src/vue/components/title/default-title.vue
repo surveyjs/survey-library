@@ -1,9 +1,9 @@
 <template>
   <div>
-    <survey-question-title-content
+    <survey-element-title-content
       :element="element"
       :css="css"
-    ></survey-question-title-content>
+    ></survey-element-title-content>
     <span
       v-show="showIcon"
       :class="getIconCss(isCollapsed)"

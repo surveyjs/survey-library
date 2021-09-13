@@ -12962,6 +12962,9 @@ QUnit.test("Panel: Add change state action into actions", (assert) => {
     "sv-title-actions",
     "Renders with actions"
   );
+  assert.equal(survey.pages[0].titleTabIndex, undefined, "We don't need titleTabIndex for page");
+  assert.equal(survey.pages[0].titleAriaExpanded, undefined, "We don't need titleAriaExpanded for page");
+
   assert.equal(panel.titleTabIndex, 0, "We need to stop on title");
   assert.equal(panel.titleAriaExpanded, true, "Title area expanded is true");
   panel.state = "collapsed";
@@ -13765,4 +13768,80 @@ QUnit.test("utils.increaseHeightByContent", assert => {
   element.scrollHeight = 90;
   increaseHeightByContent(<HTMLElement>element, getComputedStyle);
   assert.equal(element.style.height, "95px");
+});
+QUnit.test("test titleTagName, survey.cssTitle properties and getTitleOwner", assert => {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "panel", name: "p1",
+        elements: [{ type: "text", name: "q1" }]
+      }
+    ]
+  });
+  assert.equal(survey.getQuestionByName("q1").titleTagName, "h5");
+  assert.equal((<PanelModel>survey.getPanelByName("p1")).titleTagName, "h4");
+  assert.equal(survey.pages[0].titleTagName, "h4");
+  assert.equal(survey.titleTagName, "h3");
+  assert.equal(survey.cssTitle, survey.css.title, "survey css");
+  assert.equal(survey.pages[0].cssTitle, "sv_page_title", "page css");
+  assert.ok(survey.getQuestionByName("q1").getTitleOwner());
+  assert.ok((<PanelModel>survey.getPanelByName("p1")).getTitleOwner());
+  assert.notOk(survey.pages[0].getTitleOwner());
+  assert.notOk(survey.getTitleOwner());
+});
+QUnit.test("settings titleTagName and survey.onGetTitleTagName", assert => {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "panel", name: "p1",
+        elements: [{ type: "text", name: "q1" }]
+      }
+    ]
+  });
+  const savedTitleTags = Helpers.createCopy(settings.titleTags);
+  settings.titleTags.survey = "h1";
+  settings.titleTags.page = "h2";
+  settings.titleTags.panel = "h3";
+  settings.titleTags.question = "h4";
+  assert.equal(survey.getQuestionByName("q1").titleTagName, "h4");
+  assert.equal((<PanelModel>survey.getPanelByName("p1")).titleTagName, "h3");
+  assert.equal(survey.pages[0].titleTagName, "h2");
+  assert.equal(survey.titleTagName, "h1");
+  survey.onGetTitleTagName.add((sender, options) => {
+    options.tagName = options.tagName + options.element.getType()[0];
+  });
+  assert.equal(survey.getQuestionByName("q1").titleTagName, "h4t");
+  assert.equal((<PanelModel>survey.getPanelByName("p1")).titleTagName, "h3p");
+  assert.equal(survey.pages[0].titleTagName, "h2p");
+  assert.equal(survey.titleTagName, "h1s");
+  settings.titleTags = savedTitleTags;
+});
+QUnit.test("hasTitle + designTime", assert => {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "panel", name: "p1",
+        elements: [{ type: "text", name: "q1" }]
+      }
+    ]
+  });
+  assert.ok(survey.getQuestionByName("q1").hasTitle, "question - running");
+  assert.notOk((<PanelModel>survey.getPanelByName("p1")).hasTitle, "panel - running");
+  assert.notOk(survey.pages[0].hasTitle, "page - running");
+  assert.notOk(survey.hasTitle, "survey - running");
+
+  survey.setDesignMode(true);
+  assert.ok(survey.getQuestionByName("q1").hasTitle, "question - running");
+  assert.ok((<PanelModel>survey.getPanelByName("p1")).hasTitle, "panel - running");
+  assert.ok(survey.pages[0].hasTitle, "page - running");
+  assert.ok(survey.hasTitle, "survey - running");
+});
+QUnit.test("question and titleTabIndex", assert => {
+  const survey = new SurveyModel({
+    elements: [{ type: "text", name: "q1" }]
+  });
+  const question = survey.getQuestionByName("q1");
+  assert.equal(question.titleTabIndex, undefined, "We do not have tabIndex");
+  question.state = "collapsed";
+  assert.equal(question.titleTabIndex, 0, "We need tabIndex now");
 });

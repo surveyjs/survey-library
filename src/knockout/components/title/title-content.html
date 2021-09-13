@@ -1,0 +1,30 @@
+<!-- ko ifnot: element.isTitleOwner -->
+  <!-- ko template: { name: 'survey-string', data: element.locTitle } --><!-- /ko -->
+<!-- /ko -->
+<!-- ko if: element.isTitleOwner -->
+  <!-- ko if: element.isRequireTextOnStart -->
+  <span
+    data-bind="css: element.koCss().requiredText || (element.koCss().panel && element.koCss().panel.requiredText), text: element.requiredText, attr: { 'aria-hidden': true }"
+  ></span>
+  <!-- /ko -->
+  <!-- ko if: element.no -->
+  <span
+    style="position: static;"
+    data-bind="css: element.koCss().number, text: element.no, attr: { 'aria-hidden': true }"
+  ></span>
+  <span>&nbsp</span>
+  <!-- /ko -->
+  <!-- ko if: element.isRequireTextBeforeTitle -->
+  <span
+    data-bind="css: element.koCss().requiredText || (element.koCss().panel && element.koCss().panel.requiredText), text: element.requiredText, attr: { 'aria-hidden': true }"
+  ></span>
+  <span>&nbsp</span>
+  <!-- /ko -->
+  <!-- ko template: { name: 'survey-string', data: element.locTitle } --><!-- /ko -->
+  <!-- ko if: element.isRequireTextAfterTitle -->
+  <span>&nbsp</span>
+  <span
+    data-bind="css: element.koCss().requiredText || (element.koCss().panel && element.koCss().panel.requiredText), text: element.requiredText, attr: { 'aria-hidden': true }"
+  ></span>
+  <!-- /ko -->
+<!-- /ko -->

@@ -61,10 +61,11 @@ export { SurveyQuestionSignaturePad } from "../react/signaturepad";
 export { SurveyQuestionButtonGroup } from "../react/reactquestion_buttongroup";
 export { SurveyQuestionCustom, SurveyQuestionComposite } from "../react/reactquestion_custom";
 
-export { DefaultTitle } from "../react/components/default-title/default-title";
+export { DefaultTitle } from "../react/components/title/default-title";
 export { Popup } from "../react/components/popup/popup";
 export { List } from "../react/components/list/list";
-export { TitleActions } from "../react/components/title-actions/title-actions";
+export { TitleActions } from "../react/components/title/title-actions";
+export { TitleElement } from "../react/components/title/title-element";
 export { SurveyActionBar } from "../react/components/action-bar/action-bar";
 export { LogoImage } from "../react/components/survey-header/logo-image";
 export { SurveyHeader } from "../react/components/survey-header/survey-header";

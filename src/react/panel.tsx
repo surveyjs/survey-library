@@ -7,6 +7,7 @@ import { SurveyPanelBase } from "./panel-base";
 import { PanelModel, doKey2ClickUp } from "survey-core";
 import { ReactSurveyModel } from "./reactsurveymodel";
 import { SurveyActionBar } from "./components/action-bar/action-bar";
+import { TitleElement } from "./components/title/title-element";
 
 export class SurveyPanel extends SurveyPanelBase {
   private hasBeenExpanded: boolean = false;
@@ -68,25 +69,7 @@ export class SurveyPanel extends SurveyPanelBase {
   }
   protected renderTitle(): JSX.Element {
     if (!this.panelBase.title) return null;
-    const titleComponent = ReactElementFactory.Instance.createElement(
-      this.panel.getTitleComponentName(),
-      { element: this.panel, cssClasses: this.panel.cssClasses.panel }
-    );
-    return (
-      <h4
-        className={this.panel.cssTitle}
-        tabIndex={this.panel.titleTabIndex}
-        aria-expanded={this.panel.titleAriaExpanded}
-        onClick={() => {
-          return this.panel.toggleState();
-        }}
-        onKeyUp={(evt) => {
-          doKey2ClickUp(evt.nativeEvent);
-        }}
-      >
-        {titleComponent}
-      </h4>
-    );
+    return <TitleElement element={this.panelBase}></TitleElement>;
   }
   protected renderDescription(): JSX.Element {
     if (!this.panelBase.description) return null;

@@ -7,7 +7,7 @@ import { surveyLocalization } from "./surveyStrings";
 import { AnswerRequiredError, CustomError } from "./error";
 import { SurveyValidator, IValidatorOwner, ValidatorRunner } from "./validator";
 import { TextPreProcessor, TextPreProcessorValue } from "./textPreProcessor";
-import { ILocalizableOwner, LocalizableString } from "./localizablestring";
+import { LocalizableString } from "./localizablestring";
 import { ConditionRunner, ExpressionRunner } from "./conditions";
 import { QuestionCustomWidget } from "./questionCustomWidgets";
 import { CustomWidgetCollection } from "./questionCustomWidgets";
@@ -29,7 +29,7 @@ export interface IConditionObject {
  * A base class for all questions.
  */
 export class Question extends SurveyElement
-  implements IQuestion, IConditionRunner, ILocalizableOwner, IValidatorOwner, ITitleOwner {
+  implements IQuestion, IConditionRunner, IValidatorOwner, ITitleOwner {
   [index: string]: any;
   private static TextPreprocessorValuesMap = {
     title: "processedTitle",
@@ -81,16 +81,6 @@ export class Question extends SurveyElement
     this.createNewArray("validators", (validator: any) => {
       validator.errorOwner = this;
     });
-    var locTitleValue = this.createLocalizableString("title", this, true);
-    locTitleValue.onGetTextCallback = (text: string): string => {
-      if (!text) {
-        text = this.name;
-      }
-      if (!this.survey) return text;
-      return this.survey.getUpdatedQuestionTitle(this, text);
-    };
-    this.locProcessedTitle = new LocalizableString(this, true);
-    this.locProcessedTitle.sharedData = locTitleValue;
     var locCommentText = this.createLocalizableString(
       "commentText",
       this,
@@ -125,6 +115,20 @@ export class Question extends SurveyElement
       }
     );
   }
+  protected createLocTitleProperty(): LocalizableString {
+    const locTitleValue = super.createLocTitleProperty();
+    locTitleValue.onGetTextCallback = (text: string): string => {
+      if (!text) {
+        text = this.name;
+      }
+      if (!this.survey) return text;
+      return this.survey.getUpdatedQuestionTitle(this, text);
+    };
+    this.locProcessedTitle = new LocalizableString(this, true);
+    this.locProcessedTitle.sharedData = locTitleValue;
+    return locTitleValue;
+  }
+
   public getSurvey(live: boolean = false): ISurvey {
     if (live) {
       return !!this.parent ? (<Base>(<any>this.parent)).getSurvey(live) : null;
@@ -253,6 +257,7 @@ export class Question extends SurveyElement
   public set useDisplayValuesInTitle(val: boolean) {
     this.setPropertyValue("useDisplayValuesInTitle", val);
   }
+  protected getUseDisplayValuesInTitle(): boolean { return this.useDisplayValuesInTitle; }
   /**
    * An expression that returns true or false. If it returns true the Question becomes visible and if it returns false the Question becomes invisible. The library runs the expression on survey start and on changing a question value. If the property is empty then visible property is used.
    * @see visible
@@ -406,6 +411,7 @@ export class Question extends SurveyElement
       this.notifySurveyVisibilityChanged();
     }
   }
+  public getTitleOwner(): ITitleOwner { return this; }
   private notifySurveyVisibilityChanged() {
     if (!this.survey || this.isLoadingFromJson) return;
     this.survey.questionVisibilityChanged(this, this.isVisible);
@@ -465,26 +471,10 @@ export class Question extends SurveyElement
   public get inputId(): string {
     return this.id + "i";
   }
-  /**
-   * Question title. Use survey questionTitleTemplate property to change the title question is rendered. If it is empty, then question name property is used.
-   * @see SurveyModel.questionTitleTemplate
-   */
-  public get title(): string {
-    return this.getLocalizableStringText("title", this.name);
+  protected getDefaultTitleValue(): string { return this.name; }
+  protected getDefaultTitleTagName(): string {
+    return settings.titleTags.question;
   }
-  public set title(val: string) {
-    this.setLocalizableStringText("title", val);
-  }
-  get locTitle(): LocalizableString {
-    return this.getLocalizableString("title");
-  }
-  /**
-   * Question description. It renders under question title by using smaller font. Unlike the title, description can be empty.
-   * Please note, this property is hidden for questions without input, for example html question.
-   * @see title
-   */
-  @property({ localizable: true })
-  description: string;
   /**
    * Question description location. By default, value is "default" and it depends on survey questionDescriptionLocation property
    * You may change it to "underInput" to render it under question input or "underTitle" to rendered it under title.
@@ -643,21 +633,7 @@ export class Question extends SurveyElement
     if (this.startWithNewLine == val) return;
     this.setPropertyValue("startWithNewLine", val);
   }
-  @property() cssClassesValue: any;
-  /**
-   * Returns all css classes that used for rendering the question. You may use survey.updateQuestionCssClasses event to override css classes for a question.
-   * @see SurveyModel.updateQuestionCssClasses
-   */
-  public get cssClasses(): any {
-    if (!this.survey) return this.calcCssClasses();
-    if (!this.cssClassesValue) {
-      this.cssClassesValue = this.calcCssClasses();
-      this.updateElementCssCore(this.cssClassesValue);
-    }
-    return this.cssClassesValue;
-  }
-  private calcCssClasses(): any {
-    const css = this.css;
+  protected calcCssClasses(css: any): any {
     const classes = { error: {} };
     this.copyCssClasses(classes, css.question);
     this.copyCssClasses(classes.error, css.error);
@@ -761,9 +737,6 @@ export class Question extends SurveyElement
       (reNew !== true && !this.cssClassesValue)
     )
       return;
-    if (!this.cssClassesValue) {
-      this.cssClassesValue = this.calcCssClasses();
-    }
     this.updateElementCssCore(this.cssClasses);
   }
   private ensureElementCss() {
@@ -801,9 +774,6 @@ export class Question extends SurveyElement
   }
   protected getCssType(): string {
     return this.getType();
-  }
-  private get css(): any {
-    return !!this.survey ? this.survey.getCss() : {};
   }
   /**
    * Use it to set the specific width to the question like css style (%, px, em etc).
@@ -1760,40 +1730,6 @@ export class Question extends SurveyElement
     for (var i = 0; i < props.length; i++) {
       this[props[i]] = value;
     }
-  }
-  //ILocalizableOwner
-  locOwner: ILocalizableOwner = null;
-  /**
-   * Returns the current survey locale
-   * @see SurveyModel.locale
-   */
-  public getLocale(): string {
-    return this.survey
-      ? (<ILocalizableOwner>(<any>this.survey)).getLocale()
-      : this.locOwner
-        ? this.locOwner.getLocale()
-        : "";
-  }
-  public getMarkdownHtml(text: string, name: string): string {
-    return this.survey
-      ? this.survey.getSurveyMarkdownHtml(this, text, name)
-      : this.locOwner
-        ? this.locOwner.getMarkdownHtml(text, name)
-        : null;
-  }
-  public getRenderer(name: string): string {
-    return this.survey && typeof this.survey.getRendererForString === "function"
-      ? this.survey.getRendererForString(this, name)
-      : this.locOwner && typeof this.locOwner.getRenderer === "function"
-        ? this.locOwner.getRenderer(name)
-        : null;
-  }
-  public getProcessedText(text: string): string {
-    if (this.isLoadingFromJson) return text;
-    if (this.textProcessor)
-      return this.textProcessor.processText(text, this.useDisplayValuesInTitle);
-    if (this.locOwner) return this.locOwner.getProcessedText(text);
-    return text;
   }
   public getComponentName(): string {
     return RendererFactory.Instance.getRendererByQuestion(this);

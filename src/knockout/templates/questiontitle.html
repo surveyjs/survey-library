@@ -1,41 +1,10 @@
 <script type="text/html" id="survey-question-title">
   <div data-bind="css: question.cssHeader, click: question.clickTitleFunction">
-    <h5
-      data-bind="css: cssTitle, attr: { 'aria-label': question.locTitle.renderedHtml, id: ariaTitleId, tabindex: question.titleTabIndex, 'aria-expanded': question.titleAriaExpanded }, click: toggleStateByClick, event: { keyup: question.toggleStateByKeyUp }"
-    >
-      <!-- ko component: { name: getTitleComponentName(), params: { element: $data } } --><!-- /ko -->
-    </h5>
+    <!-- ko component: { name: 'survey-element-title', params: {element: question } } --><!-- /ko -->
     <div
       data-bind="visible: question.hasDescriptionUnderTitle, css: koCss().description"
     >
       <!-- ko template: { name: 'survey-string', data: locDescription } --><!-- /ko -->
     </div>
   </div>
-</script>
-<script type="text/html" id="survey-question-title-content">
-  <!-- ko if: $data.isRequireTextOnStart -->
-  <span
-    data-bind="css: koCss().requiredText || (koCss().panel && koCss().panel.requiredText), text: $data.requiredText, attr: { 'aria-hidden': true }"
-  ></span>
-  <!-- /ko -->
-  <!-- ko if: no -->
-  <span
-    style="position: static;"
-    data-bind="css: koCss().number, text: no, attr: { 'aria-hidden': true }"
-  ></span>
-  <span>&nbsp</span>
-  <!-- /ko -->
-  <!-- ko if: $data.isRequireTextBeforeTitle -->
-  <span
-    data-bind="css: koCss().requiredText || (koCss().panel && koCss().panel.requiredText), text: $data.requiredText, attr: { 'aria-hidden': true }"
-  ></span>
-  <span>&nbsp</span>
-  <!-- /ko -->
-  <!-- ko template: { name: 'survey-string', data: locTitle } --><!-- /ko -->
-  <!-- ko if: $data.isRequireTextAfterTitle -->
-  <span>&nbsp</span>
-  <span
-    data-bind="css: koCss().requiredText || (koCss().panel && koCss().panel.requiredText), text: $data.requiredText, attr: { 'aria-hidden': true }"
-  ></span>
-  <!-- /ko -->
 </script>

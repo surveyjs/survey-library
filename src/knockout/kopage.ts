@@ -70,7 +70,6 @@ export class Panel extends PanelModel {
   koElementType: any;
   koCss: any;
   koErrorClass: any;
-  toggleStateByKeyUp: any;
   constructor(name: string = "") {
     super(name);
     this.onCreating();
@@ -79,9 +78,6 @@ export class Panel extends PanelModel {
     this.koCss = ko.pureComputed(function () {
       return self.cssClasses;
     });
-    this.toggleStateByKeyUp = function (_: any, event: any) {
-      doKey2ClickUp(event);
-    };
     this.koErrorClass = ko.pureComputed(function () {
       return self.cssError;
     });

@@ -129,46 +129,46 @@ export class QuestionFileModel extends Question {
    * The remove file confirmation message.
    */
   public getConfirmRemoveMessage(fileName: string): string {
-    return surveyLocalization
-      .getString("confirmRemoveFile")
-      ["format"](fileName);
+    return (<any>this.confirmRemoveMessage).format(fileName);
   }
+  /**
+   * The remove file confirmation message template.
+   */
+  @property({ defaultValue: surveyLocalization.getString("confirmRemoveFile") }) confirmRemoveMessage: string;
   /**
    * The remove all files confirmation message.
    */
-  get confirmRemoveAllMessage(): string {
-    return surveyLocalization.getString("confirmRemoveAllFiles");
-  }
+  @property({ defaultValue: surveyLocalization.getString("confirmRemoveAllFiles") }) confirmRemoveAllMessage: string;
   /**
    * The no file chosen caption for modern theme.
    */
-  get noFileChosenCaption(): string {
-    return surveyLocalization.getString("noFileChosen");
-  }
+  @property({ defaultValue: surveyLocalization.getString("noFileChosen") }) noFileChosenCaption: string;
   /**
    * The choose files button caption for modern theme.
    */
-  get chooseButtonCaption(): string {
-    return surveyLocalization.getString("chooseFileCaption");
-  }
+  @property({ defaultValue: surveyLocalization.getString("chooseFileCaption") }) chooseButtonCaption: string;
   /**
    * The clean files button caption.
    */
-  get cleanButtonCaption(): string {
-    return surveyLocalization.getString("cleanCaption");
-  }
+  @property({ defaultValue: surveyLocalization.getString("cleanCaption") }) cleanButtonCaption: string;
   /**
    * The remove file button caption.
    */
-  get removeFileCaption(): string {
-    return surveyLocalization.getString("removeFileCaption");
-  }
+  @property({ defaultValue: surveyLocalization.getString("removeFileCaption") }) removeFileCaption: string;
+  /**
+   * The loading file input title.
+   */
+  @property({ defaultValue: surveyLocalization.getString("loadingFile") }) loadingFileTitle: string;
+  /**
+  * The choose file input title.
+  */
+  @property({ defaultValue: surveyLocalization.getString("chooseFile") }) chooseFileTitle: string;
   /**
    * The input title value.
    */
   get inputTitle(): string {
-    if (this.isUploading) return surveyLocalization.getString("loadingFile");
-    if (this.isEmpty()) return surveyLocalization.getString("chooseFile");
+    if (this.isUploading) return this.loadingFileTitle;
+    if (this.isEmpty()) return this.chooseFileTitle;
     return " ";
   }
   /**

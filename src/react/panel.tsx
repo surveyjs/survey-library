@@ -81,6 +81,8 @@ export class SurveyPanel extends SurveyPanelBase {
 
   protected renderBottom(): JSX.Element {
     const footerToolbar = this.panel.getFooterToolbar();
+    if(!footerToolbar.hasActions) return null;
+
     const FooterComponent = ReactElementFactory.Instance.createElement(
       this.panel.getFooterComponentName(),
       { panel: this.panel, model: footerToolbar }

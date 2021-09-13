@@ -59,7 +59,9 @@ export abstract class DragDropCore<T> extends Base {
     this.moveShortcutElement(event);
 
     document.addEventListener("pointermove", this.dragOver);
+    document.addEventListener("pointercancel", this.handlePointerCancel);
     document.addEventListener("keydown", this.handleEscapeButton);
+    document.addEventListener("pointerup", this.drop);
     this.draggedElementShortcut.addEventListener("pointerup", this.drop);
   }
 
@@ -140,6 +142,10 @@ export abstract class DragDropCore<T> extends Base {
     isBottom: boolean,
     dropTargetNode?: HTMLElement
   ): boolean;
+
+  private handlePointerCancel = (event: PointerEvent) => {
+    this.clear();
+  };
 
   private handleEscapeButton = (event: KeyboardEvent) => {
     if (event.keyCode == 27) {
@@ -330,7 +336,9 @@ export abstract class DragDropCore<T> extends Base {
     cancelAnimationFrame(this.scrollIntervalId);
 
     document.removeEventListener("pointermove", this.dragOver);
+    document.removeEventListener("pointercancel", this.handlePointerCancel);
     document.removeEventListener("keydown", this.handleEscapeButton);
+    document.removeEventListener("pointerup", this.drop);
     this.draggedElementShortcut.removeEventListener("pointerup", this.drop);
     document.body.removeChild(this.draggedElementShortcut);
 

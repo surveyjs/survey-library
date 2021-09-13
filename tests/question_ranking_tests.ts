@@ -1,4 +1,3 @@
-import { ItemValue } from "../src/itemvalue";
 import { QuestionCheckboxModel } from "../src/question_checkbox";
 import { QuestionRankingModel } from "../src/question_ranking";
 import { SurveyModel } from "../src/survey";
@@ -6,44 +5,28 @@ import { SurveyModel } from "../src/survey";
 export default QUnit.module("question ranking");
 
 QUnit.test("Ranking: Base ", function(assert) {
-  const items = ["one", "two", "three"];
-  const model = new QuestionRankingModel("test");
-
-  model["moveArrayItemBack"](items, 1);
-  assert.deepEqual(items, ["two", "one", "three"], "moveArrayItemBack is ok");
-
-  model["moveArrayItemForward"](items, 0);
-  assert.deepEqual(
-    items,
-    ["one", "two", "three"],
-    "moveArrayItemForward is ok"
-  );
-
-  let value = [];
-  let visibleChoices: any = [
-    { text: "one", value: 1 },
-    { text: "two", value: 2 },
-    { text: "three", value: 3 },
-  ];
-  let rankingChoices = [];
-
-  rankingChoices = model["mergeValueAndVisibleChoices"](value, visibleChoices);
-  assert.deepEqual(
-    rankingChoices,
-    visibleChoices,
-    "mergeValueAndVisibleChoices returns visibleChoices if empty value"
-  );
-
-  value = [2, 1, 3];
-  rankingChoices = model["mergeValueAndVisibleChoices"](value, visibleChoices);
-  assert.deepEqual(
-    rankingChoices,
-    [
-      { text: "two", value: 2 },
-      { text: "one", value: 1 },
-      { text: "three", value: 3 },
+  var survey = new SurveyModel({
+    elements: [
+      {
+        type: "ranking",
+        name: "q1",
+        choices: ["a", "b", "c"],
+      },
     ],
-    "mergeValueAndVisibleChoices returns correct value"
+  });
+  var rankingQuestion = <QuestionRankingModel>survey.getQuestionByName("q1");
+
+  assert.deepEqual(
+    rankingQuestion.rankingChoices.map((c)=>c.value),
+    ["a", "b", "c"],
+    "rankingChoices returns visibleChoices if empty value"
+  );
+
+  rankingQuestion.value = ["c", "b", "a"];
+  assert.deepEqual(
+    rankingQuestion.rankingChoices.map((c)=>c.value),
+    ["c", "b", "a"],
+    "rankingChoices returns visibleChoices if empty value"
   );
 });
 
@@ -60,7 +43,7 @@ QUnit.test("Ranking: predefined Survey data", function(assert) {
   survey.data = { q1: ["b", "a", "c"] };
   var q1 = <QuestionRankingModel>survey.getQuestionByName("q1");
   assert.deepEqual(q1.value, ["b", "a", "c"]);
-  assert.deepEqual(q1.isIndeterminate, false);
+  assert.deepEqual(q1.isEmpty(), false);
   assert.deepEqual(
     q1.rankingChoices.map(item => item.value),
     ["b", "a", "c"]
@@ -91,7 +74,7 @@ QUnit.test("Ranking: predefined Survey data", function(assert) {
   survey.data = { q1: ["3", "2", "1"] };
   var q1 = <QuestionRankingModel>survey.getQuestionByName("q1");
   assert.deepEqual(q1.value, ["3", "2", "1"]);
-  assert.deepEqual(q1.isIndeterminate, false);
+  assert.deepEqual(q1.isEmpty(), false);
   assert.deepEqual(
     q1.rankingChoices.map(item => item.text),
     ["c", "b", "a"]
@@ -116,12 +99,6 @@ QUnit.test("Ranking: check removing other from visibleChoices", function(
     ],
   });
   var rankingQuestion = <QuestionRankingModel>survey.getQuestionByName("q1");
-
-  var visibleChoicesWithoutOther: any = rankingQuestion[
-    "removeOtherChoiceFromChoices"
-  ](rankingQuestion.visibleChoices).map(choice => choice.value);
-
-  assert.deepEqual(visibleChoicesWithoutOther.indexOf("other"), -1);
   assert.deepEqual(rankingQuestion.rankingChoices.length, 3);
 });
 
@@ -141,11 +118,11 @@ QUnit.test("Ranking: Carry Forward", function(assert) {
   var q2 = <QuestionRankingModel>survey.getQuestionByName("q2");
 
   assert.deepEqual(q2.rankingChoices, []);
-  assert.deepEqual(q2.isIndeterminate, true);
+  assert.deepEqual(q2.isEmpty(), true);
 
   q1.value = [2, 3];
   q2.value = q2.rankingChoices.map(choice => choice.text); //imitate user's drag drop from the ui
-  assert.deepEqual(q2.isIndeterminate, false);
+  assert.deepEqual(q2.isEmpty(), false);
   assert.deepEqual(survey.data, {
     q1: [2, 3],
     q2: [2, 3],
@@ -153,13 +130,13 @@ QUnit.test("Ranking: Carry Forward", function(assert) {
 
   // ranking question with only one choice doesn't make sense
   q1.value = ["2"];
-  assert.deepEqual(q2.isIndeterminate, true);
+  assert.deepEqual(q2.isEmpty(), true);
   assert.deepEqual(survey.data, {
     q1: [2],
   });
 
   q1.value = [];
-  assert.deepEqual(q2.isIndeterminate, true);
+  assert.deepEqual(q2.isEmpty(), true);
   assert.deepEqual(
     q2.rankingChoices.map(item => item.text),
     []
@@ -167,7 +144,7 @@ QUnit.test("Ranking: Carry Forward", function(assert) {
 
   q1.value = [2, 3];
   q2.value = q2.rankingChoices.map(choice => choice.text); //imitate user's drag drop from the ui
-  assert.deepEqual(q2.isIndeterminate, false);
+  assert.deepEqual(q2.isEmpty(), false);
   assert.deepEqual(survey.data, {
     q1: [2, 3],
     q2: [2, 3],

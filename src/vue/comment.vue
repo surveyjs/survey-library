@@ -13,7 +13,7 @@
       :placeholder="question.renderedPlaceHolder"
       :class="question.cssClasses ? question.cssClasses.root : 'panel-comment-root'"
       @change="change"
-      @input="onInput"
+      @input="(e) => { question.onInput(e) }"
       :aria-required="question.ariaRequired"
       :aria-label="question.ariaLabel"
       :aria-invalid="question.ariaInvalid"
@@ -34,10 +34,6 @@ import { QuestionCommentModel } from "survey-core";
 export class Comment extends QuestionVue<QuestionCommentModel> {
   change(event: any) {
     this.question.value = event.target.value;
-  }
-  onInput(event: any) {
-    if (this.question.isInputTextUpdate) this.question.value = event.target.value;
-    else this.question.updateElement();
   }
 }
 Vue.component("survey-comment", Comment);

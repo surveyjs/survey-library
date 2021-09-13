@@ -3,6 +3,7 @@ import { Selector } from "testcafe";
 const title = "comment";
 
 const commentQuestion = Selector(".sv_q textarea");
+const otherCommentQuestion = Selector(".sv_q .sv_q_other");
 const json = {
   questions: [
     {
@@ -16,22 +17,48 @@ const json = {
 frameworks.forEach(framework => {
   fixture`${framework} ${title}`.page`${url}${framework}`.beforeEach(async t => {
     await initSurvey(framework, {
-      questions: [
+      "pages": [
         {
-          type: "comment",
-          name: "comment",
-          autoGrow: true
+          "name": "page1",
+          "elements": [
+            {
+              "type": "comment",
+              "name": "question1",
+              "autoGrow": true
+            },
+            {
+              "type": "radiogroup",
+              "name": "question2",
+              "hasComment": true,
+              "commentText": "Comment text"
+            }
+          ]
         }
-      ]
+      ],
+      "autoGrowComment": true
     });
   });
 
-  test("autoGrow comment", async t => {
+  test("autoGrowComment", async t => {
     await t
       .click(commentQuestion)
+      .expect(commentQuestion.getStyleProperty("resize")).eql("none")
       .expect(commentQuestion.clientHeight).eql(116)
       .pressKey("a enter a enter a enter a enter")
-      .expect(commentQuestion.clientHeight).eql(144);
+      .expect(commentQuestion.clientHeight).eql(144)
+
+      .pressKey("backspace")
+      .expect(commentQuestion.clientHeight).eql(116)
+
+      .pressKey("tab")
+      .expect(otherCommentQuestion.getStyleProperty("resize")).eql("none")
+      .expect(otherCommentQuestion.clientHeight).eql(60)
+
+      .pressKey("a enter a enter")
+      .expect(otherCommentQuestion.clientHeight).eql(88)
+
+      .pressKey("backspace")
+      .expect(otherCommentQuestion.clientHeight).eql(60);
   });
 });
 

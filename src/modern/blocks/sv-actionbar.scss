@@ -176,9 +176,6 @@ button.sv-action-bar-item {
   }
 }
 
-.sv-action {
-}
-
 .sv-action--hidden {
   width: 0px;
   height: 0px;
@@ -189,6 +186,9 @@ button.sv-action-bar-item {
 .sv-action__content {
   display: inline-flex;
   align-items: center;
+  & > * {
+    flex: 0 0 auto;
+  }
 }
 
 .sv-action:not(:last-child) > .sv-action__content {

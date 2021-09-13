@@ -1,6 +1,7 @@
 import { SurveyModel } from "../src/survey";
 import { QuestionFileModel } from "../src/question_file";
 import { QuestionPanelDynamicModel } from "../src/question_paneldynamic";
+import { surveyLocalization } from "../src/surveyStrings";
 
 export default QUnit.module("Survey_QuestionFile");
 
@@ -521,4 +522,68 @@ QUnit.test("QuestionFile in panel dynamic in preview mode", function(assert) {
   assert.equal(panel.panelCount, 1, "One panel");
   var fileQuestion = <QuestionFileModel>panel.panels[0].questions[0];
   assert.equal(fileQuestion.value, "someId", "Question file name");
+});
+QUnit.test("Writable captions", function(assert) {
+  var json = {
+    questions: [
+      {
+        type: "file",
+        allowMultiple: true,
+        title: "Please upload your file",
+        name: "file1",
+      }
+    ],
+  };
+
+  var survey = new SurveyModel(json);
+  var q: QuestionFileModel = <any>survey.getQuestionByName("file1");
+  /**
+   * The remove file confirmation message template.
+   */
+  assert.equal(q.confirmRemoveMessage, surveyLocalization.getString("confirmRemoveFile"), "The remove file confirmation message template default");
+  q.confirmRemoveMessage += "_new";
+  assert.equal(q.confirmRemoveMessage, surveyLocalization.getString("confirmRemoveFile")+"_new", "The remove file confirmation message template new");
+  /**
+    * The remove all files confirmation message.
+    */
+  assert.equal(q.confirmRemoveAllMessage, surveyLocalization.getString("confirmRemoveAllFiles"), "The remove all files confirmation message default");
+  q.confirmRemoveAllMessage += "_new";
+  assert.equal(q.confirmRemoveAllMessage, surveyLocalization.getString("confirmRemoveAllFiles")+"_new", "The remove all files confirmation message new");
+  /**
+    * The no file chosen caption for modern theme.
+    */
+  assert.equal(q.noFileChosenCaption, surveyLocalization.getString("noFileChosen"), "The no file chosen caption for modern theme default");
+  q.noFileChosenCaption += "_new";
+  assert.equal(q.noFileChosenCaption, surveyLocalization.getString("noFileChosen")+"_new", "The no file chosen caption for modern theme new");
+  /**
+    * The choose files button caption for modern theme.
+    */
+  assert.equal(q.chooseButtonCaption, surveyLocalization.getString("chooseFileCaption"), "The choose files button caption for modern theme default");
+  q.chooseButtonCaption += "_new";
+  assert.equal(q.chooseButtonCaption, surveyLocalization.getString("chooseFileCaption")+"_new", "The choose files button caption for modern theme new");
+  /**
+    * The clean files button caption.
+    */
+  assert.equal(q.cleanButtonCaption, surveyLocalization.getString("cleanCaption"), "The clean files button caption default");
+  q.cleanButtonCaption += "_new";
+  assert.equal(q.cleanButtonCaption, surveyLocalization.getString("cleanCaption")+"_new", "The clean files button caption new");
+  /**
+    * The remove file button caption.
+    */
+  assert.equal(q.removeFileCaption, surveyLocalization.getString("removeFileCaption"), "The remove file button caption default");
+  q.removeFileCaption += "_new";
+  assert.equal(q.removeFileCaption, surveyLocalization.getString("removeFileCaption")+"_new", "The remove file button caption new");
+  /**
+    * The loading file input title.
+    */
+  assert.equal(q.loadingFileTitle, surveyLocalization.getString("loadingFile"), "The loading file input title default");
+  q.loadingFileTitle += "_new";
+  assert.equal(q.loadingFileTitle, surveyLocalization.getString("loadingFile")+"_new", "The loading file input title new");
+  /**
+   * The choose file input title.
+   */
+  assert.equal(q.chooseFileTitle, surveyLocalization.getString("chooseFile"), "The choose file input title default");
+  q.chooseFileTitle += "_new";
+  assert.equal(q.chooseFileTitle, surveyLocalization.getString("chooseFile")+"_new", "The choose file input title new");
+
 });

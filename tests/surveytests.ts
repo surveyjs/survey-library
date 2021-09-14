@@ -13902,3 +13902,21 @@ QUnit.test("Set values with trimming and caseSensitive", assert => {
   assert.equal(question.title, " hello  ");
   assert.equal(hash["title"], 1);
 });
+
+QUnit.test("Modify question value, call onValueChanged by ignoring trimming and ", assert => {
+  const survey = new SurveyModel({
+    elements: [{ type: "text", name: "q1" }]
+  });
+  const question = survey.getAllQuestions()[0];
+  let counter = 0;
+  survey.onValueChanged.add((sender, options) => {
+    counter ++;
+  });
+  question.value = "q";
+  assert.equal(counter, 1);
+  question.value = "Q";
+  assert.equal(counter, 2);
+  question.value = " Q ";
+  assert.equal(counter, 3);
+  assert.equal(survey.getValue("q1"), " Q ");
+});

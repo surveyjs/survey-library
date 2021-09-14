@@ -148,6 +148,7 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner {
     choices: Array<any>,
     serverResult: any
   ): Array<any>;
+  loadedChoicesFromServer(question: IQuestion): void;
   updateQuestionCssClasses(question: IQuestion, cssClasses: any): any;
   updatePanelCssClasses(panel: IPanel, cssClasses: any): any;
   updatePageCssClasses(panel: IPanel, cssClasses: any): any;

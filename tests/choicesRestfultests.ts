@@ -911,6 +911,41 @@ QUnit.test(
   }
 );
 
+QUnit.test(
+  "Update display value on loading data",
+  function(assert) {
+    const survey = new SurveyModel();
+    survey.addNewPage("1");
+    const titleQuestion = survey.pages[0].addNewQuestion("text", "q2");
+    var question = new QuestionDropdownModelTester("q1");
+    question.hasItemsCallbackDelay = true;
+    question.choicesByUrl.url = "something";
+    question.choicesByUrl.titleName = "text";
+    question.restFulTest.items = [
+      { value: "A", text: "AAA" },
+      { value: "B", text: "BBB" }
+    ];
+    survey.pages[0].addQuestion(question);
+    titleQuestion.title = "test:{q1}";
+    question.value = "A";
+    question.onSurveyLoad();
+    assert.equal(titleQuestion.locTitle.renderedHtml, "test:A", "Use value, items are not loaded");
+    var onStrChangedCounter = 0;
+    titleQuestion.locTitle.onChanged = () => {
+      if(titleQuestion.locTitle.renderedHtml == "test:AAA") {
+        onStrChangedCounter ++;
+      }
+    };
+    question.doResultsCallback();
+    assert.equal(question.visibleChoices.length, 2);
+    assert.equal(question.visibleChoices[0].text, "AAA");
+    assert.equal(onStrChangedCounter, 1);
+    assert.equal(titleQuestion.locTitle.renderedHtml, "test:AAA", "Use title, items are loaded");
+    question.value = "B";
+    assert.equal(titleQuestion.locTitle.renderedHtml, "test:BBB", "Use title, set new value");
+  }
+);
+
 QUnit.test("Do not run conditions on resetting the value", function(assert) {
   var survey = new SurveyModel();
   survey.addNewPage("1");

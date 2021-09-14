@@ -14,6 +14,7 @@
       :class="question.cssClasses ? question.cssClasses.root : 'panel-comment-root'"
       @change="change"
       @input="(e) => { question.onInput(e) }"
+      @keydown="(e) => { question.onKeyDown(e) }"
       :aria-required="question.ariaRequired"
       :aria-label="question.ariaLabel"
       :aria-invalid="question.ariaInvalid"

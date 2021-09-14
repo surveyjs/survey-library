@@ -29,6 +29,15 @@ export class QuestionCommentModel extends QuestionTextBase {
     this.setPropertyValue("cols", val);
   }
   /**
+   * Returns or sets a boolean that specifies whether a question can accept and display multiple lines of text.
+   */
+  public get multiLine(): boolean {
+    return this.getPropertyValue("multiLine");
+  }
+  public set multiLine(val: boolean) {
+    this.setPropertyValue("multiLine", val);
+  }
+  /**
    * Specifies whether the question's text area automatically expands its height to avoid the vertical scrollbar and to display the entire multi-line contents entered by respondents.
    * Default value is false.
    * @see SurveyModel.autoGrowComment
@@ -56,9 +65,22 @@ export class QuestionCommentModel extends QuestionTextBase {
     else
       this.updateElement();
   }
+  public onKeyDown(event: any): void {
+    if (!this.multiLine && (event.key === "Enter" || event.keyCode === 13)) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+  }
   onValueChanged(): void {
     super.onValueChanged();
     this.updateElement();
+  }
+  protected setNewValue(newValue: string): any {
+    if (!this.multiLine) {
+      // eslint-disable-next-line no-control-regex
+      newValue = newValue.replace(new RegExp("(\r\n|\n|\r)", "gm"), "");
+    }
+    super.setNewValue(newValue);
   }
 }
 Serializer.addClass(
@@ -73,7 +95,8 @@ Serializer.addClass(
       default: "default",
       choices: ["default", "onBlur", "onTyping"],
     },
-    { name: "autoGrow:boolean" }
+    { name: "autoGrow:boolean" },
+    { name: "multiLine:boolean", default: true }
   ],
   function () {
     return new QuestionCommentModel("");

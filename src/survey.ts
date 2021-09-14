@@ -4167,7 +4167,9 @@ export class SurveyModel extends SurveyElementCore
     this.onLoadChoicesFromServer.fire(this, options);
     return options.choices;
   }
-
+  loadedChoicesFromServer(question: IQuestion): void {
+    this.locStrsChanged();
+  }
   protected createSurveyService(): dxSurveyService {
     return new dxSurveyService();
   }

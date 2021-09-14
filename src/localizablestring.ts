@@ -51,7 +51,7 @@ export class LocalizableString implements ILocalizableString {
   public strChanged() {
     this.searchableText = undefined;
     if (this.renderedText === undefined) return;
-    this.calculatedTextValue = this.calText();
+    this.calculatedTextValue = this.calcText();
     if (this.renderedText !== this.calculatedTextValue) {
       this.renderedText = undefined;
       this.calculatedTextValue = undefined;
@@ -68,11 +68,11 @@ export class LocalizableString implements ILocalizableString {
     this.renderedText =
       this.calculatedTextValue !== undefined
         ? this.calculatedTextValue
-        : this.calText();
+        : this.calcText();
     this.calculatedTextValue = undefined;
     return this.renderedText;
   }
-  private calText(): string {
+  private calcText(): string {
     var res = this.pureText;
     if (
       res &&

@@ -11,6 +11,35 @@ export class DragDropChoices extends DragDropCore<QuestionSelectBase> {
     return draggedElement.text;
   }
 
+  protected createDraggedElementShortcut(
+    text: string,
+    draggedElementNode: HTMLElement
+  ): HTMLElement {
+    const draggedElementShortcut = document.createElement("div");
+    // draggedElementShortcut.innerText = text;
+    draggedElementShortcut.style.cssText = ` 
+          cursor: grabbing;
+          position: absolute;
+          z-index: 1000;
+          border-radius: 36px;
+          min-width: 100px;
+          box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.1);
+          background-color: white;
+          padding-right: 16px;
+          padding-left: 20px;
+        `;
+
+    const isDeepClone = true;
+    const clone = <HTMLElement>(
+      draggedElementNode
+        .closest("[data-sv-drop-target-item-value]")
+        .cloneNode(isDeepClone)
+    );
+    draggedElementShortcut.appendChild(clone);
+
+    return draggedElementShortcut;
+  }
+
   protected findDropTargetNodeByDragOverNode(
     dragOverNode: HTMLElement
   ): HTMLElement {

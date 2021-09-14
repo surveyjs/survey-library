@@ -13884,3 +13884,21 @@ QUnit.test("Do panel click without actions, but if it has state", assert => {
   panel.state = "default";
   assert.equal(panel.hasTitleEvents, false, "It has defult state");
 });
+QUnit.test("Set values with trimming and caseSensitive", assert => {
+  const survey = new SurveyModel({
+    elements: [{ type: "text", name: "q1", title: "Hello" }]
+  });
+  const question = survey.getAllQuestions()[0];
+  const hash = { name: 0, title: 0 };
+  question.onPropertyChanged.add((sender, options) => {
+    if(hash[options.name] >= 0) {
+      hash[options.name] = hash[options.name] + 1;
+    }
+  });
+  question.name = "Q1";
+  assert.equal(question.name, "Q1");
+  assert.equal(hash["name"], 1);
+  question.title = " hello  ";
+  assert.equal(question.title, " hello  ");
+  assert.equal(hash["title"], 1);
+});

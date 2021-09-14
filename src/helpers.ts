@@ -58,7 +58,9 @@ export class Helpers {
   public static isTwoValueEquals(
     x: any,
     y: any,
-    ignoreOrder: boolean = false
+    ignoreOrder: boolean = false,
+    caseSensitive?: boolean,
+    trimStrings? : boolean
   ): boolean {
     if (x === y) return true;
 
@@ -68,13 +70,15 @@ export class Helpers {
       return true;
     if ((x === undefined || x === null) && y === "") return true;
     if ((y === undefined || y === null) && x === "") return true;
+    if(trimStrings === undefined) trimStrings = settings.comparator.trimStrings;
+    if(caseSensitive === undefined) caseSensitive = settings.comparator.caseSensitive;
 
     if(typeof x === "string" && typeof y === "string") {
-      if(settings.comparator.trimStrings) {
+      if(trimStrings) {
         x = x.trim();
         y = y.trim();
       }
-      if(!settings.comparator.caseSensitive) {
+      if(!caseSensitive) {
         x = x.toLowerCase();
         y = y.toLowerCase();
       }

@@ -183,7 +183,11 @@ export class Survey extends SurveyModel {
     this.koTimerInfoText = ko.observable(this.timerInfoText);
     this.koAfterRenderPage = (elements: any, con: any) => {
       var el = SurveyElement.GetFirstNonTextElement(elements);
-      if (el) this.afterRenderPage(el);
+      if (!el) return;
+      setTimeout(() => {
+        !!ko.tasks && ko.tasks.runEarly();
+        this.afterRenderPage(el);
+      }, 0);
     };
     this.koAfterRenderHeader = (elements: any, con: any) => {
       var el = SurveyElement.GetFirstNonTextElement(elements);

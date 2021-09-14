@@ -305,6 +305,7 @@ export class StylesManager {
     ".sv_main .sv-action-bar-item__title": "vertical-align: middle; white-space: nowrap;",
     ".sv_main .sv-action-bar-item__title--with-icon": "margin-left: 8px;",
     ".sv_main .sv-action__content": "display: inline-flex; align-items: center;",
+    ".sv_main .sv-action__content > *": "flex: 0 0 auto;",
     ".sv_main .sv-action--hidden": "width: 0px; height: 0px; overflow: hidden;",
     ".sv_main .sv-action-bar-item__icon svg": "display: block;",
     ".sv_main .sv-action-bar-item:active": "opacity: 0.5;",

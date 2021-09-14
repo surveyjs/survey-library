@@ -465,7 +465,7 @@ export class SurveyElement extends SurveyElementCore implements ISurveyElement {
   protected updateBindingValue(valueName: string, value: any) {
     if (
       !!this.data &&
-      !Helpers.isTwoValueEquals(value, this.data.getValue(valueName))
+      !this.isTwoValueEquals(value, this.data.getValue(valueName))
     ) {
       this.data.setValue(valueName, value, false);
     }

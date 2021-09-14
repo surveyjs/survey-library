@@ -820,15 +820,7 @@ export class Base {
     caseInSensitive: boolean = false,
     trimString: boolean = false
   ): boolean {
-    if (caseInSensitive) {
-      x = this.getValueInLowCase(x);
-      y = this.getValueInLowCase(y);
-    }
-    if (trimString) {
-      x = this.trimValue(x);
-      y = this.trimValue(y);
-    }
-    return Helpers.isTwoValueEquals(x, y);
+    return Helpers.isTwoValueEquals(x, y, false, !caseInSensitive, trimString);
   }
   private static copyObject(dst: any, src: any) {
     for (var key in src) {

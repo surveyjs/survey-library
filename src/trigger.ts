@@ -192,7 +192,7 @@ export class Trigger extends Base {
       var oldValue = processValue.getValue(name, v);
       v[firstName] = keyValue["newValue"];
       var newValue = processValue.getValue(name, v);
-      return !Helpers.isTwoValueEquals(oldValue, newValue);
+      return !this.isTwoValueEquals(oldValue, newValue);
     }
     return false;
   }

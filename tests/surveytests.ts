@@ -13884,3 +13884,57 @@ QUnit.test("Do panel click without actions, but if it has state", assert => {
   panel.state = "default";
   assert.equal(panel.hasTitleEvents, false, "It has defult state");
 });
+QUnit.test("Set values with trimming and caseSensitive", assert => {
+  const survey = new SurveyModel({
+    elements: [{ type: "text", name: "q1", title: "Hello" }]
+  });
+  const question = survey.getAllQuestions()[0];
+  const hash = { name: 0, title: 0 };
+  question.onPropertyChanged.add((sender, options) => {
+    if(hash[options.name] >= 0) {
+      hash[options.name] = hash[options.name] + 1;
+    }
+  });
+  question.name = "Q1";
+  assert.equal(question.name, "Q1");
+  assert.equal(hash["name"], 1);
+  question.title = " hello  ";
+  assert.equal(question.title, " hello  ");
+  assert.equal(hash["title"], 1);
+});
+
+QUnit.test("Modify question value, call onValueChanged by ignoring trimming and ", assert => {
+  const survey = new SurveyModel({
+    elements: [{ type: "text", name: "q1" }]
+  });
+  const question = survey.getAllQuestions()[0];
+  let counter = 0;
+  survey.onValueChanged.add((sender, options) => {
+    counter ++;
+  });
+  question.value = "q";
+  assert.equal(counter, 1);
+  question.value = "Q";
+  assert.equal(counter, 2);
+  question.value = " Q ";
+  assert.equal(counter, 3);
+  assert.equal(survey.getValue("q1"), " Q ");
+});
+QUnit.test("Modify question array value, call onValueChanged by ignoring trimming and ", assert => {
+  const survey = new SurveyModel({
+    elements: [{ type: "matrixdynamic", name: "q1", rowCount: 2, columns: [{ name: "col1", cellType: "text" }] }]
+  });
+  const question = <QuestionMatrixDynamicModel>survey.getAllQuestions()[0];
+  let counter = 0;
+  const rows = question.visibleRows;
+  rows[0].cells[0].value = "val1";
+  rows[1].cells[0].value = "val2";
+  survey.onValueChanged.add((sender, options) => {
+    counter ++;
+  });
+  rows[1].cells[0].value = "Val2";
+  assert.equal(counter, 1);
+  rows[1].cells[0].value = " Val2 ";
+  assert.equal(counter, 2);
+  assert.deepEqual(question.value, [{ col1: "val1" }, { col1: " Val2 " }]);
+});

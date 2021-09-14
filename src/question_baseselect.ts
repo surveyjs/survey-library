@@ -349,7 +349,7 @@ export class QuestionSelectBase extends Question {
   public set renderedValue(val: any) {
     this.setPropertyValue("renderedValue", val);
     var val = this.rendredValueToData(val);
-    if (!Helpers.isTwoValueEquals(val, this.value)) {
+    if (!this.isTwoValueEquals(val, this.value)) {
       this.value = val;
     }
   }
@@ -360,7 +360,7 @@ export class QuestionSelectBase extends Question {
   ) {
     if (
       this.isLoadingFromJson ||
-      Helpers.isTwoValueEquals(this.value, newValue)
+      this.isTwoValueEquals(this.value, newValue)
     )
       return;
     super.setQuestionValue(newValue, updateIsAnswered);
@@ -964,7 +964,7 @@ export class QuestionSelectBase extends Question {
         newChoices
       );
       if (!!newValue && !this.isReadOnly) {
-        var hasChanged = !Helpers.isTwoValueEquals(this.value, newValue.value);
+        var hasChanged = !this.isTwoValueEquals(this.value, newValue.value);
         try {
           if (!this.isValueEmpty(newValue.value)) {
             this.allowNotifyValueChanged = false;

@@ -293,7 +293,7 @@ export class QuestionMatrixModel
       var row = this.rows[i].value;
       if (
         !this.isValueEmpty(value[row]) &&
-        Helpers.isTwoValueEquals(this.correctAnswer[row], value[row])
+        this.isTwoValueEquals(this.correctAnswer[row], value[row])
       )
         res++;
     }
@@ -569,7 +569,7 @@ export class QuestionMatrixModel
       if (value === this.columns[i].value) return value;
     }
     for (var i = 0; i < this.columns.length; i++) {
-      if (Helpers.isTwoValueEquals(value, this.columns[i].value))
+      if (this.isTwoValueEquals(value, this.columns[i].value))
         return this.columns[i].value;
     }
     return value;

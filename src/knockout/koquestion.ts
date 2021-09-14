@@ -21,7 +21,7 @@ export class QuestionImplementor extends ImplementorBase {
 
     Object.defineProperty(this.question, "koValue", {
       get: () => {
-        if (!Helpers.isTwoValueEquals(this._koValue(), this.getKoValue())) {
+        if (!Helpers.isTwoValueEquals(this._koValue(), this.getKoValue(), false, true, false)) {
           try {
             isSynchronizing = true;
             this._koValue(this.getKoValue());

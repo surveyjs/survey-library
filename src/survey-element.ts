@@ -622,12 +622,21 @@ export class SurveyElement extends SurveyElementCore implements ISurveyElement {
     return true;
   }
 
-  protected setPage(parent: IPanel, val: IPage) {
+  protected setPage(parent: IPanel, newPage: IPage): void {
     const oldPage: IPage = this.getPage(parent);
-    if (oldPage === val) return;
+
+    //fix for the creator v1: https://github.com/surveyjs/survey-creator/issues/1744
+    if (typeof newPage === "string") {
+      const survey = this.getSurvey();
+      survey.pages.forEach((page: IPage)=>{
+        if (<any>newPage === page.name) newPage = page;
+      });
+    }
+
+    if (oldPage === newPage) return;
     if (parent) parent.removeElement(<IElement>(<any>this));
-    if (val) {
-      val.addElement(<IElement>(<any>this), -1);
+    if (newPage) {
+      newPage.addElement(<IElement>(<any>this), -1);
     }
   }
   protected getSearchableLocKeys(keys: Array<string>) {

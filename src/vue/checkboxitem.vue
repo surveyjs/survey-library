@@ -23,12 +23,10 @@
         v-model="question.renderedValue"
         :id="question.inputId + '_' + index"
         :disabled="question.isInputReadOnly || !item.isEnabled"
-        v-bind:aria-required="question.isRequired"
-        :aria-label="item.locText.renderedHtml"
-        :aria-invalid="question.errors.length > 0"
-        :aria-describedby="
-          question.errors.length > 0 ? question.id + '_errors' : null
-        "
+        v-bind:aria-required="question.ariaRequired"
+        :aria-label="question.ariaLabel"
+        :aria-invalid="question.ariaInvalid"
+        :aria-describedby="question.ariaDescribedBy"
         :class="question.cssClasses.itemControl"
       />
       <span :class="question.cssClasses.materialDecorator">

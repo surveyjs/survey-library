@@ -435,7 +435,7 @@ export class QuestionCustomModel extends QuestionCustomModelBase {
     super.setQuestionValue(newValue, updateIsAnswered);
     if (
       !!this.contentQuestion &&
-      !Helpers.isTwoValueEquals(this.contentQuestion.value, newValue)
+      !this.isTwoValueEquals(this.contentQuestion.value, newValue)
     ) {
       this.contentQuestion.value = this.getUnbindValue(newValue);
     }
@@ -631,7 +631,7 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
     super.setValue(name, newValue, locNotification, allowNotifyValueChanged);
     if (!this.contentPanel) return;
     var q = this.contentPanel.getQuestionByName(name);
-    if (!!q && !Helpers.isTwoValueEquals(newValue, q.value)) {
+    if (!!q && !this.isTwoValueEquals(newValue, q.value)) {
       this.settingNewValue = true;
       q.value = newValue;
       this.settingNewValue = false;

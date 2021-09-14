@@ -243,7 +243,7 @@ export class QuestionMatrixBaseModel<TRow, TColumn> extends Question {
         delete newData[key];
       }
     }
-    if (Helpers.isTwoValueEquals(newData, this.value)) return;
+    if (this.isTwoValueEquals(newData, this.value)) return;
     this.value = newData;
   }
   private restoreNewVisibleRowsValues(oldVisibleRows: any) {

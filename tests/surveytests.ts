@@ -13920,3 +13920,21 @@ QUnit.test("Modify question value, call onValueChanged by ignoring trimming and 
   assert.equal(counter, 3);
   assert.equal(survey.getValue("q1"), " Q ");
 });
+QUnit.test("Modify question array value, call onValueChanged by ignoring trimming and ", assert => {
+  const survey = new SurveyModel({
+    elements: [{ type: "matrixdynamic", name: "q1", rowCount: 2, columns: [{ name: "col1", cellType: "text" }] }]
+  });
+  const question = <QuestionMatrixDynamicModel>survey.getAllQuestions()[0];
+  let counter = 0;
+  const rows = question.visibleRows;
+  rows[0].cells[0].value = "val1";
+  rows[1].cells[0].value = "val2";
+  survey.onValueChanged.add((sender, options) => {
+    counter ++;
+  });
+  rows[1].cells[0].value = "Val2";
+  assert.equal(counter, 1);
+  rows[1].cells[0].value = " Val2 ";
+  assert.equal(counter, 2);
+  assert.deepEqual(question.value, [{ col1: "val1" }, { col1: " Val2 " }]);
+});

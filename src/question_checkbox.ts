@@ -138,7 +138,7 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     var val = this.renderedValue;
     if (!val || !Array.isArray(val)) return false;
     for (var i = 0; i < val.length; i++) {
-      if (Helpers.isTwoValueEquals(val[i], item.value)) return true;
+      if (this.isTwoValueEquals(val[i], item.value)) return true;
     }
     return false;
   }
@@ -202,7 +202,7 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     var value = this.value;
     if (!newValue) newValue = [];
     if (!value) value = [];
-    if (Helpers.isTwoValueEquals(value, newValue)) return;
+    if (this.isTwoValueEquals(value, newValue)) return;
     if (this.hasNone) {
       var prevNoneIndex = this.noneIndexInArray(value);
       var newNoneIndex = this.noneIndexInArray(newValue);

@@ -214,7 +214,7 @@ export class LocalizableString implements ILocalizableString {
   public equals(obj: any): boolean {
     if (!!this.sharedData) return this.sharedData.equals(obj);
     if (!obj || !obj.values) return false;
-    return Helpers.isTwoValueEquals(this.values, obj.values);
+    return Helpers.isTwoValueEquals(this.values, obj.values, false, true, false);
   }
   private searchableText: string;
   public setFindText(text: string): boolean {

@@ -34,7 +34,9 @@ export class Helpers {
   public static isArraysEqual(
     x: any,
     y: any,
-    ignoreOrder: boolean = false
+    ignoreOrder: boolean = false,
+    caseSensitive?: boolean,
+    trimStrings? : boolean
   ): boolean {
     if (!Array.isArray(x) || !Array.isArray(y)) return false;
     if (x.length !== y.length) return false;
@@ -51,7 +53,7 @@ export class Helpers {
       y = ySorted;
     }
     for (var i = 0; i < x.length; i++) {
-      if (!Helpers.isTwoValueEquals(x[i], y[i])) return false;
+      if (!Helpers.isTwoValueEquals(x[i], y[i], ignoreOrder, caseSensitive, trimStrings)) return false;
     }
     return true;
   }
@@ -109,10 +111,10 @@ export class Helpers {
       if (x.isDiposed || y.isDiposed) return false;
       if (x.getType() !== y.getType()) return false;
       if (!!x.name && x.name !== y.name) return false;
-      return this.isTwoValueEquals(x.toJSON(), y.toJSON());
+      return this.isTwoValueEquals(x.toJSON(), y.toJSON(), ignoreOrder, caseSensitive, trimStrings);
     }
     if (Array.isArray(x) && Array.isArray(y))
-      return Helpers.isArraysEqual(x, y, ignoreOrder);
+      return Helpers.isArraysEqual(x, y, ignoreOrder, caseSensitive, trimStrings);
 
     for (var p in x) {
       if (!x.hasOwnProperty(p)) continue;

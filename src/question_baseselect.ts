@@ -1219,6 +1219,9 @@ export class QuestionSelectBase extends Question {
         isReady: true,
         oldIsReady: oldIsReady,
       });
+    if(this.survey) {
+      this.survey.loadedChoicesFromServer(this);
+    }
   }
   public getItemValueWrapperComponentName(item: ItemValue): string {
     const survey: SurveyModel = this.survey as SurveyModel;

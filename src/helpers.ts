@@ -34,7 +34,9 @@ export class Helpers {
   public static isArraysEqual(
     x: any,
     y: any,
-    ignoreOrder: boolean = false
+    ignoreOrder: boolean = false,
+    caseSensitive?: boolean,
+    trimStrings? : boolean
   ): boolean {
     if (!Array.isArray(x) || !Array.isArray(y)) return false;
     if (x.length !== y.length) return false;
@@ -51,14 +53,16 @@ export class Helpers {
       y = ySorted;
     }
     for (var i = 0; i < x.length; i++) {
-      if (!Helpers.isTwoValueEquals(x[i], y[i])) return false;
+      if (!Helpers.isTwoValueEquals(x[i], y[i], ignoreOrder, caseSensitive, trimStrings)) return false;
     }
     return true;
   }
   public static isTwoValueEquals(
     x: any,
     y: any,
-    ignoreOrder: boolean = false
+    ignoreOrder: boolean = false,
+    caseSensitive?: boolean,
+    trimStrings? : boolean
   ): boolean {
     if (x === y) return true;
 
@@ -68,13 +72,15 @@ export class Helpers {
       return true;
     if ((x === undefined || x === null) && y === "") return true;
     if ((y === undefined || y === null) && x === "") return true;
+    if(trimStrings === undefined) trimStrings = settings.comparator.trimStrings;
+    if(caseSensitive === undefined) caseSensitive = settings.comparator.caseSensitive;
 
     if(typeof x === "string" && typeof y === "string") {
-      if(settings.comparator.trimStrings) {
+      if(trimStrings) {
         x = x.trim();
         y = y.trim();
       }
-      if(!settings.comparator.caseSensitive) {
+      if(!caseSensitive) {
         x = x.toLowerCase();
         y = y.toLowerCase();
       }
@@ -105,10 +111,10 @@ export class Helpers {
       if (x.isDiposed || y.isDiposed) return false;
       if (x.getType() !== y.getType()) return false;
       if (!!x.name && x.name !== y.name) return false;
-      return this.isTwoValueEquals(x.toJSON(), y.toJSON());
+      return this.isTwoValueEquals(x.toJSON(), y.toJSON(), ignoreOrder, caseSensitive, trimStrings);
     }
     if (Array.isArray(x) && Array.isArray(y))
-      return Helpers.isArraysEqual(x, y, ignoreOrder);
+      return Helpers.isArraysEqual(x, y, ignoreOrder, caseSensitive, trimStrings);
 
     for (var p in x) {
       if (!x.hasOwnProperty(p)) continue;

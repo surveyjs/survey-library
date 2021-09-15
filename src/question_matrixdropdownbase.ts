@@ -890,7 +890,7 @@ implements ISurveyData, ISurveyImpl, ILocalizableOwner {
         : "";
       if (comment == undefined) comment = "";
       question.updateValueFromSurvey(val);
-      if (!!comment || Helpers.isTwoValueEquals(oldComment, question.comment)) {
+      if (!!comment || this.isTwoValueEquals(oldComment, question.comment)) {
         question.updateCommentFromSurvey(comment);
       }
       question.onSurveyValueChanged(val);
@@ -1036,7 +1036,7 @@ implements ISurveyData, ISurveyImpl, ILocalizableOwner {
     var changingValue = this.data.onRowChanging(this, changedName, newValue);
     if (
       !!changedQuestion &&
-      !Helpers.isTwoValueEquals(changingValue, changedValue)
+      !this.isTwoValueEquals(changingValue, changedValue)
     ) {
       if (isComment) {
         changedQuestion.comment = changingValue;
@@ -1068,7 +1068,7 @@ implements ISurveyData, ISurveyImpl, ILocalizableOwner {
     var colQuestion = this.getQuestionByColumnName(name);
     var detailQuestion = this.detailPanel.getQuestionByName(name);
     if (!colQuestion || !detailQuestion) return;
-    var isColQuestion = Helpers.isTwoValueEquals(
+    var isColQuestion = this.isTwoValueEquals(
       newColumnValue,
       isComment ? colQuestion.comment : colQuestion.value
     );
@@ -1160,7 +1160,7 @@ implements ISurveyData, ISurveyImpl, ILocalizableOwner {
       if (question) {
         var qVal = question.value;
         question.clearIncorrectValues();
-        if (!Helpers.isTwoValueEquals(qVal, question.value)) {
+        if (!this.isTwoValueEquals(qVal, question.value)) {
           this.setValue(key, question.value);
         }
       } else {
@@ -1300,6 +1300,9 @@ implements ISurveyData, ISurveyImpl, ILocalizableOwner {
       }
     }
     this.isSettingValue = false;
+  }
+  protected isTwoValueEquals(val1: any, val2: any): boolean {
+    return Helpers.isTwoValueEquals(val1, val2, false, true, false);
   }
   private getCellValue(value: any, name: string): any {
     if (!!this.editingObj)

@@ -415,7 +415,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
         }
         if (
           !this.isValueSurveyElement(newValue) &&
-          !Helpers.isTwoValueEquals(newValue[newValue.length - 1], row.value)
+          !this.isTwoValueEquals(newValue[newValue.length - 1], row.value)
         ) {
           newValue[newValue.length - 1] = row.value;
           this.value = newValue;

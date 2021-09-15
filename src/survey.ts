@@ -5232,7 +5232,7 @@ export class SurveyModel extends SurveyElementCore
     locNotification: any = false
   ) {
     if (!newValue) newValue = "";
-    if (Helpers.isTwoValueEquals(newValue, this.getComment(name))) return;
+    if (this.isTwoValueEquals(newValue, this.getComment(name))) return;
     var commentName = name + this.commentPrefix;
     if (this.isValueEmpty(newValue)) {
       this.deleteDataValueCore(this.valuesHash, commentName);

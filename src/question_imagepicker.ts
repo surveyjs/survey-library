@@ -90,10 +90,10 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
   public isItemSelected(item: ItemValue): boolean {
     var val = this.value;
     if (this.isValueEmpty(val)) return false;
-    if (!this.multiSelect) return Helpers.isTwoValueEquals(val, item.value);
+    if (!this.multiSelect) return this.isTwoValueEquals(val, item.value);
     if (!Array.isArray(val)) return false;
     for (var i = 0; i < val.length; i++) {
-      if (Helpers.isTwoValueEquals(val[i], item.value)) return true;
+      if (this.isTwoValueEquals(val[i], item.value)) return true;
     }
     return false;
   }

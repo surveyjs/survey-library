@@ -90,7 +90,7 @@ export class ItemValue extends Base {
     const valIsEmpty = Helpers.isValueEmpty(val);
     for (var i = 0; i < items.length; i++) {
       if (valIsEmpty && Helpers.isValueEmpty(items[i].value)) return items[i];
-      if (Helpers.isTwoValueEquals(items[i].value, val)) return items[i];
+      if (Helpers.isTwoValueEquals(items[i].value, val, false, true, false)) return items[i];
     }
     return null;
   }

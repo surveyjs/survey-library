@@ -1682,7 +1682,7 @@ export class Question extends SurveyElement
     this.questionComment = newValue;
   }
   protected setQuestionValue(newValue: any, updateIsAnswered: boolean = true): void {
-    const isEqual = Helpers.isTwoValueEquals(this.questionValue, newValue);
+    const isEqual = this.isTwoValueEquals(this.questionValue, newValue);
     this.questionValue = newValue;
     !isEqual && this.allowNotifyValueChanged &&
       this.fireCallback(this.valueChangedCallback);

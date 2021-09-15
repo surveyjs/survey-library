@@ -13938,3 +13938,14 @@ QUnit.test("Modify question array value, call onValueChanged by ignoring trimmin
   assert.equal(counter, 2);
   assert.deepEqual(question.value, [{ col1: "val1" }, { col1: " Val2 " }]);
 });
+QUnit.test("page.fromJSON() doesn't work correctly, Bug#3331", assert => {
+  const survey = new SurveyModel({
+    elements: [{ type: "checkbox", name: "q1", choices: ["item1", "item2", "item3"] }]
+  });
+  const pageJSON = survey.pages[0].toJSON();
+  survey.removePage(survey.pages[0]);
+  const pg = survey.addNewPage();
+  pg.fromJSON(pageJSON);
+  const question = <QuestionCheckboxModel>survey.getAllQuestions()[0];
+  assert.equal(question.visibleChoices.length, 3, "Visible choices are set");
+});

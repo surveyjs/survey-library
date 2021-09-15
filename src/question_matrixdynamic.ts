@@ -7,7 +7,6 @@ import {
   IMatrixDropdownData,
   MatrixDropdownColumn,
   QuestionMatrixDropdownRenderedTable,
-  QuestionMatrixDropdownRenderedRow,
 } from "./question_matrixdropdownbase";
 import { surveyLocalization } from "./surveyStrings";
 import { LocalizableString } from "./localizablestring";
@@ -15,7 +14,6 @@ import { SurveyError } from "./survey-error";
 import { MinRowCountError } from "./error";
 import { IAction } from "./actions/action";
 import { settings } from "./settings";
-import { Helpers } from "./helpers";
 import { confirmAction } from "./utils/utils";
 import { DragDropMatrixRows } from "./dragdrop/matrix-rows";
 import { ISurveyImpl } from "./base-interfaces";
@@ -851,12 +849,7 @@ Serializer.addClass(
         return obj.detailPanelMode !== "none";
       },
     },
-    {
-      name: "allowRowsDragAndDrop",
-      default: false,
-      visible: true,
-      isSerializable: false,
-    },
+    "allowRowsDragAndDrop:switch"
   ],
   function() {
     return new QuestionMatrixDynamicModel("");

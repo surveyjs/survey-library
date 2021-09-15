@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.8.66](https://github.com/surveyjs/survey-library/compare/v1.8.65...v1.8.66) (2021-09-15)
+
+
+### Bug Fixes
+
+* Imagepicker localized images broken [#3287](https://github.com/surveyjs/survey-library/issues/3287) ([#3299](https://github.com/surveyjs/survey-library/issues/3299)) ([69606ce](https://github.com/surveyjs/survey-library/commit/69606ce985e80d20ad3c3c5534977c802cd6556d))
+* Incorrect proccess text that reference value getting from choices loaded from the web [#3325](https://github.com/surveyjs/survey-library/issues/3325) ([c8b733a](https://github.com/surveyjs/survey-library/commit/c8b733aca8a71f7024173c6107b1b1b9fd926721))
+* Place holder in text and comment questions are not updated on changing locale [#3292](https://github.com/surveyjs/survey-library/issues/3292) ([#3293](https://github.com/surveyjs/survey-library/issues/3293)) ([fd87943](https://github.com/surveyjs/survey-library/commit/fd87943a222b1a64fdba75396930caf19a911494))
+* React page use visible property to decide render or not instead of isVisible [#3283](https://github.com/surveyjs/survey-library/issues/3283) ([bfa1269](https://github.com/surveyjs/survey-library/commit/bfa1269a4cfffbae43ea8d6a3e56d9dbac46e073))
+
 ### [1.8.65](https://github.com/surveyjs/survey-library/compare/v1.8.64...v1.8.65) (2021-09-07)
 
 ### [1.8.64](https://github.com/surveyjs/survey-library/compare/v1.8.63...v1.8.64) (2021-08-31)

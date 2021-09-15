@@ -51,7 +51,7 @@
     "lint": "eslint ./src --quiet",
     "testsingle": "karma start ./build-scripts/karma.conf.js --single-run"
   },
-  "version": "1.8.65",
+  "version": "1.8.66",
   "name": "survey-library",
   "private": true,
   "devDependencies": {

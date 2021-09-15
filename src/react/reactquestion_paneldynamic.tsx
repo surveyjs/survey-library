@@ -19,13 +19,13 @@ export class SurveyQuestionPanelDynamic extends SurveyQuestionElementBase {
     super.componentDidMount();
     this.setState({ panelCounter: 0 });
     const self: SurveyQuestionPanelDynamic = this;
-    this.question.panelCountChangedCallback = function() {
+    this.question.panelCountChangedCallback = function () {
       self.updateQuestionRendering();
     };
-    this.question.currentIndexChangedCallback = function() {
+    this.question.currentIndexChangedCallback = function () {
       self.updateQuestionRendering();
     };
-    this.question.renderModeChangedCallback = function() {
+    this.question.renderModeChangedCallback = function () {
       self.updateQuestionRendering();
     };
   }
@@ -179,12 +179,10 @@ export class SurveyQuestionPanelDynamic extends SurveyQuestionElementBase {
   protected renderAddRowButton(): JSX.Element {
     if (!this.question.canAddPanel) return null;
     return (
-      <input
-        className={this.question.getAddButtonCss()}
-        type="button"
-        onClick={this.handleOnPanelAddClick}
-        value={this.question.panelAddText}
-      />
+      <button type="button" className={this.question.getAddButtonCss()} onClick={this.handleOnPanelAddClick} >
+        <span className={this.question.cssClasses.buttonAddText}> {this.question.panelAddText} </span>
+        <span></span>
+      </button>
     );
   }
 }
@@ -213,11 +211,8 @@ export class SurveyQuestionPanelDynamicItem extends SurveyPanel {
   public render() {
     const panel: JSX.Element = super.render();
     const removeButton: JSX.Element = this.renderButton();
-    const separator: JSX.Element =
-      this.question.isRenderModeList &&
-      this.index < this.question.panelCount - 1 ? (
-          <hr className={this.question.cssClasses.separator} />
-        ) : null;
+    const separator: JSX.Element = this.question.isRenderModeList && this.index < this.question.panelCount - 1 ?
+      (<hr className={this.question.cssClasses.separator} />) : null;
     return (
       <>
         <div className={this.question.getPanelWrapperCss()}>

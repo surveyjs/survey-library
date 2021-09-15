@@ -9,22 +9,22 @@
         <survey-panel :question="panel" :css="css" />
         <survey-paneldynamicremove :question="question" :panel="panel" />
       </div>
-      <hr
-        :class="question.cssClasses.separator"
-        :key="'separator' + panel.id"
-      />
+      <hr :class="question.cssClasses.separator" :key="'separator' + panel.id" />
     </template>
     <survey-paneldynamicprogress
       v-if="question.isProgressBottomShowing"
       :question="question"
     />
-    <input
+    <button
       type="button"
       v-if="question.isRenderModeList && question.canAddPanel"
       :class="question.getAddButtonCss()"
-      :value="question.panelAddText"
       @click="addPanelClick"
-    />
+    >
+      <span :class="question.cssClasses.buttonAddText">
+        {{ question.panelAddText }}
+      </span>
+    </button>
   </div>
 </template>
 

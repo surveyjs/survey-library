@@ -30,13 +30,16 @@
       </div>
     </div>
 
-    <input
+    <button
       type="button"
       v-if="question.canAddPanel"
-      :value="question.panelAddText"
       :class="question.getAddButtonCss()"
       @click="addPanelClick"
-    />
+    >
+      <span :class="question.cssClasses.buttonAddText">
+        {{ question.panelAddText }}
+      </span>
+    </button>
 
     <div :class="question.cssClasses.progressText">
       {{ question.progressText }}

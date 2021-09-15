@@ -23,9 +23,11 @@
           </div>
         </div>
 
-        <button type="button" data-bind="visible: question.koCanAddPanel, click: question.koAddPanelClick, css: question.koAddButtonCss">
+        <!-- ko if: question.canAddPanel -->
+        <button type="button" data-bind="click: question.koAddPanelClick, css: question.koAddButtonCss">
           <span data-bind="css: question.koCss().buttonAddText, text: question.panelAddText"></span>
         </button>
+        <!-- /ko -->
 
         <div data-bind="text: question.koProgressText, css: question.koCss().progressText"></div>
       </div>

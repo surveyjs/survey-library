@@ -176,7 +176,7 @@ frameworks.forEach((framework) => {
       .click(ageOption.withText("65"))
       .expect(ageSelect.value).eql("65")
 
-      .click("input[value=\"Add a blood relative\"]")
+      .click(Selector(".sv-paneldynamic__add-btn").withText("Add a blood relative"))
 
       .click(relativeTypeSelect)
       .click(relativeTypeOption.withText("sister"))

@@ -1,7 +1,7 @@
 ﻿<script type="text/html" id="survey-question-comment">
   <!--ko if: !question.isReadOnlyRenderDiv() -->
 <textarea type="text" data-bind="attr: {'readonly': question.isReadOnly, 'disabled': question.isInputReadOnly, maxLength: question.getMaxLength(), cols: question.cols, rows: question.rows, id: question.inputId, placeholder: question.renderedPlaceHolder, 'aria-required': question.ariaRequired, 'aria-label': question.ariaLabel, 'aria-invalid': question.ariaInvalid, 'aria-describedby': question.ariaDescribedBy}, 
-  event: { input: (s, e) => question.onInput(e) }, 
+  event: { input: (s, e) => question.onInput(e), keydown: (s, e) => { question.onKeyDown(e); return true; } }, 
   value: question.value, 
   style: { resize: question.autoGrow ? 'none' : 'both'},
   css: question.koCss().root"></textarea>

@@ -30,6 +30,7 @@ export class SurveyQuestionComment extends SurveyQuestionUncontrolledElement<Que
         placeholder={placeHolder}
         onBlur={onBlur}
         onInput={onInput}
+        onKeyDown={(event) => { this.question.onKeyDown(event); }}
         cols={this.question.cols}
         rows={this.question.rows}
         aria-required={this.question.ariaRequired}

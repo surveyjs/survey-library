@@ -257,9 +257,11 @@ export class Base {
    * @param json the object JSON definition
    * @see toJSON
    */
-  public fromJSON(json: any) {
-    return new JsonObject().toObject(json, this);
+  public fromJSON(json: any): void {
+    new JsonObject().toObject(json, this);
+    this.onSurveyLoad();
   }
+  public onSurveyLoad() {}
   /**
    * Make a clone of the existing object. Create a new object of the same type and load all properties into it.
    */

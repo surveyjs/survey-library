@@ -1,4 +1,3 @@
-import { throws } from "assert";
 import { ItemValue } from "../itemvalue";
 import { QuestionSelectBase } from "../question_baseselect";
 import { DragDropCore } from "./core";
@@ -16,6 +15,9 @@ export class DragDropChoices extends DragDropCore<QuestionSelectBase> {
     text: string,
     draggedElementNode: HTMLElement
   ): HTMLElement {
+    if (this.parentElement.getType() === "imagepicker") {
+      return super.createDraggedElementShortcut(text, draggedElementNode);
+    }
     const draggedElementShortcut = document.createElement("div");
     // draggedElementShortcut.innerText = text;
     draggedElementShortcut.style.cssText = ` 
@@ -71,17 +73,20 @@ export class DragDropChoices extends DragDropCore<QuestionSelectBase> {
     dropTargetNode?: HTMLElement
   ): boolean {
     const choices = this.parentElement.choices;
-    const dropTargetIndex = choices.indexOf(this.dropTarget);
-    const draggedElementIndex = choices.indexOf(this.draggedElement);
 
-    if (draggedElementIndex > dropTargetIndex && this.dropTarget.isDragDropMoveUp) {
-      this.dropTarget.isDragDropMoveUp = false;
-      return false;
-    }
+    if (this.parentElement.getType() !== "imagepicker") {
+      const dropTargetIndex = choices.indexOf(this.dropTarget);
+      const draggedElementIndex = choices.indexOf(this.draggedElement);
 
-    if (draggedElementIndex < dropTargetIndex && this.dropTarget.isDragDropMoveDown) {
-      this.dropTarget.isDragDropMoveDown = false;
-      return false;
+      if (draggedElementIndex > dropTargetIndex && this.dropTarget.isDragDropMoveUp) {
+        this.dropTarget.isDragDropMoveUp = false;
+        return false;
+      }
+
+      if (draggedElementIndex < dropTargetIndex && this.dropTarget.isDragDropMoveDown) {
+        this.dropTarget.isDragDropMoveDown = false;
+        return false;
+      }
     }
 
     if (this.dropTarget === this.draggedElement) return false;
@@ -101,6 +106,8 @@ export class DragDropChoices extends DragDropCore<QuestionSelectBase> {
   }
 
   protected afterDragOver(dropTargetNode: HTMLElement): void {
+    if (this.parentElement.getType() === "imagepicker") return;
+
     const choices = this.parentElement.choices;
     const dropTargetIndex = choices.indexOf(this.dropTarget);
     const draggedElementIndex = choices.indexOf(this.draggedElement);

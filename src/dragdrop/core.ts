@@ -78,7 +78,6 @@ export abstract class DragDropCore<T> extends Base {
       this.banDropHere();
       return;
     }
-    this.dropTargetNode = dropTargetNode;
 
     this.dropTarget = this.getDropTargetByNode(dropTargetNode, event);
 
@@ -101,8 +100,6 @@ export abstract class DragDropCore<T> extends Base {
     this.afterDragOver(dropTargetNode);
     this.prevDropTarget = this.dropTarget;
   };
-
-  protected dropTargetNode:HTMLElement = null;
 
   private drop = () => {
     if (this.allowDropHere) {
@@ -348,7 +345,6 @@ export abstract class DragDropCore<T> extends Base {
     this.doClear();
 
     this.dropTarget = null;
-    this.dropTargetNode = null;
 
     this.draggedElementShortcut = null;
     this.draggedElement = null;

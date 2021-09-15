@@ -30,7 +30,7 @@
           <!-- /ko -->
           <span data-bind="css: question.koCss().materialDecorator">
             <svg viewBox="0 0 24 24" data-bind="css: question.koCss().itemDecorator">
-              <path d="M5,13l2-2l3,3l7-7l2,2l-9,9L5,13z"/>
+              <path data-bind="attr {d: question.checkBoxSvgPath}"/>
             </svg>
             <span class="check"></span>
           </span>

@@ -31,7 +31,7 @@
       />
       <span :class="question.cssClasses.materialDecorator">
         <svg viewBox="0 0 24 24" :class="question.cssClasses.itemDecorator">
-          <path d="M5,13l2-2l3,3l7-7l2,2l-9,9L5,13z" />
+          <path :d="question.checkBoxSvgPath" />
         </svg>
         <span class="check"></span>
       </span>

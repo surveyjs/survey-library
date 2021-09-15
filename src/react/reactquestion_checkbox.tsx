@@ -189,7 +189,7 @@ export class SurveyQuestionCheckboxItem extends ReactSurveyElement {
           />
           <span className={this.cssClasses.materialDecorator}>
             <svg viewBox="0 0 24 24" className={this.cssClasses.itemDecorator}>
-              <path d="M5,13l2-2l3,3l7-7l2,2l-9,9L5,13z" />
+              <path d={this.question.checkBoxSvgPath} />
             </svg>
             <span className="check" />
           </span>

@@ -5431,3 +5431,10 @@ QUnit.test("question.startWithNewLine", function(assert) {
   survey.pages[0].addQuestion(q4);
   assert.equal(q4.startWithNewLine, true);
 });
+QUnit.test("getCheckbox SVG", function (assert) {
+  var survey = new SurveyModel({
+    elements: [{ type: "checkbox", name: "q1" }],
+  });
+  var q = <QuestionCheckboxModel>survey.getAllQuestions()[0];
+  assert.equal(q.checkBoxSvgPath[0], "M", "Obtain checkbox SVG path");
+});

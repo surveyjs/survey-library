@@ -501,7 +501,7 @@ Serializer.addClass(
     { name: "defaultValue", visible: false },
     { name: "correctAnswer", visible: false },
     { name: "validators", visible: false },
-    { name: "needConfirmRemoveFile:boolean", visible: true, default: false },
+    { name: "needConfirmRemoveFile:boolean" },
   ],
   function() {
     return new QuestionFileModel("");

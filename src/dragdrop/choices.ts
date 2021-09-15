@@ -1,3 +1,4 @@
+import { throws } from "assert";
 import { ItemValue } from "../itemvalue";
 import { QuestionSelectBase } from "../question_baseselect";
 import { DragDropCore } from "./core";
@@ -35,6 +36,9 @@ export class DragDropChoices extends DragDropCore<QuestionSelectBase> {
         .closest("[data-sv-drop-target-item-value]")
         .cloneNode(isDeepClone)
     );
+    const controlsNode:HTMLElement = clone.querySelector(".svc-item-value-controls");
+    controlsNode.style.display = "block";
+
     draggedElementShortcut.appendChild(clone);
 
     return draggedElementShortcut;
@@ -67,6 +71,18 @@ export class DragDropChoices extends DragDropCore<QuestionSelectBase> {
     dropTargetNode?: HTMLElement
   ): boolean {
     const choices = this.parentElement.choices;
+    const dropTargetIndex = choices.indexOf(this.dropTarget);
+    const draggedElementIndex = choices.indexOf(this.draggedElement);
+
+    if (draggedElementIndex > dropTargetIndex && this.dropTarget.isDragDropMoveUp) {
+      this.dropTarget.isDragDropMoveUp = false;
+      return false;
+    }
+
+    if (draggedElementIndex < dropTargetIndex && this.dropTarget.isDragDropMoveDown) {
+      this.dropTarget.isDragDropMoveDown = false;
+      return false;
+    }
 
     if (this.dropTarget === this.draggedElement) return false;
 
@@ -82,6 +98,31 @@ export class DragDropChoices extends DragDropCore<QuestionSelectBase> {
       choices.indexOf(this.dropTarget) - choices.indexOf(this.draggedElement) >
       0
     );
+  }
+
+  protected afterDragOver(dropTargetNode: HTMLElement): void {
+    const choices = this.parentElement.choices;
+    const dropTargetIndex = choices.indexOf(this.dropTarget);
+    const draggedElementIndex = choices.indexOf(this.draggedElement);
+
+    choices.splice(draggedElementIndex, 1);
+    choices.splice(dropTargetIndex, 0, this.draggedElement);
+
+    if (draggedElementIndex !== dropTargetIndex) {
+      dropTargetNode.classList.remove("svc-item-value--moveup");
+      dropTargetNode.classList.remove("svc-item-value--movedown");
+      this.dropTarget.isDragDropMoveDown = false;
+      this.dropTarget.isDragDropMoveUp = false;
+    }
+
+    if (draggedElementIndex > dropTargetIndex) {
+      this.dropTarget.isDragDropMoveDown = true;
+    }
+
+    if (draggedElementIndex < dropTargetIndex) {
+      this.dropTarget.isDragDropMoveUp = true;
+    }
+    super.ghostPositionChanged();
   }
 
   protected doDrop(): any {

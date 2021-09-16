@@ -147,7 +147,7 @@ export abstract class DragDropCore<T> extends Base {
     this.clear();
   };
 
-  private handleEscapeButton = (event: KeyboardEvent) => {
+  protected handleEscapeButton = (event: KeyboardEvent) => {
     if (event.keyCode == 27) {
       this.clear();
     }
@@ -332,7 +332,7 @@ export abstract class DragDropCore<T> extends Base {
   }
   protected abstract doDrop(): any;
 
-  private clear = () => {
+  protected clear = () => {
     cancelAnimationFrame(this.scrollIntervalId);
 
     document.removeEventListener("pointermove", this.dragOver);
@@ -344,7 +344,6 @@ export abstract class DragDropCore<T> extends Base {
 
     this.doClear();
 
-    this.dropTarget = null;
     this.dropTarget = null;
 
     this.draggedElementShortcut = null;

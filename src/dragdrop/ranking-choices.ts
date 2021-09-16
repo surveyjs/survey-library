@@ -89,13 +89,20 @@ export class DragDropRankingChoices extends DragDropChoices {
   }
 
   protected ghostPositionChanged(): void {
-    this.parentElement.currentDrropTarget = this.draggedElement;
+    this.parentElement.currentDropTarget = this.draggedElement;
     super.ghostPositionChanged();
   }
 
   protected doDrop = (): any => {
     this.parentElement.setValue();
     return this.parentElement;
+  };
+
+  protected handleEscapeButton = (event: KeyboardEvent): void => {
+    if (event.keyCode == 27) {
+      this.parentElement.updateRankingChoices();
+      this.clear();
+    }
   };
 
   protected doClear = (): void => {

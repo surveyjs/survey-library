@@ -19,7 +19,7 @@ export abstract class DragDropCore<T> extends Base {
   public onBeforeDrop: EventBase<DragDropCore<T>> = new EventBase();
   public onAfterDrop: EventBase<DragDropCore<T>> = new EventBase();
 
-  protected draggedElement: any = null;
+  public draggedElement: any = null;
   protected abstract get draggedElementType(): string;
   protected parentElement: T;
   public dropTarget: any = null;

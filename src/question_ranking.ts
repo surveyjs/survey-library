@@ -36,12 +36,12 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
   public getItemClass(item: ItemValue): string {
     const itemIndex = this.rankingChoices.indexOf(item);
     const dropTargetIndex = this.rankingChoices.indexOf(
-      this.currentDrropTarget
+      this.currentDropTarget
     );
 
     return new CssClassBuilder()
       .append(super.getItemClass(item))
-      .append(this.cssClasses.itemGhostMod, this.currentDrropTarget === item)
+      .append(this.cssClasses.itemGhostMod, this.currentDropTarget === item)
       .append(
         "sv-dragdrop-movedown",
         itemIndex === dropTargetIndex + 1 && this.dropTargetNodeMove === "down"
@@ -160,7 +160,7 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
   }
 
   public dragDropHelper: DragDropRankingChoices;
-  @property({ defaultValue: null }) currentDrropTarget: ItemValue;
+  @property({ defaultValue: null }) currentDropTarget: ItemValue;
   @property({ defaultValue: null }) dropTargetNodeMove: string;
 
   endLoadingFromJson(): void {

@@ -11,6 +11,41 @@ export class DragDropChoices extends DragDropCore<QuestionSelectBase> {
     return draggedElement.text;
   }
 
+  protected createDraggedElementShortcut(
+    text: string,
+    draggedElementNode: HTMLElement
+  ): HTMLElement {
+    if (this.parentElement.getType() === "imagepicker") {
+      return super.createDraggedElementShortcut(text, draggedElementNode);
+    }
+    const draggedElementShortcut = document.createElement("div");
+    // draggedElementShortcut.innerText = text;
+    draggedElementShortcut.style.cssText = ` 
+          cursor: grabbing;
+          position: absolute;
+          z-index: 1000;
+          border-radius: 36px;
+          min-width: 100px;
+          box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.1);
+          background-color: white;
+          padding-right: 16px;
+          padding-left: 20px;
+        `;
+
+    const isDeepClone = true;
+    const clone = <HTMLElement>(
+      draggedElementNode
+        .closest("[data-sv-drop-target-item-value]")
+        .cloneNode(isDeepClone)
+    );
+    const controlsNode:HTMLElement = clone.querySelector(".svc-item-value-controls");
+    controlsNode.style.display = "block";
+
+    draggedElementShortcut.appendChild(clone);
+
+    return draggedElementShortcut;
+  }
+
   protected findDropTargetNodeByDragOverNode(
     dragOverNode: HTMLElement
   ): HTMLElement {
@@ -39,6 +74,21 @@ export class DragDropChoices extends DragDropCore<QuestionSelectBase> {
   ): boolean {
     const choices = this.parentElement.choices;
 
+    if (this.parentElement.getType() !== "imagepicker") {
+      const dropTargetIndex = choices.indexOf(this.dropTarget);
+      const draggedElementIndex = choices.indexOf(this.draggedElement);
+
+      if (draggedElementIndex > dropTargetIndex && this.dropTarget.isDragDropMoveUp) {
+        this.dropTarget.isDragDropMoveUp = false;
+        return false;
+      }
+
+      if (draggedElementIndex < dropTargetIndex && this.dropTarget.isDragDropMoveDown) {
+        this.dropTarget.isDragDropMoveDown = false;
+        return false;
+      }
+    }
+
     if (this.dropTarget === this.draggedElement) return false;
 
     // shouldn't allow to drop on "adorners" (selectall, none, other)
@@ -53,6 +103,33 @@ export class DragDropChoices extends DragDropCore<QuestionSelectBase> {
       choices.indexOf(this.dropTarget) - choices.indexOf(this.draggedElement) >
       0
     );
+  }
+
+  protected afterDragOver(dropTargetNode: HTMLElement): void {
+    if (this.parentElement.getType() === "imagepicker") return;
+
+    const choices = this.parentElement.choices;
+    const dropTargetIndex = choices.indexOf(this.dropTarget);
+    const draggedElementIndex = choices.indexOf(this.draggedElement);
+
+    choices.splice(draggedElementIndex, 1);
+    choices.splice(dropTargetIndex, 0, this.draggedElement);
+
+    if (draggedElementIndex !== dropTargetIndex) {
+      dropTargetNode.classList.remove("svc-item-value--moveup");
+      dropTargetNode.classList.remove("svc-item-value--movedown");
+      this.dropTarget.isDragDropMoveDown = false;
+      this.dropTarget.isDragDropMoveUp = false;
+    }
+
+    if (draggedElementIndex > dropTargetIndex) {
+      this.dropTarget.isDragDropMoveDown = true;
+    }
+
+    if (draggedElementIndex < dropTargetIndex) {
+      this.dropTarget.isDragDropMoveUp = true;
+    }
+    super.ghostPositionChanged();
   }
 
   protected doDrop(): any {

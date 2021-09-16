@@ -28,7 +28,6 @@ export class TitleElement extends React.Component<any, any> {
     return (
       <CustomTag
         className={element.cssTitle}
-        aria-label={element.locTitle.renderedHtml}
         id={element.ariaTitleId}
         tabIndex={element.titleTabIndex}
         aria-expanded={element.titleAriaExpanded}

@@ -1,6 +1,6 @@
 <template>
   <fieldset :class="question.cssClasses.root">
-    <legend v-bind:aria-label="question.locTitle.renderedHtml"></legend>
+    <legend v-bind:aria-label="question.ariaLabel"></legend>
     <survey-checkbox-item
       v-if="!question.hasColumns"
       v-for="(item, index) in question.visibleChoices"

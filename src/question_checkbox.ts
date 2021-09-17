@@ -420,6 +420,16 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
   public get checkBoxSvgPath(): string {
     return "M5,13l2-2l3,3l7-7l2,2l-9,9L5,13z";
   }
+  public getItemId(index: number) {
+    return this.inputId + "_" + index;
+  }
+  public getItemEnabled(item: ItemValue) {
+    return !this.question.isInputReadOnly && item.isEnabled;
+  }
+  public isOtherItem(item: ItemValue)
+  {
+    return this.hasOther && item.value == this.otherItem.value;
+  }
 }
 Serializer.addClass(
   "checkbox",

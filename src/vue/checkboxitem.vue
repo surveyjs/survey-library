@@ -7,8 +7,8 @@
         :name="question.name"
         :value="isAllSelected"
         v-model="isAllSelected"
-        :id="question.inputId + '_' + index"
-        :disabled="question.isInputReadOnly || !item.isEnabled"
+        :id="question.getItemId(index)"
+        :disabled="question.isItemEnabled(item)"
         :aria-required="question.ariaRequired"
         :aria-label="question.ariaLabel"
         :aria-invalid="question.ariaInvalid"
@@ -21,8 +21,8 @@
         :name="question.name"
         :value="item.value"
         v-model="question.renderedValue"
-        :id="question.inputId + '_' + index"
-        :disabled="question.isInputReadOnly || !item.isEnabled"
+        :id="question.getItemId(index)"
+        :disabled="question.isItemEnabled(item)"
         v-bind:aria-required="question.ariaRequired"
         :aria-label="question.ariaLabel"
         :aria-invalid="question.ariaInvalid"
@@ -45,9 +45,9 @@
     </label>
     <survey-other-choice
       v-show="
-        question.hasOther && question.renderedValue && question.isOtherSelected
+        question.renderedValue && question.isOtherSelected
       "
-      v-if="item.value == question.otherItem.value"
+      v-if="question.isOtherItem(item)"
       :question="question"
     />
   </div>

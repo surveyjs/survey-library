@@ -5432,9 +5432,18 @@ QUnit.test("question.startWithNewLine", function(assert) {
   assert.equal(q4.startWithNewLine, true);
 });
 QUnit.test("getCheckbox SVG", function (assert) {
-  var survey = new SurveyModel({
-    elements: [{ type: "checkbox", name: "q1" }],
-  });
-  var q = <QuestionCheckboxModel>survey.getAllQuestions()[0];
-  assert.equal(q.checkBoxSvgPath[0], "M", "Obtain checkbox SVG path");
+  var json = {
+    elements: [
+      {
+        type: "checkbox",
+        name: "q1",
+        choices: ["item1", "item2", "item3"],
+        hasOther: true,
+      },
+    ],
+  };
+  var survey = new SurveyModel(json);
+  var question = <QuestionCheckboxModel>survey.getAllQuestions()[0];
+  survey.setValue("q1", ["item1", "item2", "other"]);
+  assert.equal(question.checkBoxSvgPath[0], "M", "Obtain checkbox SVG path");
 });

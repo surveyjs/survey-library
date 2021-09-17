@@ -146,10 +146,9 @@ export class SurveyQuestionCheckboxItem extends ReactSurveyElement {
   }
   protected renderElement(): JSX.Element {
     var isChecked = this.question.isItemSelected(this.item);
-    var otherItem =
-      this.item.value === this.question.otherItem.value && isChecked
-        ? this.renderOther()
-        : null;
+    var otherItem = this.question.isOtherItem(this.item) && isChecked
+      ? this.renderOther()
+      : null;
     return this.renderCheckbox(isChecked, otherItem);
   }
   protected get inputStyle(): any {
@@ -159,7 +158,7 @@ export class SurveyQuestionCheckboxItem extends ReactSurveyElement {
     isChecked: boolean,
     otherItem: JSX.Element
   ): JSX.Element {
-    var id = this.question.inputId + "_" + this.index;
+    var id = this.question.getItemId(this.index);
     var text = !this.hideCaption ? this.renderLocString(this.item.locText) : "";
     let itemClass = this.question.getItemClass(this.item);
     let labelClass = this.question.getLabelClass(this.item);
@@ -179,7 +178,7 @@ export class SurveyQuestionCheckboxItem extends ReactSurveyElement {
             value={this.item.value}
             id={id}
             style={this.inputStyle}
-            disabled={this.isDisplayMode || !this.item.isEnabled}
+            disabled={this.question.getItemEnabled(this.item)}
             checked={isChecked}
             onChange={onItemChanged}
             aria-required={this.question.ariaRequired}

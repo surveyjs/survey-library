@@ -1,12 +1,10 @@
-import {
-  ActionBarViewModel
-} from "../../src/knockout/components/action-bar/action-bar";
+import { ActionBarViewModel } from "../../src/knockout/components/action-bar/action-bar";
 import ko from "knockout";
+import { ActionContainer } from "../../src/actions/container";
 
 export default QUnit.module("koTests");
 
-QUnit.test(
-  "ActionBarViewModel item isVisible is observable",
+QUnit.test("ActionBarViewModel item visible is observable",
   function (assert) {
     const items = [
       {
@@ -18,20 +16,42 @@ QUnit.test(
         title: "title1",
       },
     ];
-    const model = new ActionBarViewModel(items);
-    const item = model.actions[0];
-    assert.equal(item.isVisible, true);
+    const actionContainer = new ActionContainer();
+    actionContainer.setItems(items);
+    const model = new ActionBarViewModel(actionContainer);
+    const item = actionContainer.actions[0];
+    assert.equal(item.visible, true);
     let count = 0;
     ko.computed(() => {
-      const val = item.isVisible;
+      const val = item.visible;
       count++;
     });
     assert.equal(count, 1);
-    item.isVisible = !item.isVisible;
-    assert.equal(item.isVisible, false);
+    item.visible = !item.visible;
+    assert.equal(item.visible, false);
     assert.equal(count, 2);
-    item.isVisible = !item.isVisible;
-    assert.equal(item.isVisible, true);
+    item.visible = !item.visible;
+    assert.equal(item.visible, true);
     assert.equal(count, 3);
   }
 );
+
+QUnit.test("ActionBarViewModel dispose", (assert) => {
+  const items = [
+    {
+      id: "id1",
+      title: "title1",
+    },
+    {
+      id: "id1",
+      title: "title1",
+    },
+  ];
+  const actionContainer = new ActionContainer();
+  actionContainer.setItems(items);
+  const model = new ActionBarViewModel(actionContainer);
+
+  assert.equal(actionContainer.actions.length, 2);
+  model.dispose();
+  assert.equal(actionContainer.actions.length, 2);
+});

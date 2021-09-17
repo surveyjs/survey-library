@@ -24,7 +24,7 @@ export class SurveyQuestionCheckbox extends SurveyQuestionElementBase {
         className={cssClasses.root}
         ref={(fieldset) => (this.control = fieldset)}
       >
-        <legend aria-label={this.question.locTitle.renderedHtml} />
+        <legend aria-label={this.question.ariaLabel} />
         {this.question.hasColumns
           ? this.getColumns(cssClasses)
           : this.getItems(cssClasses)}

@@ -1,13 +1,6 @@
-import {
-  frameworks,
-  url,
-  initSurvey,
-  getSurveyResult,
-  getQuestionJson, getDynamicPanelRemoveButton
-} from "../helper";
+import { frameworks, url, initSurvey, getSurveyResult, getQuestionJson, getDynamicPanelRemoveButton } from "../helper";
 import { Selector } from "testcafe";
-const assert = require("assert");
-const title = `paneldynamic`;
+const title = "paneldynamic";
 
 const json = {
   pages: [
@@ -149,7 +142,6 @@ const json = {
   ],
 };
 
-//var frameworks_ = ["knockout"];
 frameworks.forEach((framework) => {
   fixture`${framework} ${title}`.page`${url}${framework}.html`.beforeEach(
     async (t) => {
@@ -157,78 +149,65 @@ frameworks.forEach((framework) => {
     }
   );
 
-  test(`fill panel dynamic and add new panel`, async (t) => {
-    const addRowFunc = function(strings, ...values) {
+  test("fill panel dynamic and add new panel", async (t) => {
+    const addRowFunc = function (strings, ...values) {
       return `tbody > tr:nth-child(${values[0]}) > td:nth-child(${values[1]})`;
     };
-
-    await t.click(`input[value="Yes"]`);
     const relativeTypeSelect = Selector("div[name='relativeType'] select");
     const relativeTypeOption = relativeTypeSelect.find("option");
     const ageSelect = Selector("div[name='liveage'] select");
     const ageOption = ageSelect.find("option");
     const deceasedAgeSelect = Selector("div[name='deceasedage'] select");
     const deceasedAgeOption = deceasedAgeSelect.find("option");
+    const addRowSelector = Selector("button");
+    const relativeillnessSelect = Selector("div[name='relativeillness'] select");
+    const relativeillnessOption = relativeillnessSelect.find("option");
 
-    await t
+    await t.click("input[value=\"Yes\"]")
+
       .click(ageSelect)
       .click(ageOption.withText("72"))
-      .expect(ageSelect.value)
-      .eql("72");
+      .expect(ageSelect.value).eql("72")
 
-    await t.click(".sv-paneldynamic__next-btn");
-    await t.click(`input[value="Yes"]`);
-    await t
+      .click(".sv-paneldynamic__next-btn")
+      .click("input[value=\"Yes\"]")
+
       .click(ageSelect)
       .click(ageOption.withText("65"))
-      .expect(ageSelect.value)
-      .eql("65");
+      .expect(ageSelect.value).eql("65")
 
-    await t.click(`input[value="Add a blood relative"]`);
-    await t
+      .click(Selector(".sv-paneldynamic__add-btn").withText("Add a blood relative"))
+
       .click(relativeTypeSelect)
       .click(relativeTypeOption.withText("sister"))
-      .expect(relativeTypeSelect.value)
-      .eql("sister");
-    await t.click(`input[value="No"]`);
-    await t
+      .expect(relativeTypeSelect.value).eql("sister")
+      .click("input[value=\"No\"]")
+
       .click(deceasedAgeSelect)
       .click(deceasedAgeOption.withText("42"))
-      .expect(deceasedAgeSelect.value)
-      .eql("42");
-    await t.click(`div[name='causeofdeathknown'] input[value="No"]`);
+      .expect(deceasedAgeSelect.value).eql("42")
+      .click("div[name='causeofdeathknown'] input[value=\"No\"]")
+      .click(".sv-paneldynamic__prev-btn")
+      .click(".sv-paneldynamic__prev-btn")
 
-    await t.click(".sv-paneldynamic__prev-btn");
-    await t.click(".sv-paneldynamic__prev-btn");
+      .click(addRowSelector.find("span").withText("Add row"))
 
-    var addRowSelector = Selector(`button`);
-
-    await t.click(addRowSelector.find("span").withText("Add row"));
-    const relativeillnessSelect = Selector(
-      "div[name='relativeillness'] select"
-    );
-    const relativeillnessOption = relativeillnessSelect.find("option");
-    await t
       .click(relativeillnessSelect)
       .click(relativeillnessOption.withText("Diabetes"))
-      .expect(relativeillnessSelect.value)
-      .eql("Diabetes");
-    await t.typeText(
-      `div[name='relativeillness'] input[type="text"]`,
-      "Type 2"
-    );
+      .expect(relativeillnessSelect.value).eql("Diabetes")
+      .typeText("div[name='relativeillness'] input[type=\"text\"]", "Type 2")
 
-    await t.click(".sv-paneldynamic__next-btn");
-    await t.click(getDynamicPanelRemoveButton("Please enter all blood relatives you know", "Remove the relative"));
+      .click(".sv-paneldynamic__next-btn")
+      .click(getDynamicPanelRemoveButton("Please enter all blood relatives you know", "Remove the relative"))
 
-    await t.click(`input[value=Complete]`);
-    let surveyResult = await getSurveyResult();
-    assert.deepEqual(surveyResult, {
+      .click("input[value=Complete]");
+
+    await t.expect(await getSurveyResult()).eql({
       relatives: [
         {
           relativeType: "father",
           isalive: "Yes",
-          liveage: "72",
+          liveage: 72,
           relativeillness: [
             {
               illness: "Diabetes",
@@ -240,7 +219,7 @@ frameworks.forEach((framework) => {
           relativeType: "sister",
           isalive: "No",
           causeofdeathknown: "No",
-          deceasedage: "42",
+          deceasedage: 42
         },
       ],
     });
@@ -254,18 +233,16 @@ frameworks.forEach((framework) => {
     }
   );
 
-  test(`click on panel title state editable`, async (t) => {
-    var newTitle = "MyText";
-
-    var outerSelector = `.sv_p_title`;
-    var innerSelector = `.sv-string-editor`;
+  test("click on panel title state editable", async (t) => {
+    const newTitle = "MyText";
+    const outerSelector = ".sv_p_title";
+    const innerSelector = ".sv-string-editor";
     await t
       .click(outerSelector)
-      .selectEditableContent(outerSelector + ` ` + innerSelector)
-      .typeText(outerSelector + ` ` + innerSelector, newTitle)
-      .click(`body`, { offsetX: 0, offsetY: 0 });
+      .typeText(outerSelector + " " + innerSelector, newTitle, { replace: true })
+      .click("body", { offsetX: 0, offsetY: 0 });
 
-    var json = JSON.parse(await getQuestionJson());
-    assert.equal(json.title, newTitle);
+    const json = JSON.parse(await getQuestionJson());
+    await t.expect(json.title).eql(newTitle);
   });
 });

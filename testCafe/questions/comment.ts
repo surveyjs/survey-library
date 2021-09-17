@@ -31,7 +31,13 @@ frameworks.forEach(framework => {
               "name": "question2",
               "hasComment": true,
               "commentText": "Comment text"
-            }
+            },
+            {
+              "type": "comment",
+              "name": "question3",
+              "autoGrow": true,
+              "multiLine": false
+            },
           ]
         }
       ],
@@ -39,7 +45,7 @@ frameworks.forEach(framework => {
     });
   });
 
-  test("autoGrowComment", async t => {
+  test("autoGrowComment & multiLine", async t => {
     await t
       .click(commentQuestion)
       .expect(commentQuestion.getStyleProperty("resize")).eql("none")
@@ -58,7 +64,18 @@ frameworks.forEach(framework => {
       .expect(otherCommentQuestion.clientHeight).eql(88)
 
       .pressKey("backspace")
-      .expect(otherCommentQuestion.clientHeight).eql(60);
+      .expect(otherCommentQuestion.clientHeight).eql(60)
+
+      .pressKey("tab")
+      .expect(commentQuestion.nth(2).getStyleProperty("resize")).eql("none")
+      .expect(commentQuestion.nth(2).clientHeight).eql(116)
+      .pressKey("a enter a enter a enter a enter")
+      .expect(commentQuestion.nth(2).clientHeight).eql(116)
+      .expect(commentQuestion.nth(2).value).eql("aaaa")
+
+      .typeText(commentQuestion.nth(2), "a\na\na\na\n", { replace: true })
+      .pressKey("tab")
+      .expect(commentQuestion.nth(2).value).eql("aaaa");
   });
 });
 

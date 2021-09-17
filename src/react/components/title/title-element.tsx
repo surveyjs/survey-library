@@ -11,8 +11,13 @@ export class TitleElement extends React.Component<any, any> {
   }
   render(): JSX.Element {
     const element = this.element;
-    if(!element || !element.hasTitle) return null;
-    const titleContent = <TitleActions element={element} cssClasses={element.cssClasses}></TitleActions>;
+    if (!element || !element.hasTitle) return null;
+    const titleContent = (
+      <TitleActions
+        element={element}
+        cssClasses={element.cssClasses}
+      ></TitleActions>
+    );
     let onClick = null;
     let onKeyUp = null;
     if (element.hasTitleEvents) {
@@ -28,8 +33,12 @@ export class TitleElement extends React.Component<any, any> {
     return (
       <CustomTag
         className={element.cssTitle}
-        aria-label={element.locTitle.renderedHtml}
         id={element.ariaTitleId}
+        aria-label={
+          element.getType() === "radiogroup"
+            ? ""
+            : element.locTitle.renderedHtml
+        }
         tabIndex={element.titleTabIndex}
         aria-expanded={element.titleAriaExpanded}
         onClick={onClick}

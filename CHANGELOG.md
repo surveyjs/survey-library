@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.8.67](https://github.com/surveyjs/survey-library/compare/v1.8.66...v1.8.67) (2021-09-17)
+
+
+### Bug Fixes
+
+* Checkbox choices aren't being rendered after using fromJSON? [#3331](https://github.com/surveyjs/survey-library/issues/3331) ([0d2c772](https://github.com/surveyjs/survey-library/commit/0d2c7728ff9fb9149aa73a0e248e03c5bc9565a9))
+
 ### [1.8.66](https://github.com/surveyjs/survey-library/compare/v1.8.65...v1.8.66) (2021-09-15)
 
 

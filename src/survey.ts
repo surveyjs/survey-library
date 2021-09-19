@@ -2458,7 +2458,7 @@ export class SurveyModel extends SurveyElementCore
     if (this.isDesignMode) return this.pages;
     var result = new Array<PageModel>();
     for (var i = 0; i < this.pages.length; i++) {
-      if (this.pages[i].isVisible) {
+      if (this.pages[i].isVisible && !this.pages[i].isStarted) {
         result.push(this.pages[i]);
       }
     }

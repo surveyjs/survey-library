@@ -9,7 +9,8 @@ ko.components.register("survey-element-title", {
       const element: SurveyElementCore = params.element;
       const rootEl = componentInfo.element;
       const titleEl = document.createElement(element.titleTagName);
-      titleEl.setAttribute("data-bind", "css: element.cssTitle, attr: { id: element.ariaTitleId, tabindex: element.titleTabIndex, 'aria-expanded': element.titleAriaExpanded }, click: function() { element.toggleState()}, key2click}");
+      const ariaLabelAttr = element.getType() === "radiogroup" ? "" : "'aria-label': element.locTitle.renderedHtml,";
+      titleEl.setAttribute("data-bind", `css: element.cssTitle, attr: { ${ariaLabelAttr} id: element.ariaTitleId, tabindex: element.titleTabIndex, 'aria-expanded': element.titleAriaExpanded }, click: function() { element.toggleState()}, key2click}`);
       titleEl.innerHTML = "<!-- ko component: { name: 'sv-title-actions', params: {element: element } } --><!-- /ko -->";
       const dummyNode = rootEl.nextSibling;
       rootEl.parentNode.insertBefore(document.createComment(" ko if: element.hasTitle "), dummyNode);

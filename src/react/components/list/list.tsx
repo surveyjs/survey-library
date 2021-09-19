@@ -52,13 +52,14 @@ export class List extends SurveyElementBase<IListProps, any> {
       if(!item.component) {
         const icon = item.iconName ? (
           <SvgIcon
+            key={1}
             className="sv-list__item-icon"
             iconName={item.iconName}
             size={24}
           ></SvgIcon>
         ) : null;
         content.push(icon);
-        content.push(<span>{item.title}</span>);
+        content.push(<span key={2}>{item.title}</span>);
       } else {
         content.push(ReactElementFactory.Instance.createElement(item.component, { item: item, }));
       }

@@ -1,4 +1,4 @@
-<div class="sv-action" data-bind="css: { 'sv-action--hidden': !isVisible }, class: $data.css, attr: { id: $data.id }">
+<div data-bind="class: $data.getActionRootCss(), attr: { id: $data.id }">
     <div class="sv-action__content">
         <!-- ko if: $data.needSeparator -->
         <sv-action-bar-separator></sv-action-bar-separator>

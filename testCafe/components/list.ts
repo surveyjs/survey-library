@@ -4,8 +4,8 @@ const title = "list";
 
 const explicitErrorHandler = () => {
   window.addEventListener("error", e => {
-    if(e.message === "ResizeObserver loop completed with undelivered notifications." ||
-          e.message === "ResizeObserver loop limit exceeded") {
+    if (e.message === "ResizeObserver loop completed with undelivered notifications." ||
+      e.message === "ResizeObserver loop limit exceeded") {
       e.stopImmediatePropagation();
     }
   });
@@ -28,7 +28,7 @@ const disposeSurvey = ClientFunction(framework => {
 });
 
 function addTitleAction(_, opt) {
-  for(var i=0; i<30; i++) {
+  for (var i = 0; i < 30; i++) {
     opt.titleActions.push({
       title: "Custom Action " + i,
       component: "svc-custom-action",
@@ -38,7 +38,7 @@ function addTitleAction(_, opt) {
   }
 }
 
-["react", "knockout"].forEach(async framework => {
+frameworks.forEach(async framework => {
   fixture`${framework} ${title}`.page`${url}${framework}`.clientScripts({ content: `(${explicitErrorHandler.toString()})()` }).beforeEach(async t => {
   });
 

@@ -106,9 +106,11 @@ export class Action extends Base implements IAction {
   @property() id: string;
   @property() iconName: string;
   @property() iconSize: number = 24;
-  @property({ defaultValue: true, onSet: (_, target: Action) => {
-    target.raiseUpdate();
-  } }) visible: boolean;
+  @property({
+    defaultValue: true, onSet: (_, target: Action) => {
+      target.raiseUpdate();
+    }
+  }) visible: boolean;
   @property() title: string;
   @property() tooltip: string;
   @property() enabled: boolean;
@@ -146,6 +148,13 @@ export class Action extends Base implements IAction {
     return !!this.iconName;
   }
 
+  public getActionRootCss(): string {
+    return new CssClassBuilder()
+      .append("sv-action")
+      .append(this.css)
+      .append("sv-action--hidden", !this.isVisible)
+      .toString();
+  }
   public getActionBarItemCss(): string {
     return new CssClassBuilder()
       .append("sv-action-bar-item__title")

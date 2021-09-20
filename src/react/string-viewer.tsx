@@ -5,7 +5,6 @@ import { ReactElementFactory } from "./element-factory";
 export class SurveyLocStringViewer extends React.Component<any, any> {
   constructor(props: any) {
     super(props);
-    this.state = { changed: 0 };
   }
   private get locStr(): LocalizableString {
     return this.props.locStr;
@@ -14,15 +13,23 @@ export class SurveyLocStringViewer extends React.Component<any, any> {
     return this.props.style;
   }
   componentDidMount() {
-    if (!this.locStr) return;
-    var self = this;
-    this.locStr.onChanged = function () {
-      self.setState({ changed: self.state.changed + 1 });
-    };
+    this.reactOnStrChanged();
   }
   componentWillUnmount() {
     if (!this.locStr) return;
     this.locStr.onChanged = function () {};
+  }
+  componentDidUpdate(prevProps: any, prevState: any) {
+    if(!!prevProps.locStr) {
+      prevProps.locStr.onChanged = () => {};
+    }
+    this.reactOnStrChanged();
+  }
+  private reactOnStrChanged() {
+    if (!this.locStr) return;
+    this.locStr.onChanged = () => {
+      this.setState({ changed: !!this.state && this.state.changed ? this.state.changed + 1 : 1 });
+    };
   }
   render(): JSX.Element {
     if (!this.locStr) return null;

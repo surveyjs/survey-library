@@ -3002,8 +3002,9 @@ export class SurveyModel extends SurveyElementCore
     this.clearAsyncValidationQuesitons();
     for (var i = 0; i < questions.length; i++) {
       if (questions[i].isRunningValidators) {
-        questions[i].onCompletedAsyncValidators = (hasErrors: boolean) => {
-          this.onCompletedAsyncQuestionValidators(func, hasErrors);
+        let q = questions[i];
+        q.onCompletedAsyncValidators = (hasErrors: boolean) => {
+          this.onCompletedAsyncQuestionValidators(q, func, hasErrors);
         };
         this.asyncValidationQuesitons.push(questions[i]);
       }
@@ -3020,12 +3021,20 @@ export class SurveyModel extends SurveyElementCore
     this.asyncValidationQuesitons = [];
   }
   private onCompletedAsyncQuestionValidators(
+    question: Question,
     func: (hasErrors: boolean) => void,
     hasErrors: boolean
   ) {
     if (hasErrors) {
       this.clearAsyncValidationQuesitons();
       func(true);
+      if(this.focusOnFirstError && !!question && !!question.page && question.page === this.currentPage) {
+        const questions: Array<Question> = this.currentPage.questions;
+        for(let i = 0; i < questions.length; i ++) {
+          if(questions[i] !== question && questions[i].errors.length > 0) return;
+        }
+        question.focus(true);
+      }
       return;
     }
     var asynQuestions = this.asyncValidationQuesitons;

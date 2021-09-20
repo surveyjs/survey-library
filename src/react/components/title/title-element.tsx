@@ -9,6 +9,25 @@ export class TitleElement extends React.Component<any, any> {
   private get element(): SurveyElementCore {
     return this.props.element;
   }
+  componentDidMount() {
+    this.setLocTitleOnChanged();
+  }
+  componentWillUnmount() {
+    if(!!this.element) {
+      this.element.locTitle.onChanged = () => {};
+    }
+  }
+  componentDidUpdate(prevProps: any, prevState: any) {
+    this.setLocTitleOnChanged();
+  }
+  private setLocTitleOnChanged() {
+    if(!this.element) return;
+    this.element.locTitle.onChanged = () => {
+      this.setState({
+        changedCounter: this.state && this.state.changedCounter !== undefined ? this.state.changedCounter + 1 : 1,
+      });
+    };
+  }
   render(): JSX.Element {
     const element = this.element;
     if (!element || !element.hasTitle) return null;

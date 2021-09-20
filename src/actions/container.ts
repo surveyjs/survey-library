@@ -73,7 +73,5 @@ export class ActionContainer<T extends Action = Action> extends Base {
     public initResponsivityManager(container: HTMLDivElement): void {
       return;
     }
-    public dispose() {
-      super.dispose();
-    }
+    public resetResponsivityManager(): void {}
 }

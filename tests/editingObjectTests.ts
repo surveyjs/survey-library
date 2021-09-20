@@ -1017,8 +1017,8 @@ QUnit.test("Dispose editing survey correctly", function(assert) {
   survey1.dispose();
   question.name = "q3";
   assert.equal(
-    survey1.getQuestionByName("name").isEmpty(),
-    true,
+    survey1.getQuestionByName("name").value,
+    "q2",
     "do not react on changing in survey1"
   );
   assert.equal(

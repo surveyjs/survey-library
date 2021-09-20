@@ -13,17 +13,17 @@ export class ActionBarViewModel extends ActionContainer {
   private _implementor: ImplementorBase;
   constructor(public model: ActionContainer, public handleClick = true) {
     super();
-    this._implementor = new ImplementorBase(model);
+    this._implementor = new ActionContainerImplementor(model);
   }
 
   dispose(): void {
     super.dispose();
     this._implementor.dispose();
-    this.model.dispose();
+    this.model.resetResponsivityManager();
   }
 }
 
-export class AdaptiveElementImplementor extends ImplementorBase {
+export class ActionContainerImplementor extends ImplementorBase {
   private itemsSubscription: any;
 
   constructor(model: ActionContainer) {
@@ -49,11 +49,9 @@ export class AdaptiveElementImplementor extends ImplementorBase {
 ko.components.register("sv-action-bar", {
   viewModel: {
     createViewModel: (params: any, componentInfo: any) => {
-      const handleClick =
-        params.handleClick !== undefined ? params.handleClick : true;
+      const handleClick = params.handleClick !== undefined ? params.handleClick : true;
       const model = params.model;
-      const container: HTMLDivElement =
-        componentInfo.element.nextElementSibling;
+      const container: HTMLDivElement = componentInfo.element.nextElementSibling;
       params.model.initResponsivityManager(container);
       return new ActionBarViewModel(model, handleClick);
     },

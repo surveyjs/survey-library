@@ -22,3 +22,4 @@ export { QuestionComment } from "../../src/knockout/koquestion_comment";
 export * from "../ko/kosurveymodeltests";
 export * from "../ko/survey_kotests";
 export * from "../ko/templatetexttests";
+export * from "../ko/actionbar";

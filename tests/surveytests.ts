@@ -12650,6 +12650,55 @@ QUnit.test(
   }
 );
 QUnit.test(
+  "Focus question on Survey onServerValidateQuestions event, Bug#3343",
+  function (assert) {
+    var focusedQuestionId = "";
+    var oldFunc = SurveyElement.FocusElement;
+    SurveyElement.FocusElement = function (elId: string): boolean {
+      focusedQuestionId = elId;
+      return true;
+    };
+    var returnResult: (res: any) => void;
+    function asyncFunc(params: any): any {
+      returnResult = this.returnResult;
+      return false;
+    }
+    FunctionFactory.Instance.register("asyncFunc", asyncFunc, true);
+    var survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "q1", isRequired: true },
+        { type: "text", name: "q2",
+          validators: [
+            {
+              type: "expression",
+              text: "Error!!!",
+              expression: "asyncFunc() = 1",
+            },
+          ],
+        },
+      ],
+    });
+    survey.completeLastPage();
+    returnResult(0);
+    assert.equal(
+      survey.getQuestionByName("q1").inputId,
+      focusedQuestionId,
+      "q1 is required"
+    );
+    survey.setValue("q1", "val1");
+    focusedQuestionId = "";
+    survey.completeLastPage();
+    returnResult(0);
+    assert.equal(
+      survey.getQuestionByName("q2").inputId,
+      focusedQuestionId,
+      "q2 has error"
+    );
+    SurveyElement.FocusElement = oldFunc;
+  }
+);
+
+QUnit.test(
   "Focus errored question when checkErrorsMode: `onComplete` + onServerValidateQuestions, Bug#2466",
   function (assert) {
     var focusedQuestionId = "";

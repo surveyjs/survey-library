@@ -423,13 +423,6 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
   public getItemId(index: number) {
     return this.inputId + "_" + index;
   }
-  public getItemEnabled(item: ItemValue) {
-    return !this.question.isInputReadOnly && item.isEnabled;
-  }
-  public isOtherItem(item: ItemValue)
-  {
-    return this.hasOther && item.value == this.otherItem.value;
-  }
 }
 Serializer.addClass(
   "checkbox",

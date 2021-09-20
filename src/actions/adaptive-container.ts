@@ -119,11 +119,14 @@ export class AdaptiveActionContainer<T extends Action = Action> extends ActionCo
       ".sv-action:not(.sv-dots)>.sv-action__content"
     );
   }
-  public dispose(): void {
-    super.dispose();
+  public resetResponsivityManager(): void {
     if(!!this.responsivityManager) {
       this.responsivityManager.dispose();
       this.responsivityManager = undefined;
     }
+  }
+  public dispose(): void {
+    super.dispose();
+    this.resetResponsivityManager();
   }
 }

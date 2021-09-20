@@ -19,6 +19,7 @@ export class ActionBarViewModel extends ActionContainer {
   dispose(): void {
     super.dispose();
     this._implementor.dispose();
+    this.model.resetResponsivityManager();
   }
 }
 

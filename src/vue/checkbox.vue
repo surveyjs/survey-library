@@ -5,7 +5,7 @@
       v-if="!question.hasColumns"
       v-for="(item, index) in question.visibleChoices"
       :key="item.value"
-      :class="getItemClass(item)"
+      :class="question.getItemClass(item)"
       :question="question"
       :item="item"
       :index="index"

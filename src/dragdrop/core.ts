@@ -117,10 +117,10 @@ export abstract class DragDropCore<T> extends Base {
     );
   }
 
-  protected doStartDrag(): void {}
+  protected doStartDrag(): void { }
   protected abstract getShortcutText(draggedElement: any): string;
 
-  protected createDraggedElementShortcut(text: string, draggedElementNode?: HTMLElement):HTMLElement {
+  protected createDraggedElementShortcut(text: string, draggedElementNode?: HTMLElement): HTMLElement {
     const draggedElementShortcut = document.createElement("div");
     draggedElementShortcut.innerText = text;
     draggedElementShortcut.style.cssText =
@@ -128,8 +128,8 @@ export abstract class DragDropCore<T> extends Base {
     return draggedElementShortcut;
   }
 
-  protected doDragOver(dropTargetNode?: HTMLElement): void {}
-  protected afterDragOver(dropTargetNode?: HTMLElement): void {}
+  protected doDragOver(dropTargetNode?: HTMLElement): void { }
+  protected afterDragOver(dropTargetNode?: HTMLElement): void { }
 
   public getGhostPosition(item: any): string {
     if (this.dropTarget !== item) return null;
@@ -262,9 +262,9 @@ export abstract class DragDropCore<T> extends Base {
     this.isBottom = null;
   };
 
-  protected doBanDropHere = (): void => {};
+  protected doBanDropHere = (): void => { };
 
-  private getDataAttributeValueByNode(node: HTMLElement) {
+  protected getDataAttributeValueByNode(node: HTMLElement) {
     let datasetName = "svDropTarget";
     const words = this.draggedElementType.split("-");
     words.forEach((word) => {
@@ -323,7 +323,7 @@ export abstract class DragDropCore<T> extends Base {
     return this.findDropTargetNodeByDragOverNode(dragOverNode);
   }
 
-  protected findDropTargetNodeByDragOverNode(dragOverNode:HTMLElement):HTMLElement {
+  protected findDropTargetNodeByDragOverNode(dragOverNode: HTMLElement): HTMLElement {
     const result: HTMLElement =
       dragOverNode.querySelector(this.dropTargetDataAttributeName) ||
       dragOverNode.closest(this.dropTargetDataAttributeName);
@@ -353,5 +353,5 @@ export abstract class DragDropCore<T> extends Base {
     this.scrollIntervalId = null;
   };
 
-  protected doClear(): void {}
+  protected doClear(): void { }
 }

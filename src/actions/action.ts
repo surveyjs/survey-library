@@ -85,6 +85,10 @@ export interface IAction {
    * Set it to true to make the tabIndex -1 to disable keyboard navigation to this item
    */
   disableTabStop?: boolean;
+  /**
+   * Action button display mode
+   */
+  mode?: "large" | "small" | "popup";
   visibleIndex?: number;
 }
 

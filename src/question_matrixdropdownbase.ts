@@ -1226,6 +1226,9 @@ implements ISurveyData, ISurveyImpl, ILocalizableOwner {
     for (var i = 0; i < questions.length; i++) {
       questions[i].readOnly = parentIsReadOnly;
     }
+    if(!!this.detailPanel) {
+      this.detailPanel.readOnly = parentIsReadOnly;
+    }
   }
   public hasErrors(
     fireCallback: boolean,
@@ -3447,6 +3450,7 @@ export class QuestionMatrixDropdownModelBase
   createRowDetailPanel(row: MatrixDropdownRowModelBase): PanelModel {
     if (this.isDesignMode) return this.detailPanel;
     var panel = this.createNewDetailPanel();
+    panel.readOnly = this.isReadOnly;
     var json = this.detailPanel.toJSON();
     new JsonObject().toObject(json, panel);
     panel.renderWidth = "100%";

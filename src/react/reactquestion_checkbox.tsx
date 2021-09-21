@@ -4,11 +4,11 @@ import {
   SurveyQuestionElementBase,
 } from "./reactquestion_element";
 import { SurveyQuestionCommentItem } from "./reactquestion_comment";
-import { QuestionCheckboxModel } from "survey-core";
-import { ItemValue } from "survey-core";
 import { ReactQuestionFactory } from "./reactquestion_factory";
-import { Base } from "survey-core";
 import { ReactSurveyModel } from "./reactsurveymodel";
+import { QuestionCheckboxModel } from "../question_checkbox";
+import { Base } from "../base";
+import { ItemValue } from "../itemvalue";
 
 export class SurveyQuestionCheckbox extends SurveyQuestionElementBase {
   constructor(props: any) {
@@ -92,8 +92,6 @@ export class SurveyQuestionCheckbox extends SurveyQuestionElementBase {
 export class SurveyQuestionCheckboxItem extends ReactSurveyElement {
   constructor(props: any) {
     super(props);
-    this.handleOnChange = this.handleOnChange.bind(this);
-    this.selectAllChanged = this.selectAllChanged.bind(this);
   }
   protected getStateElement(): Base {
     return this.item;
@@ -124,7 +122,7 @@ export class SurveyQuestionCheckboxItem extends ReactSurveyElement {
       !!this.question.customWidget.widgetJson.render
     );
   }
-  handleOnChange(event: any) {
+  handleOnChange = (event: any) => {
     var newValue = [].concat(this.question.renderedValue || []);
     var index = newValue.indexOf(this.item.value);
     if (event.target.checked) {
@@ -138,7 +136,7 @@ export class SurveyQuestionCheckboxItem extends ReactSurveyElement {
     }
     this.question.renderedValue = newValue;
   }
-  selectAllChanged(event: any) {
+  selectAllChanged = (event: any) => {
     this.question.toggleSelectAll();
   }
   protected canRender(): boolean {

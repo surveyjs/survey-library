@@ -18,7 +18,7 @@
       <survey-checkbox-item
         v-for="(item, index) in column"
         :key="item.value"
-        :class="getItemClass(item)"
+        :class="question.getItemClass(item)"
         :question="question"
         :item="item"
         :index="'' + colIndex + index"
@@ -35,9 +35,6 @@ import { QuestionCheckboxModel } from "survey-core";
 
 @Component
 export class Checkbox extends QuestionVue<QuestionCheckboxModel> {
-  getItemClass(item: any) {
-    return this.question.getItemClass(item);
-  }
 }
 Vue.component("survey-checkbox", Checkbox);
 export default Checkbox;

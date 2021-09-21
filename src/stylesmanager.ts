@@ -324,14 +324,15 @@ export class StylesManager {
     ".sv_main .sv-button-group":
       "display: flex; align-items: center; flex-direction: row; font-size: 16px; height: 48px; overflow: auto;",
     ".sv_main .sv-button-group__item":
-      "display: flex; box-sizing: border-box; flex-direction: row; justify-content: center; align-items: center; width: 100%; padding: 11px 16px; line-height: 24px; border-width: 1px; border-style: solid; outline: none; font-size: 16px; font-weight: 400; cursor: pointer; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;",
+      "display: flex; box-sizing: border-box; flex-direction: row; justify-content: center; align-items: center; width: 100%; padding: 11px 16px; line-height: 24px; border-width: 1px; border-style: solid; outline: none; font-size: 16px; font-weight: 400; cursor: pointer; overflow: hidden;",
     ".sv_main .sv-button-group__item:not(:first-of-type)": "margin-left: -1px;",
     ".sv_main .sv-button-group__item-icon": "display: block; height: 24px;",
     ".sv_main .sv-button-group__item--selected": "font-weight: 600;",
     ".sv_main .sv-button-group__item-decorator":
-      "display: flex; align-items: center;",
+      "display: flex; align-items: center; max-width: 100%;",
     ".sv_main  .sv-button-group__item-icon + .sv-button-group__item-caption":
-      "margin-left: 8px;",
+      "margin-left: 8px",
+    ".sv_main .sv-button-group__item-caption": "display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;",
     ".sv_main .sv-button-group__item--disabled": "color: cursor: default;",
     //eo button-group
     //popup

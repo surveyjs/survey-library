@@ -1,9 +1,6 @@
 <template>
-  <span
-    class="sv-action"
-    v-bind:class="{ 'sv-action--hidden': !item.isVisible }"
-  >
-    <div className="sv-action__content">
+  <span v-bind:class="item.getActionRootCss()">
+    <div class="sv-action__content">
       <sv-action-bar-separator
         v-if="item.needSeparator"
       ></sv-action-bar-separator>

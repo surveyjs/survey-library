@@ -41,7 +41,7 @@ export class SurveyActionBar extends SurveyElementBase<IActionBarProps, any> {
   }
   componentWillUnmount() {
     super.componentWillUnmount();
-    this.model.dispose();
+    this.model.resetResponsivityManager();
   }
 
   protected getStateElement(): Base {

@@ -17,7 +17,7 @@ export const initSurvey = ClientFunction(
 
     const model = new Survey.Model(json);
     model.setDesignMode(isDesignMode);
-    const surveyComplete = function(model) {
+    const surveyComplete = function (model) {
       window.SurveyResult = model.data;
       document.getElementById("surveyResultElement").innerHTML = JSON.stringify(
         model.data
@@ -38,7 +38,7 @@ export const initSurvey = ClientFunction(
     if (framework === "knockout") {
       document.getElementById("surveyElement").innerHTML = "";
       model.render("surveyElement");
-    }  else if (framework === "react") {
+    } else if (framework === "react") {
       document.getElementById("surveyElement").innerHTML = "";
       ReactDOM.render(
         React.createElement(Survey.Survey, {
@@ -71,29 +71,29 @@ export const registerCustomToolboxComponent = ClientFunction(
         },
         template: `<div class="my-custom-action-class" data-bind="click: function() { $data.action() }, text: $data.title"></div>`
       });
-    }  else if (framework === "react") {
+    } else if (framework === "react") {
       class CustomActionButton extends React.Component {
         click = () => {
-            this.props.item.action();
+          this.props.item.action();
         }
         render() {
-            return (
-              <div className="my-custom-action-class" onClick={this.click}> {this.props.item.title}</div>
-            );
+          return (
+            <div className="my-custom-action-class" onClick={this.click}> {this.props.item.title}</div>
+          );
         }
       }
-    
+
       Survey.ReactElementFactory.Instance.registerElement("svc-custom-action", (props) => {
-          return React.createElement(CustomActionButton, props);
+        return React.createElement(CustomActionButton, props);
       });
-    
+
     } else if (framework === "vue") {
-      // Vue.component('svc-custom-action', {
-      //   props: {
-      //     item: {}
-      //   },
-      //   template: '<div class="my-custom-action-class" data-bind="click: function() { $data.action() }">{{ item.title }}</div>'
-      // });
+      Vue.component('svc-custom-action', {
+        props: {
+          item: {}
+        },
+        template: '<div class="my-custom-action-class" data-bind="click: function() { $data.action() }">{{ item.title }}</div>'
+      });
     }
   }
 );
@@ -117,7 +117,7 @@ export const setData = ClientFunction(newData => {
 });
 
 export const setOptions = ClientFunction((questionName, modValue) => {
-  const mergeOptions = function(obj1, obj2) {
+  const mergeOptions = function (obj1, obj2) {
     for (const attrname in obj2) {
       obj1[attrname] = obj2[attrname];
     }

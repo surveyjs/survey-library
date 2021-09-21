@@ -17,15 +17,21 @@ export class BaseVue extends Vue {
     var model = this.getModel();
     return !!model && !!(<any>model).isRendering;
   }
-  protected onMounted() {}
-  protected onUpdated() {}
-  protected onDestroyed() {}
+  protected onMounted() { }
+  protected onUpdated() { }
+  protected onDestroyed() { }
   protected onCreated() {
     var model = this.getModel();
     if (!model) return;
-    model.iteratePropertiesHash((hash: any, key: any) => {
-      Vue.set(hash, key, hash[key]);
+    model.iteratePropertiesHash((propertiesHash: any, name: any) => {
+      (<any>Vue.util).defineReactive(propertiesHash, name, propertiesHash[name]);
     });
+    model.getPropertyValueCoreHandler = (propertiesHash: any, name: string) => {
+      if (!propertiesHash.hasOwnProperty(name)) {
+        (<any>Vue.util).defineReactive(propertiesHash, name, propertiesHash[name]);
+      }
+      return propertiesHash[name];
+    };
     model.setPropertyValueCoreHandler = (
       propertiesHash: any,
       name: string,

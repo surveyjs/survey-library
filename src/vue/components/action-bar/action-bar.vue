@@ -46,7 +46,7 @@ export class ActionBarViewModel extends BaseVue {
   }
 
   beforeDestroy() {
-    this.model.dispose();
+    this.model.resetResponsivityManager();
   }
 }
 

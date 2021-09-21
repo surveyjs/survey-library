@@ -56,3 +56,13 @@ QUnit.test("AdaptiveActionContainer.css",
     assert.equal(model.css, "sv-action-bar footer");
   }
 );
+
+QUnit.test(
+  "getActionRootCss",
+  (assert) => {
+    const action = new Action(<any>{ css: "custom" });
+    assert.equal(action.getActionRootCss(), "sv-action custom");
+    action.visible = false;
+    assert.equal(action.getActionRootCss(), "sv-action custom sv-action--hidden");
+  }
+);

@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.8.68](https://github.com/surveyjs/survey-library/compare/v1.8.67...v1.8.68) (2021-09-21)
+
+
+### Bug Fixes
+
+* Async expression validators don't focus element when false at validation [#3343](https://github.com/surveyjs/survey-library/issues/3343) ([85b1e47](https://github.com/surveyjs/survey-library/commit/85b1e4734de3a6e8c46a20779c1a22c90dfbda5b))
+* React TitleElement doesn't re-render on title element change in … ([#3356](https://github.com/surveyjs/survey-library/issues/3356)) ([623c722](https://github.com/surveyjs/survey-library/commit/623c722610272d9f5ad9dced3a5f99c4aab7b655)), closes [#3355](https://github.com/surveyjs/survey-library/issues/3355) [#3355](https://github.com/surveyjs/survey-library/issues/3355)
+* Started page is not rendered in react in versions: v1.8.66-67 in react [#3348](https://github.com/surveyjs/survey-library/issues/3348) ([#3349](https://github.com/surveyjs/survey-library/issues/3349)) ([65d26fc](https://github.com/surveyjs/survey-library/commit/65d26fcdffb620fecfd5cd9192408fc13a160f86))
+
 ### [1.8.67](https://github.com/surveyjs/survey-library/compare/v1.8.66...v1.8.67) (2021-09-17)
 
 

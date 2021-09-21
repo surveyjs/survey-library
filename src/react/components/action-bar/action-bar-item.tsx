@@ -20,10 +20,7 @@ export class SurveyAction extends SurveyElementBase<IActionBarItemProps, any> {
 
   renderElement() {
     //refactor
-    const itemClass =
-      "sv-action " +
-      this.item.css +
-      (!this.item.isVisible ? " sv-action--hidden" : "");
+    const itemClass = this.item.getActionRootCss();
     const separator = this.item.needSeparator ? (
       <SurveyActionBarSeparator></SurveyActionBarSeparator>
     ) : null;

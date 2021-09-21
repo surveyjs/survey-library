@@ -6055,7 +6055,8 @@ QUnit.test("firstPageIsStarted = true", function (assert) {
   assert.equal(survey.pages[0].isVisible, true, "The first page is visible");
   assert.equal(survey.state, "running", "Survey is running");
   survey.firstPageIsStarted = true;
-  assert.equal(survey.pages[0].isVisible, false, "The first page is invisible");
+  assert.equal(survey.pages[0].isVisible, true, "The first page is visible");
+  assert.equal(survey.pages[0].isStarted, true, "The first page is started");
   assert.equal(survey.visiblePages.length, 2, "There are 2 visible pages");
   assert.equal(survey.state, "starting", "Survey is showing the start page");
   survey.firstPageIsStarted = false;
@@ -6080,7 +6081,8 @@ QUnit.test("firstPageIsStarted = true, load from JSON, the flow", function (
   survey.onStarted.add(function (sender) {
     startCounter++;
   });
-  assert.equal(survey.pages[0].isVisible, false, "The first page is invisible");
+  assert.equal(survey.pages[0].isVisible, true, "The first page is visible");
+  assert.equal(survey.pages[0].isStarted, true, "The first page is visible");
   assert.equal(survey.visiblePages.length, 1, "There is one visible page");
   assert.equal(survey.state, "starting", "Survey is showing the start page");
   assert.equal(startCounter, 0, "onStarted event was not called yet");
@@ -12648,6 +12650,55 @@ QUnit.test(
   }
 );
 QUnit.test(
+  "Focus question on Survey onServerValidateQuestions event, Bug#3343",
+  function (assert) {
+    var focusedQuestionId = "";
+    var oldFunc = SurveyElement.FocusElement;
+    SurveyElement.FocusElement = function (elId: string): boolean {
+      focusedQuestionId = elId;
+      return true;
+    };
+    var returnResult: (res: any) => void;
+    function asyncFunc(params: any): any {
+      returnResult = this.returnResult;
+      return false;
+    }
+    FunctionFactory.Instance.register("asyncFunc", asyncFunc, true);
+    var survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "q1", isRequired: true },
+        { type: "text", name: "q2",
+          validators: [
+            {
+              type: "expression",
+              text: "Error!!!",
+              expression: "asyncFunc() = 1",
+            },
+          ],
+        },
+      ],
+    });
+    survey.completeLastPage();
+    returnResult(0);
+    assert.equal(
+      survey.getQuestionByName("q1").inputId,
+      focusedQuestionId,
+      "q1 is required"
+    );
+    survey.setValue("q1", "val1");
+    focusedQuestionId = "";
+    survey.completeLastPage();
+    returnResult(0);
+    assert.equal(
+      survey.getQuestionByName("q2").inputId,
+      focusedQuestionId,
+      "q2 has error"
+    );
+    SurveyElement.FocusElement = oldFunc;
+  }
+);
+
+QUnit.test(
   "Focus errored question when checkErrorsMode: `onComplete` + onServerValidateQuestions, Bug#2466",
   function (assert) {
     var focusedQuestionId = "";
@@ -13948,4 +13999,30 @@ QUnit.test("page.fromJSON() doesn't work correctly, Bug#3331", assert => {
   pg.fromJSON(pageJSON);
   const question = <QuestionCheckboxModel>survey.getAllQuestions()[0];
   assert.equal(question.visibleChoices.length, 3, "Visible choices are set");
+});
+QUnit.test("start page is invisible", assert => {
+  const survey = new SurveyModel({
+    pages: [
+      {
+        elements: [
+          {
+            type: "text",
+            name: "name1",
+          },
+        ],
+      },
+      {
+        elements: [
+          {
+            type: "text",
+            name: "name2",
+          },
+        ],
+      },
+    ],
+    firstPageIsStarted: true,
+  });
+  const startedPage = survey.startedPage;
+  assert.ok(startedPage);
+  assert.equal(startedPage.isVisible, true, "started page is visible");
 });

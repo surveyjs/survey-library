@@ -5431,6 +5431,31 @@ QUnit.test("Detail panel in matrix dropdown, get/set values", function(assert) {
     "The value set from the survey correctly into closed detail panel question"
   );
 });
+QUnit.test("Detail panel and matrix read-only", function(assert) {
+  var survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdropdown",
+        name: "matrix",
+        detailPanelMode: "underRow",
+        detailElements: [{ type: "text", name: "q1" }],
+        rows: ["row1", "row2"],
+        columns: [
+          { cellType: "text", name: "col1" },
+          { cellType: "text", name: "col2" },
+        ],
+      },
+    ],
+  });
+  var matrix = <QuestionMatrixDropdownModel>survey.getQuestionByName("matrix");
+  matrix.readOnly = true;
+  matrix.visibleRows[0].showDetailPanel();
+  assert.equal(matrix.visibleRows[0].detailPanel.readOnly, true, "Panel is read-only");
+  matrix.readOnly = false;
+  assert.equal(matrix.visibleRows[0].detailPanel.readOnly, false, "Panel is not read-only");
+  matrix.readOnly = true;
+  assert.equal(matrix.visibleRows[0].detailPanel.readOnly, true, "Panel is read-only again");
+});
 QUnit.test(
   "Detail panel column and detail Panel have the same names, get/set values",
   function(assert) {

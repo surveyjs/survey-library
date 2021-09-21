@@ -117,12 +117,7 @@ export class PageModel extends PanelModelBase implements IPage {
       .append(this.cssClasses.page.title)
       .toString();
   }
-
-  getIsPageVisible(exceptionQuestion: IQuestion): boolean {
-    if (this.isStarted) return false;
-    return super.getIsPageVisible(exceptionQuestion);
-  }
-  public get num() {
+  public get num(): number {
     return this.getPropertyValue("num", -1);
   }
   public set num(val: number) {

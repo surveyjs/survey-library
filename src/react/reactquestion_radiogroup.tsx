@@ -66,7 +66,7 @@ export class SurveyQuestionRadiogroup extends SurveyQuestionElementBase {
     return items;
   }
   protected get textStyle(): any {
-    return { marginLeft: "3px", display: "inline", position: "static" };
+    return { display: "inline", position: "static" };
   }
   private renderItem(
     item: ItemValue,
@@ -89,7 +89,7 @@ export class SurveyQuestionRadiogroup extends SurveyQuestionElementBase {
     );
     const survey = this.question.survey as ReactSurveyModel;
     let wrappedItem = null;
-    if(!!survey) {
+    if (!!survey) {
       wrappedItem = survey.wrapItemValue(renderedItem, this.question, item);
     }
     return wrappedItem ?? renderedItem;
@@ -206,7 +206,7 @@ export class SurveyQuestionRadioItem extends ReactSurveyElement {
   }
 }
 
-ReactElementFactory.Instance.registerElement("survey-radiogroup-item", (props: any)=>{
+ReactElementFactory.Instance.registerElement("survey-radiogroup-item", (props: any) => {
   return React.createElement(SurveyQuestionRadioItem, props);
 });
 

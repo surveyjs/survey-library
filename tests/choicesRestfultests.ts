@@ -925,15 +925,23 @@ QUnit.test(
       { value: "A", text: "AAA" },
       { value: "B", text: "BBB" }
     ];
-    survey.pages[0].addQuestion(question);
+    const page = survey.pages[0];
+    page.addQuestion(question);
+    page.title = "pagetest:{q1}";
     titleQuestion.title = "test:{q1}";
     question.value = "A";
     question.onSurveyLoad();
     assert.equal(titleQuestion.locTitle.renderedHtml, "test:A", "Use value, items are not loaded");
     var onStrChangedCounter = 0;
+    var onPageStrChangedCounter = 0;
     titleQuestion.locTitle.onChanged = () => {
       if(titleQuestion.locTitle.renderedHtml == "test:AAA") {
         onStrChangedCounter ++;
+      }
+    };
+    page.locTitle.onChanged = () => {
+      if(page.locTitle.renderedHtml == "pagetest:AAA") {
+        onPageStrChangedCounter ++;
       }
     };
     question.doResultsCallback();
@@ -941,8 +949,11 @@ QUnit.test(
     assert.equal(question.visibleChoices[0].text, "AAA");
     assert.equal(onStrChangedCounter, 1);
     assert.equal(titleQuestion.locTitle.renderedHtml, "test:AAA", "Use title, items are loaded");
+    assert.equal(onPageStrChangedCounter, 1, "for page");
+    assert.equal(page.locTitle.renderedHtml, "pagetest:AAA", "Use title, items are loaded, for page");
     question.value = "B";
     assert.equal(titleQuestion.locTitle.renderedHtml, "test:BBB", "Use title, set new value");
+    assert.equal(page.locTitle.renderedHtml, "pagetest:BBB", "Use title, set new value, for page");
   }
 );
 

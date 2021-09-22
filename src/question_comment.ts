@@ -57,7 +57,9 @@ export class QuestionCommentModel extends QuestionTextBase {
     super.afterRenderQuestionElement(el);
   }
   public updateElement(): void {
-    if (this.element && this.autoGrow) increaseHeightByContent(this.element);
+    if (this.element && this.autoGrow) {
+      setTimeout(() => increaseHeightByContent(this.element), 1);
+    }
   }
   public onInput(event: any): void {
     if (this.isInputTextUpdate)

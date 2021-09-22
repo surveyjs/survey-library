@@ -48,9 +48,6 @@ export class QuestionButtonGroupModel extends QuestionCheckboxBase {
   protected getItemValueType() {
     return "buttongroupitemvalue";
   }
-  public createItemValue(value: any): ItemValue {
-    return new ButtonGroupItemValue(value, undefined, this.getItemValueType());
-  }
   public supportOther(): boolean {
     return false;
   }

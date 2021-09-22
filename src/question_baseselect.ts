@@ -99,7 +99,7 @@ export class QuestionSelectBase extends Question {
     return "itemvalue";
   }
   public createItemValue(value: any): ItemValue {
-    return new ItemValue(value, undefined, this.getItemValueType());
+    return Serializer.createClass(this.getItemValueType(), value);
   }
   public supportGoNextPageError() {
     return !this.isOtherSelected || !!this.comment;

@@ -63,9 +63,6 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
   protected getItemValueType() {
     return "imageitemvalue";
   }
-  public createItemValue(value: any): ItemValue {
-    return new ImageItemValue(value, undefined, this.getItemValueType());
-  }
   public get isCompositeQuestion(): boolean {
     return true;
   }

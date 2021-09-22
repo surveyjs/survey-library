@@ -1,6 +1,6 @@
 <script type="text/html" id="survey-question-checkbox">
   <fieldset data-bind="css: question.koCss().root">
-      <legend data-bind="attr: { 'aria-label': question.locTitle.renderedHtml }"></legend>
+      <legend data-bind="attr: { 'aria-label': question.ariaLabel }"></legend>
       <!-- ko ifnot: question.hasColumns  -->
         <!-- ko foreach: { data: question.visibleChoices, as: 'item', afterRender: question.koAfterRender }  -->
           <!-- ko component: { name: question.getItemValueWrapperComponentName(item), params: { componentData:  question.getItemValueWrapperComponentData(item), templateData: { name: 'survey-checkbox-item', data: item } } } -->
@@ -23,14 +23,14 @@
   <div data-bind="css: question.getItemClass(item)">
       <label data-bind="css: question.getLabelClass(item)">
           <!-- ko if: item == question.selectAllItem -->
-          <input type="checkbox" data-bind="attr: {name: question.name, id: question.inputId + '_' + question.getItemIndex(item), 'aria-required': question.ariaRequired, 'aria-label': question.ariaLabel, 'aria-invalid': question.ariaInvalid, 'aria-describedby': question.ariaDescribedBy }, checked: question.koAllSelected, enable: !question.isInputReadOnly && item.isEnabled, css: question.koCss().itemControl"/>
+          <input type="checkbox" data-bind="attr: {name: question.name, id: question.getItemId($index), 'aria-required': question.ariaRequired, 'aria-label': question.ariaLabel, 'aria-invalid': question.ariaInvalid, 'aria-describedby': question.ariaDescribedBy }, checked: question.koAllSelected, enable: question.getItemEnabled(item), css: question.koCss().itemControl"/>
           <!-- /ko -->
           <!-- ko if: item != question.selectAllItem -->
-          <input type="checkbox" data-bind="attr: {name: question.name, id: question.inputId + '_' + question.getItemIndex(item), 'aria-required': question.ariaRequired, 'aria-label': question.ariaLabel, 'aria-invalid': question.ariaInvalid, 'aria-describedby': question.ariaDescribedBy }, checkedValue: item.value, checked: question.koValue, enable: !question.isInputReadOnly && item.isEnabled, css: question.koCss().itemControl"/>
+          <input type="checkbox" data-bind="attr: {name: question.name, id: question.getItemId($index), 'aria-required': question.ariaRequired, 'aria-label': question.ariaLabel, 'aria-invalid': question.ariaInvalid, 'aria-describedby': question.ariaDescribedBy }, checkedValue: item.value, checked: question.koValue, enable: question.getItemEnabled(item), css: question.koCss().itemControl"/>
           <!-- /ko -->
           <span data-bind="css: question.koCss().materialDecorator">
             <svg viewBox="0 0 24 24" data-bind="css: question.koCss().itemDecorator">
-              <path d="M5,13l2-2l3,3l7-7l2,2l-9,9L5,13z"/>
+              <path data-bind="attr {d: question.checkBoxSvgPath}"/>
             </svg>
             <span class="check"></span>
           </span>
@@ -39,7 +39,7 @@
               <!-- /ko -->
           </span>
       </label>
-      <!-- ko if: question.hasOther && (item.value == question.otherItem.value) -->
+      <!-- ko if: question.isOtherItem(item) -->
       <div class="form-group" data-bind="template: { name: 'survey-comment', data: {'question': question, 'visible': question.isOtherSelected } }"></div>
       <!-- /ko -->
   </div>

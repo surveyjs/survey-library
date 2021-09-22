@@ -5431,3 +5431,25 @@ QUnit.test("question.startWithNewLine", function(assert) {
   survey.pages[0].addQuestion(q4);
   assert.equal(q4.startWithNewLine, true);
 });
+QUnit.test("checkbox question item methods", function (assert) {
+  var json = {
+    elements: [
+      {
+        type: "checkbox",
+        name: "q1",
+        choices: ["item1", "item2", "other"],
+        hasOther: true,
+      },
+    ],
+  };
+  var survey = new SurveyModel(json);
+  var question = <QuestionCheckboxModel>survey.getAllQuestions()[0];
+  assert.equal(question.checkBoxSvgPath[0], "M", "Obtain checkbox SVG path");
+  assert.equal(question.isOtherItem(question.choices[0]), false, "First item is not other");
+  assert.equal(question.isOtherItem(question.choices[2]), true, "Last item is other");
+
+  question.choices[1].setIsEnabled(false);
+  assert.equal(question.getItemEnabled(question.choices[0]), true, "First item is enabled");
+  assert.equal(question.getItemEnabled(question.choices[1]), false, "Second item is disabled");
+
+});

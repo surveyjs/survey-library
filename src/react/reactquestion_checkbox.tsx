@@ -4,11 +4,11 @@ import {
   SurveyQuestionElementBase,
 } from "./reactquestion_element";
 import { SurveyQuestionCommentItem } from "./reactquestion_comment";
-import { QuestionCheckboxModel } from "survey-core";
-import { ItemValue } from "survey-core";
 import { ReactQuestionFactory } from "./reactquestion_factory";
-import { Base } from "survey-core";
 import { ReactSurveyModel } from "./reactsurveymodel";
+import { QuestionCheckboxModel } from "../question_checkbox";
+import { Base } from "../base";
+import { ItemValue } from "../itemvalue";
 
 export class SurveyQuestionCheckbox extends SurveyQuestionElementBase {
   constructor(props: any) {
@@ -24,7 +24,7 @@ export class SurveyQuestionCheckbox extends SurveyQuestionElementBase {
         className={cssClasses.root}
         ref={(fieldset) => (this.control = fieldset)}
       >
-        <legend aria-label={this.question.locTitle.renderedHtml} />
+        <legend aria-label={this.question.ariaLabel} />
         {this.question.hasColumns
           ? this.getColumns(cssClasses)
           : this.getItems(cssClasses)}
@@ -92,8 +92,6 @@ export class SurveyQuestionCheckbox extends SurveyQuestionElementBase {
 export class SurveyQuestionCheckboxItem extends ReactSurveyElement {
   constructor(props: any) {
     super(props);
-    this.handleOnChange = this.handleOnChange.bind(this);
-    this.selectAllChanged = this.selectAllChanged.bind(this);
   }
   protected getStateElement(): Base {
     return this.item;
@@ -124,7 +122,7 @@ export class SurveyQuestionCheckboxItem extends ReactSurveyElement {
       !!this.question.customWidget.widgetJson.render
     );
   }
-  handleOnChange(event: any) {
+  handleOnChange = (event: any) => {
     var newValue = [].concat(this.question.renderedValue || []);
     var index = newValue.indexOf(this.item.value);
     if (event.target.checked) {
@@ -138,7 +136,7 @@ export class SurveyQuestionCheckboxItem extends ReactSurveyElement {
     }
     this.question.renderedValue = newValue;
   }
-  selectAllChanged(event: any) {
+  selectAllChanged = (event: any) => {
     this.question.toggleSelectAll();
   }
   protected canRender(): boolean {
@@ -146,10 +144,9 @@ export class SurveyQuestionCheckboxItem extends ReactSurveyElement {
   }
   protected renderElement(): JSX.Element {
     var isChecked = this.question.isItemSelected(this.item);
-    var otherItem =
-      this.item.value === this.question.otherItem.value && isChecked
-        ? this.renderOther()
-        : null;
+    var otherItem = this.question.isOtherItem(this.item) && isChecked
+      ? this.renderOther()
+      : null;
     return this.renderCheckbox(isChecked, otherItem);
   }
   protected get inputStyle(): any {
@@ -159,7 +156,7 @@ export class SurveyQuestionCheckboxItem extends ReactSurveyElement {
     isChecked: boolean,
     otherItem: JSX.Element
   ): JSX.Element {
-    var id = this.question.inputId + "_" + this.index;
+    var id = this.question.getItemId(this.index);
     var text = !this.hideCaption ? this.renderLocString(this.item.locText) : "";
     let itemClass = this.question.getItemClass(this.item);
     let labelClass = this.question.getLabelClass(this.item);
@@ -179,7 +176,7 @@ export class SurveyQuestionCheckboxItem extends ReactSurveyElement {
             value={this.item.value}
             id={id}
             style={this.inputStyle}
-            disabled={this.isDisplayMode || !this.item.isEnabled}
+            disabled={!this.question.getItemEnabled(this.item)}
             checked={isChecked}
             onChange={onItemChanged}
             aria-required={this.question.ariaRequired}
@@ -189,7 +186,7 @@ export class SurveyQuestionCheckboxItem extends ReactSurveyElement {
           />
           <span className={this.cssClasses.materialDecorator}>
             <svg viewBox="0 0 24 24" className={this.cssClasses.itemDecorator}>
-              <path d="M5,13l2-2l3,3l7-7l2,2l-9,9L5,13z" />
+              <path d={this.question.checkBoxSvgPath} />
             </svg>
             <span className="check" />
           </span>

@@ -23,10 +23,10 @@
   <div data-bind="css: question.getItemClass(item)">
       <label data-bind="css: question.getLabelClass(item)">
           <!-- ko if: item == question.selectAllItem -->
-          <input type="checkbox" data-bind="attr: {name: question.name, id: question.getItemId($index), 'aria-required': question.ariaRequired, 'aria-label': question.ariaLabel, 'aria-invalid': question.ariaInvalid, 'aria-describedby': question.ariaDescribedBy }, checked: question.koAllSelected, enable: question.getItemEnabled(item), css: question.koCss().itemControl"/>
+          <input type="checkbox" data-bind="attr: {name: question.name, id: question.getItemId(item), 'aria-required': question.ariaRequired, 'aria-label': question.ariaLabel, 'aria-invalid': question.ariaInvalid, 'aria-describedby': question.ariaDescribedBy }, checked: question.koAllSelected, enable: question.getItemEnabled(item), css: question.koCss().itemControl"/>
           <!-- /ko -->
           <!-- ko if: item != question.selectAllItem -->
-          <input type="checkbox" data-bind="attr: {name: question.name, id: question.getItemId($index), 'aria-required': question.ariaRequired, 'aria-label': question.ariaLabel, 'aria-invalid': question.ariaInvalid, 'aria-describedby': question.ariaDescribedBy }, checkedValue: item.value, checked: question.koValue, enable: question.getItemEnabled(item), css: question.koCss().itemControl"/>
+          <input type="checkbox" data-bind="attr: {name: question.name, id: question.getItemId(item), 'aria-required': question.ariaRequired, 'aria-label': question.ariaLabel, 'aria-invalid': question.ariaInvalid, 'aria-describedby': question.ariaDescribedBy }, checkedValue: item.value, checked: question.koValue, enable: question.getItemEnabled(item), css: question.koCss().itemControl"/>
           <!-- /ko -->
           <span data-bind="css: question.koCss().materialDecorator">
             <svg viewBox="0 0 24 24" data-bind="css: question.koCss().itemDecorator">

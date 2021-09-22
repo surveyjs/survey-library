@@ -5453,3 +5453,11 @@ QUnit.test("checkbox question item methods", function (assert) {
   assert.equal(question.getItemEnabled(question.choices[1]), false, "Second item is disabled");
 
 });
+QUnit.test("Check that we do not set valueChangedCallback internally", function(assert) {
+  const questionClasses = Serializer.getChildrenClasses("question", true);
+  for(let i = 0; i < questionClasses.length; i ++) {
+    const className = questionClasses[i].name;
+    const question = Serializer.createClass(className);
+    assert.notOk(question.valueChangedCallback, "We should no set valueChangedCallback, class: " + className);
+  }
+});

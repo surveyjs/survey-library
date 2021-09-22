@@ -50,8 +50,6 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
   constructor(name: string) {
     super(name);
     this.colCount = 0;
-    this.choicesByUrl.createItemValue = (value: any) =>
-      new ImageItemValue(value);
   }
   public getType(): string {
     return "imagepicker";

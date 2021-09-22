@@ -1,14 +1,14 @@
 <template>
   <div>
-    <label :class="getLabelClass(item)">
+    <label :class="question.getLabelClass(item)">
       <input
         v-if="item == question.selectAllItem"
         type="checkbox"
         :name="question.name"
         :value="isAllSelected"
         v-model="isAllSelected"
-        :id="question.inputId + '_' + index"
-        :disabled="question.isInputReadOnly || !item.isEnabled"
+        :id="question.getItemId(index)"
+        :disabled="!question.getItemEnabled(item)"
         :aria-required="question.ariaRequired"
         :aria-label="question.ariaLabel"
         :aria-invalid="question.ariaInvalid"
@@ -21,19 +21,17 @@
         :name="question.name"
         :value="item.value"
         v-model="question.renderedValue"
-        :id="question.inputId + '_' + index"
-        :disabled="question.isInputReadOnly || !item.isEnabled"
-        v-bind:aria-required="question.isRequired"
-        :aria-label="item.locText.renderedHtml"
-        :aria-invalid="question.errors.length > 0"
-        :aria-describedby="
-          question.errors.length > 0 ? question.id + '_errors' : null
-        "
+        :id="question.getItemId(index)"
+        :disabled="!question.getItemEnabled(item)"
+        v-bind:aria-required="question.ariaRequired"
+        :aria-label="question.ariaLabel"
+        :aria-invalid="question.ariaInvalid"
+        :aria-describedby="question.ariaDescribedBy"
         :class="question.cssClasses.itemControl"
       />
       <span :class="question.cssClasses.materialDecorator">
         <svg viewBox="0 0 24 24" :class="question.cssClasses.itemDecorator">
-          <path d="M5,13l2-2l3,3l7-7l2,2l-9,9L5,13z" />
+          <path :d="question.checkBoxSvgPath" />
         </svg>
         <span class="check"></span>
       </span>
@@ -47,9 +45,9 @@
     </label>
     <survey-other-choice
       v-show="
-        question.hasOther && question.renderedValue && question.isOtherSelected
+        question.renderedValue && question.isOtherSelected
       "
-      v-if="item.value == question.otherItem.value"
+      v-if="question.isOtherItem(item)"
       :question="question"
     />
   </div>
@@ -75,9 +73,6 @@ export class CheckboxItem extends BaseVue {
   }
   set isAllSelected(val: boolean) {
     this.question.isAllSelected = val;
-  }
-  getLabelClass(item: any) {
-    return this.question.getLabelClass(item);
   }
 }
 Vue.component("survey-checkbox-item", CheckboxItem);

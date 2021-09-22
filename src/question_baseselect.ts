@@ -1269,6 +1269,13 @@ export class QuestionCheckboxBase extends QuestionSelectBase {
   protected getSearchableItemValueKeys(keys: Array<string>) {
     keys.push("choices");
   }
+  public getItemEnabled(item: ItemValue) {
+    return !this.isInputReadOnly && item.isEnabled;
+  }
+  public isOtherItem(item: ItemValue)
+  {
+    return this.hasOther && item.value == this.otherItem.value;
+  }
 }
 Serializer.addClass(
   "selectbase",

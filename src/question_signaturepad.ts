@@ -113,12 +113,14 @@ export class QuestionSignaturePadModel extends Question {
         signaturePad.fromDataURL(data);
       }
     };
-    this.valueChangedCallback = updateValueHandler;
     updateValueHandler();
     this.readOnlyChangedCallback();
     this.signaturePad = signaturePad;
     var propertyChangedHandler = (sender: any, options: any) => {
       if (options.name === "width" || options.name === "height") {
+        updateValueHandler();
+      }
+      if(options.name === "value") {
         updateValueHandler();
       }
     };

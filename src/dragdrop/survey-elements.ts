@@ -56,18 +56,17 @@ export class DragDropSurveyElements extends DragDropCore<any> {
   ): any {
     this.isEdge = this.calculateIsEdge(dropTargetNode, event.clientY);
 
-    // if (!dataAttributeValue) {
-    //   const nearestDropTargetElement = dropTargetNode.parentElement.closest<
-    //     HTMLElement
-    //   >(this.dropTargetDataAttributeName);
-    //   dataAttributeValue = this.getdataAttributeValueFromNode(nearestDropTargetElement);
-    //   isDragOverInnerPanel =
-    //     nearestDropTargetElement !== dropTargetNode && !!dataAttributeValue;
-    // }
+    if (!dataAttributeValue) {
+      // panel dynamic
+      const nearestDropTargetElement = dropTargetNode.parentElement.closest<
+        HTMLElement
+      >(this.dropTargetDataAttributeName);
+      dataAttributeValue = this.getDataAttributeValueByNode(nearestDropTargetElement);
+    }
 
-    // if (!dataAttributeValue) {
-    //   throw new Error("Can't find drop target survey element name");
-    // }
+    if (!dataAttributeValue) {
+      throw new Error("Can't find drop target survey element name");
+    }
 
     if (dataAttributeValue === DragDropSurveyElements.ghostSurveyElementName) {
       return this.prevDropTarget;
@@ -79,7 +78,7 @@ export class DragDropSurveyElements extends DragDropCore<any> {
     }
 
     // drop to page
-    let page:any = this.survey.getPageByName(dataAttributeValue);
+    let page: any = this.survey.getPageByName(dataAttributeValue);
     if (page) {
       if (
         // TODO we can't drop on not empty page directly for now
@@ -101,18 +100,11 @@ export class DragDropSurveyElements extends DragDropCore<any> {
     });
 
     // drop to paneldynamic
-    if (
-      dropTarget.getType() === "paneldynamic"
-      /* && isDragOverInnerPanel*/
-    ) {
-      const page = (<any>dropTarget).page;
+    if (dropTarget.getType() === "paneldynamic" && !this.isEdge) {
       dropTarget = (<any>dropTarget).template;
-      dropTarget.page = page;
-      return dropTarget;
     }
-
     // drop to panel
-    if (dropTarget.isPanel) {
+    else if (dropTarget.isPanel) {
       const panelDragInfo = this.getPanelDragInfo(
         dropTargetNode,
         dropTarget,
@@ -120,10 +112,19 @@ export class DragDropSurveyElements extends DragDropCore<any> {
       );
       dropTarget = panelDragInfo.dropTarget;
       this.isEdge = panelDragInfo.isEdge;
-      return dropTarget;
+    }
+    // drop to question
+
+    //question inside paneldymanic
+    if (!dropTarget.page) {
+      const nearestDropTargetElement = dropTargetNode.parentElement.closest<
+        HTMLElement
+      >("[data-sv-drop-target-page]");
+      dataAttributeValue = nearestDropTargetElement.dataset.svDropTargetPage;
+      let page: any = this.survey.getPageByName(dataAttributeValue);
+      dropTarget.__page = page;
     }
 
-    // drop to question
     return dropTarget;
     // EO drop to question or panel
   }
@@ -225,7 +226,7 @@ export class DragDropSurveyElements extends DragDropCore<any> {
 
     this.parentElement = this.dropTarget.isPage
       ? this.dropTarget
-      : (<any>this.dropTarget)["page"];
+      : ((<any>this.dropTarget).page || (<any>this.dropTarget).__page);
 
     if (this.isDragOverInsideEmptyPanel()) {
       this.dropTarget.isDragOverMe = true;

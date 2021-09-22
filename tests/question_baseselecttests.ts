@@ -2,6 +2,9 @@ import { SurveyModel } from "../src/survey";
 
 import { QuestionSelectBase } from "../src/question_baseselect";
 import { settings } from "../src/settings";
+import { QuestionDropdownModel } from "../src/question_dropdown";
+import { QuestionImagePickerModel } from "../src/question_imagepicker";
+import { QuestionButtonGroupModel } from "../src/question_buttongroup";
 
 export default QUnit.module("baseselect");
 
@@ -83,4 +86,34 @@ QUnit.test("check allowhover class in design mode", (assert) => {
   assert.ok(q1.getItemClass(item).indexOf("sv_q_checkbox_hover") != -1);
   survey.setDesignMode(true);
   assert.ok(q1.getItemClass(item).indexOf("sv_q_checkbox_hover") == -1);
+});
+QUnit.test("check item value type", (assert) => {
+  const survey = new SurveyModel({
+    questions: [
+      {
+        type: "dropdown",
+        name: "q1",
+        choices: ["Item 1"],
+      },
+      {
+        type: "imagepicker",
+        name: "q2",
+        choices: ["Item 1"],
+      },
+      {
+        type: "buttongroup",
+        name: "q3",
+        choices: ["Item 1"],
+      },
+    ],
+  });
+  const q1 = <QuestionSelectBase>survey.getQuestionByName("q1");
+  const q2 = <QuestionSelectBase>survey.getQuestionByName("q2");
+  const q3 = <QuestionSelectBase>survey.getQuestionByName("q3");
+  assert.equal(q1.choices[0].getType(), "itemvalue", "load dropdown");
+  assert.equal(q2.choices[0].getType(), "imageitemvalue", "load imagepicker");
+  assert.equal(q3.choices[0].getType(), "buttongroupitemvalue", "load buttongroup");
+  assert.equal(q1.createItemValue("1").getType(), "itemvalue", "create dropdown item");
+  assert.equal(q2.createItemValue("1").getType(), "imageitemvalue", "create imagepicker item");
+  assert.equal(q3.createItemValue("1").getType(), "buttongroupitemvalue", "create buttongroup item");
 });

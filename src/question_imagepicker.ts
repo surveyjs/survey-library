@@ -50,8 +50,6 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
   constructor(name: string) {
     super(name);
     this.colCount = 0;
-    this.choicesByUrl.createItemValue = (value: any) =>
-      new ImageItemValue(value);
   }
   public getType(): string {
     return "imagepicker";
@@ -64,6 +62,9 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
   }
   protected getItemValueType() {
     return "imageitemvalue";
+  }
+  public createItemValue(value: any): ItemValue {
+    return new ImageItemValue(value, undefined, this.getItemValueType());
   }
   public get isCompositeQuestion(): boolean {
     return true;

@@ -65,6 +65,9 @@ export class QuestionSelectBase extends Question {
     locOtherText.onGetTextCallback = function(text) {
       return !!text ? text : surveyLocalization.getString("otherItemText");
     };
+    this.choicesByUrl.createItemValue = (value: any): ItemValue => {
+      return this.createItemValue(value);
+    };
     this.choicesByUrl.beforeSendRequestCallback = (): void => {
       this.onBeforeSendRequest();
     };
@@ -91,6 +94,12 @@ export class QuestionSelectBase extends Question {
       this.dependedQuestions[i].choicesFromQuestion = "";
     }
     this.removeFromDependedQuestion(this.getQuestionWithChoices());
+  }
+  protected getItemValueType() {
+    return "itemvalue";
+  }
+  public createItemValue(value: any): ItemValue {
+    return new ItemValue(value, undefined, this.getItemValueType());
   }
   public supportGoNextPageError() {
     return !this.isOtherSelected || !!this.comment;

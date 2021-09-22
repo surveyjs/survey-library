@@ -116,7 +116,7 @@ export class ChoicesRestful extends Base {
   public getItemValueCallback: (item: any) => any;
   public error: SurveyError = null;
   public owner: IQuestion;
-  public createItemValue = (value: any) => {
+  public createItemValue = (value: any): ItemValue => {
     return new ItemValue(value);
   };
   constructor() {

@@ -14,14 +14,16 @@
   vertical-align: top;
 }
 .sv-selectbase__label {
+  position: relative;
   display: block;
   box-sizing: border-box;
   cursor: inherit;
   margin-left: 41px;
+  min-height: 30px;
 }
-.sv-selectbase__decorator {
-  margin-bottom: -10px;
-  margin-left: -41px;
+.sv-selectbase__decorator.sv-item__decorator {
+  position: absolute;
+  left: -41px;
 }
 .sv-selectbase__clear-btn {
   margin-top: 0.9em;

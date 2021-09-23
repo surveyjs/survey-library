@@ -14026,3 +14026,17 @@ QUnit.test("start page is invisible", assert => {
   assert.ok(startedPage);
   assert.equal(startedPage.isVisible, true, "started page is visible");
 });
+QUnit.test("firstPageIsStarted = true and prevPage()", function (assert) {
+  var survey = new SurveyModel();
+  for (var i = 0; i < 3; i++) {
+    let page = survey.addNewPage("p" + i + 1);
+    page.addNewQuestion("text");
+  }
+  survey.firstPageIsStarted = true;
+  assert.equal(survey.prevPage(), false);
+  survey.start();
+  assert.equal(survey.prevPage(), false);
+  survey.nextPage();
+  assert.equal(survey.prevPage(), true);
+  assert.equal(survey.currentPageNo, 0);
+});

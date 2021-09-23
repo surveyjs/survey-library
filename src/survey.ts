@@ -3261,6 +3261,7 @@ export class SurveyModel extends SurveyElementCore
     var vPages = this.visiblePages;
     var index = vPages.indexOf(this.currentPage);
     this.currentPage = vPages[index - 1];
+    return true;
   }
   /**
    * Completes the survey, if the current page is the last one. It returns `false` if the last page has errors.

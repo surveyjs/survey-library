@@ -318,7 +318,7 @@ export class LocalizableStrings implements ILocalizableString {
     if (this.values[loc]) return this.values[loc];
     if (useDefault) {
       var defLoc = settings.defaultLocaleName;
-      if (loc !== defLoc) return this.values[defLoc];
+      if (loc !== defLoc && this.values[defLoc]) return this.values[defLoc];
     }
     return [];
   }
@@ -329,6 +329,9 @@ export class LocalizableStrings implements ILocalizableString {
     } else {
       this.values[loc] = val;
     }
+  }
+  public hasValue(loc: string = ""): boolean {
+    return !this.isEmpty && this.getValue(loc).length > 0;
   }
   public get isEmpty(): boolean {
     return this.getValuesKeys().length == 0;

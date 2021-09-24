@@ -83,18 +83,20 @@ export class QuestionTextBase extends Question {
     super.onReadOnlyChanged();
     this.calcRenderedPlaceHolder();
   }
-  endLoadingFromJson() {
-    super.endLoadingFromJson();
+  public onSurveyLoad(): void {
     this.calcRenderedPlaceHolder();
+    super.onSurveyLoad();
   }
   public localeChanged() {
     super.localeChanged();
     this.calcRenderedPlaceHolder();
   }
   protected calcRenderedPlaceHolder() {
-    this.setRenderedPlaceHolder(
-      this.hasPlaceHolder() ? this.placeHolder : undefined
-    );
+    let res = this.placeHolder;
+    if(!!res && !this.hasPlaceHolder()) {
+      res = undefined;
+    }
+    this.setRenderedPlaceHolder(res);
   }
   protected hasPlaceHolder(): boolean {
     return !this.isReadOnly;

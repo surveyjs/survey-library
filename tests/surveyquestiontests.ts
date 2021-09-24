@@ -5461,3 +5461,19 @@ QUnit.test("Check that we do not set valueChangedCallback internally", function(
     assert.notOk(question.valueChangedCallback, "We should no set valueChangedCallback, class: " + className);
   }
 });
+QUnit.test("Multiple Text Question: editor.renderedPlaceHolder is undefined, Bug#3374", function(assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "multipletext", name: "q1",
+        items: [
+          { name: "item1", placeHolder: "place holder" }
+        ]
+      }
+    ]
+  });
+  const question = <QuestionMultipleTextModel>survey.getQuestionByName("q1");
+  assert.equal(question.items[0].placeHolder, "place holder", "item place holder");
+  assert.equal(question.items[0].editor.placeHolder, "place holder", "editor place holder");
+  assert.equal(question.items[0].editor.renderedPlaceHolder, "place holder", "editor rendered place holder");
+});

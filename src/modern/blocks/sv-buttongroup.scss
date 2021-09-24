@@ -36,8 +36,6 @@ $background: var(--background, #fff);
   background: $background;
   cursor: pointer;
   overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
   position: relative;
   &:not(:first-of-type) {
     margin-left: -1px;
@@ -69,6 +67,13 @@ $background: var(--background, #fff);
 .sv-button-group__item-decorator {
   display: flex;
   align-items: center;
+  max-width: 100%;
+}
+.sv-button-group__item-caption {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 .sv-button-group__item-icon + .sv-button-group__item-caption {
   margin-left: calcSize(1);

@@ -3,6 +3,7 @@ import { Serializer } from "./jsonobject";
 import { QuestionFactory } from "./questionfactory";
 import { LocalizableString } from "./localizablestring";
 import { Helpers } from "./helpers";
+import { CssClassBuilder } from "./utils/cssClassBuilder";
 
 /**
  * A Base Model for a comment and text questions
@@ -100,6 +101,13 @@ export class QuestionTextBase extends Question {
   }
   protected hasPlaceHolder(): boolean {
     return !this.isReadOnly;
+  }
+  public getControlClass(): string {
+    return new CssClassBuilder()
+      .append(this.cssClasses.root)
+      .append(this.cssClasses.onError, this.errors.length > 0)
+      .append(this.cssClasses.controlDisabled, this.isReadOnly)
+      .toString();
   }
 }
 Serializer.addClass(

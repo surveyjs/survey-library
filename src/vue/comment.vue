@@ -11,7 +11,7 @@
       :cols="question.cols"
       :rows="question.rows"
       :placeholder="question.renderedPlaceHolder"
-      :class="question.cssClasses ? question.cssClasses.root : 'panel-comment-root'"
+      :class="question.cssClasses ? question.getControlClass() : 'panel-comment-root'"
       @change="change"
       @input="(e) => { question.onInput(e) }"
       @keydown="(e) => { question.onKeyDown(e) }"

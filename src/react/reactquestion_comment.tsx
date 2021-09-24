@@ -8,7 +8,6 @@ export class SurveyQuestionComment extends SurveyQuestionUncontrolledElement<Que
     super(props);
   }
   protected renderElement(): JSX.Element {
-    var cssClasses = this.question.cssClasses;
     var onBlur = !this.question.isInputTextUpdate ? this.updateValueOnEvent : null;
     var onInput = (event: any) => {
       if (this.question.isInputTextUpdate)
@@ -23,7 +22,7 @@ export class SurveyQuestionComment extends SurveyQuestionUncontrolledElement<Que
     return (
       <textarea
         id={this.question.inputId}
-        className={cssClasses.root}
+        className={this.question.getControlClass()}
         disabled={this.isDisplayMode}
         ref={(tetxarea) => (this.control = tetxarea)}
         maxLength={this.question.getMaxLength()}

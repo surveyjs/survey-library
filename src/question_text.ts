@@ -357,13 +357,6 @@ export class QuestionTextModel extends QuestionTextBase {
     }
     return newValue;
   }
-  public getControlClass(): string {
-    return new CssClassBuilder()
-      .append(this.cssClasses.root)
-      .append(this.cssClasses.onError, this.errors.length > 0)
-      .append(this.cssClasses.controlDisabled, this.isReadOnly)
-      .toString();
-  }
   protected hasPlaceHolder(): boolean {
     return !this.isReadOnly && this.inputType !== "range";
   }

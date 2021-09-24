@@ -4,7 +4,7 @@
   event: { input: (s, e) => question.onInput(e), keydown: (s, e) => { question.onKeyDown(e); return true; } }, 
   value: question.value, 
   style: { resize: question.autoGrow ? 'none' : 'both'},
-  css: question.koCss().root"></textarea>
+  css: question.getControlClass()"></textarea>
 <!--/ko-->
 
 <!--ko if: question.isReadOnlyRenderDiv() -->

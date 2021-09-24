@@ -6656,19 +6656,25 @@ class HelpTest {
 QUnit.test("Randomize questions in page and panels", function(assert) {
   const oldFunc = Helpers.randomizeArray;
   Helpers.randomizeArray = HelpTest.randomizeArray;
-  const json = { elements: [
-    { type: "text", name: "q1" },
-    { type: "panel", name: "p1", elements: [{ type: "text", name: "p1q1" }, { type: "text", name: "p1q2" }] },
-    { type: "panel", questionsOrder: "initial", name: "p2", elements: [{ type: "text", name: "p2q1" }, { type: "text", name: "p2q2" }] },
-    { type: "panel", questionsOrder: "random", name: "p3", elements: [{ type: "text", name: "p3q1" }, { type: "text", name: "p3q2" }] },
-  ] };
+  const json = {
+    pages: [
+      {
+        questionsOrder: "random",
+        elements: [
+          { type: "text", name: "q1" },
+          { type: "panel", name: "p1", elements: [{ type: "text", name: "p1q1" }, { type: "text", name: "p1q2" }] },
+          { type: "panel", questionsOrder: "initial", name: "p2", elements: [{ type: "text", name: "p2q1" }, { type: "text", name: "p2q2" }] },
+          { type: "panel", questionsOrder: "random", name: "p3", elements: [{ type: "text", name: "p3q1" }, { type: "text", name: "p3q2" }] },
+        ]
+      }
+    ]
+  };
   //Page random
   var survey = new SurveyModel(json);
-  var page = survey.pages[0];
-  page.questionsOrder = "random";
   var p1 = survey.getPanelByName("p1");
   var p2 = survey.getPanelByName("p2");
   var p3 = survey.getPanelByName("p3");
+  var page = survey.pages[0];
   page.setWasShown(true);
   assert.equal(page.elements[0].name, "p3");
   assert.equal(page.elements[3].name, "q1");
@@ -6679,6 +6685,7 @@ QUnit.test("Randomize questions in page and panels", function(assert) {
   assert.equal(p3.elements[0].name, "p3q2");
   assert.equal(p3.elements[1].name, "p3q1");
 
+  delete json.pages[0].questionsOrder;
   survey = new SurveyModel(json);
   page = survey.pages[0];
   p1 = survey.getPanelByName("p1");

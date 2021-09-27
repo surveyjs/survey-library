@@ -5,7 +5,7 @@ export let ActionBarItemViewModel: any;
 ko.components.register("sv-action-bar-item", {
   viewModel: {
     createViewModel: (params: any) => {
-      return params.item;
+      return params;
     },
   },
   template: template

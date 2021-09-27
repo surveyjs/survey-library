@@ -31,7 +31,15 @@ export class SurveyQuestionText extends SurveyQuestionUncontrolledElement<
           this.updateValueOnEvent(e);
         }, 1);
       };
+    } else {
+      //https://github.com/surveyjs/survey-library/issues/3384
+      onKeyUp = (e: any) => {
+        if (e.keyCode === 13) {
+          this.updateValueOnEvent(e);
+        }
+      };
     }
+
     var onChange = (e: any) => {
       if (e.target === document.activeElement) {
         if (this.question.isInputTextUpdate) {

@@ -565,3 +565,27 @@ QUnit.test("Localizable strings getJson/setJson", function(assert) {
     "return an object"
   );
 });
+QUnit.test("Localization strings hasValue() and value property for different locales, Bug#3378", function(assert) {
+  var owner = new LocalizableOwnerTester("");
+  var locStrings = new LocalizableStrings(owner);
+  assert.equal(locStrings.isEmpty, true, "it is empty");
+  assert.notOk(locStrings.getJson(), "it is empty");
+  locStrings.setJson({
+    fr: ["val1", "val2"]
+  });
+  assert.deepEqual(locStrings.value, [], "one value type");
+  assert.equal(locStrings.hasValue(), false, "default, hasValue()");
+  owner.locale = "de";
+  assert.deepEqual(locStrings.value, [], "Empty array");
+  assert.equal(locStrings.hasValue(), false, "de, hasValue()");
+  owner.locale = "fr";
+  assert.deepEqual(locStrings.hasValue(), true, "fr, hasValue");
+  owner.locale = "de";
+  assert.deepEqual(locStrings.hasValue("fr"), true, "fr as parameter, hasValue");
+  assert.deepEqual(locStrings.hasValue("en"), false, "en as parameter, hasValue");
+
+  var owner = new LocalizableOwnerTester("");
+  var locStrings = new LocalizableStrings(owner);
+  locStrings.setJson(["val1", "val2"]);
+  assert.equal(locStrings.hasValue(), true, "hasValue() - default");
+});

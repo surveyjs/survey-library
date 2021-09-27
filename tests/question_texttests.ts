@@ -81,3 +81,21 @@ QUnit.test("Test renderedPlaceHolder on locale change", function(assert) {
   assert.equal(q2.renderedPlaceHolder, "comment_de", "text, locale de");
   survey.locale = "";
 });
+QUnit.test("Test renderedPlaceHolder on locale change", function(assert) {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        "name": "q1",
+        "type": "text",
+        "placeHolder": {
+          "default": "English",
+          "fr": "French",
+          "es": "Spanish"
+        }
+      }
+    ],
+    "locale": "es",
+  });
+  const q1 = <QuestionTextModel>survey.getAllQuestions()[0];
+  assert.equal(q1.renderedPlaceHolder, "Spanish", "text, locale es");
+});

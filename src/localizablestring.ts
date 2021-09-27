@@ -11,7 +11,9 @@ export interface ILocalizableOwner {
 export interface ILocalizableString {
   getLocaleText(loc: string): string;
   setLocaleText(loc: string, newValue: string): any;
+  getJson(): any;
   getLocales(): Array<string>;
+  getIsMultiple(): boolean;
 }
 /**
  * The class represents the string that supports multi-languages and markdown.
@@ -45,6 +47,7 @@ export class LocalizableString implements ILocalizableString {
   ) {
     this.onCreating();
   }
+  public getIsMultiple(): boolean { return false; }
   public get locale() {
     return this.owner && this.owner.getLocale ? this.owner.getLocale() : "";
   }
@@ -286,6 +289,7 @@ export class LocalizableString implements ILocalizableString {
 export class LocalizableStrings implements ILocalizableString {
   private values: any = {};
   constructor(public owner: ILocalizableOwner) {}
+  public getIsMultiple(): boolean { return true; }
   public get locale() {
     return this.owner && this.owner.getLocale ? this.owner.getLocale() : "";
   }

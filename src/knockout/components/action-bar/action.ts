@@ -8,7 +8,7 @@ ko.components.register("sv-action", {
     createViewModel: (params: any) => {
       const item: Action = params.item;
       new ImplementorBase(item);
-      return item;
+      return params;
     },
   },
   template: template

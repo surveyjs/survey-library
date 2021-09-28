@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.8.69](https://github.com/surveyjs/survey-library/compare/v1.8.68...v1.8.69) (2021-09-28)
+
+
+### Bug Fixes
+
+* Detail panel is not read-only when matrix is read-only [#3357](https://github.com/surveyjs/survey-library/issues/3357) ([#3358](https://github.com/surveyjs/survey-library/issues/3358)) ([ffc52d7](https://github.com/surveyjs/survey-library/commit/ffc52d7611fa7ce2ee64c73e710da67881fb8347))
+* Navigation issue with onProgressText callback and questionOrder - random [#3383](https://github.com/surveyjs/survey-library/issues/3383) ([#3388](https://github.com/surveyjs/survey-library/issues/3388)) ([f7e45a2](https://github.com/surveyjs/survey-library/commit/f7e45a20ce3a7d7af3f00dedf912ed382850886d))
+* On changing text question dataList onPropertyChanged is not fired [#3385](https://github.com/surveyjs/survey-library/issues/3385) ([#3386](https://github.com/surveyjs/survey-library/issues/3386)) ([90cfbb9](https://github.com/surveyjs/survey-library/commit/90cfbb980b901366f6a3263906cc1168a7da0030))
+* Signagure pad internally uses valueChangedCallback [#3360](https://github.com/surveyjs/survey-library/issues/3360) ([39dd68a](https://github.com/surveyjs/survey-library/commit/39dd68a421e15c880a7cb76ded9bcf49fe565b21))
+* survey.prevPage() function never returns true [#3370](https://github.com/surveyjs/survey-library/issues/3370) ([#3371](https://github.com/surveyjs/survey-library/issues/3371)) ([cf74175](https://github.com/surveyjs/survey-library/commit/cf74175a35876b7738e4bb17845075f6a1d7f091))
+* text question dataList can return undefined [#3378](https://github.com/surveyjs/survey-library/issues/3378) ([b9b8918](https://github.com/surveyjs/survey-library/commit/b9b8918513e3ded51d800d2ec18dd2b476019ccc))
+
 ### [1.8.68](https://github.com/surveyjs/survey-library/compare/v1.8.67...v1.8.68) (2021-09-21)
 
 

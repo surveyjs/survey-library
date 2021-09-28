@@ -362,9 +362,8 @@ export class LocalizableStrings implements ILocalizableString {
       keys.length == 1 &&
       keys[0] == settings.defaultLocaleName &&
       !settings.serializeLocalizableStringAsObject
-    )
-      return (<any>this).values[keys[0]];
-    return this.values;
+    ) return (<any>this).values[keys[0]];
+    return Helpers.createCopy(this.values);
   }
   public setJson(value: any) {
     this.values = {};

@@ -589,3 +589,14 @@ QUnit.test("Localization strings hasValue() and value property for different loc
   locStrings.setJson(["val1", "val2"]);
   assert.equal(locStrings.hasValue(), true, "hasValue() - default");
 });
+QUnit.test("Localization strings should return copy on getJson", function(assert) {
+  const owner = new LocalizableOwnerTester("");
+  const locStrings = new LocalizableStrings(owner);
+  locStrings.setJson({
+    default: ["val1", "val2"],
+    fr: ["val1-fr", "val2-fr"]
+  });
+  let json = locStrings.getJson();
+  json.fr = "dummy";
+  assert.equal(locStrings.getLocaleText("fr"), "val1-fr\nval2-fr", "Do not touch object");
+});

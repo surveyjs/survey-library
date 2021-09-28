@@ -54,6 +54,7 @@ class QuestionFileImplementor extends QuestionImplementor {
     });
     this.setCallbackFunc("dodownload", (data: any, event: any) => {
       this.question.doDownloadFile(getOriginalEvent(event), data);
+      return true;
     });
   }
 }

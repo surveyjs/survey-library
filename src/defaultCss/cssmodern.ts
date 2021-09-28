@@ -326,6 +326,7 @@ export var modernCss = {
     removeFile: "sv-hidden",
     removeFileSvg: "sv-file__remove-svg",
     wrapper: "sv-file__wrapper",
+    dragAreaPlaceholder: "sv-hidden",
     fileList: "",
     defaultImage: "sv-hidden"
   },

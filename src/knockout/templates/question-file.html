@@ -10,6 +10,7 @@
         <div data-bind="css: question.koCss().wrapper">
           <label role="button" data-bind="css: question.koChooseFileCss, attr: { for: question.inputId, 'aria-label': question.chooseButtonCaption }, text: question.chooseButtonCaption"></label>
           <span data-bind="css: question.koCss().noFileChosen, visible: !question.koHasValue(), text: question.noFileChosenCaption"></span>
+          <span data-bind="css: question.koCss().dragAreaPlaceholder, text: question.dragAreaPlaceholder"></span>
         </div>
       </div>
       <!-- ko if: question.koHasValue() && !question.isReadOnly -->

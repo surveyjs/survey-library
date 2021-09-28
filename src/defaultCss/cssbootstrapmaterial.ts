@@ -286,6 +286,7 @@ export var defaultBootstrapMaterialCss = {
     fileDecorator: "sv-hidden",
     fileSignBottom: "sv-hidden",
     removeButtonBottom: "sv-hidden",
+    dragAreaPlaceholder: "sv-hidden",
     fileList: "",
     defaultImage: "sv-hidden"
   },

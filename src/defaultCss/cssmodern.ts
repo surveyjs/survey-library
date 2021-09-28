@@ -326,6 +326,8 @@ export var modernCss = {
     removeFile: "sv-hidden",
     removeFileSvg: "sv-file__remove-svg",
     wrapper: "sv-file__wrapper",
+    fileList: "",
+    defaultImage: "sv-hidden"
   },
   signaturepad: {
     root: "sv-signaturepad sjs_sp_container",

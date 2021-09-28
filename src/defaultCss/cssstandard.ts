@@ -294,6 +294,8 @@ export var defaultStandardCss = {
     removeButtonBottom: "sv-hidden",
     chooseFile: "sv_q_file_choose_button",
     noFileChosen: "sv_q_file_placeholder",
+    fileList: "",
+    defaultImage: "sv-hidden"
   },
   signaturepad: {
     root: "sv_q_signaturepad sjs_sp_container",

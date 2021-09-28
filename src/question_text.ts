@@ -21,6 +21,9 @@ export class QuestionTextModel extends QuestionTextBase {
     this.createLocalizableString("minErrorText", this, true);
     this.createLocalizableString("maxErrorText", this, true);
     this.locDataListValue = new LocalizableStrings(this);
+    this.locDataListValue.onValueChanged = (oldValue: any, newValue: any) => {
+      this.propertyValueChanged("dataList", oldValue, newValue);
+    };
     this.registerFunctionOnPropertiesValueChanged(
       ["min", "max", "inputType", "minValueExpression", "maxValueExpression"],
       () => {

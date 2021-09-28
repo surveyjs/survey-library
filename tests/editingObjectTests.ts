@@ -840,6 +840,8 @@ QUnit.test("Edit question string[] property type", function(assert) {
   dataListQuestion.value = "item1\nitem2\nitem3";
   assert.equal(question.dataList.length, 3, "There are three items now");
   assert.equal(question.dataList[2], "item3", "The third item is 'item3'");
+  question.locDataList.setLocaleText(null, "abc\ndef");
+  assert.equal(dataListQuestion.value, "abc\ndef", "Update edited question correctly");
 });
 QUnit.test("Edit custom array that returns values onGetValue", function(
   assert

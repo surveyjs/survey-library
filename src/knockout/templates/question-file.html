@@ -7,10 +7,10 @@
       <input type="file" disabled data-bind="css: question.getReadOnlyFileCss(), attr: { placeholder: question.title }" style="color: transparent;"/>
       <!-- /ko -->
       <div data-bind="css: question.getFileDecoratorCss(), event: { dragover: question.ondragover, drop: question.ondrop, dragleave: question.ondragleave }">
+        <span data-bind="css: question.koCss().dragAreaPlaceholder, text: question.dragAreaPlaceholder"></span>
         <div data-bind="css: question.koCss().wrapper">
           <label role="button" data-bind="css: question.koChooseFileCss, attr: { for: question.inputId, 'aria-label': question.chooseButtonCaption }, text: question.chooseButtonCaption"></label>
           <span data-bind="css: question.koCss().noFileChosen, visible: !question.koHasValue(), text: question.noFileChosenCaption"></span>
-          <span data-bind="css: question.koCss().dragAreaPlaceholder, text: question.dragAreaPlaceholder"></span>
         </div>
       </div>
       <!-- ko if: question.koHasValue() && !question.isReadOnly -->
@@ -28,7 +28,7 @@
               <img data-bind="attr: { src: $data.content, height: question.imageHeight, width: question.imageWidth }" alt="File preview">
               <!-- /ko -->
               <!-- ko ifnot: question.canPreviewImage($data) -->
-              <img data-bind="css: question.koCss().defaultImage, attr: { height: question.imageHeight, width: question.imageWidth }" alt="File preview">
+              <img data-bind="css: question.koCss().defaultImage, attr: { height: question.imageHeight, width: question.imageWidth }">
               <!-- /ko -->
               <!-- ko if: $data.name -->
               <!-- ko ifnot: question.isReadOnly -->

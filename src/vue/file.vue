@@ -23,10 +23,12 @@
       style="color: transparent"
     />
     <div
-      :class="question.cssClasses.fileDecorator"
+      :class="question.getFileDecoratorCss()"
       @drop="question.onDrop"
       @dragover="question.onDragOver"
+      @dragleave="question.onDragLeave"
     >
+      <span :class="question.cssClasses.dragAreaPlaceholder">{{ question.dragAreaPlaceholder }}</span>
       <div :class="question.cssClasses.wrapper">
         <label
           role="button"
@@ -50,7 +52,7 @@
     >
       {{ question.cleanButtonCaption }}
     </button>
-    <div v-if="!question.isEmpty()">
+    <div :class="question.cssClasses.fileList" v-if="!question.isEmpty()">
       <span
         v-for="(val, index) in question.previewValue"
         :key="question.inputId + '_' + index"
@@ -74,15 +76,18 @@
           :width="question.imageWidth"
           alt="File preview"
         />
-        <div v-if="val.name && !question.isReadOnly">
+        <img v-else
+          :class="question.cssClasses.defaultImage"
+          :height="question.imageHeight"
+          :width="question.imageWidth"
+        />
+        <div v-if="val.name && !question.isReadOnly" :class="question.cssClasses.removeFileButton" @click="question.doRemoveFile(val)">
           <span
-            @click="question.doRemoveFile(val)"
             :class="question.cssClasses.removeFile"
             >{{ question.removeFileCaption }}</span
           >
           <svg
             :class="question.cssClasses.removeFileSvg"
-            @click="question.doRemoveFile(val)"
             viewBox="0 0 16 16"
           >
             <path

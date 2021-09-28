@@ -38,8 +38,11 @@ export class DragDropChoices extends DragDropCore<QuestionSelectBase> {
         .closest("[data-sv-drop-target-item-value]")
         .cloneNode(isDeepClone)
     );
-    const controlsNode:HTMLElement = clone.querySelector(".svc-item-value-controls");
+    const controlsNode: HTMLElement = clone.querySelector(".svc-item-value-controls");
     controlsNode.style.display = "block";
+
+    clone.classList.remove("svc-item-value--moveup");
+    clone.classList.remove("svc-item-value--movedown");
 
     draggedElementShortcut.appendChild(clone);
 
@@ -72,7 +75,7 @@ export class DragDropChoices extends DragDropCore<QuestionSelectBase> {
     isBottom: boolean,
     dropTargetNode?: HTMLElement
   ): boolean {
-    const choices = this.parentElement.choices;
+    const choices = this.parentElement.visibleChoices;
 
     if (this.parentElement.getType() !== "imagepicker") {
       const dropTargetIndex = choices.indexOf(this.dropTarget);
@@ -89,8 +92,6 @@ export class DragDropChoices extends DragDropCore<QuestionSelectBase> {
       }
     }
 
-    if (this.dropTarget === this.draggedElement) return false;
-
     // shouldn't allow to drop on "adorners" (selectall, none, other)
     if (choices.indexOf(dropTarget) === -1) return false;
 
@@ -98,7 +99,7 @@ export class DragDropChoices extends DragDropCore<QuestionSelectBase> {
   }
 
   protected calculateIsBottom(clientY: number): boolean {
-    const choices = this.parentElement.choices;
+    const choices = this.parentElement.visibleChoices;
     return (
       choices.indexOf(this.dropTarget) - choices.indexOf(this.draggedElement) >
       0
@@ -106,9 +107,11 @@ export class DragDropChoices extends DragDropCore<QuestionSelectBase> {
   }
 
   protected afterDragOver(dropTargetNode: HTMLElement): void {
+    if (this.isDropTargetDoesntChanged(this.isBottom)) return;
+    if (this.dropTarget === this.draggedElement) return;
     if (this.parentElement.getType() === "imagepicker") return;
 
-    const choices = this.parentElement.choices;
+    const choices = this.parentElement.visibleChoices;
     const dropTargetIndex = choices.indexOf(this.dropTarget);
     const draggedElementIndex = choices.indexOf(this.draggedElement);
 
@@ -134,9 +137,10 @@ export class DragDropChoices extends DragDropCore<QuestionSelectBase> {
 
   protected doDrop(): any {
     const isTop = !this.isBottom;
+    const visibleChoices = this.parentElement.visibleChoices;
     const choices = this.parentElement.choices;
     const oldIndex = choices.indexOf(this.draggedElement);
-    let newIndex = choices.indexOf(this.dropTarget);
+    let newIndex = visibleChoices.indexOf(this.dropTarget);
 
     if (oldIndex < newIndex && isTop) {
       newIndex--;

@@ -38,8 +38,11 @@ export class DragDropChoices extends DragDropCore<QuestionSelectBase> {
         .closest("[data-sv-drop-target-item-value]")
         .cloneNode(isDeepClone)
     );
-    const controlsNode:HTMLElement = clone.querySelector(".svc-item-value-controls");
+    const controlsNode: HTMLElement = clone.querySelector(".svc-item-value-controls");
     controlsNode.style.display = "block";
+
+    clone.classList.remove("svc-item-value--moveup");
+    clone.classList.remove("svc-item-value--movedown");
 
     draggedElementShortcut.appendChild(clone);
 

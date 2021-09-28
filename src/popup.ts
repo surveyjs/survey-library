@@ -122,14 +122,28 @@ export class PopupBaseViewModel extends Base {
     this.model.isVisible = false;
   }
 
-  constructor(public model: PopupModel, public targetElement?: HTMLElement) {
-    super();
-    this.model.registerFunctionOnPropertyValueChanged("isVisible", () => {
-      if (!this.model.isVisible) {
+  private _model: PopupModel;
+  public get model() {
+    return this._model;
+  }
+  public set model(model: PopupModel) {
+    if(!!this.model) {
+      this.model.unRegisterFunctionOnPropertiesValueChanged(["isVisible"], "PopupBaseViewModel");
+    }
+    this._model = model;
+    const updater = () => {
+      if (!model.isVisible) {
         this.updateOnHiding();
       }
-      this.isVisible = this.model.isVisible;
-    });
+      this.isVisible = model.isVisible;
+    };
+    model.registerFunctionOnPropertyValueChanged("isVisible", updater, "PopupBaseViewModel");
+    updater();
+  }
+
+  constructor(model: PopupModel, public targetElement?: HTMLElement) {
+    super();
+    this.model = model;
   }
   public get title(): string {
     return this.model.title;

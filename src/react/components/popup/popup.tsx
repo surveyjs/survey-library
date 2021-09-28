@@ -15,7 +15,7 @@ export class Popup extends SurveyElementBase<IPopupProps, any> {
     super(props);
     this.containerRef = React.createRef();
     this.popup = new PopupBaseViewModel(this.props.model);
-    this.popup.createPopupContainer();
+    this.popup.initializePopupContainer();
   }
   get model(): PopupModel {
     return this.props.model;
@@ -32,6 +32,7 @@ export class Popup extends SurveyElementBase<IPopupProps, any> {
     this.popup.destroyPopupContainer();
   }
   render() {
+    this.popup.model = this.model;
     const popupContainer = ReactDOM.createPortal(
       <PopupContainer model={this.popup}></PopupContainer>,
       this.popup.container

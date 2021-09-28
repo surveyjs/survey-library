@@ -164,10 +164,10 @@ export class QuestionFileModel extends Question {
   * The choose file input title.
   */
   @property({ defaultValue: surveyLocalization.getString("chooseFile") }) chooseFileTitle: string;
+  @property({ defaultValue: surveyLocalization.getString("fileDragAreaPlaceholder") }) dragAreaPlaceholder: string;
   /**
    * The input title value.
    */
-  @property({ defaultValue: surveyLocalization.getString("fileDragAreaPlaceholder") }) dragAreaPlaceholder: string;
   get inputTitle(): string {
     if (this.isUploading) return this.loadingFileTitle;
     if (this.isEmpty()) return this.chooseFileTitle;

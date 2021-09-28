@@ -13461,6 +13461,26 @@ QUnit.test("send notification on setLocale change for survey.title", function (
   assert.equal(survey.title, "new title", "survey title is correct");
   assert.equal(newValue, "new title", "we send notification");
 });
+QUnit.test("send notification on setLocale change for survey.dataList", function (
+  assert
+) {
+  var survey = new SurveyModel({
+    elements: [
+      { type: "text", name: "q1", dataList: ["Item 1", "Item 2"] }
+    ]
+  });
+  const q1 = <QuestionTextModel>survey.getAllQuestions()[0];
+  var oldValue;
+  var newValue;
+  q1.onPropertyChanged.add((sender, options) => {
+    oldValue = options.oldValue;
+    newValue = options.newValue;
+  });
+  q1.locDataList.setLocaleText("", "Item 1\nItem 2\nItem 3");
+  assert.deepEqual(q1.dataList, ["Item 1", "Item 2", "Item 3"], "question dataList is correct");
+  assert.deepEqual(newValue, { default: ["Item 1", "Item 2", "Item 3"] }, "we send notification");
+  assert.deepEqual(oldValue, { default: ["Item 1", "Item 2"] }, "old Value is correct");
+});
 
 QUnit.test(
   "onAfterRenderPage calls incorrect for the first page when there is the started page, Bug #",

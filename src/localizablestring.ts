@@ -288,6 +288,7 @@ export class LocalizableString implements ILocalizableString {
  */
 export class LocalizableStrings implements ILocalizableString {
   private values: any = {};
+  public onValueChanged: (oldValue: any, newValue: any) => void;
   constructor(public owner: ILocalizableOwner) {}
   public getIsMultiple(): boolean { return true; }
   public get locale() {
@@ -328,10 +329,14 @@ export class LocalizableStrings implements ILocalizableString {
   }
   public setValue(loc: string, val: Array<string>) {
     loc = this.getLocale(loc);
+    const oldValue = Helpers.createCopy(this.values);
     if (!val || val.length == 0) {
       delete this.values[loc];
     } else {
       this.values[loc] = val;
+    }
+    if(!!this.onValueChanged) {
+      this.onValueChanged(oldValue, this.values);
     }
   }
   public hasValue(loc: string = ""): boolean {

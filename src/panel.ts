@@ -985,6 +985,7 @@ export class PanelModelBase extends SurveyElement
       this.id
     );
     this.updateRowsOnElementRemoved(element);
+    if(this.isRandomizing) return;
     if (!element.isPanel) {
       if (this.survey) this.survey.questionRemoved(<Question>element);
     } else {
@@ -994,7 +995,7 @@ export class PanelModelBase extends SurveyElement
     this.onElementVisibilityChanged(this);
   }
   private onElementVisibilityChanged(element: any) {
-    if (this.isLoadingFromJson) return;
+    if (this.isLoadingFromJson || this.isRandomizing) return;
     this.updateRowsVisibility(element);
     this.childVisibilityChanged();
     if (!!this.parent) {

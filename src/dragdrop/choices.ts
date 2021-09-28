@@ -107,6 +107,7 @@ export class DragDropChoices extends DragDropCore<QuestionSelectBase> {
   }
 
   protected afterDragOver(dropTargetNode: HTMLElement): void {
+    if (this.isDropTargetDoesntChanged(this.isBottom)) return;
     if (this.dropTarget === this.draggedElement) return;
     if (this.parentElement.getType() === "imagepicker") return;
 

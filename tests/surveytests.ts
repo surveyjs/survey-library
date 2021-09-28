@@ -578,6 +578,66 @@ QUnit.test(
     assert.equal(survey.progressText, "Answered: 50%");
   }
 );
+QUnit.test("onProgressText event and questionOrder in page, Bug#3383", function (assert) {
+  var survey = new SurveyModel({
+    "pages": [
+      {
+        name: "page1",
+        "elements": [
+          {
+            "name": "q1",
+            "type": "radiogroup",
+            "choices": [1, 2, 3],
+          },
+        ],
+      },
+      {
+        name: "page2",
+        "elements": [
+          {
+            "name": "q2",
+            "type": "text",
+          },
+          {
+            "name": "q3",
+            "type": "radiogroup",
+            choices: [1, 2, 3],
+          }
+        ]
+      },
+      {
+        name: "page3",
+        "elements": [
+          {
+            "name": "q4",
+            "choices": [1, 2, 3],
+            "type": "radiogroup"
+          },
+          {
+            "name": "q5",
+            "type": "text",
+          }
+        ],
+        "questionsOrder": "random"
+      }
+    ],
+  });
+  var oldCurrentPageName: string;
+  var newCurrentPageName: string;
+  survey.onCurrentPageChanged.add((sender, options) => {
+    oldCurrentPageName = !!options.oldCurrentPage? options.oldCurrentPage.name : "";
+    newCurrentPageName = !!options.newCurrentPage? options.newCurrentPage.name : "";
+  });
+  survey.onProgressText.add(() => { var dummy = 1; });
+  survey.nextPage();
+  assert.equal(oldCurrentPageName, "page1", "First nextPage, old");
+  assert.equal(newCurrentPageName, "page2", "First nextPage, new");
+  survey.nextPage();
+  assert.equal(survey.currentPageNo, 2, "We are on the last page");
+  assert.equal(oldCurrentPageName, "page2", "Second nextPage, old");
+  assert.equal(newCurrentPageName, "page3", "Second nextPage, new");
+});
+
 QUnit.test("progressText, 'requiredQuestions' type and design mode", function (
   assert
 ) {

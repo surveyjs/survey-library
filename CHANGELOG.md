@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.8.70](https://github.com/surveyjs/survey-library/compare/v1.8.69...v1.8.70) (2021-09-29)
+
+
+### Bug Fixes
+
+* Localization strings returns internal object on getJson() [#3394](https://github.com/surveyjs/survey-library/issues/3394) ([#3395](https://github.com/surveyjs/survey-library/issues/3395)) ([3094c05](https://github.com/surveyjs/survey-library/commit/3094c054f5b4b3bac39f6bb84a9264493e812292))
+
 ### [1.8.69](https://github.com/surveyjs/survey-library/compare/v1.8.68...v1.8.69) (2021-09-28)
 
 

@@ -342,8 +342,14 @@ export class Base {
     return this.propertyHash["value"];
   }
   protected setPropertyValueCore(propertiesHash: any, name: string, val: any) {
-    if (this.setPropertyValueCoreHandler && !this.isDisposedValue)
-      this.setPropertyValueCoreHandler(propertiesHash, name, val);
+    if (this.setPropertyValueCoreHandler) {
+      if (!this.isDisposedValue) {
+        this.setPropertyValueCoreHandler(propertiesHash, name, val);
+      } else {
+        // eslint-disable-next-line no-console
+        console.warn("Attempt to set property '%s' of a disposed object %o", name, this);
+      }
+    }
     else propertiesHash[name] = val;
   }
   protected get isEditingSurveyElement(): boolean {

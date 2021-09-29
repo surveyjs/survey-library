@@ -144,6 +144,7 @@ export class DragDropSurveyElements extends DragDropCore<any> {
   }
 
   protected isDropTargetDoesntChanged(newIsBottom: boolean): boolean {
+    if (this.dropTarget === this.ghostSurveyElement) return true;
     return (
       this.dropTarget === this.prevDropTarget && newIsBottom === this.isBottom
       /*&&this.isEdge === this.prevIsEdge*/
@@ -310,9 +311,16 @@ export class DragDropSurveyElements extends DragDropCore<any> {
   private createGhostSurveyElement(): any {
     const startWithNewLine = this.draggedElement.startWithNewLine;
     let className = "sv-drag-drop-ghost";
+    let minWidth = "300px";
+
+    if (!startWithNewLine) {
+      minWidth = "4px";
+      className += " sv-drag-drop-ghost--vertical";
+    }
 
     const json = {
       type: "html",
+      minWidth,
       name: DragDropSurveyElements.ghostSurveyElementName,
       html: `<div class="${className}"></div>`,
     };

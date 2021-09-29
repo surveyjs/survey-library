@@ -912,6 +912,20 @@ export class JsonMetadata {
       return this.findProperty((<any>obj).getOriginalObj().getType(), propName);
     return null;
   }
+  public getProperty(
+    className: string,
+    propertyName: string
+  ): JsonObjectProperty {
+    const prop = this.findProperty(className, propertyName);
+    if(!prop) return prop;
+    const classInfo = this.findClass(className);
+    if(prop.classInfo === classInfo) return prop;
+    const newProp = new JsonObjectProperty(classInfo, propertyName, prop.isRequired);
+    newProp.mergeWith(prop);
+    classInfo.properties.push(newProp);
+    this.emptyClassPropertiesHash(classInfo);
+    return newProp;
+  }
   public findProperty(
     className: string,
     propertyName: string

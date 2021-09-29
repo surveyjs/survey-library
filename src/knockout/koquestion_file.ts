@@ -11,7 +11,7 @@ import { QuestionImplementor } from "./koquestion";
 import { getOriginalEvent } from "../utils/utils";
 
 class QuestionFileImplementor extends QuestionImplementor {
-  constructor(question: Question) {
+  constructor(question: QuestionFile) {
     super(question);
     this.setObservaleObj("koState", ko.observable<string>("empty"));
     this.setObservaleObj(
@@ -40,6 +40,9 @@ class QuestionFileImplementor extends QuestionImplementor {
     this.setCallbackFunc("ondragover", (data: any, event: any) => {
       this.question.onDragOver(getOriginalEvent(event));
     });
+    this.setCallbackFunc("ondragleave", (data: any, event: any) => {
+      this.question.onDragLeave(getOriginalEvent(event));
+    });
     this.setCallbackFunc("dochange", (data: any, event: any) => {
       this.question.doChange(getOriginalEvent(event));
     });
@@ -51,6 +54,7 @@ class QuestionFileImplementor extends QuestionImplementor {
     });
     this.setCallbackFunc("dodownload", (data: any, event: any) => {
       this.question.doDownloadFile(getOriginalEvent(event), data);
+      return true;
     });
   }
 }

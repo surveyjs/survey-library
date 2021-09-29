@@ -286,6 +286,9 @@ export var defaultBootstrapMaterialCss = {
     fileDecorator: "sv-hidden",
     fileSignBottom: "sv-hidden",
     removeButtonBottom: "sv-hidden",
+    dragAreaPlaceholder: "sv-hidden",
+    fileList: "",
+    defaultImage: "sv-hidden"
   },
   signaturepad: {
     root: "sv_q_signaturepad sjs_sp_container",

@@ -13,6 +13,7 @@ import { confirmAction, detectIEOrEdge, loadFileFromBase64 } from "./utils/utils
  */
 export class QuestionFileModel extends Question {
   private isUploading: boolean = false;
+  @property() isDragging: boolean = false;
   /**
    * The event is fired after question state has been changed.
    * <br/> sender the question object that fires the event
@@ -163,6 +164,7 @@ export class QuestionFileModel extends Question {
   * The choose file input title.
   */
   @property({ defaultValue: surveyLocalization.getString("chooseFile") }) chooseFileTitle: string;
+  @property({ defaultValue: surveyLocalization.getString("fileDragAreaPlaceholder") }) dragAreaPlaceholder: string;
   /**
    * The input title value.
    */
@@ -419,6 +421,12 @@ export class QuestionFileModel extends Question {
       .append(this.cssClasses.placeholderInput)
       .toString();
   }
+  public getFileDecoratorCss(): string {
+    return new CssClassBuilder()
+      .append(this.cssClasses.fileDecorator)
+      .append(this.cssClasses.fileDecoratorDrag, this.isDragging)
+      .toString();
+  }
 
   private onChange(src: any) {
     if (!(<any>window)["FileReader"]) return;
@@ -434,17 +442,26 @@ export class QuestionFileModel extends Question {
   //#region
   // web-based methods
   onDragOver = (event: any) => {
-    if (this.isReadOnly) {
+    if (this.isInputReadOnly) {
       event.returnValue = false;
       return false;
     }
+    this.isDragging = true;
     event.dataTransfer.dropEffect = "copy";
     event.preventDefault();
   }
   onDrop = (event: any) => {
-    event.preventDefault();
-    let src = event.dataTransfer;
-    this.onChange(src);
+    if (!this.isInputReadOnly) {
+      this.isDragging = false;
+      event.preventDefault();
+      let src = event.dataTransfer;
+      this.onChange(src);
+    }
+  }
+  onDragLeave = (event: any) => {
+    if (!this.isInputReadOnly) {
+      this.isDragging = false;
+    }
   }
   doChange = (event: any) => {
     var src = event.target || event.srcElement;

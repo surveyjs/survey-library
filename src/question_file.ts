@@ -421,6 +421,12 @@ export class QuestionFileModel extends Question {
       .append(this.cssClasses.placeholderInput)
       .toString();
   }
+  public getFileDecoratorCss(): string {
+    return new CssClassBuilder()
+      .append(this.cssClasses.fileDecorator)
+      .append(this.cssClasses.fileDecoratorDrag, this.isDragging)
+      .toString();
+  }
 
   private onChange(src: any) {
     if (!(<any>window)["FileReader"]) return;
@@ -436,7 +442,7 @@ export class QuestionFileModel extends Question {
   //#region
   // web-based methods
   onDragOver = (event: any) => {
-    if (this.isReadOnly || this.isInputReadOnly) {
+    if (this.isInputReadOnly) {
       event.returnValue = false;
       return false;
     }
@@ -445,7 +451,7 @@ export class QuestionFileModel extends Question {
     event.preventDefault();
   }
   onDrop = (event: any) => {
-    if (!this.isReadOnly && ! this.isInputReadOnly) {
+    if (!this.isInputReadOnly) {
       this.isDragging = false;
       event.preventDefault();
       let src = event.dataTransfer;
@@ -453,7 +459,7 @@ export class QuestionFileModel extends Question {
     }
   }
   onDragLeave = (event: any) => {
-    if (!this.isReadOnly && ! this.isInputReadOnly) {
+    if (!this.isInputReadOnly) {
       this.isDragging = false;
     }
   }
@@ -486,12 +492,6 @@ export class QuestionFileModel extends Question {
     }
   }
   //#endregion
-  public getFileDecoratorCss(): string {
-    return new CssClassBuilder()
-      .append(this.cssClasses.fileDecorator)
-      .append(this.cssClasses.fileDecoratorDrag, this.isDragging)
-      .toString();
-  }
 }
 Serializer.addClass(
   "file",

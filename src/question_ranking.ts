@@ -55,7 +55,7 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
 
   protected isItemCurrentDropTarget(item: ItemValue): boolean {
     if (this.fallbackToSortableJS) return false;
-    return this.dragDropHelper.dropTarget === item;
+    return this.dragDropRankingChoices.dropTarget === item;
   }
 
   public get ghostPositionCssClass(): string {
@@ -159,14 +159,14 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
     this.setPropertyValue("rankingChoices", newRankingChoices);
   }
 
-  public dragDropHelper: DragDropRankingChoices;
+  public dragDropRankingChoices: DragDropRankingChoices;
   @property({ defaultValue: null }) currentDropTarget: ItemValue;
   @property({ defaultValue: null }) dropTargetNodeMove: string;
 
   endLoadingFromJson(): void {
     super.endLoadingFromJson();
     if (!this.fallbackToSortableJS) {
-      this.dragDropHelper = new DragDropRankingChoices(this.survey);
+      this.dragDropRankingChoices = new DragDropRankingChoices(this.survey);
     }
   }
 
@@ -176,7 +176,7 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
     node: HTMLElement
   ): void => {
     if (!this.fallbackToSortableJS) {
-      this.dragDropHelper.startDrag(event, choice, this, node);
+      this.dragDropRankingChoices.startDrag(event, choice, this, node);
     }
   };
 

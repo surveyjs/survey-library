@@ -625,8 +625,8 @@ QUnit.test("onProgressText event and questionOrder in page, Bug#3383", function 
   var oldCurrentPageName: string;
   var newCurrentPageName: string;
   survey.onCurrentPageChanged.add((sender, options) => {
-    oldCurrentPageName = !!options.oldCurrentPage? options.oldCurrentPage.name : "";
-    newCurrentPageName = !!options.newCurrentPage? options.newCurrentPage.name : "";
+    oldCurrentPageName = !!options.oldCurrentPage ? options.oldCurrentPage.name : "";
+    newCurrentPageName = !!options.newCurrentPage ? options.newCurrentPage.name : "";
   });
   survey.onProgressText.add(() => { var dummy = 1; });
   survey.nextPage();
@@ -6705,7 +6705,7 @@ QUnit.test("Questions are randomized", function (assert) {
 
 class HelpTest {
   public static randomizeArray<T>(array: Array<T>): Array<T> {
-    if(array.length < 2) return;
+    if (array.length < 2) return;
     const el0 = array[0];
     array.splice(0, 1, array[array.length - 1]);
     array.splice(array.length - 1, 1, el0);
@@ -6713,7 +6713,7 @@ class HelpTest {
   }
 }
 
-QUnit.test("Randomize questions in page and panels", function(assert) {
+QUnit.test("Randomize questions in page and panels", function (assert) {
   const oldFunc = Helpers.randomizeArray;
   Helpers.randomizeArray = HelpTest.randomizeArray;
   const json = {
@@ -6764,7 +6764,7 @@ QUnit.test("Randomize questions in page and panels", function(assert) {
   Helpers.randomizeArray = oldFunc;
 });
 
-QUnit.test("Quiz, correct, incorrect answers", function(assert) {
+QUnit.test("Quiz, correct, incorrect answers", function (assert) {
   var survey = new SurveyModel({
     pages: [
       {
@@ -12734,7 +12734,8 @@ QUnit.test(
     var survey = new SurveyModel({
       elements: [
         { type: "text", name: "q1", isRequired: true },
-        { type: "text", name: "q2",
+        {
+          type: "text", name: "q2",
           validators: [
             {
               type: "expression",
@@ -14013,7 +14014,7 @@ QUnit.test("Do panel click without actions, but if it has state", assert => {
       elements: [{ type: "text", name: "q1" }]
     }]
   });
-  survey.onGetPanelTitleActions.add((sender, options)=>{
+  survey.onGetPanelTitleActions.add((sender, options) => {
     options.titleActions = [];
   });
   const panel = <PanelModel>survey.getPanelByName("panel");
@@ -14029,7 +14030,7 @@ QUnit.test("Set values with trimming and caseSensitive", assert => {
   const question = survey.getAllQuestions()[0];
   const hash = { name: 0, title: 0 };
   question.onPropertyChanged.add((sender, options) => {
-    if(hash[options.name] >= 0) {
+    if (hash[options.name] >= 0) {
       hash[options.name] = hash[options.name] + 1;
     }
   });
@@ -14048,7 +14049,7 @@ QUnit.test("Modify question value, call onValueChanged by ignoring trimming and 
   const question = survey.getAllQuestions()[0];
   let counter = 0;
   survey.onValueChanged.add((sender, options) => {
-    counter ++;
+    counter++;
   });
   question.value = "q";
   assert.equal(counter, 1);
@@ -14068,7 +14069,7 @@ QUnit.test("Modify question array value, call onValueChanged by ignoring trimmin
   rows[0].cells[0].value = "val1";
   rows[1].cells[0].value = "val2";
   survey.onValueChanged.add((sender, options) => {
-    counter ++;
+    counter++;
   });
   rows[1].cells[0].value = "Val2";
   assert.equal(counter, 1);
@@ -14126,4 +14127,24 @@ QUnit.test("firstPageIsStarted = true and prevPage()", function (assert) {
   survey.nextPage();
   assert.equal(survey.prevPage(), true);
   assert.equal(survey.currentPageNo, 0);
+});
+QUnit.test("skeleton component name", function (assert) {
+  var survey = new SurveyModel({
+    pages: [
+      {
+        elements: [
+          {
+            type: "text",
+            name: "name1",
+          },
+        ],
+      },
+    ]
+  });
+  const question = survey.getAllQuestions()[0];
+  assert.equal(survey.skeletonComponentName, "");
+  assert.equal(question.skeletonComponentName, "");
+  survey.skeletonComponentName = "sv-skeleton";
+  assert.equal(survey.skeletonComponentName, "sv-skeleton");
+  assert.equal(question.skeletonComponentName, "sv-skeleton");
 });

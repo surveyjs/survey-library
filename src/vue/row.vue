@@ -27,6 +27,27 @@
         :css="css"
       />
     </div>
+
+    <div
+      v-else
+      v-for="element in row.visibleElements"
+      :key="element.id"
+      :style="{
+        flexBasis: element.renderWidth,
+        flexGrow: 1,
+        flexShrink: 1,
+        width: element.renderWidth,
+        minWidth: element.minWidth,
+        maxWidth: element.maxWidth,
+      }"
+    >
+      <component
+        v-if="question.skeletonComponentName"
+        :is="element.skeletonComponentName"
+        :question="element"
+        :css="css"
+      />
+    </div>
   </div>
 </template>
 

@@ -400,9 +400,9 @@ export class SurveyModel extends SurveyElementCore
    * @see showQuestionNumbers
    * @see requiredText
    */
-   public onGetTitleTagName: EventBase<SurveyModel> = this.addEvent<
-   SurveyModel
- >();
+  public onGetTitleTagName: EventBase<SurveyModel> = this.addEvent<
+    SurveyModel
+  >();
   /**
    * Use this event to change the question no in code. If you want to remove question numbering then set showQuestionNumbers to "off".
    * <br/> `sender` - the survey object that fires the event.
@@ -1957,7 +1957,7 @@ export class SurveyModel extends SurveyElementCore
     return this.getLocalizableString("editText");
   }
   getElementTitleTagName(element: Base, tagName: string): string {
-    if(this.onGetTitleTagName.isEmpty) return tagName;
+    if (this.onGetTitleTagName.isEmpty) return tagName;
     const options = { element: element, tagName: tagName };
     this.onGetTitleTagName.fire(this, options);
     return options.tagName;
@@ -3028,10 +3028,10 @@ export class SurveyModel extends SurveyElementCore
     if (hasErrors) {
       this.clearAsyncValidationQuesitons();
       func(true);
-      if(this.focusOnFirstError && !!question && !!question.page && question.page === this.currentPage) {
+      if (this.focusOnFirstError && !!question && !!question.page && question.page === this.currentPage) {
         const questions: Array<Question> = this.currentPage.questions;
-        for(let i = 0; i < questions.length; i ++) {
-          if(questions[i] !== question && questions[i].errors.length > 0) return;
+        for (let i = 0; i < questions.length; i++) {
+          if (questions[i] !== question && questions[i].errors.length > 0) return;
         }
         question.focus(true);
       }
@@ -5904,6 +5904,10 @@ export class SurveyModel extends SurveyElementCore
       this.pages[i].searchText(text, res);
     }
     return res;
+  }
+  public skeletonComponentName = "";
+  public getSkeletonComponentName(element: ISurveyElement): string {
+    return this.skeletonComponentName;
   }
   /**
    * Use this method to dispose survey model properly.

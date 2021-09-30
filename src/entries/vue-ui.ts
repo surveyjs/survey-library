@@ -67,3 +67,4 @@ export { List } from "../vue/components/list/list.vue";
 export { SurveyQuestionMatrixDynamicRemoveButton } from "../vue/components/matrix-actions/remove-button/remove-button.vue";
 export { SurveyQuestionMatrixDetailButton } from "../vue/components/matrix-actions/detail-button/detail-button.vue";
 export { SurveyQuestionMatrixDynamicDragDropIcon } from "../vue/components/matrix-actions/drag-drop-icon/drag-drop-icon.vue";
+export { Skeleton } from "../vue/components/skeleton.vue";

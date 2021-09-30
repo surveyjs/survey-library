@@ -2371,9 +2371,9 @@ export class SurveyModel extends SurveyElementCore
         propertyName: string,
       }>,
     } = {
-        includeEmpty: true,
-        includeQuestionTypes: false,
-      }
+      includeEmpty: true,
+      includeQuestionTypes: false,
+    }
   ) {
     var result: Array<any> = [];
     this.getAllQuestions().forEach((question) => {

@@ -5,7 +5,7 @@
     "serve_ci": "http-server",
     "test": "karma start ./build-scripts/karma.conf.js",
     "testcafe": "concurrently \"http-server --silent\" \"testcafe -c 4 -q chrome testCafe/ --selector-timeout 1500 --reporter minimal\"",
-    "testcafe_file": "concurrently \"http-server --silent\" \"testcafe chrome testCafe/conditionsAndTriggers/completeTrigger.js --selector-timeout 1500 --reporter minimal\"",
+    "testcafe_file": "concurrently \"http-server --silent\" \"testcafe chrome testCafe/components/popup.ts --selector-timeout 1500 --reporter minimal\"",
     "testcafe_ci": "http-server --silent & testcafe -q chrome:headless testCafe/ --reporter minimal",
     "testcafe_sauce": "testcafe \"saucelabs:Chrome@56.0:Windows 10\" testCafe/",
     "release": "standard-version --message \"Release: %s [skip ci]\" ",

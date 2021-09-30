@@ -14,6 +14,9 @@ export class ImageItemValue extends ItemValue implements ILocalizableOwner {
     super(value, text, typeName);
     this.createLocalizableString("imageLink", this, false);
   }
+  getRendererContext(locStr: LocalizableString) {
+    throw new Error("Method not implemented.");
+  }
   public getType(): string {
     return !!this.typeName ? this.typeName : "itemvalue";
   }

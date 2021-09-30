@@ -522,6 +522,9 @@ export class MatrixDropdownColumn extends Base
   public getRenderer(name: string): string {
     return !!this.colOwner ? this.colOwner.getRenderer(name) : null;
   }
+  public getRendererContext(locStr: LocalizableString): string {
+    throw new Error("Method not implemented.");
+  }
   public getProcessedText(text: string): string {
     return this.colOwner ? this.colOwner.getProcessedText(text) : text;
   }
@@ -848,6 +851,9 @@ implements ISurveyData, ISurveyImpl, ILocalizableOwner {
       this.showHideDetailPanel();
     };
     this.idValue = MatrixDropdownRowModelBase.getId();
+  }
+  getRendererContext(locStr: LocalizableString) {
+    throw new Error("Method not implemented.");
   }
   public get id(): string {
     return this.idValue;

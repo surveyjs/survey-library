@@ -70,6 +70,9 @@ export class SurveyValidator extends Base {
   getRenderer(name: string): string {
     return !!this.errorOwner ? this.errorOwner.getRenderer(name) : null;
   }
+  getRendererContext(locStr: LocalizableString): string {
+    throw new Error("Method not implemented.");
+  }
   getProcessedText(text: string): string {
     return !!this.errorOwner ? this.errorOwner.getProcessedText(text) : text;
   }

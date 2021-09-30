@@ -7,6 +7,7 @@ export interface ILocalizableOwner {
   getMarkdownHtml(text: string, name: string): string;
   getProcessedText(text: string): string;
   getRenderer(name: string): string;
+  getRendererContext(locStr: LocalizableString): any;
 }
 export interface ILocalizableString {
   getLocaleText(loc: string): string;
@@ -212,6 +213,17 @@ export class LocalizableString implements ILocalizableString {
     }
     return (
       this.owner.getRenderer(this.name) || LocalizableString.defaultRenderer
+    );
+  }
+  public get renderAsData(): any {
+    if (!this.owner) {
+      return this;
+    }
+    if (typeof this.owner.getRenderer !== "function") {
+      return this;
+    }
+    return (
+      this.owner.getRendererContext(this) || this
     );
   }
   public equals(obj: any): boolean {

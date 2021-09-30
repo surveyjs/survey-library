@@ -347,7 +347,7 @@ export class Base {
         this.setPropertyValueCoreHandler(propertiesHash, name, val);
       } else {
         // eslint-disable-next-line no-console
-        console.warn("Attempt to set property '" + name + " ' of a disposed object " + this.getType());
+        console.warn("Attempt to set property '" + name + "' of a disposed object '" + this.getType() + "'");
       }
     }
     else propertiesHash[name] = val;

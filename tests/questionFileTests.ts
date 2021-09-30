@@ -2,6 +2,7 @@ import { SurveyModel } from "../src/survey";
 import { QuestionFileModel } from "../src/question_file";
 import { QuestionPanelDynamicModel } from "../src/question_paneldynamic";
 import { surveyLocalization } from "../src/surveyStrings";
+import { settings } from "../src/settings";
 
 export default QUnit.module("Survey_QuestionFile");
 
@@ -587,3 +588,73 @@ QUnit.test("Writable captions", function(assert) {
   assert.equal(q.chooseFileTitle, surveyLocalization.getString("chooseFile")+"_new", "The choose file input title new");
 
 });
+
+QUnit.test("check file d&d", (assert) => {
+  var json = {
+    questions: [
+      {
+        type: "file",
+        allowMultiple: true,
+        title: "Please upload your file",
+        name: "file1",
+      }
+    ],
+  };
+
+  var survey = new SurveyModel(json);
+  var q: QuestionFileModel = <QuestionFileModel>survey.getQuestionByName("file1");
+  let onChangeCalledCount = 0;
+  q["onChange"] = () => { onChangeCalledCount++ };
+  const event = { preventDefault: () => {}, dataTransfer: { dropEffect: "none", files: [ { type: "ext", name: "test", content: "test_content" } ] } };
+  q.onDragOver(event);
+  assert.equal(event.dataTransfer.dropEffect, "copy");
+  assert.equal(q.isDragging, true);
+ 
+  q.onDragLeave(event);
+  assert.equal(q.isDragging, false);
+ 
+  q.onDragOver(event);
+  assert.equal(q.isDragging, true);
+ 
+  q.onDrop(event);
+  assert.equal(q.isDragging, false);
+  assert.equal(onChangeCalledCount, 1);
+})
+
+QUnit.test("check file d&d readonly", (assert) => {
+  var json = {
+    questions: [
+      {
+        type: "file",
+        allowMultiple: true,
+        title: "Please upload your file",
+        name: "file1",
+      }
+    ],
+  };
+  var survey = new SurveyModel(json);
+  var q: QuestionFileModel = <QuestionFileModel>survey.getQuestionByName("file1");
+  let onChangeCalledCount = 0;
+  q["onChange"] = () => { onChangeCalledCount++ };
+  const event = { preventDefault: () => {}, dataTransfer: { dropEffect: "none", files: [ { type: "ext", name: "test", content: "test_content" } ] } };
+  const checkDD = () => {
+    q.onDragOver(event);
+    assert.equal(event.dataTransfer.dropEffect, "none");
+    assert.equal(q.isDragging, false);
+    
+    q.onDragLeave(event);
+    assert.equal(q.isDragging, false);
+    
+    q.onDragOver(event);
+    assert.equal(q.isDragging, false);
+    
+    q.onDrop(event);
+    assert.equal(q.isDragging, false);
+    assert.equal(onChangeCalledCount, 0);
+  }
+  q.readOnly = true;
+  checkDD();
+  settings.supportCreatorV2 = true;
+  survey.setDesignMode(true);
+  checkDD();
+})

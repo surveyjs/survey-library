@@ -11,7 +11,6 @@ QUnit.test("drop", function (assert) {
   let ddHelper = new DragDropChoices(null);
   const drop = ddHelper["drop"];
 
-  debugger;
   const item1 = { value: "item1" };
   const item2 = { value: "item2" };
   const item3 = { value: "item3" };

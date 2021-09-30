@@ -58,6 +58,28 @@ export class SurveyRow extends SurveyElementBase<any, any> {
           </div>
         );
       });
+    } else {
+      elements = this.row.visibleElements.filter(element => element.skeletonComponentName).map((element, index) => {
+        var rootStyle: { [index: string]: any } = {};
+        if (element.renderWidth) {
+          rootStyle["width"] = element.renderWidth;
+          rootStyle["flexGrow"] = 1;
+          rootStyle["flexShrink"] = 1;
+          rootStyle["flexBasis"] = element.renderWidth;
+          rootStyle["minWidth"] = element.minWidth;
+          rootStyle["maxWidth"] = element.maxWidth;
+        }
+        const css = (element as Question).cssClasses;
+        return (
+          <div
+            className={css.questionWrapper}
+            style={rootStyle}
+            key={index}
+          >
+            {ReactElementFactory.Instance.createElement(element.skeletonComponentName, { element: element, css: this.css, })}
+          </div>
+        );
+      });
     }
 
     return (

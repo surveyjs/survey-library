@@ -74,6 +74,7 @@ export { SurveyQuestionMatrixDynamicRemoveButton } from "../react/components/mat
 export { SurveyQuestionMatrixDetailButton } from "../react/components/matrix-actions/detail-button/detail-button";
 export { SurveyQuestionMatrixDynamicDragDropIcon } from "../react/components/matrix-actions/drag-drop-icon/drag-drop-icon";
 export { MatrixRow } from "../react/components/matrix/row";
+export { Skeleton } from "../react/components/skeleton";
 
 export { SurveyLocStringViewer } from "../react/string-viewer";
 export { SurveyLocStringEditor } from "../react/string-editor";

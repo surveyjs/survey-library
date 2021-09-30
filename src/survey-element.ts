@@ -65,7 +65,7 @@ export abstract class SurveyElementCore extends Base implements ILocalizableOwne
   public get titleTagName(): string {
     let titleTagName = this.getDefaultTitleTagName();
     const survey = this.getSurvey();
-    return !!survey ? survey.getElementTitleTagName(this, titleTagName): titleTagName;
+    return !!survey ? survey.getElementTitleTagName(this, titleTagName) : titleTagName;
   }
   protected getDefaultTitleTagName(): string {
     return (<any>settings.titleTags)[this.getType()];
@@ -195,6 +195,15 @@ export class SurveyElement extends SurveyElementCore implements ISurveyElement {
       }
       if (this.stateChangedCallback) this.stateChangedCallback();
     }
+  }
+  protected getSkeletonComponentNameCore(): string {
+    if (this.survey) {
+      return this.survey.getSkeletonComponentName(this);
+    }
+    return "";
+  }
+  public get skeletonComponentName(): string {
+    return this.getSkeletonComponentNameCore();
   }
   /**
    * Set this property to "collapsed" to render only Panel title and expanded button and to "expanded" to render the collapsed button in the Panel caption
@@ -435,7 +444,7 @@ export class SurveyElement extends SurveyElementCore implements ISurveyElement {
     return this.cssClassesValue;
   }
   protected calcCssClasses(css: any): any { return undefined; }
-  protected updateElementCssCore(cssClasses: any) {}
+  protected updateElementCssCore(cssClasses: any) { }
   public get cssError(): string { return ""; }
   public updateElementCss(reNew?: boolean) {
     this.cssClassesValue = undefined;
@@ -461,7 +470,7 @@ export class SurveyElement extends SurveyElementCore implements ISurveyElement {
   protected getValidName(name: string): string {
     return name;
   }
-  protected onNameChanged(oldValue: string) {}
+  protected onNameChanged(oldValue: string) { }
   protected updateBindingValue(valueName: string, value: any) {
     if (
       !!this.data &&
@@ -510,10 +519,10 @@ export class SurveyElement extends SurveyElementCore implements ISurveyElement {
   public set selectedElementInDesign(val: SurveyElement) {
     this.selectedElementInDesignValue = val;
   }
-  public updateCustomWidgets() {}
+  public updateCustomWidgets() { }
 
-  public onSurveyLoad() {}
-  public onFirstRendering() {}
+  public onSurveyLoad() { }
+  public onFirstRendering() { }
   endLoadingFromJson() {
     super.endLoadingFromJson();
     if (!this.survey) {
@@ -541,7 +550,7 @@ export class SurveyElement extends SurveyElementCore implements ISurveyElement {
   public get isQuestion() {
     return false;
   }
-  public delete() {}
+  public delete() { }
   //ILocalizableOwner
   locOwner: ILocalizableOwner;
   /**
@@ -591,7 +600,7 @@ export class SurveyElement extends SurveyElementCore implements ISurveyElement {
     if (!html || !this.textProcessor) return html;
     return this.textProcessor.processText(html, true);
   }
-  protected onSetData() {}
+  protected onSetData() { }
   public get parent(): IPanel {
     return this.getPropertyValue("parent", null);
   }
@@ -628,7 +637,7 @@ export class SurveyElement extends SurveyElementCore implements ISurveyElement {
     //fix for the creator v1: https://github.com/surveyjs/survey-creator/issues/1744
     if (typeof newPage === "string") {
       const survey = this.getSurvey();
-      survey.pages.forEach((page: IPage)=>{
+      survey.pages.forEach((page: IPage) => {
         if (<any>newPage === page.name) newPage = page;
       });
     }

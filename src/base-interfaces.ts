@@ -38,6 +38,7 @@ export interface ISurveyErrorOwner extends ILocalizableOwner {
 }
 
 export interface ISurvey extends ITextProcessor, ISurveyErrorOwner {
+  getSkeletonComponentName(element: ISurveyElement): string;
   currentPage: IPage;
   pages: Array<IPage>;
   getCss(): any;
@@ -215,6 +216,7 @@ export interface ISurveyElement {
   isPanel: boolean;
   containsErrors: boolean;
   parent: IPanel;
+  skeletonComponentName: string;
   setSurveyImpl(value: ISurveyImpl): any;
   onSurveyLoad(): any;
   onFirstRendering(): any;

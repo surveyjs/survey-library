@@ -19,7 +19,7 @@
         v-for="(row, index) in rows"
         :key="question.id + '_' + index"
         v-if="row.visible"
-        :class="css.row"
+        :class="row.getRowCss()"
       >
         <survey-row :row="row" :survey="survey" :css="css"></survey-row>
       </div>

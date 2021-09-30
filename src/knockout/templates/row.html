@@ -1,5 +1,5 @@
 <script type="text/html" id="survey-row">
-  <div data-bind="css: row.panel.cssClasses.row">
+  <div data-bind="css: row.getRowCss()">
     <!-- ko template: { name: "survey-row-content", afterRender: row.rowAfterRender } -->
     <!-- /ko -->
   </div>

@@ -8,7 +8,7 @@
       v-for="(row, index) in rows"
       v-if="row.visible"
       :key="page.id + '_' + index"
-      :class="css.row"
+      :class="row.getRowCss()"
     >
       <survey-row :row="row" :survey="survey" :css="css"></survey-row>
     </div>

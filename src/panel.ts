@@ -240,6 +240,13 @@ export class QuestionRowModel extends Base {
     super.dispose();
     this.stopLazyRendering();
   }
+  public getRowCss() {
+    return new CssClassBuilder()
+      .append(this.panel.cssClasses.row)
+      .append(this.panel.cssClasses.rowMultiple, this.visibleElements.length > 1)
+      .toString();
+
+  }
 }
 
 /**
@@ -409,11 +416,14 @@ export class PanelModelBase extends SurveyElement
     this.setPropertyValue("visibleIf", val);
   }
   protected calcCssClasses(css: any): any {
-    var classes = { panel: {}, error: {}, row: "" };
+    var classes = { panel: {}, error: {}, row: "", rowMultiple: "" };
     this.copyCssClasses(classes.panel, css.panel);
     this.copyCssClasses(classes.error, css.error);
     if (!!css.row) {
       classes.row = css.row;
+    }
+    if (!!css.rowMultiple) {
+      classes.rowMultiple = css.rowMultiple;
     }
     if (this.survey) {
       this.survey.updatePanelCssClasses(this, classes);

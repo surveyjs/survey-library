@@ -96,7 +96,7 @@ export class PageModel extends PanelModelBase implements IPage {
     return this.survey && this.survey.isPageStarted(this);
   }
   protected calcCssClasses(css: any): any {
-    const classes = { page: {}, pageTitle: "", pageDescription: "", row: "" };
+    const classes = { page: {}, pageTitle: "", pageDescription: "", row: "", rowMultiple: "" };
     this.copyCssClasses(classes.page, css.page);
     if (!!css.pageTitle) {
       classes.pageTitle = css.pageTitle;
@@ -106,6 +106,9 @@ export class PageModel extends PanelModelBase implements IPage {
     }
     if (!!css.row) {
       classes.row = css.row;
+    }
+    if (!!css.rowMultiple) {
+      classes.rowMultiple = css.rowMultiple;
     }
     if (this.survey) {
       this.survey.updatePageCssClasses(this, classes);

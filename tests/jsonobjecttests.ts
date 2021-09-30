@@ -2428,3 +2428,14 @@ QUnit.test("Change default value for question.hideNumber", function(assert) {
     "We made hideNumber false by default again"
   );
 });
+QUnit.test("Serializer.getProperty()", function(assert) {
+  Serializer.addClass("new_dealer", [], null, "dealer");
+  let new_dealer: Dealer = Serializer.createClass("new_dealer");
+  assert.equal(new_dealer.defaultValue, "default", "Use attribute from dealer for new_dealer");
+  Serializer.getProperty("new_dealer", "defaultValue").defaultValue = "new_default";
+  new_dealer = Serializer.createClass("new_dealer");
+  assert.equal(new_dealer.defaultValue, "new_default", "Use attribute from new_dealer");
+  let dealer: Dealer = Serializer.createClass("dealer");
+  assert.equal(dealer.defaultValue, "default", "Use attribute from dealer");
+  Serializer.removeClass("new_dealer");
+});

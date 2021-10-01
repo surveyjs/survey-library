@@ -5913,6 +5913,7 @@ export class SurveyModel extends SurveyElementCore
    * Use this method to dispose survey model properly.
    */
   public dispose() {
+    this.currentPage = null;
     super.dispose();
     this.editingObj = null;
     if (!this.pages) return;
@@ -5920,7 +5921,6 @@ export class SurveyModel extends SurveyElementCore
       this.pages[i].dispose();
     }
     this.pages.splice(0, this.pages.length);
-    this.currentPage = null;
   }
 }
 

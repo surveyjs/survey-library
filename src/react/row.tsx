@@ -83,7 +83,7 @@ export class SurveyRow extends SurveyElementBase<any, any> {
     }
 
     return (
-      <div ref={this.rootRef} className={this.css.row}>
+      <div ref={this.rootRef} className={this.row.getRowCss()}>
         {elements}
       </div>
     );

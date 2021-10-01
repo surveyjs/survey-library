@@ -400,6 +400,7 @@ export class StylesManager {
       "color: rgba(22, 22, 22, 0.16); cursor: default; pointer-events: none;",
     ".sv-list__item span": "white-space: nowrap;",
     //eo list
+    ".sv-skeleton-element": "min-height: 50px;",
   };
 
   public static Media: { [key: string]: { media: string, style: string } } = {
@@ -949,8 +950,9 @@ export class StylesManager {
     ".sv_main .sv-matrix__drag-drop-ghost-position-top::after, .sv_main .sv-matrix__drag-drop-ghost-position-bottom::after":
       "content: ''; width: 100%; height: 4px; background-color: var(--primary, #19b394); position: absolute; left: 0;",
     ".sv_main .sv-matrix__drag-drop-ghost-position-top::after": "top: 0;",
-    ".sv_main .sv-matrix__drag-drop-ghost-position-bottom::after": "bottom: 0;"
+    ".sv_main .sv-matrix__drag-drop-ghost-position-bottom::after": "bottom: 0;",
     //eo drag-drop
+    ".sv-skeleton-element": "background-color: $background-dim;",
   };
 
   public static modernThemeCss: { [key: string]: string } = {
@@ -1095,6 +1097,7 @@ export class StylesManager {
     ".sv-matrix__drag-drop-ghost-position-top::after": "top: 0;",
     ".sv-matrix__drag-drop-ghost-position-bottom::after": "bottom: 0;",
     //eo drag-drop
+    ".sv-skeleton-element": "background-color: $background-dim;",
   };
 
   public static bootstrapThemeCss: { [key: string]: string } = {
@@ -1159,6 +1162,8 @@ export class StylesManager {
     ".sv_main .sv-action-bar-item": "color: $text-color;",
     ".sv_main .sv-action-bar-item__icon use": "fill: $foreground-light;",
     ".sv_main .sv-action-bar-item:hover": "background-color: $background-dim;",
+
+    ".sv-skeleton-element": "background-color: $background-dim;",
   };
 
   public static bootstrapmaterialThemeCss: { [key: string]: string } = {
@@ -1264,6 +1269,8 @@ export class StylesManager {
     ".sv_main .sv-action-bar-item": "color: $text-color;",
     ".sv_main .sv-action-bar-item__icon use": "fill: $foreground-light;",
     ".sv_main .sv-action-bar-item:hover": "background-color: $background-dim;",
+
+    ".sv-skeleton-element": "background-color: $background-dim;",
   };
 
   private sheet: CSSStyleSheet = null;

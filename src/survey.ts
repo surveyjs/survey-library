@@ -5905,7 +5905,7 @@ export class SurveyModel extends SurveyElementCore
     }
     return res;
   }
-  public skeletonComponentName = "";
+  public skeletonComponentName = "sv-skeleton";
   public getSkeletonComponentName(element: ISurveyElement): string {
     return this.skeletonComponentName;
   }

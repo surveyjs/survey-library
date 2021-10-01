@@ -14142,9 +14142,9 @@ QUnit.test("skeleton component name", function (assert) {
     ]
   });
   const question = survey.getAllQuestions()[0];
-  assert.equal(survey.skeletonComponentName, "");
-  assert.equal(question.skeletonComponentName, "");
-  survey.skeletonComponentName = "sv-skeleton";
   assert.equal(survey.skeletonComponentName, "sv-skeleton");
   assert.equal(question.skeletonComponentName, "sv-skeleton");
+  survey.skeletonComponentName = "";
+  assert.equal(survey.skeletonComponentName, "");
+  assert.equal(question.skeletonComponentName, "");
 });

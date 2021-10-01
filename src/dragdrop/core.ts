@@ -230,6 +230,7 @@ export abstract class DragDropCore<T> extends Base {
     // }
     // let scrollableParentNode = getScrollableParent(dragOverNode);
     let scrollableParentNode =
+      document.querySelector(".sd-row--multiple") ||
       document.querySelector(".svc-tab-designer.sd-root-modern") ||
       document.querySelector(".sv-root-modern") ||
       document.querySelector(".sv_container");

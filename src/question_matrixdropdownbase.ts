@@ -105,6 +105,7 @@ export interface IMatrixColumnOwner extends ILocalizableOwner {
   ): void;
   onShowInMultipleColumnsChanged(column: MatrixDropdownColumn): void;
   getCellType(): string;
+  getCustomCellType(column: MatrixDropdownColumn, row: MatrixDropdownRowModelBase, cellType: string): string;
   onColumnCellTypeChanged(column: MatrixDropdownColumn): void;
 }
 
@@ -290,7 +291,7 @@ export class MatrixDropdownColumn extends Base
     return "cellType";
   }
   getDynamicType(): string {
-    return this.calcCellQuestionType();
+    return this.calcCellQuestionType(null);
   }
   public get colOwner(): IMatrixColumnOwner {
     return this.colOwnerValue;
@@ -525,10 +526,10 @@ export class MatrixDropdownColumn extends Base
   public getProcessedText(text: string): string {
     return this.colOwner ? this.colOwner.getProcessedText(text) : text;
   }
-  public createCellQuestion(data: any): Question {
-    var qType = this.calcCellQuestionType();
+  public createCellQuestion(row: MatrixDropdownRowModelBase): Question {
+    var qType = this.calcCellQuestionType(row);
     var cellQuestion = <Question>this.createNewQuestion(qType);
-    this.callOnCellQuestionUpdate(cellQuestion, data);
+    this.callOnCellQuestionUpdate(cellQuestion, row);
     return cellQuestion;
   }
   public updateCellQuestion(
@@ -554,7 +555,14 @@ export class MatrixDropdownColumn extends Base
   defaultCellTypeChanged() {
     this.updateTemplateQuestion();
   }
-  protected calcCellQuestionType(): string {
+  protected calcCellQuestionType(row: MatrixDropdownRowModelBase): string {
+    let cellType = this.getDefaultCellQuestionType();
+    if(!!row && !!this.colOwner) {
+      cellType = this.colOwner.getCustomCellType(this, row, cellType);
+    }
+    return cellType;
+  }
+  private getDefaultCellQuestionType(): string {
     if (this.cellType !== "default") return this.cellType;
     if (this.colOwner) return this.colOwner.getCellType();
     return settings.matrixDefaultCellType;
@@ -563,7 +571,7 @@ export class MatrixDropdownColumn extends Base
     var prevCellType = this.templateQuestion
       ? this.templateQuestion.getType()
       : "";
-    var curCellType = this.calcCellQuestionType();
+    var curCellType = this.calcCellQuestionType(null);
     if (curCellType === prevCellType) return;
     if (this.templateQuestion) {
       this.removeProperties(prevCellType);
@@ -2584,6 +2592,18 @@ export class QuestionMatrixDropdownModelBase
   }
   getCellType(): string {
     return this.cellType;
+  }
+  getCustomCellType(column: MatrixDropdownColumn, row: MatrixDropdownRowModelBase, cellType: string): string {
+    if (!this.survey) return cellType;
+    var options = {
+      rowValue: row.value,
+      row: row,
+      column: column,
+      columnName: column.name,
+      cellType: cellType
+    };
+    this.survey.matrixCellCreating(this, options);
+    return options.cellType;
   }
   public getConditionJson(operator: string = null, path: string = null): any {
     if (!path) return super.getConditionJson();

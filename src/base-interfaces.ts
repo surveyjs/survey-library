@@ -175,6 +175,7 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner {
     rowIndex: number,
     row: any
   ): boolean;
+  matrixCellCreating(question: IQuestion, options: any): any;
   matrixCellCreated(question: IQuestion, options: any): any;
   matrixAfterCellRender(question: IQuestion, options: any): any;
   matrixCellValueChanged(question: IQuestion, options: any): any;

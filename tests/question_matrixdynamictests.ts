@@ -727,6 +727,26 @@ QUnit.test(
   }
 );
 QUnit.test(
+  "Matrixdynamic create different question types in one column",
+  function(assert) {
+    var matrix = new QuestionMatrixDropdownModel("matrixDymanic");
+    matrix.addColumn("col1");
+    matrix.rows = ["text", "dropdown", "checkbox"];
+    var survey = new SurveyModel();
+    survey.addNewPage("p1");
+    survey.pages[0].addQuestion(matrix);
+    survey.onMatrixCellCreating.add((sender, options) => {
+      if(options.column.name !== "col1") return;
+      options.cellType = options.row.rowName;
+    });
+    var rows = matrix.visibleRows;
+    assert.equal(rows[0].cells[0].question.getType(), "text");
+    assert.equal(rows[1].cells[0].question.getType(), "dropdown");
+    assert.equal(rows[2].cells[0].question.getType(), "checkbox");
+  }
+);
+
+QUnit.test(
   "Matrixdynamic onMatrixValueChanging - control the value in the cell",
   function(assert) {
     var json = {

@@ -676,6 +676,23 @@ export class SurveyModel extends SurveyElementCore
     SurveyModel
   >();
   /**
+   * The event is fired before creating cell question in the matrix. You can change the cell question type by setting different options.cellType.
+   * <br/> `sender` - the survey object that fires the event.
+   * <br/> `options.question` - the matrix question.
+   * <br/> `options.cellType` - the cell question type. You can change it.
+   * <br/> `options.rowValue` - the value of the current row. To access a particular column's value within the current row, use: `options.rowValue["columnValue"]`.
+   * <br/> `options.column` - the matrix column object.
+   * <br/> `options.columnName` - the matrix column name.
+   * <br/> `options.row` - the matrix row object.
+   * @see onMatrixBeforeRowAdded
+   * @see onMatrixCellCreated
+   * @see QuestionMatrixDynamicModel
+   * @see QuestionMatrixDropdownModel
+   */
+   public onMatrixCellCreating: EventBase<SurveyModel> = this.addEvent<
+   SurveyModel
+ >();
+ /**
    * The event is fired for every cell created in Matrix Dynamic and Matrix Dropdown questions.
    * <br/> `sender` - the survey object that fires the event.
    * <br/> `options.question` - the matrix question.
@@ -686,6 +703,7 @@ export class SurveyModel extends SurveyElementCore
    * <br/> `options.columnName` - the matrix column name.
    * <br/> `options.row` - the matrix row object.
    * @see onMatrixBeforeRowAdded
+   * @see onMatrixCellCreating
    * @see onMatrixRowAdded
    * @see QuestionMatrixDynamicModel
    * @see QuestionMatrixDropdownModel
@@ -3954,6 +3972,10 @@ export class SurveyModel extends SurveyElementCore
     };
     this.onMatrixAllowRemoveRow.fire(this, options);
     return options.allow;
+  }
+  matrixCellCreating(question: IQuestion, options: any) {
+    options.question = question;
+    this.onMatrixCellCreating.fire(this, options);
   }
   matrixCellCreated(question: IQuestion, options: any) {
     options.question = question;

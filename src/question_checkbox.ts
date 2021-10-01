@@ -429,7 +429,14 @@ Serializer.addClass(
   [
     "hasSelectAll:boolean",
     { name: "maxSelectedChoices:number", default: 0 },
-    { name: "selectAllText", serializationProperty: "locSelectAllText" },
+    {
+      name: "selectAllText",
+      serializationProperty: "locSelectAllText",
+      dependsOn: "hasSelectAll",
+      visibleIf: function(obj: any) {
+        return obj.hasSelectAll;
+      }
+    }
   ],
   function() {
     return new QuestionCheckboxModel("");

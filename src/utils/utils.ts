@@ -165,6 +165,9 @@ export function getSize(value: any) {
 }
 
 function doKey2ClickUp(evt: KeyboardEvent, options = { processEsc: true }): void {
+  if(!!evt.target && (<any>evt.target)["contentEditable"] === "true") {
+    return;
+  }
   const element: any = evt.target;
   if (!element) return;
   const char: number = evt.which || evt.keyCode;

@@ -1,7 +1,7 @@
 //Uncomment this line on creating a translation file
 import { surveyLocalization } from "../surveyStrings";
 
-export var englishStrings = {
+export var urduStrings = {
   pagePrevText: "Previous",
   pageNextText: "Next",
   completeText: "Complete",

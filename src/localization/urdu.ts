@@ -19,7 +19,7 @@ export var urduStrings = {
   completingSurveyBefore:
     "ہمارے ریکارڈ سے پتہ چلتا ہے کہ آپ پہلے ہی یہ سروے مکمل کر چکے ہیں۔",
   loadingSurvey: "...سروے لوڈ کر رہا ہے",
-  optionsCaption: "منتخب کریں ...",
+  optionsCaption: "...منتخب کریں ",
   value: "value",
   requiredError: "براہ کرم سوال کا جواب دیں۔",
   requiredErrorInPanel: "براہ کرم کم از کم ایک سوال کا جواب دیں۔",
@@ -34,8 +34,8 @@ export var urduStrings = {
   minRowCountError: "براہ کرم کم از کم صفر صفیں بھریں۔",
   minSelectError: "براہ کرم کم از کم صفر مختلف حالتیں منتخب کریں۔",
   maxSelectError: "براہ کرم صفر سے زیادہ متغیرات منتخب نہ کریں۔",
-  numericMinMax: "The '{0}' should be at least {1} and at most {2}",
-  numericMin: "The '{0}' should be at least {1}",
+  numericMinMax: "صفر' کم از کم ایک اور زیادہ سے زیادہ دو ہونا چاہیے'",
+  numericMin: "صفر' کم از کم ایک ہونا چاہیے'"
   numericMax: "The '{0}' should be at most {1}",
   invalidEmail: "Please enter a valid e-mail address.",
   invalidExpression: "The expression: {0} should return 'true'.",

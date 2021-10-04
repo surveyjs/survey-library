@@ -30,9 +30,6 @@ export abstract class SurveyElementCore extends Base implements ILocalizableOwne
     this.createLocTitleProperty();
     this.createLocalizableString("description", this, true);
   }
-  getRendererContext(locStr: LocalizableString) {
-    throw new Error("Method not implemented.");
-  }
   protected createLocTitleProperty(): LocalizableString {
     return this.createLocalizableString("title", this, true);
   }
@@ -91,6 +88,7 @@ export abstract class SurveyElementCore extends Base implements ILocalizableOwne
   public abstract getLocale(): string;
   public abstract getMarkdownHtml(text: string, name: string): string;
   public abstract getRenderer(name: string): string;
+  public abstract getRendererContext(locStr: LocalizableString): any;
   public abstract getProcessedText(text: string): string;
 }
 

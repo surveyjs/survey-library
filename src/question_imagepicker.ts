@@ -14,9 +14,6 @@ export class ImageItemValue extends ItemValue implements ILocalizableOwner {
     super(value, text, typeName);
     this.createLocalizableString("imageLink", this, false);
   }
-  getRendererContext(locStr: LocalizableString) {
-    throw new Error("Method not implemented.");
-  }
   public getType(): string {
     return !!this.typeName ? this.typeName : "itemvalue";
   }
@@ -40,6 +37,9 @@ export class ImageItemValue extends ItemValue implements ILocalizableOwner {
   }
   getRenderer(name: string): string {
     return !!this.locOwner ? this.locOwner.getRenderer(name) : null;
+  }
+  getRendererContext(locStr: LocalizableString): any {
+    return !!this.locOwner ? this.locOwner.getRendererContext(locStr) : locStr;
   }
   getProcessedText(text: string): string {
     return !!this.locOwner ? this.locOwner.getProcessedText(text) : text;

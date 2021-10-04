@@ -205,26 +205,16 @@ export class LocalizableString implements ILocalizableString {
     this.strChanged();
   }
   public get renderAs(): string {
-    if (!this.owner) {
+    if (!this.owner || typeof this.owner.getRenderer !== "function") {
       return LocalizableString.defaultRenderer;
     }
-    if (typeof this.owner.getRenderer !== "function") {
-      return LocalizableString.defaultRenderer;
-    }
-    return (
-      this.owner.getRenderer(this.name) || LocalizableString.defaultRenderer
-    );
+    return this.owner.getRenderer(this.name) || LocalizableString.defaultRenderer;
   }
   public get renderAsData(): any {
-    if (!this.owner) {
+    if (!this.owner || typeof this.owner.getRendererContext !== "function") {
       return this;
     }
-    if (typeof this.owner.getRenderer !== "function") {
-      return this;
-    }
-    return (
-      this.owner.getRendererContext(this) || this
-    );
+    return this.owner.getRendererContext(this) || this;
   }
   public equals(obj: any): boolean {
     if (!!this.sharedData) return this.sharedData.equals(obj);

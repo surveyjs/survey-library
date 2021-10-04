@@ -30,7 +30,7 @@ class Car extends Base implements ILocalizableOwner {
   getRenderer(name: string): string {
     return undefined;
   }
-  getRendererContext(locStr: LocalizableString): string {
+  getRendererContext(locStr: LocalizableString): any {
     return undefined;
   }
   getProcessedText(text: string): string {

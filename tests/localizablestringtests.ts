@@ -25,7 +25,7 @@ class LocalizableOwnerTester implements ILocalizableOwner {
   public getRenderer(name: string): string {
     return undefined;
   }
-  public getRendererContext(locStr: LocalizableString): string {
+  public getRendererContext(locStr: LocalizableString): any {
     return undefined;
   }
   public getProcessedText(text: string): string {

@@ -39,8 +39,8 @@ export class ExpressionItem extends Base implements ILocalizableOwner {
   public getRenderer(name: string): string {
     return !!this.locOwner ? this.locOwner.getRenderer(name) : null;
   }
-  public getRendererContext(locStr: LocalizableString): string {
-    throw new Error("Method not implemented.");
+  public getRendererContext(locStr: LocalizableString): any {
+    return !!this.locOwner ? this.locOwner.getRendererContext(locStr) : locStr;
   }
   public getProcessedText(text: string): string {
     return this.locOwner ? this.locOwner.getProcessedText(text) : text;

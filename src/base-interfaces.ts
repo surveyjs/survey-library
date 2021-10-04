@@ -78,6 +78,7 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner {
   processHtml(html: string): string;
   getSurveyMarkdownHtml(element: Base, text: string, name: string): string;
   getRendererForString(element: Base, name: string): string;
+  getRendererContextForString(element: Base, locStr: LocalizableString): any;
   getExpressionDisplayValue(
     question: IQuestion,
     value: any,

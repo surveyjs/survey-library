@@ -31,7 +31,9 @@ export class SurveyQuestionImagePicker extends SurveyQuestionElementBase {
     var cssClasses = this.question.cssClasses;
     return (
       <fieldset className={cssClasses.root}>
-        <legend aria-label={this.question.locTitle.renderedHtml} />
+        <legend
+          role="radio"
+          aria-label={this.question.locTitle.renderedHtml} />
         {this.getItems(cssClasses)}
       </fieldset>
     );

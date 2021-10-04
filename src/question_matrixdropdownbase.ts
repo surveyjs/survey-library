@@ -79,6 +79,7 @@ export interface IMatrixDropdownData {
   getLocale(): string;
   getMarkdownHtml(text: string, name: string): string;
   getRenderer(name: string): string;
+  getRendererContext(locStr: LocalizableString): any;
   getProcessedText(text: string): string;
   getSharedQuestionByName(
     columnName: string,
@@ -522,6 +523,9 @@ export class MatrixDropdownColumn extends Base
   }
   public getRenderer(name: string): string {
     return !!this.colOwner ? this.colOwner.getRenderer(name) : null;
+  }
+  public getRendererContext(locStr: LocalizableString): any {
+    return !!this.colOwner ? this.colOwner.getRendererContext(locStr) : locStr;
   }
   public getProcessedText(text: string): string {
     return this.colOwner ? this.colOwner.getProcessedText(text) : text;
@@ -1189,6 +1193,9 @@ implements ISurveyData, ISurveyImpl, ILocalizableOwner {
   }
   public getRenderer(name: string): string {
     return this.data ? this.data.getRenderer(name) : null;
+  }
+  public getRendererContext(locStr: LocalizableString): any {
+    return this.data ? this.data.getRendererContext(locStr) : locStr;
   }
   public getProcessedText(text: string): string {
     return this.data ? this.data.getProcessedText(text) : text;

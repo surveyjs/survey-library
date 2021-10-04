@@ -1,7 +1,7 @@
 //Uncomment this line on creating a translation file
 import { surveyLocalization } from "../surveyStrings";
 
-export var urduStrings = {
+export var urduSurveyStrings = {
   pagePrevText: "پچھلا",
   pageNextText: "اگلا",
   completeText: "مکمل",
@@ -35,12 +35,12 @@ export var urduStrings = {
   maxSelectError: "براہ کرم صفر سے زیادہ متغیرات منتخب نہ کریں۔",
   numericMinMax: "صفر' کم از کم ایک اور زیادہ سے زیادہ دو ہونا چاہیے'",
   numericMin: "صفر' کم از کم ایک ہونا چاہیے'",
-  numericMax: "The '{0}' should be at most {1}",
+  numericMax: "صفر زیادہ سے زیادہ ایک ہونا چاہیے",
   invalidEmail: "برائے مہربانی درست ای میل ایڈریس لکھیں",
-  invalidExpression: "The expression: {0} should return 'true'.",
-  urlRequestError: "The request returned error '{0}'. {1}",
+  invalidExpression: " کلام: {0} کو 'درست' لوٹنا چاہیے۔",
+  urlRequestError: "درخواست نے غلطی '{0}' لوٹائی۔ {1}",
   urlGetChoicesError:
-    "The request returned empty data or the 'path' property is incorrect",
+    "درخواست نے خالی ڈیٹا واپس کر دیا۔ یا 'راستہ' پراپرٹی غلط ہے۔",
   exceedMaxSize: "فائل کا سائز {0} سے زیادہ نہیں ہونا چاہیے.",
   otherRequiredError: "براہ کرم دوسری عدد درج کریں۔ ",
   uploadingFile:
@@ -61,7 +61,7 @@ export var urduStrings = {
   choices_Item: "آئٹم",
   matrix_column: "کالم۔",
   matrix_row: "قطار۔",
-  multipletext_itemname: "text",
+  multipletext_itemname: "عبارت",
   savingData: "...نتائج کو سرور پر محفوظ کیا جا رہا ہے",
   savingDataError: "ایک خرابی پیش آگئی اور ہم نتائج کو محفوظ نہیں کر سکے۔",
   savingDataSuccess: "نتائج کامیابی سے محفوظ ہو گئے۔",
@@ -73,22 +73,22 @@ export var urduStrings = {
   timerSpentSurvey: "آپ نے مجموعی طور پر {0} خرچ کیا ہے۔",
   timerLimitAll:
     "آپ نے اس صفحے پر {0} میں سے {1} اور مجموعی طور پر {2} میں سے {3} خرچ کیے ہیں۔",
-  timerLimitPage: "You have spent {0} of {1} on this page.",
-  timerLimitSurvey: "You have spent {0} of {1} in total.",
-  cleanCaption: "Clean",
-  clearCaption: "Clear",
-  signaturePlaceHolder: "Sign here",
-  chooseFileCaption: "Choose file",
-  removeFileCaption: "Remove this file",
-  booleanCheckedLabel: "Yes",
-  booleanUncheckedLabel: "No",
-  confirmRemoveFile: "Are you sure that you want to remove this file: {0}?",
-  confirmRemoveAllFiles: "Are you sure that you want to remove all files?",
-  questionTitlePatternText: "Question Title",
-  modalCancelButtonText: "Cancel",
-  modalApplyButtonText: "Apply",
+  timerLimitPage: "آپ نے اس صفحے پر {0} میں سے {0} خرچ کیا ہے۔",
+  timerLimitSurvey: "آپ نے کل {1} میں سے {1} خرچ کیا ہے۔",
+  cleanCaption: "صاف",
+  clearCaption: "صاف",
+  signaturePlaceHolder: "یہاں سائن کریں۔",
+  chooseFileCaption: "فائل منتخب کریں",
+  removeFileCaption: "اس فائل کو ہٹائے۔",
+  booleanCheckedLabel: "جی ہاں",
+  booleanUncheckedLabel: "نہیں",
+  confirmRemoveFile: "کیا آپ واقعی اس فائل کو ہٹانا چاہتے ہیں: {0}؟",
+  confirmRemoveAllFiles: "کیا آپ تمام فائلیں ہٹانا چاہتے ہیں؟",
+  questionTitlePatternText: "سوال کا عنوان۔",
+  modalCancelButtonText: "منسوخ کریں",
+  modalApplyButtonText: "درخواست دیں",
 };
 
 //Uncomment these two lines on creating a translation file. You should replace "en" and enStrings with your locale ("fr", "de" and so on) and your variable.
-surveyLocalization.locales["ur"] = urduStrings;
+surveyLocalization.locales["ur"] = urduSurveyStrings;
 surveyLocalization.localeNames["ur"] = "Urdu";

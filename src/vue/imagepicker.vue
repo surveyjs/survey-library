@@ -1,6 +1,6 @@
 <template>
   <fieldset :class="question.cssClasses.root">
-    <legend v-bind:aria-label="question.locTitle.renderedHtml"></legend>
+    <legend  role="radio" v-bind:aria-label="question.locTitle.renderedHtml"></legend>
     <div
       v-for="(item, index) in question.visibleChoices"
       :key="item.value"

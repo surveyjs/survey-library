@@ -29,12 +29,7 @@ function ensureLocString(
 
 export function property(options?: IPropertyDecoratorOptions) {
   return function (target: any, key: string) {
-    let dependencyUpdater = (obj: any, val: any) => {
-      const depPropertyName = "__" + key + "_dependencies";
-      if (obj[depPropertyName]) {
-        obj[depPropertyName].dispose();
-        delete obj[depPropertyName];
-      }
+    let processComputedUpdater = (obj: any, val: any) => {
       if (!!val && typeof val === "object" && val.type === ComputedUpdater.ComputedUpdaterType) {
         Base.startCollectDependencies(() => obj[key] = val.updater(), obj, key);
         const result = val.updater();
@@ -62,7 +57,7 @@ export function property(options?: IPropertyDecoratorOptions) {
           return undefined;
         },
         set: function (val: any) {
-          const newValue = dependencyUpdater(this, val);
+          const newValue = processComputedUpdater(this, val);
           this.setPropertyValue(key, newValue);
           if (!!options && options.onSet) {
             options.onSet(newValue, this);
@@ -81,7 +76,7 @@ export function property(options?: IPropertyDecoratorOptions) {
         },
         set: function (val: any) {
           ensureLocString(this, options, key);
-          const newValue = dependencyUpdater(this, val);
+          const newValue = processComputedUpdater(this, val);
           this.setLocalizableStringText(key, newValue);
           if (!!options && options.onSet) {
             options.onSet(newValue, this);

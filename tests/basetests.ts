@@ -1,21 +1,22 @@
-import { Base, Event, ArrayChanges } from "../src/base";
+import { ComputedUpdater, Base, Event, ArrayChanges } from "../src/base";
 import { ItemValue } from "../src/itemvalue";
 import { ILocalizableOwner, LocalizableString } from "../src/localizablestring";
-import { Serializer } from "../src/jsonobject";
+import { property, Serializer } from "../src/jsonobject";
 import { SurveyModel } from "../src/survey";
+import { Action } from "../src/actions/action";
 
 export default QUnit.module("Base");
 
-QUnit.test("Event hasEvents property", function(assert) {
+QUnit.test("Event hasEvents property", function (assert) {
   var event = new Event<() => any, any>();
   assert.equal(event.isEmpty, true, "There is no callbacks at the beginning");
-  var func = () => {};
+  var func = () => { };
   event.add(func);
   assert.equal(event.isEmpty, false, "a callbacks is added");
   event.remove(func);
   assert.equal(event.isEmpty, true, "a callbacks is removed");
 });
-QUnit.test("Event no parameters", function(assert) {
+QUnit.test("Event no parameters", function (assert) {
   var event = new Event<() => any, any>();
   var counter = 0;
   var func = () => {
@@ -28,7 +29,7 @@ QUnit.test("Event no parameters", function(assert) {
   event.fire(null, null);
   assert.equal(counter, 1, "function should not be called the second time");
 });
-QUnit.test("Event with parameters", function(assert) {
+QUnit.test("Event with parameters", function (assert) {
   var event = new Event<(s: number, params) => any, any>();
   var counter = 0;
   event.add((s: number, params) => {
@@ -41,7 +42,7 @@ QUnit.test("Event with parameters", function(assert) {
   assert.equal(options.allow, true, "function should change allow to true");
   assert.equal(counter, 5, "function should increase counter on 5");
 });
-QUnit.test("Do not add function with the same instance several times", function(
+QUnit.test("Do not add function with the same instance several times", function (
   assert
 ) {
   var event = new Event<() => any, any>();
@@ -59,7 +60,7 @@ QUnit.test("Do not add function with the same instance several times", function(
   assert.equal(counter, 1, "function should not be called the second time");
 });
 
-QUnit.test("Item value", function(assert) {
+QUnit.test("Item value", function (assert) {
   var value = new ItemValue("Item");
   assert.equal(value.value, "Item", "simple text value");
   assert.equal(value.locText.renderedHtml, "Item", "get text from value");
@@ -84,7 +85,7 @@ QUnit.test("Item value", function(assert) {
     "use the text separator: text"
   );
 });
-QUnit.test("ItemValue.setData()", function(assert) {
+QUnit.test("ItemValue.setData()", function (assert) {
   var items = new Array<ItemValue>();
   ItemValue.setData(items, [
     { value: 7, text: "Item 1" },
@@ -124,7 +125,7 @@ QUnit.test("ItemValue.setData()", function(assert) {
     "set correct text property for the fourth item"
   );
 });
-QUnit.test("ItemValue.setData() empty text", function(assert) {
+QUnit.test("ItemValue.setData() empty text", function (assert) {
   var items = new Array<ItemValue>();
   items.push(new ItemValue(1));
   items.push(new ItemValue(2));
@@ -134,7 +135,7 @@ QUnit.test("ItemValue.setData() empty text", function(assert) {
   assert.equal(newItems[0].value, 1, "the first value is 1");
   assert.equal(newItems[0].hasText, false, "There is no text");
 });
-QUnit.test("ItemValue.setData() boolean", function(assert) {
+QUnit.test("ItemValue.setData() boolean", function (assert) {
   var items = new Array<ItemValue>();
   ItemValue.setData(items, [
     { value: true, text: "Yes" },
@@ -162,7 +163,7 @@ QUnit.test("ItemValue.setData() boolean", function(assert) {
     "set correct text property for the second item"
   );
 });
-QUnit.test("ItemValue.setData() ItemValue with type", function(assert) {
+QUnit.test("ItemValue.setData() ItemValue with type", function (assert) {
   Serializer.addClass("imageitemvalue1", [], null, "itemvalue");
   var items = new Array<ItemValue>();
   var data = [
@@ -192,7 +193,7 @@ QUnit.test("ItemValue.setData() ItemValue with type", function(assert) {
     "set correct text property for the second item"
   );
 });
-QUnit.test("ItemValue.getData()", function(assert) {
+QUnit.test("ItemValue.getData()", function (assert) {
   var items = new Array<ItemValue>();
   items.push(new ItemValue(7, "Item 1"));
   items.push(new ItemValue(5));
@@ -213,7 +214,7 @@ QUnit.test("ItemValue.getData()", function(assert) {
     "Object value + visibleIf"
   );
 });
-QUnit.test("ItemValue.getItemByValue()", function(assert) {
+QUnit.test("ItemValue.getItemByValue()", function (assert) {
   var items = new Array<ItemValue>();
   items.push(new ItemValue(7, "Item 1"));
   items.push(new ItemValue(5));
@@ -235,10 +236,10 @@ class BaseTester extends Base implements ILocalizableOwner {
     var self = this;
     this.createNewArray(
       "items",
-      function(newItem) {
+      function (newItem) {
         newItem.isNew = true;
       },
-      function(deletedItem) {
+      function (deletedItem) {
         deletedItem.isDeleted = true;
       }
     );
@@ -276,12 +277,12 @@ class BaseTester extends Base implements ILocalizableOwner {
   }
 }
 
-QUnit.test("Base simple propety value", function(assert) {
+QUnit.test("Base simple propety value", function (assert) {
   var base = new BaseTester();
   var counter = 0;
   var propertyName;
   var oldValue, newValue;
-  base.onPropertyChanged.add(function(sender, options) {
+  base.onPropertyChanged.add(function (sender, options) {
     counter++;
     propertyName = options.name;
     oldValue = options.oldValue;
@@ -296,7 +297,7 @@ QUnit.test("Base simple propety value", function(assert) {
   assert.equal(newValue, 5, "newValue is 5");
 });
 
-QUnit.test("Base hash values - get/set PropertyValueCoreHandler", function(
+QUnit.test("Base hash values - get/set PropertyValueCoreHandler", function (
   assert
 ) {
   var base = new BaseTester();
@@ -318,12 +319,12 @@ QUnit.test("Base hash values - get/set PropertyValueCoreHandler", function(
   assert.equal(counter, 3);
 });
 
-QUnit.test("Base localizable string", function(assert) {
+QUnit.test("Base localizable string", function (assert) {
   var base = new BaseTester();
   var counter = 0;
   var propertyName;
   var oldValue, newValue;
-  base.onPropertyChanged.add(function(sender, options) {
+  base.onPropertyChanged.add(function (sender, options) {
     counter++;
     propertyName = options.name;
     oldValue = options.oldValue;
@@ -338,11 +339,11 @@ QUnit.test("Base localizable string", function(assert) {
   assert.equal(newValue, "value1", "newValue is value1");
 });
 
-QUnit.test("Base array propety value, push/splice/pop", function(assert) {
+QUnit.test("Base array propety value, push/splice/pop", function (assert) {
   var base = new BaseTester();
   var counter = 0;
   var propertyName;
-  base.onPropertyChanged.add(function(sender, options) {
+  base.onPropertyChanged.add(function (sender, options) {
     counter++;
     propertyName = options.name;
   });
@@ -368,11 +369,11 @@ QUnit.test("Base array propety value, push/splice/pop", function(assert) {
   assert.equal(counter, 4, "event called 4 times, pop is called two times");
   assert.equal(propertyName, "items", "items has been changed");
 });
-QUnit.test("Base array propety value, set value", function(assert) {
+QUnit.test("Base array propety value, set value", function (assert) {
   var base = new BaseTester();
   var counter = 0;
   var propertyName;
-  base.onPropertyChanged.add(function(sender, options) {
+  base.onPropertyChanged.add(function (sender, options) {
     counter++;
     propertyName = options.name;
   });
@@ -393,7 +394,7 @@ QUnit.test("Base array propety value, set value", function(assert) {
   assert.equal(counter, 2, "event called two times");
 });
 
-QUnit.test("Base onPropertyValueChangedCallback", function(assert) {
+QUnit.test("Base onPropertyValueChangedCallback", function (assert) {
   var base = new BaseTester();
   var counter = 0;
 
@@ -414,7 +415,7 @@ QUnit.test("Base onPropertyValueChangedCallback", function(assert) {
   assert.equal(counter, 1, "callback called");
 });
 
-QUnit.test("Base propertyValueChanged itemValue", function(assert) {
+QUnit.test("Base propertyValueChanged itemValue", function (assert) {
   var itemValue = new ItemValue("Item");
   var counter = 0;
 
@@ -435,7 +436,7 @@ QUnit.test("Base propertyValueChanged itemValue", function(assert) {
   assert.equal(counter, 1, "callback called");
 });
 
-QUnit.test("Base propertyValueChanged colOwner - column undo/redo", function(
+QUnit.test("Base propertyValueChanged colOwner - column undo/redo", function (
   assert
 ) {
   var survey = new SurveyModel({
@@ -471,11 +472,11 @@ QUnit.test("Base propertyValueChanged colOwner - column undo/redo", function(
   assert.equal(counter1, 1, "callback colOwner is the same");
   assert.equal(counter2, 1, "callback locOwner called");
 });
-QUnit.test("Base onArrayChanged", function(assert) {
+QUnit.test("Base onArrayChanged", function (assert) {
   var base = new BaseTester();
   var counter = 0;
   var arrayChanges: ArrayChanges = null;
-  (<any>base["items"]).onArrayChanged = function(arCh: ArrayChanges): void {
+  (<any>base["items"]).onArrayChanged = function (arCh: ArrayChanges): void {
     arrayChanges = arCh;
     counter++;
   };
@@ -487,17 +488,156 @@ QUnit.test("Base onArrayChanged", function(assert) {
   assert.equal(arrayChanges.index, 0, "added into 0 index");
   assert.deepEqual(arrayChanges.itemsToAdd, [base.items[0]], "added items");
 });
-QUnit.test("Change value to array and then to undefined", function(assert) {
+QUnit.test("Change value to array and then to undefined", function (assert) {
   var base = new Base();
   base.setPropertyValue("testValue", [1, 2, 3]);
   assert.deepEqual(base.getPropertyValue("testValue"), [1, 2, 3]);
   base.setPropertyValue("testValue", undefined);
   assert.notOk(base.getPropertyValue("testValue"));
 });
-QUnit.test("Change value to array and then to string", function(assert) {
+QUnit.test("Change value to array and then to string", function (assert) {
   var base = new BaseTester();
   base.setPropertyValue("testValue", [1, 2, 3]);
   assert.deepEqual(base.getPropertyValue("testValue"), [1, 2, 3]);
   base.setPropertyValue("testValue", "abc");
   assert.equal(base.getPropertyValue("testValue"), "abc");
+});
+
+class BaseTester1 extends Base {
+  @property({ defaultValue: 1 }) propA: number;
+}
+class BaseTester2 extends Base {
+  @property({ defaultValue: 2 }) propB: number;
+}
+class BaseTester3 extends Base {
+  @property() propC: number;
+}
+QUnit.test("Collect dependencies", function (assert) {
+  const base1 = new BaseTester1();
+  const base2 = new BaseTester2();
+  const calc = () => base1.propA + base2.propB;
+  const base3 = new BaseTester3();
+  let updaterCallCount = 0;
+  const updater = () => {
+    base3.propC = calc();
+    updaterCallCount++;
+  };
+
+  Base.startCollectDependencies(updater, base3, "propC");
+  updater();
+  const deps = Base.finishCollectDependencies();
+  assert.equal(deps.dependencies.length, 2, "two dependencies");
+  assert.equal(deps.dependencies[0].obj, base1);
+  assert.equal(deps.dependencies[0].prop, "propA");
+  assert.equal(deps.dependencies[1].obj, base2);
+  assert.equal(deps.dependencies[1].prop, "propB");
+
+  assert.equal(updaterCallCount, 1, "first time calculation");
+  assert.equal(base3.propC, 3);
+  base1.propA = 2;
+  assert.equal(updaterCallCount, 2, "propA changed");
+  assert.equal(base3.propC, 4);
+  base2.propB = 3;
+  assert.equal(updaterCallCount, 3, "propB changed");
+  assert.equal(base3.propC, 5);
+
+  deps.dispose();
+  base1.propA = 1;
+  assert.equal(updaterCallCount, 3, "no updater calls");
+  assert.equal(base3.propC, 5, "no value updates");
+});
+QUnit.test("Collect dependencies automatically", function (assert) {
+  const base1 = new BaseTester1();
+  const base2 = new BaseTester2();
+  const base3 = new BaseTester3();
+  let updaterCallCount = 0;
+  const updater = new ComputedUpdater<number>(() => {
+    updaterCallCount++;
+    return base1.propA + base2.propB;
+  });
+  base3.propC = <any>updater;
+
+  assert.equal(updaterCallCount, 1, "first time calculation");
+  assert.equal(base3.propC, 3, "1 + 2");
+  base1.propA = 2;
+  assert.equal(updaterCallCount, 2, "propA changed");
+  assert.equal(base3.propC, 4, "2 + 2");
+  base2.propB = 3;
+  assert.equal(updaterCallCount, 3, "propB changed");
+  assert.equal(base3.propC, 5, "2 + 3");
+
+  updater.dispose();
+  base1.propA = 1;
+  assert.equal(updaterCallCount, 3, "no updater calls");
+  assert.equal(base3.propC, 5, "no value updates");
+});
+QUnit.test("Action visibility update", function (assert) {
+  const base1 = new BaseTester1();
+  const base2 = new BaseTester2();
+  let updaterCallCount = 0;
+  const updater = new ComputedUpdater<boolean>(() => {
+    updaterCallCount++;
+    const isProp2 = !!base2.propB;
+    return !!base1.propA && isProp2;
+  });
+  base1.propA = 0;
+  base2.propB = 1;
+  const action = new Action(<any>{
+    visible: <any>updater,
+  });
+
+  assert.equal(updaterCallCount, 1, "first time calculation");
+  assert.equal(action.visible, false);
+  base1.propA = 1;
+  assert.equal(updaterCallCount, 2, "propA changed to true");
+  assert.equal(action.visible, true);
+  base2.propB = 0;
+  assert.equal(updaterCallCount, 3, "propB changed to false");
+  assert.equal(action.visible, false);
+  base2.propB = 1;
+  assert.equal(updaterCallCount, 4, "propB changed to true");
+  assert.equal(action.visible, true);
+
+  updater.dispose();
+  base1.propA = 0;
+  assert.equal(updaterCallCount, 4, "no updater calls");
+  assert.equal(action.visible, true);
+});
+QUnit.test("Action enable active update same function", function (assert) {
+  const base1 = new BaseTester1();
+  let updaterCallCount1 = 0;
+  let updaterCallCount2 = 0;
+  base1.propA = 0;
+  const updater1 = new ComputedUpdater<boolean>(() => {
+    updaterCallCount1++;
+    return !!base1.propA;
+  });
+  const updater2 = new ComputedUpdater<boolean>(() => {
+    updaterCallCount2++;
+    return !!base1.propA;
+  });
+  const action = new Action(<any>{
+    active: <any>updater1,
+    enabled: <any>updater2,
+  });
+
+  const dependencies1 = updater1["getDependencies"]();
+  assert.equal(dependencies1.dependencies.length, 1, "active dependencies count = 1");
+  const dependencies2 = updater1["getDependencies"]();
+  assert.equal(dependencies2.dependencies.length, 1, "enabled dependencies count = 1");
+
+  assert.equal(updaterCallCount1, 1, "first time calculation - active");
+  assert.equal(updaterCallCount2, 1, "first time calculation - enabled");
+  assert.equal(action.active, false, "active 1");
+  assert.equal(action.enabled, false, "enabled 1");
+  base1.propA = 1;
+  assert.equal(updaterCallCount1, 2, "propA changed to true - active");
+  assert.equal(updaterCallCount2, 2, "propA changed to true - enabled");
+  assert.equal(action.active, true, "active 2");
+  assert.equal(action.enabled, true, "enabled 2");
+  base1.propA = 0;
+  assert.equal(updaterCallCount1, 3, "propA changed to false - active");
+  assert.equal(updaterCallCount2, 3, "propA changed to false - enabled");
+  assert.equal(action.active, false, "active 3");
+  assert.equal(action.enabled, false, "enabled 3");
 });

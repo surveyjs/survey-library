@@ -6,7 +6,7 @@
 import { ItemValue } from "../src/itemvalue";
 import { Base } from "../src/base";
 import { Helpers } from "../src/helpers";
-import { ILocalizableOwner } from "../src/localizablestring";
+import { ILocalizableOwner, LocalizableString } from "../src/localizablestring";
 import { QuestionMatrixDynamicModel } from "../src/question_matrixdynamic";
 import { Question } from "../src/question";
 import { QuestionRatingModel } from "../src/question_rating";
@@ -28,6 +28,9 @@ class Car extends Base implements ILocalizableOwner {
     return text;
   }
   getRenderer(name: string): string {
+    return undefined;
+  }
+  getRendererContext(locStr: LocalizableString): any {
     return undefined;
   }
   getProcessedText(text: string): string {

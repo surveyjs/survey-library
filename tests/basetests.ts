@@ -268,6 +268,9 @@ class BaseTester extends Base implements ILocalizableOwner {
   getRenderer(name: string): string {
     return undefined;
   }
+  getRendererContext(locStr: LocalizableString): any {
+    return undefined;
+  }
   getProcessedText(text: string): string {
     return text;
   }

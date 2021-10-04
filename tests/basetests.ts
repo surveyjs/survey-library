@@ -3,6 +3,7 @@ import { ItemValue } from "../src/itemvalue";
 import { ILocalizableOwner, LocalizableString } from "../src/localizablestring";
 import { property, Serializer } from "../src/jsonobject";
 import { SurveyModel } from "../src/survey";
+import { Action } from "../src/actions/action";
 
 export default QUnit.module("Base");
 
@@ -554,16 +555,48 @@ QUnit.test("Collect dependencies automatically", function (assert) {
   base3.propC = <any>updater;
 
   assert.equal(updaterCallCount, 1, "first time calculation");
-  assert.equal(base3.propC, 3);
+  assert.equal(base3.propC, 3, "1 + 2");
   base1.propA = 2;
   assert.equal(updaterCallCount, 2, "propA changed");
-  assert.equal(base3.propC, 4);
+  assert.equal(base3.propC, 4, "2 + 2");
   base2.propB = 3;
   assert.equal(updaterCallCount, 3, "propB changed");
-  assert.equal(base3.propC, 5);
+  assert.equal(base3.propC, 5, "2 + 3");
 
   updater.dispose();
   base1.propA = 1;
   assert.equal(updaterCallCount, 3, "no updater calls");
   assert.equal(base3.propC, 5, "no value updates");
+});
+QUnit.test("Action visibility update", function (assert) {
+  const base1 = new BaseTester1();
+  const base2 = new BaseTester2();
+  let updaterCallCount = 0;
+  const updater = new ComputedUpdater<boolean>(() => {
+    updaterCallCount++;
+    const isProp2 = !!base2.propB;
+    return !!base1.propA && isProp2;
+  });
+  base1.propA = 0;
+  base2.propB = 1;
+  const action = new Action(<any>{
+    visible: <any>updater
+  });
+
+  assert.equal(updaterCallCount, 1, "first time calculation");
+  assert.equal(action.visible, false);
+  base1.propA = 1;
+  assert.equal(updaterCallCount, 2, "propA changed to true");
+  assert.equal(action.visible, true);
+  base2.propB = 0;
+  assert.equal(updaterCallCount, 3, "propB changed to false");
+  assert.equal(action.visible, false);
+  base2.propB = 1;
+  assert.equal(updaterCallCount, 4, "propB changed to true");
+  assert.equal(action.visible, true);
+
+  updater.dispose();
+  base1.propA = 0;
+  assert.equal(updaterCallCount, 4, "no updater calls");
+  assert.equal(action.visible, true);
 });

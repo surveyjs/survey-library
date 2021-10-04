@@ -95,10 +95,11 @@ export class Bindings {
 }
 
 export class Dependencies {
+  private static DependenciesCount = 0;
   constructor(public currentDependency: () => void, public target: Base, public property: string) {
   }
   dependencies: Array<{ obj: Base, prop: string, id: string }> = [];
-  id: string = "" + new Date().getUTCMilliseconds();
+  id: string = "" + (++Dependencies.DependenciesCount);
   addDependency(target: Base, property: string): void {
     if (this.target === target && this.property === property)
       return;
@@ -132,6 +133,9 @@ export class ComputedUpdater<T = any> {
   public setDependencies(dependencies: Dependencies): void {
     this.clearDependencies();
     this.dependencies = dependencies;
+  }
+  protected getDependencies(): Dependencies {
+    return this.dependencies;
   }
   private clearDependencies() {
     if (this.dependencies) {

@@ -583,7 +583,7 @@ QUnit.test("Action visibility update", function (assert) {
   base1.propA = 0;
   base2.propB = 1;
   const action = new Action(<any>{
-    visible: <any>updater
+    visible: <any>updater,
   });
 
   assert.equal(updaterCallCount, 1, "first time calculation");
@@ -602,4 +602,42 @@ QUnit.test("Action visibility update", function (assert) {
   base1.propA = 0;
   assert.equal(updaterCallCount, 4, "no updater calls");
   assert.equal(action.visible, true);
+});
+QUnit.test("Action enable active update same function", function (assert) {
+  const base1 = new BaseTester1();
+  let updaterCallCount1 = 0;
+  let updaterCallCount2 = 0;
+  base1.propA = 0;
+  const updater1 = new ComputedUpdater<boolean>(() => {
+    updaterCallCount1++;
+    return !!base1.propA;
+  });
+  const updater2 = new ComputedUpdater<boolean>(() => {
+    updaterCallCount2++;
+    return !!base1.propA;
+  });
+  const action = new Action(<any>{
+    active: <any>updater1,
+    enabled: <any>updater2,
+  });
+
+  const dependencies1 = updater1["getDependencies"]();
+  assert.equal(dependencies1.dependencies.length, 1, "active dependencies count = 1");
+  const dependencies2 = updater1["getDependencies"]();
+  assert.equal(dependencies2.dependencies.length, 1, "enabled dependencies count = 1");
+
+  assert.equal(updaterCallCount1, 1, "first time calculation - active");
+  assert.equal(updaterCallCount2, 1, "first time calculation - enabled");
+  assert.equal(action.active, false, "active 1");
+  assert.equal(action.enabled, false, "enabled 1");
+  base1.propA = 1;
+  assert.equal(updaterCallCount1, 2, "propA changed to true - active");
+  assert.equal(updaterCallCount2, 2, "propA changed to true - enabled");
+  assert.equal(action.active, true, "active 2");
+  assert.equal(action.enabled, true, "enabled 2");
+  base1.propA = 0;
+  assert.equal(updaterCallCount1, 3, "propA changed to false - active");
+  assert.equal(updaterCallCount2, 3, "propA changed to false - enabled");
+  assert.equal(action.active, false, "active 3");
+  assert.equal(action.enabled, false, "enabled 3");
 });

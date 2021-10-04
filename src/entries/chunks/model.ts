@@ -74,14 +74,11 @@ export {
 } from "../../jsonobject";
 export {
   MatrixDropdownCell,
-  MatrixDropdownColumn,
-  matrixDropdownColumnTypes,
   MatrixDropdownRowModelBase,
-  QuestionMatrixDropdownModelBase,
-  QuestionMatrixDropdownRenderedCell,
-  QuestionMatrixDropdownRenderedRow,
-  QuestionMatrixDropdownRenderedTable
+  QuestionMatrixDropdownModelBase
 } from "../../question_matrixdropdownbase";
+export { MatrixDropdownColumn, matrixDropdownColumnTypes } from "../../question_matrixdropdowncolumn";
+export { QuestionMatrixDropdownRenderedCell, QuestionMatrixDropdownRenderedRow, QuestionMatrixDropdownRenderedTable } from "../../question_matrixdropdownrendered";
 export {
   MatrixDropdownRowModel,
   QuestionMatrixDropdownModel

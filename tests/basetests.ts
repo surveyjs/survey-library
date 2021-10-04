@@ -547,10 +547,11 @@ QUnit.test("Collect dependencies automatically", function (assert) {
   const base2 = new BaseTester2();
   const base3 = new BaseTester3();
   let updaterCallCount = 0;
-  base3.propC = <any>new ComputedUpdater<number>(() => {
+  const updater = new ComputedUpdater<number>(() => {
     updaterCallCount++;
     return base1.propA + base2.propB;
   });
+  base3.propC = <any>updater;
 
   assert.equal(updaterCallCount, 1, "first time calculation");
   assert.equal(base3.propC, 3);
@@ -560,4 +561,9 @@ QUnit.test("Collect dependencies automatically", function (assert) {
   base2.propB = 3;
   assert.equal(updaterCallCount, 3, "propB changed");
   assert.equal(base3.propC, 5);
+
+  updater.dispose();
+  base1.propA = 1;
+  assert.equal(updaterCallCount, 3, "no updater calls");
+  assert.equal(base3.propC, 5, "no value updates");
 });

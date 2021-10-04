@@ -153,4 +153,8 @@ export class DragDropChoices extends DragDropCore<QuestionSelectBase> {
 
     return this.parentElement;
   }
+
+  protected doClear(): void {
+    this.parentElement["updateVisibleChoices"]();
+  }
 }

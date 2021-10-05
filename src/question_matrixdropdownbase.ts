@@ -853,9 +853,6 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
       }
     );
   }
-  getRendererContext(locStr: LocalizableString) {
-    throw new Error("Method not implemented.");
-  }
   public getType(): string {
     return "matrixdropdownbase";
   }

@@ -4,9 +4,7 @@ import { IConditionObject, Question } from "./question";
 import {
   QuestionMatrixDropdownModelBase,
   MatrixDropdownRowModelBase,
-  IMatrixDropdownData,
-  MatrixDropdownColumn,
-  QuestionMatrixDropdownRenderedTable,
+  IMatrixDropdownData
 } from "./question_matrixdropdownbase";
 import { surveyLocalization } from "./surveyStrings";
 import { LocalizableString } from "./localizablestring";
@@ -18,6 +16,8 @@ import { confirmAction } from "./utils/utils";
 import { DragDropMatrixRows } from "./dragdrop/matrix-rows";
 import { ISurveyImpl } from "./base-interfaces";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
+import { QuestionMatrixDropdownRenderedTable } from "./question_matrixdropdownrendered";
+import { MatrixDropdownColumn } from "./question_matrixdropdowncolumn";
 
 export class MatrixDynamicRowModel extends MatrixDropdownRowModelBase {
   constructor(public index: number, data: IMatrixDropdownData, value: any) {

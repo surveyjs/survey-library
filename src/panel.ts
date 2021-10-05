@@ -28,13 +28,14 @@ import { SurveyError } from "./survey-error";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { IAction } from "./actions/action";
 import { AdaptiveActionContainer } from "./actions/adaptive-container";
+import { ActionContainer } from "./actions/container";
 
 export class DragDropInfo {
   constructor(
     public source: IElement,
     public target: IElement,
     public nestedPanelDepth: number = -1
-  ) {}
+  ) { }
   public destination: ISurveyElement;
   public isBottom: boolean;
   public isEdge: boolean;
@@ -973,14 +974,14 @@ export class PanelModelBase extends SurveyElement
     var self = this;
     (<Base>(<any>element)).registerFunctionOnPropertiesValueChanged(
       ["visible", "isVisible"],
-      function() {
+      function () {
         self.onElementVisibilityChanged(element);
       },
       this.id
     );
     (<Base>(<any>element)).registerFunctionOnPropertyValueChanged(
       "startWithNewLine",
-      function() {
+      function () {
         self.onElementStartWithNewLineChanged(element);
       },
       this.id
@@ -995,7 +996,7 @@ export class PanelModelBase extends SurveyElement
       this.id
     );
     this.updateRowsOnElementRemoved(element);
-    if(this.isRandomizing) return;
+    if (this.isRandomizing) return;
     if (!element.isPanel) {
       if (this.survey) this.survey.questionRemoved(<Question>element);
     } else {
@@ -1021,7 +1022,7 @@ export class PanelModelBase extends SurveyElement
       var row = rows[i];
       if (row.elements.indexOf(element) > -1) {
         row.updateVisible();
-        if(row.visible && !row.isNeedRender) {
+        if (row.visible && !row.isNeedRender) {
           row.isNeedRender = true;
         }
         break;
@@ -1584,22 +1585,21 @@ export class PanelModelBase extends SurveyElement
  * A container element, similar to the Page objects. However, unlike the Page, Panel can't be a root.
  * It may contain questions and other panels.
  */
-export class PanelModel extends PanelModelBase
-  implements IElement {
+export class PanelModel extends PanelModelBase implements IElement {
   public minWidth?: string;
   public maxWidth?: string;
   constructor(name: string = "") {
     super(name);
     var self = this;
     this.createNewArray("footerActions");
-    this.registerFunctionOnPropertyValueChanged("width", function() {
+    this.registerFunctionOnPropertyValueChanged("width", function () {
       if (!!self.parent) {
         self.parent.elementWidthChanged(self);
       }
     });
     this.registerFunctionOnPropertiesValueChanged(
       ["indent", "innerIndent", "rightIndent"],
-      function() {
+      function () {
         self.onIndentChanged();
       }
     );
@@ -1805,6 +1805,15 @@ export class PanelModel extends PanelModelBase
   public set rightIndent(val: number) {
     this.setPropertyValue("rightIndent", val);
   }
+  /**
+   * The Panel toolbar gets adaptive if the property is set to true.
+   */
+  public get allowAdaptiveActions(): boolean {
+    return this.getPropertyValue("allowAdaptiveActions");
+  }
+  public set allowAdaptiveActions(val: boolean) {
+    this.setPropertyValue("allowAdaptiveActions", val);
+  }
   get paddingLeft(): string {
     return this.getPropertyValue("paddingLeft", "");
   }
@@ -1845,11 +1854,11 @@ export class PanelModel extends PanelModelBase
   public get footerActions(): Array<IAction> {
     return this.getPropertyValue("footerActions");
   }
-  private footerToolbarValue: AdaptiveActionContainer;
-  public getFooterToolbar(): AdaptiveActionContainer {
+  private footerToolbarValue: ActionContainer;
+  public getFooterToolbar(): ActionContainer {
     if (!this.footerToolbarValue) {
       var actions = this.footerActions;
-      if(this.hasEditButton) {
+      if (this.hasEditButton) {
         actions.push({
           id: "cancel-preview",
           title: this.survey.editText,
@@ -1857,8 +1866,8 @@ export class PanelModel extends PanelModelBase
           action: () => { this.cancelPreview(); }
         });
       }
-      this.footerToolbarValue = new AdaptiveActionContainer();
-      if(!!this.cssClasses.panel) {
+      this.footerToolbarValue = this.allowAdaptiveActions ? new AdaptiveActionContainer() : new ActionContainer();
+      if (!!this.cssClasses.panel) {
         this.footerToolbarValue.containerCss = this.cssClasses.panel.footer;
       }
       this.footerToolbarValue.setItems(actions);
@@ -1923,7 +1932,7 @@ Serializer.addClass(
     },
 
   ],
-  function() {
+  function () {
     return new PanelModelBase();
   }
 );
@@ -1948,11 +1957,11 @@ Serializer.addClass(
     {
       name: "page",
       isSerializable: false,
-      visibleIf: function(obj: any) {
+      visibleIf: function (obj: any) {
         var survey = obj ? obj.survey : null;
         return !survey || survey.pages.length > 1;
       },
-      choices: function(obj: any) {
+      choices: function (obj: any) {
         var survey = obj ? obj.survey : null;
         return survey
           ? survey.pages.map((p: any) => {
@@ -1968,8 +1977,9 @@ Serializer.addClass(
       choices: ["default", "onpanel", "off"],
     },
     "questionStartIndex",
+    { name: "allowAdaptiveActions:boolean", default: true },
   ],
-  function() {
+  function () {
     return new PanelModel();
   },
   "panelbase"

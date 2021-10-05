@@ -253,13 +253,36 @@ frameworks.forEach((framework) => {
 
     await setOptions("car", { hasOther: true });
     await t
-      .click(`.sv_q_select_column:nth-child(5) div:nth-child(3) label input`)
+      .click(Selector("span").withText('Other (describe)'))
       .typeText(getOtherInput, "Zaporozec")
       .click(`input[value=Complete]`);
 
     surveyResult = await getSurveyResult();
     assert.equal(surveyResult.car, "other");
     assert.equal(surveyResult["car-Comment"], "Zaporozec");
+  });
+  test(`trim other`, async (t) => {
+    const getOtherInput = Selector(
+      () => document.querySelectorAll("textarea")[0]
+    );
+    let surveyResult;
+
+    await setOptions("car", { hasOther: true });
+    await t
+      .click(Selector("span").withText('Other (describe)'))
+      .typeText(getOtherInput, "     ");
+    await t.pressKey('shift+tab')
+      .pressKey('tab')
+      .typeText(getOtherInput, "ab  ");
+    await t.pressKey('shift+tab')
+      .pressKey('tab')
+      .typeText(getOtherInput, "cd  ");
+
+      await t.click(`input[value=Complete]`);
+
+    surveyResult = await getSurveyResult();
+    assert.equal(surveyResult.car, "other");
+    assert.equal(surveyResult["car-Comment"], "abcd");
   });
 
   test(`checked class`, async (t) => {

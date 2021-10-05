@@ -465,11 +465,14 @@ export class Base {
         arrayInfo ? arrayInfo.onPush : null
       );
     } else {
-      this.setPropertyValueCore(this.propertyHash, name, val);
+      this.setPropertyValueDirectly(name, val);
       if (!this.isDisposedValue && !this.isTwoValueEquals(oldValue, val)) {
         this.propertyValueChanged(name, oldValue, val);
       }
     }
+  }
+  protected setPropertyValueDirectly(name: string, val: any) : void {
+    this.setPropertyValueCore(this.propertyHash, name, val);
   }
   protected clearPropertyValue(name: string) {
     this.setPropertyValueCore(this.propertyHash, name, null);

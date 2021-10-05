@@ -51,6 +51,10 @@ export class StylesManager {
     ".sv_qstn label.sv_q_m_label":
       "position: absolute; margin: 0; display: block; width: 100%;",
     ".sv_qstn td": "position: relative;",
+    ".sv_q_mt": "table-layout: fixed;",
+    ".sv_q_mt_label": "display: flex; align-items: center; font-weight: inherit;",
+    ".sv_q_mt_title": "margin-right: 0.5em; width: 33%;",
+    ".sv_q_mt_item": "flex: 1;",
     ".sv_q_mt_item_value": "float: left;",
     '[dir="rtl"] .sv_q_mt_item_value': "float: right;",
     ".sv_qstn.sv_qstn_left": "margin-top: 0.75em;",

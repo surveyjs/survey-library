@@ -1,6 +1,6 @@
 import * as React from "react";
 import { SurveyQuestionElementBase } from "./reactquestion_element";
-import { SurveyQuestionAndErrorsCell } from "./reactquestion";
+import { SurveyQuestionAndErrorsWrapped } from "./reactquestion";
 import { QuestionMultipleTextModel } from "survey-core";
 import { MultipleTextItemModel } from "survey-core";
 import { ReactQuestionFactory } from "./reactquestion_factory";
@@ -65,18 +65,17 @@ export class SurveyQuestionMultipleText extends SurveyQuestionElementBase {
         );
       }
       tds.push(
-        <td key={"label" + i} className={this.question.getItemTitleCss()}>
-          {spans}
+        <td key={"item" + i}>
+          <label className={this.question.cssClasses.itemLabel}>
+            {spans}
+            <SurveyMultipleTextItem
+              cssClasses={cssClasses}
+              itemCss={this.question.getItemCss()}
+              question={item.editor}
+              creator={this.creator}
+            />
+          </label>
         </td>
-      );
-      tds.push(
-        <SurveyQuestionAndErrorsCell
-          key={"value" + i}
-          cssClasses={cssClasses}
-          itemCss={this.question.getItemCss()}
-          question={item.editor}
-          creator={this.creator}
-        />
       );
     }
     return (
@@ -84,6 +83,12 @@ export class SurveyQuestionMultipleText extends SurveyQuestionElementBase {
         {tds}
       </tr>
     );
+  }
+}
+
+export class SurveyMultipleTextItem extends SurveyQuestionAndErrorsWrapped {
+  protected renderElement(): JSX.Element {
+    return <div className={this.itemCss}>{this.renderContent()}</div>;
   }
 }
 

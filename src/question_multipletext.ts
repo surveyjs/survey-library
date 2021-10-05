@@ -590,12 +590,10 @@ export class QuestionMultipleTextModel extends Question
     // do nothing
   }
   public getItemCss(): string {
-    return new CssClassBuilder().append(this.cssClasses.item)
-      .append(this.cssClasses.cell).toString();
+    return new CssClassBuilder().append(this.cssClasses.item).toString();
   }
   public getItemTitleCss(): string {
-    return new CssClassBuilder().append(this.cssClasses.itemTitle)
-      .append(this.cssClasses.cell).toString();
+    return new CssClassBuilder().append(this.cssClasses.itemTitle).toString();
   }
 }
 

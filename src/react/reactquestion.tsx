@@ -248,18 +248,13 @@ export class SurveyElementErrors extends ReactSurveyElement {
   }
 }
 
-export class SurveyQuestionAndErrorsCell extends ReactSurveyElement {
+export abstract class SurveyQuestionAndErrorsWrapped extends ReactSurveyElement {
   [index: string]: any;
-  protected cellRef: React.RefObject<HTMLTableCellElement>;
   constructor(props: any) {
     super(props);
-    this.cellRef = React.createRef();
   }
   protected getStateElement(): Base {
     return this.question;
-  }
-  protected get itemCss(): string {
-    return this.props.itemCss;
   }
   protected get question(): Question {
     return this.getQuestion();
@@ -270,18 +265,12 @@ export class SurveyQuestionAndErrorsCell extends ReactSurveyElement {
   protected getQuestion(): Question {
     return this.props.question;
   }
+  protected get itemCss(): string {
+    return this.props.itemCss;
+  }
   componentDidMount() {
     super.componentDidMount();
     this.doAfterRender();
-  }
-  componentWillUnmount() {
-    super.componentWillUnmount();
-    if (this.question) {
-      var el = this.cellRef.current;
-      if (!!el) {
-        el.removeAttribute("data-rendered");
-      }
-    }
   }
   componentDidUpdate(prevProps: any, prevState: any) {
     super.componentDidUpdate(prevProps, prevState);
@@ -291,7 +280,7 @@ export class SurveyQuestionAndErrorsCell extends ReactSurveyElement {
   protected canRender(): boolean {
     return !!this.question;
   }
-  protected renderElement(): JSX.Element {
+  protected renderContent(): JSX.Element {
     var errorsLocation = this.creator.questionErrorLocation();
     var errors = this.getShowErrors() ? (
       <SurveyElementErrors
@@ -303,16 +292,42 @@ export class SurveyQuestionAndErrorsCell extends ReactSurveyElement {
     ) : null;
     var errorsTop = errorsLocation === "top" ? errors : null;
     var errorsBottom = errorsLocation === "bottom" ? errors : null;
-    var renderedCell = this.renderQuestion();
-    var style = this.getCellStyle();
-    const readyCell = (
+    var renderedQuestion = this.renderQuestion();
+    return (
       <>
         {errorsTop}
-        {renderedCell}
+        {renderedQuestion}
         {errorsBottom}
       </>
     );
+  }
+  protected abstract renderElement(): JSX.Element;
+  protected getShowErrors(): boolean {
+    return this.question.isVisible;
+  }
+  protected renderQuestion(): JSX.Element {
+    return SurveyQuestion.renderQuestionBody(this.creator, this.question);
+  }
+}
 
+export class SurveyQuestionAndErrorsCell extends SurveyQuestionAndErrorsWrapped {
+  [index: string]: any;
+  protected cellRef: React.RefObject<HTMLTableCellElement>;
+  constructor(props: any) {
+    super(props);
+    this.cellRef = React.createRef();
+  }
+  componentWillUnmount() {
+    super.componentWillUnmount();
+    if (this.question) {
+      var el = this.cellRef.current;
+      if (!!el) {
+        el.removeAttribute("data-rendered");
+      }
+    }
+  }
+  protected renderElement(): JSX.Element {
+    var style = this.getCellStyle();
     return (
       <td
         ref={this.cellRef}
@@ -320,18 +335,12 @@ export class SurveyQuestionAndErrorsCell extends ReactSurveyElement {
         title={this.getHeaderText()}
         style={style}
       >
-        {this.wrapCell(this.props.cell, readyCell)}
+        {this.wrapCell(this.props.cell, this.renderContent())}
       </td>
     );
   }
-  protected getShowErrors(): boolean {
-    return this.question.isVisible;
-  }
   protected getCellStyle(): any {
     return null;
-  }
-  protected renderQuestion(): JSX.Element {
-    return SurveyQuestion.renderQuestionBody(this.creator, this.question);
   }
   protected getHeaderText(): string {
     return "";

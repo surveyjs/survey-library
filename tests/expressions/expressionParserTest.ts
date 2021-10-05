@@ -743,6 +743,14 @@ QUnit.test("contain and noncontain for null arrays", function(assert) {
 });
 
 QUnit.test("length for undefined arrays", function(assert) {
+  var runner = new ConditionRunner("{val.length} > 1");
+  assert.equal(runner.run({ val: [] }), false, "empty array length returns 0");
+  assert.equal(runner.run({ val: [1] }), false, "array length returns 1");
+  assert.equal(runner.run({ val: [1, 2] }), true, "array length returns 2");
+  assert.equal(runner.run({ val: [1, 2, 3] }), true, "array length returns 3");
+});
+
+QUnit.test("length for undefined arrays", function(assert) {
   var runner = new ConditionRunner("{val.length} = 0");
   assert.equal(runner.run({ val: [] }), true, "empty array length returns 0");
   assert.equal(runner.run({}), true, "undefined length returns 0");

@@ -1225,3 +1225,15 @@ QUnit.test("True and False as strings'", function(assert) {
   values.val = "FALSE";
   assert.equal(runner.run(values), true, "FALSE contains FALSE");
 });
+QUnit.test("ExpressionRunner: fix incorrect JavaScript multiplication", function(assert) {
+  var runner = new ExpressionRunner("3 * 0.6");
+  assert.equal(runner.run({}), 1.8, "It works correctly");
+});
+QUnit.test("ExpressionRunner: fix incorrect JavaScript summary", function(assert) {
+  var runner = new ExpressionRunner("0.3 + 0.6");
+  assert.equal(runner.run({}), 0.9, "It works correctly");
+});
+QUnit.test("ExpressionRunner: fix incorrect JavaScript summary", function(assert) {
+  var runner = new ExpressionRunner("0.9 - 0.6");
+  assert.equal(runner.run({}), 0.3, "It works correctly");
+});

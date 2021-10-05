@@ -82,7 +82,7 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
     var res = {};
     if (!rows) return res;
     for (var i = 0; i < rows.length; i++) {
-      var rowValue = this.rows[i].value;
+      var rowValue = rows[i].rowName;
       var val = value[rowValue];
       if (!val) continue;
       if (keysAsText) {

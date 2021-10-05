@@ -53,7 +53,7 @@
             />
             <survey-navigation
               v-if="survey.isNavigationButtonsShowingOnTop"
-              :key="navId"
+              :key="navId + 'top'"
               :survey="survey"
               :css="css"
             />
@@ -76,7 +76,7 @@
             />
             <survey-navigation
               v-if="survey.isNavigationButtonsShowingOnBottom"
-              :key="navId"
+              :key="navId + 'bottom'"
               :survey="survey"
               :css="css"
             />

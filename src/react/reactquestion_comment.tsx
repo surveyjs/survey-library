@@ -64,7 +64,7 @@ export class SurveyQuestionCommentItem extends ReactSurveyElement {
         maxLength={question.getOthersMaxLength()}
         placeholder={question.otherPlaceHolder}
         onChange={handleOnChange}
-        onBlur={(e) => question.onCommentChange(e)}
+        onBlur={(e) => { question.onCommentChange(e); handleOnChange(e); } }
         onInput={(e) => question.onCommentInput(e)}
         aria-required={question.isRequired}
         aria-label={question.locTitle.renderedHtml}

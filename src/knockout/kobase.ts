@@ -39,10 +39,16 @@ export class ImplementorBase {
       }
       return typeof hash[key] === "function" ? hash[key]() : hash[key];
     };
-    element.setPropertyValueCoreHandler = (hash, key, val) =>
-      hash[key] !== undefined
-        ? hash[key](val)
-        : (hash[key] = ko.observable(val));
+    element.setPropertyValueCoreHandler = (hash, key, val) => {
+      if(hash[key] !== undefined) {
+        if(hash[key]() === val) {
+          hash[key].notifySubscribers();
+        }
+        hash[key](val);
+      } else {
+        (hash[key] = ko.observable(val));
+      }
+    };
     (<any>element)[this.implementedMark] = true;
   }
   public dispose() {

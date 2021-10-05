@@ -19,7 +19,7 @@ export {
   ValidatorRunner
 } from "../../validator";
 export { ItemValue } from "../../itemvalue";
-export { Base, Event, ArrayChanges } from "../../base";
+export { Base, Event, ArrayChanges, ComputedUpdater } from "../../base";
 export {
   ISurvey,
   ISurveyElement,

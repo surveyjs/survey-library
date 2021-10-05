@@ -405,18 +405,34 @@ export class OperandMaker {
       (value.toLowerCase() === "true" || value.toLowerCase() === "false")
     );
   }
+  static countDecimals(value: number): number {
+    if (Math.floor(value) !== value) {
+      const strs = value.toString().split(".");
+      return strs.length > 1 && strs[1].length || 0;
+    }
+    return 0;
+  }
+  static plusMinus(a: number, b: number, res: number): number {
+    const digitsA = OperandMaker.countDecimals(a);
+    const digitsB = OperandMaker.countDecimals(b);
+    if(digitsA > 0 || digitsB > 0) {
+      const digits = Math.max(digitsA, digitsB);
+      res = parseFloat(res.toFixed(digits));
+    }
+    return res;
+  }
 
-  static unaryFunctions: HashTable<Function> = {
-    empty: function(value: any): boolean {
-      return Helpers.isValueEmpty(value);
-    },
-    notempty: function(value: any): boolean {
-      return !OperandMaker.unaryFunctions.empty(value);
-    },
-    negate: function(value: boolean): boolean {
-      return !value;
-    },
-  };
+static unaryFunctions: HashTable<Function> = {
+  empty: function(value: any): boolean {
+    return Helpers.isValueEmpty(value);
+  },
+  notempty: function(value: any): boolean {
+    return !OperandMaker.unaryFunctions.empty(value);
+  },
+  negate: function(value: boolean): boolean {
+    return !value;
+  },
+};
 
   static binaryFunctions: HashTable<Function> = {
     arithmeticOp(operatorName: string) {
@@ -439,13 +455,18 @@ export class OperandMaker {
       return a || b;
     },
     plus: function(a: any, b: any): any {
-      return a + b;
+      return OperandMaker.plusMinus(a, b, a + b);
     },
     minus: function(a: number, b: number): number {
-      return a - b;
+      return OperandMaker.plusMinus(a, b, a - b);
     },
     mul: function(a: number, b: number): number {
-      return a * b;
+      let res = a * b;
+      const digits = OperandMaker.countDecimals(a) + OperandMaker.countDecimals(b);
+      if(digits > 0) {
+        res = parseFloat(res.toFixed(digits));
+      }
+      return res;
     },
     div: function(a: number, b: number): number {
       if (!b) return null;

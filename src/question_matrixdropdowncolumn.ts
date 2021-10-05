@@ -445,6 +445,9 @@ export class MatrixDropdownColumn extends Base
   public getRenderer(name: string): string {
     return !!this.colOwner ? this.colOwner.getRenderer(name) : null;
   }
+  public getRendererContext(locStr: LocalizableString): any {
+    return !!this.colOwner ? this.colOwner.getRendererContext(locStr) : locStr;
+  }
   public getProcessedText(text: string): string {
     return this.colOwner ? this.colOwner.getProcessedText(text) : text;
   }

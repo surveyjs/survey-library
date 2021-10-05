@@ -58,6 +58,7 @@ export interface IMatrixDropdownData {
   getLocale(): string;
   getMarkdownHtml(text: string, name: string): string;
   getRenderer(name: string): string;
+  getRendererContext(locStr: LocalizableString): any;
   getProcessedText(text: string): string;
   getSharedQuestionByName(
     columnName: string,
@@ -555,6 +556,9 @@ implements ISurveyData, ISurveyImpl, ILocalizableOwner {
   public getRenderer(name: string): string {
     return this.data ? this.data.getRenderer(name) : null;
   }
+  public getRendererContext(locStr: LocalizableString): any {
+    return this.data ? this.data.getRendererContext(locStr) : locStr;
+  }
   public getProcessedText(text: string): string {
     return this.data ? this.data.getProcessedText(text) : text;
   }
@@ -848,6 +852,9 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
         this.resetRenderedTable();
       }
     );
+  }
+  getRendererContext(locStr: LocalizableString) {
+    throw new Error("Method not implemented.");
   }
   public getType(): string {
     return "matrixdropdownbase";

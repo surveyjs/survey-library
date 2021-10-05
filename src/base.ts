@@ -13,7 +13,7 @@ import { IFindElement, IProgressInfo, ISurvey } from "./base-interfaces";
 export class Bindings {
   private properties: Array<JsonObjectProperty> = null;
   private values: any = null;
-  constructor(private obj: Base) {}
+  constructor(private obj: Base) { }
   public getType(): string {
     return "bindings";
   }
@@ -93,10 +93,81 @@ export class Bindings {
     }
   }
 }
+
+export class Dependencies {
+  private static DependenciesCount = 0;
+  constructor(public currentDependency: () => void, public target: Base, public property: string) {
+  }
+  dependencies: Array<{ obj: Base, prop: string, id: string }> = [];
+  id: string = "" + (++Dependencies.DependenciesCount);
+  addDependency(target: Base, property: string): void {
+    if (this.target === target && this.property === property)
+      return;
+    if (this.dependencies.some(dependency => dependency.obj === target && dependency.prop === property))
+      return;
+
+    this.dependencies.push({
+      obj: target,
+      prop: property,
+      id: this.id
+    });
+    target.registerFunctionOnPropertiesValueChanged([property], this.currentDependency, this.id);
+
+  }
+  dispose(): void {
+    this.dependencies.forEach(dependency => {
+      dependency.obj.unRegisterFunctionOnPropertiesValueChanged([dependency.prop], dependency.id);
+    });
+  }
+}
+
+export class ComputedUpdater<T = any> {
+  public static readonly ComputedUpdaterType = "__dependency_computed";
+  private dependencies: Dependencies = undefined;
+  constructor(private _updater: () => T) {
+  }
+  readonly type = ComputedUpdater.ComputedUpdaterType;
+  public get updater(): () => T {
+    return this._updater;
+  }
+  public setDependencies(dependencies: Dependencies): void {
+    this.clearDependencies();
+    this.dependencies = dependencies;
+  }
+  protected getDependencies(): Dependencies {
+    return this.dependencies;
+  }
+  private clearDependencies() {
+    if (this.dependencies) {
+      this.dependencies.dispose();
+      this.dependencies = undefined;
+    }
+  }
+  dispose(): any {
+    this.clearDependencies();
+  }
+}
+
 /**
  * The base class for SurveyJS objects.
  */
 export class Base {
+  private static currentDependencis: Dependencies = undefined;
+  public static finishCollectDependencies(): Dependencies {
+    const deps = Base.currentDependencis;
+    Base.currentDependencis = undefined;
+    return deps;
+  }
+  public static startCollectDependencies(updater: () => void, target: Base, property: string): void {
+    if (Base.currentDependencis !== undefined) {
+      throw new Error("Attempt to collect nested dependencies. Nested dependencies are not supported.");
+    }
+    Base.currentDependencis = new Dependencies(updater, target, property);
+  }
+  private static collectDependency(target: Base, property: string): void {
+    if (Base.currentDependencis === undefined) return;
+    Base.currentDependencis.addDependency(target, property);
+  }
   public static get commentPrefix(): string {
     return settings.commentPrefix;
   }
@@ -194,7 +265,7 @@ export class Base {
     this.eventList.push(res);
     return res;
   }
-  protected onBaseCreating() {}
+  protected onBaseCreating() { }
   /**
    * Returns the type of the object as a string as it represents in the json. It should be in lowcase.
    */
@@ -213,14 +284,14 @@ export class Base {
   public get bindings(): Bindings {
     return this.bindingsValue;
   }
-  checkBindings(valueName: string, value: any) {}
+  checkBindings(valueName: string, value: any) { }
   protected updateBindings(propertyName: string, value: any) {
     var valueName = this.bindings.getValueNameByPropertyName(propertyName);
     if (!!valueName) {
       this.updateBindingValue(valueName, value);
     }
   }
-  protected updateBindingValue(valueName: string, value: any) {}
+  protected updateBindingValue(valueName: string, value: any) { }
   /**
    * Returns the element template name without prefix. Typically it equals to getType().
    * @see getType
@@ -261,7 +332,7 @@ export class Base {
     new JsonObject().toObject(json, this);
     this.onSurveyLoad();
   }
-  public onSurveyLoad() {}
+  public onSurveyLoad() { }
   /**
    * Make a clone of the existing object. Create a new object of the same type and load all properties into it.
    */
@@ -293,7 +364,7 @@ export class Base {
   public getProgressInfo(): IProgressInfo {
     return Base.createProgressInfo();
   }
-  public localeChanged() {}
+  public localeChanged() { }
   public locStrsChanged() {
     if (!!this.arraysInfo) {
       for (let key in this.arraysInfo) {
@@ -334,6 +405,7 @@ export class Base {
     return res;
   }
   protected getPropertyValueCore(propertiesHash: any, name: string) {
+    Base.collectDependency(this, name);
     if (this.getPropertyValueCoreHandler)
       return this.getPropertyValueCoreHandler(propertiesHash, name);
     else return propertiesHash[name];
@@ -409,7 +481,7 @@ export class Base {
     newValue: any,
     sender: Base,
     arrayChanges: ArrayChanges
-  ) {}
+  ) { }
   public itemValuePropertyChanged(
     item: ItemValue,
     name: string,
@@ -428,7 +500,7 @@ export class Base {
     name: string,
     oldValue: any,
     newValue: any
-  ) {}
+  ) { }
   protected propertyValueChanged(
     name: string,
     oldValue: any,
@@ -653,8 +725,8 @@ export class Base {
       }
     }
   }
-  protected getSearchableLocKeys(keys: Array<string>) {}
-  protected getSearchableItemValueKeys(keys: Array<string>) {}
+  protected getSearchableLocKeys(keys: Array<string>) { }
+  protected getSearchableItemValueKeys(keys: Array<string>) { }
   protected AddLocStringToUsedLocales(
     locStr: LocalizableString,
     locales: Array<string>
@@ -668,7 +740,7 @@ export class Base {
   }
   protected createItemValues(name: string): Array<any> {
     var self = this;
-    var result = this.createNewArray(name, function(item: any) {
+    var result = this.createNewArray(name, function (item: any) {
       item.locOwner = self;
       item.ownerPropertyName = name;
     });
@@ -712,7 +784,7 @@ export class Base {
     }
     this.arraysInfo[name] = { onPush: onPush, isItemValues: false };
     var self = this;
-    newArray.push = function(value): number {
+    newArray.push = function (value): number {
       var result = Object.getPrototypeOf(newArray).push.call(newArray, value);
       if (!self.isDisposedValue) {
         if (onPush) onPush(value, newArray.length - 1);
@@ -727,7 +799,7 @@ export class Base {
       }
       return result;
     };
-    newArray.unshift = function(value): number {
+    newArray.unshift = function (value): number {
       var result = Object.getPrototypeOf(newArray).unshift.call(
         newArray,
         value
@@ -740,7 +812,7 @@ export class Base {
       }
       return result;
     };
-    newArray.pop = function(): number {
+    newArray.pop = function (): number {
       var result = Object.getPrototypeOf(newArray).pop.call(newArray);
       if (!self.isDisposedValue) {
         if (onRemove) onRemove(result);
@@ -750,7 +822,7 @@ export class Base {
       }
       return result;
     };
-    newArray.splice = function(
+    newArray.splice = function (
       start?: number,
       deleteCount?: number,
       ...items: any[]
@@ -860,7 +932,7 @@ export class ArrayChanges {
     public deleteCount: number,
     public itemsToAdd: any[],
     public deletedItems: any[]
-  ) {}
+  ) { }
 }
 
 export class Event<T extends Function, Options> {
@@ -908,4 +980,4 @@ export class Event<T extends Function, Options> {
 export class EventBase<T> extends Event<
   (sender: T, options: any) => any,
   any
-> {}
+> { }

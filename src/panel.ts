@@ -1977,7 +1977,7 @@ Serializer.addClass(
       choices: ["default", "onpanel", "off"],
     },
     "questionStartIndex",
-    { name: "allowAdaptiveActions:boolean", default: true },
+    { name: "allowAdaptiveActions:boolean", default: true, visible: false },
   ],
   function () {
     return new PanelModel();

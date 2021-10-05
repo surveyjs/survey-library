@@ -2191,7 +2191,7 @@ Serializer.addClass(
     },
     { name: "columnColCount", default: 0, choices: [0, 1, 2, 3, 4] },
     "columnMinWidth",
-    { name: "allowAdaptiveActions:boolean", default: true },
+    { name: "allowAdaptiveActions:boolean", default: true, visible: false },
   ],
   function () {
     return new QuestionMatrixDropdownModelBase("");

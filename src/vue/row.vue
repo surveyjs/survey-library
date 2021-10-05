@@ -1,7 +1,6 @@
 <template>
   <div class="sv-vue-row-additional-div">
     <div
-      v-if="row.isNeedRender"
       v-for="element in row.visibleElements"
       :key="element.id"
       :style="{
@@ -14,6 +13,7 @@
       }"
     >
       <survey-element
+        v-if="row.isNeedRender"
         :id="element.id"
         :role="element.ariaRole"
         :aria-labelledby="element.hasTitle ? element.ariaTitleId : null"
@@ -25,28 +25,13 @@
         :element="element"
         :survey="survey"
         :css="css"
-      />
-    </div>
-
-    <div
-      v-else
-      v-for="element in row.visibleElements"
-      :key="element.id"
-      :style="{
-        flexBasis: element.renderWidth,
-        flexGrow: 1,
-        flexShrink: 1,
-        width: element.renderWidth,
-        minWidth: element.minWidth,
-        maxWidth: element.maxWidth,
-      }"
-    >
+      ></survey-element>
       <component
-        v-if="question.skeletonComponentName"
+        v-if="!row.isNeedRender && !!element.skeletonComponentName"
         :is="element.skeletonComponentName"
         :question="element"
         :css="css"
-      />
+      ></component>
     </div>
   </div>
 </template>

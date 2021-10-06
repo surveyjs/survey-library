@@ -1623,11 +1623,17 @@ export class SurveyModel extends SurveyElementCore
   public getRenderer(name: string): string {
     return this.getRendererForString(this, name);
   }
+  public getRendererContext(locStr: LocalizableString) {
+    return this.getRendererContextForString(this, locStr);
+  }
   public getRendererForString(element: Base, name: string): string {
     const renderAs = this.getBuiltInRendererForString(element, name);
     var options = { element: element, name: name, renderAs: renderAs };
     this.onTextRenderAs.fire(this, options);
     return options.renderAs;
+  }
+  public getRendererContextForString(element: Base, locStr: LocalizableString) {
+    return locStr;
   }
   getExpressionDisplayValue(
     question: IQuestion,

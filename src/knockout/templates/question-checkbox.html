@@ -1,6 +1,6 @@
 <script type="text/html" id="survey-question-checkbox">
   <fieldset data-bind="css: question.koCss().root">
-      <legend data-bind="attr: { 'aria-label': question.ariaLabel }"></legend>
+      <legend data-bind="attr: { 'aria-label': question.ariaLabel }" role="checkbox"></legend>
       <!-- ko ifnot: question.hasColumns  -->
         <!-- ko foreach: { data: question.visibleChoices, as: 'item', afterRender: question.koAfterRender }  -->
           <!-- ko component: { name: question.getItemValueWrapperComponentName(item), params: { componentData:  question.getItemValueWrapperComponentData(item), templateData: { name: 'survey-checkbox-item', data: item } } } -->

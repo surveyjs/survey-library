@@ -1,4 +1,5 @@
-import { MatrixDropdownRowModelBase, QuestionMatrixDropdownRenderedRow } from "../question_matrixdropdownbase";
+import { QuestionMatrixDropdownRenderedRow } from "src/question_matrixdropdownrendered";
+import { MatrixDropdownRowModelBase } from "../question_matrixdropdownbase";
 import { QuestionMatrixDynamicModel } from "../question_matrixdynamic";
 import { DragDropCore } from "./core";
 export class DragDropMatrixRows extends DragDropCore<QuestionMatrixDynamicModel> {

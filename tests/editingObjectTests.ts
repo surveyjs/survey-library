@@ -1,7 +1,7 @@
 import { SurveyModel } from "../src/survey";
 import { Base, Event, ArrayChanges } from "../src/base";
 import { QuestionTextModel } from "../src/question_text";
-import { MatrixDropdownColumn } from "../src/question_matrixdropdownbase";
+import { MatrixDropdownColumn } from "../src/question_matrixdropdowncolumn";
 import { QuestionMatrixDynamicModel } from "../src/question_matrixdynamic";
 import { ExpressionValidator } from "../src/validator";
 import {

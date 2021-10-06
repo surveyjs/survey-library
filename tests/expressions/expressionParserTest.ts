@@ -743,6 +743,14 @@ QUnit.test("contain and noncontain for null arrays", function(assert) {
 });
 
 QUnit.test("length for undefined arrays", function(assert) {
+  var runner = new ConditionRunner("{val.length} > 1");
+  assert.equal(runner.run({ val: [] }), false, "empty array length returns 0");
+  assert.equal(runner.run({ val: [1] }), false, "array length returns 1");
+  assert.equal(runner.run({ val: [1, 2] }), true, "array length returns 2");
+  assert.equal(runner.run({ val: [1, 2, 3] }), true, "array length returns 3");
+});
+
+QUnit.test("length for undefined arrays", function(assert) {
   var runner = new ConditionRunner("{val.length} = 0");
   assert.equal(runner.run({ val: [] }), true, "empty array length returns 0");
   assert.equal(runner.run({}), true, "undefined length returns 0");
@@ -1224,4 +1232,16 @@ QUnit.test("True and False as strings'", function(assert) {
   assert.equal(runner.run(values), false, "TRUE contains FALSE");
   values.val = "FALSE";
   assert.equal(runner.run(values), true, "FALSE contains FALSE");
+});
+QUnit.test("ExpressionRunner: fix incorrect JavaScript multiplication", function(assert) {
+  var runner = new ExpressionRunner("3 * 0.6");
+  assert.equal(runner.run({}), 1.8, "It works correctly");
+});
+QUnit.test("ExpressionRunner: fix incorrect JavaScript summary", function(assert) {
+  var runner = new ExpressionRunner("0.3 + 0.6");
+  assert.equal(runner.run({}), 0.9, "It works correctly");
+});
+QUnit.test("ExpressionRunner: fix incorrect JavaScript summary", function(assert) {
+  var runner = new ExpressionRunner("0.9 - 0.6");
+  assert.equal(runner.run({}), 0.3, "It works correctly");
 });

@@ -579,6 +579,9 @@ export class Question extends SurveyElement
   }
   public onCommentChange(event: any): void {
     this.comment = event.target.value;
+    if(this.comment !== event.target.value) {
+      event.target.value = this.comment;
+    }
   }
   public afterRenderQuestionElement(el: HTMLElement): void {
     if (!this.survey || !this.hasSingleInput) return;
@@ -1390,7 +1393,13 @@ export class Question extends SurveyElement
   }
   public set comment(newValue: string) {
     if (!!newValue) {
-      newValue = newValue.toString().trim();
+      const trimmedValue = newValue.toString().trim();
+      if(trimmedValue !== newValue) {
+        newValue = trimmedValue;
+        if(newValue === this.comment) {
+          this.setPropertyValueDirectly("comment", newValue);
+        }
+      }
     }
     if (this.comment == newValue) return;
     this.setQuestionComment(newValue);

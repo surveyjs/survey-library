@@ -88,6 +88,7 @@ export abstract class SurveyElementCore extends Base implements ILocalizableOwne
   public abstract getLocale(): string;
   public abstract getMarkdownHtml(text: string, name: string): string;
   public abstract getRenderer(name: string): string;
+  public abstract getRendererContext(locStr: LocalizableString): any;
   public abstract getProcessedText(text: string): string;
 }
 
@@ -577,6 +578,13 @@ export class SurveyElement extends SurveyElementCore implements ISurveyElement {
       : this.locOwner && typeof this.locOwner.getRenderer === "function"
         ? this.locOwner.getRenderer(name)
         : null;
+  }
+  public getRendererContext(locStr: LocalizableString): any {
+    return this.survey && typeof this.survey.getRendererContextForString === "function"
+      ? this.survey.getRendererContextForString(this, locStr)
+      : this.locOwner && typeof this.locOwner.getRendererContext === "function"
+        ? this.locOwner.getRendererContext(locStr)
+        : locStr;
   }
   public getProcessedText(text: string): string {
     if (this.isLoadingFromJson) return text;

@@ -1725,7 +1725,7 @@ QUnit.test("Text questions spaces is not a valid answer for required", function(
   assert.equal(question.hasErrors(), true, "Question is empty");
   assert.equal(
     question.errors[0].locText.textOrHtml,
-    "Please answer the question.",
+    "Response required.",
     "error has correct text"
   );
   question.value = "  ";

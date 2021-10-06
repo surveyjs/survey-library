@@ -26,6 +26,7 @@ function getNewQuestion(choices?: string[]) {
 QUnit.test("drop", function (assert) {
   let ddHelper = new DragDropChoices(null);
   const drop = ddHelper["drop"];
+  const afterDragOver = ddHelper["afterDragOver"].bind(ddHelper);
 
   let question = getNewQuestion();
   let item1 = question.choices[0];
@@ -33,16 +34,19 @@ QUnit.test("drop", function (assert) {
   let item3 = question.choices[2];
   let item4 = question.choices[3];
 
-  ddHelper["isBottom"] = true;
   ddHelper["parentElement"] = <any>question;
   ddHelper["draggedElement"] = <any>item1;
   ddHelper["dropTarget"] = <any>item3;
   ddHelper["draggedElementShortcut"] = document.body.appendChild(
     document.createElement("div")
   );
+  afterDragOver(null);
+  assert.deepEqual(
+    question.visibleChoices.map((c) => c.value),
+    ["item2", "item3", "item1", "item4"]
+  );
   ddHelper["allowDropHere"] = true;
   drop();
-
   assert.deepEqual(
     question.choices.map((c) => c.value),
     ["item2", "item3", "item1", "item4"]
@@ -53,50 +57,16 @@ QUnit.test("drop", function (assert) {
   item2 = question.choices[1];
   item3 = question.choices[2];
   item4 = question.choices[3];
-  ddHelper["isBottom"] = false;
-  ddHelper["parentElement"] = <any>question;
-  ddHelper["draggedElement"] = <any>item1;
-  ddHelper["dropTarget"] = <any>item3;
-  ddHelper["draggedElementShortcut"] = document.body.appendChild(
-    document.createElement("div")
-  );
-  ddHelper["allowDropHere"] = true;
-  drop();
-  assert.deepEqual(
-    question.choices.map((c) => c.value),
-    ["item2", "item1", "item3", "item4"]
-  );
-
-  question = getNewQuestion();
-  item1 = question.choices[0];
-  item2 = question.choices[1];
-  item3 = question.choices[2];
-  item4 = question.choices[3];
-  ddHelper["isBottom"] = true;
   ddHelper["parentElement"] = <any>question;
   ddHelper["draggedElement"] = <any>item4;
   ddHelper["dropTarget"] = <any>item3;
   ddHelper["draggedElementShortcut"] = document.body.appendChild(
     document.createElement("div")
   );
-  ddHelper["allowDropHere"] = true;
-  drop();
+  afterDragOver(null);
   assert.deepEqual(
-    question.choices.map((c) => c.value),
-    ["item1", "item2", "item3", "item4"]
-  );
-
-  question = getNewQuestion();
-  item1 = question.choices[0];
-  item2 = question.choices[1];
-  item3 = question.choices[2];
-  item4 = question.choices[3];
-  ddHelper["isBottom"] = false;
-  ddHelper["parentElement"] = <any>question;
-  ddHelper["draggedElement"] = <any>item4;
-  ddHelper["dropTarget"] = <any>item3;
-  ddHelper["draggedElementShortcut"] = document.body.appendChild(
-    document.createElement("div")
+    question.visibleChoices.map((c) => c.value),
+    ["item1", "item2", "item4", "item3"]
   );
   ddHelper["allowDropHere"] = true;
   drop();
@@ -110,36 +80,22 @@ QUnit.test("drop", function (assert) {
   item2 = question.choices[1];
   item3 = question.choices[2];
   item4 = question.choices[3];
-  ddHelper["isBottom"] = true;
   ddHelper["parentElement"] = <any>question;
   ddHelper["draggedElement"] = <any>item1;
   ddHelper["dropTarget"] = <any>item2;
   ddHelper["draggedElementShortcut"] = document.body.appendChild(
     document.createElement("div")
+  );
+  afterDragOver(null);
+  assert.deepEqual(
+    question.visibleChoices.map((c) => c.value),
+    ["item2", "item1", "item3", "item4"]
   );
   ddHelper["allowDropHere"] = true;
   drop();
   assert.deepEqual(
     question.choices.map((c) => c.value),
     ["item2", "item1", "item3", "item4"]
-  );
-  question = getNewQuestion();
-  item1 = question.choices[0];
-  item2 = question.choices[1];
-  item3 = question.choices[2];
-  item4 = question.choices[3];
-  ddHelper["isBottom"] = false;
-  ddHelper["parentElement"] = <any>question;
-  ddHelper["draggedElement"] = <any>item1;
-  ddHelper["dropTarget"] = <any>item2;
-  ddHelper["draggedElementShortcut"] = document.body.appendChild(
-    document.createElement("div")
-  );
-  ddHelper["allowDropHere"] = true;
-  drop();
-  assert.deepEqual(
-    question.choices.map((c) => c.value),
-    ["item1", "item2", "item3", "item4"]
   );
 });
 

@@ -142,7 +142,7 @@ export class DragDropChoices extends DragDropCore<QuestionSelectBase> {
     const filteredChoices = this.parentElement.visibleChoices.filter(item => {
       return choices.indexOf(item) !== -1;
     });
-    
+
     const oldIndex = choices.indexOf(this.draggedElement);
     let newIndex = filteredChoices.indexOf(this.draggedElement);
 

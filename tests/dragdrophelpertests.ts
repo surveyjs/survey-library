@@ -16,11 +16,11 @@ QUnit.test("drop", function (assert) {
   const item3 = { value: "item3" };
   const item4 = { value: "item4" };
 
-  let question = { choices: [item1, item2, item3, item4], visibleChoices: [item1, item2, item3, item4] };
+  let question = { choices: [item1, item2, item3, item4], visibleChoices: [item2, item3, item1, item4] };
   ddHelper["isBottom"] = true;
   ddHelper["parentElement"] = <any>question;
   ddHelper["draggedElement"] = <any>item1;
-  ddHelper["dropTarget"] = <any>item3;
+  ddHelper["dropTarget"] = <any>item1;
   ddHelper["draggedElementShortcut"] = document.body.appendChild(
     document.createElement("div")
   );
@@ -29,14 +29,15 @@ QUnit.test("drop", function (assert) {
 
   assert.deepEqual(
     question.choices.map((c) => c.value),
-    ["item2", "item3", "item1", "item4"]
+    ["item2", "item3", "item1", "item4"],
+    "operation 1"
   );
 
-  question = { choices: [item1, item2, item3, item4], visibleChoices: [item1, item2, item3, item4] };
+  question = { choices: [item1, item2, item3, item4], visibleChoices: [item2, item1, item3, item4] };
   ddHelper["isBottom"] = false;
   ddHelper["parentElement"] = <any>question;
   ddHelper["draggedElement"] = <any>item1;
-  ddHelper["dropTarget"] = <any>item3;
+  ddHelper["dropTarget"] = <any>item1;
   ddHelper["draggedElementShortcut"] = document.body.appendChild(
     document.createElement("div")
   );
@@ -44,14 +45,15 @@ QUnit.test("drop", function (assert) {
   drop();
   assert.deepEqual(
     question.choices.map((c) => c.value),
-    ["item2", "item1", "item3", "item4"]
+    ["item2", "item1", "item3", "item4"],
+    "operation 2"
   );
 
   question = { choices: [item1, item2, item3, item4], visibleChoices: [item1, item2, item3, item4] };
   ddHelper["isBottom"] = true;
   ddHelper["parentElement"] = <any>question;
   ddHelper["draggedElement"] = <any>item4;
-  ddHelper["dropTarget"] = <any>item3;
+  ddHelper["dropTarget"] = <any>item4;
   ddHelper["draggedElementShortcut"] = document.body.appendChild(
     document.createElement("div")
   );
@@ -59,14 +61,15 @@ QUnit.test("drop", function (assert) {
   drop();
   assert.deepEqual(
     question.choices.map((c) => c.value),
-    ["item1", "item2", "item3", "item4"]
+    ["item1", "item2", "item3", "item4"],
+    "operation 3"
   );
 
-  question = { choices: [item1, item2, item3, item4], visibleChoices: [item1, item2, item3, item4] };
+  question = { choices: [item1, item2, item3, item4], visibleChoices: [item1, item2, item4, item3] };
   ddHelper["isBottom"] = false;
   ddHelper["parentElement"] = <any>question;
   ddHelper["draggedElement"] = <any>item4;
-  ddHelper["dropTarget"] = <any>item3;
+  ddHelper["dropTarget"] = <any>item4;
   ddHelper["draggedElementShortcut"] = document.body.appendChild(
     document.createElement("div")
   );
@@ -74,14 +77,15 @@ QUnit.test("drop", function (assert) {
   drop();
   assert.deepEqual(
     question.choices.map((c) => c.value),
-    ["item1", "item2", "item4", "item3"]
+    ["item1", "item2", "item4", "item3"],
+    "operation 4"
   );
 
-  question = { choices: [item1, item2, item3, item4], visibleChoices: [item1, item2, item3, item4] };
+  question = { choices: [item1, item2, item3, item4], visibleChoices: [item2, item1, item3, item4] };
   ddHelper["isBottom"] = true;
   ddHelper["parentElement"] = <any>question;
   ddHelper["draggedElement"] = <any>item1;
-  ddHelper["dropTarget"] = <any>item2;
+  ddHelper["dropTarget"] = <any>item1;
   ddHelper["draggedElementShortcut"] = document.body.appendChild(
     document.createElement("div")
   );
@@ -89,13 +93,14 @@ QUnit.test("drop", function (assert) {
   drop();
   assert.deepEqual(
     question.choices.map((c) => c.value),
-    ["item2", "item1", "item3", "item4"]
+    ["item2", "item1", "item3", "item4"],
+    "operation 5"
   );
   question = { choices: [item1, item2, item3, item4], visibleChoices: [item1, item2, item3, item4] };
   ddHelper["isBottom"] = false;
   ddHelper["parentElement"] = <any>question;
   ddHelper["draggedElement"] = <any>item1;
-  ddHelper["dropTarget"] = <any>item2;
+  ddHelper["dropTarget"] = <any>item1;
   ddHelper["draggedElementShortcut"] = document.body.appendChild(
     document.createElement("div")
   );
@@ -103,7 +108,8 @@ QUnit.test("drop", function (assert) {
   drop();
   assert.deepEqual(
     question.choices.map((c) => c.value),
-    ["item1", "item2", "item3", "item4"]
+    ["item1", "item2", "item3", "item4"],
+    "operation 6"
   );
 });
 

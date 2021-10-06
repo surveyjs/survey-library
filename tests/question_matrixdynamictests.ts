@@ -6041,6 +6041,8 @@ QUnit.test("Detail panel, rendered table and className", function (assert) {
     "sv_matrix_cell",
     "row question cell css"
   );
+  assert.equal(rows[0].className, "sv_matrix_row");
+  assert.equal(rows[1].className, "sv_matrix_row sv_matrix_detail_row");
   assert.equal(
     rows[1].cells[1].className,
     "sv_matrix_cell_detail_panel",

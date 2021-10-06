@@ -142,12 +142,6 @@ export class DragDropChoices extends DragDropCore<QuestionSelectBase> {
     const oldIndex = choices.indexOf(this.draggedElement);
     let newIndex = visibleChoices.indexOf(this.dropTarget);
 
-    if (oldIndex < newIndex && isTop) {
-      newIndex--;
-    } else if (oldIndex > newIndex && this.isBottom) {
-      newIndex++;
-    }
-
     choices.splice(oldIndex, 1);
     choices.splice(newIndex, 0, this.draggedElement);
 

@@ -6616,6 +6616,44 @@ QUnit.test("getDisplayValue() function in matrix Dropdown, Bug#", function (
   );
   assert.equal(counter, 0, "We do not change the value during processing");
 });
+QUnit.test("getDisplayValue() function in matrix Dropdown with rowsVisibleIf, Bug#3430", function(
+  assert
+) {
+  var survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdropdown",
+        name: "matrix",
+        rowsVisibleIf: "{val} contains {item}",
+        columns: [
+          {
+            name: "col1",
+            choices: [
+              { value: 1, text: "A" },
+              { value: 2, text: "B" },
+              { value: 3, text: "C" },
+              { value: 4, text: "C" },
+              { value: 5, text: "C" },
+            ],
+          },
+        ],
+        rows: ["row1", "row2", "row3", "row4", "row5"],
+      },
+    ],
+  });
+  var matrix = <QuestionMatrixDropdownModel>survey.getQuestionByName("matrix");
+  survey.setValue("val", ["row2", "row3"]);
+  assert.equal(matrix.visibleRows.length, 2, "There are two rows visible");
+
+  matrix.value = { row2: { col1: 1 }, row3: { col1: 2 } };
+  const displayValue = matrix.getDisplayValue(true);
+  assert.deepEqual(
+    displayValue,
+    { "row2": { "col1": "A" }, "row3": { "col1": "B" } },
+    "Rows are filtered"
+  );
+});
+
 QUnit.test(
   "Error on setting properties into column cellType:'text', Bug#2897",
   function (assert) {

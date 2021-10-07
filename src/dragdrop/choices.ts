@@ -47,6 +47,8 @@ export class DragDropChoices extends DragDropCore<QuestionSelectBase> {
 
     draggedElementShortcut.appendChild(clone);
 
+    this.isBottom = null;
+
     return draggedElementShortcut;
   }
 
@@ -71,9 +73,7 @@ export class DragDropChoices extends DragDropCore<QuestionSelectBase> {
     return dragOverChoice;
   }
 
-  private 
-  
-  () {
+  private getVisibleChoices() {
     const parent = this.parentElement;
     if (parent.getType() === "ranking") return <QuestionRankingModel>parent.rankingChoices;
     return parent.visibleChoices;

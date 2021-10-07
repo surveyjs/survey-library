@@ -5477,3 +5477,22 @@ QUnit.test("Multiple Text Question: editor.renderedPlaceHolder is undefined, Bug
   assert.equal(question.items[0].editor.placeHolder, "place holder", "editor place holder");
   assert.equal(question.items[0].editor.renderedPlaceHolder, "place holder", "editor rendered place holder");
 });
+QUnit.test("setting visibleChoices do not fired onArrayChanged ", function (assert) {
+  const question = new QuestionDropdownModel("q1");
+  let counter = 0;
+  (<any>question.visibleChoices).testId = 1;
+  (<any>question.visibleChoices).onArrayChanged = () => {
+    counter ++;
+  };
+  let hasVisibleChoicesInHash = false;
+  question.iteratePropertiesHash((hash, key) => {
+    if(key === "visibleChoices") {
+      hasVisibleChoicesInHash = true;
+    }
+  });
+  assert.equal(hasVisibleChoicesInHash, true, "visibleChoices array in hash");
+  question.choices = [1, 2, 3];
+  assert.equal(question.visibleChoices.length, 3, "visibleChoices is set");
+  assert.equal((<any>question.visibleChoices).testId, 1, "visibleChoices array is the same");
+  assert.equal(counter, 1, "We fired onArrayChanged for visibleChoices");
+});

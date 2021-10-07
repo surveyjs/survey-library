@@ -1,13 +1,20 @@
 import * as React from "react";
 import { SurveyQuestionUncontrolledElement } from "./reactquestion_element";
 import { SurveyQuestion } from "./reactquestion";
-import { QuestionCustomModel, QuestionCompositeModel } from "survey-core";
+import { Base, QuestionCustomModel, QuestionCompositeModel } from "survey-core";
 import { ReactQuestionFactory } from "./reactquestion_factory";
 import { SurveyPanel } from "./panel";
 
 export class SurveyQuestionCustom extends SurveyQuestionUncontrolledElement<QuestionCustomModel> {
   constructor(props: any) {
     super(props);
+  }
+  protected getStateElements(): Array<Base> {
+    const res = super.getStateElements();
+    if(!!this.question.contentQuestion) {
+      res.push(this.question.contentQuestion);
+    }
+    return res;
   }
   protected renderElement(): JSX.Element {
     return SurveyQuestion.renderQuestionBody(

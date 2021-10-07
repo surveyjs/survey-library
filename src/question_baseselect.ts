@@ -605,7 +605,7 @@ export class QuestionSelectBase extends Question {
    * @see enabledChoices
    */
   public get visibleChoices(): Array<ItemValue> {
-    return this.getPropertyValue("visibleChoices", []);
+    return this.getPropertyValue("visibleChoices");
   }
   /**
    * The list of enabled items as they will be rendered. The disabled items are not included

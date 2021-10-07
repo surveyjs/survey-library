@@ -175,7 +175,7 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
     choice: ItemValue,
     node: HTMLElement
   ): void => {
-    if (!this.fallbackToSortableJS) {
+    if (!this.fallbackToSortableJS && !this.survey.isDesignMode) {
       this.dragDropRankingChoices.startDrag(event, choice, this, node);
     }
   };

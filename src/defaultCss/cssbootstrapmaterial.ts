@@ -164,6 +164,7 @@ export var defaultBootstrapMaterialCss = {
     itemValue: "form-group bmd-form-group",
     headerCell: "sv_matrix_cell_header",
     row: "sv_matrix_row",
+    rowAdditional: "sv-matrix__row--additional",
     detailRow: "sv_matrix_detail_row",
     detailRowText: "sv_matrix_cell_detail_rowtext",
     detailCell: "sv_matrix_cell_detail",

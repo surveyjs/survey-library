@@ -124,14 +124,12 @@ export class QuestionMatrixDropdownRenderedCell {
 export class QuestionMatrixDropdownRenderedRow extends Base {
   @property({ defaultValue: null }) ghostPosition: string;
 
-  public isDetailRow: boolean = false;
   public row: MatrixDropdownRowModelBase;
   private static counter = 1;
   private idValue: number;
   public cells: Array<QuestionMatrixDropdownRenderedCell> = [];
-  public className: string = "";
 
-  public constructor(public cssClasses: any) {
+  public constructor(public cssClasses: any, public isDetailRow: boolean = false) {
     super();
     this.onCreating();
     this.idValue = QuestionMatrixDropdownRenderedRow.counter++;
@@ -144,12 +142,12 @@ export class QuestionMatrixDropdownRenderedRow extends Base {
     if (!this.row) return {};
     return { "data-sv-drop-target-matrix-row": this.row.id };
   }
-  public get ghostPositionCssClass() {
-    if (this.ghostPosition === "top")
-      return this.cssClasses.dragDropGhostPositionTop;
-    if (this.ghostPosition === "bottom")
-      return this.cssClasses.dragDropGhostPositionBottom;
-    return "";
+  public get className(): string {
+    return new CssClassBuilder()
+      .append(this.cssClasses.row)
+      .append(this.cssClasses.detailRow, this.isDetailRow)
+      .append(this.cssClasses.dragDropGhostPositionTop, this.ghostPosition === "top")
+      .append(this.cssClasses.dragDropGhostPositionBottom, this.ghostPosition === "bottom").toString();
   }
 }
 
@@ -553,10 +551,8 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     row: MatrixDropdownRowModelBase,
     renderedRow: QuestionMatrixDropdownRenderedRow
   ): QuestionMatrixDropdownRenderedRow {
-    var res = new QuestionMatrixDropdownRenderedRow(this.cssClasses);
+    var res = new QuestionMatrixDropdownRenderedRow(this.cssClasses, true);
     res.row = row;
-    res.className += this.cssClasses.detailRow;
-    res.isDetailRow = true;
     var buttonCell = new QuestionMatrixDropdownRenderedCell();
     if (this.matrix.hasRowText) {
       buttonCell.colSpans = 2;

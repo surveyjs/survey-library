@@ -67,7 +67,7 @@ frameworks.forEach((framework) => {
     let surveyResult;
     const getPosition = ClientFunction(() =>
       document.documentElement.innerHTML.indexOf(
-        "Please answer questions in all rows"
+        "Response required: answer questions in all rows."
       )
     );
     let position;

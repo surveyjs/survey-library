@@ -4632,7 +4632,7 @@ export class SurveyModel extends SurveyElementCore
   private triggerValues: any = null;
   private triggerKeys: any = null;
   private checkTriggers(key: any, isOnNextPage: boolean) {
-    if (this.isCompleted || this.triggers.length == 0) return;
+    if (this.isCompleted || this.triggers.length == 0 || this.isDisplayMode) return;
     if (this.isTriggerIsRunning) {
       this.triggerValues = this.getFilteredValues();
       for (var k in key) {

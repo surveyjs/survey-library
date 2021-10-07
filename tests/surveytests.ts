@@ -342,6 +342,63 @@ QUnit.test("Do not show errors in display mode", function (assert) {
   survey.nextPage();
   assert.equal(survey.currentPageNo, 1, "Can move into another page");
 });
+QUnit.test("Do not run triggers in display mode", function (assert) {
+  const survey = new SurveyModel({
+    "pages": [
+      {
+        "name": "page1",
+        "elements": [
+          {
+            "type": "text",
+            "name": "question1"
+          },
+          {
+            "type": "text",
+            "name": "question2"
+          }
+        ]
+      },
+      {
+        "name": "page2",
+        "elements": [
+          {
+            "type": "text",
+            "name": "question3"
+          }
+        ]
+      },
+      {
+        "name": "page3",
+        "elements": [
+          {
+            "type": "text",
+            "name": "question4"
+          }
+        ]
+      }
+    ],
+    "triggers": [
+      {
+        "type": "complete",
+        "expression": "{question1} = 1"
+      },
+      {
+        "type": "setvalue",
+        "expression": "{question2} = 2",
+        "setToName": "question3",
+        "setValue": "3"
+      }
+    ]
+  });
+  (<Question>survey.pages[0].questions[0]).isRequired = true;
+  survey.data = { question1: 1 };
+  survey.mode = "display";
+  survey.setValue("question2", 2);
+  survey.nextPage();
+  assert.equal(survey.currentPageNo, 1, "Can move into another page");
+  assert.equal(survey.state, "running", "survey is running");
+  assert.equal(survey.getValue("question3"), undefined, "question3 value is not set");
+});
 QUnit.test("Do not show errors if survey.ignoreValidation = true", function (
   assert
 ) {

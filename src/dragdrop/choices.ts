@@ -81,15 +81,16 @@ export class DragDropChoices extends DragDropCore<QuestionSelectBase> {
       const dropTargetIndex = choices.indexOf(this.dropTarget);
       const draggedElementIndex = choices.indexOf(this.draggedElement);
 
-      if (draggedElementIndex > dropTargetIndex && this.dropTarget.isDragDropMoveUp) {
-        this.dropTarget.isDragDropMoveUp = false;
-        return false;
-      }
+      // TODO return animation
+      // if (draggedElementIndex > dropTargetIndex && this.dropTarget.isDragDropMoveUp) {
+      //   this.dropTarget.isDragDropMoveUp = false;
+      //   return false;
+      // }
 
-      if (draggedElementIndex < dropTargetIndex && this.dropTarget.isDragDropMoveDown) {
-        this.dropTarget.isDragDropMoveDown = false;
-        return false;
-      }
+      // if (draggedElementIndex < dropTargetIndex && this.dropTarget.isDragDropMoveDown) {
+      //   this.dropTarget.isDragDropMoveDown = false;
+      //   return false;
+      // }
     }
 
     // shouldn't allow to drop on "adorners" (selectall, none, other)
@@ -118,33 +119,40 @@ export class DragDropChoices extends DragDropCore<QuestionSelectBase> {
     choices.splice(draggedElementIndex, 1);
     choices.splice(dropTargetIndex, 0, this.draggedElement);
 
-    if (draggedElementIndex !== dropTargetIndex) {
-      dropTargetNode.classList.remove("svc-item-value--moveup");
-      dropTargetNode.classList.remove("svc-item-value--movedown");
-      this.dropTarget.isDragDropMoveDown = false;
-      this.dropTarget.isDragDropMoveUp = false;
-    }
+    // TODO return animation
+    // if (draggedElementIndex !== dropTargetIndex) {
+    //   dropTargetNode.classList.remove("svc-item-value--moveup");
+    //   dropTargetNode.classList.remove("svc-item-value--movedown");
+    //   this.dropTarget.isDragDropMoveDown = false;
+    //   this.dropTarget.isDragDropMoveUp = false;
+    // }
 
-    if (draggedElementIndex > dropTargetIndex) {
-      this.dropTarget.isDragDropMoveDown = true;
-    }
+    // if (draggedElementIndex > dropTargetIndex) {
+    //   this.dropTarget.isDragDropMoveDown = true;
+    // }
 
-    if (draggedElementIndex < dropTargetIndex) {
-      this.dropTarget.isDragDropMoveUp = true;
-    }
+    // if (draggedElementIndex < dropTargetIndex) {
+    //   this.dropTarget.isDragDropMoveUp = true;
+    // }
     super.ghostPositionChanged();
   }
 
   protected doDrop(): any {
-    const isTop = !this.isBottom;
-    const visibleChoices = this.parentElement.visibleChoices;
     const choices = this.parentElement.choices;
+    const filteredChoices = this.parentElement.visibleChoices.filter(item => {
+      return choices.indexOf(item) !== -1;
+    });
+
     const oldIndex = choices.indexOf(this.draggedElement);
-    let newIndex = visibleChoices.indexOf(this.dropTarget);
+    let newIndex = filteredChoices.indexOf(this.draggedElement);
 
     choices.splice(oldIndex, 1);
     choices.splice(newIndex, 0, this.draggedElement);
 
     return this.parentElement;
+  }
+
+  protected doClear(): void {
+    this.parentElement["updateVisibleChoices"]();
   }
 }

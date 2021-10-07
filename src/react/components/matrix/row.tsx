@@ -22,7 +22,7 @@ export class MatrixRow extends SurveyElementBase<IMAtrixRowProps, any> {
     const model = this.model;
     return (
       <tr
-        className={model.className + " " + model.ghostPositionCssClass}
+        className={model.className}
         data-sv-drop-target-matrix-row={model.row && model.row.id}
       >
         {this.props.children}

@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.8.71](https://github.com/surveyjs/survey-library/compare/v1.8.70...v1.8.71) (2021-10-07)
+
+
+### Bug Fixes
+
+* matrix dropdown getDisplayText doesn't work for filtered rows [#3430](https://github.com/surveyjs/survey-library/issues/3430) ([#3431](https://github.com/surveyjs/survey-library/issues/3431)) ([93db076](https://github.com/surveyjs/survey-library/commit/93db076130c2e6cb645eb4fddca0f2426be5419c))
+* survey-vue warnings: "Duplicate keys detected: 'nav1' [#3413](https://github.com/surveyjs/survey-library/issues/3413) ([#3428](https://github.com/surveyjs/survey-library/issues/3428)) ([318271e](https://github.com/surveyjs/survey-library/commit/318271ebec484a4206eca17499ccf737ac46c0ae))
+
 ### [1.8.70](https://github.com/surveyjs/survey-library/compare/v1.8.69...v1.8.70) (2021-09-29)
 
 

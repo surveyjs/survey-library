@@ -173,6 +173,7 @@ export class SurveyQuestionElementBase extends SurveyElementBase<any, any> {
     this.updateDomElement();
   }
   componentDidMount() {
+    super.componentDidMount();
     this.updateDomElement();
   }
   componentWillUnmount() {

@@ -71,7 +71,9 @@ export class DragDropChoices extends DragDropCore<QuestionSelectBase> {
     return dragOverChoice;
   }
 
-  private getVisibleChoices() {
+  private 
+  
+  () {
     const parent = this.parentElement;
     if (parent.getType() === "ranking") return <QuestionRankingModel>parent.rankingChoices;
     return parent.visibleChoices;

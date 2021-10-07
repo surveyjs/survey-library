@@ -34,8 +34,8 @@ const json = {
 frameworks.forEach(framework => {
   fixture`${framework} ${title}`
     .page`${url_widgets}${framework}/customWidget.html`.beforeEach(async ctx => {
-    await initSurvey(framework, json);
-  });
+      await initSurvey(framework, json);
+    });
 
   test(`check integrity`, async t => {
     const getCount = ClientFunction(
@@ -47,7 +47,7 @@ frameworks.forEach(framework => {
 
   test(`choose empty`, async t => {
     const getPosition = ClientFunction(() =>
-      document.documentElement.innerHTML.indexOf("Please answer the question")
+      document.documentElement.innerHTML.indexOf("Response required.")
     );
     let position;
     let surveyResult;

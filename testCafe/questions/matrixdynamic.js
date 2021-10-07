@@ -108,7 +108,7 @@ frameworks.forEach((framework) => {
 
   test(`choose empty`, async (t) => {
     const getPosition = ClientFunction(() =>
-      document.documentElement.innerHTML.indexOf("Please answer the question")
+      document.documentElement.innerHTML.indexOf("Response required.")
     );
     const matrixCellSelector = function (strings, ...values) {
       return `tbody > tr:nth-child(${values[0]}) > td:nth-child(${values[1]})`;

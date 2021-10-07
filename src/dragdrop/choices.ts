@@ -1,3 +1,4 @@
+import { QuestionRankingModel } from "src/question_ranking";
 import { ItemValue } from "../itemvalue";
 import { QuestionSelectBase } from "../question_baseselect";
 import { DragDropCore } from "./core";
@@ -70,12 +71,20 @@ export class DragDropChoices extends DragDropCore<QuestionSelectBase> {
     return dragOverChoice;
   }
 
+  private 
+  
+  () {
+    const parent = this.parentElement;
+    if (parent.getType() === "ranking") return <QuestionRankingModel>parent.rankingChoices;
+    return parent.visibleChoices;
+  }
+
   protected isDropTargetValid(
     dropTarget: ItemValue,
     isBottom: boolean,
     dropTargetNode?: HTMLElement
   ): boolean {
-    const choices = this.parentElement.visibleChoices;
+    const choices = this.getVisibleChoices();
 
     if (this.parentElement.getType() !== "imagepicker") {
       const dropTargetIndex = choices.indexOf(this.dropTarget);
@@ -100,7 +109,7 @@ export class DragDropChoices extends DragDropCore<QuestionSelectBase> {
   }
 
   protected calculateIsBottom(clientY: number): boolean {
-    const choices = this.parentElement.visibleChoices;
+    const choices = this.getVisibleChoices();
     return (
       choices.indexOf(this.dropTarget) - choices.indexOf(this.draggedElement) >
       0
@@ -112,7 +121,7 @@ export class DragDropChoices extends DragDropCore<QuestionSelectBase> {
     if (this.dropTarget === this.draggedElement) return;
     if (this.parentElement.getType() === "imagepicker") return;
 
-    const choices = this.parentElement.visibleChoices;
+    const choices = this.getVisibleChoices();
     const dropTargetIndex = choices.indexOf(this.dropTarget);
     const draggedElementIndex = choices.indexOf(this.draggedElement);
 
@@ -139,7 +148,7 @@ export class DragDropChoices extends DragDropCore<QuestionSelectBase> {
 
   protected doDrop(): any {
     const choices = this.parentElement.choices;
-    const filteredChoices = this.parentElement.visibleChoices.filter(item => {
+    const filteredChoices = this.getVisibleChoices().filter((item: any) => {
       return choices.indexOf(item) !== -1;
     });
 
@@ -153,6 +162,9 @@ export class DragDropChoices extends DragDropCore<QuestionSelectBase> {
   }
 
   protected doClear(): void {
-    this.parentElement["updateVisibleChoices"]();
+    const parent = this.parentElement;
+    this.parentElement.getType() === "ranking" ?
+      parent.updateRankingChoices() :
+      parent["updateVisibleChoices"]();
   }
 }

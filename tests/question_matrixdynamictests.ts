@@ -3531,7 +3531,7 @@ QUnit.test("matrix dynamic + renderedTable + add/remove rows", function (
   );
 });
 QUnit.test("matrix dynamic + renderedTable + remove buttons", function (assert) {
-  var matrix = new QuestionMatrixDynamicModel("q1");
+  const matrix = new QuestionMatrixDynamicModel("q1");
   matrix.addColumn("col1");
   matrix.rowCount = 0;
 
@@ -3557,6 +3557,16 @@ QUnit.test("matrix dynamic + renderedTable + remove buttons", function (assert) 
     true,
     "it is an action cell, row2"
   );
+  //Bug #3449
+  matrix.columnLayout = "vertical";
+  rows = matrix.renderedTable.rows;
+  assert.equal(rows.length, 2, "one column and remove buttons rows");
+  assert.equal(rows[0].cells[0].locTitle.renderedHtml, "col1", "column header");
+  assert.equal(rows[1].cells.length, 4, "One empty cell and 3 delete buttons");
+  assert.equal(rows[1].cells[0].isActionsCell, false, "there is no actions in first cell delete row");
+  assert.equal(rows[1].cells[0].isEmpty, true, "cell is empty");
+  assert.equal(rows[1].cells[1].isActionsCell, true, "there are actions in the second cell delete row");
+  assert.equal(rows[1].cells[3].isActionsCell, true, "there are actions in the last cell delete row");
 });
 
 QUnit.test(

@@ -656,14 +656,14 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
   private createEndVerticalActionRow(): QuestionMatrixDropdownRenderedRow {
     var res = new QuestionMatrixDropdownRenderedRow(this.cssClasses);
     if (this.matrix.showHeader) {
-      res.cells.push(this.createTextCell(null));
+      res.cells.push(this.createEmptyCell());
     }
     var rows = this.matrix.visibleRows;
     for (var i = 0; i < rows.length; i++) {
       res.cells.push(this.getRowActionsCell(i, "end"));
     }
     if (this.matrix.hasTotal) {
-      res.cells.push(this.createTextCell(null));
+      res.cells.push(this.createEmptyCell());
     }
     return res;
   }
@@ -793,5 +793,10 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
       cell.className = this.cssClasses.cell;
     }
     return cell;
+  }
+  private createEmptyCell(): QuestionMatrixDropdownRenderedCell {
+    const res = this.createTextCell(null);
+    res.isEmpty = true;
+    return res;
   }
 }

@@ -5243,7 +5243,11 @@ export class SurveyModel extends SurveyElementCore
           this.goNextPageAutomatic === true &&
           this.allowCompleteSurveyAutomatic
         ) {
-          this.completeLastPage();
+          if(this.isShowPreviewBeforeComplete) {
+            this.showPreview();
+          } else {
+            this.completeLastPage();
+          }
         }
       }
     }

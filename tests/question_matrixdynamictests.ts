@@ -18,6 +18,7 @@ import { QuestionTextModel } from "../src/question_text";
 import { SurveyElement } from "../src/survey-element";
 import { Action } from "../src/actions/action";
 import { MatrixDropdownColumn } from "../src/question_matrixdropdowncolumn";
+import { QuestionMatrixDropdownRenderedRow } from "../src/question_matrixdropdownrendered";
 
 export default QUnit.module("Survey_QuestionMatrixDynamic");
 
@@ -6914,4 +6915,28 @@ QUnit.test("Drag handler cell in rendered table", function (assert) {
     true,
     "isActionsCell"
   );
+});
+
+QUnit.test("QuestionMatrixDropdownRenderedRow isAdditionalClasses", (assert) => {
+  const rowClass = "rowClass";
+  const detailRowClass = "detailRowClass";
+  const rowAdditionalClass = "rowAdditionalClass";
+
+  const renderedRow = new QuestionMatrixDropdownRenderedRow({
+    row: rowClass,
+    detailRow: detailRowClass,
+    rowAdditional: rowAdditionalClass
+  });
+
+  let className = renderedRow.className;
+  assert.notEqual(className.indexOf(rowClass), -1);
+  assert.equal(className.indexOf(detailRowClass), -1);
+  assert.equal(className.indexOf(rowAdditionalClass), -1);
+
+  renderedRow.isDetailRow = true;
+  renderedRow.isAdditionalClasses = true;
+  className = renderedRow.className;
+  assert.notEqual(className.indexOf(rowClass), -1);
+  assert.notEqual(className.indexOf(detailRowClass), -1);
+  assert.notEqual(className.indexOf(rowAdditionalClass), -1);
 });

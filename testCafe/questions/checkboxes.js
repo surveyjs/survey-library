@@ -39,7 +39,7 @@ frameworks.forEach((framework) => {
 
   test(`choose empty`, async (t) => {
     const getPosition = ClientFunction(() =>
-      document.documentElement.innerHTML.indexOf("Please answer the question")
+      document.documentElement.innerHTML.indexOf("Response required.")
     );
     let position;
     let surveyResult;
@@ -278,7 +278,7 @@ frameworks.forEach((framework) => {
       .pressKey('tab')
       .typeText(getOtherInput, "cd  ");
 
-      await t.click(`input[value=Complete]`);
+    await t.click(`input[value=Complete]`);
 
     surveyResult = await getSurveyResult();
     assert.equal(surveyResult.car, "other");
@@ -353,7 +353,7 @@ frameworks.forEach((framework) => {
     var json = JSON.parse(await getQuestionJson());
     var questionValue = await getQuestionValue();
     assert.equal(questionValue.length, 0);
-  
+
     var outerSelector = `.sv_q_title`;
     var innerSelector = `.sv-string-editor`
     await t
@@ -373,7 +373,7 @@ frameworks.forEach((framework) => {
     var json = JSON.parse(await getQuestionJson());
     var questionValue = await getQuestionValue();
     assert.equal(questionValue.length, 0);
-  
+
     var outerSelector = `.sv_q_checkbox_control_label`;
     var innerSelector = `.sv-string-editor`
     await t

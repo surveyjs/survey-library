@@ -8,7 +8,7 @@ var json = {
     {
       type: "boolean",
       name: "bool",
-      title: "Please answer the question",
+      title: "Response required.",
       label: "Are you 21 or older?",
       isRequired: true,
     },
@@ -84,7 +84,7 @@ frameworks.forEach((framework) => {
     var newTitle = 'MyText';
     var json = JSON.parse(await getQuestionJson());
     assert.equal(await getQuestionValue(), null);
-  
+
     var outerSelector = `.sv_q_title`;
     var innerSelector = `.sv-string-editor`
     await t
@@ -103,7 +103,7 @@ frameworks.forEach((framework) => {
     var json = JSON.parse(await getQuestionJson());
     var labelFalse = json.labelFalse;
     assert.equal(await getQuestionValue(), null);
-  
+
     var outerSelector = `.sv-boolean__label:nth-of-type(2)`;
     var innerSelector = `.sv-string-editor`
     await t
@@ -116,14 +116,14 @@ frameworks.forEach((framework) => {
     var json = JSON.parse(await getQuestionJson());
     assert.equal(json.labelFalse, labelFalse);
     assert.equal(json.labelTrue, newLabelTrue);
-  });  
+  });
 
   test(`click on false label in intermediate state editable`, async (t) => {
     var newLabelFalse = 'MyText';
     var json = JSON.parse(await getQuestionJson());
     var labelTrue = json.labelTrue;
     assert.equal(await getQuestionValue(), null);
-  
+
     var outerSelector = `.sv-boolean__label:nth-of-type(1)`;
     var innerSelector = `.sv-string-editor`
     await t

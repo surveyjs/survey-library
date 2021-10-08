@@ -47,6 +47,8 @@ export class DragDropChoices extends DragDropCore<QuestionSelectBase> {
 
     draggedElementShortcut.appendChild(clone);
 
+    this.isBottom = null;
+
     return draggedElementShortcut;
   }
 

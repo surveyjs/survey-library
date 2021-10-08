@@ -158,13 +158,24 @@ export abstract class DragDropCore<T> extends Base {
 
     const shortcutHeight = this.draggedElementShortcut.offsetHeight;
     const shortcutWidth = this.draggedElementShortcut.offsetWidth;
-    const shortcutXCenter = shortcutWidth / 2;
-    const shortcutYCenter = shortcutHeight / 2;
+    let shortcutXOffset;
+    let shortcutYOffset;
+
+    const draggedIcon = this.draggedElementShortcut.querySelector(".svc-item-value-controls__drag .sv-svg-icon");
+    if (draggedIcon) {
+      const rectOuter = this.draggedElementShortcut.getBoundingClientRect();
+      const rectInner = draggedIcon.getBoundingClientRect();
+      shortcutXOffset = rectInner.x - rectOuter.x + rectInner.width / 2;
+      shortcutYOffset = rectInner.y - rectOuter.y + rectInner.height / 2;
+    } else {
+      shortcutXOffset = shortcutWidth / 2;
+      shortcutYOffset = shortcutHeight / 2;
+    }
 
     const documentClientHeight = document.documentElement.clientHeight;
     const documentClientWidth = document.documentElement.clientWidth;
 
-    if (event.clientX + shortcutXCenter >= documentClientWidth) {
+    if (event.clientX + shortcutXOffset >= documentClientWidth) {
       this.draggedElementShortcut.style.left =
         event.pageX -
         event.clientX +
@@ -172,21 +183,21 @@ export abstract class DragDropCore<T> extends Base {
         shortcutWidth +
         "px";
       this.draggedElementShortcut.style.top =
-        event.pageY - shortcutYCenter + "px";
+        event.pageY - shortcutYOffset + "px";
       return;
     }
 
-    if (event.clientX - shortcutXCenter <= 0) {
+    if (event.clientX - shortcutXOffset <= 0) {
       this.draggedElementShortcut.style.left =
         event.pageX - event.clientX + "px";
       this.draggedElementShortcut.style.top =
-        event.pageY - shortcutYCenter + "px";
+        event.pageY - shortcutYOffset + "px";
       return;
     }
 
-    if (event.clientY + shortcutYCenter >= documentClientHeight) {
+    if (event.clientY + shortcutYOffset >= documentClientHeight) {
       this.draggedElementShortcut.style.left =
-        event.pageX - shortcutXCenter + "px";
+        event.pageX - shortcutXOffset + "px";
       this.draggedElementShortcut.style.top =
         event.pageY -
         event.clientY +
@@ -196,18 +207,18 @@ export abstract class DragDropCore<T> extends Base {
       return;
     }
 
-    if (event.clientY - shortcutYCenter <= 0) {
+    if (event.clientY - shortcutYOffset <= 0) {
       this.draggedElementShortcut.style.left =
-        event.pageX - shortcutXCenter + "px";
+        event.pageX - shortcutXOffset + "px";
       this.draggedElementShortcut.style.top =
         event.pageY - event.clientY + "px";
       return;
     }
 
     this.draggedElementShortcut.style.left =
-      event.pageX - shortcutXCenter + "px";
+      event.pageX - shortcutXOffset + "px";
     this.draggedElementShortcut.style.top =
-      event.pageY - shortcutYCenter + "px";
+      event.pageY - shortcutYOffset + "px";
   }
 
   private doScroll(clientY: number, clientX: number) {

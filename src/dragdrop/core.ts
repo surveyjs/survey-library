@@ -161,7 +161,9 @@ export abstract class DragDropCore<T> extends Base {
     let shortcutXOffset;
     let shortcutYOffset;
 
-    const draggedIcon = this.draggedElementShortcut.querySelector(".svc-item-value-controls__drag .sv-svg-icon");
+    const draggedIcon =
+      this.draggedElementShortcut.querySelector(".svc-item-value-controls__drag .sv-svg-icon")
+      || this.draggedElementShortcut.querySelector(".sv-ranking-item__icon");
     if (draggedIcon) {
       const rectOuter = this.draggedElementShortcut.getBoundingClientRect();
       const rectInner = draggedIcon.getBoundingClientRect();

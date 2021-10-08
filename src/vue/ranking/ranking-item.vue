@@ -1,5 +1,5 @@
 <template>
-  <div tabindex="0" :data-sv-drop-target-item-value="index" :class="question.getItemClass(item)" v-on:keydown="(event)=>{question.handleKeydown.call(question, event, item)}" v-on:pointerdown="(event)=>{question.handlePointerDown.call(question, event, item, event.currentTarget)}">
+  <div tabindex="0" :data-sv-drop-target-ranking-item="index" :class="question.getItemClass(item)" v-on:keydown="(event)=>{question.handleKeydown.call(question, event, item)}" v-on:pointerdown="(event)=>{question.handlePointerDown.call(question, event, item, event.currentTarget)}">
     <div tabindex="-1" style="outline: none;">
       <div :class="cssClasses.itemGhostNode" />
       <div :class="cssClasses.itemContent">

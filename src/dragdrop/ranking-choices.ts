@@ -1,6 +1,10 @@
 import { ItemValue } from "../itemvalue";
 import { DragDropChoices } from "./choices";
 export class DragDropRankingChoices extends DragDropChoices {
+  protected get draggedElementType(): string {
+    return "ranking-item";
+  }
+
   protected createDraggedElementShortcut(
     text: string,
     draggedElementNode: HTMLElement

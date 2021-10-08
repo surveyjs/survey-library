@@ -44,6 +44,8 @@ export class DragDropChoices extends DragDropCore<QuestionSelectBase> {
 
     clone.classList.remove("svc-item-value--moveup");
     clone.classList.remove("svc-item-value--movedown");
+    this.draggedElement.isDragDropMoveDown = false;
+    this.draggedElement.isDragDropMoveUp = false;
 
     draggedElementShortcut.appendChild(clone);
 
@@ -160,6 +162,10 @@ export class DragDropChoices extends DragDropCore<QuestionSelectBase> {
   }
 
   protected doClear(): void {
+    this.updateVisibleChoices();
+  }
+
+  private updateVisibleChoices() {
     const parent = this.parentElement;
     this.parentElement.getType() === "ranking" ?
       parent.updateRankingChoices() :

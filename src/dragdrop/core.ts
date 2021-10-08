@@ -30,7 +30,7 @@ export abstract class DragDropCore<T> extends Base {
     return this.surveyValue || this.creator.survey;
   }
 
-  protected prevDropTarget: any = null;
+  public prevDropTarget: any = null;
   protected draggedElementShortcut: HTMLElement = null;
   private scrollIntervalId: number = null;
   private allowDropHere = false;

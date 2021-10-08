@@ -112,7 +112,7 @@ export class QuestionFileModel extends Question {
    * Use this property to setup the maximum allowed file size.
    */
   public get maxSize(): number {
-    return this.getPropertyValue("maxSize", 0);
+    return this.getPropertyValue("maxSize");
   }
   public set maxSize(val: number) {
     this.setPropertyValue("maxSize", val);
@@ -514,7 +514,7 @@ Serializer.addClass(
     "acceptedTypes",
     { name: "storeDataAsText:boolean", default: true },
     { name: "waitForUpload:boolean", default: false },
-    "maxSize:number",
+    { name: "maxSize:number", default: 0 },
     { name: "defaultValue", visible: false },
     { name: "correctAnswer", visible: false },
     { name: "validators", visible: false },

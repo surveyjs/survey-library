@@ -111,7 +111,10 @@ QUnit.test("QuestionFile value initialization array", function(assert) {
     "locally stored file content"
   );
 });
-
+QUnit.test("QuestionFile serialization", function(assert) {
+  const fileQuestion = new QuestionFileModel("q1");
+  assert.deepEqual(fileQuestion.toJSON(), { name: "q1" }, "We have only name in serialziation by default");
+});
 QUnit.test("QuestionFile value initialization array of objects", function(
   assert
 ) {
@@ -604,22 +607,22 @@ QUnit.test("check file d&d", (assert) => {
   var survey = new SurveyModel(json);
   var q: QuestionFileModel = <QuestionFileModel>survey.getQuestionByName("file1");
   let onChangeCalledCount = 0;
-  q["onChange"] = () => { onChangeCalledCount++ };
-  const event = { preventDefault: () => {}, dataTransfer: { dropEffect: "none", files: [ { type: "ext", name: "test", content: "test_content" } ] } };
+  q["onChange"] = () => { onChangeCalledCount++; };
+  const event = { preventDefault: () => {}, dataTransfer: { dropEffect: "none", files: [{ type: "ext", name: "test", content: "test_content" }] } };
   q.onDragOver(event);
   assert.equal(event.dataTransfer.dropEffect, "copy");
   assert.equal(q.isDragging, true);
- 
+
   q.onDragLeave(event);
   assert.equal(q.isDragging, false);
- 
+
   q.onDragOver(event);
   assert.equal(q.isDragging, true);
- 
+
   q.onDrop(event);
   assert.equal(q.isDragging, false);
   assert.equal(onChangeCalledCount, 1);
-})
+});
 
 QUnit.test("check file d&d readonly", (assert) => {
   var json = {
@@ -635,26 +638,26 @@ QUnit.test("check file d&d readonly", (assert) => {
   var survey = new SurveyModel(json);
   var q: QuestionFileModel = <QuestionFileModel>survey.getQuestionByName("file1");
   let onChangeCalledCount = 0;
-  q["onChange"] = () => { onChangeCalledCount++ };
-  const event = { preventDefault: () => {}, dataTransfer: { dropEffect: "none", files: [ { type: "ext", name: "test", content: "test_content" } ] } };
+  q["onChange"] = () => { onChangeCalledCount++; };
+  const event = { preventDefault: () => {}, dataTransfer: { dropEffect: "none", files: [{ type: "ext", name: "test", content: "test_content" }] } };
   const checkDD = () => {
     q.onDragOver(event);
     assert.equal(event.dataTransfer.dropEffect, "none");
     assert.equal(q.isDragging, false);
-    
+
     q.onDragLeave(event);
     assert.equal(q.isDragging, false);
-    
+
     q.onDragOver(event);
     assert.equal(q.isDragging, false);
-    
+
     q.onDrop(event);
     assert.equal(q.isDragging, false);
     assert.equal(onChangeCalledCount, 0);
-  }
+  };
   q.readOnly = true;
   checkDD();
   settings.supportCreatorV2 = true;
   survey.setDesignMode(true);
   checkDD();
-})
+});

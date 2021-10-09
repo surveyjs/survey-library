@@ -30,7 +30,7 @@ export abstract class DragDropCore<T> extends Base {
     return this.surveyValue || this.creator.survey;
   }
 
-  protected prevDropTarget: any = null;
+  public prevDropTarget: any = null;
   protected draggedElementShortcut: HTMLElement = null;
   private scrollIntervalId: number = null;
   private allowDropHere = false;
@@ -161,7 +161,9 @@ export abstract class DragDropCore<T> extends Base {
     let shortcutXOffset;
     let shortcutYOffset;
 
-    const draggedIcon = this.draggedElementShortcut.querySelector(".svc-item-value-controls__drag .sv-svg-icon");
+    const draggedIcon =
+      this.draggedElementShortcut.querySelector(".svc-item-value-controls__drag .sv-svg-icon")
+      || this.draggedElementShortcut.querySelector(".sv-ranking-item__icon");
     if (draggedIcon) {
       const rectOuter = this.draggedElementShortcut.getBoundingClientRect();
       const rectInner = draggedIcon.getBoundingClientRect();

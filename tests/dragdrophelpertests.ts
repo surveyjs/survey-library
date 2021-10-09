@@ -25,6 +25,7 @@ function getNewQuestion(choices?: string[]) {
 
 QUnit.test("drop", function (assert) {
   let ddHelper = new DragDropChoices(null);
+  const dropTargetNode = document.createElement("div");
   const drop = ddHelper["drop"];
   const afterDragOver = ddHelper["afterDragOver"].bind(ddHelper);
 
@@ -40,7 +41,7 @@ QUnit.test("drop", function (assert) {
   ddHelper["draggedElementShortcut"] = document.body.appendChild(
     document.createElement("div")
   );
-  afterDragOver(null);
+  afterDragOver(dropTargetNode);
   assert.deepEqual(
     question.visibleChoices.map((c) => c.value),
     ["item2", "item3", "item1", "item4"]
@@ -63,7 +64,7 @@ QUnit.test("drop", function (assert) {
   ddHelper["draggedElementShortcut"] = document.body.appendChild(
     document.createElement("div")
   );
-  afterDragOver(null);
+  afterDragOver(dropTargetNode);
   assert.deepEqual(
     question.visibleChoices.map((c) => c.value),
     ["item1", "item2", "item4", "item3"]
@@ -86,7 +87,7 @@ QUnit.test("drop", function (assert) {
   ddHelper["draggedElementShortcut"] = document.body.appendChild(
     document.createElement("div")
   );
-  afterDragOver(null);
+  afterDragOver(dropTargetNode);
   assert.deepEqual(
     question.visibleChoices.map((c) => c.value),
     ["item2", "item1", "item3", "item4"]

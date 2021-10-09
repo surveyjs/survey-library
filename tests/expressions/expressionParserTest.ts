@@ -13,6 +13,7 @@ import {
   Variable,
   BinaryOperand,
   UnaryOperand,
+  Operand,
 } from "../../src/expressions/expressions";
 
 import { ProcessValue } from "../../src/conditionProcessValue";
@@ -1244,4 +1245,21 @@ QUnit.test("ExpressionRunner: fix incorrect JavaScript summary", function(assert
 QUnit.test("ExpressionRunner: fix incorrect JavaScript summary", function(assert) {
   var runner = new ExpressionRunner("0.9 - 0.6");
   assert.equal(runner.run({}), 0.3, "It works correctly");
+});
+QUnit.test("Operand.isEqual()", function(assert) {
+  const getOperand = (expression: string): Operand => {
+    return new ConditionsParser().parseExpression(expression);
+  };
+  const compareOperands = (exp1: string, exp2: string): boolean => {
+    return getOperand(exp1).isEqual(getOperand(exp2));
+  };
+  assert.equal(compareOperands("{val} = 1", "{val} = 2"), false, "#1");
+  assert.equal(compareOperands("{val} = 1", "{val} = 1"), true), "#2";
+  assert.equal(compareOperands("{val} = 1 and func({a}) < 3", "{val} = 1 and func({a}) < 3"), true, "#3");
+  assert.equal(compareOperands("{val} = 1 and func({a}) < 3", "{val} = 1 and func({b}) < 3"), false, "#4");
+  assert.equal(compareOperands("func({a}) < 3", "func({b}) < 3"), false, "#4.1");
+  assert.equal(compareOperands("func({a, b, 5}) < 3", "func({a, b, 5}) < 3"), true, "#4.2");
+  assert.equal(compareOperands("{a} < 3", "{b} < 3"), false, "#4.3");
+  assert.equal(compareOperands("{val} = 1 and func({a}) < 3", "{val} = 1 or func({a}) < 3"), false, "#5");
+  assert.equal(compareOperands("{val} = 1", "{val} != 1"), false, "#6");
 });

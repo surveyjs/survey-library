@@ -263,7 +263,7 @@ export class DragDropSurveyElements extends DragDropCore<any> {
 
     // ghost new page
     if (this.dropTarget.isPage && (<any>this.dropTarget)["_isGhost"]) {
-      (<any>this.dropTarget)["_addGhostPageViewMobel"]();
+      (<any>this.dropTarget)["_addGhostPageViewModel"]();
     }
     // EO ghost new page
 

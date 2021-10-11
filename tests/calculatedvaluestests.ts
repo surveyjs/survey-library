@@ -394,3 +394,34 @@ QUnit.test("Use calculated value in text processing", function(assert) {
   var question = survey.getQuestionByName("q1");
   assert.equal(question.locTitle.renderedHtml, "title: 3");
 });
+QUnit.test("Fire onVariableChanged on changing calculated value", function(assert) {
+  const json = {
+    questions: [
+      {
+        type: "text",
+        name: "q1",
+        defaultValue: 1
+      },
+    ],
+    calculatedValues: [
+      {
+        name: "var1",
+        expression: "{q1} + 1",
+      },
+    ],
+  };
+  const survey = new SurveyModel(json);
+  let counter = 0;
+  let name, value;
+  survey.onVariableChanged.add((sender, options) => {
+    counter++;
+    name = options.name;
+    value = options.value;
+  });
+  assert.equal(survey.calculatedValues[0].value, 2, "The value set correctly");
+  survey.setValue("q1", 2);
+  assert.equal(survey.calculatedValues[0].value, 3, "The value updated correctly");
+  assert.equal(counter, 1, "onVariableChanged is fired one time");
+  assert.equal(name, "var1", "options.name is correct");
+  assert.equal(value, 3, "options.value is correct");
+});

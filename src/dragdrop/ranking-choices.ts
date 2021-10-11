@@ -21,6 +21,7 @@ export class DragDropRankingChoices extends DragDropChoices {
           background-color: white;
           padding-right: 16px;
           padding-left: 20px;
+          font-family: "Open Sans";
         `;
 
     const isDeepClone = true;

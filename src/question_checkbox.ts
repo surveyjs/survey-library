@@ -187,11 +187,12 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     var len = !Array.isArray(val) ? 0 : val.length;
     return len >= this.maxSelectedChoices;
   }
-  getItemClass(item: any) {
+  protected getItemClassCore(item: any, options: any) {
     const __dummy_value = this.value; //trigger dependencies from koValue for knockout
+    options.isSelectAllItem = item === this.selectAllItem;
     return new CssClassBuilder()
-      .append(super.getItemClass(item))
-      .append(this.cssClasses.itemSelectAll, item === this.selectAllItem)
+      .append(super.getItemClassCore(item, options))
+      .append(this.cssClasses.itemSelectAll, options.isSelectAllItem)
       .toString();
   }
   protected setNewValue(newValue: any) {

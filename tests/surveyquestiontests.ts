@@ -4101,7 +4101,7 @@ QUnit.test(
     );
   }
 );
-QUnit.test("Checkbox question getItemClass()", function(assert) {
+QUnit.test("Checkbox question getItemClass() + survey.onUpdateChoiceItemCss", function(assert) {
   var survey = new SurveyModel({
     elements: [
       {
@@ -4135,6 +4135,16 @@ QUnit.test("Checkbox question getItemClass()", function(assert) {
     q1.getItemClass(q1.visibleChoices[3]),
     "sv_q_checkbox sv-q-col-1 sv_q_checkbox_none",
     "None"
+  );
+  survey.onUpdateChoiceItemCss.add((sender, options) => {
+    if(options.item.value == 2) {
+      options.css = options.css + " custom";
+    }
+  });
+  assert.equal(
+    q1.getItemClass(q1.visibleChoices[2]),
+    "sv_q_checkbox sv-q-col-1 custom",
+    "item 2, value = 2, survey.onUpdateChoiceItemCss"
   );
 });
 QUnit.test(

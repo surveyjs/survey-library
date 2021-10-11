@@ -1140,16 +1140,25 @@ export class QuestionSelectBase extends Question {
       this.comment = "";
     }
   }
-  getColumnClass() {
+  getColumnClass(): string {
     return new CssClassBuilder()
       .append(this.cssClasses.column)
       .append("sv-q-column-" + this.colCount, this.hasColumns)
       .toString();
   }
-  getItemIndex(item: any) {
+  getItemIndex(item: any): number {
     return this.visibleChoices.indexOf(item);
   }
-  getItemClass(item: any) {
+  getItemClass(item: any): string {
+    const options: any = { item: item };
+    var res = this.getItemClassCore(item, options);
+    options.css = res;
+    if(!!this.survey) {
+      this.survey.updateChoiceItemCss(this, options);
+    }
+    return options.css;
+  }
+  protected getItemClassCore(item: any, options: any): string {
     const builder = new CssClassBuilder()
       .append(this.cssClasses.item)
       .append(this.cssClasses.itemInline, !this.hasColumns && this.colCount === 0)
@@ -1160,6 +1169,9 @@ export class QuestionSelectBase extends Question {
       (this.isOtherSelected && this.otherItem.value === item.value);
     const allowHover = !isDisabled && !isChecked && !(!!this.survey && this.survey.isDesignMode);
     const isNone = item === this.noneItem;
+    options.isDisabled = isDisabled;
+    options.isChecked = isChecked;
+    options.isNone = isNone;
 
     return builder.append(this.cssClasses.itemDisabled, isDisabled)
       .append(this.cssClasses.itemChecked, isChecked)
@@ -1167,13 +1179,14 @@ export class QuestionSelectBase extends Question {
       .append(this.cssClasses.itemNone, isNone)
       .toString();
   }
-  getLabelClass(item: ItemValue) {
+
+  getLabelClass(item: ItemValue): string {
     return new CssClassBuilder()
       .append(this.cssClasses.label)
       .append(this.cssClasses.labelChecked, this.isItemSelected(item))
       .toString();
   }
-  getControlLabelClass(item: ItemValue) {
+  getControlLabelClass(item: ItemValue): string {
     return new CssClassBuilder()
       .append(this.cssClasses.controlLabel)
       .append(this.cssClasses.controlLabelChecked, this.isItemSelected(item))

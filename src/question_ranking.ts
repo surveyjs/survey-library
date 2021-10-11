@@ -33,14 +33,14 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
       .toString();
   }
 
-  public getItemClass(item: ItemValue): string {
+  protected getItemClassCore(item: ItemValue, options: any): string {
     const itemIndex = this.rankingChoices.indexOf(item);
     const dropTargetIndex = this.rankingChoices.indexOf(
       this.currentDropTarget
     );
 
     return new CssClassBuilder()
-      .append(super.getItemClass(item))
+      .append(super.getItemClassCore(item, options))
       .append(this.cssClasses.itemGhostMod, this.currentDropTarget === item)
       .append(
         "sv-dragdrop-movedown",
@@ -261,20 +261,20 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
   }
 
   private handleArrowUp = (index: number, choice: ItemValue) => {
-    const choices = this.rankingChoices;
-    choices.splice(index, 1);
-    choices.splice(index - 1, 0, choice);
-    this.setValue();
+    const newValue = this.value.slice();
+    newValue.splice(index, 1);
+    newValue.splice(index - 1, 0, choice);
+    this.value = newValue;
     setTimeout(() => {
       this.focusItem(index - 1);
     }, 1);
   };
 
   private handleArrowDown = (index: number, choice: ItemValue) => {
-    const choices = this.rankingChoices;
-    choices.splice(index, 1);
-    choices.splice(index + 1, 0, choice);
-    this.setValue();
+    const newValue = this.value.slice();
+    newValue.splice(index, 1);
+    newValue.splice(index + 1, 0, choice);
+    this.value = newValue;
     setTimeout(() => {
       this.focusItem(index + 1);
     }, 1);
@@ -373,7 +373,7 @@ Serializer.addClass(
       isSerializable: false,
     },
   ],
-  function () {
+  function() {
     return new QuestionRankingModel("");
   },
   "checkbox"

@@ -569,6 +569,16 @@ export class SurveyModel extends SurveyElementCore
     SurveyModel
   >();
   /**
+   * The event is fired before rendering a choice item in radiogroup, checkbox or dropdown questions. Use it to override the default choice item css.
+   * <br/> `sender` - the survey object that fires the event.
+   * <br/> `options.question` - a question where choice item is rendered.
+   * <br/> `options.item` - a choice item of ItemValue type. You can get value or text choice properties as options.item.value or options.choice.text
+   * <br/> `options.css` - a string with css classes divided by space. You can change it.
+   */
+   public onUpdateChoiceItemCss: EventBase<SurveyModel> = this.addEvent<
+   SurveyModel
+ >();
+  /**
    * The event is fired right after survey is rendered in DOM.
    * <br/> `sender` - the survey object that fires the event.
    * <br/> `options.htmlElement` - a root HTML element bound to the survey object.
@@ -3899,6 +3909,10 @@ export class SurveyModel extends SurveyElementCore
       page: page,
       cssClasses: cssClasses,
     });
+  }
+  updateChoiceItemCss(question: IQuestion, options: any): void {
+    options.question = question;
+    this.onUpdateChoiceItemCss.fire(this, options);
   }
   afterRenderPage(htmlElement: HTMLElement) {
     if (this.onAfterRenderPage.isEmpty) return;

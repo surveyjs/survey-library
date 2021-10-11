@@ -304,7 +304,7 @@ export class StylesManager {
     ".sv_main .sv-action-bar-item": "-webkit-appearance: none; -moz-appearance: none; appearance: none; display: flex; height: 40px; padding: 8px; box-sizing: border-box; margin-right: 16px; border: none; border-radius: 2px; background-color: transparent; cursor: pointer; line-height: 24px; font-size: 16px; overflow-x: hidden; white-space: nowrap; min-width: auto; font-weight: normal",
     ".sv_main .sv-action-bar-item__title": "vertical-align: middle; white-space: nowrap;",
     ".sv_main .sv-action-bar-item__title--with-icon": "margin-left: 8px;",
-    ".sv_main .sv-action__content": "display: inline-flex; align-items: center;",
+    ".sv_main .sv-action__content": "display: flex; flex-direction: row; align-items: center;",
     ".sv_main .sv-action__content > *": "flex: 0 0 auto;",
     ".sv_main .sv-action--hidden": "width: 0px; height: 0px; overflow: hidden;",
     ".sv_main .sv-action-bar-item__icon svg": "display: block;",

@@ -237,4 +237,38 @@ frameworks.forEach((framework) => {
     data = await getData();
     assert.deepEqual(typeof data.bestcar, "undefined");
   });
+
+  test(`ranking: keyborad`, async (t) => {
+    const PriceItem = Selector("span")
+      .withText(
+        "Please rank the following smartphone features in order of importance:"
+      )
+      .parent("[aria-labelledby]")
+      .find("span")
+      .withText("Price");
+
+    await t.pressKey("tab").pressKey("tab").pressKey('up');
+    let data = await getData();
+    assert.deepEqual(data["smartphone-features"], [
+      "Screen size",
+      "Battery life",
+      "Storage space",
+      "Camera quality",
+      "Durability",
+      "Processor power",
+      "Price",
+    ]);
+
+    await t.pressKey('down');
+    data = await getData();
+    assert.deepEqual(data["smartphone-features"], [
+      "Battery life",
+      "Screen size",
+      "Storage space",
+      "Camera quality",
+      "Durability",
+      "Processor power",
+      "Price",
+    ]);
+  });
 });

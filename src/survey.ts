@@ -209,6 +209,16 @@ export class SurveyModel extends SurveyElementCore
    */
   public onValueChanged: EventBase<SurveyModel> = this.addEvent<SurveyModel>();
   /**
+   * The event is fired when setVariable function is called. It can be called on changing a calculated value.
+   * <br/> `sender` - the survey object that fires the event.
+   * <br/> `options.name` - the variable name that has been changed.
+   * <br/> `options.value` - a new value.
+   * @see setVariable
+   * @see onValueChanged
+   * @see calculatedValues
+   */
+  public onVariableChanged: EventBase<SurveyModel> = this.addEvent<SurveyModel>();
+  /**
    * The event is fired when a question visibility has been changed.
    * <br/> `sender` - the survey object that fires the event.
    * <br/> `options.question` - a question which visibility has been changed.
@@ -5079,12 +5089,13 @@ export class SurveyModel extends SurveyElementCore
    * @param newValue A variable new value
    * @see GetVariable
    */
-  public setVariable(name: string, newValue: any) {
+  public setVariable(name: string, newValue: any): void {
     if (!name) return;
     name = name.toLowerCase();
     this.variablesHash[name] = newValue;
     this.notifyElementsOnAnyValueOrVariableChanged(name);
     this.runConditionOnValueChanged(name, newValue);
+    this.onVariableChanged.fire(this, { name: name, value: newValue });
   }
   /**
    * Returns all variables in the survey. Use setVariable function to create a new variable.

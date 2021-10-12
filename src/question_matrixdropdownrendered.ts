@@ -32,8 +32,8 @@ export class QuestionMatrixDropdownRenderedCell {
   public panel: PanelModel;
   public isShowHideDetail: boolean;
   public isActionsCell: boolean = false;
-  public className: string = "";
   public isDragHandlerCell: boolean = false;
+  private classNameValue: string = "";
   public constructor() {
     this.idValue = QuestionMatrixDropdownRenderedCell.counter++;
   }
@@ -85,11 +85,17 @@ export class QuestionMatrixDropdownRenderedCell {
   public get isFirstChoice(): boolean {
     return this.choiceIndex === 0;
   }
-  public get css(): string {
-    return new CssClassBuilder()
-      .append(this.className)
-      .append(this.question.cssError, this.question.errors.length > 0)
-      .toString();
+  public set className(val: string) {
+    this.classNameValue = val;
+  }
+  public get className(): string {
+    const builder = new CssClassBuilder().append(this.classNameValue);
+    if(this.hasQuestion) {
+      builder
+        .append(this.question.cssError, this.question.errors.length > 0)
+        .append(this.question.cssClasses.answered, this.question.isAnswered);
+    }
+    return builder.toString();
   }
   public get headers(): string {
     if (
@@ -115,7 +121,6 @@ export class QuestionMatrixDropdownRenderedCell {
       .append(questionCss.itemValue, !!questionCss)
       .append(questionCss.asCell, !!questionCss);
     return builder.append(matrixCssClasses.cell, builder.isEmpty() && !!matrixCssClasses)
-      .append(questionCss.hasError, this.question.errors.length > 0)
       .append(matrixCssClasses.choiceCell, this.isChoice)
       .toString();
   }

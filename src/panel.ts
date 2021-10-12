@@ -1523,7 +1523,9 @@ export class PanelModelBase extends SurveyElement
     prevRow: QuestionRowModel
   ): boolean {
     var targetRow = destRow.panel.createRowAndSetLazy(destRow.panel.rows.length);
-    targetRow.setIsLazyRendering(false);
+    if (this.isDesignMode && settings.supportCreatorV2) {
+      targetRow.setIsLazyRendering(false);
+    }
     targetRow.addElement(dragDropInfo.target);
     var index = destRow.index;
     if (dragDropInfo.isBottom) {

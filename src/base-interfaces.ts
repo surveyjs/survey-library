@@ -154,6 +154,7 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner {
   updateQuestionCssClasses(question: IQuestion, cssClasses: any): any;
   updatePanelCssClasses(panel: IPanel, cssClasses: any): any;
   updatePageCssClasses(panel: IPanel, cssClasses: any): any;
+  updateChoiceItemCss(question: IQuestion, options: any): any;
   afterRenderQuestion(question: IQuestion, htmlElement: HTMLElement): any;
   afterRenderQuestionInput(question: IQuestion, htmlElement: HTMLElement): any;
   afterRenderPanel(panel: IElement, htmlElement: HTMLElement): any;

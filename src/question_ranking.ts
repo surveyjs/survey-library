@@ -33,14 +33,14 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
       .toString();
   }
 
-  public getItemClass(item: ItemValue): string {
+  protected getItemClassCore(item: ItemValue, options: any): string {
     const itemIndex = this.rankingChoices.indexOf(item);
     const dropTargetIndex = this.rankingChoices.indexOf(
       this.currentDropTarget
     );
 
     return new CssClassBuilder()
-      .append(super.getItemClass(item))
+      .append(super.getItemClassCore(item, options))
       .append(this.cssClasses.itemGhostMod, this.currentDropTarget === item)
       .append(
         "sv-dragdrop-movedown",

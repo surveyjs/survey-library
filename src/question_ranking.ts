@@ -261,20 +261,20 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
   }
 
   private handleArrowUp = (index: number, choice: ItemValue) => {
-    const newValue = this.value.slice();
-    newValue.splice(index, 1);
-    newValue.splice(index - 1, 0, choice);
-    this.value = newValue;
+    const choices = this.rankingChoices;
+    choices.splice(index, 1);
+    choices.splice(index - 1, 0, choice);
+    this.setValue();
     setTimeout(() => {
       this.focusItem(index - 1);
     }, 1);
   };
 
   private handleArrowDown = (index: number, choice: ItemValue) => {
-    const newValue = this.value.slice();
-    newValue.splice(index, 1);
-    newValue.splice(index + 1, 0, choice);
-    this.value = newValue;
+    const choices = this.rankingChoices;
+    choices.splice(index, 1);
+    choices.splice(index + 1, 0, choice);
+    this.setValue();
     setTimeout(() => {
       this.focusItem(index + 1);
     }, 1);
@@ -373,7 +373,7 @@ Serializer.addClass(
       isSerializable: false,
     },
   ],
-  function() {
+  function () {
     return new QuestionRankingModel("");
   },
   "checkbox"

@@ -44,6 +44,19 @@ export class DragDropRankingChoices extends DragDropChoices {
   ): boolean {
     const choices = this.parentElement.rankingChoices;
 
+    const dropTargetIndex = choices.indexOf(this.dropTarget);
+    const draggedElementIndex = choices.indexOf(this.draggedElement);
+
+    if (draggedElementIndex > dropTargetIndex && dropTargetNode.classList.contains("sv-dragdrop-moveup")) {
+      this.parentElement.dropTargetNodeMove = null;
+      return false;
+    }
+
+    if (draggedElementIndex < dropTargetIndex && dropTargetNode.classList.contains("sv-dragdrop-movedown")) {
+      this.parentElement.dropTargetNodeMove = null;
+      return false;
+    }
+
     if (choices.indexOf(dropTarget) === -1)
       // shouldn't allow to drop on "adorners" (selectall, none, other)
       return false;

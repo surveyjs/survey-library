@@ -6,7 +6,7 @@
     "test": "karma start ./build-scripts/karma.conf.js",
     "testcafe": "concurrently \"http-server --silent\" \"testcafe -c 4 -q chrome testCafe/ --selector-timeout 1500 --reporter minimal\"",
     "testcafe_file": "concurrently \"http-server --silent\" \"testcafe chrome testCafe/components/popup.ts --selector-timeout 1500 --reporter minimal\"",
-    "testcafe_ci": "http-server --silent & testcafe -q chrome:headless testCafe/ --reporter minimal,dashboard",
+    "testcafe_ci": "http-server --silent & testcafe -c 4 -q chrome:headless testCafe/ --reporter minimal,dashboard",
     "testcafe_sauce": "testcafe \"saucelabs:Chrome@56.0:Windows 10\" testCafe/",
     "release": "standard-version --message \"Release: %s [skip ci]\" ",
     "build_core_dev": "webpack --config ./build-scripts/survey-core/webpack.config.js --env.buildType dev",

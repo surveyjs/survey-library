@@ -13,7 +13,7 @@ import { ActionContainer } from "../src/actions/container";
 
 export default QUnit.module("Panel");
 
-QUnit.test("questions-elements synhronization", function(assert) {
+QUnit.test("questions-elements synhronization", function (assert) {
   const page = new PageModel();
   page.addNewQuestion("text", "q1");
   page.addNewQuestion("text", "q2");
@@ -30,7 +30,7 @@ QUnit.test("questions-elements synhronization", function(assert) {
   );
 });
 
-QUnit.test("elements-questions synhronization", function(assert) {
+QUnit.test("elements-questions synhronization", function (assert) {
   const page = new PageModel();
   page.elements.push(new QuestionTextModel("q1"));
   page.elements.push(new QuestionTextModel("q2"));
@@ -43,7 +43,7 @@ QUnit.test("elements-questions synhronization", function(assert) {
   assert.equal(page.questions[1].name, "q3", "The second element is correct");
 });
 
-QUnit.test("load page from json with old questions", function(assert) {
+QUnit.test("load page from json with old questions", function (assert) {
   const page = new PageModel();
   const jsonObject = new JsonObject();
   jsonObject.toObject(
@@ -60,7 +60,7 @@ QUnit.test("load page from json with old questions", function(assert) {
   assert.equal(jsonObject.errors.length, 0, "There is no errors");
 });
 
-QUnit.test("Simple test on nested panel", function(assert) {
+QUnit.test("Simple test on nested panel", function (assert) {
   const page = new PageModel();
   page.addNewQuestion("text", "q1");
   const panel = page.addNewPanel("p1");
@@ -78,7 +78,7 @@ QUnit.test("Simple test on nested panel", function(assert) {
   assert.equal(page.questions.length, 5, "There are five questions");
 });
 
-QUnit.test("add questions to list", function(assert) {
+QUnit.test("add questions to list", function (assert) {
   const page = new PageModel();
   page.addNewQuestion("text", "q1");
   const panel = page.addNewPanel("p1");
@@ -89,7 +89,7 @@ QUnit.test("add questions to list", function(assert) {
   assert.equal(list.length, 3, "There are three questions");
 });
 
-QUnit.test("load nested panel from json", function(assert) {
+QUnit.test("load nested panel from json", function (assert) {
   const page = new PageModel();
   const jsonObject = new JsonObject();
   jsonObject.toObject(
@@ -113,7 +113,7 @@ QUnit.test("load nested panel from json", function(assert) {
   assert.equal(jsonObject.errors.length, 0, "There is no errors");
 });
 
-QUnit.test("panel rows generation - simple", function(assert) {
+QUnit.test("panel rows generation - simple", function (assert) {
   const page = new PageModel();
   const q1 = page.addNewQuestion("text", "q1");
   page.addNewQuestion("text", "q2");
@@ -123,7 +123,7 @@ QUnit.test("panel rows generation - simple", function(assert) {
   assert.equal(page.rows[0].visible, false, "The first row is invisible now");
 });
 
-QUnit.test("panel rows generation - startNewLine false", function(assert) {
+QUnit.test("panel rows generation - startNewLine false", function (assert) {
   const page = new PageModel();
   const q1 = page.addNewQuestion("text", "q1");
   const q2 = page.addNewQuestion("text", "q2");
@@ -136,7 +136,7 @@ QUnit.test("panel rows generation - startNewLine false", function(assert) {
   assert.equal(page.rows[0].visible, false, "The first row is invisible now");
 });
 
-QUnit.test("panel rows generation - nested panel", function(assert) {
+QUnit.test("panel rows generation - nested panel", function (assert) {
   const page = new PageModel();
   page.addNewQuestion("text", "q1");
   const p1 = page.addNewPanel("p1");
@@ -170,7 +170,7 @@ QUnit.test("panel rows generation - nested panel", function(assert) {
     "The panel row is invisible - it is empty"
   );
 });
-QUnit.test("Expand panel on validation error", function(assert) {
+QUnit.test("Expand panel on validation error", function (assert) {
   const survey = new SurveyModel();
   const page = survey.addNewPage("page1");
   const panel1 = page.addNewPanel("p1");
@@ -185,7 +185,7 @@ QUnit.test("Expand panel on validation error", function(assert) {
   assert.equal(panel1.isCollapsed, false, "Panel1 is not collapsed");
   assert.equal(panel2.isCollapsed, false, "Panel2 is not collapsed");
 });
-QUnit.test("Panel.isRequired", function(assert) {
+QUnit.test("Panel.isRequired", function (assert) {
   const survey = new SurveyModel();
   const page = survey.addNewPage("page1");
   const panel = page.addNewPanel("p1");
@@ -209,7 +209,7 @@ QUnit.test("Panel.isRequired", function(assert) {
   );
   assert.equal(panel.hasVisibleErrors, false, "There no visible errors");
 });
-QUnit.test("Panel.isRequired and hideRequiredErrors, Bug#2679", function(
+QUnit.test("Panel.isRequired and hideRequiredErrors, Bug#2679", function (
   assert
 ) {
   const survey = new SurveyModel();
@@ -228,7 +228,7 @@ QUnit.test("Panel.isRequired and hideRequiredErrors, Bug#2679", function(
   );
 });
 
-QUnit.test("Panel with paneldynamic error focus", function(assert) {
+QUnit.test("Panel with paneldynamic error focus", function (assert) {
   const json = {
     elements: [
       {
@@ -266,7 +266,7 @@ QUnit.test("Panel with paneldynamic error focus", function(assert) {
 
 QUnit.test(
   "Required panel error focus/not focus - T3101 - Stop focus when page has error",
-  function(assert) {
+  function (assert) {
     const json = {
       elements: [
         { type: "checkbox", name: "chk0" },
@@ -314,7 +314,7 @@ QUnit.test(
   }
 );
 
-QUnit.test("Panel.getValue()", function(assert) {
+QUnit.test("Panel.getValue()", function (assert) {
   const survey = new SurveyModel();
   const page = survey.addNewPage("page1");
   const panel1 = page.addNewPanel("p1");
@@ -350,7 +350,7 @@ QUnit.test("Panel.getValue()", function(assert) {
   );
 });
 
-QUnit.test("Panel.getValue() + others, Bug# 1573, T1701", function(assert) {
+QUnit.test("Panel.getValue() + others, Bug# 1573, T1701", function (assert) {
   const survey = new SurveyModel({
     elements: [
       {
@@ -406,7 +406,7 @@ QUnit.test("Panel.getValue() + others, Bug# 1573, T1701", function(assert) {
   );
 });
 
-QUnit.test("Panel.getComments()", function(assert) {
+QUnit.test("Panel.getComments()", function (assert) {
   const survey = new SurveyModel();
   const page = survey.addNewPage("page1");
   const panel1 = page.addNewPanel("p1");
@@ -437,7 +437,7 @@ QUnit.test("Panel.getComments()", function(assert) {
   );
 });
 
-QUnit.test("Page getPanels and Survey getAllPanels", function(assert) {
+QUnit.test("Page getPanels and Survey getAllPanels", function (assert) {
   const survey = new SurveyModel();
   const page1 = survey.addNewPage("page1");
   const panel1 = page1.addNewPanel("p1");
@@ -463,7 +463,7 @@ QUnit.test("Page getPanels and Survey getAllPanels", function(assert) {
   );
 });
 
-QUnit.test("Get first focused question correctly, Bug#1417", function(assert) {
+QUnit.test("Get first focused question correctly, Bug#1417", function (assert) {
   const survey = new SurveyModel({
     elements: [
       { type: "html", name: "q1" },
@@ -515,7 +515,7 @@ QUnit.test("Get first focused question correctly, Bug#1417", function(assert) {
   );
 });
 
-QUnit.test("Flow Panel, add new element/remove element", function(assert) {
+QUnit.test("Flow Panel, add new element/remove element", function (assert) {
   const panel = new FlowPanelModel("p");
   panel.addNewQuestion("text", "q1");
   assert.equal(panel.content, "{element:q1}", "element was added into content");
@@ -523,7 +523,7 @@ QUnit.test("Flow Panel, add new element/remove element", function(assert) {
   assert.equal(panel.content, "", "element is removed from content");
 });
 
-QUnit.test("getLayoutType()", function(assert) {
+QUnit.test("getLayoutType()", function (assert) {
   const survey = new SurveyModel();
   const page = survey.addNewPage("p");
   const q1 = page.addNewQuestion("text", "q1");
@@ -543,18 +543,18 @@ QUnit.test("getLayoutType()", function(assert) {
   assert.equal(q3.getLayoutType(), "flow");
 });
 
-QUnit.test("Hide question title for flow layout", function(assert) {
+QUnit.test("Hide question title for flow layout", function (assert) {
   const flowPanel = new FlowPanelModel("flowPanel");
   const q = flowPanel.addNewQuestion("text", "q");
   assert.equal(q.getTitleLocation(), "hidden", "Hide for flow layout");
 });
-QUnit.test("Do not generate rows and do not set renderWidth", function(assert) {
+QUnit.test("Do not generate rows and do not set renderWidth", function (assert) {
   const flowPanel = new FlowPanelModel("flowPanel");
   const q = flowPanel.addNewQuestion("text", "q");
   assert.equal(flowPanel.rows.length, 0, "There is no rows");
   assert.equal(q.renderWidth, "", "render width is empty");
 });
-QUnit.test("question.cssRoot class", function(assert) {
+QUnit.test("question.cssRoot class", function (assert) {
   const survey = new SurveyModel();
   const page = survey.addNewPage("p");
   const flowPanel = new FlowPanelModel("flowPanel");
@@ -574,7 +574,7 @@ QUnit.test("question.cssRoot class", function(assert) {
 });
 QUnit.test(
   "FlowPanel: checkbox and radiogroup - always keep colCount to 0",
-  function(assert) {
+  function (assert) {
     const survey = new SurveyModel();
     const page = survey.addNewPage("p");
     const flowPanel = new FlowPanelModel("flowPanel");
@@ -593,7 +593,7 @@ QUnit.test(
     assert.equal(q2.colCount, 0, "radiogroup.colCount is still 0");
   }
 );
-QUnit.test("FlowPanel: support limited number of questions", function(assert) {
+QUnit.test("FlowPanel: support limited number of questions", function (assert) {
   const flowPanel = new FlowPanelModel("flowPanel");
   assert.notOk(flowPanel.addNewPanel("p1"), "We can't add panel");
   assert.notOk(flowPanel.addNewQuestion("matrix", "q1"), "We can't add matrix");
@@ -602,7 +602,7 @@ QUnit.test("FlowPanel: support limited number of questions", function(assert) {
 
 QUnit.test(
   "PageModel: isDesignMode && allowShowEmptyTitleInDesignMode",
-  function(assert) {
+  function (assert) {
     const survey = new SurveyModel();
     const page = survey.addNewPage("page");
     assert.notOk(page.hasTitle, "Empty title is not visible at runtime");
@@ -648,7 +648,7 @@ QUnit.test(
   }
 );
 
-QUnit.test("QuestionRowModel setElementMaxMinWidth", function(assert) {
+QUnit.test("QuestionRowModel setElementMaxMinWidth", function (assert) {
   const qrm = new QuestionRowModel(<any>{ areInvisibleElementsShowing: false });
 
   const el1: any = {
@@ -670,7 +670,7 @@ QUnit.test("QuestionRowModel setElementMaxMinWidth", function(assert) {
   assert.equal(el2.maxWidth, "initial", "maxWidth in '%' is default");
 });
 
-QUnit.test("Page/Panel.getProgressInfo()", function(assert) {
+QUnit.test("Page/Panel.getProgressInfo()", function (assert) {
   const page = new PageModel("q1");
   const panel1 = page.addNewPanel("panel1");
   const panel2 = page.addNewPanel("panel2");
@@ -690,7 +690,7 @@ QUnit.test("Page/Panel.getProgressInfo()", function(assert) {
     requiredAnsweredQuestionCount: 2,
   });
 });
-QUnit.test("Panel.requiredIf", function(assert) {
+QUnit.test("Panel.requiredIf", function (assert) {
   const survey = new SurveyModel({
     elements: [
       {
@@ -713,7 +713,7 @@ QUnit.test("Panel.requiredIf", function(assert) {
   assert.equal(panel.isRequired, false, "q1 is 2");
 });
 
-QUnit.test("Panel.ensureRowsVisibility", function(assert) {
+QUnit.test("Panel.ensureRowsVisibility", function (assert) {
   const json = {
     pages: [
       {
@@ -761,7 +761,7 @@ QUnit.test("Panel.ensureRowsVisibility", function(assert) {
   assert.equal(counter, 2);
 });
 
-QUnit.test("Panel.startLazyRendering isNeedRender=true", function(assert) {
+QUnit.test("Panel.startLazyRendering isNeedRender=true", function (assert) {
   const json = {
     pages: [
       {
@@ -818,7 +818,7 @@ QUnit.test("Panel.startLazyRendering isNeedRender=true", function(assert) {
   }
 });
 
-QUnit.test("Panel.startLazyRendering isNeedRender=false", function(assert) {
+QUnit.test("Panel.startLazyRendering isNeedRender=false", function (assert) {
   const json = {
     pages: [
       {
@@ -879,7 +879,7 @@ QUnit.test("Panel.startLazyRendering isNeedRender=false", function(assert) {
     settings.lazyRowsRenderingStartRow = prevStartRowInLazyRendering;
   }
 });
-QUnit.test("row.isNeedRender & settings.lazyRowsRenderingStartRow", function(
+QUnit.test("row.isNeedRender & settings.lazyRowsRenderingStartRow", function (
   assert
 ) {
   const json = {
@@ -924,7 +924,7 @@ QUnit.test("row.isNeedRender & settings.lazyRowsRenderingStartRow", function(
 });
 QUnit.test(
   "row.isNeedRender & settings.lazyRowsRenderingStartRow & designMode",
-  function(assert) {
+  function (assert) {
     const json = {
       pages: [
         {
@@ -986,7 +986,7 @@ QUnit.test(
     }
   }
 );
-QUnit.test("row.visibleElements make it reactive", function(assert) {
+QUnit.test("row.visibleElements make it reactive", function (assert) {
   const page = new PageModel();
   page.addNewQuestion("text", "q1");
   page.addNewQuestion("text", "q2");
@@ -1017,7 +1017,7 @@ QUnit.test("row.visibleElements make it reactive", function(assert) {
 
 QUnit.test(
   "row.isNeedRender for dynamically added questions",
-  function(assert) {
+  function (assert) {
 
     const json = {
       "questions": [
@@ -1518,6 +1518,12 @@ QUnit.test(
       page1.addNewQuestion("text", "qN");
       assert.equal(page1.rows.length, 22, "There are 22 rows");
       assert.equal(page1.rows[21].isNeedRender, false, "isNeedRender rows[21]");
+
+      survey["_isDesignMode"] = true;
+      settings.supportCreatorV2 = true;
+      page1.addNewQuestion("text", "qN2");
+      assert.equal(page1.rows.length, 23, "There are 23 rows");
+      assert.equal(page1.rows[22].isNeedRender, true, "isNeedRender rows[22] for creator v2");
     }
     finally {
       settings.lazyRowsRendering = prevLazyRowsRendering;
@@ -1527,7 +1533,7 @@ QUnit.test(
 
 QUnit.test(
   "row.isNeedRender for question invisible -> visible",
-  function(assert) {
+  function (assert) {
     const json = {
       pages: [
         {
@@ -1575,7 +1581,7 @@ QUnit.test(
     }
   }
 );
-QUnit.test("Panel.actions", function(assert) {
+QUnit.test("Panel.actions", function (assert) {
   const survey = new SurveyModel({
     elements: [
       {
@@ -1590,7 +1596,7 @@ QUnit.test("Panel.actions", function(assert) {
   assert.equal(panel.getFooterToolbar().actions.length, 1);
   assert.equal(panel.getFooterToolbar().actions[0].id, "test");
 });
-QUnit.test("Footer toolbar type", function(assert) {
+QUnit.test("Footer toolbar type", function (assert) {
   const survey = new SurveyModel({
     elements: [
       {

@@ -54,7 +54,7 @@ export class StylesManager {
     ".sv_q_mt_item_value": "float: left;",
     '[dir="rtl"] .sv_q_mt_item_value': "float: right;",
     ".sv_qstn.sv_qstn_left": "margin-top: 0.75em;",
-    ".sv_qstn .title-left": "float: left; margin-right: 1em;",
+    ".sv_qstn .title-left": "float: left; margin-right: 1em; max-width: 50%",
     '[dir="rtl"] .sv_qstn .title-left': "float: right; margin-left: 1em;",
     ".sv_qstn .content-left": "overflow: hidden",
     ".sv_q_radiogroup_inline .sv_q_radiogroup_other": "display: inline-block;",

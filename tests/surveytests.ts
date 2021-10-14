@@ -14234,31 +14234,37 @@ QUnit.test("Survey width property", function (assert) {
   assert.equal(survey.widthMode, "fixed");
   assert.equal(survey.calculateWidthMode(), "fixed", "calculate width for linear veritical survey");
 
-  var survey2 = new SurveyModel({
+  survey.getQuestionByName("name2").startWithNewLine = false;
+  assert.equal(survey.calculateWidthMode(), "fixed", "calculate width 2 startWithNewLine");
+
+  survey.getQuestionByName("name3").startWithNewLine = false;
+  assert.equal(survey.calculateWidthMode(), "responsive", "calculate width 3 startWithNewLine");
+
+  var survey3 = new SurveyModel({
     pages: [
       {
-        elements: [
+        "elements": [
           {
-            type: "text",
-            name: "name1",
+            "type": "matrix",
+            "name": "question1",
+            "columns": [
+              "Column 1",
+              "Column 2",
+              "Column 3"
+            ],
+            "rows": [
+              "Row 1",
+              "Row 2"
+            ]
           },
           {
-            type: "text",
-            name: "name2",
-            startWithNewLine: false
-          },
-          {
-            type: "text",
-            name: "name3",
-          },
-          {
-            type: "text",
-            name: "name4",
-          },
-        ],
+            "type": "text",
+            "name": "question2"
+          }
+        ]
       },
     ]
   });
-  assert.equal(survey2.widthMode, "auto");
-  assert.equal(survey2.calculateWidthMode(), "responsive");
+  assert.equal(survey3.widthMode, "auto");
+  assert.equal(survey3.calculateWidthMode(), "responsive", "calculate width for survey with matrices");
 });

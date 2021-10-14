@@ -5726,6 +5726,12 @@ export class SurveyModel extends SurveyElementCore
       if(question.needResponsiveWidth())
         isResponsive = true;
     });
+    this.pages.forEach((page)=>{
+      page.rows.forEach((row)=>{
+        if(row.elements.length >= 3)
+          isResponsive = true;
+      });
+    });
 
     return isResponsive?"responsive":"fixed";
   }

@@ -1774,7 +1774,7 @@ export class Question extends SurveyElement
     return !!this.data ? this.data.getAllValues() : null;
   }
   public needResponsiveWidth() {
-    return !this.startWithNewLine;
+    return false;
   }
 }
 Serializer.addClass("question", [

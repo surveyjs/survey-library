@@ -8,7 +8,7 @@ export class AdaptiveActionContainer<T extends Action = Action> extends ActionCo
   protected dotsItem: Action;
   protected dotsItemPopupModel: PopupModel;
   private responsivityManager: ResponsivityManager;
-
+  public minVisibleItemsCount: number = 0;
   private invisibleItemsListModel: ListModel = new ListModel(
     [],
     (item: T) => {
@@ -25,6 +25,7 @@ export class AdaptiveActionContainer<T extends Action = Action> extends ActionCo
   }
 
   private hideItemsGreaterN(visibleItemsCount: number) {
+    visibleItemsCount = Math.max(visibleItemsCount, this.minVisibleItemsCount);
     const invisibleItems: Action[] = [];
     this.visibleActions.forEach((item) => {
       if (visibleItemsCount <= 0) {

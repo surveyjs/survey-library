@@ -14215,9 +14215,50 @@ QUnit.test("Survey width property", function (assert) {
             type: "text",
             name: "name1",
           },
+          {
+            type: "text",
+            name: "name2",
+          },
+          {
+            type: "text",
+            name: "name3",
+          },
+          {
+            type: "text",
+            name: "name4",
+          },
         ],
       },
     ]
   });
   assert.equal(survey.widthMode, "fixed");
+  assert.equal(survey.calculateWidthMode(), "fixed", "calculate width for linear veritical survey");
+
+  var survey2 = new SurveyModel({
+    pages: [
+      {
+        elements: [
+          {
+            type: "text",
+            name: "name1",
+          },
+          {
+            type: "text",
+            name: "name2",
+            startWithNewLine: false
+          },
+          {
+            type: "text",
+            name: "name3",
+          },
+          {
+            type: "text",
+            name: "name4",
+          },
+        ],
+      },
+    ]
+  });
+  assert.equal(survey2.widthMode, "auto");
+  assert.equal(survey2.calculateWidthMode(), "responsive");
 });

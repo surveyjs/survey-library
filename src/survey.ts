@@ -5720,6 +5720,15 @@ export class SurveyModel extends SurveyElementCore
   public set widthMode(val: string) {
     this.setPropertyValue("widthMode", val);
   }
+  public calculateWidthMode() {
+    let isResponsive = false;
+    this.getAllQuestions().forEach((question)=>{
+      if(question.needResponsiveWidth())
+        isResponsive = true;
+    });
+
+    return isResponsive?"responsive":"fixed";
+  }
   public get timerInfoText(): string {
     var options = { text: this.getTimerInfoText() };
     this.onTimerPanelInfoText.fire(this, options);

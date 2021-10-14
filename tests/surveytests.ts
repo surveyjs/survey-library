@@ -14205,3 +14205,19 @@ QUnit.test("skeleton component name", function (assert) {
   assert.equal(survey.skeletonComponentName, "");
   assert.equal(question.skeletonComponentName, "");
 });
+QUnit.test("Survey width property", function (assert) {
+  var survey = new SurveyModel({
+    widthMode: "fixed",
+    pages: [
+      {
+        elements: [
+          {
+            type: "text",
+            name: "name1",
+          },
+        ],
+      },
+    ]
+  });
+  assert.equal(survey.widthMode, "fixed");
+});

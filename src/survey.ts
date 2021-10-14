@@ -5704,6 +5704,22 @@ export class SurveyModel extends SurveyElementCore
   public set showTimerPanelMode(val: string) {
     this.setPropertyValue("showTimerPanelMode", val);
   }
+
+  /**
+   * Gets or set a value that specifies survey width.
+   *
+   * The available options:
+   *
+   * - `fixed` - survey takes fixed space
+   * - `responsive` - survey takes all available space
+   * - `auto` - fixed/responsive mode depends on questions
+   */
+  public get widthMode(): string {
+    return this.getPropertyValue("widthMode");
+  }
+  public set widthMode(val: string) {
+    this.setPropertyValue("widthMode", val);
+  }
   public get timerInfoText(): string {
     var options = { text: this.getTimerInfoText() };
     this.onTimerPanelInfoText.fire(this, options);
@@ -6183,4 +6199,9 @@ Serializer.addClass("survey", [
     default: "all",
     choices: ["all", "page", "survey"],
   },
+  {
+    name: "widthMode",
+    default: "auto",
+    choices: ["auto", "fixed", "responsive"],
+  }
 ]);

@@ -61,7 +61,7 @@ function loadFileFromBase64(b64Data: string, fileName: string) {
     ) {
       (<any>window.navigator)["msSaveOrOpenBlob"](bb, fileName);
     }
-  } catch (err) {}
+  } catch (err) { }
 }
 function isMobile() {
   return (
@@ -101,9 +101,17 @@ function findScrollableParent(element: HTMLElement): HTMLElement {
       getComputedStyle(element).overflowY === "auto")
   ) {
     return element;
-  } else {
-    return findScrollableParent(element.parentElement);
   }
+
+  if (
+    element.scrollWidth > element.clientWidth &&
+    (getComputedStyle(element).overflowX === "scroll" ||
+      getComputedStyle(element).overflowX === "auto")
+  ) {
+    return element;
+  }
+
+  return findScrollableParent(element.parentElement);
 }
 
 function scrollElementByChildId(id: string) {
@@ -158,14 +166,14 @@ export function getSize(value: any) {
       try {
         const num: number = parseFloat(value);
         return "" + num + "px";
-      } catch {}
+      } catch { }
     }
   }
   return value;
 }
 
 function doKey2ClickUp(evt: KeyboardEvent, options = { processEsc: true }): void {
-  if(!!evt.target && (<any>evt.target)["contentEditable"] === "true") {
+  if (!!evt.target && (<any>evt.target)["contentEditable"] === "true") {
     return;
   }
   const element: any = evt.target;
@@ -178,15 +186,15 @@ function doKey2ClickUp(evt: KeyboardEvent, options = { processEsc: true }): void
   }
 }
 function doKey2ClickDown(evt: KeyboardEvent, options = { processEsc: true }): void {
-  if(!!evt.target && (<any>evt.target)["contentEditable"] === "true") {
+  if (!!evt.target && (<any>evt.target)["contentEditable"] === "true") {
     return;
   }
   var char = evt.which || evt.keyCode;
   const supportedCodes = [13, 32];
-  if(options.processEsc) {
+  if (options.processEsc) {
     supportedCodes.push(27);
   }
-  if(supportedCodes.indexOf(char) !== -1) {
+  if (supportedCodes.indexOf(char) !== -1) {
     evt.preventDefault();
   }
 }

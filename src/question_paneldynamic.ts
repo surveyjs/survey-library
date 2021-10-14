@@ -160,6 +160,10 @@ export class QuestionPanelDynamicItem implements ISurveyData, ISurveyImpl {
       values[
         QuestionPanelDynamicItem.IndexVariableName.toLowerCase()
       ] = this.data.getItemIndex(this);
+      const q = <Question>(<any>this.data);
+      if (!!q && !!q.parentQuestion && !!q.parent) {
+        values[QuestionPanelDynamicItem.ParentItemVariableName.toLowerCase()] = (<any>q.parent).getValue();
+      }
     }
     return values;
   }
@@ -1213,6 +1217,9 @@ export class QuestionPanelDynamicModel extends Question
     var cachedValues: { [index: string]: any } = {};
     if (values && values instanceof Object) {
       cachedValues = JSON.parse(JSON.stringify(values));
+    }
+    if (!!this.parentQuestion && !!this.parent) {
+      cachedValues[QuestionPanelDynamicItem.ParentItemVariableName.toLowerCase()] = (<any>this.parent).getValue();
     }
     for (var i = 0; i < this.panels.length; i++) {
       var panelValues = this.getPanelItemData(this.panels[i].data);

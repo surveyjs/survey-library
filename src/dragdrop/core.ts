@@ -2,6 +2,7 @@ import { SurveyModel } from "../survey";
 import { Base, EventBase } from "../base";
 import { ISurvey } from "../base-interfaces";
 import { property } from "../jsonobject";
+import { findScrollableParent } from "../utils/utils";
 
 export abstract class DragDropCore<T> extends Base {
   @property({
@@ -227,26 +228,11 @@ export abstract class DragDropCore<T> extends Base {
     cancelAnimationFrame(this.scrollIntervalId);
     const startScrollBoundary = 50;
 
-    // this.draggedElementShortcut.hidden = true;
-    // let dragOverNode = <HTMLElement>document.elementFromPoint(clientX, clientY);
-    // this.draggedElementShortcut.hidden = false;
+    this.draggedElementShortcut.hidden = true;
+    let dragOverNode = <HTMLElement>document.elementFromPoint(clientX, clientY);
+    this.draggedElementShortcut.hidden = false;
 
-    // function getScrollableParent(node:HTMLElement):HTMLElement {
-    //   if (node == null) {
-    //     return null;
-    //   }
-    //   if (node.scrollHeight > node.clientHeight) {
-    //     return node;
-    //   } else {
-    //     return getScrollableParent(<HTMLElement>node.parentNode);
-    //   }
-    // }
-    // let scrollableParentNode = getScrollableParent(dragOverNode);
-    let scrollableParentNode =
-      document.querySelector(".sd-row--multiple") ||
-      document.querySelector(".svc-tab-designer.sd-root-modern") ||
-      document.querySelector(".sv-root-modern") ||
-      document.querySelector(".sv_container");
+    let scrollableParentNode = findScrollableParent(dragOverNode);
 
     let top = scrollableParentNode.getBoundingClientRect().top;
     let bottom = scrollableParentNode.getBoundingClientRect().bottom;

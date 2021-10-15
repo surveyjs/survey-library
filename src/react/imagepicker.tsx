@@ -1,5 +1,5 @@
 import * as React from "react";
-import { SurveyQuestionElementBase } from "./reactquestion_element";
+import { SurveyElementBase, SurveyQuestionElementBase } from "./reactquestion_element";
 import { QuestionImagePickerModel } from "survey-core";
 import { ItemValue } from "survey-core";
 import { ReactQuestionFactory } from "./reactquestion_factory";
@@ -65,7 +65,7 @@ export class SurveyQuestionImagePicker extends SurveyQuestionElementBase {
           title={item.text || item.value}
           className={this.question.cssClasses.itemText}
         >
-          {item.text || item.value}
+          {item.text ? SurveyElementBase.renderLocString(item.locText) : item.value}
         </span>
       );
     }

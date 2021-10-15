@@ -14207,7 +14207,7 @@ QUnit.test("skeleton component name", function (assert) {
 });
 QUnit.test("Survey width property", function (assert) {
   var survey = new SurveyModel({
-    widthMode: "fixed",
+    widthMode: "static",
     pages: [
       {
         elements: [
@@ -14231,11 +14231,11 @@ QUnit.test("Survey width property", function (assert) {
       },
     ]
   });
-  assert.equal(survey.widthMode, "fixed");
-  assert.equal(survey.calculateWidthMode(), "fixed", "calculate width for linear veritical survey");
+  assert.equal(survey.widthMode, "static");
+  assert.equal(survey.calculateWidthMode(), "static", "calculate width for linear veritical survey");
 
   survey.getQuestionByName("name2").startWithNewLine = false;
-  assert.equal(survey.calculateWidthMode(), "fixed", "calculate width 2 startWithNewLine");
+  assert.equal(survey.calculateWidthMode(), "static", "calculate width 2 startWithNewLine");
 
   survey.getQuestionByName("name3").startWithNewLine = false;
   assert.equal(survey.calculateWidthMode(), "responsive", "calculate width 3 startWithNewLine");

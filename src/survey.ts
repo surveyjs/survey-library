@@ -5706,14 +5706,15 @@ export class SurveyModel extends SurveyElementCore
   }
 
   /**
-   * Gets or set a value that specifies survey width.
-   *
-   * The available options:
-   *
-   * - `fixed` - survey takes fixed space
-   * - `responsive` - survey takes all available space
-   * - `auto` - fixed/responsive mode depends on questions
-   */
+    * Gets or sets a value that specifies how the survey width is calculated.
+    *
+    * The available options:
+    *
+    * - `static` - A survey has a fixed width that mostly depends upon the applied theme. Resizing a browser window does not affect the survey width.
+    * - `responsive` - A survey takes all available horizontal space. A survey stretches or shrinks horizonally according to the screen size.
+    * - `auto` - Depends on the question type and corresponds to the static or responsive mode.
+  */
+  // `custom/precise` - The survey width is specified by the width property. // in-future
   public get widthMode(): string {
     return this.getPropertyValue("widthMode");
   }
@@ -5733,7 +5734,7 @@ export class SurveyModel extends SurveyElementCore
       });
     });
 
-    return isResponsive?"responsive":"fixed";
+    return isResponsive?"responsive":"static";
   }
   public get timerInfoText(): string {
     var options = { text: this.getTimerInfoText() };
@@ -6217,6 +6218,6 @@ Serializer.addClass("survey", [
   {
     name: "widthMode",
     default: "auto",
-    choices: ["auto", "fixed", "responsive"],
+    choices: ["auto", "static", "responsive"],
   }
 ]);

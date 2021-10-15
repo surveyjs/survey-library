@@ -3,11 +3,12 @@ import { QuestionTextModel } from "../src/question_text";
 import { settings } from "../src/settings";
 
 export default QUnit.module("Drag and Drop Tests - CreatorV2 specific");
-/*
+
 QUnit.test("Move item in row from left to right", function (assert) {
   settings.supportCreatorV2 = true;
   for(let i = 0; i < 6; i++) {
     var survey = new SurveyModel();
+    survey["_isDesignMode"] = true;
     settings.supportCreatorV2 = true;
     var page = survey.addNewPage("p1");
     var q1 = page.addNewQuestion("text", "q1");
@@ -114,6 +115,7 @@ QUnit.test("Move item in row from right to left", function (assert) {
   settings.supportCreatorV2 = true;
   for(let i = 0; i < 6; i++) {
     var survey = new SurveyModel();
+    survey["_isDesignMode"] = true;
     settings.supportCreatorV2 = true;
     var page = survey.addNewPage("p1");
     var q1 = page.addNewQuestion("text", "q1");
@@ -199,7 +201,7 @@ QUnit.test("Move item in row from right to left", function (assert) {
       continue;
     }
 
-    page.dragDropMoveTo(q2, true);
+    page.dragDropMoveTo(q2, false);
     assert.equal(page.rows.length, 2, "Iteration "+i+". Move 1. No rows should be added");
     assert.deepEqual(page.rows[0].elements.map(e => e.name), ["q1"], "Iteration "+i+". Move 6. The first row is q1");
     assert.deepEqual(page.rows[1].elements.map(e => e.name), ["q4", "q2", "q3", "q4"], "Iteration "+i+". Move 6. The last row is q4, q2, q3, q4");
@@ -209,14 +211,14 @@ QUnit.test("Move item in row from right to left", function (assert) {
       page.dragDropFinish();
       assert.equal(page.rows.length, 2, "Iteration "+i+". End. No rows should be added");
       assert.deepEqual(page.rows[0].elements.map(e => e.name), ["q1"], "Iteration "+i+". End. The first row is q1");
-      assert.deepEqual(page.rows[1].elements.map(e => e.name), ["q3", "q4", "q2"], "Iteration "+i+". End. The last row is q3, q4, q2");
+      assert.deepEqual(page.rows[1].elements.map(e => e.name), ["q4", "q2", "q3"], "Iteration "+i+". End. The last row is q4, q2, q3");
       assert.equal(page.questions.length, 4, "Iteration "+i+". we have only four questions");
       continue;
     }
   }
 
 });
-
+/*
 QUnit.test("Move item in row from center to right", function (assert) {
   settings.supportCreatorV2 = true;
   for(let i = 0; i < 4; i++) {

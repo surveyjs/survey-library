@@ -10,6 +10,7 @@ import {
 import { DragDropInfo, PanelModelBase, QuestionRowModel } from "./panel";
 import { LocalizableString } from "./localizablestring";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
+import { settings } from "./settings";
 
 /**
  * The page object. It has elements collection, that contains questions and panels.
@@ -309,6 +310,17 @@ export class PageModel extends PanelModelBase implements IPage {
         isSamePanel = row.panel == src.parent;
         if (isSamePanel) {
           row.panel.dragDropMoveElement(src, target, targetIndex);
+          if(this.isDesignMode && settings.supportCreatorV2) {
+            if(row.panel.elements[targetIndex] &&
+              !row.panel.elements[targetIndex].startWithNewLine &&
+               row.panel.elements[targetIndex + 1] &&
+               row.panel.elements[targetIndex + 1].startWithNewLine
+            )
+            {
+              row.panel.elements[targetIndex].startWithNewLine = true;
+              row.panel.elements[targetIndex+1].startWithNewLine = false;
+            }
+          }
           targetIndex = -1;
         } else {
           src.parent.removeElement(src);

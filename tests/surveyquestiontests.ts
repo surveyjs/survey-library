@@ -5506,3 +5506,11 @@ QUnit.test("setting visibleChoices do not fired onArrayChanged ", function (asse
   assert.equal((<any>question.visibleChoices).testId, 1, "visibleChoices array is the same");
   assert.equal(counter, 1, "We fired onArrayChanged for visibleChoices");
 });
+QUnit.test("Question title equals to name", (assert) => {
+  const question = new QuestionTextModel("q1");
+  assert.notOk(question.locTitle.getLocaleText(""), "Question title is empty # 1");
+  assert.equal(question.locTitle.renderedHtml, "q1");
+  question.locTitle.setLocaleText("", "q1");
+  assert.notOk(question.locTitle.getLocaleText(""), "Question title is empty # 2");
+  assert.equal(question.locTitle.renderedHtml, "q1");
+});

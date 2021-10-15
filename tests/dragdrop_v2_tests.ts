@@ -218,11 +218,11 @@ QUnit.test("Move item in row from right to left", function (assert) {
   }
 
 });
-/*
 QUnit.test("Move item in row from center to right", function (assert) {
   settings.supportCreatorV2 = true;
   for(let i = 0; i < 4; i++) {
     var survey = new SurveyModel();
+    survey["_isDesignMode"] = true;
     settings.supportCreatorV2 = true;
     var page = survey.addNewPage("p1");
     var q1 = page.addNewQuestion("text", "q1");
@@ -301,7 +301,9 @@ QUnit.test("Move item in row from center to left", function (assert) {
   settings.supportCreatorV2 = true;
   for(let i = 0; i < 4; i++) {
     var survey = new SurveyModel();
+    survey["_isDesignMode"] = true;
     settings.supportCreatorV2 = true;
+
     var page = survey.addNewPage("p1");
     var q1 = page.addNewQuestion("text", "q1");
     var q2 = page.addNewQuestion("text", "q2");
@@ -373,7 +375,7 @@ QUnit.test("Move item in row from center to left", function (assert) {
     }
   }
 });
-
+/*
 QUnit.test("Move item in prev row from left to multi-row", function (assert) {
   settings.supportCreatorV2 = true;
   for(let i = 0; i < 6; i++) {

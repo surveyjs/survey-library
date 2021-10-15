@@ -6950,3 +6950,11 @@ QUnit.test("QuestionMatrixDropdownRenderedRow isAdditionalClasses", (assert) => 
   assert.notEqual(className.indexOf(detailRowClass), -1);
   assert.notEqual(className.indexOf(rowAdditionalClass), -1);
 });
+QUnit.test("Column title equals to name", (assert) => {
+  const column = new MatrixDropdownColumn("col1");
+  assert.notOk(column.locTitle.getLocaleText(""), "Column title is empty # 1");
+  assert.equal(column.locTitle.renderedHtml, "col1");
+  column.title = "col1";
+  assert.notOk(column.locTitle.getLocaleText(""), "Column title is empty # 2");
+  assert.equal(column.locTitle.renderedHtml, "col1");
+});

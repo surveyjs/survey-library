@@ -89,7 +89,9 @@ export class Question extends SurveyElement
     locCommentText.onGetTextCallback = (text: string): string => {
       return !!text ? text : surveyLocalization.getString("otherItemText");
     };
-
+    this.locTitle.onGetDefaultTextCallback = (): string => {
+      return this.name;
+    };
     this.createLocalizableString("requiredErrorText", this);
     this.registerFunctionOnPropertyValueChanged("width", () => {
       this.updateQuestionCss();

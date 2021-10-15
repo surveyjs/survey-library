@@ -208,6 +208,7 @@ QUnit.test("Move item in row from right to left", function (assert) {
     assert.equal(page.questions.length, 4, "Iteration "+i+". we have only four questions");
 
     if(i == 5) {
+      debugger;
       page.dragDropFinish();
       assert.equal(page.rows.length, 2, "Iteration "+i+". End. No rows should be added");
       assert.deepEqual(page.rows[0].elements.map(e => e.name), ["q1"], "Iteration "+i+". End. The first row is q1");
@@ -375,11 +376,12 @@ QUnit.test("Move item in row from center to left", function (assert) {
     }
   }
 });
-/*
+
 QUnit.test("Move item in prev row from left to multi-row", function (assert) {
   settings.supportCreatorV2 = true;
   for(let i = 0; i < 6; i++) {
     var survey = new SurveyModel();
+    survey["_isDesignMode"] = true;
     settings.supportCreatorV2 = true;
     var page = survey.addNewPage("p1");
     var q0 = page.addNewQuestion("text", "q0");
@@ -397,12 +399,15 @@ QUnit.test("Move item in prev row from left to multi-row", function (assert) {
     page.dragDropStart(q0, target);
 
     if(i == 0) {
+      debugger;
       page.dragDropMoveTo(q2, false);
       assert.equal(page.rows.length, 2, "Iteration "+i+". Move 1. No rows should be added");
       assert.deepEqual(page.rows[0].elements.map(e => e.name), ["q0", "q1"], "Iteration "+i+". Move 1. The first row is q0, q1");
       assert.deepEqual(page.rows[1].elements.map(e => e.name), ["q0", "q2", "q3", "q4"], "Iteration "+i+". Move 1. The last row is q0, q2, q3, q4");
       assert.equal(page.questions.length, 5, "Iteration "+i+". we have only 5 questions");
+      debugger;
       page.dragDropFinish();
+      //assert.equal(page.rows[0].elements[0].startWithNewLine, true, "Iteration "+i+". End. The first element SWNL = true");
       assert.equal(page.rows.length, 2, "Iteration "+i+". End. No rows should be added");
       assert.deepEqual(page.rows[0].elements.map(e => e.name), ["q1"], "Iteration "+i+". End. The first row is q1");
       assert.deepEqual(page.rows[1].elements.map(e => e.name), ["q0", "q2", "q3", "q4"], "Iteration "+i+". End. The last row is q0, q2, q3, q4");
@@ -481,11 +486,12 @@ QUnit.test("Move item in prev row from left to multi-row", function (assert) {
     }
   }
 });
-
+/*
 QUnit.test("Move item in prev row from right to multi-row", function (assert) {
   settings.supportCreatorV2 = true;
   for(let i = 0; i < 6; i++) {
     var survey = new SurveyModel();
+    survey["_isDesignMode"] = true;
     settings.supportCreatorV2 = true;
     var page = survey.addNewPage("p1");
     var q0 = page.addNewQuestion("text", "q0");
@@ -593,6 +599,7 @@ QUnit.test("Move item multi-row to single-row bottom", function (assert) {
   settings.supportCreatorV2 = true;
   for(let i = 2; i <= 4; i++) {
     var survey = new SurveyModel();
+    survey["_isDesignMode"] = true;
     settings.supportCreatorV2 = true;
     var page = survey.addNewPage("p1");
     var q1 = page.addNewQuestion("text", "q1");
@@ -635,6 +642,7 @@ QUnit.test("Move item multi-row to single-row top", function (assert) {
   settings.supportCreatorV2 = true;
   for(let i = 2; i <= 4; i++) {
     var survey = new SurveyModel();
+    survey["_isDesignMode"] = true;
     settings.supportCreatorV2 = true;
     var page = survey.addNewPage("p1");
     var q1 = page.addNewQuestion("text", "q1");

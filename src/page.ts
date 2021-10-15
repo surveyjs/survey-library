@@ -301,26 +301,30 @@ export class PageModel extends PanelModelBase implements IPage {
     if (!this.dragDropInfo) return;
     var target = this.dragDropInfo.target;
     var row = this.dragDropFindRow(target);
+    var srcRow = this.dragDropFindRow(src);
     var targetIndex = this.dragDropGetElementIndex(target, row);
     this.updateRowsRemoveElementFromRow(target, row);
+    var elementsToSetSWNL = [];
+    var elementsToResetSWNL = [];
     if (!isCancel && !!row) {
       var src = this.dragDropInfo.source;
       var isSamePanel = false;
+
+      if(this.isDesignMode && settings.supportCreatorV2) {
+        if(row.panel.elements[targetIndex] && row.panel.elements[targetIndex].startWithNewLine) {
+          elementsToSetSWNL.push(target);
+          elementsToResetSWNL.push(row.panel.elements[targetIndex]);
+        }
+        if(srcRow && srcRow !== row && srcRow.elements[0] === src && srcRow.elements[1]) {
+          elementsToSetSWNL.push(srcRow.elements[1]);
+        }
+      }
+
+
       if (!!src && !!src.parent) {
         isSamePanel = row.panel == src.parent;
         if (isSamePanel) {
           row.panel.dragDropMoveElement(src, target, targetIndex);
-          if(this.isDesignMode && settings.supportCreatorV2) {
-            if(row.panel.elements[targetIndex] &&
-              !row.panel.elements[targetIndex].startWithNewLine &&
-               row.panel.elements[targetIndex + 1] &&
-               row.panel.elements[targetIndex + 1].startWithNewLine
-            )
-            {
-              row.panel.elements[targetIndex].startWithNewLine = true;
-              row.panel.elements[targetIndex+1].startWithNewLine = false;
-            }
-          }
           targetIndex = -1;
         } else {
           src.parent.removeElement(src);
@@ -330,6 +334,9 @@ export class PageModel extends PanelModelBase implements IPage {
         row.panel.addElement(target, targetIndex);
       }
     }
+    elementsToSetSWNL.map((e) => {e.startWithNewLine = true;})
+    elementsToResetSWNL.map((e) => {e.startWithNewLine = false;})
+
     this.dragDropInfo = null;
     return !isCancel ? target : null;
   }

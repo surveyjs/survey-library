@@ -6958,3 +6958,25 @@ QUnit.test("Column title equals to name", (assert) => {
   assert.notOk(column.locTitle.getLocaleText(""), "Column title is empty # 2");
   assert.equal(column.locTitle.renderedHtml, "col1");
 });
+
+QUnit.test("matrix beginUpdate/endUpdate", function (assert) {
+  var matrix = new QuestionMatrixDynamicModel("q1");
+  matrix.addColumn("col1");
+  matrix.addColumn("col2");
+  matrix.allowRemoveRows = false;
+  matrix.rowCount = 2;
+  assert.equal(matrix.renderedTable.headerRow.cells.length, 2, "renderedTable: 2 columns, #1");
+  assert.equal(matrix.visibleRows.length, 2, "visibleRows.length, #1");
+  assert.equal(matrix.visibleRows[0].cells.length, 2, "visibleRows[0]: 2 columns, #1");
+
+  matrix.beginUpdate();
+  matrix.rowCount = 3;
+  matrix.addColumn("col3");
+  assert.equal(matrix.renderedTable.headerRow.cells.length, 2, "renderedTable: 2 columns, #2 - locUpdate");
+  assert.notOk(matrix.visibleRows, "visibleRows.length, #2 - locUpdate");
+  matrix.endUpdate();
+
+  assert.equal(matrix.renderedTable.headerRow.cells.length, 3, "renderedTable: 3 columns, #2 - unlock Update");
+  assert.equal(matrix.visibleRows.length, 3, "visibleRows.length, #3 - unlock Update");
+  assert.equal(matrix.visibleRows[0].cells.length, 3, "visibleRows[0]: 3 columns, #3 - unloc Update");
+});

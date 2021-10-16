@@ -208,7 +208,6 @@ QUnit.test("Move item in row from right to left", function (assert) {
     assert.equal(page.questions.length, 4, "Iteration "+i+". we have only four questions");
 
     if(i == 5) {
-      debugger;
       page.dragDropFinish();
       assert.equal(page.rows.length, 2, "Iteration "+i+". End. No rows should be added");
       assert.deepEqual(page.rows[0].elements.map(e => e.name), ["q1"], "Iteration "+i+". End. The first row is q1");
@@ -399,15 +398,13 @@ QUnit.test("Move item in prev row from left to multi-row", function (assert) {
     page.dragDropStart(q0, target);
 
     if(i == 0) {
-      debugger;
       page.dragDropMoveTo(q2, false);
       assert.equal(page.rows.length, 2, "Iteration "+i+". Move 1. No rows should be added");
       assert.deepEqual(page.rows[0].elements.map(e => e.name), ["q0", "q1"], "Iteration "+i+". Move 1. The first row is q0, q1");
       assert.deepEqual(page.rows[1].elements.map(e => e.name), ["q0", "q2", "q3", "q4"], "Iteration "+i+". Move 1. The last row is q0, q2, q3, q4");
       assert.equal(page.questions.length, 5, "Iteration "+i+". we have only 5 questions");
-      debugger;
       page.dragDropFinish();
-      //assert.equal(page.rows[0].elements[0].startWithNewLine, true, "Iteration "+i+". End. The first element SWNL = true");
+      assert.equal(page.rows[0].elements[0].startWithNewLine, true, "Iteration "+i+". End. The first element SWNL = true");
       assert.equal(page.rows.length, 2, "Iteration "+i+". End. No rows should be added");
       assert.deepEqual(page.rows[0].elements.map(e => e.name), ["q1"], "Iteration "+i+". End. The first row is q1");
       assert.deepEqual(page.rows[1].elements.map(e => e.name), ["q0", "q2", "q3", "q4"], "Iteration "+i+". End. The last row is q0, q2, q3, q4");
@@ -422,6 +419,7 @@ QUnit.test("Move item in prev row from left to multi-row", function (assert) {
       assert.deepEqual(page.rows[1].elements.map(e => e.name), ["q2", "q0", "q3", "q4"], "Iteration "+i+". Move 2. The last row is q2, q0, q3, q4");
       assert.equal(page.questions.length, 5, "Iteration "+i+". we have only 5 questions");
       page.dragDropFinish();
+      assert.equal(page.rows[0].elements[0].startWithNewLine, true, "Iteration "+i+". End. The first element SWNL = true");
       assert.equal(page.rows.length, 2, "Iteration "+i+". End. No rows should be added");
       assert.deepEqual(page.rows[0].elements.map(e => e.name), ["q1"], "Iteration "+i+". End. The first row is q1");
       assert.deepEqual(page.rows[1].elements.map(e => e.name), ["q2", "q0", "q3", "q4"], "Iteration "+i+". End. The last row is q2, q0, q3, q4");
@@ -436,6 +434,7 @@ QUnit.test("Move item in prev row from left to multi-row", function (assert) {
       assert.deepEqual(page.rows[1].elements.map(e => e.name), ["q2", "q0", "q3", "q4"], "Iteration "+i+". Move 3. The last row is q2, q0, q3, q4");
       assert.equal(page.questions.length, 5, "Iteration "+i+". we have only 5 questions");
       page.dragDropFinish();
+      assert.equal(page.rows[0].elements[0].startWithNewLine, true, "Iteration "+i+". End. The first element SWNL = true");
       assert.equal(page.rows.length, 2, "Iteration "+i+". End. No rows should be added");
       assert.deepEqual(page.rows[0].elements.map(e => e.name), ["q1"], "Iteration "+i+". End. The first row is q1");
       assert.deepEqual(page.rows[1].elements.map(e => e.name), ["q2", "q0", "q3", "q4"], "Iteration "+i+". End. The last row is q2, q0, q3, q4");
@@ -450,6 +449,7 @@ QUnit.test("Move item in prev row from left to multi-row", function (assert) {
       assert.deepEqual(page.rows[1].elements.map(e => e.name), ["q2", "q3", "q0", "q4"], "Iteration "+i+". Move 4. The last row is q2, q3, q0, q4");
       assert.equal(page.questions.length, 5, "Iteration "+i+". we have only 5 questions");
       page.dragDropFinish();
+      assert.equal(page.rows[0].elements[0].startWithNewLine, true, "Iteration "+i+". End. The first element SWNL = true");
       assert.equal(page.rows.length, 2, "Iteration "+i+". End. No rows should be added");
       assert.deepEqual(page.rows[0].elements.map(e => e.name), ["q1"], "Iteration "+i+". End. The first row is q1");
       assert.deepEqual(page.rows[1].elements.map(e => e.name), ["q2", "q3", "q0", "q4"], "Iteration "+i+". End. The last row is q2, q3, q0, q4");
@@ -464,6 +464,7 @@ QUnit.test("Move item in prev row from left to multi-row", function (assert) {
       assert.deepEqual(page.rows[1].elements.map(e => e.name), ["q2", "q3", "q0", "q4"], "Iteration "+i+". Move 5. The last row is q2, q3, q0, q4");
       assert.equal(page.questions.length, 5, "Iteration "+i+". we have only 5 questions");
       page.dragDropFinish();
+      assert.equal(page.rows[0].elements[0].startWithNewLine, true, "Iteration "+i+". End. The first element SWNL = true");
       assert.equal(page.rows.length, 2, "Iteration "+i+". End. No rows should be added");
       assert.deepEqual(page.rows[0].elements.map(e => e.name), ["q1"], "Iteration "+i+". End. The first row is q1");
       assert.deepEqual(page.rows[1].elements.map(e => e.name), ["q2", "q3", "q0", "q4"], "Iteration "+i+". End. The last row is q2, q3, q0, q4");
@@ -478,6 +479,7 @@ QUnit.test("Move item in prev row from left to multi-row", function (assert) {
       assert.deepEqual(page.rows[1].elements.map(e => e.name), ["q2", "q3", "q4", "q0"], "Iteration "+i+". Move 6. The last row is q2, q3, q4, q2");
       assert.equal(page.questions.length, 5, "Iteration "+i+". we have only 5 questions");
       page.dragDropFinish();
+      assert.equal(page.rows[0].elements[0].startWithNewLine, true, "Iteration "+i+". End. The first element SWNL = true");
       assert.equal(page.rows.length, 2, "Iteration "+i+". End. No rows should be added");
       assert.deepEqual(page.rows[0].elements.map(e => e.name), ["q1"], "Iteration "+i+". End. The first row is q1");
       assert.deepEqual(page.rows[1].elements.map(e => e.name), ["q2", "q3", "q4", "q0"], "Iteration "+i+". End. The last row is q2, q3, q4, q0");
@@ -486,7 +488,7 @@ QUnit.test("Move item in prev row from left to multi-row", function (assert) {
     }
   }
 });
-/*
+
 QUnit.test("Move item in prev row from right to multi-row", function (assert) {
   settings.supportCreatorV2 = true;
   for(let i = 0; i < 6; i++) {
@@ -516,6 +518,7 @@ QUnit.test("Move item in prev row from right to multi-row", function (assert) {
       assert.deepEqual(page.rows[1].elements.map(e => e.name), ["q1", "q2", "q3", "q4"], "Iteration "+i+". Move 1. The last row is q1, q2, q3, q4");
       assert.equal(page.questions.length, 5, "Iteration "+i+". we have only 5 questions");
       page.dragDropFinish();
+      assert.equal(page.rows[0].elements[0].startWithNewLine, true, "Iteration "+i+". End. The first element SWNL = true");
       assert.equal(page.rows.length, 2, "Iteration "+i+". End. No rows should be added");
       assert.deepEqual(page.rows[0].elements.map(e => e.name), ["q0"], "Iteration "+i+". End. The first row is q0");
       assert.deepEqual(page.rows[1].elements.map(e => e.name), ["q1", "q2", "q3", "q4"], "Iteration "+i+". End. The last row is q1, q2, q3, q4");
@@ -530,6 +533,7 @@ QUnit.test("Move item in prev row from right to multi-row", function (assert) {
       assert.deepEqual(page.rows[1].elements.map(e => e.name), ["q2", "q1", "q3", "q4"], "Iteration "+i+". Move 2. The last row is q2, q1, q3, q4");
       assert.equal(page.questions.length, 5, "Iteration "+i+". we have only 5 questions");
       page.dragDropFinish();
+      assert.equal(page.rows[0].elements[0].startWithNewLine, true, "Iteration "+i+". End. The first element SWNL = true");      
       assert.equal(page.rows.length, 2, "Iteration "+i+". End. No rows should be added");
       assert.deepEqual(page.rows[0].elements.map(e => e.name), ["q0"], "Iteration "+i+". End. The first row is q0");
       assert.deepEqual(page.rows[1].elements.map(e => e.name), ["q2", "q1", "q3", "q4"], "Iteration "+i+". End. The last row is q2, q1, q3, q4");
@@ -544,6 +548,7 @@ QUnit.test("Move item in prev row from right to multi-row", function (assert) {
       assert.deepEqual(page.rows[1].elements.map(e => e.name), ["q2", "q1", "q3", "q4"], "Iteration "+i+". Move 3. The last row is q2, q1, q3, q4");
       assert.equal(page.questions.length, 5, "Iteration "+i+". we have only 5 questions");
       page.dragDropFinish();
+      assert.equal(page.rows[0].elements[0].startWithNewLine, true, "Iteration "+i+". End. The first element SWNL = true");      
       assert.equal(page.rows.length, 2, "Iteration "+i+". End. No rows should be added");
       assert.deepEqual(page.rows[0].elements.map(e => e.name), ["q0"], "Iteration "+i+". End. The first row is q0");
       assert.deepEqual(page.rows[1].elements.map(e => e.name), ["q2", "q1", "q3", "q4"], "Iteration "+i+". End. The last row is q2, q1, q3, q4");
@@ -558,6 +563,7 @@ QUnit.test("Move item in prev row from right to multi-row", function (assert) {
       assert.deepEqual(page.rows[1].elements.map(e => e.name), ["q2", "q3", "q1", "q4"], "Iteration "+i+". Move 4. The last row is q2, q3, q1, q4");
       assert.equal(page.questions.length, 5, "Iteration "+i+". we have only 5 questions");
       page.dragDropFinish();
+      assert.equal(page.rows[0].elements[0].startWithNewLine, true, "Iteration "+i+". End. The first element SWNL = true");      
       assert.equal(page.rows.length, 2, "Iteration "+i+". End. No rows should be added");
       assert.deepEqual(page.rows[0].elements.map(e => e.name), ["q0"], "Iteration "+i+". End. The first row is q0");
       assert.deepEqual(page.rows[1].elements.map(e => e.name), ["q2", "q3", "q1", "q4"], "Iteration "+i+". End. The last row is q2, q3, q1, q4");
@@ -572,6 +578,7 @@ QUnit.test("Move item in prev row from right to multi-row", function (assert) {
       assert.deepEqual(page.rows[1].elements.map(e => e.name), ["q2", "q3", "q1", "q4"], "Iteration "+i+". Move 5. The last row is q2, q3, q1, q4");
       assert.equal(page.questions.length, 5, "Iteration "+i+". we have only 5 questions");
       page.dragDropFinish();
+      assert.equal(page.rows[0].elements[0].startWithNewLine, true, "Iteration "+i+". End. The first element SWNL = true");      
       assert.equal(page.rows.length, 2, "Iteration "+i+". End. No rows should be added");
       assert.deepEqual(page.rows[0].elements.map(e => e.name), ["q0"], "Iteration "+i+". End. The first row is q0");
       assert.deepEqual(page.rows[1].elements.map(e => e.name), ["q2", "q3", "q1", "q4"], "Iteration "+i+". End. The last row is q2, q3, q1, q4");
@@ -586,6 +593,7 @@ QUnit.test("Move item in prev row from right to multi-row", function (assert) {
       assert.deepEqual(page.rows[1].elements.map(e => e.name), ["q2", "q3", "q4", "q1"], "Iteration "+i+". Move 6. The last row is q2, q3, q4, q1");
       assert.equal(page.questions.length, 5, "Iteration "+i+". we have only 5 questions");
       page.dragDropFinish();
+      assert.equal(page.rows[0].elements[0].startWithNewLine, true, "Iteration "+i+". End. The first element SWNL = true");      
       assert.equal(page.rows.length, 2, "Iteration "+i+". End. No rows should be added");
       assert.deepEqual(page.rows[0].elements.map(e => e.name), ["q0"], "Iteration "+i+". End. The first row is q0");
       assert.deepEqual(page.rows[1].elements.map(e => e.name), ["q2", "q3", "q4", "q1"], "Iteration "+i+". End. The last row is q2, q3, q4, q1");
@@ -594,7 +602,7 @@ QUnit.test("Move item in prev row from right to multi-row", function (assert) {
     }
   }
 });
-
+/*
 QUnit.test("Move item multi-row to single-row bottom", function (assert) {
   settings.supportCreatorV2 = true;
   for(let i = 2; i <= 4; i++) {

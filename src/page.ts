@@ -300,14 +300,14 @@ export class PageModel extends PanelModelBase implements IPage {
   public dragDropFinish(isCancel: boolean = false): IElement {
     if (!this.dragDropInfo) return;
     var target = this.dragDropInfo.target;
+    var src = this.dragDropInfo.source;
     var row = this.dragDropFindRow(target);
-    var srcRow = this.dragDropFindRow(src);
     var targetIndex = this.dragDropGetElementIndex(target, row);
     this.updateRowsRemoveElementFromRow(target, row);
+    var srcRow = this.dragDropFindRow(src);
     var elementsToSetSWNL = [];
     var elementsToResetSWNL = [];
     if (!isCancel && !!row) {
-      var src = this.dragDropInfo.source;
       var isSamePanel = false;
 
       if(this.isDesignMode && settings.supportCreatorV2) {
@@ -315,7 +315,10 @@ export class PageModel extends PanelModelBase implements IPage {
           elementsToSetSWNL.push(target);
           elementsToResetSWNL.push(row.panel.elements[targetIndex]);
         }
-        if(srcRow && srcRow !== row && srcRow.elements[0] === src && srcRow.elements[1]) {
+        if(target.startWithNewLine && (!row.panel.elements[targetIndex] || !row.panel.elements[targetIndex].startWithNewLine)) {
+          elementsToResetSWNL.push(target);
+        }
+        if(srcRow && srcRow.elements[0] === src && srcRow.elements[1]) {
           elementsToSetSWNL.push(srcRow.elements[1]);
         }
       }
@@ -364,6 +367,9 @@ export class PageModel extends PanelModelBase implements IPage {
     if (!source) return true;
     var destination = <IElement>this.dragDropInfo.destination;
     if (!this.dragDropCanDropCore(source, destination)) return false;
+    if(this.isDesignMode && settings.supportCreatorV2)
+      if(!source.startWithNewLine && destination.startWithNewLine)
+        return true;
     return this.dragDropCanDropNotNext(
       source,
       destination,

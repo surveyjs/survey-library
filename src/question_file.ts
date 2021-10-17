@@ -135,36 +135,36 @@ export class QuestionFileModel extends Question {
   /**
    * The remove file confirmation message template.
    */
-  @property({ defaultValue: surveyLocalization.getString("confirmRemoveFile") }) confirmRemoveMessage: string;
+  @property({ localizable: { defaultStr: "confirmRemoveFile" } }) confirmRemoveMessage: string;
   /**
    * The remove all files confirmation message.
    */
-  @property({ defaultValue: surveyLocalization.getString("confirmRemoveAllFiles") }) confirmRemoveAllMessage: string;
+  @property({ localizable: { defaultStr: "confirmRemoveAllFiles" } }) confirmRemoveAllMessage: string;
   /**
    * The no file chosen caption for modern theme.
    */
-  @property({ defaultValue: surveyLocalization.getString("noFileChosen") }) noFileChosenCaption: string;
+  @property({ localizable: { defaultStr: "noFileChosen" } }) noFileChosenCaption: string;
   /**
    * The choose files button caption for modern theme.
    */
-  @property({ defaultValue: surveyLocalization.getString("chooseFileCaption") }) chooseButtonCaption: string;
+  @property({ localizable: { defaultStr: "chooseFileCaption" } }) chooseButtonCaption: string;
   /**
    * The clean files button caption.
    */
-  @property({ defaultValue: surveyLocalization.getString("cleanCaption") }) cleanButtonCaption: string;
+  @property({ localizable: { defaultStr: "cleanCaption" } }) cleanButtonCaption: string;
   /**
    * The remove file button caption.
    */
-  @property({ defaultValue: surveyLocalization.getString("removeFileCaption") }) removeFileCaption: string;
+  @property({ localizable: { defaultStr: "removeFileCaption" } }) removeFileCaption: string;
   /**
    * The loading file input title.
    */
-  @property({ defaultValue: surveyLocalization.getString("loadingFile") }) loadingFileTitle: string;
+  @property({ localizable: { defaultStr: "loadingFile" } }) loadingFileTitle: string;
   /**
   * The choose file input title.
   */
-  @property({ defaultValue: surveyLocalization.getString("chooseFile") }) chooseFileTitle: string;
-  @property({ defaultValue: surveyLocalization.getString("fileDragAreaPlaceholder") }) dragAreaPlaceholder: string;
+  @property({ localizable: { defaultStr: "chooseFile" } }) chooseFileTitle: string;
+  @property({ localizable: { defaultStr: "fileDragAreaPlaceholder" } }) dragAreaPlaceholder: string;
   /**
    * The input title value.
    */

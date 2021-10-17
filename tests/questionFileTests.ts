@@ -661,3 +661,17 @@ QUnit.test("check file d&d readonly", (assert) => {
   survey.setDesignMode(true);
   checkDD();
 });
+QUnit.test("file.cleanButtonCaption localization", (assert) => {
+  const survey = new SurveyModel({
+    questions: [
+      {
+        type: "file",
+        name: "file1",
+      }
+    ],
+  });
+  var q: QuestionFileModel = <QuestionFileModel>survey.getQuestionByName("file1");
+  assert.equal(q.cleanButtonCaption, "Clean");
+  survey.locale = "fr";
+  assert.equal(q.cleanButtonCaption, "Nettoyer");
+});

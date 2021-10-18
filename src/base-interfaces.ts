@@ -256,6 +256,7 @@ export interface IElement extends IConditionRunner, ISurveyElement {
   clearIncorrectValues(): any;
   clearErrors(): any;
   dispose(): void;
+  needResponsiveWidth(): boolean;
 }
 
 export interface IQuestion extends IElement, ISurveyErrorOwner {

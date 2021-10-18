@@ -4,7 +4,6 @@ export default QUnit.module("Survey");
 
 QUnit.test("Survey widthMode property for startWithNewLine questions", function (assert) {
   var survey = new SurveyModel({
-    widthMode: "static",
     pages: [
       {
         elements: [
@@ -28,19 +27,23 @@ QUnit.test("Survey widthMode property for startWithNewLine questions", function 
       },
     ]
   });
-  assert.equal(survey.widthMode, "static");
+  assert.equal(survey.widthMode, "auto");
   assert.equal(survey.calculateWidthMode(), "static", "calculate width for linear veritical survey");
 
   survey.getQuestionByName("name2").startWithNewLine = false;
-  assert.equal(survey.calculateWidthMode(), "static", "calculate width 2 startWithNewLine");
+  assert.equal(survey.calculateWidthMode(), "responsive", "calculate width 2 startWithNewLine");
 
   survey.getQuestionByName("name3").startWithNewLine = false;
   assert.equal(survey.calculateWidthMode(), "responsive", "calculate width 3 startWithNewLine");
+
+  survey.widthMode = "static";
+  assert.equal(survey.calculateWidthMode(), "static", "calculate width 3 startWithNewLine with static");
+
 });
 
 QUnit.test("Survey widthMode property for panel questions", function (assert) {
   var survey = new SurveyModel({
-    widthMode: "static",
+    widthMode: "auto",
     pages: [
       {
         "elements": [
@@ -76,7 +79,6 @@ QUnit.test("Survey widthMode property for panel questions", function (assert) {
       },
     ]
   });
-  //debugger;
   assert.equal(survey.calculateWidthMode(), "responsive", "calculate width for panel survey");
 });
 

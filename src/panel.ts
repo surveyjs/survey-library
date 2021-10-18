@@ -1572,6 +1572,11 @@ export class PanelModelBase extends SurveyElement
       if(e.needResponsiveWidth())
         result = true;
     });
+    this.rows.forEach((r) => {
+      if(r.elements.length > 1)
+        result = true;
+    });
+
     return result;
   }
 

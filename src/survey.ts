@@ -5722,19 +5722,15 @@ export class SurveyModel extends SurveyElementCore
     this.setPropertyValue("widthMode", val);
   }
   public calculateWidthMode() {
-    let isResponsive = false;
-    this.pages.forEach((page)=>{
-      if(page.needResponsiveWidth())
-        isResponsive = true;
-    });
-    this.pages.forEach((page)=>{
-      page.rows.forEach((row)=>{
-        if(row.elements.length >= 3)
+    if(this.widthMode == "auto") {
+      let isResponsive = false;
+      this.pages.forEach((page)=>{
+        if(page.needResponsiveWidth())
           isResponsive = true;
       });
-    });
-
-    return isResponsive?"responsive":"static";
+      return isResponsive?"responsive":"static";
+    }
+    return this.widthMode;
   }
   public get timerInfoText(): string {
     var options = { text: this.getTimerInfoText() };

@@ -1,3 +1,4 @@
+import { surveyLocalization } from "./surveyStrings";
 import { Base, ComputedUpdater } from "./base";
 import { Helpers, HashTable } from "./helpers";
 
@@ -5,7 +6,7 @@ export interface IPropertyDecoratorOptions {
   defaultValue?: any;
   defaultSource?: string;
   localizable?:
-  | { name: string, onGetTextCallback?: (str: string) => string }
+  | { name?: string, onGetTextCallback?: (str: string) => string, defaultStr?: string }
   | boolean;
   onSet?: (val: any, target: any) => void;
 }
@@ -25,6 +26,18 @@ function ensureLocString(
       locString.onGetTextCallback = options.localizable.onGetTextCallback;
     }
   }
+}
+function getLocStringValue(
+  target: any,
+  options: IPropertyDecoratorOptions,
+  key: string
+) {
+  ensureLocString(target, options, key);
+  let res = target.getLocalizableStringText(key);
+  if(!!res) return res;
+  if(typeof options.localizable === "object" && options.localizable.defaultStr)
+    return surveyLocalization.getString(options.localizable.defaultStr);
+  return "";
 }
 
 export function property(options?: IPropertyDecoratorOptions) {
@@ -67,12 +80,7 @@ export function property(options?: IPropertyDecoratorOptions) {
     } else {
       Object.defineProperty(target, key, {
         get: function () {
-          ensureLocString(this, options, key);
-          return (
-            this.getLocalizableStringText(key) ||
-            options.defaultValue ||
-            this[options.defaultSource]
-          );
+          return getLocStringValue(this, options, key);
         },
         set: function (val: any) {
           ensureLocString(this, options, key);
@@ -85,9 +93,8 @@ export function property(options?: IPropertyDecoratorOptions) {
       });
       Object.defineProperty(
         target,
-        options.localizable === true
-          ? "loc" + key.charAt(0).toUpperCase() + key.slice(1)
-          : options.localizable.name,
+        typeof options.localizable === "object" && !!options.localizable.name ?
+          options.localizable.name : "loc" + key.charAt(0).toUpperCase() + key.slice(1),
         {
           get: function () {
             ensureLocString(this, options, key);

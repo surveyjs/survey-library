@@ -121,7 +121,6 @@ export class DragDropChoices extends DragDropCore<QuestionSelectBase> {
   protected afterDragOver(dropTargetNode: HTMLElement): void {
     if (this.isDropTargetDoesntChanged(this.isBottom)) return;
     if (this.dropTarget === this.draggedElement) return;
-    if (this.parentElement.getType() === "imagepicker") return;
 
     const choices = this.getVisibleChoices();
     const dropTargetIndex = choices.indexOf(this.dropTarget);
@@ -129,6 +128,8 @@ export class DragDropChoices extends DragDropCore<QuestionSelectBase> {
 
     choices.splice(draggedElementIndex, 1);
     choices.splice(dropTargetIndex, 0, this.draggedElement);
+
+    if (this.parentElement.getType() === "imagepicker") return;
 
     if (draggedElementIndex !== dropTargetIndex) {
       dropTargetNode.classList.remove("svc-item-value--moveup");

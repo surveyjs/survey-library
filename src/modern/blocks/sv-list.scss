@@ -5,8 +5,9 @@ $background-dim: var(--background-dim, #f3f3f3);
 
 $foreground-light: var(--foreground-light, #909090);
 //todo: discuss this variable
+$foreground: var(--foreground, #161616);
 $foreground-disabled: var(--foreground-disabled, rgba(#161616, 0.16));
-
+$border-inside: var(--border-inside, rgba(0, 0, 0, 0.16));
 $font-family: "Open Sans";
 
 $base-unit: var(--base-unit, 8px);
@@ -70,4 +71,33 @@ $base-unit: var(--base-unit, 8px);
 
 .sv-list__item span {
   white-space: nowrap;
+}
+
+.sv-list__input {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  display: block;
+  background: $background;
+  box-sizing: border-box;
+  width: 100%;
+  height: calc(2em + 1px);
+  border: 1px solid $border-inside;
+  padding-left: 1em;
+  outline: none;
+  font-size: 1em;
+  color: $foreground;
+}
+
+.sv-list__input::placeholder {
+  color: $foreground-light;
+}
+
+.sv-list__input:focus {
+  border: 1px solid $primary;
+}
+
+.sv-list__input:disabled,
+.sv-list__input:disabled::placeholder {
+  color: $foreground-disabled;
 }

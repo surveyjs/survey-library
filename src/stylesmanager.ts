@@ -396,9 +396,9 @@ export class StylesManager {
       "background-color: #f3f3f3;",
     ".sv-list__item--selected": "background-color: #19b394; color: #fff;",
     ".sv-list__item--selected .sv-list__item-icon use": "fill: #fff;",
-    ".sv-list__item--disabled":
-      "color: rgba(22, 22, 22, 0.16); cursor: default; pointer-events: none;",
+    ".sv-list__item--disabled": "color: rgba(22, 22, 22, 0.16); cursor: default; pointer-events: none;",
     ".sv-list__item span": "white-space: nowrap;",
+    ".sv-list__input": "-webkit-appearance: none; -moz-appearance: none; appearance: none; display: block; box-sizing: border-box; width: 100%; height: calc(2em + 1px); padding-left: 1em; outline: none; font-size: 1em; border: 1px solid transparent;",
     //eo list
     ".sv-skeleton-element": "min-height: 50px;",
   };
@@ -952,6 +952,13 @@ export class StylesManager {
     ".sv_main .sv-matrix__drag-drop-ghost-position-top::after": "top: 0;",
     ".sv_main .sv-matrix__drag-drop-ghost-position-bottom::after": "bottom: 0;",
     //eo drag-drop
+    //list
+    ".sv-list__input": "color: $text-input-color; border-color: $border-color; background-color: $inputs-background-color;",
+    ".sv-list__input::placeholder": "color: $foreground-light;",
+    ".sv-list__input:focus": "border-color: $main-color;",
+    ".sv-list__input:disabled": "color: $foreground-disabled;",
+    ".sv-list__input:disabled::placeholder": "color: $foreground-disabled;",
+    //eo list
     ".sv-skeleton-element": "background-color: $background-dim;",
   };
 

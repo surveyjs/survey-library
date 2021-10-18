@@ -4,6 +4,8 @@ import { ImplementorBase } from "../../kobase";
 
 const template = require("./list.html");
 
+export * from "./list-item";
+
 export var ListViewComponent: any;
 
 ko.components.register("sv-list", {
@@ -11,7 +13,7 @@ ko.components.register("sv-list", {
     createViewModel: (params: any, componentInfo: any) => {
       const model: ListModel = params.model;
       new ImplementorBase(model);
-      return model;
+      return { model: model };
     },
   },
   template: template,

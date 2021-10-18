@@ -60,6 +60,8 @@ export class PopupModel<T = any> extends Base {
     this.setPropertyValue("isVisible", value);
     this.onVisibilityChanged && this.onVisibilityChanged(value);
     if (this.isVisible) {
+      const innerModel = (this.contentComponentData as any)["model"];
+      innerModel && innerModel.refresh && innerModel.refresh();
       this.onShow();
     } else {
       this.onHide();
@@ -127,7 +129,7 @@ export class PopupBaseViewModel extends Base {
     return this._model;
   }
   public set model(model: PopupModel) {
-    if(!!this.model) {
+    if (!!this.model) {
       this.model.unRegisterFunctionOnPropertiesValueChanged(["isVisible"], "PopupBaseViewModel");
     }
     this._model = model;

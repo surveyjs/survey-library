@@ -5723,8 +5723,8 @@ export class SurveyModel extends SurveyElementCore
   }
   public calculateWidthMode() {
     let isResponsive = false;
-    this.getAllQuestions().forEach((question)=>{
-      if(question.needResponsiveWidth())
+    this.pages.forEach((page)=>{
+      if(page.needResponsiveWidth())
         isResponsive = true;
     });
     this.pages.forEach((page)=>{

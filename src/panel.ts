@@ -1566,6 +1566,15 @@ export class PanelModelBase extends SurveyElement
     this.removeElement(src);
     this.addElement(target, targetIndex);
   }
+  public needResponsiveWidth() {
+    let result = false;
+    this.elements.forEach((e) => {
+      if(e.needResponsiveWidth())
+        result = true;
+    });
+    return result;
+  }
+
   //ITitleOwner
   public get no(): string { return ""; }
   public dispose() {
@@ -1902,6 +1911,14 @@ export class PanelModel extends PanelModelBase implements IElement {
   protected onVisibleChanged() {
     super.onVisibleChanged();
     this.notifySurveyOnVisibilityChanged();
+  }
+  public needResponsiveWidth() {
+    if(this.startWithNewLine) {
+      return true;
+    }
+    else
+      super.needResponsiveWidth();
+    return false;
   }
 }
 

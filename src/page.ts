@@ -369,11 +369,11 @@ export class PageModel extends PanelModelBase implements IPage {
     if (!source) return true;
     var destination = <IElement>this.dragDropInfo.destination;
     if (!this.dragDropCanDropCore(source, destination)) return false;
-    if(this.isDesignMode && settings.supportCreatorV2) {
-      if(!source.startWithNewLine && destination.startWithNewLine)
+    if (this.isDesignMode && settings.supportCreatorV2) {
+      if (!source.startWithNewLine && destination.startWithNewLine)
         return true;
       let row = this.dragDropFindRow(destination);
-      if(row.elements.length == 1)
+      if (row && row.elements.length == 1)
         return true;
     }
     return this.dragDropCanDropNotNext(

@@ -35,8 +35,8 @@ export class SurveyRow extends SurveyElementBase<any, any> {
   }
   protected renderElementContent(): JSX.Element {
     var elements = null;
-    elements = this.row.visibleElements.map((element) => {
-      const innerElement = this.createElement(element);
+    elements = this.row.visibleElements.map((element, index) => {
+      const innerElement = this.createElement(element, index);
       var rootStyle: { [index: string]: any } = {};
       if (element.renderWidth) {
         rootStyle["width"] = element.renderWidth;
@@ -97,13 +97,14 @@ export class SurveyRow extends SurveyElementBase<any, any> {
     this.stopLazyRendering();
   }
 
-  protected createElement(element: IElement): JSX.Element {
+  protected createElement(element: IElement, elementIndex?: number): JSX.Element {
+    const index = elementIndex ? "-" + elementIndex : Math.random();
     var elementType = element.getType();
     if (!ReactElementFactory.Instance.isElementRegistered(elementType)) {
       elementType = "question";
     }
     return ReactElementFactory.Instance.createElement(elementType, {
-      key: element.name,
+      key: element.name + index,
       element: element,
       creator: this.creator,
       survey: this.survey,

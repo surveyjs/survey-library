@@ -193,7 +193,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
       qVal.splice(val);
       this.value = qVal;
     }
-    if (this.isLoadingFromJson) {
+    if (this.isUpdateLocked) {
       this.initialRowCount = val;
       return;
     }
@@ -291,7 +291,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   }
   public set allowRemoveRows(val: boolean) {
     this.setPropertyValue("allowRemoveRows", val);
-    if (!this.isLoadingFromJson) {
+    if (!this.isUpdateLocked) {
       this.resetRenderedTable();
     }
   }

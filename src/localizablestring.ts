@@ -36,6 +36,7 @@ export class LocalizableString implements ILocalizableString {
   private calculatedTextValue: string;
   public localizationName: string;
   public onGetTextCallback: (str: string) => string;
+  public onGetDefaultTextCallback: () => string;
   public onStrChanged: (oldValue: string, newValue: string) => void;
   public onSearchChanged: () => void;
   public sharedData: LocalizableString;
@@ -126,8 +127,15 @@ export class LocalizableString implements ILocalizableString {
     var res = this.getValue(loc);
     return res ? res : "";
   }
+  private getLocaleTextWithDefault(loc: string): string {
+    let res = this.getLocaleText(loc);
+    if(!res && this.onGetDefaultTextCallback) {
+      return this.onGetDefaultTextCallback();
+    }
+    return res;
+  }
   public setLocaleText(loc: string, value: string) {
-    if (value == this.getLocaleText(loc)) return;
+    if (value == this.getLocaleTextWithDefault(loc)) return;
     if (
       value &&
       loc &&

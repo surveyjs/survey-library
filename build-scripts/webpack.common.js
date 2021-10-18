@@ -68,6 +68,23 @@ module.exports = function(options, packageJson, chunkName) {
     });
   }
 
+  function replaceLines(fileName, regex, to) {
+    replace.sync(
+      {
+        files: fileName,
+        from: regex,
+        to: to,
+      },
+      (error, changes) => {
+        if (error) {
+          return console.error("Error occurred:", error);
+        }
+        console.log("check me :     " + fileName);
+        console.log("Modified files:", changes.join(", "));
+      }
+    );
+  }
+
   function removeLines(fileName, regex) {
     replace.sync(
       {
@@ -116,6 +133,9 @@ module.exports = function(options, packageJson, chunkName) {
         removeLines(fileName, /^import\s+React\s+from\s+\"react\"\s*;(\n|\r)?/gm);
         removeLines(fileName, /export let\s+\w+:\s+\w+;/g);
         removeLines(fileName, /export default\s+\w+;/g);
+
+        replaceLines(fileName, /const innerKo: any;/g, "declare const innerKo: any;");
+
 
         rimraf.sync(buildPath + "typings");
 

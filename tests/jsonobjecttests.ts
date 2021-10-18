@@ -2,6 +2,7 @@
   JsonObject,
   Serializer,
   JsonUnknownPropertyError,
+  property,
 } from "../src/jsonobject";
 import { ItemValue } from "../src/itemvalue";
 import { Base } from "../src/base";
@@ -236,6 +237,13 @@ class LoadingFromJsonObj extends LoadingFromJsonObjBase {
   public getType(): string {
     return "loadingtest";
   }
+}
+
+class TestDeclaredProps extends Car {
+  @property({ defaultValue: 5 }) numberProp: number;
+  @property({ localizable: true }) str1: string;
+  @property({ localizable: { name: "locStrName" } }) str2: string;
+  @property({ localizable: { defaultStr: "completeText" } }) str3: string;
 }
 
 Serializer.addClass(
@@ -2441,4 +2449,26 @@ QUnit.test("Serializer.getProperty()", function(assert) {
   let dealer: Dealer = Serializer.createClass("dealer");
   assert.equal(dealer.defaultValue, "default", "Use attribute from dealer");
   Serializer.removeClass("new_dealer");
+});
+QUnit.test("Declared @property", function(assert) {
+  const obj = new TestDeclaredProps();
+  assert.equal(obj.numberProp, 5, "get default number prop");
+  assert.ok(obj["locStr1"], "locStr1 exists");
+  assert.strictEqual(obj["locStr1"].owner, obj, "locStr1 owner is correct");
+  obj["locStr1"].setLocaleText("", "val1", "locStr1 set value");
+  assert.equal(obj["locStr1"].getLocaleText(""), "val1", "locStr1 get value");
+
+  assert.ok(obj["locStrName"], "locStrName exists");
+  assert.strictEqual(obj["locStrName"].owner, obj, "locStrName owner is correct");
+  obj["locStrName"].setLocaleText("", "val2", "locStrName set value");
+  assert.equal(obj["locStrName"].getLocaleText(""), "val2", "locStrName get value");
+  assert.equal(obj.str2, "val2", "str2 get value");
+
+  assert.ok(obj["locStr3"], "locStr3 exists");
+  assert.strictEqual(obj["locStr3"].owner, obj, "locStr3 owner is correct");
+  assert.equal(obj.str3, "Complete", "get default value from localizable strings");
+  obj["locStr3"].setLocaleText("", "val3", "locStr3 set value");
+  assert.equal(obj["locStr3"].getLocaleText(""), "val3", "locStr3 get value");
+  assert.equal(obj.str3, "val3", "str3 get value");
+  obj.locale = "";
 });

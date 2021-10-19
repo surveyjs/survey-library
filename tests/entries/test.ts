@@ -17,6 +17,7 @@ export * from "../question_matrixdropdownbasetests";
 export * from "../surveypaneldynamictests";
 export * from "../surveyserializationtests"; //
 export * from "../surveytests"; //
+export * from "../surveywidthmodetests"; //
 export * from "../surveytriggertests"; //
 export * from "../surveyvalidatortests"; //
 export * from "../surveyShowPreviewTests";

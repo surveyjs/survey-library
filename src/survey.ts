@@ -5704,6 +5704,34 @@ export class SurveyModel extends SurveyElementCore
   public set showTimerPanelMode(val: string) {
     this.setPropertyValue("showTimerPanelMode", val);
   }
+
+  /**
+    * Gets or sets a value that specifies how the survey width is calculated.
+    *
+    * The available options:
+    *
+    * - `static` - A survey has a fixed width that mostly depends upon the applied theme. Resizing a browser window does not affect the survey width.
+    * - `responsive` - A survey takes all available horizontal space. A survey stretches or shrinks horizonally according to the screen size.
+    * - `auto` - Depends on the question type and corresponds to the static or responsive mode.
+  */
+  // `custom/precise` - The survey width is specified by the width property. // in-future
+  public get widthMode(): string {
+    return this.getPropertyValue("widthMode");
+  }
+  public set widthMode(val: string) {
+    this.setPropertyValue("widthMode", val);
+  }
+  public calculateWidthMode() {
+    if(this.widthMode == "auto") {
+      let isResponsive = false;
+      this.pages.forEach((page)=>{
+        if(page.needResponsiveWidth())
+          isResponsive = true;
+      });
+      return isResponsive?"responsive":"static";
+    }
+    return this.widthMode;
+  }
   public get timerInfoText(): string {
     var options = { text: this.getTimerInfoText() };
     this.onTimerPanelInfoText.fire(this, options);
@@ -6183,4 +6211,9 @@ Serializer.addClass("survey", [
     default: "all",
     choices: ["all", "page", "survey"],
   },
+  {
+    name: "widthMode",
+    default: "auto",
+    choices: ["auto", "static", "responsive"],
+  }
 ]);

@@ -46,6 +46,8 @@ export abstract class DragDropCore<T> extends Base {
     parentElement?: any,
     draggedElementNode?: HTMLElement
   ): void {
+    if (event.which === 3) return; //right mouse btn
+
     this.draggedElement = draggedElement;
     this.parentElement = parentElement;
 

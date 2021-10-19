@@ -764,9 +764,7 @@ QUnit.test("Move item multi-row to single-row bottom, from top to bottom", funct
     assert.equal(page.questions.length, 4, "Iteration "+i+". we have only four questions");
 
     arr.splice(i - 2, 1);
-    if(i == 3) {
-      debugger;
-    }
+
     page.dragDropFinish();
     assert.equal(page.rows.length, 3, "Iteration "+i+". End.  Row added");
     assert.deepEqual(page.rows[2].elements.map(e => e.name), ["q1"], "Iteration "+i+". End. The last row is q1");
@@ -774,4 +772,32 @@ QUnit.test("Move item multi-row to single-row bottom, from top to bottom", funct
     assert.deepEqual(page.rows[0].elements.map(e => e.name), arr, "Iteration "+i+". End. The first row is q2, q3, q4");
     assert.equal(page.questions.length, 4, "Iteration "+i+". we have only four questions");
   }
+});
+
+QUnit.test("Move item between pages", function (assert) {
+  settings.supportCreatorV2 = true;
+  var survey = new SurveyModel();
+  survey["_isDesignMode"] = true;
+  settings.supportCreatorV2 = true;
+  var page = survey.addNewPage("p1");
+  var page2 = survey.addNewPage("p2");
+  var q1 = page.addNewQuestion("text", "q1");
+  var q2 = page.addNewQuestion("text", "q2");
+  var q3 = page2.addNewQuestion("text", "q3");
+
+  var target = new QuestionTextModel("q1");
+
+  //debugger;
+  page2.dragDropStart(q1, target);
+
+  page2.dragDropMoveTo(q3, false);
+  assert.equal(page2.rows.length, 2, "Move/ Page 2 has 2 rows");
+  assert.deepEqual(page2.rows[0].elements.map(e => e.name), ["q1"], "Move. The first row of last page is q1");
+  assert.deepEqual(page2.rows[1].elements.map(e => e.name), ["q3"], "Move. The second row of last page is q3");
+  assert.equal(page.rows.length, 2, "Move/ Page 1 has 2 rows");
+  assert.deepEqual(page.rows[0].elements.map(e => e.name), ["q1"], "Move. The first row of last page is q1");
+  assert.deepEqual(page.rows[1].elements.map(e => e.name), ["q2"], "Move. The second row of last page is q2");
+  page2.dragDropFinish();
+  assert.deepEqual(page2.elements.map(e => e.name), ["q1", "q3"], "End. The last page is q1, q3");
+  assert.deepEqual(page.elements.map(e => e.name), ["q2"], "End. The first page q2");
 });

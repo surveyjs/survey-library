@@ -821,14 +821,11 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     this.registerFunctionOnPropertyValueChanged(
       "columns",
       (newColumns: any) => {
-        this.updateColumnsIndexes(newColumns);
-        this.generatedTotalRow = null;
-        this.clearRowsAndResetRenderedTable();
+        this.updateColumnsAndRows();
       }
     );
     this.registerFunctionOnPropertyValueChanged("cellType", () => {
-      this.updateColumnsCellType();
-      this.clearRowsAndResetRenderedTable();
+      this.updateColumnsAndRows();
     });
     this.registerFunctionOnPropertiesValueChanged(
       ["optionsCaption", "columnColCount", "rowTitleWidth", "choices"],
@@ -865,6 +862,23 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
   }
   public get isRowsDynamic(): boolean {
     return false;
+  }
+  private isUpdating: boolean;
+  protected get isUpdateLocked(): boolean {
+    return this.isLoadingFromJson || this.isUpdating;
+  }
+  public beginUpdate(): void {
+    this.isUpdating = true;
+  }
+  public endUpdate(): void {
+    this.isUpdating = false;
+    this.updateColumnsAndRows();
+  }
+  protected updateColumnsAndRows(): void {
+    this.updateColumnsIndexes(this.columns);
+    this.updateColumnsCellType();
+    this.generatedTotalRow = null;
+    this.clearRowsAndResetRenderedTable();
   }
   public itemValuePropertyChanged(
     item: ItemValue,
@@ -986,7 +1000,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     this.fireCallback(this.columnsChangedCallback);
   }
   protected resetRenderedTable() {
-    if (this.lockResetRenderedTable || this.isLoadingFromJson) return;
+    if (this.lockResetRenderedTable || this.isUpdateLocked) return;
     this.renderedTableValue = null;
     this.fireCallback(this.onRenderedTableResetCallback);
   }
@@ -1395,7 +1409,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     return column;
   }
   protected getVisibleRows(): Array<MatrixDropdownRowModelBase> {
-    if (this.isLoadingFromJson) return null;
+    if (this.isUpdateLocked) return null;
     if (!this.generatedVisibleRows) {
       this.generatedVisibleRows = this.generateRows();
       this.generatedVisibleRows.forEach((row) => this.onMatrixRowCreated(row));
@@ -1432,7 +1446,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     return this.visibleTotalRow.value;
   }
   protected getVisibleTotalRow(): MatrixDropdownRowModelBase {
-    if (this.isLoadingFromJson) return null;
+    if (this.isUpdateLocked) return null;
     if (this.hasTotal) {
       if (!this.generatedTotalRow) {
         this.generatedTotalRow = this.generateTotalRow();
@@ -1854,7 +1868,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
   private isDoingonAnyValueChanged = false;
   onAnyValueChanged(name: string) {
     if (
-      this.isLoadingFromJson ||
+      this.isUpdateLocked ||
       this.isDoingonAnyValueChanged ||
       !this.generatedVisibleRows
     )
@@ -2090,7 +2104,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     if (
       !!this.data &&
       !!this.visibleTotalRow &&
-      !this.isLoadingFromJson &&
+      !this.isUpdateLocked &&
       !this.isSett &&
       !this.isReadOnly
     ) {

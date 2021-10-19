@@ -505,6 +505,7 @@ QUnit.test("Change value to array and then to string", function (assert) {
 
 class BaseTester1 extends Base {
   @property({ defaultValue: 1 }) propA: number;
+  @property() propS: string;
 }
 class BaseTester2 extends Base {
   @property({ defaultValue: 2 }) propB: number;
@@ -640,4 +641,20 @@ QUnit.test("Action enable active update same function", function (assert) {
   assert.equal(updaterCallCount2, 3, "propA changed to false - enabled");
   assert.equal(action.active, false, "active 3");
   assert.equal(action.enabled, false, "enabled 3");
+});
+QUnit.test("Update via function - nested dependencies", function (assert) {
+  const base1 = new BaseTester1();
+  let updaterCallCount1 = 0;
+  const survey = new SurveyModel();
+  base1.propS = <any>new ComputedUpdater(() => {
+    updaterCallCount1++;
+    return survey.calculateWidthMode();
+  });
+
+  assert.equal(updaterCallCount1, 1, "first time calculation - static");
+  assert.equal(base1.propS, "static");
+
+  survey.widthMode = "responsive";
+  assert.equal(updaterCallCount1, 2, "update called - responsive");
+  assert.equal(base1.propS, "responsive");
 });

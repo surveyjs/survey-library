@@ -849,3 +849,25 @@ QUnit.test("Move item multi-row to single-row bottom, between pages", function (
     assert.equal(page.rows[0].elements[0].startWithNewLine, true, "Iteration "+i+". End. The first element SWNL = true");
   }
 });
+
+QUnit.test("Move item from nowhere (creator toolbox) to page", function (assert) {
+  settings.supportCreatorV2 = true;
+  var survey = new SurveyModel();
+  survey["_isDesignMode"] = true;
+  settings.supportCreatorV2 = true;
+  var page = survey.addNewPage("p1");
+  var q1 = new QuestionTextModel("q1");
+  var q2 = page.addNewQuestion("text", "q2");
+
+  var target = new QuestionTextModel("q1");
+
+  //debugger;
+  page.dragDropStart(q1, target);
+
+  page.dragDropMoveTo(q2, false);
+  assert.equal(page.rows.length, 2, "Move/ Page has 2 rows");
+  assert.deepEqual(page.rows[0].elements.map(e => e.name), ["q1"], "Move. The first row of last page is q1");
+  assert.deepEqual(page.rows[1].elements.map(e => e.name), ["q2"], "Move. The second row of last page is q2");
+  page.dragDropFinish();
+  assert.deepEqual(page.elements.map(e => e.name), ["q1", "q2"], "End. The page is q1, q2");
+});

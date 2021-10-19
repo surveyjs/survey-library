@@ -311,7 +311,7 @@ export class PageModel extends PanelModelBase implements IPage {
       var isSamePanel = false;
 
       if(this.isDesignMode && settings.supportCreatorV2) {
-        var srcRow = src && (src.parent as PanelModelBase).dragDropFindRow(src);
+        var srcRow = src && src.parent &&(src.parent as PanelModelBase).dragDropFindRow(src);
         if(row.panel.elements[targetIndex] && row.panel.elements[targetIndex].startWithNewLine && row.elements.length > 1) {
           elementsToSetSWNL.push(target);
           elementsToResetSWNL.push(row.panel.elements[targetIndex]);

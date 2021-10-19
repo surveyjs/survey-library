@@ -1,7 +1,7 @@
 <template>
   <div>
     <input
-      v-show="model.needFilter"
+      v-if="model.needFilter"
       type="text"
       class="sv-list__input"
       :placeholder="model.filteredTextPlaceholder"

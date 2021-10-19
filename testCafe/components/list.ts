@@ -65,7 +65,7 @@ function addTitleActions2(_, opt) {
       for (let index = 0; index < 20; index++) {
         items2[index] = { title: "item" + index };
       }
-      list.items = items2;
+      list.setItems(items2);
     },
   });
   opt.titleActions = [item1, item2];
@@ -109,7 +109,7 @@ frameworks.forEach(async framework => {
 
       .click(getActionByText("Open popup"))
       .expect(popupSelector.exists).ok()
-      .expect(listInput.visible).notOk()
+      .expect(listInput.exists).notOk()
       .expect(visibleItems.count).eql(10)
 
       .click(getActionByText("Set items")) // close popup

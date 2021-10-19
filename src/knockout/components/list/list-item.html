@@ -1,0 +1,12 @@
+<li data-bind="style: { paddingLeft: $data.model.getItemIndent($data.item) }, css: $data.model.getItemClass($data.item), click: itemClick, key2click, visible: $data.item.visible">
+  <!-- ko ifnot: $data.item.component -->
+  <!-- ko if: $data.item.iconName -->
+  <sv-svg-icon class="sv-list__item-icon" params="iconName: $data.item.iconName, size: 24"></sv-svg-icon>
+  <!-- /ko -->
+  <span data-bind="text: $data.item.title"></span>
+  <!-- /ko -->
+  <!-- ko if: $data.item.component -->
+  <!-- ko component: { name: $data.item.component, params: { item: $data.item } } -->
+  <!-- /ko -->
+  <!-- /ko -->
+</li>

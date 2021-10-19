@@ -34,7 +34,7 @@ export class AdaptiveActionContainer<T extends Action = Action> extends ActionCo
       }
       visibleItemsCount--;
     });
-    this.invisibleItemsListModel.items = invisibleItems;
+    this.invisibleItemsListModel.setItems(invisibleItems);
   }
 
   private getVisibleItemsCount(availableSize: number): number {

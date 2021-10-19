@@ -1,28 +1,54 @@
-import { property } from "./jsonobject";
-import { Base } from "./base";
-import { IAction } from "./actions/action";
+import { property, propertyArray } from "./jsonobject";
+import { ActionContainer } from "./actions/container";
+import { Action, IAction } from "./actions/action";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
+import { surveyLocalization } from "./surveyStrings";
 
-export class ListModel extends Base {
+export class ListModel extends ActionContainer {
+  @property({ defaultValue: false }) needFilter: boolean;
   @property({ defaultValue: false }) isExpanded: boolean;
   @property() selectedItem: IAction;
-  public static INDENT: number = 16;
+  @property({
+    onSet: (_, target: ListModel) => {
+      target.filterByText(target.filteredText);
+    }
+  }) filteredText: string;
 
-  constructor(items: Array<IAction>, public onItemSelect: (item: IAction) => void, public allowSelection: boolean, selectedItem?: IAction) {
+  public static INDENT: number = 16;
+  public static MINELEMENTCOUNT: number = 10;
+
+  private hasText(item: Action, filteredTextInLow: string): boolean {
+    if (!filteredTextInLow) return true;
+    let textInLow = (item.title || "").toLocaleLowerCase();
+    return textInLow.indexOf(filteredTextInLow) > -1;
+  }
+  private updateItemVisible(text: string) {
+    this.actions.forEach(item => {
+      item.visible = this.hasText(item, text);
+    });
+  }
+  private filterByText(text: string) {
+    if (!this.needFilter) return;
+
+    if (!!this.onFilteredTextChange) {
+      this.onFilteredTextChange(text);
+    } else {
+      this.updateItemVisible(text);
+    }
+  }
+
+  constructor(items: Array<IAction>, public onItemSelect: (item: Action) => void, public allowSelection: boolean, selectedItem?: IAction, private onFilteredTextChange?: (text: string) => void) {
     super();
-    this.createNewArray("items");
-    this.items = items;
+    this.setItems(items);
     this.selectedItem = selectedItem;
   }
 
-  public get items(): Array<IAction> {
-    return this.getPropertyValue("items");
-  }
-  public set items(value: Array<IAction>) {
-    this.items.splice(0, this.items.length, ...(value || []));
+  protected onSet(): void {
+    this.needFilter = (this.actions || []).length > ListModel.MINELEMENTCOUNT;
+    super.onSet();
   }
 
-  public selectItem = (itemValue: IAction) => {
+  public selectItem = (itemValue: Action) => {
     this.isExpanded = false;
     if (this.allowSelection) {
       this.selectedItem = itemValue;
@@ -32,15 +58,15 @@ export class ListModel extends Base {
     }
   };
 
-  public isItemDisabled = (itemValue: IAction) => {
+  public isItemDisabled: (itemValue: Action) => boolean = (itemValue: Action) => {
     return itemValue.enabled !== undefined && !itemValue.enabled;
   };
 
-  public isItemSelected = (itemValue: IAction) => {
-    return this.allowSelection && this.selectedItem == itemValue;
+  public isItemSelected: (itemValue: Action) => boolean = (itemValue: Action) => {
+    return !!this.allowSelection && this.selectedItem == itemValue;
   };
 
-  public getItemClass = (itemValue: IAction) => {
+  public getItemClass: (itemValue: Action) => string = (itemValue: Action) => {
     return new CssClassBuilder()
       .append("sv-list__item")
       .append("sv-list__item--disabled", this.isItemDisabled(itemValue))
@@ -52,6 +78,10 @@ export class ListModel extends Base {
     const level: number = itemValue.level || 0;
     return (level + 1) * ListModel.INDENT + "px";
   };
+
+  public get filteredTextPlaceholder() {
+    return surveyLocalization.getString("filteredTextPlaceholder");
+  }
 
   public onKeyDown(event: KeyboardEvent) {
     const currentElement = <Element>event.target;
@@ -70,5 +100,8 @@ export class ListModel extends Base {
       }
       event.preventDefault();
     }
+  }
+  public refresh() {
+    this.filteredText = "";
   }
 }

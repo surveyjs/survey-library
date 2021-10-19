@@ -1,6 +1,7 @@
 import * as ko from "knockout";
 import { ListModel } from "survey-core";
 import { ImplementorBase } from "../../kobase";
+import { ActionContainerImplementor } from "../action-bar/action-bar";
 
 const template = require("./list.html");
 
@@ -12,8 +13,8 @@ ko.components.register("sv-list", {
   viewModel: {
     createViewModel: (params: any, componentInfo: any) => {
       const model: ListModel = params.model;
-      new ImplementorBase(model);
-      return { model: model };
+      const _implementor: ImplementorBase = new ActionContainerImplementor(model);
+      return { model: model, dispose: () => { _implementor.dispose(); } };
     },
   },
   template: template,

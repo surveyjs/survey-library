@@ -39,63 +39,60 @@ function addTitleAction(_, opt) {
 }
 
 function addTitleActions2(_, opt) {
-  if (opt.question.name == "text") {
-    let items = [];
-    for (let index = 0; index < 20; index++) {
-      items[index] = new window["Survey"].Action({ title: "item" + index });
-    }
-    const itemPopupModel = new window["Survey"].PopupModel("sv-list", {
-      model: new window["Survey"].ListModel(items)
-    });
-
-    const item = new window["Survey"].Action({
-      component: "sv-action-bar-item-dropdown",
-      title: "Click",
-      showTitle: true,
-      action: () => {
-        itemPopupModel.toggleVisibility();
-      },
-      popupModel: itemPopupModel
-    });
-    opt.titleActions = [item];
-  } else {
-    let items = [];
-    for (let index = 0; index < 5; index++) {
-      items[index] = new window["Survey"].Action({ title: "item" + index });
-    }
-    const itemPopupModel = new window["Survey"].PopupModel("sv-list", {
-      model: new window["Survey"].ListModel(items)
-    });
-
-    const item = new window["Survey"].Action({
-      component: "sv-action-bar-item-dropdown",
-      title: "Click",
-      showTitle: true,
-      action: () => {
-        itemPopupModel.toggleVisibility();
-      },
-      popupModel: itemPopupModel
-    });
-    opt.titleActions = [item];
+  let items = [];
+  for (let index = 0; index < 10; index++) {
+    items[index] = new window["Survey"].Action({ title: "item" + index });
   }
+  const list = new window["Survey"].ListModel(items);
+  const itemPopupModel = new window["Survey"].PopupModel("sv-list", {
+    model: list
+  });
+
+  const item1 = new window["Survey"].Action({
+    component: "sv-action-bar-item-dropdown",
+    title: "Open popup",
+    showTitle: true,
+    action: () => {
+      itemPopupModel.toggleVisibility();
+    },
+    popupModel: itemPopupModel
+  });
+  const item2 = new window["Survey"].Action({
+    title: "Set items",
+    showTitle: true,
+    action: () => {
+      let items2 = [];
+      for (let index = 0; index < 20; index++) {
+        items2[index] = { title: "item" + index };
+      }
+      list.items = items2;
+    },
+  });
+  opt.titleActions = [item1, item2];
 }
 
 const popupSelector = Selector(".sv-popup").filterVisible();
 const visibleItems = Selector(".sv-list__item").filterVisible();
 const listInput = popupSelector.find(".sv-list__input");
-const titleActions = Selector(".sv-title-actions .sv-action").filterVisible();
+function getActionByText(text: string) {
+  return Selector(".sv-action-bar-item__title").withText(text);
+}
 
 frameworks.forEach(async framework => {
   fixture`${framework} ${title}`.page`${url}${framework}`.clientScripts({ content: `(${explicitErrorHandler.toString()})()` }).beforeEach(async t => {
   });
 
-  test.skip("check custom markup in list behavior", async t => {
+  test("check custom markup in list behavior", async t => {
     await registerCustomToolboxComponent(framework);
     await initSurvey(framework, json, { onGetQuestionTitleActions: addTitleAction });
     await t
       .expect(Selector(".sv-popup__content .my-custom-action-class").withText("Custom Action 29").exists).ok();
   });
+});
 
+["knockout", "react"].forEach(async framework => {
+  fixture`${framework} ${title}`.page`${url}${framework}`.clientScripts({ content: `(${explicitErrorHandler.toString()})()` }).beforeEach(async t => {
+  });
   test("check list filter", async t => {
 
     await initSurvey(framework, {
@@ -104,19 +101,20 @@ frameworks.forEach(async framework => {
           name: "text",
           type: "text",
           title: "Title here"
-        },
-        {
-          name: "text2",
-          type: "text",
-          title: "Title here 2"
         }
       ]
     }, { onGetQuestionTitleActions: addTitleActions2 });
     await t
-      .expect(Selector(".sv-popup__content .sv-list__item").withText("item19").exists).ok()
       .expect(popupSelector.exists).notOk()
 
-      .click(titleActions)
+      .click(getActionByText("Open popup"))
+      .expect(popupSelector.exists).ok()
+      .expect(listInput.visible).notOk()
+      .expect(visibleItems.count).eql(10)
+
+      .click(getActionByText("Set items")) // close popup
+      .click(getActionByText("Set items"))
+      .click(getActionByText("Open popup"))
       .expect(popupSelector.exists).ok()
       .expect(listInput.visible).ok()
       .expect(listInput.value).eql("")
@@ -132,18 +130,10 @@ frameworks.forEach(async framework => {
       .typeText(listInput, "1")
       .expect(visibleItems.count).eql(11)
 
-      .click(titleActions.nth(1)) // close first popup
+      .click(getActionByText("Set items")) // close popup
       .expect(popupSelector.exists).notOk()
 
-      .click(titleActions.nth(1))
-      .expect(popupSelector.exists).ok()
-      .expect(listInput.visible).notOk()
-      .expect(visibleItems.count).eql(5)
-
-      .click(titleActions) // close second popup
-      .expect(popupSelector.exists).notOk()
-
-      .click(titleActions)
+      .click(getActionByText("Open popup"))
       .expect(popupSelector.exists).ok()
       .expect(listInput.value).eql("")
       .expect(visibleItems.count).eql(20);

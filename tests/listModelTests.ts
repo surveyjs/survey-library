@@ -63,7 +63,7 @@ QUnit.test("ListModel reassign items", function (assert) {
   assert.equal(list.renderedActions.filter(item => item.visible).length, 4);
   assert.notOk(list.needFilter);
 
-  list.items = [
+  list.setItems([
     <IAction>{ id: "test1", title: "test1" },
     <IAction>{ id: "test2", title: "test2" },
     <IAction>{ id: "test3", title: "test3" },
@@ -71,7 +71,7 @@ QUnit.test("ListModel reassign items", function (assert) {
     <IAction>{ id: "test5", title: "test5" },
     <IAction>{ id: "test6", title: "test6" },
     <IAction>{ id: "test7", title: "test7" }
-  ];
+  ]);
 
   assert.equal(list.renderedActions.length, 7);
   assert.equal(list.renderedActions.filter(item => item.visible).length, 7);
@@ -112,7 +112,7 @@ QUnit.test("ListModel custom onFilter", assert => {
   const list = new ListModel([], () => { }, true, null, (text: string) => { myObject.myOnFilter(text); });
   assert.equal(list.renderedActions.length, 0);
 
-  list.items = myObject.myItems;
+  list.setItems(myObject.myItems);
 
   assert.equal(list.renderedActions.length, 7, "initial list.renderedActions");
   assert.equal(list.renderedActions.filter(item => item.visible).length, 7, "initial list.renderedActions.filter(item => item.visible)");
@@ -130,7 +130,7 @@ QUnit.test("ListModel custom onFilter", assert => {
   assert.equal(myObject.myItems.filter(item => item.visible).length, 1, "myObject.myItems visible filteredText = 1");
   assert.equal(list.renderedActions.filter(item => item.visible)[0].title, "test1", "filteredText = 1");
 
-  list.items = items;
+  list.setItems(items);
   list.refresh(); // if popup is visible
   assert.equal(list.filteredText, "", "filteredText is reset");
 

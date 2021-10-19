@@ -22,9 +22,13 @@
         }
       "
     >
-      <template v-for="item in model.renderedActions">
-        <sv-list-item :item="item" :model="model" :key="item.id"> </sv-list-item>
-      </template>
+      <sv-list-item
+        v-for="item in model.renderedActions"
+        :item="item"
+        :model="model"
+        :key="item.id"
+      >
+      </sv-list-item>
     </ul>
   </div>
 </template>

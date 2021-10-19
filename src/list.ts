@@ -7,17 +7,12 @@ import { surveyLocalization } from "./surveyStrings";
 export class ListModel extends ActionContainer {
   @property({ defaultValue: false }) needFilter: boolean;
   @property({ defaultValue: false }) isExpanded: boolean;
-  @property() selectedItem: Action;
+  @property() selectedItem: IAction;
   @property({
     onSet: (_, target: ListModel) => {
       target.filterByText(target.filteredText);
     }
   }) filteredText: string;
-  @propertyArray({
-    onSet: (val, target: ListModel) => {
-      target.setItems(val);
-    }
-  }) items: Array<IAction>;
 
   public static INDENT: number = 16;
   public static MINELEMENTCOUNT: number = 10;
@@ -44,9 +39,8 @@ export class ListModel extends ActionContainer {
 
   constructor(items: Array<IAction>, public onItemSelect: (item: Action) => void, public allowSelection: boolean, selectedItem?: IAction, private onFilteredTextChange?: (text: string) => void) {
     super();
-    this.createNewArray("items");
-    this.items = items;
-    this.selectedItem = !!selectedItem ? this.actions.filter(item => item.id === selectedItem.id)[0] : null;
+    this.setItems(items);
+    this.selectedItem = selectedItem;
   }
 
   protected onSet(): void {

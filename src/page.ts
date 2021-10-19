@@ -11,6 +11,7 @@ import { DragDropInfo, PanelModelBase, QuestionRowModel } from "./panel";
 import { LocalizableString } from "./localizablestring";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { settings } from "./settings";
+import { SurveyModel } from "./survey";
 
 /**
  * The page object. It has elements collection, that contains questions and panels.
@@ -304,13 +305,13 @@ export class PageModel extends PanelModelBase implements IPage {
     var row = this.dragDropFindRow(target);
     var targetIndex = this.dragDropGetElementIndex(target, row);
     this.updateRowsRemoveElementFromRow(target, row);
-    var srcRow = this.dragDropFindRow(src);
     var elementsToSetSWNL = [];
     var elementsToResetSWNL = [];
     if (!isCancel && !!row) {
       var isSamePanel = false;
 
       if(this.isDesignMode && settings.supportCreatorV2) {
+        var srcRow = src && (src.parent as PanelModelBase).dragDropFindRow(src);
         if(row.panel.elements[targetIndex] && row.panel.elements[targetIndex].startWithNewLine && row.elements.length > 1) {
           elementsToSetSWNL.push(target);
           elementsToResetSWNL.push(row.panel.elements[targetIndex]);

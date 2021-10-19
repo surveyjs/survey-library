@@ -1411,7 +1411,7 @@ export class PanelModelBase extends SurveyElement
       this.updateRowsRemoveElementFromRow(dragDropInfo.target, prevRow);
     }
   }
-  protected dragDropFindRow(findElement: ISurveyElement): QuestionRowModel {
+  public dragDropFindRow(findElement: ISurveyElement): QuestionRowModel {
     if (!findElement || findElement.isPage) return null;
     var element = <IElement>findElement;
     var rows = this.rows;

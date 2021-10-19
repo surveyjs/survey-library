@@ -638,6 +638,7 @@ QUnit.test("Move item multi-row to single-row bottom, from bottom to top", funct
 
     page.dragDropFinish();
     assert.equal(page.rows.length, 3, "Iteration "+i+". End.  Row added");
+    assert.equal(page.rows[2].elements[0].startWithNewLine, true, "Iteration "+i+". End. The first element SWNL = true");
     assert.deepEqual(page.rows[0].elements.map(e => e.name), ["q1"], "Iteration "+i+". End. The first row is q1");
     assert.deepEqual(page.rows[1].elements.map(e => e.name), [dragQuestionName], "Iteration "+i+". Move 1. The first row is dragged");
     assert.deepEqual(page.rows[2].elements.map(e => e.name), arr, "Iteration "+i+". End. The last row is q2, q3, q4");
@@ -672,6 +673,7 @@ QUnit.test("Move item multi-row to single-row top, from bottom to top", function
 
     page.dragDropMoveTo(q1, false);
     assert.equal(page.rows.length, 3, "Iteration "+i+". Move 1. Row added");
+    assert.equal(page.rows[2].elements[0].startWithNewLine, true, "Iteration "+i+". End. The first element SWNL = true");
     assert.deepEqual(page.rows[0].elements.map(e => e.name), [dragQuestionName], "Iteration "+i+". Move 1. The first row is dragged");
     assert.deepEqual(page.rows[1].elements.map(e => e.name), ["q1"], "Iteration "+i+". Move 1. The second row is q1");
     assert.deepEqual(page.rows[2].elements.map(e => e.name), arr, "Iteration "+i+". Move 1. The last row is q2, q3, q4");
@@ -724,6 +726,7 @@ QUnit.test("Move item multi-row to single-row bottom, from top to bottom", funct
 
     page.dragDropFinish();
     assert.equal(page.rows.length, 3, "Iteration "+i+". End.  Row added");
+    assert.equal(page.rows[0].elements[0].startWithNewLine, true, "Iteration "+i+". End. The first element SWNL = true");
     assert.deepEqual(page.rows[1].elements.map(e => e.name), ["q1"], "Iteration "+i+". End. The pre-last row is q1");
     assert.deepEqual(page.rows[2].elements.map(e => e.name), [dragQuestionName], "Iteration "+i+". Move 1. The last row is dragged");
     assert.deepEqual(page.rows[0].elements.map(e => e.name), arr, "Iteration "+i+". End. The first row is q2, q3, q4");
@@ -767,6 +770,7 @@ QUnit.test("Move item multi-row to single-row bottom, from top to bottom", funct
 
     page.dragDropFinish();
     assert.equal(page.rows.length, 3, "Iteration "+i+". End.  Row added");
+    assert.equal(page.rows[0].elements[0].startWithNewLine, true, "Iteration "+i+". End. The first element SWNL = true");
     assert.deepEqual(page.rows[2].elements.map(e => e.name), ["q1"], "Iteration "+i+". End. The last row is q1");
     assert.deepEqual(page.rows[1].elements.map(e => e.name), [dragQuestionName], "Iteration "+i+". Move 1. The pre-last row is dragged");
     assert.deepEqual(page.rows[0].elements.map(e => e.name), arr, "Iteration "+i+". End. The first row is q2, q3, q4");
@@ -800,4 +804,48 @@ QUnit.test("Move item between pages", function (assert) {
   page2.dragDropFinish();
   assert.deepEqual(page2.elements.map(e => e.name), ["q1", "q3"], "End. The last page is q1, q3");
   assert.deepEqual(page.elements.map(e => e.name), ["q2"], "End. The first page q2");
+});
+
+QUnit.test("Move item multi-row to single-row bottom, between pages", function (assert) {
+  settings.supportCreatorV2 = true;
+  for(let i = 2; i <= 4; i++) {
+    var survey = new SurveyModel();
+    survey["_isDesignMode"] = true;
+    settings.supportCreatorV2 = true;
+    var page = survey.addNewPage("p1");
+    var page2 = survey.addNewPage("p2");
+    var q2 = page.addNewQuestion("text", "q2");
+    var q3 = page.addNewQuestion("text", "q3");
+    var q4 = page.addNewQuestion("text", "q4");
+    var q1 = page2.addNewQuestion("text", "q1");
+    q3.startWithNewLine = false;
+    q4.startWithNewLine = false;
+    var dragQuestionName = "q" + i;
+    var dragQuestion = page.getQuestionByName(dragQuestionName);
+    var target = new QuestionTextModel(dragQuestionName);
+    target.startWithNewLine = dragQuestion.startWithNewLine;
+
+    assert.equal(page.rows.length, 1, "Iteration "+i+". There is one row in page 1");
+    assert.equal(page.rows[0].elements.length, 3, "Iteration "+i+". There are three elements in the first row");
+    page2.dragDropStart(dragQuestion, target);
+
+    var arr = ["q2", "q3", "q4"];
+
+    page2.dragDropMoveTo(q1, false);
+    assert.equal(page.rows.length, 1, "Iteration "+i+". Move 1. No rows added");
+    assert.equal(page2.rows.length, 2, "Iteration "+i+". Move 1. Page 2 - two rows");
+    assert.deepEqual(page2.rows[1].elements.map(e => e.name), ["q1"], "Iteration "+i+". Move 1. The last row is q1");
+    assert.deepEqual(page2.rows[0].elements.map(e => e.name), [dragQuestionName], "Iteration "+i+". Move 1. The pre-last row is dragged");
+    assert.deepEqual(page.rows[0].elements.map(e => e.name), arr, "Iteration "+i+". Move 1. The first row is correct");
+
+    arr.splice(i - 2, 1);
+
+    page2.dragDropFinish();
+    assert.equal(page.rows.length, 1, "Iteration "+i+". End.  Page1 - no Row added");
+    assert.equal(page2.rows.length, 2, "Iteration "+i+". End.  Page2 - Row added");
+    assert.deepEqual(page2.rows[1].elements.map(e => e.name), ["q1"], "Iteration "+i+". End. The last row is q1");
+    assert.deepEqual(page2.rows[0].elements.map(e => e.name), [dragQuestionName], "Iteration "+i+". Move 1. The pre-last row is dragged");
+    assert.deepEqual(page.rows[0].elements.map(e => e.name), arr, "Iteration "+i+". End. The first row is correct");
+    assert.equal(page.rows[0].elements[0].startWithNewLine, true, "Iteration "+i+". End. The first element SWNL = true");
+  }
 });

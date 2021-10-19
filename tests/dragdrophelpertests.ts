@@ -5,7 +5,6 @@ import { SurveyModel } from "../src/survey";
 import { ItemValue } from "../src/itemvalue";
 import { Question } from "../src/question";
 import { QuestionSelectBase } from "../src/question_baseselect";
-import { futimesSync } from "fs";
 
 export default QUnit.module("DragDropHelper Tests");
 
@@ -224,7 +223,8 @@ QUnit.test("surveyelement: onBeforeDrop and onAfterDrop events", function (
       },
     ],
   });
-  const question = survey.getQuestionByName("q2");
+  const question1 = survey.getQuestionByName("q1");
+  const question2 = survey.getQuestionByName("q2");
   let beforeCount = 0;
   let afterCount = 0;
   let draggedElement;
@@ -239,7 +239,8 @@ QUnit.test("surveyelement: onBeforeDrop and onAfterDrop events", function (
   });
   ddHelper.parentElement = survey.pages[0];
   ddHelper.dropTarget = {};
-  ddHelper.draggedElement = question;
+  ddHelper.draggedElement = question2;
+  ddHelper.dropTarget = question1;
 
   ddHelper["draggedElementShortcut"] = document.body.appendChild(
     document.createElement("div")

@@ -191,6 +191,13 @@ export class DragDropSurveyElements extends DragDropCore<any> {
     return Math.abs(clientY - middle) >= DragDropSurveyElements.edgeHeight;
   }
 
+  private calculateIsRight(): boolean {
+    var pageOrPanel = this.dropTarget.parent;
+    var srcIndex = pageOrPanel.elements.indexOf(this.draggedElement);
+    var destIndex = pageOrPanel.elements.indexOf(this.dropTarget);
+    return srcIndex < destIndex;
+  }
+
   protected afterDragOver(): void {
     this.prevIsEdge = this.isEdge;
     this.insertGhostElementIntoSurvey();
@@ -222,6 +229,10 @@ export class DragDropSurveyElements extends DragDropCore<any> {
   protected insertGhostElementIntoSurvey(): boolean {
     this.removeGhostElementFromSurvey();
 
+    const isTargetRowMultiple = this.isTargetRowMultiple();
+
+    this.ghostSurveyElement = this.createGhostSurveyElement(isTargetRowMultiple);
+
     this.ghostSurveyElement.name =
       DragDropSurveyElements.ghostSurveyElementName; // TODO why do we need setup it manually see createGhostSurveyElement method
 
@@ -240,11 +251,25 @@ export class DragDropSurveyElements extends DragDropCore<any> {
       DragDropSurveyElements.nestedPanelDepth
     );
 
-    return this.parentElement.dragDropMoveTo(
+    const result = this.parentElement.dragDropMoveTo(
       this.dropTarget,
-      this.isBottom,
+      isTargetRowMultiple ? this.calculateIsRight() : this.isBottom,
       this.isEdge
     );
+
+    return result;
+  }
+
+  private isTargetRowMultiple() {
+    const targetParent = this.dropTarget.isPage ? this.dropTarget : this.dropTarget.parent;
+    let targetRow: any;
+
+    targetParent.rows.forEach((row: any) => {
+      if (row.elements.indexOf(this.dropTarget) !== -1) {
+        targetRow = row;
+      }
+    });
+    return targetRow && targetRow.elements.length > 1;
   }
 
   private isDragOverInsideEmptyPanel(): boolean {
@@ -260,6 +285,8 @@ export class DragDropSurveyElements extends DragDropCore<any> {
 
   private insertRealElementIntoSurvey() {
     this.removeGhostElementFromSurvey();
+
+    const isTargetRowMultiple = this.isTargetRowMultiple();
 
     // ghost new page
     if (this.dropTarget.isPage && (<any>this.dropTarget)["_isGhost"]) {
@@ -285,7 +312,7 @@ export class DragDropSurveyElements extends DragDropCore<any> {
 
     this.parentElement.dragDropMoveTo(
       this.dropTarget,
-      this.isBottom,
+      isTargetRowMultiple ? this.calculateIsRight() : this.isBottom,
       this.isEdge
     );
 
@@ -308,17 +335,16 @@ export class DragDropSurveyElements extends DragDropCore<any> {
     return targetElement;
   }
 
-  private createGhostSurveyElement(): any {
-    const startWithNewLine = this.draggedElement.startWithNewLine;
+  private createGhostSurveyElement(isMultipleRowDrag = false): any {
     let className = "sv-drag-drop-ghost";
     let minWidth = "300px";
 
-    if (!startWithNewLine) {
+    if (isMultipleRowDrag) {
       minWidth = "4px";
       className += " sv-drag-drop-ghost--vertical";
     }
 
-    const json = {
+    const json: any = {
       type: "html",
       minWidth,
       name: DragDropSurveyElements.ghostSurveyElementName,
@@ -326,7 +352,14 @@ export class DragDropSurveyElements extends DragDropCore<any> {
     };
 
     const element = <any>this.createElementFromJson(json);
-    element.startWithNewLine = startWithNewLine;
+    element.startWithNewLine = !isMultipleRowDrag;
+
+    if (isMultipleRowDrag) {
+      element.maxWidth = "4px";
+      element.renderWidth = "0px";
+      element.paddingRight = "0px";
+      element.paddingLeft = "0px";
+    }
 
     return element;
   }

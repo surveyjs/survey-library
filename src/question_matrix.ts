@@ -606,10 +606,6 @@ export class QuestionMatrixModel
       "row-header"
     );
   }
-  public needResponsiveWidth() {
-    //TODO: make it mor intelligent
-    return true;
-  }
 }
 
 Serializer.addClass(

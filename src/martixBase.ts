@@ -265,6 +265,10 @@ export class QuestionMatrixBaseModel<TRow, TColumn> extends Question {
       this.value = newValue;
     }
   }
+  public needResponsiveWidth() {
+    //TODO: make it mor intelligent
+    return true;
+  }
 }
 
 Serializer.addClass(

@@ -261,7 +261,12 @@ export class DragDropSurveyElements extends DragDropCore<any> {
   }
 
   private isTargetRowMultiple() {
-    const targetParent = this.dropTarget.isPage ? this.dropTarget : this.dropTarget.parent;
+    let targetParent = this.dropTarget.isPage || this.dropTarget.isPanel ? this.dropTarget : this.dropTarget.parent;
+
+    if (this.dropTarget.getType() === "paneldynamic") {
+      targetParent = this.dropTarget.templateValue;
+    }
+
     let targetRow: any;
 
     targetParent.rows.forEach((row: any) => {

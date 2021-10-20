@@ -98,7 +98,7 @@ export class SurveyRow extends SurveyElementBase<any, any> {
   }
 
   protected createElement(element: IElement, elementIndex?: number): JSX.Element {
-    const index = elementIndex ? "-" + elementIndex : Math.random();
+    const index = elementIndex ? "-" + elementIndex : 0;
     var elementType = element.getType();
     if (!ReactElementFactory.Instance.isElementRegistered(elementType)) {
       elementType = "question";

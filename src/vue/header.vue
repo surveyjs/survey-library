@@ -32,7 +32,6 @@
         v-bind:style="{ objectFit: survey.logoFit }"
       />
     </div>
-    <div v-if="survey.isLogoAfter" class="sv-logo--right-tail"></div>
   </div>
 </template>
 

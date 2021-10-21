@@ -27,9 +27,6 @@ export class LogoImage extends React.Component<ILogoImageProps, any> {
         />
       </div>
     );
-    if (this.survey.isLogoAfter) {
-      content.push(<div key={"logo-image-tail"} className="sv-logo--right-tail"></div>);
-    }
     return <>{content}</>;
   }
 }

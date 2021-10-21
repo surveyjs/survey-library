@@ -3536,6 +3536,26 @@ QUnit.test(
     FunctionFactory.Instance.unregister("testFunc");
   }
 );
+QUnit.test("Check paretQuestion", function(assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "paneldynamic",
+        name: "rootPanel",
+        panelCount: 1,
+        templateElements: [
+          { type: "text", name: "q1" },
+        ],
+      },
+    ],
+  });
+  const panelDynamic = <QuestionPanelDynamicModel>survey.getAllQuestions()[0];
+  assert.equal(panelDynamic.template.getQuestionByName("q1").parentQuestion.name, "rootPanel", "q1 - template");
+  assert.equal(panelDynamic.panels[0].getQuestionByName("q1").parentQuestion.name, "rootPanel", "q1 - panel");
+  panelDynamic.template.addNewQuestion("text", "q2");
+  assert.equal(panelDynamic.template.getQuestionByName("q2").parentQuestion.name, "rootPanel", "q2 - template");
+  assert.equal(panelDynamic.panels[0].getQuestionByName("q2").parentQuestion.name, "rootPanel", "q2 - panel");
+});
 QUnit.test("Avoid stack-overflow", function(assert) {
   var survey = new SurveyModel({
     elements: [

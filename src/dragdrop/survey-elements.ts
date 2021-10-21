@@ -229,7 +229,7 @@ export class DragDropSurveyElements extends DragDropCore<any> {
   protected insertGhostElementIntoSurvey(): boolean {
     this.removeGhostElementFromSurvey();
 
-    const isTargetRowMultiple = this.isTargetRowMultiple();
+    let isTargetRowMultiple = this.calcTargetRowMultiple();
 
     this.ghostSurveyElement = this.createGhostSurveyElement(isTargetRowMultiple);
 
@@ -260,7 +260,7 @@ export class DragDropSurveyElements extends DragDropCore<any> {
     return result;
   }
 
-  private isTargetRowMultiple() {
+  private calcTargetRowMultiple() {
     let targetParent = this.dropTarget.isPage || this.dropTarget.isPanel ? this.dropTarget : this.dropTarget.parent;
 
     if (this.dropTarget.getType() === "paneldynamic") {
@@ -274,6 +274,12 @@ export class DragDropSurveyElements extends DragDropCore<any> {
         targetRow = row;
       }
     });
+
+    if (this.isEdge) {
+      this.dropTarget = targetParent;
+      return false;
+    }
+
     return targetRow && targetRow.elements.length > 1;
   }
 
@@ -291,7 +297,7 @@ export class DragDropSurveyElements extends DragDropCore<any> {
   private insertRealElementIntoSurvey() {
     this.removeGhostElementFromSurvey();
 
-    const isTargetRowMultiple = this.isTargetRowMultiple();
+    const isTargetRowMultiple = this.calcTargetRowMultiple();
 
     // ghost new page
     if (this.dropTarget.isPage && (<any>this.dropTarget)["_isGhost"]) {

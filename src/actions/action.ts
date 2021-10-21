@@ -97,12 +97,12 @@ export class Action extends Base implements IAction {
   private raiseUpdate() {
     this.updateCallback && this.updateCallback();
   }
-  constructor(item: IAction) {
+  constructor(public innerItem: IAction) {
     super();
     //Object.assign(this, item) to support IE11
-    if (!!item) {
-      for (var key in item) {
-        (<any>this)[key] = (<any>item)[key];
+    if (!!innerItem) {
+      for (var key in innerItem) {
+        (<any>this)[key] = (<any>innerItem)[key];
       }
     }
   }

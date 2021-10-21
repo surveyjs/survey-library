@@ -1,7 +1,7 @@
 import { ResponsivityManager } from "../utils/responsivity-manager";
 import { ListModel } from "../list";
 import { PopupModel } from "../popup";
-import { Action } from "./action";
+import { Action, IAction } from "./action";
 import { ActionContainer } from "./container";
 
 export class AdaptiveActionContainer<T extends Action = Action> extends ActionContainer<T> {
@@ -26,11 +26,11 @@ export class AdaptiveActionContainer<T extends Action = Action> extends ActionCo
 
   private hideItemsGreaterN(visibleItemsCount: number) {
     visibleItemsCount = Math.max(visibleItemsCount, this.minVisibleItemsCount);
-    const invisibleItems: Action[] = [];
+    const invisibleItems: IAction[] = [];
     this.visibleActions.forEach((item) => {
       if (visibleItemsCount <= 0) {
         item.mode = "popup";
-        invisibleItems.push(item);
+        invisibleItems.push(item.innerItem);
       }
       visibleItemsCount--;
     });

@@ -29,6 +29,14 @@
 @import "blocks/sd-navigation.scss";
 @import "blocks/sd-button.scss";
 @import "blocks/sd-body.scss";
+@import "../common-styles/sv-actionbar.scss";
+@import "../common-styles/sv-popup.scss";
+@import "../common-styles/sv-list.scss";
+@import "../common-styles/sv-buttongroup.scss";
+@import "../common-styles/sv-visuallyhidden.scss";
+@import "../common-styles/sv-hidden.scss";
+@import "../common-styles/sv-titleactions.scss";
+
 
 .sd-root-modern {
   width: 100%;

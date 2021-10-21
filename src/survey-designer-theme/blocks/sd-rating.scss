@@ -35,7 +35,7 @@
 .sd-rating__item + .sd-rating__item {
   margin-left: calcSize(1);
 }
-.sd-rating__item-text {
+.sd-rating__item-text.sd-rating__item-text {
   line-height: calcSize(3);
   &.sd-rating__min-text {
     margin-right: calcSize(1);

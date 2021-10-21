@@ -42,7 +42,7 @@ sv-popup {
   position: absolute;
   filter: drop-shadow(0px calcSize(1) calcSize(2) rgba(0, 0, 0, 0.1));
   padding: calcSize(1) 0;
-  background: $body-background-color;
+  background: $background;
   border-radius: 4px;
   box-sizing: border-box;
   display: flex;
@@ -100,7 +100,7 @@ sv-popup {
     height: 0;
     border-left: calcSize(1) solid transparent;
     border-right: calcSize(1) solid transparent;
-    border-bottom: calcSize(1) solid $body-background-color;
+    border-bottom: calcSize(1) solid $background;
     align-self: center;
   }
 }

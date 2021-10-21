@@ -9,6 +9,8 @@ var path = require("path");
 const config = {
   entry: {
     modern: path.resolve(__dirname, "../../src/modern.scss"),
+    //todo: designer is not end name
+    designer: path.resolve(__dirname, "../../src/survey-designer-theme/survey-designer.scss")
   },
   plugins: [new FixStyleOnlyEntriesPlugin()],
 };

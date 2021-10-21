@@ -1,0 +1,46 @@
+.sd-item {
+  padding: calcSize(1.5) 0;
+}
+.sd-item--disabled.sd-item--disabled .sd-item__decorator,
+.sd-item__decorator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: calcSize(3);
+  height: calcSize(3);
+  box-sizing: border-box;
+  box-shadow: inset 0px 1px 2px $border-inside;
+  background: $background-for-editors;
+  border: none;
+  svg {
+    display: none;
+  }
+  flex-shrink: 0;
+}
+.sd-item--checked .sd-item__decorator,
+.sd-item__control:focus + .sd-item__decorator,
+.sd-item--allowhover:hover .sd-item__decorator {
+  border: 2px $green solid;
+  box-shadow: none;
+}
+.sd-item__control:focus + .sd-item__decorator,
+.sd-item--allowhover:hover .sd-item__decorator {
+  background: $background;
+}
+.sd-item--checked .sd-item__decorator {
+  background: $green;
+}
+.sd-item__control-label {
+  font-family: Open Sans;
+  font-style: normal;
+  font-weight: normal;
+  line-height: calcSize(3);
+  font-size: calcSize(2);
+  margin-left: calcSize(1);
+  color: $foreground;
+  white-space: normal;
+  word-break: break-word;
+}
+.sd-item--disabled .sd-item__control-label {
+  color: $foreground-disabled-for-editors;
+}

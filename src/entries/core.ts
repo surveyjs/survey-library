@@ -10,6 +10,8 @@ export { defaultStandardCss } from "../defaultCss/cssstandard";
 export { defaultBootstrapCss } from "../defaultCss/cssbootstrap";
 // css bootstrap + material classes
 export { defaultBootstrapMaterialCss } from "../defaultCss/cssbootstrapmaterial";
+
+export { surveyDesignerCss } from "../survey-designer-theme/survey-designer";
 // css modern classes
 export { modernCss } from "../defaultCss/cssmodern";
 

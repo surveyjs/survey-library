@@ -1,0 +1,38 @@
+.sd-title {
+  font-family: "Open Sans";
+  font-style: normal;
+  color: $foreground;
+  display: flex;
+  flex-direction: row;
+  white-space: normal;
+  word-break: break-word;
+}
+
+.sd-title.sd-container-modern__title {
+  padding: calcSize(3);
+  border-bottom: 2px solid $primary;
+  overflow: auto;
+  font-family: "Open Sans";
+}
+
+.sd-header__text {
+  flex-grow: 1;
+  h3 {
+    padding-bottom: calcSize(1);
+    font-size: calcSize(4);
+    font-weight: 700;
+    line-height: calcSize(5);
+    color: $primary;
+  }
+  h5 {
+    font-size: calcSize(2);
+    font-weight: 400;
+    line-height: calcSize(3);
+  }
+}
+//todo: add ability to customize class sv-title-actions in library
+.sd-title {
+  .sv-title-actions {
+    width: 100%;
+  }
+}

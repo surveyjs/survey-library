@@ -41,7 +41,7 @@ export class SurveyQuestionDropdown extends SurveyQuestionUncontrolledElement<Qu
         <div id={this.question.inputId} className={this.question.getControlClass()} disabled>
           {isOtherSelected
             ? this.question.otherText
-            : this.question.displayValue}
+            : (this.question.displayValue || this.question.optionsCaption)}
         </div>
       );
     }

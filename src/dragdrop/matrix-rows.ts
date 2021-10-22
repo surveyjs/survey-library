@@ -47,6 +47,15 @@ export class DragDropMatrixRows extends DragDropCore<QuestionMatrixDynamicModel>
     return rows.indexOf(dropTarget) !== -1;
   }
 
+  protected findDropTargetNodeByDragOverNode(
+    dragOverNode: HTMLElement
+  ): HTMLElement {
+    const result: HTMLElement = dragOverNode.closest(
+      this.dropTargetDataAttributeName
+    );
+    return result;
+  }
+
   protected calculateIsBottom(clientY: number): boolean {
     const rows = this.parentElement.visibleRows;
     return (

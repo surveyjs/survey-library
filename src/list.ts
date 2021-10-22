@@ -20,7 +20,7 @@ export class ListModel extends ActionContainer {
   private hasText(item: Action, filteredTextInLow: string): boolean {
     if (!filteredTextInLow) return true;
     let textInLow = (item.title || "").toLocaleLowerCase();
-    return textInLow.indexOf(filteredTextInLow) > -1;
+    return textInLow.indexOf(filteredTextInLow.toLocaleLowerCase()) > -1;
   }
   private updateItemVisible(text: string) {
     this.actions.forEach(item => {

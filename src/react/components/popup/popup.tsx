@@ -31,8 +31,8 @@ export class Popup extends SurveyElementBase<IPopupProps, any> {
   componentWillUnmount() {
     this.popup.destroyPopupContainer();
   }
-  shouldComponentUpdate() {
-    return this.props.model !== this.popup.model;
+  shouldComponentUpdate(nextProps: IPopupProps) {
+    return nextProps.model !== this.popup.model;
   }
   render() {
     this.popup.model = this.model;

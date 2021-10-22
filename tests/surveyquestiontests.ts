@@ -2371,18 +2371,77 @@ QUnit.test("readOnlyCommentRenderMode", function(assert) {
     false,
     "isReadOnlyRenderDiv false"
   );
+  
+  QUnit.test("readOnlyCommentRenderMode+readOnlyTextRenderMode", function(assert) {
+  var survey = new SurveyModel();
+  var page = survey.addNewPage("p1");
+  var qComment = new QuestionCommentModel("q1");
+  var qText = new QuestionTextModel("q3");
+  survey.mode = "display";
+
+  page.addElement(qComment);
+  page.addElement(qText);
+
+  assert.equal(
+    qComment["isReadOnlyRenderDiv"](),
+    false,
+    "1. Comment - isReadOnlyRenderDiv false"
+  );
+  assert.equal(
+    qText["isReadOnlyRenderDiv"](),
+    false,
+    "1. Text - isReadOnlyRenderDiv false"
+  );
 
   settings.readOnlyCommentRenderMode = "div";
 
   assert.equal(
     qComment["isReadOnlyRenderDiv"](),
     true,
-    "isReadOnlyRenderDiv true"
+    "2. Comment - isReadOnlyRenderDiv true"
   );
   assert.equal(
-    qRadio["isReadOnlyRenderDiv"](),
+    qText["isReadOnlyRenderDiv"](),
+    false,
+    "3. Text - isReadOnlyRenderDiv false"
+  );
+
+  settings.readOnlyTextRenderMode = "div";
+  assert.equal(
+    qComment["isReadOnlyRenderDiv"](),
     true,
-    "isReadOnlyRenderDiv true"
+    "3. Comment - isReadOnlyRenderDiv true"
+  );
+
+  assert.equal(
+    qText["isReadOnlyRenderDiv"](),
+    true,
+    "3. Text - isReadOnlyRenderDiv true"
+  );
+
+  settings.readOnlyCommentRenderMode = "textarea";
+  assert.equal(
+    qComment["isReadOnlyRenderDiv"](),
+    false,
+    "4. Comment - isReadOnlyRenderDiv false"
+  );
+  assert.equal(
+    qText["isReadOnlyRenderDiv"](),
+    true,
+    "4. Text - isReadOnlyRenderDiv true"
+  );
+
+  settings.readOnlyCommentRenderMode = "div";
+  survey.mode = "edit";
+  assert.equal(
+    qComment["isReadOnlyRenderDiv"](),
+    false,
+    "5. Comment - isReadOnlyRenderDiv false"
+  );
+  assert.equal(
+    qText["isReadOnlyRenderDiv"](),
+    false,
+    "5. Text - isReadOnlyRenderDiv false"
   );
 });
 

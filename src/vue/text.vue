@@ -1,6 +1,7 @@
 <template>
   <div>
     <input
+      v-if="!question.isReadOnlyRenderDiv()"
       :disabled="question.isInputReadOnly"
       :class="question.getControlClass()"
       :type="question.inputType"
@@ -22,9 +23,10 @@
       :aria-invalid="question.ariaInvalid"
       :aria-describedby="question.ariaDescribedBy"
     />
-    <datalist v-if="question.dataListId" :id="question.dataListId">
+    <datalist v-if="question.dataListId && !question.isReadOnlyRenderDiv()" :id="question.dataListId">
       <option v-for="item in question.dataList" :value="item"></option>
     </datalist>
+    <div v-if="question.isReadOnlyRenderDiv()">{{ question.value }}</div>
   </div>
 </template>
 

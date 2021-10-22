@@ -363,6 +363,9 @@ export class QuestionTextModel extends QuestionTextBase {
   protected hasPlaceHolder(): boolean {
     return !this.isReadOnly && this.inputType !== "range";
   }
+  public isReadOnlyRenderDiv(): boolean {
+    return this.isReadOnly && settings.readOnlyTextRenderMode === "div";
+  }
   get inputStyle(): any {
     var style: any = {};
     if (!!this.inputWidth) {

@@ -95,9 +95,13 @@ export var settings = {
    */
   executeSkipTriggerOnValueChanged: true,
   /**
-   * Set this property to change readOnlyCommentRenderMode: "textarea" (default) or (div)
+   * Set this property to change readOnlyCommentRenderMode: "textarea" (default) or "div"
    */
   readOnlyCommentRenderMode: "textarea",
+  /**
+   * Set this property to change readOnlyTextRenderMode: "input" (default) or "div"
+   */
+  readOnlyTextRenderMode: "input",
   /**
    * Override this function, set your function, if you want to show your own dialog confirm window instead of standard browser window.
    * @param message

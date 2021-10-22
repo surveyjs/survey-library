@@ -2371,8 +2371,8 @@ QUnit.test("readOnlyCommentRenderMode", function(assert) {
     false,
     "isReadOnlyRenderDiv false"
   );
-  
-  QUnit.test("readOnlyCommentRenderMode+readOnlyTextRenderMode", function(assert) {
+});
+QUnit.test("readOnlyCommentRenderMode+readOnlyTextRenderMode", function(assert) {
   var survey = new SurveyModel();
   var page = survey.addNewPage("p1");
   var qComment = new QuestionCommentModel("q1");

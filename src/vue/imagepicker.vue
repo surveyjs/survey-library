@@ -1,6 +1,9 @@
 <template>
   <fieldset :class="question.cssClasses.root">
-    <legend  role="radio" v-bind:aria-label="question.locTitle.renderedHtml"></legend>
+    <legend
+      role="radio"
+      v-bind:aria-label="question.locTitle.renderedHtml"
+    ></legend>
     <div
       v-for="(item, index) in question.visibleChoices"
       :key="item.value"
@@ -17,7 +20,6 @@
           v-model="question.value"
           :disabled="question.isInputReadOnly || !item.isEnabled"
           v-bind:aria-required="question.isRequired"
-          :aria-required="question.ariaRequired"
           :aria-label="question.ariaLabel"
           :aria-invalid="question.ariaInvalid"
           :aria-describedby="question.ariaDescribedBy"
@@ -33,7 +35,6 @@
           v-model="question.value"
           :disabled="question.isInputReadOnly || !item.isEnabled"
           v-bind:aria-required="question.isRequired"
-          :aria-required="question.ariaRequired"
           :aria-label="question.ariaLabel"
           :aria-invalid="question.ariaInvalid"
           :aria-describedby="question.ariaDescribedBy"

@@ -82,10 +82,12 @@ QUnit.test("ListModel reassign items", function (assert) {
 
 QUnit.test("hasText method", assert => {
   const listModel = new ListModel([], () => { }, true);
-  const item = new Action({ id: "1", title: "test1" });
+  const item = new Action({ id: "1", title: "Best test1" });
   assert.ok(listModel["hasText"](item, "test"));
   assert.ok(listModel["hasText"](item, "1"));
   assert.notOk(listModel["hasText"](item, "test2"));
+  assert.ok(listModel["hasText"](item, "Best"));
+  assert.ok(listModel["hasText"](item, "best"));
 });
 
 class MyObject {

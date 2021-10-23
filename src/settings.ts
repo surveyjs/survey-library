@@ -39,6 +39,12 @@ export var settings = {
    */
   itemValueSeparator: "|",
   /**
+   * Set it to true to serialize itemvalue instance always as object even if text property is empty
+   * const item = new Survey.ItemValue(5);
+   * item.toJSON(); //will return {value: 5}, instead of 5 by default.
+   */
+  itemValueAlwaysSerializeAsObject: false,
+  /**
    * default locale name for localizable strings that uses during serialization, {"default": "My text", "de": "Mein Text"}
    */
   defaultLocaleName: "default",

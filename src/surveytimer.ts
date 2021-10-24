@@ -1,7 +1,5 @@
 import { Event } from "./base";
 
-var counterStart = 0;
-
 export var surveyTimerFunctions = {
   setTimeout: function (func: () => any): number {
     if (typeof window === "undefined") return 0;

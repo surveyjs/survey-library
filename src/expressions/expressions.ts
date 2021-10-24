@@ -440,7 +440,7 @@ export class OperandMaker {
     );
   }
   static countDecimals(value: number): number {
-    if (Math.floor(value) !== value) {
+    if (Helpers.isNumber(value) && Math.floor(value) !== value) {
       const strs = value.toString().split(".");
       return strs.length > 1 && strs[1].length || 0;
     }

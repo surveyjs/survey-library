@@ -78,6 +78,8 @@ QUnit.test("Concat strings", function(assert) {
   assert.equal(expression.evaluate(), "1a2");
   expression = parse("1 + ' ' + 2");
   assert.equal(expression.evaluate(), "1 2");
+  expression = parse('"p1. " + "p2"');
+  assert.equal(expression.evaluate(), "p1. p2");
 });
 
 QUnit.test("Variable Const", function(assert) {

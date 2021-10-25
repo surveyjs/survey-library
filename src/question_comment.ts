@@ -29,13 +29,13 @@ export class QuestionCommentModel extends QuestionTextBase {
     this.setPropertyValue("cols", val);
   }
   /**
-   * Returns or sets a boolean that specifies whether a question can accept and display multiple lines of text.
+   * Accepts pressing the Enter key by end-users and accepts carriage return symbols - \n - in the question value assigned.
    */
-  public get multiLine(): boolean {
-    return this.getPropertyValue("multiLine");
+  public get acceptCarriageReturn(): boolean {
+    return this.getPropertyValue("acceptCarriageReturn");
   }
-  public set multiLine(val: boolean) {
-    this.setPropertyValue("multiLine", val);
+  public set acceptCarriageReturn(val: boolean) {
+    this.setPropertyValue("acceptCarriageReturn", val);
   }
   /**
    * Specifies whether the question's text area automatically expands its height to avoid the vertical scrollbar and to display the entire multi-line contents entered by respondents.
@@ -68,7 +68,7 @@ export class QuestionCommentModel extends QuestionTextBase {
       this.updateElement();
   }
   public onKeyDown(event: any): void {
-    if (!this.multiLine && (event.key === "Enter" || event.keyCode === 13)) {
+    if (!this.acceptCarriageReturn && (event.key === "Enter" || event.keyCode === 13)) {
       event.preventDefault();
       event.stopPropagation();
     }
@@ -78,7 +78,7 @@ export class QuestionCommentModel extends QuestionTextBase {
     this.updateElement();
   }
   protected setNewValue(newValue: string): any {
-    if (!this.multiLine && !!newValue) {
+    if (!this.acceptCarriageReturn && !!newValue) {
       // eslint-disable-next-line no-control-regex
       newValue = newValue.replace(new RegExp("(\r\n|\n|\r)", "gm"), "");
     }
@@ -98,7 +98,7 @@ Serializer.addClass(
       choices: ["default", "onBlur", "onTyping"],
     },
     { name: "autoGrow:boolean" },
-    { name: "multiLine:boolean", default: true }
+    { name: "acceptCarriageReturn:boolean", default: true, visible: false }
   ],
   function () {
     return new QuestionCommentModel("");

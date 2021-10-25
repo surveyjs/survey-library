@@ -117,10 +117,10 @@ export class DragDropSurveyElements extends DragDropCore<any> {
 
     //question inside paneldymanic
     if (!dropTarget.page) {
-      const nearestDropTargetElement = dropTargetNode.parentElement.closest<
+      const nearestDropTargetPageElement = dropTargetNode.parentElement.closest<
         HTMLElement
       >("[data-sv-drop-target-page]");
-      dataAttributeValue = nearestDropTargetElement.dataset.svDropTargetPage;
+      dataAttributeValue = nearestDropTargetPageElement.dataset.svDropTargetPage;
       let page: any = this.survey.getPageByName(dataAttributeValue);
       dropTarget.__page = page;
     }
@@ -275,12 +275,15 @@ export class DragDropSurveyElements extends DragDropCore<any> {
       }
     });
 
-    if (this.isEdge) {
+    const isTargetRowMultiple = targetRow && targetRow.elements.length > 1;
+
+    if (this.isEdge && isTargetRowMultiple) {
+      targetParent.__page = this.dropTarget.page;
       this.dropTarget = targetParent;
       return false;
     }
 
-    return targetRow && targetRow.elements.length > 1;
+    return isTargetRowMultiple;
   }
 
   private isDragOverInsideEmptyPanel(): boolean {

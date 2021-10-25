@@ -78,7 +78,7 @@ export class QuestionCommentModel extends QuestionTextBase {
     this.updateElement();
   }
   protected setNewValue(newValue: string): any {
-    if (!this.multiLine) {
+    if (!this.multiLine && !!newValue) {
       // eslint-disable-next-line no-control-regex
       newValue = newValue.replace(new RegExp("(\r\n|\n|\r)", "gm"), "");
     }

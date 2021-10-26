@@ -195,7 +195,7 @@ jobs:
         publishLocation: "Container"
 
 
-- job: Knockout-UI
+- job: KnockoutUI
 
   steps:
     - checkout: self

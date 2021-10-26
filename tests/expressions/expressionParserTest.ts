@@ -1248,6 +1248,25 @@ QUnit.test("ExpressionRunner: fix incorrect JavaScript summary", function(assert
   var runner = new ExpressionRunner("0.9 - 0.6");
   assert.equal(runner.run({}), 0.3, "It works correctly");
 });
+QUnit.test("ExpressionRunner: fix incorrect JavaScript summary in sum function", function(assert) {
+  var runner = new ExpressionRunner("sum([0.3, 0.6]");
+  assert.equal(runner.run({}), 0.9, "It works correctly, sum function");
+});
+QUnit.test("ExpressionRunner: fix incorrect JavaScript summary in avg function", function(assert) {
+  var runner = new ExpressionRunner("avg([0.3, 0.6]");
+  assert.equal(runner.run({}), 0.45, "It works correctly, avg function");
+});
+QUnit.test("ExpressionRunner: fix incorrect JavaScript summary in sumInArray function", function(assert) {
+  var runner = new ExpressionRunner("sumInArray({a}, 'val1')");
+  var values = { a: [{ val1: 0.3 }, { val2: 10 }, { val1: 0.6 }] };
+  assert.equal(runner.run(values), 0.9, "It works correctly, sumInArray func");
+});
+QUnit.test("ExpressionRunner: fix incorrect JavaScript summary in avgInArray function", function(assert) {
+  var runner = new ExpressionRunner("avgInArray({a}, 'val1')");
+  var values = { a: [{ val1: 0.3 }, { val2: 10 }, { val1: 0.6 }] };
+  assert.equal(runner.run(values), 0.45, "It works correctly, avgInArray func");
+});
+
 QUnit.test("Operand.isEqual()", function(assert) {
   const getOperand = (expression: string): Operand => {
     return new ConditionsParser().parseExpression(expression);

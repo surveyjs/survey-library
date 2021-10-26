@@ -266,7 +266,7 @@ jobs:
 
     - task: CopyFiles@2
       inputs:
-        SourceFolder: "$(Build.ArtifactDirectory)/SurveyJSLibraryBuildCore"
+        SourceFolder: "$(System.ArtifactDirectory)/SurveyJSLibraryBuildCore/packages/survey-core"
         TargetFolder: "$(Build.SourcesDirectory)/survey-library/build/survey-core"
 
     - task: DownloadBuildArtifacts@0
@@ -278,7 +278,7 @@ jobs:
 
     - task: CopyFiles@2
       inputs:
-        SourceFolder: "$(Build.ArtifactDirectory)/SurveyJSLibraryBuildKnockout/packages/survey-knockout"
+        SourceFolder: "$(System.ArtifactDirectory)/SurveyJSLibraryBuildKnockout/packages/survey-knockout"
         TargetFolder: "$(Build.SourcesDirectory)/survey-library/build/survey-knockout"
 
     - task: DownloadBuildArtifacts@0
@@ -290,7 +290,7 @@ jobs:
 
     - task: CopyFiles@2
       inputs:
-        SourceFolder: "$(Build.ArtifactDirectory)/SurveyJSLibraryBuildKnockoutUI/packages/survey-knockout-ui"
+        SourceFolder: "$(System.ArtifactDirectory)/SurveyJSLibraryBuildKnockoutUI/packages/survey-knockout-ui"
         TargetFolder: "$(Build.SourcesDirectory)/survey-library/build/survey-knockout-ui"
 
     - task: CopyFiles@2

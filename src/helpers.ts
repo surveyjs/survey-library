@@ -231,6 +231,29 @@ export class Helpers {
   public static isCharDigit(ch: string): boolean {
     return ch >= "0" && ch <= "9";
   }
+  private static countDecimals(value: number): number {
+    if (Helpers.isNumber(value) && Math.floor(value) !== value) {
+      const strs = value.toString().split(".");
+      return strs.length > 1 && strs[1].length || 0;
+    }
+    return 0;
+  }
+  public static correctAfterPlusMinis(a: number, b: number, res: number): number {
+    const digitsA = Helpers.countDecimals(a);
+    const digitsB = Helpers.countDecimals(b);
+    if(digitsA > 0 || digitsB > 0) {
+      const digits = Math.max(digitsA, digitsB);
+      res = parseFloat(res.toFixed(digits));
+    }
+    return res;
+  }
+  public static correctAfterMultiple(a: number, b: number, res: number): number {
+    const digits = Helpers.countDecimals(a) + Helpers.countDecimals(b);
+    if(digits > 0) {
+      res = parseFloat(res.toFixed(digits));
+    }
+    return res;
+  }
 }
 if (!(<any>String.prototype)["format"]) {
   (<any>String.prototype)["format"] = function() {

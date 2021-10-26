@@ -264,6 +264,11 @@ jobs:
         artifactName: 'SurveyJSLibraryBuildCore'
         downloadPath: '$(System.ArtifactsDirectory)'
 
+    - task: CopyFiles@2
+      inputs:
+        SourceFolder: "$(Build.ArtifactDirectory)/SurveyJSLibraryBuildCore/packages/survey-core"
+        TargetFolder: "$(Build.SourcesDirectory)/survey-library/build/survey-core"
+
     - task: DownloadBuildArtifacts@0
       inputs:
         buildType: 'current'
@@ -271,12 +276,22 @@ jobs:
         artifactName: 'SurveyJSLibraryBuildKnockout'
         downloadPath: '$(System.ArtifactsDirectory)'
 
+    - task: CopyFiles@2
+      inputs:
+        SourceFolder: "$(Build.ArtifactDirectory)/SurveyJSLibraryBuildKnockout/packages/survey-knockout"
+        TargetFolder: "$(Build.SourcesDirectory)/survey-library/build/survey-knockout"
+
     - task: DownloadBuildArtifacts@0
       inputs:
         buildType: 'current'
         downloadType: 'single'
         artifactName: 'SurveyJSLibraryBuildKnockoutUI'
         downloadPath: '$(System.ArtifactsDirectory)'
+
+    - task: CopyFiles@2
+      inputs:
+        SourceFolder: "$(Build.ArtifactDirectory)/SurveyJSLibraryBuildKnockoutUI/packages/survey-knockout-ui"
+        TargetFolder: "$(Build.SourcesDirectory)/survey-library/build/survey-knockout-ui"
 
     - task: CopyFiles@2
       inputs:
@@ -290,13 +305,6 @@ jobs:
         $version = Get-Content $(Build.SourcesDirectory)/version.txt
         Write-Host "##vso[task.setvariable variable=SurveyJSVersion;]$version"
       displayName: "setup SurveyJSVersion variable from SurveyJSVersionFile"
-
-    # trigger next build via the artifact file 'version.txt'
-    - task: CopyFiles@2
-      inputs:
-        contents: "version.txt"
-        targetFolder: $(Build.ArtifactStagingDirectory)/SurveyJSLibraryBuild
-      displayName: "copy version file to Build.ArtifactStagingDirectory"
 
     - script: |
         cd $(Build.SourcesDirectory)/survey-library
@@ -332,10 +340,27 @@ jobs:
         git push origin master
       displayName: "git surveyjs/service push updated docs"
 
+    - task: CopyFiles@2
+      inputs:
+        SourceFolder: "$(Build.SourcesDirectory)/survey-library/build"
+        TargetFolder: "$(Build.ArtifactStagingDirectory)/SurveyJSLibraryBuild/packages"
 
-    # combine all build artifacts and trigger next build
+    - task: CopyFiles@2
+      inputs:
+        SourceFolder: "$(Build.SourcesDirectory)/survey-library/build"
+        TargetFolder: "$(Build.ArtifactStagingDirectory)/SurveyJSLibraryBuild/build"
+
+    #trigger next build via the artifact file 'version.txt'
+    - task: CopyFiles@2
+      inputs:
+        contents: "version.txt"
+        targetFolder: $(Build.ArtifactStagingDirectory)/SurveyJSLibraryBuild
+      displayName: "copy version file to Build.ArtifactStagingDirectory"
+
+    #publishLocation: 'Container' - store the artifact in Azure Pipelines
     # - task: PublishBuildArtifacts@1
     #   inputs:
     #     PathtoPublish: "$(Build.ArtifactStagingDirectory)/SurveyJSLibraryBuild/"
     #     ArtifactName: "SurveyJSLibraryBuild"
     #     publishLocation: "Container"
+

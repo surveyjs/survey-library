@@ -74,43 +74,6 @@ jobs:
         npm run testsingle
       displayName: "run unit tests"
 
-    # - script: |
-    #     cd $(Build.SourcesDirectory)/survey-library
-    #     npm run testcafe_ci
-    #   displayName: "run functional tests"
-    #   env:
-    #     TESTCAFE_DASHBOARD_AUTHENTICATION_TOKEN: $(TESTCAFE_DASHBOARD_AUTHENTICATION_TOKEN)
-    #     TESTCAFE_DASHBOARD_URL: $(TESTCAFE_DASHBOARD_URL)
-
-    - script: |
-        cd $(Build.SourcesDirectory)/survey-library
-        npm run doc_gen
-      displayName: "generate docs"
-
-    - task: CopyFiles@2
-      inputs:
-        SourceFolder: "$(Build.SourcesDirectory)/survey-library/docs"
-        TargetFolder: "$(Build.SourcesDirectory)/service/surveyjs.io/App_Data/DocsLibrary"
-        CleanTargetFolder: true
-      displayName: "copy generated docs to the local surveyjs/service repo"
-
-    # read about the problem with git output ($env:GIT_REDIRECT_STDERR = '2>&1') :
-    # https://github.com/microsoft/azure-pipelines-yaml/issues/248
-    # https://stackoverflow.com/questions/58485585/azure-pipeline-powershell-and-git-on-windows-server-2019-gives-error-in-output
-    - powershell: |
-        cd $(Build.SourcesDirectory)/service
-        $env:GIT_REDIRECT_STDERR = '2>&1'
-        git config --global user.email "kurmanov.work@gmail.com"
-        git config --global user.name "dmitrykurmanov"
-        git checkout master
-        git pull origin master
-        git fetch --tags --force
-        git add surveyjs.io/App_Data/DocsLibrary
-        git commit -m "updated survey-library docs"
-        git pull origin master
-        git push origin master
-      displayName: "git surveyjs/service push updated docs"
-
     - task: CopyFiles@2
       inputs:
         SourceFolder: "$(Build.SourcesDirectory)/survey-library/build/survey-core"
@@ -294,6 +257,27 @@ jobs:
         artifactName: "ReleaseVersionFile"
         downloadPath: "$(System.ArtifactsDirectory)"
 
+    - task: DownloadBuildArtifacts@0
+      inputs:
+        buildType: 'current'
+        downloadType: 'single'
+        artifactName: 'SurveyJSLibraryBuildCore'
+        downloadPath: '$(System.ArtifactsDirectory)'
+
+    - task: DownloadBuildArtifacts@0
+      inputs:
+        buildType: 'current'
+        downloadType: 'single'
+        artifactName: 'SurveyJSLibraryBuildKnockout'
+        downloadPath: '$(System.ArtifactsDirectory)'
+
+    - task: DownloadBuildArtifacts@0
+      inputs:
+        buildType: 'current'
+        downloadType: 'single'
+        artifactName: 'SurveyJSLibraryBuildKnockoutUI'
+        downloadPath: '$(System.ArtifactsDirectory)'
+
     - task: CopyFiles@2
       inputs:
         SourceFolder: "$(System.ArtifactsDirectory)/ReleaseVersionFile/"
@@ -313,6 +297,41 @@ jobs:
         contents: "version.txt"
         targetFolder: $(Build.ArtifactStagingDirectory)/SurveyJSLibraryBuild
       displayName: "copy version file to Build.ArtifactStagingDirectory"
+
+    - script: |
+        cd $(Build.SourcesDirectory)/survey-library
+        npm install
+      displayName: "npm install"
+
+    - script: |
+        cd $(Build.SourcesDirectory)/survey-library
+        npm run doc_gen
+      displayName: "generate docs"
+
+    - task: CopyFiles@2
+      inputs:
+        SourceFolder: "$(Build.SourcesDirectory)/survey-library/docs"
+        TargetFolder: "$(Build.SourcesDirectory)/service/surveyjs.io/App_Data/DocsLibrary"
+        CleanTargetFolder: true
+      displayName: "copy generated docs to the local surveyjs/service repo"
+
+    # read about the problem with git output ($env:GIT_REDIRECT_STDERR = '2>&1') :
+    # https://github.com/microsoft/azure-pipelines-yaml/issues/248
+    # https://stackoverflow.com/questions/58485585/azure-pipeline-powershell-and-git-on-windows-server-2019-gives-error-in-output
+    - powershell: |
+        cd $(Build.SourcesDirectory)/service
+        $env:GIT_REDIRECT_STDERR = '2>&1'
+        git config --global user.email "kurmanov.work@gmail.com"
+        git config --global user.name "dmitrykurmanov"
+        git checkout master
+        git pull origin master
+        git fetch --tags --force
+        git add surveyjs.io/App_Data/DocsLibrary
+        git commit -m "updated survey-library docs"
+        git pull origin master
+        git push origin master
+      displayName: "git surveyjs/service push updated docs"
+
 
     # combine all build artifacts and trigger next build
     # - task: PublishBuildArtifacts@1

@@ -266,7 +266,7 @@ jobs:
 
     - task: CopyFiles@2
       inputs:
-        SourceFolder: "$(Build.ArtifactDirectory)/SurveyJSLibraryBuildCore/packages/survey-core"
+        SourceFolder: "$(Build.ArtifactDirectory)/SurveyJSLibraryBuildCore"
         TargetFolder: "$(Build.SourcesDirectory)/survey-library/build/survey-core"
 
     - task: DownloadBuildArtifacts@0

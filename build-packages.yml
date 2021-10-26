@@ -267,9 +267,10 @@ jobs:
 
 
 - job: Finalize
-  dependsOn: Core
-  dependsOn: Knockout
-  dependsOn: KnockoutUI
+  dependsOn:
+    - Core
+    - Knockout
+    - KnockoutUI
 
   steps:
     - checkout: self

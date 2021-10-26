@@ -237,7 +237,7 @@ jobs:
         cd $(Build.SourcesDirectory)/survey-library
         npm install
         npm run release -- --release-as $(SurveyJSVersion)
-        npm run build_knockout
+        npm run build_knockout_ui
       displayName: "npm install and build"
 
     - script: |

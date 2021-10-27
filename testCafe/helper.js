@@ -1,5 +1,11 @@
 import { ClientFunction, Selector } from "testcafe";
-export const frameworks = ["knockout", "react", "vue"];
+import minimist from 'minimist';
+
+const args = minimist(process.argv.slice(2));
+const environment = args.env;
+
+export const frameworks = environment ? [environment] : ["knockout", "react", "vue"];
+console.log("Frameworks: " + frameworks.join(", "));
 export const url = "http://127.0.0.1:8080/examples_test/default/";
 export const url_test = "http://127.0.0.1:8080/examples_test/";
 export const url_widgets = "http://127.0.0.1:8080/examples/";

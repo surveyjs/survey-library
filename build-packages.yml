@@ -66,6 +66,7 @@ jobs:
         cd $(Build.SourcesDirectory)/survey-library
         npm install
         npm run release -- --release-as $(SurveyJSVersion)
+        git status
       displayName: "NPM install"
 
     - script: |
@@ -167,6 +168,7 @@ jobs:
         cd $(Build.SourcesDirectory)/survey-library
         npm install
         npm run release -- --release-as $(SurveyJSVersion)
+        git status
       displayName: "NPM install"
 
     - script: |
@@ -259,6 +261,7 @@ jobs:
         cd $(Build.SourcesDirectory)/survey-library
         npm install
         npm run release -- --release-as $(SurveyJSVersion)
+        git status
       displayName: "NPM install"
 
     - script: |
@@ -351,6 +354,7 @@ jobs:
         cd $(Build.SourcesDirectory)/survey-library
         npm install
         npm run release -- --release-as $(SurveyJSVersion)
+        git status
       displayName: "NPM install"
 
     - script: |

@@ -24,7 +24,7 @@ pool:
 
 jobs:
 
-- job: Core
+- job: CoreAngularJquery
 
   steps:
     - checkout: self
@@ -66,8 +66,22 @@ jobs:
         cd $(Build.SourcesDirectory)/survey-library
         npm install
         npm run release -- --release-as $(SurveyJSVersion)
+      displayName: "NPM install"
+
+    - script: |
+        cd $(Build.SourcesDirectory)/survey-library
         npm run build_core
-      displayName: "npm install and build"
+      displayName: "Build Core"
+
+    - script: |
+        cd $(Build.SourcesDirectory)/survey-library
+        npm run build_angular
+      displayName: "Build Angular"
+
+    - script: |
+        cd $(Build.SourcesDirectory)/survey-library
+        npm run build_jquery
+      displayName: "Build jQuery"
 
     - script: |
         cd $(Build.SourcesDirectory)/survey-library
@@ -84,6 +98,30 @@ jobs:
       inputs:
         PathtoPublish: "$(Build.ArtifactStagingDirectory)/SurveyJSLibraryBuild/"
         ArtifactName: "SurveyJSLibraryBuildCore"
+        publishLocation: "Container"
+
+    - task: CopyFiles@2
+      inputs:
+        SourceFolder: "$(Build.SourcesDirectory)/survey-library/build/survey-angular"
+        TargetFolder: "$(Build.ArtifactStagingDirectory)/SurveyJSLibraryBuild/packages/survey-angular"
+
+    #publishLocation: 'Container' - store the artifact in Azure Pipelines
+    - task: PublishBuildArtifacts@1
+      inputs:
+        PathtoPublish: "$(Build.ArtifactStagingDirectory)/SurveyJSLibraryBuild/"
+        ArtifactName: "SurveyJSLibraryBuildAngular"
+        publishLocation: "Container"
+
+    - task: CopyFiles@2
+      inputs:
+        SourceFolder: "$(Build.SourcesDirectory)/survey-library/build/survey-jquery"
+        TargetFolder: "$(Build.ArtifactStagingDirectory)/SurveyJSLibraryBuild/packages/survey-jquery"
+
+    #publishLocation: 'Container' - store the artifact in Azure Pipelines
+    - task: PublishBuildArtifacts@1
+      inputs:
+        PathtoPublish: "$(Build.ArtifactStagingDirectory)/SurveyJSLibraryBuild/"
+        ArtifactName: "SurveyJSLibraryBuildJquery"
         publishLocation: "Container"
 
 
@@ -129,21 +167,30 @@ jobs:
         cd $(Build.SourcesDirectory)/survey-library
         npm install
         npm run release -- --release-as $(SurveyJSVersion)
+      displayName: "NPM install"
+
+    - script: |
+        cd $(Build.SourcesDirectory)/survey-library
         npm run build_knockout
-      displayName: "npm install and build"
+      displayName: "Build Knockout"
+
+    - script: |
+        cd $(Build.SourcesDirectory)/survey-library
+        npm run build_knockout_ui
+      displayName: "Build Knockout UI"
 
     - script: |
         cd $(Build.SourcesDirectory)/survey-library
         npm run testsingle
       displayName: "run unit tests"
 
-    # - script: |
-    #     cd $(Build.SourcesDirectory)/survey-library
-    #     npm run testcafe_ci
-    #   displayName: "run functional tests"
-    #   env:
-    #     TESTCAFE_DASHBOARD_AUTHENTICATION_TOKEN: $(TESTCAFE_DASHBOARD_AUTHENTICATION_TOKEN)
-    #     TESTCAFE_DASHBOARD_URL: $(TESTCAFE_DASHBOARD_URL)
+    - script: |
+        cd $(Build.SourcesDirectory)/survey-library
+        npm run testcafe:ko
+      displayName: "run functional tests"
+      env:
+        TESTCAFE_DASHBOARD_AUTHENTICATION_TOKEN: $(TESTCAFE_DASHBOARD_AUTHENTICATION_TOKEN)
+        TESTCAFE_DASHBOARD_URL: $(TESTCAFE_DASHBOARD_URL)
 
     - task: CopyFiles@2
       inputs:
@@ -156,65 +203,6 @@ jobs:
         PathtoPublish: "$(Build.ArtifactStagingDirectory)/SurveyJSLibraryBuild/"
         ArtifactName: "SurveyJSLibraryBuildKnockout"
         publishLocation: "Container"
-
-
-- job: KnockoutUI
-
-  steps:
-    - checkout: self
-    - checkout: Service
-      persistCredentials: true
-      clean: true
-
-    - task: NodeTool@0
-      inputs:
-        versionSpec: "14.x"
-      displayName: "Install Node.js"
-
-    # setup next release version
-    - task: DownloadBuildArtifacts@0
-      inputs:
-        buildType: "specific"
-        project: "af2804d2-859a-4705-9ef5-cdf46d1d5d4f"
-        pipeline: "47"
-        buildVersionToDownload: "latest"
-        downloadType: "single"
-        artifactName: "ReleaseVersionFile"
-        downloadPath: "$(System.ArtifactsDirectory)"
-
-    - task: CopyFiles@2
-      inputs:
-        SourceFolder: "$(System.ArtifactsDirectory)/ReleaseVersionFile/"
-        Contents: "version.txt"
-        TargetFolder: "$(Build.SourcesDirectory)/"
-        OverWrite: true
-      displayName: "Copy Build Artifact - SurveyJSVersion File"
-
-    - powershell: |
-        $version = Get-Content $(Build.SourcesDirectory)/version.txt
-        Write-Host "##vso[task.setvariable variable=SurveyJSVersion;]$version"
-      displayName: "setup SurveyJSVersion variable from SurveyJSVersionFile"
-    ##########################################################################
-
-    - script: |
-        cd $(Build.SourcesDirectory)/survey-library
-        npm install
-        npm run release -- --release-as $(SurveyJSVersion)
-        npm run build_knockout_ui
-      displayName: "npm install and build"
-
-    - script: |
-        cd $(Build.SourcesDirectory)/survey-library
-        npm run testsingle
-      displayName: "run unit tests"
-
-    # - script: |
-    #     cd $(Build.SourcesDirectory)/survey-library
-    #     npm run testcafe_ci
-    #   displayName: "run functional tests"
-    #   env:
-    #     TESTCAFE_DASHBOARD_AUTHENTICATION_TOKEN: $(TESTCAFE_DASHBOARD_AUTHENTICATION_TOKEN)
-    #     TESTCAFE_DASHBOARD_URL: $(TESTCAFE_DASHBOARD_URL)
 
     - task: CopyFiles@2
       inputs:
@@ -271,21 +259,30 @@ jobs:
         cd $(Build.SourcesDirectory)/survey-library
         npm install
         npm run release -- --release-as $(SurveyJSVersion)
+      displayName: "NPM install"
+
+    - script: |
+        cd $(Build.SourcesDirectory)/survey-library
         npm run build_react
-      displayName: "npm install and build"
+      displayName: "Build React"
+
+    - script: |
+        cd $(Build.SourcesDirectory)/survey-library
+        npm run build_react_ui
+      displayName: "Build React UI"
 
     - script: |
         cd $(Build.SourcesDirectory)/survey-library
         npm run testsingle
       displayName: "run unit tests"
 
-    # - script: |
-    #     cd $(Build.SourcesDirectory)/survey-library
-    #     npm run testcafe_ci
-    #   displayName: "run functional tests"
-    #   env:
-    #     TESTCAFE_DASHBOARD_AUTHENTICATION_TOKEN: $(TESTCAFE_DASHBOARD_AUTHENTICATION_TOKEN)
-    #     TESTCAFE_DASHBOARD_URL: $(TESTCAFE_DASHBOARD_URL)
+    - script: |
+        cd $(Build.SourcesDirectory)/survey-library
+        npm run testcafe:react
+      displayName: "run functional tests"
+      env:
+        TESTCAFE_DASHBOARD_AUTHENTICATION_TOKEN: $(TESTCAFE_DASHBOARD_AUTHENTICATION_TOKEN)
+        TESTCAFE_DASHBOARD_URL: $(TESTCAFE_DASHBOARD_URL)
 
     - task: CopyFiles@2
       inputs:
@@ -298,65 +295,6 @@ jobs:
         PathtoPublish: "$(Build.ArtifactStagingDirectory)/SurveyJSLibraryBuild/"
         ArtifactName: "SurveyJSLibraryBuildReact"
         publishLocation: "Container"
-
-
-- job: ReactUI
-
-  steps:
-    - checkout: self
-    - checkout: Service
-      persistCredentials: true
-      clean: true
-
-    - task: NodeTool@0
-      inputs:
-        versionSpec: "14.x"
-      displayName: "Install Node.js"
-
-    # setup next release version
-    - task: DownloadBuildArtifacts@0
-      inputs:
-        buildType: "specific"
-        project: "af2804d2-859a-4705-9ef5-cdf46d1d5d4f"
-        pipeline: "47"
-        buildVersionToDownload: "latest"
-        downloadType: "single"
-        artifactName: "ReleaseVersionFile"
-        downloadPath: "$(System.ArtifactsDirectory)"
-
-    - task: CopyFiles@2
-      inputs:
-        SourceFolder: "$(System.ArtifactsDirectory)/ReleaseVersionFile/"
-        Contents: "version.txt"
-        TargetFolder: "$(Build.SourcesDirectory)/"
-        OverWrite: true
-      displayName: "Copy Build Artifact - SurveyJSVersion File"
-
-    - powershell: |
-        $version = Get-Content $(Build.SourcesDirectory)/version.txt
-        Write-Host "##vso[task.setvariable variable=SurveyJSVersion;]$version"
-      displayName: "setup SurveyJSVersion variable from SurveyJSVersionFile"
-    ##########################################################################
-
-    - script: |
-        cd $(Build.SourcesDirectory)/survey-library
-        npm install
-        npm run release -- --release-as $(SurveyJSVersion)
-        npm run build_react_ui
-      displayName: "npm install and build"
-
-    - script: |
-        cd $(Build.SourcesDirectory)/survey-library
-        npm run testsingle
-      displayName: "run unit tests"
-
-    # - script: |
-    #     cd $(Build.SourcesDirectory)/survey-library
-    #     npm run testcafe_ci
-    #   displayName: "run functional tests"
-    #   env:
-    #     TESTCAFE_DASHBOARD_AUTHENTICATION_TOKEN: $(TESTCAFE_DASHBOARD_AUTHENTICATION_TOKEN)
-    #     TESTCAFE_DASHBOARD_URL: $(TESTCAFE_DASHBOARD_URL)
 
     - task: CopyFiles@2
       inputs:
@@ -413,21 +351,30 @@ jobs:
         cd $(Build.SourcesDirectory)/survey-library
         npm install
         npm run release -- --release-as $(SurveyJSVersion)
+      displayName: "NPM install"
+
+    - script: |
+        cd $(Build.SourcesDirectory)/survey-library
         npm run build_vue
-      displayName: "npm install and build"
+      displayName: "Build Vue"
+
+    - script: |
+        cd $(Build.SourcesDirectory)/survey-library
+        npm run build_vue_ui
+      displayName: "Build Vue UI"
 
     - script: |
         cd $(Build.SourcesDirectory)/survey-library
         npm run testsingle
       displayName: "run unit tests"
 
-    # - script: |
-    #     cd $(Build.SourcesDirectory)/survey-library
-    #     npm run testcafe_ci
-    #   displayName: "run functional tests"
-    #   env:
-    #     TESTCAFE_DASHBOARD_AUTHENTICATION_TOKEN: $(TESTCAFE_DASHBOARD_AUTHENTICATION_TOKEN)
-    #     TESTCAFE_DASHBOARD_URL: $(TESTCAFE_DASHBOARD_URL)
+    - script: |
+        cd $(Build.SourcesDirectory)/survey-library
+        npm run testcafe:vue
+      displayName: "run functional tests"
+      env:
+        TESTCAFE_DASHBOARD_AUTHENTICATION_TOKEN: $(TESTCAFE_DASHBOARD_AUTHENTICATION_TOKEN)
+        TESTCAFE_DASHBOARD_URL: $(TESTCAFE_DASHBOARD_URL)
 
     - task: CopyFiles@2
       inputs:
@@ -441,159 +388,25 @@ jobs:
         ArtifactName: "SurveyJSLibraryBuildVue"
         publishLocation: "Container"
 
-
-- job: Jquery
-
-  steps:
-    - checkout: self
-    - checkout: Service
-      persistCredentials: true
-      clean: true
-
-    - task: NodeTool@0
-      inputs:
-        versionSpec: "14.x"
-      displayName: "Install Node.js"
-
-    # setup next release version
-    - task: DownloadBuildArtifacts@0
-      inputs:
-        buildType: "specific"
-        project: "af2804d2-859a-4705-9ef5-cdf46d1d5d4f"
-        pipeline: "47"
-        buildVersionToDownload: "latest"
-        downloadType: "single"
-        artifactName: "ReleaseVersionFile"
-        downloadPath: "$(System.ArtifactsDirectory)"
-
     - task: CopyFiles@2
       inputs:
-        SourceFolder: "$(System.ArtifactsDirectory)/ReleaseVersionFile/"
-        Contents: "version.txt"
-        TargetFolder: "$(Build.SourcesDirectory)/"
-        OverWrite: true
-      displayName: "Copy Build Artifact - SurveyJSVersion File"
-
-    - powershell: |
-        $version = Get-Content $(Build.SourcesDirectory)/version.txt
-        Write-Host "##vso[task.setvariable variable=SurveyJSVersion;]$version"
-      displayName: "setup SurveyJSVersion variable from SurveyJSVersionFile"
-    ##########################################################################
-
-    - script: |
-        cd $(Build.SourcesDirectory)/survey-library
-        npm install
-        npm run release -- --release-as $(SurveyJSVersion)
-        npm run build_jquery
-      displayName: "npm install and build"
-
-    - script: |
-        cd $(Build.SourcesDirectory)/survey-library
-        npm run testsingle
-      displayName: "run unit tests"
-
-    # - script: |
-    #     cd $(Build.SourcesDirectory)/survey-library
-    #     npm run testcafe_ci
-    #   displayName: "run functional tests"
-    #   env:
-    #     TESTCAFE_DASHBOARD_AUTHENTICATION_TOKEN: $(TESTCAFE_DASHBOARD_AUTHENTICATION_TOKEN)
-    #     TESTCAFE_DASHBOARD_URL: $(TESTCAFE_DASHBOARD_URL)
-
-    - task: CopyFiles@2
-      inputs:
-        SourceFolder: "$(Build.SourcesDirectory)/survey-library/build/survey-jquery"
-        TargetFolder: "$(Build.ArtifactStagingDirectory)/SurveyJSLibraryBuild/packages/survey-jquery"
+        SourceFolder: "$(Build.SourcesDirectory)/survey-library/build/survey-vue-ui"
+        TargetFolder: "$(Build.ArtifactStagingDirectory)/SurveyJSLibraryBuild/packages/survey-vue-ui"
 
     #publishLocation: 'Container' - store the artifact in Azure Pipelines
     - task: PublishBuildArtifacts@1
       inputs:
         PathtoPublish: "$(Build.ArtifactStagingDirectory)/SurveyJSLibraryBuild/"
-        ArtifactName: "SurveyJSLibraryBuildJquery"
-        publishLocation: "Container"
-
-
-- job: Angular
-
-  steps:
-    - checkout: self
-    - checkout: Service
-      persistCredentials: true
-      clean: true
-
-    - task: NodeTool@0
-      inputs:
-        versionSpec: "14.x"
-      displayName: "Install Node.js"
-
-    # setup next release version
-    - task: DownloadBuildArtifacts@0
-      inputs:
-        buildType: "specific"
-        project: "af2804d2-859a-4705-9ef5-cdf46d1d5d4f"
-        pipeline: "47"
-        buildVersionToDownload: "latest"
-        downloadType: "single"
-        artifactName: "ReleaseVersionFile"
-        downloadPath: "$(System.ArtifactsDirectory)"
-
-    - task: CopyFiles@2
-      inputs:
-        SourceFolder: "$(System.ArtifactsDirectory)/ReleaseVersionFile/"
-        Contents: "version.txt"
-        TargetFolder: "$(Build.SourcesDirectory)/"
-        OverWrite: true
-      displayName: "Copy Build Artifact - SurveyJSVersion File"
-
-    - powershell: |
-        $version = Get-Content $(Build.SourcesDirectory)/version.txt
-        Write-Host "##vso[task.setvariable variable=SurveyJSVersion;]$version"
-      displayName: "setup SurveyJSVersion variable from SurveyJSVersionFile"
-    ##########################################################################
-
-    - script: |
-        cd $(Build.SourcesDirectory)/survey-library
-        npm install
-        npm run release -- --release-as $(SurveyJSVersion)
-        npm run build_angular
-      displayName: "npm install and build"
-
-    - script: |
-        cd $(Build.SourcesDirectory)/survey-library
-        npm run testsingle
-      displayName: "run unit tests"
-
-    # - script: |
-    #     cd $(Build.SourcesDirectory)/survey-library
-    #     npm run testcafe_ci
-    #   displayName: "run functional tests"
-    #   env:
-    #     TESTCAFE_DASHBOARD_AUTHENTICATION_TOKEN: $(TESTCAFE_DASHBOARD_AUTHENTICATION_TOKEN)
-    #     TESTCAFE_DASHBOARD_URL: $(TESTCAFE_DASHBOARD_URL)
-
-    - task: CopyFiles@2
-      inputs:
-        SourceFolder: "$(Build.SourcesDirectory)/survey-library/build/survey-angular"
-        TargetFolder: "$(Build.ArtifactStagingDirectory)/SurveyJSLibraryBuild/packages/survey-angular"
-
-    #publishLocation: 'Container' - store the artifact in Azure Pipelines
-    - task: PublishBuildArtifacts@1
-      inputs:
-        PathtoPublish: "$(Build.ArtifactStagingDirectory)/SurveyJSLibraryBuild/"
-        ArtifactName: "SurveyJSLibraryBuildAngular"
+        ArtifactName: "SurveyJSLibraryBuildVueUI"
         publishLocation: "Container"
 
 
 - job: Finalize
   dependsOn:
-    - Core
+    - CoreAngularJquery
     - Knockout
-    - KnockoutUI
     - React
-    - ReactUI
     - Vue
-    - Jquery
-    - Angular
 
   steps:
     - checkout: self
@@ -783,4 +596,3 @@ jobs:
     #     PathtoPublish: "$(Build.ArtifactStagingDirectory)/SurveyJSLibraryBuild/"
     #     ArtifactName: "SurveyJSLibraryBuild"
     #     publishLocation: "Container"
-

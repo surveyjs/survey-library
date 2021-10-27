@@ -18,7 +18,7 @@ RemoveCoreFromNamePlugin.prototype.apply = function (compiler) {
 
         return path.replace(REGEXP_NAME, (match, ...args) => {
           //"designer" is temporary name 
-          return chunkName !== "modern" && chunkName !== "designer" ? "survey" : chunkName;
+          return chunkName !== "modern" && chunkName !== "defaultV2" ? "survey" : chunkName;
         });
       }
     );

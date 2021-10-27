@@ -1,4 +1,6 @@
-export var surveyDesignerCss = {
+import { surveyCss } from "survey-core";
+
+export var defaultV2Css = {
   root: "sd-root-modern",
   container: "sd-container-modern",
   header: "sd-title sd-container-modern__title",
@@ -307,3 +309,5 @@ export var surveyDesignerCss = {
     }
   }
 };
+
+surveyCss["defaultV2"] = defaultV2Css;

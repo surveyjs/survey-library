@@ -11,7 +11,7 @@ export { defaultBootstrapCss } from "../defaultCss/cssbootstrap";
 // css bootstrap + material classes
 export { defaultBootstrapMaterialCss } from "../defaultCss/cssbootstrapmaterial";
 
-export { surveyDesignerCss } from "../survey-designer-theme/survey-designer";
+export { defaultV2Css } from "../defaultCss/defaultV2Css";
 // css modern classes
 export { modernCss } from "../defaultCss/cssmodern";
 

@@ -354,7 +354,7 @@ export class DragDropSurveyElements extends DragDropCore<any> {
     let minWidth = "300px";
 
     if (isMultipleRowDrag) {
-      minWidth = "4px";
+      minWidth = "0px";
       className += " sv-drag-drop-ghost--vertical";
     }
 
@@ -369,7 +369,7 @@ export class DragDropSurveyElements extends DragDropCore<any> {
     element.startWithNewLine = !isMultipleRowDrag;
 
     if (isMultipleRowDrag) {
-      element.maxWidth = "4px";
+      element.maxWidth = "0px";
       element.renderWidth = "0px";
       element.paddingRight = "0px";
       element.paddingLeft = "0px";

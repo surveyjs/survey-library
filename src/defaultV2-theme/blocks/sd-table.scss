@@ -2,6 +2,9 @@
   width: 100%;
   background-color: $background;
   border-collapse: collapse;
+  td:empty {
+    width: 1%;
+  }
 }
 .sd-table tr:not(:last-child) {
   padding-bottom: calcSize(2);

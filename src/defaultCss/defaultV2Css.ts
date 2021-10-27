@@ -211,7 +211,7 @@ export var defaultV2Css = {
     headerCell: "sd-table__cell sd-table__cell--header",
     label: "sd-item sd-radio sd-matrix__label",
     itemValue: "sd-visuallyhidden sd-item__control sd-radio__control",
-    itemChecked: "sd-radio--checked",
+    itemChecked: "sd-item--checked sd-radio--checked",
     itemDisabled: "sd-item--disabled sd-radio--disabled",
     itemHover: "sd-radio--allowhover",
     materialDecorator: "sd-item__decorator sd-radio__decorator",

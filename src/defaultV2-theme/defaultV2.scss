@@ -41,7 +41,15 @@
 .sd-root-modern {
   width: 100%;
   font-family: $font-family;
-  background-color: $background-dim; 
+  background-color: $background-dim;
+  *::-webkit-scrollbar {
+    height: 6px;
+    width: 6px;
+    background-color: $background-dim;
+  }
+  *::-webkit-scrollbar-thumb {
+    background: $primary-light;
+  }
 }
 
 .sv-popup.sv-popup--modal {

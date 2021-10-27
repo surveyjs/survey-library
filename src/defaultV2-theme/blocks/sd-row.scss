@@ -20,7 +20,7 @@
 
 .sd-row__panel{
   box-sizing: border-box;
-  width: calc(100% - 5 * #{$base-unit});
+  width: 100%;
 }
 
 .sd-row__question {

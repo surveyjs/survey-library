@@ -1,6 +1,6 @@
 import { Serializer } from "./jsonobject";
 import { HashTable, Helpers } from "./helpers";
-import { Base } from "./base";
+import { Base, EventBase } from "./base";
 import {
   ISurveyImpl,
   IPage,
@@ -29,6 +29,7 @@ import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { IAction } from "./actions/action";
 import { AdaptiveActionContainer } from "./actions/adaptive-container";
 import { ActionContainer } from "./actions/container";
+import { Panel } from "./knockout/kopage";
 
 export class DragDropInfo {
   constructor(
@@ -247,6 +248,10 @@ export class QuestionRowModel extends Base {
       .append(this.panel.cssClasses.rowMultiple, this.visibleElements.length > 1)
       .toString();
 
+  }
+  public focusIn(question: Question) {
+    if(this.panel instanceof PanelModel)
+      this.panel.onFocusIn.fire(this, { question: question, panel: this.panel });
   }
 }
 
@@ -1940,6 +1945,10 @@ export class PanelModel extends PanelModelBase implements IElement {
     else
       super.needResponsiveWidth();
     return false;
+  }
+  public onFocusIn: EventBase<Base> = this.addEvent<Base>();
+  public focusIn = () => {
+    this.onFocusIn.fire(this, { panel: this });
   }
 }
 

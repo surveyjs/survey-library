@@ -1,4 +1,4 @@
-import { SurveyElement } from "../survey-element";
+import { DragTypeOverMeEnum, SurveyElement } from "../survey-element";
 import { IElement } from "../base-interfaces";
 import { JsonObject, Serializer } from "../jsonobject";
 import { PageModel } from "../page";
@@ -241,7 +241,14 @@ export class DragDropSurveyElements extends DragDropCore<any> {
       : ((<any>this.dropTarget).page || (<any>this.dropTarget).__page);
 
     if (this.isDragOverInsideEmptyPanel()) {
-      this.dropTarget.isDragOverMe = true;
+      this.dropTarget.dragTypeOverMe = DragTypeOverMeEnum.InsideEmptyPanel;
+      return;
+    }
+
+    if (!this.isEdge && isTargetRowMultiple) {
+      this.dropTarget.dragTypeOverMe = this.calculateIsRight() ?
+        DragTypeOverMeEnum.MultilineRight :
+        DragTypeOverMeEnum.MultilineLeft;
       return;
     }
 
@@ -293,7 +300,10 @@ export class DragDropSurveyElements extends DragDropCore<any> {
   }
 
   protected removeGhostElementFromSurvey(): void {
-    if (this.prevDropTarget) this.prevDropTarget.isDragOverMe = false;
+    const dropTarget = this.prevDropTarget || this.dropTarget;
+    if (!!dropTarget) {
+      dropTarget.dragTypeOverMe = null;
+    }
     if (!!this.parentElement) this.parentElement.dragDropFinish(true);
   }
 

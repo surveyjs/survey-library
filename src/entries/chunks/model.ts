@@ -28,7 +28,7 @@ export {
   ITitleOwner
 } from "../../base-interfaces";
 export { SurveyError } from "../../survey-error";
-export { SurveyElementCore, SurveyElement } from "../../survey-element";
+export { SurveyElementCore, SurveyElement, DragTypeOverMeEnum } from "../../survey-element";
 export { CalculatedValue } from "../../calculatedValue";
 export {
   CustomError,

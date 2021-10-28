@@ -101,11 +101,17 @@ export var settings = {
    */
   executeSkipTriggerOnValueChanged: true,
   /**
-   * Set this property to change readOnlyCommentRenderMode: "textarea" (default) or "div"
-   */
+   * Specifies how the input field of [Comment](https://surveyjs.io/Documentation/Library?id=questioncommentmodel) questions is rendered in the read-only mode.
+   * Available values:
+   * "textarea" (default) - A 'textarea' element is used to render a Comment question's input field.
+   * "div" - A 'div' element is used to render a Comment question's input field.
+   */  
   readOnlyCommentRenderMode: "textarea",
   /**
-   * Set this property to change readOnlyTextRenderMode: "input" (default) or "div"
+   * Specifies how the input field of [Text](https://surveyjs.io/Documentation/Library?id=questiontextmodel) questions is rendered in the read-only mode.
+   * Available values:  
+   * "input" (default) - An 'input' element is used to render a Text question's input field.
+   * "div" - A 'div' element is used to render a Text question's input field.
    */
   readOnlyTextRenderMode: "input",
   /**

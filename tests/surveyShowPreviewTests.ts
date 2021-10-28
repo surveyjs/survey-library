@@ -6,6 +6,7 @@ export default QUnit.module("SurveyShowPreviewTests");
 
 QUnit.test("Complete and Preview button visibility", function(assert) {
   var survey = new SurveyModel({ elements: [{ type: "text", name: "q1" }] });
+  assert.equal(survey.currentPageNo, 0, "Init current page");
   assert.equal(survey.isShowPreviewBeforeComplete, false, "no preview");
   assert.equal(
     survey.isCompleteButtonVisible,

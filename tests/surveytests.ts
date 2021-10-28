@@ -554,6 +554,34 @@ QUnit.test("isFirstPage/isLastPage", function (
   assert.equal(survey.isFirstPage, true, "isFirstPage #6");
   assert.equal(survey.isLastPage, true, "isLastPage #6");
 });
+QUnit.test("isShowNext/Prev/Complete buttons and showPreviewBeforeComplete: showAllQuestions", function (
+  assert
+) {
+  var survey = new SurveyModel({
+    showPreviewBeforeComplete: "showAllQuestions",
+    pages: [
+      {
+        elements: [{ type: "text", name: "q1" }]
+      },
+      {
+        elements: [{ type: "text", name: "q2" }]
+      }
+    ]
+  });
+  assert.equal(survey.currentPageNo, 0, "Init current page");
+  assert.equal(survey.isLastPage, false, "isLastPage #1");
+  assert.equal(survey.isShowNextButton, true, "isShowNextButton #1");
+  assert.equal(survey.isCompleteButtonVisible, false, "isCompleteButtonVisible #1");
+  survey.nextPage();
+  assert.equal(survey.isLastPage, true, "isLastPage #2");
+  assert.equal(survey.isShowNextButton, false, "isShowNextButton #2");
+  assert.equal(survey.isShowPrevButton, true, "isShowPrevButton #1");
+  assert.equal(survey.isCompleteButtonVisible, false, "isCompleteButtonVisible #2");
+  survey.showPreview();
+  assert.equal(survey.isShowPrevButton, false, "isShowPrevButton #2");
+  assert.equal(survey.isShowNextButton, false, "isShowNextButton #3");
+  assert.equal(survey.isCompleteButtonVisible, true, "isCompleteButtonVisible #3");
+});
 QUnit.test("Next, Prev, IsFirst and IsLast Page and progressText", function (
   assert
 ) {

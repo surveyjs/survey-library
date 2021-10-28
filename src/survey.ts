@@ -2897,10 +2897,11 @@ export class SurveyModel extends SurveyElementCore
     return this.mode == "edit";
   }
   public get isCompleteButtonVisible(): boolean {
-    return (
-      this.isEditMode &&
-      (!this.isShowPreviewBeforeComplete || this.state == "preview")
-    );
+    const isLast = this.isLastPage;
+    const canEdit = this.isEditMode;
+    const state = this.state;
+    const showPreview = this.isShowPreviewBeforeComplete;
+    return canEdit && (state === "running" && isLast && !showPreview || state === "preview");
   }
   public get isPreviewButtonVisible(): boolean {
     return (
@@ -3586,9 +3587,17 @@ export class SurveyModel extends SurveyElementCore
     return this.getPropertyValue("isLastPage");
   }
   public get isShowPrevButton(): boolean {
-    if (this.isFirstPage || !this.showPrevButton) return false;
+    const isFirst = this.isFirstPage;
+    const showBtn = this.showPrevButton;
+    const isRun = this.state === "running";
+    if (isFirst || !showBtn || !isRun) return false;
     var page = this.visiblePages[this.currentPageNo - 1];
     return this.getPageMaxTimeToFinish(page) <= 0;
+  }
+  public get isShowNextButton(): boolean {
+    const isLast = this.isLastPage;
+    const isRun = this.state === "running";
+    return !isLast && isRun;
   }
   private get firstVisiblePage(): PageModel {
     const pages = this.pages;

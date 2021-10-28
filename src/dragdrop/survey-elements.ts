@@ -1,4 +1,4 @@
-import { SurveyElement } from "../survey-element";
+import { DragTypeOverMeEnum, SurveyElement } from "../survey-element";
 import { IElement } from "../base-interfaces";
 import { JsonObject, Serializer } from "../jsonobject";
 import { PageModel } from "../page";
@@ -84,8 +84,7 @@ export class DragDropSurveyElements extends DragDropCore<any> {
         // TODO we can't drop on not empty page directly for now
         page.elements.length !== 0
       ) {
-        const elements = page.elements;
-        page = this.isBottom ? elements[elements.length - 1] : elements[0];
+        return null;
       }
       return page;
     }
@@ -129,7 +128,7 @@ export class DragDropSurveyElements extends DragDropCore<any> {
     // EO drop to question or panel
   }
 
-  protected isDropTargetValid(dropTarget: SurveyElement, isBottom: boolean): boolean {
+  protected isDropTargetValid(dropTarget: SurveyElement): boolean {
     if (!dropTarget) return false;
     if (this.dropTarget === this.draggedElement) return false;
 
@@ -141,6 +140,18 @@ export class DragDropSurveyElements extends DragDropCore<any> {
     }
 
     return true;
+  }
+
+  protected calculateIsBottom(
+    clientY: number,
+    dropTargetNode?: HTMLElement
+  ): boolean {
+    // we shouldn't reculc isBottom if drag over ghost survey element
+    if (this.getDataAttributeValueByNode(dropTargetNode) === DragDropSurveyElements.ghostSurveyElementName) {
+      return this.isBottom;
+    }
+    const middle = this.calculateMiddleOfHTMLElement(dropTargetNode);
+    return clientY >= middle;
   }
 
   protected isDropTargetDoesntChanged(newIsBottom: boolean): boolean {
@@ -241,7 +252,14 @@ export class DragDropSurveyElements extends DragDropCore<any> {
       : ((<any>this.dropTarget).page || (<any>this.dropTarget).__page);
 
     if (this.isDragOverInsideEmptyPanel()) {
-      this.dropTarget.isDragOverMe = true;
+      this.dropTarget.dragTypeOverMe = DragTypeOverMeEnum.InsideEmptyPanel;
+      return;
+    }
+
+    if (!this.isEdge && isTargetRowMultiple) {
+      this.dropTarget.dragTypeOverMe = this.calculateIsRight() ?
+        DragTypeOverMeEnum.MultilineRight :
+        DragTypeOverMeEnum.MultilineLeft;
       return;
     }
 
@@ -293,7 +311,10 @@ export class DragDropSurveyElements extends DragDropCore<any> {
   }
 
   protected removeGhostElementFromSurvey(): void {
-    if (this.prevDropTarget) this.prevDropTarget.isDragOverMe = false;
+    const dropTarget = this.prevDropTarget || this.dropTarget;
+    if (!!dropTarget) {
+      dropTarget.dragTypeOverMe = null;
+    }
     if (!!this.parentElement) this.parentElement.dragDropFinish(true);
   }
 

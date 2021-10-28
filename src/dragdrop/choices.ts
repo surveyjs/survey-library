@@ -83,9 +83,7 @@ export class DragDropChoices extends DragDropCore<QuestionSelectBase> {
   }
 
   protected isDropTargetValid(
-    dropTarget: ItemValue,
-    isBottom: boolean,
-    dropTargetNode?: HTMLElement
+    dropTarget: ItemValue
   ): boolean {
     const choices = this.getVisibleChoices();
 

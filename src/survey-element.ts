@@ -92,6 +92,12 @@ export abstract class SurveyElementCore extends Base implements ILocalizableOwne
   public abstract getProcessedText(text: string): string;
 }
 
+export enum DragTypeOverMeEnum {
+  InsideEmptyPanel = 1,
+  MultilineRight,
+  MultilineLeft
+}
+
 /**
  * Base class of SurveyJS Elements.
  */
@@ -125,7 +131,9 @@ export class SurveyElement extends SurveyElementCore implements ISurveyElement {
   private textProcessorValue: ITextProcessor;
   private selectedElementInDesignValue: SurveyElement = this;
   private expandAction: Action;
-  @property({ defaultValue: false }) isDragOverMe: boolean;
+
+  @property({ defaultValue: null }) dragTypeOverMe: DragTypeOverMeEnum;
+
   public readOnlyChangedCallback: () => void;
 
   public static ScrollElementToTop(elementId: string): boolean {

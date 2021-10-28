@@ -631,6 +631,10 @@ export class SurveyModel extends SurveyElementCore
   public onAfterRenderPanel: EventBase<SurveyModel> = this.addEvent<
     SurveyModel
   >();
+
+  public onFocusInQuestion: EventBase<SurveyModel> = this.addEvent<SurveyModel>();
+  public onFocusInPanel: EventBase<SurveyModel> = this.addEvent<SurveyModel>();
+
   /**
    * The event is fired on adding a new row in Matrix Dynamic question.
    * <br/> `sender` - the survey object that fires the event
@@ -3956,6 +3960,17 @@ export class SurveyModel extends SurveyElementCore
       htmlElement: htmlElement,
     });
   }
+  whenQuestionFocusIn(question: IQuestion) {
+    this.onFocusInQuestion.fire(this, {
+      question: question
+    });
+  }
+  whenPanelFocusIn(panel: IPanel) {
+    this.onFocusInPanel.fire(this, {
+      panel: panel
+    });
+  }
+
   matrixBeforeRowAdded(options: any) {
     this.onMatrixBeforeRowAdded.fire(this, options);
   }

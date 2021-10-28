@@ -397,11 +397,11 @@ jobs:
 
 
 - job: Finalize
-  dependsOn:
-    - CoreAngularJquery
-    - Knockout
-    - React
-    - Vue
+  # dependsOn:
+  #   - CoreAngularJquery
+  #   - Knockout
+  #   - React
+  #   - Vue
 
   steps:
     - checkout: self
@@ -434,7 +434,7 @@ jobs:
 
     - task: CopyFiles@2
       inputs:
-        SourceFolder: "$(System.ArtifactDirectory)/SurveyJSLibraryBuildCore/packages/survey-core"
+        SourceFolder: "$(System.ArtifactDirectory)/SurveyJSLibraryBuildCore"
         TargetFolder: "$(Build.SourcesDirectory)/survey-library/build/survey-core"
 
     - task: DownloadBuildArtifacts@0

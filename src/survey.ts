@@ -2560,9 +2560,8 @@ export class SurveyModel extends SurveyElementCore
    * Gets or sets the current survey page. If a survey is rendered, then this property returns a page that a user can see/edit.
    */
   public get currentPage(): any {
-    var vPages = this.visiblePages;
     if (this.currentPageValue != null) {
-      if (vPages.indexOf(this.currentPageValue) < 0) {
+      if (!this.isPageInVisibleList(this.currentPageValue) || this.pages.indexOf(this.currentPageValue) < 0) {
         if (
           !this.onContainsPageCallback ||
           !this.onContainsPageCallback(this.currentPageValue)
@@ -2571,8 +2570,8 @@ export class SurveyModel extends SurveyElementCore
         }
       }
     }
-    if (this.currentPageValue == null && vPages.length > 0) {
-      this.currentPage = vPages[0];
+    if (this.currentPageValue == null && !!this.firstVisiblePage) {
+      this.currentPage = this.firstVisiblePage;
     }
     return this.currentPageValue;
   }
@@ -2847,8 +2846,9 @@ export class SurveyModel extends SurveyElementCore
         ? Math.ceil((info.answeredQuestionCount * 100) / info.questionCount)
         : 100;
     }
-    var index = this.visiblePages.indexOf(this.currentPage) + 1;
-    return Math.ceil((index * 100) / this.visiblePageCount);
+    const visPages = this.visiblePages;
+    var index = visPages.indexOf(this.currentPage) + 1;
+    return Math.ceil((index * 100) / visPages.length);
   }
   /**
    * Returns the progress that a user made while going through the survey.
@@ -3607,8 +3607,7 @@ export class SurveyModel extends SurveyElementCore
   private updateIsFirstLastPageState() {
     const curPage = this.currentPageValue;
     if(!curPage) return;
-    this.setPropertyValue("isFirstPage", curPage === this.firstVisiblePage
-      && !this.isPageStarted(curPage));
+    this.setPropertyValue("isFirstPage", curPage === this.firstVisiblePage);
     this.setPropertyValue("isLastPage", curPage === this.lastVisiblePage);
   }
   /**

@@ -84,8 +84,7 @@ export class DragDropSurveyElements extends DragDropCore<any> {
         // TODO we can't drop on not empty page directly for now
         page.elements.length !== 0
       ) {
-        const elements = page.elements;
-        page = this.isBottom ? elements[elements.length - 1] : elements[0];
+        return null;
       }
       return page;
     }
@@ -129,7 +128,7 @@ export class DragDropSurveyElements extends DragDropCore<any> {
     // EO drop to question or panel
   }
 
-  protected isDropTargetValid(dropTarget: SurveyElement, isBottom: boolean): boolean {
+  protected isDropTargetValid(dropTarget: SurveyElement): boolean {
     if (!dropTarget) return false;
     if (this.dropTarget === this.draggedElement) return false;
 
@@ -141,6 +140,18 @@ export class DragDropSurveyElements extends DragDropCore<any> {
     }
 
     return true;
+  }
+
+  protected calculateIsBottom(
+    clientY: number,
+    dropTargetNode?: HTMLElement
+  ): boolean {
+    // we shouldn't reculc isBottom if drag over ghost survey element
+    if (this.getDataAttributeValueByNode(dropTargetNode) === DragDropSurveyElements.ghostSurveyElementName) {
+      return this.isBottom;
+    }
+    const middle = this.calculateMiddleOfHTMLElement(dropTargetNode);
+    return clientY >= middle;
   }
 
   protected isDropTargetDoesntChanged(newIsBottom: boolean): boolean {

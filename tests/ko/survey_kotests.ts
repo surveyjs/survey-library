@@ -37,24 +37,24 @@ QUnit.test("Survey.koCurrentPage", function (assert) {
     survey.currentPage.name,
     "ko current page is equal"
   );
-  assert.equal(survey.koIsFirstPage(), true, "is first page");
-  assert.equal(survey.koIsLastPage(), false, "is first page");
+  assert.equal(survey.isFirstPage, true, "is first page");
+  assert.equal(survey.isLastPage, false, "is first page");
   survey.nextPage();
   assert.equal(
     survey.koCurrentPage().name,
     survey.pages[1].name,
     "ko current page is equal"
   );
-  assert.equal(survey.koIsFirstPage(), false, "is second page");
-  assert.equal(survey.koIsLastPage(), false, "is second page");
+  assert.equal(survey.isFirstPage, false, "is second page");
+  assert.equal(survey.isLastPage, false, "is second page");
   survey.nextPage();
   assert.equal(
     survey.koCurrentPage().name,
     survey.pages[2].name,
     "ko current page is equal"
   );
-  assert.equal(survey.koIsFirstPage(), false, "is last page");
-  assert.equal(survey.koIsLastPage(), true, "is last page");
+  assert.equal(survey.isFirstPage, false, "is last page");
+  assert.equal(survey.isLastPage, true, "is last page");
 });
 QUnit.test("koOtherVisible for one choice items", function (assert) {
   var survey = new Survey();
@@ -1547,12 +1547,12 @@ QUnit.test(
       ],
     };
     var survey = new Survey(json);
-    assert.equal(survey.koIsLastPage(), true, "There is one visible page");
+    assert.equal(survey.isLastPage, true, "There is one visible page");
     survey.setValue("question1", "item1");
-    assert.equal(survey.koIsLastPage(), false, "There are two visible pages");
+    assert.equal(survey.isLastPage, false, "There are two visible pages");
     survey.setValue("question1", "item2");
     assert.equal(
-      survey.koIsLastPage(),
+      survey.isLastPage,
       true,
       "There is one visible page again"
     );

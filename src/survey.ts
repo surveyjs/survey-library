@@ -80,6 +80,7 @@ export class SurveyModel extends SurveyElementCore
   }
   private set currentPageValue(val: PageModel) {
     this.setPropertyValue("currentPageValue", val);
+    this.updateIsFirstLastPageState();
   }
 
   private valuesHash: HashTable<any> = {};
@@ -3306,7 +3307,7 @@ export class SurveyModel extends SurveyElementCore
    * @see isFirstPage
    */
   public prevPage(): boolean {
-    if (this.isFirstPage) return false;
+    if (this.isFirstPage || this.isStartedState) return false;
     this.resetNavigationButton();
     var vPages = this.visiblePages;
     var index = vPages.indexOf(this.currentPage);
@@ -3576,32 +3577,39 @@ export class SurveyModel extends SurveyElementCore
    * Gets whether the current page is the first one.
    */
   public get isFirstPage(): boolean {
-    const curPage = this.currentPage;
-    if (curPage == null) return true;
-    const pages = this.pages;
-    for(let i = 0; i < pages.length; i ++) {
-      if(this.isPageInVisibleList(pages[i]))
-        return pages[i] === curPage;
-    }
-    return false;
+    return this.getPropertyValue("isFirstPage");
+  }
+  /**
+   * Gets whether the current page is the last one.
+   */
+  public get isLastPage(): boolean {
+    return this.getPropertyValue("isLastPage");
   }
   public get isShowPrevButton(): boolean {
     if (this.isFirstPage || !this.showPrevButton) return false;
     var page = this.visiblePages[this.currentPageNo - 1];
     return this.getPageMaxTimeToFinish(page) <= 0;
   }
-  /**
-   * Gets whether the current page is the last one.
-   */
-  public get isLastPage(): boolean {
-    const curPage = this.currentPage;
-    if (curPage == null) return true;
+  private get firstVisiblePage(): PageModel {
+    const pages = this.pages;
+    for(let i = 0; i < pages.length; i ++) {
+      if(this.isPageInVisibleList(pages[i])) return pages[i];
+    }
+    return null;
+  }
+  private get lastVisiblePage(): PageModel {
     const pages = this.pages;
     for(let i = pages.length - 1; i >= 0; i --) {
-      if(this.isPageInVisibleList(pages[i]))
-        return pages[i] === curPage;
+      if(this.isPageInVisibleList(pages[i])) return pages[i];
     }
-    return false;
+    return null;
+  }
+  private updateIsFirstLastPageState() {
+    const curPage = this.currentPageValue;
+    if(!curPage) return;
+    this.setPropertyValue("isFirstPage", curPage === this.firstVisiblePage
+      && !this.isPageStarted(curPage));
+    this.setPropertyValue("isLastPage", curPage === this.lastVisiblePage);
   }
   /**
    * Completes the survey.
@@ -3680,6 +3688,7 @@ export class SurveyModel extends SurveyElementCore
     this.isStartedState = false;
     this.startTimerFromUI();
     this.onStarted.fire(this, {});
+    this.updateVisibleIndexes();
     if (!!this.currentPage) {
       this.currentPage.locStrsChanged();
     }
@@ -4944,6 +4953,7 @@ export class SurveyModel extends SurveyElementCore
     this.updateProgressText(true);
   }
   private updatePageVisibleIndexes(showIndex: boolean) {
+    this.updateIsFirstLastPageState();
     var index = 0;
     for (var i = 0; i < this.pages.length; i++) {
       var isPageVisible = this.pages[i].isVisible;

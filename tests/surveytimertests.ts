@@ -130,6 +130,7 @@ QUnit.test("Showing prev button", function(assert) {
   survey.pages[2].addNewQuestion("text");
   survey.maxTimeToFinishPage = 10;
   survey.pages[1].maxTimeToFinish = -1;
+  assert.equal(survey.currentPageNo, 0, "Init current page");
   assert.equal(survey.isShowPrevButton, false, "First page");
   survey.nextPage();
   assert.equal(

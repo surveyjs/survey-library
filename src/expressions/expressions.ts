@@ -440,7 +440,7 @@ export class OperandMaker {
     );
   }
   static countDecimals(value: number): number {
-    if (Math.floor(value) !== value) {
+    if (Helpers.isNumber(value) && Math.floor(value) !== value) {
       const strs = value.toString().split(".");
       return strs.length > 1 && strs[1].length || 0;
     }
@@ -489,18 +489,13 @@ static unaryFunctions: HashTable<Function> = {
       return a || b;
     },
     plus: function(a: any, b: any): any {
-      return OperandMaker.plusMinus(a, b, a + b);
+      return Helpers.correctAfterPlusMinis(a, b, a + b);
     },
     minus: function(a: number, b: number): number {
-      return OperandMaker.plusMinus(a, b, a - b);
+      return Helpers.correctAfterPlusMinis(a, b, a - b);
     },
     mul: function(a: number, b: number): number {
-      let res = a * b;
-      const digits = OperandMaker.countDecimals(a) + OperandMaker.countDecimals(b);
-      if(digits > 0) {
-        res = parseFloat(res.toFixed(digits));
-      }
-      return res;
+      return Helpers.correctAfterMultiple(a, b, a * b);
     },
     div: function(a: number, b: number): number {
       if (!b) return null;

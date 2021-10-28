@@ -39,6 +39,12 @@ export var settings = {
    */
   itemValueSeparator: "|",
   /**
+   * Set it to true to serialize itemvalue instance always as object even if text property is empty
+   * const item = new Survey.ItemValue(5);
+   * item.toJSON(); //will return {value: 5}, instead of 5 by default.
+   */
+  itemValueAlwaysSerializeAsObject: false,
+  /**
    * default locale name for localizable strings that uses during serialization, {"default": "My text", "de": "Mein Text"}
    */
   defaultLocaleName: "default",
@@ -95,9 +101,19 @@ export var settings = {
    */
   executeSkipTriggerOnValueChanged: true,
   /**
-   * Set this property to change readOnlyCommentRenderMode: "textarea" (default) or (div)
-   */
+   * Specifies how the input field of [Comment](https://surveyjs.io/Documentation/Library?id=questioncommentmodel) questions is rendered in the read-only mode.
+   * Available values:
+   * "textarea" (default) - A 'textarea' element is used to render a Comment question's input field.
+   * "div" - A 'div' element is used to render a Comment question's input field.
+   */  
   readOnlyCommentRenderMode: "textarea",
+  /**
+   * Specifies how the input field of [Text](https://surveyjs.io/Documentation/Library?id=questiontextmodel) questions is rendered in the read-only mode.
+   * Available values:  
+   * "input" (default) - An 'input' element is used to render a Text question's input field.
+   * "div" - A 'div' element is used to render a Text question's input field.
+   */
+  readOnlyTextRenderMode: "input",
   /**
    * Override this function, set your function, if you want to show your own dialog confirm window instead of standard browser window.
    * @param message

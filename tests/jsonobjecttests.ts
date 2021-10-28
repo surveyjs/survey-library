@@ -12,6 +12,7 @@ import { QuestionMatrixDynamicModel } from "../src/question_matrixdynamic";
 import { Question } from "../src/question";
 import { QuestionRatingModel } from "../src/question_rating";
 import { QuestionCheckboxModel } from "../src/question_checkbox";
+import { settings } from "../src/settings";
 
 class Car extends Base implements ILocalizableOwner {
   public locale: string;
@@ -816,6 +817,24 @@ QUnit.test(
       },
       "serialize ItemValueListOwner"
     );
+  }
+);
+QUnit.test(
+  "ItemValue and settings.itemValueAlwaysSerializeAsObject = true",
+  function(assert) {
+    settings.itemValueAlwaysSerializeAsObject = true;
+    const list = new ItemValueListOwner();
+    list.items.push(new ItemValue(7, "Item 1"));
+    list.items.push(new ItemValue(5));
+    list.items.push(new ItemValue("item"));
+
+    const jsObj = new JsonObject().toJsonObject(list);
+    assert.equal(
+      JSON.stringify(jsObj),
+      '{"items":[{"value":7,"text":"Item 1"},{"value":5},{"value":"item"}]}',
+      "serialize ItemValueListOwner"
+    );
+    settings.itemValueAlwaysSerializeAsObject = false;
   }
 );
 QUnit.test("LongNamesOwner serialization", function(assert) {

@@ -75,7 +75,7 @@ function sum(params: any[]): any {
   getParamsAsArray(params, arr);
   var res = 0;
   for (var i = 0; i < arr.length; i++) {
-    res += arr[i];
+    res = Helpers.correctAfterPlusMinis(res, arr[i], res + arr[i]);
   }
   return res;
 }
@@ -118,10 +118,7 @@ FunctionFactory.Instance.register("count", count);
 function avg(params: any[]): any {
   var arr: any[] = [];
   getParamsAsArray(params, arr);
-  var res = 0;
-  for (var i = 0; i < arr.length; i++) {
-    res += arr[i];
-  }
+  const res = sum(params);
   return arr.length > 0 ? res / arr.length : 0;
 }
 FunctionFactory.Instance.register("avg", avg);
@@ -164,7 +161,8 @@ function calcInArray(
 function sumInArray(params: any[]): any {
   var res = calcInArray(params, function(res: number, val: number): number {
     if (res == undefined) res = 0;
-    return +res + +val;
+    if(val == undefined || val == null) return res;
+    return Helpers.correctAfterPlusMinis(res, val, res + val);
   });
   return res !== undefined ? res : 0;
 }

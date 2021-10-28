@@ -21,9 +21,11 @@ export class DragDropMatrixRows extends DragDropCore<QuestionMatrixDynamicModel>
   protected getShortcutText(draggedElement: any): string {
     const matrix = this.parentElement;
     const index = matrix.visibleRows.indexOf(draggedElement) + 1;
+    const questionValue1 = draggedElement.cells.length > 1 ? draggedElement.cells[1].questionValue : undefined;
+    const questionValue0 = draggedElement.cells.length > 0 ? draggedElement.cells[0].questionValue : undefined;
     return (
-      draggedElement.cells[1].questionValue.value ||
-      draggedElement.cells[0].questionValue.value ||
+      questionValue1 && questionValue1.value ||
+      questionValue0 && questionValue0.value ||
       "" + index
     );
   }
@@ -45,6 +47,15 @@ export class DragDropMatrixRows extends DragDropCore<QuestionMatrixDynamicModel>
     if (this.dropTarget === this.draggedElement) return false;
     const rows = this.parentElement.visibleRows;
     return rows.indexOf(dropTarget) !== -1;
+  }
+
+  protected findDropTargetNodeByDragOverNode(
+    dragOverNode: HTMLElement
+  ): HTMLElement {
+    const result: HTMLElement = dragOverNode.closest(
+      this.dropTargetDataAttributeName
+    );
+    return result;
   }
 
   protected calculateIsBottom(clientY: number): boolean {

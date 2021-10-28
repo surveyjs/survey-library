@@ -84,9 +84,7 @@ export abstract class DragDropCore<T> extends Base {
 
     this.dropTarget = this.getDropTargetByNode(dropTargetNode, event);
 
-    let isBottom = this.calculateIsBottom(event.clientY, dropTargetNode);
-
-    const isDropTargetValid = this.isDropTargetValid(this.dropTarget, isBottom, dropTargetNode);
+    const isDropTargetValid = this.isDropTargetValid(this.dropTarget, dropTargetNode);
 
     this.doDragOver(dropTargetNode);
 
@@ -94,6 +92,8 @@ export abstract class DragDropCore<T> extends Base {
       this.banDropHere();
       return;
     }
+
+    let isBottom = this.calculateIsBottom(event.clientY, dropTargetNode);
 
     this.allowDropHere = true;
     if (this.isDropTargetDoesntChanged(isBottom)) return;
@@ -142,7 +142,6 @@ export abstract class DragDropCore<T> extends Base {
 
   protected abstract isDropTargetValid(
     dropTarget: any,
-    isBottom: boolean,
     dropTargetNode?: HTMLElement
   ): boolean;
 
@@ -304,13 +303,10 @@ export abstract class DragDropCore<T> extends Base {
     return rect.y + rect.height / 2;
   }
 
-  protected calculateIsBottom(
+  protected abstract calculateIsBottom(
     clientY: number,
     dropTargetNode?: HTMLElement
-  ): boolean {
-    const middle = this.calculateMiddleOfHTMLElement(dropTargetNode);
-    return clientY >= middle;
-  }
+  ): boolean;
 
   private findDropTargetNodeFromPoint(
     clientX: number,

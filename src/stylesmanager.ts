@@ -285,15 +285,12 @@ export class StylesManager {
     ".sv_main .sv_logo": "",
     ".sv_main .sv-logo--left":
       "display: inline-block; vertical-align: top; margin-right: 2em;",
-    ".sv_main .sv-logo--right":
-      "display: inline-block; vertical-align: top; margin-left: 2em; float: right;",
-    ".sv_main .sv-logo--right+.sv-logo--right-tail": "clear: both;",
+    ".sv_main .sv-logo--right": "display: inline-block; vertical-align: top; margin-left: 2em; ",
     ".sv_main .sv-logo--top":
       "display: block; width: 100%; text-align: center;",
     ".sv_main .sv-logo--bottom":
       "display: block; width: 100%; text-align: center;",
-    ".sv_main .sv_header__text":
-      "display: inline-block; vertical-align: top; max-width: 100%",
+    ".sv_main .sv_header__text": "display: inline-block; vertical-align: top; max-width: 100%; width: 100%",
 
     ".sv_main .sv-expand-action:before": "content: \"\"; display: inline-block; background-image: url(\"data:image/svg+xml,%3C%3Fxml version='1.0' encoding='utf-8'%3F%3E%3C!-- Generator: Adobe Illustrator 21.1.0, SVG Export Plug-In . SVG Version: 6.00 Build 0) --%3E%3Csvg version='1.1' id='Layer_1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' x='0px' y='0px' viewBox='0 0 10 10' style='enable-background:new 0 0 10 10;' xml:space='preserve'%3E%3Cstyle type='text/css'%3E .st0%7Bfill:%23404040;%7D%0A%3C/style%3E%3Cpolygon class='st0' points='2,2 0,4 5,9 10,4 8,2 5,5 '/%3E%3C/svg%3E%0A\"); background-repeat: no-repeat; background-position: center center; height: 10px; width: 12px; margin: auto 8px;",
 

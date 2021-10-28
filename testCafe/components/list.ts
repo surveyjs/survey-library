@@ -91,8 +91,11 @@ frameworks.forEach(async framework => {
 });
 
 ["knockout", "react"].forEach(async framework => {
+  if (frameworks.indexOf(framework) === -1) return;
+
   fixture`${framework} ${title}`.page`${url}${framework}`.clientScripts({ content: `(${explicitErrorHandler.toString()})()` }).beforeEach(async t => {
   });
+
   test("check list filter", async t => {
 
     await initSurvey(framework, {

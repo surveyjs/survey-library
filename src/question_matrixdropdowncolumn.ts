@@ -549,6 +549,7 @@ export class MatrixDropdownColumn extends Base
       }
       json.type = question.getType();
       new JsonObject().toObject(json, question);
+      question.isContentElement = this.templateQuestion.isContentElement;
     }
   }
   protected propertyValueChanged(name: string, oldValue: any, newValue: any) {

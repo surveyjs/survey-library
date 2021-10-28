@@ -305,7 +305,7 @@ export class ItemValue extends Base {
     if (!!json["value"] && !!json["value"]["pos"]) {
       delete json["value"]["pos"];
     }
-    if (Object.keys(json).length == 1 && !Helpers.isValueEmpty(json["value"]))
+    if (!settings.itemValueAlwaysSerializeAsObject && Object.keys(json).length == 1 && !Helpers.isValueEmpty(json["value"]))
       return this.value;
     return json;
   }

@@ -1,19 +1,22 @@
 ﻿<script type="text/html" id="survey-question-text">
-  <!--ko if: !question.isInputTextUpdate -->
+  <!--ko if: !question.isInputTextUpdate && !question.isReadOnlyRenderDiv()-->
   <input
     data-bind="disable: question.isInputReadOnly, style: question.inputStyle, attr: {type: question.inputType, size: question.inputSize, id: question.inputId, placeholder: question.renderedPlaceHolder, maxLength: question.getMaxLength(), min: question.renderedMin, max: question.renderedMax, step: question.renderedStep, 'aria-required': question.ariaRequired, 'aria-label': question.ariaLabel, 'aria-invalid': question.ariaInvalid, 'aria-describedby': question.ariaDescribedBy, autoComplete: question.autoComplete, list:question.dataListId}, value: question.value, css: question.getControlClass()"
   />
   <!--/ko-->
-  <!--ko if: question.isInputTextUpdate -->
+  <!--ko if: question.isInputTextUpdate && !question.isReadOnlyRenderDiv()-->
   <input
     data-bind="disable: question.isInputReadOnly, style: question.inputStyle, attr: {type: question.inputType, size: question.inputSize, id: question.inputId, placeholder: question.renderedPlaceHolder, maxLength: question.getMaxLength(), min: question.renderedMin, max: question.renderedMax, step: question.renderedStep, 'aria-required': question.ariaRequired, 'aria-label': question.ariaLabel, 'aria-invalid': question.ariaInvalid, 'aria-describedby': question.ariaDescribedBy, autoComplete: question.autoComplete, list:question.dataListId}, textInput: question.value, css: question.getControlClass()"
   />
   <!--/ko-->
-  <!--ko if: question.dataListId -->
+  <!--ko if: question.dataListId && !question.isReadOnlyRenderDiv()-->
   <datalist data-bind="attr: {id: question.dataListId}">
     <!-- ko foreach: question.dataList -->
       <option data-bind="value:$data"></option>
     <!--/ko-->
   </datalist>
+  <!--/ko-->
+  <!--ko if: question.isReadOnlyRenderDiv() -->
+  <div data-bind="text: question.value"></div>
   <!--/ko-->
 </script>

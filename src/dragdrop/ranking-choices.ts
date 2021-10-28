@@ -39,7 +39,6 @@ export class DragDropRankingChoices extends DragDropChoices {
 
   protected isDropTargetValid(
     dropTarget: ItemValue,
-    isBottom: boolean,
     dropTargetNode?: HTMLElement
   ): boolean {
     const choices = this.parentElement.rankingChoices;

@@ -105,11 +105,11 @@ export var settings = {
    * Available values:
    * "textarea" (default) - A 'textarea' element is used to render a Comment question's input field.
    * "div" - A 'div' element is used to render a Comment question's input field.
-   */  
+   */
   readOnlyCommentRenderMode: "textarea",
   /**
    * Specifies how the input field of [Text](https://surveyjs.io/Documentation/Library?id=questiontextmodel) questions is rendered in the read-only mode.
-   * Available values:  
+   * Available values:
    * "input" (default) - An 'input' element is used to render a Text question's input field.
    * "div" - A 'div' element is used to render a Text question's input field.
    */

@@ -9,6 +9,7 @@ var path = require("path");
 const config = {
   entry: {
     modern: path.resolve(__dirname, "../../src/modern.scss"),
+    defaultV2: path.resolve(__dirname, "../../src/defaultV2-theme/defaultV2.scss")
   },
   plugins: [new FixStyleOnlyEntriesPlugin()],
 };

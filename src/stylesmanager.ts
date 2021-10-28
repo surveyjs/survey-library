@@ -1310,7 +1310,10 @@ export class StylesManager {
     let ThemeCss: any;
 
     if (themeName === "modern") themeSelector = ".sv-root-modern ";
-
+    if(themeName === "defaultV2") {
+      surveyCss.currentType = themeName;
+      return;
+    }
     if (
       ["bootstrap", "bootstrapmaterial", "modern"].indexOf(themeName) !== -1
     ) {

@@ -1,0 +1,11 @@
+
+
+.sd-body {
+  width: max-content;
+  margin: auto;
+  min-width: calc(min(calc(100 * #{$base-unit}), 100%));
+  max-width: 100%;
+}
+.sd-body__navigation {
+  padding: calcSize(2);
+}

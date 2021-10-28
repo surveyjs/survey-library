@@ -397,11 +397,11 @@ jobs:
 
 
 - job: Finalize
-  # dependsOn:
-  #   - CoreAngularJquery
-  #   - Knockout
-  #   - React
-  #   - Vue
+  dependsOn:
+    - CoreAngularJquery
+    - Knockout
+    - React
+    - Vue
 
   steps:
     - checkout: self

@@ -94,35 +94,20 @@ jobs:
         SourceFolder: "$(Build.SourcesDirectory)/survey-library/build/survey-core"
         TargetFolder: "$(Build.ArtifactStagingDirectory)/SurveyJSLibraryBuild/packages/survey-core"
 
-    #publishLocation: 'Container' - store the artifact in Azure Pipelines
-    - task: PublishBuildArtifacts@1
-      inputs:
-        PathtoPublish: "$(Build.ArtifactStagingDirectory)/SurveyJSLibraryBuild/"
-        ArtifactName: "SurveyJSLibraryBuildCore"
-        publishLocation: "Container"
-
     - task: CopyFiles@2
       inputs:
         SourceFolder: "$(Build.SourcesDirectory)/survey-library/build/survey-angular"
         TargetFolder: "$(Build.ArtifactStagingDirectory)/SurveyJSLibraryBuild/packages/survey-angular"
-
-    #publishLocation: 'Container' - store the artifact in Azure Pipelines
-    - task: PublishBuildArtifacts@1
-      inputs:
-        PathtoPublish: "$(Build.ArtifactStagingDirectory)/SurveyJSLibraryBuild/"
-        ArtifactName: "SurveyJSLibraryBuildAngular"
-        publishLocation: "Container"
 
     - task: CopyFiles@2
       inputs:
         SourceFolder: "$(Build.SourcesDirectory)/survey-library/build/survey-jquery"
         TargetFolder: "$(Build.ArtifactStagingDirectory)/SurveyJSLibraryBuild/packages/survey-jquery"
 
-    #publishLocation: 'Container' - store the artifact in Azure Pipelines
     - task: PublishBuildArtifacts@1
       inputs:
         PathtoPublish: "$(Build.ArtifactStagingDirectory)/SurveyJSLibraryBuild/"
-        ArtifactName: "SurveyJSLibraryBuildJquery"
+        ArtifactName: "SurveyJSLibraryBuildCore"
         publishLocation: "Container"
 
 
@@ -196,23 +181,15 @@ jobs:
         SourceFolder: "$(Build.SourcesDirectory)/survey-library/build/survey-knockout"
         TargetFolder: "$(Build.ArtifactStagingDirectory)/SurveyJSLibraryBuild/packages/survey-knockout"
 
-    #publishLocation: 'Container' - store the artifact in Azure Pipelines
-    - task: PublishBuildArtifacts@1
-      inputs:
-        PathtoPublish: "$(Build.ArtifactStagingDirectory)/SurveyJSLibraryBuild/"
-        ArtifactName: "SurveyJSLibraryBuildKnockout"
-        publishLocation: "Container"
-
     - task: CopyFiles@2
       inputs:
         SourceFolder: "$(Build.SourcesDirectory)/survey-library/build/survey-knockout-ui"
         TargetFolder: "$(Build.ArtifactStagingDirectory)/SurveyJSLibraryBuild/packages/survey-knockout-ui"
 
-    #publishLocation: 'Container' - store the artifact in Azure Pipelines
     - task: PublishBuildArtifacts@1
       inputs:
         PathtoPublish: "$(Build.ArtifactStagingDirectory)/SurveyJSLibraryBuild/"
-        ArtifactName: "SurveyJSLibraryBuildKnockoutUI"
+        ArtifactName: "SurveyJSLibraryBuildKnockout"
         publishLocation: "Container"
 
 
@@ -286,23 +263,15 @@ jobs:
         SourceFolder: "$(Build.SourcesDirectory)/survey-library/build/survey-react"
         TargetFolder: "$(Build.ArtifactStagingDirectory)/SurveyJSLibraryBuild/packages/survey-react"
 
-    #publishLocation: 'Container' - store the artifact in Azure Pipelines
-    - task: PublishBuildArtifacts@1
-      inputs:
-        PathtoPublish: "$(Build.ArtifactStagingDirectory)/SurveyJSLibraryBuild/"
-        ArtifactName: "SurveyJSLibraryBuildReact"
-        publishLocation: "Container"
-
     - task: CopyFiles@2
       inputs:
         SourceFolder: "$(Build.SourcesDirectory)/survey-library/build/survey-react-ui"
         TargetFolder: "$(Build.ArtifactStagingDirectory)/SurveyJSLibraryBuild/packages/survey-react-ui"
 
-    #publishLocation: 'Container' - store the artifact in Azure Pipelines
     - task: PublishBuildArtifacts@1
       inputs:
         PathtoPublish: "$(Build.ArtifactStagingDirectory)/SurveyJSLibraryBuild/"
-        ArtifactName: "SurveyJSLibraryBuildReactUI"
+        ArtifactName: "SurveyJSLibraryBuildReact"
         publishLocation: "Container"
 
 
@@ -376,23 +345,15 @@ jobs:
         SourceFolder: "$(Build.SourcesDirectory)/survey-library/build/survey-vue"
         TargetFolder: "$(Build.ArtifactStagingDirectory)/SurveyJSLibraryBuild/packages/survey-vue"
 
-    #publishLocation: 'Container' - store the artifact in Azure Pipelines
-    - task: PublishBuildArtifacts@1
-      inputs:
-        PathtoPublish: "$(Build.ArtifactStagingDirectory)/SurveyJSLibraryBuild/"
-        ArtifactName: "SurveyJSLibraryBuildVue"
-        publishLocation: "Container"
-
     - task: CopyFiles@2
       inputs:
         SourceFolder: "$(Build.SourcesDirectory)/survey-library/build/survey-vue-ui"
         TargetFolder: "$(Build.ArtifactStagingDirectory)/SurveyJSLibraryBuild/packages/survey-vue-ui"
 
-    #publishLocation: 'Container' - store the artifact in Azure Pipelines
     - task: PublishBuildArtifacts@1
       inputs:
         PathtoPublish: "$(Build.ArtifactStagingDirectory)/SurveyJSLibraryBuild/"
-        ArtifactName: "SurveyJSLibraryBuildVueUI"
+        ArtifactName: "SurveyJSLibraryBuildVue"
         publishLocation: "Container"
 
 
@@ -449,16 +410,9 @@ jobs:
         SourceFolder: "$(System.ArtifactsDirectory)/SurveyJSLibraryBuildKnockout/packages/survey-knockout"
         TargetFolder: "$(Build.SourcesDirectory)/survey-library/build/survey-knockout"
 
-    - task: DownloadBuildArtifacts@0
-      inputs:
-        buildType: 'current'
-        downloadType: 'single'
-        artifactName: 'SurveyJSLibraryBuildKnockoutUI'
-        downloadPath: '$(System.ArtifactsDirectory)'
-
     - task: CopyFiles@2
       inputs:
-        SourceFolder: "$(System.ArtifactsDirectory)/SurveyJSLibraryBuildKnockoutUI/packages/survey-knockout-ui"
+        SourceFolder: "$(System.ArtifactsDirectory)/SurveyJSLibraryBuildKnockout/packages/survey-knockout-ui"
         TargetFolder: "$(Build.SourcesDirectory)/survey-library/build/survey-knockout-ui"
 
     - task: DownloadBuildArtifacts@0
@@ -473,16 +427,9 @@ jobs:
         SourceFolder: "$(System.ArtifactsDirectory)/SurveyJSLibraryBuildReact/packages/survey-react"
         TargetFolder: "$(Build.SourcesDirectory)/survey-library/build/survey-react"
 
-    - task: DownloadBuildArtifacts@0
-      inputs:
-        buildType: 'current'
-        downloadType: 'single'
-        artifactName: 'SurveyJSLibraryBuildReactUI'
-        downloadPath: '$(System.ArtifactsDirectory)'
-
     - task: CopyFiles@2
       inputs:
-        SourceFolder: "$(System.ArtifactsDirectory)/SurveyJSLibraryBuildReactUI/packages/survey-react-ui"
+        SourceFolder: "$(System.ArtifactsDirectory)/SurveyJSLibraryBuildReact/packages/survey-react-ui"
         TargetFolder: "$(Build.SourcesDirectory)/survey-library/build/survey-react-ui"
 
     - task: DownloadBuildArtifacts@0
@@ -497,28 +444,19 @@ jobs:
         SourceFolder: "$(System.ArtifactsDirectory)/SurveyJSLibraryBuildVue/packages/survey-vue"
         TargetFolder: "$(Build.SourcesDirectory)/survey-library/build/survey-vue"
 
-    - task: DownloadBuildArtifacts@0
+    - task: CopyFiles@2
       inputs:
-        buildType: 'current'
-        downloadType: 'single'
-        artifactName: 'SurveyJSLibraryBuildJquery'
-        downloadPath: '$(System.ArtifactsDirectory)'
+        SourceFolder: "$(System.ArtifactsDirectory)/SurveyJSLibraryBuildVue/packages/survey-vue-ui"
+        TargetFolder: "$(Build.SourcesDirectory)/survey-library/build/survey-vue-ui"
 
     - task: CopyFiles@2
       inputs:
-        SourceFolder: "$(System.ArtifactsDirectory)/SurveyJSLibraryBuildJquery/packages/survey-jquery"
+        SourceFolder: "$(System.ArtifactsDirectory)/SurveyJSLibraryBuildCore/packages/survey-jquery"
         TargetFolder: "$(Build.SourcesDirectory)/survey-library/build/survey-jquery"
 
-    - task: DownloadBuildArtifacts@0
-      inputs:
-        buildType: 'current'
-        downloadType: 'single'
-        artifactName: 'SurveyJSLibraryBuildAngular'
-        downloadPath: '$(System.ArtifactsDirectory)'
-
     - task: CopyFiles@2
       inputs:
-        SourceFolder: "$(System.ArtifactsDirectory)/SurveyJSLibraryBuildAngular/packages/survey-angular"
+        SourceFolder: "$(System.ArtifactsDirectory)/SurveyJSLibraryBuildCore/packages/survey-angular"
         TargetFolder: "$(Build.SourcesDirectory)/survey-library/build/survey-angular"
 
     - task: CopyFiles@2

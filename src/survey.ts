@@ -2505,11 +2505,14 @@ export class SurveyModel extends SurveyElementCore
     if (this.isDesignMode) return this.pages;
     var result = new Array<PageModel>();
     for (var i = 0; i < this.pages.length; i++) {
-      if (this.pages[i].isVisible && !this.pages[i].isStarted) {
+      if (this.isPageInVisibleList(this.pages[i])) {
         result.push(this.pages[i]);
       }
     }
     return result;
+  }
+  private isPageInVisibleList(page: PageModel): boolean {
+    return this.isDesignMode || page.isVisible && !page.isStarted;
   }
   /**
    * Returns `true` if the survey contains no pages. The survey is empty.
@@ -3573,8 +3576,14 @@ export class SurveyModel extends SurveyElementCore
    * Gets whether the current page is the first one.
    */
   public get isFirstPage(): boolean {
-    if (this.currentPage == null) return true;
-    return this.visiblePages.indexOf(this.currentPage) == 0;
+    const curPage = this.currentPage;
+    if (curPage == null) return true;
+    const pages = this.pages;
+    for(let i = 0; i < pages.length; i ++) {
+      if(this.isPageInVisibleList(pages[i]))
+        return pages[i] === curPage;
+    }
+    return false;
   }
   public get isShowPrevButton(): boolean {
     if (this.isFirstPage || !this.showPrevButton) return false;
@@ -3585,9 +3594,14 @@ export class SurveyModel extends SurveyElementCore
    * Gets whether the current page is the last one.
    */
   public get isLastPage(): boolean {
-    if (this.currentPage == null) return true;
-    var vPages = this.visiblePages;
-    return vPages.indexOf(this.currentPage) == vPages.length - 1;
+    const curPage = this.currentPage;
+    if (curPage == null) return true;
+    const pages = this.pages;
+    for(let i = pages.length - 1; i >= 0; i --) {
+      if(this.isPageInVisibleList(pages[i]))
+        return pages[i] === curPage;
+    }
+    return false;
   }
   /**
    * Completes the survey.

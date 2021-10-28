@@ -201,7 +201,9 @@ export class Survey extends SurveyModel {
   }
   pageVisibilityChanged(page: IPage, newValue: boolean) {
     super.pageVisibilityChanged(page, newValue);
-    this.updateKoCurrentPage();
+    if (this.currentPage !== this.koCurrentPage()) {
+      this.updateKoCurrentPage();
+    }
   }
   protected onLoadSurveyFromService() {
     this.render();

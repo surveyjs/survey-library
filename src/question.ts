@@ -871,6 +871,9 @@ export class Question extends SurveyElement
       this.fireCallback(this.focusCallback);
     }
   }
+  public focusIn = () => {
+    (this.survey as SurveyModel).whenQuestionFocusIn(this);
+  }
   protected fireCallback(callback: () => void): void {
     if (callback) callback();
   }

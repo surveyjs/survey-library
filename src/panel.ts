@@ -1,6 +1,6 @@
 import { Serializer } from "./jsonobject";
 import { HashTable, Helpers } from "./helpers";
-import { Base } from "./base";
+import { Base, EventBase } from "./base";
 import {
   ISurveyImpl,
   IPage,
@@ -29,6 +29,8 @@ import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { IAction } from "./actions/action";
 import { AdaptiveActionContainer } from "./actions/adaptive-container";
 import { ActionContainer } from "./actions/container";
+import { Panel } from "./knockout/kopage";
+import { SurveyModel } from "survey-core";
 
 export class DragDropInfo {
   constructor(
@@ -1940,6 +1942,9 @@ export class PanelModel extends PanelModelBase implements IElement {
     else
       super.needResponsiveWidth();
     return false;
+  }
+  public focusIn = () => {
+    (this.survey as SurveyModel).whenPanelFocusIn(this);
   }
 }
 

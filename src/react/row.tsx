@@ -53,6 +53,7 @@ export class SurveyRow extends SurveyElementBase<any, any> {
           style={rootStyle}
           data-key={innerElement.key}
           key={innerElement.key}
+          onFocus={(element as Question).focusIn}
         >
           {this.row.isNeedRender ? innerElement : ReactElementFactory.Instance.createElement(element.skeletonComponentName, { element: element, css: this.css, })}
         </div>
@@ -60,7 +61,7 @@ export class SurveyRow extends SurveyElementBase<any, any> {
     });
 
     return (
-      <div ref={this.rootRef} className={this.row.getRowCss()}>
+      <div ref={this.rootRef} className={this.row.getRowCss()} >
         {elements}
       </div>
     );

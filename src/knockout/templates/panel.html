@@ -1,6 +1,6 @@
 <script type="text/html" id="survey-panel">
   <div
-    data-bind="attr: { id: id }, css: cssClasses.panel.container"
+    data-bind="attr: { id: id }, css: cssClasses.panel.container, event: {focusin: focusIn}"
   >
     <!-- ko component: { name: 'survey-element-title', params: {element: $data } } --><!-- /ko -->
     <div data-bind="css: cssClasses.panel.description">

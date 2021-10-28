@@ -42,6 +42,7 @@ export class SurveyPanel extends SurveyPanelBase {
       <div
         ref={this.rootRef}
         className={this.panelBase.cssClasses.panel.container}
+        onFocus={(this.panelBase as PanelModel).focusIn}
       >
         {title}
         {description}

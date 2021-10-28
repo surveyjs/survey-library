@@ -434,7 +434,7 @@ jobs:
 
     - task: CopyFiles@2
       inputs:
-        SourceFolder: "$(System.ArtifactDirectory)/packages/survey-core"
+        SourceFolder: "$(System.ArtifactsDirectory)/SurveyJSCreatorV2BuildCore/packages/survey-core"
         TargetFolder: "$(Build.SourcesDirectory)/survey-library/build/survey-core"
 
     - task: DownloadBuildArtifacts@0
@@ -446,7 +446,7 @@ jobs:
 
     - task: CopyFiles@2
       inputs:
-        SourceFolder: "$(System.ArtifactDirectory)/SurveyJSLibraryBuildKnockout/packages/survey-knockout"
+        SourceFolder: "$(System.ArtifactsDirectory)/SurveyJSLibraryBuildKnockout/packages/survey-knockout"
         TargetFolder: "$(Build.SourcesDirectory)/survey-library/build/survey-knockout"
 
     - task: DownloadBuildArtifacts@0
@@ -458,7 +458,7 @@ jobs:
 
     - task: CopyFiles@2
       inputs:
-        SourceFolder: "$(System.ArtifactDirectory)/SurveyJSLibraryBuildKnockoutUI/packages/survey-knockout-ui"
+        SourceFolder: "$(System.ArtifactsDirectory)/SurveyJSLibraryBuildKnockoutUI/packages/survey-knockout-ui"
         TargetFolder: "$(Build.SourcesDirectory)/survey-library/build/survey-knockout-ui"
 
     - task: DownloadBuildArtifacts@0
@@ -470,7 +470,7 @@ jobs:
 
     - task: CopyFiles@2
       inputs:
-        SourceFolder: "$(System.ArtifactDirectory)/SurveyJSLibraryBuildReact/packages/survey-react"
+        SourceFolder: "$(System.ArtifactsDirectory)/SurveyJSLibraryBuildReact/packages/survey-react"
         TargetFolder: "$(Build.SourcesDirectory)/survey-library/build/survey-react"
 
     - task: DownloadBuildArtifacts@0
@@ -482,7 +482,7 @@ jobs:
 
     - task: CopyFiles@2
       inputs:
-        SourceFolder: "$(System.ArtifactDirectory)/SurveyJSLibraryBuildReactUI/packages/survey-react-ui"
+        SourceFolder: "$(System.ArtifactsDirectory)/SurveyJSLibraryBuildReactUI/packages/survey-react-ui"
         TargetFolder: "$(Build.SourcesDirectory)/survey-library/build/survey-react-ui"
 
     - task: DownloadBuildArtifacts@0
@@ -494,7 +494,7 @@ jobs:
 
     - task: CopyFiles@2
       inputs:
-        SourceFolder: "$(System.ArtifactDirectory)/SurveyJSLibraryBuildVue/packages/survey-vue"
+        SourceFolder: "$(System.ArtifactsDirectory)/SurveyJSLibraryBuildVue/packages/survey-vue"
         TargetFolder: "$(Build.SourcesDirectory)/survey-library/build/survey-vue"
 
     - task: DownloadBuildArtifacts@0
@@ -506,7 +506,7 @@ jobs:
 
     - task: CopyFiles@2
       inputs:
-        SourceFolder: "$(System.ArtifactDirectory)/SurveyJSLibraryBuildJquery/packages/survey-jquery"
+        SourceFolder: "$(System.ArtifactsDirectory)/SurveyJSLibraryBuildJquery/packages/survey-jquery"
         TargetFolder: "$(Build.SourcesDirectory)/survey-library/build/survey-jquery"
 
     - task: DownloadBuildArtifacts@0
@@ -518,7 +518,7 @@ jobs:
 
     - task: CopyFiles@2
       inputs:
-        SourceFolder: "$(System.ArtifactDirectory)/SurveyJSLibraryBuildAngular/packages/survey-angular"
+        SourceFolder: "$(System.ArtifactsDirectory)/SurveyJSLibraryBuildAngular/packages/survey-angular"
         TargetFolder: "$(Build.SourcesDirectory)/survey-library/build/survey-angular"
 
     - task: CopyFiles@2
@@ -586,8 +586,8 @@ jobs:
       displayName: "copy version file to Build.ArtifactStagingDirectory"
 
     #publishLocation: 'Container' - store the artifact in Azure Pipelines
-    # - task: PublishBuildArtifacts@1
-    #   inputs:
-    #     PathtoPublish: "$(Build.ArtifactStagingDirectory)/SurveyJSLibraryBuild/"
-    #     ArtifactName: "SurveyJSLibraryBuild"
-    #     publishLocation: "Container"
+    - task: PublishBuildArtifacts@1
+      inputs:
+        PathtoPublish: "$(Build.ArtifactStagingDirectory)/SurveyJSLibraryBuild/"
+        ArtifactName: "SurveyJSLibraryBuild"
+        publishLocation: "Container"

@@ -5269,7 +5269,7 @@ export class SurveyModel extends SurveyElementCore
     if (!page.name) page.name = this.generateNewName(this.pages, "page");
     this.questionHashesPanelAdded(page);
     this.updateVisibleIndexes();
-    if (this.isDesignMode) {
+    if (!this.isLoadingFromJson) {
       this.updateProgressText();
     }
     var options = { page: page };
@@ -5277,10 +5277,11 @@ export class SurveyModel extends SurveyElementCore
   }
   protected doOnPageRemoved(page: PageModel) {
     page.setSurveyImpl(null);
-    this.updateVisibleIndexes();
-    if (this.isDesignMode) {
-      this.updateProgressText();
+    if(page === this.currentPageValue) {
+      this.currentPageValue = this.currentPage;
     }
+    this.updateVisibleIndexes();
+    this.updateProgressText();
     this.updateLazyRenderingRowsOnRemovingElements();
   }
   private generateNewName(elements: Array<any>, baseName: string): string {
@@ -5416,7 +5417,7 @@ export class SurveyModel extends SurveyElementCore
   }
   pageVisibilityChanged(page: IPage, newValue: boolean) {
     if (this.isLoadingFromJson) return;
-    if (newValue && !this.currentPageValue) {
+    if (newValue && !this.currentPageValue || page === this.currentPageValue) {
       this.currentPageValue = this.currentPage;
     }
     this.updateVisibleIndexes();
@@ -5449,6 +5450,9 @@ export class SurveyModel extends SurveyElementCore
     }
     if (!!(<Question>question).page) {
       this.questionHashesAdded(<Question>question);
+    }
+    if(!this.currentPageValue) {
+      this.currentPageValue = this.currentPage;
     }
     this.updateVisibleIndexes();
     this.onQuestionAdded.fire(this, {

@@ -5189,6 +5189,7 @@ QUnit.test("Survey Markdown - question title", function (assert) {
   var q1 = <Question>page.addNewQuestion("text", "q1");
   var q2 = <Question>page.addNewQuestion("text", "q2");
   survey.onTextMarkdown.add(function (survey, options) {
+    if(options.name == "commentText") return;
     assert.equal(
       options.name,
       "title",
@@ -5228,6 +5229,7 @@ QUnit.test(
     var q2 = <Question>page.addNewQuestion("text", "q2");
     var q3 = <Question>page.addNewQuestion("text", "q3");
     survey.onTextMarkdown.add(function (survey, options) {
+      if(options.name == "commentText") return;
       assert.equal(
         options.name,
         "title",
@@ -5317,6 +5319,7 @@ QUnit.test("Survey Markdown - page title + showPageNumbers = true", function (
   var page = survey.addNewPage("Page 1");
   var q1 = <Question>page.addNewQuestion("text", "q1");
   survey.onTextMarkdown.add(function (survey, options) {
+    if(options.name == "commentText") return;
     assert.equal(options.name, "title", "page title markdown preprocessing");
     if (options.text.indexOf("markdown") > -1)
       options.html = options.text.replace("markdown", "!");
@@ -6768,14 +6771,12 @@ QUnit.test(
 
 QUnit.test("Survey page hasShown", function (assert) {
   var survey = twoPageSimplestSurvey();
-  assert.equal(survey.pages[0].hasShown, false, "The first page was not shown");
+  assert.equal(survey.pages[0].hasShown, true, "The first page was shown");
   assert.equal(
     survey.pages[1].hasShown,
     false,
     "The second page was not shown"
   );
-  var p = survey.currentPage;
-  assert.equal(survey.pages[0].hasShown, true, "The first page was shown");
   assert.equal(
     survey.pages[1].hasShown,
     false,
@@ -14268,4 +14269,22 @@ QUnit.test("skeleton component name", function (assert) {
   survey.skeletonComponentName = "";
   assert.equal(survey.skeletonComponentName, "");
   assert.equal(question.skeletonComponentName, "");
+});
+QUnit.test("Make sure to have currentPage on adding new question/page/visibility in code", function (assert) {
+  const survey = new SurveyModel();
+  assert.equal(survey.getPropertyValue("currentPageValue"), undefined, "There is no pages");
+  const newPage = new PageModel("page1");
+  newPage.addNewQuestion("text", "q1");
+  survey.pages.push(newPage);
+  assert.equal(survey.getPropertyValue("currentPageValue").name, survey.pages[0].name, "We have added a new current page");
+  survey.pages.shift();
+  assert.equal(survey.getPropertyValue("currentPageValue"), undefined, "There is no new pages again");
+  survey.addNewPage("page1");
+  assert.equal(survey.getPropertyValue("currentPageValue"), undefined, "There is no visible pages");
+  survey.pages[0].addNewQuestion("text", "q1");
+  assert.equal(survey.getPropertyValue("currentPageValue").name, survey.pages[0].name, "There is current page");
+  survey.pages[0].visible = false;
+  assert.equal(survey.getPropertyValue("currentPageValue"), undefined, "We make page invisible");
+  survey.pages[0].visible = true;
+  assert.equal(survey.getPropertyValue("currentPageValue").name, survey.pages[0].name, "We make the page visible");
 });

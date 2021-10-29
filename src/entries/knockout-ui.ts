@@ -60,6 +60,7 @@ export { QuestionCustom } from "../knockout/koquestion_custom";
 export { QuestionButtonGroup } from "../knockout/koquestion_buttongroup";
 
 export * from "../knockout/components/action-bar/action-bar";
+export * from "../knockout/components/paneldynamic-v2/paneldynamic-v2";
 export * from "../knockout/components/boolean-checkbox/boolean-checkbox";
 export * from "../knockout/components/panel/panel";
 export * from "../knockout/components/popup/popup";

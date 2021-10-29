@@ -1,9 +1,16 @@
+import { SurveyModel } from "../survey";
+
 export var surveyCss: any = {
   currentType: "",
   getCss: function() {
     var loc = this.currentType ? this[this.currentType] : defaultStandardCss;
     if (!loc) loc = defaultStandardCss;
     return loc;
+  },
+  customizeSurvey: function(survey: SurveyModel) {
+    if (!!this[this.currentType] && !!this[this.currentType].customizeSurvey) {
+      this[this.currentType].customizeSurvey(survey);
+    }
   },
 };
 
@@ -297,7 +304,7 @@ export var defaultStandardCss = {
     noFileChosen: "sv_q_file_placeholder",
     dragAreaPlaceholder: "sv-hidden",
     fileList: "",
-    defaultImage: "sv-hidden"
+    defaultImage: "sv-hidden",
   },
   signaturepad: {
     root: "sv_q_signaturepad sjs_sp_container",

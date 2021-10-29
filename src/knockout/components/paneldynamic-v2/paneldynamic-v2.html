@@ -1,0 +1,58 @@
+<div data-bind="css: question.koCss().root">
+  <!-- ko if: question.koIsList() -->
+  <!-- ko foreach: { data: question.panels } -->
+  <div data-bind="css: question.getPanelWrapperCss()">
+    <!-- ko let: { question: $data } -->
+    <!-- ko component: { name: survey.getElementWrapperComponentName(question), params: { componentData:  survey.getElementWrapperComponentData(question), templateData: { name: question.koElementType, data: question, afterRender: $parent.koPanelAfterRender } } } -->
+    <!-- /ko -->
+    <!-- /ko -->
+    <button
+      type="button"
+      data-bind="visible: question.koCanRemovePanel() && $data.state != 'collapsed', click:question.koRemovePanelClick, css: question.getPanelRemoveButtonCss()"
+    >
+      <span
+        data-bind="css: question.koCss().buttonRemoveText, text: question.panelRemoveText"
+      ></span>
+      <span data-bind="css: question.koCss().iconRemove"></span>
+    </button>
+  </div>
+  <hr data-bind="css: question.koCss().separator" />
+  <!-- /ko -->
+  <!-- ko component: { name: 'sv-paneldynamic-v2-navigator', params: { question: question }} -->
+  <!-- /ko -->
+  <!-- /ko -->
+  <!-- ko ifnot: question.koIsList()  -->
+  <!-- ko ifnot: question.koIsProgressTop-->
+  <hr data-bind="css: question.koCss().separator" />
+  <!-- /ko -->
+  <!-- ko if: question.koIsRange -->
+  <!-- ko if: question.koIsProgressTop-->
+  <div data-bind="css: question.koCss().progress">
+    <div
+      data-bind="css: question.koCss().progressBar, style: { width: question.koProgress }"
+      role="progressbar"
+    ></div>
+  </div>
+  <!-- /ko -->
+  <!-- /ko -->
+  <!-- ko if: question.koPanel() -->
+  <!-- ko let: { question: question.koPanel() } -->
+  <!-- ko component: { name: question.survey.getElementWrapperComponentName(question), params: { componentData:  question.survey.getElementWrapperComponentData(question), templateData: { name: question.koElementType, data: question, afterRender: $parent.koPanelAfterRender } } } -->
+  <!-- /ko -->
+  <!-- /ko -->
+  <!-- /ko -->
+  <button
+    type="button"
+    data-bind="visible: question.koCanRemovePanel, click: question.koRemovePanelClick, css: question.getPanelRemoveButtonCss()"
+  >
+    <span
+      data-bind="css: question.koCss().buttonRemoveText, text: question.panelRemoveText"
+    ></span>
+    <span data-bind="css: question.koCss().iconRemove"></span>
+  </button>
+  <div data-bind="css: question.koCss().progressBottom">
+    <!-- ko component: { name: 'sv-paneldynamic-v2-navigator', params: { question: question }} -->
+    <!-- /ko -->
+  </div>
+  <!-- /ko -->
+</div>

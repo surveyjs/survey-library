@@ -1,4 +1,5 @@
-import { surveyCss } from "survey-core";
+import { surveyCss } from "./cssstandard";
+import { SurveyModel } from "../survey";
 
 export var defaultV2Css = {
   root: "sd-root-modern",
@@ -36,21 +37,22 @@ export var defaultV2Css = {
     requiredText: "sd-panel__required-text"
   },
   paneldynamic: {
+    mainRoot: "sd-element-with-frame sd-element-with-frame--paneldynamic sd-question sd-row__question",
     root: "sd-paneldynamic",
     navigation: "sd-paneldynamic__navigation",
     title: "sd-title sd-question__title",
-    button: "sd-btn",
+    button: "sd-paneldynamic__btn",
     buttonRemove: "sd-paneldynamic__remove-btn",
     buttonAdd: "sd-paneldynamic__add-btn",
-    progressTop: "sv-paneldynamic__progress sv-paneldynamic__progress--top",
+    progressTop: "sd-paneldynamic__progress sd-paneldynamic__progress--top",
     progressBottom:
-      "sv-paneldynamic__progress sv-paneldynamic__progress--bottom",
-    buttonPrev: "sv-paneldynamic__prev-btn",
-    buttonNext: "sv-paneldynamic__next-btn",
-    progressContainer: "sv-paneldynamic__progress-container",
-    progress: "sv-progress",
-    progressBar: "sv-progress__bar",
-    progressText: "sv-paneldynamic__progress-text",
+      "sd-paneldynamic__progress sd-paneldynamic__progress--bottom",
+    buttonPrev: "sd-paneldynamic__prev-btn",
+    buttonNext: "sd-paneldynamic__next-btn",
+    progressContainer: "sd-paneldynamic__progress-container",
+    progress: "sd-progress",
+    progressBar: "sd-progress__bar",
+    progressText: "sd-paneldynamic__progress-text",
     separator: "sd-paneldynamic__separator",
     panelWrapper: "sd-paneldynamic__panel-wrapper",
     panelWrapperInRow: "sd-paneldynamic__panel-wrapper--in-row"
@@ -308,6 +310,13 @@ export var defaultV2Css = {
       buttonCollapsed: ""
     }
   }
+};
+(<any>defaultV2Css).customizeSurvey = function (survey: SurveyModel) {
+  survey.getAllQuestions().forEach((q)=>{
+    if(q.getType()=="paneldynamic") {
+      q.renderAs = "paneldynamicV2";
+    }
+  });
 };
 
 surveyCss["defaultV2"] = defaultV2Css;

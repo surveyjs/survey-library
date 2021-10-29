@@ -802,6 +802,16 @@ export class Base {
       }
       return result;
     };
+    newArray.shift = function (): number {
+      var result = Object.getPrototypeOf(newArray).shift.call(newArray);
+      if (!self.isDisposedValue && result) {
+        if (onRemove) onRemove(result);
+        const arrayChanges = new ArrayChanges(newArray.length - 1, 1, [], []);
+        self.propertyValueChanged(name, newArray, newArray, arrayChanges);
+        self.notifyArrayChanged(newArray, arrayChanges);
+      }
+      return result;
+    };
     newArray.unshift = function (value): number {
       var result = Object.getPrototypeOf(newArray).unshift.call(
         newArray,

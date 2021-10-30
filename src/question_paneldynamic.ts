@@ -239,8 +239,8 @@ export class QuestionPanelDynamicModel extends Question
   public get hasSingleInput(): boolean {
     return false;
   }
-  public setSurveyImpl(value: ISurveyImpl) {
-    super.setSurveyImpl(value);
+  public setSurveyImpl(value: ISurveyImpl, isLight?: boolean) {
+    super.setSurveyImpl(value, isLight);
     this.setTemplatePanelSurveyImpl();
     this.setPanelsSurveyImpl();
   }

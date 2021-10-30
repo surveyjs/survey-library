@@ -344,15 +344,13 @@ export class Question extends SurveyElement
       this.locStrsChanged();
     }
   }
-  public setSurveyImpl(value: ISurveyImpl): void {
+  public setSurveyImpl(value: ISurveyImpl, isLight?: boolean): void {
     super.setSurveyImpl(value);
-    if (this.survey) {
-      this.survey.questionCreated(this);
+    if(!this.survey) return;
+    this.survey.questionCreated(this);
+    if(isLight !== true) {
+      this.runConditions();
     }
-    if (this.survey && this.survey.isDesignMode && !this.isDesignMode) {
-      this.onVisibleChanged();
-    }
-    this.runConditions();
   }
   public getDataFilteredValues(): any {
     return !!this.data ? this.data.getFilteredValues() : null;

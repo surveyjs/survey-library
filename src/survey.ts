@@ -3518,8 +3518,7 @@ export class SurveyModel extends SurveyElementCore
     }
     super.endLoadingFromJson();
     for (var i = 0; i < newPages.length; i++) {
-      newPages[i].endLoadingFromJson();
-      newPages[i].setSurveyImpl(this);
+      newPages[i].setSurveyImpl(this, true);
     }
     this.doElementsOnLoad();
   }
@@ -5334,9 +5333,8 @@ export class SurveyModel extends SurveyElementCore
    * @see setComment
    */
   public getComment(name: string): string {
-    var result = this.data[name + this.commentPrefix];
-    if (result == null) result = "";
-    return result;
+    const res = this.getValue(name + this.commentPrefix);
+    return res || "";
   }
   /**
    * Sets a comment value.

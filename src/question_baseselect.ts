@@ -843,8 +843,8 @@ export class QuestionSelectBase extends Question {
     if (!this.hasOther || !this.isOtherSelected || this.comment) return;
     errors.push(new OtherEmptyError(this.otherErrorText, this));
   }
-  public setSurveyImpl(value: ISurveyImpl) {
-    super.setSurveyImpl(value);
+  public setSurveyImpl(value: ISurveyImpl, isLight?: boolean) {
+    super.setSurveyImpl(value, isLight);
     this.runChoicesByUrl();
     if (this.isAddDefaultItems) {
       this.updateVisibleChoices();

@@ -3920,7 +3920,7 @@ export class SurveyModel extends SurveyElementCore
       );
     }
     var vPages = this.isDesignMode ? this.pages : this.visiblePages;
-    var index = this.isDesignMode ? 1 : vPages.indexOf(this.currentPage) + 1;
+    var index = vPages.indexOf(this.currentPage) + 1;
     return this.getLocString("progressText")["format"](index, vPages.length);
   }
   protected afterRenderSurvey(htmlElement: any) {

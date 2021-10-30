@@ -616,7 +616,14 @@ QUnit.test("Next, Prev, IsFirst and IsLast Page and progressText", function (
   assert.equal(survey.isFirstPage, true, "Current Page is  First");
   assert.equal(survey.isLastPage, false, "Current Page is  First");
   assert.equal(survey.progressText, "Page 1 of 3", "Current Page is  First");
+  survey.nextPage();
+  assert.equal(survey.progressText, "Page 2 of 3", "Current Page is Second");
+  survey.setDesignMode(true);
+  survey.nextPage();
+  assert.equal(survey.progressText, "Page 3 of 3", "Current Page is last");
 
+  survey.setDesignMode(false);
+  survey.currentPageNo = 0;
   survey.progressBarType = "questions";
   assert.equal(
     survey.progressText,

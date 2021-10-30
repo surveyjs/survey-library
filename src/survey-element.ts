@@ -351,7 +351,7 @@ export class SurveyElement extends SurveyElementCore implements ISurveyElement {
     if (this.isPage || this.state === "default") return undefined;
     return this.state === "expanded";
   }
-  public setSurveyImpl(value: ISurveyImpl) {
+  public setSurveyImpl(value: ISurveyImpl, isLight?: boolean) {
     this.surveyImplValue = value;
     if (!this.surveyImplValue) {
       this.setSurveyCore(null);

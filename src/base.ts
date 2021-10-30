@@ -303,7 +303,7 @@ export class Base {
    * Returns true if the object is loading from Json at the current moment.
    */
   public get isLoadingFromJson(): boolean {
-    return this.getIsLoadingFromJson();
+    return this.isLoadingFromJsonValue || this.getIsLoadingFromJson();
   }
   protected getIsLoadingFromJson(): boolean {
     if (!!this.loadingOwner && this.loadingOwner.isLoadingFromJson) return true;

@@ -293,11 +293,11 @@ export class PanelModelBase extends SurveyElement
   public getType(): string {
     return "panelbase";
   }
-  public setSurveyImpl(value: ISurveyImpl) {
-    super.setSurveyImpl(value);
+  public setSurveyImpl(value: ISurveyImpl, isLight?: boolean) {
+    super.setSurveyImpl(value, isLight);
     if (this.isDesignMode) this.onVisibleChanged();
     for (var i = 0; i < this.elements.length; i++) {
-      this.elements[i].setSurveyImpl(value);
+      this.elements[i].setSurveyImpl(value, isLight);
     }
   }
   endLoadingFromJson() {

@@ -221,8 +221,8 @@ export abstract class QuestionCustomModelBase extends Question
     el.setSurveyImpl(this);
     el.disableDesignActions = true;
   }
-  public setSurveyImpl(value: ISurveyImpl) {
-    super.setSurveyImpl(value);
+  public setSurveyImpl(value: ISurveyImpl, isLight?: boolean) {
+    super.setSurveyImpl(value, isLight);
     this.initElement(this.getElement());
   }
   public onSurveyLoad() {

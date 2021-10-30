@@ -220,7 +220,7 @@ export interface ISurveyElement {
   containsErrors: boolean;
   parent: IPanel;
   skeletonComponentName: string;
-  setSurveyImpl(value: ISurveyImpl): any;
+  setSurveyImpl(value: ISurveyImpl, isLight?: boolean): any;
   onSurveyLoad(): any;
   onFirstRendering(): any;
   getType(): string;

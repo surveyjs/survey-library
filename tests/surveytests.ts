@@ -14288,3 +14288,20 @@ QUnit.test("Make sure to have currentPage on adding new question/page/visibility
   survey.pages[0].visible = true;
   assert.equal(survey.getPropertyValue("currentPageValue").name, survey.pages[0].name, "We make the page visible");
 });
+QUnit.test("Make invisible question visible in the only page", function (assert) {
+  const survey = new SurveyModel();
+  assert.equal(survey.getPropertyValue("currentPageValue"), undefined, "There is no pages");
+  const newPage = new PageModel("page1");
+  newPage.addNewQuestion("text", "q1");
+  newPage.addNewQuestion("text", "q2");
+  newPage.questions[0].visible = false;
+  newPage.questions[1].visible = false;
+  survey.pages.push(newPage);
+  assert.equal(survey.getPropertyValue("currentPageValue"), undefined, "There is no visible pages");
+  newPage.questions[0].visible = true;
+  assert.equal(survey.getPropertyValue("currentPageValue").name, survey.pages[0].name, "New page is visible now");
+  newPage.questions[0].visible = false;
+  assert.equal(survey.getPropertyValue("currentPageValue"), undefined, "There is no visible pages, #2");
+  newPage.questions[1].visible = true;
+  assert.equal(survey.getPropertyValue("currentPageValue").name, survey.pages[0].name, "New page is visible now, #2");
+});

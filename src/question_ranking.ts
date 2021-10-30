@@ -70,10 +70,10 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
     return this.isEmpty() ? "\u2013" : index + 1 + "";
   }
 
-  public setSurveyImpl = (value: ISurveyImpl) => {
-    super.setSurveyImpl(value);
+  public setSurveyImpl(value: ISurveyImpl, isLight?: boolean) {
+    super.setSurveyImpl(value, isLight);
     this.updateRankingChoices();
-  };
+  }
 
   onSurveyValueChanged(newValue: any) {
     super.onSurveyValueChanged(newValue);

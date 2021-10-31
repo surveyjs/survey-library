@@ -1,5 +1,6 @@
 <script type="text/html" id="survey-question-paneldynamic">
   <div data-bind="css: question.koCss().root">
+    <hr data-bind="css: question.koCss().separatorV2"/>
     <!-- ko if: question.koIsList() -->
       <!-- ko foreach: { data: question.panels } -->
         <div data-bind="css: question.getPanelWrapperCss()">
@@ -40,5 +41,36 @@
         <!-- /ko -->
       </div>
     <!-- /ko -->
+    <div data-bind="css: question.koCss().footer">
+      <!-- ko if: question.koIsRange() && question.koIsProgressBottom -->
+      <div data-bind="css: question.koCss().progress">
+        <div
+          data-bind="css: question.koCss().progressBar, style: { width: question.koProgress }"
+          role="progressbar"
+        ></div>
+      </div>
+      <!-- /ko -->
+      <hr data-bind="css: question.koCss().separator"/>
+      <div data-bind="css: question.koCss().buttonContainer">
+        <button type="button" data-bind="visible: question.koCanAddPanel, click: question.koAddPanelClick, css: question.koAddButtonCss">
+          <span data-bind="css: question.koCss().buttonAddText, text: question.panelAddText"></span>
+        </button>
+        <!-- ko ifnot: question.koIsList -->
+        <div data-bind="css: question.koCss().progressContainer">
+          <div data-bind="title: question.panelPrevText, click: question.koPrevPanelClick">
+            <svg viewBox="0 0 10 10" data-bind="css: question.koPrevButtonCss">
+              <polygon points="2,2 0,4 5,9 10,4 8,2 5,5 " />
+            </svg>
+          </div>
+          <div data-bind="text: question.koProgressText, css: question.koCss().progressText"></div>
+          <div data-bind="title: question.panelNextText, click: question.koNextPanelClick">
+            <svg viewBox="0 0 10 10" data-bind="css: question.koNextButtonCss">
+              <polygon points="2,2 0,4 5,9 10,4 8,2 5,5 " />
+            </svg>
+          </div>
+        </div>
+        <!-- /ko -->
+      </div>
+    </div>
   </div>
 </script>

@@ -54,7 +54,10 @@ export var defaultV2Css = {
     progressBar: "sd-progress__bar",
     progressText: "sd-paneldynamic__progress-text",
     separator: "sd-paneldynamic__separator",
+    separatorV2: "sd-paneldynamic__separator",
     panelWrapper: "sd-paneldynamic__panel-wrapper",
+    footer: "sd-paneldynamic__footer",
+    buttonContainer: "sd-paneldynamic__buttons-container",
     panelWrapperInRow: "sd-paneldynamic__panel-wrapper--in-row"
   },
   progress: "sd-progress sd-body__progress",
@@ -310,13 +313,6 @@ export var defaultV2Css = {
       buttonCollapsed: ""
     }
   }
-};
-(<any>defaultV2Css).customizeSurvey = function (survey: SurveyModel) {
-  survey.getAllQuestions().forEach((q)=>{
-    if(q.getType()=="paneldynamic") {
-      q.renderAs = "paneldynamicV2";
-    }
-  });
 };
 
 surveyCss["defaultV2"] = defaultV2Css;

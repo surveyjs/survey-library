@@ -6,12 +6,7 @@ export var surveyCss: any = {
     var loc = this.currentType ? this[this.currentType] : defaultStandardCss;
     if (!loc) loc = defaultStandardCss;
     return loc;
-  },
-  customizeSurvey: function(survey: SurveyModel) {
-    if (!!this[this.currentType] && !!this[this.currentType].customizeSurvey) {
-      this[this.currentType].customizeSurvey(survey);
-    }
-  },
+  }
 };
 
 export var defaultStandardCss = {

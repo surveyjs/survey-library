@@ -1078,7 +1078,6 @@ export class SurveyModel extends SurveyElementCore
     if (!this.cssValue) {
       this.cssValue = {};
       this.copyCssClasses(this.cssValue, surveyCss.getCss());
-      surveyCss.customizeSurvey(this);
     }
     return this.cssValue;
   }

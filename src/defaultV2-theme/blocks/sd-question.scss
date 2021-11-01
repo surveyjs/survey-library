@@ -1,5 +1,9 @@
 .svc-logic-question-value,
-.sd-page > .sd-row:not(.sd-row--multiple) > div > .sd-element-with-frame {
+.sd-page > .sd-row:not(.sd-row--multiple) > div > .sd-element-with-frame,
+.sd-page > .sd-row:not(.sd-row--multiple)> .sv-vue-row-additional-div > div > .sd-element-with-frame,
+.sd-page > .sd-row:not(.sd-row--multiple)> .sv-vue-row-additional-div > div > div > div > .sd-panel.sd-element-with-frame
+
+{
   border-radius: calcSize(0.5);
   box-sizing: border-box;
   padding: calcSize(4) calcSize(5) calcSize(8);

@@ -50,47 +50,11 @@
     padding: calcSize(1) calcSize(0);
     cursor: pointer;
 }
-.sd-paneldynamic__add-btn {
-    display: none;
-    color: $primary;
-}
 .sd-paneldynamic__remove-btn {
     color: #E50A3E;
     float: right;
     padding-top: 16px;
     padding-bottom: 24px;
-}
-.sd-paneldynamic__prev-btn, .sd-paneldynamic__next-btn {
-    display: none;
-    width: 16px;
-    height: 16px;
-    fill: $foreground-light;
-    cursor: pointer;
-}
-.sd-paneldynamic__next-btn {
-    transform: rotate(180deg);
-}
-.sd-paneldynamic__progress-container {
-    display: flex;
-    align-items: center;
-    margin-left: auto;
-    gap: 24px;
-}
-.sd-paneldynamic__buttons-container {
-    display: flex;
-    align-items: center;
-    padding-top: 24px;
-}
-.sd-element-with-frame.sd-element-with-frame.sd-element-with-frame.sd-element-with-frame.sd-element-with-frame.sd-element-with-frame.sd-element-with-frame--paneldynamic {
-    position: relative;
-    padding-bottom: 24px;
-}
-.sd-paneldynamic__progress-text {
-    display: none;
-    color: $foreground-light;
-}
-.sd-paneldynamic__progress--bottom {
-    clear: both;
 }
 .sd-paneldynamic__footer {
     clear: both;
@@ -101,12 +65,37 @@
 .sd-paneldynamic__buttons-container {
     display: flex;
     align-items: center;
+    padding-top: 24px;
+}
+.sd-paneldynamic__add-btn {
+    display: none;
+    color: $primary;
+}
+.sd-paneldynamic__progress-container {
+    display: flex;
+    align-items: center;
+    margin-left: auto;
+    gap: 24px;
+}
+.sd-paneldynamic__progress-text {
+    display: none;
+    color: $foreground-light;
 }
 .sd-paneldynamic__progress--bottom {
     display: none;
+}
+.sd-paneldynamic__prev-btn, .sd-paneldynamic__next-btn {
+    display: none;
+    width: 16px;
+    height: 16px;
+    fill: $foreground-light;
+    cursor: pointer;
 }
 .sd-paneldynamic__prev-btn--disabled,
 .sd-paneldynamic__next-btn--disabled {
     opacity: 0.25;
     cursor: initial;
+}
+.sd-paneldynamic__next-btn {
+    transform: rotate(180deg);
 }

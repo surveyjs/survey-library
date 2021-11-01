@@ -1,5 +1,4 @@
 import { surveyCss } from "./cssstandard";
-import { SurveyModel } from "../survey";
 
 export var defaultV2Css = {
   root: "sd-root-modern",

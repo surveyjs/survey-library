@@ -1,5 +1,3 @@
-import { SurveyModel } from "../survey";
-
 export var surveyCss: any = {
   currentType: "",
   getCss: function() {

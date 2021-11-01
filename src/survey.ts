@@ -632,8 +632,19 @@ export class SurveyModel extends SurveyElementCore
   public onAfterRenderPanel: EventBase<SurveyModel> = this.addEvent<
     SurveyModel
   >();
-
+  /**
+   * The event occurs when an element within a question gets focus.
+   * <br/> `sender` - A [survey](https://surveyjs.io/Documentation/Library?id=surveymodel) object that fires the event.
+   * <br/> `options.question` - A [question](https://surveyjs.io/Documentation/Library?id=Question) whose child element gets focus.
+   * @see onFocusInPanel
+   */
   public onFocusInQuestion: EventBase<SurveyModel> = this.addEvent<SurveyModel>();
+  /**
+   * The event occurs when an element within a panel gets focus.
+   * <br/> `sender` - A [survey](https://surveyjs.io/Documentation/Library?id=surveymodel) object that fires the event.
+   * <br/> `options.panel` - A [panel](https://surveyjs.io/Documentation/Library?id=PanelModelBase) whose child element gets focus.
+   * @see onFocusInQuestion
+   */  
   public onFocusInPanel: EventBase<SurveyModel> = this.addEvent<SurveyModel>();
 
   /**

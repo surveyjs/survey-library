@@ -2,8 +2,8 @@
   width: 100%;
   background-color: $background;
   border-collapse: collapse;
-  td:empty {
-    width: 1%;
+  td:empty, th:empty {
+    width: 0%;
   }
 }
 .sd-table tr:not(:last-child) {

@@ -221,6 +221,8 @@ export var defaultBootstrapMaterialCss = {
     progressText: "sv-paneldynamic__progress-text",
     panelWrapper: "sv_p_wrapper",
     panelWrapperInRow: "sv_p_wrapper_in_row",
+    separatorV2: "sv-hidden",
+    footer: "sv-hidden"
   },
   multipletext: {
     root: "table",

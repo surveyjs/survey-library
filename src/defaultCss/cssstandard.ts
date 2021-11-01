@@ -4,7 +4,7 @@ export var surveyCss: any = {
     var loc = this.currentType ? this[this.currentType] : defaultStandardCss;
     if (!loc) loc = defaultStandardCss;
     return loc;
-  },
+  }
 };
 
 export var defaultStandardCss = {
@@ -228,6 +228,8 @@ export var defaultStandardCss = {
     progressText: "sv-paneldynamic__progress-text",
     panelWrapper: "sv_p_wrapper",
     panelWrapperInRow: "sv_p_wrapper_in_row",
+    separatorV2: "sv-hidden",
+    footer: "sv-hidden"
   },
   multipletext: {
     root: "sv_q_mt",
@@ -297,7 +299,7 @@ export var defaultStandardCss = {
     noFileChosen: "sv_q_file_placeholder",
     dragAreaPlaceholder: "sv-hidden",
     fileList: "",
-    defaultImage: "sv-hidden"
+    defaultImage: "sv-hidden",
   },
   signaturepad: {
     root: "sv_q_signaturepad sjs_sp_container",

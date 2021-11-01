@@ -1,5 +1,6 @@
 <script type="text/html" id="survey-question-paneldynamic">
   <div data-bind="css: question.koCss().root">
+    <hr data-bind="css: question.koCss().separatorV2"/>
     <!-- ko if: question.koIsList() -->
       <!-- ko foreach: { data: question.panels } -->
         <div data-bind="css: question.getPanelWrapperCss()">
@@ -40,5 +41,34 @@
         <!-- /ko -->
       </div>
     <!-- /ko -->
+    <div data-bind="css: question.koCss().footer">
+      <!-- ko if: question.koIsRange() && question.koIsProgressBottom -->
+      <div data-bind="css: question.koCss().progress">
+        <div
+          data-bind="css: question.koCss().progressBar, style: { width: question.koProgress }"
+          role="progressbar"
+        ></div>
+      </div>
+      <!-- /ko -->
+      <hr data-bind="css: question.koCss().separator"/>
+      <div data-bind="css: question.koCss().footerButtonsContainer">
+        <button type="button" data-bind="visible: question.koCanAddPanel, click: question.koAddPanelClick, css: question.koAddButtonCss">
+          <span data-bind="css: question.koCss().buttonAddText, text: question.panelAddText"></span>
+        </button>
+        <!-- ko ifnot: question.koIsList -->
+        <div data-bind="css: question.koCss().progressContainer">
+          <div data-bind="title: question.panelPrevText, click: question.koPrevPanelClick">
+            <svg viewBox="0 0 15 14" data-bind="css: question.koPrevButtonCss">
+              <path d="M15 7.9998H4.39998L8.69998 12.2998L7.29998 13.6998L0.599976 6.9998L7.29998 0.299805L8.69998 1.6998L4.39998 5.9998H15V7.9998Z"></path>            </svg>
+          </div>
+          <div data-bind="text: question.koProgressText, css: question.koCss().progressText"></div>
+          <div data-bind="title: question.panelNextText, click: question.koNextPanelClick">
+            <svg viewBox="0 0 15 14" data-bind="css: question.koNextButtonCss">
+              <path d="M15 7.9998H4.39998L8.69998 12.2998L7.29998 13.6998L0.599976 6.9998L7.29998 0.299805L8.69998 1.6998L4.39998 5.9998H15V7.9998Z"></path>            </svg>
+          </div>
+        </div>
+        <!-- /ko -->
+      </div>
+    </div>
   </div>
 </script>

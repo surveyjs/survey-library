@@ -5,11 +5,13 @@
   box-sizing: border-box;
   margin-top: calcSize(2);
 }
-.sd-row--multiple {
+.sd-page > .sd-row--multiple {
   padding: calcSize(5) calcSize(5) calcSize(4);
   background: $background;
   box-shadow: 0px 1px 2px $shadow-inner;
   border-radius: calcSize(0.5);
+}
+.sd-row--multiple {
   gap: 8px;
   overflow: auto;
 }

@@ -21,9 +21,23 @@
   margin-left: 41px;
   min-height: 30px;
 }
+[dir="rtl"],
+[style*="direction:rtl"] {
+  .sv-selectbase__label {
+    margin-right: 41px;
+    margin-left: 0;
+  }
+}
 .sv-selectbase__decorator.sv-item__decorator {
   position: absolute;
   left: -41px;
+}
+[dir="rtl"],
+[style*="direction:rtl"] {
+  .sv-selectbase__decorator.sv-item__decorator {
+    left: initial;
+    right: -41px;
+  }
 }
 .sv-selectbase__clear-btn {
   margin-top: 0.9em;

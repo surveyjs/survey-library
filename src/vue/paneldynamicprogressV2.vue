@@ -22,21 +22,21 @@
         <div v-if="!question.isRenderModeList" :class="question.cssClasses.progressContainer">
           <div :title="question.panelPrevText">
             <svg
-              viewBox="0 0 10 10"
+              viewBox="0 0 15 14"
               :class="question.getPrevButtonCss()"
               @click="prevPanelClick"
             >
-              <polygon points="2,2 0,4 5,9 10,4 8,2 5,5 " />
+              <path :d="progressButtonSvgPath"></path>
             </svg>
           </div>
           <div :class="question.cssClasses.progressText">{{ question.progressText }}</div>
           <div :title="question.panelNextText">
             <svg
-              viewBox="0 0 10 10"
+              viewBox="0 0 15 14"
               @click="nextPanelClick"
               :class="question.getNextButtonCss()"
             >
-              <polygon points="2,2 0,4 5,9 10,4 8,2 5,5 " />
+              <path :d="progressButtonSvgPath"/>
             </svg>
           </div>
         </div>
@@ -51,7 +51,11 @@ import { PanelDynamicProgress } from "./paneldynamicprogress.vue";
 
 
 @Component
-export class PanelDynamicProgressV2 extends PanelDynamicProgress {}
+export class PanelDynamicProgressV2 extends PanelDynamicProgress {
+  get progressButtonSvgPath() {
+    return "M15 7.9998H4.39998L8.69998 12.2998L7.29998 13.6998L0.599976 6.9998L7.29998 0.299805L8.69998 1.6998L4.39998 5.9998H15V7.9998Z";
+  }
+}
 
 Vue.component("survey-paneldynamicprogress-v2", PanelDynamicProgressV2);
 export default PanelDynamicProgressV2;

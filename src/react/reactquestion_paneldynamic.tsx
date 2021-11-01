@@ -138,29 +138,32 @@ export class SurveyQuestionPanelDynamic extends SurveyQuestionElementBase {
     </div>);
   }
 
-  protected rendrerPrevButton() {
+  protected rendrerPrevButton(viewBox?: string, icon?: JSX.Element) {
+    viewBox = viewBox || "0 0 10 10";
+    icon = icon || <polygon points="2,2 0,4 5,9 10,4 8,2 5,5 " />;
     return (
       <div title={this.question.panelPrevText}>
         <svg
-          viewBox="0 0 10 10"
+          viewBox={viewBox}
           className={this.question.getPrevButtonCss()}
           onClick={this.handleOnPanelPrevClick}
         >
-          <polygon points="2,2 0,4 5,9 10,4 8,2 5,5 " />
+          {icon}
         </svg>
       </div>
     );
   }
-  protected rendrerNextButton() {
-
+  protected rendrerNextButton(viewBox?: string, icon?: JSX.Element) {
+    viewBox = viewBox || "0 0 10 10";
+    icon = icon || <polygon points="2,2 0,4 5,9 10,4 8,2 5,5 " />;
     return (
       <div title={this.question.panelNextText}>
         <svg
-          viewBox="0 0 10 10"
+          viewBox={viewBox}
           className={this.question.getNextButtonCss()}
           onClick={this.handleOnPanelNextClick}
         >
-          <polygon points="2,2 0,4 5,9 10,4 8,2 5,5 " />
+          {icon}
         </svg>
       </div>
     );
@@ -194,8 +197,10 @@ export class SurveyQuestionPanelDynamic extends SurveyQuestionElementBase {
   protected renderNavigatorV2(): JSX.Element {
     const range: JSX.Element = this.question.isRangeShowing && !this.question.isProgressTopShowing ? this.renderRange() : null;
     const addBtn = this.renderAddRowButton();
-    const prevBtn = this.rendrerPrevButton();
-    const nextBtn = this.rendrerNextButton();
+    const progressBtnViewBox = "0 0 15 14";
+    const progressBtnIcon = <path d="M15 7.9998H4.39998L8.69998 12.2998L7.29998 13.6998L0.599976 6.9998L7.29998 0.299805L8.69998 1.6998L4.39998 5.9998H15V7.9998Z"></path>;
+    const prevBtn = this.rendrerPrevButton(progressBtnViewBox, progressBtnIcon);
+    const nextBtn = this.rendrerNextButton(progressBtnViewBox, progressBtnIcon);
     const progressText = this.renderProgressText();
     return (<div className={this.question.cssClasses.footer}>
       {range}

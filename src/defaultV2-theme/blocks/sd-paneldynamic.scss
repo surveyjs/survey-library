@@ -65,12 +65,10 @@
     width: 16px;
     height: 16px;
     fill: $foreground-light;
-}
-.sd-paneldynamic__prev-btn {
-    transform: rotate(90deg);
+    cursor: pointer;
 }
 .sd-paneldynamic__next-btn {
-    transform: rotate(-90deg);
+    transform: rotate(180deg);
 }
 .sd-paneldynamic__progress-container {
     display: flex;
@@ -106,4 +104,9 @@
 }
 .sd-paneldynamic__progress--bottom {
     display: none;
+}
+.sd-paneldynamic__prev-btn--disabled,
+.sd-paneldynamic__next-btn--disabled {
+    opacity: 0.25;
+    cursor: initial;
 }

@@ -99,13 +99,16 @@ export class SurveyQuestionPanelDynamic extends SurveyQuestionElementBase {
     if (this.question.horizontalScroll) {
       style["overflowX"] = "scroll";
     }
+    const navV2 = this.renderNavigatorV2();
 
     return (
       <div className={this.question.cssClasses.root}>
+        <hr className={this.question.cssClasses.separatorV2} />
         {navTop}
         <div style={style}>{panels}</div>
         {navBottom}
         {btnAdd}
+        {navV2}
       </div>
     );
   }
@@ -125,11 +128,14 @@ export class SurveyQuestionPanelDynamic extends SurveyQuestionElementBase {
           {btnNext}
         </div>
         {btnAdd}
-        <div className={this.question.cssClasses.progressText}>
-          {this.question.progressText}
-        </div>
+        {this.renderProgressText()}
       </div>
     );
+  }
+  private renderProgressText(): JSX.Element {
+    return (<div className={this.question.cssClasses.progressText}>
+      {this.question.progressText}
+    </div>);
   }
 
   protected rendrerPrevButton() {
@@ -184,6 +190,25 @@ export class SurveyQuestionPanelDynamic extends SurveyQuestionElementBase {
         <span></span>
       </button>
     );
+  }
+  protected renderNavigatorV2(): JSX.Element {
+    const range: JSX.Element = this.question.isRangeShowing && !this.question.isProgressTopShowing ? this.renderRange() : null;
+    const addBtn = this.renderAddRowButton();
+    const prevBtn = this.rendrerPrevButton();
+    const nextBtn = this.rendrerNextButton();
+    const progressText = this.renderProgressText();
+    return (<div className={this.question.cssClasses.footer}>
+      {range}
+      <hr className={this.question.cssClasses.separator} />
+      <div className={this.question.cssClasses.footerButtonsContainer}>
+        {addBtn}
+        {!this.question.isRenderModeList ? <div className={this.question.cssClasses.progressContainer}>
+          {prevBtn}
+          {progressText}
+          {nextBtn}
+        </div> : null}
+      </div>
+    </div>);
   }
 }
 

@@ -57,7 +57,7 @@ export var defaultV2Css = {
     separatorV2: "sd-paneldynamic__separator",
     panelWrapper: "sd-paneldynamic__panel-wrapper",
     footer: "sd-paneldynamic__footer",
-    buttonContainer: "sd-paneldynamic__buttons-container",
+    footerButtonsContainer: "sd-paneldynamic__buttons-container",
     panelWrapperInRow: "sd-paneldynamic__panel-wrapper--in-row"
   },
   progress: "sd-progress sd-body__progress",

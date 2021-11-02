@@ -13709,6 +13709,46 @@ QUnit.test(
     assert.equal(pageName, "First Page", "We render the first page");
   }
 );
+
+QUnit.test(
+  "onAfterRenderPage calls incorrect for the first page when there is the started page and design mode",
+  function (assert) {
+    var survey = new SurveyModel({
+      firstPageIsStarted: true,
+      pages: [
+        {
+          name: "Start Page",
+          questions: [
+            {
+              type: "html",
+              html: "1",
+            },
+          ],
+        },
+        {
+          name: "First Page",
+          questions: [
+            {
+              type: "text",
+              name: "q1",
+            },
+          ],
+        },
+      ],
+    });
+    var pageName;
+    survey["_isDesignMode"] = true;
+    survey.onAfterRenderPage.add((sender, options) => {
+      pageName = options.page.name;
+    });
+    survey.afterRenderPage(undefined);
+    assert.equal(pageName, "Start Page", "We render the started page in designMode");
+    survey.start();
+    survey.afterRenderPage(undefined);
+    assert.equal(pageName, "Start Page", "We still render the started page in designMode");
+  }
+);
+
 QUnit.test("Custom widget, test canShowInToolbox read-only property", function (
   assert
 ) {

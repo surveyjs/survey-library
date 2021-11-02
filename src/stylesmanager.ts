@@ -693,7 +693,7 @@ export class StylesManager {
       "$inputs-background-color": "white",
       "$text-color": "#000",
       "$text-input-color": "#000",
-      "$header-color": "#fff",
+      "$header-color": "#000",
       "$border-color": "#e7e7e7",
 
       "$error-color": "#ed5565",

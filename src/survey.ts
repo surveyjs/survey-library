@@ -2615,7 +2615,7 @@ export class SurveyModel extends SurveyElementCore
    * @see startedPage
    */
   public get activePage(): any {
-    return this.isStartedState && this.startedPage /*&& !this.isDesignMode*/
+    return this.isStartedState && this.startedPage && !this.isDesignMode
       ? this.startedPage
       : this.currentPage;
   }

@@ -13709,7 +13709,6 @@ QUnit.test(
     assert.equal(pageName, "First Page", "We render the first page");
   }
 );
-
 QUnit.test("Custom widget, test canShowInToolbox read-only property", function (
   assert
 ) {

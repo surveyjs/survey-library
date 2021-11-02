@@ -644,7 +644,7 @@ export class SurveyModel extends SurveyElementCore
    * <br/> `sender` - A [survey](https://surveyjs.io/Documentation/Library?id=surveymodel) object that fires the event.
    * <br/> `options.panel` - A [panel](https://surveyjs.io/Documentation/Library?id=PanelModelBase) whose child element gets focus.
    * @see onFocusInQuestion
-   */  
+   */
   public onFocusInPanel: EventBase<SurveyModel> = this.addEvent<SurveyModel>();
 
   /**
@@ -2615,7 +2615,7 @@ export class SurveyModel extends SurveyElementCore
    * @see startedPage
    */
   public get activePage(): any {
-    return this.isStartedState && this.startedPage
+    return this.isStartedState && this.startedPage && !this.isDesignMode
       ? this.startedPage
       : this.currentPage;
   }

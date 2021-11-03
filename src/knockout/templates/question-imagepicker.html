@@ -17,7 +17,7 @@
                 <img data-bind="css: question.koCss().image, attr: { src: $data.locImageLink.koRenderedHtml, width: question.imageWidth ? question.imageWidth + 'px' : undefined, height: question.imageHeight ? question.imageHeight + 'px' : undefined, alt: item.locText.koRenderedHtml }, style: { objectFit: question.imageFit }"/>
                 <!-- /ko -->
                 <!-- ko if: question.contentMode === "video" -->
-                <embed data-bind="css: question.koCss().image, attr: { src: $data.locImageLink.koRenderedHtml, width: question.imageWidth ? question.imageWidth + 'px' : undefined, height: question.imageHeight ? question.imageHeight + 'px' : undefined }, style: { objectFit: question.imageFit }"/>
+                <video controls data-bind="css: question.koCss().image, attr: { src: $data.locImageLink.koRenderedHtml, width: question.imageWidth ? question.imageWidth + 'px' : undefined, height: question.imageHeight ? question.imageHeight + 'px' : undefined }, style: { objectFit: question.imageFit }"></video>
                 <!-- /ko -->
                 <!-- ko if: question.showLabel -->
                 <span data-bind="css: question.koCss().itemText, attr: { title: item.locText.koRenderedHtml }">

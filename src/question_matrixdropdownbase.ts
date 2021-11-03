@@ -1745,7 +1745,9 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     return result;
   }
   private hasErrorInRows(fireCallback: boolean, rec: any): boolean {
-    if (!this.generatedVisibleRows) return false;
+    if (!this.generatedVisibleRows) {
+      const rows = this.visibleRows;
+    }
     var res = false;
     if (!rec) rec = {};
     rec.isSingleDetailPanel = this.detailPanelMode === "underRowSingle";

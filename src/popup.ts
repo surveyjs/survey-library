@@ -213,14 +213,12 @@ export class PopupBaseViewModel extends Base {
     }
   }
   private updatePosition() {
-    const rect = this.targetElement.getBoundingClientRect();
+    const targetElement = this.prevActiveElement || this.targetElement;
+    const rect = targetElement.getBoundingClientRect();
     const background = <HTMLElement>this.container.children[0];
     const popupContainer = <HTMLElement>background.children[0];
     const scrollContent = <HTMLElement>background.children[0].querySelector(".sv-popup__scrolling-content");
-    let height =
-      popupContainer.offsetHeight -
-      scrollContent.offsetHeight +
-      scrollContent.scrollHeight;
+    let height = popupContainer.offsetHeight - scrollContent.offsetHeight + scrollContent.scrollHeight;
     const width = popupContainer.offsetWidth;
     this.height = "auto";
     let verticalPosition = this.model.verticalPosition;

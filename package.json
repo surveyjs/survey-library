@@ -55,7 +55,7 @@
     "testsingle": "karma start ./build-scripts/karma.conf.js --single-run",
     "prepare": "husky install"
   },
-  "version": "1.8.75",
+  "version": "1.8.76",
   "name": "survey-library",
   "private": true,
   "devDependencies": {

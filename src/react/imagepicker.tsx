@@ -95,7 +95,7 @@ export class SurveyQuestionImagePicker extends SurveyQuestionElementBase {
     }
     if (this.question.contentMode === "video") {
       control = (
-        <embed
+        <video controls
           className={cssClasses.image}
           src={item["imageLink"]}
           width={
@@ -109,7 +109,7 @@ export class SurveyQuestionImagePicker extends SurveyQuestionElementBase {
               : undefined
           }
           style={style}
-        />
+        ></video>
       );
     }
 

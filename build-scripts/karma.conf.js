@@ -18,7 +18,7 @@ module.exports = function(config) {
   config.set({
     basePath: "../",
     frameworks: ["qunit"],
-    files: ["tests/entries/*.ts"],
+    files: ["tests/entries/testMarkup.ts"],
     exclude: [],
     mime: {
       "text/x-typescript": ["ts", "tsx"]

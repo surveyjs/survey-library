@@ -85,8 +85,7 @@ frameworks.forEach((framework) => {
     var innerSelector = `.sv-string-editor`
     await t
       .click(outerSelector)
-      .selectEditableContent(outerSelector + ` ` + innerSelector)
-      .typeText(outerSelector + ` ` + innerSelector, newTitle)
+      .typeText(outerSelector + ` ` + innerSelector, newTitle, { replace: true })
       .click(`body`, { offsetX: 0, offsetY: 0 });
 
     questionValue = await getQuestionValue();
@@ -104,8 +103,7 @@ frameworks.forEach((framework) => {
     var selector = `.sv_q_mt_title .sv-string-editor`;
     await t
       .click(selector)
-      .selectEditableContent(selector)
-      .typeText(selector, newTitle)
+      .typeText(selector, newTitle, { replace: true })
       .click(`body`, { offsetX: 0, offsetY: 0 });
 
     questionValue = await getQuestionValue();

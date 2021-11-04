@@ -108,9 +108,8 @@ frameworks.forEach((framework) => {
     var innerSelector = `.sv-string-editor`
     await t
       .click(outerSelector)
-      .selectEditableContent(outerSelector + ` ` + innerSelector)
-      .typeText(outerSelector + ` ` + innerSelector, newLabelTrue)
-      .click(`body`);
+      .typeText(outerSelector + ` ` + innerSelector, newLabelTrue, { replace: true })
+      .click(`body`, { offsetX: 0, offsetY: 0 });
 
     assert.equal(await getQuestionValue(), null);
     var json = JSON.parse(await getQuestionJson());
@@ -128,9 +127,8 @@ frameworks.forEach((framework) => {
     var innerSelector = `.sv-string-editor`
     await t
       .click(outerSelector)
-      .selectEditableContent(outerSelector + ` ` + innerSelector)
-      .typeText(outerSelector + ` ` + innerSelector, newLabelFalse)
-      .click(`body`);
+      .typeText(outerSelector + ` ` + innerSelector, newLabelFalse, { replace: true })
+      .click(`body`, { offsetX: 0, offsetY: 0 });
 
     assert.equal(await getQuestionValue(), null);
     var json = JSON.parse(await getQuestionJson());

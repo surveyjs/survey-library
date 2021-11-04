@@ -14,12 +14,13 @@ export class DragDropChoices extends DragDropCore<QuestionSelectBase> {
 
   protected createDraggedElementShortcut(
     text: string,
-    draggedElementNode: HTMLElement
+    draggedElementNode: HTMLElement,
+    event: PointerEvent
   ): HTMLElement {
     if (this.parentElement.getType() === "imagepicker") {
       return super.createDraggedElementShortcut(text, draggedElementNode);
     }
-    const draggedElementShortcut = document.createElement("div");
+    const draggedElementShortcut:any = document.createElement("div");
     // draggedElementShortcut.innerText = text;
     draggedElementShortcut.style.cssText = ` 
           cursor: grabbing;
@@ -30,7 +31,6 @@ export class DragDropChoices extends DragDropCore<QuestionSelectBase> {
           box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.1);
           background-color: white;
           padding-right: 16px;
-          padding-left: 20px;
           font-family: "Open Sans";
         `;
 
@@ -49,6 +49,10 @@ export class DragDropChoices extends DragDropCore<QuestionSelectBase> {
     this.draggedElement.isDragDropMoveUp = false;
 
     draggedElementShortcut.appendChild(clone);
+
+    const rect = draggedElementNode.getBoundingClientRect();
+    draggedElementShortcut.shortcutXOffset = event.clientX - rect.x;
+    draggedElementShortcut.shortcutYOffset = event.clientY - rect.y;
 
     this.isBottom = null;
 

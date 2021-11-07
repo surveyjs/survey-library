@@ -158,7 +158,7 @@ export class DragDropSurveyElements extends DragDropCore<any> {
     if (this.dropTarget === this.ghostSurveyElement) return true;
     return (
       this.dropTarget === this.prevDropTarget && newIsBottom === this.isBottom
-      /*&&this.isEdge === this.prevIsEdge*/
+      && this.isEdge === this.prevIsEdge
     );
   }
 

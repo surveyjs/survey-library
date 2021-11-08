@@ -101,12 +101,15 @@ export class SurveyQuestion extends SurveyElementBase<any, any> {
 
     var comment =
       question && question.hasComment ? this.renderComment(cssClasses) : null;
+    const errorsAboveQuestion = this.question.isErrorsModeTooltip && !this.question.hasParent ? this.renderErrors(cssClasses, ""): null;
+    const errorsTooltip = this.question.isErrorsModeTooltip && this.question.hasParent ? this.renderErrors(cssClasses, ""): null;
+
     var errorsTop =
-      this.creator.questionErrorLocation() === "top"
+      this.creator.questionErrorLocation() === "top" && !this.question.isErrorsModeTooltip
         ? this.renderErrors(cssClasses, "top")
         : null;
     var errorsBottom =
-      this.creator.questionErrorLocation() === "bottom"
+      this.creator.questionErrorLocation() === "bottom" && !this.question.isErrorsModeTooltip
         ? this.renderErrors(cssClasses, "bottom")
         : null;
     let rootStyle: { [index: string]: any } = {};
@@ -119,24 +122,28 @@ export class SurveyQuestion extends SurveyElementBase<any, any> {
     };
 
     return (
-      <div
-        ref={this.rootRef}
-        id={question.id}
-        className={question.getRootCss()}
-        style={rootStyle}
-        role={question.ariaRole}
-        aria-labelledby={question.hasTitle ? question.ariaTitleId : null}
-      >
-        {headerTop}
-        <div className={question.cssContent} style={contentStyle}>
-          {errorsTop}
-          {questionRender}
-          {comment}
-          {errorsBottom}
-          {descriptionUnderInput}
+      <>
+        {errorsAboveQuestion}
+        <div
+          ref={this.rootRef}
+          id={question.id}
+          className={question.getRootCss()}
+          style={rootStyle}
+          role={question.ariaRole}
+          aria-labelledby={question.hasTitle ? question.ariaTitleId : null}
+        >
+          {headerTop}
+          <div className={question.cssContent} style={contentStyle}>
+            {errorsTop}
+            {questionRender}
+            {comment}
+            {errorsBottom}
+            {descriptionUnderInput}
+          </div>
+          {errorsTooltip}
+          {headerBottom}
         </div>
-        {headerBottom}
-      </div>
+      </>
     );
   }
   protected wrapElement(element: JSX.Element): JSX.Element {

@@ -174,7 +174,7 @@ export class QuestionBooleanModel extends Question {
     return new CssClassBuilder()
       .append(this.cssClasses.label)
       .append(this.cssClasses.disabledLabel, this.checkedValue === !checked || this.isReadOnly)
-      .toString();
+      .toString().trim();
   }
 
   public get allowClick(): boolean {

@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <fragment>
     <input
       v-if="!question.isReadOnlyRenderDiv()"
       :disabled="question.isInputReadOnly"
@@ -9,7 +9,7 @@
       :min="question.renderedMin"
       :max="question.renderedMax"
       :step="question.renderedStep"
-      :size="question.inputSize"
+      :size="question.inputSize || null"
       :style="inputStyle"
       :id="question.inputId"
       :list="question.dataListId"
@@ -18,20 +18,21 @@
       :value="question.value"
       @change="change"
       @keyup="keyup"
-      :aria-required="question.ariaRequired"
+      :aria-required="question.ariaRequired || 'false'"
       :aria-label="question.ariaLabel"
-      :aria-invalid="question.ariaInvalid"
+      :aria-invalid="question.ariaInvalid || 'false'"
       :aria-describedby="question.ariaDescribedBy"
     />
     <datalist v-if="question.dataListId && !question.isReadOnlyRenderDiv()" :id="question.dataListId">
       <option v-for="item in question.dataList" :value="item"></option>
     </datalist>
     <div v-if="question.isReadOnlyRenderDiv()">{{ question.value }}</div>
-  </div>
+  </fragment>
 </template>
 
 <script lang="ts">
 import Vue from "vue";
+import Fragment from 'vue-fragment';
 import { Component, Prop } from "vue-property-decorator";
 import { default as QuestionVue } from "./question";
 import { QuestionTextModel } from "survey-core";
@@ -49,6 +50,7 @@ export class QuestionText extends QuestionVue<QuestionTextModel> {
     return this.question.inputStyle;
   }
 }
+Vue.use(Fragment.Plugin);
 Vue.component("survey-text", QuestionText);
 export default QuestionText;
 </script>

@@ -184,13 +184,13 @@ export class Question extends SurveyElement
    * A11Y properties
    */
   public get ariaRequired(): boolean {
-    return this.isRequired;
+    return this.isRequired && false;
   }
   public get ariaLabel(): string {
     return this.locTitle.renderedHtml;
   }
   public get ariaInvalid(): boolean {
-    return this.errors.length > 0;
+    return this.errors.length > 0 && false;
   }
   public get ariaDescribedBy(): string {
     return this.errors.length > 0 ? this.id + "_errors" : null;

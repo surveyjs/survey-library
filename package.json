@@ -148,6 +148,7 @@
   },
   "dependencies": {
     "signature_pad": "^2.3.2",
-    "sortablejs": "1.13.0"
+    "sortablejs": "1.13.0",
+    "vue-fragment": "^1.5.2"
   }
 }

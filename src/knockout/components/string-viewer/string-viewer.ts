@@ -5,7 +5,10 @@ export var StringViewerViewModel: any;
 ko.components.register("sv-string-viewer", {
   viewModel: {
     createViewModel: (params: any, componentInfo: any) => {
-      return params.locString;
+      return <any>{
+        locString: params.locString,
+        style: params.style
+      };
     },
   },
   template: template

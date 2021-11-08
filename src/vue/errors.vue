@@ -2,7 +2,7 @@
   <div
     role="alert"
     aria-live="polite"
-    v-show="element.hasVisibleErrors"
+    v-if="element.hasVisibleErrors"
     :class="element.cssError"
     :id="element.id + '_errors'"
   >

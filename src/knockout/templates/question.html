@@ -1,11 +1,15 @@
 ﻿<script type="text/html" id="survey-question">
+  <!-- ko if: question.isErrorsModeTooltip && !question.hasParent -->
+        <!-- ko template: { name: 'survey-question-errors', data: question } -->
+        <!-- /ko -->
+  <!-- /ko -->
   <div data-bind="css: question.koRootCss(), style: { paddingLeft: question.paddingLeft, paddingRight: question.paddingRight }, attr: { id: question.id, name: question.name, role: question.ariaRole, 'aria-labelledby': question.hasTitle ? question.ariaTitleId : null}">
       <!-- ko if: question.hasTitleOnLeftTop -->
       <!--ko template: { name: 'survey-question-title', data: question  } -->
       <!-- /ko -->
       <!-- /ko -->
-      <div data-bind="visible: !question.isCollapsed, css: question.cssContent" >
-          <!-- ko if: question.errorLocation === 'top' -->
+      <div data-bind="visible: !question.isCollapsed, css: question.cssContent">
+          <!-- ko if: question.errorLocation === 'top' && !question.isErrorsModeTooltip -->
               <!-- ko template: { name: 'survey-question-errors', data: question } -->
               <!-- /ko -->
           <!-- /ko -->
@@ -24,7 +28,7 @@
             <div data-bind="template: { name: 'survey-comment', data: {'question': question, 'visible': true } }"></div>
           </div>
           <!-- /ko -->
-          <!-- ko if: question.errorLocation === 'bottom' -->
+          <!-- ko if: question.errorLocation === 'bottom' && !question.isErrorsModeTooltip -->
               <!-- ko template: { name: 'survey-question-errors', data: question } -->
               <!-- /ko -->
           <!-- /ko -->
@@ -32,6 +36,10 @@
               <!-- ko template: { name: 'survey-string', data: locDescription } --><!-- /ko -->
           </div>
       </div>
+        <!-- ko if: question.isErrorsModeTooltip && question.hasParent -->
+          <!-- ko template: { name: 'survey-question-errors', data: question } -->
+          <!-- /ko -->
+        <!-- /ko -->
       <!-- ko if: question.hasTitleOnBottom -->
       <!--ko template: { name: 'survey-question-title', data: question  } -->
       <!-- /ko -->

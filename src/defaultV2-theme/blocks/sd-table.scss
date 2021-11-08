@@ -48,3 +48,9 @@
     padding-right: 0;
   }
 }
+.sd-table__cell:hover:not(:focus-within) {
+  position: relative;
+  .sd-question__erbox--tooltip {
+    display: inline-block;
+  }
+}

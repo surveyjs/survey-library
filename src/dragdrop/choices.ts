@@ -8,10 +8,6 @@ export class DragDropChoices extends DragDropCore<QuestionSelectBase> {
     return "item-value";
   }
 
-  protected getShortcutText(draggedElement: ItemValue): string {
-    return draggedElement.text;
-  }
-
   protected createDraggedElementShortcut(
     text: string,
     draggedElementNode: HTMLElement,

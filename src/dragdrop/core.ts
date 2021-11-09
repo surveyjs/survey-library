@@ -1,6 +1,6 @@
 import { SurveyModel } from "../survey";
 import { Base, EventBase } from "../base";
-import { ISurvey } from "../base-interfaces";
+import { IShortcutText, ISurvey } from "../base-interfaces";
 import { property } from "../jsonobject";
 import { findScrollableParent } from "../utils/utils";
 
@@ -122,7 +122,10 @@ export abstract class DragDropCore<T> extends Base {
   }
 
   protected doStartDrag(): void { }
-  protected abstract getShortcutText(draggedElement: any): string;
+  
+  protected getShortcutText(draggedElement: IShortcutText): string {
+    return draggedElement.shortcutText;
+  }
 
   protected createDraggedElementShortcut(text: string, draggedElementNode?: HTMLElement, event?: PointerEvent): HTMLElement {
     const draggedElementShortcut = document.createElement("div");

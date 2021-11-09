@@ -9,7 +9,7 @@ export class AdaptiveActionContainer<T extends Action = Action> extends ActionCo
   protected dotsItemPopupModel: PopupModel;
   private responsivityManager: ResponsivityManager;
   public minVisibleItemsCount: number = 0;
-  private invisibleItemsListModel: ListModel = new ListModel(
+  protected invisibleItemsListModel: ListModel = new ListModel(
     [],
     (item: T) => {
       this.invisibleItemSelected(item);
@@ -121,7 +121,7 @@ export class AdaptiveActionContainer<T extends Action = Action> extends ActionCo
     );
   }
   public resetResponsivityManager(): void {
-    if(!!this.responsivityManager) {
+    if (!!this.responsivityManager) {
       this.responsivityManager.dispose();
       this.responsivityManager = undefined;
     }

@@ -226,14 +226,8 @@ export class NumericValidator extends SurveyValidator {
  */
 export class TextValidator extends SurveyValidator {
   constructor(
-    minLength: number = 0,
-    maxLength: number = 0,
-    allowDigits = true
   ) {
     super();
-    this.minLength = minLength;
-    this.maxLength = maxLength;
-    this.allowDigits = allowDigits;
   }
   public getType(): string {
     return "textvalidator";
@@ -294,7 +288,7 @@ export class TextValidator extends SurveyValidator {
    * The allowDigits property.
    */
   public get allowDigits(): boolean {
-    return this.getPropertyValue("allowDigits", true);
+    return this.getPropertyValue("allowDigits");
   }
   public set allowDigits(val: boolean) {
     this.setPropertyValue("allowDigits", val);
@@ -516,7 +510,9 @@ Serializer.addClass(
 );
 Serializer.addClass(
   "textvalidator",
-  ["minLength:number", "maxLength:number", "allowDigits:boolean"],
+  [{ name: "minLength:number", default: 0 },
+    { name: "maxLength:number", default: 0 },
+    { name: "allowDigits:boolean", default: true }],
   function() {
     return new TextValidator();
   },

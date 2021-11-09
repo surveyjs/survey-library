@@ -5,6 +5,7 @@ import { ReactElementFactory } from "./element-factory";
 import { SurveyElementBase, ReactSurveyElement } from "./reactquestion_element";
 import { SurveyQuestionCommentItem } from "./reactquestion_comment";
 import { SurveyCustomWidget } from "./custom-widget";
+import { TooltipManager } from "../utils/Tooltip";
 import { TitleElement } from "./components/title/title-element";
 
 export interface ISurveyCreator {
@@ -28,8 +29,11 @@ export class SurveyQuestion extends SurveyElementBase<any, any> {
     return <SurveyCustomWidget creator={creator} question={question} />;
   }
   private rootRef: React.RefObject<HTMLDivElement>;
+  private tooltipElement: HTMLDivElement;
+  private contentRef: React.RefObject<HTMLDivElement>;
   constructor(props: any) {
     super(props);
+    this.contentRef = React.createRef();
     this.rootRef = React.createRef();
   }
   protected getStateElement(): Base {
@@ -60,6 +64,9 @@ export class SurveyQuestion extends SurveyElementBase<any, any> {
   }
   componentDidUpdate(prevProps: any, prevState: any) {
     super.componentDidUpdate(prevProps, prevState);
+    if(this.contentRef && this.tooltipElement) {
+      new TooltipManager(this.contentRef.current, this.tooltipElement);
+    }
     this.doAfterRender();
   }
   private doAfterRender() {
@@ -133,7 +140,7 @@ export class SurveyQuestion extends SurveyElementBase<any, any> {
           aria-labelledby={question.hasTitle ? question.ariaTitleId : null}
         >
           {headerTop}
-          <div className={question.cssContent} style={contentStyle}>
+          <div className={question.cssContent} style={contentStyle} ref={this.contentRef}>
             {errorsTop}
             {questionRender}
             {comment}
@@ -206,6 +213,7 @@ export class SurveyQuestion extends SurveyElementBase<any, any> {
         creator={this.creator}
         location={location}
         id={this.question.id + "_errors"}
+        tooltipRef = { tooltip => { this.tooltipElement = tooltip; }}
       />
     );
   }
@@ -248,7 +256,7 @@ export class SurveyElementErrors extends ReactSurveyElement {
     }
 
     return (
-      <div role="alert" aria-live="polite" className={this.element.cssError} id={this.id}>
+      <div role="alert" aria-live="polite" className={this.element.cssError} id={this.id} ref={this.props.tooltipRef}>
         {errors}
       </div>
     );

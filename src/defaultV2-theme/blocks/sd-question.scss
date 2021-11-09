@@ -111,10 +111,10 @@
 }
 .sd-question__erbox--tooltip {
   display: none;
-  position: absolute;
-  left: 50%;
-  bottom: 50%;
-  transform: translateX(-50%) translateY(100%);
+  position: fixed;
+  // left: 50%;
+  // bottom: 50%;
+  // transform: translateX(-50%) translateY(100%);
   height: max-content;
   width: auto;
   max-width: 232px;
@@ -128,7 +128,6 @@
   white-space: normal;
   text-align: left;
 }
-.sd-question__content + .sd-question__erbox--tooltip:hover,
 .sd-question__content:hover:not(:focus-within) + .sd-question__erbox--tooltip {
   display: inline-block;
 }

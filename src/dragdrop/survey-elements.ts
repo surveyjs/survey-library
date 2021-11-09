@@ -240,7 +240,7 @@ export class DragDropSurveyElements extends DragDropCore<any> {
     this.removeGhostElementFromSurvey();
     this.isEdge = null;
     this.ghostSurveyElement = null;
-    this.draggedElement.isDragMe = false;
+    this.draggedElement && this.draggedElement.isDragMe = false;
   };
 
   protected insertGhostElementIntoSurvey(): boolean {

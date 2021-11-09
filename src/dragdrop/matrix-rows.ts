@@ -18,18 +18,6 @@ export class DragDropMatrixRows extends DragDropCore<QuestionMatrixDynamicModel>
     super.ghostPositionChanged();
   }
 
-  protected getShortcutText(draggedElement: any): string {
-    const matrix = this.parentElement;
-    const index = matrix.visibleRows.indexOf(draggedElement) + 1;
-    const questionValue1 = draggedElement.cells.length > 1 ? draggedElement.cells[1].questionValue : undefined;
-    const questionValue0 = draggedElement.cells.length > 0 ? draggedElement.cells[0].questionValue : undefined;
-    return (
-      questionValue1 && questionValue1.value ||
-      questionValue0 && questionValue0.value ||
-      "" + index
-    );
-  }
-
   protected getDropTargetByDataAttributeValue(
     dataAttributeValue: any
   ): MatrixDropdownRowModelBase {

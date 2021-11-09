@@ -281,6 +281,9 @@ export class SurveyElement extends SurveyElementCore implements ISurveyElement {
   public get hasStateButton(): boolean {
     return this.isExpanded || this.isCollapsed;
   }
+  public get shortcutText(): string {
+    return this.title || this.name;
+  }
   private titleToolbarValue: AdaptiveActionContainer;
   public getTitleToolbar(): AdaptiveActionContainer {
     if (!this.titleToolbarValue) {

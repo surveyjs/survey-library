@@ -1,5 +1,5 @@
 import { DragTypeOverMeEnum, SurveyElement } from "../survey-element";
-import { IElement } from "../base-interfaces";
+import { IElement, IShortcutText } from "../base-interfaces";
 import { JsonObject, Serializer } from "../jsonobject";
 import { PageModel } from "../page";
 import { DragDropCore } from "./core";
@@ -43,10 +43,6 @@ export class DragDropSurveyElements extends DragDropCore<any> {
     var newElement = Serializer.createClass(json["type"]);
     new JsonObject().toObject(json, newElement);
     return newElement;
-  }
-
-  protected getShortcutText(draggedElement: any): string {
-    return draggedElement["title"] || draggedElement["name"];
   }
 
   protected getDropTargetByDataAttributeValue(

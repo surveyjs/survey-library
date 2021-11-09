@@ -122,7 +122,7 @@ export abstract class DragDropCore<T> extends Base {
   }
 
   protected doStartDrag(): void { }
-  
+
   protected getShortcutText(draggedElement: IShortcutText): string {
     return draggedElement.shortcutText;
   }

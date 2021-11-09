@@ -6,8 +6,7 @@ ko.components.register("sv-string-viewer", {
   viewModel: {
     createViewModel: (params: any, componentInfo: any) => {
       return <any>{
-        locString: params.locString,
-        style: params.style
+        locString: params.locString
       };
     },
   },

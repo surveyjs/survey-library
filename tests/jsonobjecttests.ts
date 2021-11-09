@@ -13,6 +13,7 @@ import { Question } from "../src/question";
 import { QuestionRatingModel } from "../src/question_rating";
 import { QuestionCheckboxModel } from "../src/question_checkbox";
 import { settings } from "../src/settings";
+import { TextValidator } from "../src/validator";
 
 class Car extends Base implements ILocalizableOwner {
   public locale: string;
@@ -2490,4 +2491,15 @@ QUnit.test("Declared @property", function(assert) {
   assert.equal(obj["locStr3"].getLocaleText(""), "val3", "locStr3 get value");
   assert.equal(obj.str3, "val3", "str3 get value");
   obj.locale = "";
+});
+QUnit.test("TextValidator, serialize allowDigits property", function(assert) {
+  const validator = new TextValidator();
+  assert.deepEqual(validator.toJSON(), {}, "validator is empty");
+  validator.allowDigits = false;
+  assert.deepEqual(validator.toJSON(), { allowDigits: false }, "allowDigits is false");
+  validator.allowDigits = true;
+  assert.deepEqual(validator.toJSON(), {}, "validator is empty again");
+  validator.minLength = 1;
+  validator.maxLength = 10;
+  assert.deepEqual(validator.toJSON(), { minLength: 1, maxLength: 10 }, "minLength and maxLenght are not null");
 });

@@ -17,8 +17,11 @@ webpackConfig.module.rules[0].options.configFile = "build-scripts/tsconfig.tests
 module.exports = function(config) {
   config.set({
     basePath: "../",
+    client: {
+      surveyui: config.surveyui,
+    },
     frameworks: ["qunit"],
-    files: ["tests/entries/*.ts"],
+    files: ["tests//markup/question_react_tests.ts"],
     exclude: [],
     mime: {
       "text/x-typescript": ["ts", "tsx"]

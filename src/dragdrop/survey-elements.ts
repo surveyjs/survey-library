@@ -1,5 +1,5 @@
 import { DragTypeOverMeEnum, SurveyElement } from "../survey-element";
-import { IElement, IShortcutText } from "../base-interfaces";
+import { IElement } from "../base-interfaces";
 import { JsonObject, Serializer } from "../jsonobject";
 import { PageModel } from "../page";
 import { DragDropCore } from "./core";
@@ -19,6 +19,7 @@ export class DragDropSurveyElements extends DragDropCore<any> {
   protected get draggedElementType(): string {
     return "survey-element";
   }
+  protected isDraggedElementSelected: boolean = false;
 
   public startDragToolboxItem(
     event: PointerEvent,
@@ -26,6 +27,35 @@ export class DragDropSurveyElements extends DragDropCore<any> {
   ): void {
     const draggedElement = this.createElementFromJson(draggedElementJson);
     this.startDrag(event, draggedElement);
+  }
+
+  public startDragSurveyElement(
+    event: PointerEvent,
+    draggedElement: any,
+    isElementSelected?: boolean
+  ): void {
+    this.isDraggedElementSelected = isElementSelected;
+    this.startDrag(event, draggedElement);
+  }
+
+  protected getDraggedElementShortcutStyles() {
+    const border = this.isDraggedElementSelected ? "border: 2px solid #FF9814;" : null;
+    return `
+      height: 24px;
+      min-width: 100px;
+      border-radius: 36px;
+      background-color: white;
+      padding: 16px;
+      cursor: grabbing;
+      position: absolute;
+      z-index: 1000;
+      box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.1);
+      font-family: 'Open Sans';
+      font-size: 16px;
+      padding-left: 20px;
+      line-height: 24px;
+      ${border}
+    `;
   }
 
   protected createElementFromJson(json: object): HTMLElement {

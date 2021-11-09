@@ -32,7 +32,7 @@
 
 <script lang="ts">
 import Vue from "vue";
-import Fragment from 'vue-fragment';
+import Fragment from "vue-fragment";
 import { Component, Prop } from "vue-property-decorator";
 import { default as QuestionVue } from "./question";
 import { QuestionTextModel } from "survey-core";

@@ -3,6 +3,7 @@
     <label :class="question.getItemCss()">
       <input
         type="checkbox"
+        :name="question.name"
         :value="question.checkedValue"
         v-model="question.checkedValue"
         :class="question.cssClasses.control"

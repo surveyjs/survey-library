@@ -18,9 +18,9 @@
       :value="question.value"
       @change="change"
       @keyup="keyup"
-      :aria-required="question.ariaRequired || 'false'"
+      :aria-required="question.ariaRequired"
       :aria-label="question.ariaLabel"
-      :aria-invalid="question.ariaInvalid || 'false'"
+      :aria-invalid="question.ariaInvalid"
       :aria-describedby="question.ariaDescribedBy"
     />
     <datalist v-if="question.dataListId && !question.isReadOnlyRenderDiv()" :id="question.dataListId">

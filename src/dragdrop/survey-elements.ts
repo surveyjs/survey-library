@@ -28,6 +28,15 @@ export class DragDropSurveyElements extends DragDropCore<any> {
     this.startDrag(event, draggedElement);
   }
 
+  public startDragSurveyElement(
+    event: PointerEvent,
+    draggedElement: any,
+    isElementSelected?: boolean
+  ): void {
+    draggedElement.isDragMe = true;
+    this.startDrag(event, draggedElement);
+  }
+
   protected createElementFromJson(json: object): HTMLElement {
     const element: any = this.createNewElement(json);
     if (element["setSurveyImpl"]) {
@@ -231,6 +240,9 @@ export class DragDropSurveyElements extends DragDropCore<any> {
     this.removeGhostElementFromSurvey();
     this.isEdge = null;
     this.ghostSurveyElement = null;
+    if (!!this.draggedElement) {
+      this.draggedElement.isDragMe = false;
+    }
   };
 
   protected insertGhostElementIntoSurvey(): boolean {

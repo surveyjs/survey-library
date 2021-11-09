@@ -133,6 +133,7 @@ export class SurveyElement extends SurveyElementCore implements ISurveyElement {
   private expandAction: Action;
 
   @property({ defaultValue: null }) dragTypeOverMe: DragTypeOverMeEnum;
+  @property({ defaultValue: false }) isDragMe: boolean;
 
   public readOnlyChangedCallback: () => void;
 

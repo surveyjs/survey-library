@@ -121,6 +121,23 @@ export var markupTests = [
     },
     etalon: "<div class=\"sv_q_image\"><img alt=\"banner\" class=\"sv_image_image\" height=\"300px\" src=\"https://surveyjs.io/Content/Images/examples/image-picker/lion.jpg\" style=\"object-fit: contain;\" width=\"500px\"></div>"
   },
+  {
+    name: "Test Image Video question markup",
+    json: {
+      questions: [
+        {
+          "type": "image",
+          "name": "banner",
+          "imageLink": "https://sample-videos.com/video123/mp4/720/big_buck_bunny_720p_1mb.mp4",
+          "imageWidth": "500px",
+          "imageHeight": "300px",
+          "contentMode": "video"
+        }
+      ]
+    },
+    etalon: "<div class=\"sv_q_image\"><video class=\"sv_image_image\" controls=\"\" height=\"300px\" src=\"https://sample-videos.com/video123/mp4/720/big_buck_bunny_720p_1mb.mp4\" style=\"object-fit: contain;\" width=\"500px\"></video></div>"
+  },
+
   // HTML question
   {
     name: "Test HTML question markup",

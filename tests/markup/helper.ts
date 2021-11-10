@@ -24,8 +24,10 @@ function sortAttributes(elements) {
     for (var i = 0; i < elements[j].attributes.length; i++) {
       var name = elements[j].attributes[i].name;
       var value = elements[j].attributes[i].value;
-      if(name == "disabled" && value == "disabled")
-        value = "";
+      ["disabled", "controls"].forEach((tag)=>{
+        if(name == tag && value == tag)
+          value = "";
+      });
       attributes.push({
         "name": name,
         "value": value

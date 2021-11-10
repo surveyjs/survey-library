@@ -1,5 +1,5 @@
 import { DragTypeOverMeEnum, SurveyElement } from "../survey-element";
-import { IElement, IShortcutText } from "../base-interfaces";
+import { IElement } from "../base-interfaces";
 import { JsonObject, Serializer } from "../jsonobject";
 import { PageModel } from "../page";
 import { DragDropCore } from "./core";
@@ -19,6 +19,7 @@ export class DragDropSurveyElements extends DragDropCore<any> {
   protected get draggedElementType(): string {
     return "survey-element";
   }
+  protected isDraggedElementSelected: boolean = false;
 
   public startDragToolboxItem(
     event: PointerEvent,
@@ -33,8 +34,15 @@ export class DragDropSurveyElements extends DragDropCore<any> {
     draggedElement: any,
     isElementSelected?: boolean
   ): void {
+    this.isDraggedElementSelected = isElementSelected;
     draggedElement.isDragMe = true;
     this.startDrag(event, draggedElement);
+  }
+
+  protected getDraggedElementClass() {
+    let result = "svc-dragged-element-shortcut";
+    if (this.isDraggedElementSelected) result += " svc-dragged-element-shortcut--selected";
+    return result;
   }
 
   protected createElementFromJson(json: object): HTMLElement {

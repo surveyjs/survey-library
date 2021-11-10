@@ -2503,3 +2503,10 @@ QUnit.test("TextValidator, serialize allowDigits property", function(assert) {
   validator.maxLength = 10;
   assert.deepEqual(validator.toJSON(), { minLength: 1, maxLength: 10 }, "minLength and maxLenght are not null");
 });
+QUnit.test("Change question isRequired default value", function(assert) {
+  assert.equal(new Question("q1").isRequired, false, "It is false by defult");
+  Serializer.findProperty("question", "isRequired").defaultValue = true;
+  assert.equal(new Question("q1").isRequired, true, "It is true now");
+  Serializer.findProperty("question", "isRequired").defaultValue = false;
+  assert.equal(new Question("q1").isRequired, false, "It is false again");
+});

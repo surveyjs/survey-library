@@ -29,11 +29,8 @@ export class SurveyQuestion extends SurveyElementBase<any, any> {
     return <SurveyCustomWidget creator={creator} question={question} />;
   }
   private rootRef: React.RefObject<HTMLDivElement>;
-  private tooltipElement: HTMLDivElement;
-  private contentRef: React.RefObject<HTMLDivElement>;
   constructor(props: any) {
     super(props);
-    this.contentRef = React.createRef();
     this.rootRef = React.createRef();
   }
   protected getStateElement(): Base {
@@ -64,9 +61,6 @@ export class SurveyQuestion extends SurveyElementBase<any, any> {
   }
   componentDidUpdate(prevProps: any, prevState: any) {
     super.componentDidUpdate(prevProps, prevState);
-    if(this.contentRef && this.tooltipElement) {
-      new TooltipManager(this.contentRef.current, this.tooltipElement);
-    }
     this.doAfterRender();
   }
   private doAfterRender() {
@@ -109,7 +103,7 @@ export class SurveyQuestion extends SurveyElementBase<any, any> {
     var comment =
       question && question.hasComment ? this.renderComment(cssClasses) : null;
     const errorsAboveQuestion = this.question.isErrorsModeTooltip && !this.question.hasParent ? this.renderErrors(cssClasses, ""): null;
-    const errorsTooltip = this.question.isErrorsModeTooltip && this.question.hasParent ? this.renderErrors(cssClasses, ""): null;
+    const errorsTooltip = this.question.isErrorsModeTooltip && this.question.hasParent ? this.renderErrors(cssClasses, "tooltip"): null;
 
     var errorsTop =
       this.creator.questionErrorLocation() === "top" && !this.question.isErrorsModeTooltip
@@ -140,14 +134,14 @@ export class SurveyQuestion extends SurveyElementBase<any, any> {
           aria-labelledby={question.hasTitle ? question.ariaTitleId : null}
         >
           {headerTop}
-          <div className={question.cssContent} style={contentStyle} ref={this.contentRef}>
+          <div className={question.cssContent} style={contentStyle}>
             {errorsTop}
             {questionRender}
             {comment}
             {errorsBottom}
+            {errorsTooltip}
             {descriptionUnderInput}
           </div>
-          {errorsTooltip}
           {headerBottom}
         </div>
       </>
@@ -213,7 +207,6 @@ export class SurveyQuestion extends SurveyElementBase<any, any> {
         creator={this.creator}
         location={location}
         id={this.question.id + "_errors"}
-        tooltipRef = { tooltip => { this.tooltipElement = tooltip; }}
       />
     );
   }
@@ -227,6 +220,7 @@ export class SurveyElementErrors extends ReactSurveyElement {
   constructor(props: any) {
     super(props);
     this.state = this.getState();
+    this.tooltipRef = React.createRef();
   }
   protected get id(): string {
     return this.props.id;
@@ -246,6 +240,26 @@ export class SurveyElementErrors extends ReactSurveyElement {
   protected canRender(): boolean {
     return !!this.element && this.element.hasVisibleErrors;
   }
+  private tooltipManager: TooltipManager;
+  componentDidUpdate(prevProps: any, prevState: any) {
+    super.componentDidUpdate(prevProps, prevState);
+    if(this.props.location == "tooltip") {
+      if(this.tooltipRef.current && !this.tooltipManager) {
+        this.tooltipManager = new TooltipManager(this.tooltipRef.current);
+      }
+      if(!!this.tooltipManager && !this.tooltipRef.current) {
+        this.tooltipManager.dispose();
+        this.tooltipManager = undefined;
+      }
+    }
+  }
+  componentWillUnmount() {
+    if(!!this.tooltipManager && !this.tooltipRef.current) {
+      this.tooltipManager.dispose();
+      this.tooltipManager = undefined;
+    }
+  }
+  private tooltipRef: React.RefObject<HTMLDivElement>;
   protected renderElement(): JSX.Element {
     const errors = [];
     for (let i = 0; i < this.element.errors.length; i++) {
@@ -256,7 +270,7 @@ export class SurveyElementErrors extends ReactSurveyElement {
     }
 
     return (
-      <div role="alert" aria-live="polite" className={this.element.cssError} id={this.id} ref={this.props.tooltipRef}>
+      <div role="alert" aria-live="polite" className={this.element.cssError} id={this.id} ref={this.tooltipRef}>
         {errors}
       </div>
     );

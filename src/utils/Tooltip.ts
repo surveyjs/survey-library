@@ -1,6 +1,8 @@
 export class TooltipManager {
-  constructor(private targetElement: HTMLElement, private tooltipElement: HTMLElement) {
-    targetElement.addEventListener("mousemove", this.onMouseMoveCallback);
+  private targetElement: HTMLElement;
+  constructor(private tooltipElement: HTMLElement) {
+    this.targetElement = tooltipElement.parentElement;
+    this.targetElement.addEventListener("mousemove", this.onMouseMoveCallback);
   }
   dispose() {
     this.targetElement.removeEventListener("mousemove", this.onMouseMoveCallback);

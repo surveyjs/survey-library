@@ -128,7 +128,7 @@
   white-space: normal;
   text-align: left;
 }
-.sd-question__content:hover:not(:focus-within) + .sd-question__erbox--tooltip {
+.sd-question__content:hover:not(:focus-within) > .sd-question__erbox--tooltip {
   display: inline-block;
 }
 .sd-question__erbox--location--top,

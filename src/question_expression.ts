@@ -15,11 +15,13 @@ export class QuestionExpressionModel extends Question {
   constructor(name: string) {
     super(name);
     this.createLocalizableString("format", this);
-    var self = this;
-    this.registerFunctionOnPropertyValueChanged("expression", function() {
-      if (self.expressionRunner) {
-        self.expressionRunner = new ExpressionRunner(self.expression);
+    this.registerFunctionOnPropertyValueChanged("expression", () => {
+      if (this.expressionRunner) {
+        this.expressionRunner = new ExpressionRunner(this.expression);
       }
+    });
+    this.registerFunctionOnPropertiesValueChanged(["format", "currency", "displayStyle"], () => {
+      this.updateFormatedValue();
     });
   }
   public getType(): string {
@@ -108,6 +110,15 @@ export class QuestionExpressionModel extends Question {
   }
   public set runIfReadOnly(val: boolean) {
     this.runIfReadOnlyValue = val;
+  }
+  public get formatedValue(): string {
+    return this.getPropertyValue("formatedValue", "");
+  }
+  protected updateFormatedValue(): void {
+    this.setPropertyValue("formatedValue", this.getDisplayValueCore(false, this.value));
+  }
+  protected onValueChanged() {
+    this.updateFormatedValue();
   }
   protected getDisplayValueCore(keysAsText: boolean, value: any): any {
     var val = this.isValueEmpty(value) ? this.defaultValue : value;

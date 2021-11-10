@@ -46,7 +46,7 @@ export class QuestionRow extends QuestionRowModel {
   rowAfterRender(elements: HTMLElement[], model: QuestionRow) {
     if (!model.isNeedRender) {
       var rowContainerDiv = elements[0].parentElement;
-      model.startLazyRendering(rowContainerDiv);
+      setTimeout(() => model.startLazyRendering(rowContainerDiv), 1);
       ko.utils.domNodeDisposal.addDisposeCallback(rowContainerDiv, () => {
         model.stopLazyRendering();
         model.isNeedRender = !model.isLazyRendering();

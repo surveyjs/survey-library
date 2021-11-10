@@ -61,7 +61,7 @@
     "test:vue:single": "karma start ./build-scripts/karma.conf.vue.js --single-run",
     "prepare": "husky install"
   },
-  "version": "1.8.76",
+  "version": "1.8.77",
   "name": "survey-library",
   "private": true,
   "devDependencies": {

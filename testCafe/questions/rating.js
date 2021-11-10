@@ -61,14 +61,13 @@ frameworks.forEach((framework) => {
     var newTitle = 'MyText';
     var json = JSON.parse(await getQuestionJson());
     assert.equal(await getQuestionValue(), null);
-  
+
     var outerSelector = `.sv_q_title`;
-    var innerSelector = `.sv-string-editor`
+    var innerSelector = `.sv-string-editor`;
     await t
       .click(outerSelector)
-      .selectEditableContent(outerSelector + ` ` + innerSelector)
-      .typeText(outerSelector + ` ` + innerSelector, newTitle)
-      .click(`body`);
+      .typeText(outerSelector + ` ` + innerSelector, newTitle, { replace: true })
+      .click("body", { offsetX: 0, offsetY: 0 });
 
     assert.equal(await getQuestionValue(), null);
     var json = JSON.parse(await getQuestionJson());
@@ -80,35 +79,34 @@ frameworks.forEach((framework) => {
     var json = JSON.parse(await getQuestionJson());
     var maxText = json.maxRateDescription;
     assert.equal(await getQuestionValue(), null);
-  
+
     var outerSelector = `.sv_q_rating .sv_q_rating_min_text`;
-    var innerSelector = `.sv-string-editor`
+    var innerSelector = `.sv-string-editor`;
     await t
       .click(outerSelector)
-      .selectEditableContent(outerSelector + ` ` + innerSelector)
+      .selectEditableContent(outerSelector + ` ` + innerSelector, outerSelector + ` ` + innerSelector)
       .typeText(outerSelector + ` ` + innerSelector, newMinText)
-      .click(`body`);
+      .click("body", { offsetX: 0, offsetY: 0 });
 
     assert.equal(await getQuestionValue(), null);
     var json = JSON.parse(await getQuestionJson());
     assert.equal(json.minRateDescription, newMinText);
     assert.equal(json.maxRateDescription, maxText);
-    
-  });  
+  });
 
   test(`click on max label in intermediate state editable`, async (t) => {
     var newMaxText = 'MyText';
     var json = JSON.parse(await getQuestionJson());
     var minText = json.minRateDescription;
     assert.equal(await getQuestionValue(), null);
-  
+
     var outerSelector = `.sv_q_rating .sv_q_rating_max_text`;
     var innerSelector = `.sv-string-editor`
     await t
       .click(outerSelector)
-      .selectEditableContent(outerSelector + ` ` + innerSelector)
+      .selectEditableContent(outerSelector + ` ` + innerSelector, outerSelector + ` ` + innerSelector)
       .typeText(outerSelector + ` ` + innerSelector, newMaxText)
-      .click(`body`);
+      .click("body", { offsetX: 0, offsetY: 0 });
 
     assert.equal(await getQuestionValue(), null);
     var json = JSON.parse(await getQuestionJson());

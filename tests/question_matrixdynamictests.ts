@@ -296,12 +296,10 @@ QUnit.test("Matrixdynamic column.validators", function (assert) {
   question.rowCount = 2;
   question.columns.push(new MatrixDropdownColumn("column1"));
   question.columns.push(new MatrixDropdownColumn("column2"));
-  var rows = question.visibleRows;
   assert.equal(question.hasErrors(), false, "No errors");
   question.columns[0].validators.push(new EmailValidator());
   question.rowCount = 0;
   question.rowCount = 2;
-  var rows = question.visibleRows;
   question.value = [{ column1: "aaa" }, {}];
   assert.equal(question.hasErrors(), true, "column1 should has valid e-mail");
   question.value = [{ column1: "aaa@aaa.com" }, {}];
@@ -313,7 +311,6 @@ QUnit.test("Matrixdynamic duplicationError", function (assert) {
   question.columns.push(new MatrixDropdownColumn("column1"));
   question.columns.push(new MatrixDropdownColumn("column2"));
   question.keyName = "column1";
-  var rows = question.visibleRows;
   assert.equal(question.hasErrors(), false, "No errors");
   question.value = [{ column1: "val1" }, {}];
   assert.equal(
@@ -366,7 +363,6 @@ QUnit.test("Matrixdynamic column.isUnique, matrixdynamic", function (assert) {
   question.addColumn("column1").isUnique = true;
   question.addColumn("column2");
   question.addColumn("column3").isUnique = true;
-  var rows = question.visibleRows;
   assert.equal(question.hasErrors(), false, "No errors");
   question.value = [{ column1: "val1" }, {}];
   assert.equal(
@@ -427,7 +423,6 @@ QUnit.test("Matrixdynamic column.isUnique, matrixdropdown", function (assert) {
   question.rows = ["row1", "row2"];
   question.addColumn("column1").isUnique = true;
   question.addColumn("column2");
-  var rows = question.visibleRows;
   assert.equal(question.hasErrors(), false, "No errors");
   question.value = { row1: { column1: "val1" } };
   assert.equal(
@@ -468,6 +463,24 @@ QUnit.test("Matrixdynamic hasOther column", function (assert) {
   assert.equal(question.hasErrors(), false, "Everything is fine so far");
   rows[0].cells[0].question.value = "other";
   assert.equal(question.hasErrors(), true, "Should set other value");
+});
+QUnit.test("hasErrors for matrix on another page", function (assert) {
+  const survey = new SurveyModel({
+    pages: [
+      {
+        elements: [{ type: "text", name: "q1" }]
+      },
+      {
+        elements: [
+          {
+            type: "matrixdynamic", name: "q2",
+            rowCount: 1,
+            columns: [{ name: "col1", cellType: "text", isRequired: true }]
+          }]
+      }
+    ]
+  });
+  assert.equal(survey.pages[1].hasErrors(), true);
 });
 QUnit.test("Matrixdynamic adjust rowCount on setting the value", function (
   assert

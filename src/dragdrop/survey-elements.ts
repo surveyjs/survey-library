@@ -1,5 +1,5 @@
 import { DragTypeOverMeEnum, SurveyElement } from "../survey-element";
-import { IElement } from "../base-interfaces";
+import { IElement, IShortcutText } from "../base-interfaces";
 import { JsonObject, Serializer } from "../jsonobject";
 import { PageModel } from "../page";
 import { DragDropCore } from "./core";
@@ -28,6 +28,15 @@ export class DragDropSurveyElements extends DragDropCore<any> {
     this.startDrag(event, draggedElement);
   }
 
+  public startDragSurveyElement(
+    event: PointerEvent,
+    draggedElement: any,
+    isElementSelected?: boolean
+  ): void {
+    draggedElement.isDragMe = true;
+    this.startDrag(event, draggedElement);
+  }
+
   protected createElementFromJson(json: object): HTMLElement {
     const element: any = this.createNewElement(json);
     if (element["setSurveyImpl"]) {
@@ -43,10 +52,6 @@ export class DragDropSurveyElements extends DragDropCore<any> {
     var newElement = Serializer.createClass(json["type"]);
     new JsonObject().toObject(json, newElement);
     return newElement;
-  }
-
-  protected getShortcutText(draggedElement: any): string {
-    return draggedElement["title"] || draggedElement["name"];
   }
 
   protected getDropTargetByDataAttributeValue(
@@ -158,7 +163,7 @@ export class DragDropSurveyElements extends DragDropCore<any> {
     if (this.dropTarget === this.ghostSurveyElement) return true;
     return (
       this.dropTarget === this.prevDropTarget && newIsBottom === this.isBottom
-      /*&&this.isEdge === this.prevIsEdge*/
+      && this.isEdge === this.prevIsEdge
     );
   }
 
@@ -235,6 +240,9 @@ export class DragDropSurveyElements extends DragDropCore<any> {
     this.removeGhostElementFromSurvey();
     this.isEdge = null;
     this.ghostSurveyElement = null;
+    if (!!this.draggedElement) {
+      this.draggedElement.isDragMe = false;
+    }
   };
 
   protected insertGhostElementIntoSurvey(): boolean {

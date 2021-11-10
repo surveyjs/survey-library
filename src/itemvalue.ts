@@ -8,7 +8,7 @@ import {
 import { Helpers } from "./helpers";
 import { ConditionRunner } from "./conditions";
 import { Base } from "./base";
-import { ISurvey } from "./base-interfaces";
+import { IShortcutText, ISurvey } from "./base-interfaces";
 import { settings } from "./settings";
 
 /**
@@ -16,7 +16,7 @@ import { settings } from "./settings";
  * It has two main properties: value and text. If text is empty, value is used for displaying.
  * The text property is localizable and support markdown.
  */
-export class ItemValue extends Base {
+export class ItemValue extends Base implements IShortcutText {
   [index: string]: any;
   public static get Separator() {
     return settings.itemValueSeparator;
@@ -299,6 +299,9 @@ export class ItemValue extends Base {
   }
   public get calculatedText() {
     return this.locText.calculatedText;
+  }
+  public get shortcutText(): string {
+    return this.text;
   }
   public getData(): any {
     var json = this.toJSON();

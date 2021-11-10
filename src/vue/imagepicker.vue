@@ -54,7 +54,7 @@
             v-bind:style="{ objectFit: question.imageFit }"
             :alt="item.text || item.value"
           />
-          <embed
+          <video controls
             v-if="question.contentMode === 'video'"
             :class="question.cssClasses.image"
             :src="item.imageLink"
@@ -65,7 +65,7 @@
               question.imageHeight ? question.imageHeight + 'px' : undefined
             "
             v-bind:style="{ objectFit: question.imageFit }"
-          />
+          ></video>
           <span
             v-if="question.showLabel"
             :title="item.text || item.value"

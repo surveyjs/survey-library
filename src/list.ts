@@ -101,6 +101,7 @@ export class ListModel extends ActionContainer {
       event.preventDefault();
     }
   }
+  public onPointerDown(event: PointerEvent, item: any) { }
   public refresh() {
     this.filteredText = "";
   }

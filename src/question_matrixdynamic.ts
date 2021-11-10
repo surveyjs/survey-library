@@ -14,18 +14,30 @@ import { IAction } from "./actions/action";
 import { settings } from "./settings";
 import { confirmAction } from "./utils/utils";
 import { DragDropMatrixRows } from "./dragdrop/matrix-rows";
-import { ISurveyImpl } from "./base-interfaces";
+import { IShortcutText, ISurveyImpl } from "./base-interfaces";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { QuestionMatrixDropdownRenderedTable } from "./question_matrixdropdownrendered";
 import { MatrixDropdownColumn } from "./question_matrixdropdowncolumn";
 
-export class MatrixDynamicRowModel extends MatrixDropdownRowModelBase {
+export class MatrixDynamicRowModel extends MatrixDropdownRowModelBase implements IShortcutText {
   constructor(public index: number, data: IMatrixDropdownData, value: any) {
     super(data, value);
     this.buildCells(value);
   }
   public get rowName() {
     return this.id;
+  }
+
+  public get shortcutText(): string {
+    const matrix = <QuestionMatrixDynamicModel>this.data;
+    const index = matrix.visibleRows.indexOf(this) + 1;
+    const questionValue1 = this.cells.length > 1 ? this.cells[1]["questionValue"] : undefined;
+    const questionValue0 = this.cells.length > 0 ? this.cells[0]["questionValue"] : undefined;
+    return (
+      questionValue1 && questionValue1.value ||
+      questionValue0 && questionValue0.value ||
+      "" + index
+    );
   }
 }
 

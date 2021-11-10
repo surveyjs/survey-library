@@ -14,6 +14,6 @@ export default QUnit.module("Base");
 
 markupTests.forEach(markupTest => {
   QUnit.test(markupTest.name, function (assert) {
-    testQuestionMarkup(assert, markupTest.json, platformDescriptor, markupTest.etalon);
+    testQuestionMarkup(assert, markupTest, platformDescriptor);
   });
 });

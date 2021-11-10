@@ -22,9 +22,13 @@ function sortAttributes(elements) {
   for (var j = 0; j < elements.length; j++) {
     var attributes = [];
     for (var i = 0; i < elements[j].attributes.length; i++) {
+      var name = elements[j].attributes[i].name;
+      var value = elements[j].attributes[i].value;
+      if(name == "disabled" && value == "disabled")
+        value = "";
       attributes.push({
-        "name": elements[j].attributes[i].name,
-        "value": elements[j].attributes[i].value
+        "name": name,
+        "value": value
       });
     }
 
@@ -53,7 +57,7 @@ function sortAttributes(elements) {
   }
 }
 
-export function testQuestionMarkup(assert, json, platform, etalon) {
+export function testQuestionMarkup(assert, test, platform) {
   var id = "surveyElement"+platform.name;
   var surveyElement = document.getElementById(id);
   if(surveyElement) {
@@ -65,7 +69,10 @@ export function testQuestionMarkup(assert, json, platform, etalon) {
     document.body.appendChild(surveyElement);
   }
   var done = assert.async();
-  platform.survey = platform.surveyFactory(json);
+  if(test.before)
+    test.before();
+  platform.survey = platform.surveyFactory(test.json);
+  platform.survey.textUpdateMode = "onTyping";
   platform.survey["onAfterRenderQuestion"].add(function(survey, options) {
     var all = options.htmlElement.getElementsByTagName("*");
     for (var i=0, max=all.length; i < max; i++) {
@@ -82,11 +89,12 @@ export function testQuestionMarkup(assert, json, platform, etalon) {
     var newstr = str.replace(re, "");
     newstr = newstr.replace(/(\r\n|\n|\r)/gm, "");
     newstr = newstr.replace(/(>  +<)/g, "><").trim();
-    assert.equal(newstr, etalon,
-      newstr == etalon?
+    assert.equal(newstr, test.etalon,
+      newstr == test.etalon?
         platform.name + " rendered correctly":
-        platform.name + " rendered incorrectly"+"\n==================\n"+format(etalon)+"\n------------------\n"+format(newstr)+"\n==================\n");
-
+        platform.name + " rendered incorrectly"+"\n==================\n"+format(test.etalon)+"\n------------------\n"+format(newstr)+"\n==================\n");
+    if(test.after)
+      test.after();
     done();
   });
   platform.render(platform.survey, surveyElement);

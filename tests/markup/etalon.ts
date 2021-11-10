@@ -167,6 +167,21 @@ export var markupTests = [
       ]
     },
     etalon: "<div class=\"sv_qcbc sv_qbln\"><label class=\"sv-boolean sv-boolean--indeterminate\"><input aria-invalid=\"false\" aria-label=\"Question title\" aria-required=\"false\" class=\"sv-visuallyhidden\" name=\"name\" type=\"checkbox\" value=\"\"><span class=\"sv-boolean__label\"><span class=\"sv-string-viewer\">No</span></span><div class=\"sv-boolean__switch\"><span class=\"sv-boolean__slider\"><span class=\"sv-hidden\"></span></span></div><span class=\"sv-boolean__label\"><span class=\"sv-string-viewer\">Yes</span></span></label></div>"
+  },
+  {
+    name: "Test Boolean Checkbox question markup",
+    json: {
+      questions: [
+        {
+          name: "name",
+          type: "boolean",
+          title: "Question title",
+          titleLocation: "hidden",
+          renderAs: "checkbox"
+        }
+      ]
+    },
+    etalon: "<div class=\"sv_qcbc sv_qbln\"><label class=\"sv-boolean sv-boolean--indeterminate\"><input aria-invalid=\"false\" aria-label=\"Question title\" aria-required=\"false\" class=\"sv-visuallyhidden\" name=\"name\" type=\"checkbox\" value=\"\"><span class=\"sv-item__decorator sv-boolean__decorator\"><svg class=\"sv-item__svg sv-boolean__svg\" viewBox=\"0 0 24 24\"><rect class=\"sv-boolean__unchecked-path\" height=\"4\" width=\"14\" x=\"5\" y=\"10\"></rect><polygon class=\"sv-boolean__checked-path\" points=\"19,10 14,10 14,5 10,5 10,10 5,10 5,14 10,14 10,19 14,19 14,14 19,14 \"></polygon><path class=\"sv-boolean__indeterminate-path\" d=\"M22,0H2C0.9,0,0,0.9,0,2v20c0,1.1,0.9,2,2,2h20c1.1,0,2-0.9,2-2V2C24,0.9,23.1,0,22,0z M21,18L6,3h15V18z M3,6l15,15H3V6z\"></path></svg><span class=\"check\"></span></span><span class=\"sv-boolean__label\"><span class=\"sv-string-viewer\">Question title</span></span></label></div>"
   }
 
 ];

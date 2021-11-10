@@ -906,7 +906,7 @@ export class Question extends SurveyElement
    * Please note, this property is hidden for question without input, for example html question.
    */
   public get isRequired(): boolean {
-    return this.getPropertyValue("isRequired", false);
+    return this.getPropertyValue("isRequired");
   }
   public set isRequired(val: boolean) {
     this.setPropertyValue("isRequired", val);

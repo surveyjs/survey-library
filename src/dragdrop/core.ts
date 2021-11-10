@@ -130,26 +130,12 @@ export abstract class DragDropCore<T> extends Base {
   protected createDraggedElementShortcut(text: string, draggedElementNode?: HTMLElement, event?: PointerEvent): HTMLElement {
     const draggedElementShortcut = document.createElement("div");
     draggedElementShortcut.innerText = text;
-    draggedElementShortcut.style.cssText = this.getDraggedElementShortcutStyles();
+    draggedElementShortcut.className = this.getDraggedElementClass();
     return draggedElementShortcut;
   }
 
-  protected getDraggedElementShortcutStyles() {
-    return `
-      height: 24px;
-      min-width: 100px;
-      border-radius: 36px;
-      background-color: white;
-      padding: 16px;
-      cursor: grabbing;
-      position: absolute;
-      z-index: 1000;
-      box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.1);
-      font-family: 'Open Sans';
-      font-size: 16px;
-      padding-left: 20px;
-      line-height: 24px;
-    `;
+  protected getDraggedElementClass() {
+    return "sv-dragged-element-shortcut";
   }
 
   protected doDragOver(dropTargetNode?: HTMLElement): void { }

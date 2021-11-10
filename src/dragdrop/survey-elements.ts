@@ -38,24 +38,10 @@ export class DragDropSurveyElements extends DragDropCore<any> {
     this.startDrag(event, draggedElement);
   }
 
-  protected getDraggedElementShortcutStyles() {
-    const border = this.isDraggedElementSelected ? "border: 2px solid #FF9814;" : null;
-    return `
-      height: 24px;
-      min-width: 100px;
-      border-radius: 36px;
-      background-color: white;
-      padding: 16px;
-      cursor: grabbing;
-      position: absolute;
-      z-index: 1000;
-      box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.1);
-      font-family: 'Open Sans';
-      font-size: 16px;
-      padding-left: 20px;
-      line-height: 24px;
-      ${border}
-    `;
+  protected getDraggedElementClass() {
+    let result = "svc-dragged-element-shortcut";
+    if (this.isDraggedElementSelected) result += " svc-dragged-element-shortcut--selected";
+    return result;
   }
 
   protected createElementFromJson(json: object): HTMLElement {

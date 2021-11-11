@@ -31,12 +31,22 @@
 <script lang="ts">
 import Vue from "vue";
 import { Component, Prop } from "vue-property-decorator";
-import { SurveyElement } from "survey-core";
+import { SurveyElement, TooltipManager } from "survey-core";
 
 @Component
 export class Errors extends Vue {
   @Prop() element: SurveyElement;
   @Prop() location: String;
+  private tooltipManager: TooltipManager; 
+  mounted() {
+    if(this.location == "tooltip") {
+      this.tooltipManager = new TooltipManager(<HTMLElement>this.$el);
+    }
+  }
+  destroyed() {
+    this.tooltipManager.dispose()
+  }
+  
 }
 Vue.component("survey-errors", Errors);
 export default Errors;

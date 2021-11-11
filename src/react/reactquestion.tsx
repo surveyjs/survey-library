@@ -1,11 +1,10 @@
 import * as React from "react";
-import { Base, SurveyElement, SurveyError, Question, QuestionMatrixDropdownRenderedCell, doKey2ClickUp } from "survey-core";
+import { Base, SurveyElement, SurveyError, Question, QuestionMatrixDropdownRenderedCell, doKey2ClickUp, TooltipManager } from "survey-core";
 import { ReactSurveyModel } from "./reactsurveymodel";
 import { ReactElementFactory } from "./element-factory";
 import { SurveyElementBase, ReactSurveyElement } from "./reactquestion_element";
 import { SurveyQuestionCommentItem } from "./reactquestion_comment";
 import { SurveyCustomWidget } from "./custom-widget";
-import { TooltipManager } from "../utils/Tooltip";
 import { TitleElement } from "./components/title/title-element";
 
 export interface ISurveyCreator {
@@ -327,11 +326,12 @@ export class SurveyQuestionAndErrorsCell extends ReactSurveyElement {
         element={this.question}
         cssClasses={this.cssClasses}
         creator={this.creator}
-        location={errorsLocation}
+        location={this.question.isErrorsModeTooltip ? "tooltip": errorsLocation}
       />
     ) : null;
-    var errorsTop = errorsLocation === "top" ? errors : null;
-    var errorsBottom = errorsLocation === "bottom" ? errors : null;
+    var errorsTop = errorsLocation === "top" && !this.question.isErrorsModeTooltip ? errors : null;
+    var errorsBottom = errorsLocation === "bottom" && !this.question.isErrorsModeTooltip ? errors : null;
+    var errorsTooltip = this.question.isErrorsModeTooltip ? errors : null;
     var renderedCell = this.renderQuestion();
     var style = this.getCellStyle();
     const readyCell = (
@@ -339,6 +339,7 @@ export class SurveyQuestionAndErrorsCell extends ReactSurveyElement {
         {errorsTop}
         {renderedCell}
         {errorsBottom}
+        {errorsTooltip}
       </>
     );
 

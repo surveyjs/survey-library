@@ -28,6 +28,11 @@
         :element="element"
         :location="'bottom'"
       />
+        <survey-errors
+        v-if="!element.isPanel && element.isErrorsModeTooltip && element.hasParent"
+        :element="element"
+        :location="'tooltip'"
+      />
       <div
         v-if="!element.isPanel && element.hasDescriptionUnderInput"
         :class="element.cssClasses.descriptionUnderInput"
@@ -35,11 +40,6 @@
         <survey-string :locString="element.locDescription" />
       </div>
     </div>
-    <survey-errors
-        v-if="!element.isPanel && element.isErrorsModeTooltip && element.hasParent"
-        :element="element"
-        :location="''"
-    />
     <survey-element-header
       v-if="!element.isPanel && element.hasTitleOnBottom"
       :element="element"

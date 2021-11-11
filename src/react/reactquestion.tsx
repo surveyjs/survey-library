@@ -240,6 +240,7 @@ export class SurveyElementErrors extends ReactSurveyElement {
     return !!this.element && this.element.hasVisibleErrors;
   }
   private tooltipManager: TooltipManager;
+  private tooltipRef: React.RefObject<HTMLDivElement>;
   componentDidUpdate(prevProps: any, prevState: any) {
     super.componentDidUpdate(prevProps, prevState);
     if(this.props.location == "tooltip") {
@@ -247,18 +248,19 @@ export class SurveyElementErrors extends ReactSurveyElement {
         this.tooltipManager = new TooltipManager(this.tooltipRef.current);
       }
       if(!!this.tooltipManager && !this.tooltipRef.current) {
-        this.tooltipManager.dispose();
-        this.tooltipManager = undefined;
+        this.disposeTooltipManager();
       }
     }
   }
   componentWillUnmount() {
-    if(!!this.tooltipManager && !this.tooltipRef.current) {
-      this.tooltipManager.dispose();
-      this.tooltipManager = undefined;
+    if(!!this.tooltipManager) {
+      this.disposeTooltipManager();
     }
   }
-  private tooltipRef: React.RefObject<HTMLDivElement>;
+  private disposeTooltipManager() {
+    this.tooltipManager.dispose();
+    this.tooltipManager = undefined;
+  }
   protected renderElement(): JSX.Element {
     const errors = [];
     for (let i = 0; i < this.element.errors.length; i++) {

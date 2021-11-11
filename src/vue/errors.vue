@@ -44,7 +44,9 @@ export class Errors extends Vue {
     }
   }
   destroyed() {
-    this.tooltipManager.dispose()
+    if(!!this.tooltipManager) {
+      this.tooltipManager.dispose()
+    }
   }
   
 }

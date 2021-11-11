@@ -44,7 +44,7 @@ export class DragDropSurveyElements extends DragDropCore<any> {
     const textSpan = document.createElement("span");
     textSpan.innerText = text;
     draggedElementShortcut.appendChild(this.createDraggedElementIcon());
-    draggedElementShortcut.appendChild(textSpan); 
+    draggedElementShortcut.appendChild(textSpan);
     draggedElementShortcut.className = this.getDraggedElementClass();
     return draggedElementShortcut;
   }

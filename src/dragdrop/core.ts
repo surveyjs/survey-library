@@ -34,7 +34,7 @@ export abstract class DragDropCore<T> extends Base {
   public prevDropTarget: any = null;
   protected draggedElementShortcut: any = null;
   private scrollIntervalId: number = null;
-  private allowDropHere = false;
+  protected allowDropHere = false;
 
   constructor(private surveyValue?: ISurvey, private creator?: any) {
     super();
@@ -258,8 +258,8 @@ export abstract class DragDropCore<T> extends Base {
   }
 
   protected banDropHere = (): void => {
-    this.doBanDropHere();
     this.allowDropHere = false;
+    this.doBanDropHere();
     this.dropTarget = null;
     this.draggedElementShortcut.style.cursor = "not-allowed";
     this.isBottom = null;

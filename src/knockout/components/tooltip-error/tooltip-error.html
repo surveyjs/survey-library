@@ -1,2 +1,4 @@
-<!-- ko template: { name: 'survey-question-errors', data: question, afterRender: afterRender } -->
+<!-- ko if: question.hasVisibleErrors -->
+  <!-- ko template: { name: 'survey-question-errors', data: question, afterRender: afterRender } -->
+  <!-- /ko -->
 <!-- /ko -->

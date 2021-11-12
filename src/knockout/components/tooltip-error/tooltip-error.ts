@@ -6,11 +6,12 @@ export class TooltipErrorViewModel {
   private tooltipManager: TooltipManager;
   constructor(public question: Question) {
   }
-  public afterRender (elements: HTMLElement[]): void {
-    this.tooltipManager = new TooltipManager(elements[1]);
-  }
-  dispose(): void {
-    this.tooltipManager.dispose();
+  public afterRender = (elements: HTMLElement[]): void => {
+    const tooltipElement = elements.filter((el)=> el instanceof HTMLElement)[0];
+    this.tooltipManager = new TooltipManager(tooltipElement);
+    ko.utils.domNodeDisposal.addDisposeCallback(elements[1], ()=> {
+      this.tooltipManager.dispose();
+    });
   }
 }
 

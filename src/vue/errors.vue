@@ -38,13 +38,18 @@ export class Errors extends Vue {
   @Prop() element: SurveyElement;
   @Prop() location: String;
   private tooltipManager: TooltipManager; 
-  mounted() {
-    if(this.location == "tooltip") {
-      this.tooltipManager = new TooltipManager(<HTMLElement>this.$el);
+  updated() {
+    if (this.location == "tooltip" && this.$el instanceof HTMLElement) {
+      if(!this.tooltipManager || this.$el !== this.tooltipManager.tooltipElement) {
+        this.tooltipManager = new TooltipManager(<HTMLElement>this.$el);
+      }
+    }
+    if (!(this.$el instanceof HTMLElement) && !!this.tooltipManager) {
+      this.tooltipManager.dispose()
     }
   }
   destroyed() {
-    if(!!this.tooltipManager) {
+    if (!!this.tooltipManager) {
       this.tooltipManager.dispose()
     }
   }

@@ -2427,17 +2427,17 @@ export class SurveyModel extends SurveyElementCore
    * Set `options.includeEmpty` to `false` if you want to skip empty answers.
    */
   public getPlainData(
-    options: {
+    options?: {
       includeEmpty?: boolean,
       includeQuestionTypes?: boolean,
       calculations?: Array<{
         propertyName: string,
       }>,
-    } = {
-        includeEmpty: true,
-        includeQuestionTypes: false,
-      }
+    }
   ) {
+    if (!options) {
+      options = { includeEmpty: true, includeQuestionTypes: false };
+    }
     var result: Array<any> = [];
     this.getAllQuestions().forEach((question) => {
       var resultItem = (<Question>question).getPlainData(options);

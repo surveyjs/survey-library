@@ -1243,17 +1243,17 @@ export class Question extends SurveyElement
    * set options.includeEmpty to false if you want to skip empty answers
    */
   public getPlainData(
-    options: {
+    options?: {
       includeEmpty?: boolean,
       includeQuestionTypes?: boolean,
       calculations?: Array<{
         propertyName: string,
       }>,
-    } = {
-        includeEmpty: true,
-        includeQuestionTypes: false,
-      }
+    }
   ): any {
+    if (!options) {
+      options = { includeEmpty: true, includeQuestionTypes: false };
+    }
     if (options.includeEmpty || !this.isEmpty()) {
       var questionPlainData = <any>{
         name: this.name,

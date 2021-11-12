@@ -14312,3 +14312,22 @@ QUnit.test("Make invisible question visible in the only page", function (assert)
   newPage.questions[1].visible = true;
   assert.equal(survey.getPropertyValue("currentPageValue").name, survey.pages[0].name, "New page is visible now, #2");
 });
+QUnit.test("clear value for question in invisible panel with non-empty valueName property", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "text", name: "q1" },
+      {
+        type: "panel", name: "panel", visibleIf: "{q1} empty",
+        elements: [
+          { type: "text", name: "q2", valueName: "invisible" }
+        ]
+      }
+    ]
+  });
+  const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("q2");
+  matrix.value = "val2";
+  assert.deepEqual(survey.data, { invisible: "val2" }, "value is in data");
+  survey.setValue("q1", 1)
+  survey.doComplete();
+  assert.deepEqual(survey.data, { q1: 1 }, "value is empty now");
+});

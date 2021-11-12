@@ -346,9 +346,9 @@ export class Question extends SurveyElement
   }
   public setSurveyImpl(value: ISurveyImpl, isLight?: boolean): void {
     super.setSurveyImpl(value);
-    if(!this.survey) return;
+    if (!this.survey) return;
     this.survey.questionCreated(this);
-    if(isLight !== true) {
+    if (isLight !== true) {
       this.runConditions();
     }
   }
@@ -579,7 +579,7 @@ export class Question extends SurveyElement
   }
   public onCommentChange(event: any): void {
     this.comment = event.target.value;
-    if(this.comment !== event.target.value) {
+    if (this.comment !== event.target.value) {
       event.target.value = this.comment;
     }
   }
@@ -1171,7 +1171,10 @@ export class Question extends SurveyElement
     if (!this.survey || !this.valueName) return true;
     return !this.survey.hasVisibleQuestionByValueName(this.valueName);
   }
-  private get isParentVisible(): boolean {
+  /**
+   * Return true if there is a parent (page or panel) and it is visible
+   */
+  public get isParentVisible(): boolean {
     var parent = this.parent;
     while (parent) {
       if (!parent.isVisible) return false;
@@ -1247,9 +1250,9 @@ export class Question extends SurveyElement
         propertyName: string,
       }>,
     } = {
-      includeEmpty: true,
-      includeQuestionTypes: false,
-    }
+        includeEmpty: true,
+        includeQuestionTypes: false,
+      }
   ): any {
     if (options.includeEmpty || !this.isEmpty()) {
       var questionPlainData = <any>{
@@ -1397,9 +1400,9 @@ export class Question extends SurveyElement
   public set comment(newValue: string) {
     if (!!newValue) {
       const trimmedValue = newValue.toString().trim();
-      if(trimmedValue !== newValue) {
+      if (trimmedValue !== newValue) {
         newValue = trimmedValue;
-        if(newValue === this.comment) {
+        if (newValue === this.comment) {
           this.setPropertyValueDirectly("comment", newValue);
         }
       }

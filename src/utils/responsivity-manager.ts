@@ -1,3 +1,4 @@
+import { Action } from "../actions/action";
 import { AdaptiveActionContainer } from "../actions/adaptive-container";
 
 interface IDimensions {
@@ -56,21 +57,25 @@ export class ResponsivityManager {
     return item.offsetWidth;
   }
 
+  private calcMinDimension(currentAction: Action) {
+    let minDimensionConst = this.minDimensionConst;
+    if(currentAction.iconSize) {
+      minDimensionConst = 2 * currentAction.iconSize + this.paddingSizeConst;
+    }
+    return currentAction.canShrink
+      ? minDimensionConst +
+      (currentAction.needSeparator ? this.separatorSize : 0)
+      : currentAction.maxDimension;
+  }
+
   private calcItemsSizes() {
     const actions = this.model.actions;
     this.container
       .querySelectorAll(this.itemsSelector)
       .forEach((item: HTMLDivElement, index: number) => {
         let currentAction = actions[index];
-        let minDimensionConst = this.minDimensionConst;
-        if(currentAction.iconSize) {
-          minDimensionConst = 2 * currentAction.iconSize - this.paddingSizeConst;
-        }
         currentAction.maxDimension = this.calcItemSize(item);
-        currentAction.minDimension = currentAction.canShrink
-          ? minDimensionConst +
-            (currentAction.needSeparator ? this.separatorSize : 0)
-          : currentAction.maxDimension;
+        currentAction.minDimension = this.calcMinDimension(currentAction);
       });
   }
   private get isContainerVisible(): boolean {

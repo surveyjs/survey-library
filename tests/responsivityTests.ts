@@ -209,6 +209,24 @@ QUnit.test("ResponsivityManager process test", function (assert) {
   assert.equal(newAction.maxDimension, 100);
 });
 
+QUnit.test("ResponsivityManager minDimension calc test", function (assert) {
+  const container: SimpleContainer = new SimpleContainer({});
+  const model: AdaptiveActionContainer = new AdaptiveActionContainer();
+  const manager: ResponsivityManager = new ResponsivityManager(<any>container, <any>model, "");
+  (<any>manager.getComputedStyle) = () => {
+    return { boxSizing: "content-box", paddingLeft: 5, paddingRight: 5 };
+  };
+
+  const newAction = new Action({ id: "first", iconName: "icon" });
+  model.actions.push(newAction);
+  assert.equal(manager["calcMinDimension"](newAction), 56);
+
+  model.actions = [];
+  const smallAction = new Action({ id: "first", iconName: "icon", iconSize: 16 });
+  model.actions.push(newAction);
+  assert.equal(manager["calcMinDimension"](smallAction), 40);
+});
+
 QUnit.test(
   "ResponsivityManager process test: stop when container is invisible",
   function(assert) {

@@ -10,6 +10,8 @@ export class ResponsivityManager {
   private isInitialized = false;
   protected minDimensionConst = 56;
   private separatorSize = 17;
+  private separatorAddConst = 1;
+  private paddingSizeConst = 8;
 
   public getComputedStyle: (
     elt: Element
@@ -19,8 +21,9 @@ export class ResponsivityManager {
     protected container: HTMLDivElement,
     private model: AdaptiveActionContainer,
     private itemsSelector: string,
-    private dotsItemSize: number = 48
+    private dotsItemSize: number = 48,
   ) {
+
     this.model.updateCallback = (isResetInitialized: boolean) => {
       if(isResetInitialized)
         this.isInitialized = false;
@@ -59,9 +62,13 @@ export class ResponsivityManager {
       .querySelectorAll(this.itemsSelector)
       .forEach((item: HTMLDivElement, index: number) => {
         let currentAction = actions[index];
+        let minDimensionConst = this.minDimensionConst;
+        if(currentAction.iconSize) {
+          minDimensionConst = 2 * currentAction.iconSize - this.paddingSizeConst;
+        }
         currentAction.maxDimension = this.calcItemSize(item);
         currentAction.minDimension = currentAction.canShrink
-          ? this.minDimensionConst +
+          ? minDimensionConst +
             (currentAction.needSeparator ? this.separatorSize : 0)
           : currentAction.maxDimension;
       });

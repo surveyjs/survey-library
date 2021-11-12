@@ -48,7 +48,7 @@ frameworks.forEach((framework) => {
     await initSurvey(framework, json);
     await t.resizeWindow(1000, 1000);
   });
-  test.only("check errors tooltip", async (t) => {
+  test("check errors tooltip", async (t) => {
     const focusBody = ClientFunction(() => { document.body.focus(); });
     const matrixCellSelector = Selector(
       ".sd-table__cell:not(.sd-table__cell--header)"

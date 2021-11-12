@@ -2,6 +2,7 @@
   width: 100%;
   background-color: $background;
   border-collapse: collapse;
+  white-space: normal;
   td:empty, th:empty {
     width: 0%;
   }
@@ -16,6 +17,9 @@
   padding-bottom: calcSize(2);
   color: $foreground;
   text-align: center;
+}
+.sd-table__cell--header {
+  font-weight: 600;
 }
 .sd-table__cell:not(:last-child) {
   padding-right: calcSize(2);

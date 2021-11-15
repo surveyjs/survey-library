@@ -160,3 +160,6 @@
   pointer-events: all;
   cursor: pointer;
 }
+.sd-file__decorator--error {
+  background-color: $red-light;
+}

@@ -44,3 +44,6 @@
 .sd-item--disabled .sd-item__control-label {
   color: $foreground-disabled-for-editors;
 }
+.sd-item--error .sd-item__decorator {
+  background: $red-light;
+}

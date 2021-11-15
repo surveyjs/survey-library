@@ -98,7 +98,7 @@ export var defaultV2Css = {
     indent: 20,
     footer: "sd-question__footer",
     formGroup: "sd-question__form-group",
-    hasError: "",
+    hasError: "sd-question--error",
     disabled: "sd-question--disabled"
   },
   image: { root: "sd-image", image: "sv_image_image" },
@@ -106,12 +106,15 @@ export var defaultV2Css = {
     root: "sd-question__erbox",
     icon: "",
     item: "",
+    tooltip: "sd-question__erbox--tooltip",
+    aboveQuestion: "sd-question__erbox--above-question",
     locationTop: "sd-question__erbox--location--top",
     locationBottom: "sd-question__erbox--location--bottom"
   },
   checkbox: {
     root: "sd-selectbase",
     item: "sd-item sd-checkbox sd-selectbase__item",
+    itemOnError: "sd-item--error",
     itemSelectAll: "sd-checkbox--selectall",
     itemNone: "sd-checkbox--none",
     itemDisabled: "sd-item--disabled sd-checkbox--disabled",
@@ -130,6 +133,7 @@ export var defaultV2Css = {
   radiogroup: {
     root: "sd-selectbase",
     item: "sd-item sd-radio sd-selectbase__item",
+    itemOnError: "sd-item--error",
     itemInline: "sd-selectbase__item--inline",
     label: "sd-selectbase__label",
     labelChecked: "",
@@ -148,6 +152,7 @@ export var defaultV2Css = {
     mainRoot: "sd-element-with-frame sd-question sd-row__question sd-question--boolean",
     root: "",
     item: "sd-boolean",
+    itemOnError: "sd-boolean--error",
     control: "sd-boolean__control sd-visuallyhidden",
     itemChecked: "sd-boolean--checked",
     itemIndeterminate: "sd-boolean--indeterminate",
@@ -195,6 +200,7 @@ export var defaultV2Css = {
     mainRoot: "sd-element-with-frame sd-question sd-row__question sd-scrollable",
     root: "sd-imagepicker",
     item: "sd-imagepicker__item",
+    itemOnError: "sd-imagepicker__item--error",
     itemInline: "sd-imagepicker__item--inline",
     itemChecked: "sd-imagepicker__item--checked",
     itemDisabled: "sd-imagepicker__item--disabled",
@@ -214,6 +220,7 @@ export var defaultV2Css = {
     cell: "sd-table__cell sd-matrix__cell",
     headerCell: "sd-table__cell sd-table__cell--header",
     label: "sd-item sd-radio sd-matrix__label",
+    itemOnError: "sd-item--error",
     itemValue: "sd-visuallyhidden sd-item__control sd-radio__control",
     itemChecked: "sd-item--checked sd-radio--checked",
     itemDisabled: "sd-item--disabled sd-radio--disabled",
@@ -251,6 +258,7 @@ export var defaultV2Css = {
   rating: {
     root: "sd-rating",
     item: "sd-rating__item",
+    itemOnError: "sd-rating__item--error",
     itemHover: "sd-rating__item--allowhover",
     selected: "sd-rating__item--selected",
     minText: "sd-rating__item-text sd-rating__min-text",
@@ -262,6 +270,7 @@ export var defaultV2Css = {
     root: "sd-input sd-comment",
     small: "sd-row__question--small",
     controlDisabled: "sd-input--disabled",
+    onError: "sd-input--error"
   },
   expression: "",
   file: {
@@ -273,6 +282,7 @@ export var defaultV2Css = {
     fileList: "sd-file__list",
     fileSignBottom: "sd-file__sign",
     fileDecorator: "sd-file__decorator",
+    onError: "sd-file__decorator--error",
     fileDecoratorDrag: "sd-file__decorator--drag",
     fileInput: "sd-visuallyhidden",
     noFileChosen: "sd-description sd-file__no-file-chosen",
@@ -285,7 +295,8 @@ export var defaultV2Css = {
     wrapper: "sd-file__wrapper",
     defaultImage: "sd-file__default-image",
     removeFileButton: "sd-file__remove-file-button",
-    dragAreaPlaceholder: "sd-file__drag-area-placeholder"
+    dragAreaPlaceholder: "sd-file__drag-area-placeholder",
+
   },
   signaturepad: {
     root: "sd-signaturepad sjs_sp_container",

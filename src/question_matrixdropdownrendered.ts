@@ -519,6 +519,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
       }
       renderedCell.className = new CssClassBuilder()
         .append(renderedCell.className)
+        .append(this.cssClasses.rowTextCell)
         .append(this.cssClasses.detailRowText, row.hasPanel)
         .toString();
     }
@@ -631,6 +632,9 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
       var lTitle = !!choice ? choice.locText : column.locTitle;
       var hCell = this.createTextCell(lTitle);
       hCell.column = column;
+      hCell.className = new CssClassBuilder()
+        .append(hCell.className)
+        .append(this.cssClasses.rowTextCell).toString();
       if (!choice) {
         this.setRequriedToHeaderCell(column, hCell);
       }

@@ -3,9 +3,6 @@
   background-color: $background;
   border-collapse: collapse;
   white-space: normal;
-  td:empty, th:empty {
-    width: 0%;
-  }
 }
 .sd-table tr:not(:last-child) {
   padding-bottom: calcSize(2);
@@ -20,6 +17,7 @@
 }
 .sd-table__cell--header {
   font-weight: 600;
+  vertical-align: top;
 }
 .sd-table__cell:not(:last-child) {
   padding-right: calcSize(2);
@@ -42,7 +40,6 @@
   }
 }
 .sd-table__cell--actions{
-  width: 1%;
   white-space: nowrap;
   .sv-action-bar {
     opacity: 0.5;
@@ -51,4 +48,8 @@
   .sv-action:not(:last-child) > .sv-action__content {
     padding-right: 0;
   }
+}
+.sd-table__cell--row-text {
+  font-weight: 600;
+  text-align: left;
 }

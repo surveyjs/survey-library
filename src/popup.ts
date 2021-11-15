@@ -22,6 +22,7 @@ export class PopupModel<T = any> extends Base {
   @property({ defaultValue: () => { } }) onShow: () => void;
   @property({ defaultValue: "" }) cssClass: string;
   @property({ defaultValue: "" }) title: string;
+  @property({ defaultValue: "popup" }) displayMode: "popup"|"overlay";
   constructor(
     contentComponentName: string,
     contentComponentData: T,
@@ -162,12 +163,19 @@ export class PopupBaseViewModel extends Base {
   public get isModal(): boolean {
     return this.model.isModal;
   }
+  public get showFooter(): boolean {
+    return this.isModal || this.isOverlay;
+  }
+  public get isOverlay(): boolean {
+    return this.model.displayMode === "overlay";
+  }
   public get styleClass(): string {
     return new CssClassBuilder()
       .append(this.model.cssClass)
       .append("sv-popup--modal", this.isModal)
-      .append("sv-popup--show-pointer", !this.isModal && this.showPointer)
-      .append(`sv-popup--${this.popupDirection}`, !this.isModal && this.showPointer)
+      .append("sv-popup--show-pointer", !this.isModal && this.model.displayMode === "popup" && this.showPointer)
+      .append(`sv-popup--${this.popupDirection}`, !this.isModal && this.model.displayMode === "popup" && this.showPointer)
+      .append(`sv-popup--${this.model.displayMode}`, this.model.displayMode === "overlay")
       .toString();
   }
   public onKeyDown(event: any) {

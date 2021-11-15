@@ -73,7 +73,12 @@ export class Question extends SurveyElement
   public isReadOnlyRenderDiv(): boolean {
     return this.isReadOnly && settings.readOnlyCommentRenderMode === "div";
   }
-
+  public get isErrorsModeTooltip() {
+    return this.survey && this.survey.getCss().root == "sd-root-modern";
+  }
+  public get hasParent() {
+    return this.parentQuestionValue !== null;
+  }
   constructor(name: string) {
     super(name);
     this.id = Question.getQuestionId();
@@ -717,8 +722,10 @@ export class Question extends SurveyElement
   protected getCssError(cssClasses: any): string {
     return new CssClassBuilder()
       .append(cssClasses.error.root)
-      .append(cssClasses.error.locationTop, this.errorLocation === "top")
-      .append(cssClasses.error.locationBottom, this.errorLocation === "bottom")
+      .append(cssClasses.error.aboveQuestion, this.isErrorsModeTooltip && !this.hasParent)
+      .append(cssClasses.error.tooltip, this.isErrorsModeTooltip && this.hasParent)
+      .append(cssClasses.error.locationTop, !this.isErrorsModeTooltip && this.errorLocation === "top")
+      .append(cssClasses.error.locationBottom, !this.isErrorsModeTooltip && this.errorLocation === "bottom")
       .toString();
   }
   public getRootCss(): string {

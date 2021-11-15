@@ -92,6 +92,17 @@ QUnit.test("Fit items", function (assert) {
   assert.equal(model.renderedActions[3].iconName, "icon-dots", "dimension 50");
   assert.equal(item1.mode, "popup", "dimension 50");
   assert.equal(item2.mode, "popup", "dimension 50");
+
+  item2.disableShrink = true;
+  model.fit(100, itemSmallWidth);
+  assert.equal(model.renderedActions.length, 4, "dimension 100");
+  assert.equal(model.renderedActions[0].isVisible, true, "visible 1");
+  assert.equal(model.renderedActions[1].isVisible, true, "visible 2");
+  assert.equal(model.renderedActions[2].isVisible, false, "invisible 3");
+  assert.equal(model.renderedActions[3].isVisible, false, "dots hidden");
+  assert.equal(item1.mode, "small", "dimension 100");
+  assert.equal(item2.mode, "large", "dimension 100 unshrinkable");
+
 });
 
 QUnit.test("getAvailableSpace with content-box test", function (assert) {

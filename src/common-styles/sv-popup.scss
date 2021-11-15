@@ -38,6 +38,25 @@ sv-popup {
     padding: calcSize(4);
   }
 }
+.sv-popup--overlay {
+  width: 100%;
+  .sv-popup__container {
+    max-width: 100vw;
+    max-height: calc(100vh - calcSize(2));
+    width: 100vw;
+    margin-top: calcSize(2);
+    border: unset;
+    box-shadow: 0px calcSize(1) calcSize(10);
+    border-radius: calcSize(2) calcSize(2) 0px 0px;
+  }
+  .sv-popup__footer{
+    margin-top: calcSize(1);
+    .sv-popup__footer-item {
+      margin: calcSize(2);
+      width: 100%;
+    }
+  }
+}
 .sv-popup__container {
   position: absolute;
   filter: drop-shadow(0px calcSize(1) calcSize(2) rgba(0, 0, 0, 0.1));

@@ -210,6 +210,7 @@ export class SurveyQuestionMatrixRow extends ReactSurveyElement {
   }
   cellClick(row: any, column: any) {
     row.value = column.value;
+    this.setState({ value: this.row.value });
   }
 }
 

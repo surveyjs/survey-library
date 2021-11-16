@@ -1,5 +1,5 @@
 import { frameworks, url, setOptions, initSurvey, getSurveyResult, getQuestionValue, getQuestionJson } from "../helper";
-import { ClientFunction } from "testcafe";
+import { ClientFunction, Selector } from "testcafe";
 const assert = require("assert");
 const title = `matrixrubric`;
 
@@ -80,12 +80,14 @@ frameworks.forEach((framework) => {
 
   test(`choose several values`, async (t) => {
     let surveyResult;
-
+    const firstCellSelector = Selector("tbody tr:nth-child(2) td:nth-child(5)");
+    const secondCellSelector = Selector("tbody tr:nth-child(4) td:nth-child(6)");
     await t
-      .click(`tbody tr:nth-child(2) td:nth-child(5)`)
-      .click(`tbody tr:nth-child(4) td:nth-child(6)`)
-      .click(`input[value=Complete]`);
-
+      .click(firstCellSelector)
+      .expect(firstCellSelector.hasClass("sv_q_m_cell_selected")).ok()
+      .click(secondCellSelector)
+      .expect(secondCellSelector.hasClass("sv_q_m_cell_selected")).ok()
+      .click(`input[value=Complete]`)
     surveyResult = await getSurveyResult();
     assert.deepEqual(surveyResult.Quality, {
       "does what it claims": "4",
@@ -97,7 +99,7 @@ frameworks.forEach((framework) => {
     let surveyResult;
     const getPosition = ClientFunction(() =>
       document.documentElement.innerHTML.indexOf(
-        "Please answer questions in all rows"
+        "Response required: answer questions in all rows."
       )
     );
     let position;
@@ -163,8 +165,7 @@ frameworks.forEach((framework) => {
     var innerSelector = `.sv-string-editor`
     await t
       .click(outerSelector)
-      .selectEditableContent(outerSelector + ` ` + innerSelector)
-      .typeText(outerSelector + ` ` + innerSelector, newTitle)
+      .typeText(outerSelector + ` ` + innerSelector, newTitle, { replace: true })
       .click(`body`, { offsetX: 0, offsetY: 0 });
 
     questionValue = await getQuestionValue();
@@ -183,8 +184,7 @@ frameworks.forEach((framework) => {
     var innerSelector = `.sv-string-editor`
     await t
       .click(outerSelector)
-      .selectEditableContent(outerSelector + ` ` + innerSelector)
-      .typeText(outerSelector + ` ` + innerSelector, newTitle)
+      .typeText(outerSelector + ` ` + innerSelector, newTitle, { replace: true })
       .click(`body`, { offsetX: 0, offsetY: 0 });
 
     questionValue = await getQuestionValue();
@@ -202,8 +202,7 @@ frameworks.forEach((framework) => {
     var selector = `.sv_q_matrix tbody tr td .sv-string-editor`;
     await t
       .click(selector)
-      .selectEditableContent(selector)
-      .typeText(selector, newTitle)
+      .typeText(selector, newTitle, { replace: true })
       .click(`body`, { offsetX: 0, offsetY: 0 });
 
     questionValue = await getQuestionValue();
@@ -221,8 +220,7 @@ frameworks.forEach((framework) => {
     var selector = `.sv_q_matrix tbody tr:nth-child(4) td:nth-child(6) .sv-string-editor`;
     await t
       .click(selector)
-      .selectEditableContent(selector)
-      .typeText(selector, newTitle)
+      .typeText(selector, newTitle, { replace: true })
       .click(`body`, { offsetX: 0, offsetY: 0 });
 
     questionValue = await getQuestionValue();

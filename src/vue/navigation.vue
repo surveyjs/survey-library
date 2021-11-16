@@ -66,8 +66,8 @@ export class Navigation extends BaseVue {
     this.updateShowButtons();
   }
   private updateShowButtons() {
-    this.showPrevBtn = !this.survey.isFirstPage && this.survey.isShowPrevButton;
-    this.showNextBtn = !this.survey.isLastPage;
+    this.showPrevBtn = this.survey.isShowPrevButton;
+    this.showNextBtn = this.survey.isShowNextButton;
     this.showCompleteBtn = this.survey.isLastPage;
   }
   nextButtonMouseDown() {

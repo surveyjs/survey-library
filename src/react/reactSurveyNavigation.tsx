@@ -43,7 +43,7 @@ export class SurveyNavigation extends SurveyNavigationBase {
       return null;
     var isStartedPage = this.survey.state === "starting";
     var prevButton =
-      !isStartedPage && !this.survey.isFirstPage && this.survey.isShowPrevButton
+      this.survey.isShowPrevButton
         ? this.renderButton(
           this.handlePrevClick,
           this.handleMouseDown,
@@ -52,7 +52,7 @@ export class SurveyNavigation extends SurveyNavigationBase {
         )
         : null;
     var nextButton =
-      !isStartedPage && !this.survey.isLastPage
+      this.survey.isShowNextButton
         ? this.renderButton(
           this.handleNextClick,
           this.handleNextMouseDown,
@@ -61,8 +61,6 @@ export class SurveyNavigation extends SurveyNavigationBase {
         )
         : null;
     var completeButton =
-      !isStartedPage &&
-      this.survey.isLastPage &&
       this.survey.isCompleteButtonVisible
         ? this.renderButton(
           this.handleCompleteClick,

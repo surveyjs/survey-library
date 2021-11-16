@@ -1725,7 +1725,7 @@ QUnit.test("Text questions spaces is not a valid answer for required", function(
   assert.equal(question.hasErrors(), true, "Question is empty");
   assert.equal(
     question.errors[0].locText.textOrHtml,
-    "Please answer the question.",
+    "Response required.",
     "error has correct text"
   );
   question.value = "  ";
@@ -2371,18 +2371,77 @@ QUnit.test("readOnlyCommentRenderMode", function(assert) {
     false,
     "isReadOnlyRenderDiv false"
   );
+});
+QUnit.test("readOnlyCommentRenderMode+readOnlyTextRenderMode", function(assert) {
+  var survey = new SurveyModel();
+  var page = survey.addNewPage("p1");
+  var qComment = new QuestionCommentModel("q1");
+  var qText = new QuestionTextModel("q3");
+  survey.mode = "display";
+
+  page.addElement(qComment);
+  page.addElement(qText);
+
+  assert.equal(
+    qComment["isReadOnlyRenderDiv"](),
+    false,
+    "1. Comment - isReadOnlyRenderDiv false"
+  );
+  assert.equal(
+    qText["isReadOnlyRenderDiv"](),
+    false,
+    "1. Text - isReadOnlyRenderDiv false"
+  );
 
   settings.readOnlyCommentRenderMode = "div";
 
   assert.equal(
     qComment["isReadOnlyRenderDiv"](),
     true,
-    "isReadOnlyRenderDiv true"
+    "2. Comment - isReadOnlyRenderDiv true"
   );
   assert.equal(
-    qRadio["isReadOnlyRenderDiv"](),
+    qText["isReadOnlyRenderDiv"](),
+    false,
+    "3. Text - isReadOnlyRenderDiv false"
+  );
+
+  settings.readOnlyTextRenderMode = "div";
+  assert.equal(
+    qComment["isReadOnlyRenderDiv"](),
     true,
-    "isReadOnlyRenderDiv true"
+    "3. Comment - isReadOnlyRenderDiv true"
+  );
+
+  assert.equal(
+    qText["isReadOnlyRenderDiv"](),
+    true,
+    "3. Text - isReadOnlyRenderDiv true"
+  );
+
+  settings.readOnlyCommentRenderMode = "textarea";
+  assert.equal(
+    qComment["isReadOnlyRenderDiv"](),
+    false,
+    "4. Comment - isReadOnlyRenderDiv false"
+  );
+  assert.equal(
+    qText["isReadOnlyRenderDiv"](),
+    true,
+    "4. Text - isReadOnlyRenderDiv true"
+  );
+
+  settings.readOnlyCommentRenderMode = "div";
+  survey.mode = "edit";
+  assert.equal(
+    qComment["isReadOnlyRenderDiv"](),
+    false,
+    "5. Comment - isReadOnlyRenderDiv false"
+  );
+  assert.equal(
+    qText["isReadOnlyRenderDiv"](),
+    false,
+    "5. Text - isReadOnlyRenderDiv false"
   );
 });
 
@@ -4101,7 +4160,7 @@ QUnit.test(
     );
   }
 );
-QUnit.test("Checkbox question getItemClass()", function(assert) {
+QUnit.test("Checkbox question getItemClass() + survey.onUpdateChoiceItemCss", function(assert) {
   var survey = new SurveyModel({
     elements: [
       {
@@ -4135,6 +4194,16 @@ QUnit.test("Checkbox question getItemClass()", function(assert) {
     q1.getItemClass(q1.visibleChoices[3]),
     "sv_q_checkbox sv-q-col-1 sv_q_checkbox_none",
     "None"
+  );
+  survey.onUpdateChoiceItemCss.add((sender, options) => {
+    if(options.item.value == 2) {
+      options.css = options.css + " custom";
+    }
+  });
+  assert.equal(
+    q1.getItemClass(q1.visibleChoices[2]),
+    "sv_q_checkbox sv-q-col-1 custom",
+    "item 2, value = 2, survey.onUpdateChoiceItemCss"
   );
 });
 QUnit.test(
@@ -5476,4 +5545,31 @@ QUnit.test("Multiple Text Question: editor.renderedPlaceHolder is undefined, Bug
   assert.equal(question.items[0].placeHolder, "place holder", "item place holder");
   assert.equal(question.items[0].editor.placeHolder, "place holder", "editor place holder");
   assert.equal(question.items[0].editor.renderedPlaceHolder, "place holder", "editor rendered place holder");
+});
+QUnit.test("setting visibleChoices do not fired onArrayChanged ", function (assert) {
+  const question = new QuestionDropdownModel("q1");
+  let counter = 0;
+  (<any>question.visibleChoices).testId = 1;
+  (<any>question.visibleChoices).onArrayChanged = () => {
+    counter ++;
+  };
+  let hasVisibleChoicesInHash = false;
+  question.iteratePropertiesHash((hash, key) => {
+    if(key === "visibleChoices") {
+      hasVisibleChoicesInHash = true;
+    }
+  });
+  assert.equal(hasVisibleChoicesInHash, true, "visibleChoices array in hash");
+  question.choices = [1, 2, 3];
+  assert.equal(question.visibleChoices.length, 3, "visibleChoices is set");
+  assert.equal((<any>question.visibleChoices).testId, 1, "visibleChoices array is the same");
+  assert.equal(counter, 1, "We fired onArrayChanged for visibleChoices");
+});
+QUnit.test("Question title equals to name", (assert) => {
+  const question = new QuestionTextModel("q1");
+  assert.notOk(question.locTitle.getLocaleText(""), "Question title is empty # 1");
+  assert.equal(question.locTitle.renderedHtml, "q1");
+  question.locTitle.setLocaleText("", "q1");
+  assert.notOk(question.locTitle.getLocaleText(""), "Question title is empty # 2");
+  assert.equal(question.locTitle.renderedHtml, "q1");
 });

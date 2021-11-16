@@ -605,7 +605,7 @@ export class QuestionSelectBase extends Question {
    * @see enabledChoices
    */
   public get visibleChoices(): Array<ItemValue> {
-    return this.getPropertyValue("visibleChoices", []);
+    return this.getPropertyValue("visibleChoices");
   }
   /**
    * The list of enabled items as they will be rendered. The disabled items are not included
@@ -688,7 +688,7 @@ export class QuestionSelectBase extends Question {
   }
   protected get isAddDefaultItems() {
     return (
-      settings.supportCreatorV2 && this.isDesignMode && !this.parentQuestion
+      settings.supportCreatorV2 && this.isDesignMode && !this.isContentElement
     );
   }
   public getPlainData(
@@ -843,8 +843,8 @@ export class QuestionSelectBase extends Question {
     if (!this.hasOther || !this.isOtherSelected || this.comment) return;
     errors.push(new OtherEmptyError(this.otherErrorText, this));
   }
-  public setSurveyImpl(value: ISurveyImpl) {
-    super.setSurveyImpl(value);
+  public setSurveyImpl(value: ISurveyImpl, isLight?: boolean) {
+    super.setSurveyImpl(value, isLight);
     this.runChoicesByUrl();
     if (this.isAddDefaultItems) {
       this.updateVisibleChoices();
@@ -1140,26 +1140,39 @@ export class QuestionSelectBase extends Question {
       this.comment = "";
     }
   }
-  getColumnClass() {
+  getColumnClass(): string {
     return new CssClassBuilder()
       .append(this.cssClasses.column)
       .append("sv-q-column-" + this.colCount, this.hasColumns)
       .toString();
   }
-  getItemIndex(item: any) {
+  getItemIndex(item: any): number {
     return this.visibleChoices.indexOf(item);
   }
-  getItemClass(item: any) {
+  getItemClass(item: any): string {
+    const options: any = { item: item };
+    var res = this.getItemClassCore(item, options);
+    options.css = res;
+    if(!!this.survey) {
+      this.survey.updateChoiceItemCss(this, options);
+    }
+    return options.css;
+  }
+  protected getItemClassCore(item: any, options: any): string {
     const builder = new CssClassBuilder()
       .append(this.cssClasses.item)
       .append(this.cssClasses.itemInline, !this.hasColumns && this.colCount === 0)
-      .append("sv-q-col-" + this.colCount, !this.hasColumns && this.colCount !== 0);
+      .append("sv-q-col-" + this.colCount, !this.hasColumns && this.colCount !== 0)
+      .append(this.cssClasses.itemOnError, this.errors.length > 0);
 
     const isDisabled = this.isReadOnly || !item.isEnabled;
     const isChecked = this.isItemSelected(item) ||
       (this.isOtherSelected && this.otherItem.value === item.value);
     const allowHover = !isDisabled && !isChecked && !(!!this.survey && this.survey.isDesignMode);
     const isNone = item === this.noneItem;
+    options.isDisabled = isDisabled;
+    options.isChecked = isChecked;
+    options.isNone = isNone;
 
     return builder.append(this.cssClasses.itemDisabled, isDisabled)
       .append(this.cssClasses.itemChecked, isChecked)
@@ -1167,13 +1180,14 @@ export class QuestionSelectBase extends Question {
       .append(this.cssClasses.itemNone, isNone)
       .toString();
   }
-  getLabelClass(item: ItemValue) {
+
+  getLabelClass(item: ItemValue): string {
     return new CssClassBuilder()
       .append(this.cssClasses.label)
       .append(this.cssClasses.labelChecked, this.isItemSelected(item))
       .toString();
   }
-  getControlLabelClass(item: ItemValue) {
+  getControlLabelClass(item: ItemValue): string {
     return new CssClassBuilder()
       .append(this.cssClasses.controlLabel)
       .append(this.cssClasses.controlLabelChecked, this.isItemSelected(item))

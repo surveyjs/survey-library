@@ -81,11 +81,10 @@ class QuestionPanelDynamicItemTextProcessor extends QuestionTextProcessor {
       ) == 0
     ) {
       var q = <Question>(<any>this.data);
-      if (!!q && !!q.parentQuestion && !!q.parent) {
-        var data = (<any>q.parent).data;
+      if (!!q && !!q.parentQuestion && !!q.parent && !!(<any>q.parent).data) {
         var processor = new QuestionPanelDynamicItemTextProcessor(
           <IQuestionPanelDynamicData>(<any>q.parentQuestion),
-          <QuestionPanelDynamicItem>data,
+          <QuestionPanelDynamicItem>(<any>q.parent).data,
           QuestionPanelDynamicItem.ItemVariableName
         );
         var text = textValue.name.replace(
@@ -160,6 +159,10 @@ export class QuestionPanelDynamicItem implements ISurveyData, ISurveyImpl {
       values[
         QuestionPanelDynamicItem.IndexVariableName.toLowerCase()
       ] = this.data.getItemIndex(this);
+      const q = <Question>(<any>this.data);
+      if (!!q && !!q.parentQuestion && !!q.parent) {
+        values[QuestionPanelDynamicItem.ParentItemVariableName.toLowerCase()] = (<any>q.parent).getValue();
+      }
     }
     return values;
   }
@@ -215,13 +218,12 @@ export class QuestionPanelDynamicModel extends Question
     this.template.renderWidth = "100%";
     this.template.selectedElementInDesign = this;
 
-    var self = this;
-    this.template.addElementCallback = function(element) {
-      self.addOnPropertyChangedCallback(element);
-      self.rebuildPanels();
+    this.template.addElementCallback = (element) => {
+      this.addOnPropertyChangedCallback(<SurveyElement><any>element);
+      this.rebuildPanels();
     };
-    this.template.removeElementCallback = function(element) {
-      self.rebuildPanels();
+    this.template.removeElementCallback = () => {
+      this.rebuildPanels();
     };
 
     this.createLocalizableString("confirmDeleteText", this);
@@ -230,32 +232,34 @@ export class QuestionPanelDynamicModel extends Question
     this.createLocalizableString("panelRemoveText", this);
     this.createLocalizableString("panelPrevText", this);
     this.createLocalizableString("panelNextText", this);
-    this.registerFunctionOnPropertyValueChanged("panelsState", function() {
-      self.setPanelsState();
+    this.registerFunctionOnPropertyValueChanged("panelsState", () => {
+      this.setPanelsState();
     });
   }
   public get hasSingleInput(): boolean {
     return false;
   }
-  public setSurveyImpl(value: ISurveyImpl) {
-    super.setSurveyImpl(value);
+  public setSurveyImpl(value: ISurveyImpl, isLight?: boolean) {
+    super.setSurveyImpl(value, isLight);
     this.setTemplatePanelSurveyImpl();
     this.setPanelsSurveyImpl();
   }
   private assignOnPropertyChangedToTemplate() {
     var elements = this.template.elements;
     for (var i = 0; i < elements.length; i++) {
-      this.addOnPropertyChangedCallback(elements[i]);
+      this.addOnPropertyChangedCallback(<SurveyElement><any>elements[i]);
     }
   }
-  private addOnPropertyChangedCallback(element: IElement) {
-    var self = this;
-    (<Base>(<any>element)).onPropertyChanged.add(function(element, options) {
-      self.onTemplateElementPropertyChanged(element, options);
+  private addOnPropertyChangedCallback(element: SurveyElement) {
+    if(element.isQuestion) {
+      (<Question>element).setParentQuestion(this);
+    }
+    element.onPropertyChanged.add((element, options) => {
+      this.onTemplateElementPropertyChanged(element, options);
     });
     if (element.isPanel) {
-      (<PanelModel>(<any>element)).addElementCallback = function(element) {
-        self.addOnPropertyChangedCallback(element);
+      (<PanelModel>element).addElementCallback = (element) => {
+        this.addOnPropertyChangedCallback(<SurveyElement><any>element);
       };
     }
   }
@@ -1213,6 +1217,9 @@ export class QuestionPanelDynamicModel extends Question
     var cachedValues: { [index: string]: any } = {};
     if (values && values instanceof Object) {
       cachedValues = JSON.parse(JSON.stringify(values));
+    }
+    if (!!this.parentQuestion && !!this.parent) {
+      cachedValues[QuestionPanelDynamicItem.ParentItemVariableName.toLowerCase()] = (<any>this.parent).getValue();
     }
     for (var i = 0; i < this.panels.length; i++) {
       var panelValues = this.getPanelItemData(this.panels[i].data);

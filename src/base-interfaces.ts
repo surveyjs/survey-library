@@ -78,6 +78,7 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner {
   processHtml(html: string): string;
   getSurveyMarkdownHtml(element: Base, text: string, name: string): string;
   getRendererForString(element: Base, name: string): string;
+  getRendererContextForString(element: Base, locStr: LocalizableString): any;
   getExpressionDisplayValue(
     question: IQuestion,
     value: any,
@@ -153,6 +154,7 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner {
   updateQuestionCssClasses(question: IQuestion, cssClasses: any): any;
   updatePanelCssClasses(panel: IPanel, cssClasses: any): any;
   updatePageCssClasses(panel: IPanel, cssClasses: any): any;
+  updateChoiceItemCss(question: IQuestion, options: any): any;
   afterRenderQuestion(question: IQuestion, htmlElement: HTMLElement): any;
   afterRenderQuestionInput(question: IQuestion, htmlElement: HTMLElement): any;
   afterRenderPanel(panel: IElement, htmlElement: HTMLElement): any;
@@ -209,7 +211,10 @@ export interface ISurveyImpl {
 export interface IConditionRunner {
   runCondition(values: HashTable<any>, properties: HashTable<any>): any;
 }
-export interface ISurveyElement {
+export interface IShortcutText {
+  shortcutText: string;
+}
+export interface ISurveyElement extends IShortcutText {
   name: string;
   isVisible: boolean;
   isReadOnly: boolean;
@@ -218,7 +223,7 @@ export interface ISurveyElement {
   containsErrors: boolean;
   parent: IPanel;
   skeletonComponentName: string;
-  setSurveyImpl(value: ISurveyImpl): any;
+  setSurveyImpl(value: ISurveyImpl, isLight?: boolean): any;
   onSurveyLoad(): any;
   onFirstRendering(): any;
   getType(): string;
@@ -254,6 +259,7 @@ export interface IElement extends IConditionRunner, ISurveyElement {
   clearIncorrectValues(): any;
   clearErrors(): any;
   dispose(): void;
+  needResponsiveWidth(): boolean;
 }
 
 export interface IQuestion extends IElement, ISurveyErrorOwner {

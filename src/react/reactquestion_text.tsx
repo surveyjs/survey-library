@@ -51,6 +51,9 @@ export class SurveyQuestionText extends SurveyQuestionUncontrolledElement<
     };
     var placeHolder = this.question.renderedPlaceHolder;
     var dataList = this.renderDataList();
+    if (this.question.isReadOnlyRenderDiv()) {
+      return <div>{this.question.value}</div>;
+    }
     return (
       <React.Fragment>
         <input

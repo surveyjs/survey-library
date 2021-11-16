@@ -1,5 +1,5 @@
 <template>
-  <component :is="locString.renderAs" :locString="locString" />
+  <component :is="locString.renderAs" :locString="locString.renderAsData" />
 </template>
 
 <script lang="ts">

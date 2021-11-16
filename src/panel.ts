@@ -1,6 +1,6 @@
 import { Serializer } from "./jsonobject";
 import { HashTable, Helpers } from "./helpers";
-import { Base } from "./base";
+import { Base, EventBase } from "./base";
 import {
   ISurveyImpl,
   IPage,
@@ -28,13 +28,16 @@ import { SurveyError } from "./survey-error";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { IAction } from "./actions/action";
 import { AdaptiveActionContainer } from "./actions/adaptive-container";
+import { ActionContainer } from "./actions/container";
+import { Panel } from "./knockout/kopage";
+import { SurveyModel } from "survey-core";
 
 export class DragDropInfo {
   constructor(
     public source: IElement,
     public target: IElement,
     public nestedPanelDepth: number = -1
-  ) {}
+  ) { }
   public destination: ISurveyElement;
   public isBottom: boolean;
   public isEdge: boolean;
@@ -290,11 +293,11 @@ export class PanelModelBase extends SurveyElement
   public getType(): string {
     return "panelbase";
   }
-  public setSurveyImpl(value: ISurveyImpl) {
-    super.setSurveyImpl(value);
+  public setSurveyImpl(value: ISurveyImpl, isLight?: boolean) {
+    super.setSurveyImpl(value, isLight);
     if (this.isDesignMode) this.onVisibleChanged();
     for (var i = 0; i < this.elements.length; i++) {
-      this.elements[i].setSurveyImpl(value);
+      this.elements[i].setSurveyImpl(value, isLight);
     }
   }
   endLoadingFromJson() {
@@ -973,14 +976,14 @@ export class PanelModelBase extends SurveyElement
     var self = this;
     (<Base>(<any>element)).registerFunctionOnPropertiesValueChanged(
       ["visible", "isVisible"],
-      function() {
+      function () {
         self.onElementVisibilityChanged(element);
       },
       this.id
     );
     (<Base>(<any>element)).registerFunctionOnPropertyValueChanged(
       "startWithNewLine",
-      function() {
+      function () {
         self.onElementStartWithNewLineChanged(element);
       },
       this.id
@@ -995,7 +998,7 @@ export class PanelModelBase extends SurveyElement
       this.id
     );
     this.updateRowsOnElementRemoved(element);
-    if(this.isRandomizing) return;
+    if (this.isRandomizing) return;
     if (!element.isPanel) {
       if (this.survey) this.survey.questionRemoved(<Question>element);
     } else {
@@ -1021,7 +1024,7 @@ export class PanelModelBase extends SurveyElement
       var row = rows[i];
       if (row.elements.indexOf(element) > -1) {
         row.updateVisible();
-        if(row.visible && !row.isNeedRender) {
+        if (row.visible && !row.isNeedRender) {
           row.isNeedRender = true;
         }
         break;
@@ -1410,7 +1413,7 @@ export class PanelModelBase extends SurveyElement
       this.updateRowsRemoveElementFromRow(dragDropInfo.target, prevRow);
     }
   }
-  protected dragDropFindRow(findElement: ISurveyElement): QuestionRowModel {
+  public dragDropFindRow(findElement: ISurveyElement): QuestionRowModel {
     if (!findElement || findElement.isPage) return null;
     var element = <IElement>findElement;
     var rows = this.rows;
@@ -1434,6 +1437,17 @@ export class PanelModelBase extends SurveyElement
     var dest = dragDropInfo.destination;
     var destRow = this.dragDropFindRow(dest);
     if (!destRow) return true;
+
+    if(settings.supportCreatorV2 && this.isDesignMode) {
+      if(destRow.elements.length > 1)
+        return this.dragDropAddTargetToExistingRow(
+          dragDropInfo,
+          destRow,
+          prevRow
+        );
+      else
+        return this.dragDropAddTargetToNewRow(dragDropInfo, destRow, prevRow);
+    }
     if (!dragDropInfo.target.startWithNewLine)
       return this.dragDropAddTargetToExistingRow(
         dragDropInfo,
@@ -1479,21 +1493,26 @@ export class PanelModelBase extends SurveyElement
     var index = destRow.elements.indexOf(<IElement>dragDropInfo.destination);
     if (
       index == 0 &&
-      !dragDropInfo.isBottom &&
-      destRow.elements[0].startWithNewLine
-    ) {
-      if (destRow.index > 0) {
-        dragDropInfo.isBottom = true;
-        destRow = destRow.panel.rows[destRow.index - 1];
-        dragDropInfo.destination =
-          destRow.elements[destRow.elements.length - 1];
-        return this.dragDropAddTargetToExistingRow(
-          dragDropInfo,
-          destRow,
-          prevRow
-        );
-      } else {
-        return this.dragDropAddTargetToNewRow(dragDropInfo, destRow, prevRow);
+      !dragDropInfo.isBottom) {
+
+      if(this.isDesignMode && settings.supportCreatorV2) {
+
+      }
+      else
+      if(destRow.elements[0].startWithNewLine) {
+        if (destRow.index > 0) {
+          dragDropInfo.isBottom = true;
+          destRow = destRow.panel.rows[destRow.index - 1];
+          dragDropInfo.destination =
+            destRow.elements[destRow.elements.length - 1];
+          return this.dragDropAddTargetToExistingRow(
+            dragDropInfo,
+            destRow,
+            prevRow
+          );
+        } else {
+          return this.dragDropAddTargetToNewRow(dragDropInfo, destRow, prevRow);
+        }
       }
     }
     var prevRowIndex = -1;
@@ -1522,6 +1541,9 @@ export class PanelModelBase extends SurveyElement
     prevRow: QuestionRowModel
   ): boolean {
     var targetRow = destRow.panel.createRowAndSetLazy(destRow.panel.rows.length);
+    if (this.isDesignMode && settings.supportCreatorV2) {
+      targetRow.setIsLazyRendering(false);
+    }
     targetRow.addElement(dragDropInfo.target);
     var index = destRow.index;
     if (dragDropInfo.isBottom) {
@@ -1562,6 +1584,20 @@ export class PanelModelBase extends SurveyElement
     this.removeElement(src);
     this.addElement(target, targetIndex);
   }
+  public needResponsiveWidth() {
+    let result = false;
+    this.elements.forEach((e) => {
+      if(e.needResponsiveWidth())
+        result = true;
+    });
+    this.rows.forEach((r) => {
+      if(r.elements.length > 1)
+        result = true;
+    });
+
+    return result;
+  }
+
   //ITitleOwner
   public get no(): string { return ""; }
   public dispose() {
@@ -1584,22 +1620,21 @@ export class PanelModelBase extends SurveyElement
  * A container element, similar to the Page objects. However, unlike the Page, Panel can't be a root.
  * It may contain questions and other panels.
  */
-export class PanelModel extends PanelModelBase
-  implements IElement {
+export class PanelModel extends PanelModelBase implements IElement {
   public minWidth?: string;
   public maxWidth?: string;
   constructor(name: string = "") {
     super(name);
     var self = this;
     this.createNewArray("footerActions");
-    this.registerFunctionOnPropertyValueChanged("width", function() {
+    this.registerFunctionOnPropertyValueChanged("width", function () {
       if (!!self.parent) {
         self.parent.elementWidthChanged(self);
       }
     });
     this.registerFunctionOnPropertiesValueChanged(
       ["indent", "innerIndent", "rightIndent"],
-      function() {
+      function () {
         self.onIndentChanged();
       }
     );
@@ -1805,6 +1840,15 @@ export class PanelModel extends PanelModelBase
   public set rightIndent(val: number) {
     this.setPropertyValue("rightIndent", val);
   }
+  /**
+   * The Panel toolbar gets adaptive if the property is set to true.
+   */
+  public get allowAdaptiveActions(): boolean {
+    return this.getPropertyValue("allowAdaptiveActions");
+  }
+  public set allowAdaptiveActions(val: boolean) {
+    this.setPropertyValue("allowAdaptiveActions", val);
+  }
   get paddingLeft(): string {
     return this.getPropertyValue("paddingLeft", "");
   }
@@ -1845,11 +1889,11 @@ export class PanelModel extends PanelModelBase
   public get footerActions(): Array<IAction> {
     return this.getPropertyValue("footerActions");
   }
-  private footerToolbarValue: AdaptiveActionContainer;
-  public getFooterToolbar(): AdaptiveActionContainer {
+  private footerToolbarValue: ActionContainer;
+  public getFooterToolbar(): ActionContainer {
     if (!this.footerToolbarValue) {
       var actions = this.footerActions;
-      if(this.hasEditButton) {
+      if (this.hasEditButton) {
         actions.push({
           id: "cancel-preview",
           title: this.survey.editText,
@@ -1857,8 +1901,8 @@ export class PanelModel extends PanelModelBase
           action: () => { this.cancelPreview(); }
         });
       }
-      this.footerToolbarValue = new AdaptiveActionContainer();
-      if(!!this.cssClasses.panel) {
+      this.footerToolbarValue = this.allowAdaptiveActions ? new AdaptiveActionContainer() : new ActionContainer();
+      if (!!this.cssClasses.panel) {
         this.footerToolbarValue.containerCss = this.cssClasses.panel.footer;
       }
       this.footerToolbarValue.setItems(actions);
@@ -1890,6 +1934,17 @@ export class PanelModel extends PanelModelBase
   protected onVisibleChanged() {
     super.onVisibleChanged();
     this.notifySurveyOnVisibilityChanged();
+  }
+  public needResponsiveWidth() {
+    if(this.startWithNewLine) {
+      return true;
+    }
+    else
+      super.needResponsiveWidth();
+    return false;
+  }
+  public focusIn = () => {
+    (this.survey as SurveyModel).whenPanelFocusIn(this);
   }
 }
 
@@ -1923,7 +1978,7 @@ Serializer.addClass(
     },
 
   ],
-  function() {
+  function () {
     return new PanelModelBase();
   }
 );
@@ -1948,11 +2003,11 @@ Serializer.addClass(
     {
       name: "page",
       isSerializable: false,
-      visibleIf: function(obj: any) {
+      visibleIf: function (obj: any) {
         var survey = obj ? obj.survey : null;
         return !survey || survey.pages.length > 1;
       },
-      choices: function(obj: any) {
+      choices: function (obj: any) {
         var survey = obj ? obj.survey : null;
         return survey
           ? survey.pages.map((p: any) => {
@@ -1968,8 +2023,9 @@ Serializer.addClass(
       choices: ["default", "onpanel", "off"],
     },
     "questionStartIndex",
+    { name: "allowAdaptiveActions:boolean", default: true, visible: false },
   ],
-  function() {
+  function () {
     return new PanelModel();
   },
   "panelbase"

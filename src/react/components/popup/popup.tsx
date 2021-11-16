@@ -15,7 +15,7 @@ export class Popup extends SurveyElementBase<IPopupProps, any> {
     super(props);
     this.containerRef = React.createRef();
     this.popup = new PopupBaseViewModel(this.props.model);
-    this.popup.initializePopupContainer();
+    this.popup.createPopupContainer();
   }
   get model(): PopupModel {
     return this.props.model;
@@ -30,6 +30,9 @@ export class Popup extends SurveyElementBase<IPopupProps, any> {
   }
   componentWillUnmount() {
     this.popup.destroyPopupContainer();
+  }
+  shouldComponentUpdate(nextProps: IPopupProps) {
+    return nextProps.model !== this.popup.model;
   }
   render() {
     this.popup.model = this.model;
@@ -76,7 +79,7 @@ export class PopupContainer extends SurveyElementBase<any, any> {
     const pointer = this.model.showPointer ? this.renderPointer() : null;
     const header = !!this.model.title ? this.renderHeader() : null;
     const content = this.renderContent();
-    const footer = this.model.isModal ? this.renderFooter() : null;
+    const footer = this.model.showFooter ? this.renderFooter() : null;
     return (
       <div
         className="sv-popup__container"
@@ -119,25 +122,35 @@ export class PopupContainer extends SurveyElementBase<any, any> {
     );
     return <div className="sv-popup__content">{contentComponent}</div>;
   }
+  renderCancelButton() {
+    return (
+      <button
+        className="sv-popup__footer-item sv-popup__button sv-popup__button--cancel"
+        onClick={() => {
+          this.model.cancel();
+        }}
+      >
+        {this.model.cancelButtonText}
+      </button>
+    );
+  }
+  renderApplyButton() {
+    return (
+      <button
+        className="sv-popup__footer-item sv-popup__button sv-popup__button--apply"
+        onClick={() => {
+          this.model.apply();
+        }}
+      >
+        {this.model.applyButtonText}
+      </button>
+    );
+  }
   renderFooter() {
     return (
       <div className="sv-popup__footer">
-        <button
-          className="sv-popup__footer-item sv-popup__button sv-popup__button--cancel"
-          onClick={() => {
-            this.model.cancel();
-          }}
-        >
-          {this.model.cancelButtonText}
-        </button>
-        <button
-          className="sv-popup__footer-item sv-popup__button sv-popup__button--apply"
-          onClick={() => {
-            this.model.apply();
-          }}
-        >
-          {this.model.applyButtonText}
-        </button>
+        { this.renderCancelButton() }
+        { this.model.isModal?this.renderApplyButton():null }
       </div>
     );
   }

@@ -847,3 +847,23 @@ QUnit.test(
 
   }
 );
+
+QUnit.test("PopupModel displayMode", (assert) => {
+  const model: PopupModel = new PopupModel("sv-list", {});
+  const targetElement: HTMLElement = document.createElement("div");
+  const viewModel: PopupBaseViewModel = new PopupBaseViewModel(
+    model,
+    targetElement
+  );
+  viewModel.initializePopupContainer();
+  viewModel.container.innerHTML = popupTemplate;
+
+  assert.equal(viewModel.showFooter, false);
+  assert.equal(viewModel.styleClass, "sv-popup--show-pointer sv-popup--left");
+  model.isModal = true;
+  assert.equal(viewModel.showFooter, true);
+  assert.equal(viewModel.styleClass, "sv-popup--modal");
+  model.isModal = false;
+  model.displayMode = "overlay";
+  assert.equal(viewModel.styleClass, "sv-popup--overlay");
+});

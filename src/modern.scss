@@ -1,10 +1,8 @@
 ﻿@import "./modern/fonts.scss";
 @import "./modern/constants.scss";
-@import "./modern/blocks/sv-visuallyhidden.scss";
 @import "./modern/blocks/sv-dragdrop.scss";
-@import "./modern/blocks/sv-hidden.scss";
 @import "./modern/blocks/sv-window.scss";
-@import "./modern/blocks/sv-popup.scss";
+@import "./common-styles/sv-popup.scss";
 @import "./modern/blocks/sv-container.scss";
 @import "./modern/blocks/sv-body.scss";
 @import "./modern/blocks/sv-page.scss";
@@ -13,7 +11,7 @@
 @import "./modern/blocks/sv-row.scss";
 @import "./modern/blocks/sv-question.scss";
 @import "./modern/blocks/sv-progress.scss";
-@import "./modern/blocks/sv-titile.scss";
+@import "./modern/blocks/sv-title.scss";
 @import "./modern/blocks/sv-description.scss";
 @import "./modern/blocks/sv-selectbase.scss";
 @import "./modern/blocks/sv-multipletext.scss";
@@ -36,15 +34,18 @@
 @import "./modern/blocks/sv-clearfix.scss";
 @import "./modern/blocks/sv-completedpage.scss";
 @import "./modern/blocks/sv-header.scss";
-@import "./modern/blocks/sv-list.scss";
-@import "./modern/blocks/sv-buttongroup.scss";
+@import "./common-styles/sv-list.scss";
+@import "./common-styles/sv-buttongroup.scss";
+@import "./common-styles/sv-visuallyhidden.scss";
+@import "./common-styles/sv-hidden.scss";
+
 @import "./signaturepad.scss";
 
 @import "./window.scss";
 
 @import "./boolean-checkbox.scss";
-@import "./modern/blocks/sv-actionbar.scss";
-@import "./modern/blocks/sv-titleactions.scss";
+@import "./common-styles/sv-actionbar.scss";
+@import "./common-styles/sv-titleactions.scss";
 
 //@import "./main.rtl.scss";
 @import "./modern.m600.scss";

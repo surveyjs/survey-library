@@ -1,4 +1,5 @@
-import { MatrixDropdownRowModelBase, QuestionMatrixDropdownRenderedRow } from "../question_matrixdropdownbase";
+import { QuestionMatrixDropdownRenderedRow } from "src/question_matrixdropdownrendered";
+import { MatrixDropdownRowModelBase } from "../question_matrixdropdownbase";
 import { QuestionMatrixDynamicModel } from "../question_matrixdynamic";
 import { DragDropCore } from "./core";
 export class DragDropMatrixRows extends DragDropCore<QuestionMatrixDynamicModel> {
@@ -15,16 +16,6 @@ export class DragDropMatrixRows extends DragDropCore<QuestionMatrixDynamicModel>
       }
     );
     super.ghostPositionChanged();
-  }
-
-  protected getShortcutText(draggedElement: any): string {
-    const matrix = this.parentElement;
-    const index = matrix.visibleRows.indexOf(draggedElement) + 1;
-    return (
-      draggedElement.cells[1].questionValue.value ||
-      draggedElement.cells[0].questionValue.value ||
-      "" + index
-    );
   }
 
   protected getDropTargetByDataAttributeValue(
@@ -44,6 +35,15 @@ export class DragDropMatrixRows extends DragDropCore<QuestionMatrixDynamicModel>
     if (this.dropTarget === this.draggedElement) return false;
     const rows = this.parentElement.visibleRows;
     return rows.indexOf(dropTarget) !== -1;
+  }
+
+  protected findDropTargetNodeByDragOverNode(
+    dragOverNode: HTMLElement
+  ): HTMLElement {
+    const result: HTMLElement = dragOverNode.closest(
+      this.dropTargetDataAttributeName
+    );
+    return result;
   }
 
   protected calculateIsBottom(clientY: number): boolean {

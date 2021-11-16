@@ -1,6 +1,10 @@
 import { ItemValue } from "../itemvalue";
 import { DragDropChoices } from "./choices";
 export class DragDropRankingChoices extends DragDropChoices {
+  protected get draggedElementType(): string {
+    return "ranking-item";
+  }
+
   protected createDraggedElementShortcut(
     text: string,
     draggedElementNode: HTMLElement
@@ -17,6 +21,7 @@ export class DragDropRankingChoices extends DragDropChoices {
           background-color: white;
           padding-right: 16px;
           padding-left: 20px;
+          font-family: "Open Sans";
         `;
 
     const isDeepClone = true;
@@ -32,12 +37,33 @@ export class DragDropRankingChoices extends DragDropChoices {
     return this.parentElement.rankingChoices[dataAttributeValue];
   }
 
+  private isDragOverRootNode: boolean = false;
+
+  protected findDropTargetNodeByDragOverNode(
+    dragOverNode: HTMLElement
+  ): HTMLElement {
+    this.isDragOverRootNode = dragOverNode.className.indexOf("sv-ranking") !== -1;
+    return dragOverNode.closest(this.dropTargetDataAttributeName);
+  }
+
   protected isDropTargetValid(
     dropTarget: ItemValue,
-    isBottom: boolean,
     dropTargetNode?: HTMLElement
   ): boolean {
     const choices = this.parentElement.rankingChoices;
+
+    const dropTargetIndex = choices.indexOf(this.dropTarget);
+    const draggedElementIndex = choices.indexOf(this.draggedElement);
+
+    if (draggedElementIndex > dropTargetIndex && dropTargetNode.classList.contains("sv-dragdrop-moveup")) {
+      this.parentElement.dropTargetNodeMove = null;
+      return false;
+    }
+
+    if (draggedElementIndex < dropTargetIndex && dropTargetNode.classList.contains("sv-dragdrop-movedown")) {
+      this.parentElement.dropTargetNodeMove = null;
+      return false;
+    }
 
     if (choices.indexOf(dropTarget) === -1)
       // shouldn't allow to drop on "adorners" (selectall, none, other)
@@ -53,6 +79,11 @@ export class DragDropRankingChoices extends DragDropChoices {
       0
     );
   }
+
+  protected doDragOver = (): any => {
+    const node = this.draggedElementShortcut.querySelector(".sv-ranking-item");
+    node.style.cursor = "grabbing";
+  };
 
   protected afterDragOver(dropTargetNode: HTMLElement): void {
     const choices = this.parentElement.rankingChoices;
@@ -93,19 +124,23 @@ export class DragDropRankingChoices extends DragDropChoices {
     super.ghostPositionChanged();
   }
 
+  protected doBanDropHere = (): any => {
+    if (this.isDragOverRootNode) {
+      this.allowDropHere = true;
+      return;
+    }
+
+    const node = this.draggedElementShortcut.querySelector(".sv-ranking-item");
+    node.style.cursor = "not-allowed";
+  };
+
   protected doDrop = (): any => {
     this.parentElement.setValue();
     return this.parentElement;
   };
 
-  protected handleEscapeButton = (event: KeyboardEvent): void => {
-    if (event.keyCode == 27) {
-      this.parentElement.updateRankingChoices();
-      this.clear();
-    }
-  };
-
   protected doClear = (): void => {
     this.parentElement.dropTargetNodeMove = null;
+    this.parentElement.updateRankingChoices();
   };
 }

@@ -1,6 +1,9 @@
 <template>
   <fieldset :class="question.cssClasses.root">
-    <legend v-bind:aria-label="question.locTitle.renderedHtml"></legend>
+    <legend
+      role="radio"
+      v-bind:aria-label="question.locTitle.renderedHtml"
+    ></legend>
     <div
       v-for="(item, index) in question.visibleChoices"
       :key="item.value"
@@ -17,7 +20,6 @@
           v-model="question.value"
           :disabled="question.isInputReadOnly || !item.isEnabled"
           v-bind:aria-required="question.isRequired"
-          :aria-required="question.ariaRequired"
           :aria-label="question.ariaLabel"
           :aria-invalid="question.ariaInvalid"
           :aria-describedby="question.ariaDescribedBy"
@@ -33,7 +35,6 @@
           v-model="question.value"
           :disabled="question.isInputReadOnly || !item.isEnabled"
           v-bind:aria-required="question.isRequired"
-          :aria-required="question.ariaRequired"
           :aria-label="question.ariaLabel"
           :aria-invalid="question.ariaInvalid"
           :aria-describedby="question.ariaDescribedBy"
@@ -53,7 +54,7 @@
             v-bind:style="{ objectFit: question.imageFit }"
             :alt="item.text || item.value"
           />
-          <embed
+          <video controls
             v-if="question.contentMode === 'video'"
             :class="question.cssClasses.image"
             :src="item.imageLink"
@@ -64,7 +65,7 @@
               question.imageHeight ? question.imageHeight + 'px' : undefined
             "
             v-bind:style="{ objectFit: question.imageFit }"
-          />
+          ></video>
           <span
             v-if="question.showLabel"
             :title="item.text || item.value"

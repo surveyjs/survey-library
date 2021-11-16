@@ -342,6 +342,63 @@ QUnit.test("Do not show errors in display mode", function (assert) {
   survey.nextPage();
   assert.equal(survey.currentPageNo, 1, "Can move into another page");
 });
+QUnit.test("Do not run triggers in display mode", function (assert) {
+  const survey = new SurveyModel({
+    "pages": [
+      {
+        "name": "page1",
+        "elements": [
+          {
+            "type": "text",
+            "name": "question1"
+          },
+          {
+            "type": "text",
+            "name": "question2"
+          }
+        ]
+      },
+      {
+        "name": "page2",
+        "elements": [
+          {
+            "type": "text",
+            "name": "question3"
+          }
+        ]
+      },
+      {
+        "name": "page3",
+        "elements": [
+          {
+            "type": "text",
+            "name": "question4"
+          }
+        ]
+      }
+    ],
+    "triggers": [
+      {
+        "type": "complete",
+        "expression": "{question1} = 1"
+      },
+      {
+        "type": "setvalue",
+        "expression": "{question2} = 2",
+        "setToName": "question3",
+        "setValue": "3"
+      }
+    ]
+  });
+  (<Question>survey.pages[0].questions[0]).isRequired = true;
+  survey.data = { question1: 1 };
+  survey.mode = "display";
+  survey.setValue("question2", 2);
+  survey.nextPage();
+  assert.equal(survey.currentPageNo, 1, "Can move into another page");
+  assert.equal(survey.state, "running", "survey is running");
+  assert.equal(survey.getValue("question3"), undefined, "question3 value is not set");
+});
 QUnit.test("Do not show errors if survey.ignoreValidation = true", function (
   assert
 ) {
@@ -382,7 +439,7 @@ QUnit.test("Check pages state on onValueChanged event", function (assert) {
       },
     ],
   });
-
+  assert.equal(survey.currentPageNo, 0, "Init current page");
   survey.onValueChanged.add(() => {
     assert.notOk(survey.isLastPage);
   });
@@ -461,6 +518,70 @@ QUnit.test("Do not show required error for value 0 and false, #345", function (
     "There is a required error, the question value is null"
   );
 });
+QUnit.test("isFirstPage/isLastPage", function (
+  assert
+) {
+  var survey = new SurveyModel({
+    pages: [
+      {
+        elements: [{ type: "text", name: "q1" }]
+      },
+      {
+        elements: [{ type: "text", name: "q2" }]
+      }
+    ]
+  });
+  assert.equal(survey.currentPageNo, 0, "Init current page");
+  //change currentPageNo
+  assert.equal(survey.isFirstPage, true, "isFirstPage #1");
+  assert.equal(survey.isLastPage, false, "isLastPage #1");
+  survey.nextPage();
+  assert.equal(survey.isFirstPage, false, "isFirstPage #2");
+  assert.equal(survey.isLastPage, true, "isLastPage #2");
+  survey.currentPageNo = 0;
+  assert.equal(survey.isFirstPage, true, "isFirstPage #3");
+  assert.equal(survey.isLastPage, false, "isLastPage #3");
+  const page = new PageModel("newPage");
+  page.addNewQuestion("text", "q3");
+  survey.pages.unshift(page);
+  assert.equal(survey.isFirstPage, false, "isFirstPage #4");
+  assert.equal(survey.isLastPage, false, "isLastPage #4");
+  survey.pages.shift();
+  assert.equal(survey.pages.length, 2, "We have two pages");
+  assert.equal(survey.isFirstPage, true, "isFirstPage #5");
+  assert.equal(survey.isLastPage, false, "isLastPage #5");
+  survey.pages[1].visible = false;
+  assert.equal(survey.isFirstPage, true, "isFirstPage #6");
+  assert.equal(survey.isLastPage, true, "isLastPage #6");
+});
+QUnit.test("isShowNext/Prev/Complete buttons and showPreviewBeforeComplete: showAllQuestions", function (
+  assert
+) {
+  var survey = new SurveyModel({
+    showPreviewBeforeComplete: "showAllQuestions",
+    pages: [
+      {
+        elements: [{ type: "text", name: "q1" }]
+      },
+      {
+        elements: [{ type: "text", name: "q2" }]
+      }
+    ]
+  });
+  assert.equal(survey.currentPageNo, 0, "Init current page");
+  assert.equal(survey.isLastPage, false, "isLastPage #1");
+  assert.equal(survey.isShowNextButton, true, "isShowNextButton #1");
+  assert.equal(survey.isCompleteButtonVisible, false, "isCompleteButtonVisible #1");
+  survey.nextPage();
+  assert.equal(survey.isLastPage, true, "isLastPage #2");
+  assert.equal(survey.isShowNextButton, false, "isShowNextButton #2");
+  assert.equal(survey.isShowPrevButton, true, "isShowPrevButton #1");
+  assert.equal(survey.isCompleteButtonVisible, false, "isCompleteButtonVisible #2");
+  survey.showPreview();
+  assert.equal(survey.isShowPrevButton, false, "isShowPrevButton #2");
+  assert.equal(survey.isShowNextButton, false, "isShowNextButton #3");
+  assert.equal(survey.isCompleteButtonVisible, true, "isCompleteButtonVisible #3");
+});
 QUnit.test("Next, Prev, IsFirst and IsLast Page and progressText", function (
   assert
 ) {
@@ -495,7 +616,14 @@ QUnit.test("Next, Prev, IsFirst and IsLast Page and progressText", function (
   assert.equal(survey.isFirstPage, true, "Current Page is  First");
   assert.equal(survey.isLastPage, false, "Current Page is  First");
   assert.equal(survey.progressText, "Page 1 of 3", "Current Page is  First");
+  survey.nextPage();
+  assert.equal(survey.progressText, "Page 2 of 3", "Current Page is Second");
+  survey.setDesignMode(true);
+  survey.nextPage();
+  assert.equal(survey.progressText, "Page 3 of 3", "Current Page is last");
 
+  survey.setDesignMode(false);
+  survey.currentPageNo = 0;
   survey.progressBarType = "questions";
   assert.equal(
     survey.progressText,
@@ -5068,6 +5196,7 @@ QUnit.test("Survey Markdown - question title", function (assert) {
   var q1 = <Question>page.addNewQuestion("text", "q1");
   var q2 = <Question>page.addNewQuestion("text", "q2");
   survey.onTextMarkdown.add(function (survey, options) {
+    if(options.name == "commentText") return;
     assert.equal(
       options.name,
       "title",
@@ -5107,6 +5236,7 @@ QUnit.test(
     var q2 = <Question>page.addNewQuestion("text", "q2");
     var q3 = <Question>page.addNewQuestion("text", "q3");
     survey.onTextMarkdown.add(function (survey, options) {
+      if(options.name == "commentText") return;
       assert.equal(
         options.name,
         "title",
@@ -5196,6 +5326,7 @@ QUnit.test("Survey Markdown - page title + showPageNumbers = true", function (
   var page = survey.addNewPage("Page 1");
   var q1 = <Question>page.addNewQuestion("text", "q1");
   survey.onTextMarkdown.add(function (survey, options) {
+    if(options.name == "commentText") return;
     assert.equal(options.name, "title", "page title markdown preprocessing");
     if (options.text.indexOf("markdown") > -1)
       options.html = options.text.replace("markdown", "!");
@@ -6647,14 +6778,12 @@ QUnit.test(
 
 QUnit.test("Survey page hasShown", function (assert) {
   var survey = twoPageSimplestSurvey();
-  assert.equal(survey.pages[0].hasShown, false, "The first page was not shown");
+  assert.equal(survey.pages[0].hasShown, true, "The first page was shown");
   assert.equal(
     survey.pages[1].hasShown,
     false,
     "The second page was not shown"
   );
-  var p = survey.currentPage;
-  assert.equal(survey.pages[0].hasShown, true, "The first page was shown");
   assert.equal(
     survey.pages[1].hasShown,
     false,
@@ -14147,4 +14276,58 @@ QUnit.test("skeleton component name", function (assert) {
   survey.skeletonComponentName = "";
   assert.equal(survey.skeletonComponentName, "");
   assert.equal(question.skeletonComponentName, "");
+});
+QUnit.test("Make sure to have currentPage on adding new question/page/visibility in code", function (assert) {
+  const survey = new SurveyModel();
+  assert.equal(survey.getPropertyValue("currentPageValue"), undefined, "There is no pages");
+  const newPage = new PageModel("page1");
+  newPage.addNewQuestion("text", "q1");
+  survey.pages.push(newPage);
+  assert.equal(survey.getPropertyValue("currentPageValue").name, survey.pages[0].name, "We have added a new current page");
+  survey.pages.shift();
+  assert.equal(survey.getPropertyValue("currentPageValue"), undefined, "There is no new pages again");
+  survey.addNewPage("page1");
+  assert.equal(survey.getPropertyValue("currentPageValue"), undefined, "There is no visible pages");
+  survey.pages[0].addNewQuestion("text", "q1");
+  assert.equal(survey.getPropertyValue("currentPageValue").name, survey.pages[0].name, "There is current page");
+  survey.pages[0].visible = false;
+  assert.equal(survey.getPropertyValue("currentPageValue"), undefined, "We make page invisible");
+  survey.pages[0].visible = true;
+  assert.equal(survey.getPropertyValue("currentPageValue").name, survey.pages[0].name, "We make the page visible");
+});
+QUnit.test("Make invisible question visible in the only page", function (assert) {
+  const survey = new SurveyModel();
+  assert.equal(survey.getPropertyValue("currentPageValue"), undefined, "There is no pages");
+  const newPage = new PageModel("page1");
+  newPage.addNewQuestion("text", "q1");
+  newPage.addNewQuestion("text", "q2");
+  newPage.questions[0].visible = false;
+  newPage.questions[1].visible = false;
+  survey.pages.push(newPage);
+  assert.equal(survey.getPropertyValue("currentPageValue"), undefined, "There is no visible pages");
+  newPage.questions[0].visible = true;
+  assert.equal(survey.getPropertyValue("currentPageValue").name, survey.pages[0].name, "New page is visible now");
+  newPage.questions[0].visible = false;
+  assert.equal(survey.getPropertyValue("currentPageValue"), undefined, "There is no visible pages, #2");
+  newPage.questions[1].visible = true;
+  assert.equal(survey.getPropertyValue("currentPageValue").name, survey.pages[0].name, "New page is visible now, #2");
+});
+QUnit.test("clear value for question in invisible panel with non-empty valueName property", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "text", name: "q1" },
+      {
+        type: "panel", name: "panel", visibleIf: "{q1} empty",
+        elements: [
+          { type: "text", name: "q2", valueName: "invisible" }
+        ]
+      }
+    ]
+  });
+  const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("q2");
+  matrix.value = "val2";
+  assert.deepEqual(survey.data, { invisible: "val2" }, "value is in data");
+  survey.setValue("q1", 1)
+  survey.doComplete();
+  assert.deepEqual(survey.data, { q1: 1 }, "value is empty now");
 });

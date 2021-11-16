@@ -77,7 +77,7 @@ frameworks.forEach(framework => {
 
   test(`check validation`, async t => {
     const getError1Div = Selector(() => document.querySelectorAll("div"), {
-      text: "Please answer the question.",
+      text: "Response required.",
       visibilityCheck: true,
       timeout: 1000
     });

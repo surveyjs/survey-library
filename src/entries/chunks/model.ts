@@ -19,7 +19,7 @@ export {
   ValidatorRunner
 } from "../../validator";
 export { ItemValue } from "../../itemvalue";
-export { Base, Event, ArrayChanges } from "../../base";
+export { Base, Event, ArrayChanges, ComputedUpdater } from "../../base";
 export {
   ISurvey,
   ISurveyElement,
@@ -28,7 +28,7 @@ export {
   ITitleOwner
 } from "../../base-interfaces";
 export { SurveyError } from "../../survey-error";
-export { SurveyElementCore, SurveyElement } from "../../survey-element";
+export { SurveyElementCore, SurveyElement, DragTypeOverMeEnum } from "../../survey-element";
 export { CalculatedValue } from "../../calculatedValue";
 export {
   CustomError,
@@ -74,14 +74,11 @@ export {
 } from "../../jsonobject";
 export {
   MatrixDropdownCell,
-  MatrixDropdownColumn,
-  matrixDropdownColumnTypes,
   MatrixDropdownRowModelBase,
-  QuestionMatrixDropdownModelBase,
-  QuestionMatrixDropdownRenderedCell,
-  QuestionMatrixDropdownRenderedRow,
-  QuestionMatrixDropdownRenderedTable
+  QuestionMatrixDropdownModelBase
 } from "../../question_matrixdropdownbase";
+export { MatrixDropdownColumn, matrixDropdownColumnTypes } from "../../question_matrixdropdowncolumn";
+export { QuestionMatrixDropdownRenderedCell, QuestionMatrixDropdownRenderedRow, QuestionMatrixDropdownRenderedTable } from "../../question_matrixdropdownrendered";
 export {
   MatrixDropdownRowModel,
   QuestionMatrixDropdownModel

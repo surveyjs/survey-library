@@ -1,0 +1,17 @@
+.sd-radio__decorator {
+  border-radius: 50%;
+}
+.sd-radio--checked .sd-radio__decorator:after {
+  content: " ";
+  display: block;
+  width: calcSize(1);
+  height: calcSize(1);
+  border-radius: 50%;
+  background-color: $background;
+}
+.sd-radio--checked.sd-radio--disabled .sd-radio__decorator:after {
+  background-color: $border;
+}
+.sd-radio--checked .sd-radio__control:focus + .sd-radio__decorator:after {
+  background-color: $primary;
+}

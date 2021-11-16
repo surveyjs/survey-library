@@ -78,6 +78,9 @@ steps:
       cd $(Build.SourcesDirectory)/survey-library
       npm run testcafe_ci
     displayName: "run functional tests"
+    env:
+      TESTCAFE_DASHBOARD_AUTHENTICATION_TOKEN: $(TESTCAFE_DASHBOARD_AUTHENTICATION_TOKEN)
+      TESTCAFE_DASHBOARD_URL: $(TESTCAFE_DASHBOARD_URL)
 
   - script: |
       cd $(Build.SourcesDirectory)/survey-library

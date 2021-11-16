@@ -37,7 +37,7 @@ frameworks.forEach((framework) => {
 
   test(`choose empty`, async (t) => {
     const getPosition = ClientFunction(() =>
-      document.documentElement.innerHTML.indexOf("Please answer the question")
+      document.documentElement.innerHTML.indexOf("Response required.")
     );
     let position;
     let surveyResult;
@@ -208,8 +208,7 @@ frameworks.forEach((framework) => {
     var innerSelector = `.sv-string-editor`;
     await t
       .click(outerSelector)
-      .selectEditableContent(outerSelector + ` ` + innerSelector)
-      .typeText(outerSelector + ` ` + innerSelector, newTitle)
+      .typeText(outerSelector + ` ` + innerSelector, newTitle, { replace: true })
       .click(`body`, { offsetX: 0, offsetY: 0 });
 
     questionValue = await getQuestionValue();

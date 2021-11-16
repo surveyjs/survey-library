@@ -6,6 +6,7 @@ export default QUnit.module("SurveyShowPreviewTests");
 
 QUnit.test("Complete and Preview button visibility", function(assert) {
   var survey = new SurveyModel({ elements: [{ type: "text", name: "q1" }] });
+  assert.equal(survey.currentPageNo, 0, "Init current page");
   assert.equal(survey.isShowPreviewBeforeComplete, false, "no preview");
   assert.equal(
     survey.isCompleteButtonVisible,
@@ -562,5 +563,41 @@ QUnit.test(
     survey.nextPage();
     survey.showPreview();
     assert.equal(survey.state, "preview", "There is no errors");
+  }
+);
+QUnit.test(
+  "showPreviewBeforeComplete = 'showAnsweredQuestions' and goNextPageAutomatic, Bug#3450",
+  function(assert) {
+    const survey = new SurveyModel({
+      "pages": [
+        {
+          "name": "page1",
+          "elements": [
+            {
+              "type": "radiogroup",
+              "name": "question1",
+              "choices": ["item1", "item2", "item3"]
+            }
+          ]
+        },
+        {
+          "name": "page2",
+          "elements": [
+            {
+              "type": "radiogroup",
+              "name": "question2",
+              "choices": ["item1", "item2", "item3"]
+            }
+          ]
+        }
+      ],
+      "goNextPageAutomatic": true,
+      "showPreviewBeforeComplete": "showAnsweredQuestions"
+    });
+    assert.equal(survey.currentPageNo, 0, "The first page");
+    survey.setValue("question1", "item1");
+    assert.equal(survey.currentPageNo, 1, "The second page");
+    survey.setValue("question2", "item1");
+    assert.equal(survey.state, "preview", "We are in preview mode");
   }
 );

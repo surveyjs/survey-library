@@ -7,6 +7,7 @@ export interface ILocalizableOwner {
   getMarkdownHtml(text: string, name: string): string;
   getProcessedText(text: string): string;
   getRenderer(name: string): string;
+  getRendererContext(locStr: LocalizableString): any;
 }
 export interface ILocalizableString {
   getLocaleText(loc: string): string;
@@ -35,6 +36,7 @@ export class LocalizableString implements ILocalizableString {
   private calculatedTextValue: string;
   public localizationName: string;
   public onGetTextCallback: (str: string) => string;
+  public onGetDefaultTextCallback: () => string;
   public onStrChanged: (oldValue: string, newValue: string) => void;
   public onSearchChanged: () => void;
   public sharedData: LocalizableString;
@@ -125,8 +127,15 @@ export class LocalizableString implements ILocalizableString {
     var res = this.getValue(loc);
     return res ? res : "";
   }
+  private getLocaleTextWithDefault(loc: string): string {
+    let res = this.getLocaleText(loc);
+    if(!res && this.onGetDefaultTextCallback) {
+      return this.onGetDefaultTextCallback();
+    }
+    return res;
+  }
   public setLocaleText(loc: string, value: string) {
-    if (value == this.getLocaleText(loc)) return;
+    if (value == this.getLocaleTextWithDefault(loc)) return;
     if (
       value &&
       loc &&
@@ -204,15 +213,16 @@ export class LocalizableString implements ILocalizableString {
     this.strChanged();
   }
   public get renderAs(): string {
-    if (!this.owner) {
+    if (!this.owner || typeof this.owner.getRenderer !== "function") {
       return LocalizableString.defaultRenderer;
     }
-    if (typeof this.owner.getRenderer !== "function") {
-      return LocalizableString.defaultRenderer;
+    return this.owner.getRenderer(this.name) || LocalizableString.defaultRenderer;
+  }
+  public get renderAsData(): any {
+    if (!this.owner || typeof this.owner.getRendererContext !== "function") {
+      return this;
     }
-    return (
-      this.owner.getRenderer(this.name) || LocalizableString.defaultRenderer
-    );
+    return this.owner.getRendererContext(this) || this;
   }
   public equals(obj: any): boolean {
     if (!!this.sharedData) return this.sharedData.equals(obj);

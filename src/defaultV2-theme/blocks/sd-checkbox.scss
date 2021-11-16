@@ -1,0 +1,19 @@
+.sd-checkbox__decorator {
+  border-radius: 3px;
+}
+.sd-checkbox--checked .sd-checkbox__decorator:after {
+  content: " ";
+  display: block;
+  width: 14.8px;
+  height: 10.8px;
+  background-repeat: no-repeat;
+  background-image: url("data:image/svg+xml,%3Csvg width='16' height='11' viewBox='0 0 16 11' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M6.00001 10.8L0.600006 5.4L2.00001 4L6.00001 8L14 0L15.4 1.4L6.00001 10.8Z' fill='white'/%3E%3C/svg%3E%0A");
+}
+.sd-checkbox--checked.sd-checkbox--disabled .sd-checkbox__decorator:after {
+  background-image: url("data:image/svg+xml,%3Csvg width='16' height='11' viewBox='0 0 16 11' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M6 10.8L0.6 5.4L2 4L6 8L14 0L15.4 1.4L6 10.8Z' fill='%23D6D6D6'/%3E%3C/svg%3E%0A");
+}
+.sd-checkbox--checked
+  .sd-checkbox__control:focus
+  + .sd-checkbox__decorator:after {
+  background-image: url("data:image/svg+xml,%3Csvg width='16' height='11' viewBox='0 0 16 11' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M6 10.8L0.6 5.4L2 4L6 8L14 0L15.4 1.4L6 10.8Z' fill='%2319B394'/%3E%3C/svg%3E%0A");
+}

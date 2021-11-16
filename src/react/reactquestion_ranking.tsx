@@ -112,7 +112,7 @@ export class SurveyQuestionRankingItem extends ReactSurveyElement {
         className={this.itemClass}
         onKeyDown={this.handleKeydown}
         onPointerDown={this.handlePointerDown}
-        data-sv-drop-target-item-value={this.index}
+        data-sv-drop-target-ranking-item={this.index}
       >
         <div tabIndex={-1} style={{ outline: "none" }}>
           <div className={this.cssClasses.itemGhostNode} />

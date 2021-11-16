@@ -10,6 +10,8 @@ import {
 import { DragDropInfo, PanelModelBase, QuestionRowModel } from "./panel";
 import { LocalizableString } from "./localizablestring";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
+import { settings } from "./settings";
+import { SurveyModel } from "./survey";
 
 /**
  * The page object. It has elements collection, that contains questions and panels.
@@ -299,12 +301,32 @@ export class PageModel extends PanelModelBase implements IPage {
   public dragDropFinish(isCancel: boolean = false): IElement {
     if (!this.dragDropInfo) return;
     var target = this.dragDropInfo.target;
+    var src = this.dragDropInfo.source;
     var row = this.dragDropFindRow(target);
     var targetIndex = this.dragDropGetElementIndex(target, row);
     this.updateRowsRemoveElementFromRow(target, row);
+    var elementsToSetSWNL = [];
+    var elementsToResetSWNL = [];
     if (!isCancel && !!row) {
-      var src = this.dragDropInfo.source;
       var isSamePanel = false;
+
+      if(this.isDesignMode && settings.supportCreatorV2) {
+        var srcRow = src && src.parent &&(src.parent as PanelModelBase).dragDropFindRow(src);
+        if(row.panel.elements[targetIndex] && row.panel.elements[targetIndex].startWithNewLine && row.elements.length > 1) {
+          elementsToSetSWNL.push(target);
+          elementsToResetSWNL.push(row.panel.elements[targetIndex]);
+        }
+        if(target.startWithNewLine && row.elements.length > 1 && (!row.panel.elements[targetIndex] || !row.panel.elements[targetIndex].startWithNewLine)) {
+          elementsToResetSWNL.push(target);
+        }
+        if(srcRow && srcRow.elements[0] === src && srcRow.elements[1]) {
+          elementsToSetSWNL.push(srcRow.elements[1]);
+        }
+        if (row.elements.length <= 1) {
+          elementsToSetSWNL.push(target);
+        }
+      }
+
       if (!!src && !!src.parent) {
         isSamePanel = row.panel == src.parent;
         if (isSamePanel) {
@@ -318,6 +340,9 @@ export class PageModel extends PanelModelBase implements IPage {
         row.panel.addElement(target, targetIndex);
       }
     }
+    elementsToSetSWNL.map((e) => { e.startWithNewLine = true; });
+    elementsToResetSWNL.map((e) => { e.startWithNewLine = false; });
+
     this.dragDropInfo = null;
     return !isCancel ? target : null;
   }
@@ -345,6 +370,13 @@ export class PageModel extends PanelModelBase implements IPage {
     if (!source) return true;
     var destination = <IElement>this.dragDropInfo.destination;
     if (!this.dragDropCanDropCore(source, destination)) return false;
+    if (this.isDesignMode && settings.supportCreatorV2) {
+      if (!source.startWithNewLine && destination.startWithNewLine)
+        return true;
+      let row = this.dragDropFindRow(destination);
+      if (row && row.elements.length == 1)
+        return true;
+    }
     return this.dragDropCanDropNotNext(
       source,
       destination,

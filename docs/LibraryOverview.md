@@ -1137,20 +1137,13 @@ async function isCountryExist(params) {
   if (params.length < 1) {
     this.returnResult(false);
       return false;
-  }
+  }  
   var countryName = params[0];
   var self = this;
   var res = await $.ajax({
-    url: "https://restcountries.eu/rest/v2/all"
+    url: "https://surveyjs.io/api/CountriesExample?name=" + countryName
   }).then(function(data) {
-    var found = false;
-    var countries = data;
-    for (var i = 0; i < countries.length; i++) {
-      if (countries[i].name == countryName) {
-        found = true;
-        break;
-      }
-    }
+    var found = data.length > 0;
     self.returnResult(found);
   });
   return false;
@@ -1287,7 +1280,7 @@ _Choices By Url Property Editor_
 
 | Property Name | Description |
 | --- | --- |
-| **url** | A link to a web service. You may use the text preprocessing here. For example, the following url: _<https://restcountries.eu/rest/v2/region/{region}>_ is changed based on the _region_ question value. SurveyJS automatically gets data from web service on changing the _region_ value.|
+| **url** | A link to a web service. You may use the text preprocessing here. For example, the following url: _<https://surveyjs.io/api/CountriesExample?region={region}>_ is changed based on the _region_ question value. SurveyJS automatically gets data from web service on changing the _region_ value.|
 | **path** | Use this property, if a web service returns a lot of information and you need only a part of it. For example, the service returns the list of countries and list of capitals. If you need a list of countries, set a correct path from which SurveyJS obtains the data, like: _DataList1\DataList2_ |
 | **valueName** | The property name in your obtained data, that SurveyJS should bind with the value. |
 | **titleName** | The property name in your obtained data, that SurveyJS should bind with the text. It can be empty. |
@@ -1468,19 +1461,12 @@ survey.onServerValidateQuestions.add(function(sender, options) {
 
     //call the ajax method
     $
-        .ajax({url: "https://restcountries.eu/rest/v2/all"})
+        .ajax({url: "https://surveyjs.io/api/CountriesExample?name=" + countryName})
         .then(function (data) {
-            var found = false;
-            var countries = data;
-            for (var i = 0; i < countries.length; i++) {
-                if (countries[i].name == countryName) {
-                    found = true;
-                    break;
-                }
-            }
+            var found = data.length > 0;
             //if the country is unknown, add the error
             if (!found)
-                options.errors["country"] = "The country name '" + countryName + "' is not in this list: https://restcountries.eu/rest/v2/all";
+                options.errors["country"] = "The country name '" + countryName + "' is not in this list: https://surveyjs.io/api/CountriesExample";
 
             //tell survey that we are done with the server validation
             options.complete();

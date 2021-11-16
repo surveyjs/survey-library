@@ -1,5 +1,6 @@
 <template>
   <div :class="question.cssClasses.root">
+    <hr :class="question.cssClasses.separatorV2"/>
     <survey-paneldynamicprogress
       v-if="question.isProgressTopShowing"
       :question="question"
@@ -25,6 +26,9 @@
         {{ question.panelAddText }}
       </span>
     </button>
+    <survey-paneldynamicprogress-v2
+      :question="question"
+    />
   </div>
 </template>
 

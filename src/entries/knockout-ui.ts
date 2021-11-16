@@ -81,6 +81,7 @@ export { SurveyQuestionMatrixDynamicRemoveButton } from "../knockout/components/
 export { SurveyQuestionMatrixDetailButton } from "../knockout/components/matrix-actions/detail-button/detail-button";
 export { SurveyQuestionMatrixDynamicDragDropIcon } from "../knockout/components/matrix-actions/drag-drop-icon/drag-drop-icon";
 export { ButtonGroupItemViewModel } from "../knockout/components/button-group/button-group-item";
+export { TooltipErrorViewModel } from "../knockout/components/tooltip-error/tooltip-error";
 //export * from "../utils/resonsibilitymanager";
 //export { unwrap } from "../utils/utils";
 //Uncomment to include the "date" question type.

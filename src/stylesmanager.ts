@@ -58,7 +58,7 @@ export class StylesManager {
     ".sv_q_mt_item_value": "float: left;",
     '[dir="rtl"] .sv_q_mt_item_value': "float: right;",
     ".sv_qstn.sv_qstn_left": "margin-top: 0.75em;",
-    ".sv_qstn .title-left": "float: left; margin-right: 1em;",
+    ".sv_qstn .title-left": "float: left; margin-right: 1em; max-width: 50%",
     '[dir="rtl"] .sv_qstn .title-left': "float: right; margin-left: 1em;",
     ".sv_qstn .content-left": "overflow: hidden",
     ".sv_q_radiogroup_inline .sv_q_radiogroup_other": "display: inline-block;",
@@ -209,6 +209,11 @@ export class StylesManager {
       "visibility:visible; fill:#9f9f9f;",
     ".sv-ranking--mobile.sv-ranking--drag .sv-ranking-item--ghost .sv-ranking-item__icon.sv-ranking-item__icon--hover":
       "visibility:hidden;",
+    // EO ranking
+
+    // drag drop
+    ".sv-dragged-element-shortcut": "height: 24px; min-width: 100px; border-radius: 36px; background-color: white; padding: 16px; cursor: grabbing; position: absolute; z-index: 1000; box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.1); font-family: 'Open Sans'; font-size: 16px; padding-left: 20px;line-height: 24px;",
+    // EO drag drop
 
     ".sv_qstn .sv_q_select_column":
       "display: inline-block; vertical-align: top; min-width: 10%;",
@@ -289,15 +294,12 @@ export class StylesManager {
     ".sv_main .sv_logo": "",
     ".sv_main .sv-logo--left":
       "display: inline-block; vertical-align: top; margin-right: 2em;",
-    ".sv_main .sv-logo--right":
-      "display: inline-block; vertical-align: top; margin-left: 2em; float: right;",
-    ".sv_main .sv-logo--right+.sv-logo--right-tail": "clear: both;",
+    ".sv_main .sv-logo--right": "display: inline-block; vertical-align: top; margin-left: 2em; ",
     ".sv_main .sv-logo--top":
       "display: block; width: 100%; text-align: center;",
     ".sv_main .sv-logo--bottom":
       "display: block; width: 100%; text-align: center;",
-    ".sv_main .sv_header__text":
-      "display: inline-block; vertical-align: top; max-width: 100%",
+    ".sv_main .sv_header__text": "display: inline-block; vertical-align: top; max-width: 100%; width: 100%",
 
     ".sv_main .sv-expand-action:before": "content: \"\"; display: inline-block; background-image: url(\"data:image/svg+xml,%3C%3Fxml version='1.0' encoding='utf-8'%3F%3E%3C!-- Generator: Adobe Illustrator 21.1.0, SVG Export Plug-In . SVG Version: 6.00 Build 0) --%3E%3Csvg version='1.1' id='Layer_1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' x='0px' y='0px' viewBox='0 0 10 10' style='enable-background:new 0 0 10 10;' xml:space='preserve'%3E%3Cstyle type='text/css'%3E .st0%7Bfill:%23404040;%7D%0A%3C/style%3E%3Cpolygon class='st0' points='2,2 0,4 5,9 10,4 8,2 5,5 '/%3E%3C/svg%3E%0A\"); background-repeat: no-repeat; background-position: center center; height: 10px; width: 12px; margin: auto 8px;",
 
@@ -308,7 +310,7 @@ export class StylesManager {
     ".sv_main .sv-action-bar-item": "-webkit-appearance: none; -moz-appearance: none; appearance: none; display: flex; height: 40px; padding: 8px; box-sizing: border-box; margin-right: 16px; border: none; border-radius: 2px; background-color: transparent; cursor: pointer; line-height: 24px; font-size: 16px; overflow-x: hidden; white-space: nowrap; min-width: auto; font-weight: normal",
     ".sv_main .sv-action-bar-item__title": "vertical-align: middle; white-space: nowrap;",
     ".sv_main .sv-action-bar-item__title--with-icon": "margin-left: 8px;",
-    ".sv_main .sv-action__content": "display: inline-flex; align-items: center;",
+    ".sv_main .sv-action__content": "display: flex; flex-direction: row; align-items: center;",
     ".sv_main .sv-action__content > *": "flex: 0 0 auto;",
     ".sv_main .sv-action--hidden": "width: 0px; height: 0px; overflow: hidden;",
     ".sv_main .sv-action-bar-item__icon svg": "display: block;",
@@ -400,9 +402,9 @@ export class StylesManager {
       "background-color: #f3f3f3;",
     ".sv-list__item--selected": "background-color: #19b394; color: #fff;",
     ".sv-list__item--selected .sv-list__item-icon use": "fill: #fff;",
-    ".sv-list__item--disabled":
-      "color: rgba(22, 22, 22, 0.16); cursor: default; pointer-events: none;",
+    ".sv-list__item--disabled": "color: rgba(22, 22, 22, 0.16); cursor: default; pointer-events: none;",
     ".sv-list__item span": "white-space: nowrap;",
+    ".sv-list__input": "-webkit-appearance: none; -moz-appearance: none; appearance: none; display: block; box-sizing: border-box; width: 100%; height: calc(2em + 1px); padding-left: 1em; outline: none; font-size: 1em; border: 1px solid transparent;",
     //eo list
     ".sv-skeleton-element": "min-height: 50px;",
   };
@@ -700,7 +702,7 @@ export class StylesManager {
       "$inputs-background-color": "white",
       "$text-color": "#000",
       "$text-input-color": "#000",
-      "$header-color": "#fff",
+      "$header-color": "#000",
       "$border-color": "#e7e7e7",
 
       "$error-color": "#ed5565",
@@ -956,6 +958,13 @@ export class StylesManager {
     ".sv_main .sv-matrix__drag-drop-ghost-position-top::after": "top: 0;",
     ".sv_main .sv-matrix__drag-drop-ghost-position-bottom::after": "bottom: 0;",
     //eo drag-drop
+    //list
+    ".sv-list__input": "color: $text-input-color; border-color: $border-color; background-color: $inputs-background-color;",
+    ".sv-list__input::placeholder": "color: $foreground-light;",
+    ".sv-list__input:focus": "border-color: $main-color;",
+    ".sv-list__input:disabled": "color: $foreground-disabled;",
+    ".sv-list__input:disabled::placeholder": "color: $foreground-disabled;",
+    //eo list
     ".sv-skeleton-element": "background-color: $background-dim;",
   };
 
@@ -1310,7 +1319,10 @@ export class StylesManager {
     let ThemeCss: any;
 
     if (themeName === "modern") themeSelector = ".sv-root-modern ";
-
+    if(themeName === "defaultV2") {
+      surveyCss.currentType = themeName;
+      return;
+    }
     if (
       ["bootstrap", "bootstrapmaterial", "modern"].indexOf(themeName) !== -1
     ) {

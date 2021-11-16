@@ -36,7 +36,7 @@ frameworks.forEach(framework => {
               "type": "comment",
               "name": "question3",
               "autoGrow": true,
-              "multiLine": false
+              "acceptCarriageReturn": false
             },
           ]
         }
@@ -45,7 +45,7 @@ frameworks.forEach(framework => {
     });
   });
 
-  test("autoGrowComment & multiLine", async t => {
+  test("autoGrowComment & acceptCarriageReturn", async t => {
     await t
       .click(commentQuestion)
       .expect(commentQuestion.getStyleProperty("resize")).eql("none")

@@ -1,5 +1,5 @@
 import * as React from "react";
-import { SurveyQuestionElementBase } from "./reactquestion_element";
+import { SurveyElementBase, SurveyQuestionElementBase } from "./reactquestion_element";
 import { QuestionImagePickerModel } from "survey-core";
 import { ItemValue } from "survey-core";
 import { ReactQuestionFactory } from "./reactquestion_factory";
@@ -31,7 +31,9 @@ export class SurveyQuestionImagePicker extends SurveyQuestionElementBase {
     var cssClasses = this.question.cssClasses;
     return (
       <fieldset className={cssClasses.root}>
-        <legend aria-label={this.question.locTitle.renderedHtml} />
+        <legend
+          role="radio"
+          aria-label={this.question.locTitle.renderedHtml} />
         {this.getItems(cssClasses)}
       </fieldset>
     );
@@ -63,7 +65,7 @@ export class SurveyQuestionImagePicker extends SurveyQuestionElementBase {
           title={item.text || item.value}
           className={this.question.cssClasses.itemText}
         >
-          {item.text || item.value}
+          {item.text ? SurveyElementBase.renderLocString(item.locText) : item.value}
         </span>
       );
     }
@@ -93,7 +95,7 @@ export class SurveyQuestionImagePicker extends SurveyQuestionElementBase {
     }
     if (this.question.contentMode === "video") {
       control = (
-        <embed
+        <video controls
           className={cssClasses.image}
           src={item["imageLink"]}
           width={
@@ -107,7 +109,7 @@ export class SurveyQuestionImagePicker extends SurveyQuestionElementBase {
               : undefined
           }
           style={style}
-        />
+        ></video>
       );
     }
 

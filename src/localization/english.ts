@@ -21,9 +21,9 @@ export var englishStrings = {
   loadingSurvey: "Loading Survey...",
   optionsCaption: "Choose...",
   value: "value",
-  requiredError: "Please answer the question.",
-  requiredErrorInPanel: "Please answer at least one question.",
-  requiredInAllRowsError: "Please answer questions in all rows.",
+  requiredError: "Response required.",
+  requiredErrorInPanel: "Response required: answer at least one question.",
+  requiredInAllRowsError: "Response required: answer questions in all rows.",
   numericError: "The value should be numeric.",
   minError: "The value should not be less than {0}",
   maxError: "The value should not be greater than {0}",
@@ -43,7 +43,7 @@ export var englishStrings = {
   urlGetChoicesError:
     "The request returned empty data or the 'path' property is incorrect",
   exceedMaxSize: "The file size should not exceed {0}.",
-  otherRequiredError: "Please enter the other value.",
+  otherRequiredError: "Response required: enter another value.",
   uploadingFile:
     "Your file is uploading. Please wait several seconds and try again.",
   loadingFile: "Loading...",
@@ -87,6 +87,7 @@ export var englishStrings = {
   questionTitlePatternText: "Question Title",
   modalCancelButtonText: "Cancel",
   modalApplyButtonText: "Apply",
+  filteredTextPlaceholder: "Type to search...",
 };
 
 //Uncomment these two lines on creating a translation file. You should replace "en" and enStrings with your locale ("fr", "de" and so on) and your variable.

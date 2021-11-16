@@ -2,15 +2,18 @@
   JsonObject,
   Serializer,
   JsonUnknownPropertyError,
+  property,
 } from "../src/jsonobject";
 import { ItemValue } from "../src/itemvalue";
 import { Base } from "../src/base";
 import { Helpers } from "../src/helpers";
-import { ILocalizableOwner } from "../src/localizablestring";
+import { ILocalizableOwner, LocalizableString } from "../src/localizablestring";
 import { QuestionMatrixDynamicModel } from "../src/question_matrixdynamic";
 import { Question } from "../src/question";
 import { QuestionRatingModel } from "../src/question_rating";
 import { QuestionCheckboxModel } from "../src/question_checkbox";
+import { settings } from "../src/settings";
+import { TextValidator } from "../src/validator";
 
 class Car extends Base implements ILocalizableOwner {
   public locale: string;
@@ -28,6 +31,9 @@ class Car extends Base implements ILocalizableOwner {
     return text;
   }
   getRenderer(name: string): string {
+    return undefined;
+  }
+  getRendererContext(locStr: LocalizableString): any {
     return undefined;
   }
   getProcessedText(text: string): string {
@@ -233,6 +239,13 @@ class LoadingFromJsonObj extends LoadingFromJsonObjBase {
   public getType(): string {
     return "loadingtest";
   }
+}
+
+class TestDeclaredProps extends Car {
+  @property({ defaultValue: 5 }) numberProp: number;
+  @property({ localizable: true }) str1: string;
+  @property({ localizable: { name: "locStrName" } }) str2: string;
+  @property({ localizable: { defaultStr: "completeText" } }) str3: string;
 }
 
 Serializer.addClass(
@@ -805,6 +818,24 @@ QUnit.test(
       },
       "serialize ItemValueListOwner"
     );
+  }
+);
+QUnit.test(
+  "ItemValue and settings.itemValueAlwaysSerializeAsObject = true",
+  function(assert) {
+    settings.itemValueAlwaysSerializeAsObject = true;
+    const list = new ItemValueListOwner();
+    list.items.push(new ItemValue(7, "Item 1"));
+    list.items.push(new ItemValue(5));
+    list.items.push(new ItemValue("item"));
+
+    const jsObj = new JsonObject().toJsonObject(list);
+    assert.equal(
+      JSON.stringify(jsObj),
+      '{"items":[{"value":7,"text":"Item 1"},{"value":5},{"value":"item"}]}',
+      "serialize ItemValueListOwner"
+    );
+    settings.itemValueAlwaysSerializeAsObject = false;
   }
 );
 QUnit.test("LongNamesOwner serialization", function(assert) {
@@ -2438,4 +2469,44 @@ QUnit.test("Serializer.getProperty()", function(assert) {
   let dealer: Dealer = Serializer.createClass("dealer");
   assert.equal(dealer.defaultValue, "default", "Use attribute from dealer");
   Serializer.removeClass("new_dealer");
+});
+QUnit.test("Declared @property", function(assert) {
+  const obj = new TestDeclaredProps();
+  assert.equal(obj.numberProp, 5, "get default number prop");
+  assert.ok(obj["locStr1"], "locStr1 exists");
+  assert.strictEqual(obj["locStr1"].owner, obj, "locStr1 owner is correct");
+  obj["locStr1"].setLocaleText("", "val1", "locStr1 set value");
+  assert.equal(obj["locStr1"].getLocaleText(""), "val1", "locStr1 get value");
+
+  assert.ok(obj["locStrName"], "locStrName exists");
+  assert.strictEqual(obj["locStrName"].owner, obj, "locStrName owner is correct");
+  obj["locStrName"].setLocaleText("", "val2", "locStrName set value");
+  assert.equal(obj["locStrName"].getLocaleText(""), "val2", "locStrName get value");
+  assert.equal(obj.str2, "val2", "str2 get value");
+
+  assert.ok(obj["locStr3"], "locStr3 exists");
+  assert.strictEqual(obj["locStr3"].owner, obj, "locStr3 owner is correct");
+  assert.equal(obj.str3, "Complete", "get default value from localizable strings");
+  obj["locStr3"].setLocaleText("", "val3", "locStr3 set value");
+  assert.equal(obj["locStr3"].getLocaleText(""), "val3", "locStr3 get value");
+  assert.equal(obj.str3, "val3", "str3 get value");
+  obj.locale = "";
+});
+QUnit.test("TextValidator, serialize allowDigits property", function(assert) {
+  const validator = new TextValidator();
+  assert.deepEqual(validator.toJSON(), {}, "validator is empty");
+  validator.allowDigits = false;
+  assert.deepEqual(validator.toJSON(), { allowDigits: false }, "allowDigits is false");
+  validator.allowDigits = true;
+  assert.deepEqual(validator.toJSON(), {}, "validator is empty again");
+  validator.minLength = 1;
+  validator.maxLength = 10;
+  assert.deepEqual(validator.toJSON(), { minLength: 1, maxLength: 10 }, "minLength and maxLenght are not null");
+});
+QUnit.test("Change question isRequired default value", function(assert) {
+  assert.equal(new Question("q1").isRequired, false, "It is false by defult");
+  Serializer.findProperty("question", "isRequired").defaultValue = true;
+  assert.equal(new Question("q1").isRequired, true, "It is true now");
+  Serializer.findProperty("question", "isRequired").defaultValue = false;
+  assert.equal(new Question("q1").isRequired, false, "It is false again");
 });

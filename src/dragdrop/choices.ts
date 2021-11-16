@@ -1,3 +1,4 @@
+import { QuestionRankingModel } from "src/question_ranking";
 import { ItemValue } from "../itemvalue";
 import { QuestionSelectBase } from "../question_baseselect";
 import { DragDropCore } from "./core";
@@ -7,18 +8,15 @@ export class DragDropChoices extends DragDropCore<QuestionSelectBase> {
     return "item-value";
   }
 
-  protected getShortcutText(draggedElement: ItemValue): string {
-    return draggedElement.text;
-  }
-
   protected createDraggedElementShortcut(
     text: string,
-    draggedElementNode: HTMLElement
+    draggedElementNode: HTMLElement,
+    event: PointerEvent
   ): HTMLElement {
     if (this.parentElement.getType() === "imagepicker") {
       return super.createDraggedElementShortcut(text, draggedElementNode);
     }
-    const draggedElementShortcut = document.createElement("div");
+    const draggedElementShortcut:any = document.createElement("div");
     // draggedElementShortcut.innerText = text;
     draggedElementShortcut.style.cssText = ` 
           cursor: grabbing;
@@ -29,7 +27,7 @@ export class DragDropChoices extends DragDropCore<QuestionSelectBase> {
           box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.1);
           background-color: white;
           padding-right: 16px;
-          padding-left: 20px;
+          font-family: "Open Sans";
         `;
 
     const isDeepClone = true;
@@ -43,8 +41,16 @@ export class DragDropChoices extends DragDropCore<QuestionSelectBase> {
 
     clone.classList.remove("svc-item-value--moveup");
     clone.classList.remove("svc-item-value--movedown");
+    this.draggedElement.isDragDropMoveDown = false;
+    this.draggedElement.isDragDropMoveUp = false;
 
     draggedElementShortcut.appendChild(clone);
+
+    const rect = draggedElementNode.getBoundingClientRect();
+    draggedElementShortcut.shortcutXOffset = event.clientX - rect.x;
+    draggedElementShortcut.shortcutYOffset = event.clientY - rect.y;
+
+    this.isBottom = null;
 
     return draggedElementShortcut;
   }
@@ -70,12 +76,16 @@ export class DragDropChoices extends DragDropCore<QuestionSelectBase> {
     return dragOverChoice;
   }
 
+  private getVisibleChoices() {
+    const parent = this.parentElement;
+    if (parent.getType() === "ranking") return <QuestionRankingModel>parent.rankingChoices;
+    return parent.visibleChoices;
+  }
+
   protected isDropTargetValid(
-    dropTarget: ItemValue,
-    isBottom: boolean,
-    dropTargetNode?: HTMLElement
+    dropTarget: ItemValue
   ): boolean {
-    const choices = this.parentElement.visibleChoices;
+    const choices = this.getVisibleChoices();
 
     if (this.parentElement.getType() !== "imagepicker") {
       const dropTargetIndex = choices.indexOf(this.dropTarget);
@@ -99,7 +109,7 @@ export class DragDropChoices extends DragDropCore<QuestionSelectBase> {
   }
 
   protected calculateIsBottom(clientY: number): boolean {
-    const choices = this.parentElement.visibleChoices;
+    const choices = this.getVisibleChoices();
     return (
       choices.indexOf(this.dropTarget) - choices.indexOf(this.draggedElement) >
       0
@@ -109,14 +119,15 @@ export class DragDropChoices extends DragDropCore<QuestionSelectBase> {
   protected afterDragOver(dropTargetNode: HTMLElement): void {
     if (this.isDropTargetDoesntChanged(this.isBottom)) return;
     if (this.dropTarget === this.draggedElement) return;
-    if (this.parentElement.getType() === "imagepicker") return;
 
-    const choices = this.parentElement.visibleChoices;
+    const choices = this.getVisibleChoices();
     const dropTargetIndex = choices.indexOf(this.dropTarget);
     const draggedElementIndex = choices.indexOf(this.draggedElement);
 
     choices.splice(draggedElementIndex, 1);
     choices.splice(dropTargetIndex, 0, this.draggedElement);
+
+    if (this.parentElement.getType() === "imagepicker") return;
 
     if (draggedElementIndex !== dropTargetIndex) {
       dropTargetNode.classList.remove("svc-item-value--moveup");
@@ -136,21 +147,28 @@ export class DragDropChoices extends DragDropCore<QuestionSelectBase> {
   }
 
   protected doDrop(): any {
-    const isTop = !this.isBottom;
-    const visibleChoices = this.parentElement.visibleChoices;
     const choices = this.parentElement.choices;
-    const oldIndex = choices.indexOf(this.draggedElement);
-    let newIndex = visibleChoices.indexOf(this.dropTarget);
+    const filteredChoices = this.getVisibleChoices().filter((item: any) => {
+      return choices.indexOf(item) !== -1;
+    });
 
-    if (oldIndex < newIndex && isTop) {
-      newIndex--;
-    } else if (oldIndex > newIndex && this.isBottom) {
-      newIndex++;
-    }
+    const oldIndex = choices.indexOf(this.draggedElement);
+    let newIndex = filteredChoices.indexOf(this.draggedElement);
 
     choices.splice(oldIndex, 1);
     choices.splice(newIndex, 0, this.draggedElement);
 
     return this.parentElement;
+  }
+
+  protected doClear(): void {
+    this.updateVisibleChoices();
+  }
+
+  private updateVisibleChoices() {
+    const parent = this.parentElement;
+    this.parentElement.getType() === "ranking" ?
+      parent.updateRankingChoices() :
+      parent["updateVisibleChoices"]();
   }
 }

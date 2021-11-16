@@ -200,6 +200,7 @@ export class QuestionRatingModel extends Question {
       .append(this.cssClasses.selected, this.value == item.value)
       .append(this.cssClasses.itemDisabled, this.isReadOnly)
       .append(this.cssClasses.itemHover, allowHover)
+      .append(this.cssClasses.itemOnError, this.errors.length > 0)
       .toString();
   }
 }

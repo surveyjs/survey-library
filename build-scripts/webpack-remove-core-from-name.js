@@ -17,7 +17,7 @@ RemoveCoreFromNamePlugin.prototype.apply = function (compiler) {
         }
 
         return path.replace(REGEXP_NAME, (match, ...args) => {
-          return chunkName !== "modern" ? "survey" : chunkName;
+          return chunkName !== "modern" && chunkName !== "defaultV2" ? "survey" : chunkName;
         });
       }
     );

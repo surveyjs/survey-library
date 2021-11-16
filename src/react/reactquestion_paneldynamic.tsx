@@ -99,13 +99,16 @@ export class SurveyQuestionPanelDynamic extends SurveyQuestionElementBase {
     if (this.question.horizontalScroll) {
       style["overflowX"] = "scroll";
     }
+    const navV2 = this.renderNavigatorV2();
 
     return (
       <div className={this.question.cssClasses.root}>
+        <hr className={this.question.cssClasses.separatorV2} />
         {navTop}
         <div style={style}>{panels}</div>
         {navBottom}
         {btnAdd}
+        {navV2}
       </div>
     );
   }
@@ -125,36 +128,42 @@ export class SurveyQuestionPanelDynamic extends SurveyQuestionElementBase {
           {btnNext}
         </div>
         {btnAdd}
-        <div className={this.question.cssClasses.progressText}>
-          {this.question.progressText}
-        </div>
+        {this.renderProgressText()}
       </div>
     );
   }
+  private renderProgressText(): JSX.Element {
+    return (<div className={this.question.cssClasses.progressText}>
+      {this.question.progressText}
+    </div>);
+  }
 
-  protected rendrerPrevButton() {
+  protected rendrerPrevButton(viewBox?: string, icon?: JSX.Element) {
+    viewBox = viewBox || "0 0 10 10";
+    icon = icon || <polygon points="2,2 0,4 5,9 10,4 8,2 5,5 " />;
     return (
       <div title={this.question.panelPrevText}>
         <svg
-          viewBox="0 0 10 10"
+          viewBox={viewBox}
           className={this.question.getPrevButtonCss()}
           onClick={this.handleOnPanelPrevClick}
         >
-          <polygon points="2,2 0,4 5,9 10,4 8,2 5,5 " />
+          {icon}
         </svg>
       </div>
     );
   }
-  protected rendrerNextButton() {
-
+  protected rendrerNextButton(viewBox?: string, icon?: JSX.Element) {
+    viewBox = viewBox || "0 0 10 10";
+    icon = icon || <polygon points="2,2 0,4 5,9 10,4 8,2 5,5 " />;
     return (
       <div title={this.question.panelNextText}>
         <svg
-          viewBox="0 0 10 10"
+          viewBox={viewBox}
           className={this.question.getNextButtonCss()}
           onClick={this.handleOnPanelNextClick}
         >
-          <polygon points="2,2 0,4 5,9 10,4 8,2 5,5 " />
+          {icon}
         </svg>
       </div>
     );
@@ -184,6 +193,27 @@ export class SurveyQuestionPanelDynamic extends SurveyQuestionElementBase {
         <span></span>
       </button>
     );
+  }
+  protected renderNavigatorV2(): JSX.Element {
+    const range: JSX.Element = this.question.isRangeShowing && !this.question.isProgressTopShowing ? this.renderRange() : null;
+    const addBtn = this.renderAddRowButton();
+    const progressBtnViewBox = "0 0 15 14";
+    const progressBtnIcon = <path d="M15 7.9998H4.39998L8.69998 12.2998L7.29998 13.6998L0.599976 6.9998L7.29998 0.299805L8.69998 1.6998L4.39998 5.9998H15V7.9998Z"></path>;
+    const prevBtn = this.rendrerPrevButton(progressBtnViewBox, progressBtnIcon);
+    const nextBtn = this.rendrerNextButton(progressBtnViewBox, progressBtnIcon);
+    const progressText = this.renderProgressText();
+    return (<div className={this.question.cssClasses.footer}>
+      {range}
+      <hr className={this.question.cssClasses.separator} />
+      <div className={this.question.cssClasses.footerButtonsContainer}>
+        {addBtn}
+        {!this.question.isRenderModeList ? <div className={this.question.cssClasses.progressContainer}>
+          {prevBtn}
+          {progressText}
+          {nextBtn}
+        </div> : null}
+      </div>
+    </div>);
   }
 }
 

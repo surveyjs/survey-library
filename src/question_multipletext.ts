@@ -292,8 +292,8 @@ export class QuestionMultipleTextModel extends Question
   public getType(): string {
     return "multipletext";
   }
-  public setSurveyImpl(value: ISurveyImpl) {
-    super.setSurveyImpl(value);
+  public setSurveyImpl(value: ISurveyImpl, isLight?: boolean) {
+    super.setSurveyImpl(value, isLight);
     for (var i = 0; i < this.items.length; i++) {
       this.items[i].setData(this);
     }

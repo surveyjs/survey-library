@@ -2056,6 +2056,54 @@ QUnit.test(
 );
 
 QUnit.test(
+  "visibleIf and parentpanel paneldynamic",
+  function(assert) {
+    const json = {
+      elements: [
+        {
+          type: "paneldynamic",
+          name: "question1",
+          panelCount: 1,
+          templateElements: [
+            {
+              type: "checkbox",
+              name: "question2",
+              choices: ["item1", "item2", "item3"],
+            },
+            {
+              type: "paneldynamic",
+              name: "question3",
+              minPanelCount: 1,
+              templateElements: [
+                {
+                  type: "checkbox",
+                  name: "question4",
+                  choicesVisibleIf: "{parentpanel.question2} contains {item}",
+                  choices: ["item1", "item2", "item3"],
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    };
+
+    const survey = new SurveyModel(json);
+
+    const rootPanel = <QuestionPanelDynamicModel>(
+      survey.getQuestionByName("question1")
+    );
+    const rootPanelEl1 = rootPanel.panels[0];
+    const question2 = rootPanelEl1.getQuestionByName("question2");
+    const childPanel = rootPanelEl1.getQuestionByName("question3");
+    const question4 = childPanel.panels[0].getQuestionByName("question4");
+    assert.equal(question4.visibleChoices.length, 0, "There is not visible choices by default");
+    question2.value = ["item1", "item2"];
+    assert.equal(question4.visibleChoices.length, 2, "There are two visible choices by now");
+  }
+);
+
+QUnit.test(
   "panel.defaultPanelValue, apply from json and then from UI",
   function(assert) {
     var json = {
@@ -3488,6 +3536,26 @@ QUnit.test(
     FunctionFactory.Instance.unregister("testFunc");
   }
 );
+QUnit.test("Check paretQuestion", function(assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "paneldynamic",
+        name: "rootPanel",
+        panelCount: 1,
+        templateElements: [
+          { type: "text", name: "q1" },
+        ],
+      },
+    ],
+  });
+  const panelDynamic = <QuestionPanelDynamicModel>survey.getAllQuestions()[0];
+  assert.equal(panelDynamic.template.getQuestionByName("q1").parentQuestion.name, "rootPanel", "q1 - template");
+  assert.equal(panelDynamic.panels[0].getQuestionByName("q1").parentQuestion.name, "rootPanel", "q1 - panel");
+  panelDynamic.template.addNewQuestion("text", "q2");
+  assert.equal(panelDynamic.template.getQuestionByName("q2").parentQuestion.name, "rootPanel", "q2 - template");
+  assert.equal(panelDynamic.panels[0].getQuestionByName("q2").parentQuestion.name, "rootPanel", "q2 - panel");
+});
 QUnit.test("Avoid stack-overflow", function(assert) {
   var survey = new SurveyModel({
     elements: [

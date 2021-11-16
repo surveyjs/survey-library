@@ -184,7 +184,8 @@ button.sv-action-bar-item {
 }
 
 .sv-action__content {
-  display: inline-flex;
+  display: flex;
+  flex-direction: row;
   align-items: center;
   & > * {
     flex: 0 0 auto;

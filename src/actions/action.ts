@@ -85,6 +85,12 @@ export interface IAction {
    * Set it to true to make the tabIndex -1 to disable keyboard navigation to this item
    */
   disableTabStop?: boolean;
+
+  /**
+   * Set it to false to force action "large" mode even if has icon and does not fit to action bar space
+   */
+  disableShrink?: boolean;
+
   /**
    * Action button display mode
    */
@@ -97,12 +103,12 @@ export class Action extends Base implements IAction {
   private raiseUpdate() {
     this.updateCallback && this.updateCallback();
   }
-  constructor(item: IAction) {
+  constructor(public innerItem: IAction) {
     super();
     //Object.assign(this, item) to support IE11
-    if (!!item) {
-      for (var key in item) {
-        (<any>this)[key] = (<any>item)[key];
+    if (!!innerItem) {
+      for (var key in innerItem) {
+        (<any>this)[key] = (<any>innerItem)[key];
       }
     }
   }
@@ -132,6 +138,7 @@ export class Action extends Base implements IAction {
   @property() visibleIndex: number;
   @property({ defaultValue: "large" }) mode: "large" | "small" | "popup";
   @property() disableTabStop: boolean;
+  @property() disableShrink: boolean;
 
   public get disabled(): boolean {
     return this.enabled !== undefined && !this.enabled;

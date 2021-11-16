@@ -36,9 +36,6 @@ export class Survey extends SurveyModel {
   private mouseDownPage: any = null;
 
   koCurrentPage: any;
-  koIsFirstPage: any;
-  koIsLastPage: any;
-  dummyObservable: any;
   koState: any;
   koAfterRenderPage: any;
   koAfterRenderHeader: any;
@@ -161,21 +158,12 @@ export class Survey extends SurveyModel {
     return koTemplate;
   }
   protected onBeforeCreating() {
-    this.dummyObservable = ko.observable(0);
     this.koCurrentPage = ko.observable(this.currentPage);
     this.isCurrentPageEmpty = ko.computed(
       () =>
         !!this.koCurrentPage() &&
         this.getRows(this.koCurrentPage()).length === 0
     );
-    this.koIsFirstPage = ko.computed(() => {
-      this.dummyObservable();
-      return this.isFirstPage;
-    });
-    this.koIsLastPage = ko.computed(() => {
-      this.dummyObservable();
-      return this.isLastPage;
-    });
     this.koState = ko.observable(this.state);
     this.koCompletedState = ko.observable("");
     this.koCompletedStateText = ko.observable("");
@@ -201,7 +189,9 @@ export class Survey extends SurveyModel {
   }
   pageVisibilityChanged(page: IPage, newValue: boolean) {
     super.pageVisibilityChanged(page, newValue);
-    this.updateKoCurrentPage();
+    if (this.currentPage !== this.koCurrentPage()) {
+      this.updateKoCurrentPage();
+    }
   }
   protected onLoadSurveyFromService() {
     this.render();
@@ -238,7 +228,6 @@ export class Survey extends SurveyModel {
   }
   private updateKoCurrentPage() {
     if (this.isLoadingFromJson || this.isDisposed) return;
-    this.dummyObservable(this.dummyObservable() + 1);
     if (this.currentPage !== this.koCurrentPage()) {
       this.koCurrentPage(this.currentPage);
     }
@@ -288,8 +277,6 @@ export class Survey extends SurveyModel {
     this.koAfterRenderPage = undefined;
     this.koAfterRenderHeader = undefined;
     this.isCurrentPageEmpty.dispose();
-    this.koIsFirstPage.dispose();
-    this.koIsLastPage.dispose();
     this.iteratePropertiesHash((hash, key) => {
       delete hash[key];
     });

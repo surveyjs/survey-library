@@ -7,14 +7,12 @@ import { QuestionDropdownModel } from "../src/question_dropdown";
 import { QuestionCheckboxModel } from "../src/question_checkbox";
 import { QuestionMatrixDynamicModel } from "../src/question_matrixdynamic";
 import { QuestionPanelDynamicModel } from "../src/question_paneldynamic";
-import {
-  MatrixDropdownRowModelBase,
-  MatrixDropdownColumn,
-} from "../src/question_matrixdropdownbase";
+import { MatrixDropdownRowModelBase } from "../src/question_matrixdropdownbase";
 import { ItemValue } from "../src/itemvalue";
 import { JsonObject, Serializer } from "../src/jsonobject";
 import { QuestionRadiogroupModel } from "../src/question_radiogroup";
 import { settings } from "../src/settings";
+import { MatrixDropdownColumn } from "../src/question_matrixdropdowncolumn";
 
 export default QUnit.module("choicesRestful");
 

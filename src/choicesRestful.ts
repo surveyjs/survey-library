@@ -315,7 +315,7 @@ export class ChoicesRestful extends Base {
   }
   /**
    * Gets or sets a link to a web service. You can use text preprocessing here.
-   * For example, the following url: _https://restcountries.eu/rest/v2/region/{region}_ is changed based on the _region_ question's value.
+   * For example, the following url: _https://surveyjs.io/api/CountriesExample?region={region}_ is changed based on the _region_ question's value.
    * SurveyJS automatically gets data from the web service when the value of the _region_ question changes.
    * @see path
    * @see valueName

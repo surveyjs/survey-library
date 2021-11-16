@@ -13,6 +13,7 @@ import {
   Variable,
   BinaryOperand,
   UnaryOperand,
+  Operand,
 } from "../../src/expressions/expressions";
 
 import { ProcessValue } from "../../src/conditionProcessValue";
@@ -77,6 +78,8 @@ QUnit.test("Concat strings", function(assert) {
   assert.equal(expression.evaluate(), "1a2");
   expression = parse("1 + ' ' + 2");
   assert.equal(expression.evaluate(), "1 2");
+  expression = parse('"p1. " + "p2"');
+  assert.equal(expression.evaluate(), "p1. p2");
 });
 
 QUnit.test("Variable Const", function(assert) {
@@ -743,6 +746,14 @@ QUnit.test("contain and noncontain for null arrays", function(assert) {
 });
 
 QUnit.test("length for undefined arrays", function(assert) {
+  var runner = new ConditionRunner("{val.length} > 1");
+  assert.equal(runner.run({ val: [] }), false, "empty array length returns 0");
+  assert.equal(runner.run({ val: [1] }), false, "array length returns 1");
+  assert.equal(runner.run({ val: [1, 2] }), true, "array length returns 2");
+  assert.equal(runner.run({ val: [1, 2, 3] }), true, "array length returns 3");
+});
+
+QUnit.test("length for undefined arrays", function(assert) {
   var runner = new ConditionRunner("{val.length} = 0");
   assert.equal(runner.run({ val: [] }), true, "empty array length returns 0");
   assert.equal(runner.run({}), true, "undefined length returns 0");
@@ -1224,4 +1235,52 @@ QUnit.test("True and False as strings'", function(assert) {
   assert.equal(runner.run(values), false, "TRUE contains FALSE");
   values.val = "FALSE";
   assert.equal(runner.run(values), true, "FALSE contains FALSE");
+});
+QUnit.test("ExpressionRunner: fix incorrect JavaScript multiplication", function(assert) {
+  var runner = new ExpressionRunner("3 * 0.6");
+  assert.equal(runner.run({}), 1.8, "It works correctly");
+});
+QUnit.test("ExpressionRunner: fix incorrect JavaScript summary", function(assert) {
+  var runner = new ExpressionRunner("0.3 + 0.6");
+  assert.equal(runner.run({}), 0.9, "It works correctly");
+});
+QUnit.test("ExpressionRunner: fix incorrect JavaScript summary", function(assert) {
+  var runner = new ExpressionRunner("0.9 - 0.6");
+  assert.equal(runner.run({}), 0.3, "It works correctly");
+});
+QUnit.test("ExpressionRunner: fix incorrect JavaScript summary in sum function", function(assert) {
+  var runner = new ExpressionRunner("sum([0.3, 0.6]");
+  assert.equal(runner.run({}), 0.9, "It works correctly, sum function");
+});
+QUnit.test("ExpressionRunner: fix incorrect JavaScript summary in avg function", function(assert) {
+  var runner = new ExpressionRunner("avg([0.3, 0.6]");
+  assert.equal(runner.run({}), 0.45, "It works correctly, avg function");
+});
+QUnit.test("ExpressionRunner: fix incorrect JavaScript summary in sumInArray function", function(assert) {
+  var runner = new ExpressionRunner("sumInArray({a}, 'val1')");
+  var values = { a: [{ val1: 0.3 }, { val2: 10 }, { val1: 0.6 }] };
+  assert.equal(runner.run(values), 0.9, "It works correctly, sumInArray func");
+});
+QUnit.test("ExpressionRunner: fix incorrect JavaScript summary in avgInArray function", function(assert) {
+  var runner = new ExpressionRunner("avgInArray({a}, 'val1')");
+  var values = { a: [{ val1: 0.3 }, { val2: 10 }, { val1: 0.6 }] };
+  assert.equal(runner.run(values), 0.45, "It works correctly, avgInArray func");
+});
+
+QUnit.test("Operand.isEqual()", function(assert) {
+  const getOperand = (expression: string): Operand => {
+    return new ConditionsParser().parseExpression(expression);
+  };
+  const compareOperands = (exp1: string, exp2: string): boolean => {
+    return getOperand(exp1).isEqual(getOperand(exp2));
+  };
+  assert.equal(compareOperands("{val} = 1", "{val} = 2"), false, "#1");
+  assert.equal(compareOperands("{val} = 1", "{val} = 1"), true), "#2";
+  assert.equal(compareOperands("{val} = 1 and func({a}) < 3", "{val} = 1 and func({a}) < 3"), true, "#3");
+  assert.equal(compareOperands("{val} = 1 and func({a}) < 3", "{val} = 1 and func({b}) < 3"), false, "#4");
+  assert.equal(compareOperands("func({a}) < 3", "func({b}) < 3"), false, "#4.1");
+  assert.equal(compareOperands("func({a, b, 5}) < 3", "func({a, b, 5}) < 3"), true, "#4.2");
+  assert.equal(compareOperands("{a} < 3", "{b} < 3"), false, "#4.3");
+  assert.equal(compareOperands("{val} = 1 and func({a}) < 3", "{val} = 1 or func({a}) < 3"), false, "#5");
+  assert.equal(compareOperands("{val} = 1", "{val} != 1"), false, "#6");
 });

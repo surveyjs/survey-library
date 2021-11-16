@@ -66,16 +66,16 @@ frameworks.forEach((framework) => {
 
     await t
       .click(`input[value="Complete"]`)
-      .hover(getError(`Please answer the question.`, 0))
-      .hover(getError(`Please answer the question.`, 1))
-      .hover(getError(`Please answer the question.`, 2));
+      .hover(getError(`Response required.`, 0))
+      .hover(getError(`Response required.`, 1))
+      .hover(getError(`Response required.`, 2));
 
     await t
       .typeText(await getTextInputByIndex(0), `wombat`)
       .click(`input[value="Complete"]`)
       .hover(getError(`Please enter a valid e-mail address.`, 0))
-      .hover(getError(`Please answer the question.`, 0))
-      .hover(getError(`Please answer the question.`, 1));
+      .hover(getError(`Response required.`, 0))
+      .hover(getError(`Response required.`, 1));
 
     await t
       .typeText(await getTextInputByIndex(0), `wombat@mail.mail`, {
@@ -84,7 +84,7 @@ frameworks.forEach((framework) => {
       .typeText(await getTextInputByIndex(1), `wombat`)
       .click(`input[value="Complete"]`)
       .hover(getError(`The value should be numeric.`, 0))
-      .hover(getError(`Please answer the question.`, 0));
+      .hover(getError(`Response required.`, 0));
 
     await t
       .typeText(await getTextInputByIndex(1), `0`, { replace: true })
@@ -96,7 +96,7 @@ frameworks.forEach((framework) => {
           0
         )
       )
-      .hover(getError(`Please answer the question.`, 0));
+      .hover(getError(`Response required.`, 0));
 
     await t
       .typeText(await getTextInputByIndex(1), `10`, { replace: true })

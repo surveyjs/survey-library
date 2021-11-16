@@ -1,3 +1,4 @@
+import { Action } from "../actions/action";
 import { AdaptiveActionContainer } from "../actions/adaptive-container";
 
 interface IDimensions {
@@ -10,6 +11,8 @@ export class ResponsivityManager {
   private isInitialized = false;
   protected minDimensionConst = 56;
   private separatorSize = 17;
+  private separatorAddConst = 1;
+  private paddingSizeConst = 8;
 
   public getComputedStyle: (
     elt: Element
@@ -19,8 +22,9 @@ export class ResponsivityManager {
     protected container: HTMLDivElement,
     private model: AdaptiveActionContainer,
     private itemsSelector: string,
-    private dotsItemSize: number = 48
+    private dotsItemSize: number = 48,
   ) {
+
     this.model.updateCallback = (isResetInitialized: boolean) => {
       if(isResetInitialized)
         this.isInitialized = false;
@@ -53,6 +57,17 @@ export class ResponsivityManager {
     return item.offsetWidth;
   }
 
+  private calcMinDimension(currentAction: Action) {
+    let minDimensionConst = this.minDimensionConst;
+    if(currentAction.iconSize) {
+      minDimensionConst = 2 * currentAction.iconSize + this.paddingSizeConst;
+    }
+    return currentAction.canShrink
+      ? minDimensionConst +
+      (currentAction.needSeparator ? this.separatorSize : 0)
+      : currentAction.maxDimension;
+  }
+
   private calcItemsSizes() {
     const actions = this.model.actions;
     this.container
@@ -60,10 +75,7 @@ export class ResponsivityManager {
       .forEach((item: HTMLDivElement, index: number) => {
         let currentAction = actions[index];
         currentAction.maxDimension = this.calcItemSize(item);
-        currentAction.minDimension = currentAction.canShrink
-          ? this.minDimensionConst +
-            (currentAction.needSeparator ? this.separatorSize : 0)
-          : currentAction.maxDimension;
+        currentAction.minDimension = this.calcMinDimension(currentAction);
       });
   }
   private get isContainerVisible(): boolean {

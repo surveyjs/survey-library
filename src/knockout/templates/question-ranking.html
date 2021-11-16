@@ -10,7 +10,7 @@
 <script type="text/html" id="survey-ranking-item">
   <div
     tabindex="0"
-    data-bind="event: { keydown: question.koHandleKeydown, pointerdown: question.koHandlePointerDown}, css: question.getItemClass($data), attr: {'data-sv-drop-target-item-value': $index() }"
+    data-bind="event: { keydown: question.koHandleKeydown, pointerdown: question.koHandlePointerDown}, css: question.getItemClass($data), attr: {'data-sv-drop-target-ranking-item': $index() }"
   >
     <div tabindex="-1" style="outline: none;">
       <div data-bind="css: question.cssClasses.itemGhostNode"></div>

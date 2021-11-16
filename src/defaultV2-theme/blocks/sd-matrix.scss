@@ -1,0 +1,22 @@
+.sd-matrix {
+  fieldset {
+    border: none;
+    padding: 0;
+  }
+}
+
+.sd-matrix__label {
+  display: flex;
+  justify-content: center;
+}
+.sd-matrix__text {
+  padding: 16px;
+}
+.sd-matrix__text--checked {
+  background-color: $green-light;
+  padding: 16px;
+}
+.sd-matrix__cell:first-child {
+  font-weight: 600;
+  text-align: left;
+}

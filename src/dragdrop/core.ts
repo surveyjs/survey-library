@@ -1,7 +1,8 @@
 import { SurveyModel } from "../survey";
 import { Base, EventBase } from "../base";
-import { ISurvey } from "../base-interfaces";
+import { IShortcutText, ISurvey } from "../base-interfaces";
 import { property } from "../jsonobject";
+import { findScrollableParent } from "../utils/utils";
 
 export abstract class DragDropCore<T> extends Base {
   @property({
@@ -30,10 +31,10 @@ export abstract class DragDropCore<T> extends Base {
     return this.surveyValue || this.creator.survey;
   }
 
-  protected prevDropTarget: any = null;
-  protected draggedElementShortcut: HTMLElement = null;
+  public prevDropTarget: any = null;
+  protected draggedElementShortcut: any = null;
   private scrollIntervalId: number = null;
-  private allowDropHere = false;
+  protected allowDropHere = false;
 
   constructor(private surveyValue?: ISurvey, private creator?: any) {
     super();
@@ -45,6 +46,8 @@ export abstract class DragDropCore<T> extends Base {
     parentElement?: any,
     draggedElementNode?: HTMLElement
   ): void {
+    if (event.which === 3) return; //right mouse btn
+
     this.draggedElement = draggedElement;
     this.parentElement = parentElement;
 
@@ -53,7 +56,8 @@ export abstract class DragDropCore<T> extends Base {
     const shortcutText = this.getShortcutText(this.draggedElement);
     this.draggedElementShortcut = this.createDraggedElementShortcut(
       shortcutText,
-      draggedElementNode
+      draggedElementNode,
+      event
     );
     document.body.append(this.draggedElementShortcut);
     this.moveShortcutElement(event);
@@ -81,9 +85,7 @@ export abstract class DragDropCore<T> extends Base {
 
     this.dropTarget = this.getDropTargetByNode(dropTargetNode, event);
 
-    let isBottom = this.calculateIsBottom(event.clientY, dropTargetNode);
-
-    const isDropTargetValid = this.isDropTargetValid(this.dropTarget, isBottom, dropTargetNode);
+    const isDropTargetValid = this.isDropTargetValid(this.dropTarget, dropTargetNode);
 
     this.doDragOver(dropTargetNode);
 
@@ -91,6 +93,8 @@ export abstract class DragDropCore<T> extends Base {
       this.banDropHere();
       return;
     }
+
+    let isBottom = this.calculateIsBottom(event.clientY, dropTargetNode);
 
     this.allowDropHere = true;
     if (this.isDropTargetDoesntChanged(isBottom)) return;
@@ -118,14 +122,20 @@ export abstract class DragDropCore<T> extends Base {
   }
 
   protected doStartDrag(): void { }
-  protected abstract getShortcutText(draggedElement: any): string;
 
-  protected createDraggedElementShortcut(text: string, draggedElementNode?: HTMLElement): HTMLElement {
+  protected getShortcutText(draggedElement: IShortcutText): string {
+    return draggedElement.shortcutText;
+  }
+
+  protected createDraggedElementShortcut(text: string, draggedElementNode?: HTMLElement, event?: PointerEvent): HTMLElement {
     const draggedElementShortcut = document.createElement("div");
     draggedElementShortcut.innerText = text;
-    draggedElementShortcut.style.cssText =
-      "height: 24px; min-width: 100px; border-radius: 36px; background-color: white; padding: 16px; cursor: grabbing; position: absolute; z-index: 1000; box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.1); font-family: 'Open Sans'; font-size: 16px; padding-left: 20px; line-height: 24px;";
+    draggedElementShortcut.className = this.getDraggedElementClass();
     return draggedElementShortcut;
+  }
+
+  protected getDraggedElementClass() {
+    return "sv-dragged-element-shortcut";
   }
 
   protected doDragOver(dropTargetNode?: HTMLElement): void { }
@@ -139,7 +149,6 @@ export abstract class DragDropCore<T> extends Base {
 
   protected abstract isDropTargetValid(
     dropTarget: any,
-    isBottom: boolean,
     dropTargetNode?: HTMLElement
   ): boolean;
 
@@ -158,13 +167,21 @@ export abstract class DragDropCore<T> extends Base {
 
     const shortcutHeight = this.draggedElementShortcut.offsetHeight;
     const shortcutWidth = this.draggedElementShortcut.offsetWidth;
-    const shortcutXCenter = shortcutWidth / 2;
-    const shortcutYCenter = shortcutHeight / 2;
+    let shortcutXOffset;
+    let shortcutYOffset;
+
+    if (!!this.draggedElementShortcut.shortcutXOffset) {
+      shortcutXOffset = this.draggedElementShortcut.shortcutXOffset;
+      shortcutYOffset = this.draggedElementShortcut.shortcutYOffset;
+    } else {
+      shortcutXOffset = shortcutWidth / 2;
+      shortcutYOffset = shortcutHeight / 2;
+    }
 
     const documentClientHeight = document.documentElement.clientHeight;
     const documentClientWidth = document.documentElement.clientWidth;
 
-    if (event.clientX + shortcutXCenter >= documentClientWidth) {
+    if (event.clientX + shortcutXOffset >= documentClientWidth) {
       this.draggedElementShortcut.style.left =
         event.pageX -
         event.clientX +
@@ -172,21 +189,21 @@ export abstract class DragDropCore<T> extends Base {
         shortcutWidth +
         "px";
       this.draggedElementShortcut.style.top =
-        event.pageY - shortcutYCenter + "px";
+        event.pageY - shortcutYOffset + "px";
       return;
     }
 
-    if (event.clientX - shortcutXCenter <= 0) {
+    if (event.clientX - shortcutXOffset <= 0) {
       this.draggedElementShortcut.style.left =
         event.pageX - event.clientX + "px";
       this.draggedElementShortcut.style.top =
-        event.pageY - shortcutYCenter + "px";
+        event.pageY - shortcutYOffset + "px";
       return;
     }
 
-    if (event.clientY + shortcutYCenter >= documentClientHeight) {
+    if (event.clientY + shortcutYOffset >= documentClientHeight) {
       this.draggedElementShortcut.style.left =
-        event.pageX - shortcutXCenter + "px";
+        event.pageX - shortcutXOffset + "px";
       this.draggedElementShortcut.style.top =
         event.pageY -
         event.clientY +
@@ -196,44 +213,29 @@ export abstract class DragDropCore<T> extends Base {
       return;
     }
 
-    if (event.clientY - shortcutYCenter <= 0) {
+    if (event.clientY - shortcutYOffset <= 0) {
       this.draggedElementShortcut.style.left =
-        event.pageX - shortcutXCenter + "px";
+        event.pageX - shortcutXOffset + "px";
       this.draggedElementShortcut.style.top =
         event.pageY - event.clientY + "px";
       return;
     }
 
     this.draggedElementShortcut.style.left =
-      event.pageX - shortcutXCenter + "px";
+      event.pageX - shortcutXOffset + "px";
     this.draggedElementShortcut.style.top =
-      event.pageY - shortcutYCenter + "px";
+      event.pageY - shortcutYOffset + "px";
   }
 
   private doScroll(clientY: number, clientX: number) {
     cancelAnimationFrame(this.scrollIntervalId);
     const startScrollBoundary = 50;
 
-    // this.draggedElementShortcut.hidden = true;
-    // let dragOverNode = <HTMLElement>document.elementFromPoint(clientX, clientY);
-    // this.draggedElementShortcut.hidden = false;
+    this.draggedElementShortcut.hidden = true;
+    let dragOverNode = <HTMLElement>document.elementFromPoint(clientX, clientY);
+    this.draggedElementShortcut.hidden = false;
 
-    // function getScrollableParent(node:HTMLElement):HTMLElement {
-    //   if (node == null) {
-    //     return null;
-    //   }
-    //   if (node.scrollHeight > node.clientHeight) {
-    //     return node;
-    //   } else {
-    //     return getScrollableParent(<HTMLElement>node.parentNode);
-    //   }
-    // }
-    // let scrollableParentNode = getScrollableParent(dragOverNode);
-    let scrollableParentNode =
-      document.querySelector(".sd-row--multiple") ||
-      document.querySelector(".svc-tab-designer.sd-root-modern") ||
-      document.querySelector(".sv-root-modern") ||
-      document.querySelector(".sv_container");
+    let scrollableParentNode = findScrollableParent(dragOverNode);
 
     let top = scrollableParentNode.getBoundingClientRect().top;
     let bottom = scrollableParentNode.getBoundingClientRect().bottom;
@@ -256,8 +258,8 @@ export abstract class DragDropCore<T> extends Base {
   }
 
   protected banDropHere = (): void => {
-    this.doBanDropHere();
     this.allowDropHere = false;
+    this.doBanDropHere();
     this.dropTarget = null;
     this.draggedElementShortcut.style.cursor = "not-allowed";
     this.isBottom = null;
@@ -303,13 +305,10 @@ export abstract class DragDropCore<T> extends Base {
     return rect.y + rect.height / 2;
   }
 
-  protected calculateIsBottom(
+  protected abstract calculateIsBottom(
     clientY: number,
     dropTargetNode?: HTMLElement
-  ): boolean {
-    const middle = this.calculateMiddleOfHTMLElement(dropTargetNode);
-    return clientY >= middle;
-  }
+  ): boolean;
 
   private findDropTargetNodeFromPoint(
     clientX: number,

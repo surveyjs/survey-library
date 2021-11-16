@@ -37,7 +37,7 @@ frameworks.forEach(framework => {
 
   test(`choose empty`, async t => {
     const getPosition = ClientFunction(() =>
-      document.documentElement.innerHTML.indexOf("Please answer the question")
+      document.documentElement.innerHTML.indexOf("Response required.")
     );
     await t.click(`input[value=Complete]`);
 
@@ -244,8 +244,7 @@ frameworks.forEach((framework) => {
     const innerSelector = `.sv-string-editor`
     await t
       .click(outerSelector)
-      .selectEditableContent(outerSelector + ` ` + innerSelector)
-      .typeText(outerSelector + ` ` + innerSelector, newTitle)
+      .typeText(outerSelector + ` ` + innerSelector, newTitle, { replace: true })
       .click(`body`, { offsetX: 0, offsetY: 0 });
 
     questionValue = await getQuestionValue();
@@ -262,8 +261,7 @@ frameworks.forEach((framework) => {
     const selector = `.sv_q_radiogroup_label .sv-string-editor`
     await t
       .click(selector)
-      .selectEditableContent(selector)
-      .typeText(selector, newTitle)
+      .typeText(selector, newTitle, { replace: true })
       .click(`body`, { offsetX: 0, offsetY: 0 });
 
     questionValue = await getQuestionValue();

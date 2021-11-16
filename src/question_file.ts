@@ -112,7 +112,7 @@ export class QuestionFileModel extends Question {
    * Use this property to setup the maximum allowed file size.
    */
   public get maxSize(): number {
-    return this.getPropertyValue("maxSize", 0);
+    return this.getPropertyValue("maxSize");
   }
   public set maxSize(val: number) {
     this.setPropertyValue("maxSize", val);
@@ -135,36 +135,36 @@ export class QuestionFileModel extends Question {
   /**
    * The remove file confirmation message template.
    */
-  @property({ defaultValue: surveyLocalization.getString("confirmRemoveFile") }) confirmRemoveMessage: string;
+  @property({ localizable: { defaultStr: "confirmRemoveFile" } }) confirmRemoveMessage: string;
   /**
    * The remove all files confirmation message.
    */
-  @property({ defaultValue: surveyLocalization.getString("confirmRemoveAllFiles") }) confirmRemoveAllMessage: string;
+  @property({ localizable: { defaultStr: "confirmRemoveAllFiles" } }) confirmRemoveAllMessage: string;
   /**
    * The no file chosen caption for modern theme.
    */
-  @property({ defaultValue: surveyLocalization.getString("noFileChosen") }) noFileChosenCaption: string;
+  @property({ localizable: { defaultStr: "noFileChosen" } }) noFileChosenCaption: string;
   /**
    * The choose files button caption for modern theme.
    */
-  @property({ defaultValue: surveyLocalization.getString("chooseFileCaption") }) chooseButtonCaption: string;
+  @property({ localizable: { defaultStr: "chooseFileCaption" } }) chooseButtonCaption: string;
   /**
    * The clean files button caption.
    */
-  @property({ defaultValue: surveyLocalization.getString("cleanCaption") }) cleanButtonCaption: string;
+  @property({ localizable: { defaultStr: "cleanCaption" } }) cleanButtonCaption: string;
   /**
    * The remove file button caption.
    */
-  @property({ defaultValue: surveyLocalization.getString("removeFileCaption") }) removeFileCaption: string;
+  @property({ localizable: { defaultStr: "removeFileCaption" } }) removeFileCaption: string;
   /**
    * The loading file input title.
    */
-  @property({ defaultValue: surveyLocalization.getString("loadingFile") }) loadingFileTitle: string;
+  @property({ localizable: { defaultStr: "loadingFile" } }) loadingFileTitle: string;
   /**
   * The choose file input title.
   */
-  @property({ defaultValue: surveyLocalization.getString("chooseFile") }) chooseFileTitle: string;
-  @property({ defaultValue: surveyLocalization.getString("fileDragAreaPlaceholder") }) dragAreaPlaceholder: string;
+  @property({ localizable: { defaultStr: "chooseFile" } }) chooseFileTitle: string;
+  @property({ localizable: { defaultStr: "fileDragAreaPlaceholder" } }) dragAreaPlaceholder: string;
   /**
    * The input title value.
    */
@@ -424,6 +424,7 @@ export class QuestionFileModel extends Question {
   public getFileDecoratorCss(): string {
     return new CssClassBuilder()
       .append(this.cssClasses.fileDecorator)
+      .append(this.cssClasses.onError, this.errors.length > 0)
       .append(this.cssClasses.fileDecoratorDrag, this.isDragging)
       .toString();
   }
@@ -514,7 +515,7 @@ Serializer.addClass(
     "acceptedTypes",
     { name: "storeDataAsText:boolean", default: true },
     { name: "waitForUpload:boolean", default: false },
-    "maxSize:number",
+    { name: "maxSize:number", default: 0 },
     { name: "defaultValue", visible: false },
     { name: "correctAnswer", visible: false },
     { name: "validators", visible: false },

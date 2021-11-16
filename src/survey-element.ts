@@ -88,7 +88,14 @@ export abstract class SurveyElementCore extends Base implements ILocalizableOwne
   public abstract getLocale(): string;
   public abstract getMarkdownHtml(text: string, name: string): string;
   public abstract getRenderer(name: string): string;
+  public abstract getRendererContext(locStr: LocalizableString): any;
   public abstract getProcessedText(text: string): string;
+}
+
+export enum DragTypeOverMeEnum {
+  InsideEmptyPanel = 1,
+  MultilineRight,
+  MultilineLeft
 }
 
 /**
@@ -124,7 +131,10 @@ export class SurveyElement extends SurveyElementCore implements ISurveyElement {
   private textProcessorValue: ITextProcessor;
   private selectedElementInDesignValue: SurveyElement = this;
   private expandAction: Action;
-  @property({ defaultValue: false }) isDragOverMe: boolean;
+
+  @property({ defaultValue: null }) dragTypeOverMe: DragTypeOverMeEnum;
+  @property({ defaultValue: false }) isDragMe: boolean;
+
   public readOnlyChangedCallback: () => void;
 
   public static ScrollElementToTop(elementId: string): boolean {
@@ -272,6 +282,9 @@ export class SurveyElement extends SurveyElementCore implements ISurveyElement {
   public get hasStateButton(): boolean {
     return this.isExpanded || this.isCollapsed;
   }
+  public get shortcutText(): string {
+    return this.title || this.name;
+  }
   private titleToolbarValue: AdaptiveActionContainer;
   public getTitleToolbar(): AdaptiveActionContainer {
     if (!this.titleToolbarValue) {
@@ -342,7 +355,7 @@ export class SurveyElement extends SurveyElementCore implements ISurveyElement {
     if (this.isPage || this.state === "default") return undefined;
     return this.state === "expanded";
   }
-  public setSurveyImpl(value: ISurveyImpl) {
+  public setSurveyImpl(value: ISurveyImpl, isLight?: boolean) {
     this.surveyImplValue = value;
     if (!this.surveyImplValue) {
       this.setSurveyCore(null);
@@ -577,6 +590,13 @@ export class SurveyElement extends SurveyElementCore implements ISurveyElement {
       : this.locOwner && typeof this.locOwner.getRenderer === "function"
         ? this.locOwner.getRenderer(name)
         : null;
+  }
+  public getRendererContext(locStr: LocalizableString): any {
+    return this.survey && typeof this.survey.getRendererContextForString === "function"
+      ? this.survey.getRendererContextForString(this, locStr)
+      : this.locOwner && typeof this.locOwner.getRendererContext === "function"
+        ? this.locOwner.getRendererContext(locStr)
+        : locStr;
   }
   public getProcessedText(text: string): string {
     if (this.isLoadingFromJson) return text;

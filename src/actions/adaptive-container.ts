@@ -1,15 +1,15 @@
 import { ResponsivityManager } from "../utils/responsivity-manager";
 import { ListModel } from "../list";
 import { PopupModel } from "../popup";
-import { Action } from "./action";
+import { Action, IAction } from "./action";
 import { ActionContainer } from "./container";
 
 export class AdaptiveActionContainer<T extends Action = Action> extends ActionContainer<T> {
   protected dotsItem: Action;
   protected dotsItemPopupModel: PopupModel;
   private responsivityManager: ResponsivityManager;
-
-  private invisibleItemsListModel: ListModel = new ListModel(
+  public minVisibleItemsCount: number = 0;
+  protected invisibleItemsListModel: ListModel = new ListModel(
     [],
     (item: T) => {
       this.invisibleItemSelected(item);
@@ -25,15 +25,16 @@ export class AdaptiveActionContainer<T extends Action = Action> extends ActionCo
   }
 
   private hideItemsGreaterN(visibleItemsCount: number) {
-    const invisibleItems: Action[] = [];
+    visibleItemsCount = Math.max(visibleItemsCount, this.minVisibleItemsCount);
+    const invisibleItems: IAction[] = [];
     this.visibleActions.forEach((item) => {
       if (visibleItemsCount <= 0) {
         item.mode = "popup";
-        invisibleItems.push(item);
+        invisibleItems.push(item.innerItem);
       }
       visibleItemsCount--;
     });
-    this.invisibleItemsListModel.items = invisibleItems;
+    this.invisibleItemsListModel.setItems(invisibleItems);
   }
 
   private getVisibleItemsCount(availableSize: number): number {
@@ -49,7 +50,7 @@ export class AdaptiveActionContainer<T extends Action = Action> extends ActionCo
   private updateItemMode(availableSize: number, itemsSize: number) {
     const items = this.visibleActions;
     for (let index = items.length - 1; index >= 0; index--) {
-      if (itemsSize > availableSize) {
+      if (itemsSize > availableSize && !items[index].disableShrink) {
         itemsSize -= items[index].maxDimension - items[index].minDimension;
         items[index].mode = "small";
       } else {
@@ -120,7 +121,7 @@ export class AdaptiveActionContainer<T extends Action = Action> extends ActionCo
     );
   }
   public resetResponsivityManager(): void {
-    if(!!this.responsivityManager) {
+    if (!!this.responsivityManager) {
       this.responsivityManager.dispose();
       this.responsivityManager = undefined;
     }

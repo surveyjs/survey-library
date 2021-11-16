@@ -1,12 +1,13 @@
-import { Base } from "survey-core";
+import { surveyLocalization } from "./surveyStrings";
+import { Base, ComputedUpdater } from "./base";
 import { Helpers, HashTable } from "./helpers";
 
 export interface IPropertyDecoratorOptions {
   defaultValue?: any;
   defaultSource?: string;
   localizable?:
-    | { name: string, onGetTextCallback?: (str: string) => string }
-    | boolean;
+  | { name?: string, onGetTextCallback?: (str: string) => string, defaultStr?: string }
+  | boolean;
   onSet?: (val: any, target: any) => void;
 }
 
@@ -26,58 +27,76 @@ function ensureLocString(
     }
   }
 }
+function getLocStringValue(
+  target: any,
+  options: IPropertyDecoratorOptions,
+  key: string
+) {
+  ensureLocString(target, options, key);
+  let res = target.getLocalizableStringText(key);
+  if(!!res) return res;
+  if(typeof options.localizable === "object" && options.localizable.defaultStr)
+    return surveyLocalization.getString(options.localizable.defaultStr);
+  return "";
+}
 
 export function property(options?: IPropertyDecoratorOptions) {
-  return function(target: any, key: string) {
+  return function (target: any, key: string) {
+    let processComputedUpdater = (obj: any, val: any) => {
+      if (!!val && typeof val === "object" && val.type === ComputedUpdater.ComputedUpdaterType) {
+        Base.startCollectDependencies(() => obj[key] = val.updater(), obj, key);
+        const result = val.updater();
+        const dependencies = Base.finishCollectDependencies();
+        val.setDependencies(dependencies);
+        return result;
+      }
+      return val;
+    };
     if (!options || !options.localizable) {
       Object.defineProperty(target, key, {
-        get: function() {
+        get: function () {
           const value = this.getPropertyValue(key);
           if (value !== undefined) {
             return value;
           }
-          if(!!options) {
-            if(options.defaultValue !== undefined) {
+          if (!!options) {
+            if (options.defaultValue !== undefined) {
               return options.defaultValue;
             }
-            if(options.defaultSource !== undefined) {
+            if (options.defaultSource !== undefined) {
               return this[options.defaultSource];
             }
           }
           return undefined;
         },
-        set: function(val: any) {
-          this.setPropertyValue(key, val);
+        set: function (val: any) {
+          const newValue = processComputedUpdater(this, val);
+          this.setPropertyValue(key, newValue);
           if (!!options && options.onSet) {
-            options.onSet(val, this);
+            options.onSet(newValue, this);
           }
         },
       });
     } else {
       Object.defineProperty(target, key, {
-        get: function() {
-          ensureLocString(this, options, key);
-          return (
-            this.getLocalizableStringText(key) ||
-            options.defaultValue ||
-            this[options.defaultSource]
-          );
+        get: function () {
+          return getLocStringValue(this, options, key);
         },
-        set: function(val: any) {
+        set: function (val: any) {
           ensureLocString(this, options, key);
-          this.setLocalizableStringText(key, val);
+          const newValue = processComputedUpdater(this, val);
+          this.setLocalizableStringText(key, newValue);
           if (!!options && options.onSet) {
-            options.onSet(val, this);
+            options.onSet(newValue, this);
           }
         },
       });
       Object.defineProperty(
         target,
-        options.localizable === true
-          ? "loc" + key.charAt(0).toUpperCase() + key.slice(1)
-          : options.localizable.name,
+        typeof options.localizable === "object" && !!options.localizable.name ?
+          options.localizable.name : "loc" + key.charAt(0).toUpperCase() + key.slice(1),
         {
-          get: function() {
+          get: function () {
             ensureLocString(this, options, key);
             return this.getLocalizableString(key);
           },
@@ -112,13 +131,13 @@ function ensureArray(
 }
 
 export function propertyArray(options?: IArrayPropertyDecoratorOptions) {
-  return function(target: any, key: string) {
+  return function (target: any, key: string) {
     Object.defineProperty(target, key, {
-      get: function() {
+      get: function () {
         ensureArray(this, options, key);
         return this.getPropertyValue(key);
       },
-      set: function(val: any) {
+      set: function (val: any) {
         ensureArray(this, options, key);
         const arr = this.getPropertyValue(key);
         if (val === arr) {
@@ -501,16 +520,16 @@ export class CustomPropertiesCollection {
     ) {
       obj.createCustomLocalizableObj(prop.name);
       var locDesc = {
-        get: function() {
+        get: function () {
           return obj.getLocalizableString(prop.name);
         },
       };
       Object.defineProperty(obj, prop.serializationProperty, locDesc);
       var desc = {
-        get: function() {
+        get: function () {
           return obj.getLocalizableStringText(prop.name, prop.defaultValue);
         },
-        set: function(v: any) {
+        set: function (v: any) {
           obj.setLocalizableStringText(prop.name, v);
         },
       };
@@ -520,7 +539,7 @@ export class CustomPropertiesCollection {
       var isArrayProp = false;
       if (typeof obj.createNewArray === "function") {
         if (JsonObject.metaData.isDescendantOf(prop.className, "itemvalue")) {
-          obj.createNewArray(prop.name, function(item: any) {
+          obj.createNewArray(prop.name, function (item: any) {
             item.locOwner = obj;
             item.ownerPropertyName = prop.name;
           });
@@ -546,7 +565,7 @@ export class CustomPropertiesCollection {
             }
             return obj.getPropertyValue(prop.name, defaultValue);
           },
-          set: function(v: any) {
+          set: function (v: any) {
             if (!!prop.onSetValue) {
               prop.onSetValue(obj, v, null);
             } else {
@@ -917,9 +936,9 @@ export class JsonMetadata {
     propertyName: string
   ): JsonObjectProperty {
     const prop = this.findProperty(className, propertyName);
-    if(!prop) return prop;
+    if (!prop) return prop;
     const classInfo = this.findClass(className);
-    if(prop.classInfo === classInfo) return prop;
+    if (prop.classInfo === classInfo) return prop;
     const newProp = new JsonObjectProperty(classInfo, propertyName, prop.isRequired);
     newProp.mergeWith(prop);
     classInfo.properties.push(newProp);
@@ -997,10 +1016,10 @@ export class JsonMetadata {
     var customTemplateName = res.getTemplate
       ? res.getTemplate()
       : res.getType();
-    res.getType = function() {
+    res.getType = function () {
       return customTypeName;
     };
-    res.getTemplate = function() {
+    res.getTemplate = function () {
       return customTemplateName;
     };
     CustomPropertiesCollection.createProperties(res);
@@ -1245,7 +1264,7 @@ export class JsonMetadata {
 export class JsonError {
   public description: string = "";
   public at: Number = -1;
-  constructor(public type: string, public message: string) {}
+  constructor(public type: string, public message: string) { }
   public getFullDescription(): string {
     return this.message + (this.description ? "\n" + this.description : "");
   }
@@ -1255,10 +1274,10 @@ export class JsonUnknownPropertyError extends JsonError {
     super(
       "unknownproperty",
       "The property '" +
-        propertyName +
-        "' in class '" +
-        className +
-        "' is unknown."
+      propertyName +
+      "' in class '" +
+      className +
+      "' is unknown."
     );
     var properties = JsonObject.metaData.getProperties(className);
     if (properties) {
@@ -1293,8 +1312,8 @@ export class JsonMissingTypeError extends JsonMissingTypeErrorBase {
       baseClassName,
       "missingtypeproperty",
       "The property type is missing in the object. Please take a look at property: '" +
-        propertyName +
-        "'."
+      propertyName +
+      "'."
     );
   }
 }
@@ -1304,8 +1323,8 @@ export class JsonIncorrectTypeError extends JsonMissingTypeErrorBase {
       baseClassName,
       "incorrecttypeproperty",
       "The property type is incorrect in the object. Please take a look at property: '" +
-        propertyName +
-        "'."
+      propertyName +
+      "'."
     );
   }
 }
@@ -1314,10 +1333,10 @@ export class JsonRequiredPropertyError extends JsonError {
     super(
       "requiredproperty",
       "The property '" +
-        propertyName +
-        "' is required in class '" +
-        className +
-        "'."
+      propertyName +
+      "' is required in class '" +
+      className +
+      "'."
     );
   }
 }

@@ -25,6 +25,9 @@ class LocalizableOwnerTester implements ILocalizableOwner {
   public getRenderer(name: string): string {
     return undefined;
   }
+  public getRendererContext(locStr: LocalizableString): any {
+    return undefined;
+  }
   public getProcessedText(text: string): string {
     for (var key in this.values) {
       text = text.replace("{" + key + "}", this.values[key]);

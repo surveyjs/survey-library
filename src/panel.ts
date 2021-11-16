@@ -1621,8 +1621,6 @@ export class PanelModelBase extends SurveyElement
  * It may contain questions and other panels.
  */
 export class PanelModel extends PanelModelBase implements IElement {
-  public minWidth?: string;
-  public maxWidth?: string;
   constructor(name: string = "") {
     super(name);
     var self = this;
@@ -1797,6 +1795,24 @@ export class PanelModel extends PanelModelBase implements IElement {
   }
   public set width(val: string) {
     this.setPropertyValue("width", val);
+  }
+  /**
+   * Use it to set the specific minWidth constraint to the panel like css style (%, px, em etc).
+   */
+  public get minWidth(): string {
+    return this.getPropertyValue("minWidth");
+  }
+  public set minWidth(val: string) {
+    this.setPropertyValue("minWidth", val);
+  }
+  /**
+   * Use it to set the specific maxWidth constraint to the panel like css style (%, px, em etc).
+   */
+  public get maxWidth(): string {
+    return this.getPropertyValue("maxWidth");
+  }
+  public set maxWidth(val: string) {
+    this.setPropertyValue("maxWidth", val);
   }
   /**
    * The left indent. Set this property to increase the panel left indent.
@@ -1998,6 +2014,8 @@ Serializer.addClass(
     },
     { name: "startWithNewLine:boolean", default: true },
     "width",
+    { name: "minWidth", default: settings.minWidth },
+    { name: "maxWidth", default: settings.maxWidth },
     { name: "innerIndent:number", default: 0, choices: [0, 1, 2, 3] },
     { name: "indent:number", default: 0, choices: [0, 1, 2, 3] },
     {

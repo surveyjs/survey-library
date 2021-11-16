@@ -82,7 +82,8 @@ export function createPopupModalViewModel(
   onHide = () => { },
   onShow = () => { },
   cssClass?: string,
-  title?: string
+  title?: string,
+  displayMode: "popup"|"overlay" = "popup"
 ) {
   const popupModel = new PopupModel(
     componentName,
@@ -98,6 +99,7 @@ export function createPopupModalViewModel(
     cssClass,
     title
   );
+  popupModel.displayMode = displayMode;
   const popupViewModel: PopupBaseViewModel = new PopupBaseViewModel(
     popupModel,
     undefined
@@ -172,10 +174,10 @@ export class PopupBaseViewModel extends Base {
   public get styleClass(): string {
     return new CssClassBuilder()
       .append(this.model.cssClass)
-      .append("sv-popup--modal", this.isModal)
-      .append("sv-popup--show-pointer", !this.isModal && this.model.displayMode === "popup" && this.showPointer)
-      .append(`sv-popup--${this.popupDirection}`, !this.isModal && this.model.displayMode === "popup" && this.showPointer)
-      .append(`sv-popup--${this.model.displayMode}`, this.model.displayMode === "overlay")
+      .append("sv-popup--modal", this.isModal && !this.isOverlay)
+      .append("sv-popup--show-pointer", !this.isModal && !this.isOverlay && this.showPointer)
+      .append(`sv-popup--${this.popupDirection}`, !this.isModal && !this.isOverlay && this.showPointer)
+      .append(`sv-popup--${this.model.displayMode}`, this.isOverlay)
       .toString();
   }
   public onKeyDown(event: any) {
@@ -206,7 +208,7 @@ export class PopupBaseViewModel extends Base {
   }
   public updateOnShowing() {
     this.prevActiveElement = <HTMLElement>document.activeElement;
-    if (!this.isModal) {
+    if (!this.isModal || this.isOverlay) {
       this.updatePosition();
     }
     this.focusFirstInput();
@@ -283,9 +285,9 @@ export class PopupBaseViewModel extends Base {
       this.pointerTarget.left += "px";
     }
     else{
-      this.left = undefined;
-      this.top = undefined;
-      this.height = undefined;
+      this.left = null;
+      this.top = null;
+      this.height = null;
     }
   }
   private focusFirstInput() {

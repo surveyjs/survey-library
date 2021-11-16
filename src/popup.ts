@@ -22,6 +22,7 @@ export class PopupModel<T = any> extends Base {
   @property({ defaultValue: () => { } }) onShow: () => void;
   @property({ defaultValue: "" }) cssClass: string;
   @property({ defaultValue: "" }) title: string;
+  @property({ defaultValue: "popup" }) displayMode: "popup"|"overlay";
   constructor(
     contentComponentName: string,
     contentComponentData: T,
@@ -162,12 +163,19 @@ export class PopupBaseViewModel extends Base {
   public get isModal(): boolean {
     return this.model.isModal;
   }
+  public get showFooter(): boolean {
+    return this.isModal || this.isOverlay;
+  }
+  public get isOverlay(): boolean {
+    return this.model.displayMode === "overlay";
+  }
   public get styleClass(): string {
     return new CssClassBuilder()
       .append(this.model.cssClass)
       .append("sv-popup--modal", this.isModal)
-      .append("sv-popup--show-pointer", !this.isModal && this.showPointer)
-      .append(`sv-popup--${this.popupDirection}`, !this.isModal && this.showPointer)
+      .append("sv-popup--show-pointer", !this.isModal && this.model.displayMode === "popup" && this.showPointer)
+      .append(`sv-popup--${this.popupDirection}`, !this.isModal && this.model.displayMode === "popup" && this.showPointer)
+      .append(`sv-popup--${this.model.displayMode}`, this.model.displayMode === "overlay")
       .toString();
   }
   public onKeyDown(event: any) {
@@ -213,65 +221,72 @@ export class PopupBaseViewModel extends Base {
     }
   }
   private updatePosition() {
-    const rect = this.targetElement.getBoundingClientRect();
-    const background = <HTMLElement>this.container.children[0];
-    const popupContainer = <HTMLElement>background.children[0];
-    const scrollContent = <HTMLElement>background.children[0].querySelector(".sv-popup__scrolling-content");
-    let height =
-      popupContainer.offsetHeight -
-      scrollContent.offsetHeight +
-      scrollContent.scrollHeight;
-    const width = popupContainer.offsetWidth;
-    this.height = "auto";
-    let verticalPosition = this.model.verticalPosition;
-    if (!!window) {
-      height = Math.min(height, window.innerHeight * 0.9);
-      verticalPosition = PopupUtils.updateVerticalPosition(
-        rect,
-        height,
-        this.model.verticalPosition,
-        this.model.showPointer,
-        window.innerHeight
-      );
-    }
-    this.popupDirection = PopupUtils.calculatePopupDirection(
-      verticalPosition,
-      this.model.horizontalPosition
-    );
-    const pos = PopupUtils.calculatePosition(
-      rect,
-      height,
-      width,
-      verticalPosition,
-      this.model.horizontalPosition,
-      this.showPointer
-    );
-
-    if (!!window) {
-      const newVerticalDimensions = PopupUtils.updateVerticalDimensions(
-        pos.top,
-        height,
-        window.innerHeight
-      );
-      if (!!newVerticalDimensions) {
-        this.height = newVerticalDimensions.height + "px";
-        pos.top = newVerticalDimensions.top;
+    if(this.model.displayMode !== "overlay") {
+      const rect = this.targetElement.getBoundingClientRect();
+      const background = <HTMLElement>this.container.children[0];
+      const popupContainer = <HTMLElement>background.children[0];
+      const scrollContent = <HTMLElement>background.children[0].querySelector(".sv-popup__scrolling-content");
+      let height =
+        popupContainer.offsetHeight -
+        scrollContent.offsetHeight +
+        scrollContent.scrollHeight;
+      const width = popupContainer.offsetWidth;
+      this.height = "auto";
+      let verticalPosition = this.model.verticalPosition;
+      if (!!window) {
+        height = Math.min(height, window.innerHeight * 0.9);
+        verticalPosition = PopupUtils.updateVerticalPosition(
+          rect,
+          height,
+          this.model.verticalPosition,
+          this.model.showPointer,
+          window.innerHeight
+        );
       }
-    }
-    this.left = pos.left + "px";
-    this.top = pos.top + "px";
-
-    if (this.showPointer) {
-      this.pointerTarget = PopupUtils.calculatePointerTarget(
-        rect,
-        pos.top,
-        pos.left,
+      this.popupDirection = PopupUtils.calculatePopupDirection(
         verticalPosition,
         this.model.horizontalPosition
       );
+      const pos = PopupUtils.calculatePosition(
+        rect,
+        height,
+        width,
+        verticalPosition,
+        this.model.horizontalPosition,
+        this.showPointer
+      );
+
+      if (!!window) {
+        const newVerticalDimensions = PopupUtils.updateVerticalDimensions(
+          pos.top,
+          height,
+          window.innerHeight
+        );
+        if (!!newVerticalDimensions) {
+          this.height = newVerticalDimensions.height + "px";
+          pos.top = newVerticalDimensions.top;
+        }
+      }
+      this.left = pos.left + "px";
+      this.top = pos.top + "px";
+
+      if (this.showPointer) {
+        this.pointerTarget = PopupUtils.calculatePointerTarget(
+          rect,
+          pos.top,
+          pos.left,
+          verticalPosition,
+          this.model.horizontalPosition
+        );
+      }
+      this.pointerTarget.top += "px";
+      this.pointerTarget.left += "px";
     }
-    this.pointerTarget.top += "px";
-    this.pointerTarget.left += "px";
+    else{
+      this.left = undefined;
+      this.top = undefined;
+      this.height = undefined;
+    }
   }
   private focusFirstInput() {
     setTimeout(() => {

@@ -53,3 +53,9 @@
   font-weight: 600;
   text-align: left;
 }
+.sd-table__cell:hover:not(:focus-within) {
+  position: relative;
+  .sd-question__erbox--tooltip {
+    display: inline-block;
+  }
+}

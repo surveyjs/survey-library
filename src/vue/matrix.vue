@@ -53,7 +53,7 @@
                   :disabled="question.isInputReadOnly"
                   :id="question.inputId + '_' + row.name + '_' + columnIndex"
                   :aria-required="question.ariaRequired"
-                  :aria-label="question.ariaLabel"
+                  :aria-label="column.locText.renderedHtml"
                   :aria-invalid="question.ariaInvalid"
                   :aria-describedby="question.ariaDescribedBy"
                 />

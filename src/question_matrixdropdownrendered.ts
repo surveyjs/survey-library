@@ -92,7 +92,7 @@ export class QuestionMatrixDropdownRenderedCell {
     const builder = new CssClassBuilder().append(this.classNameValue);
     if(this.hasQuestion) {
       builder
-        .append(this.question.cssError, this.question.errors.length > 0)
+        .append(this.question.cssClasses.hasError, this.question.errors.length > 0)
         .append(this.question.cssClasses.answered, this.question.isAnswered);
     }
     return builder.toString();

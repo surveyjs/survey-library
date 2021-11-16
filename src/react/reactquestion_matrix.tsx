@@ -182,7 +182,7 @@ export class SurveyQuestionMatrixRow extends ReactSurveyElement {
                 checked={isChecked}
                 onChange={this.handleOnChange}
                 aria-required={this.question.ariaRequired}
-                aria-label={this.question.ariaLabel}
+                aria-label={column.locText.renderedHtml}
                 aria-invalid={this.question.ariaInvalid}
                 aria-describedby={this.question.ariaDescribedBy}
               />
@@ -210,6 +210,7 @@ export class SurveyQuestionMatrixRow extends ReactSurveyElement {
   }
   cellClick(row: any, column: any) {
     row.value = column.value;
+    this.setState({ value: this.row.value });
   }
 }
 

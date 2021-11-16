@@ -1162,7 +1162,8 @@ export class QuestionSelectBase extends Question {
     const builder = new CssClassBuilder()
       .append(this.cssClasses.item)
       .append(this.cssClasses.itemInline, !this.hasColumns && this.colCount === 0)
-      .append("sv-q-col-" + this.colCount, !this.hasColumns && this.colCount !== 0);
+      .append("sv-q-col-" + this.colCount, !this.hasColumns && this.colCount !== 0)
+      .append(this.cssClasses.itemOnError, this.errors.length > 0);
 
     const isDisabled = this.isReadOnly || !item.isEnabled;
     const isChecked = this.isItemSelected(item) ||

@@ -235,14 +235,17 @@ export var defaultV2Css = {
     mainRoot: "sd-element-with-frame sd-question sd-row__question sd-scrollable",
     root: "sd-table",
     cell: "sd-table__cell",
-    headerCell: "sd-table__cell sd-table__cell--header"
+    headerCell: "sd-table__cell sd-table__cell--header",
+    rowTextCell: "sd-table__cell sd-table__cell--row-text"
+
   },
   matrixdynamic: {
     mainRoot: "sd-element-with-frame sd-question sd-row__question sd-scrollable",
     root: "sd-table sd-matrixdynamic",
     cell: "sd-table__cell",
     headerCell: "sd-table__cell sd-table__cell--header",
-    button: "sd-btn",
+    rowTextCell: "sd-table__cell sd-table__cell--row-text",
+    button: "sd-matrixdynamic__btn",
     detailRow: "sd-table__row sd-table__row--detail",
     detailButton: "sd-table__cell--detail-button",
     detailButtonExpanded: "sd-table__cell--detail-button--expanded",

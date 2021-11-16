@@ -1,8 +1,13 @@
 .sd-matrixdynamic__add-btn {
+  color: $primary;
+ }
+ .sd-matrixdynamic__remove-btn {
+  color: $red;
+ }
+ .sd-matrixdynamic__btn {
   appearance: none;
   background: transparent;
   border: none;
-  color: $primary;
   line-height: calcSize(3);
   font-size: calcSize(2);
   font-family: $font-family;
@@ -23,4 +28,8 @@
     box-sizing: border-box;
     border-radius: 10px;
   }
+}
+.sd-table__cell--row-text {
+  font-weight: 600;
+  text-align: left;
 }

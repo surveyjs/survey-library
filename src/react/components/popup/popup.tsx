@@ -184,7 +184,8 @@ export function showModal(
   onApply: () => boolean,
   onCancel?: () => void,
   cssClass?: string,
-  title?: string
+  title?: string,
+  displayMode: "popup"|"overlay" = "popup"
 ) {
   const popupViewModel: PopupBaseViewModel = createPopupModalViewModel(
     componentName,
@@ -197,7 +198,8 @@ export function showModal(
     },
     undefined,
     cssClass,
-    title
+    title,
+    displayMode
   );
   ReactDOM.render(<PopupContainer model={popupViewModel} />, popupViewModel.container);
 

@@ -77,7 +77,7 @@ export class Question extends SurveyElement
     return this.survey && this.survey.getCss().root == "sd-root-modern";
   }
   public get hasParent() {
-    return this.parentQuestionValue !== null;
+    return this.parent && !this.parent.isPage;
   }
   constructor(name: string) {
     super(name);

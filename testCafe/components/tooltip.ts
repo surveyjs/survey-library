@@ -50,6 +50,9 @@ frameworks.forEach((framework) => {
   });
   test("check errors tooltip", async (t) => {
     const focusBody = ClientFunction(() => { document.body.focus(); });
+    const getTooltipPosition = (base:number, offset: number): string => {
+      return base + offset + 12 + "px";
+    };
     const matrixCellSelector = Selector(
       ".sd-table__cell:not(.sd-table__cell--header)"
     );
@@ -62,20 +65,22 @@ frameworks.forEach((framework) => {
     await focusBody();
     const tooltipInPanel = questionInPanelSelector.find(tooltipClass);
     const tooltipInMatrix = matrixCellSelector.find(tooltipClass);
+    const questionInPanelClientRect = await questionInPanelSelector.boundingClientRect;
+    const matrixCellClientRect = await matrixCellSelector.boundingClientRect;
     await t.expect(tooltipInPanel.visible).notOk()
       .hover(questionInPanelSelector, { offsetX: 30, offsetY: 30 })
       .expect(tooltipInPanel.visible).ok()
-      .expect(tooltipInPanel.getStyleProperty("left")).eql("199px")
-      .expect(tooltipInPanel.getStyleProperty("top")).eql("612px")
+      .expect(tooltipInPanel.getStyleProperty("left")).eql(getTooltipPosition(questionInPanelClientRect.left, 30))
+      .expect(tooltipInPanel.getStyleProperty("top")).eql(getTooltipPosition(questionInPanelClientRect.top, 30))
       .hover(questionInPanelSelector, { offsetX: 40, offsetY: 40 })
-      .expect(tooltipInPanel.getStyleProperty("left")).eql("209px")
-      .expect(tooltipInPanel.getStyleProperty("top")).eql("622px")
+      .expect(tooltipInPanel.getStyleProperty("left")).eql(getTooltipPosition(questionInPanelClientRect.left, 40))
+      .expect(tooltipInPanel.getStyleProperty("top")).eql(getTooltipPosition(questionInPanelClientRect.top, 40))
       .hover(matrixCellSelector, { offsetX: 10, offsetY: 10 })
       .expect(tooltipInMatrix.visible).ok()
-      .expect(tooltipInMatrix.getStyleProperty("left")).eql("179px")
-      .expect(tooltipInMatrix.getStyleProperty("top")).eql("220px")
+      .expect(tooltipInMatrix.getStyleProperty("left")).eql(getTooltipPosition(matrixCellClientRect.left, 10))
+      .expect(tooltipInMatrix.getStyleProperty("top")).eql(getTooltipPosition(matrixCellClientRect.top, 10))
       .hover(matrixCellSelector, { offsetX: 20, offsetY: 20 })
-      .expect(tooltipInMatrix.getStyleProperty("left")).eql("189px")
-      .expect(tooltipInMatrix.getStyleProperty("top")).eql("230px");
+      .expect(tooltipInMatrix.getStyleProperty("left")).eql(getTooltipPosition(matrixCellClientRect.left, 20))
+      .expect(tooltipInMatrix.getStyleProperty("top")).eql(getTooltipPosition(matrixCellClientRect.top, 20));
   });
 });

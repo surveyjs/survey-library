@@ -1,6 +1,6 @@
 import * as React from "react";
 import { SurveyQuestionElementBase } from "./reactquestion_element";
-import { SurveyQuestionAndErrorsWrapped } from "./reactquestion";
+import { SurveyElementErrors, SurveyQuestionAndErrorsWrapped } from "./reactquestion";
 import { QuestionMultipleTextModel } from "survey-core";
 import { MultipleTextItemModel } from "survey-core";
 import { ReactQuestionFactory } from "./reactquestion_factory";
@@ -24,6 +24,17 @@ export class SurveyQuestionMultipleText extends SurveyQuestionElementBase {
         <tbody>{rows}</tbody>
       </table>
     );
+  }
+  protected renderItemTooltipError(item: MultipleTextItemModel, cssClasses: any): JSX.Element {
+    return this.question.isErrorsModeTooltip ? (
+      <SurveyElementErrors
+        element={item.editor}
+        cssClasses={cssClasses}
+        creator={this.creator}
+        location={"tooltip"}
+        id={item.editor.id + "_errors"}
+      />
+    ): null;
   }
   protected renderRow(
     rowIndex: number,
@@ -66,16 +77,17 @@ export class SurveyQuestionMultipleText extends SurveyQuestionElementBase {
       }
       tds.push(
         <td key={"item" + i}>
-          <label className={this.question.cssClasses.itemLabel}>
+          <label className={this.question.getItemLabelCss(item)}>
             <span className={cssClasses.itemTitle}>
               {spans}
             </span>
-            <SurveyMultipleTextItem
+            <SurveyMultipleTextItemEditor
               cssClasses={cssClasses}
               itemCss={this.question.getItemCss()}
               question={item.editor}
               creator={this.creator}
             />
+            {this.renderItemTooltipError(item, cssClasses)}
           </label>
         </td>
       );
@@ -88,7 +100,7 @@ export class SurveyQuestionMultipleText extends SurveyQuestionElementBase {
   }
 }
 
-export class SurveyMultipleTextItem extends SurveyQuestionAndErrorsWrapped {
+export class SurveyMultipleTextItemEditor extends SurveyQuestionAndErrorsWrapped {
   protected renderElement(): JSX.Element {
     return <div className={this.itemCss}>{this.renderContent()}</div>;
   }

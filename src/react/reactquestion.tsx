@@ -310,26 +310,27 @@ export abstract class SurveyQuestionAndErrorsWrapped extends ReactSurveyElement 
   protected canRender(): boolean {
     return !!this.question;
   }
-  protected renderContent(): JSX.Element {
-    var errorsLocation = this.creator.questionErrorLocation();
-    var errors = this.getShowErrors() ? (
+  protected renderErrors(errorsLocation: string) {
+    return this.getShowErrors() ? (
       <SurveyElementErrors
         element={this.question}
         cssClasses={this.cssClasses}
         creator={this.creator}
-        location={this.question.isErrorsModeTooltip ? "tooltip": errorsLocation}
+        location={errorsLocation}
       />
     ) : null;
+  }
+  protected renderContent(): JSX.Element {
+    var errorsLocation = this.creator.questionErrorLocation();
+    var errors = this.renderErrors(errorsLocation);
     var errorsTop = errorsLocation === "top" && !this.question.isErrorsModeTooltip ? errors : null;
     var errorsBottom = errorsLocation === "bottom" && !this.question.isErrorsModeTooltip ? errors : null;
-    var errorsTooltip = this.question.isErrorsModeTooltip ? errors : null;
     var renderedQuestion = this.renderQuestion();
     return (
       <>
         {errorsTop}
         {renderedQuestion}
         {errorsBottom}
-        {errorsTooltip}
       </>
     );
   }
@@ -360,6 +361,7 @@ export class SurveyQuestionAndErrorsCell extends SurveyQuestionAndErrorsWrapped 
   }
   protected renderElement(): JSX.Element {
     var style = this.getCellStyle();
+    var errorsTooltip = this.question.isErrorsModeTooltip ? this.renderErrors("tooltip") : null;
     return (
       <td
         ref={this.cellRef}
@@ -368,6 +370,7 @@ export class SurveyQuestionAndErrorsCell extends SurveyQuestionAndErrorsWrapped 
         style={style}
       >
         {this.wrapCell(this.props.cell, this.renderContent())}
+        {errorsTooltip}
       </td>
     );
   }

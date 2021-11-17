@@ -102,7 +102,7 @@ frameworks.forEach((framework) => {
   
     var selector = `.sv_q_mt_title .sv-string-editor`;
     await t
-      .click(selector, {offsetX: 10, offsetY: 10, speed: 0.1})
+      .click(selector, {offsetX: 10, offsetY: 10})
       .typeText(selector, newTitle, { replace: true })
       .click(`body`, { offsetX: 0, offsetY: 0 });
 

@@ -1,7 +1,7 @@
 import { Action } from "../src/actions/action";
 import { AdaptiveActionContainer } from "../src/actions/adaptive-container";
 import { ActionContainer } from "../src/actions/container";
-import { ResponsivityManager } from "../src/utils/responsivity-manager";
+import { ResponsivityManager, VerticalResponsivityManager } from "../src/utils/responsivity-manager";
 
 export default QUnit.module("ResponsivityManager");
 
@@ -254,5 +254,22 @@ QUnit.test(
     assert.equal(manager["isInitialized"], false);
     manager["process"]();
     assert.equal(manager["isInitialized"], false);
+  }
+);
+
+QUnit.test(
+  "ResponsivityManager - vertical",
+  function(assert) {
+    const container: SimpleContainer = new SimpleContainer({});
+    const model: AdaptiveActionContainer = new AdaptiveActionContainer();
+    const manager: VerticalResponsivityManager = new VerticalResponsivityManager(<any>container, <any>model, "");
+    (<any>manager.getComputedStyle) = () => {
+      return { boxSizing: "content-box", paddingLeft: 5, paddingRight: 5 };
+    };
+
+    const newAction = new Action({ id: "item", iconName: "icon", title: "item title" });
+    model.actions.push(newAction);
+
+    assert.equal(manager["calcMinDimension"](newAction), 40);
   }
 );

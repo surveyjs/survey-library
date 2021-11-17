@@ -7,7 +7,7 @@
     >
       <template v-for="item in row">
         <td :key="'item' + item.editor.id">
-          <label :class="question.cssClasses.itemLabel">
+          <label :class="question.getItemLabelCss(item)">
             <span :class="question.getItemTitleCss()">
               <span
                 v-if="
@@ -40,6 +40,11 @@
                 :location="'bottom'"
               />
             </div>
+            <survey-errors
+              v-if="question.isErrorsModeTooltip"
+              :element="item.editor"
+              :location="'tooltip'"
+            />
           </label>
         </td>
       </template>
@@ -63,10 +68,10 @@ export class MultipleText extends QuestionVue<QuestionMultipleTextModel> {
     return "survey-text";
   }
   get hasErrorsOnTop() {
-    return this.question.survey.questionErrorLocation === "top";
+    return this.question.survey.questionErrorLocation === "top" && !this.question.isErrorsModeTooltip
   }
   get hasErrorsOnBottom() {
-    return this.question.survey.questionErrorLocation === "bottom";
+    return this.question.survey.questionErrorLocation === "bottom" && !this.question.isErrorsModeTooltip
   }
 }
 Vue.component("survey-multipletext", MultipleText);

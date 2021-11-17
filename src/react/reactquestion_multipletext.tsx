@@ -49,7 +49,7 @@ export class SurveyQuestionMultipleText extends SurveyQuestionElementBase {
         spans.push(<span key={"spaceBefore" + i}>&nbsp;</span>);
       }
       spans.push(
-        <span key={"itemTitle" + i} className={cssClasses.itemTitle}>
+        <span key={"itemTitle" + i}>
           {itemTitle}
         </span>
       );
@@ -67,7 +67,9 @@ export class SurveyQuestionMultipleText extends SurveyQuestionElementBase {
       tds.push(
         <td key={"item" + i}>
           <label className={this.question.cssClasses.itemLabel}>
-            {spans}
+            <span className={cssClasses.itemTitle}>
+              {spans}
+            </span>
             <SurveyMultipleTextItem
               cssClasses={cssClasses}
               itemCss={this.question.getItemCss()}

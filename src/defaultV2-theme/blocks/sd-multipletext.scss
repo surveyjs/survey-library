@@ -23,12 +23,13 @@
   }
 }
 .sd-multipletext__item-title {
+  height: 100%;
+  max-width: 30%;
+  padding-right: calcSize(2);
   border-right: 1px solid $border;
   word-break: break-word;
   white-space: normal;
-  max-width: 30%;
-  height: 100%;
-  padding-right: calcSize(2);
+  color: $foreground-light;
 }
 .sd-multipletext__item {
   flex-grow: 1;

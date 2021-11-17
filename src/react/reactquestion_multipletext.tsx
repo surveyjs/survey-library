@@ -76,7 +76,7 @@ export class SurveyQuestionMultipleText extends SurveyQuestionElementBase {
         );
       }
       tds.push(
-        <td key={"item" + i}>
+        <td key={"item" + i} className={this.question.cssClasses.cell}>
           <label className={this.question.getItemLabelCss(item)}>
             <span className={cssClasses.itemTitle}>
               {spans}

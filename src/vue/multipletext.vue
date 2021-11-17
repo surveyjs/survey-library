@@ -6,7 +6,7 @@
       :class="question.cssClasses.row"
     >
       <template v-for="item in row">
-        <td :key="'item' + item.editor.id">
+        <td :key="'item' + item.editor.id" :class="question.cssClasses.cell">
           <label :class="question.getItemLabelCss(item)">
             <span :class="question.getItemTitleCss()">
               <span

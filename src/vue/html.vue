@@ -1,6 +1,6 @@
 <template>
   <div
-    :class="question.cssClasses.root || null"
+    :class="question.renderCssRoot"
     v-html="question.locHtml.renderedHtml"
   ></div>
 </template>

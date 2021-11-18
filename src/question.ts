@@ -814,6 +814,10 @@ export class Question extends SurveyElement
   public set renderWidth(val: string) {
     this.setPropertyValue("renderWidth", val);
   }
+
+  public get renderCssRoot(): string {
+    return this.cssClasses.root || undefined;
+  }
   /**
    * Set it different from 0 to increase the left padding.
    */

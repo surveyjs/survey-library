@@ -9,7 +9,7 @@
       :min="question.renderedMin"
       :max="question.renderedMax"
       :step="question.renderedStep"
-      :size="question.inputSize || null"
+      :size="question.renderedInputSize"
       :style="inputStyle"
       :id="question.inputId"
       :list="question.dataListId"

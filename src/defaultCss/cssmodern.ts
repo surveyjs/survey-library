@@ -3,6 +3,7 @@ export var modernCss = {
   root: "sv-root-modern",
   container: "sv-container-modern",
   header: "sv-title sv-container-modern__title",
+  headerClose: "sv-container-modern__close",
   body: "sv-body",
   bodyEmpty: "sv-body sv-body--empty",
   footer: "sv-footer sv-body__footer sv-clearfix",

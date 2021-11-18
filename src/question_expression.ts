@@ -4,7 +4,6 @@ import { Serializer } from "./jsonobject";
 import { QuestionFactory } from "./questionfactory";
 import { LocalizableString } from "./localizablestring";
 import { ExpressionRunner } from "./conditions";
-import { SurveyError } from "./survey-error";
 
 /**
  * A Model for expression question. It is a read-only question. It calculates value based on epxression property.
@@ -118,6 +117,10 @@ export class QuestionExpressionModel extends Question {
     this.setPropertyValue("formatedValue", this.getDisplayValueCore(false, this.value));
   }
   protected onValueChanged() {
+    this.updateFormatedValue();
+  }
+  updateValueFromSurvey(newValue: any): void {
+    super.updateValueFromSurvey(newValue);
     this.updateFormatedValue();
   }
   protected getDisplayValueCore(keysAsText: boolean, value: any): any {

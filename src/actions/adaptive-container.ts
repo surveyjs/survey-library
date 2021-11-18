@@ -50,7 +50,7 @@ export class AdaptiveActionContainer<T extends Action = Action> extends ActionCo
   private updateItemMode(availableSize: number, itemsSize: number) {
     const items = this.visibleActions;
     for (let index = items.length - 1; index >= 0; index--) {
-      if (itemsSize > availableSize) {
+      if (itemsSize > availableSize && !items[index].disableShrink) {
         itemsSize -= items[index].maxDimension - items[index].minDimension;
         items[index].mode = "small";
       } else {

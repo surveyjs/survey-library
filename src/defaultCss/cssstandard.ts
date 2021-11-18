@@ -234,7 +234,9 @@ export var defaultStandardCss = {
   multipletext: {
     root: "sv_q_mt",
     itemTitle: "sv_q_mt_title",
+    item: "sv_q_mt_item",
     row: "sv_q_mt_row",
+    itemLabel: "sv_q_mt_label",
     itemValue: "sv_q_mt_item_value sv_q_text_root",
   },
   radiogroup: {

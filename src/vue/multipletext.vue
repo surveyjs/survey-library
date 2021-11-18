@@ -6,40 +6,46 @@
       :class="question.cssClasses.row"
     >
       <template v-for="item in row">
-        <td
-          :key="'label' + item.editor.id"
-          :class="question.getItemTitleCss()"
-        >
-          <span
-            v-if="
-              item.editor.isRequireTextBeforeTitle ||
-              item.editor.isRequireTextOnStart
-            "
-            :class="question.cssClasses.requiredText"
-            >{{ item.editor.requiredText }}</span
-          >
-          <survey-string :locString="item.locTitle" />
-          <span
-            v-if="item.editor.isRequireTextAfterTitle"
-            :class="question.cssClasses.requiredText"
-            >{{ item.editor.requiredText }}</span
-          >
-        </td>
-        <td :key="item.editor.id" :css="question.getItemCss()">
-          <survey-errors
-            v-if="hasErrorsOnTop"
-            :element="item.editor"
-            :location="'top'"
-          />
-          <component
-            :is="getComponentName(item.editor)"
-            :question="item.editor"
-          />
-          <survey-errors
-            v-if="hasErrorsOnBottom"
-            :element="item.editor"
-            :location="'bottom'"
-          />
+        <td :key="'item' + item.editor.id" :class="question.cssClasses.cell">
+          <label :class="question.getItemLabelCss(item)">
+            <span :class="question.getItemTitleCss()">
+              <span
+                v-if="
+                  item.editor.isRequireTextBeforeTitle ||
+                  item.editor.isRequireTextOnStart
+                "
+                :class="question.cssClasses.requiredText"
+                >{{ item.editor.requiredText }}</span
+              >
+              <survey-string :locString="item.locTitle" />
+              <span
+                v-if="item.editor.isRequireTextAfterTitle"
+                :class="question.cssClasses.requiredText"
+                >{{ item.editor.requiredText }}</span
+              >
+            </span>
+            <div :key="item.editor.id" :class="question.getItemCss()">
+              <survey-errors
+                v-if="hasErrorsOnTop"
+                :element="item.editor"
+                :location="'top'"
+              />
+              <component
+                :is="getComponentName(item.editor)"
+                :question="item.editor"
+              />
+              <survey-errors
+                v-if="hasErrorsOnBottom"
+                :element="item.editor"
+                :location="'bottom'"
+              />
+            </div>
+            <survey-errors
+              v-if="question.isErrorsModeTooltip"
+              :element="item.editor"
+              :location="'tooltip'"
+            />
+          </label>
         </td>
       </template>
     </tr>
@@ -62,10 +68,10 @@ export class MultipleText extends QuestionVue<QuestionMultipleTextModel> {
     return "survey-text";
   }
   get hasErrorsOnTop() {
-    return this.question.survey.questionErrorLocation === "top";
+    return this.question.survey.questionErrorLocation === "top" && !this.question.isErrorsModeTooltip
   }
   get hasErrorsOnBottom() {
-    return this.question.survey.questionErrorLocation === "bottom";
+    return this.question.survey.questionErrorLocation === "bottom" && !this.question.isErrorsModeTooltip
   }
 }
 Vue.component("survey-multipletext", MultipleText);

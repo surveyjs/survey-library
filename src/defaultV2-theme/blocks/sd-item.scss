@@ -31,7 +31,7 @@
   background: $green;
 }
 .sd-item__control-label {
-  font-family: Open Sans;
+  font-family: $font-family;
   font-style: normal;
   font-weight: normal;
   line-height: calcSize(3);
@@ -43,4 +43,7 @@
 }
 .sd-item--disabled .sd-item__control-label {
   color: $foreground-disabled-for-editors;
+}
+.sd-item--error .sd-item__decorator {
+  background: $red-light;
 }

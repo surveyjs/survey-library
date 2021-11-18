@@ -589,13 +589,14 @@ export class QuestionMultipleTextModel extends Question
   ensureRowsVisibility(): void {
     // do nothing
   }
+  public getItemLabelCss(item: MultipleTextItemModel): string {
+    return new CssClassBuilder().append(this.cssClasses.itemLabel).append(this.cssClasses.itemLabelOnError, item.editor.errors.length > 0).toString();
+  }
   public getItemCss(): string {
-    return new CssClassBuilder().append(this.cssClasses.item)
-      .append(this.cssClasses.cell).toString();
+    return new CssClassBuilder().append(this.cssClasses.item).toString();
   }
   public getItemTitleCss(): string {
-    return new CssClassBuilder().append(this.cssClasses.itemTitle)
-      .append(this.cssClasses.cell).toString();
+    return new CssClassBuilder().append(this.cssClasses.itemTitle).toString();
   }
 }
 

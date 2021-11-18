@@ -212,6 +212,7 @@ export var modernCss = {
   multipletext: {
     root: "sv-multipletext",
     item: "sv-multipletext__item",
+    itemLabel: "sv-multipletext__item-label",
     itemTitle: "sv-multipletext__item-title",
     row: "sv-multipletext__row",
     cell: "sv-multipletext__cell",

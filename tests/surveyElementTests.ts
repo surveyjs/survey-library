@@ -1,6 +1,6 @@
 import { PageModel } from "../src/page";
 import { SurveyModel } from "../src/survey";
-import { SurveyElement } from "../src/survey-element";
+import { defaultV2Css } from "../src/defaultCss/defaultV2Css";
 
 export default QUnit.module("SurveyElement");
 
@@ -77,4 +77,17 @@ QUnit.test("creator v1: https://github.com/surveyjs/survey-creator/issues/1744",
   assert.equal(page1.questions.length, 0, "page1 has no questions");
   assert.equal(page2.questions.length, 1, "page1 has question");
   assert.equal(page2.questions[0].name, "q1", "page1 has q1 question");
+});
+
+QUnit.test("Check isErrorsModeTooltip", function (assert) {
+  const survey = new SurveyModel({
+    elements: [{
+      type: "text",
+      name: "q1"
+    }]
+  });
+  const q1 = survey.getQuestionByName("q1");
+  assert.notOk(q1.isErrorsModeTooltip);
+  survey.css = defaultV2Css;
+  assert.ok(q1.isErrorsModeTooltip);
 });

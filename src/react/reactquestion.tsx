@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Base, SurveyElement, SurveyError, Question, QuestionMatrixDropdownRenderedCell, doKey2ClickUp } from "survey-core";
+import { Base, SurveyElement, SurveyError, Question, QuestionMatrixDropdownRenderedCell, doKey2ClickUp, TooltipManager } from "survey-core";
 import { ReactSurveyModel } from "./reactsurveymodel";
 import { ReactElementFactory } from "./element-factory";
 import { SurveyElementBase, ReactSurveyElement } from "./reactquestion_element";
@@ -101,12 +101,15 @@ export class SurveyQuestion extends SurveyElementBase<any, any> {
 
     var comment =
       question && question.hasComment ? this.renderComment(cssClasses) : null;
+    const errorsAboveQuestion = this.question.isErrorsModeTooltip && !this.question.hasParent ? this.renderErrors(cssClasses, ""): null;
+    const errorsTooltip = this.question.isErrorsModeTooltip && this.question.hasParent ? this.renderErrors(cssClasses, "tooltip"): null;
+
     var errorsTop =
-      this.creator.questionErrorLocation() === "top"
+      this.creator.questionErrorLocation() === "top" && !this.question.isErrorsModeTooltip
         ? this.renderErrors(cssClasses, "top")
         : null;
     var errorsBottom =
-      this.creator.questionErrorLocation() === "bottom"
+      this.creator.questionErrorLocation() === "bottom" && !this.question.isErrorsModeTooltip
         ? this.renderErrors(cssClasses, "bottom")
         : null;
     let rootStyle: { [index: string]: any } = {};
@@ -119,24 +122,28 @@ export class SurveyQuestion extends SurveyElementBase<any, any> {
     };
 
     return (
-      <div
-        ref={this.rootRef}
-        id={question.id}
-        className={question.getRootCss()}
-        style={rootStyle}
-        role={question.ariaRole}
-        aria-labelledby={question.hasTitle ? question.ariaTitleId : null}
-      >
-        {headerTop}
-        <div className={question.cssContent} style={contentStyle}>
-          {errorsTop}
-          {questionRender}
-          {comment}
-          {errorsBottom}
-          {descriptionUnderInput}
+      <>
+        {errorsAboveQuestion}
+        <div
+          ref={this.rootRef}
+          id={question.id}
+          className={question.getRootCss()}
+          style={rootStyle}
+          role={question.ariaRole}
+          aria-labelledby={question.hasTitle ? question.ariaTitleId : null}
+        >
+          {headerTop}
+          <div className={question.cssContent} style={contentStyle}>
+            {errorsTop}
+            {questionRender}
+            {comment}
+            {errorsBottom}
+            {errorsTooltip}
+            {descriptionUnderInput}
+          </div>
+          {headerBottom}
         </div>
-        {headerBottom}
-      </div>
+      </>
     );
   }
   protected wrapElement(element: JSX.Element): JSX.Element {
@@ -212,6 +219,7 @@ export class SurveyElementErrors extends ReactSurveyElement {
   constructor(props: any) {
     super(props);
     this.state = this.getState();
+    this.tooltipRef = React.createRef();
   }
   protected get id(): string {
     return this.props.id;
@@ -231,6 +239,28 @@ export class SurveyElementErrors extends ReactSurveyElement {
   protected canRender(): boolean {
     return !!this.element && this.element.hasVisibleErrors;
   }
+  private tooltipManager: TooltipManager;
+  private tooltipRef: React.RefObject<HTMLDivElement>;
+  componentDidUpdate(prevProps: any, prevState: any) {
+    super.componentDidUpdate(prevProps, prevState);
+    if(this.props.location == "tooltip") {
+      if(this.tooltipRef.current && !this.tooltipManager) {
+        this.tooltipManager = new TooltipManager(this.tooltipRef.current);
+      }
+      if(!!this.tooltipManager && !this.tooltipRef.current) {
+        this.disposeTooltipManager();
+      }
+    }
+  }
+  componentWillUnmount() {
+    if(!!this.tooltipManager) {
+      this.disposeTooltipManager();
+    }
+  }
+  private disposeTooltipManager() {
+    this.tooltipManager.dispose();
+    this.tooltipManager = undefined;
+  }
   protected renderElement(): JSX.Element {
     const errors = [];
     for (let i = 0; i < this.element.errors.length; i++) {
@@ -241,25 +271,20 @@ export class SurveyElementErrors extends ReactSurveyElement {
     }
 
     return (
-      <div role="alert" aria-live="polite" className={this.element.cssError} id={this.id}>
+      <div role="alert" aria-live="polite" className={this.element.cssError} id={this.id} ref={this.tooltipRef}>
         {errors}
       </div>
     );
   }
 }
 
-export class SurveyQuestionAndErrorsCell extends ReactSurveyElement {
+export abstract class SurveyQuestionAndErrorsWrapped extends ReactSurveyElement {
   [index: string]: any;
-  protected cellRef: React.RefObject<HTMLTableCellElement>;
   constructor(props: any) {
     super(props);
-    this.cellRef = React.createRef();
   }
   protected getStateElement(): Base {
     return this.question;
-  }
-  protected get itemCss(): string {
-    return this.props.itemCss;
   }
   protected get question(): Question {
     return this.getQuestion();
@@ -270,9 +295,60 @@ export class SurveyQuestionAndErrorsCell extends ReactSurveyElement {
   protected getQuestion(): Question {
     return this.props.question;
   }
+  protected get itemCss(): string {
+    return this.props.itemCss;
+  }
   componentDidMount() {
     super.componentDidMount();
     this.doAfterRender();
+  }
+  componentDidUpdate(prevProps: any, prevState: any) {
+    super.componentDidUpdate(prevProps, prevState);
+    this.doAfterRender();
+  }
+  protected doAfterRender() { }
+  protected canRender(): boolean {
+    return !!this.question;
+  }
+  protected renderErrors(errorsLocation: string) {
+    return this.getShowErrors() ? (
+      <SurveyElementErrors
+        element={this.question}
+        cssClasses={this.cssClasses}
+        creator={this.creator}
+        location={errorsLocation}
+      />
+    ) : null;
+  }
+  protected renderContent(): JSX.Element {
+    var errorsLocation = this.creator.questionErrorLocation();
+    var errors = this.renderErrors(errorsLocation);
+    var errorsTop = errorsLocation === "top" && !this.question.isErrorsModeTooltip ? errors : null;
+    var errorsBottom = errorsLocation === "bottom" && !this.question.isErrorsModeTooltip ? errors : null;
+    var renderedQuestion = this.renderQuestion();
+    return (
+      <>
+        {errorsTop}
+        {renderedQuestion}
+        {errorsBottom}
+      </>
+    );
+  }
+  protected abstract renderElement(): JSX.Element;
+  protected getShowErrors(): boolean {
+    return this.question.isVisible;
+  }
+  protected renderQuestion(): JSX.Element {
+    return SurveyQuestion.renderQuestionBody(this.creator, this.question);
+  }
+}
+
+export class SurveyQuestionAndErrorsCell extends SurveyQuestionAndErrorsWrapped {
+  [index: string]: any;
+  protected cellRef: React.RefObject<HTMLTableCellElement>;
+  constructor(props: any) {
+    super(props);
+    this.cellRef = React.createRef();
   }
   componentWillUnmount() {
     super.componentWillUnmount();
@@ -283,36 +359,9 @@ export class SurveyQuestionAndErrorsCell extends ReactSurveyElement {
       }
     }
   }
-  componentDidUpdate(prevProps: any, prevState: any) {
-    super.componentDidUpdate(prevProps, prevState);
-    this.doAfterRender();
-  }
-  protected doAfterRender() { }
-  protected canRender(): boolean {
-    return !!this.question;
-  }
   protected renderElement(): JSX.Element {
-    var errorsLocation = this.creator.questionErrorLocation();
-    var errors = this.getShowErrors() ? (
-      <SurveyElementErrors
-        element={this.question}
-        cssClasses={this.cssClasses}
-        creator={this.creator}
-        location={errorsLocation}
-      />
-    ) : null;
-    var errorsTop = errorsLocation === "top" ? errors : null;
-    var errorsBottom = errorsLocation === "bottom" ? errors : null;
-    var renderedCell = this.renderQuestion();
     var style = this.getCellStyle();
-    const readyCell = (
-      <>
-        {errorsTop}
-        {renderedCell}
-        {errorsBottom}
-      </>
-    );
-
+    var errorsTooltip = this.question.isErrorsModeTooltip ? this.renderErrors("tooltip") : null;
     return (
       <td
         ref={this.cellRef}
@@ -320,18 +369,13 @@ export class SurveyQuestionAndErrorsCell extends ReactSurveyElement {
         title={this.getHeaderText()}
         style={style}
       >
-        {this.wrapCell(this.props.cell, readyCell)}
+        {this.wrapCell(this.props.cell, this.renderContent())}
+        {errorsTooltip}
       </td>
     );
   }
-  protected getShowErrors(): boolean {
-    return this.question.isVisible;
-  }
   protected getCellStyle(): any {
     return null;
-  }
-  protected renderQuestion(): JSX.Element {
-    return SurveyQuestion.renderQuestionBody(this.creator, this.question);
   }
   protected getHeaderText(): string {
     return "";

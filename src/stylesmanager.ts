@@ -51,6 +51,10 @@ export class StylesManager {
     ".sv_qstn label.sv_q_m_label":
       "position: absolute; margin: 0; display: block; width: 100%;",
     ".sv_qstn td": "position: relative;",
+    ".sv_q_mt": "table-layout: fixed;",
+    ".sv_q_mt_label": "display: flex; align-items: center; font-weight: inherit;",
+    ".sv_q_mt_title": "margin-right: 0.5em; width: 33%;",
+    ".sv_q_mt_item": "flex: 1;",
     ".sv_q_mt_item_value": "float: left;",
     '[dir="rtl"] .sv_q_mt_item_value': "float: right;",
     ".sv_qstn.sv_qstn_left": "margin-top: 0.75em;",
@@ -205,6 +209,11 @@ export class StylesManager {
       "visibility:visible; fill:#9f9f9f;",
     ".sv-ranking--mobile.sv-ranking--drag .sv-ranking-item--ghost .sv-ranking-item__icon.sv-ranking-item__icon--hover":
       "visibility:hidden;",
+    // EO ranking
+
+    // drag drop
+    ".sv-dragged-element-shortcut": "height: 24px; min-width: 100px; border-radius: 36px; background-color: white; padding: 16px; cursor: grabbing; position: absolute; z-index: 1000; box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.1); font-family: 'Open Sans'; font-size: 16px; padding-left: 20px;line-height: 24px;",
+    // EO drag drop
 
     ".sv_qstn .sv_q_select_column":
       "display: inline-block; vertical-align: top; min-width: 10%;",

@@ -1,5 +1,5 @@
 import { DragTypeOverMeEnum, SurveyElement } from "../survey-element";
-import { IElement, IShortcutText } from "../base-interfaces";
+import { IElement } from "../base-interfaces";
 import { JsonObject, Serializer } from "../jsonobject";
 import { PageModel } from "../page";
 import { DragDropCore } from "./core";
@@ -19,6 +19,7 @@ export class DragDropSurveyElements extends DragDropCore<any> {
   protected get draggedElementType(): string {
     return "survey-element";
   }
+  protected isDraggedElementSelected: boolean = false;
 
   public startDragToolboxItem(
     event: PointerEvent,
@@ -33,8 +34,37 @@ export class DragDropSurveyElements extends DragDropCore<any> {
     draggedElement: any,
     isElementSelected?: boolean
   ): void {
+    this.isDraggedElementSelected = isElementSelected;
     draggedElement.isDragMe = true;
     this.startDrag(event, draggedElement);
+  }
+
+  protected createDraggedElementShortcut(text: string, draggedElementNode?: HTMLElement, event?: PointerEvent): HTMLElement {
+    const draggedElementShortcut = document.createElement("div");
+    const textSpan = document.createElement("span");
+
+    textSpan.className = "svc-dragged-element-shortcut__text";
+    textSpan.innerText = text;
+    draggedElementShortcut.appendChild(this.createDraggedElementIcon());
+    draggedElementShortcut.appendChild(textSpan);
+    draggedElementShortcut.className = this.getDraggedElementClass();
+    return draggedElementShortcut;
+  }
+
+  protected createDraggedElementIcon(): HTMLElement {
+    const span = document.createElement("span");
+    const type = this.draggedElement.getType();
+    const svgString = `<svg class="sv-svg-icon" role="img" style="width: 24px; height: 24px;"><use xlink:href="#icon-${type}"></use></svg>`;
+
+    span.className = "svc-dragged-element-shortcut__icon";
+    span.innerHTML = svgString;
+    return span;
+  }
+
+  protected getDraggedElementClass() {
+    let result = "svc-dragged-element-shortcut";
+    if (this.isDraggedElementSelected) result += " svc-dragged-element-shortcut--selected";
+    return result;
   }
 
   protected createElementFromJson(json: object): HTMLElement {

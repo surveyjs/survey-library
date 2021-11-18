@@ -36,6 +36,17 @@
   background-size: 22px 16px;
   background-color: white;
 }
+.sd-imagepicker__item--error .sd-imagepicker__control + div::before {
+  display: block;
+  position: absolute;
+  content: ' ';
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: $red-light;
+  background: linear-gradient(0deg, $red-light, $red-light);
+}
 .sd-imagepicker__item--allowhover {
   .sd-imagepicker__image:hover {
     opacity: 0.5;

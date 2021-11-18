@@ -134,7 +134,7 @@
     data-bind="css: $data.className, style: { minWidth: $data.minWidth, width: $data.width }, attr: { title: headers }"
   >
     <div data-bind="visible: question.isVisible">
-      <!-- ko if: $data.showErrorOnTop -->
+      <!-- ko if: $data.showErrorOnTop && !$data.question.isErrorsModeTooltip-->
       <!-- ko template: { name: 'survey-question-errors', data: question, as: 'question' } -->
       <!-- /ko -->
       <!-- /ko -->
@@ -158,10 +158,14 @@
         <!-- /ko -->
       <!-- /ko -->
       <!-- /ko -->
-      <!-- ko if: $data.showErrorOnBottom -->
+      <!-- ko if: $data.showErrorOnBottom && !$data.question.isErrorsModeTooltip-->
       <!-- ko template: { name: 'survey-question-errors', data: question, as: 'question' } -->
       <!-- /ko -->
       <!-- /ko -->
     </div>
+      <!-- ko if: $data.hasQuestion && $data.question.isErrorsModeTooltip-->
+        <!-- ko component: { name: 'sv-tooltip-error', params: { question: question } } -->
+        <!-- /ko -->
+      <!-- /ko -->
   </td>
 </script>

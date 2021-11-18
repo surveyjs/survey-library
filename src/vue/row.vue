@@ -11,7 +11,12 @@
         minWidth: element.minWidth,
         maxWidth: element.maxWidth,
       }"
-    >
+    > 
+      <survey-errors
+        v-if="!element.isPanel && element.isErrorsModeTooltip && !element.hasParent"
+        :element="element"
+        :location="'top'"
+      />
       <survey-element
         v-if="row.isNeedRender"
         :id="element.id"

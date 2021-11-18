@@ -179,7 +179,8 @@ export var settings = {
       onApply: () => boolean,
       onCancel?: () => void,
       cssClass?: string,
-      title?: string
+      title?: string,
+      displayMode?: "popup"|"overlay"
     ) => void
   >undefined,
   supportCreatorV2: false,

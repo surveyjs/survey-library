@@ -13,6 +13,7 @@ export class ResponsivityManager {
   private separatorSize = 17;
   private separatorAddConst = 1;
   private paddingSizeConst = 8;
+  protected recalcMinDimensionConst = true;
 
   public getComputedStyle: (
     elt: Element
@@ -59,7 +60,7 @@ export class ResponsivityManager {
 
   private calcMinDimension(currentAction: Action) {
     let minDimensionConst = this.minDimensionConst;
-    if(currentAction.iconSize) {
+    if(currentAction.iconSize && this.recalcMinDimensionConst) {
       minDimensionConst = 2 * currentAction.iconSize + this.paddingSizeConst;
     }
     return currentAction.canShrink
@@ -113,6 +114,7 @@ export class VerticalResponsivityManager extends ResponsivityManager {
   ) {
     super(container, model, itemsSelector, dotsItemSize);
     this.minDimensionConst = 40;
+    this.recalcMinDimensionConst = false;
   }
 
   protected getDimensions(): IDimensions {

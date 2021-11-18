@@ -14327,7 +14327,7 @@ QUnit.test("clear value for question in invisible panel with non-empty valueName
   const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("q2");
   matrix.value = "val2";
   assert.deepEqual(survey.data, { invisible: "val2" }, "value is in data");
-  survey.setValue("q1", 1)
+  survey.setValue("q1", 1);
   survey.doComplete();
   assert.deepEqual(survey.data, { q1: 1 }, "value is empty now");
 });

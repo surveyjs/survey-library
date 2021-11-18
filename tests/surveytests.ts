@@ -3518,7 +3518,6 @@ QUnit.test("panel.rederWidth, load from JSON", function (assert) {
       },
     ],
   });
-  survey.currentPage.onFirstRendering();
   var q1 = survey.getQuestionByName("q1");
   var panel1 = <PanelModel>survey.getPanelByName("panel1");
   assert.equal(q1.renderWidth, "120px", "question.renderWidth is fine");
@@ -13100,7 +13099,7 @@ QUnit.test(
   }
 );
 QUnit.test(
-  "Update currentPageValue on showing the only page, Bug#2496",
+  "Update currentPage on showing the only page, Bug#2496",
   function (assert) {
     var survey = new SurveyModel({
       pages: [
@@ -13123,13 +13122,13 @@ QUnit.test(
       ],
     });
     assert.notOk(
-      survey.getPropertyValue("currentPageValue"),
-      "currentPageValue is not set"
+      survey.getPropertyValue("currentPage"),
+      "currentPage is not set"
     );
     (<PanelModel>survey.getPanelByName("panel1")).visible = true;
     assert.ok(
-      survey.getPropertyValue("currentPageValue"),
-      "currentPageValue is the only page"
+      survey.getPropertyValue("currentPage"),
+      "currentPage is the only page"
     );
   }
 );
@@ -14279,38 +14278,38 @@ QUnit.test("skeleton component name", function (assert) {
 });
 QUnit.test("Make sure to have currentPage on adding new question/page/visibility in code", function (assert) {
   const survey = new SurveyModel();
-  assert.equal(survey.getPropertyValue("currentPageValue"), undefined, "There is no pages");
+  assert.equal(survey.getPropertyValue("currentPage"), undefined, "There is no pages");
   const newPage = new PageModel("page1");
   newPage.addNewQuestion("text", "q1");
   survey.pages.push(newPage);
-  assert.equal(survey.getPropertyValue("currentPageValue").name, survey.pages[0].name, "We have added a new current page");
+  assert.equal(survey.getPropertyValue("currentPage").name, survey.pages[0].name, "We have added a new current page");
   survey.pages.shift();
-  assert.equal(survey.getPropertyValue("currentPageValue"), undefined, "There is no new pages again");
+  assert.equal(survey.getPropertyValue("currentPage"), undefined, "There is no new pages again");
   survey.addNewPage("page1");
-  assert.equal(survey.getPropertyValue("currentPageValue"), undefined, "There is no visible pages");
+  assert.equal(survey.getPropertyValue("currentPage"), undefined, "There is no visible pages");
   survey.pages[0].addNewQuestion("text", "q1");
-  assert.equal(survey.getPropertyValue("currentPageValue").name, survey.pages[0].name, "There is current page");
+  assert.equal(survey.getPropertyValue("currentPage").name, survey.pages[0].name, "There is current page");
   survey.pages[0].visible = false;
-  assert.equal(survey.getPropertyValue("currentPageValue"), undefined, "We make page invisible");
+  assert.equal(survey.getPropertyValue("currentPage"), undefined, "We make page invisible");
   survey.pages[0].visible = true;
-  assert.equal(survey.getPropertyValue("currentPageValue").name, survey.pages[0].name, "We make the page visible");
+  assert.equal(survey.getPropertyValue("currentPage").name, survey.pages[0].name, "We make the page visible");
 });
 QUnit.test("Make invisible question visible in the only page", function (assert) {
   const survey = new SurveyModel();
-  assert.equal(survey.getPropertyValue("currentPageValue"), undefined, "There is no pages");
+  assert.equal(survey.getPropertyValue("currentPage"), undefined, "There is no pages");
   const newPage = new PageModel("page1");
   newPage.addNewQuestion("text", "q1");
   newPage.addNewQuestion("text", "q2");
   newPage.questions[0].visible = false;
   newPage.questions[1].visible = false;
   survey.pages.push(newPage);
-  assert.equal(survey.getPropertyValue("currentPageValue"), undefined, "There is no visible pages");
+  assert.equal(survey.getPropertyValue("currentPage"), undefined, "There is no visible pages");
   newPage.questions[0].visible = true;
-  assert.equal(survey.getPropertyValue("currentPageValue").name, survey.pages[0].name, "New page is visible now");
+  assert.equal(survey.getPropertyValue("currentPage").name, survey.pages[0].name, "New page is visible now");
   newPage.questions[0].visible = false;
-  assert.equal(survey.getPropertyValue("currentPageValue"), undefined, "There is no visible pages, #2");
+  assert.equal(survey.getPropertyValue("currentPage"), undefined, "There is no visible pages, #2");
   newPage.questions[1].visible = true;
-  assert.equal(survey.getPropertyValue("currentPageValue").name, survey.pages[0].name, "New page is visible now, #2");
+  assert.equal(survey.getPropertyValue("currentPage").name, survey.pages[0].name, "New page is visible now, #2");
 });
 QUnit.test("clear value for question in invisible panel with non-empty valueName property", function (assert) {
   const survey = new SurveyModel({
@@ -14327,7 +14326,7 @@ QUnit.test("clear value for question in invisible panel with non-empty valueName
   const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("q2");
   matrix.value = "val2";
   assert.deepEqual(survey.data, { invisible: "val2" }, "value is in data");
-  survey.setValue("q1", 1)
+  survey.setValue("q1", 1);
   survey.doComplete();
   assert.deepEqual(survey.data, { q1: 1 }, "value is empty now");
 });

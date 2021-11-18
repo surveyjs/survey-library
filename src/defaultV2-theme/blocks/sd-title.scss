@@ -1,5 +1,5 @@
 .sd-title {
-  font-family: "Open Sans";
+  font-family: $font-family;
   font-style: normal;
   color: $foreground;
   display: flex;
@@ -12,7 +12,7 @@
   padding: calcSize(3);
   border-bottom: 2px solid $primary;
   overflow: auto;
-  font-family: "Open Sans";
+  font-family: $font-family;
 }
 
 .sd-header__text {

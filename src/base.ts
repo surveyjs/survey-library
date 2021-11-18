@@ -456,20 +456,23 @@ export class Base {
       (!val || Array.isArray(val))
     ) {
       if (this.isTwoValueEquals(oldValue, val)) return;
-      var arrayInfo = this.arraysInfo[name];
-      this.setArray(
-        name,
-        oldValue,
-        val,
-        arrayInfo ? arrayInfo.isItemValues : false,
-        arrayInfo ? arrayInfo.onPush : null
-      );
+      this.setArrayPropertyDirectly(name, val);
     } else {
       this.setPropertyValueDirectly(name, val);
       if (!this.isDisposedValue && !this.isTwoValueEquals(oldValue, val)) {
         this.propertyValueChanged(name, oldValue, val);
       }
     }
+  }
+  protected setArrayPropertyDirectly(name: string, val: any): void {
+    var arrayInfo = this.arraysInfo[name];
+    this.setArray(
+      name,
+      this.getPropertyValue(name),
+      val,
+      arrayInfo ? arrayInfo.isItemValues : false,
+      arrayInfo ? arrayInfo.onPush : null
+    );
   }
   protected setPropertyValueDirectly(name: string, val: any) : void {
     this.setPropertyValueCore(this.propertyHash, name, val);

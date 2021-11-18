@@ -942,6 +942,15 @@ export class PanelModelBase extends SurveyElement
     }
     this.onRowsChanged();
   }
+  public updateRows() {
+    if (this.isLoadingFromJson) return;
+    for (var i = 0; i < this.elements.length; i++) {
+      if(this.elements[i].isPanel) {
+        (<PanelModel>this.elements[i]).updateRows();
+      }
+    }
+    this.onRowsChanged();
+  }
   get rows(): Array<QuestionRowModel> {
     return this.getPropertyValue("rows");
   }
@@ -954,7 +963,7 @@ export class PanelModelBase extends SurveyElement
 
   protected onRowsChanged() {
     if (this.isLoadingFromJson) return;
-    this.setPropertyValue("rows", this.buildRows());
+    this.setArrayPropertyDirectly("rows", this.buildRows());
   }
   protected onAddElement(element: IElement, index: number) {
     element.setSurveyImpl(this.surveyImpl);

@@ -75,14 +75,6 @@ export class SurveyModel extends SurveyElementCore
     settings.commentPrefix = val;
   }
 
-  private get currentPageValue(): PageModel {
-    return this.getPropertyValue("currentPageValue", null);
-  }
-  private set currentPageValue(val: PageModel) {
-    this.setPropertyValue("currentPageValue", val);
-    this.updateIsFirstLastPageState();
-  }
-
   private valuesHash: HashTable<any> = {};
   private variablesHash: HashTable<any> = {};
   private editingObjValue: Base;
@@ -1158,7 +1150,12 @@ export class SurveyModel extends SurveyElementCore
     return this.lazyRenderingValue === true;
   }
   public set lazyRendering(val: boolean) {
+    if(this.lazyRendering === val) return;
     this.lazyRenderingValue = val;
+    const page: PageModel = this.currentPage;
+    if(!!page) {
+      page.updateRows();
+    }
   }
   public get isLazyRendering(): boolean {
     return this.lazyRendering || settings.lazyRowsRendering;
@@ -1642,10 +1639,7 @@ export class SurveyModel extends SurveyElementCore
   }
   public locStrsChanged() {
     super.locStrsChanged();
-    //Do not set current page if it is not set yet.
-    //At first we do not need this, at second it creates issues with Vue CLI projects
-    //More information here: https://github.com/surveyjs/survey-library/issues/2599
-    if (!this.currentPageValue) return;
+    if (!this.currentPage) return;
     this.updateProgressText();
     var page = this.activePage;
     if (!!page) {
@@ -2575,31 +2569,20 @@ export class SurveyModel extends SurveyElementCore
    * Gets or sets the current survey page. If a survey is rendered, then this property returns a page that a user can see/edit.
    */
   public get currentPage(): any {
-    if (this.currentPageValue != null) {
-      if (!this.isPageInVisibleList(this.currentPageValue) || this.pages.indexOf(this.currentPageValue) < 0) {
-        if (
-          !this.onContainsPageCallback ||
-          !this.onContainsPageCallback(this.currentPageValue)
-        ) {
-          this.currentPage = null;
-        }
-      }
-    }
-    if (this.currentPageValue == null && !!this.firstVisiblePage) {
-      this.currentPage = this.firstVisiblePage;
-    }
-    return this.currentPageValue;
+    return this.getPropertyValue("currentPage", null);
   }
   public set currentPage(value: any) {
     if (this.isLoadingFromJson) return;
     var newPage = this.getPageByObject(value);
     if (!!value && !newPage) return;
+    if(!newPage && this.isCurrentPageAvailable) return;
     var vPages = this.visiblePages;
     if (newPage != null && vPages.indexOf(newPage) < 0) return;
-    if (newPage == this.currentPageValue) return;
-    var oldValue = this.currentPageValue;
+    if (newPage == this.currentPage) return;
+    var oldValue = this.currentPage;
     if (!this.currentPageChanging(newPage, oldValue)) return;
-    this.currentPageValue = newPage;
+    this.setPropertyValue("currentPage", newPage);
+    this.updateIsFirstLastPageState();
     if (!!newPage) {
       newPage.onFirstRendering();
       newPage.updateCustomWidgets();
@@ -2607,6 +2590,18 @@ export class SurveyModel extends SurveyElementCore
     }
     this.locStrsChanged();
     this.currentPageChanged(newPage, oldValue);
+  }
+  private updateCurrentPage(): void {
+    if(this.isCurrentPageAvailable) return;
+    this.currentPage = this.firstVisiblePage;
+  }
+  private get isCurrentPageAvailable(): boolean {
+    const page = this.currentPage;
+    return !!page && this.isPageInVisibleList(page) && this.isPageExistsInSurvey(page);
+  }
+  private isPageExistsInSurvey(page: PageModel) : boolean {
+    if(this.pages.indexOf(page) > -1) return true;
+    return !!this.onContainsPageCallback && this.onContainsPageCallback(page);
   }
   /**
    * Returns the currentPage, unless the started page is showing. In this case returns the started page.
@@ -2775,8 +2770,8 @@ export class SurveyModel extends SurveyElementCore
     this.isCompletedBefore = false;
     this.isLoading = false;
     this.isStartedState = this.firstPageIsStarted;
-    if (gotoFirstPage && this.visiblePageCount > 0) {
-      this.currentPage = this.visiblePages[0];
+    if (gotoFirstPage) {
+      this.currentPage = this.firstVisiblePage;
     }
     if (clearData) {
       this.updateValuesWithDefaults();
@@ -3532,6 +3527,7 @@ export class SurveyModel extends SurveyElementCore
       newPages[i].setSurveyImpl(this, true);
     }
     this.doElementsOnLoad();
+    this.updateCurrentPage();
   }
   private createPagesForQuestionOnPageMode(
     isSinglePage: boolean,
@@ -3628,7 +3624,7 @@ export class SurveyModel extends SurveyElementCore
     return null;
   }
   private updateIsFirstLastPageState() {
-    const curPage = this.currentPageValue;
+    const curPage = this.currentPage;
     if (!curPage) return;
     this.setPropertyValue("isFirstPage", curPage === this.firstVisiblePage);
     this.setPropertyValue("isLastPage", curPage === this.lastVisiblePage);
@@ -4117,8 +4113,8 @@ export class SurveyModel extends SurveyElementCore
     return options.allow;
   }
   elementContentVisibilityChanged(element: ISurveyElement): void {
-    if (this.currentPageValue) {
-      this.currentPageValue.ensureRowsVisibility();
+    if (this.currentPage) {
+      this.currentPage.ensureRowsVisibility();
     }
     this.onElementContentVisibilityChanged.fire(this, { element });
   }
@@ -4358,7 +4354,7 @@ export class SurveyModel extends SurveyElementCore
     var index = this.pages.indexOf(page);
     if (index < 0) return;
     this.pages.splice(index, 1);
-    if (this.currentPageValue == page) {
+    if (this.currentPage == page) {
       this.currentPage = this.pages.length > 0 ? this.pages[0] : null;
     }
   }
@@ -4761,7 +4757,7 @@ export class SurveyModel extends SurveyElementCore
       return;
     this.conditionValues = this.getFilteredValues();
     var properties = this.getFilteredProperties();
-    var oldCurrentPageIndex = this.pages.indexOf(this.currentPageValue);
+    var oldCurrentPageIndex = this.pages.indexOf(this.currentPage);
     this.runConditionsCore(properties);
     this.checkIfNewPagesBecomeVisible(oldCurrentPageIndex);
     this.conditionValues = null;
@@ -4811,7 +4807,7 @@ export class SurveyModel extends SurveyElementCore
     }
   }
   private checkIfNewPagesBecomeVisible(oldCurrentPageIndex: number) {
-    var newCurrentPageIndex = this.pages.indexOf(this.currentPageValue);
+    var newCurrentPageIndex = this.pages.indexOf(this.currentPage);
     if (newCurrentPageIndex <= oldCurrentPageIndex + 1) return;
     for (var i = oldCurrentPageIndex + 1; i < newCurrentPageIndex; i++) {
       if (this.pages[i].isVisible) {
@@ -5023,6 +5019,7 @@ export class SurveyModel extends SurveyElementCore
     this.notifyElementsOnAnyValueOrVariableChanged("");
     this.isEndLoadingFromJson = null;
     this.updateVisibleIndexes();
+    this.updateCurrentPage();
   }
   protected onBeforeCreating() { }
   protected onCreating() { }
@@ -5281,14 +5278,15 @@ export class SurveyModel extends SurveyElementCore
     this.updateVisibleIndexes();
     if (!this.isLoadingFromJson) {
       this.updateProgressText();
+      this.updateCurrentPage();
     }
     var options = { page: page };
     this.onPageAdded.fire(this, options);
   }
   protected doOnPageRemoved(page: PageModel) {
     page.setSurveyImpl(null);
-    if (page === this.currentPageValue) {
-      this.currentPageValue = this.currentPage;
+    if (page === this.currentPage) {
+      this.updateCurrentPage();
     }
     this.updateVisibleIndexes();
     this.updateProgressText();
@@ -5426,8 +5424,8 @@ export class SurveyModel extends SurveyElementCore
   }
   pageVisibilityChanged(page: IPage, newValue: boolean) {
     if (this.isLoadingFromJson) return;
-    if (newValue && !this.currentPageValue || page === this.currentPageValue) {
-      this.currentPageValue = this.currentPage;
+    if (newValue && !this.currentPage || page === this.currentPage) {
+      this.updateCurrentPage();
     }
     this.updateVisibleIndexes();
     this.onPageVisibleChanged.fire(this, {
@@ -5460,8 +5458,8 @@ export class SurveyModel extends SurveyElementCore
     if (!!(<Question>question).page) {
       this.questionHashesAdded(<Question>question);
     }
-    if (!this.currentPageValue) {
-      this.currentPageValue = this.currentPage;
+    if (!this.currentPage) {
+      this.updateCurrentPage();
     }
     this.updateVisibleIndexes();
     this.onQuestionAdded.fire(this, {

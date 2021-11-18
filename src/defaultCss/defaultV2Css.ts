@@ -173,6 +173,8 @@ export var defaultV2Css = {
   },
   multipletext: {
     root: "sd-multipletext",
+    itemLabel: "sd-multipletext__item-container sd-input",
+    itemLabelOnError: "sd-multipletext__item-container--error",
     item: "sd-multipletext__item",
     itemTitle: "sd-multipletext__item-title",
     row: "sd-multipletext__row",

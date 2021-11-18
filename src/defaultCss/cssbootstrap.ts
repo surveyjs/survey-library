@@ -218,8 +218,11 @@ export var defaultBootstrapCss = {
     footer: "sv-hidden"
   },
   multipletext: {
-    root: "table",
-    itemTitle: "",
+    root: "sv_q_mt table",
+    itemTitle: "sv_q_mt_title",
+    item: "sv_q_mt_item",
+    itemLabel: "sv_q_mt_label",
+    row: "form-group bmd-form-group",
     itemValue: "sv_q_mt_item_value form-control",
   },
   radiogroup: {

@@ -35,8 +35,8 @@ frameworks.forEach(framework => {
     let surveyResult;
 
     await t
-      .typeText(`tr > td:nth-child(2) input`, `All my money`)
-      .typeText(`tr > td:nth-child(4) input`, `Zero`)
+      .typeText(`tr > td:nth-child(1) input`, `All my money`)
+      .typeText(`tr > td:nth-child(2) input`, `Zero`)
       .click(`input[value=Complete]`);
 
     surveyResult = await getSurveyResult();
@@ -102,7 +102,7 @@ frameworks.forEach((framework) => {
   
     var selector = `.sv_q_mt_title .sv-string-editor`;
     await t
-      .click(selector)
+      .click(selector, {offsetX: 10, offsetY: 10})
       .typeText(selector, newTitle, { replace: true })
       .click(`body`, { offsetX: 0, offsetY: 0 });
 

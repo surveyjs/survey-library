@@ -6,6 +6,10 @@
     }
     & > .sd-panel {
         padding-top: 1px;
+        padding-bottom: calcSize(2);
+        & + .sd-paneldynamic__remove-btn {
+            margin-bottom: calcSize(2);
+        }
     }
     & .sd-paneldynamic__panel-wrapper > .sd-panel > .sd-panel__title,
     & >.sd-panel > .sd-panel__title {
@@ -26,6 +30,7 @@
 }
 .sd-paneldynamic__panel-wrapper {
     padding-top: 1px;
+    padding-bottom: calcSize(2);
 }
 .sd-paneldynamic__panel-wrapper:after {
     display: table;
@@ -51,10 +56,9 @@
     cursor: pointer;
 }
 .sd-paneldynamic__remove-btn {
-    color: #E50A3E;
+    color: $red;
     float: right;
-    padding-top: 16px;
-    padding-bottom: 24px;
+    padding: calcSize(1) 0;
 }
 .sd-paneldynamic__footer {
     clear: both;

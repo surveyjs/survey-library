@@ -129,14 +129,17 @@ import { BaseVue } from "./base";
 export class Survey extends BaseVue {
   @Prop() survey: SurveyModel;
   processedCompletedHtmlValue: string;
-  get currentPageId(): string {
-    return !!this.survey.currentPage ? this.survey.currentPage.id : "";
-  }
+  currentPageId: number = 1;
   get pageId() {
-    return "page" + this.currentPageId;
+    return "page" + this.currentPageId.toString();
   }
   get navId() {
-    return "nav" + this.currentPageId;
+    return "nav" + this.currentPageId.toString();
+  }
+
+  forceUpdate() {
+    this.$forceUpdate();
+    this.currentPageId++;
   }
 
   constructor() {
@@ -155,8 +158,16 @@ export class Survey extends BaseVue {
   }
   private surveyOnMounted() {
     if (!this.survey) return;
+    Vue.set(this.survey, "currentPage", this.survey.currentPage);
+    this.survey.onCurrentPageChanged.add((sender, options) => {
+      this.currentPageId++;
+    });
+    this.survey.onPageVisibleChanged.add((sender, options) => {
+      this.currentPageId++;
+    });
     var el = this.$el;
     if (el) this.survey.doAfterRenderSurvey(el);
+    this.survey.renderCallback = this.forceUpdate;
     this.survey.startTimerFromUI();
   }
   beforeDestroy() {

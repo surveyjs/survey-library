@@ -1595,3 +1595,37 @@ QUnit.test("getDisplayValue from component JSON function", function (assert) {
   assert.equal(q.displayValue, "First Last", "Obtain passed getDisplayValue function result");
   ComponentCollection.Instance.clear();
 });
+QUnit.test("Complex: panel dynamic should duplicate rows in designMode", function (assert) {
+  ComponentCollection.Instance.add({
+    name: "multiple_panel",
+    elementsJSON: [
+      {
+        type: "paneldynamic",
+        name: "panel",
+        templateElements: [
+          { type: "text", name: "q1" },
+          { type: "text", name: "q2" }
+        ]
+      }
+    ]
+  });
+  var survey = new SurveyModel();
+  survey.setDesignMode(true);
+  survey.fromJSON({
+    elements: [
+      {
+        type: "multiple_panel",
+        question: "q1",
+      },
+    ],
+  });
+  var q = <QuestionCompositeModel>survey.getAllQuestions()[0];
+  var panel = <QuestionPanelDynamicModel>q.contentPanel.getQuestionByName("panel");
+  panel.panelCount = 1;
+  panel.panels[0].getQuestionByName("q1").value = "val";
+  assert.deepEqual(q.value, { panel: [{ q1: "val" }] }, "Set value correctly");
+  q.defaultValue = { panel: [{ q1: "val1" }, { q2: "val2" }] };
+  assert.equal(panel.panelCount, 2, "We have two panels in default value");
+  assert.equal(panel.panels.length, 2, "We have two panels");
+  ComponentCollection.Instance.clear();
+});

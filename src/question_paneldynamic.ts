@@ -264,7 +264,7 @@ export class QuestionPanelDynamicModel extends Question
     }
   }
   private onTemplateElementPropertyChanged(element: any, options: any) {
-    if (this.isLoadingFromJson || this.isDesignMode || this.panels.length == 0)
+    if (this.isLoadingFromJson || this.useTemplatePanel || this.panels.length == 0)
       return;
     var property = Serializer.findProperty(element.getType(), options.name);
     if (!property) return;
@@ -275,6 +275,9 @@ export class QuestionPanelDynamicModel extends Question
         (<any>question)[options.name] = options.newValue;
       }
     }
+  }
+  private get useTemplatePanel(): boolean {
+    return this.isDesignMode && !this.isContentElement;
   }
   public getType(): string {
     return "paneldynamic";
@@ -371,7 +374,7 @@ export class QuestionPanelDynamicModel extends Question
    */
   public get currentIndex(): number {
     if (this.isRenderModeList) return -1;
-    if (this.isDesignMode) return 0;
+    if (this.useTemplatePanel) return 0;
     if (this.currentIndexValue < 0 && this.panelCount > 0) {
       this.currentIndexValue = 0;
     }
@@ -595,17 +598,17 @@ export class QuestionPanelDynamicModel extends Question
    * @see removePanelUI
    */
   public get panelCount(): number {
-    return this.isLoadingFromJson || this.isDesignMode
+    return this.isLoadingFromJson || this.useTemplatePanel
       ? this.loadingPanelCount
       : this.panels.length;
   }
   public set panelCount(val: number) {
     if (val < 0) return;
-    if (this.isLoadingFromJson || this.isDesignMode) {
+    if (this.isLoadingFromJson || this.useTemplatePanel) {
       this.loadingPanelCount = val;
       return;
     }
-    if (val == this.panels.length || this.isDesignMode) return;
+    if (val == this.panels.length || this.useTemplatePanel) return;
     this.updateBindings("panelCount", val);
     this.prepareValueForPanelCreating();
     for (let i = this.panelCount; i < val; i++) {
@@ -644,7 +647,7 @@ export class QuestionPanelDynamicModel extends Question
   }
   private setTemplatePanelSurveyImpl() {
     this.template.setSurveyImpl(
-      this.isDesignMode
+      this.useTemplatePanel
         ? this.surveyImpl
         : new QuestionPanelDynamicTemplateSurveyImpl(this)
     );
@@ -657,7 +660,7 @@ export class QuestionPanelDynamicModel extends Question
     }
   }
   private setPanelsState() {
-    if (this.isDesignMode || this.renderMode != "list" || !this.templateTitle)
+    if (this.useTemplatePanel || this.renderMode != "list" || !this.templateTitle)
       return;
     for (var i = 0; i < this.panels.length; i++) {
       var state = this.panelsState;
@@ -829,7 +832,7 @@ export class QuestionPanelDynamicModel extends Question
    * @see maxPanelCount
    */
   public get canAddPanel(): boolean {
-    if (this.survey && this.survey.isDesignMode) return false;
+    if (this.isDesignMode) return false;
     return (
       this.allowAddPanel &&
       !this.isReadOnly &&
@@ -843,7 +846,7 @@ export class QuestionPanelDynamicModel extends Question
    * @see minPanelCount
    */
   public get canRemovePanel(): boolean {
-    if (this.survey && this.survey.isDesignMode) return false;
+    if (this.isDesignMode) return false;
     return (
       this.allowRemovePanel &&
       !this.isReadOnly &&
@@ -854,7 +857,7 @@ export class QuestionPanelDynamicModel extends Question
     if (this.isLoadingFromJson) return;
     this.prepareValueForPanelCreating();
     var panels = [];
-    if (this.isDesignMode) {
+    if (this.useTemplatePanel) {
       new QuestionPanelDynamicItem(this, this.template);
       panels.push(this.template);
     } else {
@@ -1184,7 +1187,7 @@ export class QuestionPanelDynamicModel extends Question
     if (this.loadingPanelCount > 0) {
       this.panelCount = this.loadingPanelCount;
     }
-    if (this.isDesignMode) {
+    if (this.useTemplatePanel) {
       this.rebuildPanels();
     }
     this.setPanelsSurveyImpl();
@@ -1454,7 +1457,7 @@ export class QuestionPanelDynamicModel extends Question
     return Serializer.createClass("panel");
   }
   private setPanelCountBasedOnValue() {
-    if (this.isValueChangingInternally || this.isDesignMode) return;
+    if (this.isValueChangingInternally || this.useTemplatePanel) return;
     var val = this.value;
     var newPanelCount = val && Array.isArray(val) ? val.length : 0;
     if (newPanelCount == 0 && this.loadingPanelCount > 0) {
@@ -1500,7 +1503,7 @@ export class QuestionPanelDynamicModel extends Question
   }
   protected onSetData() {
     super.onSetData();
-    if (this.isDesignMode) {
+    if (this.useTemplatePanel) {
       this.setTemplatePanelSurveyImpl();
       this.rebuildPanels();
     }

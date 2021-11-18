@@ -189,13 +189,13 @@ export class Question extends SurveyElement
    * A11Y properties
    */
   public get ariaRequired() {
-    return this.isRequired?"true":"false";
+    return this.isRequired ? "true" : "false";
   }
   public get ariaLabel(): string {
     return this.locTitle.renderedHtml;
   }
   public get ariaInvalid() {
-    return this.errors.length > 0?"true":"false";
+    return this.errors.length > 0 ? "true" : "false";
   }
   public get ariaDescribedBy(): string {
     return this.errors.length > 0 ? this.id + "_errors" : null;

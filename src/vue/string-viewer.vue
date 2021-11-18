@@ -1,12 +1,10 @@
 <template>
-  <fragment>
-    <span
-      class="sv-string-viewer" 
-      v-if="locString.hasHtml"
-      v-html="locString.renderedHtml"
-    ></span>
-    <span class="sv-string-viewer" v-else>{{ locString.renderedHtml }}</span>
-  </fragment>
+  <span
+    class="sv-string-viewer"
+    v-if="locString.hasHtml"
+    v-html="locString.renderedHtml"
+  ></span>
+  <span class="sv-string-viewer" v-else>{{ locString.renderedHtml }}</span>
 </template>
 
 <script lang="ts">

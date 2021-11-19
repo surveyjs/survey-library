@@ -1,15 +1,16 @@
-
-
 .sd-imagepicker {
   display: flex;
   flex-wrap: wrap;
-  gap: 16px;
   padding: 0;
+  gap: 16px;
   border: none;
   width: 100%;
   margin: 0;
 }
-.sd-imagepicker__item {
+.sd-imagepicker__item:not(:first-child) {
+  margin-left: calcSize(2);
+}
+.sd-imagepicker__item {  
   img {
     border-radius: calcSize(0.5);
   }

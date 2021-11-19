@@ -182,6 +182,14 @@ export class QuestionBooleanModel extends Question {
     return this.isIndeterminate && !this.isInputReadOnly;
   }
 
+  public getCheckedLabel(): LocalizableString {
+    if (this.checkedValue === true) {
+      return this.locLabelTrue;
+    } else if (this.checkedValue === false) {
+      return this.locLabelFalse;
+    }
+  }
+
   /* #region web-based methods */
   public onLabelClick(event: any, value: boolean) {
     if (this.allowClick) {

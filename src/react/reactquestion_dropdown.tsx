@@ -26,7 +26,7 @@ export class SurveyQuestionDropdown extends SurveyQuestionUncontrolledElement<Qu
       : null;
     var select = this.renderSelect(cssClasses);
     return (
-      <div className={cssClasses.root}>
+      <div className={this.question.renderCssRoot}>
         {select}
         {comment}
       </div>

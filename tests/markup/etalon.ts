@@ -225,6 +225,26 @@ export var markupTests = [
     etalon: "<div><div class=\"sv_select_wrapper\"><select aria-invalid=\"false\" aria-label=\"Question title\" aria-required=\"false\" autocomplete=\"\" class=\"sv_q_dropdown_control\"><option value=\"\">Choose...</option><option value=\"item1\">item1</option><option value=\"item2\">item2</option><option value=\"item3\">item3</option></select></div></div>"
   },
   {
+    name: "Test Dropdown question markup Show options caption false",
+    json: {
+      questions: [
+        {
+          "type": "dropdown",
+          "name": "name",
+          "title": "Question title",
+          "showOptionsCaption": false,
+          "choices": [
+            "item1",
+            "item2",
+            "item3"
+          ],
+          titleLocation: "hidden"
+        }
+      ]
+    },
+    etalon: "<div><div class=\"sv_select_wrapper\"><select aria-invalid=\"false\" aria-label=\"Question title\" aria-required=\"false\" autocomplete=\"\" class=\"sv_q_dropdown_control\"><option value=\"item1\">item1</option><option value=\"item2\">item2</option><option value=\"item3\">item3</option></select></div></div>"
+  },
+  {
     name: "Test Dropdown question markup Other option",
     json: {
       questions: [
@@ -246,5 +266,68 @@ export var markupTests = [
     },
     etalon: "<div><div class=\"sv_select_wrapper\"><select aria-invalid=\"false\" aria-label=\"Question title\" aria-required=\"false\" autocomplete=\"\" class=\"sv_q_dropdown_control\"><option value=\"\">Choose...</option><option value=\"item1\">item1</option><option value=\"item2\">item2</option><option value=\"item3\">item3</option><option value=\"other\">Other (describe)</option></select></div><div class=\"form-group\"><textarea aria-label=\"Question title\" aria-required=\"false\" class=\"sv_q_dd_other\" placeholder=\"\" style=\"resize: both;\"></textarea></div></div>"
   },
+  {
+    name: "Test Dropdown question markup Other option",
+    json: {
+      questions: [
+        {
+          "type": "dropdown",
+          "name": "name",
+          "title": "Question title",
+          "choices": [
+            "item1",
+            "item2",
+            "item3"
+          ],
+          "hasOther": true,
+          "defaultValue": "other",
+          "otherText": "Other (describe)",
+          titleLocation: "hidden"
+        }
+      ]
+    },
+    etalon: "<div><div class=\"sv_select_wrapper\"><select aria-invalid=\"false\" aria-label=\"Question title\" aria-required=\"false\" autocomplete=\"\" class=\"sv_q_dropdown_control\"><option value=\"\">Choose...</option><option value=\"item1\">item1</option><option value=\"item2\">item2</option><option value=\"item3\">item3</option><option value=\"other\">Other (describe)</option></select></div><div class=\"form-group\"><textarea aria-label=\"Question title\" aria-required=\"false\" class=\"sv_q_dd_other\" placeholder=\"\" style=\"resize: both;\"></textarea></div></div>"
+  },
+  {
+    name: "Test Dropdown question markup Read only",
+    json: {
+      mode: "display",
+      questions: [
+        {
+          "type": "dropdown",
+          "name": "name",
+          "title": "Question title",
+          "choices": [
+            "item1",
+            "item2",
+            "item3"
+          ],
+          titleLocation: "hidden"
+        }
+      ]
+    },
+    etalon: "<div><div class=\"sv_q_dropdown_control\" disabled=\"\">Choose...</div></div>"
+  },
+  {
+    name: "Test Dropdown question Readonly selected",
+    json: {
+      mode: "display",
+      questions: [
+        {
+          "type": "dropdown",
+          "name": "name",
+          "title": "Question title",
+          "choices": [
+            "item1",
+            "item2",
+            "item3"
+          ],
+          "defaultValue": "item1",
+          titleLocation: "hidden"
+        }
+      ]
+    },
+    etalon: "<div><div class=\"sv_q_dropdown_control\" disabled=\"\">item1</div></div>"
+  }
   // #endregion
 ];

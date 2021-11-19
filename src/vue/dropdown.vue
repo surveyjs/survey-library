@@ -23,7 +23,7 @@
       v-else
       :id="question.inputId"
       :class="question.getControlClass()"
-    >{{ question.isOtherSelected ? question.otherText : question.displayValue }}</div><survey-other-choice v-if="question.isOtherSelected" :question="question" />
+    >{{ question.isOtherSelected ? question.otherText : question.displayValue || question.showOptionsCaption && question.optionsCaption }}</div><survey-other-choice v-if="question.isOtherSelected" :question="question" />
   </div>
 </template>
 

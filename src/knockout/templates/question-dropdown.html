@@ -1,8 +1,8 @@
 ﻿<script type="text/html" id="survey-question-dropdown">
   <div data-bind="css: question.renderCssRoot">
-  <div data-bind="css: question.koCss().selectWrapper">
     <!-- ko ifnot: question.isReadOnly -->
-    <select
+    <div data-bind="css: question.koCss().selectWrapper">
+      <select
       data-bind="if: true, attr: {id: question.inputId, autoComplete: question.autoComplete, required: question.isRequired, 'aria-required': question.ariaRequired, 'aria-label': question.ariaLabel, 'aria-invalid': question.ariaInvalid, 'aria-describedby': question.ariaDescribedBy}, disable: question.isInputReadOnly, value: question.renderedValue, valueAllowUnset: true, css: question.getControlClass()">
       <!-- ko if: question.showOptionsCaption -->
       <option data-bind="text:question.optionsCaption, value: null"></option>
@@ -10,14 +10,14 @@
       <!-- ko foreach: question.visibleChoices -->
       <option data-bind="value: $data.value, text: $data.text, attr: { disabled: !$data.isEnabled }"></option>
       <!-- /ko -->
-    </select>
+      </select>
+    </div>
     <!-- /ko -->
     <!-- ko if: question.isReadOnly -->
       <div disabled
-      data-bind="attr: {id: question.inputId}, text: question.hasOther && question.isOtherSelected ? question.otherText : question.displayValue, css: question.getControlClass()">
+      data-bind="attr: {id: question.inputId}, text: question.hasOther && question.isOtherSelected ? question.otherText : (question.displayValue || question.showOptionsCaption && question.optionsCaption), css: question.getControlClass()">
       </div>
     <!-- /ko -->
-  </div>
   <!-- ko if: question.isOtherSelected -->
   <div class="form-group"
     data-bind="template: { name: 'survey-comment', data: {'question': question, 'visible': question.isOtherSelected } }, style: {display: question.isFlowLayout ? 'inline': ''}">

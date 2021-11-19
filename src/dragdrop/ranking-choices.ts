@@ -1,5 +1,7 @@
 import { ItemValue } from "../itemvalue";
 import { DragDropChoices } from "./choices";
+import { CssClassBuilder } from "../utils/cssClassBuilder";
+import { IsMobile } from "../utils/is-mobile";
 export class DragDropRankingChoices extends DragDropChoices {
   protected get draggedElementType(): string {
     return "ranking-item";
@@ -10,7 +12,7 @@ export class DragDropRankingChoices extends DragDropChoices {
     draggedElementNode: HTMLElement
   ): HTMLElement {
     const draggedElementShortcut = document.createElement("div");
-    // draggedElementShortcut.innerText = text;
+    draggedElementShortcut.className = this.shortcutClass;
     draggedElementShortcut.style.cssText = ` 
           cursor: grabbing;
           position: absolute;
@@ -29,6 +31,13 @@ export class DragDropRankingChoices extends DragDropChoices {
     draggedElementShortcut.appendChild(clone);
 
     return draggedElementShortcut;
+  }
+
+  private get shortcutClass(): string {
+    return new CssClassBuilder()
+      .append(this.parentElement.cssClasses.root)
+      .append(this.parentElement.cssClasses.rootMobileMod, IsMobile)
+      .toString();
   }
 
   protected getDropTargetByDataAttributeValue(

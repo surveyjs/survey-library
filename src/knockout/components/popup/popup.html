@@ -14,10 +14,10 @@
     </div>
     <!-- ko if: showFooter  -->
     <div class="sv-popup__footer">
-      <button class="sv-popup__footer-item sv-popup__button sv-popup__button--cancel"
+      <button type="button" class="sv-popup__footer-item sv-popup__button sv-popup__button--cancel"
         data-bind="click: cancel, text: cancelButtonText"> Cancel </button>
       <!-- ko if: isModal  -->
-      <button class="sv-popup__footer-item sv-popup__button sv-popup__button--apply"
+      <button type="button" class="sv-popup__footer-item sv-popup__button sv-popup__button--apply"
         data-bind="click: apply, text: applyButtonText"> Apply </button>
       <!-- /ko -->
     </div>

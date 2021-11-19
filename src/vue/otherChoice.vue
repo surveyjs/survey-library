@@ -9,11 +9,11 @@
       :maxlength="question.getOthersMaxLength()"
       :placeholder="question.otherPlaceHolder"
       :aria-label="question.ariaLabel"
+      :aria-required="question.ariaRequired"
       v-bind:style="{ resize: question.autoGrowComment ? 'none' : 'both' }"
       @change="(e) => { question.onCommentChange(e) }"
       @input="(e) => { question.onCommentInput(e) }"
-    />
-    <div v-if="question.isReadOnlyRenderDiv()">{{ question.comment }}</div>
+    /><div v-if="question.isReadOnlyRenderDiv()">{{ question.comment }}</div>
   </div>
 </template>
 

@@ -18,7 +18,7 @@
       </div>
     <!-- /ko -->
   </div>
-  <!-- ko if: question.hasOther -->
+  <!-- ko if: question.isOtherSelected -->
   <div class="form-group"
     data-bind="template: { name: 'survey-comment', data: {'question': question, 'visible': question.isOtherSelected } }, style: {display: question.isFlowLayout ? 'inline': ''}">
   </div>

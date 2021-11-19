@@ -23,9 +23,7 @@
       v-else
       :id="question.inputId"
       :class="question.getControlClass()"
-    >
-      {{ isOtherSelected ? question.otherText : question.displayValue }}
-    </div><survey-other-choice v-if="isOtherSelected" :question="question" />
+    >{{ question.isOtherSelected ? question.otherText : question.displayValue }}</div><survey-other-choice v-if="question.isOtherSelected" :question="question" />
   </div>
 </template>
 
@@ -37,10 +35,6 @@ import { QuestionDropdownModel } from "survey-core";
 
 @Component
 export class Dropdown extends QuestionVue<QuestionDropdownModel> {
-  get isOtherSelected() {
-    const question = this.question;
-    return question.hasOther && question.isOtherSelected;
-  }
 }
 Vue.component("survey-dropdown", Dropdown);
 export default Dropdown;

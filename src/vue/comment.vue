@@ -1,8 +1,6 @@
 <template>
-  <div>
     <textarea
       v-if="!question.isReadOnlyRenderDiv()"
-      type="text"
       :readonly="question.isInputReadOnly"
       :disabled="question.isInputReadOnly"
       :value="question.value"
@@ -21,8 +19,7 @@
       :aria-describedby="question.ariaDescribedBy"
       v-bind:style="{ resize: question.autoGrow ? 'none' : 'both' }"
     ></textarea>
-    <div v-if="question.isReadOnlyRenderDiv()">{{ question.value }}</div>
-  </div>
+    <div v-else>{{ question.value }}</div>
 </template>
 
 <script lang="ts">

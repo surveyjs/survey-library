@@ -3,7 +3,7 @@ var webpack = require("webpack");
 var webpackConfigCreator = require("./webpack.common");
 var packageJson = require("../package.json");
 var webpackConfig = webpackConfigCreator({
-    platform: "knockout",
+    platform: "vue",
     buildType: "dev",
   },
   packageJson

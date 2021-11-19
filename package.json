@@ -56,9 +56,9 @@
     "test:knockout": "karma start ./build-scripts/karma.conf.knockout.js",
     "test:react": "karma start ./build-scripts/karma.conf.react.js",
     "test:vue": "karma start ./build-scripts/karma.conf.vue.js",
-    "test:knockout:single": "karma start ./build-scripts/karma.conf.knockout.js --single-run",
-    "test:react:single": "karma start ./build-scripts/karma.conf.react.js --single-run",
-    "test:vue:single": "karma start ./build-scripts/karma.conf.vue.js --single-run",
+    "test:knockout:single": "karma start ./build-scripts/survey-knockout/karma.conf.knockout.js --single-run",
+    "test:react:single": "karma start ./build-scripts/survey-react/karma.conf.react.js --single-run",
+    "test:vue:single": "karma start ./build-scripts/survey-vue/karma.conf.vue.js --single-run",
     "prepare": "husky install"
   },
   "version": "1.8.78",
@@ -154,7 +154,6 @@
   },
   "dependencies": {
     "signature_pad": "^2.3.2",
-    "sortablejs": "1.13.0",
-    "vue-fragment": "^1.5.2"
+    "sortablejs": "1.13.0"
   }
 }

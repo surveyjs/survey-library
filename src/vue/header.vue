@@ -16,7 +16,7 @@
       :class="survey.css.headerText"
       v-bind:style="{ maxWidth: survey.titleMaxWidth }"
     >
-      <survey-element-title :element="survey" :css="survey.css"/>
+      <survey-element-title :element="survey" :css="survey.css" />
       <h5 :class="survey.css.description">
         <survey-string :locString="survey.locDescription" />
       </h5>
@@ -32,6 +32,8 @@
         v-bind:style="{ objectFit: survey.logoFit }"
       />
     </div>
+
+    <div :class="survey.css.headerClose"></div>
   </div>
 </template>
 

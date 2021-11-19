@@ -23,12 +23,12 @@ export class SurveyHeader extends React.Component<ISurveyHeaderProps, any> {
 
   componentDidMount() {
     const self: SurveyHeader = this;
-    this.survey.locLogo.onChanged = function() {
+    this.survey.locLogo.onChanged = function () {
       self.setState({ changed: self.state.changed + 1 });
     };
   }
   componentWillUnmount() {
-    this.survey.locLogo.onChanged = function() {};
+    this.survey.locLogo.onChanged = function () { };
   }
 
   private renderTitle(): JSX.Element {
@@ -68,6 +68,7 @@ export class SurveyHeader extends React.Component<ISurveyHeaderProps, any> {
         {this.renderLogoImage(this.survey.isLogoBefore)}
         {this.renderTitle()}
         {this.renderLogoImage(this.survey.isLogoAfter)}
+        <div className={this.css.headerClose}></div>
       </div>
     );
   }

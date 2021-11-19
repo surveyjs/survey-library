@@ -14,7 +14,7 @@ export var markupTests = [
         }
       ]
     },
-    etalon: "<input aria-invalid=\"false\" aria-label=\"Question title\" aria-required=\"false\" autocomplete=\"\" class=\"sv_q_text_root\" list=\"\" placeholder=\"\" step=\"any\" type=\"text\">"
+    etalon: "<input aria-invalid=\"false\" aria-label=\"Question title\" aria-required=\"false\" autocomplete=\"\" class=\"sv_q_text_root\" placeholder=\"\" step=\"any\" type=\"text\">"
   },
   {
     name: "Test Text (text update mode) question markup",
@@ -29,7 +29,7 @@ export var markupTests = [
       ],
       textUpdateMode: "onTyping"
     },
-    etalon: "<input aria-invalid=\"false\" aria-label=\"Question title\" aria-required=\"false\" autocomplete=\"\" class=\"sv_q_text_root\" list=\"\" placeholder=\"\" step=\"any\" type=\"text\">"
+    etalon: "<input aria-invalid=\"false\" aria-label=\"Question title\" aria-required=\"false\" autocomplete=\"\" class=\"sv_q_text_root\" placeholder=\"\" step=\"any\" type=\"text\">"
   },
   {
     name: "Test Text readonly question markup",
@@ -44,7 +44,7 @@ export var markupTests = [
       ],
       mode: "display"
     },
-    etalon: "<input aria-invalid=\"false\" aria-label=\"Question title\" aria-required=\"false\" autocomplete=\"\" class=\"sv_q_text_root\" disabled=\"\" list=\"\" placeholder=\"\" step=\"any\" type=\"text\">"
+    etalon: "<input aria-invalid=\"false\" aria-label=\"Question title\" aria-required=\"false\" autocomplete=\"\" class=\"sv_q_text_root\" disabled=\"\" placeholder=\"\" step=\"any\" type=\"text\">"
   },
   {
     name: "Test Text readonly DIV question markup",
@@ -79,7 +79,7 @@ export var markupTests = [
         }
       ],
     },
-    etalon: "<input aria-invalid=\"false\" aria-label=\"Your birthdate:\" aria-required=\"true\" autocomplete=\"bdate\" class=\"sv_q_text_root\" list=\"\" max=\"2999-12-31\" placeholder=\"\" step=\"any\" type=\"date\">"
+    etalon: "<input aria-invalid=\"false\" aria-label=\"Your birthdate:\" aria-required=\"true\" autocomplete=\"bdate\" class=\"sv_q_text_root\" max=\"2999-12-31\" placeholder=\"\" step=\"any\" type=\"date\">"
   },
   {
     name: "Test Text Email question markup",
@@ -102,7 +102,22 @@ export var markupTests = [
         }
       ],
     },
-    etalon: "<input aria-invalid=\"false\" aria-label=\"Your e-mail:\" aria-required=\"true\" autocomplete=\"email\" class=\"sv_q_text_root\" list=\"\" placeholder=\"jon.snow@nightwatch.org\" step=\"any\" type=\"email\">"
+    etalon: "<input aria-invalid=\"false\" aria-label=\"Your e-mail:\" aria-required=\"true\" autocomplete=\"email\" class=\"sv_q_text_root\" placeholder=\"jon.snow@nightwatch.org\" step=\"any\" type=\"email\">"
+  },
+  {
+    name: "Test Text Data list markup",
+    json: {
+
+      questions: [
+        {
+          type: "text",
+          name: "q1",
+          dataList: ["abc", "def", "ghk"],
+          titleLocation: "hidden"
+        }
+      ],
+    },
+    etalon: "<div><input aria-invalid=\"false\" aria-label=\"q1\" aria-required=\"false\" autocomplete=\"\" class=\"sv_q_text_root\" placeholder=\"\" step=\"any\" type=\"text\"><datalist><option value=\"abc\"></option><option value=\"def\"></option><option value=\"ghk\"></option></datalist></div>"
   },
 
   // Image question

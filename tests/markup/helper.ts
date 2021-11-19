@@ -82,6 +82,7 @@ export function testQuestionMarkup(assert, test, platform) {
       all[i].removeAttribute("data-key");
       all[i].removeAttribute("data-rendered");
       all[i].removeAttribute("id");
+      all[i].removeAttribute("list");
     }
     sortAttributes(all);
     var str = options.htmlElement.children[0].innerHTML;

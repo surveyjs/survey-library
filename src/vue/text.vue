@@ -22,8 +22,7 @@
       :aria-label="question.ariaLabel"
       :aria-invalid="question.ariaInvalid"
       :aria-describedby="question.ariaDescribedBy"
-    />
-    <datalist :id="question.dataListId">
+    /><datalist :id="question.dataListId">
       <option v-for="item in question.dataList" :value="item"></option>
     </datalist>
   </div>

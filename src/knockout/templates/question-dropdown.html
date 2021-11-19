@@ -15,7 +15,7 @@
     <!-- /ko -->
     <!-- ko if: question.isReadOnly -->
       <div disabled
-      data-bind="attr: {id: question.inputId}, text: question.hasOther && question.isOtherSelected ? question.otherText : (question.displayValue || question.showOptionsCaption && question.optionsCaption), css: question.getControlClass()">
+      data-bind="attr: {id: question.inputId}, text: question.readOnlyText, css: question.getControlClass()">
       </div>
     <!-- /ko -->
   <!-- ko if: question.isOtherSelected -->

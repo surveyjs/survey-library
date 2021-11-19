@@ -10,7 +10,7 @@
       :placeholder="question.otherPlaceHolder"
       :aria-label="question.ariaLabel"
       :aria-required="question.ariaRequired"
-      v-bind:style="{ resize: question.autoGrowComment ? 'none' : 'both' }"
+      v-bind:style="{ resize: question.resizeStyle }"
       @change="(e) => { question.onCommentChange(e) }"
       @input="(e) => { question.onCommentInput(e) }"
     /><div v-if="question.isReadOnlyRenderDiv()">{{ question.comment }}</div>

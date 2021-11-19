@@ -1252,6 +1252,9 @@ export class Question extends SurveyElement
     this.setPropertyValue("defaultValueExpression", val);
     this.updateValueWithDefaults();
   }
+  public get resizeStyle() {
+    return this.autoGrowComment ? "none" : "both";
+  }
   /**
    * Returns question answer data as a plain object: with question title, name, value and displayValue.
    * For complex questions (like matrix, etc.) isNode flag is set to true and data contains array of nested objects (rows)

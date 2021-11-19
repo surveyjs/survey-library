@@ -2,13 +2,15 @@
   display: flex;
   flex-wrap: wrap;
   padding: 0;
-  gap: 16px;
   border: none;
+  gap: calcSize(2);
   width: 100%;
   margin: 0;
 }
-.sd-imagepicker__item:not(:first-child) {
-  margin-left: calcSize(2);
+@supports not (aspect-ratio: 1 / 1 ) {
+  .sd-imagepicker > div {
+    margin-right: calcSize(2);
+  }
 }
 .sd-imagepicker__item {  
   img {

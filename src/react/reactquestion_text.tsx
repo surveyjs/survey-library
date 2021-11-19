@@ -12,7 +12,7 @@ export class SurveyQuestionText extends SurveyQuestionUncontrolledElement<
     super(props);
     //this.controlRef = React.createRef();
   }
-  protected renderElement(): JSX.Element {
+  protected renderInput() {
     const inputClass = (this.question as QuestionTextModel).getControlClass();
     var onKeyDown = null;
     var onKeyUp = null;
@@ -50,40 +50,46 @@ export class SurveyQuestionText extends SurveyQuestionUncontrolledElement<
       }
     };
     var placeHolder = this.question.renderedPlaceHolder;
-    var dataList = this.renderDataList();
     if (this.question.isReadOnlyRenderDiv()) {
       return <div>{this.question.value}</div>;
     }
     return (
-      <React.Fragment>
-        <input
-          id={this.question.inputId}
-          disabled={this.isDisplayMode}
-          className={inputClass}
-          type={this.question.inputType}
-          //ref={this.controlRef}
-          ref={(input) => (this.control = input)}
-          style={this.question.inputStyle}
-          maxLength={this.question.getMaxLength()}
-          min={this.question.renderedMin}
-          max={this.question.renderedMax}
-          step={this.question.renderedStep}
-          size={this.question.inputSize}
-          placeholder={placeHolder}
-          list={this.question.dataListId}
-          autoComplete={this.question.autoComplete}
-          onBlur={this.updateValueOnEvent}
-          onChange={onChange}
-          onKeyUp={onKeyUp}
-          onKeyDown={onKeyDown}
-          onCompositionUpdate={onCompositionUpdate}
-          aria-required={this.question.ariaRequired}
-          aria-label={this.question.ariaLabel}
-          aria-invalid={this.question.ariaInvalid}
-          aria-describedby={this.question.ariaDescribedBy}
-        />
-        {dataList}
-      </React.Fragment>
+      <input
+        id={this.question.inputId}
+        disabled={this.isDisplayMode}
+        className={inputClass}
+        type={this.question.inputType}
+        //ref={this.controlRef}
+        ref={(input) => (this.control = input)}
+        style={this.question.inputStyle}
+        maxLength={this.question.getMaxLength()}
+        min={this.question.renderedMin}
+        max={this.question.renderedMax}
+        step={this.question.renderedStep}
+        size={this.question.inputSize}
+        placeholder={placeHolder}
+        list={this.question.dataListId}
+        autoComplete={this.question.autoComplete}
+        onBlur={this.updateValueOnEvent}
+        onChange={onChange}
+        onKeyUp={onKeyUp}
+        onKeyDown={onKeyDown}
+        onCompositionUpdate={onCompositionUpdate}
+        aria-required={this.question.ariaRequired}
+        aria-label={this.question.ariaLabel}
+        aria-invalid={this.question.ariaInvalid}
+        aria-describedby={this.question.ariaDescribedBy}
+      />
+    );
+  }
+  protected renderElement(): JSX.Element {
+    return (
+      this.question.dataListId ?
+        <div>
+          { this.renderInput() }
+          { this.renderDataList() }
+        </div>:
+        this.renderInput()
     );
   }
   private renderDataList(): JSX.Element {

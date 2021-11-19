@@ -8,10 +8,10 @@ QUnit.test(
   function(assert) {
     var question = new Question("q1");
     question.isRequired = true;
-    assert.equal(question.ariaRequired, true, "aria-required is true");
+    assert.equal(question.ariaRequired, "true", "aria-required is true");
 
     question.isRequired = false;
-    assert.equal(question.ariaRequired, false, "aria-required is false");
+    assert.equal(question.ariaRequired, "false", "aria-required is false");
   }
 );
 
@@ -40,11 +40,11 @@ QUnit.test(
     question.isRequired = true;
 
     question.hasErrors();
-    assert.equal(question.ariaInvalid, true, "aria-invalid is TRUE because we have errors");
+    assert.equal(question.ariaInvalid, "true", "aria-invalid is TRUE because we have errors");
 
     question.value = "test";
     question.hasErrors();
-    assert.equal(question.ariaInvalid, false, "aria-invalid is FALSE because we don't have any errors");
+    assert.equal(question.ariaInvalid, "false", "aria-invalid is FALSE because we don't have any errors");
   }
 );
 

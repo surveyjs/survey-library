@@ -8,16 +8,14 @@
       :width="question.imageWidth ? question.imageWidth + 'px' : undefined"
       :height="question.imageHeight ? question.imageHeight + 'px' : undefined"
       v-bind:style="{ objectFit: question.imageFit }"
-    />
-    <video controls
+    /><video controls
       v-if="question.contentMode === 'video'"
       :class="question.cssClasses.image"
       :src="question.imageLink"
       :width="question.imageWidth ? question.imageWidth + 'px' : undefined"
       :height="question.imageHeight ? question.imageHeight + 'px' : undefined"
       v-bind:style="{ objectFit: question.imageFit }"
-    ></video>
-  </div>
+    ></video></div>
 </template>
 
 <script lang="ts">

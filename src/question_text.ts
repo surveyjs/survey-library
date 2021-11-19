@@ -100,6 +100,9 @@ export class QuestionTextModel extends QuestionTextBase {
   public get inputSize(): number {
     return this.getPropertyValue("inputSize", 0);
   }
+  public get renderedInputSize(): number {
+    return this.getPropertyValue("inputSize") || null;
+  }
   public get inputWidth(): string {
     return this.getPropertyValue("inputWidth");
   }

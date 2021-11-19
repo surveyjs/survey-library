@@ -123,7 +123,7 @@ function createSurveyWith3Questions(): SurveyModel {
   page.addNewQuestion("text", "q3");
   return survey;
 }
-QUnit.test("setting data doesn't calculate expressions with custom functions", function (assert) {
+QUnit.test("setting data doesn't calculate expressions if value is set", function (assert) {
   const survey = new SurveyModel({
     questions: [
       {
@@ -142,6 +142,31 @@ QUnit.test("setting data doesn't calculate expressions with custom functions", f
     ]
   });
   survey.data = { q1: 1, q2: 2, q3: 3 };
+  const question = <QuestionExpressionModel>survey.getQuestionByName("q3");
+  assert.equal(question.value, 3, "value is correct");
+  assert.equal(question.displayValue, "3", "display value is correct");
+  assert.equal(question.formatedValue, "3", "formatedValue is correct");
+});
+QUnit.test("setting data doesn't calculate expressions survey.questionsOnPageMode = 'singlePage'", function (assert) {
+  const survey = new SurveyModel({
+    questions: [
+      {
+        "name": "q1",
+        "type": "text"
+      },
+      {
+        "name": "q2",
+        "type": "text"
+      },
+      {
+        "name": "q3",
+        "type": "expression",
+        "expression": "{q1} + {q2}"
+      }
+    ]
+  });
+  survey.data = { q1: 1, q2: 2 };
+  survey.questionsOnPageMode = "singlePage";
   const question = <QuestionExpressionModel>survey.getQuestionByName("q3");
   assert.equal(question.value, 3, "value is correct");
   assert.equal(question.displayValue, "3", "display value is correct");

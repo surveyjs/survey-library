@@ -271,6 +271,7 @@ FunctionFactory.Instance.register("currentDate", currentDate);
 
 function today(params: any[]) {
   var res = new Date();
+  res.setUTCHours(0, 0, 0, 0);
   if (Array.isArray(params) && params.length == 1) {
     res.setDate(res.getDate() + params[0]);
   }

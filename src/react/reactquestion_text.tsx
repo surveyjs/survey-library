@@ -98,7 +98,7 @@ export class SurveyQuestionText extends SurveyQuestionUncontrolledElement<
     if (items.length == 0) return null;
     var options = [];
     for (var i = 0; i < items.length; i++) {
-      options.push(<option value={items[i]}></option>);
+      options.push(<option key={"item"+i} value={items[i]}></option>);
     }
     return <datalist id={this.question.dataListId}>{options}</datalist>;
   }

@@ -1,5 +1,5 @@
 import { frameworks, url, setOptions, initSurvey, getSurveyResult, getQuestionValue, getQuestionJson } from "../helper";
-import { ClientFunction } from "testcafe";
+import { ClientFunction, Selector } from "testcafe";
 const assert = require("assert");
 const title = `matrixrubric`;
 
@@ -94,22 +94,12 @@ frameworks.forEach((framework) => {
   });
 
   test(`require answer for all rows`, async (t) => {
-    let surveyResult;
-    const getPosition = ClientFunction(() =>
-      document.documentElement.innerHTML.indexOf(
-        "Response required: answer questions in all rows."
-      )
-    );
-    let position;
-
     await setOptions("Quality", { isAllRowRequired: true });
     await t.click(`input[value=Complete]`);
+    await t.expect(Selector(".sv-string-viewer").withText("Response required: answer questions in all rows.").visible).ok()
 
-    position = await getPosition();
-    assert.notEqual(position, -1);
-
-    surveyResult = await getSurveyResult();
-    assert.equal(typeof surveyResult, `undefined`);
+    let surveyResult = await getSurveyResult();
+    await t.expect(typeof surveyResult).eql(`undefined`);
 
     await t
       .click(`tbody tr:nth-child(1) td:nth-child(4)`)
@@ -119,11 +109,11 @@ frameworks.forEach((framework) => {
       .click(`input[value=Complete]`);
 
     surveyResult = await getSurveyResult();
-    assert.deepEqual(surveyResult.Quality, {
-      affordable: "3",
-      "does what it claims": "4",
-      "better than others": "2",
-      "easy to use": "5",
+    await t.expect(surveyResult.Quality).eql({
+      affordable: 3,
+      "does what it claims": 4,
+      "better than others": 2,
+      "easy to use": 5,
     });
   });
   test(`isAnswered for matrix with loading answers from data - #2239`, async (t) => {

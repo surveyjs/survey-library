@@ -1,6 +1,5 @@
 import { frameworks, url, initSurvey, getSurveyResult } from "../helper";
-import { ClientFunction } from "testcafe";
-const assert = require("assert");
+import { Selector } from "testcafe";
 const title = `completeTrigger`;
 
 const json = {
@@ -96,22 +95,14 @@ frameworks.forEach(framework => {
   );
 
   test(`check visibility`, async t => {
-    const getPosition = ClientFunction(index =>
-      document.documentElement.innerHTML.indexOf(
-        "4. Do you want to finish the survey?"
-      )
-    );
-    let surveyResult;
-
-    assert.equal(await getPosition(), -1);
-
     await t
+      .expect(Selector(".sv-string-viewer").withText("4. Do you want to finish the survey?").exists).notOk()
       .click(`input[value="No"]`)
       .click(`input[value="Next"]`)
       .click(`input[value="Yes"]`)
       .click(`input[value="Next"]`);
 
-    surveyResult = await getSurveyResult();
-    assert.deepEqual(surveyResult, { exit1: "No", exit2: "Yes" });
+    const surveyResult = await getSurveyResult();
+    await t.expect(surveyResult).eql({ exit1: "No", exit2: "Yes" });
   });
 });

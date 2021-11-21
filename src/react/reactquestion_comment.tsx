@@ -68,7 +68,7 @@ export class SurveyQuestionCommentItem extends ReactSurveyElement {
         onInput={(e) => question.onCommentInput(e)}
         aria-required={question.isRequired}
         aria-label={question.locTitle.renderedHtml}
-        style={{ resize: question.autoGrowComment ? "none" : "both" }}
+        style={{ resize: question.resizeStyle }}
       />
     );
   }

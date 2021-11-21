@@ -46,7 +46,7 @@
               <label data-bind="css: question.getItemClass(row, $data)">
                 <input
                   type="radio"
-                  data-bind="css: question.koCss().itemValue, attr: { name: row.fullName, 'aria-required': question.ariaRequired, 'aria-label': question.ariaLabel, 'aria-invalid': question.ariaInvalid, 'aria-describedby': question.ariaDescribedBy, id: question.inputId + '_' + row.name + '_' + $index() }, checkedValue: $data.value, checked: row.value, enable: !question.isInputReadOnly"
+                  data-bind="css: question.koCss().itemValue, attr: { name: row.fullName, 'aria-required': question.ariaRequired, 'aria-label': $data.locText.renderedHtml, 'aria-invalid': question.ariaInvalid, 'aria-describedby': question.ariaDescribedBy, id: question.inputId + '_' + row.name + '_' + $index() }, checkedValue: $data.value, checked: row.value, enable: !question.isInputReadOnly"
                 />
                 <span data-bind="css: question.koCss().materialDecorator">
                   <svg

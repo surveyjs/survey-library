@@ -9,7 +9,7 @@ export class AdaptiveActionContainer<T extends Action = Action> extends ActionCo
   protected dotsItemPopupModel: PopupModel;
   private responsivityManager: ResponsivityManager;
   public minVisibleItemsCount: number = 0;
-  private invisibleItemsListModel: ListModel = new ListModel(
+  protected invisibleItemsListModel: ListModel = new ListModel(
     [],
     (item: T) => {
       this.invisibleItemSelected(item);
@@ -50,7 +50,7 @@ export class AdaptiveActionContainer<T extends Action = Action> extends ActionCo
   private updateItemMode(availableSize: number, itemsSize: number) {
     const items = this.visibleActions;
     for (let index = items.length - 1; index >= 0; index--) {
-      if (itemsSize > availableSize) {
+      if (itemsSize > availableSize && !items[index].disableShrink) {
         itemsSize -= items[index].maxDimension - items[index].minDimension;
         items[index].mode = "small";
       } else {
@@ -121,7 +121,7 @@ export class AdaptiveActionContainer<T extends Action = Action> extends ActionCo
     );
   }
   public resetResponsivityManager(): void {
-    if(!!this.responsivityManager) {
+    if (!!this.responsivityManager) {
       this.responsivityManager.dispose();
       this.responsivityManager = undefined;
     }

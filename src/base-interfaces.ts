@@ -211,7 +211,10 @@ export interface ISurveyImpl {
 export interface IConditionRunner {
   runCondition(values: HashTable<any>, properties: HashTable<any>): any;
 }
-export interface ISurveyElement {
+export interface IShortcutText {
+  shortcutText: string;
+}
+export interface ISurveyElement extends IShortcutText {
   name: string;
   isVisible: boolean;
   isReadOnly: boolean;

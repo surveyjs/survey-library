@@ -746,8 +746,6 @@ QUnit.test("Panel.ensureRowsVisibility", function (assert) {
   const survey = new SurveyModel(json);
   const panel: PanelModel = <PanelModel>survey.getAllPanels()[0];
   const page = survey.currentPage;
-  page.setWasShown(false);
-  page.onFirstRendering();
   assert.equal(panel.rows.length, 2);
 
   panel.rows.forEach((row) => {
@@ -788,13 +786,13 @@ QUnit.test("Panel.startLazyRendering isNeedRender=true", function (assert) {
     ],
   };
 
+  const prevLazyRowsRenderingStartRow = settings.lazyRowsRenderingStartRow;
   try {
+    settings.lazyRowsRenderingStartRow = 0;
     const survey = new SurveyModel(json);
     survey.lazyRendering = true;
     const panel: PanelModel = <PanelModel>survey.getAllPanels()[0];
     const page = survey.currentPage;
-    page.setWasShown(false);
-    page.onFirstRendering();
     assert.equal(panel.rows.length, 2);
 
     panel.rows.forEach((row) => {
@@ -815,6 +813,7 @@ QUnit.test("Panel.startLazyRendering isNeedRender=true", function (assert) {
       assert.equal(row.isNeedRender, true);
     });
   } finally {
+    settings.lazyRowsRenderingStartRow = prevLazyRowsRenderingStartRow;
   }
 });
 
@@ -853,8 +852,6 @@ QUnit.test("Panel.startLazyRendering isNeedRender=false", function (assert) {
     const survey = new SurveyModel(json);
     const panel: PanelModel = <PanelModel>survey.getAllPanels()[0];
     const page = survey.currentPage;
-    page.setWasShown(false);
-    page.onFirstRendering();
     assert.equal(panel.rows.length, 2);
 
     panel.rows.forEach((row) => {
@@ -911,8 +908,6 @@ QUnit.test("row.isNeedRender & settings.lazyRowsRenderingStartRow", function (
     const survey = new SurveyModel(json);
     survey.lazyRendering = true;
     const page: PageModel = survey.currentPage;
-    page.setWasShown(false);
-    page.onFirstRendering();
     assert.equal(page.rows.length, 3, "There are 3 rows");
     assert.equal(page.rows[0].isNeedRender, true, "isNeedRender rows[0]");
     assert.equal(page.rows[1].isNeedRender, true, "isNeedRender rows[1]");
@@ -964,15 +959,12 @@ QUnit.test(
       survey.lazyRendering = true;
       survey.setDesignMode(true);
       const page1: PageModel = survey.pages[0];
-      page1.setWasShown(false);
-      page1.onFirstRendering();
       assert.equal(page1.rows.length, 3, "There are 3 rows");
       assert.equal(page1.rows[0].isNeedRender, true, "isNeedRender rows[0]");
       assert.equal(page1.rows[1].isNeedRender, true, "isNeedRender rows[1]");
       assert.equal(page1.rows[2].isNeedRender, false, "isNeedRender rows[2]");
 
       const page2: PageModel = survey.pages[1];
-      page2.setWasShown(false);
       page2.onFirstRendering();
       assert.equal(page2.rows.length, 1, "There is one row on the second page");
       assert.equal(
@@ -1505,8 +1497,6 @@ QUnit.test(
     try {
       const survey = new SurveyModel(json);
       const page1: PageModel = survey.pages[0];
-      page1.setWasShown(false);
-      page1.onFirstRendering();
 
       assert.equal(page1.rows.length, 21, "There are 21 rows");
       assert.equal(page1.rows[0].isNeedRender, true, "isNeedRender rows[0]");
@@ -1564,8 +1554,6 @@ QUnit.test(
       const survey = new SurveyModel(json);
       survey.lazyRendering = true;
       const page1: PageModel = survey.pages[0];
-      page1.setWasShown(false);
-      page1.onFirstRendering();
       assert.equal(page1.rows.length, 3, "There are 3 rows");
       assert.equal(page1.rows[0].isNeedRender, true, "isNeedRender rows[0]");
       assert.equal(page1.rows[1].isNeedRender, true, "isNeedRender rows[1]");

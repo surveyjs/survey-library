@@ -22,3 +22,4 @@ export { unwrap } from "../utils/utils";
 export * from "../actions/action";
 export * from "../actions/adaptive-container";
 export * from "../actions/container";
+export * from "../utils/tooltip";

@@ -1,6 +1,6 @@
 import { SurveyModel } from "../survey";
 import { Base, EventBase } from "../base";
-import { ISurvey } from "../base-interfaces";
+import { IShortcutText, ISurvey } from "../base-interfaces";
 import { property } from "../jsonobject";
 import { findScrollableParent } from "../utils/utils";
 
@@ -32,9 +32,9 @@ export abstract class DragDropCore<T> extends Base {
   }
 
   public prevDropTarget: any = null;
-  protected draggedElementShortcut: HTMLElement = null;
+  protected draggedElementShortcut: any = null;
   private scrollIntervalId: number = null;
-  private allowDropHere = false;
+  protected allowDropHere = false;
 
   constructor(private surveyValue?: ISurvey, private creator?: any) {
     super();
@@ -56,7 +56,8 @@ export abstract class DragDropCore<T> extends Base {
     const shortcutText = this.getShortcutText(this.draggedElement);
     this.draggedElementShortcut = this.createDraggedElementShortcut(
       shortcutText,
-      draggedElementNode
+      draggedElementNode,
+      event
     );
     document.body.append(this.draggedElementShortcut);
     this.moveShortcutElement(event);
@@ -121,14 +122,20 @@ export abstract class DragDropCore<T> extends Base {
   }
 
   protected doStartDrag(): void { }
-  protected abstract getShortcutText(draggedElement: any): string;
 
-  protected createDraggedElementShortcut(text: string, draggedElementNode?: HTMLElement): HTMLElement {
+  protected getShortcutText(draggedElement: IShortcutText): string {
+    return draggedElement.shortcutText;
+  }
+
+  protected createDraggedElementShortcut(text: string, draggedElementNode?: HTMLElement, event?: PointerEvent): HTMLElement {
     const draggedElementShortcut = document.createElement("div");
     draggedElementShortcut.innerText = text;
-    draggedElementShortcut.style.cssText =
-      "height: 24px; min-width: 100px; border-radius: 36px; background-color: white; padding: 16px; cursor: grabbing; position: absolute; z-index: 1000; box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.1); font-family: 'Open Sans'; font-size: 16px; padding-left: 20px; line-height: 24px;";
+    draggedElementShortcut.className = this.getDraggedElementClass();
     return draggedElementShortcut;
+  }
+
+  protected getDraggedElementClass() {
+    return "sv-dragged-element-shortcut";
   }
 
   protected doDragOver(dropTargetNode?: HTMLElement): void { }
@@ -163,14 +170,9 @@ export abstract class DragDropCore<T> extends Base {
     let shortcutXOffset;
     let shortcutYOffset;
 
-    const draggedIcon =
-      this.draggedElementShortcut.querySelector(".svc-item-value-controls__drag .sv-svg-icon")
-      || this.draggedElementShortcut.querySelector(".sv-ranking-item__icon");
-    if (draggedIcon) {
-      const rectOuter = this.draggedElementShortcut.getBoundingClientRect();
-      const rectInner = draggedIcon.getBoundingClientRect();
-      shortcutXOffset = rectInner.x - rectOuter.x + rectInner.width / 2;
-      shortcutYOffset = rectInner.y - rectOuter.y + rectInner.height / 2;
+    if (!!this.draggedElementShortcut.shortcutXOffset) {
+      shortcutXOffset = this.draggedElementShortcut.shortcutXOffset;
+      shortcutYOffset = this.draggedElementShortcut.shortcutYOffset;
     } else {
       shortcutXOffset = shortcutWidth / 2;
       shortcutYOffset = shortcutHeight / 2;
@@ -256,8 +258,8 @@ export abstract class DragDropCore<T> extends Base {
   }
 
   protected banDropHere = (): void => {
-    this.doBanDropHere();
     this.allowDropHere = false;
+    this.doBanDropHere();
     this.dropTarget = null;
     this.draggedElementShortcut.style.cursor = "not-allowed";
     this.isBottom = null;

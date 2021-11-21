@@ -73,7 +73,12 @@ export class Question extends SurveyElement
   public isReadOnlyRenderDiv(): boolean {
     return this.isReadOnly && settings.readOnlyCommentRenderMode === "div";
   }
-
+  public get isErrorsModeTooltip() {
+    return this.survey && this.survey.getCss().root == "sd-root-modern";
+  }
+  public get hasParent() {
+    return this.parent && !this.parent.isPage;
+  }
   constructor(name: string) {
     super(name);
     this.id = Question.getQuestionId();
@@ -183,14 +188,14 @@ export class Question extends SurveyElement
   /**
    * A11Y properties
    */
-  public get ariaRequired(): boolean {
-    return this.isRequired;
+  public get ariaRequired() {
+    return this.isRequired ? "true" : "false";
   }
   public get ariaLabel(): string {
     return this.locTitle.renderedHtml;
   }
-  public get ariaInvalid(): boolean {
-    return this.errors.length > 0;
+  public get ariaInvalid() {
+    return this.errors.length > 0 ? "true" : "false";
   }
   public get ariaDescribedBy(): string {
     return this.errors.length > 0 ? this.id + "_errors" : null;
@@ -346,9 +351,9 @@ export class Question extends SurveyElement
   }
   public setSurveyImpl(value: ISurveyImpl, isLight?: boolean): void {
     super.setSurveyImpl(value);
-    if(!this.survey) return;
+    if (!this.survey) return;
     this.survey.questionCreated(this);
-    if(isLight !== true) {
+    if (isLight !== true) {
       this.runConditions();
     }
   }
@@ -579,7 +584,7 @@ export class Question extends SurveyElement
   }
   public onCommentChange(event: any): void {
     this.comment = event.target.value;
-    if(this.comment !== event.target.value) {
+    if (this.comment !== event.target.value) {
       event.target.value = this.comment;
     }
   }
@@ -717,8 +722,10 @@ export class Question extends SurveyElement
   protected getCssError(cssClasses: any): string {
     return new CssClassBuilder()
       .append(cssClasses.error.root)
-      .append(cssClasses.error.locationTop, this.errorLocation === "top")
-      .append(cssClasses.error.locationBottom, this.errorLocation === "bottom")
+      .append(cssClasses.error.aboveQuestion, this.isErrorsModeTooltip && !this.hasParent)
+      .append(cssClasses.error.tooltip, this.isErrorsModeTooltip && this.hasParent)
+      .append(cssClasses.error.locationTop, !this.isErrorsModeTooltip && this.errorLocation === "top")
+      .append(cssClasses.error.locationBottom, !this.isErrorsModeTooltip && this.errorLocation === "bottom")
       .toString();
   }
   public getRootCss(): string {
@@ -814,6 +821,10 @@ export class Question extends SurveyElement
   public set renderWidth(val: string) {
     this.setPropertyValue("renderWidth", val);
   }
+
+  public get renderCssRoot(): string {
+    return this.cssClasses.root || undefined;
+  }
   /**
    * Set it different from 0 to increase the left padding.
    */
@@ -906,7 +917,7 @@ export class Question extends SurveyElement
    * Please note, this property is hidden for question without input, for example html question.
    */
   public get isRequired(): boolean {
-    return this.getPropertyValue("isRequired", false);
+    return this.getPropertyValue("isRequired");
   }
   public set isRequired(val: boolean) {
     this.setPropertyValue("isRequired", val);
@@ -959,6 +970,10 @@ export class Question extends SurveyElement
     this.setPropertyValue("hasOther", val);
     if (this.hasOther) this.hasComment = false;
     this.hasOtherChanged();
+  }
+  public get isOtherSelected() {
+    const question = this.question;
+    return question.hasOther && question.isOtherSelected;
   }
   protected hasOtherChanged(): void { }
   public get requireUpdateCommentValue(): boolean {
@@ -1171,7 +1186,10 @@ export class Question extends SurveyElement
     if (!this.survey || !this.valueName) return true;
     return !this.survey.hasVisibleQuestionByValueName(this.valueName);
   }
-  private get isParentVisible(): boolean {
+  /**
+   * Return true if there is a parent (page or panel) and it is visible
+   */
+  public get isParentVisible(): boolean {
     var parent = this.parent;
     while (parent) {
       if (!parent.isVisible) return false;
@@ -1234,23 +1252,26 @@ export class Question extends SurveyElement
     this.setPropertyValue("defaultValueExpression", val);
     this.updateValueWithDefaults();
   }
+  public get resizeStyle() {
+    return this.autoGrowComment ? "none" : "both";
+  }
   /**
    * Returns question answer data as a plain object: with question title, name, value and displayValue.
    * For complex questions (like matrix, etc.) isNode flag is set to true and data contains array of nested objects (rows)
    * set options.includeEmpty to false if you want to skip empty answers
    */
   public getPlainData(
-    options: {
+    options?: {
       includeEmpty?: boolean,
       includeQuestionTypes?: boolean,
       calculations?: Array<{
         propertyName: string,
       }>,
-    } = {
-      includeEmpty: true,
-      includeQuestionTypes: false,
     }
   ): any {
+    if (!options) {
+      options = { includeEmpty: true, includeQuestionTypes: false };
+    }
     if (options.includeEmpty || !this.isEmpty()) {
       var questionPlainData = <any>{
         name: this.name,
@@ -1397,9 +1418,9 @@ export class Question extends SurveyElement
   public set comment(newValue: string) {
     if (!!newValue) {
       const trimmedValue = newValue.toString().trim();
-      if(trimmedValue !== newValue) {
+      if (trimmedValue !== newValue) {
         newValue = trimmedValue;
-        if(newValue === this.comment) {
+        if (newValue === this.comment) {
           this.setPropertyValueDirectly("comment", newValue);
         }
       }

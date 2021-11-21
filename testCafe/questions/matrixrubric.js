@@ -80,12 +80,14 @@ frameworks.forEach((framework) => {
 
   test(`choose several values`, async (t) => {
     let surveyResult;
-
+    const firstCellSelector = Selector("tbody tr:nth-child(2) td:nth-child(5)");
+    const secondCellSelector = Selector("tbody tr:nth-child(4) td:nth-child(6)");
     await t
-      .click(`tbody tr:nth-child(2) td:nth-child(5)`)
-      .click(`tbody tr:nth-child(4) td:nth-child(6)`)
-      .click(`input[value=Complete]`);
-
+      .click(firstCellSelector)
+      .expect(firstCellSelector.hasClass("sv_q_m_cell_selected")).ok()
+      .click(secondCellSelector)
+      .expect(secondCellSelector.hasClass("sv_q_m_cell_selected")).ok()
+      .click(`input[value=Complete]`)
     surveyResult = await getSurveyResult();
     await t.expect(surveyResult.Quality).eql({
       "does what it claims": 4,

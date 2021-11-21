@@ -100,8 +100,8 @@ export var defaultBootstrapMaterialCss = {
     sliderText: "sv-hidden",
     label: "sv-boolean__label ",
     disabledLabel: "sv-boolean__label--disabled",
-    materialDecorator: "sv-item__decorator sv-boolean__decorator ",
-    itemDecorator: "sv-item__svg  sv-boolean__svg",
+    materialDecorator: "sv-item__decorator sv-boolean__decorator",
+    itemDecorator: "sv-item__svg sv-boolean__svg",
     checkedPath: "sv-boolean__checked-path",
     uncheckedPath: "sv-boolean__unchecked-path",
     indeterminatePath: "sv-boolean__indeterminate-path",
@@ -225,8 +225,10 @@ export var defaultBootstrapMaterialCss = {
     footer: "sv-hidden"
   },
   multipletext: {
-    root: "table",
-    itemTitle: "",
+    root: "sv_q_mt table",
+    itemTitle: "sv_q_mt_title",
+    item: "sv_q_mt_item",
+    itemLabel: "sv_q_mt_label",
     row: "form-group bmd-form-group",
     itemValue: "sv_q_mt_item_value form-control",
   },

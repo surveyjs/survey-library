@@ -17,7 +17,7 @@ export class SurveyQuestionHtml extends SurveyQuestionElementBase {
     var htmlValue = { __html: this.question.locHtml.renderedHtml };
     return (
       <div
-        className={this.question.cssClasses.root}
+        className={this.question.renderCssRoot}
         dangerouslySetInnerHTML={htmlValue}
       />
     );

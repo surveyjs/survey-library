@@ -1,13 +1,10 @@
 <template>
-  <span style="position: static">
-    <span
-      class="sv-string-viewer" 
-      style="position: static"
-      v-if="locString.hasHtml"
-      v-html="locString.renderedHtml"
-    ></span>
-    <span class="sv-string-viewer" style="position: static" v-else>{{ locString.renderedHtml }}</span>
-  </span>
+  <span
+    class="sv-string-viewer"
+    v-if="locString.hasHtml"
+    v-html="locString.renderedHtml"
+  ></span>
+  <span class="sv-string-viewer" v-else>{{ locString.renderedHtml }}</span>
 </template>
 
 <script lang="ts">
@@ -19,7 +16,6 @@ import { LocalizableString } from "survey-core";
 export class SurveyStringViewer extends Vue {
   @Prop() locString: LocalizableString;
 }
-
 Vue.component(LocalizableString.defaultRenderer, SurveyStringViewer);
 export default SurveyStringViewer;
 </script>

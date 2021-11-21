@@ -60,6 +60,11 @@
     </div>
     <survey-string v-if="cell.hasTitle" :locString="cell.locTitle" />
     <span v-if="!!cell.requiredText">{{ cell.requiredText }}</span>
+    <survey-errors
+      v-if="cell.hasQuestion && question.isErrorsModeTooltip"
+      :element="cell.question"
+      :location="'tooltip'"
+    />
   </td>
 </template>
 
@@ -81,10 +86,10 @@ export class MatrixCell extends Vue {
     return "survey-" + element.getType();
   }
   get hasErrorsOnTop() {
-    return this.cell.showErrorOnTop;
+    return this.cell.showErrorOnTop && !this.question.isErrorsModeTooltip;
   }
   get hasErrorsOnBottom() {
-    return this.cell.showErrorOnBottom;
+    return this.cell.showErrorOnBottom && !this.question.isErrorsModeTooltip;
   }
   getHeaders(): string {
     return this.cell.headers;

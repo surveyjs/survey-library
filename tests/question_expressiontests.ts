@@ -91,6 +91,29 @@ QUnit.test("Display text + survey.onExpressionDisplayValue event", function(
   expression.displayStyle = "decimal";
   assert.equal(expression.displayValue, "$10.", "Use event");
 });
+QUnit.test("Formated value", function(assert) {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "text", name: "q1" },
+      { type: "text", name: "q2", defaultValue: 1 },
+      { type: "expression", name: "exp1", expression: "{q1}" },
+      { type: "expression", name: "exp2", expression: "{q1}", format: "{0} $" },
+      { type: "expression", name: "exp3", expression: "{q2}", displayStyle: "currency", currency: "USD" },
+    ]
+  });
+  const exp1 = <QuestionExpressionModel>survey.getQuestionByName("exp1");
+  const exp2 = <QuestionExpressionModel>survey.getQuestionByName("exp2");
+  const exp3 = <QuestionExpressionModel>survey.getQuestionByName("exp3");
+  assert.equal(exp1.formatedValue, "", "exp1 no value");
+  assert.equal(exp2.formatedValue, "", "exp2 no value");
+  assert.equal(exp3.formatedValue, "$1.00", "exp3 correct value");
+  survey.setValue("q1", 2);
+  assert.equal(exp1.formatedValue, "2", "exp1 correct");
+  assert.equal(exp2.formatedValue, "2 $", "exp2 correct");
+  exp1.currency = "USD";
+  exp1.displayStyle = "currency";
+  assert.equal(exp1.formatedValue, "$2.00", "exp1 correct with USD");
+});
 
 function createSurveyWith3Questions(): SurveyModel {
   var survey = new SurveyModel();
@@ -100,3 +123,52 @@ function createSurveyWith3Questions(): SurveyModel {
   page.addNewQuestion("text", "q3");
   return survey;
 }
+QUnit.test("setting data doesn't calculate expressions if value is set", function (assert) {
+  const survey = new SurveyModel({
+    questions: [
+      {
+        "name": "q1",
+        "type": "text"
+      },
+      {
+        "name": "q2",
+        "type": "text"
+      },
+      {
+        "name": "q3",
+        "type": "expression",
+        "expression": "{q1} + {q2}"
+      }
+    ]
+  });
+  survey.data = { q1: 1, q2: 2, q3: 3 };
+  const question = <QuestionExpressionModel>survey.getQuestionByName("q3");
+  assert.equal(question.value, 3, "value is correct");
+  assert.equal(question.displayValue, "3", "display value is correct");
+  assert.equal(question.formatedValue, "3", "formatedValue is correct");
+});
+QUnit.test("setting data doesn't calculate expressions survey.questionsOnPageMode = 'singlePage'", function (assert) {
+  const survey = new SurveyModel({
+    questions: [
+      {
+        "name": "q1",
+        "type": "text"
+      },
+      {
+        "name": "q2",
+        "type": "text"
+      },
+      {
+        "name": "q3",
+        "type": "expression",
+        "expression": "{q1} + {q2}"
+      }
+    ]
+  });
+  survey.data = { q1: 1, q2: 2 };
+  survey.questionsOnPageMode = "singlePage";
+  const question = <QuestionExpressionModel>survey.getQuestionByName("q3");
+  assert.equal(question.value, 3, "value is correct");
+  assert.equal(question.displayValue, "3", "display value is correct");
+  assert.equal(question.formatedValue, "3", "formatedValue is correct");
+});

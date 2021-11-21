@@ -14,19 +14,21 @@
         :aria-label="question.ariaLabel"
         :aria-invalid="question.ariaInvalid"
         :aria-describedby="question.ariaDescribedBy"
-      />
-      <span
+      /><span
         :class="question.getLabelCss(false)"
         v-on:click="onLabelClick($event, false)"
         ><survey-string :locString="question.locLabelFalse"></survey-string
-      ></span>
-      <div
+      ></span><div
         :class="question.cssClasses.switch"
         v-on:click="onSwitchClick($event)"
       >
-        <span :class="question.cssClasses.slider" />
-      </div>
-      <span :class="question.getLabelCss(true)" v-on:click="onLabelClick($event, true)"
+        <span :class="question.cssClasses.slider">
+          <span :class="question.cssClasses.sliderText">
+            <survey-string v-if="question.checkedValue === false" :locString="question.locLabelFalse"></survey-string
+      ><survey-string v-if="question.checkedValue === true" :locString="question.locLabelTrue"></survey-string
+      ></span>
+      </span>
+      </div><span :class="question.getLabelCss(true)" v-on:click="onLabelClick($event, true)"
         ><survey-string :locString="question.locLabelTrue"></survey-string
       ></span>
     </label>

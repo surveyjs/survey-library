@@ -10,7 +10,7 @@
       v-show="element.isPanel || !element.isCollapsed"
     >
       <survey-errors
-        v-if="!element.isPanel && hasErrorsOnTop"
+        v-if="!element.isPanel && hasErrorsOnTop && !element.isErrorsModeTooltip"
         :element="element"
         :location="'top'"
       />
@@ -24,9 +24,14 @@
         <survey-other-choice :commentClass="css.comment" :question="element" />
       </div>
       <survey-errors
-        v-if="!element.isPanel && hasErrorsOnBottom"
+        v-if="!element.isPanel && hasErrorsOnBottom && !element.isErrorsModeTooltip"
         :element="element"
         :location="'bottom'"
+      />
+        <survey-errors
+        v-if="!element.isPanel && element.isErrorsModeTooltip && element.hasParent"
+        :element="element"
+        :location="'tooltip'"
       />
       <div
         v-if="!element.isPanel && element.hasDescriptionUnderInput"

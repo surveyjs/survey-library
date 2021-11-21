@@ -55,6 +55,7 @@ export class ListItem extends SurveyElementBase<IListItemProps, any> {
         onClick={() => {
           this.model.selectItem(this.item);
         }}
+        onPointerDown={(event: any) => this.model.onPointerDown(event, this.item)}
       >
         {content}
       </li>

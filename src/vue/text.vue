@@ -1,7 +1,7 @@
 <template>
-  <div>
+  <div v-if="question.isReadOnlyRenderDiv()">{{ question.value }}</div>
+  <div v-else-if="question.dataListId">
     <input
-      v-if="!question.isReadOnlyRenderDiv()"
       :disabled="question.isInputReadOnly"
       :class="question.getControlClass()"
       :type="question.inputType"
@@ -9,7 +9,7 @@
       :min="question.renderedMin"
       :max="question.renderedMax"
       :step="question.renderedStep"
-      :size="question.inputSize"
+      :size="question.renderedInputSize"
       :style="inputStyle"
       :id="question.inputId"
       :list="question.dataListId"
@@ -22,12 +22,33 @@
       :aria-label="question.ariaLabel"
       :aria-invalid="question.ariaInvalid"
       :aria-describedby="question.ariaDescribedBy"
-    />
-    <datalist v-if="question.dataListId && !question.isReadOnlyRenderDiv()" :id="question.dataListId">
+    /><datalist :id="question.dataListId">
       <option v-for="item in question.dataList" :value="item"></option>
     </datalist>
-    <div v-if="question.isReadOnlyRenderDiv()">{{ question.value }}</div>
   </div>
+  <input
+    v-else
+    :disabled="question.isInputReadOnly"
+    :class="question.getControlClass()"
+    :type="question.inputType"
+    :maxlength="question.getMaxLength()"
+    :min="question.renderedMin"
+    :max="question.renderedMax"
+    :step="question.renderedStep"
+    :size="question.renderedInputSize"
+    :style="inputStyle"
+    :id="question.inputId"
+    :list="question.dataListId"
+    :placeholder="question.renderedPlaceHolder"
+    :autocomplete="question.autoComplete"
+    :value="question.value"
+    @change="change"
+    @keyup="keyup"
+    :aria-required="question.ariaRequired"
+    :aria-label="question.ariaLabel"
+    :aria-invalid="question.ariaInvalid"
+    :aria-describedby="question.ariaDescribedBy"
+  />
 </template>
 
 <script lang="ts">

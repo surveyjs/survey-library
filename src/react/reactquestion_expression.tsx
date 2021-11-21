@@ -18,7 +18,7 @@ export class SurveyQuestionExpression extends SurveyQuestionElementBase {
         className={cssClasses.root}
         ref={(div) => (this.control = div)}
       >
-        {this.question.displayValue}
+        {this.question.formatedValue}
       </div>
     );
   }

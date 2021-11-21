@@ -1,6 +1,5 @@
 import { frameworks, url, initSurvey, getSurveyResult } from "../helper";
 import { Selector } from "testcafe";
-const assert = require("assert");
 const title = `First Page is Started`;
 
 const json = {
@@ -28,7 +27,7 @@ frameworks.forEach((framework) => {
     await t.typeText(Selector(`input[type=text]`), "Winterfell");
     await t.click(`input[value=Complete]`);
     const surveyResult = await getSurveyResult();
-    assert.deepEqual(surveyResult, {
+    await t.expect(surveyResult).eql({
       name: "Jon Snow",
       address: "Winterfell"
     });

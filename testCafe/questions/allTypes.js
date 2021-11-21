@@ -157,9 +157,9 @@ const applyTheme = ClientFunction(theme => {
   frameworks.forEach(framework => {
     fixture`${framework} ${title} ${theme}`
       .page`${url_test}${theme}/${framework}.html`.beforeEach(async t => {
-      await applyTheme(theme);
-      await initSurvey(framework, json);
-    });
+        await applyTheme(theme);
+        await initSurvey(framework, json);
+      });
     test("check survey will all types", async t => {
       await t
         .expect(Selector(".sv-string-editor").exists)
@@ -301,26 +301,18 @@ const applyTheme = ClientFunction(theme => {
       await t.click("input[value=Complete]");
 
       const surveyResult = await getSurveyResult();
-      assert.deepEqual(surveyResult.text_question, "test text");
-      assert.deepEqual(surveyResult.checkbox_question, ["item1"]);
-      assert.deepEqual(surveyResult.radiogroup_question, "item1");
-      assert.deepEqual(surveyResult.dropdown_question, "item1");
-      assert.deepEqual(surveyResult.comment_question, "test comment");
-      assert.deepEqual(surveyResult.rating_question, 3);
-      assert.deepEqual(surveyResult.imagepicker_question, "item1");
-      assert.deepEqual(surveyResult.boolean_question, true);
-      assert.deepEqual(surveyResult.expression_question, 1);
-      assert.deepEqual(surveyResult.matrix_question, {
-        "Row 1": "Column 1",
-      });
-      assert.deepEqual(surveyResult.matrixdropdown_question, {
-        "Row 1": {
-          "Column 1": 1,
-        },
-      });
-      assert.deepEqual(surveyResult.multipletext_question, {
-        text1: "test multiple text",
-      });
+      await t.expect(surveyResult.text_question).eql("test text");
+      await t.expect(surveyResult.checkbox_question).eql(["item1"]);
+      await t.expect(surveyResult.radiogroup_question).eql("item1");
+      await t.expect(surveyResult.dropdown_question).eql("item1");
+      await t.expect(surveyResult.comment_question).eql("test comment");
+      await t.expect(surveyResult.rating_question).eql(3);
+      await t.expect(surveyResult.imagepicker_question).eql("item1");
+      await t.expect(surveyResult.boolean_question).eql(true);
+      await t.expect(surveyResult.expression_question).eql(1);
+      await t.expect(surveyResult.matrix_question).eql({ "Row 1": "Column 1", });
+      await t.expect(surveyResult.matrixdropdown_question).eql({ "Row 1": { "Column 1": 1, }, });
+      await t.expect(surveyResult.multipletext_question).eql({ text1: "test multiple text", });
       //TODO need to do the drag&drop (see questions/ranking)
       //assert.deepEqual(surveyResult.ranking_question, ["item2", "item1"]);
       //assert.equal(surveyResult.ranking_question, 2);

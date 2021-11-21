@@ -93,7 +93,7 @@ frameworks.forEach((framework) => {
     await t
       .click(`input[value="Yes"]`)
       .click(`input[value="Complete"]`)
-      .expect(Selector(".sv_completed_page")).contains("Jon Snow");
+      .expect(Selector(".sv_completed_page").textContent).contains("Jon Snow");
 
     const surveyResult = await getSurveyResult();
     await t.expect(surveyResult).eql({

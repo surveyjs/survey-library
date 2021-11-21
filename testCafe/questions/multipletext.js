@@ -41,7 +41,7 @@ frameworks.forEach(framework => {
 
     surveyResult = await getSurveyResult();
 
-    assert.deepEqual(surveyResult, {
+    await t.expect(surveyResult).eql({
       pricelimit: {
         mostamount: "All my money",
         leastamount: "Zero"

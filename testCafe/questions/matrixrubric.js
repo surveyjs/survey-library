@@ -87,9 +87,9 @@ frameworks.forEach((framework) => {
       .click(`input[value=Complete]`);
 
     surveyResult = await getSurveyResult();
-    assert.deepEqual(surveyResult.Quality, {
-      "does what it claims": "4",
-      "easy to use": "5",
+    await t.expect(surveyResult.Quality).eql({
+      "does what it claims": 4,
+      "easy to use": 5,
     });
   });
 
@@ -119,14 +119,14 @@ frameworks.forEach((framework) => {
   test(`isAnswered for matrix with loading answers from data - #2239`, async (t) => {
     const setData = ClientFunction(
       () =>
-        (survey.data = {
-          Quality: {
-            affordable: "1",
-            "does what it claims": "1",
-            "better than others": "1",
-            "easy to use": "1",
-          },
-        })
+      (survey.data = {
+        Quality: {
+          affordable: "1",
+          "does what it claims": "1",
+          "better than others": "1",
+          "easy to use": "1",
+        },
+      })
     );
     await setData();
     const getIsAnswered = ClientFunction(
@@ -148,7 +148,7 @@ frameworks.forEach((framework) => {
     var json = JSON.parse(await getQuestionJson());
     var questionValue = await getQuestionValue();
     assert.equal(questionValue, undefined);
-  
+
     var outerSelector = `.sv_q_title`;
     var innerSelector = `.sv-string-editor`
     await t
@@ -167,7 +167,7 @@ frameworks.forEach((framework) => {
     var json = JSON.parse(await getQuestionJson());
     var questionValue = await getQuestionValue();
     assert.equal(questionValue, undefined);
-  
+
     var outerSelector = `.sv_q_matrix th`;
     var innerSelector = `.sv-string-editor`
     await t
@@ -186,7 +186,7 @@ frameworks.forEach((framework) => {
     var json = JSON.parse(await getQuestionJson());
     var questionValue = await getQuestionValue();
     assert.equal(questionValue, undefined);
-  
+
     var selector = `.sv_q_matrix tbody tr td .sv-string-editor`;
     await t
       .click(selector)

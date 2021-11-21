@@ -52,7 +52,7 @@ frameworks.forEach((framework) => {
       .click(`input[value=Complete]`);
 
     surveyResult = await getSurveyResult();
-    assert.deepEqual(surveyResult.car, ["none"]);
+    await t.expect(surveyResult.car).eql(["none"]);
   });
 
   test(`choose value`, async (t) => {
@@ -75,7 +75,7 @@ frameworks.forEach((framework) => {
       .click(`input[value=Complete]`);
 
     surveyResult = await getSurveyResult();
-    assert.deepEqual(surveyResult.car, ["BMW", "Nissan"]);
+    await t.expect(surveyResult.car).eql(["BMW", "Nissan"]);
   });
 
   test(`change column count`, async (t) => {

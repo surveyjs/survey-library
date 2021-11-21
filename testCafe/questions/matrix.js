@@ -57,9 +57,9 @@ frameworks.forEach((framework) => {
       .click(`input[value=Complete]`);
 
     surveyResult = await getSurveyResult();
-    assert.deepEqual(surveyResult.Quality, {
-      "does what it claims": "4",
-      "easy to use": "5",
+    await t.expect(surveyResult.Quality).eql({
+      "does what it claims": 4,
+      "easy to use": 5,
     });
   });
 

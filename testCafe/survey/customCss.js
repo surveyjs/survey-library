@@ -1,6 +1,5 @@
 import { frameworks, url } from "../helper";
-import { ClientFunction } from "testcafe";
-const assert = require("assert");
+import { ClientFunction, Selector } from "testcafe";
 const title = `customCss`;
 const initSurvey = ClientFunction((framework, json) => {
   Survey.defaultBootstrapCss.navigationButton = "btn btn-primary";
@@ -73,11 +72,6 @@ frameworks.forEach(framework => {
   );
 
   test(`check custom class`, async t => {
-    const isCustomClassExist = ClientFunction(() =>
-      document
-        .querySelector(`input[value="Complete"]`)
-        .classList.contains(`btn-lg`)
-    );
-    assert(await isCustomClassExist());
+    await t.expect(Selector("input[value=\"Complete\"]").classNames).contains("btn-lg");
   });
 });

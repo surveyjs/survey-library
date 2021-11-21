@@ -1,6 +1,5 @@
 import { frameworks, url, initSurvey, getSurveyResult } from "../helper";
 import { Selector } from "testcafe";
-const assert = require("assert");
 const title = `standardValidators`;
 
 const json = {
@@ -109,12 +108,12 @@ frameworks.forEach((framework) => {
       .click(`input[value="Complete"]`);
 
     surveyResult = await getSurveyResult();
-    assert.deepEqual(surveyResult, {
+    await t.expect(surveyResult).eql({
       email: "wombat@mail.mail",
       firstcomputer: "01234567890123456789",
       pricelimit: {
-        leastamount: 10,
-        mostamount: 10000,
+        leastamount: '10',
+        mostamount: '10000',
       },
     });
   });

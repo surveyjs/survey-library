@@ -1,6 +1,5 @@
 import { frameworks, url, initSurvey, getSurveyResult } from "../helper";
 import { Selector, ClientFunction } from "testcafe";
-const assert = require("assert");
 const title = `validateOnServer`;
 const setupSurvey = ClientFunction(() => {
   window.survey.onServerValidateQuestions.add(function(survey, options) {
@@ -61,7 +60,7 @@ frameworks.forEach(framework => {
       .click(`input[value="Complete"]`);
 
     surveyResult = await getSurveyResult();
-    assert.deepEqual(surveyResult, {
+    await t.expect(surveyResult).eql({
       country: "Romania"
     });
   });

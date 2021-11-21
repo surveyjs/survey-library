@@ -140,12 +140,13 @@ frameworks.forEach((framework) => {
   test(`show "other" choice`, async (t) => {
     await t
       .click(Selector(".sv_row select"))
-      .expect(Selector(".sv_row select option[value=\"Other\"]").exists).notOk();
+      .expect(Selector(".sv_row select option").count).eql(12);
 
     await setOptions("car", { hasOther: true, otherText: "Other" });
     await t
-    .click(Selector(".sv_row select"))
-    .expect(Selector(".sv_row select option[value=\"Other\"]").visible).ok();
+      .click(Selector(".sv_row select"))
+      .expect(Selector(".sv_row select option").count).eql(13)
+      .expect(Selector(".sv_row select option").nth(12).textContent).contains("Other");
   });
 
   test(`check "other" choice doesn't change order`, async (t) => {

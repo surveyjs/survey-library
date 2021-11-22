@@ -971,6 +971,10 @@ export class Question extends SurveyElement
     if (this.hasOther) this.hasComment = false;
     this.hasOtherChanged();
   }
+  public get isOtherSelected() {
+    const question = this.question;
+    return question.hasOther && question.isOtherSelected;
+  }
   protected hasOtherChanged(): void { }
   public get requireUpdateCommentValue(): boolean {
     return this.hasComment || this.hasOther;
@@ -1247,6 +1251,9 @@ export class Question extends SurveyElement
   public set defaultValueExpression(val: any) {
     this.setPropertyValue("defaultValueExpression", val);
     this.updateValueWithDefaults();
+  }
+  public get resizeStyle() {
+    return this.autoGrowComment ? "none" : "both";
   }
   /**
    * Returns question answer data as a plain object: with question title, name, value and displayValue.

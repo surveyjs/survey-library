@@ -5,5 +5,6 @@ module.exports = function(config) {
   config.set({
     basePath: "../../",
     files: ["tests/markup/question_vue_tests.ts"],
+    browserConsoleLogOptions: {level: "warn"}
   });
 };

@@ -18,6 +18,9 @@ var platformDescriptor = {
         element
       );
     });
+  },
+  finish: (element) => {
+    ReactDOM.unmountComponentAtNode(element);
   }
 };
 

@@ -36,7 +36,7 @@ export class SurveyQuestionComment extends SurveyQuestionUncontrolledElement<Que
         aria-label={this.question.ariaLabel}
         aria-invalid={this.question.ariaInvalid}
         aria-describedby={this.question.ariaDescribedBy}
-        style={{ resize: this.question.autoGrow ? "none" : "both" }}
+        style={{ resize: this.question.resizeStyle }}
       />
     );
   }

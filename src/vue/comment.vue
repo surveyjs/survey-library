@@ -9,7 +9,7 @@
       :cols="question.cols"
       :rows="question.rows"
       :placeholder="question.renderedPlaceHolder"
-      :class="question.cssClasses ? question.getControlClass() : 'panel-comment-root'"
+      :class="question.className"
       @change="change"
       @input="(e) => { question.onInput(e) }"
       @keydown="(e) => { question.onKeyDown(e) }"
@@ -17,7 +17,7 @@
       :aria-label="question.ariaLabel"
       :aria-invalid="question.ariaInvalid"
       :aria-describedby="question.ariaDescribedBy"
-      v-bind:style="{ resize: question.autoGrow ? 'none' : 'both' }"
+      v-bind:style="{ resize: question.resizeStyle }"
     ></textarea>
     <div v-else>{{ question.value }}</div>
 </template>

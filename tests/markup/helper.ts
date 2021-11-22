@@ -97,6 +97,8 @@ export function testQuestionMarkup(assert, test, platform) {
         platform.name + " rendered incorrectly" + "\n==================\n" + format(test.etalon) + "\n------------------\n" + format(newstr) + "\n==================\n");
     if (test.after)
       test.after();
+    if(platform.finish)
+      platform.finish(surveyElement);
     done();
   });
   platform.render(platform.survey, surveyElement);

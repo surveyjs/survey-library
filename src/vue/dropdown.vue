@@ -1,5 +1,5 @@
 <template>
-  <div :class="question.cssClasses.root">
+  <div :class="question.renderCssRoot">
     <div v-if="!question.isReadOnly" :class="question.cssClasses.selectWrapper">
       <select
         :id="question.inputId"
@@ -12,27 +12,18 @@
         :aria-describedby="question.ariaDescribedBy"
         :required="question.isRequired"
       >
-        <option v-if="question.showOptionsCaption" :value="undefined">
-          {{ question.optionsCaption }}
-        </option>
-        <option
+        <option v-if="question.showOptionsCaption" :value="undefined">{{ question.optionsCaption }}</option><option
           v-for="item in question.visibleChoices"
           :value="item.value"
           :disabled="!item.isEnabled"
-        >
-          {{ item.text }}
-        </option>
+        >{{ item.text }}</option>
       </select>
-    </div>
-    <div
+    </div><div
       disabled
       v-else
       :id="question.inputId"
       :class="question.getControlClass()"
-    >
-      {{ isOtherSelected ? question.otherText : question.displayValue }}
-    </div>
-    <survey-other-choice v-show="isOtherSelected" :question="question" />
+    >{{ question.readOnlyText }}</div><survey-other-choice v-if="question.isOtherSelected" :question="question" />
   </div>
 </template>
 
@@ -44,10 +35,6 @@ import { QuestionDropdownModel } from "survey-core";
 
 @Component
 export class Dropdown extends QuestionVue<QuestionDropdownModel> {
-  get isOtherSelected() {
-    const question = this.question;
-    return question.hasOther && question.isOtherSelected;
-  }
 }
 Vue.component("survey-dropdown", Dropdown);
 export default Dropdown;

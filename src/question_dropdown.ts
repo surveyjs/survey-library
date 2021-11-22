@@ -131,6 +131,9 @@ export class QuestionDropdownModel extends QuestionSelectBase {
       .append(this.cssClasses.controlDisabled, this.isReadOnly)
       .toString();
   }
+  public get readOnlyText() {
+    return this.hasOther && this.isOtherSelected ? this.otherText : (this.displayValue || this.showOptionsCaption && this.optionsCaption);
+  }
 }
 Serializer.addClass(
   "dropdown",

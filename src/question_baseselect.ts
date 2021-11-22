@@ -1300,7 +1300,7 @@ export class QuestionCheckboxBase extends QuestionSelectBase {
     return this.hasOther && item.value == this.otherItem.value;
   }
   public get hasItemSvgIcon(): boolean {
-    return this.survey && this.survey.getCss().root == "sd-root-modern";
+    return this.survey && this.survey.getCss().root != "sd-root-modern";
   }
 }
 Serializer.addClass(

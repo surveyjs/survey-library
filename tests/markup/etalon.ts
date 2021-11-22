@@ -351,48 +351,28 @@ export var markupTests = [
     },
     etalon: "<fieldset class=\"sv_qcbc\"><div aria-checked=\"false\" aria-invalid=\"false\" aria-required=\"false\" class=\"sv_q_radiogroup sv-q-col-1\" role=\"radio\"><label aria-label=\"item1\" class=\"sv_q_radiogroup_label\"><input aria-hidden=\"true\" class=\"sv_q_radiogroup_control_item\" type=\"radio\" value=\"item1\"><span title=\"item1\"><span class=\"sv-string-viewer\">item1</span></span></label></div><div aria-checked=\"false\" aria-invalid=\"false\" aria-required=\"false\" class=\"sv_q_radiogroup sv-q-col-1\" role=\"radio\"><label aria-label=\"item2\" class=\"sv_q_radiogroup_label\"><input aria-hidden=\"true\" class=\"sv_q_radiogroup_control_item\" type=\"radio\" value=\"item2\"><span title=\"item2\"><span class=\"sv-string-viewer\">item2</span></span></label></div><div aria-checked=\"false\" aria-invalid=\"false\" aria-required=\"false\" class=\"sv_q_radiogroup sv-q-col-1\" role=\"radio\"><label aria-label=\"item3\" class=\"sv_q_radiogroup_label\"><input aria-hidden=\"true\" class=\"sv_q_radiogroup_control_item\" type=\"radio\" value=\"item3\"><span title=\"item3\"><span class=\"sv-string-viewer\">item3</span></span></label></div></fieldset>"
   },
-  // {
-  //   name: "Test radiogroup question markup Show options caption false",
-  //   json: {
-  //     questions: [
-  //       {
-  //         "type": "radiogroup",
-  //         "name": "name",
-  //         "title": "Question title",
-  //         "showOptionsCaption": false,
-  //         "choices": [
-  //           "item1",
-  //           "item2",
-  //           "item3"
-  //         ],
-  //         titleLocation: "hidden"
-  //       }
-  //     ]
-  //   },
-  //   etalon: "<div><div class=\"sv_select_wrapper\"><select aria-invalid=\"false\" aria-label=\"Question title\" aria-required=\"false\" autocomplete=\"\" class=\"sv_q_radiogroup_control\"><option value=\"item1\">item1</option><option value=\"item2\">item2</option><option value=\"item3\">item3</option></select></div></div>"
-  // },
-  // {
-  //   name: "Test radiogroup question markup Other option",
-  //   json: {
-  //     questions: [
-  //       {
-  //         "type": "radiogroup",
-  //         "name": "name",
-  //         "title": "Question title",
-  //         "choices": [
-  //           "item1",
-  //           "item2",
-  //           "item3"
-  //         ],
-  //         "hasOther": true,
-  //         "defaultValue": "other",
-  //         "otherText": "Other (describe)",
-  //         titleLocation: "hidden"
-  //       }
-  //     ]
-  //   },
-  //   etalon: "<div><div class=\"sv_select_wrapper\"><select aria-invalid=\"false\" aria-label=\"Question title\" aria-required=\"false\" autocomplete=\"\" class=\"sv_q_radiogroup_control\"><option value=\"\">Choose...</option><option value=\"item1\">item1</option><option value=\"item2\">item2</option><option value=\"item3\">item3</option><option value=\"other\">Other (describe)</option></select></div><div class=\"form-group\"><textarea aria-label=\"Question title\" aria-required=\"false\" class=\"sv_q_dd_other\" placeholder=\"\" style=\"resize: both;\"></textarea></div></div>"
-  // },
+  {
+    name: "Test radiogroup question markup Other option",
+    json: {
+      questions: [
+        {
+          "type": "radiogroup",
+          "name": "name",
+          "title": "Question title",
+          "choices": [
+            "item1",
+            "item2",
+            "item3"
+          ],
+          "hasOther": true,
+          "defaultValue": "other",
+          "otherText": "Other (describe)",
+          titleLocation: "hidden"
+        }
+      ]
+    },
+    etalon: "<fieldset class=\"sv_qcbc\"><div aria-checked=\"false\" aria-invalid=\"false\" aria-required=\"false\" class=\"sv_q_radiogroup sv-q-col-1\" role=\"radio\"><label aria-label=\"item1\" class=\"sv_q_radiogroup_label\"><input aria-hidden=\"true\" class=\"sv_q_radiogroup_control_item\" type=\"radio\" value=\"item1\"><span title=\"item1\"><span class=\"sv-string-viewer\">item1</span></span></label></div><div aria-checked=\"false\" aria-invalid=\"false\" aria-required=\"false\" class=\"sv_q_radiogroup sv-q-col-1\" role=\"radio\"><label aria-label=\"item2\" class=\"sv_q_radiogroup_label\"><input aria-hidden=\"true\" class=\"sv_q_radiogroup_control_item\" type=\"radio\" value=\"item2\"><span title=\"item2\"><span class=\"sv-string-viewer\">item2</span></span></label></div><div aria-checked=\"false\" aria-invalid=\"false\" aria-required=\"false\" class=\"sv_q_radiogroup sv-q-col-1\" role=\"radio\"><label aria-label=\"item3\" class=\"sv_q_radiogroup_label\"><input aria-hidden=\"true\" class=\"sv_q_radiogroup_control_item\" type=\"radio\" value=\"item3\"><span title=\"item3\"><span class=\"sv-string-viewer\">item3</span></span></label></div><div aria-checked=\"true\" aria-invalid=\"false\" aria-required=\"false\" class=\"sv_q_radiogroup sv-q-col-1 checked\" role=\"radio\"><label aria-label=\"Other (describe)\" class=\"sv_q_radiogroup_label\"><input aria-hidden=\"true\" checked=\"\" class=\"sv_q_radiogroup_control_item\" type=\"radio\" value=\"other\"><span title=\"Other (describe)\"><span class=\"sv-string-viewer\">Other (describe)</span></span></label><div class=\"form-group\"><textarea aria-label=\"Question title\" aria-required=\"false\" class=\"sv_q_other sv_q_radiogroup_other\" placeholder=\"\" style=\"resize: both;\"></textarea></div></div></fieldset>"
+  },
   // {
   //   name: "Test radiogroup question markup Other option",
   //   json: {

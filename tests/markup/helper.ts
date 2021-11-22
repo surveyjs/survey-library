@@ -85,6 +85,9 @@ export function testQuestionMarkup(assert, test, platform) {
       all[i].removeAttribute("list");
       if(all[i].getAttribute("name") !== "name")
         all[i].removeAttribute("name");
+      if(all[i].checked) {
+        all[i].setAttribute("checked", "");
+      }
     }
     sortAttributes(all);
     var str = options.htmlElement.children[0].innerHTML;

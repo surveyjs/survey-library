@@ -175,17 +175,21 @@ export class SurveyQuestionRadioItem extends ReactSurveyElement {
             disabled={this.isDisplayMode || !this.item.isEnabled}
             onChange={this.handleOnChange}
           />
-          <span className={this.cssClasses.materialDecorator}>
-            { this.question.hasItemSvgIcon ?
-              <svg
-                className={this.cssClasses.itemDecorator}
-                viewBox="-12 -12 24 24"
-              >
-                <circle r="6" cx="0" cy="0" />
-              </svg> :
+          {
+            this.cssClasses.materialDecorator ?
+              <span className={this.cssClasses.materialDecorator}>
+                { this.question.hasItemSvgIcon ?
+                  <svg
+                    className={this.cssClasses.itemDecorator}
+                    viewBox="-12 -12 24 24"
+                  >
+                    <circle r="6" cx="0" cy="0" />
+                  </svg> :
+                  null
+                }
+              </span> :
               null
-            }
-          </span>
+          }
           <span className={controlLabelClass} title={locText.renderedHtml}>
             {itemText}
           </span>

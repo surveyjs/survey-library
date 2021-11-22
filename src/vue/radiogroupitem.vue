@@ -16,7 +16,7 @@
         v-model="question.renderedValue"
         :disabled="question.isInputReadOnly || !item.isEnabled"
         :class="question.cssClasses.itemControl"
-      /><span :class="question.cssClasses.materialDecorator">
+      /><span v-if="question.cssClasses.materialDecorator" :class="question.cssClasses.materialDecorator">
         <svg v-if="question.hasItemSvgIcon" :class="question.cssClasses.itemDecorator" viewBox="-12 -12 24 24">
           <circle r="6" cx="0" cy="0" />
         </svg>

@@ -35,6 +35,7 @@
         aria-hidden="true"
         data-bind="attr: { name: question.name + '_' + question.id, id: question.inputId + '_' + question.getItemIndex(item)}, checkedValue: item.value, checked: question.renderedValue, enable: !question.isInputReadOnly && item.isEnabled, css: question.koCss().itemControl"
       />
+      <!-- ko if: question.koCss().materialDecorator -->
       <span data-bind="css: question.koCss().materialDecorator">
         <!-- ko if: question.hasItemSvgIcon -->
         <svg
@@ -45,6 +46,7 @@
         </svg>
         <!-- /ko -->
       </span>
+      <!-- /ko -->
       <span
         data-bind="visible: !item.hideCaption, css: question.getControlLabelClass(item), attr: { title: item.locText.koRenderedHtml }"
       >

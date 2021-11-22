@@ -9,7 +9,6 @@
     <label :class="getLabelClass(item)" :aria-label="item.locText.renderedHtml">
       <input
         type="radio"
-        aria-hidden="true"
         :name="question.name + '_' + question.id"
         :value="item.value"
         :id="question.inputId + '_' + index"

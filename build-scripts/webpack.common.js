@@ -22,7 +22,6 @@ var svgStoreUtils = require(path.resolve(
 
 module.exports = function(options, packageJson, chunkName) {
   packageJson.version = packageJsonWithVersion.version;
-
   const today = new Date();
   const year = today.getFullYear();
   var banner = [
@@ -43,13 +42,10 @@ module.exports = function(options, packageJson, chunkName) {
   var isProductionBuild = options.buildType === "prod";
 
   function createSVGBundle() {
-    if (fs.existsSync(__dirname, "./" + packageJson.name)) {
-      return;
-    }
     var options = {
       fileName: path.resolve(
-        __dirname,
-        "./" + packageJson.name + "/svgbundle.html"
+        path.join("./src"),
+        "./svgbundle.html"
       ),
       template: path.resolve(__dirname, "./svgbundle.pug"),
       svgoOptions: {
@@ -63,7 +59,6 @@ module.exports = function(options, packageJson, chunkName) {
         svgStoreUtils.parseFiles(files, options),
         options.template
       );
-
       fs.writeFileSync(options.fileName, fileContent);
     });
   }
@@ -106,6 +101,7 @@ module.exports = function(options, packageJson, chunkName) {
 
   var percentage_handler = function handler(percentage, msg) {
     if (0 == percentage) {
+      console.log("persantage_handler!!!!")
       console.log("Build started... good luck!");
       createSVGBundle();
     } else if (1 == percentage) {

@@ -22,7 +22,7 @@ export class SurveyQuestionComment extends SurveyQuestionUncontrolledElement<Que
     return (
       <textarea
         id={this.question.inputId}
-        className={this.question.getControlClass()}
+        className={this.question.className}
         disabled={this.isDisplayMode}
         ref={(tetxarea) => (this.control = tetxarea)}
         maxLength={this.question.getMaxLength()}

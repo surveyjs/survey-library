@@ -76,7 +76,7 @@ class QuestionPanelDynamicItemTextProcessor extends QuestionTextProcessor {
       }
     }
     if (
-      textValue.name.indexOf(
+      textValue.name.toLowerCase().indexOf(
         QuestionPanelDynamicItem.ParentItemVariableName + "."
       ) == 0
     ) {
@@ -87,10 +87,8 @@ class QuestionPanelDynamicItemTextProcessor extends QuestionTextProcessor {
           <QuestionPanelDynamicItem>(<any>q.parent).data,
           QuestionPanelDynamicItem.ItemVariableName
         );
-        var text = textValue.name.replace(
-          QuestionPanelDynamicItem.ParentItemVariableName,
-          QuestionPanelDynamicItem.ItemVariableName
-        );
+        var text = QuestionPanelDynamicItem.ItemVariableName +
+          textValue.name.substring(QuestionPanelDynamicItem.ParentItemVariableName.length);
         var res = processor.processValue(text, textValue.returnDisplayValue);
         textValue.isExists = res.isExists;
         textValue.value = res.value;
@@ -103,7 +101,7 @@ class QuestionPanelDynamicItemTextProcessor extends QuestionTextProcessor {
 
 export class QuestionPanelDynamicItem implements ISurveyData, ISurveyImpl {
   public static ItemVariableName = "panel";
-  public static ParentItemVariableName = "parentPanel";
+  public static ParentItemVariableName = "parentpanel";
   public static IndexVariableName = "panelIndex";
   private panelValue: PanelModel;
   private data: IQuestionPanelDynamicData;
@@ -161,7 +159,7 @@ export class QuestionPanelDynamicItem implements ISurveyData, ISurveyImpl {
       ] = this.data.getItemIndex(this);
       const q = <Question>(<any>this.data);
       if (!!q && !!q.parentQuestion && !!q.parent) {
-        values[QuestionPanelDynamicItem.ParentItemVariableName.toLowerCase()] = (<any>q.parent).getValue();
+        values[QuestionPanelDynamicItem.ParentItemVariableName] = (<any>q.parent).getValue();
       }
     }
     return values;
@@ -1222,7 +1220,7 @@ export class QuestionPanelDynamicModel extends Question
       cachedValues = JSON.parse(JSON.stringify(values));
     }
     if (!!this.parentQuestion && !!this.parent) {
-      cachedValues[QuestionPanelDynamicItem.ParentItemVariableName.toLowerCase()] = (<any>this.parent).getValue();
+      cachedValues[QuestionPanelDynamicItem.ParentItemVariableName] = (<any>this.parent).getValue();
     }
     for (var i = 0; i < this.panels.length; i++) {
       var panelValues = this.getPanelItemData(this.panels[i].data);

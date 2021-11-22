@@ -22,8 +22,9 @@ export class SurveyQuestionComment extends SurveyQuestionUncontrolledElement<Que
     return (
       <textarea
         id={this.question.inputId}
-        className={this.question.getControlClass()}
-        disabled={this.isDisplayMode}
+        className={this.question.className}
+        disabled={ this.question.isInputReadOnly }
+        readOnly={ this.question.isInputReadOnly }
         ref={(tetxarea) => (this.control = tetxarea)}
         maxLength={this.question.getMaxLength()}
         placeholder={placeHolder}
@@ -36,7 +37,7 @@ export class SurveyQuestionComment extends SurveyQuestionUncontrolledElement<Que
         aria-label={this.question.ariaLabel}
         aria-invalid={this.question.ariaInvalid}
         aria-describedby={this.question.ariaDescribedBy}
-        style={{ resize: this.question.autoGrow ? "none" : "both" }}
+        style={{ resize: this.question.resizeStyle }}
       />
     );
   }

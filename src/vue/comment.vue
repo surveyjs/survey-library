@@ -2,7 +2,7 @@
     <textarea
       v-if="!question.isReadOnlyRenderDiv()"
       :readonly="question.isInputReadOnly"
-      :disabled="question.isInputReadOnly"
+      :disabled="question.renderedInputDisabled"
       :value="question.value"
       :id="question.inputId"
       :maxlength="question.getMaxLength()"

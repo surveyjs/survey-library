@@ -993,6 +993,12 @@ export class Question extends SurveyElement
     var isDesignModeV2 = settings.supportCreatorV2 && this.isDesignMode;
     return this.isReadOnly || isDesignModeV2;
   }
+  public get renderedInputReadOnly() {
+    return this.isInputReadOnly ? "" : undefined;
+  }
+  public get renderedInputDisabled() {
+    return this.isInputReadOnly ? "" : undefined;
+  }
   protected onReadOnlyChanged(): void {
     this.setPropertyValue("isInputReadOnly", this.isInputReadOnly);
     super.onReadOnlyChanged();

@@ -83,6 +83,8 @@ export function testQuestionMarkup(assert, test, platform) {
       all[i].removeAttribute("data-rendered");
       all[i].removeAttribute("id");
       all[i].removeAttribute("list");
+      if(all[i].getAttribute("name") !== "name")
+        all[i].removeAttribute("name");
     }
     sortAttributes(all);
     var str = options.htmlElement.children[0].innerHTML;

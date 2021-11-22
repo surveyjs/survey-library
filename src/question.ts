@@ -73,6 +73,7 @@ export class Question extends SurveyElement
   public isReadOnlyRenderDiv(): boolean {
     return this.isReadOnly && settings.readOnlyCommentRenderMode === "div";
   }
+
   public get isErrorsModeTooltip() {
     return this.survey && this.survey.getCss().root == "sd-root-modern";
   }

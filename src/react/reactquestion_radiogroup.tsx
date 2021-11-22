@@ -66,7 +66,7 @@ export class SurveyQuestionRadiogroup extends SurveyQuestionElementBase {
     return items;
   }
   protected get textStyle(): any {
-    return { display: "inline", position: "static" };
+    return null;//{ display: "inline", position: "static" };
   }
   private renderItem(
     item: ItemValue,
@@ -152,7 +152,7 @@ export class SurveyQuestionRadioItem extends ReactSurveyElement {
     var itemClass = this.question.getItemClass(this.item);
     var labelClass = this.question.getLabelClass(this.item);
     var locText: any = this.item.locText;
-    var controlLabelClass = this.question.getControlLabelClass(this.item);
+    var controlLabelClass = this.question.getControlLabelClass(this.item) || null;
 
     return (
       <div
@@ -176,15 +176,17 @@ export class SurveyQuestionRadioItem extends ReactSurveyElement {
             onChange={this.handleOnChange}
           />
           <span className={this.cssClasses.materialDecorator}>
-            <svg
-              className={this.cssClasses.itemDecorator}
-              viewBox="-12 -12 24 24"
-            >
-              <circle r="6" cx="0" cy="0" />
-            </svg>
+            { this.question.hasItemSvgIcon ?
+              <svg
+                className={this.cssClasses.itemDecorator}
+                viewBox="-12 -12 24 24"
+              >
+                <circle r="6" cx="0" cy="0" />
+              </svg> :
+              null
+            }
           </span>
-          <span className="check" />
-          <span className={controlLabelClass} title={locText.text}>
+          <span className={controlLabelClass} title={locText.renderedHtml}>
             {itemText}
           </span>
         </label>

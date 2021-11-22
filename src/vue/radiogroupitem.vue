@@ -16,29 +16,24 @@
         v-model="question.renderedValue"
         :disabled="question.isInputReadOnly || !item.isEnabled"
         :class="question.cssClasses.itemControl"
-      />
-      <span :class="question.cssClasses.materialDecorator">
-        <svg :class="question.cssClasses.itemDecorator" viewBox="-12 -12 24 24">
+      /><span :class="question.cssClasses.materialDecorator">
+        <svg v-if="question.hasItemSvgIcon" :class="question.cssClasses.itemDecorator" viewBox="-12 -12 24 24">
           <circle r="6" cx="0" cy="0" />
         </svg>
-      </span>
-      <span class="check"></span>
-      <span
+      </span><span
         v-if="!hideLabel"
-        :class="getControlLabelClass(item)"
-        :title="item.locText.text"
+        :class="getControlLabelClass(item) || undefined"
+        :title="item.locText.renderedHtml"
       >
         <survey-string :locString="item.locText" />
       </span>
-    </label>
-    <survey-other-choice
+    </label><survey-other-choice
       v-show="
         question.hasOther && question.renderedValue && question.isOtherSelected
       "
       v-if="item.value == question.otherItem.value"
       :question="question"
-    />
-  </div>
+    /></div>
 </template>
 
 <script lang="ts">

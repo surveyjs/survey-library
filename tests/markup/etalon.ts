@@ -597,45 +597,26 @@ export var markupTests = [
     after: () => StylesManager.applyTheme("default"),
     etalon: "<fieldset class=\"sv-selectbase\"><legend aria-label=\"Question title\" role=\"checkbox\"></legend><div class=\"sv-item sv-checkbox sv-selectbase__item sv-q-col-1 sv-checkbox--allowhover\"><label class=\"sv-selectbase__label\"><input aria-invalid=\"false\" aria-label=\"Question title\" aria-required=\"false\" class=\"sv-visuallyhidden sv-item__control\" name=\"name\" type=\"checkbox\" value=\"item1\"><span class=\"sv-item__decorator sv-selectbase__decorator sv-checkbox__decorator\"><svg class=\"sv-item__svg sv-checkbox__svg\"><use xlink:href=\"#icon-moderncheck\"></use></svg></span><span class=\"sv-item__control-label\" title=\"item1\"><span class=\"sv-string-viewer\">item1</span></span></label></div><div class=\"sv-item sv-checkbox sv-selectbase__item sv-q-col-1 sv-checkbox--allowhover\"><label class=\"sv-selectbase__label\"><input aria-invalid=\"false\" aria-label=\"Question title\" aria-required=\"false\" class=\"sv-visuallyhidden sv-item__control\" name=\"name\" type=\"checkbox\" value=\"item2\"><span class=\"sv-item__decorator sv-selectbase__decorator sv-checkbox__decorator\"><svg class=\"sv-item__svg sv-checkbox__svg\"><use xlink:href=\"#icon-moderncheck\"></use></svg></span><span class=\"sv-item__control-label\" title=\"item2\"><span class=\"sv-string-viewer\">item2</span></span></label></div></fieldset>"
   },
-  // {
-  //   name: "Test checkbox clear button",
-  //   json: {
-  //     questions: [
-  //       {
-  //         "type": "checkbox",
-  //         "name": "name",
-  //         "title": "Question title",
-  //         "showClearButton": true,
-  //         "choices": [
-  //           "item1",
-  //           "item2"
-  //         ],
-  //         titleLocation: "hidden"
-  //       }
-  //     ]
-  //   },
-  //   etalon: "<fieldset class=\"sv_qcbc\"><div aria-checked=\"false\" aria-invalid=\"false\" aria-required=\"false\" class=\"sv_q_checkbox sv-q-col-1\" role=\"radio\"><label aria-label=\"item1\" class=\"sv_q_checkbox_label\"><input aria-hidden=\"true\" class=\"sv_q_checkbox_control_item\" type=\"radio\" value=\"item1\"><span title=\"item1\"><span class=\"sv-string-viewer\">item1</span></span></label></div><div aria-checked=\"false\" aria-invalid=\"false\" aria-required=\"false\" class=\"sv_q_checkbox sv-q-col-1\" role=\"radio\"><label aria-label=\"item2\" class=\"sv_q_checkbox_label\"><input aria-hidden=\"true\" class=\"sv_q_checkbox_control_item\" type=\"radio\" value=\"item2\"><span title=\"item2\"><span class=\"sv-string-viewer\">item2</span></span></label></div><div><input class=\"sv_q_checkbox_clear\" type=\"button\" value=\"Clear\"></div></fieldset>"
-  // },
-  // {
-  //   name: "Test checkbox columns",
-  //   json: {
-  //     questions: [
-  //       {
-  //         "type": "checkbox",
-  //         "name": "name",
-  //         "title": "Question title",
-  //         "showClearButton": true,
-  //         "colCount": 2,
-  //         "choices": [
-  //           "item1",
-  //           "item2"
-  //         ],
-  //         titleLocation: "hidden"
-  //       }
-  //     ]
-  //   },
-  //   etalon: "<fieldset class=\"sv_qcbc\"><div class=\"sv_q_select_column sv-q-column-2\"><div aria-checked=\"false\" aria-invalid=\"false\" aria-required=\"false\" class=\"sv_q_checkbox\" role=\"radio\"><label aria-label=\"item1\" class=\"sv_q_checkbox_label\"><input aria-hidden=\"true\" class=\"sv_q_checkbox_control_item\" type=\"radio\" value=\"item1\"><span title=\"item1\"><span class=\"sv-string-viewer\">item1</span></span></label></div></div><div class=\"sv_q_select_column sv-q-column-2\"><div aria-checked=\"false\" aria-invalid=\"false\" aria-required=\"false\" class=\"sv_q_checkbox\" role=\"radio\"><label aria-label=\"item2\" class=\"sv_q_checkbox_label\"><input aria-hidden=\"true\" class=\"sv_q_checkbox_control_item\" type=\"radio\" value=\"item2\"><span title=\"item2\"><span class=\"sv-string-viewer\">item2</span></span></label></div></div><div><input class=\"sv_q_checkbox_clear\" type=\"button\" value=\"Clear\"></div></fieldset>"
-  // },
+  {
+    name: "Test checkbox columns",
+    json: {
+      questions: [
+        {
+          "type": "checkbox",
+          "name": "name",
+          "title": "Question title",
+          "showClearButton": true,
+          "colCount": 2,
+          "choices": [
+            "item1",
+            "item2"
+          ],
+          titleLocation: "hidden"
+        }
+      ]
+    },
+    etalon: "<fieldset class=\"sv_qcbc sv_qcbx\"><legend aria-label=\"Question title\" role=\"checkbox\"></legend><div class=\"sv_q_select_column sv-q-column-2\"><div class=\"sv_q_checkbox\"><label class=\"sv_q_checkbox_label\"><input aria-invalid=\"false\" aria-label=\"Question title\" aria-required=\"false\" class=\"sv_q_checkbox_control_item\" name=\"name\" type=\"checkbox\" value=\"item1\"><span class=\"sv_q_checkbox_control_label\" title=\"item1\"><span class=\"sv-string-viewer\">item1</span></span></label></div></div><div class=\"sv_q_select_column sv-q-column-2\"><div class=\"sv_q_checkbox\"><label class=\"sv_q_checkbox_label\"><input aria-invalid=\"false\" aria-label=\"Question title\" aria-required=\"false\" class=\"sv_q_checkbox_control_item\" name=\"name\" type=\"checkbox\" value=\"item2\"><span class=\"sv_q_checkbox_control_label\" title=\"item2\"><span class=\"sv-string-viewer\">item2</span></span></label></div></div></fieldset>"
+  },
   // #endregion checkbox
 
 ];

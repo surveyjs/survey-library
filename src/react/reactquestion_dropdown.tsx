@@ -26,7 +26,7 @@ export class SurveyQuestionDropdown extends SurveyQuestionUncontrolledElement<Qu
       : null;
     var select = this.renderSelect(cssClasses);
     return (
-      <div className={cssClasses.root}>
+      <div className={this.question.renderCssRoot}>
         {select}
         {comment}
       </div>
@@ -34,27 +34,14 @@ export class SurveyQuestionDropdown extends SurveyQuestionUncontrolledElement<Qu
   }
   protected renderSelect(cssClasses: any): JSX.Element {
     if (this.isDisplayMode) {
-      var isOtherSelected = this.question.isOtherSelected;
       return (
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         <div id={this.question.inputId} className={this.question.getControlClass()} disabled>
-          {isOtherSelected
-            ? this.question.otherText
-            : (this.question.displayValue || this.question.optionsCaption)}
+          { this.question.readOnlyText }
         </div>
       );
     }
-    var options = [];
-    for (var i = 0; i < this.question.visibleChoices.length; i++) {
-      var item = this.question.visibleChoices[i];
-      var key = "item" + i;
-      var option = <SurveyQuestionOptionItem key={key} item={item} />;
-      options.push(option);
-    }
-    var captionOption = this.question.showOptionsCaption ? (
-      <option value="">{this.question.optionsCaption}</option>
-    ) : null;
 
     return (
       <div className={cssClasses.selectWrapper}>
@@ -71,8 +58,8 @@ export class SurveyQuestionDropdown extends SurveyQuestionUncontrolledElement<Qu
           aria-describedby={this.question.ariaDescribedBy}
           required={this.question.isRequired}
         >
-          {captionOption}
-          {options}
+          { this.question.showOptionsCaption ? (<option value="">{this.question.optionsCaption}</option>) : null }
+          { this.question.visibleChoices.map((item, i) => <SurveyQuestionOptionItem key={"item" + i} item={item}/>) }
         </select>
       </div>
     );

@@ -2,25 +2,17 @@
   <div
     role="alert"
     aria-live="polite"
-    v-show="element.hasVisibleErrors"
+    v-if="element.hasVisibleErrors"
     :class="element.cssError"
     :id="element.id + '_errors'"
   >
     <div v-for="(error, index) in element.errors" :key="'error_' + index">
       <span
-        :class="
-          element.cssClasses
-            ? element.cssClasses.error.icon
-            : 'panel-error-icon'
-        "
+        :class="element.cssClasses ? element.cssClasses.error.icon : 'panel-error-icon'"
         aria-hidden="true"
       ></span>
       <span
-        :class="
-          element.cssClasses
-            ? element.cssClasses.error.item
-            : 'panel-error-item'
-        "
+        :class="element.cssClasses ? element.cssClasses.error.item : 'panel-error-item'"
       >
         <survey-string :locString="error.locText" />
       </span>
@@ -30,30 +22,33 @@
 
 <script lang="ts">
 import Vue from "vue";
+import { BaseVue } from "./base";
 import { Component, Prop } from "vue-property-decorator";
-import { SurveyElement, TooltipManager } from "survey-core";
+import { SurveyElement, TooltipManager, Base } from "survey-core";
 
 @Component
-export class Errors extends Vue {
+export class Errors extends BaseVue {
   @Prop() element: SurveyElement;
   @Prop() location: String;
-  private tooltipManager: TooltipManager; 
+  private tooltipManager: TooltipManager;
+  protected getModel(): Base {
+    return this.element;
+  }
   updated() {
     if (this.location == "tooltip" && this.$el instanceof HTMLElement) {
-      if(!this.tooltipManager || this.$el !== this.tooltipManager.tooltipElement) {
+      if (!this.tooltipManager || this.$el !== this.tooltipManager.tooltipElement) {
         this.tooltipManager = new TooltipManager(<HTMLElement>this.$el);
       }
     }
     if (!(this.$el instanceof HTMLElement) && !!this.tooltipManager) {
-      this.tooltipManager.dispose()
+      this.tooltipManager.dispose();
     }
   }
   destroyed() {
     if (!!this.tooltipManager) {
-      this.tooltipManager.dispose()
+      this.tooltipManager.dispose();
     }
   }
-  
 }
 Vue.component("survey-errors", Errors);
 export default Errors;

@@ -16,6 +16,7 @@ export class SurveyQuestionBooleanCheckbox extends SurveyQuestionBoolean {
           <input
             ref={this.checkRef}
             type="checkbox"
+            name={this.question.name}
             value={
               this.question.checkedValue === null
                 ? ""
@@ -52,8 +53,8 @@ export class SurveyQuestionBooleanCheckbox extends SurveyQuestionBoolean {
             <span className="check" />
           </span>
           {this.question.titleLocation === "hidden" && (
-            <span className={cssClasses.label}>
-              {this.question.locDisplayLabel.text}
+            <span className={this.question.getLabelCss(false)}>
+              {this.renderLocString(this.question.locDisplayLabel)}
             </span>
           )}
         </label>

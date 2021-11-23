@@ -125,6 +125,7 @@ export class PopupContainer extends SurveyElementBase<any, any> {
   renderCancelButton() {
     return (
       <button
+        type="button"
         className="sv-popup__footer-item sv-popup__button sv-popup__button--cancel"
         onClick={() => {
           this.model.cancel();
@@ -137,6 +138,7 @@ export class PopupContainer extends SurveyElementBase<any, any> {
   renderApplyButton() {
     return (
       <button
+        type="button"
         className="sv-popup__footer-item sv-popup__button sv-popup__button--apply"
         onClick={() => {
           this.model.apply();
@@ -149,8 +151,8 @@ export class PopupContainer extends SurveyElementBase<any, any> {
   renderFooter() {
     return (
       <div className="sv-popup__footer">
-        { this.renderCancelButton() }
-        { this.model.isModal?this.renderApplyButton():null }
+        {this.renderCancelButton()}
+        {this.model.isModal ? this.renderApplyButton() : null}
       </div>
     );
   }
@@ -185,7 +187,7 @@ export function showModal(
   onCancel?: () => void,
   cssClass?: string,
   title?: string,
-  displayMode: "popup"|"overlay" = "popup"
+  displayMode: "popup" | "overlay" = "popup"
 ) {
   const popupViewModel: PopupBaseViewModel = createPopupModalViewModel(
     componentName,

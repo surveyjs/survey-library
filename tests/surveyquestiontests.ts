@@ -5573,3 +5573,31 @@ QUnit.test("Question title equals to name", (assert) => {
   assert.notOk(question.locTitle.getLocaleText(""), "Question title is empty # 2");
   assert.equal(question.locTitle.renderedHtml, "q1");
 });
+QUnit.test("Checkox item, defaultValue and visibleIf bug, #3634", (assert) => {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        "type": "radiogroup",
+        "name": "question2",
+        "choices": ["item1", "item2"]
+      },
+      {
+        "type": "checkbox",
+        "name": "question1",
+        "defaultValue": ["item2"],
+        "choices": [
+          "item1",
+          {
+            "value": "item2",
+            "visibleIf": "{question2} = 'item1'"
+          },
+          "item3"
+        ]
+      }
+    ]
+  });
+  const question = <QuestionCheckboxModel>survey.getQuestionByName("question1");
+  assert.deepEqual(question.value, [], "default value is not set, because item is invisible");
+  survey.data = { question2: "item1", question1: ["item3"] };
+  assert.deepEqual(question.value, ["item3"], "value from data is set");
+});

@@ -28,7 +28,9 @@
         }"
         class="sv-popup__pointer"
       ></span>
-      <div class="sv-popup__header" v-show="!!this.model.title">{{ this.model.title }}</div>
+      <div class="sv-popup__header" v-show="!!this.model.title">
+        {{ this.model.title }}
+      </div>
       <div class="sv-popup__scrolling-content">
         <div class="sv-popup__content">
           <component
@@ -39,22 +41,28 @@
       </div>
       <div v-if="model.isModal" class="sv-popup__footer">
         <button
+          type="button"
           v-on:click="
             () => {
               model.cancel();
             }
           "
-          class="sv-popup__footer-item sv-popup__button sv-popup__button--cancel"
+          class="
+            sv-popup__footer-item sv-popup__button sv-popup__button--cancel
+          "
         >
           {{ model.cancelButtonText }}
         </button>
         <button
+          type="button"
           v-on:click="
             () => {
               model.apply();
             }
           "
-          class="sv-popup__footer-item sv-popup__button sv-popup__button--cancel"
+          class="
+            sv-popup__footer-item sv-popup__button sv-popup__button--cancel
+          "
         >
           {{ model.applyButtonText }}
         </button>
@@ -65,7 +73,11 @@
 <script lang="ts">
 import Vue from "vue";
 import { Prop, Component } from "vue-property-decorator";
-import { PopupBaseViewModel, createPopupModalViewModel, settings } from "survey-core";
+import {
+  PopupBaseViewModel,
+  createPopupModalViewModel,
+  settings,
+} from "survey-core";
 import { BaseVue } from "../../base";
 @Component
 export class PopupContainer extends BaseVue {

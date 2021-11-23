@@ -84,6 +84,10 @@ export class QuestionCommentModel extends QuestionTextBase {
     }
     super.setNewValue(newValue);
   }
+  public get className() {
+    return (this.cssClasses ? this.getControlClass() : "panel-comment-root") || undefined;
+  }
+
 }
 Serializer.addClass(
   "comment",

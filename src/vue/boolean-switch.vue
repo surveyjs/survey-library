@@ -14,13 +14,11 @@
         :aria-label="question.ariaLabel"
         :aria-invalid="question.ariaInvalid"
         :aria-describedby="question.ariaDescribedBy"
-      />
-      <span
+      /><span
         :class="question.getLabelCss(false)"
         v-on:click="onLabelClick($event, false)"
         ><survey-string :locString="question.locLabelFalse"></survey-string
-      ></span>
-      <div
+      ></span><div
         :class="question.cssClasses.switch"
         v-on:click="onSwitchClick($event)"
       >

@@ -52,15 +52,13 @@ frameworks.forEach(framework => {
   test(`check one line`, async t => {
     const isOneLine = ClientFunction(
       () =>
-        document.querySelectorAll("div > h5:last-of-type")[2].parentNode
-        .parentNode.parentNode.style.flex === "1 1 50%" &&
-        document.querySelectorAll("div > h5:last-of-type")[3].parentNode
-        .parentNode.parentNode.style.flex === "1 1 50%"
+        document.querySelector("div[name='city']").parentNode.style.flex === "1 1 50%" &&
+        document.querySelector("div[name='state']").parentNode.style.flex === "1 1 50%"
     );
     const isCountRight = ClientFunction(
-      () => document.querySelectorAll("div > h5:last-of-type").length === 6
+      () => document.querySelectorAll(".sv_q").length === 6
     );
-
+    await t.debug();
     assert(await isOneLine());
     assert(await isCountRight());
   });

@@ -195,6 +195,10 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
       .append(this.cssClasses.itemSelectAll, options.isSelectAllItem)
       .toString();
   }
+  updateValueFromSurvey(newValue: any): void {
+    super.updateValueFromSurvey(newValue);
+    this.invisibleOldValues = [];
+  }
   protected setNewValue(newValue: any) {
     if (!this.isChangingValueOnClearIncorrect) {
       this.invisibleOldValues = [];

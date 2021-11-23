@@ -188,14 +188,14 @@ export class Question extends SurveyElement
   /**
    * A11Y properties
    */
-  public get ariaRequired(): boolean {
-    return this.isRequired;
+  public get ariaRequired() {
+    return this.isRequired ? "true" : "false";
   }
   public get ariaLabel(): string {
     return this.locTitle.renderedHtml;
   }
-  public get ariaInvalid(): boolean {
-    return this.errors.length > 0;
+  public get ariaInvalid() {
+    return this.errors.length > 0 ? "true" : "false";
   }
   public get ariaDescribedBy(): string {
     return this.errors.length > 0 ? this.id + "_errors" : null;
@@ -821,6 +821,10 @@ export class Question extends SurveyElement
   public set renderWidth(val: string) {
     this.setPropertyValue("renderWidth", val);
   }
+
+  public get renderCssRoot(): string {
+    return this.cssClasses.root || undefined;
+  }
   /**
    * Set it different from 0 to increase the left padding.
    */
@@ -967,6 +971,10 @@ export class Question extends SurveyElement
     if (this.hasOther) this.hasComment = false;
     this.hasOtherChanged();
   }
+  public get isOtherSelected() {
+    const question = this.question;
+    return question.hasOther && question.isOtherSelected;
+  }
   protected hasOtherChanged(): void { }
   public get requireUpdateCommentValue(): boolean {
     return this.hasComment || this.hasOther;
@@ -984,6 +992,12 @@ export class Question extends SurveyElement
   public get isInputReadOnly(): boolean {
     var isDesignModeV2 = settings.supportCreatorV2 && this.isDesignMode;
     return this.isReadOnly || isDesignModeV2;
+  }
+  public get renderedInputReadOnly() {
+    return this.isInputReadOnly ? "" : undefined;
+  }
+  public get renderedInputDisabled() {
+    return this.isInputReadOnly ? "" : undefined;
   }
   protected onReadOnlyChanged(): void {
     this.setPropertyValue("isInputReadOnly", this.isInputReadOnly);
@@ -1243,6 +1257,9 @@ export class Question extends SurveyElement
   public set defaultValueExpression(val: any) {
     this.setPropertyValue("defaultValueExpression", val);
     this.updateValueWithDefaults();
+  }
+  public get resizeStyle() {
+    return this.autoGrowComment ? "none" : "both";
   }
   /**
    * Returns question answer data as a plain object: with question title, name, value and displayValue.

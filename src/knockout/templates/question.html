@@ -1,48 +1,50 @@
 ﻿<script type="text/html" id="survey-question">
-  <!-- ko if: question.isErrorsModeTooltip && !question.hasParent -->
-        <!-- ko template: { name: 'survey-question-errors', data: question } -->
-        <!-- /ko -->
+<!-- ko if: question.isErrorsModeTooltip && !question.hasParent -->
+  <!-- ko template: { name: 'survey-question-errors', data: question } -->
   <!-- /ko -->
-  <div data-bind="css: question.koRootCss(), style: { paddingLeft: question.paddingLeft, paddingRight: question.paddingRight }, attr: { id: question.id, name: question.name, role: question.ariaRole, 'aria-labelledby': question.hasTitle ? question.ariaTitleId : null}">
-      <!-- ko if: question.hasTitleOnLeftTop -->
+<!-- /ko -->
+<div data-bind="css: question.koRootCss(), style: { paddingLeft: question.paddingLeft, paddingRight: question.paddingRight }, attr: { id: question.id, name: question.name, role: question.ariaRole, 'aria-labelledby': question.hasTitle ? question.ariaTitleId : null}">
+  <!-- ko if: question.hasTitleOnLeftTop -->
+    <!--ko template: { name: 'survey-question-title', data: question  } -->
+    <!-- /ko -->
+  <!-- /ko -->
+  <div data-bind="visible: !question.isCollapsed, css: question.cssContent">
+    <!-- ko if: question.errorLocation === 'top' && !question.isErrorsModeTooltip -->
+      <!-- ko template: { name: 'survey-question-errors', data: question } -->
+      <!-- /ko -->
+    <!-- /ko -->
+    <!-- ko if: question.isDefaultRendering() -->
+      <!-- ko template: { name: question.koTemplateName(), data: question, afterRender: question.koQuestionAfterRender } -->
+      <!-- /ko -->
+    <!-- /ko -->
+    <!-- ko ifnot: question.isDefaultRendering() -->
+      <!-- ko component: { name: getComponentName(), params: { question: question } } -->
+      <!-- /ko -->
+    <!-- /ko -->
+    <!-- ko if: question.hasComment -->
+    <div data-bind="css: question.koCss().formGroup">
+      <!-- ko template: { name: 'survey-string', data: question.locCommentText } -->
+      <!-- /ko -->
+      <div data-bind="template: { name: 'survey-comment', data: {'question': question, 'visible': true } }"></div>
+    </div>
+    <!-- /ko -->
+    <!-- ko if: question.errorLocation === 'bottom' && !question.isErrorsModeTooltip -->
+      <!-- ko template: { name: 'survey-question-errors', data: question } -->
+      <!-- /ko -->
+    <!-- /ko -->
+    <!-- ko if: question.isErrorsModeTooltip && question.hasParent -->
+      <!-- ko component: { name: 'sv-tooltip-error', params: {question: question} } -->
+      <!-- /ko -->
+    <!-- /ko -->
+    <!-- ko if: question.hasDescriptionUnderInput -->
+    <div data-bind="css: koCss().descriptionUnderInput">
+      <!-- ko template: { name: 'survey-string', data: locDescription } -->
+      <!-- /ko -->
+    </div>
+    <!-- /ko -->
+    <!-- ko if: question.hasTitleOnBottom -->
       <!--ko template: { name: 'survey-question-title', data: question  } -->
       <!-- /ko -->
-      <!-- /ko -->
-      <div data-bind="visible: !question.isCollapsed, css: question.cssContent">
-          <!-- ko if: question.errorLocation === 'top' && !question.isErrorsModeTooltip -->
-              <!-- ko template: { name: 'survey-question-errors', data: question } -->
-              <!-- /ko -->
-          <!-- /ko -->
-          <!-- ko if: question.isDefaultRendering() -->
-            <!-- ko template: { name: question.koTemplateName(), data: question, afterRender: question.koQuestionAfterRender } -->
-            <!-- /ko -->
-          <!-- /ko -->
-          <!-- ko ifnot: question.isDefaultRendering() -->
-            <!-- ko component: { name: getComponentName(), params: { question: question } } -->
-            <!-- /ko -->
-          <!-- /ko -->
-          <!-- ko if: question.hasComment -->
-          <div data-bind="css: question.koCss().formGroup">
-            <!-- ko template: { name: 'survey-string', data: question.locCommentText } -->
-            <!-- /ko -->
-            <div data-bind="template: { name: 'survey-comment', data: {'question': question, 'visible': true } }"></div>
-          </div>
-          <!-- /ko -->
-          <!-- ko if: question.errorLocation === 'bottom' && !question.isErrorsModeTooltip -->
-              <!-- ko template: { name: 'survey-question-errors', data: question } -->
-              <!-- /ko -->
-          <!-- /ko -->
-          <!-- ko if: question.isErrorsModeTooltip && question.hasParent -->
-            <!-- ko component: { name: "sv-tooltip-error", params: { question: question } } -->
-            <!-- /ko -->
-          <!-- /ko -->
-          <div data-bind="visible: question.hasDescriptionUnderInput, css: koCss().descriptionUnderInput">
-              <!-- ko template: { name: 'survey-string', data: locDescription } --><!-- /ko -->
-          </div>
-      </div>
-      <!-- ko if: question.hasTitleOnBottom -->
-      <!--ko template: { name: 'survey-question-title', data: question  } -->
-      <!-- /ko -->
-      <!-- /ko -->
+    <!-- /ko -->
   </div>
 </script>

@@ -1,5 +1,6 @@
 <template>
   <button
+    type="button"
     :class="item.getActionBarItemActiveCss()"
     v-on:click="
       () => {

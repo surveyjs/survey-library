@@ -86,6 +86,7 @@ export class Helpers {
       }
       return x === y;
     }
+    if(x instanceof Date && y instanceof Date) return x.getTime() == y.getTime();
 
     if (Helpers.isConvertibleToNumber(x) && Helpers.isConvertibleToNumber(y)) {
       if (parseInt(x) === parseInt(y) && parseFloat(x) === parseFloat(y)) {

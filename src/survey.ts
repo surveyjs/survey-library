@@ -6004,7 +6004,12 @@ export class SurveyModel extends SurveyElementCore
     this.setTriggerValue(name, value, false);
   }
   private isFocusingQuestion: boolean;
-  focusQuestion(name: string): boolean {
+  /**
+   * Focus question by its name. If needed change the current page on the page where question is located.
+   * Function returns false if there is no question with this name or question is invisible, otherwise it returns true.
+   * @param name question name
+   */
+  public focusQuestion(name: string): boolean {
     var question = this.getQuestionByName(name, true);
     if (!question || !question.isVisible || !question.page) return false;
     this.isFocusingQuestion = true;

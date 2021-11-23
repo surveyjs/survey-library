@@ -104,7 +104,7 @@ frameworks.forEach(framework => {
       knowledge: "it is not 2016",
       rate: "Good",
       strength: ["Easy", "Powerfull"],
-      experience: "5",
+      experience: 5,
       using: "No"
     });
   });

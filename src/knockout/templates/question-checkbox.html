@@ -28,13 +28,16 @@
           <!-- ko if: item != question.selectAllItem -->
           <input type="checkbox" data-bind="attr: {name: question.name, id: question.getItemId(item), 'aria-required': question.ariaRequired, 'aria-label': question.ariaLabel, 'aria-invalid': question.ariaInvalid, 'aria-describedby': question.ariaDescribedBy }, checkedValue: item.value, checked: question.koValue, enable: question.getItemEnabled(item), css: question.koCss().itemControl"/>
           <!-- /ko -->
-          <span data-bind="css: question.koCss().materialDecorator">
-            <svg viewBox="0 0 24 24" data-bind="css: question.koCss().itemDecorator">
-              <path data-bind="attr: {d: question.checkBoxSvgPath}"/>
-            </svg>
-            <span class="check"></span>
-          </span>
-          <span data-bind="visible: !item.hideCaption, css: question.koCss().controlLabel, attr: { title: item.locText.koRenderedHtml }">
+              <!-- ko if: question.koCss().materialDecorator -->
+              <span data-bind="css: question.koCss().materialDecorator">
+                <!-- ko if: question.itemSvgIcon -->
+                <svg data-bind="css:question.koCss().itemDecorator">
+                  <use data-bind="attr:{'xlink:href':question.itemSvgIcon}" xlink:href=''></use>
+                </svg>
+                <!-- /ko -->
+              </span>
+              <!-- /ko -->
+              <span data-bind="visible: !item.hideCaption, css: question.koCss().controlLabel, attr: { title: item.locText.koRenderedHtml }">
               <!-- ko template: { name: 'survey-string', data: item.locText } -->
               <!-- /ko -->
           </span>

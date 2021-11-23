@@ -1300,7 +1300,7 @@ export class QuestionCheckboxBase extends QuestionSelectBase {
     return this.hasOther && item.value == this.otherItem.value;
   }
   public get itemSvgIcon(): string {
-    return this.survey.getCss().radiogroup.itemSvgIconId;
+    return this.survey.getCss()[this.getType()].itemSvgIconId;
   }
 
   public ariaItemChecked(item: ItemValue) {

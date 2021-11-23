@@ -11,6 +11,7 @@ import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { MatrixDropdownColumn } from "./question_matrixdropdowncolumn";
 import { MatrixDropdownCell, MatrixDropdownRowModelBase, QuestionMatrixDropdownModelBase } from "./question_matrixdropdownbase";
 import { ActionContainer } from "./actions/container";
+import { QuestionMatrixDynamicModel } from "./question_matrixdynamic";
 
 export class QuestionMatrixDropdownRenderedCell {
   private static counter = 1;
@@ -471,20 +472,44 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     }
     return actions;
   }
+  private get showRemoveButtonAsIcon() {
+    return (
+      this.matrix.survey && (<any>this.matrix.survey).css.root === "sd-root-modern"
+    );
+  }
   protected setDefaultRowActions(
     row: MatrixDropdownRowModelBase,
     actions: Array<IAction>
   ) {
+    const matrix = <QuestionMatrixDynamicModel>this.matrix;
     if (this.hasRemoveRows && this.canRemoveRow(row)) {
-      actions.push(
-        new Action({
-          id: "remove-row",
-          location: "end",
-          enabled: !this.matrix.isInputReadOnly,
-          component: "sv-matrix-remove-button",
-          data: { row: row, question: this.matrix },
-        })
-      );
+      if (!this.showRemoveButtonAsIcon) {
+        actions.push(
+          new Action({
+            id: "remove-row",
+            location: "end",
+            enabled: !this.matrix.isInputReadOnly,
+            component: "sv-matrix-remove-button",
+            data: { row: row, question: this.matrix },
+          })
+        );
+      } else {
+        actions.push(
+          new Action({
+            id: "remove-row",
+            iconName: "icon-delete",
+            component: "sv-action-bar-item",
+            location: "end",
+            showTitle: false,
+            title: matrix.removeRowText,
+            enabled: !matrix.isInputReadOnly,
+            data: { row: row, question: matrix },
+            action: () => {
+              matrix.removeRowUI(row);
+            },
+          })
+        );
+      }
     }
 
     if (row.hasPanel) {

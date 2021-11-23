@@ -115,7 +115,7 @@
   // left: 50%;
   // bottom: 50%;
   // transform: translateX(-50%) translateY(100%);
-  height: max-content;
+  height: auto;
   width: auto;
   max-width: 232px;
   background-color: $background;
@@ -130,7 +130,7 @@
   z-index: 1000;
 }
 .sd-question__content:hover:not(:focus-within) > .sd-question__erbox--tooltip {
-  display: inline-block;
+  display: block;
 }
 .sd-question__erbox--location--top,
 .sd-question__erbox--location--bottom {

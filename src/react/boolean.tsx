@@ -49,13 +49,6 @@ export class SurveyQuestionBoolean extends SurveyQuestionElementBase {
     this.control = el;
     super.updateDomElement();
   }
-  private getCheckedLabel() {
-    if (this.question.checkedValue === true) {
-      return this.question.locLabelTrue;
-    } else if (this.question.checkedValue === false) {
-      return this.question.locLabelFalse;
-    }
-  }
   protected renderElement(): JSX.Element {
     const cssClasses = this.question.cssClasses;
     const itemClass: string = this.question.getItemCss();
@@ -91,7 +84,7 @@ export class SurveyQuestionBoolean extends SurveyQuestionElementBase {
             <span className={cssClasses.slider}>
               <span className={cssClasses.sliderText}>
                 {this.question.checkedValue !== null
-                  ? this.renderLocString(this.getCheckedLabel())
+                  ? this.renderLocString(this.question.getCheckedLabel())
                   : null}
               </span>
             </span>

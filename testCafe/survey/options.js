@@ -208,10 +208,7 @@ frameworks.forEach(framework => {
   });
 
   test(`show top progress bar`, async t => {
-    const getProgressBar = Selector(() => document.querySelectorAll("div"), {
-      text: "Page 1 of 3",
-      visibilityCheck: true
-    });
+    const getProgressBar =  Selector("div").withText("Page 1 of 3").with({visibilityCheck: true});
     const isFirstSpanProgress = ClientFunction(
       () =>
         document
@@ -226,10 +223,7 @@ frameworks.forEach(framework => {
   });
 
   test(`show bottom progress bar`, async t => {
-    const getProgressBar = Selector(() => document.querySelectorAll("div"), {
-      text: "Page 1 of 3",
-      visibilityCheck: true
-    });
+    const getProgressBar = Selector("div").withText("Page 1 of 3").with({visibilityCheck: true});
     const isLastSpanProgress = ClientFunction(() => {
       var spans = document.querySelectorAll("span");
       return spans[spans.length - 1].innerHTML.indexOf("Page 1 of 3") !== -1;
@@ -242,8 +236,7 @@ frameworks.forEach(framework => {
   });
 
   test(`check progress bar page 2`, async t => {
-    const getProgressBar = Selector(() => document.querySelectorAll("div"), {
-      text: "Page 2 of 3",
+    const getProgressBar = Selector("div").withText("Page 2 of 3").with({
       visibilityCheck: true
     });
 

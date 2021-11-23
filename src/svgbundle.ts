@@ -1,5 +1,6 @@
 export var SvgBundleViewModel: any;
-if (!!document) {
+
+if (!!(<any>global).document) {
   var svgTemplate = require("html-loader?interpolate!val-loader!./svgbundle.html");
   var templateHolder = document.createElement("div");
   templateHolder.style.display = "none";

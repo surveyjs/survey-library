@@ -54,6 +54,29 @@ QUnit.test("Test boolean labelTrue and labelFalse property", function (assert) {
   );
 });
 
+//https://github.com/surveyjs/survey-library/issues/3653
+QUnit.test("labelTrue/labelFalse with defaultValue", function (assert) {
+  var json = {
+    questions: [
+      {
+        type: "boolean",
+        name: "boo-1",
+        defaultValue: "yes",
+        valueTrue: "yes",
+      },
+    ],
+  };
+  var survey = new SurveyModel(json);
+
+  var booleanQ = <QuestionBooleanModel>survey.getAllQuestions()[0];
+
+  assert.equal(
+    booleanQ.value,
+    "yes",
+    "the value is equal to ValueTrue 'yes'"
+  );
+});
+
 QUnit.test("Test boolean allowClick property", function (assert) {
   var json = {
     questions: [

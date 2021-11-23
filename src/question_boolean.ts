@@ -152,8 +152,8 @@ export class QuestionBooleanModel extends Question {
     return this.valueFalse ? this.valueFalse : false;
   }
   protected setDefaultValue() {
-    if (this.defaultValue == "true") this.setCheckedValue(true);
-    if (this.defaultValue == "false") this.setCheckedValue(false);
+    if (this.defaultValue == "true" || this.defaultValue === this.valueTrue) this.setCheckedValue(true);
+    if (this.defaultValue == "false" || this.defaultValue === this.valueFalse) this.setCheckedValue(false);
     if (this.defaultValue == "indeterminate") this.setCheckedValue(null);
   }
   protected getDisplayValueCore(keysAsText: boolean, value: any): any {

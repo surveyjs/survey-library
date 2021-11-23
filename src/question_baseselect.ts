@@ -1191,7 +1191,7 @@ export class QuestionSelectBase extends Question {
     return new CssClassBuilder()
       .append(this.cssClasses.controlLabel)
       .append(this.cssClasses.controlLabelChecked, this.isItemSelected(item))
-      .toString();
+      .toString() || undefined;
   }
   get columns() {
     var columns = [];
@@ -1301,6 +1301,19 @@ export class QuestionCheckboxBase extends QuestionSelectBase {
   }
   public get hasItemSvgIcon(): boolean {
     return this.survey && this.survey.getCss().root != "sd-root-modern";
+  }
+
+  public ariaItemChecked(item: ItemValue) {
+    return this.renderedValue === item.value ? "true": "false";
+  }
+  public ariaItemLabel(item: ItemValue) {
+    return item.locText.renderedHtml;
+  }
+  public getItemId(item: ItemValue) {
+    return this.inputId + "_" + this.getItemIndex(item);
+  }
+  public get questionName() {
+    return this.name + "_" + this.id;
   }
 }
 Serializer.addClass(

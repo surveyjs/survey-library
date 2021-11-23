@@ -10,11 +10,11 @@
       <input
         type="radio"
         aria-hidden="true"
-        :name="question.name + '_' + question.id"
+        :name="question.questionName"
         :value="item.value"
-        :id="question.inputId + '_' + index"
+        :id="question.getItemId(item)"
         v-model="question.renderedValue"
-        :disabled="question.isInputReadOnly || !item.isEnabled"
+        :disabled="!question.getItemEnabled(item)"
         :class="question.cssClasses.itemControl"
       /><span v-if="question.cssClasses.materialDecorator" :class="question.cssClasses.materialDecorator">
         <svg v-if="question.hasItemSvgIcon" :class="question.cssClasses.itemDecorator" viewBox="-12 -12 24 24">
@@ -22,16 +22,14 @@
         </svg>
       </span><span
         v-if="!hideLabel"
-        :class="getControlLabelClass(item) || undefined"
+        :class="getControlLabelClass(item)"
         :title="item.locText.renderedHtml"
       >
         <survey-string :locString="item.locText" />
       </span>
     </label><survey-other-choice
-      v-show="
-        question.hasOther && question.renderedValue && question.isOtherSelected
-      "
-      v-if="item.value == question.otherItem.value"
+      v-show="question.isOtherSelected"
+      v-if="question.isOtherItem(item)"
       :question="question"
     /></div>
 </template>

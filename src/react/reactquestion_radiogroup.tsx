@@ -141,18 +141,17 @@ export class SurveyQuestionRadioItem extends ReactSurveyElement {
   }
   protected renderElement(): JSX.Element {
     var otherItem =
-      this.isChecked && this.item.value === this.question.otherItem.value
+      this.question.isOtherItem(this.item)
         ? this.renderOther(this.cssClasses)
         : null;
 
-    var id = this.question.inputId + "_" + this.index;
     var itemText = !this.hideCaption
       ? this.renderLocString(this.item.locText, this.textStyle)
       : "";
     var itemClass = this.question.getItemClass(this.item);
     var labelClass = this.question.getLabelClass(this.item);
     var locText: any = this.item.locText;
-    var controlLabelClass = this.question.getControlLabelClass(this.item) || null;
+    var controlLabelClass = this.question.getControlLabelClass(this.item);
 
     return (
       <div
@@ -167,12 +166,12 @@ export class SurveyQuestionRadioItem extends ReactSurveyElement {
           <input
             aria-hidden="true"
             className={this.cssClasses.itemControl}
-            id={id}
+            id={this.question.getItemId(this.item)}
             type="radio"
-            name={this.question.name + "_" + this.question.id}
+            name={this.question.questionName}
             checked={this.isChecked}
             value={this.item.value}
-            disabled={this.isDisplayMode || !this.item.isEnabled}
+            disabled={!this.question.getItemEnabled(this.item)}
             onChange={this.handleOnChange}
           />
           {

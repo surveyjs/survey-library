@@ -37,12 +37,9 @@
       />
       <!-- ko if: question.koCss().materialDecorator -->
       <span data-bind="css: question.koCss().materialDecorator">
-        <!-- ko if: question.hasItemSvgIcon -->
-        <svg
-          data-bind="css:question.koCss().itemDecorator"
-          viewBox="-12 -12 24 24"
-        >
-          <circle r="6" cx="0" cy="0" />
+        <!-- ko if: question.itemSvgIcon -->
+        <svg data-bind="css:question.koCss().itemDecorator">
+          <use data-bind="attr:{'xlink:href':question.itemSvgIcon}" xlink:href=''></use>
         </svg>
         <!-- /ko -->
       </span>

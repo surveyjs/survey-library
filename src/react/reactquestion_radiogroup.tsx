@@ -177,13 +177,12 @@ export class SurveyQuestionRadioItem extends ReactSurveyElement {
           {
             this.cssClasses.materialDecorator ?
               <span className={this.cssClasses.materialDecorator}>
-                { this.question.hasItemSvgIcon ?
+                { this.question.itemSvgIcon ?
                   <svg
                     className={this.cssClasses.itemDecorator}
-                    viewBox="-12 -12 24 24"
                   >
-                    <circle r="6" cx="0" cy="0" />
-                  </svg> :
+                    <use xlinkHref={this.question.itemSvgIcon}></use>
+                  </svg>:
                   null
                 }
               </span> :

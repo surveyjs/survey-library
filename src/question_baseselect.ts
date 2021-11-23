@@ -1299,8 +1299,8 @@ export class QuestionCheckboxBase extends QuestionSelectBase {
   {
     return this.hasOther && item.value == this.otherItem.value;
   }
-  public get hasItemSvgIcon(): boolean {
-    return this.survey && this.survey.getCss().root != "sd-root-modern";
+  public get itemSvgIcon(): string {
+    return this.survey.getCss().radiogroup.itemSvgIconId;
   }
 
   public ariaItemChecked(item: ItemValue) {

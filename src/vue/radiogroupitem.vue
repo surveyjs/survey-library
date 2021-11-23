@@ -17,8 +17,10 @@
         :disabled="!question.getItemEnabled(item)"
         :class="question.cssClasses.itemControl"
       /><span v-if="question.cssClasses.materialDecorator" :class="question.cssClasses.materialDecorator">
-        <svg v-if="question.hasItemSvgIcon" :class="question.cssClasses.itemDecorator" viewBox="-12 -12 24 24">
-          <circle r="6" cx="0" cy="0" />
+        <svg v-if="question.itemSvgIcon" :class="question.cssClasses.itemDecorator">
+          <use
+            :xlink:href="question.itemSvgIcon"
+          ></use>
         </svg>
       </span><span
         v-if="!hideLabel"

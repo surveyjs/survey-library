@@ -43,13 +43,10 @@ module.exports = function(options, packageJson, chunkName) {
   var isProductionBuild = options.buildType === "prod";
 
   function createSVGBundle() {
-    if (fs.existsSync(__dirname, "./" + packageJson.name)) {
-      return;
-    }
     var options = {
       fileName: path.resolve(
-        __dirname,
-        "./" + packageJson.name + "/svgbundle.html"
+        path.join("./src"),
+        "./svgbundle.html"
       ),
       template: path.resolve(__dirname, "./svgbundle.pug"),
       svgoOptions: {

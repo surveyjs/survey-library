@@ -125,6 +125,7 @@ export var defaultV2Css = {
     labelChecked: "",
     itemControl: "sd-visuallyhidden sd-item__control sd-checkbox__control",
     itemDecorator: "sd-item__svg sd-checkbox__svg",
+    itemSvgIconId: "#icon-v2check",
     controlLabel: "sd-item__control-label",
     materialDecorator: "sd-item__decorator sd-checkbox__decorator",
     other: "sd-input sd-comment sd-selectbase__other",

@@ -136,6 +136,7 @@ export var modernCss = {
     labelChecked: "",
     itemControl: "sv-visuallyhidden sv-item__control",
     itemDecorator: "sv-item__svg sv-checkbox__svg",
+    itemSvgIconId: "#icon-moderncheck",
     controlLabel: "sv-item__control-label",
     materialDecorator: "sv-item__decorator sv-selectbase__decorator sv-checkbox__decorator",
     other: "sv-comment sv-question__other",

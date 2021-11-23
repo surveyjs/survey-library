@@ -27,15 +27,13 @@
         :aria-invalid="question.ariaInvalid"
         :aria-describedby="question.ariaDescribedBy"
         :class="question.cssClasses.itemControl"
-      />
-      <span v-if="question.cssClasses.materialDecorator" :class="question.cssClasses.materialDecorator">
+      /><span v-if="question.cssClasses.materialDecorator" :class="question.cssClasses.materialDecorator">
         <svg v-if="question.itemSvgIcon" :class="question.cssClasses.itemDecorator">
           <use
             :xlink:href="question.itemSvgIcon"
           ></use>
         </svg>
-      </span>
-      <span
+      </span><span
         v-if="!hideLabel"
         :class="question.cssClasses.controlLabel"
         :title="item.locText.renderedHtml"

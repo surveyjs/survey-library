@@ -1,6 +1,7 @@
 import { QuestionRadiogroupModel } from "../src/question_radiogroup";
 import { DragDropSurveyElements } from "../src/dragdrop/survey-elements";
 import { DragDropChoices } from "../src/dragdrop/choices";
+import { DragDropRankingChoices } from "../src/dragdrop/ranking-choices";
 import { SurveyModel } from "../src/survey";
 import { ItemValue } from "../src/itemvalue";
 import { Question } from "../src/question";
@@ -295,4 +296,20 @@ QUnit.test("allowDropHere", function (assert) {
   ddHelper["drop"]();
   assert.equal(beforeCount, 0);
   assert.equal(afterCount, 0);
+});
+
+QUnit.test("DragDropRankingChoices shortcutClass getter", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "ranking",
+        name: "q",
+        choices: ["item1", "item2", "item3"],
+      },
+    ],
+  });
+  let dndRanking: any = new DragDropRankingChoices(null);
+  dndRanking.parentElement = survey.getQuestionByName("q");
+
+  assert.equal(dndRanking.shortcutClass, "sv-ranking");
 });

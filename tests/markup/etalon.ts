@@ -204,6 +204,59 @@ export var markupTests = [
   },
   // #endregion
 
+  // #region Comment question
+  {
+    name: "Test Comment question markup",
+    json: {
+      questions: [
+        {
+          name: "name",
+          type: "comment",
+          title: "Question title",
+          placeHolder: "placeholder text",
+          titleLocation: "hidden"
+        }
+      ]
+    },
+    etalon: "<textarea aria-invalid=\"false\" aria-label=\"Question title\" aria-required=\"false\" cols=\"50\" placeholder=\"placeholder text\" rows=\"4\" style=\"resize: both;\"></textarea>"
+  },
+  {
+    name: "Test Comment question Read-only markup",
+    json: {
+      mode: "display",
+      questions: [
+        {
+          name: "name",
+          type: "comment",
+          title: "Question title",
+          placeHolder: "placeholder text",
+          titleLocation: "hidden"
+        }
+      ]
+    },
+    etalon: "<textarea aria-invalid=\"false\" aria-label=\"Question title\" aria-required=\"false\" cols=\"50\" disabled=\"\" readonly=\"\" rows=\"4\" style=\"resize: both;\"></textarea>"
+  },
+  {
+    name: "Test Comment question Read-only DIV markup",
+    json: {
+      mode: "display",
+      questions: [
+        {
+          name: "name",
+          type: "comment",
+          title: "Question title",
+          placeHolder: "placeholder text",
+          defaultValue: "val",
+          titleLocation: "hidden"
+        }
+      ]
+    },
+    before: () => settings.readOnlyCommentRenderMode = "div",
+    after: () => settings.readOnlyCommentRenderMode = "textarea",
+    etalon: "<div>val</div>"
+  },
+  // #endregion Comment question
+
   // #region Dropdown Question
   {
     name: "Test Dropdown question markup",

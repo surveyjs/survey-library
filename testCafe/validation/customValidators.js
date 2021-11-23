@@ -76,13 +76,11 @@ frameworks.forEach(framework => {
   );
 
   test(`check validation`, async t => {
-    const getError1Div = Selector(() => document.querySelectorAll("div"), {
-      text: "Response required.",
+    const getError1Div = Selector("div").withText("Response required.").with({
       visibilityCheck: true,
       timeout: 1000
     });
-    const getError2Div = Selector(() => document.querySelectorAll("div"), {
-      text: "You text should contains 'survey' word.",
+    const getError2Div = Selector("div").withText("You text should contains 'survey' word.").with({
       visibilityCheck: true,
       timeout: 1000
     });

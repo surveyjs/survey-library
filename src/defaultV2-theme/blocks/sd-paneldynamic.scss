@@ -79,11 +79,11 @@
     display: flex;
     align-items: center;
     margin-left: auto;
-    gap: 24px;
 }
 .sd-paneldynamic__progress-text {
     display: none;
     color: $foreground-light;
+    margin: 0 calcSize(3);
 }
 .sd-paneldynamic__progress--bottom {
     display: none;

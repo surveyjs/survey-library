@@ -480,6 +480,11 @@ QUnit.test("Text Processing and parent panel variable", function(assert) {
                 name: "childPanel_q1",
                 title: "{parentPanel.q2}",
               },
+              {
+                type: "text",
+                name: "childPanel_q2",
+                title: "{parentpanel.q2}",
+              },
             ],
           },
         ],
@@ -495,6 +500,7 @@ QUnit.test("Text Processing and parent panel variable", function(assert) {
     rootPanel.panels[0].getQuestionByName("childPanel")
   );
   var childPanel_q1 = childPanel.panels[0].getQuestionByName("childPanel_q1");
+  var childPanel_q2 = childPanel.panels[0].getQuestionByName("childPanel_q2");
   q2.value = "q2-title";
   assert.equal(
     q1.locTitle.renderedHtml,
@@ -505,6 +511,11 @@ QUnit.test("Text Processing and parent panel variable", function(assert) {
     childPanel_q1.locTitle.renderedHtml,
     "q2-title",
     "child processed text correctly"
+  );
+  assert.equal(
+    childPanel_q2.locTitle.renderedHtml,
+    "q2-title",
+    "child processed text correctly, lowcase"
   );
 });
 

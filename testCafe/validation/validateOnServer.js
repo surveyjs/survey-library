@@ -43,13 +43,10 @@ frameworks.forEach(framework => {
     }
   );
 
-  test(`check validation`, async t => {
-    const getErrorSpan = Selector(() => document.querySelectorAll("div"), {
-      text:
-        "The country name 'wombatland' is not in this list: http://services.groupkt.com/country/get/all",
-      visibilityCheck: true,
-      timeout: 1000
-    });
+  test(`check validation`, async (t) => {
+    const getErrorSpan = Selector("div")
+      .withText("The country name 'wombatland' is not in this list: http://services.groupkt.com/country/get/all")
+      .with({ timeout: 1000, visibilityCheck: true });
     let surveyResult;
 
     await t

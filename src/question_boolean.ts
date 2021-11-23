@@ -152,8 +152,8 @@ export class QuestionBooleanModel extends Question {
     return this.valueFalse ? this.valueFalse : false;
   }
   protected setDefaultValue() {
-    if (this.defaultValue == "true") this.setCheckedValue(true);
-    if (this.defaultValue == "false") this.setCheckedValue(false);
+    if (this.defaultValue == "true" || this.defaultValue === this.valueTrue) this.setCheckedValue(true);
+    if (this.defaultValue == "false" || this.defaultValue === this.valueFalse) this.setCheckedValue(false);
     if (this.defaultValue == "indeterminate") this.setCheckedValue(null);
   }
   protected getDisplayValueCore(keysAsText: boolean, value: any): any {
@@ -180,6 +180,14 @@ export class QuestionBooleanModel extends Question {
 
   public get allowClick(): boolean {
     return this.isIndeterminate && !this.isInputReadOnly;
+  }
+
+  public getCheckedLabel(): LocalizableString {
+    if (this.checkedValue === true) {
+      return this.locLabelTrue;
+    } else if (this.checkedValue === false) {
+      return this.locLabelFalse;
+    }
   }
 
   /* #region web-based methods */

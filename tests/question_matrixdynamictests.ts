@@ -3441,11 +3441,8 @@ QUnit.test("matrix dropdown + renderedTable + totals", function (assert) {
     "total, it is expression"
   );
   assert.equal(cells[2].hasTitle, false, "total, not title");
-  assert.equal(
-    cells[2].question.getType(),
-    "expression",
-    "total, it is expression"
-  );
+  assert.equal(cells[2].question.getType(), "expression", "total, it is expression");
+  assert.equal(cells[2].minWidth, "100px", "total, set minWidth");
 
   matrix.columnLayout = "vertical";
   var rows = matrix.renderedTable.rows;

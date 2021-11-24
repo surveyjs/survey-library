@@ -79,7 +79,7 @@ frameworks.forEach(framework => {
     assert.notEqual(await getProgressTextPosition(3), -1);
     await t.click(`input[type=radio]`);
     surveyResult = await getSurveyResult();
-    assert.deepEqual(surveyResult, {
+    await t.expect(surveyResult).eql({
       civilwar: "1750-1800",
       libertyordeath: "John Hancock",
       magnacarta: "The foundation of the British parliamentary system"

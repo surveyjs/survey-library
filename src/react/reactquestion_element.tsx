@@ -215,7 +215,7 @@ export class SurveyQuestionElementBase extends SurveyElementBase<any, any> {
     const props: any = this.props;
     return (
       props.isDisplayMode ||
-      (!!this.questionBase && this.questionBase.isInputReadOnly)
+      (!!this.questionBase && this.questionBase.isInputReadOnly) || false
     );
   }
   protected wrapCell(

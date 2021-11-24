@@ -1,6 +1,5 @@
 import { frameworks, url, initSurvey, getSurveyResult } from "../helper";
 import { Selector, ClientFunction } from "testcafe";
-const assert = require("assert");
 const title = `validateOnEvent`;
 const setupSurvey = ClientFunction(() => {
   function isNumber(n) {
@@ -101,10 +100,10 @@ frameworks.forEach(framework => {
       .click(`input[value="Complete"]`);
 
     surveyResult = await getSurveyResult();
-    assert.deepEqual(surveyResult, {
+    await t.expect(surveyResult).eql({
       pricelimit: {
-        leastamount: "10",
-        mostamount: "10000"
+        leastamount: '10',
+        mostamount: '10000'
       },
       firstcomputer: "012345678901234567890123456789computer0123456789"
     });

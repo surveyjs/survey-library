@@ -1,6 +1,5 @@
 import { frameworks, url, initSurvey, getSurveyResult } from "../helper";
 import { Selector, ClientFunction } from "testcafe";
-const assert = require("assert");
 const title = `ShowPreview`;
 
 const json = {
@@ -47,7 +46,7 @@ frameworks.forEach((framework) => {
       .click(`input[value=Preview]`)
       .click(`input[value=Complete]`);
     const surveyResult = await getSurveyResult();
-    assert.deepEqual(surveyResult, {
+    await t.expect(surveyResult).eql({
       q2: "2",
       q3: "val3",
       q4: "4",
@@ -66,7 +65,7 @@ frameworks.forEach((framework) => {
       .click(`input[value=Preview]`)
       .click(`input[value=Complete]`);
     const surveyResult = await getSurveyResult();
-    assert.deepEqual(surveyResult, {
+    await t.expect(surveyResult).eql({
       q2: "2",
       q3: "val3",
       q4: "4",

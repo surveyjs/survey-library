@@ -68,11 +68,11 @@ frameworks.forEach((framework) => {
     await t.click(`input[value=Complete]`);
 
     let surveyResult = await getSurveyResult();
-    assert.deepEqual(surveyResult.question1.Excited, {
+    await t.expect(surveyResult.question1.Excited).eql( {
       col1: "Strongly disagree",
       comment: "Some comment",
     });
-    assert.deepEqual(surveyResult.question1["Emotionally safe"], {
+    await t.expect(surveyResult.question1["Emotionally safe"]).eql( {
       col1: "Strongly agree",
     });
   });

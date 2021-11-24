@@ -1,6 +1,5 @@
 import { frameworks, url, setOptions, initSurvey } from "../helper";
-import { ClientFunction } from "testcafe";
-const assert = require("assert");
+import { ClientFunction, Selector } from "testcafe";
 const title = `html`;
 
 const json = {
@@ -38,18 +37,13 @@ frameworks.forEach(framework => {
         )
     );
 
-    assert(await getImageExistance());
-    assert(await getBoldExistance());
-    assert(await getLinkExistance());
+    await t.expect(await getImageExistance()).ok();
+    await t.expect(await getBoldExistance()).ok();
+    await t.expect(await getLinkExistance()).ok();
   });
 
   test(`change html`, async t => {
-    const getPosition = ClientFunction(() =>
-      document.documentElement.innerHTML.indexOf("Wombat")
-    );
-
     await setOptions("info", { html: "<h1>Wombat</h1>" });
-
-    assert.notEqual(await getPosition(), -1);
+    await t.expect(Selector("h1").withText("Wombat").visible).ok()
   });
 });

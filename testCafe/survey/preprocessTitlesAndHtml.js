@@ -1,6 +1,5 @@
 import { frameworks, url, initSurvey } from "../helper";
 import { Selector, ClientFunction } from "testcafe";
-const assert = require("assert");
 const title = `preprocessTitlesAndHtml`;
 
 const json = {
@@ -64,12 +63,8 @@ frameworks.forEach(framework => {
       visibilityCheck: true,
       timeout: 1000
     });
-    const getcompletedHtml = ClientFunction(() =>
-      document.documentElement.innerHTML.indexOf(
-        "<p></p><h4>Thank you for sharing this information with us.</h4><p></p><p>Your name is: <b>wombat</b></p>" +
-          "<p>Your email is: <b>wombat@mail.mail</b></p><p>This is what is on your mind:</p><p>fresh grasses</p>"
-      )
-    );
+    const getcompletedHtml = "Thank you for sharing this information with us.Your name is: wombatYour email is: wombat@mail.mailThis is what is on your mind:fresh grasses";
+
     const getFirstInput = Selector(
       () => document.querySelectorAll(".sv_q_text_root")[0]
     );
@@ -87,8 +82,7 @@ frameworks.forEach(framework => {
     await t
       .hover(getThirdTitle)
       .typeText(`textarea`, `fresh grasses`)
-      .click(`input[value="Complete"]`);
-
-    assert.notEqual(await getcompletedHtml(), -1);
+      .click(`input[value="Complete"]`)
+      .expect(Selector(".sv_completed_page").textContent).eql(getcompletedHtml);
   });
 });

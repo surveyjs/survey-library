@@ -22,7 +22,7 @@ frameworks.forEach(framework => {
       .click(`input[value="Complete"]`);
 
     surveyResult = await getSurveyResult();
-    assert.deepEqual(surveyResult, {
+    await t.expect(surveyResult).eql({
       langs: ["Javascript", "VimL"]
     });
   });

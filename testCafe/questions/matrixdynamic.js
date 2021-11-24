@@ -107,34 +107,32 @@ frameworks.forEach((framework) => {
   );
 
   test(`choose empty`, async (t) => {
-    const getPosition = ClientFunction(() =>
-      document.documentElement.innerHTML.indexOf("Response required.")
-    );
-    const matrixCellSelector = function (strings, ...values) {
-      return `tbody > tr:nth-child(${values[0]}) > td:nth-child(${values[1]})`;
-    };
-
-    await t.click(`input[value=Complete]`);
-
-    const positionOld = await getPosition();
-    assert.notEqual(positionOld, -1);
-
-    let surveyResult = await getSurveyResult();
-    assert.equal(typeof surveyResult, `undefined`);
+    const matrixRow = Selector(".sv_matrix_row");
+    const getRequiredElement = (rowIndex) => {
+      return matrixRow.nth(rowIndex).find(".sv-string-viewer").withText("Response required.");
+    }
 
     await t
-      .click(`${matrixCellSelector`${1}${1}`} select`)
-      .click(
-        `${matrixCellSelector`${1}${1}`} select option[value="Science: Physical Science"]`
-      )
-      .click(`input[value=Complete]`);
+      .expect(getRequiredElement(0).exists).notOk()
+      .expect(getRequiredElement(1).exists).notOk()
 
-    const position = await getPosition();
-    assert.notEqual(position, -1);
-    assert.notEqual(position, positionOld);
+      .click(`input[value=Complete]`)
+      .expect(getRequiredElement(0).visible).ok()
+      .expect(getRequiredElement(1).visible).ok();
+
+    let surveyResult = await getSurveyResult();
+    await t.expect(typeof surveyResult).eql(`undefined`);
+
+    await t
+      .click(matrixRow.nth(0).find("select"))
+      .click(matrixRow.nth(0).find("select option[value=\"Science: Physical Science\"]"))
+
+      .click(`input[value=Complete]`)
+      .expect(getRequiredElement(0).exists).notOk()
+      .expect(getRequiredElement(1).visible).ok();
 
     surveyResult = await getSurveyResult();
-    assert.equal(typeof surveyResult, `undefined`);
+    await t.expect(typeof surveyResult).eql(`undefined`);
   });
 
   test(`choose several values`, async (t) => {
@@ -163,40 +161,40 @@ frameworks.forEach((framework) => {
     await t.click(`input[value=Complete]`);
 
     const surveyResult = await getSurveyResult();
-    assert.deepEqual(surveyResult, {
+    await t.expect(surveyResult).eql({
       teachersRate: [
         {
           frusturation: "Wombats",
           likeTheBest: "Wombats",
           improvements: "Wombats",
-          explains: "1",
-          interesting: "1",
-          effective: "1",
-          knowledge: "1",
-          recognition: "1",
-          inform: "1",
-          opinion: "1",
-          respect: "1",
-          cooperation: "1",
-          parents: "1",
-          selfthinking: "1",
+          explains: 1,
+          interesting: 1,
+          effective: 1,
+          knowledge: 1,
+          recognition: 1,
+          inform: 1,
+          opinion: 1,
+          respect: 1,
+          cooperation: 1,
+          parents: 1,
+          selfthinking: 1,
           subject: "Science: Physical Science",
         },
         {
           frusturation: "Wombats",
           likeTheBest: "Wombats",
           improvements: "Wombats",
-          explains: "1",
-          interesting: "1",
-          effective: "1",
-          knowledge: "1",
-          recognition: "1",
-          inform: "1",
-          opinion: "1",
-          respect: "1",
-          cooperation: "1",
-          parents: "1",
-          selfthinking: "1",
+          explains: 1,
+          interesting: 1,
+          effective: 1,
+          knowledge: 1,
+          recognition: 1,
+          inform: 1,
+          opinion: 1,
+          respect: 1,
+          cooperation: 1,
+          parents: 1,
+          selfthinking: 1,
           subject: "Science: Physical Science",
         }
       ]

@@ -1,5 +1,5 @@
-import { frameworks, url, initSurvey, getSurveyResult } from "../helper";
-import { ClientFunction } from "testcafe";
+import { frameworks, url, initSurvey, getSurveyResult, checkSurveyWithEmptyQuestion } from "../helper";
+import { ClientFunction, Selector } from "testcafe";
 const assert = require("assert");
 const title = `dropdownRestful`;
 
@@ -35,19 +35,7 @@ frameworks.forEach(framework => {
   );
 
   test(`choose empty`, async t => {
-    const getPosition = ClientFunction(() =>
-      document.documentElement.innerHTML.indexOf("Response required.")
-    );
-    let position;
-    let surveyResult;
-
-    await t.wait(1000).click(`input[value=Complete]`);
-
-    position = await getPosition();
-    assert.notEqual(position, -1);
-
-    surveyResult = await getSurveyResult();
-    assert.equal(typeof surveyResult, `undefined`);
+    await checkSurveyWithEmptyQuestion(t);
   });
 
   test(`choose value`, async t => {
@@ -64,24 +52,20 @@ frameworks.forEach(framework => {
   });
 
   test(`change "value" in the returned json`, async t => {
-    const getPosition = ClientFunction(() =>
-      document.documentElement.innerHTML.indexOf("Cuba")
-    );
-    let position;
-    let surveyResult;
-
-    await t.wait(1000);
+    await t
+      .wait(1000)
+      .expect(Selector(".sv_row select option[value=\"Cuba\"]").exists).ok()
+      .expect(Selector(".sv_row select option[value=\"CU\"]").exists).notOk();
     await changeValue();
 
-    position = await getPosition();
-    assert.notEqual(position, -1);
-
     await t
+      .expect(Selector(".sv_row select option[value=\"Cuba\"]").exists).notOk()
+      .expect(Selector(".sv_row select option[value=\"CU\"]").exists).ok()
       .click(`select`)
-      .click(`option[value=CU]`)
+      .click(Selector(`option`).withText("Cuba"))
       .click(`input[value=Complete]`);
 
-    surveyResult = await getSurveyResult();
-    assert.equal(surveyResult.country, "CU");
+    const surveyResult = await getSurveyResult();
+    await t.expect(surveyResult.country).eql("CU");
   });
 });

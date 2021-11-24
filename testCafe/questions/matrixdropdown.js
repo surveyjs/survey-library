@@ -60,7 +60,7 @@ frameworks.forEach(framework => {
 
   test(`choose several values`, async t => {
     let surveyResult;
-    const baseSelectorFunc = function(strings, ...values) {
+    const baseSelectorFunc = function (strings, ...values) {
       return `tbody > tr:nth-child(${values[0]}) > td:nth-child(${values[1]})`;
     };
 
@@ -92,19 +92,19 @@ frameworks.forEach(framework => {
 
     surveyResult = await getSurveyResult();
 
-    assert.deepEqual(surveyResult.frameworksRate.angularv1, {
+    await t.expect(surveyResult.frameworksRate.angularv1).eql({
       using: "Yes",
       knowledge: "why hello world so hard",
       rate: "Excelent",
       strength: ["Fast"],
-      experience: "2"
+      experience: 2
     });
 
-    assert.deepEqual(surveyResult.frameworksRate.knockoutjs, {
+    await t.expect(surveyResult.frameworksRate.knockoutjs).eql({
       knowledge: "it is not 2016",
       rate: "Good",
       strength: ["Easy", "Powerfull"],
-      experience: "5",
+      experience: 5,
       using: "No"
     });
   });

@@ -106,10 +106,10 @@ frameworks.forEach(framework => {
       .click(`input[value="Complete"]`);
 
     surveyResult = await getSurveyResult();
-    assert.deepEqual(surveyResult, {
+    await t.expect(surveyResult).eql({
       haveKids: "Yes",
-      kid1Age: "2",
-      kids: "1"
+      kid1Age: 2,
+      kids: 1
     });
   });
 });

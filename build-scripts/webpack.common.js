@@ -22,7 +22,6 @@ var svgStoreUtils = require(path.resolve(
 
 module.exports = function(options, packageJson, chunkName) {
   packageJson.version = packageJsonWithVersion.version;
-
   const today = new Date();
   const year = today.getFullYear();
   var banner = [
@@ -60,7 +59,6 @@ module.exports = function(options, packageJson, chunkName) {
         svgStoreUtils.parseFiles(files, options),
         options.template
       );
-
       fs.writeFileSync(options.fileName, fileContent);
     });
   }

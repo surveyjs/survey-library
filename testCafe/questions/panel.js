@@ -81,24 +81,19 @@ frameworks.forEach((framework) => {
   );
 
   test(`titles and margins`, async (t) => {
-    let surveyResult;
-    const getTitle1 = Selector(() => document.querySelectorAll("div"), {
-      text: "question1",
+    const getTitle1 = Selector("div").withText("question1").with({
       visibilityCheck: true,
       timeout: 1000,
     });
-    const getTitle2 = Selector(() => document.querySelectorAll("div"), {
-      text: "question2",
+    const getTitle2 = Selector("div").withText("question2").with({
       visibilityCheck: true,
       timeout: 1000,
     });
-    const getTitle3 = Selector(() => document.querySelectorAll("div"), {
-      text: "question3",
+    const getTitle3 = Selector("div").withText("question3").with({
       visibilityCheck: true,
       timeout: 1000,
     });
-    const getTitle4 = Selector(() => document.querySelectorAll("div"), {
-      text: "question4",
+    const getTitle4 = Selector("div").withText("question4").with({
       visibilityCheck: true,
       timeout: 1000,
     });

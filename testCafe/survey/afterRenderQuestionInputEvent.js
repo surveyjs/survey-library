@@ -67,7 +67,7 @@ frameworks.forEach(framework => {
 
     await t.click(`input[value="Complete"]`);
     const surveyResult = await getSurveyResult();
-    assert.deepEqual(surveyResult, {
+    await t.expect(surveyResult).eql({
       q1: "123",
       q2: { item1: "234", item2: "345" },
       q3: [{ col1: "456" }]

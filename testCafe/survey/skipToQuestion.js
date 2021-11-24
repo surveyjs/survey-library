@@ -1,5 +1,4 @@
 import { frameworks, url, initSurvey, getSurveyResult, } from "../helper";
-const assert = require("assert");
 const title = `autoNextPage`;
 
 const json = {
@@ -42,7 +41,7 @@ frameworks.forEach((framework) => {
     await t.click(`input[value="item2"]`);
     await t.pressKey("a b c").click(`input[value="Complete"]`);
     surveyResult = await getSurveyResult();
-    assert.deepEqual(surveyResult, {
+    await t.expect(surveyResult).eql({
       q1: "item2",
       q3: "abc",
     });

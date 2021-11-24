@@ -1,5 +1,4 @@
-import { frameworks, url, initSurvey, getSurveyResult, getQuestionValue, getQuestionJson } from "../helper";
-import { ClientFunction } from "testcafe";
+import { frameworks, url, initSurvey, getSurveyResult, getQuestionValue, getQuestionJson, checkSurveyWithEmptyQuestion } from "../helper";
 const assert = require("assert");
 const title = `imagepicker`;
 
@@ -52,19 +51,7 @@ frameworks.forEach(framework => {
   });
 
   test(`choose empty`, async t => {
-    const getPosition = ClientFunction(() =>
-      document.documentElement.innerHTML.indexOf("Response required.")
-    );
-    let position;
-    let surveyResult;
-
-    await t.click(`input[value=Complete]`);
-
-    position = await getPosition();
-    assert.notEqual(position, -1);
-
-    surveyResult = await getSurveyResult();
-    assert.equal(typeof surveyResult, `undefined`);
+    await checkSurveyWithEmptyQuestion(t);
   });
 
   test(`choose value`, async t => {

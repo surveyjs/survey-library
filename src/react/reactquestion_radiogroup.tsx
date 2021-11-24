@@ -31,7 +31,7 @@ export class SurveyQuestionRadiogroup extends SurveyQuestionElementBase {
       );
     }
     return (
-      <fieldset
+      <fieldset role="radiogroup"
         className={cssClasses.root}
         ref={(fieldset) => (this.control = fieldset)}
       >
@@ -164,7 +164,6 @@ export class SurveyQuestionRadioItem extends ReactSurveyElement {
       >
         <label className={labelClass} aria-label={locText.renderedHtml}>
           <input
-            aria-hidden="true"
             className={this.cssClasses.itemControl}
             id={this.question.getItemId(this.item)}
             type="radio"

@@ -1,6 +1,5 @@
 import { frameworks, url, initSurvey, getSurveyResult } from "../helper";
 import { Selector, ClientFunction } from "testcafe";
-const assert = require("assert");
 const title = `validateOnServer`;
 const setupSurvey = ClientFunction(() => {
   window.survey.onServerValidateQuestions.add(function(survey, options) {
@@ -44,13 +43,10 @@ frameworks.forEach(framework => {
     }
   );
 
-  test(`check validation`, async t => {
-    const getErrorSpan = Selector(() => document.querySelectorAll("div"), {
-      text:
-        "The country name 'wombatland' is not in this list: http://services.groupkt.com/country/get/all",
-      visibilityCheck: true,
-      timeout: 1000
-    });
+  test(`check validation`, async (t) => {
+    const getErrorSpan = Selector("div")
+      .withText("The country name 'wombatland' is not in this list: http://services.groupkt.com/country/get/all")
+      .with({ timeout: 1000, visibilityCheck: true });
     let surveyResult;
 
     await t
@@ -61,7 +57,7 @@ frameworks.forEach(framework => {
       .click(`input[value="Complete"]`);
 
     surveyResult = await getSurveyResult();
-    assert.deepEqual(surveyResult, {
+    await t.expect(surveyResult).eql({
       country: "Romania"
     });
   });

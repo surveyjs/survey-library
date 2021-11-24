@@ -1,6 +1,5 @@
 import { frameworks, url, initSurvey } from "../helper";
-import { ClientFunction } from "testcafe";
-const assert = require("assert");
+import { ClientFunction, Selector } from "testcafe";
 const title = `cookie`;
 const deleteCookie = ClientFunction(() => {
   survey.deleteCookie();
@@ -42,22 +41,17 @@ frameworks.forEach(framework => {
   );
 
   test(`check works and delete`, async t => {
-    const getPosition = ClientFunction(() =>
-      document.documentElement.innerHTML.indexOf(
-        "Thank you for completing the survey!"
-      )
-    );
-
-    await t.click(`input[type=checkbox]`).click(`input[value=Complete]`);
-
-    await t.navigateTo(`http://surveyjs.io`).navigateTo(url + framework);
+    await t
+      .click(`input[type=checkbox]`)
+      .click(`input[value=Complete]`)
+      .navigateTo(`http://surveyjs.io`)
+      .navigateTo(url + framework);
     await initSurvey(framework, json);
 
-    assert.notEqual(await getPosition(), -1);
-
+    await t.expect(Selector(".sv_completed_page h3").withText("Thank you for completing the survey!").visible).ok()
     await deleteCookie();
     await t.hover(`input[type=checkbox]`);
 
-    assert.equal(await getPosition(), -1);
+    await t.expect(Selector(".sv_completed_page h3").withText("Thank you for completing the survey!").exist).notOk()
   });
 });

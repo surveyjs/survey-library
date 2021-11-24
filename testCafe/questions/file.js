@@ -34,7 +34,7 @@ frameworks.forEach(framework => {
     await t.click(`input[value=Complete]`);
 
     surveyResult = await getSurveyResult();
-    assert.deepEqual(surveyResult, {
+    await t.expect(surveyResult).eql({
       image: [
         {
           name: "stub.txt",
@@ -105,7 +105,7 @@ frameworks.forEach(framework => {
       .click(`input[value=Complete]`);
 
     surveyResult = await getSurveyResult();
-    assert.deepEqual(surveyResult, {});
+    await t.expect(surveyResult).eql({});
   });
   test(`change preview height width`, async t => {
     const getWidth = ClientFunction(() => document.querySelector("img").width);

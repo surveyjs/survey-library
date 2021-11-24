@@ -1,6 +1,5 @@
 import { frameworks, url, initSurvey, getSurveyResult } from "../helper";
-import { ClientFunction } from "testcafe";
-const assert = require("assert");
+import { ClientFunction, Selector } from "testcafe";
 const title = `workWithData`;
 
 const set_data = ClientFunction(() => {
@@ -13,10 +12,14 @@ const set_data = ClientFunction(() => {
 });
 
 const add_value_changed_listener = ClientFunction(() => {
-  survey.onValueChanged.add(function(sender, options) {
-    document.documentElement.appendChild(
-      document.createTextNode(options.value)
-    );
+  survey.onValueChanged.add(function (sender, options) {
+    let divElement = document.body.getElementsByClassName("new-element")[0];
+    if (!divElement) {
+      divElement = document.createElement("div");
+      divElement.className = "new-element";
+      document.body.appendChild(divElement);
+    }
+    divElement.appendChild(document.createTextNode(options.value));
   });
 });
 
@@ -73,7 +76,7 @@ frameworks.forEach(framework => {
     await t.click(`input[value=Complete]`);
 
     surveyResult = await getSurveyResult();
-    assert.deepEqual(surveyResult, {
+    await t.expect(surveyResult).eql({
       name: "John Doe",
       email: "johndoe@nobody.com",
       car: ["Ford"]
@@ -81,18 +84,18 @@ frameworks.forEach(framework => {
   });
 
   test(`add value changed listener`, async t => {
-    const getPositionName = ClientFunction(() =>
-      document.documentElement.innerHTML.indexOf("John Doe")
-    );
-    const getPositionCar = ClientFunction(() =>
-      document.documentElement.innerHTML.indexOf("None")
-    );
+    const resultElement = Selector(".new-element");
 
     await add_value_changed_listener();
-    await t.typeText(`div input`, `John Doe`).click(`div input[type=checkbox]`);
+    await t
+      .expect(resultElement.exists).notOk()
+      .typeText(`.sv_row input`, `John Doe`)
+      .pressKey("tab")
+      .expect(resultElement.textContent).eql("John Doe")
 
-    assert.notEqual(await getPositionName(), -1);
-    assert.notEqual(await getPositionCar(), -1);
+      .click(`div input[type=checkbox]`)
+      .pressKey("tab")
+      .expect(resultElement.textContent).eql("John DoeNone");
   });
 
   test(`set values`, async t => {
@@ -102,7 +105,7 @@ frameworks.forEach(framework => {
     await t.click(`input[value=Complete]`);
 
     surveyResult = await getSurveyResult();
-    assert.deepEqual(surveyResult, {
+    await t.expect(surveyResult).eql({
       name: "Wombat",
       email: "wo@mbat.com",
       car: ["BMW", "Ford"]
@@ -110,13 +113,9 @@ frameworks.forEach(framework => {
   });
 
   test(`get value`, async t => {
-    const getPositionCar = ClientFunction(() =>
-      document.documentElement.innerHTML.indexOf("BMW")
-    );
-
     await set_values();
     await set_values();
 
-    assert.notEqual(await getPositionCar(), -1);
+    await t.expect(Selector(".sv-string-viewer").withText("BMW").visible).ok();
   });
 });

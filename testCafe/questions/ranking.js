@@ -96,7 +96,7 @@ frameworks.forEach((framework) => {
     await t.dragToElement(PriceItem, BatteryItem);
 
     let data = await getData();
-    assert.deepEqual(data["smartphone-features"], [
+    await t.expect(data["smartphone-features"]).eql([
       "Price",
       "Battery life",
       "Screen size",
@@ -139,7 +139,7 @@ frameworks.forEach((framework) => {
     await t.dragToElement(PriceItem, BatteryLifeItem);
 
     let data = await getData();
-    assert.deepEqual(data["smartphone-features"], [
+    await t.expect(data["smartphone-features"]).eql([
       "Battery life",
       "Price",
       "Screen size",
@@ -154,7 +154,7 @@ frameworks.forEach((framework) => {
     await t.dragToElement(PriceItem, BatteryLifeItem);
 
     data = await getData();
-    assert.deepEqual(data["smartphone-features"], [
+    await t.expect(data["smartphone-features"]).eql([
       "Price",
       "Battery life",
       "Screen size",
@@ -213,23 +213,24 @@ frameworks.forEach((framework) => {
       .click(checkboxToyotaItem);
 
     let data = await getData();
-    assert.deepEqual(typeof data.bestcar, "undefined");
+    await t.expect(typeof data.bestcar).eql("undefined");
 
     await t.hover(rankAudiItem);
     await t.dragToElement(rankAudiItem, rankMercedesBenzItem);
     data = await getData();
-    assert.deepEqual(data.bestcar, ["Mercedes-Benz", "Audi", "Toyota"]);
+
+    await t.expect(data.bestcar).eql(["Mercedes-Benz", "Audi", "Toyota"]);
 
     //TODO click doesn't work after the d&d above without the "click('body')" hack
     await t.click("body");
     await t.click(checkboxMerscedesItem);
 
     data = await getData();
-    assert.deepEqual(data.bestcar, ["Audi", "Toyota"]);
+    await t.expect(data.bestcar).eql(["Audi", "Toyota"]);
 
     await t.click(checkboxMerscedesItem);
     data = await getData();
-    assert.deepEqual(data.bestcar, ["Audi", "Toyota", "Mercedes-Benz"]);
+    await t.expect(data.bestcar).eql(["Audi", "Toyota", "Mercedes-Benz"]);
 
     await t
       .click(checkboxAudiItem)
@@ -237,7 +238,7 @@ frameworks.forEach((framework) => {
       .click(checkboxToyotaItem);
 
     data = await getData();
-    assert.deepEqual(typeof data.bestcar, "undefined");
+    await t.expect(typeof data.bestcar).eql("undefined");
   });
 
   test(`ranking: keyborad`, async (t) => {
@@ -251,7 +252,7 @@ frameworks.forEach((framework) => {
 
     await t.pressKey("tab").pressKey("tab").pressKey('up');
     let data = await getData();
-    assert.deepEqual(data["smartphone-features"], [
+    await t.expect(data["smartphone-features"]).eql([
       "Screen size",
       "Battery life",
       "Storage space",
@@ -263,7 +264,7 @@ frameworks.forEach((framework) => {
 
     await t.pressKey('down');
     data = await getData();
-    assert.deepEqual(data["smartphone-features"], [
+    await t.expect(data["smartphone-features"]).eql([
       "Battery life",
       "Screen size",
       "Storage space",

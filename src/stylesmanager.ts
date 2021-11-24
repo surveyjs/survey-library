@@ -1319,7 +1319,7 @@ export class StylesManager {
     let ThemeCss: any;
 
     if (themeName === "modern") themeSelector = ".sv-root-modern ";
-    if(themeName === "defaultV2") {
+    if (themeName === "defaultV2") {
       surveyCss.currentType = themeName;
       return;
     }
@@ -1334,9 +1334,10 @@ export class StylesManager {
     }
 
     if (StylesManager.Enabled) {
-      let sheet = StylesManager.findSheet(themeName + themeSelector);
+      const styleSheetId = (themeName + themeSelector).trim();
+      let sheet = StylesManager.findSheet(styleSheetId);
       if (!sheet) {
-        sheet = StylesManager.createSheet(themeName + themeSelector);
+        sheet = StylesManager.createSheet(styleSheetId);
         const theme = StylesManager.ThemeColors[themeName] ||
           StylesManager.ThemeColors["default"];
 

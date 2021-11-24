@@ -1345,10 +1345,10 @@ export class StylesManager {
           let cssRuleText = ThemeCss[selector];
           Object.keys(theme).forEach(
             (colorVariableName) =>
-            (cssRuleText = cssRuleText.replace(
-              new RegExp("\\" + colorVariableName, "g"),
-              theme[colorVariableName]
-            ))
+              (cssRuleText = cssRuleText.replace(
+                new RegExp("\\" + colorVariableName, "g"),
+                theme[colorVariableName]
+              ))
           );
           try {
             sheet.insertRule(

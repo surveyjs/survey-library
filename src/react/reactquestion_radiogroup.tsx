@@ -164,7 +164,6 @@ export class SurveyQuestionRadioItem extends ReactSurveyElement {
       >
         <label className={labelClass} aria-label={locText.renderedHtml}>
           <input
-            aria-hidden="true"
             className={this.cssClasses.itemControl}
             id={this.question.getItemId(this.item)}
             type="radio"

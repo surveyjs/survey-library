@@ -36,6 +36,8 @@ export abstract class DragDropCore<T> extends Base {
   private scrollIntervalId: number = null;
   protected allowDropHere = false;
 
+  private libraryOrCreatorRootNode:HTMLElement = null;
+
   constructor(private surveyValue?: ISurvey, private creator?: any) {
     super();
   }
@@ -59,7 +61,10 @@ export abstract class DragDropCore<T> extends Base {
       draggedElementNode,
       event
     );
-    document.body.append(this.draggedElementShortcut);
+    //document.body.append(this.draggedElementShortcut);
+    this.libraryOrCreatorRootNode = this.getLibraryOrCreatorRootNode(event);
+    this.libraryOrCreatorRootNode.appendChild(this.draggedElementShortcut);
+
     this.moveShortcutElement(event);
 
     document.addEventListener("pointermove", this.dragOver);
@@ -151,6 +156,11 @@ export abstract class DragDropCore<T> extends Base {
     dropTarget: any,
     dropTargetNode?: HTMLElement
   ): boolean;
+
+  private getLibraryOrCreatorRootNode(event: PointerEvent): HTMLElement {
+    let currentNode = <HTMLElement>document.elementFromPoint(event.clientX, event.clientY);
+    return currentNode.closest(".svc-creator") || document.body;
+  }
 
   private handlePointerCancel = (event: PointerEvent) => {
     this.clear();
@@ -340,7 +350,7 @@ export abstract class DragDropCore<T> extends Base {
     document.removeEventListener("keydown", this.handleEscapeButton);
     document.removeEventListener("pointerup", this.drop);
     this.draggedElementShortcut.removeEventListener("pointerup", this.drop);
-    document.body.removeChild(this.draggedElementShortcut);
+    this.libraryOrCreatorRootNode.removeChild(this.draggedElementShortcut);
 
     this.doClear();
 
@@ -351,6 +361,7 @@ export abstract class DragDropCore<T> extends Base {
     this.isBottom = null;
     this.parentElement = null;
     this.scrollIntervalId = null;
+    this.libraryOrCreatorRootNode = null;
   };
 
   protected doClear(): void { }

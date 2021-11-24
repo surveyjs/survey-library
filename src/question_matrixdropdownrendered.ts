@@ -373,7 +373,11 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
       if (cell.column.isShowInMultipleColumns) {
         this.createMutlipleColumnsFooter(this.footerRow, cell);
       } else {
-        this.footerRow.cells.push(this.createEditCell(cell));
+        var editCell = this.createEditCell(cell);
+        if(cell.column) {
+          this.setHeaderCellWidth(cell.column, editCell);
+        }
+        this.footerRow.cells.push(editCell);
       }
     }
     if (this.hasActionCellInRows("end")) {

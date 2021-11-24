@@ -937,6 +937,7 @@ export class PanelModelBase extends SurveyElement
     this.onElementVisibilityChanged(this);
   }
   public onFirstRendering() {
+    super.onFirstRendering();
     for (var i = 0; i < this.elements.length; i++) {
       this.elements[i].onFirstRendering();
     }

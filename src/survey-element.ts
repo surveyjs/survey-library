@@ -441,6 +441,12 @@ export class SurveyElement extends SurveyElementCore implements ISurveyElement {
     return !!this.survey ? this.survey.getCss() : {};
   }
   @property() cssClassesValue: any;
+  private ensureCssClassesValue() {
+    if (!this.cssClassesValue) {
+      this.cssClassesValue = this.calcCssClasses(this.css);
+      this.updateElementCssCore(this.cssClassesValue);
+    }
+  }
   /**
    * Returns all css classes that used for rendering the question, panel or page.
    * You can use survey.onUpdateQuestionCssClasses event to override css classes for a question, survey.onUpdatePanelCssClasses event for a panel and survey.onUpdatePageCssClasses for a page.
@@ -450,10 +456,7 @@ export class SurveyElement extends SurveyElementCore implements ISurveyElement {
    */
   public get cssClasses(): any {
     if (!this.survey) return this.calcCssClasses(this.css);
-    if (!this.cssClassesValue) {
-      this.cssClassesValue = this.calcCssClasses(this.css);
-      this.updateElementCssCore(this.cssClassesValue);
-    }
+    this.ensureCssClassesValue();
     return this.cssClassesValue;
   }
   protected calcCssClasses(css: any): any { return undefined; }
@@ -535,7 +538,9 @@ export class SurveyElement extends SurveyElementCore implements ISurveyElement {
   public updateCustomWidgets() { }
 
   public onSurveyLoad() { }
-  public onFirstRendering() { }
+  public onFirstRendering() {
+    this.ensureCssClassesValue();
+  }
   endLoadingFromJson() {
     super.endLoadingFromJson();
     if (!this.survey) {

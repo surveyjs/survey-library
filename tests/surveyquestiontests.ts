@@ -5447,6 +5447,7 @@ QUnit.test("Check isAnswered property", function(assert) {
   });
   const prevStyle = survey.css.question.titleOnAnswer;
   survey.css.question.titleOnAnswer = "answer";
+  survey.currentPage.updateElementCss();
   const q1 = survey.getQuestionByName("q1");
   const q2 = survey.getQuestionByName("q2");
   const q3 = survey.getQuestionByName("q3");

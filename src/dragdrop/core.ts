@@ -350,7 +350,7 @@ export abstract class DragDropCore<T> extends Base {
     document.removeEventListener("keydown", this.handleEscapeButton);
     document.removeEventListener("pointerup", this.drop);
     this.draggedElementShortcut.removeEventListener("pointerup", this.drop);
-    this.libraryOrCreatorRootNode.removeChild(this.draggedElementShortcut);
+    this.libraryOrCreatorRootNode && this.libraryOrCreatorRootNode.removeChild(this.draggedElementShortcut);
 
     this.doClear();
 

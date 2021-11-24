@@ -84,7 +84,7 @@ export class SurveyQuestionBoolean extends SurveyQuestionElementBase {
             <span className={cssClasses.slider}>
               {
                 this.question.isDeterminated && cssClasses.sliderText ?
-                  <span className={cssClasses.sliderText}> this.renderLocString(this.question.getCheckedLabel())</span>
+                  <span className={cssClasses.sliderText}>{ this.renderLocString(this.question.getCheckedLabel()) }</span>
                   : null
               }
             </span>

@@ -1260,6 +1260,13 @@ export class QuestionSelectBase extends Question {
     }
     return item;
   }
+  public ariaItemChecked(item: ItemValue) {
+    return this.renderedValue === item.value ? "true": "false";
+  }
+  public isOtherItem(item: ItemValue)
+  {
+    return this.hasOther && item.value == this.otherItem.value;
+  }
 }
 /**
  * A base class for checkbox and radiogroup questions. It introduced a colCount property.
@@ -1295,17 +1302,10 @@ export class QuestionCheckboxBase extends QuestionSelectBase {
   public getItemEnabled(item: ItemValue) {
     return !this.isInputReadOnly && item.isEnabled;
   }
-  public isOtherItem(item: ItemValue)
-  {
-    return this.hasOther && item.value == this.otherItem.value;
-  }
   public get itemSvgIcon(): string {
     return this.survey.getCss().radiogroup.itemSvgIconId;
   }
 
-  public ariaItemChecked(item: ItemValue) {
-    return this.renderedValue === item.value ? "true": "false";
-  }
   public ariaItemLabel(item: ItemValue) {
     return item.locText.renderedHtml;
   }

@@ -1260,6 +1260,29 @@ export class QuestionSelectBase extends Question {
     }
     return item;
   }
+  public ariaItemChecked(item: ItemValue) {
+    return this.renderedValue === item.value ? "true": "false";
+  }
+  public isOtherItem(item: ItemValue)
+  {
+    return this.hasOther && item.value == this.otherItem.value;
+  }
+  public get itemSvgIcon(): string {
+    return this.survey.getCss().radiogroup.itemSvgIconId;
+  }
+
+  public ariaItemLabel(item: ItemValue) {
+    return item.locText.renderedHtml;
+  }
+  public getItemId(item: ItemValue) {
+    return this.inputId + "_" + this.getItemIndex(item);
+  }
+  public get questionName() {
+    return this.name + "_" + this.id;
+  }
+  public getItemEnabled(item: ItemValue) {
+    return !this.isInputReadOnly && item.isEnabled;
+  }
 }
 /**
  * A base class for checkbox and radiogroup questions. It introduced a colCount property.
@@ -1291,29 +1314,6 @@ export class QuestionCheckboxBase extends QuestionSelectBase {
   }
   protected getSearchableItemValueKeys(keys: Array<string>) {
     keys.push("choices");
-  }
-  public getItemEnabled(item: ItemValue) {
-    return !this.isInputReadOnly && item.isEnabled;
-  }
-  public isOtherItem(item: ItemValue)
-  {
-    return this.hasOther && item.value == this.otherItem.value;
-  }
-  public get itemSvgIcon(): string {
-    return this.survey.getCss().radiogroup.itemSvgIconId;
-  }
-
-  public ariaItemChecked(item: ItemValue) {
-    return this.renderedValue === item.value ? "true": "false";
-  }
-  public ariaItemLabel(item: ItemValue) {
-    return item.locText.renderedHtml;
-  }
-  public getItemId(item: ItemValue) {
-    return this.inputId + "_" + this.getItemIndex(item);
-  }
-  public get questionName() {
-    return this.name + "_" + this.id;
   }
 }
 Serializer.addClass(

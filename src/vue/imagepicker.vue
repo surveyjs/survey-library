@@ -3,8 +3,7 @@
     <legend
       role="radio"
       v-bind:aria-label="question.locTitle.renderedHtml"
-    ></legend>
-    <div
+    ></legend><div
       v-for="(item, index) in question.visibleChoices"
       :key="item.value"
       :class="getItemClass(item)"
@@ -19,7 +18,7 @@
           :id="question.inputId + '_' + item.value"
           v-model="question.value"
           :disabled="question.isInputReadOnly || !item.isEnabled"
-          v-bind:aria-required="question.isRequired"
+          v-bind:aria-required="question.ariaRequired"
           :aria-label="question.ariaLabel"
           :aria-invalid="question.ariaInvalid"
           :aria-describedby="question.ariaDescribedBy"
@@ -34,13 +33,12 @@
           :id="question.inputId + '_' + item.value"
           v-model="question.value"
           :disabled="question.isInputReadOnly || !item.isEnabled"
-          v-bind:aria-required="question.isRequired"
+          v-bind:aria-required="question.ariaRequired"
           :aria-label="question.ariaLabel"
           :aria-invalid="question.ariaInvalid"
           :aria-describedby="question.ariaDescribedBy"
           :class="question.cssClasses.itemControl"
-        />
-        <div>
+        /><div>
           <img
             v-if="question.contentMode === 'image'"
             :class="question.cssClasses.image"
@@ -53,8 +51,7 @@
             "
             v-bind:style="{ objectFit: question.imageFit }"
             :alt="item.text || item.value"
-          />
-          <video controls
+          /><video controls
             v-if="question.contentMode === 'video'"
             :class="question.cssClasses.image"
             :src="item.imageLink"
@@ -65,14 +62,12 @@
               question.imageHeight ? question.imageHeight + 'px' : undefined
             "
             v-bind:style="{ objectFit: question.imageFit }"
-          ></video>
-          <span
+          ></video><span
             v-if="question.showLabel"
             :title="item.text || item.value"
             :class="question.cssClasses.itemText"
-            >{{ item.text || item.value }}</span
-          >
-        </div>
+            ><survey-string :locString="item.locText" /></span
+          ></div>
       </label>
     </div>
   </fieldset>

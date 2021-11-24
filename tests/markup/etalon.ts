@@ -381,7 +381,7 @@ export var markupTests = [
         }
       ]
     },
-    etalon: "<fieldset class=\"sv_qcbc\" role=\"radiogroup\"><div aria-checked=\"false\" aria-invalid=\"false\" aria-required=\"false\" class=\"sv_q_radiogroup sv-q-col-1\" role=\"radio\"><label aria-label=\"item1\" class=\"sv_q_radiogroup_label\"><input aria-hidden=\"true\" class=\"sv_q_radiogroup_control_item\" type=\"radio\" value=\"item1\"><span title=\"item1\"><span class=\"sv-string-viewer\">item1</span></span></label></div><div aria-checked=\"false\" aria-invalid=\"false\" aria-required=\"false\" class=\"sv_q_radiogroup sv-q-col-1\" role=\"radio\"><label aria-label=\"item2\" class=\"sv_q_radiogroup_label\"><input aria-hidden=\"true\" class=\"sv_q_radiogroup_control_item\" type=\"radio\" value=\"item2\"><span title=\"item2\"><span class=\"sv-string-viewer\">item2</span></span></label></div><div aria-checked=\"false\" aria-invalid=\"false\" aria-required=\"false\" class=\"sv_q_radiogroup sv-q-col-1\" role=\"radio\"><label aria-label=\"item3\" class=\"sv_q_radiogroup_label\"><input aria-hidden=\"true\" class=\"sv_q_radiogroup_control_item\" type=\"radio\" value=\"item3\"><span title=\"item3\"><span class=\"sv-string-viewer\">item3</span></span></label></div></fieldset>"
+    etalon: "<fieldset class=\"sv_qcbc\" role=\"radiogroup\"><div aria-checked=\"false\" aria-invalid=\"false\" aria-required=\"false\" class=\"sv_q_radiogroup sv-q-col-1\" role=\"radio\"><label aria-label=\"item1\" class=\"sv_q_radiogroup_label\"><input class=\"sv_q_radiogroup_control_item\" type=\"radio\" value=\"item1\"><span title=\"item1\"><span class=\"sv-string-viewer\">item1</span></span></label></div><div aria-checked=\"false\" aria-invalid=\"false\" aria-required=\"false\" class=\"sv_q_radiogroup sv-q-col-1\" role=\"radio\"><label aria-label=\"item2\" class=\"sv_q_radiogroup_label\"><input class=\"sv_q_radiogroup_control_item\" type=\"radio\" value=\"item2\"><span title=\"item2\"><span class=\"sv-string-viewer\">item2</span></span></label></div><div aria-checked=\"false\" aria-invalid=\"false\" aria-required=\"false\" class=\"sv_q_radiogroup sv-q-col-1\" role=\"radio\"><label aria-label=\"item3\" class=\"sv_q_radiogroup_label\"><input class=\"sv_q_radiogroup_control_item\" type=\"radio\" value=\"item3\"><span title=\"item3\"><span class=\"sv-string-viewer\">item3</span></span></label></div></fieldset>"
   },
   {
     name: "Test radiogroup question markup Other option",
@@ -403,7 +403,7 @@ export var markupTests = [
         }
       ]
     },
-    etalon: "<fieldset class=\"sv_qcbc\" role=\"radiogroup\"><div aria-checked=\"false\" aria-invalid=\"false\" aria-required=\"false\" class=\"sv_q_radiogroup sv-q-col-1\" role=\"radio\"><label aria-label=\"item1\" class=\"sv_q_radiogroup_label\"><input aria-hidden=\"true\" class=\"sv_q_radiogroup_control_item\" type=\"radio\" value=\"item1\"><span title=\"item1\"><span class=\"sv-string-viewer\">item1</span></span></label></div><div aria-checked=\"false\" aria-invalid=\"false\" aria-required=\"false\" class=\"sv_q_radiogroup sv-q-col-1\" role=\"radio\"><label aria-label=\"item2\" class=\"sv_q_radiogroup_label\"><input aria-hidden=\"true\" class=\"sv_q_radiogroup_control_item\" type=\"radio\" value=\"item2\"><span title=\"item2\"><span class=\"sv-string-viewer\">item2</span></span></label></div><div aria-checked=\"false\" aria-invalid=\"false\" aria-required=\"false\" class=\"sv_q_radiogroup sv-q-col-1\" role=\"radio\"><label aria-label=\"item3\" class=\"sv_q_radiogroup_label\"><input aria-hidden=\"true\" class=\"sv_q_radiogroup_control_item\" type=\"radio\" value=\"item3\"><span title=\"item3\"><span class=\"sv-string-viewer\">item3</span></span></label></div><div aria-checked=\"true\" aria-invalid=\"false\" aria-required=\"false\" class=\"sv_q_radiogroup sv-q-col-1 checked\" role=\"radio\"><label aria-label=\"Other (describe)\" class=\"sv_q_radiogroup_label\"><input aria-hidden=\"true\" checked=\"\" class=\"sv_q_radiogroup_control_item\" type=\"radio\" value=\"other\"><span title=\"Other (describe)\"><span class=\"sv-string-viewer\">Other (describe)</span></span></label><div class=\"form-group\"><textarea aria-label=\"Question title\" aria-required=\"false\" class=\"sv_q_other sv_q_radiogroup_other\" placeholder=\"\" style=\"resize: both;\"></textarea></div></div></fieldset>"
+    etalon: "<fieldset class=\"sv_qcbc\" role=\"radiogroup\"><div aria-checked=\"false\" aria-invalid=\"false\" aria-required=\"false\" class=\"sv_q_radiogroup sv-q-col-1\" role=\"radio\"><label aria-label=\"item1\" class=\"sv_q_radiogroup_label\"><input class=\"sv_q_radiogroup_control_item\" type=\"radio\" value=\"item1\"><span title=\"item1\"><span class=\"sv-string-viewer\">item1</span></span></label></div><div aria-checked=\"false\" aria-invalid=\"false\" aria-required=\"false\" class=\"sv_q_radiogroup sv-q-col-1\" role=\"radio\"><label aria-label=\"item2\" class=\"sv_q_radiogroup_label\"><input class=\"sv_q_radiogroup_control_item\" type=\"radio\" value=\"item2\"><span title=\"item2\"><span class=\"sv-string-viewer\">item2</span></span></label></div><div aria-checked=\"false\" aria-invalid=\"false\" aria-required=\"false\" class=\"sv_q_radiogroup sv-q-col-1\" role=\"radio\"><label aria-label=\"item3\" class=\"sv_q_radiogroup_label\"><input class=\"sv_q_radiogroup_control_item\" type=\"radio\" value=\"item3\"><span title=\"item3\"><span class=\"sv-string-viewer\">item3</span></span></label></div><div aria-checked=\"true\" aria-invalid=\"false\" aria-required=\"false\" class=\"sv_q_radiogroup sv-q-col-1 checked\" role=\"radio\"><label aria-label=\"Other (describe)\" class=\"sv_q_radiogroup_label\"><input checked=\"\" class=\"sv_q_radiogroup_control_item\" type=\"radio\" value=\"other\"><span title=\"Other (describe)\"><span class=\"sv-string-viewer\">Other (describe)</span></span></label><div class=\"form-group\"><textarea aria-label=\"Question title\" aria-required=\"false\" class=\"sv_q_other sv_q_radiogroup_other\" placeholder=\"\" style=\"resize: both;\"></textarea></div></div></fieldset>"
   },
   {
     name: "Test radiogroup question markup Read only",
@@ -423,7 +423,7 @@ export var markupTests = [
         }
       ]
     },
-    etalon: "<fieldset class=\"sv_qcbc\" role=\"radiogroup\"><div aria-checked=\"false\" aria-invalid=\"false\" aria-required=\"false\" class=\"sv_q_radiogroup sv-q-col-1\" role=\"radio\"><label aria-label=\"item1\" class=\"sv_q_radiogroup_label\"><input aria-hidden=\"true\" class=\"sv_q_radiogroup_control_item\" disabled=\"\" type=\"radio\" value=\"item1\"><span title=\"item1\"><span class=\"sv-string-viewer\">item1</span></span></label></div><div aria-checked=\"false\" aria-invalid=\"false\" aria-required=\"false\" class=\"sv_q_radiogroup sv-q-col-1\" role=\"radio\"><label aria-label=\"item2\" class=\"sv_q_radiogroup_label\"><input aria-hidden=\"true\" class=\"sv_q_radiogroup_control_item\" disabled=\"\" type=\"radio\" value=\"item2\"><span title=\"item2\"><span class=\"sv-string-viewer\">item2</span></span></label></div><div aria-checked=\"false\" aria-invalid=\"false\" aria-required=\"false\" class=\"sv_q_radiogroup sv-q-col-1\" role=\"radio\"><label aria-label=\"item3\" class=\"sv_q_radiogroup_label\"><input aria-hidden=\"true\" class=\"sv_q_radiogroup_control_item\" disabled=\"\" type=\"radio\" value=\"item3\"><span title=\"item3\"><span class=\"sv-string-viewer\">item3</span></span></label></div></fieldset>"
+    etalon: "<fieldset class=\"sv_qcbc\" role=\"radiogroup\"><div aria-checked=\"false\" aria-invalid=\"false\" aria-required=\"false\" class=\"sv_q_radiogroup sv-q-col-1\" role=\"radio\"><label aria-label=\"item1\" class=\"sv_q_radiogroup_label\"><input class=\"sv_q_radiogroup_control_item\" disabled=\"\" type=\"radio\" value=\"item1\"><span title=\"item1\"><span class=\"sv-string-viewer\">item1</span></span></label></div><div aria-checked=\"false\" aria-invalid=\"false\" aria-required=\"false\" class=\"sv_q_radiogroup sv-q-col-1\" role=\"radio\"><label aria-label=\"item2\" class=\"sv_q_radiogroup_label\"><input class=\"sv_q_radiogroup_control_item\" disabled=\"\" type=\"radio\" value=\"item2\"><span title=\"item2\"><span class=\"sv-string-viewer\">item2</span></span></label></div><div aria-checked=\"false\" aria-invalid=\"false\" aria-required=\"false\" class=\"sv_q_radiogroup sv-q-col-1\" role=\"radio\"><label aria-label=\"item3\" class=\"sv_q_radiogroup_label\"><input class=\"sv_q_radiogroup_control_item\" disabled=\"\" type=\"radio\" value=\"item3\"><span title=\"item3\"><span class=\"sv-string-viewer\">item3</span></span></label></div></fieldset>"
   },
   {
     name: "Test radiogroup question Readonly selected",
@@ -444,7 +444,7 @@ export var markupTests = [
         }
       ]
     },
-    etalon: "<fieldset class=\"sv_qcbc\" role=\"radiogroup\"><div aria-checked=\"true\" aria-invalid=\"false\" aria-required=\"false\" class=\"sv_q_radiogroup sv-q-col-1 checked\" role=\"radio\"><label aria-label=\"item1\" class=\"sv_q_radiogroup_label\"><input aria-hidden=\"true\" checked=\"\" class=\"sv_q_radiogroup_control_item\" disabled=\"\" type=\"radio\" value=\"item1\"><span title=\"item1\"><span class=\"sv-string-viewer\">item1</span></span></label></div><div aria-checked=\"false\" aria-invalid=\"false\" aria-required=\"false\" class=\"sv_q_radiogroup sv-q-col-1\" role=\"radio\"><label aria-label=\"item2\" class=\"sv_q_radiogroup_label\"><input aria-hidden=\"true\" class=\"sv_q_radiogroup_control_item\" disabled=\"\" type=\"radio\" value=\"item2\"><span title=\"item2\"><span class=\"sv-string-viewer\">item2</span></span></label></div><div aria-checked=\"false\" aria-invalid=\"false\" aria-required=\"false\" class=\"sv_q_radiogroup sv-q-col-1\" role=\"radio\"><label aria-label=\"item3\" class=\"sv_q_radiogroup_label\"><input aria-hidden=\"true\" class=\"sv_q_radiogroup_control_item\" disabled=\"\" type=\"radio\" value=\"item3\"><span title=\"item3\"><span class=\"sv-string-viewer\">item3</span></span></label></div></fieldset>"
+    etalon: "<fieldset class=\"sv_qcbc\" role=\"radiogroup\"><div aria-checked=\"true\" aria-invalid=\"false\" aria-required=\"false\" class=\"sv_q_radiogroup sv-q-col-1 checked\" role=\"radio\"><label aria-label=\"item1\" class=\"sv_q_radiogroup_label\"><input checked=\"\" class=\"sv_q_radiogroup_control_item\" disabled=\"\" type=\"radio\" value=\"item1\"><span title=\"item1\"><span class=\"sv-string-viewer\">item1</span></span></label></div><div aria-checked=\"false\" aria-invalid=\"false\" aria-required=\"false\" class=\"sv_q_radiogroup sv-q-col-1\" role=\"radio\"><label aria-label=\"item2\" class=\"sv_q_radiogroup_label\"><input class=\"sv_q_radiogroup_control_item\" disabled=\"\" type=\"radio\" value=\"item2\"><span title=\"item2\"><span class=\"sv-string-viewer\">item2</span></span></label></div><div aria-checked=\"false\" aria-invalid=\"false\" aria-required=\"false\" class=\"sv_q_radiogroup sv-q-col-1\" role=\"radio\"><label aria-label=\"item3\" class=\"sv_q_radiogroup_label\"><input class=\"sv_q_radiogroup_control_item\" disabled=\"\" type=\"radio\" value=\"item3\"><span title=\"item3\"><span class=\"sv-string-viewer\">item3</span></span></label></div></fieldset>"
   },
   {
     name: "Test radiogroup V2 theme",
@@ -464,7 +464,7 @@ export var markupTests = [
     },
     before: () => StylesManager.applyTheme("defaultV2"),
     after: () => StylesManager.applyTheme("default"),
-    etalon: "<fieldset class=\"sd-selectbase\" role=\"radiogroup\"><div aria-checked=\"false\" aria-invalid=\"false\" aria-required=\"false\" class=\"sd-item sd-radio sd-selectbase__item sv-q-col-1 sd-item--allowhover sd-radio--allowhover\" role=\"radio\"><label aria-label=\"item1\" class=\"sd-selectbase__label\"><input aria-hidden=\"true\" class=\"sd-visuallyhidden sd-item__control sd-radio__control\" type=\"radio\" value=\"item1\"><span class=\"sd-item__decorator sd-radio__decorator\"></span><span class=\"sd-item__control-label\" title=\"item1\"><span class=\"sv-string-viewer\">item1</span></span></label></div><div aria-checked=\"false\" aria-invalid=\"false\" aria-required=\"false\" class=\"sd-item sd-radio sd-selectbase__item sv-q-col-1 sd-item--allowhover sd-radio--allowhover\" role=\"radio\"><label aria-label=\"item2\" class=\"sd-selectbase__label\"><input aria-hidden=\"true\" class=\"sd-visuallyhidden sd-item__control sd-radio__control\" type=\"radio\" value=\"item2\"><span class=\"sd-item__decorator sd-radio__decorator\"></span><span class=\"sd-item__control-label\" title=\"item2\"><span class=\"sv-string-viewer\">item2</span></span></label></div></fieldset>"
+    etalon: "<fieldset class=\"sd-selectbase\" role=\"radiogroup\"><div aria-checked=\"false\" aria-invalid=\"false\" aria-required=\"false\" class=\"sd-item sd-radio sd-selectbase__item sv-q-col-1 sd-item--allowhover sd-radio--allowhover\" role=\"radio\"><label aria-label=\"item1\" class=\"sd-selectbase__label\"><input class=\"sd-visuallyhidden sd-item__control sd-radio__control\" type=\"radio\" value=\"item1\"><span class=\"sd-item__decorator sd-radio__decorator\"></span><span class=\"sd-item__control-label\" title=\"item1\"><span class=\"sv-string-viewer\">item1</span></span></label></div><div aria-checked=\"false\" aria-invalid=\"false\" aria-required=\"false\" class=\"sd-item sd-radio sd-selectbase__item sv-q-col-1 sd-item--allowhover sd-radio--allowhover\" role=\"radio\"><label aria-label=\"item2\" class=\"sd-selectbase__label\"><input class=\"sd-visuallyhidden sd-item__control sd-radio__control\" type=\"radio\" value=\"item2\"><span class=\"sd-item__decorator sd-radio__decorator\"></span><span class=\"sd-item__control-label\" title=\"item2\"><span class=\"sv-string-viewer\">item2</span></span></label></div></fieldset>"
   },
   {
     name: "Test radiogroup modern theme",
@@ -484,7 +484,7 @@ export var markupTests = [
     },
     before: () => StylesManager.applyTheme("modern"),
     after: () => StylesManager.applyTheme("default"),
-    etalon: "<fieldset class=\"sv-selectbase\" role=\"radiogroup\"><div aria-checked=\"false\" aria-invalid=\"false\" aria-required=\"false\" class=\"sv-item sv-radio sv-selectbase__item sv-q-col-1 sv-radio--allowhover\" role=\"radio\"><label aria-label=\"item1\" class=\"sv-selectbase__label\"><input aria-hidden=\"true\" class=\"sv-visuallyhidden sv-item__control\" type=\"radio\" value=\"item1\"><span class=\"sv-item__decorator sv-selectbase__decorator sv-radio__decorator\"><svg class=\"sv-item__svg sv-radio__svg\"><use xlink:href=\"#icon-modernradio\"></use></svg></span><span class=\"sv-item__control-label\" title=\"item1\"><span class=\"sv-string-viewer\">item1</span></span></label></div><div aria-checked=\"false\" aria-invalid=\"false\" aria-required=\"false\" class=\"sv-item sv-radio sv-selectbase__item sv-q-col-1 sv-radio--allowhover\" role=\"radio\"><label aria-label=\"item2\" class=\"sv-selectbase__label\"><input aria-hidden=\"true\" class=\"sv-visuallyhidden sv-item__control\" type=\"radio\" value=\"item2\"><span class=\"sv-item__decorator sv-selectbase__decorator sv-radio__decorator\"><svg class=\"sv-item__svg sv-radio__svg\"><use xlink:href=\"#icon-modernradio\"></use></svg></span><span class=\"sv-item__control-label\" title=\"item2\"><span class=\"sv-string-viewer\">item2</span></span></label></div></fieldset>"
+    etalon: "<fieldset class=\"sv-selectbase\" role=\"radiogroup\"><div aria-checked=\"false\" aria-invalid=\"false\" aria-required=\"false\" class=\"sv-item sv-radio sv-selectbase__item sv-q-col-1 sv-radio--allowhover\" role=\"radio\"><label aria-label=\"item1\" class=\"sv-selectbase__label\"><input class=\"sv-visuallyhidden sv-item__control\" type=\"radio\" value=\"item1\"><span class=\"sv-item__decorator sv-selectbase__decorator sv-radio__decorator\"><svg class=\"sv-item__svg sv-radio__svg\"><use xlink:href=\"#icon-modernradio\"></use></svg></span><span class=\"sv-item__control-label\" title=\"item1\"><span class=\"sv-string-viewer\">item1</span></span></label></div><div aria-checked=\"false\" aria-invalid=\"false\" aria-required=\"false\" class=\"sv-item sv-radio sv-selectbase__item sv-q-col-1 sv-radio--allowhover\" role=\"radio\"><label aria-label=\"item2\" class=\"sv-selectbase__label\"><input class=\"sv-visuallyhidden sv-item__control\" type=\"radio\" value=\"item2\"><span class=\"sv-item__decorator sv-selectbase__decorator sv-radio__decorator\"><svg class=\"sv-item__svg sv-radio__svg\"><use xlink:href=\"#icon-modernradio\"></use></svg></span><span class=\"sv-item__control-label\" title=\"item2\"><span class=\"sv-string-viewer\">item2</span></span></label></div></fieldset>"
   },
   {
     name: "Test radiogroup clear button",
@@ -503,7 +503,7 @@ export var markupTests = [
         }
       ]
     },
-    etalon: "<fieldset class=\"sv_qcbc\" role=\"radiogroup\"><div aria-checked=\"false\" aria-invalid=\"false\" aria-required=\"false\" class=\"sv_q_radiogroup sv-q-col-1\" role=\"radio\"><label aria-label=\"item1\" class=\"sv_q_radiogroup_label\"><input aria-hidden=\"true\" class=\"sv_q_radiogroup_control_item\" type=\"radio\" value=\"item1\"><span title=\"item1\"><span class=\"sv-string-viewer\">item1</span></span></label></div><div aria-checked=\"false\" aria-invalid=\"false\" aria-required=\"false\" class=\"sv_q_radiogroup sv-q-col-1\" role=\"radio\"><label aria-label=\"item2\" class=\"sv_q_radiogroup_label\"><input aria-hidden=\"true\" class=\"sv_q_radiogroup_control_item\" type=\"radio\" value=\"item2\"><span title=\"item2\"><span class=\"sv-string-viewer\">item2</span></span></label></div><div><input class=\"sv_q_radiogroup_clear\" type=\"button\" value=\"Clear\"></div></fieldset>"
+    etalon: "<fieldset class=\"sv_qcbc\" role=\"radiogroup\"><div aria-checked=\"false\" aria-invalid=\"false\" aria-required=\"false\" class=\"sv_q_radiogroup sv-q-col-1\" role=\"radio\"><label aria-label=\"item1\" class=\"sv_q_radiogroup_label\"><input class=\"sv_q_radiogroup_control_item\" type=\"radio\" value=\"item1\"><span title=\"item1\"><span class=\"sv-string-viewer\">item1</span></span></label></div><div aria-checked=\"false\" aria-invalid=\"false\" aria-required=\"false\" class=\"sv_q_radiogroup sv-q-col-1\" role=\"radio\"><label aria-label=\"item2\" class=\"sv_q_radiogroup_label\"><input class=\"sv_q_radiogroup_control_item\" type=\"radio\" value=\"item2\"><span title=\"item2\"><span class=\"sv-string-viewer\">item2</span></span></label></div><div><input class=\"sv_q_radiogroup_clear\" type=\"button\" value=\"Clear\"></div></fieldset>"
   },
   {
     name: "Test radiogroup columns",
@@ -523,7 +523,82 @@ export var markupTests = [
         }
       ]
     },
-    etalon: "<fieldset class=\"sv_qcbc\" role=\"radiogroup\"><div class=\"sv_q_select_column sv-q-column-2\"><div aria-checked=\"false\" aria-invalid=\"false\" aria-required=\"false\" class=\"sv_q_radiogroup\" role=\"radio\"><label aria-label=\"item1\" class=\"sv_q_radiogroup_label\"><input aria-hidden=\"true\" class=\"sv_q_radiogroup_control_item\" type=\"radio\" value=\"item1\"><span title=\"item1\"><span class=\"sv-string-viewer\">item1</span></span></label></div></div><div class=\"sv_q_select_column sv-q-column-2\"><div aria-checked=\"false\" aria-invalid=\"false\" aria-required=\"false\" class=\"sv_q_radiogroup\" role=\"radio\"><label aria-label=\"item2\" class=\"sv_q_radiogroup_label\"><input aria-hidden=\"true\" class=\"sv_q_radiogroup_control_item\" type=\"radio\" value=\"item2\"><span title=\"item2\"><span class=\"sv-string-viewer\">item2</span></span></label></div></div><div><input class=\"sv_q_radiogroup_clear\" type=\"button\" value=\"Clear\"></div></fieldset>"
+    etalon: "<fieldset class=\"sv_qcbc\" role=\"radiogroup\"><div class=\"sv_q_select_column sv-q-column-2\"><div aria-checked=\"false\" aria-invalid=\"false\" aria-required=\"false\" class=\"sv_q_radiogroup\" role=\"radio\"><label aria-label=\"item1\" class=\"sv_q_radiogroup_label\"><input class=\"sv_q_radiogroup_control_item\" type=\"radio\" value=\"item1\"><span title=\"item1\"><span class=\"sv-string-viewer\">item1</span></span></label></div></div><div class=\"sv_q_select_column sv-q-column-2\"><div aria-checked=\"false\" aria-invalid=\"false\" aria-required=\"false\" class=\"sv_q_radiogroup\" role=\"radio\"><label aria-label=\"item2\" class=\"sv_q_radiogroup_label\"><input class=\"sv_q_radiogroup_control_item\" type=\"radio\" value=\"item2\"><span title=\"item2\"><span class=\"sv-string-viewer\">item2</span></span></label></div></div><div><input class=\"sv_q_radiogroup_clear\" type=\"button\" value=\"Clear\"></div></fieldset>"
   },
   // #endregion Radiogroup
+
+  // #region Imagepicker Question
+  {
+    name: "Test image picker question markup",
+    json: {
+      questions: [
+        {
+          "type": "imagepicker",
+          "name": "question1",
+          "choices": [
+            {
+              "value": "item1",
+              "imageLink": "item1.jpg"
+            },
+            {
+              "value": "item2",
+              "imageLink": "item2.jpg"
+            }
+          ],
+          titleLocation: "hidden"
+        }
+      ]
+    },
+    etalon: "<fieldset class=\"sv_imgsel\"><legend aria-label=\"question1\" role=\"radio\"></legend><div class=\"sv_q_imgsel sv_q_imagepicker_inline\"><label class=\"sv_q_imgsel_label\"><input aria-invalid=\"false\" aria-label=\"question1\" aria-required=\"false\" class=\"sv_q_imgsel_control_item\" style=\"display: none;\" type=\"radio\" value=\"item1\"><div><img alt=\"item1\" class=\"sv_q_imgsel_image\" height=\"150px\" src=\"item1.jpg\" style=\"object-fit: contain;\" width=\"200px\"></div></label></div><div class=\"sv_q_imgsel sv_q_imagepicker_inline\"><label class=\"sv_q_imgsel_label\"><input aria-invalid=\"false\" aria-label=\"question1\" aria-required=\"false\" class=\"sv_q_imgsel_control_item\" style=\"display: none;\" type=\"radio\" value=\"item2\"><div><img alt=\"item2\" class=\"sv_q_imgsel_image\" height=\"150px\" src=\"item2.jpg\" style=\"object-fit: contain;\" width=\"200px\"></div></label></div></fieldset>"
+  },
+  {
+    name: "Test image picker question VIDEO markup",
+    json: {
+      questions: [
+        {
+          "type": "imagepicker",
+
+          "name": "question1",
+          "choices": [
+            {
+              "value": "item1",
+              "imageLink": "item1.mp4"
+            },
+            {
+              "value": "item2",
+              "imageLink": "item2.mp4"
+            }
+          ],
+          titleLocation: "hidden",
+          contentMode: "video"
+        }
+      ]
+    },
+    etalon: "<fieldset class=\"sv_imgsel\"><legend aria-label=\"question1\" role=\"radio\"></legend><div class=\"sv_q_imgsel sv_q_imagepicker_inline\"><label class=\"sv_q_imgsel_label\"><input aria-invalid=\"false\" aria-label=\"question1\" aria-required=\"false\" class=\"sv_q_imgsel_control_item\" style=\"display: none;\" type=\"radio\" value=\"item1\"><div><video class=\"sv_q_imgsel_image\" controls=\"\" height=\"150px\" src=\"item1.mp4\" style=\"object-fit: contain;\" width=\"200px\"></video><span class=\"sv_q_imgsel_text\" title=\"item1\"><span class=\"sv-string-viewer\">item1</span></span></div></label></div><div class=\"sv_q_imgsel sv_q_imagepicker_inline\"><label class=\"sv_q_imgsel_label\"><input aria-invalid=\"false\" aria-label=\"question1\" aria-required=\"false\" class=\"sv_q_imgsel_control_item\" style=\"display: none;\" type=\"radio\" value=\"item2\"><div><video class=\"sv_q_imgsel_image\" controls=\"\" height=\"150px\" src=\"item2.mp4\" style=\"object-fit: contain;\" width=\"200px\"></video><span class=\"sv_q_imgsel_text\" title=\"item2\"><span class=\"sv-string-viewer\">item2</span></span></div></label></div></fieldset>"
+  },
+  {
+    name: "Test image picker question Labels markup",
+    json: {
+      questions: [
+        {
+          "type": "imagepicker",
+          "name": "question1",
+          "choices": [
+            {
+              "value": "item1",
+              "imageLink": "item1.jpg"
+            },
+            {
+              "value": "item2",
+              "imageLink": "item2.jpg"
+            }
+          ],
+          titleLocation: "hidden",
+          showLabel: true
+        }
+      ]
+    },
+    etalon: "<fieldset class=\"sv_imgsel\"><legend aria-label=\"question1\" role=\"radio\"></legend><div class=\"sv_q_imgsel sv_q_imagepicker_inline\"><label class=\"sv_q_imgsel_label\"><input aria-invalid=\"false\" aria-label=\"question1\" aria-required=\"false\" class=\"sv_q_imgsel_control_item\" style=\"display: none;\" type=\"radio\" value=\"item1\"><div><img alt=\"item1\" class=\"sv_q_imgsel_image\" height=\"150px\" src=\"item1.jpg\" style=\"object-fit: contain;\" width=\"200px\"><span class=\"sv_q_imgsel_text\" title=\"item1\"><span class=\"sv-string-viewer\">item1</span></span></div></label></div><div class=\"sv_q_imgsel sv_q_imagepicker_inline\"><label class=\"sv_q_imgsel_label\"><input aria-invalid=\"false\" aria-label=\"question1\" aria-required=\"false\" class=\"sv_q_imgsel_control_item\" style=\"display: none;\" type=\"radio\" value=\"item2\"><div><img alt=\"item2\" class=\"sv_q_imgsel_image\" height=\"150px\" src=\"item2.jpg\" style=\"object-fit: contain;\" width=\"200px\"><span class=\"sv_q_imgsel_text\" title=\"item2\"><span class=\"sv-string-viewer\">item2</span></span></div></label></div></fieldset>"
+  },
+
 ];

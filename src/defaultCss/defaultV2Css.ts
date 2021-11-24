@@ -162,7 +162,7 @@ export var defaultV2Css = {
     disabledLabel: "sd-checkbox__label--disabled",
     itemDecorator: "sd-checkbox__hidden",
     materialDecorator: "sd-checkbox__rectangle",
-    sliderText: "",
+    sliderText: "sd-boolean__thumb__text",
     slider: "sd-boolean__thumb"
   },
   text: {

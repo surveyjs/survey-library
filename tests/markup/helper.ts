@@ -88,6 +88,8 @@ export function testQuestionMarkup(assert, test, platform) {
       if(all[i].checked) {
         all[i].setAttribute("checked", "");
       }
+      if(all[i].hasAttribute("readonly"))
+        all[i].setAttribute("readonly", "");
     }
     sortAttributes(all);
     var str = options.htmlElement.children[0].innerHTML;

@@ -42,9 +42,6 @@ export class QuestionRadiogroupModel extends QuestionCheckboxBase {
   supportGoNextPageAutomatic() {
     return true;
   }
-  public get ariaRole(): string {
-    return "radiogroup";
-  }
 }
 
 Serializer.addClass(

@@ -12,11 +12,8 @@
       <div data-bind="css: question.koCss().switch, click: onSwitchClick">
         <span data-bind="css: question.koCss().slider">
           <span data-bind="css: question.koCss().sliderText">
-            <!-- ko if: question.checkedValue === false -->
-              <!-- ko template: { name: 'survey-string', data: locLabelFalse } --><!-- /ko -->
-            <!-- /ko -->
-            <!-- ko if: question.checkedValue === true -->
-              <!-- ko template: { name: 'survey-string', data: locLabelTrue } --><!-- /ko -->
+            <!-- ko if: question.checkedValue !== null -->
+              <!-- ko template: { name: 'survey-string', data: question.getCheckedLabel() } --><!-- /ko -->
             <!-- /ko -->
           </span>
         </span>

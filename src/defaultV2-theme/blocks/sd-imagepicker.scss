@@ -1,15 +1,18 @@
-
-
 .sd-imagepicker {
   display: flex;
   flex-wrap: wrap;
-  gap: 16px;
   padding: 0;
   border: none;
+  gap: calcSize(2);
   width: 100%;
   margin: 0;
 }
-.sd-imagepicker__item {
+@supports not (aspect-ratio: 1 / 1 ) {
+  .sd-imagepicker > div {
+    margin-right: calcSize(2);
+  }
+}
+.sd-imagepicker__item {  
   img {
     border-radius: calcSize(0.5);
   }

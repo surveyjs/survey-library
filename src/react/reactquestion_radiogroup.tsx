@@ -31,7 +31,7 @@ export class SurveyQuestionRadiogroup extends SurveyQuestionElementBase {
       );
     }
     return (
-      <fieldset
+      <fieldset role="radiogroup"
         className={cssClasses.root}
         ref={(fieldset) => (this.control = fieldset)}
       >

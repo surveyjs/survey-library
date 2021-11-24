@@ -66,7 +66,7 @@ export class SurveyQuestionRadiogroup extends SurveyQuestionElementBase {
     return items;
   }
   protected get textStyle(): any {
-    return { display: "inline", position: "static" };
+    return null;//{ display: "inline", position: "static" };
   }
   private renderItem(
     item: ItemValue,
@@ -141,11 +141,10 @@ export class SurveyQuestionRadioItem extends ReactSurveyElement {
   }
   protected renderElement(): JSX.Element {
     var otherItem =
-      this.isChecked && this.item.value === this.question.otherItem.value
+      this.question.isOtherItem(this.item)
         ? this.renderOther(this.cssClasses)
         : null;
 
-    var id = this.question.inputId + "_" + this.index;
     var itemText = !this.hideCaption
       ? this.renderLocString(this.item.locText, this.textStyle)
       : "";
@@ -166,24 +165,29 @@ export class SurveyQuestionRadioItem extends ReactSurveyElement {
         <label className={labelClass} aria-label={locText.renderedHtml}>
           <input
             className={this.cssClasses.itemControl}
-            id={id}
+            id={this.question.getItemId(this.item)}
             type="radio"
-            name={this.question.name + "_" + this.question.id}
+            name={this.question.questionName}
             checked={this.isChecked}
             value={this.item.value}
-            disabled={this.isDisplayMode || !this.item.isEnabled}
+            disabled={!this.question.getItemEnabled(this.item)}
             onChange={this.handleOnChange}
           />
-          <span className={this.cssClasses.materialDecorator}>
-            <svg
-              className={this.cssClasses.itemDecorator}
-              viewBox="-12 -12 24 24"
-            >
-              <circle r="6" cx="0" cy="0" />
-            </svg>
-          </span>
-          <span className="check" />
-          <span className={controlLabelClass} title={locText.text}>
+          {
+            this.cssClasses.materialDecorator ?
+              <span className={this.cssClasses.materialDecorator}>
+                { this.question.itemSvgIcon ?
+                  <svg
+                    className={this.cssClasses.itemDecorator}
+                  >
+                    <use xlinkHref={this.question.itemSvgIcon}></use>
+                  </svg>:
+                  null
+                }
+              </span> :
+              null
+          }
+          <span className={controlLabelClass} title={locText.renderedHtml}>
             {itemText}
           </span>
         </label>

@@ -249,7 +249,6 @@ export var defaultStandardCss = {
     labelChecked: "",
     itemControl: "sv_q_radiogroup_control_item",
     controlLabel: "",
-    materialDecorator: "circle",
     other: "sv_q_other sv_q_radiogroup_other",
     clearButton: "sv_q_radiogroup_clear",
     column: "sv_q_select_column",

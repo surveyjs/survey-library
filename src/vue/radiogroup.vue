@@ -8,9 +8,7 @@
       :question="question"
       :item="item"
       :index="index"
-    ></survey-radiogroup-item>
-
-    <div
+    ></survey-radiogroup-item><div
       v-if="question.hasColumns"
       v-for="(column, colIndex) in question.columns"
       :class="question.getColumnClass()"
@@ -23,9 +21,7 @@
         :item="item"
         :index="'' + colIndex + index"
       ></survey-radiogroup-item>
-    </div>
-
-    <div v-if="question.canShowClearButton">
+    </div><div v-if="question.canShowClearButton">
       <input
         type="button"
         :class="question.cssClasses.clearButton"
@@ -35,9 +31,7 @@
           }
         "
         :value="question.clearButtonCaption"
-      />
-    </div>
-  </fieldset>
+      /></div></fieldset>
 </template>
 
 <script lang="ts">

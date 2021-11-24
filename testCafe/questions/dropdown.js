@@ -1,4 +1,4 @@
-import { frameworks, url, setOptions, initSurvey, getSurveyResult, getQuestionValue, getQuestionJson } from "../helper";
+import { frameworks, url, setOptions, initSurvey, getSurveyResult, getQuestionValue, getQuestionJson, checkSurveyWithEmptyQuestion } from "../helper";
 import { Selector, ClientFunction } from "testcafe";
 const assert = require("assert");
 const title = `dropdown`;
@@ -36,19 +36,7 @@ frameworks.forEach((framework) => {
   );
 
   test(`choose empty`, async (t) => {
-    const getPosition = ClientFunction(() =>
-      document.documentElement.innerHTML.indexOf("Response required.")
-    );
-    let position;
-    let surveyResult;
-
-    await t.click(`input[value=Complete]`);
-
-    position = await getPosition();
-    assert.notEqual(position, -1);
-
-    surveyResult = await getSurveyResult();
-    assert.equal(typeof surveyResult, `undefined`);
+    await checkSurveyWithEmptyQuestion(t);
   });
 
   test(`choose value`, async (t) => {
@@ -150,14 +138,15 @@ frameworks.forEach((framework) => {
   });
 
   test(`show "other" choice`, async (t) => {
-    const getPosition = ClientFunction(() =>
-      document.documentElement.innerHTML.indexOf("Other")
-    );
-    let position;
+    await t
+      .click(Selector(".sv_row select"))
+      .expect(Selector(".sv_row select option").count).eql(12);
 
     await setOptions("car", { hasOther: true, otherText: "Other" });
-    position = await getPosition();
-    assert.notEqual(position, -1);
+    await t
+      .click(Selector(".sv_row select"))
+      .expect(Selector(".sv_row select option").count).eql(13)
+      .expect(Selector(".sv_row select option").nth(12).textContent).contains("Other");
   });
 
   test(`check "other" choice doesn't change order`, async (t) => {

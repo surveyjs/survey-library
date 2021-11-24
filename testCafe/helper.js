@@ -163,3 +163,15 @@ export const getPanelJson = ClientFunction(() => {
 export function getDynamicPanelRemoveButton(questionTitle, buttonText) {
   return Selector("span").withText(`${questionTitle}`).parent("[aria-labelledby]").find("span").withText(buttonText)
 }
+
+export async function checkSurveyWithEmptyQuestion(t) {
+  const requiredMessage = Selector(".sv-string-viewer").withText("Response required.");
+
+  await t
+    .expect(requiredMessage.exists).notOk()
+    .click("input[value=Complete]")
+    .expect(requiredMessage.visible).ok()
+
+  let surveyResult = await getSurveyResult();
+  await t.expect(typeof surveyResult).eql("undefined");
+}

@@ -1,5 +1,4 @@
 import { frameworks, url, initSurvey, getSurveyResult } from "../helper";
-const assert = require("assert");
 const title = `visibleTrigger`;
 
 const json = {
@@ -187,7 +186,7 @@ frameworks.forEach(framework => {
       .click(`input[value="Complete"]`);
 
     surveyResult = await getSurveyResult();
-    assert.deepEqual(surveyResult, {
+    await t.expect(surveyResult).eql({
       type: "Pony car",
       "Pony car": "Dodge Challenger"
     });

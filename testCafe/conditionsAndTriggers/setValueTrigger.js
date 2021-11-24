@@ -1,6 +1,5 @@
 import { frameworks, url, initSurvey, getSurveyResult } from "../helper";
-import { ClientFunction } from "testcafe";
-const assert = require("assert");
+import { Selector } from "testcafe";
 const title = `setValueTrigger`;
 
 const json = {
@@ -91,17 +90,13 @@ frameworks.forEach((framework) => {
   );
 
   test(`check visibility`, async (t) => {
-    const getPosition = ClientFunction((index) =>
-      document.documentElement.innerHTML.indexOf("Jon Snow")
-    );
-    let surveyResult;
+    await t
+      .click(`input[value="Yes"]`)
+      .click(`input[value="Complete"]`)
+      .expect(Selector(".sv_completed_page").textContent).contains("Jon Snow");
 
-    await t.click(`input[value="Yes"]`).click(`input[value="Complete"]`);
-
-    assert.notEqual(await getPosition(), -1);
-
-    surveyResult = await getSurveyResult();
-    assert.deepEqual(surveyResult, {
+    const surveyResult = await getSurveyResult();
+    await t.expect(surveyResult).eql({
       copy: "Yes",
       name: "Jon Snow",
       email: "jon.snow@nightwatch.com",

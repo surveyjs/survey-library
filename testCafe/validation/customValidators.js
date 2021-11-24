@@ -97,6 +97,6 @@ frameworks.forEach(framework => {
     await t.typeText(`textarea`, ` survey`).click(`input[value="Complete"]`);
 
     surveyResult = await getSurveyResult();
-    assert.deepEqual(surveyResult, { memo: "wombat survey" });
+    await t.expect(surveyResult).eql({ memo: "wombat survey" });
   });
 });

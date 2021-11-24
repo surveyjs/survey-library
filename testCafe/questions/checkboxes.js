@@ -1,4 +1,4 @@
-import { frameworks, url, setOptions, initSurvey, getSurveyResult, getQuestionValue, getQuestionJson } from "../helper";
+import { frameworks, url, setOptions, initSurvey, getSurveyResult, getQuestionValue, getQuestionJson, checkSurveyWithEmptyQuestion } from "../helper";
 import { Selector, ClientFunction } from "testcafe";
 const assert = require("assert");
 const title = `checkboxes`;
@@ -38,19 +38,7 @@ frameworks.forEach((framework) => {
   );
 
   test(`choose empty`, async (t) => {
-    const getPosition = ClientFunction(() =>
-      document.documentElement.innerHTML.indexOf("Response required.")
-    );
-    let position;
-    let surveyResult;
-
-    await t.click(`input[value=Complete]`);
-
-    position = await getPosition();
-    assert.notEqual(position, -1);
-
-    surveyResult = await getSurveyResult();
-    assert.equal(typeof surveyResult, `undefined`);
+    await checkSurveyWithEmptyQuestion(t);
   });
 
   test(`choose none`, async (t) => {
@@ -64,7 +52,7 @@ frameworks.forEach((framework) => {
       .click(`input[value=Complete]`);
 
     surveyResult = await getSurveyResult();
-    assert.deepEqual(surveyResult.car, ["none"]);
+    await t.expect(surveyResult.car).eql(["none"]);
   });
 
   test(`choose value`, async (t) => {
@@ -87,7 +75,7 @@ frameworks.forEach((framework) => {
       .click(`input[value=Complete]`);
 
     surveyResult = await getSurveyResult();
-    assert.deepEqual(surveyResult.car, ["BMW", "Nissan"]);
+    await t.expect(surveyResult.car).eql(["BMW", "Nissan"]);
   });
 
   test(`change column count`, async (t) => {
@@ -219,14 +207,8 @@ frameworks.forEach((framework) => {
   });
 
   test(`show "other" choice`, async (t) => {
-    const getPosition = ClientFunction(() =>
-      document.documentElement.innerHTML.indexOf("Other")
-    );
-    let position;
-
     await setOptions("car", { hasOther: true });
-    position = await getPosition();
-    assert.notEqual(position, -1);
+    await t.expect(Selector(".sv-string-viewer").withText("Other").visible).ok()
   });
 
   test(`check "other" choice doesn't change order`, async (t) => {

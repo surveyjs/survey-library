@@ -23,17 +23,9 @@ frameworks.forEach(framework => {
   );
 
   test(`description exists`, async t => {
-    const getPositionMin = ClientFunction(() =>
-      document.documentElement.innerHTML.indexOf("Not Satisfied")
-    );
-    const getPositionMax = ClientFunction(() =>
-      document.documentElement.innerHTML.indexOf("Completely satisfied")
-    );
-    const positionMin = await getPositionMin();
-    const positionMax = await getPositionMax();
-
-    assert.notEqual(positionMin, -1);
-    assert.notEqual(positionMax, -1);
+    await t
+      .expect(Selector(".sv-string-viewer").withText("Not Satisfied").visible).ok()
+      .expect(Selector(".sv-string-viewer").withText("Completely satisfied").visible).ok()
   });
 
   test(`choose value`, async t => {
@@ -44,8 +36,8 @@ frameworks.forEach(framework => {
 
     surveyResult = await getSurveyResult();
 
-    assert.deepEqual(surveyResult, {
-      satisfaction: "3"
+    await t.expect(surveyResult).eql({
+      satisfaction: 3
     });
   });
 });

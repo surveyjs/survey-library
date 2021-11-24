@@ -1,6 +1,4 @@
-import { frameworks, url_widgets, initSurvey, getSurveyResult } from "../helper";
-import { ClientFunction } from "testcafe";
-const assert = require("assert");
+import { frameworks, url_widgets, initSurvey, checkSurveyWithEmptyQuestion } from "../helper";
 const title = `sortablejs`;
 
 const json = {
@@ -34,19 +32,7 @@ frameworks.forEach((framework) => {
   });
 
   test(`choose empty`, async (t) => {
-    const getPosition = ClientFunction(() =>
-      document.documentElement.innerHTML.indexOf("Response required.")
-    );
-    let position;
-    let surveyResult;
-
-    await t.click(`input[value=Complete]`);
-
-    position = await getPosition();
-    assert.notEqual(position, -1);
-
-    surveyResult = await getSurveyResult();
-    assert.equal(typeof surveyResult, `undefined`);
+    await checkSurveyWithEmptyQuestion(t);
   });
 
   test(`choose value`, async (t) => {

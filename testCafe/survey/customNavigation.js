@@ -196,7 +196,7 @@ frameworks.forEach(framework => {
     await t.click(`#surveyNext`).click(`#surveyComplete`);
 
     surveyResult = await getSurveyResult();
-    assert.deepEqual(surveyResult, {
+    await t.expect(surveyResult).eql({
       opSystem: ["Windows"],
       langs: ["Javascript"]
     });

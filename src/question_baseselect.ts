@@ -83,7 +83,6 @@ export class QuestionSelectBase extends Question {
       }
       return items;
     };
-    this.createLocalizableString("otherPlaceHolder", this);
   }
   public getType(): string {
     return "selectbase";
@@ -575,9 +574,6 @@ export class QuestionSelectBase extends Question {
    *  Use this property to set the place holder text for other or comment field  .
    */
   @property({ localizable: true }) otherPlaceHolder: string;
-  get locOtherPlaceHolder(): LocalizableString {
-    return this.getLocalizableString("otherPlaceHolder");
-  }
   /**
    * The text that shows when the other item is choosed by the other input is empty.
    */

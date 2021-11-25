@@ -5602,3 +5602,27 @@ QUnit.test("Checkox item, defaultValue and visibleIf bug, #3634", (assert) => {
   survey.data = { question2: "item1", question1: ["item3"] };
   assert.deepEqual(question.value, ["item3"], "value from data is set");
 });
+QUnit.test("SelectBase otherPlaceHolder localized", function(assert) {
+  var survey = new SurveyModel({
+    questions: [
+      {
+        type: "radiogroup",
+        name: "car",
+        hasOther: true,
+        otherPlaceHolder: {
+          "da": "Skriv din begrundelse her...",
+          "default": "Write your reason here..."
+        },
+        choices: ["Ford", "Toyota", "Citroen"]
+      }
+    ]
+  });
+  var question = <QuestionRadiogroupModel>survey.getAllQuestions()[0];
+  assert.equal(survey.locale, "", "default locale");
+  assert.equal(question.getLocale(), "", "default locale");
+  assert.equal(question.otherPlaceHolder, "Write your reason here...", "default placeholder");
+  survey.locale = "da";
+  assert.equal(survey.locale, "da", "da locale");
+  assert.equal(question.getLocale(), "da", "da locale");
+  assert.equal(question.otherPlaceHolder, "Skriv din begrundelse her...", "da placeholder");
+});

@@ -186,7 +186,40 @@ export var markupTests = [
         }
       ]
     },
-    etalon: "<div class=\"sv_qcbc sv_qbln\"><label class=\"sv-boolean sv-boolean--indeterminate\"><input aria-invalid=\"false\" aria-label=\"Question title\" aria-required=\"false\" class=\"sv-visuallyhidden\" name=\"name\" type=\"checkbox\" value=\"\"><span class=\"sv-boolean__label\"><span class=\"sv-string-viewer\">No</span></span><div class=\"sv-boolean__switch\"><span class=\"sv-boolean__slider\"><span class=\"sv-hidden\"></span></span></div><span class=\"sv-boolean__label\"><span class=\"sv-string-viewer\">Yes</span></span></label></div>"
+    etalon: "<div class=\"sv_qcbc sv_qbln\"><label class=\"sv-boolean sv-boolean--indeterminate\"><input aria-invalid=\"false\" aria-label=\"Question title\" aria-required=\"false\" class=\"sv-visuallyhidden\" name=\"name\" type=\"checkbox\" value=\"\"><span class=\"sv-boolean__label\"><span class=\"sv-string-viewer\">No</span></span><div class=\"sv-boolean__switch\"><span class=\"sv-boolean__slider\"></span></div><span class=\"sv-boolean__label\"><span class=\"sv-string-viewer\">Yes</span></span></label></div>"
+  },
+  {
+    name: "Test Boolean question markup Default V2",
+    json: {
+      questions: [
+        {
+          name: "name",
+          type: "boolean",
+          title: "Question title",
+          titleLocation: "hidden"
+        }
+      ]
+    },
+    before: () => StylesManager.applyTheme("defaultV2"),
+    after: () => StylesManager.applyTheme("default"),
+    etalon: "<div class=\"sv_qcbc sv_qbln\"><label class=\"sd-boolean sd-boolean--indeterminate\"><input aria-invalid=\"false\" aria-label=\"Question title\" aria-required=\"false\" class=\"sd-boolean__control sd-visuallyhidden\" name=\"name\" type=\"checkbox\" value=\"\"><span class=\"sd-boolean__label\"><span class=\"sv-string-viewer\">No</span></span><div class=\"sd-boolean__switch\"><span class=\"sd-boolean__thumb\"></span></div><span class=\"sd-boolean__label\"><span class=\"sv-string-viewer\">Yes</span></span></label></div>"
+  },
+  {
+    name: "Test Boolean question markup with value Default V2",
+    json: {
+      questions: [
+        {
+          name: "name",
+          type: "boolean",
+          defaultValue: true,
+          title: "Question title",
+          titleLocation: "hidden"
+        }
+      ]
+    },
+    before: () => StylesManager.applyTheme("defaultV2"),
+    after: () => StylesManager.applyTheme("default"),
+    etalon: "<div class=\"sv_qcbc sv_qbln\"><label class=\"sd-boolean sd-boolean--checked\"><input aria-invalid=\"false\" aria-label=\"Question title\" aria-required=\"false\" checked=\"\" class=\"sd-boolean__control sd-visuallyhidden\" name=\"name\" type=\"checkbox\" value=\"true\"><span class=\"sd-boolean__label sd-checkbox__label--disabled\"><span class=\"sv-string-viewer\">No</span></span><div class=\"sd-boolean__switch\"><span class=\"sd-boolean__thumb\"><span class=\"sd-boolean__thumb-text\"><span class=\"sv-string-viewer\">Yes</span></span></span></div><span class=\"sd-boolean__label\"><span class=\"sv-string-viewer\">Yes</span></span></label></div>"
   },
   {
     name: "Test Boolean Checkbox question markup",

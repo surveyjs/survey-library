@@ -23,12 +23,11 @@
         v-on:click="onSwitchClick($event)"
       >
         <span :class="question.cssClasses.slider">
-          <span v-if="question.checkedValue !== null" :class="question.cssClasses.sliderText">
+          <span v-if="question.cssClasses.sliderText && question.isDeterminated" :class="question.cssClasses.sliderText">
             <survey-string :locString="question.getCheckedLabel()"></survey-string>
           </span>
         </span>
-      </div>
-      <span :class="question.getLabelCss(true)" v-on:click="onLabelClick($event, true)"
+      </div><span :class="question.getLabelCss(true)" v-on:click="onLabelClick($event, true)"
         ><survey-string :locString="question.locLabelTrue"></survey-string
       ></span>
     </label>

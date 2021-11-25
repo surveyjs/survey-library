@@ -604,6 +604,22 @@ QUnit.test("Do not set items with old variable, Bug #2197", function(assert) {
   );
   ChoicesRestful.clearCache();
 });
+QUnit.test("Load choices from url on changing locale", function(assert) {
+  var survey = new SurveyModel();
+  survey.addNewPage("1");
+  var question = new QuestionDropdownModelTester("q1");
+  survey.pages[0].addQuestion(question);
+  var stateQuestion = <Question>survey.pages[0].addNewQuestion("text", "state");
+  question.choicesByUrl.url = "{state}/{locale}";
+  question.onSurveyLoad();
+  assert.equal(question.visibleChoices.length, 0, "It is empty");
+  stateQuestion.value = "ca_cities";
+  assert.equal(question.restFulTest.sentRequestCounter, 1, "Loaded choices one time");
+  survey.locale = "de";
+  assert.equal(question.restFulTest.sentRequestCounter, 2, "Loaded choices on changing locale");
+  survey.locale = "";
+  ChoicesRestful.clearCache();
+});
 /*
 QUnit.test("Clear choices on changing variables", function (assert) {
   var survey = new SurveyModel();

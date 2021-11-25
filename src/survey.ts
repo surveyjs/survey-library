@@ -1613,7 +1613,7 @@ export class SurveyModel extends SurveyElementCore
     this.localeValue = surveyLocalization.currentLocale;
     this.setPropertyValue("locale", this.localeValue);
     if (this.isLoadingFromJson) return;
-    this.locStrsChanged();
+    this.notifyElementsOnAnyValueOrVariableChanged("locale");
     this.localeChanged();
     this.onLocaleChangedEvent.fire(this, value);
   }
@@ -2792,7 +2792,7 @@ export class SurveyModel extends SurveyElementCore
     for (var key in src) {
       var value = src[key];
       if (value && typeof value === "object") {
-        if (!dest[key]) dest[key] = {};
+        if (!dest[key] || typeof dest[key] !== "object") dest[key] = {};
         this.mergeValues(value, dest[key]);
       } else {
         dest[key] = value;

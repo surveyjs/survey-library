@@ -114,6 +114,9 @@ export class QuestionBooleanModel extends Question {
   get locLabelTrue(): LocalizableString {
     return this.getLocalizableString("labelTrue");
   }
+  get isDeterminated() {
+    return this.checkedValue !== null;
+  }
 
   /**
    * Set this property, if you want to have a different label for state when check is unset.

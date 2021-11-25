@@ -242,8 +242,12 @@ class LoadingFromJsonObj extends LoadingFromJsonObjBase {
 }
 
 class TestDeclaredProps extends Car {
+  getType() {
+    return "new_declared_props";
+  }
   @property({ defaultValue: 5 }) numberProp: number;
   @property({ localizable: true }) str1: string;
+  @property({ localizable: true }) strProp: string;
   @property({ localizable: { name: "locStrName" } }) str2: string;
   @property({ localizable: { defaultStr: "completeText" } }) str3: string;
 }
@@ -2509,4 +2513,32 @@ QUnit.test("Change question isRequired default value", function(assert) {
   assert.equal(new Question("q1").isRequired, true, "It is true now");
   Serializer.findProperty("question", "isRequired").defaultValue = false;
   assert.equal(new Question("q1").isRequired, false, "It is false again");
+});
+QUnit.test("Load localizable @property", function(assert) {
+  Serializer.addClass("new_declared_props", [{
+    name: "str1",
+    serializationProperty: "locStr1",
+  }, {
+    name: "strProp",
+    serializationProperty: "locStrProp"
+  }], null, "car");
+  const obj = new TestDeclaredProps();
+  obj.fromJSON({
+    str1: {
+      "da": "str1 da",
+      "default": "str1 en"
+    },
+    strProp: {
+      "da": "strProp da",
+      "default": "strProp en"
+    }
+  });
+  assert.equal(obj.str1, "str1 en", "default string");
+  assert.equal(obj.strProp, "strProp en", "default string");
+  assert.equal(obj["locStr1"].renderedHtml, "str1 en", "default html string");
+  obj.locale = "da";
+  assert.equal(obj.str1, "str1 da", "da string");
+  assert.equal(obj.strProp, "strProp da", "da string");
+  assert.equal(obj["locStr1"].renderedHtml, "str1 da", "da html string");
+  Serializer.removeClass("new_declared_props");
 });

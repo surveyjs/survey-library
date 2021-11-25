@@ -15,4 +15,6 @@
     // "javascript.format.insertSpaceAfterFunctionKeywordForAnonymousFunctions": false,
     // "javascript.format.insertSpaceAfterKeywordsInControlFlowStatements": false,
     "editor.tabSize": 2,
+    "editor.formatOnSave": true,
+    "eslint.format.enable": true,
 }

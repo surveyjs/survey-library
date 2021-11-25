@@ -14,8 +14,7 @@
         :aria-invalid="question.ariaInvalid"
         :aria-describedby="question.ariaDescribedBy"
         :class="question.cssClasses.itemControl"
-      />
-      <input
+      /><input
         v-if="item != question.selectAllItem"
         type="checkbox"
         :name="question.name"
@@ -28,22 +27,20 @@
         :aria-invalid="question.ariaInvalid"
         :aria-describedby="question.ariaDescribedBy"
         :class="question.cssClasses.itemControl"
-      />
-      <span :class="question.cssClasses.materialDecorator">
-        <svg viewBox="0 0 24 24" :class="question.cssClasses.itemDecorator">
-          <path :d="question.checkBoxSvgPath" />
+      /><span v-if="question.cssClasses.materialDecorator" :class="question.cssClasses.materialDecorator">
+        <svg v-if="question.itemSvgIcon" :class="question.cssClasses.itemDecorator">
+          <use
+            :xlink:href="question.itemSvgIcon"
+          ></use>
         </svg>
-        <span class="check"></span>
-      </span>
-      <span
+      </span><span
         v-if="!hideLabel"
         :class="question.cssClasses.controlLabel"
-        :title="item.locText.text"
+        :title="item.locText.renderedHtml"
       >
         <survey-string :locString="item.locText" />
       </span>
-    </label>
-    <survey-other-choice
+    </label><survey-other-choice
       v-show="
         question.renderedValue && question.isOtherSelected
       "

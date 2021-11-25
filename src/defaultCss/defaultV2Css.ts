@@ -125,6 +125,7 @@ export var defaultV2Css = {
     labelChecked: "",
     itemControl: "sd-visuallyhidden sd-item__control sd-checkbox__control",
     itemDecorator: "sd-item__svg sd-checkbox__svg",
+    itemSvgIconId: "#icon-v2check",
     controlLabel: "sd-item__control-label",
     materialDecorator: "sd-item__decorator sd-checkbox__decorator",
     other: "sd-input sd-comment sd-selectbase__other",
@@ -150,7 +151,7 @@ export var defaultV2Css = {
   },
   boolean: {
     mainRoot: "sd-element-with-frame sd-question sd-row__question sd-question--boolean",
-    root: "",
+    root: "sv_qcbc sv_qbln",
     item: "sd-boolean",
     itemOnError: "sd-boolean--error",
     control: "sd-boolean__control sd-visuallyhidden",
@@ -162,7 +163,7 @@ export var defaultV2Css = {
     disabledLabel: "sd-checkbox__label--disabled",
     itemDecorator: "sd-checkbox__hidden",
     materialDecorator: "sd-checkbox__rectangle",
-    sliderText: "",
+    sliderText: "sd-boolean__thumb-text",
     slider: "sd-boolean__thumb"
   },
   text: {

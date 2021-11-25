@@ -56,13 +56,12 @@ export class SurveyQuestionImagePicker extends SurveyQuestionElementBase {
     cssClasses: any
   ): JSX.Element {
     var isChecked = this.question.isItemSelected(item);
-    var id = this.question.inputId + "_" + item.value;
     var itemClass = this.question.getItemClass(item);
     var text = null;
     if (this.question.showLabel) {
       text = (
         <span
-          title={item.text || item.value}
+          title={item.locText.renderedHtml}
           className={this.question.cssClasses.itemText}
         >
           {item.text ? SurveyElementBase.renderLocString(item.locText) : item.value}
@@ -78,17 +77,9 @@ export class SurveyQuestionImagePicker extends SurveyQuestionElementBase {
         <img
           className={cssClasses.image}
           src={item["imageLink"]}
-          width={
-            this.question.imageWidth
-              ? this.question.imageWidth + "px"
-              : undefined
-          }
-          height={
-            this.question.imageHeight
-              ? this.question.imageHeight + "px"
-              : undefined
-          }
-          alt={item.text || item.value}
+          width={ this.question.renderedImageWidth }
+          height={ this.question.renderedImageHeight }
+          alt={item.locText.renderedHtml}
           style={style}
         />
       );
@@ -98,16 +89,8 @@ export class SurveyQuestionImagePicker extends SurveyQuestionElementBase {
         <video controls
           className={cssClasses.image}
           src={item["imageLink"]}
-          width={
-            this.question.imageWidth
-              ? this.question.imageWidth + "px"
-              : undefined
-          }
-          height={
-            this.question.imageHeight
-              ? this.question.imageHeight + "px"
-              : undefined
-          }
+          width={ this.question.renderedImageWidth }
+          height={ this.question.renderedImageHeight }
           style={style}
         ></video>
       );
@@ -119,12 +102,12 @@ export class SurveyQuestionImagePicker extends SurveyQuestionElementBase {
           <input
             style={{ display: "none" }}
             className={cssClasses.itemControl}
-            id={id}
-            type={this.question.multiSelect ? "checkbox" : "radio"}
-            name={this.question.name + "_" + this.questionBase.id}
+            id={this.question.getItemId(item)}
+            type={this.question.inputType}
+            name={this.question.questionName}
             checked={isChecked}
             value={item.value}
-            disabled={this.isDisplayMode || !item.isEnabled}
+            disabled={!this.question.getItemEnabled(item)}
             onChange={this.handleOnChange}
             aria-required={this.question.ariaRequired}
             aria-label={this.question.ariaLabel}

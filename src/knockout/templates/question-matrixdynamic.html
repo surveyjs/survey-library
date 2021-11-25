@@ -88,12 +88,14 @@
         <tfoot>
           <tr>
             <!-- ko foreach: question.koTable().footerRow.cells -->
-            <td>
               <!-- ko if: $data.hasQuestion -->
-              <!-- ko template: { name: 'survey-matrixcell', afterRender: function(els) { $data.matrix.koCellAfterRender(els, $data); } } --><!-- /ko -->
+                <!-- ko template: { name: 'survey-matrixcell', afterRender: function(els) { $data.matrix.koCellAfterRender(els, $data); } } --><!-- /ko -->
               <!-- /ko -->
-              <!-- ko if: $data.hasTitle --><!-- ko template: { name: 'survey-string', data: $data.locTitle } --><!-- /ko --><!-- /ko -->
-            </td>
+              <!-- ko if: $data.hasTitle -->
+              <td>
+                <!-- ko template: { name: 'survey-string', data: $data.locTitle } --><!-- /ko -->
+              </td>
+              <!-- /ko -->
             <!-- /ko -->
           </tr>
         </tfoot>

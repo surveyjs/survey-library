@@ -20,9 +20,14 @@ export class TextPreProcessorValue {
 }
 
 export class TextPreProcessor {
-  private hasAllValuesOnLastRunValue: boolean;
+  private _unObservableValues: any = [undefined];
+  private get hasAllValuesOnLastRunValue(): boolean {
+    return this._unObservableValues[0];
+  }
+  private set hasAllValuesOnLastRunValue(val: boolean) {
+    this._unObservableValues[0] = val;
+  }
   public onProcess: (textValue: TextPreProcessorValue) => void;
-  constructor() {}
   public process(
     text: string,
     returnDisplayValue: boolean = false,

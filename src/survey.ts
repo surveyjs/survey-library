@@ -1039,6 +1039,15 @@ export class SurveyModel extends SurveyElementCore
     this.onGetQuestionTitle.onCallbacksChanged = () => {
       this.locStrsChanged();
     };
+    this.onUpdatePageCssClasses.onCallbacksChanged = () => {
+      this.currentPage && this.currentPage.updateElementCss();
+    };
+    this.onUpdatePanelCssClasses.onCallbacksChanged = () => {
+      this.currentPage && this.currentPage.updateElementCss();
+    };
+    this.onUpdateQuestionCssClasses.onCallbacksChanged = () => {
+      this.currentPage && this.currentPage.updateElementCss();
+    };
     this.onBeforeCreating();
     if (jsonObj) {
       if (typeof jsonObj === "string" || jsonObj instanceof String) {

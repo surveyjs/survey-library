@@ -1,4 +1,4 @@
-import { Serializer } from "./jsonobject";
+import { property, Serializer } from "./jsonobject";
 import { SurveyError } from "./survey-error";
 import { ISurveyImpl, ISurvey } from "./base-interfaces";
 import { SurveyModel } from "./survey";
@@ -83,7 +83,6 @@ export class QuestionSelectBase extends Question {
       }
       return items;
     };
-    this.createLocalizableString("otherPlaceHolder", this);
   }
   public getType(): string {
     return "selectbase";
@@ -574,15 +573,7 @@ export class QuestionSelectBase extends Question {
   /**
    *  Use this property to set the place holder text for other or comment field  .
    */
-  public get otherPlaceHolder(): string {
-    return this.getLocalizableStringText("otherPlaceHolder");
-  }
-  public set otherPlaceHolder(val: string) {
-    this.setLocalizableStringText("otherPlaceHolder", val);
-  }
-  get locOtherPlaceHolder(): LocalizableString {
-    return this.getLocalizableString("otherPlaceHolder");
-  }
+  @property({ localizable: true }) otherPlaceHolder: string;
   /**
    * The text that shows when the other item is choosed by the other input is empty.
    */

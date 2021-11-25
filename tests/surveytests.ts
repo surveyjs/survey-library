@@ -5703,6 +5703,13 @@ QUnit.test(
   }
 );
 
+QUnit.test("css sets correctly if src key is object and dest key is string", function (assert) {
+    var survey = new SurveyModel();
+    survey.css = { text: { root: "custom_class" } }
+    assert.equal(survey.css["text"].root, "custom_class");
+  }
+);
+
 QUnit.test("onUpdatePageCssClasses is raised", function (assert) {
   var survey = new SurveyModel();
   var flag = false;

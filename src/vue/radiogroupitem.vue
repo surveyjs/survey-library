@@ -9,35 +9,30 @@
     <label :class="getLabelClass(item)" :aria-label="item.locText.renderedHtml">
       <input
         type="radio"
-        :name="question.name + '_' + question.id"
+        :name="question.questionName"
         :value="item.value"
-        :id="question.inputId + '_' + index"
+        :id="question.getItemId(item)"
         v-model="question.renderedValue"
-        :disabled="question.isInputReadOnly || !item.isEnabled"
+        :disabled="!question.getItemEnabled(item)"
         :class="question.cssClasses.itemControl"
-      />
-      <span :class="question.cssClasses.materialDecorator">
-        <svg :class="question.cssClasses.itemDecorator" viewBox="-12 -12 24 24">
-          <circle r="6" cx="0" cy="0" />
+      /><span v-if="question.cssClasses.materialDecorator" :class="question.cssClasses.materialDecorator">
+        <svg v-if="question.itemSvgIcon" :class="question.cssClasses.itemDecorator">
+          <use
+            :xlink:href="question.itemSvgIcon"
+          ></use>
         </svg>
-      </span>
-      <span class="check"></span>
-      <span
+      </span><span
         v-if="!hideLabel"
         :class="getControlLabelClass(item)"
-        :title="item.locText.text"
+        :title="item.locText.renderedHtml"
       >
         <survey-string :locString="item.locText" />
       </span>
-    </label>
-    <survey-other-choice
-      v-show="
-        question.hasOther && question.renderedValue && question.isOtherSelected
-      "
-      v-if="item.value == question.otherItem.value"
+    </label><survey-other-choice
+      v-show="question.isOtherSelected"
+      v-if="question.isOtherItem(item)"
       :question="question"
-    />
-  </div>
+    /></div>
 </template>
 
 <script lang="ts">

@@ -83,7 +83,6 @@ export function testQuestionMarkup(assert, test, platform) {
       all[i].removeAttribute("data-rendered");
       all[i].removeAttribute("id");
       all[i].removeAttribute("list");
-
       if(all[i].getAttribute("name") !== "name")
         all[i].removeAttribute("name");
       if(all[i].checked) {

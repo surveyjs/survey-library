@@ -73,6 +73,7 @@ export class Question extends SurveyElement
   public isReadOnlyRenderDiv(): boolean {
     return this.isReadOnly && settings.readOnlyCommentRenderMode === "div";
   }
+
   public get isErrorsModeTooltip() {
     return this.survey && this.survey.getCss().root == "sd-root-modern";
   }
@@ -971,10 +972,7 @@ export class Question extends SurveyElement
     if (this.hasOther) this.hasComment = false;
     this.hasOtherChanged();
   }
-  public get isOtherSelected() {
-    const question = this.question;
-    return question.hasOther && question.isOtherSelected;
-  }
+
   protected hasOtherChanged(): void { }
   public get requireUpdateCommentValue(): boolean {
     return this.hasComment || this.hasOther;

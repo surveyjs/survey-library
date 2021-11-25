@@ -169,6 +169,7 @@ export var modernCss = {
     itemHover: "sv-radio--allowhover",
     itemControl: "sv-visuallyhidden sv-item__control",
     itemDecorator: "sv-item__svg sv-radio__svg",
+    itemSvgIconId: "#icon-modernradio",
     controlLabel: "sv-item__control-label",
     materialDecorator: "sv-item__decorator sv-selectbase__decorator sv-radio__decorator",
     other: "sv-comment sv-question__other",

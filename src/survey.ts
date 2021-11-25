@@ -1613,7 +1613,7 @@ export class SurveyModel extends SurveyElementCore
     this.localeValue = surveyLocalization.currentLocale;
     this.setPropertyValue("locale", this.localeValue);
     if (this.isLoadingFromJson) return;
-    this.locStrsChanged();
+    this.notifyElementsOnAnyValueOrVariableChanged("locale");
     this.localeChanged();
     this.onLocaleChangedEvent.fire(this, value);
   }

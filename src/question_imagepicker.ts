@@ -169,6 +169,9 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
   public set imageHeight(val: string) {
     this.setPropertyValue("imageHeight", val);
   }
+  public get renderedImageHeight() {
+    return this.imageHeight ? this.imageHeight + "px" : undefined;
+  }
   /**
    * The image width.
    */
@@ -177,6 +180,9 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
   }
   public set imageWidth(val: string) {
     this.setPropertyValue("imageWidth", val);
+  }
+  public get renderedImageWidth() {
+    return this.imageWidth ? this.imageWidth + "px" : undefined;
   }
   /**
    * The image fit mode.
@@ -204,6 +210,9 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
   }
   public get hasColumns(): boolean {
     return false;
+  }
+  public get inputType() {
+    return this.multiSelect ? "checkbox" : "radio";
   }
 }
 

@@ -97,7 +97,6 @@ export var defaultBootstrapMaterialCss = {
     itemDisabled: "sv-boolean--disabled",
     switch: "sv-boolean__switch",
     slider: "sv-boolean__slider",
-    sliderText: "sv-hidden",
     label: "sv-boolean__label ",
     disabledLabel: "sv-boolean__label--disabled",
     materialDecorator: "sv-item__decorator sv-boolean__decorator",

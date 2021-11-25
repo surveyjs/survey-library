@@ -152,7 +152,7 @@ export class SurveyQuestionCheckboxItem extends ReactSurveyElement {
     return this.renderCheckbox(isChecked, otherItem);
   }
   protected get inputStyle(): any {
-    return { marginRight: "3px" };
+    return null;//{ marginRight: "3px" };
   }
   protected renderCheckbox(
     isChecked: boolean,
@@ -175,6 +175,7 @@ export class SurveyQuestionCheckboxItem extends ReactSurveyElement {
           <input
             className={this.cssClasses.itemControl}
             type="checkbox"
+            name={this.question.name}
             value={this.item.value}
             id={id}
             style={this.inputStyle}
@@ -186,13 +187,21 @@ export class SurveyQuestionCheckboxItem extends ReactSurveyElement {
             aria-invalid={this.question.ariaInvalid}
             aria-describedby={this.question.ariaDescribedBy}
           />
-          <span className={this.cssClasses.materialDecorator}>
-            <svg viewBox="0 0 24 24" className={this.cssClasses.itemDecorator}>
-              <path d={this.question.checkBoxSvgPath} />
-            </svg>
-            <span className="check" />
-          </span>
-          <span className={this.cssClasses.controlLabel} title={locText.text}>
+          {
+            this.cssClasses.materialDecorator ?
+              <span className={this.cssClasses.materialDecorator}>
+                { this.question.itemSvgIcon ?
+                  <svg
+                    className={this.cssClasses.itemDecorator}
+                  >
+                    <use xlinkHref={this.question.itemSvgIcon}></use>
+                  </svg>:
+                  null
+                }
+              </span> :
+              null
+          }
+          <span className={this.cssClasses.controlLabel} title={locText.renderedHtml}>
             {text}
           </span>
         </label>

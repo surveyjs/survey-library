@@ -464,14 +464,14 @@ export class Base {
       }
     }
   }
-  protected setArrayPropertyDirectly(name: string, val: any): void {
+  protected setArrayPropertyDirectly(name: string, val: any, sendNotification: boolean = true): void {
     var arrayInfo = this.arraysInfo[name];
     this.setArray(
       name,
       this.getPropertyValue(name),
       val,
       arrayInfo ? arrayInfo.isItemValues : false,
-      arrayInfo ? arrayInfo.onPush : null
+      arrayInfo ? sendNotification && arrayInfo.onPush : null
     );
   }
   protected setPropertyValueDirectly(name: string, val: any) : void {

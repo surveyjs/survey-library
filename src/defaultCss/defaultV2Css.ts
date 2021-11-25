@@ -328,7 +328,24 @@ export var defaultV2Css = {
       buttonExpanded: "",
       buttonCollapsed: ""
     }
-  }
+  },
+  ranking: {
+    root: "sv-ranking",
+    rootMobileMod: "sv-ranking--mobile",
+    rootDragMod: "sv-ranking--drag",
+    item: "sv-ranking-item",
+    itemContent: "sv-ranking-item__content",
+    itemIndex: "sv-ranking-item__index",
+    // itemText: "sv-ranking-item__text",
+    controlLabel: "sv-ranking-item__text",
+    itemGhostNode: "sv-ranking-item__ghost",
+    itemIconContainer: "sv-ranking-item__icon-container",
+    itemIcon: "sv-ranking-item__icon",
+    itemIconHoverMod: "sv-ranking-item__icon--hover",
+    itemIconFocusMod: "sv-ranking-item__icon--focus",
+    itemGhostMod: "sv-ranking-item--ghost",
+    itemDragMod: "sv-ranking-item--drag",
+  },
 };
 
 surveyCss["defaultV2"] = defaultV2Css;

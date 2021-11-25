@@ -414,7 +414,7 @@ export var markupTests = [
         }
       ]
     },
-    etalon: "<fieldset class=\"sv_qcbc\" role=\"radiogroup\"><div aria-checked=\"false\" aria-invalid=\"false\" aria-required=\"false\" class=\"sv_q_radiogroup sv-q-col-1\" role=\"radio\"><label aria-label=\"item1\" class=\"sv_q_radiogroup_label\"><input aria-hidden=\"true\" class=\"sv_q_radiogroup_control_item\" type=\"radio\" value=\"item1\"><span title=\"item1\"><span class=\"sv-string-viewer\">item1</span></span></label></div><div aria-checked=\"false\" aria-invalid=\"false\" aria-required=\"false\" class=\"sv_q_radiogroup sv-q-col-1\" role=\"radio\"><label aria-label=\"item2\" class=\"sv_q_radiogroup_label\"><input aria-hidden=\"true\" class=\"sv_q_radiogroup_control_item\" type=\"radio\" value=\"item2\"><span title=\"item2\"><span class=\"sv-string-viewer\">item2</span></span></label></div><div aria-checked=\"false\" aria-invalid=\"false\" aria-required=\"false\" class=\"sv_q_radiogroup sv-q-col-1\" role=\"radio\"><label aria-label=\"item3\" class=\"sv_q_radiogroup_label\"><input aria-hidden=\"true\" class=\"sv_q_radiogroup_control_item\" type=\"radio\" value=\"item3\"><span title=\"item3\"><span class=\"sv-string-viewer\">item3</span></span></label></div></fieldset>"
+    etalon: "<fieldset class=\"sv_qcbc\" role=\"radiogroup\"><div aria-checked=\"false\" aria-invalid=\"false\" aria-required=\"false\" class=\"sv_q_radiogroup sv-q-col-1\" role=\"radio\"><label aria-label=\"item1\" class=\"sv_q_radiogroup_label\"><input class=\"sv_q_radiogroup_control_item\" type=\"radio\" value=\"item1\"><span title=\"item1\"><span class=\"sv-string-viewer\">item1</span></span></label></div><div aria-checked=\"false\" aria-invalid=\"false\" aria-required=\"false\" class=\"sv_q_radiogroup sv-q-col-1\" role=\"radio\"><label aria-label=\"item2\" class=\"sv_q_radiogroup_label\"><input class=\"sv_q_radiogroup_control_item\" type=\"radio\" value=\"item2\"><span title=\"item2\"><span class=\"sv-string-viewer\">item2</span></span></label></div><div aria-checked=\"false\" aria-invalid=\"false\" aria-required=\"false\" class=\"sv_q_radiogroup sv-q-col-1\" role=\"radio\"><label aria-label=\"item3\" class=\"sv_q_radiogroup_label\"><input class=\"sv_q_radiogroup_control_item\" type=\"radio\" value=\"item3\"><span title=\"item3\"><span class=\"sv-string-viewer\">item3</span></span></label></div></fieldset>"
   },
   {
     name: "Test radiogroup question markup Other option",
@@ -436,7 +436,7 @@ export var markupTests = [
         }
       ]
     },
-    etalon: "<fieldset class=\"sv_qcbc\" role=\"radiogroup\"><div aria-checked=\"false\" aria-invalid=\"false\" aria-required=\"false\" class=\"sv_q_radiogroup sv-q-col-1\" role=\"radio\"><label aria-label=\"item1\" class=\"sv_q_radiogroup_label\"><input aria-hidden=\"true\" class=\"sv_q_radiogroup_control_item\" type=\"radio\" value=\"item1\"><span title=\"item1\"><span class=\"sv-string-viewer\">item1</span></span></label></div><div aria-checked=\"false\" aria-invalid=\"false\" aria-required=\"false\" class=\"sv_q_radiogroup sv-q-col-1\" role=\"radio\"><label aria-label=\"item2\" class=\"sv_q_radiogroup_label\"><input aria-hidden=\"true\" class=\"sv_q_radiogroup_control_item\" type=\"radio\" value=\"item2\"><span title=\"item2\"><span class=\"sv-string-viewer\">item2</span></span></label></div><div aria-checked=\"false\" aria-invalid=\"false\" aria-required=\"false\" class=\"sv_q_radiogroup sv-q-col-1\" role=\"radio\"><label aria-label=\"item3\" class=\"sv_q_radiogroup_label\"><input aria-hidden=\"true\" class=\"sv_q_radiogroup_control_item\" type=\"radio\" value=\"item3\"><span title=\"item3\"><span class=\"sv-string-viewer\">item3</span></span></label></div><div aria-checked=\"true\" aria-invalid=\"false\" aria-required=\"false\" class=\"sv_q_radiogroup sv-q-col-1 checked\" role=\"radio\"><label aria-label=\"Other (describe)\" class=\"sv_q_radiogroup_label\"><input aria-hidden=\"true\" checked=\"\" class=\"sv_q_radiogroup_control_item\" type=\"radio\" value=\"other\"><span title=\"Other (describe)\"><span class=\"sv-string-viewer\">Other (describe)</span></span></label><div class=\"form-group\"><textarea aria-label=\"Question title\" aria-required=\"false\" class=\"sv_q_other sv_q_radiogroup_other\" placeholder=\"\" style=\"resize: both;\"></textarea></div></div></fieldset>"
+    etalon: "<fieldset class=\"sv_qcbc\" role=\"radiogroup\"><div aria-checked=\"false\" aria-invalid=\"false\" aria-required=\"false\" class=\"sv_q_radiogroup sv-q-col-1\" role=\"radio\"><label aria-label=\"item1\" class=\"sv_q_radiogroup_label\"><input class=\"sv_q_radiogroup_control_item\" type=\"radio\" value=\"item1\"><span title=\"item1\"><span class=\"sv-string-viewer\">item1</span></span></label></div><div aria-checked=\"false\" aria-invalid=\"false\" aria-required=\"false\" class=\"sv_q_radiogroup sv-q-col-1\" role=\"radio\"><label aria-label=\"item2\" class=\"sv_q_radiogroup_label\"><input class=\"sv_q_radiogroup_control_item\" type=\"radio\" value=\"item2\"><span title=\"item2\"><span class=\"sv-string-viewer\">item2</span></span></label></div><div aria-checked=\"false\" aria-invalid=\"false\" aria-required=\"false\" class=\"sv_q_radiogroup sv-q-col-1\" role=\"radio\"><label aria-label=\"item3\" class=\"sv_q_radiogroup_label\"><input class=\"sv_q_radiogroup_control_item\" type=\"radio\" value=\"item3\"><span title=\"item3\"><span class=\"sv-string-viewer\">item3</span></span></label></div><div aria-checked=\"true\" aria-invalid=\"false\" aria-required=\"false\" class=\"sv_q_radiogroup sv-q-col-1 checked\" role=\"radio\"><label aria-label=\"Other (describe)\" class=\"sv_q_radiogroup_label\"><input checked=\"\" class=\"sv_q_radiogroup_control_item\" type=\"radio\" value=\"other\"><span title=\"Other (describe)\"><span class=\"sv-string-viewer\">Other (describe)</span></span></label><div class=\"form-group\"><textarea aria-label=\"Question title\" aria-required=\"false\" class=\"sv_q_other sv_q_radiogroup_other\" placeholder=\"\" style=\"resize: both;\"></textarea></div></div></fieldset>"
   },
   {
     name: "Test radiogroup question markup Read only",
@@ -456,7 +456,7 @@ export var markupTests = [
         }
       ]
     },
-    etalon: "<fieldset class=\"sv_qcbc\" role=\"radiogroup\"><div aria-checked=\"false\" aria-invalid=\"false\" aria-required=\"false\" class=\"sv_q_radiogroup sv-q-col-1\" role=\"radio\"><label aria-label=\"item1\" class=\"sv_q_radiogroup_label\"><input aria-hidden=\"true\" class=\"sv_q_radiogroup_control_item\" disabled=\"\" type=\"radio\" value=\"item1\"><span title=\"item1\"><span class=\"sv-string-viewer\">item1</span></span></label></div><div aria-checked=\"false\" aria-invalid=\"false\" aria-required=\"false\" class=\"sv_q_radiogroup sv-q-col-1\" role=\"radio\"><label aria-label=\"item2\" class=\"sv_q_radiogroup_label\"><input aria-hidden=\"true\" class=\"sv_q_radiogroup_control_item\" disabled=\"\" type=\"radio\" value=\"item2\"><span title=\"item2\"><span class=\"sv-string-viewer\">item2</span></span></label></div><div aria-checked=\"false\" aria-invalid=\"false\" aria-required=\"false\" class=\"sv_q_radiogroup sv-q-col-1\" role=\"radio\"><label aria-label=\"item3\" class=\"sv_q_radiogroup_label\"><input aria-hidden=\"true\" class=\"sv_q_radiogroup_control_item\" disabled=\"\" type=\"radio\" value=\"item3\"><span title=\"item3\"><span class=\"sv-string-viewer\">item3</span></span></label></div></fieldset>"
+    etalon: "<fieldset class=\"sv_qcbc\" role=\"radiogroup\"><div aria-checked=\"false\" aria-invalid=\"false\" aria-required=\"false\" class=\"sv_q_radiogroup sv-q-col-1\" role=\"radio\"><label aria-label=\"item1\" class=\"sv_q_radiogroup_label\"><input class=\"sv_q_radiogroup_control_item\" disabled=\"\" type=\"radio\" value=\"item1\"><span title=\"item1\"><span class=\"sv-string-viewer\">item1</span></span></label></div><div aria-checked=\"false\" aria-invalid=\"false\" aria-required=\"false\" class=\"sv_q_radiogroup sv-q-col-1\" role=\"radio\"><label aria-label=\"item2\" class=\"sv_q_radiogroup_label\"><input class=\"sv_q_radiogroup_control_item\" disabled=\"\" type=\"radio\" value=\"item2\"><span title=\"item2\"><span class=\"sv-string-viewer\">item2</span></span></label></div><div aria-checked=\"false\" aria-invalid=\"false\" aria-required=\"false\" class=\"sv_q_radiogroup sv-q-col-1\" role=\"radio\"><label aria-label=\"item3\" class=\"sv_q_radiogroup_label\"><input class=\"sv_q_radiogroup_control_item\" disabled=\"\" type=\"radio\" value=\"item3\"><span title=\"item3\"><span class=\"sv-string-viewer\">item3</span></span></label></div></fieldset>"
   },
   {
     name: "Test radiogroup question Readonly selected",
@@ -477,7 +477,7 @@ export var markupTests = [
         }
       ]
     },
-    etalon: "<fieldset class=\"sv_qcbc\" role=\"radiogroup\"><div aria-checked=\"true\" aria-invalid=\"false\" aria-required=\"false\" class=\"sv_q_radiogroup sv-q-col-1 checked\" role=\"radio\"><label aria-label=\"item1\" class=\"sv_q_radiogroup_label\"><input aria-hidden=\"true\" checked=\"\" class=\"sv_q_radiogroup_control_item\" disabled=\"\" type=\"radio\" value=\"item1\"><span title=\"item1\"><span class=\"sv-string-viewer\">item1</span></span></label></div><div aria-checked=\"false\" aria-invalid=\"false\" aria-required=\"false\" class=\"sv_q_radiogroup sv-q-col-1\" role=\"radio\"><label aria-label=\"item2\" class=\"sv_q_radiogroup_label\"><input aria-hidden=\"true\" class=\"sv_q_radiogroup_control_item\" disabled=\"\" type=\"radio\" value=\"item2\"><span title=\"item2\"><span class=\"sv-string-viewer\">item2</span></span></label></div><div aria-checked=\"false\" aria-invalid=\"false\" aria-required=\"false\" class=\"sv_q_radiogroup sv-q-col-1\" role=\"radio\"><label aria-label=\"item3\" class=\"sv_q_radiogroup_label\"><input aria-hidden=\"true\" class=\"sv_q_radiogroup_control_item\" disabled=\"\" type=\"radio\" value=\"item3\"><span title=\"item3\"><span class=\"sv-string-viewer\">item3</span></span></label></div></fieldset>"
+    etalon: "<fieldset class=\"sv_qcbc\" role=\"radiogroup\"><div aria-checked=\"true\" aria-invalid=\"false\" aria-required=\"false\" class=\"sv_q_radiogroup sv-q-col-1 checked\" role=\"radio\"><label aria-label=\"item1\" class=\"sv_q_radiogroup_label\"><input checked=\"\" class=\"sv_q_radiogroup_control_item\" disabled=\"\" type=\"radio\" value=\"item1\"><span title=\"item1\"><span class=\"sv-string-viewer\">item1</span></span></label></div><div aria-checked=\"false\" aria-invalid=\"false\" aria-required=\"false\" class=\"sv_q_radiogroup sv-q-col-1\" role=\"radio\"><label aria-label=\"item2\" class=\"sv_q_radiogroup_label\"><input class=\"sv_q_radiogroup_control_item\" disabled=\"\" type=\"radio\" value=\"item2\"><span title=\"item2\"><span class=\"sv-string-viewer\">item2</span></span></label></div><div aria-checked=\"false\" aria-invalid=\"false\" aria-required=\"false\" class=\"sv_q_radiogroup sv-q-col-1\" role=\"radio\"><label aria-label=\"item3\" class=\"sv_q_radiogroup_label\"><input class=\"sv_q_radiogroup_control_item\" disabled=\"\" type=\"radio\" value=\"item3\"><span title=\"item3\"><span class=\"sv-string-viewer\">item3</span></span></label></div></fieldset>"
   },
   {
     name: "Test radiogroup V2 theme",
@@ -497,7 +497,7 @@ export var markupTests = [
     },
     before: () => StylesManager.applyTheme("defaultV2"),
     after: () => StylesManager.applyTheme("default"),
-    etalon: "<fieldset class=\"sd-selectbase\" role=\"radiogroup\"><div aria-checked=\"false\" aria-invalid=\"false\" aria-required=\"false\" class=\"sd-item sd-radio sd-selectbase__item sv-q-col-1 sd-item--allowhover sd-radio--allowhover\" role=\"radio\"><label aria-label=\"item1\" class=\"sd-selectbase__label\"><input aria-hidden=\"true\" class=\"sd-visuallyhidden sd-item__control sd-radio__control\" type=\"radio\" value=\"item1\"><span class=\"sd-item__decorator sd-radio__decorator\"></span><span class=\"sd-item__control-label\" title=\"item1\"><span class=\"sv-string-viewer\">item1</span></span></label></div><div aria-checked=\"false\" aria-invalid=\"false\" aria-required=\"false\" class=\"sd-item sd-radio sd-selectbase__item sv-q-col-1 sd-item--allowhover sd-radio--allowhover\" role=\"radio\"><label aria-label=\"item2\" class=\"sd-selectbase__label\"><input aria-hidden=\"true\" class=\"sd-visuallyhidden sd-item__control sd-radio__control\" type=\"radio\" value=\"item2\"><span class=\"sd-item__decorator sd-radio__decorator\"></span><span class=\"sd-item__control-label\" title=\"item2\"><span class=\"sv-string-viewer\">item2</span></span></label></div></fieldset>"
+    etalon: "<fieldset class=\"sd-selectbase\" role=\"radiogroup\"><div aria-checked=\"false\" aria-invalid=\"false\" aria-required=\"false\" class=\"sd-item sd-radio sd-selectbase__item sv-q-col-1 sd-item--allowhover sd-radio--allowhover\" role=\"radio\"><label aria-label=\"item1\" class=\"sd-selectbase__label\"><input class=\"sd-visuallyhidden sd-item__control sd-radio__control\" type=\"radio\" value=\"item1\"><span class=\"sd-item__decorator sd-radio__decorator\"></span><span class=\"sd-item__control-label\" title=\"item1\"><span class=\"sv-string-viewer\">item1</span></span></label></div><div aria-checked=\"false\" aria-invalid=\"false\" aria-required=\"false\" class=\"sd-item sd-radio sd-selectbase__item sv-q-col-1 sd-item--allowhover sd-radio--allowhover\" role=\"radio\"><label aria-label=\"item2\" class=\"sd-selectbase__label\"><input class=\"sd-visuallyhidden sd-item__control sd-radio__control\" type=\"radio\" value=\"item2\"><span class=\"sd-item__decorator sd-radio__decorator\"></span><span class=\"sd-item__control-label\" title=\"item2\"><span class=\"sv-string-viewer\">item2</span></span></label></div></fieldset>"
   },
   {
     name: "Test radiogroup modern theme",
@@ -517,7 +517,7 @@ export var markupTests = [
     },
     before: () => StylesManager.applyTheme("modern"),
     after: () => StylesManager.applyTheme("default"),
-    etalon: "<fieldset class=\"sv-selectbase\" role=\"radiogroup\"><div aria-checked=\"false\" aria-invalid=\"false\" aria-required=\"false\" class=\"sv-item sv-radio sv-selectbase__item sv-q-col-1 sv-radio--allowhover\" role=\"radio\"><label aria-label=\"item1\" class=\"sv-selectbase__label\"><input aria-hidden=\"true\" class=\"sv-visuallyhidden sv-item__control\" type=\"radio\" value=\"item1\"><span class=\"sv-item__decorator sv-selectbase__decorator sv-radio__decorator\"><svg class=\"sv-item__svg sv-radio__svg\"><use xlink:href=\"#icon-modernradio\"></use></svg></span><span class=\"sv-item__control-label\" title=\"item1\"><span class=\"sv-string-viewer\">item1</span></span></label></div><div aria-checked=\"false\" aria-invalid=\"false\" aria-required=\"false\" class=\"sv-item sv-radio sv-selectbase__item sv-q-col-1 sv-radio--allowhover\" role=\"radio\"><label aria-label=\"item2\" class=\"sv-selectbase__label\"><input aria-hidden=\"true\" class=\"sv-visuallyhidden sv-item__control\" type=\"radio\" value=\"item2\"><span class=\"sv-item__decorator sv-selectbase__decorator sv-radio__decorator\"><svg class=\"sv-item__svg sv-radio__svg\"><use xlink:href=\"#icon-modernradio\"></use></svg></span><span class=\"sv-item__control-label\" title=\"item2\"><span class=\"sv-string-viewer\">item2</span></span></label></div></fieldset>"
+    etalon: "<fieldset class=\"sv-selectbase\" role=\"radiogroup\"><div aria-checked=\"false\" aria-invalid=\"false\" aria-required=\"false\" class=\"sv-item sv-radio sv-selectbase__item sv-q-col-1 sv-radio--allowhover\" role=\"radio\"><label aria-label=\"item1\" class=\"sv-selectbase__label\"><input class=\"sv-visuallyhidden sv-item__control\" type=\"radio\" value=\"item1\"><span class=\"sv-item__decorator sv-selectbase__decorator sv-radio__decorator\"><svg class=\"sv-item__svg sv-radio__svg\"><use xlink:href=\"#icon-modernradio\"></use></svg></span><span class=\"sv-item__control-label\" title=\"item1\"><span class=\"sv-string-viewer\">item1</span></span></label></div><div aria-checked=\"false\" aria-invalid=\"false\" aria-required=\"false\" class=\"sv-item sv-radio sv-selectbase__item sv-q-col-1 sv-radio--allowhover\" role=\"radio\"><label aria-label=\"item2\" class=\"sv-selectbase__label\"><input class=\"sv-visuallyhidden sv-item__control\" type=\"radio\" value=\"item2\"><span class=\"sv-item__decorator sv-selectbase__decorator sv-radio__decorator\"><svg class=\"sv-item__svg sv-radio__svg\"><use xlink:href=\"#icon-modernradio\"></use></svg></span><span class=\"sv-item__control-label\" title=\"item2\"><span class=\"sv-string-viewer\">item2</span></span></label></div></fieldset>"
   },
   {
     name: "Test radiogroup clear button",
@@ -536,7 +536,7 @@ export var markupTests = [
         }
       ]
     },
-    etalon: "<fieldset class=\"sv_qcbc\" role=\"radiogroup\"><div aria-checked=\"false\" aria-invalid=\"false\" aria-required=\"false\" class=\"sv_q_radiogroup sv-q-col-1\" role=\"radio\"><label aria-label=\"item1\" class=\"sv_q_radiogroup_label\"><input aria-hidden=\"true\" class=\"sv_q_radiogroup_control_item\" type=\"radio\" value=\"item1\"><span title=\"item1\"><span class=\"sv-string-viewer\">item1</span></span></label></div><div aria-checked=\"false\" aria-invalid=\"false\" aria-required=\"false\" class=\"sv_q_radiogroup sv-q-col-1\" role=\"radio\"><label aria-label=\"item2\" class=\"sv_q_radiogroup_label\"><input aria-hidden=\"true\" class=\"sv_q_radiogroup_control_item\" type=\"radio\" value=\"item2\"><span title=\"item2\"><span class=\"sv-string-viewer\">item2</span></span></label></div><div><input class=\"sv_q_radiogroup_clear\" type=\"button\" value=\"Clear\"></div></fieldset>"
+    etalon: "<fieldset class=\"sv_qcbc\" role=\"radiogroup\"><div aria-checked=\"false\" aria-invalid=\"false\" aria-required=\"false\" class=\"sv_q_radiogroup sv-q-col-1\" role=\"radio\"><label aria-label=\"item1\" class=\"sv_q_radiogroup_label\"><input class=\"sv_q_radiogroup_control_item\" type=\"radio\" value=\"item1\"><span title=\"item1\"><span class=\"sv-string-viewer\">item1</span></span></label></div><div aria-checked=\"false\" aria-invalid=\"false\" aria-required=\"false\" class=\"sv_q_radiogroup sv-q-col-1\" role=\"radio\"><label aria-label=\"item2\" class=\"sv_q_radiogroup_label\"><input class=\"sv_q_radiogroup_control_item\" type=\"radio\" value=\"item2\"><span title=\"item2\"><span class=\"sv-string-viewer\">item2</span></span></label></div><div><input class=\"sv_q_radiogroup_clear\" type=\"button\" value=\"Clear\"></div></fieldset>"
   },
   {
     name: "Test radiogroup columns",
@@ -556,7 +556,153 @@ export var markupTests = [
         }
       ]
     },
-    etalon: "<fieldset class=\"sv_qcbc\" role=\"radiogroup\"><div class=\"sv_q_select_column sv-q-column-2\"><div aria-checked=\"false\" aria-invalid=\"false\" aria-required=\"false\" class=\"sv_q_radiogroup\" role=\"radio\"><label aria-label=\"item1\" class=\"sv_q_radiogroup_label\"><input aria-hidden=\"true\" class=\"sv_q_radiogroup_control_item\" type=\"radio\" value=\"item1\"><span title=\"item1\"><span class=\"sv-string-viewer\">item1</span></span></label></div></div><div class=\"sv_q_select_column sv-q-column-2\"><div aria-checked=\"false\" aria-invalid=\"false\" aria-required=\"false\" class=\"sv_q_radiogroup\" role=\"radio\"><label aria-label=\"item2\" class=\"sv_q_radiogroup_label\"><input aria-hidden=\"true\" class=\"sv_q_radiogroup_control_item\" type=\"radio\" value=\"item2\"><span title=\"item2\"><span class=\"sv-string-viewer\">item2</span></span></label></div></div><div><input class=\"sv_q_radiogroup_clear\" type=\"button\" value=\"Clear\"></div></fieldset>"
+    etalon: "<fieldset class=\"sv_qcbc\" role=\"radiogroup\"><div class=\"sv_q_select_column sv-q-column-2\"><div aria-checked=\"false\" aria-invalid=\"false\" aria-required=\"false\" class=\"sv_q_radiogroup\" role=\"radio\"><label aria-label=\"item1\" class=\"sv_q_radiogroup_label\"><input class=\"sv_q_radiogroup_control_item\" type=\"radio\" value=\"item1\"><span title=\"item1\"><span class=\"sv-string-viewer\">item1</span></span></label></div></div><div class=\"sv_q_select_column sv-q-column-2\"><div aria-checked=\"false\" aria-invalid=\"false\" aria-required=\"false\" class=\"sv_q_radiogroup\" role=\"radio\"><label aria-label=\"item2\" class=\"sv_q_radiogroup_label\"><input class=\"sv_q_radiogroup_control_item\" type=\"radio\" value=\"item2\"><span title=\"item2\"><span class=\"sv-string-viewer\">item2</span></span></label></div></div><div><input class=\"sv_q_radiogroup_clear\" type=\"button\" value=\"Clear\"></div></fieldset>"
   },
   // #endregion Radiogroup
+
+  // #region Checkbox Question
+  {
+    name: "Test checkbox question markup",
+    json: {
+      questions: [
+        {
+          "type": "checkbox",
+          "name": "name",
+          "title": "Question title",
+          "choices": [
+            "item1",
+            "item2",
+            "item3"
+          ],
+          titleLocation: "hidden"
+        }
+      ]
+    },
+    etalon: "<fieldset class=\"sv_qcbc sv_qcbx\"><legend aria-label=\"Question title\" role=\"checkbox\"></legend><div class=\"sv_q_checkbox sv-q-col-1\"><label class=\"sv_q_checkbox_label\"><input aria-invalid=\"false\" aria-label=\"Question title\" aria-required=\"false\" class=\"sv_q_checkbox_control_item\" name=\"name\" type=\"checkbox\" value=\"item1\"><span class=\"sv_q_checkbox_control_label\" title=\"item1\"><span class=\"sv-string-viewer\">item1</span></span></label></div><div class=\"sv_q_checkbox sv-q-col-1\"><label class=\"sv_q_checkbox_label\"><input aria-invalid=\"false\" aria-label=\"Question title\" aria-required=\"false\" class=\"sv_q_checkbox_control_item\" name=\"name\" type=\"checkbox\" value=\"item2\"><span class=\"sv_q_checkbox_control_label\" title=\"item2\"><span class=\"sv-string-viewer\">item2</span></span></label></div><div class=\"sv_q_checkbox sv-q-col-1\"><label class=\"sv_q_checkbox_label\"><input aria-invalid=\"false\" aria-label=\"Question title\" aria-required=\"false\" class=\"sv_q_checkbox_control_item\" name=\"name\" type=\"checkbox\" value=\"item3\"><span class=\"sv_q_checkbox_control_label\" title=\"item3\"><span class=\"sv-string-viewer\">item3</span></span></label></div></fieldset>"
+  },
+  {
+    name: "Test checkbox question markup Other option",
+    json: {
+      questions: [
+        {
+          "type": "checkbox",
+          "name": "name",
+          "title": "Question title",
+          "choices": [
+            "item1",
+            "item2",
+            "item3"
+          ],
+          "hasOther": true,
+          "defaultValue": "other",
+          "otherText": "Other (describe)",
+          titleLocation: "hidden"
+        }
+      ]
+    },
+    etalon: "<fieldset class=\"sv_qcbc sv_qcbx\"><legend aria-label=\"Question title\" role=\"checkbox\"></legend><div class=\"sv_q_checkbox sv-q-col-1\"><label class=\"sv_q_checkbox_label\"><input aria-invalid=\"false\" aria-label=\"Question title\" aria-required=\"false\" class=\"sv_q_checkbox_control_item\" name=\"name\" type=\"checkbox\" value=\"item1\"><span class=\"sv_q_checkbox_control_label\" title=\"item1\"><span class=\"sv-string-viewer\">item1</span></span></label></div><div class=\"sv_q_checkbox sv-q-col-1\"><label class=\"sv_q_checkbox_label\"><input aria-invalid=\"false\" aria-label=\"Question title\" aria-required=\"false\" class=\"sv_q_checkbox_control_item\" name=\"name\" type=\"checkbox\" value=\"item2\"><span class=\"sv_q_checkbox_control_label\" title=\"item2\"><span class=\"sv-string-viewer\">item2</span></span></label></div><div class=\"sv_q_checkbox sv-q-col-1\"><label class=\"sv_q_checkbox_label\"><input aria-invalid=\"false\" aria-label=\"Question title\" aria-required=\"false\" class=\"sv_q_checkbox_control_item\" name=\"name\" type=\"checkbox\" value=\"item3\"><span class=\"sv_q_checkbox_control_label\" title=\"item3\"><span class=\"sv-string-viewer\">item3</span></span></label></div><div class=\"sv_q_checkbox sv-q-col-1 checked\"><label class=\"sv_q_checkbox_label\"><input aria-invalid=\"false\" aria-label=\"Question title\" aria-required=\"false\" checked=\"\" class=\"sv_q_checkbox_control_item\" name=\"name\" type=\"checkbox\" value=\"other\"><span class=\"sv_q_checkbox_control_label\" title=\"Other (describe)\"><span class=\"sv-string-viewer\">Other (describe)</span></span></label><div class=\"form-group\"><textarea aria-label=\"Question title\" aria-required=\"false\" class=\"sv_q_other sv_q_checkbox_other\" placeholder=\"\" style=\"resize: both;\"></textarea></div></div></fieldset>"
+  },
+  {
+    name: "Test checkbox question markup Read only",
+    json: {
+      mode: "display",
+      questions: [
+        {
+          "type": "checkbox",
+          "name": "name",
+          "title": "Question title",
+          "choices": [
+            "item1",
+            "item2",
+            "item3"
+          ],
+          titleLocation: "hidden"
+        }
+      ]
+    },
+    etalon: "<fieldset class=\"sv_qcbc sv_qcbx\"><legend aria-label=\"Question title\" role=\"checkbox\"></legend><div class=\"sv_q_checkbox sv-q-col-1\"><label class=\"sv_q_checkbox_label\"><input aria-invalid=\"false\" aria-label=\"Question title\" aria-required=\"false\" class=\"sv_q_checkbox_control_item\" disabled=\"\" name=\"name\" type=\"checkbox\" value=\"item1\"><span class=\"sv_q_checkbox_control_label\" title=\"item1\"><span class=\"sv-string-viewer\">item1</span></span></label></div><div class=\"sv_q_checkbox sv-q-col-1\"><label class=\"sv_q_checkbox_label\"><input aria-invalid=\"false\" aria-label=\"Question title\" aria-required=\"false\" class=\"sv_q_checkbox_control_item\" disabled=\"\" name=\"name\" type=\"checkbox\" value=\"item2\"><span class=\"sv_q_checkbox_control_label\" title=\"item2\"><span class=\"sv-string-viewer\">item2</span></span></label></div><div class=\"sv_q_checkbox sv-q-col-1\"><label class=\"sv_q_checkbox_label\"><input aria-invalid=\"false\" aria-label=\"Question title\" aria-required=\"false\" class=\"sv_q_checkbox_control_item\" disabled=\"\" name=\"name\" type=\"checkbox\" value=\"item3\"><span class=\"sv_q_checkbox_control_label\" title=\"item3\"><span class=\"sv-string-viewer\">item3</span></span></label></div></fieldset>"
+  },
+  {
+    name: "Test checkbox question Readonly selected",
+    json: {
+      mode: "display",
+      questions: [
+        {
+          "type": "checkbox",
+          "name": "name",
+          "title": "Question title",
+          "choices": [
+            "item1",
+            "item2",
+            "item3"
+          ],
+          "defaultValue": "item1",
+          titleLocation: "hidden"
+        }
+      ]
+    },
+    etalon: "<fieldset class=\"sv_qcbc sv_qcbx\"><legend aria-label=\"Question title\" role=\"checkbox\"></legend><div class=\"sv_q_checkbox sv-q-col-1 checked\"><label class=\"sv_q_checkbox_label\"><input aria-invalid=\"false\" aria-label=\"Question title\" aria-required=\"false\" checked=\"\" class=\"sv_q_checkbox_control_item\" disabled=\"\" name=\"name\" type=\"checkbox\" value=\"item1\"><span class=\"sv_q_checkbox_control_label\" title=\"item1\"><span class=\"sv-string-viewer\">item1</span></span></label></div><div class=\"sv_q_checkbox sv-q-col-1\"><label class=\"sv_q_checkbox_label\"><input aria-invalid=\"false\" aria-label=\"Question title\" aria-required=\"false\" class=\"sv_q_checkbox_control_item\" disabled=\"\" name=\"name\" type=\"checkbox\" value=\"item2\"><span class=\"sv_q_checkbox_control_label\" title=\"item2\"><span class=\"sv-string-viewer\">item2</span></span></label></div><div class=\"sv_q_checkbox sv-q-col-1\"><label class=\"sv_q_checkbox_label\"><input aria-invalid=\"false\" aria-label=\"Question title\" aria-required=\"false\" class=\"sv_q_checkbox_control_item\" disabled=\"\" name=\"name\" type=\"checkbox\" value=\"item3\"><span class=\"sv_q_checkbox_control_label\" title=\"item3\"><span class=\"sv-string-viewer\">item3</span></span></label></div></fieldset>"
+  },
+  {
+    name: "Test checkbox V2 theme",
+    json: {
+      questions: [
+        {
+          "type": "checkbox",
+          "name": "name",
+          "title": "Question title",
+          "choices": [
+            "item1",
+            "item2"
+          ],
+          titleLocation: "hidden"
+        }
+      ]
+    },
+    before: () => StylesManager.applyTheme("defaultV2"),
+    after: () => StylesManager.applyTheme("default"),
+    etalon: "<fieldset class=\"sd-selectbase\"><legend aria-label=\"Question title\" role=\"checkbox\"></legend><div class=\"sd-item sd-checkbox sd-selectbase__item sv-q-col-1 sd-item--allowhover sd-checkbox--allowhover\"><label class=\"sd-selectbase__label\"><input aria-invalid=\"false\" aria-label=\"Question title\" aria-required=\"false\" class=\"sd-visuallyhidden sd-item__control sd-checkbox__control\" name=\"name\" type=\"checkbox\" value=\"item1\"><span class=\"sd-item__decorator sd-checkbox__decorator\"><svg class=\"sd-item__svg sd-checkbox__svg\"><use xlink:href=\"#icon-v2check\"></use></svg></span><span class=\"sd-item__control-label\" title=\"item1\"><span class=\"sv-string-viewer\">item1</span></span></label></div><div class=\"sd-item sd-checkbox sd-selectbase__item sv-q-col-1 sd-item--allowhover sd-checkbox--allowhover\"><label class=\"sd-selectbase__label\"><input aria-invalid=\"false\" aria-label=\"Question title\" aria-required=\"false\" class=\"sd-visuallyhidden sd-item__control sd-checkbox__control\" name=\"name\" type=\"checkbox\" value=\"item2\"><span class=\"sd-item__decorator sd-checkbox__decorator\"><svg class=\"sd-item__svg sd-checkbox__svg\"><use xlink:href=\"#icon-v2check\"></use></svg></span><span class=\"sd-item__control-label\" title=\"item2\"><span class=\"sv-string-viewer\">item2</span></span></label></div></fieldset>"
+  },
+  {
+    name: "Test checkbox modern theme",
+    json: {
+      questions: [
+        {
+          "type": "checkbox",
+          "name": "name",
+          "title": "Question title",
+          "choices": [
+            "item1",
+            "item2"
+          ],
+          titleLocation: "hidden"
+        }
+      ]
+    },
+    before: () => StylesManager.applyTheme("modern"),
+    after: () => StylesManager.applyTheme("default"),
+    etalon: "<fieldset class=\"sv-selectbase\"><legend aria-label=\"Question title\" role=\"checkbox\"></legend><div class=\"sv-item sv-checkbox sv-selectbase__item sv-q-col-1 sv-checkbox--allowhover\"><label class=\"sv-selectbase__label\"><input aria-invalid=\"false\" aria-label=\"Question title\" aria-required=\"false\" class=\"sv-visuallyhidden sv-item__control\" name=\"name\" type=\"checkbox\" value=\"item1\"><span class=\"sv-item__decorator sv-selectbase__decorator sv-checkbox__decorator\"><svg class=\"sv-item__svg sv-checkbox__svg\"><use xlink:href=\"#icon-moderncheck\"></use></svg></span><span class=\"sv-item__control-label\" title=\"item1\"><span class=\"sv-string-viewer\">item1</span></span></label></div><div class=\"sv-item sv-checkbox sv-selectbase__item sv-q-col-1 sv-checkbox--allowhover\"><label class=\"sv-selectbase__label\"><input aria-invalid=\"false\" aria-label=\"Question title\" aria-required=\"false\" class=\"sv-visuallyhidden sv-item__control\" name=\"name\" type=\"checkbox\" value=\"item2\"><span class=\"sv-item__decorator sv-selectbase__decorator sv-checkbox__decorator\"><svg class=\"sv-item__svg sv-checkbox__svg\"><use xlink:href=\"#icon-moderncheck\"></use></svg></span><span class=\"sv-item__control-label\" title=\"item2\"><span class=\"sv-string-viewer\">item2</span></span></label></div></fieldset>"
+  },
+  {
+    name: "Test checkbox columns",
+    json: {
+      questions: [
+        {
+          "type": "checkbox",
+          "name": "name",
+          "title": "Question title",
+          "showClearButton": true,
+          "colCount": 2,
+          "choices": [
+            "item1",
+            "item2"
+          ],
+          titleLocation: "hidden"
+        }
+      ]
+    },
+    etalon: "<fieldset class=\"sv_qcbc sv_qcbx\"><legend aria-label=\"Question title\" role=\"checkbox\"></legend><div class=\"sv_q_select_column sv-q-column-2\"><div class=\"sv_q_checkbox\"><label class=\"sv_q_checkbox_label\"><input aria-invalid=\"false\" aria-label=\"Question title\" aria-required=\"false\" class=\"sv_q_checkbox_control_item\" name=\"name\" type=\"checkbox\" value=\"item1\"><span class=\"sv_q_checkbox_control_label\" title=\"item1\"><span class=\"sv-string-viewer\">item1</span></span></label></div></div><div class=\"sv_q_select_column sv-q-column-2\"><div class=\"sv_q_checkbox\"><label class=\"sv_q_checkbox_label\"><input aria-invalid=\"false\" aria-label=\"Question title\" aria-required=\"false\" class=\"sv_q_checkbox_control_item\" name=\"name\" type=\"checkbox\" value=\"item2\"><span class=\"sv_q_checkbox_control_label\" title=\"item2\"><span class=\"sv-string-viewer\">item2</span></span></label></div></div></fieldset>"
+  },
+  // #endregion checkbox
+
 ];

@@ -129,7 +129,6 @@ export var defaultStandardCss = {
     itemControl: "sv_q_checkbox_control_item",
     itemDecorator: "sv-hidden",
     controlLabel: "sv_q_checkbox_control_label",
-    materialDecorator: "checkbox-material",
     other: "sv_q_other sv_q_checkbox_other",
     column: "sv_q_select_column",
   },

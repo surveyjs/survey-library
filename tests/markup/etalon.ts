@@ -552,6 +552,30 @@ export var markupTests = [
     etalon: "<fieldset class=\"sv_imgsel\"><legend aria-label=\"question1\" role=\"radio\"></legend><div class=\"sv_q_imgsel sv_q_imagepicker_inline\"><label class=\"sv_q_imgsel_label\"><input aria-invalid=\"false\" aria-label=\"question1\" aria-required=\"false\" class=\"sv_q_imgsel_control_item\" style=\"display: none;\" type=\"radio\" value=\"item1\"><div><img alt=\"item1\" class=\"sv_q_imgsel_image\" height=\"150px\" src=\"item1.jpg\" style=\"object-fit: contain;\" width=\"200px\"></div></label></div><div class=\"sv_q_imgsel sv_q_imagepicker_inline\"><label class=\"sv_q_imgsel_label\"><input aria-invalid=\"false\" aria-label=\"question1\" aria-required=\"false\" class=\"sv_q_imgsel_control_item\" style=\"display: none;\" type=\"radio\" value=\"item2\"><div><img alt=\"item2\" class=\"sv_q_imgsel_image\" height=\"150px\" src=\"item2.jpg\" style=\"object-fit: contain;\" width=\"200px\"></div></label></div></fieldset>"
   },
   {
+    name: "Test image picker question MULTISELECT markup",
+    json: {
+      questions: [
+        {
+          multiSelect: true,
+          "type": "imagepicker",
+          "name": "question1",
+          "choices": [
+            {
+              "value": "item1",
+              "imageLink": "item1.jpg"
+            },
+            {
+              "value": "item2",
+              "imageLink": "item2.jpg"
+            }
+          ],
+          titleLocation: "hidden"
+        }
+      ]
+    },
+    etalon: "<fieldset class=\"sv_imgsel\"><legend aria-label=\"question1\" role=\"radio\"></legend><div class=\"sv_q_imgsel sv_q_imagepicker_inline\"><label class=\"sv_q_imgsel_label\"><input aria-invalid=\"false\" aria-label=\"question1\" aria-required=\"false\" class=\"sv_q_imgsel_control_item\" style=\"display: none;\" type=\"checkbox\" value=\"item1\"><div><img alt=\"item1\" class=\"sv_q_imgsel_image\" height=\"150px\" src=\"item1.jpg\" style=\"object-fit: contain;\" width=\"200px\"></div></label></div><div class=\"sv_q_imgsel sv_q_imagepicker_inline\"><label class=\"sv_q_imgsel_label\"><input aria-invalid=\"false\" aria-label=\"question1\" aria-required=\"false\" class=\"sv_q_imgsel_control_item\" style=\"display: none;\" type=\"checkbox\" value=\"item2\"><div><img alt=\"item2\" class=\"sv_q_imgsel_image\" height=\"150px\" src=\"item2.jpg\" style=\"object-fit: contain;\" width=\"200px\"></div></label></div></fieldset>"
+  },
+  {
     name: "Test image picker question VIDEO markup",
     json: {
       questions: [

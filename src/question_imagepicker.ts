@@ -211,6 +211,9 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
   public get hasColumns(): boolean {
     return false;
   }
+  public get inputType() {
+    return this.multiSelect ? "checkbox" : "radio";
+  }
 }
 
 Serializer.addClass(

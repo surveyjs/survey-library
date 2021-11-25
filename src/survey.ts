@@ -2789,7 +2789,7 @@ export class SurveyModel extends SurveyElementCore
   public mergeValues(src: any, dest: any) {
     if (!dest || !src) return;
     if (typeof dest !== "object") return;
-    for (var key in src) { 
+    for (var key in src) {
       var value = src[key];
       if (value && typeof value === "object") {
         if (!dest[key] || typeof dest[key] !== "object") dest[key] = {};

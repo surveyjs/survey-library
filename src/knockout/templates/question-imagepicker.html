@@ -10,14 +10,14 @@
 <script type="text/html" id="survey-imagepicker-item">
     <div data-bind="css: question.getItemClass(item)">
         <label data-bind="css: question.koCss().label">
-            <input style="display: none;" data-bind="attr: {type: question.multiSelect ? 'checkbox' : 'radio', name: question.name + '_' + question.id, value: item.value, id: question.inputId + '_' + item.value, 'aria-required': question.ariaRequired, 'aria-label': question.ariaLabel, 'aria-invalid': question.ariaInvalid, 'aria-describedby': question.ariaDescribedBy}, checked: question.koValue, enable: !question.isInputReadOnly && item.isEnabled, css: question.koCss().itemControl"
+            <input style="display: none;" data-bind="attr: {type: question.inputType, name: question.questionName, value: item.value, id: question.getItemId(item), 'aria-required': question.ariaRequired, 'aria-label': question.ariaLabel, 'aria-invalid': question.ariaInvalid, 'aria-describedby': question.ariaDescribedBy}, checked: question.koValue, enable: question.getItemEnabled(item), css: question.koCss().itemControl"
             />
             <div>
                 <!-- ko if: question.contentMode === "image" -->
-                <img data-bind="css: question.koCss().image, attr: { src: $data.locImageLink.koRenderedHtml, width: question.imageWidth ? question.imageWidth + 'px' : undefined, height: question.imageHeight ? question.imageHeight + 'px' : undefined, alt: item.locText.koRenderedHtml }, style: { objectFit: question.imageFit }"/>
+                <img data-bind="css: question.koCss().image, attr: { src: $data.locImageLink.koRenderedHtml, width: question.renderedImageWidth, height: question.renderedImageHeight, alt: item.locText.koRenderedHtml }, style: { objectFit: question.imageFit }"/>
                 <!-- /ko -->
                 <!-- ko if: question.contentMode === "video" -->
-                <video controls data-bind="css: question.koCss().image, attr: { src: $data.locImageLink.koRenderedHtml, width: question.imageWidth ? question.imageWidth + 'px' : undefined, height: question.imageHeight ? question.imageHeight + 'px' : undefined }, style: { objectFit: question.imageFit }"></video>
+                <video controls data-bind="css: question.koCss().image, attr: { src: $data.locImageLink.koRenderedHtml, width: question.renderedImageWidth, height: question.renderedImageHeight }, style: { objectFit: question.imageFit }"></video>
                 <!-- /ko -->
                 <!-- ko if: question.showLabel -->
                 <span data-bind="css: question.koCss().itemText, attr: { title: item.locText.koRenderedHtml }">

@@ -1452,7 +1452,11 @@ export class Question extends SurveyElement
     this.setPropertyValue("isAnswered", val);
   }
   protected updateIsAnswered(): void {
+    const oldVal = this.isAnswered;
     this.setPropertyValue("isAnswered", this.getIsAnswered());
+    if(oldVal !== this.isAnswered) {
+      this.updateQuestionCss();
+    }
   }
   protected getIsAnswered(): boolean {
     return !this.isEmpty();
@@ -1714,6 +1718,7 @@ export class Question extends SurveyElement
       newValue = this.valueFromDataCallback(newValue);
     }
     this.setQuestionValue(this.valueFromData(newValue));
+    this.updateIsAnswered();
   }
   updateCommentFromSurvey(newValue: any): any {
     this.questionComment = newValue;

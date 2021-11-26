@@ -813,8 +813,8 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
   constructor(name: string) {
     super(name);
     this.createItemValues("choices");
-    this.createLocalizableString("optionsCaption", this);
-    this.createLocalizableString("keyDuplicationError", this);
+    this.createLocalizableString("optionsCaption", this, false, true);
+    this.createLocalizableString("keyDuplicationError", this, false, true);
     this.detailPanelValue = this.createNewDetailPanel();
     this.detailPanel.selectedElementInDesign = this;
     this.detailPanel.renderWidth = "100%";
@@ -1373,10 +1373,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
    * The default options caption for dropdown cell type.
    */
   public get optionsCaption() {
-    return this.getLocalizableStringText(
-      "optionsCaption",
-      surveyLocalization.getString("optionsCaption")
-    );
+    return this.getLocalizableStringText("optionsCaption");
   }
   public set optionsCaption(val: string) {
     this.setLocalizableStringText("optionsCaption", val);
@@ -1389,10 +1386,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
    * @see MatrixDropdownColumn.isUnique
    */
   public get keyDuplicationError() {
-    return this.getLocalizableStringText(
-      "keyDuplicationError",
-      surveyLocalization.getString("keyDuplicationError")
-    );
+    return this.getLocalizableStringText("keyDuplicationError");
   }
   public set keyDuplicationError(val: string) {
     this.setLocalizableStringText("keyDuplicationError", val);

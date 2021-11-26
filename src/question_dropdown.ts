@@ -12,7 +12,7 @@ import { CssClassBuilder } from "./utils/cssClassBuilder";
 export class QuestionDropdownModel extends QuestionSelectBase {
   constructor(name: string) {
     super(name);
-    this.createLocalizableString("optionsCaption", this);
+    this.createLocalizableString("optionsCaption", this, false, true);
     var self = this;
     this.registerFunctionOnPropertiesValueChanged(
       ["choicesMin", "choicesMax", "choicesStep"],
@@ -34,10 +34,7 @@ export class QuestionDropdownModel extends QuestionSelectBase {
    * Use this property to set the options caption different from the default value. The default value is taken from localization strings.
    */
   public get optionsCaption() {
-    return this.getLocalizableStringText(
-      "optionsCaption",
-      surveyLocalization.getString("optionsCaption")
-    );
+    return this.getLocalizableStringText("optionsCaption");
   }
   public set optionsCaption(val: string) {
     this.setLocalizableStringText("optionsCaption", val);

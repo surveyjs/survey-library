@@ -224,12 +224,12 @@ export class QuestionPanelDynamicModel extends Question
       this.rebuildPanels();
     };
 
-    this.createLocalizableString("confirmDeleteText", this);
-    this.createLocalizableString("keyDuplicationError", this);
-    this.createLocalizableString("panelAddText", this);
-    this.createLocalizableString("panelRemoveText", this);
-    this.createLocalizableString("panelPrevText", this);
-    this.createLocalizableString("panelNextText", this);
+    this.createLocalizableString("confirmDeleteText", this, false, "confirmDelete");
+    this.createLocalizableString("keyDuplicationError", this, false, true);
+    this.createLocalizableString("panelAddText", this, false, "addPanel");
+    this.createLocalizableString("panelRemoveText", this, false, "removePanel");
+    this.createLocalizableString("panelPrevText", this, false, "pagePrevText");
+    this.createLocalizableString("panelNextText", this, false, "pageNextText");
     this.registerFunctionOnPropertyValueChanged("panelsState", () => {
       this.setPanelsState();
     });
@@ -424,10 +424,7 @@ export class QuestionPanelDynamicModel extends Question
    * Use this property to change the default text showing in the confirmation delete dialog on removing a panel.
    */
   public get confirmDeleteText() {
-    return this.getLocalizableStringText(
-      "confirmDeleteText",
-      surveyLocalization.getString("confirmDelete")
-    );
+    return this.getLocalizableStringText("confirmDeleteText");
   }
   public set confirmDeleteText(val: string) {
     this.setLocalizableStringText("confirmDeleteText", val);
@@ -440,10 +437,7 @@ export class QuestionPanelDynamicModel extends Question
    * @see keyName
    */
   public get keyDuplicationError() {
-    return this.getLocalizableStringText(
-      "keyDuplicationError",
-      surveyLocalization.getString("keyDuplicationError")
-    );
+    return this.getLocalizableStringText("keyDuplicationError");
   }
   public set keyDuplicationError(val: string) {
     this.setLocalizableStringText("keyDuplicationError", val);
@@ -458,10 +452,7 @@ export class QuestionPanelDynamicModel extends Question
    * @see renderMode
    */
   public get panelPrevText(): string {
-    return this.getLocalizableStringText(
-      "panelPrevText",
-      surveyLocalization.getString("pagePrevText")
-    );
+    return this.getLocalizableStringText("panelPrevText");
   }
   public set panelPrevText(val: string) {
     this.setLocalizableStringText("panelPrevText", val);
@@ -476,10 +467,7 @@ export class QuestionPanelDynamicModel extends Question
    * @see renderMode
    */
   public get panelNextText(): string {
-    return this.getLocalizableStringText(
-      "panelNextText",
-      surveyLocalization.getString("pageNextText")
-    );
+    return this.getLocalizableStringText("panelNextText");
   }
   public set panelNextText(val: string) {
     this.setLocalizableStringText("panelNextText", val);
@@ -491,10 +479,7 @@ export class QuestionPanelDynamicModel extends Question
    * Use this property to change the default value of add panel button text.
    */
   public get panelAddText() {
-    return this.getLocalizableStringText(
-      "panelAddText",
-      surveyLocalization.getString("addPanel")
-    );
+    return this.getLocalizableStringText("panelAddText");
   }
   public set panelAddText(value: string) {
     this.setLocalizableStringText("panelAddText", value);
@@ -506,10 +491,7 @@ export class QuestionPanelDynamicModel extends Question
    * Use this property to change the default value of remove panel button text.
    */
   public get panelRemoveText() {
-    return this.getLocalizableStringText(
-      "panelRemoveText",
-      surveyLocalization.getString("removePanel")
-    );
+    return this.getLocalizableStringText("panelRemoveText");
   }
   public set panelRemoveText(val: string) {
     this.setLocalizableStringText("panelRemoveText", val);

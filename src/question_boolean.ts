@@ -12,18 +12,8 @@ import { preventDefaults } from "./utils/utils";
 export class QuestionBooleanModel extends Question {
   constructor(name: string) {
     super(name);
-    this.createLocalizableString("labelFalse", this, true);
-    this.createLocalizableString("labelTrue", this, true);
-    this.locLabelFalse.onGetTextCallback = (text: string): string => {
-      return !!text
-        ? text
-        : surveyLocalization.getString("booleanUncheckedLabel");
-    };
-    this.locLabelTrue.onGetTextCallback = (text: string): string => {
-      return !!text
-        ? text
-        : surveyLocalization.getString("booleanCheckedLabel");
-    };
+    this.createLocalizableString("labelFalse", this, true, "booleanUncheckedLabel");
+    this.createLocalizableString("labelTrue", this, true, "booleanCheckedLabel");
   }
   public getType(): string {
     return "boolean";

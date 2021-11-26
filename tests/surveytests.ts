@@ -5235,7 +5235,6 @@ QUnit.test(
     var q2 = <Question>page.addNewQuestion("text", "q2");
     var q3 = <Question>page.addNewQuestion("text", "q3");
     survey.onTextMarkdown.add(function (survey, options) {
-      if(options.name == "commentText") return;
       assert.equal(
         options.name,
         "title",

@@ -18,8 +18,8 @@ export class QuestionTextModel extends QuestionTextBase {
   private locDataListValue: LocalizableStrings;
   constructor(name: string) {
     super(name);
-    this.createLocalizableString("minErrorText", this, true);
-    this.createLocalizableString("maxErrorText", this, true);
+    this.createLocalizableString("minErrorText", this, true, "minError");
+    this.createLocalizableString("maxErrorText", this, true, "maxError");
     this.locDataListValue = new LocalizableStrings(this);
     this.locDataListValue.onValueChanged = (oldValue: any, newValue: any) => {
       this.propertyValueChanged("dataList", oldValue, newValue);
@@ -184,10 +184,7 @@ export class QuestionTextModel extends QuestionTextBase {
    * @see maxErrorText
    */
   public get minErrorText(): string {
-    return this.getLocalizableStringText(
-      "minErrorText",
-      surveyLocalization.getString("minError")
-    );
+    return this.getLocalizableStringText("minErrorText");
   }
   public set minErrorText(val: string) {
     this.setLocalizableStringText("minErrorText", val);
@@ -201,10 +198,7 @@ export class QuestionTextModel extends QuestionTextBase {
    * @see minErrorText
    */
   public get maxErrorText(): string {
-    return this.getLocalizableStringText(
-      "maxErrorText",
-      surveyLocalization.getString("maxError")
-    );
+    return this.getLocalizableStringText("maxErrorText");
   }
   public set maxErrorText(val: string) {
     this.setLocalizableStringText("maxErrorText", val);

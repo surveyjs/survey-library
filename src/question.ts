@@ -87,14 +87,7 @@ export class Question extends SurveyElement
     this.createNewArray("validators", (validator: any) => {
       validator.errorOwner = this;
     });
-    var locCommentText = this.createLocalizableString(
-      "commentText",
-      this,
-      true
-    );
-    locCommentText.onGetTextCallback = (text: string): string => {
-      return !!text ? text : surveyLocalization.getString("otherItemText");
-    };
+    this.createLocalizableString("commentText", this, true, "otherItemText");
     this.locTitle.onGetDefaultTextCallback = (): string => {
       return this.name;
     };
@@ -535,10 +528,7 @@ export class Question extends SurveyElement
    * Use it to get or set the comment value.
    */
   public get commentText(): string {
-    return this.getLocalizableStringText(
-      "commentText",
-      surveyLocalization.getString("otherItemText")
-    );
+    return this.getLocalizableStringText("commentText");
   }
   public set commentText(val: string) {
     this.setLocalizableStringText("commentText", val);

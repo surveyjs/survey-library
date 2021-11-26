@@ -186,7 +186,7 @@ export var defaultV2Css = {
     small: "sd-row__question--small",
     control: "sd-input sd-dropdown",
     selectWrapper: "",
-    other: "sd-input sd-comment",
+    other: "sd-input sd-comment sd-selectbase__other",
     onError: "sd-input--error",
     label: "sd-selectbase__label",
     item: "sd-item sd-radio sd-selectbase__item",

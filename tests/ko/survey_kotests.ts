@@ -886,10 +886,10 @@ QUnit.test("loc strings changed only once on data assignment", function (
   };
   assert.equal(
     calls,
-    "->q1.title->q1.commentText->q2.title->q2.commentText",
+    "->q1.title->q2.title",
     "strings recalculated one time for each string"
   );
-  assert.equal(callCount, 4, "strings recalculated 4 times");
+  assert.equal(callCount, 2, "strings recalculated 2 times");
   var q1 = survey.getQuestionByName("q1");
   var q2 = survey.getQuestionByName("q2");
   q1.value = "initial";

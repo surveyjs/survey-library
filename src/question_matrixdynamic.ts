@@ -56,23 +56,13 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
 
   constructor(name: string) {
     super(name);
-    void (<LocalizableString>(
-      this.createLocalizableString("confirmDeleteText", this)
-    ));
+    this.createLocalizableString("confirmDeleteText", this, false, "confirmDelete");
     var locAddRowText = this.createLocalizableString("addRowText", this);
     locAddRowText.onGetTextCallback = (text: string): string => {
       return !!text ? text : this.defaultAddRowText;
     };
-    var locRemoveRowText = this.createLocalizableString("removeRowText", this);
-    locRemoveRowText.onGetTextCallback = (text: string): string => {
-      return !!text ? text : surveyLocalization.getString("removeRow");
-    };
-    var locEmptyRowsText = <LocalizableString>(
-      this.createLocalizableString("emptyRowsText", this)
-    );
-    locEmptyRowsText.onGetTextCallback = (text: string): string => {
-      return !!text ? text : surveyLocalization.getString("emptyRowsText");
-    };
+    this.createLocalizableString("removeRowText", this, false, "removeRow");
+    this.createLocalizableString("emptyRowsText", this, false, true);
     this.registerFunctionOnPropertiesValueChanged(
       ["hideColumnsIfEmpty", "allowAddRows"],
       () => {
@@ -547,10 +537,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
    * Use this property to change the default text showing in the confirmation delete dialog on removing a row.
    */
   public get confirmDeleteText() {
-    return this.getLocalizableStringText(
-      "confirmDeleteText",
-      surveyLocalization.getString("confirmDelete")
-    );
+    return this.getLocalizableStringText("confirmDeleteText");
   }
   public set confirmDeleteText(val: string) {
     this.setLocalizableStringText("confirmDeleteText", val);
@@ -605,10 +592,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
    * Use this property to change the default value of remove row button text.
    */
   public get removeRowText() {
-    return this.getLocalizableStringText(
-      "removeRowText",
-      surveyLocalization.getString("removeRow")
-    );
+    return this.getLocalizableStringText("removeRowText");
   }
   public set removeRowText(val: string) {
     this.setLocalizableStringText("removeRowText", val);
@@ -620,10 +604,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
    * Use this property to change the default value of remove row button text.
    */
   public get emptyRowsText() {
-    return this.getLocalizableStringText(
-      "emptyRowsText",
-      surveyLocalization.getString("emptyRowsText")
-    );
+    return this.getLocalizableStringText("emptyRowsText");
   }
   public set emptyRowsText(val: string) {
     this.setLocalizableStringText("emptyRowsText", val);

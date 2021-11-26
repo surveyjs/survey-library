@@ -650,11 +650,11 @@ export class Base {
     name: string,
     owner: ILocalizableOwner,
     useMarkDown: boolean = false,
-    hasDefaultValue: boolean = false
+    defaultStr: boolean|string = false
   ): LocalizableString {
     var locStr = new LocalizableString(owner, useMarkDown, name);
-    if (hasDefaultValue) {
-      locStr.localizationName = name;
+    if (defaultStr) {
+      locStr.localizationName = defaultStr === true ? name : defaultStr;
     }
     locStr.onStrChanged = (oldValue: string, newValue: string) => {
       this.propertyValueChanged(name, oldValue, newValue);

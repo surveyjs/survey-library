@@ -5235,7 +5235,6 @@ QUnit.test(
     var q2 = <Question>page.addNewQuestion("text", "q2");
     var q3 = <Question>page.addNewQuestion("text", "q3");
     survey.onTextMarkdown.add(function (survey, options) {
-      if(options.name == "commentText") return;
       assert.equal(
         options.name,
         "title",
@@ -5704,10 +5703,10 @@ QUnit.test(
 );
 
 QUnit.test("css sets correctly if src key is object and dest key is string", function (assert) {
-    var survey = new SurveyModel();
-    survey.css = { text: { root: "custom_class" } }
-    assert.equal(survey.css["text"].root, "custom_class");
-  }
+  var survey = new SurveyModel();
+  survey.css = { text: { root: "custom_class" } };
+  assert.equal(survey.css["text"].root, "custom_class");
+}
 );
 
 QUnit.test("onUpdatePageCssClasses is raised", function (assert) {

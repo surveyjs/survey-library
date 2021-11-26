@@ -5704,10 +5704,10 @@ QUnit.test(
 );
 
 QUnit.test("css sets correctly if src key is object and dest key is string", function (assert) {
-    var survey = new SurveyModel();
-    survey.css = { text: { root: "custom_class" } }
-    assert.equal(survey.css["text"].root, "custom_class");
-  }
+  var survey = new SurveyModel();
+  survey.css = { text: { root: "custom_class" } };
+  assert.equal(survey.css["text"].root, "custom_class");
+}
 );
 
 QUnit.test("onUpdatePageCssClasses is raised", function (assert) {
@@ -14336,4 +14336,21 @@ QUnit.test("clear value for question in invisible panel with non-empty valueName
   survey.setValue("q1", 1);
   survey.doComplete();
   assert.deepEqual(survey.data, { q1: 1 }, "value is empty now");
+});
+QUnit.test("Randomized questions and onQuestionAdded", function (assert) {
+  const survey = new SurveyModel({
+    pages: [
+      { elements: [{ type: "text", name: "q1" }] },
+      {
+        questionsOrder: "random",
+        elements: [{ type: "text", name: "q2" }, { type: "text", name: "q3" }]
+      }
+    ]
+  });
+  var counter = 0;
+  survey.onQuestionAdded.add((sender, options) => {
+    counter ++;
+  });
+  survey.currentPageNo = 1;
+  assert.equal(counter, 0, "onQuestionAdded is not fired");
 });

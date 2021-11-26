@@ -50,7 +50,7 @@
     "watch:react:ui:prod": "webpack --config ./build-scripts/survey-react-ui/webpack.config.js --env.buildType prod --watch",
     "dev": "concurrently \"http-server -p 8080 --silent\" \"npm run watch:core:dev\" \"npm run watch:core:prod\" \"npm run watch:ko:ui:dev\" \"npm run watch:react:ui:dev\" \"npm run watch:ko:ui:prod\" \"npm run watch:react:ui:prod\"",
     "madge": "madge --circular --extensions ts ./src/",
-    "pre-push-check": "npm run lint && npm run testsingle",
+    "pre-push-check": "npm run lint && npm run testsingle && npm run test:markup",
     "lint": "eslint ./src --quiet",
     "testsingle": "karma start ./build-scripts/karma.conf.js --single-run",
     "test:knockout": "karma start ./build-scripts/survey-knockout/karma.conf.knockout.js",
@@ -59,6 +59,7 @@
     "test:knockout:single": "karma start ./build-scripts/survey-knockout/karma.conf.knockout.js --single-run",
     "test:react:single": "karma start ./build-scripts/survey-react/karma.conf.react.js --single-run",
     "test:vue:single": "karma start ./build-scripts/survey-vue/karma.conf.vue.js --single-run",
+    "test:markup": "npm run test:knockout:single && npm run test:react:single && npm run test:vue:single",
     "prepare": "husky install"
   },
   "version": "1.8.79",

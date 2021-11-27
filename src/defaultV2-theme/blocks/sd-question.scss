@@ -29,8 +29,14 @@
   > .sv-vue-row-additional-div
   > div
   > .sd-element-with-frame--paneldynamic {
-  position: relative;
   padding-bottom: calcSize(3);
+}
+.sd-question--paneldynamic {
+  position: relative;
+}
+.sd-row > div > .sd-question.sd-element-with-frame,
+.sd-row > .sv-vue-row-additional-div > div > .sd-question.sd-element-with-frame {
+  padding-top: calcSize(4);
 }
 .sd-question {
   position: relative;
@@ -55,7 +61,7 @@
   font-weight: 600;
   font-size: calcSize(2);
   line-height: calcSize(3);
-  margin: calcSize(0.5) 0;
+  margin: 0;
 
   .svc-string-editor {
     display: inline-block;
@@ -74,8 +80,8 @@
   }
 }
 
-.sd-question__content {
-  margin-top: calcSize(2);
+.sd-question__header--location--top {
+  padding-bottom: calcSize(2);
 }
 
 .sd-scrollable .sd-question__content {

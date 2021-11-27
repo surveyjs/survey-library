@@ -1,10 +1,32 @@
 .sd-panel__title {
   font-weight: 600;
+  line-height: calcSize(3);
+  font-size: calcSize(2);
+  margin: 0;
 }
-
 .sd-panel {
+  position: relative;
+  .sd-row {
+    margin-top: 8px;
+  }
+  .sd-row:first-child {
+    margin-top: 0;
+  }
 }
-
 .sd-panel__required-text {
   color: $red;
+}
+.sd-row > div > .sd-row__panel { 
+  .sd-panel__description {
+    padding-bottom: 32px;
+  }
+  .sd-panel__content::before {
+    content: ' ';
+    display: block;
+    height: 1px;
+    background-color: #eaeaea;
+    position: absolute;
+    left: -1px;
+    right: -1px;
+  }
 }

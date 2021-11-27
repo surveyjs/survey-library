@@ -36,7 +36,7 @@ export var defaultV2Css = {
     requiredText: "sd-panel__required-text"
   },
   paneldynamic: {
-    mainRoot: "sd-element-with-frame sd-element-with-frame--paneldynamic sd-question sd-row__question",
+    mainRoot: "sd-element-with-frame sd-element-with-frame--paneldynamic sd-question--paneldynamic sd-question sd-row__question",
     root: "sd-paneldynamic",
     navigation: "sd-paneldynamic__navigation",
     title: "sd-title sd-question__title",

@@ -22,7 +22,7 @@
         <div v-if="!question.isRenderModeList" :class="question.cssClasses.progressContainer">
           <div :title="question.panelPrevText">
             <svg
-              viewBox="0 0 15 14"
+              viewBox="0 0 16 16"
               :class="question.getPrevButtonCss()"
               @click="prevPanelClick"
             >
@@ -32,7 +32,7 @@
           <div :class="question.cssClasses.progressText">{{ question.progressText }}</div>
           <div :title="question.panelNextText">
             <svg
-              viewBox="0 0 15 14"
+              viewBox="0 0 16 16"
               @click="nextPanelClick"
               :class="question.getNextButtonCss()"
             >
@@ -53,7 +53,7 @@ import { PanelDynamicProgress } from "./paneldynamicprogress.vue";
 @Component
 export class PanelDynamicProgressV2 extends PanelDynamicProgress {
   get progressButtonSvgPath() {
-    return "M15 7.9998H4.39998L8.69998 12.2998L7.29998 13.6998L0.599976 6.9998L7.29998 0.299805L8.69998 1.6998L4.39998 5.9998H15V7.9998Z";
+    return "M15 8.99999H4.39998L8.69998 13.3L7.29998 14.7L0.599976 7.99999L7.29998 1.29999L8.69998 2.69999L4.39998 6.99999H15V8.99999Z";
   }
 }
 

@@ -197,8 +197,8 @@ export class SurveyQuestionPanelDynamic extends SurveyQuestionElementBase {
   protected renderNavigatorV2(): JSX.Element {
     const range: JSX.Element = this.question.isRangeShowing && !this.question.isProgressTopShowing ? this.renderRange() : null;
     const addBtn = this.renderAddRowButton();
-    const progressBtnViewBox = "0 0 15 14";
-    const progressBtnIcon = <path d="M15 7.9998H4.39998L8.69998 12.2998L7.29998 13.6998L0.599976 6.9998L7.29998 0.299805L8.69998 1.6998L4.39998 5.9998H15V7.9998Z"></path>;
+    const progressBtnViewBox = "0 0 16 16";
+    const progressBtnIcon = <path d="M15 8.99999H4.39998L8.69998 13.3L7.29998 14.7L0.599976 7.99999L7.29998 1.29999L8.69998 2.69999L4.39998 6.99999H15V8.99999Z" />;
     const prevBtn = this.rendrerPrevButton(progressBtnViewBox, progressBtnIcon);
     const nextBtn = this.rendrerNextButton(progressBtnViewBox, progressBtnIcon);
     const progressText = this.renderProgressText();

@@ -6,6 +6,9 @@
 }
 .sd-panel {
   position: relative;
+  .svc-row {
+    margin-top: 8px;
+  }
   .sd-row {
     margin-top: 8px;
   }
@@ -17,10 +20,14 @@
   color: $red;
 }
 .sd-row > div > .sd-row__panel { 
-  .sd-panel__description {
+  & > .sd-panel__title {
+    padding-bottom: calcSize(4);
+  }
+  & > .sd-panel__description {
+    margin-top: calcSize(-4);
     padding-bottom: 32px;
   }
-  .sd-panel__content::before {
+  & > .sd-panel__content::before {
     content: ' ';
     display: block;
     height: 1px;
@@ -29,4 +36,7 @@
     left: -1px;
     right: -1px;
   }
+}
+.svc-question__content > .sd-panel > .sd-panel__content {
+  margin-top: calcSize(2);
 }

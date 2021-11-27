@@ -85,7 +85,7 @@
 .sd-paneldynamic__buttons-container {
     display: flex;
     align-items: center;
-    padding-top: 24px;
+    padding: calcSize(3) 0;
 }
 .sd-paneldynamic__add-btn {
     display: none;
@@ -134,4 +134,10 @@
 }
 .sd-question--paneldynamic > .sd-question__header--location--top {
     padding-bottom: calcSize(4);
+}
+.svc-question__content > .sd-question--paneldynamic > .sd-question__header--location--top {
+    padding-bottom: calcSize(2);
+}
+.svc-question__content .sd-paneldynamic__panel-wrapper {
+    padding: 0;
 }

@@ -848,6 +848,35 @@ QUnit.test(
   }
 );
 
+QUnit.test(
+  "Check updateHorizontalDimensions",
+  (assert) => {
+    let newHorizontalDimensions = PopupUtils.updateHorizontalDimensions(-20, 200, 300, "center");
+    assert.equal(newHorizontalDimensions.width, 200, "updateHorizontalDimensions - center - fitting left out - width");
+    assert.equal(newHorizontalDimensions.left, 0, "updateHorizontalDimensions - center - fitting left out - left");
+
+    newHorizontalDimensions = PopupUtils.updateHorizontalDimensions(-100, 300, 250, "center");
+    assert.equal(newHorizontalDimensions.width, 250, "updateHorizontalDimensions - center - not-fitting left out - width");
+    assert.equal(newHorizontalDimensions.left, 0, "updateHorizontalDimensions - center - not-fitting left out - left");
+
+    newHorizontalDimensions = PopupUtils.updateHorizontalDimensions(100, 200, 250, "center");
+    assert.equal(newHorizontalDimensions.width, 200, "updateHorizontalDimensions - center - fitting right out - width");
+    assert.equal(newHorizontalDimensions.left, 50, "updateHorizontalDimensions - center - fitting right out - left");
+
+    newHorizontalDimensions = PopupUtils.updateHorizontalDimensions(100, 300, 250, "center");
+    assert.equal(newHorizontalDimensions.width, 250, "updateHorizontalDimensions - center - non-fitting right out - width");
+    assert.equal(newHorizontalDimensions.left, 0, "updateHorizontalDimensions - center - non-fitting right out - left");
+
+    newHorizontalDimensions = PopupUtils.updateHorizontalDimensions(-20, 200, 300, "left");
+    assert.equal(newHorizontalDimensions.width, 200, "updateHorizontalDimensions - left - left out - width");
+    assert.equal(newHorizontalDimensions.left, 0, "updateHorizontalDimensions - left - left out - left");
+
+    newHorizontalDimensions = PopupUtils.updateHorizontalDimensions(100, 250, 300, "right");
+    assert.equal(newHorizontalDimensions.width, 200, "updateHorizontalDimensions - right - right out - width");
+    assert.equal(newHorizontalDimensions.left, 100, "updateHorizontalDimensions - right - right out - left");
+  }
+);
+
 QUnit.test("PopupModel displayMode", (assert) => {
   const model: PopupModel = new PopupModel("sv-list", {});
   const targetElement: HTMLElement = document.createElement("div");

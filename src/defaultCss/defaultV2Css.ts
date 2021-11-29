@@ -235,7 +235,7 @@ export var defaultV2Css = {
     cellTextDisabled: "sd-matrix__text--disabled"
   },
   matrixdropdown: {
-    mainRoot: "sd-element-with-frame sd-question sd-row__question sd-scrollable",
+    mainRoot: "sd-element-with-frame sd-question sd-row__question sd-question--matrixdropdown",
     root: "sd-table",
     cell: "sd-table__cell",
     headerCell: "sd-table__cell sd-table__cell--header",
@@ -243,7 +243,7 @@ export var defaultV2Css = {
 
   },
   matrixdynamic: {
-    mainRoot: "sd-element-with-frame sd-question sd-row__question",
+    mainRoot: "sd-element-with-frame sd-question sd-row__question sd-question--matrixdynamic",
     root: "sd-table sd-matrixdynamic",
     cell: "sd-table__cell",
     headerCell: "sd-table__cell sd-table__cell--header",

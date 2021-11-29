@@ -35,7 +35,10 @@
     border-radius: 10px;
   }
 }
-.sd-table__cell--row-text {
-  font-weight: 600;
-  text-align: left;
+.sd-question--matrixdropdown,
+.sd-question--matrixdynamic {
+  & >.sd-question__content > div > div[style*="overflow-x: scroll"] {
+    padding: 2px;
+    margin: -2px;
+  }
 }

@@ -6,8 +6,7 @@
 .sd-action.sd-action--negative {
   color: $red;
 }
-.sd-action--disabled,
-.sd-action:disabled {
+.sd-action--disabled {
   color: $foreground;
   opacity: 0.25;
 }

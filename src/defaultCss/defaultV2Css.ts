@@ -40,14 +40,14 @@ export var defaultV2Css = {
     root: "sd-paneldynamic",
     navigation: "sd-paneldynamic__navigation",
     title: "sd-title sd-question__title",
-    button: "sd-paneldynamic__btn",
-    buttonRemove: "sd-paneldynamic__remove-btn",
+    button: "sd-action sd-paneldynamic__btn",
+    buttonRemove: "sd-action--negative sd-paneldynamic__remove-btn",
     buttonAdd: "sd-paneldynamic__add-btn",
     progressTop: "sd-paneldynamic__progress sd-paneldynamic__progress--top",
     progressBottom:
       "sd-paneldynamic__progress sd-paneldynamic__progress--bottom",
-    buttonPrev: "sd-paneldynamic__prev-btn",
-    buttonNext: "sd-paneldynamic__next-btn",
+    buttonPrev: "sd-paneldynamic__prev-btn sd-action--icon sd-action",
+    buttonNext: "sd-paneldynamic__next-btn sd-action--icon sd-action",
     progressContainer: "sd-paneldynamic__progress-container",
     progress: "sd-progress",
     progressBar: "sd-progress__bar",
@@ -243,12 +243,12 @@ export var defaultV2Css = {
 
   },
   matrixdynamic: {
-    mainRoot: "sd-element-with-frame sd-question sd-row__question sd-scrollable",
+    mainRoot: "sd-element-with-frame sd-question sd-row__question",
     root: "sd-table sd-matrixdynamic",
     cell: "sd-table__cell",
     headerCell: "sd-table__cell sd-table__cell--header",
     rowTextCell: "sd-table__cell sd-table__cell--row-text",
-    button: "sd-matrixdynamic__btn",
+    button: "sd-action sd-matrixdynamic__btn",
     detailRow: "sd-table__row sd-table__row--detail",
     detailButton: "sd-table__cell--detail-button",
     detailButtonExpanded: "sd-table__cell--detail-button--expanded",
@@ -257,9 +257,10 @@ export var defaultV2Css = {
     detailPanelCell: "sd-table__cell--detail-panel",
     actionsCell: "sd-table__cell sd-table__cell--actions",
     buttonAdd: "sd-matrixdynamic__add-btn",
-    buttonRemove: "sd-matrixdynamic__remove-btn",
+    buttonRemove: "sd-action--icon sd-action--negative sd-matrixdynamic__remove-btn",
     iconAdd: "",
-    iconRemove: ""
+    iconRemove: "",
+    footer: "sd-matrixdynamic__footer"
   },
   rating: {
     root: "sd-rating",

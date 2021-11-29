@@ -503,6 +503,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
             id: "remove-row",
             iconName: "icon-delete",
             component: "sv-action-bar-item",
+            innerCss: new CssClassBuilder().append(this.matrix.cssClasses.button).append(this.matrix.cssClasses.buttonRemove).toString(),
             location: "end",
             showTitle: false,
             title: matrix.removeRowText,

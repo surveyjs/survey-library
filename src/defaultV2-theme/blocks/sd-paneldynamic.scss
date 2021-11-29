@@ -64,15 +64,9 @@
     border-radius: calcSize(12.5);
 }
 .sd-paneldynamic__remove-btn {
-    color: $red;
-    margin-right: calcSize(-3);
-    margin-top: calcSize(2);
     float: right;
-}
-.sd-paneldynamic__remove-btn:hover {
-    background-color: $red-light;
-}
-
+    margin-right: calcSize(-3);
+ }
 .sd-paneldynamic__footer {
     clear: both;
     .sd-paneldynamic__prev-btn, .sd-paneldynamic__next-btn {
@@ -89,11 +83,7 @@
 }
 .sd-paneldynamic__add-btn {
     display: none;
-    color: $primary;
     margin-left: calcSize(-3);
-}
-.sd-paneldynamic__add-btn:hover {
-    background-color: $primary-light;
 }
 .sd-paneldynamic__progress-container {
     display: flex;
@@ -113,21 +103,6 @@
     display: none;
     width: 16px;
     height: 16px;
-    fill: $foreground-light;
-    cursor: pointer;
-    padding: calcSize(1);
-    border-radius: 100px;
-    &:hover {
-        background: $background-dim;
-    }
-}
-.sd-paneldynamic__prev-btn--disabled,
-.sd-paneldynamic__next-btn--disabled {
-    &:hover {
-        background: none;
-    }
-    opacity: 0.25;
-    cursor: initial;
 }
 .sd-paneldynamic__next-btn {
     transform: rotate(180deg);

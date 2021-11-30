@@ -35,5 +35,8 @@ svg.sd-action--icon {
         fill: $red;
       }
     }
+  }  
+  &:active {
+    opacity: 0.5;
   }
 }

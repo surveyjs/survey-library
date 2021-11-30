@@ -311,6 +311,9 @@ export class PanelModelBase extends SurveyElement
       (this.isDesignMode && settings.allowShowEmptyTitleInDesignMode)
     );
   }
+  get hasDescription(): boolean {
+    return !!this.description;
+  }
   protected canShowTitle(): boolean { return true; }
   get _showDescription(): boolean {
     return (

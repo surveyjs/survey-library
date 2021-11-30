@@ -22,7 +22,15 @@
 .sd-row > div > .sd-row__panel { 
   & > .sd-panel__title {
     padding-bottom: calcSize(4);
-    & ~ .sd-panel__content::before {
+  }
+  & > .sd-panel__title + .sd-panel__description {
+    margin-top: calcSize(-4);
+  }
+  & > .sd-panel__description {
+    padding-bottom: 32px;
+  }
+  & > .sd-panel__title ~ .sd-panel__content::before ,
+  & > .sd-panel__description ~ .sd-panel__content::before{
       content: ' ';
       display: block;
       height: 1px;
@@ -30,13 +38,7 @@
       position: absolute;
       left: 0;
       right: 0;
-    }
   }
-  & > .sd-panel__description {
-    margin-top: calcSize(-4);
-    padding-bottom: 32px;
-  }
-  
 }
 .svc-question__content > .sd-panel > .sd-panel__content {
   margin-top: calcSize(2);

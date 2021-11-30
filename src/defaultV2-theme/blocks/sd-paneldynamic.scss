@@ -1,8 +1,8 @@
 .sd-paneldynamic {
     .sd-progress {
         position: absolute;
-        left: -1px;
-        right: -1px;
+        left: 0;
+        right: 0;
         height: 2px;
         z-index: 2;
     }
@@ -26,8 +26,8 @@
 .sd-paneldynamic__separator {
     display: block;
     position: absolute;
-    left: -1px;
-    right: -1px;
+    left: 0;
+    right: 0;
     margin: 0;
     border-color: #EAEAEA;
     background: #EAEAEA;

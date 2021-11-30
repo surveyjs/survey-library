@@ -15,6 +15,7 @@
     }
     & .sd-paneldynamic__panel-wrapper > .sd-panel > .sd-panel__title {
         color: $foreground-light;
+        padding-top: calcSize(3);
     }
 
     & .sd-paneldynamic__panel-wrapper > .sd-panel {
@@ -36,7 +37,6 @@
     
 }
 .sd-paneldynamic__panel-wrapper {
-    padding-top: calcSize(3);
     padding-bottom: calcSize(2);
 }
 .sd-paneldynamic__panel-wrapper:after {
@@ -65,6 +65,7 @@
 }
 .sd-paneldynamic__remove-btn {
     float: right;
+    margin-top: calcSize(2);
     margin-right: calcSize(-3);
  }
 .sd-paneldynamic__footer {

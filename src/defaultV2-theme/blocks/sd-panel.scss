@@ -22,20 +22,21 @@
 .sd-row > div > .sd-row__panel { 
   & > .sd-panel__title {
     padding-bottom: calcSize(4);
+    & ~ .sd-panel__content::before {
+      content: ' ';
+      display: block;
+      height: 1px;
+      background-color: #eaeaea;
+      position: absolute;
+      left: 0;
+      right: 0;
+    }
   }
   & > .sd-panel__description {
     margin-top: calcSize(-4);
     padding-bottom: 32px;
   }
-  & > .sd-panel__content::before {
-    content: ' ';
-    display: block;
-    height: 1px;
-    background-color: #eaeaea;
-    position: absolute;
-    left: 0;
-    right: 0;
-  }
+  
 }
 .svc-question__content > .sd-panel > .sd-panel__content {
   margin-top: calcSize(2);

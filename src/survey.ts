@@ -361,6 +361,7 @@ export class SurveyModel extends SurveyElementCore
    * <br/> `sender` - the survey object that fires the event.
    * <br/> `options.text` - an error text.
    * <br/> `options.error` - an instance of the `SurveyError` object.
+   * <br/> `options.obj` - an instance of Question, Panel or Survey object to where error is located.
    * <br/> `options.name` - the error name. The following error names are available:
    * required, requireoneanswer, requirenumeric, exceedsize, webrequest, webrequestempty, otherempty,
    * uploadingfile, requiredinallrowserror, minrowcounterror, keyduplicationerror, custom
@@ -1699,10 +1700,14 @@ export class SurveyModel extends SurveyElementCore
   }
   //ISurveyErrorOwner
   getErrorCustomText(text: string, error: SurveyError): string {
+    return this.getSurveyErrorCustomText(this, text, error);
+  }
+  getSurveyErrorCustomText(obj: Base, text: string, error: SurveyError): string {
     var options = {
       text: text,
       name: error.getErrorType(),
-      error: error,
+      obj: obj,
+      error: error
     };
     this.onErrorCustomText.fire(this, options);
     return options.text;

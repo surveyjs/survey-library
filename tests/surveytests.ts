@@ -9903,20 +9903,21 @@ QUnit.test("getCustomErrorText for error", function (assert) {
       {
         name: "name",
         type: "text",
+        title: "Question Name",
         isRequired: true,
       },
     ],
   });
   survey.onErrorCustomText.add(function (sender, options) {
     if (options.name == "required") {
-      options.text = "!!!";
+      options.text = "!!!" + options.obj.title;
     }
   });
   var question = survey.currentPage.questions[0];
   survey.pages[0].hasErrors(true);
   assert.equal(
     question.errors[0].getText(),
-    "!!!",
+    "!!!Question Name",
     "survey.onErrorCustomText works"
   );
 });

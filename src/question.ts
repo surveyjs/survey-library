@@ -1780,7 +1780,7 @@ export class Question extends SurveyElement
 
   //ISurveyErrorOwner
   getErrorCustomText(text: string, error: SurveyError): string {
-    if (!!this.survey) return this.survey.getErrorCustomText(text, error);
+    if (!!this.survey) return this.survey.getSurveyErrorCustomText(this, text, error);
     return text;
   }
   //IValidatorOwner
